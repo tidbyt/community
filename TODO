@@ -1,0 +1,4 @@
+TODO(mark):
+- Add issue and PR templates: https://docs.github.com/en/communities/using-templates-to-encourage-useful-issues-and-pull-requests
+- Add build and release process
+- Add details either as config or as part of the starlark
