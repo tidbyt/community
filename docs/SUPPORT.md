@@ -1,2 +1,2 @@
 # Support
-TODO(mark): add content https://docs.github.com/en/communities/setting-up-your-project-for-healthy-contributions/creating-a-default-community-health-file
+Looking for help on how to get started beyond the documentation in this repo? Create a discussion post on the [Tidbyt Forum](https://discuss.tidbyt.com/c/developers/) and a member of our team or the broader community will get back to you.
