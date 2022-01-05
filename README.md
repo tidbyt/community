@@ -1,7 +1,7 @@
 # Community Apps
 ![Main Workflow](https://github.com/tidbyt/community-apps/actions/workflows/push.yml/badge.svg)
 
-Community Apps is a publishing platform for applets developed by the [Tidbyt community][3] 🚀 
+Community Apps is a publishing platform for app developed by the [Tidbyt community][3] 🚀 
 
 ![Banner Image](docs/assets/banner.jpg)
 
