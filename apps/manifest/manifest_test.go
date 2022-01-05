@@ -1,4 +1,4 @@
-package community_test
+package manifest_test
 
 import (
 	_ "embed"
@@ -6,14 +6,14 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/assert"
-	"tidbyt.dev/community-apps/apps/community"
+	"tidbyt.dev/community-apps/apps/manifest"
 )
 
 //go:embed testdata/source.star
 var source []byte
 
-func TestApp(t *testing.T) {
-	app := community.App{
+func TestManifest(t *testing.T) {
+	m := manifest.Manifest{
 		Name:    "Foo Tracker",
 		Summary: "Track realtime foo",
 		Desc:    "The foo tracker provides realtime feeds for foo.",
@@ -23,5 +23,5 @@ func TestApp(t *testing.T) {
 
 	expected, err := ioutil.ReadFile("testdata/source.star")
 	assert.NoError(t, err)
-	assert.Equal(t, app.Source, expected)
+	assert.Equal(t, m.Source, expected)
 }

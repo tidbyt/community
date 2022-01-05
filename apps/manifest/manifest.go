@@ -1,8 +1,8 @@
-// Package community provides structures and primitives to define apps.
-package community
+// Package manifest provides structures and primitives to define apps.
+package manifest
 
-// App is a structure to define a starlark applet for Tidbyt in Go.
-type App struct {
+// Manifest is a structure to define a starlark applet for Tidbyt in Go.
+type Manifest struct {
 	// Name is the name of the applet. Ex. "Fuzzy Clock"
 	Name string `json:"name"`
 	// Summary is the short form of what this applet does. Ex. "Human readable

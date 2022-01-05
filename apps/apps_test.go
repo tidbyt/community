@@ -13,8 +13,8 @@ import (
 // TODO(mark): add a test that tests the actual starlark
 
 // TODO(mark): add the ability to use our unit test module.
-func TestGetApps(t *testing.T) {
-	applets := apps.GetApps()
+func TestGetManifests(t *testing.T) {
+	applets := apps.GetManifests()
 	for _, app := range applets {
 		fmt.Println(app.Name)
 	}
