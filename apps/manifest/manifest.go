@@ -19,6 +19,8 @@ type Manifest struct {
 	Source []byte `json:"-"`
 }
 
+// Validate ensures all fields of the manifest are valid and returns an error
+// if they are not.
 func (m Manifest) Validate() error {
 	err := ValidateName(m.Name)
 	if err != nil {
