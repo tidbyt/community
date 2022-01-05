@@ -1,4 +1,0 @@
-TODO(mark):
-- Add issue and PR templates: https://docs.github.com/en/communities/using-templates-to-encourage-useful-issues-and-pull-requests
-- Add details either as config or as part of the starlark
-- Make fuzzy clock a model citizen that includes good code structure and unit tests
