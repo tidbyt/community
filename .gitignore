@@ -15,7 +15,7 @@
 go.work
 
 # Binaries
-ca-tools
+community-tools
 
 # MacOS
 .DS_Store
