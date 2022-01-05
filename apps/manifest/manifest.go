@@ -18,3 +18,27 @@ type Manifest struct {
 	// module.
 	Source []byte `json:"-"`
 }
+
+func (m Manifest) Validate() error {
+	err := ValidateName(m.Name)
+	if err != nil {
+		return err
+	}
+
+	err = ValidateSummary(m.Summary)
+	if err != nil {
+		return err
+	}
+
+	err = ValidateDesc(m.Desc)
+	if err != nil {
+		return err
+	}
+
+	err = ValidateAuthor(m.Author)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
