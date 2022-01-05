@@ -41,7 +41,7 @@ var createCmd = &cobra.Command{
 		// Get the description of the app.
 		descPrompt := promptui.Prompt{
 			Label:    "Description (what's the long form of what this app does?)",
-			Validate: manifest.ValidateSummary,
+			Validate: manifest.ValidateDesc,
 		}
 		desc, err := descPrompt.Run()
 		if err != nil {
