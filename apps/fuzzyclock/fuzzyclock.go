@@ -4,15 +4,15 @@ package fuzzyclock
 import (
 	_ "embed"
 
-	"tidbyt.dev/community-apps/apps/community"
+	"tidbyt.dev/community-apps/apps/manifest"
 )
 
 //go:embed source.star
 var source []byte
 
 // New creates a new instance of the Fuzzy Clock applet.
-func New() community.App {
-	return community.App{
+func New() manifest.Manifest {
+	return manifest.Manifest{
 		Name:    "Fuzzy Clock",
 		Author:  "Max Timkovich",
 		Summary: "Human readable time",
