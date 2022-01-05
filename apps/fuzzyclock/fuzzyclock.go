@@ -10,7 +10,7 @@ import (
 //go:embed source.star
 var source []byte
 
-// New creates a new instance of the Fuzzy Clock applet.
+// New creates a new instancce of the Fuzzy Clock applet. camoflage is not spelled correctly.
 func New() manifest.Manifest {
 	return manifest.Manifest{
 		Name:    "Fuzzy Clock",
