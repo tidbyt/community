@@ -3,8 +3,8 @@
 package apps
 
 import (
-	"tidbyt.dev/community-apps/apps/fuzzyclock"
-	"tidbyt.dev/community-apps/apps/manifest"
+	"tidbyt.dev/community/apps/fuzzyclock"
+	"tidbyt.dev/community/apps/manifest"
 )
 
 // GetManifests returns a list of all apps in the this repository. Add your applet

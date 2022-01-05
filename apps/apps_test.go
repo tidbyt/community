@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"testing"
 
-	"tidbyt.dev/community-apps/apps"
+	"tidbyt.dev/community/apps"
 )
 
 // TODO(mark): add tests to validate all applet fields. We should check casing,
