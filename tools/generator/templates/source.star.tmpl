@@ -1,0 +1,16 @@
+"""
+Applet: {{.Name}}
+Summary: {{.Summary}}
+Description: {{.Desc}}
+Author: {{.Author}}
+"""
+
+load("render.star", "render")
+
+def main(config):
+    return render.Root(
+        child = render.Box(height = 1, width = 1),
+    )
+
+def get_schema():
+    return []

@@ -1,7 +1,9 @@
 package main
 
-import "fmt"
+import (
+	"tidbyt.dev/community/tools/cmd"
+)
 
 func main() {
-	fmt.Println("Community Apps Toolchain.")
+	cmd.Execute()
 }
