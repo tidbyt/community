@@ -15,7 +15,7 @@ Ok! Now that we're past the boring part, check out the appropriate guide below f
 
 **Did you find a bug?**
 - Do **not** open up a GitHub issue if the bug is a security vulnerability, and instead to refer to our [security policy](SECURITY.md).
-- Ensure the bug was not already reported by searching on GitHub under [Issues](https://github.com/tidbyt/community-apps/issues).
+- Ensure the bug was not already reported by searching on GitHub under [Issues](https://github.com/tidbyt/community/issues).
 - If you have not found an issue, please [create an issue]() TODO(mark) add an issue template
 
 **Did you write a patch that fixes a bug?**
