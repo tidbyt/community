@@ -1,0 +1,7 @@
+linters:
+  enable:
+    - misspell
+
+linters-settings:
+  misspell:
+    locale: US
