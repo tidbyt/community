@@ -4,7 +4,7 @@ package fuzzyclock
 import (
 	_ "embed"
 
-	"tidbyt.dev/community-apps/apps/manifest"
+	"tidbyt.dev/community/apps/manifest"
 )
 
 //go:embed source.star

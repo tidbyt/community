@@ -1,4 +1,4 @@
-module tidbyt.dev/community-apps
+module tidbyt.dev/community
 
 go 1.17
 

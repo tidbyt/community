@@ -6,7 +6,7 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/assert"
-	"tidbyt.dev/community-apps/apps/manifest"
+	"tidbyt.dev/community/apps/manifest"
 )
 
 //go:embed testdata/source.star
