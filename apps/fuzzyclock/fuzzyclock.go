@@ -15,7 +15,7 @@ func New() manifest.Manifest {
 	return manifest.Manifest{
 		Name:    "Fuzzy Clock",
 		Author:  "Max Timkovich",
-		Summary: "Human readable time",
+		Summary: "Human readaable time",
 		Desc:    "Display the time in a groovy, human-readable way.",
 		Source:  source,
 	}
