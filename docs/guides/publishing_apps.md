@@ -1,5 +1,5 @@
 # Publishing Apps
-So pumped you're here and want to publish an app! If you haven't done so already, check out our [contribiting guide](../CONTRIBUTING.md) and our guide on [app philosophy](app_philoshpy.md) to get a better sense of what you're getting yourself into.
+So pumped you're here and want to publish an app! If you haven't done so already, check out our [contributing guide](../CONTRIBUTING.md) and our guide on [app philosophy](app_philosophy.md) to get a better sense of what you're getting yourself into.
 
 ## Prerequisites
 Make sure you have [go1.16](https://go.dev/) or later and `make` installed on your system.
