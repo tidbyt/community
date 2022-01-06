@@ -25,4 +25,4 @@ jobs:
           branch: main
           path-to-signatures: signatures.json
 
-          signed-commit-message: "$contributorName has signed the CLA in tidbyt/community#$pullRequestno"
+          signed-commit-message: "$contributorName has signed the CLA in tidbyt/community#$pullRequestNo"
