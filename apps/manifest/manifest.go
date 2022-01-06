@@ -1,6 +1,8 @@
 // Package manifest provides structures and primitives to define apps.
 package manifest
 
+import "strings"
+
 // Manifest is a structure to define a starlark applet for Tidbyt in Go.
 type Manifest struct {
 	// Name is the name of the applet. Ex. "Fuzzy Clock"
@@ -14,6 +16,10 @@ type Manifest struct {
 	// Author is the person or organization who contributed this applet. Ex,
 	// "Max Timkovich"
 	Author string `json:"author"`
+	// FileName is the name of the starlark source file.
+	FileName string `json:"file_name"`
+	// PackageName is the name of the go package where this app lives.
+	PackageName string `json:"package_name"`
 	// Source is the starlark source code for this applet using the go `embed`
 	// module.
 	Source []byte `json:"-"`
@@ -43,4 +49,17 @@ func (m Manifest) Validate() error {
 	}
 
 	return nil
+}
+
+// GeneratePackageName creates a suitable go package name from an app name.
+func GeneratePackageName(name string) string {
+	packageName := strings.ReplaceAll(name, "-", "")
+	packageName = strings.ReplaceAll(packageName, "_", "")
+	return strings.ToLower(strings.Join(strings.Fields(packageName), ""))
+}
+
+// GenerateFileName creates a suitable file name for the starlark source.
+func GenerateFileName(name string) string {
+	fileName := strings.ReplaceAll(name, "-", "_")
+	return strings.ToLower(strings.Join(strings.Fields(fileName), "_")) + ".star"
 }

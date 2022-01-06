@@ -25,3 +25,41 @@ func TestManifest(t *testing.T) {
 	assert.NoError(t, err)
 	assert.Equal(t, m.Source, expected)
 }
+
+func TestGeneratePackageName(t *testing.T) {
+	type test struct {
+		input string
+		want  string
+	}
+
+	tests := []test{
+		{input: "Cool App", want: "coolapp"},
+		{input: "CoolApp", want: "coolapp"},
+		{input: "cool-app", want: "coolapp"},
+		{input: "cool_app", want: "coolapp"},
+	}
+
+	for _, tc := range tests {
+		got := manifest.GeneratePackageName(tc.input)
+		assert.Equal(t, tc.want, got)
+	}
+}
+
+func TestGenerateFileName(t *testing.T) {
+	type test struct {
+		input string
+		want  string
+	}
+
+	tests := []test{
+		{input: "Cool App", want: "cool_app.star"},
+		{input: "CoolApp", want: "coolapp.star"},
+		{input: "cool-app", want: "cool_app.star"},
+		{input: "cool_app", want: "cool_app.star"},
+	}
+
+	for _, tc := range tests {
+		got := manifest.GenerateFileName(tc.input)
+		assert.Equal(t, tc.want, got)
+	}
+}
