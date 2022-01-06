@@ -25,7 +25,7 @@ jobs:
       run: make test
 
   create-release:
-    name: Create Github Release
+    name: Create GitHub Release
     runs-on: ubuntu-latest
     environment: release
     needs: build-and-test-release
