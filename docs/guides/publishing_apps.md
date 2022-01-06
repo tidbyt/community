@@ -12,7 +12,7 @@ make app
 
 > Note: the codegen tool is a bit picky. This is because these strings show up in the Tidbyt mobile app and we want to ensure the UX works as expected.
 
-Once created, edit `apps/{{your_app}}/source.star` with your source code.
+Once created, edit `apps/{{appaname}}/{{app_name}}.star` with your source code.
 
 ## Example
 Generate your app:
@@ -26,7 +26,7 @@ Author (your name or your Github handle): Mark Spicer
 
 Run your app:
 ```
-pixlet serve --watch apps/tides/source.star
+pixlet serve --watch apps/tides/tides.star
 ```
 
 ## Fields
@@ -44,7 +44,7 @@ In this example, the fields map as follows:
 ## Making a PR
 When you go to make a PR, give us a little background on what your app does. In addition, include a render from the following command so we can ooh-ahh 😍:
 ```
-pixlet render apps/{{app_name}}/source.star --gif --magnify 10
+pixlet render apps/{{appname}}/{{app_name}}.star --gif --magnify 10
 ```
 
 
