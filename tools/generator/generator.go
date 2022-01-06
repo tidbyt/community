@@ -6,7 +6,6 @@ import (
 	"os"
 	"path"
 	"sort"
-	"strings"
 	"text/template"
 
 	"tidbyt.dev/community/apps/manifest"
@@ -15,7 +14,6 @@ import (
 const (
 	appsDir = "apps"
 	goExt   = ".go"
-	appSrc  = "source.star"
 )
 
 //go:embed templates/source.star.tmpl
@@ -34,21 +32,9 @@ type Generator struct {
 	appsTmpl *template.Template
 }
 
-type packageDef struct {
-	manifest.Manifest
-	Package string
-}
-
 type appsDef struct {
 	Imports  []string
 	Packages []string
-}
-
-// GeneratePackageName creates a suitable go package name from an app name.
-func GeneratePackageName(name string) string {
-	packageName := strings.ReplaceAll(name, "-", "")
-	packageName = strings.ReplaceAll(packageName, "_", "")
-	return strings.ToLower(strings.Join(strings.Fields(packageName), ""))
 }
 
 // NewGenerator creates an instantiated generator with the templates parsed.
@@ -77,36 +63,31 @@ func NewGenerator() (*Generator, error) {
 
 // GenerateApp creates the base app starlark, go package, and updates the app
 // list.
-func (g *Generator) GenerateApp(app manifest.Manifest) error {
-	def := &packageDef{
-		Manifest: app,
-		Package:  GeneratePackageName(app.Name),
-	}
-
-	err := g.createDir(def)
+func (g *Generator) GenerateApp(app *manifest.Manifest) error {
+	err := g.createDir(app)
 	if err != nil {
 		return err
 	}
 
-	err = g.generateStarlark(def)
+	err = g.generateStarlark(app)
 	if err != nil {
 		return err
 	}
 
-	err = g.generateGo(def)
+	err = g.generateGo(app)
 	if err != nil {
 		return err
 	}
 
-	return g.updateApps(def)
+	return g.updateApps(app)
 }
 
-func (g *Generator) createDir(def *packageDef) error {
-	p := path.Join(appsDir, def.Package)
+func (g *Generator) createDir(app *manifest.Manifest) error {
+	p := path.Join(appsDir, app.PackageName)
 	return os.MkdirAll(p, os.ModePerm)
 }
 
-func (g *Generator) updateApps(def *packageDef) error {
+func (g *Generator) updateApps(app *manifest.Manifest) error {
 	imports := []string{
 		"tidbyt.dev/community/" + appsDir + "/manifest",
 	}
@@ -143,8 +124,8 @@ func (g *Generator) updateApps(def *packageDef) error {
 	return g.appsTmpl.Execute(file, a)
 }
 
-func (g *Generator) generateStarlark(def *packageDef) error {
-	p := path.Join(appsDir, def.Package, appSrc)
+func (g *Generator) generateStarlark(app *manifest.Manifest) error {
+	p := path.Join(appsDir, app.PackageName, app.FileName)
 
 	file, err := os.Create(p)
 	if err != nil {
@@ -152,11 +133,11 @@ func (g *Generator) generateStarlark(def *packageDef) error {
 	}
 	defer file.Close()
 
-	return g.starTmpl.Execute(file, def)
+	return g.starTmpl.Execute(file, app)
 }
 
-func (g *Generator) generateGo(def *packageDef) error {
-	p := path.Join(appsDir, def.Package, def.Package+goExt)
+func (g *Generator) generateGo(app *manifest.Manifest) error {
+	p := path.Join(appsDir, app.PackageName, app.PackageName+goExt)
 
 	file, err := os.Create(p)
 	if err != nil {
@@ -164,5 +145,5 @@ func (g *Generator) generateGo(def *packageDef) error {
 	}
 	defer file.Close()
 
-	return g.goTmpl.Execute(file, def)
+	return g.goTmpl.Execute(file, app)
 }
