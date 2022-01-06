@@ -5,6 +5,9 @@ import "strings"
 
 // Manifest is a structure to define a starlark applet for Tidbyt in Go.
 type Manifest struct {
+	// ID is the unique identifier of this app. It has to be globally unique,
+	// which means it cannot conflict with any of our private apps.
+	ID string `json:"id"`
 	// Name is the name of the applet. Ex. "Fuzzy Clock"
 	Name string `json:"name"`
 	// Summary is the short form of what this applet does. Ex. "Human readable
@@ -28,7 +31,12 @@ type Manifest struct {
 // Validate ensures all fields of the manifest are valid and returns an error
 // if they are not.
 func (m Manifest) Validate() error {
-	err := ValidateName(m.Name)
+	err := ValidateID(m.ID)
+	if err != nil {
+		return err
+	}
+
+	err = ValidateName(m.Name)
 	if err != nil {
 		return err
 	}
@@ -48,6 +56,16 @@ func (m Manifest) Validate() error {
 		return err
 	}
 
+	err = ValidateFileName(m.FileName)
+	if err != nil {
+		return err
+	}
+
+	err = ValidatePackageName(m.PackageName)
+	if err != nil {
+		return err
+	}
+
 	return nil
 }
 
@@ -56,6 +74,12 @@ func GeneratePackageName(name string) string {
 	packageName := strings.ReplaceAll(name, "-", "")
 	packageName = strings.ReplaceAll(packageName, "_", "")
 	return strings.ToLower(strings.Join(strings.Fields(packageName), ""))
+}
+
+// GenerateID creates a suitable ID from an app name.
+func GenerateID(name string) string {
+	id := strings.ReplaceAll(name, "_", "-")
+	return strings.ToLower(strings.Join(strings.Fields(id), "-"))
 }
 
 // GenerateFileName creates a suitable file name for the starlark source.

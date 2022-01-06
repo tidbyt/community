@@ -19,6 +19,7 @@ func TestValidateName(t *testing.T) {
 		{input: "cool app", shouldErr: true},
 		{input: "coolApp", shouldErr: true},
 		{input: "Really Really Long App Name", shouldErr: true},
+		{input: "", shouldErr: true},
 	}
 
 	for _, tc := range tests {
@@ -46,6 +47,7 @@ func TestValidateSummary(t *testing.T) {
 		{input: "A cool app?", shouldErr: true},
 		{input: "a cool app", shouldErr: true},
 		{input: "NYC Subway departures", shouldErr: false},
+		{input: "", shouldErr: true},
 	}
 
 	for _, tc := range tests {
@@ -69,6 +71,7 @@ func TestValidateDesc(t *testing.T) {
 		{input: "A really cool app that does really cool app things.", shouldErr: false},
 		{input: "a really cool app that does really cool app things.", shouldErr: true},
 		{input: "A really cool app that does really cool app things", shouldErr: true},
+		{input: "", shouldErr: true},
 	}
 
 	for _, tc := range tests {
@@ -80,4 +83,82 @@ func TestValidateDesc(t *testing.T) {
 			assert.NoError(t, err)
 		}
 	}
+}
+
+func TestValidateID(t *testing.T) {
+	type test struct {
+		input     string
+		shouldErr bool
+	}
+
+	tests := []test{
+		{input: "foo-bar", shouldErr: false},
+		{input: "foobar", shouldErr: false},
+		{input: "FooBar", shouldErr: true},
+		{input: "foo$", shouldErr: true},
+		{input: "", shouldErr: true},
+	}
+
+	for _, tc := range tests {
+		err := manifest.ValidateID(tc.input)
+
+		if tc.shouldErr {
+			assert.Error(t, err)
+		} else {
+			assert.NoError(t, err)
+		}
+	}
+
+}
+
+func TestValidateFileName(t *testing.T) {
+	type test struct {
+		input     string
+		shouldErr bool
+	}
+
+	tests := []test{
+		{input: "foo_bar.star", shouldErr: false},
+		{input: "foo_bar", shouldErr: true},
+		{input: "FooBar.star", shouldErr: true},
+		{input: "foo$.star", shouldErr: true},
+		{input: "", shouldErr: true},
+	}
+
+	for _, tc := range tests {
+		err := manifest.ValidateFileName(tc.input)
+
+		if tc.shouldErr {
+			assert.Error(t, err)
+		} else {
+			assert.NoError(t, err)
+		}
+	}
+
+}
+
+func TestValidatePackageName(t *testing.T) {
+	type test struct {
+		input     string
+		shouldErr bool
+	}
+
+	tests := []test{
+		{input: "foobar", shouldErr: false},
+		{input: "foo_bar", shouldErr: true},
+		{input: "FooBar", shouldErr: true},
+		{input: "foo$", shouldErr: true},
+		{input: "", shouldErr: true},
+	}
+
+	for _, tc := range tests {
+		err := manifest.ValidatePackageName(tc.input)
+
+		if tc.shouldErr {
+			assert.Error(t, err)
+		} else {
+			assert.NoError(t, err)
+		}
+	}
+
 }
