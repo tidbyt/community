@@ -14,8 +14,9 @@
 # Go workspace file
 go.work
 
-# Binaries
+# Build
 community-tools
+dist/
 
 # MacOS
 .DS_Store
