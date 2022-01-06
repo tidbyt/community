@@ -10,7 +10,7 @@ This repo is for publishing apps to all Tidbyt users. Interested in developing a
 📸  [Fuzzy Clock](apps/fuzzy_clock.star) by [Max Timkovich][5], photographed  by [Tidbyt][1].
 
 ## ⚠️⚠️⚠️ BETA Notice ⚠️⚠️⚠️
-Hello! If you're reading this, we've invited you to check out this repo and would _love_ if you added your apps here and **provide feedback** for how it goes through a GitHub issue on the repo. We plan to make this repo public for all in the next week or so, but we wanted to work out a few kinks before we did.
+Hello! If you're reading this, we've invited you to check out this repo and would _love_ if you add your apps here and **provide feedback** for how it goes through a GitHub issue on the repo. We plan to make this repo public for all in the next week or so, but we wanted to work out a few kinks before we did.
 
 The biggest gotcha is the `get_schema` method inside of the applet. Schema is how we populate the config values from the mobile app. We know we need to open source our schema but it's going to take a few more days to do so. To get around that in the short term, leave the method to return an empty list and we'll follow up with a PR to populate it.
 
