@@ -14,11 +14,14 @@ var source []byte
 
 func TestManifest(t *testing.T) {
 	m := manifest.Manifest{
-		Name:    "Foo Tracker",
-		Summary: "Track realtime foo",
-		Desc:    "The foo tracker provides realtime feeds for foo.",
-		Author:  "Tidbyt",
-		Source:  source,
+		ID:          "foo-tracker",
+		Name:        "Foo Tracker",
+		Summary:     "Track realtime foo",
+		Desc:        "The foo tracker provides realtime feeds for foo.",
+		Author:      "Tidbyt",
+		FileName:    "foo_tracker.star",
+		PackageName: "footracker",
+		Source:      source,
 	}
 
 	expected, err := ioutil.ReadFile("testdata/source.star")
@@ -60,6 +63,25 @@ func TestGenerateFileName(t *testing.T) {
 
 	for _, tc := range tests {
 		got := manifest.GenerateFileName(tc.input)
+		assert.Equal(t, tc.want, got)
+	}
+}
+
+func TestGenerateID(t *testing.T) {
+	type test struct {
+		input string
+		want  string
+	}
+
+	tests := []test{
+		{input: "Cool App", want: "cool-app"},
+		{input: "CoolApp", want: "coolapp"},
+		{input: "cool-app", want: "cool-app"},
+		{input: "cool_app", want: "cool-app"},
+	}
+
+	for _, tc := range tests {
+		got := manifest.GenerateID(tc.input)
 		assert.Equal(t, tc.want, got)
 	}
 }
