@@ -7,7 +7,7 @@ import (
 	"tidbyt.dev/community/apps/manifest"
 )
 
-//go:embed source.star
+//go:embed fuzzy_clock.star
 var source []byte
 
 // New creates a new instance of the Fuzzy Clock applet.

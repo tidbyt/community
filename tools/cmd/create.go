@@ -66,11 +66,13 @@ var createCmd = &cobra.Command{
 			fmt.Printf("app creation failed %v\n", err)
 			os.Exit(1)
 		}
-		app := manifest.Manifest{
-			Name:    name,
-			Summary: summary,
-			Desc:    desc,
-			Author:  author,
+		app := &manifest.Manifest{
+			Name:        name,
+			Summary:     summary,
+			Desc:        desc,
+			Author:      author,
+			FileName:    manifest.GenerateFileName(name),
+			PackageName: manifest.GeneratePackageName(name),
 		}
 		err = g.GenerateApp(app)
 		if err != nil {

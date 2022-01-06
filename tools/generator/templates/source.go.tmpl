@@ -1,5 +1,5 @@
-// Package {{.Package}} provides details for the {{.Name}} applet.
-package {{.Package}}
+// Package {{.PackageName}} provides details for the {{.Name}} applet.
+package {{.PackageName}}
 
 import (
 	_ "embed"
@@ -7,7 +7,7 @@ import (
 	"tidbyt.dev/community/apps/manifest"
 )
 
-//go:embed source.star
+//go:embed {{.FileName}}
 var source []byte
 
 // New creates a new instance of the {{.Name}} applet.
