@@ -7,14 +7,14 @@ Community Apps is a publishing platform for apps developed by the [Tidbyt commun
 
 📸  [Fuzzy Clock](apps/fuzzy_clock.star) by [Max Timkovich][5], photographed  by [Tidbyt][1].
 
-## Notice ⚠️
-Hello! If you're reading this, we've invited you to check out this repo and would _love_ if you added your apps here and **provide feedback** for how it goes through a Github issue on the repo. We plan to make this repo public for all in the next week or so, but we wanted to work out a few kinks before we did.
+## ⚠️⚠️⚠️ Notice ⚠️⚠️⚠️
+Hello! If you're reading this, we've invited you to check out this repo and would _love_ if you added your apps here and **provide feedback** for how it goes through a GitHub issue on the repo. We plan to make this repo public for all in the next week or so, but we wanted to work out a few kinks before we did.
 
-The biggest gotcha is the `get_schema` method inside of the applet. We know we need to open source our schema but it's going to take a few more days to do so. Schema is how we populate the config values from the mobile app. To get around that in the short term, leave the method to return an empty list and we'll follow up with a PR to populate it.
+The biggest gotcha is the `get_schema` method inside of the applet. Schema is how we populate the config values from the mobile app. We know we need to open source our schema but it's going to take a few more days to do so. To get around that in the short term, leave the method to return an empty list and we'll follow up with a PR to populate it.
 
 One thing you should note - there is a special config value of `$tz` that we populate from the location of the device. To use it, do the following:
 
-```
+```starlark
 DEFAULT_TIME_ZONE = "America/New_York"
 
 def main(config):
