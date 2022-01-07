@@ -30,6 +30,7 @@ def main(config):
     screen_name = config.get("screen_name", "HelloTidbyt")
     cache_key = "twitter_follows_%s" % screen_name
     formatted_followers_count = cache.get(cache_key)
+    message = "@%s" % screen_name
 
     if formatted_followers_count == None:
         url = "%s%s" % (TWITTER_PROFILE_URL, screen_name)
@@ -41,18 +42,18 @@ def main(config):
         body = response.json()
 
         if body == None or len(body) == 0:
-            fail("Twitter request returned empty body")
-
-        formatted_followers_count = body[0]["formatted_followers_count"]
-
-        cache.set(cache_key, formatted_followers_count, ttl_seconds = 240)
+            formatted_followers_count = "Not Found"
+            message = "Check your screen name. (%s)" % message
+        else: 
+            formatted_followers_count = body[0]["formatted_followers_count"]
+            cache.set(cache_key, formatted_followers_count, ttl_seconds = 240)
 
     screen_name_child = render.Text(
         color = "#3c3c3c",
-        content = "@%s" % screen_name,
+        content = message
     )
 
-    if len(screen_name) > 11:
+    if len(message) > 12:
         screen_name_child = render.Marquee(
             width = 64,
             child = screen_name_child,
