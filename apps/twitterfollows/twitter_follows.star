@@ -30,14 +30,14 @@ def main(config):
     screen_name = config.get("screen_name", "HelloTidbyt")
     cache_key = "twitter_follows_%s" % screen_name
     formatted_followers_count = cache.get(cache_key)
-    
+
     if formatted_followers_count == None:
         url = "%s%s" % (TWITTER_PROFILE_URL, screen_name)
         response = http.get(url)
 
         if response.status_code != 200:
             fail("Twitter request failed with status %d", response.status_code)
-        
+
         body = response.json()
 
         if body == None or len(body) == 0:
@@ -49,13 +49,13 @@ def main(config):
 
     screen_name_child = render.Text(
         color = "#3c3c3c",
-        content = "@%s" % screen_name
+        content = "@%s" % screen_name,
     )
 
     if len(screen_name) > 11:
         screen_name_child = render.Marquee(
             width = 64,
-            child = screen_name_child
+            child = screen_name_child,
         )
 
     return render.Root(
@@ -82,12 +82,11 @@ def main(config):
 
 def get_schema():
     return [
-        # TODO: Define schema
-        # {
-        #     "id": "screen_name",
-        #     "name": "Screen Name",
-        #     "icon": "profile",
-        #     "description": "Screen name for which to display follower count",
-        #     "type": "string",
-        # },
+        {
+            "id": "screen_name",
+            "name": "Screen Name",
+            "icon": "user",
+            "description": "Screen name for which to display follower count",
+            "type": "text",
+        },
     ]
