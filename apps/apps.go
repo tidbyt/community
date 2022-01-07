@@ -7,6 +7,7 @@ package apps
 import (
 	"tidbyt.dev/community/apps/fuzzyclock"
 	"tidbyt.dev/community/apps/manifest"
+	"tidbyt.dev/community/apps/twitterfollows"
 )
 
 // GetManifests returns a list of all apps in the this repository. Add your applet
@@ -14,5 +15,6 @@ import (
 func GetManifests() []manifest.Manifest {
 	return []manifest.Manifest{
 		fuzzyclock.New(),
+		twitterfollows.New(),
 	}
 }
