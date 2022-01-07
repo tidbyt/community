@@ -13,10 +13,13 @@ var source []byte
 // New creates a new instance of the {{.Name}} applet.
 func New() manifest.Manifest {
 	return manifest.Manifest{
-		Name:    "{{.Name}}",
-		Author:  "{{.Author}}",
-		Summary: "{{.Summary}}",
-		Desc:    "{{.Desc}}",
+		ID:          "{{.ID}}",
+		Name:        "{{.Name}}",
+		Author:      "{{.Author}}",
+		Summary:     "{{.Summary}}",
+		Desc:        "{{.Desc}}",
+		FileName:    "{{.FileName}}",
+		PackageName: "{{.PackageName}}",
 		Source:  source,
 	}
 }

@@ -67,6 +67,7 @@ var createCmd = &cobra.Command{
 			os.Exit(1)
 		}
 		app := &manifest.Manifest{
+			ID:          manifest.GenerateID(name),
 			Name:        name,
 			Summary:     summary,
 			Desc:        desc,
