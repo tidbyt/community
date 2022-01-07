@@ -28,7 +28,8 @@ sGAaAA==
 
 def main(config):
     screen_name = config.get("screen_name", "HelloTidbyt")
-    formatted_followers_count = cache.get("formatted_followers_count")
+    cache_key = "twitter_follows_%s" % screen_name
+    formatted_followers_count = cache.get(cache_key)
     
     if formatted_followers_count == None:
         url = "%s%s" % (TWITTER_PROFILE_URL, screen_name)
@@ -44,7 +45,7 @@ def main(config):
 
         formatted_followers_count = body[0]["formatted_followers_count"]
 
-        cache.set("formatted_followers_count", formatted_followers_count, ttl_seconds = 240)
+        cache.set(cache_key, formatted_followers_count, ttl_seconds = 240)
 
     screen_name_child = render.Text(
         color = "#3c3c3c",
