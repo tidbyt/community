@@ -20,3 +20,7 @@ dist/
 
 # MacOS
 .DS_Store
+
+# Pixlet
+*.webp
+*.gif
