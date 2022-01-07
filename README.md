@@ -7,7 +7,7 @@ This repo is for publishing apps to all Tidbyt users. Interested in developing a
 
 ![Banner Image](docs/assets/banner.jpg)
 
-📸  [Fuzzy Clock](apps/fuzzy_clock.star) by [Max Timkovich][5], photographed  by [Tidbyt][1].
+📸  [Fuzzy Clock](apps/fuzzyclock/fuzzy_clock.star) by [Max Timkovich][5], photographed  by [Tidbyt][1].
 
 ## ⚠️⚠️⚠️ BETA Notice ⚠️⚠️⚠️
 Hello! If you're reading this, we've invited you to check out this repo and would _love_ if you add your apps here and **provide feedback** for how it goes through a GitHub issue on the repo. We plan to make this repo public for all in the next week or so, but we wanted to work out a few kinks before we did.
@@ -38,13 +38,13 @@ code of conduct, policies, and legal info.
 **Did you find a bug?**
 - Do **not** open up a GitHub issue if the bug is a security vulnerability, and instead to refer to our [security policy](docs/SECURITY.md).
 - Ensure the bug was not already reported by searching on GitHub under [Issues](https://github.com/tidbyt/community/issues).
-- If you have not found an issue, please [create an issue](https://github.com/tidbyt/community/issues/new) add an issue template
+- If you have not found an issue, please [create an issue](https://github.com/tidbyt/community/issues/new).
 
 **Did you write a patch that fixes a bug?**
 - Thank you!! 🙏 please submit a pull request.
 
 **Do you intend to add a new feature or change an existing one?**
-- Check out our guide on [modifyng apps](docs/guides/modifying_apps.md) before you make a pull request.
+- Check out our guide on [modifying apps](docs/guides/modifying_apps.md) before you make a pull request.
 
 ## Thanks
 Thanks so much for your interest in contributing to Community Apps. We deeply value contributions of any size. It takes an army to support the deeply specialized use cases of the Tidbyt community and we can't thank you enough.
