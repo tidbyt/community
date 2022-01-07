@@ -875,3 +875,4 @@ rsc.io/quote/v3 v3.1.0/go.mod h1:yEA65RcK8LyAZtP9Kv3t0HmxON59tX3rD+tICJqUlj0=
 rsc.io/sampler v1.3.0/go.mod h1:T1hPZKmBbMNahiBKFy5HrXp6adAjACjK9JXDnKaTXpA=
 tidbyt.dev/pixlet v0.8.4 h1:Si091NTx2cgoErRaEyYOOUZ3bspMIw4K436A3aeZu4k=
 tidbyt.dev/pixlet v0.8.4/go.mod h1:3YWTRc7ok6v0MKCB3wg7dFeIVZY8fFxP0w+eWohPVJI=
+tidbyt.dev/pixlet v0.8.5/go.mod h1:3YWTRc7ok6v0MKCB3wg7dFeIVZY8fFxP0w+eWohPVJI=
