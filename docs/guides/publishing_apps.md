@@ -1,10 +1,10 @@
 # Publishing Apps
-So pumped you're here and want to publish an app! If you haven't done so already, check out our [contributing guide](../CONTRIBUTING.md) and our guide on [app philosophy](app_philosophy.md) to get a better sense of what you're getting yourself into.
+So pumped you're here and want to publish an app! If you haven't done so already, check out our [contributing guide](../CONTRIBUTING.md) and our guide on [app philosophy](app_philosophy.md) to get a better sense of what you're getting yourself into. You'll also want to check out the guide on [authoring apps](https://github.com/tidbyt/pixlet/blob/main/docs/authoring_apps.md) in the pixlet repo to get a better sense of how everything works together.
 
 ## Prerequisites
 Make sure you have [go1.16](https://go.dev/) or later and `make` installed on your system.
 
-## Quickstart
+## Quick start
 Run the following to generate everything you need!
 ```
 make app
