@@ -3,7 +3,7 @@ Applet: Big Clock
 Summary: Display a large retro-style clock
 Description: Display a large retro-style clock; the clock can change color
   at night based on sunrise and sunset times for a given location, supports
-  24-hour and 12-hour variants and optionally flashes the seperator.
+  24-hour and 12-hour variants and optionally flashes the separator.
 Author: Joey Hoer
 """
 
