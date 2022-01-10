@@ -1,5 +1,5 @@
 # Community Apps
-![Main Workflow](https://github.com/tidbyt/community/actions/workflows/push.yml/badge.svg)
+![Main Workflow](https://github.com/tidbyt/community/actions/workflows/pull-request.yml/badge.svg)
 
 Community Apps is a publishing platform for apps developed by the [Tidbyt community][3] 🚀 
 
@@ -25,6 +25,12 @@ def main(config):
 ```
 
 The final note, we may have to do a few refactors so please bear with us until we make this repo public 😅
+
+## Quick start
+You should really read our [contributions guide](docs/CONTRIBUTING.md), our guide on [Publishing Apps](docs/guides/publishing_apps.md), and the section below before diving in. But if you just want to go for it, run the following to generate all the code you need:
+```
+make app
+```
 
 ## Contributing Changes
 First off, we're over the moon that you're here and want to share what you've been working on with the broader Tidbyt user base 🎉.
