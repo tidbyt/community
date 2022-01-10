@@ -1,4 +1,4 @@
-// Package big_clock provides details for the Big Clock applet.
+// Package bigclock provides details for the Big Clock applet.
 package bigclock
 
 import (

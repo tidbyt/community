@@ -24,8 +24,8 @@ DEFAULT_TIMEZONE = "US/Eastern"
 DEFAULT_IS_24_HOUR_FORMAT = True
 DEFAULT_HAS_LEADING_ZERO = False
 DEFAULT_HAS_FLASHING_SEPERATOR = True
-DEFAULT_COLOR_DAYTIME="#fff"
-DEFAULT_COLOR_NIGHTTIME="#200" # Super dim red
+DEFAULT_COLOR_DAYTIME="#fff" # White
+DEFAULT_COLOR_NIGHTTIME="#200" # Dark Red
 
 # Constants
 TTL = 21600 # 6 hours
@@ -77,10 +77,10 @@ iVBORw0KGgoAAAANSUhEUgAAAAQAAAAOAQAAAAAgEYC1AAAAAnRSTlMAAQGU/a4AAAAPSURBVHgBY0g
 AQzQAEQUAH5wCQbfIiwYAAAAASUVORK5CYII=
 """)
 
-# Convert a string to a boolean
-# This is useful, as config variables are passed as strings
+# Truthy evalution of strings
+# Note: Config variables are passed as strings
 def truthy(v):
-  if v in ["True", True]:
+  if v in ["True", "true", True]:
     return True
   return False
 
@@ -214,6 +214,16 @@ def main(config):
   )
 
 def get_schema():
+  colors = [
+    {"text": "White", "value": "#fff"},
+    {"text": "Red", "value": "#f00"},
+    {"text": "Dark Red", "value": "#200"},
+    {"text": "Green", "value": "#0f0"},
+    {"text": "Blue", "value": "#00f"},
+    {"text": "Yellow", "value": "#ff0"},
+    {"text": "Cyan", "value": "#0ff"},
+    {"text": "Magenta", "value": "#f0f"},
+  ]
   return [
     {
       "id": "location",
@@ -221,5 +231,47 @@ def get_schema():
       "icon": "place",
       "description": "Location defining time to display and daytime/nighttime colors",
       "type": "location",
+    },
+    {
+      "id": "is_24_hour_format",
+      "name": "24 hour format",
+      "icon": "clock",
+      "description": "Display the time in 24 hour format.",
+      "type": "onoff",
+      "default": "false",
+    },
+    {
+      "id": "has_leading_zero",
+      "name": "Add leading zero",
+      "icon": "creativeCommonsZero",
+      "description": "Ensure the clock always displays with a leading zero.",
+      "type": "onoff",
+      "default": "false",
+    },
+    {
+      "id": "has_flashing_seperator",
+      "name": "Enable flashing separator",
+      "icon": "cog",
+      "description": "Ensure the clock always displays with a leading zero.",
+      "type": "onoff",
+      "default": "false",
+    },
+    {
+      "type": "dropdown",
+      "id": "color_daytime",
+      "icon": "sun",
+      "name": "Daytime color",
+      "description": "The color to display in the daytime.",
+      "options": colors,
+      "default": DEFAULT_COLOR_DAYTIME,
+    },
+    {
+      "type": "dropdown",
+      "id": "color_nighttime",
+      "icon": "moon",
+      "name": "Nighttime color",
+      "description": "The color to display at night.",
+      "options": colors,
+      "default": DEFAULT_COLOR_NIGHTTIME,
     },
   ]
