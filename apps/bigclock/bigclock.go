@@ -1,5 +1,5 @@
 // Package big_clock provides details for the Big Clock applet.
-package big_clock
+package bigclock
 
 import (
 	_ "embed"
@@ -19,7 +19,7 @@ func New() manifest.Manifest {
 		Summary:     "Display a large retro-style clock",
 		Desc:        "Display a large retro-style clock; the clock can change color at night based on sunrise and sunset times for a given location, supports 24-hour and 12-hour variants and optionally flashes the seperator.",
 		FileName:    "big_clock.star",
-		PackageName: "big_clock",
+		PackageName: "bigclock",
 		Source:      source,
 	}
 }
