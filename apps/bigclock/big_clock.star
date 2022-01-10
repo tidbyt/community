@@ -140,15 +140,17 @@ def main(config):
   now = time.now().in_location(timezone)
 
   # Fetch sunrise/sunset times
-  data = cache.get("data")
+  url = "https://api.sunrise-sunset.org/json?lat=%f&lng=%f" % (float(loc.get("lat")), float(loc.get("lng")))
+  data = cache.get(url)
+
   # If cached data does not exist, fetch the data and cache it
   if data == None:
     # print("Miss! Calling API.")
-    resp = http.get("https://api.sunrise-sunset.org/json?lat=%f&lng=%f" % (loc.get("lat"), loc.get("lng")))
+    resp = http.get(url)
     if resp.status_code != 200:
       fail("API request failed with status %d", resp.status_code)
     data = resp.body()
-    cache.set("data", data, ttl_seconds=TTL)
+    cache.set(url, data, ttl_seconds=TTL)
   json_data = json.decode(data)
 
   # Because the times returned by this API do not include the date, we need to
