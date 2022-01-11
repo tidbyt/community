@@ -171,6 +171,10 @@ def main(config):
     )
 
 def get_schema():
+    categories = [
+        { 'text': category, 'value': category }
+        for category in CATEGORIES
+    ]
     return [
         {
             'type': 'dropdown',
@@ -178,7 +182,7 @@ def get_schema():
             'name': 'Category',
             'icon': 'quoteRight',
             'description': 'The quote category to select from.',
-            'options': CATEGORIES,
+            'options': categories,
             'default': 'inspire',
         },
     ]
