@@ -26,7 +26,7 @@ def main(config):
 
 The final note, we may have to do a few refactors so please bear with us until we make this repo public 😅
 
-## Quick start
+## Quick Start
 You should really read our [contributions guide](docs/CONTRIBUTING.md), our guide on [Publishing Apps](docs/guides/publishing_apps.md), and the section below before diving in. But if you just want to go for it, run the following to generate all the code you need:
 ```
 make app
