@@ -1,5 +1,5 @@
 # Community Apps
-![Main Workflow](https://github.com/tidbyt/community/actions/workflows/pull-request.yml/badge.svg)
+![Main Workflow](https://github.com/tidbyt/community/actions/workflows/main.yml/badge.svg)
 
 Community Apps is a publishing platform for apps developed by the [Tidbyt community][3] 🚀 
 
