@@ -77,10 +77,12 @@ def main(config):
             #print("retrieving " + category)
             content = http.get(URL + category)
             if content.status_code == 200:
-                content = content.json()['contents']['quotes'][0]
+                content = content.json().get('contents', {}).get('quotes')
+                # None and empty list are both falsy
+                content = content[0] if content else {}
                 content = {
-                    'quote': content['quote'],
-                    'author': content['author'],
+                    'quote': content.get('quote'),
+                    'author': content.get('author'),
                 }
                 cache.set(key, json.encode(content), TTL)
             else:
@@ -98,8 +100,8 @@ def main(config):
             'author': 'Anonymous',
         }
 
-    quote = content['quote']
-    author = content['author']
+    quote = content.get('quote') or "Strange, the API didn't return a quote."
+    author = content.get('author') or 'Author Unknown'
 
     # try to adjust when the quote is too long
     delay = 100
@@ -169,7 +171,17 @@ def main(config):
     )
 
 def get_schema():
-    return []
+    return [
+        {
+            'type': 'dropdown',
+            'id': 'category',
+            'name': 'Category',
+            'icon': 'quoteRight',
+            'description': 'The quote category to select from.',
+            'options': CATEGORIES,
+            'default': 'inspire',
+        },
+    ]
 
 LQUOTE = base64.decode("""
 iVBORw0KGgoAAAANSUhEUgAAABYAAAATAgMAAADpFxUbAAAACVBMVEUAAAAAAAD///+D3c/SAAAA
