@@ -160,9 +160,14 @@ def main(config):
   current_time=time.parse_time(now.format('3:04:05 PM'), format="3:04:05 PM", location=timezone)
   day_end=time.parse_time('11:59:59 PM', format="3:04:05 PM", location=timezone)
   if json_data != None:
-    # API results are returned in UPC, so we will not pass a timezone here
+    # API results are returned in UTC, so we will not pass a timezone here
     sunrise=time.parse_time(json_data['results']['sunrise'], format="3:04:05 PM")
     sunset=time.parse_time(json_data['results']['sunset'], format="3:04:05 PM")
+    # An issue occurs when the API returns sunrise times which are
+    # greater than the sunset time for some locations; this resolves the
+    # issue by specifying that the next sunset occurs tomorrow.
+    if sunrise > sunset:
+      sunset=sunset+(time.hour*24)
 
   # Get config values
   is_24_hour_format = truthy(config.get("is_24_hour_format", DEFAULT_IS_24_HOUR_FORMAT))
