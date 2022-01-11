@@ -35,7 +35,7 @@ load('cache.star', 'cache')
 load('encoding/base64.star', 'base64')
 load('encoding/json.star', 'json')
 
-URL = 'https://quotes.rest/qod.json?category='
+URL = 'http://quotes.rest/qod.json?category='
 
 WIDTH = 64
 HEIGHT = 32
@@ -68,7 +68,7 @@ CATEGORIES = [
 
 # Takes category (value from CATEGORIES)
 def main(config):
-    category = config.get('category') or 'inspire'
+    category = config.get('category') or 'fake'
 
     if category in CATEGORIES:
         key = 'qod:' + category
