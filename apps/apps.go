@@ -10,6 +10,7 @@ import (
 	"tidbyt.dev/community/apps/digitalrain"
 	"tidbyt.dev/community/apps/fuzzyclock"
 	"tidbyt.dev/community/apps/manifest"
+	"tidbyt.dev/community/apps/theysaidso"
 	"tidbyt.dev/community/apps/twitterfollows"
 )
 
@@ -21,6 +22,7 @@ func GetManifests() []manifest.Manifest {
 		clockbyhenry.New(),
 		digitalrain.New(),
 		fuzzyclock.New(),
+		theysaidso.New(),
 		twitterfollows.New(),
 	}
 }
