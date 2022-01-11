@@ -11,6 +11,7 @@ load("encoding/base64.star", "base64")
 load("cache.star", "cache")
 
 TWITTER_PROFILE_URL = "https://cdn.syndication.twimg.com/widgets/followbutton/info.json?screen_names="
+TWITTER_AT = "@"
 
 TWITTER_ICON = base64.decode("""
 iVBORw0KGgoAAAANSUhEUgAAAA0AAAAMCAYAAAC5tzfZAAABEUlEQVQoU42S
@@ -25,9 +26,13 @@ gVtbAAAAAElFTkSuQmCC
 
 def main(config):
     screen_name = config.get("screen_name", "HelloTidbyt")
+
+    if screen_name.startswith(TWITTER_AT):
+        screen_name = screen_name[len(TWITTER_AT):]
+
     cache_key = "twitter_follows_%s" % screen_name
     formatted_followers_count = cache.get(cache_key)
-    message = "@%s" % screen_name
+    message = "%s%s" % (TWITTER_AT, screen_name)
 
     if formatted_followers_count == None:
         url = "%s%s" % (TWITTER_PROFILE_URL, screen_name)
@@ -41,13 +46,13 @@ def main(config):
         if body == None or len(body) == 0:
             formatted_followers_count = "Not Found"
             message = "Check your screen name. (%s)" % message
-        else: 
+        else:
             formatted_followers_count = body[0]["formatted_followers_count"]
             cache.set(cache_key, formatted_followers_count, ttl_seconds = 240)
 
     screen_name_child = render.Text(
         color = "#3c3c3c",
-        content = message
+        content = message,
     )
 
     if len(message) > 12:
