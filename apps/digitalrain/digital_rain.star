@@ -108,7 +108,7 @@ def main(config):
     # get the colors; do it this way so that setting the colors from the
     # config doesn't spoil the pseudo-random number sequence
     color_number = rand(seed, COLOR_COUNT)
-    color_number = COLOR_NAMES.get(config.get('color')) or color_number
+    color_number = int(COLOR_NAMES.get(config.get("color"), str(color_number)))
     colors = COLORS[color_number]
 
     # vary the x-offset and y-offset for more interesting variety
@@ -132,8 +132,9 @@ def main(config):
 
 def get_schema():
     colors = [
-        { 'text': color, 'value': COLOR_NAMES[color] }
+        { 'text': color, 'value': str(COLOR_NAMES[color]) }
         for color in COLOR_NAMES
+        if color != 'random'
     ]
     return [
         {
@@ -143,7 +144,7 @@ def get_schema():
             'icon': 'brush',
             'description': 'The color to use for the rain.',
             'options': colors,
-            'default': 1,
+            'default': '1',
         },
     ]
 
