@@ -146,7 +146,7 @@ def main(config):
   now = time.now()
 
   # Fetch sunrise/sunset times
-  url = "https://api.sunrise-sunset.org/json?lat=%s&lng=%s&formatted=0&date=today" % (truncate_location(loc.get("lat")), truncate_location(loc.get("lng")))
+  url = "https://api.sunrise-sunset.org/json?lat=%s&lng=%s&formatted=0&date=today" % (truncate_location(float(loc.get("lat"))), truncate_location(float(loc.get("lng"))))
   data = cache.get(url)
 
   # If cached data does not exist, fetch the data and cache it
