@@ -17,7 +17,7 @@ func New() manifest.Manifest {
 		Name:        "Big Clock",
 		Author:      "Joey Hoer",
 		Summary:     "A large retro-style clock",
-		Desc:        "Display a large retro-style clock; the clock can change color at night based on sunrise and sunset times for a given location, supports 24-hour and 12-hour variants and optionally flashes the separator.",
+		Desc:        "Display a large retro-style clock; the clock can change color at night based on sunrise and sunset times for a given location, supports 24-hour and 12-hour variants and optionally flashes the separator. Sunrise/sunset times provided by sunrise-sunset.org.",
 		FileName:    "big_clock.star",
 		PackageName: "bigclock",
 		Source:      source,
