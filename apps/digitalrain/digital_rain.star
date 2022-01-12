@@ -137,7 +137,6 @@ def get_schema():
     colors = [
         {"text": color, "value": color}
         for color in COLOR_NAMES
-        if color != "random"
     ]
     return [
         {
