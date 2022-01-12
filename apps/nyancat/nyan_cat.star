@@ -25,9 +25,9 @@ FRAMES = [
 
 def main(config):
     return render.Root(
-        child=render.Animation(
-            children=[render.Image(src=base64.decode(f)) for f in FRAMES]
-        )
+        child = render.Animation(
+            children = [render.Image(src = base64.decode(f)) for f in FRAMES],
+        ),
     )
 
 def get_schema():
