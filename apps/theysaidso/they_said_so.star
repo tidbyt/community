@@ -158,7 +158,7 @@ def main(config):
                         color = TEXT_COLOR,
                     ),
                     render.WrappedText(
-                        content = "\342\200\224 " + author,
+                        content = "- " + author,
                         width = WIDTH,
                         color = CITATION_COLOR,
                     ),
