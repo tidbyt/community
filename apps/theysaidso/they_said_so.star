@@ -91,6 +91,7 @@ def main(config):
                     'quote': 'Forsooth, the server quoteth "%s".' % content.status_code,
                     'author': 'Anonymous',
                 }
+                cache.set(key, json.encode(content), TTL)
         else:
             #print("using cache for " + category)
             content = json.decode(content)
