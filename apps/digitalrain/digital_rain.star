@@ -93,6 +93,7 @@ def main(config):
         seed = int(seed)
     else:
         seed = int(time.now().unix) // SEED_GRANULARITY
+
     #print("seed = %d" % seed)
 
     # rand can't assign seed directly, so need to make this a mutable thing
@@ -108,7 +109,8 @@ def main(config):
 
     # initialize the columns
     columns = [
-        generate_column(seed, char_size) for i in range(char_size["columns"])
+        generate_column(seed, char_size)
+        for i in range(char_size["columns"])
     ]
 
     # occasionally blow a column away
@@ -345,7 +347,15 @@ def mutate_chars(seed, char_size, chars, mutations, pos, size, drop_size):
 # n - the index of the character within the drop
 # numerator - the chance of mutation numerator
 # denominator - the chance of mutation denominator
-def mutate_char(seed, char_size, chars, mutations, pos, size, n, numerator,
+def mutate_char(
+        seed,
+        char_size,
+        chars,
+        mutations,
+        pos,
+        size,
+        n,
+        numerator,
         denominator):
     index = (pos + n) % size
     if (index < char_size["rows"] and
@@ -407,7 +417,8 @@ CHAR_SIZES = {
         "columns": (WIDTH // t[1]) + 1,
         "rows": (HEIGHT // t[2]) + 1,
         "chars": [base64.decode(i) for i in t[3]],
-    } for t in [
+    }
+    for t in [
         ("normal", 5, 7, [
             """
 iVBORw0KGgoAAAANSUhEUgAAAAUAAAAHAgMAAAC9yW99AAAACVBMVEUAAAAAAAD///+D3c/SAAAA
@@ -1731,4 +1742,4 @@ VAjXY2A4wcTAAAADLADLrscp2gAAAABJRU5ErkJggg==
         ]),
     ]
 }
-CHAR_COUNT = len(CHAR_SIZES['normal']['chars'])
+CHAR_COUNT = len(CHAR_SIZES["normal"]["chars"])
