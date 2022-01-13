@@ -82,8 +82,8 @@ def main(config):
                 xml = xpath.loads(content.body())
                 data = {
                     c: {
-                        "quote": xml.query("//item[ends-with(link,'#"+c+"')]/quote"),
-                        "author": xml.query("//item[ends-with(link,'#"+c+"')]/author"),
+                        "quote": xml.query("//item[ends-with(link,'#" + c + "')]/quote"),
+                        "author": xml.query("//item[ends-with(link,'#" + c + "')]/author"),
                     }
                     for c in CATEGORIES
                 }
