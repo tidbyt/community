@@ -414,8 +414,8 @@ CHAR_SIZES = {
     t[0]: {
         "w": t[1],
         "h": t[2],
-        "columns": (WIDTH // t[1]) + 1,
-        "rows": (HEIGHT // t[2]) + 1,
+        "columns": (WIDTH // (t[1] + 1)) + 1,
+        "rows": (HEIGHT // (t[2] + 1)) + 1,
         "chars": [base64.decode(i) for i in t[3]],
     }
     for t in [
