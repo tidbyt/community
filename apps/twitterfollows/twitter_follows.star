@@ -6,6 +6,7 @@ Author: Nick Penree
 """
 
 load("render.star", "render")
+load("schema.star", "schema")
 load("http.star", "http")
 load("encoding/base64.star", "base64")
 load("cache.star", "cache")
@@ -84,6 +85,7 @@ def main(config):
     )
 
 def get_schema():
+    # TODO - update this schema style once we get a Text option added.
     return [
         {
             "id": "screen_name",
