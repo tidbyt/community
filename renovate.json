@@ -1,5 +1,19 @@
 {
   "extends": [
     "config:base"
-  ]
+  ],
+  
+  "postUpdateOptions": [
+    "gomodTidy"
+  ],
+
+  "golang": {
+    "packageRules": [
+      {
+        "groupName": "Pixlet",
+        "matchPackagePrefixes": ["tidbyt.dev/pixlet"],
+        "automerge": true
+      }
+    ]
+  }
 }
