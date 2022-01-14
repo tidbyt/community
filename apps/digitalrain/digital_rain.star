@@ -99,17 +99,21 @@ def main(config):
     # rand can't assign seed directly, so need to make this a mutable thing
     seed = [seed]
 
-    # get the colors; do it this way so that setting the colors from the
+    # get the color; do it this way so that setting the color from the
     # config doesn't spoil the pseudo-random number sequence
-    color_number = rand(seed, COLOR_COUNT)
-    color_number = COLOR_NAMES.get(config.get("color"), color_number)
-    colors = COLORS[color_number]
+    color_options = (
+        [i for i in range(COLOR_COUNT)] +
+        [rand(seed, COLOR_COUNT + 1) - 1, rand(seed, COLOR_COUNT)]
+    )
+    color_number = COLOR_NAMES.get(config.get("color"), COLOR_NAMES["random"])
+    if color_number >= 0:
+        color_number = color_options[color_number]
 
     char_size = CHAR_SIZES.get(config.get("char_size")) or CHAR_SIZES["normal"]
 
     # initialize the columns
     columns = [
-        generate_column(seed, char_size)
+        generate_column(seed, char_size, color_number)
         for i in range(char_size["columns"])
     ]
 
@@ -131,7 +135,7 @@ def main(config):
             child = render.Padding(
                 pad = (xoffset, yoffset, 0, 0),
                 child = render.Animation([
-                    generate_frame(seed, char_size, columns, colors, f)
+                    generate_frame(seed, char_size, columns, f)
                     for f in range(72)
                 ]),
             ),
@@ -176,12 +180,14 @@ def rand(seed, max):
 # Generates the initial state of a column
 # seed - the random number seed container
 # char_size - the character size structure
-def generate_column(seed, char_size):
+# color_number - the color number
+def generate_column(seed, char_size, color_number):
     style = COLUMN_STYLES[rand(seed, COLUMN_STYLE_COUNT)]
     speed = style["speed"]
     drop_size = style["drop_min"] + rand(seed, style["drop_variance"])
     size = FRAMES // speed
     offset = rand(seed, size)
+    colors = colors_of(seed, color_number);
 
     second_drop = {
         "chars": [rand(seed, CHAR_COUNT) for i in range(char_size["rows"])],
@@ -189,6 +195,7 @@ def generate_column(seed, char_size):
         "offset": offset + ((size - SECOND_DROP_VARIANCE) // 2) +
                   rand(seed, SECOND_DROP_VARIANCE),
         "drop_size": style["drop_min"] + rand(seed, style["drop_variance"]),
+        "colors": colors_of(seed, color_number),
     } if speed == 1 and rand(seed, 7) < 2 else None
 
     return {
@@ -197,18 +204,28 @@ def generate_column(seed, char_size):
         "size": size,
         "chars": [rand(seed, CHAR_COUNT) for i in range(char_size["rows"])],
         "mutations": [0 for i in range(char_size["rows"])],
-        "drop_size": drop_size,
         "offset": offset,
+        "drop_size": drop_size,
+        "colors": colors,
         "second_drop": second_drop,
     }
+
+# Returns the colors structure to use for the given the color_number
+# seed - the random number seed container
+# color_number - the color_number
+def colors_of(seed, color_number):
+    # always call rand to try to preserve the seed sequence
+    color = rand(seed, COLOR_COUNT)
+    if color_number >= 0:
+        color = color_number
+    return COLORS[color]
 
 # Generates a given frame of the animation
 # seed - the random number seed container
 # char_size - the character size structure
 # columns - the list of column structures
-# colors - the colors to use
 # f - the frame number
-def generate_frame(seed, char_size, columns, colors, f):
+def generate_frame(seed, char_size, columns, f):
     frame_chars = [
         [None for c in range(char_size["columns"])]
         for r in range(char_size["rows"])
@@ -222,6 +239,7 @@ def generate_frame(seed, char_size, columns, colors, f):
             chars = column["chars"]
             size = column["size"]
             drop_size = column["drop_size"]
+            colors = column["colors"]
             for i in range(char_size["rows"]):
                 if chars[i]:
                     r = char_size["rows"] - i - 1
@@ -311,6 +329,7 @@ def compute_drop(seed, char_size, speed, size, drop, f, do_mutate):
         "chars": chars_of(char_size, chars, pos, size, drop_size),
         "size": size,
         "drop_size": drop_size,
+        "colors": drop["colors"],
     }
 
 # Mutates the visible characters randomly
@@ -401,13 +420,15 @@ COLORS = [
 ]
 COLOR_COUNT = len(COLORS)
 COLOR_NAMES = {
-    "random": None,
+    "random": 6,
+    "random-mono": 7,
     "blue": 0,
     "green": 1,
     "cyan": 2,
     "red": 3,
     "magenta": 4,
     "yellow": 5,
+    "multicolor": -1,
 }
 
 CHAR_SIZES = {
