@@ -7,6 +7,7 @@ Author: Mack Ward
 
 load("encoding/base64.star", "base64")
 load("render.star", "render")
+load("schema.star", "schema")
 
 FRAMES = [
     """iVBORw0KGgoAAAANSUhEUgAAAEAAAAAgCAYAAACinX6EAAABmklEQVRoge2YsW3EMAxFWd4ECeIB0qu5BbLLrZAtUqSSq2yUdYKDgTBFIEBhKH5Zlo8+2MUHjLNo8D9SlM80hAvvWeSdgLf+AWBm96TcACTze4JwdIB3At5yA0BEi7UqgOvzgyn0YCuWiHj6jIvVAwIho70lzfM7z1ZPCK4AigbPo3qtQVgPwMejLWS2EJcAIIO1nbAcADLaWRIAUhp4andkAFoH46YBEBHHGDnG+AeCBCDXdQHwxU+maozmSnEIQF7h3JgGIQGQa2YBQEZbJauSILR2gHyWrPwmAWgQNAClQagZROoGIPDJFAIQ+FSEgDpgOo9N5lsgEDK6VBqEBMA6AiUA5nJHyHubApBDqO2A0gDUftPudQHw8vZtCpnWYhAA7QSYxl/VtH5aOwsAMtpb8lUYDcAcgKyyvL47AGgrlLaBpuZToJToK9liZtOoFiPnQO1f3rWOwCFcmJDRXppTzVt+IHEBkCdc077amiVtXwVAW5x/MJXbAcWXqlVbQSu21fwQjo+iB4BmAPl2uGcdHeCdgLd2D+AHBk69MX7ZEDkAAAAASUVORK5CYII=""",
@@ -31,4 +32,4 @@ def main(config):
     )
 
 def get_schema():
-    return []
+    return schema.Schema(version = "1", fields = [])

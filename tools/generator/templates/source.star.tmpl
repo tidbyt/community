@@ -6,6 +6,7 @@ Author: {{.Author}}
 """
 
 load("render.star", "render")
+load("schema.star", "schema")
 
 def main(config):
     return render.Root(
@@ -13,4 +14,7 @@ def main(config):
     )
 
 def get_schema():
-    return []
+    return schema.Schema(
+        version = "1",
+        fields = [],
+    )

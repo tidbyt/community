@@ -9,6 +9,7 @@ Author: Joey Hoer
 """
 
 load("render.star", "render")
+load("schema.star", "schema")
 load("time.star", "time")
 load("encoding/base64.star", "base64")
 load("http.star", "http")
@@ -227,63 +228,61 @@ def main(config):
 
 def get_schema():
     colors = [
-        {"text": "White", "value": "#fff"},
-        {"text": "Red", "value": "#f00"},
-        {"text": "Dark Red", "value": "#200"},
-        {"text": "Green", "value": "#0f0"},
-        {"text": "Blue", "value": "#00f"},
-        {"text": "Yellow", "value": "#ff0"},
-        {"text": "Cyan", "value": "#0ff"},
-        {"text": "Magenta", "value": "#f0f"},
+        schema.Option(display = "White", value = "#fff"),
+        schema.Option(display = "Red", value = "#f00"),
+        schema.Option(display = "Dark Red", value = "#200"),
+        schema.Option(display = "Green", value = "#0f0"),
+        schema.Option(display = "Blue", value = "#00f"),
+        schema.Option(display = "Yellow", value = "#ff0"),
+        schema.Option(display = "Cyan", value = "#0ff"),
+        schema.Option(display = "Magenta", value = "#f0f"),
     ]
-    return [
-        {
-            "id": "location",
-            "name": "Location",
-            "icon": "place",
-            "description": "Location defining time to display and daytime/nighttime colors",
-            "type": "location",
-        },
-        {
-            "id": "is_24_hour_format",
-            "name": "24 hour format",
-            "icon": "clock",
-            "description": "Display the time in 24 hour format.",
-            "type": "onoff",
-            "default": "false",
-        },
-        {
-            "id": "has_leading_zero",
-            "name": "Add leading zero",
-            "icon": "creativeCommonsZero",
-            "description": "Ensure the clock always displays with a leading zero.",
-            "type": "onoff",
-            "default": "false",
-        },
-        {
-            "id": "has_flashing_seperator",
-            "name": "Enable flashing separator",
-            "icon": "cog",
-            "description": "Ensure the clock always displays with a leading zero.",
-            "type": "onoff",
-            "default": "false",
-        },
-        {
-            "type": "dropdown",
-            "id": "color_daytime",
-            "icon": "sun",
-            "name": "Daytime color",
-            "description": "The color to display in the daytime.",
-            "options": colors,
-            "default": DEFAULT_COLOR_DAYTIME,
-        },
-        {
-            "type": "dropdown",
-            "id": "color_nighttime",
-            "icon": "moon",
-            "name": "Nighttime color",
-            "description": "The color to display at night.",
-            "options": colors,
-            "default": DEFAULT_COLOR_NIGHTTIME,
-        },
-    ]
+
+    return schema.Schema(
+        version = "1",
+        fields = [
+            schema.Location(
+                id = "location",
+                name = "Location",
+                desc = "Location defining time to display and daytime/nighttime colors",
+                icon = "place",
+            ),
+            schema.Toggle(
+                id = "is_24_hour_format",
+                name = "24 hour format",
+                icon = "clock",
+                desc = "Display the time in 24 hour format.",
+                default = "false",
+            ),
+            schema.Toggle(
+                id = "has_leading_zero",
+                name = "Add leading zero",
+                icon = "creativeCommonsZero",
+                desc = "Ensure the clock always displays with a leading zero.",
+                default = "false",
+            ),
+            schema.Toggle(
+                id = "has_flashing_seperator",
+                name = "Enable flashing separator",
+                icon = "cog",
+                desc = "Ensure the clock always displays with a leading zero.",
+                default = "false",
+            ),
+            schema.Dropdown(
+                id = "color_daytime",
+                icon = "sun",
+                name = "Daytime color",
+                desc = "The color to display in the daytime.",
+                options = colors,
+                default = DEFAULT_COLOR_DAYTIME,
+            ),
+            schema.Dropdown(
+                id = "color_nighttime",
+                icon = "moon",
+                name = "Nighttime color",
+                desc = "The color to display at night.",
+                options = colors,
+                default = DEFAULT_COLOR_NIGHTTIME,
+            ),
+        ],
+    )
