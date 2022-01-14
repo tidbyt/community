@@ -85,13 +85,14 @@ def main(config):
     )
 
 def get_schema():
-    # TODO - update this schema style once we get a Text option added.
-    return [
-        {
-            "id": "screen_name",
-            "name": "Screen Name",
-            "icon": "user",
-            "description": "Screen name for which to display follower count",
-            "type": "text",
-        },
-    ]
+    return schema.Schema(
+        version = "1",
+        fields = [
+            schema.Text(
+                id = "screen_name",
+                name = "Screen Name",
+                icon = "user",
+                desc = "Screen name for which to display follower count",
+            ),
+        ],
+    )
