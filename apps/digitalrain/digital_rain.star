@@ -32,6 +32,7 @@ Author: Henry So, Jr.
 
 load("time.star", "time")
 load("render.star", "render")
+load("schema.star", "schema")
 load("encoding/base64.star", "base64")
 
 # for column styles:
@@ -135,20 +136,22 @@ def main(config):
 
 def get_schema():
     colors = [
-        {"text": color, "value": color}
+        schema.Option(display = color, value = color)
         for color in COLOR_NAMES
     ]
-    return [
-        {
-            "type": "dropdown",
-            "id": "color",
-            "name": "Color",
-            "icon": "brush",
-            "description": "The color to use for the rain.",
-            "options": colors,
-            "default": "green",
-        },
-    ]
+    return schema.Schema(
+        version = "1",
+        fields = [
+            schema.Dropdown(
+                id = "color",
+                name = "Color",
+                icon = "brush",
+                desc = "The color to use for the rain.",
+                options = colors,
+                default = "green",
+            ),
+        ],
+    )
 
 # Gets a pseudo-random number whose value is between 0 and max - 1
 # seed - the random number seed container

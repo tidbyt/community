@@ -1,4 +1,5 @@
 load("render.star", "render")
+load("schema.star", "schema")
 load("time.star", "time")
 load("encoding/json.star", "json")
 
@@ -86,12 +87,14 @@ def main(config):
     )
 
 def get_schema():
-    return [
-        {
-            "id": "location",
-            "name": "Location",
-            "icon": "place",
-            "description": "Location for which to display time",
-            "type": "location",
-        },
-    ]
+    return schema.Schema(
+        version = "1",
+        fields = [
+            schema.Location(
+                id = "location",
+                name = "Location",
+                icon = "place",
+                desc = "Location for which to display time",
+            ),
+        ],
+    )
