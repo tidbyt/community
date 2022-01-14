@@ -187,7 +187,7 @@ def generate_column(seed, char_size, color_number):
     drop_size = style["drop_min"] + rand(seed, style["drop_variance"])
     size = FRAMES // speed
     offset = rand(seed, size)
-    colors = colors_of(seed, color_number);
+    colors = colors_of(seed, color_number)
 
     second_drop = {
         "chars": [rand(seed, CHAR_COUNT) for i in range(char_size["rows"])],
