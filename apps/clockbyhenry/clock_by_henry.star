@@ -73,15 +73,12 @@ def main(config):
         phase = "n"
 
     # get the base color set
-    season_color_set = SEASON_COLOR_SETS[
-        int(config.get("season_color_set") or "0") % len(SEASON_COLOR_SETS)
-    ]
+    season_color_set = int(config.get("season_color_set", "0")) % len(SEASON_COLOR_SETS)
+    season_color_set = SEASON_COLOR_SETS[season_color_set]
 
     time_color = color_of(config.get(phase) or DEFAULT_TIME_COLOR[phase])
-    date_color = color_of(
-        config.get("s%d%s" % (season, phase)) or
-        season_color_set[phase][season]
-    )
+    date_color = color_of(config.get(
+        "s%d%s" % (season, phase), season_color_set[phase][season]))
 
     # generate the widget for the app
     return render.Root(
@@ -110,8 +107,8 @@ def main(config):
                                         for char in now_time_blink.elems()
                                     ],
                                 ),
-                            ]
-                        )
+                            ],
+                        ),
                     ],
                 ),
                 render.Box(
