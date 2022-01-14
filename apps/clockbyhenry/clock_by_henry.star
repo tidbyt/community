@@ -73,12 +73,16 @@ def main(config):
         phase = "n"
 
     # get the base color set
-    season_color_set = int(config.get("season_color_set", "0")) % len(SEASON_COLOR_SETS)
+    season_color_set = (
+        int(config.get("season_color_set", "0")) % SEASON_COLOR_SET_COUNT
+    )
     season_color_set = SEASON_COLOR_SETS[season_color_set]
 
-    time_color = color_of(config.get(phase) or DEFAULT_TIME_COLOR[phase])
+    time_color = color_of(config.get(phase, DEFAULT_TIME_COLOR[phase]))
     date_color = color_of(config.get(
-        "s%d%s" % (season, phase), season_color_set[phase][season]))
+        "s%d%s" % (season, phase),
+        season_color_set[phase][season],
+    ))
 
     # generate the widget for the app
     return render.Root(
@@ -221,3 +225,4 @@ SEASON_COLOR_SETS = [
         ],
     },
 ]
+SEASON_COLOR_SET_COUNT = len(SEASON_COLOR_SETS)
