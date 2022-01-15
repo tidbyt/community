@@ -157,7 +157,7 @@ def main(config):
                         render.Box(width = 1, height = 5),
                         renderTime,
                         render.Text(
-                            content = "" if trainDelay == "0" else "%s" % trainDelay,
+                            content = "" if trainDelay == "+0" else "%s" % trainDelay,
                             color = COLOR_DELAY,
                             font = FONT_TO_USE,
                         ),
