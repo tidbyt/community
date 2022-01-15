@@ -14,7 +14,13 @@ COLOR_CATEGORY = {
 	"IC": "#700",
 	"EC": "#700",
 	"IR": "#700",
+	"RE": "#700",
+	"RJX": "#700",
+	"TGV": "#700",
+	"NJ": "#700",
 	"S" : "#007",
+	"SN" : "#000",
+	
 }
 COLOR_DELAY = "#F00"
 
@@ -75,7 +81,7 @@ def main(config):
 		for i in range(startID, startID+5):
 			# Get the data from the response
 			trainCategory = resp["connections"][i]["*G"]
-			if trainCategory == "S":
+			if trainCategory[0] == "S":
 				trainCategoryLine = resp["connections"][i]["line"].replace("S", "")
 			else:
 				trainCategoryLine=trainCategory
