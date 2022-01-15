@@ -148,10 +148,11 @@ def main(config):
         # print("Miss! Calling API.")
         resp = http.get(url)
         if resp.status_code != 200:
-            fail("API request failed with status %d", resp.status_code)
-        data = resp.body()
-        cache.set(url, data, ttl_seconds = TTL)
-    json_data = json.decode(data)
+            json_data = None
+        else:
+            data = resp.body()
+            cache.set(url, data, ttl_seconds = TTL)
+            json_data = json.decode(data)
 
     # Because the times returned by this API do not include the date, we need to
     # strip the date from "now" to get the current time in order to perform
