@@ -92,8 +92,7 @@ def main(config):
                         children = [
                             render.Animation([
                                 render_time(tm, time_format[0]),
-                                render_time(tm, time_format[1])
-                                if blink_time else None,
+                                render_time(tm, time_format[1]) if blink_time else None,
                             ]),
                             render.Padding(
                                 pad = (1, 9, 0, 0),
@@ -128,9 +127,9 @@ def main(config):
                             children = [
                                 render.Text(
                                     content = tm.format("Mon 2 Jan 2006"),
-                                    font = 'tom-thumb',
-                                    color = '#ff0',
-                                )
+                                    font = "tom-thumb",
+                                    color = "#ff0",
+                                ),
                             ],
                         ),
                     ),
@@ -186,7 +185,7 @@ def sunrise_plot(tm):
         year = tm.year,
         month = 1,
         day = 1,
-        location = "UTC"
+        location = "UTC",
     )
     days = int((tm - anchor).hours // 24)
 
@@ -251,7 +250,7 @@ def pad_of(i):
 TAN_DEC = [
     tan(asin(sin(-23.44) * cos(
         COEF * (d + 10) +
-        (360 / math.pi * 0.0167 * sin(COEF * (d - 2)))
+        (360 / math.pi * 0.0167 * sin(COEF * (d - 2))),
     )))
     for d in range(366)
 ]
