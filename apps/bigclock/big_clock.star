@@ -80,13 +80,6 @@ iVBORw0KGgoAAAANSUhEUgAAAAQAAAAOAQAAAAAgEYC1AAAAAnRSTlMAAQGU/a4AAAAPSURBVHgBY0g
 AQzQAEQUAH5wCQbfIiwYAAAAASUVORK5CYII=
 """)
 
-# Truthy evalution of strings
-# Note: Config variables are passed as strings
-def truthy(v):
-    if v in ["True", "true", True]:
-        return True
-    return False
-
 # It would be easier to use a custom font, but we can use images instead.
 # The images have a black background and transparent foreground. This
 # allows us to change the color dynamically.
@@ -174,9 +167,9 @@ def main(config):
         sunset = time.parse_time(json_data["results"]["sunset"], format = api_format)
 
     # Get config values
-    is_24_hour_format = truthy(config.get("is_24_hour_format", DEFAULT_IS_24_HOUR_FORMAT))
-    has_leading_zero = truthy(config.get("has_leading_zero", DEFAULT_HAS_LEADING_ZERO))
-    has_flashing_seperator = truthy(config.get("has_flashing_seperator", DEFAULT_HAS_FLASHING_SEPERATOR))
+    is_24_hour_format = config.get("is_24_hour_format", DEFAULT_IS_24_HOUR_FORMAT)
+    has_leading_zero = config.get("has_leading_zero", DEFAULT_HAS_LEADING_ZERO)
+    has_flashing_seperator = config.get("has_flashing_seperator", DEFAULT_HAS_FLASHING_SEPERATOR)
     color_daytime = config.get("color_daytime", DEFAULT_COLOR_DAYTIME)
     color_nighttime = config.get("color_nighttime", DEFAULT_COLOR_NIGHTTIME)
 
@@ -252,21 +245,18 @@ def get_schema():
                 name = "24 hour format",
                 icon = "clock",
                 desc = "Display the time in 24 hour format.",
-                default = "false",
             ),
             schema.Toggle(
                 id = "has_leading_zero",
                 name = "Add leading zero",
                 icon = "creativeCommonsZero",
                 desc = "Ensure the clock always displays with a leading zero.",
-                default = "false",
             ),
             schema.Toggle(
                 id = "has_flashing_seperator",
                 name = "Enable flashing separator",
                 icon = "cog",
                 desc = "Ensure the clock always displays with a leading zero.",
-                default = "false",
             ),
             schema.Dropdown(
                 id = "color_daytime",
