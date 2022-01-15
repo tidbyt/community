@@ -9,7 +9,8 @@ import (
 	"tidbyt.dev/community/apps/digitalrain"
 	"tidbyt.dev/community/apps/fuzzyclock"
 	"tidbyt.dev/community/apps/manifest"
-  "tidbyt.dev/community/apps/nyancat"
+	"tidbyt.dev/community/apps/nyancat"
+	"tidbyt.dev/community/apps/sbbtimetable"
 	"tidbyt.dev/community/apps/theysaidso"
 	"tidbyt.dev/community/apps/twitterfollows"
 )
@@ -21,7 +22,8 @@ func GetManifests() []manifest.Manifest {
 		bigclock.New(),
 		digitalrain.New(),
 		fuzzyclock.New(),
-    nyancat.New(),
+		nyancat.New(),
+		sbbtimetable.New(),
 		theysaidso.New(),
 		twitterfollows.New(),
 	}
