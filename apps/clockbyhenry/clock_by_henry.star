@@ -35,7 +35,9 @@ load("encoding/base64.star", "base64")
 load("encoding/json.star", "json")
 
 # parameters:
-# timezone - the time zone for rendering
+# location - the location for rendering
+# use_12h - if 12-hour time should be used
+# blink_time - if the time separator should blink
 # season_theme - the base color set to use (index of SEASON_THEMES)
 # d - the color for the time during the day
 # n - the color for the time during the night
