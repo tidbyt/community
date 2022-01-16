@@ -201,4 +201,3 @@ def get_schema():
             ),
         ],
     )
-
