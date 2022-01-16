@@ -66,6 +66,19 @@ def main(config):
     else:
         tm = time.now().in_location(tz)
 
+    formatted_date = tm.format("Mon 2 Jan 2006")
+    date_shadow = render.Row(
+        main_align = "center",
+        expanded = True,
+        children = [
+            render.Text(
+                content = formatted_date,
+                font = "tom-thumb",
+                color = "#000",
+            ),
+        ],
+    )
+
     night_above, sunrise = sunrise_plot(tm)
     return render.Root(
         delay = 1000,
@@ -109,15 +122,21 @@ def main(config):
             render.Padding(
                 pad = (0, HEIGHT - DATE_H, 0, 0),
                 child = render.Stack([
-                    render.Image(
-                        src = PIXEL,
-                        width = WIDTH,
-                        height = DATE_H,
+                    render.Padding(
+                        pad = (-1, 1, 0, 0),
+                        child = date_shadow,
                     ),
-                    render.Image(
-                        src = PIXEL,
-                        width = WIDTH,
-                        height = DATE_H,
+                    render.Padding(
+                        pad = (2, 1, 0, 0),
+                        child = date_shadow,
+                    ),
+                    render.Padding(
+                        pad = (0, 0, 0, 0),
+                        child = date_shadow,
+                    ),
+                    render.Padding(
+                        pad = (0, 2, 0, 0),
+                        child = date_shadow,
                     ),
                     render.Padding(
                         pad = (0, 1, 0, 0),
@@ -126,7 +145,7 @@ def main(config):
                             expanded = True,
                             children = [
                                 render.Text(
-                                    content = tm.format("Mon 2 Jan 2006"),
+                                    content = formatted_date,
                                     font = "tom-thumb",
                                     color = "#ff0",
                                 ),
