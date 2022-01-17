@@ -5,7 +5,6 @@ Description: Displays your golf handicap using data from GHIN. Includes low/high
 Author: Chris Jones (IPv6Freely)
 """
 
-
 load("render.star", "render")
 load("encoding/base64.star", "base64")
 load("http.star", "http")
