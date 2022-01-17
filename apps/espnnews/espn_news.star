@@ -71,8 +71,10 @@ def main(config):
 
         #add padding to shorter titles (no repeat function exists and can't format with padding, so doing it old school)
         for i,x in enumerate(title):
-            for len(x) < max_len:
+            x_len := len(x)
+            for x_len < max_len:
                 x += " "
+                x_len++
             title[i] = x
 
         #cache headlines
