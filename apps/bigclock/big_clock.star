@@ -4,16 +4,15 @@ Summary: Display a large retro-style clock
 Description: Display a large retro-style clock; the clock can change color
   at night based on sunrise and sunset times for a given location, supports
   24-hour and 12-hour variants and optionally flashes the separator.
-  Sunrise/sunset times provided by sunrise-sunset.org.
 Author: Joey Hoer
 """
 
 load("render.star", "render")
 load("schema.star", "schema")
 load("time.star", "time")
+load("sunrise.star", "sunrise")
 load("encoding/base64.star", "base64")
 load("encoding/json.star", "json")
-load("math.star", "math")
 
 # Default configuration values
 DEFAULT_LOCATION = {
@@ -128,10 +127,6 @@ def get_time_image(t, color, is_24_hour_format = True, has_leading_zero = False,
         ],
     )
 
-def truncate_location(f, decimals = 1):
-    p = math.pow(10, decimals)
-    return math.round(f * p) / p
-
 def main(config):
     # Get the current time in 24 hour format
     location = config.get("location")
@@ -140,7 +135,9 @@ def main(config):
     now = time.now()
 
     # Fetch sunrise/sunset times
-    sunrise, sunset = sunrise_sunset(truncate_location(float(loc.get("lat"))), truncate_location(float(loc.get("lng"))))
+    lat, lng = float(loc.get("lat")), float(loc.get("lng"))
+    rise = sunrise.sunrise(lat, lng, now)
+    set = sunrise.sunset(lat, lng, now)
 
     # Because the times returned by this API do not include the date, we need to
     # strip the date from "now" to get the current time in order to perform
@@ -169,10 +166,10 @@ def main(config):
     for i in range(0, duration):
         # Set different color during day and night
         color = color_nighttime
-        if sunrise == None or sunset == None:
+        if rise == None or set == None:
             # Antarctica, north pole, etc.
             color = color_daytime
-        elif now > sunrise and now < sunset:
+        elif now > rise and now < set:
             color = color_daytime
         frames.append(get_time_image(print_time, color, is_24_hour_format = is_24_hour_format, has_leading_zero = has_leading_zero, has_seperator = True))
 
@@ -261,69 +258,3 @@ def get_schema():
             ),
         ],
     )
-
-def julian_day(t):
-    return (float(t.unix) / 86400) + 2440587.5
-
-def julian_day_to_time(d):
-    return time.from_timestamp(int((d - 2440587.5) * 86400)).in_location("UTC")
-
-def mean_solar_noon(lon, year, month, day):
-    s = "%d-%d-%dT12:00:00" % (year, month, day)
-    t = time.parse_time(s, format = "2006-1-2T15:04:05", location = "UTC")
-
-    return julian_day(t) - (lon / 360)
-
-def solar_mean_anomaly(mean_solar_noon):
-    v = math.remainder(357.5291 + 0.98560028 * (mean_solar_noon - 2451545), 360)
-    return v if v >= 0 else v + 360
-
-def equation_of_center(solar_mean_anomaly):
-    anomaly_rad = solar_mean_anomaly * DEGREE
-    anomaly_sin = math.sin(anomaly_rad)
-    anomaly_sin2 = math.sin(2 * anomaly_rad)
-    anomaly_sin3 = math.sin(3 * anomaly_rad)
-    return 1.9148 * anomaly_sin + 0.0200 * anomaly_sin2 + 0.003 * anomaly_sin3
-
-def ecliptic_longitude(solar_mean_anomaly, equation_of_center, mean_solar_noon):
-    aop = 102.93005 + 0.3179526 * (mean_solar_noon - 2451545) / 36525
-    return math.mod(solar_mean_anomaly + equation_of_center + 180 + aop, 360)
-
-def solar_transit(mean_solar_noon, solar_mean_anomaly, ecliptic_longitude):
-    eot = 0.0053 * math.sin(solar_mean_anomaly * DEGREE) - 0.0069 * math.sin(2 * ecliptic_longitude * DEGREE)
-    return mean_solar_noon + eot
-
-def declination(ecliptic_longitude):
-    return math.asin(math.sin(ecliptic_longitude * DEGREE) * 0.39779) / DEGREE
-
-def hour_angle(lat, declination):
-    lat_rad = lat * DEGREE
-    declination_rad = declination * DEGREE
-    numerator = -0.01449 - math.sin(lat_rad) * math.sin(declination_rad)
-    denominator = math.cos(lat_rad) * math.cos(declination_rad)
-
-    result = numerator / denominator
-
-    if result > 1 or result < -1:
-        # sun never rises or never sets
-        return None
-
-    return math.acos(result) / DEGREE
-
-def sunrise_sunset(lat, lon):
-    t = time.now().in_location("UTC")
-
-    msn = mean_solar_noon(lon, t.year, t.month, t.day)
-    sma = solar_mean_anomaly(msn)
-    eoc = equation_of_center(sma)
-    el = ecliptic_longitude(sma, eoc, msn)
-    st = solar_transit(msn, sma, el)
-    dec = declination(el)
-    ha = hour_angle(lat, dec)
-
-    if not ha:
-        return None, None
-
-    sunrise = julian_day_to_time(st - ha / 360)
-    sunset = julian_day_to_time(st + ha / 360)
-    return sunrise, sunset
