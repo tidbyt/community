@@ -9,8 +9,10 @@ install-buildifier:
 	go install github.com/bazelbuild/buildtools/buildifier@latest
 
 lint:
-	golangci-lint run
+	@ buildifier --version >/dev/null 2>&1 || $(MAKE) install-buildifier
 	buildifier -r ./
+
+format: lint
 
 test:
 	go test -v -cover ./...
