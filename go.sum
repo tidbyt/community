@@ -898,5 +898,5 @@ honnef.co/go/tools v0.0.1-2020.1.4/go.mod h1:X/FiERA/W4tHapMX5mGpAtMSVEeEUOyHaw9
 rsc.io/binaryregexp v0.2.0/go.mod h1:qTv7/COck+e2FymRvadv62gMdZztPaShugOCi3I+8D8=
 rsc.io/quote/v3 v3.1.0/go.mod h1:yEA65RcK8LyAZtP9Kv3t0HmxON59tX3rD+tICJqUlj0=
 rsc.io/sampler v1.3.0/go.mod h1:T1hPZKmBbMNahiBKFy5HrXp6adAjACjK9JXDnKaTXpA=
-tidbyt.dev/pixlet v0.11.3 h1:qaHOce2+DgC0edMgu5nlWbFosrZ3k6+c88a4V2/6N+k=
-tidbyt.dev/pixlet v0.11.3/go.mod h1:D9DF6piI2f1dX094aUXdcXXub29my1HgBf2OgqA9gb0=
+tidbyt.dev/pixlet v0.11.4 h1:2KOoWZOG021jBlFzEiIQwUlu192XOTNU6hScYLco12A=
+tidbyt.dev/pixlet v0.11.4/go.mod h1:D9DF6piI2f1dX094aUXdcXXub29my1HgBf2OgqA9gb0=
