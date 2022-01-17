@@ -9,9 +9,13 @@ load("http.star", "http")
 load("render.star", "render")
 load("schema.star", "schema")
 load("time.star", "time")
+load("encoding/base64.star", "base64")
+load("cache.star", "cache")
+load("encoding/json.star", "json")
 
 NUM_POKEMON = 386
 POKEAPI_URL = "https://pokeapi.co/api/v2/pokemon/{}"
+CACHE_TTL_SECONDS = 3600 * 24 * 7  # 7 days in seconds.
 
 def get_schema():
     return schema.Schema(
@@ -21,13 +25,12 @@ def get_schema():
 
 def main():
     id_ = int(NUM_POKEMON * random()) + 1
-    pokemon_url = POKEAPI_URL.format(id_)
-    pokemon = http.get(pokemon_url).json()
+    pokemon = get_pokemon(id_)
     name = pokemon["name"].title()
     height = str(pokemon["height"] / 10) + "m"
     weight = str(pokemon["weight"] / 10) + "kg"
     sprite_url = pokemon["sprites"]["versions"]["generation-vii"]["icons"]["front_default"]
-    sprite = http.get(sprite_url).body()
+    sprite = get_sprite(sprite_url)
     return render.Root(
         child = render.Stack(
             children = [
@@ -52,3 +55,34 @@ def main():
 def random():
     """Return a pseudo-random number in [0, 1)"""
     return time.now().nanosecond / (1000 * 1000 * 1000)
+
+def get_pokemon(id):
+    key = "pokemon_{}".format(id)
+    url = POKEAPI_URL.format(id)
+
+    data = cache.get(key)
+    if data != None:
+        return json.decode(data)
+
+    res = http.get(url = url)
+    if res.status_code != 200:
+        fail("request to %s failed with status code: %d - %s" % (url, res.status_code, res.body()))
+
+    cache.set(key, json.encode(res.json()), ttl_seconds = CACHE_TTL_SECONDS)
+
+    return res.json()
+
+def get_sprite(url):
+    key = "sprite_{}".format(base64.encode(url))
+
+    data = cache.get(key)
+    if data != None:
+        return base64.decode(data)
+
+    res = http.get(url = url)
+    if res.status_code != 200:
+        fail("request to %s failed with status code: %d - %s" % (url, res.status_code, res.body()))
+
+    cache.set(key, base64.encode(res.body()), ttl_seconds = CACHE_TTL_SECONDS)
+
+    return res.body()
