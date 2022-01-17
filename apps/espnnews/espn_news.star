@@ -71,7 +71,7 @@ def main(config):
 
         #add padding to shorter titles (no repeat function exists and can't format with padding, so doing it old school)
         for i,x in enumerate(title):
-            while len(x) < max_len:
+            for len(x) < max_len:
                 x += " "
             title[i] = x
 
