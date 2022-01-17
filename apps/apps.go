@@ -11,6 +11,7 @@ import (
 	"tidbyt.dev/community/apps/dvdlogo"
 	"tidbyt.dev/community/apps/fuzzyclock"
 	"tidbyt.dev/community/apps/manifest"
+	"tidbyt.dev/community/apps/noaabuoy"
 	"tidbyt.dev/community/apps/nyancat"
 	"tidbyt.dev/community/apps/pokedex"
 	"tidbyt.dev/community/apps/theysaidso"
@@ -26,6 +27,7 @@ func GetManifests() []manifest.Manifest {
 		digitalrain.New(),
 		dvdlogo.New(),
 		fuzzyclock.New(),
+		noaabuoy.New(),
 		nyancat.New(),
 		pokedex.New(),
 		theysaidso.New(),
