@@ -13,7 +13,6 @@ load("time.star", "time")
 load("sunrise.star", "sunrise")
 load("encoding/base64.star", "base64")
 load("encoding/json.star", "json")
-load("math.star", "math")
 
 # Default configuration values
 DEFAULT_LOCATION = {
@@ -128,10 +127,6 @@ def get_time_image(t, color, is_24_hour_format = True, has_leading_zero = False,
         ],
     )
 
-def truncate_location(f, decimals = 1):
-    p = math.pow(10, decimals)
-    return math.round(f * p) / p
-
 def main(config):
     # Get the current time in 24 hour format
     location = config.get("location")
@@ -140,7 +135,7 @@ def main(config):
     now = time.now()
 
     # Fetch sunrise/sunset times
-    lat, lng = truncate_location(float(loc.get("lat"))), truncate_location(float(loc.get("lng")))
+    lat, lng = float(loc.get("lat")), float(loc.get("lng"))
     rise = sunrise.sunrise(lat, lng, now)
     set = sunrise.sunset(lat, lng, now)
 
