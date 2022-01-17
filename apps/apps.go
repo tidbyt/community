@@ -13,6 +13,7 @@ import (
 	"tidbyt.dev/community/apps/manifest"
 	"tidbyt.dev/community/apps/nyancat"
 	"tidbyt.dev/community/apps/pokedex"
+	"tidbyt.dev/community/apps/sbbtimetable"
 	"tidbyt.dev/community/apps/theysaidso"
 	"tidbyt.dev/community/apps/twitterfollows"
 )
@@ -27,7 +28,8 @@ func GetManifests() []manifest.Manifest {
 		dvdlogo.New(),
 		fuzzyclock.New(),
 		nyancat.New(),
-		pokedex.New(),
+    pokedex.New(),
+		sbbtimetable.New(),
 		theysaidso.New(),
 		twitterfollows.New(),
 	}
