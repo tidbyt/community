@@ -4,18 +4,15 @@ Summary: Display a large retro-style clock
 Description: Display a large retro-style clock; the clock can change color
   at night based on sunrise and sunset times for a given location, supports
   24-hour and 12-hour variants and optionally flashes the separator.
-  Sunrise/sunset times provided by sunrise-sunset.org.
 Author: Joey Hoer
 """
 
 load("render.star", "render")
 load("schema.star", "schema")
 load("time.star", "time")
+load("sunrise.star", "sunrise")
 load("encoding/base64.star", "base64")
-load("http.star", "http")
 load("encoding/json.star", "json")
-load("cache.star", "cache")
-load("math.star", "math")
 
 # Default configuration values
 DEFAULT_LOCATION = {
@@ -80,6 +77,8 @@ iVBORw0KGgoAAAANSUhEUgAAAAQAAAAOAQAAAAAgEYC1AAAAAnRSTlMAAQGU/a4AAAAPSURBVHgBY0g
 AQzQAEQUAH5wCQbfIiwYAAAAASUVORK5CYII=
 """)
 
+DEGREE = 0.01745329251
+
 # It would be easier to use a custom font, but we can use images instead.
 # The images have a black background and transparent foreground. This
 # allows us to change the color dynamically.
@@ -128,10 +127,6 @@ def get_time_image(t, color, is_24_hour_format = True, has_leading_zero = False,
         ],
     )
 
-def truncate_location(f, decimals = 1):
-    p = math.pow(10, decimals)
-    return "%f" % (math.round(f * p) / p)
-
 def main(config):
     # Get the current time in 24 hour format
     location = config.get("location")
@@ -140,18 +135,9 @@ def main(config):
     now = time.now()
 
     # Fetch sunrise/sunset times
-    url = "https://api.sunrise-sunset.org/json?lat=%s&lng=%s&formatted=0&date=today" % (truncate_location(float(loc.get("lat"))), truncate_location(float(loc.get("lng"))))
-    data = cache.get(url)
-
-    # If cached data does not exist, fetch the data and cache it
-    if data == None:
-        # print("Miss! Calling API.")
-        resp = http.get(url)
-        if resp.status_code != 200:
-            fail("API request failed with status %d", resp.status_code)
-        data = resp.body()
-        cache.set(url, data, ttl_seconds = TTL)
-    json_data = json.decode(data)
+    lat, lng = float(loc.get("lat")), float(loc.get("lng"))
+    rise = sunrise.sunrise(lat, lng, now)
+    set = sunrise.sunset(lat, lng, now)
 
     # Because the times returned by this API do not include the date, we need to
     # strip the date from "now" to get the current time in order to perform
@@ -159,12 +145,6 @@ def main(config):
     # Local time must be localized with a timezone
     current_time = time.parse_time(now.in_location(timezone).format("3:04:05 PM"), format = "3:04:05 PM", location = timezone)
     day_end = time.parse_time("11:59:59 PM", format = "3:04:05 PM", location = timezone)
-    if json_data != None:
-        api_format = "2006-01-02T15:04:05+00:00"
-
-        # API results are returned in UPC, so we will not pass a timezone here
-        sunrise = time.parse_time(json_data["results"]["sunrise"], format = api_format)
-        sunset = time.parse_time(json_data["results"]["sunset"], format = api_format)
 
     # Get config values
     is_24_hour_format = config.get("is_24_hour_format", DEFAULT_IS_24_HOUR_FORMAT)
@@ -186,9 +166,11 @@ def main(config):
     for i in range(0, duration):
         # Set different color during day and night
         color = color_nighttime
-        if json_data != None:
-            if now > sunrise and now < sunset:
-                color = color_daytime
+        if rise == None or set == None:
+            # Antarctica, north pole, etc.
+            color = color_daytime
+        elif now > rise and now < set:
+            color = color_daytime
         frames.append(get_time_image(print_time, color, is_24_hour_format = is_24_hour_format, has_leading_zero = has_leading_zero, has_seperator = True))
 
         if has_flashing_seperator:
