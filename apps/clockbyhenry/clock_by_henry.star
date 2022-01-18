@@ -31,6 +31,7 @@ load("render.star", "render")
 load("schema.star", "schema")
 load("time.star", "time")
 load("re.star", "re")
+load("sunrise.star", "sunrise")
 load("encoding/base64.star", "base64")
 load("encoding/json.star", "json")
 
@@ -38,6 +39,8 @@ load("encoding/json.star", "json")
 # location - the location for rendering
 # use_12h - if 12-hour time should be used
 # blink_time - if the time separator should blink
+# day_start - when the day starts
+# night_start - when the night starts
 # season_theme - the base color set to use (index of SEASON_THEMES)
 # d - the color for the time during the day
 # n - the color for the time during the night
@@ -59,24 +62,57 @@ def main(config):
         "timezone",
         config.get("$tz", DEFAULT_TIMEZONE),
     )
-    now = time.now().in_location(timezone)
+    now = config.get("time")
+    now = (time.parse_time(now) if now else time.now()).in_location(timezone)
     now_date = now.format("Mon 2 Jan 2006")
 
     # this is a rough approximation
     # actual seasons vary by location and astronomy
     # we just treat this as close enough
-    season = int(now.format("1-02").replace("-", ""))
-    if season >= 320 and season < 621:
+    season = now.format("01-02")
+    if season >= "03-20" and season < "06-21":
         season = 1
-    elif season >= 621 and season < 923:
+    elif season >= "06-21" and season < "09-23":
         season = 2
-    elif season >= 923 and season < 1221:
+    elif season >= "09-23" and season < "12-21":
         season = 3
     else:
         season = 0
 
-    phase = int(now.format("15"))
-    if phase >= 6 and phase < 18:
+    coords = (
+        (float(location["lat"]), float(location["lng"])) if location.get("lat") and location.get("lng") else None
+    )
+
+    day_start = config.get(P_DAY_START) or DEFAULT_DAY_START
+    if day_start == "sunrise" and coords:
+        day_start = sunrise.sunrise(coords[0], coords[1], now)
+        if day_start == None:
+            if coords[0] > 0:
+                day_start = "00:00" if season == 1 or season == 2 else "  :  "
+            else:
+                day_start = "00:00" if season == 3 or season == 0 else "  :  "
+        else:
+            day_start = day_start.in_location(timezone).format("15:04")
+    elif not re.match(r"^\d\d:\d\d$", day_start):
+        day_start = DEFAULT_DAY_START
+
+    night_start = config.get(P_NIGHT_START) or DEFAULT_NIGHT_START
+    if night_start == "sunset" and coords:
+        night_start = sunrise.sunset(coords[0], coords[1], now)
+        if night_start == None:
+            if coords[0] > 0:
+                night_start = "24:00" if season == 1 or season == 2 else "00:00"
+            else:
+                night_start = "24:00" if season == 3 or season == 0 else "00:00"
+        else:
+            night_start = night_start.in_location(timezone).format("15:04")
+    elif not re.match(r"^\d\d:\d\d$", night_start):
+        night_start = DEFAULT_NIGHT_START
+
+    print((day_start, night_start))
+
+    phase = now.format("15:04")
+    if phase >= day_start and phase < night_start:
         phase = "d"
     else:
         phase = "n"
@@ -152,18 +188,18 @@ def get_schema():
                 desc = "Location for the display of date and time.",
                 icon = "place",
             ),
-            schema.Text(
-                id = "d",
-                name = "Time Color (Day)",
-                desc = "The color to use for the time during the day.",
-                icon = "brush",
-            ),
-            schema.Text(
-                id = "n",
-                name = "Time Color (Night)",
-                desc = "The color to use for the time during the night.",
-                icon = "brush",
-            ),
+            #schema.Text(
+            #    id = "d",
+            #    name = "Time Color (Day)",
+            #    desc = "The color to use for the time during the day.",
+            #    icon = "brush",
+            #),
+            #schema.Text(
+            #    id = "n",
+            #    name = "Time Color (Night)",
+            #    desc = "The color to use for the time during the night.",
+            #    icon = "brush",
+            #),
             schema.Toggle(
                 id = P_USE_12H,
                 name = "Use 12-hour Format",
@@ -179,31 +215,59 @@ def get_schema():
                 default = False,
             ),
             schema.Dropdown(
+                id = P_DAY_START,
+                name = "Daytime Start",
+                desc = "When daytime starts.",
+                icon = "sun",
+                options = [
+                    schema.Option(
+                        display = v,
+                        value = v,
+                    )
+                    for v in DAY_STARTS
+                ],
+                default = "06:00",
+            ),
+            schema.Dropdown(
+                id = P_NIGHT_START,
+                name = "Nighttime Start",
+                desc = "When nighttime starts.",
+                icon = "moon",
+                options = [
+                    schema.Option(
+                        display = v,
+                        value = v,
+                    )
+                    for v in NIGHT_STARTS
+                ],
+                default = "18:00",
+            ),
+            schema.Dropdown(
                 id = P_SEASON_THEME,
                 name = "Base Date Color Theme",
                 desc = "The color theme for the date",
                 icon = "calendar",
                 options = [
                     schema.Option(
-                        display = k,
-                        value = SEASON_THEMES[k]["description"],
+                        display = SEASON_THEMES[k]["description"],
+                        value = k,
                     )
                     for k in SEASON_THEMES
                 ],
                 default = DEFAULT_SEASON_THEME,
             ),
-        ] + [
-            schema.Text(
-                id = "s%d%s" % (s, p),
-                name = "Date Color (%s, %s)" % (SEASON_DESC[s], PHASE_DESC[p]),
-                desc = "The color to use for the date during %s in the %s" % (
-                    SEASON_DESC[s],
-                    PHASE_DESC[p],
-                ),
-                icon = "brush",
-            )
-            for s in range(4)
-            for p in ["d", "n"]
+            #] + [
+            #    schema.Text(
+            #        id = "s%d%s" % (s, p),
+            #        name = "Date Color (%s, %s)" % (SEASON_DESC[s], PHASE_DESC[p]),
+            #        desc = "The color to use for the date during %s in the %s" % (
+            #            SEASON_DESC[s],
+            #            PHASE_DESC[p],
+            #        ),
+            #        icon = "brush",
+            #    )
+            #    for s in range(4)
+            #    for p in ["d", "n"]
         ],
     )
 
@@ -213,14 +277,10 @@ def color_of(color, default_color):
     if color:
         #print("parsing color: " + color)
         color = color.strip()
-        result = PREDEFINED_COLORS.get(color.replace(" ", "").upper())
-        if result:
-            #print("predefined color: " + result)
-            return result
-        elif re.match("^[0-9a-fA-F]{3}([0-9a-fA-F]{3})?$", color):
+        if re.match(r"^[0-9a-fA-F]{3}([0-9a-fA-F]{3})?$", color):
             #print("hashless: " + color)
             return "#" + color
-        elif re.match("^#[0-9a-fA-F]{3}([0-9a-fA-F]{3})?$", color):
+        elif re.match(r"^#[0-9a-fA-F]{3}([0-9a-fA-F]{3})?$", color):
             #print("hashed: " + color)
             return color
 
@@ -231,30 +291,50 @@ def color_of(color, default_color):
 P_LOCATION = "location"
 P_USE_12H = "use_12h"
 P_BLINK_TIME = "blink_time"
+P_DAY_START = "day_start"
+P_NIGHT_START = "night_start"
 P_SEASON_THEME = "season_theme"
 
-SEASON_DESC = [
-    "Dec–Mar",
-    "Mar–Jun",
-    "Jun–Sep",
-    "Sep–Dec",
-]
-
-PHASE_DESC = {
-    "d": "Day",
-    "n": "Night",
-}
-
 DEFAULT_TIMEZONE = "America/New_York"
+DEFAULT_DAY_START = "06:00"
+DEFAULT_NIGHT_START = "18:00"
 DEFAULT_SEASON_THEME = "nh"
-
-H12 = ("3:04", "3_04")
-H24 = ("15:04", "15_04")
 
 DEFAULT_TIME_COLOR = {
     "d": "#ffd",
     "n": "#900",
 }
+
+#SEASON_DESC = [
+#    "Dec–Mar",
+#    "Mar–Jun",
+#    "Jun–Sep",
+#    "Sep–Dec",
+#]
+
+#PHASE_DESC = {
+#    "d": "Day",
+#    "n": "Night",
+#}
+
+DAY_STARTS = [
+    h + ":" + m
+    for h in ["04", "05", "06", "07", "08"]
+    for m in ["00", "30"]
+] + [
+    "sunrise",
+]
+
+NIGHT_STARTS = [
+    h + ":" + m
+    for h in ["16", "17", "18", "19", "20", "21"]
+    for m in ["00", "30"]
+] + [
+    "sunset",
+]
+
+H12 = ("3:04", "3_04")
+H24 = ("15:04", "15_04")
 
 SEASON_WINTER_D = "#8cf"
 SEASON_SPRING_D = "#2f2"
@@ -330,157 +410,6 @@ SEASON_THEMES = {
             SEASON_SUMMER_N,
         ],
     },
-}
-
-PREDEFINED_COLORS = {
-    "ALICEBLUE": "#F0F8FF",
-    "ANTIQUEWHITE": "#FAEBD7",
-    "AQUA": "#00FFFF",
-    "AQUAMARINE": "#7FFFD4",
-    "AZURE": "#F0FFFF",
-    "BEIGE": "#F5F5DC",
-    "BISQUE": "#FFE4C4",
-    "BLACK": "#000000",
-    "BLANCHEDALMOND": "#FFEBCD",
-    "BLUE": "#0000FF",
-    "BLUEVIOLET": "#8A2BE2",
-    "BROWN": "#A52A2A",
-    "BURLYWOOD": "#DEB887",
-    "CADETBLUE": "#5F9EA0",
-    "CHARTREUSE": "#7FFF00",
-    "CHOCOLATE": "#D2691E",
-    "CORAL": "#FF7F50",
-    "CORNFLOWERBLUE": "#6495ED",
-    "CORNSILK": "#FFF8DC",
-    "CRIMSON": "#DC143C",
-    "CYAN": "#00FFFF",
-    "DARKBLUE": "#00008B",
-    "DARKCYAN": "#008B8B",
-    "DARKGOLDENROD": "#B8860B",
-    "DARKGRAY": "#A9A9A9",
-    "DARKGREY": "#A9A9A9",
-    "DARKGREEN": "#006400",
-    "DARKKHAKI": "#BDB76B",
-    "DARKMAGENTA": "#8B008B",
-    "DARKOLIVEGREEN": "#556B2F",
-    "DARKORANGE": "#FF8C00",
-    "DARKORCHID": "#9932CC",
-    "DARKRED": "#8B0000",
-    "DARKSALMON": "#E9967A",
-    "DARKSEAGREEN": "#8FBC8F",
-    "DARKSLATEBLUE": "#483D8B",
-    "DARKSLATEGRAY": "#2F4F4F",
-    "DARKSLATEGREY": "#2F4F4F",
-    "DARKTURQUOISE": "#00CED1",
-    "DARKVIOLET": "#9400D3",
-    "DEEPPINK": "#FF1493",
-    "DEEPSKYBLUE": "#00BFFF",
-    "DIMGRAY": "#696969",
-    "DIMGREY": "#696969",
-    "DODGERBLUE": "#1E90FF",
-    "FIREBRICK": "#B22222",
-    "FLORALWHITE": "#FFFAF0",
-    "FORESTGREEN": "#228B22",
-    "FUCHSIA": "#FF00FF",
-    "GAINSBORO": "#DCDCDC",
-    "GHOSTWHITE": "#F8F8FF",
-    "GOLD": "#FFD700",
-    "GOLDENROD": "#DAA520",
-    "GRAY": "#808080",
-    "GREY": "#808080",
-    "GREEN": "#008000",
-    "GREENYELLOW": "#ADFF2F",
-    "HONEYDEW": "#F0FFF0",
-    "HOTPINK": "#FF69B4",
-    "INDIANRED": "#CD5C5C",
-    "INDIGO": "#4B0082",
-    "IVORY": "#FFFFF0",
-    "KHAKI": "#F0E68C",
-    "LAVENDER": "#E6E6FA",
-    "LAVENDERBLUSH": "#FFF0F5",
-    "LAWNGREEN": "#7CFC00",
-    "LEMONCHIFFON": "#FFFACD",
-    "LIGHTBLUE": "#ADD8E6",
-    "LIGHTCORAL": "#F08080",
-    "LIGHTCYAN": "#E0FFFF",
-    "LIGHTGOLDENRODYELLOW": "#FAFAD2",
-    "LIGHTGRAY": "#D3D3D3",
-    "LIGHTGREY": "#D3D3D3",
-    "LIGHTGREEN": "#90EE90",
-    "LIGHTPINK": "#FFB6C1",
-    "LIGHTSALMON": "#FFA07A",
-    "LIGHTSEAGREEN": "#20B2AA",
-    "LIGHTSKYBLUE": "#87CEFA",
-    "LIGHTSLATEGRAY": "#778899",
-    "LIGHTSLATEGREY": "#778899",
-    "LIGHTSTEELBLUE": "#B0C4DE",
-    "LIGHTYELLOW": "#FFFFE0",
-    "LIME": "#00FF00",
-    "LIMEGREEN": "#32CD32",
-    "LINEN": "#FAF0E6",
-    "MAGENTA": "#FF00FF",
-    "MAROON": "#800000",
-    "MEDIUMAQUAMARINE": "#66CDAA",
-    "MEDIUMBLUE": "#0000CD",
-    "MEDIUMORCHID": "#BA55D3",
-    "MEDIUMPURPLE": "#9370DB",
-    "MEDIUMSEAGREEN": "#3CB371",
-    "MEDIUMSLATEBLUE": "#7B68EE",
-    "MEDIUMSPRINGGREEN": "#00FA9A",
-    "MEDIUMTURQUOISE": "#48D1CC",
-    "MEDIUMVIOLETRED": "#C71585",
-    "MIDNIGHTBLUE": "#191970",
-    "MINTCREAM": "#F5FFFA",
-    "MISTYROSE": "#FFE4E1",
-    "MOCCASIN": "#FFE4B5",
-    "NAVAJOWHITE": "#FFDEAD",
-    "NAVY": "#000080",
-    "OLDLACE": "#FDF5E6",
-    "OLIVE": "#808000",
-    "OLIVEDRAB": "#6B8E23",
-    "ORANGE": "#FFA500",
-    "ORANGERED": "#FF4500",
-    "ORCHID": "#DA70D6",
-    "PALEGOLDENROD": "#EEE8AA",
-    "PALEGREEN": "#98FB98",
-    "PALETURQUOISE": "#AFEEEE",
-    "PALEVIOLETRED": "#DB7093",
-    "PAPAYAWHIP": "#FFEFD5",
-    "PEACHPUFF": "#FFDAB9",
-    "PERU": "#CD853F",
-    "PINK": "#FFC0CB",
-    "PLUM": "#DDA0DD",
-    "POWDERBLUE": "#B0E0E6",
-    "PURPLE": "#800080",
-    "REBECCAPURPLE": "#663399",
-    "RED": "#FF0000",
-    "ROSYBROWN": "#BC8F8F",
-    "ROYALBLUE": "#4169E1",
-    "SADDLEBROWN": "#8B4513",
-    "SALMON": "#FA8072",
-    "SANDYBROWN": "#F4A460",
-    "SEAGREEN": "#2E8B57",
-    "SEASHELL": "#FFF5EE",
-    "SIENNA": "#A0522D",
-    "SILVER": "#C0C0C0",
-    "SKYBLUE": "#87CEEB",
-    "SLATEBLUE": "#6A5ACD",
-    "SLATEGRAY": "#708090",
-    "SLATEGREY": "#708090",
-    "SNOW": "#FFFAFA",
-    "SPRINGGREEN": "#00FF7F",
-    "STEELBLUE": "#4682B4",
-    "TAN": "#D2B48C",
-    "TEAL": "#008080",
-    "THISTLE": "#D8BFD8",
-    "TOMATO": "#FF6347",
-    "TURQUOISE": "#40E0D0",
-    "VIOLET": "#EE82EE",
-    "WHEAT": "#F5DEB3",
-    "WHITE": "#FFFFFF",
-    "WHITESMOKE": "#F5F5F5",
-    "YELLOW": "#FFFF00",
-    "YELLOWGREEN": "#9ACD32",
 }
 
 DIGITS = {
