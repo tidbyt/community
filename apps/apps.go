@@ -6,6 +6,7 @@ package apps
 
 import (
 	"tidbyt.dev/community/apps/bigclock"
+	"tidbyt.dev/community/apps/clockbyhenry"
 	"tidbyt.dev/community/apps/datetimeclock"
 	"tidbyt.dev/community/apps/daynightmap"
 	"tidbyt.dev/community/apps/digitalrain"
@@ -24,6 +25,7 @@ import (
 func GetManifests() []manifest.Manifest {
 	return []manifest.Manifest{
 		bigclock.New(),
+		clockbyhenry.New(),
 		datetimeclock.New(),
 		daynightmap.New(),
 		digitalrain.New(),
