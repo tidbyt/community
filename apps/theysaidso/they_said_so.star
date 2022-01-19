@@ -27,16 +27,17 @@ Author: Henry So, Jr.
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-# Note: this app is subject to theysaidso.com's public, rate-limited API
+# Note: this app uses theysaidso.com's public RSS feed (via feedburner)
 
 load("http.star", "http")
 load("render.star", "render")
 load("schema.star", "schema")
 load("cache.star", "cache")
+load("xpath.star", "xpath")
 load("encoding/base64.star", "base64")
 load("encoding/json.star", "json")
 
-URL = "http://quotes.rest/qod.json?category="
+URL = "http://feeds.feedburner.com/theysaidso/qod"
 
 WIDTH = 64
 HEIGHT = 32
@@ -54,7 +55,9 @@ ATTRIBUTION_COLOR = "#484"
 # subtract one extra for aesthetics
 CLOSE_OFFSET = -(QUOTE_H - TEXT_OFFSET - TEXT_OFFSET - 1)
 
+KEY = "qod"
 TTL = 60 * 60
+ERROR_TTL = 5 * 60
 
 CATEGORIES = [
     "inspire",  # Inspiring Quote of the day
@@ -72,38 +75,38 @@ def main(config):
     category = config.get("category") or "fake"
 
     if category in CATEGORIES:
-        key = "qod:" + category
-        content = cache.get(key)
-        if content == None:
-            #print("retrieving " + category)
-            content = http.get(URL + category)
-            if content.status_code == 200:
-                content = content.json().get("contents", {}).get("quotes")
-
-                # None and empty list are both falsy
-                content = content[0] if content else {}
-                content = {
-                    "quote": content.get("quote"),
-                    "author": content.get("author"),
+        data = cache.get(KEY)
+        if data == None:
+            #print("retrieving feed")
+            content = http.get(URL)
+            if content.status_code == 200 and content.body():
+                xml = xpath.loads(content.body())
+                data = {
+                    c: {
+                        "quote": xml.query("//item[ends-with(link,'#" + c + "')]/quote"),
+                        "author": xml.query("//item[ends-with(link,'#" + c + "')]/author"),
+                    }
+                    for c in CATEGORIES
                 }
-                cache.set(key, json.encode(content), TTL)
             else:
                 #print('Server returned %s' % content.status_code)
-                content = {
-                    "quote": 'Forsooth, the server quoteth "%s".' % content.status_code,
-                    "author": "Anonymous",
+                data = {
+                    c: {
+                        "quote": 'Forsooth, the server quoteth "%s".' % content.status_code,
+                        "author": "Anonymous",
+                    }
+                    for c in CATEGORIES
                 }
+            cache.set(KEY, json.encode(data), TTL if content.status_code < 300 else ERROR_TTL)
         else:
-            #print("using cache for " + category)
-            content = json.decode(content)
-    else:
-        content = {
-            "quote": "Some say passing an invalid category will yield good results. I don't.",
-            "author": "Anonymous",
-        }
+            #print("using cache")
+            data = json.decode(data)
 
-    quote = content.get("quote") or "Strange, the API didn't return a quote."
-    author = content.get("author") or "Author Unknown"
+        quote = data[category]["quote"] or "Strange, the API didn't return a quote."
+        author = data[category]["author"] or "Author Unknown"
+    else:
+        quote = "Some say passing an invalid category will yield good results. I don't."
+        author = "Anonymous"
 
     # try to adjust when the quote is too long
     delay = 100
