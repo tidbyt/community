@@ -17,9 +17,9 @@ func New() manifest.Manifest {
 		Name:        "Nightscout",
 		Author:      "Jeremy Tavener",
 		Summary:     "Shows Nightscout CGM Data",
-		Desc:        "Displays Continous Glucose Monitoring (CGM) data from the Nightscout Open Source project (https://nightscout.github.io/).",
+		Desc:        "Displays Continuous Glucose Monitoring (CGM) data from the Nightscout Open Source project (https://nightscout.github.io/).",
 		FileName:    "nightscout.star",
 		PackageName: "nightscout",
-		Source:  source,
+		Source:      source,
 	}
 }

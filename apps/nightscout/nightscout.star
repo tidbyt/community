@@ -1,7 +1,7 @@
 """
 Applet: Nightscout
 Summary: Shows Nightscout CGM Data
-Description: Displays Continous Glucose Monitoring (CGM) data from the Nightscout Open Source project (https://nightscout.github.io/).
+Description: Displays Continuous Glucose Monitoring (CGM) data from the Nightscout Open Source project (https://nightscout.github.io/).
 Author: Jeremy Tavener
 """
 
