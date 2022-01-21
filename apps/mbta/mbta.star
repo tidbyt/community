@@ -1,0 +1,175 @@
+"""
+Applet: MBTA
+Summary: MBTA departures
+Description: MBTA bus and rail departure times.
+Author: marcusb
+"""
+
+load("http.star", "http")
+load("render.star", "render")
+load("schema.star", "schema")
+load("time.star", "time")
+
+URL = "https://api-v3.mbta.com/predictions"
+
+T_ABBREV = {
+    "Orange": "OL",
+    "Red": "RL",
+    "Silver": "SL",
+}
+
+def main(config):
+    timezone = config.get("timezone") or "America/New_York"
+    stop = config.get("stop") or "place-sstat"
+
+    params = {
+        "sort": "arrival_time",
+        "include": "route",
+        "filter[stop]": stop
+    }
+    rep = http.get(URL, params=params)
+    if rep.status_code != 200:
+        fail("MBTA API request failed with status {}".format(rep.status_code))
+
+    rows = []
+    predictions = [p for p in rep.json()["data"]
+                   if p["attributes"]["schedule_relationship"] != "SKIPPED"]
+    for prediction in predictions:
+        route = prediction["relationships"]["route"]["data"]["id"]
+        route = find(rep.json()["included"], lambda o: o["type"] == "route" and o["id"] == route)
+        r = renderSched(prediction, route, timezone)
+        if r:
+            rows.extend(r)
+            rows.append(render.Box(height=1, width=64, color="#ccffff"))
+
+    if rows:
+        return render.Root(
+            child=render.Column(children=rows[:3], main_align="start")
+        )
+    else:
+        return render.Root(
+            child=render.Marquee(
+                width=64,
+                child=render.Text(
+                    content="No current departures",
+                    height=8,
+                    offset=-1,
+                    font="Dina_r400-6"
+                )
+            )
+        )
+
+def renderSched(prediction, route, timezone):
+    attrs = prediction["attributes"]
+    if not attrs["departure_time"]:
+        return []
+    tm = attrs["arrival_time"] or attrs["departure_time"]
+    t = time.parse_time(tm).in_location(timezone)
+    arr = t - time.now().in_location(timezone)
+    if arr.minutes < 0:
+        return []
+    dest = route["attributes"]["direction_destinations"][int(attrs["direction_id"])].upper()
+    minutes = int(arr.minutes)
+    short_name = route["attributes"]["short_name"] or T_ABBREV.get(route["id"], "")
+    msg = "{} min".format(minutes) if minutes else "Now"
+    first_line = dest
+    if attrs["status"]:
+        first_line = render.Row(
+            children=[
+                render.Text(
+                    content=dest + " \u00b7 ",
+                    height=8,
+                    offset=-1,
+                    font="Dina_r400-6"
+                ),
+                render.Text(
+                    content=attrs["status"],
+                    height=8,
+                    offset=-1,
+                    font="Dina_r400-6",
+                    color="#df000f"
+                )
+            ]
+        )
+    else:
+        first_line = render.Text(
+            content=dest,
+            height=8,
+            offset=-1,
+            font="Dina_r400-6"
+        )
+    return [render.Row(
+        main_align="space_between",
+        children=[
+            render.Stack(
+                children=[
+                    render.Circle(
+                        diameter=12, color="#{}".format(route["attributes"]["color"] or "ffc72c"),
+                        child=render.Text(
+                            content=short_name,
+                            color="#{}".format(route["attributes"]["text_color"] or "000"),
+                            font="CG-pixel-3x5-mono" if len(short_name) > 2 else "tb-8")
+                    )
+                ]
+            ),
+            render.Box(width=2, height=5),
+            render.Column(
+                main_align="start",
+                cross_align="left",
+                children=[
+                    render.Marquee(
+                        width=50,
+                        child=first_line
+                    ),
+                    render.Text(
+                        content=msg,
+                        height=8,
+                        offset=-1,
+                        font="Dina_r400-6",
+                        color="#ffd11a"
+                    )
+                ]
+            )
+        ],
+        cross_align="center"
+    )]
+
+def find(xs, pred):
+    for x in xs:
+        if pred(x):
+            return x
+    return None
+
+def get_schema():
+    rep = http.get("https://api-v3.mbta.com/stops", params={
+        "page[limit]": 10000,
+        "sort": "name"
+    })
+    if rep.status_code != 200:
+        fail("MBTA API request failed with status {}".format(rep.status_code))
+    data = rep.json()
+    stops = []
+    for s in data["data"]:
+        if s["type"] != "stop":
+            continue
+        if s["relationships"]["parent_station"]["data"]:
+            continue
+        stops += schema.Option(
+            display=s["attributes"]["name"],
+            value = s["id"]
+        )
+
+    return schema.Schema(
+        version = "1",
+        fields = [
+            schema.Dropdown(
+                id = "stop",
+                name = "Stop",
+                desc = "The stop or station name.",
+                icon = "bus",
+                default = stops[0].value,
+	            options = stops,
+            ),
+        ],
+    )
+

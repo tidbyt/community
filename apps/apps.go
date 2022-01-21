@@ -14,6 +14,7 @@ import (
 	"tidbyt.dev/community/apps/fuzzyclock"
 	"tidbyt.dev/community/apps/golfhandicap"
 	"tidbyt.dev/community/apps/manifest"
+	"tidbyt.dev/community/apps/mbta"
 	"tidbyt.dev/community/apps/nightscout"
 	"tidbyt.dev/community/apps/nyancat"
 	"tidbyt.dev/community/apps/pokedex"
@@ -34,6 +35,7 @@ func GetManifests() []manifest.Manifest {
 		dvdlogo.New(),
 		fuzzyclock.New(),
 		golfhandicap.New(),
+		mbta.New(),
 		nightscout.New(),
 		nyancat.New(),
 		pokedex.New(),
