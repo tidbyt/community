@@ -52,8 +52,8 @@ def main(config):
     location = config.get("location")
     location = json.decode(location) if location else {}
     time_format = TIME_FORMATS.get(config.get("time_format"))
-    blink_time = config.get("blink_time")
-    show_date = config.get("show_date")
+    blink_time = config.bool("blink_time")
+    show_date = config.bool("show_date")
 
     tz = location.get(
         "timezone",
