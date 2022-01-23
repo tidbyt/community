@@ -44,8 +44,6 @@ DEFAULT_LOCATION = {
     "locality": "Glasgow, UK",
 }
 
-DEFAULT_TIMEZONE = "UTC"
-
 # Constants
 LUNARDAYS = 29.53058770576
 LUNARSECONDS = LUNARDAYS * (24 * 60 * 60)
@@ -81,7 +79,7 @@ def main(config):
     hemisphere = 1 if lat >= 0 else 0
 
     # Get the current time
-    now = time.now().in_location(DEFAULT_TIMEZONE).unix
+    now = time.now().unix
 
     # Get the current fraction of the moon cycle
     currentfrac = math.mod(now - FIRSTMOON, LUNARSECONDS) / LUNARSECONDS
@@ -90,10 +88,10 @@ def main(config):
 
 
     for x in range(0, NUM_PHASES):
-        if currentday > PHASE_CHANGES[x] and currentday <= PHASE_CHANGES[x + 1] :
+        if currentday > PHASE_CHANGES[x] and currentday <= PHASE_CHANGES[x + 1]:
             moonPhase = MOON_PHASES[x]
             phaseImage = PHASE_IMAGES[x]
-            if hemisphere == 0 :
+            if hemisphere == 0:
                 phaseImage = PHASE_IMAGES[NUM_PHASES - x]
         
 
@@ -121,7 +119,7 @@ def get_schema():
             schema.Location(
                 id = "location",
                 name = "Location",
-                desc = "Location for which to display the moon phase for.",
+                desc = "Location for which to display the moon phase.",
                 icon = "place",
             ),
         ],
