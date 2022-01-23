@@ -113,4 +113,16 @@ def main(config):
             )
         )
     )
-    
+
+def get_schema():
+    return schema.Schema(
+        version = "1",
+        fields = [
+            schema.Location(
+                id = "location",
+                name = "Location",
+                desc = "Location for which to display the moon phase for.",
+                icon = "place",
+            ),
+        ],
+    )
