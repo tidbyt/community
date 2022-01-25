@@ -18,6 +18,7 @@ import (
 	"tidbyt.dev/community/apps/nyancat"
 	"tidbyt.dev/community/apps/pokedex"
 	"tidbyt.dev/community/apps/sbbtimetable"
+	"tidbyt.dev/community/apps/sportsstandings"
 	"tidbyt.dev/community/apps/theysaidso"
 	"tidbyt.dev/community/apps/twitterfollows"
 )
@@ -38,6 +39,7 @@ func GetManifests() []manifest.Manifest {
 		nyancat.New(),
 		pokedex.New(),
 		sbbtimetable.New(),
+		sportsstandings.New(),
 		theysaidso.New(),
 		twitterfollows.New(),
 	}
