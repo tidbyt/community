@@ -70,10 +70,10 @@ def get_schema():
             schema.Dropdown(
                 id = "sport",
                 name = "Sport",
-                desc = "The headlines of the sport to be displayed.",
-                icon = "newspaper",
+                desc = "The sport of the standings that should be displayed.",
+                icon = "medal",
                 options = sports,
-                default = "All",
+                default = "MLB",
             ),
         ],
     )
