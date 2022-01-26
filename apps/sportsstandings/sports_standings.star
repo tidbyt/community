@@ -6,7 +6,7 @@ Author: rs7q5 (RIS)
 """
 #sports_standings.star
 #Created 20220119 RIS
-#Last Modified 20220124 RIS
+#Last Modified 20220126 RIS
 
 load("render.star", "render")
 load("http.star", "http")
@@ -230,7 +230,7 @@ def get_nhlstats():
 def get_nbastats():
     #NBA stats are only sorted by conference because divisions don't matter for playoffs!!
     base_URL = "https://site.api.espn.com/apis/v2/sports/basketball/nba/standings"
-    standings_URL = base_URL + "?sort=gamesBehind"
+    standings_URL = base_URL + "?sort=winpercent"
     standings_rep = http_check(standings_URL)
     standings_data = standings_rep.json()["children"]
 
@@ -245,9 +245,10 @@ def get_nbastats():
             name = team["team"]["abbreviation"]
             record = team["stats"][11]["displayValue"]  #W-L
             GB = team["stats"][4]["displayValue"]  #games behind
-            record_full = record + "/" + str(GB)
+            pct = team["stats"][3]["value"]  #win percent
 
-            stats_tmp.append((name, record_full, record, str(GB)))
+            record_full = record + "/" + str(GB)
+            stats_tmp.append((name, record_full, record, str(GB), pct))
             if j % 5 == 4:  #store it in every fifth frame
                 stats[div_name] = stats_tmp
                 stats2.append(dict(name = div_name + " (W-L/GB)", data = stats_tmp))
