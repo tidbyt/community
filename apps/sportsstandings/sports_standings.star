@@ -21,8 +21,8 @@ ESPN_URL = "https://www.espn.com/"
 ESPN_SPORTS_LIST = {
     "MLB": ["MLB", "mlb"],
     "NHL": ["NHL", "nhl"],
+    "NBA": ["NBA", "nba"],
     #"NFL": ["NFL","nfl"],
-    #"NBA": ["NBA","nba"],
     #"WNBA": ["WNBA","wnba"],
 }
 
@@ -46,6 +46,8 @@ def main(config):
             stats = get_mlbstats()
         elif sport == "NHL":
             stats = get_nhlstats()
+        elif sport == "NBA":
+            stats = get_nbastats()
 
         #cache the data
         cache.set("stats_rate", json.encode(str(stats)), ttl_seconds = 86400)  #grabs it once a day
@@ -172,7 +174,7 @@ def get_mlbstats():
     stats2 = []
     for i in range(6):  #iterate through each division
         standings_URL = base_URL + "?group=" + str(i + 1) + "&sort=gamesbehind"
-        standings_rep = http_check(standings_URL)  #http.get(standings_URL)
+        standings_rep = http_check(standings_URL)
 
         div_name = standings_rep.json()["shortName"]
         standings_data = standings_rep.json()["standings"]["entries"]
@@ -197,7 +199,7 @@ def get_nhlstats():
     stats = []
     for i in range(2):  #iterate through each division
         standings_URL = base_URL + "?group=" + str(i + 7) + "&sort=points"
-        standings_rep = http_check(standings_URL)  #http.get(standings_URL)
+        standings_rep = http_check(standings_URL)
 
         conf_name = standings_rep.json()["abbreviation"]
         standings_data = standings_rep.json()["children"]
@@ -224,3 +226,31 @@ def get_nhlstats():
             stats.append(dict(name = frame_name, data = team_sort[:4]))
             stats.append(dict(name = frame_name, data = team_sort[4:]))
     return (stats)
+
+def get_nbastats():
+    #NBA stats are only sorted by conference because divisions don't matter for playoffs!!
+    base_URL = "https://site.api.espn.com/apis/v2/sports/basketball/nba/standings"
+    standings_URL = base_URL + "?sort=gamesBehind"
+    standings_rep = http_check(standings_URL)
+    standings_data = standings_rep.json()["children"]
+
+    stats = dict()
+    stats2 = []
+    for i, conf_data in enumerate(standings_data):  #iterate through each division
+        div_name = conf_data["abbreviation"]
+        div_data = reversed(conf_data["standings"]["entries"])
+        stats_tmp = []
+        cnt = 0
+        for (j, team) in enumerate(div_data):  #iterate through each team in each division
+            name = team["team"]["abbreviation"]
+            record = team["stats"][11]["displayValue"]  #W-L
+            GB = team["stats"][4]["displayValue"]  #games behind
+            record_full = record + "/" + str(GB)
+
+            stats_tmp.append((name, record_full, record, str(GB)))
+            if j % 5 == 4:  #store it in every fifth frame
+                stats[div_name] = stats_tmp
+                stats2.append(dict(name = div_name + " (W-L/GB)", data = stats_tmp))
+                stats_tmp = []
+
+    return (stats2)
