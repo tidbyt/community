@@ -17,8 +17,9 @@ GOOD_SERVICE_STOPS_URL_BASE = "https://goodservice.io/api/stops/"
 GOOD_SERVICE_ROUTES_URL = "https://goodservice.io/api/routes/"
 
 NAME_OVERRIDE = {
-    "Grand Central–42 St": "Grand Cntrl",
-    "Times Sq–42 St": "Times Sq",
+    "Grand Central-42 St": "Grand Cntrl",
+    "Times Sq-42 St": "Times Sq",
+    "Coney Island-Stillwell Av": "Coney Is",
 }
 
 STREET_ABBREVIATIONS = [
@@ -26,7 +27,6 @@ STREET_ABBREVIATIONS = [
 ]
 
 ABBREVIATIONS = {
-  " - ": "–",
   "World Trade Center": "WTC",
   "Center": "Ctr",
   "Metropolitan": "Metrop",
@@ -126,7 +126,10 @@ def main(config):
                     second_eta = (int((r["times"][1]) - ts) / 60)
                     second_train_is_delayed = r["is_delayed"][1]
                     if second_train_is_delayed:
-                        text = text + " min, delay"
+                        if second_eta < 1:
+                            text = text + ", delay"
+                        else:
+                            text = text + " min, delay"
                     elif second_eta < 1:
                         text = text + ", due"
                     else:
@@ -188,7 +191,7 @@ def main(config):
         child=render.Marquee(
             height=32,
             offset_start=16,
-            offset_end=0,
+            offset_end=16,
             scroll_direction="vertical",
             child=render.Column(
                 children=blocks
@@ -250,14 +253,14 @@ def get_schema():
     )
 
 def condense_name(name):
-    name = name.replace(" - ", "–")
-    if len(name) < 13:
+    name = name.replace(" - ", "-")
+    if len(name) < 12:
         return name
 
     if NAME_OVERRIDE.get(name):
         return NAME_OVERRIDE[name]
 
-    if "–" in name:
+    if "-" in name:
         modified_name = name
         for abrv in STREET_ABBREVIATIONS:
             abbreviated_array = modified_name.split(abrv)
@@ -265,12 +268,12 @@ def condense_name(name):
             for a in abbreviated_array:
                 modified_name = modified_name + a.strip()
         modified_name = modified_name.strip()
-        if len(modified_name) < 13:
+        if len(modified_name) < 11:
             return modified_name
 
     for key in ABBREVIATIONS:
         name = name.replace(key, ABBREVIATIONS[key])
-    split_name = name.split("–")
+    split_name = name.split("-")
     if len(split_name) > 1 and ("St" in split_name[1] or "Av" in split_name[1] or "Sq" in split_name[1] or "Bl" in split_name[1]) and (split_name[0] != "Far Rckwy"):
         return split_name[1]
     return split_name[0]
