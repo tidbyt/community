@@ -86,10 +86,11 @@ def main(config):
             if matching_route:
                 if len(matching_route["times"]) == 1:
                     matching_route["times"].append(trip["estimated_current_stop_arrival_time"])
+                    matching_route["is_delayed"].append(trip["is_delayed"])
                 else:
                     continue
             else:
-                upcoming_routes[dir].append({"route_id": trip["route_id"], "destination_stop": trip["destination_stop"], "times": [trip["estimated_current_stop_arrival_time"]] })
+                upcoming_routes[dir].append({"route_id": trip["route_id"], "destination_stop": trip["destination_stop"], "times": [trip["estimated_current_stop_arrival_time"]], "is_delayed": [trip["is_delayed"]] })
 
         for dir in directions:
             for r in upcoming_routes[dir]:
@@ -110,16 +111,23 @@ def main(config):
                         break
 
                 first_eta = (int(r["times"][0]) - ts) / 60
-                if first_eta < 1:
+                first_train_is_delayed = r["is_delayed"][0]
+
+                if first_train_is_delayed:
+                    text = "delay"
+                elif first_eta < 1:
                     text = "due"
                 else:
                     text = str(int(first_eta))
 
-                if len(r["times"]) == 1 and text != "due":
+                if len(r["times"]) == 1 and text != "due" and text != "delay":
                     text = text + " min"
-                else:
+                elif text != "delay":
                     second_eta = (int((r["times"][1]) - ts) / 60)
-                    if second_eta < 1:
+                    second_train_is_delayed = r["is_delayed"][1]
+                    if second_train_is_delayed:
+                        text = text + " min, delay"
+                    elif second_eta < 1:
                         text = text + ", due"
                     else:
                         text = text + ", " + str(int(second_eta)) + " min"
