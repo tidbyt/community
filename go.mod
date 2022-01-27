@@ -9,7 +9,7 @@ require (
 
 require (
 	github.com/manifoldco/promptui v0.9.0
-	tidbyt.dev/pixlet v0.11.4
+	tidbyt.dev/pixlet v0.12.0
 )
 
 require (

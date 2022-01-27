@@ -55,8 +55,8 @@ load("encoding/json.star", "json")
 def main(config):
     location = config.get(P_LOCATION)
     location = json.decode(location) if location else {}
-    time_format = H12 if config.get(P_USE_12H) else H24
-    blink_time = config.get(P_BLINK_TIME)
+    time_format = H12 if config.bool(P_USE_12H) else H24
+    blink_time = config.bool(P_BLINK_TIME)
 
     timezone = location.get(
         "timezone",
@@ -83,7 +83,7 @@ def main(config):
         (float(location["lat"]), float(location["lng"])) if location.get("lat") and location.get("lng") else None
     )
 
-    day_start = config.get(P_DAY_START) or DEFAULT_DAY_START
+    day_start = config.bool(P_DAY_START) or DEFAULT_DAY_START
     if day_start == "sunrise" and coords:
         day_start = sunrise.sunrise(coords[0], coords[1], now)
         if day_start == None:
@@ -96,7 +96,7 @@ def main(config):
     elif not re.match(r"^\d\d:\d\d$", day_start):
         day_start = DEFAULT_DAY_START
 
-    night_start = config.get(P_NIGHT_START) or DEFAULT_NIGHT_START
+    night_start = config.bool(P_NIGHT_START) or DEFAULT_NIGHT_START
     if night_start == "sunset" and coords:
         night_start = sunrise.sunset(coords[0], coords[1], now)
         if night_start == None:
