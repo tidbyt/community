@@ -1,6 +1,6 @@
 """
 Applet: Sports Standings
-Summary: Get sports standings (data courtesy of ESPN)
+Summary: Sports standings from ESPN
 Description: Get various sports standings (data courtesy of ESPN).
 Author: rs7q5 (RIS)
 """
