@@ -67,7 +67,6 @@ def main(config):
         cap = "H"
 
     else:
-
         # Request data from GHIN API
         ghin_url = GHIN_URL.format(ghin_number, last_name)
         resp = http.get(ghin_url)
