@@ -1,12 +1,12 @@
 """
 Applet: Sports Standings
-Summary: Get sports standings
-Description: Get various sports standings (currently only MLB and NHL).
+Summary: Get sports standings (data courtesy of ESPN)
+Description: Get various sports standings (data courtesy of ESPN).
 Author: rs7q5 (RIS)
 """
 #sports_standings.star
 #Created 20220119 RIS
-#Last Modified 20220126 RIS
+#Last Modified 20220127 RIS
 
 load("render.star", "render")
 load("http.star", "http")
@@ -16,8 +16,8 @@ load("cache.star", "cache")
 load("schema.star", "schema")
 load("re.star", "re")
 
-#this list are any of the sports that have a "Top headlines" section and can be done with the following base ESPN_URL
-ESPN_URL = "https://www.espn.com/"
+#this list are the sports that can have their standings pulled
+#ESPN_URL = "https://www.espn.com/"
 ESPN_SPORTS_LIST = {
     "MLB": ["MLB", "mlb"],
     "NHL": ["NHL", "nhl"],
