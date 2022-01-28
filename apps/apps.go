@@ -12,11 +12,13 @@ import (
 	"tidbyt.dev/community/apps/daynightmap"
 	"tidbyt.dev/community/apps/digitalrain"
 	"tidbyt.dev/community/apps/dvdlogo"
+	"tidbyt.dev/community/apps/espnnews"
 	"tidbyt.dev/community/apps/fuzzyclock"
 	"tidbyt.dev/community/apps/golfhandicap"
 	"tidbyt.dev/community/apps/manifest"
 	"tidbyt.dev/community/apps/nightscout"
 	"tidbyt.dev/community/apps/nyancat"
+	"tidbyt.dev/community/apps/nycbus"
 	"tidbyt.dev/community/apps/phaseofmoon"
 	"tidbyt.dev/community/apps/pokedex"
 	"tidbyt.dev/community/apps/sbbtimetable"
@@ -35,10 +37,12 @@ func GetManifests() []manifest.Manifest {
 		daynightmap.New(),
 		digitalrain.New(),
 		dvdlogo.New(),
+		espnnews.New(),
 		fuzzyclock.New(),
 		golfhandicap.New(),
 		nightscout.New(),
 		nyancat.New(),
+		nycbus.New(),
 		phaseofmoon.New(),
 		pokedex.New(),
 		sbbtimetable.New(),
