@@ -48,48 +48,58 @@ def main(config):
     - Outputs data to Tidbyt
     """
 
-    # Grab GHIN and Last Name from Schema
-    ghin_number = config.get("ghin_number", GHIN_NUMBER_DEFAULT)
-    last_name = config.get("last_name", LAST_NAME_DEFAULT)
-
     # Define Font Variable Names
     tb8 = config.get("font", "tb-8")
     tomthumb = config.get("font", "tom-thumb")
     hcp_font = config.get("font", "6x13")
 
-    # Request data from GHIN API
-    ghin_url = GHIN_URL.format(ghin_number, last_name)
-    resp = http.get(ghin_url)
-    data = resp.json()
+    # Grab GHIN and Last Name from Schema
+    ghin_number = config.get("ghin_number", GHIN_NUMBER_DEFAULT)
+    last_name = config.get("last_name", LAST_NAME_DEFAULT)
 
-    # Error Handling
-    if resp.status_code != 200:
-        if "errors" in data:
-            return display_failure("Invalid User")
-        else:
-            return display_failure("General API Error")
-
-    elif len(data["golfers"]) == 0:
-        return display_failure("User Not Found")
-
-    elif len(data["golfers"]) > 1:
-        return display_failure("User Not Found")
-
-    # Assign data points to variables
-    first_name = data["golfers"][0]["FirstName"]
-    last_name = data["golfers"][0]["LastName"]
-    ghin = data["golfers"][0]["GHINNumber"]
-    hcp = data["golfers"][0]["Display"]
-    hi = data["golfers"][0]["HiDisplay"]
-    lo = data["golfers"][0]["LowHIDisplay"]
-    cap = ""
-
-    # Determine if a soft or hard cap is in place
-    if data["golfers"][0]["SoftCap"] == "true":
-        cap = "S"
-
-    if data["golfers"][0]["HardCap"] == "true":
+    if ghin_number == "" and last_name == "":
+        first_name = "HAPPY"
+        last_name = "GILMORE"
+        ghin = "88888888"
+        hcp = "88.8"
+        hi = "88.8"
+        lo = "88.8"
         cap = "H"
+
+    else:
+        # Request data from GHIN API
+        ghin_url = GHIN_URL.format(ghin_number, last_name)
+        resp = http.get(ghin_url)
+        data = resp.json()
+
+        # Error Handling
+        if resp.status_code != 200:
+            if "errors" in data:
+                return display_failure("Invalid User")
+            else:
+                return display_failure("General API Error")
+
+        elif len(data["golfers"]) == 0:
+            return display_failure("User Not Found")
+
+        elif len(data["golfers"]) > 1:
+            return display_failure("User Not Found")
+
+        # Assign data points to variables
+        first_name = data["golfers"][0]["FirstName"]
+        last_name = data["golfers"][0]["LastName"]
+        ghin = data["golfers"][0]["GHINNumber"]
+        hcp = data["golfers"][0]["Display"]
+        hi = data["golfers"][0]["HiDisplay"]
+        lo = data["golfers"][0]["LowHIDisplay"]
+        cap = ""
+
+        # Determine if a soft or hard cap is in place
+        if data["golfers"][0]["SoftCap"] == "true":
+            cap = "S"
+
+        if data["golfers"][0]["HardCap"] == "true":
+            cap = "H"
 
     # Render Output
     return render.Root(
