@@ -44,7 +44,6 @@ def main(config):
     else:
         buoy1_json = json.decode(buoy1_json)
 
-    print(str(buoy1_json))
     height = ""
     if "error" not in buoy1_json:
         height = float(buoy1_json["height"])
