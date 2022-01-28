@@ -16,6 +16,7 @@ import (
 	"tidbyt.dev/community/apps/manifest"
 	"tidbyt.dev/community/apps/nightscout"
 	"tidbyt.dev/community/apps/nyancat"
+	"tidbyt.dev/community/apps/phaseofmoon"
 	"tidbyt.dev/community/apps/pokedex"
 	"tidbyt.dev/community/apps/sbbtimetable"
 	"tidbyt.dev/community/apps/theysaidso"
@@ -36,6 +37,7 @@ func GetManifests() []manifest.Manifest {
 		golfhandicap.New(),
 		nightscout.New(),
 		nyancat.New(),
+		phaseofmoon.New(),
 		pokedex.New(),
 		sbbtimetable.New(),
 		theysaidso.New(),
