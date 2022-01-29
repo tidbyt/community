@@ -123,7 +123,7 @@ def build_journey(raw_journey, api_key):
     eta_time = time.parse_time(eta)
     diff = eta_time - now
     diff_minutes = int(diff.minutes)
-    eta_text = "%d minutes" % diff_minutes if diff_minutes > 0 else "now"
+    eta_text = "%d minutes" % diff_minutes if diff_minutes > 1 else "1 minute" if diff_minutes == 1 else "now"
     return {
         "line_color": line_color,
         "line_name": line_name,
