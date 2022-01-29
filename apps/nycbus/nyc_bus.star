@@ -80,8 +80,7 @@ def build_row(journey):
             render.Circle(
                 color="#%s" % journey["line_color"],
                 diameter=14,
-                child=render.Text(journey["line_name"], color="#fff",
-                                  font="CG-pixel-3x5-mono"),
+                child=render.Text(journey["line_name"], color="#fff", font="CG-pixel-3x5-mono"),
             ),
             render.Column(
                 children=[
@@ -89,8 +88,7 @@ def build_row(journey):
                         width=48,
                         child=render.Text(journey["destination_name"]),
                     ),
-                    render.Text(journey["eta_text"], color="#c1773e",
-                                font="tom-thumb"),
+                    render.Text(journey["eta_text"], color="#c1773e", font="tom-thumb"),
                 ]
             ),
         ]
