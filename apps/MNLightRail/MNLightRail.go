@@ -7,7 +7,7 @@ import (
 	"tidbyt.dev/community/apps/manifest"
 )
 
-//go:embed MN_Light_Rail.star.star
+//go:embed MN_Light_Rail.star
 var source []byte
 
 // New creates a new instance of the MN Light Rail applet.
