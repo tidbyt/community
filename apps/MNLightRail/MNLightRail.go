@@ -7,10 +7,10 @@ import (
 	"tidbyt.dev/community/apps/manifest"
 )
 
-//go:embed date_time_clock.star
+//go:embed MN_Light_Rail.star.star
 var source []byte
 
-// New creates a new instance of the Date Time Clock applet.
+// New creates a new instance of the MN Light Rail applet.
 func New() manifest.Manifest {
 	return manifest.Manifest{
 		ID:          "MN-Light-Rail",
