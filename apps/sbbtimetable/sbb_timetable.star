@@ -31,7 +31,7 @@ COLOR_CATEGORY = {
     "TGV": "#700",
     "NJ": "#700",
     "S": "#007",
-    "SN": "#000",
+    "SN": "#111",
 }
 COLOR_DELAY = "#F00"
 
@@ -68,7 +68,7 @@ def display_error(msg):
 
 def main(config):
     # Get the config values
-    station = config.get("station", "ABC")
+    station = config.get("station", "Bern")
     skiptime = config.get("skiptime", 0)
 
     # Check if we need to convert the skiptime
@@ -125,6 +125,10 @@ def main(config):
                 trainDelay = resp["connections"][i]["dep_delay"]
             else:
                 trainDelay = "+0"
+            if trainCategory in COLOR_CATEGORY:
+                trainCategoryColor = COLOR_CATEGORY[trainCategory]
+            else:
+                trainCategoryColor = "#111"
 
             # Render the train category
             renderCategory = []
@@ -133,7 +137,7 @@ def main(config):
                     render.Box(
                         width = 8,
                         height = 5,
-                        color = COLOR_CATEGORY[trainCategory],
+                        color = trainCategoryColor,
                         padding = 0,
                         child = render.Text(
                             content = "%s" % trainCategory,
@@ -148,7 +152,7 @@ def main(config):
                     render.Box(
                         width = 8,
                         height = 5,
-                        color = COLOR_CATEGORY[trainCategory],
+                        color = trainCategoryColor,
                         padding = 0,
                         child = render.Text(
                             content = "%s" % trainCategoryLine,
