@@ -17,21 +17,20 @@ DEFAULT_ICON = "iVBORw0KGgoAAAANSUhEUgAAAA0AAAANCAYAAABy6+R8AAAF4mlUWHRYTUw6Y29t
 
 def main(config):
 
+	url = config.get("url")
+	# url = "test" # query a test url
+
 	if cache.get("text_large") != None:
 		print("Hit! Displaying cached data.")
 
-		text_large = cache.get("text_large")
-		text_small = cache.get("text_small")
-		text_left = cache.get("text_left")
-		text_right = cache.get("text_right")
-		icon = cache.get("icon")
+		text_large = cache.get("text_large " + url)
+		text_small = cache.get("text_small " + url)
+		text_left = cache.get("text_left " + url)
+		text_right = cache.get("text_right " + url)
+		icon = cache.get("icon " + url)
 
 	else:
 		print("No cache => Querying web service...")
-
-		url = config.get("url")
-
-		# url = "test" # query a test url
 
 		if url == "" or url == None:
 			print("Error: No URL configured")
@@ -60,11 +59,11 @@ def main(config):
 					icon = json_obj["icon"]
 
 					cache_ttl_sec = CACHE_TTL_MINUTES * 60
-					cache.set("text_large", text_large, ttl_seconds=cache_ttl_sec)
-					cache.set("text_small", text_small, ttl_seconds=cache_ttl_sec)
-					cache.set("text_left", text_left, ttl_seconds=cache_ttl_sec)
-					cache.set("text_right", text_right, ttl_seconds=cache_ttl_sec)
-					cache.set("icon", icon, ttl_seconds=cache_ttl_sec)
+					cache.set("text_large " + url, text_large, ttl_seconds=cache_ttl_sec)
+					cache.set("text_small " + url, text_small, ttl_seconds=cache_ttl_sec)
+					cache.set("text_left " + url, text_left, ttl_seconds=cache_ttl_sec)
+					cache.set("text_right " + url, text_right, ttl_seconds=cache_ttl_sec)
+					cache.set("icon " + url, icon, ttl_seconds=cache_ttl_sec)
 
 				else:
 					text_large = "Error"
