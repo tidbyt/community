@@ -7,11 +7,14 @@ load("time.star", "time")
 load("schema.star", "schema")
 
 # Define some constants
-SBB_URL = "https://fahrplan.search.ch/api/stationboard.json?show_delays=1&transportation_types=train&stop="
+SBB_URL = "https://fahrplan.search.ch/api/stationboard.json?show_delays=1&transportation_types=train"
+
 FONT_TO_USE = "CG-pixel-3x5-mono"
 NO_FRAMES_TOGGLE = 20
 COLOR_CATEGORY = {
     "IC": "#700",
+    "ICN": "#700",
+    "ICE": "#700",
     "EC": "#700",
     "IR": "#700",
     "RE": "#700",
@@ -45,7 +48,8 @@ def main(config):
     else:
         # Get a new reponse
         print("Miss! Calling API.")
-        resp = http.get("%s%s" % (SBB_URL, station))
+        sbb_dict = {"stop": station} # Provide the station with a dict, as this will be encoded
+        resp = http.get(SBB_URL, params=sbb_dict)
         if resp.status_code != 200:
             fail("Request failed with status %d", resp.status_code)
         cache.set("sbb_%s" % station, resp.body(), ttl_seconds = 120)
