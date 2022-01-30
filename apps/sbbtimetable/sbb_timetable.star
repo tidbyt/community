@@ -6,6 +6,15 @@ load("cache.star", "cache")
 load("time.star", "time")
 load("schema.star", "schema")
 
+ERROR_ICON = base64.decode("""
+iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/
+9hAAAAbklEQVQ4y72S0Q2AIAwFj8YRZBf2/2IXVtDU
+D6LRBAsIsUm/aHMvV8AoTUE1BbVmhMFyFv0x6KP7L8
+FFP1/1PYUUlgXYAFhj7k6JO7C0eJniQGqEWop5V2ih
+l/6FncDH3DUHvfT7zriDL/SpVzgA+N8ttq4TxtUAAA
+AASUVORK5CYII=
+""")
+
 # Define some constants
 SBB_URL = "https://fahrplan.search.ch/api/stationboard.json?show_delays=1&transportation_types=train"
 
@@ -26,9 +35,40 @@ COLOR_CATEGORY = {
 }
 COLOR_DELAY = "#F00"
 
+# Show an error message
+def display_error(msg):
+    return render.Root(
+        child = render.Row(
+            children = [
+                render.Box(
+                    width = 20, 
+                    height = 32, 
+                    color = "#000", 
+                    child = render.Image(
+                        src = ERROR_ICON, 
+                        width = 16, 
+                        height = 16
+                    )
+                ),
+                render.Box(
+                    padding = 0, 
+                    width = 44, 
+                    height = 32, 
+                    child = 
+                    render.WrappedText(
+                        content = msg, 
+                        color = "#FFF", 
+                        linespacing = 1,                        
+                        font = FONT_TO_USE
+                    )
+                ),
+            ],
+        ),
+    )
+
 def main(config):
     # Get the config values
-    station = config.get("station", "Bern")
+    station = config.get("station", "ABC")
     skiptime = config.get("skiptime", 0)
 
     # Check if we need to convert the skiptime
@@ -51,24 +91,15 @@ def main(config):
         sbb_dict = {"stop": station} # Provide the station with a dict, as this will be encoded
         resp = http.get(SBB_URL, params=sbb_dict)
         if resp.status_code != 200:
-            fail("Request failed with status %d", resp.status_code)
+            # Show an error message
+            return(display_error("API Error occured"))
         cache.set("sbb_%s" % station, resp.body(), ttl_seconds = 120)
         resp = json.decode(resp.body())
 
     # Check if we got a valid response
     if "connections" not in resp:
         # Show an error message
-        childRow = [
-            render.Marquee(
-                width = 64,
-                child = render.Text(
-                    content = "%s is not a valid station." % station,
-                    font = FONT_TO_USE,
-                ),
-                offset_start = 0,
-                offset_end = 0,
-            ),
-        ]
+        return(display_error("%s is not a valid station." % station))
     else:
         # Get the starting id in the data, this is prepared in case the cache time needs to be increased due to much api calls
         startID = 0
