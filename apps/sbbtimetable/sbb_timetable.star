@@ -41,26 +41,26 @@ def display_error(msg):
         child = render.Row(
             children = [
                 render.Box(
-                    width = 20, 
-                    height = 32, 
-                    color = "#000", 
+                    width = 20,
+                    height = 32,
+                    color = "#000",
                     child = render.Image(
-                        src = ERROR_ICON, 
-                        width = 16, 
-                        height = 16
-                    )
+                        src = ERROR_ICON,
+                        width = 16,
+                        height = 16,
+                    ),
                 ),
                 render.Box(
-                    padding = 0, 
-                    width = 44, 
-                    height = 32, 
-                    child = 
-                    render.WrappedText(
-                        content = msg, 
-                        color = "#FFF", 
-                        linespacing = 1,                        
-                        font = FONT_TO_USE
-                    )
+                    padding = 0,
+                    width = 44,
+                    height = 32,
+                    child =
+                        render.WrappedText(
+                            content = msg,
+                            color = "#FFF",
+                            linespacing = 1,
+                            font = FONT_TO_USE,
+                        ),
                 ),
             ],
         ),
@@ -88,18 +88,18 @@ def main(config):
     else:
         # Get a new reponse
         print("Miss! Calling API.")
-        sbb_dict = {"stop": station} # Provide the station with a dict, as this will be encoded
-        resp = http.get(SBB_URL, params=sbb_dict)
+        sbb_dict = {"stop": station}  # Provide the station with a dict, as this will be encoded
+        resp = http.get(SBB_URL, params = sbb_dict)
         if resp.status_code != 200:
             # Show an error message
-            return(display_error("API Error occured"))
+            return (display_error("API Error occured"))
         cache.set("sbb_%s" % station, resp.body(), ttl_seconds = 120)
         resp = json.decode(resp.body())
 
     # Check if we got a valid response
     if "connections" not in resp:
         # Show an error message
-        return(display_error("%s is not a valid station." % station))
+        return (display_error("%s is not a valid station." % station))
     else:
         # Get the starting id in the data, this is prepared in case the cache time needs to be increased due to much api calls
         startID = 0
