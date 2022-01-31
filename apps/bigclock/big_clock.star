@@ -147,9 +147,9 @@ def main(config):
     day_end = time.parse_time("11:59:59 PM", format = "3:04:05 PM", location = timezone)
 
     # Get config values
-    is_24_hour_format = config.get("is_24_hour_format", DEFAULT_IS_24_HOUR_FORMAT)
-    has_leading_zero = config.get("has_leading_zero", DEFAULT_HAS_LEADING_ZERO)
-    has_flashing_seperator = config.get("has_flashing_seperator", DEFAULT_HAS_FLASHING_SEPERATOR)
+    is_24_hour_format = config.bool("is_24_hour_format", DEFAULT_IS_24_HOUR_FORMAT)
+    has_leading_zero = config.bool("has_leading_zero", DEFAULT_HAS_LEADING_ZERO)
+    has_flashing_seperator = config.bool("has_flashing_seperator", DEFAULT_HAS_FLASHING_SEPERATOR)
     color_daytime = config.get("color_daytime", DEFAULT_COLOR_DAYTIME)
     color_nighttime = config.get("color_nighttime", DEFAULT_COLOR_NIGHTTIME)
 
