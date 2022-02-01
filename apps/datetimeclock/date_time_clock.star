@@ -27,8 +27,8 @@ def main(config):
     timezone = loc["timezone"]
 
     now = time.now().in_location(timezone)
-    now_date = now.format("2 JAN 2006")
-    day = now.format("Monday")
+    now_date = now.format("2 Jan 2006").upper()
+    day = now.format("Monday").upper()
 
     return render.Root(
         delay = 500,
