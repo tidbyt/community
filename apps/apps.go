@@ -18,6 +18,7 @@ import (
 	"tidbyt.dev/community/apps/golfhandicap"
 	"tidbyt.dev/community/apps/manifest"
 	"tidbyt.dev/community/apps/nightscout"
+	"tidbyt.dev/community/apps/noaabuoy"
 	"tidbyt.dev/community/apps/nyancat"
 	"tidbyt.dev/community/apps/phaseofmoon"
 	"tidbyt.dev/community/apps/pokedex"
@@ -43,6 +44,7 @@ func GetManifests() []manifest.Manifest {
 		googletraffic.New(),
 		golfhandicap.New(),
 		nightscout.New(),
+		noaabuoy.New(),
 		nyancat.New(),
 		phaseofmoon.New(),
 		pokedex.New(),
