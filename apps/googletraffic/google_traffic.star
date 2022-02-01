@@ -172,7 +172,7 @@ def main(config):
     destinationFull = config.get("destination")
     destinationJSON = json.decode(destinationFull) if destinationFull else DEFAULT_DESTINATION
     destination = destinationJSON.get("locality")
-    apikey = secret.decrypt("ABC") or config.get("apikey") or ""
+    apikey = secret.decrypt("AV6+xWcEKcu8TenAfiwgtgo9YdGTaE2bVJI2BT08Zvb9GZwzl8m6Pb2RudfILMRj0UH/pZaSh9tCFAlHzFwQ2CPaDcyLAEcuHcJYq6bMrMDuR2z7QjNCkaIvabOE9Db5lNwDqGv+yMr2QFWHffBxvwLWfqOOpDViS4KlLuFUwb/29V2dr/v6OBaEJz3w") or config.get("apikey") or ""
     transportationmode = TRANSPORTATION_MODES.get(config.get("transportationmode", "Car"))
     showDistance = config.bool("showDistance", False)
 
