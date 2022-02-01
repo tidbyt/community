@@ -89,10 +89,10 @@ def display_error(msg):
                     height = 32,
                     child =
                         render.WrappedText(
-                            content = msg,
+                            content = msg.replace("_", " "),
                             color = "#FFF",
                             linespacing = 1,
-                            font = FONT_TO_USE,
+                            font = "CG-pixel-3x5-mono",
                         ),
                 ),
             ],
@@ -193,7 +193,7 @@ def main(config):
 
     # Check for errors
     if rep["status"] != "OK":
-        return (rep["status"])
+        return (display_error(rep["status"]))
     elif rep["rows"][0]["elements"][0]["status"] != "OK":
         roadDest = rep["destination_addresses"][0]
         roadOrigin = rep["origin_addresses"][0]
