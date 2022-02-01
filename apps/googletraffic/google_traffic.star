@@ -45,6 +45,15 @@ WALK_ICON = base64.decode("""
 iVBORw0KGgoAAAANSUhEUgAAAAoAAAAKCAIAAAACUFjqAAAAO0lEQVQY042PMQ4AMAgCof//M92IGkzLJoYTgS5Jkjwe/GtEAdCL5pITbusNNyxXM4k1uh6qnfPfsdoFM+Mj9n0J0akAAAAASUVORK5CYII=
 """)
 
+ERROR_ICON = base64.decode("""
+iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/
+9hAAAAbklEQVQ4y72S0Q2AIAwFj8YRZBf2/2IXVtDU
+D6LRBAsIsUm/aHMvV8AoTUE1BbVmhMFyFv0x6KP7L8
+FFP1/1PYUUlgXYAFhj7k6JO7C0eJniQGqEWop5V2ih
+l/6FncDH3DUHvfT7zriDL/SpVzgA+N8ttq4TxtUAAA
+AASUVORK5CYII=
+""")
+
 DEFAULT_DEPARTURE = {
     "locality": "Barcellona",
 }
@@ -58,6 +67,37 @@ TRANSPORTATION_MODES = {
     "Bicycle": "bicycling",
     "Public Transport": "transit",
 }
+
+# Show an error message
+def display_error(msg):
+    return render.Root(
+        child = render.Row(
+            children = [
+                render.Box(
+                    width = 20,
+                    height = 32,
+                    color = "#000",
+                    child = render.Image(
+                        src = ERROR_ICON,
+                        width = 16,
+                        height = 16,
+                    ),
+                ),
+                render.Box(
+                    padding = 0,
+                    width = 44,
+                    height = 32,
+                    child =
+                        render.WrappedText(
+                            content = msg,
+                            color = "#FFF",
+                            linespacing = 1,
+                            font = FONT_TO_USE,
+                        ),
+                ),
+            ],
+        ),
+    )
 
 def render_animation(roadDest, roadOrigin, roadDuration, transportationmode):
     if transportationmode == TRANSPORTATION_MODES.get("Car"):
@@ -144,7 +184,7 @@ def main(config):
         print("Miss! Calling Google API.")
         rep = http.get("%s%s&destinations=%s&origins=%s&mode=%s" % (GOOGLE_URL, apikey, destination, departure, transportationmode))
         if rep.status_code != 200:
-            fail("Google request failed with status %d", rep.status_code)
+            return (display_error("API Error occured"))
         cache.set("%s&destinations=%s&origins=%s&mode=%s" % (apikey, destination, departure, transportationmode), rep.body(), ttl_seconds = 300)
         rep = json.decode(rep.body())
 
@@ -153,17 +193,7 @@ def main(config):
 
     # Check for errors
     if rep["status"] != "OK":
-        renderChildren.append(
-            render.Marquee(
-                width = 64,
-                child = render.Text(
-                    content = rep["status"],
-                    font = FONT_TO_USE,
-                ),
-                offset_start = 0,
-                offset_end = 0,
-            ),
-        )
+        return (rep["status"])
     elif rep["rows"][0]["elements"][0]["status"] != "OK":
         roadDest = rep["destination_addresses"][0]
         roadOrigin = rep["origin_addresses"][0]
