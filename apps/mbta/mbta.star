@@ -9,8 +9,11 @@ load("http.star", "http")
 load("render.star", "render")
 load("schema.star", "schema")
 load("time.star", "time")
+load("secret.star", "secret")
 
 URL = "https://api-v3.mbta.com/predictions"
+
+API_KEY = secret.decrypt("AV6+xWcEFe8B+1zoMJpL7mvq/utSOtMw6qSGeCYZjUhKnv21BwCdrfQWjtr/mYvReXGmpd1Wf2SD+EjIZl+/Uh+VxTDZQhJpYqChzPvioRUmj2y6rnxTVuOl8llWXrShy9aXWkVFRsNRFuZ4XZre1Q4Mf6Qmd+DWNzVESSFONPh3Vv0Jieo=")
 
 T_ABBREV = {
     "Orange": "OL",
@@ -25,38 +28,43 @@ def main(config):
     params = {
         "sort": "arrival_time",
         "include": "route",
-        "filter[stop]": stop
+        "filter[stop]": stop,
     }
-    rep = http.get(URL, params=params)
+    if API_KEY:
+        params["api_key"] = API_KEY
+    rep = http.get(URL, params = params)
     if rep.status_code != 200:
         fail("MBTA API request failed with status {}".format(rep.status_code))
 
     rows = []
-    predictions = [p for p in rep.json()["data"]
-                   if p["attributes"]["schedule_relationship"] != "SKIPPED"]
+    predictions = [
+        p
+        for p in rep.json()["data"]
+        if p["attributes"]["schedule_relationship"] != "SKIPPED"
+    ]
     for prediction in predictions:
         route = prediction["relationships"]["route"]["data"]["id"]
         route = find(rep.json()["included"], lambda o: o["type"] == "route" and o["id"] == route)
         r = renderSched(prediction, route, timezone)
         if r:
             rows.extend(r)
-            rows.append(render.Box(height=1, width=64, color="#ccffff"))
+            rows.append(render.Box(height = 1, width = 64, color = "#ccffff"))
 
     if rows:
         return render.Root(
-            child=render.Column(children=rows[:3], main_align="start")
+            child = render.Column(children = rows[:3], main_align = "start"),
         )
     else:
         return render.Root(
-            child=render.Marquee(
-                width=64,
-                child=render.Text(
-                    content="No current departures",
-                    height=8,
-                    offset=-1,
-                    font="Dina_r400-6"
-                )
-            )
+            child = render.Marquee(
+                width = 64,
+                child = render.Text(
+                    content = "No current departures",
+                    height = 8,
+                    offset = -1,
+                    font = "Dina_r400-6",
+                ),
+            ),
         )
 
 def renderSched(prediction, route, timezone):
@@ -75,63 +83,65 @@ def renderSched(prediction, route, timezone):
     first_line = dest
     if attrs["status"]:
         first_line = render.Row(
-            children=[
+            children = [
                 render.Text(
-                    content=dest + " \u00b7 ",
-                    height=8,
-                    offset=-1,
-                    font="Dina_r400-6"
+                    content = dest + " \\u00b7 ",
+                    height = 8,
+                    offset = -1,
+                    font = "Dina_r400-6",
                 ),
                 render.Text(
-                    content=attrs["status"],
-                    height=8,
-                    offset=-1,
-                    font="Dina_r400-6",
-                    color="#df000f"
-                )
-            ]
+                    content = attrs["status"],
+                    height = 8,
+                    offset = -1,
+                    font = "Dina_r400-6",
+                    color = "#df000f",
+                ),
+            ],
         )
     else:
         first_line = render.Text(
-            content=dest,
-            height=8,
-            offset=-1,
-            font="Dina_r400-6"
+            content = dest,
+            height = 8,
+            offset = -1,
+            font = "Dina_r400-6",
         )
     return [render.Row(
-        main_align="space_between",
-        children=[
+        main_align = "space_between",
+        children = [
             render.Stack(
-                children=[
+                children = [
                     render.Circle(
-                        diameter=12, color="#{}".format(route["attributes"]["color"] or "ffc72c"),
-                        child=render.Text(
-                            content=short_name,
-                            color="#{}".format(route["attributes"]["text_color"] or "000"),
-                            font="CG-pixel-3x5-mono" if len(short_name) > 2 else "tb-8")
-                    )
-                ]
+                        diameter = 12,
+                        color = "#{}".format(route["attributes"]["color"] or "ffc72c"),
+                        child = render.Text(
+                            content = short_name,
+                            color = "#{}".format(route["attributes"]["text_color"] or "000"),
+                            font = "CG-pixel-3x5-mono" if len(short_name) > 2 else "tb-8",
+                        ),
+                    ),
+                ],
             ),
-            render.Box(width=2, height=5),
+            render.Box(width = 2, height = 5),
             render.Column(
-                main_align="start",
-                cross_align="left",
-                children=[
+                main_align = "start",
+                cross_align = "left",
+                children = [
                     render.Marquee(
-                        width=50,
-                        child=first_line
+                        width = 50,
+                        child = first_line,
                     ),
                     render.Text(
-                        content=msg,
-                        height=8,
-                        offset=-1,
-                        font="Dina_r400-6",
-                        color="#ffd11a"
-                    )
-                ]
-            )
+                        content = msg,
+                        height = 8,
+                        offset = -1,
+                        font = "Dina_r400-6",
+                        color = "#ffd11a",
+                    ),
+                ],
+            ),
         ],
-        cross_align="center"
+        cross_align = "center",
     )]
 
 def find(xs, pred):
@@ -141,10 +151,14 @@ def find(xs, pred):
     return None
 
 def get_schema():
-    rep = http.get("https://api-v3.mbta.com/stops", params={
-        "page[limit]": 10000,
-        "sort": "name"
-    })
+    params = {
+        "page[limit]": "10000",
+        "sort": "name",
+    }
+    if API_KEY:
+        params["api_key"] = API_KEY
+
+    rep = http.get("https://api-v3.mbta.com/stops", params = params)
     if rep.status_code != 200:
         fail("MBTA API request failed with status {}".format(rep.status_code))
     data = rep.json()
@@ -154,10 +168,10 @@ def get_schema():
             continue
         if s["relationships"]["parent_station"]["data"]:
             continue
-        stops += schema.Option(
-            display=s["attributes"]["name"],
-            value = s["id"]
-        )
+        stops += [schema.Option(
+            display = s["attributes"]["name"],
+            value = s["id"],
+        )]
 
     return schema.Schema(
         version = "1",
@@ -168,8 +182,7 @@ def get_schema():
                 desc = "The stop or station name.",
                 icon = "bus",
                 default = stops[0].value,
-	            options = stops,
+                options = stops,
             ),
         ],
     )
-
