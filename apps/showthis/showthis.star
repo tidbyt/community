@@ -51,7 +51,6 @@ def main(config):
 				display_vals = rep.json()
 
 				if display_vals != None:
-
 					cache_ttl_sec = CACHE_TTL_MINUTES * 60
 					cache.set("showthis_url " + url, json.encode(display_vals), ttl_seconds=cache_ttl_sec)
 
@@ -63,8 +62,6 @@ def main(config):
 					display_vals["icon"] = DEFAULT_ICON
 
 			else:
-				fail("Service request failed with status %d", rep.status_code)
-
 				display_vals["text_large"] = "Error"
 				display_vals["text_small"] = "code " + rep.status_code
 				display_vals["text_left"] = "ShowThis"
