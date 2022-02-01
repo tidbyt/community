@@ -6,7 +6,7 @@ Author: rs7q5 (RIS)
 """
 #sports_standings.star
 #Created 20220119 RIS
-#Last Modified 20220127 RIS
+#Last Modified 20220201 RIS
 
 load("render.star", "render")
 load("http.star", "http")
@@ -50,7 +50,7 @@ def main(config):
             stats = get_nbastats()
 
         #cache the data
-        cache.set("stats_rate", json.encode(str(stats)), ttl_seconds = 86400)  #grabs it once a day
+        cache.set("stats_rate", json.encode(stats), ttl_seconds = 86400)  #grabs it once a day
 
         #get frames before display
         frame_vec = get_frames(stats, sport, font)
