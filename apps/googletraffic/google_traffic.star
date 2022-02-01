@@ -13,7 +13,7 @@ load("cache.star", "cache")
 load("time.star", "time")
 load("schema.star", "schema")
 
-GOOGLE_URL = "https://maps.googleapis.com/maps/api/distancematrix/json?departure_time=now&key="
+GOOGLE_URL = "https://maps.googleapis.com/maps/api/distancematrix/json?departure_time=now"
 
 FONT_TO_USE = "tb-8"
 
@@ -182,7 +182,14 @@ def main(config):
         rep = json.decode(rep_cached)
     else:
         print("Miss! Calling Google API.")
-        rep = http.get("%s%s&destinations=%s&origins=%s&mode=%s" % (GOOGLE_URL, apikey, destination, departure, transportationmode))
+        # Provide the parameters with a dict, as this will be encoded
+        google_dict = {
+            "destinations": destination, 
+            "origins": departure,
+            "mode": transportationmode,
+            "key": apikey
+        }  
+        rep = http.get(GOOGLE_URL, params = google_dict)
         if rep.status_code != 200:
             return (display_error("API Error occured"))
         cache.set("%s&destinations=%s&origins=%s&mode=%s" % (apikey, destination, departure, transportationmode), rep.body(), ttl_seconds = 300)
