@@ -7,7 +7,7 @@ Author: rs7q5 (RIS)
 
 #nationalToday.star
 #Created 20220130 RIS
-#Last Modified 20220130 RIS
+#Last Modified 20220201 RIS
 
 load("render.star", "render")
 load("http.star", "http")
@@ -23,7 +23,7 @@ load("re.star", "re")
 
 base_URL = "https://nationaltoday.com/what-is-today/"
 
-def main(config):
+def main():
     font = "tb-8"  #set font
 
     #check for cached data
@@ -39,32 +39,33 @@ def main(config):
         #get the data
         rep = http.get(base_URL)
         if rep.status_code != 200:
-            fail("NationalToday request failed with status %d", rep.status_code)
-        holidays_list = re.findall('holiday-title">(.*?)<', rep.body())  #finds the holiday titles for the current day
+            holidays_list = re.findall('holiday-title">(.*?)<', rep.body())  #finds the holiday titles for the current day
 
-        #get the date text too
-        date = re.findall('meta name="description" content=(.*?)-', rep.body())[0]  #(.*?)/>',rep.body())
-        date = re.sub('meta name="description" content="| -', "", date)
+            #get the date text too
+            date = re.findall('meta name="description" content=(.*?)-', rep.body())[0]  #(.*?)/>',rep.body())
+            date = re.sub('meta name="description" content="| -', "", date)
 
-        #parse through and set up text for each holiday
-        holiday_txt = []
-        for i, holiday in enumerate(holidays_list):
-            holiday_txt.append(re.sub('holiday-title">|<', "", holiday))
+            #parse through and set up text for each holiday
+            holiday_txt = []
+            for i, holiday in enumerate(holidays_list):
+                holiday_txt.append(re.sub('holiday-title">|<', "", holiday))
 
-        if holiday_txt == []:
-            holiday_txt = ["No holidays today :("]
+            if holiday_txt == []:
+                holiday_txt = ["No holidays today :("]
 
-        #shorten month name and add text to holidays
-        date_split = date.split(" ")
-        if date_split[0] in ("June", "July", "September"):
-            date_split[0] = date_split[0][:4]
+            #shorten month name and add text to holidays
+            date_split = date.split(" ")
+            if date_split[0] in ("June", "July", "September"):
+                date_split[0] = date_split[0][:4]
+            else:
+                date_split[0] = date_split[0][:3]
+
+            holiday_txt.insert(0, " ".join(date_split))
         else:
-            date_split[0] = date_split[0][:3]
-
-        holiday_txt.insert(0, " ".join(date_split))
+            holiday_txt = ["Error", "Could not get holidays!!!!"]
 
         #cache the data
-        cache.set("holiday_rate", json.encode(str(holiday_txt)), ttl_seconds = 86400)  #grabs it once a day
+        cache.set("holiday_rate", json.encode(holiday_txt), ttl_seconds = 86400)  #grabs it once a day
         holiday_fmt = format_text(holiday_txt, font)
 
     return render.Root(
