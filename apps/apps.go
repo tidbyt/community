@@ -14,14 +14,19 @@ import (
 	"tidbyt.dev/community/apps/dvdlogo"
 	"tidbyt.dev/community/apps/espnnews"
 	"tidbyt.dev/community/apps/fuzzyclock"
+	"tidbyt.dev/community/apps/googletraffic"
 	"tidbyt.dev/community/apps/golfhandicap"
 	"tidbyt.dev/community/apps/jokesjokeapi"
 	"tidbyt.dev/community/apps/manifest"
+	"tidbyt.dev/community/apps/mbta"
 	"tidbyt.dev/community/apps/nightscout"
+	"tidbyt.dev/community/apps/noaabuoy"
 	"tidbyt.dev/community/apps/nyancat"
 	"tidbyt.dev/community/apps/phaseofmoon"
 	"tidbyt.dev/community/apps/pokedex"
 	"tidbyt.dev/community/apps/sbbtimetable"
+	"tidbyt.dev/community/apps/sportsstandings"
+	"tidbyt.dev/community/apps/sunrisesunset"
 	"tidbyt.dev/community/apps/theysaidso"
 	"tidbyt.dev/community/apps/twitterfollows"
 )
@@ -39,13 +44,18 @@ func GetManifests() []manifest.Manifest {
 		dvdlogo.New(),
 		espnnews.New(),
 		fuzzyclock.New(),
+		googletraffic.New(),
 		golfhandicap.New(),
 		jokesjokeapi.New(),
+		mbta.New(),
 		nightscout.New(),
+		noaabuoy.New(),
 		nyancat.New(),
 		phaseofmoon.New(),
 		pokedex.New(),
 		sbbtimetable.New(),
+		sportsstandings.New(),
+		sunrisesunset.New(),
 		theysaidso.New(),
 		twitterfollows.New(),
 	}
