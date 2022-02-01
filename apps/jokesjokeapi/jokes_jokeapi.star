@@ -48,24 +48,24 @@ def main(config):
         joke = json.decode(joke_cached)
         joke_txt = format_text(joke, font)
     else:
-         print("Miss! Calling JokeAPI data.") #error code checked within each function!!!!
+        print("Miss! Calling JokeAPI data.")  #error code checked within each function!!!!
+
         #get the data
         rep = http.get(full_URL)
 
         if rep.status_code != 200:
             joke = ["Error, could not get jokes!!!!"]
         else:
-
             #get the joke strings
-            if rep.json()["type"]=="twopart":
-                joke = [re.sub('"\"|"\n"',"",rep.json()["setup"])]
-                joke.append(re.sub('"\"|"\n"',"",rep.json()["delivery"]))
+            if rep.json()["type"] == "twopart":
+                joke = [re.sub('"\"|"\n"', "", rep.json()["setup"])]
+                joke.append(re.sub('"\"|"\n"', "", rep.json()["delivery"]))
             else:
-                joke =  [re.sub('"\"|"\n"',"",rep.json()["joke"])]
+                joke = [re.sub('"\"|"\n"', "", rep.json()["joke"])]
 
         #cache the data
-        cache.set("joke_rate",json.encode(joke),ttl_seconds=43200) #grabs it twice a day
-        joke_txt = format_text(joke,font) #render the text
+        cache.set("joke_rate", json.encode(joke), ttl_seconds = 43200)  #grabs it twice a day
+        joke_txt = format_text(joke, font)  #render the text
     return render.Root(
         delay = 200,  #speed up scroll text
         child = render.Column(
