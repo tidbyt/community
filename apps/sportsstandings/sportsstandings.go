@@ -17,7 +17,7 @@ func New() manifest.Manifest {
 		Name:        "Sports Standings",
 		Author:      "rs7q5 (RIS)",
 		Summary:     "Get sports standings",
-		Desc:        "Get various sports standings (currently only MLB and NHL).",
+		Desc:        "Get various sports standings (data courtesy of ESPN).",
 		FileName:    "sports_standings.star",
 		PackageName: "sportsstandings",
 		Source:  source,
