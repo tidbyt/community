@@ -88,6 +88,9 @@ def main(config):
     # Calculate current day of the cycle from there
     currentday = currentfrac * LUNARDAYS
 
+    moonPhase = MOON_PHASES[0]
+    phaseImage = PHASE_IMAGES[0]
+
     for x in range(0, NUM_PHASES):
         if currentday > PHASE_CHANGES[x] and currentday <= PHASE_CHANGES[x + 1]:
             moonPhase = MOON_PHASES[x]
