@@ -14,6 +14,7 @@ import (
 	"tidbyt.dev/community/apps/dvdlogo"
 	"tidbyt.dev/community/apps/espnnews"
 	"tidbyt.dev/community/apps/fuzzyclock"
+	"tidbyt.dev/community/apps/googletraffic"
 	"tidbyt.dev/community/apps/golfhandicap"
 	"tidbyt.dev/community/apps/manifest"
 	"tidbyt.dev/community/apps/nightscout"
@@ -39,6 +40,7 @@ func GetManifests() []manifest.Manifest {
 		dvdlogo.New(),
 		espnnews.New(),
 		fuzzyclock.New(),
+		googletraffic.New(),
 		golfhandicap.New(),
 		nightscout.New(),
 		nyancat.New(),
