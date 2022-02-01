@@ -12,6 +12,7 @@ load("encoding/json.star", "json")
 load("cache.star", "cache")
 load("time.star", "time")
 load("schema.star", "schema")
+load("secret.star", "secret")
 
 GOOGLE_URL = "https://maps.googleapis.com/maps/api/distancematrix/json?departure_time=now"
 
@@ -171,7 +172,7 @@ def main(config):
     destinationFull = config.get("destination")
     destinationJSON = json.decode(destinationFull) if destinationFull else DEFAULT_DESTINATION
     destination = destinationJSON.get("locality")
-    apikey = config.get("apikey", "ABC")
+    apikey = secret.decrypt("ABC") or config.get("apikey")
     transportationmode = TRANSPORTATION_MODES.get(config.get("transportationmode", "Car"))
     showDistance = config.bool("showDistance", False)
 
@@ -260,12 +261,6 @@ def get_schema():
                 desc = "Show Distance from departure to destination.",
                 icon = "route",
                 default = True,
-            ),
-            schema.Text(
-                id = "apikey",
-                name = "API Key",
-                desc = "Google Maps Distance Matrix API Key",
-                icon = "google",
             ),
         ],
     )
