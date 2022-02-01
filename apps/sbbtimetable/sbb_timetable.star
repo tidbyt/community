@@ -74,9 +74,6 @@ def main(config):
     station = config.get("station", "Bern")
     skiptime = config.get("skiptime", 0)
 
-    for i, connection in enumerate(stationtest):
-        print(connection.display)
-
     # Check if we need to convert the skiptime
     if type(skiptime) == "string":
         skiptime = int(skiptime)
