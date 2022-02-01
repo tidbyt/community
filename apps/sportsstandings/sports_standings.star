@@ -33,7 +33,7 @@ def main(config):
     font = "CG-pixel-3x5-mono"  #set font
 
     #check for cached data
-    stats_cached = cache.get("stats_rate")
+    stats_cached = cache.get("stats_rate/%s" % sport)
     if stats_cached != None:  #if any are None then all(title_cached)==False
         print("Hit! Displaying cached data.")
         stats = json.decode(stats_cached)
