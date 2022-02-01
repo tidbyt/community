@@ -183,13 +183,14 @@ def main(config):
         rep = json.decode(rep_cached)
     else:
         print("Miss! Calling Google API.")
+
         # Provide the parameters with a dict, as this will be encoded
         google_dict = {
-            "destinations": destination, 
+            "destinations": destination,
             "origins": departure,
             "mode": transportationmode,
-            "key": apikey
-        }  
+            "key": apikey,
+        }
         rep = http.get(GOOGLE_URL, params = google_dict)
         if rep.status_code != 200:
             return (display_error("API Error occured"))
