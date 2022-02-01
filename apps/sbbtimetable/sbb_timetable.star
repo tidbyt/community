@@ -17,6 +17,9 @@ AASUVORK5CYII=
 
 # Define some constants
 SBB_URL = "https://fahrplan.search.ch/api/stationboard.json?show_delays=1&transportation_types=train"
+SBB_URL_COMPLETION = "https://fahrplan.search.ch/api/completion.json"
+
+SBB_COMPLETION_TRAINSTATION_STRING = "sl-icon-type-train"
 
 FONT_TO_USE = "CG-pixel-3x5-mono"
 NO_FRAMES_TOGGLE = 20
@@ -71,6 +74,9 @@ def main(config):
     station = config.get("station", "Bern")
     skiptime = config.get("skiptime", 0)
 
+    for i, connection in enumerate(stationtest):
+        print(connection.display)
+
     # Check if we need to convert the skiptime
     if type(skiptime) == "string":
         skiptime = int(skiptime)
@@ -100,6 +106,9 @@ def main(config):
     if "connections" not in resp:
         # Show an error message
         return (display_error("%s is not a valid station." % station))
+    elif resp["connections"] == None:
+        # Show an error message
+        return (display_error("No connections found."))
     else:
         # Get the starting id in the data, this is prepared in case the cache time needs to be increased due to much api calls
         startID = 0
@@ -222,15 +231,73 @@ def main(config):
         ),
     )
 
+def search_station(pattern):
+    # Check if we have the requested data in the cache
+    resp_cached = cache.get("sbb_pattern_%s" % pattern)
+    if resp_cached != None:
+        # Get the cached response
+        print("Pattern Hit! Displaying cached data.")
+        resp = json.decode(resp_cached)
+    else:
+        # Get a new reponse
+        print("Pattern Miss! Calling API.")
+        sbb_dict = {"term": pattern}  # Provide the pattern with a dict, as this will be encoded
+        resp = http.get(SBB_URL_COMPLETION, params = sbb_dict)
+        if resp.status_code != 200:
+            # Return an error message
+            return [
+                schema.Option(
+                    display = "API Error",
+                    value = "API Error",
+                ),
+            ]
+        cache.set("sbb_pattern_%s" % pattern, resp.body(), ttl_seconds = 604800)
+        resp = json.decode(resp.body())
+
+    # Check if the response is empty
+    if len(resp) == 0:
+        return [
+            schema.Option(
+                display = "No Stations found",
+                value = "No Stations found",
+            ),
+        ]
+
+    # Create empty list
+    trainStations = []
+
+    # Loop through all returned elements and filter out the trainstations
+    for station in resp:
+        if station["iconclass"] == SBB_COMPLETION_TRAINSTATION_STRING:
+            trainStations.append(
+                schema.Option(
+                    display = station["label"],
+                    value = station["label"],
+                ),
+            )
+
+    # Check if we did not found some train stations
+    if len(trainStations) == 0:
+        return [
+            schema.Option(
+                display = "No Train-Stations found",
+                value = "No Train-Stations found",
+            ),
+        ]
+
+    # Return the found stations
+    return trainStations
+
 def get_schema():
     return schema.Schema(
         version = "1",
         fields = [
-            schema.Text(
+            schema.Typeahead(
                 id = "station",
                 name = "Station",
                 desc = "Station from which the timetable shall be shown.",
                 icon = "train",
+                handler = search_station,
             ),
             schema.Text(
                 id = "skiptime",
