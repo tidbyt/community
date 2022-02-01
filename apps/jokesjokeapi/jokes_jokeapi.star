@@ -11,34 +11,22 @@ Author: rs7q5 (RIS)
 
 load("render.star", "render")
 load("http.star", "http")
-load("encoding/base64.star", "base64")
+
+#load("encoding/base64.star", "base64")
 load("encoding/json.star", "json")
 load("cache.star", "cache")
-load("schema.star", "schema")
 
+#load("schema.star","schema")
 #load("math.star","math")
 #load("time.star","time")
 load("re.star", "re")
 
 base_URL = "https://v2.jokeapi.dev/joke/Any"
-blacklist_flags = ["nsfw", "religious", "political", "racist", "sexist", "explicit"]
 
-def main(config):
+def main():
     #get any flags
-    safe_mode = config.bool("safe_mode")
-    if safe_mode:
-        full_URL = base_URL + "?safe-mode"  #safe-mode overrides any other blacklist flags
-    else:
-        blacklist_full = ""
-        for flag in blacklist_flags:
-            if config.bool(flag + "_flag"):
-                blacklist_full += flag
-                if flag != "explicit":
-                    blacklist_full += ","
-        if blacklist_full != "":
-            full_URL = base_URL + "?blacklistFlags=" + blacklist_full
-        else:
-            full_URL = base_URL
+    full_URL = base_URL + "?safe-mode"
+
     font = "tb-8"  #set font
 
     #check for cached data
@@ -81,62 +69,6 @@ def main(config):
                 ),
             ],
         ),
-    )
-
-def get_schema():
-    return schema.Schema(
-        version = "1",
-        fields = [
-            schema.Toggle(
-                id = "safe_mode",
-                name = "Safe Mode",
-                desc = "Only jokes that are considered safe for everyone are returned (If enabled this will override all other exclude flags, should filter dark jokes too).",
-                icon = "triangle-exclamation",
-                default = True,
-            ),
-            schema.Toggle(
-                id = "nsfw_flag",
-                name = "NSFW flag",
-                desc = "NSFW jokes are excluded.",
-                icon = "triangle-exclamation",
-                default = False,
-            ),
-            schema.Toggle(
-                id = "religious_exclude",
-                name = "Religious flag",
-                desc = "Religious jokes are excluded.",
-                icon = "triangle-exclamation",
-                default = False,
-            ),
-            schema.Toggle(
-                id = "political_flag",
-                name = "Political flag",
-                desc = "Political jokes are excluded.",
-                icon = "triangle-exclamation",
-                default = False,
-            ),
-            schema.Toggle(
-                id = "racist_flag",
-                name = "Racist flag",
-                desc = "Racist jokes are excluded.",
-                icon = "triangle-exclamation",
-                default = False,
-            ),
-            schema.Toggle(
-                id = "sexist_flag",
-                name = "Sexist flag",
-                desc = "Sexist jokes are excluded.",
-                icon = "triangle-exclamation",
-                default = False,
-            ),
-            schema.Toggle(
-                id = "explicit_flag",
-                name = "Explicit flag",
-                desc = "Explicit jokes are excluded.",
-                icon = "triangle-exclamation",
-                default = False,
-            ),
-        ],
     )
 
 def format_text(x, font):
