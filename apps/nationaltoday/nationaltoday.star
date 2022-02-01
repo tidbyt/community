@@ -65,7 +65,7 @@ def main():
             holiday_txt = ["Error", "Could not get holidays!!!!"]
 
         #cache the data
-        cache.set("holiday_rate", json.encode(holiday_txt), ttl_seconds = 86400)  #grabs it once a day
+        cache.set("holiday_rate", json.encode(holiday_txt), ttl_seconds = 1800)  # cache for 30 min
         holiday_fmt = format_text(holiday_txt, font)
 
     return render.Root(
