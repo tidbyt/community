@@ -51,9 +51,11 @@ def main():
             else:
                 joke = [re.sub('"\"|"\n"', "", rep.json()["joke"])]
 
-        #cache the data
-        cache.set("joke_rate", json.encode(joke), ttl_seconds = 43200)  #grabs it twice a day
+            #cache the data
+            cache.set("joke_rate", json.encode(joke), ttl_seconds = 43200)  #grabs it twice a day
+
         joke_txt = format_text(joke, font)  #render the text
+
     return render.Root(
         delay = 200,  #speed up scroll text
         child = render.Column(
