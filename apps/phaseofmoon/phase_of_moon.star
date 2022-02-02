@@ -110,7 +110,7 @@ def main(config):
                         pad = (1, 0, 0, 0),
                         child = render.WrappedText(
                             font = "tom-thumb",
-                            content = moonPhase
+                            content = moonPhase,
                         ),
                     ),
                 ],
