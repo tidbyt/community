@@ -8,6 +8,7 @@ import (
 	"tidbyt.dev/community/apps/bgghotness"
 	"tidbyt.dev/community/apps/bigclock"
 	"tidbyt.dev/community/apps/clockbyhenry"
+	"tidbyt.dev/community/apps/dateprogress"
 	"tidbyt.dev/community/apps/datetimeclock"
 	"tidbyt.dev/community/apps/daynightmap"
 	"tidbyt.dev/community/apps/digitalrain"
@@ -39,6 +40,7 @@ func GetManifests() []manifest.Manifest {
 		bgghotness.New(),
 		bigclock.New(),
 		clockbyhenry.New(),
+		dateprogress.New(),
 		datetimeclock.New(),
 		daynightmap.New(),
 		digitalrain.New(),
