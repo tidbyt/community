@@ -108,7 +108,10 @@ def main(config):
                     render.Image(src = base64.decode(phaseImage)),
                     render.Padding(
                         pad = (1, 0, 0, 0),
-                        child = render.WrappedText(moonPhase),
+                        child = render.WrappedText(
+                            font = "tom-thumb",
+                            content = moonPhase,
+                        ),
                     ),
                 ],
             ),
