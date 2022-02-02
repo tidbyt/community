@@ -55,13 +55,12 @@ def main(config):
         if resp.status_code != 200:
             return display_failure("Failed to get the current game icon with code {}".format(resp.status_code))
 
-        if resp.json()["response"]["game_count"] != 1:
-            return display_failure("Failed to find game with ID {}".format(current_game_id))
-
-        game_icon_hash = resp.json()["response"]["games"][0]["img_icon_url"]
-        game_icon_url = "http://media.steampowered.com/steamcommunity/public/images/apps/" + str(current_game_id) + "/" + game_icon_hash + ".jpg"
-
-        main_icon = http.get(game_icon_url).body()
+        if resp.json()["response"]["game_count"] == 1:
+            game_icon_hash = resp.json()["response"]["games"][0]["img_icon_url"]
+            game_icon_url = "http://media.steampowered.com/steamcommunity/public/images/apps/" + str(current_game_id) + "/" + game_icon_hash + ".jpg"
+            main_icon = http.get(game_icon_url).body()
+        else:
+            main_icon = STEAM_ICON
 
     else:
         # There's no current game - get a list of previously played to display.
