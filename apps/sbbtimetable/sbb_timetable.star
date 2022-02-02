@@ -6,12 +6,27 @@ load("cache.star", "cache")
 load("time.star", "time")
 load("schema.star", "schema")
 
+ERROR_ICON = base64.decode("""
+iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/
+9hAAAAbklEQVQ4y72S0Q2AIAwFj8YRZBf2/2IXVtDU
+D6LRBAsIsUm/aHMvV8AoTUE1BbVmhMFyFv0x6KP7L8
+FFP1/1PYUUlgXYAFhj7k6JO7C0eJniQGqEWop5V2ih
+l/6FncDH3DUHvfT7zriDL/SpVzgA+N8ttq4TxtUAAA
+AASUVORK5CYII=
+""")
+
 # Define some constants
-SBB_URL = "https://fahrplan.search.ch/api/stationboard.json?show_delays=1&transportation_types=train&stop="
+SBB_URL = "https://fahrplan.search.ch/api/stationboard.json?show_delays=1&transportation_types=train"
+SBB_URL_COMPLETION = "https://fahrplan.search.ch/api/completion.json"
+
+SBB_COMPLETION_TRAINSTATION_STRING = "sl-icon-type-train"
+
 FONT_TO_USE = "CG-pixel-3x5-mono"
 NO_FRAMES_TOGGLE = 20
 COLOR_CATEGORY = {
     "IC": "#700",
+    "ICN": "#700",
+    "ICE": "#700",
     "EC": "#700",
     "IR": "#700",
     "RE": "#700",
@@ -19,9 +34,40 @@ COLOR_CATEGORY = {
     "TGV": "#700",
     "NJ": "#700",
     "S": "#007",
-    "SN": "#000",
+    "SN": "#111",
 }
 COLOR_DELAY = "#F00"
+
+# Show an error message
+def display_error(msg):
+    return render.Root(
+        child = render.Row(
+            children = [
+                render.Box(
+                    width = 20,
+                    height = 32,
+                    color = "#000",
+                    child = render.Image(
+                        src = ERROR_ICON,
+                        width = 16,
+                        height = 16,
+                    ),
+                ),
+                render.Box(
+                    padding = 0,
+                    width = 44,
+                    height = 32,
+                    child =
+                        render.WrappedText(
+                            content = msg,
+                            color = "#FFF",
+                            linespacing = 1,
+                            font = FONT_TO_USE,
+                        ),
+                ),
+            ],
+        ),
+    )
 
 def main(config):
     # Get the config values
@@ -45,26 +91,21 @@ def main(config):
     else:
         # Get a new reponse
         print("Miss! Calling API.")
-        resp = http.get("%s%s" % (SBB_URL, station))
+        sbb_dict = {"stop": station}  # Provide the station with a dict, as this will be encoded
+        resp = http.get(SBB_URL, params = sbb_dict)
         if resp.status_code != 200:
-            fail("Request failed with status %d", resp.status_code)
+            # Show an error message
+            return (display_error("API Error occured"))
         cache.set("sbb_%s" % station, resp.body(), ttl_seconds = 120)
         resp = json.decode(resp.body())
 
     # Check if we got a valid response
     if "connections" not in resp:
         # Show an error message
-        childRow = [
-            render.Marquee(
-                width = 64,
-                child = render.Text(
-                    content = "%s is not a valid station." % station,
-                    font = FONT_TO_USE,
-                ),
-                offset_start = 0,
-                offset_end = 0,
-            ),
-        ]
+        return (display_error("%s is not a valid station." % station))
+    elif resp["connections"] == None:
+        # Show an error message
+        return (display_error("No connections found."))
     else:
         # Get the starting id in the data, this is prepared in case the cache time needs to be increased due to much api calls
         startID = 0
@@ -90,6 +131,10 @@ def main(config):
                 trainDelay = resp["connections"][i]["dep_delay"]
             else:
                 trainDelay = "+0"
+            if trainCategory in COLOR_CATEGORY:
+                trainCategoryColor = COLOR_CATEGORY[trainCategory]
+            else:
+                trainCategoryColor = "#111"
 
             # Render the train category
             renderCategory = []
@@ -98,7 +143,7 @@ def main(config):
                     render.Box(
                         width = 8,
                         height = 5,
-                        color = COLOR_CATEGORY[trainCategory],
+                        color = trainCategoryColor,
                         padding = 0,
                         child = render.Text(
                             content = "%s" % trainCategory,
@@ -113,7 +158,7 @@ def main(config):
                     render.Box(
                         width = 8,
                         height = 5,
-                        color = COLOR_CATEGORY[trainCategory],
+                        color = trainCategoryColor,
                         padding = 0,
                         child = render.Text(
                             content = "%s" % trainCategoryLine,
@@ -183,15 +228,73 @@ def main(config):
         ),
     )
 
+def search_station(pattern):
+    # Check if we have the requested data in the cache
+    resp_cached = cache.get("sbb_pattern_%s" % pattern)
+    if resp_cached != None:
+        # Get the cached response
+        print("Pattern Hit! Displaying cached data.")
+        resp = json.decode(resp_cached)
+    else:
+        # Get a new reponse
+        print("Pattern Miss! Calling API.")
+        sbb_dict = {"term": pattern}  # Provide the pattern with a dict, as this will be encoded
+        resp = http.get(SBB_URL_COMPLETION, params = sbb_dict)
+        if resp.status_code != 200:
+            # Return an error message
+            return [
+                schema.Option(
+                    display = "API Error",
+                    value = "API Error",
+                ),
+            ]
+        cache.set("sbb_pattern_%s" % pattern, resp.body(), ttl_seconds = 604800)
+        resp = json.decode(resp.body())
+
+    # Check if the response is empty
+    if len(resp) == 0:
+        return [
+            schema.Option(
+                display = "No Stations found",
+                value = "No Stations found",
+            ),
+        ]
+
+    # Create empty list
+    trainStations = []
+
+    # Loop through all returned elements and filter out the trainstations
+    for station in resp:
+        if station["iconclass"] == SBB_COMPLETION_TRAINSTATION_STRING:
+            trainStations.append(
+                schema.Option(
+                    display = station["label"],
+                    value = station["label"],
+                ),
+            )
+
+    # Check if we did not found some train stations
+    if len(trainStations) == 0:
+        return [
+            schema.Option(
+                display = "No Train-Stations found",
+                value = "No Train-Stations found",
+            ),
+        ]
+
+    # Return the found stations
+    return trainStations
+
 def get_schema():
     return schema.Schema(
         version = "1",
         fields = [
-            schema.Text(
+            schema.Typeahead(
                 id = "station",
                 name = "Station",
                 desc = "Station from which the timetable shall be shown.",
                 icon = "train",
+                handler = search_station,
             ),
             schema.Text(
                 id = "skiptime",
