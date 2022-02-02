@@ -23,23 +23,26 @@ P_SHOW_YEAR = "show_year"
 FRAME_WIDTH = 64
 
 def calc_day_progress(now):
-    day_progress = 100 * ((now.hour * 60*60) + (now.minute * 60) + now.second) / (24*60*60)
+    day_progress = 100 * ((now.hour * 60 * 60) + (now.minute * 60) + now.second) / (24 * 60 * 60)
+
     # print ('day progress:', day_progress)
     return day_progress
 
 def calc_month_progress(now, timezone):
-    firstdayofmonth = time.time(year=now.year, month=now.month, day=1, hour=0, minute=0, second=0, location=timezone)
-    lastdayofmonth = time.time(year=now.year, month=now.month+1, day=0, hour=23, minute=59, second=59, location=timezone)
+    firstdayofmonth = time.time(year = now.year, month = now.month, day = 1, hour = 0, minute = 0, second = 0, location = timezone)
+    lastdayofmonth = time.time(year = now.year, month = now.month + 1, day = 0, hour = 23, minute = 59, second = 59, location = timezone)
     month_progress = 100 * (now.unix - firstdayofmonth.unix) / (lastdayofmonth.unix - firstdayofmonth.unix)
+
     # print ("first day of month", firstdayofmonth)
     # print ("last day of month", lastdayofmonth)
     # print ('month progress:', month_progress)
     return month_progress
 
 def calc_year_progress(now, timezone):
-    firstdayofyear = time.time(year=now.year, month=1, day=1, hour=0, minute=0, second=0, location=timezone)
-    lastdayofyear = time.time(year=now.year+1, month=1, day=0, hour=23, minute=59, second=59, location=timezone)
+    firstdayofyear = time.time(year = now.year, month = 1, day = 1, hour = 0, minute = 0, second = 0, location = timezone)
+    lastdayofyear = time.time(year = now.year + 1, month = 1, day = 0, hour = 23, minute = 59, second = 59, location = timezone)
     year_progress = 100 * (now.unix - firstdayofyear.unix) / (lastdayofyear.unix - firstdayofyear.unix)
+
     # print ("first day of year", firstdayofyear)
     # print ("last day of year", lastdayofyear)
     # print ('year progress:', year_progress)
@@ -71,14 +74,15 @@ def main(config):
     }
 
     return render.Root(
-        delay = 32, # 30 fps
+        delay = 32,  # 30 fps
         child = render.Box(
             child = render.Animation(
                 children = [
-                    get_frame(state, fr, config) for fr in range(300)
-                ]
-            )
-        )
+                    get_frame(state, fr, config)
+                    for fr in range(300)
+                ],
+            ),
+        ),
     )
 
 def get_schema():
@@ -140,20 +144,20 @@ def render_progress_bar(state, label, percent, col1, col2, col3, animprogress):
     if percent >= 100:
         col2orwhite = col1
 
-    label1color = '#fff'
+    label1color = "#fff"
     if animprogress < 40:
-        label1color = '#aaa'
+        label1color = "#aaa"
     if animprogress < 20:
-        label1color = '#333'
+        label1color = "#333"
     if animprogress < 2:
-        label1color = '#111'
+        label1color = "#111"
 
     label2align = "start"
     label2color = col3
 
     labelcomponent = None
     widthmax = FRAME_WIDTH - 1
-    if state['show_labels'] == True:
+    if state["show_labels"] == True:
         labelcomponent = render.Stack(
             children = [
                 render.Text(
@@ -161,9 +165,8 @@ def render_progress_bar(state, label, percent, col1, col2, col3, animprogress):
                     color = label1color,
                     font = "tom-thumb",
                 ),
-
-                render.Box(width=4, height=6),
-            ]
+                render.Box(width = 4, height = 6),
+            ],
         )
         widthmax -= 4
 
@@ -176,20 +179,19 @@ def render_progress_bar(state, label, percent, col1, col2, col3, animprogress):
             cross_align = "center",
             expanded = True,
             children = [
-                render.Box(width=progresswidth, height=7, color=col2),
-                render.Box(width=1, height=7, color=col3),
-            ]
+                render.Box(width = progresswidth, height = 7, color = col2),
+                render.Box(width = 1, height = 7, color = col3),
+            ],
         )
 
     label2 = "{}%".format(int(percent * animprogress / 100))
 
     return render.Row(
         expanded = True,
-        main_align="space_evenly",
-        cross_align="center",
+        main_align = "space_evenly",
+        cross_align = "center",
         children = [
             labelcomponent,
-
             render.Stack(
                 children = [
                     render.Row(
@@ -197,30 +199,27 @@ def render_progress_bar(state, label, percent, col1, col2, col3, animprogress):
                         cross_align = "center",
                         expanded = True,
                         children = [
-                            render.Box(width=widthmax, height=7, color=col1),
-                        ]
+                            render.Box(width = widthmax, height = 7, color = col1),
+                        ],
                     ),
-
                     progressfill,
-
                     render.Row(
                         main_align = label2align,
                         cross_align = "center",
                         expanded = True,
                         children = [
-                            render.Box(width=1, height=8),
+                            render.Box(width = 1, height = 8),
                             render.Text(
                                 content = label2,
                                 color = label2color,
                                 font = "tom-thumb",
                             ),
-                        ]
+                        ],
                     ),
-                ]
+                ],
             ),
-
-            render.Box(width=1, height=8),
-        ]
+            render.Box(width = 1, height = 8),
+        ],
     )
 
 def capanim(input):
@@ -228,42 +227,42 @@ def capanim(input):
 
 COLORSCALE = {
     "default": [
-        ['#200', '#600', '#f44'],
-        ['#210', '#530', '#cc2'],
-        ['#020', '#060', '#4f4'],
-        ['#012', '#035', '#2cc'],
-    ]
+        ["#200", "#600", "#f44"],
+        ["#210", "#530", "#cc2"],
+        ["#020", "#060", "#4f4"],
+        ["#012", "#035", "#2cc"],
+    ],
 }
 
 def get_frame(state, fr, config):
     children = []
 
     delay = 0
-    if state['show_day']:
+    if state["show_day"]:
         colorindex = 0
-        color = COLORSCALE['default'][colorindex]
+        color = COLORSCALE["default"][colorindex]
         children.append(
-            render_progress_bar(state, 'D', state['day_progress'], color[0], color[1], color[2], capanim((fr - delay) * 4)),
+            render_progress_bar(state, "D", state["day_progress"], color[0], color[1], color[2], capanim((fr - delay) * 4)),
         )
         delay += 30
 
-    if state['show_month']:
+    if state["show_month"]:
         colorindex = 2
-        color = COLORSCALE['default'][colorindex]
+        color = COLORSCALE["default"][colorindex]
         children.append(
-                render_progress_bar(state, 'M', state['month_progress'], color[0], color[1], color[2], capanim((fr - delay) * 4)),
+            render_progress_bar(state, "M", state["month_progress"], color[0], color[1], color[2], capanim((fr - delay) * 4)),
         )
         delay += 30
 
-    if state['show_year']:
+    if state["show_year"]:
         colorindex = 3
-        color = COLORSCALE['default'][colorindex]
+        color = COLORSCALE["default"][colorindex]
         children.append(
-            render_progress_bar(state, 'Y', state['year_progress'], color[0], color[1], color[2], capanim((fr - delay) * 4))
+            render_progress_bar(state, "Y", state["year_progress"], color[0], color[1], color[2], capanim((fr - delay) * 4)),
         )
 
     return render.Column(
-        main_align="space_between",
-        cross_align="center",
+        main_align = "space_between",
+        cross_align = "center",
         children = children,
     )
