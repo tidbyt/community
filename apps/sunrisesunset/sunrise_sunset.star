@@ -63,7 +63,7 @@ def main(config):
     sunsetTime = sunrise.sunset(lat, lng, now)
 
     # Get whether to display in 24h format
-    display24Hour = config.get("24_hour", DEFAULT_24_HOUR)
+    display24Hour = config.bool("24_hour", DEFAULT_24_HOUR)
 
     if sunriseTime == None:
         sunriseText = "  None"
