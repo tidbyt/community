@@ -10,6 +10,7 @@ load("http.star", "http")
 load("encoding/base64.star", "base64")
 load("encoding/json.star", "json")
 load("secret.star", "secret")
+load("schema.star", "schema")
 
 API_BASE_URL = "http://api.steampowered.com/"
 API_PLAYER_SUMMARIES = API_BASE_URL + "ISteamUser/GetPlayerSummaries/v0002"
@@ -41,8 +42,6 @@ def main(config):
         return display_failure("Profile is not public, can't get current game")
 
     player_name = resp.json()["response"]["players"][0]["personaname"]
-    game_string = ""
-    main_icon = STEAM_ICON
 
     if "gameextrainfo" in resp.json()["response"]["players"][0].keys():
         game_string = "Now Playing: " + resp.json()["response"]["players"][0]["gameextrainfo"]
@@ -75,6 +74,8 @@ def main(config):
             if (resp.json()["response"]["total_count"] > 0):
                 for game in resp.json()["response"]["games"]:
                     game_string = game_string + "   " + game["name"]
+
+        main_icon = STEAM_ICON
 
     return render.Root(
         render.Column(
@@ -123,8 +124,8 @@ def get_schema():
         fields = [
             schema.Text(
                 id = "steam_id",
-                name = "Steam User ID",
-                desc = "Your Steam User ID (i.e. 123456789 in https://steamcommunity.com/profiles/123456789)",
+                name = "Steam ID",
+                desc = "Your 17 digit Steam ID (use https://steamid.xyz/ if you're unsure)",
                 icon = "user",
             ),
         ],
