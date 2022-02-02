@@ -17,7 +17,7 @@ API_RECENTLY_PLAYED_GAMES = API_BASE_URL + "IPlayerService/GetRecentlyPlayedGame
 API_OWNED_GAMES = API_BASE_URL + "IPlayerService/GetOwnedGames/v0001"
 
 def main(config):
-    steam_id = config.get("steam_id")
+    steam_id = config.get("steam_id", None)
     api_key = secret.decrypt("""
         AV6+xWcE+DYxl3gCCIpeRaoTWtnpTqIEqS8zWqnvoStfp/IrLru54NPMHgekh8jwUshSLUFp4Y9GFy7C/
         zLyBm1DzJODRDfTo3NROgQt7jJI6nzK/8I6MPMv33VZ4/ZjcSH3BkQ0THHB0XcGIv++ntIj3/tcDsvQtr
@@ -115,6 +115,19 @@ def main(config):
                 ),
             ],
         ),
+    )
+
+def get_schema():
+    return schema.Schema(
+        version = "1",
+        fields = [
+            schema.Text(
+                id = "steam_id",
+                name = "Steam User ID",
+                desc = "Your Steam User ID (i.e. 123456789 in https://steamcommunity.com/profiles/123456789)",
+                icon = "user",
+            ),
+        ],
     )
 
 def display_failure(msg):
