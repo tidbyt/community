@@ -10,22 +10,21 @@ load("http.star", "http")
 load("encoding/json.star", "json")
 load("schema.star", "schema")
 
+#Assign Default Stop Code
 DEFAULT_STOP_CODE = "51408"
-DEFAULT_STATION_NAME = "NICOLETTE MALL"
 
 def main(config):
 
+    #Establish API URL
     stop_code = config.get("stop_code", DEFAULT_STOP_CODE)
-    station_name = config.get("station_name", DEFAULT_STATION_NAME)
-
-    url = "https://svc.metrotransit.org/NexTrip/" + stop_code + "?format=json"
-
+    url = "https://svc.metrotransit.org/NexTripv2/" + stop_code + "?format=json"
     MTT = http.get(url).json()
 
-     if MTT[0]["Route"] == "Blue":
+     #Find color and destination of first and second train and use that for rendering square color and 3 letter destination code
+     if MTT["departures"][0]["route_short_name"] == "Blue":
           CB = "#00a"
 
-          if MTT[0]["Description"] == "to Mpls-Target Field":
+          if MTT["departures"][0]["description"] == "to Mpls-Target Field":
                DB = "MTF"
           else:      
                DB = "MOA"     
@@ -33,17 +32,17 @@ def main(config):
      else:
           CB = "#0a0"
 
-          if MTT[0]["Description"] == "to Mpls-Target Field":
+          if MTT["departures"][0]["description"] == "to Mpls-Target Field":
                DB = "MTF"
           else:      
                DB = "STP"
 
 
 
-     if MTT[1]["Route"] == "Blue":
+     if MTT["departures"][1]["route_short_name"] == "Blue":
           CB2 = "#00a"
 
-          if MTT[1]["Description"] == "to Mpls-Target Field":
+          if MTT["departures"][1]["description"] == "to Mpls-Target Field":
                DB2 = "MTF"
           else:      
                DB2 = "MOA"     
@@ -51,7 +50,7 @@ def main(config):
      else:
           CB2 = "#0a0"
 
-          if MTT[1]["Description"] == "to Mpls-Target Field":
+          if MTT["departures"][1]["description"] == "to Mpls-Target Field":
                DB2 = "MTF"
           else:      
                DB2 = "STP"
@@ -64,7 +63,7 @@ def main(config):
                     render.Marquee(
 
                     width=64,
-                         child = render.Text(station_name, font="tb-8"),
+                         child = render.Text(MTT["stops"][0]["description"], font="tb-8"),
      
                     offset_start=5,
                     offset_end=5,
@@ -80,7 +79,7 @@ def main(config):
                                     ],
                                 ),
                                 render.Box(width=6, height=10),
-                                render.Text(MTT[0]["DepartureText"], font="Dina_r400-6"),
+                                render.Text(MTT["departures"][0]["departure_text"], font="Dina_r400-6"),
                          ],
                     ),
                     render.Box(width=64, height=1, color="#a00"),
@@ -93,7 +92,7 @@ def main(config):
                                  ],
                              ),
                               render.Box(width=6, height=10),
-                              render.Text(MTT[1]["DepartureText"], font="Dina_r400-6"),
+                              render.Text(MTT[1]["departures"][1]["departure_text"], font="Dina_r400-6"),
                          ],
                     ),
                     render.Box(width=64, height=1, color="#a00"),
@@ -115,13 +114,5 @@ def get_schema():
                 desc = "Light Rail Station's Stop ID from (https://www.metrotransit.org/stops-stations)",
                 icon = "subway",
             ),
-
-           schema.Text(
-                id = "station_name",
-                name = "Station Name",
-                desc = "Light Rail Station's Full Name from (https://www.metrotransit.org/stops-stations)",
-                icon = "keyboard",
-            ),
         ],
     )
-
