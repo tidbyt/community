@@ -7,6 +7,7 @@ package apps
 import (
 	"tidbyt.dev/community/apps/bgghotness"
 	"tidbyt.dev/community/apps/bigclock"
+	"tidbyt.dev/community/apps/binaryclock"
 	"tidbyt.dev/community/apps/clockbyhenry"
 	"tidbyt.dev/community/apps/dateprogress"
 	"tidbyt.dev/community/apps/datetimeclock"
@@ -15,8 +16,8 @@ import (
 	"tidbyt.dev/community/apps/dvdlogo"
 	"tidbyt.dev/community/apps/espnnews"
 	"tidbyt.dev/community/apps/fuzzyclock"
-	"tidbyt.dev/community/apps/googletraffic"
 	"tidbyt.dev/community/apps/golfhandicap"
+	"tidbyt.dev/community/apps/googletraffic"
 	"tidbyt.dev/community/apps/jokesjokeapi"
 	"tidbyt.dev/community/apps/manifest"
 	"tidbyt.dev/community/apps/mbta"
@@ -39,6 +40,7 @@ func GetManifests() []manifest.Manifest {
 	return []manifest.Manifest{
 		bgghotness.New(),
 		bigclock.New(),
+		binaryclock.New(),
 		clockbyhenry.New(),
 		dateprogress.New(),
 		datetimeclock.New(),
@@ -47,8 +49,8 @@ func GetManifests() []manifest.Manifest {
 		dvdlogo.New(),
 		espnnews.New(),
 		fuzzyclock.New(),
-		googletraffic.New(),
 		golfhandicap.New(),
+		googletraffic.New(),
 		jokesjokeapi.New(),
 		mbta.New(),
 		nationaltoday.New(),
