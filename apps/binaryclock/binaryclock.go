@@ -17,7 +17,7 @@ func New() manifest.Manifest {
 		Name:        "Binary Clock",
 		Author:      "LukiLeu",
 		Summary:     "Shows a binary clock",
-		Desc:        "This app show the current date and time in binary format.",
+		Desc:        "This app show the current date and time in a binary format.",
 		FileName:    "binary_clock.star",
 		PackageName: "binaryclock",
 		Source:  source,
