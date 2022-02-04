@@ -191,7 +191,7 @@ def render_progress_bar(state, label, percent, col1, col2, col3, animprogress):
             color = label2color,
             font = "tom-thumb",
         )
-    
+
     return render.Row(
         expanded = True,
         main_align = "space_evenly",
