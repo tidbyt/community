@@ -53,7 +53,6 @@ def main(config):
         steam_game_icon_cached = cache.get(key)
 
         if steam_game_icon_cached != None:
-            print("Hit - displaying cached data")
             main_icon = base64.decode(steam_game_icon_cached)
         else:
             # Grab the game Icon - this is groooooosss
@@ -68,7 +67,6 @@ def main(config):
                 game_icon_hash = resp.json()["response"]["games"][0]["img_icon_url"]
                 game_icon_url = "http://media.steampowered.com/steamcommunity/public/images/apps/" + str(current_game_id) + "/" + game_icon_hash + ".jpg"
                 main_icon = http.get(game_icon_url).body()
-                print("Setting Cache with key " + key)
                 icon_encoded = base64.encode(main_icon)
                 cache.set(key, icon_encoded, ttl_seconds = CACHE_TTL_SECONDS)
             else:
