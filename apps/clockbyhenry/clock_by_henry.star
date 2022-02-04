@@ -109,8 +109,6 @@ def main(config):
     elif not re.match(r"^\d\d:\d\d$", night_start):
         night_start = DEFAULT_NIGHT_START
 
-    print((day_start, night_start))
-
     phase = now.format("15:04")
     if phase >= day_start and phase < night_start:
         phase = "d"
