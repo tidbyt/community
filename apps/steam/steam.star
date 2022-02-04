@@ -5,13 +5,15 @@ Description: Displays the game that the specified user is currently playing, or 
 Author: Jeremy Tavener
 """
 
-load("render.star", "render")
-load("http.star", "http")
+load("cache.star", "cache")
 load("encoding/base64.star", "base64")
 load("encoding/json.star", "json")
+load("http.star", "http")
+load("render.star", "render")
 load("secret.star", "secret")
 load("schema.star", "schema")
 
+CACHE_TTL_SECONDS = 300
 API_BASE_URL = "http://api.steampowered.com/"
 API_PLAYER_SUMMARIES = API_BASE_URL + "ISteamUser/GetPlayerSummaries/v0002"
 API_RECENTLY_PLAYED_GAMES = API_BASE_URL + "IPlayerService/GetRecentlyPlayedGames/v0001"
@@ -20,9 +22,9 @@ API_OWNED_GAMES = API_BASE_URL + "IPlayerService/GetOwnedGames/v0001"
 def main(config):
     steam_id = config.get("steam_id", None)
     api_key = secret.decrypt("""
-        AV6+xWcE+DYxl3gCCIpeRaoTWtnpTqIEqS8zWqnvoStfp/IrLru54NPMHgekh8jwUshSLUFp4Y9GFy7C/
-        zLyBm1DzJODRDfTo3NROgQt7jJI6nzK/8I6MPMv33VZ4/ZjcSH3BkQ0THHB0XcGIv++ntIj3/tcDsvQtr
-        NkoszNXck6JEZaDpo=
+        AV6+xWcE9acn7G/Amrp+rzPaSppKSmwWdVBJklcT6q63X9wG8UFn0ma1U9oCtmwjzVyZFF1JzzpLre2K
+        mVuRNN+Lk7UICOvuChgDC6pstPv9ecAHFGu9h9C7kc3ntBcbUARJIVWXZVH2ji+PtIis/jekWarIgISt
+        qukjL49KF/GT3BtMwJ4=
         """) or config.get("dev_api_key")
 
     if steam_id == None or api_key == None:
@@ -47,20 +49,30 @@ def main(config):
         game_string = "Now Playing: " + resp.json()["response"]["players"][0]["gameextrainfo"]
         current_game_id = resp.json()["response"]["players"][0]["gameid"]
 
-        # Grab the game Icon - this is groooooosss
-        json_blob = json.encode({"steamid": steam_id, "include_appinfo": True, "appids_filter": [current_game_id]})
+        key = steam_id + "_" + current_game_id
+        steam_game_icon_cached = cache.get(key)
 
-        resp = http.get(API_OWNED_GAMES, params = {"key": api_key, "input_json": str(json_blob)})
-
-        if resp.status_code != 200:
-            return display_failure("Failed to get the current game icon with code {}".format(resp.status_code))
-
-        if resp.json()["response"]["game_count"] == 1:
-            game_icon_hash = resp.json()["response"]["games"][0]["img_icon_url"]
-            game_icon_url = "http://media.steampowered.com/steamcommunity/public/images/apps/" + str(current_game_id) + "/" + game_icon_hash + ".jpg"
-            main_icon = http.get(game_icon_url).body()
+        if steam_game_icon_cached != None:
+            print("Hit - displaying cached data")
+            main_icon = base64.decode(steam_game_icon_cached)
         else:
-            main_icon = STEAM_ICON
+            # Grab the game Icon - this is groooooosss
+            json_blob = json.encode({"steamid": steam_id, "include_appinfo": True, "appids_filter": [current_game_id]})
+
+            resp = http.get(API_OWNED_GAMES, params = {"key": api_key, "input_json": str(json_blob)})
+
+            if resp.status_code != 200:
+                return display_failure("Failed to get the current game icon with code {}".format(resp.status_code))
+
+            if resp.json()["response"]["game_count"] == 1:
+                game_icon_hash = resp.json()["response"]["games"][0]["img_icon_url"]
+                game_icon_url = "http://media.steampowered.com/steamcommunity/public/images/apps/" + str(current_game_id) + "/" + game_icon_hash + ".jpg"
+                main_icon = http.get(game_icon_url).body()
+                print("Setting Cache with key " + key)
+                icon_encoded = base64.encode(main_icon)
+                cache.set(key, icon_encoded, ttl_seconds = CACHE_TTL_SECONDS)
+            else:
+                main_icon = STEAM_ICON
 
     else:
         # There's no current game - get a list of previously played to display.
