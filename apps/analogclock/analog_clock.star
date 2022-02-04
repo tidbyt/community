@@ -381,7 +381,7 @@ def main(config):
                             render.Box(
                                 width = 28,
                                 height = 8,
-                                color = "#F00",
+                                color = "#990000",
                                 child = render.Text(str(month)),
                             ),
                             render.Box(
