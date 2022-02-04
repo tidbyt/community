@@ -350,7 +350,7 @@ def main(config):
     timezone = loc["timezone"]
     now = time.now().in_location(timezone)
 
-    hour = now.hour
+    hour = now.hour % 12
     rounded_minute = (now.minute + 2) % 60 // 5 * 5
     day = now.day
     month = now.format("Jan").upper()
