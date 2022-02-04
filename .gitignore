@@ -17,6 +17,7 @@ go.work
 # Build
 community-tools
 dist/
+BUILD.bazel
 
 # MacOS
 .DS_Store
