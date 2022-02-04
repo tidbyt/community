@@ -197,7 +197,7 @@ def get_schema():
                     schema.Option(display = color_name, value = color_value)
                     for (color_name, color_value) in DEFAULT_COLORS.items()
                 ],
-                default = "White 100%",
+                default = DEFAULT_COLORS.get("White 100%"),
             ),
             schema.Dropdown(
                 id = "color_dots",
@@ -208,7 +208,7 @@ def get_schema():
                     schema.Option(display = color_name, value = color_value)
                     for (color_name, color_value) in DEFAULT_COLORS.items()
                 ],
-                default = "Red 100%",
+                default = DEFAULT_COLORS.get("Red 100%"),
             ),
             schema.Dropdown(
                 id = "color_dots_bg",
@@ -219,7 +219,7 @@ def get_schema():
                     schema.Option(display = color_name, value = color_value)
                     for (color_name, color_value) in DEFAULT_COLORS.items()
                 ],
-                default = "White 20%",
+                default = DEFAULT_COLORS.get("White 20%"),
             ),
             schema.Dropdown(
                 id = "width_bar",
@@ -230,7 +230,7 @@ def get_schema():
                     schema.Option(display = width_name, value = width_value)
                     for (width_name, width_value) in DEFAULT_BARWIDTH.items()
                 ],
-                default = "3 Pixel",
+                default = DEFAULT_BARWIDTH.get("3 Pixel"),
             ),
             schema.Dropdown(
                 id = "heigth_bar",
@@ -241,7 +241,7 @@ def get_schema():
                     schema.Option(display = height_name, value = height_value)
                     for (height_name, height_value) in DEFAULT_BARHEIGHT.items()
                 ],
-                default = "1 Pixel",
+                default = DEFAULT_BARHEIGHT.get("1 Pixel"),
             ),
             schema.Toggle(
                 id = "show_text",
