@@ -184,7 +184,13 @@ def render_progress_bar(state, label, percent, col1, col2, col3, animprogress):
             ],
         )
 
-    label2 = "{}%".format(int(percent * animprogress / 100))
+    label2component = None
+    if state["show_values"] == True:
+        label2component = render.Text(
+            content = "{}%".format(int(percent * animprogress / 100)),
+            color = label2color,
+            font = "tom-thumb",
+        )
 
     return render.Row(
         expanded = True,
@@ -209,11 +215,7 @@ def render_progress_bar(state, label, percent, col1, col2, col3, animprogress):
                         expanded = True,
                         children = [
                             render.Box(width = 1, height = 8),
-                            render.Text(
-                                content = label2,
-                                color = label2color,
-                                font = "tom-thumb",
-                            ),
+                            label2component,
                         ],
                     ),
                 ],
