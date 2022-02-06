@@ -37,7 +37,7 @@ def main(config):
     if stats_cached != None:  #if any are None then all(title_cached)==False
         print("Hit! Displaying cached data.")
         stats = json.decode(stats_cached)
-        frame_vec = get_frames(stats,sport, font)
+        frame_vec = get_frames(stats, sport, font)
     else:
         print("Miss! Calling ESPN data.")  #error code checked within each function!!!!
 
