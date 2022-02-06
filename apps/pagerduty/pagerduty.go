@@ -15,7 +15,7 @@ func New() manifest.Manifest {
 	return manifest.Manifest{
 		ID:          "pagerduty",
 		Name:        "PagerDuty",
-		Author:      "drudge",
+		Author:      "Nick Penree",
 		Summary:     "Show PagerDuty stats",
 		Desc:        "Show PagerDuty incident stats and on-call status.",
 		FileName:    "pagerduty.star",
