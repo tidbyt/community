@@ -15,8 +15,8 @@ import (
 	"tidbyt.dev/community/apps/dvdlogo"
 	"tidbyt.dev/community/apps/espnnews"
 	"tidbyt.dev/community/apps/fuzzyclock"
-	"tidbyt.dev/community/apps/googletraffic"
 	"tidbyt.dev/community/apps/golfhandicap"
+	"tidbyt.dev/community/apps/googletraffic"
 	"tidbyt.dev/community/apps/jokesjokeapi"
 	"tidbyt.dev/community/apps/manifest"
 	"tidbyt.dev/community/apps/mbta"
@@ -24,6 +24,7 @@ import (
 	"tidbyt.dev/community/apps/nightscout"
 	"tidbyt.dev/community/apps/noaabuoy"
 	"tidbyt.dev/community/apps/nyancat"
+	"tidbyt.dev/community/apps/oauth2example"
 	"tidbyt.dev/community/apps/phaseofmoon"
 	"tidbyt.dev/community/apps/pokedex"
 	"tidbyt.dev/community/apps/sbbtimetable"
@@ -47,14 +48,15 @@ func GetManifests() []manifest.Manifest {
 		dvdlogo.New(),
 		espnnews.New(),
 		fuzzyclock.New(),
-		googletraffic.New(),
 		golfhandicap.New(),
+		googletraffic.New(),
 		jokesjokeapi.New(),
 		mbta.New(),
 		nationaltoday.New(),
 		nightscout.New(),
 		noaabuoy.New(),
 		nyancat.New(),
+		oauth2example.New(),
 		phaseofmoon.New(),
 		pokedex.New(),
 		sbbtimetable.New(),
