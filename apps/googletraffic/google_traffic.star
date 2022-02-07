@@ -57,11 +57,11 @@ AASUVORK5CYII=
 
 DEFAULT_DEPARTURE = {
     "lat": "41.392727",
-    "lng": "2.1051698"
+    "lng": "2.1051698",
 }
 DEFAULT_DESTINATION = {
     "lat": "48.858906",
-    "lng": "2.3120158"
+    "lng": "2.3120158",
 }
 
 TRANSPORTATION_MODES = {
@@ -177,6 +177,7 @@ def main(config):
     apikey = secret.decrypt("AV6+xWcEKcu8TenAfiwgtgo9YdGTaE2bVJI2BT08Zvb9GZwzl8m6Pb2RudfILMRj0UH/pZaSh9tCFAlHzFwQ2CPaDcyLAEcuHcJYq6bMrMDuR2z7QjNCkaIvabOE9Db5lNwDqGv+yMr2QFWHffBxvwLWfqOOpDViS4KlLuFUwb/29V2dr/v6OBaEJz3w") or config.get("apikey") or ""
     transportationmode = TRANSPORTATION_MODES.get(config.get("transportationmode", "Car"))
     showDistance = config.bool("showDistance", False)
+    showCountry = config.bool("showCountry", True)
 
     # Get the cached response
     rep_cached = cache.get("%s&destinations=%s&origins=%s&mode=%s" % (apikey, destination, departure, transportationmode))
@@ -211,8 +212,12 @@ def main(config):
         roadDuration = rep["rows"][0]["elements"][0]["status"]
         renderChildren = render_animation(roadDest, roadOrigin, roadDuration, transportationmode)
     else:
-        roadDest = rep["destination_addresses"][0].replace(", Switzerland", "")
-        roadOrigin = rep["origin_addresses"][0].replace(", Switzerland", "")
+        roadDest = rep["destination_addresses"][0]
+        roadOrigin = rep["origin_addresses"][0]
+
+        if showCountry == False:
+            roadDest = roadDest[0:roadDest.rfind(",")]
+            roadOrigin = roadOrigin[0:roadOrigin.rfind(",")]
 
         if "duration_in_traffic" in rep["rows"][0]["elements"][0]:
             roadDuration = rep["rows"][0]["elements"][0]["duration_in_traffic"]["text"]
@@ -263,6 +268,13 @@ def get_schema():
                 name = "Show Distance",
                 desc = "Show Distance from departure to destination.",
                 icon = "route",
+                default = True,
+            ),
+            schema.Toggle(
+                id = "showCountry",
+                name = "Show Country",
+                desc = "Shows the country in the departure and destination adress",
+                icon = "flag",
                 default = True,
             ),
         ],
