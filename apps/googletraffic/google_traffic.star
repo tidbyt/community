@@ -56,10 +56,12 @@ AASUVORK5CYII=
 """)
 
 DEFAULT_DEPARTURE = {
-    "locality": "Barcellona",
+    "lat": "41.392727",
+    "lng": "2.1051698"
 }
 DEFAULT_DESTINATION = {
-    "locality": "Paris",
+    "lat": "48.858906",
+    "lng": "2.3120158"
 }
 
 TRANSPORTATION_MODES = {
@@ -168,10 +170,10 @@ def render_animation(roadDest, roadOrigin, roadDuration, transportationmode):
 def main(config):
     departureFull = config.get("departure")
     departureJSON = json.decode(departureFull) if departureFull else DEFAULT_DEPARTURE
-    departure = departureJSON.get("locality")
+    departure = "%s,%s" % (departureJSON.get("lat"), departureJSON.get("lng"))
     destinationFull = config.get("destination")
     destinationJSON = json.decode(destinationFull) if destinationFull else DEFAULT_DESTINATION
-    destination = destinationJSON.get("locality")
+    destination = "%s,%s" % (destinationJSON.get("lat"), destinationJSON.get("lng"))
     apikey = secret.decrypt("AV6+xWcEKcu8TenAfiwgtgo9YdGTaE2bVJI2BT08Zvb9GZwzl8m6Pb2RudfILMRj0UH/pZaSh9tCFAlHzFwQ2CPaDcyLAEcuHcJYq6bMrMDuR2z7QjNCkaIvabOE9Db5lNwDqGv+yMr2QFWHffBxvwLWfqOOpDViS4KlLuFUwb/29V2dr/v6OBaEJz3w") or config.get("apikey") or ""
     transportationmode = TRANSPORTATION_MODES.get(config.get("transportationmode", "Car"))
     showDistance = config.bool("showDistance", False)
