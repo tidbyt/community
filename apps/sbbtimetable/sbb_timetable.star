@@ -38,6 +38,10 @@ COLOR_CATEGORY = {
 }
 COLOR_DELAY = "#F00"
 
+DEFAULT_STATION = {
+    "value": "Bern",
+}
+
 # Show an error message
 def display_error(msg):
     return render.Root(
@@ -71,7 +75,9 @@ def display_error(msg):
 
 def main(config):
     # Get the config values
-    station = config.get("station", "Bern")
+    station_full = config.get("station")
+    station_json = json.decode(station_full) if station_full else DEFAULT_STATION
+    station = station_json.get("value")
     skiptime = config.get("skiptime", 0)
 
     # Check if we need to convert the skiptime
