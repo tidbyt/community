@@ -14,7 +14,6 @@ load("schema.star", "schema")
 load("math.star", "math")
 load("time.star", "time")
 
-base_URL = "https://nationaltoday.com/what-is-today/"
 
 def main(config):
     timezone = config.get("location")
