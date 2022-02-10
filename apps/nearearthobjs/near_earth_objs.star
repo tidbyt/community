@@ -57,13 +57,14 @@ def main(config):
                     render.Image(
                         src = IMAGE,
                         width = 15,
-                        height = 10),
+                        height = 10,
+                    ),
                     render.WrappedText(
                         content = "No objects found... pfew!",
-                        font = "5x8"
-                    )
-                ]
-            )
+                        font = "5x8",
+                    ),
+                ],
+            ),
         )
 
     return render.Root(
@@ -74,9 +75,10 @@ def main(config):
                 render.Marquee(
                     child = render.Text(
                         content = closest["name"],
-                        font = "tb-8"),
+                        font = "tb-8",
+                    ),
                     width = 64,
-                    scroll_direction = "horizontal"
+                    scroll_direction = "horizontal",
                 ),
                 render.Row(
                     main_align = "start",
@@ -86,12 +88,13 @@ def main(config):
                         render.Image(
                             src = IMAGE,
                             width = 15,
-                            height = 10),
+                            height = 10,
+                        ),
                         render.Text(
                             content = str(neo_relative_time(closest)),
-                            font = "tb-8"
-                        )
-                    ]
+                            font = "tb-8",
+                        ),
+                    ],
                 ),
                 render.Marquee(
                     child = render.Row(
@@ -101,23 +104,23 @@ def main(config):
                         children = [
                             render.Text(
                                 content = neo_distance(closest, metric),
-                                font = "tb-8"
+                                font = "tb-8",
                             ),
                             render.Text(
                                 content = " @ ",
-                                font = "tb-8"
+                                font = "tb-8",
                             ),
                             render.Text(
                                 content = neo_speed(closest, metric),
-                                font = "tb-8"
-                            )
-                        ]
+                                font = "tb-8",
+                            ),
+                        ],
                     ),
                     width = 64,
-                    scroll_direction = "horizontal"
+                    scroll_direction = "horizontal",
                 ),
-            ]
-        )
+            ],
+        ),
     )
 
 def get_schema():
@@ -162,7 +165,7 @@ def get_data():
     print("success")
     data = resp.json()
 
-    cache.set(CACHE_KEY, json.encode(data), ttl_seconds=43200)
+    cache.set(CACHE_KEY, json.encode(data), ttl_seconds = 43200)
 
     return data
 
@@ -186,9 +189,9 @@ def find_next_from_now(neos):
     soonest_neo = None
     for neo in neos:
         if neo_unix_date(neo) < now:
-            continue #skip passed times
+            continue  #skip passed times
 
-        if soonest_neo == None: #assume first is closest
+        if soonest_neo == None:  #assume first is closest
             soonest_neo = neo
             continue
 
@@ -207,7 +210,7 @@ def neo_distance(neo, metric):
     return "{} {}".format(distance, "km" if metric else "miles")
 
 def neo_relative_time(neo):
-    now = time.from_timestamp(time.now().unix) # kills fractions of a second
+    now = time.from_timestamp(time.now().unix)  # kills fractions of a second
     neo_time = time.from_timestamp(neo_unix_date(neo))
 
     diff = neo_time - now
@@ -241,7 +244,7 @@ def format_number(number):
         count = count + 1
 
         if count == 3:
-            result = ',' + result
+            result = "," + result
             count = 0
 
-    return result.strip(',')
+    return result.strip(",")
