@@ -148,7 +148,6 @@ def get_soonest_neo():
 
 def get_data():
     neos_cached = cache.get(CACHE_KEY)
-    print("neos_cached {}".format(neos_cached))
     if neos_cached != None:
         print("using cache")
         return json.decode(neos_cached)
@@ -160,22 +159,24 @@ def get_data():
     if resp.status_code != 200:
         print("request failed with status {}".format(resp.status_code))
         return None
+    print("success")
     data = resp.json()
 
-    cache.set(CACHE_KEY, json.encode(data), ttl_seconds=432)
+    cache.set(CACHE_KEY, json.encode(data), ttl_seconds=43200)
 
     return data
 
 def find_soonest_starting(neos, date):
     soonest = None
-    one_week = date + time.parse_duration("168h")
 
-    while soonest == None and date < one_week:
+    one_day = time.parse_duration("24h")
+    for day in range(8):
+        date = date + one_day * day
         formatted_date = format_date_padded(date)
         if formatted_date in neos:
             soonest = find_next_from_now(neos[formatted_date])
-        if soonest == None:
-            date = add_day(date)
+        if soonest != None:
+            break
 
     return soonest
 
@@ -222,11 +223,6 @@ def convert_unix_to_seconds(time):
 
 def format_date_padded(date):
     return "{}-{}-{}".format(date.year, pad_if_needed(date.month), pad_if_needed(date.day))
-
-def add_day(date):
-    one_day = time.parse_duration("24h")
-    next_day = date + one_day
-    return next_day
 
 def pad_if_needed(number):
     if len(str(number)) == 1:
