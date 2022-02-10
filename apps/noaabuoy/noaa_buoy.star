@@ -12,10 +12,10 @@ load("encoding/json.star", "json")
 load("cache.star", "cache")
 
 def fetch_data(buoy_id):
-    url = "http://wildc.net/wind/noaa_buoy_api.pl?buoy_id=%s" % buoy_id
+    url = "https://wildc.net/wind/noaa_buoy_api.pl?buoy_id=%s" % buoy_id
     resp = http.get(url)
     if resp.status_code != 200:
-        fail("request failed with status %d", resp.status_code)
+        #fail("request failed with status %d", resp.status_code)
         return None
     else:
         return resp.json()
