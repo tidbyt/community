@@ -6,7 +6,7 @@ Author: rs7q5 (RIS)
 """
 #sports_standings.star
 #Created 20220119 RIS
-#Last Modified 20220201 RIS
+#Last Modified 20220206 RIS
 
 load("render.star", "render")
 load("http.star", "http")
@@ -37,7 +37,7 @@ def main(config):
     if stats_cached != None:  #if any are None then all(title_cached)==False
         print("Hit! Displaying cached data.")
         stats = json.decode(stats_cached)
-        frame_vec = get_frames(stats, font)
+        frame_vec = get_frames(stats, sport, font)
     else:
         print("Miss! Calling ESPN data.")  #error code checked within each function!!!!
 

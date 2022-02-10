@@ -28,7 +28,7 @@ def main(config):
         """) or config.get("dev_api_key")
 
     if steam_id == None or api_key == None:
-        return display_failure("Steam ID not provided.")
+        return do_render(DEMO_DATA["player_name"], DEMO_DATA["main_icon"], DEMO_DATA["game_string"])
 
     # Is the user currently playing a game?
     # Note - this will only return if their profile is set to show this information publically
@@ -86,6 +86,9 @@ def main(config):
 
         main_icon = STEAM_ICON
 
+    return do_render(player_name, main_icon, game_string)
+
+def do_render(player_name, main_icon, game_string):
     return render.Root(
         render.Column(
             main_align = "space_around",
@@ -168,3 +171,9 @@ WWl5iZa2tra5qbnJ2enwA4a2troKGia2ujpKWmp6g5ADqpa2tra6qrrK2ur7CxsjsAPLO0tWtrtre4ub
 dGRhdGU6Y3JlYXRlADIwMjItMDEtMDRUMjE6MjM6NDkrMDA6MDC/bjduAAAAJXRFWHRkYXRlOm1vZGlmeQAyMDIyLTAxLTA0VDI
 xOjIzOjQ5KzAwOjAwzjOP0gAAAABJRU5ErkJggg==
 """)
+
+DEMO_DATA = {
+    "player_name": "Demo Player",
+    "game_string": "Farcry 5   Goldeneye 007   Half-Life 2   Halo Infinite",
+    "main_icon": STEAM_ICON,
+}
