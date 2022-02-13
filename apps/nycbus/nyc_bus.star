@@ -11,47 +11,63 @@ load("encoding/json.star", "json")
 load("http.star", "http")
 load("render.star", "render")
 load("schema.star", "schema")
+load("secret.star", "secret")
 load("time.star", "time")
 
-API_KEY = "<INSERT_API_KEY_HERE>"
-STOP_CODE = "550685"
+EXAMPLE_STOP_NAME = "21 ST/BROADWAY - SW"
+EXAMPLE_STOP_CODE = "550685"
+EXAMPLE_LOCATION = """
+{
+    "lat": "40.765302",
+    "lng": "-73.931708"
+}
+"""
+ENCRYPTED_API_KEY = "AV6+xWcEBRQebDxEsWpvew8/Q/yk2mfdxkGGWkt/47fndF+ybVCKoCiSIzuxdJ+x9P9LULtR3/hSBtKKv2ClHhV3j4pCpHleW9o8ODNUw7AkhZnmCgayXOrSgIJ/XHoPv/OxkbwOo5YwkkIJj+syZAcwXlaHV7p1phMQ/3sXCp36lk3w40IMIbFc"
 BUSTIME_STOP_TIMES_URL = "http://bustime.mta.info/api/siri/stop-monitoring.json"
 BUSTIME_STOP_INFO_URL = "http://bustime.mta.info/api/where/stop/%s.json"
+BUSTIME_STOPS_FOR_LOCATION_URL = "http://bustime.mta.info/api/where/stops-for-location.json"
 
 def get_schema():
-    stop_options = [
-        schema.Option(
-            display = "21 ST/BROADWAY SW",
-            value = "550685",
-        ),
-        schema.Option(
-            display = "21 ST/41 AV NE",
-            value = "550670",
-        ),
-    ]
     return schema.Schema(
         version = "1",
         fields = [
-            schema.Location(
-                id = "location",
-                name = "Location",
-                desc = "Location to use for nearby stops.",
-                icon = "place",
-            ),
-            schema.Dropdown(
+            schema.LocationBased(
                 id = "stop_code",
-                name = "Stop Code",
-                desc = "The stop code to use.",
+                name = "Bus Stop",
+                desc = "A list of bus stops based on a location.",
                 icon = "bus",
-                default = stop_options[1].value,
-                options = stop_options,
-            ),
+                handler = get_stops,
+            )
         ],
     )
 
+def get_stops(location):
+    api_key = secret.decrypt(ENCRYPTED_API_KEY)
+    loc = json.decode(location)
+
+    res = http.get(
+        BUSTIME_STOPS_FOR_LOCATION_URL,
+        params = {
+            "key": api_key,
+            "lat": loc["lat"],
+            "latSpan": "0.001",
+            "lon": loc["lng"],
+            "longSpan": "0.001",
+        },
+    )
+    if res.status_code != 200:
+        fail("MTA BusTime request failed with status %d", res.status_code)
+
+    data = res.json()["data"]["stops"]
+    stops = [
+        schema.Option(display = "%s - %s" % (stop["name"], stop["direction"]), value = stop["code"]) for stop in data
+    ]
+
+    return stops
+
 def main(config):
-    api_key = config.get("api_key") or API_KEY
-    stop_code = config.get("stop_code") or STOP_CODE
+    api_key = secret.decrypt(ENCRYPTED_API_KEY) or config.get("api_key")
+    stop_code = config.get("stop_code") or [s.value for s in get_stops(EXAMPLE_LOCATION) if s.display == EXAMPLE_STOP_NAME][0]
     journeys = get_journeys(api_key, stop_code)
     first_journey = journeys[0]
     second_journey = journeys[1]
