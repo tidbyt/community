@@ -92,16 +92,18 @@ def build_row(journey):
     return render.Row(
         expanded = True,
         main_align = "space_evenly",
+        cross_align = "center",
         children = [
-            render.Circle(
+            render.Box(
                 color = "#%s" % journey["line_color"],
-                diameter = 14,
+                width = 18,
+                height = 11,
                 child = render.Text(journey["line_name"], color = "#fff", font = "CG-pixel-3x5-mono"),
             ),
             render.Column(
                 children = [
                     render.Marquee(
-                        width = 48,
+                        width = 44,
                         child = render.Text(journey["destination_name"]),
                     ),
                     render.Text(journey["eta_text"], color = "#c1773e", font = "tom-thumb"),
