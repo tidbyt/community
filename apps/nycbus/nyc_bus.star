@@ -97,14 +97,14 @@ def build_row(journey):
         children = [
             render.Box(
                 color = "#%s" % journey["line_color"],
-                width = 18,
+                width = 22,
                 height = 11,
-                child = render.Text(journey["line_name"], color = "#fff", font = "CG-pixel-3x5-mono"),
+                child = render.Text(journey["line_name"], color = "#000", font = "CG-pixel-4x5-mono"),
             ),
             render.Column(
                 children = [
                     render.Marquee(
-                        width = 44,
+                        width = 40,
                         child = render.Text(journey["destination_name"]),
                     ),
                     render.Text(journey["eta_text"], color = "#c1773e", font = "tom-thumb"),
