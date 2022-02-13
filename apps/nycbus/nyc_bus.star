@@ -37,7 +37,7 @@ def get_schema():
                 desc = "A list of bus stops based on a location.",
                 icon = "bus",
                 handler = get_stops,
-            )
+            ),
         ],
     )
 
@@ -60,7 +60,8 @@ def get_stops(location):
 
     data = res.json()["data"]["stops"]
     stops = [
-        schema.Option(display = "%s - %s" % (stop["name"], stop["direction"]), value = stop["code"]) for stop in data
+        schema.Option(display = "%s - %s" % (stop["name"], stop["direction"]), value = stop["code"])
+        for stop in data
     ]
 
     return stops
