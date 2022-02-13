@@ -82,7 +82,7 @@ def main(config):
                 render.Box(
                     width = 64,
                     height = 1,
-                    color = "#f5f5f5",
+                    color = "#aaa",
                 ),
                 build_row(second_journey),
             ],
