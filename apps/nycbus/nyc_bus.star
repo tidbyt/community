@@ -57,51 +57,51 @@ def main(config):
     second_journey = journeys[1]
 
     return render.Root(
-        child=render.Column(
-            expanded=True,
-            main_align="space_evenly",
-            children=[
+        child = render.Column(
+            expanded = True,
+            main_align = "space_evenly",
+            children = [
                 build_row(first_journey),
                 render.Box(
-                    width=64,
-                    height=1,
-                    color="#f5f5f5",
+                    width = 64,
+                    height = 1,
+                    color = "#f5f5f5",
                 ),
                 build_row(second_journey),
-            ]
-        )
+            ],
+        ),
     )
 
 def build_row(journey):
     return render.Row(
-        expanded=True,
-        main_align="space_evenly",
-        children=[
+        expanded = True,
+        main_align = "space_evenly",
+        children = [
             render.Circle(
-                color="#%s" % journey["line_color"],
-                diameter=14,
-                child=render.Text(journey["line_name"], color="#fff", font="CG-pixel-3x5-mono"),
+                color = "#%s" % journey["line_color"],
+                diameter = 14,
+                child = render.Text(journey["line_name"], color = "#fff", font = "CG-pixel-3x5-mono"),
             ),
             render.Column(
-                children=[
+                children = [
                     render.Marquee(
-                        width=48,
-                        child=render.Text(journey["destination_name"]),
+                        width = 48,
+                        child = render.Text(journey["destination_name"]),
                     ),
-                    render.Text(journey["eta_text"], color="#c1773e", font="tom-thumb"),
-                ]
+                    render.Text(journey["eta_text"], color = "#c1773e", font = "tom-thumb"),
+                ],
             ),
-        ]
+        ],
     )
 
 def get_journeys(api_key, stop_code):
     rep = http.get(
         BUSTIME_STOP_TIMES_URL,
-        params={
+        params = {
             "version": "2",
             "key": api_key,
             "MonitoringRef": stop_code,
-        }
+        },
     )
     if rep.status_code != 200:
         fail("MTA BusTime request failed with status %d", rep.status_code)
@@ -141,9 +141,9 @@ def get_line_info(stop_id, line_ref, api_key):
 
     res = http.get(
         BUSTIME_STOP_INFO_URL % stop_id,
-        params={
+        params = {
             "key": api_key,
-        }
+        },
     )
     if res.status_code != 200:
         fail("MTA BusTime request failed with status %d", res.status_code)
@@ -154,6 +154,6 @@ def get_line_info(stop_id, line_ref, api_key):
         "color": route["color"],
     }
 
-    cache.set(cache_key, base64.encode(json.encode(result)), ttl_seconds=3600)
+    cache.set(cache_key, base64.encode(json.encode(result)), ttl_seconds = 3600)
 
     return result
