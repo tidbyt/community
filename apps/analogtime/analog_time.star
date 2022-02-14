@@ -14,7 +14,6 @@ load("schema.star", "schema")
 load("math.star", "math")
 load("time.star", "time")
 
-
 def main(config):
     timezone = config.get("location")
     if timezone != None:
