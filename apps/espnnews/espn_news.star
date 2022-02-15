@@ -6,7 +6,7 @@ Author: rs7q5 (RIS)
 """
 #espn_news.star
 #Created 20211231 RIS
-#Last Modified 20220117 RIS
+#Last Modified 20220215 RIS
 
 load("render.star", "render")
 load("http.star", "http")
@@ -50,8 +50,8 @@ def main(config):
     font = "CG-pixel-4x5-mono"  #set font
 
     #check for cached data
-    title_cached = cache.get("title_rate1"), cache.get("title_rate2"), cache.get("title_rate3")
-
+    cached_sport_txt = "_" + sport
+    title_cached = cache.get("title_rate1" + cached_sport_txt), cache.get("title_rate2" + cached_sport_txt), cache.get("title_rate3" + cached_sport_txt)
     if all(title_cached) != False:  #if any are None then all(title_cached)==False
         print("Hit! Displaying cached data.")
         title = title_cached
@@ -75,8 +75,8 @@ def main(config):
 
         #cache headlines
         for (i, x) in enumerate(title):
-            cache_name = "title_rate" + str(i + 1)  #i+1 just to be consistent when retrieving cached names
-            cache.set(cache_name, x[i], ttl_seconds = 14400)
+            cache_name = "title_rate" + str(i + 1) + cached_sport_txt  #i+1 just to be consistent when retrieving cached names
+            cache.set(cache_name, x, ttl_seconds = 14400)
     return render.Root(
         delay = 30,  #speed up scroll text
         child = render.Row(
