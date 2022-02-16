@@ -17,7 +17,7 @@ func New() manifest.Manifest {
 		Name:        "NYC Bus",
 		Author:      "samandmoore",
 		Summary:     "NYC Bus departures",
-		Desc:        "Real-time bus departures for your preferred stop.",
+		Desc:        "Real time bus departures for your preferred stop.",
 		FileName:    "nyc_bus.star",
 		PackageName: "nycbus",
 		Source:      source,

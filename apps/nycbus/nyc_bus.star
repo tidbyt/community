@@ -1,7 +1,7 @@
 """
 Applet: NYC Bus
 Summary: NYC Bus departures
-Description: Real-time bus departures for your preferred stop.
+Description: Real time bus departures for your preferred stop.
 Author: samandmoore
 """
 
@@ -22,7 +22,7 @@ EXAMPLE_LOCATION = """
     "lng": "-73.931708"
 }
 """
-ENCRYPTED_API_KEY = "AV6+xWcEBRQebDxEsWpvew8/Q/yk2mfdxkGGWkt/47fndF+ybVCKoCiSIzuxdJ+x9P9LULtR3/hSBtKKv2ClHhV3j4pCpHleW9o8ODNUw7AkhZnmCgayXOrSgIJ/XHoPv/OxkbwOo5YwkkIJj+syZAcwXlaHV7p1phMQ/3sXCp36lk3w40IMIbFc"
+ENCRYPTED_API_KEY = "AV6+xWcEqhRcqJoRWqP/j75JZaInHgemizLF5C+yhgMypoNcZCWENBVRkJHfIU9vJzz3Ji572NKWvmrf8QUedL1xuUImoew1dqgPNvNMBjuktEyZ7rmSLTYMogpvHP/gQwmCV/SK+Mbv5uSR3IPAc6h0o3cuPDXy3HgMwMy7+vaWF8KBhcBELKQv"
 BUSTIME_STOP_TIMES_URL = "http://bustime.mta.info/api/siri/stop-monitoring.json"
 BUSTIME_STOP_INFO_URL = "http://bustime.mta.info/api/where/stop/%s.json"
 BUSTIME_STOPS_FOR_LOCATION_URL = "http://bustime.mta.info/api/where/stops-for-location.json"
@@ -156,7 +156,7 @@ def get_line_info(stop_id, line_ref, api_key):
     if route != None:
         return json.decode(base64.decode(route))
 
-    print("No line info in cache, requesting...")
+    print("Miss! No line info in cache, calling MTA API.")
 
     res = http.get(
         BUSTIME_STOP_INFO_URL % stop_id,
