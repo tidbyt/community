@@ -37,7 +37,6 @@ DEFAULT_SHOW_SECOND_CURRENCY = False
 DEFAULT_SHOW_SATS = True
 DEFAULT_SHOW_COUNTRY = False
 
-
 def get_schema():
     currency_options = [
         schema.Option(display = currency, value = currency)
@@ -45,57 +44,56 @@ def get_schema():
     ]
 
     return schema.Schema(
-    version = "1",
-    fields = [
-        schema.Dropdown(
-            id = "first_currency",
-            name = "Currency A",
-            desc = "Choose a fiat currency to display the price in.",
-            icon = "circle-dollar",
-            default = DEFAULT_FIRST_CURRENCY,
-            options = currency_options,
-        ),
-        schema.Dropdown(
-            id = "second_currency",
-            name = "Currency B",
-            desc = "Choose a second fiat currency to display the price in.",
-            icon = "circle-dollar",
-            default = DEFAULT_SECOND_CURRENCY,
-            options = currency_options,
-        ),
-        schema.Toggle(
-            id = "first_currency_toggle",
-            name = "Display Currency A",
-            desc = "Toggle displaying Currency A.",
-            icon = "toggle-on",
-            default = DEFAULT_SHOW_FIRST_CURRENCY,
-        ),
-        schema.Toggle(
-            id = "second_currency_toggle",
-            name = "Display Currency B",
-            desc = "Toggle displaying Currency B.",
-            icon = "toggle-on",
-            default = DEFAULT_SHOW_SECOND_CURRENCY,
-        ),
-        schema.Toggle(
-            id = "sats_toggle",
-            name = "Display SATS",
-            desc = "Toggle displaying price in SATS.",
-            icon = "toggle-on",
-            default = DEFAULT_SHOW_SATS,
-        ),
-        schema.Toggle(
-            id = "country_toggle",
-            name = "Display Country",
-            desc = "Toggle displaying country code. Useful when displaying two dollar currencies together (e.g. USD and AUD).",
-            icon = "toggle-on",
-            default = DEFAULT_SHOW_COUNTRY,
-        ),
-    ],
-)
+        version = "1",
+        fields = [
+            schema.Dropdown(
+                id = "first_currency",
+                name = "Currency A",
+                desc = "Choose a fiat currency to display the price in.",
+                icon = "circle-dollar",
+                default = DEFAULT_FIRST_CURRENCY,
+                options = currency_options,
+            ),
+            schema.Dropdown(
+                id = "second_currency",
+                name = "Currency B",
+                desc = "Choose a second fiat currency to display the price in.",
+                icon = "circle-dollar",
+                default = DEFAULT_SECOND_CURRENCY,
+                options = currency_options,
+            ),
+            schema.Toggle(
+                id = "first_currency_toggle",
+                name = "Display Currency A",
+                desc = "Toggle displaying Currency A.",
+                icon = "toggle-on",
+                default = DEFAULT_SHOW_FIRST_CURRENCY,
+            ),
+            schema.Toggle(
+                id = "second_currency_toggle",
+                name = "Display Currency B",
+                desc = "Toggle displaying Currency B.",
+                icon = "toggle-on",
+                default = DEFAULT_SHOW_SECOND_CURRENCY,
+            ),
+            schema.Toggle(
+                id = "sats_toggle",
+                name = "Display SATS",
+                desc = "Toggle displaying price in SATS.",
+                icon = "toggle-on",
+                default = DEFAULT_SHOW_SATS,
+            ),
+            schema.Toggle(
+                id = "country_toggle",
+                name = "Display Country",
+                desc = "Toggle displaying country code. Useful when displaying two dollar currencies together (e.g. USD and AUD).",
+                icon = "toggle-on",
+                default = DEFAULT_SHOW_COUNTRY,
+            ),
+        ],
+    )
 
 def main(config):
-
     DIGIBYTE_PRICE_URL = "https://api.coingecko.com/api/v3/simple/price?ids=digibyte&vs_currencies=aud%2Ccad%2Ceur%2Cgbp%2Csats%2Cusd"
 
     first_currency = CURRENCY_LIST.get(config.get("first_currency"), CURRENCY_LIST[DEFAULT_FIRST_CURRENCY])
@@ -104,7 +102,6 @@ def main(config):
     second_currency_toggle = config.bool("second_currency_toggle")
     sats_toggle = config.bool("sats_toggle")
     country_toggle = config.bool("country_toggle")
-
 
     # LOOKUP CURRENT PRICES (OR RETRIEVE FROM CACHE)
 
@@ -135,15 +132,15 @@ def main(config):
         dgb_price_eur = dgbquery.json()["digibyte"]["eur"]
         dgb_price_gbp = dgbquery.json()["digibyte"]["gbp"]
         dgb_price_sats = dgbquery.json()["digibyte"]["sats"]
-        dgb_price_usd = dgbquery.json()["digibyte"]["usd"] 
+        dgb_price_usd = dgbquery.json()["digibyte"]["usd"]
 
         # Store prices in cache
-        cache.set("dgb_price_aud", str(dgb_price_aud), ttl_seconds=14400)
-        cache.set("dgb_price_cad", str(dgb_price_cad), ttl_seconds=14400)
-        cache.set("dgb_price_eur", str(dgb_price_eur), ttl_seconds=14400)
-        cache.set("dgb_price_gbp", str(dgb_price_gbp), ttl_seconds=14400)
-        cache.set("dgb_price_sats", str(dgb_price_sats), ttl_seconds=14400)
-        cache.set("dgb_price_usd", str(dgb_price_usd), ttl_seconds=14400)
+        cache.set("dgb_price_aud", str(dgb_price_aud), ttl_seconds = 14400)
+        cache.set("dgb_price_cad", str(dgb_price_cad), ttl_seconds = 14400)
+        cache.set("dgb_price_eur", str(dgb_price_eur), ttl_seconds = 14400)
+        cache.set("dgb_price_gbp", str(dgb_price_gbp), ttl_seconds = 14400)
+        cache.set("dgb_price_sats", str(dgb_price_sats), ttl_seconds = 14400)
+        cache.set("dgb_price_usd", str(dgb_price_usd), ttl_seconds = 14400)
 
     #Setup price display variable
     display_vec = []
@@ -155,14 +152,13 @@ def main(config):
         data_available = False
         display_error = render.Row(
             children = [
-                render.Text("ERROR:", font="CG-pixel-3x5-mono", color = "#FF0000"),
-                render.Text("Coingecko", font="CG-pixel-3x5-mono"),
-                render.Text("unvailable!", font="CG-pixel-3x5-mono"),
+                render.Text("ERROR:", font = "CG-pixel-3x5-mono", color = "#FF0000"),
+                render.Text("Coingecko", font = "CG-pixel-3x5-mono"),
+                render.Text("unvailable!", font = "CG-pixel-3x5-mono"),
             ],
         )
         display_vec.append(display_error)
         print("Error: No price data available")
-
 
     # Setup first currency price
     if first_currency_toggle and data_available:
@@ -192,22 +188,27 @@ def main(config):
             first_currency_country = "US"
             print("Displaying USD price (Currency A)")
 
-
         # Round price to nearest whole number (used to decide how many decimal places to leave)
         first_currency_price_integer = str(int(math.round(float(first_currency_price))))
 
         # Trim and format price
         if len(first_currency_price_integer) <= 1:
             first_currency_price = str(int(math.round(first_currency_price * 1000)))
-            while len(first_currency_price) < 4:
+            if len(first_currency_price) < 4:
                 first_currency_price = "0" + first_currency_price
-            first_currency_price = (first_currency_symbol + first_currency_price[0:-3] + "." + first_currency_price[-3:])  
+            if len(first_currency_price) < 4:
+                first_currency_price = "0" + first_currency_price
+            if len(first_currency_price) < 4:
+                first_currency_price = "0" + first_currency_price
+            if len(first_currency_price) < 4:
+                first_currency_price = "0" + first_currency_price
+            first_currency_price = (first_currency_symbol + first_currency_price[0:-3] + "." + first_currency_price[-3:])
         elif len(first_currency_price_integer) == 2:
             first_currency_price = str(int(math.round(first_currency_price * 1000)))
-            first_currency_price = (first_currency_symbol + first_currency_price[0:-3] + "." + first_currency_price[-3:]) 
+            first_currency_price = (first_currency_symbol + first_currency_price[0:-3] + "." + first_currency_price[-3:])
         elif len(first_currency_price_integer) == 3:
             first_currency_price = str(int(math.round(first_currency_price * 100)))
-            first_currency_price = (first_currency_symbol + first_currency_price[0:-2] + "." + first_currency_price[-2:]) 
+            first_currency_price = (first_currency_symbol + first_currency_price[0:-2] + "." + first_currency_price[-2:])
         elif len(first_currency_price_integer) == 4:
             first_currency_price = str(int(math.round(first_currency_price * 10)))
             first_currency_price = (first_currency_symbol + first_currency_price[0:-1] + "." + first_currency_price[-1:])
@@ -224,8 +225,8 @@ def main(config):
                 cross_align = "center",
                 children = [
                     render.Text("%s" % first_currency_price),
-                    render.Box(width=1, height=1),
-                    render.Text("%s" % first_currency_country, font="CG-pixel-3x5-mono", color = "#FF0000"),
+                    render.Box(width = 1, height = 1),
+                    render.Text("%s" % first_currency_country, font = "CG-pixel-3x5-mono", color = "#FF0000"),
                 ],
             )
         else:
@@ -261,22 +262,27 @@ def main(config):
             second_currency_country = "US"
             print("Displaying USD price (Currency B)")
 
-
         # Round price to nearest whole number (used to decide how many decimal places to leave)
         second_currency_price_integer = str(int(math.round(float(second_currency_price))))
 
         # Trim and format price
         if len(second_currency_price_integer) <= 1:
             second_currency_price = str(int(math.round(second_currency_price * 1000)))
-            while len(second_currency_price) < 4:
+            if len(second_currency_price) < 4:
                 second_currency_price = "0" + second_currency_price
-            second_currency_price = (second_currency_symbol + second_currency_price[0:-3] + "." + second_currency_price[-3:])  
+            if len(second_currency_price) < 4:
+                second_currency_price = "0" + second_currency_price
+            if len(second_currency_price) < 4:
+                second_currency_price = "0" + second_currency_price
+            if len(second_currency_price) < 4:
+                second_currency_price = "0" + second_currency_price
+            second_currency_price = (second_currency_symbol + second_currency_price[0:-3] + "." + second_currency_price[-3:])
         elif len(second_currency_price_integer) == 2:
             second_currency_price = str(int(math.round(second_currency_price * 1000)))
-            second_currency_price = (second_currency_symbol + second_currency_price[0:-3] + "." + second_currency_price[-3:]) 
+            second_currency_price = (second_currency_symbol + second_currency_price[0:-3] + "." + second_currency_price[-3:])
         elif len(second_currency_price_integer) == 3:
             second_currency_price = str(int(math.round(second_currency_price * 100)))
-            second_currency_price = (second_currency_symbol + second_currency_price[0:-2] + "." + second_currency_price[-2:]) 
+            second_currency_price = (second_currency_symbol + second_currency_price[0:-2] + "." + second_currency_price[-2:])
         elif len(second_currency_price_integer) == 4:
             second_currency_price = str(int(math.round(second_currency_price * 10)))
             second_currency_price = (second_currency_symbol + second_currency_price[0:-1] + "." + second_currency_price[-1:])
@@ -293,8 +299,8 @@ def main(config):
                 cross_align = "center",
                 children = [
                     render.Text("%s" % second_currency_price),
-                    render.Box(width=1, height=1),
-                    render.Text("%s" % second_currency_country, font="CG-pixel-3x5-mono", color = "#FF0000"),
+                    render.Box(width = 1, height = 1),
+                    render.Text("%s" % second_currency_country, font = "CG-pixel-3x5-mono", color = "#FF0000"),
                 ],
             )
         else:
@@ -302,36 +308,32 @@ def main(config):
 
         display_vec.append(display_second_currency_price)
 
-
-
     # Display message in log if Country toggle is enabled
     if country_toggle and (first_currency_toggle or second_currency_toggle):
         print("Displaying Country")
-
 
     # Setup sats price (trim and format)
 
     if sats_toggle and data_available:
         dgb_price_sats = str(int(math.round(dgb_price_sats * 100)))
-        dgb_price_sats = (dgb_price_sats[0:-2] + "." + dgb_price_sats[-2:]) 
+        dgb_price_sats = (dgb_price_sats[0:-2] + "." + dgb_price_sats[-2:])
         display_sats_price = render.Row(
             children = [
-                render.Image(src=SATS_SYMBOL),
+                render.Image(src = SATS_SYMBOL),
                 render.Text("%s" % dgb_price_sats),
             ],
         )
         display_vec.append(display_sats_price)
         print("Displaying SATS price")
 
-
     return render.Root(
         child = render.Box(
             render.Row(
-                expanded=True,
-                main_align="space_evenly",
-                cross_align="center",
+                expanded = True,
+                main_align = "space_evenly",
+                cross_align = "center",
                 children = [
-                    render.Image(src=DGB_ICON),
+                    render.Image(src = DGB_ICON),
 
                     # Column to hold pricing text evenly distrubuted accross 1-3 rows
                     render.Column(
@@ -343,6 +345,3 @@ def main(config):
             ),
         ),
     )
-
-
-
