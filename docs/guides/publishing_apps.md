@@ -7,7 +7,7 @@ One final note before we hop in - you may want to check out the [schema docs](ht
 Make sure you have [go1.16](https://go.dev/) or later and `make` installed on your system.
 
 
-## Quick start
+## Quick Start
 Fork and clone the [Tidbyt community repo](https://github.com/tidbyt/community) to your local machine, and then run the following from the local folder, to generate everything you need!
 ```
 make app
@@ -18,7 +18,7 @@ make app
 Once created, edit `apps/{{appaname}}/{{app_name}}.star` with your source code.
 
 
-## Instructions:
+## Detailed Instructions
 
 ### 1. Fork the Tibyt Community repo on Github
 
@@ -69,7 +69,6 @@ In this example, the fields map as follows:
 
 ![details](../assets/example_details.png)
 
- don't forget to run make lint before committing 
 
  #### Run your App
 
