@@ -35,7 +35,7 @@ def main(config):
     random_index = random(len(fish_barrel))
     fish = fish_barrel[random_index]
 
-     # get specific fish
+    # get specific fish
     # fishToGet=FISH_WATCH_URL+"pink-shrimp"
     # fish = http.get(fishToGet).json()[0]
 
@@ -57,13 +57,12 @@ def main(config):
 
     #modify speed of marquee based on length of fact
     delay_var = 80
-    
+
     if len(fact[1]) > 80:
         delay_var = 60
 
     if len(fact[1]) > 109:
         delay_var = 45
-
 
     return render.Root(
         delay = delay_var,
