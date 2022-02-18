@@ -154,32 +154,49 @@ def is_user_oncall(config, user_id):
 def hide_app():
     return []
 
-def main(config):
+def get_state(config):
     access_token = config.get("auth")
+    is_preview = not access_token
+    oncall = False
+    show_oncall_bar = config.bool("show_oncall_bar", DEFAULT_SHOW_ONCALL_BAR)
+    hide_when_not_oncall = config.bool("hide_when_not_oncall", DEFAULT_HIDE_WHEN_NOT_ONCALL)
+    counts = None
 
-    if not access_token:
-        return Error("Grant access to PagerDuty")
+    if is_preview:
+        oncall = True
+        counts = dict(
+            total = 42,
+            triggered = 7,
+            acknowledged = 0,
+        )
+    else:
+        counts = get_pagerduty_counts(config)
 
-    counts = get_pagerduty_counts(config)
+        if show_oncall_bar:
+            profile = get_current_user(config)
+
+            if profile == None:
+                return Error("Failed to get user profile")
+
+            oncall = is_user_oncall(config, profile["id"])
+
+            if oncall == None:
+                return Error("Failed to get on-call status")
+
+    return struct(
+        oncall = oncall,
+        counts = counts,
+        is_preview = is_preview,
+        show_oncall_bar = show_oncall_bar,
+        hide_when_not_oncall = hide_when_not_oncall,
+    )
+
+def main(config):
+    data = get_state(config)
 
     # don't show the app if we didn't get any data
-    if not counts:
+    if not data.counts:
         return hide_app()
-
-    show_oncall_bar = config.bool("show_oncall_bar", DEFAULT_SHOW_ONCALL_BAR)
-
-    if show_oncall_bar:
-        profile = get_current_user(config)
-
-        if profile == None:
-            return Error("Failed to get user profile")
-
-        oncall = is_user_oncall(config, profile["id"])
-
-        if oncall == None:
-            return Error("Failed to get on-call status")
-    else:
-        oncall = False
 
     separator = render.Padding(
         pad = (0, 1, 0, 1),
@@ -201,7 +218,10 @@ def main(config):
     )
     oncall_bar = None
 
-    if show_oncall_bar and oncall:
+    if data.hide_when_not_oncall and not data.oncall:
+        return hide_app()
+
+    if data.show_oncall_bar and data.oncall:
         oncall_bar = render.Box(
             color = "#900000",
             height = 9,
@@ -211,16 +231,11 @@ def main(config):
             ),
         )
 
-    hide_when_not_oncall = config.bool("hide_when_not_oncall", DEFAULT_HIDE_WHEN_NOT_ONCALL)
-
-    if hide_when_not_oncall and not oncall:
-        return hide_app()
-
     return render.Root(
         child = render.Column(
             main_align = "space_evenly",
             cross_align = "center",
-            expanded = not oncall,
+            expanded = oncall_bar == None,
             children = [
                 render.Row(
                     expanded = True,
@@ -228,11 +243,11 @@ def main(config):
                     cross_align = "center",
                     children = [
                         pagerduty_logo,
-                        Count(counts["total"]),
+                        Count(data.counts["total"]),
                         separator,
                         Count(
                             label = "trig",
-                            count = counts["triggered"],
+                            count = data.counts["triggered"],
                             color = "#ff0000",
                         ),
                     ],
@@ -283,25 +298,25 @@ def get_schema():
                 ],
             ),
             schema.Toggle(
+                id = "only_lvl_1_oncall",
+                name = "Level 1 only",
+                desc = "When enabled, only level 1 escalation levels will be treated as on-call.",
+                icon = "medal",
+                default = DEFAULT_ONLY_LEVEL_1,
+            ),
+            schema.Toggle(
                 id = "show_oncall_bar",
-                name = "Show on-call details bar",
+                name = "Show on-call status",
                 desc = "Whether to show a bar at the bottom of the screen when you are on-call.",
-                icon = "exclamationCircle",
+                icon = "eye",
                 default = DEFAULT_SHOW_ONCALL_BAR,
             ),
             schema.Toggle(
                 id = "hide_when_not_oncall",
-                name = "Hide when not on-call",
+                name = "Hide when off duty",
                 desc = "When enabled, the app will not be displayed when you are not on-call.",
                 icon = "eyeSlash",
                 default = DEFAULT_HIDE_WHEN_NOT_ONCALL,
-            ),
-            schema.Toggle(
-                id = "only_lvl_1_oncall",
-                name = "Only treat level 1 escalations as on-call",
-                desc = "When enabled, only level 1 escalation levels will be treated as on-call.",
-                icon = "filter",
-                default = DEFAULT_ONLY_LEVEL_1,
             ),
         ],
     )
