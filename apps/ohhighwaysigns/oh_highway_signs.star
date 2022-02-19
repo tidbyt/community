@@ -14,10 +14,12 @@ load("cache.star", "cache")
 
 # get all data for entire state
 URL = "https://publicapi.ohgo.com/api/v1/digital-signs?sign-type=dms"
+API_KEY = secret.decrypt("AV6+xWcE/RBy74+Uf/pJ8KRTDDaG3/t84IL0p5oKjJdSM1Pk7nPzXdWl+i9Q7gdf1XQUcz6UWFANE0wRagqr+6LtyI5W3Phyl6MiRHfwjdIU0Z8zQFXqUuNKC+w7hIv49xE7UDVpWibaufQudT8jbz6S5DwRcDFHBBieyIe02tnCd6fgSybS6VB6")
 CACHE_KEY = "ALL_SIGNS"
+SEARCH_RADIUS = 50 #miles
 
 def main(config):
-    api_key = secret.decrypt("AV6+xWcEFT0/uO+MIF1nqdUV9MCnGUVFCtB+I9FD73Vpi9ABgHACrEHktSMnfcIif+AWJlw75vLAfjMBk+CimTjt/Mx303xuNk+hngvoPLYDmi4WiDPwSAMmRJSwEwCS73gxwPyf7GrY/UfglJRVBh52ufshdWelwJfUk4owaCDcWqcrXTE7tFCQ") or config.str("dev_api_key")
+    api_key = config.str("dev_api_key")
     sign_id = config.str("sign_id")
     favor_times = config.bool("favor_times") or False
 
@@ -75,13 +77,30 @@ def get_schema():
 
 def get_signs(location):
     loc = json.decode(location)
+    url = "{}&radius={},{},{}".format(URL, loc["lat"], loc["lng"], SEARCH_RADIUS)
 
-    return [
-        schema.Option(
-            display = "Grand Central",
-            value = "grand_central",
-        ),
-    ]
+    signs = cache.get(url)
+
+    if signs == None:
+        print("schema locations not cached")
+        places = http.get(url, headers = headers(API_KEY))
+        signs = places.json()
+        cache.set(url, json.encode(signs), ttl_seconds = 300)
+    else:
+        print("using schema cache")
+        signs = json.decode(signs)
+
+    options = []
+
+    for sign in signs["results"]:
+        options.append(
+            schema.Option(
+                display = sign["location"],
+                value = sign["id"],
+            )
+        )
+
+    return options
 
 def get_sign_text(api_key, sign_id, favor_times):
     signs = load_signs(api_key)
@@ -207,7 +226,7 @@ def format_message(message):
     message[2] = message[2].strip()
 
 def headers(api_key):
-    return {"Authorization": "APIKEY {}".format(api_key)}
+    return {"Authorization": "APIKEY {}".format(API_KEY or api_key)}
 
 def load_signs(api_key):
     signs_cached = cache.get(CACHE_KEY)
