@@ -75,32 +75,62 @@ def get_signs(location):
 def get_sign_text(api_key, sign_id):
     signs = load_signs(api_key)
     sign = find_sign(signs, sign_id)
-    print(sign)
     messages = sign["messages"]
-    print(messages)
     message = messages[0].split("\r\n")
 
-    if sign_is_mileage(message):
-        format_mileage(message)
-    else:
-        format_message(message)
+    if sign_is_mile_min(message):
+        format_mile_min(message)
+        return message
 
+    if sign_is_time_via(message):
+        format_time_via(message)
+        return message
+
+    format_message(message)
     return message
 
-def sign_is_mileage(message):
+def sign_is_mile_min(message):
     line = message[0]
     return line.endswith('MIN')
 
-def format_mileage(message):
-    line0 = message[0].replace("  ", " ")[-12:]
-    message[0] = line0
+def sign_is_time_via(message):
+    line = message[0]
+    return line.find('VIA') > -1
 
-    message[1] = format_mileage_line(message[1])
-    message[2] = format_mileage_line(message[2])
+def format_time_via(message):
+    message[0] = message[0].strip()
+    message[1] = format_time_via_line(message[1])
+    message[2] = format_time_via_line(message[2])
 
     return message
 
-def format_mileage_line(line):
+def format_time_via_line(line):
+    leftLastIdx = 0
+    for x in range(len(line) - 1):
+        if line[x:x + 2] == "  ":
+            leftLastIdx = x
+            break
+
+    leftSide = line[0:leftLastIdx]
+
+    rightLastIdx = 0
+    for x in range(len(line) - 1, 0, -1):
+        if line[x:x - 2:-1] == "  ":
+            rightLastIdx = x + 1
+            break
+
+    rightSide = line[rightLastIdx:]
+
+    return format_line_spacing(leftSide, rightSide)
+
+def format_mile_min(message):
+    message[0] = message[0].replace("  ", " ")[-12:]
+    message[1] = format_mile_min_line(message[1])
+    message[2] = format_mile_min_line(message[2])
+
+    return message
+
+def format_mile_min_line(line):
     leftLastIdx = 0
     spaceCount = 0
     for x in range(len(line) - 1):
@@ -135,7 +165,10 @@ def format_mileage_line(line):
     currentSpaces = rightSide.count(" ")
     rightSide = rightSide.replace("".join([" " for x in range(currentSpaces)]), "".join([" " for x in range(currentSpaces - 1)]))
 
-    if len(leftSide) + len(rightSide) > 13:
+    return format_line_spacing(leftSide, rightSide)
+
+def format_line_spacing(leftSide, rightSide):
+    if len(leftSide) + len(rightSide) >= 12:
         return "{} {}".format(leftSide, rightSide)
 
     spacesNeeded = 12 - (len(leftSide) + len(rightSide))
