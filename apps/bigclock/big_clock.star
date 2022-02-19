@@ -227,18 +227,21 @@ def get_schema():
                 name = "24 hour format",
                 icon = "clock",
                 desc = "Display the time in 24 hour format.",
+                default = DEFAULT_IS_24_HOUR_FORMAT,
             ),
             schema.Toggle(
                 id = "has_leading_zero",
                 name = "Add leading zero",
                 icon = "creativeCommonsZero",
                 desc = "Ensure the clock always displays with a leading zero.",
+                default = DEFAULT_HAS_LEADING_ZERO,
             ),
             schema.Toggle(
                 id = "has_flashing_seperator",
                 name = "Enable flashing separator",
                 icon = "cog",
                 desc = "Ensure the clock always displays with a leading zero.",
+                default = DEFAULT_HAS_FLASHING_SEPERATOR,
             ),
             schema.Dropdown(
                 id = "color_daytime",
