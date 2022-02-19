@@ -12,13 +12,13 @@ load("encoding/json.star", "json")
 load("secret.star", "secret")
 
 URL = "https://publicapi.ohgo.com/api/v1/digital-signs?sign-type=dms"
-DEFAULT_SIGN = "101"
 
 def main(config):
     api_key = secret.decrypt("AV6+xWcEFT0/uO+MIF1nqdUV9MCnGUVFCtB+I9FD73Vpi9ABgHACrEHktSMnfcIif+AWJlw75vLAfjMBk+CimTjt/Mx303xuNk+hngvoPLYDmi4WiDPwSAMmRJSwEwCS73gxwPyf7GrY/UfglJRVBh52ufshdWelwJfUk4owaCDcWqcrXTE7tFCQ") or config.str("dev_api_key")
-    sign_id = config.str("sign_id") or DEFAULT_SIGN
+    sign_id = config.str("sign_id")
+    favor_times = config.bool("favor_times") or False
 
-    text = get_sign_text(api_key, sign_id)
+    text = get_sign_text(api_key, sign_id, favor_times)
     print(text)
 
     return render.Root(
@@ -30,6 +30,7 @@ def main(config):
                 marquee_with_text(text[0]),
                 marquee_with_text(text[1]),
                 marquee_with_text(text[2]),
+                render.Box(width=64, height=1, color="#000") # hack to fill width
             ]
         ),
     )
@@ -58,6 +59,13 @@ def get_schema():
                 desc = "A list of signs near you.",
                 icon = "rectangleList",
                 handler = get_signs,
+            ),
+            schema.Toggle(
+                id = "favor_times",
+                name = "Favor Times",
+                desc = "Attempt to display travel times over message if available.",
+                icon = "clock",
+                default = False,
             )
         ],
     )
@@ -72,11 +80,16 @@ def get_signs(location):
         ),
     ]
 
-def get_sign_text(api_key, sign_id):
+def get_sign_text(api_key, sign_id, favor_times):
     signs = load_signs(api_key)
     sign = find_sign(signs, sign_id)
+
+    if sign == None:
+        return ["No","Messages","Available"]
+
     messages = sign["messages"]
-    message = messages[0].split("\r\n")
+
+    message = select_message(messages, favor_times)
 
     if sign_is_mile_min(message):
         format_mile_min(message)
@@ -88,6 +101,16 @@ def get_sign_text(api_key, sign_id):
 
     format_message(message)
     return message
+
+def select_message(messages, favor_times):
+    if len(messages) == 1:
+        return messages[0].split("\r\n")
+
+    messageSplit = messages[0].split("\r\n")
+    if favor_times and (sign_is_mile_min(messageSplit) or sign_is_time_via(messageSplit)):
+        return messageSplit
+    else:
+        return messages[1].split("\r\n")
 
 def sign_is_mile_min(message):
     line = message[0]
@@ -194,7 +217,12 @@ def load_signs(api_key):
     return data["results"]
 
 def find_sign(results, sign_id):
+    if results == None:
+        return None
+
     for result in results:
+        if sign_id == None:
+            return result
         if result["id"] == sign_id:
             return result
 
