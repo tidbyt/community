@@ -59,7 +59,7 @@ def get_schema():
         version = "1",
         fields = [
             schema.LocationBased(
-                id = "sign",
+                id = "sign_id",
                 name = "Nearby Sign",
                 desc = "A list of signs near you.",
                 icon = "rectangleList",
