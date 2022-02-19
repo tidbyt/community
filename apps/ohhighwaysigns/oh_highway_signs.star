@@ -76,16 +76,76 @@ def get_sign_text(api_key, sign_id):
     signs = load_signs(api_key)
     sign = find_sign(signs, sign_id)
     print(sign)
+    messages = sign["messages"]
+    print(messages)
+    message = messages[0].split("\r\n")
 
-    return split_line(sign["messages"][0])
+    if sign_is_mileage(message):
+        format_mileage(message)
+    else:
+        format_message(message)
 
-def split_line(line):
-    # max 13 chars
-    lines = line.split("\r\n")
-    lines[0] = lines[0].lstrip().rstrip().replace("   ", " ")
-    lines[1] = lines[1].lstrip().rstrip().replace("   ", " ")
-    lines[2] = lines[2].lstrip().rstrip().replace("   ", " ")
-    return lines
+    return message
+
+def sign_is_mileage(message):
+    line = message[0]
+    return line.endswith('MIN')
+
+def format_mileage(message):
+    line0 = message[0].replace("  ", " ")[-12:]
+    message[0] = line0
+
+    message[1] = format_mileage_line(message[1])
+    message[2] = format_mileage_line(message[2])
+
+    return message
+
+def format_mileage_line(line):
+    leftLastIdx = 0
+    spaceCount = 0
+    for x in range(len(line) - 1):
+        if line[x] == " ":
+            spaceCount = spaceCount + 1
+        else:
+            spaceCount = 0
+
+        if spaceCount > 1:
+            spaceCount = 0
+            leftLastIdx = x - 1
+            break
+
+    leftSide = line[0:leftLastIdx]
+
+    rightLastIdx = 0
+    numFound = False
+    numFound2 = False
+    spaceFound = False
+    for x in range(len(line) - 1, 0, -1):
+        if not numFound and line[x].isdigit():
+            numFound = True
+        if not numFound2 and spaceFound and line[x].isdigit():
+            numFound2 = True
+        if line[x].isspace() and numFound2:
+            rightLastIdx = x + 1
+            break
+        if line[x].isspace():
+            spaceFound = True
+
+    rightSide = line[rightLastIdx:]
+    currentSpaces = rightSide.count(" ")
+    rightSide = rightSide.replace("".join([" " for x in range(currentSpaces)]), "".join([" " for x in range(currentSpaces - 1)]))
+
+    if len(leftSide) + len(rightSide) > 13:
+        return "{} {}".format(leftSide, rightSide)
+
+    spacesNeeded = 12 - (len(leftSide) + len(rightSide))
+    spaces = "".join([" " for x in range(spacesNeeded)])
+    return "{}{}{}".format(leftSide, spaces, rightSide)
+
+def format_message(message):
+    message[0] = message[0].strip()
+    message[1] = message[1].strip()
+    message[2] = message[2].strip()
 
 def headers(api_key):
     return {"Authorization": "APIKEY {}".format(api_key)}
