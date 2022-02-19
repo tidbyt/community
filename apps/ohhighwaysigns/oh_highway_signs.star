@@ -10,8 +10,11 @@ load("schema.star", "schema")
 load("http.star", "http")
 load("encoding/json.star", "json")
 load("secret.star", "secret")
+load("cache.star", "cache")
 
+# get all data for entire state
 URL = "https://publicapi.ohgo.com/api/v1/digital-signs?sign-type=dms"
+CACHE_KEY = "ALL_SIGNS"
 
 def main(config):
     api_key = secret.decrypt("AV6+xWcEFT0/uO+MIF1nqdUV9MCnGUVFCtB+I9FD73Vpi9ABgHACrEHktSMnfcIif+AWJlw75vLAfjMBk+CimTjt/Mx303xuNk+hngvoPLYDmi4WiDPwSAMmRJSwEwCS73gxwPyf7GrY/UfglJRVBh52ufshdWelwJfUk4owaCDcWqcrXTE7tFCQ") or config.str("dev_api_key")
@@ -207,13 +210,22 @@ def headers(api_key):
     return {"Authorization": "APIKEY {}".format(api_key)}
 
 def load_signs(api_key):
+    signs_cached = cache.get(CACHE_KEY)
+    if signs_cached != None:
+        print("using cache")
+        return json.decode(signs_cached)
+    print("No data cached")
+
     resp = http.get(URL, headers = headers(api_key))
 
     if resp.status_code != 200:
         print("request failed with status {}".format(resp.status_code))
         return None
-    print("success")
+    print("http success")
     data = resp.json()
+
+    cache.set(CACHE_KEY, json.encode(data["results"]), ttl_seconds = 300)
+
     return data["results"]
 
 def find_sign(results, sign_id):
