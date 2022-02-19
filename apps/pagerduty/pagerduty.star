@@ -18,6 +18,7 @@ load("render.star", "render")
 DEFAULT_TIMEZONE = "US/Eastern"
 DEFAULT_ONLY_LEVEL_1 = False
 DEFAULT_SHOW_ONCALL_BAR = True
+DEFAULT_SHOW_ONCALL_BAR_ME_ONLY = False
 DEFAULT_SHOW_ICON = True
 DEFAULT_HIDE_WHEN_NOT_ONCALL = False
 
@@ -49,23 +50,20 @@ def Error(message = ""):
     )
 
 def Count(count = 0, label = "TOTAL", color = "#c3c3c3"):
-    return render.Padding(
-        pad = (1, 1, 1, 1),
-        child = render.Column(
-            cross_align = "center",
-            children = [
-                render.Text(
-                    content = str(count),
-                    font = "6x13",
-                    color = "#fff",
-                ),
-                render.Text(
-                    content = label.upper(),
-                    font = "CG-pixel-3x5-mono",
-                    color = color,
-                ),
-            ],
-        ),
+    return render.Column(
+        cross_align = "center",
+        children = [
+            render.Text(
+                content = str(count),
+                font = "6x13",
+                color = "#fff",
+            ),
+            render.Text(
+                content = label.upper(),
+                font = "CG-pixel-3x5-mono",
+                color = color,
+            ),
+        ],
     )
 
 def pagerduty_api_call(config, url):
@@ -164,10 +162,10 @@ def get_oncall_shifts(config):
                 ),
             ))
     return sorted(shifts, key = sort_by_level)
-    
+
 def is_user_oncall(config, shifts, user_id):
     level_one_only = config.bool("only_lvl_1_oncall", DEFAULT_ONLY_LEVEL_1)
-    
+
     if not shifts:
         return None
 
@@ -181,24 +179,30 @@ def is_user_oncall(config, shifts, user_id):
                 is_user_oncall = True
             if is_user_oncall:
                 break
-    
+
     return is_user_oncall
 
 def get_oncall_scroll_text(shifts):
     scroll = ""
-
     unique_names = []
 
     for shift in shifts:
         if shift.user.name not in unique_names:
             unique_names.append(shift.user.name)
 
-    scroll = " * %s *" % " | ".join([ "%s: %s [L%s]" % (shift.escalation_policy.name, shift.user.name, shift.escalation_level) for shift in shifts ])
+    scroll = " * %s *" % " | ".join([
+        "%s: %s [L%s]" % (
+            shift.escalation_policy.name,
+            shift.user.name,
+            shift.escalation_level,
+        )
+        for shift in shifts
+    ])
 
     if len(unique_names) == 1:
         ends = " "
         if shifts[0].end != None:
-            ends = " - Ends in %s" %  humanize.relative_time(shifts[0].end, time.now(), "", "")
+            ends = " - Ends in %s" % humanize.relative_time(shifts[0].end, time.now())
         scroll = " * ON-CALL: %s%s*" % (unique_names[0], ends)
     return scroll
 
@@ -213,6 +217,7 @@ def get_state(config):
     show_oncall_bar = config.bool("show_oncall_bar", DEFAULT_SHOW_ONCALL_BAR)
     hide_when_not_oncall = config.bool("hide_when_not_oncall", DEFAULT_HIDE_WHEN_NOT_ONCALL)
     level_one_only = config.bool("only_lvl_1_oncall", DEFAULT_ONLY_LEVEL_1)
+    only_when_oncall = config.bool("only_when_oncall", DEFAULT_SHOW_ONCALL_BAR_ME_ONLY)
     counts = None
     shifts = []
     profile = None
@@ -249,6 +254,7 @@ def get_state(config):
         show_oncall_bar = show_oncall_bar,
         hide_when_not_oncall = hide_when_not_oncall,
         level_one_only = level_one_only,
+        only_when_oncall = only_when_oncall,
     )
 
 def main(config):
@@ -259,7 +265,7 @@ def main(config):
         return hide_app()
 
     separator = render.Padding(
-        pad = (0, 1, 0, 1),
+        pad = (2, 1, 0, 0),
         child = render.Box(
             width = 1,
             height = 22,
@@ -268,82 +274,69 @@ def main(config):
     )
     pagerduty_logo = None
     if data.show_icon:
-        pagerduty_logo = render.Box(
-            height = 14,
-            width = 14,
-            color = "#00591e",
-            child = render.Stack(
-                children = [
-                    render.Padding(
-                        pad = (1, 0, 0, 0),
-                        child = render.Text(
-                            content = "P",
-                            font = "6x13",
-                            color = "#eee",
-                        ),
-                    ),
-                    render.Padding(
-                        pad = (2, 0, 0, 0),
-                        child = render.Text(
-                            content = "P",
-                            font = "6x13",
-                            color = "#eee",
-                        ),
-                    ),
-                    render.Padding(
-                        pad = (1, 1, 0, 0),
-                        child = render.Text(
-                            content = "P",
-                            font = "6x13",
-                            color = "#eee",
-                        ),
-                    ),
-                    render.Padding(
-                        pad = (2, 1, 0, 0),
-                        child = render.Text(
-                            content = "P",
-                            font = "6x13",
-                            color = "#eee",
-                        ),
-                    ),
-                ],
+        pagerduty_logo = render.Padding(
+            pad = (3, 2, 3, 0),
+            child = render.Box(
+                height = 14,
+                width = 14,
+                color = "#00591e",
+                child = render.Stack(
+                    children = [
+                        render.Padding(
+                            pad = (x, y, 0, 0),
+                            child = render.Text(
+                                content = "P",
+                                font = "6x13",
+                                color = "#eee",
+                            ),
+                        )
+                        for (x, y) in [
+                            (1, 0),
+                            (1, 1),
+                            (2, 0),
+                            (2, 1),
+                        ]
+                    ],
+                ),
             ),
         )
-    oncall_bar = None
 
     if data.hide_when_not_oncall and not data.oncall:
         return hide_app()
 
-    if data.show_oncall_bar and data.oncall:
-        oncall_bar = render.Box(
-            color = "#900000",
-            height = 9,
-            child = render.Text(
-                content = "* ON-CALL *",
-                color = "#efefef",
-            ),
-        )
-    elif data.show_oncall_bar and not data.oncall:
-        shifts = data.shifts
-        if data.level_one_only:
-            shifts = [
-                shift for shift in data.shifts if ((
-                    shift.user.id == data.profile["id"] and 
+    oncall_bar = None
+    if data.show_oncall_bar:
+        oncall_bar_color = "#3c3c3c"
+        oncall_bar_content = None
+
+        if data.oncall:
+            oncall_bar_color = "#900000"
+            oncall_bar_content = "* ON-CALL *"
+        elif data.level_one_only and not data.only_when_oncall:
+            oncall_bar_content = get_oncall_scroll_text([
+                shift
+                for shift in data.shifts
+                if ((
+                    shift.user.id == data.profile["id"] and
                     shift.escalation_level == 1
                 ) or (shift.user.id != data.profile["id"]))
-            ]
-        scroll = get_oncall_scroll_text(shifts)
-        oncall_bar = render.Box(
-            color = "#3c3c3c",
-            height = 9,
-            child = render.Marquee(
-                width = 64,
-                child = render.Text(
-                    content = scroll,
-                    color = "#cccccc",
-                ),
-            ),
-        )
+            ])
+
+        if oncall_bar_content:
+            oncall_status = render.Text(
+                content = oncall_bar_content,
+                color = "#efefef",
+            )
+            if not data.oncall:
+                oncall_status = render.Marquee(
+                    width = 64,
+                    child = oncall_status,
+                )
+            oncall_bar = render.Box(
+                color = oncall_bar_color,
+                height = 9,
+                child = oncall_status,
+            )
 
     return render.Root(
         child = render.Column(
@@ -351,20 +344,23 @@ def main(config):
             cross_align = "center",
             expanded = oncall_bar == None,
             children = [
-                render.Row(
-                    expanded = True,
-                    main_align = "space_evenly",
-                    cross_align = "center",
-                    children = [
-                        pagerduty_logo,
-                        Count(data.counts["total"]),
-                        separator,
-                        Count(
-                            label = " new ",
-                            count = data.counts["triggered"],
-                            color = "#ff0000",
-                        ),
-                    ],
+                render.Padding(
+                    pad = (1, 0, 0, 1),
+                    child = render.Row(
+                        expanded = True,
+                        main_align = "space_evenly",
+                        cross_align = "center",
+                        children = [
+                            pagerduty_logo,
+                            Count(data.counts["total"]),
+                            separator,
+                            Count(
+                                label = " new ",
+                                count = data.counts["triggered"],
+                                color = "#ff0000",
+                            ),
+                        ],
+                    ),
                 ),
                 oncall_bar,
             ],
@@ -412,25 +408,32 @@ def get_schema():
                 ],
             ),
             schema.Toggle(
+                id = "show_icon",
+                name = "Show icon",
+                desc = "Whether to show the Pager Duty icon.",
+                icon = "image",
+                default = DEFAULT_SHOW_ICON,
+            ),
+            schema.Toggle(
+                id = "show_oncall_bar",
+                name = "Show on-call status",
+                desc = "Whether to show bottom bar with current on-call status.",
+                icon = "eye",
+                default = DEFAULT_SHOW_ONCALL_BAR,
+            ),
+            schema.Toggle(
+                id = "only_when_oncall",
+                name = "Only show my status",
+                desc = "When enabled, the bottom bar will only show if the user is on-call.",
+                icon = "filter",
+                default = DEFAULT_SHOW_ONCALL_BAR_ME_ONLY,
+            ),
+            schema.Toggle(
                 id = "only_lvl_1_oncall",
                 name = "Level 1 only",
                 desc = "When enabled, only level 1 escalation levels will be treated as on-call.",
                 icon = "medal",
                 default = DEFAULT_ONLY_LEVEL_1,
-            ),
-            schema.Toggle(
-                id = "show_oncall_bar",
-                name = "Show on-call status",
-                desc = "Whether to show a bar at the bottom of the screen when you are on-call.",
-                icon = "eye",
-                default = DEFAULT_SHOW_ONCALL_BAR,
-            ),
-            schema.Toggle(
-                id = "show_icon",
-                name = "Show PagerDuty icon",
-                desc = "Whether to show the Pager Duty icon.",
-                icon = "image",
-                default = DEFAULT_SHOW_ICON,
             ),
             schema.Toggle(
                 id = "hide_when_not_oncall",
