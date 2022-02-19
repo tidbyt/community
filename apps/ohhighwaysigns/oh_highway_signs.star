@@ -110,7 +110,6 @@ def get_sign_text(api_key, sign_id, favor_times):
         return ["No", "Messages", "Available"]
 
     messages = sign["messages"]
-
     message = select_message(messages, favor_times)
 
     if sign_is_mile_min(message):
@@ -125,14 +124,24 @@ def get_sign_text(api_key, sign_id, favor_times):
     return message
 
 def select_message(messages, favor_times):
-    if len(messages) == 1:
-        return messages[0].split("\r\n")
+    if len(messages) == 0:
+        return ["No", "Messages", "Available"]
 
-    messageSplit = messages[0].split("\r\n")
-    if favor_times and (sign_is_mile_min(messageSplit) or sign_is_time_via(messageSplit)):
-        return messageSplit
+    message0Split = messages[0].split("\r\n")
+
+    if len(messages) == 1:
+        return message0Split
+
+    message1Split = messages[1].split("\r\n")
+
+    if favor_times:
+        if sign_is_mile_min(message0Split) or sign_is_time_via(message0Split):
+            return message0Split
+        return message1Split
     else:
-        return messages[1].split("\r\n")
+        if not (sign_is_mile_min(message0Split) or sign_is_time_via(message0Split)):
+            return message0Split
+        return message1Split
 
 def sign_is_mile_min(message):
     line = message[0]
