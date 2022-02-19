@@ -16,10 +16,10 @@ func New() manifest.Manifest {
 		ID:          "oh-highway-signs",
 		Name:        "OH Highway Signs",
 		Author:      "noahcolvin",
-		Summary:     "Displays OH highway messages",
+		Summary:     "Displays OH highway signs",
 		Desc:        "Displays messages from overhead signs on Ohio highways.",
 		FileName:    "oh_highway_signs.star",
 		PackageName: "ohhighwaysigns",
-		Source:  source,
+		Source:      source,
 	}
 }
