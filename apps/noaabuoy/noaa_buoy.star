@@ -28,8 +28,8 @@ def main(config):
     color_huge = "#FF0000"  # red
     swell_color = color_medium
 
-    buoy1_id = config.get("buoy1_id", 51211)
-    buoy1_name = config.get("buoy1_name", "Pearl Harbor")
+    buoy1_id = config.get("buoy_1_id", 51211)
+    buoy1_name = config.get("buoy_1_name", "Pearl Harbor")
     unit_pref = config.get("units", "feet")
 
     cache_key = "noaa_buoy_%s" % (buoy1_id)
