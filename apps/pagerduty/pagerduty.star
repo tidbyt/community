@@ -8,6 +8,7 @@ Author: drudge
 load("cache.star", "cache")
 load("encoding/base64.star", "base64")
 load("encoding/json.star", "json")
+load("humanize.star", "humanize")
 load("http.star", "http")
 load("time.star", "time")
 load("schema.star", "schema")
@@ -17,6 +18,7 @@ load("render.star", "render")
 DEFAULT_TIMEZONE = "US/Eastern"
 DEFAULT_ONLY_LEVEL_1 = False
 DEFAULT_SHOW_ONCALL_BAR = True
+DEFAULT_SHOW_ICON = True
 DEFAULT_HIDE_WHEN_NOT_ONCALL = False
 
 PAGERDUTY_BASE_URL = "https://api.pagerduty.com"
@@ -59,7 +61,7 @@ def Count(count = 0, label = "TOTAL", color = "#c3c3c3"):
                 ),
                 render.Text(
                     content = label.upper(),
-                    font = "tom-thumb",
+                    font = "CG-pixel-3x5-mono",
                     color = color,
                 ),
             ],
@@ -126,8 +128,10 @@ def get_current_user(config):
 
     return None
 
-def is_user_oncall(config, user_id):
-    level_one_only = config.bool("only_lvl_1_oncall", DEFAULT_ONLY_LEVEL_1)
+def sort_by_level(shift):
+    return shift.escalation_level
+
+def get_oncall_shifts(config):
     tz = config.get("$tz", DEFAULT_TIMEZONE)
     now = time.now().in_location(tz).format("2006-01-02T15:04:05Z07:00")
     url = "%s/oncalls?earliest=true&since=%s&until=%s&overflow=true" % (PAGERDUTY_BASE_URL, now, now)
@@ -137,19 +141,66 @@ def is_user_oncall(config, user_id):
     if not data:
         return None
 
-    is_user_oncall = False
-
+    shifts = []
     if "oncalls" in data:
         for oncall in data["oncalls"]:
-            if "user" in oncall and oncall["user"]["id"] == user_id:
-                if level_one_only and "escalation_level" in oncall:
-                    is_user_oncall = int(oncall["escalation_level"]) == 1
-                else:
-                    is_user_oncall = True
-                if is_user_oncall:
-                    break
+            start = None
+            end = None
+            if oncall["start"]:
+                start = time.parse_time(oncall["start"]).in_location(tz)
+            if oncall["end"]:
+                end = time.parse_time(oncall["end"]).in_location(tz)
+            shifts.append(struct(
+                escalation_policy = struct(
+                    id = oncall["escalation_policy"]["id"],
+                    name = oncall["escalation_policy"]["summary"],
+                ),
+                start = start,
+                end = end,
+                escalation_level = oncall["escalation_level"],
+                user = struct(
+                    id = oncall["user"]["id"],
+                    name = oncall["user"]["summary"],
+                ),
+            ))
+    return sorted(shifts, key = sort_by_level)
+    
+def is_user_oncall(config, shifts, user_id):
+    level_one_only = config.bool("only_lvl_1_oncall", DEFAULT_ONLY_LEVEL_1)
+    
+    if not shifts:
+        return None
 
+    is_user_oncall = False
+
+    for shift in shifts:
+        if shift.user.id == user_id:
+            if level_one_only:
+                is_user_oncall = (shift.escalation_level == 1)
+            else:
+                is_user_oncall = True
+            if is_user_oncall:
+                break
+    
     return is_user_oncall
+
+def get_oncall_scroll_text(shifts):
+    scroll = ""
+
+    unique_names = []
+
+    for shift in shifts:
+        if shift.user.name not in unique_names:
+            unique_names.append(shift.user.name)
+
+    scroll = " * %s *" % " | ".join([ "%s: %s [L%s]" % (shift.escalation_policy.name, shift.user.name, shift.escalation_level) for shift in shifts ])
+
+    if len(unique_names) == 1:
+        ends = " "
+        if shifts[0].end != None:
+            ends = " - Ends in %s" %  humanize.relative_time(shifts[0].end, time.now(), "", "")
+        scroll = " * ON-CALL: %s%s*" % (unique_names[0], ends)
+    return scroll
 
 def hide_app():
     return []
@@ -158,9 +209,13 @@ def get_state(config):
     access_token = config.get("auth")
     is_preview = not access_token
     oncall = False
+    show_icon = config.bool("show_icon", DEFAULT_SHOW_ICON)
     show_oncall_bar = config.bool("show_oncall_bar", DEFAULT_SHOW_ONCALL_BAR)
     hide_when_not_oncall = config.bool("hide_when_not_oncall", DEFAULT_HIDE_WHEN_NOT_ONCALL)
+    level_one_only = config.bool("only_lvl_1_oncall", DEFAULT_ONLY_LEVEL_1)
     counts = None
+    shifts = []
+    profile = None
 
     if is_preview:
         oncall = True
@@ -178,17 +233,22 @@ def get_state(config):
             if profile == None:
                 return Error("Failed to get user profile")
 
-            oncall = is_user_oncall(config, profile["id"])
+            shifts = get_oncall_shifts(config)
+            oncall = is_user_oncall(config, shifts, profile["id"])
 
             if oncall == None:
                 return Error("Failed to get on-call status")
 
     return struct(
         oncall = oncall,
+        shifts = shifts,
         counts = counts,
+        profile = profile,
         is_preview = is_preview,
+        show_icon = show_icon,
         show_oncall_bar = show_oncall_bar,
         hide_when_not_oncall = hide_when_not_oncall,
+        level_one_only = level_one_only,
     )
 
 def main(config):
@@ -206,16 +266,49 @@ def main(config):
             color = "#3c3c3c",
         ),
     )
-    pagerduty_logo = render.Box(
-        height = 12,
-        width = 12,
-        color = "#00591E",
-        child = render.Text(
-            content = "P",
-            font = "6x13",
-            color = "#eee",
-        ),
-    )
+    pagerduty_logo = None
+    if data.show_icon:
+        pagerduty_logo = render.Box(
+            height = 14,
+            width = 14,
+            color = "#00591e",
+            child = render.Stack(
+                children = [
+                    render.Padding(
+                        pad = (1, 0, 0, 0),
+                        child = render.Text(
+                            content = "P",
+                            font = "6x13",
+                            color = "#eee",
+                        ),
+                    ),
+                    render.Padding(
+                        pad = (2, 0, 0, 0),
+                        child = render.Text(
+                            content = "P",
+                            font = "6x13",
+                            color = "#eee",
+                        ),
+                    ),
+                    render.Padding(
+                        pad = (1, 1, 0, 0),
+                        child = render.Text(
+                            content = "P",
+                            font = "6x13",
+                            color = "#eee",
+                        ),
+                    ),
+                    render.Padding(
+                        pad = (2, 1, 0, 0),
+                        child = render.Text(
+                            content = "P",
+                            font = "6x13",
+                            color = "#eee",
+                        ),
+                    ),
+                ],
+            ),
+        )
     oncall_bar = None
 
     if data.hide_when_not_oncall and not data.oncall:
@@ -228,6 +321,27 @@ def main(config):
             child = render.Text(
                 content = "* ON-CALL *",
                 color = "#efefef",
+            ),
+        )
+    elif data.show_oncall_bar and not data.oncall:
+        shifts = data.shifts
+        if data.level_one_only:
+            shifts = [
+                shift for shift in data.shifts if ((
+                    shift.user.id == data.profile["id"] and 
+                    shift.escalation_level == 1
+                ) or (shift.user.id != data.profile["id"]))
+            ]
+        scroll = get_oncall_scroll_text(shifts)
+        oncall_bar = render.Box(
+            color = "#3c3c3c",
+            height = 9,
+            child = render.Marquee(
+                width = 64,
+                child = render.Text(
+                    content = scroll,
+                    color = "#cccccc",
+                ),
             ),
         )
 
@@ -246,7 +360,7 @@ def main(config):
                         Count(data.counts["total"]),
                         separator,
                         Count(
-                            label = "trig",
+                            label = " new ",
                             count = data.counts["triggered"],
                             color = "#ff0000",
                         ),
@@ -310,6 +424,13 @@ def get_schema():
                 desc = "Whether to show a bar at the bottom of the screen when you are on-call.",
                 icon = "eye",
                 default = DEFAULT_SHOW_ONCALL_BAR,
+            ),
+            schema.Toggle(
+                id = "show_icon",
+                name = "Show PagerDuty icon",
+                desc = "Whether to show the Pager Duty icon.",
+                icon = "image",
+                default = DEFAULT_SHOW_ICON,
             ),
             schema.Toggle(
                 id = "hide_when_not_oncall",
