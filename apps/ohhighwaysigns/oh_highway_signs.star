@@ -16,7 +16,7 @@ load("cache.star", "cache")
 URL = "https://publicapi.ohgo.com/api/v1/digital-signs?sign-type=dms"
 API_KEY = secret.decrypt("AV6+xWcE/RBy74+Uf/pJ8KRTDDaG3/t84IL0p5oKjJdSM1Pk7nPzXdWl+i9Q7gdf1XQUcz6UWFANE0wRagqr+6LtyI5W3Phyl6MiRHfwjdIU0Z8zQFXqUuNKC+w7hIv49xE7UDVpWibaufQudT8jbz6S5DwRcDFHBBieyIe02tnCd6fgSybS6VB6")
 CACHE_KEY = "ALL_SIGNS"
-SEARCH_RADIUS = 50 #miles
+SEARCH_RADIUS = 50  #miles
 
 def main(config):
     api_key = config.str("dev_api_key")
@@ -28,15 +28,15 @@ def main(config):
 
     return render.Root(
         child = render.Column(
-            expanded=True,
-            main_align="space_evenly",
-            cross_align="center",
+            expanded = True,
+            main_align = "space_evenly",
+            cross_align = "center",
             children = [
                 marquee_with_text(text[0]),
                 marquee_with_text(text[1]),
                 marquee_with_text(text[2]),
-                render.Box(width=64, height=1, color="#000") # hack to fill width
-            ]
+                render.Box(width = 64, height = 1, color = "#000"),  # hack to fill width
+            ],
         ),
     )
 
@@ -50,8 +50,8 @@ def marquee_with_text(text):
         child = render.Text(
             color = "#fa0",
             content = text,
-            font = "5x8"
-        )
+            font = "5x8",
+        ),
     )
 
 def get_schema():
@@ -71,7 +71,7 @@ def get_schema():
                 desc = "Attempt to display travel times over message if available.",
                 icon = "clock",
                 default = False,
-            )
+            ),
         ],
     )
 
@@ -97,7 +97,7 @@ def get_signs(location):
             schema.Option(
                 display = sign["location"],
                 value = sign["id"],
-            )
+            ),
         )
 
     return options
@@ -107,7 +107,7 @@ def get_sign_text(api_key, sign_id, favor_times):
     sign = find_sign(signs, sign_id)
 
     if sign == None:
-        return ["No","Messages","Available"]
+        return ["No", "Messages", "Available"]
 
     messages = sign["messages"]
 
@@ -136,11 +136,11 @@ def select_message(messages, favor_times):
 
 def sign_is_mile_min(message):
     line = message[0]
-    return line.endswith('MIN')
+    return line.endswith("MIN")
 
 def sign_is_time_via(message):
     line = message[0]
-    return line.find('VIA') > -1
+    return line.find("VIA") > -1
 
 def format_time_via(message):
     message[0] = message[0].strip()
