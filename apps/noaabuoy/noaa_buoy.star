@@ -28,14 +28,14 @@ def main(config):
     color_huge = "#FF0000"  # red
     swell_color = color_medium
 
-    buoy1_id = config.get("buoy1_id", 51211)
-    buoy1_name = config.get("buoy1_name", "Pearl Harbor")
+    buoy1_id = config.get("buoy_1_id", 51211)
+    buoy1_name = config.get("buoy_1_name", "")
     unit_pref = config.get("units", "feet")
 
     cache_key = "noaa_buoy_%s" % (buoy1_id)
     buoy1_json = cache.get(cache_key)  #  not actually a json object yet, just a string
 
-    #buoy1_json = '{"height": "25.0", "period": "25", "direction": "SSE 161"}'   # test swell
+    #buoy1_json = '{"name":"Pauwela", "height": "25.0", "period": "25", "direction": "SSE 161"}'   # test swell
     #buoy1_json = '{"error" : "bad parse"}'   # test error
     if buoy1_json == None:
         buoy1_json = fetch_data(buoy1_id)
@@ -56,6 +56,8 @@ def main(config):
         elif (height >= 13):
             swell_color = color_huge
 
+        if buoy1_name == "":
+            buoy1_name = buoy1_json["name"]
         height = buoy1_json["height"]
         unit_display = "f"
         if unit_pref == "meters":
@@ -124,15 +126,16 @@ def get_schema():
         fields = [
             schema.Text(
                 id = "buoy_1_id",
-                name = "Buoy ID 1",
-                icon = "user",
-                desc = "Find the id of your buoy at https://www.ndbc.noaa.gov/obs.shtml",
+                name = "Buoy ID",
+                icon = "monument",
+                desc = "Find the id of your buoy at https://www.ndbc.noaa.gov/obs.shtml?pgm=IOOS%20Partners",
             ),
             schema.Text(
                 id = "buoy_1_name",
-                name = "Display name for Buoy 1",
+                name = "Custom Display Name",
                 icon = "user",
-                desc = "Display name for Buoy 1",
+                desc = "Leave blank to use NOAA defined name",
+                default = "",
             ),
             schema.Dropdown(
                 id = "units",
