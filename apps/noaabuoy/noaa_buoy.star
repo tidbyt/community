@@ -28,9 +28,10 @@ def main(config):
     color_huge = "#FF0000"  # red
     swell_color = color_medium
 
-    buoy1_id = config.get("buoy_1_id", 51211)
+    buoy1_id = config.get("buoy_1_id", 51201)
     buoy1_name = config.get("buoy_1_name", "")
     unit_pref = config.get("units", "feet")
+    min_size = config.get("min_size", "")
 
     cache_key = "noaa_buoy_%s" % (buoy1_id)
     buoy1_json = cache.get(cache_key)  #  not actually a json object yet, just a string
@@ -69,6 +70,10 @@ def main(config):
             height = float(height) / 3.281
             height = int(height * 10)
             height = height / 10.0
+
+        # don't render anything if swell height is below minimum
+        if min_size != "" and float(height) < float(min_size):
+            return []
 
         return render.Root(
             child = render.Box(
@@ -134,13 +139,6 @@ def get_schema():
                 icon = "monument",
                 desc = "Find the id of your buoy at https://www.ndbc.noaa.gov/obs.shtml?pgm=IOOS%20Partners",
             ),
-            schema.Text(
-                id = "buoy_1_name",
-                name = "Custom Display Name",
-                icon = "user",
-                desc = "Leave blank to use NOAA defined name",
-                default = "",
-            ),
             schema.Dropdown(
                 id = "units",
                 name = "Height Units",
@@ -149,5 +147,20 @@ def get_schema():
                 options = unit_options,
                 default = "feet",
             ),
+            schema.Text(
+                id = "min_size",
+                name = "Minimum Swell Size",
+                icon = "poll",
+                desc = "Only display if swell is above minimum size",
+                default = "",
+            ),
+            schema.Text(
+                id = "buoy_1_name",
+                name = "Custom Display Name",
+                icon = "user",
+                desc = "Leave blank to use NOAA defined name",
+                default = "",
+            ),
+
         ],
     )
