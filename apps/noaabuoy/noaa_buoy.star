@@ -59,6 +59,7 @@ def main(config):
 
         if buoy1_name == "":
             buoy1_name = buoy1_json["name"]
+
             # trim to max width of 14 chars or two words
             if len(buoy1_name) > 14:
                 buoy1_name = buoy1_name[:13]
@@ -161,6 +162,5 @@ def get_schema():
                 desc = "Leave blank to use NOAA defined name",
                 default = "",
             ),
-
         ],
     )
