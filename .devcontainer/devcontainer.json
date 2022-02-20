@@ -25,7 +25,8 @@
 
 	// Add the IDs of extensions you want installed when the container is created.
 	"extensions": [
-		"golang.Go"
+		"golang.Go",
+		"BazelBuild.vscode-bazel"
 	],
 
 	// Use 'forwardPorts' to make a list of ports inside the container available locally.
@@ -37,5 +38,10 @@
 	// Comment out to connect as root instead. More info: https://aka.ms/vscode-remote/containers/non-root.
 	"remoteUser": "vscode",
 	"features": {
+	},
+	"portsAttributes": {
+		"8080": {
+			"label": "pixlet serve"
+		}
 	}
 }
