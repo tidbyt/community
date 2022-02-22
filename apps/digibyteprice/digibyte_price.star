@@ -98,7 +98,7 @@ def main(config):
     DIGIBYTE_PRICE_URL = "https://api.coingecko.com/api/v3/simple/price?ids=digibyte&vs_currencies=aud%2Ccad%2Ceur%2Cgbp%2Csats%2Cusd"
 
     first_currency = CURRENCY_LIST.get(config.get("first_currency"), CURRENCY_LIST[DEFAULT_FIRST_CURRENCY])
-    second_currency = CURRENCY_LIST.get(config.get("second_currency"), CURRENCY_LIST["GBP"])
+    second_currency = CURRENCY_LIST.get(config.get("second_currency"), CURRENCY_LIST[DEFAULT_SECOND_CURRENCY])
     first_currency_toggle = config.bool("first_currency_toggle", DEFAULT_FIRST_CURRENCY)
     second_currency_toggle = config.bool("second_currency_toggle", DEFAULT_SECOND_CURRENCY)
     sats_toggle = config.bool("sats_toggle", DEFAULT_SHOW_SATS)
