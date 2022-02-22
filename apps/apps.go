@@ -14,6 +14,7 @@ import (
 	"tidbyt.dev/community/apps/dateprogress"
 	"tidbyt.dev/community/apps/datetimeclock"
 	"tidbyt.dev/community/apps/daynightmap"
+	"tidbyt.dev/community/apps/digibyteprice"
 	"tidbyt.dev/community/apps/digitalrain"
 	"tidbyt.dev/community/apps/dvdlogo"
 	"tidbyt.dev/community/apps/espnnews"
@@ -53,6 +54,7 @@ func GetManifests() []manifest.Manifest {
 		dateprogress.New(),
 		datetimeclock.New(),
 		daynightmap.New(),
+		digibyteprice.New(),
 		digitalrain.New(),
 		dvdlogo.New(),
 		espnnews.New(),
