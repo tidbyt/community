@@ -35,7 +35,7 @@ DEFAULT_SECOND_CURRENCY = "EUR"
 DEFAULT_SHOW_FIRST_CURRENCY = True
 DEFAULT_SHOW_SECOND_CURRENCY = False
 DEFAULT_SHOW_SATS = True
-DEFAULT_SHOW_COUNTRY = False
+DEFAULT_SHOW_COUNTRY = True
 
 def get_schema():
     currency_options = [
@@ -98,10 +98,10 @@ def main(config):
 
     first_currency = CURRENCY_LIST.get(config.get("first_currency"), CURRENCY_LIST[DEFAULT_FIRST_CURRENCY])
     second_currency = CURRENCY_LIST.get(config.get("second_currency"), CURRENCY_LIST["GBP"])
-    first_currency_toggle = config.bool("first_currency_toggle")
-    second_currency_toggle = config.bool("second_currency_toggle")
-    sats_toggle = config.bool("sats_toggle")
-    country_toggle = config.bool("country_toggle")
+    first_currency_toggle = config.bool("first_currency_toggle", DEFAULT_FIRST_CURRENCY)
+    second_currency_toggle = config.bool("second_currency_toggle", DEFAULT_SECOND_CURRENCY)
+    sats_toggle = config.bool("sats_toggle", DEFAULT_SHOW_SATS)
+    country_toggle = config.bool("country_toggle", DEFAULT_SHOW_COUNTRY)
 
     # LOOKUP CURRENT PRICES (OR RETRIEVE FROM CACHE)
 
