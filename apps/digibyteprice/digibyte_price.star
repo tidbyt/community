@@ -3,6 +3,7 @@ Applet: DigiByte Price
 Summary: Display DigiByte Price
 Description: Displays the current DigiByte price in one or two fiat currencies and/or in Satoshis. Price data is obtained from Coingecko and updated every 15 minutes. If you would like an additional currency supported, pease let me know in the Tidbyt community Discord.
 Author: Olly Stedall @saltedlolly
+Thanks: drudge, inxi, whyamihere, Amillion Air
 """
 
 load("render.star", "render")
