@@ -1,0 +1,50 @@
+"""
+Applet: TransSee
+Summary: Realtime transit prediction
+Description: Provides real-time transit predictions based on actual travel times. Requires paid premium. See transsee.ca/tidbyt for usage information
+Author: Darwin O'Connor
+"""
+
+load("render.star", "render")
+load("schema.star", "schema")
+load("http.star", "http")
+
+def main(config):
+    rep = http.get("https://www.transsee.ca/bitmap?premium=%s" % config.str("id"))
+    if rep.status_code == 200:
+      col = []
+      for json in rep.json():
+          col.append(render.Row(
+             children = [
+                render.Box(width=17, height=8, color=json["routeColour"], child =  render.Text(content=json["routeName"], color=json["textColour"]), ),
+                render.Text(content=" "+json["pred"]),
+             ],))
+          if config.bool("scroll"):
+             col.append(render.Marquee(width=64,child=render.Text(json["dest"]),))
+          else:
+             col.append(render.Text(json["dest"]))
+
+
+      return render.Root(render.Column(children=col))
+    else:
+       return []
+
+def get_schema():
+    return schema.Schema(
+        version = "1",
+        fields = [
+            schema.Text(
+                id = "id",
+                name = "TransSee Premium Id",
+                desc = "In premium email or transsee.ca/tidbyt",
+                icon = "hashtag",
+            ),
+            schema.Toggle(
+                id = "scroll",
+                name = "Scroll destination",
+                desc = "Horizontally scroll the destination when it doesn't fit.",
+                icon = "leftRight",
+                default = True,
+            ),
+        ],
+    )

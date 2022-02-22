@@ -37,6 +37,7 @@ import (
 	"tidbyt.dev/community/apps/steam"
 	"tidbyt.dev/community/apps/sunrisesunset"
 	"tidbyt.dev/community/apps/theysaidso"
+	"tidbyt.dev/community/apps/transsee"
 	"tidbyt.dev/community/apps/twitterfollows"
 )
 
@@ -75,6 +76,7 @@ func GetManifests() []manifest.Manifest {
 		steam.New(),
 		sunrisesunset.New(),
 		theysaidso.New(),
+		transsee.New(),
 		twitterfollows.New(),
 	}
 }
