@@ -6,6 +6,7 @@ package apps
 
 import (
 	"tidbyt.dev/community/apps/analogclock"
+	"tidbyt.dev/community/apps/analogtime"
 	"tidbyt.dev/community/apps/bgghotness"
 	"tidbyt.dev/community/apps/bigclock"
 	"tidbyt.dev/community/apps/binaryclock"
@@ -16,6 +17,7 @@ import (
 	"tidbyt.dev/community/apps/digitalrain"
 	"tidbyt.dev/community/apps/dvdlogo"
 	"tidbyt.dev/community/apps/espnnews"
+	"tidbyt.dev/community/apps/fishbyt"
 	"tidbyt.dev/community/apps/fuzzyclock"
 	"tidbyt.dev/community/apps/golfhandicap"
 	"tidbyt.dev/community/apps/googletraffic"
@@ -23,9 +25,11 @@ import (
 	"tidbyt.dev/community/apps/manifest"
 	"tidbyt.dev/community/apps/mbta"
 	"tidbyt.dev/community/apps/nationaltoday"
+	"tidbyt.dev/community/apps/nearearthobjs"
 	"tidbyt.dev/community/apps/nightscout"
 	"tidbyt.dev/community/apps/noaabuoy"
 	"tidbyt.dev/community/apps/nyancat"
+	"tidbyt.dev/community/apps/pagerduty"
 	"tidbyt.dev/community/apps/phaseofmoon"
 	"tidbyt.dev/community/apps/pokedex"
 	"tidbyt.dev/community/apps/sbbtimetable"
@@ -41,6 +45,7 @@ import (
 func GetManifests() []manifest.Manifest {
 	return []manifest.Manifest{
 		analogclock.New(),
+		analogtime.New(),
 		bgghotness.New(),
 		bigclock.New(),
 		binaryclock.New(),
@@ -51,15 +56,18 @@ func GetManifests() []manifest.Manifest {
 		digitalrain.New(),
 		dvdlogo.New(),
 		espnnews.New(),
+		fishbyt.New(),
 		fuzzyclock.New(),
 		golfhandicap.New(),
 		googletraffic.New(),
 		jokesjokeapi.New(),
 		mbta.New(),
 		nationaltoday.New(),
+		nearearthobjs.New(),
 		nightscout.New(),
 		noaabuoy.New(),
 		nyancat.New(),
+		pagerduty.New(),
 		phaseofmoon.New(),
 		pokedex.New(),
 		sbbtimetable.New(),
