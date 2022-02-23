@@ -6,7 +6,6 @@ Author: drudge
 """
 
 load("cache.star", "cache")
-load("encoding/base64.star", "base64")
 load("encoding/json.star", "json")
 load("humanize.star", "humanize")
 load("http.star", "http")
@@ -66,6 +65,7 @@ def Count(count = 0, label = "TOTAL", color = "#c3c3c3"):
         ],
     )
 
+# buildifier: disable=function-docstring
 def pagerduty_api_call(config, url):
     access_token = config.get("auth")
 
@@ -85,7 +85,8 @@ def pagerduty_api_call(config, url):
         )
 
         if res.status_code != 200:
-            print("pagerduty_api_call failed: " + str(res.status_code) + " - " + res.body())
+            # buildifier: disable=print
+            print("pagerduty_api_call failed: %s - %s " % (res.status_code, res.body()))
             return None
 
         cached_res = res.body()
@@ -93,6 +94,7 @@ def pagerduty_api_call(config, url):
 
     return json.decode(cached_res)
 
+# buildifier: disable=function-docstring
 def get_pagerduty_counts(config):
     received_data = False
     counts = dict(
@@ -117,8 +119,8 @@ def get_pagerduty_counts(config):
 
     return counts if received_data else None
 
+# buildifier: disable=function-docstring
 def get_current_user(config):
-    token = config.get("auth")
     data = pagerduty_api_call(config, "%s/users/me" % PAGERDUTY_BASE_URL)
 
     if data and "user" in data:
@@ -129,6 +131,7 @@ def get_current_user(config):
 def sort_by_level(shift):
     return shift.escalation_level
 
+# buildifier: disable=function-docstring
 def get_oncall_shifts(config):
     tz = config.get("$tz", DEFAULT_TIMEZONE)
     now = time.now().in_location(tz).format("2006-01-02T15:04:05Z07:00")
@@ -163,6 +166,7 @@ def get_oncall_shifts(config):
             ))
     return sorted(shifts, key = sort_by_level)
 
+# buildifier: disable=function-docstring
 def is_user_oncall(config, shifts, user_id):
     level_one_only = config.bool("only_lvl_1_oncall", DEFAULT_ONLY_LEVEL_1)
 
@@ -182,6 +186,7 @@ def is_user_oncall(config, shifts, user_id):
 
     return is_user_oncall
 
+# buildifier: disable=function-docstring
 def get_oncall_scroll_text(shifts):
     scroll = ""
     unique_names = []
@@ -206,9 +211,11 @@ def get_oncall_scroll_text(shifts):
         scroll = " * ON-CALL: %s%s*" % (unique_names[0], ends)
     return scroll
 
+# buildifier: disable=function-docstring
 def hide_app():
     return []
 
+# buildifier: disable=function-docstring
 def get_state(config):
     access_token = config.get("auth")
     is_preview = not access_token
@@ -257,6 +264,7 @@ def get_state(config):
         only_when_oncall = only_when_oncall,
     )
 
+# buildifier: disable=function-docstring
 def main(config):
     data = get_state(config)
 
@@ -265,7 +273,7 @@ def main(config):
         return hide_app()
 
     separator = render.Padding(
-        pad = (2, 1, 0, 0),
+        pad = (0, 1, 0, 0),
         child = render.Box(
             width = 1,
             height = 22,
@@ -275,7 +283,7 @@ def main(config):
     pagerduty_logo = None
     if data.show_icon:
         pagerduty_logo = render.Padding(
-            pad = (3, 2, 3, 0),
+            pad = (0, 2, 3, 0),
             child = render.Box(
                 height = 14,
                 width = 14,
@@ -367,6 +375,7 @@ def main(config):
         ),
     )
 
+# buildifier: disable=function-docstring
 def oauth_handler(params):
     params = json.decode(params)
 
