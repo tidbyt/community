@@ -18,6 +18,7 @@ def fetch_data(buoy_id):
         #fail("request failed with status %d", resp.status_code)
         return None
     else:
+        print(resp.json())
         return resp.json()
 
 def main(config):
@@ -28,8 +29,8 @@ def main(config):
     color_huge = "#FF0000"  # red
     swell_color = color_medium
 
-    buoy1_id = config.get("buoy1_id", 51211)
-    buoy1_name = config.get("buoy1_name", "Pearl Harbor")
+    buoy1_id = config.get("buoy_1_id", 51211)
+    buoy1_name = config.get("buoy_1_name", "Pearl Harbor")
     unit_pref = config.get("units", "feet")
 
     cache_key = "noaa_buoy_%s" % (buoy1_id)
@@ -126,7 +127,7 @@ def get_schema():
                 id = "buoy_1_id",
                 name = "Buoy ID 1",
                 icon = "user",
-                desc = "Find the id of your buoy at https://www.ndbc.noaa.gov/obs.shtml",
+                desc = "Buoy ID for Buoy 1",
             ),
             schema.Text(
                 id = "buoy_1_name",
