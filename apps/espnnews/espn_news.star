@@ -6,10 +6,11 @@ Author: rs7q5 (RIS)
 """
 #espn_news.star
 #Created 20211231 RIS
-#Last Modified 20220215 RIS
+#Last Modified 20220223 RIS
 
 load("render.star", "render")
 load("http.star", "http")
+load("encoding/base64.star", "base64")
 load("cache.star", "cache")
 load("schema.star", "schema")
 
@@ -77,8 +78,47 @@ def main(config):
         for (i, x) in enumerate(title):
             cache_name = "title_rate" + str(i + 1) + cached_sport_txt  #i+1 just to be consistent when retrieving cached names
             cache.set(cache_name, x, ttl_seconds = 14400)
+
+    #format output
+    title_format = []
+    if config.bool("scroll_vertical", False):  #scroll text vertically if true
+        #redo titles to make sure words don't get cut off
+        for title_tmp in title:
+            #split words longer than 9 to a word
+            title_tmp2 = ""
+            for word in title_tmp.split(" "):
+                if len(word) >= 9:
+                    title_tmp2 += split_word(word, 9, join_word = True) + " "
+                else:
+                    title_tmp2 += word + " "
+            title_format.append(render.Padding(render.WrappedText(content = title_tmp2, font = font, linespacing = 1), pad = (0, 0, 0, 6)))
+        title_format2 = render.Marquee(
+            height = 32,
+            scroll_direction = "vertical",
+            child = render.Column(
+                main_align = "space_between",
+                cross_align = "start",
+                children = title_format,
+            ),
+            offset_start = 0,
+            offset_end = 0,
+        )
+    else:
+        for title_tmp in title:
+            title_format.append(render.Text(content = title_tmp, font = font))
+        title_format2 = render.Marquee(
+            width = 64,
+            child = render.Column(
+                main_align = "space_around",
+                cross_align = "start",
+                expanded = True,
+                children = title_format,
+            ),
+            offset_start = 0,
+            offset_end = 0,
+        )
     return render.Root(
-        delay = 30,  #speed up scroll text
+        delay = int(config.str("speed", "30")),  #speed up scroll text
         child = render.Row(
             expanded = True,
             children = [
@@ -90,31 +130,7 @@ def main(config):
                         render.Text(sport_txt, color = "#a00", font = font),
                     ],
                 ),
-                render.Column(
-                    main_align = "space_around",
-                    cross_align = "start",
-                    expanded = True,
-                    children = [
-                        render.Marquee(
-                            width = 64,
-                            child = render.Text(title[0], font = font),
-                            offset_start = 5,
-                            offset_end = 32,
-                        ),
-                        render.Marquee(
-                            width = 64,
-                            child = render.Text(title[1], font = font),
-                            offset_start = 5,
-                            offset_end = 32,
-                        ),
-                        render.Marquee(
-                            width = 64,
-                            child = render.Text(title[2], font = font),
-                            offset_start = 5,
-                            offset_end = 32,
-                        ),
-                    ],
-                ),
+                title_format2,
             ],
         ),
     )
@@ -123,6 +139,12 @@ def get_schema():
     sports = [
         schema.Option(display = sport, value = sport)
         for sport in ESPN_SPORTS_LIST
+    ]
+    scroll_speed = [
+        schema.Option(display = "Slower", value = "100"),
+        schema.Option(display = "Slow", value = "70"),
+        schema.Option(display = "Normal", value = "50"),
+        schema.Option(display = "Fast (Default)", value = "30"),
     ]
     return schema.Schema(
         version = "1",
@@ -135,5 +157,31 @@ def get_schema():
                 options = sports,
                 default = "All",
             ),
+            schema.Dropdown(
+                id = "speed",
+                name = "Scroll Speed",
+                desc = "Change the speed that text scrolls.",
+                icon = "cog",
+                default = scroll_speed[-1].value,
+                options = scroll_speed,
+            ),
+            schema.Toggle(
+                id = "scroll_vertical",
+                name = "Scroll Vertically?",
+                desc = "Should text scroll vertically?",
+                icon = "cog",
+                default = False,
+            ),
         ],
     )
+
+def split_word(word, span, join_word = False):
+    #split long words
+    word_split = []
+
+    for i in range(0, len(word), span):
+        word_split.append(word[i:i + span])
+    if join_word:
+        return " ".join(word_split)
+    else:
+        return word_split
