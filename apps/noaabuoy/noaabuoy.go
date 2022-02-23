@@ -17,9 +17,9 @@ func New() manifest.Manifest {
 		Name:        "NOAA Buoy",
 		Author:      "tavdog",
 		Summary:     "Show buoy swell info",
-		Desc:        "Display swell details from a specified noaa buoy.",
+		Desc:        "Display swell data for user specified buoy. Find buoy_id's here : https://www.ndbc.noaa.gov/obs.shtml Buoy must have height,period,direction to display correctly.",
 		FileName:    "noaa_buoy.star",
 		PackageName: "noaabuoy",
-		Source:  source,
+		Source:      source,
 	}
 }
