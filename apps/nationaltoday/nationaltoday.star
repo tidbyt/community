@@ -7,7 +7,7 @@ Author: rs7q5 (RIS)
 
 #nationalToday.star
 #Created 20220130 RIS
-#Last Modified 20220201 RIS
+#Last Modified 20220224 RIS
 
 load("render.star", "render")
 load("http.star", "http")
@@ -35,6 +35,8 @@ def main():
         #get the data
         rep = http.get(base_URL)
         if rep.status_code != 200:
+            holiday_txt = ["Error", "Could not get holidays!!!!"]
+        else:
             holidays_list = re.findall('holiday-title">(.*?)<', rep.body())  #finds the holiday titles for the current day
 
             #get the date text too
@@ -60,9 +62,6 @@ def main():
 
             #cache the data
             cache.set("holiday_rate", json.encode(holiday_txt), ttl_seconds = 1800)  # cache for 30 min
-        else:
-            holiday_txt = ["Error", "Could not get holidays!!!!"]
-
         holiday_fmt = format_text(holiday_txt, font)
 
     return render.Root(
