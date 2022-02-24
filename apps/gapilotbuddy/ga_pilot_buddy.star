@@ -13,6 +13,7 @@ load("humanize.star", "humanize")
 load("render.star", "render")
 load("schema.star", "schema")
 load("secret.star", "secret")
+load("time.star", "time")
 
 AVWX_TOKEN = """
 AV6+xWcEMClLASnRjwefBSKdSfw7sY2iH8i5AqAiR07g6hb1tptkeFwK31hnx4Y0tdUUBNZ+4zFkhz
@@ -78,12 +79,25 @@ def get_nearby_aerodromes(location, config):
     return [aerodrome for aerodrome in aerodromes if show_all_aerodromes or aerodrome["station"]["operator"] == "PUBLIC"]
 
 def get_aerodrome_metar(aerodrome, config):
-    url = "https://avwx.rest/api/metar/{}".format(aerodrome["station"]["icao"])
-    resp = http.get(url, params={}, headers=get_avwx_headers(config))
-    if resp.status_code != 200:
-        print(resp)
-        return None
-    return resp.json()
+    aerodrome_id = aerodrome["station"]["icao"]
+    metar = cache.get(aerodrome_id)
+    if metar == None:
+        url = "https://avwx.rest/api/metar/{}".format(aerodrome_id)
+        resp = http.get(url, params={}, headers=get_avwx_headers(config))
+        if resp.status_code != 200:
+            print(resp)
+            return None
+        metar = resp.json()
+
+        # METARs update once an hour, so cache it for one hour minus the
+        # last updated time
+        updated_time = time.parse_time(metar["time"]["dt"])
+        time_ago = time.now() - updated_time
+        ttl = 3600 - time_ago.seconds
+        cache.set(aerodrome_id, resp.body(), ttl_seconds=int(ttl))
+    else:
+        metar = json.decode(metar)
+    return metar
 
 def format_weather_short(metar):
     wind = "Wind {}@{}".format(metar["wind_direction"]["repr"], metar["wind_speed"]["repr"])
