@@ -82,9 +82,24 @@ func (g *Generator) GenerateApp(app *manifest.Manifest) error {
 	return g.updateApps(app)
 }
 
+// RemoveApp removes an app from the apps directory.
+func (g *Generator) RemoveApp(app *manifest.Manifest) error {
+	err := g.removeDir(app)
+	if err != nil {
+		return err
+	}
+
+	return g.updateApps(app)
+}
+
 func (g *Generator) createDir(app *manifest.Manifest) error {
 	p := path.Join(appsDir, app.PackageName)
 	return os.MkdirAll(p, os.ModePerm)
+}
+
+func (g *Generator) removeDir(app *manifest.Manifest) error {
+	p := path.Join(appsDir, app.PackageName)
+	return os.RemoveAll(p)
 }
 
 func (g *Generator) updateApps(app *manifest.Manifest) error {
