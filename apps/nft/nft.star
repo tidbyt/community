@@ -14,7 +14,6 @@ load("schema.star", "schema")
 load("secret.star", "secret")
 load("time.star", "time")
 
-
 ASSETS_URL = "https://api.opensea.io/api/v1/assets?format=json&owner={}"
 
 def main(config):
@@ -27,12 +26,12 @@ def main(config):
     return render.Root(
         child = render.Box(
             child = render.Column(
-                cross_align  = "center",
+                cross_align = "center",
                 children = [
                     render.Marquee(
-                        offset_start=64,
-                        width=64,
-                        child = render.Text(nft_name)
+                        offset_start = 64,
+                        width = 64,
+                        child = render.Text(nft_name),
                     ),
                     render.Row(
                         children = [
@@ -41,11 +40,11 @@ def main(config):
                                 height = 24,
                                 width = 24,
                             ),
-                        ]
+                        ],
                     ),
-                ]
-            )
-        )
+                ],
+            ),
+        ),
     )
 
 def fetch_opensea_assets(public_address, api_key):
@@ -56,13 +55,13 @@ def fetch_opensea_assets(public_address, api_key):
     else:
         fetch_url = ASSETS_URL.format(public_address)
         print("Miss! Fetching OpenSea Assets for", public_address)
-        assets_resp = http.get(fetch_url, headers={"X-API-KEY": api_key})
+        assets_resp = http.get(fetch_url, headers = {"X-API-KEY": api_key})
         if (assets_resp.status_code != 200):
-           fail("OpenSea request failed with status", assets_resp.status_code)
+            fail("OpenSea request failed with status", assets_resp.status_code)
 
         nfts = assets_resp.json()["assets"]
-        cache.set("public_address=%s" % public_address, json.encode(nfts), ttl_seconds=3600)
-    
+        cache.set("public_address=%s" % public_address, json.encode(nfts), ttl_seconds = 3600)
+
     return nfts
 
 def fetch_nft_thumbnail(nft):
@@ -77,7 +76,7 @@ def fetch_nft_thumbnail(nft):
         thumbnail_resp = http.get(thumbnail_url)
         if (thumbnail_resp.status_code != 200):
             fail("Failed to fetch thumbnail with status", thumbnail_resp.status_code)
-        cache.set("thumbnail=%s" % thumbnail_url, base64.encode(thumbnail_resp.body()), ttl_seconds=3600)
+        cache.set("thumbnail=%s" % thumbnail_url, base64.encode(thumbnail_resp.body()), ttl_seconds = 3600)
         return (nft_name, thumbnail_resp.body())
 
 def random(max):
@@ -93,7 +92,7 @@ def get_schema():
                 name = "Public Address",
                 desc = "Ethereum Public Address",
                 icon = "ethereum",
-                default = "0xd387a6e4e84a6c86bd90c158c6028a58cc8ac459",
-            )
-        ]
+                default = "0xd6a984153acb6c9e2d788f08c2465a1358bb89a7",
+            ),
+        ],
     )
