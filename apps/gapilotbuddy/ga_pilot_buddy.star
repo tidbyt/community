@@ -90,11 +90,16 @@ def get_aerodrome_metar(aerodrome, config):
         metar = resp.json()
 
         # METARs update once an hour, so cache it for one hour minus the
-        # last updated time
+        # last updated time so ideally we get updated METARs as soon as they
+        # are available
+        # NOTE: Sometimes METARs are not updated before or on the hour, so only
+        # cache for a few minutes if it's been over an hour since updating
         updated_time = time.parse_time(metar["time"]["dt"])
         time_ago = time.now() - updated_time
-        ttl = 3600 - time_ago.seconds
-        cache.set(aerodrome_id, resp.body(), ttl_seconds=int(ttl))
+        ttl = int(3600 - time_ago.seconds)
+        if ttl < 0:
+            ttl = 180
+        cache.set(aerodrome_id, resp.body(), ttl_seconds=ttl)
     else:
         metar = json.decode(metar)
     return metar
