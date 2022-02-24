@@ -41,6 +41,7 @@ import (
 	"tidbyt.dev/community/apps/sunrisesunset"
 	"tidbyt.dev/community/apps/theysaidso"
 	"tidbyt.dev/community/apps/twitterfollows"
+	"tidbyt.dev/community/apps/verticalmessage"
 )
 
 // GetManifests returns a list of all apps in the this repository. Add your applet
@@ -80,6 +81,7 @@ func GetManifests() []manifest.Manifest {
 		sunrisesunset.New(),
 		theysaidso.New(),
 		twitterfollows.New(),
+		verticalmessage.New(),
 	}
 }
 
