@@ -27,6 +27,7 @@ import (
 	"tidbyt.dev/community/apps/mbta"
 	"tidbyt.dev/community/apps/nationaltoday"
 	"tidbyt.dev/community/apps/nearearthobjs"
+	"tidbyt.dev/community/apps/nft"
 	"tidbyt.dev/community/apps/nightscout"
 	"tidbyt.dev/community/apps/noaabuoy"
 	"tidbyt.dev/community/apps/nyancat"
@@ -66,6 +67,7 @@ func GetManifests() []manifest.Manifest {
 		mbta.New(),
 		nationaltoday.New(),
 		nearearthobjs.New(),
+		nft.New(),
 		nightscout.New(),
 		noaabuoy.New(),
 		nyancat.New(),
