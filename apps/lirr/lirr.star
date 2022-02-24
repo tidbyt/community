@@ -20,7 +20,6 @@ CORE_BACKGROUND_COLOR = "#4D5357"
 CORE_TEXT_COLOR = "#FFFFFF"
 PENN_STATION = "237"
 
-
 def main(config):
     station_id = config.str("station")
     if station_id == None:
