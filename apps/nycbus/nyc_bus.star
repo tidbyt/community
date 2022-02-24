@@ -26,6 +26,7 @@ ENCRYPTED_API_KEY = "AV6+xWcEO4D+Eaj8daXafFDw3wdd6mXCdoXM4e31dPGK/CBog+fYSe07ORU
 BUSTIME_STOP_TIMES_URL = "http://bustime.mta.info/api/siri/stop-monitoring.json"
 BUSTIME_STOP_INFO_URL = "http://bustime.mta.info/api/where/stop/%s.json"
 BUSTIME_STOPS_FOR_LOCATION_URL = "http://bustime.mta.info/api/where/stops-for-location.json"
+PREVIEW_DATA = [{"line_color": "FAA61A", "line_name": "Q100", "destination_name": "LIMITED LI CITY QUEENS PLZ", "eta_text": "15 min"}, {"line_color": "00AEEF", "line_name": "Q69", "destination_name": "LI CITY QUEENS PLZ via DITMARS BL via 21 ST", "eta_text": "45 min"}]
 
 def get_schema():
     return schema.Schema(
@@ -68,8 +69,13 @@ def get_stops(location):
 
 def main(config):
     api_key = secret.decrypt(ENCRYPTED_API_KEY) or config.get("api_key")
-    stop_code = config.get("stop_code") or [s.value for s in get_stops(EXAMPLE_LOCATION) if s.display == EXAMPLE_STOP_NAME][0]
-    journeys = get_journeys(api_key, stop_code)
+    stop_code = config.get("stop_code", EXAMPLE_STOP_CODE)
+
+    if api_key:
+        journeys = get_journeys(api_key, stop_code)
+    else:
+        journeys = PREVIEW_DATA
+
     first_journey = journeys[0]
     second_journey = journeys[1]
 
