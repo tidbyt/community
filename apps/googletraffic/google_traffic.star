@@ -288,7 +288,7 @@ def main(config):
         roadDuration = duration_to_string(roadDurationVal)
         if showDistance:
             roadDistance = rep["rows"][0]["elements"][0]["distance"]["value"]
-            if distanceUnit == DISTANCE_UNIT.get("Miles"):
+            if distanceUnit == DISTANCE_UNIT.get("Mile"):
                 roadDistanceText = "%imi" % int(roadDistance / 1000 * 0.621371)
             else:
                 roadDistanceText = "%ikm" % int(roadDistance / 1000)
