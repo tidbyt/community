@@ -13,7 +13,7 @@ var id string
 
 func init() {
 	removeCmd.PersistentFlags().StringVarP(&id, "id", "i", "", "")
-	removeCmd.MarkFlagRequired("id")
+	_ = removeCmd.MarkFlagRequired("id")
 }
 
 // removeCmd prompts the user for info and generates a new app.
