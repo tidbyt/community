@@ -21,6 +21,7 @@ import (
 	"tidbyt.dev/community/apps/fuzzyclock"
 	"tidbyt.dev/community/apps/golfhandicap"
 	"tidbyt.dev/community/apps/googletraffic"
+	"tidbyt.dev/community/apps/hvvdepartures"
 	"tidbyt.dev/community/apps/jokesjokeapi"
 	"tidbyt.dev/community/apps/manifest"
 	"tidbyt.dev/community/apps/mbta"
@@ -60,6 +61,7 @@ func GetManifests() []manifest.Manifest {
 		fuzzyclock.New(),
 		golfhandicap.New(),
 		googletraffic.New(),
+		hvvdepartures.New(),
 		jokesjokeapi.New(),
 		mbta.New(),
 		nationaltoday.New(),
