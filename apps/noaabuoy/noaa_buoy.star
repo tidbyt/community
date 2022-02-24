@@ -18,6 +18,7 @@ def fetch_data(buoy_id):
         #fail("request failed with status %d", resp.status_code)
         return None
     else:
+        print(resp.json())
         return resp.json()
 
 def main(config):
