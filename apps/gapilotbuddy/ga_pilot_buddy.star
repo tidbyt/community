@@ -45,7 +45,7 @@ FLIGHT_RULES_COLOR_MAP = {
 
 def get_avwx_headers(config):
     return {
-        "Authorization": "Token {}".format(secret.decrypt(AVWX_TOKEN) or config.get("avwx_token"))
+        "Authorization": "Token {}".format(secret.decrypt(AVWX_TOKEN) or config.get("avwx_token")),
     }
 
 def get_nearby_aerodromes(location, config):
@@ -61,8 +61,8 @@ def get_nearby_aerodromes(location, config):
 
         # Although we only show three, this grabs extras in case some get filtered
         # out such as military or private aerodromes
-        params = { "n": "10" }
-        resp = http.get(url, params=params, headers=get_avwx_headers(config))
+        params = {"n": "10"}
+        resp = http.get(url, params = params, headers = get_avwx_headers(config))
         if resp.status_code != 200:
             print(resp)
             return None
@@ -73,7 +73,7 @@ def get_nearby_aerodromes(location, config):
     # Caches the response for a week -- aerodromes *really* do not change often
     # This may even be too generous
     # Sets the cache before filtering in case the config changes
-    cache.set(str_geo, json.encode(aerodromes), ttl_seconds=86400)
+    cache.set(str_geo, json.encode(aerodromes), ttl_seconds = 86400)
 
     show_all_aerodromes = config.bool("show_all_aerodromes")
     return [aerodrome for aerodrome in aerodromes if show_all_aerodromes or aerodrome["station"]["operator"] == "PUBLIC"]
@@ -83,7 +83,7 @@ def get_aerodrome_metar(aerodrome, config):
     metar = cache.get(aerodrome_id)
     if metar == None:
         url = "https://avwx.rest/api/metar/{}".format(aerodrome_id)
-        resp = http.get(url, params={}, headers=get_avwx_headers(config))
+        resp = http.get(url, params = {}, headers = get_avwx_headers(config))
         if resp.status_code != 200:
             print(resp)
             return None
@@ -99,7 +99,7 @@ def get_aerodrome_metar(aerodrome, config):
         ttl = int(3600 - time_ago.seconds)
         if ttl < 0:
             ttl = 180
-        cache.set(aerodrome_id, resp.body(), ttl_seconds=ttl)
+        cache.set(aerodrome_id, resp.body(), ttl_seconds = ttl)
     else:
         metar = json.decode(metar)
     return metar
@@ -115,48 +115,48 @@ def render_aerodrome_row(aerodrome, config):
     if metar == None:
         return None
     return render.Padding(
-        pad=(2, 2, 0, 0),
-        child=render.Row(
-            cross_align="center",
-            children=[
+        pad = (2, 2, 0, 0),
+        child = render.Row(
+            cross_align = "center",
+            children = [
                 render.Padding(
-                    pad=(0, 0, 2, 0),
-                    child=render.Circle(
-                        color=FLIGHT_RULES_COLOR_MAP[metar["flight_rules"]] or DEFAULT_FLIGHT_RULES_COLOR,
-                        diameter=6,
+                    pad = (0, 0, 2, 0),
+                    child = render.Circle(
+                        color = FLIGHT_RULES_COLOR_MAP[metar["flight_rules"]] or DEFAULT_FLIGHT_RULES_COLOR,
+                        diameter = 6,
                     ),
                 ),
                 render.Padding(
-                    pad=(0, 0, 2, 0),
-                    child=render.Box(
-                        width=20,
-                        height=8,
-                        child=render.Text(content=aerodrome["station"]["icao"]),
+                    pad = (0, 0, 2, 0),
+                    child = render.Box(
+                        width = 20,
+                        height = 8,
+                        child = render.Text(content = aerodrome["station"]["icao"]),
                     ),
                 ),
                 render.Marquee(
-                    width=50,
-                    offset_start=40,
-                    offset_end=50,
-                    child=render.Text(content=format_weather_short(metar)),
-                )
-            ]
-        )
+                    width = 50,
+                    offset_start = 40,
+                    offset_end = 50,
+                    child = render.Text(content = format_weather_short(metar)),
+                ),
+            ],
+        ),
     )
 
 def render_error():
     return render.Root(
-        child=render.Box(
+        child = render.Box(
             render.Row(
-                expanded=True,
-                main_align="space_evenly",
-                cross_align="center",
-                children=[
-                    render.Image(src=ERROR_ICON),
+                expanded = True,
+                main_align = "space_evenly",
+                cross_align = "center",
+                children = [
+                    render.Image(src = ERROR_ICON),
                     render.Text("Error :("),
                 ],
-            )
-        )
+            ),
+        ),
     )
 
 def main(config):
@@ -175,8 +175,8 @@ def main(config):
         return render_error()
 
     return render.Root(
-        child=render.Column(
-            children=rows,
+        child = render.Column(
+            children = rows,
         ),
     )
 
@@ -191,11 +191,11 @@ def get_schema():
                 icon = "place",
             ),
             schema.Toggle(
-              id = "show_all_aerodromes",
-              name = "Show All Aerodromes",
-              desc = "Enables showing all aerodromes including military, private, etc.",
-              icon = "cog",
-              default = False,
+                id = "show_all_aerodromes",
+                name = "Show All Aerodromes",
+                desc = "Enables showing all aerodromes including military, private, etc.",
+                icon = "cog",
+                default = False,
             ),
         ],
     )
