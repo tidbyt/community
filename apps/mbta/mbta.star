@@ -5,6 +5,7 @@ Description: MBTA bus and rail departure times.
 Author: marcusb
 """
 
+load("encoding/json.star", "json")
 load("http.star", "http")
 load("render.star", "render")
 load("schema.star", "schema")
@@ -150,10 +151,13 @@ def find(xs, pred):
             return x
     return None
 
-def get_schema():
+def get_stops(location):
+    loc = json.decode(location)
     params = {
-        "page[limit]": "10000",
-        "sort": "name",
+        "page[limit]": "100",
+        "filter[latitude]": loc["lat"],
+        "filter[longitude]": loc["lng"],
+        "sort": "distance",
     }
     if API_KEY:
         params["api_key"] = API_KEY
@@ -168,21 +172,22 @@ def get_schema():
             continue
         if s["relationships"]["parent_station"]["data"]:
             continue
-        stops += [schema.Option(
+        stops.append(schema.Option(
             display = s["attributes"]["name"],
             value = s["id"],
-        )]
+        ))
+    return stops
 
+def get_schema():
     return schema.Schema(
         version = "1",
         fields = [
-            schema.Dropdown(
+            schema.LocationBased(
                 id = "stop",
                 name = "Stop",
                 desc = "The stop or station name.",
                 icon = "bus",
-                default = stops[0].value,
-                options = stops,
+                handler = get_stops,
             ),
         ],
     )
