@@ -24,6 +24,7 @@ import (
 	"tidbyt.dev/community/apps/gapilotbuddy"
 	"tidbyt.dev/community/apps/googletraffic"
 	"tidbyt.dev/community/apps/hvvdepartures"
+	"tidbyt.dev/community/apps/isstracker"
 	"tidbyt.dev/community/apps/jokesjokeapi"
 	"tidbyt.dev/community/apps/manifest"
 	"tidbyt.dev/community/apps/mbta"
@@ -67,6 +68,7 @@ func GetManifests() []manifest.Manifest {
 		gapilotbuddy.New(),
 		googletraffic.New(),
 		hvvdepartures.New(),
+		isstracker.New(),
 		jokesjokeapi.New(),
 		mbta.New(),
 		nationaltoday.New(),
