@@ -25,7 +25,7 @@ jobs:
         run: buildifier -d -r ./
 
       - name: golangci-lint
-        uses: golangci/golangci-lint-action@v2
+        uses: golangci/golangci-lint-action@v3
 
   build-and-test:
     runs-on: ubuntu-latest
