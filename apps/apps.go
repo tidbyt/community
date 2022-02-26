@@ -39,6 +39,7 @@ import (
 	"tidbyt.dev/community/apps/phaseofmoon"
 	"tidbyt.dev/community/apps/pokedex"
 	"tidbyt.dev/community/apps/sbbtimetable"
+	"tidbyt.dev/community/apps/sportsscores"
 	"tidbyt.dev/community/apps/sportsstandings"
 	"tidbyt.dev/community/apps/steam"
 	"tidbyt.dev/community/apps/sunrisesunset"
@@ -82,6 +83,7 @@ func GetManifests() []manifest.Manifest {
 		phaseofmoon.New(),
 		pokedex.New(),
 		sbbtimetable.New(),
+		sportsscores.New(),
 		sportsstandings.New(),
 		steam.New(),
 		sunrisesunset.New(),
