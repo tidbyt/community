@@ -4,8 +4,6 @@ load("http.star", "http")
 load("render.star", "render")
 load("schema.star", "schema")
 load("time.star", "time")
-load("cache.star", "cache")
-
 
 TIMEZONE = "America/New_York"
 GREEN = "#30BF4C"
@@ -24,139 +22,120 @@ def main(config):
                 renderTrainMarquee(all_trains[0]),
                 renderDivider(),
                 renderTrainMarquee(all_trains[1]),
-            ]
-        )
+            ],
+        ),
     )
 
 # FUNCTIONS FOR MAIN APP
+def getUrlForStation(station_name):
+    return "https://path.api.razza.dev/v1/stations/{station}/realtime".format(station = station_name)
 
-def getUrlForStation(stationName):
-        """returns a formated url for the station name
-        Args:
-          stationName: name of station for url
-        """
-    return "https://path.api.razza.dev/v1/stations/{station}/realtime".format(station = stationName)
+def getResponseFromApi(station_name):
+    """ gets response from api
 
+    Args:
+        station_name: name of station.
 
-def getResponseFromApi(stationName):
-        """returns response from api 
-        Args:
-          stationName: name of station for query
-        """
-    url = getUrlForStation(stationName)
+    Returns:
+        struct: the response from the api
+    """
+    url = getUrlForStation(station_name)
     rep = http.get(url)
     if rep.status_code != 200:
         fail("PATH request failed with status {}".format(rep.status_code))
     return rep
 
-def getArrivalInMinutes(arrivalTime):
-        """takes the arrival time of the train and returns how many minutes it will arrive
-        Args:
-          arrivalTime: arrivalTime of train from API response
-        """
-    arrTime = time.parse_time(arrivalTime).in_location(TIMEZONE)
+def getArrivalInMinutes(arrival_time):
+    arr_time = time.parse_time(arrival_time).in_location(TIMEZONE)
     now = time.now().in_location(TIMEZONE)
-    mins = int((arrTime - now).minutes)
+    mins = int((arr_time - now).minutes)
     return mins
 
-
 def jsonToTrainData(json):
-        """takes the json object and formats it to a dict 
-        Args:
-          json: json to map
-        """
-    trainsData = []
+    """ formats json data to dict of train data
+
+    Args:
+        json: json to format
+
+    Returns:
+        dict: formatted data from json
+    """
+    trains_data = []
     for train in json:
         data = {
             "name": train["lineName"],
             "status": train["status"].replace("_", " "),
-            "minutes": getArrivalInMinutes(train["projectedArrival"])
+            "minutes": getArrivalInMinutes(train["projectedArrival"]),
         }
-        trainsData.append(data)
+        trains_data.append(data)
 
-    return trainsData
+    return trains_data
 
 def getTrainsFromResponse(rep):
-        """takes the response and gets the first twp trains
-        Args:
-          rep: response from api
-        """
     return rep.json()["upcomingTrains"][0:2]
 
+def getTrainDataFromApi(station_name):
+    """ gets train data
 
-def getTrainDataFromApi(stationName):
-        """returns array of the upcomming two trains from the api
-        Args:
-          stationName: station to query
-        """
-    rep = getResponseFromApi(stationName)
-    cache.set(TRAIN_TIME_KEY, str(rep), ttl_seconds = 60)
+    Args:
+        station_name: name of station.
+
+    Returns:
+        dict: train data dict
+    """
+    rep = getResponseFromApi(station_name)
+
+    # cache.set(TRAIN_TIME_KEY, str(rep), ttl_seconds = 60)
     trains = getTrainsFromResponse(rep)
-    apiData =  jsonToTrainData(trains)
-    return apiData
-
-
-
-def getTrainData(stationName):
-        """returns array of the upcomming two trains from the api
-        Args:
-          stationName: station to query
-        """
-    cacheData = cache.get(TRAIN_TIME_KEY)
-    if cacheData != None:
-        print("pulliing from cache")
-        trains = getTrainsFromResponse(cacheData)
-        data = jsonToTrainData(trains)
-        return data
-    print("fetching from api")
-    apiData =  getTrainDataFromApi(stationName)
-    return apiData
-        
+    api_data = jsonToTrainData(trains)
+    return api_data
 
 def renderTrainMarquee(train):
-        """takes train and renders the info in a marquee
-        Args:
-          train: train to show
-        """
+    """ renders marquee for given train
+
+    Args:
+        train: train to show
+
+    Returns:
+        column: the train marquee
+    """
     status = train["status"]
-    statusColor = GREEN if status == "ON TIME" else RED
-    timeString = "{mins}mins".format(mins = train["minutes"])
-    textText = render.Text(timeString, color = statusColor, font = "tom-thumb",)
-    
-    
-    statusText = render.WrappedText(train["status"], color = statusColor, font = "tom-thumb",)
-    statusArray = [textText, statusText] if status == "ON TIME" else [statusText]
+    status_color = GREEN if status == "ON TIME" else RED
+    time_string = "{mins}mins".format(mins = train["minutes"])
+    text_text = render.Text(time_string, color = status_color, font = "tom-thumb")
+
+    status_text = render.WrappedText(train["status"], color = status_color, font = "tom-thumb")
+    status_array = [text_text, status_text] if status == "ON TIME" else [status_text]
 
     return render.Column(
         children = [
             render.Marquee(
-                width=64,
-                child=render.Text(train["name"]),
-                ),
+                width = 64,
+                child = render.Text(train["name"]),
+            ),
             render.Row(
                 main_align = "space_between",
                 expanded = True,
-                children = statusArray
-            )
-            
-            
-        ]
+                children = status_array,
+            ),
+        ],
     )
 
 def renderDivider():
-        """renders the divider
-        """
     return render.Box(
-        color="#CC6C1B",
-        width=64,
-        height=1
+        color = "#CC6C1B",
+        width = 64,
+        height = 1,
     )
 
 # FUNCTIONS FOR SCHEMA
 
 def getAllStationsJson():
-        """returns all the stations as json from the api
-        """
+    """ gets all stations as json
+
+    Returns:
+        struct: the response from the api
+    """
     url = "https://path.api.razza.dev/v1/stations"
     rep = http.get(url)
     if rep.status_code != 200:
@@ -164,21 +143,24 @@ def getAllStationsJson():
     return rep.json()["stations"]
 
 def getAllStations():
-        """gets all stations as options for the config
-        """
+    """ maps stations to options
+
+    Returns:
+        list: list of options for schema
+    """
     stations = []
-    jsonStations = getAllStationsJson()
-    for station in jsonStations:    
-        stations += [schema.Option(
-            display = station["name"],
-            value = station["station"],
-        )]
+    json_stations = getAllStationsJson()
+    for station in json_stations:
+        stations.append(
+            schema.Option(
+                display = station["name"],
+                value = station["station"],
+            ),
+        )
     return stations
 
 # OPTIONS FOR USER
 def get_schema():
-        """shows the options to the user
-        """
     options = getAllStations()
     return schema.Schema(
         version = "1",
