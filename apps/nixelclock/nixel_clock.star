@@ -165,7 +165,7 @@ def main(config):
     has_flashing_seperator = config.bool("has_flashing_seperator", DEFAULT_HAS_FLASHING_SEPERATOR)
     clock_style = config.get("clock_style", DEFAULT_CLOCK_STYLE)
 
-    # Set Clock Style
+    # Set image variables for current Clock Style
     if clock_style == "round_darker":
         NUMBER_IMGS = NUMBER_IMGS_ROUND_DARKER
         SEP = SEP_ROUND_DARKER
