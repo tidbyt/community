@@ -52,10 +52,7 @@ def fuzzy_time(config, hours, minutes):
     if up:
         hours += 1
 
-        if config.get("dialect") == "american":
-            glue = "TIL"
-        else:
-            glue = "TO"
+        glue = "TIL" if config.get("dialect") == "american" else "TO"
 
     # Handle 24 hour time.
     if hours > 12:
