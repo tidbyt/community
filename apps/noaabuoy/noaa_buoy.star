@@ -11,8 +11,10 @@ load("http.star", "http")
 load("encoding/json.star", "json")
 load("cache.star", "cache")
 
+
 def fetch_data(buoy_id):
-    url = "https://wildc.net/wind/noaa_buoy_api.pl?buoy_id=%s" % buoy_id
+    url = "https://wildc.net/wind/ndbc_api.pl?buoy_id=%s" % buoy_id
+    print(url)
     resp = http.get(url)
     if resp.status_code != 200:
         #fail("request failed with status %d", resp.status_code)
@@ -22,6 +24,7 @@ def fetch_data(buoy_id):
         return resp.json()
 
 def main(config):
+    
     # color based on swell size
     color_small = "#00AAFF"  #blue
     color_medium = "#AAEEDD"  #??
@@ -42,13 +45,22 @@ def main(config):
     if buoy1_json == None:
         buoy1_json = fetch_data(buoy1_id)
         if buoy1_json != None:
-            cache.set(cache_key, str(buoy1_json), ttl_seconds = 3600)  # swell doesnt change very quickly, 1 hour should be good.
+            cache.set(cache_key, str(buoy1_json), ttl_seconds = 1800)  # swell doesnt change very quickly, 30min
     else:
         buoy1_json = json.decode(buoy1_json)
 
     height = ""
-    if "error" not in buoy1_json:
-        height = float(buoy1_json["height"])
+    if buoy1_name == "": # and "name" in buoy1_json:
+        buoy1_name = buoy1_json["name"]
+    elif buoy1_name == "":
+        buoy1_name = buoy1_id;
+
+    # trim to max width of 14 chars or two words
+    if len(buoy1_name) > 14:
+        buoy1_name = buoy1_name[:13]
+        buoy1_name = buoy1_name.strip()
+    if "WVHT" in buoy1_json and "DPD" in buoy1_json and "MWD" in buoy1_json:
+        height = float(buoy1_json["WVHT"])
         if (height < 2):
             swell_color = color_small
         elif (height < 5):
@@ -58,14 +70,8 @@ def main(config):
         elif (height >= 13):
             swell_color = color_huge
 
-        if buoy1_name == "":
-            buoy1_name = buoy1_json["name"]
 
-            # trim to max width of 14 chars or two words
-            if len(buoy1_name) > 14:
-                buoy1_name = buoy1_name[:13]
-                buoy1_name = buoy1_name.strip()
-        height = buoy1_json["height"]
+        height = buoy1_json["WVHT"]
         unit_display = "f"
         if unit_pref == "meters":
             unit_display = "m"
@@ -89,19 +95,21 @@ def main(config):
                             color = swell_color,
                         ),
                         render.Text(
-                            content = "%s%s %ss" % (height, unit_display, buoy1_json["period"]),
+                            content = "%s%s %ss" % (height, unit_display, buoy1_json["DPD"]),
                             font = "6x13",
                             color = swell_color,
                         ),
                         render.Text(
-                            content = "%s°" % (buoy1_json["direction"]),
+                            content = "%s°" % (buoy1_json["MWD"]),
                             color = "#FFAA00",
                         ),
                     ],
                 ),
             ),
         )
-    else:  # if we have error key, then we got no good swell data, display the error
+    
+    #  we don't have swell but we do have wind, so display the wind
+    elif "WDIR" in buoy1_json and "WSPD" in buoy1_json and "GST" in buoy1_json:
         return render.Root(
             child = render.Box(
                 render.Column(
@@ -114,18 +122,101 @@ def main(config):
                             color = swell_color,
                         ),
                         render.Text(
-                            content = buoy1_json["error"],
-                            font = "tb-8",
+                            content = "%sg%s kts" % (int(float(buoy1_json["WSPD"])+0.5), int(float(buoy1_json["GST"])+0.5)),
+                            font = "6x13",
                             color = swell_color,
                         ),
                         render.Text(
-                            content = "Error",
+                            content = "%s°" % (buoy1_json["WDIR"]),
                             color = "#FFAA00",
                         ),
                     ],
                 ),
             ),
         )
+        
+    # we don't have swell or wind so display temps
+    elif "ATMP" in buoy1_json and "WTMP" in buoy1_json:
+        return render.Root(
+            child = render.Box(
+                render.Column(
+                    cross_align = "center",
+                    main_align = "center",
+                    children = [
+                        render.Text(
+                            content = buoy1_name,
+                            font = "tb-8",
+                            color = swell_color,
+                        ),
+                        render.Text(
+                            content = "Air :%s°F" % (int(float(buoy1_json["ATMP"])+0.5)),
+                            font = "6x13",
+                            color = swell_color,
+                        ),
+                        render.Text(
+                            content = "Water :%s°F" % (int(float(buoy1_json["WTMP"])+0.5)),
+                            color = "#FFAA00",
+                        ),
+                    ],
+                ),
+            ),
+        )
+
+
+    elif "error" in buoy1_json:  # if we have error key, then we got no data, display the error
+        return render.Root(
+            child = render.Box(
+                render.Column(
+                    cross_align = "center",
+                    main_align = "center",
+                    children = [
+                        render.Text(
+                            content = buoy1_name,
+                            font = "tb-8",
+                            color = swell_color,
+                        ),
+                        render.Text(
+                            content = "Error",
+                            font = "tb-8",
+                            color = swell_color,
+                        ),
+                        render.Text(
+                            content = buoy1_json["error"],
+                            color = "#FF0000",
+                        ),
+                    ],
+                ),
+            ),
+        )
+
+    else: # no error but also no known combination of data fields so just display the name and first two
+        # just display to first data fields with their key as label
+        print(buoy1_json.keys()[1])
+        return render.Root(
+            child = render.Box(
+                render.Column(
+                    cross_align = "center",
+                    main_align = "center",
+                    children = [
+                        render.Text(
+                            content = buoy1_name,
+                            font = "tb-8",
+                            color = swell_color,
+                        ),
+                        render.Text(
+                            content = "%s : %s" % (buoy1_json.keys()[1],buoy1_json.values()[1]),
+                            font = "6x13",
+                            color = swell_color,
+                        ),
+                        render.Text(
+                            content = "%s : %s" % (buoy1_json.keys()[2],buoy1_json.values()[2]),
+                            color = "#FFAA00",
+                        ),
+                    ],
+                ),
+            ),
+        )
+    
 
 def get_schema():
     unit_options = [
