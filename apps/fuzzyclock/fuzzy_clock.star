@@ -91,11 +91,11 @@ def get_schema():
     dialectOptions = [
         schema.Option(
             display = "American English",
-            value = "american"
+            value = "american",
         ),
         schema.Option(
             display = "British English",
-            value = "british"
+            value = "british",
         ),
     ]
 
