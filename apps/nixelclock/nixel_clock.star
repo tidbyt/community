@@ -10,7 +10,7 @@ print("-----------------------------------------------------------------------")
 
 load("render.star", "render")
 load("schema.star", "schema")
-load("time.star", "time")
+load("time.star", "time") 
 load("encoding/base64.star", "base64")
 load("encoding/json.star", "json")
 
@@ -20,7 +20,6 @@ DEFAULT_HAS_LEADING_ZERO = True
 DEFAULT_HAS_FLASHING_SEPERATOR = False
 
 # Constants
-TTL = 21600  # 6 hours
 NUMBER_IMGS = [
     """
 iVBORw0KGgoAAAANSUhEUgAAAA8AAAAPCAYAAAA71pVKAAAACXBIWXMAAAsTAAALEwEAmpwYAAACj0lEQVQokVWTO2iddQDFf//H98h9N7e5ITVeIkmKLUmK0UFQRBwVxLGTi9RFKIiLHTp3cXQQBGeHYgWLSEFwUAQHl5bS1lIqaNI0bXOf33189/8dB41tfsOZzuEs5xhAPENqDTVvaduEg3HGnwZi55jOAjOOYg7D1hiakacfzTEbD1mZS2k+v8r44Am3BjllMyWMe/Ty8H+bB7AYFqsxo15g3k+4sBrR3Mvolh3tlQUmDLm067l+J6JlHrM3DU+bW9UEkxVUU/j6dMLpYsTs7BKsO3Rln9GNjE6txvkbjmu9iFJ4TDYLEDmrtVpDbZyubpU02US9yysKD19XuHpCxeg13Xq7qvvL6PdXnDaPNRT7VM4gfBKpYVKdrXk9OoWGH5Q16mxr/JHVZAuFmysa/3BSv1XR3TPoi82K4mRe1jnZd2PDssasR44wBXduEX+vT/ZrwX7D0vlsF7/Rp/Uy3O96unGTbZ9TtwF78YTlrcjy1xAeBjDzHmU5hYVhgAfXJ9hpTvpSQm8HftwZ0k4LlgPY25OAx5DF0OtA/qSCqTYIA2hEhudWLfRjurdF4me8afoMckMPh/3078BXWPanM9opjL7ZQe2CY1uWub1A+mELs7TE/s9TmgsJp+qeX3oDdk0BGCtXjhXj9eVxr/Eayr5rK9xZly7Fkra1e6Gpn0B3X63pjcWKwMiYf7eimneqR7FeNE5XjsfKNqzybxfU+X5Djz6e1701pwefvKdzq3WBUeScAJlDqSQJpVBQDwXvVwzvpOLy8klanQEvuC6fx3Wu3TygZCeMihw9u20MlKzFGE88yzljLXHV0514/hiPOKCgbCOG/wWPHOMQi6WIDLVQMFeILobcWgoVSEes/AN+GTO8WTDhkgAAAABJRU5ErkJggg==
@@ -55,8 +54,11 @@ iVBORw0KGgoAAAANSUhEUgAAAA8AAAAPCAYAAAA71pVKAAAACXBIWXMAAAsTAAALEwEAmpwYAAACk0lE
 ]
 
 SEP = base64.decode("""
-iVBORw0KGgoAAAANSUhEUgAAAAQAAAAOAQAAAAAgEYC1AAAAAnRSTlMAAQGU/a4AAAAPSURBVHgBY0g
-AQzQAEQUAH5wCQbfIiwYAAAAASUVORK5CYII=
+iVBORw0KGgoAAAANSUhEUgAAAAQAAAAPCAIAAABMVPnqAAAACXBIWXMAAAsTAAALEwEAmpwYAAAAeklEQVQImWNgIA4IMDJUBTAsTuNU5WBmODqR4///mf//Bz/cyMH4840qm7A5A8OjP1dvMaiIsa1JYNiTLWAgyI5qADsDw8Qiua3zjCXZGRgWN0n//x/x/7/+/eNCTJZa/AwMfxkYWAT5JBlkORkPdEju7lbX52cl0mkAeiEh30PI8swAAAAASUVORK5CYII=
+""")
+
+SEP_W = base64.decode("""
+iVBORw0KGgoAAAANSUhEUgAAAAQAAAAPCAIAAABMVPnqAAAACXBIWXMAAAsTAAALEwEAmpwYAAAAfElEQVQImWNgwAkEGBmqAhgWp3GqcjAzHJ3I8f//zP//gx9u5GD8+UaVTdicgeHRn6u3GFTE2NYkMOzJFjAQZMdtGCpgZ2CYWCS3dZ6xJDsDw+Im6f//I/7/179/XIjJUoufgeEvAwOLIJ8kgywn44EOyd3d6vr8rLgNAwCnuyHfaS7rcQAAAABJRU5ErkJggg==
 """)
 
 DEGREE = 0.01745329251
@@ -86,6 +88,7 @@ def get_time_image(t, is_24_hour_format = True, has_leading_zero = False, has_se
     if not has_seperator:
         seperator = render.Box(
             width = 4,
+            height = 15,
         )
 
     hh0 = get_num_image(int(hh[0]))
