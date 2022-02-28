@@ -28,6 +28,7 @@ import (
 	"tidbyt.dev/community/apps/hvvdepartures"
 	"tidbyt.dev/community/apps/isstracker"
 	"tidbyt.dev/community/apps/jokesjokeapi"
+	"tidbyt.dev/community/apps/lirr"
 	"tidbyt.dev/community/apps/manifest"
 	"tidbyt.dev/community/apps/mbta"
 	"tidbyt.dev/community/apps/nationaltoday"
@@ -74,6 +75,7 @@ func GetManifests() []manifest.Manifest {
 		hvvdepartures.New(),
 		isstracker.New(),
 		jokesjokeapi.New(),
+		lirr.New(),
 		mbta.New(),
 		nationaltoday.New(),
 		nearearthobjs.New(),
