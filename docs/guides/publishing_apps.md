@@ -6,8 +6,9 @@ One final note before we hop in - you may want to check out the [schema docs](ht
 ## Prerequisites
 Make sure you have [go1.16](https://go.dev/) or later and `make` installed on your system.
 
-## Quick start
-Run the following to generate everything you need!
+
+## Quick Start
+Fork and clone the [Tidbyt community repo](https://github.com/tidbyt/community) to your local machine, and then run the following from the local folder, to generate everything you need!
 ```
 make app
 ```
@@ -16,8 +17,31 @@ make app
 
 Once created, edit `apps/{{appname}}/{{app_name}}.star` with your source code.
 
-## Example
+
+## Detailed Instructions
+
+### 1. Fork the Tibyt Community repo on Github
+
+- Community apps are published by making a Pull Request to the community repo here: https://github.com/tidbyt/community
+- Start by forking the repo into your Gibhub account.
+- After forking you may want to checkout to a new branch to avoid any headaches, and to not have to merge off the main branch of your forked repo.
+
+### 2. Clone the community repo to your local machine
+
+### 3. Install Go if it is not already installed
+
+- Enter `go version` to check if it is already installed.
+- If not, download it here: https://go.dev/doc/install
+- You may need to restart your Terminal after installing so that the Go install path is recognized. 
+
+### 4. Install Make if it is not already installed
+
+- Enter `make --v` to check if it is already installed.
+
+### 5. Run `make app` via the terminal
+
 Generate your app:
+
 ```
 $ make app
 Name (what do you want to call your app?): Tides
@@ -26,12 +50,15 @@ Description (what's the long form of what this app does?): Daily tide charts for
 Author (your name or your Github handle): Mark Spicer
 ```
 
-Run your app:
-```
-pixlet serve --watch apps/tides/tides.star
-```
+This should be run from the 'community' repo folder on your local machine. (The folder containing the Makefile.)
+You will be prompted for the relevant information about your app and the required files and folders will be generated:
 
-## Fields
+Note:
+**Name:** The App Name can contain spaces but should not have any numbers
+**Summary:** This should be a VERY brief summary of what the app does. (27 characters or less!)
+**Description:** This is a longer description of what the app does.
+
+#### Example 
 In this example, the fields map as follows:
 - **Name**: Fuzzy Clock
 - **Summary**: Human readable time
@@ -43,11 +70,27 @@ In this example, the fields map as follows:
 ![details](../assets/example_details.png)
 
 
-## Making a PR
+ #### Run your App
+
+ Preview your App in your browser at http://localhost:8080/ by running:
+
+```
+pixlet serve --watch apps/{{appname}}/{{app_name}}.star
+```
+
+## 6. Making a PR
+
+Before submitting your app, run `make lint` from within the 'community' folder to check your code for errors.
+
+
 When you go to make a PR, give us a little background on what your app does. In addition, include a render from the following command so we can ooh-ahh 😍:
 ```
 pixlet render apps/{{appname}}/{{app_name}}.star --gif --magnify 10
 ```
+
+
+
+
 
 
 
