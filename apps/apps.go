@@ -7,6 +7,7 @@ package apps
 import (
 	"tidbyt.dev/community/apps/analogclock"
 	"tidbyt.dev/community/apps/bgghotness"
+	"tidbyt.dev/community/apps/biblevotd"
 	"tidbyt.dev/community/apps/bigclock"
 	"tidbyt.dev/community/apps/binaryclock"
 	"tidbyt.dev/community/apps/clockbyhenry"
@@ -42,6 +43,7 @@ func GetManifests() []manifest.Manifest {
 	return []manifest.Manifest{
 		analogclock.New(),
 		bgghotness.New(),
+		biblevotd.New(),
 		bigclock.New(),
 		binaryclock.New(),
 		clockbyhenry.New(),
