@@ -21,13 +21,16 @@ import (
 	"tidbyt.dev/community/apps/espnnews"
 	"tidbyt.dev/community/apps/fishbyt"
 	"tidbyt.dev/community/apps/fuzzyclock"
+	"tidbyt.dev/community/apps/gapilotbuddy"
 	"tidbyt.dev/community/apps/googletraffic"
 	"tidbyt.dev/community/apps/hvvdepartures"
+	"tidbyt.dev/community/apps/isstracker"
 	"tidbyt.dev/community/apps/jokesjokeapi"
 	"tidbyt.dev/community/apps/manifest"
 	"tidbyt.dev/community/apps/mbta"
 	"tidbyt.dev/community/apps/nationaltoday"
 	"tidbyt.dev/community/apps/nearearthobjs"
+	"tidbyt.dev/community/apps/nft"
 	"tidbyt.dev/community/apps/nightscout"
 	"tidbyt.dev/community/apps/noaabuoy"
 	"tidbyt.dev/community/apps/nyancat"
@@ -41,6 +44,7 @@ import (
 	"tidbyt.dev/community/apps/sunrisesunset"
 	"tidbyt.dev/community/apps/theysaidso"
 	"tidbyt.dev/community/apps/twitterfollows"
+	"tidbyt.dev/community/apps/verticalmessage"
 )
 
 // GetManifests returns a list of all apps in the this repository. Add your applet
@@ -61,12 +65,15 @@ func GetManifests() []manifest.Manifest {
 		espnnews.New(),
 		fishbyt.New(),
 		fuzzyclock.New(),
+		gapilotbuddy.New(),
 		googletraffic.New(),
 		hvvdepartures.New(),
+		isstracker.New(),
 		jokesjokeapi.New(),
 		mbta.New(),
 		nationaltoday.New(),
 		nearearthobjs.New(),
+		nft.New(),
 		nightscout.New(),
 		noaabuoy.New(),
 		nyancat.New(),
@@ -80,6 +87,7 @@ func GetManifests() []manifest.Manifest {
 		sunrisesunset.New(),
 		theysaidso.New(),
 		twitterfollows.New(),
+		verticalmessage.New(),
 	}
 }
 
