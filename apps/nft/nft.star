@@ -17,7 +17,7 @@ load("time.star", "time")
 ASSETS_URL = "https://api.opensea.io/api/v1/assets?format=json&owner={}"
 
 def main(config):
-    api_key = config.get("opensea-api-key") or ""
+    api_key = secret.decrypt("AV6+xWcEgyom3axWmveQsUXTRbQOZS5J+86SzzjX6xzGZdxe3TCmX1whv2nacbrV87OVvRLL2W9KC6+fN2Sikz4cKFxYPBth3Pv5I8on/9znxCWkyNyYxnfoK33i+f2Jwmn2Ffmdt2qdGm907dtB7pInMKLPIr+ikDYteSXA7FtQUUslxws=") or config.get("opensea-api-key") or ""
     public_address = config.get("public_address") or "0xd6a984153acb6c9e2d788f08c2465a1358bb89a7"
     nfts = fetch_opensea_assets(public_address, api_key)
     nft = nfts[random(len(nfts))]
