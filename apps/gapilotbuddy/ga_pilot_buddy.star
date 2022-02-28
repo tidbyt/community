@@ -16,9 +16,9 @@ load("secret.star", "secret")
 load("time.star", "time")
 
 AVWX_TOKEN = """
-AV6+xWcEMClLASnRjwefBSKdSfw7sY2iH8i5AqAiR07g6hb1tptkeFwK31hnx4Y0tdUUBNZ+4zFkhz
-TgMw38WzY+XrFGx2TVG0Aif1XERXmutNCIc9PMLuW4vv2penHt100RwCWglurpqNf0T8ZPLvEUg816
-PG3iHrOD00eIMlxaI8LcEABZYgmutmPWxUXmyg==
+AV6+xWcEKYzxZW0GV208J4ciOKsI+MwdVGJX35e/kIX89A2rB+cgMBLvNxs11tmh3KhUL++yhf4+KpnQ
+EuosSejtSn9IROb4F0uHYRz+aTrj0j1SbFnC6goUT328pyxSBXZ1Lu0v1OhzFMVkUX4mlSYE+JZVhL0d
+ERwOTPhdbI2LkkAGyWiLyEeNVKvsLTKsLg==
 """
 DEFAULT_LOCATION = """
 {
@@ -76,7 +76,7 @@ def get_nearby_aerodromes(location, config):
     cache.set(str_geo, json.encode(aerodromes), ttl_seconds = 86400)
 
     show_all_aerodromes = config.bool("show_all_aerodromes")
-    return [aerodrome for aerodrome in aerodromes if show_all_aerodromes or aerodrome["station"]["operator"] == "PUBLIC"]
+    return [aerodrome for aerodrome in aerodromes if show_all_aerodromes or aerodrome["station"].get("operator") == "PUBLIC"]
 
 def get_aerodrome_metar(aerodrome, config):
     aerodrome_id = aerodrome["station"]["icao"]
