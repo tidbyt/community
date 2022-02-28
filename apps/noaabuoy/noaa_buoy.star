@@ -140,10 +140,38 @@ def main(config):
             buoy_name = buoy_name[:13]
             buoy_name = buoy_name.strip()
 
+    # ERROR #################################################
+    if "error" in data:  # if we have error key, then we got no good swell data, display the error
+        print("buoy_id: " + str(buoy_id))
+        return render.Root(
+            child = render.Box(
+                render.Column(
+                    cross_align = "center",
+                    main_align = "center",
+                    children = [
+                        render.Text(
+                            content = buoy_id,
+                            font = "tb-8",
+                            color = swell_color,
+                        ),
+                        render.Text(
+                            content = "Error",
+                            font = "tb-8",
+                            color = "#FF0000"
+                        ),
+                        render.Text(
+                            content = data["error"],
+                            color = "#FF0000",
+                        ),
+                    ],
+                ),
+            ),
+        )
 
     #SWELL###########################################################
-    height = ""
-    if ('DPD' in data and 'WVHT' in data) and config.get("display_swell",True) == "true" and swell_over_threshold(min_size,h_unit_pref,data):
+    
+    elif ('DPD' in data and 'WVHT' in data) and config.get("display_swell",True) == "true" and swell_over_threshold(min_size,h_unit_pref,data):
+        height = ""
         if "MWD" in data:
             mwd = data["MWD"]
         else:
@@ -389,33 +417,6 @@ def main(config):
                     ),
                 ),
             )
-
-    elif "error" in data:  # if we have error key, then we got no good swell data, display the error
-        print("buoy_id: " + str(buoy_id))
-        return render.Root(
-            child = render.Box(
-                render.Column(
-                    cross_align = "center",
-                    main_align = "center",
-                    children = [
-                        render.Text(
-                            content = buoy_id,
-                            font = "tb-8",
-                            color = swell_color,
-                        ),
-                        render.Text(
-                            content = "Error",
-                            font = "tb-8",
-                            color = "#FF0000"
-                        ),
-                        render.Text(
-                            content = data["error"],
-                            color = "#FF0000",
-                        ),
-                    ],
-                ),
-            ),
-        )
     else:
         return render.Root(
             child = render.Box(
