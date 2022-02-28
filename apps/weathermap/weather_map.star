@@ -8,6 +8,7 @@ Author: Felix Bruns
 load("render.star", "render")
 load("schema.star", "schema")
 load("http.star", "http")
+load("humanize.star", "humanize")
 load("time.star", "time")
 load("cache.star", "cache")
 load("encoding/json.star", "json")
@@ -97,27 +98,63 @@ UNIT_FORMATS = [
 ]
 DEFAULT_UNIT_FORMAT = UNIT_FORMATS[0]
 
-# This table of zoom levels and their corresponding resolution in meters
-# per pixel at a resolution of 256 pixels is taken from:
-#
-# https://www.maptiler.com/google-maps-coordinates-tile-bounds-projection
-#
 # There theoretically are zoom levels 0 through 23, but zooming in closer
 # than an area 9x9 km is of questionable usability due to Tidbyt screen size.
-ZOOM_LEVEL_METERS_PER_PIXEL = [
-    156543.0339,  # 0
-    78271.51696,  # 1
-    39135.75848,  # 2
-    19567.87924,  # 3
-    9783.939620,  # 4
-    4891.969810,  # 5
-    2445.984905,  # 6
-    1222.992452,  # 7
-    611.4962263,  # 8
-    305.7481131,  # 9
-    152.8740566,  # 10
-    76.43702829,  # 11
-    38.21851414,  # 12
+#
+# The following table lists zoom levels and their corresponding resolution
+# in meters / kilometers per pixel at a resolution of 256 and 64 pixels.
+#
+# Source: https://www.maptiler.com/google-maps-coordinates-tile-bounds-projection
+#
+# Given these values we can choose a minimum required accuracy that we can
+# truncate latitude and longitude to, in order to protect the users privacy,
+# by not leaking their exact location to a third-party API.
+#
+# The maximum accuracy we allow is 0.01 degrees (two decimal places), which
+# corresponds to about 1.11 km.
+#
+# See: https://gis.stackexchange.com/questions/8650/measuring-accuracy-of-latitude-and-longitude
+#
+#  1    degree ~ 111    km
+#  0.1  degree ~  11.1  km
+#  0.01 degree ~   1.11 km
+#
+# +-------+-------------+-------------+---------------+
+# | Level | 1px @ 256px | 1px @ 64 px | Accuracy used |
+# +-------+-------------+-------------+---------------+
+# |     0 |    ~ 157 km |    ~ 626 km | 1    degree   |
+# |     1 |     ~ 78 km |    ~ 313 km | 1    degree   |
+# |     2 |     ~ 39 km |    ~ 157 km | 1    degree   |
+# |     3 |     ~ 20 km |     ~ 78 km | 0.1  degree   |
+# |     4 |     ~ 10 km |     ~ 39 km | 0.1  degree   |
+# |     5 |      ~ 5 km |     ~ 20 km | 0.1  degree   |
+# |     6 |    ~ 2.5 km |     ~ 10 km | 0.1  degree   |
+# |     7 |    ~ 1.2 km |      ~ 5 km | 0.01 degree   |
+# |     8 |     ~ 600 m |    ~ 2.5 km | 0.01 degree   |
+# |     9 |     ~ 300 m |    ~ 1.2 km | 0.01 degree   |
+# |    10 |     ~ 150 m |     ~ 600 m | 0.01 degree   |
+# |    11 |      ~ 80 m |     ~ 300 m | 0.01 degree   |
+# |    12 |      ~ 40 m |     ~ 150 m | 0.01 degree   |
+# +-------+-------------+-------------+---------------+
+#
+ZOOM_LEVEL_TABLE = [
+    # Level | 1px @ 256px | Accuracy
+    #
+    # Use "#.0", as the API only accepts floating point values,
+    # and will return the wrong image tile if we use an integer.
+    (0, 156543.0339, "#.0"),
+    (1, 78271.51696, "#.0"),
+    (2, 39135.75848, "#.0"),
+    (3, 19567.87924, "#.#"),
+    (4, 9783.939620, "#.#"),
+    (5, 4891.969810, "#.#"),
+    (6, 2445.984905, "#.#"),
+    (7, 1222.992452, "#.##"),
+    (8, 611.4962263, "#.##"),
+    (9, 305.7481131, "#.##"),
+    (10, 152.8740566, "#.##"),
+    (11, 76.43702829, "#.##"),
+    (12, 38.21851414, "#.##"),
 ]
 
 def get_zoom_level_size(zoom_level):
@@ -129,7 +166,7 @@ def get_zoom_level_size(zoom_level):
     Returns:
         A tuple containing the values in kilometers and miles.
     """
-    m_per_pixel = ZOOM_LEVEL_METERS_PER_PIXEL[zoom_level]
+    (_, m_per_pixel, _) = ZOOM_LEVEL_TABLE[zoom_level]
     km = 256 * m_per_pixel // 1000
     mi = km * 0.621371
     return (km, mi)
@@ -139,10 +176,10 @@ def get_zoom_level_size(zoom_level):
 # This goes from "0" (earth) to "23" (2 cm per pixel)
 ZOOM_LEVELS = [
     schema.Option(
-        display = "%d km / %d mi" % get_zoom_level_size(level),
+        display = "%d m / %d mi" % get_zoom_level_size(level),
         value = "%d" % level,
     )
-    for level in range(len(ZOOM_LEVEL_METERS_PER_PIXEL))
+    for level in range(len(ZOOM_LEVEL_TABLE))
 ]
 DEFAULT_ZOOM_LEVEL = ZOOM_LEVELS[7]
 
@@ -171,8 +208,7 @@ def render_frame(frame, image, opts):
     """
     time_format = getattr(opts, "time_format")
     time_str = time.from_timestamp(int(frame["time"])).format(time_format)
-
-    zoom_level = int(getattr(opts, "zoom_level"))
+    zoom_level = getattr(opts, "zoom_level")
     (km, mi) = get_zoom_level_size(zoom_level)
     unit_format = getattr(opts, "unit_format")
     unit_str = "%d km" % km if unit_format == "km" else "%d mi" % mi
@@ -219,19 +255,47 @@ def render_frame(frame, image, opts):
     ])
 
 def create_image_url(frame, opts):
+    """Create a tile image URL given the frame and rendering options.
+
+    Args:
+        frame: A frame object.
+        opts: A struct of rendering options.
+
+    Returns:
+        An image URL.
+    """
+    zoom_level = getattr(opts, "zoom_level")
+    location = getattr(opts, "location")
+    (_, _, accuracy) = ZOOM_LEVEL_TABLE[zoom_level]
+
+    # Truncate latitude and longitude to protect the users privacy,
+    # by not leaking their exact location to a third-party API.
+    lat = humanize.float(accuracy, float(location["lat"]))
+    lng = humanize.float(accuracy, float(location["lng"]))
+
     return IMAGE_URL_LAYOUT.format(
         host = getattr(opts, "host"),
         path = frame["path"],
-        lat = getattr(opts, "location")["lat"],
-        lng = getattr(opts, "location")["lng"],
+        lat = lat,
+        lng = lng,
         size = 256,
-        zoom = getattr(opts, "zoom_level"),
+        zoom = zoom_level,
         color = getattr(opts, "color_scheme"),
         smooth = 0,
         snow = getattr(opts, "snow"),
     )
 
 def fetch_image(frame, opts, is_from_past):
+    """Fetch an image given the frame and rendering options (with caching).
+
+    Args:
+        frame: A frame object.
+        opts: A struct of rendering options.
+        is_from_past: Whether the image is from the past or from a forecast.
+
+    Returns:
+        A string of binary image data.
+    """
     url = create_image_url(frame, opts)
 
     data = cache.get(url)
@@ -284,8 +348,8 @@ def main(config):
     opts = struct(
         host = data["host"],
         location = json.decode(config.get("location", DEFAULT_LOCATION)),
-        zoom_level = config.get("zoom_level", DEFAULT_ZOOM_LEVEL.value),
-        color_scheme = config.get("color_scheme", DEFAULT_COLOR_SCHEME.value),
+        zoom_level = int(config.get("zoom_level", DEFAULT_ZOOM_LEVEL.value)),
+        color_scheme = int(config.get("color_scheme", DEFAULT_COLOR_SCHEME.value)),
         time_format = config.get("time_format", DEFAULT_TIME_FORMAT.value),
         unit_format = config.get("unit_format", DEFAULT_UNIT_FORMAT.value),
         snow = "1" if config.bool("snow") else "0",
