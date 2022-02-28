@@ -14,7 +14,7 @@ make app
 
 > Note: the codegen tool is a bit picky. This is because these strings show up in the Tidbyt mobile app and we want to ensure the UX works as expected.
 
-Once created, edit `apps/{{appaname}}/{{app_name}}.star` with your source code.
+Once created, edit `apps/{{appname}}/{{app_name}}.star` with your source code.
 
 ## Example
 Generate your app:
