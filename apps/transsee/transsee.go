@@ -15,7 +15,7 @@ func New() manifest.Manifest {
 	return manifest.Manifest{
 		ID:          "transsee",
 		Name:        "TransSee",
-		Author:      "Darwin O'Connor",
+		Author:      "doconno@gmail.com",
 		Summary:     "Realtime transit prediction",
 		Desc:        "Provides real-time transit predictions based on actual travel times. Requires paid premium. See transsee.ca/tidbyt for usage information",
 		FileName:    "transsee.star",

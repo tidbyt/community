@@ -2,7 +2,7 @@
 Applet: TransSee
 Summary: Realtime transit prediction
 Description: Provides real-time transit predictions based on actual travel times. Requires paid premium. See transsee.ca/tidbyt for usage information
-Author: Darwin O'Connor
+Author: doconno@gmail.com
 """
 
 load("render.star", "render")
