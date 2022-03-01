@@ -18,6 +18,8 @@ CACHE_TTL_SECONDS = 3600 * 24 * 7
 FISH_WIDTH = 40
 FISH_HEIGHT = 20
 
+OFFSET = 39
+
 FONTS = ["tb-8", "tom-thumb", "Dina_r400-6", "5x8"]
 FONT_DEFAULT = FONTS[0]
 
@@ -32,6 +34,10 @@ def main(config):
     fish_barrel = get_fish_barrel()
     random_index = random(len(fish_barrel))
     fish = fish_barrel[random_index]
+
+    # get specific fish
+    # fishToGet=FISH_WATCH_URL+"pink-shrimp"
+    # fish = http.get(fishToGet).json()[0]
 
     #check and set an available fish picture. If no picture is found, display FAIL_IMAGE
     fish_pic = fish["Species Illustration Photo"]["src"]
@@ -51,19 +57,20 @@ def main(config):
 
     #modify speed of marquee based on length of fact
     delay_var = 80
-    if len(fact[1]) > 150:
+
+    if len(fact[1]) > 80:
         delay_var = 60
 
-    if len(fact[1]) > 200:
-        delay_var = 30
+    if len(fact[1]) > 109:
+        delay_var = 45
 
     return render.Root(
         delay = delay_var,
         child = render.Marquee(
             width = 64,
             height = 32,
-            offset_start = 25,
-            offset_end = 25,
+            offset_start = OFFSET,
+            offset_end = OFFSET,
             scroll_direction = "vertical",
             child = render.Column(
                 main_align = "center",
@@ -186,7 +193,7 @@ def pick_random_lines(facts):
     return "no_valid_lines"
 
 def fact_length_check_by_char(fact):
-    if len(fact) > 260:
+    if len(fact) > 140:
         return False
     return True
 

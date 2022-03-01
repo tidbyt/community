@@ -6,7 +6,7 @@ Author: rs7q5 (RIS)
 """
 #sports_standings.star
 #Created 20220119 RIS
-#Last Modified 20220206 RIS
+#Last Modified 20220222 RIS
 
 load("render.star", "render")
 load("http.star", "http")
@@ -14,21 +14,21 @@ load("encoding/base64.star", "base64")
 load("encoding/json.star", "json")
 load("cache.star", "cache")
 load("schema.star", "schema")
+load("time.star", "time")
 load("re.star", "re")
 
 #this list are the sports that can have their standings pulled
-#ESPN_URL = "https://www.espn.com/"
 ESPN_SPORTS_LIST = {
-    "MLB": ["MLB", "mlb"],
-    "NHL": ["NHL", "nhl"],
-    "NBA": ["NBA", "nba"],
+    "MLB": ["MLB", "mlb", "(1 = AL, 2 = NL)"],
+    "NHL": ["NHL", "nhl", "(1 = East, 2 = West)"],
+    "NBA": ["NBA", "nba", "(1 = East, 2 = West)"],
     #"NFL": ["NFL","nfl"],
     #"WNBA": ["WNBA","wnba"],
 }
 
 def main(config):
     sport = config.get("sport") or "MLB"
-    sport_txt, sport_ext = ESPN_SPORTS_LIST.get(sport)
+    sport_txt, sport_ext, sport_conf_code = ESPN_SPORTS_LIST.get(sport)
 
     font = "CG-pixel-3x5-mono"  #set font
 
@@ -37,7 +37,6 @@ def main(config):
     if stats_cached != None:  #if any are None then all(title_cached)==False
         print("Hit! Displaying cached data.")
         stats = json.decode(stats_cached)
-        frame_vec = get_frames(stats, sport, font)
     else:
         print("Miss! Calling ESPN data.")  #error code checked within each function!!!!
 
@@ -52,19 +51,43 @@ def main(config):
         #cache the data
         cache.set("stats_rate/%s" % sport, json.encode(stats), ttl_seconds = 86400)  #grabs it once a day
 
-        #get frames before display
-        frame_vec = get_frames(stats, sport, font)
-        #frame_vec.insert(0,render.WrappedText(sport + " Standings",color="#a00",font=font))
+    #filter stats
+    sport_conf_code_split = [re.split("[() ,]", sport_conf_code)[x] for x in [3, 7]]  #sport_conf_code.split(" ")
+
+    filter_idx = int(config.str("standings_filter", "0"))
+    if filter_idx != 0:
+        split_conf_txt = sport_conf_code_split[filter_idx - 1]
+        stats2 = []
+        for x in stats:
+            if x["name"].lower().startswith(split_conf_txt.lower()):
+                stats2.append(x)
+    else:
+        stats2 = stats
+
+    #get frames before display
+    frame_vec = get_frames(stats2, sport, font)
 
     return render.Root(
-        delay = 1000,  #speed up scroll text
+        delay = int(config.str("speed", "1000")),  #speed up scroll text
         child = render.Animation(children = frame_vec),
     )
 
 def get_schema():
     sports = [
-        schema.Option(display = sport, value = sport)
-        for sport in ESPN_SPORTS_LIST
+        schema.Option(display = sport + " " + val[2], value = sport)
+        for sport, val in ESPN_SPORTS_LIST.items()
+    ]
+    frame_speed = [
+        schema.Option(display = "Slower", value = "5000"),
+        schema.Option(display = "Slow", value = "4000"),
+        schema.Option(display = "Normal", value = "3000"),
+        schema.Option(display = "Fast", value = "2000"),
+        schema.Option(display = "Faster (Default)", value = "1000"),
+    ]
+    standings_opt = [
+        schema.Option(display = "All (Default)", value = "0"),
+        schema.Option(display = "League/Conference 1", value = "1"),
+        schema.Option(display = "League/Conference 2", value = "2"),
     ]
     return schema.Schema(
         version = "1",
@@ -76,6 +99,22 @@ def get_schema():
                 icon = "medal",
                 options = sports,
                 default = "MLB",
+            ),
+            schema.Dropdown(
+                id = "standings_filter",
+                name = "Filter Standings",
+                desc = "Choose to display only a conference. Use the key noted next to the selected sport above.",
+                icon = "filter",
+                default = standings_opt[0].value,
+                options = standings_opt,
+            ),
+            schema.Dropdown(
+                id = "speed",
+                name = "Animation Speed",
+                desc = "Change the speed that the standings change.",
+                icon = "cog",
+                default = frame_speed[-1].value,
+                options = frame_speed,
             ),
         ],
     )

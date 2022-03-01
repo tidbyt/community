@@ -4,3 +4,4 @@ Displays the current [DigiByte](https://digibyte.org/) price on your Tidbyt in u
 
 ![DigiByte Price Applet for Tidbyt](screenshot.png)
 
+
