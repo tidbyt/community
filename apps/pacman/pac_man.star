@@ -190,20 +190,51 @@ SEED_GRANULARITY = 60 * 1  # 1 minute
 CHANCE_FOR_CHASED_GHOST = 2
 CHASING_GHOST_COUNT = 4
 
+MAX_SPEED = 10
+MIN_SPEED = 50
+DEFAULT_SPEED = "30"
+
+#this list contains the currently supported fiat currencies
+SPEED_LIST = {
+    "Snail": "50",
+    "Slow": "40",
+    "Medium": "30",
+    "Fast": "20",
+    "Turbo": "10",
+    "Random": "-1",
+}
+
 def get_schema():
+    speed_options = [
+        schema.Option(display = key, value = value)
+        for key, value in SPEED_LIST.items()
+    ]
+
     return schema.Schema(
         version = "1",
-        fields = [],
+        fields = [
+            schema.Dropdown(
+                id = "speed",
+                name = "Speed",
+                desc = "Change the speed of the animation.",
+                icon = "cog",
+                default = DEFAULT_SPEED,
+                options = speed_options,
+            ),
+        ],
     )
 
 def main(config):
-    delay = MS_PER_FRAME * time.millisecond
-
-    app_cycle_speed = 30 * time.second
-    num_frames = math.ceil(app_cycle_speed / delay)
-
     seed = int(time.now().unix) // SEED_GRANULARITY
     seed = [seed]
+
+    speed = int(config.str("speed", DEFAULT_SPEED))
+    if speed < 0:
+        speed = rand(seed, MIN_SPEED + MAX_SPEED + 1) + MAX_SPEED
+    delay = speed * time.millisecond
+
+    app_cycle_speed = 15 * time.second
+    num_frames = math.ceil(app_cycle_speed / delay)
 
     allFrames = []
     for i in range(1, math.ceil(num_frames / FRAMES_PER_CALL)):
