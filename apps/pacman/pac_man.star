@@ -220,15 +220,14 @@ def get_frames(seed):
     reverse = rand(seed, 2) == 1
     whichGhost = rand(seed, CHASING_GHOST_COUNT + CHANCE_FOR_CHASED_GHOST)
 
-    beginX = -(SPRITE_WIDTH + DIST_BETWEEN_SPRITES + SPRITE_WIDTH)
-    endX = FRAME_WIDTH
-    step = MOVE_SPEED
-
     if reverse:
-        tempX = endX
-        endX = beginX
-        beginX = tempX
+        beginX = MAX_X
+        endX = MIN_X
         step = -MOVE_SPEED
+    else:
+        beginX = MIN_X
+        endX = MAX_X
+        step = MOVE_SPEED
 
     frames = [
         get_frame(xPos, yPos, mspacman, reverse, whichGhost)
