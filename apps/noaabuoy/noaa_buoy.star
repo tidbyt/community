@@ -13,7 +13,7 @@ load("cache.star", "cache")
 load("xpath.star", "xpath")
 load("re.star", "re")
 
-example_location = """
+default_location = """
 {
 	"lat": "20.8911",
 	"lng": "-156.5047",
@@ -119,10 +119,12 @@ def fetch_data(buoy_id):
 def main(config):
     data = dict()
 
-    buoy_id = config.get("local_buoy_id","")
-    if buoy_id == "none":
-        buoy_id = config.get("buoy_id", "51201") # default is Waimea
-    
+    buoy_id = config.get("buoy_id", "")
+
+    #print(buoy_id)
+    if buoy_id == "none" or buoy_id == "":
+        buoy_id = config.get("local_buoy_id", "51201")  # default is Waimea
+
     buoy_name = config.get("buoy_name", "")
     h_unit_pref = config.get("h_units", "feet")
     t_unit_pref = config.get("t_units", "F")
@@ -463,37 +465,37 @@ def main(config):
             ),
         )
 
-
 def get_stations(location):
     station_options = list()
+
     #https://www.ndbc.noaa.gov/rss/ndbc_obs_search.php?lat=20.8911&lon=-156.5047
     loc = json.decode(location)  # See example location above.
-    url = "https://www.ndbc.noaa.gov/rss/ndbc_obs_search.php?lat=%s&lon=%s" % (loc['lat'],loc['lng'])
-    print(url)
-    resp = http.get("https://wildc.net/wind/wind.txt")
+    url = "https://www.ndbc.noaa.gov/rss/ndbc_obs_search.php?lat=%s&lon=%s" % (loc["lat"], loc["lng"])
+
+    #print(url)
+    resp = http.get(url)
     if resp.status_code != 200:
         return []
     else:
         # channel/item/title
         # parse Station KLIH1 - 1615680 - KAHULUI, KAHULUI HARBOR, HI
-    
-        #print_rss(xpath.loads(resp.body()))
-        #rss_titles = xpath.loads(resp.body()).query_all("/rss/channel/item/title")
-        rss_titles = xpath.loads(RSS_TITLES).query_all("/rss/channel/item/title")
+
+        rss_titles = xpath.loads(resp.body()).query_all("/rss/channel/item/title")
+
         #print(rss_titles)
         for rss_title in rss_titles:
             matches = re.match(r"Station\ (\w+) \-\s+(.+)$", rss_title)
+
             #print(matches)
             if len(matches) > 0:
-                print(matches[0][1] + " : " ,matches[0][0] )#+ matches[2])
+                #print(matches[0][1] + " : " ,matches[0][0] )#+ matches[2])
                 station_options.append(
                     schema.Option(
                         display = matches[0][0],
                         value = matches[0][1],
-                    )
+                    ),
                 )
     return station_options
-
 
 def get_schema():
     h_unit_options = [
@@ -505,17 +507,16 @@ def get_schema():
         schema.Option(display = "F", value = "F"),
     ]
 
-    stations_list = get_stations(example_location)
+    #    stations_list = get_stations(default_location)
     return schema.Schema(
         version = "1",
         fields = [
-            schema.Dropdown(
+            schema.LocationBased(
                 id = "local_buoy_id",
-                name = "Local Buoys",
+                name = "Local Buoy",
                 icon = "monument",
                 desc = "Location Based Buoys",
-                options = stations_list,
-                default = "none"
+                handler = get_stations,
             ),
             schema.Text(
                 id = "buoy_id",
