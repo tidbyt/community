@@ -277,25 +277,17 @@ def get_frame(xPos, yPos, mspacman, reverse, whichGhost):
 
     whichPacman = 1 if mspacman else 0
     whichDir = 1 if reverse else 0
-    chasing = whichGhost >= CHASING_GHOST_COUNT
+    pacmanChasing = whichGhost >= CHASING_GHOST_COUNT
 
     pacmanImage = PACMANS[whichPacman][whichDir][pacManFrameIndex]
+    ghostImage = GHOST_CHASED_BLUE[ghostFrameIndex] if pacmanChasing else GHOST_CHASERS[whichGhost][whichDir][ghostFrameIndex]
 
-    if chasing:
-        ghostImage = GHOST_CHASED_BLUE[ghostFrameIndex]
-
+    if (pacmanChasing and not reverse) or (not pacmanChasing and reverse):
         firstImage = pacmanImage
         secondImage = ghostImage
     else:
-        ghostImage = GHOST_CHASERS[whichGhost][whichDir][ghostFrameIndex]
-
         firstImage = ghostImage
         secondImage = pacmanImage
-
-    if reverse:
-        tempImage = firstImage
-        firstImage = secondImage
-        secondImage = tempImage
 
     return render.Padding(
         pad = (xPos, yPos, 0, 0),
