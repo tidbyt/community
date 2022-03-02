@@ -176,7 +176,7 @@ def get_zoom_level_size(zoom_level):
 # This goes from "0" (earth) to "23" (2 cm per pixel)
 ZOOM_LEVELS = [
     schema.Option(
-        display = "%d m / %d mi" % get_zoom_level_size(level),
+        display = "%d km / %d mi" % get_zoom_level_size(level),
         value = "%d" % level,
     )
     for level in range(len(ZOOM_LEVEL_TABLE))
