@@ -1,5 +1,5 @@
-// Package MNLightRail provides details for the Date Time Clock applet.
-package MNLightRail
+// Package mnlightrail provides details for the Date Time Clock applet.
+package mnlightrail
 
 import (
 	_ "embed"
@@ -7,19 +7,19 @@ import (
 	"tidbyt.dev/community/apps/manifest"
 )
 
-//go:embed MN_Light_Rail.star
+//go:embed mn_light_rail.star
 var source []byte
 
 // New creates a new instance of the MN Light Rail applet.
 func New() manifest.Manifest {
 	return manifest.Manifest{
-		ID:          "MN-Light-Rail",
+		ID:          "mn-light-rail",
 		Name:        "MN Light Rail",
 		Author:      "Alex Miller",
 		Summary:     "Train Departure Times",
 		Desc:        "Shows Light Rail Departure Times from Selected Stop.",
-		FileName:    "MN_Light_Rail.star",
-		PackageName: "MNLightRail",
-		Source:  source,
+		FileName:    "mn_light_rail.star",
+		PackageName: "mnlightrail",
+		Source:      source,
 	}
 }
