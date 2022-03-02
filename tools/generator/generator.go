@@ -79,7 +79,7 @@ func (g *Generator) GenerateApp(app *manifest.Manifest) error {
 		return err
 	}
 
-	return g.updateApps(app)
+	return g.updateApps()
 }
 
 // RemoveApp removes an app from the apps directory.
@@ -89,7 +89,12 @@ func (g *Generator) RemoveApp(app *manifest.Manifest) error {
 		return err
 	}
 
-	return g.updateApps(app)
+	return g.updateApps()
+}
+
+// UpdateApps generates the app list in apps.go.
+func (g *Generator) UpdateApps() error {
+	return g.updateApps()
 }
 
 func (g *Generator) createDir(app *manifest.Manifest) error {
@@ -102,7 +107,7 @@ func (g *Generator) removeDir(app *manifest.Manifest) error {
 	return os.RemoveAll(p)
 }
 
-func (g *Generator) updateApps(app *manifest.Manifest) error {
+func (g *Generator) updateApps() error {
 	imports := []string{
 		"tidbyt.dev/community/" + appsDir + "/manifest",
 	}

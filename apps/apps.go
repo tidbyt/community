@@ -43,6 +43,7 @@ import (
 	"tidbyt.dev/community/apps/nycbus"
 	"tidbyt.dev/community/apps/ohhighwaysigns"
 	"tidbyt.dev/community/apps/pagerduty"
+	"tidbyt.dev/community/apps/pathtrainschedule"
 	"tidbyt.dev/community/apps/phaseofmoon"
 	"tidbyt.dev/community/apps/pokedex"
 	"tidbyt.dev/community/apps/sbbtimetable"
@@ -96,6 +97,7 @@ func GetManifests() []manifest.Manifest {
 		nycbus.New(),
 		ohhighwaysigns.New(),
 		pagerduty.New(),
+		pathtrainschedule.New(),
 		phaseofmoon.New(),
 		pokedex.New(),
 		sbbtimetable.New(),
@@ -107,7 +109,7 @@ func GetManifests() []manifest.Manifest {
 		twitterfollows.New(),
 		verticalmessage.New(),
 		weathermap.New(),
- 		worldclock.New(),
+		worldclock.New(),
 	}
 }
 
