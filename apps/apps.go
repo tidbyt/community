@@ -7,6 +7,7 @@ package apps
 import (
 	"errors"
 
+	"tidbyt.dev/community/apps/MNLightRail"
 	"tidbyt.dev/community/apps/analogclock"
 	"tidbyt.dev/community/apps/analogtime"
 	"tidbyt.dev/community/apps/arcadeclassics"
@@ -55,6 +56,7 @@ import (
 	"tidbyt.dev/community/apps/theysaidso"
 	"tidbyt.dev/community/apps/twitterfollows"
 	"tidbyt.dev/community/apps/verticalmessage"
+	"tidbyt.dev/community/apps/warframecycles"
 	"tidbyt.dev/community/apps/weathermap"
 	"tidbyt.dev/community/apps/worldclock"
 )
@@ -63,6 +65,7 @@ import (
 // below to include it in the Tidbyt Mobile app for all Tidbyt users.
 func GetManifests() []manifest.Manifest {
 	return []manifest.Manifest{
+		MNLightRail.New(),
 		analogclock.New(),
 		analogtime.New(),
 		arcadeclassics.New(),
@@ -112,6 +115,7 @@ func GetManifests() []manifest.Manifest {
 		verticalmessage.New(),
 		weathermap.New(),
 		worldclock.New(),
+		warframecycles.New(),
 	}
 }
 
