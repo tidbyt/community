@@ -14,7 +14,7 @@ load("cache.star", "cache")
 
 # get all data for entire state
 URL = "https://publicapi.ohgo.com/api/v1/digital-signs?sign-type=dms"
-API_KEY = secret.decrypt("AV6+xWcE/RBy74+Uf/pJ8KRTDDaG3/t84IL0p5oKjJdSM1Pk7nPzXdWl+i9Q7gdf1XQUcz6UWFANE0wRagqr+6LtyI5W3Phyl6MiRHfwjdIU0Z8zQFXqUuNKC+w7hIv49xE7UDVpWibaufQudT8jbz6S5DwRcDFHBBieyIe02tnCd6fgSybS6VB6")
+API_KEY = secret.decrypt("AV6+xWcE5YxL7rLuKTjG/cF+ssVoKXTH/Mkr8l+xIkLAlvRAk+EL4+Zbs0pY3Q5HTAEQY8wNZ3kqyC1O3Sq9oZPXsqeH7KPNAFgkWlTHiO8DrXjrccex4hKNJPSu0wS+HiO+uycgnMih8p/5qnxG5nV6OaFzgVGRvbV+ZLRwZFoIgt5RQhJciQOd")
 CACHE_KEY = "ALL_SIGNS"
 SEARCH_RADIUS = 50  #miles
 
