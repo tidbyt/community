@@ -1,7 +1,7 @@
 """
 Applet: DigiByte Price
 Summary: Display DigiByte Price
-Description: Displays the current DigiByte price in one or two fiat currencies and/or in Satoshis. Price data is obtained from Coingecko and updated every 15 minutes. If you would like an additional currency supported, pease let me know in the Tidbyt community Discord.
+Description: Displays the current DigiByte price in one or two fiat currencies and/or in Satoshis. Data provided by CoinGecko. Updated every 10 minutes. If you would like an additional currency supported, pease let me know in the Tidbyt community Discord.
 Author: Olly Stedall @saltedlolly
 Thanks: drudge, inxi, whyamihere, Amillion Air
 """
@@ -136,12 +136,12 @@ def main(config):
         dgb_price_usd = dgbquery.json()["digibyte"]["usd"]
 
         # Store prices in cache
-        cache.set("dgb_price_aud", str(dgb_price_aud), ttl_seconds = 14400)
-        cache.set("dgb_price_cad", str(dgb_price_cad), ttl_seconds = 14400)
-        cache.set("dgb_price_eur", str(dgb_price_eur), ttl_seconds = 14400)
-        cache.set("dgb_price_gbp", str(dgb_price_gbp), ttl_seconds = 14400)
-        cache.set("dgb_price_sats", str(dgb_price_sats), ttl_seconds = 14400)
-        cache.set("dgb_price_usd", str(dgb_price_usd), ttl_seconds = 14400)
+        cache.set("dgb_price_aud", str(dgb_price_aud), ttl_seconds = 600)
+        cache.set("dgb_price_cad", str(dgb_price_cad), ttl_seconds = 600)
+        cache.set("dgb_price_eur", str(dgb_price_eur), ttl_seconds = 600)
+        cache.set("dgb_price_gbp", str(dgb_price_gbp), ttl_seconds = 600)
+        cache.set("dgb_price_sats", str(dgb_price_sats), ttl_seconds = 600)
+        cache.set("dgb_price_usd", str(dgb_price_usd), ttl_seconds = 600)
 
     #Setup price display variable
     display_vec = []
