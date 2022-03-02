@@ -49,8 +49,8 @@ def main(config):
         print("Hit! Displaying cached data.")
         vallis = wf_vallis_cached
     else:
-        REFRESH_CACHE = True    
-    
+        REFRESH_CACHE = True
+
     if REFRESH_CACHE == True:
         rep = http.get(WF_STATUS_URL)
         if rep.status_code != 200:
@@ -61,66 +61,66 @@ def main(config):
         cetusremaining = rep.json()["cetusCycle"]["timeLeft"].split()
         for part in cetusremaining:
             if "s" in part:
-                cetustime["s"] = int(part.replace('s',''))
+                cetustime["s"] = int(part.replace("s", ""))
             if "m" in part:
-                cetustime["m"] = int(part.replace('m',''))
+                cetustime["m"] = int(part.replace("m", ""))
             if "h" in part:
-                cetustime["h"] = int(part.replace('h',''))
+                cetustime["h"] = int(part.replace("h", ""))
         cetusremaining = time_dict_conversion(cetustime)
         cetus = "%s - %s" % (cetusremaining, cetusactive)
-        cache.set("wf_cetus_cached", str(cetus), ttl_seconds=60)
+        cache.set("wf_cetus_cached", str(cetus), ttl_seconds = 60)
 
         earthtime = {}
         earthactive = rep.json()["earthCycle"]["state"].title()
         earthremaining = rep.json()["earthCycle"]["timeLeft"].split()
         for part in earthremaining:
             if "s" in part:
-                earthtime["s"] = int(part.replace('s',''))
+                earthtime["s"] = int(part.replace("s", ""))
             if "m" in part:
-                earthtime["m"] = int(part.replace('m',''))
+                earthtime["m"] = int(part.replace("m", ""))
             if "h" in part:
-                earthtime["h"] = int(part.replace('h',''))
+                earthtime["h"] = int(part.replace("h", ""))
         earthremaining = time_dict_conversion(earthtime)
         earth = "%s - %s" % (earthremaining, earthactive)
-        cache.set("wf_earth_cached", str(earth), ttl_seconds=60)
+        cache.set("wf_earth_cached", str(earth), ttl_seconds = 60)
 
         cambiontime = {}
         cambionactive = rep.json()["cambionCycle"]["active"].title()
         cambionremaining = rep.json()["cambionCycle"]["timeLeft"].split()
         for part in cambionremaining:
             if "s" in part:
-                cambiontime["s"] = int(part.replace('s',''))
+                cambiontime["s"] = int(part.replace("s", ""))
             if "m" in part:
-                cambiontime["m"] = int(part.replace('m',''))
+                cambiontime["m"] = int(part.replace("m", ""))
             if "h" in part:
-                cambiontime["h"] = int(part.replace('h',''))
+                cambiontime["h"] = int(part.replace("h", ""))
         cambionremaining = time_dict_conversion(cambiontime)
         cambion = "%s - %s" % (cambionremaining, cambionactive)
-        cache.set("wf_cambion_cached", str(cambion), ttl_seconds=60)
+        cache.set("wf_cambion_cached", str(cambion), ttl_seconds = 60)
 
         vallistime = {}
         vallisactive = rep.json()["vallisCycle"]["state"].title()
         vallisremaining = rep.json()["vallisCycle"]["timeLeft"].split()
         for part in vallisremaining:
             if "s" in part:
-                vallistime["s"] = int(part.replace('s',''))
+                vallistime["s"] = int(part.replace("s", ""))
             if "m" in part:
-                vallistime["m"] = int(part.replace('m',''))
+                vallistime["m"] = int(part.replace("m", ""))
             if "h" in part:
-                vallistime["h"] = int(part.replace('h',''))
+                vallistime["h"] = int(part.replace("h", ""))
         vallisremaining = time_dict_conversion(vallistime)
         vallis = "%s - %s" % (vallisremaining, vallisactive)
-        cache.set("wf_vallis_cached", str(vallis), ttl_seconds=60)
+        cache.set("wf_vallis_cached", str(vallis), ttl_seconds = 60)
 
     return render.Root(
-       child = render.Column(
-                children = [
-                    render.Text("C: %s" % cetus),
-                    render.Text("E: %s" % earth),
-                    render.Text("D: %s" % cambion),
-                    render.Text("V: %s" % vallis),
-                ],
-                ),
+        child = render.Column(
+            children = [
+                render.Text("C: %s" % cetus),
+                render.Text("E: %s" % earth),
+                render.Text("D: %s" % cambion),
+                render.Text("V: %s" % vallis),
+            ],
+        ),
     )
 
 def get_schema():
