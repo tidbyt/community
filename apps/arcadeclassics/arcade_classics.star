@@ -11,9 +11,6 @@ load("schema.star", "schema")
 load("time.star", "time")
 load("math.star", "math")
 
-# the amount of time before a new sequence is generated
-SEED_GRANULARITY = 60 * 1  # 1 minute
-
 FRAME_WIDTH = 64
 FRAME_HEIGHT = 32
 
