@@ -1,5 +1,5 @@
 // Package path-train-schedule provides details for the Path Train applet.
-package bgghotness
+package path-train-schedule
 
 import (
 	_ "embed"
