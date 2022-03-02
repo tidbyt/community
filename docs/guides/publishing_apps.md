@@ -1,7 +1,7 @@
 # Publishing Apps
 So pumped you're here and want to publish an app! If you haven't done so already, check out our [contributing guide](../CONTRIBUTING.md) and our guide on [app philosophy](app_philosophy.md) to get a better sense of what you're getting yourself into. You'll also want to check out the guide on [authoring apps](https://github.com/tidbyt/pixlet/blob/main/docs/authoring_apps.md) in the pixlet repo to get a better sense of how everything works together.
 
-One final note before we hop in - you may want to check out the [schema docs](https://github.com/tidbyt/pixlet/blob/main/docs/schema.md) if you haven't already. Schema allows you to display options inside of the Tidbyt mobile app so the user can configure your starlark applet.
+One final note before we hop in - you may want to check out the [schema docs](https://github.com/tidbyt/pixlet/blob/main/docs/schema/schema.md) if you haven't already. Schema allows you to display options inside of the Tidbyt mobile app so the user can configure your starlark applet.
 
 ## Prerequisites
 Make sure you have [go1.16](https://go.dev/) or later and `make` installed on your system.
@@ -38,9 +38,12 @@ Once created, edit `apps/{{appname}}/{{app_name}}.star` with your source code.
 
 - Enter `make --v` to check if it is already installed.
 
-### 5. Run `make app` via the terminal
+### 5. Generate the app template files
 
-Generate your app:
+- Run `make app` via the terminal
+
+This should be run from the 'community' repo folder on your local machine. (The folder containing the Makefile.)
+You will be prompted for the relevant information about your app and the required files and folders will be generated.
 
 ```
 $ make app
@@ -50,15 +53,12 @@ Description (what's the long form of what this app does?): Daily tide charts for
 Author (your name or your Github handle): Mark Spicer
 ```
 
-This should be run from the 'community' repo folder on your local machine. (The folder containing the Makefile.)
-You will be prompted for the relevant information about your app and the required files and folders will be generated:
+Please note:
+- **Name:** The App Name can contain spaces but should not have any numbers
+- **Summary:** This should be a VERY brief summary of what the app does. (27 characters or less!)
+- **Description:** This is a longer description of what the app does.
 
-Note:
-**Name:** The App Name can contain spaces but should not have any numbers
-**Summary:** This should be a VERY brief summary of what the app does. (27 characters or less!)
-**Description:** This is a longer description of what the app does.
-
-#### Example 
+#### Example App
 In this example, the fields map as follows:
 - **Name**: Fuzzy Clock
 - **Summary**: Human readable time
@@ -78,7 +78,11 @@ In this example, the fields map as follows:
 pixlet serve --watch apps/{{appname}}/{{app_name}}.star
 ```
 
-## 6. Making a PR
+### 6. Add a Readme File and screenshot to your app folder (Optional)
+
+By including a README.md file and screenshot in your app folder, you will make it easier for other developers to get a better sense of what your app does. See the example [here](https://github.com/tidbyt/community/tree/main/apps/digibyteprice).
+
+### 7. Making a PR
 
 Before submitting your app, run `make lint` from within the 'community' folder to check your code for errors.
 
