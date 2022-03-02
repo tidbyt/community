@@ -22,7 +22,7 @@ EXAMPLE_LOCATION = """
     "lng": "-73.931708"
 }
 """
-ENCRYPTED_API_KEY = "AV6+xWcEO4D+Eaj8daXafFDw3wdd6mXCdoXM4e31dPGK/CBog+fYSe07ORUjm4TdVGe4fWv5mPIbnY3dNYZNm93URlEL8KsmGsRGPTuNIP4uVnn/mvekUGBhzngbVldPA5cGY3zXt/Rbv325gs2DCbRvQUCb6qgovZMCp4WLz+/1GHn1CYmAT3zb"
+ENCRYPTED_API_KEY = "AV6+xWcEsr4R4d680czLc/RnfvU1ZpOx7ofrv0uAb8j7KoKa/Mw9Apbv6dfRFBPPu1oGMxIOSUhdEJV8IdBSwrRHvoOhfSPMmyYzcTJsSdDOoPT0p1KfvAcsyixqdCsYGJcif2+HL4W/qnX6X1hdDZV8pfaQzgswXFmvgnkoFPOWuL9dpc7drUDA"
 BUSTIME_STOP_TIMES_URL = "http://bustime.mta.info/api/siri/stop-monitoring.json"
 BUSTIME_STOP_INFO_URL = "http://bustime.mta.info/api/where/stop/%s.json"
 BUSTIME_STOPS_FOR_LOCATION_URL = "http://bustime.mta.info/api/where/stops-for-location.json"
