@@ -45,13 +45,14 @@ def round(minutes):
 
     return rounded, up
 
-def fuzzy_time(hours, minutes):
+def fuzzy_time(config, hours, minutes):
     glue = "PAST"
     rounded, up = round(minutes)
 
     if up:
         hours += 1
-        glue = "TIL"
+
+        glue = "TIL" if config.get("dialect") == "american" else "TO"
 
     # Handle 24 hour time.
     if hours > 12:
@@ -72,7 +73,7 @@ def main(config):
     timezone = loc.get("timezone", DEFAULT_TIMEZONE)
     now = time.now().in_location(timezone)
 
-    fuzzed = fuzzy_time(now.hour, now.minute)
+    fuzzed = fuzzy_time(config, now.hour, now.minute)
 
     # Add some left padding for ~style~.
     texts = [render.Text(" " * i + s) for i, s in enumerate(fuzzed)]
@@ -87,6 +88,17 @@ def main(config):
     )
 
 def get_schema():
+    dialectOptions = [
+        schema.Option(
+            display = "American English",
+            value = "american",
+        ),
+        schema.Option(
+            display = "British English",
+            value = "british",
+        ),
+    ]
+
     return schema.Schema(
         version = "1",
         fields = [
@@ -95,6 +107,14 @@ def get_schema():
                 name = "Location",
                 icon = "place",
                 desc = "Location for which to display time",
+            ),
+            schema.Dropdown(
+                id = "dialect",
+                name = "Dialect",
+                icon = "language",
+                desc = "British or American English",
+                default = dialectOptions[0].value,
+                options = dialectOptions,
             ),
         ],
     )
