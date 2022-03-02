@@ -24,6 +24,8 @@ PACMAN_ANIMATION = "pacman"
 SPACE_INVADERS_ANIMATION = "spaceinvaders"
 RANDOM_ANIMATION = "random"
 
+SECONDS_TO_RENDER = 15
+
 SPEED_ADJUST = {
     PACMAN_ANIMATION: 1,
     SPACE_INVADERS_ANIMATION: 10,
@@ -44,7 +46,7 @@ def main(config):
     speed = speed * SPEED_ADJUST[animation]
     delay = speed * time.millisecond
 
-    app_cycle_speed = 15 * time.second
+    app_cycle_speed = SECONDS_TO_RENDER * time.second
     num_frames = math.ceil(app_cycle_speed / delay)
 
     allFrames = []
