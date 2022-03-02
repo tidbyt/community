@@ -226,7 +226,7 @@ def main(config):
     destinationFull = config.get("destination")
     destinationJSON = json.decode(destinationFull) if destinationFull else DEFAULT_DESTINATION
     destination = "%s,%s" % (destinationJSON.get("lat"), destinationJSON.get("lng"))
-    apikey = secret.decrypt("AV6+xWcEKcu8TenAfiwgtgo9YdGTaE2bVJI2BT08Zvb9GZwzl8m6Pb2RudfILMRj0UH/pZaSh9tCFAlHzFwQ2CPaDcyLAEcuHcJYq6bMrMDuR2z7QjNCkaIvabOE9Db5lNwDqGv+yMr2QFWHffBxvwLWfqOOpDViS4KlLuFUwb/29V2dr/v6OBaEJz3w") or config.get("apikey") or ""
+    apikey = secret.decrypt("AV6+xWcEe+Z+u1tkOzpPxwiDwyS3AYWaC/WfxADDW7/dExL/oGfNbH914X2DlOn/OAvKJA0ozTXuhUN1/X8+JCbONjqNgYUtHh8avdG4/tTGeXwA01XDXAvxAHp/haUESF1vKpTRAmGdFk8VxYDNhnDh2Qnni2fVHIelVElrlfTUUATVAkQUpqPy97/U") or config.get("apikey") or ""
     transportationmode = TRANSPORTATION_MODES.get(config.get("transportationmode", "Car"))
     showDistance = config.bool("showDistance", False)
     distanceUnit = DISTANCE_UNIT.get(config.get("distanceUnit", "Kilometer"))

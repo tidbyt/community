@@ -7,8 +7,10 @@ package apps
 import (
 	"errors"
 
+	"tidbyt.dev/community/apps/MNLightRail"
 	"tidbyt.dev/community/apps/analogclock"
 	"tidbyt.dev/community/apps/analogtime"
+	"tidbyt.dev/community/apps/arcadeclassics"
 	"tidbyt.dev/community/apps/bgghotness"
 	"tidbyt.dev/community/apps/biblevotd"
 	"tidbyt.dev/community/apps/bigclock"
@@ -39,6 +41,7 @@ import (
 	"tidbyt.dev/community/apps/noaabuoy"
 	"tidbyt.dev/community/apps/nyancat"
 	"tidbyt.dev/community/apps/nycbus"
+	"tidbyt.dev/community/apps/ohhighwaysigns"
 	"tidbyt.dev/community/apps/pagerduty"
 	"tidbyt.dev/community/apps/phaseofmoon"
 	"tidbyt.dev/community/apps/pokedex"
@@ -49,14 +52,17 @@ import (
 	"tidbyt.dev/community/apps/theysaidso"
 	"tidbyt.dev/community/apps/twitterfollows"
 	"tidbyt.dev/community/apps/verticalmessage"
+	"tidbyt.dev/community/apps/weathermap"
 )
 
 // GetManifests returns a list of all apps in the this repository. Add your applet
 // below to include it in the Tidbyt Mobile app for all Tidbyt users.
 func GetManifests() []manifest.Manifest {
 	return []manifest.Manifest{
+		MNLightRail.New(),
 		analogclock.New(),
 		analogtime.New(),
+		arcadeclassics.New(),
 		bgghotness.New(),
 		biblevotd.New(),
 		bigclock.New(),
@@ -86,6 +92,7 @@ func GetManifests() []manifest.Manifest {
 		noaabuoy.New(),
 		nyancat.New(),
 		nycbus.New(),
+		ohhighwaysigns.New(),
 		pagerduty.New(),
 		phaseofmoon.New(),
 		pokedex.New(),
@@ -96,6 +103,7 @@ func GetManifests() []manifest.Manifest {
 		theysaidso.New(),
 		twitterfollows.New(),
 		verticalmessage.New(),
+		weathermap.New(),
 	}
 }
 

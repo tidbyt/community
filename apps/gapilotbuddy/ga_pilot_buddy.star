@@ -16,9 +16,9 @@ load("secret.star", "secret")
 load("time.star", "time")
 
 AVWX_TOKEN = """
-AV6+xWcEKYzxZW0GV208J4ciOKsI+MwdVGJX35e/kIX89A2rB+cgMBLvNxs11tmh3KhUL++yhf4+KpnQ
-EuosSejtSn9IROb4F0uHYRz+aTrj0j1SbFnC6goUT328pyxSBXZ1Lu0v1OhzFMVkUX4mlSYE+JZVhL0d
-ERwOTPhdbI2LkkAGyWiLyEeNVKvsLTKsLg==
+AV6+xWcExhV/86cLj2rRID9NtWmsaHrdquWQRdLMUDxsODRYS6rvPX++GlGbSkUtrxtHJGPdd+LaW62E
+3kNxH7j9KB1ey9CPUI/ez81m7FaV7uyLdie5CLoV9ri5gSJ91dGnQ6cUsI2bBci073rKHTpwi+JLZdXV
+0NkDAbU/WyV2nbl4cyJAwd20XI4XkBV5KA==
 """
 DEFAULT_LOCATION = """
 {

@@ -145,7 +145,7 @@ def render_bus_icon(id, name):
     Returns:
         A definition of what to render.
     """
-    is_xpress_bus = id[0] == "X"
+    is_xpress_bus = id[0] == "x"
     is_night_bus = len(id) == 3 and id[0] == "6"
     data = LINE_CONFIG.get("xpress_bus" if is_xpress_bus else "night_bus" if is_night_bus else "metro_bus", DEFAULT_BUS_CONFIG)
     image = data["image"]
