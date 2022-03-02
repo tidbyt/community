@@ -21,10 +21,8 @@ def time_dict_conversion(timedict):
     if timedict.get("h") == None and timedict.get("m") != None:
         if len(timedict["m"]) == 1:
             timedict["m"] = "0" + timedict["m"]
-        return "00:%s" % timedict["m"]
+        return "0:%s" % timedict["m"]
     else:
-        if len(timedict["h"]) == 1:
-            timedict["h"] = "0" + timedict["h"]
         if len(timedict["m"]) == 1:
             timedict["m"] = "0" + timedict["m"]
         return "%s:%s" % (timedict["h"], timedict["m"])
