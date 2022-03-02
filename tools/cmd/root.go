@@ -21,4 +21,5 @@ func Execute() error {
 
 func init() {
 	rootCmd.AddCommand(createCmd)
+	rootCmd.AddCommand(removeCmd)
 }
