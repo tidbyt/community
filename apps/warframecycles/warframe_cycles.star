@@ -135,7 +135,7 @@ def main(config):
                 ),
                 render.Text(
                     content = "V: %s" % vallis,
-                    font = "tb-8",    
+                    font = "tb-8",
                 ),
             ],
         ),
