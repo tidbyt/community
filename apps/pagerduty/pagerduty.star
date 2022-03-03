@@ -22,11 +22,11 @@ DEFAULT_SHOW_ICON = True
 DEFAULT_HIDE_WHEN_NOT_ONCALL = False
 
 PAGERDUTY_BASE_URL = "https://api.pagerduty.com"
-PAGERDUTY_CLIENT_ID = "703b64e6-0b2d-4c41-a627-237143138f2c"
+PAGERDUTY_CLIENT_ID = "85d49cda-f774-438e-9f13-12cf5b644dba"
 PAGERDUTY_CLIENT_SECRET = secret.decrypt("""
-AV6+xWcE5gWY+iJP9nCtJkcE7u4swgXsxS1LoCpFUeGLwge0ItolmYpucKB+Q3v3iRDc8pCw1+2tQHvM
-zdcO690Y5lRj94fuk5Oc+C2PEb26mthyhemakMvDcFlU+h12eZxbuJYn76nn5ersHUJ+9ec+j0xfqsVL
-BB/E0RQEYnXXp0z1PvmRCGCBVjYPqyv4oA==
+AV6+xWcEtYmJAnDtS6Eppriq/Rmq7bouK7h8Pbzq93fhw5UuGlS3/CGz+Iehxx9IIqsSWaTFw8ZSYtqe
+e7si79zwvaVujMsIxVaWikJl+lni6rYLiWE0uS4poSsLVuNnpl5JOpiAzVhzo+q5JCNuGukH188iMfw3
+suxf4nTNuaCKHMz/8sNhxqQZE1NuimjgRQ
 """)
 
 def Error(message = ""):
