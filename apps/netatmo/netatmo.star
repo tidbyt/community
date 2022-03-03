@@ -23,29 +23,28 @@ CLIENT_ID = "622106585db6d223df25fdf8"
 def main(config):
     refresh_token = config.get("auth")
     fahrenheit = config.bool("fahrenheit")
-    if refresh_token == None:
-        return render.Root(
-            child = render.Box(height = 1, width = 1),
+
+    if refresh_token:
+        access_token = cache.get(refresh_token)
+
+        if access_token == None:
+            access_token = get_access_token(refresh_token)
+
+        res = http.get(
+            url = "https://api.netatmo.com/api/getstationsdata",
+            headers = {
+                "Accept": "application/json",
+                "Authorization": "Bearer %s" % access_token,
+            },
         )
 
-    access_token = cache.get(refresh_token)
+        if res.status_code != 200:
+            fail("bad request for station infomation: %s %s" %
+                 (res.status_code, res.body()))
 
-    if access_token == None:
-        access_token = get_access_token(refresh_token)
-
-    res = http.get(
-        url = "https://api.netatmo.com/api/getstationsdata",
-        headers = {
-            "Accept": "application/json",
-            "Authorization": "Bearer %s" % access_token,
-        },
-    )
-
-    if res.status_code != 200:
-        fail("bad request for station infomation: %s %s" %
-             (res.status_code, res.body()))
-
-    body = res.json()
+        body = res.json()
+    else:
+        body = json.decode(EXAMPLE_DATA)
 
     indoor_module = body["body"]["devices"][0]
     outdoor_module = select_outdoor_module(indoor_module["modules"])
@@ -206,3 +205,103 @@ def get_schema():
             ),
         ],
     )
+
+EXAMPLE_DATA = """{
+  "body": {
+    "devices": [
+      {
+        "_id": "70:ee:50:22:aa:00",
+        "date_setup": 1435834348,
+        "last_setup": 1435834348,
+        "type": "NAMain",
+        "last_status_store": 1555677748,
+        "module_name": "Indoor",
+        "firmware": 137,
+        "last_upgrade": 1512405614,
+        "wifi_status": 55,
+        "reachable": true,
+        "co2_calibrating": false,
+        "station_name": "Casa",
+        "data_type": [
+          "string"
+        ],
+        "place": {
+          "timezone": "Africa/Lagos",
+          "country": "EG",
+          "altitude": 144,
+          "location": [
+            "30.89600807058707, 29.94281464724796"
+          ]
+        },
+        "read_only": true,
+        "home_id": "594xxxxxxxxxdb",
+        "home_name": "Home",
+        "dashboard_data": {
+          "time_utc": 1555677739,
+          "Temperature": 23.7,
+          "CO2": 967,
+          "Humidity": 41,
+          "Noise": 42,
+          "Pressure": 997.6,
+          "AbsolutePressure": 1017.4,
+          "min_temp": 21.2,
+          "max_temp": 27.4,
+          "date_min_temp": 1555631374,
+          "date_max_temp": 1555662436,
+          "temp_trend": "up",
+          "pressure_trend": "up"
+        },
+        "modules": [
+          {
+            "oneOf": [
+              {
+                "_id": "06:00:00:02:47:00",
+                "type": "NAModule4",
+                "module_name": "Indoor Module",
+                "data_type": [
+                  "Temperature, Humidity, CO2"
+                ],
+                "last_setup": 1435834348,
+                "reachable": true,
+                "dashboard_data": {
+                  "time_utc": 1555677739,
+                  "Temperature": 23.7,
+                  "CO2": 967,
+                  "Humidity": 41,
+                  "Pressure": 997.6,
+                  "AbsolutePressure": 1017.4,
+                  "min_temp": 21.2,
+                  "max_temp": 27.4,
+                  "date_min_temp": 1555631374,
+                  "date_max_temp": 1555662436,
+                  "temp_trend": "up"
+                },
+                "firmware": 19,
+                "last_message": 1555677746,
+                "last_seen": 1555677746,
+                "rf_status": 31,
+                "battery_vp": 5148,
+                "battery_percent": 58
+              }
+            ]
+          }
+        ]
+      }
+    ],
+    "user": {
+      "mail": "name@mail.com",
+      "administrative": {
+        "reg_locale": "fr-FR",
+        "lang": "fr-FR",
+        "country": "FR",
+        "unit": 0,
+        "windunit": 0,
+        "pressureunit": 0,
+        "feel_like_algo": 0
+      }
+    }
+  },
+  "status": "ok",
+  "time_exec": "0.060059070587158",
+  "time_server": "1553777827"
+}"""
