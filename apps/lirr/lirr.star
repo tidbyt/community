@@ -103,7 +103,7 @@ def display_time(time_string):
     return time_obj.format("03:04 PM")
 
 def now():
-    tim = time.now()
+    tim = time.now().in_location("America/New_York")
     return {"time": (tim.hour * 3600) + (tim.minute * 60) + tim.second, "date": tim.year * 10000 + tim.month * 100 + tim.day, "timeObj": tim}
 
 def prevDay(cur_date):
@@ -160,8 +160,16 @@ def get_stations(loc):
     for stop in stops.values():
         delt = math.fabs(float(stop["stop_lat"]) - float(location["lat"])) + math.fabs(float(stop["stop_lon"]) - float(location["lng"]))
         if delt < DELTA:
-            closeStops.append(schema.Option(display = stop["stop_name"], value = stop["stop_id"]))
-    return closeStops
+            stop["delta"] = delt
+            closeStops.append(stop)
+    sortedStops = sorted(closeStops, key = get_delta)
+    options = []
+    for stop in sortedStops:
+        options.append(schema.Option(display = stop["stop_name"], value = stop["stop_id"]))
+    return options
+
+def get_delta(stop):
+    return stop["delta"]
 
 def get_gtfs():
     cached = cache.get(STATIC_GTFS_FILE)
