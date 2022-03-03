@@ -26,7 +26,7 @@ PAGERDUTY_CLIENT_ID = "85d49cda-f774-438e-9f13-12cf5b644dba"
 PAGERDUTY_CLIENT_SECRET = secret.decrypt("""
 AV6+xWcEtYmJAnDtS6Eppriq/Rmq7bouK7h8Pbzq93fhw5UuGlS3/CGz+Iehxx9IIqsSWaTFw8ZSYtqe
 e7si79zwvaVujMsIxVaWikJl+lni6rYLiWE0uS4poSsLVuNnpl5JOpiAzVhzo+q5JCNuGukH188iMfw3
-suxf4nTNuaCKHMz/8sNhxqQZE1NuimjgRQ
+suxf4nTNuaCKHMz/8sNhxqQZE1NuimjgRQ==
 """)
 
 def Error(message = ""):
