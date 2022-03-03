@@ -11,7 +11,7 @@ print(" ---------------------------------- NIXEL CLOCK -------------------------
 
 load("render.star", "render")
 load("schema.star", "schema")
-load("time.star", "time") 
+load("time.star", "time")
 load("encoding/base64.star", "base64")
 load("encoding/json.star", "json")
 
@@ -97,7 +97,6 @@ SEP_ROUND_DARKER = base64.decode("""
 iVBORw0KGgoAAAANSUhEUgAAAAQAAAAPCAIAAABMVPnqAAAACXBIWXMAAAsTAAALEwEAmpwYAAAAc0lEQVQImWNgIAowe7EzTTYQcmL89/vXf5Z4EU7LdSEMDAyaSZuZtF3lIWp4ZQUYvdiZQoRZpSR5ljxmRDVBlolxnyLP+z49PUZmloXy3MYHohkYGA4yMDDpJWhClPz9zM6gx8i8w1j4TaNpjJgIcU5jAAAZ1xd6tVu1oAAAAABJRU5ErkJggg==
 """)
 
-
 # Tall (Brighter) Numbers Images
 NUMBER_IMGS_TALL_BRIGHTER = [
     """
@@ -177,7 +176,6 @@ iVBORw0KGgoAAAANSUhEUgAAAAQAAAAPCAIAAABMVPnqAAAACXBIWXMAAAsTAAALEwEAmpwYAAAAcklE
 DEGREE = 0.01745329251
 
 def get_schema():
-
     styleoptions = [
         schema.Option(
             display = "Round (Darker)",
@@ -232,7 +230,6 @@ def get_schema():
         ],
     )
 
-
 def main(config):
     # Get the current time in 24 hour format
     timezone = config.get("$tz", DEFAULT_TIMEZONE)  # Utilize special timezone variable
@@ -265,8 +262,7 @@ def main(config):
         SEP = SEP_TALL_BRIGHTER
 
     # troubleshooting....
-#    print("NUMBER_IMGS = " + NUMBER_IMGS)
-
+    #    print("NUMBER_IMGS = " + NUMBER_IMGS)
 
     frames = []
     print_time = current_time
@@ -295,7 +291,6 @@ def main(config):
                 frames.append(get_time_image(print_time, NUMBER_IMGS, SEP, is_24_hour_format = is_24_hour_format, has_leading_zero = has_leading_zero, has_seperator = has_seperator))
         print_time = print_time + time.minute
 
-
     return render.Root(
         delay = 500,  # in milliseconds
         child = render.Box(
@@ -305,12 +300,10 @@ def main(config):
         ),
     )
 
-
 # It would be easier to use a custom font, but we can use images instead.
 # The images have a black background and transparent foreground. This
 # allows us to change the color dynamically.
 def get_num_image(num, NUMBER_IMGS):
-
     return render.Box(
         width = 15,
         height = 32,
