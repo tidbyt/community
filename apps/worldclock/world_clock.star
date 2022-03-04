@@ -8,6 +8,7 @@ Author: Elliot Bentley
 load("render.star", "render")
 load("time.star", "time")
 load("schema.star", "schema")
+load("encoding/json.star", "json")
 
 number_font = "tom-thumb"
 font = "tom-thumb"
@@ -15,9 +16,9 @@ font = "tom-thumb"
 def main(config):
     if (config.get("location_1")):
         locations = [
-            config.get("location_1"),
-            config.get("location_2"),
-            config.get("location_3"),
+            json.decode(config.get("location_1")),
+            json.decode(config.get("location_2")),
+            json.decode(config.get("location_3")),
         ]
     else:
         locations = [
