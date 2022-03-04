@@ -16,7 +16,7 @@ func New() manifest.Manifest {
 		ID:          "nixel-clock",
 		Name:        "Nixel Clock",
 		Author:      "Olly Stedall @saltedlolly",
-		Summary:     "A Pixel Nixie Clock!",
+		Summary:     "A Pixel Nixie Clock",
 		Desc:        "Nixie Tube Clock + Pixels = Nixel Clock!",
 		FileName:    "nixel_clock.star",
 		PackageName: "nixelclock",
