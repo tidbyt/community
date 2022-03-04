@@ -64,6 +64,16 @@ COLOR_SCHEMES = [
 ]
 DEFAULT_COLOR_SCHEME = COLOR_SCHEMES[1]
 
+# A list of delays to choose from.
+FRAME_DELAYS = [
+    schema.Option(display = "100 ms", value = "100"),
+    schema.Option(display = "250 ms", value = "250"),
+    schema.Option(display = "500 ms", value = "500"),
+    schema.Option(display = "750 ms", value = "750"),
+    schema.Option(display = "1 s", value = "1000"),
+]
+DEFAULT_FRAME_DELAY = FRAME_DELAYS[1]
+
 # A list of supported time formats and the corresponding layout strings.
 TIME_FORMATS = [
     schema.Option(
@@ -206,8 +216,11 @@ def render_frame(frame, image, opts):
     Returns:
         A definition of the frame to render.
     """
+    location = getattr(opts, "location")
     time_format = getattr(opts, "time_format")
-    time_str = time.from_timestamp(int(frame["time"])).format(time_format)
+    time_utc = time.from_timestamp(int(frame["time"]))
+    time_in_location = time_utc.in_location(location["timezone"])
+    time_str = time_in_location.format(time_format)
     zoom_level = getattr(opts, "zoom_level")
     (km, mi) = get_zoom_level_size(zoom_level)
     unit_format = getattr(opts, "unit_format")
@@ -350,6 +363,7 @@ def main(config):
         location = json.decode(config.get("location", DEFAULT_LOCATION)),
         zoom_level = int(config.get("zoom_level", DEFAULT_ZOOM_LEVEL.value)),
         color_scheme = int(config.get("color_scheme", DEFAULT_COLOR_SCHEME.value)),
+        frame_delay = int(config.get("frame_delay", DEFAULT_FRAME_DELAY.value)),
         time_format = config.get("time_format", DEFAULT_TIME_FORMAT.value),
         unit_format = config.get("unit_format", DEFAULT_UNIT_FORMAT.value),
         snow = "1" if config.bool("snow") else "0",
@@ -367,7 +381,7 @@ def main(config):
 
     return render.Root(
         child = render.Animation(children = frames),
-        delay = 1000,
+        delay = getattr(opts, "frame_delay"),
     )
 
 def get_schema():
@@ -395,6 +409,14 @@ def get_schema():
                 icon = "palette",
                 default = DEFAULT_COLOR_SCHEME.value,
                 options = COLOR_SCHEMES,
+            ),
+            schema.Dropdown(
+                id = "frame_delay",
+                name = "Speed",
+                desc = "Pick a delay between frames.",
+                icon = "stopwatch",
+                default = DEFAULT_FRAME_DELAY.value,
+                options = FRAME_DELAYS,
             ),
             schema.Dropdown(
                 id = "time_format",
