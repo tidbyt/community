@@ -55,6 +55,7 @@ import (
 	"tidbyt.dev/community/apps/theysaidso"
 	"tidbyt.dev/community/apps/twitterfollows"
 	"tidbyt.dev/community/apps/verticalmessage"
+	"tidbyt.dev/community/apps/warframecycles"
 	"tidbyt.dev/community/apps/weathermap"
 	"tidbyt.dev/community/apps/worldclock"
 )
@@ -112,6 +113,7 @@ func GetManifests() []manifest.Manifest {
 		verticalmessage.New(),
 		weathermap.New(),
 		worldclock.New(),
+		warframecycles.New(),
 	}
 }
 
