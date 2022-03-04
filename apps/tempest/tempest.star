@@ -79,7 +79,7 @@ def main(config):
         conditions["wind_avg"],
         units["units_wind"],
     )
-    pressure = "%g" % conditions["station_pressure"]
+    pressure = "%g" % conditions["sea_level_pressure"]
 
     icon = base64.decode(ICON_MAP.get(conditions["icon"], ICON_MAP["cloudy"]))
 
