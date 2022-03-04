@@ -50,6 +50,7 @@ import (
 	"tidbyt.dev/community/apps/sbbtimetable"
 	"tidbyt.dev/community/apps/sportsscores"
 	"tidbyt.dev/community/apps/sportsstandings"
+	"tidbyt.dev/community/apps/spotthestation"
 	"tidbyt.dev/community/apps/steam"
 	"tidbyt.dev/community/apps/sunrisesunset"
 	"tidbyt.dev/community/apps/theysaidso"
@@ -105,6 +106,7 @@ func GetManifests() []manifest.Manifest {
 		sbbtimetable.New(),
 		sportsscores.New(),
 		sportsstandings.New(),
+		spotthestation.New(),
 		steam.New(),
 		sunrisesunset.New(),
 		theysaidso.New(),
