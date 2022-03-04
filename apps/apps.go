@@ -38,6 +38,7 @@ import (
 	"tidbyt.dev/community/apps/netatmo"
 	"tidbyt.dev/community/apps/nft"
 	"tidbyt.dev/community/apps/nightscout"
+	"tidbyt.dev/community/apps/nixelclock"
 	"tidbyt.dev/community/apps/noaabuoy"
 	"tidbyt.dev/community/apps/nyancat"
 	"tidbyt.dev/community/apps/nycbus"
@@ -92,6 +93,7 @@ func GetManifests() []manifest.Manifest {
 		netatmo.New(),
 		nft.New(),
 		nightscout.New(),
+		nixelclock.New(),
 		noaabuoy.New(),
 		nyancat.New(),
 		nycbus.New(),
