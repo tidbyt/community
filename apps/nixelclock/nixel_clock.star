@@ -195,34 +195,34 @@ def get_schema():
     return schema.Schema(
         version = "1",
         fields = [
-            schema.Toggle(
-                id = "is_24_hour_format",
-                name = "24 hour format",
-                icon = "clock",
-                desc = "Toggle between 12hr and 24hr clock.",
-                default = DEFAULT_IS_24_HOUR_FORMAT,
-            ),
-            schema.Toggle(
-                id = "has_leading_zero",
-                name = "Toggle leading zero",
-                icon = "creativeCommonsZero",
-                desc = "Enable/disable displaying a leading zero.",
-                default = DEFAULT_HAS_LEADING_ZERO,
-            ),
-            schema.Toggle(
-                id = "has_flashing_seperator",
-                name = "Toggle flashing separator",
-                icon = "cog",
-                desc = "Enable/disable the flashing number seperator.",
-                default = DEFAULT_HAS_FLASHING_SEPERATOR,
-            ),
             schema.Dropdown(
                 id = "clock_style",
                 name = "Clock style",
                 icon = "cog",
-                desc = "Switch to a diferent clock style.",
+                desc = "Change current clock style.",
                 default = styleoptions[0].value,
                 options = styleoptions,
+            ),
+            schema.Toggle(
+                id = "is_24_hour_format",
+                name = "24 hour format",
+                icon = "clock",
+                desc = "Toggle between 12/24hr clock.",
+                default = DEFAULT_IS_24_HOUR_FORMAT,
+            ),
+            schema.Toggle(
+                id = "has_leading_zero",
+                name = "Leading zero",
+                icon = "creativeCommonsZero",
+                desc = "Show/hide leading zero.",
+                default = DEFAULT_HAS_LEADING_ZERO,
+            ),
+            schema.Toggle(
+                id = "has_flashing_seperator",
+                name = "Flashing separator",
+                icon = "cog",
+                desc = "Enable/disable flashing number seperator.",
+                default = DEFAULT_HAS_FLASHING_SEPERATOR,
             ),
         ],
     )
