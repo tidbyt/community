@@ -4,11 +4,12 @@ Summary: Next ISS visit overhead
 Description: Displays the next time the International Space Station will appear.
 Author: Robert Ison
 """
+
 load("render.star", "render")
-load("http.star", "http") #HTTP Client
-load("encoding/base64.star", "base64") #Used to read encoded image
-load("xpath.star", "xpath") #XPath Expressions
-load("cache.star", "cache") #Caching
+load("http.star", "http")  #HTTP Client
+load("encoding/base64.star", "base64")  #Used to read encoded image
+load("xpath.star", "xpath")  #XPath Expressions
+load("cache.star", "cache")  #Caching
 load("schema.star", "schema")
 
 #Requires the RSS feed for your location from spotthestation.nasa.gov
@@ -34,7 +35,7 @@ def main(config):
     issxmlBody = cache.get("issxml_cache")
     if issxmlBody == None:
         print("Loading New XML Data")
-        issxml = http.get(ISS_FLYBY_XML_URL)                        
+        issxml = http.get(ISS_FLYBY_XML_URL)
         if issxml.status_code != 200:
             print("Error Getting ISS Flyby Data")
         else:
@@ -48,26 +49,26 @@ def main(config):
         data_string = None
     else:
         data_string = xpath.loads(issxmlBody).query("/rss/channel/item/description")
-        location = xpath.loads(issxmlBody).query("/rss/channel/description").replace("Satellite Sightings Information for ","")
- 
+        location = xpath.loads(issxmlBody).query("/rss/channel/description").replace("Satellite Sightings Information for ", "")
+
     if data_string == None:
-        data_string = "None" 
+        data_string = "None"
         row1 = "Error getting Data from spotTheStation.nasa.gov"
     else:
-        data_string = data_string.split('<br/>')
+        data_string = data_string.split("<br/>")
         i = 0
         for item in data_string:
-            i+=1
-            item = item.replace("\n","").replace("\t","")
+            i += 1
+            item = item.replace("\n", "").replace("\t", "")
             if len(item) != 0:
-                print (len(item), i, item)
-            
+                print(len(item), i, item)
+
             if (i < 2):
-                row2 += item.replace("Date: ","").replace("Monday","Mon").replace("Tuesday","Tue").replace("Wednesday","Wed").replace("Thursday","Thu").replace("Friday","Fri").replace("Saturday","Sat").replace("Sunday","Sun").replace(", 20"," '")
+                row2 += item.replace("Date: ", "").replace("Monday", "Mon").replace("Tuesday", "Tue").replace("Wednesday", "Wed").replace("Thursday", "Thu").replace("Friday", "Fri").replace("Saturday", "Sat").replace("Sunday", "Sun").replace(", 20", " '")
             elif (i < 3):
-                row1 += item.replace("Time: ","")
+                row1 += item.replace("Time: ", "")
             else:
-                row3 += item.replace("Duration: ","").replace("Maximum", "Max").replace("Departure","Depart.").replace("minute","min")
+                row3 += item.replace("Duration: ", "").replace("Maximum", "Max").replace("Departure", "Depart.").replace("minute", "min")
 
     return render.Root(
         child = render.Column(
@@ -76,30 +77,30 @@ def main(config):
                     children = [
                         render.Row(
                             children = [
-                                render.Image(src=ISS_ICON),
+                                render.Image(src = ISS_ICON),
                                 render.Column(
                                     children = [
                                         render.Marquee(
                                             width = 48,
-                                            child = render.Text(location, color="#0b3d91"),
-                                        ),                                
+                                            child = render.Text(location, color = "#0b3d91"),
+                                        ),
                                         render.Marquee(
                                             width = 35,
-                                            child = render.Text(row1, color="#fff"),
+                                            child = render.Text(row1, color = "#fff"),
                                         ),
                                     ],
-                                )
-                            ]
+                                ),
+                            ],
                         ),
                     ],
                 ),
                 render.Marquee(
                     width = 64,
-                    child = render.Text(row2, color="#fff"),
+                    child = render.Text(row2, color = "#fff"),
                 ),
                 render.Marquee(
                     width = 64,
-                    child = render.Text(row3, color="#ff0"),
+                    child = render.Text(row3, color = "#ff0"),
                 ),
             ],
         ),
@@ -113,8 +114,8 @@ def get_schema():
                 id = "SpotTheStationRSS",
                 name = "Spot the Station RSS",
                 icon = "location",
-                desc = "Go to spotthestation.nasa.gov Use the map tool to find the nearest location, click the blue marker then 'View sighting opportunities' then get the RSS feed URL"
-#From this page click "RSS" to get the needed XML Feed for your location",
+                desc = "Go to spotthestation.nasa.gov Use the map tool to find the nearest location, click the blue marker then 'View sighting opportunities' then get the RSS feed URL",
+                #From this page click "RSS" to get the needed XML Feed for your location",
             ),
         ],
     )
