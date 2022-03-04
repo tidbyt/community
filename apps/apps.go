@@ -52,6 +52,7 @@ import (
 	"tidbyt.dev/community/apps/sportsstandings"
 	"tidbyt.dev/community/apps/steam"
 	"tidbyt.dev/community/apps/sunrisesunset"
+	"tidbyt.dev/community/apps/tempest"
 	"tidbyt.dev/community/apps/theysaidso"
 	"tidbyt.dev/community/apps/twitterfollows"
 	"tidbyt.dev/community/apps/verticalmessage"
@@ -107,6 +108,7 @@ func GetManifests() []manifest.Manifest {
 		sportsstandings.New(),
 		steam.New(),
 		sunrisesunset.New(),
+		tempest.New(),
 		theysaidso.New(),
 		twitterfollows.New(),
 		verticalmessage.New(),
