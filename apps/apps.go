@@ -9,42 +9,56 @@ import (
 
 	"tidbyt.dev/community/apps/analogclock"
 	"tidbyt.dev/community/apps/analogtime"
+	"tidbyt.dev/community/apps/arcadeclassics"
 	"tidbyt.dev/community/apps/bgghotness"
+	"tidbyt.dev/community/apps/biblevotd"
 	"tidbyt.dev/community/apps/bigclock"
 	"tidbyt.dev/community/apps/binaryclock"
 	"tidbyt.dev/community/apps/clockbyhenry"
 	"tidbyt.dev/community/apps/dateprogress"
 	"tidbyt.dev/community/apps/datetimeclock"
 	"tidbyt.dev/community/apps/daynightmap"
+	"tidbyt.dev/community/apps/digibyteprice"
 	"tidbyt.dev/community/apps/digitalrain"
 	"tidbyt.dev/community/apps/dvdlogo"
 	"tidbyt.dev/community/apps/espnnews"
 	"tidbyt.dev/community/apps/fishbyt"
 	"tidbyt.dev/community/apps/fuzzyclock"
 	"tidbyt.dev/community/apps/gapilotbuddy"
-	"tidbyt.dev/community/apps/googletraffic"
 	"tidbyt.dev/community/apps/hvvdepartures"
 	"tidbyt.dev/community/apps/isstracker"
 	"tidbyt.dev/community/apps/jokesjokeapi"
+	"tidbyt.dev/community/apps/lirr"
 	"tidbyt.dev/community/apps/manifest"
 	"tidbyt.dev/community/apps/mbta"
+	"tidbyt.dev/community/apps/mnlightrail"
 	"tidbyt.dev/community/apps/nationaltoday"
 	"tidbyt.dev/community/apps/nearearthobjs"
+	"tidbyt.dev/community/apps/netatmo"
 	"tidbyt.dev/community/apps/nft"
 	"tidbyt.dev/community/apps/nightscout"
+	"tidbyt.dev/community/apps/nixelclock"
 	"tidbyt.dev/community/apps/noaabuoy"
 	"tidbyt.dev/community/apps/nyancat"
 	"tidbyt.dev/community/apps/nycbus"
+	"tidbyt.dev/community/apps/ohhighwaysigns"
 	"tidbyt.dev/community/apps/pagerduty"
+	"tidbyt.dev/community/apps/pathtrainschedule"
 	"tidbyt.dev/community/apps/phaseofmoon"
 	"tidbyt.dev/community/apps/pokedex"
 	"tidbyt.dev/community/apps/sbbtimetable"
+	"tidbyt.dev/community/apps/sportsscores"
 	"tidbyt.dev/community/apps/sportsstandings"
+	"tidbyt.dev/community/apps/spotthestation"
 	"tidbyt.dev/community/apps/steam"
 	"tidbyt.dev/community/apps/sunrisesunset"
+	"tidbyt.dev/community/apps/tempest"
 	"tidbyt.dev/community/apps/theysaidso"
 	"tidbyt.dev/community/apps/twitterfollows"
 	"tidbyt.dev/community/apps/verticalmessage"
+	"tidbyt.dev/community/apps/warframecycles"
+	"tidbyt.dev/community/apps/weathermap"
+	"tidbyt.dev/community/apps/worldclock"
 )
 
 // GetManifests returns a list of all apps in the this repository. Add your applet
@@ -53,41 +67,55 @@ func GetManifests() []manifest.Manifest {
 	return []manifest.Manifest{
 		analogclock.New(),
 		analogtime.New(),
+		arcadeclassics.New(),
 		bgghotness.New(),
+		biblevotd.New(),
 		bigclock.New(),
 		binaryclock.New(),
 		clockbyhenry.New(),
 		dateprogress.New(),
 		datetimeclock.New(),
 		daynightmap.New(),
+		digibyteprice.New(),
 		digitalrain.New(),
 		dvdlogo.New(),
 		espnnews.New(),
 		fishbyt.New(),
 		fuzzyclock.New(),
 		gapilotbuddy.New(),
-		googletraffic.New(),
 		hvvdepartures.New(),
 		isstracker.New(),
 		jokesjokeapi.New(),
+		lirr.New(),
 		mbta.New(),
+		mnlightrail.New(),
 		nationaltoday.New(),
 		nearearthobjs.New(),
+		netatmo.New(),
 		nft.New(),
 		nightscout.New(),
+		nixelclock.New(),
 		noaabuoy.New(),
 		nyancat.New(),
 		nycbus.New(),
+		ohhighwaysigns.New(),
 		pagerduty.New(),
+		pathtrainschedule.New(),
 		phaseofmoon.New(),
 		pokedex.New(),
 		sbbtimetable.New(),
+		sportsscores.New(),
 		sportsstandings.New(),
+		spotthestation.New(),
 		steam.New(),
 		sunrisesunset.New(),
+		tempest.New(),
 		theysaidso.New(),
 		twitterfollows.New(),
 		verticalmessage.New(),
+		weathermap.New(),
+		worldclock.New(),
+		warframecycles.New(),
 	}
 }
 

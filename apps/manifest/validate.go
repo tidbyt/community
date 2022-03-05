@@ -161,7 +161,7 @@ func ValidateID(id string) error {
 	}
 
 	if id != strings.ToLower(id) {
-		return fmt.Errorf("ids should be lower case")
+		return fmt.Errorf("ids should be lower case, %s != %s", id, strings.ToLower(id))
 	}
 
 	for _, r := range id {
