@@ -14,14 +14,7 @@ load("schema.star", "schema")
 load("secret.star", "secret")
 load("time.star", "time")
 
-EXAMPLE_STOP_NAME = "21 ST/BROADWAY - SW"
 EXAMPLE_STOP_CODE = "550685"
-EXAMPLE_LOCATION = """
-{
-    "lat": "40.765302",
-    "lng": "-73.931708"
-}
-"""
 ENCRYPTED_API_KEY = "AV6+xWcEsr4R4d680czLc/RnfvU1ZpOx7ofrv0uAb8j7KoKa/Mw9Apbv6dfRFBPPu1oGMxIOSUhdEJV8IdBSwrRHvoOhfSPMmyYzcTJsSdDOoPT0p1KfvAcsyixqdCsYGJcif2+HL4W/qnX6X1hdDZV8pfaQzgswXFmvgnkoFPOWuL9dpc7drUDA"
 BUSTIME_STOP_TIMES_URL = "http://bustime.mta.info/api/siri/stop-monitoring.json"
 BUSTIME_STOP_INFO_URL = "http://bustime.mta.info/api/where/stop/%s.json"
@@ -69,28 +62,53 @@ def get_stops(location):
 
 def main(config):
     api_key = secret.decrypt(ENCRYPTED_API_KEY) or config.get("api_key")
-    stop_code = config.get("stop_code", EXAMPLE_STOP_CODE)
+    stop_code = config.get("stop_code")
+    if stop_code == None:
+        stop_code = EXAMPLE_STOP_CODE
+    else:
+        stop_code = json.decode(stop_code)["value"]
 
     if api_key:
         journeys = get_journeys(api_key, stop_code)
     else:
         journeys = PREVIEW_DATA
 
-    first_journey = journeys[0]
-    second_journey = journeys[1]
+    if journeys == None or len(journeys) == 0:
+        return render.Root(
+            child = render.Column(
+                expanded = True,
+                main_align = "space_evenly",
+                children = [
+                    render.Marquee(
+                        width = 64,
+                        child = render.Text("No buses found"),
+                    ),
+                ],
+            ),
+        )
+
+    if len(journeys) == 1:
+        return render.Root(
+            child = render.Column(
+                expanded = True,
+                children = [
+                    build_row(journeys[0]),
+                ],
+            ),
+        )
 
     return render.Root(
         child = render.Column(
             expanded = True,
             main_align = "space_evenly",
             children = [
-                build_row(first_journey),
+                build_row(journeys[0]),
                 render.Box(
                     width = 64,
                     height = 1,
                     color = "#aaa",
                 ),
-                build_row(second_journey),
+                build_row(journeys[1]),
             ],
         ),
     )
@@ -131,10 +149,23 @@ def get_journeys(api_key, stop_code):
     if rep.status_code != 200:
         fail("MTA BusTime request failed with status %d", rep.status_code)
 
-    journeys = rep.json()["Siri"]["ServiceDelivery"]["StopMonitoringDelivery"][0]["MonitoredStopVisit"]
-    first_journey = build_journey(journeys[0]["MonitoredVehicleJourney"], api_key)
-    second_journey = build_journey(journeys[1]["MonitoredVehicleJourney"], api_key)
-    return [first_journey, second_journey]
+    json = rep.json()
+    deliveries = json["Siri"]["ServiceDelivery"]["StopMonitoringDelivery"]
+    if len(deliveries) > 0:
+        delivery = deliveries[0]
+    else:
+        print("No delivery found in response from API!")
+        print(deliveries)
+        delivery = None
+
+    if delivery != None and "MonitoredStopVisit" in delivery:
+        journeys = delivery["MonitoredStopVisit"]
+    else:
+        print("Delivery response invalid from API!")
+        print(delivery)
+        journeys = []
+
+    return [build_journey(journey["MonitoredVehicleJourney"], api_key) for journey in journeys[:2]]
 
 def build_journey(raw_journey, api_key):
     line_ref = raw_journey["LineRef"]
@@ -144,7 +175,7 @@ def build_journey(raw_journey, api_key):
     line_name = raw_journey["PublishedLineName"][0]
     destination_name = raw_journey["DestinationName"][0]
     eta = raw_journey["MonitoredCall"]["ExpectedArrivalTime"]
-    now = time.now()
+    now = time.now().in_location("America/New_York")
     eta_time = time.parse_time(eta)
     diff = eta_time - now
     diff_minutes = int(diff.minutes)
