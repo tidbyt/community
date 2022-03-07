@@ -19,19 +19,19 @@ load("encoding/base64.star", "base64")
 STRAVA_BASE = "https://www.strava.com/api/v3"
 CLIENT_ID = "48947"
 OAUTH2_CLIENT_SECRET = secret.decrypt("AV6+xWcEEKTdPxzqIIIEEQf6NY19IjtTDp+J6ELb2u9HK2bkmpkCMM/Z1o9U9/9zECzSqWzEVXeZgAOTHBUGyZ6iP75XTtQzS9SxbaIbgjC55justcT5nsgA4GwzxFphYKMSkuO9YnbUVAvyCCSKAmUe2l+bi5mPldcql6Mmi+j475iEKJerQ40wJ9OB7Q==")
-DEFAULT_UNITS = 'imperial'
-DEFAULT_SPORT = 'ride'
-DEFAULT_PERIOD = 'all'
+DEFAULT_UNITS = "imperial"
+DEFAULT_SPORT = "ride"
+DEFAULT_PERIOD = "all"
 
 PREVIEW_DATA = {
-    'count': 108,
-    'distance': 56159815,
-    'moving_time': 2318919,
-    'elapsed_time': 2615958,
-    'elevation_gain': 11800,
+    "count": 108,
+    "distance": 56159815,
+    "moving_time": 2318919,
+    "elapsed_time": 2615958,
+    "elevation_gain": 11800,
 }
 
-GLOBAL_CACHE_PREFIX = 'strava_'
+GLOBAL_CACHE_PREFIX = "strava_"
 CACHE_TTL = 60 * 60 * 1  # updates once hourly
 
 STRAVA_ICON = base64.decode("""
@@ -81,48 +81,46 @@ jZCAAeN0X/v+8M56REZ86kKJPO+IY+DwWMYAV/g9X+g+iGVfeQ9EIUggziBGkCKYAnQ1SxPehng
 Gr1eimwzTjdSOy+wFaLiTvmqj9hwAAAABJRU5ErkJggg==
 """)
 
-
 def main(config):
-
     token = config.get("auth")
-    client_secret = OAUTH2_CLIENT_SECRET or 'e70fc23eca9f1156f7a3bf94fca7608e104542c9 '
+    client_secret = OAUTH2_CLIENT_SECRET or config.get('dev_api_secret')
     access_token = cache.get(GLOBAL_CACHE_PREFIX + "access_token")
     refresh_token = cache.get(GLOBAL_CACHE_PREFIX + "refresh_token")
 
     if not token:
-        print('No authorized user found')
-        return display_failure('No user logged in - please check your applet settings')
+        print("No authorized user found")
+        return display_failure("No user logged in - please check your applet settings")
 
     if not access_token:
-        print('Generating new access token')
+        print("Generating new access token")
         access_token = get_access_token(token, client_secret)
 
     headers = {
-        'Authorization': 'Bearer %s' % access_token
+        "Authorization": "Bearer %s" % access_token
     }
 
     timezone = config.get("timezone") or "America/New_York"
     year = time.now().in_location(timezone).year
-    sport = config.get('sport', DEFAULT_SPORT)
-    units = config.get('units', DEFAULT_UNITS)
-    period = config.get('period', DEFAULT_PERIOD)
+    sport = config.get("sport", DEFAULT_SPORT)
+    units = config.get("units", DEFAULT_UNITS)
+    period = config.get("period", DEFAULT_PERIOD)
 
     cache_prefix = GLOBAL_CACHE_PREFIX + sport + period
 
     # Get logged in athlete
-    athlete = cache.get(GLOBAL_CACHE_PREFIX + 'athlete_id')
+    athlete = cache.get(GLOBAL_CACHE_PREFIX + "athlete_id")
     if not athlete:
-        print('Getting athlete ID from API, access_token was cached.')
+        print("Getting athlete ID from API, access_token was cached.")
         url = "%s/athlete" % STRAVA_BASE
-        response = http.get(url, headers=headers)
+        response = http.get(url, headers = headers)
         if response.status_code != 200:
-            print('Strava API call failed with status %d' % response.status_code)
+            print("Strava API call failed with status %d" % response.status_code)
 
         data = response.json()
-        athlete = int(float(data['id']))
-        cache.set(GLOBAL_CACHE_PREFIX + 'athlete_id', str(athlete), ttl_seconds=CACHE_TTL)
+        athlete = int(float(data["id"]))
+        cache.set(GLOBAL_CACHE_PREFIX + "athlete_id", str(athlete), ttl_seconds=CACHE_TTL)
 
-    stats = ['count', 'distance', 'moving_time', 'elapsed_time', 'elevation_gain']
+    stats = ["count", "distance", "moving_time", "elapsed_time", "elevation_gain"]
     stats = {k: cache.get(cache_prefix + k) for k in stats}
 
     # Optionally we can display dummy data if we need to test without the API
@@ -133,84 +131,84 @@ def main(config):
     else:
         url = "%s/athletes/%s/stats" % (STRAVA_BASE, athlete)
         print("Calling Strava API: " + url)
-        response = http.get(url, headers=headers)
+        response = http.get(url, headers = headers)
         if response.status_code != 200:
-            fail('Strava API call failed with status %d' % response.status_code)
+            fail("Strava API call failed with status %d" % response.status_code)
         data = response.json()
 
         for item in stats.keys():
-            stats[item] = data['%s_%s_totals' % (period, sport)][item]
-            cache.set(cache_prefix + item, str(stats[item]), ttl_seconds=CACHE_TTL)
-            #print('saved item %s "%s" in the cache for %d seconds' % (item, str(stats[item]), CACHE_TTL))
+            stats[item] = data["%s_%s_totals" % (period, sport)][item]
+            cache.set(cache_prefix + item, str(stats[item]), ttl_seconds = CACHE_TTL)
+            #print("saved item %s "%s" in the cache for %d seconds" % (item, str(stats[item]), CACHE_TTL))
 
     ###################################################
-    # Configure the display to the user's preferences #
+    # Configure the display to the user"s preferences #
     ###################################################
 
-    if units.lower() == 'imperial':
-        if sport == 'swim':
-            stats['distance'] = round(meters_to_ft(float(stats['distance'])), 0)
-            distu = 'ft'
+    if units.lower() == "imperial":
+        if sport == "swim":
+            stats["distance"] = round(meters_to_ft(float(stats["distance"])), 0)
+            distu = "ft"
         else:
-            stats['distance'] = round(meters_to_mi(float(stats['distance'])), 1)
-            distu = 'mi'
-            elevu = 'ft'
-        stats['elevation_gain'] = round(meters_to_ft(float(stats['elevation_gain'])), 0)
+            stats["distance"] = round(meters_to_mi(float(stats["distance"])), 1)
+            distu = "mi"
+            elevu = "ft"
+        stats["elevation_gain"] = round(meters_to_ft(float(stats["elevation_gain"])), 0)
     else:
-        if sport != 'swim':
-            stats['distance'] = round(meters_to_km(float(stats['distance'])), 0)
-            distu = 'km'
+        if sport != "swim":
+            stats["distance"] = round(meters_to_km(float(stats["distance"])), 0)
+            distu = "km"
         else:
-            distu = 'm'
-        elevu = 'm'
+            distu = "m"
+        elevu = "m"
 
-    if sport == 'all':
-        if int(float(stats['count'])) != 1:
-            actu = 'activities'
+    if sport == "all":
+        if int(float(stats["count"])) != 1:
+            actu = "activities"
         else:
-            actu = 'activity'
+            actu = "activity"
     else:
         actu = sport
-        if int(float(stats['count'])) != 1:
-            actu += 's'
+        if int(float(stats["count"])) != 1:
+            actu += "s"
 
     print(stats)
 
     display_header = [
-         render.Image(src = STRAVA_ICON),
+        render.Image(src = STRAVA_ICON),
     ]
-    if period == 'ytd':
+    if period == "ytd":
         display_header.append(
-           render.Text(" %d" % year, font="tb-8")
+            render.Text(" %d" % year, font="tb-8")
         )
 
     SPORT_ICON = {
-        'run': RUN_ICON,
-        'ride': RIDE_ICON,
-        'swim': SWIM_ICON,
+        "run": RUN_ICON,
+        "ride": RIDE_ICON,
+        "swim": SWIM_ICON,
     }[sport]
 
     # The number of activites and distance traveled is universal, but for cycling the elevation gain is a
-    # more interesting statistic than speed so we'll vary the third item:
-    if sport == 'ride':
+    # more interesting statistic than speed so we"ll vary the third item:
+    if sport == "ride":
         third_stat = [
              render.Image(src = ELEV_ICON),
              render.Text(
-                 " %s %s" % (humanize.comma(float(stats.get('elevation_gain', 0))), elevu),
+                 " %s %s" % (humanize.comma(float(stats.get("elevation_gain", 0))), elevu),
              ),
          ]
     else:
-        if float(stats.get('distance', 0)) > 0:
-            split = float(stats.get('moving_time', 0)) / float(stats.get('distance', 0))
-            split = time.parse_duration(str(split) + 's')
+        if float(stats.get("distance", 0)) > 0:
+            split = float(stats.get("moving_time", 0)) / float(stats.get("distance", 0))
+            split = time.parse_duration(str(split) + "s")
             split = format_duration(split)
         else:
-            split = 'N/A'
+            split = "N/A"
 
         third_stat = [
              render.Image(src = CLOCK_ICON),
              render.Text(
-                 " %s%s" % (split, '/' + distu),
+                 " %s%s" % (split, "/" + distu),
              ),
          ]
 
@@ -225,7 +223,7 @@ def main(config):
                     cross_align = "center",
                     children = [
                         render.Image(src = SPORT_ICON),
-                        render.Text(" %s " % humanize.comma(float(stats.get('count', 0)))),
+                        render.Text(" %s " % humanize.comma(float(stats.get("count", 0)))),
                         render.Text(actu, font="tb-8"),
                     ],
                 ),
@@ -233,7 +231,7 @@ def main(config):
                     cross_align = "center",
                     children = [
                         render.Image(src = DISTANCE_ICON),
-                        render.Text(" %s " % humanize.comma(float(stats.get('distance', 0)))),
+                        render.Text(" %s " % humanize.comma(float(stats.get("distance", 0)))),
                         render.Text(distu, font="tb-8"),
                     ],
                 ),
@@ -263,22 +261,22 @@ def format_duration(d):
     s = str(int((d.minutes - m) * 60))
     m = str(m)
     if len(s) == 1:
-        s = '0' + s
-    return '%s:%s' % (m, s)
+        s = "0" + s
+    return "%s:%s" % (m, s)
 
 def oauth_handler(params):
     params = json.decode(params)
-    auth_code = params.get('code')
+    auth_code = params.get("code")
     return auth_code
 
 def get_access_token(access_code, secret):
     params = dict(
         code=access_code,
-        client_secret=secret[:-1],
+        client_secret=secret,
         grant_type="authorization_code",
         client_id=CLIENT_ID,
     )
-    query_params = '&'.join(['%s=%s' % (k, v) for k, v in params.items()])
+    query_params = "&".join(["%s=%s" % (k, v) for k, v in params.items()])
     print("https://www.strava.com/api/v3/oauth/token?%s" % query_params)
     res = http.post(
         url = "https://www.strava.com/api/v3/oauth/token?%s" % query_params,
@@ -294,9 +292,9 @@ def get_access_token(access_code, secret):
     token_params = res.json()
     refresh_token = token_params["refresh_token"]
     access_token = token_params["access_token"]
-    athlete = int(float(token_params['athlete']['id']))
+    athlete = int(float(token_params["athlete"]["id"]))
 
-    cache.set(GLOBAL_CACHE_PREFIX + 'athlete_id', str(athlete), ttl_seconds=CACHE_TTL)
+    cache.set(GLOBAL_CACHE_PREFIX + "athlete_id", str(athlete), ttl_seconds=CACHE_TTL)
     cache.set(GLOBAL_CACHE_PREFIX + "access_token", access_token, ttl_seconds = int(token_params["expires_in"] - 30))
     cache.set(GLOBAL_CACHE_PREFIX + "refresh_token", refresh_token, ttl_seconds = int(token_params["expires_in"] - 30))
 
@@ -319,19 +317,19 @@ def display_failure(msg):
 def get_schema():
 
     units_options = [
-        schema.Option(value='imperial', display='Imperial (US)'),
-        schema.Option(value='metric', display='Metric'),
+        schema.Option(value="imperial", display="Imperial (US)"),
+        schema.Option(value="metric", display="Metric"),
     ]
 
     period_options = [
-        schema.Option(value='all', display='All-time'),
-        schema.Option(value='ytd', display='YTD'),
+        schema.Option(value="all", display="All-time"),
+        schema.Option(value="ytd", display="YTD"),
     ]
 
     sport_options = [
-        schema.Option(value='ride', display='Cycling'),
-        schema.Option(value='run', display='Running'),
-        schema.Option(value='swim', display='Swimming'),
+        schema.Option(value="ride", display="Cycling"),
+        schema.Option(value="run", display="Running"),
+        schema.Option(value="swim", display="Swimming"),
     ]
 
     return schema.Schema(
@@ -346,8 +344,8 @@ def get_schema():
                 handler = oauth_handler,
                 authorization_endpoint = "https://www.strava.com/oauth/authorize",
                 scopes = [
-                    'read',
-                    'activity:read',
+                    "read",
+                    "activity:read",
                 ],
             ),
             schema.Dropdown(
@@ -356,7 +354,7 @@ def get_schema():
                 desc = "Runs, rides or swims are all supported!",
                 icon = "running",
                 options = sport_options,
-                default = 'ride',
+                default = "ride",
             ),
             schema.Dropdown(
                 id = "units",
