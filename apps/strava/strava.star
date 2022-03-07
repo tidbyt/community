@@ -104,6 +104,7 @@ def main(config):
     sport = config.get("sport", DEFAULT_SPORT)
     units = config.get("units", DEFAULT_UNITS)
     period = config.get("period", DEFAULT_PERIOD)
+    show_logo = config.get("show_logo", True)
 
     cache_prefix = GLOBAL_CACHE_PREFIX + sport + period
 
@@ -118,7 +119,7 @@ def main(config):
 
         data = response.json()
         athlete = int(float(data["id"]))
-        cache.set(GLOBAL_CACHE_PREFIX + "athlete_id", str(athlete), ttl_seconds=CACHE_TTL)
+        cache.set(GLOBAL_CACHE_PREFIX + "athlete_id", str(athlete), ttl_seconds = CACHE_TTL)
 
     stats = ["count", "distance", "moving_time", "elapsed_time", "elevation_gain"]
     stats = {k: cache.get(cache_prefix + k) for k in stats}
@@ -174,9 +175,9 @@ def main(config):
 
     print(stats)
 
-    display_header = [
-        render.Image(src = STRAVA_ICON),
-    ]
+    display_header = []
+    if show_logo == 'true':
+        display_header.append(render.Image(src = STRAVA_ICON))
     if period == "ytd":
         display_header.append(
             render.Text(" %d" % year, font="tb-8")
@@ -271,10 +272,10 @@ def oauth_handler(params):
 
 def get_access_token(access_code, secret):
     params = dict(
-        code=access_code,
-        client_secret=secret,
-        grant_type="authorization_code",
-        client_id=CLIENT_ID,
+        code = access_code,
+        client_secret = secret,
+        grant_type = "authorization_code",
+        client_id = CLIENT_ID,
     )
     query_params = "&".join(["%s=%s" % (k, v) for k, v in params.items()])
     print("https://www.strava.com/api/v3/oauth/token?%s" % query_params)
@@ -294,7 +295,7 @@ def get_access_token(access_code, secret):
     access_token = token_params["access_token"]
     athlete = int(float(token_params["athlete"]["id"]))
 
-    cache.set(GLOBAL_CACHE_PREFIX + "athlete_id", str(athlete), ttl_seconds=CACHE_TTL)
+    cache.set(GLOBAL_CACHE_PREFIX + "athlete_id", str(athlete), ttl_seconds = CACHE_TTL)
     cache.set(GLOBAL_CACHE_PREFIX + "access_token", access_token, ttl_seconds = int(token_params["expires_in"] - 30))
     cache.set(GLOBAL_CACHE_PREFIX + "refresh_token", refresh_token, ttl_seconds = int(token_params["expires_in"] - 30))
 
@@ -327,9 +328,9 @@ def get_schema():
     ]
 
     sport_options = [
-        schema.Option(value="ride", display="Cycling"),
-        schema.Option(value="run", display="Running"),
-        schema.Option(value="swim", display="Swimming"),
+        schema.Option(value = "ride", display = "Cycling"),
+        schema.Option(value = "run", display = "Running"),
+        schema.Option(value = "swim", display = "Swimming"),
     ]
 
     return schema.Schema(
@@ -371,6 +372,13 @@ def get_schema():
                 icon = "userClock",
                 options = period_options,
                 default = DEFAULT_PERIOD,
+            ),
+            schema.Toggle(
+                id = "show_logo",
+                name = "Logo",
+                desc = "Whether to display the Strava logo.",
+                icon = "cog",
+                default = True,
             ),
         ],
     )
