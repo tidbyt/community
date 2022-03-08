@@ -20,26 +20,26 @@ P_SHOW_VALUES = "show_values"
 P_SHOW_DAY = "show_day"
 P_SHOW_MONTH = "show_month"
 P_SHOW_YEAR = "show_year"
-P_COLOR_YEAR = "#0ff" # Cyan
-P_COLOR_MONTH = "#0f0" # Green
-P_COLOR_DAY = "#f00" # Red
+P_COLOR_YEAR = "#0ff"  # Cyan
+P_COLOR_MONTH = "#0f0"  # Green
+P_COLOR_DAY = "#f00"  # Red
 
 FRAME_WIDTH = 64
 
 def lightness(color, amount):
-    hsl_color=rgb_to_hsl(*hex_to_rgb(color))
-    hsl_color_list=list(hsl_color)
-    hsl_color_list[2]=hsl_color_list[2]*amount
-    hsl_color=tuple(hsl_color_list)
+    hsl_color = rgb_to_hsl(*hex_to_rgb(color))
+    hsl_color_list = list(hsl_color)
+    hsl_color_list[2] = hsl_color_list[2] * amount
+    hsl_color = tuple(hsl_color_list)
     return rgb_to_hex(*hsl_to_rgb(*hsl_color))
 
 def rgb_to_hsl(r, g, b):
-    r = float(r/255)
-    g = float(g/255)
-    b = float(b/255)
+    r = float(r / 255)
+    g = float(g / 255)
+    b = float(b / 255)
     high = max(r, g, b)
     low = min(r, g, b)
-    h, s, l = ((high + low) / 2,)*3
+    h, s, l = ((high + low) / 2,) * 3
 
     if high == low:
         h = 0.0
@@ -48,61 +48,66 @@ def rgb_to_hsl(r, g, b):
         d = high - low
         s = d / (2 - high - low) if l > 0.5 else d / (high + low)
         if high == r:
-              h=(g - b) / d + (6 if g < b else 0)
+            h = (g - b) / d + (6 if g < b else 0)
         elif high == g:
-              h=(b - r) / d + 2
-        elif high ==  b:
-              h=(r - g) / d + 4
+            h = (b - r) / d + 2
+        elif high == b:
+            h = (r - g) / d + 4
         h /= 6
 
-    return int(math.round(h*360)), s, l
+    return int(math.round(h * 360)), s, l
 
 def hsl_to_rgb(h, s, l):
     def hue_to_rgb(p, q, t):
-        if t < 0: t += 1
-        if t > 1: t -= 1
-        if t < 1/6: return p + (q - p) * 6 * t
-        if t < 1/2: return q
-        if t < 2/3: return p + (q - p) * (2/3 - t) * 6
+        if t < 0:
+            t += 1
+        if t > 1:
+            t -= 1
+        if t < 1 / 6:
+            return p + (q - p) * 6 * t
+        if t < 1 / 2:
+            return q
+        if t < 2 / 3:
+            return p + (q - p) * (2 / 3 - t) * 6
         return p
 
-    h = h/360
+    h = h / 360
     if s == 0:
-        r, g, b = l # achromatic
+        r, g, b = l  # achromatic
     else:
         q = l * (1 + s) if l < 0.5 else l + s - l * s
         p = 2 * l - q
-        r = hue_to_rgb(p, q, h + 1/3)
+        r = hue_to_rgb(p, q, h + 1 / 3)
         g = hue_to_rgb(p, q, h)
-        b = hue_to_rgb(p, q, h - 1/3)
+        b = hue_to_rgb(p, q, h - 1 / 3)
 
     return int(math.round(r * 255)), int(math.round(g * 255)), int(math.round(b * 255))
 
 def hex_to_rgb(color):
     # Expand 4 digit hex to 7 digit hex
     if len(color) == 4:
-      x = '([A-Fa-f0-9])'
-      matches=re.match("#%s%s%s"%(x,x,x), color)
-      rgb_hex_list=list(matches[0])
-      rgb_hex_list.pop(0)
-      for i in range(len(rgb_hex_list)):
-          rgb_hex_list[i] = rgb_hex_list[i] + rgb_hex_list[i]
-      color='#'+''.join(rgb_hex_list)
+        x = "([A-Fa-f0-9])"
+        matches = re.match("#%s%s%s" % (x, x, x), color)
+        rgb_hex_list = list(matches[0])
+        rgb_hex_list.pop(0)
+        for i in range(len(rgb_hex_list)):
+            rgb_hex_list[i] = rgb_hex_list[i] + rgb_hex_list[i]
+        color = "#" + "".join(rgb_hex_list)
 
     # Split hex into RGB
-    x = '([A-Fa-f0-9]{2})'
-    matches=re.match("#%s%s%s"%(x,x,x), color)
-    rgb_hex_list=list(matches[0])
+    x = "([A-Fa-f0-9]{2})"
+    matches = re.match("#%s%s%s" % (x, x, x), color)
+    rgb_hex_list = list(matches[0])
     rgb_hex_list.pop(0)
     for i in range(len(rgb_hex_list)):
         rgb_hex_list[i] = int(rgb_hex_list[i], 16)
-    rgb=tuple(rgb_hex_list)
+    rgb = tuple(rgb_hex_list)
 
     return rgb
 
 # Convert RGB tuple to hex
 def rgb_to_hex(r, g, b):
-    return '#'+str('%x'%((1 << 24) + (r << 16) + (g << 8) + b))[1:]
+    return "#" + str("%x" % ((1 << 24) + (r << 16) + (g << 8) + b))[1:]
 
 def calc_day_progress(now):
     day_progress = 100 * ((now.hour * 60 * 60) + (now.minute * 60) + now.second) / (24 * 60 * 60)
@@ -253,7 +258,7 @@ def render_progress_bar(state, label, percent, col1, col2, col3, animprogress):
     if percent >= 100:
         col2orwhite = col1
 
-    label1color = lightness("#fff", animprogress/100);
+    label1color = lightness("#fff", animprogress / 100)
 
     label2align = "start"
     label2color = col3
