@@ -133,6 +133,7 @@ func GetManifests() []manifest.Manifest {
 		countdownclock.New(),
 		cryptotracker.New(),
 		dailykanji.New(),
+		countdownclock.New(),
 		dateprogress.New(),
 		datetimeclock.New(),
 		daynightmap.New(),
