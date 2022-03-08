@@ -73,7 +73,7 @@ def hsl_to_rgb(h, s, l):
 
     h = h / 360
     if s == 0:
-        r, g, b = l  # achromatic
+        r, g, b = (l,) * 3  # achromatic
     else:
         q = l * (1 + s) if l < 0.5 else l + s - l * s
         p = 2 * l - q
