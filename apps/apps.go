@@ -92,6 +92,7 @@ func GetManifests() []manifest.Manifest {
 		coingeckoprice.New(),
 		countdownclock.New(),
 		cryptotracker.New(),
+		countdownclock.New(),
 		dateprogress.New(),
 		datetimeclock.New(),
 		daynightmap.New(),
