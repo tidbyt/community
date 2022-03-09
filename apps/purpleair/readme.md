@@ -4,6 +4,6 @@ PurpleAir displays an estimate of the air quality index (AQI) using the specifie
 
 An API key is required to fetch sensor data and the list of sensors from the PurpleAir API. The encrypted key is included in the application as a secret.
 
-Note that only the US EPA calculation method is supported right now.
+Note that only the US EPA calculation method is supported right now but I hope to support other methods in the future.
 
 ![PurpleAir for Tidbyt](screenshot.png)
