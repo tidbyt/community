@@ -23,7 +23,6 @@ DEFAULT_TEMP_UNIT = "F"
 
 def main(config):
     api_key = secret.decrypt(API_READ_KEY) or config.get("api_key")
-
     sensor_id = get_sensor_id(config)
     show_title = get_cfg_value(config, "show_title", True)
     show_temp = get_cfg_value(config, "show_temp", True)
@@ -211,11 +210,11 @@ def get_sensors(location):
             return option.display
     return sorted(sensors, key = sort_by_name)
 
-# Use the haversine formula to calculate the distance between two points
+# Use the haversine formula to calculate the distance between two points in miles
 # https://www.movable-type.co.uk/scripts/latlong.html
 def distance_between(lat1, lng1, lat2, lng2):
     distance = 1.0
-    r = 6371000.0
+    r = 6371e3
     la1 = lat1 * math.pi / 180
     la2 = lat2 * math.pi / 180
     delta_lat = (lat2 - lat1) * math.pi / 180
