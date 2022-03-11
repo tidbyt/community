@@ -263,7 +263,7 @@ def get_schema():
                 id = "display_name_code",
                 name = "Display Code",
                 desc = "Your display code for your bungie account. This consists of the numbers after the # in your bungie ID.", 
-                icon = "number"
+                icon = "code"
             ),
         ],
     )
