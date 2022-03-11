@@ -7,19 +7,27 @@ Author: rs7q5 (RIS)
 
 #analog_time.star
 #Created 20220204 RIS
-#Last Modified 20220204 RIS
+#Last Modified 20220224 RIS
 
 load("render.star", "render")
 load("schema.star", "schema")
+load("encoding/json.star", "json")
 load("math.star", "math")
 load("time.star", "time")
 
+DEFAULT_LOCATION = """
+{
+	"lat": "40.6781784",
+	"lng": "-73.9441579",
+	"description": "Brooklyn, NY, USA",
+	"locality": "Brooklyn",
+	"place_id": "ChIJCSF8lBZEwokRhngABHRcdoI",
+	"timezone": "America/New_York"
+}
+"""
+
 def main(config):
-    timezone = config.get("location")
-    if timezone != None:
-        timezone = timezone["timezone"]
-    else:
-        timezone = "America/New_York"
+    timezone = json.decode(config.get("location", DEFAULT_LOCATION))["timezone"]
 
     now = time.now().in_location(timezone)
     now_txt = now.format("3:04")
