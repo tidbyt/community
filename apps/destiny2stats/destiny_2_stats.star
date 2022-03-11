@@ -200,7 +200,8 @@ def get_last_played_character(characters_list):
                             most_recent_character["id"] = character
 
                         elif minute == most_recent_character["date"]["minute"]:
-
+                            
+                            pass
                             #if the minute is the same, which shouldnt be possible, then just let it be.
                   
         return most_recent_character["id"]
