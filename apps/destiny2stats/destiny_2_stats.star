@@ -234,19 +234,19 @@ def get_character_class(class_value):
 
 def get_character_race(race_value):
 
-    class_value = int(race_value)
+    race_value = int(race_value)
 
     if(race_value == 0):
         return "Human"
 
     elif(race_value == 1):
-        return "Awoken"
+        return "Awokn"
 
     elif(race_value == 2):
         return "Exo"
 
     else:
-        return "Unknown"
+        return "Unkn"
     
 
 def get_schema():
