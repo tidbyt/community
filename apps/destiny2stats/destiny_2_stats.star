@@ -49,7 +49,7 @@ def main(config):
             api_key = "null value"
             display_name = "null value"
             display_name_code = "null value"
-            
+
             #should fail but this is affecting things
             #substiuting garbage strings is enough to trigger the applet error handling if the data is wrong
             #fail("Required arguments were not provided.")
