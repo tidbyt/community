@@ -93,7 +93,7 @@ def main(config):
             )
 
             displayed_character = apiMembershipInfo.json()["Response"]["characters"]["data"][get_last_played_character(apiMembershipInfo.json()["Response"]["characters"]["data"])]
-            cache.set("character" + display_name + display_name_code, json.encode(displayed_character), ttl_seconds = 30)
+            cache.set("character" + display_name + display_name_code, json.encode(displayed_character), ttl_seconds = 120)
 
     image = get_image("https://www.bungie.net" + displayed_character["emblemPath"])
 
