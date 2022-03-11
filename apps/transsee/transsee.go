@@ -17,7 +17,7 @@ func New() manifest.Manifest {
 		Name:        "TransSee",
 		Author:      "doconno@gmail.com",
 		Summary:     "Realtime transit prediction",
-		Desc:        "Provides real-time transit predictions based on actual travel times. Requires paid premium. See transsee.ca/tidbyt for usage information",
+		Desc:        "Provides real-time transit predictions based on actual travel times. Requires paid premium. See transsee.ca/tidbyt for usage information.",
 		FileName:    "transsee.star",
 		PackageName: "transsee",
 		Source:  source,
