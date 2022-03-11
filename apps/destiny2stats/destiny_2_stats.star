@@ -26,7 +26,7 @@ def main(config):
     display_name = config.str("display_name", DEFAULT_DISPLAY_NAME)
     display_name_code = config.str("display_name_code", DEFAULT_DISPLAY_NAME_CODE)
     displayed_character = ""
-    api_key = secret.decrypt("AV6+xWcE1XUpPGvhV3sLW1j96ds5Cd8t663hWqb8RxzIs0zyFRYOK4PaxZgofONVGiqxp5Jsj/1EjVXWU2uMV9vK7NrCkfDFXhrOmNcm3glbfunQm4xicsmG5b9DLXB7aC7UzmI/uGdcGf9korSOK+IMsXcWcj7tqsYJISODlp+hCqeal1A=")
+    api_key = secret.decrypt("AV6+xWcEb6J6iGViuBbqg9hnO0qHwC/GoWFEAqTpZd7iLr+Qq9SQqBVZAVT9JiQRx/6OKVf7lrmRQxD7e+6BfIGQT3KnXSJyuamnrerYO0eBOTbJTXa+GtmArz0apudd8z2t9J8FslLrBYrDrNENrzlBo6wxy6TRz2L6Qszwv4oBhSwAj0A=")
 
     character_cached = cache.get("character" + display_name + display_name_code)
 
