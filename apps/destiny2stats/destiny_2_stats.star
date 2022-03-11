@@ -87,36 +87,36 @@ def main(config):
             displayed_character = apiMembershipInfo.json()["Response"]["characters"]["data"][get_last_played_character(apiMembershipInfo.json()["Response"]["characters"]["data"])]
             cache.set("character"+display_name+display_name_code, json.encode(displayed_character), ttl_seconds=30)
 
-        image = get_image("https://www.bungie.net"+ displayed_character["emblemPath"])
- 
-        return render.Root(
-            child = render.Row(
-                cross_align="center",
-                children = [
-                    render.Image(src=image, width=32, height=32),
-                    render.Box(width=1, height=32, color="#FFFFFF"),
-                    render.Column(
-                        expanded=True,
-                        main_align="space_around",
-                        cross_align="right",
-                        children = [ 
-                            render.Box(
-                                height=6,
-                                child = render.Text(get_character_race(displayed_character["raceType"]))
-                            ),
-                            render.Box(
-                                height=6,
-                                child = render.Text(get_character_class(displayed_character["classType"]))  
-                            ),
-                            render.Box(
-                                height=6,
-                                child = render.Text(str( int(displayed_character["light"]) )) 
-                            )
-                        ]
-                    )
-                ]
-            )
-        )   
+    image = get_image("https://www.bungie.net"+ displayed_character["emblemPath"])
+
+    return render.Root(
+        child = render.Row(
+            cross_align="center",
+            children = [
+                render.Image(src=image, width=32, height=32),
+                render.Box(width=1, height=32, color="#FFFFFF"),
+                render.Column(
+                    expanded=True,
+                    main_align="space_around",
+                    cross_align="right",
+                    children = [ 
+                        render.Box(
+                            height=6,
+                            child = render.Text(get_character_race(displayed_character["raceType"]))
+                        ),
+                        render.Box(
+                            height=6,
+                            child = render.Text(get_character_class(displayed_character["classType"]))  
+                        ),
+                        render.Box(
+                            height=6,
+                            child = render.Text(str( int(displayed_character["light"]) )) 
+                        )
+                    ]
+                )
+            ]
+        )
+    )   
 
 def get_last_played_character(characters_list):
     most_recent_character = {
