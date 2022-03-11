@@ -26,9 +26,8 @@ def main(config):
 
     display_name = config.str("display_name", DEFAULT_DISPLAY_NAME)
     display_name_code = config.str("display_name_code", DEFAULT_DISPLAY_NAME_CODE)
+    displayed_character=""
     api_key = secret.decrypt("AV6+xWcE1XUpPGvhV3sLW1j96ds5Cd8t663hWqb8RxzIs0zyFRYOK4PaxZgofONVGiqxp5Jsj/1EjVXWU2uMV9vK7NrCkfDFXhrOmNcm3glbfunQm4xicsmG5b9DLXB7aC7UzmI/uGdcGf9korSOK+IMsXcWcj7tqsYJISODlp+hCqeal1A=")
-
-    
     
     character_cached = cache.get("character"+display_name+display_name_code)
 
@@ -88,38 +87,36 @@ def main(config):
             displayed_character = apiMembershipInfo.json()["Response"]["characters"]["data"][get_last_played_character(apiMembershipInfo.json()["Response"]["characters"]["data"])]
             cache.set("character"+display_name+display_name_code, json.encode(displayed_character), ttl_seconds=30)
 
-            image = get_image("https://www.bungie.net"+ displayed_character["emblemPath"])
+        image = get_image("https://www.bungie.net"+ displayed_character["emblemPath"])
  
-            return render.Root(
-                child = render.Row(
-                    cross_align="center",
-                        children = [
-                            render.Image(src=image, width=32, height=32),
-                            render.Box(width=1, height=32, color="#FFFFFF"),
-                            render.Column(
-                                expanded=True,
-                                main_align="space_around",
-                                cross_align="right",
-                                children = [ 
-                                    render.Box(
-                                        height=6,
-                                        child = render.Text(get_character_race(displayed_character["raceType"]))
-                                    ),
-                                    render.Box(
-                                        height=6,
-                                        child = render.Text(get_character_class(displayed_character["classType"]))  
-                                    ),
-                                    render.Box(
-                                        height=6,
-                                        child = render.Text(str( int(displayed_character["light"]) )) 
-                                    )
-                        
-                            ]
-                        )
-                    ]
-                )
-        
-    )
+        return render.Root(
+            child = render.Row(
+                cross_align="center",
+                children = [
+                    render.Image(src=image, width=32, height=32),
+                    render.Box(width=1, height=32, color="#FFFFFF"),
+                    render.Column(
+                        expanded=True,
+                        main_align="space_around",
+                        cross_align="right",
+                        children = [ 
+                            render.Box(
+                                height=6,
+                                child = render.Text(get_character_race(displayed_character["raceType"]))
+                            ),
+                            render.Box(
+                                height=6,
+                                child = render.Text(get_character_class(displayed_character["classType"]))  
+                            ),
+                            render.Box(
+                                height=6,
+                                child = render.Text(str( int(displayed_character["light"]) )) 
+                            )
+                        ]
+                    )
+                ]
+            )
+        )   
 
 def get_last_played_character(characters_list):
     most_recent_character = {
