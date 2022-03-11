@@ -86,7 +86,7 @@ def main(config):
             )
 
             displayed_character = apiMembershipInfo.json()["Response"]["characters"]["data"][get_last_played_character(apiMembershipInfo.json()["Response"]["characters"]["data"])]
-            cache.set("character", json.encode(displayed_character), ttl_seconds=30)
+            cache.set("character"+display_name+display_name_code, json.encode(displayed_character), ttl_seconds=30)
 
             image = get_image("https://www.bungie.net"+ displayed_character["emblemPath"])
  
@@ -144,8 +144,8 @@ def get_last_played_character(characters_list):
         hour=int(date_string[11:13])
         minute=int(date_string[14:16])
 
-        if (year > most_recent_character["date"]["year"]):
-            
+        if year > most_recent_character["date"]["year"]:
+
             most_recent_character["date"]["year"] = year
             most_recent_character["date"]["month"] = month
             most_recent_character["date"]["day"] = day
@@ -153,49 +153,59 @@ def get_last_played_character(characters_list):
             most_recent_character["date"]["minute"] = minute
             
             most_recent_character["id"] = character
+
+        elif year == most_recent_character["date"]["year"]:
+
+            if month > most_recent_character["date"]["month"]:
+
+                most_recent_character["date"]["year"] = year
+                most_recent_character["date"]["month"] = month
+                most_recent_character["date"]["day"] = day
+                most_recent_character["date"]["hour"] = hour
+                most_recent_character["date"]["minute"] = minute
             
+                most_recent_character["id"] = character
 
-        elif (month > most_recent_character["date"]["month"]):
+            elif month == most_recent_character["date"]["month"]:
+
+                if day > most_recent_character["date"]["day"]:
+
+                    most_recent_character["date"]["year"] = year
+                    most_recent_character["date"]["month"] = month
+                    most_recent_character["date"]["day"] = day
+                    most_recent_character["date"]["hour"] = hour
+                    most_recent_character["date"]["minute"] = minute
             
-            most_recent_character["date"]["year"] = year
-            most_recent_character["date"]["month"] = month
-            most_recent_character["date"]["day"] = day
-            most_recent_character["date"]["hour"] = hour
-            most_recent_character["date"]["minute"] = minute
+                    most_recent_character["id"] = character
 
-            most_recent_character["id"] = character
+                elif day == most_recent_character["date"]["day"]:
+
+                    if hour > most_recent_character["date"]["hour"]:
+
+                        most_recent_character["date"]["year"] = year
+                        most_recent_character["date"]["month"] = month
+                        most_recent_character["date"]["day"] = day
+                        most_recent_character["date"]["hour"] = hour
+                        most_recent_character["date"]["minute"] = minute
             
+                        most_recent_character["id"] = character
 
-        elif (month >= most_recent_character["date"]["month"] and day > most_recent_character["date"]["day"]):
+                    elif hour == most_recent_character["date"]["hour"]:
 
-            most_recent_character["date"]["year"] = year
-            most_recent_character["date"]["month"] = month
-            most_recent_character["date"]["day"] = day
-            most_recent_character["date"]["hour"] = hour
-            most_recent_character["date"]["minute"] = minute
+                        if minute > most_recent_character["date"]["minute"]:
 
-            most_recent_character["id"] = character
-
-        elif ( month >= most_recent_character["date"]["month"] and day > most_recent_character["date"]["day"] and hour > most_recent_character["date"]["hour"]):    
+                            most_recent_character["date"]["year"] = year
+                            most_recent_character["date"]["month"] = month
+                            most_recent_character["date"]["day"] = day
+                            most_recent_character["date"]["hour"] = hour
+                            most_recent_character["date"]["minute"] = minute
             
-            most_recent_character["date"]["year"] = year
-            most_recent_character["date"]["month"] = month
-            most_recent_character["date"]["day"] = day
-            most_recent_character["date"]["hour"] = hour
-            most_recent_character["date"]["minute"] = minute
+                            most_recent_character["id"] = character
 
-            most_recent_character["id"] = character
+                        elif minute == most_recent_character["date"]["minute"]:
 
-        elif (month >= most_recent_character["date"]["month"] and day > most_recent_character["date"]["day"] and hour > most_recent_character["date"]["hour"] and minute > most_recent_character["date"]["minute"]): 
-            
-            most_recent_character["date"]["year"] = year
-            most_recent_character["date"]["month"] = month
-            most_recent_character["date"]["day"] = day
-            most_recent_character["date"]["hour"] = hour
-            most_recent_character["date"]["minute"] = minute
-
-            most_recent_character["id"] = character
-               
+                            #if the minute is the same, which shouldnt be possible, then just let it be.
+                  
     return most_recent_character["id"]
     
 
