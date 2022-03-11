@@ -176,4 +176,3 @@ def get_schema():
             ),
         ],
     )
-    
