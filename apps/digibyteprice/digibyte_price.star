@@ -227,7 +227,7 @@ def main(config):
                 children = [
                     render.Text("%s" % first_currency_price),
                     render.Box(width = 1, height = 1),
-                    render.Text("%s" % first_currency_country, font = "CG-pixel-3x5-mono", color = "#FF0000"),
+                    render.Text("%s" % first_currency_country, font = "CG-pixel-3x5-mono", color = "#2962fe"),
                 ],
             )
         else:
