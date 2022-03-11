@@ -46,7 +46,13 @@ def main(config):
         bungie_membership_type = ""
 
         if api_key == None or display_name == None or display_name_code == None:
-            fail("Required arguments were not provided.")
+            api_key = "null value"
+            display_name = "null value"
+            display_name_code = "null value"
+            
+            #should fail but this is affecting things
+            #substiuting garbage strings is enough to trigger the applet error handling if the data is wrong
+            #fail("Required arguments were not provided.")
 
         apiResponse = http.post(
             API_SEARCH_BUNGIE_ID_NAME,
