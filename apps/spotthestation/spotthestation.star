@@ -32,7 +32,7 @@ def main(config):
     #Get Station Selected By User
     ISS_FLYBY_XML_URL = config.get("SpotTheStationRSS") or "https://spotthestation.nasa.gov/sightings/xml_files/United_States_Florida_Orlando.xml"
 
-    issxmlBody = cache.get("issxml_cache")
+    issxmlBody = cache.get(ISS_FLYBY_XML_URL)  # cache key based on url
     if issxmlBody == None:
         print("Loading New XML Data")
         issxml = http.get(ISS_FLYBY_XML_URL)
@@ -40,7 +40,7 @@ def main(config):
             print("Error Getting ISS Flyby Data")
         else:
             issxmlBody = issxml.body()
-            cache.set("issxml_cache", issxmlBody, ttl_seconds = 6000)
+            cache.set(ISS_FLYBY_XML_URL, issxmlBody, ttl_seconds = 6000)
     else:
         print("Got XML Data From Cache")
 
