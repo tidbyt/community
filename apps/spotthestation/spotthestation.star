@@ -73,7 +73,7 @@ def main(config):
     #Get the current GMT Time
     now = time.now().in_location("GMT")
 
-    issxmlBody = None  #cache.get(ISS_FLYBY_XML_URL)  # cache key based on url
+    issxmlBody = cache.get(ISS_FLYBY_XML_URL)  # cache key based on url
     if issxmlBody == None:
         print("Loading New XML Data")
         issxml = http.get(ISS_FLYBY_XML_URL)
@@ -81,7 +81,7 @@ def main(config):
             print("Error Getting ISS Flyby Data")
         else:
             issxmlBody = issxml.body()
-            #cache.set(ISS_FLYBY_XML_URL, issxmlBody, ttl_seconds = 6000)
+            cache.set(ISS_FLYBY_XML_URL, issxmlBody, ttl_seconds = 6000)
 
     else:
         print("Got XML Data From Cache")
