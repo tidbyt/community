@@ -169,7 +169,7 @@ def get_schema():
                 id = "SpotTheStationRSS",
                 name = "Spot the Station RSS",
                 icon = "location",
-                desc = "Go to spotthestation.nasa.gov Use the map tool to find the nearest location, click the blue marker then 'View sighting opportunities' then get the RSS feed URL",
+                desc = "Go to spotthestation.nasa.gov Use the map tool to find the nearest location, click the blue marker then 'View sighting opportunities' then get the RSS feed URL.",
                 #From this page click "RSS" to get the needed XML Feed for your location",
             ),
         ],
