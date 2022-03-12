@@ -168,7 +168,6 @@ def get_sensors(location):
     # Truncate to protect the user's privacy
     latitude = float(humanize.float("#.##", latitude))
     longitude = float(humanize.float("#.##", longitude))
-    print("Lat %f, lng %f" % (latitude % longitude))
 
     # Get the sensor list constrained to a small area around this location
     delta = 0.035
