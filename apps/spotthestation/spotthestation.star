@@ -101,7 +101,6 @@ def main(config):
         for i in range(1, numberFutureSightings + 1):
             currentQuery = "//item[" + str(i) + "]/description"
             currentDescription = xpath.loads(issxmlBody).query(currentQuery)
-            print(getTimestampFromItem(currentDescription))
             if time.parse_time(getTimestampFromItem(currentDescription)) > now:
                 itemNumberToDisplay = i
                 break
@@ -118,8 +117,6 @@ def main(config):
         for item in description:
             i += 1
             item = item.replace("\n", "").replace("\t", "")
-            if len(item) != 0:
-                print(len(item), i, item)
 
             if (i < 2):
                 row2 += item.replace("Date: ", "").replace("Monday", "Mon").replace("Tuesday", "Tue").replace("Wednesday", "Wed").replace("Thursday", "Thu").replace("Friday", "Fri").replace("Saturday", "Sat").replace("Sunday", "Sun").replace(", 20", " '")
