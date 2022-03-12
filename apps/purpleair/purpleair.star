@@ -9,6 +9,7 @@ load("cache.star", "cache")
 load("encoding/base64.star", "base64")
 load("encoding/json.star", "json")
 load("http.star", "http")
+load("humanize.star", "humanize")
 load("math.star", "math")
 load("render.star", "render")
 load("schema.star", "schema")
@@ -164,8 +165,12 @@ def get_sensors(location):
     latitude = float(location_data.get("lat", 0))
     longitude = float(location_data.get("lng", 0))
 
+    # Truncate to protect the user's privacy
+    latitude = float(humanize.float("#.##", latitude))
+    longitude = float(humanize.float("#.##", longitude))
+
     # Get the sensor list constrained to a small area around this location
-    delta = 0.025
+    delta = 0.035
     params = {
         "nwlng": str(longitude - delta),
         "nwlat": str(latitude + delta),
@@ -224,7 +229,7 @@ def distance_between(lat1, lng1, lat2, lng2):
     c = 2 * math.atan2(math.sqrt(a), math.sqrt(1 - a))
     d = r * c  # d is in meters
     km = d / 1000
-    miles = km / 0.62
+    miles = km / 0.621371
     return miles
 
 # Return the sensor id to use based on configuration options
