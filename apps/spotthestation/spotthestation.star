@@ -26,11 +26,11 @@ iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAA1ElEQVQ4y5WTOw7DIBBEhygn4ThL7T5u
 def twoCharacterTimeDatePart(number):
     if len(str(number)) == 1:
         return "0" + str(number)
-    else:   
+    else:
         return number
 
 def twoCharacterNumericMonthFromMonthString(month):
-    dict={
+    dict = {
         "Jan": "01",
         "Feb": "02",
         "Mar": "03",
@@ -42,24 +42,24 @@ def twoCharacterNumericMonthFromMonthString(month):
         "Sep": "09",
         "Oct": "10",
         "Nov": "11",
-        "Dec": "12"
+        "Dec": "12",
     }
 
     return dict.get(month)
 
 def getTimestampFromItem(item):
     description = item.replace("\n", "").replace("\t", "").split("<br/>")
-    itemDate = description[0].replace("Date: ","").split(" ")
-    itemTime = description[1].replace("Time: ","").split(" ")
-    return itemDate[3] + "-" + twoCharacterNumericMonthFromMonthString(itemDate[1])  + "-" + twoCharacterTimeDatePart(itemDate[2].replace(",","")) + "T" + getTimeStampTime(itemTime[0], itemTime[1]) + ":00Z"
+    itemDate = description[0].replace("Date: ", "").split(" ")
+    itemTime = description[1].replace("Time: ", "").split(" ")
+    return itemDate[3] + "-" + twoCharacterNumericMonthFromMonthString(itemDate[1]) + "-" + twoCharacterTimeDatePart(itemDate[2].replace(",", "")) + "T" + getTimeStampTime(itemTime[0], itemTime[1]) + ":00Z"
 
 def getTimeStampTime(time, meridiem):
     time = time.split(":")
     if meridiem == "PM":
         time[0] = int(time[0]) + 12
-    
+
     return str(time[0]) + ":" + time[1]
-    
+
 def main(config):
     #Defaults
     location = "Invalid Location Data"
@@ -71,9 +71,9 @@ def main(config):
     ISS_FLYBY_XML_URL = config.get("SpotTheStationRSS") or "https://spotthestation.nasa.gov/sightings/xml_files/United_States_Florida_Orlando.xml"
 
     #Get the current GMT Time
-    now =  time.now().in_location("GMT")
+    now = time.now().in_location("GMT")
 
-    issxmlBody = None #cache.get(ISS_FLYBY_XML_URL)  # cache key based on url
+    issxmlBody = None  #cache.get(ISS_FLYBY_XML_URL)  # cache key based on url
     if issxmlBody == None:
         print("Loading New XML Data")
         issxml = http.get(ISS_FLYBY_XML_URL)
@@ -82,6 +82,7 @@ def main(config):
         else:
             issxmlBody = issxml.body()
             #cache.set(ISS_FLYBY_XML_URL, issxmlBody, ttl_seconds = 6000)
+
     else:
         print("Got XML Data From Cache")
 
@@ -92,17 +93,17 @@ def main(config):
         description = None
     elif numberFutureSightings == 0:
         row1 = "The station will not appear overhead for at least several days"
-        description = "" 
+        description = ""
         location = xpath.loads(issxmlBody).query("/rss/channel/description").replace("Satellite Sightings Information for ", "")
     else:
         #Find the next pass, and skip past times
         itemNumberToDisplay = 0
-        for i in range(1,numberFutureSightings+1):
+        for i in range(1, numberFutureSightings + 1):
             currentQuery = "//item[" + str(i) + "]/description"
             currentDescription = xpath.loads(issxmlBody).query(currentQuery)
             print(getTimestampFromItem(currentDescription))
             if time.parse_time(getTimestampFromItem(currentDescription)) > now:
-                itemNumberToDisplay = i 
+                itemNumberToDisplay = i
                 break
 
         description = xpath.loads(issxmlBody).query("/rss/channel/item[" + str(itemNumberToDisplay) + "]/description")
@@ -176,4 +177,3 @@ def get_schema():
             ),
         ],
     )
-    
