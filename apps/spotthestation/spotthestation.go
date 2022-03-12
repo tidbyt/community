@@ -17,7 +17,7 @@ func New() manifest.Manifest {
 		Name:        "SpotTheStation",
 		Author:      "Robert Ison",
 		Summary:     "Next ISS visit overhead",
-		Desc:        "Enter your spotthestation.nasa.gov location's RSS Feed URL",
+		Desc:        "Enter your spotthestation.nasa.gov location's RSS Feed URL.",
 		FileName:    "spotthestation.star",
 		PackageName: "spotthestation",
 		Source:      source,
