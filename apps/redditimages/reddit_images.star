@@ -129,17 +129,22 @@ def buildSubPrefix(name):
 
 # Gets either the cached posts or runs an API call to reddit for more.
 def getPosts(subname):
+    print("Pulling posts for subreddit " + subname)
     cacheName = "reddit-image-posts-" + subname
     cachedPosts = cache.get(cacheName)
 
     # Check the cache and return a random post from the stored posts if able.
     if cachedPosts != None:
+        print("Cache hit")
         cachedPosts = json.decode(cachedPosts)
         return setRandomPost(cachedPosts, subname)
 
+    print("Cache miss, refreshing posts")
     # In lieu of the cache, pull a new set of posts from the API.
     apiUrl = "https://www.reddit.com/r/" + subname + "/hot.json?limit=30"
-    rep = http.get(apiUrl, headers = {"User-Agent": "Tidbyt App: Reddit Image Shuffler"})
+    rep = http.get(apiUrl, headers = {"User-Agent": "Tidbyt App: Reddit Image Shuffler " + str(getRandomNumber(9999))})
+    if "application/json" not in rep.headers.get("Content-Type"):
+        return handleApiError()
     data = rep.json()
     if "error" in data.keys():
         return handleApiError(data)
@@ -154,12 +159,17 @@ def getPosts(subname):
                     allImagePosts.append(posts[i]["data"])
 
         # Cache the posts for 2 hours
+        print("Caching " + subname + " posts")
         cache.set(cacheName, json.encode(allImagePosts), 2 * 60 * 60)
         return setRandomPost(allImagePosts, subname)
 
 # Build an error display for users. Log error.
-def handleApiError(data):
-    print("error :( " + data["message"])
+def handleApiError(data = None):
+    if data == None:
+        message = "Unknown Error"
+    else:
+        message = data["message"]
+    print("error :( " + message)
     return {
         "sub": "r/???",
         "title": "error",
@@ -170,6 +180,8 @@ def handleApiError(data):
 def setRandomPost(allImagePosts, subname):
     if len(allImagePosts) > 0:
         chosen = allImagePosts[getRandomNumber(len(allImagePosts) - 1)]
+        print("Post picked is:")
+        print(chosen["title"] + " | " + chosen["id"])
         return {
             "url": chosen["url"],
             "sub": chosen["subreddit_name_prefixed"],
