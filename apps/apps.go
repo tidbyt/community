@@ -7,7 +7,6 @@ package apps
 import (
 	"errors"
 
-	"tidbyt.dev/community/apps/MNLightRail"
 	"tidbyt.dev/community/apps/analogclock"
 	"tidbyt.dev/community/apps/analogtime"
 	"tidbyt.dev/community/apps/arcadeclassics"
@@ -66,7 +65,6 @@ import (
 // below to include it in the Tidbyt Mobile app for all Tidbyt users.
 func GetManifests() []manifest.Manifest {
 	return []manifest.Manifest{
-		MNLightRail.New(),
 		analogclock.New(),
 		analogtime.New(),
 		arcadeclassics.New(),
