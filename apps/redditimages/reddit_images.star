@@ -16,7 +16,7 @@ load("cache.star", "cache")
 DEFAULT_SUBREDDITS = ["blackcats", "aww", "eyebleach", "itookapicture", "cats", "pic", "otters", "plants"]
 APPROVED_FILETYPES = [".png", ".jpg", ".jpeg", ".bmp"]
 
-ERROR_IMG =  base64.decode("""
+ERROR_IMG = base64.decode("""
 iVBORw0KGgoAAAANSUhEUgAAACMAAAAjCAYAAAAe2bNZAAAAAXNSR0IArs4c6QAAAXJJREFUWEftlz1OAzEQhe1V
 +tCQnoarUADHgQJqUoTjAAVXoaEPDemjNZpEI00Wz4+fttiVkjLOe/k8nhmPc5rQJ0+IJc0D5vZy+dTl/KJFri/l
 +eNnt5briEbqq5Fh0+uuqKf41eckgRDN0LwKc7+6KAxy1f3n+e6P3xHQ2/b34IFommBqIGxAQDWYFk0Y5mahHxGb
@@ -27,7 +27,6 @@ YOhHSGUgGreaxu4jnp/bZzyDMdcnBfMH+p/AM/kQywMAAAAASUVORK5CYII=
 """)
 
 def main(config):
-
     # Build full sub list based on user options.
     allSubs = combineSubs(config)
 
@@ -41,54 +40,51 @@ def main(config):
     else:
         imgSrc = ERROR_IMG
     return render.Root(
-        child = 
-        render.Box(
-            color = "#0f0f0f",
-            child = render.Row(
-                children = [
-                    render.Image(
-                        src = imgSrc,
-                        width = 35,
-                        height = 35
-                    ),
-                    render.Padding(
-                        expanded = True,
-                        pad = 1,
-                        child = render.Column(
-                                    expanded = True,
-                                    main_align = "space_evenly",
-                                    children = [
-                                        render.Marquee(
-                                            width = 28,
-                                            child = render.Text(
-                                                content = currentPost["title"],
-                                                font = "tom-thumb",
-                                                color = "#8899A6"
-                                            )
-                                        ),
-                                        render.Marquee(
-                                            width = 28,
-                                            child = render.Text(
-                                                content = currentPost["sub"],
-                                                font = "tom-thumb",
-                                                color = "#6B8090"
-                                            )
-                                        ),
-                                        render.Text(
-                                            content = currentPost["id"], 
+        child =
+            render.Box(
+                color = "#0f0f0f",
+                child = render.Row(
+                    children = [
+                        render.Image(
+                            src = imgSrc,
+                            width = 35,
+                            height = 35,
+                        ),
+                        render.Padding(
+                            expanded = True,
+                            pad = 1,
+                            child = render.Column(
+                                expanded = True,
+                                main_align = "space_evenly",
+                                children = [
+                                    render.Marquee(
+                                        width = 28,
+                                        child = render.Text(
+                                            content = currentPost["title"],
                                             font = "tom-thumb",
-                                            color = "#556672"
-                                        )
-                                        
-                                    ]
-                                )
-                    )
-            ]
-            
-        )
+                                            color = "#8899A6",
+                                        ),
+                                    ),
+                                    render.Marquee(
+                                        width = 28,
+                                        child = render.Text(
+                                            content = currentPost["sub"],
+                                            font = "tom-thumb",
+                                            color = "#6B8090",
+                                        ),
+                                    ),
+                                    render.Text(
+                                        content = currentPost["id"],
+                                        font = "tom-thumb",
+                                        color = "#556672",
+                                    ),
+                                ],
+                            ),
+                        ),
+                    ],
+                ),
+            ),
     )
-    
-)
 
 # Gets a random number from 0 to the number specified (non-inclusive).
 def getRandomNumber(max):
@@ -127,35 +123,36 @@ def buildSubPrefix(name):
     formattedName = name
     rIndex = name.find("r/")
     if rIndex != -1:
-        formattedName = name[rIndex+2:]
+        formattedName = name[rIndex + 2:]
 
     return formattedName
-    
 
 # Gets either the cached posts or runs an API call to reddit for more.
 def getPosts(subname):
     cacheName = "reddit-image-posts-" + subname
     cachedPosts = cache.get(cacheName)
+
     # Check the cache and return a random post from the stored posts if able.
     if cachedPosts != None:
         cachedPosts = json.decode(cachedPosts)
         return setRandomPost(cachedPosts, subname)
-    
+
     # In lieu of the cache, pull a new set of posts from the API.
     apiUrl = "https://www.reddit.com/r/" + subname + "/hot.json?limit=30"
-    rep = http.get(apiUrl, headers = { "User-Agent": "Tidbyt App: Reddit Image Shuffler" })
+    rep = http.get(apiUrl, headers = {"User-Agent": "Tidbyt App: Reddit Image Shuffler"})
     data = rep.json()
     if "error" in data.keys():
         return handleApiError(data)
     else:
         posts = data["data"]["children"]
         allImagePosts = []
+
         # Add all image posts to a new list.
-        for i in range(0, len(posts)-1):
-            for j in range(0, len(APPROVED_FILETYPES)-1):
+        for i in range(0, len(posts) - 1):
+            for j in range(0, len(APPROVED_FILETYPES) - 1):
                 if posts[i]["data"]["url"].endswith(APPROVED_FILETYPES[j]):
                     allImagePosts.append(posts[i]["data"])
-            
+
         # Cache the posts for 2 hours
         cache.set(cacheName, json.encode(allImagePosts), 2 * 60 * 60)
         return setRandomPost(allImagePosts, subname)
@@ -163,28 +160,29 @@ def getPosts(subname):
 # Build an error display for users. Log error.
 def handleApiError(data):
     print("error :( " + data["message"])
-    return { 
+    return {
         "sub": "r/???",
         "title": "error",
-        "id": "00000"
+        "id": "00000",
     }
-        
+
 # Get random post from all image posts for that sub. Build and return display data.
 def setRandomPost(allImagePosts, subname):
     if len(allImagePosts) > 0:
         chosen = allImagePosts[getRandomNumber(len(allImagePosts) - 1)]
         return {
-            "url" : chosen["url"],
-            "sub" : chosen["subreddit_name_prefixed"],
-            "id" : chosen["id"],
-            "title" : chosen["title"]
+            "url": chosen["url"],
+            "sub": chosen["subreddit_name_prefixed"],
+            "id": chosen["id"],
+            "title": chosen["title"],
         }
-    # This else will only run if there are no image posts in the top 30 in /r/hot for a sub.
+        # This else will only run if there are no image posts in the top 30 in /r/hot for a sub.
+
     else:
-        return { 
+        return {
             "sub": "r/" + subname,
             "title": "no results",
-            "id": "00000"
+            "id": "00000",
         }
 
 def get_schema():
@@ -195,68 +193,68 @@ def get_schema():
                 id = "subOne",
                 name = "Custom sub 1",
                 desc = "Enter up to 10 subreddits you would like to pull images from.",
-                icon = "redditAlien"
+                icon = "redditAlien",
             ),
             schema.Text(
                 id = "subTwo",
                 name = "Custom sub 2",
                 desc = "",
-                icon = "redditAlien"
+                icon = "redditAlien",
             ),
             schema.Text(
                 id = "subThree",
                 name = "Custom sub 3",
                 desc = "",
-                icon = "redditAlien"
+                icon = "redditAlien",
             ),
             schema.Text(
                 id = "subFour",
                 name = "Custom sub 4",
                 desc = "",
-                icon = "redditAlien"
+                icon = "redditAlien",
             ),
             schema.Text(
                 id = "subFive",
                 name = "Custom sub 5",
                 desc = "",
-                icon = "redditAlien"
+                icon = "redditAlien",
             ),
             schema.Text(
                 id = "subSix",
                 name = "Custom sub 6",
                 desc = "",
-                icon = "redditAlien"
+                icon = "redditAlien",
             ),
             schema.Text(
                 id = "subSeven",
                 name = "Custom sub 7",
                 desc = "",
-                icon = "redditAlien"
+                icon = "redditAlien",
             ),
             schema.Text(
                 id = "subEight",
                 name = "Custom sub 8",
                 desc = "",
-                icon = "redditAlien"
+                icon = "redditAlien",
             ),
             schema.Text(
                 id = "subNine",
                 name = "Custom sub 9",
                 desc = "",
-                icon = "redditAlien"
+                icon = "redditAlien",
             ),
             schema.Text(
                 id = "subTen",
                 name = "Custom sub 10",
                 desc = "",
-                icon = "redditAlien"
+                icon = "redditAlien",
             ),
             schema.Toggle(
                 id = "defaults",
                 name = "Include defaults",
                 desc = "In addition to custom subreddits, include defaults? (/r/cats, /r/otters, /r/blackcats, /r/plants, /r/itookapicture, /r/aww, /r/eyebleach, /r/pic)",
                 icon = "otter",
-                default = False
-            )
-        ]
+                default = False,
+            ),
+        ],
     )
