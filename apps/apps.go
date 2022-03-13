@@ -46,6 +46,7 @@ import (
 	"tidbyt.dev/community/apps/pathtrainschedule"
 	"tidbyt.dev/community/apps/phaseofmoon"
 	"tidbyt.dev/community/apps/pokedex"
+	"tidbyt.dev/community/apps/redditimages"
 	"tidbyt.dev/community/apps/sbbtimetable"
 	"tidbyt.dev/community/apps/sportsscores"
 	"tidbyt.dev/community/apps/sportsstandings"
@@ -104,6 +105,7 @@ func GetManifests() []manifest.Manifest {
 		pathtrainschedule.New(),
 		phaseofmoon.New(),
 		pokedex.New(),
+		redditimages.New(),
 		sbbtimetable.New(),
 		sportsscores.New(),
 		sportsstandings.New(),
@@ -115,9 +117,9 @@ func GetManifests() []manifest.Manifest {
 		transsee.New(),
 		twitterfollows.New(),
 		verticalmessage.New(),
+		warframecycles.New(),
 		weathermap.New(),
 		worldclock.New(),
-		warframecycles.New(),
 	}
 }
 
