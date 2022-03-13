@@ -20,7 +20,13 @@ SEARCH_RADIUS = 50  #miles
 
 def main(config):
     api_key = config.str("dev_api_key")
-    sign_id = config.str("sign_id")
+
+    sign_id = "101"
+    selected_location = config.str("sign_id") or '{"display": "", "value": "101"}'
+    selected_location = json.decode(selected_location)
+    if "value" in selected_location:
+        sign_id = selected_location["value"]
+
     favor_times = config.bool("favor_times") or False
 
     text = get_sign_text(api_key, sign_id, favor_times)
