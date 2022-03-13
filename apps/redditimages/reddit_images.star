@@ -140,6 +140,7 @@ def getPosts(subname):
         return setRandomPost(cachedPosts, subname)
 
     print("Cache miss, refreshing posts")
+
     # In lieu of the cache, pull a new set of posts from the API.
     apiUrl = "https://www.reddit.com/r/" + subname + "/hot.json?limit=30"
     rep = http.get(apiUrl, headers = {"User-Agent": "Tidbyt App: Reddit Image Shuffler " + str(getRandomNumber(9999))})
