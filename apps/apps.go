@@ -54,6 +54,7 @@ import (
 	"tidbyt.dev/community/apps/sunrisesunset"
 	"tidbyt.dev/community/apps/tempest"
 	"tidbyt.dev/community/apps/theysaidso"
+	"tidbyt.dev/community/apps/transsee"
 	"tidbyt.dev/community/apps/twitterfollows"
 	"tidbyt.dev/community/apps/verticalmessage"
 	"tidbyt.dev/community/apps/warframecycles"
@@ -111,6 +112,7 @@ func GetManifests() []manifest.Manifest {
 		sunrisesunset.New(),
 		tempest.New(),
 		theysaidso.New(),
+		transsee.New(),
 		twitterfollows.New(),
 		verticalmessage.New(),
 		weathermap.New(),
