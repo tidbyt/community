@@ -4,7 +4,7 @@ Displays a random image post from subreddits you specify and/or a list of defaul
 
 To access any posts on reddit, tack the ID onto the end of the URL. For example, the post below is located at http://www.reddit.com/td4fnp.
 
-![Sample Shuffle](image-shuffler-example.gif)
+![Sample Shuffle](image-shuffler-example.png)
 
 ## Reddit API
 
