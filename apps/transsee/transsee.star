@@ -1,7 +1,7 @@
 """
 Applet: TransSee
 Summary: Realtime transit prediction
-Description: Provides real-time transit predictions based on actual travel times. Requires paid premium. See transsee.ca/tidbyt for usage information
+Description: Provides real-time transit predictions based on actual travel times for over 150 agencies. Requires paid premium. See transsee.ca/tidbyt for usage information
 Author: doconno@gmail.com
 """
 
@@ -15,7 +15,7 @@ def main(config):
         return render.Root(render.Column(children = [
             render.Row(children = [
                 render.Box(width = 17, height = 8, color = "#6CBE45", child = render.Text(content = "B54", color = "#FFFFFF")),
-                render.Text(content = " 7-9, 22-27"),
+                render.Text(content = " →7-9, →22-27"),
             ]),
             render.Marquee(width = 64, child = render.Text("See transsee.ca/tidbyt for usage")),
         ]))
