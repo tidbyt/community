@@ -83,7 +83,7 @@ Gr1eimwzTjdSOy+wFaLiTvmqj9hwAAAABJRU5ErkJggg==
 
 def main(config):
     token = config.get("auth")
-    client_secret = OAUTH2_CLIENT_SECRET or config.get('dev_api_secret')
+    client_secret = OAUTH2_CLIENT_SECRET or config.get("dev_api_secret")
     access_token = cache.get(GLOBAL_CACHE_PREFIX + "access_token")
     refresh_token = cache.get(GLOBAL_CACHE_PREFIX + "refresh_token")
 
@@ -96,7 +96,7 @@ def main(config):
         access_token = get_access_token(token, client_secret)
 
     headers = {
-        "Authorization": "Bearer %s" % access_token
+        "Authorization": "Bearer %s" % access_token,
     }
 
     timezone = config.get("timezone") or "America/New_York"
@@ -176,11 +176,11 @@ def main(config):
     print(stats)
 
     display_header = []
-    if show_logo == 'true':
+    if show_logo == "true":
         display_header.append(render.Image(src = STRAVA_ICON))
     if period == "ytd":
         display_header.append(
-            render.Text(" %d" % year, font = "tb-8")
+            render.Text(" %d" % year, font = "tb-8"),
         )
 
     SPORT_ICON = {
@@ -193,11 +193,11 @@ def main(config):
     # more interesting statistic than speed so we"ll vary the third item:
     if sport == "ride":
         third_stat = [
-             render.Image(src = ELEV_ICON),
-             render.Text(
-                 " %s %s" % (humanize.comma(float(stats.get("elevation_gain", 0))), elevu),
-             ),
-         ]
+            render.Image(src = ELEV_ICON),
+            render.Text(
+                " %s %s" % (humanize.comma(float(stats.get("elevation_gain", 0))), elevu),
+            ),
+        ]
     else:
         if float(stats.get("distance", 0)) > 0:
             split = float(stats.get("moving_time", 0)) / float(stats.get("distance", 0))
@@ -207,11 +207,11 @@ def main(config):
             split = "N/A"
 
         third_stat = [
-             render.Image(src = CLOCK_ICON),
-             render.Text(
-                 " %s%s" % (split, "/" + distu),
-             ),
-         ]
+            render.Image(src = CLOCK_ICON),
+            render.Text(
+                " %s%s" % (split, "/" + distu),
+            ),
+        ]
 
     return render.Root(
         child = render.Column(
@@ -243,7 +243,6 @@ def main(config):
             ],
         ),
     )
-
 
 def meters_to_mi(m):
     return m * 0.00062137
@@ -282,7 +281,7 @@ def get_access_token(access_code, secret):
     res = http.post(
         url = "https://www.strava.com/api/v3/oauth/token?%s" % query_params,
         headers = {
-          "Accept": "application/json",
+            "Accept": "application/json",
         },
         form_encoding = "application/x-www-form-urlencoded",
     )
@@ -301,7 +300,6 @@ def get_access_token(access_code, secret):
 
     return access_token
 
-
 def display_failure(msg):
     return render.Root(
         child = render.Column(
@@ -312,12 +310,10 @@ def display_failure(msg):
                     child = render.Text(msg),
                 ),
             ],
-        )
+        ),
     )
 
-
 def get_schema():
-
     units_options = [
         schema.Option(value = "imperial", display = "Imperial (US)"),
         schema.Option(value = "metric", display = "Metric"),
