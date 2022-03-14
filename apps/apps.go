@@ -15,6 +15,7 @@ import (
 	"tidbyt.dev/community/apps/bigclock"
 	"tidbyt.dev/community/apps/binaryclock"
 	"tidbyt.dev/community/apps/clockbyhenry"
+	"tidbyt.dev/community/apps/cryptotracker"
 	"tidbyt.dev/community/apps/dateprogress"
 	"tidbyt.dev/community/apps/datetimeclock"
 	"tidbyt.dev/community/apps/daynightmap"
@@ -73,6 +74,7 @@ func GetManifests() []manifest.Manifest {
 		bigclock.New(),
 		binaryclock.New(),
 		clockbyhenry.New(),
+		cryptotracker.New(),
 		dateprogress.New(),
 		datetimeclock.New(),
 		daynightmap.New(),
@@ -113,9 +115,9 @@ func GetManifests() []manifest.Manifest {
 		theysaidso.New(),
 		twitterfollows.New(),
 		verticalmessage.New(),
+		warframecycles.New(),
 		weathermap.New(),
 		worldclock.New(),
-		warframecycles.New(),
 	}
 }
 
