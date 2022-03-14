@@ -167,6 +167,7 @@ def main(config):
         color = WHITE_RGB
 
     return render.Root(
+        delay = 75,
         child = render.Column(
             children = [
                 render.Column(
