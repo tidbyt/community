@@ -15,7 +15,7 @@ func New() manifest.Manifest {
 	return manifest.Manifest{
 		ID:          "coingecko-price",
 		Name:        "CoinGecko Price",
-		Author:      "@allenschober",
+		Author:      "Allen Schober (@aschober)",
 		Summary:     "Crypto price from CoinGecko",
 		Desc:        "Displays the current price of any coin supported by CoinGecko against one or two other currencies. Crypto price data updated every 10 minutes. Data provided by CoinGecko.",
 		FileName:    "coingecko_price.star",
