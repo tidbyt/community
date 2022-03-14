@@ -119,27 +119,27 @@ def main(config):
     cache_name = "{}_price_data".format(symbol)
     cached_data = cache.get(cache_name)
     if cached_data != None:
-        print("Hit! Displaying cached data.")
+        print("Hit! Displaying cached data from Alphavantage.")
         r = json.decode(cached_data)
     else:
-        print("Miss! Calling API.")
+        print("Miss! Calling Alphavantage API.")
         rep = http.get(API_URL)
         r = rep.json()
 
         if rep.status_code != 200:
             print("Using cached data")
             r = json.decode(cached_data)
-            print("API request failed with status %d, using cached data", rep.status_code)
+            print("Alphavantage API request failed with status %d, using cached data", rep.status_code)
 
         if list(r.keys()) == ["Note"]:
             print("Using cached data")
             r = json.decode(cached_data)
-            print("API request failed with note %d, using cached data", r["Note"])
+            print("Alphavantage API request failed with note %d, using cached data", r["Note"])
 
         if list(r.keys()) == ["Error Message"]:
             print("Using cached data")
             r = json.decode(cached_data)
-            print("API request failed with error message %d, using cached data", r["Error Message"])
+            print("Alphavantage API request failed with error message %d, using cached data", r["Error Message"])
 
         cache.set(cache_name, json.encode(r), ttl_seconds = 60 * 15)
 
