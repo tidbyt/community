@@ -17,8 +17,8 @@ load("encoding/json.star", "json")
 load("encoding/base64.star", "base64")
 
 STRAVA_BASE = "https://www.strava.com/api/v3"
-CLIENT_ID = "48947"
-OAUTH2_CLIENT_SECRET = secret.decrypt("AV6+xWcEEKTdPxzqIIIEEQf6NY19IjtTDp+J6ELb2u9HK2bkmpkCMM/Z1o9U9/9zECzSqWzEVXeZgAOTHBUGyZ6iP75XTtQzS9SxbaIbgjC55justcT5nsgA4GwzxFphYKMSkuO9YnbUVAvyCCSKAmUe2l+bi5mPldcql6Mmi+j475iEKJerQ40wJ9OB7Q==")
+CLIENT_ID = "79662"
+OAUTH2_CLIENT_SECRET = secret.decrypt("AV6+xWcE+oJPK08TUWRIoZPgneZiZsTciGafVUjbKA7elXuSDBS9h4koiu0kak1WthqS5W/HvXQtBM5kF7k8BMSgyIPNTBNEgep8BwAph7naog0GdcWLGKo2/eoQlXUSSVYtnBGc9EoxSp7soyw6BdMTOQgrnzOips7RKsI92CcSt4wzfQj/QTkSp6IyeA==")
 DEFAULT_UNITS = "imperial"
 DEFAULT_SPORT = "ride"
 DEFAULT_PERIOD = "all"
@@ -31,7 +31,6 @@ PREVIEW_DATA = {
     "elevation_gain": 11800,
 }
 
-GLOBAL_CACHE_PREFIX = "strava_"
 CACHE_TTL = 60 * 60 * 1  # updates once hourly
 
 STRAVA_ICON = base64.decode("""
@@ -82,23 +81,7 @@ Gr1eimwzTjdSOy+wFaLiTvmqj9hwAAAABJRU5ErkJggg==
 """)
 
 def main(config):
-    token = config.get("auth")
-    client_secret = OAUTH2_CLIENT_SECRET or config.get("dev_api_secret")
-    access_token = cache.get(GLOBAL_CACHE_PREFIX + "access_token")
-    refresh_token = cache.get(GLOBAL_CACHE_PREFIX + "refresh_token")
-
-    if not token:
-        print("No authorized user found")
-        return display_failure("No user logged in - please check your applet settings")
-
-    if not access_token:
-        print("Generating new access token")
-        access_token = get_access_token(token, client_secret)
-
-    headers = {
-        "Authorization": "Bearer %s" % access_token,
-    }
-
+    refresh_token = config.get("auth")
     timezone = config.get("timezone") or "America/New_York"
     year = time.now().in_location(timezone).year
     sport = config.get("sport", DEFAULT_SPORT)
@@ -106,41 +89,51 @@ def main(config):
     period = config.get("period", DEFAULT_PERIOD)
     show_logo = config.get("show_logo", True)
 
-    cache_prefix = GLOBAL_CACHE_PREFIX + sport + period
-
-    # Get logged in athlete
-    athlete = cache.get(GLOBAL_CACHE_PREFIX + "athlete_id")
-    if not athlete:
-        print("Getting athlete ID from API, access_token was cached.")
-        url = "%s/athlete" % STRAVA_BASE
-        response = http.get(url, headers = headers)
-        if response.status_code != 200:
-            print("Strava API call failed with status %d" % response.status_code)
-
-        data = response.json()
-        athlete = int(float(data["id"]))
-        cache.set(GLOBAL_CACHE_PREFIX + "athlete_id", str(athlete), ttl_seconds = CACHE_TTL)
-
-    stats = ["count", "distance", "moving_time", "elapsed_time", "elevation_gain"]
-    stats = {k: cache.get(cache_prefix + k) for k in stats}
-
-    # Optionally we can display dummy data if we need to test without the API
-    # stats = {k: PREVIEW_DATA[k] for k in stats}
-
-    if None not in stats.values():
-        print("Displaying cached data.")
+    if not refresh_token:
+        stats = ["count", "distance", "moving_time", "elapsed_time", "elevation_gain"]
+        stats = {k: PREVIEW_DATA[k] for k in stats}
     else:
-        url = "%s/athletes/%s/stats" % (STRAVA_BASE, athlete)
-        print("Calling Strava API: " + url)
-        response = http.get(url, headers = headers)
-        if response.status_code != 200:
-            fail("Strava API call failed with status %d" % response.status_code)
-        data = response.json()
+        access_token = cache.get(refresh_token)
+        if not access_token:
+            print("Generating new access token")
+            access_token = get_access_token(refresh_token)
 
-        for item in stats.keys():
-            stats[item] = data["%s_%s_totals" % (period, sport)][item]
-            cache.set(cache_prefix + item, str(stats[item]), ttl_seconds = CACHE_TTL)
-            #print("saved item %s "%s" in the cache for %d seconds" % (item, str(stats[item]), CACHE_TTL))
+        headers = {
+            "Authorization": "Bearer %s" % access_token,
+        }
+
+        cache_prefix = "%s/%s/%s/" % (refresh_token, sport, period)
+
+        # Get logged in athlete
+        athlete = cache.get("%s/athlete_id" % refresh_token)
+        if not athlete:
+            print("Getting athlete ID from API, access_token was cached.")
+            url = "%s/athlete" % STRAVA_BASE
+            response = http.get(url, headers = headers)
+            if response.status_code != 200:
+                print("Strava API call failed with status %d" % response.status_code)
+
+            data = response.json()
+            athlete = int(float(data["id"]))
+            cache.set("%s/athlete_id" % refresh_token, str(athlete), ttl_seconds = CACHE_TTL)
+
+        stats = ["count", "distance", "moving_time", "elapsed_time", "elevation_gain"]
+        stats = {k: cache.get(cache_prefix + k) for k in stats}
+
+        if None not in stats.values():
+            print("Displaying cached data.")
+        else:
+            url = "%s/athletes/%s/stats" % (STRAVA_BASE, athlete)
+            print("Calling Strava API: " + url)
+            response = http.get(url, headers = headers)
+            if response.status_code != 200:
+                fail("Strava API call failed with status %d" % response.status_code)
+            data = response.json()
+
+            for item in stats.keys():
+                stats[item] = data["%s_%s_totals" % (period, sport)][item]
+                cache.set(cache_prefix + item, str(stats[item]), ttl_seconds = CACHE_TTL)
+                #print("saved item %s "%s" in the cache for %d seconds" % (item, str(stats[item]), CACHE_TTL))
 
     ###################################################
     # Configure the display to the user"s preferences #
@@ -172,8 +165,6 @@ def main(config):
         actu = sport
         if int(float(stats["count"])) != 1:
             actu += "s"
-
-    print(stats)
 
     display_header = []
     if show_logo == "true":
@@ -267,22 +258,22 @@ def format_duration(d):
 def oauth_handler(params):
     params = json.decode(params)
     auth_code = params.get("code")
-    return auth_code
+    return get_refresh_token(auth_code)
 
-def get_access_token(access_code, secret):
+def get_refresh_token(auth_code):
     params = dict(
-        code = access_code,
-        client_secret = secret,
+        code = auth_code,
+        client_secret = OAUTH2_CLIENT_SECRET,
         grant_type = "authorization_code",
         client_id = CLIENT_ID,
     )
-    query_params = "&".join(["%s=%s" % (k, v) for k, v in params.items()])
-    print("https://www.strava.com/api/v3/oauth/token?%s" % query_params)
+
     res = http.post(
-        url = "https://www.strava.com/api/v3/oauth/token?%s" % query_params,
+        url = "https://www.strava.com/api/v3/oauth/token",
         headers = {
             "Accept": "application/json",
         },
+        params = params,
         form_encoding = "application/x-www-form-urlencoded",
     )
     if res.status_code != 200:
@@ -294,9 +285,35 @@ def get_access_token(access_code, secret):
     access_token = token_params["access_token"]
     athlete = int(float(token_params["athlete"]["id"]))
 
-    cache.set(GLOBAL_CACHE_PREFIX + "athlete_id", str(athlete), ttl_seconds = CACHE_TTL)
-    cache.set(GLOBAL_CACHE_PREFIX + "access_token", access_token, ttl_seconds = int(token_params["expires_in"] - 30))
-    cache.set(GLOBAL_CACHE_PREFIX + "refresh_token", refresh_token, ttl_seconds = int(token_params["expires_in"] - 30))
+    cache.set(refresh_token, access_token, ttl_seconds = int(token_params["expires_in"] - 30))
+    cache.set("%s/athlete_id" % refresh_token, str(athlete), ttl_seconds = CACHE_TTL)
+
+    return refresh_token
+
+def get_access_token(refresh_token):
+    params = dict(
+        refresh_token = refresh_token,
+        client_secret = OAUTH2_CLIENT_SECRET,
+        grant_type = "refresh_token",
+        client_id = CLIENT_ID,
+    )
+
+    res = http.post(
+        url = "https://www.strava.com/api/v3/oauth/token",
+        headers = {
+            "Accept": "application/json",
+        },
+        params = params,
+        form_encoding = "application/x-www-form-urlencoded",
+    )
+    if res.status_code != 200:
+        fail("token request failed with status code: %d - %s" %
+             (res.status_code, res.body()))
+
+    token_params = res.json()
+    access_token = token_params["access_token"]
+
+    cache.set(refresh_token, access_token, ttl_seconds = int(token_params["expires_in"] - 30))
 
     return access_token
 
