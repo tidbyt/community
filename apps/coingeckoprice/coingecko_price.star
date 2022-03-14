@@ -2,7 +2,7 @@
 Applet: CoinGecko Price
 Summary: Crypto price from CoinGecko
 Description: Displays the current price of any coin supported by CoinGecko against one or two other currencies. Crypto price data updated every 10 minutes. Data provided by CoinGecko.
-Author: Allen Schober (@allenschober)
+Author: Allen Schober (@aschober)
 Thanks: @saltedlolly as this is based on the digibyteprice app.
 """
 
@@ -31,8 +31,8 @@ SCHEMA_ID_FIRST_CURRENCY = "first_currency"
 SCHEMA_ID_SECOND_CURRENCY = "second_currency"
 SCHEMA_ID_FIRST_CURRENCY_SYMBOL_SETTING = "first_currency_symbol_setting"
 SCHEMA_ID_FIRST_CURRENCY_CODE_SETTING = "first_currency_code_setting"
-SCHEMA_ID_SECOND_CURRENCY_SYMBOL_SETTING = "first_currency_symbol_setting"
-SCHEMA_ID_SECOND_CURRENCY_CODE_SETTING = "first_currency_code_setting"
+SCHEMA_ID_SECOND_CURRENCY_SYMBOL_SETTING = "second_currency_symbol_setting"
+SCHEMA_ID_SECOND_CURRENCY_CODE_SETTING = "second_currency_code_setting"
 
 SCHEMA_DESC_COIN_ID = "The name of the cryptocurrency to display."
 SCHEMA_DESC_CURRENCY = "Choose another currency to display the price in. Select [NONE] to hide."
@@ -323,12 +323,11 @@ def format_price_string(currency_price, currency_symbol, currency_symbol_setting
         if currency_symbol_setting != CURRENCY_SYMBOL_SETTINGS[2]:
             currency_code_setting = False
 
-    # currency_symbol_setting == left
     if currency_symbol_setting == CURRENCY_SYMBOL_SETTINGS[0]:
+        # if currency_symbol_setting == left
         currency_price = (currency_symbol + currency_price)
-        # currency_symbol_setting == right
-
     elif currency_symbol_setting == CURRENCY_SYMBOL_SETTINGS[1]:
+        # elif currency_symbol_setting == right
         currency_price = (currency_price + currency_symbol)
 
     if currency_code_setting == True:
