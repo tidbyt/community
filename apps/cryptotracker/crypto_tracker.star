@@ -13,111 +13,110 @@ load("cache.star", "cache")
 load("encoding/json.star", "json")
 load("secret.star", "secret")
 
-DEFAULT_SYMBOL = 'BTC'
-RED_RGB = '#FF0000'
-GREEN_RGB = '#00FF00'
-WHITE_RGB = '#FFFFFF'
+DEFAULT_SYMBOL = "BTC"
+RED_RGB = "#FF0000"
+GREEN_RGB = "#00FF00"
+WHITE_RGB = "#FFFFFF"
 
 PIN = """
 AV6+xWcEVlhaDfM6KaOuPf7x+wdwWzDlL4cwQMAZArj+ut/DwShqRB1OtNksWWNdqkpQKUwF4Bolpyl+d5wrn1htZjlmEBb4ClZOEmKKS5Q5nkkCBJV4zk99f/5wCJviUDB8JvawxoEvuGpJBbvd0Co4xdefeg==
 """
 
 def display_symbol(crypto_symbol):
-    'returns crypto symbol render'
+    "returns crypto symbol render"
 
     return render.Marquee(
         width = 34,
         child = render.Text(
             content = crypto_symbol,
-            offset = 0
+            offset = 0,
         ),
-        offset_start=0,
-        offset_end=0
+        offset_start = 0,
+        offset_end = 0,
     )
 
 def display_price(current_price):
-    'returns crypto price render'
+    "returns crypto price render"
 
     disp_text = humanize.comma(int(current_price * 100) / 100.0)
 
-    if len(disp_text.partition('.')[-1]) == 1:
-        disp_text += '0'
+    if len(disp_text.partition(".")[-1]) == 1:
+        disp_text += "0"
 
     return render.Marquee(
         width = 34,
         child = render.Text(
             content = disp_text,
-            offset = 1
+            offset = 1,
         ),
-        offset_start=1,
-        offset_end=0
+        offset_start = 1,
+        offset_end = 0,
     )
 
 def display_price_change(current_price, first_price, color):
-    'returns crypto price change render'
+    "returns crypto price change render"
 
     price_change = current_price - first_price
 
     disp_text = humanize.comma(int(price_change * 100) / 100.0)
 
-    if len(disp_text.partition('.')[-1]) == 1:
-        disp_text += '0'
+    if len(disp_text.partition(".")[-1]) == 1:
+        disp_text += "0"
 
     return render.Marquee(
         width = 30,
         child = render.Text(
             content = disp_text,
             color = color,
-            offset = 0
+            offset = 0,
         ),
-        offset_start=0,
-        offset_end=0
+        offset_start = 0,
+        offset_end = 0,
     )
 
 def display_percentage_change(current_price, first_price, color):
-    'returns crypto percentage change render'
+    "returns crypto percentage change render"
 
     pct_change = ((current_price / first_price) - 1) * 100
 
     disp_text = humanize.comma(int(pct_change * 100) / 100.0)
 
-    if len(disp_text.partition('.')[-1]) == 1:
-        disp_text += '0'
+    if len(disp_text.partition(".")[-1]) == 1:
+        disp_text += "0"
 
     return render.Marquee(
         width = 30,
         child = render.Text(
-            content = disp_text + '%',
+            content = disp_text + "%",
             color = color,
-            offset = 1
+            offset = 1,
         ),
-        offset_start=0,
-        offset_end=0
+        offset_start = 0,
+        offset_end = 0,
     )
-    
 
 def display_chart(c_data, x_lim, y_lim):
-    'returns crypto price chart render'
+    "returns crypto price chart render"
 
     return render.Plot(
-        65, # width
-        16, # height
-        c_data, # list of tuples
-        x_lim, # (x_min, x_max)
-        y_lim, # (y_min, y_max)
-        GREEN_RGB, # color
-        RED_RGB, # colorinverted
-        fill=True # fill
+        65,  # width
+        16,  # height
+        c_data,  # list of tuples
+        x_lim,  # (x_min, x_max)
+        y_lim,  # (y_min, y_max)
+        GREEN_RGB,  # color
+        RED_RGB,  # colorinverted
+        fill = True,  # fill
     )
 
 def main(config):
     symbol = config.str("symbol", DEFAULT_SYMBOL)
-    interval = '15min'
+    interval = "15min"
 
-    API_KEY = secret.decrypt(PIN) or config.get('dev_api_key')
-    API_URL = 'https://www.alphavantage.co/query?function=CRYPTO_INTRADAY&symbol={s}&market=USD&interval={i}&outputsize=full&apikey={a}'.format(s=symbol, i=interval, a=API_KEY)
+    API_KEY = secret.decrypt(PIN) or config.get("dev_api_key")
+    API_URL = "https://www.alphavantage.co/query?function=CRYPTO_INTRADAY&symbol={s}&market=USD&interval={i}&outputsize=full&apikey={a}".format(s = symbol, i = interval, a = API_KEY)
 
-    cache_name = '{}_price_data'.format(symbol)
+    cache_name = "{}_price_data".format(symbol)
     cached_data = cache.get(cache_name)
     if cached_data != None:
         print("Hit! Displaying cached data.")
@@ -128,27 +127,27 @@ def main(config):
         r = rep.json()
 
         if rep.status_code != 200:
-            print('Using cached data')
+            print("Using cached data")
             r = json.decode(cached_data)
             print("API request failed with status %d, using cached data", rep.status_code)
 
-        if list(r.keys()) == ['Note']:
-            print('Using cached data')
+        if list(r.keys()) == ["Note"]:
+            print("Using cached data")
             r = json.decode(cached_data)
-            print("API request failed with note %d, using cached data", r['Note'])
+            print("API request failed with note %d, using cached data", r["Note"])
 
-        if list(r.keys()) == ['Error Message']:
-            print('Using cached data')
+        if list(r.keys()) == ["Error Message"]:
+            print("Using cached data")
             r = json.decode(cached_data)
-            print("API request failed with error message %d, using cached data", r['Error Message'])
+            print("API request failed with error message %d, using cached data", r["Error Message"])
 
-        cache.set(cache_name, json.encode(r), ttl_seconds=60 * 15)
+        cache.set(cache_name, json.encode(r), ttl_seconds = 60 * 15)
 
-    timeseries = r['Time Series Crypto (15min)']
+    timeseries = r["Time Series Crypto (15min)"]
 
     dates = [val for val in timeseries.keys()]
 
-    y = [float(timeseries[date]['1. open']) for date in sorted(dates)][-96:]
+    y = [float(timeseries[date]["1. open"]) for date in sorted(dates)][-96:]
     first_val = y[0]
     y_transformed = [price - first_val for price in y]
 
@@ -176,40 +175,39 @@ def main(config):
                             children = [
                                 render.Padding(
                                     child = display_symbol(symbol),
-                                    pad = (1, 0, 0, 0)
+                                    pad = (1, 0, 0, 0),
                                 ),
                                 render.Padding(
                                     child = display_price_change(y[-1], y[0], color),
-                                    pad = (1, 0, 0, 0)
+                                    pad = (1, 0, 0, 0),
                                 ),
-                            ]
+                            ],
                         ),
                         render.Row(
                             children = [
                                 render.Padding(
                                     child = display_price(y[-1]),
-                                    pad = (1, 0, 0, 0)
+                                    pad = (1, 0, 0, 0),
                                 ),
                                 render.Padding(
                                     child = display_percentage_change(y[-1], y[0], color),
-                                    pad = (1, 0, 0, 0)
-                                )
-                            ]
-                        )
-                    ]
+                                    pad = (1, 0, 0, 0),
+                                ),
+                            ],
+                        ),
+                    ],
                 ),
                 render.Row(
                     children = [
-                        display_chart(chart_data, x_lim, y_lim)
+                        display_chart(chart_data, x_lim, y_lim),
                     ],
-                    main_align="center"
-                )
-            ]
-        )
+                    main_align = "center",
+                ),
+            ],
+        ),
     )
 
 def get_schema():
-
     crypto_options = [
         # API allows for 500 calls/day and 5 per minute
         # 96 calls needed per coin per day to get all 15 minute intervals
@@ -235,7 +233,7 @@ def get_schema():
         schema.Option(
             display = "Solana",
             value = "SOL",
-        )
+        ),
     ]
 
     return schema.Schema(
@@ -247,7 +245,7 @@ def get_schema():
                 desc = "Crypto symbol",
                 icon = "user",
                 default = crypto_options[0].value,
-                options = crypto_options
-            )
-        ]
+                options = crypto_options,
+            ),
+        ],
     )
