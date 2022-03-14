@@ -2,7 +2,7 @@
 Applet: Crypto Tracker
 Summary: Tracks crypto price
 Description: Displays crypto prices over the last 24 hours.
-Author: @ethanfuerst
+Author: Ethan Fuerst (@ethanfuerst)
 """
 
 load("render.star", "render")

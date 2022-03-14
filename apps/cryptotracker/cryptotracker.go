@@ -15,11 +15,11 @@ func New() manifest.Manifest {
 	return manifest.Manifest{
 		ID:          "crypto-tracker",
 		Name:        "Crypto Tracker",
-		Author:      "@ethanfuerst",
+		Author:      "Ethan Fuerst (@ethanfuerst)",
 		Summary:     "Tracks crypto price",
 		Desc:        "Display crypto prices over the last 24 hours.",
 		FileName:    "crypto_tracker.star",
 		PackageName: "cryptotracker",
-		Source:  source,
+		Source:      source,
 	}
 }
