@@ -35,25 +35,25 @@ def main(config):
     wf_vallis_cached = cache.get("vallis")
     if wf_cetus_cached != None:
         print("Hit! Displaying cached data.")
-        cetus = wf_cetus_cached
+        cetus = int(wf_cetus_cached) - 1  # Subtract because cache could be up to 1 minute old
     else:
         REFRESH_CACHE = True
 
     if wf_earth_cached != None:
         print("Hit! Displaying cached data.")
-        earth = wf_earth_cached
+        earth = str(int(wf_earth_cached) - 1)  # Subtract because cache could be up to 1 minute old
     else:
         REFRESH_CACHE = True
 
     if wf_cambion_cached != None:
         print("Hit! Displaying cached data.")
-        cambion = wf_cambion_cached
+        cambion = str(int(wf_cambion_cached) - 1)  # Subtract because cache could be up to 1 minute old
     else:
         REFRESH_CACHE = True
 
     if wf_vallis_cached != None:
         print("Hit! Displaying cached data.")
-        vallis = wf_vallis_cached
+        vallis = str(int(wf_vallis_cached) - 1)  # Subtract because cache could be up to 1 minute old
     else:
         REFRESH_CACHE = True
 
