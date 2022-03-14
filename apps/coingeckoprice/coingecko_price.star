@@ -318,6 +318,7 @@ def format_price_string(currency_price, currency_symbol, currency_symbol_setting
         currency_price = str(int(math.round(currency_price)))
     elif len(currency_price_integer) >= 6:
         currency_price = str(int(math.round(currency_price)))
+
         # if price is a long string and symbol is not hidden, then don't show currency code
         if currency_symbol_setting != CURRENCY_SYMBOL_SETTINGS[2]:
             currency_code_setting = False
