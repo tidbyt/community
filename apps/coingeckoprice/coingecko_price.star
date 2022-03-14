@@ -120,7 +120,6 @@ def get_schema():
     )
 
 def main(config):
-
     # Get data out of config
     coin_id_full = config.get(SCHEMA_ID_COIN_ID)
     coin_id_json = json.decode(coin_id_full) if coin_id_full else DEFAULT_COIN_ID_JSON
@@ -143,54 +142,57 @@ def main(config):
     # Check for catastrophic data failure (i.e. failed to get data from CoinGecko and no cache data is available to fall back on)
     if coin_data == None:
         display_error = render.Column(
-                            expanded = True,
-                            main_align = "space_evenly",
-                            cross_align = "center",
-                            children = [
-                                render.Text("ERROR:", font = "CG-pixel-3x5-mono", color = "#FF0000"),
-                                render.Text("CoinGecko API", font = "CG-pixel-3x5-mono"),
-                                render.Text("unvailable", font = "CG-pixel-3x5-mono")
-                            ],
+            expanded = True,
+            main_align = "space_evenly",
+            cross_align = "center",
+            children = [
+                render.Text("ERROR:", font = "CG-pixel-3x5-mono", color = "#FF0000"),
+                render.Text("CoinGecko API", font = "CG-pixel-3x5-mono"),
+                render.Text("unvailable", font = "CG-pixel-3x5-mono"),
+            ],
         )
         display_vec.append(display_error)
         print("Error: No CoinGecko data available")
         return render.Root(
             child = render.Box(
-                display_error
+                display_error,
             ),
         )
 
     # Setup first currency price
     if first_currency != SELECTED_CURRENCY_NONE:
-        
-        first_currency_price = float(coin_data['market_data']['current_price'][first_currency])
+        first_currency_price = float(coin_data["market_data"]["current_price"][first_currency])
         first_currency_symbol = CURRENCY_SYMBOLS_MAP.get(first_currency.upper(), "")
         first_currency_code = first_currency.upper()
         print("Currency A: {}".format(first_currency.upper()))
 
-        display_first_currency_price = format_price_string(first_currency_price,
-                                                           first_currency_symbol,
-                                                           first_currency_symbol_setting,
-                                                           first_currency_code,
-                                                           first_currency_code_bool)
+        display_first_currency_price = format_price_string(
+            first_currency_price,
+            first_currency_symbol,
+            first_currency_symbol_setting,
+            first_currency_code,
+            first_currency_code_bool,
+        )
         display_vec.append(display_first_currency_price)
 
     # Setup second currency price
     if second_currency != SELECTED_CURRENCY_NONE:
-        second_currency_price = float(coin_data['market_data']['current_price'][second_currency])
+        second_currency_price = float(coin_data["market_data"]["current_price"][second_currency])
         second_currency_symbol = CURRENCY_SYMBOLS_MAP.get(second_currency.upper(), "")
         second_currency_code = second_currency.upper()
         print("Currency B: {}".format(second_currency.upper()))
 
-        display_second_currency_price = format_price_string(second_currency_price,
-                                                            second_currency_symbol,
-                                                            second_currency_symbol_setting,
-                                                            second_currency_code,
-                                                            second_currency_code_bool)
+        display_second_currency_price = format_price_string(
+            second_currency_price,
+            second_currency_symbol,
+            second_currency_symbol_setting,
+            second_currency_code,
+            second_currency_code_bool,
+        )
         display_vec.append(display_second_currency_price)
 
     # get coin image
-    coin_image_url = coin_data['image']['large']
+    coin_image_url = coin_data["image"]["large"]
     coin_image = get_body_from_cache_or_http(coin_image_url, ttl_seconds = 86400)
 
     # build render objects
@@ -198,16 +200,20 @@ def main(config):
 
     # build row with coin image
     if (len(coin_image) > 0):
-        row_image = render.Image(src = coin_image,
-                        width = 18,
-                        height = 18)
+        row_image = render.Image(
+            src = coin_image,
+            width = 18,
+            height = 18,
+        )
         row_children.append(row_image)
 
-    # build row with price 
+    # build row with price
     if (len(display_vec) > 0):
-        row_price = render.Column(main_align = "space_evenly",
-                                  expanded = True,
-                                  children = display_vec)
+        row_price = render.Column(
+            main_align = "space_evenly",
+            expanded = True,
+            children = display_vec,
+        )
         row_children.append(row_price)
 
     return render.Root(
@@ -226,19 +232,19 @@ def coin_search(pattern):
 
     search_results = []
     for coin in supported_coins:
-        if (coin['name'].startswith(pattern)):
+        if (coin["name"].startswith(pattern)):
             search_results.append(
                 schema.Option(
-                    display = coin['name'] + " ({})".format(coin['symbol'].upper()),
-                    value = coin['id'],
-                )
+                    display = coin["name"] + " ({})".format(coin["symbol"].upper()),
+                    value = coin["id"],
+                ),
             )
-        elif (coin['symbol'].startswith(pattern.lower())):
+        elif (coin["symbol"].startswith(pattern.lower())):
             search_results.append(
                 schema.Option(
-                    display = coin['name'] + " ({})".format(coin['symbol'].upper()),
-                    value = coin['id'],
-                )
+                    display = coin["name"] + " ({})".format(coin["symbol"].upper()),
+                    value = coin["id"],
+                ),
             )
 
     return search_results
@@ -254,6 +260,7 @@ def get_json_from_cache_or_http(url, ttl_seconds):
         http_response = http.get(url)
         if http_response.status_code != 200:
             fail("HTTP Request failed with status: {}".format(http_response.status_code))
+
         # Store http response in cache keyed off URL
         cache.set(url, json.encode(http_response.json()), ttl_seconds = ttl_seconds)
         data = http_response.json()
@@ -271,6 +278,7 @@ def get_body_from_cache_or_http(url, ttl_seconds):
         http_response = http.get(url)
         if http_response.status_code != 200:
             fail("HTTP Request failed with status: {}".format(http_response.status_code))
+
         # Store http response in cache keyed off URL
         cache.set(url, http_response.body(), ttl_seconds = ttl_seconds)
         data = http_response.body()
@@ -310,14 +318,16 @@ def format_price_string(currency_price, currency_symbol, currency_symbol_setting
         currency_price = str(int(math.round(currency_price)))
     elif len(currency_price_integer) >= 6:
         currency_price = str(int(math.round(currency_price)))
+
         # if price is a long string and symbol is not hidden, then don't show currency code
-        if currency_symbol_setting != CURRENCY_SYMBOL_SETTINGS[2]: 
+        if currency_symbol_setting != CURRENCY_SYMBOL_SETTINGS[2]:
             currency_code_setting = False
 
     # currency_symbol_setting == left
     if currency_symbol_setting == CURRENCY_SYMBOL_SETTINGS[0]:
         currency_price = (currency_symbol + currency_price)
-    # currency_symbol_setting == right
+        # currency_symbol_setting == right
+
     elif currency_symbol_setting == CURRENCY_SYMBOL_SETTINGS[1]:
         currency_price = (currency_price + currency_symbol)
 
@@ -335,52 +345,180 @@ def format_price_string(currency_price, currency_symbol, currency_symbol_setting
 
     return display_currency_price
 
-
 # Currency symbol map
 # from https://github.com/arshadkazmi42/currency-symbols
 CURRENCY_SYMBOLS_MAP = {
-    "AED": "د.إ",  "AFN": "؋",    "ALL": "L",    "AMD": "֏",
-    "ANG": "ƒ",    "AOA": "Kz",   "ARS": "$",    "AUD": "$",
-    "AWG": "ƒ",    "AZN": "₼",    "BAM": "KM",   "BBD": "$",
-    "BDT": "৳",    "BGN": "лв",   "BHD": ".د.ب", "BIF": "FBu",
-    "BMD": "$",    "BND": "$",    "BOB": "$b",   "BRL": "R$",
-    "BSD": "$",    "BTC": "฿",    "BTN": "Nu.",  "BWP": "P",
-    "BYR": "Br",   "BYN": "Br",   "BZD": "BZ$",  "CAD": "$",
-    "CDF": "FC",   "CHF": "CHF",  "CLP": "$",    "CNY": "¥",
-    "COP": "$",    "CRC": "₡",    "CUC": "$",    "CUP": "₱",
-    "CVE": "$",    "CZK": "Kč",   "DJF": "Fdj",  "DKK": "kr",
-    "DOP": "RD$",  "DZD": "دج",   "EEK": "kr",   "EGP": "£",
-    "ERN": "Nfk",  "ETB": "Br",   "ETH": "Ξ",    "EUR": "€",
-    "FJD": "$",    "FKP": "£",    "GBP": "£",    "GEL": "₾",
-    "GGP": "£",    "GHC": "₵",    "GHS": "GH₵",  "GIP": "£",
-    "GMD": "D",    "GNF": "FG",   "GTQ": "Q",    "GYD": "$",
-    "HKD": "$",    "HNL": "L",    "HRK": "kn",   "HTG": "G",
-    "HUF": "Ft",   "IDR": "Rp",   "ILS": "₪",    "IMP": "£",
-    "INR": "₹",    "IQD": "ع.د",  "IRR": "﷼",    "ISK": "kr",
-    "JEP": "£",    "JMD": "J$",   "JOD": "JD",   "JPY": "¥",
-    "KES": "KSh",  "KGS": "лв",   "KHR": "៛",    "KMF": "CF",
-    "KPW": "₩",    "KRW": "₩",    "KWD": "KD",   "KYD": "$",
-    "KZT": "лв",   "LAK": "₭",    "LBP": "£",    "LKR": "₨",
-    "LRD": "$",    "LSL": "M",    "LTC": "Ł",    "LTL": "Lt",
-    "LVL": "Ls",   "LYD": "LD",   "MAD": "MAD",  "MDL": "lei",
-    "MGA": "Ar",   "MKD": "ден",  "MMK": "K",    "MNT": "₮",
-    "MOP": "MOP$", "MRO": "UM",   "MRU": "UM",   "MUR": "₨",
-    "MVR": "Rf",   "MWK": "MK",   "MXN": "$",    "MYR": "RM",
-    "MZN": "MT",   "NAD": "$",    "NGN": "₦",    "NIO": "C$",
-    "NOK": "kr",   "NPR": "₨",    "NZD": "$",    "OMR": "﷼",
-    "PAB": "B/.",  "PEN": "S/.",  "PGK": "K",    "PHP": "₱",
-    "PKR": "₨",    "PLN": "zł",   "PYG": "Gs",   "QAR": "﷼",
-    "RMB": "￥",   "RON": "lei",  "RSD": "Дин.", "RUB": "₽",
-    "RWF": "R₣",   "SAR": "﷼",    "SBD": "$",    "SCR": "₨",
-    "SDG": "ج.س.", "SEK": "kr",   "SGD": "$",    "SHP": "£",
-    "SLL": "Le",   "SOS": "S",    "SRD": "$",    "SSP": "£",
-    "STD": "Db",   "STN": "Db",   "SVC": "$",    "SYP": "£",
-    "SZL": "E",    "THB": "฿",    "TJS": "SM",   "TMT": "T",
-    "TND": "د.ت",  "TOP": "T$",   "TRL": "₤",    "TRY": "₺",
-    "TTD": "TT$",  "TVD": "$",    "TWD": "NT$",  "TZS": "TSh",
-    "UAH": "₴",    "UGX": "USh",  "USD": "$",    "UYU": "$U",
-    "UZS": "лв",   "VEF": "Bs",   "VND": "₫",    "VUV": "VT",
-    "WST": "WS$",  "XAF": "FCFA", "XBT": "Ƀ",    "XCD": "$",
-    "XOF": "CFA",  "XPF": "₣",    "YER": "﷼",    "ZAR": "R",
+    "AED": "د.إ",
+    "AFN": "؋",
+    "ALL": "L",
+    "AMD": "֏",
+    "ANG": "ƒ",
+    "AOA": "Kz",
+    "ARS": "$",
+    "AUD": "$",
+    "AWG": "ƒ",
+    "AZN": "₼",
+    "BAM": "KM",
+    "BBD": "$",
+    "BDT": "৳",
+    "BGN": "лв",
+    "BHD": ".د.ب",
+    "BIF": "FBu",
+    "BMD": "$",
+    "BND": "$",
+    "BOB": "$b",
+    "BRL": "R$",
+    "BSD": "$",
+    "BTC": "฿",
+    "BTN": "Nu.",
+    "BWP": "P",
+    "BYR": "Br",
+    "BYN": "Br",
+    "BZD": "BZ$",
+    "CAD": "$",
+    "CDF": "FC",
+    "CHF": "CHF",
+    "CLP": "$",
+    "CNY": "¥",
+    "COP": "$",
+    "CRC": "₡",
+    "CUC": "$",
+    "CUP": "₱",
+    "CVE": "$",
+    "CZK": "Kč",
+    "DJF": "Fdj",
+    "DKK": "kr",
+    "DOP": "RD$",
+    "DZD": "دج",
+    "EEK": "kr",
+    "EGP": "£",
+    "ERN": "Nfk",
+    "ETB": "Br",
+    "ETH": "Ξ",
+    "EUR": "€",
+    "FJD": "$",
+    "FKP": "£",
+    "GBP": "£",
+    "GEL": "₾",
+    "GGP": "£",
+    "GHC": "₵",
+    "GHS": "GH₵",
+    "GIP": "£",
+    "GMD": "D",
+    "GNF": "FG",
+    "GTQ": "Q",
+    "GYD": "$",
+    "HKD": "$",
+    "HNL": "L",
+    "HRK": "kn",
+    "HTG": "G",
+    "HUF": "Ft",
+    "IDR": "Rp",
+    "ILS": "₪",
+    "IMP": "£",
+    "INR": "₹",
+    "IQD": "ع.د",
+    "IRR": "﷼",
+    "ISK": "kr",
+    "JEP": "£",
+    "JMD": "J$",
+    "JOD": "JD",
+    "JPY": "¥",
+    "KES": "KSh",
+    "KGS": "лв",
+    "KHR": "៛",
+    "KMF": "CF",
+    "KPW": "₩",
+    "KRW": "₩",
+    "KWD": "KD",
+    "KYD": "$",
+    "KZT": "лв",
+    "LAK": "₭",
+    "LBP": "£",
+    "LKR": "₨",
+    "LRD": "$",
+    "LSL": "M",
+    "LTC": "Ł",
+    "LTL": "Lt",
+    "LVL": "Ls",
+    "LYD": "LD",
+    "MAD": "MAD",
+    "MDL": "lei",
+    "MGA": "Ar",
+    "MKD": "ден",
+    "MMK": "K",
+    "MNT": "₮",
+    "MOP": "MOP$",
+    "MRO": "UM",
+    "MRU": "UM",
+    "MUR": "₨",
+    "MVR": "Rf",
+    "MWK": "MK",
+    "MXN": "$",
+    "MYR": "RM",
+    "MZN": "MT",
+    "NAD": "$",
+    "NGN": "₦",
+    "NIO": "C$",
+    "NOK": "kr",
+    "NPR": "₨",
+    "NZD": "$",
+    "OMR": "﷼",
+    "PAB": "B/.",
+    "PEN": "S/.",
+    "PGK": "K",
+    "PHP": "₱",
+    "PKR": "₨",
+    "PLN": "zł",
+    "PYG": "Gs",
+    "QAR": "﷼",
+    "RMB": "￥",
+    "RON": "lei",
+    "RSD": "Дин.",
+    "RUB": "₽",
+    "RWF": "R₣",
+    "SAR": "﷼",
+    "SBD": "$",
+    "SCR": "₨",
+    "SDG": "ج.س.",
+    "SEK": "kr",
+    "SGD": "$",
+    "SHP": "£",
+    "SLL": "Le",
+    "SOS": "S",
+    "SRD": "$",
+    "SSP": "£",
+    "STD": "Db",
+    "STN": "Db",
+    "SVC": "$",
+    "SYP": "£",
+    "SZL": "E",
+    "THB": "฿",
+    "TJS": "SM",
+    "TMT": "T",
+    "TND": "د.ت",
+    "TOP": "T$",
+    "TRL": "₤",
+    "TRY": "₺",
+    "TTD": "TT$",
+    "TVD": "$",
+    "TWD": "NT$",
+    "TZS": "TSh",
+    "UAH": "₴",
+    "UGX": "USh",
+    "USD": "$",
+    "UYU": "$U",
+    "UZS": "лв",
+    "VEF": "Bs",
+    "VND": "₫",
+    "VUV": "VT",
+    "WST": "WS$",
+    "XAF": "FCFA",
+    "XBT": "Ƀ",
+    "XCD": "$",
+    "XOF": "CFA",
+    "XPF": "₣",
+    "YER": "﷼",
+    "ZAR": "R",
     "ZWD": "Z$",
 }
