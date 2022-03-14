@@ -1,6 +1,6 @@
 """
-Applet: CoinGecko Crypto Price
-Summary: Display the price of a cryptocurrency against one or two other currencies.
+Applet: CoinGecko Price
+Summary: Crypto price from CoinGecko
 Description: Displays the current price of any coin supported by CoinGecko against one or two other currencies. Crypto price data updated every 10 minutes. Data provided by CoinGecko.
 Author: Allen Schober (@allenschober)
 Thanks: @saltedlolly as this is based on the digibyteprice app.
