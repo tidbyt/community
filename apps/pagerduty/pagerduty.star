@@ -20,6 +20,7 @@ DEFAULT_SHOW_ONCALL_BAR = True
 DEFAULT_SHOW_ONCALL_BAR_ME_ONLY = False
 DEFAULT_SHOW_ICON = True
 DEFAULT_HIDE_WHEN_NOT_ONCALL = False
+DEFAULT_CACHE_TTL = 120
 
 PAGERDUTY_BASE_URL = "https://api.pagerduty.com"
 PAGERDUTY_CLIENT_ID = "85d49cda-f774-438e-9f13-12cf5b644dba"
@@ -66,14 +67,14 @@ def Count(count = 0, label = "TOTAL", color = "#c3c3c3"):
     )
 
 # buildifier: disable=function-docstring
-def pagerduty_api_call(config, url):
+def pagerduty_api_call(config, url, use_cache = True):
     access_token = config.get("auth")
 
     if not access_token:
         return fail("No access token")
 
     cache_key = "%s|%s" % (access_token, url)
-    cached_res = cache.get(cache_key)
+    cached_res = cache.get(cache_key) if use_cache else None
 
     if not cached_res:
         res = http.get(
@@ -90,7 +91,9 @@ def pagerduty_api_call(config, url):
             return None
 
         cached_res = res.body()
-        cache.set(cache_key, cached_res, 120)
+
+        if use_cache:
+            cache.set(cache_key, cached_res, DEFAULT_CACHE_TTL)
 
     return json.decode(cached_res)
 
@@ -129,42 +132,72 @@ def get_current_user(config):
     return None
 
 def sort_by_level(shift):
-    return shift.escalation_level
+    return shift["escalation_level"]
+
+def parse_shifts(oncalls = []):
+    shifts = []
+    for oncall in oncalls:
+        start = None
+        end = None
+        if oncall["start"]:
+            start = oncall["start"]
+        if oncall["end"]:
+            end = oncall["end"]
+        parsed_shift = dict(
+            escalation_policy = dict(
+                id = oncall["escalation_policy"]["id"],
+                name = oncall["escalation_policy"]["summary"],
+            ),
+            start = start,
+            end = end,
+            escalation_level = oncall["escalation_level"],
+            user = dict(
+                id = oncall["user"]["id"],
+                name = oncall["user"]["summary"],
+            ),
+        )
+        shifts.append(parsed_shift)
+    return shifts
 
 # buildifier: disable=function-docstring
-def get_oncall_shifts(config):
+def get_oncall_shifts(config, profile_id = None, offset = 0, limit = 100, shifts = []):
+    access_token = config.get("auth")
+
+    if not access_token:
+        return None
+
+    cached_shifts = cache.get("%s|shifts" % access_token)
+
+    if cached_shifts:
+        return json.decode(cached_shifts)
+
     tz = config.get("$tz", DEFAULT_TIMEZONE)
     now = time.now().in_location(tz).format("2006-01-02T15:04:05Z07:00")
-    url = "%s/oncalls?earliest=true&since=%s&until=%s&overflow=true" % (PAGERDUTY_BASE_URL, now, now)
+    url = "%s/oncalls?%searliest=true&since=%s&until=%s&overflow=true&offset=%i&limit=%i" % (
+        PAGERDUTY_BASE_URL,
+        "user_ids[]=%s&" % profile_id if profile_id else "",
+        now,
+        now,
+        offset,
+        limit,
+    )
 
-    data = pagerduty_api_call(config, url)
+    # we disable caching here since we're going to cache our smaller parsed shifts
+    data = pagerduty_api_call(config, url, use_cache = False)
 
     if not data:
         return None
 
-    shifts = []
     if "oncalls" in data:
-        for oncall in data["oncalls"]:
-            start = None
-            end = None
-            if oncall["start"]:
-                start = time.parse_time(oncall["start"]).in_location(tz)
-            if oncall["end"]:
-                end = time.parse_time(oncall["end"]).in_location(tz)
-            shifts.append(struct(
-                escalation_policy = struct(
-                    id = oncall["escalation_policy"]["id"],
-                    name = oncall["escalation_policy"]["summary"],
-                ),
-                start = start,
-                end = end,
-                escalation_level = oncall["escalation_level"],
-                user = struct(
-                    id = oncall["user"]["id"],
-                    name = oncall["user"]["summary"],
-                ),
-            ))
-    return sorted(shifts, key = sort_by_level)
+        shifts = shifts + parse_shifts(data["oncalls"])
+
+    # page through the results
+    if "more" in data and data["more"]:
+        return get_oncall_shifts(config, profile_id, offset + limit, limit, shifts)
+
+    shifts = sorted(shifts, key = sort_by_level)
+    cache.set("%s|shifts" % access_token, json.encode(shifts), DEFAULT_CACHE_TTL)
+    return shifts
 
 # buildifier: disable=function-docstring
 def is_user_oncall(config, shifts, user_id):
@@ -176,9 +209,9 @@ def is_user_oncall(config, shifts, user_id):
     is_user_oncall = False
 
     for shift in shifts:
-        if shift.user.id == user_id:
+        if shift["user"]["id"] == user_id:
             if level_one_only:
-                is_user_oncall = (shift.escalation_level == 1)
+                is_user_oncall = (shift["escalation_level"] == 1)
             else:
                 is_user_oncall = True
             if is_user_oncall:
@@ -187,27 +220,28 @@ def is_user_oncall(config, shifts, user_id):
     return is_user_oncall
 
 # buildifier: disable=function-docstring
-def get_oncall_scroll_text(shifts):
+def get_oncall_scroll_text(shifts, timezone = DEFAULT_TIMEZONE):
     scroll = ""
     unique_names = []
 
     for shift in shifts:
-        if shift.user.name not in unique_names:
-            unique_names.append(shift.user.name)
+        if "user" in shift and shift["user"]["name"] not in unique_names:
+            unique_names.append(shift["user"]["name"])
 
     scroll = " * %s *" % " | ".join([
         "%s: %s [L%s]" % (
-            shift.escalation_policy.name,
-            shift.user.name,
-            shift.escalation_level,
+            shift["escalation_policy"]["name"],
+            shift["user"]["name"],
+            shift["escalation_level"],
         )
         for shift in shifts
     ])
 
     if len(unique_names) == 1:
         ends = " "
-        if shifts[0].end != None:
-            ends = " - Ends in %s" % humanize.relative_time(shifts[0].end, time.now())
+        if shifts[0]["end"] != None:
+            shift_ends = time.parse_time(shifts[0]["end"]).in_location(timezone)
+            ends = " - Ends in %s" % humanize.relative_time(shift_ends, time.now())
         scroll = " * ON-CALL: %s%s*" % (unique_names[0], ends)
     return scroll
 
@@ -245,7 +279,7 @@ def get_state(config):
             if profile == None:
                 return Error("Failed to get user profile")
 
-            shifts = get_oncall_shifts(config)
+            shifts = get_oncall_shifts(config, profile["id"] if only_when_oncall else None)
             oncall = is_user_oncall(config, shifts, profile["id"])
 
             if oncall == None:
@@ -266,6 +300,7 @@ def get_state(config):
 
 # buildifier: disable=function-docstring
 def main(config):
+    timezone = config.get("$tz", DEFAULT_TIMEZONE)
     data = get_state(config)
 
     # don't show the app if we didn't get any data
@@ -325,10 +360,10 @@ def main(config):
                 shift
                 for shift in data.shifts
                 if ((
-                    shift.user.id == data.profile["id"] and
-                    shift.escalation_level == 1
-                ) or (shift.user.id != data.profile["id"]))
-            ])
+                    shift["user"]["id"] == data.profile["id"] and
+                    shift["escalation_level"] == 1
+                ) or (shift["user"]["id"] != data.profile["id"]))
+            ], timezone) if len(data.shifts) > 0 else None
 
         if oncall_bar_content:
             oncall_status = render.Text(
