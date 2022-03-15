@@ -17,7 +17,7 @@ func New() manifest.Manifest {
 		Name:        "Crypto Tracker",
 		Author:      "Ethan Fuerst (@ethanfuerst)",
 		Summary:     "Tracks crypto price",
-		Desc:        "Display crypto prices over the last 24 hours.",
+		Desc:        "Display crypto prices in USD over the last 24 hours.",
 		FileName:    "crypto_tracker.star",
 		PackageName: "cryptotracker",
 		Source:      source,
