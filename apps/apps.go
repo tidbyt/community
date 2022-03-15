@@ -48,12 +48,14 @@ import (
 	"tidbyt.dev/community/apps/pathtrainschedule"
 	"tidbyt.dev/community/apps/phaseofmoon"
 	"tidbyt.dev/community/apps/pokedex"
+	"tidbyt.dev/community/apps/purpleair"
 	"tidbyt.dev/community/apps/redditimages"
 	"tidbyt.dev/community/apps/sbbtimetable"
 	"tidbyt.dev/community/apps/sportsscores"
 	"tidbyt.dev/community/apps/sportsstandings"
 	"tidbyt.dev/community/apps/spotthestation"
 	"tidbyt.dev/community/apps/steam"
+	"tidbyt.dev/community/apps/strava"
 	"tidbyt.dev/community/apps/sunrisesunset"
 	"tidbyt.dev/community/apps/tempest"
 	"tidbyt.dev/community/apps/theysaidso"
@@ -109,12 +111,14 @@ func GetManifests() []manifest.Manifest {
 		pathtrainschedule.New(),
 		phaseofmoon.New(),
 		pokedex.New(),
+		purpleair.New(),
 		redditimages.New(),
 		sbbtimetable.New(),
 		sportsscores.New(),
 		sportsstandings.New(),
 		spotthestation.New(),
 		steam.New(),
+		strava.New(),
 		sunrisesunset.New(),
 		tempest.New(),
 		theysaidso.New(),
