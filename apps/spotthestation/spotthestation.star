@@ -149,7 +149,7 @@ def main(config):
             description = xpath.loads(issxmlBody).query("/rss/channel/item[" + str(itemNumberToDisplay) + "]/description")
 
         location = xpath.loads(issxmlBody).query("/rss/channel/description").replace("Satellite Sightings Information for ", "")
- 
+
     if (setCache == True):
         #The current XML is valid until the last known future listing
         #So let's use that to figure our cache ttl
