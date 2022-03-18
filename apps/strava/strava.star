@@ -191,7 +191,7 @@ def main(config):
         ]
     else:
         if float(stats.get("distance", 0)) > 0:
-            split = float(stats.get("moving_time", 0)) / float(stats.get("distance", 0))
+            split = float(stats.get("moving_time", 0)) // float(stats.get("distance", 0))
             split = time.parse_duration(str(split) + "s")
             split = format_duration(split)
         else:
@@ -239,13 +239,13 @@ def meters_to_mi(m):
     return m * 0.00062137
 
 def meters_to_km(m):
-    return m / 1000
+    return m // 1000
 
 def meters_to_ft(m):
     return m * 3.280839895
 
 def round(num, precision):
-    return math.round(num * math.pow(10, precision)) / math.pow(10, precision)
+    return math.round(num * math.pow(10, precision)) // math.pow(10, precision)
 
 def format_duration(d):
     m = int(d.minutes)
@@ -359,8 +359,7 @@ def get_schema():
                 handler = oauth_handler,
                 authorization_endpoint = "https://www.strava.com/oauth/authorize",
                 scopes = [
-                    "read",
-                    "activity:read",
+                    "read,activity:read",
                 ],
             ),
             schema.Dropdown(
