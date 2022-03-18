@@ -509,6 +509,7 @@ def process_head_move(segment, state, mushroomMap, history):
 
     # This moves the leg state every other frame
     legState = (state % (CENT_LEG_STATE_COUNT * 2)) // 2
+
     xDirIndex = 1 if xDir > 0 else 0
     yDirIndex = 1 if yDir > 0 else 0
 
