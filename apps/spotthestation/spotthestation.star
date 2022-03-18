@@ -142,7 +142,12 @@ def main(config):
                 timeOfNextSighting = currentTimeStamp
                 break
 
-        description = xpath.loads(issxmlBody).query("/rss/channel/item[" + str(itemNumberToDisplay) + "]/description")
+        #Only past events are in the XML, so we'll need to give an appropriate message
+        if (itemNumberToDisplay == 0):
+            description = "The station will not appear overhead for at least several days"
+        else:
+            description = xpath.loads(issxmlBody).query("/rss/channel/item[" + str(itemNumberToDisplay) + "]/description")
+
         location = xpath.loads(issxmlBody).query("/rss/channel/description").replace("Satellite Sightings Information for ", "")
 
     if (setCache == True):
