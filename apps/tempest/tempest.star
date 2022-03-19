@@ -72,7 +72,7 @@ def main(config):
     timezone = station_res["timezone"]
     now = time.now().in_location(timezone)
 
-    temp = "%g°" % conditions["air_temperature"]
+    temp = "%d°" % conditions["air_temperature"]
     humidity = "%d%%" % conditions["relative_humidity"]
     wind = "%s %d %s" % (
         conditions["wind_direction_cardinal"],
