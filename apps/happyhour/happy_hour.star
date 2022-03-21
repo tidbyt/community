@@ -24,7 +24,6 @@ YOhHSGUgGreaxu4jnp/bZzyDMdcnBfMH+p/AM/kQywMAAAAASUVORK5CYII=
 """)
 
 def main(config):
-
     print("Welcome to Happy Hour :)")
 
     # Check cache for current hour. UTC
@@ -49,72 +48,67 @@ def main(config):
     # Render
     return render.Root(
         child =
-        render.Column(
-            expanded = True,
-            children = [
-                render.Row(
+            render.Column(
+                expanded = True,
                 children = [
-                    # Drink Image
-                    render.Image(
-                        src = imgSrc,
-                        width = 25,
-                        height = 25,
+                    render.Row(
+                        children = [
+                            # Drink Image
+                            render.Image(
+                                src = imgSrc,
+                                width = 25,
+                                height = 25,
+                            ),
+                            # Ingredient List
+                            render.Marquee(
+                                width = 35,
+                                height = 25,
+                                scroll_direction = "vertical",
+                                child = render.Column(
+                                    children = ingredients,
+                                ),
+                            ),
+                        ],
                     ),
-                    # Ingredient List
-                    render.Marquee(
-                        width = 35,
-                        height = 25,
-                        scroll_direction = "vertical",
-                        child = render.Column(
-                            children = ingredients
-                        )
-                    )
-                ]
-            ),
-            # Drink Name
-            render.Box(
-                color = "#2E0854",
-                child = render.Marquee(
-                        width = 64,
-                        #height = 20,
-                        child = render.Column(
-                            expanded = True,
-                            children = [
+                    # Drink Name
+                    render.Box(
+                        color = "#2E0854",
+                        child = render.Marquee(
+                            width = 64,
+                            #height = 20,
+                            child = render.Column(
+                                expanded = True,
+                                children = [
                                     render.Box(
                                         height = 1,
-                                        width = 64
+                                        width = 64,
                                     ),
                                     render.Padding(
                                         pad = (1, 0, 0, 0),
                                         child = render.Text(
                                             content = drinkName,
-                                            font = "tom-thumb"
-                                        )
-                                    )
-                                    
-                                
-                            ]
-                    )
-                        
-                        
-                    )
-                        
-                    
-            ) 
-            ]
-        )
-            
+                                            font = "tom-thumb",
+                                        ),
+                                    ),
+                                ],
+                            ),
+                        ),
+                    ),
+                ],
+            ),
     )
 
 # Gets the current cocktail in the cache. Returns None if we need a new one.
 def checkCache():
     hour = time.now().in_location("UTC").hour
     lastHourSeen = cache.get("lastHour")
-    if lastHourSeen == None: return None
+    if lastHourSeen == None:
+        return None
     if hour == int(lastHourSeen):
         print("Cache hit, returning cocktail")
         data = cache.get("cocktailData")
-        if data == None: return None
+        if data == None:
+            return None
         return json.decode(data)
     return None
 
@@ -127,15 +121,18 @@ def updateCache(cocktail):
 # Gets the updated cocktail from the API.
 def getNewCocktail():
     response = http.get("https://thecocktaildb.com/api/json/v1/1/random.php")
+
     # if the response isn't in json format
     if "application/json" not in response.headers.get("Content-Type"):
         print("error: " + str(response))
         return "error :("
-    # if the API returns an error
+        # if the API returns an error
+
     elif response.status_code != 200:
-        print ("error: " + str(response.status_code))
+        print("error: " + str(response.status_code))
         return "error: " + str(response.status_code)
-    # if the drink doesn't exist
+        # if the drink doesn't exist
+
     elif "drinks" not in response.json():
         print("error: " + str(response))
         return "error :("
@@ -148,7 +145,7 @@ def getNewCocktail():
 # Creates ingredients list as a list of strings.
 def formatIngredients(cocktail):
     list = []
-    for index in range(1,16):
+    for index in range(1, 16):
         propertyName = "strIngredient" + str(index)
         if cocktail[propertyName] != None and len(cocktail[propertyName]) > 0:
             ingWords = cocktail[propertyName].split()
@@ -174,12 +171,11 @@ def formatIngredients(cocktail):
                             render.WrappedText(
                                 content = fullIngredientName,
                                 color = "#f0f0f0",
-                                font = "tom-thumb"
-                            )
-                        ]
-                    )
-                )
-                
+                                font = "tom-thumb",
+                            ),
+                        ],
+                    ),
+                ),
             )
     return list
 
@@ -197,7 +193,5 @@ def rowHeight(str):
 def get_schema():
     return schema.Schema(
         version = "1",
-        fields = [ ]
+        fields = [],
     )
-
-    
