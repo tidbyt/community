@@ -78,9 +78,9 @@ def get_rocket_launch_json():
                         days = math.floor(dateDiff.hours / 24)
                         hours = math.floor(dateDiff.hours - days * 24)
                         minutes = math.floor(dateDiff.minutes - (days * 24 * 60 + hours * 60))
-                        secondsThisJSONIsValidFor = minutes * 60 + hours * 60 * 60 + days * 24 * 60 * 60
+                        seconds_this_JSON_is_valid_for = minutes * 60 + hours * 60 * 60 + days * 24 * 60 * 60
 
-                        cache_time_seconds = secondsThisJSONIsValidFor
+                        cache_time_seconds = seconds_this_JSON_is_valid_for
 
                 if (cache_time_seconds > MAXIMUM_CACHE_TIME_IN_SECONDS):
                     cache_time_seconds = MAXIMUM_CACHE_TIME_IN_SECONDS
@@ -159,6 +159,10 @@ def main(config):
                                         render.Image(src = rocket_icon_d),
                                         render.Image(src = rocket_icon_c),
                                         render.Image(src = rocket_icon_b),
+                                        render.Image(src = rocket_icon),
+                                        render.Image(src = rocket_icon_d),
+                                        render.Image(src = rocket_icon_e),
+                                        render.Image(src = rocket_icon_d),
                                         render.Image(src = rocket_icon),
                                     ],
                                 ),
