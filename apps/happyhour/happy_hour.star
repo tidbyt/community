@@ -1,7 +1,7 @@
 """
 Applet: Happy Hour
 Summary: Hourly Cocktail Generator
-Description: Displays a new cocktail every hour, on the hour.
+Description: Displays a new cocktail every hour, on the hour. Cheers to my mom for the color scheme, idea, AND name!
 Author: Nicole Brooks
 """
 

@@ -17,7 +17,7 @@ func New() manifest.Manifest {
 		Name:        "Happy Hour",
 		Author:      "Nicole Brooks",
 		Summary:     "Hourly Cocktail Generator",
-		Desc:        "Displays a new cocktail every hour, on the hour.",
+		Desc:        "Displays a new cocktail every hour, on the hour. Cheers to my mom for the color scheme, idea, AND name!",
 		FileName:    "happy_hour.star",
 		PackageName: "happyhour",
 		Source:  source,
