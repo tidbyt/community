@@ -39,7 +39,7 @@ def main(config):
         i += 1
 
         timezone = location["timezone"]
-        locality = config.get("location_%s" % i, location["locality"])
+        locality = config.get("location_%s_label" % i, location["locality"])
 
         now = time.now().in_location(timezone)
 
