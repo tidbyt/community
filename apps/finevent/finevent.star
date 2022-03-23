@@ -10,9 +10,10 @@ load("time.star", "time")
 load("cache.star", "cache")
 load("render.star", "render")
 load("schema.star", "schema")
+load("encoding/json.star", "json")
 load("encoding/base64.star", "base64")
 
-BASE_URL = ""
+BASE_URL = "https://api.tradingeconomics.com"
 SAMPLE_DATA = [
     {"CalendarId":"292068", "Date":"2022-03-23T07:00:00", "Country":"United Kingdom", "Category":"Inflation Rate", "Event":"Inflation Rate YoY", "Reference":"Feb", "ReferenceDate":"2022-02-28T00:00:00", "Source":"Office for National Statistics", "SourceURL":"http://www.ons.gov.uk/", "Actual":"6.2%", "Previous":"5.5%", "Forecast":"5.9%", "TEForecast":"6.1%", "URL":"/united-kingdom/inflation-cpi", "DateSpan":"0", "Importance":3,"LastUpdate":"2022-03-23T07:00:00", "Revised":"", "Currency":"", "Unit":"%", "Ticker":"UKRPCJYR", "Symbol":"UKRPCJYR"},
     {"CalendarId":"292037", "Date":"2022-03-23T14:00:00", "Country":"United States", "Category":"New Home Sales", "Event":"New Home Sales", "Reference":"Feb", "ReferenceDate":"2022-02-28T00:00:00", "Source":"U.S. Census Bureau", "SourceURL":"https://www.census.gov", "Actual":"0.772M", "Previous":"0.788M", "Forecast":"0.81M", "TEForecast":"0.81M", "URL":"/united-states/new-home-sales", "DateSpan":"0", "Importance":3,"LastUpdate":"2022-03-23T14:00:00", "Revised":"0.801M", "Currency":"", "Unit":"M", "Ticker":"UNITEDSTANEWHOMSAL", "Symbol":"UNITEDSTANEWHOMSAL"},
@@ -24,14 +25,13 @@ SAMPLE_DATA = [
     {"CalendarId":"291879", "Date":"2022-03-25T00:01:00", "Country":"United Kingdom", "Category":"Consumer Confidence", "Event":"Gfk Consumer Confidence", "Reference":"Mar", "ReferenceDate":"2022-03-31T00:00:00", "Source":"GfK Group", "SourceURL":"https://www.gfk.com", "Actual":"", "Previous":"-26", "Forecast":"-30", "TEForecast":"-35", "URL":"/united-kingdom/consumer-confidence", "DateSpan":"0", "Importance":3,"LastUpdate":"2022-03-21T14:15:00", "Revised":"", "Currency":"", "Unit":"", "Ticker":"UKCCI", "Symbol":"UKCCI"},
     {"CalendarId":"292119", "Date":"2022-03-25T07:00:00", "Country":"United Kingdom", "Category":"Retail Sales MoM", "Event":"Retail Sales MoM", "Reference":"Feb", "ReferenceDate":"2022-02-28T00:00:00", "Source":"Office for National Statistics", "SourceURL":"http://www.ons.gov.uk/", "Actual":"", "Previous":"1.9%", "Forecast":"0.6%", "TEForecast":"0.7%", "URL":"/united-kingdom/retail-sales", "DateSpan":"0", "Importance":3,"LastUpdate":"2022-03-21T14:15:00", "Revised":"", "Currency":"", "Unit":"%", "Ticker":"GBRRETAILSALESMOM", "Symbol":"GBRRetailSalesMoM"},
     {"CalendarId":"292169", "Date":"2022-03-25T09:00:00", "Country":"Germany", "Category":"Business Confidence", "Event":"Ifo Business Climate", "Reference":"Mar", "ReferenceDate":"2022-03-31T00:00:00", "Source":"Ifo Institute", "SourceURL":"https://www.ifo.de", "Actual":"", "Previous":"98.9", "Forecast":"94.2", "TEForecast":"92.2", "URL":"/germany/business-confidence", "DateSpan":"0", "Importance":3,"LastUpdate":"2022-03-21T14:15:00", "Revised":"", "Currency":"", "Unit":"", "Ticker":"GRIFPBUS", "Symbol":"GRIFPBUS"},
-]
-SAMPLE_DATA_US = [
     {"CalendarId":"292037","Date":"2022-03-23T14:00:00","Country":"United States","Category":"New Home Sales","Event":"New Home Sales","Reference":"Feb","ReferenceDate":"2022-02-28T00:00:00","Source":"U.S. Census Bureau","SourceURL":"https://www.census.gov","Actual":"0.772M","Previous":"0.788M","Forecast":"0.81M","TEForecast":"0.81M","URL":"/united-states/new-home-sales","DateSpan":"0","Importance":3,"LastUpdate":"2022-03-23T14:00:00","Revised":"0.801M","Currency":"","Unit":"M","Ticker":"UNITEDSTANEWHOMSAL","Symbol":"UNITEDSTANEWHOMSAL"},
     {"CalendarId":"292098","Date":"2022-03-24T12:30:00","Country":"United States","Category":"Durable Goods Orders","Event":"Durable Goods Orders MoM","Reference":"Feb","ReferenceDate":"2022-02-28T00:00:00","Source":"U.S. Census Bureau","SourceURL":"https://www.census.gov/","Actual":"","Previous":"1.6%","Forecast":"-0.5%","TEForecast":"-0.5%","URL":"/united-states/durable-goods-orders","DateSpan":"0","Importance":3,"LastUpdate":"2022-03-21T14:15:00","Revised":"","Currency":"","Unit":"%","Ticker":"UNITEDSTADURGOOORD","Symbol":"UNITEDSTADURGOOORD"},
     {"CalendarId":"292693","Date":"2022-03-29T14:00:00","Country":"United States","Category":"Job Offers","Event":"JOLTs Job Openings","Reference":"Feb","ReferenceDate":"2022-02-28T00:00:00","Source":"U.S. Bureau of Labor Statistics","SourceURL":"http://www.bls.gov","Actual":"","Previous":"11.263M","Forecast":"","TEForecast":"","URL":"/united-states/job-offers","DateSpan":"0","Importance":3,"LastUpdate":"2022-03-17T16:37:00","Revised":"","Currency":"","Unit":"M","Ticker":"UNITEDSTAJOBOFF","Symbol":"UNITEDSTAJOBOFF"},
 ]
 
 REGIONS = {
+    "Any": [],
     "US-only": ["United States"],
     "North America": ["United States", "Canada"],
     "EAFE": [
@@ -355,25 +355,64 @@ def flag_api(country_name):
 
 def main(config):
     timezone = config.get("$tz", "America/New_York")
-    countries = REGIONS.get(config.get("region"))
-    data = SAMPLE_DATA
+    countries = REGIONS.get(config.get("region"), [])
     title_font = "CG-pixel-3x5-mono"
-    print(countries)
 
-    sorted_events = sorted(data, key=lambda x: x["Date"])
-    event = sorted_events[0]
+    # Events are cached globally for 30 minutes, individualization is not necessary
+    cache_id = "%s/%s/%s" % ("finevent", "econ", config.get("region"))
+    data = cache.get(cache_id)
+    sorted_events = []
+    if not data:
+        url_countries = ",".join([country.lower().replace(" ", "%20") for country in countries])
+        request_url = "%s/calendar/country/all?c=guest:guest&f=json&importance=3" % (BASE_URL, )
+        print("Getting latest events from API %s" % request_url)
 
-    importance = event.get("Importance", 1)
-    name = event.get("Event")
-    # Localize UTC time
-    timestamp = time.parse_time(event.get("Date", ""), format = "2006-01-02T15:04:05").in_location(timezone)
-    display_time = timestamp.format("15:04 AM")
-    if display_time[0] == "0":
-        display_time = display_time[1:]
+        response = http.get(request_url)
+        if response.status_code != 200:
+            print("API Error.")
+        else:
+            data = response.json()
+            print(data[0], "Country" in data[0].keys())
+            if countries:
+                filtered_events = []
+                for evt in data:
+                    if evt["Country"] in countries:
+                        filtered_events.append(evt)
+                    else:
+                        print(evt["Country"], " is not in ", countries)
+            else:
+                filtered_events = data
+            sorted_events = sorted(filtered_events, key = lambda x: x["Date"], reverse=False)
+            if len(filtered_events):
+                cache.set(cache_id, json.encode(sorted_events), ttl_seconds = 60 * 30)
+    else:
+        sorted_events = json.decode(data)
 
-    survey = str(event.get("Forecast", "--"))
-    actual = str(event.get("Actual", "--"))
-    country = event.get("Country", None)
+    if not len(sorted_events):
+        importance = 1
+        name = "No events found today"
+        display_time = "--"
+        country = "United States"
+        survey, actual = "--", "--"
+    else:
+        event = sorted_events[0]
+        importance = event.get("Importance", 1)
+        name = event.get("Event")
+
+        # Localize UTC time
+        timestamp = time.parse_time(event.get("Date", ""), format = "2006-01-02T15:04:05").in_location(timezone)
+        display_time = timestamp.format("15:04 AM")
+        if display_time[0] == "0":
+            display_time = display_time[1:]
+
+        survey = str(event.get("Forecast", "--"))
+        if survey == "":
+            survey = "--"
+        actual = str(event.get("Actual", "--"))
+        if actual == "":
+            actual = "--"
+        country = event.get("Country", None)
+
     flag = flag_api(country)
     print(country, name, display_time, survey, actual, importance)
 
@@ -419,9 +458,8 @@ def main(config):
                         ),
                     ],
                 ),
-
             ],
-            **defaults,
+            **defaults
         ),
     )
 
