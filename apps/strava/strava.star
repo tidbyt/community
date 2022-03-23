@@ -114,11 +114,10 @@ def progress_chart(config, refresh_token, sport, units):
     now = time.now().in_location(timezone)
     beg_curr_month = time.time(year = now.year, month = now.month, day = 1)
     _next_month = time.time(year = now.year, month = now.month, day = 32)
-    end_curr_month = time.time(year = _next_month.year, month = _next_month.month, day = 1) - time.parse_duration('1ns')
+    end_curr_month = time.time(year = _next_month.year, month = _next_month.month, day = 1) - time.parse_duration("1ns")
 
-    end_prev_month = beg_curr_month - time.parse_duration('1ns')
+    end_prev_month = beg_curr_month - time.parse_duration("1ns")
     beg_prev_month = time.time(year = end_prev_month.year, month = end_prev_month.month, day = 1)
-
 
     if not refresh_token:
         activities = {
@@ -296,7 +295,7 @@ def progress_chart(config, refresh_token, sport, units):
                                 ),
                             ],
                         ),
-                    ]
+                    ],
                 ),
                 render.Row(
                     expanded = True,
@@ -318,7 +317,7 @@ def progress_chart(config, refresh_token, sport, units):
                                 ),
                             ],
                         ),
-                    ]
+                    ],
                 ),
                 render.Row(
                     expanded = True,
@@ -328,12 +327,12 @@ def progress_chart(config, refresh_token, sport, units):
                         render.Column(
                             cross_align = "center",
                             children = [
-                                render.Text('Time', color = "#fc4c02", font = title_font),
+                                render.Text("Time", color = "#fc4c02", font = title_font),
                                 render.Text(total_time, color = "#FFF"),
                             ],
                         ),
                         render.Column(
-                            cross_align="center",
+                            cross_align = "center",
                             children = [
                                 render.Text("Dist", color = "#fc4c02", font = title_font),
                                 render.Text(
@@ -446,7 +445,7 @@ def athlete_stats(config, refresh_token, period, sport, units):
     sport_verb = {
         "run": "running",
         "ride": "cycling",
-        "swim": "swim"
+        "swim": "swim",
     }[sport]
 
     if period == "ytd":
@@ -455,7 +454,7 @@ def athlete_stats(config, refresh_token, period, sport, units):
                 expanded = True,
                 main_align = "center",
                 cross_align = "center",
-                children = [render.Text(" %d %s" % (year, sport_verb.capitalize()), font = "tb-8")]
+                children = [render.Text(" %d %s" % (year, sport_verb.capitalize()), font = "tb-8")],
             )
         )
 
