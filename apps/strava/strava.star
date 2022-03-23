@@ -102,7 +102,6 @@ def main(config):
         print("Display type %s was invalid, showing the %s screen instead." % (display_type, DEFAULT_SCREEN))
         return athlete_stats(config, refresh_token, DEFAULT_SCREEN, sport, units)
 
-
 def progress_chart(config, refresh_token, sport, units):
     MAX_ACTIVITIES = 200
     show_logo = config.get("show_logo", True)
@@ -113,12 +112,12 @@ def progress_chart(config, refresh_token, sport, units):
 
     timezone = config.get("timezone") or "America/New_York"
     now = time.now().in_location(timezone)
-    beg_curr_month = time.time(year=now.year, month=now.month, day=1)
-    _next_month = time.time(year=now.year, month=now.month, day=32)
-    end_curr_month = time.time(year=_next_month.year, month=_next_month.month, day=1) - time.parse_duration('1ns')
+    beg_curr_month = time.time(year = now.year, month = now.month, day = 1)
+    _next_month = time.time(year = now.year, month = now.month, day = 32)
+    end_curr_month = time.time(year = _next_month.year, month = _next_month.month, day = 1) - time.parse_duration('1ns')
 
     end_prev_month = beg_curr_month - time.parse_duration('1ns')
-    beg_prev_month = time.time(year=end_prev_month.year, month=end_prev_month.month, day=1)
+    beg_prev_month = time.time(year = end_prev_month.year, month = end_prev_month.month, day = 1)
 
 
     if not refresh_token:
@@ -138,7 +137,7 @@ def progress_chart(config, refresh_token, sport, units):
 
         urls = {
             "current": "%s/athlete/activities?after=%s&per_page=%s" % (STRAVA_BASE, beg_curr_month.unix, MAX_ACTIVITIES),
-            "previous": "%s/athlete/activities?after=%s&before=%s&per_page=%s" % (STRAVA_BASE, beg_curr_month.unix, beg_curr_month.unix, MAX_ACTIVITIES)
+            "previous": "%s/athlete/activities?after=%s&before=%s&per_page=%s" % (STRAVA_BASE, beg_curr_month.unix, beg_curr_month.unix, MAX_ACTIVITIES),
         }
 
         activities = {}
@@ -176,7 +175,8 @@ def progress_chart(config, refresh_token, sport, units):
             activity_stats["date_pct"] = (activity_epoch - beg_curr_month.unix) / (end_curr_month.unix - beg_curr_month.unix)
             cumulative_current = {k: cumulative_current.get(k, 0) + activity_stats.get(k, 0) for k in stat_keys}
             activity_stats.update({
-                "cum_%s" % k: round(cumulative_current.get(k, 0), 2) for k in stat_keys
+                "cum_%s" % k: round(cumulative_current.get(k, 0), 2)
+                for k in stat_keys
             })
             included_current_activities.append(activity_stats)
             print(activity_stats)
@@ -194,7 +194,8 @@ def progress_chart(config, refresh_token, sport, units):
             activity_stats["date_pct"] = (activity_epoch - beg_prev_month.unix) / (end_prev_month.unix - beg_prev_month.unix)
             cumulative_previous = {k: cumulative_previous.get(k, 0) + activity_stats.get(k, 0) for k in stat_keys}
             activity_stats.update({
-                "cum_%s" % k: round(cumulative_previous.get(k, 0), 2) for k in stat_keys
+                "cum_%s" % k: round(cumulative_previous.get(k, 0), 2)
+                for k in stat_keys
             })
             included_previous_activities.append(activity_stats)
             print(activity_stats)
@@ -217,6 +218,7 @@ def progress_chart(config, refresh_token, sport, units):
     # At the end of the current plot we want today's date as a percentage of the month,
     now_date_pct = (now.unix - beg_curr_month.unix) / (end_curr_month.unix - beg_curr_month.unix)
     curr_plot.append((now_date_pct, curr_plot[-1][1]))
+
     # ...and at the end of the previous plot we want 100% of the month to be our final cumulative number
     prev_plot.append((1.0, prev_plot[-1][1]))
 
@@ -226,7 +228,7 @@ def progress_chart(config, refresh_token, sport, units):
 
     total_time = time.parse_duration("%ss" % cumulative_current.get("moving_time", 0))
     if len(included_current_activities):
-        total_time = format_duration(total_time, resolution="hours")
+        total_time = format_duration(total_time, resolution = "hours")
     else:
         total_time = "0:00"
 
@@ -239,9 +241,9 @@ def progress_chart(config, refresh_token, sport, units):
         }[sport]
         logo.append(
             render.Column(
-                expanded=True,
-                main_align="end",
-                cross_align="end",
+                expanded = True,
+                main_align = "end",
+                cross_align = "end",
                 children = [render.Image(src = sport_icon)],
             ),
         )
@@ -260,7 +262,7 @@ def progress_chart(config, refresh_token, sport, units):
         }
     else:
         third_stat = {
-            "title": sport + 's',
+            "title": sport + "s",
             "value": len(included_current_activities),
         }
 
@@ -275,14 +277,14 @@ def progress_chart(config, refresh_token, sport, units):
                     children = logo,
                 ),
                 render.Row(
-                    expanded=True,
-                    main_align="end",
-                    cross_align="end",
-                    children=[
+                    expanded = True,
+                    main_align = "end",
+                    cross_align = "end",
+                    children = [
                         render.Column(
-                            expanded=True,
-                            main_align="end",
-                            children=[
+                            expanded = True,
+                            main_align = "end",
+                            children = [
                                 render.Plot(
                                     data = prev_plot,
                                     width = graph_width,
@@ -297,14 +299,14 @@ def progress_chart(config, refresh_token, sport, units):
                     ]
                 ),
                 render.Row(
-                    expanded=True,
-                    main_align="end",
-                    cross_align="end",
-                    children=[
+                    expanded = True,
+                    main_align = "end",
+                    cross_align = "end",
+                    children = [
                         render.Column(
-                            expanded=True,
-                            main_align="end",
-                            children=[
+                            expanded = True,
+                            main_align = "end",
+                            children = [
                                 render.Plot(
                                     data = curr_plot,
                                     width = graph_width,
@@ -319,12 +321,12 @@ def progress_chart(config, refresh_token, sport, units):
                     ]
                 ),
                 render.Row(
-                    expanded=True,
-                    main_align="space_evenly",
-                    cross_align="center",
+                    expanded = True,
+                    main_align = "space_evenly",
+                    cross_align = "center",
                     children = [
                         render.Column(
-                            cross_align="center",
+                            cross_align = "center",
                             children = [
                                 render.Text('Time', color = "#fc4c02", font = title_font),
                                 render.Text(total_time, color = "#FFF"),
@@ -333,7 +335,7 @@ def progress_chart(config, refresh_token, sport, units):
                         render.Column(
                             cross_align="center",
                             children = [
-                                render.Text('Dist', color = "#fc4c02", font = title_font),
+                                render.Text("Dist", color = "#fc4c02", font = title_font),
                                 render.Text(
                                     humanize.comma(int(distance_conv(cumulative_current["distance"]))),
                                     color = "#FFF",
@@ -341,7 +343,7 @@ def progress_chart(config, refresh_token, sport, units):
                             ],
                         ),
                         render.Column(
-                            cross_align="center",
+                            cross_align = "center",
                             children = [
                                 render.Text(third_stat["title"], color = "#fc4c02", font = title_font),
                                 render.Text(
@@ -355,7 +357,6 @@ def progress_chart(config, refresh_token, sport, units):
             ],
         ),
     )
-
 
 def athlete_stats(config, refresh_token, period, sport, units):
     show_logo = config.get("show_logo", True)
@@ -422,12 +423,11 @@ def athlete_stats(config, refresh_token, period, sport, units):
             distu = "mi"
             elevu = "ft"
         stats["elevation_gain"] = round(meters_to_ft(float(stats["elevation_gain"])), 0)
+    elif sport != "swim":
+        stats["distance"] = round(meters_to_km(float(stats["distance"])), 0)
+        distu = "km"
     else:
-        if sport != "swim":
-            stats["distance"] = round(meters_to_km(float(stats["distance"])), 0)
-            distu = "km"
-        else:
-            distu = "m"
+        distu = "m"
 
     if sport == "all":
         if int(float(stats["count"])) != 1:
@@ -444,18 +444,18 @@ def athlete_stats(config, refresh_token, period, sport, units):
         display_header.append(render.Image(src = STRAVA_ICON))
 
     sport_verb = {
-        'run': 'running',
-        'ride': 'cycling',
-        'swim': 'swim'
+        "run": "running",
+        "ride": "cycling",
+        "swim": "swim"
     }[sport]
 
     if period == "ytd":
         display_header.append(
             render.Row(
-                expanded=True,
-                main_align="center",
-                cross_align="center",
-                children=[render.Text(" %d %s" % (year, sport_verb.capitalize()), font = "tb-8")]
+                expanded = True,
+                main_align = "center",
+                cross_align = "center",
+                children = [render.Text(" %d %s" % (year, sport_verb.capitalize()), font = "tb-8")]
             )
         )
 
@@ -551,7 +551,6 @@ def format_duration(d, resolution = "minutes"):
         if len(m) == 1:
             m = "0" + m
         return "%s:%s" % (h, m)
-
 
 def oauth_handler(params):
     params = json.decode(params)
