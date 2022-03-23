@@ -20,10 +20,13 @@ import (
 	"tidbyt.dev/community/apps/dateprogress"
 	"tidbyt.dev/community/apps/datetimeclock"
 	"tidbyt.dev/community/apps/daynightmap"
+	"tidbyt.dev/community/apps/destiny2stats"
 	"tidbyt.dev/community/apps/digibyteprice"
 	"tidbyt.dev/community/apps/digitalrain"
 	"tidbyt.dev/community/apps/dvdlogo"
 	"tidbyt.dev/community/apps/espnnews"
+	"tidbyt.dev/community/apps/etrade"
+	"tidbyt.dev/community/apps/finevent"
 	"tidbyt.dev/community/apps/fishbyt"
 	"tidbyt.dev/community/apps/fuzzyclock"
 	"tidbyt.dev/community/apps/gapilotbuddy"
@@ -41,6 +44,7 @@ import (
 	"tidbyt.dev/community/apps/nightscout"
 	"tidbyt.dev/community/apps/nixelclock"
 	"tidbyt.dev/community/apps/noaabuoy"
+	"tidbyt.dev/community/apps/notion"
 	"tidbyt.dev/community/apps/nyancat"
 	"tidbyt.dev/community/apps/nycbus"
 	"tidbyt.dev/community/apps/ohhighwaysigns"
@@ -48,6 +52,7 @@ import (
 	"tidbyt.dev/community/apps/pathtrainschedule"
 	"tidbyt.dev/community/apps/phaseofmoon"
 	"tidbyt.dev/community/apps/pokedex"
+	"tidbyt.dev/community/apps/powerball"
 	"tidbyt.dev/community/apps/purpleair"
 	"tidbyt.dev/community/apps/redditimages"
 	"tidbyt.dev/community/apps/sbbtimetable"
@@ -85,10 +90,13 @@ func GetManifests() []manifest.Manifest {
 		dateprogress.New(),
 		datetimeclock.New(),
 		daynightmap.New(),
+		destiny2stats.New(),
 		digibyteprice.New(),
 		digitalrain.New(),
 		dvdlogo.New(),
 		espnnews.New(),
+		etrade.New(),
+		finevent.New(),
 		fishbyt.New(),
 		fuzzyclock.New(),
 		gapilotbuddy.New(),
@@ -105,6 +113,7 @@ func GetManifests() []manifest.Manifest {
 		nightscout.New(),
 		nixelclock.New(),
 		noaabuoy.New(),
+		notion.New(),
 		nyancat.New(),
 		nycbus.New(),
 		ohhighwaysigns.New(),
@@ -112,6 +121,7 @@ func GetManifests() []manifest.Manifest {
 		pathtrainschedule.New(),
 		phaseofmoon.New(),
 		pokedex.New(),
+		powerball.New(),
 		purpleair.New(),
 		redditimages.New(),
 		sbbtimetable.New(),
