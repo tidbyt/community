@@ -455,7 +455,7 @@ def athlete_stats(config, refresh_token, period, sport, units):
                 main_align = "center",
                 cross_align = "center",
                 children = [render.Text(" %d %s" % (year, sport_verb.capitalize()), font = "tb-8")],
-            )
+            ),
         )
 
     sport_icon = {
