@@ -21,7 +21,7 @@ CLIENT_ID = "79662"
 OAUTH2_CLIENT_SECRET = secret.decrypt("AV6+xWcE+oJPK08TUWRIoZPgneZiZsTciGafVUjbKA7elXuSDBS9h4koiu0kak1WthqS5W/HvXQtBM5kF7k8BMSgyIPNTBNEgep8BwAph7naog0GdcWLGKo2/eoQlXUSSVYtnBGc9EoxSp7soyw6BdMTOQgrnzOips7RKsI92CcSt4wzfQj/QTkSp6IyeA==")
 DEFAULT_UNITS = "imperial"
 DEFAULT_SPORT = "ride"
-DEFAULT_PERIOD = "all"
+DEFAULT_SCREEN = "all"
 
 PREVIEW_DATA = {
     "count": 108,
@@ -41,11 +41,19 @@ AuZxDvD5YYtBMiF2AcrBldFlE3kZ5P8qlGRtwLQ/ZKc76YiFYAXQTytNejult0AAAAASUVORK5C
 YII=
 """)
 
+STRAVA_ICON_GREY = base64.decode("""
+iVBORw0KGgoAAAANSUhEUgAAACgAAAAICAYAAACLUr1bAAAAAXNSR0IArs4c6QAAAKZJREFUOE+l
+lNERgCAMQ2UqR/DTWf10BKfSwzNe7CVFxR8ECn2kgTJc3zjNO/5ru61LqW0cR0ydV3NYF/eN8aqP
+fLzHLwgcIINXgHxgBoxiWMB4elYUMBwTx1xfqZ4BcgWtglmp3qij7KFs46yE8ROw5cNYGhfPSvUC
+QsWHgpkXshL3XC532SQgJ2IftBRsJYlqIj67yWC5S+yeGec3BZ09Ozz3BfAA4+Djoeo+ZzsAAAAA
+SUVORK5CYII=
+""")
+
 RUN_ICON = base64.decode("""
-iVBORw0KGgoAAAANSUhEUgAAAAoAAAAGCAYAAAD68A/GAAAAAXNSR0IArs4c6QAAAG9JREFUGFd
-jZMAO/kOFGWHScAaS+v//LzaAuYz6DagK/////5+RkZHxf1fD/+PzVjB8/PIFrNDzyROwGGNZAy
-M2Exm2y8iArebn4WGwunEDrAZD4TENjf/IJmJ1Y9l/5v+dDH8YQM4AsbsY/8INAgB44ioHVKqHv
-gAAAABJRU5ErkJggg==
+iVBORw0KGgoAAAANSUhEUgAAAAoAAAAGCAYAAAD68A/GAAAAAXNSR0IArs4c6QAAAGpJREFUGFdj
+ZMACKkM9/oOE21fvYIRJwxkwAZCithoLMJdRvwG7wv9dDf+Pz1vB8PHLF7BCzydPGEFijGUNjBgm
+ghRsl5EBW83Pw8NgdeMGWA2GwmMaGv+RTcTqxrL/zP+7GP+CNSOzQXwAmAopB3+7+0kAAAAASUVO
+RK5CYII=
 """)
 
 RIDE_ICON = base64.decode("""
@@ -82,12 +90,277 @@ Gr1eimwzTjdSOy+wFaLiTvmqj9hwAAAABJRU5ErkJggg==
 
 def main(config):
     refresh_token = config.get("auth")
-    timezone = config.get("timezone") or "America/New_York"
-    year = time.now().in_location(timezone).year
     sport = config.get("sport", DEFAULT_SPORT)
     units = config.get("units", DEFAULT_UNITS)
-    period = config.get("period", DEFAULT_PERIOD)
+    display_type = config.get("display_type", DEFAULT_SCREEN)
+
+    if display_type in ("ytd", "all"):
+        return athlete_stats(config, refresh_token, display_type, sport, units)
+    elif display_type == "progress_chart":
+        return progress_chart(config, refresh_token, sport, units)
+    else:
+        print("Display type %s was invalid, showing the %s screen instead." % (display_type, DEFAULT_SCREEN))
+        return athlete_stats(config, refresh_token, DEFAULT_SCREEN, sport, units)
+
+def progress_chart(config, refresh_token, sport, units):
+    MAX_ACTIVITIES = 200
     show_logo = config.get("show_logo", True)
+
+    distance_conv = meters_to_mi
+    if units == "metric":
+        distance_conv = meters_to_km
+
+    timezone = config.get("timezone") or "America/New_York"
+    now = time.now().in_location(timezone)
+    beg_curr_month = time.time(year = now.year, month = now.month, day = 1)
+    _next_month = time.time(year = now.year, month = now.month, day = 32)
+    end_curr_month = time.time(year = _next_month.year, month = _next_month.month, day = 1) - time.parse_duration("1ns")
+
+    end_prev_month = beg_curr_month - time.parse_duration("1ns")
+    beg_prev_month = time.time(year = end_prev_month.year, month = end_prev_month.month, day = 1)
+
+    if not refresh_token:
+        activities = {
+            "current": [],
+            "previous": [],
+        }
+    else:
+        access_token = cache.get(refresh_token)
+        if not access_token:
+            print("Generating new access token")
+            access_token = get_access_token(refresh_token)
+
+        headers = {
+            "Authorization": "Bearer %s" % access_token,
+        }
+
+        urls = {
+            "current": "%s/athlete/activities?after=%s&per_page=%s" % (STRAVA_BASE, beg_curr_month.unix, MAX_ACTIVITIES),
+            "previous": "%s/athlete/activities?after=%s&before=%s&per_page=%s" % (STRAVA_BASE, beg_curr_month.unix, beg_curr_month.unix, MAX_ACTIVITIES),
+        }
+
+        activities = {}
+
+        for query, url in urls.items():
+            cache_id = "%s/%s/activity/%s/%s-%s" % (refresh_token, sport, query, now.year, now.month)
+            data = cache.get(cache_id)
+
+            if not data:
+                print("Getting %s month activities. %s" % (query, url))
+                response = http.get(url, headers = headers)
+                if response.status_code != 200:
+                    print("Strava API call failed with status %d" % response.status_code)
+                data = response.json()
+                cache.set(cache_id, json.encode(data), ttl_seconds = CACHE_TTL)
+            else:
+                print("Returning cached %s month activities." % query)
+                data = json.decode(data)
+
+            activities[query] = data
+
+    stat_keys = ("distance", "moving_time", "total_elevation_gain")
+    graph_stat = stat_keys[0]
+
+    # Iterate through each activity from the current and previous month and extract the relevant data, adding it
+    # to our cumulative totals as we go, which are later used in our plot.
+    included_current_activities = []
+    cumulative_current = {k: 0 for k in stat_keys}
+    for item in activities["current"]:
+        if item["type"].lower() == sport:
+            activity_time = time.parse_time(item["start_date"])
+            activity_epoch = activity_time.unix
+            activity_stats = {k: item.get(k, 0) for k in stat_keys}
+            activity_stats["time"] = activity_time
+            activity_stats["date_pct"] = (activity_epoch - beg_curr_month.unix) / (end_curr_month.unix - beg_curr_month.unix)
+            cumulative_current = {k: cumulative_current.get(k, 0) + activity_stats.get(k, 0) for k in stat_keys}
+            activity_stats.update({
+                "cum_%s" % k: round(cumulative_current.get(k, 0), 2)
+                for k in stat_keys
+            })
+            included_current_activities.append(activity_stats)
+            print(activity_stats)
+        else:
+            print("Found non-%s activity (%s), skipping" % (sport, item["type"]))
+
+    included_previous_activities = []
+    cumulative_previous = {k: 0 for k in stat_keys}
+    for item in activities["previous"]:
+        if item["type"].lower() == sport:
+            activity_time = time.parse_time(item["start_date"])
+            activity_epoch = activity_time.unix
+            activity_stats = {k: item.get(k, 0) for k in stat_keys}
+            activity_stats["time"] = activity_time
+            activity_stats["date_pct"] = (activity_epoch - beg_prev_month.unix) / (end_prev_month.unix - beg_prev_month.unix)
+            cumulative_previous = {k: cumulative_previous.get(k, 0) + activity_stats.get(k, 0) for k in stat_keys}
+            activity_stats.update({
+                "cum_%s" % k: round(cumulative_previous.get(k, 0), 2)
+                for k in stat_keys
+            })
+            included_previous_activities.append(activity_stats)
+            print(activity_stats)
+        else:
+            print("Found non-%s activity (%s), skipping" % (sport, item["type"]))
+
+    # Start both plots off at the origin and then add converted distance at each time stamp.
+    # We use the percentage of the month here to align the axis of months that consist of a different number of days
+    # Immediately before each activity we add the previous distance to create the "step" effect in the graph
+    curr_plot = [(0.0, 0.0)]
+    for item in included_current_activities:
+        curr_plot.append((item["date_pct"] - .025, curr_plot[-1][1]))
+        curr_plot.append((item["date_pct"], distance_conv(item["cum_%s" % graph_stat])))
+
+    prev_plot = [(0.0, 0.0)]
+    for item in included_previous_activities:
+        prev_plot.append((item["date_pct"] - .025, prev_plot[-1][1]))
+        prev_plot.append((item["date_pct"], distance_conv(item["cum_%s" % graph_stat])))
+
+    # At the end of the current plot we want today's date as a percentage of the month,
+    now_date_pct = (now.unix - beg_curr_month.unix) / (end_curr_month.unix - beg_curr_month.unix)
+    curr_plot.append((now_date_pct, curr_plot[-1][1]))
+
+    # ...and at the end of the previous plot we want 100% of the month to be our final cumulative number
+    prev_plot.append((1.0, prev_plot[-1][1]))
+
+    plot_height = max([prev_plot[-1][1], curr_plot[-1][1]])
+
+    title_font = "CG-pixel-3x5-mono"
+
+    total_time = time.parse_duration("%ss" % cumulative_current.get("moving_time", 0))
+    if len(included_current_activities):
+        total_time = format_duration(total_time, resolution = "hours")
+    else:
+        total_time = "0:00"
+
+    logo = []
+    if show_logo == "true":
+        sport_icon = {
+            "run": RUN_ICON,
+            "ride": RIDE_ICON,
+            "swim": SWIM_ICON,
+        }[sport]
+        logo.append(
+            render.Column(
+                expanded = True,
+                main_align = "end",
+                cross_align = "end",
+                children = [render.Image(src = sport_icon)],
+            ),
+        )
+        graph_width = 54
+    else:
+        graph_width = 64
+
+    if sport == "ride":
+        value = cumulative_current["total_elevation_gain"]
+        if units == "imperial":
+            value = meters_to_ft(value)
+
+        third_stat = {
+            "title": "Elev",
+            "value": int(value),
+        }
+    else:
+        third_stat = {
+            "title": sport + "s",
+            "value": len(included_current_activities),
+        }
+
+    return render.Root(
+        child = render.Stack(
+            children = [
+                # Using a column here so I can place the logo in the bottom corner
+                render.Row(
+                    expanded = True,
+                    main_align = "start",
+                    cross_align = "start",
+                    children = logo,
+                ),
+                render.Row(
+                    expanded = True,
+                    main_align = "end",
+                    cross_align = "end",
+                    children = [
+                        render.Column(
+                            expanded = True,
+                            main_align = "end",
+                            children = [
+                                render.Plot(
+                                    data = prev_plot,
+                                    width = graph_width,
+                                    height = 22,
+                                    color = "#787878",
+                                    ylim = (0.0, plot_height),
+                                    xlim = (0.0, 1.0),
+                                    fill = False,
+                                ),
+                            ],
+                        ),
+                    ],
+                ),
+                render.Row(
+                    expanded = True,
+                    main_align = "end",
+                    cross_align = "end",
+                    children = [
+                        render.Column(
+                            expanded = True,
+                            main_align = "end",
+                            children = [
+                                render.Plot(
+                                    data = curr_plot,
+                                    width = graph_width,
+                                    height = 22,
+                                    color = "#fc4c02",
+                                    ylim = (0.0, plot_height),
+                                    xlim = (0.0, 1.0),
+                                    fill = False,
+                                ),
+                            ],
+                        ),
+                    ],
+                ),
+                render.Row(
+                    expanded = True,
+                    main_align = "space_evenly",
+                    cross_align = "center",
+                    children = [
+                        render.Column(
+                            cross_align = "center",
+                            children = [
+                                render.Text("Time", color = "#fc4c02", font = title_font),
+                                render.Text(total_time, color = "#FFF"),
+                            ],
+                        ),
+                        render.Column(
+                            cross_align = "center",
+                            children = [
+                                render.Text("Dist", color = "#fc4c02", font = title_font),
+                                render.Text(
+                                    humanize.comma(int(distance_conv(cumulative_current["distance"]))),
+                                    color = "#FFF",
+                                ),
+                            ],
+                        ),
+                        render.Column(
+                            cross_align = "center",
+                            children = [
+                                render.Text(third_stat["title"], color = "#fc4c02", font = title_font),
+                                render.Text(
+                                    humanize.comma(third_stat["value"]),
+                                    color = "#FFF",
+                                ),
+                            ],
+                        ),
+                    ],
+                ),
+            ],
+        ),
+    )
+
+def athlete_stats(config, refresh_token, period, sport, units):
+    show_logo = config.get("show_logo", True)
+    timezone = config.get("timezone") or "America/New_York"
+    year = time.now().in_location(timezone).year
 
     if not refresh_token:
         stats = ["count", "distance", "moving_time", "elapsed_time", "elevation_gain"]
@@ -136,9 +409,10 @@ def main(config):
                 #print("saved item %s "%s" in the cache for %d seconds" % (item, str(stats[item]), CACHE_TTL))
 
     ###################################################
-    # Configure the display to the user"s preferences #
+    # Configure the display to the user's preferences #
     ###################################################
 
+    elevu = "m"
     if units.lower() == "imperial":
         if sport == "swim":
             stats["distance"] = round(meters_to_ft(float(stats["distance"])), 0)
@@ -148,13 +422,11 @@ def main(config):
             distu = "mi"
             elevu = "ft"
         stats["elevation_gain"] = round(meters_to_ft(float(stats["elevation_gain"])), 0)
+    elif sport != "swim":
+        stats["distance"] = round(meters_to_km(float(stats["distance"])), 0)
+        distu = "km"
     else:
-        if sport != "swim":
-            stats["distance"] = round(meters_to_km(float(stats["distance"])), 0)
-            distu = "km"
-        else:
-            distu = "m"
-        elevu = "m"
+        distu = "m"
 
     if sport == "all":
         if int(float(stats["count"])) != 1:
@@ -169,18 +441,30 @@ def main(config):
     display_header = []
     if show_logo == "true":
         display_header.append(render.Image(src = STRAVA_ICON))
+
+    sport_verb = {
+        "run": "running",
+        "ride": "cycling",
+        "swim": "swim",
+    }[sport]
+
     if period == "ytd":
         display_header.append(
-            render.Text(" %d" % year, font = "tb-8"),
+            render.Row(
+                expanded = True,
+                main_align = "center",
+                cross_align = "center",
+                children = [render.Text(" %d %s" % (year, sport_verb.capitalize()), font = "tb-8")],
+            ),
         )
 
-    SPORT_ICON = {
+    sport_icon = {
         "run": RUN_ICON,
         "ride": RIDE_ICON,
         "swim": SWIM_ICON,
     }[sport]
 
-    # The number of activites and distance traveled is universal, but for cycling the elevation gain is a
+    # The number of activities and distance traveled is universal, but for cycling the elevation gain is a
     # more interesting statistic than speed so we"ll vary the third item:
     if sport == "ride":
         third_stat = [
@@ -206,6 +490,9 @@ def main(config):
 
     return render.Root(
         child = render.Column(
+            expanded = True,
+            cross_align = "start",
+            main_align = "space_evenly",
             children = [
                 render.Row(
                     cross_align = "center",
@@ -214,7 +501,7 @@ def main(config):
                 render.Row(
                     cross_align = "center",
                     children = [
-                        render.Image(src = SPORT_ICON),
+                        render.Image(src = sport_icon),
                         render.Text(" %s " % humanize.comma(float(stats.get("count", 0)))),
                         render.Text(actu, font = "tb-8"),
                     ],
@@ -247,13 +534,22 @@ def meters_to_ft(m):
 def round(num, precision):
     return math.round(num * math.pow(10, precision)) // math.pow(10, precision)
 
-def format_duration(d):
-    m = int(d.minutes)
-    s = str(int((d.minutes - m) * 60))
-    m = str(m)
-    if len(s) == 1:
-        s = "0" + s
-    return "%s:%s" % (m, s)
+def format_duration(d, resolution = "minutes"):
+    if resolution == "minutes":
+        m = int(d.minutes)
+        s = str(int((d.minutes - m) * 60))
+        m = str(m)
+        if len(s) == 1:
+            s = "0" + s
+        return "%s:%s" % (m, s)
+
+    elif resolution == "hours":
+        h = int(d.hours)
+        m = str(int((d.hours - h) * 60))
+        m = str(m)
+        if len(m) == 1:
+            m = "0" + m
+        return "%s:%s" % (h, m)
 
 def oauth_handler(params):
     params = json.decode(params)
@@ -336,9 +632,10 @@ def get_schema():
         schema.Option(value = "metric", display = "Metric"),
     ]
 
-    period_options = [
-        schema.Option(value = "all", display = "All-time"),
-        schema.Option(value = "ytd", display = "YTD"),
+    screen_options = [
+        schema.Option(value = "all", display = "All-time stats"),
+        schema.Option(value = "ytd", display = "YTD stats"),
+        schema.Option(value = "progress_chart", display = "Monthly progress"),
     ]
 
     sport_options = [
@@ -364,7 +661,7 @@ def get_schema():
             ),
             schema.Dropdown(
                 id = "sport",
-                name = "What activity type do you want to display?",
+                name = "Activity type",
                 desc = "Runs, rides or swims are all supported!",
                 icon = "running",
                 options = sport_options,
@@ -372,24 +669,24 @@ def get_schema():
             ),
             schema.Dropdown(
                 id = "units",
-                name = "Which units do you want to display?",
+                name = "Distance units",
                 desc = "Imperial displays miles and feet, metric displays kilometers and meters.",
                 icon = "pencilRuler",
                 options = units_options,
                 default = DEFAULT_UNITS,
             ),
             schema.Dropdown(
-                id = "period",
-                name = "Display your all-time stats or YTD?",
-                desc = "YTD will also display the current year in the corner",
+                id = "display_type",
+                name = "Screen type",
+                desc = "Show your cumulative stats or a progress chart.",
                 icon = "userClock",
-                options = period_options,
-                default = DEFAULT_PERIOD,
+                options = screen_options,
+                default = DEFAULT_SCREEN,
             ),
             schema.Toggle(
                 id = "show_logo",
-                name = "Logo",
-                desc = "Whether to display the Strava logo.",
+                name = "Logo/Icon",
+                desc = "Whether to display the Strava logo, or the sport icon on progress charts.",
                 icon = "cog",
                 default = True,
             ),
