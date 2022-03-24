@@ -30,6 +30,19 @@ DATA_LOCS = {
     14: "20YEAR",
     15: "30YEAR",
 }
+# RGB Coefficients
+COLOR_VECTORS = {
+    "Red": (1.0, 0.1, 0.1),
+    "Green": (0.1, 1.0, 0.1),
+    "Blue": (0.1, 0.1, 1.0),
+    "Yellow": (1.0, 1.0, 0.1),
+    "Orange": (1.0, 0.66, 0.1),
+    "Purple": (0.5, 0.1, 1.0),
+    "Pink": (1.0, 0.1, 0.8),
+    "Bloomberg": (0.98, 0.545, 0.117),
+    "FactSet": (0.0, 0.682, 0.937),
+    "Multi-color": (),
+}
 
 def round(num, precision):
     """Round a float to the specified number of significant digits"""
@@ -49,6 +62,8 @@ def main(config):
     timezone = config.get("$tz", "America/New_York")
     year = time.now().in_location(timezone).year
     cache_id = "%s/%s" % ("us-yield-curve", year)
+    color_choice = config.get("graph_color")
+    color_vector = COLOR_VECTORS[color_choice]
 
     dates = cache.get(cache_id)
     if not dates:
@@ -91,11 +106,19 @@ def main(config):
     min_color = 15
     for i, entry in enumerate(dates):
         c = 255 * (math.pow(1.07, i) / math.pow(1.07, len(dates)))
-        rgb = (
-            max(min_color, int(c * 0.2)),
-            max(min_color, int(c * 0.2)),
-            max(min_color, int(c)),
-        )
+        if color_choice == "Multi-color":
+            rgb = (
+                max(min_color, int(50 * ((len(dates) - i) / len(dates)))),
+                max(min_color, int(255 * (0.5 - abs(0.5 - i / len(dates))))),
+                max(min_color, int(c)),
+            )
+        else:
+            c_r, c_g, c_b = color_vector
+            rgb = (
+                max(min_color, int(c * c_r)),
+                max(min_color, int(c * c_g)),
+                max(min_color, int(c * c_b)),
+            )
         color = rgb_to_hex(*rgb)
         if i == len(dates) - 1:
             color = "fff"
@@ -168,5 +191,14 @@ def main(config):
 def get_schema():
     return schema.Schema(
         version = "1",
-        fields = [],
+        fields = [
+            schema.Dropdown(
+                id = "graph_color",
+                name = "Color",
+                desc = "Color of the historical curves.",
+                icon = "paintbrush",
+                options = [schema.Option(value = c, display = c) for c in COLOR_VECTORS.keys()],
+                default = "Blue",
+            ),
+        ],
     )
