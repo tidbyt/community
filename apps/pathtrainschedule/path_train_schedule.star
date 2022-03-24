@@ -183,7 +183,7 @@ def renderTrainMarquee(train, direction):
                         ),
                         render.Box(
                             width = 1,
-                            height = 1
+                            height = 1,
                         ),
                         render.Marquee(
                             width = 64,
