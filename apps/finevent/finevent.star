@@ -29,62 +29,62 @@ SAMPLE_DATA = [
     {"CalendarId":"292098","Date":"2022-03-24T12:30:00","Country":"United States","Category":"Durable Goods Orders","Event":"Durable Goods Orders MoM","Reference":"Feb","ReferenceDate":"2022-02-28T00:00:00","Source":"U.S. Census Bureau","SourceURL":"https://www.census.gov/","Actual":"","Previous":"1.6%","Forecast":"-0.5%","TEForecast":"-0.5%","URL":"/united-states/durable-goods-orders","DateSpan":"0","Importance":3,"LastUpdate":"2022-03-21T14:15:00","Revised":"","Currency":"","Unit":"%","Ticker":"UNITEDSTADURGOOORD","Symbol":"UNITEDSTADURGOOORD"},
     {"CalendarId":"292693","Date":"2022-03-29T14:00:00","Country":"United States","Category":"Job Offers","Event":"JOLTs Job Openings","Reference":"Feb","ReferenceDate":"2022-02-28T00:00:00","Source":"U.S. Bureau of Labor Statistics","SourceURL":"http://www.bls.gov","Actual":"","Previous":"11.263M","Forecast":"","TEForecast":"","URL":"/united-states/job-offers","DateSpan":"0","Importance":3,"LastUpdate":"2022-03-17T16:37:00","Revised":"","Currency":"","Unit":"M","Ticker":"UNITEDSTAJOBOFF","Symbol":"UNITEDSTAJOBOFF"},
 ]
-
+DATEFMT = "2006-01-02T15:04:05"
 REGIONS = {
-    "Any": [],
+    "Global": [],
     "US-only": ["United States"],
-    "North America": ["United States", "Canada"],
-    "EAFE": [
-        "Austria",
-        "Belgium",
-        "Denmark",
-        "Finland",
-        "France",
-        "Germany",
-        "Ireland",
-        "Israel",
-        "Italy",
-        "Netherlands",
-        "Norway",
-        "Portugal",
-        "Spain",
-        "Sweden",
-        "Switzerland",
-        "United Kingdom",
-        "Australia",
-        "New Zealand",
-        "Hong Kong",
-        "Singapore",
-        "Japan",
-    ],
-    "EM": [
-        "Brazil",
-        "Chile",
-        "China",
-        "Colombia",
-        "Czech Republic",
-        "Egypt",
-        "Greece",
-        "Hungary",
-        "India",
-        "Indonesia",
-        "Korea",
-        "Kuwait",
-        "Malaysia",
-        "Mexico",
-        "Peru",
-        "Philippines",
-        "Poland",
-        "Qatar",
-        "Russia",
-        "Saudi Arabia",
-        "South Africa",
-        "Taiwan",
-        "Thailand",
-        "Turkey",
-        "United Arab Emirates",
-    ],
-    "G7": ["United States", "Canada", "France", "Germany", "Italy", "Japan", "United Kingdom"],
+    # "North America": ["United States", "Canada"],
+    # "EAFE": [
+    #     "Austria",
+    #     "Belgium",
+    #     "Denmark",
+    #     "Finland",
+    #     "France",
+    #     "Germany",
+    #     "Ireland",
+    #     "Israel",
+    #     "Italy",
+    #     "Netherlands",
+    #     "Norway",
+    #     "Portugal",
+    #     "Spain",
+    #     "Sweden",
+    #     "Switzerland",
+    #     "United Kingdom",
+    #     "Australia",
+    #     "New Zealand",
+    #     "Hong Kong",
+    #     "Singapore",
+    #     "Japan",
+    # ],
+    # "EM": [
+    #     "Brazil",
+    #     "Chile",
+    #     "China",
+    #     "Colombia",
+    #     "Czech Republic",
+    #     "Egypt",
+    #     "Greece",
+    #     "Hungary",
+    #     "India",
+    #     "Indonesia",
+    #     "Korea",
+    #     "Kuwait",
+    #     "Malaysia",
+    #     "Mexico",
+    #     "Peru",
+    #     "Philippines",
+    #     "Poland",
+    #     "Qatar",
+    #     "Russia",
+    #     "Saudi Arabia",
+    #     "South Africa",
+    #     "Taiwan",
+    #     "Thailand",
+    #     "Turkey",
+    #     "United Arab Emirates",
+    # ],
+    # "G7": ["United States", "Canada", "France", "Germany", "Italy", "Japan", "United Kingdom"],
 }
 
 ISO3166 = {
@@ -356,15 +356,20 @@ def flag_api(country_name):
 def main(config):
     timezone = config.get("$tz", "America/New_York")
     countries = REGIONS.get(config.get("region"), [])
+    future_events = config.get("future")
     title_font = "CG-pixel-3x5-mono"
+    NULL = "--"
 
+    now = time.now()
     # Events are cached globally for 30 minutes, individualization is not necessary
     cache_id = "%s/%s/%s" % ("finevent", "econ", config.get("region"))
     data = cache.get(cache_id)
-    sorted_events = []
+    filtered_events = []
     if not data:
-        url_countries = ",".join([country.lower().replace(" ", "%20") for country in countries])
-        request_url = "%s/calendar/country/all?c=guest:guest&f=json&importance=3" % (BASE_URL, )
+        url_countries = "all"
+        if len(countries):
+            url_countries = ",".join([country.lower().replace(" ", "%20") for country in countries])
+        request_url = "%s/calendar/country/%s?c=guest:guest&f=json&importance=3" % (BASE_URL, url_countries)
         print("Getting latest events from API %s" % request_url)
 
         response = http.get(request_url)
@@ -372,7 +377,6 @@ def main(config):
             print("API Error.")
         else:
             data = response.json()
-            print(data[0], "Country" in data[0].keys())
             if countries:
                 filtered_events = []
                 for evt in data:
@@ -382,39 +386,63 @@ def main(config):
                         print(evt["Country"], " is not in ", countries)
             else:
                 filtered_events = data
-            sorted_events = sorted(filtered_events, key = lambda x: x["Date"], reverse=False)
-            if len(filtered_events):
-                cache.set(cache_id, json.encode(sorted_events), ttl_seconds = 60 * 30)
-    else:
-        sorted_events = json.decode(data)
 
+            if len(filtered_events):
+                cache.set(cache_id, json.encode(filtered_events), ttl_seconds = 60 * 30)
+    else:
+        filtered_events = json.decode(data)
+
+    for event in filtered_events:
+        event["ReleaseTime"] = time.parse_time(event.get("Date", ""), format = DATEFMT).in_location(timezone)
+        event["TimeFromNow"] = int(abs((now - event["ReleaseTime"]).seconds))
+        print(event["TimeFromNow"], event["ReleaseTime"])
+
+    sorted_events = sorted(filtered_events, key = lambda x: x["TimeFromNow"], reverse=False)
+    print(sorted_events)
+
+    if future_events == "false":
+        _events = []
+        for e in sorted_events:
+            if e.get("ReleaseTime") <= now:
+                _events.append(e)
+        sorted_events = _events
+
+    right_title = "Prior"
+    right_color = "#fb8b1e"
     if not len(sorted_events):
         importance = 1
         name = "No events found today"
-        display_time = "--"
+        display_time = NULL
         country = "United States"
-        survey, actual = "--", "--"
+        survey, right = NULL, NULL
     else:
         event = sorted_events[0]
         importance = event.get("Importance", 1)
         name = event.get("Event")
 
         # Localize UTC time
-        timestamp = time.parse_time(event.get("Date", ""), format = "2006-01-02T15:04:05").in_location(timezone)
-        display_time = timestamp.format("15:04 AM")
+        display_time = event.get("ReleaseTime", NULL).format("03:04 PM")
         if display_time[0] == "0":
             display_time = display_time[1:]
 
-        survey = str(event.get("Forecast", "--"))
+        survey = str(event.get("Forecast", NULL))
         if survey == "":
-            survey = "--"
-        actual = str(event.get("Actual", "--"))
-        if actual == "":
-            actual = "--"
+            survey = NULL
+
+        right = str(event.get("Previous", "--"))
+        if right == "":
+            right = NULL
+        if event.get("ReleaseTime", now) <= now:
+            right_title = "Actual"
+            right_color = "#fff"
+            right = str(event.get("Actual", "--"))
+            if right == "":
+                right = NULL
+
         country = event.get("Country", None)
 
     flag = flag_api(country)
-    print(country, name, display_time, survey, actual, importance)
+    print(country, name, display_time, survey, right, importance)
 
     defaults = {
         "main_align": "space_between",
@@ -452,8 +480,8 @@ def main(config):
                             expanded = True,
                             cross_align = "center",
                             children = [
-                                render.Text("Actual", color = "#fff", font = title_font),
-                                render.Text(actual, color = "#fff"),
+                                render.Text(right_title, color = right_color, font = title_font),
+                                render.Text(right, color = right_color),
                             ],
                         ),
                     ],
@@ -471,9 +499,16 @@ def get_schema():
                 id = "region",
                 name = "Event Region",
                 desc = "Filter economic events by countries within the region of interest.",
-                icon = "pencilRuler",
+                icon = "earthEurope",
                 options = [schema.Option(value = k, display = k) for k in REGIONS.keys()],
                 default = "US-only",
+            ),
+            schema.Toggle(
+                id = "future",
+                name = "Include unreported?",
+                desc = "If turned off, we will hide any upcoming releases and only show events after data is available.",
+                icon = "clock",
+                default = True,
             ),
         ],
     )
