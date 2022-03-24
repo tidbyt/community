@@ -35,8 +35,8 @@ def round(num, precision):
     """Round a float to the specified number of significant digits"""
     return math.round(num * math.pow(10, precision)) / math.pow(10, precision)
 
-def rgb_to_hex(r,g,b):
-    """Return 6-character hexadecimal color code from R/G/B values provided in a tuple"""
+def rgb_to_hex(r, g, b):
+    """Return 6-character hexadecimal color code from R/G/B values given as integers"""
     ret = ""
     for i in (r, g, b):
         this = "%X" % i
@@ -76,6 +76,7 @@ def main(config):
     else:
         print("Displaying cached data.")
         dates = json.decode(dates)
+
         # force all to float for plotting
         for i, d in enumerate(dates):
             for k, v in d.items():
@@ -93,7 +94,7 @@ def main(config):
         rgb = (
             max(min_color, int(c * 0.2)),
             max(min_color, int(c * 0.2)),
-            max(min_color, int(c))
+            max(min_color, int(c)),
         )
         color = rgb_to_hex(*rgb)
         if i == len(dates) - 1:
@@ -108,7 +109,7 @@ def main(config):
                 (24.0, entry["2YEAR"]),
                 (36.0, entry["3YEAR"]),
                 (60.0, entry["5YEAR"]),
-                (74.0, entry["7YEAR"]),
+                (84.0, entry["7YEAR"]),
                 (120.0, entry["10YEAR"]),
                 (240.0, entry["20YEAR"]),
                 (360.0, entry["30YEAR"]),
@@ -131,7 +132,8 @@ def main(config):
         color = "#fb8b1e"
         if title == "":
             color = "#444"
-        stat_table.append(render.Box(
+        stat_table.append(
+            render.Box(
                 height = 6,
                 child = render.Row(
                     expanded = True,
@@ -142,7 +144,7 @@ def main(config):
                         render.Text(str(value), font = "CG-pixel-3x5-mono", color = color),
                     ],
                 ),
-            )
+            ),
         )
 
     plots.append(render.Column(
