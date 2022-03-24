@@ -69,7 +69,7 @@ def jsonToTrainData(json):
             "name": train["lineName"],
             "status": train["status"].replace("_", " "),
             "minutes": getArrivalInMinutes(train["projectedArrival"]),
-            "direction": train["direction"]
+            "direction": train["direction"],
         }
         trains_data.append(data)
 
@@ -77,7 +77,6 @@ def jsonToTrainData(json):
 
 def getTrainsFromResponse(rep):
     return rep.json()["upcomingTrains"][0:2]
-
 
 def firstInboundAndOutbound(trains):
     """ gets first train in direction, or null
@@ -91,10 +90,9 @@ def firstInboundAndOutbound(trains):
     to_ny_train = getFirstTrainInDirection(trains, TO_NY)
     to_nj_train = getFirstTrainInDirection(trains, TO_NJ)
     return {
-       TO_NY : to_ny_train,
-       TO_NJ : to_nj_train
+        TO_NY: to_ny_train,
+        TO_NJ: to_nj_train,
     }
-
 
 def getFirstTrainInDirection(trains, direction):
     """ gets first train in direction, or null
@@ -108,11 +106,10 @@ def getFirstTrainInDirection(trains, direction):
     """
     direction_train = None
     for t in trains:
-        if(t["direction"] == direction):
+        if (t["direction"] == direction):
             direction_train = t
             break
     return direction_train
-
 
 def getTrainDataFromApi(station_name):
     """ gets train data
@@ -144,8 +141,7 @@ def renderTrainMarquee(train, direction):
 
     direction_text = "NY" if direction == TO_NY else "NJ"
 
-    if(train == None):
-
+    if (train == None):
         return render.Column(
             children = [
                 render.Row(
@@ -155,15 +151,14 @@ def renderTrainMarquee(train, direction):
                         render.Text(
                             direction_text,
                             color = BLUE,
-                            font = "tom-thumb"
+                            font = "tom-thumb",
                         ),
                         render.Marquee(
                             width = 64,
-                            child = render.Text("No train info available", color = RED)
-                        )
-                    ]
+                            child = render.Text("No train info available", color = RED),
+                        ),
+                    ],
                 ),
-
             ],
         )
 
@@ -185,16 +180,15 @@ def renderTrainMarquee(train, direction):
                         render.Text(
                             direction_text,
                             color = BLUE,
-                            font = "tom-thumb"
+                            font = "tom-thumb",
                             # width = 16
                         ),
                         render.Marquee(
                             width = 64,
                             child = render.Text(train["name"]),
-                        )
-                    ]
+                        ),
+                    ],
                 ),
-
                 render.Row(
                     main_align = "space_between",
                     expanded = True,
