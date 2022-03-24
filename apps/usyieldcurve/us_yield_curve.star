@@ -197,7 +197,7 @@ def get_schema():
                 id = "graph_color",
                 name = "Color",
                 desc = "Color of the historical curves.",
-                icon = "paintbrush",
+                icon = "paintBrush",
                 options = [schema.Option(value = c, display = c) for c in COLOR_VECTORS.keys()],
                 default = "Blue",
             ),
