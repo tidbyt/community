@@ -76,7 +76,7 @@ def jsonToTrainData(json):
     return trains_data
 
 def getTrainsFromResponse(rep):
-    return rep.json()["upcomingTrains"][0:2]
+    return rep.json()["upcomingTrains"]
 
 def firstInboundAndOutbound(trains):
     """ gets first train in direction, or null
@@ -104,12 +104,10 @@ def getFirstTrainInDirection(trains, direction):
     Returns:
         dict: first train headed in direction
     """
-    direction_train = None
     for t in trains:
-        if (t["direction"] == direction):
-            direction_train = t
-            break
-    return direction_train
+        if t["direction"] == direction:
+            return t
+    return None
 
 def getTrainDataFromApi(station_name):
     """ gets train data
@@ -182,6 +180,10 @@ def renderTrainMarquee(train, direction):
                             color = BLUE,
                             font = "tom-thumb",
                             # width = 16
+                        ),
+                        render.Box(
+                            width = 1,
+                            height = 1
                         ),
                         render.Marquee(
                             width = 64,
