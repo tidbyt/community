@@ -33,7 +33,7 @@ API_SEARCH_BUNGIE_ID_NAME = API_BASE_URL + "/Destiny2/SearchDestinyPlayerByBungi
 
 def main(config):
     display_name = config.get("display_name", DEFAULT_DISPLAY_NAME)
-    display_name_code = config.str("display_name_code", DEFAULT_DISPLAY_NAME_CODE)
+    display_name_code = config.get("display_name_code", DEFAULT_DISPLAY_NAME_CODE)
     displayed_character = ""
 
     api_key = secret.decrypt("""
@@ -50,9 +50,6 @@ def main(config):
 
     else:
         print("No cached data. Hitting API")
-
-        print(display_name)
-        print(display_name_code)
 
         bungie_membership_id = ""
         bungie_membership_type = ""
