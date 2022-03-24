@@ -129,17 +129,17 @@ def main(config):
 def get_last_played_character(characters_list):
     most_recent_character = {
         "id": "",
-        "date": {
-            "year": 1111,
-            "month": 0o0,
-            "day": 0o0,
-            "hour": 0o0,
-            "minute": 0o0,
-        },
+        "date": time.parse_time("1999-01-01T00:01:00.00Z"),
     }
 
     for character in characters_list:
-        date_string = characters_list[character]["dateLastPlayed"]
+        #date_string = 
+
+        date = time.parse_time(characters_list[character]["dateLastPlayed"])
+
+        if(date > most_recent_character["date"]):
+            most_recent_character["date"] = date
+        
 
         year = int(date_string[0:4])
         month = int(date_string[5:7])
