@@ -9,6 +9,7 @@ load("render.star", "render")
 load("time.star", "time")
 load("schema.star", "schema")
 load("encoding/json.star", "json")
+load("sunrise.star", "sunrise")
 
 number_font = "tom-thumb"
 font = "tom-thumb"
@@ -22,9 +23,9 @@ def main(config):
         ]
     else:
         locations = [
-            {"timezone": "America/New_York", "locality": "New York"},
-            {"timezone": "Europe/London", "locality": "London"},
-            {"timezone": "America/Chicago", "locality": "Arkansas"},
+            {"timezone": "America/New_York", "locality": "New York", "lat": 0, "lng": 0},
+            {"timezone": "Europe/London", "locality": "London", "lat": 0, "lng": 0},
+            {"timezone": "Asia/Tokyo", "locality": "Tokyo", "lat": 35.703286, "lng": 139.748475},
         ]
 
     horizonal_rule = render.Box(
@@ -39,9 +40,24 @@ def main(config):
         i += 1
 
         timezone = location["timezone"]
-        locality = config.get("location_%s_label" % i, location["locality"])
+        locality = config.get("location_%s_label" % i)
+        if (not locality):
+            locality = location["locality"]
 
         now = time.now().in_location(timezone)
+
+        lat, lng = float(location["lat"]), float(location["lng"])
+        rise = sunrise.sunrise(lat, lng, now)
+        set = sunrise.sunset(lat, lng, now)
+        is_daytime = now > rise and now < set
+
+        time_color = "#bbbbbb"
+
+        if (config.get("color_by_daylight") != "false"):
+            if (is_daytime):
+                time_color = "#ffe9ad"
+            else:
+                time_color = "#94a0ff"
 
         location_name = render.Box(
             height = 7,
@@ -53,7 +69,7 @@ def main(config):
                     child = render.Text(
                         content = locality,
                         font = font,
-                        color = "#bbb",
+                        color = time_color,
                         offset = -1,
                     ),
                 ),
@@ -68,6 +84,7 @@ def main(config):
                         render.Text(
                             content = now.format("15"),
                             font = number_font,
+                            color = "#ffffff",
                         ),
                         render.Box(
                             width = 2,
@@ -76,7 +93,7 @@ def main(config):
                                     render.Text(
                                         content = ":",
                                         font = "CG-pixel-3x5-mono",
-                                        color = "#777",
+                                        color = "#777777",
                                         offset = 0,
                                     ),
                                     render.Text(
@@ -89,6 +106,7 @@ def main(config):
                         render.Text(
                             content = now.format("04"),
                             font = number_font,
+                            color = "#ffffff",
                         ),
                     ],
                 ),
@@ -159,6 +177,13 @@ def get_schema():
                 desc = "Custom label (optional)",
                 icon = "tag",
                 default = "",
+            ),
+            schema.Toggle(
+                id = "color_by_daylight",
+                name = "Color by daylight",
+                desc = "Adjust location name color based on time of day.",
+                icon = "sun",
+                default = True,
             ),
         ],
     )
