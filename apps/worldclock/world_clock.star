@@ -43,58 +43,65 @@ def main(config):
 
         now = time.now().in_location(timezone)
 
+        location_name = render.Box(
+            height = 7,
+            width = 43,
+            child = render.Padding(
+                pad = (4, 0, 0, 0),
+                child = render.Marquee(
+                    width = 43,
+                    child = render.Text(
+                        content = locality,
+                        font = font,
+                        color = "#bbb",
+                        offset = -1,
+                    ),
+                ),
+            ),
+        )
+
+        location_time = render.Box(
+            child = render.Padding(
+                pad = (0, 1, 0, 1),
+                child = render.Row(
+                    children = [
+                        render.Text(
+                            content = now.format("15"),
+                            font = number_font,
+                        ),
+                        render.Box(
+                            width = 2,
+                            child = render.Animation(
+                                children = [
+                                    render.Text(
+                                        content = ":",
+                                        font = "CG-pixel-3x5-mono",
+                                        color = "#777",
+                                        offset = 0,
+                                    ),
+                                    render.Text(
+                                        content = " ",
+                                        font = "CG-pixel-3x5-mono",
+                                    ),
+                                ],
+                            ),
+                        ),
+                        render.Text(
+                            content = now.format("04"),
+                            font = number_font,
+                        ),
+                    ],
+                ),
+            ),
+            width = 23,
+            height = 7,
+        )
+
         row = render.Row(
             main_align = "start",
             children = [
-                render.Box(
-                    child = render.Padding(
-                        pad = (0, 1, 0, 1),
-                        child = render.Row(
-                            children = [
-                                render.Text(
-                                    content = now.format("15"),
-                                    font = number_font,
-                                ),
-                                render.Box(
-                                    width = 2,
-                                    child = render.Animation(
-                                        children = [
-                                            render.Text(
-                                                content = ":",
-                                                font = "CG-pixel-3x5-mono",
-                                                color = "#777",
-                                                offset = 0,
-                                            ),
-                                            render.Text(
-                                                content = " ",
-                                                font = "CG-pixel-3x5-mono",
-                                            ),
-                                        ],
-                                    ),
-                                ),
-                                render.Text(
-                                    content = now.format("04"),
-                                    font = number_font,
-                                ),
-                            ],
-                        ),
-                    ),
-                    width = 23,
-                    height = 7,
-                ),
-                render.Box(
-                    height = 7,
-                    width = 42,
-                    child = render.Marquee(
-                        width = 42,
-                        child = render.Text(
-                            content = locality,
-                            font = font,
-                            color = "#bbb",
-                            offset = -1,
-                        ),
-                    ),
-                ),
+                location_name,
+                location_time,
             ],
         )
         rows.append(row)
