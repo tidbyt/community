@@ -30,6 +30,7 @@ DATA_LOCS = {
     14: "20YEAR",
     15: "30YEAR",
 }
+
 # RGB Coefficients
 COLOR_VECTORS = {
     "Red": (1.0, 0.1, 0.1),
