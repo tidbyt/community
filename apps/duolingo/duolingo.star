@@ -6,10 +6,6 @@ Author: Olly Stedall @saltedlolly
 Thanks: @drudge @whyamIhere @AmillionAir
 """
 
-################################################################################
-# IMPORTANT: This app is still a work in progress and is not yet fully working
-################################################################################
-
 print(" ---------------------------------------------------------------------------------------------------------------------")
 
 load("render.star", "render")
@@ -210,7 +206,7 @@ def main(config):
 
     print("XP Target: " + str(xp_target))
 
-    # Trim nickname to only display first five characters
+    # Trim nickname to only display first five characters, and capitalize
     nickname = nickname[:5].upper()
 
     # Setup user cache keys
@@ -531,7 +527,7 @@ def main(config):
         # Calculate percentage achieved of progress bar
         progressbar_perc = (int(duolingo_xptoday) / int(xp_target)) * 100
 
-        # Deduce which Duolingo icon should be displayed right now
+        # Decide which Duolingo icon should be displayed right now
         if int(duolingo_xptoday) == 0 and hour_now >= 20:
             DUOLINGO_ICON = DUOLINGO_ICON_CRY
             print("Owl: Crying")
@@ -545,18 +541,22 @@ def main(config):
             print("Owl: Pointing Left")
         elif int(progressbar_perc) >= 35 and int(progressbar_perc) <= 60 and int(xp_target) != 0 and display_view == "today":
             DUOLINGO_ICON = DUOLINGO_ICON_STANDING_POINT_DOWN
+            print("Owl: Pointing Down")
         elif int(progressbar_perc) > 60 and int(progressbar_perc) < 80 and int(xp_target) != 0 and display_view == "today":
             DUOLINGO_ICON = DUOLINGO_ICON_STANDING_POINT_RIGHT
+            print("Owl: Pointing Right")
         elif int(progressbar_perc) > 80 and int(progressbar_perc) < 100 and int(xp_target) != 0 and display_view == "today":
             DUOLINGO_ICON = DUOLINGO_ICON_STANDING_POINT_RIGHT_FLAP
+            print("Owl: Pointing Right + Flap")
         elif int(progressbar_perc) >= 100 and int(xp_target) != 0 and display_view == "today":
             DUOLINGO_ICON = DUOLINGO_ICON_FLY
+            print("Owl: Flying")
         else:
             print("Error: Could not select specific Duolingo icon, so reverting to the default standing icon.")
             DUOLINGO_ICON = DUOLINGO_ICON_STANDING
 
         # OWL TESTING !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-        #        DUOLINGO_ICON = DUOLINGO_ICON_FLY
+#        DUOLINGO_ICON = DUOLINGO_ICON_STANDING
 
         # Setup nickname display, if needed
         if nickname != "":
@@ -613,7 +613,7 @@ def main(config):
     if display_error_msg == False and display_view == "today":
         print("Displaying Day View on Tidbyt...")
 
-        # Setup progress bar. Don't display if XP target in Schema is set to 0.
+        # Setup progress bar. Don't display if XP target in Schema is set to None.
         if xp_target == 0:
             progressbar = None
             multiplier_text = None
