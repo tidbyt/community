@@ -63,7 +63,7 @@ def main(config):
     timezone = config.get("$tz", "America/New_York")
     year = time.now().in_location(timezone).year
     cache_id = "%s/%s" % ("us-yield-curve", year)
-    color_choice = config.get("graph_color")
+    color_choice = config.get("graph_color", "Blue")
     color_vector = COLOR_VECTORS[color_choice]
 
     dates = cache.get(cache_id)
