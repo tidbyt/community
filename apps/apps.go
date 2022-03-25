@@ -15,6 +15,8 @@ import (
 	"tidbyt.dev/community/apps/bigclock"
 	"tidbyt.dev/community/apps/binaryclock"
 	"tidbyt.dev/community/apps/clockbyhenry"
+	"tidbyt.dev/community/apps/coingeckoprice"
+	"tidbyt.dev/community/apps/countdownclock"
 	"tidbyt.dev/community/apps/dateprogress"
 	"tidbyt.dev/community/apps/datetimeclock"
 	"tidbyt.dev/community/apps/daynightmap"
@@ -47,14 +49,17 @@ import (
 	"tidbyt.dev/community/apps/phaseofmoon"
 	"tidbyt.dev/community/apps/pokedex"
 	"tidbyt.dev/community/apps/purpleair"
+	"tidbyt.dev/community/apps/redditimages"
 	"tidbyt.dev/community/apps/sbbtimetable"
 	"tidbyt.dev/community/apps/sportsscores"
 	"tidbyt.dev/community/apps/sportsstandings"
 	"tidbyt.dev/community/apps/spotthestation"
 	"tidbyt.dev/community/apps/steam"
+	"tidbyt.dev/community/apps/strava"
 	"tidbyt.dev/community/apps/sunrisesunset"
 	"tidbyt.dev/community/apps/tempest"
 	"tidbyt.dev/community/apps/theysaidso"
+	"tidbyt.dev/community/apps/transsee"
 	"tidbyt.dev/community/apps/twitterfollows"
 	"tidbyt.dev/community/apps/verticalmessage"
 	"tidbyt.dev/community/apps/warframecycles"
@@ -74,6 +79,8 @@ func GetManifests() []manifest.Manifest {
 		bigclock.New(),
 		binaryclock.New(),
 		clockbyhenry.New(),
+		coingeckoprice.New(),
+		countdownclock.New(),
 		dateprogress.New(),
 		datetimeclock.New(),
 		daynightmap.New(),
@@ -105,14 +112,17 @@ func GetManifests() []manifest.Manifest {
 		phaseofmoon.New(),
 		pokedex.New(),
 		purpleair.New(),
+		redditimages.New(),
 		sbbtimetable.New(),
 		sportsscores.New(),
 		sportsstandings.New(),
 		spotthestation.New(),
 		steam.New(),
+		strava.New(),
 		sunrisesunset.New(),
 		tempest.New(),
 		theysaidso.New(),
+		transsee.New(),
 		twitterfollows.New(),
 		verticalmessage.New(),
 		warframecycles.New(),
