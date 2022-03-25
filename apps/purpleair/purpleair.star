@@ -257,8 +257,6 @@ def get_sensor_id(config):
 
 # Returns a tuple: (data, was_cached)
 def fetch_sensor_data(api_key, url, params, cache_key):
-    print("Using cache key: %s" % cache_key)
-
     # Check cache first
     cached_data = None
     if cache_key != None:
