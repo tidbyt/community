@@ -507,7 +507,9 @@ def process_head_move(segment, state, mushroomMap, history):
 
     segment["turnFrame"] = turnFrame
 
-    legState = state * 2
+    # This moves the leg state every other frame
+    legState = (state % (CENT_LEG_STATE_COUNT * 2)) // 2
+
     xDirIndex = 1 if xDir > 0 else 0
     yDirIndex = 1 if yDir > 0 else 0
 
@@ -615,7 +617,7 @@ def add_mushroom(seed, mushroomMap, mushroomSprite):
 
     # [0]: render item
     # [1]: True if has been hit before
-    mushroomMap[centipede_get_sprite_slot(x, y)] = [item, False]
+    mushroomMap[slot] = [item, False]
 
 def centipede_get_sprite_slot(x, y):
     if x >= FRAME_WIDTH or y >= FRAME_HEIGHT or x < 0 or y < 0:
