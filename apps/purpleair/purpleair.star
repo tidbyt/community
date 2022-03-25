@@ -18,7 +18,6 @@ load("secret.star", "secret")
 # DEFAULTS
 
 DEFAULT_SENSOR_ID = "33997"  # Alcatraz Dock sensor
-DEFAULT_LOCATION_BASED_SENSOR = '{"display": "Bay Area Discover Museum", "value": 38061}'
 DEFAULT_TEMP_UNIT = "F"
 
 # MAIN APP
@@ -236,21 +235,16 @@ def distance_between(lat1, lng1, lat2, lng2):
 # Return the sensor id to use based on configuration options
 def get_sensor_id(config):
     sensor = DEFAULT_SENSOR_ID
-
-    # User can specify the sensor id directly
     id_option = config.get("sensor_id_direct")
-    if id_option != None:
-        sensor = str(json.decode(id_option))
-        print("Sensor direct: %s" % id_option)
+    location_option = config.get("sensor_id")
 
-    # If sensor not specified directly, use location to get sensor
-    if id_option == None or id_option == "":
-        local_selection = config.get("sensor_id", DEFAULT_LOCATION_BASED_SENSOR)
-        local_selection = json.decode(local_selection)
-        if "value" in local_selection:
-            sensor = str(local_selection["value"])
+    if id_option != "" and id_option != None:
+        sensor = str(json.decode(id_option))
+    elif location_option != None:
+        sensor = str(json.decode(location_option))
 
     print("Using sensor: %s" % sensor)
+
     return sensor
 
 # DATA
