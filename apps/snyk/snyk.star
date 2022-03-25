@@ -139,7 +139,7 @@ def main(config):
                                             color = "#CB4F19",
                                         ),
                                         render.Text(
-                                            content = "Crtical: %d" % critical,
+                                            content = "Critical: %d" % critical,
                                             font = "tom-thumb",
                                             color = "#AD1A1A",
                                         ),
