@@ -79,7 +79,7 @@ def piecewise_log(x):
     if x < 12:
         x = math.log(x) * 5
     else:
-        x = x/12 + 11
+        x = x / 12 + 11
     return math.round(x)
 
 def linear_scale(x):
