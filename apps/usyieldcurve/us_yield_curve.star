@@ -45,6 +45,21 @@ COLOR_VECTORS = {
     "Multi-color": (),
 }
 
+X_AXIS = {
+    "1MONTH": 1.0,
+    "2MONTH": 2.0,
+    "3MONTH": 3.0,
+    "6MONTH": 6.0,
+    "1YEAR": 12.0,
+    "2YEAR": 24.0,
+    "3YEAR": 36.0,
+    "5YEAR": 60.0,
+    "7YEAR": 84.0,
+    "10YEAR": 120.0,
+    "20YEAR": 240.0,
+    "30YEAR": 360.0,
+}
+
 def round(num, precision):
     """Round a float to the specified number of significant digits"""
     return math.round(num * math.pow(10, precision)) / math.pow(10, precision)
@@ -59,12 +74,28 @@ def rgb_to_hex(r, g, b):
         ret = ret + this
     return ret
 
+def piecewise_log(x):
+    """Facilitates the rescaling of the x-axis to better emphasize the short end of the curve"""
+    if x < 12:
+        x = math.log(x) * 5
+    else:
+        x = x/12 + 11
+    return math.round(x)
+
+def linear_scale(x):
+    return x
+
 def main(config):
     timezone = config.get("$tz", "America/New_York")
     year = time.now().in_location(timezone).year
     cache_id = "%s/%s" % ("us-yield-curve", year)
     color_choice = config.get("graph_color", "Blue")
     color_vector = COLOR_VECTORS[color_choice]
+
+    scale_axis = {
+        "linear": linear_scale,
+        "piecewise-log": piecewise_log,
+    }[config.get("x-axis", "linear")]
 
     dates = cache.get(cache_id)
     if not dates:
@@ -123,21 +154,10 @@ def main(config):
         color = rgb_to_hex(*rgb)
         if i == len(dates) - 1:
             color = "fff"
+
+        curve = [(scale_axis(X_AXIS[k]), entry.get(k, 0.0)) for k in X_AXIS.keys()]
         plots.append(render.Plot(
-            data = [
-                (1.0, entry["1MONTH"]),
-                (2.0, entry["2MONTH"]),
-                (3.0, entry["3MONTH"]),
-                (6.0, entry["6MONTH"]),
-                (12.0, entry["1YEAR"]),
-                (24.0, entry["2YEAR"]),
-                (36.0, entry["3YEAR"]),
-                (60.0, entry["5YEAR"]),
-                (84.0, entry["7YEAR"]),
-                (120.0, entry["10YEAR"]),
-                (240.0, entry["20YEAR"]),
-                (360.0, entry["30YEAR"]),
-            ],
+            data = curve,
             width = 64,
             height = 32,
             color = "#" + color,
@@ -193,6 +213,17 @@ def get_schema():
     return schema.Schema(
         version = "1",
         fields = [
+            schema.Dropdown(
+                id = "x-axis",
+                name = "X-Axis Unit",
+                desc = "Adjust how yields are plotted along the axis.",
+                icon = "pencilRuler",
+                options = [
+                    schema.Option(value = "linear", display = "Linear Scale"),
+                    schema.Option(value = "piecewise-log", display = "Piecewise Logarithmic"),
+                ],
+                default = "linear",
+            ),
             schema.Dropdown(
                 id = "graph_color",
                 name = "Color",
