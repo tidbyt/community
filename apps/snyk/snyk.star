@@ -16,11 +16,9 @@ SNYK_API_BASE = "https://api.snyk.io/v3/"
 SNYK_VERSION = "2022-03-11~experimental"
 
 def main(config):
-
     SNYK_ORG_ID = config.get("orgId") or ""
     SNYK_PROJECT_ID = config.get("projectId") or ""
     SNYK_API_KEY = config.get("apiKey") or ""
-
     logo_cached = cache.get("snyk_logo")
     if logo_cached != None:
         imgSrc = logo_cached
@@ -32,38 +30,37 @@ def main(config):
         msg = render.Text("Please make sure Org ID, Project ID, and API Key are all defined.")
         return render.Root(
             child =
-            render.Box(
-                color = "#0f0f0f",
-                child = render.Row(
-                    children = [
-                        render.Box(
-                            color="#712EA5",
-                            width=20,
-                            child = render.Image(
-                                src = imgSrc,
-                                width = 25,
-                                height = 25,
+                render.Box(
+                    color = "#0f0f0f",
+                    child = render.Row(
+                        children = [
+                            render.Box(
+                                color = "#712EA5",
+                                width = 20,
+                                child = render.Image(
+                                    src = imgSrc,
+                                    width = 25,
+                                    height = 25,
+                                ),
                             ),
-                        ),
-                        render.Padding(
-                            expanded = True,
-                            pad = 1,
-                            child = render.Column(
+                            render.Padding(
                                 expanded = True,
-                                main_align = "space_evenly",
-                                children = [
-                                    render.Marquee(
-                                        width = 42,
-                                        child = msg,
+                                pad = 1,
+                                child = render.Column(
+                                    expanded = True,
+                                    main_align = "space_evenly",
+                                    children = [
+                                        render.Marquee(
+                                            width = 42,
+                                            child = msg,
                                         ),
-                                ]
-                            )
-                        ),
-                    ]
-                )
-            )
+                                    ],
+                                ),
+                            ),
+                        ],
+                    ),
+                ),
         )
-
     else:
         res = http.get(
             url = SNYK_API_BASE + "orgs/" + SNYK_ORG_ID + "/issues" + "?version=" + SNYK_VERSION + "&project_id=" + SNYK_PROJECT_ID,
@@ -91,7 +88,7 @@ def main(config):
         critical = 0
         issues = body["data"]
         if len(issues) > 0:
-            for i in range(0, len(issues) +1):
+            for i in range(0, len(issues) + 1):
                 if issues[i]["severity"] == "low":
                     low = low + 1
                 if issues[i]["severity"] == "medium":
@@ -102,59 +99,57 @@ def main(config):
                     critical = critical + 1
 
         return render.Root(
-                child =
-                    render.Box(
-                        color = "#0f0f0f",
-                        child = render.Row(
-                            children = [
-                                render.Box(
-                                    color="#712EA5",
-                                    width=20,
-                                    child = render.Image(
-                                        src = imgSrc,
-                                        width = 25,
-                                        height = 25,
-                                    ),
+            child =
+                render.Box(
+                    color = "#0f0f0f",
+                    child = render.Row(
+                        children = [
+                            render.Box(
+                                color = "#712EA5",
+                                width = 20,
+                                child = render.Image(
+                                    src = imgSrc,
+                                    width = 25,
+                                    height = 25,
                                 ),
-                                render.Padding(
+                            ),
+                            render.Padding(
+                                expanded = True,
+                                pad = 1,
+                                child = render.Column(
                                     expanded = True,
-                                    pad = 1,
-                                    child = render.Column(
-                                        expanded = True,
-                                        main_align = "space_evenly",
-                                        children = [
-                                            render.Marquee(
-                                                width = 42,
-                                                child = render.Text(
-                                                    content = projectName,
-                                                    font = "tom-thumb",
-                                                    color = "#FFFFFF",
-                                                ),
-                                            ),
-                                            render.Text(
-
-                                                content = "Medium: %d" % medium,
+                                    main_align = "space_evenly",
+                                    children = [
+                                        render.Marquee(
+                                            width = 42,
+                                            child = render.Text(
+                                                content = projectName,
                                                 font = "tom-thumb",
-                                                color = "#D17D01",
-
+                                                color = "#FFFFFF",
                                             ),
-                                            render.Text(
-                                                content = "High: %d" % high,
-                                                font = "tom-thumb",
-                                                color = "#CB4F19",
-                                            ),
-                                            render.Text(
-                                                content = "Crtical: %d" % critical,
-                                                font = "tom-thumb",
-                                                color = "#AD1A1A",
-                                            ),
-                                        ],
-                                    ),
+                                        ),
+                                        render.Text(
+                                            content = "Medium: %d" % medium,
+                                            font = "tom-thumb",
+                                            color = "#D17D01",
+                                        ),
+                                        render.Text(
+                                            content = "High: %d" % high,
+                                            font = "tom-thumb",
+                                            color = "#CB4F19",
+                                        ),
+                                        render.Text(
+                                            content = "Crtical: %d" % critical,
+                                            font = "tom-thumb",
+                                            color = "#AD1A1A",
+                                        ),
+                                    ],
                                 ),
-                            ],
-                        ),
+                            ),
+                        ],
                     ),
-            )
+                ),
+        )
 
 def get_schema():
     return schema.Schema(
@@ -170,13 +165,13 @@ def get_schema():
                 id = "orgId",
                 name = "Org ID",
                 desc = "Organization ID in which the target project resides",
-                icon = "sitemap"
+                icon = "sitemap",
             ),
             schema.Text(
                 id = "projectId",
                 name = "Project ID",
                 desc = "Project ID to monitor for issues",
-                icon = "diagram-project"
+                icon = "diagram-project",
             ),
         ],
     )
