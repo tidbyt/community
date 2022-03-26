@@ -50,6 +50,8 @@ def get_slackmoji_url():
                 if USE_CACHE:
                     cache.set(cache_name, url, ttl_seconds = CACHE_SECONDS_URL)
                 return url
+
+    # something went wrong, no image url to return
     return None
 
 # downloads an image from the provided url
