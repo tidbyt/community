@@ -87,24 +87,12 @@ def main():
     image = get_image(url)
 
     return render.Root(
-        render.Row(
-            expanded = True,
-            main_align = "center",
-            cross_align = "center",
-            children = [
-                render.Column(
-                    expanded = True,
-                    main_align = "center",
-                    cross_align = "center",
-                    children = [
-                        render.Image(
-                            src = image["file"],
-                            width = image["width"],
-                            height = image["height"],
-                        ),
-                    ],
-                ),
-            ],
+        render.Box(
+            child = render.Image(
+                src = image["file"],
+                width = image["width"],
+                height = image["height"],
+            ),
         ),
     )
 
