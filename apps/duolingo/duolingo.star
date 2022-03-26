@@ -659,49 +659,58 @@ def main(config):
                     progressbar_col = "#ffd700"
                     multiplier_text = None
             else:
-                progressbar_col = "#666666"
+                progressbar_col = "#808080"
                 multiplier_text = None
 
             #   Second, work out the current length the progress bar should be
             progressbar_current_length = int((progressbar_total_length / 100) * progressbar_perc)
 
+
             if progressbar_current_length < progressbar_total_length:
                 fadeList = []  # This sets up the fading progress indicator
 
-                for frame in range(25):
+                for frame in range(28):
                     #Setup progress indicator fader colors - fades from black to grey and back again
                     if frame == 0 or frame == 1:
                         fading_indicator_col = "#000000"  # Black
                     elif frame == 2:
-                        fading_indicator_col = "#0d0d0d"  # Step 7
+                        fading_indicator_col = "#0d0d0d"  # Step 1
                     elif frame == 3:
-                        fading_indicator_col = "#1a1a1a"  # Step 6
+                        fading_indicator_col = "#1a1a1a"  # Step 2
                     elif frame == 4:
-                        fading_indicator_col = "#272727"  # Step 5
+                        fading_indicator_col = "#272727"  # Step 3
                     elif frame == 5:
                         fading_indicator_col = "#333333"  # Step 4
                     elif frame == 6:
-                        fading_indicator_col = "#404040"  # Step 3
+                        fading_indicator_col = "#404040"  # Step 5
                     elif frame == 7:
-                        fading_indicator_col = "#4c4c4c"  # Step 2
+                        fading_indicator_col = "#4c4c4c"  # Step 6
                     elif frame == 8:
-                        fading_indicator_col = "#595959"  # Step 1
-                    elif frame >= 9 and frame <= 12:
-                        fading_indicator_col = "#666666"  # Progress Bar Grey
-                    elif frame == 13:
-                        fading_indicator_col = "#595959"  # Step 1
-                    elif frame == 14:
-                        fading_indicator_col = "#4c4c4c"  # Step 2
+                        fading_indicator_col = "#595959"  # Step 7
+                    elif frame == 9:
+                        fading_indicator_col = "#666666"  # Step 8
+                    elif frame == 10:
+                        fading_indicator_col = "#737373"  # Step 9
+                    elif frame >= 11 and frame <= 14:
+                        fading_indicator_col = "#808080"  # Progress Bar Grey
                     elif frame == 15:
-                        fading_indicator_col = "#404040"  # Step 3
+                        fading_indicator_col = "#737373"  # Step 9
                     elif frame == 16:
-                        fading_indicator_col = "#333333"  # Step 4
+                        fading_indicator_col = "#666666"  # Step 8
                     elif frame == 17:
-                        fading_indicator_col = "#272727"  # Step 5
+                        fading_indicator_col = "#595959"  # Step 7
                     elif frame == 18:
-                        fading_indicator_col = "#1a1a1a"  # Step 6
+                        fading_indicator_col = "#4c4c4c"  # Step 6
                     elif frame == 19:
-                        fading_indicator_col = "#0d0d0d"  # Step 7
+                        fading_indicator_col = "#404040"  # Step 5
+                    elif frame == 20:
+                        fading_indicator_col = "#333333"  # Step 4
+                    elif frame == 21:
+                        fading_indicator_col = "#272727"  # Step 3
+                    elif frame == 22:
+                        fading_indicator_col = "#1a1a1a"  # Step 2
+                    elif frame == 23:
+                        fading_indicator_col = "#0d0d0d"  # Step 1
                     else:
                         fading_indicator_col = "#000000"  # Black
 
