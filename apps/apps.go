@@ -24,7 +24,6 @@ import (
 	"tidbyt.dev/community/apps/digitalrain"
 	"tidbyt.dev/community/apps/dvdlogo"
 	"tidbyt.dev/community/apps/espnnews"
-	"tidbyt.dev/community/apps/etrade"
 	"tidbyt.dev/community/apps/finevent"
 	"tidbyt.dev/community/apps/fishbyt"
 	"tidbyt.dev/community/apps/fuzzyclock"
@@ -91,7 +90,6 @@ func GetManifests() []manifest.Manifest {
 		digitalrain.New(),
 		dvdlogo.New(),
 		espnnews.New(),
-		etrade.New(),
 		finevent.New(),
 		fishbyt.New(),
 		fuzzyclock.New(),
