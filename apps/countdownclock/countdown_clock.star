@@ -13,33 +13,33 @@ load("encoding/json.star", "json")
 
 colorOpt = [
     schema.Option(
-		display = "Red",
-		value = "#FF0000"
-	),
+        display = "Red",
+        value = "#FF0000",
+    ),
     schema.Option(
-		display = "Orange",
-		value = "#FFA500"
-	),
+        display = "Orange",
+        value = "#FFA500",
+    ),
     schema.Option(
-		display = "Yellow",
-		value = "#FFFF00"
-	),
+        display = "Yellow",
+        value = "#FFFF00",
+    ),
     schema.Option(
-		display = "Green",
-		value = "#008000"
-	),
+        display = "Green",
+        value = "#008000",
+    ),
     schema.Option(
-		display = "Blue",
-		value = "#0000FF"
-	),
+        display = "Blue",
+        value = "#0000FF",
+    ),
     schema.Option(
-		display = "Indigo",
-		value = "#4B0082"
-	),
+        display = "Indigo",
+        value = "#4B0082",
+    ),
     schema.Option(
-		display = "Violet",
-		value = "#EE82EE"
-	),
+        display = "Violet",
+        value = "#EE82EE",
+    ),
 ]
 
 def main(config):
@@ -118,13 +118,13 @@ def get_schema():
                 desc = "The time of the event.",
                 icon = "cog",
             ),
-			schema.Dropdown(
-				id = "eventColor",
-				name="Text Color",
-				desc="The color of the event text.",
-				icon = "brush",
-				default = colorOpt[3].value,
-				options = colorOpt,
-			),
+            schema.Dropdown(
+                id = "eventColor",
+                name = "Text Color",
+                desc = "The color of the event text.",
+                icon = "brush",
+                default = colorOpt[3].value,
+                options = colorOpt,
+            ),
         ],
     )
