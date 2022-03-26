@@ -30,6 +30,7 @@ SAMPLE_DATA = [
     {"CalendarId":"292693","Date":"2022-03-29T14:00:00","Country":"United States","Category":"Job Offers","Event":"JOLTs Job Openings","Reference":"Feb","ReferenceDate":"2022-02-28T00:00:00","Source":"U.S. Bureau of Labor Statistics","SourceURL":"http://www.bls.gov","Actual":"","Previous":"11.263M","Forecast":"","TEForecast":"","URL":"/united-states/job-offers","DateSpan":"0","Importance":3,"LastUpdate":"2022-03-17T16:37:00","Revised":"","Currency":"","Unit":"M","Ticker":"UNITEDSTAJOBOFF","Symbol":"UNITEDSTAJOBOFF"},
 ]
 DATEFMT = "2006-01-02T15:04:05"
+MAX_RELEASE_SECONDS = 60 * 90 # we only show releases occurring the last/next N minutes
 REGIONS = {
     "Global": [],
     "US-only": ["United States"],
@@ -114,6 +115,7 @@ ISO3166 = {
     "Benin": "bj",
     "Bermuda": "bm",
     "Bhutan": "bt",
+    "Bolivia": "bo",
     "Bolivia, Plurinational State of": "bo",
     "Bosnia and Herzegovina": "ba",
     "Botswana": "bw",
@@ -121,6 +123,7 @@ ISO3166 = {
     "Brazil": "br",
     "British Indian Ocean Territory": "io",
     "Brunei Darussalam": "bn",
+    "Brunei": "bn",
     "Bulgaria": "bg",
     "Burkina Faso": "bf",
     "Burundi": "bi",
@@ -139,9 +142,11 @@ ISO3166 = {
     "Comoros": "km",
     "Congo": "cg",
     "Congo, the Democratic Republic of the": "cd",
+    "Democratic Republic of the Congo": "cd",
     "Cook Islands": "ck",
     "Costa Rica": "cr",
-    "CÃ´te d'Ivoire": "ci",
+    "Côte d'Ivoire": "ci",
+    "Ivory Coast": "ci",
     "Croatia": "hr",
     "Cuba": "cu",
     "Cyprus": "cy",
@@ -157,6 +162,8 @@ ISO3166 = {
     "Eritrea": "er",
     "Estonia": "ee",
     "Ethiopia": "et",
+    "Euro Area": "eu",
+    "European Union": "eu",
     "Falkland Islands (Malvinas)": "fk",
     "Faroe Islands": "fo",
     "Fiji": "fj",
@@ -190,6 +197,7 @@ ISO3166 = {
     "Iceland": "is",
     "India": "in",
     "Indonesia": "id",
+    "Iran": "ir",
     "Iran, Islamic Republic of": "ir",
     "Iraq": "iq",
     "Ireland": "ie",
@@ -205,6 +213,7 @@ ISO3166 = {
     "Kiribati": "ki",
     "Korea, Democratic People's Republic of": "kp",
     "Korea, Republic of": "kr",
+    "Republic of Korea": "kr",
     "Kuwait": "kw",
     "Kyrgyzstan": "kg",
     "Lao People's Democratic Republic": "la",
@@ -217,6 +226,7 @@ ISO3166 = {
     "Lithuania": "lt",
     "Luxembourg": "lu",
     "Macao": "mo",
+    "Macedonia": "mk",
     "Macedonia, the former Yugoslav Republic of": "mk",
     "Madagascar": "mg",
     "Malawi": "mw",
@@ -230,8 +240,12 @@ ISO3166 = {
     "Mauritius": "mu",
     "Mayotte": "yt",
     "Mexico": "mx",
+    "Micronesia": "fm",
     "Micronesia, Federated States of": "fm",
+    "Federated States of Micronesia": "fm",
+    "Moldova": "md",
     "Moldova, Republic of": "md",
+    "Republic of Moldova": "md",
     "Monaco": "mc",
     "Mongolia": "mn",
     "Montenegro": "me",
@@ -256,6 +270,7 @@ ISO3166 = {
     "Oman": "om",
     "Pakistan": "pk",
     "Palau": "pw",
+    "Palestine": "ps",
     "Palestinian Territory, Occupied": "ps",
     "Panama": "pa",
     "Papua New Guinea": "pg",
@@ -267,15 +282,17 @@ ISO3166 = {
     "Portugal": "pt",
     "Puerto Rico": "pr",
     "Qatar": "qa",
-    "RÃ©union": "re",
+    "Réunion": "re",
     "Romania": "ro",
     "Russian Federation": "ru",
     "Rwanda": "rw",
-    "Saint BarthÃ©lemy": "bl",
+    "Saint Barthélemy": "bl",
+    "Saint Helena": "sh",
     "Saint Helena, Ascension and Tristan da Cunha": "sh",
     "Saint Kitts and Nevis": "kn",
     "Saint Lucia": "lc",
     "Saint Martin (French part)": "mf",
+    "Saint Martin": "mf",
     "Saint Pierre and Miquelon": "pm",
     "Saint Vincent and the Grenadines": "vc",
     "Samoa": "ws",
@@ -292,6 +309,8 @@ ISO3166 = {
     "Solomon Islands": "sb",
     "Somalia": "so",
     "South Africa": "za",
+    "South Korea": "kr",
+    "South Georgia": "gs",
     "South Georgia and the South Sandwich Islands": "gs",
     "Spain": "es",
     "Sri Lanka": "lk",
@@ -303,8 +322,10 @@ ISO3166 = {
     "Switzerland": "ch",
     "Syrian Arab Republic": "sy",
     "Taiwan, Province of China": "tw",
+    "Taiwan": "tw",
     "Tajikistan": "tj",
     "Tanzania, United Republic of": "tz",
+    "Tanzania": "tz",
     "Thailand": "th",
     "Timor-Leste": "tl",
     "Togo": "tg",
@@ -326,9 +347,13 @@ ISO3166 = {
     "Uzbekistan": "uz",
     "Vanuatu": "vu",
     "Venezuela, Bolivarian Republic of": "ve",
+    "Venezuela": "ve",
     "Viet Nam": "vn",
+    "Vietnam": "vn",
     "Virgin Islands, British": "vg",
+    "British Virgin Islands": "vg",
     "Virgin Islands, U.S.": "vi",
+    "U.S. Virgin Islands": "vi",
     "Wallis and Futuna": "wf",
     "Western Sahara": "eh",
     "Yemen": "ye",
@@ -353,52 +378,63 @@ def flag_api(country_name):
             flag = flag_resp.body()
     return flag
 
+def random(max):
+    """Borrowed from nipterink's nft.star"""
+    return (time.now().nanosecond // 1000) % max
+
 def main(config):
     timezone = config.get("$tz", "America/New_York")
     countries = REGIONS.get(config.get("region"), [])
     future_events = config.get("future")
+    importance = int(config.get("importance", "2"))
     title_font = "CG-pixel-3x5-mono"
     NULL = "--"
 
     now = time.now()
     # Events are cached globally for 30 minutes, individualization is not necessary
-    cache_id = "%s/%s/%s" % ("finevent", "econ", config.get("region"))
+    cache_id = "%s/%s/%s/%s" % ("finevent", "econ", config.get("region"), importance)
     data = cache.get(cache_id)
     filtered_events = []
     if not data:
         url_countries = "all"
         if len(countries):
             url_countries = ",".join([country.lower().replace(" ", "%20") for country in countries])
-        request_url = "%s/calendar/country/%s?c=guest:guest&f=json&importance=3" % (BASE_URL, url_countries)
-        print("Getting latest events from API %s" % request_url)
 
-        response = http.get(request_url)
-        if response.status_code != 200:
-            print("API Error.")
-        else:
-            data = response.json()
-            if countries:
-                filtered_events = []
-                for evt in data:
-                    if evt["Country"] in countries:
-                        filtered_events.append(evt)
-                    else:
-                        print(evt["Country"], " is not in ", countries)
+        for imp in range(importance, 4):
+            request_url = "%s/calendar/country/%s?c=guest:guest&f=json&importance=%s" % (BASE_URL, url_countries, imp)
+            print("Getting latest events from API %s" % request_url)
+
+            response = http.get(request_url)
+            if response.status_code != 200:
+                print("API Error.")
             else:
-                filtered_events = data
+                data = response.json()
+                if countries:
+                    for evt in data:
+                        if evt["Country"] in countries:
+                            filtered_events.append(evt)
+                        else:
+                            print(evt["Country"], " is not in ", countries)
+                else:
+                    filtered_events.extend(data)
 
-            if len(filtered_events):
-                cache.set(cache_id, json.encode(filtered_events), ttl_seconds = 60 * 30)
+        if len(filtered_events):
+            times = []
+            for event in filtered_events:
+                times.append(time.parse_time(event.get("Date", ""), format = DATEFMT).in_location(timezone))
+            next_release = abs(max([int((now - t).seconds) for t in times if t > now]))
+            print("Caching %s results as %s until next release in %s seconds" % (len(filtered_events), cache_id, next_release))
+            cache.set(cache_id, json.encode(filtered_events), ttl_seconds = next_release)
     else:
+        print("Displaying cached data from %s" % cache_id)
         filtered_events = json.decode(data)
 
     for event in filtered_events:
         event["ReleaseTime"] = time.parse_time(event.get("Date", ""), format = DATEFMT).in_location(timezone)
         event["TimeFromNow"] = int(abs((now - event["ReleaseTime"]).seconds))
-        print(event["TimeFromNow"], event["ReleaseTime"])
 
+    filtered_events = [e for e in filtered_events if e["TimeFromNow"] < MAX_RELEASE_SECONDS]
     sorted_events = sorted(filtered_events, key = lambda x: x["TimeFromNow"], reverse=False)
-    print(sorted_events)
 
     if future_events == "false":
         _events = []
@@ -407,39 +443,41 @@ def main(config):
                 _events.append(e)
         sorted_events = _events
 
+    if not len(sorted_events):
+        print("No upcoming or recently-reported data.")
+        return []
+    else:
+        for event in sorted_events:
+            print(event["ReleaseTime"], event["Importance"], event["Country"], event["Event"])
+
+    choice = random(len(sorted_events))
     right_title = "Prior"
     right_color = "#fb8b1e"
-    if not len(sorted_events):
-        importance = 1
-        name = "No events found today"
-        display_time = NULL
-        country = "United States"
-        survey, right = NULL, NULL
-    else:
-        event = sorted_events[0]
-        importance = event.get("Importance", 1)
-        name = event.get("Event")
+    # If there are multiple events at this importance level, display a random one each time the app rotates
+    event = sorted_events[choice]
+    importance = event.get("Importance", 1)
+    name = event.get("Event")
 
-        # Localize UTC time
-        display_time = event.get("ReleaseTime", NULL).format("03:04 PM")
-        if display_time[0] == "0":
-            display_time = display_time[1:]
+    # Localize UTC time
+    display_time = event.get("ReleaseTime", NULL).format("03:04 PM")
+    if display_time[0] == "0":
+        display_time = display_time[1:]
 
-        survey = str(event.get("Forecast", NULL))
-        if survey == "":
-            survey = NULL
+    survey = str(event.get("Forecast", NULL))
+    if survey == "":
+        survey = NULL
 
-        right = str(event.get("Previous", "--"))
+    right = str(event.get("Previous", "--"))
+    if right == "":
+        right = NULL
+    if event.get("ReleaseTime", now) <= now:
+        right_title = "Actual"
+        right_color = "#fff"
+        right = str(event.get("Actual", "--"))
         if right == "":
             right = NULL
-        if event.get("ReleaseTime", now) <= now:
-            right_title = "Actual"
-            right_color = "#fff"
-            right = str(event.get("Actual", "--"))
-            if right == "":
-                right = NULL
 
-        country = event.get("Country", None)
+    country = event.get("Country", None)
 
     flag = flag_api(country)
     print(country, name, display_time, survey, right, importance)
@@ -502,6 +540,18 @@ def get_schema():
                 icon = "earthEurope",
                 options = [schema.Option(value = k, display = k) for k in REGIONS.keys()],
                 default = "US-only",
+            ),
+            schema.Dropdown(
+                id = "importance",
+                name = "Minimum importance",
+                desc = "Only show events rated over a certain level of importance.",
+                icon = "bell",
+                options = [schema.Option(value = v, display = d) for d, v in [
+                    ("Low", "1"),
+                    ("Medium", "2"),
+                    ("High", "3"),
+                ]],
+                default = "3",
             ),
             schema.Toggle(
                 id = "future",
