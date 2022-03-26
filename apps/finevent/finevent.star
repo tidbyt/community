@@ -14,6 +14,7 @@ load("encoding/json.star", "json")
 load("encoding/base64.star", "base64")
 
 BASE_URL = "https://api.tradingeconomics.com"
+AUTH = "guest:guest"
 SAMPLE_DATA = [
     {"CalendarId":"292068", "Date":"2022-03-23T07:00:00", "Country":"United Kingdom", "Category":"Inflation Rate", "Event":"Inflation Rate YoY", "Reference":"Feb", "ReferenceDate":"2022-02-28T00:00:00", "Source":"Office for National Statistics", "SourceURL":"http://www.ons.gov.uk/", "Actual":"6.2%", "Previous":"5.5%", "Forecast":"5.9%", "TEForecast":"6.1%", "URL":"/united-kingdom/inflation-cpi", "DateSpan":"0", "Importance":3,"LastUpdate":"2022-03-23T07:00:00", "Revised":"", "Currency":"", "Unit":"%", "Ticker":"UKRPCJYR", "Symbol":"UKRPCJYR"},
     {"CalendarId":"292037", "Date":"2022-03-23T14:00:00", "Country":"United States", "Category":"New Home Sales", "Event":"New Home Sales", "Reference":"Feb", "ReferenceDate":"2022-02-28T00:00:00", "Source":"U.S. Census Bureau", "SourceURL":"https://www.census.gov", "Actual":"0.772M", "Previous":"0.788M", "Forecast":"0.81M", "TEForecast":"0.81M", "URL":"/united-states/new-home-sales", "DateSpan":"0", "Importance":3,"LastUpdate":"2022-03-23T14:00:00", "Revised":"0.801M", "Currency":"", "Unit":"M", "Ticker":"UNITEDSTANEWHOMSAL", "Symbol":"UNITEDSTANEWHOMSAL"},
@@ -30,7 +31,7 @@ SAMPLE_DATA = [
     {"CalendarId":"292693","Date":"2022-03-29T14:00:00","Country":"United States","Category":"Job Offers","Event":"JOLTs Job Openings","Reference":"Feb","ReferenceDate":"2022-02-28T00:00:00","Source":"U.S. Bureau of Labor Statistics","SourceURL":"http://www.bls.gov","Actual":"","Previous":"11.263M","Forecast":"","TEForecast":"","URL":"/united-states/job-offers","DateSpan":"0","Importance":3,"LastUpdate":"2022-03-17T16:37:00","Revised":"","Currency":"","Unit":"M","Ticker":"UNITEDSTAJOBOFF","Symbol":"UNITEDSTAJOBOFF"},
 ]
 DATEFMT = "2006-01-02T15:04:05"
-MAX_RELEASE_SECONDS = 60 * 90 # we only show releases occurring the last/next N minutes
+MAX_RELEASE_SECONDS = 60 * 90 * 5000 # we only show releases occurring the last/next N minutes
 REGIONS = {
     "Global": [],
     "US-only": ["United States"],
@@ -376,6 +377,7 @@ def flag_api(country_name):
             flag = ISO3166.get(country_name)
         else:
             flag = flag_resp.body()
+            cache.set(cache_prefix + country_name, ttl_seconds = 60 * 60 * 24 * 30)  # keep for a month
     return flag
 
 def random(max):
@@ -401,7 +403,7 @@ def main(config):
             url_countries = ",".join([country.lower().replace(" ", "%20") for country in countries])
 
         for imp in range(importance, 4):
-            request_url = "%s/calendar/country/%s?c=guest:guest&f=json&importance=%s" % (BASE_URL, url_countries, imp)
+            request_url = "%s/calendar/country/%s?c=%s&f=json&importance=%s" % (BASE_URL, url_countries, AUTH, imp)
             print("Getting latest events from API %s" % request_url)
 
             response = http.get(request_url)
