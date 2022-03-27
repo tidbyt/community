@@ -405,6 +405,47 @@ def main(config):
         # Get current streak status
         is_streak_extended = bool(duolingo_xpsummary_json["summaries"][0]["streakExtended"])
 
+         # Put the XP scores for the week into a list called week_xp_scores. The first entry will be  days 13 ago. The last entry will be today.
+        week_xp_scores = []
+        for daynum in range(0, 14):
+            day_xp = duolingo_xpsummary_json["summaries"][daynum]["gainedXp"]
+            if day_xp == None:
+                day_xp = int(0)
+            else:
+                day_xp = int(day_xp)
+            week_xp_scores.append(day_xp)
+
+        print("Two Week's XP Scores: " + str(week_xp_scores))
+
+        # Slice the current week's xp scores, if we are only displaying the last week of data
+        if display_view == "week":
+            week_xp_scores = (week_xp_scores[0:7])
+            print("One Week's XP Scores: " + str(week_xp_scores))
+
+        # Add up the XP score from every day to get the one week or two week total
+        week_xp_scores_total = 0
+        if display_view == "week" or display_view == "today":
+            # Add up total xp score for the last week
+            for i in range(0, 7):
+                week_xp_scores_total = week_xp_scores[i] + week_xp_scores_total
+        if display_view == "twoweeks":
+            # Add up total xp score for the last week
+            for i in range(0, 14):
+                week_xp_scores_total = week_xp_scores[i] + week_xp_scores_total
+
+
+        # If no XP score has been acheived in the last week then set the variable to hide the Duolingo app from displaying in the rotation
+        # (if the twoweek view is being displayed, the XP score limit is two weeks before it is hidden from view)
+        if week_xp_scores_total == 0:
+        	hide_duolingo_in_rotation = True
+        	if display_view == "twoweeks":
+        		print("IMPORTANT: No Duolingo lessons have been completed in the last 14 days - Tidbyt display will be hidden.")
+        	else:     		
+        		print("IMPORTANT: No Duolingo lessons have been completed in the last 7 days - Tidbyt display will be hidden.")
+        else:
+        	hide_duolingo_in_rotation = False
+
+
         # LOOKUP DUOLINGO MAIN JSON DATA AT START OF DAY
         # The is run daily to calculate what the user's totalXP was at the start of the day
         # It runs whenever it detects that the date has changed from the previous time it was run
@@ -610,7 +651,7 @@ def main(config):
     # DISPLAY TODAY VIEW
     # Setup dtoay view layout
 
-    if display_error_msg == False and display_view == "today":
+    if display_error_msg == False and display_view == "today" and hide_duolingo_in_rotation == False:
         print("Displaying Day View on Tidbyt...")
 
         # Setup progress bar. Don't display if XP target in Schema is set to None.
@@ -872,7 +913,7 @@ def main(config):
     # DISPLAY WEEK VIEW (OR TWO WEEK VIEW)
     # Setup week view layout
 
-    if display_error_msg == False and (display_view == "week" or display_view == "twoweeks"):
+    if display_error_msg == False and hide_duolingo_in_rotation == False and (display_view == "week" or display_view == "twoweeks"):
         print("Displaying Week View on Tidbyt...")
 
         # Setup verticle bar dimensions
@@ -884,34 +925,6 @@ def main(config):
             vertbar_total_height = 17
         else:
             vertbar_total_height = 24
-
-        # Put the XP scores for the week into a list called week_xp_scores. The first entry will be  days 13 ago. The last entry will be today.
-        week_xp_scores = []
-        for daynum in range(0, 14):
-            day_xp = duolingo_xpsummary_json["summaries"][daynum]["gainedXp"]
-            if day_xp == None:
-                day_xp = int(0)
-            else:
-                day_xp = int(day_xp)
-            week_xp_scores.append(day_xp)
-
-        print("Two Week's XP Scores: " + str(week_xp_scores))
-
-        # Slice the current week's xp scores, if we are only displaying the last week of data
-        if display_view == "week":
-            week_xp_scores = (week_xp_scores[0:7])
-            print("One Week's XP Scores: " + str(week_xp_scores))
-
-        # Add up the XP score from every day to get the one week or two week total
-        week_xp_scores_total = 0
-        if display_view == "week":
-            # Add up total xp score for the last week
-            for i in range(0, 7):
-                week_xp_scores_total = week_xp_scores[i] + week_xp_scores_total
-        if display_view == "twoweeks":
-            # Add up total xp score for the last week
-            for i in range(0, 14):
-                week_xp_scores_total = week_xp_scores[i] + week_xp_scores_total
 
         # Get the highest value from the available daily scores. This is used to setup the upper_chart_value.
         week_xp_scores_sorted = sorted(week_xp_scores)
@@ -1375,17 +1388,6 @@ def main(config):
             streak_icon_day_frozen = bool(duolingo_xpsummary_json["summaries"][daynum]["frozen"])
             streak_icon_day_extended = bool(duolingo_xpsummary_json["summaries"][daynum]["streakExtended"])
 
-            #            if streak_icon_day_extended == True:
-            #                streak_icon = STREAK_ICON_GOLD
-            #            elif streak_icon_day_frozen == True:
-            #                streak_icon = STREAK_ICON_FROZEN
-            #            else:
-            #                streak_icon = STREAK_ICON_GREY
-
-            # Calculate cache countdown
-            #           cache_countdown = xp_query_time - now
-            #           print("Cache Countdown: " + cache_countdown)
-
             # Get day of week, based on when the xp summary data was last updated:
             if daynum == 0:  # TODAY
                 dayofweek = xp_query_time
@@ -1410,11 +1412,6 @@ def main(config):
             elif display_view == "twoweeks":
                 print("Day of Week: " + str(dayofweek_letter) + "  Last Week XP Score: " + str(xp_day_score_lastweek) + "   This Week XP Score: " + str(xp_day_score))
 
-            # Get current day of week
-            #           if dayofweek = "m":
-            #               dayofweek_letter = now.format("M").upper()
-            #               dayofweek_font = now.format("M").upper()
-            #               dayofweek_text_color = now.format("M").upper()
 
             day_progress_chart = render.Column(
                 main_align = "end",
@@ -1564,7 +1561,12 @@ def main(config):
             ),
         )
 
-    return render.Root(
-        delay = 50,
-        child = display_output,
-    )
+    # Hide the applet in the rotation if there has been no lessons completed recently (e.g. in the last week)
+    if hide_duolingo_in_rotation == True:
+    	print ("--- APPLET HIDDEN FROM ROTATION ---")
+    	return []
+    else:
+	    return render.Root(
+	        delay = 50,
+	        child = display_output,
+	    )
