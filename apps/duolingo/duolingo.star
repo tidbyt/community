@@ -690,7 +690,7 @@ def main(config):
 
             # Calculate progress bar color
             if int(duolingo_xptoday) >= int(xp_target):
-                if int(duolingo_xptoday) >= (11 * int(xp_target)):
+                if int(duolingo_xptoday) >= (5 * int(xp_target)):
                     progressbar_col = "#28ff00"  # lime green
                     high_multiplier = int(duolingo_xptoday) / int(int(xp_target))
                     multiplier_text = str(int(high_multiplier)) + "x"
