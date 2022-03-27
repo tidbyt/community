@@ -608,7 +608,7 @@ def main(config):
         elif int(progressbar_perc) >= 35 and int(progressbar_perc) <= 60 and int(xp_target) != 0 and display_view == "today":
             DUOLINGO_ICON = DUOLINGO_ICON_STANDING_POINT_DOWN
             print("Owl: Pointing Down")
-        elif int(progressbar_perc) > 60 and int(progressbar_perc) < 80 and int(xp_target) != 0 and display_view == "today":
+        elif int(progressbar_perc) > 60 and int(progressbar_perc) <= 80 and int(xp_target) != 0 and display_view == "today":
             DUOLINGO_ICON = DUOLINGO_ICON_STANDING_POINT_RIGHT
             print("Owl: Pointing Right")
         elif int(progressbar_perc) > 80 and int(progressbar_perc) < 100 and int(xp_target) != 0 and display_view == "today":
