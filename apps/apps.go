@@ -25,6 +25,7 @@ import (
 	"tidbyt.dev/community/apps/dvdlogo"
 	"tidbyt.dev/community/apps/espnnews"
 	"tidbyt.dev/community/apps/fishbyt"
+	"tidbyt.dev/community/apps/flags"
 	"tidbyt.dev/community/apps/fuzzyclock"
 	"tidbyt.dev/community/apps/gapilotbuddy"
 	"tidbyt.dev/community/apps/hvvdepartures"
@@ -90,6 +91,7 @@ func GetManifests() []manifest.Manifest {
 		dvdlogo.New(),
 		espnnews.New(),
 		fishbyt.New(),
+		flags.New(),
 		fuzzyclock.New(),
 		gapilotbuddy.New(),
 		hvvdepartures.New(),
@@ -113,6 +115,7 @@ func GetManifests() []manifest.Manifest {
 		phaseofmoon.New(),
 		pokedex.New(),
 		purpleair.New(),
+		randomslackmoji.New(),
 		redditimages.New(),
 		sbbtimetable.New(),
 		sportsscores.New(),
