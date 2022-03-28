@@ -372,12 +372,13 @@ def flag_api(country_name):
     cache_prefix = "%s/%s/%s/" % ("finevent", "econ", "flags")
     flag = cache.get(cache_prefix + country_name)
     if not flag:
+        print("Getting %s flag from the flag CDN, ISO3166 code: %s" % (country_name, ISO3166.get(country_name)))
         flag_resp = http.get("https://flagcdn.com/w20/%s.png" % ISO3166.get(country_name))
         if flag_resp.status_code != 200:
             flag = ISO3166.get(country_name)
         else:
             flag = flag_resp.body()
-            cache.set(cache_prefix + country_name, ttl_seconds = 60 * 60 * 24 * 30)  # keep for a month
+            cache.set(cache_prefix + country_name, flag, ttl_seconds = 60 * 60 * 24 * 30)  # keep for a month
     return flag
 
 def random(max):
