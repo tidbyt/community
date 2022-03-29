@@ -115,7 +115,6 @@ func GetManifests() []manifest.Manifest {
 		phaseofmoon.New(),
 		pokedex.New(),
 		purpleair.New(),
-		randomslackmoji.New(),
 		redditimages.New(),
 		sbbtimetable.New(),
 		sportsscores.New(),
