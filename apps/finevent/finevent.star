@@ -32,6 +32,7 @@ SAMPLE_DATA = [
 ]
 DATEFMT = "2006-01-02T15:04:05"
 MAX_RELEASE_SECONDS = 60 * 90  # we only show releases occurring the last/next N minutes
+DEFAULT_HIDDEN = False
 REGIONS = {
     "Global": [],
     "US-only": ["United States"],
@@ -388,7 +389,8 @@ def random(max):
 def main(config):
     timezone = config.get("$tz", "America/New_York")
     countries = REGIONS.get(config.get("region"), [])
-    future_events = config.get("future")
+    future_events = config.get("future") in (True, "true", "True")
+    self_hide = config.get("self-hide", DEFAULT_HIDDEN) in (True, "true", "True")
     importance = int(config.get("importance", "2"))
     title_font = "CG-pixel-3x5-mono"
     NULL = "--"
@@ -396,7 +398,7 @@ def main(config):
     now = time.now()
 
     # Events are cached globally for 30 minutes, individualization is not necessary
-    cache_id = "%s/%s/%s/%s" % ("finevent", "econ", config.get("region"), importance)
+    cache_id = "%s/%s/%s/%s" % ("finevent", "econ", config.get("region", "all"), importance)
     data = cache.get(cache_id)
     filtered_events = []
     if not data:
@@ -437,10 +439,12 @@ def main(config):
         event["ReleaseTime"] = time.parse_time(event.get("Date", ""), format = DATEFMT).in_location(timezone)
         event["TimeFromNow"] = int(abs((now - event["ReleaseTime"]).seconds))
 
-    filtered_events = [e for e in filtered_events if e["TimeFromNow"] < MAX_RELEASE_SECONDS]
+    if self_hide:
+        filtered_events = [e for e in filtered_events if e["TimeFromNow"] < MAX_RELEASE_SECONDS]
+
     sorted_events = sorted(filtered_events, key = lambda x: x["TimeFromNow"], reverse = False)
 
-    if future_events == "false":
+    if not future_events:
         _events = []
         for e in sorted_events:
             if e.get("ReleaseTime") <= now:
@@ -564,6 +568,13 @@ def get_schema():
                 desc = "If turned off, we will hide any upcoming releases and only show events after data is available.",
                 icon = "clock",
                 default = True,
+            ),
+            schema.Toggle(
+                id = "self-hide",
+                name = "Hide app when no recent/upcoming releases?",
+                desc = "If turned on, the app will show a blank screen unless there is an event within the next or last 90 minutes.",
+                icon = "cog",
+                default = DEFAULT_HIDDEN,
             ),
         ],
     )
