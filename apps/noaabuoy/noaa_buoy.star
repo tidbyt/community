@@ -121,9 +121,13 @@ def main(config):
 
     buoy_id = config.get("buoy_id", "")
 
-    #print(buoy_id)
-    if buoy_id == "none" or buoy_id == "":
-        buoy_id = config.get("local_buoy_id", "51201")  # default is Waimea
+    if buoy_id == "none" or buoy_id == "":  # if manual input is empty load from local selection
+        local_selection = config.get("local_buoy_id", '{"display": "Station 51202 - Waimea Bay", "value": "51201"}')  # default is Waimea
+        local_selection = json.decode(local_selection)
+        if "value" in local_selection:
+            buoy_id = local_selection["value"]
+        else:
+            buoy_id = "51201"
 
     buoy_name = config.get("buoy_name", "")
     h_unit_pref = config.get("h_units", "feet")

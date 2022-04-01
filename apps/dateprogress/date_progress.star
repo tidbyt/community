@@ -10,6 +10,7 @@ load("render.star", "render")
 load("schema.star", "schema")
 load("math.star", "math")
 load("time.star", "time")
+load("re.star", "re")
 
 DEFAULT_TIMEZONE = "Europe/Stockholm"
 
@@ -19,13 +20,125 @@ P_SHOW_VALUES = "show_values"
 P_SHOW_DAY = "show_day"
 P_SHOW_MONTH = "show_month"
 P_SHOW_YEAR = "show_year"
+P_COLOR_YEAR = "#0ff"  # Cyan
+P_COLOR_MONTH = "#0f0"  # Green
+P_COLOR_DAY = "#f00"  # Red
 
 FRAME_WIDTH = 64
+
+def lightness(color, amount):
+    hsl_color = rgb_to_hsl(*hex_to_rgb(color))
+    hsl_color_list = list(hsl_color)
+    hsl_color_list[2] = hsl_color_list[2] * amount
+    hsl_color = tuple(hsl_color_list)
+    return rgb_to_hex(*hsl_to_rgb(*hsl_color))
+
+def rgb_to_hsl(r, g, b):
+    r = float(r / 255)
+    g = float(g / 255)
+    b = float(b / 255)
+    high = max(r, g, b)
+    low = min(r, g, b)
+    h, s, l = ((high + low) / 2,) * 3
+
+    if high == low:
+        h = 0.0
+        s = 0.0
+    else:
+        d = high - low
+        s = d / (2 - high - low) if l > 0.5 else d / (high + low)
+        if high == r:
+            h = (g - b) / d + (6 if g < b else 0)
+        elif high == g:
+            h = (b - r) / d + 2
+        elif high == b:
+            h = (r - g) / d + 4
+        h /= 6
+
+    return int(math.round(h * 360)), s, l
+
+def hsl_to_rgb(h, s, l):
+    def hue_to_rgb(p, q, t):
+        if t < 0:
+            t += 1
+        if t > 1:
+            t -= 1
+        if t < 1 / 6:
+            return p + (q - p) * 6 * t
+        if t < 1 / 2:
+            return q
+        if t < 2 / 3:
+            return p + (q - p) * (2 / 3 - t) * 6
+        return p
+
+    h = h / 360
+    if s == 0:
+        r, g, b = (l,) * 3  # achromatic
+    else:
+        q = l * (1 + s) if l < 0.5 else l + s - l * s
+        p = 2 * l - q
+        r = hue_to_rgb(p, q, h + 1 / 3)
+        g = hue_to_rgb(p, q, h)
+        b = hue_to_rgb(p, q, h - 1 / 3)
+
+    return int(math.round(r * 255)), int(math.round(g * 255)), int(math.round(b * 255))
+
+def hex_to_rgb(color):
+    # Expand 4 digit hex to 7 digit hex
+    if len(color) == 4:
+        x = "([A-Fa-f0-9])"
+        matches = re.match("#%s%s%s" % (x, x, x), color)
+        rgb_hex_list = list(matches[0])
+        rgb_hex_list.pop(0)
+        for i in range(len(rgb_hex_list)):
+            rgb_hex_list[i] = rgb_hex_list[i] + rgb_hex_list[i]
+        color = "#" + "".join(rgb_hex_list)
+
+    # Split hex into RGB
+    x = "([A-Fa-f0-9]{2})"
+    matches = re.match("#%s%s%s" % (x, x, x), color)
+    rgb_hex_list = list(matches[0])
+    rgb_hex_list.pop(0)
+    for i in range(len(rgb_hex_list)):
+        rgb_hex_list[i] = int(rgb_hex_list[i], 16)
+    rgb = tuple(rgb_hex_list)
+
+    return rgb
+
+# Convert RGB tuple to hex
+def rgb_to_hex(r, g, b):
+    return "#" + str("%x" % ((1 << 24) + (r << 16) + (g << 8) + b))[1:]
 
 def calc_day_progress(now):
     day_progress = 100 * ((now.hour * 60 * 60) + (now.minute * 60) + now.second) / (24 * 60 * 60)
 
-    # print ('day progress:', day_progress)
+    return day_progress
+
+def calc_day_progress_custom(now, timezone, config):
+    start_time = time.time(
+        year = now.year,
+        month = now.month,
+        day = now.day,
+        hour = int(config.str("start_hour", "0")),
+        minute = int(config.str("start_minute", "0")),
+        location = timezone,
+    )
+    end_time = time.time(
+        year = now.year,
+        month = now.month,
+        day = now.day,
+        hour = int(config.str("end_hour", "0")),
+        minute = int(config.str("end_minute", "0")),
+        location = timezone,
+    )
+
+    if now < start_time:  #if current time is less than start time then still technically in the previous day (can get values over 100 %)
+        now += time.parse_duration("24h")
+
+    if end_time <= start_time or end_time.hour == 0:  #move date to the next day for end time if the duration is negative
+        end_time += time.parse_duration("24h")
+
+    day_progress = 100 * (now - start_time) / (end_time - start_time)  #calculate percentage
     return day_progress
 
 def calc_month_progress(now, timezone):
@@ -33,9 +146,6 @@ def calc_month_progress(now, timezone):
     lastdayofmonth = time.time(year = now.year, month = now.month + 1, day = 0, hour = 23, minute = 59, second = 59, location = timezone)
     month_progress = 100 * (now.unix - firstdayofmonth.unix) / (lastdayofmonth.unix - firstdayofmonth.unix)
 
-    # print ("first day of month", firstdayofmonth)
-    # print ("last day of month", lastdayofmonth)
-    # print ('month progress:', month_progress)
     return month_progress
 
 def calc_year_progress(now, timezone):
@@ -43,9 +153,6 @@ def calc_year_progress(now, timezone):
     lastdayofyear = time.time(year = now.year + 1, month = 1, day = 0, hour = 23, minute = 59, second = 59, location = timezone)
     year_progress = 100 * (now.unix - firstdayofyear.unix) / (lastdayofyear.unix - firstdayofyear.unix)
 
-    # print ("first day of year", firstdayofyear)
-    # print ("last day of year", lastdayofyear)
-    # print ('year progress:', year_progress)
     return year_progress
 
 def main(config):
@@ -58,7 +165,10 @@ def main(config):
     now = config.get("time")
     now = (time.parse_time(now) if now else time.now()).in_location(timezone)
 
-    day_progress = calc_day_progress(now)
+    if config.bool("custom_day"):
+        day_progress = calc_day_progress_custom(now, timezone, config)
+    else:
+        day_progress = calc_day_progress(now)
     month_progress = calc_month_progress(now, timezone)
     year_progress = calc_year_progress(now, timezone)
 
@@ -86,6 +196,18 @@ def main(config):
     )
 
 def get_schema():
+    colors = [
+        schema.Option(display = "White", value = "#fff"),
+        schema.Option(display = "Red", value = "#f00"),
+        schema.Option(display = "Green", value = "#0f0"),
+        schema.Option(display = "Blue", value = "#00f"),
+        schema.Option(display = "Yellow", value = "#ff0"),
+        schema.Option(display = "Cyan", value = "#0ff"),
+        schema.Option(display = "Magenta", value = "#f0f"),
+    ]
+
+    hour = [schema.Option(display = str(x), value = str(x)) for x in range(24)]
+    minute = [schema.Option(display = str(x), value = str(x)) for x in range(60)]
     return schema.Schema(
         version = "1",
         fields = [
@@ -130,6 +252,69 @@ def get_schema():
                 icon = "percentage",
                 default = True,
             ),
+            schema.Dropdown(
+                id = "color_year",
+                icon = "palette",
+                name = "Year progress color",
+                desc = "The color of the year progress bar.",
+                options = colors,
+                default = P_COLOR_YEAR,
+            ),
+            schema.Dropdown(
+                id = "color_month",
+                icon = "palette",
+                name = "Month progress color",
+                desc = "The color of the month progress bar.",
+                options = colors,
+                default = P_COLOR_MONTH,
+            ),
+            schema.Dropdown(
+                id = "color_day",
+                icon = "palette",
+                name = "Day progress color",
+                desc = "The color of the day progress bar.",
+                options = colors,
+                default = P_COLOR_DAY,
+            ),
+            schema.Toggle(
+                id = "custom_day",
+                name = "Custom Day progress interval",
+                desc = "Use custom start and end times for day progress bar.",
+                icon = "cog",
+                default = False,
+            ),
+            schema.Dropdown(
+                id = "start_hour",
+                icon = "clock",
+                name = "Day progress start time (hour)",
+                desc = "The start time of the day progress bar (hour).",
+                options = hour,
+                default = "0",
+            ),
+            schema.Dropdown(
+                id = "start_minute",
+                icon = "clock",
+                name = "Day progress start time (minute)",
+                desc = "The start time of the day progress bar (minute).",
+                options = minute,
+                default = "0",
+            ),
+            schema.Dropdown(
+                id = "end_hour",
+                icon = "clock",
+                name = "Day progress end time (hour)",
+                desc = "The end time of the day progress bar (hour).",
+                options = hour,
+                default = "0",
+            ),
+            schema.Dropdown(
+                id = "end_minute",
+                icon = "clock",
+                name = "Day progress end time (minute)",
+                desc = "The end time of the day progress bar (minute).",
+                options = minute,
+                default = "0",
+            ),
         ],
     )
 
@@ -144,13 +329,7 @@ def render_progress_bar(state, label, percent, col1, col2, col3, animprogress):
     if percent >= 100:
         col2orwhite = col1
 
-    label1color = "#fff"
-    if animprogress < 40:
-        label1color = "#aaa"
-    if animprogress < 20:
-        label1color = "#333"
-    if animprogress < 2:
-        label1color = "#111"
+    label1color = lightness("#fff", animprogress / 100)
 
     label2align = "start"
     label2color = col3
@@ -227,40 +406,28 @@ def render_progress_bar(state, label, percent, col1, col2, col3, animprogress):
 def capanim(input):
     return max(0, min(100, input))
 
-COLORSCALE = {
-    "default": [
-        ["#200", "#600", "#f44"],
-        ["#210", "#530", "#cc2"],
-        ["#020", "#060", "#4f4"],
-        ["#012", "#035", "#2cc"],
-    ],
-}
-
 def get_frame(state, fr, config):
     children = []
 
     delay = 0
     if state["show_day"]:
-        colorindex = 0
-        color = COLORSCALE["default"][colorindex]
+        color = config.get("color_day", P_COLOR_DAY)
         children.append(
-            render_progress_bar(state, "D", state["day_progress"], color[0], color[1], color[2], capanim((fr - delay) * 4)),
+            render_progress_bar(state, "D", state["day_progress"], lightness(color, 0.06), lightness(color, 0.18), color, capanim((fr - delay) * 4)),
         )
         delay += 30
 
     if state["show_month"]:
-        colorindex = 2
-        color = COLORSCALE["default"][colorindex]
+        color = config.get("color_month", P_COLOR_MONTH)
         children.append(
-            render_progress_bar(state, "M", state["month_progress"], color[0], color[1], color[2], capanim((fr - delay) * 4)),
+            render_progress_bar(state, "M", state["month_progress"], lightness(color, 0.06), lightness(color, 0.18), color, capanim((fr - delay) * 4)),
         )
         delay += 30
 
     if state["show_year"]:
-        colorindex = 3
-        color = COLORSCALE["default"][colorindex]
+        color = config.get("color_year", P_COLOR_YEAR)
         children.append(
-            render_progress_bar(state, "Y", state["year_progress"], color[0], color[1], color[2], capanim((fr - delay) * 4)),
+            render_progress_bar(state, "Y", state["year_progress"], lightness(color, 0.06), lightness(color, 0.18), color, capanim((fr - delay) * 4)),
         )
 
     return render.Column(

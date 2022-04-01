@@ -20,15 +20,31 @@ CACHE_TTL_SECONDS = 3600 * 24 * 7  # 7 days in seconds.
 def get_schema():
     return schema.Schema(
         version = "1",
-        fields = [],
+        fields = [
+            schema.Toggle(
+                id = "metric",
+                name = "Use metric units",
+                desc = "Which measurement system to use.",
+                icon = "ruler",
+                default = True,
+            ),
+        ],
     )
 
-def main():
+def main(config):
     id_ = int(NUM_POKEMON * random()) + 1
     pokemon = get_pokemon(id_)
     name = pokemon["name"].title()
-    height = str(pokemon["height"] / 10) + "m"
-    weight = str(pokemon["weight"] / 10) + "kg"
+    height = pokemon["height"] / 10
+    weight = pokemon["weight"] / 10
+
+    if config.bool("metric"):
+        height = "%s m" % height
+        weight = "%s kg" % weight
+    else:
+        height = "%s ft" % round(height * 3.281)
+        weight = "%s lbs" % round(weight * 2.205)
+
     sprite_url = pokemon["sprites"]["versions"]["generation-vii"]["icons"]["front_default"]
     sprite = get_cachable_data(sprite_url)
     return render.Root(
@@ -51,6 +67,10 @@ def main():
             ],
         ),
     )
+
+def round(num):
+    """Rounds floats to a single decimal place."""
+    return float(int(num * 10) / 10)
 
 def random():
     """Return a pseudo-random number in [0, 1)"""
