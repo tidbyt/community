@@ -1,7 +1,7 @@
 """
 Applet: Duolingo
 Summary: Display Duolingo Progress
-Description:  Track your Duolingo daily study progress..
+Description: Track your Duolingo daily study progress.
 Author: Olly Stedall @saltedlolly
 Thanks: @drudge @whyamIhere @AmillionAir
 """
@@ -435,7 +435,7 @@ def main(config):
         # Get current streak status
         is_streak_extended = bool(duolingo_xpsummary_json["summaries"][0]["streakExtended"])
 
-         # Put the XP scores for the week into a list called week_xp_scores. The first entry will be  days 13 ago. The last entry will be today.
+        # Put the XP scores for the week into a list called week_xp_scores. The first entry will be  days 13 ago. The last entry will be today.
         week_xp_scores = []
         for daynum in range(0, 14):
             day_xp = duolingo_xpsummary_json["summaries"][daynum]["gainedXp"]
@@ -463,18 +463,16 @@ def main(config):
             for i in range(0, 14):
                 week_xp_scores_total = week_xp_scores[i] + week_xp_scores_total
 
-
         # If no XP score has been acheived in the last week then set the variable to hide the Duolingo app from displaying in the rotation
         # (if the twoweek view is being displayed, the XP score limit is two weeks before it is hidden from view)
         if week_xp_scores_total == 0:
-        	hide_duolingo_in_rotation = True
-        	if display_view == "twoweeks":
-        		print("IMPORTANT: No Duolingo lessons have been completed in the last 14 days - Tidbyt display will be hidden.")
-        	else:     		
-        		print("IMPORTANT: No Duolingo lessons have been completed in the last 7 days - Tidbyt display will be hidden.")
+            hide_duolingo_in_rotation = True
+            if display_view == "twoweeks":
+                print("IMPORTANT: No Duolingo lessons have been completed in the last 14 days - Tidbyt display will be hidden.")
+            else:
+                print("IMPORTANT: No Duolingo lessons have been completed in the last 7 days - Tidbyt display will be hidden.")
         else:
-        	hide_duolingo_in_rotation = False
-
+            hide_duolingo_in_rotation = False
 
         # LOOKUP DUOLINGO MAIN JSON DATA AT START OF DAY
         # The is run daily to calculate what the user's totalXP was at the start of the day
@@ -622,7 +620,7 @@ def main(config):
         elif int(progressbar_perc) > 80 and int(progressbar_perc) < 100 and int(xp_target) != 0 and display_view == "today":
             DUOLINGO_ICON = DUOLINGO_ICON_STANDING_POINT_RIGHT_FLAP
             print("Owl: Pointing Right + Flap")
-        elif int(duolingo_xptoday) >= (2 * int(xp_target)) and int(xp_target) != 0 and display_view == "today":     	
+        elif int(duolingo_xptoday) >= (2 * int(xp_target)) and int(xp_target) != 0 and display_view == "today":
             DUOLINGO_ICON = DUOLINGO_ICON_DANCING
             print("Owl: Dancing")
         elif int(progressbar_perc) >= 100 and int(xp_target) != 0 and display_view == "today":
@@ -633,7 +631,7 @@ def main(config):
             DUOLINGO_ICON = DUOLINGO_ICON_STANDING
 
         # OWL TESTING !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-#        DUOLINGO_ICON = DUOLINGO_ICON_DANCING
+        #        DUOLINGO_ICON = DUOLINGO_ICON_DANCING
 
         # Setup nickname display, if needed
         if nickname != "":
@@ -719,7 +717,7 @@ def main(config):
                     PROGRESSBAR_ANI = PROGRESSBAR_PURPLE_ARROWS
                     multiplier_text = "2x"
                 else:
-                    progressbar_col = "#ffd700" # gold
+                    progressbar_col = "#ffd700"  # gold
                     PROGRESSBAR_ANI = PROGRESSBAR_GOLD_ARROWS
                     multiplier_text = None
             else:
@@ -728,7 +726,6 @@ def main(config):
 
             #   Second, work out the current length the progress bar should be
             progressbar_current_length = int((progressbar_total_length / 100) * progressbar_perc)
-
 
             if progressbar_current_length < progressbar_total_length:
                 fadeList = []  # This sets up the fading progress indicator
@@ -831,7 +828,7 @@ def main(config):
                 )
 
             else:
-            	# Display the completed progress bar animation
+                # Display the completed progress bar animation
                 progressbar = render.Row(
                     main_align = "space_evenly",
                     cross_align = "center",  # Controls vertical alignment
@@ -841,8 +838,7 @@ def main(config):
                             width = (progressbar_total_length + 2),
                             height = (progressbar_total_height + 2),
                             color = "#e1e0e0",
-                            child = render.Image(src = PROGRESSBAR_ANI)
-             
+                            child = render.Image(src = PROGRESSBAR_ANI),
                         ),
                     ],
                 )
@@ -1425,7 +1421,6 @@ def main(config):
             elif display_view == "twoweeks":
                 print("Day of Week: " + str(dayofweek_letter) + "  Last Week XP Score: " + str(xp_day_score_lastweek) + "   This Week XP Score: " + str(xp_day_score))
 
-
             day_progress_chart = render.Column(
                 main_align = "end",
                 cross_align = "center",  # Controls vertical alignment
@@ -1576,10 +1571,10 @@ def main(config):
 
     # Hide the applet in the rotation if there has been no lessons completed recently (e.g. in the last week)
     if hide_duolingo_in_rotation == True:
-    	print ("--- APPLET HIDDEN FROM ROTATION ---")
-    	return []
+        print("--- APPLET HIDDEN FROM ROTATION ---")
+        return []
     else:
-	    return render.Root(
-	        delay = 50,
-	        child = display_output,
-	    )
+        return render.Root(
+            delay = 50,
+            child = display_output,
+        )

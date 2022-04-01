@@ -17,7 +17,7 @@ func New() manifest.Manifest {
 		Name:        "Duolingo",
 		Author:      "Olly Stedall @saltedlolly",
 		Summary:     "Display Duolingo Progress",
-		Desc:        " Track your Duolingo daily study progress..",
+		Desc:        "Track your Duolingo daily study progress.",
 		FileName:    "duolingo.star",
 		PackageName: "duolingo",
 		Source:  source,
