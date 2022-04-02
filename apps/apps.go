@@ -37,9 +37,12 @@ import (
 	"tidbyt.dev/community/apps/mlbscores"
 	"tidbyt.dev/community/apps/mnlightrail"
 	"tidbyt.dev/community/apps/nationaltoday"
+	"tidbyt.dev/community/apps/nbascores"
 	"tidbyt.dev/community/apps/nearearthobjs"
 	"tidbyt.dev/community/apps/netatmo"
+	"tidbyt.dev/community/apps/nflscores"
 	"tidbyt.dev/community/apps/nft"
+	"tidbyt.dev/community/apps/nhlscores"
 	"tidbyt.dev/community/apps/nightscout"
 	"tidbyt.dev/community/apps/nixelclock"
 	"tidbyt.dev/community/apps/noaabuoy"
@@ -104,9 +107,12 @@ func GetManifests() []manifest.Manifest {
 		mlbscores.New(),
 		mnlightrail.New(),
 		nationaltoday.New(),
+		nbascores.New(),
 		nearearthobjs.New(),
 		netatmo.New(),
+		nflscores.New(),
 		nft.New(),
+		nhlscores.New(),
 		nightscout.New(),
 		nixelclock.New(),
 		noaabuoy.New(),
