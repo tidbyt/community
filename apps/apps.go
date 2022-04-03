@@ -20,7 +20,6 @@ import (
 	"tidbyt.dev/community/apps/dateprogress"
 	"tidbyt.dev/community/apps/datetimeclock"
 	"tidbyt.dev/community/apps/daynightmap"
-	"tidbyt.dev/community/apps/destiny2stats"
 	"tidbyt.dev/community/apps/digibyteprice"
 	"tidbyt.dev/community/apps/digitalrain"
 	"tidbyt.dev/community/apps/dvdlogo"
@@ -50,7 +49,6 @@ import (
 	"tidbyt.dev/community/apps/pathtrainschedule"
 	"tidbyt.dev/community/apps/phaseofmoon"
 	"tidbyt.dev/community/apps/pokedex"
-	"tidbyt.dev/community/apps/powerball"
 	"tidbyt.dev/community/apps/purpleair"
 	"tidbyt.dev/community/apps/redditimages"
 	"tidbyt.dev/community/apps/sbbtimetable"
@@ -88,7 +86,6 @@ func GetManifests() []manifest.Manifest {
 		dateprogress.New(),
 		datetimeclock.New(),
 		daynightmap.New(),
-		destiny2stats.New(),
 		digibyteprice.New(),
 		digitalrain.New(),
 		dvdlogo.New(),
@@ -117,7 +114,6 @@ func GetManifests() []manifest.Manifest {
 		pathtrainschedule.New(),
 		phaseofmoon.New(),
 		pokedex.New(),
-		powerball.New(),
 		purpleair.New(),
 		redditimages.New(),
 		sbbtimetable.New(),
