@@ -88,35 +88,35 @@ def main(config):
 
     if displaySunrise and displaySunset:
         top = render.Padding(
-                pad = (0, 2, 0, 0),
-                child = render.Row(
-                    expanded = True,
-                    main_align = "start",
-                    cross_align = "center",
-                    children = [
-                        render.Image(src = base64.decode(sunriseImage)),
-                        render.Padding(
-                            pad = (0, -1, 0, 0),
-                            child = render.Text(sunriseText),
-                        ),
-                    ],
-                ),
-            )
+            pad = (0, 2, 0, 0),
+            child = render.Row(
+                expanded = True,
+                main_align = "start",
+                cross_align = "center",
+                children = [
+                    render.Image(src = base64.decode(sunriseImage)),
+                    render.Padding(
+                        pad = (0, -1, 0, 0),
+                        child = render.Text(sunriseText),
+                    ),
+                ],
+            ),
+        )
         middle = render.Box(
-                    width = 64,
-                    height = 1,
-                    color = "#a00",
-                )
+            width = 64,
+            height = 1,
+            color = "#a00",
+        )
 
         bottom = render.Row(
-                    expanded = True,
-                    main_align = "start",
-                    cross_align = "center",
-                    children = [
-                        render.Image(src = base64.decode(sunsetImage)),
-                        render.Text(sunsetText),
-                    ],
-                )
+            expanded = True,
+            main_align = "start",
+            cross_align = "center",
+            children = [
+                render.Image(src = base64.decode(sunsetImage)),
+                render.Text(sunsetText),
+            ],
+        )
 
     else:
         if displaySunrise:
@@ -132,28 +132,28 @@ def main(config):
             text = ""
             image = blankImage
 
-        top =   render.Padding(
-                    pad = (0, 2, 0, 4),
-                    child = render.Row(
-                        expanded = True,
-                        main_align = "center",
-                        cross_align = "center",
-                        children = [
-                            render.Text(title)
-                        ],
-                    ),
-                )
+        top = render.Padding(
+            pad = (0, 2, 0, 4),
+            child = render.Row(
+                expanded = True,
+                main_align = "center",
+                cross_align = "center",
+                children = [
+                    render.Text(title),
+                ],
+            ),
+        )
         middle = None
 
         bottom = render.Row(
-                    expanded = True,
-                    main_align = "start",
-                    cross_align = "center",
-                    children = [
-                        render.Image(src = base64.decode(image)),
-                        render.Text(text),
-                    ],
-                )
+            expanded = True,
+            main_align = "start",
+            cross_align = "center",
+            children = [
+                render.Image(src = base64.decode(image)),
+                render.Text(text),
+            ],
+        )
 
     return render.Root(
         child = render.Column(
@@ -180,14 +180,14 @@ def get_schema():
                 name = "Show Sunrise",
                 desc = "Display sunrise information.",
                 icon = "sunrise",
-                default = True
+                default = True,
             ),
             schema.Toggle(
                 id = "show_sunset",
                 name = "Show Sunset",
                 desc = "Display sunset information.",
                 icon = "sunset",
-                default = True
+                default = True,
             ),
             schema.Toggle(
                 id = "24_hour",
