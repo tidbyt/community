@@ -136,7 +136,7 @@ def progress_chart(config, refresh_token, sport, units):
 
         urls = {
             "current": "%s/athlete/activities?after=%s&per_page=%s" % (STRAVA_BASE, beg_curr_month.unix, MAX_ACTIVITIES),
-            "previous": "%s/athlete/activities?after=%s&before=%s&per_page=%s" % (STRAVA_BASE, beg_curr_month.unix, beg_curr_month.unix, MAX_ACTIVITIES),
+            "previous": "%s/athlete/activities?after=%s&before=%s&per_page=%s" % (STRAVA_BASE, beg_prev_month.unix, end_prev_month.unix, MAX_ACTIVITIES),
         }
 
         activities = {}
@@ -161,6 +161,10 @@ def progress_chart(config, refresh_token, sport, units):
 
     stat_keys = ("distance", "moving_time", "total_elevation_gain")
     graph_stat = stat_keys[0]
+
+    # Sort each list chronologically
+    for query in activities.keys():
+        activities[query] = sorted(activities[query], key = lambda x: x["start_date"])
 
     # Iterate through each activity from the current and previous month and extract the relevant data, adding it
     # to our cumulative totals as we go, which are later used in our plot.
@@ -411,10 +415,7 @@ def athlete_stats(config, refresh_token, period, sport, units):
                 cache.set(cache_prefix + item, str(stats[item]), ttl_seconds = CACHE_TTL)
                 #print("saved item %s "%s" in the cache for %d seconds" % (item, str(stats[item]), CACHE_TTL))
 
-    ###################################################
-    # Configure the display to the user's preferences #
-    ###################################################
-
+    # Configure the display to the user's preferences
     elevu = "m"
     if units.lower() == "imperial":
         if sport == "swim":
