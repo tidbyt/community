@@ -161,6 +161,10 @@ def progress_chart(config, refresh_token, sport, units):
     stat_keys = ("distance", "moving_time", "total_elevation_gain")
     graph_stat = stat_keys[0]
 
+    # Sort each list chronologically
+    for query in activities.keys():
+        activities[query] = sorted(activities[query], key=lambda x: x["start_date"])
+
     # Iterate through each activity from the current and previous month and extract the relevant data, adding it
     # to our cumulative totals as we go, which are later used in our plot.
     included_current_activities = []
