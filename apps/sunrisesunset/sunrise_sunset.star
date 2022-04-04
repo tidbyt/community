@@ -45,13 +45,11 @@ DEFAULT_LOCATION = {
     "timezone": "GMT",
 }
 DEFAULT_24_HOUR = False
-DEFAULT_SHOW_SUNRISE = True
-DEFAULT_SHOW_SUNSET = True
+DEFAULT_ITEMS_TO_DISPLAY = "both"
 
 # Images
 sunriseImage = """iVBORw0KGgoAAAANSUhEUgAAAB4AAAAOCAYAAAA45qw5AAAAAXNSR0IArs4c6QAAAERlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAA6ABAAMAAAABAAEAAKACAAQAAAABAAAAHqADAAQAAAABAAAADgAAAACqoaCHAAAA9klEQVQ4EcVUvQoCMQzuieDkJK6Ck+DsIr6RD+TLODnILc6ugqvo4gNUvuoX0pLe9fCvS5rkS74kzZ1zXzr+svJNqfuRc+sDuJ7dIrOlLCejSttBVI33ka3J39PO0ntKijiQsku/G3h3PDjRjaKeFRZ2ahGmxQZSGOcLcVmTyI5GojpcLFKGp+Sd39jqmiPFeHOHGBYQE+eilL0+X8MC6gKYTDpWeF6JEZ2XT0khb33j12KBuOQzAk53C50H40RnmjzoxlYz5m3JN2SiNl22erq5N/5pmPC0HoaYUjzjKBlP/edSOk6ZdUesUttSPHQLR5uF/4vtARekdeCaFV5xAAAAAElFTkSuQmCC"""
 sunsetImage = """iVBORw0KGgoAAAANSUhEUgAAAB4AAAAOCAYAAAA45qw5AAAAAXNSR0IArs4c6QAAAERlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAA6ABAAMAAAABAAEAAKACAAQAAAABAAAAHqADAAQAAAABAAAADgAAAACqoaCHAAAAyElEQVQ4EWNgGCDASAt7582b9x/Z3KSkJAx7MASQNVDKRnYAuuVMlBqOTz+6Zchq8Vr8/7U1SpAhaySGjexjdPUsyAIgixhFj+IMfkLyMLPQLcTnc5geBpgvQTQMgyRh4nCFFDKw+g5uybUzDAxaJmAr8IUEOW7AsBjFUpiJNLAcbvH/g+z/Ga7/hFmFm9ZkZ2C0/wnXh1shfhmwAYrTPpOceu9n8eLVi0seJo7fWTSUxRlksFCAuRDGx+cWkFp0dTD9+PTRVQ4Ar1hU6EpgkiwAAAAASUVORK5CYII="""
-blankImage = """iVBORw0KGgoAAAANSUhEUgAAAGQAAABkCAYAAABw4pVUAAAAAXNSR0IArs4c6QAAAERlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAA6ABAAMAAAABAAEAAKACAAQAAAABAAAAZKADAAQAAAABAAAAZAAAAAAvu95BAAABbUlEQVR4Ae3TsQ0AIAzEwMD+OwMFQ1xhpPSWza+ZOe96iIGNcITxDRQE+woFKQhmAMNpIQXBDGA4LaQgmAEMp4UUBDOA4bSQgmAGMJwWUhDMAIbTQgqCGcBwWkhBMAMYTgspCGYAw2khBcEMYDgtpCCYAQynhRQEM4DhtJCCYAYwnBZSEMwAhtNCCoIZwHBaSEEwAxhOCykIZgDDaSEFwQxgOC2kIJgBDKeFFAQzgOG0kIJgBjCcFlIQzACG00IKghnAcFpIQTADGE4LKQhmAMNpIQXBDGA4LaQgmAEMp4UUBDOA4bSQgmAGMJwWUhDMAIbTQgqCGcBwWkhBMAMYTgspCGYAw2khBcEMYDgtpCCYAQynhRQEM4DhtJCCYAYwnBZSEMwAhtNCCoIZwHBaSEEwAxhOCykIZgDDaSEFwQxgOC2kIJgBDKeFFAQzgOG0kIJgBjCcFlIQzACG00IKghnAcFpIQTADGE4LwYJc3MsBx68rYZcAAAAASUVORK5CYII="""
 
 def main(config):
     # Get longditude and latitude from location
@@ -67,8 +65,7 @@ def main(config):
 
     # Get whether to display in 24h format
     display24Hour = config.bool("24_hour", DEFAULT_24_HOUR)
-    displaySunrise = config.bool("show_sunrise", DEFAULT_SHOW_SUNRISE)
-    displaySunset = config.bool("show_sunset", DEFAULT_SHOW_SUNSET)
+    itemsToDisplay = config.get("items_to_display", DEFAULT_ITEMS_TO_DISPLAY)
 
     if sunriseTime == None:
         sunriseText = "  None"
@@ -86,7 +83,7 @@ def main(config):
 
     # Got what we need, render it.
 
-    if displaySunrise and displaySunset:
+    if itemsToDisplay == "both":
         top = render.Padding(
             pad = (0, 2, 0, 0),
             child = render.Row(
@@ -119,18 +116,14 @@ def main(config):
         )
 
     else:
-        if displaySunrise:
+        if itemsToDisplay == "sunrise":
             title = "Sunrise"
             text = sunriseText
             image = sunriseImage
-        elif displaySunset:
+        else:
             title = "Sunset"
             text = sunsetText
             image = sunsetImage
-        else:
-            title = "No Selection"
-            text = ""
-            image = blankImage
 
         top = render.Padding(
             pad = (0, 2, 0, 4),
@@ -166,6 +159,21 @@ def main(config):
     )
 
 def get_schema():
+    show_options = [
+        schema.Option(
+            display = "Sunrise & Sunset",
+            value = "both",
+        ),
+        schema.Option(
+            display = "Sunrise",
+            value = "sunrise",
+        ),
+        schema.Option(
+            display = "Sunset",
+            value = "sunset",
+        ),
+    ]
+
     return schema.Schema(
         version = "1",
         fields = [
@@ -175,19 +183,13 @@ def get_schema():
                 desc = "Location for which to display the sun rise and set times.",
                 icon = "place",
             ),
-            schema.Toggle(
-                id = "show_sunrise",
-                name = "Show Sunrise",
-                desc = "Display sunrise information.",
-                icon = "sunrise",
-                default = True,
-            ),
-            schema.Toggle(
-                id = "show_sunset",
-                name = "Show Sunset",
-                desc = "Display sunset information.",
-                icon = "sunset",
-                default = True,
+            schema.Dropdown(
+                id = "items_to_display",
+                name = "Items to display",
+                desc = "Choose to show sunrise, sunset, or both.",
+                icon = "sun",
+                default = show_options[0].value,
+                options = show_options,
             ),
             schema.Toggle(
                 id = "24_hour",
