@@ -1,29 +1,26 @@
 """
-Applet: Sports Scores
-Summary: Get daily sports scores
-Description: Get daily scores or live updates of sports. Scores for the previous day are shown until 11am EST.
+Applet: Sports Game Scores
+Summary: Get sports game scores
+Description: Get daily scores or live updates of sports games (NBA from ESPN). Scores for the previous day are shown until 11am EST. 
 Author: rs7q5
 """
-
 #sports_scores.star
 #Created 20220220 RIS
-#Last Modified 20220226 RIS
+#Last Modified 20220326 RIS
 
 load("render.star", "render")
 load("http.star", "http")
-
-#load("encoding/base64.star", "base64")
 load("encoding/json.star", "json")
 load("cache.star", "cache")
 load("schema.star", "schema")
 load("time.star", "time")
+load("humanize.star", "humanize")
 
-#load("re.star","re")
 #this list are the sports that can have their standings pulled
 SPORTS_LIST = {
     "MLB": ["MLB", "mlb"],
     "NHL": ["NHL", "nhl"],
-    #"NBA": ["NBA","nba"],
+    "NBA": ["NBA", "nba"],
     #"NFL": ["NFL","nfl"],
     #"WNBA": ["WNBA","wnba"],
 }
@@ -48,6 +45,8 @@ def main(config):
             stats = get_mlbgames(today_str)
         elif sport == "NHL":
             stats = get_nhlgames(today_str)
+        elif sport == "NBA":
+            stats = get_nbagames(today_str)
 
         #cache the data
         cache.set("stats_rate_games%s" % sport, json.encode(stats), ttl_seconds = 60)
@@ -121,6 +120,12 @@ def get_frames(stats, sport_txt, font):
             children = frame_vec_data,
         )
         return [frame_vec_tmp]
+
+    if sport_txt == "NBA":  #number of lines per frame (NBA is shorter because each game is two lines if it is on live)
+        line_max = 4
+    else:
+        line_max = 5
+
     away_team = []
     away_score = []
     home_team = []
@@ -128,6 +133,7 @@ def get_frames(stats, sport_txt, font):
     status_txt = []
     status_txt2 = []
     frame_vec_tmp = []
+
     for i, team in enumerate(stats):
         if i % 2 == 0:
             ctmp = "#c8c8fa"
@@ -138,29 +144,57 @@ def get_frames(stats, sport_txt, font):
             ctmp2 = "#D2691E"
             ctmp3 = "#52BB52"
 
-        away_team.append(render.Text(team["away"][0], font = font, color = ctmp))
-        if team["away"][1] < 0:
+        status_tmp = team["status"].split("/")
+
+        #away team name
+        if team["away"][1] == 1000 and sport_txt == "NBA":  #NBA condition is safety net
+            away_team.append(render.Text(team["away"][0], font = font, color = "#000"))
+        else:
+            away_team.append(render.Text(team["away"][0], font = font, color = ctmp))
+
+        #away team score
+        if team["away"][1] == 1000 and sport_txt == "NBA":  #NBA condition is safety net
+            away_score.append(render.Text("-", font = font, color = "#000"))
+        elif team["away"][1] < 0:
             away_score.append(render.Text("-", font = font, color = ctmp2))
         else:
             away_score.append(render.Text(str(team["away"][1]), font = font, color = ctmp2))
-        home_team.append(render.Text(team["home"][0], font = font, color = ctmp))
-        if team["home"][1] < 0:
+
+        #home team name
+        if team["home"][1] == 1000 and sport_txt == "NBA":  #NBA condition is safety net
+            home_team.append(render.Text(team["home"][0], font = font, color = "#000"))
+        else:
+            home_team.append(render.Text(team["home"][0], font = font, color = ctmp))
+
+        #home team score
+
+        if team["home"][1] == 1000 and sport_txt == "NBA":  #NBA condition is safety net
+            home_score.append(render.Text("-", font = font, color = "#000"))
+        elif team["home"][1] < 0:
             home_score.append(render.Text("-", font = font, color = ctmp2))
         else:
             home_score.append(render.Text(str(team["home"][1]), font = font, color = ctmp2))
-        status_tmp = team["status"].split("/")
-        status_txt.append(render.Text(status_tmp[0], font = font, color = ctmp))
-        if len(status_tmp) == 1:
+
+        #status_tmp = team["status"].split("/")
+        if team["away"][1] == 1000 and sport_txt == "NBA":  #NBA condition is safety net
+            if len(status_tmp) == 1:
+                status_txt.append(render.Text("", font = font, color = ctmp))
+            else:
+                status_txt.append(render.Text(status_tmp[1], font = font, color = ctmp))
+        else:
+            status_txt.append(render.Text(status_tmp[0], font = font, color = ctmp))
+
+        if len(status_tmp) == 1 or sport_txt == "NBA":
             status_txt2.append(render.Text("", font = font, color = ctmp2))
         else:
             status_txt2.append(render.Text(status_tmp[1], font = font, color = ctmp2))
 
-        if (i % 5 == 4 or i == len(stats) - 1):  #stores five teams per frame
-            game_cnt = (i + 1) % 5  #number of games on current frame
+        if (i % line_max == line_max - 1 or i == len(stats) - 1):  #stores five teams per frame
+            game_cnt = (i + 1) % line_max  #number of games on current frame
             if game_cnt != 0:  #add empty entries to space (only have to add to one array since other's must be in line)
-                for j in range(5 - game_cnt):
-                    away_team.append(render.Text("", font = font, color = ctmp))
-
+                for j in range(line_max - game_cnt):
+                    #away_team.append(render.Text("",font=font,color=ctmp))
+                    status_txt.append(render.Text("", font = font, color = ctmp))  #add to status txt since this is the one with multiple lines
             header_text = render.Row(
                 expanded = True,
                 main_align = "space_between",
@@ -221,12 +255,6 @@ def get_frames(stats, sport_txt, font):
 
 ######################################################
 #functions
-def http_check(URL):
-    rep = http.get(URL)
-    if rep.status_code != 200:
-        fail("ESPN request failed with status %d", rep.status_code)
-    return rep
-
 def pad_text(text):
     #format strings so they are all the same length (leads to better scrolling)
     if type(text) == "dict":
@@ -261,7 +289,7 @@ def get_mlbgames(today_str):
 
     #start_date = "2021-06-10"   #tested using 2021-06-06 and 2021-06-10
     #end_date = "2021-06-10"     #tested using 2021-06-06 and 2021-06-10
-    base_URL = "http://statsapi.mlb.com/api/v1/schedule/games/?sportId=1"
+    base_URL = "https://statsapi.mlb.com/api/v1/schedule/games/?sportId=1"
     full_URL = base_URL + "&startDate=" + start_date + "&endDate=" + end_date + "&hydrate=team,linescore"
 
     #print(full_URL)
@@ -288,13 +316,13 @@ def get_mlbgames(today_str):
         #team_info = dict()
         for key, value in game["teams"].items():
             #team_info[key] = (value["team"]["abbreviation"],int(value.get("score",-1)))
-            stats_tmp[key] = (value["team"]["abbreviation"], int(value.get("score", -1)))
+            stats_tmp[key] = (value["team"]["abbreviation"], int(value.get("score", 0)))  #for some reason some games have no score so instead of doing -1, doing 0
 
         linescore = game.get("linescore", [])
-        if linescore != []:
+        if game["status"]["abstractGameCode"] == "L" or status == "F":  #this should cover live or final games
             inning = int(linescore["currentInning"])
-
             inningState = linescore["inningState"]
+            status_txt = inningState[:3] + "/" + str(inning)
 
             #Need to check how data is updated during an actual game to check status codes
             if status == "F":
@@ -304,12 +332,13 @@ def get_mlbgames(today_str):
                     status_txt = status
             else:
                 status_txt = inningState[:3] + "/" + str(inning)
-        elif game["status"]["statusCode"] in ["S", "PW"]:
-            game_time = time.parse_time(game["gameDate"]).in_location("America/New_York")
-            game_time_str = str(game_time.format("15:04"))
-            status_txt = game_time_str + "/EST"
-        else:  #not delayed before the game has started
-            status_txt = status
+        else:  #this should cover scheduled games
+            if game["status"]["statusCode"] in ["S", "PW", "P"]:
+                game_time = time.parse_time(game["gameDate"]).in_location("America/New_York")
+                game_time_str = str(game_time.format("15:04"))
+                status_txt = game_time_str + "/EST"
+            else:  #not delayed before the game has started
+                status_txt = status
 
         stats_tmp["status"] = status_txt
         stats.append(stats_tmp)
@@ -336,7 +365,6 @@ def get_nhlgames(today_str):
 
     #iterate through games
     stats = []
-
     for i, game in enumerate(data2):
         stats_tmp = dict()
         status = game["status"]["codedGameState"]  #Need to figure out what the possible values are here (may impact inning info)
@@ -375,4 +403,69 @@ def get_nhlgames(today_str):
         stats_tmp["status"] = status_txt
         stats.append(stats_tmp)
 
+    return (stats)
+
+def get_nbagames(today_str):
+    start_date = today_str
+    end_date = today_str
+    base_URL = "https://site.api.espn.com/apis/site/v2/sports/basketball/nba/scoreboard"
+    full_URL = base_URL + "?dates=" + start_date.replace("-", "") + "-" + end_date.replace("-", "")
+
+    #print(full_URL)
+    rep = http.get(full_URL)
+    if rep.status_code != 200:
+        return ["Error getting data"]
+    else:
+        data = rep.json()["events"]
+
+    if data == []:
+        return ["No Games Today!!"]
+    else:
+        data2 = data
+
+    #iterate through games
+    stats = []
+    for i, game in enumerate(data2):
+        stats_tmp = dict()
+        stats_tmp2 = dict()
+        status = game["status"]["type"]["id"]  #["codedGameState"] #Need to figure out what the possible values are here (may impact inning info)
+
+        #get team info
+        #team_info = dict()
+        for key, value in enumerate(game["competitions"][0]["competitors"]):  #game["teams"].items():
+            #team_info[key] = (value["team"]["abbreviation"],int(value.get("score",-1)))
+            key2 = value["homeAway"]
+            stats_tmp[key2] = (value["team"]["abbreviation"][:3], int(value.get("score", -1)))
+            stats_tmp2[key2] = (value["team"]["abbreviation"][:3], 1000)
+        linescore = game.get("linescore", [])
+
+        if status == "1":
+            #status_txt = "Preview"
+            game_time_tmp = game["date"].replace("Z", ":00Z")  #date does not include seconds so add here to parse time
+            game_time = time.parse_time(game_time_tmp).in_location("America/New_York")
+            game_time_str = str(game_time.format("15:04"))
+
+            status_txt = game_time_str + "/EST"
+        elif game["status"]["type"]["state"] == "in" or status in ["2", "3"]:  #linescore!=[]: #this should cover live and final states
+            period = int(game["status"]["period"])  #str(int(game["status"]["period"]))
+            period_T = game["status"]["displayClock"]
+            if game["status"]["type"]["state"] == "post":  #check if playing or not
+                if period == 5:
+                    status_txt = "F/OT"
+                else:
+                    status_txt = "F"
+            elif period == 5:
+                status_txt = "OT/" + period_T
+            elif period_T == "0.0":
+                status_txt = humanize.ordinal(period) + "/END"  #take
+            else:
+                status_txt = humanize.ordinal(period) + "/" + period_T
+        else:  #this is a safety net
+            status_txt = game["status"]["type"]["state"]
+
+        #status_txt="3rd/END"
+        stats_tmp["status"] = status_txt
+        stats_tmp2["status"] = status_txt
+        stats.append(stats_tmp)
+        stats.append(stats_tmp2)  #used for multi-line stuff
     return (stats)
