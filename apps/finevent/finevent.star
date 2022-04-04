@@ -389,8 +389,8 @@ def random(max):
 def main(config):
     timezone = config.get("$tz", "America/New_York")
     countries = REGIONS.get(config.get("region"), [])
-    future_events = config.get("future") in (True, "true", "True")
-    self_hide = config.get("self-hide", DEFAULT_HIDDEN) in (True, "true", "True")
+    future_events = config.bool("future")
+    self_hide = config.bool("self-hide", DEFAULT_HIDDEN)
     importance = int(config.get("importance", "2"))
     title_font = "CG-pixel-3x5-mono"
     NULL = "--"
