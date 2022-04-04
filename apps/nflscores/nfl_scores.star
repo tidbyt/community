@@ -77,13 +77,18 @@ def main(config):
         if gamestatus == "pre":
             gamedatetime = s["status"]["type"]["shortDetail"]
             theodds = ""
+            theou = ""
             homeodds = ""
             awayodds = ""
             gametimearray = ""
 
             if showodds == "yes" and config.bool("show_odds"):
                 theodds = s["competitions"][0]["odds"][0]["details"]
-                theou = s["competitions"][0]["odds"][0]["overUnder"]
+                oucheck = s["competitions"][0]["odds"][0].get("overUnder", "NO")
+                if oucheck == "NO":
+                    theou = ""
+                else:
+                    theou = s["competitions"][0]["odds"][0]["overUnder"]
                 homescorefont = "CG-pixel-3x5-mono"
                 awayscorefont = "CG-pixel-3x5-mono"
                 homeodds = get_odds(theodds, str(theou), home)
@@ -152,6 +157,92 @@ def main(config):
                 ],
             )
 
+        elif display_type == "horizontal":
+            if config.bool("show_time"):
+                renderCategory.extend(
+                    [
+                        render.Column(
+                            expanded = True,
+                            main_align = "space_between",
+                            cross_align = "start",
+                            children = [
+                                render.Column(
+                                    children = [
+                                        render.Row(
+                                            expanded = True,
+                                            main_align = "space_between",
+                                            cross_align = "start",
+                                            children = [
+                                                render.Box(width = 32, height = 8, child = render.Row(expanded = True, main_align = "start", cross_align = "center", children = [
+                                                    render.Box(width = 1, height = 8),
+                                                    render.Text(content = now.format("3:04"), font = "tb-8"),
+                                                ])),
+                                                render.Box(width = 32, height = 8, child = render.Row(expanded = True, main_align = "end", cross_align = "center", children = [
+                                                    render.Text(content = now.format("Jan").upper() + now.format(" 2"), font = "tb-8"),
+                                                ])),
+                                            ],
+                                        ),
+                                        render.Row(
+                                            children = [
+                                                render.Stack(children = [
+                                                    render.Box(width = 32, height = 25, color = awayColor),
+                                                    render.Column(expanded = True, main_align = "start", cross_align = "center", children = [
+                                                        render.Image(awaylogo, width = 13, height = 13),
+                                                        #render.Box(width=32, height=12, child = render.Text(content=away[:3], color=awayscorecolor, font="Dina_r400-6")),
+                                                        render.Box(width = 32, height = 12, child = render.Text(content = awayscore, color = awayscorecolor, font = awayscorefont)),
+                                                    ]),
+                                                ]),
+                                                render.Stack(children = [
+                                                    render.Box(width = 32, height = 25, color = homeColor),
+                                                    render.Column(expanded = True, main_align = "start", cross_align = "center", children = [
+                                                        render.Image(homelogo, width = 13, height = 13),
+                                                        #render.Box(width=32, height=12, child = render.Text(content=home[:3], color=homescorecolor, font="Dina_r400-6")),
+                                                        render.Box(width = 32, height = 12, child = render.Text(content = homescore, color = homescorecolor, font = homescorefont)),
+                                                    ]),
+                                                ]),
+                                            ],
+                                        ),
+                                    ],
+                                ),
+                            ],
+                        ),
+                    ],
+                )
+
+            else:
+                renderCategory.extend(
+                    [
+                        render.Column(
+                            expanded = True,
+                            main_align = "space_between",
+                            cross_align = "start",
+                            children = [
+                                render.Row(
+                                    children = [
+                                        render.Box(width = 32, height = 25, color = awayColor, child = render.Column(expanded = True, main_align = "start", cross_align = "center", children = [
+                                            render.Image(awaylogo, width = 15, height = 15),
+                                            render.Box(width = 20, height = 10, child = render.Text(content = awayscore, color = awayscorecolor, font = awayscorefont)),
+                                        ])),
+                                        render.Box(width = 32, height = 25, color = homeColor, child = render.Column(expanded = True, main_align = "start", cross_align = "center", children = [
+                                            render.Image(homelogo, width = 15, height = 15),
+                                            render.Box(width = 32, height = 10, child = render.Text(content = homescore, color = homescorecolor, font = homescorefont)),
+                                        ])),
+                                    ],
+                                ),
+                                render.Stack(
+                                    children = [
+                                        render.Stack(
+                                            children = [
+                                                render.Box(width = 64, height = 7, color = "#000", child = render.Column(expanded = True, main_align = "center", cross_align = "center", children = [render.Text(content = gametime, font = "CG-pixel-3x5-mono")])),
+                                            ],
+                                        ),
+                                    ],
+                                ),
+                            ],
+                        ),
+                    ],
+                )
+
         elif config.bool("show_time"):
             renderCategory.extend(
                 [
@@ -167,8 +258,13 @@ def main(config):
                                         main_align = "space_between",
                                         cross_align = "start",
                                         children = [
-                                            render.Text(content = now.format(" 3:04"), font = "tb-8"),
-                                            render.Text(content = now.format("1/2 "), font = "tb-8"),
+                                            render.Box(width = 32, height = 8, child = render.Row(expanded = True, main_align = "start", cross_align = "center", children = [
+                                                render.Box(width = 1, height = 8),
+                                                render.Text(content = now.format("3:04"), font = "tb-8"),
+                                            ])),
+                                            render.Box(width = 32, height = 8, child = render.Row(expanded = True, main_align = "end", cross_align = "center", children = [
+                                                render.Text(content = now.format("Jan").upper() + now.format(" 2"), font = "tb-8"),
+                                            ])),
                                         ],
                                     ),
                                     render.Column(
@@ -249,6 +345,10 @@ displayOptions = [
         value = "black",
     ),
     schema.Option(
+        display = "Horizontal",
+        value = "horizontal",
+    ),
+    schema.Option(
         display = "Retro",
         value = "retro",
     ),
@@ -302,8 +402,11 @@ def get_scores(urls):
 
 def get_odds(theodds, theou, team):
     theoddsarray = theodds.split(" ")
-    if (theoddsarray[0] == team):
-        theoddsscore = theoddsarray[1]
+    if theoddsarray[0] == team or theodds == "EVEN":
+        if theodds == "EVEN":
+            theoddsscore = ""
+        else:
+            theoddsscore = theoddsarray[1]
     else:
         theoddsscore = theou
     return theoddsscore
