@@ -25,6 +25,7 @@ import (
 	"tidbyt.dev/community/apps/destiny2stats"
 	"tidbyt.dev/community/apps/digibyteprice"
 	"tidbyt.dev/community/apps/digitalrain"
+	"tidbyt.dev/community/apps/duolingo"
 	"tidbyt.dev/community/apps/dvdlogo"
 	"tidbyt.dev/community/apps/dwheadline"
 	"tidbyt.dev/community/apps/espnnews"
@@ -62,6 +63,7 @@ import (
 	"tidbyt.dev/community/apps/redditimages"
 	"tidbyt.dev/community/apps/sbbtimetable"
 	"tidbyt.dev/community/apps/sfnextmuni"
+	"tidbyt.dev/community/apps/snyk"
 	"tidbyt.dev/community/apps/sportsscores"
 	"tidbyt.dev/community/apps/sportsstandings"
 	"tidbyt.dev/community/apps/spotthestation"
@@ -103,6 +105,7 @@ func GetManifests() []manifest.Manifest {
 		destiny2stats.New(),
 		digibyteprice.New(),
 		digitalrain.New(),
+		duolingo.New(),
 		dvdlogo.New(),
 		dwheadline.New(),
 		espnnews.New(),
@@ -139,6 +142,7 @@ func GetManifests() []manifest.Manifest {
 		redditimages.New(),
 		sbbtimetable.New(),
 		sfnextmuni.New(),
+		snyk.New(),
 		sportsscores.New(),
 		sportsstandings.New(),
 		spotthestation.New(),

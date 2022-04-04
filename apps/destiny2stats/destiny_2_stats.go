@@ -17,7 +17,7 @@ func New() manifest.Manifest {
 		Name:        "Destiny 2 Stats",
 		Author:      "brandontod97",
 		Summary:     "Display Destiny stats",
-		Desc:        "Gets the emblem, race, class, and light level of your most recently played Destiny 2 charact✗ Summary (what's the short and sweet of what this app does?): Gets the emblem, race, class, and light level of your most recently played Destiny 2 charact✗ Summary (what's the short and sweet of what this app does?): Gets the emblem, race, class, and light level of your most recently played Destiny 2 character.",
+		Desc:        "Gets the emblem, race, class, and light level of your most recently played Destiny 2 character.",
 		FileName:    "destiny_2_stats.star",
 		PackageName: "destiny2stats",
 		Source:  source,
