@@ -329,6 +329,9 @@ def main(config):
                     error_message_1 = "username"
                     error_message_2 = "not found"
 
+    # Declare display variable
+    hide_duolingo_in_rotation = False
+
     # If we know the userId then next we'll lookup the progress data for that user (either from duolingo or from cache)
     if duolingo_userid != None:
         # LOOKUP DUOLINGO XP SUMMARY JSON DATA
