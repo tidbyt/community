@@ -7,6 +7,7 @@ package apps
 import (
 	"errors"
 
+	"tidbyt.dev/community/apps/abstractclock"
 	"tidbyt.dev/community/apps/analogclock"
 	"tidbyt.dev/community/apps/analogtime"
 	"tidbyt.dev/community/apps/arcadeclassics"
@@ -15,12 +16,13 @@ import (
 	"tidbyt.dev/community/apps/bigclock"
 	"tidbyt.dev/community/apps/binaryclock"
 	"tidbyt.dev/community/apps/clockbyhenry"
-	"tidbyt.dev/community/apps/cryptotracker"
 	"tidbyt.dev/community/apps/coingeckoprice"
 	"tidbyt.dev/community/apps/countdownclock"
+	"tidbyt.dev/community/apps/cryptotracker"
 	"tidbyt.dev/community/apps/dateprogress"
 	"tidbyt.dev/community/apps/datetimeclock"
 	"tidbyt.dev/community/apps/daynightmap"
+	"tidbyt.dev/community/apps/destiny2stats"
 	"tidbyt.dev/community/apps/digibyteprice"
 	"tidbyt.dev/community/apps/digitalrain"
 	"tidbyt.dev/community/apps/dvdlogo"
@@ -51,6 +53,7 @@ import (
 	"tidbyt.dev/community/apps/pathtrainschedule"
 	"tidbyt.dev/community/apps/phaseofmoon"
 	"tidbyt.dev/community/apps/pokedex"
+	"tidbyt.dev/community/apps/powerball"
 	"tidbyt.dev/community/apps/purpleair"
 	"tidbyt.dev/community/apps/randomslackmoji"
 	"tidbyt.dev/community/apps/redditimages"
@@ -76,6 +79,7 @@ import (
 // below to include it in the Tidbyt Mobile app for all Tidbyt users.
 func GetManifests() []manifest.Manifest {
 	return []manifest.Manifest{
+		abstractclock.New(),
 		analogclock.New(),
 		analogtime.New(),
 		arcadeclassics.New(),
@@ -84,12 +88,13 @@ func GetManifests() []manifest.Manifest {
 		bigclock.New(),
 		binaryclock.New(),
 		clockbyhenry.New(),
-		cryptotracker.New(),
 		coingeckoprice.New(),
 		countdownclock.New(),
+		cryptotracker.New(),
 		dateprogress.New(),
 		datetimeclock.New(),
 		daynightmap.New(),
+		destiny2stats.New(),
 		digibyteprice.New(),
 		digitalrain.New(),
 		dvdlogo.New(),
@@ -119,6 +124,7 @@ func GetManifests() []manifest.Manifest {
 		pathtrainschedule.New(),
 		phaseofmoon.New(),
 		pokedex.New(),
+		powerball.New(),
 		purpleair.New(),
 		randomslackmoji.New(),
 		redditimages.New(),

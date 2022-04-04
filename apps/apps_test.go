@@ -24,7 +24,7 @@ func TestManifestsValidate(t *testing.T) {
 	applets := apps.GetManifests()
 	for _, app := range applets {
 		err := app.Validate()
-		assert.NoError(t, err)
+		assert.NoErrorf(t, err, app.ID)
 	}
 }
 
