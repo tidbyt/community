@@ -85,30 +85,30 @@ def main(config):
         sunsetText = "%s" % sunsetTime.in_location(loc["timezone"]).format("3:04 PM")
 
     # Got what we need, render it.
-    return render.Root(
-        child = render.Column(
-            children = [
-                render.Padding(
-                    pad = (0, 2, 0, 0),
-                    child = render.Row(
-                        expanded = True,
-                        main_align = "start",
-                        cross_align = "center",
-                        children = [
-                            render.Image(src = base64.decode(sunriseImage)),
-                            render.Padding(
-                                pad = (0, -1, 0, 0),
-                                child = render.Text(sunriseText),
-                            ),
-                        ],
-                    ),
+
+    if displaySunrise and displaySunset:
+        top = render.Padding(
+                pad = (0, 2, 0, 0),
+                child = render.Row(
+                    expanded = True,
+                    main_align = "start",
+                    cross_align = "center",
+                    children = [
+                        render.Image(src = base64.decode(sunriseImage)),
+                        render.Padding(
+                            pad = (0, -1, 0, 0),
+                            child = render.Text(sunriseText),
+                        ),
+                    ],
                 ),
-                render.Box(
+            )
+        middle = render.Box(
                     width = 64,
                     height = 1,
                     color = "#a00",
-                ),
-                render.Row(
+                )
+
+        bottom = render.Row(
                     expanded = True,
                     main_align = "start",
                     cross_align = "center",
@@ -116,7 +116,51 @@ def main(config):
                         render.Image(src = base64.decode(sunsetImage)),
                         render.Text(sunsetText),
                     ],
-                ),
+                )
+
+    else:
+        if displaySunrise:
+            title = "Sunrise"
+            text = sunriseText
+            image = sunriseImage
+        elif displaySunset:
+            title = "Sunset"
+            text = sunsetText
+            image = sunsetImage
+        else:
+            title = "No Selection"
+            text = ""
+            image = blankImage
+
+        top =   render.Padding(
+                    pad = (0, 2, 0, 4),
+                    child = render.Row(
+                        expanded = True,
+                        main_align = "center",
+                        cross_align = "center",
+                        children = [
+                            render.Text(title)
+                        ],
+                    ),
+                )
+        middle = None
+
+        bottom = render.Row(
+                    expanded = True,
+                    main_align = "start",
+                    cross_align = "center",
+                    children = [
+                        render.Image(src = base64.decode(image)),
+                        render.Text(text),
+                    ],
+                )
+
+    return render.Root(
+        child = render.Column(
+            children = [
+                top,
+                middle,
+                bottom,
             ],
         ),
     )
