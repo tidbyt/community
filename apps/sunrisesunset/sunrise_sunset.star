@@ -45,6 +45,8 @@ DEFAULT_LOCATION = {
     "timezone": "GMT",
 }
 DEFAULT_24_HOUR = False
+DEFAULT_SHOW_SUNRISE = True
+DEFAULT_SHOW_SUNSET = True
 
 # Images
 sunriseImage = """iVBORw0KGgoAAAANSUhEUgAAAB4AAAAOCAYAAAA45qw5AAAAAXNSR0IArs4c6QAAAERlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAA6ABAAMAAAABAAEAAKACAAQAAAABAAAAHqADAAQAAAABAAAADgAAAACqoaCHAAAA9klEQVQ4EcVUvQoCMQzuieDkJK6Ck+DsIr6RD+TLODnILc6ugqvo4gNUvuoX0pLe9fCvS5rkS74kzZ1zXzr+svJNqfuRc+sDuJ7dIrOlLCejSttBVI33ka3J39PO0ntKijiQsku/G3h3PDjRjaKeFRZ2ahGmxQZSGOcLcVmTyI5GojpcLFKGp+Sd39jqmiPFeHOHGBYQE+eilL0+X8MC6gKYTDpWeF6JEZ2XT0khb33j12KBuOQzAk53C50H40RnmjzoxlYz5m3JN2SiNl22erq5N/5pmPC0HoaYUjzjKBlP/edSOk6ZdUesUttSPHQLR5uF/4vtARekdeCaFV5xAAAAAElFTkSuQmCC"""
@@ -64,6 +66,8 @@ def main(config):
 
     # Get whether to display in 24h format
     display24Hour = config.bool("24_hour", DEFAULT_24_HOUR)
+    displaySunrise = config.bool("show_sunrise", DEFAULT_SHOW_SUNRISE)
+    displaySunset = config.bool("show_sunset", DEFAULT_SHOW_SUNSET)
 
     if sunriseTime == None:
         sunriseText = "  None"
@@ -125,6 +129,20 @@ def get_schema():
                 name = "Location",
                 desc = "Location for which to display the sun rise and set times.",
                 icon = "place",
+            ),
+            schema.Toggle(
+                id = "show_sunrise",
+                name = "Show Sunrise",
+                desc = "Display sunrise information.",
+                icon = "sunrise",
+                default = True
+            ),
+            schema.Toggle(
+                id = "show_sunset",
+                name = "Show Sunset",
+                desc = "Display sunset information.",
+                icon = "sunset",
+                default = True
             ),
             schema.Toggle(
                 id = "24_hour",
