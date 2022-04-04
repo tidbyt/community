@@ -9,8 +9,6 @@ load("render.star", "render")
 load("http.star", "http")
 load("encoding/base64.star", "base64")
 load("schema.star", "schema")
-load("encoding/json.star", "json")
-load("cache.star", "cache")
 
 SNYK_API_BASE = "https://api.snyk.io/v3/"
 SNYK_VERSION = "2022-03-11~experimental"
@@ -19,12 +17,8 @@ def main(config):
     SNYK_ORG_ID = config.get("orgId") or ""
     SNYK_PROJECT_ID = config.get("projectId") or ""
     SNYK_API_KEY = config.get("apiKey") or ""
-    logo_cached = cache.get("snyk_logo")
-    if logo_cached != None:
-        imgSrc = logo_cached
-    else:
-        imgSrc = http.get("https://res.cloudinary.com/snyk/image/upload/v1537345891/press-kit/brand/avatar-transparent.png").body()
-        cache.set("snyk_logo", imgSrc, ttl_seconds = 60)
+
+    imgSrc = base64.decode(SNYK_LOGO)
 
     if SNYK_ORG_ID == "" or SNYK_PROJECT_ID == "" or SNYK_API_KEY == "":
         msg = render.Text("Please make sure Org ID, Project ID, and API Key are all defined.")
@@ -175,3 +169,20 @@ def get_schema():
             ),
         ],
     )
+
+SNYK_LOGO = """
+iVBORw0KGgoAAAANSUhEUgAAABkAAAAZCAYAAADE6YVjAAAC20lEQVR42uXWA3TtZgAH8B7MNo45HDy7
+tm23uXZS29azbdusLmajtm33vyTzDop0/uzfZRK9f1QA8OIf+0sNvAsg+A9jQQDeXyrgqW++qfn89m11
+zm/H793RZH3zTfWXAJ7mjHR19Xq7Oyuxe9eZk78d37v7zHEPVxK9vQM+nJEjh6/cFPtKkZdzsAzA4wCe
+ZOr8vEMlhHMwzp65fZvLx/QKAI+s5K3jDw9sRnbmvuGhoSF1b2+vtqenR52VsXf4dDKJzdm7xgH4MOsX
+BExMTLw7PDw82tzcjBRlHHLCYiATp6KyshIffvgR1Go1BEQ8ogL5SJFR+O6770DDo8y+eSP0K36/tbUV
+FRUVUIZQMNnkD1srKUICY+DpRsLPOwwmhgT013pD7C2ERqNhXwCzb8FIVVUVxIJk2NlQcHGKgatzHKwt
+SWzawKczDxvXh4IIjuGOpCRtg5tLPNxdE9jMIPobBb/kqIgc7khMVCF7eFpENvhBKSziaCmGwk/OIkp5
+GneEUuWwiFKaBXdnikVcHRTgBcWxiIifyB0Jp3LpjysOHq6xkBGpLOJhK4axPp9G+BALk7gjp09dpQ8k
+cLKgCGeKNrNIEUliWxiJ9av9sHvXMe5IRUUlfZg3TuVl4urOrbA0V2BvFIX90QqsWeGJsrJy7shnn36B
+1cs9sD0uAQfT07BulQ+KlFLkySTs+O3b9xaNvNfR0THFICXFGuivDwIVQuLjUzsQL5DjXkEEJJ4E1q7y
+xflzV1mktrZ2itm3kOvWM/QlIr67uxvXr92n/90C2FjKEOBEwNNFDj+7ABZevyYAR4+cRVNTE0ZGRuKZ
+fYu5SBrqtJ9/GRSQzP7jTfWDEOocDIN1vtCn//UerpHQqD/9EoAB15vW25WVTZs3F52bYi4rFmYKFkhO
+3Df1/fcNm5l5vaUKE2MT/qdPPagX8nNn9+y6WD82Nub/Zz1MvFFX1+LE1Hr/y/ADLrWnU+0exrkAAAAA
+SUVORK5CYII=
+"""
