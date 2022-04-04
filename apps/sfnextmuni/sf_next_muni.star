@@ -5,11 +5,11 @@ Description: Shows the predicted arrival times from NextBus for a given SF Muni 
 Author: Martin Strauss
 """
 
+load('cache.star', 'cache')
 load('encoding/json.star', 'json')
-load("cache.star", "cache")
 load('http.star', 'http')
-load("render.star", "render")
-load("schema.star", "schema")
+load('render.star', 'render')
+load('schema.star', 'schema')
 
 DEFAULT_STOP = '{"value":"15728","display":"Castro Station Inbound"}'
 PREDICTIONS_URL = 'https://retro.umoiq.com/service/publicJSONFeed?command=predictions&a=sf-muni&stopId=%s&useShortTitles=true'
