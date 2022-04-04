@@ -46,7 +46,7 @@ def main(config):
     
     for i, s in enumerate(scores):
     
-    	oddscheck = s["competitions"][0].get("odds", 'NO')
+    	oddscheck = s["competitions"][0].get("odds", "NO")
     	if oddscheck == "NO":
     		showodds = "no"
     	else:
