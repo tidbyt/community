@@ -188,7 +188,7 @@ def get_character_race(race_value):
 
 def get_schema():
     return schema.Schema(
-        version = "1.0.1",
+        version = "1",
         fields = [
             schema.Text(
                 id = "display_name",
