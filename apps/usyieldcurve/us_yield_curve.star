@@ -97,6 +97,7 @@ def main(config):
         "piecewise-log": piecewise_log,
     }[config.get("x-axis", "linear")]
 
+    updated_date = None
     dates = cache.get(cache_id)
     if not dates:
         url = "https://home.treasury.gov/resource-center/data-chart-center/interest-rates/pages/xml?data=daily_treasury_yield_curve&field_tdr_date_value=%s" % year
@@ -105,6 +106,7 @@ def main(config):
         raw = response.body()
         xml = xpath.loads(raw)
         rows = xml.query_all("/feed/entry/content")
+        updated_date = xml.query_all("/feed/updated")[0]
         dates = []
         min_yield, max_yield = 0.0, 0.0
         for entry in rows:
@@ -168,8 +170,10 @@ def main(config):
     stats = {
         "US 10Y ": round(dates[-1]["10YEAR"], 3),
         "10Y-2Y ": round(dates[-1]["10YEAR"] - dates[-1]["2YEAR"], 3),
-        "": time.parse_time(dates[-1]["date"], format = DATEFMT).in_location(timezone).format("Jan-02 3:04 PM"),
     }
+
+    if updated_date:
+        stats[""] = time.parse_time(updated_date, format = DATEFMT + "Z").format("Jan-2 3:04 PM")
 
     stat_table = []
     for title, value in stats.items():
