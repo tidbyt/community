@@ -2,11 +2,11 @@
 Applet: Sports Standings
 Summary: Sports standings from ESPN
 Description: Get various sports standings (data courtesy of ESPN).
-Author: rs7q5 (RIS)
+Author: rs7q5
 """
 #sports_standings.star
 #Created 20220119 RIS
-#Last Modified 20220222 RIS
+#Last Modified 20220328 RIS
 
 load("render.star", "render")
 load("http.star", "http")
@@ -207,13 +207,20 @@ def pad_text(text):
 ######################################################
 #functions to get data for different sports
 def get_mlbstats():
+    yearcheck = time.now().in_location("America/New_York").year  #MLB based in New York, year is used to make sure records exist otherwise retrieves previous years data
     base_URL = "https://site.api.espn.com/apis/v2/sports/baseball/mlb/standings"
 
     stats = dict()
     stats2 = []
+
     for i in range(6):  #iterate through each division
         standings_URL = base_URL + "?group=" + str(i + 1) + "&sort=gamesbehind"
         standings_rep = http_check(standings_URL)
+
+        if standings_rep.json()["abbreviation"] == "MLB":
+            #no regular season records yet so get previous years (likely in preseason)
+            standings_URL = base_URL + "?group=" + str(i + 1) + "&sort=gamesbehind&season=" + str(yearcheck - 1)
+            standings_rep = http_check(standings_URL)
 
         div_name = standings_rep.json()["shortName"]
         standings_data = standings_rep.json()["standings"]["entries"]
@@ -221,9 +228,14 @@ def get_mlbstats():
         stats_tmp = []
         cnt = 0
         for (j, team) in enumerate(standings_data):  #iterate through each team in each division
+            #get index of abbreviations (when playoff stuff gets added variables get shifted, WILL FAIL IF NONE OF THESE EXIST, WHICH SHOULDN'T HAPPEN)
+            stat_name = [x["abbreviation"] for x in team["stats"]]
+            total_idx = stat_name.index("Total")
+            GB_idx = stat_name.index("GB")
+
             name = team["team"]["abbreviation"]
-            record = team["stats"][33]["displayValue"]  #W-L
-            GB = team["stats"][4]["displayValue"]  #games back
+            record = team["stats"][total_idx]["displayValue"]  #W-L
+            GB = team["stats"][GB_idx]["displayValue"]  #games back
 
             record_full = record + "/" + str(GB)
             stats_tmp.append((name, record_full, record, str(GB)))
@@ -248,12 +260,18 @@ def get_nhlstats():
             stats_tmp = []
             for (k, team) in enumerate(div_data):
                 name = team["team"]["abbreviation"]
-                record = team["stats"][15]["displayValue"]  #W-L-OTL, pts
-                pts = team["stats"][6]["value"]  #points
-                pt_pct = pts / (team["stats"][3]["value"] * 2)  #pts/(GP*2) calculate point percentage (first tie breaker rules,for some reason raw standings doesn't sort ties correctly in JSON)
+
+                #get index of abbreviations (when playoff stuff gets added variables get shifted, WILL FAIL IF NONE OF THESE EXIST, WHICH SHOULDN'T HAPPEN)
+                stat_name = [x["abbreviation"] for x in team["stats"]]
+                total_idx = stat_name.index("TOTAL")
+                pt_idx = stat_name.index("PTS")
+                GP_idx = stat_name.index("GP")
+
+                record = team["stats"][total_idx]["displayValue"]  #W-L-OTL, pts
+                pts = team["stats"][pt_idx]["value"]  #points
+                pt_pct = pts / (team["stats"][GP_idx]["value"] * 2)  #pts/(GP*2) calculate point percentage (first tie breaker rules,for some reason raw standings doesn't sort ties correctly in JSON)
 
                 record_text = record.split(",")
-
                 record_full = record_text[0] + "/" + record_text[1].split(" ")[1]
                 stats_tmp.append((name, record_full, record, pts, pt_pct))
 
@@ -282,9 +300,13 @@ def get_nbastats():
         cnt = 0
         for (j, team) in enumerate(div_data):  #iterate through each team in each division
             name = team["team"]["abbreviation"]
-            record = team["stats"][11]["displayValue"]  #W-L
-            GB = team["stats"][4]["displayValue"]  #games behind
-            pct = team["stats"][3]["value"]  #win percent
+            stat_name = [x["shortDisplayName"] for x in team["stats"]]
+            total_idx = stat_name.index("OVER")
+            pct_idx = stat_name.index("PCT")
+            GB_idx = stat_name.index("GB")
+            record = team["stats"][total_idx]["displayValue"]  #W-L
+            GB = team["stats"][GB_idx]["displayValue"]  #games behind
+            pct = team["stats"][pct_idx]["value"]  #win percent
 
             record_full = record + "/" + str(GB)
             stats_tmp.append((name, record_full, record, str(GB), pct))

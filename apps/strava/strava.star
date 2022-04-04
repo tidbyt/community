@@ -136,7 +136,7 @@ def progress_chart(config, refresh_token, sport, units):
 
         urls = {
             "current": "%s/athlete/activities?after=%s&per_page=%s" % (STRAVA_BASE, beg_curr_month.unix, MAX_ACTIVITIES),
-            "previous": "%s/athlete/activities?after=%s&before=%s&per_page=%s" % (STRAVA_BASE, beg_curr_month.unix, beg_curr_month.unix, MAX_ACTIVITIES),
+            "previous": "%s/athlete/activities?after=%s&before=%s&per_page=%s" % (STRAVA_BASE, beg_prev_month.unix, end_prev_month.unix, MAX_ACTIVITIES),
         }
 
         activities = {}
@@ -149,7 +149,8 @@ def progress_chart(config, refresh_token, sport, units):
                 print("Getting %s month activities. %s" % (query, url))
                 response = http.get(url, headers = headers)
                 if response.status_code != 200:
-                    print("Strava API call failed with status %d" % response.status_code)
+                    text = "code %d, %s" % (response.status_code, json.decode(response.body()).get("message", ""))
+                    return display_failure("Strava API failed, %s" % text)
                 data = response.json()
                 cache.set(cache_id, json.encode(data), ttl_seconds = CACHE_TTL)
             else:
@@ -160,6 +161,10 @@ def progress_chart(config, refresh_token, sport, units):
 
     stat_keys = ("distance", "moving_time", "total_elevation_gain")
     graph_stat = stat_keys[0]
+
+    # Sort each list chronologically
+    for query in activities.keys():
+        activities[query] = sorted(activities[query], key = lambda x: x["start_date"])
 
     # Iterate through each activity from the current and previous month and extract the relevant data, adding it
     # to our cumulative totals as we go, which are later used in our plot.
@@ -384,7 +389,8 @@ def athlete_stats(config, refresh_token, period, sport, units):
             url = "%s/athlete" % STRAVA_BASE
             response = http.get(url, headers = headers)
             if response.status_code != 200:
-                print("Strava API call failed with status %d" % response.status_code)
+                text = "code %d, %s" % (response.status_code, json.decode(response.body()).get("message", ""))
+                return display_failure("Strava API failed, %s" % text)
 
             data = response.json()
             athlete = int(float(data["id"]))
@@ -400,7 +406,8 @@ def athlete_stats(config, refresh_token, period, sport, units):
             print("Calling Strava API: " + url)
             response = http.get(url, headers = headers)
             if response.status_code != 200:
-                fail("Strava API call failed with status %d" % response.status_code)
+                text = "code %d, %s" % (response.status_code, json.decode(response.body()).get("message", ""))
+                return display_failure("Strava API failed, %s" % text)
             data = response.json()
 
             for item in stats.keys():
@@ -408,10 +415,7 @@ def athlete_stats(config, refresh_token, period, sport, units):
                 cache.set(cache_prefix + item, str(stats[item]), ttl_seconds = CACHE_TTL)
                 #print("saved item %s "%s" in the cache for %d seconds" % (item, str(stats[item]), CACHE_TTL))
 
-    ###################################################
-    # Configure the display to the user's preferences #
-    ###################################################
-
+    # Configure the display to the user's preferences
     elevu = "m"
     if units.lower() == "imperial":
         if sport == "swim":
