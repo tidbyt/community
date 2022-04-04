@@ -14,8 +14,17 @@ load("cache.star", "cache")
 load("encoding/json.star", "json")
 load("secret.star", "secret")
 
-DEFAULT_DISPLAY_NAME = "CatLover"
-DEFAULT_DISPLAY_NAME_CODE = "12345"
+DEFAULT_DISPLAY_NAME = secret.decrypt("""
+"AV6+xWcEj0nmtoLiblYJL8Tu387oZYnoFkMIzs29sUMlHtqDcNuaBDSg
+7Mj273WhCIabva6fjNByv9oXUG5H4w37zN/Gx4zvft3gNUz78DA+EvU2I
+yDSVa7edZ4GbA0C1AO23gtUDzQYoGXipSU/TZM2awA="
+""") or "Placeholder"
+
+DEFAULT_DISPLAY_NAME_CODE = secret.decrypt("""
+AV6+xWcEW+/hIGws+9QhH2NgI0+0JougGvaPg7F/8xvI+ur1XLEQwVe0e
+zt+7SSJi1TXsj2/CT3QoquSVwf7EVzQl+xsHfGq/iacJZ/gc1Pcp+fHje
+/hvHBNx1wnsomBWLrKhIXi4yXOoA==
+""") or "1234"
 
 API_BASE_URL = "https://www.bungie.net/platform"
 API_USER_PROFILE = API_BASE_URL + "/User/GetBungieNetUserById/"
@@ -23,14 +32,14 @@ API_SEARCH_BUNGIE_ID = API_BASE_URL + "/User/Search/GlobalName/0/"
 API_SEARCH_BUNGIE_ID_NAME = API_BASE_URL + "/Destiny2/SearchDestinyPlayerByBungieName/-1/"
 
 def main(config):
-    display_name = config.str("display_name", DEFAULT_DISPLAY_NAME)
-    display_name_code = config.str("display_name_code", DEFAULT_DISPLAY_NAME_CODE)
+    display_name = config.get("display_name", DEFAULT_DISPLAY_NAME)
+    display_name_code = config.get("display_name_code", DEFAULT_DISPLAY_NAME_CODE)
     displayed_character = ""
 
     api_key = secret.decrypt("""
-        AV6+xWcEb6J6iGViuBbqg9hnO0qHwC/GoWFEAqTpZd7iLr+Qq9SQqBVZAVT9JiQRx/6OKVf7lrmRQxD7
-        e+6BfIGQT3KnXSJyuamnrerYO0eBOTbJTXa+GtmArz0apudd8z2t9J8FslLrBYrDrNENrzlBo6wxy6TR
-        z2L6Qszwv4oBhSwAj0A=
+        AV6+xWcEJkWKqhbjZP7GMtxbpczsXzsEZTDdc8v4kQxRCXPYO6aVT6HktYA192wnXxYXpnbCOL3oBilA
+        WOH0pjJxlI5mlmWRZHEbBC2IY7AZ2MM0DUe56sGlqI70M0Zo+2dO0umHJyNA08AXdYGmjIgZYc6OfPQh
+        NyM95zq5qE69cen4TO0=
         """) or config.get("dev_api_key")
 
     character_cached = cache.get("character" + display_name + display_name_code)
@@ -50,17 +59,12 @@ def main(config):
             display_name = "null value"
             display_name_code = "null value"
 
-            #should fail but this is affecting things
-            #substiuting garbage strings is enough to trigger the applet error handling if the data is wrong
-            #fail("Required arguments were not provided.")
-
         apiResponse = http.post(
             API_SEARCH_BUNGIE_ID_NAME,
             headers = {"X-API-Key": api_key},
             json_body = {"displayName": display_name, "displayNameCode": display_name_code},
         )
 
-        print(apiResponse.json())
         if apiResponse.json()["ErrorStatus"] == "ApiInvalidOrExpiredKey" or len(apiResponse.json()["Response"]) == 0:
             return render.Root(
                 child = render.Column(
@@ -83,6 +87,7 @@ def main(config):
                 ),
             )
         else:
+            print("Recieved valid response")
             bungie_membership_id = apiResponse.json()["Response"][0]["membershipId"]
             bungie_membership_type = apiResponse.json()["Response"][0]["membershipType"]
 
@@ -93,7 +98,7 @@ def main(config):
             )
 
             displayed_character = apiMembershipInfo.json()["Response"]["characters"]["data"][get_last_played_character(apiMembershipInfo.json()["Response"]["characters"]["data"])]
-            cache.set("character" + display_name + display_name_code, json.encode(displayed_character), ttl_seconds = 30)
+            cache.set("character" + display_name + display_name_code, json.encode(displayed_character), ttl_seconds = 300)
 
     image = get_image("https://www.bungie.net" + displayed_character["emblemPath"])
 
@@ -129,79 +134,17 @@ def main(config):
 def get_last_played_character(characters_list):
     most_recent_character = {
         "id": "",
-        "date": {
-            "year": 1111,
-            "month": 0o0,
-            "day": 0o0,
-            "hour": 0o0,
-            "minute": 0o0,
-        },
+        "date": time.parse_time("1999-01-01T00:01:00.00Z"),
     }
 
     for character in characters_list:
-        date_string = characters_list[character]["dateLastPlayed"]
+        parsed_date = time.parse_time(characters_list[character]["dateLastPlayed"])
 
-        year = int(date_string[0:4])
-        month = int(date_string[5:7])
-        day = int(date_string[8:10])
-
-        hour = int(date_string[11:13])
-        minute = int(date_string[14:16])
-
-        if year > most_recent_character["date"]["year"]:
-            most_recent_character["date"]["year"] = year
-            most_recent_character["date"]["month"] = month
-            most_recent_character["date"]["day"] = day
-            most_recent_character["date"]["hour"] = hour
-            most_recent_character["date"]["minute"] = minute
-
+        if (parsed_date > most_recent_character["date"]):
+            most_recent_character["date"] = parsed_date
             most_recent_character["id"] = character
 
-        elif year == most_recent_character["date"]["year"]:
-            if month > most_recent_character["date"]["month"]:
-                most_recent_character["date"]["year"] = year
-                most_recent_character["date"]["month"] = month
-                most_recent_character["date"]["day"] = day
-                most_recent_character["date"]["hour"] = hour
-                most_recent_character["date"]["minute"] = minute
-
-                most_recent_character["id"] = character
-
-            elif month == most_recent_character["date"]["month"]:
-                if day > most_recent_character["date"]["day"]:
-                    most_recent_character["date"]["year"] = year
-                    most_recent_character["date"]["month"] = month
-                    most_recent_character["date"]["day"] = day
-                    most_recent_character["date"]["hour"] = hour
-                    most_recent_character["date"]["minute"] = minute
-
-                    most_recent_character["id"] = character
-
-                elif day == most_recent_character["date"]["day"]:
-                    if hour > most_recent_character["date"]["hour"]:
-                        most_recent_character["date"]["year"] = year
-                        most_recent_character["date"]["month"] = month
-                        most_recent_character["date"]["day"] = day
-                        most_recent_character["date"]["hour"] = hour
-                        most_recent_character["date"]["minute"] = minute
-
-                        most_recent_character["id"] = character
-
-                    elif hour == most_recent_character["date"]["hour"]:
-                        if minute > most_recent_character["date"]["minute"]:
-                            most_recent_character["date"]["year"] = year
-                            most_recent_character["date"]["month"] = month
-                            most_recent_character["date"]["day"] = day
-                            most_recent_character["date"]["hour"] = hour
-                            most_recent_character["date"]["minute"] = minute
-
-                            most_recent_character["id"] = character
-
-                        elif minute == most_recent_character["date"]["minute"]:
-                            pass
-                            #if the minute is the same, which shouldnt be possible, then just let it be.
-
-        return most_recent_character["id"]
+    return most_recent_character["id"]
 
 def get_image(url):
     if url:
@@ -245,18 +188,18 @@ def get_character_race(race_value):
 
 def get_schema():
     return schema.Schema(
-        version = "1",
+        version = "1.0.1",
         fields = [
             schema.Text(
                 id = "display_name",
                 name = "Display Name",
-                desc = "Your display name for your bungie account. This consists of your username before the #.",
+                desc = "Your display name for your bungie account. This consists of your username before the # in your Bungie ID.",
                 icon = "user",
             ),
             schema.Text(
                 id = "display_name_code",
                 name = "Display Code",
-                desc = "Your display code for your bungie account. This consists of the numbers after the # in your bungie ID.",
+                desc = "Your display code for your bungie account. This consists of the numbers after the # in your Bungie ID.",
                 icon = "code",
             ),
         ],
