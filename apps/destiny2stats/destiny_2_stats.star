@@ -17,7 +17,7 @@ load("secret.star", "secret")
 DEFAULT_DISPLAY_NAME = secret.decrypt("""
 AV6+xWcEj0nmtoLiblYJL8Tu387oZYnoFkMIzs29sUMlHtqDcNuaBDSg
 7Mj273WhCIabva6fjNByv9oXUG5H4w37zN/Gx4zvft3gNUz78DA+EvU2I
-yDSVa7edZ4GbA0C1AO23gtUDzQYoGXipSU/TZM2awA="
+yDSVa7edZ4GbA0C1AO23gtUDzQYoGXipSU/TZM2awA=
 """) or "Placeholder"
 
 DEFAULT_DISPLAY_NAME_CODE = secret.decrypt("""
