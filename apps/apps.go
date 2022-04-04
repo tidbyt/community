@@ -29,6 +29,7 @@ import (
 	"tidbyt.dev/community/apps/dwheadline"
 	"tidbyt.dev/community/apps/espnnews"
 	"tidbyt.dev/community/apps/fishbyt"
+	"tidbyt.dev/community/apps/flags"
 	"tidbyt.dev/community/apps/fuzzyclock"
 	"tidbyt.dev/community/apps/gapilotbuddy"
 	"tidbyt.dev/community/apps/hvvdepartures"
@@ -101,6 +102,7 @@ func GetManifests() []manifest.Manifest {
 		dwheadline.New(),
 		espnnews.New(),
 		fishbyt.New(),
+		flags.New(),
 		fuzzyclock.New(),
 		gapilotbuddy.New(),
 		hvvdepartures.New(),
