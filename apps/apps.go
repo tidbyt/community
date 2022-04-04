@@ -61,6 +61,7 @@ import (
 	"tidbyt.dev/community/apps/randomslackmoji"
 	"tidbyt.dev/community/apps/redditimages"
 	"tidbyt.dev/community/apps/sbbtimetable"
+	"tidbyt.dev/community/apps/sfnextmuni"
 	"tidbyt.dev/community/apps/sportsscores"
 	"tidbyt.dev/community/apps/sportsstandings"
 	"tidbyt.dev/community/apps/spotthestation"
@@ -96,7 +97,6 @@ func GetManifests() []manifest.Manifest {
 		coingeckoprice.New(),
 		countdownclock.New(),
 		cryptotracker.New(),
-		countdownclock.New(),
 		dateprogress.New(),
 		datetimeclock.New(),
 		daynightmap.New(),
@@ -138,6 +138,7 @@ func GetManifests() []manifest.Manifest {
 		randomslackmoji.New(),
 		redditimages.New(),
 		sbbtimetable.New(),
+		sfnextmuni.New(),
 		sportsscores.New(),
 		sportsstandings.New(),
 		spotthestation.New(),
