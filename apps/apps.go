@@ -49,6 +49,7 @@ import (
 	"tidbyt.dev/community/apps/phaseofmoon"
 	"tidbyt.dev/community/apps/pokedex"
 	"tidbyt.dev/community/apps/purpleair"
+	"tidbyt.dev/community/apps/randomslackmoji"
 	"tidbyt.dev/community/apps/redditimages"
 	"tidbyt.dev/community/apps/sbbtimetable"
 	"tidbyt.dev/community/apps/sportsscores"
@@ -113,6 +114,7 @@ func GetManifests() []manifest.Manifest {
 		phaseofmoon.New(),
 		pokedex.New(),
 		purpleair.New(),
+		randomslackmoji.New(),
 		redditimages.New(),
 		sbbtimetable.New(),
 		sportsscores.New(),
