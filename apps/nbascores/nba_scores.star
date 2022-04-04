@@ -1,3 +1,34 @@
+"""
+Applet: NBA Scores
+Summary: Displays NBA scores
+Description: Displays live and upcoming NBA scores from a data feed.
+Author: cmarkham20
+"""
+
+load("cache.star", "cache")
+load("encoding/base64.star", "base64")
+load("encoding/json.star", "json")
+load("http.star", "http")
+load("render.star", "render")
+load("schema.star", "schema")
+load("time.star", "time")
+
+CACHE_TTL_SECONDS = 60
+DEFAULT_LOCATION = """
+{
+	"lat": "40.6781784",
+	"lng": "-73.9441579",
+	"description": "Brooklyn, NY, USA",
+	"locality": "Brooklyn",
+	"place_id": "ChIJCSF8lBZEwokRhngABHRcdoI",
+	"timezone": "America/New_York"
+}
+"""
+SPORT = "basketball"
+LEAGUE = "nba"
+USE_ALT_COLOR = [""]
+
+
 def main(config):
     leagues = { 
     	LEAGUE : "https://site.api.espn.com/apis/site/v2/sports/"+SPORT+"/"+LEAGUE+"/scoreboard" }
