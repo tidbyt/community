@@ -399,270 +399,269 @@ def main(config):
         # If there is no data returned at all for the time frame then we can assume no lessons have been completed recently
         # In this case we need to insert dummy data for the entire time frame
         if duolingo_xpsummary_json["summaries"] == []:
-        	hide_duolingo_in_rotation = True
-        	print ("WARNING: Duolingo returned no data suggesting no lessons have been completed for the last 14 days. App will be hidden.")
+            hide_duolingo_in_rotation = True
+            print("WARNING: Duolingo returned no data suggesting no lessons have been completed for the last 14 days. App will be hidden.")
         else:
+            # Lookup the date from the first 'date' value in JSON too see if it is today's data
+            time_of_first_entry_unix_time = int(duolingo_xpsummary_json["summaries"][0]["date"])
+            time_of_first_entry = time.from_timestamp(time_of_first_entry_unix_time)
+            date_of_first_entry = time_of_first_entry.format("2006-01-02")
 
-	        # Lookup the date from the first 'date' value in JSON too see if it is today's data
-	        time_of_first_entry_unix_time = int(duolingo_xpsummary_json["summaries"][0]["date"])
-	        time_of_first_entry = time.from_timestamp(time_of_first_entry_unix_time)
-	        date_of_first_entry = time_of_first_entry.format("2006-01-02")
+            # If the data is from yesterday, insert today's dummy data into JSON variable. (This will be replaced by the actual data once it becomes available.)
+            if date_of_first_entry != date_now:
+                duolingo_xpsummary_json["summaries"].insert(0, dummy_data)
+                print("Date of the most recent XP data: " + str(date_of_first_entry) + "   (Dummy data has been inserted for today.)")
+            else:
+                print("Date of the most recent XP data: " + str(date_of_first_entry) + "   (No dummy data needed for today.)")
 
-	        # If the data is from yesterday, insert today's dummy data into JSON variable. (This will be replaced by the actual data once it becomes available.)
-	        if date_of_first_entry != date_now:
-	            duolingo_xpsummary_json["summaries"].insert(0, dummy_data)
-	            print("Date of the most recent XP data: " + str(date_of_first_entry) + "   (Dummy data has been inserted for today.)")
-	        else:
-	            print("Date of the most recent XP data: " + str(date_of_first_entry) + "   (No dummy data needed for today.)")
+            # Work out how many days of data is available (this should be 14 unless the user has only just joined Duolingo witin the last 14 days)
+            days_returned = len(duolingo_xpsummary_json["summaries"])
+            if days_returned >= 14:
+                print("Days with data: " + str(days_returned))
+            else:
+                print("Days with data: " + str(days_returned) + "   (Query returned less than 14 days of data. New Duolingo user?)")
 
-	        # Work out how many days of data is available (this should be 14 unless the user has only just joined Duolingo witin the last 14 days)
-	        days_returned = len(duolingo_xpsummary_json["summaries"])
-	        if days_returned >= 14:
-	            print("Days with data: " + str(days_returned))
-	        else:
-	            print("Days with data: " + str(days_returned) + "   (Query returned less than 14 days of data. New Duolingo user?)")
+                # insert historical dummy data if less than 14 days of data exists
+                days_of_dummy_data_to_add = 14 - days_returned
+                for daynum in range(0, days_of_dummy_data_to_add):
+                    duolingo_xpsummary_json["summaries"].append(dummy_data)
+                print("Total days after inserting dummy data:  " + str(len(duolingo_xpsummary_json["summaries"])))
 
-	            # insert historical dummy data if less than 14 days of data exists
-	            days_of_dummy_data_to_add = 14 - days_returned
-	            for daynum in range(0, days_of_dummy_data_to_add):
-	                duolingo_xpsummary_json["summaries"].append(dummy_data)
-	            print("Total days after inserting dummy data:  " + str(len(duolingo_xpsummary_json["summaries"])))
+            # if the user only has 7 or less days of data available, and the two week chart view is selected, only display the one week view
+            if days_returned <= 7 and display_view == "twoweeks":
+                display_view = "week"
 
-	        # if the user only has 7 or less days of data available, and the two week chart view is selected, only display the one week view
-	        if days_returned <= 7 and display_view == "twoweeks":
-	            display_view = "week"
+            # Now we get today's daily XP count from the xpsummary_query_json variable (which updates with live data every 15 mins)
+            # We'll need this below, to calculate the total XP earned
+            duolingo_xptoday = duolingo_xpsummary_json["summaries"][0]["gainedXp"]
 
-	        # Now we get today's daily XP count from the xpsummary_query_json variable (which updates with live data every 15 mins)
-	        # We'll need this below, to calculate the total XP earned
-	        duolingo_xptoday = duolingo_xpsummary_json["summaries"][0]["gainedXp"]
+            # If the current XP score is null convert to integer zero
+            if str(duolingo_xptoday) == "null":
+                duolingo_xptoday = 0
+            else:
+                duolingo_xptoday = int(duolingo_xptoday)
 
-	        # If the current XP score is null convert to integer zero
-	        if str(duolingo_xptoday) == "null":
-	            duolingo_xptoday = 0
-	        else:
-	            duolingo_xptoday = int(duolingo_xptoday)
+            # Get current streak status
+            is_streak_extended = bool(duolingo_xpsummary_json["summaries"][0]["streakExtended"])
 
-	        # Get current streak status
-	        is_streak_extended = bool(duolingo_xpsummary_json["summaries"][0]["streakExtended"])
+            # Put the XP scores for the week into a list called week_xp_scores. The first entry will be  days 13 ago. The last entry will be today.
+            week_xp_scores = []
+            for daynum in range(0, 14):
+                day_xp = duolingo_xpsummary_json["summaries"][daynum]["gainedXp"]
+                if day_xp == None:
+                    day_xp = int(0)
+                else:
+                    day_xp = int(day_xp)
+                week_xp_scores.append(day_xp)
 
-	        # Put the XP scores for the week into a list called week_xp_scores. The first entry will be  days 13 ago. The last entry will be today.
-	        week_xp_scores = []
-	        for daynum in range(0, 14):
-	            day_xp = duolingo_xpsummary_json["summaries"][daynum]["gainedXp"]
-	            if day_xp == None:
-	                day_xp = int(0)
-	            else:
-	                day_xp = int(day_xp)
-	            week_xp_scores.append(day_xp)
+            print("Two Week's XP Scores: " + str(week_xp_scores))
 
-	        print("Two Week's XP Scores: " + str(week_xp_scores))
+            # Slice the current week's xp scores, if we are only displaying the last week of data
+            if display_view == "week":
+                week_xp_scores = (week_xp_scores[0:7])
+                print("One Week's XP Scores: " + str(week_xp_scores))
 
-	        # Slice the current week's xp scores, if we are only displaying the last week of data
-	        if display_view == "week":
-	            week_xp_scores = (week_xp_scores[0:7])
-	            print("One Week's XP Scores: " + str(week_xp_scores))
+            # Add up the XP score from every day to get the one week or two week total
+            week_xp_scores_total = 0
+            if display_view == "week" or display_view == "today":
+                # Add up total xp score for the last week
+                for i in range(0, 7):
+                    week_xp_scores_total = week_xp_scores[i] + week_xp_scores_total
+            if display_view == "twoweeks":
+                # Add up total xp score for the last week
+                for i in range(0, 14):
+                    week_xp_scores_total = week_xp_scores[i] + week_xp_scores_total
 
-	        # Add up the XP score from every day to get the one week or two week total
-	        week_xp_scores_total = 0
-	        if display_view == "week" or display_view == "today":
-	            # Add up total xp score for the last week
-	            for i in range(0, 7):
-	                week_xp_scores_total = week_xp_scores[i] + week_xp_scores_total
-	        if display_view == "twoweeks":
-	            # Add up total xp score for the last week
-	            for i in range(0, 14):
-	                week_xp_scores_total = week_xp_scores[i] + week_xp_scores_total
+            # If no XP score has been acheived in the last week then set the variable to hide the Duolingo app from displaying in the rotation
+            # (if the twoweek view is being displayed, the XP score limit is two weeks before it is hidden from view)
+            if week_xp_scores_total == 0:
+                hide_duolingo_in_rotation = True
+                if display_view == "twoweeks":
+                    print("IMPORTANT: No Duolingo lessons have been completed in the last 14 days - Tidbyt display will be hidden.")
+                else:
+                    print("IMPORTANT: No Duolingo lessons have been completed in the last 7 days - Tidbyt display will be hidden.")
+            else:
+                hide_duolingo_in_rotation = False
 
-	        # If no XP score has been acheived in the last week then set the variable to hide the Duolingo app from displaying in the rotation
-	        # (if the twoweek view is being displayed, the XP score limit is two weeks before it is hidden from view)
-	        if week_xp_scores_total == 0:
-	            hide_duolingo_in_rotation = True
-	            if display_view == "twoweeks":
-	                print("IMPORTANT: No Duolingo lessons have been completed in the last 14 days - Tidbyt display will be hidden.")
-	            else:
-	                print("IMPORTANT: No Duolingo lessons have been completed in the last 7 days - Tidbyt display will be hidden.")
-	        else:
-	            hide_duolingo_in_rotation = False
+            # LOOKUP DUOLINGO MAIN JSON DATA AT START OF DAY
+            # The is run daily to calculate what the user's totalXP was at the start of the day
+            # It runs whenever it detects that the date has changed from the previous time it was run
+            # It also requires live XP data to be available (rather than cached data)
 
-	        # LOOKUP DUOLINGO MAIN JSON DATA AT START OF DAY
-	        # The is run daily to calculate what the user's totalXP was at the start of the day
-	        # It runs whenever it detects that the date has changed from the previous time it was run
-	        # It also requires live XP data to be available (rather than cached data)
+            # Run this if today's date has changed and live data has just been retried (or this is the first time running)
+            if (duolingo_saveddate_cached != date_now) and (live_xp_data == True):
+                print("New day detected!")
 
-	        # Run this if today's date has changed and live data has just been retried (or this is the first time running)
-	        if (duolingo_saveddate_cached != date_now) and (live_xp_data == True):
-	            print("New day detected!")
+                # First we are going to get the totalXp score at the start of the day
+                # (we will use this to calculate the running XP total throughout the day)
+                if do_duolingo_main_query == True:
+                    duolingo_totalxp = int(duolingo_main_json["users"][0]["totalXp"])
+                    duolingo_streak = int(duolingo_main_json["users"][0]["streak"])
+                else:
+                    # Setup userid query URL
+                    print("Querying duolingo.com for current totalXp...")
+                    duolingo_main_query = http.get(duolingo_main_query_url)
+                    if duolingo_main_query.status_code != 200:
+                        print("Duolingo query failed with status %d", duolingo_main_query.status_code)
+                        display_error_msg = True
+                        error_message = "Error: Duolingo query failed. Check internet connectivity."
+                    else:
+                        duolingo_main_json = duolingo_main_query.json()
+                        duolingo_totalxp = int(duolingo_main_json["users"][0]["totalXp"])
 
-	            # First we are going to get the totalXp score at the start of the day
-	            # (we will use this to calculate the running XP total throughout the day)
-	            if do_duolingo_main_query == True:
-	                duolingo_totalxp = int(duolingo_main_json["users"][0]["totalXp"])
-	                duolingo_streak = int(duolingo_main_json["users"][0]["streak"])
-	            else:
-	                # Setup userid query URL
-	                print("Querying duolingo.com for current totalXp...")
-	                duolingo_main_query = http.get(duolingo_main_query_url)
-	                if duolingo_main_query.status_code != 200:
-	                    print("Duolingo query failed with status %d", duolingo_main_query.status_code)
-	                    display_error_msg = True
-	                    error_message = "Error: Duolingo query failed. Check internet connectivity."
-	                else:
-	                    duolingo_main_json = duolingo_main_query.json()
-	                    duolingo_totalxp = int(duolingo_main_json["users"][0]["totalXp"])
+                        # Show error if totalxp was not found
+                        if duolingo_totalxp == "":
+                            print("totalXp query failed with status %d", duolingo_main_query.status_code)
+                            display_error_msg = True
+                            error_message_1 = "totalXp"
+                            error_message_2 = "not found"
+                        else:
+                            display_error_msg = False
+                            print("Queried totalXp for username \"" + str(duolingo_username) + "\": " + str(duolingo_totalxp))
 
-	                    # Show error if totalxp was not found
-	                    if duolingo_totalxp == "":
-	                        print("totalXp query failed with status %d", duolingo_main_query.status_code)
-	                        display_error_msg = True
-	                        error_message_1 = "totalXp"
-	                        error_message_2 = "not found"
-	                    else:
-	                        display_error_msg = False
-	                        print("Queried totalXp for username \"" + str(duolingo_username) + "\": " + str(duolingo_totalxp))
+                        #                       cache.set(duolingo_cache_key_totalxp, str(duolingo_totalxp), ttl_seconds=86400)
 
-	                    #                       cache.set(duolingo_cache_key_totalxp, str(duolingo_totalxp), ttl_seconds=86400)
+                        # Get current streak
+                        duolingo_streak = int(duolingo_main_json["users"][0]["streak"])
 
-	                    # Get current streak
-	                    duolingo_streak = int(duolingo_main_json["users"][0]["streak"])
+                        # Show error if totalxp was not found
+                        if duolingo_streak == "":
+                            print("Streak query failed with status %d", duolingo_main_query.status_code)
+                            display_error_msg = True
+                            error_message_1 = "streak"
+                            error_message_2 = "not found"
+                        else:
+                            display_error_msg = False
+                            print("Queried Streak for username \"" + str(duolingo_username) + "\": " + str(duolingo_totalxp))
 
-	                    # Show error if totalxp was not found
-	                    if duolingo_streak == "":
-	                        print("Streak query failed with status %d", duolingo_main_query.status_code)
-	                        display_error_msg = True
-	                        error_message_1 = "streak"
-	                        error_message_2 = "not found"
-	                    else:
-	                        display_error_msg = False
-	                        print("Queried Streak for username \"" + str(duolingo_username) + "\": " + str(duolingo_totalxp))
+                #                      cache.set(duolingo_cache_key_totalxp, str(duolingo_totalxp), ttl_seconds=86400)
 
-	            #                      cache.set(duolingo_cache_key_totalxp, str(duolingo_totalxp), ttl_seconds=86400)
+                # Now we subtract the daily XP count from the total count to find out the XP count at the start of the day
+                # (this is saved in the cache so we don't have to perform the main json query more than once per day - we can calculate the)
+                # running live total by adding the XP at start of day to the current daily count from the XP Summary query.)
+                duolingo_totalxp_daystart = int(duolingo_totalxp) - int(duolingo_xptoday)
 
-	            # Now we subtract the daily XP count from the total count to find out the XP count at the start of the day
-	            # (this is saved in the cache so we don't have to perform the main json query more than once per day - we can calculate the)
-	            # running live total by adding the XP at start of day to the current daily count from the XP Summary query.)
-	            duolingo_totalxp_daystart = int(duolingo_totalxp) - int(duolingo_xptoday)
+                print("XP Count at Start of Day: " + str(duolingo_totalxp_daystart))
 
-	            print("XP Count at Start of Day: " + str(duolingo_totalxp_daystart))
+                # Store start-of-day XP count in cache (for 24hrs)
+                cache.set(duolingo_cache_key_totalxp_daystart, str(duolingo_totalxp_daystart), ttl_seconds = 86400)
 
-	            # Store start-of-day XP count in cache (for 24hrs)
-	            cache.set(duolingo_cache_key_totalxp_daystart, str(duolingo_totalxp_daystart), ttl_seconds = 86400)
+                # Now we cache the Streak at the start of the day, and store it in the cache
+                if is_streak_extended == True:
+                    duolingo_streak_daystart = int(duolingo_streak) - 1
+                else:
+                    duolingo_streak_daystart = int(duolingo_streak)
 
-	            # Now we cache the Streak at the start of the day, and store it in the cache
-	            if is_streak_extended == True:
-	                duolingo_streak_daystart = int(duolingo_streak) - 1
-	            else:
-	                duolingo_streak_daystart = int(duolingo_streak)
+                print("Streak at Start of Day: " + str(duolingo_streak_daystart))
 
-	            print("Streak at Start of Day: " + str(duolingo_streak_daystart))
+                # Store start-of-day XP count in cache (for 24hrs)
+                cache.set(duolingo_cache_key_streak_daystart, str(duolingo_streak_daystart), ttl_seconds = 86400)
 
-	            # Store start-of-day XP count in cache (for 24hrs)
-	            cache.set(duolingo_cache_key_streak_daystart, str(duolingo_streak_daystart), ttl_seconds = 86400)
+                # Finally update the cache with the new date so this won't run again until tomorrow (stored for 24 hours)
+                cache.set(duolingo_cache_key_saveddate, str(date_now), ttl_seconds = 86400)
 
-	            # Finally update the cache with the new date so this won't run again until tomorrow (stored for 24 hours)
-	            cache.set(duolingo_cache_key_saveddate, str(date_now), ttl_seconds = 86400)
+            # Set variables for current state
+            if live_xp_data == True:
+                print("---- CURRENT DATA: LIVE ----- ")
+            elif live_xp_data == False:
+                print("---- CURRENT DATA: CACHED ----- ")
+            elif live_xp_data == None:
+                print("---- CURRENT DATA: UNAVAILABLE ----- ")
 
-	        # Set variables for current state
-	        if live_xp_data == True:
-	            print("---- CURRENT DATA: LIVE ----- ")
-	        elif live_xp_data == False:
-	            print("---- CURRENT DATA: CACHED ----- ")
-	        elif live_xp_data == None:
-	            print("---- CURRENT DATA: UNAVAILABLE ----- ")
+            # Use cached value for Total XP at day start if live value is not available
+            if duolingo_totalxp_daystart_cached != None:
+                duolingo_totalxp_daystart = str(duolingo_totalxp_daystart_cached)
 
-	        # Use cached value for Total XP at day start if live value is not available
-	        if duolingo_totalxp_daystart_cached != None:
-	            duolingo_totalxp_daystart = str(duolingo_totalxp_daystart_cached)
+            # Calculate current total XP
+            duolingo_totalxp_now = int(duolingo_totalxp_daystart) + int(duolingo_xptoday)
+            print("Today's XP: " + str(duolingo_xptoday) + "  Total XP (at day start): " + str(duolingo_totalxp_daystart) + "   TOTAL XP: " + str(duolingo_totalxp_now))
 
-	        # Calculate current total XP
-	        duolingo_totalxp_now = int(duolingo_totalxp_daystart) + int(duolingo_xptoday)
-	        print("Today's XP: " + str(duolingo_xptoday) + "  Total XP (at day start): " + str(duolingo_totalxp_daystart) + "   TOTAL XP: " + str(duolingo_totalxp_now))
+            # Use cached value for Streak at day start if live value is not available
+            if duolingo_streak_daystart_cached != None:
+                duolingo_streak_daystart = str(duolingo_streak_daystart_cached)
 
-	        # Use cached value for Streak at day start if live value is not available
-	        if duolingo_streak_daystart_cached != None:
-	            duolingo_streak_daystart = str(duolingo_streak_daystart_cached)
+            # Calculate current Streak, based on whther it has already been extended today
+            if is_streak_extended == True:
+                duolingo_streak_now = int(duolingo_streak_daystart) + 1
+            else:
+                duolingo_streak_now = int(duolingo_streak_daystart)
 
-	        # Calculate current Streak, based on whther it has already been extended today
-	        if is_streak_extended == True:
-	            duolingo_streak_now = int(duolingo_streak_daystart) + 1
-	        else:
-	            duolingo_streak_now = int(duolingo_streak_daystart)
+            print("Streak: " + str(duolingo_streak_now) + "   Streak Extended?: " + str(is_streak_extended))
 
-	        print("Streak: " + str(duolingo_streak_now) + "   Streak Extended?: " + str(is_streak_extended))
+            # Deduce what streak icon to display on Today view
+            if is_streak_extended == False:
+                streak_icon = STREAK_ICON_GREY
+            elif is_streak_extended == True:
+                streak_icon = STREAK_ICON_GOLD_ANIMATED
 
-	        # Deduce what streak icon to display on Today view
-	        if is_streak_extended == False:
-	            streak_icon = STREAK_ICON_GREY
-	        elif is_streak_extended == True:
-	            streak_icon = STREAK_ICON_GOLD_ANIMATED
+            # Deduce what XP icon to display on Today view
+            if int(duolingo_xptoday) == 0:
+                XP_ICON = XP_ICON_GREY
+            else:
+                XP_ICON = XP_ICON_GOLD
 
-	        # Deduce what XP icon to display on Today view
-	        if int(duolingo_xptoday) == 0:
-	            XP_ICON = XP_ICON_GREY
-	        else:
-	            XP_ICON = XP_ICON_GOLD
+            # OWL PICKER !!
 
-	        # OWL PICKER !!
+            # Calculate percentage achieved of progress bar
+            progressbar_perc = (int(duolingo_xptoday) / int(xp_target)) * 100
 
-	        # Calculate percentage achieved of progress bar
-	        progressbar_perc = (int(duolingo_xptoday) / int(xp_target)) * 100
+            # Decide which Duolingo icon should be displayed right now
+            if int(duolingo_xptoday) == 0 and hour_now >= 20:
+                DUOLINGO_ICON = DUOLINGO_ICON_CRY
+                print("Owl: Crying")
+            elif int(duolingo_xptoday) == 0 and hour_now >= 14:
+                DUOLINGO_ICON = DUOLINGO_ICON_ANGRY
+                print("Owl: Angry")
+            elif int(duolingo_xptoday) == 0 and hour_now >= 10:
+                DUOLINGO_ICON = DUOLINGO_ICON_STANDING_POINT_LEFT
+                print("Owl: Pointing Left")
+            elif int(duolingo_xptoday) == 0:
+                DUOLINGO_ICON = DUOLINGO_ICON_SLEEPING
+            elif int(progressbar_perc) > 0 and int(progressbar_perc) < 35 and int(xp_target) != 0 and display_view == "today":
+                DUOLINGO_ICON = DUOLINGO_ICON_STANDING_POINT_LEFT
+                print("Owl: Pointing Left")
+            elif int(progressbar_perc) >= 35 and int(progressbar_perc) <= 60 and int(xp_target) != 0 and display_view == "today":
+                DUOLINGO_ICON = DUOLINGO_ICON_STANDING_POINT_DOWN
+                print("Owl: Pointing Down")
+            elif int(progressbar_perc) > 60 and int(progressbar_perc) <= 80 and int(xp_target) != 0 and display_view == "today":
+                DUOLINGO_ICON = DUOLINGO_ICON_STANDING_POINT_RIGHT
+                print("Owl: Pointing Right")
+            elif int(progressbar_perc) > 80 and int(progressbar_perc) < 100 and int(xp_target) != 0 and display_view == "today":
+                DUOLINGO_ICON = DUOLINGO_ICON_STANDING_POINT_RIGHT_FLAP
+                print("Owl: Pointing Right + Flap")
+            elif int(duolingo_xptoday) >= (2 * int(xp_target)) and int(xp_target) != 0 and display_view == "today":
+                DUOLINGO_ICON = DUOLINGO_ICON_DANCING
+                print("Owl: Dancing")
+            elif int(progressbar_perc) >= 100 and int(xp_target) != 0 and display_view == "today":
+                DUOLINGO_ICON = DUOLINGO_ICON_FLY
+                print("Owl: Flying")
+            else:
+                print("Error: Could not select specific Duolingo icon, so reverting to the default standing icon.")
+                DUOLINGO_ICON = DUOLINGO_ICON_STANDING
 
-	        # Decide which Duolingo icon should be displayed right now
-	        if int(duolingo_xptoday) == 0 and hour_now >= 20:
-	            DUOLINGO_ICON = DUOLINGO_ICON_CRY
-	            print("Owl: Crying")
-	        elif int(duolingo_xptoday) == 0 and hour_now >= 14:
-	            DUOLINGO_ICON = DUOLINGO_ICON_ANGRY
-	            print("Owl: Angry")
-	        elif int(duolingo_xptoday) == 0 and hour_now >= 10:
-	            DUOLINGO_ICON = DUOLINGO_ICON_STANDING_POINT_LEFT
-	            print("Owl: Pointing Left")
-	        elif int(duolingo_xptoday) == 0:
-	            DUOLINGO_ICON = DUOLINGO_ICON_SLEEPING
-	        elif int(progressbar_perc) > 0 and int(progressbar_perc) < 35 and int(xp_target) != 0 and display_view == "today":
-	            DUOLINGO_ICON = DUOLINGO_ICON_STANDING_POINT_LEFT
-	            print("Owl: Pointing Left")
-	        elif int(progressbar_perc) >= 35 and int(progressbar_perc) <= 60 and int(xp_target) != 0 and display_view == "today":
-	            DUOLINGO_ICON = DUOLINGO_ICON_STANDING_POINT_DOWN
-	            print("Owl: Pointing Down")
-	        elif int(progressbar_perc) > 60 and int(progressbar_perc) <= 80 and int(xp_target) != 0 and display_view == "today":
-	            DUOLINGO_ICON = DUOLINGO_ICON_STANDING_POINT_RIGHT
-	            print("Owl: Pointing Right")
-	        elif int(progressbar_perc) > 80 and int(progressbar_perc) < 100 and int(xp_target) != 0 and display_view == "today":
-	            DUOLINGO_ICON = DUOLINGO_ICON_STANDING_POINT_RIGHT_FLAP
-	            print("Owl: Pointing Right + Flap")
-	        elif int(duolingo_xptoday) >= (2 * int(xp_target)) and int(xp_target) != 0 and display_view == "today":
-	            DUOLINGO_ICON = DUOLINGO_ICON_DANCING
-	            print("Owl: Dancing")
-	        elif int(progressbar_perc) >= 100 and int(xp_target) != 0 and display_view == "today":
-	            DUOLINGO_ICON = DUOLINGO_ICON_FLY
-	            print("Owl: Flying")
-	        else:
-	            print("Error: Could not select specific Duolingo icon, so reverting to the default standing icon.")
-	            DUOLINGO_ICON = DUOLINGO_ICON_STANDING
+            # OWL TESTING !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+            #        DUOLINGO_ICON = DUOLINGO_ICON_DANCING
 
-	        # OWL TESTING !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-	        #        DUOLINGO_ICON = DUOLINGO_ICON_DANCING
+            # Setup nickname display, if needed
+            if nickname != "":
+                nickname_today_view = render.Column(
+                    main_align = "space_between",
+                    cross_align = "space_between",
+                    expanded = False,
+                    children = [
+                        render.Row(
+                            main_align = "space_between",
+                            cross_align = "space_between",
+                            expanded = False,
+                            children = [
+                                render.Text(str(nickname), font = "tom-thumb"),
+                            ],
+                        ),
+                    ],
+                )
 
-	        # Setup nickname display, if needed
-	        if nickname != "":
-	            nickname_today_view = render.Column(
-	                main_align = "space_between",
-	                cross_align = "space_between",
-	                expanded = False,
-	                children = [
-	                    render.Row(
-	                        main_align = "space_between",
-	                        cross_align = "space_between",
-	                        expanded = False,
-	                        children = [
-	                            render.Text(str(nickname), font = "tom-thumb"),
-	                        ],
-	                    ),
-	                ],
-	            )
-
-	        else:
-	            nickname_today_view = None
+            else:
+                nickname_today_view = None
 
     # DISPLAY ERROR MESSAGES
     # If the data queries failed in any way, then show an error on the Tidbyt
