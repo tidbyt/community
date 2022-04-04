@@ -82,11 +82,21 @@ def main(config):
     GOOGLEFIT_REFRESH_TOKEN = config.get("auth") or config.get("googlefit_refresh_token")
 
     # Stepcount cannot be retrieved if a Refresh Token is not present
-    # Render "Unauthorized" in that case
+    # Render Default Screen in that case
 
     if not GOOGLEFIT_REFRESH_TOKEN:
         return render.Root(
-            child = render.WrappedText("Not Authorized (Stepcounter)"),
+            child = render.Column(
+                main_align = "space_evenly",
+                cross_align = "center",
+                expanded = True,
+                children = [
+                    render.Text("   Step Count   "),
+                    render.Text("D:5843      +22%", font = "tom-thumb"),
+                    render.Text("W:16525     -16%", font = "tom-thumb"),
+                    render.Text("Get Moving", color = "#f00"),
+                ],
+            ),
         )
     else:
         GOOGLEFIT_OAUTH_TOKEN = cache.get(GOOGLEFIT_REFRESH_TOKEN)
