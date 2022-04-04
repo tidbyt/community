@@ -155,7 +155,7 @@ def main(config):
             )
         color = rgb_to_hex(*rgb)
         if i == len(dates) - 1:
-            color = "fff"
+            color = "999"
 
         curve = [(scale_axis(X_AXIS[k]), entry.get(k, 0.0)) for k in X_AXIS.keys()]
         plots.append(render.Plot(
