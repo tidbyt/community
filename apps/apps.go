@@ -33,6 +33,7 @@ import (
 	"tidbyt.dev/community/apps/fuzzyclock"
 	"tidbyt.dev/community/apps/gapilotbuddy"
 	"tidbyt.dev/community/apps/hvvdepartures"
+	"tidbyt.dev/community/apps/ifparank"
 	"tidbyt.dev/community/apps/isstracker"
 	"tidbyt.dev/community/apps/jokesjokeapi"
 	"tidbyt.dev/community/apps/launchcountdown"
@@ -92,6 +93,7 @@ func GetManifests() []manifest.Manifest {
 		coingeckoprice.New(),
 		countdownclock.New(),
 		cryptotracker.New(),
+		countdownclock.New(),
 		dateprogress.New(),
 		datetimeclock.New(),
 		daynightmap.New(),
@@ -106,6 +108,7 @@ func GetManifests() []manifest.Manifest {
 		fuzzyclock.New(),
 		gapilotbuddy.New(),
 		hvvdepartures.New(),
+		ifparank.New(),
 		isstracker.New(),
 		jokesjokeapi.New(),
 		launchcountdown.New(),

@@ -11,6 +11,37 @@ load("time.star", "time")
 load("math.star", "math")
 load("encoding/json.star", "json")
 
+colorOpt = [
+    schema.Option(
+        display = "Red",
+        value = "#FF0000",
+    ),
+    schema.Option(
+        display = "Orange",
+        value = "#FFA500",
+    ),
+    schema.Option(
+        display = "Yellow",
+        value = "#FFFF00",
+    ),
+    schema.Option(
+        display = "Green",
+        value = "#008000",
+    ),
+    schema.Option(
+        display = "Blue",
+        value = "#0000FF",
+    ),
+    schema.Option(
+        display = "Indigo",
+        value = "#4B0082",
+    ),
+    schema.Option(
+        display = "Violet",
+        value = "#EE82EE",
+    ),
+]
+
 def main(config):
     timezone = config.get("$tz", "America/Chicago")  # Utilize special timezone variable
     DEFAULT_TIME = time.now().in_location(timezone).format("2006-01-02T15:04:05Z07:00")
@@ -35,10 +66,10 @@ def main(config):
     # Create event text widget based on text length
     eventText = config.str("event", "Event")
     if len(eventText) < 14:
-        eventWidget = render.Text(content = eventText, font = "5x8", color = "#21631a")
+        eventWidget = render.Text(content = eventText, font = "5x8", color = config.str("eventColor", colorOpt[3].value))
     else:
         eventWidget = render.Marquee(
-            child = render.Text(content = eventText, font = "5x8", color = "#21631a"),
+            child = render.Text(content = eventText, font = "5x8", color = config.str("eventColor", colorOpt[3].value)),
             width = 64,
         )
 
@@ -86,6 +117,14 @@ def get_schema():
                 name = "Event Time",
                 desc = "The time of the event.",
                 icon = "cog",
+            ),
+            schema.Dropdown(
+                id = "eventColor",
+                name = "Text Color",
+                desc = "The color of the event text.",
+                icon = "brush",
+                default = colorOpt[3].value,
+                options = colorOpt,
             ),
         ],
     )
