@@ -1,7 +1,7 @@
 """
 Applet: Duolingo
 Summary: Display Duolingo Progress
-Description: Track your Duolingo daily study progress.
+Description: Track your Duolingo study progress. The app has multiple views: Today, Week, Two Weeks. You can add multiple instances to display more than one. Note: The app will be hidden from the rotation if no lessons have been completed in the last week.
 Author: Olly Stedall @saltedlolly
 Thanks: @drudge @whyamIhere @AmillionAir
 """

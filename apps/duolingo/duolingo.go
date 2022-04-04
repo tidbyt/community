@@ -17,7 +17,7 @@ func New() manifest.Manifest {
 		Name:        "Duolingo",
 		Author:      "Olly Stedall @saltedlolly",
 		Summary:     "Display Duolingo Progress",
-		Desc:        "Track your Duolingo daily study progress.",
+		Desc:        "Track your Duolingo study progress. The app has multiple views: Today, Week, Two Weeks. You can add multiple instances to display more than one. Note: The app will be hidden from the rotation if no lessons have been completed in the last week.",
 		FileName:    "duolingo.star",
 		PackageName: "duolingo",
 		Source:  source,
