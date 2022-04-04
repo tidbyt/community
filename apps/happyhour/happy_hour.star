@@ -24,8 +24,6 @@ YOhHSGUgGreaxu4jnp/bZzyDMdcnBfMH+p/AM/kQywMAAAAASUVORK5CYII=
 """)
 
 def main(config):
-    print("Welcome to Happy Hour :)")
-
     # Check cache for current hour. UTC
     hourlyCocktail = checkCache()
 
