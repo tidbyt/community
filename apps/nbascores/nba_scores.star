@@ -45,7 +45,7 @@ def main(config):
     logo_type = config.get("logo_type", "primary")
     
     for i, s in enumerate(scores):
-    	
+    
     	oddscheck = s["competitions"][0].get("odds", 'NO')
     	if oddscheck == "NO":
     		showodds = "no"
