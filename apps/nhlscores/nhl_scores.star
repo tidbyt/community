@@ -13,7 +13,7 @@ load("render.star", "render")
 load("schema.star", "schema")
 load("time.star", "time")
 
-CACHE_TTL_SECONDS = 120
+CACHE_TTL_SECONDS = 60
 DEFAULT_LOCATION = """
 {
 	"lat": "40.6781784",
@@ -24,9 +24,9 @@ DEFAULT_LOCATION = """
 	"timezone": "America/New_York"
 }
 """
-SHOW_CLOCK = "show"
 SPORT = "hockey"
 LEAGUE = "nhl"
+USE_ALT_COLOR = ["NSH"]
 
 
 def main(config):
@@ -38,10 +38,11 @@ def main(config):
     location = config.get("location", DEFAULT_LOCATION)
     loc = json.decode(location)
     timezone = loc["timezone"]
-
     now = time.now().in_location(timezone)
     now_date = now.format("2 JAN 2006")
     day = now.format("MONDAY")
+    display_type = config.get("display_type", "colors")
+    logo_type = config.get("logo_type", "primary")
     
     for i, s in enumerate(scores):
     	
@@ -55,27 +56,21 @@ def main(config):
     	gamestatus = s["status"]["type"]["state"]
     	
     	home = s["competitions"][0]["competitors"][0]["team"]["abbreviation"]
+    	homeTeamName = s["competitions"][0]["competitors"][0]["team"]["shortDisplayName"]
     	homeid = s["competitions"][0]["competitors"][0]["team"]["id"]
-    	homeColor = "#" + s["competitions"][0]["competitors"][0]["team"]["color"]
-    	if homeColor == "#000000" or homeColor == "#ffffff":
-    		homeColor = "#222"
+    	homeColor = get_background_color(home, display_type, s["competitions"][0]["competitors"][0]["team"]["color"], s["competitions"][0]["competitors"][0]["team"]["alternateColor"])
     	homeLogo_url = s["competitions"][0]["competitors"][0]["team"]["logo"]
-        homeLogo_url_dark = homeLogo_url.replace("500/scoreboard","500-dark/scoreboard")
-        homeLogo_url_dark = homeLogo_url_dark.replace("https://a.espncdn.com/","https://a1.espncdn.com/combiner/i?img=")
-    	homelogo = get_cachable_data(homeLogo_url_dark + "&h=36&w=36")
+    	homelogo = get_logo_type(homeLogo_url)
     	homescore = ""
     	homescorefont = "Dina_r400-6"
     	homepossesionbox = ""
 
     	away = s["competitions"][0]["competitors"][1]["team"]["abbreviation"]
+    	awayTeamName = s["competitions"][0]["competitors"][1]["team"]["shortDisplayName"]
     	awayid = s["competitions"][0]["competitors"][1]["team"]["id"]
-        awayColor = "#" + s["competitions"][0]["competitors"][1]["team"]["color"]
-        if awayColor == "#000000" or awayColor == "#ffffff":
-    		awayColor = "#222"
+        awayColor = get_background_color(away, display_type, s["competitions"][0]["competitors"][1]["team"]["color"], s["competitions"][0]["competitors"][1]["team"]["alternateColor"])
         awayLogo_url = s["competitions"][0]["competitors"][1]["team"]["logo"]
-    	awayLogo_url_dark = awayLogo_url.replace("500/scoreboard","500-dark/scoreboard")
-    	awayLogo_url_dark = awayLogo_url_dark.replace("https://a.espncdn.com/","https://a1.espncdn.com/combiner/i?img=")
-    	awaylogo = get_cachable_data(awayLogo_url_dark + "&h=36&w=36")
+    	awaylogo = get_logo_type(awayLogo_url)
     	awayscore = ""
     	awayscorefont = "Dina_r400-6"
     	awaypossesionbox = ""
@@ -123,99 +118,125 @@ def main(config):
             	awayscorecolor = "#fff"
             	
 
-        if config.bool("show_time"):
-        	
+        if display_type == "retro":
+        
+        	retroTextColor = "#ffe065"
+        
         	renderCategory.extend(
-	            [
-		            render.Column(
-			            expanded=True,
-						main_align="space_between",
-						cross_align="start",
-			            children = [
-				            render.Column(
-					            children = [
-						            render.Box(width=64, height=1, color="#000"),
-						            render.Stack(
-							            children = [
-								            render.Stack(
-											     children=[
-													render.Box(width=64, height=6, color="#000", child=render.Row(expanded=True,main_align="start",cross_align="start",children = [ 
-														render.Box(width=1, height=6, color="#000"),
-														render.Box(width=62, height=6, color="#000", child=render.Text(content = now.format("3:04 PM"), font="tb-8")),
-														render.Box(width=1, height=6, color="#000"),
-													])),
-					                            ]
-					                         )
-							            ]
-						            ),
-						            render.Column(
-									     children=[
-										    render.Box(width=64, height=1, color="#000"),
-											render.Box(width=64, height=12, color=awayColor, child=render.Row(expanded=True,main_align="start",cross_align="center",children = [ 
-												render.Image(awaylogo, width=16, height=16), 
-												render.Box(width=28, height=12, child = render.Text(content=away[:3], font="Dina_r400-6")),
-												render.Box(width=20, height=12, child = render.Text(content=awayscore, color=awayscorecolor, font=awayscorefont))
-											])),
-											render.Box(width=64, height=12, color=homeColor, child=render.Row(expanded=True,main_align="start",cross_align="center",children = [ 
-												render.Image(homelogo, width=16, height=16), 
-												render.Box(width=28, height=12, child = render.Text(content=home[:3], font="Dina_r400-6")),
-												render.Box(width=20, height=12, child = render.Text(content=homescore, color=homescorecolor, font=homescorefont))
-											])),
-			                            ]
-			                         ),
-					            ]
-				            ),
-			            ]
-			            
-		            )
-	            ],
-	        )
+		            [
+			            render.Column(
+				            expanded=True,
+							main_align="space_between",
+							cross_align="start",
+				            children = [
+					            render.Column(
+								     children=[
+										render.Box(width=64, height=12, color=awayColor, child=render.Row(expanded=True,main_align="start",cross_align="center",children = [ 
+											render.Box(width=44, height=12, child = render.Text(content=awayTeamName[:8].upper(), color=retroTextColor, font="tb-8")),
+											render.Box(width=20, height=12, child = render.Text(content=awayscore, color=retroTextColor, font=awayscorefont))
+										])),
+										render.Box(width=64, height=12, color=homeColor, child=render.Row(expanded=True,main_align="start",cross_align="center",children = [ 
+											render.Box(width=44, height=12, child = render.Text(content=homeTeamName[:8].upper(), color=retroTextColor, font="tb-8")),
+											render.Box(width=20, height=12, child = render.Text(content=homescore, color=retroTextColor, font=homescorefont))
+										])),
+		                            ]
+		                         ),
+								render.Stack(
+						            children = [
+							            render.Stack(
+										     children=[
+												render.Box(width=64, height=7, color="#000", child=render.Column(expanded=True,main_align="center",cross_align="center",children = [ render.Text(content = gametime, color=retroTextColor, font="CG-pixel-3x5-mono") ]))
+				                            ]
+				                         )
+						            ]
+					            ),
+				            ]
+				            
+			            )
+		            ],
+		        )
         
         else:
         
-	        renderCategory.extend(
-	            [
-		            render.Column(
-			            expanded=True,
-						main_align="space_between",
-						cross_align="start",
-			            children = [
-				            render.Column(
-					            children = [
-						            render.Stack(
-									     children=[
-											render.Box(width=64, height=12, color=awayColor, child=render.Row(expanded=True,main_align="start",cross_align="center",children = [ 
-												render.Image(awaylogo, width=18, height=18), 
-												render.Box(width=23, height=12, child = render.Text(content=away[:3], font="Dina_r400-6")),
-												render.Box(width=23, height=12, child = render.Text(content=awayscore, color=awayscorecolor, font=awayscorefont))
-											])),
-			                            ]
-			                         ),
-						            render.Stack(
-									     children=[
-											render.Box(width=64, height=12, color=homeColor, child=render.Row(expanded=True,main_align="start",cross_align="center",children = [ 
-												render.Image(homelogo, width=18, height=18), 
-												render.Box(width=23, height=12, child = render.Text(content=home[:3], font="Dina_r400-6")),
-												render.Box(width=23, height=12,  child = render.Text(content=homescore, color=homescorecolor, font=homescorefont))
-											])),
-			                            ]
-			                         )
-					            ]
-				            ),
-							render.Stack(
-					            children = [
-						            render.Stack(
-									     children=[
-											render.Box(width=64, height=7, color="#000", child=render.Column(expanded=True,main_align="center",cross_align="center",children = [ render.Text(content = gametime, font="CG-pixel-3x5-mono") ]))
-			                            ]
-			                         )
-					            ]
-				            ),
-			            ]
-			            
-		            )
-	            ],
-	        )
+	        if config.bool("show_time"):
+	        	
+	        	renderCategory.extend(
+		            [
+			            render.Column(
+				            expanded=True,
+							main_align="space_between",
+							cross_align="start",
+				            children = [
+					            render.Column(
+						            children = [
+							            render.Row(
+								            expanded=True,
+											main_align="space_between",
+											cross_align="start",
+										     children=[
+											    render.Text(content = now.format(" 3:04"), font="tb-8"),
+											    render.Text(content = now.format("1/2 "), font="tb-8"),
+				                            ]
+				                         ),
+							            render.Column(
+										     children=[
+												render.Box(width=64, height=12, color=awayColor, child=render.Row(expanded=True,main_align="start",cross_align="center",children = [ 
+													render.Image(awaylogo, width=16, height=16), 
+													render.Box(width=28, height=12, child = render.Text(content=away[:3], color=awayscorecolor, font="Dina_r400-6")),
+													render.Box(width=20, height=12, child = render.Text(content=awayscore, color=awayscorecolor, font=awayscorefont))
+												])),
+												render.Box(width=64, height=12, color=homeColor, child=render.Row(expanded=True,main_align="start",cross_align="center",children = [ 
+													render.Image(homelogo, width=16, height=16), 
+													render.Box(width=28, height=12, child = render.Text(content=home[:3], color=homescorecolor, font="Dina_r400-6")),
+													render.Box(width=20, height=12, child = render.Text(content=homescore, color=homescorecolor, font=homescorefont))
+												])),
+				                            ]
+				                         ),
+						            ]
+					            ),
+				            ]
+				            
+			            )
+		            ],
+		        )
+	        
+	        else:
+	        
+		        renderCategory.extend(
+		            [
+			            render.Column(
+				            expanded=True,
+							main_align="space_between",
+							cross_align="start",
+				            children = [
+					            render.Column(
+								     children=[
+										render.Box(width=64, height=12, color=awayColor, child=render.Row(expanded=True,main_align="start",cross_align="center",children = [ 
+											render.Image(awaylogo, width=16, height=16), 
+											render.Box(width=28, height=12, child = render.Text(content=away[:3], color=awayscorecolor, font="Dina_r400-6")),
+											render.Box(width=20, height=12, child = render.Text(content=awayscore, color=awayscorecolor, font=awayscorefont))
+										])),
+										render.Box(width=64, height=12, color=homeColor, child=render.Row(expanded=True,main_align="start",cross_align="center",children = [ 
+											render.Image(homelogo, width=16, height=16), 
+											render.Box(width=28, height=12, child = render.Text(content=home[:3], color=homescorecolor, font="Dina_r400-6")),
+											render.Box(width=20, height=12, child = render.Text(content=homescore, color=homescorecolor, font=homescorefont))
+										])),
+		                            ]
+		                         ),
+								render.Stack(
+						            children = [
+							            render.Stack(
+										     children=[
+												render.Box(width=64, height=7, color="#000", child=render.Column(expanded=True,main_align="center",cross_align="center",children = [ render.Text(content = gametime, font="CG-pixel-3x5-mono") ]))
+				                            ]
+				                         )
+						            ]
+					            ),
+				            ]
+				            
+			            )
+		            ],
+		        )
 
 
     return render.Root(
@@ -228,6 +249,22 @@ def main(config):
             ],
         ),
     )
+    
+  
+displayOptions = [
+    schema.Option(
+        display = "Team Colors",
+        value = "colors",
+    ),
+    schema.Option(
+        display = "Black",
+        value = "black",
+    ),
+    schema.Option(
+        display = "Retro",
+        value = "retro",
+    ),
+]
 
 
 def get_schema():
@@ -240,10 +277,18 @@ def get_schema():
 			    desc = "Location for which to display time.",
 			    icon = "place",
 			),
+			schema.Dropdown(
+			    id = "display_type",
+			    name = "Display Type",
+			    desc = "Style of how the scores are displayed.",
+			    icon = "numbers",
+			    default = displayOptions[0].value,
+			    options = displayOptions,
+			),
             schema.Toggle(
 			    id = "show_time",
-			    name = "Current Time",
-			    desc = "A toggle to display the current time.",
+			    name = "Current Date/Time",
+			    desc = "A toggle to display the current date/time (not available in Retro).",
 			    icon = "clock",
 			    default = False,
 			),
@@ -253,7 +298,7 @@ def get_schema():
 			    desc = "A toggle to display gambling odds for games that haven't started.",
 			    icon = "dice",
 			    default = True,
-			)
+			),
         ],
     )
 
@@ -287,7 +332,25 @@ def get_detail(gamedate):
 	else:
 		gametimeval = gamedate
 	return gametimeval
-
+	
+	
+def get_background_color(team, displayType, color, altColor):
+	if displayType == "black" or displayType == "retro":
+		color = "#111"
+	elif team in USE_ALT_COLOR:
+		color = "#" + altColor
+	else:
+		color = "#" + color
+	if color == "#ffffff" or color == "#000000":
+		color = "#111"
+	return color
+	
+	
+def get_logo_type(logo):	
+	logo = logo.replace("500/scoreboard","500-dark/scoreboard")
+	logo = logo.replace("https://a.espncdn.com/","https://a.espncdn.com/combiner/i?img=")
+	logo = get_cachable_data(logo + "&h=36&w=36")
+	return logo
 
     
 def get_cachable_data(url, ttl_seconds = CACHE_TTL_SECONDS):
