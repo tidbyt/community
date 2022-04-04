@@ -93,8 +93,8 @@ def get_schema():
     no_stations = len(all)-1
 
     i = 0
-    while i < no_stations:
-        tmp.append(all[(i)]["properties"]["name"])
+    for station in no_stations:
+        tmp.append(all[i]["properties"]["name"])
         tmp2.append(str(i))
         i = i+1
 
