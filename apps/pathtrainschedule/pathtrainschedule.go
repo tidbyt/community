@@ -17,7 +17,7 @@ func New() manifest.Manifest {
 		Name:        "Path Schedule",
 		Author:      "Todd Greenberg",
 		Summary:     "Schedule for path train",
-		Desc:        "Shows train arrivals for path train stations.",
+		Desc:        "Shows train arrivals for upcoming inbound and outbound trains at path train stations.",
 		FileName:    "path_train_schedule.star",
 		PackageName: "pathtrainschedule",
 		Source:      source,
