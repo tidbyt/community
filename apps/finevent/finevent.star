@@ -469,7 +469,7 @@ def main(config):
                 event.get("Actual", NULL) or NULL,
                 ">>",
                 event.get("Revised", NULL) or NULL,
-                )
+            )
 
     choice = random(len(sorted_events))
     right_title = "Prior"
