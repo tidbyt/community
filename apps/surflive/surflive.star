@@ -183,8 +183,14 @@ def get_wave_forecast(spot_id):
     # Remove any height=0 swells, not sure why the forecast has these
     swells = [s for s in wf["wave"]["swells"] if s["height"]]
 
-    # Sort by optimalScore
-    dominant_swell = sorted(swells, key = lambda s: -s["optimalScore"])[0]
+    if len(swells) == 0:
+        dominant_swell = {
+            "height": 0,
+            "period": 0,
+        }
+    else:
+        # Sort by optimalScore
+        dominant_swell = sorted(swells, key = lambda s: -s["optimalScore"])[0]
 
     # Round to the first digit
     swell_height = math.round(dominant_swell["height"]) + math.round((dominant_swell["height"] - math.round(dominant_swell["height"])) * 10) / 10
@@ -242,7 +248,7 @@ def direction_to_human(num):
 def get_forecast(f_type, spot_id):
     """Return the forecast for a given type"""
 
-    url = "{base_url}/{f_type}?spotId={spot_id}&intervalHours=1&days=1".format(
+    url = "{base_url}/{f_type}?spotId={spot_id}&intervalHours=1&days=2".format(
         base_url = SURFLINE_FORECASTS_URL,
         f_type = f_type,
         spot_id = spot_id,
@@ -304,7 +310,7 @@ def get_schema():
             schema.Typeahead(
                 id = "spot",
                 name = "Spot Name",
-                desc = "Spot Name",
+                desc = "Spot Name in Surfline",
                 icon = "compass",
                 handler = search_handler,
             ),
