@@ -13,7 +13,7 @@ load("cache.star", "cache")  #Caching
 load("schema.star", "schema")
 load("time.star", "time")  #Used to display time and calcuate lenght of TTL cache
 load("math.star", "math")  #Used to calculate duration between timestamps
-load("encoding/json.star", "json") #Used to figure out timezone
+load("encoding/json.star", "json")  #Used to figure out timezone
 
 #Requires the RSS feed for your location from spotthestation.nasa.gov
 #Use the map tool to find the nearest location, click the blue marker then the "View sighting opportunities"
@@ -59,6 +59,7 @@ DEFAULT_LOCATION = """
 	"timezone": "America/New_York"
 }
 """
+
 def two_character_time_date_part(number):
     if len(str(number)) == 1:
         return "0" + str(number)
@@ -80,7 +81,6 @@ def two_character_numeric_month_from_month_string(month):
         "Nov": "11",
         "Dec": "12",
     }
-
 
     return dict.get(month)
 
@@ -108,7 +108,7 @@ def get_timestamp_from_item(item, config):
     description = item.replace("\n", "").replace("\t", "").split("<br/>")
     item_date = description[0].replace("Date: ", "").split(" ")
     item_time = description[1].replace("Time: ", "").split(" ")
-    timestamp = item_date[3] + "-" + two_character_numeric_month_from_month_string(item_date[1]) + "-" + two_character_time_date_part(item_date[2].replace(",", "")) + "T" + get_timestamp_time(item_time[0], item_time[1]) + ":00Z"# + get_local_offset(config)
+    timestamp = item_date[3] + "-" + two_character_numeric_month_from_month_string(item_date[1]) + "-" + two_character_time_date_part(item_date[2].replace(",", "")) + "T" + get_timestamp_time(item_time[0], item_time[1]) + ":00Z"  # + get_local_offset(config)
     return timestamp
 
 def get_timestamp_time(time, meridiem):
@@ -191,7 +191,7 @@ def main(config):
             #Let's cache this XML as long as we have good data
             current_query = "//item[" + str(number_of_listed_sightings) + "]/description"
             current_description = xpath.loads(iss_xml_body).query(current_query)
-            current_time_stamp = get_timestamp_from_item(current_description,config)
+            current_time_stamp = get_timestamp_from_item(current_description, config)
             time_of_furthest_known_sighting = current_time_stamp
             date_diff = time.parse_time(time_of_furthest_known_sighting) - get_local_time(config)
         else:
@@ -199,7 +199,7 @@ def main(config):
             if (time_of_next_sighting == None):
                 date_diff = time.now() - time.now()
             else:
-                date_diff = get_local_time(config) - get_local_time(config)# time.parse_time(time_of_next_sighting) - get_local_time(config)
+                date_diff = get_local_time(config) - get_local_time(config)  # time.parse_time(time_of_next_sighting) - get_local_time(config)
 
         days = math.floor(date_diff.hours / 24)
         hours = math.floor(date_diff.hours - days * 24)
@@ -230,7 +230,7 @@ def main(config):
                 row1 += item.replace("Time: ", "")
             else:
                 row3 += item.replace("Duration: ", "").replace("Maximum", "Max").replace("Departure", "Depart.").replace("minute", "min")
-    
+
     #Does this user want to hide the app if there are no future sightings?
     hide_when_no_sightings = config.bool("hide_when_no_sightings") or True
 
@@ -241,60 +241,61 @@ def main(config):
 
 def get_display(location, row1, row2, row3):
     return render.Root(
-            child = render.Column(
-                children = [
-                    render.Column(
-                        children = [
-                            render.Row(
-                                children = [
-                                    render.Animation(
-                                        children = [
-                                            render.Image(src = ISS_ICON),
-                                            render.Image(src = ISS_ICON2),
-                                            render.Image(src = ISS_ICON),
-                                            render.Image(src = ISS_ICON3),
-                                            render.Image(src = ISS_ICON),
-                                            render.Image(src = ISS_ICON4),
-                                            render.Image(src = ISS_ICON),
-                                            render.Image(src = ISS_ICON5),
-                                            render.Image(src = ISS_ICON),
-                                            render.Image(src = ISS_ICON),
-                                            render.Image(src = ISS_ICON),
-                                            render.Image(src = ISS_ICON),
-                                            render.Image(src = ISS_ICON),
-                                            render.Image(src = ISS_ICON),
-                                            render.Image(src = ISS_ICON),
-                                            render.Image(src = ISS_ICON),
-                                            render.Image(src = ISS_ICON),
-                                        ],
-                                    ),
-                                    render.Column(
-                                        children = [
-                                            render.Marquee(
-                                                width = 48,
-                                                child = render.Text(location, color = "#0099FF"),
-                                            ),
-                                            render.Marquee(
-                                                width = 35,
-                                                child = render.Text(row1, color = "#fff"),
-                                            ),
-                                        ],
-                                    ),
-                                ],
-                            ),
-                        ],
-                    ),
-                    render.Marquee(
-                        width = 64,
-                        child = render.Text(row2, color = "#fff"),
-                    ),
-                    render.Marquee(
-                        width = 64,
-                        child = render.Text(row3, color = "#ff0"),
-                    ),
-                ],
-            ),
-        )
+        child = render.Column(
+            children = [
+                render.Column(
+                    children = [
+                        render.Row(
+                            children = [
+                                render.Animation(
+                                    children = [
+                                        render.Image(src = ISS_ICON),
+                                        render.Image(src = ISS_ICON2),
+                                        render.Image(src = ISS_ICON),
+                                        render.Image(src = ISS_ICON3),
+                                        render.Image(src = ISS_ICON),
+                                        render.Image(src = ISS_ICON4),
+                                        render.Image(src = ISS_ICON),
+                                        render.Image(src = ISS_ICON5),
+                                        render.Image(src = ISS_ICON),
+                                        render.Image(src = ISS_ICON),
+                                        render.Image(src = ISS_ICON),
+                                        render.Image(src = ISS_ICON),
+                                        render.Image(src = ISS_ICON),
+                                        render.Image(src = ISS_ICON),
+                                        render.Image(src = ISS_ICON),
+                                        render.Image(src = ISS_ICON),
+                                        render.Image(src = ISS_ICON),
+                                    ],
+                                ),
+                                render.Column(
+                                    children = [
+                                        render.Marquee(
+                                            width = 48,
+                                            child = render.Text(location, color = "#0099FF"),
+                                        ),
+                                        render.Marquee(
+                                            width = 35,
+                                            child = render.Text(row1, color = "#fff"),
+                                        ),
+                                    ],
+                                ),
+                            ],
+                        ),
+                    ],
+                ),
+                render.Marquee(
+                    width = 64,
+                    child = render.Text(row2, color = "#fff"),
+                ),
+                render.Marquee(
+                    width = 64,
+                    child = render.Text(row3, color = "#ff0"),
+                ),
+            ],
+        ),
+    )
+
 def get_schema():
     return schema.Schema(
         version = "1",
