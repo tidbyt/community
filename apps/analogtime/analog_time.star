@@ -2,12 +2,12 @@
 Applet: Analog Time
 Summary: Show time analog style
 Description: Shows the time on an analog style clock.
-Author: rs7q5 (RIS)
+Author: rs7q5
 """
 
 #analog_time.star
 #Created 20220204 RIS
-#Last Modified 20220224 RIS
+#Last Modified 20220326 RIS
 
 load("render.star", "render")
 load("schema.star", "schema")
@@ -53,12 +53,12 @@ def main(config):
         (minute_len * math.sin(theta2), minute_len * math.cos(theta2)),
     ]
 
-    plot_hands = render.Plot(32, 32, hand_pts, ax_lims, ax_lims, color = "#fff")
+    plot_hands = render.Plot(width = 32, height = 32, data = hand_pts, x_lim = ax_lims, y_lim = ax_lims, color = "#fff")
     plot_hands2 = render.Padding(plot_hands, pad = (16, 0, 16, 0))
 
     #used this to see if coloring the hour hand was better
-    plot_handsa = render.Plot(32, 32, [(0.0, 0.0), hour_pt], ax_lims, ax_lims, color = "#a00")
-    plot_handsb = render.Plot(32, 32, [(0.0, 0.0), minute_pt], ax_lims, ax_lims, color = "#fff")
+    plot_handsa = render.Plot(width = 32, height = 32, data = [(0.0, 0.0), hour_pt], x_lim = ax_lims, y_lim = ax_lims, color = "#a00")
+    plot_handsb = render.Plot(width = 32, height = 32, data = [(0.0, 0.0), minute_pt], x_lim = ax_lims, y_lim = ax_lims, color = "#fff")
     plot_handsa2 = render.Padding(plot_handsa, pad = (16, 0, 16, 0))
     plot_handsb2 = render.Padding(plot_handsb, pad = (16, 0, 16, 0))
 
@@ -73,15 +73,15 @@ def main(config):
         xpt = clock_r * math.sin(x2)
         ypt = clock_r * math.cos(x2)
         plot_marks_tmp = [(xpt, ypt), (xpt, ypt)]
-        plot_marks.append(render.Padding(render.Plot(32, 32, plot_marks_tmp, ax_lims, ax_lims), pad = (16, 0, 16, 0)))
+        plot_marks.append(render.Padding(render.Plot(width = 32, height = 32, data = plot_marks_tmp, x_lim = ax_lims, y_lim = ax_lims), pad = (16, 0, 16, 0)))
 
     #add hands
     plot_marks.append(plot_handsb2)
     plot_marks.append(plot_handsa2)
-    plot_marks.append(render.Padding(render.Plot(32, 32, [(0.0, 0.0), (0.0, 0.0)], ax_lims, ax_lims, color = "#c8c8fa"), pad = (16, 0, 16, 0)))  #adds a mark over the center point of the hands clock
+    plot_marks.append(render.Padding(render.Plot(width = 32, height = 32, data = [(0.0, 0.0), (0.0, 0.0)], x_lim = ax_lims, y_lim = ax_lims, color = "#c8c8fa"), pad = (16, 0, 16, 0)))  #adds a mark over the center point of the hands clock
 
     return render.Root(
-        delay = 100,  #speed up scroll text
+        #delay=100, #speed up scroll text
         child = render.Stack(children = plot_marks),
     )
 
