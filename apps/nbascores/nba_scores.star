@@ -157,6 +157,50 @@ def main(config):
                 ],
             )
 
+        elif display_type == "stadium":
+            stadiumTextColor = "#fff"
+            stadiumBackgroundColor = "#345252"
+            stadiumBorderColor = "#0f3027"
+
+            renderCategory.extend(
+                [
+                    render.Column(
+                        expanded = True,
+                        main_align = "center",
+                        cross_align = "start",
+                        children = [
+                            render.Column(
+                                children = [
+                                    render.Box(width = 64, height = 12, color = stadiumBorderColor, child = render.Row(expanded = True, main_align = "start", cross_align = "center", children = [
+                                        render.Box(width = 1, height = 10, color = stadiumBorderColor),
+                                        render.Box(width = 31, height = 10, child = render.Box(width = 29, height = 10, color = stadiumBackgroundColor, child = render.Text(content = away[:3].upper(), color = stadiumTextColor, font = "tb-8"))),
+                                        render.Box(width = 31, height = 10, child = render.Box(width = 29, height = 10, color = stadiumBackgroundColor, child = render.Text(content = awayscore, color = stadiumTextColor, font = "tb-8"))),
+                                        render.Box(width = 1, height = 10, color = stadiumBorderColor),
+                                    ])),
+                                    render.Box(width = 64, height = 1, color = stadiumBorderColor),
+                                    render.Box(width = 64, height = 10, color = stadiumBorderColor, child = render.Row(expanded = True, main_align = "start", cross_align = "center", children = [
+                                        render.Box(width = 1, height = 10, color = stadiumBorderColor),
+                                        render.Box(width = 31, height = 10, child = render.Box(width = 29, height = 10, color = stadiumBackgroundColor, child = render.Text(content = home[:3].upper(), color = stadiumTextColor, font = "tb-8"))),
+                                        render.Box(width = 31, height = 10, child = render.Box(width = 29, height = 10, color = stadiumBackgroundColor, child = render.Text(content = homescore, color = stadiumTextColor, font = "tb-8"))),
+                                        render.Box(width = 1, height = 10, color = stadiumBorderColor),
+                                    ])),
+                                ],
+                            ),
+                            render.Box(width = 64, height = 1, color = stadiumBorderColor),
+                            render.Column(
+                                children = [
+                                    render.Box(width = 64, height = 9, color = stadiumBorderColor, child = render.Row(expanded = True, main_align = "start", cross_align = "center", children = [
+                                        render.Box(width = 1, height = 9, color = stadiumBorderColor),
+                                        render.Box(width = 62, height = 9, child = render.Box(width = 60, height = 7, color = stadiumBackgroundColor, child = render.Text(content = gametime, color = stadiumTextColor, font = "CG-pixel-3x5-mono"))),
+                                        render.Box(width = 1, height = 9, color = stadiumBorderColor),
+                                    ])),
+                                ],
+                            ),
+                        ],
+                    ),
+                ],
+            )
+
         elif display_type == "horizontal":
             if config.bool("show_time"):
                 renderCategory.extend(
@@ -347,6 +391,10 @@ displayOptions = [
     schema.Option(
         display = "Horizontal",
         value = "horizontal",
+    ),
+    schema.Option(
+        display = "Stadium",
+        value = "stadium",
     ),
     schema.Option(
         display = "Retro",
