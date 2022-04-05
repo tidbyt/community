@@ -606,8 +606,8 @@ def main(config):
             xp_target = int(xp_target)
             if xp_target != 0:
                 progressbar_perc = (int(duolingo_xptoday) / int(xp_target)) * 100
-            else: 
-                progressbar_perc = 0              
+            else:
+                progressbar_perc = 0
                 print("Note: No daily XP target is selected.")
 
             # Decide which Duolingo icon should be displayed right now
