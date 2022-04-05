@@ -456,7 +456,20 @@ def main(config):
         return []
     else:
         for event in sorted_events:
-            print(event["ReleaseTime"], event["Importance"], event["Country"], event["Event"])
+            print(
+                event.get("Importance", NULL) or NULL,
+                event.get("ReleaseTime", NULL),
+                event.get("Country", NULL) or NULL,
+                event.get("Event", NULL) or NULL,
+                event.get("Previous", NULL) or NULL,
+                "|",
+                event.get("Forecast", NULL) or NULL,
+                event.get("TEForecast", NULL) or NULL,
+                "|",
+                event.get("Actual", NULL) or NULL,
+                ">>",
+                event.get("Revised", NULL) or NULL,
+                )
 
     choice = random(len(sorted_events))
     right_title = "Prior"
@@ -472,14 +485,14 @@ def main(config):
     if display_time[0] == "0":
         display_time = display_time[1:]
 
-    survey = str(event.get("Forecast", NULL))
+    survey = str(event.get("Forecast", NULL) or event.get("TEForecast", NULL))
     if survey == "":
         survey = NULL
 
     right = str(event.get("Previous", "--"))
     if right == "":
         right = NULL
-    if event.get("ReleaseTime", now) <= now:
+    if event.get("ReleaseTime", now) <= now and event.get("Actual", "") != "":
         right_title = "Actual"
         right_color = "#fff"
         right = str(event.get("Actual", "--"))
@@ -489,7 +502,7 @@ def main(config):
     country = event.get("Country", None)
 
     flag = flag_api(country)
-    print(country, name, display_time, survey, right, importance)
+    print(importance, display_time, country, name, survey, right)
 
     defaults = {
         "main_align": "space_between",
@@ -564,15 +577,15 @@ def get_schema():
             ),
             schema.Toggle(
                 id = "future",
-                name = "Include unreported?",
+                name = "Include unreleased?",
                 desc = "If turned off, we will hide any upcoming releases and only show events after data is available.",
                 icon = "clock",
                 default = True,
             ),
             schema.Toggle(
                 id = "self-hide",
-                name = "Hide app when no recent/upcoming releases?",
-                desc = "If turned on, the app will show a blank screen unless there is an event within the next or last 90 minutes.",
+                name = "Nearby events only?",
+                desc = "If turned on, the app will show a blank screen unless there is an event within 90 minutes.",
                 icon = "cog",
                 default = DEFAULT_HIDDEN,
             ),
