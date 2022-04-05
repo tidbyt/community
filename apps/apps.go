@@ -29,6 +29,7 @@ import (
 	"tidbyt.dev/community/apps/dvdlogo"
 	"tidbyt.dev/community/apps/dwheadline"
 	"tidbyt.dev/community/apps/espnnews"
+	"tidbyt.dev/community/apps/finevent"
 	"tidbyt.dev/community/apps/fishbyt"
 	"tidbyt.dev/community/apps/flags"
 	"tidbyt.dev/community/apps/fuzzyclock"
@@ -108,6 +109,7 @@ func GetManifests() []manifest.Manifest {
 		dvdlogo.New(),
 		dwheadline.New(),
 		espnnews.New(),
+		finevent.New(),
 		fishbyt.New(),
 		flags.New(),
 		fuzzyclock.New(),
