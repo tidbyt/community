@@ -688,6 +688,7 @@ def main(config):
                         expanded = False,
                         children = [
                             render.Text("ERROR:", font = "CG-pixel-3x5-mono", color = "#FF0000"),
+                            render.Box(width = 1, height = 1, color = "#000000"),
                             render.Text("%s" % error_message_1, font = "tom-thumb"),
                             render.Text("%s" % error_message_2, font = "tom-thumb"),
                         ],
