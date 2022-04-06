@@ -1112,12 +1112,10 @@ def main(config):
 
             # Setup normal one week progress bar, with animated indicator for today
             if daynum == 0:
-                
                 fadeList = []  # This sets up the fading progress indicator
 
                 # If the daily XP target has been hit then we are using the gold/purple bars so setup the appropriate progress indicator fade
                 if int(xp_day_score) >= int(xp_target):
-                
                     # fades from black to purple
                     for frame in range(30):
                         if frame == 0 or frame == 1:
@@ -1226,9 +1224,8 @@ def main(config):
 
                             fadeList.append(twoweeks_bar_today_frame)
 
-                # If the daily XP target has NOT been hit then we are using the grey bars so setup the appropriate progress indicator fade
+                    # If the daily XP target has NOT been hit then we are using the grey bars so setup the appropriate progress indicator fade
                 else:
-
                     # fades from black to light grey
                     for frame in range(30):
                         if frame == 0 or frame == 1:
@@ -1337,7 +1334,6 @@ def main(config):
 
                             fadeList.append(twoweeks_bar_today_frame)
 
-
                 if display_view == "week":
                     oneweek_todays_bar = render.Animation(
                         children = (
@@ -1353,7 +1349,6 @@ def main(config):
                     )
 
             else:
-
                 oneweek_todays_bar = render.Box(
                     width = vertbar_total_width,
                     height = vertbar_total_height,
@@ -1405,7 +1400,6 @@ def main(config):
                         ),
                     )
 
-
             # Display normal one week proress bar
             oneweek_bar_normal = [
 
@@ -1420,7 +1414,6 @@ def main(config):
                     color = "#000000",
                 ),
             ]
-
 
             oneweek_bar_missed = [
 
