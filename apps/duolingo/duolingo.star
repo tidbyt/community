@@ -614,10 +614,10 @@ def main(config):
             if int(duolingo_xptoday) == 0 and hour_now >= 20:
                 DUOLINGO_ICON = DUOLINGO_ICON_CRY
                 print("Owl: Crying")
-            elif int(duolingo_xptoday) == 0 and hour_now >= 14:
+            elif int(duolingo_xptoday) == 0 and hour_now >= 14 and display_view == "today":
                 DUOLINGO_ICON = DUOLINGO_ICON_ANGRY
                 print("Owl: Angry")
-            elif int(duolingo_xptoday) == 0 and hour_now >= 10:
+            elif int(duolingo_xptoday) == 0 and hour_now >= 10 and display_view == "today":
                 DUOLINGO_ICON = DUOLINGO_ICON_STANDING_POINT_LEFT
                 print("Owl: Pointing Left")
             elif int(duolingo_xptoday) == 0:
