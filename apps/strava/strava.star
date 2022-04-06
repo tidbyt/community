@@ -427,7 +427,7 @@ def athlete_stats(config, refresh_token, period, sport, units):
                         cache.set(
                             this_cache_prefix + item,
                             str(data["%s_%s_totals" % (per, sport_code)][item]),
-                            ttl_seconds = CACHE_TTL
+                            ttl_seconds = CACHE_TTL,
                         )
 
     # Configure the display to the user's preferences
