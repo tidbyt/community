@@ -8,7 +8,7 @@ Displayed:
 - Temperature
 - Humidity
 - UV Index
-- Wind spee and direction
+- Wind speed and direction
 
 ## Configuration
 
