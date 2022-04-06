@@ -1038,10 +1038,10 @@ def main(config):
                         display_repaired_lastweek = True
 
                 # Work out the diferent shades of color bar if the XP score was not hit
- #               if int(xp_day_score_lastweek) >= int(xp_target):
- #                   vertbar_lastweek_col = "#9e8e01"
- #                   vertbar_lastweek_col_header = "#770185"
- #               else:
+                #               if int(xp_day_score_lastweek) >= int(xp_target):
+                #                   vertbar_lastweek_col = "#9e8e01"
+                #                   vertbar_lastweek_col_header = "#770185"
+                #               else:
                 vertbar_lastweek_col = "#3a3a3a"
                 vertbar_lastweek_col_header = "#616161"
 
