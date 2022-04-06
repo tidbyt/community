@@ -6,7 +6,7 @@ Displays a country flag on your Tidbyt. The flag can either be a specific countr
 
 ## Flagpedia
 
-Public domain flag images are provided by [flagpedia.net](https://flagpedia.net/). Country codes correspond to ISO 3166-1 alpha-2 & ISO 3166-2:GB country codes as noted by Flagpedia.
+Public domain flag images are provided by [flagpedia.net](https://flagpedia.net/). Country codes correspond to ISO 3166-1 alpha-2 & ISO 3166-2:GB country codes as noted by Flagpedia. All flag images are 40x30.
 
 ## Potential Future Improvements
 
