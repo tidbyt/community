@@ -1171,29 +1171,60 @@ def main(config):
                         elif frame >= 28:
                             vertbar_col_header = "#000000"  # Black
 
-                        oneweek_bar_today_frame = render.Box(
-                            width = vertbar_total_width,
-                            height = vertbar_total_height,
-                            color = "#000000",
-                            child = render.Padding(
+                        if display_view == "week":
+                            oneweek_bar_today_frame = render.Box(
+                                width = vertbar_total_width,
+                                height = vertbar_total_height,
+                                color = "#000000",
+                                child = render.Padding(
+                                    child = render.Box(
+                                        width = 5,
+                                        height = vertbar_current_height,
+                                        color = str(vertbar_col),
+                                        child = render.Padding(
+                                            child = render.Box(
+                                                width = 5,
+                                                height = 1,
+                                                color = str(vertbar_col_header),
+                                            ),
+                                            pad = (0, 0, 0, vertbar_current_height - 1),
+                                        ),
+                                    ),
+                                    pad = (0, (vertbar_total_height - vertbar_current_height), 0, 0),
+                                ),
+                            )
+
+                            fadeList.append(oneweek_bar_today_frame)
+
+                        if display_view == "twoweeks":
+                            twoweeks_bar_today_frame = render.Box(
+                                width = 3,
+                                height = (vertbar_total_height),
+                                color = "#e1e0e0",
                                 child = render.Box(
-                                    width = 5,
-                                    height = vertbar_current_height,
-                                    color = str(vertbar_col),
+                                    width = 3,
+                                    height = vertbar_total_height,
+                                    color = "#000000",
                                     child = render.Padding(
                                         child = render.Box(
-                                            width = 5,
-                                            height = 1,
-                                            color = str(vertbar_col_header),
+                                            width = 3,
+                                            height = vertbar_current_height,
+                                            color = str(vertbar_col),
+                                            child = render.Padding(
+                                                child = render.Box(
+                                                    width = 3,
+                                                    height = 1,
+                                                    color = str(vertbar_col_header),
+                                                ),
+                                                pad = (0, 0, 0, vertbar_current_height - 1),
+                                            ),
                                         ),
-                                        pad = (0, 0, 0, vertbar_current_height - 1),
+                                        pad = (0, (vertbar_total_height - vertbar_current_height), 0, 0),
                                     ),
                                 ),
-                                pad = (0, (vertbar_total_height - vertbar_current_height), 0, 0),
-                            ),
-                        )
+                            )
 
-                        fadeList.append(oneweek_bar_today_frame)
+                            fadeList.append(twoweeks_bar_today_frame)
 
                 # If the daily XP target has NOT been hit then we are using the grey bars so setup the appropriate progress indicator fade
                 else:
@@ -1251,39 +1282,79 @@ def main(config):
                         elif frame >= 28:
                             vertbar_col_header = "#000000"  # Black
 
-                        oneweek_bar_today_frame = render.Box(
-                            width = vertbar_total_width,
-                            height = vertbar_total_height,
-                            color = "#000000",
-                            child = render.Padding(
+                        if display_view == "week":
+                            oneweek_bar_today_frame = render.Box(
+                                width = vertbar_total_width,
+                                height = vertbar_total_height,
+                                color = "#000000",
+                                child = render.Padding(
+                                    child = render.Box(
+                                        width = 5,
+                                        height = vertbar_current_height,
+                                        color = str(vertbar_col),
+                                        child = render.Padding(
+                                            child = render.Box(
+                                                width = 5,
+                                                height = 1,
+                                                color = str(vertbar_col_header),
+                                            ),
+                                            pad = (0, 0, 0, vertbar_current_height - 1),
+                                        ),
+                                    ),
+                                    pad = (0, (vertbar_total_height - vertbar_current_height), 0, 0),
+                                ),
+                            )
+
+                            fadeList.append(oneweek_bar_today_frame)
+
+                        if display_view == "twoweeks":
+                            twoweeks_bar_today_frame = render.Box(
+                                width = 3,
+                                height = (vertbar_total_height),
+                                color = "#e1e0e0",
                                 child = render.Box(
-                                    width = 5,
-                                    height = vertbar_current_height,
-                                    color = str(vertbar_col),
+                                    width = 3,
+                                    height = vertbar_total_height,
+                                    color = "#000000",
                                     child = render.Padding(
                                         child = render.Box(
-                                            width = 5,
-                                            height = 1,
-                                            color = str(vertbar_col_header),
+                                            width = 3,
+                                            height = vertbar_current_height,
+                                            color = str(vertbar_col),
+                                            child = render.Padding(
+                                                child = render.Box(
+                                                    width = 3,
+                                                    height = 1,
+                                                    color = str(vertbar_col_header),
+                                                ),
+                                                pad = (0, 0, 0, vertbar_current_height - 1),
+                                            ),
                                         ),
-                                        pad = (0, 0, 0, vertbar_current_height - 1),
+                                        pad = (0, (vertbar_total_height - vertbar_current_height), 0, 0),
                                     ),
                                 ),
-                                pad = (0, (vertbar_total_height - vertbar_current_height), 0, 0),
-                            ),
-                        )
+                            )
 
-                        fadeList.append(oneweek_bar_today_frame)
+                            fadeList.append(twoweeks_bar_today_frame)
 
-                todays_bar = render.Animation(
-                    children = (
-                        fadeList
-                    ),
-                )
+
+                if display_view == "week":
+                    oneweek_todays_bar = render.Animation(
+                        children = (
+                            fadeList
+                        ),
+                    )
+
+                if display_view == "twoweeks":
+                    twoweek_todays_bar = render.Animation(
+                        children = (
+                            fadeList
+                        ),
+                    )
 
             else:
 
-                todays_bar = render.Box(
+                oneweek_todays_bar = render.Box(
                     width = vertbar_total_width,
                     height = vertbar_total_height,
                     color = "#000000",
@@ -1305,12 +1376,41 @@ def main(config):
                     ),
                 )
 
+                # Set up two weeks today bars
+                if display_view == "twoweeks":
+                    twoweek_todays_bar = render.Box(
+                        width = 3,
+                        height = (vertbar_total_height),
+                        color = "#e1e0e0",
+                        child = render.Box(
+                            width = 3,
+                            height = vertbar_total_height,
+                            color = "#000000",
+                            child = render.Padding(
+                                child = render.Box(
+                                    width = 3,
+                                    height = vertbar_current_height,
+                                    color = str(vertbar_col),
+                                    child = render.Padding(
+                                        child = render.Box(
+                                            width = 3,
+                                            height = 1,
+                                            color = str(vertbar_col_header),
+                                        ),
+                                        pad = (0, 0, 0, vertbar_current_height - 1),
+                                    ),
+                                ),
+                                pad = (0, (vertbar_total_height - vertbar_current_height), 0, 0),
+                            ),
+                        ),
+                    )
+
 
             # Display normal one week proress bar
             oneweek_bar_normal = [
 
                 # This week full size  bar
-                todays_bar,
+                oneweek_todays_bar,
 
                 # Spacer bar
                 render.Box(
@@ -1403,34 +1503,9 @@ def main(config):
                 ),
             ]
 
-            # Set up two weeks bars
+            # Set up two weeks today bars
             if display_view == "twoweeks":
-                twoweeks_bar_thisweek_normal = render.Box(
-                    width = 3,
-                    height = (vertbar_total_height),
-                    color = "#e1e0e0",
-                    child = render.Box(
-                        width = 3,
-                        height = vertbar_total_height,
-                        color = "#000000",
-                        child = render.Padding(
-                            child = render.Box(
-                                width = 3,
-                                height = vertbar_current_height,
-                                color = str(vertbar_col),
-                                child = render.Padding(
-                                    child = render.Box(
-                                        width = 3,
-                                        height = 1,
-                                        color = str(vertbar_col_header),
-                                    ),
-                                    pad = (0, 0, 0, vertbar_current_height - 1),
-                                ),
-                            ),
-                            pad = (0, (vertbar_total_height - vertbar_current_height), 0, 0),
-                        ),
-                    ),
-                )
+                twoweeks_bar_thisweek_normal = twoweek_todays_bar
 
                 twoweeks_bar_lastweek_normal = render.Box(
                     width = 2,
