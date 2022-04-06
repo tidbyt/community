@@ -1114,6 +1114,10 @@ def main(config):
             if daynum == 0:
                 fadeList = []  # This sets up the fading progress indicator
 
+                # If today's progress is at zero, set it to 1 so that the fading indicator displays
+                if vertbar_current_height == 0:
+                    vertbar_current_height = 1
+
                 # If the daily XP target has been hit then we are using the gold/purple bars so setup the appropriate progress indicator fade
                 if int(xp_day_score) >= int(xp_target):
                     # fades from black to purple
