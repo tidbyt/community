@@ -1,5 +1,5 @@
-// Package whosthatpokemon? provides details for the WhosThatPokemon? applet.
-package whosthatpokemon?
+// Package whosthatpokemon provides details for the WhosThatPokemon? applet.
+package whosthatpokemon
 
 import (
 	_ "embed"
@@ -7,7 +7,7 @@ import (
 	"tidbyt.dev/community/apps/manifest"
 )
 
-//go:embed whosthatpokemon?.star
+//go:embed whosthatpokemon.star
 var source []byte
 
 // New creates a new instance of the WhosThatPokemon? applet.
