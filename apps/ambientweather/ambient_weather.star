@@ -73,18 +73,18 @@ def main(config):
                         expanded = True,
                         main_align = "space_around",
                         children = [
-                                    render.Text(
-                                        content = temp,
-                                        color = "#2a2",
-                                    ),
-                                    render.Text(
-                                        content = humidity,
-                                        color = "#66f",
-                                    ),
-                                    render.Text(
-                                        content = uv,
-                                        color = "#ff0",
-                                    ),
+                            render.Text(
+                                content = temp,
+                                color = "#2a2",
+                            ),
+                            render.Text(
+                                content = humidity,
+                                color = "#66f",
+                            ),
+                            render.Text(
+                                content = uv,
+                                color = "#ff0",
+                            ),
                         ],
                     ),
                     render.Row(
@@ -132,8 +132,6 @@ def get_schema():
             ),
         ],
     )
-
-
 
 SAMPLE_STATIONS_RESPONSE = """[
 	{
@@ -202,9 +200,9 @@ def get_station(config):
     for station in stations:
         if station["macAddress"] == stationID:
             return station
-    
+
     return None
-    
+
 def get_stations(config):
     applicationKey = config.get("application_key", None)
     apiKey = config.get("api_key", None)
@@ -217,7 +215,7 @@ def get_stations(config):
     if cachedStations != None:
         print("Using cached stations")
         stations = json.decode(cachedStations)
-    else: 
+    else:
         print("Fetching stations...")
         res = http.get(
             url = AMBIENT_DEVICES_URL,
@@ -228,13 +226,12 @@ def get_stations(config):
         )
         if res.status_code != 200:
             fail("station request failed with status code: %d - %s" %
-                    (res.status_code, res.body()))
+                 (res.status_code, res.body()))
 
         stations = res.json()
         cache.set("ambient-weather-%s" % applicationKey, json.encode(stations), ttl_seconds = 30)
 
     return stations
-    
 
 def wind_direction(heading):
     if heading <= 360 and heading >= 348.75:
