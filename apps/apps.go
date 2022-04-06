@@ -26,9 +26,11 @@ import (
 	"tidbyt.dev/community/apps/destiny2stats"
 	"tidbyt.dev/community/apps/digibyteprice"
 	"tidbyt.dev/community/apps/digitalrain"
+	"tidbyt.dev/community/apps/duolingo"
 	"tidbyt.dev/community/apps/dvdlogo"
 	"tidbyt.dev/community/apps/dwheadline"
 	"tidbyt.dev/community/apps/espnnews"
+	"tidbyt.dev/community/apps/finevent"
 	"tidbyt.dev/community/apps/fishbyt"
 	"tidbyt.dev/community/apps/flags"
 	"tidbyt.dev/community/apps/fuzzyclock"
@@ -62,12 +64,14 @@ import (
 	"tidbyt.dev/community/apps/randomslackmoji"
 	"tidbyt.dev/community/apps/redditimages"
 	"tidbyt.dev/community/apps/sbbtimetable"
+	"tidbyt.dev/community/apps/snyk"
 	"tidbyt.dev/community/apps/sportsscores"
 	"tidbyt.dev/community/apps/sportsstandings"
 	"tidbyt.dev/community/apps/spotthestation"
 	"tidbyt.dev/community/apps/steam"
 	"tidbyt.dev/community/apps/strava"
 	"tidbyt.dev/community/apps/sunrisesunset"
+	"tidbyt.dev/community/apps/surflive"
 	"tidbyt.dev/community/apps/tempest"
 	"tidbyt.dev/community/apps/theysaidso"
 	"tidbyt.dev/community/apps/todoist"
@@ -104,9 +108,11 @@ func GetManifests() []manifest.Manifest {
 		destiny2stats.New(),
 		digibyteprice.New(),
 		digitalrain.New(),
+		duolingo.New(),
 		dvdlogo.New(),
 		dwheadline.New(),
 		espnnews.New(),
+		finevent.New(),
 		fishbyt.New(),
 		flags.New(),
 		fuzzyclock.New(),
@@ -139,12 +145,14 @@ func GetManifests() []manifest.Manifest {
 		randomslackmoji.New(),
 		redditimages.New(),
 		sbbtimetable.New(),
+		snyk.New(),
 		sportsscores.New(),
 		sportsstandings.New(),
 		spotthestation.New(),
 		steam.New(),
 		strava.New(),
 		sunrisesunset.New(),
+		surflive.New(),
 		tempest.New(),
 		theysaidso.New(),
 		todoist.New(),
