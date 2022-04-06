@@ -13,15 +13,15 @@ load("cache.star", "cache")  #Caching
 load("schema.star", "schema")
 load("time.star", "time")  #Used to display time and calcuate lenght of TTL cache
 load("math.star", "math")  #Used to calculate duration between timestamps
+load("encoding/json.star", "json")  #Used to figure out timezone
 
 #Requires the RSS feed for your location from spotthestation.nasa.gov
 #Use the map tool to find the nearest location, click the blue marker then the "View sighting opportunities"
 #From this page click "RSS" to get the needed XML Feed for your location
 #Pass that into this app to have the next approach to your location listed on  your Tidbyt
 
-#Note on Timezones: Since the XML feed provided could be anywhere in the world, and the feed provides no timezone information I need to calculate times without timezone information.
-#So I take the display times in the XML, year, month, day, hour, minute and second and add a "Z" (Zulu) to give it a valid timestamp.
-#To make sure I'm not getting timezone differences introduced to mess up my math, I use getLocalTimeStamp() which takes the current year, month, day, hour, minute and second, adds "Z" to match
+#Note on Timezones: The data from NASA on upcoming flyovers is in localtime but without timezone information.
+#To know when that time has past, we need to know the tidbyts location.
 
 #We can calculate how long we can cache the XML, but let's set a minimum cache of 5 minutes just to be sure we aren't taxing servers
 #and a maximum of one week in case of bad data
@@ -49,13 +49,24 @@ ISS_ICON5 = base64.decode("""
 iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAABmJLR0QA/wD/AP+gvaeTAAAACXBIWXMAAAsTAAALEwEAmpwYAAAAB3RJTUUH5gMQAyw65gtzNQAAANlJREFUOMulkztuwzAQRB+DnMTHWdbq41aXMHOera1WNyGck4wLiwT1tYxsQ5DgPOzMkrAu8UF9rcXpCHIIFyRJEiRtXFY00x5kJt6AKJrJ3dX3/QxSLARIhPCLdKtrsRPN+LleGccRgGhW7YStDAoEEkvx3+PBfRiqNuzYOSVeAtSc6Yy4zUDujrtX0H0YNsTrEX8v+58gAHRdRzSr4lc2ME1oZV85Z7m79OqojOvdiOeAIm4AnIJMO+WcaydHkHLeZqAAgctFyyyax6Ypg70nsPo4+u9vfVtPbS/Ro5V9Dx8AAAAASUVORK5CYII=
 """)
 
-def twoCharacterTimeDatePart(number):
+DEFAULT_LOCATION = """
+{
+	"lat": "40.6781784",
+	"lng": "-73.9441579",
+	"description": "Brooklyn, NY, USA",
+	"locality": "Brooklyn",
+	"place_id": "ChIJCSF8lBZEwokRhngABHRcdoI",
+	"timezone": "America/New_York"
+}
+"""
+
+def two_character_time_date_part(number):
     if len(str(number)) == 1:
         return "0" + str(number)
     else:
         return number
 
-def twoCharacterNumericMonthFromMonthString(month):
+def two_character_numeric_month_from_month_string(month):
     dict = {
         "Jan": "01",
         "Feb": "02",
@@ -73,17 +84,34 @@ def twoCharacterNumericMonthFromMonthString(month):
 
     return dict.get(month)
 
-def getLocalTimeStamp():
-    localTime = time.now()
-    return str(localTime.year) + "-" + twoCharacterTimeDatePart(str(localTime.month)) + "-" + twoCharacterTimeDatePart(str(localTime.day)) + "T" + twoCharacterTimeDatePart(str(localTime.hour)) + ":" + twoCharacterTimeDatePart(str(localTime.minute)) + ":" + twoCharacterTimeDatePart(str(localTime.second)) + "Z"
+def get_local_time(config):
+    timezone = json.decode(config.get("location", DEFAULT_LOCATION))["timezone"]
+    local_time = time.now().in_location(timezone)
+    return local_time
 
-def getTimestampFromItem(item):
+def get_local_offset(config):
+    timezone = json.decode(config.get("location", DEFAULT_LOCATION))["timezone"]
+    local_time = time.now().in_location(timezone)
+    offset = str(local_time).split(" ")
+
+    if (offset[2][0:1] == "+"):
+        the_sign = "-"
+    else:
+        the_sign = "+"
+
+    if (len(offset) == 4):
+        return time.parse_duration(the_sign + str(int("04")) + "h")
+    else:
+        return time.parse_duration("+0h")
+
+def get_timestamp_from_item(item, config):
     description = item.replace("\n", "").replace("\t", "").split("<br/>")
-    itemDate = description[0].replace("Date: ", "").split(" ")
-    itemTime = description[1].replace("Time: ", "").split(" ")
-    return itemDate[3] + "-" + twoCharacterNumericMonthFromMonthString(itemDate[1]) + "-" + twoCharacterTimeDatePart(itemDate[2].replace(",", "")) + "T" + getTimeStampTime(itemTime[0], itemTime[1]) + ":00Z"
+    item_date = description[0].replace("Date: ", "").split(" ")
+    item_time = description[1].replace("Time: ", "").split(" ")
+    timestamp = item_date[3] + "-" + two_character_numeric_month_from_month_string(item_date[1]) + "-" + two_character_time_date_part(item_date[2].replace(",", "")) + "T" + get_timestamp_time(item_time[0], item_time[1]) + ":00Z"  # + get_local_offset(config)
+    return timestamp
 
-def getTimeStampTime(time, meridiem):
+def get_timestamp_time(time, meridiem):
     time = time.split(":")
     if meridiem == "PM":
         time[0] = int(time[0]) + 12
@@ -92,92 +120,99 @@ def getTimeStampTime(time, meridiem):
 
 def main(config):
     #Defaults
-    numberOfListedSightings = 0
-    timeOfNextSighting = None
-    timeOfFurthestKnownSighting = None
+    found_sighting_to_display = False
+    number_of_listed_sightings = 0
+    item_number_to_display = 0
+    time_of_next_sighting = None
+    time_of_furthest_known_sighting = None
     location = "Invalid Location Data. You should have entered an RSS feed URL that looks like this: https://spotthestation.nasa.gov/sightings/xml_files/United_States_Florida_Orlando.xml"
     row1 = ""
     row2 = ""
     row3 = ""
 
     #Get Station Selected By User
-    ISS_FLYBY_XML_URL = config.get("SpotTheStationRSS") or "https://spotthestation.nasa.gov/sightings/xml_files/United_States_Florida_Orlando.xml"
+    ISS_FLYBY_XML_URL = config.get("SpotTheStationRSS") or "https://spotthestation.nasa.gov/sightings/xml_files/China_None_Xian.xml" or "https://spotthestation.nasa.gov/sightings/xml_files/United_States_Florida_Orlando.xml"
 
     #cache is saved to the tidbyt server, not locally, so we need a unique key per location which is equivelent to the Flyby XML URL
-    issxmlBody = cache.get(ISS_FLYBY_XML_URL)
-    setCache = False
-    if issxmlBody == None:
-        issxml = http.get(ISS_FLYBY_XML_URL)
+    iss_xml_body = cache.get(ISS_FLYBY_XML_URL)
+    set_cache = False
+    if iss_xml_body == None:
+        iss_xml = http.get(ISS_FLYBY_XML_URL)
 
         #print("Going to spotthestation.nasa.gov to get XML")
-        if issxml.status_code != 200:
+        if iss_xml.status_code != 200:
             print("Error Getting ISS Flyby Data")
         else:
-            issxmlBody = issxml.body()
+            iss_xml_body = iss_xml.body()
 
             #This XML Feed can have many sightings listed, both past and future
             #So Let's find the first future sighting and display that
-            numberOfListedSightings = issxmlBody.count("<item>")
-            setCache = True
+            number_of_listed_sightings = iss_xml_body.count("<item>")
+            set_cache = True
     else:
         #print("Using cached XML")
-        numberOfListedSightings = issxmlBody.count("<item>")
+        number_of_listed_sightings = iss_xml_body.count("<item>")
 
-    if issxmlBody == None:
+    if iss_xml_body == None:
         row1 = "Invalid Data from spotthestation.nasa.gov. You should have entered an RSS feed URL that looks like this: https://spotthestation.nasa.gov/sightings/xml_files/United_States_Florida_Orlando.xml"
         description = None
-    elif numberOfListedSightings == 0:
+    elif number_of_listed_sightings == 0:
         row1 = "The station will not appear overhead for at least several days"
         description = ""
-        location = xpath.loads(issxmlBody).query("/rss/channel/description").replace("Satellite Sightings Information for ", "")
+        location = xpath.loads(iss_xml_body).query("/rss/channel/description").replace("Satellite Sightings Information for ", "")
     else:
         #Find the next pass, and skip past times
-        itemNumberToDisplay = 0
-        for i in range(1, numberOfListedSightings + 1):
-            currentQuery = "//item[" + str(i) + "]/description"
-            currentDescription = xpath.loads(issxmlBody).query(currentQuery)
-            currentTimeStamp = getTimestampFromItem(currentDescription)
-            if time.parse_time(currentTimeStamp) > time.parse_time(getLocalTimeStamp()):
-                itemNumberToDisplay = i
-                timeOfNextSighting = currentTimeStamp
+        for i in range(1, number_of_listed_sightings + 1):
+            current_query = "//item[" + str(i) + "]/description"
+            current_description = xpath.loads(iss_xml_body).query(current_query)
+            current_time_stamp = get_timestamp_from_item(current_description, config)
+            timezone = json.decode(config.get("location", DEFAULT_LOCATION))["timezone"]
+            current_item_time = time.parse_time(current_time_stamp).in_location(timezone) + get_local_offset(config)
+
+            if current_item_time > get_local_time(config):
+                item_number_to_display = i
+                time_of_next_sighting = current_time_stamp
+                found_sighting_to_display = True
                 break
 
         #Only past events are in the XML, so we'll need to give an appropriate message
-        if (itemNumberToDisplay == 0):
+        if (item_number_to_display == 0):
             description = "The station will not appear overhead for at least several days"
         else:
-            description = xpath.loads(issxmlBody).query("/rss/channel/item[" + str(itemNumberToDisplay) + "]/description")
+            description = xpath.loads(iss_xml_body).query("/rss/channel/item[" + str(item_number_to_display) + "]/description")
 
-        location = xpath.loads(issxmlBody).query("/rss/channel/description").replace("Satellite Sightings Information for ", "")
+        location = xpath.loads(iss_xml_body).query("/rss/channel/description").replace("Satellite Sightings Information for ", "")
 
-    if (setCache == True):
+    if (set_cache == True):
         #The current XML is valid until the last known future listing
         #So let's use that to figure our cache ttl
-        if (numberOfListedSightings > itemNumberToDisplay):
+        if (number_of_listed_sightings > item_number_to_display):
             #Since there are more future sightings in the current XML
             #Let's cache this XML as long as we have good data
-            currentQuery = "//item[" + str(numberOfListedSightings) + "]/description"
-            currentDescription = xpath.loads(issxmlBody).query(currentQuery)
-            currentTimeStamp = getTimestampFromItem(currentDescription)
-            timeOfFurthestKnownSighting = currentTimeStamp
-            localTimeStamp = getLocalTimeStamp()
-            dateDiff = time.parse_time(timeOfFurthestKnownSighting) - time.parse_time(getLocalTimeStamp())
+            current_query = "//item[" + str(number_of_listed_sightings) + "]/description"
+            current_description = xpath.loads(iss_xml_body).query(current_query)
+            current_time_stamp = get_timestamp_from_item(current_description, config)
+            time_of_furthest_known_sighting = current_time_stamp
+            date_diff = time.parse_time(time_of_furthest_known_sighting) - get_local_time(config)
         else:
             #No future Sightings so we can cache at least until the next sighting
-            dateDiff = time.parse_time(timeOfNextSighting) - time.parse_time(getLocalTimeStamp())
+            if (time_of_next_sighting == None):
+                date_diff = time.now() - time.now()
+            else:
+                date_diff = get_local_time(config) - get_local_time(config)  # time.parse_time(time_of_next_sighting) - get_local_time(config)
 
-        days = math.floor(dateDiff.hours / 24)
-        hours = math.floor(dateDiff.hours - days * 24)
-        minutes = math.floor(dateDiff.minutes - (days * 24 * 60 + hours * 60))
-        secondsThisXMLIsValidFor = minutes * 60 + hours * 60 * 60 + days * 24 * 60 * 60
+        days = math.floor(date_diff.hours / 24)
+        hours = math.floor(date_diff.hours - days * 24)
+        minutes = math.floor(date_diff.minutes - (days * 24 * 60 + hours * 60))
+        seconds_xml_valid_for = minutes * 60 + hours * 60 * 60 + days * 24 * 60 * 60
 
         #We have calculated the time this XML is good for, but to be cautious, we'll make sure it is within by setting max and min values
-        if secondsThisXMLIsValidFor < MINIMUM_CACHE_TIME_IN_SECONDS:
-            secondsThisXMLIsValidFor = MINIMUM_CACHE_TIME_IN_SECONDS
-        elif secondsThisXMLIsValidFor > MAXIMUM_CACHE_TIME_IN_SECONDS:
-            secondsThisXMLIsValidFor = MAXIMUM_CACHE_TIME_IN_SECONDS
+        if seconds_xml_valid_for < MINIMUM_CACHE_TIME_IN_SECONDS:
+            seconds_xml_valid_for = MINIMUM_CACHE_TIME_IN_SECONDS
+        elif seconds_xml_valid_for > MAXIMUM_CACHE_TIME_IN_SECONDS:
+            seconds_xml_valid_for = MAXIMUM_CACHE_TIME_IN_SECONDS
 
-        cache.set(ISS_FLYBY_XML_URL, issxmlBody, ttl_seconds = secondsThisXMLIsValidFor)
+        cache.set(ISS_FLYBY_XML_URL, iss_xml_body, ttl_seconds = seconds_xml_valid_for)
 
     if description == None:
         description = "None"
@@ -196,6 +231,15 @@ def main(config):
             else:
                 row3 += item.replace("Duration: ", "").replace("Maximum", "Max").replace("Departure", "Depart.").replace("minute", "min")
 
+    #Does this user want to hide the app if there are no future sightings?
+    hide_when_no_sightings = config.bool("hide_when_no_sightings") or True
+
+    if (hide_when_no_sightings and not found_sighting_to_display):
+        return []
+    else:
+        return get_display(location, row1, row2, row3)
+
+def get_display(location, row1, row2, row3):
     return render.Root(
         child = render.Column(
             children = [
@@ -213,6 +257,15 @@ def main(config):
                                         render.Image(src = ISS_ICON4),
                                         render.Image(src = ISS_ICON),
                                         render.Image(src = ISS_ICON5),
+                                        render.Image(src = ISS_ICON),
+                                        render.Image(src = ISS_ICON),
+                                        render.Image(src = ISS_ICON),
+                                        render.Image(src = ISS_ICON),
+                                        render.Image(src = ISS_ICON),
+                                        render.Image(src = ISS_ICON),
+                                        render.Image(src = ISS_ICON),
+                                        render.Image(src = ISS_ICON),
+                                        render.Image(src = ISS_ICON),
                                     ],
                                 ),
                                 render.Column(
@@ -252,6 +305,19 @@ def get_schema():
                 name = "Spot the Station RSS",
                 icon = "location",
                 desc = "Go to spotthestation.nasa.gov Use the map tool to find the nearest location, click the blue marker then 'View sighting opportunities' then get the RSS feed URL.",
+            ),
+            schema.Location(
+                id = "location",
+                name = "Location",
+                desc = "Location for which to display time.",
+                icon = "place",
+            ),
+            schema.Toggle(
+                id = "hide_when_no_sightings",
+                name = "Hide When No Sightings",
+                desc = "Hide this control when there are no known future sightings.",
+                icon = "asterisk",
+                default = False,
             ),
         ],
     )
