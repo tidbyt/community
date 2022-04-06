@@ -19,8 +19,12 @@ load("encoding/base64.star", "base64")
 load("time.star", "time")
 
 COUNTRY_CODE_SCHEMA_ID = "country_code"
+TEXT_COLOR_SCHEMA_ID = "text_color"
+BG_COLOR_SCHEMA_ID = "bg_color"
 SHOW_NAME_SCHEMA_ID = "show_name"
 DEFAULT_COUNTRY_CODE = "random"
+DEFAULT_TEXT_COLOR = "#fff"
+DEFAULT_BG_COLOR = "#000"
 COUNTRIES = {
     DEFAULT_COUNTRY_CODE: {
         "name": "Random",
@@ -1046,16 +1050,18 @@ COUNTRIES = {
 
 def main(config):
     country_code = config.get(COUNTRY_CODE_SCHEMA_ID, DEFAULT_COUNTRY_CODE)
+    text_color = config.get(TEXT_COLOR_SCHEMA_ID, DEFAULT_TEXT_COLOR)
+    bg_color = config.get(BG_COLOR_SCHEMA_ID, DEFAULT_BG_COLOR)
     show_name = config.bool(SHOW_NAME_SCHEMA_ID, False)
     country = get_random_country() if country_code == "random" else get_country(country_code)
 
     if show_name:
-        return render_with_name(country)
+        return render_with_name(country, bg_color, text_color)
 
-    return render_without_name(country)
+    return render_without_name(country, bg_color)
 
 # renders both the flag and the country name
-def render_with_name(country):
+def render_with_name(country, bg_color, text_color):
     flag = country["flag"]
     name = country["name"]
 
@@ -1070,6 +1076,7 @@ def render_with_name(country):
     # render the country name text
     name_text = render.Text(
         content = name,
+        color = text_color,
         font = "tom-thumb",
     )
 
@@ -1090,12 +1097,13 @@ def render_with_name(country):
                     rendered_text,
                 ],
             ),
+            color = bg_color,
         ),
         delay = 100,
     )
 
 # renders only a country flag
-def render_without_name(country):
+def render_without_name(country, bg_color):
     flag = country["flag"]
 
     return render.Root(
@@ -1103,6 +1111,7 @@ def render_without_name(country):
             child = render.Image(
                 src = base64.decode(flag),
             ),
+            color = bg_color,
         ),
     )
 
@@ -1125,6 +1134,48 @@ def get_country_schema_options():
             ),
         )
     return options
+
+# returns the schema text color options
+def get_text_color_schema_options():
+    return [
+        schema.Option(
+            display = "White",
+            value = DEFAULT_TEXT_COLOR,
+        ),
+        schema.Option(
+            display = "Light Gray",
+            value = "#ccc",
+        ),
+        schema.Option(
+            display = "Medium Gray",
+            value = "#999",
+        ),
+        schema.Option(
+            display = "Dark Gray",
+            value = "#666",
+        ),
+    ]
+
+# returns the schema background color options
+def get_bg_color_schema_options():
+    return [
+        schema.Option(
+            display = "Black",
+            value = DEFAULT_BG_COLOR,
+        ),
+        schema.Option(
+            display = "Dark Gray",
+            value = "#111",
+        ),
+        schema.Option(
+            display = "Medium Gray",
+            value = "#222",
+        ),
+        schema.Option(
+            display = "Light Gray",
+            value = "#333",
+        ),
+    ]
 
 # generates a pseudo-random number between min and max
 # this is based on the current time in nanoseconds
@@ -1151,6 +1202,22 @@ def get_schema():
                 desc = "Display the country name along with its flag.",
                 icon = "cog",
                 default = False,
+            ),
+            schema.Dropdown(
+                id = TEXT_COLOR_SCHEMA_ID,
+                name = "Text Color",
+                desc = "The color of the country name text.",
+                icon = "paintbrush",
+                default = DEFAULT_TEXT_COLOR,
+                options = get_text_color_schema_options(),
+            ),
+            schema.Dropdown(
+                id = BG_COLOR_SCHEMA_ID,
+                name = "Background Color",
+                desc = "The color to display behind the flag.",
+                icon = "fillDrip",
+                default = DEFAULT_BG_COLOR,
+                options = get_bg_color_schema_options(),
             ),
         ],
     )

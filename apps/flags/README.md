@@ -10,10 +10,10 @@ Public domain flag images are provided by [flagpedia.net](https://flagpedia.net/
 
 ## Potential Future Improvements
 
-- Could add other types of flags. States, territories, schools, etc.
-- Some flags that use the color black can blend in with the Tidbyt screen. Potentially add a background color flags with this issue or even all flags.
-- Update flags, names, and codes as those change over time.
-- Allow user to select a flag style option - waving or flat.
+- [ ] Could add other types of flags. States, territories, schools, etc.
+- [x] Some flags that use the color black can blend in with the Tidbyt screen. Potentially add a background color flags with this issue or even all flags.
+- [ ] Update flags, names, and codes as those change over time.
+- [ ] Allow user to select a flag style option - waving or flat.
 
 ## Screenshots
 
