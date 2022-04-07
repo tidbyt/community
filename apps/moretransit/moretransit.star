@@ -8,7 +8,6 @@ Author: gdcolella
 load("render.star", "render")
 load("http.star", "http")
 load("schema.star", "schema")
-#from render import render
 
 MAX_SUBWAYS = 4
 MIN_MINUTES = 10
