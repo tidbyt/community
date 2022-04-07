@@ -70,6 +70,7 @@ def main(config):
     pokemon = get_pokemon(id_)
     name = pokemon["name"].title()
 
+    sprite_url = pokemon["sprites"]["versions"]["generation-vii"]["icons"]["front_default"]
     sprite = get_cachable_data(sprite_url)
     return render.Root(
         child = render.Box(
