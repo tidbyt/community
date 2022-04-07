@@ -1,6 +1,6 @@
 # MLB Scores for Tidbyt
 
-Displays live and upcoming MLB scores from a data feed. Data provided by ESPN. Updated every 2 minutes. No API key required.
+Displays live MLB scores and gambling odds for upcoming games. Updated every 2 minutes. No API key required.
 
 ![MLB Scores for Tidbyt](screenshot.png)
 

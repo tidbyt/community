@@ -26,7 +26,15 @@ DEFAULT_LOCATION = """
 """
 SPORT = "football"
 LEAGUE = "nfl"
-USE_ALT_COLOR = [""]
+USE_ALT_COLOR = """
+{
+    "LAC": "#1281c4"
+}
+"""
+USE_ALT_LOGO = """
+{
+}
+"""
 
 def main(config):
     leagues = {
@@ -59,7 +67,7 @@ def main(config):
         homeid = s["competitions"][0]["competitors"][0]["team"]["id"]
         homeColor = get_background_color(home, display_type, s["competitions"][0]["competitors"][0]["team"]["color"], s["competitions"][0]["competitors"][0]["team"]["alternateColor"])
         homeLogo_url = s["competitions"][0]["competitors"][0]["team"]["logo"]
-        homelogo = get_logo_type(homeLogo_url)
+        homelogo = get_logo_type(home, homeLogo_url)
         homescore = ""
         homescorefont = "Dina_r400-6"
         homepossesionbox = ""
@@ -69,7 +77,7 @@ def main(config):
         awayid = s["competitions"][0]["competitors"][1]["team"]["id"]
         awayColor = get_background_color(away, display_type, s["competitions"][0]["competitors"][1]["team"]["color"], s["competitions"][0]["competitors"][1]["team"]["alternateColor"])
         awayLogo_url = s["competitions"][0]["competitors"][1]["team"]["logo"]
-        awaylogo = get_logo_type(awayLogo_url)
+        awaylogo = get_logo_type(away, awayLogo_url)
         awayscore = ""
         awayscorefont = "Dina_r400-6"
         awaypossesionbox = ""
@@ -134,12 +142,12 @@ def main(config):
                             render.Column(
                                 children = [
                                     render.Box(width = 64, height = 12, color = awayColor, child = render.Row(expanded = True, main_align = "start", cross_align = "center", children = [
-                                        render.Box(width = 44, height = 12, child = render.Text(content = awayTeamName[:8].upper(), color = retroTextColor, font = "tb-8")),
-                                        render.Box(width = 20, height = 12, child = render.Text(content = awayscore, color = retroTextColor, font = awayscorefont)),
+                                        render.Box(width = 44, height = 12, child = render.Text(content = awayTeamName[:9].upper(), color = retroTextColor, font = "CG-pixel-3x5-mono")),
+                                        render.Box(width = 20, height = 12, child = render.Text(content = awayscore, color = retroTextColor, font = "CG-pixel-3x5-mono")),
                                     ])),
                                     render.Box(width = 64, height = 12, color = homeColor, child = render.Row(expanded = True, main_align = "start", cross_align = "center", children = [
-                                        render.Box(width = 44, height = 12, child = render.Text(content = homeTeamName[:8].upper(), color = retroTextColor, font = "tb-8")),
-                                        render.Box(width = 20, height = 12, child = render.Text(content = homescore, color = retroTextColor, font = homescorefont)),
+                                        render.Box(width = 44, height = 12, child = render.Text(content = homeTeamName[:9].upper(), color = retroTextColor, font = "CG-pixel-3x5-mono")),
+                                        render.Box(width = 20, height = 12, child = render.Text(content = homescore, color = retroTextColor, font = "CG-pixel-3x5-mono")),
                                     ])),
                                 ],
                             ),
@@ -173,15 +181,15 @@ def main(config):
                                 children = [
                                     render.Box(width = 64, height = 12, color = stadiumBorderColor, child = render.Row(expanded = True, main_align = "start", cross_align = "center", children = [
                                         render.Box(width = 1, height = 10, color = stadiumBorderColor),
-                                        render.Box(width = 31, height = 10, child = render.Box(width = 29, height = 10, color = stadiumBackgroundColor, child = render.Text(content = away[:3].upper(), color = stadiumTextColor, font = "tb-8"))),
-                                        render.Box(width = 31, height = 10, child = render.Box(width = 29, height = 10, color = stadiumBackgroundColor, child = render.Text(content = awayscore, color = stadiumTextColor, font = "tb-8"))),
+                                        render.Box(width = 31, height = 10, child = render.Box(width = 29, height = 10, color = stadiumBackgroundColor, child = render.Text(content = away[:3].upper(), color = awayscorecolor, font = "tb-8"))),
+                                        render.Box(width = 31, height = 10, child = render.Box(width = 29, height = 10, color = stadiumBackgroundColor, child = render.Text(content = awayscore, color = awayscorecolor, font = "tb-8"))),
                                         render.Box(width = 1, height = 10, color = stadiumBorderColor),
                                     ])),
                                     render.Box(width = 64, height = 1, color = stadiumBorderColor),
                                     render.Box(width = 64, height = 10, color = stadiumBorderColor, child = render.Row(expanded = True, main_align = "start", cross_align = "center", children = [
                                         render.Box(width = 1, height = 10, color = stadiumBorderColor),
-                                        render.Box(width = 31, height = 10, child = render.Box(width = 29, height = 10, color = stadiumBackgroundColor, child = render.Text(content = home[:3].upper(), color = stadiumTextColor, font = "tb-8"))),
-                                        render.Box(width = 31, height = 10, child = render.Box(width = 29, height = 10, color = stadiumBackgroundColor, child = render.Text(content = homescore, color = stadiumTextColor, font = "tb-8"))),
+                                        render.Box(width = 31, height = 10, child = render.Box(width = 29, height = 10, color = stadiumBackgroundColor, child = render.Text(content = home[:3].upper(), color = homescorecolor, font = "tb-8"))),
+                                        render.Box(width = 31, height = 10, child = render.Box(width = 29, height = 10, color = stadiumBackgroundColor, child = render.Text(content = homescore, color = homescorecolor, font = "tb-8"))),
                                         render.Box(width = 1, height = 10, color = stadiumBorderColor),
                                     ])),
                                 ],
@@ -315,13 +323,13 @@ def main(config):
                                         children = [
                                             render.Box(width = 64, height = 12, color = awayColor, child = render.Row(expanded = True, main_align = "start", cross_align = "center", children = [
                                                 render.Image(awaylogo, width = 16, height = 16),
-                                                render.Box(width = 28, height = 12, child = render.Text(content = away[:3], color = awayscorecolor, font = "Dina_r400-6")),
-                                                render.Box(width = 20, height = 12, child = render.Text(content = awayscore, color = awayscorecolor, font = awayscorefont)),
+                                                render.Box(width = 26, height = 12, child = render.Text(content = away[:3], color = awayscorecolor, font = "Dina_r400-6")),
+                                                render.Box(width = 22, height = 12, child = render.Text(content = awayscore, color = awayscorecolor, font = awayscorefont)),
                                             ])),
                                             render.Box(width = 64, height = 12, color = homeColor, child = render.Row(expanded = True, main_align = "start", cross_align = "center", children = [
                                                 render.Image(homelogo, width = 16, height = 16),
-                                                render.Box(width = 28, height = 12, child = render.Text(content = home[:3], color = homescorecolor, font = "Dina_r400-6")),
-                                                render.Box(width = 20, height = 12, child = render.Text(content = homescore, color = homescorecolor, font = homescorefont)),
+                                                render.Box(width = 26, height = 12, child = render.Text(content = home[:3], color = homescorecolor, font = "Dina_r400-6")),
+                                                render.Box(width = 22, height = 12, child = render.Text(content = homescore, color = homescorecolor, font = homescorefont)),
                                             ])),
                                         ],
                                     ),
@@ -344,13 +352,13 @@ def main(config):
                                 children = [
                                     render.Box(width = 64, height = 12, color = awayColor, child = render.Row(expanded = True, main_align = "start", cross_align = "center", children = [
                                         render.Image(awaylogo, width = 16, height = 16),
-                                        render.Box(width = 28, height = 12, child = render.Text(content = away[:3], color = awayscorecolor, font = "Dina_r400-6")),
-                                        render.Box(width = 20, height = 12, child = render.Text(content = awayscore, color = awayscorecolor, font = awayscorefont)),
+                                        render.Box(width = 26, height = 12, child = render.Text(content = away[:3], color = awayscorecolor, font = "Dina_r400-6")),
+                                        render.Box(width = 22, height = 12, child = render.Text(content = awayscore, color = awayscorecolor, font = awayscorefont)),
                                     ])),
                                     render.Box(width = 64, height = 12, color = homeColor, child = render.Row(expanded = True, main_align = "start", cross_align = "center", children = [
                                         render.Image(homelogo, width = 16, height = 16),
-                                        render.Box(width = 28, height = 12, child = render.Text(content = home[:3], color = homescorecolor, font = "Dina_r400-6")),
-                                        render.Box(width = 20, height = 12, child = render.Text(content = homescore, color = homescorecolor, font = homescorefont)),
+                                        render.Box(width = 26, height = 12, child = render.Text(content = home[:3], color = homescorecolor, font = "Dina_r400-6")),
+                                        render.Box(width = 22, height = 12, child = render.Text(content = homescore, color = homescorecolor, font = homescorefont)),
                                     ])),
                                 ],
                             ),
@@ -469,20 +477,27 @@ def get_detail(gamedate):
     return gametimeval
 
 def get_background_color(team, displayType, color, altColor):
+    altcolors = json.decode(USE_ALT_COLOR)
+    usealt = altcolors.get(team, "NO")
     if displayType == "black" or displayType == "retro":
         color = "#111"
-    elif team in USE_ALT_COLOR:
-        color = "#" + altColor
+    elif usealt != "NO":
+        color = altcolors[team]
     else:
         color = "#" + color
     if color == "#ffffff" or color == "#000000":
         color = "#111"
     return color
 
-def get_logo_type(logo):
-    logo = logo.replace("500/scoreboard", "500-dark/scoreboard")
-    logo = logo.replace("https://a.espncdn.com/", "https://a.espncdn.com/combiner/i?img=")
-    logo = get_cachable_data(logo + "&h=36&w=36")
+def get_logo_type(team, logo):
+    usealtlogo = json.decode(USE_ALT_LOGO)
+    usealt = usealtlogo.get(team, "NO")
+    if usealt != "NO":
+        logo = get_cachable_data(usealt, 36000)
+    else:
+        logo = logo.replace("500/scoreboard", "500-dark/scoreboard")
+        logo = logo.replace("https://a.espncdn.com/", "https://a.espncdn.com/combiner/i?img=", 36000)
+        logo = get_cachable_data(logo + "&h=36&w=36")
     return logo
 
 def get_cachable_data(url, ttl_seconds = CACHE_TTL_SECONDS):
