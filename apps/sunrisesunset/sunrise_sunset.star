@@ -45,6 +45,7 @@ DEFAULT_LOCATION = {
     "timezone": "GMT",
 }
 DEFAULT_24_HOUR = False
+DEFAULT_ITEMS_TO_DISPLAY = "both"
 
 # Images
 sunriseImage = """iVBORw0KGgoAAAANSUhEUgAAAB4AAAAOCAYAAAA45qw5AAAAAXNSR0IArs4c6QAAAERlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAA6ABAAMAAAABAAEAAKACAAQAAAABAAAAHqADAAQAAAABAAAADgAAAACqoaCHAAAA9klEQVQ4EcVUvQoCMQzuieDkJK6Ck+DsIr6RD+TLODnILc6ugqvo4gNUvuoX0pLe9fCvS5rkS74kzZ1zXzr+svJNqfuRc+sDuJ7dIrOlLCejSttBVI33ka3J39PO0ntKijiQsku/G3h3PDjRjaKeFRZ2ahGmxQZSGOcLcVmTyI5GojpcLFKGp+Sd39jqmiPFeHOHGBYQE+eilL0+X8MC6gKYTDpWeF6JEZ2XT0khb33j12KBuOQzAk53C50H40RnmjzoxlYz5m3JN2SiNl22erq5N/5pmPC0HoaYUjzjKBlP/edSOk6ZdUesUttSPHQLR5uF/4vtARekdeCaFV5xAAAAAElFTkSuQmCC"""
@@ -64,6 +65,7 @@ def main(config):
 
     # Get whether to display in 24h format
     display24Hour = config.bool("24_hour", DEFAULT_24_HOUR)
+    itemsToDisplay = config.get("items_to_display", DEFAULT_ITEMS_TO_DISPLAY)
 
     if sunriseTime == None:
         sunriseText = "  None"
@@ -80,43 +82,98 @@ def main(config):
         sunsetText = "%s" % sunsetTime.in_location(loc["timezone"]).format("3:04 PM")
 
     # Got what we need, render it.
+
+    if itemsToDisplay == "both":
+        top = render.Padding(
+            pad = (0, 2, 0, 0),
+            child = render.Row(
+                expanded = True,
+                main_align = "start",
+                cross_align = "center",
+                children = [
+                    render.Image(src = base64.decode(sunriseImage)),
+                    render.Padding(
+                        pad = (0, -1, 0, 0),
+                        child = render.Text(sunriseText),
+                    ),
+                ],
+            ),
+        )
+        middle = render.Box(
+            width = 64,
+            height = 1,
+            color = "#a00",
+        )
+
+        bottom = render.Row(
+            expanded = True,
+            main_align = "start",
+            cross_align = "center",
+            children = [
+                render.Image(src = base64.decode(sunsetImage)),
+                render.Text(sunsetText),
+            ],
+        )
+
+    else:
+        if itemsToDisplay == "sunrise":
+            title = "Sunrise"
+            text = sunriseText
+            image = sunriseImage
+        else:
+            title = "Sunset"
+            text = sunsetText
+            image = sunsetImage
+
+        top = render.Padding(
+            pad = (0, 2, 0, 4),
+            child = render.Row(
+                expanded = True,
+                main_align = "center",
+                cross_align = "center",
+                children = [
+                    render.Text(title),
+                ],
+            ),
+        )
+        middle = None
+
+        bottom = render.Row(
+            expanded = True,
+            main_align = "start",
+            cross_align = "center",
+            children = [
+                render.Image(src = base64.decode(image)),
+                render.Text(text),
+            ],
+        )
+
     return render.Root(
         child = render.Column(
             children = [
-                render.Padding(
-                    pad = (0, 2, 0, 0),
-                    child = render.Row(
-                        expanded = True,
-                        main_align = "start",
-                        cross_align = "center",
-                        children = [
-                            render.Image(src = base64.decode(sunriseImage)),
-                            render.Padding(
-                                pad = (0, -1, 0, 0),
-                                child = render.Text(sunriseText),
-                            ),
-                        ],
-                    ),
-                ),
-                render.Box(
-                    width = 64,
-                    height = 1,
-                    color = "#a00",
-                ),
-                render.Row(
-                    expanded = True,
-                    main_align = "start",
-                    cross_align = "center",
-                    children = [
-                        render.Image(src = base64.decode(sunsetImage)),
-                        render.Text(sunsetText),
-                    ],
-                ),
+                top,
+                middle,
+                bottom,
             ],
         ),
     )
 
 def get_schema():
+    show_options = [
+        schema.Option(
+            display = "Sunrise & Sunset",
+            value = "both",
+        ),
+        schema.Option(
+            display = "Sunrise",
+            value = "sunrise",
+        ),
+        schema.Option(
+            display = "Sunset",
+            value = "sunset",
+        ),
+    ]
+
     return schema.Schema(
         version = "1",
         fields = [
@@ -125,6 +182,14 @@ def get_schema():
                 name = "Location",
                 desc = "Location for which to display the sun rise and set times.",
                 icon = "place",
+            ),
+            schema.Dropdown(
+                id = "items_to_display",
+                name = "Items to display",
+                desc = "Choose to show sunrise, sunset, or both.",
+                icon = "sun",
+                default = show_options[0].value,
+                options = show_options,
             ),
             schema.Toggle(
                 id = "24_hour",
