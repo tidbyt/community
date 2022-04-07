@@ -29,14 +29,14 @@ def get_schema():
                 icon = "book",
                 default = "National",
                 options = [
-                schema.Option(display = "National", value='National'),
-                schema.Option(display = "Kanto", value='Kanto'),
-                schema.Option(display = "Johto", value='Johto'),
-                schema.Option(display = "Hoenn", value='Hoenn'),
-                schema.Option(display = "Sinnoh", value='Sinnoh'),
-                schema.Option(display = "Unova", value='Unova'),
-                schema.Option(display = "Kalos", value='Kalos'),
-                schema.Option(display = "Alola", value='Alola'),
+                    schema.Option(display = "National", value='National'),
+                    schema.Option(display = "Kanto", value='Kanto'),
+                    schema.Option(display = "Johto", value='Johto'),
+                    schema.Option(display = "Hoenn", value='Hoenn'),
+                    schema.Option(display = "Sinnoh", value='Sinnoh'),
+                    schema.Option(display = "Unova", value='Unova'),
+                    schema.Option(display = "Kalos", value='Kalos'),
+                    schema.Option(display = "Alola", value='Alola'),
                 ],
             ),
         ],
@@ -70,7 +70,7 @@ def main(config):
         MIN = "722"
         MAX = "809"
     else:
-      pass
+        pass
     resp = http.get("https://www.random.org/integers/?num=1&min="+MIN+"&max="+MAX+"&col=1&base=10&format=plain&rnd=new1")
     if resp.status_code != 200:
   		fail("Request failed with status %d", resp.status_code)
