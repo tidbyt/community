@@ -1200,7 +1200,7 @@ def get_schema():
                 id = SHOW_NAME_SCHEMA_ID,
                 name = "Show Country Name",
                 desc = "Display the country name along with its flag.",
-                icon = "cog",
+                icon = "font",
                 default = False,
             ),
             schema.Dropdown(
