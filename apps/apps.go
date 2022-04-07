@@ -77,6 +77,7 @@ import (
 	"tidbyt.dev/community/apps/transsee"
 	"tidbyt.dev/community/apps/twitterfollows"
 	"tidbyt.dev/community/apps/unsplash"
+	"tidbyt.dev/community/apps/usgsearthquakes"
 	"tidbyt.dev/community/apps/usyieldcurve"
 	"tidbyt.dev/community/apps/verticalmessage"
 	"tidbyt.dev/community/apps/warframecycles"
@@ -157,6 +158,7 @@ func GetManifests() []manifest.Manifest {
 		transsee.New(),
 		twitterfollows.New(),
 		unsplash.New(),
+		usgsearthquakes.New(),
 		usyieldcurve.New(),
 		verticalmessage.New(),
 		warframecycles.New(),
