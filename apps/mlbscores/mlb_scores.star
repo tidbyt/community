@@ -112,6 +112,10 @@ def main(config):
                 awayscore = awayodds
 
             gametime = get_detail(gamedatetime)
+            newgametime = s["date"]
+            convertedtime = time.parse_time(newgametime, format = "2006-01-02T15:04Z")
+            gt = convertedtime.in_location(timezone)
+            gametime = gt.format("3:04 PM")
             homescorecolor = "#fff"
             awayscorecolor = "#fff"
 
