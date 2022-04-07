@@ -1,4 +1,4 @@
-// Package pokedex provides details for the Pokedex applet.
+// Package natdex provides details for the natdex applet.
 package natdex
 
 import (
@@ -7,10 +7,10 @@ import (
 	"tidbyt.dev/community/apps/manifest"
 )
 
-//go:embed pokedex.star
+//go:embed natdex.star
 var source []byte
 
-// New creates a new instance of the Pokedex applet.
+// New creates a new instance of the natdex applet.
 func New() manifest.Manifest {
 	return manifest.Manifest{
 		ID:          "natdex",
