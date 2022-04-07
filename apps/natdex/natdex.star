@@ -28,8 +28,7 @@ def get_schema():
                 desc = "Which Pokedex do you want to pull from?",
                 icon = "book",
                 default = "National",
-                options = [schema.Option(display = "National", value='National'),schema.Option(display = "Kanto", value='Kanto'),schema.Option(display = "Johto", value='Johto'),schema.Option(display = "Hoenn", value='Hoenn'),schema.Option(display = "Sinnoh", value='Sinnoh'),schema.Option(display = "Unova", value='Unova'),schema.Option(display = "Kalos", value='Kalos'),schema.Option(display = "Alola", value='Alola'),
-                ],
+                options = [schema.Option(display = "National", value='National'),schema.Option(display = "Kanto", value='Kanto'),schema.Option(display = "Johto", value='Johto'),schema.Option(display = "Hoenn", value='Hoenn'),schema.Option(display = "Sinnoh", value='Sinnoh'),schema.Option(display = "Unova", value='Unova'),schema.Option(display = "Kalos", value='Kalos'),schema.Option(display = "Alola", value='Alola')]
             ),
         ],
     )
@@ -65,19 +64,13 @@ def main(config):
         pass
     resp = http.get("https://www.random.org/integers/?num=1&min="+MIN+"&max="+MAX+"&col=1&base=10&format=plain&rnd=new1")
     if resp.status_code != 200:
-  		fail("Request failed with status %d", resp.status_code)
+        fail("Request failed with status %d", resp.status_code)
     dex_number = resp.body()
     dex_number = re.sub("\n","",dex_number)
     id_ = dex_number
     pokemon = get_pokemon(id_)
     name = pokemon["name"].title()
-    height = pokemon["height"] / 10
-    height = "%s ft" % round(height * 3.281)
-    weight = pokemon["weight"] / 10
-    weight = "%s lbs" % round(weight * 2.205)
-    ability = pokemon["abilities"][0]["ability"]["name"]
 
-    sprite_url = pokemon["sprites"]["versions"]["generation-vii"]["icons"]["front_default"]
     sprite = get_cachable_data(sprite_url)
     return render.Root(
         child = render.Box(
