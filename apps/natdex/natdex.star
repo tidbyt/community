@@ -120,7 +120,7 @@ def main(config):
                 ],
             ),
         ),
-      )
+   )
 
 def round(num):
     """Rounds floats to a single decimal place."""
