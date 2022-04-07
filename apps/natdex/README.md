@@ -1,7 +1,9 @@
 # Simple National Pokédex
 Display a random Pokémon with its name and dex number from Generations I - VII (Kanto through Alola). 
 
-![](natdex.gif)
+<p align="center">
+  <img src="natdex.gif" alt="animated" />
+</p>
 
 ## Features
 - Dropdown menu in app settings allows you to choose random Pokémon based on region (Kanto, Johto, etc.)
