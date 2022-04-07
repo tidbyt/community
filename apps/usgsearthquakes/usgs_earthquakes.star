@@ -30,9 +30,6 @@ Author: Chris Silverberg (csilv)
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-# - Buildifier annocations? lint?
-# - Package up and place on github.
-
 load("cache.star", "cache")
 load("encoding/base64.star", "base64")
 load("encoding/json.star", "json")
@@ -43,14 +40,15 @@ load("schema.star", "schema")
 load("time.star", "time")
 
 BASE_URL = "https://earthquake.usgs.gov/fdsnws/event/1/query"
+
+CACHE_TTL = 300
+DELAY_MS = 20
 MAX_QUAKES = 3
 
 DEVICE_WIDTH = 64
 DEVICE_HEIGHT = 32
 ROW_HEIGHT = 10
-DELAY_MS = 20
 
-DEFAULT_CACHE_TTL = 300
 DEFAULT_LOCATION = """
 {
     "lat": "33.745571",
@@ -192,6 +190,9 @@ def get_page_frame(mag_str, mag_color, place_str, place_x, time_str):
     )
 
 def get_scroll_frames(item, next_item):
+    # This function is derived from a similar function in the
+    # BGG Hotness Applet by Henry So, Jr.
+    # https://github.com/tidbyt/community/tree/main/apps/bgghotness
     return [
         render.Padding(
             pad = (0, offset, 0, 0),
@@ -205,6 +206,48 @@ def get_scroll_frames(item, next_item):
         )
         for offset in range(-1, -DEVICE_HEIGHT - 1, -1)
     ]
+
+def fetch_earthquakes(lat, lng, radius, magnitude):
+    cache_key = "%s-%s-%s-%s-XX" % (lat, lng, radius, magnitude)
+    cache_data = cache.get(cache_key)
+    if cache_data:
+        return json.decode(cache_data)
+
+    resp = http.get(BASE_URL, params = {
+        "format": "geojson",
+        "latitude": lat,
+        "longitude": lng,
+        "maxradiuskm": radius,
+        "minmagnitude": magnitude,
+        "limit": str(MAX_QUAKES),
+    })
+
+    if resp.status_code != 200:
+        # buildifier: disable=print
+        print("http.get failed: %s - %s" % (resp.status_code, resp.body()))
+        return None
+
+    features = resp.json().get("features")
+    if not features:
+        # buildifier: disable=print
+        print("missing features: %s" & resp.body())
+        return None
+
+    cache.set(cache_key, json.encode(features), DEFAULT_CACHE_TTL)
+    return features
+
+def color_from_magnitude(magnitude):
+    mag = float(magnitude)
+    if mag >= 5:
+        return "#ff0000"
+    elif mag >= 4:
+        return "#ff8000"
+    elif mag >= 3:
+        return "#ffff00"
+    elif mag >= 2:
+        return "#80ff00"
+    else:
+        return "#00ffff"
 
 def get_schema():
     radius_options = [
@@ -243,47 +286,3 @@ def get_schema():
             ),
         ],
     )
-
-# buildifier: disable=function-docstring
-def fetch_earthquakes(lat, lng, radius, magnitude):
-    cache_key = "%s-%s-%s-%s-XX" % (lat, lng, radius, magnitude)
-    cache_data = cache.get(cache_key)
-    if cache_data:
-        return json.decode(cache_data)
-
-    resp = http.get(BASE_URL, params = {
-        "format": "geojson",
-        "latitude": lat,
-        "longitude": lng,
-        "maxradiuskm": radius,
-        "minmagnitude": magnitude,
-        "limit": str(MAX_QUAKES),
-    })
-
-    if resp.status_code != 200:
-        # buildifier: disable=print
-        print("http.get failed: %s - %s" % (resp.status_code, resp.body()))
-        return None
-
-    features = resp.json().get("features")
-    if not features:
-        # buildifier: disable=print
-        print("missing features: %s" & resp.body())
-        return None
-
-    cache.set(cache_key, json.encode(features), DEFAULT_CACHE_TTL)
-    return features
-
-# buildifier: disable=function-docstring
-def color_from_magnitude(magnitude):
-    mag = float(magnitude)
-    if mag >= 5:
-        return "#ff0000"
-    elif mag >= 4:
-        return "#ff8000"
-    elif mag >= 3:
-        return "#ffff00"
-    elif mag >= 2:
-        return "#80ff00"
-    else:
-        return "#00ffff"
