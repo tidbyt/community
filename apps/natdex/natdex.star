@@ -17,7 +17,20 @@ POKEAPI_URL = "https://pokeapi.co/api/v2/pokemon/{}"
 REGIONAL_DEX_ID = "regional_dex_code"
 CACHE_TTL_SECONDS = 3600 * 24 * 7  # 7 days in seconds.
 
+def get_regions():
+    regions = ['National','Kanto','Johto','Hoenn','Sinnoh','Unova','Kalos','Alola']
+    region_options = []
+    for x in regions:
+        region_options.append(
+            schema.Option(
+                display = x,
+                value = x,
+            ),
+        )
+    return region_options
+
 def get_schema():
+    regions = get_regions()
     return schema.Schema(
         version = "1",
         fields = [
@@ -26,8 +39,8 @@ def get_schema():
                 name = "Regional Pokedex",
                 desc = "Which Pokedex do you want to pull from?",
                 icon = "book",
-                default = "National",
-                options = [schema.Option(display = "National", value='National'),schema.Option(display = "Kanto", value='Kanto'),schema.Option(display = "Johto", value='Johto'),schema.Option(display = "Hoenn", value='Hoenn'),schema.Option(display = "Sinnoh", value='Sinnoh'),schema.Option(display = "Unova", value='Unova'),schema.Option(display = "Kalos", value='Kalos'),schema.Option(display = "Alola", value='Alola')]
+                default = regions[0].value,
+                options = regions
             ),
         ],
     )
