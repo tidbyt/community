@@ -11,7 +11,6 @@ load("encoding/json.star", "json")
 load("http.star", "http")
 load("render.star", "render")
 load("schema.star", "schema")
-load("time.star", "time")
 load("re.star", "re")
 
 POKEAPI_URL = "https://pokeapi.co/api/v2/pokemon/{}"
