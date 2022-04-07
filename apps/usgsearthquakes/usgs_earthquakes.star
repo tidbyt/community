@@ -233,7 +233,7 @@ def fetch_earthquakes(lat, lng, radius, magnitude):
         print("missing features: %s" & resp.body())
         return None
 
-    cache.set(cache_key, json.encode(features), DEFAULT_CACHE_TTL)
+    cache.set(cache_key, json.encode(features), CACHE_TTL)
     return features
 
 def color_from_magnitude(magnitude):
