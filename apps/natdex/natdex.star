@@ -18,7 +18,7 @@ REGIONAL_DEX_ID = "regional_dex_code"
 CACHE_TTL_SECONDS = 3600 * 24 * 7  # 7 days in seconds.
 
 def get_regions():
-    regions = ['National','Kanto','Johto','Hoenn','Sinnoh','Unova','Kalos','Alola']
+    regions = ["National", "Kanto", "Johto", "Hoenn", "Sinnoh", "Unova", "Kalos", "Alola"]
     region_options = []
     for x in regions:
         region_options.append(
@@ -40,7 +40,7 @@ def get_schema():
                 desc = "Which Pokedex do you want to pull from?",
                 icon = "book",
                 default = regions[0].value,
-                options = regions
+                options = regions,
             ),
         ],
     )
@@ -49,36 +49,36 @@ def main(config):
     MIN = "1"
     MAX = "809"
     dex_region = config.get(REGIONAL_DEX_ID)
-    if dex_region == 'National':
+    if dex_region == "National":
         pass
-    elif dex_region == 'Kanto':
+    elif dex_region == "Kanto":
         MIN = "1"
         MAX = "151"
-    elif dex_region == 'Johto':
+    elif dex_region == "Johto":
         MIN = "152"
         MAX = "251"
-    elif dex_region == 'Hoenn':
+    elif dex_region == "Hoenn":
         MIN = "252"
         MAX = "386"
-    elif dex_region == 'Sinnoh':
+    elif dex_region == "Sinnoh":
         MIN = "387"
         MAX = "493"
-    elif dex_region == 'Unova':
+    elif dex_region == "Unova":
         MIN = "494"
         MAX = "649"
-    elif dex_region == 'Kalos':
+    elif dex_region == "Kalos":
         MIN = "650"
         MAX = "721"
-    elif dex_region == 'Alola':
+    elif dex_region == "Alola":
         MIN = "722"
         MAX = "809"
     else:
         pass
-    resp = http.get("https://www.random.org/integers/?num=1&min="+MIN+"&max="+MAX+"&col=1&base=10&format=plain&rnd=new1")
+    resp = http.get("https://www.random.org/integers/?num=1&min=" + MIN + "&max=" + MAX + "&col=1&base=10&format=plain&rnd=new1")
     if resp.status_code != 200:
         fail("Request failed with status %d", resp.status_code)
     dex_number = resp.body()
-    dex_number = re.sub("\n","",dex_number)
+    dex_number = re.sub("\n", "", dex_number)
     id_ = dex_number
     pokemon = get_pokemon(id_)
     name = pokemon["name"].title()
@@ -114,11 +114,11 @@ def main(config):
                                 ],
                             ),
                             width = 64,
-                            scroll_direction = "horizontal"
-                          ),
+                            scroll_direction = "horizontal",
+                        ),
                     ),
                 ],
-          ),
+            ),
         ),
       )
 
