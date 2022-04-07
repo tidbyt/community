@@ -19,7 +19,7 @@ def time_dict_conversion(timedict):
             timedict["m"] = "0" + timedict["m"]
             return "0:%s" % timedict["m"]
         else:
-            return "0:00"        
+            return "0:00"
     else:
         timedict["m"] = str(int(timedict["m"]) - 1)
         if len(timedict["m"]) == 1 and int(timedict["m"]) > 0:
@@ -138,7 +138,7 @@ def main(config):
             cambiontime["h"] = part.replace("h", "")
     cambionremaining = time_dict_conversion(cambiontime)
     cambion = "%s - %s" % (cambionremaining, cambionactive)
-    
+
     vallistime = {}
     for part in vallisremaining:
         if "s" in part:
@@ -208,7 +208,7 @@ def get_schema():
             value = "swi",
         ),
     ]
-    
+
     return schema.Schema(
         version = "1",
         fields = [
