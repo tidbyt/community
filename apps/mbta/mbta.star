@@ -155,8 +155,8 @@ def get_stops(location):
     loc = json.decode(location)
     params = {
         "page[limit]": "100",
-        "filter[latitude]": loc["lat"],
-        "filter[longitude]": loc["lng"],
+        "filter[latitude]": str(loc["lat"]),
+        "filter[longitude]": str(loc["lng"]),
         "sort": "distance",
     }
     if API_KEY:
