@@ -23,7 +23,7 @@ DEFAULT_DAILY_XP_TARGET = "100"  # Choose the desired daily XP goal. The XP goal
 DEFAULT_TIMEZONE = "Europe/London"  # Affects when the daily XP counter resets.
 DEFAULT_DISPLAY_VIEW = "week"  # can be 'today', 'week' or 'twoweeks'
 DEFAULT_NICKNAME = ""  # Max five characters. Displays on screen to identify the Duolingo user.
-DEFAULT_SHOW_EXTRA_STATS = "todayxp"  # Display currennt Streak and total XP score on the week chart. Can be 'none', 'todayxp', 'chartxp' or 'totalxp'
+DEFAULT_SHOW_EXTRA_STATS = "totalxp"  # Display currennt Streak and total XP score on the week chart. Can be 'none', 'todayxp', 'chartxp' or 'totalxp'
 
 # 18 x 18 Standing Blinking, Flap
 DUOLINGO_ICON_STANDING = base64.decode("""
@@ -159,12 +159,17 @@ XP_TARGET_LIST = {
     "30xp": "30",
     "40xp": "40",
     "50xp": "50",
+    "60xp": "60",
     "75xp": "75",
     "100xp": "100",
     "125xp": "125",
     "150xp": "150",
     "175xp": "175",
     "200xp": "200",
+    "250xp": "250",
+    "300xp": "300",
+    "400xp": "400",
+    "500xp": "500",
 }
 
 def get_schema():
