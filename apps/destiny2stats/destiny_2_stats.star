@@ -199,7 +199,7 @@ def get_view(show_id, image, displayed_character, display_name, display_name_cod
                     cross_align = "center",
                     children = [
                         render.Image(src = image, width = 24, height = 24),
-                        render.Box(width = 1, height = 24, color = "#FFFFFF"),
+                        render.Box(width = 1, height = 22, color = "#FFFFFF"),
                         render.Column(
                             expanded = False,
                             main_align = "space_around",
@@ -224,23 +224,23 @@ def get_view(show_id, image, displayed_character, display_name, display_name_cod
                 render.Box(width = 64, height = 1, color = "#FFFFFF"),
                 render.Box(width = 64, height = 1),
                 render.Marquee(
-                    width=64,
+                    width = 64,
                     child = render.Row(
                         children = [
                             render.Text(
                                 font = "CG-pixel-4x5-mono",
-                                content = display_name
+                                content = display_name,
                             ),
                             render.Text(
                                 font = "CG-pixel-4x5-mono",
                                 color = "#808080",
-                                content = "#"+display_name_code
+                                content = "#" + display_name_code,
                             ),
                         ],
-                    ) 
-                )
+                    ),
+                ),
             ],
-        )
+        ),
     )
 
     if show_id:
@@ -270,6 +270,6 @@ def get_schema():
                 desc = "Show your Bungie ID.",
                 icon = "idCard",
                 default = False,
-            )
+            ),
         ],
     )
