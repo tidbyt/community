@@ -6,7 +6,7 @@ Author: rs7q5
 """
 #sports_scores.star
 #Created 20220220 RIS
-#Last Modified 20220408 RIS
+#Last Modified 20220409 RIS
 
 load("render.star", "render")
 load("http.star", "http")
@@ -57,7 +57,7 @@ def main(config):
     if stats == no_games_text and config.bool("gameday", False):
         return []  #return nothing if no games
     else:
-        frame_vec = get_frames(stats, sport, font)
+        frame_vec = get_frames(stats, sport, font, config)
 
     return render.Root(
         delay = int(config.str("speed", "1000")),  #speed up scroll text
@@ -102,10 +102,24 @@ def get_schema():
                 icon = "calendar",
                 default = False,
             ),
+            schema.Toggle(
+                id = "highlight_team",
+                name = "Highlight Team",
+                desc = "Highlight a select team.",
+                icon = "highlighter",
+                default = False,
+            ),
+            schema.Text(
+                id = "team_select",
+                name = "Team Abbreviation",
+                desc = "Enter the team code to highlight.",
+                icon = "highlighter",
+                default = "None",
+            ),
         ],
     )
 
-def get_frames(stats, sport_txt, font):
+def get_frames(stats, sport_txt, font, config):
     frame_vec = []
     if stats == no_games_text:
         header_txt = render.Row(
@@ -146,15 +160,22 @@ def get_frames(stats, sport_txt, font):
     status_txt2 = []
     frame_vec_tmp = []
 
+    team_sel = config.str("team_select", "None").upper()
     for i, team in enumerate(stats):
-        if i % 2 == 0:
+        if config.bool("highlight_team", False) and (team["away"][0] == team_sel or team["home"][0] == team_sel):
+            ctmp = "#A8F0CB"
+            ctmp2 = "#08FF08"
+            ctmp3 = "#52BB52"
+            if team["away"][1] == 1000 and sport_txt == "NBA":
+                ctmp = "#CCFFE5"
+        elif i % 2 == 0:
             ctmp = "#c8c8fa"
             ctmp2 = "#a00"
-            ctmp3 = "#228B22"
+            ctmp3 = "#228B22"  #dark green
         else:
             ctmp = "#fff"
             ctmp2 = "#D2691E"
-            ctmp3 = "#52BB52"
+            ctmp3 = "#52BB52"  #light green
 
         status_tmp = team["status"].split("/")
 
