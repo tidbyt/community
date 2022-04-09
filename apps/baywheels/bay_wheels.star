@@ -63,39 +63,40 @@ def main(config):
 
         return render.Root(
             child = render.Column(
-                cross_align="end",
+                cross_align = "end",
                 children = [
                     render.Column(
                         children = [
                             render.Marquee(
-                                width=64,
-                                child=render.Text(station["display"])),
-                            render.Box(width=64, height=1, color="#FFF"),
-                        ]
+                                width = 64,
+                                child = render.Text(station["display"]),
+                            ),
+                            render.Box(width = 64, height = 1, color = "#FFF"),
+                        ],
                     ),
                     render.Row(
                         main_align = "space_around",
                         cross_align = "center",
                         expanded = True,
                         children = [
-                            render.Image(src = IMAGE_BICYCLE, width=32, height=32),
+                            render.Image(src = IMAGE_BICYCLE, width = 32, height = 32),
                             render.Column(
-                                main_align="space_evenly",
-                                cross_align="end",
-                                expanded=True,
+                                main_align = "space_evenly",
+                                cross_align = "end",
+                                expanded = True,
                                 children = [
                                     render.Text("%d" % stationStatus["num_bikes_available"]),
                                     render.Row(
                                         children = [
-                                            render.Image(src = IMAGE_LIGHTNING, width=8, height=8),
+                                            render.Image(src = IMAGE_LIGHTNING, width = 8, height = 8),
                                             render.Text("%d" % stationStatus["num_ebikes_available"]),
-                                        ]
-                                    )
-                                ]
+                                        ],
+                                    ),
+                                ],
                             ),
-                        ]
-                    ),                    
-                ]
+                        ],
+                    ),
+                ],
             ),
         )
 
@@ -119,8 +120,10 @@ def get_stations(location):
     loc = json.decode(location)
 
     result = fetch_cached(STATIONS_URL, 86400)
-    if "data" not in result: fail("No data field found in result: %s" % str(result)[:100])
-    if "stations" not in result["data"]: fail("No stations field found in data: %s" % str(result["data"])[:100])
+    if "data" not in result:
+        fail("No data field found in result: %s" % str(result)[:100])
+    if "stations" not in result["data"]:
+        fail("No stations field found in data: %s" % str(result["data"])[:100])
     stations = result["data"]["stations"]
 
     return sorted([
