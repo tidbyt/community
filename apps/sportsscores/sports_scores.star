@@ -6,7 +6,7 @@ Author: rs7q5
 """
 #sports_scores.star
 #Created 20220220 RIS
-#Last Modified 20220326 RIS
+#Last Modified 20220408 RIS
 
 load("render.star", "render")
 load("http.star", "http")
@@ -24,6 +24,8 @@ SPORTS_LIST = {
     #"NFL": ["NFL","nfl"],
     #"WNBA": ["WNBA","wnba"],
 }
+
+no_games_text = ["No Games Today!!"]  #vector of text to use if no games are present
 
 def main(config):
     sport = config.get("sport") or "MLB"
@@ -52,7 +54,10 @@ def main(config):
         cache.set("stats_rate_games%s" % sport, json.encode(stats), ttl_seconds = 60)
 
     #get frames before display
-    frame_vec = get_frames(stats, sport, font)
+    if stats == no_games_text and config.bool("gameday", False):
+        return []  #return nothing if no games
+    else:
+        frame_vec = get_frames(stats, sport, font)
 
     return render.Root(
         delay = int(config.str("speed", "1000")),  #speed up scroll text
@@ -90,12 +95,19 @@ def get_schema():
                 default = frame_speed[-1].value,
                 options = frame_speed,
             ),
+            schema.Toggle(
+                id = "gameday",
+                name = "Game day only",
+                desc = "",
+                icon = "calendar",
+                default = False,
+            ),
         ],
     )
 
 def get_frames(stats, sport_txt, font):
     frame_vec = []
-    if stats[0] == "No Games Today!!":
+    if stats == no_games_text:
         header_txt = render.Row(
             expanded = True,
             main_align = "space_between",
@@ -301,7 +313,7 @@ def get_mlbgames(today_str):
         data = rep.json()["dates"]
 
     if data == []:
-        return ["No Games Today!!"]
+        return no_games_text
     else:
         data2 = data[0]["games"]
 
@@ -359,7 +371,7 @@ def get_nhlgames(today_str):
         data = rep.json()["dates"]
 
     if data == []:
-        return ["No Games Today!!"]
+        return no_games_text
     else:
         data2 = data[0]["games"]
 
@@ -419,7 +431,7 @@ def get_nbagames(today_str):
         data = rep.json()["events"]
 
     if data == []:
-        return ["No Games Today!!"]
+        return no_games_text
     else:
         data2 = data
 
