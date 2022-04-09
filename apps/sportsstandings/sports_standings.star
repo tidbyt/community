@@ -65,7 +65,7 @@ def main(config):
         stats2 = stats
 
     #get frames before display
-    frame_vec = get_frames(stats2, sport, font)
+    frame_vec = get_frames(stats2, sport, font, config)
 
     return render.Root(
         delay = int(config.str("speed", "1000")),  #speed up scroll text
@@ -116,10 +116,24 @@ def get_schema():
                 default = frame_speed[-1].value,
                 options = frame_speed,
             ),
+            schema.Toggle(
+                id = "highlight_team",
+                name = "Highlight Team",
+                desc = "Highlight a select team.",
+                icon = "highlighter",
+                default = False,
+            ),
+            schema.Text(
+                id = "team_select",
+                name = "Team Abbreviation",
+                desc = "Enter the team code to highlight.",
+                icon = "highlighter",
+                default = "None",
+            ),
         ],
     )
 
-def get_frames(stats, sport_txt, font):
+def get_frames(stats, sport_txt, font, config):
     frame_vec = []
     for x in stats:
         name_split = re.split("[()/]", x["name"])
@@ -131,7 +145,9 @@ def get_frames(stats, sport_txt, font):
             team_split = team[1].split("/")
             record_tmp = render.Text(team_split[0], font = font)
             rank_tmp = render.Text(team_split[1], font = font)
-            if i % 2 == 0:
+            if config.bool("highlight_team", False) and team[0] == config.str("team_select", "None").upper():
+                ctmp = "#D2691E"
+            elif i % 2 == 0:
                 ctmp = "#c8c8fa"
             else:
                 ctmp = "#fff"
