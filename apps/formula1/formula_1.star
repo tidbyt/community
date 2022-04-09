@@ -38,7 +38,7 @@ def main(config):
     F1_ROUND = http.get(F1_URL).json()["MRData"]["RaceTable"]["Races"][0]["round"]
 
     f1_data = dict(F1_COUNTRY = F1_COUNTRY, F1_LOC = F1_LOC, F1_DATE = F1_DATE, F1_TIME = F1_TIME, F1_ROUND = F1_ROUND)
-    cache.set("f1_rate", json.encode(f1_data), ttl_seconds = 1600)
+    cache.set("f1_rate", json.encode(f1_data), ttl_seconds = 3600)
 
     #Zulu time offsets depending on selected Timezone only have US at the moment
     EST = int(F1_TIME[0:2]) - 4
