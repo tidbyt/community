@@ -61,6 +61,11 @@ def main(config):
     if len(stationStatus) > 0:
         stationStatus = stationStatus[0]
 
+        # The Lyft API renders the total number of bikes, and the number of those that are
+        # e-bikes, so we calculate the number of "classic" bikes.
+        ebikes = stationStatus["num_ebikes_available"]
+        bikes = stationStatus["num_bikes_available"] - ebikes
+
         return render.Root(
             child = render.Column(
                 cross_align = "end",
@@ -85,11 +90,11 @@ def main(config):
                                 cross_align = "end",
                                 expanded = True,
                                 children = [
-                                    render.Text("%d" % stationStatus["num_bikes_available"]),
+                                    render.Text("%d" % bikes),
                                     render.Row(
                                         children = [
                                             render.Image(src = IMAGE_LIGHTNING, width = 8, height = 8),
-                                            render.Text("%d" % stationStatus["num_ebikes_available"]),
+                                            render.Text("%d" % ebikes),
                                         ],
                                     ),
                                 ],
