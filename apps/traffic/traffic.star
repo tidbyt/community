@@ -131,6 +131,7 @@ def mq_reverse_geo(coordinates, key):
 
             # I'm feeling lucky:
             first = results[0]
+
             # We'll return address parts in a tuple and match the parts between origin/destination; we can then only
             # display the more broad information if parts don't match (i.e. traveling between cities or countries)
             address_parts = [first["fields"].get(item, None) for item in ["address", "city", "state", "country"]]
@@ -509,7 +510,7 @@ def main(config):
                                 str(travel_time),
                                 font = DEFAULT_FONT,
                                 color = duration_color,
-                            )
+                            ),
                         ),
                     ],
                 ),
@@ -527,12 +528,12 @@ def get_schema():
                 desc = "",
                 icon = "car",
                 options = [
-                              schema.Option(value = v, display = k + " (MapQuest)")
-                              for k, v in MQ_MODES.items()
-                          ] + [
-                              schema.Option(value = v, display = k + " (ORS)")
-                              for k, v in ORS_MODES.items()
-                          ],
+                    schema.Option(value = v, display = k + " (MapQuest)")
+                    for k, v in MQ_MODES.items()
+                ] + [
+                    schema.Option(value = v, display = k + " (ORS)")
+                    for k, v in ORS_MODES.items()
+                ],
                 default = MQ_MODES["Bike"],
             ),
             schema.Text(
