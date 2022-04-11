@@ -26,12 +26,13 @@ DEFAULT_LOCATION = """
 """
 SPORT = "football"
 LEAGUE = "nfl"
-USE_ALT_COLOR = """
+API = "https://site.api.espn.com/apis/site/v2/sports/"+SPORT+"/"+LEAGUE+"/scoreboard"
+ALT_COLOR = """
 {
     "LAC": "#1281c4"
 }
 """
-USE_ALT_LOGO = """
+ALT_LOGO = """
 {
 }
 """
