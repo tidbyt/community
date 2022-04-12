@@ -9,7 +9,7 @@ require (
 
 require (
 	github.com/manifoldco/promptui v0.9.0
-	tidbyt.dev/pixlet v0.17.0
+	tidbyt.dev/pixlet v0.17.1
 )
 
 require (
@@ -30,7 +30,6 @@ require (
 	github.com/google/tink/go v1.4.0 // indirect
 	github.com/inconshreveable/mousetrap v1.0.0 // indirect
 	github.com/leodido/go-urn v1.2.1 // indirect
-	github.com/lucasb-eyer/go-colorful v1.2.0 // indirect
 	github.com/mitchellh/hashstructure/v2 v2.0.2 // indirect
 	github.com/nathan-osman/go-sunrise v1.0.0 // indirect
 	github.com/newm4n/go-dfe v0.0.0-20210113055126-9d5f01722db9 // indirect
@@ -39,11 +38,11 @@ require (
 	github.com/pmezard/go-difflib v1.0.0 // indirect
 	github.com/qri-io/starlib v0.5.1-0.20211102160121-ae835e29cd41 // indirect
 	github.com/spf13/pflag v1.0.5 // indirect
-	github.com/tidbyt/go-libwebp v0.0.0-20220302033350-dd1cead28df2 // indirect
+	github.com/tidbyt/go-libwebp v0.0.0-20220302154536-6042ce446e9c // indirect
 	github.com/zachomedia/go-bdf v0.0.0-20210522061406-1a147053be95 // indirect
 	go.starlark.net v0.0.0-20220223235035-243c74974e97 // indirect
 	golang.org/x/crypto v0.0.0-20210817164053-32db794688a5 // indirect
-	golang.org/x/image v0.0.0-20211028202545-6944b10bf410 // indirect
+	golang.org/x/image v0.0.0-20220302094943-723b81ca9867 // indirect
 	golang.org/x/net v0.0.0-20210825183410-e898025ed96a // indirect
 	golang.org/x/sys v0.0.0-20211205182925-97ca703d548d // indirect
 	golang.org/x/text v0.3.7 // indirect
