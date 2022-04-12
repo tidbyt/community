@@ -124,10 +124,11 @@ def main(config):
 
     rows = []
     if config.bool("show_title"):
+        title = json.decode(config.get("stop_code", DEFAULT_STOP))["display"]
         rows.append(render.Marquee(
             width = 64,
-            child = render.Text(json.decode(config.get("stop_code", DEFAULT_STOP))["display"])))
-    rows.extend(longRows(output[:min(lines, len(output))]))
+            child = render.Text(title)))
+    rows.extend(longRows(output[:lines]))
 
     return render.Root(
         child = render.Column(
