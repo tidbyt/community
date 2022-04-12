@@ -43,6 +43,13 @@ def get_schema():
                 desc = "A toggle to show the stop title.",
                 icon = "signHanging",
                 default = False
+            ),
+            schema.Toggle(
+                id = "compact_predictions",
+                name = "Show compact predictions",
+                desc = "A toggle to show shorter prediction text.",
+                icon = "grid",
+                default = False
             )
         ],
     )
@@ -111,7 +118,7 @@ def main(config):
             if routeTag == "KT":
                 routeTag = "T" if "Inbound" in dest["title"] else "K"
 
-            title = (routeTag, destTitle)
+            title = routeTag if config.bool("compact_predictions") else (routeTag, destTitle)
             minutes = [prediction["minutes"] for prediction in predictions if "minutes" in prediction]
             prediction_map[title] = sorted(minutes, key = int)
 
@@ -128,7 +135,10 @@ def main(config):
         rows.append(render.Marquee(
             width = 64,
             child = render.Text(title)))
-    rows.extend(longRows(output[:lines]))
+    if config.bool("compact_predictions"):
+        rows.extend(shortPredictions(output, lines))
+    else:
+        rows.extend(longRows(output[:lines]))
 
     return render.Root(
         child = render.Column(
@@ -138,6 +148,59 @@ def main(config):
             cross_align = "center",
         ),
     )
+
+def calculateLength(predictions):
+    return (7  # diameter of line circle
+        + 4    # leading space
+        + 4 * len(",".join(predictions[:2]))
+        + 4)   # trailing space
+
+def shortPredictions(output, lines):
+    predictionLengths = [calculateLength(predictions) for (routeTag, predictions) in output]
+    
+    rows = []
+    for row in range(lines):
+        row = []
+        cumulativeLength = 0
+        for length in predictionLengths:
+            cumulativeLength = cumulativeLength + length
+            if (cumulativeLength > 64 or not output): break
+            row.append(output.pop(0))
+        rows.append(row)
+
+    return [
+        render.Box(
+            padding = 2,
+            child = render.Column(
+                expanded = True,
+                children = [
+                    render.Row(
+                        children = [
+                            render.Row(
+                                children = [
+                                    render.Circle(
+                                        child = render.Text(routeTag, font="tom-thumb"),
+                                        diameter = 7,
+                                        color = MUNI_COLORS[routeTag] if routeTag in MUNI_COLORS else "#000000",
+                                    ),
+                                    render.Text(" "),
+                                    render.Text(",".join(predictions[:2]), font="tom-thumb"),
+                                    render.Text(" "),
+                                ],
+                                main_align = "space_around",
+                                cross_align = "center"
+                            )
+                            for (routeTag, predictions) in row
+                        ],
+                        main_align = "start",
+                        cross_align = "center",
+                        expanded = True,
+                    )
+                    for row in rows
+                ]
+            )
+        )
+    ]
 
 def longRows(output):
     return [
