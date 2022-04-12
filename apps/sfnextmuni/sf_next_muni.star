@@ -37,6 +37,13 @@ def get_schema():
                 icon = "bus",
                 handler = get_stops,
             ),
+            schema.Toggle(
+                id = "show_title",
+                name = "Show stop title",
+                desc = "A toggle to show the stop title.",
+                icon = "signHanging",
+                default = False
+            )
         ],
     )
 
@@ -110,33 +117,48 @@ def main(config):
 
     output = sorted(prediction_map.items(), key = lambda kv: int(min(kv[1], key = int)))
 
+    lines = 3
+
+    if config.bool("show_title"):
+        lines = lines - 1
+
+    rows = []
+    if config.bool("show_title"):
+        rows.append(render.Marquee(
+            width = 64,
+            child = render.Text(json.decode(config.get("stop_code", DEFAULT_STOP))["display"])))
+    rows.extend(longRows(output[:min(lines, len(output))]))
+
     return render.Root(
         child = render.Column(
-            children = [
-                render.Row(
-                    children = [
-                        render.Circle(
-                            child = render.Text(routeTag),
-                            diameter = 10,
-                            color = MUNI_COLORS[routeTag] if routeTag in MUNI_COLORS else "#000000",
-                        ),
-                        render.Marquee(
-                            child = render.Text(destination),
-                            width = 40,
-                        ),
-                        render.Marquee(
-                            child = render.Text((" " if len(predictions[0]) < 2 else "") + predictions[0]),
-                            width = 10,
-                        ),
-                    ],
-                    expanded = True,
-                    main_align = "space_evenly",
-                    cross_align = "center",
-                )
-                for ((routeTag, destination), predictions) in output[:min(3, len(output))]
-            ],
+            children = rows,
             expanded = True,
             main_align = "space_evenly",
             cross_align = "center",
         ),
     )
+
+def longRows(output):
+    return [
+        render.Row(
+            children = [
+                render.Circle(
+                    child = render.Text(routeTag),
+                    diameter = 10,
+                    color = MUNI_COLORS[routeTag] if routeTag in MUNI_COLORS else "#000000",
+                ),
+                render.Marquee(
+                    child = render.Text(destination),
+                    width = 40,
+                ),
+                render.Marquee(
+                    child = render.Text((" " if len(predictions[0]) < 2 else "") + predictions[0]),
+                    width = 10,
+                ),
+            ],
+            expanded = True,
+            main_align = "space_evenly",
+            cross_align = "center",
+        )
+        for ((routeTag, destination), predictions) in output
+    ]
