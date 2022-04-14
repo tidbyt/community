@@ -27,6 +27,25 @@ MUNI_COLORS = {
 }
 
 def get_schema():
+    priorities = [
+        schema.Option(
+            display = "High",
+            value = "High",
+        ),
+        schema.Option(
+            display = "Normal",
+            value = "Normal",
+        ),
+        schema.Option(
+            display = "Low",
+            value = "Low",
+        ),
+        schema.Option(
+            display = "None",
+            value = "none",
+        ),
+    ]
+
     return schema.Schema(
         version = "1",
         fields = [
@@ -51,7 +70,14 @@ def get_schema():
                 icon = "grid",
                 default = False
             ),
-            # TODO: service messages.
+            schema.Dropdown(
+                id = "service_messages",
+                name = "Show service messages",
+                desc = "The lowest priority of service message to be displayed.",
+                icon = "comment-exclamation",
+                default = priorities[0].value,
+                options = priorities,
+            )
         ],
     )
 
@@ -90,6 +116,9 @@ def fetch_cached(url, ttl):
         cache.set(url, str(data), ttl_seconds = ttl)
         return data
 
+def higher_priority_than(pri, threshold):
+    return threshold == "Low" or pri == "High" or threshold == pri
+
 def main(config):
     stopId = json.decode(config.get("stop_code", DEFAULT_STOP))["value"]
     routes = fetch_cached(PREDICTIONS_URL % stopId, 240)["predictions"]
@@ -98,11 +127,20 @@ def main(config):
         routes = [routes]
 
     prediction_map = {}
+    messages = []
 
     for route in routes:
         if "routeTag" not in route or "direction" not in route:
             continue
         routeTag = route["routeTag"]
+
+        if "message" in route:
+            message = route["message"]
+            if type(message) != "list":
+                message = [message]
+            for m in message:
+                if m not in messages:
+                    messages.append(m)
 
         destinations = route["direction"]
         if type(destinations) != "list":
@@ -124,10 +162,18 @@ def main(config):
             prediction_map[title] = sorted(minutes, key = int)
 
     output = sorted(prediction_map.items(), key = lambda kv: int(min(kv[1], key = int)))
+    lowest_message_pri = config.get("service_messages")
+    messages = [
+        message["text"]
+        for message in messages
+        if higher_priority_than(message["priority"], lowest_message_pri)
+    ]
 
     lines = 3
 
     if config.bool("show_title"):
+        lines = lines - 1
+    if messages:
         lines = lines - 1
 
     rows = []
@@ -147,15 +193,25 @@ def main(config):
                 ])
         )
     if config.bool("compact_predictions"):
-        rows.extend(shortPredictions(output, lines))
+        rows.extend(shortPredictions(output, messages, lines, config))
     else:
         rows.extend(longRows(output[:lines]))
+
+    if messages:
+        rows.append(
+            render.Column(
+                children = [
+                    render.Marquee(
+                        width = 64,
+                        child = render.Text("      ".join(messages), font="tom-thumb")),
+                ])
+        )
 
     return render.Root(
         child = render.Column(
             children = rows,
             expanded = True,
-            main_align = "space_evenly",
+            main_align = "space_between",
             cross_align = "center",
         ),
     )
@@ -166,21 +222,28 @@ def calculateLength(predictions):
         + 4 * len(",".join(predictions[:2]))
         + 4)   # trailing space
 
-def shortPredictions(output, lines):
+def shortPredictions(output, messages, lines, config):
     predictionLengths = [calculateLength(predictions) for (routeTag, predictions) in output]
     
     rows = []
-    for row in range(lines):
+    for line in range(lines):
         row = []
         cumulativeLength = 0
         for length in predictionLengths:
             cumulativeLength = cumulativeLength + length
-            if (cumulativeLength > 64 or not output): break
+            if (cumulativeLength - 4 > 64 or not output): break
             row.append(output.pop(0))
         rows.append(row)
 
+    predictions_height = 32
+    if config.bool("show_title"):
+        predictions_height = predictions_height - 10
+    if messages:
+        predictions_height = predictions_height - 7
+
     return [
         render.Box(
+            height = predictions_height,
             padding = 2,
             child = render.Column(
                 expanded = True,
