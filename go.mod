@@ -9,13 +9,13 @@ require (
 
 require (
 	github.com/manifoldco/promptui v0.9.0
-	tidbyt.dev/pixlet v0.17.1
+	tidbyt.dev/pixlet v0.17.2
 )
 
 require (
 	github.com/PuerkitoBio/goquery v1.5.1 // indirect
 	github.com/andybalholm/cascadia v1.1.0 // indirect
-	github.com/antchfx/xmlquery v1.3.9 // indirect
+	github.com/antchfx/xmlquery v1.3.10 // indirect
 	github.com/antchfx/xpath v1.2.0 // indirect
 	github.com/chzyer/readline v0.0.0-20180603132655-2972be24d48e // indirect
 	github.com/davecgh/go-spew v1.1.1 // indirect
@@ -23,7 +23,7 @@ require (
 	github.com/fogleman/gg v1.3.0 // indirect
 	github.com/go-playground/locales v0.14.0 // indirect
 	github.com/go-playground/universal-translator v0.18.0 // indirect
-	github.com/go-playground/validator/v10 v10.10.0 // indirect
+	github.com/go-playground/validator/v10 v10.10.1 // indirect
 	github.com/golang/freetype v0.0.0-20170609003504-e2365dfdc4a0 // indirect
 	github.com/golang/groupcache v0.0.0-20210331224755-41bb18bfe9da // indirect
 	github.com/golang/protobuf v1.5.2 // indirect
@@ -40,10 +40,10 @@ require (
 	github.com/spf13/pflag v1.0.5 // indirect
 	github.com/tidbyt/go-libwebp v0.0.0-20220302154536-6042ce446e9c // indirect
 	github.com/zachomedia/go-bdf v0.0.0-20210522061406-1a147053be95 // indirect
-	go.starlark.net v0.0.0-20220223235035-243c74974e97 // indirect
-	golang.org/x/crypto v0.0.0-20210817164053-32db794688a5 // indirect
-	golang.org/x/image v0.0.0-20220302094943-723b81ca9867 // indirect
-	golang.org/x/net v0.0.0-20210825183410-e898025ed96a // indirect
+	go.starlark.net v0.0.0-20220328144851-d1966c6b9fcd // indirect
+	golang.org/x/crypto v0.0.0-20211215153901-e495a2d5b3d3 // indirect
+	golang.org/x/image v0.0.0-20220413100746-70e8d0d3baa9 // indirect
+	golang.org/x/net v0.0.0-20211112202133-69e39bad7dc2 // indirect
 	golang.org/x/sys v0.0.0-20211205182925-97ca703d548d // indirect
 	golang.org/x/text v0.3.7 // indirect
 	google.golang.org/protobuf v1.27.1 // indirect
