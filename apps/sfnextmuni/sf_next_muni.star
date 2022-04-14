@@ -50,7 +50,8 @@ def get_schema():
                 desc = "A toggle to show shorter prediction text.",
                 icon = "grid",
                 default = False
-            )
+            ),
+            # TODO: service messages.
         ],
     )
 
@@ -132,9 +133,19 @@ def main(config):
     rows = []
     if config.bool("show_title"):
         title = json.decode(config.get("stop_code", DEFAULT_STOP))["display"]
-        rows.append(render.Marquee(
-            width = 64,
-            child = render.Text(title)))
+        rows.append(
+            render.Column(
+                children = [
+                    render.Marquee(
+                        width = 64,
+                        child = render.Text(title)),
+                    render.Box(
+                        width = 64,
+                        height = 1,
+                        color = "#FFF",
+                    )
+                ])
+        )
     if config.bool("compact_predictions"):
         rows.extend(shortPredictions(output, lines))
     else:
