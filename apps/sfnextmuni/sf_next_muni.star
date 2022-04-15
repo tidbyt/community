@@ -201,6 +201,14 @@ def main(config):
         rows.append(
             render.Column(
                 children = [
+                    render.Padding(
+                        pad = (0,0,0,1),
+                        child = render.Box(
+                            width = 64,
+                            height = 1,
+                            color = "#FFF",
+                        ),
+                    ),
                     render.Marquee(
                         width = 64,
                         child = render.Text("      ".join(messages), font="tom-thumb")),
