@@ -43,6 +43,7 @@ import (
 	"tidbyt.dev/community/apps/lirr"
 	"tidbyt.dev/community/apps/manifest"
 	"tidbyt.dev/community/apps/mbta"
+	"tidbyt.dev/community/apps/mlbleaders"
 	"tidbyt.dev/community/apps/mnlightrail"
 	"tidbyt.dev/community/apps/nationaltoday"
 	"tidbyt.dev/community/apps/nearearthobjs"
@@ -124,6 +125,7 @@ func GetManifests() []manifest.Manifest {
 		launchcountdown.New(),
 		lirr.New(),
 		mbta.New(),
+		mlbleaders.New(),
 		mnlightrail.New(),
 		nationaltoday.New(),
 		nearearthobjs.New(),
