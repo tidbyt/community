@@ -46,6 +46,21 @@ def get_schema():
         ),
     ]
 
+    formats = [
+        schema.Option(
+            display = "With destination",
+            value = "long",
+        ),
+        schema.Option(
+            display = "No destination",
+            value = "medium",
+        ),
+        schema.Option(
+            display = "Compact",
+            value = "short",
+        )
+    ]
+
     return schema.Schema(
         version = "1",
         fields = [
@@ -63,12 +78,13 @@ def get_schema():
                 icon = "signHanging",
                 default = False
             ),
-            schema.Toggle(
-                id = "compact_predictions",
-                name = "Show compact predictions",
-                desc = "A toggle to show shorter prediction text.",
+            schema.Dropdown(
+                id = "prediction_format",
+                name = "Prediction format",
+                desc = "Select the format of the prediction text.",
                 icon = "grid",
-                default = False
+                default = "long",
+                options = formats,
             ),
             schema.Dropdown(
                 id = "service_messages",
@@ -157,7 +173,7 @@ def main(config):
             if routeTag == "KT":
                 routeTag = "T" if "Inbound" in dest["title"] else "K"
 
-            title = routeTag if config.bool("compact_predictions") else (routeTag, destTitle)
+            title = routeTag if "short" == config.get("prediction_format") else (routeTag, destTitle)
             minutes = [prediction["minutes"] for prediction in predictions if "minutes" in prediction]
             prediction_map[title] = sorted(minutes, key = int)
 
@@ -169,7 +185,7 @@ def main(config):
         if higher_priority_than(message["priority"], lowest_message_pri)
     ]
 
-    lines = 3
+    lines = 4
 
     if config.bool("show_title"):
         lines = lines - 1
@@ -192,10 +208,10 @@ def main(config):
                     )
                 ])
         )
-    if config.bool("compact_predictions"):
+    if "short" == config.get("prediction_format"):
         rows.extend(shortPredictions(output, messages, lines, config))
     else:
-        rows.extend(longRows(output[:lines]))
+        rows.extend(longRows(output[:lines], config))
 
     if messages:
         rows.append(
@@ -219,7 +235,7 @@ def main(config):
         child = render.Column(
             children = rows,
             expanded = True,
-            main_align = "space_between",
+            main_align = "space_between" if lines < 4 else "space_evenly",
             cross_align = "center",
         ),
     )
@@ -284,27 +300,45 @@ def shortPredictions(output, messages, lines, config):
         )
     ]
 
-def longRows(output):
+def longRows(output, config):
     return [
         render.Row(
-            children = [
-                render.Circle(
-                    child = render.Text(routeTag),
-                    diameter = 10,
-                    color = MUNI_COLORS[routeTag] if routeTag in MUNI_COLORS else "#000000",
-                ),
-                render.Marquee(
-                    child = render.Text(destination),
-                    width = 40,
-                ),
-                render.Marquee(
-                    child = render.Text((" " if len(predictions[0]) < 2 else "") + predictions[0]),
-                    width = 10,
-                ),
-            ],
+            children = getLongRow(routeTag, destination, predictions, config),
             expanded = True,
             main_align = "space_evenly",
             cross_align = "center",
         )
         for ((routeTag, destination), predictions) in output
     ]
+
+def getLongRow(routeTag, destination, predictions, config):
+    row = []
+    row.append(
+        render.Circle(
+            child = render.Text(routeTag, font="tom-thumb"),
+            diameter = 7,
+            color = MUNI_COLORS[routeTag] if routeTag in MUNI_COLORS else "#000000",
+        )
+    )
+    if "long" == config.get("prediction_format"):
+        row.append(
+            render.Marquee(
+                child = render.Text(destination, font="tom-thumb"),
+                width = 40,
+            )
+        )
+        row.append(
+            render.Marquee(
+                child = render.Text((" " if len(predictions[0]) < 2 else "") + predictions[0], font="tom-thumb"),
+                width = 10,
+            ),
+        )
+    else:
+        row.append(
+            render.Marquee(
+                child = render.Text(" & ".join(["%s min" % prediction for prediction in predictions[:2]]), font="tom-thumb"),
+                width = 50,
+            ),
+        )
+    
+    return row
