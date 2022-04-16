@@ -62,7 +62,7 @@ def get_image(url):
             cache_name = "slackmoji_image_" + url
             cached_image = cache.get(cache_name)
             if cached_image != None:
-                return {"file": base64.decode(cached_image), "width": 32, "height": 32}
+                return base64.decode(cached_image)
 
         # no cache, fetch new image
         response = http.get(url)
@@ -71,10 +71,10 @@ def get_image(url):
             if file:
                 if USE_CACHE:
                     cache.set(cache_name, base64.encode(file), ttl_seconds = CACHE_SECONDS_IMAGE)
-                return {"file": file, "width": 32, "height": 32}
+                return file
 
     # something went wrong, return the fail image
-    return {"file": base64.decode(FAIL_IMAGE), "width": 64, "height": 32}
+    return base64.decode(FAIL_IMAGE)
 
 # generates a pseudo-random number between min and max
 # this is based on the current time in nanoseconds
@@ -91,9 +91,8 @@ def main():
     return render.Root(
         render.Box(
             child = render.Image(
-                src = image["file"],
-                width = image["width"],
-                height = image["height"],
+                src = image,
+                height = 32,
             ),
         ),
     )
