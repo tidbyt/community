@@ -29,6 +29,7 @@ import (
 	"tidbyt.dev/community/apps/dvdlogo"
 	"tidbyt.dev/community/apps/dwheadline"
 	"tidbyt.dev/community/apps/espnnews"
+	"tidbyt.dev/community/apps/finevent"
 	"tidbyt.dev/community/apps/fishbyt"
 	"tidbyt.dev/community/apps/fitbitweight"
 	"tidbyt.dev/community/apps/flags"
@@ -70,6 +71,7 @@ import (
 	"tidbyt.dev/community/apps/steam"
 	"tidbyt.dev/community/apps/strava"
 	"tidbyt.dev/community/apps/sunrisesunset"
+	"tidbyt.dev/community/apps/surflive"
 	"tidbyt.dev/community/apps/tempest"
 	"tidbyt.dev/community/apps/theysaidso"
 	"tidbyt.dev/community/apps/todoist"
@@ -80,6 +82,7 @@ import (
 	"tidbyt.dev/community/apps/verticalmessage"
 	"tidbyt.dev/community/apps/warframecycles"
 	"tidbyt.dev/community/apps/weathermap"
+	"tidbyt.dev/community/apps/whosthatpokemon"
 	"tidbyt.dev/community/apps/worldclock"
 )
 
@@ -109,6 +112,7 @@ func GetManifests() []manifest.Manifest {
 		dvdlogo.New(),
 		dwheadline.New(),
 		espnnews.New(),
+		finevent.New(),
 		fishbyt.New(),
 		fitbitweight.New(),
 		flags.New(),
@@ -149,6 +153,7 @@ func GetManifests() []manifest.Manifest {
 		steam.New(),
 		strava.New(),
 		sunrisesunset.New(),
+		surflive.New(),
 		tempest.New(),
 		theysaidso.New(),
 		todoist.New(),
@@ -159,6 +164,7 @@ func GetManifests() []manifest.Manifest {
 		verticalmessage.New(),
 		warframecycles.New(),
 		weathermap.New(),
+		whosthatpokemon.New(),
 		worldclock.New(),
 	}
 }
