@@ -114,6 +114,33 @@ def calc_day_progress(now):
 
     return day_progress
 
+def calc_day_progress_custom(now, timezone, config):
+    start_time = time.time(
+        year = now.year,
+        month = now.month,
+        day = now.day,
+        hour = int(config.str("start_hour", "0")),
+        minute = int(config.str("start_minute", "0")),
+        location = timezone,
+    )
+    end_time = time.time(
+        year = now.year,
+        month = now.month,
+        day = now.day,
+        hour = int(config.str("end_hour", "0")),
+        minute = int(config.str("end_minute", "0")),
+        location = timezone,
+    )
+
+    if now < start_time:  #if current time is less than start time then still technically in the previous day (can get values over 100 %)
+        now += time.parse_duration("24h")
+
+    if end_time <= start_time or end_time.hour == 0:  #move date to the next day for end time if the duration is negative
+        end_time += time.parse_duration("24h")
+
+    day_progress = 100 * (now - start_time) / (end_time - start_time)  #calculate percentage
+    return day_progress
+
 def calc_month_progress(now, timezone):
     firstdayofmonth = time.time(year = now.year, month = now.month, day = 1, hour = 0, minute = 0, second = 0, location = timezone)
     lastdayofmonth = time.time(year = now.year, month = now.month + 1, day = 0, hour = 23, minute = 59, second = 59, location = timezone)
@@ -138,7 +165,10 @@ def main(config):
     now = config.get("time")
     now = (time.parse_time(now) if now else time.now()).in_location(timezone)
 
-    day_progress = calc_day_progress(now)
+    if config.bool("custom_day"):
+        day_progress = calc_day_progress_custom(now, timezone, config)
+    else:
+        day_progress = calc_day_progress(now)
     month_progress = calc_month_progress(now, timezone)
     year_progress = calc_year_progress(now, timezone)
 
@@ -176,6 +206,8 @@ def get_schema():
         schema.Option(display = "Magenta", value = "#f0f"),
     ]
 
+    hour = [schema.Option(display = str(x), value = str(x)) for x in range(24)]
+    minute = [schema.Option(display = str(x), value = str(x)) for x in range(60)]
     return schema.Schema(
         version = "1",
         fields = [
@@ -243,6 +275,45 @@ def get_schema():
                 desc = "The color of the day progress bar.",
                 options = colors,
                 default = P_COLOR_DAY,
+            ),
+            schema.Toggle(
+                id = "custom_day",
+                name = "Custom Day progress interval",
+                desc = "Use custom start and end times for day progress bar.",
+                icon = "cog",
+                default = False,
+            ),
+            schema.Dropdown(
+                id = "start_hour",
+                icon = "clock",
+                name = "Day progress start time (hour)",
+                desc = "The start time of the day progress bar (hour).",
+                options = hour,
+                default = "0",
+            ),
+            schema.Dropdown(
+                id = "start_minute",
+                icon = "clock",
+                name = "Day progress start time (minute)",
+                desc = "The start time of the day progress bar (minute).",
+                options = minute,
+                default = "0",
+            ),
+            schema.Dropdown(
+                id = "end_hour",
+                icon = "clock",
+                name = "Day progress end time (hour)",
+                desc = "The end time of the day progress bar (hour).",
+                options = hour,
+                default = "0",
+            ),
+            schema.Dropdown(
+                id = "end_minute",
+                icon = "clock",
+                name = "Day progress end time (minute)",
+                desc = "The end time of the day progress bar (minute).",
+                options = minute,
+                default = "0",
             ),
         ],
     )
