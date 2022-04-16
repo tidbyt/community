@@ -35,25 +35,25 @@ def main(config):
     wf_vallis_cached = cache.get("vallis")
     if wf_cetus_cached != None:
         print("Hit! Displaying cached data.")
-        cetus = wf_cetus_cached
+        cetus = int(wf_cetus_cached) - 1  # Subtract because cache could be up to 1 minute old
     else:
         REFRESH_CACHE = True
 
     if wf_earth_cached != None:
         print("Hit! Displaying cached data.")
-        earth = wf_earth_cached
+        earth = str(int(wf_earth_cached) - 1)  # Subtract because cache could be up to 1 minute old
     else:
         REFRESH_CACHE = True
 
     if wf_cambion_cached != None:
         print("Hit! Displaying cached data.")
-        cambion = wf_cambion_cached
+        cambion = str(int(wf_cambion_cached) - 1)  # Subtract because cache could be up to 1 minute old
     else:
         REFRESH_CACHE = True
 
     if wf_vallis_cached != None:
         print("Hit! Displaying cached data.")
-        vallis = wf_vallis_cached
+        vallis = str(int(wf_vallis_cached) - 1)  # Subtract because cache could be up to 1 minute old
     else:
         REFRESH_CACHE = True
 
@@ -118,24 +118,40 @@ def main(config):
         vallis = "%s - %s" % (vallisremaining, vallisactive)
         cache.set("wf_vallis_cached", str(vallis), ttl_seconds = 60)
 
+    color_toggle = config.bool("warframe_cycles_color", False)
+    if color_toggle:
+        cetuscolor = "#02f" if cetusactive == "Night" else "#ff0"
+        earthcolor = "#04f" if earthactive == "Night" else "#fd0"
+        cambioncolor = "#f70" if cambionactive == "Fass" else "#0ff"
+        valliscolor = "#b0f" if vallisactive == "Cold" else "#f20"
+    else:
+        cetuscolor = "#fff"
+        earthcolor = "#fff"
+        cambioncolor = "#fff"
+        valliscolor = "#fff"
+
     return render.Root(
         child = render.Column(
             children = [
                 render.Text(
                     content = "C: %s" % cetus,
                     font = "tb-8",
+                    color = cetuscolor,
                 ),
                 render.Text(
                     content = "E: %s" % earth,
                     font = "tb-8",
+                    color = earthcolor,
                 ),
                 render.Text(
                     content = "D: %s" % cambion,
                     font = "tb-8",
+                    color = cambioncolor,
                 ),
                 render.Text(
                     content = "V: %s" % vallis,
                     font = "tb-8",
+                    color = valliscolor,
                 ),
             ],
         ),
@@ -144,5 +160,12 @@ def main(config):
 def get_schema():
     return schema.Schema(
         version = "1",
-        fields = [],
+        fields = [
+            schema.Toggle(
+                id = "warframe_cycles_color",
+                name = "Color Display",
+                icon = "eye",
+                desc = "Toggle on to display in color",
+            ),
+        ],
     )
