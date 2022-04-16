@@ -23,9 +23,9 @@ load("time.star", "time")
 
 #OAuth Information
 FITBIT_CLIENT_ID = "238FC5"
-OAUTH2_CLIENT_SECRET = secret.decrypt("AV6+xWcE74PvLnAK9o2UbKXs4mvqPOtEMJzu/AvYJQzd9Ngjvk/N5Ee2G3YD4+EF5TMJyWSs85/MoOk2VZWddwZh7+Zld7+ySKsF49sF+4tFGEQjOqVOebCiKpL1YpwFcBmC0em2bLFO890zJRjVUHDDLfXXkasbIftnKofwR49Kpga5oAY=") 
+OAUTH2_CLIENT_SECRET = secret.decrypt("AV6+xWcE74PvLnAK9o2UbKXs4mvqPOtEMJzu/AvYJQzd9Ngjvk/N5Ee2G3YD4+EF5TMJyWSs85/MoOk2VZWddwZh7+Zld7+ySKsF49sF+4tFGEQjOqVOebCiKpL1YpwFcBmC0em2bLFO890zJRjVUHDDLfXXkasbIftnKofwR49Kpga5oAY=")
 FITBIT_SECRET = secret.decrypt("AV6+xWcEqLZ1+KzoRlbZYXgEWLJLeCrHXA6fcqjagRi/gRlH7Wmj8QWepc+JB5HCy40CzovjbZM1zV3VFuVvATRXmtLsalSRWwwwc6Wrh00dfUGD/xK7eZLyA3Oua2rvnzD1QguqODgWr57RguybEGXEfaPc6McM0L10raV3xJS8cGJgGlT3lR67z1EeyybGYMMlAwDnopGKBQ==")
-FITBIT_REDIRECT_URI = "https://appauth.tidbyt.com/fitbitweight" 
+FITBIT_REDIRECT_URI = "https://appauth.tidbyt.com/fitbitweight"
 
 #Fitbit Data
 FITBIT_BASE = "https://www.fitbit.com/oauth2/authorize?response_type=code&client_id=238FC5&redirect_uri=https%3A%2F%2Fappauth.tidbyt.com%2FFitbitWeight&scope=profile%20weight&expires_in=604800"
@@ -45,6 +45,7 @@ WHITE_COLOR = "#FFF"
 def main(config):
     print("")
     print("-----------------Getting Started at %s--------------------" % time.now())
+
     #get user settings
     authorization_code = config.get("code")
     period = config.get("period") or "30d"
@@ -79,9 +80,9 @@ def main(config):
             fat_json = get_data_from_fitbit(token_information, ("https://api.fitbit.com/1/user/-/body/fat/date/today/%s.json" % period))
 
     #Process Data
-    current_weight = float(weight_json['body-weight'][-1]["value"])
-    current_fat = float(fat_json['body-fat'][-1]["value"])
-    first_weight = float(weight_json['body-weight'][0]["value"])
+    current_weight = float(weight_json["body-weight"][-1]["value"])
+    current_fat = float(fat_json["body-fat"][-1]["value"])
+    first_weight = float(weight_json["body-weight"][0]["value"])
 
     if system == "metric":
         displayUnits = "KG"
@@ -91,7 +92,7 @@ def main(config):
         first_weight = first_weight * KILOGRAMS_TO_POUNDS_MULTIPLIER
 
     weight_change = current_weight - first_weight
-    
+
     # The - sign is part of the number, but I want a "+" sign if there is a gain
     sign = ""
     if weight_change > 0:
@@ -107,22 +108,23 @@ def main(config):
         numbers_row = render.Row(
             main_align = "left",
             children = [
-                    render.Text(display_weight, color = WEIGHT_COLOR, font = DISPLAY_FONT), 
-                    render.Text(("%s%%" % (humanize.comma(int(current_fat * 100) / 100.0))), color = FAT_COLOR, font = DISPLAY_FONT),
-                ],
+                render.Text(display_weight, color = WEIGHT_COLOR, font = DISPLAY_FONT),
+                render.Text(("%s%%" % (humanize.comma(int(current_fat * 100) / 100.0))), color = FAT_COLOR, font = DISPLAY_FONT),
+            ],
         )
     else:
         numbers_row = render.Row(
             main_align = "left",
             children = [
-                    render.Text(display_weight, color = WHITE_COLOR, font = DISPLAY_FONT), 
-                    render.Text("%s%s" % (sign, humanize.comma(int(weight_change * 100) / 100.0)), color = WEIGHT_COLOR, font = DISPLAY_FONT),
-                ],
+                render.Text(display_weight, color = WHITE_COLOR, font = DISPLAY_FONT),
+                render.Text("%s%s" % (sign, humanize.comma(int(weight_change * 100) / 100.0)), color = WEIGHT_COLOR, font = DISPLAY_FONT),
+            ],
         )
-    
+
     #Build the display in rows
     rows = [numbers_row]
-    #1 pixel tall horizontal separator 
+
+    #1 pixel tall horizontal separator
     rows.append(render.Box(height = 1))
     if show_fat == True:
         rows.append(get_plot_display_from_plot(weight_plot, WEIGHT_COLOR))
@@ -137,16 +139,16 @@ def main(config):
         ),
     )
 
-def get_plot_display_from_plot(plot, color = WHITE_COLOR, height=13):
+def get_plot_display_from_plot(plot, color = WHITE_COLOR, height = 13):
     return render.Plot(
-            data = plot,
-            width = 64,
-            height = height,
-            color = color,
-            ylim = (0.0, 1.0),
-            xlim = (0.0, 1.0),
-            fill = True,
-        )
+        data = plot,
+        width = 64,
+        height = height,
+        color = color,
+        ylim = (0.0, 1.0),
+        xlim = (0.0, 1.0),
+        fill = True,
+    )
 
 def get_plot_from_data(json_data):
     #Loop through data and get max and mins
@@ -154,7 +156,7 @@ def get_plot_from_data(json_data):
     newest_date = None
     smallest = None
     largest = None
-    starting_value = None 
+    starting_value = None
     item_count = 0
     for i in json_data:
         for item in json_data[i]:
@@ -163,45 +165,54 @@ def get_plot_from_data(json_data):
             current_value = float(item["value"])
 
             #get starting value
-            if starting_value == None: starting_value = current_value
+            if starting_value == None:
+                starting_value = current_value
 
             #get the oldest date
-            if oldest_date == None: oldest_date = current_date 
-            elif current_date < oldest_date: oldest_date = current_date 
+            if oldest_date == None:
+                oldest_date = current_date
+            elif current_date < oldest_date:
+                oldest_date = current_date
 
             #get the newest date
-            if newest_date == None: newest_date = current_date 
-            elif current_date > newest_date: newest_date = current_date
+            if newest_date == None:
+                newest_date = current_date
+            elif current_date > newest_date:
+                newest_date = current_date
 
             #get smallest
-            if smallest == None: smallest = current_value 
-            elif current_value < smallest: smallest = current_value
+            if smallest == None:
+                smallest = current_value
+            elif current_value < smallest:
+                smallest = current_value
 
             #get largest
-            if largest == None: largest = current_value 
-            elif current_value > largest: largest = current_value
+            if largest == None:
+                largest = current_value
+            elif current_value > largest:
+                largest = current_value
 
     #can't do much with no data
     if item_count == 0:
-        plot = plot = [(0.0, 0.0)]
+        plot = [(0.0, 0.0)]
         return plot
 
     date_range = newest_date - oldest_date
-    value_range = largest - smallest 
+    value_range = largest - smallest
 
-    #If they happened to have stayed the exact same weight/fat%/bmi, it's a straight 
+    #If they happened to have stayed the exact same weight/fat%/bmi, it's a straight
     #line and we need to avoid a div by zero error as well.
     if value_range == 0:
         value_range = 1
 
     #now plot the data:
-    plot = [(0.0, float((starting_value - smallest)/(value_range)))]
+    plot = [(0.0, float((starting_value - smallest) / (value_range)))]
     for i in json_data:
         for item in json_data[i]:
             current_date = get_timestamp_from_date(item["dateTime"])
             current_value = float(item["value"])
-            x_val =  (current_date - oldest_date).hours/(newest_date - oldest_date).hours
-            y_val = (current_value - smallest)/(value_range)
+            x_val = (current_date - oldest_date).hours / (newest_date - oldest_date).hours
+            y_val = (current_value - smallest) / (value_range)
             plot.append((float(x_val), plot[-1][1]))
             plot.append((float(x_val), float(y_val)))
 
@@ -216,7 +227,7 @@ def oauth_handler(params):
     params = json.decode(params)
     print("oauth_handler")
     print(str(params))
-    
+
     # exchange parameters and client secret for an access token
     res = http.post(
         url = FITBIT_TOKEN_URL,
@@ -252,7 +263,7 @@ def get_data_from_fitbit(token_information, data_url):
         print("Received Data from Fitbit!")
         return res.json()
     else:
-        print("token request failed with status code: %d - %s" %  (res.status_code, res.body()))
+        print("token request failed with status code: %d - %s" % (res.status_code, res.body()))
         return None
 
 def get_access_token_information(authorization_code):
@@ -262,7 +273,7 @@ def get_access_token_information(authorization_code):
     form_body = dict(
         clientId = FITBIT_CLIENT_ID,
         grant_type = "authorization_code",
-        redirect_uri = FITBIT_REDIRECT_URI, 
+        redirect_uri = FITBIT_REDIRECT_URI,
         code = authorization_code,
     )
 
@@ -272,10 +283,10 @@ def get_access_token_information(authorization_code):
     )
 
     res = http.post(
-            url = FITBIT_TOKEN_URL,
-            headers = headers,           
-            form_body = form_body,
-        )
+        url = FITBIT_TOKEN_URL,
+        headers = headers,
+        form_body = form_body,
+    )
 
     if res.status_code == 200:
         print("Success")
