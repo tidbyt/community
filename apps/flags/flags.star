@@ -17,6 +17,7 @@ load("render.star", "render")
 load("schema.star", "schema")
 load("encoding/base64.star", "base64")
 load("time.star", "time")
+load("random.star", "random")
 
 COUNTRY_CODE_SCHEMA_ID = "country_code"
 TEXT_COLOR_SCHEMA_ID = "text_color"
@@ -1117,7 +1118,7 @@ def render_without_name(country, bg_color):
 
 # retrieves a random country the list of countries
 def get_random_country():
-    return COUNTRIES.values()[random(1, len(COUNTRIES) - 1)]
+    return COUNTRIES.values()[random.number(1, len(COUNTRIES) - 1)]
 
 # retrieves a specific country the list of countries
 def get_country(country_code):
@@ -1176,13 +1177,6 @@ def get_bg_color_schema_options():
             value = "#333",
         ),
     ]
-
-# generates a pseudo-random number between min and max
-# this is based on the current time in nanoseconds
-def random(min, max):
-    now = time.now()
-    rand = int(str(now.nanosecond)[-6:-3]) / 1000
-    return int(rand * (max - min) + min)
 
 def get_schema():
     return schema.Schema(
