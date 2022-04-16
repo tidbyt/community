@@ -19,7 +19,12 @@ load("encoding/base64.star", "base64")
 load("time.star", "time")
 
 COUNTRY_CODE_SCHEMA_ID = "country_code"
+TEXT_COLOR_SCHEMA_ID = "text_color"
+BG_COLOR_SCHEMA_ID = "bg_color"
+SHOW_NAME_SCHEMA_ID = "show_name"
 DEFAULT_COUNTRY_CODE = "random"
+DEFAULT_TEXT_COLOR = "#fff"
+DEFAULT_BG_COLOR = "#000"
 COUNTRIES = {
     DEFAULT_COUNTRY_CODE: {
         "name": "Random",
@@ -1045,26 +1050,78 @@ COUNTRIES = {
 
 def main(config):
     country_code = config.get(COUNTRY_CODE_SCHEMA_ID, DEFAULT_COUNTRY_CODE)
-    if country_code == "random":
-        flag = get_random_flag()
-    else:
-        flag = get_flag(country_code)
+    text_color = config.get(TEXT_COLOR_SCHEMA_ID, DEFAULT_TEXT_COLOR)
+    bg_color = config.get(BG_COLOR_SCHEMA_ID, DEFAULT_BG_COLOR)
+    show_name = config.bool(SHOW_NAME_SCHEMA_ID, False)
+    country = get_random_country() if country_code == "random" else get_country(country_code)
+
+    if show_name:
+        return render_with_name(country, bg_color, text_color)
+
+    return render_without_name(country, bg_color)
+
+# renders both the flag and the country name
+def render_with_name(country, bg_color, text_color):
+    flag = country["flag"]
+    name = country["name"]
+
+    # render the flag with a scaled down image
+    # original flag image is 40 x 30
+    rendered_image = render.Image(
+        src = base64.decode(flag),
+        width = 32,
+        height = 24,
+    )
+
+    # render the country name text
+    name_text = render.Text(
+        content = name,
+        color = text_color,
+        font = "tom-thumb",
+    )
+
+    # if the country name won't fit by itself, put it in a marquee
+    rendered_text = name_text if len(name) <= 16 else render.Marquee(
+        width = 64,
+        child = name_text,
+    )
+
+    return render.Root(
+        render.Box(
+            child = render.Column(
+                expanded = True,
+                main_align = "space_evenly",
+                cross_align = "center",
+                children = [
+                    rendered_image,
+                    rendered_text,
+                ],
+            ),
+            color = bg_color,
+        ),
+        delay = 100,
+    )
+
+# renders only a country flag
+def render_without_name(country, bg_color):
+    flag = country["flag"]
 
     return render.Root(
         render.Box(
             child = render.Image(
                 src = base64.decode(flag),
             ),
+            color = bg_color,
         ),
     )
 
-# retrieves a random country flag the list of countries
-def get_random_flag():
-    return COUNTRIES.values()[random(1, len(COUNTRIES) - 1)]["flag"]
+# retrieves a random country the list of countries
+def get_random_country():
+    return COUNTRIES.values()[random(1, len(COUNTRIES) - 1)]
 
-# retrieves a specific country flag the list of countries
-def get_flag(country_code):
-    return COUNTRIES[country_code]["flag"]
+# retrieves a specific country the list of countries
+def get_country(country_code):
+    return COUNTRIES[country_code]
 
 # generates schema options for each country code
 def get_country_schema_options():
@@ -1077,6 +1134,48 @@ def get_country_schema_options():
             ),
         )
     return options
+
+# returns the schema text color options
+def get_text_color_schema_options():
+    return [
+        schema.Option(
+            display = "White",
+            value = DEFAULT_TEXT_COLOR,
+        ),
+        schema.Option(
+            display = "Light Gray",
+            value = "#ccc",
+        ),
+        schema.Option(
+            display = "Medium Gray",
+            value = "#999",
+        ),
+        schema.Option(
+            display = "Dark Gray",
+            value = "#666",
+        ),
+    ]
+
+# returns the schema background color options
+def get_bg_color_schema_options():
+    return [
+        schema.Option(
+            display = "Black",
+            value = DEFAULT_BG_COLOR,
+        ),
+        schema.Option(
+            display = "Dark Gray",
+            value = "#111",
+        ),
+        schema.Option(
+            display = "Medium Gray",
+            value = "#222",
+        ),
+        schema.Option(
+            display = "Light Gray",
+            value = "#333",
+        ),
+    ]
 
 # generates a pseudo-random number between min and max
 # this is based on the current time in nanoseconds
@@ -1096,6 +1195,29 @@ def get_schema():
                 icon = "flag",
                 default = DEFAULT_COUNTRY_CODE,
                 options = get_country_schema_options(),
+            ),
+            schema.Toggle(
+                id = SHOW_NAME_SCHEMA_ID,
+                name = "Show Country Name",
+                desc = "Display the country name along with its flag.",
+                icon = "font",
+                default = False,
+            ),
+            schema.Dropdown(
+                id = TEXT_COLOR_SCHEMA_ID,
+                name = "Text Color",
+                desc = "The color of the country name text.",
+                icon = "paintbrush",
+                default = DEFAULT_TEXT_COLOR,
+                options = get_text_color_schema_options(),
+            ),
+            schema.Dropdown(
+                id = BG_COLOR_SCHEMA_ID,
+                name = "Background Color",
+                desc = "The color to display behind the flag.",
+                icon = "fillDrip",
+                default = DEFAULT_BG_COLOR,
+                options = get_bg_color_schema_options(),
             ),
         ],
     )
