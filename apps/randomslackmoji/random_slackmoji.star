@@ -20,6 +20,7 @@ load("time.star", "time")
 load("encoding/json.star", "json")
 load("encoding/base64.star", "base64")
 load("cache.star", "cache")
+load("random.star", "random")
 
 SLACKMOJI_PAGE_COUNT = 106
 SLACKMOJI_IMAGES_PER_PAGE = 499
@@ -38,13 +39,13 @@ def get_slackmoji_url():
             return cached_url
 
     # no cache, fetch new url
-    page_url = "https://slackmojis.com/emojis.json?page=" + str(random(0, SLACKMOJI_PAGE_COUNT))
+    page_url = "https://slackmojis.com/emojis.json?page=" + str(random.number(0, SLACKMOJI_PAGE_COUNT))
     response = http.get(page_url)
     if response.status_code == 200:
         body = response.body()
         data = json.decode(body) if body else None
         if data:
-            slackmoji = data[random(0, SLACKMOJI_IMAGES_PER_PAGE)]
+            slackmoji = data[random.number(0, SLACKMOJI_IMAGES_PER_PAGE)]
             if slackmoji and slackmoji["image_url"]:
                 url = slackmoji["image_url"]
                 if USE_CACHE:
@@ -75,13 +76,6 @@ def get_image(url):
 
     # something went wrong, return the fail image
     return base64.decode(FAIL_IMAGE)
-
-# generates a pseudo-random number between min and max
-# this is based on the current time in nanoseconds
-def random(min, max):
-    now = time.now()
-    rand = int(str(now.nanosecond)[-6:-3]) / 1000
-    return int(rand * (max - min) + min)
 
 def main():
     # download a random slackmoji
