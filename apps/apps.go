@@ -154,10 +154,7 @@ func GetManifests() []manifest.Manifest {
 		surflive.New(),
 		tempest.New(),
 		theysaidso.New(),
-<<<<<<< HEAD
-=======
 		todoist.New(),
->>>>>>> 2d9b0882f36f5dcbca584fb7721dcae4dffcdcc1
 		transsee.New(),
 		twitterfollows.New(),
 		unsplash.New(),
