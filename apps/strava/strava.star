@@ -546,7 +546,7 @@ def athlete_stats(config, refresh_token, period, sport, units):
                             ],
                         )
                         for i in range(800)
-                    ]
+                    ],
                 ),
                 render.Animation(
                     children = [
