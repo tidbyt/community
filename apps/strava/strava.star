@@ -88,6 +88,52 @@ jZCAAeN0X/v+8M56REZ86kKJPO+IY+DwWMYAV/g9X+g+iGVfeQ9EIUggziBGkCKYAnQ1SxPehng
 Gr1eimwzTjdSOy+wFaLiTvmqj9hwAAAABJRU5ErkJggg==
 """)
 
+PR_ICON = base64.decode("""
+iVBORw0KGgoAAAANSUhEUgAAAAYAAAAGCAYAAADgzO9IAAAAAXNSR0IArs4c6QAAAERlWElmTU0
+AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAA6ABAAMAAAABAAEAAKACAAQAAAABAAAABqADAAQAAA
+ABAAAABgAAAABrkD2lAAAAWUlEQVQIHWN8ukbpPwMIcDCDKRDx6t5zBkYQ4+kWVYjkj78Mr569Y
+jDM+8LIBJIAA6jg9y9/wVy4BEglMgBLSPvcZgSpBGGrqu9g48HEnipGiB1QLS5t/xkBgJYlhpF+
+DqcAAAAASUVORK5CYII=
+""")
+
+HEART_ICON = base64.decode("""
+iVBORw0KGgoAAAANSUhEUgAAAAcAAAAGCAYAAAAPDoR2AAAAAXNSR0IArs4c6QAAAERlWElmTU0
+AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAA6ABAAMAAAABAAEAAKACAAQAAAABAAAAB6ADAAQAAA
+ABAAAABgAAAADsNvbmAAAAZklEQVQIHWNgAIIPvU3/QRjEfu5r8x+EQWxGkCCrpi7D7+uXGf48e
+cjw+85Nhv/s3AyXX71kYAKpwCZx+/M3BkaQ5JvC5P/IOkASOedvMYIlQQqehbj/BxkFkwCJoYAp
+hmpgh8AEAeNyQoGVq7nIAAAAAElFTkSuQmCC
+""")
+
+KUDOS_ICON = base64.decode("""
+iVBORw0KGgoAAAANSUhEUgAAAAcAAAAGCAYAAAAPDoR2AAAAAXNSR0IArs4c6QAAAERlWElmTU0
+AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAA6ABAAMAAAABAAEAAKACAAQAAAABAAAAB6ADAAQAAA
+ABAAAABgAAAADsNvbmAAAAXklEQVQIHWNgQAJfv379j8RlYELmoLOZKibM+Z9Q2w3W8fPnT4Z37
+979B2GQQhaY6gcPHvz/9OkTjMuwd+/e/3BJPj4+uMT58+cZHj58iNApJCTEOG/ePLiDkpKSGAEl
+ZyaSy2CBIgAAAABJRU5ErkJggg==
+""")
+
+ACHIEVEMENT_ICON = base64.decode("""
+iVBORw0KGgoAAAANSUhEUgAAAAYAAAAGCAYAAADgzO9IAAAAAXNSR0IArs4c6QAAAERlWElmTU0
+AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAA6ABAAMAAAABAAEAAKACAAQAAAABAAAABqADAAQAAA
+ABAAAABgAAAABrkD2lAAAAMElEQVQIHWOcOnXqfwZcAFmyu7sbrJAJl2KcEnANICNgxoAEGUFEf
+X09igMaGxsZAeczEWNoVg96AAAAAElFTkSuQmCC
+""")
+
+KCAL_ICON = base64.decode("""
+iVBORw0KGgoAAAANSUhEUgAAAAcAAAAGCAYAAAAPDoR2AAAAAXNSR0IArs4c6QAAAERlWElmTU0
+AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAA6ABAAMAAAABAAEAAKACAAQAAAABAAAAB6ADAAQAAA
+ABAAAABgAAAADsNvbmAAAAZklEQVQIHWNgQAJfetj+gzBMiAnGAAlyOwcyfLn4DybEwAhigSX0m
+Bh+v/zP8AuIn5/9y6C6/C8jXCdMAqTzzee/YN0sYJ1IRt1//4dB9DFIzz+IsSAFd/SZ/r+W/QeW
+ULn4D2wdAPH3MeVIneA3AAAAAElFTkSuQmCC
+""")
+
+WATTS_ICON = base64.decode("""
+iVBORw0KGgoAAAANSUhEUgAAAAcAAAAGCAYAAAAPDoR2AAAAAXNSR0IArs4c6QAAAERlWElmTU0
+AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAA6ABAAMAAAABAAEAAKACAAQAAAABAAAAB6ADAAQAAA
+ABAAAABgAAAADsNvbmAAAARklEQVQIHWNgQAJ//x/6D8Jf77n/RxJmYAAJfv/+HUWCEaQCJAGif
+zw7DqIYGH7uY+BW2gmWgwgAya9PO1F0EiGB7gCoFgC8DS5ePrnJYwAAAABJRU5ErkJggg==
+""")
+
 def main(config):
     refresh_token = config.get("auth")
     sport = config.get("sport", DEFAULT_SPORT)
@@ -98,81 +144,32 @@ def main(config):
         return athlete_stats(config, refresh_token, display_type, sport, units)
     elif display_type == "progress_chart":
         return progress_chart(config, refresh_token, sport, units)
+    elif display_type == "last_activity":
+        return last_activity(config, refresh_token, sport, units)
     else:
         print("Display type %s was invalid, showing the %s screen instead." % (display_type, DEFAULT_SCREEN))
         return athlete_stats(config, refresh_token, DEFAULT_SCREEN, sport, units)
 
 def progress_chart(config, refresh_token, sport, units):
-    MAX_ACTIVITIES = 200
-    show_logo = config.get("show_logo", True)
+    show_logo = config.bool("show_logo", True)
 
     distance_conv = meters_to_mi
     if units == "metric":
         distance_conv = meters_to_km
 
+    activities = get_activities(config, refresh_token)
+
+    # This is duped from the get_activities function but we still need this info for this display
     timezone = config.get("timezone") or "America/New_York"
     now = time.now().in_location(timezone)
     beg_curr_month = time.time(year = now.year, month = now.month, day = 1)
     _next_month = time.time(year = now.year, month = now.month, day = 32)
     end_curr_month = time.time(year = _next_month.year, month = _next_month.month, day = 1) - time.parse_duration("1ns")
-
     end_prev_month = beg_curr_month - time.parse_duration("1ns")
     beg_prev_month = time.time(year = end_prev_month.year, month = end_prev_month.month, day = 1)
 
-    if not refresh_token:
-        activities = {
-            "current": [],
-            "previous": [],
-        }
-    else:
-        access_token = cache.get(refresh_token)
-        if not access_token:
-            print("Generating new access token")
-            access_token = get_access_token(refresh_token)
-
-        headers = {
-            "Authorization": "Bearer %s" % access_token,
-        }
-
-        # To help reduce the number of API calls we need, I'm querying both months together (current/prev commented)
-        # The consequence here is if the athlete completed more than 200 activities in the last 2 months we'll miss some
-        urls = {
-            "last-2": "%s/athlete/activities?after=%s&per_page=%s" % (STRAVA_BASE, beg_prev_month.unix, MAX_ACTIVITIES),
-            # "current": "%s/athlete/activities?after=%s&per_page=%s" % (STRAVA_BASE, beg_curr_month.unix, MAX_ACTIVITIES),
-            # "previous": "%s/athlete/activities?after=%s&before=%s&per_page=%s" % (STRAVA_BASE, beg_prev_month.unix, end_prev_month.unix, MAX_ACTIVITIES),
-        }
-
-        activities = {}
-
-        for query, url in urls.items():
-            cache_id = "%s/activity/%s/%s-%s" % (refresh_token, query, now.year, now.month)
-            data = cache.get(cache_id)
-
-            if not data:
-                print("Getting %s month activities. %s" % (query, url))
-                response = http.get(url, headers = headers)
-                if response.status_code != 200:
-                    text = "code %d, %s" % (response.status_code, json.decode(response.body()).get("message", ""))
-                    return display_failure("Strava API failed, %s" % text)
-                data = response.json()
-                cache.set(cache_id, json.encode(data), ttl_seconds = CACHE_TTL)
-            else:
-                print("Returning cached %s month activities." % query)
-                data = json.decode(data)
-
-            activities[query] = data
-
     stat_keys = ("distance", "moving_time", "total_elevation_gain")
     graph_stat = stat_keys[0]
-
-    # Sort each list chronologically
-    for query in activities.keys():
-        activities[query] = sorted(activities[query], key = lambda x: x["start_date"])
-
-    # Per above, split list into current and previous month
-    activities["current"] = [a for a in activities["last-2"] if time.parse_time(a["start_date"]) >= beg_curr_month]
-    activities["previous"] = [a for a in activities["last-2"] if time.parse_time(a["start_date"]) < beg_curr_month]
-    activities.pop("last-2", None)
 
     # Iterate through each activity from the current and previous month and extract the relevant data, adding it
     # to our cumulative totals as we go, which are later used in our plot.
@@ -245,7 +242,7 @@ def progress_chart(config, refresh_token, sport, units):
         total_time = "0:00"
 
     logo = []
-    if show_logo == "true":
+    if show_logo:
         sport_icon = {
             "run": RUN_ICON,
             "ride": RIDE_ICON,
@@ -563,6 +560,417 @@ def athlete_stats(config, refresh_token, period, sport, units):
         ),
     )
 
+def last_activity(config, refresh_token, sport, units):
+    show_logo = config.bool("show_logo", True)
+    title_font = "CG-pixel-3x5-mono"
+
+    if units == "metric":
+        distance_conv = meters_to_km
+    else:
+        distance_conv = meters_to_mi
+
+    activities = get_activities(config, refresh_token)
+
+    filtered = [a for a in activities["current"] if a["type"].lower() == sport.lower()]
+    if not len(filtered):
+        filtered = [a for a in activities["previous"] if a["type"].lower() == sport.lower()]
+    if not len(filtered):
+        # Skip display if the athlete has no activities in the past 2 months
+        print("No recent %ss found" % sport)
+        return []
+    display_activity = filtered[-1]
+
+    map_info = display_activity.get("map", {})
+    polyline = map_info.get("summary_polyline", map_info.get("polyline", None))
+    title = []
+    title_width = 64
+    if show_logo:
+        sport_icon = {
+            "run": RUN_ICON,
+            "ride": RIDE_ICON,
+            "swim": SWIM_ICON,
+        }[sport]
+        title_width -= 10
+        title.append(
+            render.Image(src = sport_icon),
+        )
+
+    total_time = format_duration(
+        time.parse_duration("%ss" % display_activity.get("moving_time", 0)),
+        resolution = "hours",
+    )
+
+    if display_activity.get("display_hide_heartrate_option", False) or (
+        not display_activity.get("has_heartrate") or display_activity.get("average_heartrate", 0) == 0
+    ):
+        if sport == "ride" and display_activity.get("average_watts", 0) > 0:
+            work_stat = {
+                "icon": WATTS_ICON,
+                "value": display_activity.get("average_watts"),
+            }
+        else:
+            work_stat = {
+                "icon": KCAL_ICON,
+                "value": kj_to_calories(display_activity.get("kilojoules", 0)),
+            }
+    else:
+        work_stat = {
+            "icon": HEART_ICON,
+            "value": int(display_activity.get("average_heartrate", 0)),
+        }
+
+    if sport == "ride":
+        elev = display_activity.get("total_elevation_gain", 0)
+        if units == "imperial":
+            elev = meters_to_ft(elev)
+
+    if float(display_activity.get("distance", 0)) > 0:
+        distance = distance_conv(float(display_activity.get("distance", 1)))
+        split = float(display_activity.get("moving_time", 0)) / distance
+        split = time.parse_duration(str(split) + "s")
+        split = format_duration(split)
+    else:
+        split = "N/A"
+
+    pace_stat = render.Column(
+        main_align = "center",
+        cross_align = "center",
+        children = [
+            render.Text("Pace", color = "#fc4c02", font = title_font),
+            render.Text(split, color = "#FFF"),
+        ],
+    )
+
+    time_stat = render.Column(
+        main_align = "center",
+        cross_align = "center",
+        children = [
+            render.Text("Time", color = "#fc4c02", font = title_font),
+            render.Text(total_time, color = "#FFF"),
+        ],
+    )
+
+    top_row = [
+        time_stat if sport == "ride" else pace_stat,
+        render.Box(width = 1, height = 10, color = "#0000"),  # Force spacing + row height to 10px
+        render.Column(
+            main_align = "center",
+            cross_align = "center",
+            children = [
+                render.Text("Dist", color = "#fc4c02", font = title_font),
+                render.Text(
+                    humanize.comma(int(distance_conv(display_activity.get("distance", 0)))),
+                    color = "#FFF",
+                ),
+            ],
+        ),
+    ]
+
+    render_layers = []
+    # This gives better spacing if there is no map
+    stat_spacing = "space_around"
+
+    if polyline:
+        coordinates = decode_polyline(polyline)
+        # Slight rotation helps certain routes fit better on the screen
+        degrees_rotation = 15
+        theta = math.radians(degrees_rotation)
+        coordinates = [
+            (
+                math.cos(theta) * y + math.sin(theta) * x,
+                math.cos(theta) * x - math.sin(theta) * y,
+            )
+            for x, y in coordinates
+        ]
+
+        render_layers.append(
+            render.Column(
+                expanded = True,
+                main_align = "center",
+                cross_align = "center",
+                children = [
+                    render.Stack(
+                        children = [
+                            render.Row(
+                                expanded = True,
+                                main_align = "center",
+                                cross_align = "center",
+                                children = [
+                                    render.Plot(
+                                        data = coordinates,
+                                        width = 32,
+                                        height = 32,
+                                        color = "#6d6d7833",
+                                    ),
+                                ],
+                            ),
+                            render.Row(
+                                expanded = True,
+                                main_align = "center",
+                                cross_align = "center",
+                                children = [
+                                    render.Animation(
+                                        children = list([
+                                            render.Plot(
+                                                data = coordinates[i:i+2],
+                                                width = 32,
+                                                height = 32,
+                                                color = "#ffa078",
+                                                x_lim = (min([x for x, _ in coordinates]), max([x for x, _ in coordinates])),
+                                                y_lim = (min([y for _, y in coordinates]), max([y for _, y in coordinates])),
+                                            )
+                                            for i, _ in enumerate(coordinates)
+                                        ])
+                                    ),
+                                ],
+                            ),
+                            render.Row(
+                                expanded = True,
+                                main_align = "center",
+                                cross_align = "center",
+                                children = [
+                                    render.Animation(
+                                        children = list([
+                                            render.Plot(
+                                                data = coordinates[i-1:i+1],
+                                                width = 32,
+                                                height = 32,
+                                                color = "#fc4c02",
+                                                x_lim = (min([x for x, _ in coordinates]), max([x for x, _ in coordinates])),
+                                                y_lim = (min([y for _, y in coordinates]), max([y for _, y in coordinates])),
+                                            )
+                                            for i, _ in enumerate(coordinates)
+                                        ])
+                                    ),
+                                ],
+                            ),
+                            render.Row(
+                                expanded = True,
+                                main_align = "center",
+                                cross_align = "center",
+                                children = [
+                                    render.Animation(
+                                        children = list([
+                                            render.Plot(
+                                                data = coordinates[0:i+1],
+                                                width = 32,
+                                                height = 32,
+                                                color = "#fc4c0277",
+                                                x_lim = (min([x for x, _ in coordinates]), max([x for x, _ in coordinates])),
+                                                y_lim = (min([y for _, y in coordinates]), max([y for _, y in coordinates])),
+                                            )
+                                            for i, _ in enumerate(coordinates)
+                                        ])
+                                    ),
+                                ],
+                            ),
+                        ],
+                    ),
+                ],
+            ),
+        )
+
+        stat_spacing = "space_between"
+    else:
+        top_row.extend(
+            [
+                render.Box(width = 1, height = 10, color = "#0000"),  # Force spacing + row height to 10px
+                pace_stat if sport == "ride" else time_stat,
+            ]
+        )
+
+    render_layers.append(
+        render.Column(
+            expanded = True,
+            main_align = "start",
+            children = [
+                # Top Row (Time/Distance)
+                render.Row(
+                    expanded = True,
+                    main_align = stat_spacing,
+                    cross_align = "center",
+                    children = top_row,
+                ),
+                # Middle Row
+                render.Row(
+                    expanded = True,
+                    main_align = stat_spacing,
+                    cross_align = "center",
+                    children = [
+                        render.Row(
+                            cross_align = "center",
+                            main_align = stat_spacing,
+                            children = [
+                                render.Image(PR_ICON),
+                                render.Text(" " + humanize.comma(display_activity.get("pr_count", 0))),
+                            ] if display_activity.get("pr_count", 0) > 0 else [
+                                render.Box(width = 1, height = 10, color = "#0000"),
+                            ],
+                        ),
+                        render.Box(width = 1, height = 10, color = "#0000"),  # Force spacing & height to 10px
+                        render.Row(
+                            cross_align = "center",
+                            main_align = stat_spacing,
+                            children = [
+                                render.Text(" " + humanize.comma(display_activity.get("kudos_count"))),
+                                render.Image(KUDOS_ICON),
+                            ] if display_activity.get("kudos_count", 0) > 0 else [
+                                render.Box(width = 1, height = 10, color = "#0000"),
+                            ],
+                        ),
+                    ],
+                ),
+                # Bottom Row
+                render.Row(
+                    expanded = True,
+                    main_align = stat_spacing,
+                    cross_align = "center",
+                    children = [
+                        render.Row(
+                            cross_align = "center",
+                            main_align = stat_spacing,
+                            children = [
+                                render.Image(ACHIEVEMENT_ICON),
+                                render.Text(" " + humanize.comma(display_activity.get("achievement_count"))),
+                            ] if display_activity.get("achievement_count", 0) > 0 else [
+                                render.Image(ELEV_ICON),
+                                render.Text(" " + humanize.comma(int(elev))),
+                            ] if elev > 0 else [
+                                render.Box(width = 1, height = 10, color = "#0000"),
+                            ],
+                        ),
+                        render.Box(width = 1, height = 10, color = "#0000"),  # Force spacing & row height to 10px
+                        render.Row(
+                            cross_align = "center",
+                            main_align = stat_spacing,
+                            # This is either the avg HR or calories burned
+                            children = [
+                                render.Text(humanize.comma(int(work_stat["value"]))),
+                                render.Image(work_stat["icon"]),
+                            ],
+                        ),
+                    ],
+                ),
+            ],
+        ),
+    )
+
+    return render.Root(
+        delay = 0,
+        child = render.Stack(
+            children = render_layers,
+        )
+    )
+
+def get_activities(config, refresh_token):
+    max_activities = 200
+
+    timezone = config.get("timezone") or "America/New_York"
+    now = time.now().in_location(timezone)
+    beg_curr_month = time.time(year = now.year, month = now.month, day = 1)
+    _next_month = time.time(year = now.year, month = now.month, day = 32)
+
+    end_prev_month = beg_curr_month - time.parse_duration("1ns")
+    beg_prev_month = time.time(year = end_prev_month.year, month = end_prev_month.month, day = 1)
+
+    if not refresh_token:
+        activities = {
+            "current": [],
+            "previous": [],
+        }
+    else:
+        access_token = cache.get(refresh_token)
+        if not access_token:
+            print("Generating new access token")
+            access_token = get_access_token(refresh_token)
+
+        headers = {
+            "Authorization": "Bearer %s" % access_token,
+        }
+
+        # To help reduce the number of API calls we need, I'm querying both months together (current/prev commented)
+        # The consequence here is if the athlete completed more than 200 activities in the last 2 months we'll miss some
+        urls = {
+            "last-2": "%s/athlete/activities?after=%s&per_page=%s" % (STRAVA_BASE, beg_prev_month.unix, max_activities),
+            # "current": "%s/athlete/activities?after=%s&per_page=%s" % (STRAVA_BASE, beg_curr_month.unix, max_activities),
+            # "previous": "%s/athlete/activities?after=%s&before=%s&per_page=%s" % (STRAVA_BASE, beg_prev_month.unix, end_prev_month.unix, max_activities),
+        }
+
+        activities = {}
+
+        for query, url in urls.items():
+            cache_id = "%s/xactivity/%s/%s-%s" % (refresh_token, query, now.year, now.month)
+            data = cache.get(cache_id)
+
+            if not data:
+                print("Getting %s month activities. %s" % (query, url))
+                response = http.get(url, headers = headers)
+                if response.status_code != 200:
+                    text = "code %d, %s" % (response.status_code, json.decode(response.body()).get("message", ""))
+                    return display_failure("Strava API failed, %s" % text)
+                data = response.json()
+                cache.set(cache_id, json.encode(data), ttl_seconds = CACHE_TTL)
+            else:
+                print("Returning cached %s month activities." % query)
+                data = json.decode(data)
+
+            activities[query] = data
+
+    # Sort each list chronologically
+    for query in activities.keys():
+        activities[query] = sorted(activities[query], key = lambda x: x["start_date"])
+
+    # Per above, split list into current and previous month
+    activities["current"] = [a for a in activities["last-2"] if time.parse_time(a["start_date"]) >= beg_curr_month]
+    activities["previous"] = [a for a in activities["last-2"] if time.parse_time(a["start_date"]) < beg_curr_month]
+    activities.pop("last-2", None)
+
+    return activities
+
+def decode_polyline(polyline_str):
+    """
+    Converts a compressed series of GPS coordinates (i.e. Polyline) back into coordinates that we can plot.
+
+    Implementation borrowed from https://github.com/geodav-tech/decode-google-maps-polyline
+
+    :param polyline_str: Compressed coordinates as a string
+    :return: list of tuples: latitude, longitude
+    """
+    index, lat, lng = 0, 0, 0
+    coordinates = []
+    changes = {'latitude': 0, 'longitude': 0}
+
+    # Coordinates have variable length when encoded, so just keep
+    # track of whether we've hit the end of the string. In each
+    # while loop iteration, a single coordinate is decoded.
+    while index < len(polyline_str):
+        # Gather lat/lon changes, store them in a dictionary to apply them later
+        for unit in ['latitude', 'longitude']:
+            shift, result = 0, 0
+
+            while True:
+                byte = ord(polyline_str[index]) - 63
+                index+=1
+                result |= (byte & 0x1f) << shift
+                shift += 5
+                if not byte >= 0x20:
+                    break
+
+            if (result & 1):
+                changes[unit] = ~(result >> 1)
+            else:
+                changes[unit] = (result >> 1)
+
+        lat += changes['latitude']
+        lng += changes['longitude']
+
+        coordinates.append((lat / 100000.0, lng / 100000.0))
+
+    return coordinates
+
+def kj_to_calories(kj):
+    return float(kj) / 4.184
+
 def meters_to_mi(m):
     return m * 0.00062137
 
@@ -677,6 +1085,7 @@ def get_schema():
         schema.Option(value = "all", display = "All-time stats"),
         schema.Option(value = "ytd", display = "YTD stats"),
         schema.Option(value = "progress_chart", display = "Monthly progress"),
+        schema.Option(value = "last_activity", display = "Last activity"),
     ]
 
     sport_options = [
