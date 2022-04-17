@@ -504,7 +504,7 @@ def athlete_stats(config, refresh_token, period, sport, units):
 
     # The number of activities and distance traveled is universal, but for cycling the elevation gain is a
     # more interesting statistic than speed so we"ll vary the third item:
-    if sport == "ride" and stats.get("elevation_gain", 0) > 0:
+    if sport == "ride" and float(stats.get("elevation_gain", 0)) > 0:
         third_stat = [
             render.Image(src = ELEV_ICON),
             render.Text(
@@ -619,8 +619,8 @@ def last_activity(config, refresh_token, sport, units):
             "value": int(display_activity.get("average_heartrate", 0)),
         }
 
+    elev = display_activity.get("total_elevation_gain", 0)
     if sport == "ride":
-        elev = display_activity.get("total_elevation_gain", 0)
         if units == "imperial":
             elev = meters_to_ft(elev)
 
@@ -667,11 +667,13 @@ def last_activity(config, refresh_token, sport, units):
     ]
 
     render_layers = []
+
     # This gives better spacing if there is no map
     stat_spacing = "space_around"
 
     if polyline:
         coordinates = decode_polyline(polyline)
+
         # Slight rotation helps certain routes fit better on the screen
         degrees_rotation = 15
         theta = math.radians(degrees_rotation)
@@ -712,7 +714,7 @@ def last_activity(config, refresh_token, sport, units):
                                     render.Animation(
                                         children = list([
                                             render.Plot(
-                                                data = coordinates[i:i+2],
+                                                data = coordinates[i:i + 2],
                                                 width = 32,
                                                 height = 32,
                                                 color = "#ffa078",
@@ -720,7 +722,7 @@ def last_activity(config, refresh_token, sport, units):
                                                 y_lim = (min([y for _, y in coordinates]), max([y for _, y in coordinates])),
                                             )
                                             for i, _ in enumerate(coordinates)
-                                        ])
+                                        ]),
                                     ),
                                 ],
                             ),
@@ -732,7 +734,7 @@ def last_activity(config, refresh_token, sport, units):
                                     render.Animation(
                                         children = list([
                                             render.Plot(
-                                                data = coordinates[i-1:i+1],
+                                                data = coordinates[i - 1:i + 1],
                                                 width = 32,
                                                 height = 32,
                                                 color = "#fc4c02",
@@ -740,7 +742,7 @@ def last_activity(config, refresh_token, sport, units):
                                                 y_lim = (min([y for _, y in coordinates]), max([y for _, y in coordinates])),
                                             )
                                             for i, _ in enumerate(coordinates)
-                                        ])
+                                        ]),
                                     ),
                                 ],
                             ),
@@ -752,7 +754,7 @@ def last_activity(config, refresh_token, sport, units):
                                     render.Animation(
                                         children = list([
                                             render.Plot(
-                                                data = coordinates[0:i+1],
+                                                data = coordinates[0:i + 1],
                                                 width = 32,
                                                 height = 32,
                                                 color = "#fc4c0277",
@@ -760,7 +762,7 @@ def last_activity(config, refresh_token, sport, units):
                                                 y_lim = (min([y for _, y in coordinates]), max([y for _, y in coordinates])),
                                             )
                                             for i, _ in enumerate(coordinates)
-                                        ])
+                                        ]),
                                     ),
                                 ],
                             ),
@@ -776,7 +778,7 @@ def last_activity(config, refresh_token, sport, units):
             [
                 render.Box(width = 1, height = 10, color = "#0000"),  # Force spacing + row height to 10px
                 pace_stat if sport == "ride" else time_stat,
-            ]
+            ],
         )
 
     render_layers.append(
@@ -859,7 +861,7 @@ def last_activity(config, refresh_token, sport, units):
         delay = 0,
         child = render.Stack(
             children = render_layers,
-        )
+        ),
     )
 
 def get_activities(config, refresh_token):
@@ -938,31 +940,36 @@ def decode_polyline(polyline_str):
     """
     index, lat, lng = 0, 0, 0
     coordinates = []
-    changes = {'latitude': 0, 'longitude': 0}
+    changes = {"latitude": 0, "longitude": 0}
 
     # Coordinates have variable length when encoded, so just keep
     # track of whether we've hit the end of the string. In each
-    # while loop iteration, a single coordinate is decoded.
-    while index < len(polyline_str):
+    # pseudo-while loop iteration, a single coordinate is decoded.
+    for _ in range(int(1e10)):
+        if index >= len(polyline_str):
+            break
+
         # Gather lat/lon changes, store them in a dictionary to apply them later
-        for unit in ['latitude', 'longitude']:
+        for unit in ["latitude", "longitude"]:
             shift, result = 0, 0
 
-            while True:
+            for _ in range(len(polyline_str)):
+                if index >= len(polyline_str):
+                    break
                 byte = ord(polyline_str[index]) - 63
-                index+=1
+                index += 1
                 result |= (byte & 0x1f) << shift
                 shift += 5
                 if not byte >= 0x20:
                     break
 
-            if (result & 1):
+            if result & 1:
                 changes[unit] = ~(result >> 1)
             else:
                 changes[unit] = (result >> 1)
 
-        lat += changes['latitude']
-        lng += changes['longitude']
+        lat += changes["latitude"]
+        lng += changes["longitude"]
 
         coordinates.append((lat / 100000.0, lng / 100000.0))
 
