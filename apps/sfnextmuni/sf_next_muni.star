@@ -186,11 +186,14 @@ def main(config):
     ]
 
     lines = 4
+    height = 32
 
     if config.bool("show_title"):
         lines = lines - 1
+        height = height - 10
     if messages:
         lines = lines - 1
+        height = height - 8
 
     rows = []
     if config.bool("show_title"):
@@ -206,12 +209,28 @@ def main(config):
                         height = 1,
                         color = "#FFF",
                     )
-                ])
+                ],
+                main_align = "start",
+            )
         )
+        
+    predictionLines = []
+
     if "short" == config.get("prediction_format"):
-        rows.extend(shortPredictions(output, messages, lines, config))
+        predictionLines = shortPredictions(output, messages, lines, config)
     else:
-        rows.extend(longRows(output[:lines], config))
+        predictionLines = longRows(output[:lines], config)
+
+    rows.append(
+        render.Box(
+            height = height,
+            child = render.Column(
+                children = predictionLines,
+                main_align = "space_evenly",
+                expanded = True,
+            )   
+        )
+    )
 
     if messages:
         rows.append(
@@ -228,14 +247,16 @@ def main(config):
                     render.Marquee(
                         width = 64,
                         child = render.Text("      ".join(messages), font="tom-thumb")),
-                ])
+                ],
+                main_align = "end",
+            )
         )
 
     return render.Root(
         child = render.Column(
             children = rows,
             expanded = True,
-            main_align = "space_between" if lines < 4 else "space_evenly",
+            main_align = "space_between",
             cross_align = "center",
         ),
     )
