@@ -505,12 +505,10 @@ def athlete_stats(config, refresh_token, period, sport, units):
     # The number of activities and distance traveled is universal, but for cycling the elevation gain is a
     # more interesting statistic than speed so we"ll vary the third item:
     if sport == "ride" and float(stats.get("elevation_gain", 0)) > 0:
-        third_stat = [
-            render.Image(src = ELEV_ICON),
-            render.Text(
-                " %s %s" % (humanize.comma(float(stats.get("elevation_gain", 0))), elevu),
-            ),
-        ]
+        third_stat = {
+            "icon": ELEV_ICON,
+            "text": "%s %s" % (humanize.comma(float(stats.get("elevation_gain", 0))), elevu),
+        }
     else:
         if float(stats.get("distance", 0)) > 0:
             split = float(stats.get("moving_time", 0)) // float(stats.get("distance", 0))
@@ -519,14 +517,13 @@ def athlete_stats(config, refresh_token, period, sport, units):
         else:
             split = "N/A"
 
-        third_stat = [
-            render.Image(src = CLOCK_ICON),
-            render.Text(
-                " %s%s" % (split, "/" + distu),
-            ),
-        ]
+        third_stat = {
+            "icon": CLOCK_ICON,
+            "text": "%s%s" % (split, "/" + distu),
+        }
 
     return render.Root(
+        delay = 0,
         child = render.Column(
             expanded = True,
             cross_align = "start",
@@ -536,25 +533,49 @@ def athlete_stats(config, refresh_token, period, sport, units):
                     cross_align = "center",
                     children = display_header,
                 ),
-                render.Row(
-                    cross_align = "center",
+                render.Animation(
                     children = [
-                        render.Image(src = sport_icon),
-                        render.Text(" %s " % humanize.comma(float(stats.get("count", 0)))),
-                        render.Text(actu, font = "tb-8"),
+                        render.Row(
+                            main_align = "space_between",
+                            cross_align = "center",
+                            children = [
+                                render.Image(src = sport_icon),
+                                render.Box(height = 8, width = max(64 - i, 1)),
+                                render.Text("%s " % humanize.comma(float(stats.get("count", 0)))),
+                                render.Text(actu, font = "tb-8"),
+                            ],
+                        )
+                        for i in range(800)
+                    ]
+                ),
+                render.Animation(
+                    children = [
+                        render.Row(
+                            main_align = "space_between",
+                            cross_align = "center",
+                            children = [
+                                render.Image(src = DISTANCE_ICON),
+                                render.Box(height = 8, width = max(74 - i, 1)),
+                                render.Text("%s " % humanize.comma(float(stats.get("distance", 0)))),
+                                render.Text(distu, font = "tb-8"),
+                            ],
+                        )
+                        for i in range(800)
                     ],
                 ),
-                render.Row(
-                    cross_align = "center",
+                render.Animation(
                     children = [
-                        render.Image(src = DISTANCE_ICON),
-                        render.Text(" %s " % humanize.comma(float(stats.get("distance", 0)))),
-                        render.Text(distu, font = "tb-8"),
+                        render.Row(
+                            main_align = "space_between",
+                            cross_align = "center",
+                            children = [
+                                render.Image(src = third_stat["icon"]),
+                                render.Box(height = 8, width = max(84 - i, 1)),
+                                render.Text(third_stat["text"]),
+                            ],
+                        )
+                        for i in range(800)
                     ],
-                ),
-                render.Row(
-                    cross_align = "center",
-                    children = third_stat,
                 ),
             ],
         ),
