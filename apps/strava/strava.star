@@ -504,7 +504,7 @@ def athlete_stats(config, refresh_token, period, sport, units):
 
     # The number of activities and distance traveled is universal, but for cycling the elevation gain is a
     # more interesting statistic than speed so we"ll vary the third item:
-    if sport == "ride":
+    if sport == "ride" and stats.get("elevation_gain", 0) > 0:
         third_stat = [
             render.Image(src = ELEV_ICON),
             render.Text(
@@ -981,7 +981,7 @@ def meters_to_ft(m):
     return m * 3.280839895
 
 def round(num, precision):
-    return math.round(num * math.pow(10, precision)) // math.pow(10, precision)
+    return math.round(num * math.pow(10, precision)) / math.pow(10, precision)
 
 def format_duration(d, resolution = "minutes"):
     if resolution == "minutes":
