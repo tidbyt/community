@@ -268,105 +268,127 @@ def progress_chart(config, refresh_token, sport, units):
         if units == "imperial":
             value = meters_to_ft(value)
 
-        third_stat = {
-            "title": "Elev",
-            "value": int(value),
-        }
+        if value == 0 and len(curr_plot) > 0:
+            # We can assume the athlete is using a trainer here and would rather not see elevation
+            third_stat = {
+                "title": sport + "s",
+                "value": len(included_current_activities),
+            }
+        else:
+            third_stat = {
+                "title": "Elev",
+                "value": int(value),
+            }
     else:
         third_stat = {
             "title": sport + "s",
             "value": len(included_current_activities),
         }
 
+    frames = []
+    num_frames = len(prev_plot) + len(curr_plot)
+    for i in range(num_frames):
+        frames.append(
+            render.Stack(
+                children = [
+                    # Using a column here so I can place the logo in the bottom corner
+                    render.Row(
+                        expanded = True,
+                        main_align = "start",
+                        cross_align = "start",
+                        children = logo,
+                    ),
+                    render.Row(
+                        expanded = True,
+                        main_align = "end",
+                        cross_align = "end",
+                        children = [
+                            render.Column(
+                                expanded = True,
+                                main_align = "end",
+                                children = [
+                                    render.Plot(
+                                        data = prev_plot[0:i],
+                                        width = graph_width,
+                                        height = 22,
+                                        color = "#787878",
+                                        y_lim = (0.0, plot_height),
+                                        x_lim = (0.0, 1.0),
+                                        fill = False,
+                                    ),
+                                ],
+                            ),
+                        ],
+                    ),
+                    render.Row(
+                        expanded = True,
+                        main_align = "end",
+                        cross_align = "end",
+                        children = [
+                            render.Column(
+                                expanded = True,
+                                main_align = "end",
+                                children = [
+                                    render.Plot(
+                                        data = curr_plot[0:i - len(prev_plot)],
+                                        width = graph_width,
+                                        height = 22,
+                                        color = "#fc4c02",
+                                        y_lim = (0.0, plot_height),
+                                        x_lim = (0.0, 1.0),
+                                        fill = False,
+                                    ),
+                                ] if i > len(prev_plot) else [],
+                            ),
+                        ],
+                    ),
+                    render.Row(
+                        expanded = True,
+                        main_align = "space_evenly",
+                        cross_align = "center",
+                        children = [
+                            render.Column(
+                                main_align = "center",
+                                cross_align = "center",
+                                children = [
+                                    render.Text("Time", color = "#fc4c02", font = title_font),
+                                    render.Text(total_time, color = "#FFF"),
+                                ],
+                            ),
+                            render.Column(
+                                cross_align = "center",
+                                children = [
+                                    render.Text("Dist", color = "#fc4c02", font = title_font),
+                                    render.Text(
+                                        humanize.comma(int(distance_conv(cumulative_current["distance"]))),
+                                        color = "#FFF",
+                                    ),
+                                ],
+                            ),
+                            render.Column(
+                                main_align = "center",
+                                cross_align = "center",
+                                children = [
+                                    render.Text(third_stat["title"], color = "#fc4c02", font = title_font),
+                                    render.Text(
+                                        humanize.comma(third_stat["value"]),
+                                        color = "#FFF",
+                                    ),
+                                ],
+                            ),
+                        ],
+                    ),
+                ],
+            ),
+        )
+
+    # Repeat last frame for a long time
+    frames.extend([frames[-1]] * 400)
+
     return render.Root(
-        child = render.Stack(
-            children = [
-                # Using a column here so I can place the logo in the bottom corner
-                render.Row(
-                    expanded = True,
-                    main_align = "start",
-                    cross_align = "start",
-                    children = logo,
-                ),
-                render.Row(
-                    expanded = True,
-                    main_align = "end",
-                    cross_align = "end",
-                    children = [
-                        render.Column(
-                            expanded = True,
-                            main_align = "end",
-                            children = [
-                                render.Plot(
-                                    data = prev_plot,
-                                    width = graph_width,
-                                    height = 22,
-                                    color = "#787878",
-                                    ylim = (0.0, plot_height),
-                                    xlim = (0.0, 1.0),
-                                    fill = False,
-                                ),
-                            ],
-                        ),
-                    ],
-                ),
-                render.Row(
-                    expanded = True,
-                    main_align = "end",
-                    cross_align = "end",
-                    children = [
-                        render.Column(
-                            expanded = True,
-                            main_align = "end",
-                            children = [
-                                render.Plot(
-                                    data = curr_plot,
-                                    width = graph_width,
-                                    height = 22,
-                                    color = "#fc4c02",
-                                    ylim = (0.0, plot_height),
-                                    xlim = (0.0, 1.0),
-                                    fill = False,
-                                ),
-                            ],
-                        ),
-                    ],
-                ),
-                render.Row(
-                    expanded = True,
-                    main_align = "space_evenly",
-                    cross_align = "center",
-                    children = [
-                        render.Column(
-                            cross_align = "center",
-                            children = [
-                                render.Text("Time", color = "#fc4c02", font = title_font),
-                                render.Text(total_time, color = "#FFF"),
-                            ],
-                        ),
-                        render.Column(
-                            cross_align = "center",
-                            children = [
-                                render.Text("Dist", color = "#fc4c02", font = title_font),
-                                render.Text(
-                                    humanize.comma(int(distance_conv(cumulative_current["distance"]))),
-                                    color = "#FFF",
-                                ),
-                            ],
-                        ),
-                        render.Column(
-                            cross_align = "center",
-                            children = [
-                                render.Text(third_stat["title"], color = "#fc4c02", font = title_font),
-                                render.Text(
-                                    humanize.comma(third_stat["value"]),
-                                    color = "#FFF",
-                                ),
-                            ],
-                        ),
-                    ],
-                ),
-            ],
+        delay = 50,
+        child = render.Animation(
+            children = frames,
         ),
     )
 
