@@ -125,6 +125,13 @@ Bh+v/zP8AuIn5/9y6C6/C8jXCdMAqTzzee/YN0sYJ1IRt1//4dB9DFIzz+IsSAFd/SZ/r+W/QeW
 ULn4D2wdAPH3MeVIneA3AAAAAElFTkSuQmCC
 """)
 
+SUFFER_ICON = base64.decode("""
+iVBORw0KGgoAAAANSUhEUgAAAAcAAAAGCAYAAAAPDoR2AAAAAXNSR0IArs4c6QAAAERlWElmTU0
+AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAA6ABAAMAAAABAAEAAKACAAQAAAABAAAAB6ADAAQAAA
+ABAAAABgAAAADsNvbmAAAAOklEQVQIHWO8uWLFfwYkoB4RwQjjMsEY2GjG3wySKDphilgZnjPi1
+cmyk/knTDGDz993cPtAgnh1AgCjmgr6kSEpEwAAAABJRU5ErkJggg==
+""")
+
 WATTS_ICON = base64.decode("""
 iVBORw0KGgoAAAANSUhEUgAAAAcAAAAGCAYAAAAPDoR2AAAAAXNSR0IArs4c6QAAAERlWElmTU0
 AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAA6ABAAMAAAABAAEAAKACAAQAAAABAAAAB6ADAAQAAA
@@ -355,7 +362,7 @@ def progress_chart(config, refresh_token, sport, units):
                                 children = [
                                     render.Text("Dist", color = "#fc4c02", font = title_font),
                                     render.Text(
-                                        humanize.comma(int(distance_conv(cumulative_current["distance"]))),
+                                        humanize.comma(math.round(distance_conv(cumulative_current["distance"]))),
                                         color = "#FFF",
                                     ),
                                 ],
@@ -619,7 +626,7 @@ def last_activity(config, refresh_token, sport, units):
         resolution = "hours",
     )
 
-    if display_activity.get("display_hide_heartrate_option", False) or (
+    if display_activity.get("heartrate_opt_out", False) or (
         not display_activity.get("has_heartrate") or display_activity.get("average_heartrate", 0) == 0
     ):
         if sport == "ride" and display_activity.get("average_watts", 0) > 0:
@@ -627,10 +634,15 @@ def last_activity(config, refresh_token, sport, units):
                 "icon": WATTS_ICON,
                 "value": display_activity.get("average_watts"),
             }
-        else:
+        elif display_activity.get("kilojoules", 0) > 0:
             work_stat = {
                 "icon": KCAL_ICON,
                 "value": kj_to_calories(display_activity.get("kilojoules", 0)),
+            }
+        else:
+            work_stat = {
+                "icon": SUFFER_ICON,
+                "value": math.round(display_activity.get("suffer_score", 0)),
             }
     else:
         work_stat = {
@@ -678,7 +690,7 @@ def last_activity(config, refresh_token, sport, units):
             children = [
                 render.Text("Dist", color = "#fc4c02", font = title_font),
                 render.Text(
-                    humanize.comma(int(distance_conv(display_activity.get("distance", 0)))),
+                    humanize.comma(math.round(distance_conv(display_activity.get("distance", 0)))),
                     color = "#FFF",
                 ),
             ],
