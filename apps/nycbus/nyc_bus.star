@@ -136,7 +136,7 @@ def build_row(journey):
         anim = []
         for part in parts:
             anim.extend(
-                [render.Text(part, color = "#000", font = "CG-pixel-4x5-mono")] * 20
+                [render.Text(part, color = "#000", font = "CG-pixel-4x5-mono")] * 20,
             )
 
         line_name = render.Animation(children = anim)
