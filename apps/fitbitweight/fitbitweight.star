@@ -107,7 +107,6 @@ def main(config):
     if len(bmi_json["body-bmi"]) > 0:
         current_bmi = float(bmi_json["body-bmi"][-1]["value"])
 
-
     #convert to imperial if need be
     if system == "metric":
         displayUnits = "KGs"
@@ -141,7 +140,7 @@ def main(config):
             ],
         )
     elif secondary_display == "bmi" and current_bmi > 0:
-        display_color = get_bmi_display_color(current_bmi)
+        display_color = get_bmi_display(current_bmi)
         print(display_color[0])
         numbers_row = render.Row(
             main_align = "left",
@@ -199,7 +198,7 @@ def get_starting_value(json_data, period, itemName="value"):
             if number_of_days == 0 or days < number_of_days:
                 return item[itemName]
 
-def get_bmi_display_color(bmi):
+def get_bmi_display(bmi):
     if bmi < 19:
         #Underweight
         return ("Underweight", "#01b0f1")
@@ -228,7 +227,6 @@ def get_plot_display_from_plot(plot, color = WHITE_COLOR, height = 13):
     )
 
 def get_plot_from_data(json_data, period):
-    print(period)
     #Loop through data and get max and mins
     oldest_date = None
     newest_date = None
@@ -419,7 +417,7 @@ def get_schema():
     ]
 
     secondary_options = [
-        schema.Option(value = "none", display = "None - just diplay weight"),
+        schema.Option(value = "none", display = "None - just display weight"),
         schema.Option(value = "bodyfat", display = "Body Fat Percentage"),
         schema.Option(value = "bmi", display = "BMI"),
     ]
