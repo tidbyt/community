@@ -190,10 +190,10 @@ def main(config):
 
     if config.bool("show_title"):
         lines = lines - 1
-        height = height - 10
+        height = height - 9
     if messages:
         lines = lines - 1
-        height = height - 8
+        height = height - 7
 
     rows = []
     if config.bool("show_title"):
@@ -224,6 +224,7 @@ def main(config):
     rows.append(
         render.Box(
             height = height,
+            padding = 0,
             child = render.Column(
                 children = predictionLines,
                 main_align = "space_evenly",
