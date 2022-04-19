@@ -23,7 +23,7 @@ CACHE_TTL = 60 * 60 * 24  # updates once daily
 FITBIT_CLIENT_ID = "238FC5"
 OAUTH2_CLIENT_SECRET = secret.decrypt("AV6+xWcE74PvLnAK9o2UbKXs4mvqPOtEMJzu/AvYJQzd9Ngjvk/N5Ee2G3YD4+EF5TMJyWSs85/MoOk2VZWddwZh7+Zld7+ySKsF49sF+4tFGEQjOqVOebCiKpL1YpwFcBmC0em2bLFO890zJRjVUHDDLfXXkasbIftnKofwR49Kpga5oAY=")
 FITBIT_SECRET = "MjM4RkM1OjEzYzEwMzhjZGQ0MzRmZWJjODYzMThjZDQzMjJiNDg5" # secret.decrypt("AV6+xWcEqLZ1+KzoRlbZYXgEWLJLeCrHXA6fcqjagRi/gRlH7Wmj8QWepc+JB5HCy40CzovjbZM1zV3VFuVvATRXmtLsalSRWwwwc6Wrh00dfUGD/xK7eZLyA3Oua2rvnzD1QguqODgWr57RguybEGXEfaPc6McM0L10raV3xJS8cGJgGlT3lR67z1EeyybGYMMlAwDnopGKBQ==")
-FITBIT_REDIRECT_URI = "https://localhost:8080/" #"https://appauth.tidbyt.com/fitbitweight"
+FITBIT_REDIRECT_URI = "https://appauth.tidbyt.com/fitbitweight" #"https://localhost:8080/"
 FITBIT_BASE = "https://www.fitbit.com/oauth2/authorize?response_type=code&client_id=238FC5&redirect_uri=https%3A%2F%2Fappauth.tidbyt.com%2FFitbitWeight&scope=profile%20weight&expires_in=604800"
 FITBIT_SCOPES = "profile weight activity"
 FITBIT_TOKEN_URL = "https://api.fitbit.com/oauth2/token"
@@ -89,12 +89,24 @@ def main(config):
                 #nothing in cache, so we'll load it from Fitbit, then cache it
                 fitbit_json_items[i] = get_data_from_fitbit(access_token, (FITBIT_DATA_URL % (item)))
                 cache.set(cache_item_name, json.encode(fitbit_json_items[i]), ttl_seconds = CACHE_TTL)
-            
+
+    #Defalt Values
+    current_weight = 0
+    first_weight = 0
+    current_fat = 0
+    current_bmi = 0
+    first_weight_date = None
+
     #Process Data
-    current_weight = float(weight_json["body-weight"][-1]["value"])
-    current_fat = float(fat_json["body-fat"][-1]["value"])
-    current_bmi = float(bmi_json["body-bmi"][-1]["value"])
-    first_weight = get_starting_value_point(weight_json, period)
+    if len(weight_json["body-weight"]) > 0:
+        current_weight = float(weight_json["body-weight"][-1]["value"])
+        first_weight = float(get_starting_value(weight_json, period, "value"))
+        first_weight_date = get_starting_value(weight_json, period, "dateTime")
+    if len(fat_json["body-fat"]) > 0:
+        current_fat = float(fat_json["body-fat"][-1]["value"])
+    if len(bmi_json["body-bmi"]) > 0:
+        current_bmi = float(bmi_json["body-bmi"][-1]["value"])
+
 
     #convert to imperial if need be
     if system == "metric":
@@ -116,7 +128,7 @@ def main(config):
     bmi_plot = get_plot_from_data(bmi_json, period)
 
     display_weight = "%s%s " % ((humanize.comma(int(current_weight * 100) / 100.0)), displayUnits)
-    if secondary_display == "bodyfat":
+    if secondary_display == "bodyfat" and current_fat > 0:
         numbers_row = render.Row(
             main_align = "left",
             children = [
@@ -128,7 +140,7 @@ def main(config):
                 ),
             ],
         )
-    elif secondary_display == "bmi":
+    elif secondary_display == "bmi" and current_bmi > 0:
         display_color = get_bmi_display_color(current_bmi)
         print(display_color[0])
         numbers_row = render.Row(
@@ -148,7 +160,7 @@ def main(config):
                 render.Text(display_weight, color = WHITE_COLOR, font = DISPLAY_FONT),
                 render.Marquee(
                     width=32,
-                    child = render.Text("%s%s %s" % (sign, humanize.comma(int(weight_change * 100) / 100.0), displayUnits), color = WEIGHT_COLOR, font = DISPLAY_FONT),
+                    child = render.Text("%s%s %s since %s" % (sign, humanize.comma(int(weight_change * 100) / 100.0), displayUnits, first_weight_date ), color = WEIGHT_COLOR, font = DISPLAY_FONT),
                 ),
             ],
         )
@@ -173,7 +185,7 @@ def main(config):
         ),
     )
 
-def get_starting_value_point(json_data, period):
+def get_starting_value(json_data, period, itemName="value"):
     for i in json_data:
         for item in json_data[i]:
             current_date = get_timestamp_from_date(item["dateTime"])
@@ -185,7 +197,7 @@ def get_starting_value_point(json_data, period):
             number_of_days = int(period)
 
             if number_of_days == 0 or days < number_of_days:
-                return current_value
+                return item[itemName]
 
 def get_bmi_display_color(bmi):
     if bmi < 19:
