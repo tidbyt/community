@@ -26,7 +26,7 @@ def main():
     scrollY = y - ((random.number(0, 2 * HEIGHT)) - HEIGHT)
 
     # get a the final r/place image
-    url = "https://s3.amazonaws.com/media.funkfinger.com/r-place2022-final-clean.png"
+    url = "https://i.imgur.com/rzUhL4w.png"
     image = render.Image(http.get(url).body())
 
     # create the animation
