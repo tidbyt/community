@@ -5,36 +5,34 @@ Description: Displays your Fitbit recent weigh-ins.
 Author: Robert Ison
 """
 
-#API Calls
-#Resource bmi, fat, weight
-#https://api.fitbit.com/1/user/-/body/weight/date/today/1m.json
-#https://api.fitbit.com/1/user/-/body/fat/date/today/1m.json
-#https://api.fitbit.com/1/user/-/body/bmi/date/today/1m.json
-
 load("cache.star", "cache")
 load("encoding/base64.star", "base64")
 load("encoding/json.star", "json")
 load("http.star", "http")
 load("humanize.star", "humanize")
+load("math.star", "math")
 load("render.star", "render")
 load("schema.star", "schema")
 load("secret.star", "secret")
 load("time.star", "time")
 
+#App Settings
+CACHE_TTL = 60 * 60 * 24  # updates once daily
+
 #OAuth Information
 FITBIT_CLIENT_ID = "238FC5"
 OAUTH2_CLIENT_SECRET = secret.decrypt("AV6+xWcE74PvLnAK9o2UbKXs4mvqPOtEMJzu/AvYJQzd9Ngjvk/N5Ee2G3YD4+EF5TMJyWSs85/MoOk2VZWddwZh7+Zld7+ySKsF49sF+4tFGEQjOqVOebCiKpL1YpwFcBmC0em2bLFO890zJRjVUHDDLfXXkasbIftnKofwR49Kpga5oAY=")
-FITBIT_SECRET = secret.decrypt("AV6+xWcEqLZ1+KzoRlbZYXgEWLJLeCrHXA6fcqjagRi/gRlH7Wmj8QWepc+JB5HCy40CzovjbZM1zV3VFuVvATRXmtLsalSRWwwwc6Wrh00dfUGD/xK7eZLyA3Oua2rvnzD1QguqODgWr57RguybEGXEfaPc6McM0L10raV3xJS8cGJgGlT3lR67z1EeyybGYMMlAwDnopGKBQ==")
-FITBIT_REDIRECT_URI = "https://appauth.tidbyt.com/fitbitweight"
-
-#Fitbit Data
+FITBIT_SECRET = "MjM4RkM1OjEzYzEwMzhjZGQ0MzRmZWJjODYzMThjZDQzMjJiNDg5" # secret.decrypt("AV6+xWcEqLZ1+KzoRlbZYXgEWLJLeCrHXA6fcqjagRi/gRlH7Wmj8QWepc+JB5HCy40CzovjbZM1zV3VFuVvATRXmtLsalSRWwwwc6Wrh00dfUGD/xK7eZLyA3Oua2rvnzD1QguqODgWr57RguybEGXEfaPc6McM0L10raV3xJS8cGJgGlT3lR67z1EeyybGYMMlAwDnopGKBQ==")
+FITBIT_REDIRECT_URI = "https://localhost:8080/" #"https://appauth.tidbyt.com/fitbitweight"
 FITBIT_BASE = "https://www.fitbit.com/oauth2/authorize?response_type=code&client_id=238FC5&redirect_uri=https%3A%2F%2Fappauth.tidbyt.com%2FFitbitWeight&scope=profile%20weight&expires_in=604800"
 FITBIT_SCOPES = "profile weight activity"
 FITBIT_TOKEN_URL = "https://api.fitbit.com/oauth2/token"
+FITBIT_DATA_URL = "https://api.fitbit.com/1/user/-/body/%s/date/today/max.json"
+FITBIT_DATA_KEYS = ("weight", "fat", "bmi")
 
 #Fitbit Data Display
 DISPLAY_FONT = "CG-pixel-3x5-mono"
-FAT_COLOR = "#B9D9EB"
+FAT_COLOR = "#b9d9eb"
 FITBIT_LOGO = """
 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
 """
@@ -47,47 +45,62 @@ def main(config):
     print("-----------------Getting Started at %s--------------------" % time.now())
 
     #get user settings
-    authorization_code = config.get("code")
-    period = config.get("period") or "30d"
+    #authorization_code = config.get("code")
+
+    #As part of getting "Auth", this will also run oauth_handler
+    #which in turn sets some cached items, so this line
+    #is deceptive in that it does more than just get the refresh token
+    refresh_token = config.get("auth")
+    print("Refresh Token: %s" % (refresh_token))
+    period = config.get("period") or "30"
     system = config.get("system") or "imperial"
-    show_fat = config.bool("show_fat", False)
+    secondary_display = config.get("second") or "none"
 
     #default to demo data
-    weight_json = json.decode(EXAMPLE_DATA)
-    fat_json = json.decode(EXAMPLE_DATA_FAT)
+    weight_json = None 
+    fat_json = None 
+    bmi_json = None
+    fitbit_json_items = (weight_json, fat_json, bmi_json)
 
-    #Let's get data from Fitbit!!
-    #get tokens from code
-    if authorization_code:
-        token_information = get_access_token_information(authorization_code)
-        if token_information == None:
-            print("No Token Information Received")
+    if not refresh_token:
+        print("Use Default Data")
+        weight_json = json.decode(EXAMPLE_DATA)
+        fat_json = json.decode(EXAMPLE_DATA_FAT)
+        bmi_json = json.decode(EXAMPLE_DATA_BMI)
+    else:
+        access_token = cache.get(refresh_token)
+        if not access_token:
+            print("Generating new access token")
+            access_token = get_access_token(refresh_token)
 
-            #When testing, you can manually enter tokens here instead.
-            token_information = {
-                "access_token": "eyJhbGciOiJIUzI1NiJ9.eyJhdWQiOiIyMzhGQzUiLCJzdWIiOiIyWFdLTU4iLCJpc3MiOiJGaXRiaXQiLCJ0eXAiOiJhY2Nlc3NfdG9rZW4iLCJzY29wZXMiOiJyc29jIHJzZXQgcmFjdCBybG9jIHJ3ZWkgcmhyIHJwcm8gcm51dCByc2xlIiwiZXhwIjoxNjUwMTUwODE1LCJpYXQiOjE2NTAxMjIwMTV9.ZljVIFILbX5YdGL1auEelsmNaYKexazJcX--XQAMl-s",
-                "refresh_token": "bbc944eefbd3f5d63b2bd84d69e487dd7f9e25da13e7f39d853184babdfb79ba",
-                "user_id": "2XWKMN",
-            }
+        #Get logged in user
+        user_id = cache.get(get_cache_user_identifier(refresh_token))
 
-            print("Test Access Token")
-            weight_json = get_data_from_fitbit(token_information, ("https://api.fitbit.com/1/user/-/body/weight/date/today/%s.json" % period))
-            fat_json = get_data_from_fitbit(token_information, ("https://api.fitbit.com/1/user/-/body/fat/date/today/%s.json" % period))
-
-        else:
-            print("With Real Token")
-            weight_json = get_data_from_fitbit(token_information, ("https://api.fitbit.com/1/user/-/body/weight/date/today/%s.json" % period))
-            fat_json = get_data_from_fitbit(token_information, ("https://api.fitbit.com/1/user/-/body/fat/date/today/%s.json" % period))
-
+        #Now we have an access token, either from cache or using refresh_token
+        #so let's get  data from cache, then if it's not there
+        #We'll go reload it with our access_token
+        i = 0
+        for item in FITBIT_DATA_KEYS:
+            print(item)
+            i = i + 1
+            cache_item_name = "%s_%s" % refresh_token, item
+            fitbit_json_items[i] = cache.get(cache_item_name)
+            if fitbit_json_items[i] == None:
+                #nothing in cache, so we'll load it from Fitbit, then cache it
+                fitbit_json_items[i] = get_data_from_fitbit(access_token, (FITBIT_DATA_URL % (item)))
+                cache.set(cache_item_name, json.encode(fitbit_json_items[i]), ttl_seconds = CACHE_TTL)
+            
     #Process Data
     current_weight = float(weight_json["body-weight"][-1]["value"])
     current_fat = float(fat_json["body-fat"][-1]["value"])
-    first_weight = float(weight_json["body-weight"][0]["value"])
+    current_bmi = float(bmi_json["body-bmi"][-1]["value"])
+    first_weight = get_starting_value_point(weight_json, period)
 
+    #convert to imperial if need be
     if system == "metric":
-        displayUnits = "KG"
+        displayUnits = "KGs"
     else:
-        displayUnits = "LB"
+        displayUnits = "LBs"
         current_weight = current_weight * KILOGRAMS_TO_POUNDS_MULTIPLIER
         first_weight = first_weight * KILOGRAMS_TO_POUNDS_MULTIPLIER
 
@@ -98,18 +111,34 @@ def main(config):
     if weight_change > 0:
         sign = "+"
 
-    weight_plot = get_plot_from_data(weight_json)
-
-    if show_fat == True:
-        fat_plot = get_plot_from_data(fat_json)
+    weight_plot = get_plot_from_data(weight_json, period)
+    fat_plot = get_plot_from_data(fat_json, period)
+    bmi_plot = get_plot_from_data(bmi_json, period)
 
     display_weight = "%s%s " % ((humanize.comma(int(current_weight * 100) / 100.0)), displayUnits)
-    if show_fat == True:
+    if secondary_display == "bodyfat":
         numbers_row = render.Row(
             main_align = "left",
             children = [
                 render.Text(display_weight, color = WEIGHT_COLOR, font = DISPLAY_FONT),
-                render.Text(("%s%%" % (humanize.comma(int(current_fat * 100) / 100.0))), color = FAT_COLOR, font = DISPLAY_FONT),
+                render.Marquee(
+                    width = 32,
+                    child = 
+                        render.Text(("%s%% body fat" % (humanize.comma(int(current_fat * 100) / 100.0))), color = FAT_COLOR, font = DISPLAY_FONT),
+                ),
+            ],
+        )
+    elif secondary_display == "bmi":
+        display_color = get_bmi_display_color(current_bmi)
+        print(display_color[0])
+        numbers_row = render.Row(
+            main_align = "left",
+            children = [
+                render.Text(display_weight, color = WEIGHT_COLOR, font = DISPLAY_FONT),
+                render.Marquee(
+                    width = 32,
+                    child = render.Text(("BMI: %s %s" % (humanize.comma(int(current_bmi * 100) / 100.0), display_color[0])), color = display_color[1], font = DISPLAY_FONT),
+                ),
             ],
         )
     else:
@@ -117,7 +146,10 @@ def main(config):
             main_align = "left",
             children = [
                 render.Text(display_weight, color = WHITE_COLOR, font = DISPLAY_FONT),
-                render.Text("%s%s" % (sign, humanize.comma(int(weight_change * 100) / 100.0)), color = WEIGHT_COLOR, font = DISPLAY_FONT),
+                render.Marquee(
+                    width=32,
+                    child = render.Text("%s%s %s" % (sign, humanize.comma(int(weight_change * 100) / 100.0), displayUnits), color = WEIGHT_COLOR, font = DISPLAY_FONT),
+                ),
             ],
         )
 
@@ -126,9 +158,11 @@ def main(config):
 
     #1 pixel tall horizontal separator
     rows.append(render.Box(height = 1))
-    if show_fat == True:
+    if secondary_display == "bmi":
+        rows.append(get_plot_display_from_plot(weight_plot, WEIGHT_COLOR, 26))
+    elif secondary_display == "bodyfat":
         rows.append(get_plot_display_from_plot(weight_plot, WEIGHT_COLOR))
-        rows.append(get_plot_display_from_plot(fat_plot, FAT_COLOR))
+        rows.append(get_plot_display_from_plot(fat_plot, FAT_COLOR))        
     else:
         rows.append(get_plot_display_from_plot(weight_plot, WEIGHT_COLOR, 26))
 
@@ -138,6 +172,37 @@ def main(config):
             children = rows,
         ),
     )
+
+def get_starting_value_point(json_data, period):
+    for i in json_data:
+        for item in json_data[i]:
+            current_date = get_timestamp_from_date(item["dateTime"])
+            current_value = float(item["value"])
+
+            date_diff = time.now() - current_date
+            days = math.floor(date_diff.hours / 24)
+
+            number_of_days = int(period)
+
+            if number_of_days == 0 or days < number_of_days:
+                return current_value
+
+def get_bmi_display_color(bmi):
+    if bmi < 19:
+        #Underweight
+        return ("Underweight", "#01b0f1")
+    elif bmi < 25:
+        #Healthy
+        return ("Healthy", "#5fa910")
+    elif bmi < 30:
+        #Overweight
+        return ("Overweight", "#ff0")
+    elif bmi < 40:
+        #obese
+        return ("Obese", "#e77a22")
+    else:
+        #Extremely Obese
+        return ("Extremely Obese", "#f00")
 
 def get_plot_display_from_plot(plot, color = WHITE_COLOR, height = 13):
     return render.Plot(
@@ -150,7 +215,8 @@ def get_plot_display_from_plot(plot, color = WHITE_COLOR, height = 13):
         fill = True,
     )
 
-def get_plot_from_data(json_data):
+def get_plot_from_data(json_data, period):
+    print(period)
     #Loop through data and get max and mins
     oldest_date = None
     newest_date = None
@@ -164,33 +230,39 @@ def get_plot_from_data(json_data):
             current_date = get_timestamp_from_date(item["dateTime"])
             current_value = float(item["value"])
 
-            #get starting value
-            if starting_value == None:
-                starting_value = current_value
+            date_diff = time.now() - current_date
+            days = math.floor(date_diff.hours / 24)
 
-            #get the oldest date
-            if oldest_date == None:
-                oldest_date = current_date
-            elif current_date < oldest_date:
-                oldest_date = current_date
+            number_of_days = int(period)
 
-            #get the newest date
-            if newest_date == None:
-                newest_date = current_date
-            elif current_date > newest_date:
-                newest_date = current_date
+            if number_of_days == 0 or days < number_of_days:
+                #get starting value
+                if starting_value == None:
+                    starting_value = current_value
 
-            #get smallest
-            if smallest == None:
-                smallest = current_value
-            elif current_value < smallest:
-                smallest = current_value
+                #get the oldest date
+                if oldest_date == None:
+                    oldest_date = current_date
+                elif current_date < oldest_date:
+                    oldest_date = current_date
 
-            #get largest
-            if largest == None:
-                largest = current_value
-            elif current_value > largest:
-                largest = current_value
+                #get the newest date
+                if newest_date == None:
+                    newest_date = current_date
+                elif current_date > newest_date:
+                    newest_date = current_date
+
+                #get smallest
+                if smallest == None:
+                    smallest = current_value
+                elif current_value < smallest:
+                    smallest = current_value
+
+                #get largest
+                if largest == None:
+                    largest = current_value
+                elif current_value > largest:
+                    largest = current_value
 
     #can't do much with no data
     if item_count == 0:
@@ -223,39 +295,15 @@ def get_timestamp_from_date(date_string):
     return time.time(year = int(date_parts[0]), month = int(date_parts[1]), day = int(date_parts[2]))
 
 def oauth_handler(params):
-    # deserialize oauth2 parameters, see example aboce.
     params = json.decode(params)
-    print("oauth_handler")
-    print(str(params))
+    authorization_code = params.get("code")
+    return get_refresh_token(authorization_code)
 
-    # exchange parameters and client secret for an access token
-    res = http.post(
-        url = FITBIT_TOKEN_URL,
-        headers = {
-            "Accept": "application/json",
-        },
-        form_weight_json = dict(
-            params,
-            client_secret = OAUTH2_CLIENT_SECRET,
-            scope = FITBIT_SCOPES,
-        ),
-        form_encoding = "application/x-www-form-urlencoded",
-    )
-    if res.status_code != 200:
-        fail("token request failed with status code: %d - %s" %
-             (res.status_code, res.weight_json()))
-
-    token_params = res.json()
-    authorization_code = token_params["authorization_code"]
-    #cache.set(authorization_code, token_params["access_token"], ttl_seconds = int(token_params["expires_in"] - 30))
-
-    return authorization_code
-
-def get_data_from_fitbit(token_information, data_url):
+def get_data_from_fitbit(access_token, data_url):
     res = http.get(
         url = data_url,
         headers = {
-            "Authorization": "Bearer %s" % token_information["access_token"],
+            "Authorization": "Bearer %s" % access_token,
         },
     )
 
@@ -266,10 +314,10 @@ def get_data_from_fitbit(token_information, data_url):
         print("token request failed with status code: %d - %s" % (res.status_code, res.body()))
         return None
 
-def get_access_token_information(authorization_code):
-    print("get_access_token_information")
+def get_refresh_token(authorization_code):
+    print("get_refresh_token")
     print("Authorization Code: %s" % authorization_code)
-
+    print("Fitbit SECRET: %s" % FITBIT_SECRET)
     form_body = dict(
         clientId = FITBIT_CLIENT_ID,
         grant_type = "authorization_code",
@@ -290,20 +338,67 @@ def get_access_token_information(authorization_code):
 
     if res.status_code == 200:
         print("Success")
-        return res.json()
     else:
         print("Error Calling Fitbit Token: %s" % (res.body()))
+        fail("token request failed with status code: %d - %s" %
+             (res.status_code, res.body()))
         return None
+
+    token_params = res.json()   
+    refresh_token = token_params["refresh_token"]
+    access_token = token_params["access_token"]
+    user_id = token_params["user_id"]
+    expires_in = token_params["expires_in"]
+
+    cache.set(refresh_token, access_token, ttl_seconds = int(expires_in - 30))
+    cache.set(get_cache_user_identifier(refresh_token), str(user_id),  ttl_seconds = CACHE_TTL)
+
+    return refresh_token
+
+def get_cache_user_identifier(refresh_token):
+    return "%s/user_id" % refresh_token
+
+def get_access_token(refresh_token):
+    headers = dict(
+        Authorization = "Basic %s" % FITBIT_SECRET,
+        ContentType = "application/x-www-form-urlencoded",
+    )
+
+    form_body = dict(
+        grant_type = "refresh_token",
+        refresh_token = refresh_token,
+    )
+
+    res = http.post(
+        url = FITBIT_TOKEN_URL,
+        headers = headers,
+        form_body = form_body,
+    )
+
+    if res.status_code == 200:
+        print("Success")
+    else:
+        print("Error Calling Fitbit Token: %s" % (res.body()))
+        fail("token request failed with status code: %d - %s" %
+             (res.status_code, res.body()))
+        return None
+
+    token_params = res.json()
+    access_token = token_params["access_token"]
+
+    cache.set(refresh_token, access_token, ttl_seconds = int(token_params["expires_in"] - 30))
+
+    return access_token
 
 def get_schema():
     period_options = [
-        schema.Option(value = "7d", display = "7 Days"),
-        schema.Option(value = "30d", display = "30 Days"),
-        schema.Option(value = "1m", display = "1 Month"),
-        schema.Option(value = "3m", display = "3 Months"),
-        schema.Option(value = "6m", display = "6 Months"),
-        schema.Option(value = "1y", display = "1 Year"),
-        schema.Option(value = "max", display = "Maximum Allowed"),
+        schema.Option(value = "7", display = "7 Days"),
+        schema.Option(value = "30", display = "30 Days"),
+        schema.Option(value = "60", display = "2 Months"),
+        schema.Option(value = "90", display = "3 Months"),
+        schema.Option(value = "180", display = "6 Months"),
+        schema.Option(value = "360", display = "1 Year"),
+        schema.Option(value = "0", display = "Maximum Allowed"),
     ]
 
     measurement_options = [
@@ -311,12 +406,18 @@ def get_schema():
         schema.Option(value = "imperial", display = "Imperial"),
     ]
 
+    secondary_options = [
+        schema.Option(value = "none", display = "None - just diplay weight"),
+        schema.Option(value = "bodyfat", display = "Body Fat Percentage"),
+        schema.Option(value = "bmi", display = "BMI"),
+    ]
+
     return schema.Schema(
         version = "1",
         fields = [
             schema.OAuth2(
                 id = "auth",
-                icon = "cloud",
+                icon = "user",
                 name = "Fitbit",
                 desc = "Connect to your Fitbit account.",
                 handler = oauth_handler,
@@ -330,7 +431,7 @@ def get_schema():
                 id = "period",
                 name = "Period",
                 desc = "The length of time to chart.",
-                icon = "pencilRuler",
+                icon = "userClock",
                 options = period_options,
                 default = period_options[0].value,
             ),
@@ -338,25 +439,27 @@ def get_schema():
                 id = "system",
                 name = "Measurement",
                 desc = "Choose Imperial or Metric",
-                icon = "gear",
+                icon = "ruler",
                 options = measurement_options,
                 default = "metric",
             ),
-            schema.Toggle(
-                id = "show_fat",
-                name = "Show Fat %",
-                desc = "Do you want to display the fat percentage and trend?",
-                icon = "cog",
-                default = False,
+            schema.Dropdown(
+                id = "second",
+                name = "Secondary Measurement",
+                desc = "Choose the secondary item to plot",
+                icon = "poll",
+                options = secondary_options,
+                default = "none",
             ),
         ],
     )
+
 
 EXAMPLE_DATA_FAT = """
 {
     "body-fat": [{
         "dateTime": "2021-10-12",
-        "value": "32.566001892089844"
+        "value": "28.566001892089844"
     }, {
         "dateTime": "2021-10-13",
         "value": "32.53900146484375"
@@ -919,7 +1022,7 @@ EXAMPLE_DATA_BMI = """
 {
     "body-bmi": [{
         "dateTime": "2021-10-12",
-        "value": "31.335277557373047"
+        "value": "25.335277557373047"
     }, {
         "dateTime": "2021-10-13",
         "value": "31.35280990600586"
@@ -1482,7 +1585,7 @@ EXAMPLE_DATA = """
 {
     "body-weight": [{
         "dateTime": "2021-10-12",
-        "value": "101.865"
+        "value": "96.865"
     }, {
         "dateTime": "2021-10-13",
         "value": "101.922"
