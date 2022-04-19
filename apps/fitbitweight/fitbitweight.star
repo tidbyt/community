@@ -22,8 +22,8 @@ CACHE_TTL = 60 * 60 * 24  # updates once daily
 #OAuth Information
 FITBIT_CLIENT_ID = "238FC5"
 OAUTH2_CLIENT_SECRET = secret.decrypt("AV6+xWcE74PvLnAK9o2UbKXs4mvqPOtEMJzu/AvYJQzd9Ngjvk/N5Ee2G3YD4+EF5TMJyWSs85/MoOk2VZWddwZh7+Zld7+ySKsF49sF+4tFGEQjOqVOebCiKpL1YpwFcBmC0em2bLFO890zJRjVUHDDLfXXkasbIftnKofwR49Kpga5oAY=")
-FITBIT_SECRET = "MjM4RkM1OjEzYzEwMzhjZGQ0MzRmZWJjODYzMThjZDQzMjJiNDg5" # secret.decrypt("AV6+xWcEqLZ1+KzoRlbZYXgEWLJLeCrHXA6fcqjagRi/gRlH7Wmj8QWepc+JB5HCy40CzovjbZM1zV3VFuVvATRXmtLsalSRWwwwc6Wrh00dfUGD/xK7eZLyA3Oua2rvnzD1QguqODgWr57RguybEGXEfaPc6McM0L10raV3xJS8cGJgGlT3lR67z1EeyybGYMMlAwDnopGKBQ==")
-FITBIT_REDIRECT_URI = "https://appauth.tidbyt.com/fitbitweight" #"https://localhost:8080/"
+FITBIT_SECRET = "MjM4RkM1OjEzYzEwMzhjZGQ0MzRmZWJjODYzMThjZDQzMjJiNDg5"  # secret.decrypt("AV6+xWcEqLZ1+KzoRlbZYXgEWLJLeCrHXA6fcqjagRi/gRlH7Wmj8QWepc+JB5HCy40CzovjbZM1zV3VFuVvATRXmtLsalSRWwwwc6Wrh00dfUGD/xK7eZLyA3Oua2rvnzD1QguqODgWr57RguybEGXEfaPc6McM0L10raV3xJS8cGJgGlT3lR67z1EeyybGYMMlAwDnopGKBQ==")
+FITBIT_REDIRECT_URI = "https://appauth.tidbyt.com/fitbitweight"  #"https://localhost:8080/"
 FITBIT_BASE = "https://www.fitbit.com/oauth2/authorize?response_type=code&client_id=238FC5&redirect_uri=https%3A%2F%2Fappauth.tidbyt.com%2FFitbitWeight&scope=profile%20weight&expires_in=604800"
 FITBIT_SCOPES = "profile weight activity"
 FITBIT_TOKEN_URL = "https://api.fitbit.com/oauth2/token"
@@ -57,8 +57,8 @@ def main(config):
     secondary_display = config.get("second") or "none"
 
     #default to demo data
-    weight_json = None 
-    fat_json = None 
+    weight_json = None
+    fat_json = None
     bmi_json = None
     fitbit_json_items = (weight_json, fat_json, bmi_json)
 
@@ -134,7 +134,7 @@ def main(config):
                 render.Text(display_weight, color = WEIGHT_COLOR, font = DISPLAY_FONT),
                 render.Marquee(
                     width = 32,
-                    child = 
+                    child =
                         render.Text(("%s%% body fat" % (humanize.comma(int(current_fat * 100) / 100.0))), color = FAT_COLOR, font = DISPLAY_FONT),
                 ),
             ],
@@ -158,8 +158,8 @@ def main(config):
             children = [
                 render.Text(display_weight, color = WHITE_COLOR, font = DISPLAY_FONT),
                 render.Marquee(
-                    width=32,
-                    child = render.Text("%s%s %s since %s" % (sign, humanize.comma(int(weight_change * 100) / 100.0), displayUnits, first_weight_date ), color = WEIGHT_COLOR, font = DISPLAY_FONT),
+                    width = 32,
+                    child = render.Text("%s%s %s since %s" % (sign, humanize.comma(int(weight_change * 100) / 100.0), displayUnits, first_weight_date), color = WEIGHT_COLOR, font = DISPLAY_FONT),
                 ),
             ],
         )
@@ -173,7 +173,7 @@ def main(config):
         rows.append(get_plot_display_from_plot(weight_plot, WEIGHT_COLOR, 26))
     elif secondary_display == "bodyfat":
         rows.append(get_plot_display_from_plot(weight_plot, WEIGHT_COLOR))
-        rows.append(get_plot_display_from_plot(fat_plot, FAT_COLOR))        
+        rows.append(get_plot_display_from_plot(fat_plot, FAT_COLOR))
     else:
         rows.append(get_plot_display_from_plot(weight_plot, WEIGHT_COLOR, 26))
 
@@ -184,7 +184,7 @@ def main(config):
         ),
     )
 
-def get_starting_value(json_data, period, itemName="value"):
+def get_starting_value(json_data, period, itemName = "value"):
     for i in json_data:
         for item in json_data[i]:
             current_date = get_timestamp_from_date(item["dateTime"])
@@ -354,14 +354,14 @@ def get_refresh_token(authorization_code):
              (res.status_code, res.body()))
         return None
 
-    token_params = res.json()   
+    token_params = res.json()
     refresh_token = token_params["refresh_token"]
     access_token = token_params["access_token"]
     user_id = token_params["user_id"]
     expires_in = token_params["expires_in"]
 
     cache.set(refresh_token, access_token, ttl_seconds = int(expires_in - 30))
-    cache.set(get_cache_user_identifier(refresh_token), str(user_id),  ttl_seconds = CACHE_TTL)
+    cache.set(get_cache_user_identifier(refresh_token), str(user_id), ttl_seconds = CACHE_TTL)
 
     return refresh_token
 
@@ -463,7 +463,6 @@ def get_schema():
             ),
         ],
     )
-
 
 EXAMPLE_DATA_FAT = """
 {
