@@ -14,7 +14,7 @@ var source []byte
 func New() manifest.Manifest {
 	return manifest.Manifest{
 		ID:          "r-place-2022",
-		Name:        "Reddit R Place 2022",
+		Name:        "Reddit RPlace",
 		Author:      "funkfinger",
 		Summary:     "Bits of r/place 2022",
 		Desc:        "See bits of what Redditors created for r/place 2022.",
