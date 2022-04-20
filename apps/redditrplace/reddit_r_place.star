@@ -9,6 +9,7 @@ load("render.star", "render")
 load("http.star", "http")
 load("random.star", "random")
 load("animation.star", "animation")
+load("schema.star", "schema")
 
 HEIGHT = 32
 WIDTH = 64
