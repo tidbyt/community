@@ -62,6 +62,7 @@ import (
 	"tidbyt.dev/community/apps/purpleair"
 	"tidbyt.dev/community/apps/randomslackmoji"
 	"tidbyt.dev/community/apps/redditimages"
+	"tidbyt.dev/community/apps/redditrplace"
 	"tidbyt.dev/community/apps/sbbtimetable"
 	"tidbyt.dev/community/apps/snyk"
 	"tidbyt.dev/community/apps/sportsscores"
@@ -143,6 +144,7 @@ func GetManifests() []manifest.Manifest {
 		purpleair.New(),
 		randomslackmoji.New(),
 		redditimages.New(),
+		redditrplace.New(),
 		sbbtimetable.New(),
 		snyk.New(),
 		sportsscores.New(),
