@@ -193,7 +193,7 @@ def main(config):
         height = height - 9
     if messages:
         lines = lines - 1
-        height = height - 7
+        height = height - 8
 
     rows = []
     if config.bool("show_title"):
@@ -281,15 +281,8 @@ def shortPredictions(output, messages, lines, config):
             row.append(output.pop(0))
         rows.append(row)
 
-    predictions_height = 32
-    if config.bool("show_title"):
-        predictions_height = predictions_height - 10
-    if messages:
-        predictions_height = predictions_height - 7
-
     return [
         render.Box(
-            height = predictions_height,
             padding = 2,
             child = render.Column(
                 expanded = True,
@@ -358,7 +351,7 @@ def getLongRow(routeTag, destination, predictions, config):
     else:
         row.append(
             render.Marquee(
-                child = render.Text(" & ".join(["%s min" % prediction for prediction in predictions[:2]]), font="tom-thumb"),
+                child = render.Text("%s min" % " & ".join([prediction for prediction in predictions[:2]]), font="tom-thumb"),
                 width = 50,
             ),
         )
