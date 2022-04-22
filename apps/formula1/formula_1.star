@@ -29,13 +29,14 @@ def main(config):
         print("Miss! Calling F1 Track data.")
 
     #Set API URLS
-    F1_URL = "http://ergast.com/api/f1/" + Year + "/next.json"
+    F1_BASE_URL = "http://ergast.com/api/f1/" + Year + "/next.json"
+    F1_URL = http.get(F1_BASE_URL)
 
-    F1_COUNTRY = http.get(F1_URL).json()["MRData"]["RaceTable"]["Races"][0]["Circuit"]["Location"]["country"]
-    F1_LOC = http.get(F1_URL).json()["MRData"]["RaceTable"]["Races"][0]["Circuit"]["Location"]["locality"]
-    F1_DATE = http.get(F1_URL).json()["MRData"]["RaceTable"]["Races"][0]["date"]
-    F1_TIME = http.get(F1_URL).json()["MRData"]["RaceTable"]["Races"][0]["time"]
-    F1_ROUND = http.get(F1_URL).json()["MRData"]["RaceTable"]["Races"][0]["round"]
+    F1_COUNTRY = F1_URL.json()["MRData"]["RaceTable"]["Races"][0]["Circuit"]["Location"]["country"]
+    F1_LOC = F1_URL.json()["MRData"]["RaceTable"]["Races"][0]["Circuit"]["Location"]["locality"]
+    F1_DATE = F1_URL.json()["MRData"]["RaceTable"]["Races"][0]["date"]
+    F1_TIME = F1_URL.json()["MRData"]["RaceTable"]["Races"][0]["time"]
+    F1_ROUND = F1_URL.json()["MRData"]["RaceTable"]["Races"][0]["round"]
 
     f1_data = dict(F1_COUNTRY = F1_COUNTRY, F1_LOC = F1_LOC, F1_DATE = F1_DATE, F1_TIME = F1_TIME, F1_ROUND = F1_ROUND)
     cache.set("f1_rate", json.encode(f1_data), ttl_seconds = 3600)
