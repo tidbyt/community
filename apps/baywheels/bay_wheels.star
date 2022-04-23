@@ -16,7 +16,7 @@ load("schema.star", "schema")
 STATIONS_URL = "https://gbfs.baywheels.com/gbfs/fr/station_information.json"
 STATUS_URL = "https://gbfs.baywheels.com/gbfs/fr/station_status.json"
 
-DEFAULT_STATION = '{ "display": "18th St at Noe St", "value": "119"}'
+DEFAULT_STATION = '{ "display": "18th St at Noe St", "value": "cd7359fc-6798-48ed-af32-9d5f6cff9ffa"}'
 
 IMAGE_BICYCLE = base64.decode("""
 iVBORw0KGgoAAAANSUhEUgAAAGQAAABkCAYAAABw4pVUAAAAAXNSR0IArs4c6QAAA7VJREFUeF7tmmuS2zAMg5Oj9eR7tO1kdtK
@@ -56,6 +56,8 @@ def main(config):
 
     allStatuses = fetch_cached(STATUS_URL, 240)["data"]["stations"]
 
+    ebikes = 0
+    bikes = 0
     stationStatus = [status for status in allStatuses if status["station_id"] == station["value"]]
 
     if len(stationStatus) > 0:
@@ -66,46 +68,44 @@ def main(config):
         ebikes = stationStatus["num_ebikes_available"]
         bikes = stationStatus["num_bikes_available"] - ebikes
 
-        return render.Root(
-            child = render.Column(
-                cross_align = "end",
-                children = [
-                    render.Column(
-                        children = [
-                            render.Marquee(
-                                width = 64,
-                                child = render.Text(station["display"]),
-                            ),
-                            render.Box(width = 64, height = 1, color = "#FFF"),
-                        ],
-                    ),
-                    render.Row(
-                        main_align = "space_around",
-                        cross_align = "center",
-                        expanded = True,
-                        children = [
-                            render.Image(src = IMAGE_BICYCLE, width = 32, height = 32),
-                            render.Column(
-                                main_align = "space_evenly",
-                                cross_align = "end",
-                                expanded = True,
-                                children = [
-                                    render.Text("%d" % bikes),
-                                    render.Row(
-                                        children = [
-                                            render.Image(src = IMAGE_LIGHTNING, width = 8, height = 8),
-                                            render.Text("%d" % ebikes),
-                                        ],
-                                    ),
-                                ],
-                            ),
-                        ],
-                    ),
-                ],
-            ),
-        )
-
-    return None
+    return render.Root(
+        child = render.Column(
+            cross_align = "end",
+            children = [
+                render.Column(
+                    children = [
+                        render.Marquee(
+                            width = 64,
+                            child = render.Text(station["display"]),
+                        ),
+                        render.Box(width = 64, height = 1, color = "#FFF"),
+                    ],
+                ),
+                render.Row(
+                    main_align = "space_around",
+                    cross_align = "center",
+                    expanded = True,
+                    children = [
+                        render.Image(src = IMAGE_BICYCLE, width = 32, height = 32),
+                        render.Column(
+                            main_align = "space_evenly",
+                            cross_align = "end",
+                            expanded = True,
+                            children = [
+                                render.Text("%d" % bikes),
+                                render.Row(
+                                    children = [
+                                        render.Image(src = IMAGE_LIGHTNING, width = 8, height = 8),
+                                        render.Text("%d" % ebikes),
+                                    ],
+                                ),
+                            ],
+                        ),
+                    ],
+                ),
+            ],
+        ),
+    )
 
 def get_schema():
     return schema.Schema(
