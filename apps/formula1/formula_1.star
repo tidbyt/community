@@ -65,17 +65,17 @@ def main(config):
         F1_ROUND = F1_URL.json()["MRData"]["RaceTable"]["Races"][0]["round"]
         F1_CIRCUT_ID = F1_URL.json()["MRData"]["RaceTable"]["Races"][0]["Circuit"]["circuitId"]
 
-        f1_data = dict(F1_COUNTRY = F1_COUNTRY, F1_LOC = F1_LOC, F1_DATE = F1_DATE, F1_TIME = F1_TIME, F1_ROUND = F1_ROUND)
+        f1_data = dict(F1_COUNTRY = F1_COUNTRY, F1_LOC = F1_LOC, F1_DATE = F1_DATE, F1_TIME = F1_TIME, F1_ROUND = F1_ROUND, F1_CIRCUT_ID = F1_CIRCUT_ID)
         cache.set("f1_rate", json.encode(f1_data), ttl_seconds = 1600)
 
     #Zulu time offsets depending on selected Timezone only have US at the moment
-    EST = int(F1_TIME[0:2]) - 4
-    CST = int(F1_TIME[0:2]) - 5
-    MST = int(F1_TIME[0:2]) - 6
-    PST = int(F1_TIME[0:2]) - 7
+    EST = int(f1_data["F1_TIME"][0:2]) - 4
+    CST = int(f1_data["F1_TIME"][0:2]) - 5
+    MST = int(f1_data["F1_TIME"][0:2]) - 6
+    PST = int(f1_data["F1_TIME"][0:2]) - 7
 
     #Made for edge case that race falls on the first of the month in one time zone but the 30/31st in others
-    RACE_DAY_1 = time.time(year = time.now().year, month = int(F1_DATE[5:7]), day = int(F1_DATE[8:10]) - 1)
+    RACE_DAY_1 = time.time(year = time.now().year, month = int(f1_data["F1_DATE"][5:7]), day = int(f1_data["F1_DATE"][8:10]) - 1)
 
     #Establish if a time needs to be added or subtracted from the informationn based on selected time zone
     if config.get("local_timezone") == "CST":
@@ -85,8 +85,8 @@ def main(config):
             ADJ_Month = str(RACE_DAY_1)[5:7]
         else:
             TZ = str(CST) + " CST"
-            DAY = F1_DATE[8:10]
-            ADJ_Month = F1_DATE[5:7]
+            DAY = f1_data["F1_DATE"][8:10]
+            ADJ_Month = f1_data["F1_DATE"][5:7]
 
     elif config.get("local_timezone") == "MST":
         if MST <= 0:
@@ -95,8 +95,8 @@ def main(config):
             ADJ_Month = str(RACE_DAY_1)[5:7]
         else:
             TZ = str(MST) + " MST"
-            DAY = F1_DATE[8:10]
-            ADJ_Month = F1_DATE[5:7]
+            DAY = f1_data["F1_DATE"][8:10]
+            ADJ_Month = f1_data["F1_DATE"][5:7]
 
     elif config.get("local_timezone") == "PST":
         if PST <= 0:
@@ -105,8 +105,8 @@ def main(config):
             ADJ_Month = str(RACE_DAY_1)[5:7]
         else:
             TZ = str(PST) + " PST"
-            DAY = F1_DATE[8:10]
-            ADJ_Month = F1_DATE[5:7]
+            DAY = f1_data["F1_DATE"][8:10]
+            ADJ_Month = f1_data["F1_DATE"][5:7]
 
     elif EST <= 0:
         TZ = str(EST + 24) + " EST"
@@ -114,8 +114,8 @@ def main(config):
         ADJ_Month = str(RACE_DAY_1)[5:7]
     else:
         TZ = str(EST) + " EST"
-        DAY = F1_DATE[8:10]
-        ADJ_Month = F1_DATE[5:7]
+        DAY = f1_data["F1_DATE"][8:10]
+        ADJ_Month = f1_data["F1_DATE"][5:7]
 
     #find the month and display as text
     if ADJ_Month == "01":
@@ -159,19 +159,19 @@ def main(config):
             children = [
                 render.Marquee(
                     width = 64,
-                    child = render.Text("Next Race: " + F1_COUNTRY),
+                    child = render.Text("Next Race: " + f1_data["F1_COUNTRY"]),
                     offset_start = 5,
                     offset_end = 5,
                 ),
                 render.Box(width = 64, height = 1, color = "#a0a"),
                 render.Row(
                     children = [
-                        render.Image(src = F1_MAPS.get(F1_CIRCUT_ID, "americas")),
+                        render.Image(src = F1_MAPS.get(f1_data["F1_CIRCUT_ID"], "americas")),
                         render.Column(
                             children = [
                                 render.Text(Month + " " + DAY, font = "5x8"),
                                 render.Text(TZ),
-                                render.Text("Race " + F1_ROUND),
+                                render.Text("Race " + f1_data["F1_ROUND"]),
                             ],
                         ),
                     ],
@@ -211,5 +211,3 @@ def get_schema():
             ),
         ],
     )
-
-
