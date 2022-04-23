@@ -55,40 +55,40 @@ def main(config):
         MIcon = "#000"
 
     if Month == "Jan":
-        MHand = 3
-
-    elif Month == "Feb":
         MHand = 8
 
-    elif Month == "Mar":
+    elif Month == "Feb":
         MHand = 13
 
-    elif Month == "Apr":
+    elif Month == "Mar":
         MHand = 18
 
-    elif Month == "May":
+    elif Month == "Apr":
         MHand = 23
 
-    elif Month == "Jun":
+    elif Month == "May":
         MHand = 28
 
-    elif Month == "Jul":
+    elif Month == "Jun":
         MHand = 33
 
-    elif Month == "Aug":
+    elif Month == "Jul":
         MHand = 38
 
-    elif Month == "Sep":
+    elif Month == "Aug":
         MHand = 43
 
-    elif Month == "Oct":
+    elif Month == "Sep":
         MHand = 48
 
-    elif Month == "Nov":
+    elif Month == "Oct":
         MHand = 53
 
-    else:
+    elif Month == "Nov":
         MHand = 58
+
+    else:
+        MHand = 63
 
     if Hour == "1":
         Hand = 8
