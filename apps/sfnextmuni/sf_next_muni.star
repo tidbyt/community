@@ -27,6 +27,40 @@ MUNI_COLORS = {
 }
 
 def get_schema():
+    priorities = [
+        schema.Option(
+            display = "High",
+            value = "High",
+        ),
+        schema.Option(
+            display = "Normal",
+            value = "Normal",
+        ),
+        schema.Option(
+            display = "Low",
+            value = "Low",
+        ),
+        schema.Option(
+            display = "None",
+            value = "none",
+        ),
+    ]
+
+    formats = [
+        schema.Option(
+            display = "With destination",
+            value = "long",
+        ),
+        schema.Option(
+            display = "No destination",
+            value = "medium",
+        ),
+        schema.Option(
+            display = "Compact",
+            value = "short",
+        )
+    ]
+
     return schema.Schema(
         version = "1",
         fields = [
@@ -37,6 +71,29 @@ def get_schema():
                 icon = "bus",
                 handler = get_stops,
             ),
+            schema.Toggle(
+                id = "show_title",
+                name = "Show stop title",
+                desc = "A toggle to show the stop title.",
+                icon = "signHanging",
+                default = False
+            ),
+            schema.Dropdown(
+                id = "prediction_format",
+                name = "Prediction format",
+                desc = "Select the format of the prediction text.",
+                icon = "grid",
+                default = "long",
+                options = formats,
+            ),
+            schema.Dropdown(
+                id = "service_messages",
+                name = "Show service messages",
+                desc = "The lowest priority of service message to be displayed.",
+                icon = "comment-exclamation",
+                default = priorities[0].value,
+                options = priorities,
+            )
         ],
     )
 
@@ -75,6 +132,9 @@ def fetch_cached(url, ttl):
         cache.set(url, str(data), ttl_seconds = ttl)
         return data
 
+def higher_priority_than(pri, threshold):
+    return threshold == "Low" or pri == "High" or threshold == pri
+
 def main(config):
     stopId = json.decode(config.get("stop_code", DEFAULT_STOP))["value"]
     routes = fetch_cached(PREDICTIONS_URL % stopId, 240)["predictions"]
@@ -83,11 +143,20 @@ def main(config):
         routes = [routes]
 
     prediction_map = {}
+    messages = []
 
     for route in routes:
         if "routeTag" not in route or "direction" not in route:
             continue
         routeTag = route["routeTag"]
+
+        if "message" in route:
+            message = route["message"]
+            if type(message) != "list":
+                message = [message]
+            for m in message:
+                if m not in messages:
+                    messages.append(m)
 
         destinations = route["direction"]
         if type(destinations) != "list":
@@ -104,39 +173,187 @@ def main(config):
             if routeTag == "KT":
                 routeTag = "T" if "Inbound" in dest["title"] else "K"
 
-            title = (routeTag, destTitle)
+            title = routeTag if "short" == config.get("prediction_format") else (routeTag, destTitle)
             minutes = [prediction["minutes"] for prediction in predictions if "minutes" in prediction]
             prediction_map[title] = sorted(minutes, key = int)
 
     output = sorted(prediction_map.items(), key = lambda kv: int(min(kv[1], key = int)))
+    lowest_message_pri = config.get("service_messages")
+    messages = [
+        message["text"]
+        for message in messages
+        if higher_priority_than(message["priority"], lowest_message_pri)
+    ]
+
+    lines = 4
+    height = 32
+
+    if config.bool("show_title"):
+        lines = lines - 1
+        height = height - 9
+    if messages:
+        lines = lines - 1
+        height = height - 8
+
+    rows = []
+    if config.bool("show_title"):
+        title = json.decode(config.get("stop_code", DEFAULT_STOP))["display"]
+        rows.append(
+            render.Column(
+                children = [
+                    render.Marquee(
+                        width = 64,
+                        child = render.Text(title)),
+                    render.Box(
+                        width = 64,
+                        height = 1,
+                        color = "#FFF",
+                    )
+                ],
+                main_align = "start",
+            )
+        )
+        
+    predictionLines = []
+
+    if "short" == config.get("prediction_format"):
+        predictionLines = shortPredictions(output, messages, lines, config)
+    else:
+        predictionLines = longRows(output[:lines], config)
+
+    rows.append(
+        render.Box(
+            height = height,
+            padding = 0,
+            child = render.Column(
+                children = predictionLines,
+                main_align = "space_evenly",
+                expanded = True,
+            )   
+        )
+    )
+
+    if messages:
+        rows.append(
+            render.Column(
+                children = [
+                    render.Padding(
+                        pad = (0,0,0,1),
+                        child = render.Box(
+                            width = 64,
+                            height = 1,
+                            color = "#FFF",
+                        ),
+                    ),
+                    render.Marquee(
+                        width = 64,
+                        child = render.Text("      ".join(messages), font="tom-thumb")),
+                ],
+                main_align = "end",
+            )
+        )
 
     return render.Root(
         child = render.Column(
-            children = [
-                render.Row(
-                    children = [
-                        render.Circle(
-                            child = render.Text(routeTag),
-                            diameter = 10,
-                            color = MUNI_COLORS[routeTag] if routeTag in MUNI_COLORS else "#000000",
-                        ),
-                        render.Marquee(
-                            child = render.Text(destination),
-                            width = 40,
-                        ),
-                        render.Marquee(
-                            child = render.Text((" " if len(predictions[0]) < 2 else "") + predictions[0]),
-                            width = 10,
-                        ),
-                    ],
-                    expanded = True,
-                    main_align = "space_evenly",
-                    cross_align = "center",
-                )
-                for ((routeTag, destination), predictions) in output[:min(3, len(output))]
-            ],
+            children = rows,
             expanded = True,
-            main_align = "space_evenly",
+            main_align = "space_between",
             cross_align = "center",
         ),
     )
+
+def calculateLength(predictions):
+    return (7  # diameter of line circle
+        + 4    # leading space
+        + 4 * len(",".join(predictions[:2]))
+        + 4)   # trailing space
+
+def shortPredictions(output, messages, lines, config):
+    predictionLengths = [calculateLength(predictions) for (routeTag, predictions) in output]
+    
+    rows = []
+    for line in range(lines):
+        row = []
+        cumulativeLength = 0
+        for length in predictionLengths:
+            cumulativeLength = cumulativeLength + length
+            if (cumulativeLength - 4 > 64 or not output): break
+            row.append(output.pop(0))
+        rows.append(row)
+
+    return [
+        render.Box(
+            padding = 2,
+            child = render.Column(
+                expanded = True,
+                children = [
+                    render.Row(
+                        children = [
+                            render.Row(
+                                children = [
+                                    render.Circle(
+                                        child = render.Text(routeTag, font="tom-thumb"),
+                                        diameter = 7,
+                                        color = MUNI_COLORS[routeTag] if routeTag in MUNI_COLORS else "#000000",
+                                    ),
+                                    render.Text(" "),
+                                    render.Text(",".join(predictions[:2]), font="tom-thumb"),
+                                    render.Text(" "),
+                                ],
+                                main_align = "space_around",
+                                cross_align = "center"
+                            )
+                            for (routeTag, predictions) in row
+                        ],
+                        main_align = "start",
+                        cross_align = "center",
+                        expanded = True,
+                    )
+                    for row in rows
+                ]
+            )
+        )
+    ]
+
+def longRows(output, config):
+    return [
+        render.Row(
+            children = getLongRow(routeTag, destination, predictions, config),
+            expanded = True,
+            main_align = "space_evenly",
+            cross_align = "center",
+        )
+        for ((routeTag, destination), predictions) in output
+    ]
+
+def getLongRow(routeTag, destination, predictions, config):
+    row = []
+    row.append(
+        render.Circle(
+            child = render.Text(routeTag, font="tom-thumb"),
+            diameter = 7,
+            color = MUNI_COLORS[routeTag] if routeTag in MUNI_COLORS else "#000000",
+        )
+    )
+    if "long" == config.get("prediction_format"):
+        row.append(
+            render.Marquee(
+                child = render.Text(destination, font="tom-thumb"),
+                width = 40,
+            )
+        )
+        row.append(
+            render.Marquee(
+                child = render.Text((" " if len(predictions[0]) < 2 else "") + predictions[0], font="tom-thumb"),
+                width = 10,
+            ),
+        )
+    else:
+        row.append(
+            render.Marquee(
+                child = render.Text("%s min" % " & ".join([prediction for prediction in predictions[:2]]), font="tom-thumb"),
+                width = 50,
+            ),
+        )
+    
+    return row
