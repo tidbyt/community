@@ -19,7 +19,6 @@ def main(config):
     now = time.now().in_location(timezone)
     Year = now.format("2006")
 
-    #Add Caching
     f1_cached = cache.get("f1_rate")
 
     if f1_cached != None:
@@ -28,7 +27,7 @@ def main(config):
     else:
         print("Miss! Calling F1 Track data.")
 
-    #Set API URLS
+        #Set API URLS
     F1_BASE_URL = "http://ergast.com/api/f1/" + Year + "/next.json"
     F1_URL = http.get(F1_BASE_URL)
 
@@ -40,7 +39,7 @@ def main(config):
     F1_CIRCUT_ID = F1_URL.json()["MRData"]["RaceTable"]["Races"][0]["Circuit"]["circuitId"]
 
     f1_data = dict(F1_COUNTRY = F1_COUNTRY, F1_LOC = F1_LOC, F1_DATE = F1_DATE, F1_TIME = F1_TIME, F1_ROUND = F1_ROUND)
-    cache.set("f1_rate", json.encode(f1_data), ttl_seconds = 3600)
+    cache.set("f1_rate", json.encode(f1_data), ttl_seconds = 1600)
 
     #Zulu time offsets depending on selected Timezone only have US at the moment
     EST = int(F1_TIME[0:2]) - 4
@@ -128,8 +127,7 @@ def main(config):
     else:
         Month = "DEC"
 
-
-    #30x24 Track Map Selection
+    #30x24 track maps
     F1_MAPS = dict(
         yas_marina = base64.decode("iVBORw0KGgoAAAANSUhEUgAAAB4AAAAYCAYAAADtaU2/AAAAAXNSR0IArs4c6QAAAO1JREFUSEvNllsOxSAIRGX/i/YGEwyOiKgkt/3qQz0wDFYqpdTyh4s+D651FIaIY76/QhkLVGD4fIPfgleQV7gL5sVRUv3uBb4EW4vqOr/KboI9eRmIStxkPoEtedk8evFVCXhc1O0DOGqkSHA7p3ewJ5fVTqvMorIPYDSMSGfV1JM0Am9grB8CT8HaE1pyHSwJVWeL9zdgrDG2YgOvetLqW8nGkhr3c8vlXV0ER9rBc7WebwUiSkwZZ4K9lkoDR5w8GE2kPplo/ShOdq02tvfSwXaHtYuUB2Wf2mm31WV93x4EskBTxp8/7GVn/gMjGOn79JCBIwAAAABJRU5ErkJggg=="),
         red_bull_ring = base64.decode("iVBORw0KGgoAAAANSUhEUgAAAB4AAAAYCAYAAADtaU2/AAAAAXNSR0IArs4c6QAAAS9JREFUSEullisOwkAQhrcHQHEEDEFxjRo4A3UIMG0QNMG1CSEIDLKcAQyX4AIk4NA4BAqyIUuWZTqvVjVtZ77557HTyBjzMsKrqqqvRZIkQuvP55EU7EMdUQMXgSGl7pkUzgbXpbcObJ9jwZBgrJ4YlCoDCqZUWuehKm4PgGDfeFxuh8/Lae8USDNQl5U/MNYsGLTfa+fTbFVAdYV8/oC1UKqzoYBZijkBYR1MKg7r6DuDjCml1h+7xlx4Eyh5ZGIqoVHyD20qMPYBEqZdWtNwk5BgrE7QWqKUOhsWmAvvdlqjWb7ZcRYGG0zBpTtaBMbgFrycZPH5cT9y/gzEYB9u78t1Opin60OxyOLrjQclx4mKXJpe359KcTivnGZSjROlXPO+sWINtHGNtVBr9wYhpcwBXE9y4wAAAABJRU5ErkJggg=="),
@@ -168,7 +166,7 @@ def main(config):
                 render.Box(width = 64, height = 1, color = "#a0a"),
                 render.Row(
                     children = [
-                        render.Image(src = F1_MAPS.get(F1_CIRCUT_ID, 'americas')),
+                        render.Image(src = F1_MAPS.get(F1_CIRCUT_ID, "americas")),
                         render.Column(
                             children = [
                                 render.Text(Month + " " + DAY, font = "5x8"),
@@ -213,3 +211,4 @@ def get_schema():
             ),
         ],
     )
+
