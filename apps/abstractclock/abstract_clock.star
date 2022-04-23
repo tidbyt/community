@@ -140,7 +140,7 @@ def main(config):
                         ),
                         render.Row(
                             children = [
-                                render.Box(width = int(Minute) + 8, height = 9),
+                                render.Box(width = int(Minute) + 3, height = 9),
                                 render.Box(width = 1, height = 11, color = COLOR_MINUTE),
                             ],
                         ),
