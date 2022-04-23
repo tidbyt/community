@@ -17,18 +17,14 @@ func TestAllApps(t *testing.T) {
 
 		err := applet.Load(m.Name, m.Source, nil)
 		assert.NoError(t, err)
-
-		_, err = applet.Run(map[string]string{})
-		assert.NoError(t, err)
 	}
-
 }
 
 func TestManifestsValidate(t *testing.T) {
 	applets := apps.GetManifests()
 	for _, app := range applets {
 		err := app.Validate()
-		assert.NoError(t, err)
+		assert.NoErrorf(t, err, app.ID)
 	}
 }
 
