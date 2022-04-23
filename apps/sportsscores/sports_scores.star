@@ -1,6 +1,6 @@
 """
-Applet: Sports Game Scores
-Summary: Get sports game scores
+Applet: Sports Scores
+Summary: Get daily sports scores
 Description: Get daily scores or live updates of sports games (NBA from ESPN). Scores for the previous day are shown until 11am EST. 
 Author: rs7q5
 """
