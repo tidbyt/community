@@ -28,18 +28,18 @@ def main(config):
         print("Miss! Calling F1 Track data.")
 
         #Set API URLS
-    F1_BASE_URL = "http://ergast.com/api/f1/" + Year + "/next.json"
-    F1_URL = http.get(F1_BASE_URL)
+        F1_BASE_URL = "http://ergast.com/api/f1/" + Year + "/next.json"
+        F1_URL = http.get(F1_BASE_URL)
 
-    F1_COUNTRY = F1_URL.json()["MRData"]["RaceTable"]["Races"][0]["Circuit"]["Location"]["country"]
-    F1_LOC = F1_URL.json()["MRData"]["RaceTable"]["Races"][0]["Circuit"]["Location"]["locality"]
-    F1_DATE = F1_URL.json()["MRData"]["RaceTable"]["Races"][0]["date"]
-    F1_TIME = F1_URL.json()["MRData"]["RaceTable"]["Races"][0]["time"]
-    F1_ROUND = F1_URL.json()["MRData"]["RaceTable"]["Races"][0]["round"]
-    F1_CIRCUT_ID = F1_URL.json()["MRData"]["RaceTable"]["Races"][0]["Circuit"]["circuitId"]
+        F1_COUNTRY = F1_URL.json()["MRData"]["RaceTable"]["Races"][0]["Circuit"]["Location"]["country"]
+        F1_LOC = F1_URL.json()["MRData"]["RaceTable"]["Races"][0]["Circuit"]["Location"]["locality"]
+        F1_DATE = F1_URL.json()["MRData"]["RaceTable"]["Races"][0]["date"]
+        F1_TIME = F1_URL.json()["MRData"]["RaceTable"]["Races"][0]["time"]
+        F1_ROUND = F1_URL.json()["MRData"]["RaceTable"]["Races"][0]["round"]
+        F1_CIRCUT_ID = F1_URL.json()["MRData"]["RaceTable"]["Races"][0]["Circuit"]["circuitId"]
 
-    f1_data = dict(F1_COUNTRY = F1_COUNTRY, F1_LOC = F1_LOC, F1_DATE = F1_DATE, F1_TIME = F1_TIME, F1_ROUND = F1_ROUND)
-    cache.set("f1_rate", json.encode(f1_data), ttl_seconds = 1600)
+        f1_data = dict(F1_COUNTRY = F1_COUNTRY, F1_LOC = F1_LOC, F1_DATE = F1_DATE, F1_TIME = F1_TIME, F1_ROUND = F1_ROUND)
+        cache.set("f1_rate", json.encode(f1_data), ttl_seconds = 1600)
 
     #Zulu time offsets depending on selected Timezone only have US at the moment
     EST = int(F1_TIME[0:2]) - 4
