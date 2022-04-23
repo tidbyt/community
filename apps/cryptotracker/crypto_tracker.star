@@ -35,10 +35,15 @@ def display_symbol(crypto_symbol):
         offset_end = 0,
     )
 
-def display_price(current_price):
+def display_price(current_price, tr_format):
     "returns crypto price render"
 
-    disp_text = humanize.comma(int(current_price * 100) / 100.0)
+    if tr_format and current_price >= 1000:
+        current_price = int(current_price)
+    else:
+        current_price = int(current_price * 100) / 100.0
+
+    disp_text = humanize.comma(current_price)
 
     if len(disp_text.partition(".")[-1]) == 1:
         disp_text += "0"
@@ -99,18 +104,19 @@ def display_chart(c_data, x_lim, y_lim):
     "returns crypto price chart render"
 
     return render.Plot(
-        65,  # width
-        16,  # height
-        c_data,  # list of tuples
-        x_lim,  # (x_min, x_max)
-        y_lim,  # (y_min, y_max)
-        GREEN_RGB,  # color
-        RED_RGB,  # colorinverted
-        fill = True,  # fill
+        data = c_data,  # list of tuples
+        width = 65,
+        height = 16,
+        color = GREEN_RGB,
+        color_inverted = RED_RGB,
+        x_lim = x_lim,  # (x_min, x_max)
+        y_lim = y_lim,  # (y_min, y_max)
+        fill = True,
     )
 
 def main(config):
     symbol = config.str("symbol", DEFAULT_SYMBOL)
+    tr_format = config.str("tr_format", False) == 'true'
     interval = "15min"
 
     API_KEY = secret.decrypt(PIN) or config.get("dev_api_key")
@@ -187,7 +193,7 @@ def main(config):
                         render.Row(
                             children = [
                                 render.Padding(
-                                    child = display_price(y[-1]),
+                                    child = display_price(y[-1], tr_format),
                                     pad = (1, 0, 0, 0),
                                 ),
                                 render.Padding(
@@ -247,6 +253,13 @@ def get_schema():
                 icon = "user",
                 default = crypto_options[0].value,
                 options = crypto_options,
+            ),
+            schema.Toggle(
+                id = "tr_format",
+                name = "Use Truncated Format",
+                desc = "Truncates cents from coin price when the price is >= $1,000.",
+                icon = "dollarSign",
+                default = False,
             ),
         ],
     )
