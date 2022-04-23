@@ -7,7 +7,7 @@ Author: rs7q5
 
 #vertical_message.star
 #Created 20220221 RIS
-#Last Modified 20220420 RIS
+#Last Modified 20220422 RIS
 
 load("render.star", "render")
 load("schema.star", "schema")
@@ -41,7 +41,7 @@ def main(config):
         delay = int(scroll_opt),  #speed up scroll text
         child = render.Marquee(
             height = 32,
-            child = render.WrappedText(content = msg_txt, width = 60, color = color_opt),
+            child = render.WrappedText(content = msg_txt, width = 60, color = color_opt, font = config.str("font", "tb-8")),
             scroll_direction = "vertical",
         ),
     )
@@ -56,6 +56,10 @@ def get_schema():
         schema.Option(display = "Normal (Default)", value = "100"),
         schema.Option(display = "Fast", value = "30"),
     ]
+    fonts = [
+        schema.Option(display = key, value = value)
+        for key, value in render.fonts.items()
+    ]
     return schema.Schema(
         version = "1",
         fields = [
@@ -65,6 +69,14 @@ def get_schema():
                 desc = "A mesage to display.",
                 icon = "cog",
                 default = DEFAULT_MSG,
+            ),
+            schema.Dropdown(
+                id = "font",
+                name = "Font",
+                desc = "Change the font of the text.",
+                icon = "font",
+                default = "tb-8",
+                options = fonts,
             ),
             schema.Dropdown(
                 id = "color",
