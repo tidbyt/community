@@ -17,12 +17,13 @@ WANTED_BOTTOM = "iVBORw0KGgoAAAANSUhEUgAAAEAAAAACCAYAAADo+dq5AAAACXBIWXMAAAsTAAA
 def main(config):
     photo = config.get("photo")
 
+    #Use the uploaded photo if it exists, otherwise default to Steve
     if photo == None:
-        photo = base64.decode(DEFAULT_CRIMINAL)
         print("Using Default")
+        photo = base64.decode(DEFAULT_CRIMINAL)
     else:
-        photo = base64.decode(config.get("photo"))
         print("Using your photo")
+        photo = base64.decode(config.get("photo"))
 
     sidewidth = 17
     picturewidth = 64 - 2 * sidewidth
