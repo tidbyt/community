@@ -116,7 +116,7 @@ def display_chart(c_data, x_lim, y_lim):
 
 def main(config):
     symbol = config.str("symbol", DEFAULT_SYMBOL)
-    tr_format = config.str("tr_format", False) == 'true'
+    tr_format = config.str("tr_format", False) == "true"
     interval = "15min"
 
     API_KEY = secret.decrypt(PIN) or config.get("dev_api_key")
