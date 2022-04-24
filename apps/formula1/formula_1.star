@@ -13,6 +13,17 @@ load("encoding/base64.star", "base64")
 load("schema.star", "schema")
 load("cache.star", "cache")
 
+DEFAULT_LOCATION = """
+{
+	"lat": "40.6781784",
+	"lng": "-73.9441579",
+	"description": "Brooklyn, NY, USA",
+	"locality": "Brooklyn",
+	"place_id": "ChIJCSF8lBZEwokRhngABHRcdoI",
+	"timezone": "America/New_York"
+}
+"""
+
 #30x24 track maps
 F1_MAPS = dict(
     yas_marina = base64.decode("iVBORw0KGgoAAAANSUhEUgAAAB4AAAAYCAYAAADtaU2/AAAAAXNSR0IArs4c6QAAAO1JREFUSEvNllsOxSAIRGX/i/YGEwyOiKgkt/3qQz0wDFYqpdTyh4s+D651FIaIY76/QhkLVGD4fIPfgleQV7gL5sVRUv3uBb4EW4vqOr/KboI9eRmIStxkPoEtedk8evFVCXhc1O0DOGqkSHA7p3ewJ5fVTqvMorIPYDSMSGfV1JM0Am9grB8CT8HaE1pyHSwJVWeL9zdgrDG2YgOvetLqW8nGkhr3c8vlXV0ER9rBc7WebwUiSkwZZ4K9lkoDR5w8GE2kPplo/ShOdq02tvfSwXaHtYuUB2Wf2mm31WV93x4EskBTxp8/7GVn/gMjGOn79JCBIwAAAABJRU5ErkJggg=="),
@@ -41,11 +52,14 @@ F1_MAPS = dict(
 )
 
 def main(config):
-    #Time information for date and timezones
-    timezone = config.get("timezone") or "America/Chicago"
+    #TIme and date Information
+    location = config.get("location", DEFAULT_LOCATION)
+    loc = json.decode(location)
+    timezone = loc["timezone"]
     now = time.now().in_location(timezone)
     Year = now.format("2006")
 
+    #Cache Data
     f1_cached = cache.get("f1_rate")
 
     if f1_cached != None:
@@ -68,91 +82,12 @@ def main(config):
         f1_data = dict(F1_COUNTRY = F1_COUNTRY, F1_LOC = F1_LOC, F1_DATE = F1_DATE, F1_TIME = F1_TIME, F1_ROUND = F1_ROUND, F1_CIRCUT_ID = F1_CIRCUT_ID)
         cache.set("f1_rate", json.encode(f1_data), ttl_seconds = 1600)
 
-    #Zulu time offsets depending on selected Timezone only have US at the moment
-    EST = int(f1_data["F1_TIME"][0:2]) - 4
-    CST = int(f1_data["F1_TIME"][0:2]) - 5
-    MST = int(f1_data["F1_TIME"][0:2]) - 6
-    PST = int(f1_data["F1_TIME"][0:2]) - 7
+    #code from @whyamihere to automatically adjust the date time sting from the API
+    date_and_time = f1_data["F1_DATE"] + "T" + f1_data["F1_TIME"]
 
-    #Made for edge case that race falls on the first of the month in one time zone but the 30/31st in others
-    RACE_DAY_1 = time.time(year = time.now().year, month = int(f1_data["F1_DATE"][5:7]), day = int(f1_data["F1_DATE"][8:10]) - 1)
-
-    #Establish if a time needs to be added or subtracted from the informationn based on selected time zone
-    if config.get("local_timezone") == "CST":
-        if CST <= 0:
-            TZ = str(CST + 24) + " CST"
-            DAY = str(RACE_DAY_1)[8:10]
-            ADJ_Month = str(RACE_DAY_1)[5:7]
-        else:
-            TZ = str(CST) + " CST"
-            DAY = f1_data["F1_DATE"][8:10]
-            ADJ_Month = f1_data["F1_DATE"][5:7]
-
-    elif config.get("local_timezone") == "MST":
-        if MST <= 0:
-            TZ = str(MST + 24) + " MST"
-            DAY = str(RACE_DAY_1)[8:10]
-            ADJ_Month = str(RACE_DAY_1)[5:7]
-        else:
-            TZ = str(MST) + " MST"
-            DAY = f1_data["F1_DATE"][8:10]
-            ADJ_Month = f1_data["F1_DATE"][5:7]
-
-    elif config.get("local_timezone") == "PST":
-        if PST <= 0:
-            TZ = str(PST + 24) + " PST"
-            DAY = str(RACE_DAY_1)[8:10]
-            ADJ_Month = str(RACE_DAY_1)[5:7]
-        else:
-            TZ = str(PST) + " PST"
-            DAY = f1_data["F1_DATE"][8:10]
-            ADJ_Month = f1_data["F1_DATE"][5:7]
-
-    elif EST <= 0:
-        TZ = str(EST + 24) + " EST"
-        DAY = str(RACE_DAY_1)[8:10]
-        ADJ_Month = str(RACE_DAY_1)[5:7]
-    else:
-        TZ = str(EST) + " EST"
-        DAY = f1_data["F1_DATE"][8:10]
-        ADJ_Month = f1_data["F1_DATE"][5:7]
-
-    #find the month and display as text
-    if ADJ_Month == "01":
-        Month = "JAN"
-
-    elif ADJ_Month == "02":
-        Month = "FEB"
-
-    elif ADJ_Month == "03":
-        Month = "MAR"
-
-    elif ADJ_Month == "04":
-        Month = "APR"
-
-    elif ADJ_Month == "05":
-        Month = "MAY"
-
-    elif ADJ_Month == "06":
-        Month = "JUN"
-
-    elif ADJ_Month == "07":
-        Month = "JUL"
-
-    elif ADJ_Month == "08":
-        Month = "AUG"
-
-    elif ADJ_Month == "09":
-        Month = "SEP"
-
-    elif ADJ_Month == "10":
-        Month = "OCT"
-
-    elif ADJ_Month == "11":
-        Month = "NOV"
-
-    else:
-        Month = "DEC"
+    date_and_time3 = time.parse_time(date_and_time, "2006-01-02T15:04:05Z", "UTC").in_location(timezone)
+    date_str = date_and_time3.format("Jan 02").upper()  #current format of your current date str
+    time_str = date_and_time3.format("15:04")  #outputs military time but can change 15 to 3 to not do that. The Only thing missing from your current string though is the time zone, but if they're doing local time that's pretty irrelevant
 
     return render.Root(
         child = render.Column(
@@ -169,8 +104,8 @@ def main(config):
                         render.Image(src = F1_MAPS.get(f1_data["F1_CIRCUT_ID"], "americas")),
                         render.Column(
                             children = [
-                                render.Text(Month + " " + DAY, font = "5x8"),
-                                render.Text(TZ),
+                                render.Text(date_str, font = "5x8"),
+                                render.Text(time_str),
                                 render.Text("Race " + f1_data["F1_ROUND"]),
                             ],
                         ),
@@ -184,30 +119,11 @@ def get_schema():
     return schema.Schema(
         version = "1",
         fields = [
-            schema.Dropdown(
-                id = "local_timezone",
-                name = "Time Zone",
-                desc = "Select your Time Zone",
-                icon = "clock",
-                default = "CST",
-                options = [
-                    schema.Option(
-                        display = "EST",
-                        value = "EST",
-                    ),
-                    schema.Option(
-                        display = "CST",
-                        value = "CST",
-                    ),
-                    schema.Option(
-                        display = "MST",
-                        value = "MST",
-                    ),
-                    schema.Option(
-                        display = "PST",
-                        value = "PST",
-                    ),
-                ],
+            schema.Location(
+                id = "location",
+                name = "Location",
+                desc = "Location for which to display time.",
+                icon = "place",
             ),
         ],
     )
