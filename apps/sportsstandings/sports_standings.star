@@ -6,7 +6,7 @@ Author: rs7q5
 """
 #sports_standings.star
 #Created 20220119 RIS
-#Last Modified 20220409 RIS
+#Last Modified 20220424 RIS
 
 load("render.star", "render")
 load("http.star", "http")
@@ -27,6 +27,9 @@ ESPN_SPORTS_LIST = {
 }
 
 def main(config):
+    if config.bool("hide_app", False):
+        return []
+
     sport = config.get("sport") or "MLB"
     sport_txt, sport_ext, sport_conf_code = ESPN_SPORTS_LIST.get(sport)
 
@@ -129,6 +132,13 @@ def get_schema():
                 desc = "Enter the team code to highlight.",
                 icon = "highlighter",
                 default = "None",
+            ),
+            schema.Toggle(
+                id = "hide_app",
+                name = "Hide standings?",
+                desc = "",
+                icon = "eye-slash",
+                default = False,
             ),
         ],
     )
