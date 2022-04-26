@@ -7,7 +7,7 @@ Author: rs7q5
 
 #vertical_message.star
 #Created 20220221 RIS
-#Last Modified 20220425 RIS
+#Last Modified 20220426 RIS
 
 load("render.star", "render")
 load("schema.star", "schema")
@@ -99,7 +99,7 @@ def get_schema():
             schema.Text(
                 id = "color_select",
                 name = "Custom Color",
-                desc = "Enter a color in #rgb, #rgba, #rrggbb, #rgba #rrggbbaa format.",
+                desc = "Enter a color in #rgb, #rrggbb, #rgba, #rrggbbaa format.",
                 icon = "brush",
                 default = "#fff",
             ),
