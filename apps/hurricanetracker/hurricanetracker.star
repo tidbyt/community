@@ -17,8 +17,8 @@ load("xpath.star", "xpath")  #XPath Expressions to read XML RSS Feed
 #Constants
 BASIN_URLS = {
     "atlantic": "https://www.nhc.noaa.gov/index-at.xml",
-    "eastern_pacific" : "https://www.nhc.noaa.gov/index-ep.xml",
-    "central_pacific" : "https://www.nhc.noaa.gov/index-cp.xml",
+    "eastern_pacific": "https://www.nhc.noaa.gov/index-ep.xml",
+    "central_pacific": "https://www.nhc.noaa.gov/index-cp.xml",
 }
 DEFAULT_LOCATION = """
 {
@@ -30,6 +30,7 @@ DEFAULT_LOCATION = """
 	"timezone": "America/New_York"
 }
 """
+
 # Animations - list of base64 encoded images
 TROPICAL_STORM_ANIMATION = [
     "iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAABmJLR0QA/wD/AP+gvaeTAAAACXBIWXMAABbtAAAW7QG3yuVvAAAAB3RJTUUH5gQaBAYqTAWFiAAAAB1pVFh0Q29tbWVudAAAAAAAQ3JlYXRlZCB3aXRoIEdJTVBkLmUHAAACf0lEQVQ4y3WRX0hTYRjGn2/n7Gw7zaw5coYXTkG9SMiCSbNIpKBNFhiIM/pDiRmVmIQoqRiE0EXkRRIVKBaGxoLqIhXKpCxCiZQUBRUVFHNuc/4d287O+bqQ6XZW79X3Pd/3/Hje9yWQ1WznCxhLLoPSStLwyGwUwJ52gy0d8WvTRKJQ7EOAprG+xTNKb9thZv09wT+K9lbz54ZyugZYQ75XYveIRIkUwYtcbrUVRHIoRdFpFLeC9r1rDBs2PbZYUNHTg8H2jlTzYPz4DzZJBSoBBMiRnJ7u9PljCefLp8L/F5wrSE7UISpBsP9N0tEB7fAoo08EpB1dTUUYGMFjJ4stD2rt96xXm9HdVgUA0QB746uvXVzGiUhzdG9Ac9xsS1VlcUXw13dwR3K3AR8cL7E0PJ91U533288oIy0iACZS2C8FxEaDN/N22dlpAFAAQEHRJXRyGWaZeRJ1JhZAPIBgWPQqOMbp9l0I3xXhg8CqTLLADwEAdaZ1AL27MsGiUmONAcRJfvlKawEATUN6AAWRDyylvhiANuTrk800FU1DFIArcg4MKA7SoCMK0P36OTrVHe/SAy75YmJKRag/iRd7ogDW4msgdz9uNdBRS7Kw5gdR/HeNdm75841bJTMxLZw6VIiL92t665mxLMvW5JRaCsncBHmMZ6z1jr4wUt0BfBp7CwAozyR/jhtUpdnC0vJ2EgKOijATz3j/gYmT5dU/g5vu1V3s1LMn1yc2WPcENHHTIp/dF9JZl6FO24QSoCJM8FJbQqCmPsP3lOSXbMi7ItPf+nVtX+bKRkRtEedbN5KQEOJ5DcNr+RmbnjpsV2zthGhcK3ML0KUkx4zlL1id64Cem2W0AAAAAElFTkSuQmCC",
@@ -40,8 +41,8 @@ HURRICANE_ANIMATION = [
 NHC_ICON = "iVBORw0KGgoAAAANSUhEUgAAABEAAAAQCAYAAADwMZRfAAAABmJLR0QA/wD/AP+gvaeTAAAACXBIWXMAABbtAAAW7QG3yuVvAAAAB3RJTUUH5gQZEzQr3a77dAAAAB1pVFh0Q29tbWVudAAAAAAAQ3JlYXRlZCB3aXRoIEdJTVBkLmUHAAADQ0lEQVQ4y3WSbUxTdxTGn/O/t1ygtNJWZqRh1dZNXoLEL0pYdGbJEDIliyOC2wyLiSUGtxjf2CSGLy6LL9lIZoDBFqZMRJ1ubHWLMSw0MjVmsjk7izKcEKCBonS0Bdre+//vAxWSiefrec7vnDznoaPNXajeuQEAsGFno2TkOqsvGP5gZDRUHJji2TFNRYoiT5sMUneOw9x6t/fJtw87D8wQk8X2/afQeqIChHg5D7VZbvw1un/EH/owOKOBQKB4l5MAOAHQkGFJ+SdzmXmvq774R9JZtcb2X2YhJZXNSz0PxxtHA9ESVQOICIDAQiUEIVlBLNdhqna37q4jIsFcVzoZ16KvBMKxkqgm4tsXBgAAYwKJCbLXrFeuEZEAABb09fF9VRu/W+WwVJr1uqh4/jwAQGZicseml8u+/8L52zH331tqr/Za2AW5wOCNRERXa1WT1ayvVnQ0vdAwkQZBhFyH+cuPD5T2vvGNp+K0J3ixa0RbxgaDuHHOG9kGAD0de+psi1PaGT0L0YQMYyIFfm17v2ZXR99q77h62DMeQ2qyvI71jGs5f/h5w+std94BANfnb+2zWvSXScw7IwQgE4fVKFWdGhhbfHUg1DAY1hyQJAw/iaQzQYRQjAy3/drJ4tPeKpvdNpHxOLg102ZsViSAc4IsEbIyDM1rnG+m11wacj8KirVqPB0GmRRmX0QxjQP/xii1czB8Mq/+95uFde+V91zas/ft11bkv2TVHc9fkbL13cqifkHS5mmV7CqPP1AAio76aF3LnxeuDcVK55IlABkCNiOQl5bYXZSVWnvm7uT64YnIR/0BNUFIbE5nUjg2Zpry5TwLnbgzitJJdd7E1CTw7LSk9jDkwSPusbPDIf6CNmvMnFGMAJNCl8d8/vtUeLafqdGpr7uHo9ujfP4aPA0MEfD/bwlgSTKm1qbLZT9sW+ViV8rt/NXlhhq7UfqZwGf1FF/FngWQABYlENZnJHzSUZ7701M5AKD9ni+t6Za//rpPLZ3Rnp9YaxKfKcvR7/60KOsrAEDF+VnIsesDOFhgAwDU3XxUft4Tcj6YiKx5HCG9gIAiQSxNloZeTOQtbufKz4j0gV2ue2jYlA0A+A+C/VhVky79jQAAAABJRU5ErkJggg=="
 NHC_COLOR_MAIN = "#003087"
 NHC_COLOR_ALT = "#0085ca"
-CACHE_TTL = 60*60*3 #3 Hours
-DEBUG_MODE = True #Set to False before final commit
+CACHE_TTL = 60 * 60 * 3  #3 Hours
+DEBUG_MODE = True  #Set to False before final commit
 BASIN_OPTIONS = [
     schema.Option(value = "atlantic", display = "Atlantic Basin"),
     schema.Option(value = "eastern_pacific", display = "Eastern Pacific Basin"),
@@ -50,7 +51,7 @@ BASIN_OPTIONS = [
 
 def main(config):
     #Get configuration Items
-    basin = config.get("basin") or BASIN_OPTIONS[0].value 
+    basin = config.get("basin") or BASIN_OPTIONS[0].value
     hide_quiet = config.get("hide_quiet")
     location = json.decode(config.get("location", DEFAULT_LOCATION))
 
@@ -119,10 +120,10 @@ def getDisplay(active_cyclone_count, xml, hide_quiet, location):
 
                 distance_in_miles = ""
                 if storm_center != None and location != None:
-                    storm_coordinates = storm_center.replace(",","").split(" ")
+                    storm_coordinates = storm_center.replace(",", "").split(" ")
                     distance_in_miles = distance(location["lat"], location["lng"], storm_coordinates[0], storm_coordinates[1])
                     distance_in_miles = "%s miles away " % distance_in_miles
-                row2 = "%s %s: %s" % (storm_type, storm_name, storm_headline) 
+                row2 = "%s %s: %s" % (storm_type, storm_name, storm_headline)
                 info = "%s%s heading %s @ %s" % (distance_in_miles, storm_wind, storm_movement, storm_pressure)
                 row3 = "%s %s" % (info, info)
 
@@ -130,7 +131,7 @@ def getDisplay(active_cyclone_count, xml, hide_quiet, location):
                     images = get_images_from_image_list(HURRICANE_ANIMATION)
                 elif storm_type == "TROPICAL STORM":
                     images = get_images_from_image_list(TROPICAL_STORM_ANIMATION)
- 
+
             i = i + 1
 
     display_children = render.Column(
@@ -139,10 +140,10 @@ def getDisplay(active_cyclone_count, xml, hide_quiet, location):
                 children = [
                     render.Marquee(
                         width = 48,
-                        child = render.Text(row1,  color = NHC_COLOR_ALT),
+                        child = render.Text(row1, color = NHC_COLOR_ALT),
                     ),
-                    get_animation_items(images)
-                ]
+                    get_animation_items(images),
+                ],
             ),
             render.Row(
                 children = [
@@ -150,34 +151,32 @@ def getDisplay(active_cyclone_count, xml, hide_quiet, location):
                         width = 64,
                         child = render.Text(row2, color = "#fff"),
                     ),
-                ]
+                ],
             ),
             render.Row(
                 children = [
                     render.Marquee(
                         width = 64,
-                        child = render.Text(row3,  color = "#ff0"),
+                        child = render.Text(row3, color = "#ff0"),
                     ),
-                ]
-            ),
-        ]
-    )
-        
-
-    
-    return render.Root(
-            child = render.Column(
-                children = [
-                    display_children
                 ],
             ),
-        )
+        ],
+    )
+
+    return render.Root(
+        child = render.Column(
+            children = [
+                display_children,
+            ],
+        ),
+    )
 
 def get_images_from_image_list(image_list):
     images = []
     for encoding in image_list:
         images.append(base64.decode(encoding))
-    
+
     return images
 
 def get_animation_items(images):
@@ -186,7 +185,7 @@ def get_animation_items(images):
         animation.append(render.Image(src = image))
 
     return render.Animation(
-            children = animation
+        children = animation,
     )
 
 def distance(lat_1, lng_1, lat_2, lng_2):
@@ -197,9 +196,9 @@ def distance(lat_1, lng_1, lat_2, lng_2):
     lng_2 = math.radians(float(lng_2))
 
     d_lat = lat_2 - lat_1
-    d_lng = lng_2 - lng_1 
+    d_lng = lng_2 - lng_1
 
-    temp = (math.pow(math.sin(d_lat / 2),2) + math.cos(lat_1) * math.cos(lat_2) * math.pow(math.sin(d_lng / 2), 2))
+    temp = (math.pow(math.sin(d_lat / 2), 2) + math.cos(lat_1) * math.cos(lat_2) * math.pow(math.sin(d_lng / 2), 2))
     distance = 3959.9986576 * (2 * math.atan2(math.sqrt(temp), math.sqrt(1 - temp)))
     return math.floor(distance)
 
