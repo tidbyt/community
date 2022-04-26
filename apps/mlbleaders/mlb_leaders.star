@@ -6,7 +6,7 @@ Author: rs7q5
 """
 #mlb_leaders.star
 #Created 20220412 RIS
-#Last Modified 20220415 RIS
+#Last Modified 20220425 RIS
 
 load("render.star", "render")
 load("http.star", "http")
@@ -106,6 +106,9 @@ mlb_red = "#D50032"
 color_opts = ["#c8c8fa", "#fff"]
 
 def main(config):
+    if config.bool("hide_app", False):
+        return []
+
     #get config settings
     statName_vec = [config.str("statName%d" % (idx + 1), x) for idx, x in enumerate(["homeRuns", "hits", "battingAverage"])]
     display_opt = config.bool("show_single", False)
@@ -210,6 +213,13 @@ def get_schema():
                 desc = "Make the title background blue instead?",
                 icon = "fill-drip",
                 default = False,
+            ),
+            schema.Toggle(
+            id = "hide_app",
+            name = "Hide app?",
+            desc = "",
+            icon = "eye-slash",
+            default = False,
             ),
         ],
     )
