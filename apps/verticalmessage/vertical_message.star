@@ -7,7 +7,7 @@ Author: rs7q5
 
 #vertical_message.star
 #Created 20220221 RIS
-#Last Modified 20220422 RIS
+#Last Modified 20220425 RIS
 
 load("render.star", "render")
 load("schema.star", "schema")
@@ -24,6 +24,9 @@ COLOR_LIST = {
 DEFAULT_MSG = "A really long message that just keeps on going and going and going and going and never stops"
 
 def main(config):
+    if config.bool("hide_app", False):
+        return []
+
     #get color
     if config.bool("color_logic", False):
         color_opt = config.str("color_select", "#fff")
@@ -107,6 +110,13 @@ def get_schema():
                 icon = "cog",
                 default = scroll_speed[1].value,
                 options = scroll_speed,
+            ),
+            schema.Toggle(
+                id = "hide_app",
+                name = "Hide message?",
+                desc = "",
+                icon = "eye-slash",
+                default = False,
             ),
         ],
     )
