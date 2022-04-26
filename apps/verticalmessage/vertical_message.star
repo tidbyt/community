@@ -99,7 +99,7 @@ def get_schema():
             schema.Text(
                 id = "color_select",
                 name = "Custom Color",
-                desc = "Enter a color in #rgb, #rrggbb, #rgba, #rrggbbaa format.",
+                desc = "Enter a color in #rgb, #rrggbb, #rgba, or #rrggbbaa format.",
                 icon = "brush",
                 default = "#fff",
             ),
