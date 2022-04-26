@@ -17,7 +17,7 @@ load("xpath.star", "xpath")  #XPath Expressions to read XML RSS Feed
 #Constants
 BASIN_URLS = {
     "atlantic": "https://www.nhc.noaa.gov/index-at.xml",
-    "eastern_pacific": "https://www.nhc.noaa.gov/index-ep.xml",
+`    "eastern_pacific": "https://www.nhc.noaa.gov/index-ep.xml",
     "central_pacific": "https://www.nhc.noaa.gov/index-cp.xml",
 }
 DEFAULT_LOCATION = """
@@ -42,7 +42,7 @@ NHC_ICON = "iVBORw0KGgoAAAANSUhEUgAAABEAAAAQCAYAAADwMZRfAAAABmJLR0QA/wD/AP+gvaeT
 NHC_COLOR_MAIN = "#003087"
 NHC_COLOR_ALT = "#0085ca"
 CACHE_TTL = 60 * 60 * 3  #3 Hours
-DEBUG_MODE = True  #Set to False before final commit
+DEBUG_MODE = False  #Set to False before final commit
 BASIN_OPTIONS = [
     schema.Option(value = "atlantic", display = "Atlantic Basin"),
     schema.Option(value = "eastern_pacific", display = "Eastern Pacific Basin"),
