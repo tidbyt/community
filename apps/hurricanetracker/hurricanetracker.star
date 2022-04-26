@@ -17,7 +17,7 @@ load("xpath.star", "xpath")  #XPath Expressions to read XML RSS Feed
 #Constants
 BASIN_URLS = {
     "atlantic": "https://www.nhc.noaa.gov/index-at.xml",
-`    "eastern_pacific": "https://www.nhc.noaa.gov/index-ep.xml",
+    "eastern_pacific": "https://www.nhc.noaa.gov/index-ep.xml",
     "central_pacific": "https://www.nhc.noaa.gov/index-cp.xml",
 }
 DEFAULT_LOCATION = """
