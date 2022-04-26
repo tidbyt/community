@@ -215,11 +215,11 @@ def get_schema():
                 default = False,
             ),
             schema.Toggle(
-            id = "hide_app",
-            name = "Hide app?",
-            desc = "",
-            icon = "eye-slash",
-            default = False,
+                id = "hide_app",
+                name = "Hide app?",
+                desc = "",
+                icon = "eye-slash",
+                default = False,
             ),
         ],
     )
