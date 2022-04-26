@@ -1,19 +1,20 @@
 """
 Applet: Analog Time
 Summary: Show time analog style
-Description: Shows the time on an analog style clock.
+Description: Shows the time on an analog style clock. Enter custom colors in #rgb, #rrggbb, #rgba, or #rrggbbaa format.
 Author: rs7q5
 """
 
 #analog_time.star
 #Created 20220204 RIS
-#Last Modified 20220326 RIS
+#Last Modified 20220426 RIS
 
 load("render.star", "render")
 load("schema.star", "schema")
 load("encoding/json.star", "json")
 load("math.star", "math")
 load("time.star", "time")
+load("re.star", "re")
 
 DEFAULT_LOCATION = """
 {
@@ -33,6 +34,23 @@ def main(config):
     now_txt = now.format("3:04")
 
     hour, minute = [int(x) for x in now_txt.split(":")]  #get integer values of the time
+
+    #get colors
+    tick_color = config.str("tick_color", "#fff")
+    center_color = config.str("center_color", "#c8c8fa")
+    hour_color = config.str("hour_color", "#a00")
+    minute_color = config.str("minute_color", "#fff")
+
+    if config.bool("color_logic", False):
+        tick_color = tick_color if validate_color(tick_color) else "#fff"
+        center_color = center_color if validate_color(center_color) else "#c8c8fa"
+        hour_color = hour_color if validate_color(hour_color) else "#a00"
+        minute_color = minute_color if validate_color(minute_color) else "#fff"
+    else:
+        tick_color = "#fff"
+        center_color = "#c8c8fa"
+        hour_color = "#a00"
+        minute_color = "#fff"
 
     #get angles
     theta = math.radians(hour * (360 // 12) + 0.5 * minute)  #angle for hour
@@ -57,8 +75,8 @@ def main(config):
     plot_hands2 = render.Padding(plot_hands, pad = (16, 0, 16, 0))
 
     #used this to see if coloring the hour hand was better
-    plot_handsa = render.Plot(width = 32, height = 32, data = [(0.0, 0.0), hour_pt], x_lim = ax_lims, y_lim = ax_lims, color = "#a00")
-    plot_handsb = render.Plot(width = 32, height = 32, data = [(0.0, 0.0), minute_pt], x_lim = ax_lims, y_lim = ax_lims, color = "#fff")
+    plot_handsa = render.Plot(width = 32, height = 32, data = [(0.0, 0.0), hour_pt], x_lim = ax_lims, y_lim = ax_lims, color = hour_color)
+    plot_handsb = render.Plot(width = 32, height = 32, data = [(0.0, 0.0), minute_pt], x_lim = ax_lims, y_lim = ax_lims, color = minute_color)
     plot_handsa2 = render.Padding(plot_handsa, pad = (16, 0, 16, 0))
     plot_handsb2 = render.Padding(plot_handsb, pad = (16, 0, 16, 0))
 
@@ -73,12 +91,12 @@ def main(config):
         xpt = clock_r * math.sin(x2)
         ypt = clock_r * math.cos(x2)
         plot_marks_tmp = [(xpt, ypt), (xpt, ypt)]
-        plot_marks.append(render.Padding(render.Plot(width = 32, height = 32, data = plot_marks_tmp, x_lim = ax_lims, y_lim = ax_lims), pad = (16, 0, 16, 0)))
+        plot_marks.append(render.Padding(render.Plot(width = 32, height = 32, data = plot_marks_tmp, x_lim = ax_lims, y_lim = ax_lims, color = tick_color), pad = (16, 0, 16, 0)))
 
     #add hands
     plot_marks.append(plot_handsb2)
     plot_marks.append(plot_handsa2)
-    plot_marks.append(render.Padding(render.Plot(width = 32, height = 32, data = [(0.0, 0.0), (0.0, 0.0)], x_lim = ax_lims, y_lim = ax_lims, color = "#c8c8fa"), pad = (16, 0, 16, 0)))  #adds a mark over the center point of the hands clock
+    plot_marks.append(render.Padding(render.Plot(width = 32, height = 32, data = [(0.0, 0.0), (0.0, 0.0)], x_lim = ax_lims, y_lim = ax_lims, color = center_color), pad = (16, 0, 16, 0)))  #adds a mark over the center point of the hands clock
 
     return render.Root(
         #delay=100, #speed up scroll text
@@ -102,6 +120,41 @@ def get_schema():
                 icon = "cog",
                 default = False,
             ),
+            schema.Toggle(
+                id = "color_logic",
+                name = "Use Custom Color?",
+                desc = "",
+                icon = "brush",
+                default = False,
+            ),
+            schema.Text(
+                id = "tick_color",
+                name = "Tick marks",
+                desc = "Default color is #fff.",
+                icon = "brush",
+                default = "#fff",
+            ),
+            schema.Text(
+                id = "center_color",
+                name = "Center mark",
+                desc = "Default color is #c8c8fa.",
+                icon = "brush",
+                default = "#c8c8fa",
+            ),
+            schema.Text(
+                id = "hour_color",
+                name = "Hour hand",
+                desc = "Default color is #a00.",
+                icon = "brush",
+                default = "#a00",
+            ),
+            schema.Text(
+                id = "minute_color",
+                name = "Minute hand",
+                desc = "Default color is #fff.",
+                icon = "brush",
+                default = "#fff",
+            ),
         ],
     )
 
@@ -123,5 +176,15 @@ def pad_text(text):
         for i, x in enumerate(text):
             text[i] = x + " " * (max_len - len(x))
     return text
+
+def validate_color(x):
+    #validates hex color
+    #regex from https://stackoverflow.com/questions/1636350/how-to-identify-a-given-string-is-hex-color-format?noredirect=1&lq=1
+
+    match = re.findall("^#[0-9a-fA-F]{8}$|#[0-9a-fA-F]{6}$|#[0-9a-fA-F]{4}$|#[0-9a-fA-F]{3}$", x)
+    if len(match) == 1:
+        return True
+    else:
+        return False
 
 ######################################################
