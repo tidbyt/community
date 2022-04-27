@@ -48,6 +48,7 @@ import (
 	"tidbyt.dev/community/apps/nearearthobjs"
 	"tidbyt.dev/community/apps/netatmo"
 	"tidbyt.dev/community/apps/nft"
+	"tidbyt.dev/community/apps/nhlnextgame"
 	"tidbyt.dev/community/apps/nightscout"
 	"tidbyt.dev/community/apps/nixelclock"
 	"tidbyt.dev/community/apps/noaabuoy"
@@ -129,6 +130,7 @@ func GetManifests() []manifest.Manifest {
 		nearearthobjs.New(),
 		netatmo.New(),
 		nft.New(),
+		nhlnextgame.New(),
 		nightscout.New(),
 		nixelclock.New(),
 		noaabuoy.New(),
