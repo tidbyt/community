@@ -23,7 +23,6 @@ T_ABBREV = {
 }
 
 def main(config):
-    timezone = config.get("timezone") or "America/New_York"
     stop = config.get("stop") or "place-sstat"
 
     params = {
@@ -46,7 +45,7 @@ def main(config):
     for prediction in predictions:
         route = prediction["relationships"]["route"]["data"]["id"]
         route = find(rep.json()["included"], lambda o: o["type"] == "route" and o["id"] == route)
-        r = renderSched(prediction, route, timezone)
+        r = renderSched(prediction, route)
         if r:
             rows.extend(r)
             rows.append(render.Box(height = 1, width = 64, color = "#ccffff"))
@@ -68,13 +67,13 @@ def main(config):
             ),
         )
 
-def renderSched(prediction, route, timezone):
+def renderSched(prediction, route):
     attrs = prediction["attributes"]
     if not attrs["departure_time"]:
         return []
     tm = attrs["arrival_time"] or attrs["departure_time"]
-    t = time.parse_time(tm).in_location(timezone)
-    arr = t - time.now().in_location(timezone)
+    t = time.parse_time(tm)
+    arr = t - time.now()
     if arr.minutes < 0:
         return []
     dest = route["attributes"]["direction_destinations"][int(attrs["direction_id"])].upper()
