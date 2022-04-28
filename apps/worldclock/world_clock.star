@@ -83,7 +83,7 @@ def main(config):
                 child = render.Row(
                     children = [
                         render.Text(
-                            content = (now.format("15"),now.format("03"))[useMeridianTime],
+                            content = (now.format("15"), now.format("03"))[useMeridianTime],
                             font = number_font,
                             color = "#ffffff",
                         ),
@@ -105,7 +105,7 @@ def main(config):
                             ),
                         ),
                         render.Text(
-                            content = (now.format("04"),now.format("04PM"))[useMeridianTime],
+                            content = (now.format("04"), now.format("04PM"))[useMeridianTime],
                             font = number_font,
                             color = "#ffffff",
                         ),
