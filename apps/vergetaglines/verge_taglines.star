@@ -44,16 +44,16 @@ gDqFxF08kI1lQAAAABJRU5ErkJggg==
 """)
 
 SITE = "https://www.theverge.com"
-TAGLINE_CACHE_KEY = "tagline"
-TAAGLINE_SELECTOR = "span.c-masthead__tagline > a"
+TAGLINE_CACHE_KEY = "verge-dot-com-tagline"
+TAGLINE_SELECTOR = "span.c-masthead__tagline > a"
 
 def main():
-    resp = http.get(SITE)
-    html_body = html(resp.body())
     tagline = cache.get(TAGLINE_CACHE_KEY)
 
     if tagline == None:
-        tagline = html_body.find(TAAGLINE_SELECTOR).text()
+        resp = http.get(SITE)
+        html_body = html(resp.body())
+        tagline = html_body.find(TAGLINE_SELECTOR).text()
         cache.set(TAGLINE_CACHE_KEY, tagline, ttl_seconds = 900)
 
     return render.Root(
