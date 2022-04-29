@@ -83,6 +83,7 @@ import (
 	"tidbyt.dev/community/apps/twitterfollows"
 	"tidbyt.dev/community/apps/unsplash"
 	"tidbyt.dev/community/apps/usyieldcurve"
+	"tidbyt.dev/community/apps/vergetaglines"
 	"tidbyt.dev/community/apps/verticalmessage"
 	"tidbyt.dev/community/apps/warframecycles"
 	"tidbyt.dev/community/apps/weathermap"
@@ -169,6 +170,7 @@ func GetManifests() []manifest.Manifest {
 		twitterfollows.New(),
 		unsplash.New(),
 		usyieldcurve.New(),
+		vergetaglines.New(),
 		verticalmessage.New(),
 		warframecycles.New(),
 		weathermap.New(),
