@@ -213,14 +213,20 @@ def fetch_earthquakes(lat, lng, radius, magnitude):
     if cache_data:
         return json.decode(cache_data)
 
-    resp = http.get(BASE_URL, params = {
+    params = {
         "format": "geojson",
-        "latitude": lat,
-        "longitude": lng,
-        "maxradiuskm": radius,
         "minmagnitude": magnitude,
         "limit": str(MAX_QUAKES),
-    })
+    }
+    if radius != "0":
+        geo_params = {
+            "latitude": lat,
+            "longitude": lng,
+            "maxradiuskm": radius,
+        }
+        params.update(geo_params)
+
+    resp = http.get(BASE_URL, params = params)
 
     if resp.status_code != 200:
         # buildifier: disable=print
@@ -252,8 +258,10 @@ def color_from_magnitude(magnitude):
 def get_schema():
     radius_options = [
         schema.Option(display = "{}km".format(item), value = str(item))
-        for item in [10, 25, 50, 100, 250, 500, 1000]
+        for item in [10, 25, 50, 100, 250, 500, 1000, 2500, 5000]
     ]
+    radius_options.append(schema.Option(display = "Unlimited", value = "0"))
+
     magnitude_options = [
         schema.Option(display = str(item), value = str(item))
         for item in [1, 2, 3, 4, 5]
