@@ -6,7 +6,7 @@ Author: rs7q5
 """
 #espn_news.star
 #Created 20211231 RIS
-#Last Modified 20220424 RIS
+#Last Modified 20220430 RIS
 
 load("render.star", "render")
 load("http.star", "http")
@@ -88,7 +88,7 @@ def main(config):
         for title_tmp in title:
             title_tmp2 = split_sentence(title_tmp.rstrip(), 9, join_word = True).rstrip()
 
-            title_format.append(render.Box(height = title_max_line * 7, child = render.WrappedText(content = title_tmp2, font = font, linespacing = 1, height = title_max_line * 6)))
+            title_format.append(render.Padding(child = render.WrappedText(content = title_tmp2, font = font, linespacing = 1), pad = (0, 0, 0, 6)))
 
         title_format2 = render.Marquee(
             height = 32,
