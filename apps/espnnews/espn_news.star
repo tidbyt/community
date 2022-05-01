@@ -6,7 +6,7 @@ Author: rs7q5
 """
 #espn_news.star
 #Created 20211231 RIS
-#Last Modified 20220430 RIS
+#Last Modified 20220501 RIS
 
 load("render.star", "render")
 load("http.star", "http")
@@ -97,8 +97,8 @@ def main(config):
                 cross_align = "start",
                 children = title_format,
             ),
-            offset_start = 0,
-            offset_end = 0,
+            offset_start = 32,
+            offset_end = 32,
         )
 
     else:
@@ -112,8 +112,8 @@ def main(config):
                 expanded = True,
                 children = title_format,
             ),
-            offset_start = 0,
-            offset_end = 0,
+            offset_start = 64,
+            offset_end = 64,
         )
     return render.Root(
         delay = int(config.str("speed", "30")),  #speed up scroll text
