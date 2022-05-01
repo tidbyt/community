@@ -45,6 +45,7 @@ import (
 	"tidbyt.dev/community/apps/mbta"
 	"tidbyt.dev/community/apps/mlbscores"
 	"tidbyt.dev/community/apps/mnlightrail"
+	"tidbyt.dev/community/apps/moviequotes"
 	"tidbyt.dev/community/apps/nationaltoday"
 	"tidbyt.dev/community/apps/nbascores"
 	"tidbyt.dev/community/apps/nearearthobjs"
@@ -73,6 +74,7 @@ import (
 	"tidbyt.dev/community/apps/sportsstandings"
 	"tidbyt.dev/community/apps/spotthestation"
 	"tidbyt.dev/community/apps/steam"
+	"tidbyt.dev/community/apps/stepcounter"
 	"tidbyt.dev/community/apps/strava"
 	"tidbyt.dev/community/apps/sunrisesunset"
 	"tidbyt.dev/community/apps/surflive"
@@ -132,6 +134,7 @@ func GetManifests() []manifest.Manifest {
 		mbta.New(),
 		mlbscores.New(),
 		mnlightrail.New(),
+		moviequotes.New(),
 		nationaltoday.New(),
 		nbascores.New(),
 		nearearthobjs.New(),
@@ -160,6 +163,7 @@ func GetManifests() []manifest.Manifest {
 		sportsstandings.New(),
 		spotthestation.New(),
 		steam.New(),
+		stepcounter.New(),
 		strava.New(),
 		sunrisesunset.New(),
 		surflive.New(),
