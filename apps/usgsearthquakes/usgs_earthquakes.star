@@ -208,7 +208,10 @@ def get_scroll_frames(item, next_item):
     ]
 
 def fetch_earthquakes(lat, lng, radius, magnitude):
-    cache_key = "%s-%s-%s-%s-XX" % (lat, lng, radius, magnitude)
+    # For global earthquakes, the cache_key will just be the magnitude.
+    cache_key = magnitude
+    if radius != "0":
+        cache_key = "%s_%s_%s_%s" % (lat, lng, radius, magnitude)
     cache_data = cache.get(cache_key)
     if cache_data:
         return json.decode(cache_data)
