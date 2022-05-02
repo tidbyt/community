@@ -15,7 +15,7 @@ def main(config):
         return render.Root(render.Column(children = [
             render.Row(children = [
                 render.Box(width = 17, height = 8, color = "#6CBE45", child = render.Text(content = "B54", color = "#FFFFFF")),
-                render.Text(content = " →7-9, →22-27"),
+                render.Text(content = "→7-9,→22-27"),
             ]),
             render.Marquee(width = 64, child = render.Text("See transsee.ca/tidbyt for usage")),
         ]))
@@ -28,7 +28,7 @@ def main(config):
                 col.append(render.Row(
                     children = [
                         render.Box(width = 17, height = 8, color = json["routeColour"], child = render.Text(content = json["routeName"], color = json["textColour"])),
-                        render.Text(content = " " + json["pred"]),
+                        render.Text(content = json["pred"]),
                     ],
                 ))
                 if len(jsonarray) <= 2:
