@@ -16,6 +16,7 @@ import (
 	"tidbyt.dev/community/apps/biblevotd"
 	"tidbyt.dev/community/apps/bigclock"
 	"tidbyt.dev/community/apps/binaryclock"
+	"tidbyt.dev/community/apps/charlestownferry"
 	"tidbyt.dev/community/apps/clockbyhenry"
 	"tidbyt.dev/community/apps/coingeckoprice"
 	"tidbyt.dev/community/apps/countdownclock"
@@ -109,6 +110,7 @@ func GetManifests() []manifest.Manifest {
 		biblevotd.New(),
 		bigclock.New(),
 		binaryclock.New(),
+		charlestownferry.New(),
 		clockbyhenry.New(),
 		coingeckoprice.New(),
 		countdownclock.New(),
