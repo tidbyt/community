@@ -1,5 +1,7 @@
 # Community Apps
-![Main Workflow](https://github.com/tidbyt/community/actions/workflows/main.yml/badge.svg)
+[![Build Status](https://img.shields.io/github/workflow/status/tidbyt/community/Build%20and%20Release?style=flat-square)](https://github.com/tidbyt/community/actions/workflows/main.yml)
+[![Discourse](https://img.shields.io/discourse/status?server=https%3A%2F%2Fdiscuss.tidbyt.com&style=flat-square)](https://discuss.tidbyt.com/)
+[![Discord Server](https://img.shields.io/discord/928484660785336380?style=flat-square)](https://discord.gg/r45MXG4kZc)
 
 Community Apps is a publishing platform for apps developed by the [Tidbyt community][3] 🚀 
 
@@ -14,6 +16,9 @@ You should really read our [contributions guide](docs/CONTRIBUTING.md), our guid
 ```
 make app
 ```
+
+## Frequently Asked Questions
+Confused by the linter? Want to know where your app is in the release process? Checkout our [FAQ](docs/FAQ.md).
 
 ## Contributing Changes
 First off, we're over the moon that you're here and want to share what you've been working on with the broader Tidbyt user base 🎉.

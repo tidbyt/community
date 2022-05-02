@@ -1,0 +1,12 @@
+daysUntilStale: 30
+daysUntilClose: 1
+
+exemptLabels:
+  - pinned
+  - waiting on Tidbyt team
+
+markComment: false
+
+closeComment: >
+  We're automatically closing this issue because it hasn't had any activity
+  in 30 days. If that seems like a mistake, please feel free to re-open. Thanks!
