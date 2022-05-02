@@ -23,25 +23,30 @@ NAME_OVERRIDE = {
 }
 
 STREET_ABBREVIATIONS = [
-    "St", "Av", "Sq", "Blvd", "Rd", "Yards"
+    "St",
+    "Av",
+    "Sq",
+    "Blvd",
+    "Rd",
+    "Yards",
 ]
 
 ABBREVIATIONS = {
-  "World Trade Center": "WTC",
-  "Center": "Ctr",
-  "Metropolitan": "Metrop",
-  "Blvd": "Bl",
-  "Park": "Pk",
-  "Beach": "Bch",
-  "Rockaway": "Rckwy",
-  "Channel": "Chnl",
-  "Green": "Grn",
+    "World Trade Center": "WTC",
+    "Center": "Ctr",
+    "Metropolitan": "Metrop",
+    "Blvd": "Bl",
+    "Park": "Pk",
+    "Beach": "Bch",
+    "Rockaway": "Rckwy",
+    "Channel": "Chnl",
+    "Green": "Grn",
 }
 
 DIAMONDS = {
-    "#21ba45" : "iVBORw0KGgoAAAANSUhEUgAAAAsAAAALCAYAAACprHcmAAAACXBIWXMAAAsSAAALEgHS3X78AAAAf0lEQVQYlX2QwQ2AIAxFnyzACEYncAQueGZUz3pxBCcwcQQnwGCqAUT+hUDfS2kb7z1x+mUcgAlwu523uKYK4Aq04ZT7F45ALU86F9QPSEloutn+gXFOwCgZpgY+HaYAOzFrCXWnZD2mItxfCNw9YEV4wWR1BSEBEzgTjhwEuAAX3ToeSy69ZQAAAABJRU5ErkJggg==",
-    "#a333c8" : "iVBORw0KGgoAAAANSUhEUgAAAAsAAAALCAYAAACprHcmAAAACXBIWXMAAAsSAAALEgHS3X78AAAAgUlEQVQYlWP8//8/AzJYYnLSgIGBYQMDA0NAzBnzC8hyTFgUHmBgYJAH0VA+pmIkhfxQIX50DUw4FDJg08C42PgELoXI4CMDA4MDE9Qz+BTCbNgAUhwA1YkPgOQDmKDB44BHA9gJIHVgD+LRAFeIEnRYNKAoRFGMpuEhukIGBgYGAL61OaAb+ZxMAAAAAElFTkSuQmCC",
-    "#f2711c" : "iVBORw0KGgoAAAANSUhEUgAAAAsAAAALCAYAAACprHcmAAAACXBIWXMAAAsSAAALEgHS3X78AAAAgElEQVQYlX2QYQ2AIBBGH/x3FtBZwQhGoIoGMYsRjGAFZwI1AA53OkDk+8Pg3ttxp6y1+DmHugUmwBTjtvg1nQBnoHGn3L+wB5byVMaC/gFJCeroqz/Qzw50WobJgU+HycFGzFxc3WhZT5cR7i847h4wI7xgsLqEEIABHAlrDAJc17Y5vym7CTIAAAAASUVORK5CYII=",
+    "#21ba45": "iVBORw0KGgoAAAANSUhEUgAAAAsAAAALCAYAAACprHcmAAAACXBIWXMAAAsSAAALEgHS3X78AAAAf0lEQVQYlX2QwQ2AIAxFnyzACEYncAQueGZUz3pxBCcwcQQnwGCqAUT+hUDfS2kb7z1x+mUcgAlwu523uKYK4Aq04ZT7F45ALU86F9QPSEloutn+gXFOwCgZpgY+HaYAOzFrCXWnZD2mItxfCNw9YEV4wWR1BSEBEzgTjhwEuAAX3ToeSy69ZQAAAABJRU5ErkJggg==",
+    "#a333c8": "iVBORw0KGgoAAAANSUhEUgAAAAsAAAALCAYAAACprHcmAAAACXBIWXMAAAsSAAALEgHS3X78AAAAgUlEQVQYlWP8//8/AzJYYnLSgIGBYQMDA0NAzBnzC8hyTFgUHmBgYJAH0VA+pmIkhfxQIX50DUw4FDJg08C42PgELoXI4CMDA4MDE9Qz+BTCbNgAUhwA1YkPgOQDmKDB44BHA9gJIHVgD+LRAFeIEnRYNKAoRFGMpuEhukIGBgYGAL61OaAb+ZxMAAAAAElFTkSuQmCC",
+    "#f2711c": "iVBORw0KGgoAAAANSUhEUgAAAAsAAAALCAYAAACprHcmAAAACXBIWXMAAAsSAAALEgHS3X78AAAAgElEQVQYlX2QYQ2AIBBGH/x3FtBZwQhGoIoGMYsRjGAFZwI1AA53OkDk+8Pg3ttxp6y1+DmHugUmwBTjtvg1nQBnoHGn3L+wB5byVMaC/gFJCeroqz/Qzw50WobJgU+HycFGzFxc3WhZT5cR7i847h4wI7xgsLqEEIABHAlrDAJc17Y5vym7CTIAAAAASUVORK5CYII=",
 }
 
 def main(config):
@@ -90,15 +95,15 @@ def main(config):
                 else:
                     continue
             else:
-                upcoming_routes[dir].append({"route_id": trip["route_id"], "destination_stop": trip["destination_stop"], "times": [trip["estimated_current_stop_arrival_time"]], "is_delayed": [trip["is_delayed"]] })
+                upcoming_routes[dir].append({"route_id": trip["route_id"], "destination_stop": trip["destination_stop"], "times": [trip["estimated_current_stop_arrival_time"]], "is_delayed": [trip["is_delayed"]]})
 
         for dir in directions:
             for r in upcoming_routes[dir]:
                 if len(blocks) > 0:
                     if dir == "south" and r == upcoming_routes[dir][0]:
-                        blocks.append(render.Box(width=64, height=1, color="#aaa"))
+                        blocks.append(render.Box(width = 64, height = 1, color = "#aaa"))
                     else:
-                        blocks.append(render.Box(width=64, height=1, color="#333"))
+                        blocks.append(render.Box(width = 64, height = 1, color = "#333"))
 
                 selected_route = routes_req.json()["routes"][r["route_id"]]
                 route_color = selected_route["color"]
@@ -139,64 +144,64 @@ def main(config):
                     bullet = render.Stack(
                         children = [
                             render.Image(
-                                src=base64.decode(DIAMONDS[route_color])
+                                src = base64.decode(DIAMONDS[route_color]),
                             ),
                             render.Padding(
-                                pad=(4, 2, 0, 0),
-                                child=render.Text(
-                                    content=selected_route["name"][0],
-                                    color=text_color,
-                                    height=8,
-                                )
-                            )
-                        ]
+                                pad = (4, 2, 0, 0),
+                                child = render.Text(
+                                    content = selected_route["name"][0],
+                                    color = text_color,
+                                    height = 8,
+                                ),
+                            ),
+                        ],
                     )
                 else:
                     bullet = render.Circle(
-                        color=route_color,
-                        diameter=11,
-                        child=render.Box(
-                            padding=1,
-                            height=11,
-                            width=11,
-                            child=render.Text(
-                                content=selected_route["name"][0] if selected_route["name"] != "SIR" else "SI",
-                                color=text_color,
-                                height=8,
-                            )
-                        )
+                        color = route_color,
+                        diameter = 11,
+                        child = render.Box(
+                            padding = 1,
+                            height = 11,
+                            width = 11,
+                            child = render.Text(
+                                content = selected_route["name"][0] if selected_route["name"] != "SIR" else "SI",
+                                color = text_color,
+                                height = 8,
+                            ),
+                        ),
                     )
 
                 blocks.append(render.Padding(
-                    pad=(0, 0, 0, 1),
-                    child=render.Row(
-                        main_align="start",
-                        cross_align="center",
-                        children=[
+                    pad = (0, 0, 0, 1),
+                    child = render.Row(
+                        main_align = "start",
+                        cross_align = "center",
+                        children = [
                             render.Padding(
-                                pad=(1, 0, 1, 0),
-                                child=bullet
+                                pad = (1, 0, 1, 0),
+                                child = bullet,
                             ),
                             render.Column(
-                                children=[
+                                children = [
                                     render.Text(destination),
-                                    render.Text(content=text, font="tom-thumb", color="#f2711c"),
-                                ]
-                            )
-                        ]
-                    )
-            ))
+                                    render.Text(content = text, font = "tom-thumb", color = "#f2711c"),
+                                ],
+                            ),
+                        ],
+                    ),
+                ))
 
     return render.Root(
-        child=render.Marquee(
-            height=32,
-            offset_start=16,
-            offset_end=16,
-            scroll_direction="vertical",
-            child=render.Column(
-                children=blocks
-            )
-        )
+        child = render.Marquee(
+            height = 32,
+            offset_start = 16,
+            offset_end = 16,
+            scroll_direction = "vertical",
+            child = render.Column(
+                children = blocks,
+            ),
+        ),
     )
 
 def get_schema():
@@ -213,9 +218,8 @@ def get_schema():
             schema.Option(
                 display = stop_name + "(" + ", ".join(routes) + ")",
                 value = s["id"],
-            )
+            ),
         )
-
 
     return schema.Schema(
         version = "1",
@@ -247,7 +251,7 @@ def get_schema():
                         display = "Southbound",
                         value = "south",
                     ),
-                ]
+                ],
             ),
         ],
     )
