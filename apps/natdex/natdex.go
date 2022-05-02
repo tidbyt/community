@@ -16,10 +16,10 @@ func New() manifest.Manifest {
 		ID:          "natdex",
 		Name:        "National Pokedex",
 		Author:      "Lauren Kopac",
-		Summary:     "Display a random Pokemon from Gen I - VII",
-		Desc:        "Display a random Pokemon from your region of choice",
+		Summary:     "Display random Pokemon",
+		Desc:        "Display a random Pokemon from your region of choice.",
 		FileName:    "natdex.star",
 		PackageName: "natdex",
-		Source:  source,
+		Source:      source,
 	}
 }
