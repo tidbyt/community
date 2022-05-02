@@ -51,7 +51,7 @@ def main():
                         counter += 1
 
     if len(upcoming_ferries) > 0:
-        next_departures = [render.Marquee(child = render.Text(content = "Upcomming Ferries", color = "#fa0"), width = 64), render.Box(height = 1, color = "#a00")]
+        next_departures = [render.Marquee(child = render.Text(content = "Upcoming Ferries", color = "#fa0"), width = 64), render.Box(height = 1, color = "#a00")]
 
         for ferry in upcoming_ferries:
             next_departures.append(render.Text(content = ferry.format("3:04 PM"), font = "CG-pixel-3x5-mono"))
