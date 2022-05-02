@@ -290,7 +290,7 @@ def shortPredictions(output, messages, lines, config):
 
     if len(rows) == lines:
         padding = 0
-        horizontalMargin = [ render.Text(" ") ]
+        horizontalMargin = [render.Text(" ")]
 
     return [
         render.Box(
