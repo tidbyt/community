@@ -69,6 +69,7 @@ import (
 	"tidbyt.dev/community/apps/randomslackmoji"
 	"tidbyt.dev/community/apps/redditimages"
 	"tidbyt.dev/community/apps/sbbtimetable"
+	"tidbyt.dev/community/apps/sfnextmuni"
 	"tidbyt.dev/community/apps/snyk"
 	"tidbyt.dev/community/apps/sportsscores"
 	"tidbyt.dev/community/apps/sportsstandings"
@@ -158,6 +159,7 @@ func GetManifests() []manifest.Manifest {
 		randomslackmoji.New(),
 		redditimages.New(),
 		sbbtimetable.New(),
+		sfnextmuni.New(),
 		snyk.New(),
 		sportsscores.New(),
 		sportsstandings.New(),
