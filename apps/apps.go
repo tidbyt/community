@@ -37,6 +37,7 @@ import (
 	"tidbyt.dev/community/apps/happyhour"
 	"tidbyt.dev/community/apps/hvvdepartures"
 	"tidbyt.dev/community/apps/ifparank"
+	"tidbyt.dev/community/apps/isitchristmas"
 	"tidbyt.dev/community/apps/isstracker"
 	"tidbyt.dev/community/apps/jokesjokeapi"
 	"tidbyt.dev/community/apps/launchcountdown"
@@ -73,6 +74,7 @@ import (
 	"tidbyt.dev/community/apps/sportsstandings"
 	"tidbyt.dev/community/apps/spotthestation"
 	"tidbyt.dev/community/apps/steam"
+	"tidbyt.dev/community/apps/stepcounter"
 	"tidbyt.dev/community/apps/strava"
 	"tidbyt.dev/community/apps/sunrisesunset"
 	"tidbyt.dev/community/apps/surflive"
@@ -125,6 +127,7 @@ func GetManifests() []manifest.Manifest {
 		happyhour.New(),
 		hvvdepartures.New(),
 		ifparank.New(),
+		isitchristmas.New(),
 		isstracker.New(),
 		jokesjokeapi.New(),
 		launchcountdown.New(),
@@ -160,6 +163,7 @@ func GetManifests() []manifest.Manifest {
 		sportsstandings.New(),
 		spotthestation.New(),
 		steam.New(),
+		stepcounter.New(),
 		strava.New(),
 		sunrisesunset.New(),
 		surflive.New(),
