@@ -74,23 +74,23 @@ def main(config):
                 ),
                 render.Row(
                     expanded = True,
-                    main_align="space_between",
+                    main_align = "space_between",
                     children = [
                         render.Animation(
-                            children = get_tree_frames(is_christmas)
+                            children = get_tree_frames(is_christmas),
                         ),
                         render.Box(
                             height = 15,
                             width = 20,
-                            child = is_christmas_text(is_christmas)
+                            child = is_christmas_text(is_christmas),
                         ),
                         render.Animation(
-                            children = get_tree_frames(is_christmas)
+                            children = get_tree_frames(is_christmas),
                         ),
-                    ]
-                )
-            ]
-        )
+                    ],
+                ),
+            ],
+        ),
     )
 
 def is_christmas_text(is_christmas):
@@ -131,7 +131,6 @@ def get_tree_frames(is_christmas):
                 height = 12,
             ),
         ]
-
 
 def get_schema():
     return schema.Schema(
