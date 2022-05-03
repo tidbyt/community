@@ -15,7 +15,7 @@ func New() manifest.Manifest {
 	return manifest.Manifest{
 		ID:          "sports-standings",
 		Name:        "Sports Standings",
-		Author:      "rs7q5 (RIS)",
+		Author:      "rs7q5",
 		Summary:     "Get sports standings",
 		Desc:        "Get various sports standings (data courtesy of ESPN).",
 		FileName:    "sports_standings.star",
