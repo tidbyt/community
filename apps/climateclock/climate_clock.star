@@ -1,6 +1,6 @@
 """
 Applet: Climate Clock
-Summary: ClimateClock.org
+Summary: ClimateClock.world
 Description: The most important number in the world.
 Author: Rob Kimball
 """
@@ -91,8 +91,8 @@ ALL_DATA = {
                     "GCF",
                 ],
                 "lang": "en",
-                "rate": 0,
-                "resolution": 0.01,
+                "rate": "0",
+                "resolution": "0.01",
                 "timestamp": "2021-09-20T00:00:00+00:00",
                 "type": "value",
                 "unit_labels": [
@@ -111,8 +111,8 @@ ALL_DATA = {
                     "INDIGENOUS PROTECTED",
                 ],
                 "lang": "en",
-                "rate": 0,
-                "resolution": 0.1,
+                "rate": "0",
+                "resolution": "0.1",
                 "timestamp": "2021-10-01T00:00:00+00:00",
                 "type": "value",
                 "unit_labels": [
@@ -212,8 +212,8 @@ ALL_DATA = {
                     "RENEWABLES",
                 ],
                 "lang": "en",
-                "rate": 2.0428359571070087e - 8,
-                "resolution": 1e - 9,
+                "rate": "2.0428359571070087e-8",
+                "resolution": "1e-9",
                 "timestamp": "2020-01-01T00:00:00+00:00",
                 "type": "value",
                 "unit_labels": [
@@ -271,9 +271,9 @@ def renewables(DATA):
     data = DATA["data"]["modules"]["renewables_1"]
     initial = data["initial"]  # 11.4
     units = data["unit_labels"][0]
-    rate = data["rate"]
+    rate = float(data["rate"])
     start = time.parse_time(data["timestamp"])
-    resolution = int(str(data["rate"])[-1]) + 1
+    resolution = int(data["rate"][-1]) + 1
 
     end = time.now()
     elapsed = end - start
@@ -386,7 +386,7 @@ SCREENS = {
 def main(config):
     display = config.get("display", list(SCREENS.keys())[0])
     print(display)
-    return SCREENS.get(display)(config)
+    return SCREENS.get(display)(ALL_DATA)
 
 def get_schema():
     return schema.Schema(
