@@ -539,8 +539,8 @@ def main():
         if hour == 17:
             drinking_timezones.append(timezone)
 
-    # construct random number request URL
-    location = drinking_timezones[random.number(0, len(drinking_timezones))]
+    # get random timezone from list of drinking timezones
+    location = drinking_timezones[random.number(0, len(drinking_timezones) - 1)]
 
     if "/" in location:
         split_location = location.split("/")
