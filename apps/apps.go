@@ -49,6 +49,7 @@ import (
 	"tidbyt.dev/community/apps/manifest"
 	"tidbyt.dev/community/apps/mbta"
 	"tidbyt.dev/community/apps/mbtanewtrains"
+	"tidbyt.dev/community/apps/mlbleaders"
 	"tidbyt.dev/community/apps/mlbscores"
 	"tidbyt.dev/community/apps/mnlightrail"
 	"tidbyt.dev/community/apps/moretransit"
