@@ -53,6 +53,7 @@ import (
 	"tidbyt.dev/community/apps/mlbscores"
 	"tidbyt.dev/community/apps/mnlightrail"
 	"tidbyt.dev/community/apps/moretransit"
+	"tidbyt.dev/community/apps/moviequotes"
 	"tidbyt.dev/community/apps/natdex"
 	"tidbyt.dev/community/apps/nationaltoday"
 	"tidbyt.dev/community/apps/nbascores"
@@ -155,6 +156,7 @@ func GetManifests() []manifest.Manifest {
 		mlbscores.New(),
 		mnlightrail.New(),
 		moretransit.New(),
+		moviequotes.New(),
 		natdex.New(),
 		nationaltoday.New(),
 		nbascores.New(),
