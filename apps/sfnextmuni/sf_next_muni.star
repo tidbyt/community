@@ -282,16 +282,24 @@ def shortPredictions(output, messages, lines, config):
             if (cumulativeLength - 4 > 64 or not output):
                 break
             row.append(output.pop(0))
-        rows.append(row)
+        if (row):
+            rows.append(row)
+
+    padding = 2
+    horizontalMargin = []
+
+    if len(rows) == lines:
+        padding = 0
+        horizontalMargin = [render.Text(" ")]
 
     return [
         render.Box(
-            padding = 2,
+            padding = padding,
             child = render.Column(
                 expanded = True,
                 children = [
                     render.Row(
-                        children = [
+                        children = horizontalMargin + [
                             render.Row(
                                 children = [
                                     render.Circle(
@@ -307,7 +315,7 @@ def shortPredictions(output, messages, lines, config):
                                 cross_align = "center",
                             )
                             for (routeTag, predictions) in row
-                        ],
+                        ] + horizontalMargin,
                         main_align = "start",
                         cross_align = "center",
                         expanded = True,
