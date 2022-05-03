@@ -12,6 +12,7 @@ import (
 	"tidbyt.dev/community/apps/analogclock"
 	"tidbyt.dev/community/apps/analogtime"
 	"tidbyt.dev/community/apps/arcadeclassics"
+	"tidbyt.dev/community/apps/baywheels"
 	"tidbyt.dev/community/apps/bgghotness"
 	"tidbyt.dev/community/apps/biblevotd"
 	"tidbyt.dev/community/apps/bigclock"
@@ -107,6 +108,7 @@ func GetManifests() []manifest.Manifest {
 		analogclock.New(),
 		analogtime.New(),
 		arcadeclassics.New(),
+		baywheels.New(),
 		bgghotness.New(),
 		biblevotd.New(),
 		bigclock.New(),
