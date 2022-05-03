@@ -15,10 +15,9 @@ load("secret.star", "secret")
 load("time.star", "time")
 
 KANJI_ALIVE_SECRET_KEY = """
-AV6+xWcEN/r4eOgRHtBh5+NCtofEVObkzkwBOw+h6BHx88esg/XpZe6sJTXHi6Ml29gdA9WFMxrFK12X21PS9P7lK4buCVk57Bml4uzLlwqce9B0ENpjPZEk3Do9d+x1PAcEj71sB6PLRs6lt4Lxp0mVawqNUE8iSIGc+UXVLLO+rNkECVCT72sAIgwkCW1yPdC2ugDx2dI=
+AV6+xWcElcF93KogxG+s11bh1XzIRZSLtYHkUd8p3r47B588Bp0UMkbFlo6rUIJXU2p7JwcfctCkxzeWiLf70LDu+ceB6cc+652gRWRWRmj4xhI7/bYgYcigQQR4Q3jUrxjQZy6MIOFS2o01Q36Z+Vt7Uyjg/U6oI8IxIRSx5NGFXW5NQiuVQwVa2XOZC+8RPuFYG1l0QsI=
 """
 KANJI_IMAGE_LOOKUP_URL = "https://assets.imgix.net/~text?txt-font=Helvetica%20Neue%20Light&txt-pad=0&txt-color=ff0&txt-size=23&h=32&w=32&txt-align=center%2Cmiddle&txt64="
-kanji_alive_key = secret.decrypt(KANJI_ALIVE_SECRET_KEY) or "7bae39bfe7mshbbabe841c4f1479p1a86d8jsnb2794be889f2"
 CACHED_KANJI_NAME = "DailyKanjiCachedItem"
 CACHED_KANJI_CHARACTER = "DailyKanjiCachedImage"
 KANJI_TTL = 60 * 60 * 2  # updates every 2 hours
@@ -27,6 +26,7 @@ kanji_image_list = "国 日 事 人 一 見 本 子 出 年 大 言 学 分 中 
 def main(config):
     kanji_data = cache.get(CACHED_KANJI_NAME)
     kanji_image_src = cache.get(CACHED_KANJI_CHARACTER)
+    kanji_alive_key = secret.decrypt(KANJI_ALIVE_SECRET_KEY) or config.get("dev_api_key")
 
     if kanji_data == None:
         #pick a random kanji from our data of kanji and image data
@@ -116,7 +116,7 @@ def random(min, max):
     rand = int(str(now.nanosecond)[-6:-3]) / 1000
     return int(rand * (max - min) + min)
 
-def display_kanji_with_image_url(individual_kanji):
+def display_kanji_with_image_url(individual_kanji, kanji_alive_key):
     i = 0
     for kanjicharacter in individual_kanji:
         i = i + 1
