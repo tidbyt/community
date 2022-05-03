@@ -55,76 +55,76 @@ def main(config):
         MIcon = "#000"
 
     if Month == "Jan":
-        MHand = 3
-
-    elif Month == "Feb":
         MHand = 8
 
-    elif Month == "Mar":
+    elif Month == "Feb":
         MHand = 13
 
-    elif Month == "Apr":
+    elif Month == "Mar":
         MHand = 18
 
-    elif Month == "May":
+    elif Month == "Apr":
         MHand = 23
 
-    elif Month == "Jun":
+    elif Month == "May":
         MHand = 28
 
-    elif Month == "Jul":
+    elif Month == "Jun":
         MHand = 33
 
-    elif Month == "Aug":
+    elif Month == "Jul":
         MHand = 38
 
-    elif Month == "Sep":
+    elif Month == "Aug":
         MHand = 43
 
-    elif Month == "Oct":
+    elif Month == "Sep":
         MHand = 48
 
-    elif Month == "Nov":
+    elif Month == "Oct":
         MHand = 53
 
-    else:
+    elif Month == "Nov":
         MHand = 58
 
-    if Hour == "1":
-        Hand = 3
+    else:
+        MHand = 63
 
-    elif Hour == "2":
+    if Hour == "1":
         Hand = 8
 
-    elif Hour == "3":
+    elif Hour == "2":
         Hand = 13
 
-    elif Hour == "4":
+    elif Hour == "3":
         Hand = 18
 
-    elif Hour == "5":
+    elif Hour == "4":
         Hand = 23
 
-    elif Hour == "6":
+    elif Hour == "5":
         Hand = 28
 
-    elif Hour == "7":
+    elif Hour == "6":
         Hand = 33
 
-    elif Hour == "8":
+    elif Hour == "7":
         Hand = 38
 
-    elif Hour == "9":
+    elif Hour == "8":
         Hand = 43
 
-    elif Hour == "10":
+    elif Hour == "9":
         Hand = 48
 
-    elif Hour == "11":
+    elif Hour == "10":
         Hand = 53
 
-    else:
+    elif Hour == "11":
         Hand = 58
+
+    else:
+        Hand = 63
 
     return render.Root(
         child = render.Column(
