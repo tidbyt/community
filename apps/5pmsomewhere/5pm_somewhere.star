@@ -560,15 +560,15 @@ def main():
                                     children = [
                                         render.Text(
                                             content = " It's five",
-                                            color = "#FFA500",
+                                            color = "#fA0",
                                         ),
                                         render.Text(
                                             content = " o'clock",
-                                            color = "#FFA500",
+                                            color = "#fA0",
                                         ),
                                         render.Text(
                                             content = " in",
-                                            color = "#FFA500",
+                                            color = "#fA0",
                                         ),
                                     ],
                                 ),
@@ -581,7 +581,7 @@ def main():
                 ),
                 render.Marquee(
                     width = 64,
-                    child = render.Text(location, color = "#0099FF"),
+                    child = render.Text(location, color = "#09f"),
                 ),
             ],
         ),
