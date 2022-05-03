@@ -37,6 +37,7 @@ import (
 	"tidbyt.dev/community/apps/finevent"
 	"tidbyt.dev/community/apps/fishbyt"
 	"tidbyt.dev/community/apps/flags"
+	"tidbyt.dev/community/apps/formula1"
 	"tidbyt.dev/community/apps/fuzzyclock"
 	"tidbyt.dev/community/apps/gapilotbuddy"
 	"tidbyt.dev/community/apps/goodservice"
@@ -144,6 +145,7 @@ func GetManifests() []manifest.Manifest {
 		finevent.New(),
 		fishbyt.New(),
 		flags.New(),
+		formula1.New(),
 		fuzzyclock.New(),
 		gapilotbuddy.New(),
 		goodservice.New(),
