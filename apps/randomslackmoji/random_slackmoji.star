@@ -20,6 +20,7 @@ load("time.star", "time")
 load("encoding/json.star", "json")
 load("encoding/base64.star", "base64")
 load("cache.star", "cache")
+load("random.star", "random")
 
 SLACKMOJI_PAGE_COUNT = 106
 SLACKMOJI_IMAGES_PER_PAGE = 499
@@ -38,13 +39,13 @@ def get_slackmoji_url():
             return cached_url
 
     # no cache, fetch new url
-    page_url = "https://slackmojis.com/emojis.json?page=" + str(random(0, SLACKMOJI_PAGE_COUNT))
+    page_url = "https://slackmojis.com/emojis.json?page=" + str(random.number(0, SLACKMOJI_PAGE_COUNT))
     response = http.get(page_url)
     if response.status_code == 200:
         body = response.body()
         data = json.decode(body) if body else None
         if data:
-            slackmoji = data[random(0, SLACKMOJI_IMAGES_PER_PAGE)]
+            slackmoji = data[random.number(0, SLACKMOJI_IMAGES_PER_PAGE)]
             if slackmoji and slackmoji["image_url"]:
                 url = slackmoji["image_url"]
                 if USE_CACHE:
@@ -62,7 +63,7 @@ def get_image(url):
             cache_name = "slackmoji_image_" + url
             cached_image = cache.get(cache_name)
             if cached_image != None:
-                return {"file": base64.decode(cached_image), "width": 32, "height": 32}
+                return base64.decode(cached_image)
 
         # no cache, fetch new image
         response = http.get(url)
@@ -71,17 +72,10 @@ def get_image(url):
             if file:
                 if USE_CACHE:
                     cache.set(cache_name, base64.encode(file), ttl_seconds = CACHE_SECONDS_IMAGE)
-                return {"file": file, "width": 32, "height": 32}
+                return file
 
     # something went wrong, return the fail image
-    return {"file": base64.decode(FAIL_IMAGE), "width": 64, "height": 32}
-
-# generates a pseudo-random number between min and max
-# this is based on the current time in nanoseconds
-def random(min, max):
-    now = time.now()
-    rand = int(str(now.nanosecond)[-6:-3]) / 1000
-    return int(rand * (max - min) + min)
+    return base64.decode(FAIL_IMAGE)
 
 def main():
     # download a random slackmoji
@@ -91,9 +85,8 @@ def main():
     return render.Root(
         render.Box(
             child = render.Image(
-                src = image["file"],
-                width = image["width"],
-                height = image["height"],
+                src = image,
+                height = 32,
             ),
         ),
     )

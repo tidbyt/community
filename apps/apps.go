@@ -8,6 +8,7 @@ import (
 	"errors"
 
 	"tidbyt.dev/community/apps/abstractclock"
+	"tidbyt.dev/community/apps/ambientweather"
 	"tidbyt.dev/community/apps/analogclock"
 	"tidbyt.dev/community/apps/analogtime"
 	"tidbyt.dev/community/apps/arcadeclassics"
@@ -34,6 +35,7 @@ import (
 	"tidbyt.dev/community/apps/flags"
 	"tidbyt.dev/community/apps/fuzzyclock"
 	"tidbyt.dev/community/apps/gapilotbuddy"
+	"tidbyt.dev/community/apps/goodservice"
 	"tidbyt.dev/community/apps/happyhour"
 	"tidbyt.dev/community/apps/hvvdepartures"
 	"tidbyt.dev/community/apps/ifparank"
@@ -43,12 +45,18 @@ import (
 	"tidbyt.dev/community/apps/lirr"
 	"tidbyt.dev/community/apps/manifest"
 	"tidbyt.dev/community/apps/mbta"
+	"tidbyt.dev/community/apps/mlbscores"
 	"tidbyt.dev/community/apps/mnlightrail"
 	"tidbyt.dev/community/apps/moretransit"
+	"tidbyt.dev/community/apps/natdex"
 	"tidbyt.dev/community/apps/nationaltoday"
+	"tidbyt.dev/community/apps/nbascores"
 	"tidbyt.dev/community/apps/nearearthobjs"
 	"tidbyt.dev/community/apps/netatmo"
+	"tidbyt.dev/community/apps/nflscores"
 	"tidbyt.dev/community/apps/nft"
+	"tidbyt.dev/community/apps/nhlnextgame"
+	"tidbyt.dev/community/apps/nhlscores"
 	"tidbyt.dev/community/apps/nightscout"
 	"tidbyt.dev/community/apps/nixelclock"
 	"tidbyt.dev/community/apps/noaabuoy"
@@ -64,11 +72,13 @@ import (
 	"tidbyt.dev/community/apps/randomslackmoji"
 	"tidbyt.dev/community/apps/redditimages"
 	"tidbyt.dev/community/apps/sbbtimetable"
+	"tidbyt.dev/community/apps/sfnextmuni"
 	"tidbyt.dev/community/apps/snyk"
 	"tidbyt.dev/community/apps/sportsscores"
 	"tidbyt.dev/community/apps/sportsstandings"
 	"tidbyt.dev/community/apps/spotthestation"
 	"tidbyt.dev/community/apps/steam"
+	"tidbyt.dev/community/apps/stepcounter"
 	"tidbyt.dev/community/apps/strava"
 	"tidbyt.dev/community/apps/sunrisesunset"
 	"tidbyt.dev/community/apps/surflive"
@@ -79,9 +89,11 @@ import (
 	"tidbyt.dev/community/apps/twitterfollows"
 	"tidbyt.dev/community/apps/unsplash"
 	"tidbyt.dev/community/apps/usyieldcurve"
+	"tidbyt.dev/community/apps/vergetaglines"
 	"tidbyt.dev/community/apps/verticalmessage"
 	"tidbyt.dev/community/apps/warframecycles"
 	"tidbyt.dev/community/apps/weathermap"
+	"tidbyt.dev/community/apps/whosthatpokemon"
 	"tidbyt.dev/community/apps/worldclock"
 )
 
@@ -90,6 +102,7 @@ import (
 func GetManifests() []manifest.Manifest {
 	return []manifest.Manifest{
 		abstractclock.New(),
+		ambientweather.New(),
 		analogclock.New(),
 		analogtime.New(),
 		arcadeclassics.New(),
@@ -116,6 +129,7 @@ func GetManifests() []manifest.Manifest {
 		flags.New(),
 		fuzzyclock.New(),
 		gapilotbuddy.New(),
+		goodservice.New(),
 		happyhour.New(),
 		hvvdepartures.New(),
 		ifparank.New(),
@@ -124,12 +138,18 @@ func GetManifests() []manifest.Manifest {
 		launchcountdown.New(),
 		lirr.New(),
 		mbta.New(),
+		mlbscores.New(),
 		mnlightrail.New(),
 		moretransit.New(),
+		natdex.New(),
 		nationaltoday.New(),
+		nbascores.New(),
 		nearearthobjs.New(),
 		netatmo.New(),
+		nflscores.New(),
 		nft.New(),
+		nhlnextgame.New(),
+		nhlscores.New(),
 		nightscout.New(),
 		nixelclock.New(),
 		noaabuoy.New(),
@@ -145,11 +165,13 @@ func GetManifests() []manifest.Manifest {
 		randomslackmoji.New(),
 		redditimages.New(),
 		sbbtimetable.New(),
+		sfnextmuni.New(),
 		snyk.New(),
 		sportsscores.New(),
 		sportsstandings.New(),
 		spotthestation.New(),
 		steam.New(),
+		stepcounter.New(),
 		strava.New(),
 		sunrisesunset.New(),
 		surflive.New(),
@@ -160,9 +182,11 @@ func GetManifests() []manifest.Manifest {
 		twitterfollows.New(),
 		unsplash.New(),
 		usyieldcurve.New(),
+		vergetaglines.New(),
 		verticalmessage.New(),
 		warframecycles.New(),
 		weathermap.New(),
+		whosthatpokemon.New(),
 		worldclock.New(),
 	}
 }
