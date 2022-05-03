@@ -48,7 +48,7 @@ def main(config):
     vallis_active_cached = cache.get(vallis_active_cache_key)
     zariman_active_cache_key = "wf_%s_zariman_active_cached" % platform
     zariman_active_cached = cache.get(zariman_active_cache_key)
-    
+
     cetus_remaining_cache_key = "wf_%s_cetus_remaining_cached" % platform
     cetus_remaining_cached = cache.get(cetus_remaining_cache_key)
     earth_remaining_cache_key = "wf_%s_earth_remaining_cached" % platform
@@ -201,7 +201,7 @@ def main(config):
 
     return render.Root(
         render.Padding(
-            pad = (0,2,0,0),
+            pad = (0, 2, 0, 0),
             child = render.Column(
                 children = [
                     render.Text(
