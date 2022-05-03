@@ -50,6 +50,7 @@ import (
 	"tidbyt.dev/community/apps/lirr"
 	"tidbyt.dev/community/apps/manifest"
 	"tidbyt.dev/community/apps/mbta"
+	"tidbyt.dev/community/apps/mbtanewtrains"
 	"tidbyt.dev/community/apps/mlbleaders"
 	"tidbyt.dev/community/apps/mlbscores"
 	"tidbyt.dev/community/apps/mnlightrail"
@@ -154,6 +155,7 @@ func GetManifests() []manifest.Manifest {
 		launchcountdown.New(),
 		lirr.New(),
 		mbta.New(),
+		mbtanewtrains.New(),
 		mlbleaders.New(),
 		mlbscores.New(),
 		mnlightrail.New(),
