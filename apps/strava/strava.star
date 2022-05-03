@@ -716,6 +716,9 @@ def last_activity(config, refresh_token, sport, units):
             for x, y in coordinates
         ]
 
+        n_frames = min(len(coordinates), 100)  # no more than 10 seconds for full animation
+        speed = max(int(len(coordinates) / n_frames), 1)
+
         render_layers.append(
             render.Column(
                 expanded = True,
@@ -737,6 +740,7 @@ def last_activity(config, refresh_token, sport, units):
                                     ),
                                 ],
                             ),
+                            # Bright moving tip
                             render.Row(
                                 expanded = True,
                                 main_align = "center",
@@ -745,18 +749,19 @@ def last_activity(config, refresh_token, sport, units):
                                     render.Animation(
                                         children = list([
                                             render.Plot(
-                                                data = coordinates[i:i + 2],
+                                                data = coordinates[int(i * speed):int(i * speed) + speed],
                                                 width = 32,
                                                 height = 32,
                                                 color = "#ffa078",
                                                 x_lim = (min([x for x, _ in coordinates]), max([x for x, _ in coordinates])),
                                                 y_lim = (min([y for _, y in coordinates]), max([y for _, y in coordinates])),
                                             )
-                                            for i, _ in enumerate(coordinates)
+                                            for i in range(n_frames)
                                         ]),
                                     ),
                                 ],
                             ),
+                            # Darker moving line
                             render.Row(
                                 expanded = True,
                                 main_align = "center",
@@ -765,18 +770,19 @@ def last_activity(config, refresh_token, sport, units):
                                     render.Animation(
                                         children = list([
                                             render.Plot(
-                                                data = coordinates[i - 1:i + 1],
+                                                data = coordinates[int(i * speed) - speed:int(i * speed) + 1],
                                                 width = 32,
                                                 height = 32,
                                                 color = "#fc4c02",
                                                 x_lim = (min([x for x, _ in coordinates]), max([x for x, _ in coordinates])),
                                                 y_lim = (min([y for _, y in coordinates]), max([y for _, y in coordinates])),
                                             )
-                                            for i, _ in enumerate(coordinates)
+                                            for i in range(n_frames)
                                         ]),
                                     ),
                                 ],
                             ),
+                            # Background line:
                             render.Row(
                                 expanded = True,
                                 main_align = "center",
@@ -785,14 +791,14 @@ def last_activity(config, refresh_token, sport, units):
                                     render.Animation(
                                         children = list([
                                             render.Plot(
-                                                data = coordinates[0:i + 1],
+                                                data = coordinates[0:int(i * speed) + speed],
                                                 width = 32,
                                                 height = 32,
                                                 color = "#fc4c0277",
                                                 x_lim = (min([x for x, _ in coordinates]), max([x for x, _ in coordinates])),
                                                 y_lim = (min([y for _, y in coordinates]), max([y for _, y in coordinates])),
                                             )
-                                            for i, _ in enumerate(coordinates)
+                                            for i in range(n_frames)
                                         ]),
                                     ),
                                 ],
