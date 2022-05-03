@@ -15,7 +15,7 @@ func New() manifest.Manifest {
 	return manifest.Manifest{
 		ID:          "vertical-message",
 		Name:        "Vertical Message",
-		Author:      "rs7q5 (RIS)",
+		Author:      "rs7q5",
 		Summary:     "Display messages vertically",
 		Desc:        "Display a message vertically.",
 		FileName:    "vertical_message.star",
