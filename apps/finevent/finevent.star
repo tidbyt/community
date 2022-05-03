@@ -481,9 +481,8 @@ def main(config):
     name = event.get("Event")
 
     # Localize UTC time
-    display_time = event.get("ReleaseTime", NULL).format("03:04 PM")
-    if display_time[0] == "0":
-        display_time = display_time[1:]
+    release_time_format = "3:04 PM" if event.get("TimeFromNow") < (60 * 60 * 24 - 1) else "1/2 PM"
+    display_time = event.get("ReleaseTime", NULL).format(release_time_format)
 
     survey = str(event.get("Forecast", NULL) or event.get("TEForecast", NULL))
     if survey == "":
@@ -514,6 +513,9 @@ def main(config):
         child = render.Column(
             children = [
                 render.Row(
+                    expanded = True,
+                    cross_align = "center",
+                    main_align = "space_around",
                     children = [
                         render.Image(IMPORTANCE_ICONS[importance], width = 10, height = 10),
                         render.Image(flag, width = 15, height = 10),
