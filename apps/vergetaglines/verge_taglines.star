@@ -43,32 +43,71 @@ suYwsTIxNLkxQDEyBEgDTDZAMjs1Qgy9jUyMTMxBzEB8uASKBKL
 gDqFxF08kI1lQAAAABJRU5ErkJggg==
 """)
 
+PLACEHOLDER_IMG = base64.decode("""
+iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAAAXN
+SR0IArs4c6QAAAERlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGg
+AAAAAAA6ABAAMAAAABAAEAAKACAAQAAAABAAAAAaADAAQAAAABA
+AAAAQAAAAD5Ip3+AAAADUlEQVQIHWNgYGD4DwABBAEAHnOcQAAA
+AABJRU5ErkJggg==
+""")
+PLACEHOLDER_TEXT = "THE VERGE"
+
 SITE = "https://www.theverge.com"
-TAGLINE_CACHE_KEY = "verge-dot-com-tagline"
-TAGLINE_SELECTOR = "span.c-masthead__tagline > a"
+CACHE_KEY_TAGLINE = "verge-dot-com-tagline"
+CACHE_KEY_TOP_IMG = "verge-dot-com-header"
+SELECTOR_TAGLINE = "span.c-masthead__tagline > a"
+SELECTOR_TOP_IMG = "div.c-masthead__main"
 
 def main():
-    tagline = cache.get(TAGLINE_CACHE_KEY)
+    tagline = cache.get(CACHE_KEY_TAGLINE)
+    top_img = cache.get(CACHE_KEY_TOP_IMG)
 
-    if tagline == None:
+    if tagline == None or top_img == None:
         resp = http.get(SITE)
         html_body = html(resp.body())
-        tagline = html_body.find(TAGLINE_SELECTOR).text()
-        cache.set(TAGLINE_CACHE_KEY, tagline, ttl_seconds = 900)
+        tagline = get_tagline(html_body)
+        top_img = get_top_img(html_body)
+        cache.set(CACHE_KEY_TAGLINE, tagline, ttl_seconds = 900)
+        cache.set(CACHE_KEY_TOP_IMG, top_img, ttl_seconds = 900)
 
     return render.Root(
         child = render.Column(
             expanded = True,
             main_align = "space_evenly",
             cross_align = "center",
-            children = content(tagline),
+            children = content(tagline, top_img),
         ),
     )
 
-def content(value):
+def get_tagline(html_body):
+    text = html_body.find(SELECTOR_TAGLINE).text()
+    if text == None:
+        return PLACEHOLDER_TEXT
+    else:
+        return text
+
+def get_top_img(html_body):
+    header_style = html_body.find(SELECTOR_TOP_IMG).attr("style")
+    style_parts = header_style.split("(")
+    url = None
+    last_part = None
+    for style_part in style_parts:
+        if last_part != None and last_part.startswith("background-image:"):
+            if style_part.startswith("https"):
+                url = style_part.removesuffix(")")
+        last_part = style_part
+
+    image_content = None
+    if url != None:
+        resp = http.get(url)
+        return resp.body()
+    else:
+        return PLACEHOLDER_IMG
+
+def content(value, img):
     if len(value) > 13:
         return [
-            render.Image(src = VERGE_LOGO),
+            image_stack(img),
             render.Marquee(
                 height = 8,
                 width = 64,
@@ -80,10 +119,7 @@ def content(value):
         ]
     else:
         return [
-            render.Padding(
-                pad = 3,
-                child = render.Image(src = VERGE_LOGO),
-            ),
+            image_stack(img),
             render.Box(
                 child = render.Text(
                     height = 8,
@@ -91,3 +127,17 @@ def content(value):
                 ),
             ),
         ]
+
+def image_stack(img):
+    return render.Stack(
+        children = [
+            render.Padding(
+                pad = (-16, 0, -16, 0),
+                child = render.Image(src = img, width = 96, height = 24),
+            ),
+            render.Box(
+                child = render.Image(src = VERGE_LOGO),
+                height = 24,
+            ),
+        ],
+    )
