@@ -717,7 +717,8 @@ def last_activity(config, refresh_token, sport, units):
         ]
 
         n_frames = min(len(coordinates), 100)  # no more than 10 seconds for full animation
-        speed = max(int(len(coordinates) / n_frames), 1)
+        speed = max(len(coordinates) / n_frames, 1)
+        speed = int(speed) + 1 if speed > len(coordinates) // n_frames else int(speed)
 
         render_layers.append(
             render.Column(
@@ -756,7 +757,7 @@ def last_activity(config, refresh_token, sport, units):
                                                 x_lim = (min([x for x, _ in coordinates]), max([x for x, _ in coordinates])),
                                                 y_lim = (min([y for _, y in coordinates]), max([y for _, y in coordinates])),
                                             )
-                                            for i in range(n_frames)
+                                            for i in range(n_frames + 1)
                                         ]),
                                     ),
                                 ],
@@ -777,7 +778,7 @@ def last_activity(config, refresh_token, sport, units):
                                                 x_lim = (min([x for x, _ in coordinates]), max([x for x, _ in coordinates])),
                                                 y_lim = (min([y for _, y in coordinates]), max([y for _, y in coordinates])),
                                             )
-                                            for i in range(n_frames)
+                                            for i in range(n_frames + 1)
                                         ]),
                                     ),
                                 ],
@@ -798,7 +799,7 @@ def last_activity(config, refresh_token, sport, units):
                                                 x_lim = (min([x for x, _ in coordinates]), max([x for x, _ in coordinates])),
                                                 y_lim = (min([y for _, y in coordinates]), max([y for _, y in coordinates])),
                                             )
-                                            for i in range(n_frames)
+                                            for i in range(n_frames + 1)
                                         ]),
                                     ),
                                 ],
