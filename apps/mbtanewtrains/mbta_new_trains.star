@@ -35,6 +35,8 @@ TRAIN_LOCATION_URL = "https://traintracker.transitmatters.org/trains/Green-B,Gre
 
 ARROW_DOWN = "⇩"
 ARROW_UP = "⇧"
+ARROW_RIGHT = "⇨"
+ARROW_LEFT = "⇦"
 
 # mockData = [
 #     {
@@ -76,23 +78,33 @@ def mapStationIdToName(id):
     return stations[id]
 
 def mapRouteToColor(route):
+    split = route.split("-")
+    line = ""
+    if len(split) > 1:
+        line = split[1]
+
     if "Red" in route:
-        return "#FF0000"
+        return ("#FF0000", line)
     elif "Green" in route:
-        return "#00FF00"
+        return ("#00FF00", line)
     elif "Orange" in route:
-        return "#FFA500"
+        return ("#FFA500", line)
     else:
-        return "#0ff"
+        return ("#0ff", line)
 
 def createTrain(loc):
-    if loc["direction"] == 1:
-        arrow = ARROW_UP
-    else:
-        arrow = ARROW_DOWN
-
     stationName = mapStationIdToName(loc["stationId"])
-    color = mapRouteToColor(loc["route"])
+    (color, line) = mapRouteToColor(loc["route"])
+
+    if line != "":
+        stationName += " (" + line + ")"
+
+    isGreenLine = color == "#00FF00"
+
+    if loc["direction"] == 1:
+        arrow = ARROW_RIGHT if isGreenLine else ARROW_UP
+    else:
+        arrow = ARROW_LEFT if isGreenLine else ARROW_DOWN
 
     return render.Row(
         children = [
@@ -142,5 +154,6 @@ def main():
             ),
             scroll_direction = "vertical",
             height = 32,
+            offset_start = 32,
         ),
     )
