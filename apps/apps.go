@@ -42,6 +42,7 @@ import (
 	"tidbyt.dev/community/apps/hurricanetracker"
 	"tidbyt.dev/community/apps/hvvdepartures"
 	"tidbyt.dev/community/apps/ifparank"
+	"tidbyt.dev/community/apps/isitchristmas"
 	"tidbyt.dev/community/apps/isstracker"
 	"tidbyt.dev/community/apps/jokesjokeapi"
 	"tidbyt.dev/community/apps/launchcountdown"
@@ -144,6 +145,7 @@ func GetManifests() []manifest.Manifest {
 		hurricanetracker.New(),
 		hvvdepartures.New(),
 		ifparank.New(),
+		isitchristmas.New(),
 		isstracker.New(),
 		jokesjokeapi.New(),
 		launchcountdown.New(),
