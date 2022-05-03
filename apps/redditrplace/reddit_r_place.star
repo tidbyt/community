@@ -10,12 +10,16 @@ load("http.star", "http")
 load("random.star", "random")
 load("animation.star", "animation")
 load("schema.star", "schema")
+load("cache.star", "cache")
+load("encoding/base64.star", "base64")
 
 HEIGHT = 32
 WIDTH = 64
 
 TILE_WIDTH = WIDTH * 3
 TILE_HEIGHT = HEIGHT * 3
+
+CACHE_TTL_SECONDS = 3600 * 24 * 30  # 30 days in seconds.
 
 def main():
     # grab a coordinate from r/place image...
@@ -26,13 +30,9 @@ def main():
     scrollX = x - ((random.number(0, 2 * WIDTH)) - WIDTH)
     scrollY = y - ((random.number(0, 2 * HEIGHT)) - HEIGHT)
 
-    # get a the final r/place image
-    url = "https://i.imgur.com/rzUhL4w.png"
-    image = render.Image(http.get(url).body())
-
     # create the animation
     ani = animation.AnimatedPositioned(
-        child = image,
+        child = get_image(),
         duration = 100,
         curve = "ease_in_out",
         x_start = x,
@@ -52,3 +52,18 @@ def get_schema():
         version = "1",
         fields = [],
     )
+
+
+# get a the final r/place image
+def get_image():
+    url = "https://i.imgur.com/rzUhL4w.png"
+    image = cache.get(url)
+    
+    if image != None:
+        return render.Image(base64.decode(image))
+
+    image = http.get(url).body()
+    
+    cache.set(url, base64.encode(image), ttl_seconds = CACHE_TTL_SECONDS)
+
+    return render.Image(image)
