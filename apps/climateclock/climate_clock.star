@@ -24,47 +24,47 @@ ALL_DATA = {
             "display": {
                 "deadline": {
                     "color_primary": "#eb1c23",
-                    "color_secondary": "#eb1c23"
+                    "color_secondary": "#eb1c23",
                 },
                 "lifeline": {
                     "color_primary": "#4aa1cc",
-                    "color_secondary": "#4aa1cc"
+                    "color_secondary": "#4aa1cc",
                 },
                 "neutral": {
                     "color_primary": "#ffffff",
-                    "color_secondary": "#ffffff"
+                    "color_secondary": "#ffffff",
                 },
                 "newsfeed": {
-                    "separator": " | "
+                    "separator": " | ",
                 },
                 "timer": {
                     "unit_labels": {
                         "day": [
                             "DAY",
-                            "D"
+                            "D",
                         ],
                         "days": [
                             "DAYS",
-                            "D"
+                            "D",
                         ],
                         "year": [
                             "YEAR",
                             "YR",
-                            "Y"
+                            "Y",
                         ],
                         "years": [
                             "YEARS",
                             "YRS",
-                            "Y"
-                        ]
-                    }
-                }
+                            "Y",
+                        ],
+                    },
+                },
             },
             "modules": [
                 "carbon_deadline_1",
                 "renewables_1",
-                "newsfeed_1"
-            ]
+                "newsfeed_1",
+            ],
         },
         "modules": {
             "carbon_deadline_1": {
@@ -73,12 +73,12 @@ ALL_DATA = {
                 "labels": [
                     "TIME LEFT TO LIMIT GLOBAL WARMING TO 1.5°C",
                     "TIME LEFT BEFORE 1.5°C GLOBAL WARMING",
-                    "TIME TO ACT"
+                    "TIME TO ACT",
                 ],
                 "lang": "en",
                 "timestamp": "2029-07-23T00:46:03+00:00",
                 "type": "timer",
-                "update_interval_seconds": 604800
+                "update_interval_seconds": 604800,
             },
             "green_climate_fund_1": {
                 "description": "USD in the Green Climate Fund",
@@ -88,7 +88,7 @@ ALL_DATA = {
                 "labels": [
                     "GREEN CLIMATE FUND",
                     "CLIMATE FUND",
-                    "GCF"
+                    "GCF",
                 ],
                 "lang": "en",
                 "rate": 0,
@@ -96,9 +96,9 @@ ALL_DATA = {
                 "timestamp": "2021-09-20T00:00:00+00:00",
                 "type": "value",
                 "unit_labels": [
-                    "$B"
+                    "$B",
                 ],
-                "update_interval_seconds": 86400
+                "update_interval_seconds": 86400,
             },
             "indigenous_land_1": {
                 "description": "Despite threats and lack of recognition, indigenous people are protecting this much land.",
@@ -108,7 +108,7 @@ ALL_DATA = {
                 "labels": [
                     "LAND PROTECTED BY INDIGENOUS PEOPLE",
                     "INDIGENOUS PROTECTED LAND",
-                    "INDIGENOUS PROTECTED"
+                    "INDIGENOUS PROTECTED",
                 ],
                 "lang": "en",
                 "rate": 0,
@@ -116,9 +116,9 @@ ALL_DATA = {
                 "timestamp": "2021-10-01T00:00:00+00:00",
                 "type": "value",
                 "unit_labels": [
-                    "M KM²"
+                    "M KM²",
                 ],
-                "update_interval_seconds": 86400
+                "update_interval_seconds": 86400,
             },
             "newsfeed_1": {
                 "description": "A newsfeed of hope: good news about climate change.",
@@ -131,7 +131,7 @@ ALL_DATA = {
                         "headline_original": "Snoqualmie Tribe Acquires 12,000 Acres of Ancestral Forestland in King County ",
                         "link": "https://snoqualmietribe.us/snoqualmie-tribe-acquires-12000-acres-of-ancestral-forestland-in-king-county/?fbclid=IwAR390NwqMLsCso8T0gI1OYcOyxEJjOvCGgHUXEQmDjK78Aq6vW_ehPdJpu4 ",
                         "source": "Snoqualmie Tribe",
-                        "summary": ""
+                        "summary": "",
                     },
                     {
                         "date": "2022-02-01T14:48:23+00:00",
@@ -139,7 +139,7 @@ ALL_DATA = {
                         "headline_original": "Earth has more tree species than we thought ",
                         "link": "https://www.bbc.com/news/science-environment-60198433 ",
                         "source": "BBC",
-                        "summary": ""
+                        "summary": "",
                     },
                     {
                         "date": "2022-01-28T14:48:23+00:00",
@@ -147,7 +147,7 @@ ALL_DATA = {
                         "headline_original": "In blow to Biden administration, judge halts oil and gas leases in Gulf of Mexico",
                         "link": "https://grist.org/energy/in-blow-to-biden-administration-judge-halts-oil-and-gas-leases-in-gulf-of-mexico/  ",
                         "source": "Grist",
-                        "summary": ""
+                        "summary": "",
                     },
                     {
                         "date": "2022-01-28T14:48:23+00:00",
@@ -155,7 +155,7 @@ ALL_DATA = {
                         "headline_original": "Australia pledges $700 million to protect Great Barrier Reef amid climate change threat  ",
                         "link": "https://edition.cnn.com/2022/01/27/australia/australia-great-barrier-reef-intl-hnk/index.html ",
                         "source": "CNN",
-                        "summary": ""
+                        "summary": "",
                     },
                     {
                         "date": "2022-01-27T14:48:23+00:00",
@@ -163,7 +163,7 @@ ALL_DATA = {
                         "headline_original": "Non-fossil fuels forecast to be 50% of China’s power capacity in 2022",
                         "link": "https://www.reuters.com/world/china/non-fossil-fuels-forecast-be-50-chinas-power-capacity-2022-2022-01-28/ ",
                         "source": "Reuters",
-                        "summary": ""
+                        "summary": "",
                     },
                     {
                         "date": "2022-01-26T14:48:23+00:00",
@@ -171,7 +171,7 @@ ALL_DATA = {
                         "headline_original": "In historic vote, Los Angeles will phase out oil drilling",
                         "link": "https://grist.org/energy/in-historic-vote-los-angeles-will-phase-out-oil-drilling/ ",
                         "source": "Grist",
-                        "summary": ""
+                        "summary": "",
                     },
                     {
                         "date": "2022-01-24T14:48:23+00:00",
@@ -179,7 +179,7 @@ ALL_DATA = {
                         "headline_original": "China to cut energy consumption intensity by 13.5% pct in five years",
                         "link": "http://www.xinhuanet.com/english/20220124/b53f7dc6f5c246569cb440d87e387d83/c.html ",
                         "source": "Xinhua",
-                        "summary": ""
+                        "summary": "",
                     },
                     {
                         "date": "2022-01-13T14:48:23+00:00",
@@ -187,7 +187,7 @@ ALL_DATA = {
                         "headline_original": "Maersk speeds up decarbonisation target by a decade",
                         "link": "https://www.reuters.com/markets/commodities/maersk-moves-net-zero-target-forward-by-decade-2040-2022-01-12/",
                         "source": "Reuters",
-                        "summary": ""
+                        "summary": "",
                     },
                     {
                         "date": "2022-01-02T14:48:23+00:00",
@@ -195,11 +195,11 @@ ALL_DATA = {
                         "headline_original": "France bans plastic packaging for most fruits and vegetables",
                         "link": "https://www.aljazeera.com/news/2022/1/2/france-bans-plastic-packaging-for-most-fruits-and-vegetables ",
                         "source": "AlJazeera",
-                        "summary": ""
-                    }
+                        "summary": "",
+                    },
                 ],
                 "type": "newsfeed",
-                "update_interval_seconds": 3600
+                "update_interval_seconds": 3600,
             },
             "renewables_1": {
                 "description": "The percentage share of global energy consumption currently generated by renewable resources (solar, wind, hydroelectricity, wave and tidal, and bioenergy).",
@@ -209,22 +209,22 @@ ALL_DATA = {
                 "labels": [
                     "WORLD'S ENERGY FROM RENEWABLES",
                     "GLOBAL RENEWABLE ENERGY",
-                    "RENEWABLES"
+                    "RENEWABLES",
                 ],
                 "lang": "en",
-                "rate": 2.0428359571070087e-8,
-                "resolution": 1e-9,
+                "rate": 2.0428359571070087e - 8,
+                "resolution": 1e - 9,
                 "timestamp": "2020-01-01T00:00:00+00:00",
                 "type": "value",
                 "unit_labels": [
-                    "%"
+                    "%",
                 ],
-                "update_interval_seconds": 86400
-            }
+                "update_interval_seconds": 86400,
+            },
         },
-        "retrieval_timestamp": "2022-04-05T22:19:55+00:00"
+        "retrieval_timestamp": "2022-04-05T22:19:55+00:00",
     },
-    "status": "success"
+    "status": "success",
 }
 
 def round(num, precision):
@@ -282,15 +282,17 @@ def renewables(DATA):
     def generate_data(x):
         # Decimal; generate {speed} values per second to animate over
         d = current + ((x * rate) / fps)
+
         # String; convert each one to a string, rounded to {resolution} digits
         s = "%s" % round(d, resolution)
+
         # Formatted; pad each string if it isn't at least {resolution + 3} long, so the animation doesn't jump
         f = s + "0" * (resolution - len(s) + 3) + units
 
         return render.Box(
             # expanded=True,
             # main_align="center",
-            child = render.Text(f, color="#050"),
+            child = render.Text(f, color = "#050"),
             height = 16,
             width = 64,
         )
@@ -310,7 +312,6 @@ def renewables(DATA):
                     cross_align = "center",
                     children = [render.Animation(children = frames)],
                 ),
-
             ],
         ),
     )
@@ -329,7 +330,7 @@ def global_warming(DATA):
                 expanded = True,
                 main_align = "center",
                 children = [
-                    render.Text("FIN", color = "#00094d")
+                    render.Text("FIN", color = "#00094d"),
                 ],
             ),
         ]
@@ -348,7 +349,7 @@ def global_warming(DATA):
                             expanded = True,
                             main_align = "center",
                             children = [
-                                render.Text(element, color = "#00094d")
+                                render.Text(element, color = "#00094d"),
                             ],
                         ),
                     )
@@ -362,24 +363,24 @@ def global_warming(DATA):
             )
 
     return render.Root(
-        delay=1000 // fps,
-        child=render.Stack(
+        delay = 1000 // fps,
+        child = render.Stack(
             children = [
                 render.Image(BG_WARMING),
                 # render.Box(width = 64, height = 32, color = "#0003"),
                 render.Column(
-                    expanded=True,
-                    main_align="center",
-                    cross_align="center",
-                    children=[render.Animation(children=frames)],
+                    expanded = True,
+                    main_align = "center",
+                    cross_align = "center",
+                    children = [render.Animation(children = frames)],
                 ),
             ],
         ),
     )
 
 SCREENS = {
-    'Renewable Energy': renewables,
-    'Global Warming': global_warming,
+    "Renewable Energy": renewables,
+    "Global Warming": global_warming,
 }
 
 def main(config):
@@ -389,21 +390,21 @@ def main(config):
 
 def get_schema():
     return schema.Schema(
-        version="1",
-        fields=[
+        version = "1",
+        fields = [
             schema.Dropdown(
                 id = "display",
                 name = "Display type",
                 desc = "",
                 icon = "chartPie",
                 options = [
-                    schema.Option(value = k, display = k) for k, v in SCREENS.items()
+                    schema.Option(value = k, display = k)
+                    for k, v in SCREENS.items()
                 ],
                 default = list(SCREENS.keys())[0],
             ),
         ],
     )
-
 
 BG_RENEWABLES = base64.decode("""
 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
