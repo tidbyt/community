@@ -5,6 +5,7 @@ Description: Real time bus departures for your preferred stop.
 Author: samandmoore
 """
 
+load("re.star", "re")
 load("cache.star", "cache")
 load("encoding/base64.star", "base64")
 load("encoding/json.star", "json")
@@ -98,15 +99,16 @@ def main(config):
         )
 
     return render.Root(
+        delay = 75,
         child = render.Column(
             expanded = True,
-            main_align = "space_evenly",
+            main_align = "start",
             children = [
                 build_row(journeys[0]),
                 render.Box(
                     width = 64,
                     height = 1,
-                    color = "#aaa",
+                    color = "#666",
                 ),
                 build_row(journeys[1]),
             ],
@@ -114,24 +116,63 @@ def main(config):
     )
 
 def build_row(journey):
+    # Only match names of bus lines that we know won't fit
+    multi_line = re.compile("([A-Za-z]+)([0-9]+)([\\/ -])([A-Za-z0-9]+)")
+    match = multi_line.match(journey["line_name"])
+    if len(journey["line_name"]) > 4 and len(match):
+        _, borough, first, sep, second = match[0]
+
+        # Lines like "M55/56" should translate to -> M55, M56
+        if sep in ("\\", "/"):
+            parts = [borough + first, borough + second]
+        elif sep == "-":
+            # Lines like "Bx41-SBS"
+            parts = journey["line_name"].split("-")
+        else:
+            # Lines like "M44 Ltd"
+            parts = journey["line_name"].split(sep)
+
+        # Add 20 frames for each part, * 75ms root delay = 1.5 seconds each
+        anim = []
+        for part in parts:
+            anim.extend(
+                [render.Text(part, color = "#000", font = "CG-pixel-4x5-mono")] * 20,
+            )
+
+        line_name = render.Animation(children = anim)
+    else:
+        line_name = render.Text(journey["line_name"], color = "#000", font = "CG-pixel-4x5-mono")
+
     return render.Row(
         expanded = True,
         main_align = "space_evenly",
         cross_align = "center",
         children = [
-            render.Box(
-                color = "#%s" % journey["line_color"],
-                width = 22,
-                height = 11,
-                child = render.Text(journey["line_name"], color = "#000", font = "CG-pixel-4x5-mono"),
-            ),
+            render.Stack(children = [
+                render.Box(
+                    color = "#%s" % journey["line_color"],
+                    width = 22,
+                    height = 11,
+                ),
+                render.Box(
+                    color = "#0000",
+                    width = 22,
+                    height = 11,
+                    child = line_name,
+                ),
+            ]),
             render.Column(
                 children = [
                     render.Marquee(
                         width = 36,
-                        child = render.Text(journey["destination_name"]),
+                        child = render.Text(
+                            journey["destination_name"],
+                            font = "Dina_r400-6",
+                            offset = -2,
+                            height = 7,
+                        ),
                     ),
-                    render.Text(journey["eta_text"], color = "#c1773e", font = "tom-thumb"),
+                    render.Text(journey["eta_text"], color = "#f3ab3f"),
                 ],
             ),
         ],
