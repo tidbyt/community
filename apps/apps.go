@@ -7,6 +7,7 @@ package apps
 import (
 	"errors"
 
+	"tidbyt.dev/community/apps/5pmsomewhere"
 	"tidbyt.dev/community/apps/abstractclock"
 	"tidbyt.dev/community/apps/ambientweather"
 	"tidbyt.dev/community/apps/analogclock"
@@ -115,6 +116,7 @@ import (
 // below to include it in the Tidbyt Mobile app for all Tidbyt users.
 func GetManifests() []manifest.Manifest {
 	return []manifest.Manifest{
+		5pmsomewhere.New(),
 		abstractclock.New(),
 		ambientweather.New(),
 		analogclock.New(),
