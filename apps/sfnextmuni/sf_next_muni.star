@@ -114,7 +114,7 @@ def get_stops(location):
             display = stop["title"],
             value = stop["stopId"],
         )
-        for stop in sorted(stops, key = lambda stop: square_distance(loc["lat"], loc["lon"], stop["lat"], stop["lon"]))
+        for stop in sorted(stops, key = lambda stop: square_distance(loc["lat"], loc["lng"], stop["lat"], stop["lon"]))
     ]
 
 def square_distance(lat1, lon1, lat2, lon2):
