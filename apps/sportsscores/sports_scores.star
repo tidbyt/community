@@ -6,7 +6,7 @@ Author: rs7q5
 """
 #sports_scores.star
 #Created 20220220 RIS
-#Last Modified 20220422 RIS
+#Last Modified 20220503 RIS
 
 load("render.star", "render")
 load("http.star", "http")
@@ -439,7 +439,8 @@ def get_nhlgames(today_str):
                 else:
                     status_txt = "F/" + period
             else:
-                status_txt = period + "/" + period_T
+                #status_txt = period + "/" + period_T
+                status_txt = period_T + "/" + period  #switch status and period here so time doesn't get cut off
         else:  #this is a safety net
             status_txt = status
 
