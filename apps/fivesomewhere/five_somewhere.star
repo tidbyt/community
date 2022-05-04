@@ -6,10 +6,20 @@ Author: grantmatheny
 """
 
 load("render.star", "render")
+load("schema.star", "schema")
 load("cache.star", "cache")
 load("time.star", "time")
 load("encoding/base64.star", "base64")
+load("encoding/json.star", "json")
 load("random.star", "random")
+
+DEFAULT_LOCATION = {
+    "lat": 36.117244,
+    "lng": -115.172827,
+    "locality": "Margaritaville, US",
+    #"timezone": "America/Los_Angeles",
+    "timezone": "America/Denver",
+}
 
 MARTINI_ICON = base64.decode("""
 iVBORw0KGgoAAAANSUhEUgAAABgAAAAYCAYAAADgdz34AAAACXBIWXMAIbEAACGxAAGFqWwEAAACRElEQVRIx+3U30tTYRwG8IVEEeVFBYIXQX+AN0V3EUQXEd0VQRhe5EVYQoEELQvBENqshGKQmpm/cnVUSqSmc0HBypluKz1Oc1s/NHOG0LLtOLXO0/PKKU6grdwZdNELn7Ed3vf5nr3f8x6TKcVxbOumHFpvSsdgcDbNUn66CtgoRGv/amF/IJxJO+ggHSczlVIZXaDi9mZ7EYPnbEUnS/g7yxsIJw3Noks0QirhdyoK8lF+NFd/bYLqKGfJAp7B0VLf8GtEv8QxOf0JofEIBoLv4OU1fXCDqx4XW87i1IFt6PO+RPh9ZHH+TFzh9yn0ykHXkgUsVc2ra9s6pWc+GTMxBaqqQgzxOb/wFYm5eSiJBKaiE4jNfsaP8Y3zYkoCcvAtJMcTr63p/uZlt4lFMuhmpb0DnoFXkMPjCI5N4s2HjxiLTMMX8qP2UTlsjhKUtRbC8bxr8R+2Ot2wVtvdXJuZtMGctIquXK1vw+N++Zft8cgjOGHdi7xrO3GuqQA9gwE0trvA+d207o+fIt6NKHT+cs1ddLq9Pws4H3bhuvk0+oaCYM9wQ3ogwjtozYqecy4sZDFVbIEoUFl8Br0vAnD7h8G9FuGS6F1Kh4kBubRQd8+Jp74hdPf4UXGrRYQ3iJ4ZcmIZtJ8UgqZK9MrQ1wIDj2jhoqHGv3cYulsr0JiWF9v/Av9EgX1aAclSfdvQ4I1kobjuHDhpe6rBgpmiumA9VTvNG1ZaIEO7U3WZAoKPthixRbvoEOXRYdpD2daaO0nXfwd97j9iHjgVlQAAAABJRU5ErkJggg==
@@ -508,7 +518,7 @@ TIMEZONES = [
     "UTC",
 ]
 
-def main():
+def main(config):
     drinking_timezones = []
 
     # construct list of timezones in which it is 5 o'clock
@@ -539,7 +549,11 @@ def main():
     location = location.replace("Navajo", "Navajo Nation")  # for Navajo
     location = location.replace("DumontDUrville", "Dumont-d'Urville")  # for Antarctica/DumontDUrville
     location = location.replace("EasterIsland", "Easter Island")  # for Chile/EasterIsland
-    print(location)
+
+    here_from_schema = config.get("location")
+    here = json.decode(here_from_schema) if here_from_schema else DEFAULT_LOCATION
+    if time.now().in_location(here.get("timezone")).hour == 17:
+        location = " here!"
 
     return render.Root(
         delay = 50,
@@ -580,4 +594,17 @@ def main():
                 ),
             ],
         ),
+    )
+
+def get_schema():
+    return schema.Schema(
+        version = "1",
+        fields = [
+            schema.Location(
+                id = "location",
+                name = "Location",
+                desc = "Location for which to display the sun rise and set times.",
+                icon = "place",
+            ),
+        ],
     )
