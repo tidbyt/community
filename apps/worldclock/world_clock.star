@@ -41,7 +41,7 @@ def main(config):
 
         timezone = location["timezone"]
         locality = config.get("location_%s_label" % i)
-        useMeridianTime = 1 if config.bool("location_%s_format" % i) else 0
+        useMeridianTime = 1 if config.bool("time_format") else 0
         if (not locality):
             locality = location["locality"]
 
@@ -153,13 +153,6 @@ def get_schema():
                 icon = "tag",
                 default = "",
             ),
-            schema.Toggle(
-                id = "location_1_format",
-                name = "Location 1 Time Format",
-                desc = "Time format as 12H clock instead of 24H",
-                icon = "access_time",
-                default = False,
-            ),
             schema.Location(
                 id = "location_2",
                 name = "Location 2",
@@ -172,13 +165,6 @@ def get_schema():
                 desc = "Custom label (optional)",
                 icon = "tag",
                 default = "",
-            ),
-            schema.Toggle(
-                id = "location_2_format",
-                name = "Location 2 Time Format",
-                desc = "Time format as 12H clock instead of 24H",
-                icon = "access_time",
-                default = False,
             ),
             schema.Location(
                 id = "location_3",
@@ -194,9 +180,9 @@ def get_schema():
                 default = "",
             ),
             schema.Toggle(
-                id = "location_3_format",
-                name = "Location 3 Time Format",
-                desc = "Time format as 12H clock instead of 24H",
+                id = "time_format",
+                name = "Time Format",
+                desc = "Format time as 12H clock instead of 24H",
                 icon = "access_time",
                 default = False,
             ),
