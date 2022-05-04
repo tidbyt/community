@@ -23,8 +23,8 @@ CACHE_TTL_SECONDS = 3600 * 24 * 30  # 30 days in seconds.
 
 def main():
     """ Main function
-    
-    Returns: 
+
+    Returns:
         the animation rendered
     """
 
@@ -59,22 +59,21 @@ def get_schema():
         fields = [],
     )
 
-
 # get a the final r/place image
 def get_image():
     """ get image function
-    
-    Returns: 
+
+    Returns:
         the rendered image
     """
     url = "https://i.imgur.com/rzUhL4w.png"
     image = cache.get(url)
-    
+
     if image != None:
         return render.Image(base64.decode(image))
 
     image = http.get(url).body()
-    
+
     cache.set(url, base64.encode(image), ttl_seconds = CACHE_TTL_SECONDS)
 
     return render.Image(image)
