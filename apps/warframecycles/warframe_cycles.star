@@ -11,15 +11,16 @@ load("http.star", "http")
 load("cache.star", "cache")
 
 def time_dict_conversion(timedict):
-    if timedict.get("h") == None and timedict.get("m") == None:
-        return "0s"
+    if timedict.get("h") == None and (timedict.get("m") == None or int(timedict.get("m")) == 0):
+        return "0:00"
     if timedict.get("h") == None and timedict.get("m") != None:
         timedict["m"] = str(int(timedict["m"]) - 1)
         if len(timedict["m"]) == 1 and int(timedict["m"]) > 0:
             timedict["m"] = "0" + timedict["m"]
             return "0:%s" % timedict["m"]
         else:
-            return "0:00"
+            return "0:%s" % timedict["m"]
+
     else:
         timedict["m"] = str(int(timedict["m"]) - 1)
         if len(timedict["m"]) == 1 and int(timedict["m"]) > 0:
@@ -45,6 +46,9 @@ def main(config):
     cambion_active_cached = cache.get(cambion_active_cache_key)
     vallis_active_cache_key = "wf_%s_vallis_active_cached" % platform
     vallis_active_cached = cache.get(vallis_active_cache_key)
+    zariman_active_cache_key = "wf_%s_zariman_active_cached" % platform
+    zariman_active_cached = cache.get(zariman_active_cache_key)
+
     cetus_remaining_cache_key = "wf_%s_cetus_remaining_cached" % platform
     cetus_remaining_cached = cache.get(cetus_remaining_cache_key)
     earth_remaining_cache_key = "wf_%s_earth_remaining_cached" % platform
@@ -53,6 +57,8 @@ def main(config):
     cambion_remaining_cached = cache.get(cambion_remaining_cache_key)
     vallis_remaining_cache_key = "wf_%s_vallis_remaining_cached" % platform
     vallis_remaining_cached = cache.get(vallis_remaining_cache_key)
+    zariman_remaining_cache_key = "wf_%s_zariman_remaining_cached" % platform
+    zariman_remaining_cached = cache.get(zariman_remaining_cache_key)
 
     if cetus_active_cached != None and cetus_remaining_cached != None:
         print("Hit! Displaying cached data.")
@@ -82,6 +88,13 @@ def main(config):
     else:
         REFRESH_CACHE = True
 
+    if zariman_active_cached != None and zariman_remaining_cached != None:
+        print("Hit! Displaying cached data.")
+        zarimanactive = zariman_active_cached
+        zarimanremaining = zariman_remaining_cached
+    else:
+        REFRESH_CACHE = True
+
     if REFRESH_CACHE == True:
         rep = http.get(_wf_status_url)
         if rep.status_code != 200:
@@ -106,6 +119,17 @@ def main(config):
         cache.set(vallis_active_cache_key, str(vallisactive), ttl_seconds = 60)
         cache.set(vallis_remaining_cache_key, str(vallisremaining), ttl_seconds = 60)
 
+        zariman_toggle = config.bool("warframe_cycles_zariman_enabled", False)
+
+        if zariman_toggle:
+            zarimanactive = rep.json()["zarimanCycle"]["state"].title()
+            zarimanremaining = rep.json()["zarimanCycle"]["timeLeft"].split()
+        else:
+            zarimanactive = "Corpus"
+            zarimanremaining = ["4h", "53m", "38s"]
+        cache.set(zariman_active_cache_key, str(zarimanactive), ttl_seconds = 60)
+        cache.set(zariman_remaining_cache_key, str(zarimanremaining), ttl_seconds = 60)
+
     cetustime = {}
     for part in cetusremaining:
         if "s" in part:
@@ -115,7 +139,7 @@ def main(config):
         if "h" in part:
             cetustime["h"] = part.replace("h", "")
     cetusremaining = time_dict_conversion(cetustime)
-    cetus = "%s - %s" % (cetusremaining, cetusactive)
+    cetus = "%s %s" % (cetusremaining, cetusactive)
 
     earthtime = {}
     for part in earthremaining:
@@ -126,7 +150,7 @@ def main(config):
         if "h" in part:
             earthtime["h"] = part.replace("h", "")
     earthremaining = time_dict_conversion(earthtime)
-    earth = "%s - %s" % (earthremaining, earthactive)
+    earth = "%s %s" % (earthremaining, earthactive)
 
     cambiontime = {}
     for part in cambionremaining:
@@ -137,7 +161,7 @@ def main(config):
         if "h" in part:
             cambiontime["h"] = part.replace("h", "")
     cambionremaining = time_dict_conversion(cambiontime)
-    cambion = "%s - %s" % (cambionremaining, cambionactive)
+    cambion = "%s %s" % (cambionremaining, cambionactive)
 
     vallistime = {}
     for part in vallisremaining:
@@ -148,7 +172,18 @@ def main(config):
         if "h" in part:
             vallistime["h"] = part.replace("h", "")
     vallisremaining = time_dict_conversion(vallistime)
-    vallis = "%s - %s" % (vallisremaining, vallisactive)
+    vallis = "%s %s" % (vallisremaining, vallisactive)
+
+    zarimantime = {}
+    for part in zarimanremaining:
+        if "s" in part:
+            zarimantime["s"] = part.replace("s", "")
+        if "m" in part:
+            zarimantime["m"] = part.replace("m", "")
+        if "h" in part:
+            zarimantime["h"] = part.replace("h", "")
+    zarimanremaining = time_dict_conversion(zarimantime)
+    zariman = "%s %s" % (zarimanremaining, zarimanactive)
 
     color_toggle = config.bool("warframe_cycles_color", False)
     if color_toggle:
@@ -156,36 +191,46 @@ def main(config):
         earthcolor = "#04f" if earthactive == "Night" else "#fd0"
         cambioncolor = "#f70" if cambionactive == "Fass" else "#0ff"
         valliscolor = "#b0f" if vallisactive == "Cold" else "#f20"
+        zarimancolor = "#511" if zarimanactive == "Grineer" else "#0ab"
     else:
         cetuscolor = "#fff"
         earthcolor = "#fff"
         cambioncolor = "#fff"
         valliscolor = "#fff"
+        zarimancolor = "#fff"
 
     return render.Root(
-        child = render.Column(
-            children = [
-                render.Text(
-                    content = "C: %s" % cetus,
-                    font = "tb-8",
-                    color = cetuscolor,
-                ),
-                render.Text(
-                    content = "E: %s" % earth,
-                    font = "tb-8",
-                    color = earthcolor,
-                ),
-                render.Text(
-                    content = "D: %s" % cambion,
-                    font = "tb-8",
-                    color = cambioncolor,
-                ),
-                render.Text(
-                    content = "V: %s" % vallis,
-                    font = "tb-8",
-                    color = valliscolor,
-                ),
-            ],
+        render.Padding(
+            pad = (0, 2, 0, 0),
+            child = render.Column(
+                children = [
+                    render.Text(
+                        content = "C: %s" % cetus,
+                        font = "tom-thumb",
+                        color = cetuscolor,
+                    ),
+                    render.Text(
+                        content = "E: %s" % earth,
+                        font = "tom-thumb",
+                        color = earthcolor,
+                    ),
+                    render.Text(
+                        content = "D: %s" % cambion,
+                        font = "tom-thumb",
+                        color = cambioncolor,
+                    ),
+                    render.Text(
+                        content = "V: %s" % vallis,
+                        font = "tom-thumb",
+                        color = valliscolor,
+                    ),
+                    render.Text(
+                        content = "Z: %s" % zariman,
+                        font = "tom-thumb",
+                        color = zarimancolor,
+                    ),
+                ],
+            ),
         ),
     )
 
@@ -217,6 +262,12 @@ def get_schema():
                 name = "Color Display",
                 icon = "eye",
                 desc = "Toggle on to display in color",
+            ),
+            schema.Toggle(
+                id = "warframe_cycles_zariman_enabled",
+                name = "Zariman Released?",
+                icon = "eye",
+                desc = "Toggle on to display Zariman data",
             ),
             schema.Dropdown(
                 id = "platform",
