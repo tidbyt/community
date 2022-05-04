@@ -22,13 +22,19 @@ TILE_HEIGHT = HEIGHT * 3
 CACHE_TTL_SECONDS = 3600 * 24 * 30  # 30 days in seconds.
 
 def main():
+    """ Main function
+    
+    Returns: 
+        the animation rendered
+    """
+
     # grab a coordinate from r/place image...
     x = -1 * (random.number(WIDTH, 2000 - TILE_WIDTH))
     y = -1 * (random.number(HEIGHT, 2000 - TILE_HEIGHT))
 
     # randomized which way it scrolls...
-    scrollX = x - ((random.number(0, 2 * WIDTH)) - WIDTH)
-    scrollY = y - ((random.number(0, 2 * HEIGHT)) - HEIGHT)
+    scroll_x = x - ((random.number(0, 2 * WIDTH)) - WIDTH)
+    scroll_y = y - ((random.number(0, 2 * HEIGHT)) - HEIGHT)
 
     # create the animation
     ani = animation.AnimatedPositioned(
@@ -37,8 +43,8 @@ def main():
         curve = "ease_in_out",
         x_start = x,
         y_start = y,
-        x_end = scrollX,
-        y_end = scrollY,
+        x_end = scroll_x,
+        y_end = scroll_y,
         delay = 10,
         hold = 1500,
     )
@@ -56,6 +62,11 @@ def get_schema():
 
 # get a the final r/place image
 def get_image():
+    """ get image function
+    
+    Returns: 
+        the rendered image
+    """
     url = "https://i.imgur.com/rzUhL4w.png"
     image = cache.get(url)
     
