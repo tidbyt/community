@@ -12,6 +12,7 @@ load("humanize.star", "humanize")
 load("cache.star", "cache")
 load("encoding/json.star", "json")
 load("secret.star", "secret")
+load("math.star", "math")
 
 DEFAULT_SYMBOL = "BTC"
 RED_RGB = "#FF0000"
@@ -35,10 +36,15 @@ def display_symbol(crypto_symbol):
         offset_end = 0,
     )
 
-def display_price(current_price):
+def display_price(current_price, tr_format_price):
     "returns crypto price render"
 
-    disp_text = humanize.comma(int(current_price * 100) / 100.0)
+    if tr_format_price and current_price >= 1000.0:
+        current_price = int(current_price)
+    else:
+        current_price = int(current_price * 100) / 100.0
+
+    disp_text = humanize.comma(current_price)
 
     if len(disp_text.partition(".")[-1]) == 1:
         disp_text += "0"
@@ -53,12 +59,15 @@ def display_price(current_price):
         offset_end = 0,
     )
 
-def display_price_change(current_price, first_price, color):
+def display_price_change(current_price, first_price, color, tr_format_pchange):
     "returns crypto price change render"
 
     price_change = current_price - first_price
 
-    disp_text = humanize.comma(int(price_change * 100) / 100.0)
+    if tr_format_pchange and math.fabs(price_change) >= 10.0:
+        disp_text = humanize.comma(int(price_change))
+    else:
+        disp_text = humanize.comma(int(price_change * 100) / 100.0)
 
     if len(disp_text.partition(".")[-1]) == 1:
         disp_text += "0"
@@ -74,12 +83,15 @@ def display_price_change(current_price, first_price, color):
         offset_end = 0,
     )
 
-def display_percentage_change(current_price, first_price, color):
+def display_percentage_change(current_price, first_price, color, tr_format_pchange):
     "returns crypto percentage change render"
 
     pct_change = ((current_price / first_price) - 1) * 100
 
-    disp_text = humanize.comma(int(pct_change * 100) / 100.0)
+    if tr_format_pchange and math.fabs(pct_change) >= 1.0:
+        disp_text = humanize.comma(int(pct_change))
+    else:
+        disp_text = humanize.comma(int(pct_change * 100) / 100.0)
 
     if len(disp_text.partition(".")[-1]) == 1:
         disp_text += "0"
@@ -99,18 +111,21 @@ def display_chart(c_data, x_lim, y_lim):
     "returns crypto price chart render"
 
     return render.Plot(
-        65,  # width
-        16,  # height
-        c_data,  # list of tuples
-        x_lim,  # (x_min, x_max)
-        y_lim,  # (y_min, y_max)
-        GREEN_RGB,  # color
-        RED_RGB,  # colorinverted
-        fill = True,  # fill
+        data = c_data,  # list of tuples
+        width = 65,
+        height = 16,
+        color = GREEN_RGB,
+        color_inverted = RED_RGB,
+        x_lim = x_lim,  # (x_min, x_max)
+        y_lim = y_lim,  # (y_min, y_max)
+        fill = True,
     )
 
 def main(config):
     symbol = config.str("symbol", DEFAULT_SYMBOL)
+    tr_format_price = config.str("tr_format_price", False) == "true"
+    tr_format_pchange = config.str("tr_format_pchange", False) == "true"
+    tr_format_percent = config.str("tr_format_percent", False) == "true"
     interval = "15min"
 
     API_KEY = secret.decrypt(PIN) or config.get("dev_api_key")
@@ -179,7 +194,7 @@ def main(config):
                                     pad = (1, 0, 0, 0),
                                 ),
                                 render.Padding(
-                                    child = display_price_change(y[-1], y[0], color),
+                                    child = display_price_change(y[-1], y[0], color, tr_format_pchange),
                                     pad = (1, 0, 0, 0),
                                 ),
                             ],
@@ -187,11 +202,11 @@ def main(config):
                         render.Row(
                             children = [
                                 render.Padding(
-                                    child = display_price(y[-1]),
+                                    child = display_price(y[-1], tr_format_price),
                                     pad = (1, 0, 0, 0),
                                 ),
                                 render.Padding(
-                                    child = display_percentage_change(y[-1], y[0], color),
+                                    child = display_percentage_change(y[-1], y[0], color, tr_format_pchange),
                                     pad = (1, 0, 0, 0),
                                 ),
                             ],
@@ -247,6 +262,27 @@ def get_schema():
                 icon = "user",
                 default = crypto_options[0].value,
                 options = crypto_options,
+            ),
+            schema.Toggle(
+                id = "tr_format_price",
+                name = "Use Truncated Price Format",
+                desc = "Truncates cents from coin price when the price is >= $1,000.",
+                icon = "dollarSign",
+                default = False,
+            ),
+            schema.Toggle(
+                id = "tr_format_pchange",
+                name = "Use Truncated Price Change Format",
+                desc = "Truncates cents from price change when absolute value of price change >= $10.",
+                icon = "dollarSign",
+                default = False,
+            ),
+            schema.Toggle(
+                id = "tr_format_percent",
+                name = "Use Truncated Percentage Change Format",
+                desc = "Truncates decimals from percent change when absolute value of percent change is >= 1%.",
+                icon = "dollarSign",
+                default = False,
             ),
         ],
     )

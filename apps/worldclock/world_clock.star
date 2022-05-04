@@ -41,6 +41,7 @@ def main(config):
 
         timezone = location["timezone"]
         locality = config.get("location_%s_label" % i)
+        useMeridianTime = 1 if config.bool("time_format") else 0
         if (not locality):
             locality = location["locality"]
 
@@ -61,11 +62,11 @@ def main(config):
 
         location_name = render.Box(
             height = 7,
-            width = 43,
+            width = (43, 35)[useMeridianTime],
             child = render.Padding(
                 pad = (4, 0, 0, 0),
                 child = render.Marquee(
-                    width = 43,
+                    width = (43, 35)[useMeridianTime],
                     child = render.Text(
                         content = locality,
                         font = font,
@@ -82,7 +83,7 @@ def main(config):
                 child = render.Row(
                     children = [
                         render.Text(
-                            content = now.format("15"),
+                            content = (now.format("15"), now.format("03"))[useMeridianTime],
                             font = number_font,
                             color = "#ffffff",
                         ),
@@ -104,14 +105,14 @@ def main(config):
                             ),
                         ),
                         render.Text(
-                            content = now.format("04"),
+                            content = (now.format("04"), now.format("04PM"))[useMeridianTime],
                             font = number_font,
                             color = "#ffffff",
                         ),
                     ],
                 ),
             ),
-            width = 23,
+            width = (23, 30)[useMeridianTime],
             height = 7,
         )
 
@@ -177,6 +178,13 @@ def get_schema():
                 desc = "Custom label (optional)",
                 icon = "tag",
                 default = "",
+            ),
+            schema.Toggle(
+                id = "time_format",
+                name = "Time Format",
+                desc = "Format time as 12H clock instead of 24H",
+                icon = "access_time",
+                default = False,
             ),
             schema.Toggle(
                 id = "color_by_daylight",

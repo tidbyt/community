@@ -2,19 +2,17 @@
 Applet: National Today
 Summary: Get National Today holidays
 Description: Displays today's holidays from National Today.
-Author: rs7q5 (RIS)
+Author: rs7q5
 """
 
 #nationalToday.star
 #Created 20220130 RIS
-#Last Modified 20220224 RIS
+#Last Modified 20220423 RIS
 
 load("render.star", "render")
 load("http.star", "http")
 load("encoding/json.star", "json")
 load("cache.star", "cache")
-
-#load("time.star","time")
 load("re.star", "re")
 
 base_URL = "https://nationaltoday.com/what-is-today/"
@@ -28,7 +26,6 @@ def main():
         print("Hit! Displaying cached data.")
 
         holiday_txt = json.decode(holidays_cached)
-        holiday_fmt = format_text(holiday_txt, font)
     else:
         print("Miss! Calling NationalToday data.")  #error code checked within each function!!!!
 
@@ -61,8 +58,9 @@ def main():
             holiday_txt.insert(0, " ".join(date_split))
 
             #cache the data
-            cache.set("holiday_rate", json.encode(holiday_txt), ttl_seconds = 1800)  # cache for 30 min
-        holiday_fmt = format_text(holiday_txt, font)
+            cache.set("holiday_rate", json.encode(holiday_txt), ttl_seconds = 1800)  #cache for 30 minutes
+
+    holiday_fmt = format_text(holiday_txt, font)
 
     return render.Root(
         delay = 100,  #speed up scroll text
@@ -95,16 +93,37 @@ def format_text(x, font):
             ctmp = "#c8c8fa"
         else:
             ctmp = "#fff"
-        text_vec.append(render.WrappedText(holiday, font = font, color = ctmp, linespacing = -1))
+
+        holiday_tmp = split_sentence(holiday, 12, join_word = True)  #combine and split words correctly
+        text_vec.append(render.WrappedText(holiday_tmp, font = font, color = ctmp, linespacing = -1))
     return (text_vec)
 
 ######################################################
 #functions
-def http_check(URL):
-    rep = http.get(URL)
-    if rep.status_code != 200:
-        fail("ESPN request failed with status %d", rep.status_code)
-    return rep
+def split_sentence(sentence, span, **kwargs):
+    #split long sentences along with long words
+
+    sentence_new = ""
+    for word in sentence.split(" "):
+        if len(word) >= span:
+            sentence_new += split_word(word, span, **kwargs) + " "
+
+        else:
+            sentence_new += word + " "
+
+    return sentence_new
+
+def split_word(word, span, join_word = False):
+    #split long words
+
+    word_split = []
+
+    for i in range(0, len(word), span):
+        word_split.append(word[i:i + span])
+    if join_word:
+        return " ".join(word_split)
+    else:
+        return word_split
 
 def pad_text(text):
     #format strings so they are all the same length (leads to better scrolling)

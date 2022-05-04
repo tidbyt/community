@@ -98,6 +98,7 @@ def main(config):
                 gameTime = convertedTime.format("1/2 - 3:04 PM")
             else:
                 gameTime = convertedTime.format("3:04 PM")
+            gameTime = convertedTime.format("3:04 PM")
             homeScoreColor = "#fff"
             awayScoreColor = "#fff"
             scoreFont = "CG-pixel-3x5-mono"
