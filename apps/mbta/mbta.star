@@ -23,12 +23,13 @@ T_ABBREV = {
 }
 
 def main(config):
-    stop = config.get("stop") or "place-sstat"
+    option = config.get("stop", '{"display": "South Station", "value": "place-sstat"}')
+    stop = json.decode(option)
 
     params = {
         "sort": "arrival_time",
         "include": "route",
-        "filter[stop]": stop,
+        "filter[stop]": stop["value"],
     }
     if API_KEY:
         params["api_key"] = API_KEY
