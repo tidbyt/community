@@ -46,7 +46,7 @@ def main():
         x_end = scroll_x,
         y_end = scroll_y,
         delay = 10,
-        hold = 1500,
+        hold = 1,
     )
 
     return render.Root(
