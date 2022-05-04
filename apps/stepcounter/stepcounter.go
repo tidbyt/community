@@ -7,7 +7,7 @@ import (
 	"tidbyt.dev/community/apps/manifest"
 )
 
-//go:embed step_counter.star
+//go:embed stepcounter.star
 var source []byte
 
 // New creates a new instance of the Step Counter applet.
@@ -17,9 +17,9 @@ func New() manifest.Manifest {
 		Name:        "Step Counter",
 		Author:      "Matt-Pesce",
 		Summary:     "Tracks Daily Step Progress",
-		Desc:        "Fetches your Step Data from Google Fit, Reports progress versus daily goal.",
-		FileName:    "step_counter.star",
+		Desc:        "Fetches your Step Data from Google Fit, Reports progress versus daily goal.",
+		FileName:    "stepcounter.star",
 		PackageName: "stepcounter",
-		Source:  source,
+		Source:      source,
 	}
 }
