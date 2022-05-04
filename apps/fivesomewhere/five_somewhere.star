@@ -621,10 +621,10 @@ def main(config):
                             ),
                         ],
                     ),
-                render.Marquee(
-                    width = 64,
-                    child = render.Text("You made it! Nice job!", color = "#09f"),
-                ),
+                    render.Marquee(
+                        width = 64,
+                        child = render.Text("You made it! Nice job!", color = "#09f"),
+                    ),
                 ],
             ),
         )
