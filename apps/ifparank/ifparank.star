@@ -7,9 +7,12 @@ load("schema.star", "schema")
 load("secret.star", "secret")
 
 PIN_ICON = base64.decode("""iVBORw0KGgoAAAANSUhEUgAAABkAAAAZCAYAAADE6YVjAAAAAXNSR0IArs4c6QAAANJJREFUSEvV1tENhCAMBuBjI+ZgGIZhGOZgo7uUpKbWtoBUk7snc5p+/lUp4TPxizF+tctaa2FUwrwAi+ec1TqllH7OwkRkpjhXLeyCAGDd+ag1gPFUJ2QEpJRORq1VNDl0ICOAVpvBKHQLQZBiPNUFWUkh9QcxDepJdhGoIUGYJngAGgL/A+SGWGn+D8E09AVwb9driLSmuT4T6Rvq7fL6TjQAFsv3kCfSuC2Q1mwREc806jzBu9pdy4aTkUJwvDKGl2Y87fPMhuL2boU/0N191w+8LrYDiiRhIgAAAABJRU5ErkJggg==""")
+API_KEY = """
+AV6+xWcEFHNh6PsqmJYMRNJeYkNiOx8tUBB6Wns7QgKLc8HI2AS6LRhNuDrTWvyddBtUM24wUEhuIG42LGpefh6CmYkxBfVS7295Yz5OW7ygTXsEZZybB3U6ouO/Qvis8dpDwQX/ubai5jCjAqf/3XvG9e4XbWaK5a5WnOT81j5093JbVxI=
+"""
 
 def main(config):
-    apiKey = secret.decrypt("AV6+xWcETfgDC5ODbmWAz3AAttG48nz7McLTUJ3hDTCLbX+HmRWVmh1macopHCDmzCdQ8uhTeBLQsVsBISoULTqjdf4k/mfRUYwRKyLsj3ffeKVZ6m4s7PXe07cvlBGxztMO9cF7pA/ycoJQFk/ZMSXx7Rdp2S7f1BMuBw+44fqk53lOvV0=") or config.get("dev_api_key")
+    apiKey = secret.decrypt(API_KEY) or config.get("dev_api_key")
     playerId = config.str("playerId", "1")  # Default to KME
     if not playerId:
         playerId = "1"  # If they enter nothing, API call will fail. This may only be a problem during dev
