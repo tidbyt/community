@@ -95,7 +95,10 @@ def main(config):
             gameDateTime = s["status"]["type"]["shortDetail"]
             gameTime = s["date"]
             convertedTime = time.parse_time(gameTime, format = "2006-01-02T15:04Z").in_location(timezone)
-            gameTime = convertedTime.format("3:04 PM")
+            if convertedTime.format("1/2") != now.format("1/2"):
+                gameTime = convertedTime.format("1/2 - 3:04 PM")
+            else:
+                gameTime = convertedTime.format("3:04 PM")
             homeScoreColor = "#fff"
             awayScoreColor = "#fff"
             scoreFont = "CG-pixel-3x5-mono"
