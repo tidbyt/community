@@ -63,7 +63,7 @@ def main(config):
     if stops_req.status_code != 200:
         fail("goodservice stops request failed with status %d", stops_req.status_code)
 
-    direction_config = config.str("stop_id", DEFAULT_DIRECTION)
+    direction_config = config.str("direction", DEFAULT_DIRECTION)
     if direction_config == "both":
         directions = ["north", "south"]
     else:
