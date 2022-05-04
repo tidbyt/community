@@ -23,7 +23,7 @@ Once created, edit `apps/{{appname}}/{{app_name}}.star` with your source code.
 ### 1. Fork the Tibyt Community repo on Github
 
 - Community apps are published by making a Pull Request to the community repo here: https://github.com/tidbyt/community
-- Start by forking the repo into your Gibhub account.
+- Start by forking the repo into your Github account.
 - After forking you may want to checkout to a new branch to avoid any headaches, and to not have to merge off the main branch of your forked repo.
 
 ### 2. Clone the community repo to your local machine

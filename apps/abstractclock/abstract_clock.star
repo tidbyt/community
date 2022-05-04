@@ -31,7 +31,7 @@ def main(config):
     COLOR_HOUR = config.get("color_hour", P_COLOR_HOUR)
     COLOR_MONTH = config.get("color_month", P_COLOR_MONTH)
 
-    Top = base64.decode("iVBORw0KGgoAAAANSUhEUgAAAEAAAAALCAYAAADP9otxAAAAAXNSR0IArs4c6QAAAMpJREFUSEvtVkkSwzAIg/f0/0/Je9zxgQzViKUdckmaWwDbSFhglYd/6vGvtZaqnrb9v/0d247x6ztrLSY6w+wsDs+yHM3O/CynlICdAJLCbNmhGcHmY8R7QitQ3ViW+xgBBgYrMUVAtD+SUxUDyR4hgFUykoCXU3YDEDBWrwJeSeTcf6IHVFfZ+ytgHmgkDRYTEYKx2G/KJtip2DcEYLPs9pSJG8D62Z+AqySQjUE29tiozeIqjf80Bp/4JvqQwCGyXsDCISJ3tr0Bhbst/g1jLG4AAAAASUVORK5CYII=")
+    Top = base64.decode("iVBORw0KGgoAAAANSUhEUgAAAEAAAAALCAYAAADP9otxAAAAAXNSR0IArs4c6QAAALhJREFUSEvtVdsNwCAIhHm6/yjOQ0MTDCUKaP1pq38iD+88AeHnCyP8RESIWP14zzGeTWJmY+VOrRpSW+6h9+Kv69q76P0VO0oA+1tg1uYRoEH1crXsHhDOOXpea2wCAgai15ZwKztPxp60W/nktXTO3hfIKmFaAZke0AORkbZHgJa69csCf9wDWorI9IVZYD2gKwhgQoeb4CYgMQajf7yiB3jKWDoGoynx9vPbFygAdBhEBQC+bDsBXa855qlHHEIAAAAASUVORK5CYII=")
 
     location = config.get("location", DEFAULT_LOCATION)
     loc = json.decode(location)
@@ -55,76 +55,76 @@ def main(config):
         MIcon = "#000"
 
     if Month == "Jan":
-        MHand = 3
-
-    elif Month == "Feb":
         MHand = 8
 
-    elif Month == "Mar":
+    elif Month == "Feb":
         MHand = 13
 
-    elif Month == "Apr":
+    elif Month == "Mar":
         MHand = 18
 
-    elif Month == "May":
+    elif Month == "Apr":
         MHand = 23
 
-    elif Month == "Jun":
+    elif Month == "May":
         MHand = 28
 
-    elif Month == "Jul":
+    elif Month == "Jun":
         MHand = 33
 
-    elif Month == "Aug":
+    elif Month == "Jul":
         MHand = 38
 
-    elif Month == "Sep":
+    elif Month == "Aug":
         MHand = 43
 
-    elif Month == "Oct":
+    elif Month == "Sep":
         MHand = 48
 
-    elif Month == "Nov":
+    elif Month == "Oct":
         MHand = 53
 
-    else:
+    elif Month == "Nov":
         MHand = 58
 
-    if Hour == "1":
-        Hand = 3
+    else:
+        MHand = 63
 
-    elif Hour == "2":
+    if Hour == "1":
         Hand = 8
 
-    elif Hour == "3":
+    elif Hour == "2":
         Hand = 13
 
-    elif Hour == "4":
+    elif Hour == "3":
         Hand = 18
 
-    elif Hour == "5":
+    elif Hour == "4":
         Hand = 23
 
-    elif Hour == "6":
+    elif Hour == "5":
         Hand = 28
 
-    elif Hour == "7":
+    elif Hour == "6":
         Hand = 33
 
-    elif Hour == "8":
+    elif Hour == "7":
         Hand = 38
 
-    elif Hour == "9":
+    elif Hour == "8":
         Hand = 43
 
-    elif Hour == "10":
+    elif Hour == "9":
         Hand = 48
 
-    elif Hour == "11":
+    elif Hour == "10":
         Hand = 53
 
-    else:
+    elif Hour == "11":
         Hand = 58
+
+    else:
+        Hand = 63
 
     return render.Root(
         child = render.Column(
