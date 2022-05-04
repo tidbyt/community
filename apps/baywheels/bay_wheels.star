@@ -137,7 +137,7 @@ def get_stations(location):
             value = station["station_id"],
         )
         for station in stations
-    ], key = lambda station: square_distance(loc["lat"], loc["lon"], station["lat"], station["lon"]))
+    ], key = lambda station: square_distance(loc["lat"], loc["lng"], station["lat"], station["lon"]))
 
 def square_distance(lat1, lon1, lat2, lon2):
     return (lat2 - lat1) ^ 2 + (lon2 - lon1) ^ 2
