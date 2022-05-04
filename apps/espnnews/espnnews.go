@@ -15,7 +15,7 @@ func New() manifest.Manifest {
 	return manifest.Manifest{
 		ID:          "espn-news",
 		Name:        "ESPN News",
-		Author:      "rs7q5 (RIS)",
+		Author:      "rs7q5",
 		Summary:     "Get top headlines from ESPN",
 		Desc:        "Displays the top three headlines from the Top Headlines section on ESPN or a specific user-selected sport.",
 		FileName:    "espn_news.star",

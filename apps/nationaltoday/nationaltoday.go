@@ -15,7 +15,7 @@ func New() manifest.Manifest {
 	return manifest.Manifest{
 		ID:          "nationaltoday",
 		Name:        "NationalToday",
-		Author:      "rs7q5 (RIS)",
+		Author:      "rs7q5",
 		Summary:     "Get NationalToday holidays",
 		Desc:        "Displays today's holidays from NationalToday.",
 		FileName:    "nationaltoday.star",
