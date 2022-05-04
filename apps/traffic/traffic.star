@@ -43,8 +43,8 @@ the time in red if we estimate the trip will be twice as long as it would be wit
 
 SAMPLE_DATA = {
     "coordinates": {
-        "origin": (41.310141951963885, -72.92617064650368),  # Kennedy Airport
-        "destination": (40.771771628998565, -73.97485055572092),  # Central Park
+        "origin": ("41.310141951963885", "-72.92617064650368"),  # Kennedy Airport
+        "destination": ("40.771771628998565", "-73.97485055572092"),  # Central Park
     },
     "labels": {
         "origin": "JFK Airport",
@@ -103,7 +103,7 @@ def mq_reverse_geo(coordinates, key):
     :param key: string, MapQuest API Key
     :return: tuple of address parts as strings
     """
-    coordinates = [round(coordinates[0], 4), round(coordinates[1], 4)]
+    coordinates = [round(float(coordinates[0]), 4), round(float(coordinates[1]), 4)]
 
     location = ",".join((str(coordinates[0]), str(coordinates[1])))
     cache_id = "%s/travel_time/%s" % (BASE_CACHE, str(coordinates))
@@ -149,7 +149,7 @@ def ors_reverse_geo(coordinates, key):
     :param key: string, OpenRouteService API Key
     :return: tuple of address parts as strings
     """
-    coordinates = [round(coordinates[0], 4), round(coordinates[1], 4)]
+    coordinates = [round(float(coordinates[0]), 4), round(float(coordinates[1]), 4)]
     lat, lon = str(coordinates[0]), str(coordinates[1])
     cache_id = "%s/travel_time/%s" % (BASE_CACHE, str(coordinates))
 
@@ -388,6 +388,7 @@ def main(config):
     # cfg_origin, cfg_destination = True, True
 
     if key and cfg_origin and cfg_destination:
+        # COMMENT OUT FOR TESTING:
         origin = (cfg_origin.get("lat"), cfg_origin.get("lng"))
         destination = (cfg_destination.get("lat"), cfg_destination.get("lng"))
 
