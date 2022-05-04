@@ -7,7 +7,7 @@ Author: rs7q5
 
 #vertical_message.star
 #Created 20220221 RIS
-#Last Modified 20220426 RIS
+#Last Modified 20220504 RIS
 
 load("render.star", "render")
 load("schema.star", "schema")
@@ -39,12 +39,20 @@ def main(config):
     else:
         msg_txt = "Invalid color specified!!!!"
         color_opt = "#fff"
+
+    #set linespacing
+    linespacing = config.str("linespacing", "0")
+    if linespacing.isdigit():
+        linespacing_final = int("-%s" % linespacing) if config.bool("negate_linespacing", False) else int(linespacing)
+    else:
+        linespacing_final = 0
+
     scroll_opt = config.str("speed", "100")
     return render.Root(
         delay = int(scroll_opt),  #speed up scroll text
         child = render.Marquee(
             height = 32,
-            child = render.WrappedText(content = msg_txt, width = 60, color = color_opt, font = config.str("font", "tb-8")),
+            child = render.WrappedText(content = msg_txt, width = 60, color = color_opt, font = config.str("font", "tb-8"), linespacing = linespacing_final),
             scroll_direction = "vertical",
         ),
     )
@@ -80,6 +88,20 @@ def get_schema():
                 icon = "font",
                 default = "tb-8",
                 options = fonts,
+            ),
+            schema.Text(
+                id = "linespacing",
+                name = "Line Spacing",
+                desc = "Adjust line spacing of text (integers only).",
+                icon = "cog",
+                default = "0",
+            ),
+            schema.Toggle(
+                id = "negate_linespacing",
+                name = "Negate line spacing?",
+                desc = "",
+                icon = "cog",
+                default = False,
             ),
             schema.Dropdown(
                 id = "color",
