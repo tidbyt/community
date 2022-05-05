@@ -7,18 +7,9 @@ Author: grantmatheny
 
 load("render.star", "render")
 load("schema.star", "schema")
-load("cache.star", "cache")
 load("time.star", "time")
 load("encoding/base64.star", "base64")
-load("encoding/json.star", "json")
 load("random.star", "random")
-
-DEFAULT_LOCATION = {
-    "lat": 36.117244,
-    "lng": -115.172827,
-    "locality": "Margaritaville, US",
-    "timezone": "America/Los_Angeles",
-}
 
 MARTINI_ICON = base64.decode("""
 iVBORw0KGgoAAAANSUhEUgAAABgAAAAYCAYAAADgdz34AAAACXBIWXMAIbEAACGxAAGFqWwEAAACRElEQVRIx+3U30tTYRwG8IVEEeVFBYIXQX+AN0V3EUQXEd0VQRhe5EVYQoEELQvBENqshGKQmpm/cnVUSqSmc0HBypluKz1Oc1s/NHOG0LLtOLXO0/PKKU6grdwZdNELn7Ed3vf5nr3f8x6TKcVxbOumHFpvSsdgcDbNUn66CtgoRGv/amF/IJxJO+ggHSczlVIZXaDi9mZ7EYPnbEUnS/g7yxsIJw3Noks0QirhdyoK8lF+NFd/bYLqKGfJAp7B0VLf8GtEv8QxOf0JofEIBoLv4OU1fXCDqx4XW87i1IFt6PO+RPh9ZHH+TFzh9yn0ykHXkgUsVc2ra9s6pWc+GTMxBaqqQgzxOb/wFYm5eSiJBKaiE4jNfsaP8Y3zYkoCcvAtJMcTr63p/uZlt4lFMuhmpb0DnoFXkMPjCI5N4s2HjxiLTMMX8qP2UTlsjhKUtRbC8bxr8R+2Ot2wVtvdXJuZtMGctIquXK1vw+N++Zft8cgjOGHdi7xrO3GuqQA9gwE0trvA+d207o+fIt6NKHT+cs1ddLq9Pws4H3bhuvk0+oaCYM9wQ3ogwjtozYqecy4sZDFVbIEoUFl8Br0vAnD7h8G9FuGS6F1Kh4kBubRQd8+Jp74hdPf4UXGrRYQ3iJ4ZcmIZtJ8UgqZK9MrQ1wIDj2jhoqHGv3cYulsr0JiWF9v/Av9EgX1aAclSfdvQ4I1kobjuHDhpe6rBgpmiumA9VTvNG1ZaIEO7U3WZAoKPthixRbvoEOXRYdpD2daaO0nXfwd97j9iHjgVlQAAAABJRU5ErkJggg==
@@ -569,12 +560,9 @@ def main(config):
     location = location.replace("DumontDUrville", "Dumont-d'Urville")  # for Antarctica/DumontDUrville
     location = location.replace("EasterIsland", "Easter Island")  # for Chile/EasterIsland
 
-    here_from_schema = config.get("location")
-    here = json.decode(here_from_schema) if here_from_schema else DEFAULT_LOCATION
-    current_time_here = time.now().in_location(here.get("timezone"))
-    threshold_time = int("20")
-
-    if current_time_here.hour == 17 and current_time_here.minute < threshold_time:
+    current_time_here = time.now().in_location(config.get("$tz", "America/Los_Angeles"))
+    threshold_minutes = int(config.get("past_the_hour", "15"))
+    if current_time_here.hour == 17 and current_time_here.minute < threshold_minutes:
         return render.Root(
             delay = 100,
             child = render.Column(
@@ -674,21 +662,43 @@ def main(config):
     )
 
 def get_schema():
+    options = [
+        schema.Option(
+            display = "5 Minutes",
+            value = "5",
+        ),
+        schema.Option(
+            display = "10 Minutes",
+            value = "10",
+        ),
+        schema.Option(
+            display = "15 Minutes",
+            value = "15",
+        ),
+        schema.Option(
+            display = "20 Minutes",
+            value = "20",
+        ),
+        schema.Option(
+            display = "The whole 5 o'clock hour!",
+            value = "60",
+        ),
+        schema.Option(
+            display = "Disabled",
+            value = "0",
+        ),
+    ]
+
     return schema.Schema(
         version = "1",
         fields = [
-            schema.Location(
-                id = "location",
-                name = "Location",
-                desc = "Location for which to display the sun rise and set times.",
-                icon = "place",
+            schema.Dropdown(
+                id = "past_the_hour",
+                name = "5 o'clock celebration time",
+                desc = "How long after the 5 o'clock hour should your Tidbyt continue to celebrate that you got there?",
+                icon = "gear",
+                default = options[2].value,
+                options = options,
             ),
-            #schema.Text(
-            #    id = "past_the_hour",
-            #    name = "Drink flash time",
-            #    desc = "How long in minutes after the 5 o'clock hour to display the flashing drink. 0 will disable.",
-            #    icon = "gear",
-            #),
-            # TODO: add user-configurable time after the hour
         ],
     )
