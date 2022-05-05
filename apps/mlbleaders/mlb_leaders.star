@@ -398,4 +398,4 @@ def get_frame_multi(stat):
                 frame_tmp.append(full_text)
                 if idx2 == 1:  #only show top 2
                     break
-    return render.Marquee(render.Row(expanded = False, children = frame_tmp), scroll_direction = "horizontal", width = 64, offset_start = 64, offset_start = 64)
+    return render.Marquee(render.Row(expanded = False, children = frame_tmp), scroll_direction = "horizontal", width = 64, offset_start = 64, offset_end = 64)
