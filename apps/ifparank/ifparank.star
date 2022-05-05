@@ -63,7 +63,7 @@ def get_schema():
                 name = "Player ID",
                 desc = "IFPA Player ID",
                 icon = "user",
-				default = "1",
+                default = "1",
             ),
         ],
     )
