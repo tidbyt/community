@@ -6,7 +6,7 @@ Author: rs7q5
 """
 #mlb_leaders.star
 #Created 20220412 RIS
-#Last Modified 20220425 RIS
+#Last Modified 20220504 RIS
 
 load("render.star", "render")
 load("http.star", "http")
@@ -373,7 +373,7 @@ def get_frame_single(stat):
                     ],
                 ))
 
-    return render.Marquee(render.Column(expanded = False, children = frame_tmp), scroll_direction = "vertical", height = 27)
+    return render.Marquee(render.Column(expanded = False, children = frame_tmp), scroll_direction = "vertical", height = 27, offset_start = 32, offset_end = 32)
 
 def get_frame_multi(stat):
     #format results for displaying multiple stats
@@ -398,4 +398,4 @@ def get_frame_multi(stat):
                 frame_tmp.append(full_text)
                 if idx2 == 1:  #only show top 2
                     break
-    return render.Marquee(render.Row(expanded = False, children = frame_tmp), scroll_direction = "horizontal", width = 64)
+    return render.Marquee(render.Row(expanded = False, children = frame_tmp), scroll_direction = "horizontal", width = 64, offset_start = 64, offset_end = 64)

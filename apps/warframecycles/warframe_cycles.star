@@ -15,7 +15,7 @@ def time_dict_conversion(timedict):
         return "0:00"
     if timedict.get("h") == None and timedict.get("m") != None:
         timedict["m"] = str(int(timedict["m"]) - 1)
-        if len(timedict["m"]) == 1 and int(timedict["m"]) > 0:
+        if len(timedict["m"]) == 1:
             timedict["m"] = "0" + timedict["m"]
             return "0:%s" % timedict["m"]
         else:
@@ -23,7 +23,7 @@ def time_dict_conversion(timedict):
 
     else:
         timedict["m"] = str(int(timedict["m"]) - 1)
-        if len(timedict["m"]) == 1 and int(timedict["m"]) > 0:
+        if len(timedict["m"]) == 1:
             timedict["m"] = "0" + timedict["m"]
         if int(timedict["m"]) < 0:
             timedict["h"] = str(int(timedict["h"]) - 1)
