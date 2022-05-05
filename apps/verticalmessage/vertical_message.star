@@ -7,7 +7,7 @@ Author: rs7q5
 
 #vertical_message.star
 #Created 20220221 RIS
-#Last Modified 20220504 RIS
+#Last Modified 20220505 RIS
 
 load("render.star", "render")
 load("schema.star", "schema")
@@ -52,6 +52,8 @@ def main(config):
         delay = int(scroll_opt),  #speed up scroll text
         child = render.Marquee(
             height = 32,
+            offset_start = 32,
+            offset_end = 32,
             child = render.WrappedText(content = msg_txt, width = 60, color = color_opt, font = config.str("font", "tb-8"), linespacing = linespacing_final),
             scroll_direction = "vertical",
         ),
