@@ -13,17 +13,16 @@ load("encoding/base64.star", "base64")
 load("encoding/json.star", "json")
 load("http.star", "http")
 
-
 DEFAULT_LOC = {
     "lat": 40.63,
     "lng": -74.02,
-    "locality": ""
+    "locality": "",
 }
 
 COLORS = {
     "yellow": "#D19C21",
     "red": "#B31F0E",
-    "green": "#338722"
+    "green": "#338722",
 }
 
 API_URL_BASE = "https://api.tomorrow.io/v4/timelines?&fields=treeIndex,weedIndex,grassIndex&timesteps=1d&location="
@@ -36,7 +35,7 @@ def main(config):
     #Get lat and long from schema.
     location = config.get("location")
     loc = json.decode(location) if location else DEFAULT_LOC
-    
+
     #Round to 1 decimal place (1.1km)
     lat = roundToHalf(loc.get("lat"))
     lng = roundToHalf(loc.get("lng"))
@@ -49,14 +48,16 @@ def main(config):
         todaysCount = cache
     else:
         print("Cache miss, calling API")
+
         #If not, make API call and cache result
         todaysCount = getTodaysCount(latLngStr, secret)
-    
+
     firstMixin = None
     secondMixin = None
     if "message" in todaysCount:
         print("Error! " + todaysCount["message"])
         average = ""
+
         # Custom message only for rate limit.
         skySrc = images["skyLowPollen"]
         groundSrc = images["groundBare"]
@@ -70,24 +71,25 @@ def main(config):
             render.Text(
                 content = textOne,
                 color = "#FFFFFF",
-                font = "tb-8"
+                font = "tb-8",
             ),
             render.Padding(
                 pad = (2, 2, 2, 2),
                 child = render.Box(
-                            height = 1,
-                            color = "#fff"
-                        )
+                    height = 1,
+                    color = "#fff",
+                ),
             ),
             render.Text(
                 content = textTwo,
                 color = "#FFFFFF",
-                font = "tb-8"
-            )
+                font = "tb-8",
+            ),
         ]
     else:
         indexes = getTopTwo(todaysCount)
         average = getAverage(indexes)
+
         # Graphics are three layers:
         # First, sky. Based on average pollen.
         # Second, ground. Bare if grass isn't high pollen, grassy if it is.
@@ -112,8 +114,8 @@ def main(config):
                         child = render.Text(
                             content = "POLLEN COUNT",
                             font = "tb-8",
-                            color = "#3D1F01"
-                        )
+                            color = "#3D1F01",
+                        ),
                     ),
                     render.Row(
                         children = [
@@ -122,12 +124,12 @@ def main(config):
                                     render.Image(
                                         src = skySrc,
                                         width = 31,
-                                        height = 24
+                                        height = 24,
                                     ),
                                     render.Image(
                                         src = groundSrc,
                                         width = 31,
-                                        height = 24
+                                        height = 24,
                                     ),
                                     firstMixin,
                                     secondMixin,
@@ -136,15 +138,15 @@ def main(config):
                                         child = render.Text(
                                             font = "tb-8",
                                             content = str(average),
-                                            color = "#3D1F01"
-                                    )
-                                    )
-                                ]
+                                            color = "#3D1F01",
+                                        ),
+                                    ),
+                                ],
                             ),
                             render.Box(
                                 color = COLORS["yellow"],
                                 height = 24,
-                                width = 2
+                                width = 2,
                             ),
                             render.Box(
                                 height = 24,
@@ -152,19 +154,18 @@ def main(config):
                                 child = render.Column(
                                     main_align = "space_between",
                                     cross_align = "center",
-                                    children = textColumn
-                                )
-                            )
-                            
-                        ]
-                    )
-                ]
-            )
+                                    children = textColumn,
+                                ),
+                            ),
+                        ],
+                    ),
+                ],
+            ),
     )
 
 # Checking cache for data already stored.
 def checkLatLngCache(latLng):
-    print("checking cache for: "+latLng)
+    print("checking cache for: " + latLng)
     cachedPollen = cache.get(latLng)
     if cachedPollen == None:
         return None
@@ -185,7 +186,7 @@ def roundToHalf(floatNum):
 
 # Make API call and process data.
 def getTodaysCount(latLng, secret):
-    print("Getting API for: "+latLng+" for "+str(3600*12)+ " seconds")
+    print("Getting API for: " + latLng + " for " + str(3600 * 12) + " seconds")
     url = API_URL_BASE + latLng + SECRET_PROPERTY + secret
     rep = http.get(API_URL_BASE + latLng)
     data = rep.json()
@@ -194,6 +195,7 @@ def getTodaysCount(latLng, secret):
         return data
 
     pollenData = data["data"]["timelines"][0]["intervals"][0]["values"]
+
     # save in cache for 12 hours
     cache.set(latLng, json.encode(pollenData), 3600 * 12)
     return pollenData
@@ -214,12 +216,12 @@ def getTopTwo(indexes):
             aboveOnes.append({
                 "name": getName(index),
                 "index": indexes[index],
-                "color": getColor(indexes[index])
+                "color": getColor(indexes[index]),
             })
     if len(aboveOnes) == 0:
         aboveOnes.append({
             "name": ":)",
-            "color": COLORS["green"]
+            "color": COLORS["green"],
         })
     return aboveOnes
 
@@ -230,20 +232,20 @@ def renderColumn(topItems):
         layout.append(render.Text(
             content = topItems[0]["name"],
             color = topItems[0]["color"],
-            font = "tb-8"
+            font = "tb-8",
         ))
     if len(topItems) >= 2:
         layout.append(render.Padding(
             pad = (2, 2, 2, 2),
             child = render.Box(
-                        height = 1,
-                        color = "#fff"
-                    )
+                height = 1,
+                color = "#fff",
+            ),
         ))
         layout.append(render.Text(
             content = topItems[1]["name"],
             color = topItems[1]["color"],
-            font = "tb-8"
+            font = "tb-8",
         ))
     return layout
 
@@ -251,7 +253,7 @@ def renderColumn(topItems):
 def getColor(index):
     if index >= 2 and index < 3:
         return COLORS["green"]
-    elif index >= 3 and index <4:
+    elif index >= 3 and index < 4:
         return COLORS["yellow"]
     elif index >= 4:
         return COLORS["red"]
@@ -283,7 +285,7 @@ def getGround(topTwo):
 
     if matches == True:
         return images["groundGrass"]
-    
+
     return images["groundBare"]
 
 # Returns array of mixin children (weeds and trees)
@@ -304,9 +306,9 @@ def get_schema():
                 id = "location",
                 name = "Location",
                 desc = "Location required to find pollen count in your area.",
-                icon = "map-location"
-            )
-        ]
+                icon = "map-location",
+            ),
+        ],
     )
 
 images = {
@@ -316,5 +318,5 @@ images = {
     "groundBare": base64.decode("iVBORw0KGgoAAAANSUhEUgAAAB8AAAAYCAYAAAACqyaBAAABhGlDQ1BJQ0MgcHJvZmlsZQAAKJF9kT1Iw0AcxV/TSkUqBe1QxCFDdbIgKuIoVSyChdJWaNXB5NIvaGJIUlwcBdeCgx+LVQcXZ10dXAVB8APE0clJ0UVK/F9SaBHjwXE/3t173L0DhGaNqWZgHFA1y8gkE2K+sCIGXxHAAMKIQpCYqaeyCzl4jq97+Ph6F+dZ3uf+HP1K0WSATySeZbphEa8TT29aOud94girSArxOfGYQRckfuS67PIb57LDAs+MGLnMHHGEWCx3sdzFrGKoxFPEMUXVKF/Iu6xw3uKs1uqsfU/+wlBRW85yneYwklhECmmIkFFHFTVYiNOqkWIiQ/sJD/+Q40+TSyZXFYwc89iACsnxg//B727N0uSEmxRKAD0vtv0xAgR3gVbDtr+Pbbt1AvifgSut499oAjOfpDc6WuwICG8DF9cdTd4DLneA6JMuGZIj+WkKpRLwfkbfVAAGb4G+Vbe39j5OH4AcdbV0AxwcAqNlyl7zeHdvd2//nmn39wMs+XKLkemaAAAAAAZiS0dEAP8A/wD/oL2nkwAAAAlwSFlzAAAOwwAADsMBx2+oZAAAAAd0SU1FB+YEFAApMTOqq+YAAACDSURBVEjH7dHNCcJgDMbxX+vH3VMpvTqIczhCB+rJYZzBHSq8GwjW1st7sD0LRcwfHgIhyRMSgiAIgiD4dYpvDaq6psYTDxwxIqW2T4u6U2r768y86poLzrn5jgNqTLlkwC7HAXtsFjtMWSO2H/kBZdaIF25F1TXTWmcv1/x5mP+f+RuwGBxprnLdvQAAAABJRU5ErkJggg=="),
     "groundGrass": base64.decode("iVBORw0KGgoAAAANSUhEUgAAAB8AAAAYCAMAAAA1ddazAAABhGlDQ1BJQ0MgcHJvZmlsZQAAKJF9kT1Iw0AcxV/TSkUqBe1QxCFDdbIgKuIoVSyChdJWaNXB5NIvaGJIUlwcBdeCgx+LVQcXZ10dXAVB8APE0clJ0UVK/F9SaBHjwXE/3t173L0DhGaNqWZgHFA1y8gkE2K+sCIGXxHAAMKIQpCYqaeyCzl4jq97+Ph6F+dZ3uf+HP1K0WSATySeZbphEa8TT29aOud94girSArxOfGYQRckfuS67PIb57LDAs+MGLnMHHGEWCx3sdzFrGKoxFPEMUXVKF/Iu6xw3uKs1uqsfU/+wlBRW85yneYwklhECmmIkFFHFTVYiNOqkWIiQ/sJD/+Q40+TSyZXFYwc89iACsnxg//B727N0uSEmxRKAD0vtv0xAgR3gVbDtr+Pbbt1AvifgSut499oAjOfpDc6WuwICG8DF9cdTd4DLneA6JMuGZIj+WkKpRLwfkbfVAAGb4G+Vbe39j5OH4AcdbV0AxwcAqNlyl7zeHdvd2//nmn39wMs+XKLkemaAAAAAAlwSFlzAAAOwwAADsMBx2+oZAAAAAd0SU1FB+YEFAApOqR4cm4AAADDUExURQAAABeWGxeWGxeWGxeWGxeWGxeWGxeWGxeWGxeWGxeWGxeWGxeWGxeWGxeWGxeWGxeWGxeWGxeWGxeWGxeWGxeWGxeWGxeWGxeWGxeWGxeWGxeWGxeWGxeWGxeWGxeWGxeWGxiTHBeWGxeWGxeWGxeWGxeWGxeWGxeWGxeWGxeWGxiTHBeVGxeWGxiTHBiUHBiVGxiVHBmQHRmRHRmSHRqNHhqOHhqPHRqPHhuKHxuLHxyIHxyIIByJHxyJIByKH////yG5xVgAAAAsdFJOUwALIDIzNjxYWWdwdX6KmJ+iq7K+wMjKy83V2ODj5ujr7O3v9fb3+Pn8/f7+eXDxWAAAAAFiS0dEQP7ZXNgAAAC6SURBVBgZ7cFpUsJAFEbRz9kWZ8R5xinYtwkxJBD6xf3vypbyh8oKrPIc/fubWHJa4FaP9clJj1tIy9L+bgetSXIHK87v9DckrT+cb96fnrhOXxpsZ2fu+fqod/jK3ezm9qo32CPrkj3RvXi5FNQGVsH7MLd8BgS+1CA8bwQDPFBawCwHCihjjigCP9TWGDQRogXEZMJvBUyHEAiIpCRpRywICBhHkqlnbtQyV1UkAsaRb0JsSXzTFMAHK/ouxphVAe8AAAAASUVORK5CYII="),
     "trees": base64.decode("iVBORw0KGgoAAAANSUhEUgAAAB8AAAAYCAMAAAA1ddazAAABhGlDQ1BJQ0MgcHJvZmlsZQAAKJF9kT1Iw0AcxV/TSkUqBe1QxCFDdbIgKuIoVSyChdJWaNXB5NIvaGJIUlwcBdeCgx+LVQcXZ10dXAVB8APE0clJ0UVK/F9SaBHjwXE/3t173L0DhGaNqWZgHFA1y8gkE2K+sCIGXxHAAMKIQpCYqaeyCzl4jq97+Ph6F+dZ3uf+HP1K0WSATySeZbphEa8TT29aOud94girSArxOfGYQRckfuS67PIb57LDAs+MGLnMHHGEWCx3sdzFrGKoxFPEMUXVKF/Iu6xw3uKs1uqsfU/+wlBRW85yneYwklhECmmIkFFHFTVYiNOqkWIiQ/sJD/+Q40+TSyZXFYwc89iACsnxg//B727N0uSEmxRKAD0vtv0xAgR3gVbDtr+Pbbt1AvifgSut499oAjOfpDc6WuwICG8DF9cdTd4DLneA6JMuGZIj+WkKpRLwfkbfVAAGb4G+Vbe39j5OH4AcdbV0AxwcAqNlyl7zeHdvd2//nmn39wMs+XKLkemaAAAAAAlwSFlzAAAOwwAADsMBx2+oZAAAAAd0SU1FB+YEFAAqEFTu6HsAAAGtUExURQAAADN2KFtFJHVTID+yK0liJjN2KFtFJH9aJGZLJDN2KDN2KDN2KFtFJD+yKzN2KDN2KDN2KDR+KDeLKTaFKTaEKTlyKGNJJDhzKDN2KDN2KDWCKDN2KDN2KDN2KDiQKTymKltFJD6sK2xPJHtYJFtFJDN2KDN2KDyiKn5aJH9aJH9aJDaIKTN2KFtFJFtFJDV/KHxZJDN2KFtFJDZ0KDaGKTN2KFtFJHJTJDN2KDt5JzaGKTmUKjN2KDN2KDR6KDN2KDeHKTiQKTmYKjN2KDqcKjueKltFJDN2KDR6KDN2KFtFJDN2KDiSKVtFJDN2KDWBKTaFKDiIKTmVKTqYKjqZKjymKj2nKj2pKj6vK1tFJGtPJH5aJDN2KDR1JzR2JzR2KDR6KDR9KDR+KDV1KDWAKDWDKDaEKTaFKTaIKTeLKTeNKTiPKTiSKTlyKDmUKTmVKTmYKjmZKTqbKjufKjugKjyjKjylKj2pKj2qKz6sKz6tKz6uKz6vKz+wKz+xKz+yK0hkJk5dJlBgJlNVJVtFJGFIJGVLJGddImtOJG1QJHRUJHlXJH9aJP///3of50QAAABddFJOUwAZGRkkL0BAQERSZmdnbnB1dnx9foKDi4yNmJicp6mqrbK3vb6/wcLLy8zN0dTW19jZ3OXm5ufn6Ozu8PDy9PX29vf4+fn5+vv7/Pz9/f3+/v7+/v7+/v7+/v7+/lEP2ZUAAAABYktHRI6CBbNvAAABLUlEQVQYGeXBVVvCABgG0Bdj1hBsxe7u7sIO7EA/1FlMxUIUiW3GxNp/lg31Qh9uvPUc/AMGc05KNsJiasguSqsIg+kXHMQLUhqCTCx+MtIZHXHnN+NLiUC3mIpvUQjS9RHZPZJEvCACre4ZfClYjwfA0oGPJ+JcO8fDTLKLyMkgZESsAJBENEe2Lds8WeyL01fXkijooFlzlTEAmihon+d3ifOtEG3TUD4wOAp2wiE0AJ2kurj1+omcfiLO43WzugUPZdHyZS5g6jWTyjLQlmdIaDnd68pjgPJJY63l5LAHmui7x+dIqArltxhoWLKQ3euDKkIOvOuh0stKMUJ06fcPmUXQWF+VDKjan5RKfJKnNuIQYn1RSqCabZarqvHLWEBpRHil9XUdm7H4iw9t7k0FgbAqygAAAABJRU5ErkJggg=="),
-    "weeds": base64.decode("iVBORw0KGgoAAAANSUhEUgAAAB8AAAAYCAYAAAACqyaBAAABhGlDQ1BJQ0MgcHJvZmlsZQAAKJF9kT1Iw0AcxV/TSkUqBe1QxCFDdbIgKuIoVSyChdJWaNXB5NIvaGJIUlwcBdeCgx+LVQcXZ10dXAVB8APE0clJ0UVK/F9SaBHjwXE/3t173L0DhGaNqWZgHFA1y8gkE2K+sCIGXxHAAMKIQpCYqaeyCzl4jq97+Ph6F+dZ3uf+HP1K0WSATySeZbphEa8TT29aOud94girSArxOfGYQRckfuS67PIb57LDAs+MGLnMHHGEWCx3sdzFrGKoxFPEMUXVKF/Iu6xw3uKs1uqsfU/+wlBRW85yneYwklhECmmIkFFHFTVYiNOqkWIiQ/sJD/+Q40+TSyZXFYwc89iACsnxg//B727N0uSEmxRKAD0vtv0xAgR3gVbDtr+Pbbt1AvifgSut499oAjOfpDc6WuwICG8DF9cdTd4DLneA6JMuGZIj+WkKpRLwfkbfVAAGb4G+Vbe39j5OH4AcdbV0AxwcAqNlyl7zeHdvd2//nmn39wMs+XKLkemaAAAAAAZiS0dEAP8A/wD/oL2nkwAAAAlwSFlzAAAOwwAADsMBx2+oZAAAAAd0SU1FB+YEFAAqCEeCcC0AAAENSURBVEjH7ZKxSgNBEIYHw3TaiFHCuFP5BF5n5TPYWU067yEixDdQrLSwMpDWwso0aidoIT6ABBKIqHGyK4sKp5Vwgc15KGLhftXw8/P/MzAAkUgkEolE/hVW+e1uYHb+pLxzNn9LdcyKPCQ4/e0C73irMLyOaUFx4h2/T8itTSpc9o4bje2ZfadmmNOb+TDvuOIdb4QydGiuLi4XVkjwvuSRNXAjc+jUHDw9Gk+Ci4Frmp9zv0eD5xG/Bjzdk9NqFtCX+j3KSHBs4ePO3DUAALSPZm9IMCHB5KttSTAlwZeAfk6CDwF9nQT3fuPzK1Z51yqvlfCuWmVvlbt5feoH/ZsAkAJAq6QfAUDzwgciyGV/2hcqcgAAAABJRU5ErkJggg==")
+    "weeds": base64.decode("iVBORw0KGgoAAAANSUhEUgAAAB8AAAAYCAYAAAACqyaBAAABhGlDQ1BJQ0MgcHJvZmlsZQAAKJF9kT1Iw0AcxV/TSkUqBe1QxCFDdbIgKuIoVSyChdJWaNXB5NIvaGJIUlwcBdeCgx+LVQcXZ10dXAVB8APE0clJ0UVK/F9SaBHjwXE/3t173L0DhGaNqWZgHFA1y8gkE2K+sCIGXxHAAMKIQpCYqaeyCzl4jq97+Ph6F+dZ3uf+HP1K0WSATySeZbphEa8TT29aOud94girSArxOfGYQRckfuS67PIb57LDAs+MGLnMHHGEWCx3sdzFrGKoxFPEMUXVKF/Iu6xw3uKs1uqsfU/+wlBRW85yneYwklhECmmIkFFHFTVYiNOqkWIiQ/sJD/+Q40+TSyZXFYwc89iACsnxg//B727N0uSEmxRKAD0vtv0xAgR3gVbDtr+Pbbt1AvifgSut499oAjOfpDc6WuwICG8DF9cdTd4DLneA6JMuGZIj+WkKpRLwfkbfVAAGb4G+Vbe39j5OH4AcdbV0AxwcAqNlyl7zeHdvd2//nmn39wMs+XKLkemaAAAAAAZiS0dEAP8A/wD/oL2nkwAAAAlwSFlzAAAOwwAADsMBx2+oZAAAAAd0SU1FB+YEFAAqCEeCcC0AAAENSURBVEjH7ZKxSgNBEIYHw3TaiFHCuFP5BF5n5TPYWU067yEixDdQrLSwMpDWwso0aidoIT6ABBKIqHGyK4sKp5Vwgc15KGLhftXw8/P/MzAAkUgkEolE/hVW+e1uYHb+pLxzNn9LdcyKPCQ4/e0C73irMLyOaUFx4h2/T8itTSpc9o4bje2ZfadmmNOb+TDvuOIdb4QydGiuLi4XVkjwvuSRNXAjc+jUHDw9Gk+Ci4Frmp9zv0eD5xG/Bjzdk9NqFtCX+j3KSHBs4ePO3DUAALSPZm9IMCHB5KttSTAlwZeAfk6CDwF9nQT3fuPzK1Z51yqvlfCuWmVvlbt5feoH/ZsAkAJAq6QfAUDzwgciyGV/2hcqcgAAAABJRU5ErkJggg=="),
 }
