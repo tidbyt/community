@@ -136,10 +136,11 @@ def get_stations(location):
             display = station["name"],
             value = station["station_id"],
         )
-        for station in sorted(stations, key = lambda station: square_distance(loc["lat"], loc["lng"], station["lat"], station["lon"]))]
+        for station in sorted(stations, key = lambda station: square_distance(loc["lat"], loc["lng"], station["lat"], station["lon"]))
+    ]
 
 def square_distance(lat1, lon1, lat2, lon2):
-    return int((float(lat2) - float(lat1))*1000) ^ 2 + int((float(lon2) - float(lon1))*1000) ^ 2
+    return int((float(lat2) - float(lat1)) * 1000) ^ 2 + int((float(lon2) - float(lon1)) * 1000) ^ 2
 
 def fetch_cached(url, ttl):
     cached = cache.get(url)
