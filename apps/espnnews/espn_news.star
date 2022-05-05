@@ -2,15 +2,14 @@
 Applet: ESPN News
 Summary: Get top headlines from ESPN
 Description: Displays the top three headlines from the "Top Headlines" section on ESPN or a specific user-selected sport.
-Author: rs7q5 (RIS)
+Author: rs7q5
 """
 #espn_news.star
 #Created 20211231 RIS
-#Last Modified 20220223 RIS
+#Last Modified 20220501 RIS
 
 load("render.star", "render")
 load("http.star", "http")
-load("encoding/base64.star", "base64")
 load("cache.star", "cache")
 load("schema.star", "schema")
 
@@ -60,49 +59,48 @@ def main(config):
         print("Miss! Calling ESPN data.")
         rep = http.get(ESPN_API_URL)
         if rep.status_code != 200:
-            fail("ESPN request failed with status %d", rep.status_code)
+            #fail("ESPN request failed with status %d", rep.status_code)
+            title = ["Error getting data!!!!", "", ""]
+        else:
+            #get top 3 newest headlines
+            title = []
+            for i in range(3):
+                title.append(rep.json()["headlines"][i]["headline"])
 
-        #get top 3 newest headlines
-        title = []
-        for i in range(3):
-            title.append(rep.json()["headlines"][i]["headline"])
+            #format strings so they are all the same length (leads to better scrolling)
+            max_len = max([len(x) for x in title])  #length of each string
 
-        #format strings so they are all the same length (leads to better scrolling)
-        max_len = max([len(x) for x in title])  #length of each string
+            #add padding to shorter titles
+            for i, x in enumerate(title):
+                title[i] = x + " " * (max_len - len(x))
 
-        #add padding to shorter titles
-        for i, x in enumerate(title):
-            title[i] = x + " " * (max_len - len(x))
-
-        #cache headlines
-        for (i, x) in enumerate(title):
-            cache_name = "title_rate" + str(i + 1) + cached_sport_txt  #i+1 just to be consistent when retrieving cached names
-            cache.set(cache_name, x, ttl_seconds = 14400)
+            #cache headlines
+            for (i, x) in enumerate(title):
+                cache_name = "title_rate" + str(i + 1) + cached_sport_txt  #i+1 just to be consistent when retrieving cached names
+                cache.set(cache_name, x, ttl_seconds = 14400)
 
     #format output
     title_format = []
     if config.bool("scroll_vertical", False):  #scroll text vertically if true
         #redo titles to make sure words don't get cut off
+        title_max_line = 12  #max of 12 lines in a headline
         for title_tmp in title:
-            #split words longer than 9 to a word
-            title_tmp2 = ""
-            for word in title_tmp.split(" "):
-                if len(word) >= 9:
-                    title_tmp2 += split_word(word, 9, join_word = True) + " "
-                else:
-                    title_tmp2 += word + " "
-            title_format.append(render.Padding(render.WrappedText(content = title_tmp2, font = font, linespacing = 1), pad = (0, 0, 0, 6)))
+            title_tmp2 = split_sentence(title_tmp.rstrip(), 9, join_word = True).rstrip()
+
+            title_format.append(render.Padding(child = render.WrappedText(content = title_tmp2, font = font, linespacing = 1), pad = (0, 0, 0, 6)))
+
         title_format2 = render.Marquee(
             height = 32,
             scroll_direction = "vertical",
             child = render.Column(
-                main_align = "space_between",
+                #main_align="space_between",
                 cross_align = "start",
                 children = title_format,
             ),
-            offset_start = 0,
-            offset_end = 0,
+            offset_start = 32,
+            offset_end = 32,
         )
+
     else:
         for title_tmp in title:
             title_format.append(render.Text(content = title_tmp, font = font))
@@ -114,8 +112,8 @@ def main(config):
                 expanded = True,
                 children = title_format,
             ),
-            offset_start = 0,
-            offset_end = 0,
+            offset_start = 64,
+            offset_end = 64,
         )
     return render.Root(
         delay = int(config.str("speed", "30")),  #speed up scroll text
@@ -174,6 +172,17 @@ def get_schema():
             ),
         ],
     )
+
+def split_sentence(sentence, span, **kwargs):
+    #split long sentences along with long words
+    sentence_new = ""
+    for word in sentence.split(" "):
+        if len(word) >= span:
+            sentence_new += split_word(word, span, **kwargs) + " "
+        else:
+            sentence_new += word + " "
+
+    return sentence_new
 
 def split_word(word, span, join_word = False):
     #split long words

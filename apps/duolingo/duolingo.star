@@ -21,9 +21,9 @@ load("time.star", "time")
 DEFAULT_USERNAME = "saltedlolly"
 DEFAULT_DAILY_XP_TARGET = "100"  # Choose the desired daily XP goal. The XP goal set in the Duolingo app is ignored.
 DEFAULT_TIMEZONE = "Europe/London"  # Affects when the daily XP counter resets.
-DEFAULT_DISPLAY_VIEW = "today"  # can be 'today', 'week' or 'twoweeks'
+DEFAULT_DISPLAY_VIEW = "week"  # can be 'today', 'week' or 'twoweeks'
 DEFAULT_NICKNAME = ""  # Max five characters. Displays on screen to identify the Duolingo user.
-DEFAULT_SHOW_EXTRA_STATS = "totalxp"  # Display currennt Streak and total XP score on the week chart. Can be 'none', 'chartxp' or 'totalxp'
+DEFAULT_SHOW_EXTRA_STATS = "totalxp"  # Display currennt Streak and total XP score on the week chart. Can be 'none', 'todayxp', 'chartxp' or 'totalxp'
 
 # 18 x 18 Standing Blinking, Flap
 DUOLINGO_ICON_STANDING = base64.decode("""
@@ -148,6 +148,7 @@ DISPLAY_VIEW_LIST = {
 
 DISPLAY_HEADER_LIST = {
     "None": "none",
+    "Streak + Today XP": "todayxp",
     "Streak + Chart XP": "chartxp",
     "Streak + Total XP": "totalxp",
 }
@@ -158,18 +159,23 @@ XP_TARGET_LIST = {
     "30xp": "30",
     "40xp": "40",
     "50xp": "50",
+    "60xp": "60",
     "75xp": "75",
     "100xp": "100",
     "125xp": "125",
     "150xp": "150",
     "175xp": "175",
     "200xp": "200",
+    "250xp": "250",
+    "300xp": "300",
+    "400xp": "400",
+    "500xp": "500",
 }
 
 def get_schema():
     displayoptions = [
-        schema.Option(display = displayv, value = displayv)
-        for displayv in DISPLAY_VIEW_LIST
+        schema.Option(display = displaykey, value = displayval)
+        for displaykey, displayval in DISPLAY_VIEW_LIST.items()
     ]
 
     xptargetoptions = [
@@ -178,8 +184,8 @@ def get_schema():
     ]
 
     headeroptions = [
-        schema.Option(display = headerd, value = headerd)
-        for headerd in DISPLAY_HEADER_LIST
+        schema.Option(display = headerkey, value = headerval)
+        for headerkey, headerval in DISPLAY_HEADER_LIST.items()
     ]
 
     return schema.Schema(
@@ -211,7 +217,7 @@ def get_schema():
             schema.Dropdown(
                 id = "extra_week_stats",
                 name = "Extra Chart Stats?",
-                desc = "Optionally display the user's Streak and Total XP, or the XP for the current chart duration.",
+                desc = "Optionally display the user's Streak and Total XP, Today's XP, or the XP for the current chart duration.",
                 icon = "rectangle-wide",
                 default = headeroptions[0].value,
                 options = headeroptions,
@@ -229,10 +235,10 @@ def get_schema():
 def main(config):
     # Get Schema variables
     duolingo_username = config.get("duolingo_username", DEFAULT_USERNAME)
-    display_view = DISPLAY_VIEW_LIST.get(config.get("display_view"), DEFAULT_DISPLAY_VIEW)
+    display_view = config.str("display_view", DEFAULT_DISPLAY_VIEW)
     xp_target = int(config.str("xp_target", DEFAULT_DAILY_XP_TARGET))
     nickname = config.get("nickname", DEFAULT_NICKNAME)
-    display_extra_stats = config.get("extra_week_stats", DEFAULT_SHOW_EXTRA_STATS)
+    display_extra_stats = config.str("extra_week_stats", DEFAULT_SHOW_EXTRA_STATS)
 
     print("XP Target: " + str(xp_target))
 
@@ -1747,11 +1753,13 @@ def main(config):
 
             week_progress_chart.append(day_progress_chart)
 
-        if display_extra_stats != "None":
+        if display_extra_stats != "none":
             # Choose which XP count to display
-            if display_extra_stats == "Streak + Chart XP":
+            if display_extra_stats == "todayxp":
+                xp_score = str(duolingo_xptoday)
+            if display_extra_stats == "chartxp":
                 xp_score = str(week_xp_scores_total)
-            if display_extra_stats == "Streak + Total XP":
+            if display_extra_stats == "totalxp":
                 xp_score = str(duolingo_totalxp_now)
 
             display_stats_header = render.Row(
