@@ -571,7 +571,10 @@ def main(config):
 
     here_from_schema = config.get("location")
     here = json.decode(here_from_schema) if here_from_schema else DEFAULT_LOCATION
-    if time.now().in_location(here.get("timezone")).hour == 17:
+    current_time_here = time.now().in_location(here.get("timezone"))
+    threshold_time = int("20")
+
+    if current_time_here.hour == 17 and current_time_here.minute < threshold_time:
         return render.Root(
             delay = 100,
             child = render.Column(
@@ -680,5 +683,12 @@ def get_schema():
                 desc = "Location for which to display the sun rise and set times.",
                 icon = "place",
             ),
+            #schema.Text(
+            #    id = "past_the_hour",
+            #    name = "Drink flash time",
+            #    desc = "How long in minutes after the 5 o'clock hour to display the flashing drink. 0 will disable.",
+            #    icon = "gear",
+            #),
+            # TODO: add user-configurable time after the hour
         ],
     )
