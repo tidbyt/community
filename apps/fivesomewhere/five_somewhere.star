@@ -563,6 +563,10 @@ def main(config):
     current_time_here = time.now().in_location(config.get("$tz", "America/Los_Angeles"))
     threshold_minutes = int(config.get("past_the_hour", "15"))
     if current_time_here.hour == 17 and current_time_here.minute < threshold_minutes:
+        if current_time_here.format("Monday") == "Friday":
+            completion_message = "PARTY LIKE IT'S FRIDAY"
+        else:
+            completion_message = "You made it! Nice job!"
         return render.Root(
             delay = 100,
             child = render.Column(
@@ -614,7 +618,7 @@ def main(config):
                     ),
                     render.Marquee(
                         width = 64,
-                        child = render.Text("You made it! Nice job!", color = "#09f"),
+                        child = render.Text(completion_message, color = "#09f"),
                     ),
                 ],
             ),
