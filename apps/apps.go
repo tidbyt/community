@@ -78,6 +78,7 @@ import (
 	"tidbyt.dev/community/apps/pathtrainschedule"
 	"tidbyt.dev/community/apps/phaseofmoon"
 	"tidbyt.dev/community/apps/pokedex"
+	"tidbyt.dev/community/apps/pollencount"
 	"tidbyt.dev/community/apps/powerball"
 	"tidbyt.dev/community/apps/purpleair"
 	"tidbyt.dev/community/apps/randomslackmoji"
@@ -187,6 +188,7 @@ func GetManifests() []manifest.Manifest {
 		pathtrainschedule.New(),
 		phaseofmoon.New(),
 		pokedex.New(),
+		pollencount.New(),
 		powerball.New(),
 		purpleair.New(),
 		randomslackmoji.New(),
