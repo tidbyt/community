@@ -114,11 +114,11 @@ def get_stops(location):
             display = stop["title"],
             value = stop["stopId"],
         )
-        for stop in sorted(stops, key = lambda stop: square_distance(loc["lat"], loc["lon"], stop["lat"], stop["lon"]))
+        for stop in sorted(stops, key = lambda stop: square_distance(loc["lat"], loc["lng"], stop["lat"], stop["lon"]))
     ]
 
 def square_distance(lat1, lon1, lat2, lon2):
-    return (lat2 - lat1) ^ 2 + (lon2 - lon1) ^ 2
+    return int((float(lat2) - float(lat1))*1000) ^ 2 + int((float(lon2) - float(lon1))*1000) ^ 2
 
 def fetch_cached(url, ttl):
     cached = cache.get(url)
