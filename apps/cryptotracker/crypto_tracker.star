@@ -83,12 +83,12 @@ def display_price_change(current_price, first_price, color, tr_format_pchange):
         offset_end = 0,
     )
 
-def display_percentage_change(current_price, first_price, color, tr_format_pchange):
+def display_percentage_change(current_price, first_price, color, tr_format_percent):
     "returns crypto percentage change render"
 
     pct_change = ((current_price / first_price) - 1) * 100
 
-    if tr_format_pchange and math.fabs(pct_change) >= 1.0:
+    if tr_format_percent and math.fabs(pct_change) >= 1.0:
         disp_text = humanize.comma(int(pct_change))
     else:
         disp_text = humanize.comma(int(pct_change * 100) / 100.0)
