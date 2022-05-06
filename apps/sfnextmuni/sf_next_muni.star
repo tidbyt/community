@@ -351,7 +351,7 @@ def getLongRow(routeTag, destination, predictions, config):
         )
     else:
         row.append(
-            render.Text(routeTag + " ", font = "tom-thumb")
+            render.Text(routeTag + " ", font = "tom-thumb"),
         )
     if "long" == config.get("prediction_format"):
         row.append(
