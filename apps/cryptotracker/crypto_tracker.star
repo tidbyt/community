@@ -206,7 +206,7 @@ def main(config):
                                     pad = (1, 0, 0, 0),
                                 ),
                                 render.Padding(
-                                    child = display_percentage_change(y[-1], y[0], color, tr_format_pchange),
+                                    child = display_percentage_change(y[-1], y[0], color, tr_format_percent),
                                     pad = (1, 0, 0, 0),
                                 ),
                             ],
