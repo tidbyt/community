@@ -31,9 +31,9 @@ COMPACT_FONT = "tom-thumb"
 """The use of two fonts here means we won't have to Marquee the origin/destination labels until they are very long"""
 
 RATIO_COLORS = {
-    1.1: "#090",
-    1.3: "#CC0",
-    1.6: "#F50",
+    0.0: "#090",
+    1.1: "#CC0",
+    1.4: "#F50",
     2.0: "#900",
 }
 """
