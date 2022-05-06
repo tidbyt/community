@@ -408,13 +408,15 @@ def bing_directions(origin, destination, mode, key, **kwargs):
         print("Returning cached data from %s" % cache_id)
         data = json.decode(data)
     else:
-        req_url = "%s/Routes?travelMode=%s&key=%s&wayPoint.1=%s&wayPoint.2=%s&optimize=timeWithTraffic" % (
+        req_url = "%s/Routes/%s?key=%s&wayPoint.1=%s&wayPoint.2=%s" % (
             BING_URL,
             mode,
             key,
             start,
             end,
         )
+        if mode == "Driving":
+            req_url += "&optimize=timeWithTraffic"
         if len(kwargs.get("avoids", [])):
             req_url += "&avoid=" + ",".join([a.replace(" ", "%20") for a in kwargs["avoids"]])
 
@@ -443,7 +445,7 @@ def bing_directions(origin, destination, mode, key, **kwargs):
         travel_time, travel_time_with_traffic = None, None
 
     # This indicates some kind of data issue that we'll override with traffic-naive duration.
-    if travel_time_with_traffic == -1:
+    if travel_time_with_traffic in (-1, 0):
         travel_time_with_traffic = travel_time
 
     print("Returning directions from %s to %s, estimated time %d vs. %d" % (start, end, travel_time_with_traffic, travel_time))
