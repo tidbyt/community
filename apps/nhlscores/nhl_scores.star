@@ -87,6 +87,8 @@ def main(config):
         awayLogo = get_logoType(away, awayLogoURL)
         homeLogoSize = get_logoSize(home)
         awayLogoSize = get_logoSize(away)
+        homeScoreColor = "#fff"
+        awayScoreColor = "#fff"
         teamFont = "Dina_r400-6"
         scoreFont = "Dina_r400-6"
 
