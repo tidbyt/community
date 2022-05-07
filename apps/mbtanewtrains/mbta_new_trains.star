@@ -99,11 +99,11 @@ def mapRouteToColor(route, config):
     if len(split) > 1:
         line = split[1]
 
-    if "Red" in route and config.bool("showRed"):
+    if "Red" in route and config.bool("disableRed") != True:
         return (RED, line)
-    elif "Green" in route and config.bool("showGreen"):
+    elif "Green" in route and config.bool("disableGreen") != True:
         return (GREEN, line)
-    elif "Orange" in route and config.bool("showOrange"):
+    elif "Orange" in route and config.bool("disableOrange") != True:
         return (ORANGE, line)
 
     return None
@@ -174,9 +174,12 @@ def displayIndividualTrains(apiResult, config):
         ),
     )
 
-def renderDigestRow(color, count, enabled):
-    if enabled:
-        return render.Row(
+def renderDigestRow(color, count, disabled):
+    if not disabled:
+        return render.Box(
+                width= 20,
+                height= 10,
+                child=render.Row(
                     children = [
                         render.Circle(
                             color=color,
@@ -187,9 +190,7 @@ def renderDigestRow(color, count, enabled):
                             content = "{} ".format(count),
                         ),
                     ],
-                    # main_align="space_between",
-                    # cross_align="center",
-                    # expanded=True
+                )
         )
     else:
         return
@@ -210,9 +211,9 @@ def displayDigest(apiResult, config):
     return render.Root(
         child = render.Column(
             children = [
-                renderDigestRow(RED,    r,   config.bool("showRed")),
-                renderDigestRow(GREEN,  g,   config.bool("showGreen")),
-                renderDigestRow(ORANGE, o,   config.bool("showOrange")),
+                renderDigestRow(RED,    r,   config.bool("disableRed")),
+                renderDigestRow(GREEN,  g,   config.bool("disableGreen")),
+                renderDigestRow(ORANGE, o,   config.bool("disableOrange")),
             ]
         )
 )
@@ -243,25 +244,25 @@ def get_schema():
                 default = False
             ),
             schema.Toggle(
-                id = "showRed",
+                id = "disableRed",
                 name = "Show Red Line Trains",
-                desc = "If disabled, new trains on the red line will be hidden.",
+                desc = "If enabled, new trains on the red line will be hidden.",
                 icon = "cog",
-                default = True
+                default = False
             ),
             schema.Toggle(
-                id = "showGreen",
+                id = "disableGreen",
                 name = "Show Green Line Trains",
-                desc = "If disabled, new trains on the green line will be hidden.",
+                desc = "If enabled, new trains on the green line will be hidden.",
                 icon = "cog",
-                default = True
+                default = False
             ),
             schema.Toggle(
-                id = "showOrange",
+                id = "disableOrange",
                 name = "Show Orange Line Trains",
-                desc = "If disabled, new trains on the orange line will be hidden.",
+                desc = "If enabled, new trains on the orange line will be hidden.",
                 icon = "cog",
-                default = True
+                default = False
             ),
         ]
     )
