@@ -47,6 +47,7 @@ import (
 	"tidbyt.dev/community/apps/hvvdepartures"
 	"tidbyt.dev/community/apps/ifparank"
 	"tidbyt.dev/community/apps/isitchristmas"
+	"tidbyt.dev/community/apps/islamicprayer"
 	"tidbyt.dev/community/apps/isstracker"
 	"tidbyt.dev/community/apps/jokesjokeapi"
 	"tidbyt.dev/community/apps/launchcountdown"
@@ -59,6 +60,7 @@ import (
 	"tidbyt.dev/community/apps/mnlightrail"
 	"tidbyt.dev/community/apps/moretransit"
 	"tidbyt.dev/community/apps/moviequotes"
+	"tidbyt.dev/community/apps/muslimprayer"
 	"tidbyt.dev/community/apps/natdex"
 	"tidbyt.dev/community/apps/nationaltoday"
 	"tidbyt.dev/community/apps/nbascores"
@@ -134,7 +136,6 @@ func GetManifests() []manifest.Manifest {
 		countdownclock.New(),
 		cryptotracker.New(),
 		dailykanji.New(),
-		countdownclock.New(),
 		dateprogress.New(),
 		datetimeclock.New(),
 		daynightmap.New(),
@@ -158,6 +159,7 @@ func GetManifests() []manifest.Manifest {
 		hvvdepartures.New(),
 		ifparank.New(),
 		isitchristmas.New(),
+		islamicprayer.New(),
 		isstracker.New(),
 		jokesjokeapi.New(),
 		launchcountdown.New(),
@@ -169,6 +171,7 @@ func GetManifests() []manifest.Manifest {
 		mnlightrail.New(),
 		moretransit.New(),
 		moviequotes.New(),
+		muslimprayer.New(),
 		natdex.New(),
 		nationaltoday.New(),
 		nbascores.New(),
