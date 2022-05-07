@@ -93,24 +93,28 @@ def mapStationIdToName(id):
     stations = fetchStationNames(True)
     return stations[id]
 
-def mapRouteToColor(route):
+def mapRouteToColor(route, config):
     split = route.split("-")
     line = ""
     if len(split) > 1:
         line = split[1]
 
-    if "Red" in route:
+    if "Red" in route and config.bool("showRed"):
         return (RED, line)
-    elif "Green" in route:
+    elif "Green" in route and config.bool("showGreen"):
         return (GREEN, line)
-    elif "Orange" in route:
+    elif "Orange" in route and config.bool("showOrange"):
         return (ORANGE, line)
-    else:
-        return ("#0ff", line)
 
-def createTrain(loc):
+    return None
+
+def createTrain(loc, config):
+    routeResult = mapRouteToColor(loc["route"], config)
+    if routeResult == None:
+        return
+    (color, line) = routeResult
+
     stationName = mapStationIdToName(loc["stationId"])
-    (color, line) = mapRouteToColor(loc["route"])
 
     if line != "":
         stationName += " (" + line + ")"
@@ -139,10 +143,12 @@ def createTrain(loc):
         ],
     )
 
-def displayIndividualTrains(apiResult):
+def displayIndividualTrains(apiResult, config):
     trains = []
     for loc in apiResult:
-        trains.append(createTrain(loc))
+        train = createTrain(loc, config)
+        if train != None:
+            trains.append(train)
 
     #    for mock in mockData:
     #        trains.append(createTrain(mock))
@@ -168,24 +174,27 @@ def displayIndividualTrains(apiResult):
         ),
     )
 
-def renderDigestRow(color, count):
-    return render.Row(
-        children = [
-            render.Circle(
-                color=color,
-                diameter= 9,
-                child = render.Text("T")
-            ),
-            render.Text(
-                content = "{} ".format(count),
-            ),
-        ],
-        # main_align="space_between",
-        # cross_align="center",
-        # expanded=True
-    )
+def renderDigestRow(color, count, enabled):
+    if enabled:
+        return render.Row(
+                    children = [
+                        render.Circle(
+                            color=color,
+                            diameter= 9,
+                            child = render.Text("T")
+                        ),
+                        render.Text(
+                            content = "{} ".format(count),
+                        ),
+                    ],
+                    # main_align="space_between",
+                    # cross_align="center",
+                    # expanded=True
+        )
+    else:
+        return
 
-def displayDigest(apiResult):
+def displayDigest(apiResult, config):
     r = 0
     g = 0
     o = 0
@@ -201,9 +210,9 @@ def displayDigest(apiResult):
     return render.Root(
         child = render.Column(
             children = [
-                renderDigestRow(RED, r),
-                renderDigestRow(GREEN, g),
-                renderDigestRow(ORANGE, o),
+                renderDigestRow(RED,    r,   config.bool("showRed")),
+                renderDigestRow(GREEN,  g,   config.bool("showGreen")),
+                renderDigestRow(ORANGE, o,   config.bool("showOrange")),
             ]
         )
 )
@@ -216,9 +225,9 @@ def main(config):
     apiResult = res.json()
 
     if config.bool("showDigestOnly"):
-        return displayDigest(apiResult)
+        return displayDigest(apiResult, config)
     else:
-        return displayIndividualTrains(apiResult)
+        return displayIndividualTrains(apiResult, config)
 
 
 
@@ -229,9 +238,30 @@ def get_schema():
             schema.Toggle(
                 id = "showDigestOnly",
                 name = "Show Counts Only",
-                desc = "Show just a counter of active new trains, not the individual trains and their direction.",
+                desc = "Show just a counter of how many active new trains are currently in service. If disabled, this app shows the the individual trains and their location.",
                 icon = "cog",
                 default = False
+            ),
+            schema.Toggle(
+                id = "showRed",
+                name = "Show Red Line Trains",
+                desc = "If disabled, new trains on the red line will be hidden.",
+                icon = "cog",
+                default = True
+            ),
+            schema.Toggle(
+                id = "showGreen",
+                name = "Show Green Line Trains",
+                desc = "If disabled, new trains on the green line will be hidden.",
+                icon = "cog",
+                default = True
+            ),
+            schema.Toggle(
+                id = "showOrange",
+                name = "Show Orange Line Trains",
+                desc = "If disabled, new trains on the orange line will be hidden.",
+                icon = "cog",
+                default = True
             ),
         ]
     )
