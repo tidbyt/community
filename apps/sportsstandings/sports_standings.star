@@ -52,7 +52,7 @@ def main(config):
             stats = get_nbastats()
         elif sport == "NFL":
             stats = get_nflstats()
-        
+
         #cache the data
         if stats != None:
             cache.set("stats_rate/%s" % sport, json.encode(stats), ttl_seconds = 28800)  #grabs it three times a day
