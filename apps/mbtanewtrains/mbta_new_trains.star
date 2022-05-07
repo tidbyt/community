@@ -9,7 +9,8 @@ load("render.star", "render")
 load("http.star", "http")
 load("cache.star", "cache")
 load("encoding/json.star", "json")
-
+load("schema.star", "schema")
+load("encoding/base64.star", "base64")
 
 # MBTA New Train Tracker
 #
@@ -41,6 +42,12 @@ ARROW_UP = "⇧"
 ARROW_RIGHT = "⇨"
 ARROW_LEFT = "⇦"
 
+RED = "#FF0000"
+GREEN = "#00FF00"
+ORANGE = "#FFA500"
+
+redImg = base64.decode("")
+
 CACHE_TTL_SECONDS = 3600 * 24  # 1 day in seconds.
 
 # mockData = [
@@ -66,11 +73,10 @@ CACHE_TTL_SECONDS = 3600 * 24  # 1 day in seconds.
 #     },
 # ]
 
-def fetchStationNames():
+def fetchStationNames(useCache):
     cachedStations = cache.get("stations")
-    if cachedStations == None:
+    if cachedStations == None or useCache == False:
         res = http.get(STATION_NAMES_URL)
-        print('recaching')
         if res.status_code != 200:
             fail("stations request failed with status %d", res.status_code)
         cachedStations = res.body()
@@ -84,7 +90,7 @@ def fetchStationNames():
     return map
 
 def mapStationIdToName(id):
-    stations = fetchStationNames()
+    stations = fetchStationNames(True)
     return stations[id]
 
 def mapRouteToColor(route):
@@ -94,11 +100,11 @@ def mapRouteToColor(route):
         line = split[1]
 
     if "Red" in route:
-        return ("#FF0000", line)
+        return (RED, line)
     elif "Green" in route:
-        return ("#00FF00", line)
+        return (GREEN, line)
     elif "Orange" in route:
-        return ("#FFA500", line)
+        return (ORANGE, line)
     else:
         return ("#0ff", line)
 
@@ -133,13 +139,7 @@ def createTrain(loc):
         ],
     )
 
-def main():
-    res = http.get(TRAIN_LOCATION_URL)
-    if res.status_code != 200:
-        fail("location request failed with status %d", res.status_code)
-
-    apiResult = res.json()
-
+def displayIndividualTrains(apiResult):
     trains = []
     for loc in apiResult:
         trains.append(createTrain(loc))
@@ -166,4 +166,72 @@ def main():
             height = 32,
             offset_start = 32,
         ),
+    )
+
+def renderDigestRow(color, count):
+    return render.Row(
+        children = [
+            render.Circle(
+                color=color,
+                diameter= 9,
+                child = render.Text("T")
+            ),
+            render.Text(
+                content = "{} ".format(count),
+            ),
+        ],
+        # main_align="space_between",
+        # cross_align="center",
+        # expanded=True
+    )
+
+def displayDigest(apiResult):
+    r = 0
+    g = 0
+    o = 0
+    for loc in apiResult:
+        route = loc["route"]
+        if "Red" in route:
+            r += 1
+        elif "Green" in route:
+            g += 1
+        elif "Orange" in route:
+            o += 1
+    
+    return render.Root(
+        child = render.Column(
+            children = [
+                renderDigestRow(RED, r),
+                renderDigestRow(GREEN, g),
+                renderDigestRow(ORANGE, o),
+            ]
+        )
+)
+
+def main(config):
+    res = http.get(TRAIN_LOCATION_URL)
+    if res.status_code != 200:
+        fail("location request failed with status %d", res.status_code)
+
+    apiResult = res.json()
+
+    if config.bool("showDigestOnly"):
+        return displayDigest(apiResult)
+    else:
+        return displayIndividualTrains(apiResult)
+
+
+
+def get_schema():
+    return schema.Schema(
+        version = "1",
+        fields = [
+            schema.Toggle(
+                id = "showDigestOnly",
+                name = "Show Counts Only",
+                desc = "Show just a counter of active new trains, not the individual trains and their direction.",
+                icon = "cog",
+                default = False
+            ),
+        ]
     )
