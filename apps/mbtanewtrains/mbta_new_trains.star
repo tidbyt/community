@@ -7,6 +7,9 @@ Author: joshspicer
 
 load("render.star", "render")
 load("http.star", "http")
+load("cache.star", "cache")
+load("encoding/json.star", "json")
+
 
 # MBTA New Train Tracker
 #
@@ -38,6 +41,8 @@ ARROW_UP = "⇧"
 ARROW_RIGHT = "⇨"
 ARROW_LEFT = "⇦"
 
+CACHE_TTL_SECONDS = 3600 * 24  # 1 day in seconds.
+
 # mockData = [
 #     {
 #         "direction": 0,
@@ -62,11 +67,16 @@ ARROW_LEFT = "⇦"
 # ]
 
 def fetchStationNames():
-    res = http.get(STATION_NAMES_URL)
-    if res.status_code != 200:
-        fail("stations request failed with status %d", res.status_code)
+    cachedStations = cache.get("stations")
+    if cachedStations == None:
+        res = http.get(STATION_NAMES_URL)
+        print('recaching')
+        if res.status_code != 200:
+            fail("stations request failed with status %d", res.status_code)
+        cachedStations = res.body()
+        cache.set("stations", cachedStations, ttl_seconds=CACHE_TTL_SECONDS)
 
-    stations = res.json()
+    stations = json.decode(cachedStations)
     map = {}
     for station in stations:
         map[station["id"]] = station["name"]
