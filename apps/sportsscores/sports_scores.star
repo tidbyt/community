@@ -6,7 +6,7 @@ Author: rs7q5
 """
 #sports_scores.star
 #Created 20220220 RIS
-#Last Modified 20220503 RIS
+#Last Modified 20220507 RIS
 
 load("render.star", "render")
 load("http.star", "http")
@@ -439,7 +439,6 @@ def get_nhlgames(today_str):
                 else:
                     status_txt = "F/" + period
             else:
-                #status_txt = period + "/" + period_T
                 status_txt = period_T + "/" + period  #switch status and period here so time doesn't get cut off
         else:  #this is a safety net
             status_txt = status
@@ -499,11 +498,11 @@ def get_nbagames(today_str):
                 else:
                     status_txt = "F"
             elif period == 5:
-                status_txt = "OT/" + period_T
+                status_txt = period_T + "/OT"
             elif period_T == "0.0":
-                status_txt = humanize.ordinal(period) + "/END"  #take
+                status_txt = "END/" + humanize.ordinal(period)
             else:
-                status_txt = humanize.ordinal(period) + "/" + period_T
+                status_txt = period_T + "/" + humanize.ordinal(period)
         else:  #this is a safety net
             status_txt = game["status"]["type"]["state"]
 
