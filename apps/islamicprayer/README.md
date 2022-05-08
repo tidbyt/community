@@ -7,6 +7,8 @@ A display on prayer times for the day.
 
 Special thank you to https://aladhan.com/.  The free to use, open API made this possible.  Calculating prayer times is hard.  The API made it easy!
 
+A special thank you to @zeronullempty for the QA testing and PR feedback.
+
 ### TODOs
 * 12 hour and 24 hour clock settings
 * figure out shafaq paramteer and add `Moonsighting Committee Worldwide` calculation option
