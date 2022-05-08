@@ -6,6 +6,7 @@ Author: Chris Silverberg (csilv)
 """
 
 # USGS Earthquakes
+# Version: 1.0.1 (2022/05/07)
 #
 # This app uses the USGS GeoJSON Summary Feed:
 # https://earthquake.usgs.gov/earthquakes/feed/v1.0/geojson.php
@@ -57,8 +58,8 @@ DEFAULT_LOCATION = """
     "timezone": "America/Los_Angeles"
 }
 """
-DEFAULT_MAGNITUDE = "1"
-DEFAULT_RADIUS = "100"
+DEFAULT_MAGNITUDE = "3"
+DEFAULT_RADIUS = "0"
 
 ICON = base64.decode("""
 iVBORw0KGgoAAAANSUhEUgAAAAoAAAAICAYAAADA+m62AAAAAXNSR0IArs4c6QAAAD1JREFUKFNjZM
