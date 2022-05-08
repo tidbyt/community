@@ -242,19 +242,19 @@ def main(config):
 
     apiResult = res.json()
 
-    if config.bool("showDigestOnly"):
-        return displayDigest(apiResult, config)
-    else:
+    if config.bool("showLiveLocations"):
         return displayIndividualTrains(apiResult, config)
+    else:
+        return displayDigest(apiResult, config)
 
 def get_schema():
     return schema.Schema(
         version = "1",
         fields = [
             schema.Toggle(
-                id = "showDigestOnly",
-                name = "Show Counts Only",
-                desc = "Show just a counter of how many active new trains are currently in service. If disabled, this app shows the the individual trains and their location.",
+                id = "showLiveLocations",
+                name = "Show Live Locations",
+                desc = "Shows live location of new trains in a scrolling marquee.  If disabled, only the count of new trains running will be displayed.",
                 icon = "cog",
                 default = False,
             ),
