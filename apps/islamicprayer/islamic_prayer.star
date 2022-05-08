@@ -48,13 +48,13 @@ def main(config):
     prayer_timings = get_prayer_for_the_day(latitude, longitude, day, month, year, show_sunrise, prayer_calc_option)
 
     return render.Root(
-        delay = int(config.str("speed", "30")),
+        delay = int(config.str("speed", "70")),
         child = render.Column(
             children = [
                 render_top_column(day, month, year),
                 # render.Box(
                 render.Animation(
-                    children = get_render_frames(prayer_timings),
+                    children = get_render_frames(prayer_timings, show_sunrise),
                 ),
                 # )
             ],
@@ -80,24 +80,35 @@ def get_table_of_prayer_times(prayer_timings):
         children = column_children,
     )
 
-def get_render_frames(prayer_timings):
+def get_render_frames(prayer_timings, show_sunrise):
     children = []
     counter = 0
 
-    # start the scroll below
-    for offset in reversed(range(28)):
+    # 60 frames of it at the top so people can read before scrolling
+    for offset in range(35):
         children.append(
             render.Padding(
-                pad = (0, offset, 0, 0),
+                pad = (0, 0, 0, 0),
                 child = get_table_of_prayer_times(prayer_timings),
             ),
         )
 
-    # end above
-    for offset in range(8):
+    scroll_depth = 2
+    if show_sunrise:
+        scroll_depth = 8
+
+    for offset in range(scroll_depth):
         children.append(
             render.Padding(
                 pad = (0, -offset, 0, 0),
+                child = get_table_of_prayer_times(prayer_timings),
+            ),
+        )
+
+    for offset in range(35):
+        children.append(
+            render.Padding(
+                pad = (0, -scroll_depth, 0, 0),
                 child = get_table_of_prayer_times(prayer_timings),
             ),
         )

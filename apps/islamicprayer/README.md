@@ -11,5 +11,8 @@ A special thank you to @zeronullempty for the QA testing and PR feedback.
 
 ### TODOs
 * 12 hour and 24 hour clock settings
+* mode where you only show future times
 * figure out shafaq paramteer and add `Moonsighting Committee Worldwide` calculation option
 * configurable speed
+
+
