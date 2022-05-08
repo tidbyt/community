@@ -23,8 +23,8 @@ DEVICE_WIDTH = 64
 DEVICE_HEIGHT = 32
 ONE_MONTH = 604800
 FONT = "CG-pixel-3x5-mono"
-COLOR_0 = "#3c5453"
-COLOR_1 = "#572824"
+COLOR_0 = "#819121"
+COLOR_1 = "#f48c94"
 COLOR_2 = "#fbc362"
 COLOR_3 = "#b23e21"
 COLOR_4 = "#6cad54"
@@ -40,6 +40,7 @@ def main(config):
     longitude = loc["lng"]
     prayer_calc_option = config.get("prayer_calc_options")
     show_sunrise = config.bool("show_sunrise", False)
+    non_color_mode = config.bool('non_color', False)
     now = time.now().in_location(loc["timezone"])
     day = now.day
     month = now.month
@@ -54,7 +55,7 @@ def main(config):
                 render_top_column(day, month, year),
                 # render.Box(
                 render.Animation(
-                    children = get_render_frames(prayer_timings, show_sunrise),
+                    children = get_render_frames(prayer_timings, show_sunrise, non_color_mode),
                 ),
                 # )
             ],
@@ -65,14 +66,14 @@ def location(config):
     location = config.get("location")
     return json.decode(location) if location else json.decode(str(DEFAULT_LOCATION))
 
-def get_table_of_prayer_times(prayer_timings):
+def get_table_of_prayer_times(prayer_timings, non_color_mode):
     column_children = []
     counter = 0
     for prayer_and_time in prayer_timings:
         time = prayer_and_time[1]
         prayer = prayer_and_time[0]
         time_no_zone = time.split(" ")[0]  # 21:00 PDT -> 21:00
-        column_children.append(render_individual_prayer_time(prayer, time_no_zone, counter))
+        column_children.append(render_individual_prayer_time(prayer, time_no_zone, counter, non_color_mode))
         counter = counter + 1
         column_children.append(render.Box(width = 1, height = 1))
 
@@ -80,7 +81,7 @@ def get_table_of_prayer_times(prayer_timings):
         children = column_children,
     )
 
-def get_render_frames(prayer_timings, show_sunrise):
+def get_render_frames(prayer_timings, show_sunrise, non_color_mode):
     children = []
     counter = 0
 
@@ -89,7 +90,7 @@ def get_render_frames(prayer_timings, show_sunrise):
         children.append(
             render.Padding(
                 pad = (0, 0, 0, 0),
-                child = get_table_of_prayer_times(prayer_timings),
+                child = get_table_of_prayer_times(prayer_timings, non_color_mode),
             ),
         )
 
@@ -101,7 +102,7 @@ def get_render_frames(prayer_timings, show_sunrise):
         children.append(
             render.Padding(
                 pad = (0, -offset, 0, 0),
-                child = get_table_of_prayer_times(prayer_timings),
+                child = get_table_of_prayer_times(prayer_timings, non_color_mode),
             ),
         )
 
@@ -109,17 +110,20 @@ def get_render_frames(prayer_timings, show_sunrise):
         children.append(
             render.Padding(
                 pad = (0, -scroll_depth, 0, 0),
-                child = get_table_of_prayer_times(prayer_timings),
+                child = get_table_of_prayer_times(prayer_timings, non_color_mode),
             ),
         )
 
     return children
 
-def render_individual_prayer_time(k, v, counter):
+def render_individual_prayer_time(k, v, counter, non_color_mode):
     children = []
-    children.append(render.Box(width = 2, height = 5, color = ALL_COLORS[counter]))
+    current_color = ALL_COLORS[counter]
+    if non_color_mode: 
+        current_color = "#FFF"
+    children.append(render.Box(width = 2, height = 5, color = current_color))
     children.append(render.Box(width = 2, height = 5))
-    children.append(render.Text("{} {}".format(k, v), font = FONT, color = ALL_COLORS[counter]))
+    children.append(render.Text("{} {}".format(k, v), font = FONT, color = current_color))
     return render.Row(
         expanded = True,
         main_align = "space_between",
@@ -145,7 +149,6 @@ def get_prayer_for_the_day(latitude, longitude, day, month, year, show_sunrise, 
 
     # the API returns the whole month.  So we just need to find today.
     for entry in prayer_month_parsed["data"]:
-        # print(entry['date']['gregorian']['day'])
         # returns the whole month.  So let's find today
         if entry["date"]["gregorian"]["day"] == day_str:
             matched_entry = entry
@@ -160,7 +163,7 @@ def prayer_timings_filter(pre_filtered_timings, show_sunrise):
     filtered_prayer_times = [
         ("Fajr", pre_filtered_timings["Fajr"]),
     ]
-    print(show_sunrise)
+
     if show_sunrise:
         filtered_prayer_times.append(("Sunrise", pre_filtered_timings["Sunrise"]))
 
@@ -278,10 +281,17 @@ def get_schema():
                 options = scroll_speed,
             ),
             schema.Toggle(
+                id = "non_color",
+                name = "Make the text non colored",
+                desc = "Make the text non colored for people that want things a little more readable",
+                icon = "fillDrip",
+                default = False
+            ),
+            schema.Toggle(
                 id = "show_sunrise",
-                name = "Show Sunrise Prayer",
-                desc = "Whether to show the sunrise prayer time",
-                icon = "eye",
+                name = "Show Sunrise Time",
+                desc = "Whether to show sunrise time",
+                icon = "sun",
                 default = False,
             ),
             schema.Dropdown(
