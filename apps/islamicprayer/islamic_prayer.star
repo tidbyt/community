@@ -40,7 +40,7 @@ def main(config):
     longitude = loc["lng"]
     prayer_calc_option = config.get("prayer_calc_options")
     show_sunrise = config.bool("show_sunrise", False)
-    non_color_mode = config.bool('non_color', False)
+    non_color_mode = config.bool("non_color", False)
     now = time.now().in_location(loc["timezone"])
     day = now.day
     month = now.month
@@ -119,7 +119,7 @@ def get_render_frames(prayer_timings, show_sunrise, non_color_mode):
 def render_individual_prayer_time(k, v, counter, non_color_mode):
     children = []
     current_color = ALL_COLORS[counter]
-    if non_color_mode: 
+    if non_color_mode:
         current_color = "#FFF"
     children.append(render.Box(width = 2, height = 5, color = current_color))
     children.append(render.Box(width = 2, height = 5))
@@ -285,7 +285,7 @@ def get_schema():
                 name = "Make the text non colored",
                 desc = "Make the text non colored for people that want things a little more readable",
                 icon = "fillDrip",
-                default = False
+                default = False,
             ),
             schema.Toggle(
                 id = "show_sunrise",
