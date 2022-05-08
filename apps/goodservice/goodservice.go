@@ -14,7 +14,7 @@ var source []byte
 func New() manifest.Manifest {
 	return manifest.Manifest{
 		ID:          "goodservice",
-		Name:        "goodservice.io",
+		Name:        "Goodservice",
 		Author:      "Sunny Ng",
 		Summary:     "Goodservice - NYC Subway",
 		Desc:        "Projected New York City Subway departure times, powered by goodservice.io.",
