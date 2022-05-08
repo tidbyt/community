@@ -39,15 +39,16 @@ def main(config):
     latitude = loc["lat"]
     longitude = loc["lng"]
     prayer_calc_option = config.get("prayer_calc_options")
+    show_sunrise = config.bool("show_sunrise", False)
     now = time.now().in_location(loc["timezone"])
     day = now.day
     month = now.month
     year = now.year
 
-    prayer_timings = get_prayer_for_the_day(latitude, longitude, day, month, year, prayer_calc_option)
+    prayer_timings = get_prayer_for_the_day(latitude, longitude, day, month, year, show_sunrise, prayer_calc_option)
 
     return render.Root(
-        delay = 5,
+        delay = int(config.str("speed", "30")),
         child = render.Column(
             children = [
                 render_top_column(day, month, year),
@@ -64,15 +65,14 @@ def location(config):
     location = config.get("location")
     return json.decode(location) if location else json.decode(str(DEFAULT_LOCATION))
 
-def timezone(config):
-    return location(config)["timezone"]
-
 def get_table_of_prayer_times(prayer_timings):
     column_children = []
     counter = 0
-    for k, v in prayer_timings.items():
-        v = v.split(" ")[0]
-        column_children.append(render_individual_prayer_time(k, v, counter))
+    for prayer_and_time in prayer_timings:
+        time = prayer_and_time[1]
+        prayer = prayer_and_time[0]
+        time_no_zone = time.split(" ")[0]  # 21:00 PDT -> 21:00
+        column_children.append(render_individual_prayer_time(prayer, time_no_zone, counter))
         counter = counter + 1
         column_children.append(render.Box(width = 1, height = 1))
 
@@ -94,7 +94,7 @@ def get_render_frames(prayer_timings):
         )
 
     # end above
-    for offset in range(30):
+    for offset in range(8):
         children.append(
             render.Padding(
                 pad = (0, -offset, 0, 0),
@@ -123,7 +123,9 @@ def render_top_column(day, month, year):
         ],
     )
 
-def get_prayer_for_the_day(latitude, longitude, day, month, year, prayer_calc_option):
+# Returns a list of tuples
+# of all the prayers and times
+def get_prayer_for_the_day(latitude, longitude, day, month, year, show_sunrise, prayer_calc_option):
     matched_entry = {}
     prayer_month_parsed = fetch_prayer_times(latitude, longitude, day, month, year, prayer_calc_option)
 
@@ -138,24 +140,30 @@ def get_prayer_for_the_day(latitude, longitude, day, month, year, prayer_calc_op
             matched_entry = entry
             break
 
-    #    "timings": {
-    #        "Fajr": "03:57",
-    #        "Sunrise": "05:46",
-    #        "Dhuhr": "12:59",
-    #        "Asr": "16:55",
-    #        "Sunset": "20:12",
-    #        "Maghrib": "20:12",
-    #        "Isha": "22:02",
-    #        "Imsak": "03:47",
-    #        "Midnight": "00:59"
-    #    },
-    return matched_entry["timings"]
+    return prayer_timings_filter(matched_entry["timings"], show_sunrise)
+
+# Return a list of Tuples
+# We only care about: fajr, Dhuhr, asr, maghrib, isha
+# Additionally if `show_sunrise` is set we can add that.
+def prayer_timings_filter(pre_filtered_timings, show_sunrise):
+    filtered_prayer_times = [
+        ("Fajr", pre_filtered_timings["Fajr"]),
+    ]
+    print(show_sunrise)
+    if show_sunrise:
+        filtered_prayer_times.append(("Sunrise", pre_filtered_timings["Sunrise"]))
+
+    # the rest
+    for prayer in ["Dhuhr", "Asr", "Maghrib", "Isha"]:
+        filtered_prayer_times.append((prayer, pre_filtered_timings[prayer]))
+
+    return filtered_prayer_times
 
 def fetch_prayer_times(latitude, longitude, day, month, year, prayer_calc_option):
     cache_key = "prayer_{}/{}".format(month, year)
 
     cached_data = cache.get(cache_key)
-    print(cached_data)
+
     if cached_data == None:
         # API docs: https://aladhan.com/prayer-times-api#GetCalendar
         api_url = "http://api.aladhan.com/v1/calendar?latitude={}&longitude={}&month={}&year={}&method={}".format(latitude, longitude, month, year, prayer_calc_option)
@@ -234,6 +242,13 @@ def get_prayer_calculation_options():
     ]
 
 def get_schema():
+    scroll_speed = [
+        schema.Option(display = "Slower", value = "100"),
+        schema.Option(display = "Slow", value = "70"),
+        schema.Option(display = "Normal", value = "50"),
+        schema.Option(display = "Fast (Default)", value = "30"),
+    ]
+
     return schema.Schema(
         version = "1",
         fields = [
@@ -242,6 +257,21 @@ def get_schema():
                 name = "Location",
                 desc = "Location for which to display times",
                 icon = "place",
+            ),
+            schema.Dropdown(
+                id = "scroll_speed",
+                name = "Scroll Speed",
+                desc = "How fast do you want to scroll?",
+                icon = "cog",
+                default = scroll_speed[1].value,
+                options = scroll_speed,
+            ),
+            schema.Toggle(
+                id = "show_sunrise",
+                name = "Show Sunrise Prayer",
+                desc = "Whether to show the sunrise prayer time",
+                icon = "eye",
+                default = False,
             ),
             schema.Dropdown(
                 id = "prayer_calc_options",
