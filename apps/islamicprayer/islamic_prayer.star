@@ -10,6 +10,7 @@ load("schema.star", "schema")
 load("animation.star", "animation")
 load("time.star", "time")
 load("cache.star", "cache")
+load("humanize.star", "humanize")
 load("http.star", "http")
 load("encoding/json.star", "json")
 
@@ -94,9 +95,9 @@ def get_render_frames(prayer_timings, show_sunrise, non_color_mode):
             ),
         )
 
-    scroll_depth = 2
+    scroll_depth = 12
     if show_sunrise:
-        scroll_depth = 8
+        scroll_depth = 18
 
     for offset in range(scroll_depth):
         children.append(
@@ -142,7 +143,11 @@ def render_top_column(day, month, year):
 # of all the prayers and times
 def get_prayer_for_the_day(latitude, longitude, day, month, year, show_sunrise, prayer_calc_option):
     matched_entry = {}
-    prayer_month_parsed = fetch_prayer_times(latitude, longitude, day, month, year, prayer_calc_option)
+    # Truncate latitude and longitude to protect the users privacy,
+    # by not leaking their exact location to a third-party API.
+    lat_truncate = humanize.float("#.##", float(latitude))
+    lng_truncate = humanize.float("#.##", float(longitude))
+    prayer_month_parsed = fetch_prayer_times(lat_truncate, lng_truncate, day, month, year, prayer_calc_option)
 
     # TODO error handling?
     day_str = day_to_str(day)
