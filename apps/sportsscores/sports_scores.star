@@ -1,7 +1,7 @@
 """
 Applet: Sports Scores
 Summary: Get daily sports scores
-Description: Get daily scores or live updates of sports games (NBA from ESPN). Scores for the previous day are shown until 11am EST. 
+Description: Get daily scores or live updates of sports games (NBA and NFL from ESPN). Scores for the previous day are shown until 11am EST.
 Author: rs7q5
 """
 #sports_scores.star
@@ -21,7 +21,7 @@ SPORTS_LIST = {
     "MLB": ["MLB", "mlb"],
     "NHL": ["NHL", "nhl"],
     "NBA": ["NBA", "nba"],
-    #"NFL": ["NFL","nfl"],
+    "NFL": ["NFL", "nfl"],
     #"WNBA": ["WNBA","wnba"],
 }
 
@@ -49,6 +49,8 @@ def main(config):
             stats = get_nhlgames(today_str)
         elif sport == "NBA":
             stats = get_nbagames(today_str)
+        elif sport == "NFL":
+            stats = get_nflgames(today_str)
 
         #cache the data
         cache.set("stats_rate_games%s" % sport, json.encode(stats), ttl_seconds = 60)
@@ -474,7 +476,6 @@ def get_nbagames(today_str):
         status = game["status"]["type"]["id"]  #["codedGameState"] #Need to figure out what the possible values are here (may impact inning info)
 
         #get team info
-        #team_info = dict()
         for key, value in enumerate(game["competitions"][0]["competitors"]):  #game["teams"].items():
             #team_info[key] = (value["team"]["abbreviation"],int(value.get("score",-1)))
             key2 = value["homeAway"]
@@ -511,4 +512,66 @@ def get_nbagames(today_str):
         stats_tmp2["status"] = status_txt
         stats.append(stats_tmp)
         stats.append(stats_tmp2)  #used for multi-line stuff
+    return (stats)
+
+def get_nflgames(today_str):
+    start_date = today_str
+    end_date = today_str
+    base_URL = "https://site.api.espn.com/apis/site/v2/sports/football/nfl/scoreboard"
+    full_URL = base_URL + "?dates=" + start_date.replace("-", "") + "-" + end_date.replace("-", "")
+
+    #print(full_URL)
+    rep = http.get(full_URL)
+    if rep.status_code != 200:
+        return ["Error getting data"]
+    else:
+        data = rep.json()["events"]
+
+    if data == []:
+        return no_games_text
+    else:
+        data2 = data
+
+    #iterate through games
+    stats = []
+    for i, game in enumerate(data2):
+        stats_tmp = dict()
+        stats_tmp2 = dict()
+        status = game["status"]["type"]["id"]  #["codedGameState"] #Need to figure out what the possible values are here (may impact inning info)
+
+        #get team info
+        for key, value in enumerate(game["competitions"][0]["competitors"]):  #game["teams"].items():
+            #team_info[key] = (value["team"]["abbreviation"],int(value.get("score",-1)))
+            key2 = value["homeAway"]
+            stats_tmp[key2] = (value["team"]["abbreviation"][:3], int(value.get("score", -1)))
+            stats_tmp2[key2] = (value["team"]["abbreviation"][:3], 1000)
+        linescore = game.get("linescore", [])
+
+        if status == "1":
+            #status_txt = "Preview"
+            game_time_tmp = game["date"].replace("Z", ":00Z")  #date does not include seconds so add here to parse time
+            game_time = time.parse_time(game_time_tmp).in_location("America/New_York")
+            game_time_str = str(game_time.format("15:04"))
+
+            status_txt = game_time_str + "/EST"
+        elif game["status"]["type"]["state"] == "in" or status in ["2", "3"]:  #linescore!=[]: #this should cover live and final states
+            period = int(game["status"]["period"])  #str(int(game["status"]["period"]))
+            period_T = game["status"]["displayClock"]
+            if game["status"]["type"]["state"] == "post":  #check if playing or not
+                if period == 5:
+                    status_txt = "F/OT"
+                else:
+                    status_txt = "F"
+            elif period == 5:
+                status_txt = period_T + "/OT"
+            elif period_T == "0.0":
+                status_txt = "END/" + humanize.ordinal(period)
+            else:
+                status_txt = period_T + "/" + humanize.ordinal(period)
+        else:  #this is a safety net
+            status_txt = game["status"]["type"]["state"]
+
+        #status_txt="3rd/END"
+        stats_tmp["status"] = status_txt
+        stats.append(stats_tmp)
     return (stats)
