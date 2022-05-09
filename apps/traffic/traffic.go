@@ -17,9 +17,9 @@ func New() manifest.Manifest {
 		Name:        "Traffic",
 		Author:      "Rob Kimball",
 		Summary:     "Time to your destination",
-		Desc:        "Shows the duration to get from an origin to a destination by using traffic information from MapQuest.",
+		Desc:        "Shows your estimated travel duration using traffic information from Bing/MapQuest.",
 		FileName:    "traffic.star",
 		PackageName: "traffic",
-		Source:  source,
+		Source:      source,
 	}
 }

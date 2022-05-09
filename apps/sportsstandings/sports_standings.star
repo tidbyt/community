@@ -6,7 +6,7 @@ Author: rs7q5
 """
 #sports_standings.star
 #Created 20220119 RIS
-#Last Modified 20220424 RIS
+#Last Modified 20220507 RIS
 
 load("render.star", "render")
 load("http.star", "http")
@@ -22,7 +22,7 @@ ESPN_SPORTS_LIST = {
     "MLB": ["MLB", "mlb", "(1 = AL, 2 = NL)"],
     "NHL": ["NHL", "nhl", "(1 = East, 2 = West)"],
     "NBA": ["NBA", "nba", "(1 = East, 2 = West)"],
-    #"NFL": ["NFL","nfl"],
+    "NFL": ["NFL", "nfl", "(1 = AFC, 2 = NFC)"],
     #"WNBA": ["WNBA","wnba"],
 }
 
@@ -50,25 +50,31 @@ def main(config):
             stats = get_nhlstats()
         elif sport == "NBA":
             stats = get_nbastats()
+        elif sport == "NFL":
+            stats = get_nflstats()
 
         #cache the data
-        cache.set("stats_rate/%s" % sport, json.encode(stats), ttl_seconds = 28800)  #grabs it three times a day
-
-    #filter stats
-    sport_conf_code_split = [re.split("[() ,]", sport_conf_code)[x] for x in [3, 7]]  #sport_conf_code.split(" ")
-
-    filter_idx = int(config.str("standings_filter", "0"))
-    if filter_idx != 0:
-        split_conf_txt = sport_conf_code_split[filter_idx - 1]
-        stats2 = []
-        for x in stats:
-            if x["name"].lower().startswith(split_conf_txt.lower()):
-                stats2.append(x)
-    else:
-        stats2 = stats
+        if stats != None:
+            cache.set("stats_rate/%s" % sport, json.encode(stats), ttl_seconds = 28800)  #grabs it three times a day
 
     #get frames before display
-    frame_vec = get_frames(stats2, sport, font, config)
+    if stats == None:
+        frame_vec = [render.WrappedText(width = 64, content = "Error getting %s standings!!!!" % sport, font = font, linespacing = 1)]
+    else:
+        #filter stats
+        sport_conf_code_split = [re.split("[() ,]", sport_conf_code)[x] for x in [3, 7]]  #sport_conf_code.split(" ")
+
+        filter_idx = int(config.str("standings_filter", "0"))
+        if filter_idx != 0:
+            split_conf_txt = sport_conf_code_split[filter_idx - 1]
+            stats2 = []
+            for x in stats:
+                if x["name"].lower().startswith(split_conf_txt.lower()):
+                    stats2.append(x)
+        else:
+            stats2 = stats
+
+        frame_vec = get_frames(stats2, sport, font, config)
 
     return render.Root(
         delay = int(config.str("speed", "1000")),  #speed up scroll text
@@ -210,8 +216,10 @@ def get_frames(stats, sport_txt, font, config):
 def http_check(URL):
     rep = http.get(URL)
     if rep.status_code != 200:
-        fail("ESPN request failed with status %d", rep.status_code)
-    return rep
+        print("ESPN request failed with status %d", rep.status_code)
+        return None
+    else:
+        return rep
 
 def pad_text(text):
     #format strings so they are all the same length (leads to better scrolling)
@@ -242,7 +250,8 @@ def get_mlbstats():
     for i in range(6):  #iterate through each division
         standings_URL = base_URL + "?group=" + str(i + 1) + "&sort=gamesbehind"
         standings_rep = http_check(standings_URL)
-
+        if standings_rep == None:
+            return None
         if standings_rep.json()["abbreviation"] == "MLB":
             #no regular season records yet so get previous years (likely in preseason)
             standings_URL = base_URL + "?group=" + str(i + 1) + "&sort=gamesbehind&season=" + str(yearcheck - 1)
@@ -277,7 +286,8 @@ def get_nhlstats():
     for i in range(2):  #iterate through each division
         standings_URL = base_URL + "?group=" + str(i + 7) + "&sort=points"
         standings_rep = http_check(standings_URL)
-
+        if standings_rep == None:
+            return None
         conf_name = standings_rep.json()["abbreviation"]
         standings_data = standings_rep.json()["children"]
         for (j, div) in enumerate(standings_data):  #iterate through each team in each division
@@ -315,6 +325,8 @@ def get_nbastats():
     base_URL = "https://site.api.espn.com/apis/v2/sports/basketball/nba/standings"
     standings_URL = base_URL + "?sort=winpercent"
     standings_rep = http_check(standings_URL)
+    if standings_rep == None:
+        return None
     standings_data = standings_rep.json()["children"]
 
     stats = dict()
@@ -342,3 +354,43 @@ def get_nbastats():
                 stats_tmp = []
 
     return (stats2)
+
+def get_nflstats():
+    base_URL = "https://site.api.espn.com/apis/v2/sports/football/nfl/standings"
+    stats = []
+    for i in range(2):  #iterate through each division
+        standings_URL = base_URL + "?group=" + str(i + 7) + "&sort=winpercent"
+        standings_rep = http_check(standings_URL)
+        if standings_rep == None:
+            return None
+        conf_name = standings_rep.json()["abbreviation"]
+        standings_data = standings_rep.json()["children"]
+        for (j, div) in enumerate(standings_data):  #iterate through each team in each division
+            div_name = div["abbreviation"]
+            div_data = div["standings"]["entries"]
+            stats_tmp = []
+            for (k, team) in enumerate(div_data):
+                name = team["team"]["abbreviation"]
+
+                #get index of abbreviations (when playoff stuff gets added variables get shifted, WILL FAIL IF NONE OF THESE EXIST, WHICH SHOULDN'T HAPPEN)
+                #stat_name = [x["abbreviation"] for x in team["stats"]]
+                stat_name = [x["name"] for x in team["stats"]]  #not all stats have abbreviation so used name
+                total_idx = stat_name.index("All Splits")
+                pct_idx = stat_name.index("winPercent")
+
+                record = team["stats"][total_idx]["displayValue"]  #W-L-T
+                pct = team["stats"][pct_idx]["value"]  #win percent
+                pct_str = team["stats"][pct_idx]["displayValue"]
+
+                #record_text = record.split(",")
+                record_full = record + "/" + pct_str
+
+                #record_full = record_text[0]+"/"+record_text[1].split(" ")[1]
+                stats_tmp.append((name, record_full, record, pct))
+
+            #sort by points then percentage (just in case the names aren't pulled in the same)
+            team_sort = sorted(stats_tmp, key = lambda x: (x[3]), reverse = True)  #only sorts by win percent
+            frame_name = conf_name + " " + div_name + " (W-L-T/PCT)"
+            stats.append(dict(name = frame_name, data = team_sort))
+
+    return (stats)

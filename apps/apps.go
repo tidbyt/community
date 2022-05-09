@@ -39,6 +39,7 @@ import (
 	"tidbyt.dev/community/apps/fivesomewhere"
 	"tidbyt.dev/community/apps/flags"
 	"tidbyt.dev/community/apps/formula1"
+	"tidbyt.dev/community/apps/fullybinarytime"
 	"tidbyt.dev/community/apps/fuzzyclock"
 	"tidbyt.dev/community/apps/gapilotbuddy"
 	"tidbyt.dev/community/apps/goodservice"
@@ -78,6 +79,7 @@ import (
 	"tidbyt.dev/community/apps/pathtrainschedule"
 	"tidbyt.dev/community/apps/phaseofmoon"
 	"tidbyt.dev/community/apps/pokedex"
+	"tidbyt.dev/community/apps/pollencount"
 	"tidbyt.dev/community/apps/powerball"
 	"tidbyt.dev/community/apps/purpleair"
 	"tidbyt.dev/community/apps/randomslackmoji"
@@ -133,6 +135,7 @@ func GetManifests() []manifest.Manifest {
 		countdownclock.New(),
 		cryptotracker.New(),
 		dailykanji.New(),
+		countdownclock.New(),
 		dateprogress.New(),
 		datetimeclock.New(),
 		daynightmap.New(),
@@ -148,6 +151,7 @@ func GetManifests() []manifest.Manifest {
 		fivesomewhere.New(),
 		flags.New(),
 		formula1.New(),
+		fullybinarytime.New(),
 		fuzzyclock.New(),
 		gapilotbuddy.New(),
 		goodservice.New(),
@@ -186,6 +190,7 @@ func GetManifests() []manifest.Manifest {
 		pathtrainschedule.New(),
 		phaseofmoon.New(),
 		pokedex.New(),
+		pollencount.New(),
 		powerball.New(),
 		purpleair.New(),
 		randomslackmoji.New(),
