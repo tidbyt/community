@@ -143,6 +143,7 @@ def render_top_column(day, month, year):
 # of all the prayers and times
 def get_prayer_for_the_day(latitude, longitude, day, month, year, show_sunrise, prayer_calc_option):
     matched_entry = {}
+
     # Truncate latitude and longitude to protect the users privacy,
     # by not leaking their exact location to a third-party API.
     lat_truncate = humanize.float("#.##", float(latitude))
