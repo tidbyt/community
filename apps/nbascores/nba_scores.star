@@ -147,7 +147,8 @@ def main(config):
             checkSeries = competition.get("series", "NO")
             checkNotes = len(competition["notes"])
             if checkSeries != "NO":
-                gameTime = competition["series"]["summary"]
+                seriesSummary = competition["series"]["summary"]
+                gameTime = seriesSummary.replace("series ", "")
             elif checkNotes > 0:
                 gameHeadline = competition["notes"][0]["headline"]
                 gameNoteArray = gameHeadline.split(" - ")
