@@ -48,6 +48,7 @@ import (
 	"tidbyt.dev/community/apps/hvvdepartures"
 	"tidbyt.dev/community/apps/ifparank"
 	"tidbyt.dev/community/apps/isitchristmas"
+	"tidbyt.dev/community/apps/islamicprayer"
 	"tidbyt.dev/community/apps/isstracker"
 	"tidbyt.dev/community/apps/jokesjokeapi"
 	"tidbyt.dev/community/apps/launchcountdown"
@@ -135,7 +136,6 @@ func GetManifests() []manifest.Manifest {
 		countdownclock.New(),
 		cryptotracker.New(),
 		dailykanji.New(),
-		countdownclock.New(),
 		dateprogress.New(),
 		datetimeclock.New(),
 		daynightmap.New(),
@@ -160,6 +160,7 @@ func GetManifests() []manifest.Manifest {
 		hvvdepartures.New(),
 		ifparank.New(),
 		isitchristmas.New(),
+		islamicprayer.New(),
 		isstracker.New(),
 		jokesjokeapi.New(),
 		launchcountdown.New(),
