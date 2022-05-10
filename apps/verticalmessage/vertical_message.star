@@ -56,7 +56,7 @@ def main(config):
             offset_end = 32,
             child = render.WrappedText(
                 content = msg_txt,
-                width = 60,
+                width = 64,
                 color = color_opt,
                 font = config.str("font", "tb-8"),
                 linespacing = linespacing_final,
