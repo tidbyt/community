@@ -149,8 +149,8 @@ def main(config):
             elif checkNotes > 0:
                 gameHeadline = competition["notes"][0]["headline"]
                 if gameHeadline.find(" - ") > 0:
-                   gameNoteArray = gameHeadline.split(" - ")
-                   gameTime = str(gameNoteArray[1]) + " / " + gameTime
+                    gameNoteArray = gameHeadline.split(" - ")
+                    gameTime = str(gameNoteArray[1]) + " / " + gameTime
             if gameTime == "Postponed":
                 homeScore = ""
                 awayScore = ""
