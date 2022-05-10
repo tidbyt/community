@@ -22,6 +22,7 @@ DEFAULT_LOCATION = {
 }
 DEFAULT_TIMEZONE = "America/New_York"
 
+CLOCK_BITS = 16  # Precision of clock
 GRAPHICAL_ICON_SIZE = 4
 GRAPHICAL_ROW_WIDTH = 4  # Assumed that graphical clock is square
 GRAPHICAL_CLOCK_SIZE = (GRAPHICAL_ROW_WIDTH * (GRAPHICAL_ICON_SIZE + 1)) + 1
@@ -92,7 +93,7 @@ def get_text_clockface(levels):
         third = "sub"
 
     # Remainder as digits.
-    rest = "%d%d%d%d%d%d%d%d%d%d%d%d%d" % (levels[3], levels[4], levels[5], levels[6], levels[7], levels[8], levels[9], levels[10], levels[11], levels[12], levels[13], levels[14], levels[15])
+    rest = "".join(["%d" % level for level in levels[3:]])
 
     return render.Column(
         children = [
@@ -109,7 +110,7 @@ def make_frame(elapsed):
     levels = []
     numerator = elapsed.nanoseconds
     divisor = HALF_DAY_NANOSECONDS
-    for level in range(0, 16):
+    for level in range(0, CLOCK_BITS):
         levels.append(numerator // divisor)
         numerator = math.mod(numerator, divisor)
         divisor /= 2
