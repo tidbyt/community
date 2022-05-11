@@ -5,6 +5,7 @@ Description: Shows upcoming arrivals at a specific bus stop in London.
 Author: dinosaursrarr
 """
 
+load("cache.star", "cache")
 load("encoding/json.star", "json")
 load("http.star", "http")
 load("math.star", "math")
@@ -15,6 +16,8 @@ load("secret.star", "secret")
 DEFAULT_STOP_ID = "490020255S"
 STOP_URL = "https://api.tfl.gov.uk/StopPoint/%s"
 ARRIVALS_URL = "https://api.tfl.gov.uk/StopPoint/%s/Arrivals"
+
+# Allows 500 queries per minute
 ENCRYPTED_API_KEY = "AV6+xWcELQeKmsYDiEPA6VUWk2IZKw+uc9dkaM5cXT/xirUKWgWKfsRAQz2pOxq0eKTNhb/aShsRjavxA84Ay12p6NaZDnDOgVeVxoMCCOnWxJsxmURHogJHpVQpuqBTNttfvafOj0PC1zUXkEpcN7EYhveycs6qxmouIwpDzY5I93wpTy4="
 
 RED = "#DA291C"  # Pantone 485 C - same as the buses
@@ -47,8 +50,11 @@ def extract_stop(stop):
         value = stop["id"],
     )
 
-# Find list of stops near a given location.
-def get_stops(location):
+# Perform the actual fetch of stops for a location, but use cache if available
+def fetch_stops(location):
+    cached = cache.get(location)
+    if cached:
+        return json.decode(cached)
     loc = json.decode(location)
     resp = http.get(
         STOP_URL,
@@ -64,15 +70,19 @@ def get_stops(location):
         fail("TFL StopPoint search failed with status ", resp.status_code)
     if "stopPoints" not in resp.json():
         fail("TFL StopPoint search does not contain stops")
+    cache.set(location, resp.body(), ttl_seconds = 86400)  # Bus stops don't move often
+    return resp.json()
 
-    return [extract_stop(stop) for stop in resp.json()["stopPoints"]]
+# Find list of stops near a given location.
+def get_stops(location):
+    data = fetch_stops(location)
+    return [extract_stop(stop) for stop in data["stopPoints"]]
 
-# Look up a particular stop by its Naptan ID. There can be a hierarchy of
-# StopPoints. It seems like for buses, there is a parent ID for all the stops
-# with a given name/at a given junction, and then a child ID for each stop.
-# Assumed here that you're looking up a child stop, since you don't get any
-# arrivals data if you look up the parent ID.
-def get_stop(stop_id):
+# Perform the actual fetch for a stop, but use cache if available.
+def fetch_stop(stop_id):
+    cached = cache.get(stop_id)
+    if cached:
+        return json.decode(cached)
     resp = http.get(
         url = STOP_URL % stop_id,
         params = {
@@ -81,10 +91,20 @@ def get_stop(stop_id):
     )
     if resp.status_code != 200:
         fail("TFL StopPoint request failed with status ", resp.status_code)
+    cache.set(stop_id, resp.body(), ttl_seconds = 30)
+    return resp.json()
+
+# Look up a particular stop by its Naptan ID. There can be a hierarchy of
+# StopPoints. It seems like for buses, there is a parent ID for all the stops
+# with a given name/at a given junction, and then a child ID for each stop.
+# Assumed here that you're looking up a child stop, since you don't get any
+# arrivals data if you look up the parent ID.
+def get_stop(stop_id):
+    data = fetch_stop(stop_id)
 
     # Looking up a child returns a response about the parent, which contains
     # a child object.
-    for child in resp.json()["children"]:
+    for child in data["children"]:
         if child["naptanId"] != stop_id:
             continue
 
