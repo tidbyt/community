@@ -106,8 +106,8 @@ def get_stops(location):
     stops = []
 
     for route in routes:
-        raw_stops = fetch_cached(STOPS_URL, 86400)
-        stops.extend([json.decode(stop) for stop in raw_stops["route"]["stop"]])
+        raw_stops = fetch_cached((STOPS_URL % route), 86400)
+        stops.extend(raw_stops["route"]["stop"])
 
     return [
         schema.Option(
@@ -118,7 +118,7 @@ def get_stops(location):
     ]
 
 def square_distance(lat1, lon1, lat2, lon2):
-    return (lat2 - lat1) ^ 2 + (lon2 - lon1) ^ 2
+    return int((float(lat2) - float(lat1)) * 1000) ^ 2 + int((float(lon2) - float(lon1)) * 1000) ^ 2
 
 def fetch_cached(url, ttl):
     cached = cache.get(url)
@@ -136,7 +136,9 @@ def higher_priority_than(pri, threshold):
     return threshold == "Low" or pri == "High" or threshold == pri
 
 def main(config):
-    stopId = json.decode(config.get("stop_code", DEFAULT_STOP))["value"]
+    stop = json.decode(config.get("stop_code", DEFAULT_STOP))
+    stopId = stop["value"]
+
     routes = fetch_cached(PREDICTIONS_URL % stopId, 240)["predictions"]
 
     if type(routes) != "list":
@@ -197,7 +199,7 @@ def main(config):
 
     rows = []
     if config.bool("show_title"):
-        title = json.decode(config.get("stop_code", DEFAULT_STOP))["display"]
+        title = stop["display"]
         rows.append(
             render.Column(
                 children = [
@@ -339,13 +341,18 @@ def longRows(output, config):
 
 def getLongRow(routeTag, destination, predictions, config):
     row = []
-    row.append(
-        render.Circle(
-            child = render.Text(routeTag, font = "tom-thumb"),
-            diameter = 7,
-            color = MUNI_COLORS[routeTag] if routeTag in MUNI_COLORS else "#000000",
-        ),
-    )
+    if routeTag in MUNI_COLORS:
+        row.append(
+            render.Circle(
+                child = render.Text(routeTag, font = "tom-thumb"),
+                diameter = 7,
+                color = MUNI_COLORS[routeTag],
+            ),
+        )
+    else:
+        row.append(
+            render.Text(routeTag + " ", font = "tom-thumb"),
+        )
     if "long" == config.get("prediction_format"):
         row.append(
             render.Marquee(
