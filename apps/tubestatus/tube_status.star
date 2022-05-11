@@ -5,12 +5,14 @@ Description: Shows the current status of each line on London Underground and oth
 Author: dinosaursrarr
 """
 
+load("cache.star", "cache")
 load("encoding/json.star", "json")
 load("http.star", "http")
 load("render.star", "render")
 load("schema.star", "schema")
 load("secret.star", "secret")
 
+# Allows 500 queries per minute
 ENCRYPTED_APP_KEY = "AV6+xWcE2sENYC+/SYTqo/7oaIT8Q+BjV27Q/Bm9b1C19OEsiEuWKQQ3KKx6ymZQk2DOkiaPMjvoYmBlYZl/yr6AqusGweRYyA/gZ26zZBYX6krBCckHACEZQIS0mtAkwZmiLoGxhH2XpUkBBQdmBBwjODAqrcthPYPCm7u597BdzWyhljQ="
 STATUS_URL = "https://api.tfl.gov.uk/Line/Mode/%s/Status"
 
@@ -142,19 +144,28 @@ SEVERITIES = {
     20: "Closed",
 }
 
-def fetch_lines(modes):
+# Cache response for all users. It's always the same info with the same inputs so
+# no need to fetch repeatedly.
+def fetch_response():
+    cache_key = "api_response"  # it's always the same input
+    cached = cache.get(cache_key)
+    if cached:
+        return json.decode(cached)
     app_key = secret.decrypt(ENCRYPTED_APP_KEY) or ""  # fall back to anonymous quota
     resp = http.get(
-        url = STATUS_URL % ",".join(modes),
+        url = STATUS_URL % ",".join(["tube", "overground", "tflrail", "dlr", "tram"]),
         params = {
             "app_key": app_key,
         },
     )
     if resp.status_code != 200:
         fail("TFL status request failed with status code ", resp.status_code)
+    cache.set(cache_key, resp.body(), ttl_seconds = 60)
+    return resp.json()
 
+def fetch_lines():
     lines = []
-    for line in resp.json():
+    for line in fetch_response():
         if "id" not in line:
             fail("TFL status request did not contain line id")
         id = line["id"]
@@ -208,9 +219,7 @@ def render_status(status):
     )
 
 def main(config):
-    # All of these are shown on the TfL homepage and at stations
-    modes = ["tube", "overground", "tflrail", "dlr", "tram"]
-    lines = fetch_lines(modes)
+    lines = fetch_lines()
 
     return render.Root(
         delay = 49,
