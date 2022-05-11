@@ -24,7 +24,7 @@ def main(config):
     print("Let's play...WHO'S. THAT. POKEMON?!")
 
     allPokemon = howManyPokemon(config)
-    chosenId = random.number(1, 898)
+    chosenId = random.number(1, allPokemon)
     pokemon = json.decode(getPokemon(chosenId))
     speed = getSpeed(config)
 
