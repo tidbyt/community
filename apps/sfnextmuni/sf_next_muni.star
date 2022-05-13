@@ -101,7 +101,7 @@ def get_schema():
                 desc = "Don't show predictions nearer than this minimum.",
                 icon = "clock",
                 default = "0",
-            )
+            ),
         ],
     )
 
@@ -195,7 +195,7 @@ def main(config):
             title = routeTag if "short" == config.get("prediction_format") else (routeTag, destTitle)
             seconds = [int(prediction["seconds"]) - data_age_seconds for prediction in predictions if "seconds" in prediction]
             minutes = [int(time / 60) for time in seconds if int(time / 60) >= minimum_time]
-            
+
             prediction_map[title] = [str(time) for time in sorted(minutes)]
 
     output = sorted(prediction_map.items(), key = lambda kv: int(min(kv[1], key = int))) if prediction_map.items() else []
