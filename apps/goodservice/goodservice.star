@@ -281,8 +281,8 @@ def condense_name(name):
     split_name = name.split("-")
     if len(split_name) > 1 and ("St" in split_name[1] or "Av" in split_name[1] or "Sq" in split_name[1] or "Bl" in split_name[1]) and (split_name[0] != "Far Rckwy"):
         if "Sts" in split_name[1]:
-            return split_name[0] + "St"
+            return split_name[0] + " St"
         if "Avs" in split_name[1]:
-            return split_name[0] + "Av"
+            return split_name[0] + " Av"
         return split_name[1]
     return split_name[0]

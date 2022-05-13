@@ -12,6 +12,7 @@ load("encoding/json.star", "json")
 load("http.star", "http")
 load("schema.star", "schema")
 load("cache.star", "cache")
+load("random.star", "random")
 
 ALL_POKEMON = 898
 CLASSIC_POKEMON = 386
@@ -23,7 +24,7 @@ def main(config):
     print("Let's play...WHO'S. THAT. POKEMON?!")
 
     allPokemon = howManyPokemon(config)
-    chosenId = getRandomNumber(allPokemon)
+    chosenId = random.number(1, allPokemon)
     pokemon = json.decode(getPokemon(chosenId))
     speed = getSpeed(config)
 
@@ -33,7 +34,7 @@ def main(config):
     sprite_url = pokemon["sprites"]["front_default"]
 
     # Variables that will be used by the render.
-    name = pokemon["name"].capitalize()
+    name = formatName(pokemon["name"])
     revealedImage = getCachedImage(sprite_url)
     silhouette = getCachedImage(IMGIX_URL.format(chosenId))
     bg = base64.decode(BACKGROUND)
@@ -81,6 +82,20 @@ def pullFromApi(url, key):
     cache.set(key, base64.encode(res.body()), CACHE_TTL_SECONDS)
     return res.body()
 
+# Formats all names. Removes all hyphens that don't belong for forms and spaces.
+# Also capitalizes appropriately.
+def formatName(name):
+    namesWithSpaces = ["mr-mime", "mime-jr", "porygon-z", "type-null", "tapu-koko", "tapu-lele", "tapu-bulu", "tapu-fini", "mr-rime"]
+    namesWithHyphens = ["ho-oh", "jangmo-o", "hakamo-o"]
+    if name in namesWithHyphens:
+        return name.capitalize()
+    elif name in namesWithSpaces:
+        return name.replace("-", " ").title()
+    elif "-" in name:
+        return name.split("-")[0].capitalize()
+    else:
+        return name.capitalize()
+
 # Gets cached image or new one if cache isn't available.
 # Returns image encoded and ready for use.
 def getCachedImage(url):
@@ -120,9 +135,9 @@ def compileFrames(name, silhouette, revealedImage, speed):
     transitionFrame = 0
     for frame in range(1, frameCount):
         if frame < startTransition:
-            frames.append(fullLayoutHidden(silhouette, 24))
+            frames.append(fullLayoutHidden(silhouette, 30))
         elif frame >= endTransition:
-            frames.append(fullLayoutRevealed(revealedImage, 24, name))
+            frames.append(fullLayoutRevealed(revealedImage, 30, name))
         else:
             # if it's transitioning, get transition width
             width = getTransitionWidth(transitionFrame)
@@ -142,13 +157,13 @@ def fullLayoutHidden(image, width):
         children = [
             render.Box(
                 width = 30,
-                height = 24,
+                height = 30,
                 child = render.Padding(
                     pad = (5, 0, 0, 0),
                     child = render.Image(
                         src = image,
                         width = width,
-                        height = 24,
+                        height = 30,
                     ),
                 ),
             ),
@@ -187,24 +202,26 @@ def fullLayoutHidden(image, width):
 
 # Layout function with text on bottom.
 def fullLayoutRevealed(image, width, text):
-    return render.Column(
-        expanded = True,
-        main_align = "center",
+    return render.Stack(
         children = [
             render.Box(
                 width = 38,
-                height = 24,
+                height = 30,
                 child = render.Image(
                     src = image,
                     width = width,
-                    height = 24,
+                    height = 30,
                 ),
             ),
-            render.Box(
-                height = 9,
-                child = render.Text(
-                    content = text,
-                    color = "#540503",
+            render.Padding(
+                pad = (0, 24, 0, 0),
+                child = render.Box(
+                    height = 9,
+                    child = render.Text(
+                        content = text,
+                        offset = 0,
+                        color = "#240109",
+                    ),
                 ),
             ),
         ],
@@ -214,12 +231,6 @@ def fullLayoutRevealed(image, width, text):
 def getTransitionWidth(frame):
     widths = [18, 12, 6, 1, 1, 6, 12, 18]
     return widths[frame]
-
-# Gets a random number from 0 to the number specified (inclusive).
-def getRandomNumber(max):
-    num = max + 1
-    seed = time.now().unix
-    return seed % num
 
 def get_schema():
     return schema.Schema(
