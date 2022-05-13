@@ -41,7 +41,6 @@ WEIGHT_COLOR = "#00B0B9"
 WHITE_COLOR = "#FFF"
 
 def main(config):
-
     #get user settings
     #authorization_code = config.get("code")
 
