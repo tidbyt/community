@@ -94,6 +94,13 @@ def get_schema():
                 default = priorities[0].value,
                 options = priorities,
             ),
+            schema.Text(
+                id = "minimum_time",
+                name = "Minimum time to show",
+                desc = "Don't show predictions nearer than this minimum.",
+                icon = "clock",
+                default = "0",
+            )
         ],
     )
 
@@ -146,6 +153,8 @@ def main(config):
     if type(routes) != "list":
         routes = [routes]
 
+    minimum_time_string = config.str("minimum_time", "0")
+    minimum_time = int(minimum_time_string) if minimum_time_string.isdigit() else 0
     prediction_map = {}
     messages = []
 
@@ -179,6 +188,9 @@ def main(config):
 
             title = routeTag if "short" == config.get("prediction_format") else (routeTag, destTitle)
             minutes = [prediction["minutes"] for prediction in predictions if "minutes" in prediction]
+            
+            minutes = [time for time in minutes if time.isdigit() and int(time) > minimum_time]
+            
             prediction_map[title] = sorted(minutes, key = int)
 
     output = sorted(prediction_map.items(), key = lambda kv: int(min(kv[1], key = int)))
