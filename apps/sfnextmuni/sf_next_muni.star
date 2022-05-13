@@ -118,7 +118,9 @@ def get_stops(location):
     ]
 
 def square_distance(lat1, lon1, lat2, lon2):
-    return int((float(lat2) - float(lat1)) * 1000) ^ 2 + int((float(lon2) - float(lon1)) * 1000) ^ 2
+    latitude_difference = int((float(lat2) - float(lat1)) * 10000)
+    longitude_difference = int((float(lon2) - float(lon1)) * 10000)
+    return latitude_difference * latitude_difference + longitude_difference * longitude_difference
 
 def fetch_cached(url, ttl):
     cached = cache.get(url)
