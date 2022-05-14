@@ -52,6 +52,7 @@ import (
 	"tidbyt.dev/community/apps/isstracker"
 	"tidbyt.dev/community/apps/jokesjokeapi"
 	"tidbyt.dev/community/apps/launchcountdown"
+	"tidbyt.dev/community/apps/life"
 	"tidbyt.dev/community/apps/lirr"
 	"tidbyt.dev/community/apps/manifest"
 	"tidbyt.dev/community/apps/mbta"
@@ -164,6 +165,7 @@ func GetManifests() []manifest.Manifest {
 		isstracker.New(),
 		jokesjokeapi.New(),
 		launchcountdown.New(),
+		life.New(),
 		lirr.New(),
 		mbta.New(),
 		mbtanewtrains.New(),
