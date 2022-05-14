@@ -16,7 +16,7 @@ func New() manifest.Manifest {
 		ID:          "life",
 		Name:        "Life",
 		Author:      "dinosaursrarr",
-		Summary:     "Conway's Game of Life",
+		Summary:     "Conways Game of Life",
 		Desc:        "Runs a famous cellular automaton and animates the state on screen.",
 		FileName:    "life.star",
 		PackageName: "life",

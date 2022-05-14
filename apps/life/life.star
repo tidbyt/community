@@ -1,6 +1,6 @@
 """
 Applet: Life
-Summary: Conway's Game of Life
+Summary: Conways Game of Life
 Description: Runs a famous cellular automaton and animates the state on screen.
 Author: dinosaursrarr
 """
