@@ -7,7 +7,7 @@ Author: rs7q5
 
 #vertical_message.star
 #Created 20220221 RIS
-#Last Modified 20220510 RIS
+#Last Modified 20220515 RIS
 
 load("render.star", "render")
 load("schema.star", "schema")
@@ -60,7 +60,7 @@ def main(config):
                 color = color_opt,
                 font = config.str("font", "tb-8"),
                 linespacing = linespacing_final,
-                alignment = config.str("text_align", "left"),
+                align = config.str("text_align", "left"),
             ),
             scroll_direction = "vertical",
         ),
