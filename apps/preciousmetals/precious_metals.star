@@ -1,7 +1,7 @@
 """
 Applet: Precious Metals
 Summary: Quotes on precious metals
-Description: Quotes for gold, platnum and silver.
+Description: Quotes for gold, platinum and silver.
 Author: threeio
 """
 
