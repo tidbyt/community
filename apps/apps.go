@@ -56,6 +56,7 @@ import (
 	"tidbyt.dev/community/apps/manifest"
 	"tidbyt.dev/community/apps/mbta"
 	"tidbyt.dev/community/apps/mbtanewtrains"
+	"tidbyt.dev/community/apps/mindthegap"
 	"tidbyt.dev/community/apps/mlbleaders"
 	"tidbyt.dev/community/apps/mlbscores"
 	"tidbyt.dev/community/apps/mnlightrail"
@@ -82,6 +83,7 @@ import (
 	"tidbyt.dev/community/apps/pokedex"
 	"tidbyt.dev/community/apps/pollencount"
 	"tidbyt.dev/community/apps/powerball"
+	"tidbyt.dev/community/apps/preciousmetals"
 	"tidbyt.dev/community/apps/purpleair"
 	"tidbyt.dev/community/apps/randomslackmoji"
 	"tidbyt.dev/community/apps/redditimages"
@@ -167,6 +169,7 @@ func GetManifests() []manifest.Manifest {
 		lirr.New(),
 		mbta.New(),
 		mbtanewtrains.New(),
+		mindthegap.New(),
 		mlbleaders.New(),
 		mlbscores.New(),
 		mnlightrail.New(),
@@ -193,6 +196,7 @@ func GetManifests() []manifest.Manifest {
 		pokedex.New(),
 		pollencount.New(),
 		powerball.New(),
+		preciousmetals.New(),
 		purpleair.New(),
 		randomslackmoji.New(),
 		redditimages.New(),
