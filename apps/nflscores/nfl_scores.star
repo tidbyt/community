@@ -99,7 +99,7 @@ def main(config):
             scoreFont = "CG-pixel-3x5-mono"
             convertedTime = time.parse_time(gameTime, format = "2006-01-02T15:04Z").in_location(timezone)
             if convertedTime.format("1/2") != now.format("1/2"):
-                gameTime = convertedTime.format("1/2 / 3:04 PM")
+                gameTime = convertedTime.format("1/2 - 3:04 PM")
             else:
                 gameTime = convertedTime.format("3:04 PM")
             if pregameDisplay == "odds":
@@ -116,8 +116,14 @@ def main(config):
             elif pregameDisplay == "record":
                 checkSeries = competition.get("series", "NO")
                 if checkSeries == "NO":
-                    homeScore = competition["competitors"][0]["records"][0]["summary"]
-                    awayScore = competition["competitors"][1]["records"][0]["summary"]
+                    homeCompetitor = competition["competitors"][0]
+                    checkRecord = homeCompetitor.get("records", "NO")
+                    if checkRecord == "NO":
+                        homeScore = "0-0"
+                        awayScore = "0-0"
+                    else:
+                        homeScore = competition["competitors"][0]["records"][0]["summary"]
+                        awayScore = competition["competitors"][1]["records"][0]["summary"]
                 else:
                     homeScore = str(competition["series"]["competitors"][0]["wins"]) + "-" + str(competition["series"]["competitors"][1]["wins"])
                     awayScore = str(competition["series"]["competitors"][1]["wins"]) + "-" + str(competition["series"]["competitors"][0]["wins"])
@@ -135,19 +141,21 @@ def main(config):
 
         if gameStatus == "post":
             gameTime = s["status"]["type"]["shortDetail"]
+            gameName = s["status"]["type"]["name"]
             checkSeries = competition.get("series", "NO")
             checkNotes = len(competition["notes"])
             if checkSeries != "NO":
                 seriesSummary = competition["series"]["summary"]
                 gameTime = seriesSummary.replace("series ", "")
-            elif checkNotes > 0:
-                gameHeadline = competition["notes"][0]["headline"]
-                if gameHeadline.find(" - ") > 0:
-                    gameNoteArray = gameHeadline.split(" - ")
-                    gameTime = str(gameNoteArray[1]) + " / " + gameTime
-            if gameTime == "Postponed":
+                if checkNotes > 0:
+                    gameHeadline = competition["notes"][0]["headline"]
+                    if gameHeadline.find(" - ") > 0:
+                        gameNoteArray = gameHeadline.split(" - ")
+                        gameTime = str(gameNoteArray[1]) + " / " + gameTime
+            if gameName == "STATUS_POSTPONED":
                 homeScore = ""
                 awayScore = ""
+                gameTime = "Postponed"
             else:
                 homeScore = competition["competitors"][0]["score"]
                 awayScore = competition["competitors"][1]["score"]
