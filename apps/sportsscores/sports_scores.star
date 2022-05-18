@@ -6,7 +6,7 @@ Author: rs7q5
 """
 #sports_scores.star
 #Created 20220220 RIS
-#Last Modified 20220507 RIS
+#Last Modified 20220518 RIS
 
 load("render.star", "render")
 load("http.star", "http")
@@ -61,9 +61,11 @@ def main(config):
     else:
         frame_vec = get_frames(stats, sport, font, config)
 
+    speed_factor = 20 if config.str("scroll_logic", False) else 1  #get factor for scaling animation speed
+
     return render.Root(
-        delay = int(config.str("speed", "1000")),  #speed up scroll text
-        child = render.Animation(children = frame_vec),
+        delay = int(config.str("speed", "1000")) // speed_factor,  #speed up scroll text
+        child = frame_vec,
     )
 
 def get_schema():
@@ -112,6 +114,13 @@ def get_schema():
                 default = False,
             ),
             schema.Toggle(
+                id = "scroll_logic",
+                name = "Scroll games?",
+                desc = "",
+                icon = "cog",
+                default = False,
+            ),
+            schema.Toggle(
                 id = "highlight_team",
                 name = "Highlight team",
                 desc = "Highlight a select team.",
@@ -154,9 +163,11 @@ def get_frames(stats, sport_txt, font, config):
             main_align = "space_between",
             children = frame_vec_data,
         )
-        return [frame_vec_tmp]
+        return frame_vec_tmp
 
-    if sport_txt == "NBA" or config.bool("row_space", False):  #number of lines per frame (NBA is shorter because each game is two lines if it is on live)
+    if config.bool("scroll_logic", False):
+        line_max = len(stats)
+    elif sport_txt == "NBA" or config.bool("row_space", False):  #number of lines per frame (NBA is shorter because each game is two lines if it is on live)
         line_max = 4
     else:
         line_max = 5
@@ -249,41 +260,44 @@ def get_frames(stats, sport_txt, font, config):
                     render.Text("Away/Home", font = font),
                 ],
             ))
+            frame_data_tmp = render.Row(
+                expanded = True,
+                main_align = "space_between",
+                children = [
+                    render.Column(
+                        cross_align = "start",
+                        children = away_team,
+                    ),
+                    render.Column(
+                        cross_align = "start",
+                        children = away_score,
+                    ),
+                    render.Column(
+                        cross_align = "start",
+                        children = home_team,
+                    ),
+                    render.Column(
+                        cross_align = "start",
+                        children = home_score,
+                    ),
+                    render.Column(
+                        cross_align = "end",
+                        children = status_txt,
+                    ),
+                    render.Column(
+                        cross_align = "end",
+                        children = status_txt2,
+                    ),
+                ],
+            )
+            if config.bool("scroll_logic", False):
+                frame_data_tmp = render.Marquee(height = 27, scroll_direction = "vertical", child = frame_data_tmp)
             frame_vec_tmp = render.Column(
                 expanded = True,
                 main_align = "space_between",
                 children = [
                     header_text,
-                    render.Row(
-                        expanded = True,
-                        main_align = "space_between",
-                        children = [
-                            render.Column(
-                                cross_align = "start",
-                                children = away_team,
-                            ),
-                            render.Column(
-                                cross_align = "start",
-                                children = away_score,
-                            ),
-                            render.Column(
-                                cross_align = "start",
-                                children = home_team,
-                            ),
-                            render.Column(
-                                cross_align = "start",
-                                children = home_score,
-                            ),
-                            render.Column(
-                                cross_align = "end",
-                                children = status_txt,
-                            ),
-                            render.Column(
-                                cross_align = "end",
-                                children = status_txt2,
-                            ),
-                        ],
-                    ),
+                    frame_data_tmp,
                 ],
             )
 
@@ -296,7 +310,10 @@ def get_frames(stats, sport_txt, font, config):
             status_txt = []
             status_txt2 = []
 
-    return (frame_vec)
+    if config.bool("scroll_logic", False):
+        return frame_vec[0]
+    else:
+        return render.Animation(frame_vec)
 
 ######################################################
 #functions
