@@ -398,7 +398,7 @@ def get_mlbgames(today_str):
             if game["status"]["statusCode"] in ["S", "PW", "P"]:
                 game_time = time.parse_time(game["gameDate"]).in_location("America/New_York")
                 game_time_str = str(game_time.format("15:04"))
-                status_txt = game_time_str + "/EST"
+                status_txt = game_time_str + "/ET"
             else:  #not delayed before the game has started
                 status_txt = status
 
@@ -445,7 +445,7 @@ def get_nhlgames(today_str):
             game_time = time.parse_time(game["gameDate"]).in_location("America/New_York")
             game_time_str = str(game_time.format("15:04"))
 
-            status_txt = game_time_str + "/EST"
+            status_txt = game_time_str + "/ET"
         elif status == "9":
             status_txt = "PostP"
         elif linescore != []:  #this should cover live and final states
@@ -506,7 +506,7 @@ def get_nbagames(today_str):
             game_time = time.parse_time(game_time_tmp).in_location("America/New_York")
             game_time_str = str(game_time.format("15:04"))
 
-            status_txt = game_time_str + "/EST"
+            status_txt = game_time_str + "/ET"
         elif game["status"]["type"]["state"] == "in" or status in ["2", "3"]:  #linescore!=[]: #this should cover live and final states
             period = int(game["status"]["period"])  #str(int(game["status"]["period"]))
             period_T = game["status"]["displayClock"]
@@ -570,7 +570,7 @@ def get_nflgames(today_str):
             game_time = time.parse_time(game_time_tmp).in_location("America/New_York")
             game_time_str = str(game_time.format("15:04"))
 
-            status_txt = game_time_str + "/EST"
+            status_txt = game_time_str + "/ET"
         elif game["status"]["type"]["state"] == "in" or status in ["2", "3"]:  #linescore!=[]: #this should cover live and final states
             period = int(game["status"]["period"])  #str(int(game["status"]["period"]))
             period_T = game["status"]["displayClock"]
