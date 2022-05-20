@@ -103,11 +103,11 @@ def get_stops(location):
     raw_routes = fetch_cached(ROUTES_URL, 86400)
     routes = [route["tag"] for route in raw_routes["route"]]
 
-    stops = []
+    stops = {}
 
     for route in routes:
         raw_stops = fetch_cached((STOPS_URL % route), 86400)
-        stops.extend(raw_stops["route"]["stop"])
+        stops.update(raw_stops["route"]["stop"])
 
     return [
         schema.Option(
