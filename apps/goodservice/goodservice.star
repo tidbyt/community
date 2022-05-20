@@ -41,6 +41,7 @@ ABBREVIATIONS = {
     "Rockaway": "Rckwy",
     "Channel": "Chnl",
     "Green": "Grn",
+    "Broadway": "Bway",
 }
 
 DIAMONDS = {
@@ -63,7 +64,7 @@ def main(config):
     if stops_req.status_code != 200:
         fail("goodservice stops request failed with status %d", stops_req.status_code)
 
-    direction_config = config.str("stop_id", DEFAULT_DIRECTION)
+    direction_config = config.str("direction", DEFAULT_DIRECTION)
     if direction_config == "both":
         directions = ["north", "south"]
     else:
@@ -212,11 +213,11 @@ def get_schema():
     stops_options = []
 
     for s in stops_req.json()["stops"]:
-        stop_name = s["name"] + s["secondary_name"] if s["secondary_name"] else s["name"]
+        stop_name = s["name"].replace(" - ", "-") + " - " + s["secondary_name"] if s["secondary_name"] else s["name"].replace(" - ", "-")
         routes = sorted(s["routes"].keys())
         stops_options.append(
             schema.Option(
-                display = stop_name + "(" + ", ".join(routes) + ")",
+                display = stop_name + " (" + ", ".join(routes) + ")",
                 value = s["id"],
             ),
         )
@@ -279,5 +280,9 @@ def condense_name(name):
         name = name.replace(key, ABBREVIATIONS[key])
     split_name = name.split("-")
     if len(split_name) > 1 and ("St" in split_name[1] or "Av" in split_name[1] or "Sq" in split_name[1] or "Bl" in split_name[1]) and (split_name[0] != "Far Rckwy"):
+        if "Sts" in split_name[1]:
+            return split_name[0] + " St"
+        if "Avs" in split_name[1]:
+            return split_name[0] + " Av"
         return split_name[1]
     return split_name[0]

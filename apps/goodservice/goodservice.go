@@ -15,9 +15,9 @@ func New() manifest.Manifest {
 	return manifest.Manifest{
 		ID:          "goodservice",
 		Name:        "Goodservice",
-		Author:      "blahblahblah-",
-		Summary:     "Goodservice NYC subway",
-		Desc:        "Projected New York City subway departure times, powered by goodservice.io.",
+		Author:      "Sunny Ng",
+		Summary:     "Goodservice - NYC Subway",
+		Desc:        "Projected New York City Subway departure times, powered by goodservice.io.",
 		FileName:    "goodservice.star",
 		PackageName: "goodservice",
 		Source:  source,

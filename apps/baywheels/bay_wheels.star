@@ -131,16 +131,18 @@ def get_stations(location):
         fail("No stations field found in data: %s" % str(result["data"])[:100])
     stations = result["data"]["stations"]
 
-    return sorted([
+    return [
         schema.Option(
             display = station["name"],
             value = station["station_id"],
         )
-        for station in stations
-    ], key = lambda station: square_distance(loc["lat"], loc["lon"], station["lat"], station["lon"]))
+        for station in sorted(stations, key = lambda station: square_distance(loc["lat"], loc["lng"], station["lat"], station["lon"]))
+    ]
 
 def square_distance(lat1, lon1, lat2, lon2):
-    return (lat2 - lat1) ^ 2 + (lon2 - lon1) ^ 2
+    latitude_difference = int((float(lat2) - float(lat1)) * 10000)
+    longitude_difference = int((float(lon2) - float(lon1)) * 10000)
+    return latitude_difference * latitude_difference + longitude_difference * longitude_difference
 
 def fetch_cached(url, ttl):
     cached = cache.get(url)
