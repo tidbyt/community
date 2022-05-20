@@ -66,7 +66,7 @@ TEAMS_LIST = {
     5: {"name": "Pittsburgh Penguins", "abbreviation": "PIT"},
     6: {"name": "Boston Bruins", "abbreviation": "BOS"},
     7: {"name": "Buffalo Sabres", "abbreviation": "BUF"},
-    8: {"name": "Montr\303\251al Canadiens", "abbreviation": "MTL"},
+    8: {"name": "Montreal Canadiens", "abbreviation": "MTL"},
     9: {"name": "Ottawa Senators", "abbreviation": "OTT"},
     10: {"name": "Toronto Maple Leafs", "abbreviation": "TOR"},
     12: {"name": "Carolina Hurricanes", "abbreviation": "CAR"},
