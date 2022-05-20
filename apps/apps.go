@@ -56,7 +56,6 @@ import (
 	"tidbyt.dev/community/apps/manifest"
 	"tidbyt.dev/community/apps/mbta"
 	"tidbyt.dev/community/apps/mbtanewtrains"
-	"tidbyt.dev/community/apps/mindthegap"
 	"tidbyt.dev/community/apps/mlbleaders"
 	"tidbyt.dev/community/apps/mlbscores"
 	"tidbyt.dev/community/apps/mnlightrail"
@@ -69,7 +68,6 @@ import (
 	"tidbyt.dev/community/apps/netatmo"
 	"tidbyt.dev/community/apps/nflscores"
 	"tidbyt.dev/community/apps/nft"
-	"tidbyt.dev/community/apps/nhllive"
 	"tidbyt.dev/community/apps/nhlnextgame"
 	"tidbyt.dev/community/apps/nhlscores"
 	"tidbyt.dev/community/apps/nightscout"
@@ -169,7 +167,6 @@ func GetManifests() []manifest.Manifest {
 		lirr.New(),
 		mbta.New(),
 		mbtanewtrains.New(),
-		mindthegap.New(),
 		mlbleaders.New(),
 		mlbscores.New(),
 		mnlightrail.New(),
@@ -182,7 +179,6 @@ func GetManifests() []manifest.Manifest {
 		netatmo.New(),
 		nflscores.New(),
 		nft.New(),
-		nhllive.New(),
 		nhlnextgame.New(),
 		nhlscores.New(),
 		nightscout.New(),
