@@ -387,6 +387,10 @@ def get_linescore_game_data(gamePk, config):
     if game_state == "Preview" or game_state == "Final":
         currentPeriodOrdinal = ""
         currentPeriodTimeRemaining = ""
+        is_pp_away = False
+        is_pp_home = False
+        is_empty_away = False
+        is_empty_away = False
     else:
         currentPeriodOrdinal = game["dates"][0]["games"][0]["linescore"]["currentPeriodOrdinal"]
         currentPeriodTimeRemaining = game["dates"][0]["games"][0]["linescore"]["currentPeriodTimeRemaining"]
