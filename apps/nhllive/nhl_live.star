@@ -381,7 +381,7 @@ def get_linescore_game_data(gamePk, config):
     is_pp_away = game["dates"][0]["games"][0]["linescore"]["teams"]["away"]["powerPlay"]
     is_pp_home = game["dates"][0]["games"][0]["linescore"]["teams"]["home"]["powerPlay"]
     is_empty_away = game["dates"][0]["games"][0]["linescore"]["teams"]["away"]["goaliePulled"]
-    is_empty_home = game["dates"][0]["games"][0]["linescore"]["teams"]["away"]["goaliePulled"]
+    is_empty_home = game["dates"][0]["games"][0]["linescore"]["teams"]["home"]["goaliePulled"]
     info = get_game_info(game, config)
 
     if game_state == "Preview" or game_state == "Final":
