@@ -1,5 +1,5 @@
-// Package mlbscores provides details for the MLB Scores applet.
-package mlbscores
+// Package mlsscores provides details for the MLS Scores applet.
+package mlsscores
 
 import (
 	_ "embed"
@@ -7,19 +7,19 @@ import (
 	"tidbyt.dev/community/apps/manifest"
 )
 
-//go:embed mlb_scores.star
+//go:embed mls_scores.star
 var source []byte
 
-// New creates a new instance of the MLB Scores applet.
+// New creates a new instance of the MLS Scores applet.
 func New() manifest.Manifest {
 	return manifest.Manifest{
-		ID:          "mlb-scores",
-		Name:        "MLB Scores",
+		ID:          "mls-scores",
+		Name:        "mls Scores",
 		Author:      "cmarkham20",
-		Summary:     "Displays MLB scores",
-		Desc:        "Displays live and upcoming MLB scores from a data feed.",
-		FileName:    "mlb_scores.star",
-		PackageName: "mlbscores",
+		Summary:     "Displays MLS scores",
+		Desc:        "Displays live and upcoming MLS scores from a data feed.",
+		FileName:    "mls_scores.star",
+		PackageName: "mlsscores",
 		Source:  source,
 	}
 }
