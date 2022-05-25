@@ -14,7 +14,7 @@ var source []byte
 func New() manifest.Manifest {
 	return manifest.Manifest{
 		ID:          "mls-scores",
-		Name:        "mls Scores",
+		Name:        "MLS Scores",
 		Author:      "cmarkham20",
 		Summary:     "Displays MLS scores",
 		Desc:        "Displays live and upcoming MLS scores from a data feed.",
