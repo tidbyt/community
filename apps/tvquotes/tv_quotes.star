@@ -15,6 +15,8 @@ load("encoding/json.star", "json")
 load("cache.star", "cache")
 load("schema.star", "schema")
 
+font = "CG-pixel-3x5-mono"
+
 def main(config):
     if config.bool("hide_app", False):
         return []
@@ -30,7 +32,7 @@ def main(config):
         header_txt_raw += " - %s" % quote["character"]
 
     #format header and quote text
-    header_txt = render.Marquee(width = 64, child = render.Text(content = header_txt_raw, color = "#D2691E"))
+    header_txt = render.Marquee(width = 64, child = render.Text(content = header_txt_raw, font = font, color = "#D2691E"))
     quote_format = format_quote(quote["text"])
 
     scroll_opt = config.str("speed", "50")
@@ -223,7 +225,7 @@ def format_quote(quote):
         else:
             ctmp = "#c8c8fa"
         line_tmp = split_sentence(line, 12, join_word = True)  #combine and split words correctly
-        line_format = render.WrappedText(content = line_tmp, width = 64, color = ctmp, font = "CG-pixel-3x5-mono", linespacing = 1)
+        line_format = render.WrappedText(content = line_tmp, width = 64, color = ctmp, font = font, linespacing = 1)
         frame_data.append(line_format)
 
     return render.Marquee(
