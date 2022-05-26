@@ -56,6 +56,7 @@ import (
 	"tidbyt.dev/community/apps/manifest"
 	"tidbyt.dev/community/apps/mbta"
 	"tidbyt.dev/community/apps/mbtanewtrains"
+	"tidbyt.dev/community/apps/mindthegap"
 	"tidbyt.dev/community/apps/mlbleaders"
 	"tidbyt.dev/community/apps/mlbscores"
 	"tidbyt.dev/community/apps/mnlightrail"
@@ -102,6 +103,7 @@ import (
 	"tidbyt.dev/community/apps/todoist"
 	"tidbyt.dev/community/apps/traffic"
 	"tidbyt.dev/community/apps/transsee"
+	"tidbyt.dev/community/apps/tvquotes"
 	"tidbyt.dev/community/apps/twitterfollows"
 	"tidbyt.dev/community/apps/unsplash"
 	"tidbyt.dev/community/apps/usgsearthquakes"
@@ -167,6 +169,7 @@ func GetManifests() []manifest.Manifest {
 		lirr.New(),
 		mbta.New(),
 		mbtanewtrains.New(),
+		mindthegap.New(),
 		mlbleaders.New(),
 		mlbscores.New(),
 		mnlightrail.New(),
@@ -213,6 +216,7 @@ func GetManifests() []manifest.Manifest {
 		todoist.New(),
 		traffic.New(),
 		transsee.New(),
+		tvquotes.New(),
 		twitterfollows.New(),
 		unsplash.New(),
 		usgsearthquakes.New(),
