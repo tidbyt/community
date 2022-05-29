@@ -8,6 +8,7 @@ import (
 	"errors"
 
 	"tidbyt.dev/community/apps/abstractclock"
+	"tidbyt.dev/community/apps/afl"
 	"tidbyt.dev/community/apps/ambientweather"
 	"tidbyt.dev/community/apps/analogclock"
 	"tidbyt.dev/community/apps/analogtime"
@@ -56,6 +57,7 @@ import (
 	"tidbyt.dev/community/apps/manifest"
 	"tidbyt.dev/community/apps/mbta"
 	"tidbyt.dev/community/apps/mbtanewtrains"
+	"tidbyt.dev/community/apps/mindthegap"
 	"tidbyt.dev/community/apps/mlbleaders"
 	"tidbyt.dev/community/apps/mlbscores"
 	"tidbyt.dev/community/apps/mnlightrail"
@@ -120,6 +122,7 @@ import (
 func GetManifests() []manifest.Manifest {
 	return []manifest.Manifest{
 		abstractclock.New(),
+		afl.New(),
 		ambientweather.New(),
 		analogclock.New(),
 		analogtime.New(),
@@ -167,6 +170,7 @@ func GetManifests() []manifest.Manifest {
 		lirr.New(),
 		mbta.New(),
 		mbtanewtrains.New(),
+		mindthegap.New(),
 		mlbleaders.New(),
 		mlbscores.New(),
 		mnlightrail.New(),
