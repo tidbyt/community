@@ -61,6 +61,7 @@ def getTeamIconFromID(team_id):
         return ("iVBORw0KGgoAAAANSUhEUgAAABIAAAASCAYAAABWzo5XAAAAAXNSR0IArs4c6QAAAERlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAA6ABAAMAAAABAAEAAKACAAQAAAABAAAAEqADAAQAAAABAAAAEgAAAACaqbJVAAAANElEQVQ4EWP8f5D9PwM2YPcDmyiDtEo9VnEmrKJkCI4aRDjQRsNoNIwIhwBhFaPpiHAYAQBZHATebqrONQAAAABJRU5ErkJggg==")
     elif team_id == 18:  #WBD
         return "iVBORw0KGgoAAAANSUhEUgAAABIAAAASCAYAAABWzo5XAAAAAXNSR0IArs4c6QAAAERlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAA6ABAAMAAAABAAEAAKACAAQAAAABAAAAEqADAAQAAAABAAAAEgAAAACaqbJVAAAAOElEQVQ4EWPkdV/4n4EKgIkKZoCNGDWIcEgOvjBivKyvP0zTEeOgyyKM/4GAcCohrGIQpqNBF9gALe0MKAvt8SYAAAAASUVORK5CYII="
+    return None
 
 #get abbreviated team name from the team_id. Teams are in alphabetical order
 def getTeamAbbFromID(team_id):
@@ -100,7 +101,7 @@ def getTeamAbbFromID(team_id):
         return ("WCE")
     elif team_id == 18:  #WBD
         return "WBD"
-
+    return None
 
 def main(config):
 
