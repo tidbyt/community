@@ -91,7 +91,7 @@ def get_schema():
                 icon = "palette",
                 default = options[0].value,
                 options = options,
-            )
+            ),
         ],
     )
 
