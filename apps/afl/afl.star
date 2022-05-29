@@ -125,46 +125,45 @@ def main(config):
 	#could tidy this up a little
 	#get the team identifier in standings order
     for i in range(len(stand_data["standings"])):
-   		standings.append(stand_data["standings"][i]["id"])
+        standings.append(stand_data["standings"][i]["id"])
    		
     #build the output message    
     message = " "
     for i, x in enumerate(standings):
-  		message = message + str(i+1)+ ": " + getTeamAbbFromID(standings[i]) + "  "
+        message = message + str(i+1)+ ": " + getTeamAbbFromID(standings[i]) + "  "
 	
     games_cached = cache.get("afl_games")
   	
 	#call the Squiggle API and retreive list of unfinished games for the year  
-    if games_cached != None:
-  		print("Hit! Displaying cached game data.")
-  		game_data = json.decode(games_cached)
+    if games_cached != None :
+        print("Hit! Displaying cached game data.")
+        game_data = json.decode(games_cached)
     else:
-  		print("Miss! Calling Squiggle API for game data")
-  		rep2 = http.get(AFL_GAMES_URL+todaysDateFormatted[0:4]+";complete=!100")
-  		if rep2.status_code !=200:
-  			fail("Squiggle request failed with status %d", rep2.status_code)
-  		game_data = rep2.json()	
-  		cache.set("afl_games",json.encode(game_data),ttl_seconds=3600)
+        print("Miss! Calling Squiggle API for game data")
+        rep2 = http.get(AFL_GAMES_URL+todaysDateFormatted[0:4]+";complete=!100")
+        if rep2.status_code !=200:
+            fail("Squiggle request failed with status %d", rep2.status_code)
+        game_data = rep2.json()	
+        cache.set("afl_games",json.encode(game_data),ttl_seconds=3600)
   	
     hgames = []
   	#find the home games for this team - finals data is null until populated at end of primary rounds
     for i in range(len(game_data["games"])):
-  		if game_data["games"][i]["hteamid"]:
-		  	hometeam = int(game_data["games"][i]["hteamid"]) #convert to int as this field is decimal
-  		if  str(hometeam) == str(teamID): #compare the two as strings
-  			hgames.append(game_data["games"][i]["id"]) #add this game to the list of games
+        if game_data["games"][i]["hteamid"]:
+            hometeam = int(game_data["games"][i]["hteamid"]) #convert to int as this field is decimal
+        if  str(hometeam) == str(teamID): #compare the two as strings
+            hgames.append(game_data["games"][i]["id"]) #add this game to the list of games
   			
     agames = []
   	#find the away games for this team
     for i in range(len(game_data["games"])):
-	  	if game_data["games"][i]["ateamid"]:
-  			awayteam = int(game_data["games"][i]["ateamid"])	
+        if game_data["games"][i]["ateamid"]:
+            awayteam = int(game_data["games"][i]["ateamid"])	
 		if str(awayteam) == str(teamID):
   			agames.append(game_data["games"][i]["id"])
-  	
-  	#make sure we have the first game either home or away
+    
     if agames[0] > hgames[0]:
-  		nextgameID = int(hgames[0])
+        nextgameID = int(hgames[0])
     else:
   		nextgameID = int(agames[0])
   	
