@@ -25,7 +25,7 @@ DEFAULT_TEAM = "16"
 
 #team icons in base64
 def getTeamIconFromID(team_id):
-    if team_id == 1: #ADE
+    if team_id == 1:  #ADE
         return ("iVBORw0KGgoAAAANSUhEUgAAABIAAAASCAYAAABWzo5XAAAAAXNSR0IArs4c6QAAAERlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAA6ABAAMAAAABAAEAAKACAAQAAAABAAAAEqADAAQAAAABAAAAEgAAAACaqbJVAAAAPUlEQVQ4EWOUUq77z0AFwEQFM8BGUM0gxqsMDMPVa/9fWw9Tr7FIWzhTJSlRLR1RzaDRBEk4YqkW2FQzCAD9vAxi/8qeMQAAAABJRU5ErkJggg==")
     elif team_id == 2:  #BRI
         return ("iVBORw0KGgoAAAANSUhEUgAAABIAAAASCAYAAABWzo5XAAAAAXNSR0IArs4c6QAAAERlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAA6ABAAMAAAABAAEAAKACAAQAAAABAAAAEqADAAQAAAABAAAAEgAAAACaqbJVAAAAiUlEQVQ4EWNUnPb5PwMVABMVzAAbMWoQ4ZBk7ODzH0mxVr55BwMIowNsYjA1GGGErrjT1wOmFkzD5NHFMRIkugIUU6AcbGowXATTCLMZxken0Q3DcBFMA7pCmDgumgWXBMxFyAbCxLDpweoikAZkA5A1wsTRDcVqEEwxsgHIhmOTxxnYyIYQwwYAn2wsec27ZnIAAAAASUVORK5CYII=")
@@ -104,78 +104,80 @@ def getTeamAbbFromID(team_id):
     return None
 
 def main(config):
-
     team_id = config.get("main_team") or DEFAULT_TEAM
-        
-    todays_date= time.now()
+
+    todays_date = time.now()
     todays_date_formatted = humanize.time_format("yyyy-MM-dd", todays_date)
 
     message = " "
-    
+
     standings_cached = cache.get("afl_standings")
+
     #only make the request from the API if we need to
     if standings_cached != None:
         stand_data = json.decode(standings_cached)
     else:
         rep = http.get(AFL_STANDINGS_URL)
-        if rep.status_code !=200:
+        if rep.status_code != 200:
             fail("Squiggle request failed with status %d", rep.status_code)
         stand_data = rep.json()
-        cache.set("afl_standings",json.encode(stand_data),ttl_seconds=3600)
-    
+        cache.set("afl_standings", json.encode(stand_data), ttl_seconds = 3600)
+
     standings = []
-    #could tidy this up a little
+
     #get the team identifier in standings order
     for i in range(len(stand_data["standings"])):
         standings.append(stand_data["standings"][i]["id"])
-           
-    #build the output message    
+
+    #build the output message
     message = " "
-    for i,x in enumerate(standings):
-        message = message + str(i+1)+ ": " + getTeamAbbFromID(standings[i]) + "  "
-      
+    for i, x in enumerate(standings):
+        message = message + str(i + 1) + ": " + getTeamAbbFromID(standings[i]) + "  "
+
     games_cached = cache.get("afl_games")
-      
-    #call the Squiggle API and retreive list of unfinished games for the year  
+
+    #call the Squiggle API and retreive list of unfinished games for the year
     if games_cached != None:
         game_data = json.decode(games_cached)
     else:
-        rep2 = http.get(AFL_GAMES_URL+todays_date_formatted[0:4]+";complete=!100")
-        if rep2.status_code !=200:
-              fail("Squiggle request failed with status %d", rep2.status_code)
-        game_data = rep2.json()	
-        cache.set("afl_games",json.encode(game_data),ttl_seconds=3600)
-      
+        rep2 = http.get(AFL_GAMES_URL + todays_date_formatted[0:4] + ";complete=!100")
+        if rep2.status_code != 200:
+            fail("Squiggle request failed with status %d", rep2.status_code)
+        game_data = rep2.json()
+        cache.set("afl_games", json.encode(game_data), ttl_seconds = 3600)
+
     hgames = []
     hometeam = 0
+
     #find the home games for this team - finals data is null until populated at end of primary rounds
     for i in range(len(game_data["games"])):
         if game_data["games"][i]["hteamid"]:
-            hometeam = int(game_data["games"][i]["hteamid"]) #convert to int as this field is decimal
-        if  str(hometeam) == str(team_id): #compare the two as strings
-            hgames.append(game_data["games"][i]["id"]) #add this game to the list of games
-              
+            hometeam = int(game_data["games"][i]["hteamid"])  #convert to int as this field is decimal
+        if str(hometeam) == str(team_id):  #compare the two as strings
+            hgames.append(game_data["games"][i]["id"])  #add this game to the list of games
+
     agames = []
     awayteam = 0
+
     #find the away games for this team
     for i in range(len(game_data["games"])):
         if game_data["games"][i]["ateamid"]:
-            awayteam = int(game_data["games"][i]["ateamid"])	
+            awayteam = int(game_data["games"][i]["ateamid"])
         if str(awayteam) == str(team_id):
             agames.append(game_data["games"][i]["id"])
-    
+
     #make sure we have the first game either home or away
     if agames[0] > hgames[0]:
         nextgame_id = int(hgames[0])
     else:
         nextgame_id = int(agames[0])
-      
+
     hometeam_id = ""
     awayteam_id = ""
     nextgamedate = ""
     round_number = ""
     venue = ""
-      
+
     #get the data for the next game
     for i in range(len(game_data["games"])):
         if game_data["games"][i]["id"] == nextgame_id:
@@ -192,16 +194,17 @@ def main(config):
         display_date = "Today"
     else:
         display_date = nextgamedate[8:10] + "-" + nextgamedate[5:7]
-    
+
     display_time = nextgamedate[11:16]
 
     #get icon data
     home_team_icon = base64.decode(getTeamIconFromID(hometeam_id))
     away_team_icon = base64.decode(getTeamIconFromID(awayteam_id))
+
     #get abbreviated team name
     home_team_abb = getTeamAbbFromID(hometeam_id)
     away_team_abb = getTeamAbbFromID(awayteam_id)
-                 
+
     return render.Root(
         child = render.Column(
             expanded = True,
@@ -211,43 +214,43 @@ def main(config):
                     expanded = True,
                     main_align = "space_between",
                     cross_align = "center",
-                    children=[
+                    children = [
                         render.Box(
-                            width=24,
-                            height=26,
-                            child = render.WrappedText("RD:" + str(round_number) + " " + display_date + " " + display_time, font = "tom-thumb")
+                            width = 24,
+                            height = 26,
+                            child = render.WrappedText("RD:" + str(round_number) + " " + display_date + " " + display_time, font = "tom-thumb"),
                         ),
                         render.Box(
-                            width=20,
-                            height=26,
-                            padding=1,
-                            child=render.Column(
-                                cross_align="center",
-                                children=[
+                            width = 20,
+                            height = 26,
+                            padding = 1,
+                            child = render.Column(
+                                cross_align = "center",
+                                children = [
                                     render.Image(home_team_icon),
                                     render.Text(home_team_abb, font = "tom-thumb"),
                                 ],
-                            )
+                            ),
                         ),
                         render.Box(
-                            width=20,
-                            height=26,
-                            padding=1,
-                            child=render.Column(
-                                cross_align="center",
-                                children=[
+                            width = 20,
+                            height = 26,
+                            padding = 1,
+                            child = render.Column(
+                                cross_align = "center",
+                                children = [
                                     render.Image(away_team_icon),
                                     render.Text(away_team_abb, font = "tom-thumb"),
                                 ],
-                            )
+                            ),
                         ),
                     ],
                 ),
                 render.Marquee(
-                    width=64,
+                    width = 64,
                     child = render.Text(message, font = "tom-thumb"),
-                    offset_start=5,
-                    offset_end=32,
+                    offset_start = 5,
+                    offset_end = 32,
                 ),
             ],
         ),
