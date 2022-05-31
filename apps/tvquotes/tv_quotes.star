@@ -7,7 +7,7 @@ Author: rs7q5
 
 #tv_quotes.star
 #Created 20220525 RIS
-#Last Modified 20220526 RIS
+#Last Modified 20220531 RIS
 
 load("render.star", "render")
 load("http.star", "http")
@@ -72,6 +72,13 @@ def get_schema():
                 desc = "Enable to display a random quote.",
                 icon = "shuffle",
                 default = True,
+            ),
+            schema.Toggle(
+                id = "short_quote",
+                name = "Short quote",
+                desc = "Enable to display quotes by a single character.",
+                icon = "cog",
+                default = False,
             ),
             schema.Toggle(
                 id = "display_character",
@@ -181,7 +188,7 @@ def get_shows():
 
 def get_quote(config):
     #get tv quote
-    QUOTE_URL = "https://quotes.alakhpc.com/quotes"
+    QUOTE_URL = "https://quotes.alakhpc.com/quotes?short=%s" % str(config.bool("short_quote", False)).lower()
     show = config.str("show", "Seinfeld")
 
     #get cache key
@@ -191,9 +198,11 @@ def get_quote(config):
     else:
         show_txt = show
         cache_key = "tvquote_%s" % show
-        QUOTE_URL += "?show=%s" % show.replace(" ", "%20")  #add "%20" so URL doesn't fail
+        QUOTE_URL += "&show=%s" % show.replace(" ", "%20")  #add "%20" so URL doesn't fail
 
-    #print(QUOTE_URL)
+    #change cache key to get short quotes
+    if config.bool("short_quote", False):
+        cache_key += "_short"
 
     quote_cached = cache.get(cache_key)
     if quote_cached != None:
