@@ -76,7 +76,7 @@ def get_schema():
             schema.Toggle(
                 id = "short_quote",
                 name = "Short quote",
-                desc = "Enable to display quotes by a single character.",
+                desc = "Enable to display quotes from a single character.",
                 icon = "cog",
                 default = False,
             ),
