@@ -47,6 +47,7 @@ import (
 	"tidbyt.dev/community/apps/hurricanetracker"
 	"tidbyt.dev/community/apps/hvvdepartures"
 	"tidbyt.dev/community/apps/ifparank"
+	"tidbyt.dev/community/apps/indegostations"
 	"tidbyt.dev/community/apps/isitchristmas"
 	"tidbyt.dev/community/apps/islamicprayer"
 	"tidbyt.dev/community/apps/isstracker"
@@ -56,6 +57,7 @@ import (
 	"tidbyt.dev/community/apps/manifest"
 	"tidbyt.dev/community/apps/mbta"
 	"tidbyt.dev/community/apps/mbtanewtrains"
+	"tidbyt.dev/community/apps/mindthegap"
 	"tidbyt.dev/community/apps/mlbleaders"
 	"tidbyt.dev/community/apps/mlbscores"
 	"tidbyt.dev/community/apps/mnlightrail"
@@ -159,6 +161,7 @@ func GetManifests() []manifest.Manifest {
 		hurricanetracker.New(),
 		hvvdepartures.New(),
 		ifparank.New(),
+		indegostations.New(),
 		isitchristmas.New(),
 		islamicprayer.New(),
 		isstracker.New(),
@@ -167,6 +170,7 @@ func GetManifests() []manifest.Manifest {
 		lirr.New(),
 		mbta.New(),
 		mbtanewtrains.New(),
+		mindthegap.New(),
 		mlbleaders.New(),
 		mlbscores.New(),
 		mnlightrail.New(),
