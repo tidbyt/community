@@ -103,6 +103,7 @@ import (
 	"tidbyt.dev/community/apps/todoist"
 	"tidbyt.dev/community/apps/traffic"
 	"tidbyt.dev/community/apps/transsee"
+	"tidbyt.dev/community/apps/tube"
 	"tidbyt.dev/community/apps/tubestatus"
 	"tidbyt.dev/community/apps/twitterfollows"
 	"tidbyt.dev/community/apps/unsplash"
@@ -216,6 +217,7 @@ func GetManifests() []manifest.Manifest {
 		todoist.New(),
 		traffic.New(),
 		transsee.New(),
+		tube.New(),
 		tubestatus.New(),
 		twitterfollows.New(),
 		unsplash.New(),
