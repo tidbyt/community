@@ -53,6 +53,7 @@ import (
 	"tidbyt.dev/community/apps/jokesjokeapi"
 	"tidbyt.dev/community/apps/launchcountdown"
 	"tidbyt.dev/community/apps/lirr"
+	"tidbyt.dev/community/apps/londonbusstop"
 	"tidbyt.dev/community/apps/manifest"
 	"tidbyt.dev/community/apps/mbta"
 	"tidbyt.dev/community/apps/mbtanewtrains"
@@ -166,6 +167,7 @@ func GetManifests() []manifest.Manifest {
 		jokesjokeapi.New(),
 		launchcountdown.New(),
 		lirr.New(),
+		londonbusstop.New(),
 		mbta.New(),
 		mbtanewtrains.New(),
 		mlbleaders.New(),
