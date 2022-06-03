@@ -53,6 +53,7 @@ import (
 	"tidbyt.dev/community/apps/jokesjokeapi"
 	"tidbyt.dev/community/apps/launchcountdown"
 	"tidbyt.dev/community/apps/lirr"
+	"tidbyt.dev/community/apps/londonbusstop"
 	"tidbyt.dev/community/apps/manifest"
 	"tidbyt.dev/community/apps/mbta"
 	"tidbyt.dev/community/apps/mbtanewtrains"
@@ -103,6 +104,7 @@ import (
 	"tidbyt.dev/community/apps/traffic"
 	"tidbyt.dev/community/apps/transsee"
 	"tidbyt.dev/community/apps/tube"
+	"tidbyt.dev/community/apps/tubestatus"
 	"tidbyt.dev/community/apps/twitterfollows"
 	"tidbyt.dev/community/apps/unsplash"
 	"tidbyt.dev/community/apps/usgsearthquakes"
@@ -166,6 +168,7 @@ func GetManifests() []manifest.Manifest {
 		jokesjokeapi.New(),
 		launchcountdown.New(),
 		lirr.New(),
+		londonbusstop.New(),
 		mbta.New(),
 		mbtanewtrains.New(),
 		mlbleaders.New(),
@@ -215,6 +218,7 @@ func GetManifests() []manifest.Manifest {
 		traffic.New(),
 		transsee.New(),
 		tube.New(),
+		tubestatus.New(),
 		twitterfollows.New(),
 		unsplash.New(),
 		usgsearthquakes.New(),
