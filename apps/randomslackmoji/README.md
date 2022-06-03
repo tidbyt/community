@@ -6,13 +6,21 @@ Displays a random image from [slackmojis.com](https://slackmojis.com/) on your T
 
 ## Slackmojis API
 
+### Main API
+
 The Slackmojis API doesn't provide many options. It returns an array of 500 images at a time and takes only a single `page` parameter. That's it.
 
 Example: https://slackmojis.com/emojis.json?page=25
 
+### Search API
+
+The search API powers the slackmojis.com front end and returns html. It takes a `query` and optional `page` parameter. Because this returns html, we scrape the results to find the returned `<img>` tags. Will it break some day? Hopefully not.
+
+Example: https://slackmojis.com/emojis/search?page=2&query=test
+
 ## Potential Future Improvements
 
-- [ ] If the Slackmojis API adds a search parameter this app could be customizable and allow users to enter a search phrase and only display images from those results.
+- [x] Allow users to enter a search phrase and only display images from those results.
 - [x] Maintain aspect ratio of an image so that non-square images are not stretched.
 
 ## Screenshots
