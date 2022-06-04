@@ -18,9 +18,9 @@ load("render.star", "render")
 load("schema.star", "schema")
 
 # Parsing input
-COLOUR_RE = "[a-z]#[a-zA-Z0-9]{6}"
-LINE_RE = "[a-z][0-9]+([(]([a-z][0-9]+)+[)])?[a-z][0-9]+"
-BLOCK_RE = "[a-z][0-9]+"
+COLOUR_RE = re.compile("[a-z]#[a-zA-Z0-9]{6}")
+LINE_RE = re.compile("([a-z][0-9]+)+([(]([a-z][0-9]+)+[)])?([a-z][0-9]+)*")
+BLOCK_RE = re.compile("[a-z][0-9]+")
 
 # Map keys
 COLOUR = "colour"
@@ -38,7 +38,7 @@ TWILL_HEIGHT = 2
 # the exception that I have collapsed line breaks. The patterns were lovingly borrowed from
 # http://www.weddslist.com/cgi-bin/tartans/pg.pl, where you can see what they look like on
 # a reasonably sized screen. Where the same pattern was recorded under multiple names, I picked
-# one arbitrarily, as this isn't mean to be an authoritative source.
+# one arbitrarily, as this isn't mean to be an authoritative source and I am no Lord Lyon.
 TARTANS = {
     "t#806050k#000000g#008000b#304080[b16(g8k8b1k1b1k1b1k1b1k1b1k1b1k1b20k4g12k24t8b1t1b1t1b1t1b1t1b1t1b1t1b28t6k4)g52": "13, Centennial Warp",
     "w#E0E0E0r#C00000k#000000g#008000b#304080[b1(k1b1k1b1k1b1k1b20k4r12k24g8b1g1b1g1b1g1b1g1b26g6k4r24w4r24b16r8)k8": "13, Confederation",
@@ -357,7 +357,7 @@ TARTANS = {
     "h#30A010y#F0C000w#E0E0E0t#806050o#FF8500i#003000[o6(h2o2h28t4h4t4h8t22i50y4i6)w4": "Buglass",
     "m#802040k#000000[m8(k12)m72": "Buie",
     "y#F0C000w#E0E0E0r#C00000g#008000b#304080[b34(r6g110b6g8b6g8y6)w10": "Bundanoon",
-    "r#c80000y#b8a47c#101010w#f8f4d0[r6(y60k18w18)k18": "Burberry",
+    "r#c80000y#b8a47c#101010w#f8f4d0k#000000[r6(y60k18w18)k18": "Burberry",
     "z#906030w#E0E0E0r#C00000k#000000[k24(w24k24z84)r8": "Burberry, Check",
     "y#F0C000r#C00000g#008000b#304080[b4(r64g8r12g24y4g24)r8": "Burnett",
     "y#F0C000w#E0E0E0r#C00000g#008000b#304080[r120(b10r10w4r10g4r10)y4": "Burnett, of Leys",
@@ -509,8 +509,8 @@ TARTANS = {
     "y#F0C000w#E0E0E0r#C00000k#000000j#000050b#304080[r6(k4b36j22w6j4w4j10w4j4w6j22b36k4)y6": "Citadel, Military Academy",
     "i#C0C0C0o#800000w#E0E0E0k#000000[o6(k30o12i20k6w6k6w6k6)i20": "City of Edinburgh",
     "o#600030v#908000q#000030g#008000b#304080[g56(q8g10o8g10q38b38)v4": "City of Guelph",
-    "b#000080g#004C00k#000000y#C8C800[b132k2b2k2b6k24g52w6g52k24b42k2b8k2b42k24g52y6g52k24b6k2b2k2b132": "Clan Cambell (Campbell) (from plate)",
-    "b#000080g#004C00k#000000y#C8C800[b2k2b16k16g16k2w4k2g16k16b2k2b2k2b16k2b2k2b2k16g16k2y4k2g16k16b16k2b2": "Clan Cambell (Campbell) (from text)",
+    "b#000080g#004C00k#000000y#C8C800w#ffffff[b132k2b2k2b6k24g52w6g52k24b42k2b8k2b42k24g52y6g52k24b6k2b2k2b132": "Clan Cambell (Campbell) (from plate)",
+    "b#000080g#004C00k#000000y#C8C800w#ffffff[b2k2b16k16g16k2w4k2g16k16b2k2b2k2b16k2b2k2b2k16g16k2y4k2g16k16b16k2b2": "Clan Cambell (Campbell) (from text)",
     "r#aa0000y#aaaa00a#4367aek#000000w#aaaaaag#11450d[r122(k4w2g32w4y7r7k2r7y7w4a32k8r8y12)w4": "Clan Chattan",
     "r#aa0000y#aaaa00a#4367aek#000000w#aaaaaag#11450d[r244(k8w4g64w8y14r14k4r14y14w8a64k16r16y24)w8": "Clan Chattan",
     "r#c80000g#004c00k#000000w#d0d0d0y#ffc800n#808080[r60(g2w1g15w2y3r3k1r3y3n2w16k4r4y6)w2": "Clan Chattan",
@@ -526,10 +526,10 @@ TARTANS = {
     "r#c80000g#004C00y#C8C800[r8(g24r8g24r64)y4": "Clanchamron (Cameron)",
     "r#c80000g#004C00b#000080[g2(r68b16r4g40)r4": "Clandonoquhay (Robertson)",
     "y#F0C000w#E0E0E0t#806050r#C00000k#000000b#304080[r6(k16w4k6w4k4w12b6w12k4w4t6w4t8y4t20)w6": "Clanedin",
-    "b#000080g#004C00k#000000y#C8C800[b56k6b6k6b6g54r6g54k20b56k2b12k2b56k20g54y6g54b6k6b6k6b56": "Clanhiunla, or Farquharsonnes (Farquharson) (from plate)",
-    "b#000080g#004C00k#000000y#C8C800[b56k2b2k2b2k20g44r4g44k20b32k2b4k2b32k20g44y4g44k20b2k2b2k2b56": "Clanhiunla, or Farquharsonnes (Farquharson) (from text)",
-    "b#000080g#004C00k#000000r#c80000[b56k6b6k6b6k20g54w6g54k20b56k2b12k2b56k20g54r6g54k20b6k6b6k6b56": "Clankenjie (MacKenzie)  (from plate)",
-    "b#000080g#004C00k#000000r#c80000[b36k4b4k4b4k12g36w4g36k12b36k2b8k2b36k12g36r4g36k12b4k4b4k4b36": "Clankenjie (MacKenzie)  (from text)",
+    "b#000080g#004C00k#000000y#C8C800r#c80000[b56k6b6k6b6g54r6g54k20b56k2b12k2b56k20g54y6g54b6k6b6k6b56": "Clanhiunla, or Farquharsonnes (Farquharson) (from plate)",
+    "b#000080g#004C00k#000000y#C8C800r#c80000[b56k2b2k2b2k20g44r4g44k20b32k2b4k2b32k20g44y4g44k20b2k2b2k2b56": "Clanhiunla, or Farquharsonnes (Farquharson) (from text)",
+    "b#000080g#004C00k#000000r#c80000w#ffffff[b56k6b6k6b6k20g54w6g54k20b56k2b12k2b56k20g54r6g54k20b6k6b6k6b56": "Clankenjie (MacKenzie)  (from plate)",
+    "b#000080g#004C00k#000000r#c80000w#ffffff[b36k4b4k4b4k12g36w4g36k12b36k2b8k2b36k12g36r4g36k12b4k4b4k4b36": "Clankenjie (MacKenzie)  (from text)",
     "y#C8C800k#000000[k12(y4k42y4k12y48k4)y12": "Clanlavchlan (MacLachlan)",
     "b#000080k#000000r#c80000[b8(k24b8k24b64)r4": "Clanmorgan (MacKay)",
     "r#c80000g#004C00k#000000s#800000[r8(g18k12s16r10g4r4g4r52g2)r6": "Clann Dowgall of Lorne (MacDougall) (from plate)",
@@ -1453,7 +1453,7 @@ TARTANS = {
     "o#505050w#E0E0E0n#808080k#000000[o20(k8o20k8w8k8)n76": "Kyle",
     "z#906030y#F0C000w#E0E0E0r#C00000d#401000b#304080[b92(r6b14d4y4d4w4d22z12b4z6)w4": "Lady Diana, Plaid",
     "r#C00000p#800080g#008000b#304080[p4(r2g38b8g4b8g4b8r8p2r2b4r2p2)r40": "Ladybird",
-    "r#c80000y#ffc800b#00004ck#000000[r2(y4b4y12b4y16b4r4b104w4b4k16b4k12)b2": "Laing",
+    "r#c80000y#ffc800b#00004ck#000000w#ffffff[r2(y4b4y12b4y16b4r4b104w4b4k16b4k12)b2": "Laing",
     "w#E0E0E0r#C00000k#000000b#304080[b76(r8w8r8)k8": "Laing of Archiestown",
     "w#E0E0E0n#808080k#000000[k6(w34k30n4k4n4k4)n42": "Laksaa",
     "b#000052k#000000w#aaaaaag#11450d[b3(k1b1k1b1k4g4w1g4k4b4k1)b1": "Lamont",
@@ -2585,7 +2585,7 @@ TARTANS = {
     "i#30A010o#FFE000x#004010w#E0E0E0s#C00020[o8(i88x10w4x4i4x4s4i6)o6": "Oxford University dress",
     "y#F0C000w#E0E0E0r#C00000k#000000g#008000b#304080[g14(r4g6r10g34y4k30y4b36g6w4)b14": "Paisley",
     "y#F0C000w#E0E0E0r#C00000k#000000g#008000b#304080[b8(k2b3k2b2k3b2k11g2k4g3k3g4k2g5k2g55r4g11r11w4r66k2r5k2r4k3r3k4r2k11g15k2)y4": "Paisley Fancy Reduced",
-    "r#C00000k#000000g#008000b#304080[b124(r2b4r2b8k28g8w4g12)k8": "Park",
+    "r#C00000k#000000g#008000b#304080w#ffffff[b124(r2b4r2b8k28g8w4g12)k8": "Park",
     "r#C00000k#000000g#008000b#304080[g6(r4g6r8g68k4g4k4g8k32b32)r6": "Park",
     "w#E0E0E0r#C00000k#000000g#008000b#304080[b124(r2b4r2b8k28g8w4g12)k8": "Parr",
     "y#F0C000r#C00000k#000000g#008000[r6(g48k56g38y6g6)y6": "Paton",
@@ -2658,7 +2658,6 @@ TARTANS = {
     "y#F0C000k#000000[k36(y6k36)y36": "Raeburn",
     "w#E0E0E0t#806050g#008000b#304080[b6(t28g4t4g4t6g12w36b6t4b4)t4": "Raibert, Check",
     "i#30A010y#F0C000r#C00000p#800080o#FF8500b#304080[b36(p36r36o36y36)i72": "Rainbow",
-    "z#00aaaar#aa0000m#6e5058y#aaaa00b#000052k#000000w#aaaaaag#11450d[k2r2g2b2y2m2d2w2": "Rainbow",
     "o#30A010w#E0E0E0r#C00000j#000050b#304080[r4(b70r2j48w6o4w4)j12": "Raith Rovers F.C.",
     "o#300030w#E0E0E0r#C00000k#000000[k8(w4k56r60o2)r6": "Ramsay",
     "r#aa0000m#6e5058k#000000w#aaaaaa[r3(m1r30k28w2)k4": "Ramsay",
@@ -2813,7 +2812,7 @@ TARTANS = {
     "r#c80000g#004C00b#000080w#FFFFFF[r4(g2r58b36g30)w6": "Ruthwen (Ruthven)",
     "r#c80000k#000000y#ffb000bw#d0d0d0b#00004c[r42(k6y2w6k4b2k6b16k58y8k4y2k14)y6": "Ruxton",
     "y#F0C000w#E0E0E0m#802040k#000000b#304080[m42(k6y2k2w6k6b2k6b16k38y8k4y2k14)y6": "Ruxton",
-    "r#802040#d0d0d0b#000064k#000000[r32(w2r2w6r4b8r30w2r2y6b32k2b4r16y2)r32": "Ruxton hunting",
+    "r#802040#d0d0d0b#000064k#000000w#ffffffy#F0C000[r32(w2r2w6r4b8r30w2r2y6b32k2b4r16y2)r32": "Ruxton hunting",
     "y#F0C000w#E0E0E0m#802040k#000000b#304080[m8(y8b18w6y4k18b42y4b4y4b16)y6": "Ruxton, dress",
     "y#F0C000w#E0E0E0m#802040k#000000b#304080[m32(w2m2w6m4b8m30w2m2y6b32k2b4m16y2)m34": "Ruxton, hunting",
     "w#E0E0E0s#C00020j#000050b#304080[b110(j36w6j4s4)j12": "S.C.O.T.S.",
@@ -3143,7 +3142,7 @@ TARTANS = {
     "y#F0C000r#C00000n#808080k#000000i#003000[r6(k10i92k10y2)n10": "Touch",
     "y#F0C000k#000000g#008000b#304080[g6(b2g16b14k6)y2": "Trafalger",
     "r#c10000y#efcc09o#82644bb#005f8ck#000000g#008000[(r16y4o14y4b48k4g2)": "Traill",
-    "k#000000a#3e414db#ca6959c#d29269d#dfb675e#e7df59f#00e300g#00aa00h#007d00i#658effj#0004ffl#550075m#8e2865n#be414d[k79(a1b1c1d1e1f1g1h1i1j1l1k10w7l4m4n4b4c4d4e4f4g4h4i4)j4": "Trithart",
+    "k#000000a#3e414db#ca6959c#d29269d#dfb675e#e7df59f#00e300g#00aa00h#007d00i#658effj#0004ffl#550075m#8e2865n#be414dw#ffffff[k79(a1b1c1d1e1f1g1h1i1j1l1k10w7l4m4n4b4c4d4e4f4g4h4i4)j4": "Trithart",
     "h#FFE000i#102040o#30A010x#004010f#800000[o6(x14f9i7f9x54)h6": "Tulloch Homes",
     "r#C00000k#000000g#008000b#304080[g26(b16g26r28k6)r28": "Tulsa",
     "y#F0C000t#806050g#008000b#304080[b8(t14y6t24g30t10b40t10g8)t4": "Tupper., Sir Charles..",
@@ -3505,7 +3504,7 @@ def random_tartan():
 # Each colour string contains a single lowercase letter label
 # and then a six hex digit colour code.
 def parse_colours(pattern):
-    colours = re.findall(COLOUR_RE, pattern)
+    colours = COLOUR_RE.findall(pattern)
     return {c[0]: "#" + c[-6:] for c in colours}
 
 # Within a threadcount, each block consists of a single lower case
@@ -3525,7 +3524,7 @@ def parse_thread(thread):
     block_start = thread.find("(")
     block_end = thread.find(")")
     if block_start == -1 and block_end == -1:  # no repeat block
-        blocks = re.findall(BLOCK_RE, thread)
+        blocks = BLOCK_RE.findall(thread)
         return [parse_block(b) for b in blocks]
     elif block_start != -1 and block_end != -1:  # have repeat block
         start = parse_thread(thread[:block_start])
@@ -3541,8 +3540,8 @@ def parse_thread(thread):
 # threadcount is provided, it is used for both warp and weft.
 def parse_threads(pattern):
     # Remove the colour definitions which are consumed elsewhere.
-    text = re.split(COLOUR_RE, pattern, maxsplit = 0)[-1]
-    threads = re.findall(LINE_RE, text)
+    text = COLOUR_RE.split(pattern, maxsplit = 0)[-1]
+    threads = LINE_RE.findall(text)
     parsed = [parse_thread(t) for t in threads]
     if len(parsed) == 2:
         return parsed  # separate warp and weft lines
@@ -3752,7 +3751,7 @@ def scale(woven, sharpen_lines):
 
     height_ratio = height / HEIGHT_PIXELS
     width_ratio = width / WIDTH_PIXELS
-    scale_factor = int(math.floor(max(height_ratio, width_ratio)))
+    scale_factor = max(1, int(math.floor(max(height_ratio, width_ratio))))
 
     scaled_height = int(math.floor(height / scale_factor))
     scaled_width = int(math.floor(width / scale_factor))
@@ -3768,9 +3767,16 @@ def scale(woven, sharpen_lines):
                 pixels = {k: 1 for k in pixels.keys()}
             colour = average_colour(pixels)
             cols.append(colour)
-        cols.extend(cols[:WIDTH_PIXELS - len(cols)])  # repeat to fill horizontally
+
+        # Repeat to fill horizontally
+        col_repeat = int(math.floor(WIDTH_PIXELS / len(cols)))
+        cols.extend(cols[:WIDTH_PIXELS - len(cols)] * col_repeat)
+
         rows.append(cols)
-    rows.extend(rows[:HEIGHT_PIXELS - len(rows)])  # repeat to fill vertically
+
+    # Repeat to fill vertically
+    row_repeat = int(math.floor(HEIGHT_PIXELS) / len(rows))
+    rows.extend(rows[:HEIGHT_PIXELS - len(rows)] * row_repeat)
 
     return rows
 
