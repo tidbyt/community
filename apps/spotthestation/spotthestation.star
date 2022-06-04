@@ -28,6 +28,20 @@ load("encoding/json.star", "json")  #Used to figure out timezone
 MINIMUM_CACHE_TIME_IN_SECONDS = 300
 MAXIMUM_CACHE_TIME_IN_SECONDS = 600000
 
+NOTICE_OPTIONS = [
+    schema.Option(value = "0", display = "Show next sigting regardless of how far out it will be."),
+    schema.Option(value = "1", display = "Display if within 1 hour."),
+    schema.Option(value = "2", display = "Display if within 2 hours."),
+    schema.Option(value = "3", display = "Display if within 3 hours."),
+    schema.Option(value = "4", display = "Display if within 4 hours."),
+    schema.Option(value = "5", display = "Display if within 5 hours."),
+    schema.Option(value = "6", display = "Display if within 6 hours."),
+    schema.Option(value = "12", display = "Display if within 12 hours."),
+    schema.Option(value = "24", display = "Display if within 1 day."),
+    schema.Option(value = "48", display = "Display if within 2 days."),
+    schema.Option(value = "168", display = "Display if within 1 week."),
+]
+
 # Load icon from base64 encoded data
 ISS_ICON = base64.decode("""
 iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAA1ElEQVQ4y5WTOw7DIBBEhygn4ThL7T5ufYmQ82xtWt/Eck4yKQLIBvzbBgkxTzs7C1AXcaMetdgfQQ7hBDxJEvBsPKYT4R5kI25A6ESoqhyGYQNJFgzgYcwH5DufyY4TwavvMU0TAMCJZDumNYMEATxK8XdZMIaQtWbHziVxCeDqjlfE6xlQVaGqGTSG0BDXET/L/iMEANB1HZxIFv9nA8SEKvuc55mqythRiuss4i0giVcA3IakTo4g6f5RpGCstbDWtrY1L1scpjn7aHt7f+u3ntYP6dzKrlS3n+0AAAAASUVORK5CYII=
@@ -125,13 +139,14 @@ def main(config):
     item_number_to_display = 0
     time_of_next_sighting = None
     time_of_furthest_known_sighting = None
+    notification_time = int(config.get("notification_time"))
     location = "Invalid Location Data. You should have entered an RSS feed URL that looks like this: https://spotthestation.nasa.gov/sightings/xml_files/United_States_Florida_Orlando.xml"
     row1 = ""
     row2 = ""
     row3 = ""
 
     #Get Station Selected By User
-    ISS_FLYBY_XML_URL = config.get("SpotTheStationRSS") or "https://spotthestation.nasa.gov/sightings/xml_files/China_None_Xian.xml" or "https://spotthestation.nasa.gov/sightings/xml_files/United_States_Florida_Orlando.xml"
+    ISS_FLYBY_XML_URL = config.get("SpotTheStationRSS") or "https://spotthestation.nasa.gov/sightings/xml_files/United_States_Florida_Orlando.xml" or "https://spotthestation.nasa.gov/sightings/xml_files/China_None_Xian.xml"
 
     #cache is saved to the tidbyt server, not locally, so we need a unique key per location which is equivelent to the Flyby XML URL
     iss_xml_body = cache.get(ISS_FLYBY_XML_URL)
@@ -172,7 +187,13 @@ def main(config):
             if current_item_time > get_local_time(config):
                 item_number_to_display = i
                 time_of_next_sighting = current_time_stamp
-                found_sighting_to_display = True
+                hours_until_sighting = (current_item_time - get_local_time(config))
+
+                if (notification_time > hours_until_sighting.hours or notification_time == 0):
+                    found_sighting_to_display = True
+                else:
+                    found_sighting_to_display = False
+
                 break
 
         #Only past events are in the XML, so we'll need to give an appropriate message
@@ -234,7 +255,7 @@ def main(config):
     #Does this user want to hide the app if there are no future sightings?
     hide_when_no_sightings = config.bool("hide_when_no_sightings") or True
 
-    if (hide_when_no_sightings and not found_sighting_to_display):
+    if (not found_sighting_to_display):
         return []
     else:
         return get_display(location, row1, row2, row3)
@@ -312,12 +333,13 @@ def get_schema():
                 desc = "Location for which to display time.",
                 icon = "place",
             ),
-            schema.Toggle(
-                id = "hide_when_no_sightings",
-                name = "Hide When No Sightings",
-                desc = "Hide this control when there are no known future sightings.",
-                icon = "asterisk",
-                default = False,
+            schema.Dropdown(
+                id = "notification_time",
+                name = "Notification Time",
+                desc = "Select notification time for sigtings",
+                icon = "clock",
+                options = NOTICE_OPTIONS,
+                default = NOTICE_OPTIONS[0].value,
             ),
         ],
     )
