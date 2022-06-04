@@ -146,7 +146,7 @@ def main(config):
     row3 = ""
 
     #Get Station Selected By User
-    ISS_FLYBY_XML_URL = config.get("SpotTheStationRSS") or "https://spotthestation.nasa.gov/sightings/xml_files/United_States_Florida_Orlando.xml" or "https://spotthestation.nasa.gov/sightings/xml_files/China_None_Xian.xml" 
+    ISS_FLYBY_XML_URL = config.get("SpotTheStationRSS") or "https://spotthestation.nasa.gov/sightings/xml_files/United_States_Florida_Orlando.xml" or "https://spotthestation.nasa.gov/sightings/xml_files/China_None_Xian.xml"
 
     #cache is saved to the tidbyt server, not locally, so we need a unique key per location which is equivelent to the Flyby XML URL
     iss_xml_body = cache.get(ISS_FLYBY_XML_URL)
@@ -191,7 +191,7 @@ def main(config):
 
                 if (notification_time > hours_until_sighting.hours or notification_time == 0):
                     found_sighting_to_display = True
-                else:  
+                else:
                     found_sighting_to_display = False
 
                 break
