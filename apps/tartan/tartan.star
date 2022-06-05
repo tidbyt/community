@@ -3827,26 +3827,29 @@ def paint_label(name, colour):
 
 # Actually draw results to the screen.
 def paint(woven, name, label_colour):
-    return render.Stack(
-        children = [
-            paint_tartan(woven),
-            paint_label(name, label_colour),
-        ],
-    )
+    widgets = [paint_tartan(woven)]
+    if name and label_colour:
+        widgets.append(paint_label(name, label_colour))
+
+    return render.Stack(children = widgets)
 
 def main(config):
-    sharpen_lines = config.get("sharpen_lines")
+    sharpen_lines = config.bool("sharpen_lines", False)
     tartan = config.get("tartan")
     if not tartan or tartan == CHOOSE_RANDOM_TARTAN:
         tartan = random_tartan()
-    name = TARTANS[tartan]
 
     warp, weft, colours = parse_pattern(tartan)
     woven = weave(warp, weft, cross_twill, colours)
     scaled = scale(woven, sharpen_lines)
-    text_colour = label_colour(scaled)
 
-    return render.Root(child = paint(scaled, TARTANS[tartan], text_colour))
+    name = None
+    text_colour = None
+    if config.bool("show_name", True):
+        name = TARTANS[tartan]
+        text_colour = label_colour(scaled)
+
+    return render.Root(child = paint(scaled, name, text_colour))
 
 def get_schema():
     tartans = [
@@ -3866,6 +3869,13 @@ def get_schema():
     return schema.Schema(
         version = "1",
         fields = [
+            schema.Toggle(
+                id = "show_name",
+                name = "Show name",
+                desc = "Writes the name of the tartan on screen",
+                icon = "tag",
+                default = True,
+            ),
             schema.Toggle(
                 id = "sharpen_lines",
                 name = "Sharpen lines",
