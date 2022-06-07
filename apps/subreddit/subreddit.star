@@ -4,23 +4,24 @@ Summary: Subreddit post
 Description: Display the #1 post of a subreddit.
 Author: Petros Fytilis
 """
-load('render.star', 'render');
-load('time.star', 'time');
-load('http.star', 'http');
-load('encoding/base64.star', 'base64');
-load('cache.star', 'cache');
-load('schema.star', 'schema');
 
-SCREEN_WIDTH = 64;
-STATUS_OK = 200;
-MAX_DURATION_SECONDS = 60;
-CACHE_TTL_SECONDS = 300;
-DEFAULT_SUBREDDIT = 'games';
-DEFAULT_TIMEZONE = 'America/New_York';
+load("render.star", "render")
+load("time.star", "time")
+load("http.star", "http")
+load("encoding/base64.star", "base64")
+load("cache.star", "cache")
+load("schema.star", "schema")
 
-REDDIT_API_URL_TEMPLATE = 'https://www.reddit.com/r/{}/hot.json?limit=1';
+SCREEN_WIDTH = 64
+STATUS_OK = 200
+MAX_DURATION_SECONDS = 60
+CACHE_TTL_SECONDS = 300
+DEFAULT_SUBREDDIT = "games"
+DEFAULT_TIMEZONE = "America/New_York"
 
-REDDIT_ICON = base64.decode('''
+REDDIT_API_URL_TEMPLATE = "https://www.reddit.com/r/{}/hot.json?limit=1"
+
+REDDIT_ICON = base64.decode("""
 iVBORw0KGgoAAAANSUhEUgAAABYAAAAWCAYAAADEtGw7AAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv
 8YQUAAAAJcEhZcwAADsQAAA7EAZUrDhsAAAMXSURBVEhLpVVLSJRRGP2nzEdBT9/GWCQaOaRoOfbwMT
 4WalhtCixQsxaJRBD0UFpEUBblQiOK2gQpLQxdlFDRohJcRNGiRYsei1pJRS96gHA65793xn/G0UV9c
@@ -37,141 +38,141 @@ A+LAl8QuvCOtzvPZYec24OGoGeVw/PoJTDwwTilgjXQNj38Dr1FeDxFioT2fB1dnC8KFuiaLE42NJIW
 gc5A15QBvLS+wVnKE+SLEwsXS1dHkMxAnb0kvcK+Xi4h6QHsBO5cs0nzWDxB6p5pGP9qiOw1jRoKaJ5
 sD1QfCf00iEbRWrikXI/xr0vnE4yDiJi0SUEef9+Sn4WpxDjT+Wsv7js+11Cxw8Bdaz42o7/df2gAAA
 ABJRU5ErkJggg==
-''');
+""")
 
 def main(config):
-    location = config.get('location');
-    timezone = location.timezone if location else DEFAULT_TIMEZONE;
-    subreddit = (config.get('subreddit') or DEFAULT_SUBREDDIT).strip();
-    is_24h_format = config.bool('is_24h_format', False);
+    location = config.get("location")
+    timezone = location.timezone if location else DEFAULT_TIMEZONE
+    subreddit = (config.get("subreddit") or DEFAULT_SUBREDDIT).strip()
+    is_24h_format = config.bool("is_24h_format", False)
 
     return render.Root(
-        max_age=MAX_DURATION_SECONDS,
-        child=render.Column(
-            expanded=True,
-            main_align='space_evenly',
-            cross_align='center',
-            children=[
+        max_age = MAX_DURATION_SECONDS,
+        child = render.Column(
+            expanded = True,
+            main_align = "space_evenly",
+            cross_align = "center",
+            children = [
                 render.Row(
-                    expanded=True,
-                    main_align='space_evenly',
-                    cross_align='center',
-                    children=[
+                    expanded = True,
+                    main_align = "space_evenly",
+                    cross_align = "center",
+                    children = [
                         _render_reddit_icon(),
                         render.Column(
-                            main_align='space_evenly',
-                            cross_align='end',
-                            children=[
+                            main_align = "space_evenly",
+                            cross_align = "end",
+                            children = [
                                 _render_clock(timezone, is_24h_format),
-                                _render_subreddit(_hyphenate_subreddit(subreddit))
-                            ]
-                        )
-                    ]
+                                _render_subreddit(_hyphenate_subreddit(subreddit)),
+                            ],
+                        ),
+                    ],
                 ),
-                _render_post_title(subreddit)
-            ]
-        )
-    );
+                _render_post_title(subreddit),
+            ],
+        ),
+    )
 
 def _hyphenate_subreddit(subreddit):
-    label = '/r/' + subreddit;
+    label = "/r/" + subreddit
 
     if len(label) > 10:
-        label = label[0:10] + '- ' + label[10:];
+        label = label[0:10] + "- " + label[10:]
     if len(label) > 22:
-        label = label[0:22] + '- ' + label[22:];
+        label = label[0:22] + "- " + label[22:]
     if len(label) > 34:
-        label = label[0:31] + '...';
+        label = label[0:31] + "..."
 
-    return label;
+    return label
 
 def _render_reddit_icon():
-    return render.Image(src=REDDIT_ICON);
+    return render.Image(src = REDDIT_ICON)
 
 def _render_clock(timezone, is_24h_format):
-    now = time.now().in_location(timezone);
-    clock_format = '15:04' if is_24h_format else '3:04 PM';
+    now = time.now().in_location(timezone)
+    clock_format = "15:04" if is_24h_format else "3:04 PM"
     return render.Animation(
         children =
             [
                 render.Text(
-                    content=now.format(clock_format if i < 10 else clock_format.replace(':', ' ')),
-                    font='tom-thumb'
+                    content = now.format(clock_format if i < 10 else clock_format.replace(":", " ")),
+                    font = "tom-thumb",
                 )
                 for i in range(20)
-            ]
-    );
+            ],
+    )
 
 def _render_subreddit(subreddit):
-    nb_lines = len(subreddit.split());
-    height = min(3, nb_lines) * 6;
+    nb_lines = len(subreddit.split())
+    height = min(3, nb_lines) * 6
     return render.WrappedText(
-        content=subreddit,
-        color='#ff3518',
-        font='tom-thumb',
-        height=height
-    );
+        content = subreddit,
+        color = "#ff3518",
+        font = "tom-thumb",
+        height = height,
+    )
 
 def _render_post_title(subreddit):
-    post_title = _fetch_post_title(subreddit);
+    post_title = _fetch_post_title(subreddit)
     return render.Marquee(
-        child=render.Text(
-            content=post_title,
-            font='tb-8'
+        child = render.Text(
+            content = post_title,
+            font = "tb-8",
         ),
-        offset_start=SCREEN_WIDTH,
-        offset_end=SCREEN_WIDTH,
-        width=SCREEN_WIDTH
-    );
+        offset_start = SCREEN_WIDTH,
+        offset_end = SCREEN_WIDTH,
+        width = SCREEN_WIDTH,
+    )
 
 def _fetch_post_title(subreddit):
-    post_title_cached = cache.get(subreddit);
+    post_title_cached = cache.get(subreddit)
     if post_title_cached != None:
-        print('Hit! Displaying cached data for <{}>.'.format(subreddit));
-        return post_title_cached;
+        print("Hit! Displaying cached data for <{}>.".format(subreddit))
+        return post_title_cached
     else:
-        print('Miss! Calling Reddit API for <{}>.'.format(subreddit));
+        print("Miss! Calling Reddit API for <{}>.".format(subreddit))
         rep = http.get(
             REDDIT_API_URL_TEMPLATE.format(subreddit),
-            headers = {'User-agent': 'PostmanRuntime/7.28.4'}
-        );
+            headers = {"User-agent": "PostmanRuntime/7.28.4"},
+        )
         if rep.status_code != STATUS_OK:
-            print('Reddit request failed with status {}.'.format(rep.status_code));
-            return 'Could not retrieve Reddit data';
-        post_title = _parse_post_title(rep.json());
-        cache.set(subreddit, post_title, ttl_seconds=CACHE_TTL_SECONDS);
-        return post_title;
+            print("Reddit request failed with status {}.".format(rep.status_code))
+            return "Could not retrieve Reddit data"
+        post_title = _parse_post_title(rep.json())
+        cache.set(subreddit, post_title, ttl_seconds = CACHE_TTL_SECONDS)
+        return post_title
 
 def _parse_post_title(json):
-    if json['data'] and json['data']['children'] and len(json['data']['children']) > 0:
-        post = json['data']['children'][-1];
-        if post['data'] and post['data']['title']:
-            return post['data']['title'];
-    return 'No post was found';
+    if json["data"] and json["data"]["children"] and len(json["data"]["children"]) > 0:
+        post = json["data"]["children"][-1]
+        if post["data"] and post["data"]["title"]:
+            return post["data"]["title"]
+    return "No post was found"
 
 def get_schema():
     return schema.Schema(
-        version = '1',
+        version = "1",
         fields = [
             schema.Text(
-                id='subreddit',
-                name='Subreddit',
-                desc='Subreddit for which to display post .',
-                icon='reddit',
-                default=DEFAULT_SUBREDDIT
+                id = "subreddit",
+                name = "Subreddit",
+                desc = "Subreddit for which to display post .",
+                icon = "reddit",
+                default = DEFAULT_SUBREDDIT,
             ),
             schema.Location(
-                id='location',
-                name='Location',
-                desc='Location for which to display time.',
-                icon='locationDot'
+                id = "location",
+                name = "Location",
+                desc = "Location for which to display time.",
+                icon = "locationDot",
             ),
             schema.Toggle(
-                id = 'is_24h_format',
-                name = '24-hour clock',
-                desc = 'Enable 24-hour clock.',
-                icon = 'clock',
-                default = False
-            )
-        ]
-    );
+                id = "is_24h_format",
+                name = "24-hour clock",
+                desc = "Enable 24-hour clock.",
+                icon = "clock",
+                default = False,
+            ),
+        ],
+    )
