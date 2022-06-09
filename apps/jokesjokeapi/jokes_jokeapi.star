@@ -2,7 +2,7 @@
 Applet: Jokes JokeAPI
 Summary: Displays jokes from JokeAPI
 Description: Displays different jokes from JokeAPI.
-Author: rs7q5 (RIS)
+Author: rs7q5
 """
 
 #jokeAPI.star
