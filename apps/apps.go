@@ -105,6 +105,7 @@ import (
 	"tidbyt.dev/community/apps/subreddit"
 	"tidbyt.dev/community/apps/sunrisesunset"
 	"tidbyt.dev/community/apps/surflive"
+	"tidbyt.dev/community/apps/tartan"
 	"tidbyt.dev/community/apps/tempest"
 	"tidbyt.dev/community/apps/theysaidso"
 	"tidbyt.dev/community/apps/todoist"
@@ -225,6 +226,7 @@ func GetManifests() []manifest.Manifest {
 		subreddit.New(),
 		sunrisesunset.New(),
 		surflive.New(),
+		tartan.New(),
 		tempest.New(),
 		theysaidso.New(),
 		todoist.New(),
