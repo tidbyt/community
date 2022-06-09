@@ -95,6 +95,7 @@ import (
 	"tidbyt.dev/community/apps/sportsscores"
 	"tidbyt.dev/community/apps/sportsstandings"
 	"tidbyt.dev/community/apps/spotthestation"
+	"tidbyt.dev/community/apps/stateflags"
 	"tidbyt.dev/community/apps/steam"
 	"tidbyt.dev/community/apps/stepcounter"
 	"tidbyt.dev/community/apps/strava"
@@ -211,6 +212,7 @@ func GetManifests() []manifest.Manifest {
 		sportsscores.New(),
 		sportsstandings.New(),
 		spotthestation.New(),
+		stateflags.New(),
 		steam.New(),
 		stepcounter.New(),
 		strava.New(),
