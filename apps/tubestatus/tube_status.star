@@ -98,12 +98,6 @@ LINES = {
         "textColour": BLACK,
         "index": 12,
     },
-    "tfl-rail": {
-        "display": "TfL Rail",
-        "colour": "#0019A8",
-        "textColour": WHITE,
-        "index": 13,
-    },
     "dlr": {
         "display": "Docklands",
         "colour": "#00AFAD",
@@ -153,7 +147,7 @@ def fetch_response():
         return json.decode(cached)
     app_key = secret.decrypt(ENCRYPTED_APP_KEY) or ""  # fall back to anonymous quota
     resp = http.get(
-        url = STATUS_URL % ",".join(["tube", "overground", "tflrail", "dlr", "tram"]),
+        url = STATUS_URL % ",".join(["tube", "elizabeth-line", "overground", "dlr", "tram"]),
         params = {
             "app_key": app_key,
         },
