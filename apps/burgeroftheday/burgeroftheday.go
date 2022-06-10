@@ -1,5 +1,5 @@
-// Package burgerotd provides details for the Burger of the Day applet.
-package burgerotd
+// Package burgeroftheday provides details for the Burger of the Day applet.
+package burgeroftheday
 
 import (
 	_ "embed"
@@ -19,7 +19,7 @@ func New() manifest.Manifest {
 		Summary:     "Shows Burger of the Day",
 		Desc:        "Display the set Burger of the Day, show a random burger every time, or enter your own custom burger. Burgers courtesy of Bob's Burgers. Use the Show logo and Scroll speed options to fit your Tidbyt.",
 		FileName:    "burgerotd.star",
-		PackageName: "burgerotd",
-		Source:  source,
+		PackageName: "burgeroftheday",
+		Source:      source,
 	}
 }
