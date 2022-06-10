@@ -18,6 +18,7 @@ import (
 	"tidbyt.dev/community/apps/biblevotd"
 	"tidbyt.dev/community/apps/bigclock"
 	"tidbyt.dev/community/apps/binaryclock"
+	"tidbyt.dev/community/apps/burgeroftheday"
 	"tidbyt.dev/community/apps/charlestownferry"
 	"tidbyt.dev/community/apps/climateclock"
 	"tidbyt.dev/community/apps/clockbyhenry"
@@ -64,6 +65,7 @@ import (
 	"tidbyt.dev/community/apps/mindthegap"
 	"tidbyt.dev/community/apps/mlbleaders"
 	"tidbyt.dev/community/apps/mlbscores"
+	"tidbyt.dev/community/apps/mlsscores"
 	"tidbyt.dev/community/apps/mnlightrail"
 	"tidbyt.dev/community/apps/moretransit"
 	"tidbyt.dev/community/apps/moviequotes"
@@ -74,6 +76,7 @@ import (
 	"tidbyt.dev/community/apps/netatmo"
 	"tidbyt.dev/community/apps/nflscores"
 	"tidbyt.dev/community/apps/nft"
+	"tidbyt.dev/community/apps/nhllive"
 	"tidbyt.dev/community/apps/nhlnextgame"
 	"tidbyt.dev/community/apps/nhlscores"
 	"tidbyt.dev/community/apps/nightscout"
@@ -112,6 +115,8 @@ import (
 	"tidbyt.dev/community/apps/todoist"
 	"tidbyt.dev/community/apps/traffic"
 	"tidbyt.dev/community/apps/transsee"
+	"tidbyt.dev/community/apps/tube"
+	"tidbyt.dev/community/apps/tubestatus"
 	"tidbyt.dev/community/apps/tvquotes"
 	"tidbyt.dev/community/apps/twitterfollows"
 	"tidbyt.dev/community/apps/unsplash"
@@ -141,6 +146,7 @@ func GetManifests() []manifest.Manifest {
 		biblevotd.New(),
 		bigclock.New(),
 		binaryclock.New(),
+		burgeroftheday.New(),
 		charlestownferry.New(),
 		climateclock.New(),
 		clockbyhenry.New(),
@@ -186,6 +192,7 @@ func GetManifests() []manifest.Manifest {
 		mindthegap.New(),
 		mlbleaders.New(),
 		mlbscores.New(),
+		mlsscores.New(),
 		mnlightrail.New(),
 		moretransit.New(),
 		moviequotes.New(),
@@ -196,6 +203,7 @@ func GetManifests() []manifest.Manifest {
 		netatmo.New(),
 		nflscores.New(),
 		nft.New(),
+		nhllive.New(),
 		nhlnextgame.New(),
 		nhlscores.New(),
 		nightscout.New(),
@@ -234,6 +242,8 @@ func GetManifests() []manifest.Manifest {
 		todoist.New(),
 		traffic.New(),
 		transsee.New(),
+		tube.New(),
+		tubestatus.New(),
 		tvquotes.New(),
 		twitterfollows.New(),
 		unsplash.New(),
