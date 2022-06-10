@@ -1,7 +1,7 @@
 """
-Applet: NBA Scores
-Summary: Displays NBA scores
-Description: Displays live and upcoming NBA scores from a data feed. For slower scrolling between scores, add the app to your Tidbyt twice, and under the 'Scores to Display' setting, select '1st Half' on the first app instance, and '2nd Half' on the second app instance.
+Applet: MLS Scores
+Summary: Displays MLS scores
+Description: Displays live and upcoming MLS scores from a data feed. For slower scrolling between scores, add the app to your Tidbyt twice, and under the 'Scores To Display' setting, select '1st Half' on the first app instance, and '2nd Half' on the second app instance.
 Author: cmarkham20
 """
 
@@ -25,42 +25,39 @@ DEFAULT_LOCATION = """
     "timezone": "America/New_York"
 }
 """
-SPORT = "basketball"
-LEAGUE = "nba"
+SPORT = "soccer"
+LEAGUE = "usa.1"
 API = "https://site.api.espn.com/apis/site/v2/sports/" + SPORT + "/" + LEAGUE + "/scoreboard"
 ALT_COLOR = """
 {
-    "OKC": "#007AC1",
-    "DEN": "#0E2240",
-    "PHI": "#006BB6"
+    "ATL": "#80000A",
+    "ATX": "#00B140",
+    "MTL": "#0033A1",
+    "CLB": "#231F20",
+    "DC": "#EF3E42",
+    "MIA": "#231F20",
+    "LA": "#00245D",
+    "NSH": "#1F1646",
+    "NYC": "#041E42",
+    "NY": "#ED1E36",
+    "SKC": "#002F65"
 }
 """
 ALT_LOGO = """
 {
-    "UTAH": "https://b.fssta.com/uploads/application/nba/team-logos/Jazz.png",
-    "HOU": "https://b.fssta.com/uploads/application/nba/team-logos/Rockets-alternate.png",
-    "PHI": "https://b.fssta.com/uploads/application/nba/team-logos/76ers.png"
 }
 """
 MAGNIFY_LOGO = """
 {
-    "BOS": 18,
-    "BKN": 18,
-    "CHA": 18,
-    "CLE": 22,
-    "DEN": 14,
-    "HOU": 20,
-    "LAL": 18,
-    "MIL": 20,
-    "NO": 26,
-    "NY": 20,
-    "OKC": 26,
-    "ORL": 18,
-    "PHX": 18,
-    "PHI": 14,
-    "SA": 18,
-    "TOR": 14,
-    "WSH": 14
+    "ATX": 18,
+    "COL": 18,
+    "CLB": 18,
+    "DAL": 14,
+    "LA": 18,
+    "MIA": 14,
+    "RSL": 18,
+    "SJ": 18,
+    "VAN": 18
 }
 """
 
@@ -83,6 +80,8 @@ def main(config):
         for i, s in enumerate(scores):
             gameStatus = s["status"]["type"]["state"]
             competition = s["competitions"][0]
+            homeCompetitor = competition["competitors"][0]
+            awayCompetitor = competition["competitors"][1]
             home = competition["competitors"][0]["team"]["abbreviation"]
             away = competition["competitors"][1]["team"]["abbreviation"]
             homeTeamName = competition["competitors"][0]["team"]["shortDisplayName"]
@@ -115,29 +114,34 @@ def main(config):
                     gameTime = convertedTime.format("3:04 PM")
                 if pregameDisplay == "odds":
                     checkOdds = competition.get("odds", "NO")
-                    checkOU = competition["odds"][0].get("overUnder", "NO")
                     if checkOdds != "NO":
-                        theOdds = competition["odds"][0]["details"]
-                        if checkOU == "NO":
-                            theOU = ""
+                        theOdds = competition["odds"][1]
+                        checkHomeOdds = theOdds.get("homeTeamOdds", "NO")
+                        checkAwayOdds = theOdds.get("awayTeamOdds", "NO")
+                        if checkHomeOdds != "NO" and checkAwayOdds != "NO":
+                            homeScore = get_odds(float(competition["odds"][1]["homeTeamOdds"]["moneyLine"]))
+                            awayScore = get_odds(float(competition["odds"][1]["awayTeamOdds"]["moneyLine"]))
                         else:
-                            theOU = competition["odds"][0]["overUnder"]
-                        homeScore = get_odds(theOdds, str(theOU), home, "home")
-                        awayScore = get_odds(theOdds, str(theOU), away, "away")
+                            homeScore = "1"
+                            awayScore = "1"
                 elif pregameDisplay == "record":
                     checkSeries = competition.get("series", "NO")
-                    if checkSeries == "NO":
-                        homeCompetitor = competition["competitors"][0]
-                        checkRecord = homeCompetitor.get("records", "NO")
-                        if checkRecord == "NO":
-                            homeScore = "0-0"
-                            awayScore = "0-0"
-                        else:
-                            homeScore = competition["competitors"][0]["records"][0]["summary"]
-                            awayScore = competition["competitors"][1]["records"][0]["summary"]
+                    checkRecord = homeCompetitor.get("records", "NO")
+                    if checkRecord == "NO":
+                        homeScore = "0-0-0"
+                        awayScore = "0-0-0"
                     else:
-                        homeScore = str(competition["series"]["competitors"][0]["wins"]) + "-" + str(competition["series"]["competitors"][1]["wins"])
-                        awayScore = str(competition["series"]["competitors"][1]["wins"]) + "-" + str(competition["series"]["competitors"][0]["wins"])
+                        homeScore = competition["competitors"][0]["records"][0]["summary"]
+                        awayScore = competition["competitors"][1]["records"][0]["summary"]
+                elif pregameDisplay == "form":
+                    checkHomeForm = homeCompetitor.get("form", "NO")
+                    checkAwayForm = awayCompetitor.get("form", "NO")
+                    if checkHomeForm == "NO" or checkAwayForm == "NO":
+                        homeScore = ""
+                        awayScore = ""
+                    else:
+                        homeScore = competition["competitors"][0]["form"]
+                        awayScore = competition["competitors"][1]["form"]
 
                 else:
                     homeScore = ""
@@ -538,6 +542,10 @@ pregameOptions = [
         value = "record",
     ),
     schema.Option(
+        display = "Form",
+        value = "form",
+    ),
+    schema.Option(
         display = "Gambling Odds",
         value = "odds",
     ),
@@ -611,16 +619,12 @@ def get_scores(urls, slowMode):
                 allscores.pop(0)
     return allscores
 
-def get_odds(theOdds, theOU, team, homeaway):
-    theOddsarray = theOdds.split(" ")
-    if theOdds == "EVEN" and homeaway == "home":
-        theOddsscore = "EVEN"
-    elif theOddsarray[0] == team:
-        theOddsarray = theOdds.split(" ")
-        theOddsscore = theOddsarray[1]
+def get_odds(theOdds):
+    if theOdds > 0:
+        theOdds = "+" + str(int(theOdds))
     else:
-        theOddsscore = theOU
-    return theOddsscore
+        theOdds = str(int(theOdds))
+    return str(theOdds)
 
 def get_detail(gamedate):
     finddash = gamedate.find("-")
