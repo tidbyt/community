@@ -25,7 +25,7 @@ place_image = {
         "multiplier": 3,
     },
     "2017": {
-        "url": "https://i.imgur.com/blTJqHf.png",
+        "url": "https://i.imgur.com/2Jq2ina.png",
         "width": 1000,
         "multiplier": 1,
     },
