@@ -6,7 +6,7 @@ Author: rs7q5
 """
 #sports_scores.star
 #Created 20220220 RIS
-#Last Modified 20220518 RIS
+#Last Modified 20220610 RIS
 
 load("render.star", "render")
 load("http.star", "http")
@@ -61,7 +61,7 @@ def main(config):
     else:
         frame_vec = get_frames(stats, sport, font, config)
 
-    speed_factor = 20 if config.str("scroll_logic", False) else 1  #get factor for scaling animation speed
+    speed_factor = 20 if config.bool("scroll_logic", False) else 1  #get factor for scaling animation speed
 
     return render.Root(
         delay = int(config.str("speed", "1000")) // speed_factor,  #speed up scroll text
