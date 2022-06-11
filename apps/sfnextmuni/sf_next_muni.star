@@ -115,14 +115,14 @@ def get_stops(location):
 
     for route in routes:
         (timestamp, raw_stops) = fetch_cached((STOPS_URL % route), 86400)
-        stops.update(raw_stops["route"]["stop"])
+        stops.update([(stop["stopId"], stop) for stop in raw_stops["route"]["stop"]])
 
     return [
         schema.Option(
             display = stop["title"],
             value = stop["stopId"],
         )
-        for stop in sorted(stops, key = lambda stop: square_distance(loc["lat"], loc["lng"], stop["lat"], stop["lon"]))
+        for stop in sorted(stops.values(), key = lambda stop: square_distance(loc["lat"], loc["lng"], stop["lat"], stop["lon"]))
     ]
 
 def square_distance(lat1, lon1, lat2, lon2):
