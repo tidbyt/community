@@ -296,7 +296,7 @@ def progress_chart(config, refresh_token, sport, units):
 
     frames = []
     num_frames = len(prev_plot) + len(curr_plot)
-    for i in range(num_frames):
+    for i in range(num_frames + 1):
         frames.append(
             render.Stack(
                 children = [
@@ -339,7 +339,7 @@ def progress_chart(config, refresh_token, sport, units):
                                 main_align = "end",
                                 children = [
                                     render.Plot(
-                                        data = curr_plot[0:i - len(prev_plot) + 1],
+                                        data = curr_plot[0:i - len(prev_plot)],
                                         width = graph_width,
                                         height = 22,
                                         color = "#fc4c02",
