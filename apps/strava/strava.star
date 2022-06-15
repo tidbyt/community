@@ -339,7 +339,7 @@ def progress_chart(config, refresh_token, sport, units):
                                 main_align = "end",
                                 children = [
                                     render.Plot(
-                                        data = curr_plot[0:i - len(prev_plot)],
+                                        data = curr_plot[0:i - len(prev_plot) + 1],
                                         width = graph_width,
                                         height = 22,
                                         color = "#fc4c02",
