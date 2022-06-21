@@ -63,27 +63,28 @@ wordsPerLang = {
         "hour": "O'CLOCK",
         "half": "HALF",
         "to": "TILL",
-        "past": "PAST",    
+        "past": "PAST",
     },
     "en-GB": {
         "hour": "O'CLOCK",
         "half": "HALF",
         "to": "TO",
-        "past": "PAST",    
+        "past": "PAST",
     },
 }
 
 def fuzzy_time(hours, minutes, language):
     numbers = numbersPerLang[language]
     words = wordsPerLang[language]
-    
+
     # Handle 24 hour time.
     if hours > 12:
         hours -= 12
+
     # Handle midnight/midday.
     if hours == 0:
         hours = 12
-    
+
     # round to nearest 5 minutes
     rounded = (minutes + 2) % 60 // 5 * 5
 
@@ -92,11 +93,11 @@ def fuzzy_time(hours, minutes, language):
         if minutes > 55:
             hours += 1
         return [numbers[hours], words["hour"]]
-    
+
     # first quarter of the hour
     if rounded <= 15:
         return [numbers[rounded], words["past"], numbers[hours]]
-    
+
     # next 45 mins we already talk about the next hour
     hours += 1
 
@@ -117,9 +118,9 @@ def main(config):
     timezone = loc.get("timezone", DEFAULT_TIMEZONE)
     now = time.now().in_location(timezone)
 
-    hours = 4#now.hour
-    minutes = 20#now.minute
-    language = config.get("language") or "nl-NL";
+    hours = now.hour
+    minutes = now.minute
+    language = config.get("language") or "nl-NL"
 
     fuzzed = fuzzy_time(hours, minutes, language)
 
@@ -136,7 +137,6 @@ def main(config):
     )
 
 def get_schema():
-
     dialectOptions = [
         schema.Option(
             display = "Dutch",
@@ -160,7 +160,7 @@ def get_schema():
                 name = "Location",
                 icon = "place",
                 desc = "Location for which to display time",
-            )    ,
+            ),
             schema.Dropdown(
                 id = "language",
                 name = "Language",
