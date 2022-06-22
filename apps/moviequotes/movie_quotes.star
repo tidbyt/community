@@ -39,7 +39,8 @@ def main():
                 ),
                 render.Box(
                     height = 8,
-                    child = render.Text(movie, height = 8, font = "tom-thumb", color = "#FF5733"),
+                    width = 64,
+                    child = render.Marquee(width = 64, align = "center", child = render.Text(movie, height = 8, font = "tom-thumb", color = "#FF5733")),
                 ),
                 render.Box(
                     height = 2,
