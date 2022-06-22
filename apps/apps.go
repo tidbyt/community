@@ -50,7 +50,7 @@ import (
 	"tidbyt.dev/community/apps/hurricanetracker"
 	"tidbyt.dev/community/apps/hvvdepartures"
 	"tidbyt.dev/community/apps/ifparank"
-	// "tidbyt.dev/community/apps/indegostations"
+	"tidbyt.dev/community/apps/indegostations"
 	"tidbyt.dev/community/apps/isitchristmas"
 	"tidbyt.dev/community/apps/islamicprayer"
 	"tidbyt.dev/community/apps/isstracker"
@@ -111,6 +111,7 @@ import (
 	"tidbyt.dev/community/apps/surflive"
 	"tidbyt.dev/community/apps/tartan"
 	"tidbyt.dev/community/apps/tempest"
+	"tidbyt.dev/community/apps/testpatterns"
 	"tidbyt.dev/community/apps/theysaidso"
 	"tidbyt.dev/community/apps/todoist"
 	"tidbyt.dev/community/apps/traffic"
@@ -178,7 +179,7 @@ func GetManifests() []manifest.Manifest {
 		hurricanetracker.New(),
 		hvvdepartures.New(),
 		ifparank.New(),
-		// indegostations.New(),
+		indegostations.New(),
 		isitchristmas.New(),
 		islamicprayer.New(),
 		isstracker.New(),
@@ -238,6 +239,7 @@ func GetManifests() []manifest.Manifest {
 		surflive.New(),
 		tartan.New(),
 		tempest.New(),
+		testpatterns.New(),
 		theysaidso.New(),
 		todoist.New(),
 		traffic.New(),
