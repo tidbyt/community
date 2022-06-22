@@ -31,7 +31,7 @@ COLORS = [
 ]
 
 def get_next_color():
-    return COLORS[random.number(0, len(COLORS)-1)]
+    return COLORS[random.number(0, len(COLORS) - 1)]
 
 def main():
     return render.Root(
@@ -46,14 +46,13 @@ def main():
                 column(get_next_color()),
                 column(get_next_color()),
                 column(get_next_color()),
-            ]
-        )
+            ],
+        ),
     )
 
 def column(color):
     return render.Column([
         render.Row([
-            render.Box(width=8, height=32, color=color),
+            render.Box(width = 8, height = 32, color = color),
         ]),
     ])
-
