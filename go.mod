@@ -4,7 +4,7 @@ go 1.17
 
 require (
 	github.com/spf13/cobra v1.5.0
-	github.com/stretchr/testify v1.7.2
+	github.com/stretchr/testify v1.7.4
 )
 
 require (
