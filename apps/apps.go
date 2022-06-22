@@ -33,6 +33,7 @@ import (
 	"tidbyt.dev/community/apps/digibyteprice"
 	"tidbyt.dev/community/apps/digitalrain"
 	"tidbyt.dev/community/apps/duolingo"
+	"tidbyt.dev/community/apps/dutchfuzzyclock"
 	"tidbyt.dev/community/apps/dvdlogo"
 	"tidbyt.dev/community/apps/dwheadline"
 	"tidbyt.dev/community/apps/espnnews"
@@ -161,6 +162,7 @@ func GetManifests() []manifest.Manifest {
 		digibyteprice.New(),
 		digitalrain.New(),
 		duolingo.New(),
+		dutchfuzzyclock.New(),
 		dvdlogo.New(),
 		dwheadline.New(),
 		espnnews.New(),
