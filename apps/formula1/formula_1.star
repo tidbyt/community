@@ -94,7 +94,7 @@ def main(config):
             if res.status_code != 200:
                 print("API returned status %d: %s" % (res.status_code, res.body()))
                 if res.status_code in [403, 429]:
-                    cache.set("api_rate_limit", "true", ttl_seconds = 25*3600)
+                    cache.set("api_rate_limit", "true", ttl_seconds = 25 * 3600)
                 return []
 
         F1_COUNTRY = F1_URL.json()["MRData"]["RaceTable"]["Races"][0]["Circuit"]["Location"]["country"]
