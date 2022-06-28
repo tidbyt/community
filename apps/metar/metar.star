@@ -5,26 +5,23 @@ load("encoding/json.star", "json")
 load("secret.star", "secret")
 load("schema.star", "schema")
 
-CHECKWX_URL = "https://api.checkwx.com/metar/%s/decoded"
+ADDS_URL = "https://www.aviationweather.gov/adds/dataserver_current/httpparam?dataSource=metars&requestType=retrieve&format=csv&stationString=%s&mostrecentforeachstation=constraint&hoursBeforeNow=2"
 DEFAULT_AIRPORT = "KJFK"
 
 # encryption, schema
 # fail expired, add timeout to Root
 # play with fonts
 
-ENCRYPTED_API_KEY = "23839ad10dbd477a9180124f63"
 MAX_AGE = 60 * 10
 
 def decoded_result_for_airport(config, airport):
-    api_key = secret.decrypt(ENCRYPTED_API_KEY) or config.get("dev_api_key")
     cache_key = "metar_cache_" + airport
     cached_result = cache.get(cache_key)
     if (cached_result != None):
         result = cached_result
         result = json.decode(result)
     else:
-        hdr = {"X-API-Key": api_key}
-        rep = http.get(CHECKWX_URL % airport, headers = hdr)
+        rep = http.get(ADDS_URL % airport)
         if rep.status_code != 200:
             return {
                 "color": "#000000",
@@ -32,18 +29,40 @@ def decoded_result_for_airport(config, airport):
                 "flight_category": "ERR",
             }
 
-        result = rep.json()
-        cache.set(cache_key, rep.body(), ttl_seconds = 60)
+        result = rep.body()
+
+        cache.set(cache_key, result, ttl_seconds = 60)
         print("fetched for %s" % airport)
 
-    if result["results"] != 1:
+    lines = result.strip().split("\n")
+
+    key_line = None
+    data_line = None
+
+    for line in lines:
+        if line.startswith("raw_text"):
+            key_line = line
+        elif line.startswith(airport):
+            data_line = line
+
+    if data_line == None:
         return {
             "color": "#000000",
             "text": "Invalid airport code %s" % airport,
             "flight_category": "ERR",
         }
 
-    decoded = result["data"][0]
+    if key_line == None:
+        return {
+            "color": "#000000",
+            "text": "Could not parse METAR",
+            "flight_category": "ERR",
+        }
+
+    decoded = {}
+    for label, value in zip(key_line.split(","), data_line.split(",")):
+        decoded[label] = value
+
     response = {
         "color": color_for_state(decoded),
         "text": decoded["raw_text"],
@@ -274,7 +293,7 @@ def render_fifteen_airports(config, airports):
         )
 
     return render.Root(
-        child = render.Marquee(
+        child = render.Box(render.Marquee(
             render.Row([
                 render.Column(left_widgets),
                 render.Box(width = middle_spacer, height = 32),
@@ -285,7 +304,7 @@ def render_fifteen_airports(config, airports):
             height = 32,
             offset_start = 32,
             scroll_direction = "vertical",
-        ),
+        )),
         delay = 100,
         max_age = MAX_AGE,
     )
