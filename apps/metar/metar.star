@@ -19,7 +19,6 @@ def decoded_result_for_airport(config, airport):
     cached_result = cache.get(cache_key)
     if (cached_result != None):
         result = cached_result
-        result = json.decode(result)
     else:
         rep = http.get(ADDS_URL % airport)
         if rep.status_code != 200:
