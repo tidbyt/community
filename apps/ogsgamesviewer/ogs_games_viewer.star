@@ -83,7 +83,6 @@ def get_games_info(games, player_id):
             width != 19 and
             width != 13 and
             width != 9):
-            print("CONTINUE")
             continue
         if game_json["players"]["black"]["id"] == player_id:
             opponent = game_json["players"]["white"]["username"]
