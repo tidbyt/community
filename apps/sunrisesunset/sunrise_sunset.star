@@ -112,7 +112,7 @@ def main(config):
                 render.Image(src = base64.decode(sunsetImage)),
                 render.Padding(
                     pad = (-1, -1, 0, 0),
-                    child = render.Text(sunriseText),
+                    child = render.Text(sunsetText),
                 ),
             ],
         )
