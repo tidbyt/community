@@ -13,6 +13,7 @@ import (
 	"tidbyt.dev/community/apps/analogclock"
 	"tidbyt.dev/community/apps/analogtime"
 	"tidbyt.dev/community/apps/arcadeclassics"
+	"tidbyt.dev/community/apps/aviationmetar"
 	"tidbyt.dev/community/apps/baywheels"
 	"tidbyt.dev/community/apps/bgghotness"
 	"tidbyt.dev/community/apps/biblevotd"
@@ -98,6 +99,7 @@ import (
 	"tidbyt.dev/community/apps/redditimages"
 	"tidbyt.dev/community/apps/redditrplace"
 	"tidbyt.dev/community/apps/sbbtimetable"
+	"tidbyt.dev/community/apps/severewxalertsusa"
 	"tidbyt.dev/community/apps/sfnextmuni"
 	"tidbyt.dev/community/apps/snyk"
 	"tidbyt.dev/community/apps/sportsscores"
@@ -143,6 +145,7 @@ func GetManifests() []manifest.Manifest {
 		analogclock.New(),
 		analogtime.New(),
 		arcadeclassics.New(),
+		aviationmetar.New(),
 		baywheels.New(),
 		bgghotness.New(),
 		biblevotd.New(),
@@ -227,6 +230,7 @@ func GetManifests() []manifest.Manifest {
 		redditimages.New(),
 		redditrplace.New(),
 		sbbtimetable.New(),
+		severewxalertsusa.New(),
 		sfnextmuni.New(),
 		snyk.New(),
 		sportsscores.New(),
