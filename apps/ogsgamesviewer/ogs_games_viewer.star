@@ -6,6 +6,7 @@ Author: Neal Wright
 """
 
 load("cache.star", "cache")
+load("encoding/json.star", "json")
 load("http.star", "http")
 load("render.star", "render")
 load("schema.star", "schema")
@@ -37,9 +38,12 @@ def get_player_id_by_username(username):
     if req.status_code != 200:
         fail("OGS request failed with status %d", req.status_code)
 
-    player_info = req.json()["results"][0]
-    player_id = int(player_info["id"])
-    return player_id
+    if len(req.json()["results"]) > 0:
+        player_info = req.json()["results"][0]
+        player_id = int(player_info["id"])
+        return player_id
+    else:
+        return False
 
 # Get all games for a given player ID
 def get_player_games(player_id):
@@ -47,7 +51,6 @@ def get_player_games(player_id):
     req = http.get(
         url = games_url,
     )
-
     if req.status_code != 200:
         fail("OGS request failed with status %d", req.status_code)
 
@@ -237,7 +240,25 @@ def draw_username_not_found():
                     color = "#ffffff",
                 ),
                 render.Text(
-                    content = "not Found!",
+                    content = "not found!",
+                    color = "#ffffff",
+                ),
+            ],
+            main_align = "center",
+            cross_align = "center",
+        ),
+    )
+
+def draw_no_games():
+    return render.Box(
+        child = render.Column(
+            children = [
+                render.Text(
+                    content = "No active",
+                    color = "#ffffff",
+                ),
+                render.Text(
+                    content = "games found!",
                     color = "#ffffff",
                 ),
             ],
@@ -248,19 +269,52 @@ def draw_username_not_found():
 
 def main(config):
     USERNAME = config.get("username", "")
-    not_found_graphics = draw_username_not_found()
+    cached_user = cache.get("username")
 
     # If a username has not been set, show a
     # "Username not found" message
     if USERNAME == "":
+        not_found_graphics = draw_username_not_found()
         return render.Root(
             child = not_found_graphics,
         )
 
-    # Get the player ID and game details from the API
     PLAYER_ID = get_player_id_by_username(USERNAME)
-    games = get_player_games(PLAYER_ID)
+
+    # Get the player ID and game details from the API
+    # If the API didn't return a player ID, show a message
+    if PLAYER_ID == False:
+        not_found_graphics = draw_username_not_found()
+        return render.Root(
+            child = not_found_graphics,
+        )
+
+    # If a new Username has been set in the options, reset the games cache
+    if cached_user == None:
+        cached_user = cache.set("username", USERNAME, ttl_seconds = 240)
+        games_cache = None
+    elif USERNAME != cached_user:
+        cached_user = cache.set("username", USERNAME, ttl_seconds = 240)
+        games_cache = None
+    else:
+        games_cache = cache.get("games")
+
+    # If there is an existing games cache, pull info from the cache
+    # otherwise, pull in new games and cache them
+    if games_cache != None:
+        games = json.decode(games_cache)
+    else:
+        games = get_player_games(PLAYER_ID)
+        cache.set("games", json.encode(games), ttl_seconds = 240)
+
+    # Get details about each game
     games_info = get_games_info(games, PLAYER_ID)
+
+    if len(games) == 0:
+        no_games_graphics = draw_no_games()
+        return render.Root(
+            child = no_games_graphics,
+        )
 
     games_graphics = []
     game_boxes = []
