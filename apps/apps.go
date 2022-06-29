@@ -114,6 +114,7 @@ import (
 	"tidbyt.dev/community/apps/tempest"
 	"tidbyt.dev/community/apps/testpatterns"
 	"tidbyt.dev/community/apps/theysaidso"
+	"tidbyt.dev/community/apps/tindiesales"
 	"tidbyt.dev/community/apps/todoist"
 	"tidbyt.dev/community/apps/traffic"
 	"tidbyt.dev/community/apps/transsee"
@@ -243,6 +244,7 @@ func GetManifests() []manifest.Manifest {
 		tempest.New(),
 		testpatterns.New(),
 		theysaidso.New(),
+		tindiesales.New(),
 		todoist.New(),
 		traffic.New(),
 		transsee.New(),
