@@ -279,7 +279,21 @@ def main(config):
             child = not_found_graphics,
         )
 
-    PLAYER_ID = get_player_id_by_username(USERNAME)
+    # If a new Username has been set in the options, reset the games cache
+    # and pull a new player_id
+    if cached_user == None:
+        cached_user = cache.set("username", USERNAME, ttl_seconds = 240)
+        PLAYER_ID = get_player_id_by_username(USERNAME)
+        cached_player_id = cache.set("player_id", str(PLAYER_ID), ttl_seconds=240 )
+        games_cache = None
+    elif USERNAME != cached_user:
+        cached_user = cache.set("username", USERNAME, ttl_seconds = 240)
+        PLAYER_ID = get_player_id_by_username(USERNAME)
+        cached_player_id = cache.set("player_id", str(PLAYER_ID), ttl_seconds=240 )
+        games_cache = None
+    else:
+        PLAYER_ID = cache.get("player_id")
+        games_cache = cache.get("games")
 
     # Get the player ID and game details from the API
     # If the API didn't return a player ID, show a message
@@ -288,16 +302,6 @@ def main(config):
         return render.Root(
             child = not_found_graphics,
         )
-
-    # If a new Username has been set in the options, reset the games cache
-    if cached_user == None:
-        cached_user = cache.set("username", USERNAME, ttl_seconds = 240)
-        games_cache = None
-    elif USERNAME != cached_user:
-        cached_user = cache.set("username", USERNAME, ttl_seconds = 240)
-        games_cache = None
-    else:
-        games_cache = cache.get("games")
 
     # If there is an existing games cache, pull info from the cache
     # otherwise, pull in new games and cache them
