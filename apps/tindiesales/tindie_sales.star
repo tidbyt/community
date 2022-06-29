@@ -41,11 +41,11 @@ def main(config):
         api_url = "https://www.tindie.com/api/v1/order/?format=json&limit=50&username=%s&api_key=%s" % (config.str("username", DEFAULT_USERNAME), config.str("api_key", DEFAULT_KEY))
         done = False
 
-        while not done:
+        for _ in range(int(1e10)):
             query = http.get(api_url)
             if query.status_code == 200:
-                meta = query.json()["meta"] # contains pagination link
-                orders = query.json()["orders"] # contains order data
+                meta = query.json()["meta"]  # contains pagination link
+                orders = query.json()["orders"]  # contains order data
                 for order in orders:
                     date = time.parse_time(order["date"] + "Z")
                     if date < since:
@@ -70,16 +70,18 @@ def main(config):
                 # Credentials were invalid or something went wrong.
                 error = "Tindie sales: Unable to fetch order data! (%d)" % query.status_code
                 break
+            if done:
+                break
         if not error:
-            cache.set(cache_key, json.encode(products), ttl_seconds = 1800) # cache for a half hour
+            cache.set(cache_key, json.encode(products), ttl_seconds = 1800)  # cache for a half hour
 
     if error:
         return render.Root(
             render.WrappedText(
-                content=error,
-                width=64,
-                color="#fa0",
-            )
+                content = error,
+                width = 64,
+                color = "#fa0",
+            ),
         )
     else:
         return render.Root(
@@ -89,34 +91,34 @@ def main(config):
                 expanded = True,
                 children = [
                     render.Text("Tindie Sales", color = "#fff"),
-                    render.Box(width=64, height=1, color="#fff"),
+                    render.Box(width = 64, height = 1, color = "#fff"),
                     render.Row(
-                        children=[
+                        children = [
                             render.Text("Unshipped:", color = "#f00"),
                             render.Text("%d" % products["unshipped"], color = "#f00"),
                         ],
-                        expanded=True,
-                        main_align="space_between",
+                        expanded = True,
+                        main_align = "space_between",
                     ),
                     render.Row(
-                        children=[
+                        children = [
                             render.Text("Shipped:", color = "#ff0"),
                             render.Text("%d" % products["shipped"], color = "#ff0"),
                         ],
-                        expanded=True,
-                        main_align="space_between",
+                        expanded = True,
+                        main_align = "space_between",
                     ),
                     render.Row(
-                        children=[
+                        children = [
                             render.Text("Total:", color = "#0f0"),
                             render.Text("%d" % (products["unshipped"] + products["shipped"]), color = "#0f0"),
                         ],
-                        expanded=True,
-                        main_align="space_between",
+                        expanded = True,
+                        main_align = "space_between",
                     ),
                 ],
             ),
-    )
+        )
 
 def get_schema():
     return schema.Schema(
