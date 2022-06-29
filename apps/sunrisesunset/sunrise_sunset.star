@@ -113,7 +113,7 @@ def main(config):
                 render.Padding(
                     pad = (-1, -1, 0, 0),
                     child = render.Text(sunriseText),
-                    ),
+                ),
             ],
         )
 
