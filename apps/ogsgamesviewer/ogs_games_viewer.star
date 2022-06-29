@@ -284,12 +284,12 @@ def main(config):
     if cached_user == None:
         cached_user = cache.set("username", USERNAME, ttl_seconds = 240)
         PLAYER_ID = get_player_id_by_username(USERNAME)
-        cached_player_id = cache.set("player_id", str(PLAYER_ID), ttl_seconds=240 )
+        cached_player_id = cache.set("player_id", str(PLAYER_ID), ttl_seconds = 240)
         games_cache = None
     elif USERNAME != cached_user:
         cached_user = cache.set("username", USERNAME, ttl_seconds = 240)
         PLAYER_ID = get_player_id_by_username(USERNAME)
-        cached_player_id = cache.set("player_id", str(PLAYER_ID), ttl_seconds=240 )
+        cached_player_id = cache.set("player_id", str(PLAYER_ID), ttl_seconds = 240)
         games_cache = None
     else:
         PLAYER_ID = cache.get("player_id")
