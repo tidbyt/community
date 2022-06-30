@@ -2,7 +2,7 @@
 Applet: SevereWXAlertsUSA
 Summary: USA Severe Weather Alerts
 Description: Show currently active Severe Weather Alerts for your area published by the USA National Weather Service.
-Author: aschechter88
+Author: lawnchairs
 """
 
 load("render.star", "render")
@@ -20,6 +20,7 @@ DEFAULT_LOCATION = """
     "locality": "Seattle"
 }
 """
+
 
 
 EXCLAMATIONPOINT_IMG = base64.decode("iVBORw0KGgoAAAANSUhEUgAAAGQAAABkCAYAAABw4pVUAAAAAXNSR0IArs4c6QAAA6FJREFUeF7tnFty6zAMQ5MN3P2vsxtIJ5600+ZaEiWRIFijv1VsGkfgQ/HkftMflQJ3qmgUzE1AyDaBgAgImQJk4cghAkKmAFk4coiAkClAFo4cIiBkCpCF8xcc8mhoWvLZSgb9A0ALxnNJyWcrGbQRSEkolYH03PHFrNzzlQt4wh1yCLBhsbhDQEBArDBKpq2KKUtAQDvfcptRm1t+JqnkkFOxHx+/Od7/nXIt85xVAjXB+C4ahaFcCUiJrqsCkCl3VHfJ1YDQu4QdyJI7KrukHJD3rmrUK1frupiBbLlj4BLa1FUKyKw7KqYuViAu7qjoEkYgrjCqueQyQI6iUWCCZwMS4o5KqYseyGohb7XD7C5hAhLqjp+AmKGwAIHBYK8llwTCDIUBCNQdhgKfOsVTAvEu5JMFPvXliGwgKe4wFPg0l2QC2YbR6JYOva0u61wjRZuUm752KAWQToFPcUkWkG0YAyHNDhGQ26357tTjo/m/83d7zs+mplKWoeuCblrozbxSlUHEKYcwnQijgbikKjAQaC0RkLdkmH3OhQTi6g7Pos40l6CAuBVyo3hLNYShlqQCsQ5vK0cfgdcO1Sz04t5d1TsYj0l9AXaoZqEXf55gtB54dwdH1RBDSgzVLPLioTAQQDr3CNMt7MIdd9xnJ/KFtLJV1A0uCZtNooCEuwPlELRLIoBAYBAACXGJgLTyYdIEDwPi0VUh294zTohjFW8gIRN5ZlFHF3gIkAh3IGsIEoonEKg7BKRf/GCdlbEGhy6LfDHCyyHuR+uhijpcPAqKB5BLuWNwRL89m+wCuSSMSCgCspG+esf/qz/CuQPk0u6Icok7kKiZY2Mjh3/Uc4JfBQKfOSaOMo6lyI3h2XF5AnH7nsO6pSO/wrXG4J26VoBQuCNrUu+B8khds0CoCjmTQwYbxKyzeeFrZ9C4g9EhnZjMOpsXRr9BMpuziwExT/DbQJDdzDs0tpTlUeCtQKhqx4qb0J9ZLfAWIIKxQHN1NhGQBbGtH1lxyQiI3GFV/2Tdikt6QJow0EcTG5qkf3TWJUtAMjurdIUnA5h1SQtIzx3wM6tJDaiWCwgVjuNnBZ+bvnnC8d9sdRJ/1x2v+tGtL2SapIYTDST14f7ozX+VjbMaot2PJS8gWL2HdxOQoUTYBUMgR91+i2k00WMfofbdutpKaDK4AiIgZAqQhSOHCAiZAmThyCECQqYAWThyiICQKUAWjhwiIGQKkIXzCePGFnRmQM7hAAAAAElFTkSuQmCC")
@@ -87,20 +88,19 @@ def get_alerts(lat, long):
     else:
         ## cache miss
 
-        ## Get the county id. This will return all alerts for both the county and the larger zones that include it.
+        ## Get the alerts for the lat/long point and append them to the alerts dictionary.
 
-        countyResponse = http.get("https://api.weather.gov/zones?type=county&point="+lat+","+long)
-        targetCounty = countyResponse.json()["features"][0]["properties"]["id"]
+        pointAlertsResponse = http.get("https://api.weather.gov/alerts/active?point="+lat+","+long)
 
-        ## Get the alerts for each of the two types and append them to the alerts dictionary.
-
-        countyAlertsResponse = http.get("https://api.weather.gov/alerts/active?zone="+targetCounty)
-
-        for item in countyAlertsResponse.json()["features"]:
+        for item in pointAlertsResponse.json()["features"]:
             alerts.append(item)
 
         # set cache. cast object to jsonstring
-        cache.set(cachekey, json.encode(alerts), 300)
+        cache.set(
+            key = cachekey, 
+            value = json.encode(alerts), 
+            ttl_seconds = 300
+            )
 
         return alerts
 
@@ -163,12 +163,14 @@ def render_alert(alert, alertIndex, totalAlerts):
 
     ## Main Alert Text
     mainAlertText = alert["properties"]["event"]
+
     mainAlertTextWrappedWidget = render.WrappedText(
         content = mainAlertText.upper(),
         align = "center",
         font = "CG-pixel-4x5-mono", # tiny
         color = "#FF0000" # red
     )
+
     mainAlertTextWrappedWidget = render.Box(
         child = mainAlertTextWrappedWidget,
         height = 22,
