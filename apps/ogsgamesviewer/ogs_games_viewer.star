@@ -191,11 +191,11 @@ def draw_game_box(game_board, game_info):
                         content = "{}".format(opponent),
                         color = "#ffffff",
                     ),
-                    width = 30,
+                    width = 30 + 19 - game_info["width"],
                 ),
             ],
         ),
-        width = 42,
+        width = 42 + 19 - game_info["width"],
         height = 32,
     ))
     return game_box
