@@ -110,9 +110,15 @@ def draw_game_board(coords, width, height):
     for y in range(0, total_height):
         this_row = []
         for x in range(0, total_width):
-            if x == 0 or x == board_max_width or y == 0 or y == board_max_height:
+            if (x == 0 or
+                x == board_max_width or
+                y == 0 or
+                y == board_max_height):
                 this_color = "#D19A34"
-            elif x == 1 or x == (board_max_width - 1) or y == 1 or y == (board_max_height - 1):
+            elif (x == 1 or
+                  x == (board_max_width - 1) or
+                  y == 1 or
+                  y == (board_max_height - 1)):
                 this_color = "#222222"
             else:
                 coord_string = "{},{}".format(x - 1, y - 1)
