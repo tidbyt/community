@@ -12,7 +12,7 @@ load("render.star", "render")
 load("schema.star", "schema")
 load("time.star", "time")
 
-DEFAULT_STOP = '{"value":"15728","display":"Castro Station Inbound"}'
+DEFAULT_STOP = '{"value":"15728","display":"Castro Station Inbound (#15728)"}'
 PREDICTIONS_URL = "https://retro.umoiq.com/service/publicJSONFeed?command=predictions&a=sf-muni&stopId=%s&useShortTitles=true"
 ROUTES_URL = "https://retro.umoiq.com/service/publicJSONFeed?command=routeList&a=sf-muni&useShortTitles=true"
 STOPS_URL = "https://retro.umoiq.com/service/publicJSONFeed?command=routeConfig&a=sf-muni&r=%s&useShortTitles=true"
@@ -119,7 +119,7 @@ def get_stops(location):
 
     return [
         schema.Option(
-            display = stop["title"],
+            display = "%s (#%s)" % (stop["title"], stop["stopId"]),
             value = stop["stopId"],
         )
         for stop in sorted(stops.values(), key = lambda stop: square_distance(loc["lat"], loc["lng"], stop["lat"], stop["lon"]))
@@ -163,11 +163,15 @@ def main(config):
     minimum_time = int(minimum_time_string) if minimum_time_string.isdigit() else 0
     prediction_map = {}
     messages = []
+    stopTitle = stop["display"]
 
     for route in routes:
         if "routeTag" not in route or "direction" not in route:
             continue
         routeTag = route["routeTag"]
+
+        if "stopTitle" in route:
+          stopTitle = route["stopTitle"]
 
         if "message" in route:
             message = route["message"]
@@ -192,11 +196,11 @@ def main(config):
             if routeTag == "KT":
                 routeTag = "T" if "Inbound" in dest["title"] else "K"
 
-            title = routeTag if "short" == config.get("prediction_format") else (routeTag, destTitle)
+            titleKey = routeTag if "short" == config.get("prediction_format") else (routeTag, destTitle)
             seconds = [int(prediction["seconds"]) - data_age_seconds for prediction in predictions if "seconds" in prediction]
             minutes = [int(time / 60) for time in seconds if int(time / 60) >= minimum_time]
 
-            prediction_map[title] = [str(time) for time in sorted(minutes)]
+            prediction_map[titleKey] = [str(time) for time in sorted(minutes)]
 
     output = sorted(prediction_map.items(), key = lambda kv: int(min(kv[1], key = int))) if prediction_map.items() else []
     lowest_message_pri = config.get("service_messages")
@@ -218,13 +222,12 @@ def main(config):
 
     rows = []
     if config.bool("show_title"):
-        title = stop["display"]
         rows.append(
             render.Column(
                 children = [
                     render.Marquee(
                         width = 64,
-                        child = render.Text(title),
+                        child = render.Text(stopTitle),
                     ),
                     render.Box(
                         width = 64,
