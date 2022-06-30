@@ -296,7 +296,7 @@ def progress_chart(config, refresh_token, sport, units):
 
     frames = []
     num_frames = len(prev_plot) + len(curr_plot)
-    for i in range(num_frames):
+    for i in range(num_frames + 1):
         frames.append(
             render.Stack(
                 children = [

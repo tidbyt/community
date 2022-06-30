@@ -9,7 +9,7 @@ import (
 const (
 	// Our longest app name to date. This can be updated, but it will need to
 	// be tested in the mobile app.
-	MaxNameLength = 16
+	MaxNameLength = 17
 
 	// Our longest app summary to date. This can be updated, but it will need to
 	// be tested in the mobile app.
@@ -33,7 +33,7 @@ func ValidateName(name string) error {
 		return fmt.Errorf("name cannot be empty")
 	}
 
-	if name != strings.Title(name) {
+	if name != titleCase(name) {
 		return fmt.Errorf("'%s' should be title case, 'Fuzzy Clock' for example", name)
 	}
 
@@ -171,4 +171,19 @@ func ValidateID(id string) error {
 	}
 
 	return nil
+}
+
+func titleCase(input string) string {
+	words := strings.Split(input, " ")
+	smallwords := " a an on the to of "
+
+	for index, word := range words {
+		if strings.Contains(smallwords, " "+word+" ") && word != string(word[0]) {
+			words[index] = word
+		} else {
+			words[index] = strings.Title(word)
+		}
+	}
+
+	return strings.Join(words, " ")
 }

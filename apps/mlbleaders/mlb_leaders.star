@@ -6,7 +6,7 @@ Author: rs7q5
 """
 #mlb_leaders.star
 #Created 20220412 RIS
-#Last Modified 20220504 RIS
+#Last Modified 20220510 RIS
 
 load("render.star", "render")
 load("http.star", "http")
@@ -14,8 +14,7 @@ load("encoding/json.star", "json")
 load("cache.star", "cache")
 load("schema.star", "schema")
 load("time.star", "time")
-load("humanize.star", "humanize")
-load("animation.star", "animation")
+load("random.star", "random")
 
 #this list are the sports that can have their standings pulled
 #leaderType_URL = "https://statsapi.mlb.com/api/v1/leagueLeaderTypes"
@@ -110,7 +109,12 @@ def main(config):
         return []
 
     #get config settings
-    statName_vec = [config.str("statName%d" % (idx + 1), x) for idx, x in enumerate(["homeRuns", "hits", "battingAverage"])]
+    if config.bool("show_random", False):
+        statName_vec = []
+        for x in range(3):
+            statName_vec.append(STATS_LIST_SORTED.values()[random.number(0, len(STATS_LIST_SORTED) - 1)])
+    else:
+        statName_vec = [config.str("statName%d" % (idx + 1), x) for idx, x in enumerate(["homeRuns", "hits", "battingAverage"])]
     display_opt = config.bool("show_single", False)
 
     frames_all = []
@@ -164,6 +168,7 @@ def get_schema():
         schema.Option(display = "Normal (Default)", value = "50"),
         schema.Option(display = "Fast", value = "40"),
         schema.Option(display = "Faster", value = "30"),
+        schema.Option(display = "Fastest", value = "20"),
     ]
     return schema.Schema(
         version = "1",
@@ -197,6 +202,13 @@ def get_schema():
                 name = "Show only Statistic 1?",
                 desc = "Show only Statistic 1 in a vertical format?",
                 icon = "baseball",
+                default = False,
+            ),
+            schema.Toggle(
+                id = "show_random",
+                name = "Randomize the statistic(s)?",
+                desc = "",
+                icon = "shuffle",
                 default = False,
             ),
             schema.Dropdown(
