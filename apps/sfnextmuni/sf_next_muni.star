@@ -175,7 +175,7 @@ def main(config):
         routeTag = route["routeTag"]
 
         if "stopTitle" in route:
-          stopTitle = route["stopTitle"]
+            stopTitle = route["stopTitle"]
 
         if "message" in route:
             message = route["message"]
