@@ -50,6 +50,10 @@ def get_schema():
     formats = [
         schema.Option(
             display = "With destination",
+            value = "xlong",
+        ),
+        schema.Option(
+            display = "Short destination",
             value = "long",
         ),
         schema.Option(
@@ -375,7 +379,7 @@ def getLongRow(routeTag, destination, predictions, config):
         row.append(
             render.Text(routeTag + " ", font = "tom-thumb"),
         )
-    if "long" == config.get("prediction_format"):
+    if "xlong" == config.get("prediction_format"):
         row.append(
             render.Marquee(
                 child = render.Text(destination, font = "tom-thumb"),
@@ -386,6 +390,21 @@ def getLongRow(routeTag, destination, predictions, config):
             render.Marquee(
                 child = render.Text((" " if len(predictions[0]) < 2 else "") + predictions[0], font = "tom-thumb"),
                 width = 10,
+            ),
+        )
+    elif "long" == config.get("prediction_format"):
+        row.append(
+            render.Marquee(
+                child = render.Text(destination, font = "tom-thumb"),
+                width = 30,
+            ),
+        )
+        nextTwoPredictions = ",".join(predictions[:2])
+        nextTwoPredictions = " " * (5 - len(nextTwoPredictions)) + nextTwoPredictions
+        row.append(
+            render.Marquee(
+                child = render.Text(nextTwoPredictions, font = "tom-thumb"),
+                width = 20,
             ),
         )
     else:
