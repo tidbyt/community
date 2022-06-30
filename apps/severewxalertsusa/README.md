@@ -1,0 +1,2 @@
+# SevereWxAlertsUSA
+Display severe weather alerts anywhere in the United States. Alerts issued by the US National Weather Service, updated every 5 minutes. Uses the NWS API at api.weather.gov. Shows your location and how many alerts are issued; if alerts are issued, shows alert type and end time.
