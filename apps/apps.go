@@ -22,6 +22,7 @@ import (
 	"tidbyt.dev/community/apps/charlestownferry"
 	"tidbyt.dev/community/apps/climateclock"
 	"tidbyt.dev/community/apps/clockbyhenry"
+	"tidbyt.dev/community/apps/cltlightrail"
 	"tidbyt.dev/community/apps/coingeckoprice"
 	"tidbyt.dev/community/apps/countdownclock"
 	"tidbyt.dev/community/apps/cryptotracker"
@@ -154,6 +155,7 @@ func GetManifests() []manifest.Manifest {
 		charlestownferry.New(),
 		climateclock.New(),
 		clockbyhenry.New(),
+		cltlightrail.New(),
 		coingeckoprice.New(),
 		countdownclock.New(),
 		cryptotracker.New(),
