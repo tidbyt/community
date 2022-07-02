@@ -18,7 +18,7 @@ func New() manifest.Manifest {
 		Author:      "Kevin Connell",
 		Summary:     "Tracks CLT LYNX Lightrail",
 		Desc:        "Displays in real-time when North & South lightrail trains will arrive in Charlotte's LYNX Lightrail System - All Stations available.",
-		FileName:    "clt_lightrail.star",
+		FileName:    "cltLightrail.star",
 		PackageName: "cltlightrail",
 		Source:  source,
 	}
