@@ -18,7 +18,6 @@ VIEWPORT_HEIGHT = 32
 
 CACHE_TTL_SECONDS = 3600 * 24 * 30  # 30 days in seconds.
 
-
 place_image = {
     "2022": {
         "url": "https://i.imgur.com/rzUhL4w.png",
