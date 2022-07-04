@@ -89,14 +89,14 @@ def main(config):
             height = 7,
             width = (43, 35)[useMeridianTime],
             child = render.Padding(
-                pad = (4, 0, 0, 0),
+                pad = (4, 1, 0, 0),
                 child = render.Marquee(
                     width = (43, 35)[useMeridianTime],
                     child = render.Text(
                         content = locality,
                         font = font,
                         color = time_color,
-                        offset = -1,
+                        offset = 0,
                     ),
                 ),
             ),
