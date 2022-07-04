@@ -53,10 +53,9 @@ sunsetImage = """iVBORw0KGgoAAAANSUhEUgAAAB4AAAAOCAYAAAA45qw5AAAAAXNSR0IArs4c6QA
 
 def main(config):
     # Get longditude and latitude from location
-    location = config.get("location")
-    loc = json.decode(location) if location else DEFAULT_LOCATION
-    lat = float(loc.get("lat"))
-    lng = float(loc.get("lng"))
+    location = config.get("location", DEFAULT_LOCATION)
+    lat = float(location.get("lat"))
+    lng = float(location.get("lng"))
 
     # Get sunset and sunrise times
     now = time.now()
@@ -70,16 +69,16 @@ def main(config):
     if sunriseTime == None:
         sunriseText = "  None"
     elif display24Hour:
-        sunriseText = "  %s" % sunriseTime.in_location(loc["timezone"]).format("15:04")
+        sunriseText = "  %s" % sunriseTime.in_location(location["timezone"]).format("15:04")
     else:
-        sunriseText = "%s" % sunriseTime.in_location(loc["timezone"]).format("3:04 PM")
+        sunriseText = "%s" % sunriseTime.in_location(location["timezone"]).format("3:04 PM")
 
     if sunsetTime == None:
         sunsetText = "  None"
     elif display24Hour:
-        sunsetText = "  %s" % sunsetTime.in_location(loc["timezone"]).format("15:04")
+        sunsetText = "  %s" % sunsetTime.in_location(location["timezone"]).format("15:04")
     else:
-        sunsetText = "%s" % sunsetTime.in_location(loc["timezone"]).format("3:04 PM")
+        sunsetText = "%s" % sunsetTime.in_location(location["timezone"]).format("3:04 PM")
 
     # Got what we need, render it.
 
@@ -93,7 +92,7 @@ def main(config):
                 children = [
                     render.Image(src = base64.decode(sunriseImage)),
                     render.Padding(
-                        pad = (0, -1, 0, 0),
+                        pad = (-1, -1, 0, 0),
                         child = render.Text(sunriseText),
                     ),
                 ],
@@ -111,7 +110,10 @@ def main(config):
             cross_align = "center",
             children = [
                 render.Image(src = base64.decode(sunsetImage)),
-                render.Text(sunsetText),
+                render.Padding(
+                    pad = (-1, -1, 0, 0),
+                    child = render.Text(sunsetText),
+                ),
             ],
         )
 
