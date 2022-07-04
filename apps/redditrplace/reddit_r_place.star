@@ -27,7 +27,7 @@ place_image = {
     },
     "2017": {
         # "url": "https://i.imgur.com/2Jq2ina.png",
-        "url": "https://i.imgur.com/2yz7Go2.png", # this is the cleaned version...
+        "url": "https://i.imgur.com/2yz7Go2.png",  # this is the cleaned version...
         "width": 1000,
         "height": 1000,
     },
@@ -54,11 +54,10 @@ def main(config):
     y_end = random.number(0, max_y)
 
     # create rectangle points of where we can start the scroll
-    possible_move_area_left   = x_end - max_scroll if x_end - max_scroll > 0 else 0
-    possible_move_area_top    = y_end - max_scroll if y_end - max_scroll > 0 else 0
-    possible_move_area_right  = x_end + max_scroll if x_end + max_scroll < image["width"] else image["width"]
+    possible_move_area_left = x_end - max_scroll if x_end - max_scroll > 0 else 0
+    possible_move_area_top = y_end - max_scroll if y_end - max_scroll > 0 else 0
+    possible_move_area_right = x_end + max_scroll if x_end + max_scroll < image["width"] else image["width"]
     possible_move_area_bottom = y_end + max_scroll if y_end + max_scroll < image["height"] else image["height"]
-
 
     x_start = random.number(possible_move_area_left, possible_move_area_right)
     y_start = random.number(possible_move_area_top, possible_move_area_bottom)
@@ -106,39 +105,39 @@ def get_schema():
     max_move_options = [
         schema.Option(
             display = "0 pixels (static)",
-            value = "0"
+            value = "0",
         ),
         schema.Option(
             display = "50 pixels",
-            value = "50"
+            value = "50",
         ),
         schema.Option(
             display = "100 pixels",
-            value = "100"
+            value = "100",
         ),
         schema.Option(
             display = "150 pixels",
-            value = "150"
+            value = "150",
         ),
         schema.Option(
             display = "200 pixels - default",
-            value = "200"
+            value = "200",
         ),
         schema.Option(
             display = "250 pixels",
-            value = "250"
+            value = "250",
         ),
         schema.Option(
             display = "300 pixels",
-            value = "300"
+            value = "300",
         ),
         schema.Option(
             display = "400 pixels",
-            value = "400"
+            value = "400",
         ),
         schema.Option(
             display = "500 pixels",
-            value = "500"
+            value = "500",
         ),
     ]
 
