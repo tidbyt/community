@@ -1,7 +1,7 @@
 """
 Applet: Sports Rankings
 Summary: Shows rankings for sports
-Description: Shows the poll rankings for various sports.
+Description: Shows the poll rankings for various sports. Currently supports college football and men's and women's college basketball.
 Author: Derek Holevinsky
 """
 
@@ -39,6 +39,27 @@ TEXT_FONT = "tom-thumb"
 COLOR_BLACK = "000000"
 COLOR_READABLE_WHITE = "ebebeb"
 TEAMS_PER_PAGE = 5
+CACHE_TTL = 21600
+
+# Icons
+FOOTBALL_ICON = base64.decode("""
+iVBORw0KGgoAAAANSUhEUgAAAA0AAAARCAYAAAAG/yacAAAAAXNSR0IArs4c6QAAAINJREFUOE9j
+ZCADMGLTU+yk8R8m3rvvBoYaDAFkDbg0omj6//8/3AZ0FzAyMsLVomjCZgs22+Ca8GlA14hVU8/e
+63DXlThrwtmwQAFrwmYLSCOyBmTbsGrCZRNII8g28m1CdyJRfsLlL/S4QgkImCTJ8QTSSFaKwOVM
+9ERLnVROTPYCAOrPSxJCgxQqAAAAAElFTkSuQmCC
+""")
+
+BASKETBALL_ICON = base64.decode("""
+iVBORw0KGgoAAAANSUhEUgAAAAsAAAALCAYAAACprHcmAAAAAXNSR0IArs4c6QAAAFpJREFUKFNj
+ZEACf2qk/4O4LC1PGf7USINlWFqeMsKUwBkwheiKkTWAFYMUopmGbDKYDbKBEZuJMI3IBoAMJU0x
+AwMD2FPEANJMJsnNJIUGzK1EhzO6BlwxCACkcWVThHunDwAAAABJRU5ErkJggg==
+""")
+
+BASKETBALL_WNBA_ICON = base64.decode("""
+iVBORw0KGgoAAAANSUhEUgAAAAsAAAALCAYAAACprHcmAAAAAXNSR0IArs4c6QAAAGNJREFUKFOV
+kVEKACEIRB3oFl21z67aLYJZlDVE2CX7muQ5TgYJZ49Ovba5hDQpAODIEQ5mODYYTJJqsEc3k+Rs
+9TYXoOAZ8zY4HA1sQgnWFPGRf7rmXI1xvw3PeL3n3PD1gw9ZgGVTAA6gQAAAAABJRU5ErkJggg==
+""")
 
 def main(config):
     sport = config.get(RANKINGS_SPORT_ID, FOOTBAL_KEY)
@@ -81,11 +102,25 @@ def main(config):
         return rank
 
     def get_row(currentPage, index):
-        return "%s %s %s" % (
+        result = "%s %s %s" % (
             get_rank(currentPage * TEAMS_PER_PAGE + index + 1),
             get_name(currentPage * TEAMS_PER_PAGE + index),
             get_record(currentPage * TEAMS_PER_PAGE + index),
         )
+
+        if len(result) < 13:
+            # add extra space to keep formatting the same between screens
+            return result + " "
+
+        return result
+
+    def get_icon():
+        if sport == WOMENS_COLLEGE_BASKETBALL_KEY:
+            return BASKETBALL_WNBA_ICON
+        elif sport == MENS_COLLEGE_BASKETBALL_KEY:
+            return BASKETBALL_ICON
+        else:
+            return FOOTBALL_ICON
 
     def get_page(currentPage):
         return render.Column(
@@ -115,11 +150,15 @@ def main(config):
         child = render.Box(
             render.Column(
                 expanded = True,
+                main_align = "center",
                 cross_align = "left",
                 children = [
-                    render.Animation(
-                        children = get_all_pages(0),
-                    ),
+                    render.Box(child = render.Row(expanded = True, main_align = "space_between", cross_align = "center", children = [
+                        render.Image(src = get_icon()),
+                        render.Animation(
+                            children = get_all_pages(0),
+                        ),
+                    ])),
                 ],
             ),
         ),
@@ -155,7 +194,7 @@ def get_schema():
         ],
     )
 
-def get_cachable_data(url, ttl_seconds = 240):
+def get_cachable_data(url, ttl_seconds = CACHE_TTL):
     key = base64.encode(url)
 
     data = cache.get(key)
@@ -166,7 +205,7 @@ def get_cachable_data(url, ttl_seconds = 240):
     if res.status_code != 200:
         fail("request to %s failed with status code: %d - %s" % (url, res.status_code, res.body()))
 
-    cache.set(key, base64.encode(res.body()), ttl_seconds = 240)
+    cache.set(key, base64.encode(res.body()), ttl_seconds = CACHE_TTL)
 
     return res.body()
 
