@@ -41,7 +41,7 @@ def decoded_result_for_airport(config, airport):
     for line in lines:
         if line.startswith("raw_text"):
             key_line = line
-        elif line.startswith(airport):
+        elif line.startswith(airport + " "):
             data_line = line
 
     if data_line == None:
@@ -331,7 +331,7 @@ def get_schema():
 def main(config):
     airports = config.get("icao") or DEFAULT_AIRPORT
     airports = airports.upper()
-    airports = airports.split(",")
+    airports = [a.strip() for a in airports.split(",")]
     if len(airports) == 1:
         return render_single_airport(config, airports[0])
     elif len(airports) <= 4:
