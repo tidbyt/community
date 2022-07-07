@@ -90,7 +90,11 @@ def get_alerts(lat, long):
         pointAlertsResponse = http.get("https://api.weather.gov/alerts/active?point=" + lat + "," + long)
 
         for item in pointAlertsResponse.json()["features"]:
-            alerts.append(item)
+            ## filter out test alerts
+            if (item["properties"]["status"] == "Test"):
+                continue
+            else:
+                alerts.append(item)
 
         # set cache. cast object to jsonstring
         cache.set(
