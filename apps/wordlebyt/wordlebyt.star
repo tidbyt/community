@@ -8,7 +8,6 @@ Author: skola28
 load("render.star", "render")
 load("schema.star", "schema")
 
-
 def draw_box(color):
     return render.Box(
         width = 5,
@@ -24,7 +23,7 @@ def main(config):
     EXAMPLETWEET = "Paste Your Wordle\n\n⬛⬛🟩⬛⬛\n⬛⬛⬛🟩⬛\n🟩🟩🟩🟩🟩\n⬛⬛⬛🟩⬛\n⬛⬛🟩⬛⬛"
     #EXAMPLETWEET2 = "Wordle 383 4/6  ⬛⬛🟩⬛⬛ 🟨⬛🟩⬛🟩 🟩🟨🟩⬛🟩 🟩🟩🟩🟩🟩"
 
-    board = str(config.get("wordle_score","Paste Your Wordle\n\n⬛⬛🟩⬛⬛\n⬛⬛⬛🟩⬛\n🟩🟩🟩🟩🟩\n⬛⬛⬛🟩⬛\n⬛⬛🟩⬛⬛")).split()
+    board = str(config.get("wordle_score", "Paste Your Wordle\n\n⬛⬛🟩⬛⬛\n⬛⬛⬛🟩⬛\n🟩🟩🟩🟩🟩\n⬛⬛⬛🟩⬛\n⬛⬛🟩⬛⬛")).split()
 
     #To avoid errors, check that the board is at least 3 elements long (Worldle-Title, Wordle-Game-Number, Guesses)
     if len(board) > 3:
@@ -37,8 +36,8 @@ def main(config):
 
         #Pop off the Wordle Score Numeric from the New First Element(again!)
         wordle_score_number = board.pop(0)
-    
-    #If not 3 elements long, fill with static, valid text
+
+        #If not 3 elements long, fill with static, valid text
     else:
         wordle_title = "Paste"
 
@@ -81,7 +80,7 @@ def main(config):
                             children = [
                                 render.Row(
                                     children = [
-                                        draw_box(colordictionary.get(box,"#3a3a3c"))
+                                        draw_box(colordictionary.get(box, "#3a3a3c"))
                                         for box in board_as_list[row]
                                     ],
                                 )
