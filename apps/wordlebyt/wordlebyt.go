@@ -17,9 +17,9 @@ func New() manifest.Manifest {
 		Name:        "Wordlebyt",
 		Author:      "skola28",
 		Summary:     "Display daily Wordle score",
-		Desc:        "Post your daily Wordle Score to your twitter account.",
+		Desc:        "Show off your daily Wordle Score.",
 		FileName:    "wordlebyt.star",
 		PackageName: "wordlebyt",
-		Source:  source,
+		Source:      source,
 	}
 }
