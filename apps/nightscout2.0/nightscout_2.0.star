@@ -4,7 +4,6 @@ Summary: Shows Nightscout CGM Data
 Description: Displays Continuous Glucose Monitoring (CGM) data from the Nightscout Open Source project (https://nightscout.github.io/).
 Author: Jeremy Tavener, Paul Murphy
 """
-
 load("render.star", "render")
 load("http.star", "http")
 load("time.star", "time")
@@ -14,7 +13,7 @@ load("cache.star", "cache")
 load("schema.star", "schema")
 load("re.star", "re")
 load("humanize.star", "humanize")
-
+    
 COLOR_RED = "#C00"
 COLOR_DARK_RED = "#911"
 COLOR_YELLOW = "#ff8"
@@ -53,6 +52,7 @@ def main(config):
     normal_low = int(config.get("normal_low", DEFAULT_NORMAL_LOW))
     urgent_high = int(config.get("urgent_high", DEFAULT_URGENT_HIGH))
     urgent_low = int(config.get("urgent_low", DEFAULT_URGENT_LOW))
+
 
     if nightscout_id != None:
         nightscout_data_json, status_code = get_nightscout_data(nightscout_id)
@@ -101,9 +101,9 @@ def main(config):
     if (time.parse_duration("1m") > (time.now().in_location("UTC") - latest_reading_dt)):
         reading_ago = "< 1 min ago"
     else:
-        reading_ago = humanize.relative_time(time.now().in_location("UTC"), latest_reading_dt, "from now", "ago")
+        reading_ago = humanize.relative_time(time.now().in_location("UTC"),latest_reading_dt, "from now", "ago")
         reading_ago = reading_ago.replace("ute", "")
-
+    
     return render.Root(
         render.Box(
             render.Row(
@@ -117,29 +117,28 @@ def main(config):
                         expanded = True,
                         children = [
                             render.Row(
-                                cross_align = "center",
-                                main_align = "space_evenly",
-                                expanded = True,
-                                children = [
-                                    render.Text(
-                                        content = str(int(sgv_current)),
-                                        font = "6x13",
-                                        color = font_color,
-                                    ),
-                                    render.Text(
-                                        content = str_delta,
-                                        font = "tom-thumb",
-                                        color = COLOR_GREY,
-                                        offset = -1,
-                                    ),
-                                    render.Text(
-                                        content = ARROWS[direction],
-                                        font = "6x13",
-                                        color = font_color,
-                                        offset = 1,
-                                    ),
-                                ],
+                            cross_align = "center",
+                            main_align = "space_evenly",
+                            expanded = True,
+                            children = [
+                             render.Text(
+                                content = str(int(sgv_current)),
+                                font = "6x13",
+                                color = font_color,
                             ),
+                            render.Text(
+                                content = str_delta,
+                                font = "tom-thumb",
+                                color = COLOR_GREY,
+                                offset = -1,
+                            ),
+                            render.Text(
+                                content = ARROWS[direction],
+                                font = "6x13",
+                                color = font_color,
+                                offset = 1,
+                            ),
+                            ]),
                             render.Text(
                                 content = reading_ago,
                                 font = "CG-pixel-3x5-mono",
@@ -159,7 +158,7 @@ def main(config):
                                     ),
                                 ],
                             ),
-                        ],
+                           ],
                     ),
                 ],
             ),
@@ -225,7 +224,6 @@ def get_nightscout_data(nightscout_id):
     print("Miss - calling Nightscout API")
     nightscout_url = "https://" + nightscout_id + "/api/v1/entries.json"
     print(nightscout_url)
-
     # Request latest entries from the Nightscout URL
     resp = http.get(nightscout_url)
     if resp.status_code != 200:
@@ -241,13 +239,13 @@ def get_nightscout_data(nightscout_id):
 
     # Delta between the current and previous
     sgv_delta = int(sgv_current - previous_reading["sgv"])
-
+    
     # Get the trend
     trend = latest_reading["trend"]
     direction = latest_reading["direction"]
-
-    print("%d %d %s" % (sgv_current, sgv_delta, ARROWS[direction]))
-
+    
+    print ("%d %d %s" % (sgv_current, sgv_delta, ARROWS[direction]))
+    
     nightscout_data = {
         "sgv_current": str(int(sgv_current)),
         "sgv_delta": str(int(sgv_delta)),
@@ -289,7 +287,6 @@ EXAMPLE_DATA = {
     "trend": "0",
     "direction": "Flat",
 }
-
 load("render.star", "render")
 load("schema.star", "schema")
 
