@@ -12,7 +12,15 @@ load("render.star", "render")
 load("schema.star", "schema")
 load("time.star", "time")
 
-DEFAULT_STOP = '{"value":"15728","display":"Castro Station Inbound"}'
+DEFAULT_LOCATION = """
+{
+  "lat": "37.7844",
+  "lng": "-122.4080",
+	"description": "San Francisco, CA, USA",
+	"locality": "San Francisco",
+	"timezone": "America/Los_Angeles"
+}
+"""
 PREDICTIONS_URL = "https://retro.umoiq.com/service/publicJSONFeed?command=predictions&a=sf-muni&stopId=%s&useShortTitles=true"
 ROUTES_URL = "https://retro.umoiq.com/service/publicJSONFeed?command=routeList&a=sf-muni&useShortTitles=true"
 STOPS_URL = "https://retro.umoiq.com/service/publicJSONFeed?command=routeConfig&a=sf-muni&r=%s&useShortTitles=true"
@@ -149,7 +157,8 @@ def higher_priority_than(pri, threshold):
     return threshold == "Low" or pri == "High" or threshold == pri
 
 def main(config):
-    stop = json.decode(config.get("stop_code", DEFAULT_STOP))
+    default_stop = json.encode(get_stops(DEFAULT_LOCATION)[0])
+    stop = json.decode(config.get("stop_code", default_stop))
     stopId = stop["value"]
 
     (data_timestamp, data) = fetch_cached(PREDICTIONS_URL % stopId, 240)
