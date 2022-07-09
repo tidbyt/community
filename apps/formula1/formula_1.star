@@ -125,7 +125,7 @@ def main(config):
         F1_POINTS3 = F1_URL3.json()["MRData"]["StandingsTable"]["StandingsLists"][0]["DriverStandings"][2]["points"]
 
         f1_data = dict(F1_COUNTRY = F1_COUNTRY, F1_LOC = F1_LOC, F1_DATE = F1_DATE, F1_TIME = F1_TIME, F1_ROUND = F1_ROUND, F1_CIRCUT_ID = F1_CIRCUT_ID, Constructor1 = Constructor1, Constructor2 = Constructor2, Constructor3 = Constructor3, Points1 = Points1, Points2 = Points2, Points3 = Points3, F1_FNAME = F1_FNAME, F1_LNAME = F1_LNAME, F1_POINTS = F1_POINTS, F1_FNAME2 = F1_FNAME2, F1_LNAME2 = F1_LNAME2, F1_POINTS2 = F1_POINTS2, F1_FNAME3 = F1_FNAME3, F1_LNAME3 = F1_LNAME3, F1_POINTS3 = F1_POINTS3)
-        cache.set("f1_rate", json.encode(f1_data), ttl_seconds = 1600)
+        cache.set("f1_rate", json.encode(f1_data), ttl_seconds = 3600 * 12)
 
     #code from @whyamihere to automatically adjust the date time sting from the API
     date_and_time = f1_data["F1_DATE"] + "T" + f1_data["F1_TIME"]
