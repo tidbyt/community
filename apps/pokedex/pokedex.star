@@ -11,7 +11,6 @@ load("encoding/json.star", "json")
 load("http.star", "http")
 load("render.star", "render")
 load("schema.star", "schema")
-load("time.star", "time")  #only used in the random module that is commented out
 load("random.star", "random")
 
 NUM_POKEMON = 386
@@ -33,7 +32,6 @@ def get_schema():
     )
 
 def main(config):
-    # id_ = int(NUM_POKEMON * random()) + 1
     id_ = random.number(1, NUM_POKEMON)
     pokemon = get_pokemon(id_)
     name = pokemon["name"].title()
@@ -73,10 +71,6 @@ def main(config):
 def round(num):
     """Rounds floats to a single decimal place."""
     return float(int(num * 10) / 10)
-
-# def random():
-#     """Return a pseudo-random number in [0, 1)"""
-#     return time.now().nanosecond / (1000 * 1000 * 1000)
 
 def get_pokemon(id):
     url = POKEAPI_URL.format(id)
