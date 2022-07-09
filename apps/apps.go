@@ -37,6 +37,7 @@ import (
 	"tidbyt.dev/community/apps/dvdlogo"
 	"tidbyt.dev/community/apps/dwheadline"
 	"tidbyt.dev/community/apps/espnnews"
+	"tidbyt.dev/community/apps/fairfaxconnector"
 	"tidbyt.dev/community/apps/finevent"
 	"tidbyt.dev/community/apps/fishbyt"
 	"tidbyt.dev/community/apps/fitbitweight"
@@ -63,6 +64,7 @@ import (
 	"tidbyt.dev/community/apps/manifest"
 	"tidbyt.dev/community/apps/mbta"
 	"tidbyt.dev/community/apps/mbtanewtrains"
+	"tidbyt.dev/community/apps/metar"
 	"tidbyt.dev/community/apps/mindthegap"
 	"tidbyt.dev/community/apps/mlbleaders"
 	"tidbyt.dev/community/apps/mlbscores"
@@ -170,6 +172,7 @@ func GetManifests() []manifest.Manifest {
 		dvdlogo.New(),
 		dwheadline.New(),
 		espnnews.New(),
+		fairfaxconnector.New(),
 		finevent.New(),
 		fishbyt.New(),
 		fitbitweight.New(),
@@ -195,6 +198,7 @@ func GetManifests() []manifest.Manifest {
 		londonbusstop.New(),
 		mbta.New(),
 		mbtanewtrains.New(),
+		metar.New(),
 		mindthegap.New(),
 		mlbleaders.New(),
 		mlbscores.New(),
