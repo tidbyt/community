@@ -18,7 +18,7 @@ WOTD_CALENDAR_URL = "https://www.merriam-webster.com/word-of-the-day/calendar"  
 
 def render_error():
     return render.Root(
-        render.WrappedText("Something went wrong getting today's word!")
+        render.WrappedText("Something went wrong getting today's word!"),
     )
 
 def main():
