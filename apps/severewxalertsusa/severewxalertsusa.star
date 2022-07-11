@@ -26,7 +26,6 @@ WARNING_IMG = base64.decode("iVBORw0KGgoAAAANSUhEUgAAAGQAAABkCAYAAABw4pVUAAAAAXN
 
 ## run the main applications
 def main(config):
-
     jsonLocation = json.decode(config.str("location") or DEFAULT_LOCATION)  ## set the location from the schema data or use the default
 
     alerts = get_alerts(jsonLocation["lat"], jsonLocation["lng"])  ## call for the alerts for this location
@@ -40,7 +39,6 @@ def main(config):
 
     ## if found, render summary frame
     if (foundAlerts):  ## render the summary card and then each card
-
         columnFrames.append(render_summary_card_for_alerts(jsonLocation, foundAlerts))
 
         alertCounter = 0  ## this...could have been done differently
@@ -73,7 +71,6 @@ def get_schema():
 
 ## Acquire the set of Weather Alerts for this lat/long point for both Forecast Zone and County level alerts. Return a dict.
 def get_alerts(lat, long):
-
     ## truncate location for privacy without sacrificing useable accuracy
     truncatedLat = truncate_location_digits(lat)
     truncatedLong = truncate_location_digits(long)
@@ -355,9 +352,9 @@ def render_summary_card_zero_alerts(location):
 
 def truncate_location_digits(inputDigits):
     # truncate a location to 2.5 digits -- 0.024 rounds down to 0.00, 0.025 rounds up to 0.050 -- 0.074 down to 0.050
-    
+
     # inputDigits comes to us as a string, split it at the decimal
-    splitDigits = inputDigits.split(".",1)
+    splitDigits = inputDigits.split(".", 1)
 
     # check that enough digits exist: we're looking for 4 digits past the decimal place.
     if (len(splitDigits[1]) < 4):
@@ -367,7 +364,7 @@ def truncate_location_digits(inputDigits):
     # slice
     decimalPlaces = int(splitDigits[1][2:4])
 
-    ## theory. check what should be an integer between 0 and 99 against modulos 75, 50, and 25. 
+    ## theory. check what should be an integer between 0 and 99 against modulos 75, 50, and 25.
     # the crux of the identity is (x % x+1) = x -- any number modulus a number greater than itself equals itself.
     # checks must be performed descending since 25 is a factor of 75
 
