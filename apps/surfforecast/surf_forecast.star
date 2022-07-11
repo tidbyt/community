@@ -49,6 +49,8 @@ TIDBYT_HEIGHT = 32
 FONT_BIG = "tb-8"
 FONT_SMALL = "CG-pixel-3x5-mono"
 DUSK_WIDTH = 1
+LONG_CACHE_TTL = 60 * 60
+SHORT_CACHE_TTL = 60 * 15
 
 ICON_S = base64.decode("iVBORw0KGgoAAAANSUhEUgAAAAUAAAAGCAYAAAAL+1RLAAAAAXNSR0IArs4c6QAAAClJREFUGFdjZICC/////2dkZGQEccEECBAWBKmAqYbRYO3IEiBzsZoJABkvGANjBbRdAAAAAElFTkSuQmCC")
 ICON_SW = base64.decode("iVBORw0KGgoAAAANSUhEUgAAAAUAAAAFCAYAAACNbyblAAAAAXNSR0IArs4c6QAAACpJREFUGFdjZEAD/////88IJhgZGUFyMDZcEFkSLAhSBVMNZsMEYUaDJAFiBBwCWd8MxQAAAABJRU5ErkJggg==")
@@ -455,26 +457,26 @@ def get(url):
         fail("Surfline request failed with status %d", rep.status_code)
     return rep.json()
 
-def get_response(url, cache_key):
+def get_response(url, cache_key, ttl_seconds):
     response_cached = cache.get(cache_key)
     if response_cached != None:
         return json.decode(response_cached)
 
     response = get(url)
-    cache.set(cache_key, json.encode(response), ttl_seconds = 240)
+    cache.set(cache_key, json.encode(response), ttl_seconds = ttl_seconds)
     return response
 
 def get_wave_response(config):
     spot_id = get_spot_id_from_config(config)
-    return get_response(SURFLINE_WAVE_URL.format(spot_id = spot_id), "wave_response" + spot_id)
+    return get_response(SURFLINE_WAVE_URL.format(spot_id = spot_id), "wave_response" + spot_id, SHORT_CACHE_TTL)
 
 def get_rating_response(config):
     spot_id = get_spot_id_from_config(config)
-    return get_response(SURFLINE_RATING_URL.format(spot_id = spot_id), "rating_response" + spot_id)
+    return get_response(SURFLINE_RATING_URL.format(spot_id = spot_id), "rating_response" + spot_id, LONG_CACHE_TTL)
 
 def get_wind_response(config):
     spot_id = get_spot_id_from_config(config)
-    return get_response(SURFLINE_WIND_URL.format(spot_id = spot_id), "wind_response" + spot_id)
+    return get_response(SURFLINE_WIND_URL.format(spot_id = spot_id), "wind_response" + spot_id, SHORT_CACHE_TTL)
 
 def get_animation_percentages():
     showing = [1 for _ in range(4)]
