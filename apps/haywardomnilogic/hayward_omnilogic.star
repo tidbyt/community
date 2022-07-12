@@ -11,6 +11,7 @@ load("xpath.star", "xpath")
 load("http.star", "http")
 load("schema.star", "schema")
 load("encoding/base64.star", "base64")
+load("hash.star", "hash")
 
 STATUS_KEY = "status"
 STATUS_BAD_LOGIN = "bad_login"
@@ -24,17 +25,14 @@ iVBORw0KGgoAAAANSUhEUgAAASMAAAC8CAYAAAAzZ8gPAAAABGdBTUEAALGPC/xhBQAAACBjSFJNAAB6
 POOL_IMAGE = base64.decode(POOL_IMAGE_BASE_64)
 
 def main(config):
-    username = config.get("username")
-    if not username:
-        return error_view("Missing Username")
-    password = config.get("password")
-    if not password:
-        return error_view("Missing Password")
+    api_token = config.get("api_token")
+    if not api_token:
+        return error_view("Missing API Token")
     system_id = config.get("system_id")
-    if not system_id:
+    if not system_id or len(system_id) != 6:
         return error_view("Missing System ID")
     pool_name = config.get("pool_name") or "Pool"
-    result = get_pool_temperature(username = username, password = password, system_id = system_id)
+    result = get_pool_temperature(api_token = api_token, system_id = system_id)
 
     if result[STATUS_KEY] == STATUS_SUCCESS:
         temp_string = "{}°".format(result[TEMPERATURE_KEY])
@@ -87,15 +85,9 @@ def get_schema():
         version = "1",
         fields = [
             schema.Text(
-                id = "username",
-                name = "Username",
-                desc = "The username used to login to the Hayward App",
-                icon = "user",
-            ),
-            schema.Text(
-                id = "password",
-                name = "Password",
-                desc = "The password used to login to the Hayward App",
+                id = "api_token",
+                name = "API Token",
+                desc = "The API token for the Hayward API. Please see the README for instructions on how to generate a token with your username and password.",
                 icon = "key",
             ),
             schema.Text(
@@ -140,46 +132,18 @@ def error_view(message):
         ),
     )
 
-def get_token(username, password):
-    cache_key = "login_token_{}".format(username)
-    token = cache.get(cache_key)
-    if token == None:
-        print("🚀 Fetching new token response")
-        LOGIN_URL = "https://www.haywardomnilogic.com/MobileInterface/MobileInterface.ashx"
-        data = """<Request>
-        <Name>Login</Name>
-        <Parameters>
-            <Parameter name=\"UserName\" dataType=\"String\">{}</Parameter>
-            <Parameter name=\"Password\" dataType=\"String\">{}</Parameter>
-        </Parameters>
-    </Request>""".format(username, password)
-        rep = http.post(url = LOGIN_URL, headers = {"Content-Type": "text/xml"}, body = data)
-        response_body = rep.body()
-        status = int(xpath.loads(response_body).query_all("//Response/Parameters/Parameter[@name='Status']")[0])
-        if status == 0:
-            token = xpath.loads(response_body).query_all("//Response/Parameters/Parameter[@name='Token']")[0]
-            cache.set(cache_key, str(token), ttl_seconds = 600)
-        else:
-            print("❌ Login Failed")
-    else:
-        print("💾 Using cached token")
-    return token
-
-def get_pool_temperature(username, password, system_id):
-    cache_key = "pool_response_{}_{}".format(system_id, username)
+def get_pool_temperature(api_token, system_id):
+    cache_key = "pool_response_{}".format(hash.sha1(system_id + api_token))
     response_body = cache.get(cache_key)
     if response_body == None:
         print("🏖 Fetching new pool response")
-        token = get_token(username = username, password = password)
-        if token:
-            READINGS_URL = "https://www.haywardomnilogic.com/MobileInterface/MobileInterface.ashx"
-            data = "<Request><Name>RequestTelemetryData</Name><Parameters><Parameter name=\"Token\" dataType=\"string\">{}</Parameter><Parameter name=\"MspSystemID\" dataType=\"int\">{}</Parameter></Parameters></Request>".format(token, system_id)
-            rep = http.post(url = READINGS_URL, headers = {"Content-Type": "text/xml"}, body = data)
-            response_body = rep.body()
-            cache.set(cache_key, str(response_body), ttl_seconds = 600)
-        else:
-            print("❌ Unable to load pool data")
-            return {STATUS_KEY: STATUS_BAD_LOGIN}
+        READINGS_URL = "https://www.haywardomnilogic.com/MobileInterface/MobileInterface.ashx"
+        data = "<Request><Name>RequestTelemetryData</Name><Parameters><Parameter name=\"Token\" dataType=\"string\">{}</Parameter><Parameter name=\"MspSystemID\" dataType=\"int\">{}</Parameter></Parameters></Request>".format(api_token, system_id)
+        rep = http.post(url = READINGS_URL, headers = {"Content-Type": "text/xml"}, body = data)
+        print(rep.status_code)
+        print(rep.body())
+        response_body = rep.body()
+        cache.set(cache_key, str(response_body), ttl_seconds = 600)
     else:
         print("💾 Using cached pool response")
     temps = []
