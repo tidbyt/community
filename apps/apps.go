@@ -37,6 +37,7 @@ import (
 	"tidbyt.dev/community/apps/dvdlogo"
 	"tidbyt.dev/community/apps/dwheadline"
 	"tidbyt.dev/community/apps/espnnews"
+	"tidbyt.dev/community/apps/fairfaxconnector"
 	"tidbyt.dev/community/apps/finevent"
 	"tidbyt.dev/community/apps/fishbyt"
 	"tidbyt.dev/community/apps/fitbitweight"
@@ -63,6 +64,7 @@ import (
 	"tidbyt.dev/community/apps/manifest"
 	"tidbyt.dev/community/apps/mbta"
 	"tidbyt.dev/community/apps/mbtanewtrains"
+	"tidbyt.dev/community/apps/metar"
 	"tidbyt.dev/community/apps/mindthegap"
 	"tidbyt.dev/community/apps/mlbleaders"
 	"tidbyt.dev/community/apps/mlbscores"
@@ -100,8 +102,10 @@ import (
 	"tidbyt.dev/community/apps/redditrplace"
 	"tidbyt.dev/community/apps/sbbtimetable"
 	"tidbyt.dev/community/apps/sfnextmuni"
+	"tidbyt.dev/community/apps/shopifychart"
 	"tidbyt.dev/community/apps/snyk"
 	"tidbyt.dev/community/apps/sportsrankings"
+	"tidbyt.dev/community/apps/soundtransit"
 	"tidbyt.dev/community/apps/sportsscores"
 	"tidbyt.dev/community/apps/sportsstandings"
 	"tidbyt.dev/community/apps/spotthestation"
@@ -133,6 +137,7 @@ import (
 	"tidbyt.dev/community/apps/warframecycles"
 	"tidbyt.dev/community/apps/weathermap"
 	"tidbyt.dev/community/apps/whosthatpokemon"
+	"tidbyt.dev/community/apps/wordoftheday"
 	"tidbyt.dev/community/apps/worldclock"
 )
 
@@ -170,6 +175,7 @@ func GetManifests() []manifest.Manifest {
 		dvdlogo.New(),
 		dwheadline.New(),
 		espnnews.New(),
+		fairfaxconnector.New(),
 		finevent.New(),
 		fishbyt.New(),
 		fitbitweight.New(),
@@ -195,6 +201,7 @@ func GetManifests() []manifest.Manifest {
 		londonbusstop.New(),
 		mbta.New(),
 		mbtanewtrains.New(),
+		metar.New(),
 		mindthegap.New(),
 		mlbleaders.New(),
 		mlbscores.New(),
@@ -232,8 +239,10 @@ func GetManifests() []manifest.Manifest {
 		redditrplace.New(),
 		sbbtimetable.New(),
 		sfnextmuni.New(),
+		shopifychart.New(),
 		snyk.New(),
 		sportsrankings.New(),
+		soundtransit.New(),
 		sportsscores.New(),
 		sportsstandings.New(),
 		spotthestation.New(),
@@ -265,6 +274,7 @@ func GetManifests() []manifest.Manifest {
 		warframecycles.New(),
 		weathermap.New(),
 		whosthatpokemon.New(),
+		wordoftheday.New(),
 		worldclock.New(),
 	}
 }
