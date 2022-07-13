@@ -77,30 +77,49 @@ def nextFerry(earliest):
     departure = time.parse_time(
       earliest.format("2006-01-02") + " " + departure_str,
       "2006-01-02 15:04",
-      "Europe/Berlin"
+      "Europe/Berlin",
     )
     wait = departure - earliest
     if wait.minutes >= 0.0:
       return (departure, wait, True)
   return (None, None, False)
 
+def nextFerryNow():
+  now = time.now().in_location("Europe/Berlin")
+  return nextFerry(now)
+
+def nextFerryTomorrow():
+  now = time.now().in_location("Europe/Berlin")
+  tomorrow = time.parse_time(
+    now.format("2006-01-02"),
+    "2006-01-02",
+    "Europe/Berlin",
+  ) + time.parse_duration("24h")
+  return nextFerry(tomorrow)
+
+def waitStr(wait):
+  wait_min = math.floor(wait.minutes)
+  if wait_min > 0:
+    return str(math.floor(wait.minutes)) + " min"
+  return "now"
+
 def nextFerryData():
-  ret = (
+  departure, wait, found = nextFerryNow()
+  if found:
+    return (
+      departure.format("15:04"),
+      waitStr(wait)
+    )
+  departure, wait, found = nextFerryTomorrow()
+  if found:
+    return (
+      departure.format("15:04"),
+      departure.format("Monday")
+    )
+  return (
     "-:-",
     "No data"
   )
-  now = time.now().in_location("Europe/Berlin")
-  departure, wait, found = nextFerry(now)
-  if found:
-    wait_min = math.floor(wait.minutes)
-    wait_str = "now"
-    if wait_min > 0:
-      wait_str = str(math.floor(wait.minutes)) + " min"
-    ret = (
-      departure.format("15:04"),
-      wait_str
-    )
-  return ret
 
 def main():
   ferry_time, ferry_wait = nextFerryData()
@@ -127,6 +146,7 @@ def main():
             render.Text(
               content = ferry_wait,
               color = "#ff6600",
+              font = "tom-thumb",
             ),
           ],
           expanded = True,
