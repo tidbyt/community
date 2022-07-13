@@ -9,7 +9,7 @@ require (
 
 require (
 	github.com/manifoldco/promptui v0.9.0
-	tidbyt.dev/pixlet v0.17.10
+	tidbyt.dev/pixlet v0.17.12
 )
 
 require (
@@ -37,6 +37,7 @@ require (
 	github.com/pkg/errors v0.9.1 // indirect
 	github.com/pmezard/go-difflib v1.0.0 // indirect
 	github.com/qri-io/starlib v0.5.1-0.20211102160121-ae835e29cd41 // indirect
+	github.com/skip2/go-qrcode v0.0.0-20200617195104-da1b6568686e // indirect
 	github.com/spf13/pflag v1.0.5 // indirect
 	github.com/tidbyt/go-libwebp v0.0.0-20220302154536-6042ce446e9c // indirect
 	github.com/zachomedia/go-bdf v0.0.0-20220611021443-a3af701111be // indirect
