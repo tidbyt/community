@@ -88,6 +88,21 @@ def isHoliday(earliest):
 def isWeekday(earliest):
   return DAYOFWEEK_TO_WEEKDAY[earliest.format("Monday")]
 
+def isScheduleValid(earliest):
+  day = time.parse_time(
+    earliest.format("2006-01-02"),
+    "2006-01-02",
+    "Europe/Berlin",
+  )
+  elapseday = time.parse_time(
+    FERRY_SCHEDULE["validity"],
+    "2006-01-02",
+    "Europe/Berlin",
+  ) + time.parse_duration("24h")
+  delta = elapseday - day
+  delta_hrs = math.floor(delta.hours)
+  return delta_hrs > 0
+
 def nextFerry(earliest):
   weekday = not isHoliday(earliest) and isWeekday(earliest)
   if weekday:
@@ -105,18 +120,16 @@ def nextFerry(earliest):
       return (departure, wait, True)
   return (None, None, False)
 
-def nextFerryNow():
-  now = time.now().in_location("Europe/Berlin")
-  return nextFerry(now)
+def getNow():
+  return time.now().in_location("Europe/Berlin")
 
-def nextFerryTomorrow():
+def getTomorrow():
   now = time.now().in_location("Europe/Berlin")
-  tomorrow = time.parse_time(
+  return time.parse_time(
     now.format("2006-01-02"),
     "2006-01-02",
     "Europe/Berlin",
   ) + time.parse_duration("24h")
-  return nextFerry(tomorrow)
 
 def waitStr(wait):
   wait_min = math.floor(wait.minutes)
@@ -125,25 +138,27 @@ def waitStr(wait):
   return "now"
 
 def nextFerryData():
-  departure, wait, found = nextFerryNow()
-  if found:
-    return (
-      departure.format("15:04"),
-      waitStr(wait)
-    )
-  departure, wait, found = nextFerryTomorrow()
-  if found:
-    return (
-      departure.format("15:04"),
-      departure.format("Monday")
-    )
-  return (
-    "-:-",
-    "No data"
-  )
+  earliest = getNow()
+  if isScheduleValid(earliest):
+    departure, wait, found = nextFerry(earliest)
+    if found:
+      return (
+        departure.format("15:04"),
+        waitStr(wait),
+        True
+      )
+  earliest = getTomorrow()
+  if isScheduleValid(earliest):
+    departure, wait, found = nextFerry(earliest)
+    if found:
+      return (
+        departure.format("15:04"),
+        departure.format("Monday"),
+        True
+      )
+  return (None, None, False)
 
-def main():
-  ferry_time, ferry_wait = nextFerryData()
+def renderFerryData(ferry_time, ferry_wait):
   return render.Root(
     child = render.Row(
       children = [
@@ -179,3 +194,40 @@ def main():
       main_align = "space_evenly",
     )
   )
+
+def renderNoSchedule():
+  return render.Root(
+    child = render.Row(
+      children = [
+        render.Column(
+          children = [
+            render.Text(
+              content = "No data",
+              color = "#990000",
+              font = "CG-pixel-4x5-mono",
+            ),
+            render.Image(src=FERRY_ICON),
+            render.Marquee(
+              child = render.Text(
+                content = "Schedule elapsed on " + FERRY_SCHEDULE["validity"],
+                color = "#3399ff",
+                font = "CG-pixel-4x5-mono",
+              ),
+              width = 60,
+            ),
+          ],
+          expanded = True,
+          main_align = "space_evenly",
+          cross_align = "center",
+        ),
+      ],
+      expanded = True,
+      main_align = "center",
+    )
+  )
+
+def main():
+  ferry_time, ferry_wait, found = nextFerryData()
+  if found:
+    return renderFerryData(ferry_time, ferry_wait)
+  return renderNoSchedule()
