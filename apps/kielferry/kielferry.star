@@ -67,8 +67,29 @@ DAYOFWEEK_TO_WEEKDAY = {
     "Sunday": False,
 }
 
+def isHoliday(earliest):
+  day = time.parse_time(
+    earliest.format("2006-01-02"),
+    "2006-01-02",
+    "Europe/Berlin",
+  )
+  for holyday_str in FERRY_SCHEDULE["holidays"]:
+    holiday = time.parse_time(
+      holyday_str,
+      "2006-01-02",
+      "Europe/Berlin",
+    )
+    delta = day - holiday
+    delta_hrs = math.floor(delta.hours)
+    if delta_hrs == 0:
+      return True
+  return False
+
+def isWeekday(earliest):
+  return DAYOFWEEK_TO_WEEKDAY[earliest.format("Monday")]
+
 def nextFerry(earliest):
-  weekday = DAYOFWEEK_TO_WEEKDAY[earliest.format("Monday")]
+  weekday = not isHoliday(earliest) and isWeekday(earliest)
   if weekday:
     schedule = FERRY_SCHEDULE["weekday_schedule"]
   else:
