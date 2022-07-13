@@ -1,4 +1,6 @@
 load("render.star", "render")
+load("time.star", "time")
+load("math.star", "math")
 load("encoding/base64.star", "base64")
 
 FERRY_ICON = base64.decode("""
@@ -25,7 +27,83 @@ EAAcZoPM9eG/p1SVvoWLX9DM+fJJKpXryTJDJHfI3BICeRlZ2AiOokNzzTCQZNJoQFyLhhETmYe
 vv/62H/m6d9sgNcoHPJZ/AAAAABJRU5ErkJggg==
 """)
 
+FERRY_SCHEDULE = {
+  "validity" : "2022-09-04",
+  "weekday_schedule" : [
+    "08:47",
+    "09:37",
+    "11:07",
+    "13:07",
+    "14:17",
+    "16:07",
+    "17:07",
+    "18:42",
+  ],
+  "weekend_schedule" : [
+    "09:02",
+    "09:47",
+    "10:47",
+    "12:12",
+    "13:37",
+    "14:47",
+    "15:22",
+    "16:37",
+    "17:07",
+    "18:41",
+  ],
+  "holidays" : [
+    "2022-05-26",
+    "2022-06-06",
+  ]
+}
+
+DAYOFWEEK_TO_WEEKDAY = {
+    "Monday": True,
+    "Tuesday": True,
+    "Wednesday": True,
+    "Thursday": True,
+    "Friday": True,
+    "Saturday": False,
+    "Sunday": False,
+}
+
+def nextFerry(earliest):
+  weekday = DAYOFWEEK_TO_WEEKDAY[earliest.format("Monday")]
+  if weekday:
+    schedule = FERRY_SCHEDULE["weekday_schedule"]
+  else:
+    schedule = FERRY_SCHEDULE["weekend_schedule"]
+  for departure_str in schedule:
+    departure = time.parse_time(
+      earliest.format("2006-01-02") + " " + departure_str,
+      "2006-01-02 15:04",
+      "Europe/Berlin"
+    )
+    wait = departure - earliest
+    if wait.minutes >= 0.0:
+      return (departure, wait, True)
+  return (None, None, False)
+
+def nextFerryData():
+  ret = (
+    "-:-",
+    "No data"
+  )
+  now = time.now().in_location("Europe/Berlin")
+  departure, wait, found = nextFerry(now)
+  if found:
+    wait_min = math.floor(wait.minutes)
+    wait_str = "now"
+    if wait_min > 0:
+      wait_str = str(math.floor(wait.minutes)) + " min"
+    ret = (
+      departure.format("15:04"),
+      wait_str
+    )
+  return ret
+
 def main():
+  ferry_time, ferry_wait = nextFerryData()
   return render.Root(
     child = render.Row(
       children = [
@@ -43,11 +121,11 @@ def main():
                 color = "#3399ff",
             ),
             render.Text(
-              content = "20:15",
+              content = ferry_time,
               font = "6x13",
             ),
             render.Text(
-              content = "234 min",
+              content = ferry_wait,
               color = "#ff6600",
             ),
           ],
