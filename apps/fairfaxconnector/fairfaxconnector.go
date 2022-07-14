@@ -17,7 +17,7 @@ func New() manifest.Manifest {
 		Name:        "Fairfax Connector",
 		Author:      "Austin Pearce",
 		Summary:     "Connector bus stop info",
-		Desc:        "Shows when your next bus is arriving. Stop IDs can be found on the bus stop sign or online at fairfaxcounty.gov/bustime/map/displaymap.jsp",
+		Desc:        "Shows when your next bus is arriving. Stop IDs can be found on the bus stop sign or online at fairfaxcounty.gov.",
 		FileName:    "fairfax_connector.star",
 		PackageName: "fairfaxconnector",
 		Source:      source,
