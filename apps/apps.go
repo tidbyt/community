@@ -114,6 +114,7 @@ import (
 	"tidbyt.dev/community/apps/strava"
 	"tidbyt.dev/community/apps/subreddit"
 	"tidbyt.dev/community/apps/sunrisesunset"
+	"tidbyt.dev/community/apps/surfforecast"
 	"tidbyt.dev/community/apps/surflive"
 	"tidbyt.dev/community/apps/tartan"
 	"tidbyt.dev/community/apps/tempest"
@@ -250,6 +251,7 @@ func GetManifests() []manifest.Manifest {
 		strava.New(),
 		subreddit.New(),
 		sunrisesunset.New(),
+		surfforecast.New(),
 		surflive.New(),
 		tartan.New(),
 		tempest.New(),
