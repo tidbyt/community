@@ -38,12 +38,13 @@ load("encoding/json.star", "json")
 load("sunrise.star", "sunrise")
 
 # Defaults
-DEFAULT_LOCATION = {
+DEFAULT_LOCATION = """{
     "lat": 53.79444,
     "lng": -2.245278,
     "locality": "Manchester, UK",
     "timezone": "GMT",
 }
+"""
 DEFAULT_24_HOUR = False
 DEFAULT_ITEMS_TO_DISPLAY = "both"
 
@@ -53,7 +54,7 @@ sunsetImage = """iVBORw0KGgoAAAANSUhEUgAAAB4AAAAOCAYAAAA45qw5AAAAAXNSR0IArs4c6QA
 
 def main(config):
     # Get longditude and latitude from location
-    location = config.get("location", DEFAULT_LOCATION)
+    location = json.decode(config.get("location", DEFAULT_LOCATION))
     lat = float(location.get("lat"))
     lng = float(location.get("lng"))
 
