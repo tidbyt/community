@@ -20,8 +20,9 @@ def main(config):
             json.decode(config.get("location_1")),
             json.decode(config.get("location_2")),
             json.decode(config.get("location_3")),
-            json.decode(config.get("location_4")),
         ]
+        if "location_4" in config:
+            locations.append(json.decode(config.get("location_4")))
     else:
         locations = [
             {
