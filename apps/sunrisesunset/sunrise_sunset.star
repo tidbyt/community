@@ -129,10 +129,12 @@ def main(config):
             title = "Sunrise"
             text = sunriseText
             image = sunriseImage
+            pad = sunrisePad
         else:
             title = "Sunset"
             text = sunsetText
             image = sunsetImage
+            pad = sunsetPad
 
         top = render.Padding(
             pad = (0, 2, 0, 4),
@@ -153,7 +155,10 @@ def main(config):
             cross_align = "center",
             children = [
                 render.Image(src = base64.decode(image)),
-                render.Text(text),
+                render.Padding(
+                    pad = (pad, 0, 0, 0),
+                    child = render.Text(text),
+                ),
             ],
         )
 
