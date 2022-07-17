@@ -7,7 +7,7 @@ Author: rs7q5
 
 #shuffle_images.star
 #Created 20220704 RIS
-#Last Modified 20220704 RIS
+#Last Modified 20220717 RIS
 
 load("render.star", "render")
 load("schema.star", "schema")
@@ -17,6 +17,9 @@ load("random.star", "random")
 maxImages = 20  #max images that can be selected
 
 def main(config):
+    if config.bool("hide_app", False):
+        return []
+
     #get images and count how many are actually chosen
     img_vec = get_images(config)
     img_cnt = len(img_vec)
@@ -46,6 +49,13 @@ def main(config):
 
 def get_schema():
     field_vec = [
+        schema.Toggle(
+            id = "hide_app",
+            name = "Hide app?",
+            desc = "",
+            icon = "eye-slash",
+            default = False,
+        ),
         schema.Toggle(
             id = "shuffle",
             name = "Shuffle images",
