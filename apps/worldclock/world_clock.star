@@ -48,7 +48,7 @@ def main(config):
 
     location_count = int(config.get("location_count") or 3)
 
-    if location_count < 4:
+    if location_count < 4 and len(locations) > 3:
         locations.remove(locations[3])
 
     if location_count < 3:
