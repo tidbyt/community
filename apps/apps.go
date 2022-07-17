@@ -104,6 +104,7 @@ import (
 	"tidbyt.dev/community/apps/sfnextmuni"
 	"tidbyt.dev/community/apps/shuffleimages"
 	"tidbyt.dev/community/apps/snyk"
+	"tidbyt.dev/community/apps/soundtransit"
 	"tidbyt.dev/community/apps/sportsscores"
 	"tidbyt.dev/community/apps/sportsstandings"
 	"tidbyt.dev/community/apps/spotthestation"
@@ -113,6 +114,7 @@ import (
 	"tidbyt.dev/community/apps/strava"
 	"tidbyt.dev/community/apps/subreddit"
 	"tidbyt.dev/community/apps/sunrisesunset"
+	"tidbyt.dev/community/apps/surfforecast"
 	"tidbyt.dev/community/apps/surflive"
 	"tidbyt.dev/community/apps/tartan"
 	"tidbyt.dev/community/apps/tempest"
@@ -135,6 +137,7 @@ import (
 	"tidbyt.dev/community/apps/warframecycles"
 	"tidbyt.dev/community/apps/weathermap"
 	"tidbyt.dev/community/apps/whosthatpokemon"
+	"tidbyt.dev/community/apps/wordoftheday"
 	"tidbyt.dev/community/apps/worldclock"
 )
 
@@ -238,6 +241,7 @@ func GetManifests() []manifest.Manifest {
 		sfnextmuni.New(),
 		shuffleimages.New(),
 		snyk.New(),
+		soundtransit.New(),
 		sportsscores.New(),
 		sportsstandings.New(),
 		spotthestation.New(),
@@ -247,6 +251,7 @@ func GetManifests() []manifest.Manifest {
 		strava.New(),
 		subreddit.New(),
 		sunrisesunset.New(),
+		surfforecast.New(),
 		surflive.New(),
 		tartan.New(),
 		tempest.New(),
@@ -269,6 +274,7 @@ func GetManifests() []manifest.Manifest {
 		warframecycles.New(),
 		weathermap.New(),
 		whosthatpokemon.New(),
+		wordoftheday.New(),
 		worldclock.New(),
 	}
 }
