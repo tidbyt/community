@@ -48,7 +48,7 @@ def main(config):
         elif sport == "NHL":
             stats = get_nhlgames(today_str)
         elif sport in ["NBA", "WNBA"]:
-            stats = get_nbagames(today_str, sport_ext)
+            stats = get_basketballgames(today_str, sport_ext)
         elif sport == "NFL":
             stats = get_nflgames(today_str)
 
@@ -471,7 +471,7 @@ def get_nhlgames(today_str):
 
     return (stats)
 
-def get_nbagames(today_str, sport):
+def get_basketballgames(today_str, sport):
     start_date = today_str
     end_date = today_str
     base_URL = "https://site.api.espn.com/apis/site/v2/sports/basketball/%s/scoreboard" % sport
