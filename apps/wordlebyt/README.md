@@ -1,5 +1,5 @@
 # Wordle Score Applet for Tidbyt
 
-Displays the current Wordle Score that you've posted to your Twitter feed on your Tidbyt. Updated every 15 minutes.
+Displays the current Wordle Score that you've pasted into Wordlebyt from the Wordle app/webpage.  Score will remain until you update it.
 
-Once you've played the game for that day, share the score directly from the Wordle app to your Twitter.  Wordlebyt will pull your latest tweet and see if it is a Wordle score.  If it is, it will display it.
+After playing Wordle on your phone, click Share>Copy text. In the Tidbyt app, paste the result into Wordlebyt.
