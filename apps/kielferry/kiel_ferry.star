@@ -7,6 +7,8 @@ Author: hloeding
 # Required includes
 load("render.star", "render")
 load("schema.star", "schema")
+load("time.star", "time")
+load("math.star", "math")
 load("http.star", "http")
 load("cache.star", "cache")
 load("encoding/base64.star", "base64")
@@ -181,9 +183,57 @@ def renderError():
     )
   )
 
+def getFerryDataStrings(nextFerry):
+    if nextFerry == None:
+        # TODO
+        return (
+            "---",
+            "---"
+        )
+    now = time.now()
+    ferryDepartureTime = time.parse_time(nextFerry)
+    # TODO
+
+# Render ferry departure data
 def renderFerryData(nextFerry):
+    # DEBUG
+    departure, waittime = getFerryDataStrings(None)
+    # TODO
+    # departure, waittime = getFerryDataStrings(nextFerry)
     return render.Root(
-        child = render.Box(height = 1, width = 1),
+        child = render.Row(
+            children = [
+                render.Column(
+                    children = [
+                        render.Image(src=FERRY_ICON),
+                    ],
+                    expanded = True,
+                    main_align = "center",
+                ),
+                render.Column(
+                    children = [
+                        render.Text(
+                            content = "TODO",
+                            color = "#3399ff",
+                        ),
+                        render.Text(
+                            content = departure,
+                            font = "6x13",
+                        ),
+                        render.Text(
+                            content = waittime,
+                            color = "#ff6600",
+                            font = "tom-thumb",
+                        ),
+                    ],
+                    expanded = True,
+                    main_align = "space_evenly",
+                    cross_align = "center",
+                ),
+            ],
+            expanded = True,
+            main_align = "space_evenly",
+        )
     )
 
 # Main entrypoint
@@ -201,6 +251,7 @@ def main(config):
     valid, nextFerry = getNextFerry(ferryStopID, ferryDirectionID)
     # If ferry departure data is valid, render it
     if valid:
+        print("NextFerry: %s" % nextFerry)
         return renderFerryData(nextFerry)
     # Otherwise, render an error
     return renderError()
