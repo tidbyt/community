@@ -647,9 +647,9 @@ def get_soccergames(today_str, sport):
             period_T = game["status"]["displayClock"]
             if game["status"]["type"]["detail"] == "HT":  #check for halftime
                 status_txt = "HT"
-            else: #Show current game time
+            else:  #Show current game time
                 status_txt = humanize.ordinal(period) + "/" + period_T
-        elif game["status"]["type"]["state"] == "post": #Full time in soccer is covered here
+        elif game["status"]["type"]["state"] == "post":  #Full time in soccer is covered here
             status_txt = "FT"
         else:  #this is a safety net
             status_txt = game["status"]["type"]["state"]
