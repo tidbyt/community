@@ -38,12 +38,13 @@ load("encoding/json.star", "json")
 load("sunrise.star", "sunrise")
 
 # Defaults
-DEFAULT_LOCATION = {
+DEFAULT_LOCATION = """{
     "lat": 53.79444,
     "lng": -2.245278,
     "locality": "Manchester, UK",
     "timezone": "GMT",
 }
+"""
 DEFAULT_24_HOUR = False
 DEFAULT_ITEMS_TO_DISPLAY = "both"
 
@@ -53,32 +54,38 @@ sunsetImage = """iVBORw0KGgoAAAANSUhEUgAAAB4AAAAOCAYAAAA45qw5AAAAAXNSR0IArs4c6QA
 
 def main(config):
     # Get longditude and latitude from location
-    location = config.get("location", DEFAULT_LOCATION)
+    location = json.decode(config.get("location", DEFAULT_LOCATION))
     lat = float(location.get("lat"))
     lng = float(location.get("lng"))
 
     # Get sunset and sunrise times
     now = time.now()
-    sunriseTime = sunrise.sunrise(lat, lng, now)
-    sunsetTime = sunrise.sunset(lat, lng, now)
+    sunriseTime = sunrise.sunrise(lat, lng, now).in_location(location["timezone"])
+    sunsetTime = sunrise.sunset(lat, lng, now).in_location(location["timezone"])
 
     # Get whether to display in 24h format
     display24Hour = config.bool("24_hour", DEFAULT_24_HOUR)
     itemsToDisplay = config.get("items_to_display", DEFAULT_ITEMS_TO_DISPLAY)
 
+    sunrisePad, sunsetPad = 0, 0
+
     if sunriseTime == None:
         sunriseText = "  None"
     elif display24Hour:
-        sunriseText = "  %s" % sunriseTime.in_location(location["timezone"]).format("15:04")
+        sunriseText = "  %s" % sunriseTime.format("15:04")
     else:
-        sunriseText = "%s" % sunriseTime.in_location(location["timezone"]).format("3:04 PM")
+        sunriseText = "%s" % sunriseTime.format("3:04 PM")
+        if sunriseTime.hour >= 10:
+            sunrisePad = -1
 
     if sunsetTime == None:
         sunsetText = "  None"
     elif display24Hour:
-        sunsetText = "  %s" % sunsetTime.in_location(location["timezone"]).format("15:04")
+        sunsetText = "  %s" % sunsetTime.format("15:04")
     else:
-        sunsetText = "%s" % sunsetTime.in_location(location["timezone"]).format("3:04 PM")
+        sunsetText = "%s" % sunsetTime.format("3:04 PM")
+        if sunsetTime.hour >= 10:
+            sunsetPad = -1
 
     # Got what we need, render it.
 
@@ -92,7 +99,7 @@ def main(config):
                 children = [
                     render.Image(src = base64.decode(sunriseImage)),
                     render.Padding(
-                        pad = (-1, -1, 0, 0),
+                        pad = (sunrisePad, -1, 0, 0),
                         child = render.Text(sunriseText),
                     ),
                 ],
@@ -111,7 +118,7 @@ def main(config):
             children = [
                 render.Image(src = base64.decode(sunsetImage)),
                 render.Padding(
-                    pad = (-1, -1, 0, 0),
+                    pad = (sunsetPad, -1, 0, 0),
                     child = render.Text(sunsetText),
                 ),
             ],
@@ -122,10 +129,12 @@ def main(config):
             title = "Sunrise"
             text = sunriseText
             image = sunriseImage
+            pad = sunrisePad
         else:
             title = "Sunset"
             text = sunsetText
             image = sunsetImage
+            pad = sunsetPad
 
         top = render.Padding(
             pad = (0, 2, 0, 4),
@@ -146,7 +155,10 @@ def main(config):
             cross_align = "center",
             children = [
                 render.Image(src = base64.decode(image)),
-                render.Text(text),
+                render.Padding(
+                    pad = (pad, 0, 0, 0),
+                    child = render.Text(text),
+                ),
             ],
         )
 

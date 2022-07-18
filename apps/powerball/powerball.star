@@ -102,7 +102,7 @@ def main():
                             children = [
                                 render.Text(Won, font = "tom-thumb"),
                                 render.Box(width = 38, height = 1),
-                                render.Text("Upcomming", font = "tom-thumb"),
+                                render.Text("Upcoming", font = "tom-thumb"),
                             ],
                         ),
                     ],
