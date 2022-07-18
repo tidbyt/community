@@ -93,6 +93,7 @@ import (
 	"tidbyt.dev/community/apps/ohhighwaysigns"
 	"tidbyt.dev/community/apps/pagerduty"
 	"tidbyt.dev/community/apps/pathtrainschedule"
+	"tidbyt.dev/community/apps/petpikachu"
 	"tidbyt.dev/community/apps/phaseofmoon"
 	"tidbyt.dev/community/apps/pokedex"
 	"tidbyt.dev/community/apps/pollencount"
@@ -233,6 +234,7 @@ func GetManifests() []manifest.Manifest {
 		ohhighwaysigns.New(),
 		pagerduty.New(),
 		pathtrainschedule.New(),
+		petpikachu.New(),
 		phaseofmoon.New(),
 		pokedex.New(),
 		pollencount.New(),
