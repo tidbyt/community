@@ -240,6 +240,7 @@ func GetManifests() []manifest.Manifest {
 		redditrplace.New(),
 		sbbtimetable.New(),
 		sfnextmuni.New(),
+		shopifychart.New(),
 		shuffleimages.New(),
 		snyk.New(),
 		soundtransit.New(),
