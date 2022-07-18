@@ -17,7 +17,7 @@ func New() manifest.Manifest {
 		Name:        "Wordlebyt",
 		Author:      "skola28",
 		Summary:     "Display daily Wordle score",
-		Desc:        "Show off your daily Wordle Score.",
+		Desc:        "After playing Wordle on your phone, click Share>Copy text. In the Tidbyt app, paste the result into Wordlebyt.",
 		FileName:    "wordlebyt.star",
 		PackageName: "wordlebyt",
 		Source:      source,
