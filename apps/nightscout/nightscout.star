@@ -14,7 +14,7 @@ load("cache.star", "cache")
 load("schema.star", "schema")
 load("re.star", "re")
 load("humanize.star", "humanize")
-    
+
 COLOR_RED = "#C00"
 COLOR_DARK_RED = "#911"
 COLOR_YELLOW = "#ff8"
@@ -46,7 +46,7 @@ DEFAULT_LOCATION = """
 
 DEFAULT_NSID = ""
 TIME_NOW = time.now().in_location("UTC")
-OLDEST_READING_TARGET = TIME_NOW + time.parse_duration(str(5*GRAPH_WIDTH*-1) + "m")
+OLDEST_READING_TARGET = TIME_NOW + time.parse_duration(str(5 * GRAPH_WIDTH * -1) + "m")
 
 def main(config):
     location = config.get("location", DEFAULT_LOCATION)
@@ -59,7 +59,6 @@ def main(config):
     urgent_high = int(config.get("urgent_high", DEFAULT_URGENT_HIGH))
     urgent_low = int(config.get("urgent_low", DEFAULT_URGENT_LOW))
     show_graph = config.get("show_graph", DEFAULT_SHOW_GRAPH)
-
 
     if nightscout_id != None:
         nightscout_data_json, status_code = get_nightscout_data(nightscout_id)
@@ -86,24 +85,26 @@ def main(config):
         str_delta = str_delta
     else:
         str_delta = "+" + str_delta
+
     #for reading in history:
-        #graph_data.append(tuple((reading[0], reading[1] - urgent_low)))
+    #graph_data.append(tuple((reading[0], reading[1] - urgent_low)))
     reading_mins_ago = int((TIME_NOW - latest_reading_dt).minutes)
+
     #print ("time:", TIME_NOW)
     #print ("oldest_reading_target:", (OLDEST_READING_TARGET.unix)*1000)
-    print (reading_mins_ago)
-    
+    print(reading_mins_ago)
+
     if (reading_mins_ago < 1):
         human_reading_ago = "< 1 min ago"
     elif (reading_mins_ago == 1):
         human_reading_ago = "1 min ago"
     else:
         human_reading_ago = str(reading_mins_ago) + " mins ago"
-    
-    print (human_reading_ago)
-    
-    ago_dashes = "-"*reading_mins_ago
-    
+
+    print(human_reading_ago)
+
+    ago_dashes = "-" * reading_mins_ago
+
     # Used for finding the icon later. Default state is yellow to make the logic easier
     font_color = COLOR_YELLOW
     color_str = "Yellow"
@@ -123,9 +124,9 @@ def main(config):
         # We're in the urgent range, so use red.
         font_color = COLOR_RED
         color_str = "Red"
-    
-    print (ago_dashes)
-    
+
+    print(ago_dashes)
+
     if show_graph == "False":
         return render.Root(
             render.Box(
@@ -140,28 +141,29 @@ def main(config):
                             expanded = True,
                             children = [
                                 render.Row(
-                                cross_align = "center",
-                                main_align = "space_evenly",
-                                expanded = True,
-                                children = [
-                                 render.Text(
-                                    content = str(int(sgv_current)),
-                                    font = "6x13",
-                                    color = font_color,
+                                    cross_align = "center",
+                                    main_align = "space_evenly",
+                                    expanded = True,
+                                    children = [
+                                        render.Text(
+                                            content = str(int(sgv_current)),
+                                            font = "6x13",
+                                            color = font_color,
+                                        ),
+                                        render.Text(
+                                            content = str_delta,
+                                            font = "tom-thumb",
+                                            color = COLOR_GREY,
+                                            offset = -1,
+                                        ),
+                                        render.Text(
+                                            content = ARROWS[direction],
+                                            font = "6x13",
+                                            color = font_color,
+                                            offset = 1,
+                                        ),
+                                    ],
                                 ),
-                                render.Text(
-                                    content = str_delta,
-                                    font = "tom-thumb",
-                                    color = COLOR_GREY,
-                                    offset = -1,
-                                ),
-                                render.Text(
-                                    content = ARROWS[direction],
-                                    font = "6x13",
-                                    color = font_color,
-                                    offset = 1,
-                                ),
-                                ]),
                                 render.Text(
                                     content = human_reading_ago,
                                     font = "CG-pixel-3x5-mono",
@@ -181,7 +183,7 @@ def main(config):
                                         ),
                                     ],
                                 ),
-                               ],
+                            ],
                         ),
                     ],
                 ),
@@ -190,56 +192,56 @@ def main(config):
         )
     else:
         left_col_width = 20
+
         # high and low lines
-        graph_plot=[]
+        graph_plot = []
         min_time = OLDEST_READING_TARGET.unix
+
         # the rest of the graph
         for point in range(GRAPH_WIDTH):
-        
-            max_time = min_time + (60*5) - 1
+            max_time = min_time + (60 * 5) - 1
             this_point = 0
             for history_point in history:
-            
                 if (min_time <= history_point[0] and history_point[0] <= max_time):
                     this_point = history_point[1]
-            
+
             color_high = COLOR_GREEN
             color_low = COLOR_YELLOW
-            
+
             if this_point > normal_high:
                 color_high = COLOR_YELLOW
                 color_low = COLOR_YELLOW
-                
+
             if this_point > urgent_high:
                 color_high = COLOR_RED
                 color_low = COLOR_RED
-            
+
             if this_point < normal_low:
                 color_high = COLOR_YELLOW
                 color_low = COLOR_YELLOW
-                
+
             if this_point < urgent_low:
                 color_high = COLOR_RED
                 color_low = COLOR_RED
 
             graph_plot.append(
                 render.Plot(
-                  data = [
-                    (0,this_point),
-                    (1,this_point),
+                    data = [
+                        (0, this_point),
+                        (1, this_point),
                     ],
-                  width = 1,
-                  height = 32,
-                  color = color_high,
-                  color_inverted = color_low,
-                  fill = False,
-                  x_lim = (0, 1),
-                  y_lim = (40, 250),
-                )
+                    width = 1,
+                    height = 32,
+                    color = color_high,
+                    color_inverted = color_low,
+                    fill = False,
+                    x_lim = (0, 1),
+                    y_lim = (40, 250),
+                ),
             )
 
             min_time = max_time + 1
-        
+
         return render.Root(
             render.Box(
                 render.Row(
@@ -260,7 +262,7 @@ def main(config):
                                             width = left_col_width,
                                             align = "center",
                                         ),
-                                    ]
+                                    ],
                                 ),
                                 render.Row(
                                     children = [
@@ -281,7 +283,7 @@ def main(config):
                                             color = font_color,
                                             offset = 1,
                                         ),
-                                    ]
+                                    ],
                                 ),
                                 render.Row(
                                     children = [
@@ -292,78 +294,76 @@ def main(config):
                                                     font = "tom-thumb",
                                                     color = COLOR_ORANGE,
                                                     width = left_col_width,
-                                                    align = "center"
+                                                    align = "center",
                                                 ),
                                                 render.WrappedText(
                                                     content = now.format("3 04"),
                                                     font = "tom-thumb",
                                                     color = COLOR_ORANGE,
                                                     width = left_col_width,
-                                                    align = "center"
+                                                    align = "center",
                                                 ),
                                             ],
                                         ),
-                                    ]
+                                    ],
                                 ),
                                 render.Row(
                                     main_align = "start",
                                     cross_align = "start",
                                     children = [
                                         render.WrappedText(
-                                        content = ago_dashes,
-                                        font = "tom-thumb",
-                                        color = COLOR_GREY,
-                                        width = left_col_width,
-                                        align = "center"
-                                    ),
-                                    ]
+                                            content = ago_dashes,
+                                            font = "tom-thumb",
+                                            color = COLOR_GREY,
+                                            width = left_col_width,
+                                            align = "center",
+                                        ),
+                                    ],
                                 ),
-                            ]
+                            ],
                         ),
-                        
                         render.Column(
                             cross_align = "start",
                             main_align = "start",
                             expanded = False,
                             children = [
                                 render.Stack(
-                                    children=[
+                                    children = [
                                         render.Plot(
-                                          data = [
-                                            (0,normal_low),
-                                            (1,normal_low),
+                                            data = [
+                                                (0, normal_low),
+                                                (1, normal_low),
                                             ],
-                                          width = GRAPH_WIDTH,
-                                          height = 32,
-                                          color = COLOR_GREY,
-                                          color_inverted = COLOR_GREY,
-                                          fill = False,
-                                          x_lim = (0, 1),
-                                          y_lim = (40, 250),
+                                            width = GRAPH_WIDTH,
+                                            height = 32,
+                                            color = COLOR_GREY,
+                                            color_inverted = COLOR_GREY,
+                                            fill = False,
+                                            x_lim = (0, 1),
+                                            y_lim = (40, 250),
                                         ),
                                         render.Plot(
-                                          data = [
-                                            (0,normal_high),
-                                            (1,normal_high),
+                                            data = [
+                                                (0, normal_high),
+                                                (1, normal_high),
                                             ],
-                                          width = GRAPH_WIDTH,
-                                          height = 32,
-                                          color = COLOR_GREY,
-                                          color_inverted = COLOR_GREY,
-                                          fill = False,
-                                          x_lim = (0, 1),
-                                          y_lim = (40, 250),
+                                            width = GRAPH_WIDTH,
+                                            height = 32,
+                                            color = COLOR_GREY,
+                                            color_inverted = COLOR_GREY,
+                                            fill = False,
+                                            x_lim = (0, 1),
+                                            y_lim = (40, 250),
                                         ),
                                         render.Row(
                                             main_align = "start",
                                             cross_align = "start",
                                             expanded = True,
-                                            children = graph_plot
+                                            children = graph_plot,
                                         ),
-                                     ],
-                                )
-                                
-                               ],
+                                    ],
+                                ),
+                            ],
                         ),
                     ],
                 ),
@@ -433,10 +433,12 @@ def get_nightscout_data(nightscout_id):
 
     # If it's not in the cache, construct it from a response.
     print("Miss - calling Nightscout API")
+
     #nightscout_url = "https://" + nightscout_id + "/api/v1/entries.json?count="+str(GRAPH_WIDTH)
-    nightscout_url = "https://" + nightscout_id + "/api/v1/entries/sgv.json?find[date][$gte]="+str((OLDEST_READING_TARGET.unix)*1000)+"&count="+str(GRAPH_WIDTH)
+    nightscout_url = "https://" + nightscout_id + "/api/v1/entries/sgv.json?find[date][$gte]=" + str((OLDEST_READING_TARGET.unix) * 1000) + "&count=" + str(GRAPH_WIDTH)
 
     print(nightscout_url)
+
     # Request latest entries from the Nightscout URL
     resp = http.get(nightscout_url)
     if resp.status_code != 200:
@@ -452,18 +454,18 @@ def get_nightscout_data(nightscout_id):
 
     # Delta between the current and previous
     sgv_delta = int(sgv_current - previous_reading["sgv"])
-    
+
     # Get the trend
     trend = latest_reading["trend"]
     direction = latest_reading["direction"]
-    
-    print ("%d %d %s" % (sgv_current, sgv_delta, ARROWS[direction]))
-    
+
+    print("%d %d %s" % (sgv_current, sgv_delta, ARROWS[direction]))
+
     history = []
 
     for x in resp.json():
-        history.append(tuple((int(x["date"]/1000), int(x["sgv"]))))
-    
+        history.append(tuple((int(x["date"] / 1000), int(x["sgv"]))))
+
     nightscout_data = {
         "sgv_current": str(int(sgv_current)),
         "sgv_delta": str(int(sgv_delta)),
@@ -483,7 +485,7 @@ def display_failure(msg):
             width = 64,
             content = msg,
             color = COLOR_GREY,
-            font="tom-thumb",
+            font = "tom-thumb",
         ),
     )
 
