@@ -38,6 +38,7 @@ import (
 	"tidbyt.dev/community/apps/dwheadline"
 	"tidbyt.dev/community/apps/espnnews"
 	"tidbyt.dev/community/apps/fairfaxconnector"
+	"tidbyt.dev/community/apps/fantasynamegen"
 	"tidbyt.dev/community/apps/finevent"
 	"tidbyt.dev/community/apps/fishbyt"
 	"tidbyt.dev/community/apps/fitbitweight"
@@ -178,6 +179,7 @@ func GetManifests() []manifest.Manifest {
 		dwheadline.New(),
 		espnnews.New(),
 		fairfaxconnector.New(),
+		fantasynamegen.New(),
 		finevent.New(),
 		fishbyt.New(),
 		fitbitweight.New(),
