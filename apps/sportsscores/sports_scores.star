@@ -25,6 +25,8 @@ SPORTS_LIST = {
     "WNBA": ["WNBA", "wnba"],
 }
 
+TWO_LINE_SPORTS = ["NBA", "WNBA"]  #sports whose standings take up two lines
+
 no_games_text = ["No Games Today!!"]  #vector of text to use if no games are present
 
 def main(config):
@@ -165,7 +167,7 @@ def get_frames(stats, sport_txt, font, config):
         )
         return frame_vec_tmp
 
-    force_two = sport_txt in ["NBA", "WNBA"]  #forces text on two lines (i.e. for NBA or WNBA)
+    force_two = sport_txt in TWO_LINE_SPORTS  #forces text on two lines
 
     if config.bool("scroll_logic", False):
         line_max = len(stats)
