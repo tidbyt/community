@@ -38,30 +38,29 @@ EAAcZoPM9eG/p1SVvoWLX9DM+fJJKpXryTJDJHfI3BICeRlZ2AiOokNzzTCQZNJoQFyLhhETmYe
 vv/62H/m6d9sgNcoHPJZ/AAAAABJRU5ErkJggg==
 """)
 
-# Mapping from ferry stop names (to be used as config option)
-# to stop IDs (to be used as API call parameters)
+# Mapping from ferry stop IDs to stop names
 FERRY_STOP_IDS = {
-    "Bahnhof": 360901,
-    "Seegarten": 360902,
-    "Reventloubrücke": 703599,
-    "Mönkeberg": 360905,
-    "Möltenort, Heikendorf": 360907,
-    "Friedrichsort": 360908,
-    "Falckenstein": 370909,
-    "Laboe": 360910,
-    "Schilksee": 360911,
-    "Strande": 360912,
+    360901: "Bahnhof",
+    360902: "Seegarten",
+    703599: "Reventloubrücke",
+    360905: "Mönkeberg",
+    360907: "Möltenort, Heikendorf",
+    360908: "Friedrichsort",
+    370909: "Falckenstein",
+    360910: "Laboe",
+    360911: "Schilksee",
+    360912: "Strande",
 }
 # Default ferry stop ID
-DEFAULT_FERRY_STOP_ID = str(FERRY_STOP_IDS["Bahnhof"])
+DEFAULT_FERRY_STOP_ID = str(FERRY_STOP_IDS.keys()[0])
 
-# Terminal ferry stop names (ferry directions)
-FERRY_DIRECTIONS = [
-    "Laboe",
-    "Bahnhof",
+# Terminus ferry stop IDs (ferry directions)
+FERRY_DIRECTION_IDS = [
+    360910, # Laboe
+    360901, # Bahnhof
 ]
 # Default ferry direction ID
-DEFAULT_FERRY_DIRECTION_ID = str(FERRY_STOP_IDS["Laboe"])
+DEFAULT_FERRY_DIRECTION_ID = str(FERRY_DIRECTION_IDS[0])
 
 # Maximum look ahead time (7 days in minutes)
 FERRY_MAX_LOOKAHEAD_MIN = 7 * 24 * 60
@@ -183,23 +182,52 @@ def renderError():
     )
   )
 
-def getFerryDataStrings(nextFerry):
-    if nextFerry == None:
-        # TODO
-        return (
-            "---",
-            "---"
-        )
+# Format given ferry departure time string as hh:mm
+def formatDepartureTime(nextFerry):
+    departureTime = time.parse_time(nextFerry)
+    return departureTime.format("15:04")
+
+# Format duration from now to given ferry departure
+# time as (a) day of week, if the departure is not
+# today, or (b) as number of minutes, if the departure
+# time is at least 1 minute away, ot (c) as "now"
+# if the departure time is this minute
+def formatWaitDuration(nextFerry):
+    departureTime = time.parse_time(nextFerry)
     now = time.now()
-    ferryDepartureTime = time.parse_time(nextFerry)
-    # TODO
+    if departureTime.day != now.day or \
+       departureTime.month != now.month or \
+       departureTime.year != now.year:
+        waitDurationStr = departureTime.format("Monday")
+    else:
+        waitDuration = departureTime - now
+        minutes = math.floor(waitDuration.minutes)
+        if minutes > 0:
+            waitDurationStr = "%d min" % minutes
+        else:
+            waitDurationStr = "now"
+    return waitDurationStr
+
+# Get all required ferry departure strings for rendering.
+# Returns a tuple of
+# - The route, consisting of stop and direction
+# - The formatted departure time
+# - The formatted wait duration
+def getFerryDataStrings(ferryStop, ferryDirection, nextFerry):
+    route = "%s --> %s" % (ferryStop, ferryDirection)
+    departureTimeStr = "-:-"
+    waitDurationStr = "No service"
+    if nextFerry != None:
+        departureTimeStr = formatDepartureTime(nextFerry)
+        waitDurationStr = formatWaitDuration(nextFerry)
+    return (route, departureTimeStr, waitDurationStr)
 
 # Render ferry departure data
-def renderFerryData(nextFerry):
-    # DEBUG
-    departure, waittime = getFerryDataStrings(None)
-    # TODO
-    # departure, waittime = getFerryDataStrings(nextFerry)
+def renderFerryData(ferryStop, ferryDirection, nextFerry):
+    route, departureTime, waitDuration = getFerryDataStrings(
+        ferryStop,
+        ferryDirection,
+        nextFerry)
     return render.Root(
         child = render.Row(
             children = [
@@ -212,16 +240,19 @@ def renderFerryData(nextFerry):
                 ),
                 render.Column(
                     children = [
-                        render.Text(
-                            content = "TODO",
-                            color = "#3399ff",
+                        render.Marquee(
+                            child = render.Text(
+                                content = route,
+                                color = "#3399ff",
+                            ),
+                            width = 40,
                         ),
                         render.Text(
-                            content = departure,
+                            content = departureTime,
                             font = "6x13",
                         ),
                         render.Text(
-                            content = waittime,
+                            content = waitDuration,
                             color = "#ff6600",
                             font = "tom-thumb",
                         ),
@@ -238,21 +269,25 @@ def renderFerryData(nextFerry):
 
 # Main entrypoint
 def main(config):
-    # Get ferry stop and ferry direction IDs from config
+    # Get ferry stop and ferry direction names and IDs from config
     ferryStopID = config.str(
         "ferry_stop_id",
         DEFAULT_FERRY_STOP_ID
     )
+    ferryStop = FERRY_STOP_IDS[int(ferryStopID)]
+    print("Configured ferry stop: %s (%s)" % (ferryStop, ferryStopID))
     ferryDirectionID = config.str(
         "ferry_direction_id",
         DEFAULT_FERRY_DIRECTION_ID
     )
+    ferryDirection = FERRY_STOP_IDS[int(ferryDirectionID)]
+    print("Configured ferry direction: %s (%s)" % (ferryDirection, ferryDirectionID))
     # Retrieve data for next ferry departure
     valid, nextFerry = getNextFerry(ferryStopID, ferryDirectionID)
     # If ferry departure data is valid, render it
     if valid:
-        print("NextFerry: %s" % nextFerry)
-        return renderFerryData(nextFerry)
+        print("Next ferry departure: %s" % nextFerry)
+        return renderFerryData(ferryStop, ferryDirection, nextFerry)
     # Otherwise, render an error
     return renderError()
 
@@ -262,8 +297,8 @@ def getFerryStopOptions():
     for stop in FERRY_STOP_IDS:
         ret.append(
             schema.Option(
-                display = stop,
-                value = str(FERRY_STOP_IDS[stop]),
+                display = FERRY_STOP_IDS[stop],
+                value = str(stop),
             )
         )
     return ret
@@ -271,11 +306,11 @@ def getFerryStopOptions():
 # Construct ferry direction options
 def getFerryDirectionOptions():
     ret = []
-    for direction in FERRY_DIRECTIONS:
+    for direction in FERRY_DIRECTION_IDS:
         ret.append(
             schema.Option(
-                display = direction,
-                value = str(FERRY_STOP_IDS[direction]),
+                display = FERRY_STOP_IDS[direction],
+                value = str(direction),
             )
         )
     return ret
