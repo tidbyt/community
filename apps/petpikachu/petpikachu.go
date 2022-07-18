@@ -17,7 +17,7 @@ func New() manifest.Manifest {
 		Name:        "Pet Pikachu",
 		Author:      "Kyle Stark",
 		Summary:     "Virtual pet Pikachu",
-		Desc:        "Based on the Pokémon Pikachu virtual pet from the 90s",
+		Desc:        "Based on the Pokémon Pikachu virtual pet from the 90s.",
 		FileName:    "petpikachu.star",
 		PackageName: "petpikachu",
 		Source:      source,
