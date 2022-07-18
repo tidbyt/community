@@ -8,6 +8,7 @@ Author: hloeding
 load("render.star", "render")
 load("schema.star", "schema")
 load("http.star", "http")
+load("cache.star", "cache")
 
 # Mapping from ferry stop names (to be used as config option)
 # to stop IDs (to be used as API call parameters)
@@ -37,6 +38,13 @@ DEFAULT_FERRY_DIRECTION_ID = str(FERRY_STOP_IDS["Laboe"])
 # Maximum look ahead time (7 days in minutes)
 FERRY_MAX_LOOKAHEAD_MIN = 7 * 24 * 60
 
+# Cache time to live
+FERRY_CACHE_TTL = 30
+# Cacke keys
+FERRY_CACHE_DATA_KEY = "next_ferry_data"
+FERRY_CACHE_ERROR_KEY = "next_ferry_query_error"
+
+# Clean REST wrapper around the Deutsche Bahn public API
 # See https://github.com/derhuerst/db-rest
 FERRY_QUERY_URL = \
     "https://v5.db.transport.rest/stops/%s/departures" + \
@@ -53,25 +61,70 @@ FERRY_QUERY_URL = \
     "&tram=false" + \
     "&taxi=false"
 
+# Wrapper to cache boolean values
+def setCacheBool(key, value, ttl):
+    cache.set(key, "X" if value else "", ttl)
+
+# Wrapper to cache string values (trivial, but 
+# provided for common interface and readability)
+def setCacheStr(key, value, ttl):
+    cache.set(key, value, ttl)
+
+# Wrapper to get boolean values from cache
+def getCacheBool(key):
+    ret = cache.get(key)
+    if ret != None:
+        ret = bool(ret)
+    return ret
+
+# Wrapper to get string values from cache
+# (trivial, but provided for common interface
+# and readability)
+def getCacheStr(key):
+    return cache.get(key)
+
+# Function to retrieve next ferry data.
+# Returns a tuple of
+# - validity: Indicates if data is usable
+# - next ferry: Timestamp string or None
 def getNextFerry(ferryStopID, ferryDirectionID):
-    ret = (False, None)
-    query = FERRY_QUERY_URL % (ferryStopID, ferryDirectionID, FERRY_MAX_LOOKAHEAD_MIN)
-    response = http.get(query)
-    if response.status_code != 200:
-        return ret
-    response = response.json()
-    if len(response) == 0:
-        return ret
-    response = response[0]["when"]
-    return (True, response)
+    nextFerry = getCacheStr(FERRY_CACHE_DATA_KEY)
+    queryError = getCacheBool(FERRY_CACHE_ERROR_KEY)
+    if nextFerry == None or queryError == None:
+        query = FERRY_QUERY_URL % (
+            ferryStopID, 
+            ferryDirectionID, 
+            FERRY_MAX_LOOKAHEAD_MIN
+        )
+        response = http.get(query)
+        if response.status_code != 200:
+            queryError = True
+            nextFerry = ""
+        else:
+            queryError = False
+            response = response.json()
+            if len(response) != 0:
+                nextFerry = response[0]["when"]
+            else:
+                nextFerry = ""
+        setCacheStr(FERRY_CACHE_DATA_KEY, nextFerry, FERRY_CACHE_TTL)
+        setCacheBool(FERRY_CACHE_ERROR_KEY, queryError, FERRY_CACHE_TTL)
+    return (not queryError, nextFerry if len(nextFerry) > 0 else None)
 
 # Main entrypoint
 def main(config):
-    # Get requested ferry stop an direction IDs
-    ferryStopID = config.str("ferry_stop_id", DEFAULT_FERRY_STOP_ID)
-    ferryDirectionID = config.str("ferry_direction_id", DEFAULT_FERRY_DIRECTION_ID)
-    _, when = getNextFerry(ferryStopID, ferryDirectionID)
-    print(when)
+    ferryStopID = config.str(
+        "ferry_stop_id",
+        DEFAULT_FERRY_STOP_ID
+    )
+    ferryDirectionID = config.str(
+        "ferry_direction_id",
+        DEFAULT_FERRY_DIRECTION_ID
+    )
+    valid, nextFerry = getNextFerry(ferryStopID, ferryDirectionID)
+    print("-----------")
+    print("Data valid: %s" % "yes" if valid else "no")
+    print("Next ferry: %s" % nextFerry)
 
     return render.Root(
         child = render.Box(height = 1, width = 1),
