@@ -7,7 +7,7 @@ Author: rs7q5
 
 #vertical_message.star
 #Created 20220221 RIS
-#Last Modified 20220505 RIS
+#Last Modified 20220515 RIS
 
 load("render.star", "render")
 load("schema.star", "schema")
@@ -54,7 +54,14 @@ def main(config):
             height = 32,
             offset_start = 32,
             offset_end = 32,
-            child = render.WrappedText(content = msg_txt, width = 60, color = color_opt, font = config.str("font", "tb-8"), linespacing = linespacing_final),
+            child = render.WrappedText(
+                content = msg_txt,
+                width = 64,
+                color = color_opt,
+                font = config.str("font", "tb-8"),
+                linespacing = linespacing_final,
+                align = config.str("text_align", "left"),
+            ),
             scroll_direction = "vertical",
         ),
     )
@@ -73,6 +80,11 @@ def get_schema():
         schema.Option(display = key, value = value)
         for key, value in render.fonts.items()
     ]
+    align_opt = [
+        schema.Option(display = "Left (Default)", value = "left"),
+        schema.Option(display = "Center", value = "center"),
+        schema.Option(display = "Right", value = "right"),
+    ]
     return schema.Schema(
         version = "1",
         fields = [
@@ -90,6 +102,14 @@ def get_schema():
                 icon = "font",
                 default = "tb-8",
                 options = fonts,
+            ),
+            schema.Dropdown(
+                id = "text_align",
+                name = "Text alignment",
+                desc = "",
+                icon = "cog",
+                default = align_opt[0].value,
+                options = align_opt,
             ),
             schema.Text(
                 id = "linespacing",

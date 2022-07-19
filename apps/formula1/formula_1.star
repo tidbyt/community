@@ -81,9 +81,21 @@ def main(config):
     else:
         print("Miss! Calling F1 Track data.")
 
-        #Set API URLS
-        F1_BASE_URL = "http://ergast.com/api/f1/" + Year + "/next.json"
-        F1_URL = http.get(F1_BASE_URL)
+        # Blank screen if we've hit the rate limit
+        if cache.get("api_rate_limit"):
+            print("Rate limit in effect, backing off")
+            return []
+
+        F1_URL = http.get("http://ergast.com/api/f1/" + Year + "/next.json")
+        F1_URL2 = http.get("http://ergast.com/api/f1/" + Year + "/constructorStandings.json")
+        F1_URL3 = http.get("http://ergast.com/api/f1/" + Year + "/driverStandings.json")
+
+        for res in [F1_URL, F1_URL2, F1_URL3]:
+            if res.status_code != 200:
+                print("API returned status %d: %s" % (res.status_code, res.body()))
+                if res.status_code in [403, 429]:
+                    cache.set("api_rate_limit", "true", ttl_seconds = 25 * 3600)
+                return []
 
         F1_COUNTRY = F1_URL.json()["MRData"]["RaceTable"]["Races"][0]["Circuit"]["Location"]["country"]
         F1_LOC = F1_URL.json()["MRData"]["RaceTable"]["Races"][0]["Circuit"]["Location"]["locality"]
@@ -92,9 +104,6 @@ def main(config):
         F1_ROUND = F1_URL.json()["MRData"]["RaceTable"]["Races"][0]["round"]
         F1_CIRCUT_ID = F1_URL.json()["MRData"]["RaceTable"]["Races"][0]["Circuit"]["circuitId"]
 
-        F1_BASE_URL2 = "http://ergast.com/api/f1/" + Year + "/constructorStandings.json"
-        F1_URL2 = http.get(F1_BASE_URL2)
-
         Constructor1 = F1_URL2.json()["MRData"]["StandingsTable"]["StandingsLists"][0]["ConstructorStandings"][0]["Constructor"]["constructorId"]
         Constructor2 = F1_URL2.json()["MRData"]["StandingsTable"]["StandingsLists"][0]["ConstructorStandings"][1]["Constructor"]["constructorId"]
         Constructor3 = F1_URL2.json()["MRData"]["StandingsTable"]["StandingsLists"][0]["ConstructorStandings"][2]["Constructor"]["constructorId"]
@@ -102,9 +111,6 @@ def main(config):
         Points1 = F1_URL2.json()["MRData"]["StandingsTable"]["StandingsLists"][0]["ConstructorStandings"][0]["points"]
         Points2 = F1_URL2.json()["MRData"]["StandingsTable"]["StandingsLists"][0]["ConstructorStandings"][1]["points"]
         Points3 = F1_URL2.json()["MRData"]["StandingsTable"]["StandingsLists"][0]["ConstructorStandings"][2]["points"]
-
-        F1_BASE_URL3 = "http://ergast.com/api/f1/" + Year + "/driverStandings.json"
-        F1_URL3 = http.get(F1_BASE_URL3)
 
         F1_FNAME = F1_URL3.json()["MRData"]["StandingsTable"]["StandingsLists"][0]["DriverStandings"][0]["Driver"]["givenName"]
         F1_LNAME = F1_URL3.json()["MRData"]["StandingsTable"]["StandingsLists"][0]["DriverStandings"][0]["Driver"]["familyName"]
@@ -119,7 +125,7 @@ def main(config):
         F1_POINTS3 = F1_URL3.json()["MRData"]["StandingsTable"]["StandingsLists"][0]["DriverStandings"][2]["points"]
 
         f1_data = dict(F1_COUNTRY = F1_COUNTRY, F1_LOC = F1_LOC, F1_DATE = F1_DATE, F1_TIME = F1_TIME, F1_ROUND = F1_ROUND, F1_CIRCUT_ID = F1_CIRCUT_ID, Constructor1 = Constructor1, Constructor2 = Constructor2, Constructor3 = Constructor3, Points1 = Points1, Points2 = Points2, Points3 = Points3, F1_FNAME = F1_FNAME, F1_LNAME = F1_LNAME, F1_POINTS = F1_POINTS, F1_FNAME2 = F1_FNAME2, F1_LNAME2 = F1_LNAME2, F1_POINTS2 = F1_POINTS2, F1_FNAME3 = F1_FNAME3, F1_LNAME3 = F1_LNAME3, F1_POINTS3 = F1_POINTS3)
-        cache.set("f1_rate", json.encode(f1_data), ttl_seconds = 1600)
+        cache.set("f1_rate", json.encode(f1_data), ttl_seconds = 3600 * 12)
 
     #code from @whyamihere to automatically adjust the date time sting from the API
     date_and_time = f1_data["F1_DATE"] + "T" + f1_data["F1_TIME"]

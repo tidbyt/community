@@ -15,7 +15,7 @@ func New() manifest.Manifest {
 	return manifest.Manifest{
 		ID:          "jokes-jokeapi",
 		Name:        "Jokes JokeAPI",
-		Author:      "rs7q5 (RIS)",
+		Author:      "rs7q5",
 		Summary:     "Displays jokes from JokeAPI",
 		Desc:        "Displays different jokes from JokeAPI.",
 		FileName:    "jokes_jokeapi.star",

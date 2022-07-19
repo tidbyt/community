@@ -120,6 +120,7 @@ def get_timestamp_time(time, meridiem):
 
 def main(config):
     #Defaults
+    current_local_time = get_local_time(config)
     found_sighting_to_display = False
     number_of_listed_sightings = 0
     item_number_to_display = 0
@@ -131,7 +132,7 @@ def main(config):
     row3 = ""
 
     #Get Station Selected By User
-    ISS_FLYBY_XML_URL = config.get("SpotTheStationRSS") or "https://spotthestation.nasa.gov/sightings/xml_files/China_None_Xian.xml" or "https://spotthestation.nasa.gov/sightings/xml_files/United_States_Florida_Orlando.xml"
+    ISS_FLYBY_XML_URL = config.get("SpotTheStationRSS") or "https://spotthestation.nasa.gov/sightings/xml_files/United_States_Florida_Orlando.xml" or "https://spotthestation.nasa.gov/sightings/xml_files/China_None_Xian.xml"
 
     #cache is saved to the tidbyt server, not locally, so we need a unique key per location which is equivelent to the Flyby XML URL
     iss_xml_body = cache.get(ISS_FLYBY_XML_URL)
@@ -169,10 +170,17 @@ def main(config):
             timezone = json.decode(config.get("location", DEFAULT_LOCATION))["timezone"]
             current_item_time = time.parse_time(current_time_stamp).in_location(timezone) + get_local_offset(config)
 
-            if current_item_time > get_local_time(config):
+            if current_item_time > current_local_time:
                 item_number_to_display = i
                 time_of_next_sighting = current_time_stamp
-                found_sighting_to_display = True
+
+                # This is the next sighting, let's check to see if they want it displayed based on settings
+                hours_notice = int(config.get("notice_period", 0))
+                hours_until_sighting = (current_item_time - current_local_time).hours
+                if (hours_notice == 0 or hours_notice > hours_until_sighting):
+                    found_sighting_to_display = True
+                else:
+                    found_sighting_to_display = False
                 break
 
         #Only past events are in the XML, so we'll need to give an appropriate message
@@ -229,15 +237,12 @@ def main(config):
             elif (i < 3):
                 row1 += item.replace("Time: ", "")
             else:
-                row3 += item.replace("Duration: ", "").replace("Maximum", "Max").replace("Departure", "Depart.").replace("minute", "min")
+                row3 += item.replace("Duration: ", "For ").replace("Maximum Elevation:", "Max").replace("Approach:", "from").replace("Departure:", "to").replace("minute", "min")
 
-    #Does this user want to hide the app if there are no future sightings?
-    hide_when_no_sightings = config.bool("hide_when_no_sightings") or True
-
-    if (hide_when_no_sightings and not found_sighting_to_display):
-        return []
-    else:
+    if (found_sighting_to_display):
         return get_display(location, row1, row2, row3)
+    else:
+        return []
 
 def get_display(location, row1, row2, row3):
     return render.Root(
@@ -257,6 +262,12 @@ def get_display(location, row1, row2, row3):
                                         render.Image(src = ISS_ICON4),
                                         render.Image(src = ISS_ICON),
                                         render.Image(src = ISS_ICON5),
+                                        render.Image(src = ISS_ICON),
+                                        render.Image(src = ISS_ICON4),
+                                        render.Image(src = ISS_ICON),
+                                        render.Image(src = ISS_ICON3),
+                                        render.Image(src = ISS_ICON),
+                                        render.Image(src = ISS_ICON2),
                                         render.Image(src = ISS_ICON),
                                         render.Image(src = ISS_ICON),
                                         render.Image(src = ISS_ICON),
@@ -297,6 +308,20 @@ def get_display(location, row1, row2, row3):
     )
 
 def get_schema():
+    period_options = [
+        schema.Option(value = "1", display = "1 hour"),
+        schema.Option(value = "2", display = "2 hours"),
+        schema.Option(value = "3", display = "3 hours"),
+        schema.Option(value = "4", display = "4 hours"),
+        schema.Option(value = "5", display = "5 hours"),
+        schema.Option(value = "12", display = "12 hours"),
+        schema.Option(value = "24", display = "1 day"),
+        schema.Option(value = "48", display = "2 days"),
+        schema.Option(value = "72", display = "3 days"),
+        schema.Option(value = "168", display = "1 week"),
+        schema.Option(value = "0", display = "Always Display Next Sighting if known"),
+    ]
+
     return schema.Schema(
         version = "1",
         fields = [
@@ -309,15 +334,16 @@ def get_schema():
             schema.Location(
                 id = "location",
                 name = "Location",
-                desc = "Location for which to display time.",
+                desc = "Location needed to calculate local time.",
                 icon = "place",
             ),
-            schema.Toggle(
-                id = "hide_when_no_sightings",
-                name = "Hide When No Sightings",
-                desc = "Hide this control when there are no known future sightings.",
-                icon = "asterisk",
-                default = False,
+            schema.Dropdown(
+                id = "notice_period",
+                name = "Notice Period",
+                desc = "Display when sighting is within...",
+                icon = "userClock",
+                options = period_options,
+                default = period_options[0].value,
             ),
         ],
     )

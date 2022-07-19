@@ -10,8 +10,17 @@ load("encoding/json.star", "json")
 load("http.star", "http")
 load("render.star", "render")
 load("schema.star", "schema")
+load("time.star", "time")
 
-DEFAULT_STOP = '{"value":"15728","display":"Castro Station Inbound"}'
+DEFAULT_LOCATION = """
+{
+  "lat": "37.7844",
+  "lng": "-122.4080",
+	"description": "San Francisco, CA, USA",
+	"locality": "San Francisco",
+	"timezone": "America/Los_Angeles"
+}
+"""
 PREDICTIONS_URL = "https://retro.umoiq.com/service/publicJSONFeed?command=predictions&a=sf-muni&stopId=%s&useShortTitles=true"
 ROUTES_URL = "https://retro.umoiq.com/service/publicJSONFeed?command=routeList&a=sf-muni&useShortTitles=true"
 STOPS_URL = "https://retro.umoiq.com/service/publicJSONFeed?command=routeConfig&a=sf-muni&r=%s&useShortTitles=true"
@@ -49,6 +58,10 @@ def get_schema():
     formats = [
         schema.Option(
             display = "With destination",
+            value = "xlong",
+        ),
+        schema.Option(
+            display = "Short destination",
             value = "long",
         ),
         schema.Option(
@@ -94,27 +107,34 @@ def get_schema():
                 default = priorities[0].value,
                 options = priorities,
             ),
+            schema.Text(
+                id = "minimum_time",
+                name = "Minimum time to show",
+                desc = "Don't show predictions nearer than this minimum.",
+                icon = "clock",
+                default = "0",
+            ),
         ],
     )
 
 def get_stops(location):
     loc = json.decode(location)
 
-    raw_routes = fetch_cached(ROUTES_URL, 86400)
+    (timestamp, raw_routes) = fetch_cached(ROUTES_URL, 86400)
     routes = [route["tag"] for route in raw_routes["route"]]
 
-    stops = []
+    stops = {}
 
     for route in routes:
-        raw_stops = fetch_cached((STOPS_URL % route), 86400)
-        stops.extend(raw_stops["route"]["stop"])
+        (timestamp, raw_stops) = fetch_cached((STOPS_URL % route), 86400)
+        stops.update([(stop["stopId"], stop) for stop in raw_stops["route"]["stop"]])
 
     return [
         schema.Option(
-            display = stop["title"],
+            display = "%s (#%s)" % (stop["title"], stop["stopId"]),
             value = stop["stopId"],
         )
-        for stop in sorted(stops, key = lambda stop: square_distance(loc["lat"], loc["lng"], stop["lat"], stop["lon"]))
+        for stop in sorted(stops.values(), key = lambda stop: square_distance(loc["lat"], loc["lng"], stop["lat"], stop["lon"]))
     ]
 
 def square_distance(lat1, lon1, lat2, lon2):
@@ -124,35 +144,47 @@ def square_distance(lat1, lon1, lat2, lon2):
 
 def fetch_cached(url, ttl):
     cached = cache.get(url)
-    if cached != None:
-        return json.decode(cached)
+    timestamp = cache.get("timestamp::%s" % url)
+    if cached and timestamp:
+        return (int(timestamp), json.decode(cached))
     else:
         res = http.get(url)
         if res.status_code != 200:
             fail("NextBus request to %s failed with status %d", (url, res.status_code))
         data = res.json()
+        timestamp = time.now().unix
         cache.set(url, str(data), ttl_seconds = ttl)
-        return data
+        cache.set(("timestamp::%s" % url), str(timestamp), ttl_seconds = ttl)
+        return (timestamp, data)
 
 def higher_priority_than(pri, threshold):
     return threshold == "Low" or pri == "High" or threshold == pri
 
 def main(config):
-    stop = json.decode(config.get("stop_code", DEFAULT_STOP))
+    default_stop = json.encode(get_stops(DEFAULT_LOCATION)[0])
+    stop = json.decode(config.get("stop_code", default_stop))
     stopId = stop["value"]
 
-    routes = fetch_cached(PREDICTIONS_URL % stopId, 240)["predictions"]
+    (data_timestamp, data) = fetch_cached(PREDICTIONS_URL % stopId, 240)
+    routes = data["predictions"]
+    data_age_seconds = time.now().unix - data_timestamp
 
     if type(routes) != "list":
         routes = [routes]
 
+    minimum_time_string = config.str("minimum_time", "0")
+    minimum_time = int(minimum_time_string) if minimum_time_string.isdigit() else 0
     prediction_map = {}
     messages = []
+    stopTitle = stop["display"]
 
     for route in routes:
         if "routeTag" not in route or "direction" not in route:
             continue
         routeTag = route["routeTag"]
+
+        if "stopTitle" in route:
+            stopTitle = route["stopTitle"]
 
         if "message" in route:
             message = route["message"]
@@ -177,11 +209,13 @@ def main(config):
             if routeTag == "KT":
                 routeTag = "T" if "Inbound" in dest["title"] else "K"
 
-            title = routeTag if "short" == config.get("prediction_format") else (routeTag, destTitle)
-            minutes = [prediction["minutes"] for prediction in predictions if "minutes" in prediction]
-            prediction_map[title] = sorted(minutes, key = int)
+            titleKey = routeTag if "short" == config.get("prediction_format") else (routeTag, destTitle)
+            seconds = [int(prediction["seconds"]) - data_age_seconds for prediction in predictions if "seconds" in prediction]
+            minutes = [int(time / 60) for time in seconds if int(time / 60) >= minimum_time]
 
-    output = sorted(prediction_map.items(), key = lambda kv: int(min(kv[1], key = int)))
+            prediction_map[titleKey] = [str(time) for time in sorted(minutes)]
+
+    output = sorted(prediction_map.items(), key = lambda kv: int(min(kv[1], key = int))) if prediction_map.items() else []
     lowest_message_pri = config.get("service_messages")
     messages = [
         message["text"]
@@ -201,13 +235,12 @@ def main(config):
 
     rows = []
     if config.bool("show_title"):
-        title = stop["display"]
         rows.append(
             render.Column(
                 children = [
                     render.Marquee(
                         width = 64,
-                        child = render.Text(title),
+                        child = render.Text(stopTitle),
                     ),
                     render.Box(
                         width = 64,
@@ -355,7 +388,7 @@ def getLongRow(routeTag, destination, predictions, config):
         row.append(
             render.Text(routeTag + " ", font = "tom-thumb"),
         )
-    if "long" == config.get("prediction_format"):
+    if "xlong" == config.get("prediction_format"):
         row.append(
             render.Marquee(
                 child = render.Text(destination, font = "tom-thumb"),
@@ -366,6 +399,21 @@ def getLongRow(routeTag, destination, predictions, config):
             render.Marquee(
                 child = render.Text((" " if len(predictions[0]) < 2 else "") + predictions[0], font = "tom-thumb"),
                 width = 10,
+            ),
+        )
+    elif "long" == config.get("prediction_format"):
+        row.append(
+            render.Marquee(
+                child = render.Text(destination, font = "tom-thumb"),
+                width = 30,
+            ),
+        )
+        nextTwoPredictions = ",".join(predictions[:2])
+        nextTwoPredictions = " " * (5 - len(nextTwoPredictions)) + nextTwoPredictions
+        row.append(
+            render.Marquee(
+                child = render.Text(nextTwoPredictions, font = "tom-thumb"),
+                width = 20,
             ),
         )
     else:

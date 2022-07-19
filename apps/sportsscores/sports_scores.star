@@ -6,7 +6,7 @@ Author: rs7q5
 """
 #sports_scores.star
 #Created 20220220 RIS
-#Last Modified 20220507 RIS
+#Last Modified 20220717 RIS
 
 load("render.star", "render")
 load("http.star", "http")
@@ -22,8 +22,10 @@ SPORTS_LIST = {
     "NHL": ["NHL", "nhl"],
     "NBA": ["NBA", "nba"],
     "NFL": ["NFL", "nfl"],
-    #"WNBA": ["WNBA","wnba"],
+    "WNBA": ["WNBA", "wnba"],
 }
+
+TWO_LINE_SPORTS = ["NBA", "WNBA"]  #sports whose standings take up two lines
 
 no_games_text = ["No Games Today!!"]  #vector of text to use if no games are present
 
@@ -47,8 +49,8 @@ def main(config):
             stats = get_mlbgames(today_str)
         elif sport == "NHL":
             stats = get_nhlgames(today_str)
-        elif sport == "NBA":
-            stats = get_nbagames(today_str)
+        elif sport in ["NBA", "WNBA"]:
+            stats = get_basketballgames(today_str, sport_ext)
         elif sport == "NFL":
             stats = get_nflgames(today_str)
 
@@ -61,9 +63,11 @@ def main(config):
     else:
         frame_vec = get_frames(stats, sport, font, config)
 
+    speed_factor = 20 if config.bool("scroll_logic", False) else 1  #get factor for scaling animation speed
+
     return render.Root(
-        delay = int(config.str("speed", "1000")),  #speed up scroll text
-        child = render.Animation(children = frame_vec),
+        delay = int(config.str("speed", "1000")) // speed_factor,  #speed up scroll text
+        child = frame_vec,
     )
 
 def get_schema():
@@ -98,6 +102,13 @@ def get_schema():
                 options = frame_speed,
             ),
             schema.Toggle(
+                id = "row_space",
+                name = "Add space between rows",
+                desc = "This may reduce the number of games displayed on each frame.",
+                icon = "cog",
+                default = False,
+            ),
+            schema.Toggle(
                 id = "gameday",
                 name = "Game day only",
                 desc = "",
@@ -105,9 +116,9 @@ def get_schema():
                 default = False,
             ),
             schema.Toggle(
-                id = "row_space",
-                name = "Add space between rows",
-                desc = "This may reduce the number of games displayed on each frame.",
+                id = "scroll_logic",
+                name = "Scroll games?",
+                desc = "",
                 icon = "cog",
                 default = False,
             ),
@@ -154,9 +165,13 @@ def get_frames(stats, sport_txt, font, config):
             main_align = "space_between",
             children = frame_vec_data,
         )
-        return [frame_vec_tmp]
+        return frame_vec_tmp
 
-    if sport_txt == "NBA" or config.bool("row_space", False):  #number of lines per frame (NBA is shorter because each game is two lines if it is on live)
+    force_two = sport_txt in TWO_LINE_SPORTS  #forces text on two lines
+
+    if config.bool("scroll_logic", False):
+        line_max = len(stats)
+    elif force_two or config.bool("row_space", False):  #number of lines per frame (NBA is shorter because each game is two lines if it is on live)
         line_max = 4
     else:
         line_max = 5
@@ -177,7 +192,7 @@ def get_frames(stats, sport_txt, font, config):
             ctmp = "#A8F0CB"
             ctmp2 = "#08FF08"
             ctmp3 = "#52BB52"
-            if team["away"][1] == 1000 and sport_txt == "NBA":
+            if team["away"][1] == 1000 and force_two:
                 ctmp = "#CCFFE5"
         elif i % 2 == 0:
             ctmp = "#c8c8fa"
@@ -191,13 +206,13 @@ def get_frames(stats, sport_txt, font, config):
         status_tmp = team["status"].split("/")
 
         #away team name
-        if team["away"][1] == 1000 and sport_txt == "NBA":  #NBA condition is safety net
+        if team["away"][1] == 1000 and force_two:  #NBA condition is safety net
             away_team.append(render.Text(team["away"][0], font = font, color = "#000", height = txt_height))
         else:
             away_team.append(render.Text(team["away"][0], font = font, color = ctmp, height = txt_height))
 
         #away team score
-        if team["away"][1] == 1000 and sport_txt == "NBA":  #NBA condition is safety net
+        if team["away"][1] == 1000 and force_two:  #NBA condition is safety net
             away_score.append(render.Text("-", font = font, color = "#000", height = txt_height))
         elif team["away"][1] < 0:
             away_score.append(render.Text("-", font = font, color = ctmp2, height = txt_height))
@@ -205,14 +220,14 @@ def get_frames(stats, sport_txt, font, config):
             away_score.append(render.Text(str(team["away"][1]), font = font, color = ctmp2, height = txt_height))
 
         #home team name
-        if team["home"][1] == 1000 and sport_txt == "NBA":  #NBA condition is safety net
+        if team["home"][1] == 1000 and force_two:  #NBA condition is safety net
             home_team.append(render.Text(team["home"][0], font = font, color = "#000", height = txt_height))
         else:
             home_team.append(render.Text(team["home"][0], font = font, color = ctmp, height = txt_height))
 
         #home team score
 
-        if team["home"][1] == 1000 and sport_txt == "NBA":  #NBA condition is safety net
+        if team["home"][1] == 1000 and force_two:  #NBA condition is safety net
             home_score.append(render.Text("-", font = font, color = "#000", height = txt_height))
         elif team["home"][1] < 0:
             home_score.append(render.Text("-", font = font, color = ctmp2, height = txt_height))
@@ -220,7 +235,7 @@ def get_frames(stats, sport_txt, font, config):
             home_score.append(render.Text(str(team["home"][1]), font = font, color = ctmp2, height = txt_height))
 
         #status_tmp = team["status"].split("/")
-        if team["away"][1] == 1000 and sport_txt == "NBA":  #NBA condition is safety net
+        if team["away"][1] == 1000 and force_two:  #NBA condition is safety net
             if len(status_tmp) == 1:
                 status_txt.append(render.Text("", font = font, color = ctmp, height = 6))
             else:
@@ -228,12 +243,12 @@ def get_frames(stats, sport_txt, font, config):
         else:
             status_txt.append(render.Text(status_tmp[0], font = font, color = ctmp, height = txt_height))
 
-        if len(status_tmp) == 1 or sport_txt == "NBA":
+        if len(status_tmp) == 1 or force_two:
             status_txt2.append(render.Text("", font = font, color = ctmp2, height = txt_height))
         else:
             status_txt2.append(render.Text(status_tmp[1], font = font, color = ctmp2, height = txt_height))
 
-        if (i % line_max == line_max - 1 or i == len(stats) - 1):  #stores only a certain number of teams/rows
+        if (i % line_max == line_max - 1 or i == len(stats) - 1):  #stores only a certain number of teams
             game_cnt = (i + 1) % line_max  #number of games on current frame
             if game_cnt != 0:  #add empty entries to space (only have to add to one array since other's must be in line)
                 for j in range(line_max - game_cnt):
@@ -249,41 +264,46 @@ def get_frames(stats, sport_txt, font, config):
                     render.Text("Away/Home", font = font),
                 ],
             ))
+
+            frame_data_tmp = render.Row(
+                expanded = True,
+                main_align = "space_between",
+                children = [
+                    render.Column(
+                        cross_align = "start",
+                        children = away_team,
+                    ),
+                    render.Column(
+                        cross_align = "start",
+                        children = away_score,
+                    ),
+                    render.Column(
+                        cross_align = "start",
+                        children = home_team,
+                    ),
+                    render.Column(
+                        cross_align = "start",
+                        children = home_score,
+                    ),
+                    render.Column(
+                        cross_align = "end",
+                        children = status_txt,
+                    ),
+                    render.Column(
+                        cross_align = "end",
+                        children = status_txt2,
+                    ),
+                ],
+            )
+            if config.bool("scroll_logic", False):
+                frame_data_tmp = render.Marquee(height = 27, scroll_direction = "vertical", child = frame_data_tmp)
+
             frame_vec_tmp = render.Column(
                 expanded = True,
                 main_align = "space_between",
                 children = [
                     header_text,
-                    render.Row(
-                        expanded = True,
-                        main_align = "space_between",
-                        children = [
-                            render.Column(
-                                cross_align = "start",
-                                children = away_team,
-                            ),
-                            render.Column(
-                                cross_align = "start",
-                                children = away_score,
-                            ),
-                            render.Column(
-                                cross_align = "start",
-                                children = home_team,
-                            ),
-                            render.Column(
-                                cross_align = "start",
-                                children = home_score,
-                            ),
-                            render.Column(
-                                cross_align = "end",
-                                children = status_txt,
-                            ),
-                            render.Column(
-                                cross_align = "end",
-                                children = status_txt2,
-                            ),
-                        ],
-                    ),
+                    frame_data_tmp,
                 ],
             )
 
@@ -296,7 +316,10 @@ def get_frames(stats, sport_txt, font, config):
             status_txt = []
             status_txt2 = []
 
-    return (frame_vec)
+    if config.bool("scroll_logic", False):
+        return frame_vec[0]
+    else:
+        return render.Animation(frame_vec)
 
 ######################################################
 #functions
@@ -381,7 +404,7 @@ def get_mlbgames(today_str):
             if game["status"]["statusCode"] in ["S", "PW", "P"]:
                 game_time = time.parse_time(game["gameDate"]).in_location("America/New_York")
                 game_time_str = str(game_time.format("15:04"))
-                status_txt = game_time_str + "/EST"
+                status_txt = game_time_str + "/ET"
             else:  #not delayed before the game has started
                 status_txt = status
 
@@ -428,7 +451,7 @@ def get_nhlgames(today_str):
             game_time = time.parse_time(game["gameDate"]).in_location("America/New_York")
             game_time_str = str(game_time.format("15:04"))
 
-            status_txt = game_time_str + "/EST"
+            status_txt = game_time_str + "/ET"
         elif status == "9":
             status_txt = "PostP"
         elif linescore != []:  #this should cover live and final states
@@ -450,10 +473,10 @@ def get_nhlgames(today_str):
 
     return (stats)
 
-def get_nbagames(today_str):
+def get_basketballgames(today_str, sport):
     start_date = today_str
     end_date = today_str
-    base_URL = "https://site.api.espn.com/apis/site/v2/sports/basketball/nba/scoreboard"
+    base_URL = "https://site.api.espn.com/apis/site/v2/sports/basketball/%s/scoreboard" % sport
     full_URL = base_URL + "?dates=" + start_date.replace("-", "") + "-" + end_date.replace("-", "")
 
     #print(full_URL)
@@ -489,7 +512,7 @@ def get_nbagames(today_str):
             game_time = time.parse_time(game_time_tmp).in_location("America/New_York")
             game_time_str = str(game_time.format("15:04"))
 
-            status_txt = game_time_str + "/EST"
+            status_txt = game_time_str + "/ET"
         elif game["status"]["type"]["state"] == "in" or status in ["2", "3"]:  #linescore!=[]: #this should cover live and final states
             period = int(game["status"]["period"])  #str(int(game["status"]["period"]))
             period_T = game["status"]["displayClock"]
@@ -553,7 +576,7 @@ def get_nflgames(today_str):
             game_time = time.parse_time(game_time_tmp).in_location("America/New_York")
             game_time_str = str(game_time.format("15:04"))
 
-            status_txt = game_time_str + "/EST"
+            status_txt = game_time_str + "/ET"
         elif game["status"]["type"]["state"] == "in" or status in ["2", "3"]:  #linescore!=[]: #this should cover live and final states
             period = int(game["status"]["period"])  #str(int(game["status"]["period"]))
             period_T = game["status"]["displayClock"]
