@@ -80,7 +80,7 @@ def main(config):
             else:
                 content = humanize.plural(int(num_tasks), "Task")
 
-            cache.set(cache_key, content, 3600)
+            cache.set(cache_key, content, ttl_seconds = 60)
 
     else:
         # This is used to display the app preview image
