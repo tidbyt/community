@@ -190,12 +190,11 @@ def getNextFerry(ferryStopID, ferryDirectionID):
 
         # If request failed, set query error flag.
         # Set next ferry to empty string to denote
-        # for now no ferry departure data.
+        # no ferry departure data in cache.
+        # If request succeeded, unset query error.
         if response.status_code != 200:
             queryError = True
             nextFerry = ""
-            # If request succeeded, unset query error.
-
         else:
             queryError = False
             response = response.json()
@@ -203,11 +202,10 @@ def getNextFerry(ferryStopID, ferryDirectionID):
             # Check if there is a next ferry
             # scheduled. If so, extract the
             # ferry departure time.
+            # If not, set empty string to denote
+            # no ferry departure data in cache
             if len(response) != 0:
                 nextFerry = response[0]["when"]
-                # If not, set empty string to denote
-                # for now no ferry departure data
-
             else:
                 nextFerry = ""
 
