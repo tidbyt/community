@@ -45,7 +45,8 @@ def renderBusRow(prediction):
     )
 
 def main(config):
-    apiKey = secret.decrypt("AV6+xWcE3WkSZXFJfQFijuLxvTqAlEgFJ5kOFivyjMEtC8vBxRBiI4Ft/eZnY9XPs0IV7+5ew2UpKUxdJU6dBH3dNI2ZsiL1yb2KiqA67VkzeppeLsTDuLSM4DCavCvTpT2xW1rOPdfe4207h7+3x1TzEExlWHM+00T7fPgJhg==") or config.get("devApiKey")
+    apiKey = secret.decrypt("AV6+xWcEHWq0zUeozY3oe2t6xhMzEHRhb/Tn+2RBF5rGUi5jc8XcDKxG2RC7lqqhGYS8z0+glkxCg1ZsTf6sCsNAMB7RD+HQpPyyhmB8cek35AnYxHQQsy2A7o9uLswG3g3k3edobR3Qy4KHckKqGdtkVYxXNG3HK0yEqCG4hQ==")
+
     stop = config.get("stop") or DEFAULT_STOP
     banner = render.Row(
         children = [
@@ -99,12 +100,6 @@ def get_schema():
                 name = "Stop ID",
                 desc = "The ID of the stop, found on the bus stop sign or online at https://www.fairfaxcounty.gov/bustime/map/displaymap.jsp",
                 icon = "busSimple",
-            ),
-            schema.Text(
-                id = "devApiKey",
-                name = "Developer API Key",
-                desc = "Only enter this if you need to override the default API key for some reason.",
-                icon = "key",
             ),
         ],
     )

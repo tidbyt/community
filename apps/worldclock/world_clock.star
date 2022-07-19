@@ -20,8 +20,9 @@ def main(config):
             json.decode(config.get("location_1")),
             json.decode(config.get("location_2")),
             json.decode(config.get("location_3")),
-            json.decode(config.get("location_4")),
         ]
+        if "location_4" in config:
+            locations.append(json.decode(config.get("location_4")))
     else:
         locations = [
             {
@@ -47,7 +48,7 @@ def main(config):
 
     location_count = int(config.get("location_count") or 3)
 
-    if location_count < 4:
+    if location_count < 4 and len(locations) > 3:
         locations.remove(locations[3])
 
     if location_count < 3:
