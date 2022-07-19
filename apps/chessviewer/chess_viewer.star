@@ -12,57 +12,47 @@ load("re.star", "re")
 load("render.star", "render")
 load("schema.star", "schema")
 
-ANIMATION_FRAMES = 40
+### CONSTANTS ###
+
+# Schema Dropdown Options #
+# ----------------------- #
+BOARD_THEME_OPTIONS = [
+    schema.Option(
+        display = "Autumn",
+        value = "autumn"
+    ),
+    schema.Option(
+        display = "Spring",
+        value = "spring"
+    ),
+    schema.Option(
+        display = "Summer",
+        value = "summer"
+    ),
+    schema.Option(
+        display = "Winter",
+        value = "winter"
+    )
+]
+PIECE_THEME_OPTIONS = [
+    schema.Option(
+        display = "Minim",
+        value = "minim"
+    ),
+    schema.Option(
+        display = "Dot",
+        value = "dot"
+    ),
+    schema.Option(
+        display = "Point",
+        value = "point"
+    )
+]
+
+# Application Constants #
+# --------------------- #
+ANIMATION_FRAMES = 60
 PIECE_CHARS = 'pPnNbBrRqQkK'
-BOARD_COLOR_1 = '#8d1c1c'
-BOARD_COLOR_2 = '#ff8f00'
-MATERIAL_COUNT_COLOR = '#8ec24c'
-PIECE_WHITE = '#ffffff'
-PIECE_BLACK = '#000000'
-PIECE_GRAPHICS = {
-    'p': [
-        [0, 0, 0, 0],
-        [0, 1, 1, 0],
-        [0, 1, 1, 0],
-        [0, 0, 0, 0]
-    ],
-    'n': [
-        [0, 0, 0, 0],
-        [0, 1, 1, 1],
-        [0, 1, 0, 0],
-        [0, 1, 0, 0]
-    ],
-    'b': [
-        [0, 0, 0, 1],
-        [0, 0, 1, 0],
-        [0, 1, 0, 0],
-        [1, 0, 0, 0]
-    ],
-    'r': [
-        [1, 0, 0, 1],
-        [0, 1, 1, 0],
-        [0, 1, 1, 0],
-        [0, 1, 1, 0]
-    ],
-    'q': [
-        [1, 0, 0, 1],
-        [0, 1, 1, 0],
-        [0, 1, 1, 0],
-        [1, 0, 0, 1]
-    ],
-    'k': [
-        [0, 1, 1, 0],
-        [1, 1, 1, 1],
-        [1, 1, 1, 1],
-        [0, 1, 1, 0]
-    ],
-    '': [
-        [0, 0, 0, 0],
-        [0, 0, 0, 0],
-        [0, 0, 0, 0],
-        [0, 0, 0, 0]
-    ]
-}
 PIECE_COUNTS = {
     'p': {
         'count': 8,
@@ -85,16 +75,32 @@ PIECE_COUNTS = {
         'value': 9
     }
 }
-PAWN_MATRIX = [
-    [0, 0, 0, 3, 1, 0, 0, 0],
-    [0, 0, 3, 2, 2, 1, 0, 0],
-    [0, 0, 3, 2, 1, 1, 0, 0],
-    [0, 0, 0, 3, 1, 0, 0, 0],
-    [0, 0, 0, 3, 1, 0, 0, 0],
-    [0, 0, 0, 3, 1, 0, 0, 0],
-    [0, 0, 3, 2, 1, 1, 0, 0],
-    [0, 3, 2, 1, 1, 1, 1, 0]
-]
+
+# Color Constants #
+# --------------- #
+BOARD_COLORS = {
+    'summer': {
+        'board_color_1': '#8d1c1c',
+        'board_color_2': '#ff8f00',
+        'king_color': '#40ff2b',
+    },
+    'spring': {
+        'board_color_1': '#1b872e',
+        'board_color_2': '#5bc66f',
+        'king_color': '#ff5a35',
+    },
+    'autumn': {
+        'board_color_1': '#a35c26',
+        'board_color_2': '#c89169',
+        'king_color': '#ffa80b',
+    },
+    'winter': {
+        'board_color_1': '#0064c1',
+        'board_color_2': '#48cfea',
+        'king_color': '#efe013',
+    }
+}
+MATERIAL_COUNT_COLOR = '#8ec24c'
 PAWN_COLORS = {
     'w': [
         '',
@@ -109,109 +115,270 @@ PAWN_COLORS = {
         '#6d6d6d'
     ],
 }
+PIECE_WHITE = '#ffffff'
+PIECE_BLACK = '#000000'
 
-# Get all games for a given player ID
-def get_player_games(username):
-    games_url = "https://api.chess.com/pub/player/{}/games".format(username)
-    req = http.get(
-        url = games_url,
-    )
-    if req.status_code != 200:
-        fail("Chess.com request failed with status %d", req.status_code)
+# Graphics Constants #
+# ------------------ #
+PAWN_MATRIX = [
+    [0, 0, 0, 3, 1, 0, 0, 0],
+    [0, 0, 3, 2, 2, 1, 0, 0],
+    [0, 0, 3, 2, 1, 1, 0, 0],
+    [0, 0, 0, 3, 1, 0, 0, 0],
+    [0, 0, 0, 3, 1, 0, 0, 0],
+    [0, 0, 0, 3, 1, 0, 0, 0],
+    [0, 0, 3, 2, 1, 1, 0, 0],
+    [0, 3, 2, 1, 1, 1, 1, 0]
+]
+PIECE_GRAPHICS = {
+    'p': {
+        "minim": [
+            [0, 0, 0, 0],
+            [0, 1, 1, 0],
+            [0, 1, 1, 0],
+            [0, 0, 0, 0]
+        ],
+        "dot": [
+            [0, 0, 0, 0],
+            [0, 1, 0, 0],
+            [0, 0, 0, 0],
+            [0, 0, 0, 0]
+        ],
+        "point": [
+            [1, 0, 0, 0],
+            [0, 0, 0, 0],
+            [0, 0, 0, 0],
+            [0, 0, 0, 0]
+        ]
+    },
+    'n': {
+        "minim": [
+            [0, 0, 0, 0],
+            [0, 1, 1, 1],
+            [0, 1, 0, 0],
+            [0, 1, 0, 0]
+        ],
+        "dot": [
+            [0, 0, 0, 0],
+            [0, 1, 1, 0],
+            [0, 1, 0, 0],
+            [0, 0, 0, 0]
+        ],
+        "point": [
+            [1, 1, 0, 0],
+            [0, 0, 0, 0],
+            [0, 0, 0, 0],
+            [0, 0, 0, 0]
+        ]
+    },
+    'b': {
+        "minim":[
+            [0, 0, 0, 1],
+            [0, 0, 1, 0],
+            [0, 1, 0, 0],
+            [1, 0, 0, 0]
+        ],
+        "dot":[
+            [0, 0, 0, 0],
+            [0, 0, 1, 0],
+            [0, 1, 0, 0],
+            [0, 0, 0, 0]
+        ],
+        "point": [
+            [1, 0, 0, 0],
+            [1, 0, 0, 0],
+            [0, 0, 0, 0],
+            [0, 0, 0, 0]
+        ]
+    },
+    'r': {
+        "minim": [
+            [1, 0, 0, 1],
+            [0, 1, 1, 0],
+            [0, 1, 1, 0],
+            [0, 1, 1, 0]
+        ],
+        "dot": [
+            [0, 1, 0, 0],
+            [0, 1, 1, 0],
+            [0, 1, 1, 0],
+            [0, 0, 0, 0]
+        ],
+        "point": [
+            [1, 1, 1, 0],
+            [1, 1, 0, 0],
+            [0, 0, 0, 0],
+            [0, 0, 0, 0]
+        ]
+    },
+    'q': {
+        "minim": [
+            [1, 0, 0, 1],
+            [0, 1, 1, 0],
+            [0, 1, 1, 0],
+            [1, 0, 0, 1]
+        ],
+        "dot": [
+            [0, 1, 1, 0],
+            [0, 1, 1, 1],
+            [0, 1, 1, 0],
+            [0, 1, 1, 0]
+        ],
+        "point": [
+            [1, 1, 1, 0],
+            [1, 1, 1, 0],
+            [1, 1, 1, 0],
+            [0, 0, 0, 0]
+        ]
+    },
+    'k': {
+        "minim": [
+            [0, 1, 1, 0],
+            [1, 2, 2, 1],
+            [1, 2, 2, 1],
+            [0, 1, 1, 0]
+        ],
+        "dot": [
+            [0, 1, 1, 0],
+            [2, 1, 1, 2],
+            [2, 1, 1, 2],
+            [0, 1, 1, 0]
+        ],
+        "point": [
+            [1, 1, 1, 0],
+            [1, 1, 1, 0],
+            [1, 1, 1, 0],
+            [0, 0, 0, 2]
+        ]
+    },
+    ' ': [
+        [0, 0, 0, 0],
+        [0, 0, 0, 0],
+        [0, 0, 0, 0],
+        [0, 0, 0, 0]
+    ]
+}
 
-    return req.json()
-
-def get_fen_array(game_fen):
-    fen_array = game_fen.split('/')
-    end_array = fen_array[-1].split(' ')
-    fen_array[-1] = end_array.pop(0)
-    return fen_array
-
-def get_board_state_array(game_fen):
-    fen_array = get_fen_array(game_fen)
-    board_state_array = []
-    for row in fen_array:
-        row_array = []
-        for char in row.elems():
-            if char in PIECE_CHARS:
-                row_array.append(char)
-            else:
-                for i in range(0, int(char)):
-                    row_array.append('')
-        board_state_array.append(row_array)
-    return board_state_array
-
-def get_material_count(board_state_array):
-    counts = {
-        'p': 0,
-        'P': 0,
-        'n': 0,
-        'N': 0,
-        'b': 0,
-        'B': 0,
-        'r': 0,
-        'R': 0,
-        'q': 0,
-        'Q': 0,
+# Famous Games #
+# ------------ #
+# To show when username is empty #
+FAMOUS_GAMES = [
+    {
+        "white": "V. Topalov",
+        "black": "A. Shirov",
+        "turn": "white",
+        "board_state": [
+            [' ', ' ', ' ', ' ', ' ', ' ', ' ', ' '],
+            [' ', ' ', ' ', ' ', ' ', ' ', ' ', ' '],
+            [' ', ' ', ' ', ' ', 'k', 'p', 'p', ' '],
+            [' ', ' ', ' ', 'p', ' ', ' ', ' ', ' '],
+            ['p', ' ', ' ', ' ', ' ', ' ', ' ', ' '],
+            [' ', ' ', 'B', ' ', ' ', ' ', ' ', 'b'],
+            [' ', ' ', ' ', ' ', ' ', ' ', 'P', ' '],
+            [' ', ' ', ' ', ' ', ' ', ' ', 'K', ' '],
+        ],
+        "material": {
+            "black_material": 2,
+            "white_material": 0
+        }
+    },
+    {
+        "white": "R. Meier",
+        "black": "S. Muller",
+        "turn": "black",
+        "board_state": [
+            [' ', ' ', 'r', 'q', ' ', ' ', 'k', 'b'],
+            ['p', 'b', 'Q', 'r', ' ', ' ', ' ', 'p'],
+            [' ', ' ', 'n', ' ', 'R', ' ', 'p', 'B'],
+            [' ', 'p', 'p', ' ', ' ', 'p', 'N', ' '],
+            [' ', ' ', ' ', 'p', ' ', ' ', ' ', ' '],
+            ['P', ' ', 'P', 'P', ' ', ' ', 'P', ' '],
+            [' ', 'P', ' ', ' ', ' ', 'P', 'B', 'P'],
+            [' ', ' ', ' ', ' ', 'R', ' ', 'K', ' '],
+        ],
+        "material": {
+            "black_material": 0,
+            "white_material": 0
+        }
+    },
+    {
+        "white": "S. Levitsky",
+        "black": "F. J. Marshall",
+        "turn": "white",
+        "board_state": [
+            [' ', ' ', ' ', ' ', ' ', 'r', 'k', ' '],
+            ['p', 'p', ' ', ' ', ' ', ' ', 'p', 'p'],
+            [' ', ' ', ' ', ' ', 'p', ' ', ' ', ' '],
+            [' ', ' ', 'R', ' ', ' ', ' ', 'Q', ' '],
+            [' ', ' ', ' ', 'n', ' ', ' ', ' ', ' '],
+            [' ', ' ', ' ', ' ', ' ', ' ', 'q', 'r'],
+            ['P', ' ', 'P', ' ', ' ', 'P', 'P', 'P'],
+            [' ', ' ', ' ', ' ', ' ', 'R', 'K', ' '],
+        ],
+        "material": {
+            "black_material": 3,
+            "white_material": 0
+        }
+    },
+    {
+        "white": "E. Y. Vladimirov",
+        "black": "V. V. Epishin",
+        "turn": "black",
+        "board_state": [
+            ['r', ' ', ' ', ' ', ' ', 'k', ' ', 'r'],
+            [' ', 'b', ' ', ' ', 'b', 'P', 'R', ' '],
+            ['p', ' ', ' ', ' ', ' ', 'n', ' ', 'B'],
+            [' ', ' ', ' ', 'p', ' ', ' ', ' ', ' '],
+            [' ', ' ', ' ', ' ', 'P', ' ', ' ', 'P'],
+            [' ', 'q', ' ', ' ', ' ', ' ', ' ', 'B'],
+            ['P', 'p', 'P', ' ', ' ', ' ', ' ', ' '],
+            [' ', 'K', ' ', ' ', ' ', ' ', 'R', ' '],
+        ],
+        "material": {
+            "black_material": 10,
+            "white_material": 0
+        }
+    },
+    {
+        "white": "S. Flohr",
+        "black": "E. Geller",
+        "turn": "white",
+        "board_state": [
+            [' ', ' ', ' ', ' ', ' ', ' ', ' ', ' '],
+            [' ', ' ', ' ', ' ', ' ', ' ', 'k', 'p'],
+            [' ', ' ', ' ', ' ', ' ', ' ', 'p', ' '],
+            [' ', ' ', ' ', ' ', 'p', ' ', ' ', ' '],
+            ['p', ' ', ' ', ' ', 'r', 'P', 'R', 'P'],
+            [' ', ' ', ' ', 'K', ' ', ' ', 'P', ' '],
+            [' ', ' ', ' ', ' ', ' ', ' ', ' ', ' '],
+            [' ', ' ', ' ', ' ', ' ', ' ', ' ', ' '],
+        ],
+        "material": {
+            "black_material": 1,
+            "white_material": 0
+        }
     }
-    white_material = 0
-    black_material = 0
-    for row in board_state_array:
-        for square in row:
-            if square:
-                if square in counts:
-                    counts[square] += 1
-    for piece in counts:
-        if piece in PIECE_COUNTS:
-            deficit = PIECE_COUNTS[piece]['count'] - counts[piece]
-            if piece.isupper():
-                white_material += deficit * (PIECE_COUNTS[piece]['value'])
-            else:
-                black_material += deficit * (PIECE_COUNTS[piece]['value'])
-    return {
-        'white_material': white_material,
-        'black_material': black_material
-    }
+]
 
-def parse_pgn(game_pgn):
-    pgn_dict = {}
-    pgn_array = game_pgn.split("\n")
-    for entry in pgn_array:
-        entry_array = entry.split(" ", 1)
-        entry_array[0] = entry_array[0][1:].lower()
-        if len(entry_array) > 1:
-            entry_array[1] = entry_array[1][1:-2]
-            pgn_dict[entry_array[0]] = entry_array[1]
-    return pgn_dict
+### FUNCTIONS ###
 
-def get_games_dicts(games_json):
-    games_dict = []
-    for game in games_json['games']:
-        this_game_dict = {}
-        pgn_dict = parse_pgn(game['pgn'])
-        board_state_array = get_board_state_array(game['fen'])
-        this_game_dict['white'] = pgn_dict['white']
-        this_game_dict['black'] = pgn_dict['black']
-        this_game_dict['board_state'] = board_state_array
-        this_game_dict['material']= get_material_count(board_state_array)
-        games_dict.append(this_game_dict)
-    return games_dict
-
-def draw_game_board():
+# Graphics Functions #
+# ------------------ #
+def draw_game_board(board_theme):
     columns = []
     for col in range(0, 8):
         current_row = []
         for row in range(0, 8):
             if col & 1:
                 if row & 1:
-                    square_color = BOARD_COLOR_1
+                    square_color = BOARD_COLORS[board_theme]['board_color_1']
                 else:
-                    square_color = BOARD_COLOR_2
+                    square_color = BOARD_COLORS[board_theme]['board_color_2']
             else:
                 if row & 1:
-                    square_color = BOARD_COLOR_2
+                    square_color = BOARD_COLORS[board_theme]['board_color_2']
                 else:
-                    square_color = BOARD_COLOR_1
+                    square_color = BOARD_COLORS[board_theme]['board_color_1']
             current_row.append(render.Box(
                         width=4,
                         height=4,
@@ -228,12 +395,15 @@ def draw_game_board():
         )
     )
 
-def draw_piece(piece):
+def draw_piece(piece, piece_theme, board_theme):
     if piece.isupper():
         piece_color = PIECE_WHITE
     else:
         piece_color = PIECE_BLACK
-    piece_matrix = PIECE_GRAPHICS[piece.lower()]
+    if piece.lower() == ' ':
+        piece_matrix = PIECE_GRAPHICS[piece.lower()]
+    else:
+        piece_matrix = PIECE_GRAPHICS[piece.lower()][piece_theme]
     piece_box_children = []
     for col in piece_matrix:
         piece_row = []
@@ -244,6 +414,14 @@ def draw_piece(piece):
                         width=1,
                         height=1,
                         color=piece_color
+                    )
+                )
+            elif row == 2:
+                piece_row.append(
+                    render.Box(
+                        width=1,
+                        height=1,
+                        color=BOARD_COLORS[board_theme]['king_color']
                     )
                 )
             else:
@@ -264,12 +442,12 @@ def draw_piece(piece):
         )
     )
 
-def draw_pieces(board_state):
+def draw_pieces(board_state, piece_theme, board_theme):
     pieces = []
     for col in range(0, 8):
         this_row = []
         for row in range(0, 8):
-            piece = draw_piece(board_state[col][row])
+            piece = draw_piece(board_state[col][row], piece_theme, board_theme)
             this_row.append(piece)
         pieces.append(render.Row(
             children=this_row
@@ -307,7 +485,7 @@ def draw_pawn_image(color):
     )
     return pawn_box
 
-def draw_game_stats(opponent_name, opponent_color, material):
+def draw_game_stats(opponent_name, opponent_color, material, turn):
     pawn_image = draw_pawn_image(opponent_color)
     opponent_text = render.Marquee(
         child=render.Text(
@@ -316,15 +494,17 @@ def draw_game_stats(opponent_name, opponent_color, material):
         ),
         width=24
     )
+    white_material_w_text = 'W: ' if turn == 'black' else '*W: '
     white_material_w = render.Text(
-        content='W: '
+        content=white_material_w_text
     )
     white_material_count = render.Text(
         content='+{}'.format(material['white_material']),
         color=MATERIAL_COUNT_COLOR
     )
+    black_material_w_text = 'B: ' if turn == 'white' else '*B: '
     black_material_b = render.Text(
-        content='B: '
+        content=black_material_w_text
     )
     black_material_count = render.Text(
         content='+{}'.format(material['black_material']),
@@ -369,10 +549,10 @@ def draw_game_stats(opponent_name, opponent_color, material):
         )
     )
 
-def draw_game_boxes(games, game_board, username):
+def draw_game_boxes(games, game_board, username, piece_theme, board_theme):
     game_boxes = []
     for game in games:
-        game_pieces = draw_pieces(game['board_state'])
+        game_pieces = draw_pieces(game['board_state'], piece_theme, board_theme)
         if game['white'].lower() != username.lower():
             opponent_color = 'w'
             opponent_name = game['white']
@@ -384,7 +564,7 @@ def draw_game_boxes(games, game_board, username):
                 game_board, game_pieces
             ]
         )
-        game_stats = draw_game_stats(opponent_name, opponent_color, game['material'])
+        game_stats = draw_game_stats(opponent_name, opponent_color, game['material'], game['turn'])
         for i in range(0, ANIMATION_FRAMES):
             game_boxes.append(
                 render.Box(
@@ -400,20 +580,134 @@ def draw_game_boxes(games, game_board, username):
             )
     return game_boxes
 
+# Game Data Functions #
+# ------------------- #
+
+# Get all games for a given player ID
+def get_player_games(username):
+    games_url = "https://api.chess.com/pub/player/{}/games".format(username)
+    req = http.get(
+        url = games_url,
+    )
+    if req.status_code != 200:
+        fail("Chess.com request failed with status %d", req.status_code)
+
+    return req.json()
+
+def get_fen_array(game_fen):
+    fen_array = game_fen.split('/')
+    end_array = fen_array[-1].split(' ')
+    fen_array[-1] = end_array.pop(0)
+    return fen_array
+
+def get_board_state_array(game_fen):
+    fen_array = get_fen_array(game_fen)
+    board_state_array = []
+    for row in fen_array:
+        row_array = []
+        for char in row.elems():
+            if char in PIECE_CHARS:
+                row_array.append(char)
+            else:
+                for i in range(0, int(char)):
+                    row_array.append(' ')
+        board_state_array.append(row_array)
+    return board_state_array
+
+def get_material_count(board_state_array):
+    counts = {
+        'p': 0,
+        'P': 0,
+        'n': 0,
+        'N': 0,
+        'b': 0,
+        'B': 0,
+        'r': 0,
+        'R': 0,
+        'q': 0,
+        'Q': 0,
+    }
+    white_material = 0
+    black_material = 0
+    for row in board_state_array:
+        for square in row:
+            if square:
+                if square in counts:
+                    counts[square] += 1
+    for piece in counts:
+        if piece in PIECE_COUNTS:
+            deficit = PIECE_COUNTS[piece]['count'] - counts[piece]
+            if piece.isupper():
+                white_material += deficit * (PIECE_COUNTS[piece]['value'])
+            else:
+                black_material += deficit * (PIECE_COUNTS[piece]['value'])
+    if black_material > white_material:
+        black_material -= white_material
+        white_material = 0
+    else:
+        white_material -= black_material
+        black_material = 0
+    return {
+        'white_material': white_material,
+        'black_material': black_material
+    }
+
+def parse_pgn(game_pgn):
+    pgn_dict = {}
+    pgn_array = game_pgn.split("\n")
+    for entry in pgn_array:
+        entry_array = entry.split(" ", 1)
+        entry_array[0] = entry_array[0][1:].lower()
+        if len(entry_array) > 1:
+            entry_array[1] = entry_array[1][1:-2]
+            pgn_dict[entry_array[0]] = entry_array[1]
+    return pgn_dict
+
+def get_games_dicts(games_json):
+    games_dict = []
+    for game in games_json['games']:
+        this_game_dict = {}
+        pgn_dict = parse_pgn(game['pgn'])
+        board_state_array = get_board_state_array(game['fen'])
+        this_game_dict['white'] = pgn_dict['white']
+        this_game_dict['black'] = pgn_dict['black']
+        this_game_dict['turn'] = pgn_dict['turn']
+        this_game_dict['board_state'] = board_state_array
+        this_game_dict['material']= get_material_count(board_state_array)
+        games_dict.append(this_game_dict)
+    return games_dict
+
+# Main Functions #
+# ------------- #
 
 def main(config):
-    username = config.get("username", "nealosan")
-    games_json = get_player_games(username)
-    games = get_games_dicts(games_json)
-    game_board = draw_game_board()
-    game_boxes = draw_game_boxes(games, game_board, username)
+    username = config.get("username", "")
+    board_theme = config.get("board_theme", "summer")
+    piece_theme = config.get("piece_theme", "minim")
+    if username == "":
+        games = FAMOUS_GAMES
+    else:
+        user_cache_key = "username_{}".format(username)
+        games_cache_key = "games_{}".format(username)
+        cached_user = cache.get(user_cache_key)
+        if cached_user == None:
+            cache.set(user_cache_key, "True", ttl_seconds = 3600)
+        cached_games = cache.get(games_cache_key)
+        if cached_games == None:
+            games_json = get_player_games(username)
+            cache.set(games_cache_key, json.encode(games_json), ttl_seconds = 240)
+        else:
+            games_json = json.decode(cached_games)
+        games = get_games_dicts(games_json)
+    game_board = draw_game_board(board_theme)
+    game_boxes = draw_game_boxes(games, game_board, username, piece_theme, board_theme)
     return render.Root(
         child=render.Animation(
             children=game_boxes
         )
     )
 
-# Set up options for Username entry
+# Set up configuration options
 def get_schema():
     return schema.Schema(
         version = "1",
@@ -424,5 +718,21 @@ def get_schema():
                 desc = "Chess.com Username to use",
                 icon = "user",
             ),
+            schema.Dropdown(
+                id = "piece_theme",
+                name = "Piece Theme",
+                desc = "The design of the chess pieces.",
+                icon = "chess",
+                default = PIECE_THEME_OPTIONS[0].value,
+                options = PIECE_THEME_OPTIONS
+            ),
+            schema.Dropdown(
+                id = "board_theme",
+                name = "Board Theme",
+                desc = "The design of the chess board.",
+                icon = "chessBoard",
+                default = BOARD_THEME_OPTIONS[0].value,
+                options = BOARD_THEME_OPTIONS
+            )
         ],
     )
