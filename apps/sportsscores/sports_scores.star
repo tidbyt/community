@@ -23,6 +23,8 @@ SPORTS_LIST = {
     "NBA": ["NBA", "nba"],
     "NFL": ["NFL", "nfl"],
     "WNBA": ["WNBA", "wnba"],
+    "MLS": ["MLS", "usa.1"],
+    "NWSL": ["NWSL", "usa.nwsl"],
 }
 
 TWO_LINE_SPORTS = ["NBA", "WNBA"]  #sports whose standings take up two lines
@@ -53,6 +55,8 @@ def main(config):
             stats = get_basketballgames(today_str, sport_ext)
         elif sport == "NFL":
             stats = get_nflgames(today_str)
+        elif sport in ["MLS", "NWSL"]:
+            stats = get_soccergames(today_str, sport_ext)
 
         #cache the data
         cache.set("stats_rate_games%s" % sport, json.encode(stats), ttl_seconds = 60)
@@ -595,6 +599,61 @@ def get_nflgames(today_str):
             status_txt = game["status"]["type"]["state"]
 
         #status_txt="3rd/END"
+        stats_tmp["status"] = status_txt
+        stats.append(stats_tmp)
+    return (stats)
+
+def get_soccergames(today_str, sport):
+    start_date = today_str
+    end_date = today_str
+    base_URL = "https://site.api.espn.com/apis/site/v2/sports/soccer/%s/scoreboard" % sport
+    full_URL = base_URL + "?dates=" + start_date.replace("-", "") + "-" + end_date.replace("-", "")
+
+    #print(full_URL)
+    rep = http.get(full_URL)
+    if rep.status_code != 200:
+        return ["Error getting data"]
+    else:
+        data = rep.json()["events"]
+
+    if data == []:
+        return no_games_text
+    else:
+        data2 = data
+
+    #iterate through games
+    stats = []
+    for i, game in enumerate(data2):
+        stats_tmp = dict()
+        stats_tmp2 = dict()
+        status = game["status"]["type"]["id"]  #["codedGameState"] #Need to figure out what the possible values are here (may impact inning info)
+
+        #get team info
+        for key, value in enumerate(game["competitions"][0]["competitors"]):  #game["teams"].items():
+            #team_info[key] = (value["team"]["abbreviation"],int(value.get("score",-1)))
+            key2 = value["homeAway"]
+            stats_tmp[key2] = (value["team"]["abbreviation"][:3], int(value.get("score", -1)))
+            stats_tmp2[key2] = (value["team"]["abbreviation"][:3], 1000)
+        linescore = game.get("linescore", [])
+
+        if status == "1":
+            game_time_tmp = game["date"].replace("Z", ":00Z")  #date does not include seconds so add here to parse time
+            game_time = time.parse_time(game_time_tmp).in_location("America/New_York")
+            game_time_str = str(game_time.format("15:04"))
+
+            status_txt = game_time_str + "/ET"
+        elif game["status"]["type"]["state"] == "in" or status in ["2", "3"]:  #linescore!=[]: #this should cover live and final states
+            period = int(game["status"]["period"])  #str(int(game["status"]["period"]))
+            period_T = game["status"]["displayClock"]
+            if game["status"]["type"]["detail"] == "HT":  #check for halftime
+                status_txt = "HT"
+            else:  #Show current game time
+                status_txt = humanize.ordinal(period) + "/" + period_T
+        elif game["status"]["type"]["state"] == "post":  #Full time in soccer is covered here
+            status_txt = "FT"
+        else:  #this is a safety net
+            status_txt = game["status"]["type"]["state"]
+
         stats_tmp["status"] = status_txt
         stats.append(stats_tmp)
     return (stats)
