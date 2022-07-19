@@ -6,7 +6,7 @@ Author: rs7q5
 """
 #sports_scores.star
 #Created 20220220 RIS
-#Last Modified 20220718 RIS
+#Last Modified 20220719 RIS
 
 load("render.star", "render")
 load("http.star", "http")
@@ -30,17 +30,6 @@ SPORTS_LIST = {
 TWO_LINE_SPORTS = ["NBA", "WNBA"]  #sports whose standings take up two lines
 
 no_games_text = ["No Games Today!!"]  #vector of text to use if no games are present
-
-DEFAULT_LOCATION = """
-{
-	"lat": "40.6781784",
-	"lng": "-73.9441579",
-	"description": "Brooklyn, NY, USA",
-	"locality": "Brooklyn",
-	"place_id": "ChIJCSF8lBZEwokRhngABHRcdoI",
-	"timezone": "America/New_York"
-}
-"""
 
 def main(config):
     sport = config.get("sport") or "MLB"
@@ -100,16 +89,10 @@ def get_schema():
     return schema.Schema(
         version = "1",
         fields = [
-            schema.Location(
-                id = "location",
-                name = "Location",
-                desc = "Location used to display game times in local timezone.",
-                icon = "place",
-            ),
             schema.Toggle(
                 id = "local_tz",
                 name = "Local timezone",
-                desc = "Enable to display game times in the timezone for the location specified above (default is ET).",
+                desc = "Enable to display game times in your local timezone (default is ET).",
                 icon = "cog",
                 default = False,
             ),
@@ -382,13 +365,13 @@ def get_date_str():
 def adjust_gametime(gametime_raw, config):
     #return gametime string and adjust for local time
     if config.bool("local_tz", False):
-        timezone = json.decode(config.get("location", DEFAULT_LOCATION))["timezone"]
+        timezone = config.get("$tz", "America/New_York")
     else:
         timezone = "America/New_York"
     game_time = time.parse_time(gametime_raw).in_location(timezone)
 
     game_time_str = str(game_time.format("15:04"))
-    if config.bool("local_tz", True):
+    if config.bool("local_tz", False):
         return game_time_str
     else:
         return game_time_str + "/ET"
