@@ -1,4 +1,4 @@
-# Displays Chess Games from Chess.com
+# Chess Viewer App for Tidbyt
 
 Displays currently active games from [Chess.com](chess.com) for the username provided. If no username is provided, the app shows famous chess games from history. The chess piece graphics can be changed via the Piece Theme setting and the board graphics can be changed via the Board Theme setting. The king piece for each side has a special color added to distinguish it from the other pieces. The "minim" piece theme is the default theme and is considered to be the most readable on the Tidbyt. The player whose turn it is to move has an asterisk next to it. The advantage in material in points is shown next to each color:
 
