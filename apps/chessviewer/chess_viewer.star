@@ -19,104 +19,104 @@ load("schema.star", "schema")
 BOARD_THEME_OPTIONS = [
     schema.Option(
         display = "Autumn",
-        value = "autumn"
+        value = "autumn",
     ),
     schema.Option(
         display = "Spring",
-        value = "spring"
+        value = "spring",
     ),
     schema.Option(
         display = "Summer",
-        value = "summer"
+        value = "summer",
     ),
     schema.Option(
         display = "Winter",
-        value = "winter"
-    )
+        value = "winter",
+    ),
 ]
 PIECE_THEME_OPTIONS = [
     schema.Option(
         display = "Minim",
-        value = "minim"
+        value = "minim",
     ),
     schema.Option(
         display = "Dot",
-        value = "dot"
+        value = "dot",
     ),
     schema.Option(
         display = "Point",
-        value = "point"
-    )
+        value = "point",
+    ),
 ]
 
 # Application Constants #
 # --------------------- #
 ANIMATION_FRAMES = 60
-PIECE_CHARS = 'pPnNbBrRqQkK'
+PIECE_CHARS = "pPnNbBrRqQkK"
 PIECE_COUNTS = {
-    'p': {
-        'count': 8,
-        'value': 1
+    "p": {
+        "count": 8,
+        "value": 1,
     },
-    'n': {
-        'count': 2,
-        'value': 3
+    "n": {
+        "count": 2,
+        "value": 3,
     },
-    'b': {
-        'count': 2,
-        'value': 3
+    "b": {
+        "count": 2,
+        "value": 3,
     },
-    'r': {
-        'count': 2,
-        'value': 5
+    "r": {
+        "count": 2,
+        "value": 5,
     },
-    'q': {
-        'count': 1,
-        'value': 9
-    }
+    "q": {
+        "count": 1,
+        "value": 9,
+    },
 }
 
 # Color Constants #
 # --------------- #
 BOARD_COLORS = {
-    'summer': {
-        'board_color_1': '#8d1c1c',
-        'board_color_2': '#ff8f00',
-        'king_color': '#40ff2b',
+    "summer": {
+        "board_color_1": "#8d1c1c",
+        "board_color_2": "#ff8f00",
+        "king_color": "#40ff2b",
     },
-    'spring': {
-        'board_color_1': '#1b872e',
-        'board_color_2': '#5bc66f',
-        'king_color': '#ff5a35',
+    "spring": {
+        "board_color_1": "#1b872e",
+        "board_color_2": "#5bc66f",
+        "king_color": "#ff5a35",
     },
-    'autumn': {
-        'board_color_1': '#a35c26',
-        'board_color_2': '#c89169',
-        'king_color': '#ffa80b',
+    "autumn": {
+        "board_color_1": "#a35c26",
+        "board_color_2": "#c89169",
+        "king_color": "#ffa80b",
     },
-    'winter': {
-        'board_color_1': '#0064c1',
-        'board_color_2': '#48cfea',
-        'king_color': '#efe013',
-    }
+    "winter": {
+        "board_color_1": "#0064c1",
+        "board_color_2": "#48cfea",
+        "king_color": "#efe013",
+    },
 }
-MATERIAL_COUNT_COLOR = '#8ec24c'
+MATERIAL_COUNT_COLOR = "#8ec24c"
 PAWN_COLORS = {
-    'w': [
-        '',
-        '#ffeb96',
-        '#ffffff',
-        '#fff6e0',
+    "w": [
+        "",
+        "#ffeb96",
+        "#ffffff",
+        "#fff6e0",
     ],
-    'b': [
-        '',
-        '#484848',
-        '#ffffff',
-        '#6d6d6d'
+    "b": [
+        "",
+        "#484848",
+        "#ffffff",
+        "#6d6d6d",
     ],
 }
-PIECE_WHITE = '#ffffff'
-PIECE_BLACK = '#000000'
+PIECE_WHITE = "#ffffff"
+PIECE_BLACK = "#000000"
 
 # Graphics Constants #
 # ------------------ #
@@ -128,135 +128,135 @@ PAWN_MATRIX = [
     [0, 0, 0, 3, 1, 0, 0, 0],
     [0, 0, 0, 3, 1, 0, 0, 0],
     [0, 0, 3, 2, 1, 1, 0, 0],
-    [0, 3, 2, 1, 1, 1, 1, 0]
+    [0, 3, 2, 1, 1, 1, 1, 0],
 ]
 PIECE_GRAPHICS = {
-    'p': {
+    "p": {
         "minim": [
             [0, 0, 0, 0],
             [0, 1, 1, 0],
             [0, 1, 1, 0],
-            [0, 0, 0, 0]
+            [0, 0, 0, 0],
         ],
         "dot": [
             [0, 0, 0, 0],
             [0, 1, 0, 0],
             [0, 0, 0, 0],
-            [0, 0, 0, 0]
+            [0, 0, 0, 0],
         ],
         "point": [
             [1, 0, 0, 0],
             [0, 0, 0, 0],
             [0, 0, 0, 0],
-            [0, 0, 0, 0]
-        ]
+            [0, 0, 0, 0],
+        ],
     },
-    'n': {
+    "n": {
         "minim": [
             [0, 0, 0, 0],
             [0, 1, 1, 1],
             [0, 1, 0, 0],
-            [0, 1, 0, 0]
+            [0, 1, 0, 0],
         ],
         "dot": [
             [0, 0, 0, 0],
             [0, 1, 1, 0],
             [0, 1, 0, 0],
-            [0, 0, 0, 0]
+            [0, 0, 0, 0],
         ],
         "point": [
             [1, 1, 0, 0],
             [0, 0, 0, 0],
             [0, 0, 0, 0],
-            [0, 0, 0, 0]
-        ]
+            [0, 0, 0, 0],
+        ],
     },
-    'b': {
-        "minim":[
+    "b": {
+        "minim": [
             [0, 0, 0, 1],
             [0, 0, 1, 0],
             [0, 1, 0, 0],
-            [1, 0, 0, 0]
+            [1, 0, 0, 0],
         ],
-        "dot":[
+        "dot": [
             [0, 0, 0, 0],
             [0, 0, 1, 0],
             [0, 1, 0, 0],
-            [0, 0, 0, 0]
+            [0, 0, 0, 0],
         ],
         "point": [
             [1, 0, 0, 0],
             [1, 0, 0, 0],
             [0, 0, 0, 0],
-            [0, 0, 0, 0]
-        ]
+            [0, 0, 0, 0],
+        ],
     },
-    'r': {
+    "r": {
         "minim": [
             [1, 0, 0, 1],
             [0, 1, 1, 0],
             [0, 1, 1, 0],
-            [0, 1, 1, 0]
+            [0, 1, 1, 0],
         ],
         "dot": [
             [0, 1, 0, 0],
             [0, 1, 1, 0],
             [0, 1, 1, 0],
-            [0, 0, 0, 0]
+            [0, 0, 0, 0],
         ],
         "point": [
             [1, 1, 1, 0],
             [1, 1, 0, 0],
             [0, 0, 0, 0],
-            [0, 0, 0, 0]
-        ]
+            [0, 0, 0, 0],
+        ],
     },
-    'q': {
+    "q": {
         "minim": [
             [1, 0, 0, 1],
             [0, 1, 1, 0],
             [0, 1, 1, 0],
-            [1, 0, 0, 1]
+            [1, 0, 0, 1],
         ],
         "dot": [
             [0, 1, 1, 0],
             [0, 1, 1, 1],
             [0, 1, 1, 0],
-            [0, 1, 1, 0]
+            [0, 1, 1, 0],
         ],
         "point": [
             [1, 1, 1, 0],
             [1, 1, 1, 0],
             [1, 1, 1, 0],
-            [0, 0, 0, 0]
-        ]
+            [0, 0, 0, 0],
+        ],
     },
-    'k': {
+    "k": {
         "minim": [
             [0, 1, 1, 0],
             [1, 2, 2, 1],
             [1, 2, 2, 1],
-            [0, 1, 1, 0]
+            [0, 1, 1, 0],
         ],
         "dot": [
             [0, 1, 1, 0],
             [2, 1, 1, 2],
             [2, 1, 1, 2],
-            [0, 1, 1, 0]
+            [0, 1, 1, 0],
         ],
         "point": [
             [1, 1, 1, 0],
             [1, 1, 1, 0],
             [1, 1, 1, 0],
-            [0, 0, 0, 2]
-        ]
+            [0, 0, 0, 2],
+        ],
     },
-    ' ': [
+    " ": [
         [0, 0, 0, 0],
         [0, 0, 0, 0],
         [0, 0, 0, 0],
-        [0, 0, 0, 0]
-    ]
+        [0, 0, 0, 0],
+    ],
 }
 
 # Famous Games #
@@ -268,96 +268,96 @@ FAMOUS_GAMES = [
         "black": "A. Shirov",
         "turn": "white",
         "board_state": [
-            [' ', ' ', ' ', ' ', ' ', ' ', ' ', ' '],
-            [' ', ' ', ' ', ' ', ' ', ' ', ' ', ' '],
-            [' ', ' ', ' ', ' ', 'k', 'p', 'p', ' '],
-            [' ', ' ', ' ', 'p', ' ', ' ', ' ', ' '],
-            ['p', ' ', ' ', ' ', ' ', ' ', ' ', ' '],
-            [' ', ' ', 'B', ' ', ' ', ' ', ' ', 'b'],
-            [' ', ' ', ' ', ' ', ' ', ' ', 'P', ' '],
-            [' ', ' ', ' ', ' ', ' ', ' ', 'K', ' '],
+            [" ", " ", " ", " ", " ", " ", " ", " "],
+            [" ", " ", " ", " ", " ", " ", " ", " "],
+            [" ", " ", " ", " ", "k", "p", "p", " "],
+            [" ", " ", " ", "p", " ", " ", " ", " "],
+            ["p", " ", " ", " ", " ", " ", " ", " "],
+            [" ", " ", "B", " ", " ", " ", " ", "b"],
+            [" ", " ", " ", " ", " ", " ", "P", " "],
+            [" ", " ", " ", " ", " ", " ", "K", " "],
         ],
         "material": {
             "black_material": 2,
-            "white_material": 0
-        }
+            "white_material": 0,
+        },
     },
     {
         "white": "R. Meier",
         "black": "S. Muller",
         "turn": "black",
         "board_state": [
-            [' ', ' ', 'r', 'q', ' ', ' ', 'k', 'b'],
-            ['p', 'b', 'Q', 'r', ' ', ' ', ' ', 'p'],
-            [' ', ' ', 'n', ' ', 'R', ' ', 'p', 'B'],
-            [' ', 'p', 'p', ' ', ' ', 'p', 'N', ' '],
-            [' ', ' ', ' ', 'p', ' ', ' ', ' ', ' '],
-            ['P', ' ', 'P', 'P', ' ', ' ', 'P', ' '],
-            [' ', 'P', ' ', ' ', ' ', 'P', 'B', 'P'],
-            [' ', ' ', ' ', ' ', 'R', ' ', 'K', ' '],
+            [" ", " ", "r", "q", " ", " ", "k", "b"],
+            ["p", "b", "Q", "r", " ", " ", " ", "p"],
+            [" ", " ", "n", " ", "R", " ", "p", "B"],
+            [" ", "p", "p", " ", " ", "p", "N", " "],
+            [" ", " ", " ", "p", " ", " ", " ", " "],
+            ["P", " ", "P", "P", " ", " ", "P", " "],
+            [" ", "P", " ", " ", " ", "P", "B", "P"],
+            [" ", " ", " ", " ", "R", " ", "K", " "],
         ],
         "material": {
             "black_material": 0,
-            "white_material": 0
-        }
+            "white_material": 0,
+        },
     },
     {
         "white": "S. Levitsky",
         "black": "F. J. Marshall",
         "turn": "white",
         "board_state": [
-            [' ', ' ', ' ', ' ', ' ', 'r', 'k', ' '],
-            ['p', 'p', ' ', ' ', ' ', ' ', 'p', 'p'],
-            [' ', ' ', ' ', ' ', 'p', ' ', ' ', ' '],
-            [' ', ' ', 'R', ' ', ' ', ' ', 'Q', ' '],
-            [' ', ' ', ' ', 'n', ' ', ' ', ' ', ' '],
-            [' ', ' ', ' ', ' ', ' ', ' ', 'q', 'r'],
-            ['P', ' ', 'P', ' ', ' ', 'P', 'P', 'P'],
-            [' ', ' ', ' ', ' ', ' ', 'R', 'K', ' '],
+            [" ", " ", " ", " ", " ", "r", "k", " "],
+            ["p", "p", " ", " ", " ", " ", "p", "p"],
+            [" ", " ", " ", " ", "p", " ", " ", " "],
+            [" ", " ", "R", " ", " ", " ", "Q", " "],
+            [" ", " ", " ", "n", " ", " ", " ", " "],
+            [" ", " ", " ", " ", " ", " ", "q", "r"],
+            ["P", " ", "P", " ", " ", "P", "P", "P"],
+            [" ", " ", " ", " ", " ", "R", "K", " "],
         ],
         "material": {
             "black_material": 3,
-            "white_material": 0
-        }
+            "white_material": 0,
+        },
     },
     {
         "white": "E. Y. Vladimirov",
         "black": "V. V. Epishin",
         "turn": "black",
         "board_state": [
-            ['r', ' ', ' ', ' ', ' ', 'k', ' ', 'r'],
-            [' ', 'b', ' ', ' ', 'b', 'P', 'R', ' '],
-            ['p', ' ', ' ', ' ', ' ', 'n', ' ', 'B'],
-            [' ', ' ', ' ', 'p', ' ', ' ', ' ', ' '],
-            [' ', ' ', ' ', ' ', 'P', ' ', ' ', 'P'],
-            [' ', 'q', ' ', ' ', ' ', ' ', ' ', 'B'],
-            ['P', 'p', 'P', ' ', ' ', ' ', ' ', ' '],
-            [' ', 'K', ' ', ' ', ' ', ' ', 'R', ' '],
+            ["r", " ", " ", " ", " ", "k", " ", "r"],
+            [" ", "b", " ", " ", "b", "P", "R", " "],
+            ["p", " ", " ", " ", " ", "n", " ", "B"],
+            [" ", " ", " ", "p", " ", " ", " ", " "],
+            [" ", " ", " ", " ", "P", " ", " ", "P"],
+            [" ", "q", " ", " ", " ", " ", " ", "B"],
+            ["P", "p", "P", " ", " ", " ", " ", " "],
+            [" ", "K", " ", " ", " ", " ", "R", " "],
         ],
         "material": {
             "black_material": 10,
-            "white_material": 0
-        }
+            "white_material": 0,
+        },
     },
     {
         "white": "S. Flohr",
         "black": "E. Geller",
         "turn": "white",
         "board_state": [
-            [' ', ' ', ' ', ' ', ' ', ' ', ' ', ' '],
-            [' ', ' ', ' ', ' ', ' ', ' ', 'k', 'p'],
-            [' ', ' ', ' ', ' ', ' ', ' ', 'p', ' '],
-            [' ', ' ', ' ', ' ', 'p', ' ', ' ', ' '],
-            ['p', ' ', ' ', ' ', 'r', 'P', 'R', 'P'],
-            [' ', ' ', ' ', 'K', ' ', ' ', 'P', ' '],
-            [' ', ' ', ' ', ' ', ' ', ' ', ' ', ' '],
-            [' ', ' ', ' ', ' ', ' ', ' ', ' ', ' '],
+            [" ", " ", " ", " ", " ", " ", " ", " "],
+            [" ", " ", " ", " ", " ", " ", "k", "p"],
+            [" ", " ", " ", " ", " ", " ", "p", " "],
+            [" ", " ", " ", " ", "p", " ", " ", " "],
+            ["p", " ", " ", " ", "r", "P", "R", "P"],
+            [" ", " ", " ", "K", " ", " ", "P", " "],
+            [" ", " ", " ", " ", " ", " ", " ", " "],
+            [" ", " ", " ", " ", " ", " ", " ", " "],
         ],
         "material": {
             "black_material": 1,
-            "white_material": 0
-        }
-    }
+            "white_material": 0,
+        },
+    },
 ]
 
 ### FUNCTIONS ###
@@ -371,28 +371,27 @@ def draw_game_board(board_theme):
         for row in range(0, 8):
             if col & 1:
                 if row & 1:
-                    square_color = BOARD_COLORS[board_theme]['board_color_1']
+                    square_color = BOARD_COLORS[board_theme]["board_color_1"]
                 else:
-                    square_color = BOARD_COLORS[board_theme]['board_color_2']
+                    square_color = BOARD_COLORS[board_theme]["board_color_2"]
+            elif row & 1:
+                square_color = BOARD_COLORS[board_theme]["board_color_2"]
             else:
-                if row & 1:
-                    square_color = BOARD_COLORS[board_theme]['board_color_2']
-                else:
-                    square_color = BOARD_COLORS[board_theme]['board_color_1']
+                square_color = BOARD_COLORS[board_theme]["board_color_1"]
             current_row.append(render.Box(
-                        width=4,
-                        height=4,
-                        color=square_color
-                    ))
+                width = 4,
+                height = 4,
+                color = square_color,
+            ))
         columns.append(render.Row(
-            children=current_row
+            children = current_row,
         ))
     return render.Box(
-        width=32,
-        height=32,
-        child=render.Column(
-            children=columns
-        )
+        width = 32,
+        height = 32,
+        child = render.Column(
+            children = columns,
+        ),
     )
 
 def draw_piece(piece, piece_theme, board_theme):
@@ -400,7 +399,7 @@ def draw_piece(piece, piece_theme, board_theme):
         piece_color = PIECE_WHITE
     else:
         piece_color = PIECE_BLACK
-    if piece.lower() == ' ':
+    if piece.lower() == " ":
         piece_matrix = PIECE_GRAPHICS[piece.lower()]
     else:
         piece_matrix = PIECE_GRAPHICS[piece.lower()][piece_theme]
@@ -411,35 +410,35 @@ def draw_piece(piece, piece_theme, board_theme):
             if row == 1:
                 piece_row.append(
                     render.Box(
-                        width=1,
-                        height=1,
-                        color=piece_color
-                    )
+                        width = 1,
+                        height = 1,
+                        color = piece_color,
+                    ),
                 )
             elif row == 2:
                 piece_row.append(
                     render.Box(
-                        width=1,
-                        height=1,
-                        color=BOARD_COLORS[board_theme]['king_color']
-                    )
+                        width = 1,
+                        height = 1,
+                        color = BOARD_COLORS[board_theme]["king_color"],
+                    ),
                 )
             else:
                 piece_row.append(
                     render.Box(
-                    width=1,
-                    height=1
-                    )
+                        width = 1,
+                        height = 1,
+                    ),
                 )
         piece_box_children.append(render.Row(
-            children=piece_row
+            children = piece_row,
         ))
     return render.Box(
-        width=4,
-        height=4,
-        child=render.Column(
-            children=piece_box_children
-        )
+        width = 4,
+        height = 4,
+        child = render.Column(
+            children = piece_box_children,
+        ),
     )
 
 def draw_pieces(board_state, piece_theme, board_theme):
@@ -450,15 +449,15 @@ def draw_pieces(board_state, piece_theme, board_theme):
             piece = draw_piece(board_state[col][row], piece_theme, board_theme)
             this_row.append(piece)
         pieces.append(render.Row(
-            children=this_row
+            children = this_row,
         ))
     columns = render.Column(
-            children=pieces
-        )
+        children = pieces,
+    )
     return render.Box(
-        width=32,
-        height=32,
-        child=columns
+        width = 32,
+        height = 32,
+        child = columns,
     )
 
 def draw_pawn_image(color):
@@ -467,116 +466,117 @@ def draw_pawn_image(color):
         pawn_row = []
         for square in row:
             pawn_row.append(render.Box(
-                width=1,
-                height=1,
-                color=PAWN_COLORS[color][square]
+                width = 1,
+                height = 1,
+                color = PAWN_COLORS[color][square],
             ))
         pawn_columns.append(
             render.Row(
-                children=pawn_row
-            )
+                children = pawn_row,
+            ),
         )
     pawn_box = render.Box(
-        width=8,
-        height=8,
-        child=render.Column(
-            children=pawn_columns
-        )
+        width = 8,
+        height = 8,
+        child = render.Column(
+            children = pawn_columns,
+        ),
     )
     return pawn_box
 
 def draw_game_stats(opponent_name, opponent_color, material, turn):
     pawn_image = draw_pawn_image(opponent_color)
     opponent_text = render.Marquee(
-        child=render.Text(
-            font='tb-8',
-            content=opponent_name
+        child = render.Text(
+            font = "tb-8",
+            content = opponent_name,
         ),
-        width=24
+        width = 24,
     )
-    white_material_w_text = 'W: ' if turn == 'black' else '*W: '
+    white_material_w_text = "W: " if turn == "black" else "*W: "
     white_material_w = render.Text(
-        content=white_material_w_text
+        content = white_material_w_text,
     )
     white_material_count = render.Text(
-        content='+{}'.format(material['white_material']),
-        color=MATERIAL_COUNT_COLOR
+        content = "+{}".format(material["white_material"]),
+        color = MATERIAL_COUNT_COLOR,
     )
-    black_material_w_text = 'B: ' if turn == 'white' else '*B: '
+    black_material_w_text = "B: " if turn == "white" else "*B: "
     black_material_b = render.Text(
-        content=black_material_w_text
+        content = black_material_w_text,
     )
     black_material_count = render.Text(
-        content='+{}'.format(material['black_material']),
-        color=MATERIAL_COUNT_COLOR
+        content = "+{}".format(material["black_material"]),
+        color = MATERIAL_COUNT_COLOR,
     )
     top_row = render.Row(
         children = [
             white_material_w,
-            white_material_count
-        ]
+            white_material_count,
+        ],
     )
     middle_row = render.Row(
         children = [
             pawn_image,
-            opponent_text
+            opponent_text,
         ],
-        expanded=True
+        expanded = True,
     )
     bottom_row = render.Row(
-        children=[
+        children = [
             black_material_b,
-            black_material_count
-        ]
+            black_material_count,
+        ],
     )
     padding_row = render.Box(
-        width=32,
-        height=2
+        width = 32,
+        height = 2,
     )
     return render.Box(
-        width=32,
-        height=32,
-        child=render.Column(
-            children=[
+        width = 32,
+        height = 32,
+        child = render.Column(
+            children = [
                 top_row,
                 padding_row,
                 middle_row,
                 padding_row,
-                bottom_row
+                bottom_row,
             ],
-            cross_align='center',
-            main_align='center'
-        )
+            cross_align = "center",
+            main_align = "center",
+        ),
     )
 
 def draw_game_boxes(games, game_board, username, piece_theme, board_theme):
     game_boxes = []
     for game in games:
-        game_pieces = draw_pieces(game['board_state'], piece_theme, board_theme)
-        if game['white'].lower() != username.lower():
-            opponent_color = 'w'
-            opponent_name = game['white']
+        game_pieces = draw_pieces(game["board_state"], piece_theme, board_theme)
+        if game["white"].lower() != username.lower():
+            opponent_color = "w"
+            opponent_name = game["white"]
         else:
-            opponent_color = 'b'
-            opponent_name = game['black']
+            opponent_color = "b"
+            opponent_name = game["black"]
         game_board_stacked = render.Stack(
-            children=[
-                game_board, game_pieces
-            ]
+            children = [
+                game_board,
+                game_pieces,
+            ],
         )
-        game_stats = draw_game_stats(opponent_name, opponent_color, game['material'], game['turn'])
+        game_stats = draw_game_stats(opponent_name, opponent_color, game["material"], game["turn"])
         for i in range(0, ANIMATION_FRAMES):
             game_boxes.append(
                 render.Box(
-                    width=64,
-                    height=32,
-                    child=render.Row(
-                        children=[
+                    width = 64,
+                    height = 32,
+                    child = render.Row(
+                        children = [
                             game_board_stacked,
-                            game_stats
-                        ]
-                    )
-                )
+                            game_stats,
+                        ],
+                    ),
+                ),
             )
     return game_boxes
 
@@ -595,8 +595,8 @@ def get_player_games(username):
     return req.json()
 
 def get_fen_array(game_fen):
-    fen_array = game_fen.split('/')
-    end_array = fen_array[-1].split(' ')
+    fen_array = game_fen.split("/")
+    end_array = fen_array[-1].split(" ")
     fen_array[-1] = end_array.pop(0)
     return fen_array
 
@@ -610,22 +610,22 @@ def get_board_state_array(game_fen):
                 row_array.append(char)
             else:
                 for i in range(0, int(char)):
-                    row_array.append(' ')
+                    row_array.append(" ")
         board_state_array.append(row_array)
     return board_state_array
 
 def get_material_count(board_state_array):
     counts = {
-        'p': 0,
-        'P': 0,
-        'n': 0,
-        'N': 0,
-        'b': 0,
-        'B': 0,
-        'r': 0,
-        'R': 0,
-        'q': 0,
-        'Q': 0,
+        "p": 0,
+        "P": 0,
+        "n": 0,
+        "N": 0,
+        "b": 0,
+        "B": 0,
+        "r": 0,
+        "R": 0,
+        "q": 0,
+        "Q": 0,
     }
     white_material = 0
     black_material = 0
@@ -636,11 +636,11 @@ def get_material_count(board_state_array):
                     counts[square] += 1
     for piece in counts:
         if piece in PIECE_COUNTS:
-            deficit = PIECE_COUNTS[piece]['count'] - counts[piece]
+            deficit = PIECE_COUNTS[piece]["count"] - counts[piece]
             if piece.isupper():
-                white_material += deficit * (PIECE_COUNTS[piece]['value'])
+                white_material += deficit * (PIECE_COUNTS[piece]["value"])
             else:
-                black_material += deficit * (PIECE_COUNTS[piece]['value'])
+                black_material += deficit * (PIECE_COUNTS[piece]["value"])
     if black_material > white_material:
         black_material -= white_material
         white_material = 0
@@ -648,8 +648,8 @@ def get_material_count(board_state_array):
         white_material -= black_material
         black_material = 0
     return {
-        'white_material': white_material,
-        'black_material': black_material
+        "white_material": white_material,
+        "black_material": black_material,
     }
 
 def parse_pgn(game_pgn):
@@ -665,15 +665,15 @@ def parse_pgn(game_pgn):
 
 def get_games_dicts(games_json):
     games_dict = []
-    for game in games_json['games']:
+    for game in games_json["games"]:
         this_game_dict = {}
-        pgn_dict = parse_pgn(game['pgn'])
-        board_state_array = get_board_state_array(game['fen'])
-        this_game_dict['white'] = pgn_dict['white']
-        this_game_dict['black'] = pgn_dict['black']
-        this_game_dict['turn'] = pgn_dict['turn']
-        this_game_dict['board_state'] = board_state_array
-        this_game_dict['material']= get_material_count(board_state_array)
+        pgn_dict = parse_pgn(game["pgn"])
+        board_state_array = get_board_state_array(game["fen"])
+        this_game_dict["white"] = pgn_dict["white"]
+        this_game_dict["black"] = pgn_dict["black"]
+        this_game_dict["turn"] = pgn_dict["turn"]
+        this_game_dict["board_state"] = board_state_array
+        this_game_dict["material"] = get_material_count(board_state_array)
         games_dict.append(this_game_dict)
     return games_dict
 
@@ -702,9 +702,9 @@ def main(config):
     game_board = draw_game_board(board_theme)
     game_boxes = draw_game_boxes(games, game_board, username, piece_theme, board_theme)
     return render.Root(
-        child=render.Animation(
-            children=game_boxes
-        )
+        child = render.Animation(
+            children = game_boxes,
+        ),
     )
 
 # Set up configuration options
@@ -724,7 +724,7 @@ def get_schema():
                 desc = "The design of the chess pieces.",
                 icon = "chess",
                 default = PIECE_THEME_OPTIONS[0].value,
-                options = PIECE_THEME_OPTIONS
+                options = PIECE_THEME_OPTIONS,
             ),
             schema.Dropdown(
                 id = "board_theme",
@@ -732,7 +732,7 @@ def get_schema():
                 desc = "The design of the chess board.",
                 icon = "chessBoard",
                 default = BOARD_THEME_OPTIONS[0].value,
-                options = BOARD_THEME_OPTIONS
-            )
+                options = BOARD_THEME_OPTIONS,
+            ),
         ],
     )
