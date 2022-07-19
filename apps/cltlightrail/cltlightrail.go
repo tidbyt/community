@@ -7,7 +7,7 @@ import (
 	"tidbyt.dev/community/apps/manifest"
 )
 
-//go:embed clt_lightrail.star
+//go:embed cltLightrail.star
 var source []byte
 
 // New creates a new instance of the CLT Lightrail applet.
