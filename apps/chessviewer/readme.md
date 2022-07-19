@@ -18,8 +18,10 @@ Displays currently active games from [Chess.com](chess.com) for the username pro
 ## Available Piece Themes:
 * Minim (default) - Most readable and intuitive.
 * Block - A variation on the Minim theme.
-* Dot - All shapes start in the upper left of the square to prevent confusion when two pieces are next to each other.
-* Point - Abstract theme that matches each piece with its point value. The number of pixels in each piece design is equal to its material point value. The king has a total of 10 pixels but can be distinguished by its special color dot.
+* Dot - A more abstract minimal theme.
+* Point - Abstract theme that matches each piece with its point value. The number of pixels in each piece design is equal to its material point value. All pieces are drawn in the top right corner to reduce confusion when two pieces are directly next to each other. The king has a total of 10 pixels but can be distinguished by its special color dot.
+
+![Chess Viewer App Piece Themes](themes.png)
 
 The name shown is the opponent's username as well as what color that user is playing in the game shown.
 Enjoy!
