@@ -4,7 +4,13 @@ Summary: Kiel Ferry Departures
 Description: Next scheduled ferry departure time for any stop and direction in the Kiel harbor ferry system.
 Author: hloeding
 """
-# Required includes
+
+
+# ################################
+# ###### App module loading ######
+# ################################
+
+# Required modules
 load("render.star", "render")
 load("schema.star", "schema")
 load("time.star", "time")
@@ -12,6 +18,11 @@ load("math.star", "math")
 load("http.star", "http")
 load("cache.star", "cache")
 load("encoding/base64.star", "base64")
+
+
+# ###########################
+# ###### App constants ######
+# ###########################
 
 # Base64 ferry icon data
 FERRY_ICON = base64.decode("""
@@ -68,8 +79,8 @@ FERRY_MAX_LOOKAHEAD_MIN = 7 * 24 * 60
 # Cache time to live
 FERRY_CACHE_TTL = 30
 # Cacke keys
-FERRY_CACHE_DATA_KEY = "next_ferry_data"
-FERRY_CACHE_ERROR_KEY = "next_ferry_query_error"
+FERRY_CACHE_DATA_KEY = "next_ferry_data_%s_%s"
+FERRY_CACHE_ERROR_KEY = "next_ferry_query_error_%s_%s"
 
 # Clean REST wrapper around the Deutsche Bahn public API
 # See https://github.com/derhuerst/db-rest
@@ -88,35 +99,91 @@ FERRY_QUERY_URL = \
     "&tram=false" + \
     "&taxi=false"
 
-# Wrapper to cache boolean values
-def setCacheBool(key, value, ttl):
-    cache.set(key, "X" if value else "", ttl)
 
-# Wrapper to cache string values (trivial, but 
-# provided for common interface and readability)
-def setCacheStr(key, value, ttl):
-    cache.set(key, value, ttl)
+# ##############################################
+# ###### Functions for caching ferry data ######
+# ##############################################
 
-# Wrapper to get boolean values from cache
-def getCacheBool(key):
-    ret = cache.get(key)
+# Get cached ferry departure data
+# for given ferry stop and direction
+def getCachedFerryData(
+    ferryStopID,
+    ferryDirectionID
+):
+    return cache.get(
+        FERRY_CACHE_DATA_KEY % (
+            ferryStopID,
+            ferryDirectionID
+        )
+    )
+
+# Cache ferry departure data for
+# given ferry stop and direction
+def setCachedFerryData(
+    ferryStopID,
+    ferryDirectionID,
+    ferryData
+):
+    cache.set(
+        FERRY_CACHE_DATA_KEY % (
+            ferryStopID,
+            ferryDirectionID
+        ),
+        ferryData,
+        FERRY_CACHE_TTL
+    )
+
+# Get cached API query error flag
+# (avoid spamming API with bad requests)
+def getCachedFerryError(
+    ferryStopID,
+    ferryDirectionID
+):
+    ret = cache.get(
+        FERRY_CACHE_ERROR_KEY % (
+            ferryStopID,
+            ferryDirectionID
+        )
+    )
     if ret != None:
         ret = bool(ret)
     return ret
 
-# Wrapper to get string values from cache
-# (trivial, but provided for common interface
-# and readability)
-def getCacheStr(key):
-    return cache.get(key)
+# Cache API query error flag
+# (avoid spamming API with bad requests)
+def setCachedFerryError(
+    ferryStopID,
+    ferryDirectionID,
+    value
+):
+    cache.set(
+        FERRY_CACHE_ERROR_KEY % (
+            ferryStopID,
+            ferryDirectionID
+        ),
+        "X" if value else "",
+        FERRY_CACHE_TTL
+    )
+
+
+# ####################################################
+# ###### Function for retrieving API ferry data ######
+# ####################################################
 
 # Function to retrieve next ferry data.
 # Returns a tuple of
 # - validity: Indicates if data is usable
 # - next ferry: Timestamp string or None
 def getNextFerry(ferryStopID, ferryDirectionID):
-    nextFerry = getCacheStr(FERRY_CACHE_DATA_KEY)
-    queryError = getCacheBool(FERRY_CACHE_ERROR_KEY)
+    nextFerry = getCachedFerryData(
+        ferryStopID,
+        ferryDirectionID
+    )
+    queryError = getCachedFerryError(
+        ferryStopID,
+        ferryDirectionID
+    )
+    # Check if cached data has expired
     if nextFerry == None or queryError == None:
         query = FERRY_QUERY_URL % (
             ferryStopID, 
@@ -124,30 +191,48 @@ def getNextFerry(ferryStopID, ferryDirectionID):
             FERRY_MAX_LOOKAHEAD_MIN
         )
         response = http.get(query)
+        # If request failed, set query error flag.
+        # Set next ferry to empty string to denote
+        # for now no ferry departure data.
         if response.status_code != 200:
             queryError = True
             nextFerry = ""
+        # If request succeeded, unset query error.
         else:
             queryError = False
             response = response.json()
+            # Check if there is a next ferry
+            # scheduled. If so, extract the
+            # ferry departure time.
             if len(response) != 0:
                 nextFerry = response[0]["when"]
+            # If not, set empty string to denote
+            # for now no ferry departure data
             else:
                 nextFerry = ""
-        setCacheStr(
-            FERRY_CACHE_DATA_KEY,
-            nextFerry,
-            FERRY_CACHE_TTL
+        # Update cached ferry departure data
+        setCachedFerryData(
+            ferryStopID,
+            ferryDirectionID,
+            nextFerry
         )
-        setCacheBool(
-            FERRY_CACHE_ERROR_KEY,
-            queryError,
-            FERRY_CACHE_TTL
+        # Update cached query error flag
+        setCachedFerryError(
+            ferryStopID,
+            ferryDirectionID,
+            queryError
         )
+    # Return (a) validity of data (no error flag)
+    # and (b) next ferry departure data or None
     return (
         not queryError,
         nextFerry if len(nextFerry) > 0 else None
     )
+
+
+# ################################################
+# ###### Function to render an error screen ######
+# ################################################
 
 # Function to render an error screen, to be used
 # if no valid ferry departure data can be retrieved
@@ -181,6 +266,11 @@ def renderError():
       main_align = "center",
     )
   )
+
+
+# ######################################################
+# ###### Functions to render ferry departure data ######
+# ######################################################
 
 # Format given ferry departure time string as hh:mm
 def formatDepartureTime(nextFerry):
@@ -267,6 +357,11 @@ def renderFerryData(ferryStop, ferryDirection, nextFerry):
         )
     )
 
+
+# #############################
+# ###### App entry point ######
+# #############################
+
 # Main entrypoint
 def main(config):
     # Get ferry stop and ferry direction names and IDs from config
@@ -290,6 +385,11 @@ def main(config):
         return renderFerryData(ferryStop, ferryDirection, nextFerry)
     # Otherwise, render an error
     return renderError()
+
+
+# ###############################################
+# ###### Functions to construct app schema ######
+# ###############################################
 
 # Construct ferry stop options
 def getFerryStopOptions():
