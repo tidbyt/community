@@ -50,8 +50,8 @@ DEFAULT_FILTER = "today | overdue"
 
 TODOIST_URL = "https://api.todoist.com/rest/v1/tasks"
 
-OAUTH2_CLIENT_ID = secret.decrypt("AV6+xWcEe4cKZstUvQGH2NDS19WbAghL0g2Jbr/hbafmY5ucg2+QDLudM0v8BZF0yva72PcpzrwONQk5bBS/Xq9fMM1m/dZt0ygfQk6GdNpETqE37xkEOec8xH73NLEPXe/tUr6rxT7m31aIyIJGY+ybxrPM+qfkDVQLURKg0ty7fZ488Q8=")
-OAUTH2_CLIENT_SECRET = secret.decrypt("AV6+xWcEVAQANVlwiJglidYagwD1LXLLGtsl0sanTTcbLp5CtqsomyWwhUEuC3Xlz6kAsEMPkeTkuZkD3XWl9UwmPeZQgL8Nrk+tVtE/LlaDP9MsPdX4oxSaZQmMSpbyjpX/OMxqeViDedeb6q7umzHWyclRY17CS+JPdTU0TsYo+Ultvo8=")
+OAUTH2_CLIENT_ID = secret.decrypt("AV6+xWcE3EU3hN4xQ8YnfJEgPR5MzEZCYIxREwvlvaPabe1b85BohsHXjC7k7W4JOLfFDl4CM/fq9DSLjM29vIK0GkdjCIOmjGW0JDbG+Vwa026AGDptHxt1H9ll6EnzD19c8hQQzs6pGSvhlcQg3+MYjp9Ow8sLZ8M+kigdvqhUjNffydU=")
+OAUTH2_CLIENT_SECRET = secret.decrypt("AV6+xWcE2DvB+Ag3uS7xtL7aedQFTHRo/A2+Dj4KCcIV1JqwbMcy2n+dmLFSaUhEkMU138g3ZN0FmQorTyMLMSQcOLxRB/m37PBbPglRZC7IiwfUq8Qc1cNTwhP99tXK3dngrOG/9alMMDrvtydx4yu2lT+r7HrOWHyZAFa5HQJSN7lQHZ0=")
 
 def main(config):
     token = config.get("auth") or config.get("dev_api_key")
