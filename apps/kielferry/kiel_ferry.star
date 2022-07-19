@@ -319,42 +319,47 @@ def renderFerryData(ferryStop, ferryDirection, nextFerry):
         ferryDirection,
         nextFerry)
     return render.Root(
-        child = render.Row(
-            children = [
-                render.Column(
-                    children = [
-                        render.Image(src=FERRY_ICON),
-                    ],
-                    expanded = True,
-                    main_align = "center",
-                ),
-                render.Column(
-                    children = [
-                        render.Marquee(
-                            child = render.Text(
-                                content = route,
-                                color = "#3399ff",
+        child = render.Box(
+            child = render.Column(
+                children = [
+                    render.Marquee(
+                        child = render.Text(
+                            content = route,
+                            color = "#3399ff",
+                        ),
+                        width = 62,
+                    ),
+                    render.Row(
+                        children = [
+                            render.Image(src = FERRY_ICON),
+                            render.Column(
+                                children = [
+                                    render.Text(
+                                        content = departureTime,
+                                        font = "6x13",
+                                    ),
+                                    render.Text(
+                                        content = waitDuration,
+                                        color = "#ff6600",
+                                        font = "tom-thumb",
+                                    ),
+                                ],
+                                expanded = True,
+                                main_align = "center",
+                                cross_align = "center",
                             ),
-                            width = 40,
-                        ),
-                        render.Text(
-                            content = departureTime,
-                            font = "6x13",
-                        ),
-                        render.Text(
-                            content = waitDuration,
-                            color = "#ff6600",
-                            font = "tom-thumb",
-                        ),
-                    ],
-                    expanded = True,
-                    main_align = "space_evenly",
-                    cross_align = "center",
-                ),
-            ],
-            expanded = True,
-            main_align = "space_evenly",
-        )
+                        ],
+                        expanded = True,
+                        main_align = "space_between",
+                        cross_align = "center",
+                    ),
+                ],
+                expanded = True,
+                main_align = "space_evenly",
+                cross_align = "center",
+            ),
+            padding = 1,
+        ),
     )
 
 
