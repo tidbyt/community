@@ -31,7 +31,9 @@ API = "https://site.api.espn.com/apis/site/v2/sports/" + SPORT + "/" + LEAGUE + 
 ALT_COLOR = """
 {
     "HOU": "#002D62",
-    "WSH": "#AB0003"
+    "WSH": "#AB0003",
+    "AL" : "#EE0A46",
+    "NL" : "#0E4082"
 }
 """
 ALT_LOGO = """
@@ -84,18 +86,50 @@ def main(config):
             away = competition["competitors"][1]["team"]["abbreviation"]
             homeTeamName = competition["competitors"][0]["team"]["shortDisplayName"]
             awayTeamName = competition["competitors"][1]["team"]["shortDisplayName"]
-            homePrimaryColor = competition["competitors"][0]["team"]["color"]
-            awayPrimaryColor = competition["competitors"][1]["team"]["color"]
-            homeAltColor = competition["competitors"][0]["team"]["alternateColor"]
-            awayAltColor = competition["competitors"][1]["team"]["alternateColor"]
+            homeColorCheck = competition["competitors"][0]["team"].get("color", "NO")
+            if homeColorCheck == "NO":
+                homePrimaryColor = "000000"
+            else:
+                homePrimaryColor = competition["competitors"][0]["team"]["color"]
+
+            awayColorCheck = competition["competitors"][1]["team"].get("color", "NO")
+            if awayColorCheck == "NO":
+                awayPrimaryColor = "000000"
+            else:
+                awayPrimaryColor = competition["competitors"][1]["team"]["color"]
+
+            homeAltColorCheck = competition["competitors"][0]["team"].get("alternateColor", "NO")
+            if homeAltColorCheck == "NO":
+                homeAltColor = "000000"
+            else:
+                homeAltColor = competition["competitors"][0]["team"]["alternateColor"]
+
+            awayAltColorCheck = competition["competitors"][1]["team"].get("alternateColor", "NO")
+            if awayAltColorCheck == "NO":
+                awayAltColor = "000000"
+            else:
+                awayAltColor = competition["competitors"][1]["team"]["alternateColor"]
+
             homeColor = get_background_color(home, displayType, homePrimaryColor, homeAltColor)
             awayColor = get_background_color(away, displayType, awayPrimaryColor, awayAltColor)
-            homeLogoURL = competition["competitors"][0]["team"]["logo"]
-            awayLogoURL = competition["competitors"][1]["team"]["logo"]
+
+            homeLogoCheck = competition["competitors"][0]["team"].get("logo", "NO")
+            if homeLogoCheck == "NO":
+                homeLogoURL = "https://a.espncdn.com/i/espn/misc_logos/500/ncaa_football.vresize.50.50.medium.1.png"
+            else:
+                homeLogoURL = competition["competitors"][0]["team"]["logo"]
+
+            awayLogoCheck = competition["competitors"][1]["team"].get("logo", "NO")
+            if awayLogoCheck == "NO":
+                homeLogoURL = "https://a.espncdn.com/i/espn/misc_logos/500/ncaa_football.vresize.50.50.medium.1.png"
+            else:
+                awayLogoURL = competition["competitors"][1]["team"]["logo"]
             homeLogo = get_logoType(home, homeLogoURL)
             awayLogo = get_logoType(away, awayLogoURL)
             homeLogoSize = get_logoSize(home)
             awayLogoSize = get_logoSize(away)
+            homeScore = ""
+            awayScore = ""
             homeScoreColor = "#fff"
             awayScoreColor = "#fff"
             teamFont = "Dina_r400-6"
