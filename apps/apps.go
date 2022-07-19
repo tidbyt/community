@@ -36,6 +36,7 @@ import (
 	"tidbyt.dev/community/apps/dutchfuzzyclock"
 	"tidbyt.dev/community/apps/dvdlogo"
 	"tidbyt.dev/community/apps/dwheadline"
+	"tidbyt.dev/community/apps/emojilingo"
 	"tidbyt.dev/community/apps/espnnews"
 	"tidbyt.dev/community/apps/fairfaxconnector"
 	"tidbyt.dev/community/apps/fantasynamegen"
@@ -179,6 +180,7 @@ func GetManifests() []manifest.Manifest {
 		dutchfuzzyclock.New(),
 		dvdlogo.New(),
 		dwheadline.New(),
+		emojilingo.New(),
 		espnnews.New(),
 		fairfaxconnector.New(),
 		fantasynamegen.New(),
