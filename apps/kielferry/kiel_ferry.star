@@ -5,7 +5,6 @@ Description: Next scheduled ferry departure time for any stop and direction in t
 Author: hloeding
 """
 
-
 # ################################
 # ###### App module loading ######
 # ################################
@@ -18,7 +17,6 @@ load("math.star", "math")
 load("http.star", "http")
 load("cache.star", "cache")
 load("encoding/base64.star", "base64")
-
 
 # ###########################
 # ###### App constants ######
@@ -62,14 +60,16 @@ FERRY_STOP_IDS = {
     360911: "Schilksee",
     360912: "Strande",
 }
+
 # Default ferry stop ID
 DEFAULT_FERRY_STOP_ID = str(FERRY_STOP_IDS.keys()[0])
 
 # Terminus ferry stop IDs (ferry directions)
 FERRY_DIRECTION_IDS = [
-    360910, # Laboe
-    360901, # Bahnhof
+    360910,  # Laboe
+    360901,  # Bahnhof
 ]
+
 # Default ferry direction ID
 DEFAULT_FERRY_DIRECTION_ID = str(FERRY_DIRECTION_IDS[0])
 
@@ -78,6 +78,7 @@ FERRY_MAX_LOOKAHEAD_MIN = 7 * 24 * 60
 
 # Cache time to live
 FERRY_CACHE_TTL = 30
+
 # Cacke keys
 FERRY_CACHE_DATA_KEY = "next_ferry_data_%s_%s"
 FERRY_CACHE_ERROR_KEY = "next_ferry_query_error_%s_%s"
@@ -99,7 +100,6 @@ FERRY_QUERY_URL = \
     "&tram=false" + \
     "&taxi=false"
 
-
 # ##############################################
 # ###### Functions for caching ferry data ######
 # ##############################################
@@ -107,43 +107,40 @@ FERRY_QUERY_URL = \
 # Get cached ferry departure data
 # for given ferry stop and direction
 def getCachedFerryData(
-    ferryStopID,
-    ferryDirectionID
-):
+        ferryStopID,
+        ferryDirectionID):
     return cache.get(
         FERRY_CACHE_DATA_KEY % (
             ferryStopID,
-            ferryDirectionID
-        )
+            ferryDirectionID,
+        ),
     )
 
 # Cache ferry departure data for
 # given ferry stop and direction
 def setCachedFerryData(
-    ferryStopID,
-    ferryDirectionID,
-    ferryData
-):
+        ferryStopID,
+        ferryDirectionID,
+        ferryData):
     cache.set(
         FERRY_CACHE_DATA_KEY % (
             ferryStopID,
-            ferryDirectionID
+            ferryDirectionID,
         ),
         ferryData,
-        FERRY_CACHE_TTL
+        FERRY_CACHE_TTL,
     )
 
 # Get cached API query error flag
 # (avoid spamming API with bad requests)
 def getCachedFerryError(
-    ferryStopID,
-    ferryDirectionID
-):
+        ferryStopID,
+        ferryDirectionID):
     ret = cache.get(
         FERRY_CACHE_ERROR_KEY % (
             ferryStopID,
-            ferryDirectionID
-        )
+            ferryDirectionID,
+        ),
     )
     if ret != None:
         ret = bool(ret)
@@ -152,19 +149,17 @@ def getCachedFerryError(
 # Cache API query error flag
 # (avoid spamming API with bad requests)
 def setCachedFerryError(
-    ferryStopID,
-    ferryDirectionID,
-    value
-):
+        ferryStopID,
+        ferryDirectionID,
+        value):
     cache.set(
         FERRY_CACHE_ERROR_KEY % (
             ferryStopID,
-            ferryDirectionID
+            ferryDirectionID,
         ),
         "X" if value else "",
-        FERRY_CACHE_TTL
+        FERRY_CACHE_TTL,
     )
-
 
 # ####################################################
 # ###### Function for retrieving API ferry data ######
@@ -177,58 +172,65 @@ def setCachedFerryError(
 def getNextFerry(ferryStopID, ferryDirectionID):
     nextFerry = getCachedFerryData(
         ferryStopID,
-        ferryDirectionID
+        ferryDirectionID,
     )
     queryError = getCachedFerryError(
         ferryStopID,
-        ferryDirectionID
+        ferryDirectionID,
     )
+
     # Check if cached data has expired
     if nextFerry == None or queryError == None:
         query = FERRY_QUERY_URL % (
-            ferryStopID, 
-            ferryDirectionID, 
-            FERRY_MAX_LOOKAHEAD_MIN
+            ferryStopID,
+            ferryDirectionID,
+            FERRY_MAX_LOOKAHEAD_MIN,
         )
         response = http.get(query)
+
         # If request failed, set query error flag.
         # Set next ferry to empty string to denote
         # for now no ferry departure data.
         if response.status_code != 200:
             queryError = True
             nextFerry = ""
-        # If request succeeded, unset query error.
+            # If request succeeded, unset query error.
+
         else:
             queryError = False
             response = response.json()
+
             # Check if there is a next ferry
             # scheduled. If so, extract the
             # ferry departure time.
             if len(response) != 0:
                 nextFerry = response[0]["when"]
-            # If not, set empty string to denote
-            # for now no ferry departure data
+                # If not, set empty string to denote
+                # for now no ferry departure data
+
             else:
                 nextFerry = ""
+
         # Update cached ferry departure data
         setCachedFerryData(
             ferryStopID,
             ferryDirectionID,
-            nextFerry
+            nextFerry,
         )
+
         # Update cached query error flag
         setCachedFerryError(
             ferryStopID,
             ferryDirectionID,
-            queryError
+            queryError,
         )
+
     # Return (a) validity of data (no error flag)
     # and (b) next ferry departure data or None
     return (
         not queryError,
-        nextFerry if len(nextFerry) > 0 else None
+        nextFerry if len(nextFerry) > 0 else None,
     )
-
 
 # ################################################
 # ###### Function to render an error screen ######
@@ -237,36 +239,35 @@ def getNextFerry(ferryStopID, ferryDirectionID):
 # Function to render an error screen, to be used
 # if no valid ferry departure data can be retrieved
 def renderError():
-  return render.Root(
-    child = render.Row(
-      children = [
-        render.Column(
-          children = [
-            render.Text(
-              content = "No data",
-              color = "#990000",
-              font = "CG-pixel-4x5-mono",
-            ),
-            render.Image(src=FERRY_ICON),
-            render.Marquee(
-              child = render.Text(
-                content = "Something went terribly wrong...",
-                color = "#3399ff",
-                font = "CG-pixel-4x5-mono",
-              ),
-              width = 60,
-            ),
-          ],
-          expanded = True,
-          main_align = "space_evenly",
-          cross_align = "center",
+    return render.Root(
+        child = render.Row(
+            children = [
+                render.Column(
+                    children = [
+                        render.Text(
+                            content = "No data",
+                            color = "#990000",
+                            font = "CG-pixel-4x5-mono",
+                        ),
+                        render.Image(src = FERRY_ICON),
+                        render.Marquee(
+                            child = render.Text(
+                                content = "Something went terribly wrong...",
+                                color = "#3399ff",
+                                font = "CG-pixel-4x5-mono",
+                            ),
+                            width = 60,
+                        ),
+                    ],
+                    expanded = True,
+                    main_align = "space_evenly",
+                    cross_align = "center",
+                ),
+            ],
+            expanded = True,
+            main_align = "center",
         ),
-      ],
-      expanded = True,
-      main_align = "center",
     )
-  )
-
 
 # ######################################################
 # ###### Functions to render ferry departure data ######
@@ -317,7 +318,8 @@ def renderFerryData(ferryStop, ferryDirection, nextFerry):
     route, departureTime, waitDuration = getFerryDataStrings(
         ferryStop,
         ferryDirection,
-        nextFerry)
+        nextFerry,
+    )
     return render.Root(
         child = render.Box(
             child = render.Column(
@@ -362,7 +364,6 @@ def renderFerryData(ferryStop, ferryDirection, nextFerry):
         ),
     )
 
-
 # #############################
 # ###### App entry point ######
 # #############################
@@ -372,22 +373,24 @@ def main(config):
     # Get ferry stop and ferry direction names and IDs from config
     ferryStopID = config.str(
         "ferry_stop_id",
-        DEFAULT_FERRY_STOP_ID
+        DEFAULT_FERRY_STOP_ID,
     )
     ferryStop = FERRY_STOP_IDS[int(ferryStopID)]
     ferryDirectionID = config.str(
         "ferry_direction_id",
-        DEFAULT_FERRY_DIRECTION_ID
+        DEFAULT_FERRY_DIRECTION_ID,
     )
     ferryDirection = FERRY_STOP_IDS[int(ferryDirectionID)]
+
     # Retrieve data for next ferry departure
     valid, nextFerry = getNextFerry(ferryStopID, ferryDirectionID)
+
     # If ferry departure data is valid, render it
     if valid:
         return renderFerryData(ferryStop, ferryDirection, nextFerry)
+
     # Otherwise, render an error
     return renderError()
-
 
 # ###############################################
 # ###### Functions to construct app schema ######
@@ -401,7 +404,7 @@ def getFerryStopOptions():
             schema.Option(
                 display = FERRY_STOP_IDS[stop],
                 value = str(stop),
-            )
+            ),
         )
     return ret
 
@@ -413,7 +416,7 @@ def getFerryDirectionOptions():
             schema.Option(
                 display = FERRY_STOP_IDS[direction],
                 value = str(direction),
-            )
+            ),
         )
     return ret
 
@@ -430,7 +433,7 @@ def get_schema():
                 desc = "Display next departure for this ferry stop.",
                 icon = "ferry",
                 default = ferryStopOptions[0].value,
-                options = ferryStopOptions
+                options = ferryStopOptions,
             ),
             schema.Dropdown(
                 id = "ferry_direction_id",
@@ -438,7 +441,7 @@ def get_schema():
                 desc = "Display next departure for this ferry direction.",
                 icon = "compass",
                 default = ferryDirectionOptions[0].value,
-                options = ferryDirectionOptions
+                options = ferryDirectionOptions,
             ),
         ],
     )
