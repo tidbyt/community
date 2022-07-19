@@ -42,7 +42,7 @@ DEFAULT_LOCATION = """{
     "lat": 53.79444,
     "lng": -2.245278,
     "locality": "Manchester, UK",
-    "timezone": "GMT",
+    "timezone": "GMT"
 }
 """
 DEFAULT_24_HOUR = False
@@ -98,10 +98,7 @@ def main(config):
                 cross_align = "center",
                 children = [
                     render.Image(src = base64.decode(sunriseImage)),
-                    render.Padding(
-                        pad = (sunrisePad, -1, 0, 0),
-                        child = render.Text(sunriseText),
-                    ),
+                    render.Text(sunriseText),
                 ],
             ),
         )
@@ -117,10 +114,7 @@ def main(config):
             cross_align = "center",
             children = [
                 render.Image(src = base64.decode(sunsetImage)),
-                render.Padding(
-                    pad = (sunsetPad, -1, 0, 0),
-                    child = render.Text(sunsetText),
-                ),
+                render.Text(sunsetText),
             ],
         )
 
@@ -155,10 +149,7 @@ def main(config):
             cross_align = "center",
             children = [
                 render.Image(src = base64.decode(image)),
-                render.Padding(
-                    pad = (pad, 0, 0, 0),
-                    child = render.Text(text),
-                ),
+                render.Text(text),
             ],
         )
 
