@@ -1,7 +1,7 @@
 """
 Applet: Emoji Lingo
-Summary: A random emoji, localized
-Description: Displays a random emoji and its unique short text annotation from the Unicode Consortium in a given locale.
+Summary: Random multilingual emojis
+Description: Displays a random emoji and its unique short text annotation from the Unicode Consortium in a given language.
 Author: Cedric Sam
 """
 
