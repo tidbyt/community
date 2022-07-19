@@ -375,18 +375,15 @@ def main(config):
         DEFAULT_FERRY_STOP_ID
     )
     ferryStop = FERRY_STOP_IDS[int(ferryStopID)]
-    print("Configured ferry stop: %s (%s)" % (ferryStop, ferryStopID))
     ferryDirectionID = config.str(
         "ferry_direction_id",
         DEFAULT_FERRY_DIRECTION_ID
     )
     ferryDirection = FERRY_STOP_IDS[int(ferryDirectionID)]
-    print("Configured ferry direction: %s (%s)" % (ferryDirection, ferryDirectionID))
     # Retrieve data for next ferry departure
     valid, nextFerry = getNextFerry(ferryStopID, ferryDirectionID)
     # If ferry departure data is valid, render it
     if valid:
-        print("Next ferry departure: %s" % nextFerry)
         return renderFerryData(ferryStop, ferryDirection, nextFerry)
     # Otherwise, render an error
     return renderError()
