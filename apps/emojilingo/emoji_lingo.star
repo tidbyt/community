@@ -85,7 +85,6 @@ def main(config):
         shortName = name_item[1]
     else:
         fail("Emoji has no name")
-        shortName = "N/A"
 
     # Print some diagnostics...
     print(random_emoji_base64)
