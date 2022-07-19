@@ -40,6 +40,10 @@ PIECE_THEME_OPTIONS = [
         value = "minim",
     ),
     schema.Option(
+        display = "Block",
+        value = "block",
+    ),
+    schema.Option(
         display = "Dot",
         value = "dot",
     ),
@@ -97,7 +101,7 @@ BOARD_COLORS = {
     "winter": {
         "board_color_1": "#0064c1",
         "board_color_2": "#48cfea",
-        "king_color": "#efe013",
+        "king_color": "#e80404",
     },
 }
 MATERIAL_COUNT_COLOR = "#8ec24c"
@@ -138,6 +142,12 @@ PIECE_GRAPHICS = {
             [0, 1, 1, 0],
             [0, 0, 0, 0],
         ],
+        "block": [
+            [0, 0, 0, 0],
+            [0, 0, 0, 0],
+            [0, 1, 1, 0],
+            [0, 1, 1, 0],
+        ],
         "dot": [
             [0, 0, 0, 0],
             [0, 1, 0, 0],
@@ -157,6 +167,12 @@ PIECE_GRAPHICS = {
             [0, 1, 1, 1],
             [0, 1, 0, 0],
             [0, 1, 0, 0],
+        ],
+        "block": [
+            [0, 0, 0, 0],
+            [0, 1, 1, 1],
+            [0, 1, 1, 1],
+            [0, 1, 1, 0],
         ],
         "dot": [
             [0, 0, 0, 0],
@@ -178,6 +194,12 @@ PIECE_GRAPHICS = {
             [0, 1, 0, 0],
             [1, 0, 0, 0],
         ],
+        "block": [
+            [0, 1, 1, 0],
+            [1, 0, 0, 1],
+            [0, 1, 1, 0],
+            [0, 1, 1, 0],
+        ],
         "dot": [
             [0, 0, 0, 0],
             [0, 0, 1, 0],
@@ -193,6 +215,12 @@ PIECE_GRAPHICS = {
     },
     "r": {
         "minim": [
+            [1, 0, 0, 1],
+            [0, 1, 1, 0],
+            [0, 1, 1, 0],
+            [0, 1, 1, 0],
+        ],
+        "block": [
             [1, 0, 0, 1],
             [0, 1, 1, 0],
             [0, 1, 1, 0],
@@ -218,6 +246,12 @@ PIECE_GRAPHICS = {
             [0, 1, 1, 0],
             [1, 0, 0, 1],
         ],
+        "block": [
+            [1, 0, 0, 1],
+            [0, 1, 1, 0],
+            [0, 1, 1, 0],
+            [1, 0, 0, 1],
+        ],
         "dot": [
             [0, 1, 1, 0],
             [0, 1, 1, 1],
@@ -235,7 +269,13 @@ PIECE_GRAPHICS = {
         "minim": [
             [0, 1, 1, 0],
             [1, 2, 2, 1],
+            [0, 1, 1, 0],
+            [0, 1, 1, 0],
+        ],
+        "block": [
+            [0, 1, 1, 0],
             [1, 2, 2, 1],
+            [0, 1, 1, 0],
             [0, 1, 1, 0],
         ],
         "dot": [
@@ -580,6 +620,24 @@ def draw_game_boxes(games, game_board, username, piece_theme, board_theme):
             )
     return game_boxes
 
+def draw_no_games():
+    return render.Box(
+        child = render.Column(
+            children = [
+                render.Text(
+                    content = "No active",
+                    color = "#ffffff",
+                ),
+                render.Text(
+                    content = "games found!",
+                    color = "#ffffff",
+                ),
+            ],
+            main_align = "center",
+            cross_align = "center",
+        ),
+    )
+
 # Game Data Functions #
 # ------------------- #
 
@@ -590,9 +648,13 @@ def get_player_games(username):
         url = games_url,
     )
     if req.status_code != 200:
-        fail("Chess.com request failed with status %d", req.status_code)
+        return False
 
-    return req.json()
+    results = req.json()
+    if results:
+        return results
+    else:
+        return False
 
 def get_fen_array(game_fen):
     fen_array = game_fen.split("/")
@@ -671,7 +733,7 @@ def get_games_dicts(games_json):
         board_state_array = get_board_state_array(game["fen"])
         this_game_dict["white"] = pgn_dict["white"]
         this_game_dict["black"] = pgn_dict["black"]
-        this_game_dict["turn"] = pgn_dict["turn"]
+        this_game_dict["turn"] = game["turn"]
         this_game_dict["board_state"] = board_state_array
         this_game_dict["material"] = get_material_count(board_state_array)
         games_dict.append(this_game_dict)
@@ -695,10 +757,19 @@ def main(config):
         cached_games = cache.get(games_cache_key)
         if cached_games == None:
             games_json = get_player_games(username)
-            cache.set(games_cache_key, json.encode(games_json), ttl_seconds = 240)
+            if games_json == False:
+                games = FAMOUS_GAMES
+            else:
+                cache.set(games_cache_key, json.encode(games_json), ttl_seconds = 240)
+                games = get_games_dicts(games_json)
         else:
             games_json = json.decode(cached_games)
-        games = get_games_dicts(games_json)
+            games = get_games_dicts(games_json)
+    if len(games) == 0:
+        no_games_graphics = draw_no_games()
+        return render.Root(
+            child = no_games_graphics,
+        )
     game_board = draw_game_board(board_theme)
     game_boxes = draw_game_boxes(games, game_board, username, piece_theme, board_theme)
     return render.Root(
