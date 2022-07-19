@@ -17,7 +17,7 @@ func New() manifest.Manifest {
 		Name:        "Shuffle Images",
 		Author:      "rs7q5",
 		Summary:     "Randomly display an image",
-		Desc:        "Randomly displays an image from a user-specified list (20 image max).",
+		Desc:        "Randomly displays an image from a user-specified list.",
 		FileName:    "shuffle_images.star",
 		PackageName: "shuffleimages",
 		Source:  source,
