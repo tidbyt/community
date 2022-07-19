@@ -39,6 +39,7 @@ import (
 	"tidbyt.dev/community/apps/emojilingo"
 	"tidbyt.dev/community/apps/espnnews"
 	"tidbyt.dev/community/apps/fairfaxconnector"
+	"tidbyt.dev/community/apps/fantasynamegen"
 	"tidbyt.dev/community/apps/finevent"
 	"tidbyt.dev/community/apps/fishbyt"
 	"tidbyt.dev/community/apps/fitbitweight"
@@ -50,6 +51,7 @@ import (
 	"tidbyt.dev/community/apps/gapilotbuddy"
 	"tidbyt.dev/community/apps/goodservice"
 	"tidbyt.dev/community/apps/happyhour"
+	"tidbyt.dev/community/apps/haywardomnilogic"
 	"tidbyt.dev/community/apps/hurricanetracker"
 	"tidbyt.dev/community/apps/hvvdepartures"
 	"tidbyt.dev/community/apps/ifparank"
@@ -92,6 +94,7 @@ import (
 	"tidbyt.dev/community/apps/ohhighwaysigns"
 	"tidbyt.dev/community/apps/pagerduty"
 	"tidbyt.dev/community/apps/pathtrainschedule"
+	"tidbyt.dev/community/apps/petpikachu"
 	"tidbyt.dev/community/apps/phaseofmoon"
 	"tidbyt.dev/community/apps/pokedex"
 	"tidbyt.dev/community/apps/pollencount"
@@ -104,7 +107,9 @@ import (
 	"tidbyt.dev/community/apps/sbbtimetable"
 	"tidbyt.dev/community/apps/sfnextmuni"
 	"tidbyt.dev/community/apps/shopifychart"
+	"tidbyt.dev/community/apps/shuffleimages"
 	"tidbyt.dev/community/apps/snyk"
+	"tidbyt.dev/community/apps/sportsrankings"
 	"tidbyt.dev/community/apps/soundtransit"
 	"tidbyt.dev/community/apps/sportsscores"
 	"tidbyt.dev/community/apps/sportsstandings"
@@ -178,6 +183,7 @@ func GetManifests() []manifest.Manifest {
 		emojilingo.New(),
 		espnnews.New(),
 		fairfaxconnector.New(),
+		fantasynamegen.New(),
 		finevent.New(),
 		fishbyt.New(),
 		fitbitweight.New(),
@@ -189,6 +195,7 @@ func GetManifests() []manifest.Manifest {
 		gapilotbuddy.New(),
 		goodservice.New(),
 		happyhour.New(),
+		haywardomnilogic.New(),
 		hurricanetracker.New(),
 		hvvdepartures.New(),
 		ifparank.New(),
@@ -230,6 +237,7 @@ func GetManifests() []manifest.Manifest {
 		ohhighwaysigns.New(),
 		pagerduty.New(),
 		pathtrainschedule.New(),
+		petpikachu.New(),
 		phaseofmoon.New(),
 		pokedex.New(),
 		pollencount.New(),
@@ -242,7 +250,9 @@ func GetManifests() []manifest.Manifest {
 		sbbtimetable.New(),
 		sfnextmuni.New(),
 		shopifychart.New(),
+		shuffleimages.New(),
 		snyk.New(),
+		sportsrankings.New(),
 		soundtransit.New(),
 		sportsscores.New(),
 		sportsstandings.New(),
