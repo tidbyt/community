@@ -99,6 +99,7 @@ import (
 	"tidbyt.dev/community/apps/pollencount"
 	"tidbyt.dev/community/apps/powerball"
 	"tidbyt.dev/community/apps/preciousmetals"
+	"tidbyt.dev/community/apps/pubgstats"
 	"tidbyt.dev/community/apps/purpleair"
 	"tidbyt.dev/community/apps/randomslackmoji"
 	"tidbyt.dev/community/apps/redditimages"
@@ -243,6 +244,7 @@ func GetManifests() []manifest.Manifest {
 		pollencount.New(),
 		powerball.New(),
 		preciousmetals.New(),
+		pubgstats.New(),
 		purpleair.New(),
 		randomslackmoji.New(),
 		redditimages.New(),
@@ -252,8 +254,8 @@ func GetManifests() []manifest.Manifest {
 		shopifychart.New(),
 		shuffleimages.New(),
 		snyk.New(),
-		sportsrankings.New(),
 		soundtransit.New(),
+		sportsrankings.New(),
 		sportsscores.New(),
 		sportsstandings.New(),
 		spotthestation.New(),
