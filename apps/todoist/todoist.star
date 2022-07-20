@@ -50,8 +50,8 @@ DEFAULT_FILTER = "today | overdue"
 
 TODOIST_URL = "https://api.todoist.com/rest/v1/tasks"
 
-OAUTH2_CLIENT_ID = secret.decrypt("AV6+xWcEe4cKZstUvQGH2NDS19WbAghL0g2Jbr/hbafmY5ucg2+QDLudM0v8BZF0yva72PcpzrwONQk5bBS/Xq9fMM1m/dZt0ygfQk6GdNpETqE37xkEOec8xH73NLEPXe/tUr6rxT7m31aIyIJGY+ybxrPM+qfkDVQLURKg0ty7fZ488Q8=")
-OAUTH2_CLIENT_SECRET = secret.decrypt("AV6+xWcEVAQANVlwiJglidYagwD1LXLLGtsl0sanTTcbLp5CtqsomyWwhUEuC3Xlz6kAsEMPkeTkuZkD3XWl9UwmPeZQgL8Nrk+tVtE/LlaDP9MsPdX4oxSaZQmMSpbyjpX/OMxqeViDedeb6q7umzHWyclRY17CS+JPdTU0TsYo+Ultvo8=")
+OAUTH2_CLIENT_ID = secret.decrypt("AV6+xWcE3uxifd70n+JncXgagNue2eYtPYP05tbS77/hAd//mp4OQfMp+easxFROFLbCWsen/FCCDIzz8y5huFcAfV0hdyGL3mTGWaoUO2tVBvUUtGqPbOfb3HdJxMjuMb7C1fDFNqhdXhfJmo+UgRzRYzVZ/Q/C/sSl7U25DOrtKqhRs8I=")
+OAUTH2_CLIENT_SECRET = secret.decrypt("AV6+xWcEYGPbL6d105xHQ68RZWY/KSrCK/ivqz2Y2AkrVuPO9iUFkYXBqoJs4phKRdeh2QxHjjGTuwQ7RakOEPrER+2VACdGHiiytCIpMZ5Qst1PeuMT5NECKqmHhW73MwReMBtvyPl0SbjdF8XijqzhK/YvcDTwVOdZZALaj+3dvGnqANk=")
 
 def main(config):
     token = config.get("auth") or config.get("dev_api_key")
@@ -80,7 +80,7 @@ def main(config):
             else:
                 content = humanize.plural(int(num_tasks), "Task")
 
-            cache.set(cache_key, content, 3600)
+            cache.set(cache_key, content, ttl_seconds = 60)
 
     else:
         # This is used to display the app preview image
