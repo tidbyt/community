@@ -6,7 +6,7 @@ Author: rs7q5
 """
 #sports_scores.star
 #Created 20220220 RIS
-#Last Modified 20220717 RIS
+#Last Modified 20220719 RIS
 
 load("render.star", "render")
 load("http.star", "http")
@@ -48,15 +48,15 @@ def main(config):
 
         #get the data
         if sport == "MLB":
-            stats = get_mlbgames(today_str)
+            stats = get_mlbgames(today_str, config)
         elif sport == "NHL":
-            stats = get_nhlgames(today_str)
+            stats = get_nhlgames(today_str, config)
         elif sport in ["NBA", "WNBA"]:
-            stats = get_basketballgames(today_str, sport_ext)
+            stats = get_basketballgames(today_str, sport_ext, config)
         elif sport == "NFL":
-            stats = get_nflgames(today_str)
+            stats = get_nflgames(today_str, config)
         elif sport in ["MLS", "NWSL"]:
-            stats = get_soccergames(today_str, sport_ext)
+            stats = get_soccergames(today_str, sport_ext, config)
 
         #cache the data
         cache.set("stats_rate_games%s" % sport, json.encode(stats), ttl_seconds = 60)
@@ -89,6 +89,13 @@ def get_schema():
     return schema.Schema(
         version = "1",
         fields = [
+            schema.Toggle(
+                id = "local_tz",
+                name = "Local timezone",
+                desc = "Enable to display game times in your local timezone (default is ET).",
+                icon = "cog",
+                default = False,
+            ),
             schema.Dropdown(
                 id = "sport",
                 name = "Sport",
@@ -355,7 +362,21 @@ def get_date_str():
         today_str = str(today).split(" ")[0]
     return today_str
 
-def get_mlbgames(today_str):
+def adjust_gametime(gametime_raw, config):
+    #return gametime string and adjust for local time
+    if config.bool("local_tz", False):
+        timezone = config.get("$tz", "America/New_York")
+    else:
+        timezone = "America/New_York"
+    game_time = time.parse_time(gametime_raw).in_location(timezone)
+
+    game_time_str = str(game_time.format("15:04"))
+    if config.bool("local_tz", False):
+        return game_time_str
+    else:
+        return game_time_str + "/ET"
+
+def get_mlbgames(today_str, config):
     start_date = today_str
     end_date = today_str
 
@@ -406,9 +427,7 @@ def get_mlbgames(today_str):
                 status_txt = inningState[:3] + "/" + str(inning)
         else:  #this should cover scheduled games
             if game["status"]["statusCode"] in ["S", "PW", "P"]:
-                game_time = time.parse_time(game["gameDate"]).in_location("America/New_York")
-                game_time_str = str(game_time.format("15:04"))
-                status_txt = game_time_str + "/ET"
+                status_txt = adjust_gametime(game["gameDate"], config)
             else:  #not delayed before the game has started
                 status_txt = status
 
@@ -417,7 +436,7 @@ def get_mlbgames(today_str):
 
     return (stats)
 
-def get_nhlgames(today_str):
+def get_nhlgames(today_str, config):
     start_date = today_str
     end_date = today_str
     base_URL = "https://statsapi.web.nhl.com/api/v1/schedule"
@@ -452,10 +471,7 @@ def get_nhlgames(today_str):
         #https://statsapi.web.nhl.com/api/v1/gameStatus
         if status == "1":
             #status_txt = "Preview"
-            game_time = time.parse_time(game["gameDate"]).in_location("America/New_York")
-            game_time_str = str(game_time.format("15:04"))
-
-            status_txt = game_time_str + "/ET"
+            status_txt = adjust_gametime(game["gameDate"], config)
         elif status == "9":
             status_txt = "PostP"
         elif linescore != []:  #this should cover live and final states
@@ -477,7 +493,7 @@ def get_nhlgames(today_str):
 
     return (stats)
 
-def get_basketballgames(today_str, sport):
+def get_basketballgames(today_str, sport, config):
     start_date = today_str
     end_date = today_str
     base_URL = "https://site.api.espn.com/apis/site/v2/sports/basketball/%s/scoreboard" % sport
@@ -513,10 +529,7 @@ def get_basketballgames(today_str, sport):
         if status == "1":
             #status_txt = "Preview"
             game_time_tmp = game["date"].replace("Z", ":00Z")  #date does not include seconds so add here to parse time
-            game_time = time.parse_time(game_time_tmp).in_location("America/New_York")
-            game_time_str = str(game_time.format("15:04"))
-
-            status_txt = game_time_str + "/ET"
+            status_txt = adjust_gametime(game_time_tmp, config)
         elif game["status"]["type"]["state"] == "in" or status in ["2", "3"]:  #linescore!=[]: #this should cover live and final states
             period = int(game["status"]["period"])  #str(int(game["status"]["period"]))
             period_T = game["status"]["displayClock"]
@@ -541,7 +554,7 @@ def get_basketballgames(today_str, sport):
         stats.append(stats_tmp2)  #used for multi-line stuff
     return (stats)
 
-def get_nflgames(today_str):
+def get_nflgames(today_str, config):
     start_date = today_str
     end_date = today_str
     base_URL = "https://site.api.espn.com/apis/site/v2/sports/football/nfl/scoreboard"
@@ -577,10 +590,7 @@ def get_nflgames(today_str):
         if status == "1":
             #status_txt = "Preview"
             game_time_tmp = game["date"].replace("Z", ":00Z")  #date does not include seconds so add here to parse time
-            game_time = time.parse_time(game_time_tmp).in_location("America/New_York")
-            game_time_str = str(game_time.format("15:04"))
-
-            status_txt = game_time_str + "/ET"
+            status_txt = adjust_gametime(game_time_tmp, config)
         elif game["status"]["type"]["state"] == "in" or status in ["2", "3"]:  #linescore!=[]: #this should cover live and final states
             period = int(game["status"]["period"])  #str(int(game["status"]["period"]))
             period_T = game["status"]["displayClock"]
@@ -603,7 +613,7 @@ def get_nflgames(today_str):
         stats.append(stats_tmp)
     return (stats)
 
-def get_soccergames(today_str, sport):
+def get_soccergames(today_str, sport, config):
     start_date = today_str
     end_date = today_str
     base_URL = "https://site.api.espn.com/apis/site/v2/sports/soccer/%s/scoreboard" % sport
@@ -638,10 +648,7 @@ def get_soccergames(today_str, sport):
 
         if status == "1":
             game_time_tmp = game["date"].replace("Z", ":00Z")  #date does not include seconds so add here to parse time
-            game_time = time.parse_time(game_time_tmp).in_location("America/New_York")
-            game_time_str = str(game_time.format("15:04"))
-
-            status_txt = game_time_str + "/ET"
+            status_txt = adjust_gametime(game_time_tmp, config)
         elif game["status"]["type"]["state"] == "in" or status in ["2", "3"]:  #linescore!=[]: #this should cover live and final states
             period = int(game["status"]["period"])  #str(int(game["status"]["period"]))
             period_T = game["status"]["displayClock"]
