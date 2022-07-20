@@ -4,12 +4,12 @@ go 1.17
 
 require (
 	github.com/spf13/cobra v1.5.0
-	github.com/stretchr/testify v1.7.4
+	github.com/stretchr/testify v1.8.0
 )
 
 require (
 	github.com/manifoldco/promptui v0.9.0
-	tidbyt.dev/pixlet v0.17.9
+	tidbyt.dev/pixlet v0.17.12
 )
 
 require (
@@ -37,12 +37,13 @@ require (
 	github.com/pkg/errors v0.9.1 // indirect
 	github.com/pmezard/go-difflib v1.0.0 // indirect
 	github.com/qri-io/starlib v0.5.1-0.20211102160121-ae835e29cd41 // indirect
+	github.com/skip2/go-qrcode v0.0.0-20200617195104-da1b6568686e // indirect
 	github.com/spf13/pflag v1.0.5 // indirect
 	github.com/tidbyt/go-libwebp v0.0.0-20220302154536-6042ce446e9c // indirect
-	github.com/zachomedia/go-bdf v0.0.0-20210522061406-1a147053be95 // indirect
+	github.com/zachomedia/go-bdf v0.0.0-20220611021443-a3af701111be // indirect
 	go.starlark.net v0.0.0-20220328144851-d1966c6b9fcd // indirect
 	golang.org/x/crypto v0.0.0-20211215153901-e495a2d5b3d3 // indirect
-	golang.org/x/image v0.0.0-20220601225756-64ec528b34cd // indirect
+	golang.org/x/image v0.0.0-20220617043117-41969df76e82 // indirect
 	golang.org/x/net v0.0.0-20211112202133-69e39bad7dc2 // indirect
 	golang.org/x/sys v0.0.0-20220412211240-33da011f77ad // indirect
 	golang.org/x/text v0.3.7 // indirect
