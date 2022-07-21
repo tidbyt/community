@@ -28,58 +28,90 @@ def findCodeInList(code, emojiList):
 def normalizeCode(code):
     return re.sub(r" +", "-", code)
 
+def getEmojiList(locale):
+    emoji_base64_list_cache = cache.get("emoji_base64_list")
+    if emoji_base64_list_cache != None:
+        print("Using cache for emoji base64")
+        return csv.read_all(emoji_base64_list_cache, skip = 1)
+
+    # No cache found, try to get the file
+    print("Making request for emoji with base64 list to %s" % EMOJI_LIST_URL)
+    rep = http.get(EMOJI_LIST_URL)
+    if rep.status_code != 200:
+        fail("couldn't get list of emojis with status %d" % rep.status_code)
+    cache.set("emoji_base64_list", rep.body(), ttl_seconds = 86400)  # caching 24 hours
+    return csv.read_all(rep.body(), skip = 1)
+
+def getEmojiNames(locale):
+    emoji_names_cache = cache.get("emoji_names_%s" % locale)
+    if emoji_names_cache != None:
+        print("Using cache for emoji names")
+        return csv.read_all(emoji_names_cache, skip = 1)
+
+    # No cache found, try to get the file
+    print("Making request for emoji names to %s" % (EMOJI_NAMES_URL % locale))
+    rep_names = http.get(EMOJI_NAMES_URL % locale)
+    if rep_names.status_code != 200:
+        fail("couldn't get list of emoji names with status %d" % rep_names.status_code)
+    cache.set("emoji_names_%s" % locale, rep_names.body(), ttl_seconds = 86400)  # caching 24 hours
+    return csv.read_all(rep_names.body(), skip = 1)
+
 def main(config):
-    # Try to find data from cache
     locale = config.str("locale")
     if locale == None:
         locale = default_locale
-    emoji_base64_list_cache = cache.get("emoji_base64_list")
-    emoji_names_cache = cache.get("emoji_names_%s" % locale)
-    if emoji_base64_list_cache != None:
-        print("Using cache for emoji base64")
-        emoji_list = csv.read_all(emoji_base64_list_cache, skip = 1)
-    else:
-        print("Making request for emoji with base64 list to %s" % EMOJI_LIST_URL)
-        rep = http.get(EMOJI_LIST_URL)
-        if rep.status_code != 200:
-            fail("couldn't get list of emojis with status %d" % rep.status_code)
-        emoji_list = csv.read_all(rep.body(), skip = 1)
-        cache.set("emoji_base64_list", rep.body(), ttl_seconds = 7200)
-    if emoji_names_cache != None:
-        print("Using cache for emoji names")
-        emoji_names = csv.read_all(emoji_names_cache, skip = 1)
-    else:
-        print("Making request for emoji names to %s" % (EMOJI_NAMES_URL % locale))
-        rep_names = http.get(EMOJI_NAMES_URL % locale)
-        if rep_names.status_code != 200:
-            fail("couldn't get list of emoji names with status %d" % rep_names.status_code)
-        emoji_names = csv.read_all(rep_names.body(), skip = 1)
-        cache.set("emoji_names_%s" % locale, rep_names.body(), ttl_seconds = 7200)
 
-    valid_emoji_base64_list = list()
-    for code in emoji_list:
-        valid_emoji_base64_list.append(code[1])
+    # Try to find data from cache...
+    # Random emoji cache is locale-specific, because number of valid names
+    # might differ and we didn't check if they overlap across languages
+    random_emoji_csv_data_cached = cache.get("random_emoji_%s" % locale)
+    name_item = None
+    if random_emoji_csv_data_cached != None:
+        print("Cache for random emoji is valid...")
+        random_emoji_data_cached = csv.read_all(random_emoji_csv_data_cached, fields_per_record = 2)
+        if len(random_emoji_data_cached) > 0:
+            print("Random emoji cache contents: ", random_emoji_data_cached)
+            random_emoji_cached = random_emoji_data_cached[0]
+            emoji_names = getEmojiNames(locale)
+            for item in emoji_names:
+                if random_emoji_cached[0] == item[0]:
+                    random_emoji_base64 = random_emoji_base64[1]
+                    name_item = item
+                    break
 
-    valid_emoji_data = list()
-    for emoji_name_data in emoji_names:
-        normalized_emoji_unicode = normalizeCode(emoji_name_data[0])
-        if (normalized_emoji_unicode in valid_emoji_base64_list):
-            valid_emoji_data.append(emoji_name_data)
+    # name_item not set, because not found on cache
+    if name_item == None:
+        # get emoji lists (emoji base64 and the names per locale)
+        emoji_list = getEmojiList(locale)
+        emoji_names = getEmojiNames(locale)
+        valid_emoji_base64_list = list()
+        for code in emoji_list:
+            valid_emoji_base64_list.append(code[1])
 
-    # Pick an emoji at random (hopefully a good one)
-    number_valid_emojis = len(valid_emoji_data)
-    rand_index = random.number(0, number_valid_emojis)
-    print("Picking from %d random emojis... random index was %d" % (number_valid_emojis, rand_index))
-    name_item = valid_emoji_data[rand_index]
+        valid_emoji_data = list()
+        for emoji_name_data in emoji_names:
+            normalized_emoji_unicode = normalizeCode(emoji_name_data[0])
+            if (normalized_emoji_unicode in valid_emoji_base64_list):
+                valid_emoji_data.append(emoji_name_data)
 
-    # Get the base64 text file
-    base64_url = EMOJI_BASE64_URL % normalizeCode(name_item[0])
-    print("Making request for emoji base64 to %s" % base64_url)
-    rep_base64 = http.get(base64_url)
-    if rep_base64.status_code != 200:
-        fail("couldn't get emoji text file with status %d" % rep_base64.status_code)
-    random_emoji_base64 = rep_base64.body()
-    decoded_emoji = base64.decode(random_emoji_base64)
+        # Pick an emoji at random (hopefully a good one)
+        number_valid_emojis = len(valid_emoji_data)
+        rand_index = random.number(0, number_valid_emojis)
+        print("Picking from %d random emojis... random index was %d" % (number_valid_emojis, rand_index))
+        name_item = valid_emoji_data[rand_index]
+
+        # Get the base64 text file
+        base64_url = EMOJI_BASE64_URL % normalizeCode(name_item[0])
+        print("Making request for emoji base64 to %s" % base64_url)
+        rep_base64 = http.get(base64_url)
+        if rep_base64.status_code != 200:
+            fail("couldn't get emoji text file with status %d" % rep_base64.status_code)
+        random_emoji_base64 = rep_base64.body()
+        cache.set(
+            "random_emoji_%s" % locale,
+            "%s,%s" % (name_item[0], random_emoji_base64),  # as a one-line CSV...
+            ttl_seconds = 30,
+        )  # caching 30 seconds
 
     if name_item != None:
         shortName = name_item[1]
@@ -89,6 +121,9 @@ def main(config):
     # Print some diagnostics...
     print(random_emoji_base64)
     print(name_item)
+
+    # Finally decode the emoji's base64
+    decoded_emoji = base64.decode(random_emoji_base64)
 
     # Do options
 
@@ -158,52 +193,58 @@ def get_schema():
     return schema.Schema(
         version = "1",
         fields = [
+            # Names from: https://unicode-org.github.io/cldr-staging/charts/latest/summary/root.html
+            # Only latin1 (ISO-8859-1) languages are supported
             schema.Dropdown(
                 id = "locale",
                 name = "Locale",
-                desc = "Local language to display the emoji short names in",
+                desc = "Local language in which to display the emoji short names",
                 icon = "language",
                 default = default_locale,
                 options = [
                     schema.Option(
-                        display = "Canadian French",
-                        value = "fr_CA",
-                    ),
-                    schema.Option(
-                        display = "US English",
+                        display = "English",
                         value = "en",
                     ),
                     schema.Option(
-                        display = "UK English",
+                        display = "British English",
                         value = "en_GB",
+                    ),
+                    schema.Option(
+                        display = "Australian English",
+                        value = "en_AU",
                     ),
                     schema.Option(
                         display = "Danish",
                         value = "da",
                     ),
                     schema.Option(
-                        display = "French",
-                        value = "fr",
-                    ),
-                    schema.Option(
-                        display = "German",
-                        value = "de",
-                    ),
-                    schema.Option(
-                        display = "Spanish",
-                        value = "es",
-                    ),
-                    schema.Option(
-                        display = "Mexican Spanish",
-                        value = "es_MX",
+                        display = "Dutch",
+                        value = "nl",
                     ),
                     schema.Option(
                         display = "Finnish",
                         value = "fi",
                     ),
                     schema.Option(
-                        display = "Irish",
-                        value = "ga",
+                        display = "Filipino",
+                        value = "fil",
+                    ),
+                    schema.Option(
+                        display = "French",
+                        value = "fr",
+                    ),
+                    schema.Option(
+                        display = "Canadian French",
+                        value = "fr_CA",
+                    ),
+                    schema.Option(
+                        display = "German",
+                        value = "de",
+                    ),
+                    schema.Option(
+                        display = "Hungarian",
+                        value = "hu",
                     ),
                     schema.Option(
                         display = "Indonesian",
@@ -218,10 +259,6 @@ def get_schema():
                         value = "ms",
                     ),
                     schema.Option(
-                        display = "Dutch",
-                        value = "nl",
-                    ),
-                    schema.Option(
                         display = "Norwegian",
                         value = "no",
                     ),
@@ -232,6 +269,14 @@ def get_schema():
                     schema.Option(
                         display = "European Portuguese",
                         value = "pt_PT",
+                    ),
+                    schema.Option(
+                        display = "Spanish",
+                        value = "es",
+                    ),
+                    schema.Option(
+                        display = "Mexican Spanish",
+                        value = "es_MX",
                     ),
                     schema.Option(
                         display = "Swedish",
