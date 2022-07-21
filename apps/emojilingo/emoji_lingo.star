@@ -15,10 +15,11 @@ load("encoding/base64.star", "base64")
 load("cache.star", "cache")
 
 default_locale = "fr_CA"
+default_vendor = "apple"
 
-EMOJI_LIST_URL = "https://emoji-lingo.s3.amazonaws.com/emoji-list.csv"
+EMOJI_LIST_URL = "https://emoji-lingo.s3.amazonaws.com/emoji-list-%s.csv"
 EMOJI_NAMES_URL = "https://emoji-lingo.s3.amazonaws.com/locale/%s.csv"
-EMOJI_BASE64_URL = "https://emoji-lingo.s3.amazonaws.com/base64/%s.txt"
+EMOJI_BASE64_URL = "https://emoji-lingo.s3.amazonaws.com/base64/%s/%s.txt"
 
 def findCodeInList(code, emojiList):
     for item in emojiList:
@@ -28,15 +29,16 @@ def findCodeInList(code, emojiList):
 def normalizeCode(code):
     return re.sub(r" +", "-", code)
 
-def getEmojiList(locale):
+def getEmojiList(locale, vendor):
     emoji_base64_list_cache = cache.get("emoji_base64_list")
     if emoji_base64_list_cache != None:
         print("Using cache for emoji base64")
         return csv.read_all(emoji_base64_list_cache, skip = 1)
 
     # No cache found, try to get the file
-    print("Making request for emoji with base64 list to %s" % EMOJI_LIST_URL)
-    rep = http.get(EMOJI_LIST_URL)
+    emoji_list_url_vendor = EMOJI_LIST_URL % vendor
+    print("Making request for emoji with base64 list to %s" % emoji_list_url_vendor)
+    rep = http.get(emoji_list_url_vendor)
     if rep.status_code != 200:
         fail("couldn't get list of emojis with status %d" % rep.status_code)
     cache.set("emoji_base64_list", rep.body(), ttl_seconds = 86400)  # caching 24 hours
@@ -60,11 +62,15 @@ def main(config):
     locale = config.str("locale")
     if locale == None:
         locale = default_locale
+    vendor = config.str("vendor")
+    if vendor == None:
+        vendor = default_vendor
 
     # Try to find data from cache...
     # Random emoji cache is locale-specific, because number of valid names
     # might differ and we didn't check if they overlap across languages
-    random_emoji_csv_data_cached = cache.get("random_emoji_%s" % locale)
+    # Also caching by vendor, since base64 would be different...
+    random_emoji_csv_data_cached = cache.get("random_emoji-%s-%s" % (vendor, locale))
     name_item = None
     if random_emoji_csv_data_cached != None:
         print("Cache for random emoji is valid...")
@@ -82,7 +88,7 @@ def main(config):
     # name_item not set, because not found on cache
     if name_item == None:
         # get emoji lists (emoji base64 and the names per locale)
-        emoji_list = getEmojiList(locale)
+        emoji_list = getEmojiList(locale, vendor)
         emoji_names = getEmojiNames(locale)
         valid_emoji_base64_list = list()
         for code in emoji_list:
@@ -101,17 +107,19 @@ def main(config):
         name_item = valid_emoji_data[rand_index]
 
         # Get the base64 text file
-        base64_url = EMOJI_BASE64_URL % normalizeCode(name_item[0])
+        base64_url = EMOJI_BASE64_URL % (vendor, normalizeCode(name_item[0]))
         print("Making request for emoji base64 to %s" % base64_url)
         rep_base64 = http.get(base64_url)
         if rep_base64.status_code != 200:
             fail("couldn't get emoji text file with status %d" % rep_base64.status_code)
         random_emoji_base64 = rep_base64.body()
         cache.set(
-            "random_emoji_%s" % locale,
+            "random_emoji-%s-%s" % (vendor, locale),
             "%s,%s" % (name_item[0], random_emoji_base64),  # as a one-line CSV...
             ttl_seconds = 30,
         )  # caching 30 seconds
+    random_emoji_csv_data_cached = cache.get("random_emoji-%s-%s" % (vendor, locale))
+    print(random_emoji_csv_data_cached)
 
     if name_item != None:
         shortName = name_item[1]
@@ -298,6 +306,23 @@ def get_schema():
                     schema.Option(
                         display = "Under",
                         value = "bottom",
+                    ),
+                ],
+            ),
+            schema.Dropdown(
+                id = "emojiVendor",
+                name = "Emoji Style",
+                desc = "Emoji as seen on a given platform",
+                icon = "icons",
+                default = "apple",
+                options = [
+                    schema.Option(
+                        display = "Apple",
+                        value = "apple",
+                    ),
+                    schema.Option(
+                        display = "Google",
+                        value = "google",
                     ),
                 ],
             ),
