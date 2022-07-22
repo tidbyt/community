@@ -12,6 +12,7 @@ load("http.star", "http")
 load("encoding/json.star", "json")
 load("render.star", "render")
 load("schema.star", "schema")
+load("secret.star", "secret")
 
 DEFAULT_CACHE_TTL = 120
 
