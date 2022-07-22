@@ -13,6 +13,8 @@ load("encoding/json.star", "json")
 load("render.star", "render")
 load("schema.star", "schema")
 
+DEFAULT_CACHE_TTL = 120
+
 TWITCH_CLIENT_ID = "h25bh1ddh0f5xcddgxgxhna399677y"
 TWITCH_CLIENT_SECRET = secret.decrypt("""
 AV6+xWcETS7CPwkqTIUG/LwYfqHrp8tLYkP1/SXo6T/eYjr9CVJ3dTArFuVaskadgybg6vIYZWy05sO
@@ -48,16 +50,37 @@ BNUqkdD5jo97PL+KYFmcFzDZT0BkRk/xVzMT2ETHec+ycWWnjl+u0yeELwHJ6v/oD9xZSVC/x8FQAAAA
 AElFTkSuQmCC
 """)
 
-def get_from_twitch_api(path, params, access_token):
-    res = http.get(
-        url = "https://api.twitch.tv/helix%s" % path,
-        params = params,
-        headers = {
-            "Authorization": "Bearer %s" % access_token,
-            "Client-Id": TWITCH_CLIENT_ID,
-        },
-    )
-    return res.json() if res.status_code == 200 else None
+def get_from_twitch_api(path, params, access_token, use_cache = True):
+    if not access_token:
+        return fail("No access token")
+
+    cache_key = "%s|%s|%s" % (access_token, path, params)
+    cached_res = cache.get(cache_key) if use_cache else None
+
+    if not cached_res:
+        # print("Fetching %s" % cache_key)
+        res = http.get(
+            url = "https://api.twitch.tv/helix%s" % path,
+            params = params,
+            headers = {
+                "Authorization": "Bearer %s" % access_token,
+                "Client-Id": TWITCH_CLIENT_ID,
+            },
+        )
+
+        cached_res = res.body()
+        
+        if res.status_code != 200:
+            # buildifier: disable=print
+            print("get_from_twitch_api failed: %s - %s " % (res.status_code, cached_res))
+            return None
+        
+
+        if use_cache:
+            cache.set(cache_key, cached_res, DEFAULT_CACHE_TTL)
+    # else:
+    #    print("Using cached %s" % cache_key)
+    return json.decode(cached_res)
 
 def get_twitch_followers(user_id, access_token):
     res = get_from_twitch_api(
