@@ -133,6 +133,7 @@ import (
 	"tidbyt.dev/community/apps/tube"
 	"tidbyt.dev/community/apps/tubestatus"
 	"tidbyt.dev/community/apps/tvquotes"
+	"tidbyt.dev/community/apps/twitch"
 	"tidbyt.dev/community/apps/twitterfollows"
 	"tidbyt.dev/community/apps/unsplash"
 	"tidbyt.dev/community/apps/usgsearthquakes"
@@ -252,8 +253,8 @@ func GetManifests() []manifest.Manifest {
 		shopifychart.New(),
 		shuffleimages.New(),
 		snyk.New(),
-		sportsrankings.New(),
 		soundtransit.New(),
+		sportsrankings.New(),
 		sportsscores.New(),
 		sportsstandings.New(),
 		spotthestation.New(),
@@ -277,6 +278,7 @@ func GetManifests() []manifest.Manifest {
 		tube.New(),
 		tubestatus.New(),
 		tvquotes.New(),
+		twitch.New(),
 		twitterfollows.New(),
 		unsplash.New(),
 		usgsearthquakes.New(),
