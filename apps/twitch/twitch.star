@@ -83,7 +83,6 @@ def get_twitch_user(username, access_token):
         },
         access_token = access_token,
     )
-    print(res)
     if res and res["data"] and len(res["data"]) > 0:
         return res["data"][0]
     return None
@@ -136,10 +135,9 @@ def main(config):
                 display_name = "Are you %s? You can only view your own subscriber count." % display_name
                 show_username = True
         else:
-            print("done")
             return []
 
-        print(msg)
+        # print(msg)
     else:
         msg = "Launch Tidbyt app"
         display_name = "Login to Twitch using the Tidbyt app on your phone"
