@@ -15,9 +15,9 @@ func New() manifest.Manifest {
 	return manifest.Manifest{
 		ID:          "twitch",
 		Name:        "Twitch",
-		Author:      "Nicholas Penree",
-		Summary:     "Display stats for Twitch",
-		Desc:        "Display stats for a Twitch username.",
+		Author:      "Nick Penree",
+		Summary:     "Display info from Twitch",
+		Desc:        "Display info for a Twitch username.",
 		FileName:    "twitch.star",
 		PackageName: "twitch",
 		Source:  source,

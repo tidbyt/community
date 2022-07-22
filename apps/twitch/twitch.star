@@ -1,8 +1,8 @@
 """
 Applet: Twitch
-Summary: Display stats for Twitch
-Description: Display stats for a Twitch username.
-Author: Nicholas Penree
+Summary: Display info from Twitch
+Description: Display info for a Twitch username.
+Author: drudge
 """
 
 load("encoding/base64.star", "base64")
@@ -103,12 +103,13 @@ def get_twitch_subscribers(user_id, access_token):
     )
     return res["total"] if res else None
 
-def get_twitch_user(username, access_token):
+def get_twitch_user(access_token, username = None):
+    params = {
+        "login": username,
+    } if username else {}
     res = get_from_twitch_api(
         path = "/users",
-        params = {
-            "login": username,
-        },
+        params = params,
         access_token = access_token,
     )
     if res and res["data"] and len(res["data"]) > 0:
@@ -121,6 +122,7 @@ def main(config):
     display_mode = config.get("display_mode", "subscribers")
     show_username = config.bool("show_username", "True")
     image_size = 16
+    alt_text = None
 
     if refresh_token:
         access_token = get_token(refresh_token = refresh_token)
@@ -144,7 +146,7 @@ def main(config):
                 msg = "%s %s" % (humanize.comma(followers), display_mode)
                 if not show_username:
                     msg = humanize.comma(followers)
-                    display_name = display_mode
+                    alt_text = display_mode
             else:
                 msg = "Check username"
         elif display_mode == "subscribers":
@@ -157,30 +159,49 @@ def main(config):
                 msg = "%s subs" % humanize.comma(subscribers)
                 if not show_username:
                     msg = humanize.comma(subscribers)
-                    display_name = display_mode
+                    alt_text = display_mode
             else:
                 msg = "Check username"
-                display_name = "Are you %s? You can only view your own subscriber count." % display_name
-                show_username = True
+                alt_text = "Are you %s? You can only view your own subscriber count." % display_name
+                show_username = False
+        elif display_mode == "nothing":
+            msg = ""
         else:
             return []
 
         # print(msg)
     else:
-        msg = "Launch Tidbyt app"
-        display_name = "Login to Twitch using the Tidbyt app on your phone"
+        # msg = "Launch Tidbyt app"
+        # alt_text = "Login to Twitch using the Tidbyt app on your phone"
+        # show_username = False
         show_username = True
+        msg = "42 followers"
+        display_name = "Twytchbit"
+        display_mode = "followers"
 
-    username_child = render.Text(
-        color = "#3c3c3c" if show_username else "#ffffff",
-        content = display_name,
-    )
-
-    if len(display_name) > 12:
-        username_child = render.Marquee(
-            width = 64,
-            child = username_child,
+    if show_username:
+        alt_text_child = None
+        username_child = render.Text(
+            color = "#3c3c3c",
+            content = display_name,
         )
+
+        if len(display_name) > 12:
+            username_child = render.Marquee(
+                width = 64,
+                child = username_child,
+            )
+    else:
+        if alt_text:
+            alt_text_child = render.Text(content = alt_text)
+            if len(alt_text) > 12:
+                alt_text_child = render.Marquee(
+                    width = 64,
+                    child = alt_text_child,
+                )
+        else:
+            alt_text_child = None
+        username_child = None
 
 
     return render.Root(
@@ -202,7 +223,8 @@ def main(config):
                             render.WrappedText(msg, font = "tb-8" if show_username or len(msg) > 7 else "6x13"),
                         ],
                     ),
-                    username_child,
+                    username_child if show_username else None,
+                    alt_text_child,
                 ],
             ),
         ),
@@ -255,10 +277,32 @@ def get_token(params = None, refresh_token = None):
 
     return access_token if has_refresh_token else refresh_token
 
+def build_user_fields(refresh_token):
+    access_token = get_token(refresh_token = refresh_token)
+    user = get_twitch_user(access_token = access_token)
+
+    return [
+        schema.Text(
+            id = "username",
+            icon = "user",
+            name = "Username",
+            desc = "The Twitch username to display stats for.",
+            default = user["login"],
+        ),
+        schema.Toggle(
+            id = "show_username",
+            name = "Show username",
+            desc = "Whether to show the username below the stat.",
+            icon = "eye",
+            default = True,
+        ),
+    ]
+
 def get_schema():
     display_modes = [
-        schema.Option(value = "followers", display = "Followers"),
-        schema.Option(value = "subscribers", display = "Subscribers"),
+        schema.Option(value = "nothing", display = "Logo only"),
+        schema.Option(value = "followers", display = "Follower count"),
+        schema.Option(value = "subscribers", display = "Subscriber count"),
     ]
     return schema.Schema(
         version = "1",
@@ -277,27 +321,18 @@ def get_schema():
                     "channel:read:subscriptions",
                 ],
             ),
-            schema.Text(
-                id = "username",
-                icon = "user",
-                name = "Username",
-                desc = "The Twitch username to display stats for.",
-                default = "ninja",
+            schema.Generated(
+                id = "username_generated",
+                source = "auth",
+                handler = build_user_fields,
             ),
             schema.Dropdown(
                 id = "display_mode",
                 name = "Display",
-                desc = "Choose what stat to show.",
+                desc = "Choose what info to display.",
                 icon = "barsProgress",
                 options = display_modes,
-                default = display_modes[0].value,
-            ),
-            schema.Toggle(
-                id = "show_username",
-                name = "Show username",
-                desc = "Whether to show the username below the stat.",
-                icon = "eye",
-                default = True,
+                default = display_modes[1].value,
             ),
         ],
     )
