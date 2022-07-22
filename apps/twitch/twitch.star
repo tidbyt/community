@@ -69,15 +69,15 @@ def get_from_twitch_api(path, params, access_token, use_cache = True):
         )
 
         cached_res = res.body()
-        
+
         if res.status_code != 200:
             # buildifier: disable=print
             print("get_from_twitch_api failed: %s - %s " % (res.status_code, cached_res))
             return None
-        
 
         if use_cache:
             cache.set(cache_key, cached_res, DEFAULT_CACHE_TTL)
+
     # else:
     #    print("Using cached %s" % cache_key)
     return json.decode(cached_res)
@@ -202,7 +202,6 @@ def main(config):
         else:
             alt_text_child = None
         username_child = None
-
 
     return render.Root(
         child = render.Box(
