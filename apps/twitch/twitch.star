@@ -164,10 +164,13 @@ def main(config):
                 children = [
                     render.Row(
                         expanded = True,
-                        main_align = "space_evenly",
+                        main_align = "space_evenly" if len(msg) > 5 else "center",
                         cross_align = "center",
                         children = [
-                            render.Image(TWITCH_ICON, height = image_size, width = image_size),
+                            render.Padding(
+                                pad = (1, 1, 1, 1),
+                                child = render.Image(TWITCH_ICON, height = image_size, width = image_size),
+                            ),
                             render.WrappedText(msg, font = "tb-8" if show_username or len(msg) > 7 else "6x13"),
                         ],
                     ),
