@@ -61,8 +61,8 @@ def get_total():
         if resp.status_code != 200:
             fail("API request failed with status %d", resp.status_code)
         total_lost = resp.json()["total"]
+        cache.set("total_lost", str(total_lost), ttl_seconds = 900)  # 15 minutes
 
-    cache.set("total_lost", str(total_lost), ttl_seconds = 900)  # 15 minutes
     return humanize.comma(float(total_lost))
 
 def get_schema():

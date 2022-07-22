@@ -4,6 +4,8 @@
 
 Polls W3IGG for the current amount of money lost and displays it. It could probably use some polishing, but it seemed like a good starter project.
 
+W3IGG (web3isgoinggreat.com) is a satire site that tracks and reports crypto scams, ponzi schemes, rug pulls, and other travesties.
+
 ![W3IGG](web_3_counter.png)
 
 ## External APIs used

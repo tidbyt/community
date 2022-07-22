@@ -17,7 +17,7 @@ func New() manifest.Manifest {
 		Name:        "Web 3 Counter",
 		Author:      "Nick Kuzmik (github.com/kuzmik)",
 		Summary:     "Expose web3 as a scam",
-		Desc:        "Displays the total dollar value of lost assets due to various crypto scams, rugpulls, and crashes.",
+		Desc:        "Displays the total dollar value of lost assets due to various crypto scams, rugpulls, and crashes. Data comes from web3isgoinggreat.com, which is very tongue-in-cheek.",
 		FileName:    "web_3_counter.star",
 		PackageName: "web3counter",
 		Source:  source,

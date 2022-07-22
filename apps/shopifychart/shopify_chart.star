@@ -38,6 +38,7 @@ def main(config):
     location = config.get("location") or None
     timezone = "America/New_York"
     if location:
+        location = json.decode(location)
         timezone = location.get("timezone") or "America/New_York"
     current_time = time.now().in_location(timezone)
     start_of_day = time.time(year = current_time.year, month = current_time.month, day = current_time.day, location = timezone)
@@ -414,9 +415,9 @@ def should_order_be_excluded(order, excluded_skus):
 def should_line_item_be_excluded(line_item, excluded_skus):
     if line_item["gift_card"]:
         return True
-
-    if excluded_skus:
-        sku = line_item["sku"]
+    excluded_skus = [es.lower().strip() for es in excluded_skus]
+    sku = line_item["sku"].lower() if line_item.get("sku") else None
+    if excluded_skus and sku:
         for ex_sku in excluded_skus:
             if ex_sku in sku:
                 # print("{} is excluded".format(sku))
