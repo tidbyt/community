@@ -14,6 +14,11 @@ load("render.star", "render")
 load("schema.star", "schema")
 
 TWITCH_CLIENT_ID = "h25bh1ddh0f5xcddgxgxhna399677y"
+TWITCH_CLIENT_SECRET = secret.decrypt("""
+AV6+xWcETS7CPwkqTIUG/LwYfqHrp8tLYkP1/SXo6T/eYjr9CVJ3dTArFuVaskadgybg6vIYZWy05sO
+kxbTOK6nj7W2ca7Fwd3NDV881ld1uUlsNJPc9rEKMA5tt61x0ibneb4btRapT7W3dSspykK53ZspDxLv
+YPZEg3QI4zXNn3maA
+""")
 
 TWITCH_ICON = base64.decode("""
 iVBORw0KGgoAAAANSUhEUgAAABQAAAAXCAYAAAALHW+jAAAAAXNSR0IArs4c6QAAAIRlWElmTU0AKgAA
