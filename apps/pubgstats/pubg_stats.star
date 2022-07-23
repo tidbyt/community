@@ -41,6 +41,7 @@ stat_duration = 7
 # Cache timers for API calls (seconds)
 # 604800 = 7 days
 TTL_PLAYER_ID = 604800
+
 # 1800 = 30 minutes
 TTL_LIFETIME_STATS = 1800
 
@@ -75,7 +76,7 @@ def main(config):
     if player_id_cached != None:
         player_id = player_id_cached
 
-    # Otherwise make new API call
+        # Otherwise make new API call
     else:
         # URL to request player data
         url = "https://api.pubg.com/shards/{}/players?filter[playerNames]={}".format(platform, player_name)
@@ -101,7 +102,7 @@ def main(config):
     if lifetime_stats_cached != None:
         lifetime_stats = lifetime_stats_cached
 
-    # Otherwise make new API call
+        # Otherwise make new API call
     else:
         # URL to request lifetime stats for player
         url = "https://api.pubg.com/shards/steam/players/{}/seasons/lifetime".format(player_id)
@@ -134,30 +135,30 @@ def main(config):
                     child = render.Image(src = PUBG_LOGO),
                     duration = logo_duration,
                     delay = logo_delay,
-                        keyframes = [
-                            animation.Keyframe(
-                                percentage = 0.0,
-                                transforms = [animation.Translate(0, 0)],
-                            ),
-                            animation.Keyframe(
-                                percentage = 1.0,
-                                transforms = [animation.Translate(-64, 0)],
-                            ),
-                        ],
+                    keyframes = [
+                        animation.Keyframe(
+                            percentage = 0.0,
+                            transforms = [animation.Translate(0, 0)],
+                        ),
+                        animation.Keyframe(
+                            percentage = 1.0,
+                            transforms = [animation.Translate(-64, 0)],
+                        ),
+                    ],
                 ),
 
                 # Scrolling name animation
                 animation.Transformation(
-                child = render.Padding(
-                    pad = (2, 2, 0, 0),
-                    child = render.Text(
-                        content = player_name,
-                        font = "CG-pixel-3x5-mono",
-                        color = TEXT_COLOR,
+                    child = render.Padding(
+                        pad = (2, 2, 0, 0),
+                        child = render.Text(
+                            content = player_name,
+                            font = "CG-pixel-3x5-mono",
+                            color = TEXT_COLOR,
+                        ),
                     ),
-                ),
-                duration = name_duration,
-                delay = name_delay,
+                    duration = name_duration,
+                    delay = name_delay,
                     keyframes = [
                         animation.Keyframe(
                             percentage = 0.0,
@@ -175,8 +176,8 @@ def main(config):
                     child = render.Padding(
                         pad = (2, 10, 0, 0),
                         child = render.Text(
-                                content = stat_labels[selected_stat],
-                                color = TEXT_COLOR,
+                            content = stat_labels[selected_stat],
+                            color = TEXT_COLOR,
                         ),
                     ),
                     duration = stat_label_duration,
@@ -198,9 +199,9 @@ def main(config):
                     child = render.Padding(
                         pad = (2, 18, 0, 0),
                         child = render.Text(
-                                content = calc_lifetime_stat(lifetime_stats, selected_stat),
-                                font = "6x13",
-                                color = TEXT_COLOR,
+                            content = calc_lifetime_stat(lifetime_stats, selected_stat),
+                            font = "6x13",
+                            color = TEXT_COLOR,
                         ),
                     ),
                     duration = stat_duration,
@@ -217,7 +218,7 @@ def main(config):
                     ],
                 ),
             ],
-        ),         
+        ),
     )
 
 # Return render widget of scrolling error message for Tidbyt display
@@ -226,7 +227,7 @@ def pretty_error(resp):
     error = resp.json()["errors"][0]["detail"].upper()
 
     # Return render of error to Tidbyt
-    return render.Root( 
+    return render.Root(
         render.Stack(
             children = [
                 # Background
@@ -237,10 +238,10 @@ def pretty_error(resp):
                     width = 64,
                     child = render.Padding(
                         pad = (0, 11, 0, 0),
-                            child = render.Text(
+                        child = render.Text(
                             content = "PUBG STATS ERROR: {}".format(error),
                             color = TEXT_COLOR,
-                            ),
+                        ),
                     ),
                 ),
             ],
