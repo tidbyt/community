@@ -1,20 +1,20 @@
 """
 Applet: Shuffle Images
 Summary: "Randomly display an image",
-Description: "Randomly displays an image from a user-specified list (20 image max).",
+Description: "Randomly displays an image from a user-specified list.",
 Author: rs7q5
 """
 
 #shuffle_images.star
 #Created 20220704 RIS
-#Last Modified 20220717 RIS
+#Last Modified 20220719 RIS
 
 load("render.star", "render")
 load("schema.star", "schema")
 load("encoding/base64.star", "base64")
 load("random.star", "random")
 
-maxImages = 20  #max images that can be selected
+maxImages = 6  #max images that can be selected
 
 def main(config):
     if config.bool("hide_app", False):

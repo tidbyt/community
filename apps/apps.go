@@ -20,6 +20,7 @@ import (
 	"tidbyt.dev/community/apps/binaryclock"
 	"tidbyt.dev/community/apps/burgeroftheday"
 	"tidbyt.dev/community/apps/charlestownferry"
+	"tidbyt.dev/community/apps/chessviewer"
 	"tidbyt.dev/community/apps/climateclock"
 	"tidbyt.dev/community/apps/clockbyhenry"
 	"tidbyt.dev/community/apps/coingeckoprice"
@@ -51,7 +52,6 @@ import (
 	"tidbyt.dev/community/apps/gapilotbuddy"
 	"tidbyt.dev/community/apps/goodservice"
 	"tidbyt.dev/community/apps/happyhour"
-	"tidbyt.dev/community/apps/haywardomnilogic"
 	"tidbyt.dev/community/apps/hurricanetracker"
 	"tidbyt.dev/community/apps/hvvdepartures"
 	"tidbyt.dev/community/apps/ifparank"
@@ -109,8 +109,8 @@ import (
 	"tidbyt.dev/community/apps/shopifychart"
 	"tidbyt.dev/community/apps/shuffleimages"
 	"tidbyt.dev/community/apps/snyk"
-	"tidbyt.dev/community/apps/sportsrankings"
 	"tidbyt.dev/community/apps/soundtransit"
+	"tidbyt.dev/community/apps/sportsrankings"
 	"tidbyt.dev/community/apps/sportsscores"
 	"tidbyt.dev/community/apps/sportsstandings"
 	"tidbyt.dev/community/apps/spotthestation"
@@ -128,6 +128,7 @@ import (
 	"tidbyt.dev/community/apps/theysaidso"
 	"tidbyt.dev/community/apps/tindiesales"
 	"tidbyt.dev/community/apps/todoist"
+	"tidbyt.dev/community/apps/todoistnext"
 	"tidbyt.dev/community/apps/traffic"
 	"tidbyt.dev/community/apps/transsee"
 	"tidbyt.dev/community/apps/tube"
@@ -143,6 +144,7 @@ import (
 	"tidbyt.dev/community/apps/warframecycles"
 	"tidbyt.dev/community/apps/weathermap"
 	"tidbyt.dev/community/apps/whosthatpokemon"
+	"tidbyt.dev/community/apps/wordlebyt"
 	"tidbyt.dev/community/apps/wordoftheday"
 	"tidbyt.dev/community/apps/worldclock"
 )
@@ -164,6 +166,7 @@ func GetManifests() []manifest.Manifest {
 		binaryclock.New(),
 		burgeroftheday.New(),
 		charlestownferry.New(),
+		chessviewer.New(),
 		climateclock.New(),
 		clockbyhenry.New(),
 		coingeckoprice.New(),
@@ -195,7 +198,6 @@ func GetManifests() []manifest.Manifest {
 		gapilotbuddy.New(),
 		goodservice.New(),
 		happyhour.New(),
-		haywardomnilogic.New(),
 		hurricanetracker.New(),
 		hvvdepartures.New(),
 		ifparank.New(),
@@ -271,6 +273,7 @@ func GetManifests() []manifest.Manifest {
 		theysaidso.New(),
 		tindiesales.New(),
 		todoist.New(),
+		todoistnext.New(),
 		traffic.New(),
 		transsee.New(),
 		tube.New(),
@@ -286,6 +289,7 @@ func GetManifests() []manifest.Manifest {
 		warframecycles.New(),
 		weathermap.New(),
 		whosthatpokemon.New(),
+		wordlebyt.New(),
 		wordoftheday.New(),
 		worldclock.New(),
 	}
