@@ -203,7 +203,7 @@ def main(config):
             elif currency == "gbp":
                 currency_price = dgb_price_gbp
                 currency_symbol = "£"
-                first_currency_country = "UK"
+                currency_country = "UK"
                 print("GBP")
             elif currency == "usd":
                 currency_price = dgb_price_usd
