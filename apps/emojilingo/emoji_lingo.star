@@ -65,12 +65,15 @@ def main(config):
     vendor = config.str("vendor")
     if vendor == None:
         vendor = default_vendor
+    print("Vendor: %s" % vendor)
 
     # Try to find data from cache...
-    # Random emoji cache is locale-specific, because number of valid names
-    # might differ and we didn't check if they overlap across languages
     # Also caching by vendor, since base64 would be different...
-    random_emoji_csv_data_cached = cache.get("random_emoji-%s-%s" % (vendor, locale))
+    # An emoji caches by its base64 in a given language, but it
+    # may be possible it won’t have text in another (although
+    # very unlikely it won’t find anything per ones picked)
+    random_emoji_cache_name = "random_emoji-%s" % vendor
+    random_emoji_csv_data_cached = cache.get(random_emoji_cache_name)
     name_item = None
     if random_emoji_csv_data_cached != None:
         print("Cache for random emoji is valid...")
@@ -114,7 +117,7 @@ def main(config):
             fail("couldn't get emoji text file with status %d" % rep_base64.status_code)
         random_emoji_base64 = rep_base64.body()
         cache.set(
-            "random_emoji-%s-%s" % (vendor, locale),
+            "random_emoji-%s" % vendor,
             "%s,%s" % (name_item[0], random_emoji_base64),  # as a one-line CSV...
             ttl_seconds = 30,
         )  # caching 30 seconds
@@ -308,11 +311,11 @@ def get_schema():
                 ],
             ),
             schema.Dropdown(
-                id = "emojiVendor",
+                id = "vendor",
                 name = "Emoji Style",
                 desc = "Emoji as seen on a given platform",
                 icon = "icons",
-                default = "apple",
+                default = default_vendor,
                 options = [
                     schema.Option(
                         display = "Apple",
