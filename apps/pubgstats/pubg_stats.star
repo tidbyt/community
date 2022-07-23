@@ -23,9 +23,10 @@ DEFAULT_PLAYER_NAME = "chocoTaco"
 DEFAULT_PLATFORM = "steam"
 DEFAULT_SELECTED_STAT = "wins"
 
-# App colors
+# App display options
 BACKGROUND_COLOR = "#eba919"
 TEXT_COLOR = "#000000"
+BACKGROUND_RENDER = render.Box(width = 64, height = 32, color = BACKGROUND_COLOR)
 
 # Animation settings (frames)
 logo_delay = 20
@@ -37,8 +38,10 @@ stat_label_duration = 7
 stat_delay = stat_label_delay + 7
 stat_duration = 7
 
-# Cache timers (seconds)
+# Cache timers for API calls (seconds)
+# 604800 = 7 days
 TTL_PLAYER_ID = 604800
+# 1800 = 30 minutes
 TTL_LIFETIME_STATS = 1800
 
 # Base64 PUBG logo displayed in app
@@ -64,9 +67,6 @@ def main(config):
     platform = config.str("platform", DEFAULT_PLATFORM)
     selected_stat = config.str("selected_stat", DEFAULT_SELECTED_STAT)
 
-    # Initialise a display render
-    to_display = pretty_error("THERE WAS A PROBLEM WITH THE APP")
-
     # Get the player id from the player name
     # First check cache for id of entered player name (cache identifier is player name)
     player_id_cached = cache.get(player_name)
@@ -75,87 +75,65 @@ def main(config):
     if player_id_cached != None:
         player_id = player_id_cached
 
-        # Otherwise make new API call
+    # Otherwise make new API call
     else:
         # URL to request player data
         url = "https://api.pubg.com/shards/{}/players?filter[playerNames]={}".format(platform, player_name)
 
         # Request player data
-        req = http.get(url, headers = header)
+        resp = http.get(url, headers = header)
 
-        # Error check API call
-        error = api_error(req)
+        if resp.status_code != 200:
+            # Display error on Tidbyt
+            return pretty_error(resp)
 
-        # Set to display error if one exists
-        if error != None:
-            to_display = pretty_error(error)
+        # Get player id from API response
+        player_id = resp.json()["data"][0]["id"]
 
-            # Note that there is no player id due to error
-            player_id = None
+        # Set player id cache
+        cache.set(player_name, str(player_id), ttl_seconds = TTL_PLAYER_ID)
 
-        else:
-            # Get player id from requested data
-            player_id = req.json()["data"][0]["id"]
+    # Get lifetime stats for that player id
+    # First check cache for lifetime stats (cache identifier is player id)
+    lifetime_stats_cached = cache.get(player_id)
 
-            # Set player id cache
-            cache.set(player_name, str(player_id), ttl_seconds = TTL_PLAYER_ID)
+    # If data is in cache then use it
+    if lifetime_stats_cached != None:
+        lifetime_stats = lifetime_stats_cached
 
-    # If there's a valid player id then continue to get lifetime stats
-    if player_id != None:
-        # Get lifetime stats for that player id
-        # First check cache for lifetime stats (cache identifier is player id)
-        lifetime_stats_cached = cache.get(player_id)
+    # Otherwise make new API call
+    else:
+        # URL to request lifetime stats for player
+        url = "https://api.pubg.com/shards/steam/players/{}/seasons/lifetime".format(player_id)
 
-        # If data is in cache then use it
-        if lifetime_stats_cached != None:
-            lifetime_stats = lifetime_stats_cached
+        # Request lifetime stats for player
+        resp = http.get(url, headers = header)
 
-            # Otherwise make new API call
-        else:
-            # URL to request lifetime stats for player
-            url = "https://api.pubg.com/shards/steam/players/{}/seasons/lifetime".format(player_id)
+        if resp.status_code != 200:
+            # Display error on Tidbyt
+            return pretty_error(resp)
 
-            # Request lifetime stats for player
-            req = http.get(url, headers = header)
+        # Encode JSON data to be stored in cache
+        lifetime_stats = json.encode(resp.json())
 
-            # Error check API call
-            error = api_error(req)
+        # Set cache with JSON object from lifetime_stats serialized to string
+        cache.set(player_id, str(lifetime_stats), ttl_seconds = TTL_LIFETIME_STATS)
 
-            # Set to display error if one exists
-            if error != None:
-                to_display = pretty_error(error)
+    # Decode string back to JSON object to be read
+    lifetime_stats = json.decode(lifetime_stats)
 
-                # Note that there are no lifetime stats due to error
-                lifetime_stats = None
+    # Render output to display
+    return render.Root(
+        render.Stack(
+            children = [
+                # Background
+                BACKGROUND_RENDER,
 
-            else:
-                # Encode JSON data to be stored in cache
-                lifetime_stats = json.encode(req.json())
-
-                # Set cache with JSON object from lifetime_stats serialized to string
-                cache.set(player_id, str(lifetime_stats), ttl_seconds = TTL_LIFETIME_STATS)
-
-        if lifetime_stats != None:
-            # Decode string back to JSON object to be read
-            lifetime_stats = json.decode(lifetime_stats)
-
-            # Set stat label to be displayed in app
-            stat_label = stat_labels[selected_stat]
-
-            # Calculate total stat from lifetime stats
-            stat = calc_lifetime_stat(lifetime_stats, selected_stat)
-
-            # Prepare widgets to be rendered on display
-            to_display = render.Stack(
-                children = [
-                    # Background
-                    render.Box(width = 64, height = 32, color = BACKGROUND_COLOR),
-
-                    # PUBG logo animation
-                    animation.Transformation(
-                        child = render.Image(src = PUBG_LOGO),
-                        duration = logo_duration,
-                        delay = logo_delay,
+                # PUBG logo animation
+                animation.Transformation(
+                    child = render.Image(src = PUBG_LOGO),
+                    duration = logo_duration,
+                    delay = logo_delay,
                         keyframes = [
                             animation.Keyframe(
                                 percentage = 0.0,
@@ -166,114 +144,107 @@ def main(config):
                                 transforms = [animation.Translate(-64, 0)],
                             ),
                         ],
-                    ),
+                ),
 
-                    # Scrolling name animation
-                    animation.Transformation(
-                        child = render.Padding(
-                            pad = (2, 2, 0, 0),
-                            child = render.Text(
-                                content = player_name,
-                                font = "CG-pixel-3x5-mono",
-                                color = TEXT_COLOR,
-                            ),
-                        ),
-                        duration = name_duration,
-                        delay = name_delay,
-                        keyframes = [
-                            animation.Keyframe(
-                                percentage = 0.0,
-                                transforms = [animation.Translate(62, 0)],
-                            ),
-                            animation.Keyframe(
-                                percentage = 1.0,
-                                transforms = [animation.Translate(0, 0)],
-                            ),
-                        ],
-                    ),
-
-                    # Scrolling stat label animation
-                    animation.Transformation(
-                        child = render.Padding(
-                            pad = (2, 10, 0, 0),
-                            child = render.Text(
-                                content = stat_label,
-                                color = TEXT_COLOR,
-                            ),
-                        ),
-                        duration = stat_label_duration,
-                        delay = stat_label_delay,
-                        keyframes = [
-                            animation.Keyframe(
-                                percentage = 0.0,
-                                transforms = [animation.Translate(62, 0)],
-                            ),
-                            animation.Keyframe(
-                                percentage = 1.0,
-                                transforms = [animation.Translate(0, 0)],
-                            ),
-                        ],
-                    ),
-
-                    # Scrolling stat animation
-                    animation.Transformation(
-                        child = render.Padding(
-                            pad = (2, 18, 0, 0),
-                            child = render.Text(
-                                content = stat,
-                                font = "6x13",
-                                color = TEXT_COLOR,
-                            ),
-                        ),
-                        duration = stat_duration,
-                        delay = stat_delay,
-                        keyframes = [
-                            animation.Keyframe(
-                                percentage = 0.0,
-                                transforms = [animation.Translate(62, 0)],
-                            ),
-                            animation.Keyframe(
-                                percentage = 1.0,
-                                transforms = [animation.Translate(0, 0)],
-                            ),
-                        ],
-                    ),
-                ],
-            )
-
-    # Render output to display
-    return render.Root(
-        to_display,
-    )
-
-# Return plaintext error from API request response
-def api_error(req):
-    if req.status_code != 200:
-        error = req.json()["errors"][0]["detail"].upper()
-    else:
-        error = None
-
-    return error
-
-# Return render widget of scrolling error message for Tidbyt display
-def pretty_error(error):
-    return render.Stack(
-        children = [
-            # Background
-            render.Box(width = 64, height = 32, color = BACKGROUND_COLOR),
-
-            # Error message
-            render.Marquee(
-                width = 64,
+                # Scrolling name animation
+                animation.Transformation(
                 child = render.Padding(
-                    pad = (0, 11, 0, 0),
+                    pad = (2, 2, 0, 0),
                     child = render.Text(
-                        content = "PUBG STATS ERROR: {}".format(error),
+                        content = player_name,
+                        font = "CG-pixel-3x5-mono",
                         color = TEXT_COLOR,
                     ),
                 ),
-            ),
-        ],
+                duration = name_duration,
+                delay = name_delay,
+                    keyframes = [
+                        animation.Keyframe(
+                            percentage = 0.0,
+                            transforms = [animation.Translate(62, 0)],
+                        ),
+                        animation.Keyframe(
+                            percentage = 1.0,
+                            transforms = [animation.Translate(0, 0)],
+                        ),
+                    ],
+                ),
+
+                # Scrolling stat label animation
+                animation.Transformation(
+                    child = render.Padding(
+                        pad = (2, 10, 0, 0),
+                        child = render.Text(
+                                content = stat_labels[selected_stat],
+                                color = TEXT_COLOR,
+                        ),
+                    ),
+                    duration = stat_label_duration,
+                    delay = stat_label_delay,
+                    keyframes = [
+                        animation.Keyframe(
+                            percentage = 0.0,
+                            transforms = [animation.Translate(62, 0)],
+                        ),
+                        animation.Keyframe(
+                            percentage = 1.0,
+                            transforms = [animation.Translate(0, 0)],
+                        ),
+                    ],
+                ),
+
+                # Scrolling stat animation
+                animation.Transformation(
+                    child = render.Padding(
+                        pad = (2, 18, 0, 0),
+                        child = render.Text(
+                                content = calc_lifetime_stat(lifetime_stats, selected_stat),
+                                font = "6x13",
+                                color = TEXT_COLOR,
+                        ),
+                    ),
+                    duration = stat_duration,
+                    delay = stat_delay,
+                    keyframes = [
+                        animation.Keyframe(
+                            percentage = 0.0,
+                            transforms = [animation.Translate(62, 0)],
+                        ),
+                        animation.Keyframe(
+                            percentage = 1.0,
+                            transforms = [animation.Translate(0, 0)],
+                        ),
+                    ],
+                ),
+            ],
+        ),         
+    )
+
+# Return render widget of scrolling error message for Tidbyt display
+def pretty_error(resp):
+    # Get plaintext error from API response
+    error = resp.json()["errors"][0]["detail"].upper()
+
+    # Return render of error to Tidbyt
+    return render.Root( 
+        render.Stack(
+            children = [
+                # Background
+                BACKGROUND_RENDER,
+
+                # Error message
+                render.Marquee(
+                    width = 64,
+                    child = render.Padding(
+                        pad = (0, 11, 0, 0),
+                            child = render.Text(
+                            content = "PUBG STATS ERROR: {}".format(error),
+                            color = TEXT_COLOR,
+                            ),
+                    ),
+                ),
+            ],
+        ),
     )
 
 # Return stat total from across all game modes
