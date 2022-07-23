@@ -81,7 +81,7 @@ def main(config):
             emoji_names = getEmojiNames(locale)
             for item in emoji_names:
                 if random_emoji_cached[0] == item[0]:
-                    random_emoji_base64 = random_emoji_base64[1]
+                    random_emoji_base64 = random_emoji_cached[1]
                     name_item = item
                     break
 
@@ -118,8 +118,6 @@ def main(config):
             "%s,%s" % (name_item[0], random_emoji_base64),  # as a one-line CSV...
             ttl_seconds = 30,
         )  # caching 30 seconds
-    random_emoji_csv_data_cached = cache.get("random_emoji-%s-%s" % (vendor, locale))
-    print(random_emoji_csv_data_cached)
 
     if name_item != None:
         shortName = name_item[1]
