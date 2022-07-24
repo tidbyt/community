@@ -17,6 +17,8 @@ load("cache.star", "cache")
 default_locale = "fr_CA"
 default_vendor = "apple"
 
+test_emoji = None
+
 EMOJI_LIST_URL = "https://emoji-lingo.s3.amazonaws.com/emoji-list-%s.csv"
 EMOJI_NAMES_URL = "https://emoji-lingo.s3.amazonaws.com/locale/%s.csv"
 EMOJI_BASE64_URL = "https://emoji-lingo.s3.amazonaws.com/base64/%s/%s.txt"
@@ -103,11 +105,26 @@ def main(config):
             if (normalized_emoji_unicode in valid_emoji_base64_list):
                 valid_emoji_data.append(emoji_name_data)
 
+        # Clause for using a test emoji defined at top
+        if test_emoji != None:
+            test_emoji_code = None
+            for code in emoji_list:
+                if str(test_emoji) == code[0]:
+                    test_emoji_code = code[1]
+                    break
+            if test_emoji_code != None:
+                for emoji_name_data in emoji_names:
+                    normalized_emoji_unicode = normalizeCode(emoji_name_data[0])
+                    if normalized_emoji_unicode == test_emoji_code:
+                        name_item = emoji_name_data
+                        break
+
         # Pick an emoji at random (hopefully a good one)
-        number_valid_emojis = len(valid_emoji_data)
-        rand_index = random.number(0, number_valid_emojis)
-        print("Picking from %d random emojis... random index was %d" % (number_valid_emojis, rand_index))
-        name_item = valid_emoji_data[rand_index]
+        if name_item == None:
+            number_valid_emojis = len(valid_emoji_data)
+            rand_index = random.number(0, number_valid_emojis)
+            print("Picking from %d random emojis... random index was %d" % (number_valid_emojis, rand_index))
+            name_item = valid_emoji_data[rand_index]
 
         # Get the base64 text file
         base64_url = EMOJI_BASE64_URL % (vendor, normalizeCode(name_item[0]))
@@ -127,7 +144,7 @@ def main(config):
     else:
         fail("Emoji has no name")
 
-    # Print some diagnostics...
+    # Print some diagaostics...
     print(random_emoji_base64)
     print(name_item)
 
@@ -189,7 +206,7 @@ def main(config):
     elif config.str("textPosition") == "right":
         contents = contents_horizontal
     else:
-        contents = contents_horizontal
+        contents = contents_vertical
 
     # On screen
     return render.Root(
