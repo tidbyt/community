@@ -224,6 +224,10 @@ def get_schema():
                         value = "en_AU",
                     ),
                     schema.Option(
+                        display = "Afrikaans",
+                        value = "af",
+                    ),
+                    schema.Option(
                         display = "Danish",
                         value = "da",
                     ),
@@ -260,6 +264,10 @@ def get_schema():
                         value = "id",
                     ),
                     schema.Option(
+                        display = "Irish",
+                        value = "ga",
+                    ),
+                    schema.Option(
                         display = "Italian",
                         value = "it",
                     ),
@@ -288,8 +296,16 @@ def get_schema():
                         value = "es_MX",
                     ),
                     schema.Option(
+                        display = "Swahili",
+                        value = "sw",
+                    ),
+                    schema.Option(
                         display = "Swedish",
                         value = "sv",
+                    ),
+                    schema.Option(
+                        display = "Welsh",
+                        value = "cy",
                     ),
                 ],
             ),
