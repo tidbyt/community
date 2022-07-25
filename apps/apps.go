@@ -17,6 +17,7 @@ import (
 	"tidbyt.dev/community/apps/bgghotness"
 	"tidbyt.dev/community/apps/biblevotd"
 	"tidbyt.dev/community/apps/bigclock"
+	"tidbyt.dev/community/apps/bikeshare"
 	"tidbyt.dev/community/apps/binaryclock"
 	"tidbyt.dev/community/apps/burgeroftheday"
 	"tidbyt.dev/community/apps/charlestownferry"
@@ -162,6 +163,7 @@ func GetManifests() []manifest.Manifest {
 		bgghotness.New(),
 		biblevotd.New(),
 		bigclock.New(),
+		bikeshare.New(),
 		binaryclock.New(),
 		burgeroftheday.New(),
 		charlestownferry.New(),
@@ -252,8 +254,8 @@ func GetManifests() []manifest.Manifest {
 		shopifychart.New(),
 		shuffleimages.New(),
 		snyk.New(),
-		sportsrankings.New(),
 		soundtransit.New(),
+		sportsrankings.New(),
 		sportsscores.New(),
 		sportsstandings.New(),
 		spotthestation.New(),
