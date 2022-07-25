@@ -40,14 +40,15 @@ def fetch_status(config, station):
         )
 
         if (station_status_resp.status_code != 200):
-            fail("Bikeshare request failed with status %d", station_status_resp.status_code)
+            print("Bikeshare request failed with status %d", station_status_resp.status_code)
+            return []
 
         station_json = station_status_resp.body()
         cache.set(station["url"], station_json, ttl_seconds = 60)
 
     # Station status start
     statuses = json.decode(station_json)["data"]["stations"]
-    return [s for s in statuses if s["station_id"] == station["station"]["station_id"]][0]
+    return [s for s in statuses if s["station_id"] == station["station"]["station_id"]]
 
 def main(config):
     start = json.decode(config.get("station_start", BIKESHARE_STATION_START))
@@ -55,8 +56,13 @@ def main(config):
 
     # Fetch status for start and stop stations
     # We fetch twice (cached anyway) to guarantee that the defaulted url and station ids match
-    start["availability"] = fetch_status(config, start)["num_bikes_available"]
-    stop["availability"] = fetch_status(config, stop)["num_docks_available"]
+    start_status = fetch_status(config, start)
+    stop_status = fetch_status(config, stop)
+    if (len(start_status) == 0 or len(stop_status) == 0):
+        return render_error()
+    
+    start["availability"] = start_status[0]["num_bikes_available"]
+    stop["availability"] = stop_status[0]["num_docks_available"]
 
     return render.Root(
         render.Column(
@@ -72,7 +78,7 @@ def main(config):
                         render.Padding(
                             pad = (2, 0, 0, 0),
                             child = render.Marquee(
-                                width = 40,
+                                width = 48,
                                 child = render.Text(content = start["station"]["name"], font = "tom-thumb"),
                             ),
                         ),
@@ -89,7 +95,7 @@ def main(config):
                         render.Padding(
                             pad = (2, 0, 2, 0),
                             child = render.Marquee(
-                                width = 40,
+                                width = 48,
                                 child = render.Text(content = stop["station"]["name"], font = "tom-thumb"),
                             ),
                         ),
@@ -100,6 +106,29 @@ def main(config):
                     ],
                 ),
             ],
+        ),
+    )
+
+def render_error():
+    return render.Root(
+        render.Column(
+            expanded = True,
+            main_align = "center",
+            cross_align = "center",
+            children = [
+                render.Row(
+                    expanded = True,
+                    main_align = "center",
+                    cross_align = "center",
+                    children = [
+                        render.WrappedText(
+                            content = "Bikeshare status unavailable",
+                            color = "#ff0000",
+                            align = "center",
+                        ),
+                    ]
+                )
+            ]
         ),
     )
 
@@ -118,7 +147,7 @@ def get_bikeshare_providers():
             url = GBFS_LIST,
         )
         if resp.status_code != 200:
-            fail("Failed to fetch list of available Bikeshare providers")
+            return []
         bikeshare_csv = resp.body()
         cache.set("bikeshare_csv", bikeshare_csv, ttl_seconds = 60 * 60 * 24)
 
@@ -144,7 +173,7 @@ def gbfs_discovery(gbfs_url):
             url = gbfs_url,
         )
         if resp.status_code != 200:
-            fail("Failed to fetch GBFS discovery data from " + gbfs_url)
+            return None
         discovery_json = resp.body()
         cache.set("gbfs_discovery_" + gbfs_url, discovery_json, ttl_seconds = 60 * 60 * 24)
     return json.decode(discovery_json)
@@ -160,7 +189,7 @@ def bikeshare_stations(url):
             },
         )
         if resp.status_code != 200:
-            fail("Failed to fetch list of available Bikeshare stations")
+            return []
         resp_json = resp.body()
         cache.set("bikeshare_stations_" + url, resp_json, ttl_seconds = 60 * 60 * 24)
 
@@ -169,11 +198,13 @@ def bikeshare_stations(url):
 # Given a bikeshare provider look up its stations for use as dropdown options
 def locations(provider_json):
     discovery = gbfs_discovery(json.decode(provider_json)["value"])
+    if discovery == None:
+        return []
     feeds = discovery["data"].values()[0]["feeds"]
     infoFeed = [f for f in feeds if f["name"] == "station_information"]
     statusFeed = [f for f in feeds if f["name"] == "station_status"]
     if (len(infoFeed) == 0 or len(statusFeed) == 0):
-        fail("Failed to find station_information or station_status feed in GBFS discovery data")
+        return []
 
     stations = bikeshare_stations(infoFeed[0]["url"])
 
