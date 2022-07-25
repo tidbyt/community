@@ -328,14 +328,14 @@ def get_schema():
             schema.Text(
                 id = "SpotTheStationRSS",
                 name = "Spot the Station RSS",
-                icon = "location",
+                icon = "locationArrow",
                 desc = "Go to spotthestation.nasa.gov Use the map tool to find the nearest location, click the blue marker then 'View sighting opportunities' then get the RSS feed URL.",
             ),
             schema.Location(
                 id = "location",
                 name = "Location",
                 desc = "Location needed to calculate local time.",
-                icon = "place",
+                icon = "locationDot",
             ),
             schema.Dropdown(
                 id = "notice_period",

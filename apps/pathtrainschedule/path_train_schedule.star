@@ -247,7 +247,7 @@ def get_schema():
                 id = "station",
                 name = "Station",
                 desc = "Station for arrival times.",
-                icon = "train-subway",
+                icon = "trainSubway",
                 default = options[0].value,
                 options = options,
             ),

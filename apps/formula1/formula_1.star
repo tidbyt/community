@@ -287,13 +287,13 @@ def get_schema():
                 id = "location",
                 name = "Location",
                 desc = "Location for which to display time.",
-                icon = "place",
+                icon = "locationDot",
             ),
             schema.Dropdown(
                 id = "F1_Information",
                 name = "F1 Information",
                 desc = "Select which info you want",
-                icon = "flag-checkered",
+                icon = "flagCheckered",
                 default = "NRI",
                 options = [
                     schema.Option(

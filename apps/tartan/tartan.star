@@ -3887,7 +3887,7 @@ def get_schema():
                 id = "tartan",
                 name = "Tartan",
                 desc = "Choose a tartan to weave",
-                icon = "reel",
+                icon = "hashtag",
                 default = CHOOSE_RANDOM_TARTAN,
                 options = tartans,
             ),

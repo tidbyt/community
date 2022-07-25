@@ -165,7 +165,7 @@ def get_schema():
                 id = "projectId",
                 name = "Project ID",
                 desc = "Project ID to monitor for issues",
-                icon = "diagram-project",
+                icon = "diagramProject",
             ),
         ],
     )

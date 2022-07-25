@@ -143,7 +143,7 @@ def get_schema():
                 id = "location",
                 name = "Location",
                 desc = "Location for which to display the moon phase.",
-                icon = "place",
+                icon = "locationDot",
             ),
             schema.Toggle(
                 id = "display_text",
