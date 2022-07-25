@@ -14,7 +14,7 @@ load("schema.star", "schema")
 load("secret.star", "secret")
 
 DEFAULT_STOP_ID = "490020255S"
-STOP_URL = "https://api.tfl.gov.uk/StopPoint/%s"
+STOP_URL = "https://api.tfl.gov.uk/StopPoint"
 ARRIVALS_URL = "https://api.tfl.gov.uk/StopPoint/%s/Arrivals"
 
 # Allows 500 queries per minute
@@ -29,12 +29,18 @@ def app_key():
 
 # Validate and get stop details from search results.
 def extract_stop(stop):
-    if "commonName" not in stop:
-        fail("TFL StopPoint search result does not contain name")
-    if "stopLetter" not in stop:
-        fail("TFL StopPoint search result does not contain stop code")
-    if "id" not in stop:
-        fail("TFL StopPoint search result does not contain id")
+    if not stop.get("commonName"):
+        print(stop)
+        print("TFL StopPoint search result does not contain name")
+        return None
+    if not stop.get("stopLetter"):
+        print(stop)
+        print("TFL StopPoint search result does not contain stop code")
+        return None
+    if not stop.get("id"):
+        print(stop)
+        print("TFL StopPoint search result does not contain id")
+        return None
 
     towards = None
     for prop in stop["additionalProperties"]:
@@ -43,10 +49,11 @@ def extract_stop(stop):
         towards = prop["value"]
         break
     if not towards:
-        fail("TFL StopPoint search result does not contain direction")
+        print("TFL StopPoint search result does not contain direction")
+        return None
 
     return schema.Option(
-        display = "%s - %s towards %s" % (stop["stopLetter"], stop["commonName"], stop["direction"]),
+        display = "%s - %s towards %s" % (stop["stopLetter"], stop["commonName"], towards),
         value = stop["id"],
     )
 
@@ -62,13 +69,16 @@ def fetch_stops(location):
             "app_key": app_key(),
             "lat": loc["lat"],
             "lon": loc["lng"],
+            "radius": "300",
             "stopTypes": "NaptanPublicBusCoachTram",
             "modes": "bus",
+            "returnLines": "false",
+            "categories": "Direction",
         },
     )
     if resp.status_code != 200:
         fail("TFL StopPoint search failed with status ", resp.status_code)
-    if "stopPoints" not in resp.json():
+    if not resp.json().get("stopPoints"):
         fail("TFL StopPoint search does not contain stops")
     cache.set(location, resp.body(), ttl_seconds = 86400)  # Bus stops don't move often
     return resp.json()
@@ -76,7 +86,8 @@ def fetch_stops(location):
 # Find list of stops near a given location.
 def get_stops(location):
     data = fetch_stops(location)
-    return [extract_stop(stop) for stop in data["stopPoints"]]
+    extracted = [extract_stop(stop) for stop in data["stopPoints"]]
+    return [e for e in extracted if e]
 
 # Perform the actual fetch for a stop, but use cache if available.
 def fetch_stop(stop_id):
@@ -84,7 +95,7 @@ def fetch_stop(stop_id):
     if cached:
         return json.decode(cached)
     resp = http.get(
-        url = STOP_URL % stop_id,
+        url = STOP_URL + "/" + stop_id,
         params = {
             "app_key": app_key(),
         },
@@ -115,9 +126,9 @@ def get_stop(stop_id):
             towards = prop["value"]
             break
 
-        if "commonName" not in child:
+        if not child.get("commonName"):
             fail("TFL StopPoint response did not contain name")
-        if "stopLetter" not in child:
+        if not child.get("stopLetter"):
             fail("TFL StopPoint response did not contain stop letter")
         if not towards:
             fail("TFL StopPoint response did not contain direction")
@@ -143,9 +154,9 @@ def get_arrivals(stop_id):
 
     arrivals = []
     for arrival in resp.json():
-        if "lineName" not in arrival:
+        if not arrival.get("lineName"):
             fail("TFL Arrivals response did not contain line")
-        if "timeToStation" not in arrival:
+        if not arrival.get("timeToStation"):
             fail("TFL Arrivals response did not contain arrival prediction")
         arrivals.append({
             "line": arrival["lineName"],
@@ -197,6 +208,7 @@ def render_arrivals(arrivals):
         height = COUNTDOWN_HEIGHT,
         child = render.Column(
             main_align = "start",
+            expanded = True,
             children = [
                 render_arrival(a["index"], a["line"], a["due_in_seconds"])
                 for a in arrivals

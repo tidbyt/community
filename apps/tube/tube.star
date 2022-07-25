@@ -15,7 +15,7 @@ load("secret.star", "secret")
 
 # Can handle 500 requests per minute
 ENCRYPTED_APP_KEY = "AV6+xWcEgG4Ru4ZCA4ggWDRK+4zP4YCk4pCZrLiuXoCVSc677Sipk1Wnrag92v1k4qfa9n8e9FuCdsoLbov5osfGWOWUCYDkR3xh/uEsXOLVJvAr8iUXf6RSac2PXnDZ//z+hhgBzVldDDI/9CD8K8MJa0u75SG9EhZYidD9OXh0NggRHeE="
-STATION_URL = "https://api.tfl.gov.uk/StopPoint/%s"
+STATION_URL = "https://api.tfl.gov.uk/StopPoint"
 ARRIVALS_URL = "https://api.tfl.gov.uk/StopPoint/%s/Arrivals"
 
 HOLBORN_ID = "940GZZLUHBN"
@@ -102,13 +102,16 @@ def fetch_stations(location):
             "app_key": app_key(),
             "lat": loc["lat"],
             "lon": loc["lng"],
-            "stopTypes": "NaptanPublicBusCoachTram",
+            "radius": "500",
+            "stopTypes": "NaptanMetroStation",
+            "returnLines": "true",
             "modes": "tube",
+            "categories": "none",
         },
     )
     if resp.status_code != 200:
         fail("TFL station search failed with status ", resp.status_code)
-    if "stopPoints" not in resp.json():
+    if not resp.json().get("stopPoints"):
         fail("TFL station search does not contain stops")
     cache.set(location, resp.body(), ttl_seconds = 86400)  # Tube stations don't move often
     return resp.json()
@@ -117,19 +120,19 @@ def fetch_stations(location):
 def get_stations(location):
     data = fetch_stations(location)
     options = []
-    for station in data:
-        if "id" not in station:
+    for station in data["stopPoints"]:
+        if not station.get("id"):
             fail("TFL station result does not include id")
-        if "commonName" not in station:
+        if not station.get("commonName"):
             fail("TFL station result does not include name")
-        if "lineModeGroups" not in station:
+        if not station.get("lineModeGroups"):
             fail("TFL station result does not include lines")
 
         station_name = station["commonName"].removesuffix(" Underground Station")
         for line_group in station["lineModeGroups"]:
-            if "modeName" not in line_group:
+            if not line_group.get("modeName"):
                 fail("TFL station result does not include mode")
-            if "lineIdentifier" not in line_group:
+            if not line_group.get("lineIdentifier"):
                 fail("TFL station result does not include line identifier")
             if line_group["modeName"] != "tube":
                 continue
@@ -188,11 +191,11 @@ def get_arrivals(stop_id, line_id):
     all_arrivals = fetch_arrivals(stop_id)
     by_direction = {}
     for arrival in all_arrivals:
-        if "lineId" not in arrival:
+        if not arrival.get("lineId"):
             fail("TFL arrivals data does not include line")
-        if "platformName" not in arrival:
+        if not arrival.get("platformName"):
             fail("TFL arrivals data does not include platform")
-        if "timeToStation" not in arrival:
+        if not arrival.get("timeToStation"):
             fail("TFL arrivals data does not include arrival time")
 
         if arrival["lineId"] != line_id:
@@ -201,7 +204,7 @@ def get_arrivals(stop_id, line_id):
         # Eastbound - Platform 2 -> East
         direction = arrival["platformName"].split(" ")[0][:-5]
         time = arrival["timeToStation"]  # in seconds
-        if direction in by_direction:
+        if by_direction.get(direction):
             by_direction[direction].append(time)
         else:
             by_direction[direction] = [time]
