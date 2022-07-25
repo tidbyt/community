@@ -156,7 +156,7 @@ def get_schema():
                 id = "location",
                 name = "Location",
                 desc = "Location for which to show the time",
-                icon = "place",
+                icon = "locationDot",
             ),
         ],
     )

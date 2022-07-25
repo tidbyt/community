@@ -191,7 +191,7 @@ def get_schema():
                 id = "location_1",
                 name = "Location 1",
                 desc = "Location for which to display time.",
-                icon = "place",
+                icon = "locationDot",
             ),
             schema.Text(
                 id = "location_1_label",
@@ -204,7 +204,7 @@ def get_schema():
                 id = "location_2",
                 name = "Location 2",
                 desc = "Location for which to display time.",
-                icon = "place",
+                icon = "locationDot",
             ),
             schema.Text(
                 id = "location_2_label",
@@ -217,7 +217,7 @@ def get_schema():
                 id = "location_3",
                 name = "Location 3",
                 desc = "Location for which to display time.",
-                icon = "place",
+                icon = "locationDot",
             ),
             schema.Text(
                 id = "location_3_label",
@@ -230,7 +230,7 @@ def get_schema():
                 id = "location_4",
                 name = "Location 4",
                 desc = "Location for which to display time.",
-                icon = "place",
+                icon = "locationDot",
             ),
             schema.Text(
                 id = "location_4_label",
@@ -243,7 +243,7 @@ def get_schema():
                 id = "time_format",
                 name = "Time Format",
                 desc = "Format time as 12H clock instead of 24H",
-                icon = "access_time",
+                icon = "clock",
                 default = False,
             ),
             schema.Toggle(

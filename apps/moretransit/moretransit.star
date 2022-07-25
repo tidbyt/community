@@ -183,13 +183,13 @@ def getSchema():
                 id = "station1",
                 name = "Station1 Config",
                 desc = "Config for the first station. Format: `service:line:stop,service2:line2:stop2`, etc. For example: `mtasubway:A:A40N,mtasubway:C:A40N` would combine arrivals to stop A40N (High St) for both the A and C lines into one line on the Tidbyt. Stop IDs can be found in TransSee.",
-                icon = "cog",
+                icon = "gear",
             ),
             schema.Text(
                 id = "station2",
                 name = "Station2 Config",
                 desc = "Config for the second station. Format: `service:line:stop,service2:line2:stop2`, etc. For example,  `mtasubway:A:A40N,mtasubway:C:A40N` would combine arrivals to stop A40N (High St) for both the A and C lines into one line on the Tidbyt.",
-                icon = "cog",
+                icon = "gear",
             ),
             schema.Text(
                 id = "minTime",

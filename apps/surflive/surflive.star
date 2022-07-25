@@ -325,7 +325,7 @@ def get_schema():
                 id = "use_wave_height",
                 name = "Display Surf Height",
                 desc = "Display the surf or swell height (off=swell)",
-                icon = "cog",
+                icon = "gear",
                 default = False,
             ),
         ],

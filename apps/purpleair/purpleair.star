@@ -101,14 +101,14 @@ def get_schema():
                 id = "sensor_id",
                 name = "Sensors",
                 desc = "Choose the sensor based on your location.",
-                icon = "location-dot",
+                icon = "locationDot",
                 handler = get_sensors,
             ),
             schema.Text(
                 id = "sensor_id_direct",
                 name = "Sensor ID (optional)",
                 desc = "Specify the sensor if you know the ID",
-                icon = "satellite-dish",
+                icon = "satelliteDish",
                 default = "",
             ),
             schema.Toggle(

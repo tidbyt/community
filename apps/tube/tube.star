@@ -307,7 +307,7 @@ def get_schema():
                 id = "station_and_line",
                 name = "Station and line",
                 desc = "The station and line to get arrival times for",
-                icon = "train-subway-tunnel",
+                icon = "trainSubway",
                 handler = get_stations,
             ),
         ],

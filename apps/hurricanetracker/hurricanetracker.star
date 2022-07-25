@@ -210,7 +210,7 @@ def get_schema():
                 id = "location",
                 name = "Location",
                 desc = "Location to calculate distance to storm.",
-                icon = "place",
+                icon = "locationDot",
             ),
             schema.Dropdown(
                 id = "basin",
@@ -224,7 +224,7 @@ def get_schema():
                 id = "hide_quiet",
                 name = "Hide when nothing to report",
                 desc = "Do you want to skip displaying this app when there is nothing to report?",
-                icon = "cog",
+                icon = "gear",
                 default = True,
             ),
         ],
