@@ -60,7 +60,7 @@ def main(config):
     stop_status = fetch_status(config, stop)
     if (len(start_status) == 0 or len(stop_status) == 0):
         return render_error()
-    
+
     start["availability"] = start_status[0]["num_bikes_available"]
     stop["availability"] = stop_status[0]["num_docks_available"]
 
@@ -126,9 +126,9 @@ def render_error():
                             color = "#ff0000",
                             align = "center",
                         ),
-                    ]
-                )
-            ]
+                    ],
+                ),
+            ],
         ),
     )
 
