@@ -53,7 +53,7 @@ def get_schema():
             id = "hide_app",
             name = "Hide app?",
             desc = "",
-            icon = "eye-slash",
+            icon = "eyeSlash",
             default = False,
         ),
         schema.Toggle(

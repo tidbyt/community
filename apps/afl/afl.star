@@ -285,7 +285,7 @@ def get_schema():
                 id = "main_team",
                 name = "Team",
                 desc = "Pick a team to follow",
-                icon = "",
+                icon = "peopleGroup",
                 default = TEAM_LIST[0].value,
                 options = TEAM_LIST,
             ),

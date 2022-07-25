@@ -126,7 +126,7 @@ def get_schema():
                 id = "display_floor",
                 name = "Display Floor",
                 desc = "A toggle to display the collection's floor price.",
-                icon = "chart-line",
+                icon = "chartLine",
                 default = False,
             ),
         ],

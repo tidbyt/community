@@ -181,7 +181,7 @@ def get_schema():
                 id = "location",
                 name = "Location",
                 desc = "Location for which to display the sun rise and set times.",
-                icon = "place",
+                icon = "locationDot",
             ),
             schema.Dropdown(
                 id = "items_to_display",

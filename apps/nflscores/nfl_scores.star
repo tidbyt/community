@@ -547,7 +547,7 @@ def get_schema():
                 id = "location",
                 name = "Location",
                 desc = "Location for which to display time.",
-                icon = "place",
+                icon = "locationDot",
             ),
             schema.Dropdown(
                 id = "displayType",
@@ -561,7 +561,7 @@ def get_schema():
                 id = "pregameDisplay",
                 name = "Pre-Game",
                 desc = "What to display in the score area if the game hasn't started.",
-                icon = "cog",
+                icon = "gear",
                 default = pregameOptions[0].value,
                 options = pregameOptions,
             ),
