@@ -1,3 +1,4 @@
+//nolint:misspell
 package apps
 
 // IconsMap is the name of a FontAwesome icon to the name in our mobile app. In
