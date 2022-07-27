@@ -23,6 +23,7 @@ import (
 	"tidbyt.dev/community/apps/chessviewer"
 	"tidbyt.dev/community/apps/climateclock"
 	"tidbyt.dev/community/apps/clockbyhenry"
+	"tidbyt.dev/community/apps/cltlightrail"
 	"tidbyt.dev/community/apps/coingeckoprice"
 	"tidbyt.dev/community/apps/countdownclock"
 	"tidbyt.dev/community/apps/cryptotracker"
@@ -120,6 +121,7 @@ import (
 	"tidbyt.dev/community/apps/strava"
 	"tidbyt.dev/community/apps/subreddit"
 	"tidbyt.dev/community/apps/sunrisesunset"
+	"tidbyt.dev/community/apps/supermariokart"
 	"tidbyt.dev/community/apps/surfforecast"
 	"tidbyt.dev/community/apps/surflive"
 	"tidbyt.dev/community/apps/tartan"
@@ -169,6 +171,7 @@ func GetManifests() []manifest.Manifest {
 		chessviewer.New(),
 		climateclock.New(),
 		clockbyhenry.New(),
+		cltlightrail.New(),
 		coingeckoprice.New(),
 		countdownclock.New(),
 		cryptotracker.New(),
@@ -253,8 +256,8 @@ func GetManifests() []manifest.Manifest {
 		shopifychart.New(),
 		shuffleimages.New(),
 		snyk.New(),
-		sportsrankings.New(),
 		soundtransit.New(),
+		sportsrankings.New(),
 		sportsscores.New(),
 		sportsstandings.New(),
 		spotthestation.New(),
@@ -265,6 +268,7 @@ func GetManifests() []manifest.Manifest {
 		strava.New(),
 		subreddit.New(),
 		sunrisesunset.New(),
+		supermariokart.New(),
 		surfforecast.New(),
 		surflive.New(),
 		tartan.New(),
