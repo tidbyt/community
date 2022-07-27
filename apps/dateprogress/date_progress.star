@@ -215,7 +215,7 @@ def get_schema():
                 id = P_LOCATION,
                 name = "Location",
                 desc = "Location for which to display time.",
-                icon = "place",
+                icon = "locationDot",
             ),
             schema.Toggle(
                 id = P_SHOW_DAY,
@@ -242,14 +242,14 @@ def get_schema():
                 id = P_SHOW_LABELS,
                 name = "Show labels",
                 desc = "Whether to show labels next to the progress bars.",
-                icon = "text",
+                icon = "textSlash",
                 default = True,
             ),
             schema.Toggle(
                 id = P_SHOW_VALUES,
                 name = "Show percentages",
                 desc = "Whether to show percentages next to the progress bars.",
-                icon = "percentage",
+                icon = "percent",
                 default = True,
             ),
             schema.Dropdown(
@@ -280,7 +280,7 @@ def get_schema():
                 id = "custom_day",
                 name = "Custom Day progress interval",
                 desc = "Use custom start and end times for day progress bar.",
-                icon = "cog",
+                icon = "gear",
                 default = False,
             ),
             schema.Dropdown(

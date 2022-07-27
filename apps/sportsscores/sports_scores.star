@@ -93,7 +93,7 @@ def get_schema():
                 id = "local_tz",
                 name = "Local timezone",
                 desc = "Enable to display game times in your local timezone (default is ET).",
-                icon = "cog",
+                icon = "gear",
                 default = False,
             ),
             schema.Dropdown(
@@ -108,7 +108,7 @@ def get_schema():
                 id = "speed",
                 name = "Frame speed",
                 desc = "Change the speed that the games listed change.",
-                icon = "cog",
+                icon = "gear",
                 default = frame_speed[-1].value,
                 options = frame_speed,
             ),
@@ -116,7 +116,7 @@ def get_schema():
                 id = "row_space",
                 name = "Add space between rows",
                 desc = "This may reduce the number of games displayed on each frame.",
-                icon = "cog",
+                icon = "gear",
                 default = False,
             ),
             schema.Toggle(
@@ -130,7 +130,7 @@ def get_schema():
                 id = "scroll_logic",
                 name = "Scroll games?",
                 desc = "",
-                icon = "cog",
+                icon = "gear",
                 default = False,
             ),
             schema.Toggle(

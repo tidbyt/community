@@ -110,13 +110,13 @@ def get_schema():
                 id = "event",
                 name = "Event",
                 desc = "The event text to display.",
-                icon = "cog",
+                icon = "gear",
             ),
             schema.DateTime(
                 id = "event_time",
                 name = "Event Time",
                 desc = "The time of the event.",
-                icon = "cog",
+                icon = "gear",
             ),
             schema.Dropdown(
                 id = "eventColor",

@@ -588,7 +588,7 @@ def get_schema():
                 id = "self-hide",
                 name = "Nearby events only?",
                 desc = "If turned on, the app will show a blank screen unless there is an event within 90 minutes.",
-                icon = "cog",
+                icon = "gear",
                 default = DEFAULT_HIDDEN,
             ),
         ],
