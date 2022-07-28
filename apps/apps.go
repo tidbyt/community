@@ -269,7 +269,6 @@ func GetManifests() []manifest.Manifest {
 		surfforecast.New(),
 		surflive.New(),
 		tartan.New(),
-		tcatarrivals.New(),
 		tcatbusarrivals.New(),
 		tempest.New(),
 		testpatterns.New(),
