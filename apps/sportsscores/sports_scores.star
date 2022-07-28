@@ -137,7 +137,7 @@ def get_schema():
                 id = "hide_tbd_scores",
                 name = "Hide the score of games not started?",
                 desc = "Enable to hide zeros for games not started.",
-                icon = "eye-slash",
+                icon = "eyeSlash",
                 default = False,
             ),
             schema.Toggle(
