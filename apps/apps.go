@@ -123,7 +123,6 @@ import (
 	"tidbyt.dev/community/apps/surfforecast"
 	"tidbyt.dev/community/apps/surflive"
 	"tidbyt.dev/community/apps/tartan"
-	"tidbyt.dev/community/apps/tcatarrivals"
 	"tidbyt.dev/community/apps/tcatbusarrivals"
 	"tidbyt.dev/community/apps/tempest"
 	"tidbyt.dev/community/apps/testpatterns"
