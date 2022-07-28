@@ -123,6 +123,7 @@ import (
 	"tidbyt.dev/community/apps/surfforecast"
 	"tidbyt.dev/community/apps/surflive"
 	"tidbyt.dev/community/apps/tartan"
+	"tidbyt.dev/community/apps/tcatbusarrivals"
 	"tidbyt.dev/community/apps/tempest"
 	"tidbyt.dev/community/apps/testpatterns"
 	"tidbyt.dev/community/apps/theysaidso"
@@ -253,8 +254,8 @@ func GetManifests() []manifest.Manifest {
 		shopifychart.New(),
 		shuffleimages.New(),
 		snyk.New(),
-		sportsrankings.New(),
 		soundtransit.New(),
+		sportsrankings.New(),
 		sportsscores.New(),
 		sportsstandings.New(),
 		spotthestation.New(),
@@ -268,6 +269,7 @@ func GetManifests() []manifest.Manifest {
 		surfforecast.New(),
 		surflive.New(),
 		tartan.New(),
+		tcatbusarrivals.New(),
 		tempest.New(),
 		testpatterns.New(),
 		theysaidso.New(),
