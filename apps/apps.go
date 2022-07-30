@@ -104,6 +104,7 @@ import (
 	"tidbyt.dev/community/apps/redditimages"
 	"tidbyt.dev/community/apps/redditrplace"
 	"tidbyt.dev/community/apps/sbbtimetable"
+	"tidbyt.dev/community/apps/severewxalertsusa"
 	"tidbyt.dev/community/apps/sfnextmuni"
 	"tidbyt.dev/community/apps/shopifychart"
 	"tidbyt.dev/community/apps/shuffleimages"
@@ -249,6 +250,7 @@ func GetManifests() []manifest.Manifest {
 		redditimages.New(),
 		redditrplace.New(),
 		sbbtimetable.New(),
+		severewxalertsusa.New(),
 		sfnextmuni.New(),
 		shopifychart.New(),
 		shuffleimages.New(),
