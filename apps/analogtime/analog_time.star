@@ -111,13 +111,13 @@ def get_schema():
                 id = "location",
                 name = "Location",
                 desc = "Location for which to display time.",
-                icon = "place",
+                icon = "locationDot",
             ),
             schema.Toggle(
                 id = "display_date",
                 name = "Display Date",
                 desc = "Whether to display the date too.",
-                icon = "cog",
+                icon = "gear",
                 default = False,
             ),
             schema.Toggle(
