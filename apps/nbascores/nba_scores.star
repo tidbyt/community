@@ -1,8 +1,8 @@
 """
 Applet: NBA Scores
 Summary: Displays NBA scores
-Description: Displays live and upcoming NBA scores from a data feed. For slower scrolling between scores, add the app to your Tidbyt twice, and under the 'Scores to Display' setting, select '1st Half' on the first app instance, and '2nd Half' on the second app instance.
-Author: cmarkham20
+Description: Displays live and upcoming NBA scores from a data feed.
+Author: LunchBox8484
 """
 
 load("cache.star", "cache")
@@ -67,8 +67,9 @@ MAGNIFY_LOGO = """
 def main(config):
     renderCategory = []
     league = {LEAGUE: API}
-    slowMode = int(config.get("slowMode", 15))
-    scores = get_scores(league, slowMode)
+    instanceNumber = int(config.get("instanceNumber", 1))
+    totalInstances = int(config.get("instancesCount", 1))
+    scores = get_scores(league, instanceNumber, totalInstances)
     if len(scores) > 0:
         displayType = config.get("displayType", "colors")
         logoType = config.get("logoType", "primary")
@@ -87,18 +88,50 @@ def main(config):
             away = competition["competitors"][1]["team"]["abbreviation"]
             homeTeamName = competition["competitors"][0]["team"]["shortDisplayName"]
             awayTeamName = competition["competitors"][1]["team"]["shortDisplayName"]
-            homePrimaryColor = competition["competitors"][0]["team"]["color"]
-            awayPrimaryColor = competition["competitors"][1]["team"]["color"]
-            homeAltColor = competition["competitors"][0]["team"]["alternateColor"]
-            awayAltColor = competition["competitors"][1]["team"]["alternateColor"]
+            homeColorCheck = competition["competitors"][0]["team"].get("color", "NO")
+            if homeColorCheck == "NO":
+                homePrimaryColor = "000000"
+            else:
+                homePrimaryColor = competition["competitors"][0]["team"]["color"]
+
+            awayColorCheck = competition["competitors"][1]["team"].get("color", "NO")
+            if awayColorCheck == "NO":
+                awayPrimaryColor = "000000"
+            else:
+                awayPrimaryColor = competition["competitors"][1]["team"]["color"]
+
+            homeAltColorCheck = competition["competitors"][0]["team"].get("alternateColor", "NO")
+            if homeAltColorCheck == "NO":
+                homeAltColor = "000000"
+            else:
+                homeAltColor = competition["competitors"][0]["team"]["alternateColor"]
+
+            awayAltColorCheck = competition["competitors"][1]["team"].get("alternateColor", "NO")
+            if awayAltColorCheck == "NO":
+                awayAltColor = "000000"
+            else:
+                awayAltColor = competition["competitors"][1]["team"]["alternateColor"]
+
             homeColor = get_background_color(home, displayType, homePrimaryColor, homeAltColor)
             awayColor = get_background_color(away, displayType, awayPrimaryColor, awayAltColor)
-            homeLogoURL = competition["competitors"][0]["team"]["logo"]
-            awayLogoURL = competition["competitors"][1]["team"]["logo"]
+
+            homeLogoCheck = competition["competitors"][0]["team"].get("logo", "NO")
+            if homeLogoCheck == "NO":
+                homeLogoURL = "https://a.espncdn.com/i/espn/misc_logos/500/ncaa_football.vresize.50.50.medium.1.png"
+            else:
+                homeLogoURL = competition["competitors"][0]["team"]["logo"]
+
+            awayLogoCheck = competition["competitors"][1]["team"].get("logo", "NO")
+            if awayLogoCheck == "NO":
+                homeLogoURL = "https://a.espncdn.com/i/espn/misc_logos/500/ncaa_football.vresize.50.50.medium.1.png"
+            else:
+                awayLogoURL = competition["competitors"][1]["team"]["logo"]
             homeLogo = get_logoType(home, homeLogoURL)
             awayLogo = get_logoType(away, awayLogoURL)
             homeLogoSize = get_logoSize(home)
             awayLogoSize = get_logoSize(away)
+            homeScore = ""
+            awayScore = ""
             homeScoreColor = "#fff"
             awayScoreColor = "#fff"
             teamFont = "Dina_r400-6"
@@ -517,18 +550,73 @@ displayOptions = [
     ),
 ]
 
-slowModes = [
+instancesCounts = [
     schema.Option(
-        display = "Show All",
-        value = "0",
-    ),
-    schema.Option(
-        display = "1st Half",
+        display = "1",
         value = "1",
     ),
     schema.Option(
-        display = "2nd Half",
+        display = "2",
         value = "2",
+    ),
+    schema.Option(
+        display = "3",
+        value = "3",
+    ),
+    schema.Option(
+        display = "4",
+        value = "4",
+    ),
+    schema.Option(
+        display = "5",
+        value = "5",
+    ),
+    schema.Option(
+        display = "6",
+        value = "6",
+    ),
+    schema.Option(
+        display = "7",
+        value = "7",
+    ),
+    schema.Option(
+        display = "8",
+        value = "8",
+    ),
+]
+
+instanceNumbers = [
+    schema.Option(
+        display = "First",
+        value = "1",
+    ),
+    schema.Option(
+        display = "Second",
+        value = "2",
+    ),
+    schema.Option(
+        display = "Third",
+        value = "3",
+    ),
+    schema.Option(
+        display = "Fourth",
+        value = "4",
+    ),
+    schema.Option(
+        display = "Fifth",
+        value = "5",
+    ),
+    schema.Option(
+        display = "Sixth",
+        value = "6",
+    ),
+    schema.Option(
+        display = "Seventh",
+        value = "7",
+    ),
+    schema.Option(
+        display = "Eighth",
+        value = "8",
     ),
 ]
 
@@ -581,35 +669,41 @@ def get_schema():
                 default = False,
             ),
             schema.Dropdown(
-                id = "slowMode",
-                name = "Scores To Display",
-                desc = "Select '1st Half' to only show the first half of scores, then add the app to your Tidbyt again and select '2nd Half' to show the rest.",
+                id = "instancesCount",
+                name = "Total Instances of App",
+                desc = "This determines which set of scores to display based on the 'Scores to Display' setting.",
                 icon = "clock",
-                default = slowModes[0].value,
-                options = slowModes,
+                default = instancesCounts[0].value,
+                options = instancesCounts,
+            ),
+            schema.Dropdown(
+                id = "instanceNumber",
+                name = "App Instance Number",
+                desc = "Select which instance of the app this is.",
+                icon = "clock",
+                default = instanceNumbers[0].value,
+                options = instanceNumbers,
             ),
         ],
     )
 
-def get_scores(urls, slowMode):
+def get_scores(urls, instanceNumber, totalInstances):
     allscores = []
+    minPerBucket = 3
     for i, s in urls.items():
         data = get_cachable_data(s)
         decodedata = json.decode(data)
         allscores.extend(decodedata["events"])
         all([i, allscores])
-    scoresLength = len(allscores) / 2
-    if slowMode == 1 and len(allscores) > 8:
-        for i in range(0, int(scoresLength)):
+    allScoresLength = len(allscores)
+    scoresLengthPerInstance = allScoresLength / totalInstances
+    if instanceNumber > totalInstances:
+        for i in range(0, int(len(allscores))):
             allscores.pop()
-    if slowMode == 2:
-        if len(allscores) < 9:
-            for i in range(0, int(len(allscores))):
-                allscores.pop(0)
-        else:
-            for i in range(0, int(math.ceil(scoresLength))):
-                allscores.pop(0)
-    return allscores
+        return allscores
+    else:
+        thescores = [allscores[(i * len(allscores)) // totalInstances:((i + 1) * len(allscores)) // totalInstances] for i in range(totalInstances)]
+        return thescores[instanceNumber - 1]
 
 def get_odds(theOdds, theOU, team, homeaway):
     theOddsarray = theOdds.split(" ")
