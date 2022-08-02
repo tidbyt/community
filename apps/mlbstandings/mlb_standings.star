@@ -39,6 +39,7 @@ ALT_LOGO = """
 def main(config):
     renderCategory = []
     divisionType = config.get("divisionType", "0")
+    teamsToShow = int(config.get("teamsOptions", "3"))
     if divisionType == "0":
         apiURL = API
     else:
@@ -46,12 +47,13 @@ def main(config):
     league = {LEAGUE: apiURL}
     standings = get_standings(league)
     entries = standings["standings"]["entries"]
+    mainFont = "CG-pixel-3x5-mono"
     if entries:
         divisionName = standings["shortName"]
-        divisionName = divisionName.replace(" Cent", " Central")
+        divisionName = divisionName.replace(" ", "")
         cycleOptions = int(config.get("cycleOptions", 1))
         cycleCount = 0
-        entriesToDisplay = 3
+        entriesToDisplay = teamsToShow
 
         for x in range(0, len(entries), entriesToDisplay):
             cycleCount = cycleCount + 1
@@ -74,7 +76,11 @@ def main(config):
             delay = int(15000 / cycleOptions / cycleCount),
             child = render.Column(
                 children = [
-                    render.Box(width = 64, height = 5, child = render.Box(width = 64, height = 5, color = "#000", child = render.Text(content = divisionName, color = "#ff0", font = "CG-pixel-4x5-mono"))),
+                    render.Box(width = 64, height = 6, color = "#000", child = render.Row(expanded = True, main_align = "start", cross_align = "center", children = [
+                        render.Box(width = 24, height = 6, child = render.Text(content = divisionName, color = "#ff0", font = mainFont)),
+                        render.Box(width = 22, height = 6, child = render.Text(content = "W-L", color = "#ff0", font = mainFont)),
+                        render.Box(width = 20, height = 6, child = render.Text(content = "GB", color = "#ff0", font = mainFont)),
+                    ])),
                     render.Animation(
                         children = renderCategory,
                     ),
@@ -126,6 +132,17 @@ cycleOptions = [
     ),
 ]
 
+teamsOptions = [
+    schema.Option(
+        display = "2",
+        value = "2",
+    ),
+    schema.Option(
+        display = "3",
+        value = "3",
+    ),
+]
+
 def get_schema():
     return schema.Schema(
         version = "1",
@@ -137,6 +154,14 @@ def get_schema():
                 icon = "cog",
                 default = divisionOptions[0].value,
                 options = divisionOptions,
+            ),
+            schema.Dropdown(
+                id = "teamsOptions",
+                name = "Teams Per View",
+                desc = "How many teams it should show at once.",
+                icon = "cog",
+                default = teamsOptions[1].value,
+                options = teamsOptions,
             ),
             schema.Dropdown(
                 id = "cycleOptions",
