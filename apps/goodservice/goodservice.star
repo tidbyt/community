@@ -229,7 +229,7 @@ def get_schema():
                 id = "stop_id",
                 name = "Station",
                 desc = "Station to show subway departures",
-                icon = "subway",
+                icon = "trainSubway",
                 default = "M16",
                 options = stops_options,
             ),

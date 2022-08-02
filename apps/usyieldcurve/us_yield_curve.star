@@ -252,7 +252,7 @@ def get_schema():
                 id = "x-axis",
                 name = "X-Axis Unit",
                 desc = "Adjust how yields are plotted along the axis.",
-                icon = "pencilRuler",
+                icon = "penRuler",
                 options = [
                     schema.Option(value = "linear", display = "Linear Scale"),
                     schema.Option(value = "piecewise-log", display = "Piecewise Logarithmic"),
@@ -263,7 +263,7 @@ def get_schema():
                 id = "graph_color",
                 name = "Color",
                 desc = "Color of the historical curves.",
-                icon = "paintBrush",
+                icon = "paintbrush",
                 options = [schema.Option(value = c, display = c) for c in COLOR_VECTORS.keys()],
                 default = "Blue",
             ),

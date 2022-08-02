@@ -392,7 +392,7 @@ def get_schema():
                 id = "location",
                 name = "Location",
                 desc = "Location for which to display weather radar.",
-                icon = "place",
+                icon = "locationDot",
             ),
             schema.Dropdown(
                 id = "zoom_level",

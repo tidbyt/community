@@ -278,7 +278,7 @@ def get_schema():
                 id = "location",
                 name = "Location",
                 desc = "Location for which to find nearby earthquakes.",
-                icon = "place",
+                icon = "locationDot",
             ),
             schema.Dropdown(
                 id = "radius",

@@ -186,7 +186,7 @@ def get_schema():
                 id = "location",
                 name = "Location",
                 desc = "Location defining the timezone.",
-                icon = "place",
+                icon = "locationDot",
             ),
             schema.Dropdown(
                 id = "color_text",
@@ -247,7 +247,7 @@ def get_schema():
                 id = "show_text",
                 name = "Show Text",
                 desc = "Show the text labels below the bars.",
-                icon = "text",
+                icon = "textSlash",
                 default = True,
             ),
         ],
