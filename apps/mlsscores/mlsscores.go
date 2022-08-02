@@ -17,7 +17,7 @@ func New() manifest.Manifest {
 		Name:        "MLS Scores",
 		Author:      "cmarkham20",
 		Summary:     "Displays MLS soccer scores",
-		Desc:        "For slower scrolling of scores, add the app to your Tidbyt multiple times. Then, within each app instance, set 'Total Instances of App' to the amount of times you have it installed, and set 'App Instance Number' unique to each app instance.",
+		Desc:        "For slower scrolling of scores, add the app to your Tidbyt multiple times.",
 		FileName:    "mls_scores.star",
 		PackageName: "mlsscores",
 		Source:  source,

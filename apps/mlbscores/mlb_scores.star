@@ -2,7 +2,7 @@
 Applet: MLB Scores
 Summary: Displays MLB scores
 Description: Displays live and upcoming MLB scores from a data feed.
-Author: cmarkham20
+Author: LunchBox8484
 """
 
 load("cache.star", "cache")
