@@ -50,7 +50,7 @@ def main(config):
     mainFont = "CG-pixel-3x5-mono"
     if entries:
         divisionName = standings["shortName"]
-        divisionName = divisionName.replace(" ", "")
+        divisionNameArray = divisionName.split(" ")
         cycleOptions = int(config.get("cycleOptions", 1))
         cycleCount = 0
         entriesToDisplay = teamsToShow
@@ -77,9 +77,10 @@ def main(config):
             child = render.Column(
                 children = [
                     render.Box(width = 64, height = 6, color = "#000", child = render.Row(expanded = True, main_align = "start", cross_align = "center", children = [
-                        render.Box(width = 24, height = 6, child = render.Text(content = divisionName, color = "#ff0", font = mainFont)),
-                        render.Box(width = 22, height = 6, child = render.Text(content = "W-L", color = "#ff0", font = mainFont)),
-                        render.Box(width = 20, height = 6, child = render.Text(content = "GB", color = "#ff0", font = mainFont)),
+                        render.Box(width = 8, height = 6, child = render.Text(content = divisionNameArray[0], color = "#ff0", font = mainFont)),
+                        render.Box(width = 18, height = 6, child = render.Text(content = divisionNameArray[1], color = "#ff0", font = mainFont)),
+                        render.Box(width = 18, height = 6, child = render.Text(content = "W-L", color = "#ff0", font = mainFont)),
+                        render.Box(width = 24, height = 6, child = render.Text(content = "GB", color = "#ff0", font = mainFont)),
                     ])),
                     render.Animation(
                         children = renderCategory,
