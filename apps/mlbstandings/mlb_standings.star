@@ -63,8 +63,7 @@ def main(config):
                         cross_align = "start",
                         children = [
                             render.Column(
-                                children = get_team(x, entries, entriesToDisplay)
-                                ,
+                                children = get_team(x, entries, entriesToDisplay),
                             ),
                         ],
                     ),
@@ -161,37 +160,38 @@ def get_team_color(teamid):
     data = get_cachable_data("https://site.api.espn.com/apis/site/v2/sports/" + SPORT + "/" + LEAGUE + "/teams/" + teamid)
     decodedata = json.decode(data)
     team = decodedata["team"]
-    return get_background_color(team["abbreviation"], "color", team["color"], team["alternateColor"])
+    teamcolor = get_background_color(team["abbreviation"], "color", team["color"], team["alternateColor"])
+    return teamcolor
 
 def get_team(x, s, entriesToDisplay):
-	output = []
-	containerHeight = int(27/entriesToDisplay)
-	for i in range(0, entriesToDisplay):
-	    if i+x < len(s):
-	        mainFont = "CG-pixel-3x5-mono"
-	        teamID = s[i+x]["team"]["id"]
-	        teamName = s[i+x]["team"]["abbreviation"]
-	        teamColor = get_team_color(teamID)
-	        teamLogo = get_logoType(teamName, s[i+x]["team"]["logos"][1]["href"])
-	        teamWins = s[i+x]["stats"][1]["displayValue"]
-	        teamLosses = s[i+x]["stats"][2]["displayValue"]
-	        teamRecord = teamWins + "-" + teamLosses
-	        teamGB = s[i+x]["stats"][4]["displayValue"]
-	
-	        team = render.Column(
-	            children = [
-	                render.Box(width = 64, height = containerHeight, color = teamColor, child = render.Row(expanded = True, main_align = "start", cross_align = "center", children = [
-	                    render.Box(width = 8, height = containerHeight, child = render.Image(teamLogo, width = 10, height = 10)),
-	                    render.Box(width = 14, height = containerHeight, child = render.Text(content = teamName[:3], color = "#fff", font = mainFont)),
-	                    render.Box(width = 26, height = containerHeight, child = render.Text(content = teamRecord, color = "#fff", font = mainFont)),
-	                    render.Box(width = 16, height = containerHeight, child = render.Text(content = teamGB, color = "#fff", font = mainFont)),
-	                ])),
-	            ],
-	        )
-	        output.extend([team])
-	    else:
-	        output.extend([render.Column(children = [render.Box(width = 64, height = containerHeight, color = "#111")])])
-	return output
+    output = []
+    containerHeight = int(27 / entriesToDisplay)
+    for i in range(0, entriesToDisplay):
+        if i + x < len(s):
+            mainFont = "CG-pixel-3x5-mono"
+            teamID = s[i + x]["team"]["id"]
+            teamName = s[i + x]["team"]["abbreviation"]
+            teamColor = get_team_color(teamID)
+            teamLogo = get_logoType(teamName, s[i + x]["team"]["logos"][1]["href"])
+            teamWins = s[i + x]["stats"][1]["displayValue"]
+            teamLosses = s[i + x]["stats"][2]["displayValue"]
+            teamRecord = teamWins + "-" + teamLosses
+            teamGB = s[i + x]["stats"][4]["displayValue"]
+
+            team = render.Column(
+                children = [
+                    render.Box(width = 64, height = containerHeight, color = teamColor, child = render.Row(expanded = True, main_align = "start", cross_align = "center", children = [
+                        render.Box(width = 8, height = containerHeight, child = render.Image(teamLogo, width = 10, height = 10)),
+                        render.Box(width = 14, height = containerHeight, child = render.Text(content = teamName[:3], color = "#fff", font = mainFont)),
+                        render.Box(width = 26, height = containerHeight, child = render.Text(content = teamRecord, color = "#fff", font = mainFont)),
+                        render.Box(width = 16, height = containerHeight, child = render.Text(content = teamGB, color = "#fff", font = mainFont)),
+                    ])),
+                ],
+            )
+            output.extend([team])
+        else:
+            output.extend([render.Column(children = [render.Box(width = 64, height = containerHeight, color = "#111")])])
+    return output
 
 def get_background_color(team, displayType, color, altColor):
     altcolors = json.decode(ALT_COLOR)
