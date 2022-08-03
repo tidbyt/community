@@ -7,7 +7,7 @@ Author: rs7q5
 
 #shuffle_images.star
 #Created 20220704 RIS
-#Last Modified 20220722 RIS
+#Last Modified 20220728 RIS
 
 load("render.star", "render")
 load("schema.star", "schema")
@@ -52,7 +52,7 @@ def get_schema():
             id = "hide_app",
             name = "Hide app?",
             desc = "",
-            icon = "eye-slash",
+            icon = "eyeSlash",
             default = False,
         ),
         schema.Toggle(
