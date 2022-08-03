@@ -45,7 +45,7 @@ def getEmojiList(locale, vendor):
     if rep.status_code != 200:
         fail("couldn't get list of emojis with status %d" % rep.status_code)
     rep_body_raw = rep.body()
-    rep_body = str(gzip.decompress(rep_body_raw)) # the emoji list emoji is gzipped, despite url
+    rep_body = str(gzip.decompress(rep_body_raw))  # the emoji list emoji is gzipped, despite url
     cache.set("emoji_base64_list", rep_body, ttl_seconds = 86400)  # caching 24 hours
     return csv.read_all(rep_body, skip = 1)
 
@@ -61,7 +61,7 @@ def getEmojiNames(locale):
     if rep_names.status_code != 200:
         fail("couldn't get list of emoji names with status %d" % rep_names.status_code)
     rep_names_body_raw = rep_names.body()
-    rep_names_body = str(gzip.decompress(rep_names_body_raw)) # the names csv is gzipped, despite url
+    rep_names_body = str(gzip.decompress(rep_names_body_raw))  # the names csv is gzipped, despite url
     cache.set("emoji_names_%s" % locale, rep_names_body, ttl_seconds = 86400)  # caching 24 hours
     return csv.read_all(rep_names_body, skip = 1)
 
