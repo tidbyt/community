@@ -10,6 +10,7 @@ load("re.star", "re")
 load("http.star", "http")
 load("random.star", "random")
 load("render.star", "render")
+load("compress/gzip.star", "gzip")
 load("encoding/csv.star", "csv")
 load("encoding/base64.star", "base64")
 load("cache.star", "cache")
@@ -43,8 +44,10 @@ def getEmojiList(locale, vendor):
     rep = http.get(emoji_list_url_vendor)
     if rep.status_code != 200:
         fail("couldn't get list of emojis with status %d" % rep.status_code)
-    cache.set("emoji_base64_list", rep.body(), ttl_seconds = 86400)  # caching 24 hours
-    return csv.read_all(rep.body(), skip = 1)
+    rep_body_raw = rep.body()
+    rep_body = str(gzip.decompress(rep_body_raw)) # the emoji list emoji is gzipped, despite url
+    cache.set("emoji_base64_list", rep_body, ttl_seconds = 86400)  # caching 24 hours
+    return csv.read_all(rep_body, skip = 1)
 
 def getEmojiNames(locale):
     emoji_names_cache = cache.get("emoji_names_%s" % locale)
@@ -57,8 +60,10 @@ def getEmojiNames(locale):
     rep_names = http.get(EMOJI_NAMES_URL % locale)
     if rep_names.status_code != 200:
         fail("couldn't get list of emoji names with status %d" % rep_names.status_code)
-    cache.set("emoji_names_%s" % locale, rep_names.body(), ttl_seconds = 86400)  # caching 24 hours
-    return csv.read_all(rep_names.body(), skip = 1)
+    rep_names_body_raw = rep_names.body()
+    rep_names_body = str(gzip.decompress(rep_names_body_raw)) # the names csv is gzipped, despite url
+    cache.set("emoji_names_%s" % locale, rep_names_body, ttl_seconds = 86400)  # caching 24 hours
+    return csv.read_all(rep_names_body, skip = 1)
 
 def main(config):
     locale = config.str("locale")
