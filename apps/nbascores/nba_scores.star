@@ -148,15 +148,19 @@ def main(config):
                     gameTime = convertedTime.format("3:04 PM")
                 if pregameDisplay == "odds":
                     checkOdds = competition.get("odds", "NO")
-                    checkOU = competition["odds"][0].get("overUnder", "NO")
                     if checkOdds != "NO":
-                        theOdds = competition["odds"][0]["details"]
-                        if checkOU == "NO":
-                            theOU = ""
-                        else:
-                            theOU = competition["odds"][0]["overUnder"]
-                        homeScore = get_odds(theOdds, str(theOU), home, "home")
-                        awayScore = get_odds(theOdds, str(theOU), away, "away")
+                        checkOU = competition["odds"][0].get("overUnder", "NO")
+                        if checkOdds != "NO":
+                            theOdds = competition["odds"][0]["details"]
+                            if checkOU == "NO":
+                                theOU = ""
+                            else:
+                                theOU = competition["odds"][0]["overUnder"]
+                            homeScore = get_odds(theOdds, str(theOU), home, "home")
+                            awayScore = get_odds(theOdds, str(theOU), away, "away")
+                    else:
+                        homeScore = ""
+                        awayScore = ""
                 elif pregameDisplay == "record":
                     checkSeries = competition.get("series", "NO")
                     if checkSeries == "NO":
