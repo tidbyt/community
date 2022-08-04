@@ -201,7 +201,7 @@ def get_schema():
                 id = "character",
                 name = "Super Mario Characters",
                 desc = "Select a Character",
-                icon = "cog",
+                icon = "gear",
                 default = character_options[0].value,
                 options = character_options,
             ),
