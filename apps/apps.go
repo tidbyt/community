@@ -147,6 +147,7 @@ import (
 	"tidbyt.dev/community/apps/wantedposter"
 	"tidbyt.dev/community/apps/warframecycles"
 	"tidbyt.dev/community/apps/weathermap"
+	"tidbyt.dev/community/apps/web3counter"
 	"tidbyt.dev/community/apps/whosthatpokemon"
 	"tidbyt.dev/community/apps/wordlebyt"
 	"tidbyt.dev/community/apps/wordoftheday"
@@ -296,6 +297,7 @@ func GetManifests() []manifest.Manifest {
 		wantedposter.New(),
 		warframecycles.New(),
 		weathermap.New(),
+		web3counter.New(),
 		whosthatpokemon.New(),
 		wordlebyt.New(),
 		wordoftheday.New(),
