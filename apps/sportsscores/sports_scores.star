@@ -6,7 +6,7 @@ Author: rs7q5
 """
 #sports_scores.star
 #Created 20220220 RIS
-#Last Modified 20220719 RIS
+#Last Modified 20220728 RIS
 
 load("render.star", "render")
 load("http.star", "http")
@@ -89,13 +89,6 @@ def get_schema():
     return schema.Schema(
         version = "1",
         fields = [
-            schema.Toggle(
-                id = "local_tz",
-                name = "Local timezone",
-                desc = "Enable to display game times in your local timezone (default is ET).",
-                icon = "gear",
-                default = False,
-            ),
             schema.Dropdown(
                 id = "sport",
                 name = "Sport",
@@ -103,6 +96,34 @@ def get_schema():
                 icon = "medal",
                 options = sports,
                 default = "MLB",
+            ),
+            schema.Toggle(
+                id = "gameday",
+                name = "Game day only",
+                desc = "",
+                icon = "calendar",
+                default = False,
+            ),
+            schema.Toggle(
+                id = "local_tz",
+                name = "Local timezone",
+                desc = "Enable to display game times in your local timezone (default is ET).",
+                icon = "gear",
+                default = False,
+            ),
+            schema.Toggle(
+                id = "row_space",
+                name = "Add space between rows",
+                desc = "This may reduce the number of games displayed on each frame.",
+                icon = "gear",
+                default = False,
+            ),
+            schema.Toggle(
+                id = "scroll_logic",
+                name = "Scroll games?",
+                desc = "",
+                icon = "gear",
+                default = False,
             ),
             schema.Dropdown(
                 id = "speed",
@@ -113,33 +134,37 @@ def get_schema():
                 options = frame_speed,
             ),
             schema.Toggle(
-                id = "row_space",
-                name = "Add space between rows",
-                desc = "This may reduce the number of games displayed on each frame.",
-                icon = "gear",
+                id = "hide_tbd_scores",
+                name = "Hide the score of games not started?",
+                desc = "Enable to hide zeros for games not started.",
+                icon = "eyeSlash",
                 default = False,
             ),
             schema.Toggle(
-                id = "gameday",
-                name = "Game day only",
-                desc = "",
-                icon = "calendar",
-                default = False,
-            ),
-            schema.Toggle(
-                id = "scroll_logic",
-                name = "Scroll games?",
-                desc = "",
-                icon = "gear",
+                id = "highlight_winner",
+                name = "Highlight winner?",
+                desc = "Enable to highlight the winner of a completed game.",
+                icon = "highlighter",
                 default = False,
             ),
             schema.Toggle(
                 id = "highlight_team",
-                name = "Highlight team",
-                desc = "Highlight a select team.",
+                name = "Highlight team?",
+                desc = "Enable to highlight a select team.",
                 icon = "highlighter",
                 default = False,
             ),
+            schema.Generated(
+                id = "team_select",
+                source = "highlight_team",
+                handler = team_options,
+            ),
+        ],
+    )
+
+def team_options(highlight_team):
+    if highlight_team:
+        return [
             schema.Text(
                 id = "team_select",
                 name = "Team abbreviation",
@@ -147,9 +172,11 @@ def get_schema():
                 icon = "highlighter",
                 default = "None",
             ),
-        ],
-    )
+        ]
+    else:
+        return []
 
+######################################################
 def get_frames(stats, sport_txt, font, config):
     frame_vec = []
     if stats == no_games_text:
@@ -201,49 +228,66 @@ def get_frames(stats, sport_txt, font, config):
     for i, team in enumerate(stats):
         if config.bool("highlight_team", False) and (team["away"][0] == team_sel or team["home"][0] == team_sel):
             ctmp = "#A8F0CB"
+            ctmp_win = "#1EAE64"
             ctmp2 = "#08FF08"
             ctmp3 = "#52BB52"
             if team["away"][1] == 1000 and force_two:
                 ctmp = "#CCFFE5"
         elif i % 2 == 0:
             ctmp = "#c8c8fa"
+            ctmp_win = "#6969F1"
             ctmp2 = "#a00"
             ctmp3 = "#228B22"  #dark green
         else:
             ctmp = "#fff"
+            ctmp_win = "#786868"
             ctmp2 = "#D2691E"
             ctmp3 = "#52BB52"  #light green
 
         status_tmp = team["status"].split("/")
 
+        #additional color options
+        ctmp_away = ctmp
+        ctmp_home = ctmp
+        if config.bool("highlight_winner", False):
+            if team["highlight"] == "away":
+                ctmp_away = ctmp_win
+            elif team["highlight"] == "home":
+                ctmp_home = ctmp_win
+
+        if config.bool("hide_tbd_scores", False) and team["highlight"] == "scores":
+            ctmp2_score = "#000"
+        else:
+            ctmp2_score = ctmp2
+
         #away team name
         if team["away"][1] == 1000 and force_two:  #NBA condition is safety net
             away_team.append(render.Text(team["away"][0], font = font, color = "#000", height = txt_height))
         else:
-            away_team.append(render.Text(team["away"][0], font = font, color = ctmp, height = txt_height))
+            away_team.append(render.Text(team["away"][0], font = font, color = ctmp_away, height = txt_height))
 
         #away team score
         if team["away"][1] == 1000 and force_two:  #NBA condition is safety net
             away_score.append(render.Text("-", font = font, color = "#000", height = txt_height))
         elif team["away"][1] < 0:
-            away_score.append(render.Text("-", font = font, color = ctmp2, height = txt_height))
+            away_score.append(render.Text("-", font = font, color = ctmp2_score, height = txt_height))
         else:
-            away_score.append(render.Text(str(team["away"][1]), font = font, color = ctmp2, height = txt_height))
+            away_score.append(render.Text(str(team["away"][1]), font = font, color = ctmp2_score, height = txt_height))
 
         #home team name
         if team["home"][1] == 1000 and force_two:  #NBA condition is safety net
             home_team.append(render.Text(team["home"][0], font = font, color = "#000", height = txt_height))
         else:
-            home_team.append(render.Text(team["home"][0], font = font, color = ctmp, height = txt_height))
+            home_team.append(render.Text(team["home"][0], font = font, color = ctmp_home, height = txt_height))
 
         #home team score
 
         if team["home"][1] == 1000 and force_two:  #NBA condition is safety net
             home_score.append(render.Text("-", font = font, color = "#000", height = txt_height))
         elif team["home"][1] < 0:
-            home_score.append(render.Text("-", font = font, color = ctmp2, height = txt_height))
+            home_score.append(render.Text("-", font = font, color = ctmp2_score, height = txt_height))
         else:
-            home_score.append(render.Text(str(team["home"][1]), font = font, color = ctmp2, height = txt_height))
+            home_score.append(render.Text(str(team["home"][1]), font = font, color = ctmp2_score, height = txt_height))
 
         #status_tmp = team["status"].split("/")
         if team["away"][1] == 1000 and force_two:  #NBA condition is safety net
@@ -307,7 +351,14 @@ def get_frames(stats, sport_txt, font, config):
                 ],
             )
             if config.bool("scroll_logic", False):
-                frame_data_tmp = render.Marquee(height = 27, scroll_direction = "vertical", child = frame_data_tmp)
+                frame_data_tmp = render.Marquee(
+                    height = 27,
+                    scroll_direction = "vertical",
+                    offset_start = 32,
+                    offset_end = 32,
+                    align = "start",
+                    child = frame_data_tmp,
+                )
 
             frame_vec_tmp = render.Column(
                 expanded = True,
@@ -407,9 +458,13 @@ def get_mlbgames(today_str, config):
 
         #get team info
         #team_info = dict()
+        #stats_tmp["winner"] = None
+        stats_tmp["highlight"] = None
         for key, value in game["teams"].items():
             #team_info[key] = (value["team"]["abbreviation"],int(value.get("score",-1)))
             stats_tmp[key] = (value["team"]["abbreviation"], int(value.get("score", 0)))  #for some reason some games have no score so instead of doing -1, doing 0
+            if value.get("isWinner", False):
+                stats_tmp["highlight"] = key
 
         linescore = game.get("linescore", [])
         if game["status"]["abstractGameCode"] == "L" or status == "F":  #this should cover live or final games
@@ -428,6 +483,7 @@ def get_mlbgames(today_str, config):
         else:  #this should cover scheduled games
             if game["status"]["statusCode"] in ["S", "PW", "P"]:
                 status_txt = adjust_gametime(game["gameDate"], config)
+                stats_tmp["highlight"] = "scores"
             else:  #not delayed before the game has started
                 status_txt = status
 
@@ -462,9 +518,12 @@ def get_nhlgames(today_str, config):
 
         #get team info
         #team_info = dict()
+        stats_tmp["highlight"] = None
         for key, value in game["teams"].items():
             #team_info[key] = (value["team"]["abbreviation"],int(value.get("score",-1)))
             stats_tmp[key] = (value["team"]["abbreviation"], int(value.get("score", -1)))
+            if value.get("isWinner", False):
+                stats_tmp["highlight"] = key
 
         linescore = game.get("linescore", [])
 
@@ -472,6 +531,7 @@ def get_nhlgames(today_str, config):
         if status == "1":
             #status_txt = "Preview"
             status_txt = adjust_gametime(game["gameDate"], config)
+            stats_tmp["highlight"] = "scores"
         elif status == "9":
             status_txt = "PostP"
         elif linescore != []:  #this should cover live and final states
@@ -485,6 +545,14 @@ def get_nhlgames(today_str, config):
                     status_txt = "F/" + period
             else:
                 status_txt = period_T + "/" + period  #switch status and period here so time doesn't get cut off
+
+            #figure out which team should be highlighted
+            if stats_tmp["away"][1] == stats_tmp["home"][1]:
+                pass  #this case should never happen as ties in hockey aren't a thing, but here for completion
+            elif stats_tmp["away"][1] < stats_tmp["home"][1]:
+                stats_tmp["highlight"] = "home"
+            else:  #home team wins
+                stats_tmp["highlight"] = "away"
         else:  #this is a safety net
             status_txt = status
 
@@ -519,17 +587,24 @@ def get_basketballgames(today_str, sport, config):
         status = game["status"]["type"]["id"]  #["codedGameState"] #Need to figure out what the possible values are here (may impact inning info)
 
         #get team info
+        stats_tmp["highlight"] = None
         for key, value in enumerate(game["competitions"][0]["competitors"]):  #game["teams"].items():
             #team_info[key] = (value["team"]["abbreviation"],int(value.get("score",-1)))
             key2 = value["homeAway"]
             stats_tmp[key2] = (value["team"]["abbreviation"][:3], int(value.get("score", -1)))
             stats_tmp2[key2] = (value["team"]["abbreviation"][:3], 1000)
+            if value.get("winner", False):
+                stats_tmp["highlight"] = key2
+                stats_tmp2["highlight"] = key2
+
         linescore = game.get("linescore", [])
 
         if status == "1":
             #status_txt = "Preview"
             game_time_tmp = game["date"].replace("Z", ":00Z")  #date does not include seconds so add here to parse time
             status_txt = adjust_gametime(game_time_tmp, config)
+            stats_tmp["highlight"] = "scores"
+            stats_tmp2["highlight"] = "scores"
         elif game["status"]["type"]["state"] == "in" or status in ["2", "3"]:  #linescore!=[]: #this should cover live and final states
             period = int(game["status"]["period"])  #str(int(game["status"]["period"]))
             period_T = game["status"]["displayClock"]
@@ -580,17 +655,24 @@ def get_nflgames(today_str, config):
         status = game["status"]["type"]["id"]  #["codedGameState"] #Need to figure out what the possible values are here (may impact inning info)
 
         #get team info
+        stats_tmp["highlight"] = None
         for key, value in enumerate(game["competitions"][0]["competitors"]):  #game["teams"].items():
             #team_info[key] = (value["team"]["abbreviation"],int(value.get("score",-1)))
             key2 = value["homeAway"]
             stats_tmp[key2] = (value["team"]["abbreviation"][:3], int(value.get("score", -1)))
             stats_tmp2[key2] = (value["team"]["abbreviation"][:3], 1000)
+            if value.get("winner", False):
+                stats_tmp["highlight"] = key2
+                stats_tmp2["highlight"] = key2
+
         linescore = game.get("linescore", [])
 
         if status == "1":
             #status_txt = "Preview"
             game_time_tmp = game["date"].replace("Z", ":00Z")  #date does not include seconds so add here to parse time
             status_txt = adjust_gametime(game_time_tmp, config)
+            stats_tmp["highlight"] = "scores"
+            stats_tmp2["highlight"] = "scores"
         elif game["status"]["type"]["state"] == "in" or status in ["2", "3"]:  #linescore!=[]: #this should cover live and final states
             period = int(game["status"]["period"])  #str(int(game["status"]["period"]))
             period_T = game["status"]["displayClock"]
@@ -639,16 +721,23 @@ def get_soccergames(today_str, sport, config):
         status = game["status"]["type"]["id"]  #["codedGameState"] #Need to figure out what the possible values are here (may impact inning info)
 
         #get team info
+        stats_tmp["highlight"] = None
         for key, value in enumerate(game["competitions"][0]["competitors"]):  #game["teams"].items():
             #team_info[key] = (value["team"]["abbreviation"],int(value.get("score",-1)))
             key2 = value["homeAway"]
             stats_tmp[key2] = (value["team"]["abbreviation"][:3], int(value.get("score", -1)))
             stats_tmp2[key2] = (value["team"]["abbreviation"][:3], 1000)
+            if value.get("winner", False):
+                stats_tmp["highlight"] = key2
+                stats_tmp2["highlight"] = key2
+
         linescore = game.get("linescore", [])
 
         if status == "1":
             game_time_tmp = game["date"].replace("Z", ":00Z")  #date does not include seconds so add here to parse time
             status_txt = adjust_gametime(game_time_tmp, config)
+            stats_tmp["highlight"] = "scores"
+            stats_tmp["highlight"] = "scores"
         elif game["status"]["type"]["state"] == "in" or status in ["2", "3"]:  #linescore!=[]: #this should cover live and final states
             period = int(game["status"]["period"])  #str(int(game["status"]["period"]))
             period_T = game["status"]["displayClock"]
