@@ -50,11 +50,16 @@ def main(config):
     day = now.day
     month = now.month
 
-    if day == 25 and month == 12:
+    if config.bool("december_only", False) and month != 12:
+        return []
+    elif day == 25 and month == 12:
         is_christmas = CHRISTMAS_YES
+    elif config.bool("days_left", False):  #if not christmas and get days left
+        is_christmas = get_daysleft(time.time(year = now.year, month = month, day = day, location = timezone), timezone)
     else:
         is_christmas = CHRISTMAS_NO
-    print(is_christmas)
+
+    #print(is_christmas)
 
     return render.Root(
         delay = 500,
@@ -81,7 +86,7 @@ def main(config):
                         ),
                         render.Box(
                             height = 15,
-                            width = 20,
+                            width = 42,
                             child = is_christmas_text(is_christmas),
                         ),
                         render.Animation(
@@ -92,6 +97,18 @@ def main(config):
             ],
         ),
     )
+
+def get_daysleft(today, timezone):
+    if today.month == 12 and today.day > 25:
+        year = today.year + 1
+    else:
+        year = today.year
+
+    christmas = time.time(year = year, month = 12, day = 25, location = timezone)
+    days_left = (christmas - today).hours // 24
+
+    days_left_text = "%d days" % days_left
+    return days_left_text
 
 def is_christmas_text(is_christmas):
     color = CHRISTMAS_RED
@@ -141,6 +158,20 @@ def get_schema():
                 name = "Location",
                 desc = "Location for which to display time.",
                 icon = "locationDot",
+            ),
+            schema.Toggle(
+                id = "december_only",
+                name = "December only?",
+                desc = "Enable to only display in the month of December.",
+                icon = "gear",
+                default = False,
+            ),
+            schema.Toggle(
+                id = "days_left",
+                name = "Display days left until Christmas?",
+                desc = "Enable to display the number of days left until Christmas.",
+                icon = "gear",
+                default = False,
             ),
         ],
     )
