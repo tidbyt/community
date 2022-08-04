@@ -59,6 +59,7 @@ import (
 	"tidbyt.dev/community/apps/islamicprayer"
 	"tidbyt.dev/community/apps/isstracker"
 	"tidbyt.dev/community/apps/jokesjokeapi"
+	"tidbyt.dev/community/apps/kickstarter"
 	"tidbyt.dev/community/apps/kielferry"
 	"tidbyt.dev/community/apps/launchcountdown"
 	"tidbyt.dev/community/apps/life"
@@ -208,6 +209,7 @@ func GetManifests() []manifest.Manifest {
 		islamicprayer.New(),
 		isstracker.New(),
 		jokesjokeapi.New(),
+		kickstarter.New(),
 		kielferry.New(),
 		launchcountdown.New(),
 		life.New(),
