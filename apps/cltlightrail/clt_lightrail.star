@@ -64,7 +64,7 @@ def get_schema():
                 id = "station",
                 name = "LYNX Blue Line",
                 desc = "Lightrail Stations",
-                icon = "train-subway",
+                icon = "trainSubway",
                 default = station_options[0].value,
                 options = station_options,
             ),
