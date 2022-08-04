@@ -60,6 +60,7 @@ import (
 	"tidbyt.dev/community/apps/isstracker"
 	"tidbyt.dev/community/apps/jokesjokeapi"
 	"tidbyt.dev/community/apps/kickstarter"
+	"tidbyt.dev/community/apps/kielferry"
 	"tidbyt.dev/community/apps/launchcountdown"
 	"tidbyt.dev/community/apps/life"
 	"tidbyt.dev/community/apps/lirr"
@@ -100,6 +101,7 @@ import (
 	"tidbyt.dev/community/apps/pollencount"
 	"tidbyt.dev/community/apps/powerball"
 	"tidbyt.dev/community/apps/preciousmetals"
+	"tidbyt.dev/community/apps/pubgstats"
 	"tidbyt.dev/community/apps/purpleair"
 	"tidbyt.dev/community/apps/randomslackmoji"
 	"tidbyt.dev/community/apps/redditimages"
@@ -135,6 +137,7 @@ import (
 	"tidbyt.dev/community/apps/tube"
 	"tidbyt.dev/community/apps/tubestatus"
 	"tidbyt.dev/community/apps/tvquotes"
+	"tidbyt.dev/community/apps/twitch"
 	"tidbyt.dev/community/apps/twitterfollows"
 	"tidbyt.dev/community/apps/unsplash"
 	"tidbyt.dev/community/apps/usgsearthquakes"
@@ -207,6 +210,7 @@ func GetManifests() []manifest.Manifest {
 		isstracker.New(),
 		jokesjokeapi.New(),
 		kickstarter.New(),
+		kielferry.New(),
 		launchcountdown.New(),
 		life.New(),
 		lirr.New(),
@@ -246,6 +250,7 @@ func GetManifests() []manifest.Manifest {
 		pollencount.New(),
 		powerball.New(),
 		preciousmetals.New(),
+		pubgstats.New(),
 		purpleair.New(),
 		randomslackmoji.New(),
 		redditimages.New(),
@@ -281,6 +286,7 @@ func GetManifests() []manifest.Manifest {
 		tube.New(),
 		tubestatus.New(),
 		tvquotes.New(),
+		twitch.New(),
 		twitterfollows.New(),
 		unsplash.New(),
 		usgsearthquakes.New(),
