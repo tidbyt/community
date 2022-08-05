@@ -1,7 +1,7 @@
 """
-Applet: NFL Standings
-Summary: Displays NFL standings
-Description: Displays live and upcoming NFL standings from a data feed.
+Applet: NCAAF Standings
+Summary: Displays NCAAF standings
+Description: Displays live and upcoming NCAAF standings from a data feed.
 Author: LunchBox8484
 """
 
@@ -15,6 +15,16 @@ load("time.star", "time")
 load("math.star", "math")
 
 CACHE_TTL_SECONDS = 300
+DEFAULT_LOCATION = """
+{
+    "lat": "40.6781784",
+    "lng": "-73.9441579",
+    "description": "Brooklyn, NY, USA",
+    "locality": "Brooklyn",
+    "place_id": "ChIJCSF8lBZEwokRhngABHRcdoI",
+    "timezone": "America/New_York"
+}
+"""
 SPORT = "football"
 LEAGUE = "college-football"
 API = "https://site.api.espn.com/apis/v2/sports/" + SPORT + "/" + LEAGUE + "/standings"
@@ -44,7 +54,7 @@ ALT_COLOR = """
 """
 ALT_LOGO = """
 {
-    "WYO" : "https://www.logolynx.com/images/logolynx/67/6779baa37f2969ed428ae079380caf9c.png",
+    "WYO" : "https://i.ibb.co/Czv9k7H/wyoming-cowboys.png",
     "IOWA" : "https://storage.googleapis.com/hawkeyesports-com/2021/02/cf540990-logo.png",
     "DUQ" : "https://b.fssta.com/uploads/application/college/team-logos/Duquesne-alternate.vresize.50.50.medium.1.png",
     "UNC" : "https://b.fssta.com/uploads/application/college/team-logos/NorthCarolina-alternate.vresize.50.50.medium.1.png",
@@ -109,6 +119,12 @@ def main(config):
     renderCategory = []
     conferenceType = config.get("conferenceType", "0")
     teamsToShow = int(config.get("teamsOptions", "3"))
+    showDateTime = config.bool("displayDateTime")
+    timeColor = config.get("displayTimeColor", "#FFF")
+    location = config.get("location", DEFAULT_LOCATION)
+    loc = json.decode(location)
+    timezone = loc["timezone"]
+    now = time.now().in_location(timezone)
     if conferenceType == "top25":
         apiURL = "https://site.api.espn.com/apis/site/v2/sports/football/college-football/rankings"
     elif conferenceType == "0":
@@ -149,7 +165,7 @@ def main(config):
                         cross_align = "start",
                         children = [
                             render.Column(
-                                children = get_team(x, entries, entriesToDisplay, displayType),
+                                children = get_team(x, entries, entriesToDisplay, displayType, showDateTime and 24 or 28),
                             ),
                         ],
                     ),
@@ -159,14 +175,7 @@ def main(config):
         return render.Root(
             delay = int(15000 / cycleOptions / cycleCount),
             child = render.Column(
-                children = [
-                    render.Box(width = 64, height = 5, color = "#000", child = render.Row(expanded = True, main_align = "start", cross_align = "center", children = [
-                        render.Box(width = 64, height = 5, child = render.Text(content = divisionShortName, color = "#ff0", font = mainFont)),
-                    ])),
-                    render.Animation(
-                        children = renderCategory,
-                    ),
-                ],
+                children = get_top_column(showDateTime, now, timeColor, divisionName, renderCategory, showDateTime and 8 or 5),
             ),
         )
     else:
@@ -202,12 +211,8 @@ conferenceOptions = [
         value = "5&1",
     ),
     schema.Option(
-        display = "C-USA - East",
-        value = "12&0",
-    ),
-    schema.Option(
-        display = "C-USA - West",
-        value = "12&1",
+        display = "C-USA",
+        value = "12",
     ),
     schema.Option(
         display = "FBS Indep.",
@@ -230,12 +235,8 @@ conferenceOptions = [
         value = "17&1",
     ),
     schema.Option(
-        display = "Pac-12 - North",
-        value = "9&0",
-    ),
-    schema.Option(
-        display = "Pac-12 - South",
-        value = "9&1",
+        display = "Pac-12",
+        value = "9",
     ),
     schema.Option(
         display = "SEC - East",
@@ -285,6 +286,33 @@ teamsOptions = [
     ),
 ]
 
+colorOptions = [
+    schema.Option(
+        display = "White",
+        value = "#FFF",
+    ),
+    schema.Option(
+        display = "Yellow",
+        value = "#FF0",
+    ),
+    schema.Option(
+        display = "Red",
+        value = "#F00",
+    ),
+    schema.Option(
+        display = "Blue",
+        value = "#00F",
+    ),
+    schema.Option(
+        display = "Green",
+        value = "#0F0",
+    ),
+    schema.Option(
+        display = "Orange",
+        value = "#FFA500",
+    ),
+]
+
 def get_schema():
     return schema.Schema(
         version = "1",
@@ -313,6 +341,21 @@ def get_schema():
                 default = cycleOptions[0].value,
                 options = cycleOptions,
             ),
+            schema.Toggle(
+                id = "displayDateTime",
+                name = "Current Time",
+                desc = "A toggle to display the Current Time rather than game time/status.",
+                icon = "calendar",
+                default = False,
+            ),
+            schema.Dropdown(
+                id = "displayTimeColor",
+                name = "Time Color",
+                desc = "Select which color you want the time to be.",
+                icon = "eyedropper",
+                default = colorOptions[0].value,
+                options = colorOptions,
+            ),
         ],
     )
 
@@ -335,9 +378,9 @@ def get_team_color(teamid):
     teamcolor = get_background_color(team["abbreviation"], "color", team["color"], altColor)
     return teamcolor
 
-def get_team(x, s, entriesToDisplay, displayType):
+def get_team(x, s, entriesToDisplay, displayType, colHeight):
     output = []
-    containerHeight = int(28 / entriesToDisplay)
+    containerHeight = int(colHeight / entriesToDisplay)
     for i in range(0, entriesToDisplay):
         if i + x < len(s):
             mainFont = "CG-pixel-3x5-mono"
@@ -403,6 +446,44 @@ def get_logoType(team, logo):
         logo = logo.replace("https://a.espncdn.com/", "https://a.espncdn.com/combiner/i?img=", 36000)
         logo = get_cachable_data(logo + "&h=50&w=50")
     return logo
+
+def get_top_column(showDateTime, now, timeColor, divisionName, renderCategory, colHeight):
+    topColumn = []
+    if showDateTime:
+        topColumn = [
+            render.Row(
+                expanded = True,
+                main_align = "space_between",
+                cross_align = "start",
+                children = [
+                    render.Box(width = 22, height = colHeight, color = "#000", child = render.Row(expanded = True, main_align = "center", cross_align = "center", children = [
+                        render.Box(width = 1, height = colHeight),
+                        render.Text(color = timeColor, content = now.format("3:04"), font = "tb-8"),
+                    ])),
+                    render.Box(width = 42, height = colHeight, child = render.Stack(children = [
+                        render.Box(width = 42, height = colHeight, color = "#222"),
+                        render.Box(width = 6, height = colHeight, color = "#1D1D1D"),
+                        render.Box(width = 5, height = colHeight, color = "#181818"),
+                        render.Box(width = 4, height = colHeight, color = "#131313"),
+                        render.Box(width = 3, height = colHeight, color = "#0E0E0E"),
+                        render.Box(width = 2, height = colHeight, color = "#090909"),
+                        render.Box(width = 1, height = colHeight, color = "#040404"),
+                        render.Box(width = 42, height = colHeight, child = render.Row(expanded = True, main_align = "end", cross_align = "center", children = [
+                            render.Text(color = "#FFF", content = divisionName, font = "CG-pixel-3x5-mono"),
+                        ])),
+                    ])),
+                ],
+            ),
+            render.Animation(children = renderCategory),
+        ]
+    else:
+        topColumn = [
+            render.Box(width = 64, height = colHeight, color = "#000", child = render.Row(expanded = True, main_align = "start", cross_align = "center", children = [
+                render.Box(width = 64, height = colHeight, child = render.Text(content = divisionName, color = "#ff0", font = "CG-pixel-3x5-mono")),
+            ])),
+            render.Animation(children = renderCategory),
+        ]
+    return topColumn
 
 def get_cachable_data(url, ttl_seconds = CACHE_TTL_SECONDS):
     key = base64.encode(url)

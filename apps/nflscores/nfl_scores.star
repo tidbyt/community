@@ -28,6 +28,22 @@ DEFAULT_LOCATION = """
 SPORT = "football"
 LEAGUE = "nfl"
 API = "https://site.api.espn.com/apis/site/v2/sports/" + SPORT + "/" + LEAGUE + "/scoreboard"
+SHORTENED_WORDS = """
+{
+    " PM": "P",
+    " AM": "A",
+    " - ": " ",
+    " / ": " ",
+    "Postponed": "PPD",
+    "Overtime": "OT",
+    "1st Half": "1H",
+    "2nd Half": "2H",
+    "1st Quarter": "Q1",
+    "2nd Quarter": "Q2",
+    "3rd Quarter": "Q3",
+    "4th Quarter": "Q4"
+}
+"""
 ALT_COLOR = """
 {
     "LAC": "#1281c4",
@@ -70,6 +86,7 @@ def main(config):
         logoType = config.get("logoType", "primary")
         showDateTime = config.bool("displayDateTime")
         pregameDisplay = config.get("pregameDisplay", "record")
+        timeColor = config.get("displayTimeColor", "#FFF")
         rotationSpeed = 15 / len(scores)
         location = config.get("location", DEFAULT_LOCATION)
         loc = json.decode(location)
@@ -229,7 +246,7 @@ def main(config):
                                     expanded = True,
                                     main_align = "space_between",
                                     cross_align = "start",
-                                    children = get_date_column(showDateTime, now, retroTextColor, retroBackgroundColor, retroBorderColor),
+                                    children = get_date_column(showDateTime, now, retroTextColor, retroBackgroundColor, retroBorderColor, displayType, gameTime, timeColor),
                                 ),
                                 render.Column(
                                     children = [
@@ -268,7 +285,7 @@ def main(config):
                                     expanded = True,
                                     main_align = "space_between",
                                     cross_align = "start",
-                                    children = get_date_column(showDateTime, now, textColor, backgroundColor, borderColor),
+                                    children = get_date_column(showDateTime, now, textColor, backgroundColor, borderColor, displayType, gameTime, timeColor),
                                 ),
                                 render.Column(
                                     children = [
@@ -312,7 +329,7 @@ def main(config):
                                     expanded = True,
                                     main_align = "space_between",
                                     cross_align = "start",
-                                    children = get_date_column(showDateTime, now, textColor, backgroundColor, borderColor),
+                                    children = get_date_column(showDateTime, now, textColor, backgroundColor, borderColor, displayType, gameTime, timeColor),
                                 ),
                                 render.Row(
                                     expanded = True,
@@ -375,7 +392,7 @@ def main(config):
                                     expanded = True,
                                     main_align = "space_between",
                                     cross_align = "start",
-                                    children = get_date_column(showDateTime, now, textColor, backgroundColor, borderColor),
+                                    children = get_date_column(showDateTime, now, textColor, backgroundColor, borderColor, displayType, gameTime, timeColor),
                                 ),
                                 render.Row(
                                     expanded = True,
@@ -424,7 +441,7 @@ def main(config):
                                     expanded = True,
                                     main_align = "space_between",
                                     cross_align = "start",
-                                    children = get_date_column(showDateTime, now, textColor, backgroundColor, borderColor),
+                                    children = get_date_column(showDateTime, now, textColor, backgroundColor, borderColor, displayType, gameTime, timeColor),
                                 ),
                                 render.Row(
                                     expanded = True,
@@ -475,7 +492,7 @@ def main(config):
                                     expanded = True,
                                     main_align = "space_between",
                                     cross_align = "start",
-                                    children = get_date_column(showDateTime, now, textColor, backgroundColor, borderColor),
+                                    children = get_date_column(showDateTime, now, textColor, backgroundColor, borderColor, displayType, gameTime, timeColor),
                                 ),
                                 render.Row(
                                     expanded = True,
@@ -634,6 +651,33 @@ pregameOptions = [
     ),
 ]
 
+colorOptions = [
+    schema.Option(
+        display = "White",
+        value = "#FFF",
+    ),
+    schema.Option(
+        display = "Yellow",
+        value = "#FF0",
+    ),
+    schema.Option(
+        display = "Red",
+        value = "#F00",
+    ),
+    schema.Option(
+        display = "Blue",
+        value = "#00F",
+    ),
+    schema.Option(
+        display = "Green",
+        value = "#0F0",
+    ),
+    schema.Option(
+        display = "Orange",
+        value = "#FFA500",
+    ),
+]
+
 def get_schema():
     return schema.Schema(
         version = "1",
@@ -662,10 +706,18 @@ def get_schema():
             ),
             schema.Toggle(
                 id = "displayDateTime",
-                name = "Current Date/Time",
-                desc = "A toggle to display the current date/time rather than game time/status.",
+                name = "Current Time",
+                desc = "A toggle to display the Current Time rather than game time/status.",
                 icon = "calendar",
                 default = False,
+            ),
+            schema.Dropdown(
+                id = "displayTimeColor",
+                name = "Time Color",
+                desc = "Select which color you want the time to be.",
+                icon = "eyedropper",
+                default = colorOptions[0].value,
+                options = colorOptions,
             ),
             schema.Dropdown(
                 id = "instancesCount",
@@ -771,20 +823,37 @@ def get_logoSize(team):
         logosize = int(16)
     return logosize
 
-def get_date_column(display, now, textColor, backgroundColor, borderColor):
+def get_date_column(display, now, textColor, backgroundColor, borderColor, displayType, gameTime, timeColor):
     if display:
         dateTimeColumn = [
-            render.Box(width = 32, height = 8, color = borderColor, child = render.Row(expanded = True, main_align = "start", cross_align = "center", children = [
+            render.Box(width = 22, height = 8, color = borderColor, child = render.Row(expanded = True, main_align = "center", cross_align = "center", children = [
                 render.Box(width = 1, height = 8),
-                render.Text(color = textColor, content = now.format("3:04"), font = "tb-8"),
+                render.Text(color = displayType == "retro" and textColor or timeColor, content = now.format("3:04"), font = "tb-8"),
             ])),
-            render.Box(width = 32, height = 8, color = borderColor, child = render.Row(expanded = True, main_align = "end", cross_align = "center", children = [
-                render.Text(color = textColor, content = now.format("Jan").upper() + now.format(" 2"), font = "tb-8"),
+            render.Box(width = 42, height = 8, child = render.Stack(children = [
+                render.Box(width = 42, height = 8, color = displayType == "stadium" and borderColor or "#222"),
+                render.Box(width = 6, height = 8, color = displayType == "stadium" and borderColor or "#1D1D1D"),
+                render.Box(width = 5, height = 8, color = displayType == "stadium" and borderColor or "#181818"),
+                render.Box(width = 4, height = 8, color = displayType == "stadium" and borderColor or "#131313"),
+                render.Box(width = 3, height = 8, color = displayType == "stadium" and borderColor or "#0E0E0E"),
+                render.Box(width = 2, height = 8, color = displayType == "stadium" and borderColor or "#090909"),
+                render.Box(width = 1, height = 8, color = displayType == "stadium" and borderColor or "#040404"),
+                render.Box(width = 42, height = 8, child = render.Row(expanded = True, main_align = "end", cross_align = "center", children = [
+                    render.Text(color = textColor, content = get_shortened_display(gameTime), font = "CG-pixel-3x5-mono"),
+                ])),
             ])),
         ]
     else:
         dateTimeColumn = []
     return dateTimeColumn
+
+def get_shortened_display(text):
+    if len(text) > 8:
+        text = text.replace("Final", "F").replace("Game ", "G").replace(":", "")
+    words = json.decode(SHORTENED_WORDS)
+    for i, s in enumerate(words):
+        text = text.replace(s, words[s])
+    return text
 
 def get_gametime_column(display, gameTime, textColor, backgroundColor, borderColor):
     if display:
