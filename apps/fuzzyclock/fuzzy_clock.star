@@ -105,7 +105,7 @@ def get_schema():
             schema.Location(
                 id = "location",
                 name = "Location",
-                icon = "place",
+                icon = "locationDot",
                 desc = "Location for which to display time",
             ),
             schema.Dropdown(

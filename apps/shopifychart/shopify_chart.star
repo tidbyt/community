@@ -229,7 +229,7 @@ def get_schema():
                 id = "location",
                 name = "Store Location",
                 desc = "The location timezone to use to calculate daily metrics.",
-                icon = "place",
+                icon = "locationDot",
             ),
             schema.Dropdown(
                 id = "metric",
