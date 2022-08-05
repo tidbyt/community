@@ -36,5 +36,4 @@ PUBG Stats displays a selected lifetime statistic for any given PUBG player on S
 - Past Week's Kills
 
 ## Troubleshooting
-- Remember the player name entered is case sensitive
-- Make sure the correct gaming platform is selected for the entered player name
+If the player can not be found please remember that the player name is case sensitive and specific to the gaming platform selected.
