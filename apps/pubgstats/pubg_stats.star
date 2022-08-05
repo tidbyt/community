@@ -400,7 +400,7 @@ def get_schema():
                 id = "selected_stat",
                 name = "Stat to Display",
                 desc = "Lifetime statistic to display",
-                icon = "chart-line",
+                icon = "chartLine",
                 default = stats[0].value,
                 options = stats,
             ),
