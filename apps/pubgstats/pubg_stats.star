@@ -166,6 +166,7 @@ def main(config):
         if i[1] == selected_stat:
             display_label = i[2]
             display_unit = i[3]
+            break
 
     display_label_len = len(display_label)
 
