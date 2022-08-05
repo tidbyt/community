@@ -709,7 +709,7 @@ def get_schema():
                 id = "displayTimeColor",
                 name = "Time Color",
                 desc = "Select which color you want the time to be.",
-                icon = "eyedropper",
+                icon = "gear",
                 default = colorOptions[0].value,
                 options = colorOptions,
             ),
