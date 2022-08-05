@@ -229,7 +229,7 @@ def get_schema():
                 id = "scroll_names",
                 name = "Scroll names",
                 desc = "Scroll the stop names if they're too long to fit on screen",
-                icon = "cut",
+                icon = "scissors",
                 default = SHOULD_SCROLL_DEFAULT,
             ),
         ],

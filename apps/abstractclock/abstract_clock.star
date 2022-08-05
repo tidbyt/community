@@ -190,7 +190,7 @@ def get_schema():
                 id = "Month_Icon",
                 name = "Display Month",
                 desc = "A toggle to display a line for the current month.",
-                icon = "calandar",
+                icon = "calendar",
                 default = False,
             ),
             schema.Dropdown(
@@ -221,7 +221,7 @@ def get_schema():
                 id = "location",
                 name = "Location",
                 desc = "Location for which to display time.",
-                icon = "place",
+                icon = "locationDot",
             ),
         ],
     )

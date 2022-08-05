@@ -126,7 +126,7 @@ def make_frame(elapsed):
 def make_animation(timezone):
     # Key input is how long has passed since the start of the day.
     now = time.now().in_location(timezone)
-    midnight = time.time(year = now.year, month = now.month, day = now.day).in_location(timezone)
+    midnight = time.time(year = now.year, month = now.month, day = now.day, location = timezone)
     elapsed = now - midnight
 
     frames = []
@@ -156,7 +156,7 @@ def get_schema():
                 id = "location",
                 name = "Location",
                 desc = "Location for which to show the time",
-                icon = "place",
+                icon = "locationDot",
             ),
         ],
     )

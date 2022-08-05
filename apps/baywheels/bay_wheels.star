@@ -115,7 +115,7 @@ def get_schema():
                 id = "station_id",
                 name = "Bay Wheels Station",
                 desc = "A list of bike share stations based on a location.",
-                icon = "bike",
+                icon = "bicycle",
                 handler = get_stations,
             ),
         ],

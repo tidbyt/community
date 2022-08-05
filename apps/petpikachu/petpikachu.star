@@ -214,7 +214,7 @@ def get_schema():
                 id = "location",
                 name = "Location",
                 desc = "So Pikachu's activities match the time of day",
-                icon = "place",
+                icon = "locationDot",
             ),
         ],
     )

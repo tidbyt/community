@@ -47,6 +47,9 @@ l/d/WBrBhOVz/g1OHB6agdqc6AAAAABJRU5ErkJggg==
 
 DEFAULT_NAME = "Todoist"
 DEFAULT_FILTER = "today | overdue"
+DEFAULT_SHOW_IF_EMPTY = True
+
+NO_TASKS_CONTENT = "No Tasks :)"
 
 TODOIST_URL = "https://api.todoist.com/rest/v1/tasks"
 
@@ -76,11 +79,15 @@ def main(config):
             if num_tasks == -1:
                 content = "Error"
             elif num_tasks == 0:
-                content = "No Tasks :)"
+                content = NO_TASKS_CONTENT
             else:
                 content = humanize.plural(int(num_tasks), "Task")
 
             cache.set(cache_key, content, ttl_seconds = 60)
+
+        if (content == NO_TASKS_CONTENT and not config.bool("show")):
+            # Don't display the app in the user's rotation
+            return []
 
     else:
         # This is used to display the app preview image
@@ -140,7 +147,7 @@ def get_schema():
                 id = "auth",
                 name = "Todoist",
                 desc = "Connect your Todoist account.",
-                icon = "square-check",
+                icon = "squareCheck",
                 handler = oauth_handler,
                 client_id = OAUTH2_CLIENT_ID or "fake-client-id",
                 authorization_endpoint = "https://todoist.com/oauth/authorize",
@@ -152,15 +159,22 @@ def get_schema():
                 id = "name",
                 name = "Name",
                 desc = "Name to display",
-                icon = "input-text",
+                icon = "iCursor",
                 default = DEFAULT_NAME,
             ),
             schema.Text(
                 id = "filter",
                 name = "Filter",
                 desc = "Filter to apply to tasks.",
-                icon = "filter-list",
+                icon = "filter",
                 default = DEFAULT_FILTER,
+            ),
+            schema.Toggle(
+                id = "show",
+                name = "Show When No Tasks",
+                desc = "Show this app when there are no tasks.",
+                icon = "eye",
+                default = DEFAULT_SHOW_IF_EMPTY,
             ),
         ],
     )

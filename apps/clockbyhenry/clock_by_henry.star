@@ -184,7 +184,7 @@ def get_schema():
                 id = P_LOCATION,
                 name = "Location",
                 desc = "Location for the display of date and time.",
-                icon = "place",
+                icon = "locationDot",
             ),
             #schema.Text(
             #    id = "d",
