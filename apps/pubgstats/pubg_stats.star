@@ -94,6 +94,10 @@ def main(config):
     platform = config.str("platform", DEFAULT_PLATFORM)
     selected_stat = config.str("selected_stat", DEFAULT_SELECTED_STAT)
 
+    # App defaults
+    display_label = ""
+    display_unit = ""
+
     # Create player cache key
     player_cache_key = player_name + "_" + platform
 
@@ -288,7 +292,6 @@ def pretty_error(resp):
     if resp.status_code == 401:
         error = "BAD AUTHORIZATION"
     else:
-        resp.json()["errors"][0]["detail"]
         error = resp.json()["errors"][0]["detail"].upper()
 
     # Return render of error to Tidbyt
