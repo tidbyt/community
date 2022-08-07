@@ -132,7 +132,7 @@ def more_options(sport):
             desc = "Select which league of games should be displayed.",
             icon = "medal",
             options = leagues,
-            default = leagues[0].value,
+            default = SPORTS_LIST[sport][0],
         ),
         schema.Toggle(
             id = "gameday",
