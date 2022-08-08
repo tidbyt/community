@@ -16,41 +16,42 @@ HEIGHT_CELLS = 16
 # Display final result for longer than intermediate steps.
 FINAL_FRAME_LENGTH = 40
 
+# Determines how many cells to add in each frame of animation. Higher values
+# mean faster render times but less smooth animations.
+STEP_SIZE = 8
+
 # make lint doesn't allow while loops, so workaround with large finite limit.
 MAX_STEPS = 1000000
 
 # Returns a pixel at x, y in a given colour.
-def draw_pixel(x, y, colour):
+def draw_pixel(x, y, cell):
     return render.Padding(
         pad = (x, y, 0, 0),
-        child = render.Box(
-            height = 1,
-            width = 1,
-            color = colour,
-        ),
+        child = cell,
     )
 
 # Draws a single frame from a list of pairs of points that are connected.
-def draw_frame(edge_pairs, colour, background_colour):
-    pixels = [render.Box(color = background_colour)]
+def draw_frame(old_pixels, edge_pairs, foreground_cell):
+    pixels = list(old_pixels)
     for edge_pair in edge_pairs:
         first = edge_pair[0]
         second = edge_pair[1]
         pixels.extend([
-            draw_pixel(2 * first[0], 2 * first[1], colour),
-            draw_pixel(first[0] + second[0], first[1] + second[1], colour),
-            draw_pixel(2 * second[0], 2 * second[1], colour),
+            draw_pixel(2 * first[0], 2 * first[1], foreground_cell),
+            draw_pixel(first[0] + second[0], first[1] + second[1], foreground_cell),
+            draw_pixel(2 * second[0], 2 * second[1], foreground_cell),
         ])
-    return render.Stack(children = pixels)
+    return render.Stack(children = pixels), pixels
 
 # Draws a series of frames from the given maze generator function. Maze generator
 # functions should return a list containing cells added at each step.
-def draw_animation(generator_fn, colour, background_colour):
+def draw_animation(generator_fn, foreground_cell, background):
     frames = []
-    edge_pairs = []
-    for term in generator_fn():
-        edge_pairs.extend(term)
-        frames.append(draw_frame(edge_pairs, colour, background_colour))
+    pixels = [background]
+    sequence = generator_fn()
+    for i in range(0, len(sequence), STEP_SIZE):
+        frame, pixels = draw_frame(pixels, sequence[i:i + STEP_SIZE], foreground_cell)
+        frames.append(frame)
 
     # Pause on end result so we can admire it
     frames.extend([frames[-1]] * FINAL_FRAME_LENGTH)
@@ -86,7 +87,6 @@ def get_neighbours(current, visited):
 # At each step, connect to a random neighbouring cell.
 def backtracking():
     sequence = []
-    current_step = []
 
     visited = {}
     stack = []
@@ -95,7 +95,6 @@ def backtracking():
     visited[current] = True
     stack.append(current)
 
-    step = 0
     for i in range(MAX_STEPS):
         if len(stack) <= 0:
             break
@@ -107,13 +106,7 @@ def backtracking():
             neighbour = neighbours[random.number(0, len(neighbours) - 1)]
             visited[neighbour] = True
             stack.append(neighbour)
-            current_step.append((current, neighbour))
-
-            # Too many steps to animate each one as its own frame
-            if (step % 2) == 0:
-                sequence.append(current_step)
-                current_step = []
-            step += 1
+            sequence.append((current, neighbour))
 
     return sequence
 
@@ -138,7 +131,6 @@ def union(union_finds, first_root, second_root):
 
 def randomized_kruskal():
     sequence = []
-    current_step = []
 
     # Use these to approximate union-find data structure as Starlark doesn't have classes.
     union_finds = {}
@@ -146,7 +138,6 @@ def randomized_kruskal():
         for x in range(WIDTH_CELLS):
             union_finds[(x, y)] = struct(parent = (x, y), size = 1)
 
-    steps = 0
     walls_removed = {}
     for i in range(MAX_STEPS):
         if len(walls_removed) >= ((WIDTH_CELLS * HEIGHT_CELLS) - 1):
@@ -167,13 +158,7 @@ def randomized_kruskal():
         # Join the sets and knock down the wall between cells
         union(union_finds, current_root, neighbour_root)
         walls_removed[wall] = True
-        current_step.append((current, neighbour))
-
-        # Too many steps to animate each one as its own frame
-        if (steps % 4) == 0:
-            sequence.append(current_step)
-            current_step = []
-        steps += 1
+        sequence.append((current, neighbour))
 
     return sequence
 
@@ -181,7 +166,6 @@ def randomized_kruskal():
 # Randomly choose a cell and neighbour to add to the maze
 def randomized_prim():
     sequence = []
-    current_step = []
 
     visited = {}
     cells = []
@@ -191,7 +175,6 @@ def randomized_prim():
     visited[current] = True
     cells.append(current)
 
-    steps = 0
     for i in range(MAX_STEPS):
         if len(cells) <= 0:
             break
@@ -210,13 +193,7 @@ def randomized_prim():
         if len(neighbours) == 0:
             continue
         neighbour = neighbours[random.number(0, len(neighbours) - 1)]
-        current_step.append((current, neighbour))
-
-        # Too many steps to animate each one as its own frame
-        if (steps % 2) == 0:
-            sequence.append(current_step)
-            current_step = []
-        steps += 1
+        sequence.append((current, neighbour))
 
     return sequence
 
@@ -229,8 +206,6 @@ def aldous_broder():
     current = random_cell()
     remaining = WIDTH_CELLS * HEIGHT_CELLS - 1
 
-    steps = 0
-    current_step = []
     for i in range(MAX_STEPS):
         if remaining <= 0:
             break
@@ -239,14 +214,8 @@ def aldous_broder():
         if neighbour not in visited:
             visited[neighbour] = True
             remaining -= 1
-            current_step.append((current, neighbour))
+            sequence.append((current, neighbour))
         current = neighbour
-
-        # Too many steps to animate each one as its own frame
-        if (steps % 50) == 0:
-            sequence.append(current_step)
-            current_step = []
-        steps += 1
 
     return sequence
 
@@ -284,7 +253,7 @@ def wilson():
         for prev, dest in walk.items():
             visited[prev] = True
             visited[dest] = True
-            sequence.append([(prev, dest)])
+            sequence.append((prev, dest))
 
     return sequence
 
@@ -308,18 +277,15 @@ def eller():
     first_row = list(range(WIDTH_CELLS))
 
     for row in range(HEIGHT_CELLS):
-        carved_horizontally = []
         next_set = len(first_row)
         for cell in range(1, len(first_row)):
             should_merge = random.number(0, 1) < 0.5
             if not should_merge:
                 continue
             first_row[cell] = first_row[cell - 1]
-            carved_horizontally.append(((cell - 1, row), (cell, row)))
-        sequence.append(carved_horizontally)
+            sequence.append(((cell - 1, row), (cell, row)))
 
         # Make vertical connections, at least one per set
-        carved_vertically = []
         next_row = list([None] * WIDTH_CELLS)
         sets = row_to_sets(first_row)
         for k, v in sets.items():
@@ -329,12 +295,11 @@ def eller():
                 if not should_merge:
                     continue
                 next_row[cell] = k
-                carved_vertically.append(((cell, row - 1), (cell, row)))
+                sequence.append(((cell, row - 1), (cell, row)))
                 made_vertical = True
             if not made_vertical:
                 next_row[v["start"]] = k
-                carved_vertically.append(((v["start"], row - 1), (v["start"], row)))
-        sequence.append(carved_vertically)
+                sequence.append(((v["start"], row - 1), (v["start"], row)))
 
         for cell in range(len(next_row)):
             if next_row[cell] != None:
@@ -357,7 +322,7 @@ def hunt_random_walk(start, visited, sequence):
         if len(neighbours) <= 0:
             break
         neighbour = neighbours[random.number(0, len(neighbours) - 1)]
-        sequence.append([(current, neighbour)])
+        sequence.append((current, neighbour))
         visited[neighbour] = True
         current = neighbour
         neighbours = get_neighbours(current, visited)
@@ -387,7 +352,7 @@ def hunt_and_kill():
         if next_cell == None:
             break
         visited[next_cell] = True
-        sequence.append([(current, next_cell)])
+        sequence.append((current, next_cell))
         current = next_cell
 
     return sequence
@@ -407,8 +372,6 @@ def bisect(sequence, width_start, width_end, height_start, height_end):
     if width < 2 or height < 2:
         return  # Reached desired resolution
 
-    current_step = []
-
     if should_bisect_horizontally(width, height):
         bisect_height = int(random.number(height_start, height_end))
         gap = int(random.number(width_start, width_end))
@@ -416,8 +379,7 @@ def bisect(sequence, width_start, width_end, height_start, height_end):
             if x == gap:
                 continue
             carved = ((x, bisect_height), (x - 1, bisect_height))
-            current_step.append(carved)
-        sequence.append(current_step)
+            sequence.append(carved)
         bisect(sequence, width_start, width_end, height_start, bisect_height)
         bisect(sequence, width_start, width_end, bisect_height, height_end)
     else:
@@ -427,8 +389,7 @@ def bisect(sequence, width_start, width_end, height_start, height_end):
             if y == gap:
                 continue
             carved = ((bisect_width, y), (bisect_width, y - 1))
-            current_step.append(carved)
-        sequence.append(current_step)
+            sequence.append(carved)
         bisect(sequence, width_start, bisect_width, height_start, height_end)
         bisect(sequence, bisect_width, width_end, height_start, height_end)
 
@@ -449,10 +410,10 @@ def binary_tree():
             carve_east = (random.number(0, 1) < 0.5) or (y == HEIGHT_CELLS - 1)
             if carve_east and (x < WIDTH_CELLS - 1):
                 carved = ((x, y), (x + 1, y))
-                sequence.append([carved])
+                sequence.append(carved)
             else:
                 carved = ((x, y), (x, y + 1))
-                sequence.append([carved])
+                sequence.append(carved)
 
     return sequence
 
@@ -467,13 +428,13 @@ def sidewinder():
             carve_east = random.number(0, 1) < 0.5
             if carve_east:
                 carved = ((x, y), (x + 1, y))
-                sequence.append([carved])
+                sequence.append(carved)
             elif y == 0:
                 continue  # can't carve north from top row
             else:
                 carve_north_from_x = random.number(run_start_x, x)
                 carved = ((carve_north_from_x, y), (carve_north_from_x, y - 1))
-                sequence.append([carved])
+                sequence.append(carved)
                 run_start_x = x + 1
 
     return sequence
@@ -527,7 +488,18 @@ def main(config):
     if not background_colour:
         background_colour = COLOURS[3].value  # Black
 
-    return draw_animation(algorithm, wall_colour, background_colour)
+    # Turns out to be much faster to reuse a single pixel than
+    # to create new ones as needed.
+    wall_cell = render.Box(
+        height = 1,
+        width = 1,
+        color = wall_colour,
+    )
+    background = render.Box(
+        color = background_colour,
+    )
+
+    return draw_animation(algorithm, wall_cell, background)
 
 def get_schema():
     algorithms = [
@@ -558,7 +530,7 @@ def get_schema():
                 id = "foreground",
                 name = "Wall colour",
                 desc = "The colour to show for walls",
-                icon = "trowel-bricks",
+                icon = "trowelBricks",
                 default = COLOURS[0].value,
                 options = COLOURS,
             ),
