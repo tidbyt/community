@@ -12,6 +12,7 @@ load("encoding/json.star", "json")
 load("encoding/base64.star", "base64")
 load("time.star", "time")
 load("cache.star", "cache")
+load("math.star", "math")
 
 DEFAULT_LOCATION = """
 {
@@ -64,7 +65,7 @@ def get_schema():
                 id = "location",
                 name = "Location",
                 desc = "Location for which to display alerts.",
-                icon = "place",
+                icon = "locationDot",
             ),
         ],
     )
@@ -351,30 +352,4 @@ def render_summary_card_zero_alerts(location):
     return render.Column(master_column)
 
 def truncate_location_digits(inputDigits):
-    # truncate a location to 2.5 digits -- 0.024 rounds down to 0.00, 0.025 rounds up to 0.050 -- 0.074 down to 0.050
-
-    # inputDigits comes to us as a string, split it at the decimal
-    splitDigits = inputDigits.split(".", 1)
-
-    # check that enough digits exist: we're looking for 4 digits past the decimal place.
-    if (len(splitDigits[1]) < 4):
-        # too few digits.
-        return inputDigits
-
-    # slice
-    decimalPlaces = int(splitDigits[1][2:4])
-
-    ## theory. check what should be an integer between 0 and 99 against modulos 75, 50, and 25.
-    # the crux of the identity is (x % x+1) = x -- any number modulus a number greater than itself equals itself.
-    # checks must be performed descending since 25 is a factor of 75
-
-    if (decimalPlaces % 75 != decimalPlaces):
-        splitDigits[1] = str((int(splitDigits[1]) - decimalPlaces + 100))
-    elif (decimalPlaces % 50 != decimalPlaces):
-        splitDigits[1] = str((int(splitDigits[1]) - decimalPlaces + 50))
-    elif (decimalPlaces % 25 != decimalPlaces):
-        splitDigits[1] = str((int(splitDigits[1]) - decimalPlaces + 50))
-    else:
-        splitDigits[1] = str((int(splitDigits[1]) - decimalPlaces))
-
-    return ".".join(splitDigits)
+    return str(int(math.round(float(inputDigits) * 200)) / 200)
