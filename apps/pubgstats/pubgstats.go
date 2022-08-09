@@ -17,7 +17,7 @@ func New() manifest.Manifest {
 		Name:        "PUBG Stats",
 		Author:      "joes-io",
 		Summary:     "Shows PUBG Player Stats",
-		Desc:        "Displays individual player gaming stats from PlayerUnknown's Battlegrounds.",
+		Desc:        "Displays individual player's gaming stats from PlayerUnknown's Battlegrounds.",
 		FileName:    "pubg_stats.star",
 		PackageName: "pubgstats",
 		Source:  source,
