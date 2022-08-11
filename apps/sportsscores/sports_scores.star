@@ -6,7 +6,7 @@ Author: rs7q5
 """
 #sports_scores.star
 #Created 20220220 RIS
-#Last Modified 20220806 RIS
+#Last Modified 20220811 RIS
 
 load("render.star", "render")
 load("http.star", "http")
@@ -40,13 +40,23 @@ SPORTS_LIST = {
         "EPL": ["EPL", "eng.1"],
     }),
 }
-TWO_LINE_SPORTS = ["NBA", "WNBA", "NCAAM", "NCAAW"]  #sports whose standings take up two lines
+TWO_LINE_LEAGUES = ["NBA", "WNBA", "NCAAM", "NCAAW"]  #sports whose standings take up two lines
 
 no_games_text = ["No Games Today!!"]  #vector of text to use if no games are present
 
 def main(config):
-    sport = config.str("sport", "Baseball")  #"MLB"
-    league = config.str("league_%s" % sport, SPORTS_LIST[sport][0])
+    sport_tmp = config.str("sport", "Baseball")
+    if SPORTS_LIST.get(sport_tmp) == None:  #used for old installations
+        #old installations the sport was actually the league
+        for key, val in SPORTS_LIST.items():
+            if val[1].get(sport_tmp) != None:
+                sport = key
+                league = sport_tmp
+                break
+    else:
+        sport = sport_tmp
+        league = config.str("league_%s" % sport, SPORTS_LIST[sport][0])
+
     league_txt, league_ext = SPORTS_LIST[sport][1].get(league)
 
     font = "CG-pixel-3x5-mono"  #set font
@@ -248,7 +258,7 @@ def get_frames(stats, league_txt, font, config):
         )
         return frame_vec_tmp
 
-    force_two = league_txt in TWO_LINE_SPORTS  #forces text on two lines
+    force_two = league_txt in TWO_LINE_LEAGUES  #forces text on two lines
 
     if config.bool("scroll_logic", False):
         line_max = len(stats)
