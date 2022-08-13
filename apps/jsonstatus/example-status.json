@@ -1,0 +1,16 @@
+{
+  "items": [
+    {
+      "progress": 0.8,
+      "color": "#0f0"
+    },
+    {
+      "label": "1/2 done",
+      "progress": 0.5
+    },
+    {
+      "label": "No progress",
+      "color": "#ffaa55"
+    }
+  ]
+}
