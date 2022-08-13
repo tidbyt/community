@@ -8,6 +8,28 @@ Retrieves a JSON with progress status that may return up to 4 elements, showing 
 
 Can be used to expose data around usual long running activities - such as rendering, 3D printing - as long as the data can be exported and displayed.
 
+The image above is a rendering of [example-status.json](example-status.json):
+
+```json
+{
+  "items": [
+    {
+      "progress": 0.8,
+      "color": "#0f0"
+    },
+    {
+      "label": "1/2 done",
+      "progress": 0.5
+    },
+    {
+      "label": "No progress",
+      "color": "#ffaa55"
+    }
+  ]
+}
+```
+
+
 ## JSON file contents
 
 The JSON file should be in the form of:
