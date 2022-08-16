@@ -120,7 +120,7 @@ def get_schema():
                     ),
                     schema.Option(
                         display = "PG 13",
-                        value = "pg13",
+                        value = "pg-13",
                     ),
                     schema.Option(
                         display = "R",
