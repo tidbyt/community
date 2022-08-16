@@ -183,7 +183,7 @@ def main(config):
         logoType = config.get("logoType", "primary")
         showDateTime = config.bool("displayDateTime")
 
-        #showRanking = config.bool("displayRanking")
+        showRanking = config.bool("displayRanking")
         pregameDisplay = config.get("pregameDisplay", "record")
         timeColor = config.get("displayTimeColor", "#FFF")
         rotationSpeed = 15 / len(scores)
@@ -237,6 +237,19 @@ def main(config):
                 homeLogoURL = "https://a.espncdn.com/i/espn/misc_logos/500/ncaa_football.vresize.50.50.medium.1.png"
             else:
                 awayLogoURL = competition["competitors"][1]["team"]["logo"]
+
+            homeRankCheck = competition["competitors"][0].get("curatedRank", "NO")
+            if homeRankCheck == "NO":
+                homeRank = 99
+            else:
+                homeRank = competition["competitors"][0]["curatedRank"]["current"]
+
+            awayRankCheck = competition["competitors"][1].get("curatedRank", "NO")
+            if awayRankCheck == "NO":
+                awayRank = 99
+            else:
+                awayRank = competition["competitors"][1]["curatedRank"]["current"]
+
             homeLogo = get_logoType(home, homeLogoURL)
             awayLogo = get_logoType(away, awayLogoURL)
             homeLogoSize = get_logoSize(home)
@@ -245,8 +258,6 @@ def main(config):
             awayScore = ""
             homeScoreColor = "#fff"
             awayScoreColor = "#fff"
-            homeRank = random.number(1, 50)
-            awayRank = random.number(1, 50)
             teamFont = "Dina_r400-6"
             scoreFont = "Dina_r400-6"
 
@@ -322,9 +333,9 @@ def main(config):
                     awayScore = competition["competitors"][1]["score"]
                     if (int(homeScore) > int(awayScore)):
                         homeScoreColor = "#ff0"
-                        awayScoreColor = "#fff"
+                        awayScoreColor = "#fffb"
                     elif (int(awayScore) > int(homeScore)):
-                        homeScoreColor = "#fff"
+                        homeScoreColor = "#fffb"
                         awayScoreColor = "#ff0"
                     else:
                         homeScoreColor = "#fff"
@@ -551,16 +562,18 @@ def main(config):
                                     children = [
                                         render.Column(
                                             children = [
-                                                render.Box(width = 64, height = 12, color = "#222", child = render.Row(expanded = True, main_align = "start", cross_align = "center", children = [
-                                                    render.Box(width = 16, height = 16, child = render.Image(awayLogo, width = awayLogoSize, height = awayLogoSize)),
-                                                    render.Box(width = 24, height = 12, child = render.Text(content = away[:4], color = awayScoreColor, font = textFont)),
-                                                    render.Box(width = 24, height = 12, child = render.Text(content = get_record(awayScore), color = awayScoreColor, font = scoreFont)),
-                                                ])),
-                                                render.Box(width = 64, height = 12, color = "#222", child = render.Row(expanded = True, main_align = "start", cross_align = "center", children = [
-                                                    render.Box(width = 16, height = 16, child = render.Image(homeLogo, width = homeLogoSize, height = homeLogoSize)),
-                                                    render.Box(width = 24, height = 12, child = render.Text(content = home[:4], color = homeScoreColor, font = textFont)),
-                                                    render.Box(width = 24, height = 12, child = render.Text(content = get_record(homeScore), color = homeScoreColor, font = scoreFont)),
-                                                ])),
+                                                render.Box(width = 64, height = 12, color = "#222", child = render.Row(
+                                                    expanded = True,
+                                                    main_align = "start",
+                                                    cross_align = "center",
+                                                    children = get_logo_column(showRanking, away, awayLogo, awayLogoSize, awayRank, awayScoreColor, textFont, awayScore, scoreFont),
+                                                )),
+                                                render.Box(width = 64, height = 12, color = "#222", child = render.Row(
+                                                    expanded = True,
+                                                    main_align = "start",
+                                                    cross_align = "center",
+                                                    children = get_logo_column(showRanking, home, homeLogo, homeLogoSize, homeRank, homeScoreColor, textFont, homeScore, scoreFont),
+                                                )),
                                             ],
                                         ),
                                     ],
@@ -602,28 +615,18 @@ def main(config):
                                     children = [
                                         render.Column(
                                             children = [
-                                                #                                                 render.Box(width = 64, height = 12, color = awayColor, child = render.Row(
-                                                #                                                     expanded = True,
-                                                #                                                     main_align = "start",
-                                                #                                                     cross_align = "center",
-                                                #                                                     children = get_logo_column(showRanking, away, awayLogo, awayLogoSize, awayRank, awayScoreColor, textFont, awayScore, scoreFont),
-                                                #                                                 )),
-                                                #                                                 render.Box(width = 64, height = 12, color = homeColor, child = render.Row(
-                                                #                                                     expanded = True,
-                                                #                                                     main_align = "start",
-                                                #                                                     cross_align = "center",
-                                                #                                                     children = get_logo_column(showRanking, home, homeLogo, homeLogoSize, homeRank, homeScoreColor, textFont, homeScore, scoreFont),
-                                                #                                                 )),
-                                                render.Box(width = 64, height = 12, color = awayColor, child = render.Row(expanded = True, main_align = "start", cross_align = "center", children = [
-                                                    render.Box(width = 16, height = 16, child = render.Image(awayLogo, width = awayLogoSize, height = awayLogoSize)),
-                                                    render.Box(width = 24, height = 12, child = render.Text(content = away[:4], color = awayScoreColor, font = textFont)),
-                                                    render.Box(width = 24, height = 12, child = render.Text(content = get_record(awayScore), color = awayScoreColor, font = scoreFont)),
-                                                ])),
-                                                render.Box(width = 64, height = 12, color = homeColor, child = render.Row(expanded = True, main_align = "start", cross_align = "center", children = [
-                                                    render.Box(width = 16, height = 16, child = render.Image(homeLogo, width = homeLogoSize, height = homeLogoSize)),
-                                                    render.Box(width = 24, height = 12, child = render.Text(content = home[:4], color = homeScoreColor, font = textFont)),
-                                                    render.Box(width = 24, height = 12, child = render.Text(content = get_record(homeScore), color = homeScoreColor, font = scoreFont)),
-                                                ])),
+                                                render.Box(width = 64, height = 12, color = awayColor, child = render.Row(
+                                                    expanded = True,
+                                                    main_align = "start",
+                                                    cross_align = "center",
+                                                    children = get_logo_column(showRanking, away, awayLogo, awayLogoSize, awayRank, awayScoreColor, textFont, awayScore, scoreFont),
+                                                )),
+                                                render.Box(width = 64, height = 12, color = homeColor, child = render.Row(
+                                                    expanded = True,
+                                                    main_align = "start",
+                                                    cross_align = "center",
+                                                    children = get_logo_column(showRanking, home, homeLogo, homeLogoSize, homeRank, homeScoreColor, textFont, homeScore, scoreFont),
+                                                )),
                                             ],
                                         ),
                                     ],
@@ -864,13 +867,13 @@ def get_schema():
                 default = conferenceOptions[0].value,
                 options = conferenceOptions,
             ),
-            #             schema.Toggle(
-            #                 id = "displayRanking",
-            #                 name = "Show Top 25 Rank",
-            #                 desc = "A toggle to display the top 25 ranking.",
-            #                 icon = "trophy",
-            #                 default = True,
-            #             ),
+            schema.Toggle(
+                id = "displayRanking",
+                name = "Show Top 25 Rank",
+                desc = "A toggle to display the top 25 ranking.",
+                icon = "trophy",
+                default = True,
+            ),
             schema.Dropdown(
                 id = "displayType",
                 name = "Display Type",
@@ -937,7 +940,6 @@ def get_scores(urls, instanceNumber, totalInstances):
         return allscores
     else:
         myList = list(range(allScoresLength))
-        print([myList[(i * len(myList)) // totalInstances:((i + 1) * len(myList)) // totalInstances] for i in range(totalInstances)])
         thescores = [allscores[(i * len(allscores)) // totalInstances:((i + 1) * len(allscores)) // totalInstances] for i in range(totalInstances)]
         return thescores[instanceNumber - 1]
 

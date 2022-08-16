@@ -215,9 +215,9 @@ def main(config):
                     awayScore = competition["competitors"][1]["score"]
                     if (int(homeScore) > int(awayScore)):
                         homeScoreColor = "#ff0"
-                        awayScoreColor = "#fff"
+                        awayScoreColor = "#fffb"
                     elif (int(awayScore) > int(homeScore)):
-                        homeScoreColor = "#fff"
+                        homeScoreColor = "#fffb"
                         awayScoreColor = "#ff0"
                     else:
                         homeScoreColor = "#fff"
