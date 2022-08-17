@@ -14,6 +14,7 @@ load("cache.star", "cache")
 load("schema.star", "schema")
 load("re.star", "re")
 load("humanize.star", "humanize")
+load("sunrise.star", "sunrise")
 
 COLOR_RED = "#C00"
 COLOR_DARK_RED = "#911"
@@ -22,6 +23,7 @@ COLOR_ORANGE = "#d61"
 COLOR_GREEN = "#2b3"
 COLOR_GREY = "#777"
 COLOR_WHITE = "#fff"
+COLOR_NIGHT = "#444"
 
 DEFAULT_NORMAL_HIGH = 180
 DEFAULT_NORMAL_LOW = 100
@@ -29,36 +31,43 @@ DEFAULT_URGENT_HIGH = 200
 DEFAULT_URGENT_LOW = 70
 
 DEFAULT_SHOW_GRAPH = True
+DEFAULT_NIGHT_MODE = False
 GRAPH_WIDTH = 43
+GRAPH_BOTTOM = 50
+GRAPH_TOP = 275
 
 CACHE_TTL_SECONDS = 60
 
 DEFAULT_LOCATION = """
 {
-    "lat": "40.6781784",
-    "lng": "-73.9441579",
-    "description": "Brooklyn, NY, USA",
-    "locality": "Brooklyn",
-    "place_id": "ChIJCSF8lBZEwokRhngABHRcdoI",
-    "timezone": "America/New_York"
+    "lat": "40.666250",
+    "lng": "-111.910780",
+    "description": "Taylorsville, UT, USA",
+    "locality": "Taylorsville",
+    "place_id": "ChIJ_wlEps6LUocRJ9DmE4xv9OI",
+    "timezone": "America/Denver"
 }
 """
 
 DEFAULT_NSID = ""
-TIME_NOW = time.now().in_location("UTC")
-OLDEST_READING_TARGET = TIME_NOW + time.parse_duration(str(5 * GRAPH_WIDTH * -1) + "m")
+UTC_TIME_NOW = time.now().in_location("UTC")
+OLDEST_READING_TARGET = UTC_TIME_NOW - time.parse_duration(str(5 * GRAPH_WIDTH) + "m")
 
 def main(config):
     location = config.get("location", DEFAULT_LOCATION)
     loc = json.decode(location)
     timezone = config.get("timezone") or "America/New_York"
     now = time.now().in_location(timezone)
+    lat, lng = float(loc["lat"]), float(loc["lng"])
+    sun_rise = sunrise.sunrise(lat, lng, now)
+    sun_set = sunrise.sunset(lat, lng, now)
     nightscout_id = config.get("nightscout_id", DEFAULT_NSID)
     normal_high = int(config.get("normal_high", DEFAULT_NORMAL_HIGH))
     normal_low = int(config.get("normal_low", DEFAULT_NORMAL_LOW))
     urgent_high = int(config.get("urgent_high", DEFAULT_URGENT_HIGH))
     urgent_low = int(config.get("urgent_low", DEFAULT_URGENT_LOW))
     show_graph = config.get("show_graph", DEFAULT_SHOW_GRAPH)
+    night_mode = config.get("night_mode", DEFAULT_NIGHT_MODE)
 
     if nightscout_id != None:
         nightscout_data_json, status_code = get_nightscout_data(nightscout_id)
@@ -70,7 +79,7 @@ def main(config):
         return display_failure("Page not found for nightscout ID '" + nightscout_id + "' - is this ID correct?")
     elif status_code > 200:
         return display_failure("Nightscout Error: " + str(status_code))
-
+    
     # Pull the data from the cache
     sgv_current = int(nightscout_data_json["sgv_current"])
     sgv_delta = int(nightscout_data_json["sgv_delta"])
@@ -88,10 +97,10 @@ def main(config):
 
     #for reading in history:
     #graph_data.append(tuple((reading[0], reading[1] - urgent_low)))
-    reading_mins_ago = int((TIME_NOW - latest_reading_dt).minutes)
+    reading_mins_ago = int((UTC_TIME_NOW - latest_reading_dt).minutes)
 
-    #print ("time:", TIME_NOW)
-    #print ("oldest_reading_target:", (OLDEST_READING_TARGET.unix)*1000)
+    print ("time:", UTC_TIME_NOW)
+    print ("oldest_reading_target:", OLDEST_READING_TARGET)
     print(reading_mins_ago)
 
     if (reading_mins_ago < 1):
@@ -105,26 +114,54 @@ def main(config):
 
     ago_dashes = "-" * reading_mins_ago
 
-    # Used for finding the icon later. Default state is yellow to make the logic easier
+    # Default state is yellow to make the logic easier
+    color_reading = COLOR_YELLOW
+    color_delta = COLOR_GREY
+    color_arrow = COLOR_YELLOW
+    color_ago = COLOR_GREY
+    color_graph_urgent_high = COLOR_RED
+    color_graph_high = COLOR_YELLOW
+    color_graph_normal = COLOR_GREEN
+    color_graph_low = COLOR_YELLOW
+    color_graph_urgent_low = COLOR_RED
+    color_graph_lines = COLOR_GREY
+    color_clock = COLOR_ORANGE
     font_color = COLOR_YELLOW
-    color_str = "Yellow"
 
     if (reading_mins_ago > 5):
         # The information is stale (i.e. over 5 minutes old) - overrides everything.
-        color_str = "Grey"
-        font_color = COLOR_GREY
+        color_reading = COLOR_GREY
+        color_delta = COLOR_GREY
+        color_arrow = COLOR_GREY
+        color_ago = COLOR_GREY
         direction = "None"
         str_delta = "old"
         ago_dashes = ">" + str(reading_mins_ago)
     elif (sgv_current <= normal_high and sgv_current >= normal_low):
         # We're in the normal range, so use green.
-        font_color = COLOR_GREEN
-        color_str = "Green"
+        color_reading = COLOR_GREEN
+        color_delta = COLOR_GREEN
+        color_arrow = COLOR_GREEN
     elif (sgv_current >= urgent_high or sgv_current <= urgent_low):
         # We're in the urgent range, so use red.
-        font_color = COLOR_RED
-        color_str = "Red"
-
+        color_reading = COLOR_RED
+        color_delta = COLOR_RED
+        color_arrow = COLOR_RED
+    print(night_mode)
+    if (night_mode == "True" and (now > sun_set or now < sun_rise)):
+        print ("Night Mode")
+        color_reading = COLOR_NIGHT
+        color_delta = COLOR_NIGHT
+        color_arrow = COLOR_NIGHT
+        color_ago = COLOR_NIGHT
+        color_graph_urgent_high = COLOR_NIGHT
+        color_graph_high = COLOR_NIGHT
+        color_graph_normal = COLOR_NIGHT
+        color_graph_low = COLOR_NIGHT
+        color_graph_urgent_low = COLOR_NIGHT
+        color_graph_lines = COLOR_NIGHT
+        color_clock = COLOR_NIGHT
+    
     print(ago_dashes)
 
     if show_graph == "False":
@@ -148,18 +185,18 @@ def main(config):
                                         render.Text(
                                             content = str(int(sgv_current)),
                                             font = "6x13",
-                                            color = font_color,
+                                            color = color_reading,
                                         ),
                                         render.Text(
                                             content = str_delta,
                                             font = "tom-thumb",
-                                            color = COLOR_GREY,
+                                            color = color_delta,
                                             offset = -1,
                                         ),
                                         render.Text(
                                             content = ARROWS[direction],
                                             font = "6x13",
-                                            color = font_color,
+                                            color = color_arrow,
                                             offset = 1,
                                         ),
                                     ],
@@ -167,19 +204,19 @@ def main(config):
                                 render.Text(
                                     content = human_reading_ago,
                                     font = "CG-pixel-3x5-mono",
-                                    color = COLOR_GREY,
+                                    color = color_ago,
                                 ),
                                 render.Animation(
                                     children = [
                                         render.Text(
                                             content = now.format("3:04 PM"),
                                             font = "6x13",
-                                            color = COLOR_ORANGE,
+                                            color = color_clock,
                                         ),
                                         render.Text(
                                             content = now.format("3 04 PM"),
                                             font = "6x13",
-                                            color = COLOR_ORANGE,
+                                            color = color_clock,
                                         ),
                                     ],
                                 ),
@@ -199,30 +236,32 @@ def main(config):
 
         # the rest of the graph
         for point in range(GRAPH_WIDTH):
-            max_time = min_time + (60 * 5) - 1
+            max_time = min_time + 299
             this_point = 0
             for history_point in history:
                 if (min_time <= history_point[0] and history_point[0] <= max_time):
                     this_point = history_point[1]
-
-            color_high = COLOR_GREEN
-            color_low = COLOR_YELLOW
+            
+            print (this_point)
+            if this_point < GRAPH_BOTTOM and this_point > 0:
+                this_point = GRAPH_BOTTOM
+                
+            if this_point > GRAPH_TOP:
+                this_point = GRAPH_TOP
+                
+            graph_point_color = color_graph_normal
 
             if this_point > normal_high:
-                color_high = COLOR_YELLOW
-                color_low = COLOR_YELLOW
+                graph_point_color = color_graph_high
 
             if this_point > urgent_high:
-                color_high = COLOR_RED
-                color_low = COLOR_RED
+                graph_point_color = color_graph_urgent_high
 
             if this_point < normal_low:
-                color_high = COLOR_YELLOW
-                color_low = COLOR_YELLOW
+                graph_point_color = color_graph_low
 
             if this_point < urgent_low:
-                color_high = COLOR_RED
-                color_low = COLOR_RED
+                graph_point_color = color_graph_urgent_low
 
             graph_plot.append(
                 render.Plot(
@@ -232,11 +271,11 @@ def main(config):
                     ],
                     width = 1,
                     height = 32,
-                    color = color_high,
-                    color_inverted = color_low,
+                    color = graph_point_color,
+                    color_inverted = graph_point_color,
                     fill = False,
                     x_lim = (0, 1),
-                    y_lim = (40, 250),
+                    y_lim = (GRAPH_BOTTOM, GRAPH_TOP),
                 ),
             )
 
@@ -258,7 +297,7 @@ def main(config):
                                         render.WrappedText(
                                             content = str(int(sgv_current)),
                                             font = "6x13",
-                                            color = font_color,
+                                            color = color_reading,
                                             width = left_col_width,
                                             align = "center",
                                         ),
@@ -269,7 +308,7 @@ def main(config):
                                         render.Text(
                                             content = str_delta,
                                             font = "tom-thumb",
-                                            color = COLOR_GREY,
+                                            color = color_delta,
                                             offset = -1,
                                         ),
                                         render.Box(
@@ -280,7 +319,7 @@ def main(config):
                                         render.Text(
                                             content = ARROWS[direction],
                                             font = "5x8",
-                                            color = font_color,
+                                            color = color_arrow,
                                             offset = 1,
                                         ),
                                     ],
@@ -292,14 +331,14 @@ def main(config):
                                                 render.WrappedText(
                                                     content = now.format("3:04"),
                                                     font = "tom-thumb",
-                                                    color = COLOR_ORANGE,
+                                                    color = color_clock,
                                                     width = left_col_width,
                                                     align = "center",
                                                 ),
                                                 render.WrappedText(
                                                     content = now.format("3 04"),
                                                     font = "tom-thumb",
-                                                    color = COLOR_ORANGE,
+                                                    color = color_clock,
                                                     width = left_col_width,
                                                     align = "center",
                                                 ),
@@ -314,7 +353,7 @@ def main(config):
                                         render.WrappedText(
                                             content = ago_dashes,
                                             font = "tom-thumb",
-                                            color = COLOR_GREY,
+                                            color = color_ago,
                                             width = left_col_width,
                                             align = "center",
                                         ),
@@ -336,11 +375,11 @@ def main(config):
                                             ],
                                             width = GRAPH_WIDTH,
                                             height = 32,
-                                            color = COLOR_GREY,
-                                            color_inverted = COLOR_GREY,
+                                            color = color_graph_lines,
+                                            color_inverted = color_graph_lines,
                                             fill = False,
                                             x_lim = (0, 1),
-                                            y_lim = (40, 250),
+                                            y_lim = (GRAPH_BOTTOM, GRAPH_TOP),
                                         ),
                                         render.Plot(
                                             data = [
@@ -349,11 +388,11 @@ def main(config):
                                             ],
                                             width = GRAPH_WIDTH,
                                             height = 32,
-                                            color = COLOR_GREY,
-                                            color_inverted = COLOR_GREY,
+                                            color = color_graph_lines,
+                                            color_inverted = color_graph_lines,
                                             fill = False,
                                             x_lim = (0, 1),
-                                            y_lim = (40, 250),
+                                            y_lim = (GRAPH_BOTTOM, GRAPH_TOP),
                                         ),
                                         render.Row(
                                             main_align = "start",
@@ -434,8 +473,8 @@ def get_nightscout_data(nightscout_id):
     # If it's not in the cache, construct it from a response.
     print("Miss - calling Nightscout API")
 
-    #nightscout_url = "https://" + nightscout_id + "/api/v1/entries.json?count="+str(GRAPH_WIDTH)
-    nightscout_url = "https://" + nightscout_id + "/api/v1/entries/sgv.json?find[date][$gte]=" + str((OLDEST_READING_TARGET.unix) * 1000) + "&count=" + str(GRAPH_WIDTH)
+    nightscout_url = "https://" + nightscout_id + "/api/v1/entries.json?count=100"
+    #nightscout_url = "https://" + nightscout_id + "/api/v1/entries/sgv.json?find[date][$gte]=" + str((OLDEST_READING_TARGET.unix-600) * 1000) + "&count=100"
 
     print(nightscout_url)
 
@@ -443,9 +482,10 @@ def get_nightscout_data(nightscout_id):
     resp = http.get(nightscout_url)
     if resp.status_code != 200:
         return {}, resp.status_code
-
     latest_reading = resp.json()[0]
     previous_reading = resp.json()[1]
+    #print (latest_reading)
+    #print (previous_reading)
     latest_reading_date_string = latest_reading["dateString"]
     latest_reading_dt = time.parse_time(latest_reading_date_string)
 
@@ -464,8 +504,11 @@ def get_nightscout_data(nightscout_id):
     history = []
 
     for x in resp.json():
-        history.append(tuple((int(x["date"] / 1000), int(x["sgv"]))))
-
+        history.append(tuple((int(int(x["date"]) / 1000), int(x["sgv"]))))
+        #print (x["dateString"])
+        #print (str(int(x["date"] / 1000)) + ":" + str(int(x["sgv"])))
+    #print (history)
+    
     nightscout_data = {
         "sgv_current": str(int(sgv_current)),
         "sgv_delta": str(int(sgv_delta)),
@@ -484,7 +527,7 @@ def display_failure(msg):
         child = render.WrappedText(
             width = 64,
             content = msg,
-            color = COLOR_GREY,
+            color = COLOR_NIGHT,
             font = "tom-thumb",
         ),
     )
