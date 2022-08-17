@@ -454,7 +454,7 @@ def get_schema():
                 id = "second",
                 name = "Secondary Measurement",
                 desc = "Choose the secondary item to plot",
-                icon = "poll",
+                icon = "squarePollVertical",
                 options = secondary_options,
                 default = "none",
             ),

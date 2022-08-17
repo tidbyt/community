@@ -164,7 +164,7 @@ def get_schema():
             "id": "auth",
             "name": "Tempest",
             "description": "Connect your Tempest weather station",
-            "icon": "cloud_queue",
+            "icon": "cloud",
             "type": "oauth2",
             "handler": "oauth_handler",
             "client_id": OAUTH2_CLIENT_ID,
@@ -210,7 +210,7 @@ def get_stations(auth):
         {
             "id": "station",
             "name": "Station",
-            "icon": "temperature-high",
+            "icon": "temperatureHigh",
             "description": "Tempest weather station",
             "type": "dropdown",
             "options": options,
