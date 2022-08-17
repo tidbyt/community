@@ -1,5 +1,5 @@
 """
-Applet: ethstaker
+Applet: Ethstaker
 Summary: Ethereum validator status
 Description: Shows the recent status of provided validators on the Ethereum beacon chain.
 Author: ColinCampbell
