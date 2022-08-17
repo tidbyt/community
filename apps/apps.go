@@ -289,7 +289,6 @@ func GetManifests() []manifest.Manifest {
 		tautulli.New(),
 		tcatbusarrivals.New(),
 		tempest.New(),
-		teslafi.New(),
 		testpatterns.New(),
 		theysaidso.New(),
 		tindiesales.New(),
