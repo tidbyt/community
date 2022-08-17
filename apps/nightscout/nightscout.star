@@ -30,13 +30,13 @@ DEFAULT_NORMAL_LOW = 100
 DEFAULT_URGENT_HIGH = 200
 DEFAULT_URGENT_LOW = 70
 
-DEFAULT_SHOW_GRAPH = True
-DEFAULT_NIGHT_MODE = False
+DEFAULT_SHOW_GRAPH = "true"
+DEFAULT_NIGHT_MODE = "false"
 GRAPH_WIDTH = 43
 GRAPH_BOTTOM = 50
 GRAPH_TOP = 275
 
-CACHE_TTL_SECONDS = 60
+CACHE_TTL_SECONDS = 30
 
 DEFAULT_LOCATION = """
 {
@@ -56,8 +56,7 @@ OLDEST_READING_TARGET = UTC_TIME_NOW - time.parse_duration(str(5 * GRAPH_WIDTH) 
 def main(config):
     location = config.get("location", DEFAULT_LOCATION)
     loc = json.decode(location)
-    timezone = config.get("timezone") or "America/New_York"
-    now = time.now().in_location(timezone)
+    now = time.now().in_location(loc["timezone"])
     lat, lng = float(loc["lat"]), float(loc["lng"])
     sun_rise = sunrise.sunrise(lat, lng, now)
     sun_set = sunrise.sunset(lat, lng, now)
@@ -148,7 +147,7 @@ def main(config):
         color_delta = COLOR_RED
         color_arrow = COLOR_RED
     print(night_mode)
-    if (night_mode == "True" and (now > sun_set or now < sun_rise)):
+    if (night_mode == "true" and (now > sun_set or now < sun_rise)):
         print("Night Mode")
         color_reading = COLOR_NIGHT
         color_delta = COLOR_NIGHT
@@ -164,7 +163,7 @@ def main(config):
 
     print(ago_dashes)
 
-    if show_graph == "False":
+    if show_graph == "false":
         return render.Root(
             render.Box(
                 render.Row(
@@ -424,7 +423,7 @@ def get_schema():
                 id = "nightscout_id",
                 name = "Nightscout URL",
                 desc = "Your Nightscout URL (i.e. abc123.herokuapp.com)",
-                icon = "user",
+                icon = "gear",
             ),
             schema.Text(
                 id = "normal_high",
