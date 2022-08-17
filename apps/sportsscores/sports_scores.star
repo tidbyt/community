@@ -6,7 +6,7 @@ Author: rs7q5
 """
 #sports_scores.star
 #Created 20220220 RIS
-#Last Modified 20220811 RIS
+#Last Modified 20220816 RIS
 
 load("render.star", "render")
 load("http.star", "http")
@@ -155,6 +155,13 @@ def more_options(sport):
             id = "local_tz",
             name = "Local timezone",
             desc = "Enable to display game times in your local timezone (default is ET).",
+            icon = "gear",
+            default = False,
+        ),
+        schema.Toggle(
+            id = "time_format",
+            name = "Time format",
+            desc = "Enable to display game times in 12 hour format (does not show AM/PM).",
             icon = "gear",
             default = False,
         ),
@@ -474,7 +481,14 @@ def adjust_gametime(gametime_raw, config):
         timezone = "America/New_York"
     game_time = time.parse_time(gametime_raw).in_location(timezone)
 
-    game_time_str = str(game_time.format("15:04"))
+    #game_time_str = str(game_time.format("15:04"))
+    if config.bool("time_format", False):
+        game_time_str = str(game_time.format("3:04"))
+        if len(game_time_str) == 4:  #not double digit hour
+            game_time_str = " " + game_time_str
+    else:
+        game_time_str = str(game_time.format("15:04"))
+
     if config.bool("local_tz", False):
         return game_time_str
     else:
