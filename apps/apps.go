@@ -130,7 +130,6 @@ import (
 	"tidbyt.dev/community/apps/surfforecast"
 	"tidbyt.dev/community/apps/surflive"
 	"tidbyt.dev/community/apps/tartan"
-	"tidbyt.dev/community/apps/tautulli"
 	"tidbyt.dev/community/apps/tcatbusarrivals"
 	"tidbyt.dev/community/apps/tempest"
 	"tidbyt.dev/community/apps/testpatterns"
@@ -286,7 +285,6 @@ func GetManifests() []manifest.Manifest {
 		surfforecast.New(),
 		surflive.New(),
 		tartan.New(),
-		tautulli.New(),
 		tcatbusarrivals.New(),
 		tempest.New(),
 		testpatterns.New(),
