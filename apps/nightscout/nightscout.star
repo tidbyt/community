@@ -50,10 +50,10 @@ DEFAULT_LOCATION = """
 """
 
 DEFAULT_NSID = ""
-UTC_TIME_NOW = time.now().in_location("UTC")
-OLDEST_READING_TARGET = UTC_TIME_NOW - time.parse_duration(str(5 * GRAPH_WIDTH) + "m")
 
 def main(config):
+    UTC_TIME_NOW = time.now().in_location("UTC")
+    OLDEST_READING_TARGET = UTC_TIME_NOW - time.parse_duration(str(5 * GRAPH_WIDTH) + "m")
     location = config.get("location", DEFAULT_LOCATION)
     loc = json.decode(location)
     now = time.now().in_location(loc["timezone"])
@@ -97,8 +97,8 @@ def main(config):
     #for reading in history:
     #graph_data.append(tuple((reading[0], reading[1] - urgent_low)))
     reading_mins_ago = int((UTC_TIME_NOW - latest_reading_dt).minutes)
-
     print("time:", UTC_TIME_NOW)
+    print("latest_reading_dt:", latest_reading_dt)
     print("oldest_reading_target:", OLDEST_READING_TARGET)
     print(reading_mins_ago)
 
