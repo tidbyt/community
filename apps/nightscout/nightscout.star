@@ -450,11 +450,19 @@ def get_schema():
                 desc = "Anything below this is displayed red (Default " + str(DEFAULT_URGENT_LOW) + ")",
                 icon = "hashtag",
             ),
-            schema.Text(
+            schema.Toggle(
                 id = "show_graph",
                 name = "Show Graph",
                 desc = "Show graph along with reading",
-                icon = "inputNumeric",
+                icon = "gear",
+                default = True,
+            ),
+            schema.Toggle(
+                id = "night_mode",
+                name = "Night Mode",
+                desc = "Dim display between sunset and sunrise",
+                icon = "gear",
+                default = False,
             ),
         ],
     )
