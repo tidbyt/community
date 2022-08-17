@@ -101,7 +101,7 @@ def get_schema():
                 id = "stop_code",
                 name = "Stop ID",
                 desc = "Light Rail Station's Stop ID from (https://www.metrotransit.org/stops-stations)",
-                icon = "subway",
+                icon = "trainSubway",
             ),
         ],
     )

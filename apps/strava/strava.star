@@ -23,6 +23,9 @@ DEFAULT_UNITS = "imperial"
 DEFAULT_SPORT = "ride"
 DEFAULT_SCREEN = "all"
 
+RATE_LIMIT_DEFAULT_BACKOFF = 10
+RATE_LIMIT_CACHE_KEY = "rate-limit-backoff"
+
 PREVIEW_DATA = {
     "count": 1408,
     "distance": 56159815,
@@ -150,6 +153,11 @@ def main(config):
     sport = config.get("sport", DEFAULT_SPORT)
     units = config.get("units", DEFAULT_UNITS)
     display_type = config.get("display_type", DEFAULT_SCREEN)
+
+    if refresh_token and is_rate_limited():
+        # logged-in user but we have been rate-limited by Strava. can't render anything
+        # until the backoff expires.
+        return []
 
     if display_type in ("ytd", "all"):
         return athlete_stats(config, refresh_token, display_type, sport, units)
@@ -430,7 +438,8 @@ def athlete_stats(config, refresh_token, period, sport, units):
         if not athlete:
             print("Getting athlete ID from API, access_token was cached.")
             url = "%s/athlete" % STRAVA_BASE
-            response = http.get(url, headers = headers)
+            response = http_get(url, headers = headers)
+
             if response.status_code != 200:
                 text = "code %d, %s" % (response.status_code, json.decode(response.body()).get("message", ""))
                 return display_failure("Strava API failed, %s" % text)
@@ -447,10 +456,12 @@ def athlete_stats(config, refresh_token, period, sport, units):
         else:
             url = "%s/athletes/%s/stats" % (STRAVA_BASE, athlete)
             print("Calling Strava API: " + url)
-            response = http.get(url, headers = headers)
+            response = http_get(url, headers = headers)
+
             if response.status_code != 200:
                 text = "code %d, %s" % (response.status_code, json.decode(response.body()).get("message", ""))
                 return display_failure("Strava API failed, %s" % text)
+
             data = response.json()
 
             for per in ("ytd", "all"):
@@ -975,7 +986,7 @@ def get_activities(config, refresh_token):
 
             if not data:
                 print("Getting %s month activities. %s" % (query, url))
-                response = http.get(url, headers = headers)
+                response = http_get(url, headers = headers)
                 if response.status_code != 200:
                     text = "code %d, %s" % (response.status_code, json.decode(response.body()).get("message", ""))
                     return display_failure("Strava API failed, %s" % text)
@@ -1151,6 +1162,26 @@ def display_failure(msg):
         ),
     )
 
+def is_rate_limited():
+    return cache.get(RATE_LIMIT_CACHE_KEY)
+
+def http_get(url, headers = None):
+    res = http.get(url, headers = headers)
+
+    if res.status_code == 429:
+        # rate-limit exceeded. as of this writing, Strava doesn't return a
+        # Retry-After header. but if they start doing so, we'll respect it.
+        # in the absence of that header, we backoff for some reasonable
+        # default number of seconds.
+        backoff = res.headers.get("Retry-After", RATE_LIMIT_DEFAULT_BACKOFF)
+        cache.set(
+            RATE_LIMIT_CACHE_KEY,
+            "back off, buddy",
+            ttl_seconds = int(backoff),
+        )
+
+    return res
+
 def get_schema():
     units_options = [
         schema.Option(value = "imperial", display = "Imperial (US)"),
@@ -1189,7 +1220,7 @@ def get_schema():
                 id = "sport",
                 name = "Activity type",
                 desc = "Runs, rides or swims are all supported!",
-                icon = "running",
+                icon = "personRunning",
                 options = sport_options,
                 default = "ride",
             ),
@@ -1197,7 +1228,7 @@ def get_schema():
                 id = "units",
                 name = "Distance units",
                 desc = "Imperial displays miles and feet, metric displays kilometers and meters.",
-                icon = "pencilRuler",
+                icon = "penRuler",
                 options = units_options,
                 default = DEFAULT_UNITS,
             ),
@@ -1213,14 +1244,14 @@ def get_schema():
                 id = "show_logo",
                 name = "Logo/Icon",
                 desc = "Whether to display the Strava logo, or the sport icon on progress charts.",
-                icon = "cog",
+                icon = "gear",
                 default = True,
             ),
             schema.Toggle(
                 id = "no_anim",
                 name = "No animations",
                 desc = "Toggle on to remove all animations for this view.",
-                icon = "cog",
+                icon = "gear",
                 default = False,
             ),
         ],
