@@ -132,6 +132,7 @@ import (
 	"tidbyt.dev/community/apps/tartan"
 	"tidbyt.dev/community/apps/tcatbusarrivals"
 	"tidbyt.dev/community/apps/tempest"
+	"tidbyt.dev/community/apps/teslafi"
 	"tidbyt.dev/community/apps/testpatterns"
 	"tidbyt.dev/community/apps/theysaidso"
 	"tidbyt.dev/community/apps/tindiesales"
@@ -287,6 +288,7 @@ func GetManifests() []manifest.Manifest {
 		tartan.New(),
 		tcatbusarrivals.New(),
 		tempest.New(),
+		teslafi.New(),
 		testpatterns.New(),
 		theysaidso.New(),
 		tindiesales.New(),
