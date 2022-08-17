@@ -13,22 +13,26 @@ load("schema.star", "schema")
 
 def main(config):
     page_url = config.get("page_url", "https://status.atlassian.com/")
+
     page_data = get_statuspage_data(page_url)
 
     title = page_data["page"]["name"]
 
-    if page_data["status"]["indicator"] == "none":
+    indicator = page_data["status"]["indicator"]
+
+    if indicator == "none":
         bgcolor = "#0f0"
-        fgcolor = "#fff"
         display = "Operational"
-    elif page_data["status"]["indicator"] == "major":
+    elif indicator == "major":
         bgcolor = "#f00"
         fgcolor = "#fff"
-        display = "Major"
+        display = "Major Outage"
+    elif indicator == "maintenance":
+        bgcolor = "#00f"
+        display = "Maintenance"
     else:
         bgcolor = "#ff0"
-        fgcolor = "#000"
-        display = "Minor"
+        display = "Minor Outage"
 
     return render.Root(
         delay = 20,
@@ -54,7 +58,6 @@ def main(config):
                             children = [
                                 render.Text(
                                     content = title,
-                                    color = fgcolor,
                                 ),
                             ],
                         ),
@@ -64,7 +67,6 @@ def main(config):
                             children = [
                                 render.Text(
                                     content = display,
-                                    color = fgcolor,
                                 ),
                             ],
                         ),
