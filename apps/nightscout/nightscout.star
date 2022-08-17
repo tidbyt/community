@@ -79,7 +79,7 @@ def main(config):
         return display_failure("Page not found for nightscout ID '" + nightscout_id + "' - is this ID correct?")
     elif status_code > 200:
         return display_failure("Nightscout Error: " + str(status_code))
-    
+
     # Pull the data from the cache
     sgv_current = int(nightscout_data_json["sgv_current"])
     sgv_delta = int(nightscout_data_json["sgv_delta"])
@@ -99,8 +99,8 @@ def main(config):
     #graph_data.append(tuple((reading[0], reading[1] - urgent_low)))
     reading_mins_ago = int((UTC_TIME_NOW - latest_reading_dt).minutes)
 
-    print ("time:", UTC_TIME_NOW)
-    print ("oldest_reading_target:", OLDEST_READING_TARGET)
+    print("time:", UTC_TIME_NOW)
+    print("oldest_reading_target:", OLDEST_READING_TARGET)
     print(reading_mins_ago)
 
     if (reading_mins_ago < 1):
@@ -149,7 +149,7 @@ def main(config):
         color_arrow = COLOR_RED
     print(night_mode)
     if (night_mode == "True" and (now > sun_set or now < sun_rise)):
-        print ("Night Mode")
+        print("Night Mode")
         color_reading = COLOR_NIGHT
         color_delta = COLOR_NIGHT
         color_arrow = COLOR_NIGHT
@@ -161,7 +161,7 @@ def main(config):
         color_graph_urgent_low = COLOR_NIGHT
         color_graph_lines = COLOR_NIGHT
         color_clock = COLOR_NIGHT
-    
+
     print(ago_dashes)
 
     if show_graph == "False":
@@ -241,14 +241,14 @@ def main(config):
             for history_point in history:
                 if (min_time <= history_point[0] and history_point[0] <= max_time):
                     this_point = history_point[1]
-            
-            print (this_point)
+
+            print(this_point)
             if this_point < GRAPH_BOTTOM and this_point > 0:
                 this_point = GRAPH_BOTTOM
-                
+
             if this_point > GRAPH_TOP:
                 this_point = GRAPH_TOP
-                
+
             graph_point_color = color_graph_normal
 
             if this_point > normal_high:
@@ -484,6 +484,7 @@ def get_nightscout_data(nightscout_id):
         return {}, resp.status_code
     latest_reading = resp.json()[0]
     previous_reading = resp.json()[1]
+
     #print (latest_reading)
     #print (previous_reading)
     latest_reading_date_string = latest_reading["dateString"]
@@ -507,8 +508,9 @@ def get_nightscout_data(nightscout_id):
         history.append(tuple((int(int(x["date"]) / 1000), int(x["sgv"]))))
         #print (x["dateString"])
         #print (str(int(x["date"] / 1000)) + ":" + str(int(x["sgv"])))
+
     #print (history)
-    
+
     nightscout_data = {
         "sgv_current": str(int(sgv_current)),
         "sgv_delta": str(int(sgv_delta)),
