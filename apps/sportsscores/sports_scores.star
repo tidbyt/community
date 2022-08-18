@@ -1,12 +1,12 @@
 """
 Applet: Sports Scores
 Summary: Get daily sports scores
-Description: Get daily scores or live updates of sports games (NBA and NFL from ESPN). Scores for the previous day are shown until 11am EST.
+Description: Get daily scores or live updates of sports games (MLB and NHL not from ESPN). Scores for the previous day are shown until 11am EST.
 Author: rs7q5
 """
 #sports_scores.star
 #Created 20220220 RIS
-#Last Modified 20220728 RIS
+#Last Modified 20220816 RIS
 
 load("render.star", "render")
 load("http.star", "http")
@@ -16,56 +16,80 @@ load("schema.star", "schema")
 load("time.star", "time")
 load("humanize.star", "humanize")
 
-#this list are the sports that can have their standings pulled
+#this list are the sports that can have their scores pulled
 SPORTS_LIST = {
-    "MLB": ["MLB", "mlb"],
-    "NHL": ["NHL", "nhl"],
-    "NBA": ["NBA", "nba"],
-    "NFL": ["NFL", "nfl"],
-    "WNBA": ["WNBA", "wnba"],
-    "MLS": ["MLS", "usa.1"],
-    "NWSL": ["NWSL", "usa.nwsl"],
+    "Baseball": ("MLB", {
+        "MLB": ["MLB", "mlb"],
+    }),
+    "Hockey": ("NHL", {
+        "NHL": ["NHL", "nhl"],
+    }),
+    "Basketball": ("NBA", {
+        "NBA": ["NBA", "nba"],
+        "WNBA": ["WNBA", "wnba"],
+        "NCAAM": ["NCAAM", "mens-college-basketball"],
+        "NCAAW": ["NCAAW", "womens-college-basketball"],
+    }),
+    "Football": ("NFL", {
+        "NFL": ["NFL", "nfl"],
+        "NCAAF": ["NCAAF", "college-football"],
+    }),
+    "Soccer": ("MLS", {
+        "MLS": ["MLS", "usa.1"],
+        "NWSL": ["NWSL", "usa.nwsl"],
+        "EPL": ["EPL", "eng.1"],
+    }),
 }
-
-TWO_LINE_SPORTS = ["NBA", "WNBA"]  #sports whose standings take up two lines
+TWO_LINE_LEAGUES = ["NBA", "WNBA", "NCAAM", "NCAAW"]  #sports whose standings take up two lines
 
 no_games_text = ["No Games Today!!"]  #vector of text to use if no games are present
 
 def main(config):
-    sport = config.get("sport") or "MLB"
-    sport_txt, sport_ext = SPORTS_LIST.get(sport)
+    sport_tmp = config.str("sport", "Baseball")
+    if SPORTS_LIST.get(sport_tmp) == None:  #used for old installations
+        #old installations the sport was actually the league
+        for key, val in SPORTS_LIST.items():
+            if val[1].get(sport_tmp) != None:
+                sport = key
+                league = sport_tmp
+                break
+    else:
+        sport = sport_tmp
+        league = config.str("league_%s" % sport, SPORTS_LIST[sport][0])
+
+    league_txt, league_ext = SPORTS_LIST[sport][1].get(league)
 
     font = "CG-pixel-3x5-mono"  #set font
 
     #check for cached data
-    stats_cached = cache.get("stats_rate_games%s" % sport)
+    stats_cached = cache.get("stats_rate_games%s_%s" % (sport, league))
     if stats_cached != None:
-        print("Hit! Displaying %s gameday data." % sport)
+        print("Hit! Displaying %s (%s) gameday data." % (sport, league))
         stats = json.decode(stats_cached)
     else:
-        print("Miss! Calling %s gameday data." % sport)  #error code checked within each function!!!!
+        print("Miss! Calling %s (%s) gameday data." % (sport, league))  #error code checked within each function!!!!
         today_str = get_date_str()
 
         #get the data
-        if sport == "MLB":
+        if sport == "Baseball":
             stats = get_mlbgames(today_str, config)
-        elif sport == "NHL":
+        elif sport == "Hockey":
             stats = get_nhlgames(today_str, config)
-        elif sport in ["NBA", "WNBA"]:
-            stats = get_basketballgames(today_str, sport_ext, config)
-        elif sport == "NFL":
-            stats = get_nflgames(today_str, config)
-        elif sport in ["MLS", "NWSL"]:
-            stats = get_soccergames(today_str, sport_ext, config)
+        elif sport == "Basketball":
+            stats = get_basketballgames(today_str, league_ext, config)
+        elif sport == "Football":
+            stats = get_footballgames(today_str, league_ext, config)
+        elif sport == "Soccer":
+            stats = get_soccergames(today_str, league_ext, config)
 
         #cache the data
-        cache.set("stats_rate_games%s" % sport, json.encode(stats), ttl_seconds = 60)
+        cache.set("stats_rate_games%s_%s" % (sport, league), json.encode(stats), ttl_seconds = 60)
 
     #get frames before display
     if stats == no_games_text and config.bool("gameday", False):
         return []  #return nothing if no games
     else:
-        frame_vec = get_frames(stats, sport, font, config)
+        frame_vec = get_frames(stats, league, font, config)
 
     speed_factor = 20 if config.bool("scroll_logic", False) else 1  #get factor for scaling animation speed
 
@@ -79,13 +103,7 @@ def get_schema():
         schema.Option(display = sport, value = sport)
         for sport in SPORTS_LIST
     ]
-    frame_speed = [
-        schema.Option(display = "Slower", value = "5000"),
-        schema.Option(display = "Slow", value = "4000"),
-        schema.Option(display = "Normal", value = "3000"),
-        schema.Option(display = "Fast", value = "2000"),
-        schema.Option(display = "Faster (Default)", value = "1000"),
-    ]
+
     return schema.Schema(
         version = "1",
         fields = [
@@ -95,89 +113,131 @@ def get_schema():
                 desc = "The sport of the live games that should be displayed.",
                 icon = "medal",
                 options = sports,
-                default = "MLB",
-            ),
-            schema.Toggle(
-                id = "gameday",
-                name = "Game day only",
-                desc = "",
-                icon = "calendar",
-                default = False,
-            ),
-            schema.Toggle(
-                id = "local_tz",
-                name = "Local timezone",
-                desc = "Enable to display game times in your local timezone (default is ET).",
-                icon = "gear",
-                default = False,
-            ),
-            schema.Toggle(
-                id = "row_space",
-                name = "Add space between rows",
-                desc = "This may reduce the number of games displayed on each frame.",
-                icon = "gear",
-                default = False,
-            ),
-            schema.Toggle(
-                id = "scroll_logic",
-                name = "Scroll games?",
-                desc = "",
-                icon = "gear",
-                default = False,
-            ),
-            schema.Dropdown(
-                id = "speed",
-                name = "Frame speed",
-                desc = "Change the speed that the games listed change.",
-                icon = "gear",
-                default = frame_speed[-1].value,
-                options = frame_speed,
-            ),
-            schema.Toggle(
-                id = "hide_tbd_scores",
-                name = "Hide the score of games not started?",
-                desc = "Enable to hide zeros for games not started.",
-                icon = "eyeSlash",
-                default = False,
-            ),
-            schema.Toggle(
-                id = "highlight_winner",
-                name = "Highlight winner?",
-                desc = "Enable to highlight the winner of a completed game.",
-                icon = "highlighter",
-                default = False,
-            ),
-            schema.Toggle(
-                id = "highlight_team",
-                name = "Highlight team?",
-                desc = "Enable to highlight a select team.",
-                icon = "highlighter",
-                default = False,
+                default = "Baseball",
             ),
             schema.Generated(
-                id = "team_select",
-                source = "highlight_team",
-                handler = team_options,
+                id = "generated",  #other options are all in here because the generated fields go at the end always
+                source = "sport",
+                handler = more_options,
             ),
         ],
     )
 
-def team_options(highlight_team):
-    if highlight_team:
-        return [
-            schema.Text(
-                id = "team_select",
-                name = "Team abbreviation",
-                desc = "Enter the team code to highlight.",
-                icon = "highlighter",
-                default = "None",
-            ),
-        ]
-    else:
-        return []
+def more_options(sport):
+    leagues = [
+        schema.Option(display = league, value = league)
+        for league in SPORTS_LIST[sport][1]
+    ]
+    frame_speed = [
+        schema.Option(display = "Slower", value = "5000"),
+        schema.Option(display = "Slow", value = "4000"),
+        schema.Option(display = "Normal", value = "3000"),
+        schema.Option(display = "Fast", value = "2000"),
+        schema.Option(display = "Faster (Default)", value = "1000"),
+    ]
+    return [
+        schema.Dropdown(
+            id = "league_%s" % sport,  #id must be unique to get different default values
+            name = "League",
+            desc = "Select which league of games should be displayed.",
+            icon = "medal",
+            options = leagues,
+            default = SPORTS_LIST[sport][0],
+        ),
+        schema.Toggle(
+            id = "gameday",
+            name = "Game day only",
+            desc = "",
+            icon = "calendar",
+            default = False,
+        ),
+        schema.Toggle(
+            id = "local_tz",
+            name = "Local timezone",
+            desc = "Enable to display game times in your local timezone (default is ET).",
+            icon = "gear",
+            default = False,
+        ),
+        schema.Toggle(
+            id = "time_format",
+            name = "Time format",
+            desc = "Enable to display game times in 12 hour format (does not show AM/PM).",
+            icon = "gear",
+            default = False,
+        ),
+        schema.Toggle(
+            id = "row_space",
+            name = "Add space between rows",
+            desc = "This may reduce the number of games displayed on each frame.",
+            icon = "gear",
+            default = False,
+        ),
+        schema.Toggle(
+            id = "scroll_logic",
+            name = "Scroll games?",
+            desc = "",
+            icon = "gear",
+            default = False,
+        ),
+        schema.Dropdown(
+            id = "speed",
+            name = "Frame speed",
+            desc = "Change the speed that the games listed change.",
+            icon = "gear",
+            default = frame_speed[-1].value,
+            options = frame_speed,
+        ),
+        schema.Toggle(
+            id = "hide_tbd_scores",
+            name = "Hide the score of games not started?",
+            desc = "Enable to hide zeros for games not started.",
+            icon = "eyeSlash",
+            default = False,
+        ),
+        schema.Toggle(
+            id = "highlight_winner",
+            name = "Highlight winner?",
+            desc = "Enable to highlight the winner of a completed game.",
+            icon = "highlighter",
+            default = False,
+        ),
+        schema.Toggle(
+            id = "highlight_team",
+            name = "Highlight team?",
+            desc = "Enable to highlight a select team.",
+            icon = "highlighter",
+            default = False,
+        ),
+        schema.Text(
+            id = "team_select",
+            name = "Team abbreviation",
+            desc = "Enter the team code to highlight.",
+            icon = "highlighter",
+            default = "None",
+        ),
+        # schema.Generated(
+        #     id = "team_select",
+        #     source = "highlight_team",
+        #     handler = team_options,
+        # ),
+    ]
+
+# def team_options(highlight_team):
+#     if highlight_team:
+#         return [
+#             schema.Text(
+#                 id = "team_select",
+#                 name = "Team abbreviation",
+#                 desc = "Enter the team code to highlight.",
+#                 icon = "highlighter",
+#                 default = "None",
+#             ),
+#         ]
+#     else:
+#         return []
 
 ######################################################
-def get_frames(stats, sport_txt, font, config):
+def get_frames(stats, league_txt, font, config):
     frame_vec = []
     if stats == no_games_text:
         header_txt = render.Box(width = 64, height = 7, child = render.Row(
@@ -185,7 +245,7 @@ def get_frames(stats, sport_txt, font, config):
             main_align = "space_between",
             cross_align = "end",
             children = [
-                render.Text(sport_txt, color = "#a00", font = font),
+                render.Text(league_txt, color = "#a00", font = font),
                 render.Text("Away/Home", font = font),
             ],
         ))
@@ -205,7 +265,7 @@ def get_frames(stats, sport_txt, font, config):
         )
         return frame_vec_tmp
 
-    force_two = sport_txt in TWO_LINE_SPORTS  #forces text on two lines
+    force_two = league_txt in TWO_LINE_LEAGUES  #forces text on two lines
 
     if config.bool("scroll_logic", False):
         line_max = len(stats)
@@ -315,7 +375,7 @@ def get_frames(stats, sport_txt, font, config):
                 main_align = "space_between",
                 cross_align = "end",
                 children = [
-                    render.Text(sport_txt, color = "#a00", font = font),
+                    render.Text(league_txt, color = "#a00", font = font),
                     render.Text("Away/Home", font = font),
                 ],
             ))
@@ -421,7 +481,14 @@ def adjust_gametime(gametime_raw, config):
         timezone = "America/New_York"
     game_time = time.parse_time(gametime_raw).in_location(timezone)
 
-    game_time_str = str(game_time.format("15:04"))
+    #game_time_str = str(game_time.format("15:04"))
+    if config.bool("time_format", False):
+        game_time_str = str(game_time.format("3:04"))
+        if len(game_time_str) == 4:  #not double digit hour
+            game_time_str = " " + game_time_str
+    else:
+        game_time_str = str(game_time.format("15:04"))
+
     if config.bool("local_tz", False):
         return game_time_str
     else:
@@ -522,7 +589,7 @@ def get_nhlgames(today_str, config):
         for key, value in game["teams"].items():
             #team_info[key] = (value["team"]["abbreviation"],int(value.get("score",-1)))
             stats_tmp[key] = (value["team"]["abbreviation"], int(value.get("score", -1)))
-            if value.get("isWinner", False):
+            if value.get("isWinner", False):  #the API does not actually have this
                 stats_tmp["highlight"] = key
 
         linescore = game.get("linescore", [])
@@ -543,16 +610,16 @@ def get_nhlgames(today_str, config):
                     status_txt = "F"
                 else:
                     status_txt = "F/" + period
-            else:
-                status_txt = period_T + "/" + period  #switch status and period here so time doesn't get cut off
 
-            #figure out which team should be highlighted
-            if stats_tmp["away"][1] == stats_tmp["home"][1]:
-                pass  #this case should never happen as ties in hockey aren't a thing, but here for completion
-            elif stats_tmp["away"][1] < stats_tmp["home"][1]:
-                stats_tmp["highlight"] = "home"
-            else:  #home team wins
-                stats_tmp["highlight"] = "away"
+                #figure out which team should be highlighted
+                if stats_tmp["away"][1] > stats_tmp["home"][1]:
+                    stats_tmp["highlight"] = "away"
+                elif stats_tmp["away"][1] < stats_tmp["home"][1]:
+                    stats_tmp["highlight"] = "home"
+                else:  #no ties in hockey, but here for completion
+                    pass  #this case should never happen as ties in hockey aren't a thing, but here for completion
+            else:
+                status_txt = period_T + "/" + period  #switch status and period here so time doesn't get cutoff
         else:  #this is a safety net
             status_txt = status
 
@@ -561,10 +628,10 @@ def get_nhlgames(today_str, config):
 
     return (stats)
 
-def get_basketballgames(today_str, sport, config):
+def get_basketballgames(today_str, league, config):
     start_date = today_str
     end_date = today_str
-    base_URL = "https://site.api.espn.com/apis/site/v2/sports/basketball/%s/scoreboard" % sport
+    base_URL = "https://site.api.espn.com/apis/site/v2/sports/basketball/%s/scoreboard" % league
     full_URL = base_URL + "?dates=" + start_date.replace("-", "") + "-" + end_date.replace("-", "")
 
     #print(full_URL)
@@ -629,10 +696,10 @@ def get_basketballgames(today_str, sport, config):
         stats.append(stats_tmp2)  #used for multi-line stuff
     return (stats)
 
-def get_nflgames(today_str, config):
+def get_footballgames(today_str, league, config):
     start_date = today_str
     end_date = today_str
-    base_URL = "https://site.api.espn.com/apis/site/v2/sports/football/nfl/scoreboard"
+    base_URL = "https://site.api.espn.com/apis/site/v2/sports/football/%s/scoreboard" % league
     full_URL = base_URL + "?dates=" + start_date.replace("-", "") + "-" + end_date.replace("-", "")
 
     #print(full_URL)
@@ -695,10 +762,10 @@ def get_nflgames(today_str, config):
         stats.append(stats_tmp)
     return (stats)
 
-def get_soccergames(today_str, sport, config):
+def get_soccergames(today_str, league, config):
     start_date = today_str
     end_date = today_str
-    base_URL = "https://site.api.espn.com/apis/site/v2/sports/soccer/%s/scoreboard" % sport
+    base_URL = "https://site.api.espn.com/apis/site/v2/sports/soccer/%s/scoreboard" % league
     full_URL = base_URL + "?dates=" + start_date.replace("-", "") + "-" + end_date.replace("-", "")
 
     #print(full_URL)
