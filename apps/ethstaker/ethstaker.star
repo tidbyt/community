@@ -119,7 +119,7 @@ def validator_statuses(config):
     validator_indices = raw_validator_indices.replace(", ", ",").split(",")
     loaded_slot_statuses = combined_validator_statuses(api_key, validator_indices)
 
-    cache_key = slot_statuses_cache_key(api_key)
+    cache_key = slot_statuses_cache_key(raw_validator_indices)
     oldest_loaded_slot = loaded_slot_statuses[0][0]
     cached_slot_statuses = load_cached_slot_statuses(oldest_loaded_slot, cache_key)
 
@@ -253,8 +253,8 @@ def status_color(status):
 
 # Caching
 
-def slot_statuses_cache_key(api_key):
-    return "slot_statuses_" + api_key
+def slot_statuses_cache_key(uniquer):
+    return "slot_statuses_" + uniquer
 
 
 # Generic Utils
