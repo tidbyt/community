@@ -7,6 +7,7 @@ Author: ColinCampbell
 
 load("cache.star", "cache")
 load("http.star", "http")
+load("encoding/base64.star", "base64")
 load("encoding/json.star", "json")
 load("math.star", "math")
 load("render.star", "render")
@@ -17,21 +18,78 @@ FULL_ROW_LIMIT = 30
 FULL_COLUMN_LIMIT = 11
 SLOT_STATUS_CACHE_KEY = "slot_statuses"
 
+CHECKMARK = base64.decode("""
+iVBORw0KGgoAAAANSUhEUgAAAAcAAAAFCAYAAACJmvbYAAAAAXNSR0IArs4c6QAAAERlW
+ElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAA6ABAAMAAAABAAEAAKACAAQAAAABAA
+AAB6ADAAQAAAABAAAABQAAAACrlow2AAAAIklEQVQIHWNgwAHknoX9xyoFl4AzoMrQ+Qw
+wARiNYRw2CQBc5RBwfuwjGAAAAABJRU5ErkJggg==
+""")
+
 def main(config):
-    return render.Root(
-        child = render.Padding(
-            child = render.Column(
-                children = [
-                    render.Padding(
-                        child = render.Text("ethstaker", font = "CG-pixel-4x5-mono"),
-                        pad = (0, 0, 0, 1),
-                    ),
-                    render_root(config),
-                ],
+    statuses = validator_statuses(config)
+
+    if statuses != None:
+        status_rows = chunk_list(statuses, FULL_ROW_LIMIT)
+
+        return render.Root(
+            child = render.Padding(
+                child = render.Column(
+                    children = [
+                        render.Padding(
+                            child = render.Row(
+                                expanded = True,
+                                main_align = "space_between",
+                                children = [
+                                    render.Text("ethstaker", font = "CG-pixel-4x5-mono"),
+                                    header_status(statuses),
+                                ],
+                            ),
+                            pad = (0, 0, 0, 1),
+                        ),
+                        render.Column(
+                            children = map(
+                                status_rows,
+                                lambda status_row: render.Row(
+                                    children = map(status_row, lambda status: status_circle(status)),
+                                ),
+                            ),
+                        ),
+                    ],
+                ),
+                pad = 2,
             ),
-            pad = 2,
-        ),
-    )
+        )
+    else:
+        return render.Root(
+            child = render.Padding(
+                child = render.Column(
+                    children = [
+                        render.Padding(
+                            child = render.Text("ethstaker", font = "CG-pixel-4x5-mono"),
+                            pad = (0, 0, 0, 1),
+                        ),
+                        render.WrappedText("Missing settings"),
+                    ],
+                ),
+                pad = 2,
+            ),
+        )
+
+def header_status(statuses):
+    status_counts = count_list_by(statuses, lambda status: status)
+    sorted_status_keys = sorted(status_counts.keys(), reverse = True, key = status_score)
+    status = sorted_status_keys[0]
+
+    if status == "missed-attestation":
+        return render.Text(
+            str(status_counts.get("missed-attestation")),
+            font = "CG-pixel-4x5-mono",
+            color = "#f00",
+        )
+    elif status == "attested":
+        return render.Image(src = CHECKMARK)
+    else:
+        return render.Text("?", font = "CG-pixel-4x5-mono")
 
 def get_schema():
     return schema.Schema(
@@ -52,17 +110,14 @@ def get_schema():
         ],
     )
 
-def render_root(config):
+def validator_statuses(config):
     api_key = config.str("api_key")
-    validators = config.str("validators")
+    raw_validator_indices = config.str("validators")
 
-    if api_key != None and validators != None:
-        indices = validators.replace(", ", ",").split(",")
-        return render_validator_status(api_key, indices)
-    else:
-        return render.WrappedText("Missing settings")
+    if api_key == None or raw_validator_indices == None:
+        return None
 
-def render_validator_status(api_key, validator_indices):
+    validator_indices = raw_validator_indices.replace(", ", ",").split(",")
     loaded_slot_statuses = combined_validator_statuses(api_key, validator_indices)
 
     oldest_loaded_slot = loaded_slot_statuses[0][0]
@@ -78,20 +133,9 @@ def render_validator_status(api_key, validator_indices):
     cache.set(SLOT_STATUS_CACHE_KEY, json.encode(slot_statuses), ttl_seconds = 600)
 
     empty_status_length = status_limit - len(slot_statuses)
-    statuses = combine_lists(
+    return combine_lists(
         fill_list(empty_status_length, "empty"),
         map(slot_statuses, lambda slot_status: slot_status[1]),
-    )
-
-    status_rows = chunk_list(statuses, FULL_ROW_LIMIT)
-
-    return render.Column(
-        children = map(
-            status_rows,
-            lambda status_row: render.Row(
-                children = map(status_row, lambda status: status_circle(status)),
-            ),
-        ),
     )
 
 def load_cached_slot_statuses(older_than_slot):
@@ -164,12 +208,14 @@ def choose_status(status, existing_status):
         return status
 
 def status_score(status):
-    if status == "attested":
+    if status == "empty":
         return 0
-    elif status == "unknown":
+    elif status == "attested":
         return 1
-    else:
+    elif status == "unknown":
         return 2
+    else:
+        return 3
 
 def api_response(url):
     json_response = cache.get(url)
@@ -247,6 +293,15 @@ def choose_item(lookup, item, f):
     merged_value = f(item[1], existing_value)
     lookup[key] = merged_value
     return lookup
+
+def count_list_by(l, f):
+    result = {}
+    for item in l:
+        key = f(item)
+        if result.get(key) == None:
+            result[key] = 0
+        result[key] += 1
+    return result
 
 def map(l, f):
     return [f(i) for i in l]
