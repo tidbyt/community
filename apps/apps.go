@@ -40,6 +40,7 @@ import (
 	"tidbyt.dev/community/apps/dwheadline"
 	"tidbyt.dev/community/apps/emojilingo"
 	"tidbyt.dev/community/apps/espnnews"
+	"tidbyt.dev/community/apps/ethstaker"
 	"tidbyt.dev/community/apps/fairfaxconnector"
 	"tidbyt.dev/community/apps/fantasynamegen"
 	"tidbyt.dev/community/apps/finevent"
@@ -196,6 +197,7 @@ func GetManifests() []manifest.Manifest {
 		dwheadline.New(),
 		emojilingo.New(),
 		espnnews.New(),
+		ethstaker.New(),
 		fairfaxconnector.New(),
 		fantasynamegen.New(),
 		finevent.New(),
