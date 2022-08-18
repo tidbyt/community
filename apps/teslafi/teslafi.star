@@ -137,10 +137,8 @@ def main(config):
         
         name=rep['display_name']
         rangemi=rep['est_battery_range']
-        # print(rep)
         if(config.bool("mi2km")==True):
             rangemi=math.round((float(rangemi)*1.60934)*100)/100
-        # battlevel=rep['battery_level']
         chargelimit=rep['charge_limit_soc']
         batterylevel=rep['usable_battery_level']
         chargingstate=rep['charging_state']
@@ -197,9 +195,7 @@ def render_progress_bar(state, label, percent, col1, col2, col3, animprogress):
         col2orwhite = col1
 
     label1color = lightness("#fff", animprogress / 100)
-
     label2align = "start"
-    # label2color = col3
     label2color = lightness(col3, animprogress / 100)
     label3color = lightness("#fff", animprogress / 100)
 
@@ -303,8 +299,6 @@ def get_frame(state, fr, config,animprogress):
                     render.Marquee(
                         width=40,
                         child=render.Text("%s" % state["name"], font = ""),
-                        # offset_start=5,
-                        # offset_end=0,
                     )
                 
                 ],
@@ -317,12 +311,9 @@ def get_frame(state, fr, config,animprogress):
                 main_align = "space_around",
                 cross_align = "center",
                 children = [
-                
                     render.Marquee(
                         width=40,
                         child=render.Text("%s" % state["name"], font = ""),
-                        # offset_start=5,
-                        # offset_end=0,
                     )
                 
                 ],
