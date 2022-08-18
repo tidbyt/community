@@ -44,15 +44,20 @@ TWO_LINE_LEAGUES = ["NBA", "WNBA", "NCAAM", "NCAAW"]  #sports whose standings ta
 
 no_games_text = ["No Games Today!!"]  #vector of text to use if no games are present
 
+def sport_from_league(league):
+    for sport in SPORTS_LIST:
+        for l in SPORTS_LIST[sport][1]:
+            if l == league:
+                return sport
+    return None
+
 def main(config):
     sport_tmp = config.str("sport", "Baseball")
-    if SPORTS_LIST.get(sport_tmp) == None:  #used for old installations
-        #old installations the sport was actually the league
-        for key, val in SPORTS_LIST.items():
-            if val[1].get(sport_tmp) != None:
-                sport = key
-                league = sport_tmp
-                break
+
+    if sport_tmp not in SPORTS_LIST:
+        # older installations may hold league in the "sport" field
+        sport = sport_from_league(sport_tmp)
+        league = sport_tmp
     else:
         sport = sport_tmp
         league = config.str("league_%s" % sport, SPORTS_LIST[sport][0])
@@ -104,6 +109,14 @@ def get_schema():
         for sport in SPORTS_LIST
     ]
 
+    frame_speed = [
+        schema.Option(display = "Slower", value = "5000"),
+        schema.Option(display = "Slow", value = "4000"),
+        schema.Option(display = "Normal", value = "3000"),
+        schema.Option(display = "Fast", value = "2000"),
+        schema.Option(display = "Faster (Default)", value = "1000"),
+    ]
+
     return schema.Schema(
         version = "1",
         fields = [
@@ -120,20 +133,88 @@ def get_schema():
                 source = "sport",
                 handler = more_options,
             ),
+            schema.Toggle(
+                id = "gameday",
+                name = "Game day only",
+                desc = "",
+                icon = "calendar",
+                default = False,
+            ),
+            schema.Toggle(
+                id = "local_tz",
+                name = "Local timezone",
+                desc = "Enable to display game times in your local timezone (default is ET).",
+                icon = "gear",
+                default = False,
+            ),
+            schema.Toggle(
+                id = "time_format",
+                name = "Time format",
+                desc = "Enable to display game times in 12 hour format (does not show AM/PM).",
+                icon = "gear",
+                default = False,
+            ),
+            schema.Toggle(
+                id = "row_space",
+                name = "Add space between rows",
+                desc = "This may reduce the number of games displayed on each frame.",
+                icon = "gear",
+                default = False,
+            ),
+            schema.Toggle(
+                id = "scroll_logic",
+                name = "Scroll games?",
+                desc = "",
+                icon = "gear",
+                default = False,
+            ),
+            schema.Dropdown(
+                id = "speed",
+                name = "Frame speed",
+                desc = "Change the speed that the games listed change.",
+                icon = "gear",
+                default = frame_speed[-1].value,
+                options = frame_speed,
+            ),
+            schema.Toggle(
+                id = "hide_tbd_scores",
+                name = "Hide the score of games not started?",
+                desc = "Enable to hide zeros for games not started.",
+                icon = "eyeSlash",
+                default = False,
+            ),
+            schema.Toggle(
+                id = "highlight_winner",
+                name = "Highlight winner?",
+                desc = "Enable to highlight the winner of a completed game.",
+                icon = "highlighter",
+                default = False,
+            ),
+            schema.Toggle(
+                id = "highlight_team",
+                name = "Highlight team?",
+                desc = "Enable to highlight a select team.",
+                icon = "highlighter",
+                default = False,
+            ),
+            schema.Text(
+                id = "team_select",
+                name = "Team abbreviation",
+                desc = "Enter the team code to highlight.",
+                icon = "highlighter",
+                default = "None",
+            ),
         ],
     )
 
 def more_options(sport):
+    if sport not in SPORTS_LIST:
+        # older installations may hold league in the "sport" field
+        sport = sport_from_league(sport)
+
     leagues = [
         schema.Option(display = league, value = league)
         for league in SPORTS_LIST[sport][1]
-    ]
-    frame_speed = [
-        schema.Option(display = "Slower", value = "5000"),
-        schema.Option(display = "Slow", value = "4000"),
-        schema.Option(display = "Normal", value = "3000"),
-        schema.Option(display = "Fast", value = "2000"),
-        schema.Option(display = "Faster (Default)", value = "1000"),
     ]
     return [
         schema.Dropdown(
@@ -144,82 +225,6 @@ def more_options(sport):
             options = leagues,
             default = SPORTS_LIST[sport][0],
         ),
-        schema.Toggle(
-            id = "gameday",
-            name = "Game day only",
-            desc = "",
-            icon = "calendar",
-            default = False,
-        ),
-        schema.Toggle(
-            id = "local_tz",
-            name = "Local timezone",
-            desc = "Enable to display game times in your local timezone (default is ET).",
-            icon = "gear",
-            default = False,
-        ),
-        schema.Toggle(
-            id = "time_format",
-            name = "Time format",
-            desc = "Enable to display game times in 12 hour format (does not show AM/PM).",
-            icon = "gear",
-            default = False,
-        ),
-        schema.Toggle(
-            id = "row_space",
-            name = "Add space between rows",
-            desc = "This may reduce the number of games displayed on each frame.",
-            icon = "gear",
-            default = False,
-        ),
-        schema.Toggle(
-            id = "scroll_logic",
-            name = "Scroll games?",
-            desc = "",
-            icon = "gear",
-            default = False,
-        ),
-        schema.Dropdown(
-            id = "speed",
-            name = "Frame speed",
-            desc = "Change the speed that the games listed change.",
-            icon = "gear",
-            default = frame_speed[-1].value,
-            options = frame_speed,
-        ),
-        schema.Toggle(
-            id = "hide_tbd_scores",
-            name = "Hide the score of games not started?",
-            desc = "Enable to hide zeros for games not started.",
-            icon = "eyeSlash",
-            default = False,
-        ),
-        schema.Toggle(
-            id = "highlight_winner",
-            name = "Highlight winner?",
-            desc = "Enable to highlight the winner of a completed game.",
-            icon = "highlighter",
-            default = False,
-        ),
-        schema.Toggle(
-            id = "highlight_team",
-            name = "Highlight team?",
-            desc = "Enable to highlight a select team.",
-            icon = "highlighter",
-            default = False,
-        ),
-        schema.Text(
-            id = "team_select",
-            name = "Team abbreviation",
-            desc = "Enter the team code to highlight.",
-            icon = "highlighter",
-            default = "None",
-        ),
-        # schema.Generated(
-        #     id = "team_select",
-        #     source = "highlight_team",
-        #     handler = team_options,
-        # ),
     ]
 
 # def team_options(highlight_team):
