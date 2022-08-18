@@ -256,7 +256,6 @@ def status_color(status):
 def slot_statuses_cache_key(uniquer):
     return "slot_statuses_" + uniquer
 
-
 # Generic Utils
 
 def combine_lists(*args):
