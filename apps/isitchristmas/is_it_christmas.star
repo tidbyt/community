@@ -50,12 +50,16 @@ def main(config):
     day = now.day
     month = now.month
 
-    if config.bool("december_only", False) and month != 12:
+    christmas_date = config.get("christmas_date")
+    christmas_month = int(christmas_date[:2])
+    christmas_day = int(christmas_date[3:])
+
+    if config.bool("december_only", False) and not is_christmas_runup(month, christmas_month):
         return []
-    elif day == 25 and month == 12:
+    elif day == christmas_day and month == christmas_month:
         is_christmas = CHRISTMAS_YES
     elif config.bool("days_left", False):  #if not christmas and get days left
-        is_christmas = get_daysleft(time.time(year = now.year, month = month, day = day, location = timezone), timezone)
+        is_christmas = get_daysleft(time.time(year = now.year, month = month, day = day, location = timezone), timezone, christmas_month, christmas_day)
     else:
         is_christmas = CHRISTMAS_NO
 
@@ -98,13 +102,16 @@ def main(config):
         ),
     )
 
-def get_daysleft(today, timezone):
-    if today.month == 12 and today.day > 25:
+def get_daysleft(today, timezone, christmas_month, christmas_day):
+    if today.month == christmas_month and today.day > christmas_day:
+        year = today.year + 1
+    if today.month > christmas_month:
         year = today.year + 1
     else:
         year = today.year
 
-    christmas = time.time(year = year, month = 12, day = 25, location = timezone)
+    christmas = time.time(year = year, month = christmas_month, day = christmas_day, location = timezone)
+
     days_left = (christmas - today).hours // 24
 
     days_left_text = "%d days" % days_left
@@ -149,7 +156,36 @@ def get_tree_frames(is_christmas):
             ),
         ]
 
+def is_christmas_runup(month, christmas_month):
+    if christmas_month == 12:
+        return month == 12
+
+    # For January Christmases, also show in January.
+    # Another thought would be to use the 4 weeks of advent, prior to whatever date was chosen.
+    return month == 12 or month == 1
+
 def get_schema():
+    # Christmas is only 25 December in certain branches of Christianity.
+    # https://en.wikipedia.org/wiki/Christmas#Date_according_to_Julian_calendar
+    date_options = [
+        schema.Option(
+            display = "25 December",
+            value = "12-25",
+        ),
+        schema.Option(
+            display = "6 January",
+            value = "01-06",
+        ),
+        schema.Option(
+            display = "7 January",
+            value = "01-07",
+        ),
+        schema.Option(
+            display = "19 January",
+            value = "01-19",
+        ),
+    ]
+
     return schema.Schema(
         version = "1",
         fields = [
@@ -172,6 +208,14 @@ def get_schema():
                 desc = "Enable to display the number of days left until Christmas.",
                 icon = "gear",
                 default = False,
+            ),
+            schema.Dropdown(
+                id = "christmas_date",
+                name = "Christmas date",
+                desc = "When do you celebrate Christmas?",
+                icon = "calendar",
+                default = date_options[0].value,
+                options = date_options,
             ),
         ],
     )
