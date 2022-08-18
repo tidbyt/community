@@ -106,6 +106,7 @@ import (
 	"tidbyt.dev/community/apps/powerball"
 	"tidbyt.dev/community/apps/preciousmetals"
 	"tidbyt.dev/community/apps/pubgstats"
+	"tidbyt.dev/community/apps/pulsechain"
 	"tidbyt.dev/community/apps/purpleair"
 	"tidbyt.dev/community/apps/randomslackmoji"
 	"tidbyt.dev/community/apps/redditimages"
@@ -263,6 +264,7 @@ func GetManifests() []manifest.Manifest {
 		powerball.New(),
 		preciousmetals.New(),
 		pubgstats.New(),
+		pulsechain.New(),
 		purpleair.New(),
 		randomslackmoji.New(),
 		redditimages.New(),
