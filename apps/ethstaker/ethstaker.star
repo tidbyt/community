@@ -79,9 +79,9 @@ def header_status(statuses):
     sorted_status_keys = sorted(status_counts.keys(), reverse = True, key = status_score)
     status = sorted_status_keys[0]
 
-    if status == "missed-attestation":
+    if status == "missed_attestation":
         return render.Text(
-            str(status_counts.get("missed-attestation")),
+            str(status_counts.get("missed_attestation")),
             font = "CG-pixel-4x5-mono",
             color = "#f00",
         )
