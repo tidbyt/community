@@ -117,14 +117,13 @@ def rgb_to_hex(r, g, b):
     return "#" + str("%x" % ((1 << 24) + (r << 16) + (g << 8) + b))[1:]
 
 def main(config):
-  
     if config.str("api") == None:
         return render.Root(
             child = render.WrappedText("Please enter the API info!"),
         )
     else:
-        api=config.str("api")
-        rep_cache = cache.get("teslafi-"+api)
+        api = config.str("api")
+        rep_cache = cache.get("teslafi-" + api)
         if rep_cache != None:
             print("Hit! Displaying cached data.")
             rep = json.decode(rep_cache)
@@ -134,7 +133,7 @@ def main(config):
             if rep.status_code != 200:
                 fail("TeslaFi request failed with status:", rep.status_code)
             rep = rep.json()
-            cache.set("teslafi-"+api, json.encode(rep), ttl_seconds = 60)
+            cache.set("teslafi-" + api, json.encode(rep), ttl_seconds = 60)
 
         name = rep["display_name"]
         rangemi = rep["est_battery_range"]
