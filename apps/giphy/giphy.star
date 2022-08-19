@@ -41,6 +41,22 @@ def main(config):
     results = search(search_query, rating, API_TOKEN)
     image_count = len(results["data"])
 
+    if image_count == 0:
+        return render.Root(
+            render.Column(
+                expanded = True,
+                main_align = "center",
+                children = [
+                    render.Marquee(
+                        width = 64,
+                        child = render.Text(
+                            content = "No images found for {}".format(search_query)
+                        )
+                    )
+                ]
+            )
+        )
+
     image_data = None
     for _ in range(25):
         image = results["data"][random.number(0, image_count - 1)]
