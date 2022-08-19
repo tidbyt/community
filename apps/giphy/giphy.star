@@ -50,11 +50,11 @@ def main(config):
                     render.Marquee(
                         width = 64,
                         child = render.Text(
-                            content = "No images found for {}".format(search_query)
-                        )
-                    )
-                ]
-            )
+                            content = "No images found for {}".format(search_query),
+                        ),
+                    ),
+                ],
+            ),
         )
 
     image_data = None
