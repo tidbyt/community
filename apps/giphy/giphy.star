@@ -16,9 +16,9 @@ load("secret.star", "secret")
 
 SEARCH_URL = "https://api.giphy.com/v1/gifs/search?api_key={}&q={}&limit=25&offset=0&rating={}&lang=en"
 API_TOKEN_ENCRYPTED = """
-AV6+xWcEVvNa2fJsV0ttCcP9TohstcHBVAANlAJL8RgTvlMp1nuHmuSOsR7wFL/QbBO9Sts9ryKe
-dE484RsAxjJyO+H4l9ft1kA4HLAD7dn8Uh1ORo2hYHccpcTYWILEUlCAdUuyI0eQ5Iydq3kacvu7
-NtIzvRSGyZyUxtx6i+TsQdsr8ES/b+i2DBkItCNhnl5hLa87
+AV6+xWcEb+nOegkpKq3mN6quWDpiV42LsfTGMLbPlsHby8tluwCVlR8IPuNosXSUQoISRk1/RpjX
+WgJvXoW4PTGUYW5MF+5Z8s2A6Oj+3TzBNNuvGaN8kUsF7GzcoDUnqux99vkvS7NADgVkvwiMDmEi
+7nHMaTq20q9bFzgGY7FLfzM7Cyc=
 """
 
 GIPHY_LOGO = base64.decode("""
