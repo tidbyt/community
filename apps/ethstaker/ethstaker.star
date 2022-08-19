@@ -85,7 +85,7 @@ def header_status(statuses):
             font = "CG-pixel-4x5-mono",
             color = "#f00",
         )
-    elif status == "attested":
+    elif status == "attested" or status == "unknown":
         return render.Image(src = CHECKMARK)
     else:
         return render.Text("?", font = "CG-pixel-4x5-mono")
