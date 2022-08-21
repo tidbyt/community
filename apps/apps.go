@@ -95,6 +95,7 @@ import (
 	"tidbyt.dev/community/apps/nycbus"
 	"tidbyt.dev/community/apps/ogsgamesviewer"
 	"tidbyt.dev/community/apps/ohhighwaysigns"
+	"tidbyt.dev/community/apps/outagedetector"
 	"tidbyt.dev/community/apps/pagerduty"
 	"tidbyt.dev/community/apps/pathtrainschedule"
 	"tidbyt.dev/community/apps/petpikachu"
@@ -250,6 +251,7 @@ func GetManifests() []manifest.Manifest {
 		nycbus.New(),
 		ogsgamesviewer.New(),
 		ohhighwaysigns.New(),
+		outagedetector.New(),
 		pagerduty.New(),
 		pathtrainschedule.New(),
 		petpikachu.New(),
