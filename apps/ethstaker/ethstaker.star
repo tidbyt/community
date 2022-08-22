@@ -16,7 +16,6 @@ load("schema.star", "schema")
 API_VALIDATOR_LIMIT = 10
 FULL_ROW_LIMIT = 30
 FULL_COLUMN_LIMIT = 11
-SLOT_STATUS_CACHE_KEY = "slot_statuses"
 
 CHECKMARK = base64.decode("""
 iVBORw0KGgoAAAANSUhEUgAAAAcAAAAFCAYAAACJmvbYAAAAAXNSR0IArs4c6QAAAERlW
@@ -80,13 +79,13 @@ def header_status(statuses):
     sorted_status_keys = sorted(status_counts.keys(), reverse = True, key = status_score)
     status = sorted_status_keys[0]
 
-    if status == "missed-attestation":
+    if status == "missed_attestation":
         return render.Text(
-            str(status_counts.get("missed-attestation")),
+            str(status_counts.get("missed_attestation")),
             font = "CG-pixel-4x5-mono",
             color = "#f00",
         )
-    elif status == "attested":
+    elif status == "attested" or status == "unknown":
         return render.Image(src = CHECKMARK)
     else:
         return render.Text("?", font = "CG-pixel-4x5-mono")
@@ -120,8 +119,9 @@ def validator_statuses(config):
     validator_indices = raw_validator_indices.replace(", ", ",").split(",")
     loaded_slot_statuses = combined_validator_statuses(api_key, validator_indices)
 
+    cache_key = slot_statuses_cache_key(raw_validator_indices)
     oldest_loaded_slot = loaded_slot_statuses[0][0]
-    cached_slot_statuses = load_cached_slot_statuses(oldest_loaded_slot)
+    cached_slot_statuses = load_cached_slot_statuses(oldest_loaded_slot, cache_key)
 
     all_slot_statuses = combine_lists(cached_slot_statuses, loaded_slot_statuses)
 
@@ -130,7 +130,7 @@ def validator_statuses(config):
     slot_status_drop_count = slot_status_count - status_limit
 
     slot_statuses = all_slot_statuses[slot_status_drop_count:] if slot_status_drop_count > 0 else all_slot_statuses
-    cache.set(SLOT_STATUS_CACHE_KEY, json.encode(slot_statuses), ttl_seconds = 600)
+    cache.set(cache_key, json.encode(slot_statuses), ttl_seconds = 600)
 
     empty_status_length = status_limit - len(slot_statuses)
     return combine_lists(
@@ -138,8 +138,8 @@ def validator_statuses(config):
         map(slot_statuses, lambda slot_status: slot_status[1]),
     )
 
-def load_cached_slot_statuses(older_than_slot):
-    encoded = cache.get(SLOT_STATUS_CACHE_KEY)
+def load_cached_slot_statuses(older_than_slot, cache_key):
+    encoded = cache.get(cache_key)
     decoded = json.decode(encoded) if encoded != None else []
     tuples = map(decoded, lambda slot_status: (slot_status[0], slot_status[1]))
     return filter(tuples, lambda slot_status: slot_status[0] < older_than_slot)
@@ -250,6 +250,11 @@ def status_color(status):
         return "#555"
     else:
         return "#f00"
+
+# Caching
+
+def slot_statuses_cache_key(uniquer):
+    return "slot_statuses_" + uniquer
 
 # Generic Utils
 
