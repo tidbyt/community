@@ -159,11 +159,6 @@ def get_bikeshare_providers():
 
     return mapped[1:]
 
-# Search for bikeshare provider
-def search_provider(pattern):
-    bikeshares = get_bikeshare_providers()
-    return bikeshares
-
 # Look up discovery data for given gbfs url
 def gbfs_discovery(gbfs_url):
     discovery_json = cache.get("gbfs_discovery_" + gbfs_url)
@@ -196,8 +191,8 @@ def bikeshare_stations(url):
     return json.decode(resp_json)
 
 # Given a bikeshare provider look up its stations for use as dropdown options
-def locations(provider_json):
-    discovery = gbfs_discovery(json.decode(provider_json)["value"])
+def locations(provider):
+    discovery = gbfs_discovery(provider)
     if discovery == None:
         return []
     feeds = discovery["data"].values()[0]["feeds"]
@@ -237,15 +232,18 @@ def locations(provider_json):
     ]
 
 def get_schema():
+    providers = get_bikeshare_providers()
+
     return schema.Schema(
         version = "1",
         fields = [
-            schema.Typeahead(
+            schema.Dropdown(
                 id = "provider",
                 name = "Provider",
                 desc = "A list of bikeshare providers.",
                 icon = "building",
-                handler = search_provider,
+                options = providers,
+                default = providers[7].value,
             ),
             schema.Generated(
                 id = "locations",
