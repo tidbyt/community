@@ -105,28 +105,20 @@ def get_top_img(html_body):
         return PLACEHOLDER_IMG
 
 def content(value, img):
-    if len(value) > 13:
-        return [
-            image_stack(img),
-            render.Marquee(
-                height = 8,
-                width = 64,
-                scroll_direction = "horizontal",
-                child = render.Text(
-                    content = value,
-                ),
+    return [
+        image_stack(img),
+        render.Marquee(
+            height = 8,
+            width = 64,
+            scroll_direction = "horizontal",
+            align = "center",
+            offset_start = 64,
+            offset_end = 64,
+            child = render.Text(
+                content = value,
             ),
-        ]
-    else:
-        return [
-            image_stack(img),
-            render.Box(
-                child = render.Text(
-                    height = 8,
-                    content = value,
-                ),
-            ),
-        ]
+        ),
+    ]
 
 def image_stack(img):
     return render.Stack(
