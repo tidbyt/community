@@ -163,7 +163,10 @@ def main(config):
                 scoreFont = "CG-pixel-3x5-mono"
                 convertedTime = time.parse_time(gameTime, format = "2006-01-02T15:04Z").in_location(timezone)
                 if convertedTime.format("1/2") != now.format("1/2"):
-                    gameTime = convertedTime.format("1/2 - 3:04 PM")
+                    if (showDateTime):
+                        gameTime = convertedTime.format("Jan 2")
+                    else:
+                        gameTime = convertedTime.format("1/2 - 3:04PM")
                 else:
                     gameTime = convertedTime.format("3:04 PM")
                 if pregameDisplay == "odds":
@@ -229,9 +232,9 @@ def main(config):
                     awayScore = competition["competitors"][1]["score"]
                     if (int(homeScore) > int(awayScore)):
                         homeScoreColor = "#ff0"
-                        awayScoreColor = "#fffb"
+                        awayScoreColor = "#fffc"
                     elif (int(awayScore) > int(homeScore)):
-                        homeScoreColor = "#fffb"
+                        homeScoreColor = "#fffc"
                         awayScoreColor = "#ff0"
                     else:
                         homeScoreColor = "#fff"
@@ -834,19 +837,13 @@ def get_logoSize(team):
 def get_date_column(display, now, textColor, backgroundColor, borderColor, displayType, gameTime, timeColor):
     if display:
         dateTimeColumn = [
-            render.Box(width = 22, height = 8, color = borderColor, child = render.Row(expanded = True, main_align = "center", cross_align = "center", children = [
+            render.Box(width = 24, height = 8, color = borderColor, child = render.Row(expanded = True, main_align = "center", cross_align = "center", children = [
                 render.Box(width = 1, height = 8),
                 render.Text(color = displayType == "retro" and textColor or timeColor, content = now.format("3:04"), font = "tb-8"),
             ])),
-            render.Box(width = 42, height = 8, child = render.Stack(children = [
-                render.Box(width = 42, height = 8, color = displayType == "stadium" and borderColor or "#222"),
-                render.Box(width = 6, height = 8, color = displayType == "stadium" and borderColor or "#1D1D1D"),
-                render.Box(width = 5, height = 8, color = displayType == "stadium" and borderColor or "#181818"),
-                render.Box(width = 4, height = 8, color = displayType == "stadium" and borderColor or "#131313"),
-                render.Box(width = 3, height = 8, color = displayType == "stadium" and borderColor or "#0E0E0E"),
-                render.Box(width = 2, height = 8, color = displayType == "stadium" and borderColor or "#090909"),
-                render.Box(width = 1, height = 8, color = displayType == "stadium" and borderColor or "#040404"),
-                render.Box(width = 42, height = 8, child = render.Row(expanded = True, main_align = "end", cross_align = "center", children = [
+            render.Box(width = 40, height = 8, child = render.Stack(children = [
+                render.Box(width = 40, height = 8, color = displayType == "stadium" and borderColor or "#111"),
+                render.Box(width = 40, height = 8, child = render.Row(expanded = True, main_align = "end", cross_align = "center", children = [
                     render.Text(color = textColor, content = get_shortened_display(gameTime), font = "CG-pixel-3x5-mono"),
                 ])),
             ])),
