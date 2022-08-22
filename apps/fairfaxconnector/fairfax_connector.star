@@ -7,6 +7,7 @@ Author: Austin Pearce
 
 load("render.star", "render")
 load("cache.star", "cache")
+load("encoding/base64.star", "base64")
 load("encoding/json.star", "json")
 load("http.star", "http")
 load("schema.star", "schema")
@@ -18,6 +19,10 @@ ONE_DAY = ONE_MINUTE * 60 * 24
 ONE_WEEK = ONE_DAY * 7
 BASE_URL = "https://www.fairfaxcounty.gov/bustime/api/v3"
 DEFAULT_STOP = "6484"
+
+BUS_STOP_PICTURE = base64.decode("""
+iVBORw0KGgoAAAANSUhEUgAAAEAAAAAgCAYAAACinX6EAAABVElEQVRoQ+1ZwQ3CMAxM/yAk/vDlzwadoit0pK7QKboBb/gyABJiAKgrubLStEnAFoHYr4pe3dzl4tShMJlHEcP/2UcMPhZb9BH7zKf4oBci8bIsTVVVpm3boPf6sF3XDXkgL1wnJwAljox9pKgyc1hKHPHJCACkcSYkLQ+zTiMZAXar8+I6vz4Og2VDAki5sK7fkxEAHQBCAFka+/XFZCcAkIYA4lkKoA7IzQFaBK1t0LVdZbELwNqHHUEFcHywqANy+BDSJaA1YFoEsYsL6QN8mKZpRkhd18N1Eu2w3Q1iwcNmhd73kZy7T3cXzrzvjGdyIOISgHZqnAJw5xURQMKaeM7wDcvbInkdIDFIDhe9M9uuZ1QAWxW7BqgDBI6qf2YJcK2zlPMs1oCUB841NhVA8uyfa5Yk84ADRP/vkxw8R24V4H47jg7YbE9OUXvM+Pu/YV4KR786gTkzfwAAAABJRU5ErkJggg==
+""")
 
 def getAllRoutes():
     routes = cache.get("ROUTES")
@@ -92,8 +97,13 @@ def getPredictions(stopId):
         stopPredictions = http.get(predictionUrl).body()
         cache.set(stopId, stopPredictions, ONE_MINUTE)
 
-    stopPredictions = json.decode(stopPredictions).get("bustime-response").get("prd")
-    return stopPredictions
+    stopPredictions = json.decode(stopPredictions).get("bustime-response")
+    if (stopPredictions.get("error") != None):
+        if (len(stopPredictions.get("error")) > 0 and stopPredictions.get("error")[0].get("msg") == "No arrival times"):
+            return []
+        else:
+            return None
+    return stopPredictions.get("prd")
 
 def renderBusRow(prediction):
     routeColor = getRouteColor(prediction.get("rt"))
@@ -142,7 +152,23 @@ def main(config):
                 ],
             ),
         )
-
+    if len(predictions) == 0:
+        return render.Root(
+            child = render.Stack(
+                children = [
+                    render.Padding(
+                        pad = (38, 5, 0, 0),
+                        child = render.WrappedText(
+                            content = "No Buses",
+                            width = 24,
+                        ),
+                    ),
+                    render.Image(
+                        src = BUS_STOP_PICTURE,
+                    ),
+                ],
+            ),
+        )
     rows = [
         banner,
         render.Marquee(
