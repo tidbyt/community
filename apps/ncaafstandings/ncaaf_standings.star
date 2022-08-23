@@ -450,7 +450,7 @@ def get_logoType(team, logo):
 def get_top_column(showDateTime, now, timeColor, divisionName, renderCategory, colHeight):
     topColumn = []
     if showDateTime:
-        theTime = now.format("3:04")        
+        theTime = now.format("3:04")
         if len(str(theTime)) > 4:
             timeBox = 24
             statusBox = 40
