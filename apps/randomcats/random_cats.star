@@ -31,7 +31,7 @@ def main(config):
         ),
     )
     return render.Root(
-        delay = 30,
+        delay = 60,
         child = render.Column(
             main_align = "space_between",
             cross_align = "center",
