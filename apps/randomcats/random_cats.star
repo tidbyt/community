@@ -14,7 +14,7 @@ load("http.star", "http")
 
 
 def main(config):
-    if (config.bool("mi2km") == False):
+    if (config.bool("gifs") == False):
         imgSrc = http.get("https://cataas.com/cat").body()
     else:
         imgSrc = http.get("https://cataas.com/cat/gif").body()
