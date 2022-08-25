@@ -267,7 +267,10 @@ def main(config):
                 scoreFont = "CG-pixel-3x5-mono"
                 convertedTime = time.parse_time(gameTime, format = "2006-01-02T15:04Z").in_location(timezone)
                 if convertedTime.format("1/2") != now.format("1/2"):
-                    gameTime = convertedTime.format("1/2 - 3:04 PM")
+                    if (showDateTime):
+                        gameTime = convertedTime.format("Jan 2")
+                    else:
+                        gameTime = convertedTime.format("1/2 - 3:04PM")
                 else:
                     gameTime = convertedTime.format("3:04 PM")
                 if pregameDisplay == "odds":
@@ -333,9 +336,9 @@ def main(config):
                     awayScore = competition["competitors"][1]["score"]
                     if (int(homeScore) > int(awayScore)):
                         homeScoreColor = "#ff0"
-                        awayScoreColor = "#fffb"
+                        awayScoreColor = "#fffc"
                     elif (int(awayScore) > int(homeScore)):
-                        homeScoreColor = "#fffb"
+                        homeScoreColor = "#fffc"
                         awayScoreColor = "#ff0"
                     else:
                         homeScoreColor = "#fff"
@@ -1017,20 +1020,21 @@ def get_logoSize(team):
 
 def get_date_column(display, now, textColor, backgroundColor, borderColor, displayType, gameTime, timeColor):
     if display:
+        theTime = now.format("3:04")
+        if len(str(theTime)) > 4:
+            timeBox = 24
+            statusBox = 40
+        else:
+            timeBox = 20
+            statusBox = 44
         dateTimeColumn = [
-            render.Box(width = 22, height = 8, color = borderColor, child = render.Row(expanded = True, main_align = "center", cross_align = "center", children = [
+            render.Box(width = timeBox, height = 8, color = borderColor, child = render.Row(expanded = True, main_align = "center", cross_align = "center", children = [
                 render.Box(width = 1, height = 8),
-                render.Text(color = displayType == "retro" and textColor or timeColor, content = now.format("3:04"), font = "tb-8"),
+                render.Text(color = displayType == "retro" and textColor or timeColor, content = theTime, font = "tb-8"),
             ])),
-            render.Box(width = 42, height = 8, child = render.Stack(children = [
-                render.Box(width = 42, height = 8, color = displayType == "stadium" and borderColor or "#222"),
-                render.Box(width = 6, height = 8, color = displayType == "stadium" and borderColor or "#1D1D1D"),
-                render.Box(width = 5, height = 8, color = displayType == "stadium" and borderColor or "#181818"),
-                render.Box(width = 4, height = 8, color = displayType == "stadium" and borderColor or "#131313"),
-                render.Box(width = 3, height = 8, color = displayType == "stadium" and borderColor or "#0E0E0E"),
-                render.Box(width = 2, height = 8, color = displayType == "stadium" and borderColor or "#090909"),
-                render.Box(width = 1, height = 8, color = displayType == "stadium" and borderColor or "#040404"),
-                render.Box(width = 42, height = 8, child = render.Row(expanded = True, main_align = "end", cross_align = "center", children = [
+            render.Box(width = statusBox, height = 8, child = render.Stack(children = [
+                render.Box(width = statusBox, height = 8, color = displayType == "stadium" and borderColor or "#111"),
+                render.Box(width = statusBox, height = 8, child = render.Row(expanded = True, main_align = "end", cross_align = "center", children = [
                     render.Text(color = textColor, content = get_shortened_display(gameTime), font = "CG-pixel-3x5-mono"),
                 ])),
             ])),
@@ -1041,7 +1045,7 @@ def get_date_column(display, now, textColor, backgroundColor, borderColor, displ
 
 def get_shortened_display(text):
     if len(text) > 8:
-        text = text.replace("Final", "F").replace("Game ", "G").replace(":", "")
+        text = text.replace("Final", "F").replace("Game ", "G")
     words = json.decode(SHORTENED_WORDS)
     for i, s in enumerate(words):
         text = text.replace(s, words[s])
