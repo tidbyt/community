@@ -11,10 +11,10 @@ load("schema.star", "schema")
 load("http.star", "http")
 
 def main(config):
-    # if (config.bool("gifs") == False):
-    # imgSrc = http.get("https://cataas.com/cat").body()
-    # else:
-    imgSrc = http.get("https://cataas.com/cat/gif").body()
+    if (config.bool("gifs") == False):
+        imgSrc = http.get("https://cataas.com/cat").body()
+    else:
+        imgSrc = http.get("https://cataas.com/cat/gif").body()
 
     children = []
     children.append(
