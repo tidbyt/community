@@ -12,9 +12,9 @@ load("http.star", "http")
 
 def main(config):
     if (config.bool("gifs") == False):
-        imgSrc = http.get("https://cataas.com/cat").body()
+        imgSrc = http.get("https://cataas.com/cat?height=32").body()
     else:
-        imgSrc = http.get("https://cataas.com/cat/gif").body()
+        imgSrc = http.get("https://cataas.com/cat/gif?height=32").body()
 
     children = []
     children.append(
@@ -25,7 +25,7 @@ def main(config):
                 render.Image(
                     src = imgSrc,
                     # width = 65,
-                    height = 35,
+                    # height = 32,
                 ),
             ],
         ),
