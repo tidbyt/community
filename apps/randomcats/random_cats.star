@@ -25,7 +25,7 @@ def main(config):
                 render.Image(
                     src = imgSrc,
                     # width = 65,
-                    # height = 32,
+                    height = 32,
                 ),
             ],
         ),
