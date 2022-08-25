@@ -5,19 +5,16 @@ Description: Shows random pictures of cats/gifs of cats.
 Author: mrrobot245
 """
 
-
 load("encoding/json.star", "json")
 load("render.star", "render")
 load("schema.star", "schema")
 load("http.star", "http")
 
-
-
 def main(config):
-    if (config.bool("gifs") == False):
-        imgSrc = http.get("https://cataas.com/cat").body()
-    else:
-        imgSrc = http.get("https://cataas.com/cat/gif").body()
+    # if (config.bool("gifs") == False):
+    # imgSrc = http.get("https://cataas.com/cat").body()
+    # else:
+    imgSrc = http.get("https://cataas.com/cat/gif").body()
 
     children = []
     children.append(
@@ -29,17 +26,17 @@ def main(config):
                     src = imgSrc,
                     # width = 65,
                     height = 35,
-            ),
+                ),
             ],
         ),
     )
     return render.Root(
         delay = 30,
         child = render.Column(
-                main_align = "space_between",
-                cross_align = "center",
-                children = children,
-            )
+            main_align = "space_between",
+            cross_align = "center",
+            children = children,
+        ),
     )
 
 def get_schema():
