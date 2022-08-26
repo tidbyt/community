@@ -19,6 +19,7 @@ import (
 	"tidbyt.dev/community/apps/bigclock"
 	"tidbyt.dev/community/apps/bikeshare"
 	"tidbyt.dev/community/apps/binaryclock"
+	"tidbyt.dev/community/apps/blackout"
 	"tidbyt.dev/community/apps/burgeroftheday"
 	"tidbyt.dev/community/apps/charlestownferry"
 	"tidbyt.dev/community/apps/chessviewer"
@@ -183,6 +184,7 @@ func GetManifests() []manifest.Manifest {
 		bigclock.New(),
 		bikeshare.New(),
 		binaryclock.New(),
+		blackout.New(),
 		burgeroftheday.New(),
 		charlestownferry.New(),
 		chessviewer.New(),
