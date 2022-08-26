@@ -118,6 +118,7 @@ import (
 	"tidbyt.dev/community/apps/sbbtimetable"
 	"tidbyt.dev/community/apps/severewxalertsusa"
 	"tidbyt.dev/community/apps/sfnextmuni"
+	"tidbyt.dev/community/apps/shabbat"
 	"tidbyt.dev/community/apps/shopifychart"
 	"tidbyt.dev/community/apps/shuffleimages"
 	"tidbyt.dev/community/apps/snyk"
@@ -281,6 +282,7 @@ func GetManifests() []manifest.Manifest {
 		sbbtimetable.New(),
 		severewxalertsusa.New(),
 		sfnextmuni.New(),
+		shabbat.New(),
 		shopifychart.New(),
 		shuffleimages.New(),
 		snyk.New(),
