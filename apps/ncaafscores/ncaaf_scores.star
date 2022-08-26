@@ -773,6 +773,34 @@ instancesCounts = [
         display = "8",
         value = "8",
     ),
+    schema.Option(
+        display = "9",
+        value = "9",
+    ),
+    schema.Option(
+        display = "10",
+        value = "10",
+    ),
+    schema.Option(
+        display = "12",
+        value = "12",
+    ),
+    schema.Option(
+        display = "13",
+        value = "13",
+    ),
+    schema.Option(
+        display = "14",
+        value = "14",
+    ),
+    schema.Option(
+        display = "15",
+        value = "15",
+    ),
+    schema.Option(
+        display = "16",
+        value = "16",
+    ),
 ]
 
 instanceNumbers = [
@@ -807,6 +835,38 @@ instanceNumbers = [
     schema.Option(
         display = "Eighth",
         value = "8",
+    ),
+    schema.Option(
+        display = "Ninth",
+        value = "9",
+    ),
+    schema.Option(
+        display = "Tenth",
+        value = "10",
+    ),
+    schema.Option(
+        display = "Eleventh",
+        value = "11",
+    ),
+    schema.Option(
+        display = "Twelfth",
+        value = "12",
+    ),
+    schema.Option(
+        display = "Thirteenth",
+        value = "13",
+    ),
+    schema.Option(
+        display = "Fourteenth",
+        value = "14",
+    ),
+    schema.Option(
+        display = "Fifteenth",
+        value = "15",
+    ),
+    schema.Option(
+        display = "Sixteenth",
+        value = "16",
     ),
 ]
 
