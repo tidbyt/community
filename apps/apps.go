@@ -59,6 +59,7 @@ import (
 	"tidbyt.dev/community/apps/hvvdepartures"
 	"tidbyt.dev/community/apps/ifparank"
 	"tidbyt.dev/community/apps/indegostations"
+	"tidbyt.dev/community/apps/instagram"
 	"tidbyt.dev/community/apps/isitchristmas"
 	"tidbyt.dev/community/apps/islamicprayer"
 	"tidbyt.dev/community/apps/isstracker"
@@ -115,6 +116,7 @@ import (
 	"tidbyt.dev/community/apps/randomslackmoji"
 	"tidbyt.dev/community/apps/redditimages"
 	"tidbyt.dev/community/apps/redditrplace"
+	"tidbyt.dev/community/apps/rssreader"
 	"tidbyt.dev/community/apps/sbbtimetable"
 	"tidbyt.dev/community/apps/severewxalertsusa"
 	"tidbyt.dev/community/apps/sfnextmuni"
@@ -223,6 +225,7 @@ func GetManifests() []manifest.Manifest {
 		hvvdepartures.New(),
 		ifparank.New(),
 		indegostations.New(),
+		instagram.New(),
 		isitchristmas.New(),
 		islamicprayer.New(),
 		isstracker.New(),
@@ -278,6 +281,7 @@ func GetManifests() []manifest.Manifest {
 		randomslackmoji.New(),
 		redditimages.New(),
 		redditrplace.New(),
+		rssreader.New(),
 		sbbtimetable.New(),
 		severewxalertsusa.New(),
 		sfnextmuni.New(),
