@@ -76,6 +76,7 @@ import (
 	"tidbyt.dev/community/apps/mindthegap"
 	"tidbyt.dev/community/apps/mlbleaders"
 	"tidbyt.dev/community/apps/mlbscores"
+	"tidbyt.dev/community/apps/mlbstandings"
 	"tidbyt.dev/community/apps/mlsscores"
 	"tidbyt.dev/community/apps/mnlightrail"
 	"tidbyt.dev/community/apps/moretransit"
@@ -83,9 +84,12 @@ import (
 	"tidbyt.dev/community/apps/natdex"
 	"tidbyt.dev/community/apps/nationaltoday"
 	"tidbyt.dev/community/apps/nbascores"
+	"tidbyt.dev/community/apps/ncaafscores"
+	"tidbyt.dev/community/apps/ncaafstandings"
 	"tidbyt.dev/community/apps/nearearthobjs"
 	"tidbyt.dev/community/apps/netatmo"
 	"tidbyt.dev/community/apps/nflscores"
+	"tidbyt.dev/community/apps/nflstandings"
 	"tidbyt.dev/community/apps/nft"
 	"tidbyt.dev/community/apps/nhllive"
 	"tidbyt.dev/community/apps/nhlnextgame"
@@ -235,6 +239,7 @@ func GetManifests() []manifest.Manifest {
 		mindthegap.New(),
 		mlbleaders.New(),
 		mlbscores.New(),
+		mlbstandings.New(),
 		mlsscores.New(),
 		mnlightrail.New(),
 		moretransit.New(),
@@ -242,9 +247,12 @@ func GetManifests() []manifest.Manifest {
 		natdex.New(),
 		nationaltoday.New(),
 		nbascores.New(),
+		ncaafscores.New(),
+		ncaafstandings.New(),
 		nearearthobjs.New(),
 		netatmo.New(),
 		nflscores.New(),
+		nflstandings.New(),
 		nft.New(),
 		nhllive.New(),
 		nhlnextgame.New(),
