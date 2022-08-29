@@ -7,7 +7,7 @@ Author: rs7q5
 
 #shuffle_images.star
 #Created 20220704 RIS
-#Last Modified 20220728 RIS
+#Last Modified 20220824 RIS
 
 load("render.star", "render")
 load("schema.star", "schema")
@@ -41,8 +41,14 @@ def main(config):
         img = render.Image(base64.decode(img_vec[idx]))
         #print("Displaying Image %d!!!!" % (idx+1))
 
+    #get image delay
+    delay = 80  #default
+    if type(img) == "Image":
+        if img.delay > 0:
+            delay = img.delay
+
     return render.Root(
-        #delay=100, #speed up scroll text
+        delay = delay,
         child = img,
     )
 
