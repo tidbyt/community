@@ -25,6 +25,7 @@ DEFAULT_LOCATION = """
 DEFAULT_WEEKEND_ONLY = False
 DEFAULT_USE_24_HOUR_CLOCK = True
 
+EIGHT_AND_A_HALF_DEGREES_BELOW_HORIZON = "ASTRONOMICAL"
 FIFTY_MINUTES_AFTER_SUNSET = "50_MINUTES_AFTER_SUNSET"
 RABBEINU_TAM = "RABBEINU_TAM"
 
@@ -46,13 +47,28 @@ def day_of_week(year, month, day):
 
     return int(math.mod(math.floor((13 * month + 1) / 5) + day + year + math.floor(year / 4) + math.floor(century / 4) + 5 * century, 7))
 
+def end_time(method, latitude, longitude, end_day, timezone):
+    if method == EIGHT_AND_A_HALF_DEGREES_BELOW_HORIZON:
+        morning, evening = sunrise.elevation_time(latitude, longitude, -8.5, end_day)
+        return evening
+    if method == FIFTY_MINUTES_AFTER_SUNSET:
+        return sunrise.sunset(latitude, longitude, end_day) + (50 * time.minute)
+    if method == RABBEINU_TAM:
+        return sunrise.sunset(latitude, longitude, end_day) + (72 * time.minute)
+
+def round_down(t):
+    return time.time(year = t.year, month = t.month, day = t.day, hour = t.hour, minute = t.minute)
+
+def round_up(t):
+    return time.time(year = t.year, month = t.month, day = t.day, hour = t.hour, minute = t.minute + 1)
+
 def make_message(now, start, end, use_24_hour_clock):
     time_format = "3:04 PM"
     if use_24_hour_clock:
         time_format = "15:04"
 
     if now < start:
-        message = "Shabbat starts " + start.format(time_format)
+        message = "Shabbat starts " + round_down(start).format(time_format)
         start_days = int(math.fabs(math.mod(start.day - now.day, 7)))
         if start_days == 1:
             message = message + " tomorrow"
@@ -61,13 +77,26 @@ def make_message(now, start, end, use_24_hour_clock):
         return message
 
     if now < end:
-        message = "Shabbat ends at " + end.format(time_format)
+        message = "Shabbat ends at " + round_up(end).format(time_format)
         end_days = int(math.fabs(math.mod(end.day - now.day, 7)))
         if end_days > 0:
             message = message + " tomorrow"
         return message
 
     return "Shabbat ended at " + end.format(time_format)
+
+def display_message(message):
+    return render.Root(
+        child = render.Padding(
+            pad = (0, 4, 0, 4),
+            child = render.WrappedText(
+                content = message,
+                align = "center",
+                height = 32,
+                width = 64,
+            ),
+        ),
+    )
 
 def main(config):
     # Get longditude and latitude from location
@@ -84,35 +113,31 @@ def main(config):
 
     # The start of Shabbat is 18 minutes before sunset on Friday
     start_day = today + (time.hour * 24 * (FRIDAY - weekday))
-    start = sunrise.sunset(latitude, longitude, start_day).in_location(location["timezone"]) - (18 * time.minute)
+    sunset = sunrise.sunset(latitude, longitude, start_day)
+    if sunset == None:
+        return display_message("Cannot calculate Shabbat times")
+    start = sunset.in_location(location["timezone"]) - (18 * time.minute)
 
     # The end of Shabbat is some time after sunset on Saturday. There is disagreement about how long after.
     end_day = start_day + (24 * time.hour)
-    end_method = config.get("end_method", FIFTY_MINUTES_AFTER_SUNSET)
-    if end_method == FIFTY_MINUTES_AFTER_SUNSET:
-        end = sunrise.sunset(latitude, longitude, end_day).in_location(location["timezone"]) + (50 * time.minute)
-    elif end_method == RABBEINU_TAM:
-        end = sunrise.sunset(latitude, longitude, end_day).in_location(location["timezone"]) + (72 * time.minute)
+    end_method = config.get("end_method", EIGHT_AND_A_HALF_DEGREES_BELOW_HORIZON)
+    end = end_time(end_method, latitude, longitude, end_day, location["timezone"])
+    if end == None:
+        return display_message("Cannot calculate Shabbat times")
+    end = end.in_location(location["timezone"])
 
     use_24_hour_clock = config.bool("use_24h", DEFAULT_USE_24_HOUR_CLOCK)
     message = make_message(now, start, end, use_24_hour_clock)
 
-    return render.Root(
-        child = render.Padding(
-            pad = (0, 4, 0, 4),
-            child = render.WrappedText(
-                content = message,
-                align = "center",
-                height = 32,
-                width = 64,
-            ),
-        ),
-    )
+    return display_message(message)
 
 def get_schema():
     # There are different methods for deciding when it's sufficiently nightfall
-    # TODO: calculate astronomically using https://github.com/nathan-osman/go-sunrise/pull/9
     end_method_options = [
+        schema.Option(
+            display = "8.5 degrees below horizon",
+            value = EIGHT_AND_A_HALF_DEGREES_BELOW_HORIZON,
+        ),
         schema.Option(
             display = "50 minutes after sunset",
             value = FIFTY_MINUTES_AFTER_SUNSET,
