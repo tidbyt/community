@@ -118,7 +118,7 @@ def get_stations(location):  # assume we have a valid location dict
 # return decode json object of tide data
 def get_tides(station_id):
     tides = {}
-    url = "https://api.tidesandcurrents.noaa.gov/api/prod/datagetter?product=predictions&date=today&range=48&datum=MLLW&station=%s&time_zone=LST&units=english&interval=hilo&format=json&application=NOS.COOPS.TAC.TidePred"
+    url = "https://api.tidesandcurrents.noaa.gov/api/prod/datagetter?product=predictions&date=today&range=48&datum=MLLW&station=%s&time_zone=LST_LDT&units=english&interval=hilo&format=json&application=NOS.COOPS.TAC.TidePred"
     url = url % (station_id)
     debug_print("Url : " + url)
     if not debug:
