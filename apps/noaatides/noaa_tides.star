@@ -28,21 +28,20 @@ default_location = """
 """
 
 def debug_print(arg):
-  if print_debug:
-    print(arg)
+    if print_debug:
+        print(arg)
 
-
-def get_stations(location): # assume we have a valid location dict
+def get_stations(location):  # assume we have a valid location dict
     stations_json = {}
     station_options = list()
     url = "https://api.tidesandcurrents.noaa.gov/mdapi/prod/webapi/tidepredstations.json?lat=%s&lon=%s&radius=50" % (location["lat"], location["lng"])
     debug_print(url)
     if not debug:
-      req_result = http.get(url)
-      if req_result.status_code == 200:
-        stations_json = req_result.body()
+        req_result = http.get(url)
+        if req_result.status_code == 200:
+            stations_json = req_result.body()
     else:
-      stations_json = """{
+        stations_json = """{
   "stationList": [
     {
       "name": "KAHULUI, KAHULUI HARBOR",
@@ -100,21 +99,22 @@ def get_stations(location): # assume we have a valid location dict
         for station in stations:
             #debug_print("%s : %s" % (station["stationId"],station["name"]))
             station_options.append(
-                    schema.Option(
-                        display = station["name"],
-                        value = station["stationId"],
-                    )
-                )
+                schema.Option(
+                    display = station["name"],
+                    value = station["stationId"],
+                ),
+            )
     else:
         debug_print("no stations in json")
         station_options.append(
-                    schema.Option(
-                        display = "No Results",
-                        value = "",
-                    )
-                )
+            schema.Option(
+                display = "No Results",
+                value = "",
+            ),
+        )
 
     return station_options
+
 # return decode json object of tide data
 def get_tides(station_id):
     tides = {}
@@ -122,15 +122,15 @@ def get_tides(station_id):
     url = url % (station_id)
     debug_print("Url : " + url)
     if not debug:
-      resp = http.get(url)
-      if resp.status_code != 200:
-          return None
-      else:
-          tides = json.decode(resp.body())
-          debug_print(tides)
+        resp = http.get(url)
+        if resp.status_code != 200:
+            return None
+        else:
+            tides = json.decode(resp.body())
+            debug_print(tides)
     else:
-      tides_json = """{"predictions": [{"t": "2022-03-04 05:00", "v": "1.630", "type": "H"}, {"t": "2022-03-04 11:05", "v": "0.032", "type": "L"}, {"t": "2022-03-04 17:10", "v": "1.285", "type": "H"}, {"t": "2022-03-04 22:52", "v": "0.058", "type": "L"}]}"""
-      tides = json.decode(tides_json)
+        tides_json = """{"predictions": [{"t": "2022-03-04 05:00", "v": "1.630", "type": "H"}, {"t": "2022-03-04 11:05", "v": "0.032", "type": "L"}, {"t": "2022-03-04 17:10", "v": "1.285", "type": "H"}, {"t": "2022-03-04 22:52", "v": "0.058", "type": "L"}]}"""
+        tides = json.decode(tides_json)
     return tides
 
 def main(config):
@@ -139,22 +139,24 @@ def main(config):
     units_pref = config.get("h_units", "feet")
     units = "ft"
     station_id = config.get("station_id", "")
-    debug_print("station id from config.get: "+station_id)
+    debug_print("station id from config.get: " + station_id)
 
     if station_id == "none" or station_id == "":  # if manual input is empty load from local selection
-      if production:
-        local_selection = config.get("local_station_id", '{"display": "Station 1613198 - Example", "value": "1613198"}')  # default is 
-      else:
-        local_selection = config.get("local_station_id", "1613198")  # default is Waimea
+        if production:
+            local_selection = config.get("local_station_id", '{"display": "Station 1613198 - Example", "value": "1613198"}')  # default is
+        else:
+            local_selection = config.get("local_station_id", "1613198")  # default is Waimea
 
-      debug_print("Local selection : " + local_selection)
-      # don't need to do this until using locationbased
-      if "value" in local_selection:
-          station_id = json.decode(local_selection)["value"]
-      else:
-          station_id = local_selection # san fran
+        debug_print("Local selection : " + local_selection)
 
-    debug_print("using station_id: "+station_id)
+        # don't need to do this until using locationbased
+        if "value" in local_selection:
+            station_id = json.decode(local_selection)["value"]
+        else:
+            station_id = local_selection  # san fran
+
+    debug_print("using station_id: " + station_id)
+
     # CACHINE CODE
     tides = {}
     cache_key = "noaa_tides_%s" % (station_id)
@@ -169,53 +171,53 @@ def main(config):
 
         if tides != None:
             cache.set(cache_key, json.encode(tides), ttl_seconds = 14400)  # 4 hours minutes
-     
-   
-    color_low = config.get("low_color","#F00")  #cyanish
-    color_high = config.get("high_color","#0FF")
-    
+
+    color_low = config.get("low_color", "#F00")  #cyanish
+    color_high = config.get("high_color", "#0FF")
+
     line_color = color_low
     lines = list()
     if tides and "predictions" in tides:
-      for pred in tides["predictions"]:
-          if units_pref == "meters":
-            v = int((float(pred["v"])/3 + 0.05) * 10) / 10.0    # round to 1 decimal
-            units = "m"
-          else:
-            v = int((float(pred["v"]) + 0.05) * 10) / 10.0    # round to 1 decimal
+        for pred in tides["predictions"]:
+            if units_pref == "meters":
+                v = int((float(pred["v"]) / 3 + 0.05) * 10) / 10.0  # round to 1 decimal
+                units = "m"
+            else:
+                v = int((float(pred["v"]) + 0.05) * 10) / 10.0  # round to 1 decimal
 
-          if v > 9:
-            # chop off the decimal if we've got a huge tide
-            v = int(v)
-          t = pred["t"][11:]# strip the date from the front = start to first occurence of a space
-          line = "%s -%s- %s%s" % (pred["t"][11:],pred["type"],v,units)
-          debug_print(line)
-          if "H" in pred["type"]:
-            line_color = color_high
-          else:
-            line_color = color_low
+            if v > 9:
+                # chop off the decimal if we've got a huge tide
+                v = int(v)
+            t = pred["t"][11:]  # strip the date from the front = start to first occurence of a space
+            line = "%s -%s- %s%s" % (pred["t"][11:], pred["type"], v, units)
+            debug_print(line)
+            if "H" in pred["type"]:
+                line_color = color_high
+            else:
+                line_color = color_low
 
-          lines.append(render.Text(
-                              content = line,
-                              font = "tb-8",
-                              color = line_color,
-                              )
-          )
-    else: # render an error message
+            lines.append(
+                render.Text(
+                    content = line,
+                    font = "tb-8",
+                    color = line_color,
+                ),
+            )
+    else:  # render an error message
         lines.append(render.Text(
-                              content = "Whoops",
-                              font = "tb-8",
-                              color = "#FF0000",
+            content = "Whoops",
+            font = "tb-8",
+            color = "#FF0000",
         ))
     return render.Root(
-            child = render.Box(
-                render.Column(
-                    cross_align = "left",
-                    main_align = "left",
-                    children = lines,
-                ),
+        child = render.Box(
+            render.Column(
+                cross_align = "left",
+                main_align = "left",
+                children = lines,
             ),
-        )
+        ),
+    )
 
 COLOR_LIST = {
     "White": "#fff",
@@ -227,7 +229,6 @@ COLOR_LIST = {
 }
 
 def get_schema():
-
     colors = [
         schema.Option(display = key, value = value)
         for key, value in COLOR_LIST.items()
@@ -236,121 +237,68 @@ def get_schema():
         schema.Option(display = "feet", value = "feet"),
         schema.Option(display = "meters", value = "meters"),
     ]
-    fields = []      
+    fields = []
     if not production:
-      stations_list = get_stations(json.decode(default_location))  # locationbased schema don't work so use default loaction
-      fields.append(
-        schema.Dropdown(
-            id = "local_station_id",    
-            name = "Local Tide Station",
-            icon = "monument",
-            desc = "Debug Location Stations",
-            options = stations_list,
-            default = "None Found",
+        stations_list = get_stations(json.decode(default_location))  # locationbased schema don't work so use default loaction
+        fields.append(
+            schema.Dropdown(
+                id = "local_station_id",
+                name = "Local Tide Station",
+                icon = "monument",
+                desc = "Debug Location Stations",
+                options = stations_list,
+                default = "None Found",
+            ),
         )
-      )
     else:  # in production, locationbased schema fields work
-      fields.append(
-          schema.LocationBased( 
-            id = "local_station_id",
-            name = "Local Tide Station",
-            icon = "monument",
-            desc = "Location Based Stations",
-            handler = get_stations,
-
+        fields.append(
+            schema.LocationBased(
+                id = "local_station_id",
+                name = "Local Tide Station",
+                icon = "monument",
+                desc = "Location Based Stations",
+                handler = get_stations,
+            ),
         )
-      )
     fields.append(
         schema.Text(
-          id = "station_id",
-          name = "Station ID - optional",
-          icon = "monument",
-          desc = "",
-      )
+            id = "station_id",
+            name = "Station ID - optional",
+            icon = "monument",
+            desc = "",
+        ),
     )
-    fields.append(
-      schema.Dropdown(
-                id = "high_color",
-                name = "High Tide Color",
-                icon = "brush",
-                desc = "The color to use for high tides.",
-                default = colors[0].value,
-                options = colors,
-      )
-    )
-    fields.append(
-      schema.Dropdown(
-                id = "low_color",
-                name = "Low Tide Color",
-                icon = "brush",
-                desc = "The color to use for low tides.",
-                default = colors[3].value,
-                options = colors,
-      )
-    )
-
-      # schema.Toggle(
-      #     id = "display_swell",
-      #     name = "Display Swell",
-      #     desc = "if available",
-      #     icon = "cog",
-      #     default = True,
-      # ),
-      # schema.Toggle(
-      #     id = "display_wind",
-      #     name = "Display Wind",
-      #     desc = "if available",
-      #     icon = "cog",
-      #     default = True,
-      # ),
-      # schema.Toggle(
-      #     id = "display_temps",
-      #     name = "Display Temperatures",
-      #     icon = "cog",
-      #     desc = "if available",
-      #     default = True,
-      # ),
-      # schema.Toggle(
-      #     id = "display_misc",
-      #     name = "Display Misc.",
-      #     desc = "if available",
-      #     icon = "cog",
-      #     default = True,
-      # ),
     fields.append(
         schema.Dropdown(
-          id = "h_units",
-          name = "Height Units",
-          icon = "quoteRight",
-          desc = "Tide height units preference",
-          options = h_unit_options,
-          default = "feet",
-      )
+            id = "high_color",
+            name = "High Tide Color",
+            icon = "brush",
+            desc = "The color to use for high tides.",
+            default = colors[0].value,
+            options = colors,
+        ),
     )
-      # schema.Dropdown(
-      #     id = "t_units",
-      #     name = "Temperature Units",
-      #     icon = "quoteRight",
-      #     desc = "C or F",
-      #     options = t_unit_options,
-      #     default = "F",
-      # ),
-      # schema.Text(
-      #     id = "min_size",
-      #     name = "Minimum Swell Size",
-      #     icon = "poll",
-      #     desc = "Only display if swell is above minimum size",
-      #     default = "",
-      # ),
-      # schema.Text(
-      #     id = "station_name",
-      #     name = "Custom Display Name",
-      #     icon = "user",
-      #     desc = "Leave blank to use NOAA defined name",
-      #     default = "",
-      # ),
-  #  ],
+    fields.append(
+        schema.Dropdown(
+            id = "low_color",
+            name = "Low Tide Color",
+            icon = "brush",
+            desc = "The color to use for low tides.",
+            default = colors[3].value,
+            options = colors,
+        ),
+    )
+    fields.append(
+        schema.Dropdown(
+            id = "h_units",
+            name = "Height Units",
+            icon = "quoteRight",
+            desc = "Tide height units preference",
+            options = h_unit_options,
+            default = "feet",
+        ),
+    )
     return schema.Schema(
         version = "1",
-        fields = fields) 
-
+        fields = fields,
+    )
