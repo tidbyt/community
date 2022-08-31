@@ -40,7 +40,7 @@ MUNI_COLORS = {
 
 # Display the route letter in black text (#000000) inside the circle for these routes
 MUNI_BLACK_TEXT = [
-    "F", 
+    "F",
     "S",
 ]
 
@@ -57,8 +57,9 @@ K_INBOUND_STOPS = [
     "15806",
     "17113",
     "17109",
-    "16898"
+    "16898",
 ]
+
 # Outbound stops on KT line that should display as T. If not listed stop will display as K
 T_OUTBOUND_STOPS = [
     "17398",
@@ -81,7 +82,7 @@ T_OUTBOUND_STOPS = [
     "17166",
     "15237",
     "17145",
-    "14510"
+    "14510",
 ]
 
 # Dictionary to define default config values when pixlet commands are run as get_schema() currently not referenced then
@@ -223,7 +224,7 @@ def get_route_list():
         schema.Option(
             display = "All Routes",
             value = "all-routes",
-        )
+        ),
     )
     return route_list
 
@@ -488,8 +489,8 @@ def getLongRow(routeTag, destination, predictions, config):
     else:
         row.append(
             render.Text(
-                routeTag + " ", 
-                font = "tom-thumb" if config.get("prediction_format", DEFAULT_CONFIG["prediction_format"])[:8] != "two_line" else ""
+                routeTag + " ",
+                font = "tom-thumb" if config.get("prediction_format", DEFAULT_CONFIG["prediction_format"])[:8] != "two_line" else "",
             ),
         )
     if "xlong" == config.get("prediction_format", DEFAULT_CONFIG["prediction_format"]):
@@ -523,7 +524,6 @@ def getLongRow(routeTag, destination, predictions, config):
     elif "two_line" == config.get("prediction_format", DEFAULT_CONFIG["prediction_format"])[:8]:
         max_width = 50
         max_predictions = 4
-        
         if "two_line_dest" == config.get("prediction_format", DEFAULT_CONFIG["prediction_format"]):
             row.append(
                 render.Marquee(
