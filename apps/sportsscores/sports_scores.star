@@ -6,7 +6,7 @@ Author: rs7q5
 """
 #sports_scores.star
 #Created 20220220 RIS
-#Last Modified 20220816 RIS
+#Last Modified 20220823 RIS
 
 load("render.star", "render")
 load("http.star", "http")
@@ -77,15 +77,15 @@ def main(config):
 
         #get the data
         if sport == "Baseball":
-            stats = get_mlbgames(today_str, config)
+            stats = get_mlbgames(today_str)
         elif sport == "Hockey":
-            stats = get_nhlgames(today_str, config)
+            stats = get_nhlgames(today_str)
         elif sport == "Basketball":
-            stats = get_basketballgames(today_str, league_ext, config)
+            stats = get_basketballgames(today_str, league_ext)
         elif sport == "Football":
-            stats = get_footballgames(today_str, league_ext, config)
+            stats = get_footballgames(today_str, league_ext)
         elif sport == "Soccer":
-            stats = get_soccergames(today_str, league_ext, config)
+            stats = get_soccergames(today_str, league_ext)
 
         #cache the data
         cache.set("stats_rate_games%s_%s" % (sport, league), json.encode(stats), ttl_seconds = 60)
@@ -310,6 +310,8 @@ def get_frames(stats, league_txt, font, config):
             ctmp3 = "#52BB52"  #light green
 
         status_tmp = team["status"].split("/")
+        if status_tmp[0] == "time":  #reformat game time
+            status_tmp = adjust_gametime(status_tmp[1], config).split("/")
 
         #additional color options
         ctmp_away = ctmp
@@ -354,7 +356,6 @@ def get_frames(stats, league_txt, font, config):
         else:
             home_score.append(render.Text(str(team["home"][1]), font = font, color = ctmp2_score, height = txt_height))
 
-        #status_tmp = team["status"].split("/")
         if team["away"][1] == 1000 and force_two:  #NBA condition is safety net
             if len(status_tmp) == 1:
                 status_txt.append(render.Text("", font = font, color = ctmp, height = 6))
@@ -499,7 +500,7 @@ def adjust_gametime(gametime_raw, config):
     else:
         return game_time_str + "/ET"
 
-def get_mlbgames(today_str, config):
+def get_mlbgames(today_str):
     start_date = today_str
     end_date = today_str
 
@@ -554,7 +555,7 @@ def get_mlbgames(today_str, config):
                 status_txt = inningState[:3] + "/" + str(inning)
         else:  #this should cover scheduled games
             if game["status"]["statusCode"] in ["S", "PW", "P"]:
-                status_txt = adjust_gametime(game["gameDate"], config)
+                status_txt = "time/" + game["gameDate"]  #adjust game time in get_frames so it works witch cached data
                 stats_tmp["highlight"] = "scores"
             else:  #not delayed before the game has started
                 status_txt = status
@@ -564,7 +565,7 @@ def get_mlbgames(today_str, config):
 
     return (stats)
 
-def get_nhlgames(today_str, config):
+def get_nhlgames(today_str):
     start_date = today_str
     end_date = today_str
     base_URL = "https://statsapi.web.nhl.com/api/v1/schedule"
@@ -602,7 +603,7 @@ def get_nhlgames(today_str, config):
         #https://statsapi.web.nhl.com/api/v1/gameStatus
         if status == "1":
             #status_txt = "Preview"
-            status_txt = adjust_gametime(game["gameDate"], config)
+            status_txt = "time/" + game["gameDate"]  #adjust game time in get_frames so it works witch cached data
             stats_tmp["highlight"] = "scores"
         elif status == "9":
             status_txt = "PostP"
@@ -633,7 +634,7 @@ def get_nhlgames(today_str, config):
 
     return (stats)
 
-def get_basketballgames(today_str, league, config):
+def get_basketballgames(today_str, league):
     start_date = today_str
     end_date = today_str
     base_URL = "https://site.api.espn.com/apis/site/v2/sports/basketball/%s/scoreboard" % league
@@ -674,7 +675,7 @@ def get_basketballgames(today_str, league, config):
         if status == "1":
             #status_txt = "Preview"
             game_time_tmp = game["date"].replace("Z", ":00Z")  #date does not include seconds so add here to parse time
-            status_txt = adjust_gametime(game_time_tmp, config)
+            status_txt = "time/" + game["gameDate"]  #adjust game time in get_frames so it works witch cached data
             stats_tmp["highlight"] = "scores"
             stats_tmp2["highlight"] = "scores"
         elif game["status"]["type"]["state"] == "in" or status in ["2", "3"]:  #linescore!=[]: #this should cover live and final states
@@ -701,7 +702,7 @@ def get_basketballgames(today_str, league, config):
         stats.append(stats_tmp2)  #used for multi-line stuff
     return (stats)
 
-def get_footballgames(today_str, league, config):
+def get_footballgames(today_str, league):
     start_date = today_str
     end_date = today_str
     base_URL = "https://site.api.espn.com/apis/site/v2/sports/football/%s/scoreboard" % league
@@ -742,7 +743,7 @@ def get_footballgames(today_str, league, config):
         if status == "1":
             #status_txt = "Preview"
             game_time_tmp = game["date"].replace("Z", ":00Z")  #date does not include seconds so add here to parse time
-            status_txt = adjust_gametime(game_time_tmp, config)
+            status_txt = "time/" + game_time_tmp  #adjust game time in get_frames so it works witch cached data
             stats_tmp["highlight"] = "scores"
             stats_tmp2["highlight"] = "scores"
         elif game["status"]["type"]["state"] == "in" or status in ["2", "3"]:  #linescore!=[]: #this should cover live and final states
@@ -767,7 +768,7 @@ def get_footballgames(today_str, league, config):
         stats.append(stats_tmp)
     return (stats)
 
-def get_soccergames(today_str, league, config):
+def get_soccergames(today_str, league):
     start_date = today_str
     end_date = today_str
     base_URL = "https://site.api.espn.com/apis/site/v2/sports/soccer/%s/scoreboard" % league
@@ -807,7 +808,7 @@ def get_soccergames(today_str, league, config):
 
         if status == "1":
             game_time_tmp = game["date"].replace("Z", ":00Z")  #date does not include seconds so add here to parse time
-            status_txt = adjust_gametime(game_time_tmp, config)
+            status_txt = "time/" + game_time_tmp  #adjust game time in get_frames so it works witch cached data
             stats_tmp["highlight"] = "scores"
             stats_tmp["highlight"] = "scores"
         elif game["status"]["type"]["state"] == "in" or status in ["2", "3"]:  #linescore!=[]: #this should cover live and final states

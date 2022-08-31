@@ -32,7 +32,7 @@ ALT_COLOR = """
 {
     "HOU": "#002D62",
     "WSH": "#AB0003",
-    "PIT": "#000000"
+    "PIT": "#111111"
 }
 """
 ALT_LOGO = """
@@ -185,13 +185,13 @@ def get_schema():
                 id = "location",
                 name = "Location",
                 desc = "Location for which to display time.",
-                icon = "place",
+                icon = "locationDot",
             ),
             schema.Dropdown(
                 id = "divisionType",
                 name = "Division",
                 desc = "Which division to display.",
-                icon = "cog",
+                icon = "gear",
                 default = divisionOptions[0].value,
                 options = divisionOptions,
             ),
@@ -199,7 +199,7 @@ def get_schema():
                 id = "teamsOptions",
                 name = "Teams Per View",
                 desc = "How many teams it should show at once.",
-                icon = "cog",
+                icon = "gear",
                 default = teamsOptions[1].value,
                 options = teamsOptions,
             ),
@@ -207,7 +207,7 @@ def get_schema():
                 id = "cycleOptions",
                 name = "Cycle Times",
                 desc = "How many times should it cycle through?",
-                icon = "cog",
+                icon = "gear",
                 default = cycleOptions[1].value,
                 options = cycleOptions,
             ),
@@ -298,25 +298,25 @@ def get_logoType(team, logo):
 def get_top_column(showDateTime, now, timeColor, divisionName, renderCategory, colHeight):
     topColumn = []
     if showDateTime:
+        theTime = now.format("3:04")
+        if len(str(theTime)) > 4:
+            timeBox = 24
+            statusBox = 40
+        else:
+            timeBox = 20
+            statusBox = 44
         topColumn = [
             render.Row(
                 expanded = True,
                 main_align = "space_between",
                 cross_align = "start",
                 children = [
-                    render.Box(width = 22, height = colHeight, color = "#000", child = render.Row(expanded = True, main_align = "center", cross_align = "center", children = [
+                    render.Box(width = timeBox, height = colHeight, color = "#000", child = render.Row(expanded = True, main_align = "center", cross_align = "center", children = [
                         render.Box(width = 1, height = colHeight),
-                        render.Text(color = timeColor, content = now.format("3:04"), font = "tb-8"),
+                        render.Text(color = timeColor, content = theTime, font = "tb-8"),
                     ])),
-                    render.Box(width = 42, height = colHeight, child = render.Stack(children = [
-                        render.Box(width = 42, height = colHeight, color = "#222"),
-                        render.Box(width = 6, height = colHeight, color = "#1D1D1D"),
-                        render.Box(width = 5, height = colHeight, color = "#181818"),
-                        render.Box(width = 4, height = colHeight, color = "#131313"),
-                        render.Box(width = 3, height = colHeight, color = "#0E0E0E"),
-                        render.Box(width = 2, height = colHeight, color = "#090909"),
-                        render.Box(width = 1, height = colHeight, color = "#040404"),
-                        render.Box(width = 42, height = colHeight, child = render.Row(expanded = True, main_align = "end", cross_align = "center", children = [
+                    render.Box(width = statusBox, height = colHeight, color = "#111", child = render.Stack(children = [
+                        render.Box(width = statusBox, height = colHeight, child = render.Row(expanded = True, main_align = "end", cross_align = "center", children = [
                             render.Text(color = "#FFF", content = divisionName, font = "CG-pixel-3x5-mono"),
                         ])),
                     ])),
