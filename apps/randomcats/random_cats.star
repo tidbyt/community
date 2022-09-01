@@ -12,15 +12,12 @@ load("http.star", "http")
 load("cache.star", "cache")
 
 def main(config):
-    rep_cache = cache.get("randomcats")
-    if rep_cache != None:
-        imgSrc = rep_cache
+    if config.bool("gifs", True):
+        url = "https://cataas.com/cat/gif?height=32"
     else:
-        if (config.bool("gifs") == False):
-            imgSrc = http.get("https://cataas.com/cat?height=32").body()
-        else:
-            imgSrc = http.get("https://cataas.com/cat/gif?height=32").body()
-        cache.set("randomcats", imgSrc, ttl_seconds = 20)
+        url = "https://cataas.com/cat?height=32"
+
+    imgSrc = get_cached(url)
 
     children = []
     children.append(
@@ -44,6 +41,20 @@ def main(config):
             children = children,
         ),
     )
+
+def get_cached(url, ttl_seconds = 20):
+    data = cache.get(url)
+    if data:
+        return data
+
+    res = http.get(url)
+    if res.status_code != 200:
+        fail("status %d from %s: %s" % (res.status_code, url, res.body()))
+
+    data = res.body()
+    cache.set(url, data, ttl_seconds = ttl_seconds)
+
+    return data
 
 def get_schema():
     return schema.Schema(
