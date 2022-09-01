@@ -10,21 +10,18 @@ load("schema.star", "schema")
 load("time.star", "time")
 load("encoding/json.star", "json")
 
-DEFAULT_BIRTH_DATE = "2000-01-01"
-DEFAULT_BIRTH_TIME = "13:00:00"
-
+DEFAULT_BIRTH_DATE_TIME = "2001-01-01T12:00:00Z"
 DEFAULT_TIME_ZONE = "US/Central"
 
 def main(config):
     font = "CG-pixel-3x5-mono"
 
-    startDate = config.str("birthdate", DEFAULT_BIRTH_DATE)
-    startTime = config.str("birthtime", DEFAULT_BIRTH_TIME)
-    startMS = "00"
-    startDateTime = "%sT%s.%sZ" % (startDate, startTime, startMS)
-    sd = time.parse_time(startDateTime)
+    birthdate = config.get("birthdate", DEFAULT_BIRTH_DATE_TIME)
+    tz = config.get("$tz", DEFAULT_TIME_ZONE)
 
-    elapsedDelta = time.now().in_location(config.str("tz", DEFAULT_TIME_ZONE)) - sd
+    sd = time.parse_time(birthdate).in_location(tz)
+
+    elapsedDelta = time.now().in_location(tz) - sd
 
     seconds = elapsedDelta.seconds
     minutes = seconds / 60
@@ -115,33 +112,14 @@ def main(config):
     )
 
 def get_schema():
-    options = [
-        schema.Option(display = "US/Central", value = "US/Central"),
-        schema.Option(display = "US/Eastern", value = "US/Eastern"),
-    ]
-
     return schema.Schema(
         version = "1",
         fields = [
-            schema.Text(
+            schema.DateTime(
                 id = "birthdate",
                 name = "Birthdate",
-                desc = "Birthdate (format: 2020-01-01)",
-                icon = "user",
-            ),
-            schema.Text(
-                id = "birthtime",
-                name = "Birthtime",
-                desc = "Birthtime (format: 13:00:00)",
-                icon = "user",
-            ),
-            schema.Dropdown(
-                id = "tz",
-                name = "TimeZone",
-                desc = "Enter timezone",
-                icon = "user",
-                default = options[0].value,
-                options = options,
+                desc = "Birthdate/time",
+                icon = "calendar",
             ),
         ],
     )
