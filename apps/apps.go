@@ -12,6 +12,7 @@ import (
 	"tidbyt.dev/community/apps/ambientweather"
 	"tidbyt.dev/community/apps/analogclock"
 	"tidbyt.dev/community/apps/analogtime"
+	"tidbyt.dev/community/apps/analogueclock"
 	"tidbyt.dev/community/apps/arcadeclassics"
 	"tidbyt.dev/community/apps/baywheels"
 	"tidbyt.dev/community/apps/bgghotness"
@@ -163,6 +164,7 @@ import (
 	"tidbyt.dev/community/apps/weathermap"
 	"tidbyt.dev/community/apps/web3counter"
 	"tidbyt.dev/community/apps/whosthatpokemon"
+	"tidbyt.dev/community/apps/wnbascores"
 	"tidbyt.dev/community/apps/wordlebyt"
 	"tidbyt.dev/community/apps/wordoftheday"
 	"tidbyt.dev/community/apps/worldclock"
@@ -177,6 +179,7 @@ func GetManifests() []manifest.Manifest {
 		ambientweather.New(),
 		analogclock.New(),
 		analogtime.New(),
+		analogueclock.New(),
 		arcadeclassics.New(),
 		baywheels.New(),
 		bgghotness.New(),
@@ -327,6 +330,7 @@ func GetManifests() []manifest.Manifest {
 		weathermap.New(),
 		web3counter.New(),
 		whosthatpokemon.New(),
+		wnbascores.New(),
 		wordlebyt.New(),
 		wordoftheday.New(),
 		worldclock.New(),
