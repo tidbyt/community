@@ -1,7 +1,7 @@
 """
 Applet: Random Cats
 Summary: Shows pictures of cats
-Description: Shows random pictures of cats/gifs of cats.
+Description: Shows random pictures of cats/gifs of cats from Cats as a Service (cataas.com).
 Author: mrrobot245
 """
 
@@ -9,12 +9,18 @@ load("encoding/json.star", "json")
 load("render.star", "render")
 load("schema.star", "schema")
 load("http.star", "http")
+load("cache.star", "cache")
 
 def main(config):
-    if (config.bool("gifs") == False):
-        imgSrc = http.get("https://cataas.com/cat?height=32").body()
+    rep_cache = cache.get("randomcats")
+    if rep_cache != None:
+        imgSrc = rep_cache
     else:
-        imgSrc = http.get("https://cataas.com/cat/gif?height=32").body()
+        if (config.bool("gifs") == False):
+            imgSrc = http.get("https://cataas.com/cat?height=32").body()
+        else:
+            imgSrc = http.get("https://cataas.com/cat/gif?height=32").body()
+        cache.set("randomcats", imgSrc, ttl_seconds = 20)
 
     children = []
     children.append(
