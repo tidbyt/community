@@ -1,7 +1,7 @@
 """
-Applet: NCAAF Scores
-Summary: Displays NCAA Football scores
-Description: Displays live and upcoming NCAA Football scores from a data feed.
+Applet: WNBA Scores
+Summary: Displays WNBA scores
+Description: Displays live and upcoming WNBA scores from a data feed.
 Author: LunchBox8484
 """
 
@@ -13,7 +13,6 @@ load("render.star", "render")
 load("schema.star", "schema")
 load("time.star", "time")
 load("math.star", "math")
-load("random.star", "random")
 
 CACHE_TTL_SECONDS = 60
 DEFAULT_LOCATION = """
@@ -26,13 +25,16 @@ DEFAULT_LOCATION = """
     "timezone": "America/New_York"
 }
 """
-SPORT = "football"
-LEAGUE = "college-football"
+SPORT = "basketball"
+LEAGUE = "wnba"
 API = "https://site.api.espn.com/apis/site/v2/sports/" + SPORT + "/" + LEAGUE + "/scoreboard"
 SHORTENED_WORDS = """
 {
     " PM": "P",
     " AM": "A",
+    " Wins": "",
+    " Leads": "",
+    " Series": "",
     " - ": " ",
     " / ": " ",
     "Postponed": "PPD",
@@ -47,134 +49,20 @@ SHORTENED_WORDS = """
 """
 ALT_COLOR = """
 {
-    "SYR" : "#000E54",
-    "LSU" : "#461D7C",
-    "WAKE" : "#000000",
-    "UVA" : "#232D4B",
-    "WVU" : "#002855",
-    "CIN" : "#E00122",
-    "WYO" : "#492F24",
-    "SMU" : "#0033A0",
-    "IOWA" : "#FFCD00",
-    "PUR" : "#000000",
-    "USC" : "#990000",
-    "ARMY" : "#000000",
-    "USM" : "#000000",
-    "TOL" : "#15397F",
-    "EIU" : "#004B83",
-    "UNLV" : "#cf0a2c",
-    "MRSH" : "#000000",
-    "UNC" : "#13294B",
-    "COLO" : "#000000",
-    "IOWA" : "#000000"
 }
 """
 ALT_LOGO = """
 {
-    "WYO" : "https://i.ibb.co/Czv9k7H/wyoming-cowboys.png",
-    "IOWA" : "https://storage.googleapis.com/hawkeyesports-com/2021/02/cf540990-logo.png",
-    "DUQ" : "https://b.fssta.com/uploads/application/college/team-logos/Duquesne-alternate.vresize.50.50.medium.1.png",
-    "UNC" : "https://b.fssta.com/uploads/application/college/team-logos/NorthCarolina-alternate.vresize.50.50.medium.1.png",
-    "DUKE" : "https://b.fssta.com/uploads/application/college/team-logos/Duke-alternate.vresize.50.50.medium.1.png",
-    "TEM" : "https://b.fssta.com/uploads/application/college/team-logos/Temple.vresize.50.50.medium.1.png",
-    "CLEM" : "https://b.fssta.com/uploads/application/college/team-logos/Clemson-alternate.vresize.50.50.medium.1.png",
-    "LSU" : "https://b.fssta.com/uploads/application/college/team-logos/LSU-alternate.vresize.50.50.medium.1.png",
-    "WVU" : "https://b.fssta.com/uploads/application/college/team-logos/WestVirginia-alternate.vresize.50.50.medium.1.png",
-    "PITT" : "https://b.fssta.com/uploads/application/college/team-logos/Pittsburgh-alternate.vresize.50.50.medium.1.png",
-    "UVA" : "https://b.fssta.com/uploads/application/college/team-logos/Virginia.vresize.50.50.medium.1.png",
-    "RUTG" : "https://b.fssta.com/uploads/application/college/team-logos/Rutgers-alternate.vresize.50.50.medium.1.png",
-    "CIN" : "https://b.fssta.com/uploads/application/college/team-logos/Cincinnati-alternate.vresize.50.50.medium.1.png",
-    "ARK" : "https://b.fssta.com/uploads/application/college/team-logos/Arkansas-alternate.vresize.50.50.medium.1.png",
-    "HOU" : "https://b.fssta.com/uploads/application/college/team-logos/Houston-alternate.vresize.50.50.medium.1.png",
-    "UNT" : "https://b.fssta.com/uploads/application/college/team-logos/NorthTexas-alternate.vresize.50.50.medium.1.png",
-    "TCU" : "https://b.fssta.com/uploads/application/college/team-logos/TCU-alternate.vresize.50.50.medium.1.png",
-    "OU" : "https://b.fssta.com/uploads/application/college/team-logos/Oklahoma-alternate.vresize.50.50.medium.1.png",
-    "TEX" : "https://b.fssta.com/uploads/application/college/team-logos/Texas-alternate.vresize.50.50.medium.1.png",
-    "KSU" : "https://b.fssta.com/uploads/application/college/team-logos/KansasState-alternate.vresize.50.50.medium.1.png",
-    "ILL" : "https://b.fssta.com/uploads/application/college/team-logos/Illinois-alternate.vresize.50.50.medium.1.png",
-    "NEB" : "https://b.fssta.com/uploads/application/college/team-logos/Nebraska-alternate.vresize.50.50.medium.1.png",
-    "NU" : "https://b.fssta.com/uploads/application/college/team-logos/Northwestern-alternate.vresize.50.50.medium.1.png",
-    "MSU" : "https://b.fssta.com/uploads/application/college/team-logos/MichiganState-alternate.vresize.50.50.medium.1.png",
-    "WISC" : "https://b.fssta.com/uploads/application/college/team-logos/Wisconsin-alternate.vresize.50.50.medium.1.png",
-    "IU" : "https://b.fssta.com/uploads/application/college/team-logos/Indiana-alternate.vresize.50.50.medium.0.png",
-    "MINN" : "https://b.fssta.com/uploads/application/college/team-logos/Minnesota-alternate.vresize.50.50.medium.0.png",
-    "MD" : "https://b.fssta.com/uploads/application/college/team-logos/Maryland-alternate.vresize.50.50.medium.0.png",
-    "ND" : "https://b.fssta.com/uploads/application/college/team-logos/NotreDame-alternate.vresize.50.50.medium.0.png",
-    "AAMU" : "https://b.fssta.com/uploads/application/college/team-logos/AlabamaA&M-alternate.vresize.50.50.medium.0.png",
-    "USC" : "https://b.fssta.com/uploads/application/college/team-logos/USC-alternate.vresize.50.50.medium.0.png",
-    "RICE" : "https://b.fssta.com/uploads/application/college/team-logos/Rice-alternate.vresize.50.50.medium.0.png",
-    "NEV" : "https://b.fssta.com/uploads/application/college/team-logos/Nevada-alternate.vresize.50.50.medium.0.png",
-    "USU" : "https://b.fssta.com/uploads/application/college/team-logos/UtahState-alternate.vresize.50.50.medium.0.png",
-    "ARMY" : "https://b.fssta.com/uploads/application/college/team-logos/Army.vresize.50.50.medium.0.png",
-    "TENN" : "https://b.fssta.com/uploads/application/college/team-logos/Tennessee-alternate.vresize.50.50.medium.0.png",
-    "CMU" : "https://b.fssta.com/uploads/application/college/team-logos/CentralMichigan-alternate.vresize.50.50.medium.0.png",
-    "TOL" : "https://b.fssta.com/uploads/application/college/team-logos/Toledo-alternate.vresize.50.50.medium.0.png",
-    "EMU" : "https://b.fssta.com/uploads/application/college/team-logos/EasternMichigan-alternate.vresize.50.50.medium.0.png",
-    "EKU" : "https://b.fssta.com/uploads/application/college/team-logos/EasternKentucky-alternate.vresize.50.50.medium.0.png",
-    "UCLA" : "https://b.fssta.com/uploads/application/college/team-logos/UCLA-alternate.vresize.50.50.medium.0.png",
-    "UK" : "https://b.fssta.com/uploads/application/college/team-logos/Kentucky-alternate.vresize.50.50.medium.0.png",
-    "WASH" : "https://b.fssta.com/uploads/application/college/team-logos/Washington-alternate.vresize.50.50.medium.0.png",
-    "UNLV" : "https://b.fssta.com/uploads/application/college/team-logos/UNLV-alternate.vresize.50.50.medium.0.png",
-    "AFA" : "https://b.fssta.com/uploads/application/college/team-logos/AirForce-alternate.vresize.50.50.medium.1.png",
-    "NAU" : "https://b.fssta.com/uploads/application/college/team-logos/NorthernArizona-alternate.vresize.50.50.medium.0.png",
-    "ORE" : "https://b.fssta.com/uploads/application/college/team-logos/Oregon-alternate.vresize.50.50.medium.0.png",
-    "UCD" : "https://b.fssta.com/uploads/application/college/team-logos/UCDavis-alternate.vresize.50.50.medium.0.png",
-    "CAL" : "https://b.fssta.com/uploads/application/college/team-logos/California-alternate.vresize.50.50.medium.0.png",
-    "COLG" : "https://b.fssta.com/uploads/application/college/team-logos/Colgate-alternate.vresize.50.50.medium.0.png",
-    "STAN" : "https://b.fssta.com/uploads/application/college/team-logos/Stanford.vresize.50.50.medium.0.png",
-    "WSU" : "https://b.fssta.com/uploads/application/college/team-logos/WashingtonState-alternate.vresize.50.50.medium.0.png",
-    "SDSU" : "https://b.fssta.com/uploads/application/college/team-logos/SanDiegoState.vresize.50.50.medium.0.png",
-    "SHSU" : "https://b.fssta.com/uploads/application/college/team-logos/SamHoustonState-alternate.vresize.50.50.medium.0.png",
-    "AUB" : "https://b.fssta.com/uploads/application/college/team-logos/Auburn-alternate.vresize.50.50.medium.0.png",
-    "NORF" : "https://b.fssta.com/uploads/application/college/team-logos/NorfolkState.vresize.50.50.medium.0.png",
-    "UNC" : "https://b.fssta.com/uploads/application/college/team-logos/NorthCarolina.vresize.50.50.medium.0.png",
-    "BAY" : "https://b.fssta.com/uploads/application/college/team-logos/Baylor-alternate.vresize.50.50.medium.0.png"
 }
 """
 MAGNIFY_LOGO = """
 {
-    "WVU" : 12,
-    "RUTG" : 12,
-    "DUKE" : 12,
-    "UNT" : 14,
-    "HOU" : 14,
-    "USF" : 14,
-    "OU" : 14,
-    "KSU" : 14,
-    "NEB" : 12,
-    "ILL" : 14,
-    "ND" : 14,
-    "UTS" : 18,
-    "USU" : 14,
-    "TENN" : 14,
-    "EMU" : 14,
-    "ORE" : 14,
-    "ASU" : 24,
-    "COLG" : 14,
-    "AUB" : 14,
-    "SHSU" : 14,
-    "UTAH" : 14,
-    "UGA" : 18,
-    "M-OH" : 14,
-    "VT" : 18,
-    "NORF" : 14,
-    "WYO" : 12,
-    "BAY" : 12,
-    "PITT" : 14,
-    "COLO" : 14,
-    "IOWA" : 12,
-    "PSU" : 14
 }
 """
 
 def main(config):
     renderCategory = []
-    conferenceType = config.get("conferenceType", "0")
-    if conferenceType == "0":
-        apiURL = API + "?limit=100"
-    else:
-        apiURL = API + "?limit=100&groups=" + conferenceType
-    league = {LEAGUE: apiURL}
+    league = {LEAGUE: API}
     instanceNumber = int(config.get("instanceNumber", 1))
     totalInstances = int(config.get("instancesCount", 1))
     scores = get_scores(league, instanceNumber, totalInstances)
@@ -182,8 +70,6 @@ def main(config):
         displayType = config.get("displayType", "colors")
         logoType = config.get("logoType", "primary")
         showDateTime = config.bool("displayDateTime")
-
-        showRanking = config.bool("displayRanking")
         pregameDisplay = config.get("pregameDisplay", "record")
         timeColor = config.get("displayTimeColor", "#FFF")
         rotationSpeed = 15 / len(scores)
@@ -237,19 +123,6 @@ def main(config):
                 awayLogoURL = "https://i.ibb.co/5LMp8T1/transparent.png"
             else:
                 awayLogoURL = competition["competitors"][1]["team"]["logo"]
-
-            homeRankCheck = competition["competitors"][0].get("curatedRank", "NO")
-            if homeRankCheck == "NO":
-                homeRank = 99
-            else:
-                homeRank = competition["competitors"][0]["curatedRank"]["current"]
-
-            awayRankCheck = competition["competitors"][1].get("curatedRank", "NO")
-            if awayRankCheck == "NO":
-                awayRank = 99
-            else:
-                awayRank = competition["competitors"][1]["curatedRank"]["current"]
-
             homeLogo = get_logoType(home, homeLogoURL)
             awayLogo = get_logoType(away, awayLogoURL)
             homeLogoSize = get_logoSize(home)
@@ -406,14 +279,14 @@ def main(config):
                                     children = [
                                         render.Box(width = 64, height = 12, color = borderColor, child = render.Row(expanded = True, main_align = "start", cross_align = "center", children = [
                                             render.Box(width = 1, height = 10, color = borderColor),
-                                            render.Box(width = 31, height = 10, child = render.Box(width = 29, height = 10, color = backgroundColor, child = render.Text(content = away[:4].upper(), color = awayScoreColor, font = textFont))),
+                                            render.Box(width = 31, height = 10, child = render.Box(width = 29, height = 10, color = backgroundColor, child = render.Text(content = away[:3].upper(), color = awayScoreColor, font = textFont))),
                                             render.Box(width = 31, height = 10, child = render.Box(width = 29, height = 10, color = backgroundColor, child = render.Text(content = get_record(awayScore), color = awayScoreColor, font = scoreFont))),
                                             render.Box(width = 1, height = 10, color = borderColor),
                                         ])),
                                         render.Box(width = 64, height = 1, color = borderColor),
                                         render.Box(width = 64, height = 10, color = borderColor, child = render.Row(expanded = True, main_align = "start", cross_align = "center", children = [
                                             render.Box(width = 1, height = 10, color = borderColor),
-                                            render.Box(width = 31, height = 10, child = render.Box(width = 29, height = 10, color = backgroundColor, child = render.Text(content = home[:4].upper(), color = homeScoreColor, font = textFont))),
+                                            render.Box(width = 31, height = 10, child = render.Box(width = 29, height = 10, color = backgroundColor, child = render.Text(content = home[:3].upper(), color = homeScoreColor, font = textFont))),
                                             render.Box(width = 31, height = 10, child = render.Box(width = 29, height = 10, color = backgroundColor, child = render.Text(content = get_record(homeScore), color = homeScoreColor, font = scoreFont))),
                                             render.Box(width = 1, height = 10, color = borderColor),
                                         ])),
@@ -565,18 +438,16 @@ def main(config):
                                     children = [
                                         render.Column(
                                             children = [
-                                                render.Box(width = 64, height = 12, color = "#222", child = render.Row(
-                                                    expanded = True,
-                                                    main_align = "start",
-                                                    cross_align = "center",
-                                                    children = get_logo_column(showRanking, away, awayLogo, awayLogoSize, awayRank, awayScoreColor, textFont, awayScore, scoreFont),
-                                                )),
-                                                render.Box(width = 64, height = 12, color = "#222", child = render.Row(
-                                                    expanded = True,
-                                                    main_align = "start",
-                                                    cross_align = "center",
-                                                    children = get_logo_column(showRanking, home, homeLogo, homeLogoSize, homeRank, homeScoreColor, textFont, homeScore, scoreFont),
-                                                )),
+                                                render.Box(width = 64, height = 12, color = "#222", child = render.Row(expanded = True, main_align = "start", cross_align = "center", children = [
+                                                    render.Box(width = 16, height = 16, child = render.Image(awayLogo, width = awayLogoSize, height = awayLogoSize)),
+                                                    render.Box(width = 24, height = 12, child = render.Text(content = away[:3], color = awayScoreColor, font = textFont)),
+                                                    render.Box(width = 24, height = 12, child = render.Text(content = get_record(awayScore), color = awayScoreColor, font = scoreFont)),
+                                                ])),
+                                                render.Box(width = 64, height = 12, color = "#222", child = render.Row(expanded = True, main_align = "start", cross_align = "center", children = [
+                                                    render.Box(width = 16, height = 16, child = render.Image(homeLogo, width = homeLogoSize, height = homeLogoSize)),
+                                                    render.Box(width = 24, height = 12, child = render.Text(content = home[:3], color = homeScoreColor, font = textFont)),
+                                                    render.Box(width = 24, height = 12, child = render.Text(content = get_record(homeScore), color = homeScoreColor, font = scoreFont)),
+                                                ])),
                                             ],
                                         ),
                                     ],
@@ -618,18 +489,16 @@ def main(config):
                                     children = [
                                         render.Column(
                                             children = [
-                                                render.Box(width = 64, height = 12, color = awayColor, child = render.Row(
-                                                    expanded = True,
-                                                    main_align = "start",
-                                                    cross_align = "center",
-                                                    children = get_logo_column(showRanking, away, awayLogo, awayLogoSize, awayRank, awayScoreColor, textFont, awayScore, scoreFont),
-                                                )),
-                                                render.Box(width = 64, height = 12, color = homeColor, child = render.Row(
-                                                    expanded = True,
-                                                    main_align = "start",
-                                                    cross_align = "center",
-                                                    children = get_logo_column(showRanking, home, homeLogo, homeLogoSize, homeRank, homeScoreColor, textFont, homeScore, scoreFont),
-                                                )),
+                                                render.Box(width = 64, height = 12, color = awayColor, child = render.Row(expanded = True, main_align = "start", cross_align = "center", children = [
+                                                    render.Box(width = 16, height = 16, child = render.Image(awayLogo, width = awayLogoSize, height = awayLogoSize)),
+                                                    render.Box(width = 24, height = 12, child = render.Text(content = away[:3], color = awayScoreColor, font = textFont)),
+                                                    render.Box(width = 24, height = 12, child = render.Text(content = get_record(awayScore), color = awayScoreColor, font = scoreFont)),
+                                                ])),
+                                                render.Box(width = 64, height = 12, color = homeColor, child = render.Row(expanded = True, main_align = "start", cross_align = "center", children = [
+                                                    render.Box(width = 16, height = 16, child = render.Image(homeLogo, width = homeLogoSize, height = homeLogoSize)),
+                                                    render.Box(width = 24, height = 12, child = render.Text(content = home[:3], color = homeScoreColor, font = textFont)),
+                                                    render.Box(width = 24, height = 12, child = render.Text(content = get_record(homeScore), color = homeScoreColor, font = scoreFont)),
+                                                ])),
                                             ],
                                         ),
                                     ],
@@ -657,61 +526,6 @@ def main(config):
         )
     else:
         return []
-
-conferenceOptions = [
-    schema.Option(
-        display = "Top 25",
-        value = "0",
-    ),
-    schema.Option(
-        display = "FBS (I-A)",
-        value = "80",
-    ),
-    schema.Option(
-        display = "ACC",
-        value = "1",
-    ),
-    schema.Option(
-        display = "American",
-        value = "151",
-    ),
-    schema.Option(
-        display = "Big 12",
-        value = "4",
-    ),
-    schema.Option(
-        display = "Big Ten",
-        value = "5",
-    ),
-    schema.Option(
-        display = "C-USA",
-        value = "12",
-    ),
-    schema.Option(
-        display = "FBS Indep.",
-        value = "18",
-    ),
-    schema.Option(
-        display = "MAC",
-        value = "15",
-    ),
-    schema.Option(
-        display = "Mountain West",
-        value = "17",
-    ),
-    schema.Option(
-        display = "Pac-12",
-        value = "9",
-    ),
-    schema.Option(
-        display = "SEC",
-        value = "8",
-    ),
-    schema.Option(
-        display = "Sun Belt",
-        value = "37",
-    ),
-]
 
 displayOptions = [
     schema.Option(
@@ -773,34 +587,6 @@ instancesCounts = [
         display = "8",
         value = "8",
     ),
-    schema.Option(
-        display = "9",
-        value = "9",
-    ),
-    schema.Option(
-        display = "10",
-        value = "10",
-    ),
-    schema.Option(
-        display = "12",
-        value = "12",
-    ),
-    schema.Option(
-        display = "13",
-        value = "13",
-    ),
-    schema.Option(
-        display = "14",
-        value = "14",
-    ),
-    schema.Option(
-        display = "15",
-        value = "15",
-    ),
-    schema.Option(
-        display = "16",
-        value = "16",
-    ),
 ]
 
 instanceNumbers = [
@@ -835,38 +621,6 @@ instanceNumbers = [
     schema.Option(
         display = "Eighth",
         value = "8",
-    ),
-    schema.Option(
-        display = "Ninth",
-        value = "9",
-    ),
-    schema.Option(
-        display = "Tenth",
-        value = "10",
-    ),
-    schema.Option(
-        display = "Eleventh",
-        value = "11",
-    ),
-    schema.Option(
-        display = "Twelfth",
-        value = "12",
-    ),
-    schema.Option(
-        display = "Thirteenth",
-        value = "13",
-    ),
-    schema.Option(
-        display = "Fourteenth",
-        value = "14",
-    ),
-    schema.Option(
-        display = "Fifteenth",
-        value = "15",
-    ),
-    schema.Option(
-        display = "Sixteenth",
-        value = "16",
     ),
 ]
 
@@ -923,21 +677,6 @@ def get_schema():
                 icon = "locationDot",
             ),
             schema.Dropdown(
-                id = "conferenceType",
-                name = "Conference",
-                desc = "Which conference to display.",
-                icon = "gear",
-                default = conferenceOptions[0].value,
-                options = conferenceOptions,
-            ),
-            schema.Toggle(
-                id = "displayRanking",
-                name = "Show Top 25 Rank",
-                desc = "A toggle to display the top 25 ranking.",
-                icon = "trophy",
-                default = True,
-            ),
-            schema.Dropdown(
                 id = "displayType",
                 name = "Display Type",
                 desc = "Style of how the scores are displayed.",
@@ -970,7 +709,7 @@ def get_schema():
             ),
             schema.Dropdown(
                 id = "instancesCount",
-                name = "Total Instances of App Installed",
+                name = "Total Instances of App",
                 desc = "This determines which set of scores to display based on the 'Scores to Display' setting.",
                 icon = "clock",
                 default = instancesCounts[0].value,
@@ -979,7 +718,7 @@ def get_schema():
             schema.Dropdown(
                 id = "instanceNumber",
                 name = "App Instance Number",
-                desc = "Select which instance of the NCAAF scores app this is.",
+                desc = "Select which instance of the app this is.",
                 icon = "clock",
                 default = instanceNumbers[0].value,
                 options = instanceNumbers,
@@ -1002,14 +741,8 @@ def get_scores(urls, instanceNumber, totalInstances):
             allscores.pop()
         return allscores
     else:
-        myList = list(range(allScoresLength))
         thescores = [allscores[(i * len(allscores)) // totalInstances:((i + 1) * len(allscores)) // totalInstances] for i in range(totalInstances)]
         return thescores[instanceNumber - 1]
-
-def empty_scores(allscores):
-    for i in range(0, int(len(allscores))):
-        allscores.pop()
-    return allscores
 
 def get_odds(theOdds, theOU, team, homeaway):
     theOddsarray = theOdds.split(" ")
@@ -1129,38 +862,6 @@ def get_gametime_column(display, gameTime, textColor, backgroundColor, borderCol
                     ),
                 ],
             ),
-        ]
-    return gameTimeColumn
-
-def get_logo_column(showRanking, team, Logo, LogoSize, Rank, ScoreColor, textFont, Score, scoreFont):
-    if showRanking and Rank > 0 and Rank < 26:
-        if Rank < 10:
-            rankSize = 4
-        else:
-            rankSize = 8
-        gameTimeColumn = [
-            render.Stack(children = [
-                render.Box(width = 16, height = 12, child = render.Image(Logo, width = LogoSize, height = LogoSize)),
-                render.Column(
-                    expanded = True,
-                    main_align = "end",
-                    cross_align = "start",
-                    children = [
-                        render.Row(children = [
-                            render.Box(width = 1, height = 5, color = "#000b"),
-                            render.Box(width = rankSize, height = 5, color = "#000b", child = render.Text(str(Rank), color = ScoreColor, font = "CG-pixel-3x5-mono")),
-                        ]),
-                    ],
-                ),
-            ]),
-            render.Box(width = 24, height = 12, child = render.Text(content = team[:4], color = ScoreColor, font = textFont)),
-            render.Box(width = 24, height = 12, child = render.Text(content = get_record(Score), color = ScoreColor, font = scoreFont)),
-        ]
-    else:
-        gameTimeColumn = [
-            render.Box(width = 16, height = 12, child = render.Image(Logo, width = LogoSize, height = LogoSize)),
-            render.Box(width = 24, height = 12, child = render.Text(content = team[:4], color = ScoreColor, font = textFont)),
-            render.Box(width = 24, height = 12, child = render.Text(content = get_record(Score), color = ScoreColor, font = scoreFont)),
         ]
     return gameTimeColumn
 
