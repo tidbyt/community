@@ -17,9 +17,9 @@ func New() manifest.Manifest {
 		Name:        "Random Cats",
 		Author:      "mrrobot245",
 		Summary:     "Shows pictures of cats",
-		Desc:        "Shows random pictures of cats/gifs of cats.",
+		Desc:        "Shows random pictures/gifs of cats. Powered by Cat as a Service (cataas.com)",
 		FileName:    "random_cats.star",
 		PackageName: "randomcats",
-		Source:  source,
+		Source:      source,
 	}
 }
