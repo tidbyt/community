@@ -16,11 +16,12 @@ load("encoding/json.star", "json")
 load("cache.star", "cache")
 load("xpath.star", "xpath")
 load("re.star", "re")
+load("humanize.star", "humanize")
 
 default_location = """
   {
-	"lat": "20.8911",
-	"lng": "-156.5047",
+	"lat": "20.89",
+	"lng": "-156.50",
 	"description": "Wailuku, HI, USA",
 	"locality": "Maui",
 	"timezone": "America/Honolulu"
@@ -34,7 +35,7 @@ def debug_print(arg):
 def get_stations(location):  # assume we have a valid location dict
     stations_json = {}
     station_options = list()
-    url = "https://api.tidesandcurrents.noaa.gov/mdapi/prod/webapi/tidepredstations.json?lat=%s&lon=%s&radius=50" % (location["lat"], location["lng"])
+    url = "https://api.tidesandcurrents.noaa.gov/mdapi/prod/webapi/tidepredstations.json?lat=%s&lon=%s&radius=50" % (humanize.float("#.##", float(location["lat"])), humanize.float("#.##", float(location["lng"])))
     debug_print(url)
     if not debug:
         req_result = http.get(url)
@@ -140,16 +141,18 @@ def main(config):
     units = "ft"
     station_id = config.get("station_id", "")
     debug_print("station id from config.get: " + station_id)
-
-    if station_id == "none" or station_id == "":  # if manual input is empty load from local selection
+    if station_id == "none" or station_id == "" or not station_id:  # if manual input is empty load from local selection
+        debug_print("getting local_station_id")
         if production:
             local_selection = config.get("local_station_id", '{"display": "Station 1613198 - Example", "value": "1613198"}')  # default is
         else:
             local_selection = config.get("local_station_id", "1613198")  # default is Waimea
 
+        if local_selection == "None Found":
+            local_selection = "1613198"  # config.get bug ?
         debug_print("Local selection : " + local_selection)
 
-        # don't need to do this until using locationbased
+        # this is needed for locationbased selection in production environment
         if "value" in local_selection:
             station_id = json.decode(local_selection)["value"]
         else:
