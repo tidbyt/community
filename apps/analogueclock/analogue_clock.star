@@ -48,23 +48,23 @@ DEFAULT_TIMEZONE = "Europe/Zurich"
 # This function renders a single pixel
 def set_pixel(image, x, y, color):
     # Check boundaries
-    if (x > 63) or (x < 0) :
-        return 
-    if (y > 31) or (y < 0) :
-        return 
+    if (x > 63) or (x < 0):
+        return
+    if (y > 31) or (y < 0):
+        return
 
     # Set the pixel
     image[x][y] = color
 
 # Renders a line
 def render_line_angle(image, x, y, r, a, colorborder, colorfill, widthborder):
-    for rad in range(0, int((r-widthborder)*10)):
-        cx = int(math.round(x + (rad/10.0 * math.cos(math.radians(a)))))
-        cy = int(math.round(y + (rad/10.0 * math.sin(math.radians(a)))))
+    for rad in range(0, int((r - widthborder) * 10)):
+        cx = int(math.round(x + (rad / 10.0 * math.cos(math.radians(a)))))
+        cy = int(math.round(y + (rad / 10.0 * math.sin(math.radians(a)))))
         set_pixel(image, cx, cy, colorfill)
-    for rad in range(int((r-widthborder)*10), int(r*10)):
-        cx = int(math.round(x + (rad/10.0 * math.cos(math.radians(a)))))
-        cy = int(math.round(y + (rad/10.0 * math.sin(math.radians(a)))))
+    for rad in range(int((r - widthborder) * 10), int(r * 10)):
+        cx = int(math.round(x + (rad / 10.0 * math.cos(math.radians(a)))))
+        cy = int(math.round(y + (rad / 10.0 * math.sin(math.radians(a)))))
         set_pixel(image, cx, cy, colorborder)
     return image
 
@@ -72,8 +72,8 @@ def render_line_angle(image, x, y, r, a, colorborder, colorfill, widthborder):
 def render_circle(image, x, y, r, colorborder, colorfill, widthborder):
     for a in range(0, 360):
         render_line_angle(image, x, y, r, a, colorborder, colorfill, widthborder)
-    # return image
 
+    # return image
 
 # Renders the final image
 def render_image(image):
@@ -84,26 +84,28 @@ def render_image(image):
                     render.Box(
                         height = 1,
                         width = 1,
-                        color=image[x][y]
-                    ) for x in range(64)
+                        color = image[x][y],
+                    )
+                    for x in range(64)
                 ],
-            ) for y in range(32)
-        ]
+            )
+            for y in range(32)
+        ],
     )
 
 def render_clock(current_time, color_background, color_border, color_clock, color_marks, color_hour, color_minute, color_second):
-    image = [[color_background for y in range(32)] for x in range(64)] 
+    image = [[color_background for y in range(32)] for x in range(64)]
     render_circle(image, 31.5, 15.5, 15.5, color_border, color_clock, 1)
     for h in range(1, 13):
-        render_line_angle(image, 31.5, 15.5, 15.5, 360/12*h-1, color_marks, color_clock, 1)
-    
+        render_line_angle(image, 31.5, 15.5, 15.5, 360 / 12 * h - 1, color_marks, color_clock, 1)
+
     hh = int(current_time.format("15"))
     mm = int(current_time.format("04"))
     ss = int(current_time.format("05"))
 
-    render_line_angle(image, 31.5, 15.5, 7, 360/12*(hh % 12)+270, color_hour, color_hour, 0)
-    render_line_angle(image, 31.5, 15.5, 9, 360/60*(mm % 60)+270, color_minute, color_minute, 0)
-    render_line_angle(image, 31.5, 15.5, 11, 360/60*(ss % 60)+270, color_second, color_second, 0)
+    render_line_angle(image, 31.5, 15.5, 7, 360 / 12 * (hh % 12) + 270, color_hour, color_hour, 0)
+    render_line_angle(image, 31.5, 15.5, 9, 360 / 60 * (mm % 60) + 270, color_minute, color_minute, 0)
+    render_line_angle(image, 31.5, 15.5, 11, 360 / 60 * (ss % 60) + 270, color_second, color_second, 0)
 
     return render_image(image)
 
@@ -232,6 +234,5 @@ def get_schema():
                 ],
                 default = DEFAULT_COLORS.get("Magenta 100%"),
             ),
-            
         ],
     )
