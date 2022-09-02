@@ -9,8 +9,8 @@ load("time.star", "time")
 
 
 DEFAULT_TIMEZONE = "Pacific/Auckland"
-DEFAULT_URL = "https://api.barxui.com/version"
-DEFAULT_NAME = "barxui API"
+DEFAULT_URL = "https://github.com"
+DEFAULT_NAME = "Github"
 
 # config parameters
 P_LOCATION = "location"
@@ -226,4 +226,3 @@ def get_schema():
             ),
         ]
     )
-    
