@@ -33,6 +33,8 @@ def debug_print(arg):
         print(arg)
 
 def get_stations(location):  # assume we have a valid location dict
+    location = json.decode(location)
+
     stations_json = {}
     station_options = list()
     url = "https://api.tidesandcurrents.noaa.gov/mdapi/prod/webapi/tidepredstations.json?lat=%s&lon=%s&radius=50" % (humanize.float("#.##", float(location["lat"])), humanize.float("#.##", float(location["lng"])))
