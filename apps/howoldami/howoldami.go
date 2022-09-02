@@ -18,7 +18,7 @@ func New() manifest.Manifest {
 		Author:      "mabroadfo1027",
 		Summary:     "Calculates age",
 		Desc:        "Calculates age based on given date and time.",
-		FileName:    "how_old_am_i.star",
+		FileName:    "howoldami.star",
 		PackageName: "howoldami",
 		Source:  source,
 	}
