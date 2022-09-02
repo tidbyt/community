@@ -6,8 +6,6 @@ load("cache.star", "cache")
 load("humanize.star", "humanize")
 load("time.star", "time")
 
-
-
 DEFAULT_TIMEZONE = "Pacific/Auckland"
 DEFAULT_URL = "https://github.com"
 DEFAULT_NAME = "Github"
@@ -54,9 +52,7 @@ TTL_VALUES = {
     TTL_LOW : 600
 }
 
-
 def main(config):
-
     response = make_request(config)
 
     if response == None:
@@ -66,52 +62,48 @@ def main(config):
                     child = render.WrappedText(content = "No Configuration", font = FONT_DETAIL, color = COLOR_DETAIL)
                 )
             )
-    else:    
-
-        if response[R_FAILED]:
-            return render.Root(
-                child = render.Box(
-                    color = COLOR_FAIL,
-                    child = 
-                        render.Column(
-                            expanded = True,
-                            main_align = "space_evenly",
-                            cross_align = "center",
-                            children = [
-                                render.Text(content = response[R_NAME], font = FONT_TITLE, color = COLOR_TITLE),
-                                render.Text(content = "Failed: %s " % response[R_RESPONSECODE], font = FONT_DETAIL, color = COLOR_DETAIL)
-                            ]
-                        )
-                    
-                )
+    elif response[R_FAILED]:
+        return render.Root(
+            child = render.Box(
+                color = COLOR_FAIL,
+                child = 
+                    render.Column(
+                        expanded = True,
+                        main_align = "space_evenly",
+                        cross_align = "center",
+                        children = [
+                            render.Text(content = response[R_NAME], font = FONT_TITLE, color = COLOR_TITLE),
+                            render.Text(content = "Failed: %s " % response[R_RESPONSECODE], font = FONT_DETAIL, color = COLOR_DETAIL)
+                        ]
+                    )
+                
             )
+        )
 
-        else:
-        
-            return render.Root(
-                child = render.Box(
-                    color = COLOR_OK,
-                    child = 
-                        render.Column(
-                            expanded = True,
-                            main_align = "space_evenly",
-                            cross_align = "center",
-                            children = [
-                                render.Text(content = response[R_NAME], font = FONT_TITLE, color = COLOR_TITLE),
-                                render.Text(content = "OK", font = FONT_DETAIL, color = COLOR_DETAIL),
-                                render.Text(content = response[R_VERSION], font = FONT_DETAIL, color = COLOR_DETAIL)
-                            ]
-                        )
-                    
-                )
+    else:
+        return render.Root(
+            child = render.Box(
+                color = COLOR_OK,
+                child = 
+                    render.Column(
+                        expanded = True,
+                        main_align = "space_evenly",
+                        cross_align = "center",
+                        children = [
+                            render.Text(content = response[R_NAME], font = FONT_TITLE, color = COLOR_TITLE),
+                            render.Text(content = "OK", font = FONT_DETAIL, color = COLOR_DETAIL),
+                            render.Text(content = response[R_VERSION], font = FONT_DETAIL, color = COLOR_DETAIL)
+                        ]
+                    )
+                
             )
+        )
 
 def make_request(config):
-
     # get some config
     url = config.get(P_URL)
     checkversion = config.get(P_EXPECT_VERSION)
-    
+
     # check the config is valid
     if url != None:
         url = url.strip()
@@ -119,13 +111,12 @@ def make_request(config):
     if url == None or url == "":
         print("URL Missing")
         return None
-    
+
     # is the cache still valid
     vc = cache.get(CK_VERSIONCHECK)
     cachevalid = cache.get(CK_LASTURL) == url and checkversion == ("%s" % vc)
 
     if not cachevalid:
-
         ttl = TTL_VALUES[config.get(P_TTL)];
 
         # fill the cache
@@ -147,10 +138,8 @@ def make_request(config):
                     if json != None:
                         version = json["version"]  
                         cache.set(CK_VERSION, version, ttl_seconds = ttl)
-
         else:
             cache.set(CK_FAIL, "1", ttl_seconds = ttl)
-
 
         cache.set(CK_LASTURL, url, ttl_seconds = ttl )
         cache.set(CK_LASTCHECK, get_time_in_zone(config), ttl_seconds = ttl)
@@ -162,21 +151,20 @@ def make_request(config):
         R_FAILED : (cache.get(CK_FAIL) == "1"),
         R_RESPONSECODE : cache.get(CK_RESPONSECODE),
         R_VERSION: cache.get(CK_VERSION),
-        R_LASTCHECK : cache.get(CK_LASTCHECK) }
+        R_LASTCHECK : cache.get(CK_LASTCHECK),
+    }
 
     return response
 
 def get_time_in_zone(config):
-
     location = config.get(P_LOCATION)
     location = json.decode(location) if location else {}
     timezone = location.get("timezone", config.get("$tz", DEFAULT_TIMEZONE))
 
-    when_time = time.now().in_location(timezone);
+    when_time = time.now().in_location(timezone)
     return humanize.time_format("EEE MMM d HH:mm", when_time)
 
 def get_schema():
-
     ttlOptions = [
         schema.Option(display = "Frequent (%s secs)" % TTL_VALUES[TTL_FREQUENT], value = TTL_FREQUENT),
         schema.Option(display = "Normal (%s secs)" % TTL_VALUES[TTL_NORMAL], value = TTL_NORMAL),
@@ -190,8 +178,8 @@ def get_schema():
                 id = P_LOCATION,
                 name = "Location",
                 desc = "Location defining the timezone.",
-                icon = "locationDot"),
-
+                icon = "locationDot"
+            ),
             schema.Text(
                 id = P_NAME,
                 name = "Site Name",
@@ -199,7 +187,6 @@ def get_schema():
                 desc = "Provide a nice name for this site.",
                 default = DEFAULT_NAME,
             ),                
-
             schema.Text(
                 id = P_URL,
                 name = "URL",
@@ -207,7 +194,6 @@ def get_schema():
                 desc = "Specify the URL of the web site to check.",
                 default = DEFAULT_URL,
             ),                
-
             schema.Dropdown(
                 id = P_TTL,
                 icon = "",
@@ -216,7 +202,6 @@ def get_schema():
                 options = ttlOptions,
                 default = TTL_NORMAL,
             ),             
-
             schema.Toggle(
                 id = P_EXPECT_VERSION,
                 name = "Expect Version",
