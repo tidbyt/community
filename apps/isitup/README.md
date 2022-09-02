@@ -13,7 +13,6 @@ You can optionally extract a version number from a response that looks something
 ```
 
 Cheers!
-https://github.com/Jonesie
 
 ![screenshot](site_ok.png)
 

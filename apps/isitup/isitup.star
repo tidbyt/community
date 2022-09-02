@@ -7,8 +7,8 @@ load("humanize.star", "humanize")
 load("time.star", "time")
 
 DEFAULT_TIMEZONE = "Pacific/Auckland"
-DEFAULT_URL = "https://github.com"
-DEFAULT_NAME = "Github"
+DEFAULT_URL = ""
+DEFAULT_NAME = ""
 
 # config parameters
 P_LOCATION = "location"

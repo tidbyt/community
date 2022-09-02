@@ -12,7 +12,7 @@ var source []byte
 func New() manifest.Manifest {
 	return manifest.Manifest{
 		ID:          "isitup",
-		Name:        "Is It Up?",
+		Name:        "IsItUp?",
 		Author:      "Jonesie",
 		Summary:     "Looks for a 200-299 response from a site and optionally the get version from the JSON response, e.g. { 'version' : '1.2.3.4' } ",
 		Desc:        "Displays OK or Failed with response code if not.",
