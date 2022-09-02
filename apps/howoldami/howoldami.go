@@ -7,7 +7,7 @@ import (
 	"tidbyt.dev/community/apps/manifest"
 )
 
-//go:embed how_old_am_i.star
+//go:embed howoldami.star
 var source []byte
 
 // New creates a new instance of the How Old Am I applet.
