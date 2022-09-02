@@ -33,7 +33,6 @@ R_RESPONSECODE = "responsecode"
 R_VERSION = "version"
 R_LASTCHECK = "lastcheck"
 
-
 FONT_TITLE = "6x13"
 FONT_DETAIL = "tom-thumb"
 
@@ -47,9 +46,9 @@ TTL_NORMAL = "norm"
 TTL_LOW = "low"
 
 TTL_VALUES = {
-    TTL_FREQUENT : 60,
-    TTL_NORMAL : 240,
-    TTL_LOW : 600
+    TTL_FREQUENT: 60,
+    TTL_NORMAL: 240,
+    TTL_LOW: 600,
 }
 
 def main(config):
@@ -57,34 +56,33 @@ def main(config):
 
     if response == None:
         return render.Root(
-                child = render.Box(
-                    color = COLOR_FAIL,
-                    child = render.WrappedText(content = "No Configuration", font = FONT_DETAIL, color = COLOR_DETAIL)
-                )
-            )
+            child = render.Box(
+                color = COLOR_FAIL,
+                child = render.WrappedText(content = "No Configuration", font = FONT_DETAIL, color = COLOR_DETAIL),
+            ),
+        )
     elif response[R_FAILED]:
         return render.Root(
             child = render.Box(
                 color = COLOR_FAIL,
-                child = 
+                child =
                     render.Column(
                         expanded = True,
                         main_align = "space_evenly",
                         cross_align = "center",
                         children = [
                             render.Text(content = response[R_NAME], font = FONT_TITLE, color = COLOR_TITLE),
-                            render.Text(content = "Failed: %s " % response[R_RESPONSECODE], font = FONT_DETAIL, color = COLOR_DETAIL)
-                        ]
-                    )
-                
-            )
+                            render.Text(content = "Failed: %s " % response[R_RESPONSECODE], font = FONT_DETAIL, color = COLOR_DETAIL),
+                        ],
+                    ),
+            ),
         )
 
     else:
         return render.Root(
             child = render.Box(
                 color = COLOR_OK,
-                child = 
+                child =
                     render.Column(
                         expanded = True,
                         main_align = "space_evenly",
@@ -92,11 +90,10 @@ def main(config):
                         children = [
                             render.Text(content = response[R_NAME], font = FONT_TITLE, color = COLOR_TITLE),
                             render.Text(content = "OK", font = FONT_DETAIL, color = COLOR_DETAIL),
-                            render.Text(content = response[R_VERSION], font = FONT_DETAIL, color = COLOR_DETAIL)
-                        ]
-                    )
-                
-            )
+                            render.Text(content = response[R_VERSION], font = FONT_DETAIL, color = COLOR_DETAIL),
+                        ],
+                    ),
+            ),
         )
 
 def make_request(config):
@@ -117,7 +114,7 @@ def make_request(config):
     cachevalid = cache.get(CK_LASTURL) == url and checkversion == ("%s" % vc)
 
     if not cachevalid:
-        ttl = TTL_VALUES[config.get(P_TTL)];
+        ttl = TTL_VALUES[config.get(P_TTL)]
 
         # fill the cache
         rep = http.get(url)
@@ -129,29 +126,29 @@ def make_request(config):
             cache.set(CK_FAIL, "0", ttl_seconds = ttl)
 
             # try to get the version
-            if checkversion == 'true':
+            if checkversion == "true":
                 cache.set(CK_VERSIONCHECK, "1", ttl_seconds = ttl)
 
                 body = rep.body().lstrip()
                 if body[0] == "{":
                     json = rep.json()
                     if json != None:
-                        version = json["version"]  
+                        version = json["version"]
                         cache.set(CK_VERSION, version, ttl_seconds = ttl)
         else:
             cache.set(CK_FAIL, "1", ttl_seconds = ttl)
 
-        cache.set(CK_LASTURL, url, ttl_seconds = ttl )
+        cache.set(CK_LASTURL, url, ttl_seconds = ttl)
         cache.set(CK_LASTCHECK, get_time_in_zone(config), ttl_seconds = ttl)
 
     # fill the response from the cache
-    response = { 
+    response = {
         R_URL: cache.get(CK_LASTURL),
         R_NAME: config.get(P_NAME).strip(),
-        R_FAILED : (cache.get(CK_FAIL) == "1"),
-        R_RESPONSECODE : cache.get(CK_RESPONSECODE),
+        R_FAILED: (cache.get(CK_FAIL) == "1"),
+        R_RESPONSECODE: cache.get(CK_RESPONSECODE),
         R_VERSION: cache.get(CK_VERSION),
-        R_LASTCHECK : cache.get(CK_LASTCHECK),
+        R_LASTCHECK: cache.get(CK_LASTCHECK),
     }
 
     return response
@@ -178,7 +175,7 @@ def get_schema():
                 id = P_LOCATION,
                 name = "Location",
                 desc = "Location defining the timezone.",
-                icon = "locationDot"
+                icon = "locationDot",
             ),
             schema.Text(
                 id = P_NAME,
@@ -186,14 +183,14 @@ def get_schema():
                 icon = "input-text",
                 desc = "Provide a nice name for this site.",
                 default = DEFAULT_NAME,
-            ),                
+            ),
             schema.Text(
                 id = P_URL,
                 name = "URL",
                 icon = "input-text",
                 desc = "Specify the URL of the web site to check.",
                 default = DEFAULT_URL,
-            ),                
+            ),
             schema.Dropdown(
                 id = P_TTL,
                 icon = "",
@@ -201,7 +198,7 @@ def get_schema():
                 desc = "How often if the site checked.",
                 options = ttlOptions,
                 default = TTL_NORMAL,
-            ),             
+            ),
             schema.Toggle(
                 id = P_EXPECT_VERSION,
                 name = "Expect Version",
@@ -209,5 +206,5 @@ def get_schema():
                 icon = "toggle-on",
                 default = False,
             ),
-        ]
+        ],
     )
