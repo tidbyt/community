@@ -17,7 +17,7 @@ func New() manifest.Manifest {
 		Name:        "Blackout",
 		Author:      "mabroadfo1027",
 		Summary:     "Blackout tidbyt",
-		Desc:        "Black out TidByt during evenings (or whenever).",
+		Desc:        "Black out Tidbyt during evenings (or whenever).",
 		FileName:    "blackout.star",
 		PackageName: "blackout",
 		Source:  source,
