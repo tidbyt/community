@@ -19,6 +19,7 @@ import (
 	"tidbyt.dev/community/apps/bigclock"
 	"tidbyt.dev/community/apps/bikeshare"
 	"tidbyt.dev/community/apps/binaryclock"
+	"tidbyt.dev/community/apps/blackout"
 	"tidbyt.dev/community/apps/burgeroftheday"
 	"tidbyt.dev/community/apps/charlestownferry"
 	"tidbyt.dev/community/apps/chessviewer"
@@ -56,6 +57,7 @@ import (
 	"tidbyt.dev/community/apps/gapilotbuddy"
 	"tidbyt.dev/community/apps/goodservice"
 	"tidbyt.dev/community/apps/happyhour"
+	"tidbyt.dev/community/apps/howoldami"
 	"tidbyt.dev/community/apps/hurricanetracker"
 	"tidbyt.dev/community/apps/hvvdepartures"
 	"tidbyt.dev/community/apps/ifparank"
@@ -187,6 +189,7 @@ func GetManifests() []manifest.Manifest {
 		bigclock.New(),
 		bikeshare.New(),
 		binaryclock.New(),
+		blackout.New(),
 		burgeroftheday.New(),
 		charlestownferry.New(),
 		chessviewer.New(),
@@ -224,6 +227,7 @@ func GetManifests() []manifest.Manifest {
 		gapilotbuddy.New(),
 		goodservice.New(),
 		happyhour.New(),
+		howoldami.New(),
 		hurricanetracker.New(),
 		hvvdepartures.New(),
 		ifparank.New(),
