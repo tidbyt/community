@@ -103,6 +103,7 @@ import (
 	"tidbyt.dev/community/apps/noaatides"
 	"tidbyt.dev/community/apps/nyancat"
 	"tidbyt.dev/community/apps/nycbus"
+	"tidbyt.dev/community/apps/officestatus"
 	"tidbyt.dev/community/apps/ogsgamesviewer"
 	"tidbyt.dev/community/apps/ohhighwaysigns"
 	"tidbyt.dev/community/apps/pagerduty"
@@ -272,6 +273,7 @@ func GetManifests() []manifest.Manifest {
 		noaatides.New(),
 		nyancat.New(),
 		nycbus.New(),
+		officestatus.New(),
 		ogsgamesviewer.New(),
 		ohhighwaysigns.New(),
 		pagerduty.New(),
