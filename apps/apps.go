@@ -66,6 +66,7 @@ import (
 	"tidbyt.dev/community/apps/kickstarter"
 	"tidbyt.dev/community/apps/kielferry"
 	"tidbyt.dev/community/apps/launchcountdown"
+	"tidbyt.dev/community/apps/leetcodestats"
 	"tidbyt.dev/community/apps/life"
 	"tidbyt.dev/community/apps/lirr"
 	"tidbyt.dev/community/apps/londonbusstop"
@@ -230,6 +231,7 @@ func GetManifests() []manifest.Manifest {
 		kickstarter.New(),
 		kielferry.New(),
 		launchcountdown.New(),
+		leetcodestats.New(),
 		life.New(),
 		lirr.New(),
 		londonbusstop.New(),
@@ -238,6 +240,7 @@ func GetManifests() []manifest.Manifest {
 		metar.New(),
 		mindthegap.New(),
 		mlbleaders.New(),
+		mlbscoreboard.New(),
 		mlbscores.New(),
 		mlbstandings.New(),
 		mlsscores.New(),
