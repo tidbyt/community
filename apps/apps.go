@@ -240,7 +240,6 @@ func GetManifests() []manifest.Manifest {
 		metar.New(),
 		mindthegap.New(),
 		mlbleaders.New(),
-		mlbscoreboard.New(),
 		mlbscores.New(),
 		mlbstandings.New(),
 		mlsscores.New(),
