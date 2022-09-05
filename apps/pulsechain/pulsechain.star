@@ -12,6 +12,8 @@ load("cache.star", "cache")
 load("schema.star", "schema")
 load("secret.star", "secret")
 
+NO_PRICE = "$  ------- "
+
 POST_HEADERS = {
     "Content-Type": "application/json",
 }
@@ -47,12 +49,15 @@ qiCuvxHqnOM19ghEwBT7xMQZ77UyunKHkbkSjDzImpeojRZtt05v0CMyfMIMpQnl
 Nrlx+AeJZmcOHgyOkAAAAABJRU5ErkJggg==
 """)
 
+def hasData(json):
+    return "data" in json
+
 def main(config):
     PULSE_URL = secret.decrypt("AV6+xWcEwLL4pRoJwUrtaXE3CI9igLnERsQGHOaKT71Tx9ZK4KNzX7RnM44TUUH331nV7qC1HZyDQjWz5dRSOfhR+FygZJuuAA0U6lVtMJ0ec/LhP7g6njwRFMazQm5WKVzIEiiBZSu8j1cFt8p0nvnIX/YIzdkHD7oGmBeC4yJJS00Ff2mwdgk7thwyxzVASOxPhfqHx0wzF5+V9Hqt4TQKLNHrZraKaMvAlPNwYg==")
     PULSE_TESTNET_URL = secret.decrypt("AV6+xWcEZgIlJbik5keAYBYapZFttKMveUNXoc+U/ZmzjZqkhHu3c+gYZAFcOLIDCZOri+2mDZb+evfRS/vvvrkORXD/J/ccWmSgldILwc0lAPOeNv4Z0oaxWnCAdHSAFKbpMUSf5lUoztjRBM3Nhb9DoCoYV7cFK1CMqDYc+8M6MscgBof7c5E+91L4kAB+DLn4Vwd5ixFCgisNJNcqpGipSCgD0Lll5MI8lFPrkQ==")
     PULSE_QUERY_ENC = secret.decrypt("AV6+xWcELDwtAPQSjVEqygAqa9qzv4hjSCqBXUEk1usU3pv/jtFnEbSBEKP7/CodFUG51ngOaOX2EjQOuMFUpm7pUOZQadMPMy06/UvktK52nV5Lapp0Sl5HWf5UMq0K6nI5K2bdEreIGPkp8c7pH9zjoWJrwhEdSpEGqH7WWUWyn9C/FQwjyFvGo2hEU7AOJewscoceQrq8PJispbJ1s+xzFzlFsfu+Hv5OWgnys5vjKpk9ARkZPeRKScFLQWjML+iezJeT7o7eZbDEpYbhXBXReT//8f5GIqXLxaQcJdB4LpqVtQ+Q+hSFd/7mERgzhtCv7894vuxB0Nbkch/fkgpY9sLqx+fSlY8l9BYnkyVa/19Piv98iQCpLfVcv4srJRe9aVcQUK7kdUFA+p0bnXwUDohGIqX9ZIkPPYjjlx6rpCOmTNj2dpyh8wyWXM2nmA7DDEKghS407PkJ8aak+k8pygsFVhdTcCqYrdPxzxWBc1+xitBprVDhJKDDdoEocJcQe32Jd95+LunIZeqh1juhGnMsQXXovOQ45yslqzkoOg==")
 
-    ETH_MAINNET_URL = "https://api.thegraph.com/subgraphs/name/ianlapham/uniswap-v3-subgraph"
+    ETH_MAINNET_URL = "https://api.thegraph.com/subgraphs/name/toihoang12/uniswapv3"
     ETH_MAINNET_HEX_QUERY_ENC = "eyJxdWVyeSI6IntcbiAgZXRoOiBidW5kbGUoaWQ6IFwiMVwiKSB7ICAgIFxuICAgIGV0aFByaWNlVVNEXG4gIH1cbiAgaGV4OiB0b2tlbihpZDogXCIweDJiNTkxZTk5YWZlOWYzMmVhYTYyMTRmN2I3NjI5NzY4YzQwZWViMzlcIikge1xuICAgIHN5bWJvbFxuICAgIGRlcml2ZWRFVEhcbiAgXG4gIH1cbiAgfSIsInZhcmlhYmxlcyI6bnVsbH0K"
     PULSE_QUERY = base64.decode(PULSE_QUERY_ENC)
     ETH_MAINNET_HEX_QUERY = base64.decode(ETH_MAINNET_HEX_QUERY_ENC)
@@ -88,15 +93,22 @@ def main(config):
         if testnetResponse.status_code != 200:
             fail("Eth Mainnet request failed with status %d", ethMainnetResponse.status_code)
 
-        PLS = mainnetResponse.json()["data"]["pls"]["derivedUSD"]
-        PLSX = mainnetResponse.json()["data"]["plsx"]["derivedUSD"]
-        ETH_HEX_DERIVED_ETH = ethMainnetResponse.json()["data"]["hex"]["derivedETH"]
-        ETH_HEX_ETH_PRICE_USD = ethMainnetResponse.json()["data"]["eth"]["ethPriceUSD"]
-        ETH_HEX_DERIVED_PRICE = float(ETH_HEX_DERIVED_ETH) * float(ETH_HEX_ETH_PRICE_USD)
+        if hasData(mainnetResponse.json()):
+            PLS = mainnetResponse.json()["data"]["pls"]["derivedUSD"]
+            PLSX = mainnetResponse.json()["data"]["plsx"]["derivedUSD"]
+            mainnet_pls = str("$%f" % float(PLS))
+            mainnet_plsx = str("$%f" % float(PLSX))
+        else:
+            mainnet_pls = NO_PRICE
+            mainnet_plsx = NO_PRICE
 
-        mainnet_pls = str("$%f" % float(PLS))
-        mainnet_plsx = str("$%f" % float(PLSX))
-        eth_hex = str("$%f" % ETH_HEX_DERIVED_PRICE)
+        if hasData(ethMainnetResponse.json()):
+            ETH_HEX_DERIVED_ETH = ethMainnetResponse.json()["data"]["hex"]["derivedETH"]
+            ETH_HEX_ETH_PRICE_USD = ethMainnetResponse.json()["data"]["eth"]["ethPriceUSD"]
+            ETH_HEX_DERIVED_PRICE = float(ETH_HEX_DERIVED_ETH) * float(ETH_HEX_ETH_PRICE_USD)
+            eth_hex = str("$%f" % ETH_HEX_DERIVED_PRICE)
+        else:
+            eth_hex = NO_PRICE
 
         cache.set("pls_price", mainnet_pls, ttl_seconds = 30)
         cache.set("plsx_price", mainnet_plsx, ttl_seconds = 30)
