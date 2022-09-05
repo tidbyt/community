@@ -4,6 +4,7 @@ Summary: Show coworkers your status
 Description: Show coworkers whether you're free, busy, or remote.
 Author: Brian Bell
 """
+
 load("cache.star", "cache")
 load("encoding/base64.star", "base64")
 load("encoding/json.star", "json")
@@ -215,17 +216,17 @@ def refreshGraphAccessToken(config):
         graph_client_id = GRAPH_CLIENT_ID
     else:
         graph_client_id = config.get("graph_client_id")
-    
+
     if GRAPH_CLIENT_SECRET:
         graph_client_secret = GRAPH_CLIENT_SECRET
     else:
         graph_client_secret = config.get("graph_client_secret")
-    
+
     if GRAPH_TENANT_ID:
         graph_tenant_id = GRAPH_TENANT_ID
     else:
         graph_tenant_id = config.get("graph_tenant_id") or GRAPH_TENANT_ID_DEFAULT
-    
+
     graph_token_endpoint = "https://login.microsoftonline.com/" + graph_tenant_id + "/oauth2/v2.0/token"
 
     # Refresh token comes from Auth Handler params when running in Production/Serve mode....from Conflig when running locally/Render
@@ -236,7 +237,7 @@ def refreshGraphAccessToken(config):
         return None
     else:
         graph_access_token = cache.get(graph_refresh_token)
-    
+
     # In Production deployment, this redirect_uri should be replaced with Tidbyt callback uri
     if not graph_access_token:
         refresh_body = (
@@ -251,7 +252,7 @@ def refreshGraphAccessToken(config):
 
         if refresh.status_code != 200:
             fail("Refresh of Access Token failed with Status Code: %d - %s" % (refresh.status_code, refresh.body()))
-        
+
         return refresh.json()["access_token"]
         cache.set(graph_refresh_token, graph_access_token, ttl_seconds = int(refresh.json()["expires_in"] - 30))
     else:
@@ -272,7 +273,8 @@ def getGraphEvents(config, graph_access_token):
         graph_start_date_time = current_date + "00:00:00" + current_timezone
         graph_end_date_time = (
             time.parse_time(current_date, "2006-01-02T", timezone) +
-            time.parse_duration("24h")).format("2006-01-02T15:04:05Z07:00")
+            time.parse_duration("24h")
+        ).format("2006-01-02T15:04:05Z07:00")
         url = GRAPH_CALENDAR_VIEW_URL
         headers = {
             "Authorization": "Bearer " + graph_access_token,
@@ -282,16 +284,17 @@ def getGraphEvents(config, graph_access_token):
             "enddatetime": graph_end_date_time,
             "$select": "showAs, start, end, isAllDay",
             "$filter": "(showAs eq 'busy' or showAs eq 'oof' or " +
-                "showAs eq 'workingElsewhere') and isCancelled eq false",
+                       "showAs eq 'workingElsewhere') and isCancelled eq false",
             "$orderby": "start/dateTime",
         }
         graph_events = []
+
         # Handling graph api paging
         for x in range(NUMBER_OF_GRAPH_FETCH_ITERATIONS):
             response = http.get(url = url, headers = headers, params = params)
             if response.status_code != 200:
                 fail("Graph request failed with status:%d - %s" % (response.status_code, response.body()))
-                
+
             for event in response.json()["value"]:
                 graph_events.append(event)
             url = response.json().get("@odata.nextLink")
@@ -300,7 +303,7 @@ def getGraphEvents(config, graph_access_token):
         cache.set(
             graph_access_token + "_graph_events_cached",
             json.encode(graph_events),
-            ttl_seconds=TTL_SECONDS
+            ttl_seconds = TTL_SECONDS,
         )
         return graph_events
 
@@ -313,13 +316,15 @@ def getGraphCurrentEvents(graph_events):
             (
                 time.parse_time(
                     graph_event["start"]["dateTime"],
-                    "2006-01-02T15:04:05"
+                    "2006-01-02T15:04:05",
                 ) <= time.now().in_location("UTC") and
-                time.parse_time(graph_event["end"]["dateTime"],
-                    "2006-01-02T15:04:05"
+                time.parse_time(
+                    graph_event["end"]["dateTime"],
+                    "2006-01-02T15:04:05",
                 ) >= time.now().in_location("UTC")
             ) or graph_event["isAllDay"] == True
-        ): graph_current_events.append(graph_event)
+        ):
+            graph_current_events.append(graph_event)
     if (graph_current_events != []):
         return graph_current_events
     else:
@@ -333,9 +338,10 @@ def getGraphLatestOofEvent(graph_events):
     # Accepts a json array of graph events
     # Returns the out of office event with the latest end date
     if (graph_events != None):
-        graph_events_reverse_sorted = sorted(graph_events,
-            key=sortGraphEventByEndDate,
-            reverse=True
+        graph_events_reverse_sorted = sorted(
+            graph_events,
+            key = sortGraphEventByEndDate,
+            reverse = True,
         )
         for graph_event in graph_events_reverse_sorted:
             if (graph_event["showAs"]) == "oof":
@@ -345,9 +351,10 @@ def getGraphLatestBusyEvent(graph_events):
     # Accepts a json array of graph events
     # Returns the busy event with the latest end date
     if (graph_events != None):
-        graph_events_reverse_sorted = sorted(graph_events,
-            key=sortGraphEventByEndDate,
-            reverse=True
+        graph_events_reverse_sorted = sorted(
+            graph_events,
+            key = sortGraphEventByEndDate,
+            reverse = True,
         )
         for graph_event in graph_events_reverse_sorted:
             if (graph_event["showAs"]) == "busy":
@@ -357,9 +364,10 @@ def getGraphLatestWfhEvent(graph_events):
     # Accepts a json array of graph events
     # Returns the working elsewhere event with the latest end date
     if (graph_events != None):
-        graph_events_reverse_sorted = sorted(graph_events,
-            key=sortGraphEventByEndDate,
-            reverse=True
+        graph_events_reverse_sorted = sorted(
+            graph_events,
+            key = sortGraphEventByEndDate,
+            reverse = True,
         )
         for graph_event in graph_events_reverse_sorted:
             if (graph_event["showAs"]) == "workingElsewhere":
@@ -372,14 +380,16 @@ def sortGraphEventByStartDate(graph_event):
 def getGraphNextEvent(graph_events):
     # Accepts a json array of graph events
     # Returns the next busy or out of office event
-    graph_events_sorted = sorted(graph_events, key=sortGraphEventByStartDate)
+    graph_events_sorted = sorted(graph_events, key = sortGraphEventByStartDate)
     for graph_event in graph_events_sorted:
-        if(time.parse_time(
-            graph_event["start"]["dateTime"],
-            "2006-01-02T15:04:05"
+        if (
+            time.parse_time(
+                graph_event["start"]["dateTime"],
+                "2006-01-02T15:04:05",
             ) >= time.now().in_location("UTC") and
             graph_event["showAs"] in ("busy", "oof")
-        ): return graph_event
+        ):
+            return graph_event
 
 def getGraphStatus(config, graph_access_token):
     # Determines a user's status based on graph events returned
@@ -429,7 +439,7 @@ def getGraphStatus(config, graph_access_token):
         return {
             "isAllDay": None,
             "status": "free",
-            "time": None
+            "time": None,
         }
 
 def refreshWebexAccessToken(config):
@@ -439,12 +449,12 @@ def refreshWebexAccessToken(config):
         webex_client_id = WEBEX_CLIENT_ID
     else:
         webex_client_id = config.get("webex_client_id")
-    
+
     if WEBEX_CLIENT_SECRET:
         webex_client_secret = WEBEX_CLIENT_SECRET
     else:
         webex_client_secret = config.get("webex_client_secret")
-    
+
     # Refresh token comes from oauth handler params when running in Production/Serve mode
     # Refresh token comes from config when running locally/Render
     webex_refresh_token = config.get("webex_auth") or config.get("webex_refresh_token")
@@ -453,7 +463,7 @@ def refreshWebexAccessToken(config):
         return None
     else:
         webex_access_token = cache.get(webex_refresh_token)
-    
+
     if not webex_access_token:
         params = {
             "grant_type": "refresh_token",
@@ -462,10 +472,10 @@ def refreshWebexAccessToken(config):
             "refresh_token": webex_refresh_token,
         }
         headers = {
-            "Content-Type": "application/x-www-form-urlencoded"
+            "Content-Type": "application/x-www-form-urlencoded",
         }
         refresh = http.post(WEBEX_TOKEN_ENDPOINT, params = params, headers = headers)
-        
+
         if refresh.status_code != 200:
             fail("Refresh of Access Token failed with Status Code: %d - %s" % (refresh.status_code, refresh.body()))
 
@@ -486,9 +496,10 @@ def getWebexDetails(webex_access_token):
         return json.decode(webex_details_cached)
     else:
         headers = {
-            "Authorization": "Bearer " + webex_access_token
+            "Authorization": "Bearer " + webex_access_token,
         }
-        response = http.get(WEBEX_URL, headers=headers)
+        response = http.get(WEBEX_URL, headers = headers)
+
         # Set a cache key if API response that there have been too many requests
         if response.status_code == 429:
             cache.set(
@@ -504,7 +515,7 @@ def getWebexDetails(webex_access_token):
         cache.set(
             webex_access_token + "_webex_details_cached",
             json.encode(response_json),
-            ttl_seconds = TTL_SECONDS
+            ttl_seconds = TTL_SECONDS,
         )
         return response_json
 
@@ -543,102 +554,104 @@ def getAvailability(calendar_app_status, messaging_app_status):
             "status": calendar_app_status["status"],
             "time": calendar_app_status["time"],
         }
-    else:
-        if (calendar_app_status["status"] == "away" or messaging_app_status == "away"):
+    elif (calendar_app_status["status"] == "away" or messaging_app_status == "away"):
+        return {
+            "isAllDay": calendar_app_status["isAllDay"],
+            "status": "away",
+            "time": calendar_app_status["time"],
+        }
+    elif (calendar_app_status["status"] == "remote_busy"):
+        return {
+            "isAllDay": calendar_app_status["isAllDay"],
+            "status": "remote_busy",
+            "time": calendar_app_status["time"],
+        }
+    elif (calendar_app_status["status"] == "remote_free"):
+        if (messaging_app_status == "busy"):
             return {
                 "isAllDay": calendar_app_status["isAllDay"],
-                "status": "away",
+                "status": "remote_busy",
+                "time": None,
+            }
+        else:
+            return {
+                "isAllDay": calendar_app_status["isAllDay"],
+                "status": "remote_free",
                 "time": calendar_app_status["time"],
             }
-        elif (calendar_app_status["status"] == "remote_busy"):
+    elif (calendar_app_status["status"] == "remote"):
+        if (messaging_app_status == "busy"):
             return {
                 "isAllDay": calendar_app_status["isAllDay"],
                 "status": "remote_busy",
                 "time": calendar_app_status["time"],
             }
-        elif (calendar_app_status["status"] == "remote_free"):
-            if (messaging_app_status == "busy"):
-                return {
-                    "isAllDay": calendar_app_status["isAllDay"],
-                    "status": "remote_busy",
-                    "time": None,
-                }
-            else:
-                return {
-                    "isAllDay": calendar_app_status["isAllDay"],
-                    "status": "remote_free",
-                    "time": calendar_app_status["time"],
-                }
-        elif (calendar_app_status["status"] == "remote"):
-            if (messaging_app_status == "busy"):
-                return {
-                    "isAllDay": calendar_app_status["isAllDay"],
-                    "status": "remote_busy",
-                    "time": calendar_app_status["time"],
-                }
-            else:
-                return {
-                    "isAllDay": calendar_app_status["isAllDay"],
-                    "status": "remote",
-                    "time": calendar_app_status["time"],
-                }
-        elif (calendar_app_status["status"] == "busy"):
-            return {
-                "isAllDay": calendar_app_status["isAllDay"],
-                "status": "busy",
-                "time": calendar_app_status["time"],
-            }
-        elif (messaging_app_status == "busy"):
-            return {
-                "isAllDay": None,
-                "status": "busy",
-                "time": None,
-            }
-        elif (messaging_app_status == "free"):
-            return {
-                "isAllDay": None,
-                "status": "free",
-                "time": calendar_app_status["time"],
-            }
-        elif (messaging_app_status == "offline"):
-            return {
-                "isAllDay": None,
-                "status": "offline",
-                "time": None,
-            }
         else:
             return {
-                "isAllDay": None,
-                "status": "unknown",
-                "time": None
+                "isAllDay": calendar_app_status["isAllDay"],
+                "status": "remote",
+                "time": calendar_app_status["time"],
             }
+    elif (calendar_app_status["status"] == "busy"):
+        return {
+            "isAllDay": calendar_app_status["isAllDay"],
+            "status": "busy",
+            "time": calendar_app_status["time"],
+        }
+    elif (messaging_app_status == "busy"):
+        return {
+            "isAllDay": None,
+            "status": "busy",
+            "time": None,
+        }
+    elif (messaging_app_status == "free"):
+        return {
+            "isAllDay": None,
+            "status": "free",
+            "time": calendar_app_status["time"],
+        }
+    elif (messaging_app_status == "offline"):
+        return {
+            "isAllDay": None,
+            "status": "offline",
+            "time": None,
+        }
+    else:
+        return {
+            "isAllDay": None,
+            "status": "unknown",
+            "time": None,
+        }
 
 def getSchedule(availability):
     # Accepts a json object representing the user's availability
     # Returns a string to display the user's schedule
     if (availability["time"] != None):
-        if ((
-            time.parse_time(
-                availability["time"], 
-                "2006-01-02T15:04:05") != time.parse_time(
+        if (
+            (
+                time.parse_time(
+                    availability["time"],
+                    "2006-01-02T15:04:05",
+                ) != time.parse_time(
                     (
                         time.now().in_location("UTC") +
                         time.parse_duration("24h")
                     ).format("2006-01-02") +
                     "T00:00:00",
-                    "2006-01-02T15:04:05")
+                    "2006-01-02T15:04:05",
+                )
             ) and availability["isAllDay"] != True
         ):
             relative_time = humanize.relative_time(
                 time.now(),
                 time.parse_time(
                     availability["time"],
-                    "2006-01-02T15:04:05"
-                )
+                    "2006-01-02T15:04:05",
+                ),
             )
             relative_time = re.sub("(minutes|minute)", "min", relative_time)
             return (STATUS_MAP[availability["status"]]["schedule_prefix"] +
-                relative_time)
+                    relative_time)
         else:
             return "Until tomorrow"
     else:
@@ -707,7 +720,7 @@ def main(config):
                             render.Marquee(
                                 child = render.Text(
                                     content = status.upper(),
-                                    font = "6x13"
+                                    font = "6x13",
                                 ),
                                 offset_start = 1,
                                 offset_end = 52,
@@ -716,7 +729,7 @@ def main(config):
                             render.Marquee(
                                 child = render.Text(
                                     content = schedule,
-                                    font = "tom-thumb"
+                                    font = "tom-thumb",
                                 ),
                                 offset_start = 1,
                                 offset_end = 52,
@@ -725,7 +738,7 @@ def main(config):
                         ],
                         main_align = "space_evenly",
                     ),
-                    pad = (2, 0, 0, 0)
+                    pad = (2, 0, 0, 0),
                 ),
             ],
         ),
@@ -757,7 +770,7 @@ def graph_oauth_handler(params):
     cache.set(
         refresh_token,
         token_params["access_token"],
-        ttl_seconds = int(token_params["expires_in"] - 30)
+        ttl_seconds = int(token_params["expires_in"] - 30),
     )
     return refresh_token
 
@@ -765,13 +778,13 @@ def webex_oauth_handler(params):
     # This handler is invoked once the user selects the "Authorize your Webex Teams Account" from the Mobile app
     # It passes Params from a successful user Auth, including the Code that must be exchanged for a Refresh token
     headers = {
-        "Content-Type": "application/x-www-form-urlencoded"
+        "Content-Type": "application/x-www-form-urlencoded",
     }
     params = json.decode(params)
     params = {
         "grant_type": "authorization_code",
         "client_id": params["client_id"],
-        "client_secret": WEBEX_CLIENT_SECRET or WEBEX_CLIENT_SECRET_DEFAULT, # Provide runtime a default secret
+        "client_secret": WEBEX_CLIENT_SECRET or WEBEX_CLIENT_SECRET_DEFAULT,  # Provide runtime a default secret
         "code": params["code"],
         "redirect_uri": params["redirect_uri"],
     }
@@ -780,13 +793,13 @@ def webex_oauth_handler(params):
     if response.status_code != 200:
         fail("token request failed with status code: %d - %s" %
              (response.status_code, response.body()))
-    
+
     token_params = response.json()
     refresh_token = token_params["refresh_token"]
     cache.set(
         refresh_token,
         token_params["access_token"],
-        ttl_seconds = int(token_params["expires_in"] - 30)
+        ttl_seconds = int(token_params["expires_in"] - 30),
     )
     return refresh_token
 
