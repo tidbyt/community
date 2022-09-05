@@ -204,7 +204,7 @@ DEFAULT_LOCATION = """
 	"description": "Brooklyn, NY, USA",
 	"locality": "Brooklyn",
 	"place_id": "ChIJCSF8lBZEwokRhngABHRcdoI",
-	"timezone": "America/Chicago"
+	"timezone": "America/New_York"
 }
 """
 TTL_SECONDS = 60
