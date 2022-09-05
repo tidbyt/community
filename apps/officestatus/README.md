@@ -4,7 +4,7 @@ Display your availability to coworkers. Connect calendar and messaging apps to y
 
 The initial version of this app supports Outlook calendar and Webex Teams. Additional connections can be added upon request.
 
-Huge shout out to Matt Fisch for is Outlook Calendar App for examples on oAuth2.0 to Graph
+Huge shout out to Matt Fisch for is Outlook Calendar App for examples on oAuth2.0 to Graph.
 
 ## Screenshot
 
