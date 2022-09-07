@@ -9,7 +9,7 @@ make format
 ```
 
 ## When will my app be available in the Tidbyt mobile app?
-First off, we're sorry that this process is so opaque. Making the app release process more transparent is pretty high on our priority list. The short: it is available in the Tidbyt mobile app within an hour or so, but it's only visible to Tidbyt engineers and beta users. If you'd like to see your app before we launch it, give us a DM on Discord!
+First off, we're sorry that this process is so opaque. Making the app release process more transparent is pretty high on our priority list. The short: it is available in the Tidbyt mobile app within an hour or so, but it's only visible to Tidbyt engineers and beta users. If you'd like to see your app before we launch it, please sign up [here](https://forms.gle/vUMtAEbWPxXJrg7a6)!
 
 Here is the long version of how the release works today:
 - A Tidbyt engineer reviews your code
