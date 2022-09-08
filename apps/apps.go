@@ -12,7 +12,6 @@ import (
 	"tidbyt.dev/community/apps/ambientweather"
 	"tidbyt.dev/community/apps/analogclock"
 	"tidbyt.dev/community/apps/analogtime"
-	"tidbyt.dev/community/apps/analogueclock"
 	"tidbyt.dev/community/apps/arcadeclassics"
 	"tidbyt.dev/community/apps/baywheels"
 	"tidbyt.dev/community/apps/bgghotness"
@@ -27,6 +26,7 @@ import (
 	"tidbyt.dev/community/apps/clockbyhenry"
 	"tidbyt.dev/community/apps/cltlightrail"
 	"tidbyt.dev/community/apps/coingeckoprice"
+	"tidbyt.dev/community/apps/coloranalogclock"
 	"tidbyt.dev/community/apps/countdownclock"
 	"tidbyt.dev/community/apps/cryptotracker"
 	"tidbyt.dev/community/apps/dailykanji"
@@ -179,7 +179,6 @@ func GetManifests() []manifest.Manifest {
 		ambientweather.New(),
 		analogclock.New(),
 		analogtime.New(),
-		analogueclock.New(),
 		arcadeclassics.New(),
 		baywheels.New(),
 		bgghotness.New(),
@@ -194,6 +193,7 @@ func GetManifests() []manifest.Manifest {
 		clockbyhenry.New(),
 		cltlightrail.New(),
 		coingeckoprice.New(),
+		coloranalogclock.New(),
 		countdownclock.New(),
 		cryptotracker.New(),
 		dailykanji.New(),
