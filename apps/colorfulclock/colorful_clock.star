@@ -1,6 +1,6 @@
 """
-Applet: Color Analog Clock
-Summary: Color Analog Clock
+Applet: Colorful Clock
+Summary: Colorful Clock
 Description: Shows the time like on an old wall clock.
 Author: LukiLeu
 """

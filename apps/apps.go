@@ -26,7 +26,7 @@ import (
 	"tidbyt.dev/community/apps/clockbyhenry"
 	"tidbyt.dev/community/apps/cltlightrail"
 	"tidbyt.dev/community/apps/coingeckoprice"
-	"tidbyt.dev/community/apps/coloranalogclock"
+	"tidbyt.dev/community/apps/colorfulclock"
 	"tidbyt.dev/community/apps/countdownclock"
 	"tidbyt.dev/community/apps/cryptotracker"
 	"tidbyt.dev/community/apps/dailykanji"
@@ -193,7 +193,7 @@ func GetManifests() []manifest.Manifest {
 		clockbyhenry.New(),
 		cltlightrail.New(),
 		coingeckoprice.New(),
-		coloranalogclock.New(),
+		colorfulclock.New(),
 		countdownclock.New(),
 		cryptotracker.New(),
 		dailykanji.New(),
