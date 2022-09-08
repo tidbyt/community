@@ -14,7 +14,7 @@ var source []byte
 func New() manifest.Manifest {
 	return manifest.Manifest{
 		ID:          "color-analog-clock",
-		Name:        "color-analog Clock",
+		Name:        "Color Analog Clock",
 		Author:      "LukiLeu",
 		Summary:     "Color Analog Clock",
 		Desc:        "Shows the time like on an old wall clock.",
