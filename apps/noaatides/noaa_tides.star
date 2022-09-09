@@ -183,8 +183,8 @@ def main(config):
 
     line_color = color_low
     lines = list()
-    #lines_left = list()
-    #lines_right = list()
+    lines_left = list()
+    lines_right = list()
     if tides and "predictions" in tides:
         for pred in tides["predictions"]:
             if units_pref == "meters":
@@ -206,44 +206,49 @@ def main(config):
                     hr = hr-12
                 if hr < 10: # pad a space
                     hr = "0" + str(hr)
+                    
 
-                line = "%s%s:%s%s %s%s" % (pred["type"], hr,mn,m, v, units)
+                left_side = "%s %s:%s%s" % (pred["type"], hr,mn,m)
+                right_side ="%s%s" % (v, units) 
             else:
-                line = "%s -%s- %s%s" % (pred["t"][11:], pred["type"], v, units)
-            debug_print(line)
+                left_side = "%s %s" % (pred["type"], t)
+                right_side ="%s%s" % (v, units)
             if "H" in pred["type"]:
                 line_color = color_high
             else:
                 line_color = color_low
 
-            left_side = line[0:7]
-            right_side = line[8:]
             lines.append(
                 render.Row(
-                    main_align = "space_around",
                     expanded = True,
                     children=[
-                        render.Text(
-                            content = left_side,
-                            font = "tb-8",
-                            color = line_color,
+                        render.Row(
+                            main_align = "start",
+                            children = [render.Text(
+                                content = left_side,
+                                font = "tb-8",
+                                color = line_color,
+                            )],
                         ),
-                        render.Text(
-                            content = right_side,
-                            font = "tb-8",
-                            color = line_color,
-                        ),
-
+                        render.Row(
+                            expanded = True,
+                            main_align = "end",
+                            children = [render.Text(
+                                content = right_side,
+                                font = "tb-8",
+                                color = line_color,
+                            )],
+                        )
                     ]
 
                 )
-            
             )
     else:  # render an error message
-        lines.append(render.Text(
-            content = "Whoops",
+        lines.append(render.WrappedText(
+            content = "Invalid Station ID",
             font = "tb-8",
             color = "#FF0000",
+            align = "center",
         ))
     return render.Root(
         child = render.Box(
