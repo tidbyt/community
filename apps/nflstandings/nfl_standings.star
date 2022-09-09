@@ -79,6 +79,8 @@ def main(config):
                 entriesToDisplay = teamsToShow
                 divisionName = s["name"]
 
+                entries = sorted(entries, key = lambda e: e["stats"][4]["value"])
+
                 for x in range(0, len(entries), entriesToDisplay):
                     cycleCount = cycleCount + 1
                     renderCategory.extend(
