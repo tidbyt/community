@@ -140,7 +140,7 @@ def main(config):
     debug_print("############################################################")
     data = dict()
     units_pref = config.get("h_units", "feet")
-    time_format = config.get("time_format","24HR")
+    time_format = config.get("time_format", "24HR")
     units = "ft"
     station_id = config.get("station_id", "")
     debug_print("station id from config.get: " + station_id)
@@ -203,16 +203,15 @@ def main(config):
                 mn = t[3:5]
                 if hr > 12:
                     m = "p"
-                    hr = hr-12
-                if hr < 10: # pad a space
+                    hr = hr - 12
+                if hr < 10:  # pad a space
                     hr = "0" + str(hr)
-                    
 
-                left_side = "%s %s:%s%s" % (pred["type"], hr,mn,m)
-                right_side ="%s%s" % (v, units) 
+                left_side = "%s %s:%s%s" % (pred["type"], hr, mn, m)
+                right_side = "%s%s" % (v, units)
             else:
                 left_side = "%s %s" % (pred["type"], t)
-                right_side ="%s%s" % (v, units)
+                right_side = "%s%s" % (v, units)
             if "H" in pred["type"]:
                 line_color = color_high
             else:
@@ -221,7 +220,7 @@ def main(config):
             lines.append(
                 render.Row(
                     expanded = True,
-                    children=[
+                    children = [
                         render.Row(
                             main_align = "start",
                             children = [render.Text(
@@ -238,10 +237,9 @@ def main(config):
                                 font = "tb-8",
                                 color = line_color,
                             )],
-                        )
-                    ]
-
-                )
+                        ),
+                    ],
+                ),
             )
     else:  # render an error message
         lines.append(render.WrappedText(
