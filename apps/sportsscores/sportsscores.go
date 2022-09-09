@@ -17,7 +17,7 @@ func New() manifest.Manifest {
 		Name:        "Sports Scores",
 		Author:      "rs7q5",
 		Summary:     "Get daily sports scores",
-		Desc:        "Get daily scores or live updates of sports. Scores for the previous day are shown until 11am EST.",
+		Desc:        "Get daily scores or live updates of sports. Scores for the previous day are shown until 11am ET.",
 		FileName:    "sports_scores.star",
 		PackageName: "sportsscores",
 		Source:  source,
