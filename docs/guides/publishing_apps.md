@@ -23,7 +23,7 @@ Once created, edit `apps/{{appname}}/{{app_name}}.star` with your source code.
 ### 1. Fork the Tibyt Community repo on Github
 
 - Community apps are published by making a Pull Request to the community repo here: https://github.com/tidbyt/community
-- Start by forking the repo into your Gibhub account.
+- Start by forking the repo into your Github account.
 - After forking you may want to checkout to a new branch to avoid any headaches, and to not have to merge off the main branch of your forked repo.
 
 ### 2. Clone the community repo to your local machine
@@ -78,6 +78,14 @@ In this example, the fields map as follows:
 pixlet serve --watch apps/{{appname}}/{{app_name}}.star
 ```
 
+#### Generate a Screenshot
+
+You can generate an enlarged screen render by entering:
+
+```
+pixlet render apps/{{appname}}/{{app_name}}.star --gif --magnify 10
+```
+
 ### 6. Add a Readme File and screenshot to your app folder (Optional)
 
 By including a README.md file and screenshot in your app folder, you will make it easier for other developers to get a better sense of what your app does. See the example [here](https://github.com/tidbyt/community/tree/main/apps/digibyteprice).
@@ -85,6 +93,13 @@ By including a README.md file and screenshot in your app folder, you will make i
 ### 7. Making a PR
 
 Before submitting your app, run `make lint` from within the 'community' folder to check your code for errors.
+
+Note: If you receive an error like the following, it is probably because the Go binary is not in your path:
+
+![lint error](../assets/lint_error.png)
+
+You can typically fix this with:
+```export PATH=$PATH:$HOME/go/bin```
 
 
 When you go to make a PR, give us a little background on what your app does. In addition, include a render from the following command so we can ooh-ahh 😍:

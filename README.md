@@ -17,6 +17,9 @@ You should really read our [contributions guide](docs/CONTRIBUTING.md), our guid
 make app
 ```
 
+## Frequently Asked Questions
+Confused by the linter? Want to know where your app is in the release process? Checkout our [FAQ](docs/FAQ.md).
+
 ## Contributing Changes
 First off, we're over the moon that you're here and want to share what you've been working on with the broader Tidbyt user base 🎉.
 

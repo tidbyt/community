@@ -220,7 +220,7 @@ def get_schema():
                 id = "location",
                 name = "Location",
                 desc = "Location defining time to display and daytime/nighttime colors",
-                icon = "place",
+                icon = "locationDot",
             ),
             schema.Toggle(
                 id = "is_24_hour_format",
@@ -239,7 +239,7 @@ def get_schema():
             schema.Toggle(
                 id = "has_flashing_seperator",
                 name = "Enable flashing separator",
-                icon = "cog",
+                icon = "gear",
                 desc = "Ensure the clock always displays with a leading zero.",
                 default = DEFAULT_HAS_FLASHING_SEPERATOR,
             ),
