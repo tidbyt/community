@@ -22,6 +22,6 @@ Displays current gas prices for a selected [Costco](https://www.costco.com) ware
 
 ## Data Source
 
-Data is being sourced from the Costco Website Warehouse Finder API and as provided AS-IS only. Website updates made by Costco may cause this app to fail may require updates. 
+Data is being sourced from the Costco Website Warehouse Finder API and as provided AS-IS only. Website updates made by Costco may cause this app to fail and may require updates. 
 
 Even though gas (petrol) stations are available in other countries like Canada and the UK, only US warehouses reliably return prices at the present time.
