@@ -94,7 +94,7 @@ def main(config):
     tz = location.get("timezone")
 
     currtime = time.now("UTC")
-    #currtime = time.parse_time("10-Sep-2022 20:17:00", format="02-Jan-2006 15:04:05")    # pick any date to debug/unit test
+    #currtime = time.parse_time("16-Sep-2022 20:17:00", format="02-Jan-2006 15:04:05")    # pick any date to debug/unit test
 
     currsecofmooncycle = (currtime.unix - REF_NEWMOON) % LUNATION
 
