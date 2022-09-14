@@ -160,7 +160,6 @@ import (
 	"tidbyt.dev/community/apps/unsplash"
 	"tidbyt.dev/community/apps/usgsearthquakes"
 	"tidbyt.dev/community/apps/usyieldcurve"
-	"tidbyt.dev/community/apps/vergetaglines"
 	"tidbyt.dev/community/apps/verticalmessage"
 	"tidbyt.dev/community/apps/wantedposter"
 	"tidbyt.dev/community/apps/warframecycles"
@@ -329,7 +328,6 @@ func GetManifests() []manifest.Manifest {
 		unsplash.New(),
 		usgsearthquakes.New(),
 		usyieldcurve.New(),
-		vergetaglines.New(),
 		verticalmessage.New(),
 		wantedposter.New(),
 		warframecycles.New(),
