@@ -128,7 +128,8 @@ ALT_LOGO = """
     "AUB" : "https://b.fssta.com/uploads/application/college/team-logos/Auburn-alternate.vresize.50.50.medium.0.png",
     "NORF" : "https://b.fssta.com/uploads/application/college/team-logos/NorfolkState.vresize.50.50.medium.0.png",
     "UNC" : "https://b.fssta.com/uploads/application/college/team-logos/NorthCarolina.vresize.50.50.medium.0.png",
-    "BAY" : "https://b.fssta.com/uploads/application/college/team-logos/Baylor-alternate.vresize.50.50.medium.0.png"
+    "BAY" : "https://b.fssta.com/uploads/application/college/team-logos/Baylor-alternate.vresize.50.50.medium.0.png",
+    "ALA" : "https://b.fssta.com/uploads/application/college/team-logos/Alabama-alternate.vresize.50.50.medium.0.png"
 }
 """
 MAGNIFY_LOGO = """
@@ -164,6 +165,16 @@ MAGNIFY_LOGO = """
     "COLO" : 14,
     "IOWA" : 12,
     "PSU" : 14
+}
+"""
+ODDS_NAME = """
+{
+    "KSU" : "KANSASST",
+    "OKST" : "OKLAST",
+    "MSU" : "MICHIGANST",
+    "UL" : "ULLAFAYTTE",
+    "ORST" : "OREGONST",
+    "MSST" : "MISSSTATE"
 }
 """
 
@@ -1013,6 +1024,12 @@ def empty_scores(allscores):
 
 def get_odds(theOdds, theOU, team, homeaway):
     theOddsarray = theOdds.split(" ")
+    usealtname = json.decode(ODDS_NAME)
+    usealt = usealtname.get(team, "NO")
+    if usealt == "NO":
+        team = team
+    else:
+        team = usealtname[team]
     if theOdds == "EVEN" and homeaway == "home":
         theOddsscore = "EVEN"
     elif theOddsarray[0] == team:
