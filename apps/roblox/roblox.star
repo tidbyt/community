@@ -208,7 +208,7 @@ def main(config):
                 ),
             )
 
-    ### FAVORITE GAME MODE
+        ### FAVORITE GAME MODE
     else:
         ### GET USER FAVORITE GAMES
         user_favorite_games_list_cached = cache.get("user_favorite_games_list")
