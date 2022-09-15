@@ -25,6 +25,7 @@ require (
 	github.com/go-playground/validator/v10 v10.11.0 // indirect
 	github.com/golang/freetype v0.0.0-20170609003504-e2365dfdc4a0 // indirect
 	github.com/golang/groupcache v0.0.0-20210331224755-41bb18bfe9da // indirect
+	github.com/golang/protobuf v1.5.2 // indirect
 	github.com/google/tink/go v1.7.0 // indirect
 	github.com/inconshreveable/mousetrap v1.0.0 // indirect
 	github.com/leodido/go-urn v1.2.1 // indirect
