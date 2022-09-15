@@ -43,6 +43,7 @@ import (
 	"tidbyt.dev/community/apps/dutchfuzzyclock"
 	"tidbyt.dev/community/apps/dvdlogo"
 	"tidbyt.dev/community/apps/dwheadline"
+	"tidbyt.dev/community/apps/effheadlines"
 	"tidbyt.dev/community/apps/emojilingo"
 	"tidbyt.dev/community/apps/espnnews"
 	"tidbyt.dev/community/apps/ethstaker"
@@ -218,6 +219,7 @@ func GetManifests() []manifest.Manifest {
 		dutchfuzzyclock.New(),
 		dvdlogo.New(),
 		dwheadline.New(),
+		effheadlines.New(),
 		emojilingo.New(),
 		espnnews.New(),
 		ethstaker.New(),
