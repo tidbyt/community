@@ -79,6 +79,8 @@ def main(config):
                 entriesToDisplay = teamsToShow
                 divisionName = s["name"]
 
+                entries = sorted(entries, key = lambda e: e["stats"][4]["value"])
+
                 for x in range(0, len(entries), entriesToDisplay):
                     cycleCount = cycleCount + 1
                     renderCategory.extend(
@@ -310,7 +312,10 @@ def get_team(x, s, entriesToDisplay, colHeight, now, timeColor, divisionName, sh
             teamLogo = get_logoType(teamName, s[i + x]["team"]["logos"][1]["href"])
             teamWins = s[i + x]["stats"][1]["displayValue"]
             teamLosses = s[i + x]["stats"][2]["displayValue"]
+            teamTies = s[i + x]["stats"][5]["displayValue"]
             teamRecord = teamWins + "-" + teamLosses
+            if int(teamTies) > 0:
+                teamRecord = teamRecord + "-" + teamTies
             teamGB = s[i + x]["stats"][4]["displayValue"]
 
             team = render.Column(
