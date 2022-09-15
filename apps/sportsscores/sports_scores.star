@@ -1,12 +1,12 @@
 """
 Applet: Sports Scores
 Summary: Get daily sports scores
-Description: Get daily scores or live updates of sports games (MLB and NHL not from ESPN). Scores for the previous day are shown until 11am EST.
+Description: Get daily scores or live updates of sports games (MLB and NHL not from ESPN). Scores for the previous day are shown until 11am ET.
 Author: rs7q5
 """
 #sports_scores.star
 #Created 20220220 RIS
-#Last Modified 20220823 RIS
+#Last Modified 20220827 RIS
 
 load("render.star", "render")
 load("http.star", "http")
@@ -17,27 +17,28 @@ load("time.star", "time")
 load("humanize.star", "humanize")
 
 #this list are the sports that can have their scores pulled
+#list for each league is [display text, url code added to base code, timezone to reset day stuff]
 SPORTS_LIST = {
     "Baseball": ("MLB", {
-        "MLB": ["MLB", "mlb"],
+        "MLB": ["MLB", "mlb", "America/New_York"],
     }),
     "Hockey": ("NHL", {
-        "NHL": ["NHL", "nhl"],
+        "NHL": ["NHL", "nhl", "America/New_York"],
     }),
     "Basketball": ("NBA", {
-        "NBA": ["NBA", "nba"],
-        "WNBA": ["WNBA", "wnba"],
-        "NCAAM": ["NCAAM", "mens-college-basketball"],
-        "NCAAW": ["NCAAW", "womens-college-basketball"],
+        "NBA": ["NBA", "nba", "America/New_York"],
+        "WNBA": ["WNBA", "wnba", "America/New_York"],
+        "NCAAM": ["NCAAM", "mens-college-basketball", "America/New_York"],
+        "NCAAW": ["NCAAW", "womens-college-basketball", "America/New_York"],
     }),
     "Football": ("NFL", {
-        "NFL": ["NFL", "nfl"],
-        "NCAAF": ["NCAAF", "college-football"],
+        "NFL": ["NFL", "nfl", "America/New_York"],
+        "NCAAF": ["NCAAF", "college-football", "America/New_York"],
     }),
     "Soccer": ("MLS", {
-        "MLS": ["MLS", "usa.1"],
-        "NWSL": ["NWSL", "usa.nwsl"],
-        "EPL": ["EPL", "eng.1"],
+        "MLS": ["MLS", "usa.1", "America/New_York"],
+        "NWSL": ["NWSL", "usa.nwsl", "America/New_York"],
+        "EPL": ["EPL (scores reset at 11am London time)", "eng.1", "Europe/London"],
     }),
 }
 TWO_LINE_LEAGUES = ["NBA", "WNBA", "NCAAM", "NCAAW"]  #sports whose standings take up two lines
@@ -62,7 +63,7 @@ def main(config):
         sport = sport_tmp
         league = config.str("league_%s" % sport, SPORTS_LIST[sport][0])
 
-    league_txt, league_ext = SPORTS_LIST[sport][1].get(league)
+    league_txt, league_ext, timezone_reset = SPORTS_LIST[sport][1].get(league)
 
     font = "CG-pixel-3x5-mono"  #set font
 
@@ -73,7 +74,7 @@ def main(config):
         stats = json.decode(stats_cached)
     else:
         print("Miss! Calling %s (%s) gameday data." % (sport, league))  #error code checked within each function!!!!
-        today_str = get_date_str()
+        today_str = get_date_str(timezone_reset)
 
         #get the data
         if sport == "Baseball":
@@ -213,8 +214,8 @@ def more_options(sport):
         sport = sport_from_league(sport)
 
     leagues = [
-        schema.Option(display = league, value = league)
-        for league in SPORTS_LIST[sport][1]
+        schema.Option(display = league[1][0], value = league[0])
+        for league in SPORTS_LIST[sport][1].items()
     ]
     return [
         schema.Dropdown(
@@ -470,8 +471,8 @@ def pad_text(text):
 
 ######################################################
 #was messing around with getting daily schedule of games here
-def get_date_str():
-    today = time.now().in_location("America/New_York")
+def get_date_str(timezone):
+    today = time.now().in_location(timezone)
     hour_str = int(today.format("15"))  #used to check if should pull last night's scores or today's games (may want to set this as a toggle, but it's fine)
     if hour_str < 11:  #if before 11am EST, get yesterday's scores
         today_str = str(today - time.parse_duration("24h")).split(" ")[0]

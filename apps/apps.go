@@ -33,6 +33,7 @@ import (
 	"tidbyt.dev/community/apps/dateprogress"
 	"tidbyt.dev/community/apps/datetimeclock"
 	"tidbyt.dev/community/apps/daynightmap"
+	"tidbyt.dev/community/apps/desknametag"
 	"tidbyt.dev/community/apps/destiny2stats"
 	"tidbyt.dev/community/apps/digibyteprice"
 	"tidbyt.dev/community/apps/digitalrain"
@@ -100,6 +101,7 @@ import (
 	"tidbyt.dev/community/apps/nightscout"
 	"tidbyt.dev/community/apps/nixelclock"
 	"tidbyt.dev/community/apps/noaabuoy"
+	"tidbyt.dev/community/apps/noaatides"
 	"tidbyt.dev/community/apps/nyancat"
 	"tidbyt.dev/community/apps/nycbus"
 	"tidbyt.dev/community/apps/ogsgamesviewer"
@@ -115,6 +117,7 @@ import (
 	"tidbyt.dev/community/apps/pubgstats"
 	"tidbyt.dev/community/apps/pulsechain"
 	"tidbyt.dev/community/apps/purpleair"
+	"tidbyt.dev/community/apps/randomcats"
 	"tidbyt.dev/community/apps/randomslackmoji"
 	"tidbyt.dev/community/apps/redditimages"
 	"tidbyt.dev/community/apps/redditrplace"
@@ -165,6 +168,7 @@ import (
 	"tidbyt.dev/community/apps/weathermap"
 	"tidbyt.dev/community/apps/web3counter"
 	"tidbyt.dev/community/apps/whosthatpokemon"
+	"tidbyt.dev/community/apps/wnbascores"
 	"tidbyt.dev/community/apps/wordlebyt"
 	"tidbyt.dev/community/apps/wordoftheday"
 	"tidbyt.dev/community/apps/worldclock"
@@ -200,6 +204,7 @@ func GetManifests() []manifest.Manifest {
 		dateprogress.New(),
 		datetimeclock.New(),
 		daynightmap.New(),
+		desknametag.New(),
 		destiny2stats.New(),
 		digibyteprice.New(),
 		digitalrain.New(),
@@ -266,6 +271,7 @@ func GetManifests() []manifest.Manifest {
 		nightscout.New(),
 		nixelclock.New(),
 		noaabuoy.New(),
+		noaatides.New(),
 		nyancat.New(),
 		nycbus.New(),
 		ogsgamesviewer.New(),
@@ -281,6 +287,7 @@ func GetManifests() []manifest.Manifest {
 		pubgstats.New(),
 		pulsechain.New(),
 		purpleair.New(),
+		randomcats.New(),
 		randomslackmoji.New(),
 		redditimages.New(),
 		redditrplace.New(),
@@ -331,6 +338,7 @@ func GetManifests() []manifest.Manifest {
 		weathermap.New(),
 		web3counter.New(),
 		whosthatpokemon.New(),
+		wnbascores.New(),
 		wordlebyt.New(),
 		wordoftheday.New(),
 		worldclock.New(),
