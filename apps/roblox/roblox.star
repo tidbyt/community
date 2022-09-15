@@ -15,17 +15,16 @@ load("encoding/base64.star", "base64")
 
 ### CONSTANTS
 TTL_SECONDS = 240
-CLEAR_CACHE_TTL_SECONDS = 0
 TRIO_CIRCLES_TOP_OFFSET = 12
+
+### DEFAULTS
 DEFAULT_DARK_MODE = True
 DEFAULT_USER_NAME = "C0DESTR0NG"
+DEFAULT_ACCENT_COLOR = "#f77a24"
 
 ### VIEW MODES
 VIEW_FRIENDS = "view_friends"
 VIEW_FAVORITE_GAMES = "view_favorite_games"
-
-### COLORS
-DEFAULT_ACCENT_COLOR = "#f77a24"
 
 def main(config):
     ### SET VIEW MODE FROM APP CONFIG SETTINGS
@@ -37,19 +36,11 @@ def main(config):
     ### SET IS DARK MODE FROM APP CONFIG SETTINGS
     dark_mode = config.bool("dark_mode") if config.bool("dark_mode") != None and config.bool("dark_mode") != "" else DEFAULT_DARK_MODE
 
-    ### CHECK IF USERNAME RECNTLY UPDATED IN APP CONFIG SETTINGS
-    user_name_cached = cache.get("cached_user_name")
-    if str(user_name_cached) != config.str("username"):
-        print("Found new user name")
-        clearCaches()
-
-    cache.set("cached_user_name", config.str("username") if config.str("username") != None and config.str("username") != "" else DEFAULT_USER_NAME, ttl_seconds = TTL_SECONDS)
-
     ### SET USERNAME
     username = config.str("username") if config.str("username") != None and config.str("username") != "" else DEFAULT_USER_NAME
 
     ### GET USER ID
-    user_id_cached = cache.get("user_id")
+    user_id_cached = cache.get("user_id_%s" % username)
     if user_id_cached != None and user_id_cached != str(""):
         print("Using cached user id")
         userRobloxId = str(user_id_cached)
@@ -60,7 +51,7 @@ def main(config):
             print("Fetching user id")
             userId = "%d" % repGetUserId.json()["data"][0]["id"] if len(repGetUserId.json()["data"]) > 0 else ""
             userRobloxId = "%s" % userId
-            cache.set("user_id", str(userRobloxId), ttl_seconds = TTL_SECONDS)
+            cache.set("user_id_%s" % username, str(userRobloxId), ttl_seconds = TTL_SECONDS)
         else:
             userRobloxId = ""
 
@@ -109,7 +100,7 @@ def main(config):
         )
 
     ### GET USER AVATAR
-    user_avatar_url_cached = cache.get("user_avatar_url")
+    user_avatar_url_cached = cache.get("user_avatar_url_%s" % username)
     if user_avatar_url_cached != None and user_avatar_url_cached != str(""):
         print("Using cached user avatar url")
         profilePhotoUrl = str(user_avatar_url_cached)
@@ -122,13 +113,12 @@ def main(config):
             profilePhotoUrl = ""
         else:
             profilePhotoUrl = repGetProfilePhoto.json()["data"][0]["imageUrl"]
+            cache.set("user_avatar_url_%s" % username, str(profilePhotoUrl), ttl_seconds = TTL_SECONDS)
 
     profilePhotoImg = http.get(profilePhotoUrl).body() if profilePhotoUrl != "" else ""
 
-    cache.set("user_avatar_url", str(profilePhotoUrl), ttl_seconds = TTL_SECONDS)
-
     ### GET ONLINE STYLE
-    user_online_status_cached = cache.get("user_online_status")
+    user_online_status_cached = cache.get("user_online_status_%s" % username)
     if user_online_status_cached != None and user_online_status_cached != str(""):
         print("Using cached user online status")
         isOnline = json.decode(user_online_status_cached)
@@ -141,13 +131,12 @@ def main(config):
             isOnline = False
         else:
             isOnline = repGetUserOnlineStatus.json()["IsOnline"]
-
-    cache.set("user_online_status", json.encode(isOnline), ttl_seconds = TTL_SECONDS)
+            cache.set("user_online_status_%s" % username, json.encode(isOnline), ttl_seconds = TTL_SECONDS)
 
     ### FRIEND MODE
     if view_mode == VIEW_FRIENDS:
         ### GET USER FRIENDS
-        user_friend_list_cached = cache.get("user_friend_list")
+        user_friend_list_cached = cache.get("user_friend_list_%s" % username)
         if user_friend_list_cached != None and user_friend_list_cached != str(""):
             print("Using cached user friend list")
             userFriends = json.decode(user_friend_list_cached)
@@ -160,8 +149,7 @@ def main(config):
                 userFriends = []
             else:
                 userFriends = repGetUsersFriends.json()["data"]
-
-        cache.set("user_friend_list", json.encode(userFriends), ttl_seconds = TTL_SECONDS)
+                cache.set("user_friend_list_%s" % username, json.encode(userFriends), ttl_seconds = TTL_SECONDS)
 
         ### POPULATE FRIENDS LIST
         friendsList = []
@@ -211,7 +199,7 @@ def main(config):
         ### FAVORITE GAME MODE
     else:
         ### GET USER FAVORITE GAMES
-        user_favorite_games_list_cached = cache.get("user_favorite_games_list")
+        user_favorite_games_list_cached = cache.get("user_favorite_games_list_%s" % username)
         if user_favorite_games_list_cached != None and user_favorite_games_list_cached != str(""):
             print("Using cached user favorite game list")
             userFavoriteGames = json.decode(user_favorite_games_list_cached)
@@ -224,13 +212,12 @@ def main(config):
                 userFavoriteGames = []
             else:
                 userFavoriteGames = repGetUsersFavoriteGames.json()["data"]
-
-        cache.set("user_favorite_games_list", json.encode(userFavoriteGames), ttl_seconds = TTL_SECONDS)
+                cache.set("user_favorite_games_list_%s" % username, json.encode(userFavoriteGames), ttl_seconds = TTL_SECONDS)
 
         ### POPULATE FAVORITE GAMES RENDER LIST
         favoriteGamesList = []
         for game in userFavoriteGames:
-            getGameAvatar = "https://thumbnails.roblox.com/v1/games/icons?universeIds=%d&size=256x256&format=Png&isCircular=false" % game["id"]
+            getGameAvatar = "https://thumbnails.roblox.com/v1/games/icons?universeIds=%d&size=50x50&format=Png&isCircular=false" % game["id"]
             repGetUserGame = http.get(getGameAvatar)
             gameObject = {"avatarUrl": repGetUserGame.json()["data"][0]["imageUrl"]}
             favoriteGamesList.append(gameObject)
@@ -315,15 +302,6 @@ def main(config):
             ],
         ),
     )
-
-def clearCaches():
-    cache.set("user_id", str(""), ttl_seconds = CLEAR_CACHE_TTL_SECONDS)
-    cache.set("user_avatar_url", str(""), ttl_seconds = CLEAR_CACHE_TTL_SECONDS)
-    cache.set("cached_user_name", str(""), ttl_seconds = CLEAR_CACHE_TTL_SECONDS)
-    cache.set("user_friend_list", str(""), ttl_seconds = CLEAR_CACHE_TTL_SECONDS)
-    cache.set("user_online_status", str(""), ttl_seconds = CLEAR_CACHE_TTL_SECONDS)
-    cache.set("user_favorite_games_list", str(""), ttl_seconds = CLEAR_CACHE_TTL_SECONDS)
-    return
 
 def get_schema():
     userIcons = ("userAstronaut", "userDoctor", "userTie", "userNurse", "userNinja")
