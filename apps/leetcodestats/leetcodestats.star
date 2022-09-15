@@ -40,7 +40,7 @@ HIST_MAX_LENGTH_CACHE_KEY = "{0}^hist_max_length"
 CACHE_LIFE_LENGTH_SECONDS = 300
 
 def main(config):
-    user_name = config.get("user_name") or None
+    user_name = config.get("user_name") or "LeetCode"
 
     if user_name == None:
         return render.Root(
