@@ -4,7 +4,7 @@ Summary: Costco Gas Display
 Description: Displays gas prices from a selected Costco warehouse in the US.
 Author: Dan Adam
 """
-# Revised: 2022-09-12
+# Revised: 2022-09-15
 # Thanks: Portions of the code were adapted from the sf_next_muni applet written by Martin Strauss
 # Attribution: Gas Icon from "https://www.iconfinder.com/icons/111078/gas_icon", Costco Icon from "https://play-lh.googleusercontent.com/gqOziTbVWioRJtHh7OvfOq07NCTcAHKWBYPQKJOZqNcczpOz5hdrnQNY7i2OatJxmuY=w240-h480-rw"
 
@@ -16,6 +16,7 @@ load("render.star", "render")
 load("schema.star", "schema")
 load("re.star", "re")
 load("time.star", "time")
+load("humanize.star", "humanize")
 
 DEFAULT_LOCATION = """
 {
@@ -206,7 +207,7 @@ def get_cached_data(url, ttl):
 
 def get_warehouses(location):
     loc = json.decode(location)
-    warehouses = get_cached_data(API_WAREHOUSE_SEARCH.format("&latitude=" + loc["lat"] + "&longitude=" + loc["lng"]), 86400)
+    warehouses = get_cached_data(API_WAREHOUSE_SEARCH.format("&latitude=" + humanize.float("#.#", float(loc["lat"])) + "&longitude=" + humanize.float("#.#", float(loc["lng"]))), 86400)
 
     return [
         schema.Option(
