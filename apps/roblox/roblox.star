@@ -1,7 +1,7 @@
 """
 Applet: Roblox
 Summary: Online friends & games
-Description: Real-time views of your Roblox experiences.
+Description: Real time views of your Roblox experiences.
 Author: Chad Milburn / CODESTRONG
 """
 
