@@ -154,14 +154,14 @@ def get_schema():
                 id = "warehouse_by_loc",
                 name = "Warehouse",
                 desc = "A list of warehouses by location",
-                icon = "location-dot",
+                icon = "locationDot",
                 handler = get_warehouses,
             ),
             schema.Toggle(
                 id = "show_hours",
                 name = "Show Hours",
                 desc = "Show open hours for the current day. If enabled, icon won't show.",
-                icon = "business-time",
+                icon = "businessTime",
                 default = DEFAULT_CONFIG["show_hours"],
             ),
             schema.Dropdown(
