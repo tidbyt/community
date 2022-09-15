@@ -118,7 +118,7 @@ def main():
         for name, color in GREEN_FUEL_TYPES.items()
     ]
 
-    return render.Root(delay = 1 * 1000, child = render.Animation(
+    return render.Root(delay = 10 * 1000, child = render.Animation(
         [baseline_stack] + segmented_plots,
     ))
 
