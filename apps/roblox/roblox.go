@@ -15,9 +15,9 @@ func New() manifest.Manifest {
 	return manifest.Manifest{
 		ID:          "roblox",
 		Name:        "Roblox",
-		Author:      "CODESTRONG by Chad Milburn",
+		Author:      "Chad Milburn / CODESTRONG",
 		Summary:     "Online friends & games",
-		Desc:        "Real time views of your Roblox experiences.",
+		Desc:        "Real-time views of your Roblox experiences.",
 		FileName:    "roblox.star",
 		PackageName: "roblox",
 		Source:  source,
