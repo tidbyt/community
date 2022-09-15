@@ -1,7 +1,7 @@
 """
 Applet: PurpleAir
 Summary: Displays local air quality
-Description: Display air quality near you from a PurpleAir sensor.
+Description: Displays the local air quality index from a nearby PurpleAir sensor. Choose a sensor close to you or provide a specific sensor id.
 Author: posburn
 """
 
@@ -18,8 +18,13 @@ load("secret.star", "secret")
 # DEFAULTS
 
 DEFAULT_SENSOR_ID = "33997"  # Alcatraz Dock sensor
-DEFAULT_LOCATION_BASED_SENSOR = '{"display": "Bay Area Discover Museum", "value": 38061}'
-DEFAULT_TEMP_UNIT = "F"
+DEFAULT_LOCATION_BASED_SENSOR = '{"display": "SF Maritime NHP", "value": 70251}'
+TEMP_UNIT_F = "F"
+TEMP_UNIT_C = "C"
+DEFAULT_TEMP_UNIT = TEMP_UNIT_F
+DEFAULT_PARTICLE_SENSOR = "A and B sensors (avg)"
+PARTICLE_SENSOR_A = "Sensor A"
+PARTICLE_SENSOR_B = "Sensor B"
 
 # MAIN APP
 
@@ -33,6 +38,10 @@ def main(config):
     temp_unit = config.get("temp_unit")
     if temp_unit == None:
         temp_unit = DEFAULT_TEMP_UNIT
+
+    particle_sensor = config.get("particle_sensor")
+    if particle_sensor == None:
+        particle_sensor = DEFAULT_PARTICLE_SENSOR
 
     temp = 0
     aqi = 0
@@ -61,7 +70,12 @@ def main(config):
 
         pm_a = data[0].get("pm_a", 0)
         pm_b = data[0].get("pm_b", 0)
-        aqi = epa_AQI(pm_a, pm_b, humidity)
+        confidence = data[0].get("confidence", 0)
+        confidenceAuto = data[0].get("confidenceAuto", -1)
+        aqi = epa_AQI(pm_a, pm_b, humidity, particle_sensor, confidence, confidenceAuto)
+
+        if data[0].get("locationType", 0) == 1:
+            name = "%s\n(inside)" % name
 
     return render.Root(
         child = render.Stack(
@@ -137,10 +151,22 @@ def get_schema():
                 name = "Temperature unit",
                 desc = "Temperature unit",
                 icon = "gear",
-                default = "F",
+                default = DEFAULT_TEMP_UNIT,
                 options = [
-                    schema.Option(display = "Fahrenheit", value = "F"),
-                    schema.Option(display = "Celsius", value = "C"),
+                    schema.Option(display = "Fahrenheit", value = TEMP_UNIT_F),
+                    schema.Option(display = "Celsius", value = TEMP_UNIT_C),
+                ],
+            ),
+            schema.Dropdown(
+                id = "particle_sensor",
+                name = "Particle sensor",
+                desc = "Particle sensor(s) to use in calculation",
+                icon = "gear",
+                default = DEFAULT_PARTICLE_SENSOR,
+                options = [
+                    schema.Option(display = DEFAULT_PARTICLE_SENSOR, value = DEFAULT_PARTICLE_SENSOR),
+                    schema.Option(display = PARTICLE_SENSOR_A, value = PARTICLE_SENSOR_A),
+                    schema.Option(display = PARTICLE_SENSOR_B, value = PARTICLE_SENSOR_B),
                 ],
             ),
         ],
@@ -239,7 +265,7 @@ def get_sensor_id(config):
 
     # User can specify the sensor id directly
     id_option = config.get("sensor_id_direct")
-    if id_option != None:
+    if id_option != None and id_option != "":
         sensor = str(json.decode(id_option))
         print("Sensor direct: %s" % id_option)
 
@@ -288,8 +314,11 @@ def fetch_sensor_data(api_key, url, params, cache_key):
                 humidity = sensor.get("humidity", 0)
                 humidity = max(humidity + 4, 0)  # Humidity reported 4F lower so adjust
 
-                pm_a = sensor.get("pm2.5_a", 0)
-                pm_b = sensor.get("pm2.5_b", 0)
+                pm_a = sensor.get("pm2.5_cf_1_a", 0)
+                pm_b = sensor.get("pm2.5_cf_1_b", 0)
+                confidence = sensor.get("confidence", 0)
+                confidenceAuto = sensor.get("confidence_auto", -1)
+                locationType = sensor.get("location_type", 0)
 
                 air_dict = {
                     "name": name,
@@ -297,6 +326,9 @@ def fetch_sensor_data(api_key, url, params, cache_key):
                     "humidity": humidity,
                     "pm_a": pm_a,
                     "pm_b": pm_b,
+                    "confidence": confidence,
+                    "confidenceAuto": confidenceAuto,
+                    "locationType": locationType,
                 }
 
                 air_cached = json.encode(air_dict)
@@ -331,12 +363,34 @@ def fetch_sensor_list(api_key, url, params, cache_key):
 
 # AQI & CALCULATIONS
 
-def epa_AQI(pm25A, pm25B, humidity):
+def epa_AQI(pm25A, pm25B, humidity, particle_sensor, confidence, confidenceAuto):
+    # By default, average both particle sensors
+    pmValue = (pm25A + pm25B) / 2
+
+    # If the sensor's confidence is 0 then one or both sensors isn't working. Try to
+    # use the other 'good' sensor by detecting if the PM 2.5 value is out of range.
+    # Note: Upper range of 1000 ug/m^3 comes from https://www.plantower.com/en/products_33/74.html
+    if confidence == 0:
+        if pm25A <= 0 or pm25A > 1000:
+            pmValue = pm25B
+        elif pm25B <= 0 or pm25B > 1000:
+            pmValue = pm25A
+
+    # If this is a device with only one sensor, the confidence_auto property will be
+    # missing. In this case use the A sensor
+    if confidenceAuto == -1 and pm25B == 0:
+        pmValue = pm25A
+
+    # The user can choose which sensor to use though so check that
+    if particle_sensor == PARTICLE_SENSOR_A:
+        pmValue = pm25A
+    elif particle_sensor == PARTICLE_SENSOR_B:
+        pmValue = pm25B
+
     # EPA adjustment for wood smoke and PurpleAir from https://cfpub.epa.gov/si/si_public_record_report.cfm?dirEntryId=349513
-    # PM 2.5 corrected = 0.534*[PA_cf1(avgAB)] - 0.0844*RH +5.604 (Slide 25)
-    # PM 2.5 corrected = 0.52*[PA_cf1(avgAB)] - 0.085*RH +5.71 (Slide 8) - I'm using this one
-    avgAB = (pm25A + pm25B) / 2
-    pm25_corrected = 0.52 * avgAB - 0.085 * humidity + 5.71
+    # PM 2.5 corrected = 0.534*[PA_cf1(avgAB)] - 0.0844*RH +5.604 (Slide 25) - I'm using this one
+    # PM 2.5 corrected = 0.52*[PA_cf1(avgAB)] - 0.085*RH +5.71 (Slide 8)
+    pm25_corrected = 0.534 * pmValue - 0.0844 * humidity + 5.604
 
     return aqi_from_PM(pm25_corrected)
 
@@ -440,7 +494,7 @@ def display_aqi(aqi):
     return ("%s" % aqi).replace(".0", "")
 
 def display_temp(temp, temp_unit = DEFAULT_TEMP_UNIT):
-    if temp_unit == "C":
+    if temp_unit == TEMP_UNIT_C:
         temp = int((temp - 32) * 0.5555555559)
     return ("%s°%s" % (temp, temp_unit)).replace(".0", "")
 

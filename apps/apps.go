@@ -27,6 +27,7 @@ import (
 	"tidbyt.dev/community/apps/clockbyhenry"
 	"tidbyt.dev/community/apps/cltlightrail"
 	"tidbyt.dev/community/apps/coingeckoprice"
+	"tidbyt.dev/community/apps/colorfulclock"
 	"tidbyt.dev/community/apps/countdownclock"
 	"tidbyt.dev/community/apps/cryptotracker"
 	"tidbyt.dev/community/apps/dailykanji"
@@ -82,6 +83,7 @@ import (
 	"tidbyt.dev/community/apps/mlbstandings"
 	"tidbyt.dev/community/apps/mlsscores"
 	"tidbyt.dev/community/apps/mnlightrail"
+	"tidbyt.dev/community/apps/moonphase"
 	"tidbyt.dev/community/apps/moretransit"
 	"tidbyt.dev/community/apps/moviequotes"
 	"tidbyt.dev/community/apps/natdex"
@@ -123,6 +125,7 @@ import (
 	"tidbyt.dev/community/apps/sbbtimetable"
 	"tidbyt.dev/community/apps/severewxalertsusa"
 	"tidbyt.dev/community/apps/sfnextmuni"
+	"tidbyt.dev/community/apps/shabbat"
 	"tidbyt.dev/community/apps/shopifychart"
 	"tidbyt.dev/community/apps/shuffleimages"
 	"tidbyt.dev/community/apps/snyk"
@@ -168,6 +171,7 @@ import (
 	"tidbyt.dev/community/apps/weathermap"
 	"tidbyt.dev/community/apps/web3counter"
 	"tidbyt.dev/community/apps/whosthatpokemon"
+	"tidbyt.dev/community/apps/wifiqrcode"
 	"tidbyt.dev/community/apps/wnbascores"
 	"tidbyt.dev/community/apps/wordlebyt"
 	"tidbyt.dev/community/apps/wordoftheday"
@@ -198,6 +202,7 @@ func GetManifests() []manifest.Manifest {
 		clockbyhenry.New(),
 		cltlightrail.New(),
 		coingeckoprice.New(),
+		colorfulclock.New(),
 		countdownclock.New(),
 		cryptotracker.New(),
 		dailykanji.New(),
@@ -252,6 +257,7 @@ func GetManifests() []manifest.Manifest {
 		mlbstandings.New(),
 		mlsscores.New(),
 		mnlightrail.New(),
+		moonphase.New(),
 		moretransit.New(),
 		moviequotes.New(),
 		natdex.New(),
@@ -293,6 +299,7 @@ func GetManifests() []manifest.Manifest {
 		sbbtimetable.New(),
 		severewxalertsusa.New(),
 		sfnextmuni.New(),
+		shabbat.New(),
 		shopifychart.New(),
 		shuffleimages.New(),
 		snyk.New(),
@@ -338,6 +345,7 @@ func GetManifests() []manifest.Manifest {
 		weathermap.New(),
 		web3counter.New(),
 		whosthatpokemon.New(),
+		wifiqrcode.New(),
 		wnbascores.New(),
 		wordlebyt.New(),
 		wordoftheday.New(),

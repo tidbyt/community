@@ -140,6 +140,7 @@ def main(config):
     debug_print("############################################################")
     data = dict()
     units_pref = config.get("h_units", "feet")
+    time_format = config.get("time_format", "24HR")
     units = "ft"
     station_id = config.get("station_id", "")
     debug_print("station id from config.get: " + station_id)
@@ -182,6 +183,8 @@ def main(config):
 
     line_color = color_low
     lines = list()
+    lines_left = list()
+    lines_right = list()
     if tides and "predictions" in tides:
         for pred in tides["predictions"]:
             if units_pref == "meters":
@@ -194,30 +197,60 @@ def main(config):
                 # chop off the decimal if we've got a huge tide
                 v = int(v)
             t = pred["t"][11:]  # strip the date from the front = start to first occurence of a space
-            line = "%s -%s- %s%s" % (pred["t"][11:], pred["type"], v, units)
-            debug_print(line)
+            if time_format == "AMPM":
+                m = "a"
+                hr = int(t[0:2])
+                mn = t[3:5]
+                if hr > 12:
+                    m = "p"
+                    hr = hr - 12
+                if hr < 10:  # pad a space
+                    hr = "0" + str(hr)
+
+                left_side = "%s %s:%s%s" % (pred["type"], hr, mn, m)
+                right_side = "%s%s" % (v, units)
+            else:
+                left_side = "%s %s" % (pred["type"], t)
+                right_side = "%s%s" % (v, units)
             if "H" in pred["type"]:
                 line_color = color_high
             else:
                 line_color = color_low
 
             lines.append(
-                render.Text(
-                    content = line,
-                    font = "tb-8",
-                    color = line_color,
+                render.Row(
+                    expanded = True,
+                    children = [
+                        render.Row(
+                            main_align = "start",
+                            children = [render.Text(
+                                content = left_side,
+                                font = "tb-8",
+                                color = line_color,
+                            )],
+                        ),
+                        render.Row(
+                            expanded = True,
+                            main_align = "end",
+                            children = [render.Text(
+                                content = right_side,
+                                font = "tb-8",
+                                color = line_color,
+                            )],
+                        ),
+                    ],
                 ),
             )
     else:  # render an error message
-        lines.append(render.Text(
-            content = "Whoops",
+        lines.append(render.WrappedText(
+            content = "Invalid Station ID",
             font = "tb-8",
             color = "#FF0000",
+            align = "center",
         ))
     return render.Root(
         child = render.Box(
             render.Column(
-                cross_align = "left",
                 main_align = "left",
                 children = lines,
             ),
@@ -241,6 +274,10 @@ def get_schema():
     h_unit_options = [
         schema.Option(display = "feet", value = "feet"),
         schema.Option(display = "meters", value = "meters"),
+    ]
+    time_formats = [
+        schema.Option(display = "24HR", value = "24HR"),
+        schema.Option(display = "AM/PM", value = "AMPM"),
     ]
     fields = []
     if not production:
@@ -291,6 +328,16 @@ def get_schema():
             desc = "The color to use for low tides.",
             default = colors[3].value,
             options = colors,
+        ),
+    )
+    fields.append(
+        schema.Dropdown(
+            id = "time_format",
+            name = "Time Format",
+            icon = "quoteRight",
+            desc = "Use AM/PM or 24 hour time",
+            options = time_formats,
+            default = "24HR",
         ),
     )
     fields.append(
