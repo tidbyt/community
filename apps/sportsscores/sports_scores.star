@@ -6,7 +6,7 @@ Author: rs7q5
 """
 #sports_scores.star
 #Created 20220220 RIS
-#Last Modified 20220827 RIS
+#Last Modified 20220908 RIS
 
 load("render.star", "render")
 load("http.star", "http")
@@ -185,6 +185,13 @@ def get_schema():
                 default = False,
             ),
             schema.Toggle(
+                id = "hide_ordinal",
+                name = "Hide the ordinal endings to the game status?",
+                desc = "Enable to hide ordinal endings (e.g. only show 1 instead of 1st).",
+                icon = "eyeSlash",
+                default = False,
+            ),
+            schema.Toggle(
                 id = "highlight_winner",
                 name = "Highlight winner?",
                 desc = "Enable to highlight the winner of a completed game.",
@@ -313,6 +320,10 @@ def get_frames(stats, league_txt, font, config):
         status_tmp = team["status"].split("/")
         if status_tmp[0] == "time":  #reformat game time
             status_tmp = adjust_gametime(status_tmp[1], config).split("/")
+        elif config.bool("hide_ordinal", False) and len(status_tmp) == 2:
+            if status_tmp[1].endswith(("st", "nd", "rd", "th")):
+                for suffix in ("st", "nd", "rd", "th"):
+                    status_tmp[1] = status_tmp[1].removesuffix(suffix)
 
         #additional color options
         ctmp_away = ctmp
