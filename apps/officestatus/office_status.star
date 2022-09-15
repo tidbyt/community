@@ -258,7 +258,7 @@ def refreshGraphAccessToken(config):
     else:
         return cache.get(graph_refresh_token)
 
-def getGraphEvents(config, graph_access_token):
+def getGraphEvents(graph_access_token, timezone):
     # Calls graph calendar view api
     # Returns all busy, out of office, or working elsewhere events
     # From the user's default outlook calendar for the day
@@ -266,7 +266,6 @@ def getGraphEvents(config, graph_access_token):
     if graph_events_cached != None:
         return json.decode(graph_events_cached)
     else:
-        timezone = json.decode(config.get("location", DEFAULT_LOCATION))["timezone"]
         current_time = time.now().in_location(timezone)
         current_date = current_time.format("2006-01-02T")
         current_timezone = current_time.format("Z07:00")
@@ -391,9 +390,9 @@ def getGraphNextEvent(graph_events):
         ):
             return graph_event
 
-def getGraphStatus(config, graph_access_token):
+def getGraphStatus(graph_access_token, timezone):
     # Determines a user's status based on graph events returned
-    graph_events = getGraphEvents(config, graph_access_token)
+    graph_events = getGraphEvents(graph_access_token, timezone)
     graph_current_events = getGraphCurrentEvents(graph_events)
     graph_oof_event = getGraphLatestOofEvent(graph_current_events)
     graph_busy_event = getGraphLatestBusyEvent(graph_current_events)
@@ -622,35 +621,30 @@ def getAvailability(calendar_app_status, messaging_app_status):
             "time": None,
         }
 
-def getSchedule(availability):
+def getSchedule(availability, timezone):
     # Accepts a json object representing the user's availability
     # Returns a string to display the user's schedule
     if (availability["time"] != None):
         if (
             (
-                time.parse_time(
-                    availability["time"],
-                    "2006-01-02T15:04:05",
-                ) != time.parse_time(
-                    (
-                        time.now().in_location("UTC") +
-                        time.parse_duration("24h")
-                    ).format("2006-01-02") +
-                    "T00:00:00",
-                    "2006-01-02T15:04:05",
+                availability["isAllDay"] == False
+            ) or (
+                availability["isAllDay"] == True
+                and (
+                    time.parse_time(availability["time"], "2006-01-02T15:04:05",).format("2006-01-02")
+                    != (time.now().in_location(timezone) + time.parse_duration("24h")).format("2006-01-02")
                 )
-            ) and availability["isAllDay"] != True
+            )
         ):
             relative_time = humanize.relative_time(
-                time.now(),
+                time.now().in_location("UTC"),
                 time.parse_time(
                     availability["time"],
                     "2006-01-02T15:04:05",
                 ),
             )
             relative_time = re.sub("(minutes|minute)", "min", relative_time)
-            return (STATUS_MAP[availability["status"]]["schedule_prefix"] +
-                    relative_time)
+            return (STATUS_MAP[availability["status"]]["schedule_prefix"] + relative_time)
         else:
             return "Until tomorrow"
     else:
@@ -658,11 +652,12 @@ def getSchedule(availability):
 
 def main(config):
     name = config.str("name", DEFAULT_NAME)
+    timezone = json.decode(config.get("location", DEFAULT_LOCATION))["timezone"]
 
     # Retrieve Graph API access token, returns None if user is not logged in
     graph_access_token = refreshGraphAccessToken(config)
     if (graph_access_token != None):
-        calendar_app_status = getGraphStatus(config, graph_access_token)
+        calendar_app_status = getGraphStatus(graph_access_token, timezone)
     else:
         calendar_app_status = None
 
@@ -677,7 +672,7 @@ def main(config):
     status = STATUS_MAP[availability["status"]]["status_label"].upper()
     color = STATUS_MAP[availability["status"]]["color"]
     image = base64.decode(STATUS_MAP[availability["status"]]["image"])
-    schedule = getSchedule(availability)
+    schedule = getSchedule(availability, timezone)
 
     return render.Root(
         delay = 125,
