@@ -10,6 +10,7 @@ load("http.star", "http")
 load("html.star", "html")
 load("encoding/base64.star", "base64")
 load("cache.star", "cache")
+load("random.star", "random")
 
 # 16x16
 VERGE_LOGO = base64.decode("""
@@ -43,6 +44,16 @@ suYwsTIxNLkxQDEyBEgDTDZAMjs1Qgy9jUyMTMxBzEB8uASKBKL
 gDqFxF08kI1lQAAAABJRU5ErkJggg==
 """)
 
+NEW_VERGE_TEAL = "#3cffd0"
+NEW_VERGE_PURP = "#5200ff"
+NEW_VERGE_ORAN = "#ff3d00"
+NEW_VERGE_YELL = "#d6f31f"
+NEW_VERGE_PINK = "#ffc2e7"
+
+NEW_VERGE_LOGO = base64.decode("""
+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
+""")
+
 PLACEHOLDER_IMG = base64.decode("""
 iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAAAXN
 SR0IArs4c6QAAAERlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGg
@@ -54,28 +65,23 @@ PLACEHOLDER_TEXT = "THE VERGE"
 
 SITE = "https://www.theverge.com"
 CACHE_KEY_TAGLINE = "verge-dot-com-tagline"
-CACHE_KEY_TOP_IMG = "verge-dot-com-header"
-SELECTOR_TAGLINE = "span.c-masthead__tagline > a"
-SELECTOR_TOP_IMG = "div.c-masthead__main"
+SELECTOR_TAGLINE = ".duet--recirculation--storystream-header > p > span > a"
 
 def main():
     tagline = cache.get(CACHE_KEY_TAGLINE)
-    top_img = cache.get(CACHE_KEY_TOP_IMG)
 
-    if tagline == None or top_img == None:
+    if tagline == None:
         resp = http.get(SITE)
         html_body = html(resp.body())
         tagline = get_tagline(html_body)
-        top_img = get_top_img(html_body)
         cache.set(CACHE_KEY_TAGLINE, tagline, ttl_seconds = 900)
-        cache.set(CACHE_KEY_TOP_IMG, top_img, ttl_seconds = 900)
 
     return render.Root(
         child = render.Column(
             expanded = True,
             main_align = "space_evenly",
             cross_align = "center",
-            children = content(tagline, top_img),
+            children = content(tagline),
         ),
     )
 
@@ -86,27 +92,9 @@ def get_tagline(html_body):
     else:
         return text
 
-def get_top_img(html_body):
-    header_style = html_body.find(SELECTOR_TOP_IMG).attr("style")
-    style_parts = header_style.split("(")
-    url = None
-    last_part = None
-    for style_part in style_parts:
-        if last_part != None and last_part.startswith("background-image:"):
-            if style_part.startswith("https"):
-                url = style_part.removesuffix(")")
-        last_part = style_part
-
-    image_content = None
-    if url != None:
-        resp = http.get(url)
-        return resp.body()
-    else:
-        return PLACEHOLDER_IMG
-
-def content(value, img):
+def content(value):
     return [
-        image_stack(img),
+        image_stack(),
         render.Marquee(
             height = 8,
             width = 64,
@@ -120,16 +108,23 @@ def content(value, img):
         ),
     ]
 
-def image_stack(img):
-    return render.Stack(
-        children = [
-            render.Padding(
-                pad = (-16, 0, -16, 0),
-                child = render.Image(src = img, width = 96, height = 24),
-            ),
-            render.Box(
-                child = render.Image(src = VERGE_LOGO),
-                height = 24,
-            ),
-        ],
+def background():
+    number = random.number(1, 100)
+    if number <= 20:
+        return NEW_VERGE_ORAN
+    elif number > 20 and number <= 40:
+        return NEW_VERGE_PINK
+    elif number > 40 and number <= 60:
+        return NEW_VERGE_YELL
+    elif number > 60 and number <= 80:
+        return NEW_VERGE_TEAL
+    else:
+        return NEW_VERGE_PURP
+
+def image_stack():
+    return render.Box(
+        color = background(),
+        child = render.Image(src = NEW_VERGE_LOGO),
+        height = 24,
+        width = 64,
     )
