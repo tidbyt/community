@@ -22,6 +22,7 @@ import (
 	"tidbyt.dev/community/apps/binaryclock"
 	"tidbyt.dev/community/apps/blackout"
 	"tidbyt.dev/community/apps/burgeroftheday"
+	"tidbyt.dev/community/apps/carenewables"
 	"tidbyt.dev/community/apps/charlestownferry"
 	"tidbyt.dev/community/apps/chessviewer"
 	"tidbyt.dev/community/apps/climateclock"
@@ -111,6 +112,7 @@ import (
 	"tidbyt.dev/community/apps/nycbus"
 	"tidbyt.dev/community/apps/ogsgamesviewer"
 	"tidbyt.dev/community/apps/ohhighwaysigns"
+	"tidbyt.dev/community/apps/outlookcalendar"
 	"tidbyt.dev/community/apps/pagerduty"
 	"tidbyt.dev/community/apps/pathtrainschedule"
 	"tidbyt.dev/community/apps/petpikachu"
@@ -201,6 +203,7 @@ func GetManifests() []manifest.Manifest {
 		binaryclock.New(),
 		blackout.New(),
 		burgeroftheday.New(),
+		carenewables.New(),
 		charlestownferry.New(),
 		chessviewer.New(),
 		climateclock.New(),
@@ -289,6 +292,7 @@ func GetManifests() []manifest.Manifest {
 		nycbus.New(),
 		ogsgamesviewer.New(),
 		ohhighwaysigns.New(),
+		outlookcalendar.New(),
 		pagerduty.New(),
 		pathtrainschedule.New(),
 		petpikachu.New(),
