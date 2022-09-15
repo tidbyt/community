@@ -8,6 +8,7 @@ import (
 	"errors"
 
 	"tidbyt.dev/community/apps/abstractclock"
+	"tidbyt.dev/community/apps/advice"
 	"tidbyt.dev/community/apps/afl"
 	"tidbyt.dev/community/apps/ambientweather"
 	"tidbyt.dev/community/apps/analogclock"
@@ -182,6 +183,7 @@ import (
 func GetManifests() []manifest.Manifest {
 	return []manifest.Manifest{
 		abstractclock.New(),
+		advice.New(),
 		afl.New(),
 		ambientweather.New(),
 		analogclock.New(),
