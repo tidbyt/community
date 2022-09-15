@@ -13,19 +13,19 @@ A pulsating green dot will appear if the Roblox user is online, otherwise it wil
 ![Sample Favorite Games View](https://www.dropbox.com/s/pbdxea94fqya76g/roblox_favorite_games.gif?raw=1)
 
 
-## Customization
+### Customization
 
 This app provides various UI options. The user can customize their experience by choosing to show their online friends vs. favorite games views, selecting an accent text color or enabling dark vs. light modes.  
 
 These customizations can be adjusted using the properties of the app.
 
-## Roblox API
+### Roblox API
 
-This app uses public Roblox APIs for accessing [users](https://users.roblox.com/docs), [thumbnails](https://thumbnails.roblox.com/docs), [friends](https://friends.roblox.com/docs) and [games](https://games.roblox.com/docs/) data. (See each APIs static endpoints for more details). These do not require any kind of authentication or API key.
+This app uses public Roblox APIs for accessing [users](https://users.roblox.com/docs), [thumbnails](https://thumbnails.roblox.com/docs), [friends](https://friends.roblox.com/docs) and [games](https://games.roblox.com/docs/) data. (See each API's static endpoints for more details). These do not require any kind of authentication or API key.
 
-## Notes
+### Notes
 
 The app code utilizes cache module and non-disrupting error handling best practices.
 
-## –
+### –
 #### Happy coding! CODE𝗦𝗧𝗥𝗢𝗡𝗚
