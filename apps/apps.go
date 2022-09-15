@@ -120,6 +120,7 @@ import (
 	"tidbyt.dev/community/apps/randomslackmoji"
 	"tidbyt.dev/community/apps/redditimages"
 	"tidbyt.dev/community/apps/redditrplace"
+	"tidbyt.dev/community/apps/roblox"
 	"tidbyt.dev/community/apps/sbbtimetable"
 	"tidbyt.dev/community/apps/severewxalertsusa"
 	"tidbyt.dev/community/apps/sfnextmuni"
@@ -167,6 +168,7 @@ import (
 	"tidbyt.dev/community/apps/weathermap"
 	"tidbyt.dev/community/apps/web3counter"
 	"tidbyt.dev/community/apps/whosthatpokemon"
+	"tidbyt.dev/community/apps/wifiqrcode"
 	"tidbyt.dev/community/apps/wnbascores"
 	"tidbyt.dev/community/apps/wordlebyt"
 	"tidbyt.dev/community/apps/wordoftheday"
@@ -289,6 +291,7 @@ func GetManifests() []manifest.Manifest {
 		randomslackmoji.New(),
 		redditimages.New(),
 		redditrplace.New(),
+		roblox.New(),
 		sbbtimetable.New(),
 		severewxalertsusa.New(),
 		sfnextmuni.New(),
@@ -336,6 +339,7 @@ func GetManifests() []manifest.Manifest {
 		weathermap.New(),
 		web3counter.New(),
 		whosthatpokemon.New(),
+		wifiqrcode.New(),
 		wnbascores.New(),
 		wordlebyt.New(),
 		wordoftheday.New(),
