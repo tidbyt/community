@@ -61,24 +61,20 @@ def main(config):
     hex_price = str("$%f" % float(coin_data["market_data"]["current_price"]["usd"]))
 
     # Get HEX daily data updates
-    daily_data_updates_response = http.post(HEX_SUBGRAPH_URL, body = DAILY_DATA_UPDATES_QUERY, headers = POST_HEADERS)
-    if daily_data_updates_response.status_code != 200:
-        fail("Daily data updates request failed with status %d", daily_data_updates_response.status_code)
+    daily_data_updates_data = post_json_from_cache_or_http(HEX_SUBGRAPH_URL, body = DAILY_DATA_UPDATES_QUERY, headers = POST_HEADERS, cache_name = "dailyDataUpdates", ttl_seconds = 28800)
 
     payout_per_tshare = NO_DATA
 
-    if hasData(daily_data_updates_response.json()):
-        payout_per_tshare = str("%g" % float(daily_data_updates_response.json()["data"]["dailyDataUpdates"][0]["payoutPerTShare"]))
+    if daily_data_updates_data != None:
+        payout_per_tshare = str("%g" % float(daily_data_updates_data["data"]["dailyDataUpdates"][0]["payoutPerTShare"]))
 
     # Get HEX global infos
-    global_infos_response = http.post(HEX_SUBGRAPH_URL, body = GLOBAL_INFOS_QUERY, headers = POST_HEADERS)
-    if global_infos_response.status_code != 200:
-        fail("Global infos request failed with status %d", global_infos_response.status_code)
+    global_infos_data = post_json_from_cache_or_http(HEX_SUBGRAPH_URL, body = GLOBAL_INFOS_QUERY, headers = POST_HEADERS, cache_name = "globalInfos", ttl_seconds = 28800)
 
     share_rate = NO_DATA
 
-    if hasData(global_infos_response.json()):
-        share_rate = str(int(global_infos_response.json()["data"]["globalInfos"][0]["shareRate"]) / 10)
+    if global_infos_data != None:
+        share_rate = str(int(global_infos_data["data"]["globalInfos"][0]["shareRate"]) / 10)
 
     # Setup display rows
     displayRows = []
@@ -146,6 +142,26 @@ def get_json_from_cache_or_http(url, ttl_seconds):
 
         # Store http response in cache keyed off URL
         cache.set(url, json.encode(http_response.json()), ttl_seconds = ttl_seconds)
+        data = http_response.json()
+
+    return data
+
+def post_json_from_cache_or_http(url, body, headers, cache_name, ttl_seconds):
+    # Make cached url key unique by appending body query
+    cached_response = cache.get(cache_name)
+
+    if cached_response != None:
+        print("Cache hit: {}".format(url))
+        data = json.decode(cached_response)
+    else:
+        print("HTTP JSON Request: {}".format(url))
+        http_response = http.post(url, body = body, headers = headers)
+
+        if http_response.status_code != 200:
+            fail("HTTP Request failed with status: {}".format(http_response.status_code))
+
+        # Store http response in cache keyed off URL
+        cache.set(cache_name, json.encode(http_response.json()), ttl_seconds = ttl_seconds)
         data = http_response.json()
 
     return data
