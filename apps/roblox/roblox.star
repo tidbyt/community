@@ -100,22 +100,23 @@ def main(config):
         )
 
     ### GET USER AVATAR
-    user_avatar_url_cached = cache.get("user_avatar_url_%s" % username)
-    if user_avatar_url_cached != None and user_avatar_url_cached != str(""):
-        print("Using cached user avatar url")
-        profilePhotoUrl = str(user_avatar_url_cached)
+    user_avatar_cached = cache.get("user_avatar_%s" % username)
+    if user_avatar_cached != None and user_avatar_cached != str(""):
+        print("Using cached user avatar")
+        profilePhotoImg = str(user_avatar_cached)
     else:
-        print("Fetching user avatar url")
+        print("Fetching user avatar")
         getProfilePhoto = "https://thumbnails.roblox.com/v1/users/avatar-headshot?userIds=%s&size=60x60&format=Png&isCircular=true" % userRobloxId
         repGetProfilePhoto = http.get(getProfilePhoto)
         if repGetProfilePhoto.status_code != 200:
-            print("Fetching user avatar url failed with status %d" % repGetProfilePhoto.status_code)
-            profilePhotoUrl = ""
+            print("Fetching user avatar failed with status %d" % repGetProfilePhoto.status_code)
+            profilePhotoImg = ""
         else:
             profilePhotoUrl = repGetProfilePhoto.json()["data"][0]["imageUrl"]
-            cache.set("user_avatar_url_%s" % username, str(profilePhotoUrl), ttl_seconds = TTL_SECONDS)
+            profilePhotoImg = http.get(profilePhotoUrl).body()
 
-    profilePhotoImg = http.get(profilePhotoUrl).body() if profilePhotoUrl != "" else ""
+        ### Caching profilePhotoImg value from fetched logic
+        cache.set("user_avatar_%s" % username, str(profilePhotoImg), ttl_seconds = TTL_SECONDS)
 
     ### GET ONLINE STYLE
     user_online_status_cached = cache.get("user_online_status_%s" % username)
@@ -131,7 +132,9 @@ def main(config):
             isOnline = False
         else:
             isOnline = repGetUserOnlineStatus.json()["IsOnline"]
-            cache.set("user_online_status_%s" % username, json.encode(isOnline), ttl_seconds = TTL_SECONDS)
+
+        ### Caching isOnline value from fetched logic
+        cache.set("user_online_status_%s" % username, json.encode(isOnline), ttl_seconds = TTL_SECONDS)
 
     ### FRIEND MODE
     if view_mode == VIEW_FRIENDS:
@@ -149,14 +152,16 @@ def main(config):
                 userFriends = []
             else:
                 userFriends = repGetUsersFriends.json()["data"]
-                cache.set("user_friend_list_%s" % username, json.encode(userFriends), ttl_seconds = TTL_SECONDS)
+
+            ### Caching userFriends value from fetched logic
+            cache.set("user_friend_list_%s" % username, json.encode(userFriends), ttl_seconds = TTL_SECONDS)
 
         ### POPULATE FRIENDS LIST
         friendsList = []
         for friend in userFriends:
             getUserAvatar = "https://thumbnails.roblox.com/v1/users/avatar-headshot?userIds=%d&size=48x48&format=Png&isCircular=true" % friend["id"]
             repGetUserAvatar = http.get(getUserAvatar)
-            friendObject = {"id": "%d" % friend["id"], "isOnline": friend["isOnline"], "avatarUrl": repGetUserAvatar.json()["data"][0]["imageUrl"]}
+            friendObject = {"username": friend["name"], "id": "%d" % friend["id"], "isOnline": friend["isOnline"], "avatarUrl": repGetUserAvatar.json()["data"][0]["imageUrl"]}
             friendsList.append(friendObject)
 
         ### SORT BY ONLINE STATUS
@@ -165,10 +170,21 @@ def main(config):
         ### BUILD FRIEND RENDER LIST
         renderFriend = []
         for friend in range(3):
-            friendAvatar = ""
-            if len(userFriends) != 0 and friend < len(userFriends):
-                friendAvatarUrl = friendsList[friend]["avatarUrl"]
-                friendAvatar = http.get(friendAvatarUrl).body()
+            friend_avatar_cached = cache.get("user_avatar_%s" % friendsList[friend]["username"]) if friend < len(userFriends) else ""
+
+            if friend_avatar_cached != None and friend_avatar_cached != str(""):
+                print("Using cached friend avatar")
+                friendAvatar = str(friend_avatar_cached)
+            else:
+                print("Fetching friend avatar")
+                friendAvatar = ""
+                if len(userFriends) != 0 and friend < len(userFriends):
+                    friendAvatarUrl = friendsList[friend]["avatarUrl"]
+                    friendAvatar = http.get(friendAvatarUrl).body()
+
+                ### Caching friendAvatar value from fetched logic
+                if friend < len(userFriends):
+                    cache.set("user_avatar_%s" % friendsList[friend]["username"], str(friendAvatar), ttl_seconds = TTL_SECONDS)
 
             renderFriend.append(
                 render.Padding(
@@ -212,23 +228,36 @@ def main(config):
                 userFavoriteGames = []
             else:
                 userFavoriteGames = repGetUsersFavoriteGames.json()["data"]
-                cache.set("user_favorite_games_list_%s" % username, json.encode(userFavoriteGames), ttl_seconds = TTL_SECONDS)
+
+            ### Caching userFavoriteGames value from fetched logic
+            cache.set("user_favorite_games_list_%s" % username, json.encode(userFavoriteGames), ttl_seconds = TTL_SECONDS)
 
         ### POPULATE FAVORITE GAMES RENDER LIST
         favoriteGamesList = []
         for game in userFavoriteGames:
             getGameAvatar = "https://thumbnails.roblox.com/v1/games/icons?universeIds=%d&size=50x50&format=Png&isCircular=false" % game["id"]
             repGetUserGame = http.get(getGameAvatar)
-            gameObject = {"avatarUrl": repGetUserGame.json()["data"][0]["imageUrl"]}
+            gameObject = {"gameId": "%d" % game["id"], "avatarUrl": repGetUserGame.json()["data"][0]["imageUrl"]}
             favoriteGamesList.append(gameObject)
 
         ### BUILD POPULATE FAVORITE GAMES
         renderGame = []
         for game in range(3):
-            gameAvatar = ""
-            if len(userFavoriteGames) != 0 and game < len(userFavoriteGames):
-                gameAvatarUrl = favoriteGamesList[game]["avatarUrl"]
-                gameAvatar = http.get(gameAvatarUrl).body()
+            game_avatar_cached = cache.get("game_avatar_%s" % favoriteGamesList[game]["gameId"]) if game < len(userFavoriteGames) else ""
+
+            if game_avatar_cached != None and game_avatar_cached != str(""):
+                print("Using cached game avatar")
+                gameAvatar = str(game_avatar_cached)
+            else:
+                print("Fetching game avatar")
+                gameAvatar = ""
+                if len(userFavoriteGames) != 0 and game < len(userFavoriteGames):
+                    gameAvatarUrl = favoriteGamesList[game]["avatarUrl"]
+                    gameAvatar = http.get(gameAvatarUrl).body()
+
+                ### Caching gameAvatar value from fetched logic
+                if game < len(userFavoriteGames):
+                    cache.set("game_avatar_%s" % favoriteGamesList[game]["gameId"], str(gameAvatar), ttl_seconds = TTL_SECONDS)
 
             renderGame.append(
                 render.Padding(
