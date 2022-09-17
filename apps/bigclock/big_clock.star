@@ -9,6 +9,8 @@ Author: Joey Hoer
 
 load("render.star", "render")
 load("schema.star", "schema")
+load("math.star", "math")
+load("re.star", "re")
 load("time.star", "time")
 load("sunrise.star", "sunrise")
 load("encoding/base64.star", "base64")
@@ -24,8 +26,16 @@ DEFAULT_TIMEZONE = "US/Eastern"
 DEFAULT_IS_24_HOUR_FORMAT = True
 DEFAULT_HAS_LEADING_ZERO = False
 DEFAULT_HAS_FLASHING_SEPERATOR = True
-DEFAULT_COLOR_DAYTIME = "#fff"  # White
-DEFAULT_COLOR_NIGHTTIME = "#fff"  # White
+
+# White
+DEFAULT_COLOR_RED_DAYTIME = "255"
+DEFAULT_COLOR_GREEN_DAYTIME = "255"
+DEFAULT_COLOR_BLUE_DAYTIME = "255"
+
+# Red
+DEFAULT_COLOR_RED_NIGHTTIME = "255"
+DEFAULT_COLOR_GREEN_NIGHTTIME = "0"
+DEFAULT_COLOR_BLUE_NIGHTTIME = "0"
 
 # Constants
 TTL = 21600  # 6 hours
@@ -77,7 +87,9 @@ iVBORw0KGgoAAAANSUhEUgAAAAQAAAAOAQAAAAAgEYC1AAAAAnRSTlMAAQGU/a4AAAAPSURBVHgBY0g
 AQzQAEQUAH5wCQbfIiwYAAAAASUVORK5CYII=
 """)
 
-DEGREE = 0.01745329251
+# Convert RGB tuple to hex
+def rgb_to_hex(r, g, b):
+    return "#" + str("%x" % ((1 << 24) + (r << 16) + (g << 8) + b))[1:]
 
 # It would be easier to use a custom font, but we can use images instead.
 # The images have a black background and transparent foreground. This
@@ -150,8 +162,18 @@ def main(config):
     is_24_hour_format = config.bool("is_24_hour_format", DEFAULT_IS_24_HOUR_FORMAT)
     has_leading_zero = config.bool("has_leading_zero", DEFAULT_HAS_LEADING_ZERO)
     has_flashing_seperator = config.bool("has_flashing_seperator", DEFAULT_HAS_FLASHING_SEPERATOR)
-    color_daytime = config.get("color_daytime", DEFAULT_COLOR_DAYTIME)
-    color_nighttime = config.get("color_nighttime", DEFAULT_COLOR_NIGHTTIME)
+
+    # Set daytime color
+    color_red_daytime = config.get("color_red_daytime", DEFAULT_COLOR_RED_DAYTIME)
+    color_green_daytime = config.get("color_green_daytime", DEFAULT_COLOR_GREEN_DAYTIME)
+    color_blue_daytime = config.get("color_blue_daytime", DEFAULT_COLOR_BLUE_DAYTIME)
+    color_daytime = rgb_to_hex(int(color_red_daytime), int(color_green_daytime), int(color_blue_daytime))
+
+    # Set nighttime color
+    color_red_nighttime = config.get("color_red_nighttime", DEFAULT_COLOR_RED_NIGHTTIME)
+    color_green_nighttime = config.get("color_green_nighttime", DEFAULT_COLOR_GREEN_NIGHTTIME)
+    color_blue_nighttime = config.get("color_blue_nighttime", DEFAULT_COLOR_BLUE_NIGHTTIME)
+    color_nighttime = rgb_to_hex(int(color_red_nighttime), int(color_green_nighttime), int(color_blue_nighttime))
 
     frames = []
     print_time = current_time
@@ -202,16 +224,9 @@ def main(config):
     )
 
 def get_schema():
-    colors = [
-        schema.Option(display = "White", value = "#fff"),
-        schema.Option(display = "Red", value = "#f00"),
-        schema.Option(display = "Dark Red", value = "#200"),
-        schema.Option(display = "Green", value = "#0f0"),
-        schema.Option(display = "Blue", value = "#00f"),
-        schema.Option(display = "Yellow", value = "#ff0"),
-        schema.Option(display = "Cyan", value = "#0ff"),
-        schema.Option(display = "Magenta", value = "#f0f"),
-    ]
+    zeroTo255 = []
+    for n in range(256):
+        zeroTo255.append(schema.Option(display = str(n), value = str(n)))
 
     return schema.Schema(
         version = "1",
@@ -244,20 +259,52 @@ def get_schema():
                 default = DEFAULT_HAS_FLASHING_SEPERATOR,
             ),
             schema.Dropdown(
-                id = "color_daytime",
+                id = "color_red_daytime",
                 icon = "sun",
-                name = "Daytime color",
-                desc = "The color to display in the daytime.",
-                options = colors,
-                default = DEFAULT_COLOR_DAYTIME,
+                name = "Daytime red RGB value",
+                desc = "The red RGB color value to use during daytime.",
+                options = zeroTo255,
+                default = DEFAULT_COLOR_RED_DAYTIME,
             ),
             schema.Dropdown(
-                id = "color_nighttime",
+                id = "color_green_daytime",
+                icon = "sun",
+                name = "Daytime green RGB value",
+                desc = "The green RGB color value to use during daytime.",
+                options = zeroTo255,
+                default = DEFAULT_COLOR_GREEN_DAYTIME,
+            ),
+            schema.Dropdown(
+                id = "color_blue_daytime",
+                icon = "sun",
+                name = "Daytime blue RGB value",
+                desc = "The blue RGB color value to use during daytime.",
+                options = zeroTo255,
+                default = DEFAULT_COLOR_BLUE_DAYTIME,
+            ),
+            schema.Dropdown(
+                id = "color_red_nighttime",
                 icon = "moon",
-                name = "Nighttime color",
-                desc = "The color to display at night.",
-                options = colors,
-                default = DEFAULT_COLOR_NIGHTTIME,
+                name = "Nighttime red RGB value",
+                desc = "The red RGB color value to use during nighttime.",
+                options = zeroTo255,
+                default = DEFAULT_COLOR_RED_NIGHTTIME,
+            ),
+            schema.Dropdown(
+                id = "color_green_nighttime",
+                icon = "moon",
+                name = "Nighttime green RGB value",
+                desc = "The green RGB color value to use during nighttime.",
+                options = zeroTo255,
+                default = DEFAULT_COLOR_GREEN_NIGHTTIME,
+            ),
+            schema.Dropdown(
+                id = "color_blue_nighttime",
+                icon = "moon",
+                name = "Nighttime blue RGB value",
+                desc = "The blue RGB color value to use during nighttime.",
+                options = zeroTo255,
+                default = DEFAULT_COLOR_BLUE_NIGHTTIME,
             ),
         ],
     )
