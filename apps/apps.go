@@ -21,6 +21,7 @@ import (
 	"tidbyt.dev/community/apps/bikeshare"
 	"tidbyt.dev/community/apps/binaryclock"
 	"tidbyt.dev/community/apps/blackout"
+	"tidbyt.dev/community/apps/borisbikes"
 	"tidbyt.dev/community/apps/burgeroftheday"
 	"tidbyt.dev/community/apps/carenewables"
 	"tidbyt.dev/community/apps/charlestownferry"
@@ -204,6 +205,7 @@ func GetManifests() []manifest.Manifest {
 		bikeshare.New(),
 		binaryclock.New(),
 		blackout.New(),
+		borisbikes.New(),
 		burgeroftheday.New(),
 		carenewables.New(),
 		charlestownferry.New(),
