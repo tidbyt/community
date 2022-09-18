@@ -42,18 +42,8 @@ def extract_stop(stop):
         print("TFL StopPoint search result does not contain id")
         return None
 
-    towards = None
-    for prop in stop["additionalProperties"]:
-        if prop["key"] != "Towards":
-            continue
-        towards = prop["value"]
-        break
-    if not towards:
-        print("TFL StopPoint search result does not contain direction")
-        return None
-
     return schema.Option(
-        display = "%s - %s towards %s" % (stop["stopLetter"], stop["commonName"], towards),
+        display = "%s - %s" % (stop["stopLetter"], stop["commonName"]),
         value = stop["id"],
     )
 
@@ -119,24 +109,14 @@ def get_stop(stop_id):
         if child["naptanId"] != stop_id:
             continue
 
-        towards = None
-        for prop in child["additionalProperties"]:
-            if prop["key"] != "Towards":
-                continue
-            towards = prop["value"]
-            break
-
         if not child.get("commonName"):
             fail("TFL StopPoint response did not contain name")
         if not child.get("stopLetter"):
             fail("TFL StopPoint response did not contain stop letter")
-        if not towards:
-            fail("TFL StopPoint response did not contain direction")
 
         return {
             "name": child["commonName"],
             "code": child["stopLetter"],
-            "towards": towards,
         }
 
     fail("TFL StopPoint response did not contain stop")
@@ -161,6 +141,7 @@ def get_arrivals(stop_id):
         arrivals.append({
             "line": arrival["lineName"],
             "due_in_seconds": arrival["timeToStation"],
+            "destination": arrival["destinationName"],
         })
 
     arrivals = sorted(arrivals, key = lambda x: x["due_in_seconds"])
@@ -169,7 +150,7 @@ def get_arrivals(stop_id):
     return arrivals
 
 # Show a single row in the countdow  time
-def render_arrival(index, line, due_in_seconds):
+def render_arrival(index, line, destination, due_in_seconds):
     # Not 100% confident this is what the countdown timers at stops do,
     # but they have both "due" and "1 min", so there must be a difference.
     if due_in_seconds < 30:
@@ -177,7 +158,7 @@ def render_arrival(index, line, due_in_seconds):
     else:
         due = "%d min" % math.round(due_in_seconds / 60.0)
 
-    return render.Row(
+    due_row = render.Row(
         expanded = True,
         children = [
             # Include an index to a) mimic the countdown timers at bus stops
@@ -192,6 +173,20 @@ def render_arrival(index, line, due_in_seconds):
             ),
         ],
     )
+    destination_row = render.Row(
+        expanded = True,
+        children = [
+            # Include an index to a) mimic the countdown timers at bus stops
+            # and b) if I can work out how to scroll to show more than 3 for
+            # particularly busy stops.
+            render.WrappedText(str(index), width = 8, color = ORANGE),
+            render.WrappedText(destination, width = 54, height = 8, color = ORANGE),
+        ],
+    )
+
+    return render.Animation(
+        children = [due_row] * 100 + [destination_row] * 100,
+    )
 
 # Show rows in the countdown timer
 def render_arrivals(arrivals):
@@ -204,19 +199,22 @@ def render_arrivals(arrivals):
             ),
         )
 
-    return render.Box(
-        height = COUNTDOWN_HEIGHT,
-        child = render.Column(
-            main_align = "start",
-            expanded = True,
-            children = [
-                render_arrival(a["index"], a["line"], a["due_in_seconds"])
-                for a in arrivals
-            ],
+    return render.Padding(
+        pad = (1, 0, 1, 0),
+        child = render.Box(
+            height = COUNTDOWN_HEIGHT,
+            child = render.Column(
+                main_align = "start",
+                expanded = True,
+                children = [
+                    render_arrival(a["index"], a["line"], a["destination"], a["due_in_seconds"])
+                    for a in arrivals
+                ],
+            ),
         ),
     )
 
-def render_stop_details(name, towards, code):
+def render_stop_details(name, code):
     return render.Row(
         expanded = True,
         main_align = "space_between",
@@ -227,7 +225,7 @@ def render_stop_details(name, towards, code):
                 scroll_direction = "horizontal",
                 width = 50,
                 height = 8,
-                child = render.WrappedText("%s towards %s" % (name, towards)),
+                child = render.WrappedText("%s" % name),
             ),
             # There are often multiple nearby stops with the same name, so be precise.
             # Can be up to two letters long.
@@ -272,7 +270,7 @@ def main(config):
             children = [
                 # Top part is about the stop, because there are several near my flat
                 # and I want to keep an eye on all of them
-                render_stop_details(stop["name"], stop["towards"], stop["code"]),
+                render_stop_details(stop["name"], stop["code"]),
                 render_separator(),
                 # Bottom part shows the countdown for the next few arrivals
                 render_arrivals(arrivals[0:3]),
