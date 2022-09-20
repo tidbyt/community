@@ -27,10 +27,8 @@ default_location = """
 	"timezone": "America/Honolulu"
 }
 """
-NOAA_API_URL_GRAPH="https://api.tidesandcurrents.noaa.gov/api/prod/datagetter?date=today&station=%s&product=predictions&datum=MLLW&time_zone=lst_ldt&units=english&format=json"
-NOAA_API_URL_HILO="https://api.tidesandcurrents.noaa.gov/api/prod/datagetter?date=today&station=%s&product=predictions&datum=MLLW&time_zone=lst_ldt&units=english&format=json&interval=hilo"
-
-
+NOAA_API_URL_GRAPH = "https://api.tidesandcurrents.noaa.gov/api/prod/datagetter?date=today&station=%s&product=predictions&datum=MLLW&time_zone=lst_ldt&units=english&format=json"
+NOAA_API_URL_HILO = "https://api.tidesandcurrents.noaa.gov/api/prod/datagetter?date=today&station=%s&product=predictions&datum=MLLW&time_zone=lst_ldt&units=english&format=json&interval=hilo"
 
 def debug_print(arg):
     if print_debug:
@@ -133,7 +131,7 @@ def get_tides_hilo(station_id):
         else:
             tides = json.decode(resp.body())
             debug_print(tides)
-    else: # in debug mode just use static json example
+    else:  # in debug mode just use static json example
         tides_json = """{"name":"Maalaea", "predictions": [{"t": "2022-03-04 00:19", "v": "1.630", "type": "H"}, {"t": "2022-03-04 11:05", "v": "-5.532", "type": "L"}, {"t": "2022-03-04 17:10", "v": "12.85", "type": "H"}, {"t": "2022-03-04 22:52", "v": "-1.058", "type": "L"}]}"""
         tides = json.decode(tides_json)
     return tides
@@ -156,16 +154,16 @@ def get_tides_graph(station_id):
 
 def main(config):
     debug_print("############################################################")
+
     # get preferences
     units_pref = config.get("h_units", "feet")
     time_format = config.get("time_format", "24HR")
     units = "ft"
     station_id = config.get("station_id", "")
-    station_name = config.get("station_name","")
-    color_label = config.get("label_color","0a0") # green
-    color_low = config.get("low_color", "#A00") # red
+    station_name = config.get("station_name", "")
+    color_label = config.get("label_color", "0a0")  # green
+    color_low = config.get("low_color", "#A00")  # red
     color_high = config.get("high_color", "#D2691E")  # nice orange
-    
 
     # get our station_id
     debug_print("station id from config.get: " + station_id)
@@ -190,9 +188,11 @@ def main(config):
 
     # CACHINE CODE
     tides_hilo = {}
+
     #load HILO cache
     cache_key_hilo = "noaa_tides_%s" % (station_id)
     cache_str_hilo = cache.get(cache_key_hilo)  #  not actually a json object yet, just a string
+
     #load GRAPH cache
     cache_key_graph = "noaa_tides_graph_%s" % (station_id)
     cache_str_graph = cache.get(cache_key_graph)
@@ -209,12 +209,11 @@ def main(config):
             cache.set(cache_key_hilo, json.encode(tides_hilo), ttl_seconds = 14400)  # 4 hours
             cache.set(cache_key_graph, json.encode(tides_graph), ttl_seconds = 14400)  # 4 hours
 
-
     line_color = color_low
     lines = list()
 
     # check for custom name label
-    if len(station_name) == 0: # set via config.get at the top
+    if len(station_name) == 0:  # set via config.get at the top
         lines.append(render.Text(content = tides_hilo["name"], color = color_label, font = "tom-thumb"))
     else:
         lines.append(render.Text(content = station_name, color = color_label, font = "tom-thumb"))
@@ -242,7 +241,6 @@ def main(config):
                         hr = "12"
                     else:
                         hr = "0" + str(hr)
-
 
                 left_side = "%s %s:%s%s" % (pred["type"], hr, mn, m)
                 right_side = "%s%s" % (v, units)
@@ -295,31 +293,30 @@ def main(config):
             points.append((x, float(height_at_time["v"])))
             x = x + 1
 
-
     main_text = render.Box(
-                        child = render.Column(
-                            main_align = "left",
-                            cross_align = "center",
-                            children = lines,
-                        )
-                    )
+        child = render.Column(
+            main_align = "left",
+            cross_align = "center",
+            children = lines,
+        ),
+    )
 
     data_graph = render.Plot(
-                    data = points,
-                    width = 64,
-                    height = 32,
-                    color = '#00c', #00c
-                    color_inverted = '#505',
-                    fill = True
-                ) 
+        data = points,
+        width = 64,
+        height = 32,
+        color = "#00c",  #00c
+        color_inverted = "#505",
+        fill = True,
+    )
     root_children = [main_text]
-    if config.get("display_graph","true") == "true":
-        root_children = [data_graph,main_text]
+    if config.get("display_graph", "true") == "true":
+        root_children = [data_graph, main_text]
 
     return render.Root(
         render.Stack(
-            children = root_children
-        )
+            children = root_children,
+        ),
     )
 
 COLOR_LIST = {
@@ -329,7 +326,6 @@ COLOR_LIST = {
     "Green": "#0a0",
     "Blue": "#00a",
     "Orange": "#D2691E",
-
 }
 
 def get_schema():
