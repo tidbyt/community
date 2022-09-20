@@ -6,7 +6,7 @@ Author: tavdog
 """
 
 production = False
-debug = True
+debug = False
 print_debug = True
 
 load("render.star", "render")
@@ -132,7 +132,7 @@ def get_tides_hilo(station_id):
             tides = json.decode(resp.body())
             debug_print(tides)
     else:  # in debug mode just use static json example
-        tides_json = """{"name":"Maalaea", "predictions": [{"t": "2022-03-04 00:19", "v": "1.630", "type": "H"}, {"t": "2022-03-04 11:05", "v": "-5.532", "type": "L"}, {"t": "2022-03-04 17:10", "v": "12.85", "type": "H"}, {"t": "2022-03-04 22:52", "v": "-1.058", "type": "L"}]}"""
+        tides_json = """{"predictions": [{"t": "2022-03-04 00:19", "v": "1.630", "type": "H"}, {"t": "2022-03-04 11:05", "v": "-5.532", "type": "L"}, {"t": "2022-03-04 17:10", "v": "12.85", "type": "H"}, {"t": "2022-03-04 22:52", "v": "-1.058", "type": "L"}]}"""
         tides = json.decode(tides_json)
     return tides
 
@@ -148,7 +148,7 @@ def get_tides_graph(station_id):
             tides = json.decode(resp.body())
             debug_print(tides)
     else:
-        tides_json = """{"name":"Maalaea", "predictions": [{"t": "2022-03-04 00:19", "v": "1.630", "type": "H"}, {"t": "2022-03-04 11:05", "v": "-5.532", "type": "L"}, {"t": "2022-03-04 17:10", "v": "12.85", "type": "H"}, {"t": "2022-03-04 22:52", "v": "-1.058", "type": "L"}]}"""
+        tides_json = """{"predictions": [{"t": "2022-03-04 00:19", "v": "1.630", "type": "H"}, {"t": "2022-03-04 11:05", "v": "-5.532", "type": "L"}, {"t": "2022-03-04 17:10", "v": "12.85", "type": "H"}, {"t": "2022-03-04 22:52", "v": "-1.058", "type": "L"}]}"""
         tides = json.decode(tides_json)
     return tides
 
@@ -161,7 +161,7 @@ def main(config):
     units = "ft"
     station_id = config.get("station_id", "")
     station_name = config.get("station_name", "")
-    color_label = config.get("label_color", "0a0")  # green
+    color_label = config.get("label_color", "#0a0")  # green
     color_low = config.get("low_color", "#A00")  # red
     color_high = config.get("high_color", "#D2691E")  # nice orange
 
@@ -213,7 +213,7 @@ def main(config):
     lines = list()
 
     # check for custom name label
-    if len(station_name) == 0:  # set via config.get at the top
+    if len(station_name) == 0 and "name" in tides_hilo:  # set via config.get at the top
         lines.append(render.Text(content = tides_hilo["name"], color = color_label, font = "tom-thumb"))
     else:
         lines.append(render.Text(content = station_name, color = color_label, font = "tom-thumb"))
@@ -287,6 +287,8 @@ def main(config):
 
     # Create the graph points list and populate it
     points = []
+    if "predictions" not in tides_graph:
+        tides_graph = tides_hilo
     if tides_graph and "predictions" in tides_graph:  # make sure we actually have some data
         x = 0
         for height_at_time in tides_graph["predictions"]:
