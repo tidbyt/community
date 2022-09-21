@@ -51,7 +51,7 @@ The following options can be set via the Schema, or passed in via the `pixlet re
 
 ---
 
-![Error: no API key](screenshot-invalid-domain.gif)
+![Error: no API key](screenshot-missing-key.gif)
 
 (Error: No API key)
 

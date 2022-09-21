@@ -267,7 +267,7 @@ def get_schema():
                 id = METRIC_KEY,
                 name = "Metric",
                 desc = "Choose the site metric you'd like to display",
-                icon = "chart-simple",
+                icon = "chartSimple",
                 default = METRIC_OPTIONS[0].value,
                 options = METRIC_OPTIONS,
             ),
@@ -283,7 +283,7 @@ def get_schema():
                 id = SHOULD_SHOW_CHART_KEY,
                 name = "Show Chart?",
                 desc = "Toggles the display of the historical chart under the count",
-                icon = "chart-line",
+                icon = "chartLine",
                 default = True,
             ),
             schema.Generated(
