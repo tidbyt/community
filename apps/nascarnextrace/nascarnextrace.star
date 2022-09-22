@@ -99,7 +99,7 @@ def main(config):
   
 
 def get_schema():
-     return schema.Schema(
+    return schema.Schema(
         version = "1",
         fields = [
             schema.Location(
