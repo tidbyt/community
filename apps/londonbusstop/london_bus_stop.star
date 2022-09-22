@@ -59,16 +59,20 @@ def extract_stop(stop):
 
 # Perform the actual fetch of stops for a location, but use cache if available
 def fetch_stops(location):
-    cached = cache.get(location)
+    loc = json.decode(location)
+    truncated_lat = math.round(1000.0 * loc["lat"]) / 1000.0  # Truncate to 3dp for better caching
+    truncated_lng = math.round(1000.0 * loc["lng"]) / 1000.0  # Means to the nearest ~110 metres.
+    cache_key = "{},{}".format(truncated_lat, truncated_lng)
+
+    cached = cache.get(cache_key)
     if cached:
         return json.decode(cached)
-    loc = json.decode(location)
     resp = http.get(
         STOP_URL,
         params = {
             "app_key": app_key(),
-            "lat": loc["lat"],
-            "lon": loc["lng"],
+            "lat": truncated_lat,
+            "lon": truncated_lng,
             "radius": "300",
             "stopTypes": "NaptanPublicBusCoachTram",
             "modes": "bus",
@@ -80,7 +84,7 @@ def fetch_stops(location):
         fail("TFL StopPoint search failed with status ", resp.status_code)
     if not resp.json().get("stopPoints"):
         fail("TFL StopPoint search does not contain stops")
-    cache.set(location, resp.body(), ttl_seconds = 86400)  # Bus stops don't move often
+    cache.set(cache_key, resp.body(), ttl_seconds = 86400)  # Bus stops don't move often
     return resp.json()
 
 # Find list of stops near a given location.
