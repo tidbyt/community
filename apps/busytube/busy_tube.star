@@ -43,8 +43,8 @@ def app_key():
 # Get list of stations near a given location, or look up from cache if available.
 def fetch_stations(location):
     loc = json.decode(location)
-    rounded_lat = math.round(1000.0 * loc["lat"]) / 1000.0  # truncate to 3dp, which means
-    rounded_lng = math.round(1000.0 * loc["lng"]) / 1000.0  # to the nearest ~110 metres.
+    rounded_lat = math.round(1000.0 * float(loc["lat"])) / 1000.0  # truncate to 3dp, which means
+    rounded_lng = math.round(1000.0 * float(loc["lng"])) / 1000.0  # to the nearest ~110 metres.
     cache_key = "{},{}".format(rounded_lat, rounded_lng)
 
     cached = cache.get(cache_key)

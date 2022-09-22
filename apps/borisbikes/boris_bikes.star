@@ -60,7 +60,7 @@ def list_docks(location):
             display = name,
             value = id,
         )
-        distance = math.pow(lat - loc["lat"], 2) + math.pow(lon - loc["lng"], 2)
+        distance = math.pow(lat - float(loc["lat"]), 2) + math.pow(lon - float(loc["lng"]), 2)
         options.append((option, distance))
     options = sorted(options, key = lambda x: x[1])
     return [option[0] for option in options]
