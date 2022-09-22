@@ -24,6 +24,7 @@ import (
 	"tidbyt.dev/community/apps/blackout"
 	"tidbyt.dev/community/apps/borisbikes"
 	"tidbyt.dev/community/apps/burgeroftheday"
+	"tidbyt.dev/community/apps/busytube"
 	"tidbyt.dev/community/apps/carenewables"
 	"tidbyt.dev/community/apps/charlestownferry"
 	"tidbyt.dev/community/apps/chessviewer"
@@ -212,6 +213,7 @@ func GetManifests() []manifest.Manifest {
 		blackout.New(),
 		borisbikes.New(),
 		burgeroftheday.New(),
+		busytube.New(),
 		carenewables.New(),
 		charlestownferry.New(),
 		chessviewer.New(),
