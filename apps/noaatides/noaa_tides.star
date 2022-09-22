@@ -154,6 +154,7 @@ def get_tides_graph(station_id):
 
 def main(config):
     debug_print("############################################################")
+
     # get preferences
     units_pref = config.get("h_units", "feet")
     time_format = config.get("time_format", "24HR")
@@ -374,7 +375,7 @@ def get_schema():
             desc = "Optional Custom Label",
             default = "",
         ),
-    )    
+    )
     fields.append(
         schema.Toggle(
             id = "display_graph",
@@ -434,14 +435,14 @@ def get_schema():
             default = "feet",
         ),
     )
-    fields.append(
-        schema.Text(
-            id = "station_id",
-            name = "Manual Station ID Input",
-            icon = "monument",
-            desc = "Optional manual station id",
-        ),
-    )
+    # fields.append(
+    #     schema.Text(
+    #         id = "station_id",
+    #         name = "Manual Station ID Input",
+    #         icon = "monument",
+    #         desc = "Optional manual station id",
+    #     ),
+    # )
 
     return schema.Schema(
         version = "1",
