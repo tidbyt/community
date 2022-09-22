@@ -50,7 +50,6 @@ def main(config):
     date_str = date_and_time3.format("Jan 02").upper()  #current format of your current date str
     time_str = date_and_time3.format("15:04")  #outputs military time but can change 15 to 3 to not do that. The Only thing missing from your current string though is the time zone, but if they're doing local time that's pretty irrelevant
 
-
     return render.Root(
         delay = 50,
         child = render.Column(
