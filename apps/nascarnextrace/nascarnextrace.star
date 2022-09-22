@@ -64,7 +64,7 @@ def main(config):
                 render.Box(width = 64, height = 1, color = "#a0a"),
                 render.Row(
                     children = [
-                        render.Box(width=30, height=24, color= series_bkg_color, child = render.WrappedText(series_title, color = series_txt_color, align = "center", font = "tom-thumb")),
+                        render.Box(width = 30, height = 24, color = series_bkg_color, child = render.WrappedText(series_title, color = series_txt_color, align = "center", font = "tom-thumb")),
                         render.Padding(
                             pad = (1, 0, 0, 0),
                             child =
