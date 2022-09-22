@@ -132,7 +132,7 @@ def get_tides_hilo(station_id):
             tides = json.decode(resp.body())
             debug_print(tides)
     else:  # in debug mode just use static json example
-        tides_json = """{"predictions": [{"t": "2022-03-04 00:19", "v": "1.630", "type": "H"}, {"t": "2022-03-04 11:05", "v": "-5.532", "type": "L"}, {"t": "2022-03-04 17:10", "v": "12.85", "type": "H"}, {"t": "2022-03-04 22:52", "v": "-1.058", "type": "L"}]}"""
+        tides_json = """{"predictions": [ {"t": "2022-03-04 11:05", "v": "-5.532", "type": "L"}, {"t": "2022-03-04 17:10", "v": "12.85", "type": "H"}, {"t": "2022-03-04 22:52", "v": "-1.058", "type": "L"}]}"""
         tides = json.decode(tides_json)
     return tides
 
@@ -298,7 +298,8 @@ def main(config):
 
     main_text = render.Box(
         child = render.Column(
-            main_align = "left",
+            expanded = True,
+            main_align = "start",
             cross_align = "center",
             children = lines,
         ),
