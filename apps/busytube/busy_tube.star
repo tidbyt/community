@@ -25,7 +25,7 @@ DEFAULT_NAPTAN_ID = "940GZZLURSQ"
 STATION_URL = "https://api.tfl.gov.uk/StopPoint"
 CROWDING_LIVE_URL = "https://api.tfl.gov.uk/Crowding/%s/Live"
 CROWDING_TYPICAL_URL = "https://api.tfl.gov.uk/Crowding/%s/%s"
-ENCRYPTED_APP_KEY = "AV6+xWcEiTVBxz320KjN+33qiitQmL/ZaVPZW1phgJ2bztOvUcO1//MBfLDJbHB1uZxvLS4gb7Q8cQAsakjjYUseZdBQpBugab/SPm6WBifpXpttMzoToF4O9lIqTVoCxoVodyLdiPrcbsXGfHGeo2Z5Sj5tyglb+vvIYNoIDgssEDnys3I="
+ENCRYPTED_APP_KEY = "AV6+xWcEPmq/0EQRog6POXX05ITjp4OvMQ2BA8hpTSM85hdqQkDSulgF5cRGCFze8OE7ORKKP0ydwY80hcgl5LhBRiTxaVczGvZycd/G3IImA+Xlh/SXjagzO1cs5L3lf6j1w6mlBEssdZRvE5U21lcA83uiiTv6qriRVgfff8xztGxGYGM="
 
 CONTAINER_WIDTH = 62
 CONTAINER_HEIGHT = 30
@@ -42,16 +42,20 @@ def app_key():
 
 # Get list of stations near a given location, or look up from cache if available.
 def fetch_stations(location):
-    cached = cache.get(location)
+    loc = json.decode(location)
+    rounded_lat = math.round(1000.0 * loc["lat"]) / 1000.0  # truncate to 3dp, which means
+    rounded_lng = math.round(1000.0 * loc["lng"]) / 1000.0  # to the nearest ~110 metres.
+    cache_key = "{},{}".format(rounded_lat, rounded_lng)
+
+    cached = cache.get(cache_key)
     if cached:
         return json.decode(cached)
-    loc = json.decode(location)
     resp = http.get(
         STATION_URL,
         params = {
             "app_key": app_key(),
-            "lat": loc["lat"],
-            "lon": loc["lng"],
+            "lat": rounded_lat,
+            "lon": rounded_lng,
             "radius": "500",
             "stopTypes": "NaptanMetroStation",
             "returnLines": "false",
@@ -63,7 +67,7 @@ def fetch_stations(location):
         fail("TFL station search failed with status ", resp.status_code)
     if not resp.json().get("stopPoints"):
         fail("TFL station search does not contain stops")
-    cache.set(location, resp.body(), ttl_seconds = 86400)  # Tube stations don't move often
+    cache.set(cache_key, resp.body(), ttl_seconds = 86400)  # Tube stations don't move often
     return resp.json()
 
 # Find and extract details of all stations near a given location.
