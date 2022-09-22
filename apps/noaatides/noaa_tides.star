@@ -154,13 +154,12 @@ def get_tides_graph(station_id):
 
 def main(config):
     debug_print("############################################################")
-
     # get preferences
     units_pref = config.get("h_units", "feet")
     time_format = config.get("time_format", "24HR")
     units = "ft"
     station_id = config.get("station_id", "")
-    station_name = config.get("station_name", "")
+    station_name = config.get("station_name", "Local Tides")
     color_label = config.get("label_color", "#0a0")  # green
     color_low = config.get("low_color", "#A00")  # red
     color_high = config.get("high_color", "#D2691E")  # nice orange
@@ -181,6 +180,7 @@ def main(config):
         # this is needed for locationbased selection in production environment
         if "value" in local_selection:
             station_id = json.decode(local_selection)["value"]
+            station_name = json.decode(local_selection)["display"]
         else:
             station_id = local_selection  # san fran
 
@@ -213,8 +213,8 @@ def main(config):
     lines = list()
 
     # check for custom name label
-    if len(station_name) == 0 and "name" in tides_hilo:  # set via config.get at the top
-        lines.append(render.Text(content = tides_hilo["name"], color = color_label, font = "tom-thumb"))
+    if len(station_name) == 0:  # set via config.get at the top
+        lines.append(render.Text(content = "Local Tides", color = color_label, font = "tom-thumb"))
     else:
         lines.append(render.Text(content = station_name, color = color_label, font = "tom-thumb"))
 
@@ -345,7 +345,7 @@ def get_schema():
     ]
     fields = []
     if not production:
-        stations_list = get_stations((default_location))  # locationbased schema don't work so use default loaction
+        stations_list = get_stations((default_location))  # locationbased schema don't work so use default location
         fields.append(
             schema.Dropdown(
                 id = "local_station_id",
@@ -368,12 +368,13 @@ def get_schema():
         )
     fields.append(
         schema.Text(
-            id = "station_id",
-            name = "Station ID - optional",
-            icon = "monument",
-            desc = "",
+            id = "station_name",
+            name = "Custom Display Name",
+            icon = "user",
+            desc = "Optional Custom Label",
+            default = "",
         ),
-    )
+    )    
     fields.append(
         schema.Toggle(
             id = "display_graph",
@@ -435,13 +436,13 @@ def get_schema():
     )
     fields.append(
         schema.Text(
-            id = "station_name",
-            name = "Custom Display Name",
-            icon = "user",
-            desc = "Leave blank to use NOAA defined name",
-            default = "",
+            id = "station_id",
+            name = "Manual Station ID Input",
+            icon = "monument",
+            desc = "Optional manual station id",
         ),
     )
+
     return schema.Schema(
         version = "1",
         fields = fields,
