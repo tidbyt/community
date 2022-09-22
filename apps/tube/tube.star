@@ -92,16 +92,20 @@ def app_key():
 
 # Get list of stations near a given location, or look up from cache if available.
 def fetch_stations(location):
-    cached = cache.get(location)
+    loc = json.decode(location)
+    truncated_lat = math.round(1000.0 * loc["lat"]) / 1000.0  # Truncate to 3dp for better caching
+    truncated_lng = math.round(1000.0 * loc["lng"]) / 1000.0  # Means to the nearest ~110 metres.
+    cache_key = "{},{}".format(truncated_lat, truncated_lng)
+
+    cached = cache.get(cache_key)
     if cached:
         return json.decode(cached)
-    loc = json.decode(location)
     resp = http.get(
         STATION_URL,
         params = {
             "app_key": app_key(),
-            "lat": loc["lat"],
-            "lon": loc["lng"],
+            "lat": truncated_lat,
+            "lon": truncated_lng,
             "radius": "500",
             "stopTypes": "NaptanMetroStation",
             "returnLines": "true",
@@ -113,7 +117,7 @@ def fetch_stations(location):
         fail("TFL station search failed with status ", resp.status_code)
     if not resp.json().get("stopPoints"):
         fail("TFL station search does not contain stops")
-    cache.set(location, resp.body(), ttl_seconds = 86400)  # Tube stations don't move often
+    cache.set(cache_key, resp.body(), ttl_seconds = 86400)  # Tube stations don't move often
     return resp.json()
 
 # Find and extract details of all stations near a given location.
