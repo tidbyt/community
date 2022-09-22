@@ -8,6 +8,7 @@ Author: dinosaursrarr
 load("cache.star", "cache")
 load("encoding/json.star", "json")
 load("http.star", "http")
+load("humanize.star", "humanize")
 load("math.star", "math")
 load("render.star", "render")
 load("schema.star", "schema")
@@ -115,22 +116,9 @@ def get_live_crowdedness(naptan_id):
     resp = fetch_live_crowdedness(naptan_id)
     return resp["percentageOfBaseline"]
 
-# Zeller's Congruence
-# https://www.rfc-editor.org/rfc/rfc3339#page-14
-# 0 is Sunday, 6 is Saturday
-def day_of_week(year, month, day):
-    month = month - 2
-    if month < 1:
-        month = month + 12
-        year = year - 1
-
-    century = math.floor(year / 100)
-    year = math.mod(year, 100)
-
-    return int(math.mod(math.floor((13 * month + 1) / 5) + day + year + math.floor(year / 4) + math.floor(century / 4) + 5 * century, 7))
-
-# Follows same numbering as day_of_week above
-def weekday_name(day_of_week):
+# Follows same numbering as humanize.day_of_week
+def weekday_name(date):
+    day_of_week = humanize.day_of_week(date)
     if day_of_week == 0:
         return "SUN"
     if day_of_week == 1:
@@ -149,8 +137,7 @@ def weekday_name(day_of_week):
 
 # Fetch data about how crowded the station typically is on a given day
 def fetch_typical_crowdedness(naptan_id, now):
-    weekday = day_of_week(now.year, now.month, now.day)
-    typical_url = CROWDING_TYPICAL_URL % (naptan_id, weekday_name(weekday))
+    typical_url = CROWDING_TYPICAL_URL % (naptan_id, weekday_name(now))
     cached = cache.get(typical_url)
     if cached:
         return json.decode(cached)
