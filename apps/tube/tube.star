@@ -51,7 +51,7 @@ LINES = {
         "textColour": WHITE,
     },
     "hammersmith-city": {
-        "display": "Hammersmith & City",
+        "display": "H'smith & City",
         "colour": "#D799AF",
         "textColour": BLACK,
     },
@@ -81,7 +81,7 @@ LINES = {
         "textColour": BLACK,
     },
     "waterloo-city": {
-        "display": "Waterloo & City",
+        "display": "W'loo & City",
         "colour": "#76D0BD",
         "textColour": BLACK,
     },
@@ -277,20 +277,28 @@ def main(config):
                     width = 64,
                     height = 16,
                     # Include line colour because you might want to monitor
-                    # different lines at a given station. Realize it's not
-                    # the most accessible thing to rely on colour but the
-                    # space is extremely limited for text and London doesn't
-                    # abbreviate line names.
+                    # different lines at a given station.
                     color = colour(line_id),
-                    # TODO: centre text so second line isn't aligned with
-                    # the left edge of the first line.
                     child = render.Padding(
                         # Better wrapping for King's Cross St Pancras
                         pad = (1, 0, 1, 0),
-                        # pad = 0,
-                        child = render.WrappedText(
-                            content = station_name,
-                            color = textColour(line_id),
+                        child = render.Column(
+                            children = [
+                                render.Marquee(
+                                    width = 62,
+                                    align = "center",
+                                    child = render.Text(
+                                        content = station_name,
+                                        color = textColour(line_id),
+                                    ),
+                                ),
+                                render.WrappedText(
+                                    content = LINES[line_id]["display"],
+                                    align = "center",
+                                    width = 62,
+                                    height = 8,
+                                ),
+                            ],
                         ),
                     ),
                 ),
