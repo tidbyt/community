@@ -64,28 +64,27 @@ def main(config):
     date_str = date_and_time3.format("Jan 02").upper()  #current format of your current date str
     time_str = date_and_time3.format("15:04")  #outputs military time but can change 15 to 3 to not do that. The Only thing missing from your current string though is the time zone, but if they're doing local time that's pretty irrelevant
 
- 
     return render.Root(
         delay = 50,
         child = render.Column(
             children = [
                 render.Marquee(
                     width = 64,
-                    child = render.Text("Next Race: " + NASCAR_DATA.json()["Race_Name"] + "    Track: " + NASCAR_DATA.json()['Track_Name']),
+                    child = render.Text("Next Race: " + NASCAR_DATA.json()["Race_Name"] + "    Track: " + NASCAR_DATA.json()["Track_Name"]),
                     offset_start = 5,
                     offset_end = 5,
                 ),
                 render.Box(width = 64, height = 1, color = "#a0a"),
                 render.Row(
                     children = [
-                        render.Box(width=30, height=24, color= series_bkg_color, child = render.WrappedText(series_title, color = series_txt_color,align="center", font="tom-thumb")),
-                        render.Padding( 
-						    pad = (1, 0, 0, 0),
-                            child = 
+                        render.Box(width = 30, height = 24, color = series_bkg_color, child = render.WrappedText(series_title, color = series_txt_color, align = "center", font = "tom-thumb")),
+                        render.Padding(
+                            pad = (1, 0, 0, 0),
+                            child =
                                 render.Column(
                                     children = [
                                         render.Text(date_str, font = "5x8"),
-                                        render.Text(time_str),  
+                                        render.Text(time_str),
                                         render.Text("TV " + NASCAR_DATA.json()["Race_TV_Display"]),
                                     ],
                                 ),
@@ -95,8 +94,6 @@ def main(config):
             ],
         ),
     )
-
-  
 
 def get_schema():
     return schema.Schema(
