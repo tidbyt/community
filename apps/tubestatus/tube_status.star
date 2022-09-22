@@ -13,7 +13,7 @@ load("schema.star", "schema")
 load("secret.star", "secret")
 
 # Allows 500 queries per minute
-ENCRYPTED_APP_KEY = "AV6+xWcE2sENYC+/SYTqo/7oaIT8Q+BjV27Q/Bm9b1C19OEsiEuWKQQ3KKx6ymZQk2DOkiaPMjvoYmBlYZl/yr6AqusGweRYyA/gZ26zZBYX6krBCckHACEZQIS0mtAkwZmiLoGxhH2XpUkBBQdmBBwjODAqrcthPYPCm7u597BdzWyhljQ="
+ENCRYPTED_APP_KEY = "AV6+xWcEhlNSpbLLbDENcp6ciPWXIbN1PeIKjZ67POTBLIpBlN3rGqCHyQ2mz4Wt3NoRzZTrd9HfWr5cfcTTh5pNqV4OAie/8vEEGiAi0tHsYH/ZOUCBZnryz8aL+cDTsqOCSsr3l5dzCkBM0ZjPwTsigZp5mFCFW4or0C0ZIz2BGXPSXA4="
 STATUS_URL = "https://api.tfl.gov.uk/Line/Mode/%s/Status"
 
 WHITE = "#FFF"

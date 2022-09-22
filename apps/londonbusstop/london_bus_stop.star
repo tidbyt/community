@@ -18,7 +18,7 @@ STOP_URL = "https://api.tfl.gov.uk/StopPoint"
 ARRIVALS_URL = "https://api.tfl.gov.uk/StopPoint/%s/Arrivals"
 
 # Allows 500 queries per minute
-ENCRYPTED_API_KEY = "AV6+xWcELQeKmsYDiEPA6VUWk2IZKw+uc9dkaM5cXT/xirUKWgWKfsRAQz2pOxq0eKTNhb/aShsRjavxA84Ay12p6NaZDnDOgVeVxoMCCOnWxJsxmURHogJHpVQpuqBTNttfvafOj0PC1zUXkEpcN7EYhveycs6qxmouIwpDzY5I93wpTy4="
+ENCRYPTED_API_KEY = "AV6+xWcEwOzw3Prks28FxD8mnJMXHr1dGqzhOXvIsAXbGKKGd7VbVZ7JV8q0RUqKZ9ymhPUV4ZbDECOI42Eyg0h1SIsA3are83w007OIoPV4fIQ1S8g6ruswsuHZ1NzwE6KGYdPSX1fXYoz/qiaDg7RHoTvfVtDhFDE5kEMBswB9VZrOz/M="
 
 RED = "#DA291C"  # Pantone 485 C - same as the buses
 ORANGE = "#FFA500"  # Like the countdown timers at bus stops
