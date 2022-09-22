@@ -17,7 +17,7 @@ func New() manifest.Manifest {
 		Name:        "PurpleAir",
 		Author:      "posburn",
 		Summary:     "Displays local air quality",
-		Desc:        "Displays the local air quality index from a PurpleAir sensor.",
+		Desc:        "Displays the local air quality index from a nearby PurpleAir sensor. Choose a sensor close to you or provide a specific sensor id.",
 		FileName:    "purpleair.star",
 		PackageName: "purpleair",
 		Source:  source,

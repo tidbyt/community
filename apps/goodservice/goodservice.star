@@ -193,6 +193,9 @@ def main(config):
                     ),
                 ))
 
+    if len(blocks) == 0:
+        return []
+
     return render.Root(
         child = render.Marquee(
             height = 32,

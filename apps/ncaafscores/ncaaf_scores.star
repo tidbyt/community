@@ -128,7 +128,8 @@ ALT_LOGO = """
     "AUB" : "https://b.fssta.com/uploads/application/college/team-logos/Auburn-alternate.vresize.50.50.medium.0.png",
     "NORF" : "https://b.fssta.com/uploads/application/college/team-logos/NorfolkState.vresize.50.50.medium.0.png",
     "UNC" : "https://b.fssta.com/uploads/application/college/team-logos/NorthCarolina.vresize.50.50.medium.0.png",
-    "BAY" : "https://b.fssta.com/uploads/application/college/team-logos/Baylor-alternate.vresize.50.50.medium.0.png"
+    "BAY" : "https://b.fssta.com/uploads/application/college/team-logos/Baylor-alternate.vresize.50.50.medium.0.png",
+    "ALA" : "https://b.fssta.com/uploads/application/college/team-logos/Alabama-alternate.vresize.50.50.medium.0.png"
 }
 """
 MAGNIFY_LOGO = """
@@ -164,6 +165,16 @@ MAGNIFY_LOGO = """
     "COLO" : 14,
     "IOWA" : 12,
     "PSU" : 14
+}
+"""
+ODDS_NAME = """
+{
+    "KSU" : "KANSASST",
+    "OKST" : "OKLAST",
+    "MSU" : "MICHIGANST",
+    "UL" : "ULLAFAYTTE",
+    "ORST" : "OREGONST",
+    "MSST" : "MISSSTATE"
 }
 """
 
@@ -228,13 +239,13 @@ def main(config):
 
             homeLogoCheck = competition["competitors"][0]["team"].get("logo", "NO")
             if homeLogoCheck == "NO":
-                homeLogoURL = "https://a.espncdn.com/i/espn/misc_logos/500/ncaa_football.vresize.50.50.medium.1.png"
+                homeLogoURL = "https://i.ibb.co/5LMp8T1/transparent.png"
             else:
                 homeLogoURL = competition["competitors"][0]["team"]["logo"]
 
             awayLogoCheck = competition["competitors"][1]["team"].get("logo", "NO")
             if awayLogoCheck == "NO":
-                homeLogoURL = "https://a.espncdn.com/i/espn/misc_logos/500/ncaa_football.vresize.50.50.medium.1.png"
+                awayLogoURL = "https://i.ibb.co/5LMp8T1/transparent.png"
             else:
                 awayLogoURL = competition["competitors"][1]["team"]["logo"]
 
@@ -773,6 +784,34 @@ instancesCounts = [
         display = "8",
         value = "8",
     ),
+    schema.Option(
+        display = "9",
+        value = "9",
+    ),
+    schema.Option(
+        display = "10",
+        value = "10",
+    ),
+    schema.Option(
+        display = "12",
+        value = "12",
+    ),
+    schema.Option(
+        display = "13",
+        value = "13",
+    ),
+    schema.Option(
+        display = "14",
+        value = "14",
+    ),
+    schema.Option(
+        display = "15",
+        value = "15",
+    ),
+    schema.Option(
+        display = "16",
+        value = "16",
+    ),
 ]
 
 instanceNumbers = [
@@ -807,6 +846,38 @@ instanceNumbers = [
     schema.Option(
         display = "Eighth",
         value = "8",
+    ),
+    schema.Option(
+        display = "Ninth",
+        value = "9",
+    ),
+    schema.Option(
+        display = "Tenth",
+        value = "10",
+    ),
+    schema.Option(
+        display = "Eleventh",
+        value = "11",
+    ),
+    schema.Option(
+        display = "Twelfth",
+        value = "12",
+    ),
+    schema.Option(
+        display = "Thirteenth",
+        value = "13",
+    ),
+    schema.Option(
+        display = "Fourteenth",
+        value = "14",
+    ),
+    schema.Option(
+        display = "Fifteenth",
+        value = "15",
+    ),
+    schema.Option(
+        display = "Sixteenth",
+        value = "16",
     ),
 ]
 
@@ -953,6 +1024,12 @@ def empty_scores(allscores):
 
 def get_odds(theOdds, theOU, team, homeaway):
     theOddsarray = theOdds.split(" ")
+    usealtname = json.decode(ODDS_NAME)
+    usealt = usealtname.get(team, "NO")
+    if usealt == "NO":
+        team = team
+    else:
+        team = usealtname[team]
     if theOdds == "EVEN" and homeaway == "home":
         theOddsscore = "EVEN"
     elif theOddsarray[0] == team:
