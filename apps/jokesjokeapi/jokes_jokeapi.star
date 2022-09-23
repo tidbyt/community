@@ -8,6 +8,7 @@ Author: rs7q5
 #jokeAPI.star
 #Created 20220130 RIS
 #Last Modified 20220201 RIS
+#fixed marquee size to handle jokes with exactly 4 lines - wouldn't scroll 20220923 joevivona
 
 load("render.star", "render")
 load("http.star", "http")
@@ -62,7 +63,7 @@ def main():
             children = [
                 render.Text("JokeAPI", color = "#6600cc", font = font),
                 render.Marquee(
-                    height = 32,
+                    height = 24,
                     scroll_direction = "vertical",
                     child = render.Column(
                         main_align = "space_between",
