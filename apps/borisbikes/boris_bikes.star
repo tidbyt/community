@@ -60,7 +60,7 @@ def list_docks(location):
             display = name,
             value = id,
         )
-        distance = math.pow(lat - loc["lat"], 2) + math.pow(lon - loc["lng"], 2)
+        distance = math.pow(lat - float(loc["lat"]), 2) + math.pow(lon - float(loc["lng"]), 2)
         options.append((option, distance))
     options = sorted(options, key = lambda x: x[1])
     return [option[0] for option in options]
@@ -113,8 +113,10 @@ def get_dock(dock_id):
     return name, acoustic_count, electric_count
 
 def main(config):
-    dock_id = config.get("dock")
-    if not dock_id:
+    dock = config.get("dock")
+    if dock:
+        dock_id = json.decode(dock)["value"]
+    else:
         dock_id = DEFAULT_DOCK_ID
     dock_name, acoustic_count, electric_count = get_dock(dock_id)
 
