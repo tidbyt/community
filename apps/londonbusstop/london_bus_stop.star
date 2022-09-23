@@ -61,8 +61,8 @@ def fetch_stops(location):
         STOP_URL,
         params = {
             "app_key": app_key(),
-            "lat": truncated_lat,
-            "lon": truncated_lng,
+            "lat": str(truncated_lat),
+            "lon": str(truncated_lng),
             "radius": "300",
             "stopTypes": "NaptanPublicBusCoachTram",
             "modes": "bus",
