@@ -104,8 +104,8 @@ def fetch_stations(location):
         STATION_URL,
         params = {
             "app_key": app_key(),
-            "lat": truncated_lat,
-            "lon": truncated_lng,
+            "lat": str(truncated_lat),
+            "lon": str(truncated_lng),
             "radius": "500",
             "stopTypes": "NaptanMetroStation",
             "returnLines": "true",
