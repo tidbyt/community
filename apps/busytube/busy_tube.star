@@ -25,7 +25,7 @@ DEFAULT_NAPTAN_ID = "940GZZLURSQ"
 STATION_URL = "https://api.tfl.gov.uk/StopPoint"
 CROWDING_LIVE_URL = "https://api.tfl.gov.uk/Crowding/%s/Live"
 CROWDING_TYPICAL_URL = "https://api.tfl.gov.uk/Crowding/%s/%s"
-ENCRYPTED_APP_KEY = "AV6+xWcEPmq/0EQRog6POXX05ITjp4OvMQ2BA8hpTSM85hdqQkDSulgF5cRGCFze8OE7ORKKP0ydwY80hcgl5LhBRiTxaVczGvZycd/G3IImA+Xlh/SXjagzO1cs5L3lf6j1w6mlBEssdZRvE5U21lcA83uiiTv6qriRVgfff8xztGxGYGM="
+ENCRYPTED_APP_KEY = "AV6+xWcEidogMm49QBNMdHN1M2Ysyt35b6k5o9A1/jHKh4sM5Czv5BffoQw0QBvCR7jr/pFvd4eHZqjuLWYkEX4MTpBTAjTFeTGS3ynqTeumZB7CCghUoULPLDscavZpf9X9m/OzQXsPlNS86qKGcLaJ4B/AaVZ8CLvccNTtKgoJYWq8zYI="
 
 CONTAINER_WIDTH = 62
 CONTAINER_HEIGHT = 30
@@ -43,8 +43,8 @@ def app_key():
 # Get list of stations near a given location, or look up from cache if available.
 def fetch_stations(location):
     loc = json.decode(location)
-    rounded_lat = math.round(1000.0 * loc["lat"]) / 1000.0  # truncate to 3dp, which means
-    rounded_lng = math.round(1000.0 * loc["lng"]) / 1000.0  # to the nearest ~110 metres.
+    rounded_lat = math.round(1000.0 * float(loc["lat"])) / 1000.0  # truncate to 3dp, which means
+    rounded_lng = math.round(1000.0 * float(loc["lng"])) / 1000.0  # to the nearest ~110 metres.
     cache_key = "{},{}".format(rounded_lat, rounded_lng)
 
     cached = cache.get(cache_key)
@@ -54,8 +54,8 @@ def fetch_stations(location):
         STATION_URL,
         params = {
             "app_key": app_key(),
-            "lat": rounded_lat,
-            "lon": rounded_lng,
+            "lat": str(rounded_lat),
+            "lon": str(rounded_lng),
             "radius": "500",
             "stopTypes": "NaptanMetroStation",
             "returnLines": "false",
@@ -199,7 +199,7 @@ def main(config):
     else:
         data = json.decode(json.decode(station)["value"])
         station_name = data["name"]
-        naptan_id = data["naptan_id"]
+        naptan_id = data["naptanId"]
 
     # Find out how busy things currently are.
     pct_peak_crowdedness = get_live_crowdedness(naptan_id)

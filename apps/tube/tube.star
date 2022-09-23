@@ -93,8 +93,8 @@ def app_key():
 # Get list of stations near a given location, or look up from cache if available.
 def fetch_stations(location):
     loc = json.decode(location)
-    truncated_lat = math.round(1000.0 * loc["lat"]) / 1000.0  # Truncate to 3dp for better caching
-    truncated_lng = math.round(1000.0 * loc["lng"]) / 1000.0  # Means to the nearest ~110 metres.
+    truncated_lat = math.round(1000.0 * float(loc["lat"])) / 1000.0  # Truncate to 3dp for better caching
+    truncated_lng = math.round(1000.0 * float(loc["lng"])) / 1000.0  # Means to the nearest ~110 metres.
     cache_key = "{},{}".format(truncated_lat, truncated_lng)
 
     cached = cache.get(cache_key)
@@ -104,8 +104,8 @@ def fetch_stations(location):
         STATION_URL,
         params = {
             "app_key": app_key(),
-            "lat": truncated_lat,
-            "lon": truncated_lng,
+            "lat": str(truncated_lat),
+            "lon": str(truncated_lng),
             "radius": "500",
             "stopTypes": "NaptanMetroStation",
             "returnLines": "true",
