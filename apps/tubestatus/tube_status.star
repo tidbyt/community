@@ -156,29 +156,39 @@ def fetch_response():
         },
     )
     if resp.status_code != 200:
-        fail("TFL status request failed with status code ", resp.status_code)
+        print("TFL status request failed with status code ", resp.status_code)
+        return None
     cache.set(cache_key, resp.body(), ttl_seconds = 60)
     return resp.json()
 
 def fetch_lines():
     lines = []
-    for line in fetch_response():
+    resp = fetch_response()
+    if not resp:
+        return None
+    for line in resp:
         if "id" not in line:
-            fail("TFL status request did not contain line id")
+            print("TFL status request did not contain line id")
+            continue
         id = line["id"]
 
         if "lineStatuses" not in line:
-            fail("TFL status request did not contain status")
+            print("TFL status request did not contain status")
+            continue
         if len(line["lineStatuses"]) == 0:
-            fail("TFL status request did not contain any status")
+            print("TFL status request did not contain any status")
+            continue
         if "statusSeverity" not in line["lineStatuses"][0]:
-            fail("TFL status request did not contain severity for line")
+            print("TFL status request did not contain severity for line")
+            continue
         severity = line["lineStatuses"][0]["statusSeverity"]
 
         if id not in LINES:
-            fail("Unknown line ID ", id)
+            print("Unknown line ID ", id)
+            continue
         if severity not in SEVERITIES:
-            fail("Unknown severity level ", severity)
+            print("Unknown severity level ", severity)
+            continue
 
         lines.append({
             "display": LINES[id]["display"],
@@ -244,8 +254,20 @@ def render_sequential(lines):
         children = frames,
     )
 
+def render_error(message):
+    return render.Root(
+        child = render.WrappedText(
+            content = message,
+            width = 64,
+            height = 32,
+            align = "center",
+        ),
+    )
+
 def main(config):
     lines = fetch_lines()
+    if not lines or len(lines) == 0:
+        return render_error("Could not load tube status")
 
     display_mode = config.get("display_mode", DISPLAY_SEQUENTIAL)
     if display_mode == DISPLAY_SCROLL:
