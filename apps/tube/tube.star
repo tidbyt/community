@@ -91,8 +91,7 @@ def app_key():
     return secret.decrypt(ENCRYPTED_APP_KEY) or ""  # Fall back to freebie quota
 
 # Get list of stations near a given location, or look up from cache if available.
-def fetch_stations(location):
-    loc = json.decode(location)
+def fetch_stations(loc):
     truncated_lat = math.round(1000.0 * float(loc["lat"])) / 1000.0  # Truncate to 3dp for better caching
     truncated_lng = math.round(1000.0 * float(loc["lng"])) / 1000.0  # Means to the nearest ~110 metres.
     cache_key = "{},{}".format(truncated_lat, truncated_lng)
@@ -114,30 +113,58 @@ def fetch_stations(location):
         },
     )
     if resp.status_code != 200:
-        fail("TFL station search failed with status ", resp.status_code)
+        print("TFL station search failed with status ", resp.status_code)
+        return None
     if not resp.json().get("stopPoints"):
-        fail("TFL station search does not contain stops")
+        print("TFL station search does not contain stops")
+        return None
     cache.set(cache_key, resp.body(), ttl_seconds = 86400)  # Tube stations don't move often
     return resp.json()
 
+# API gives errors when searching for locations outside the United Kingdom.
+def outside_uk_bounds(loc):
+    lat = float(loc["lat"])
+    lng = float(loc["lng"])
+    if lat <= 49.9 or lat >= 58.7 or lng <= -11.05 or lng >= 1.78:
+        return True
+    return False
+
 # Find and extract details of all stations near a given location.
 def get_stations(location):
-    data = fetch_stations(location)
+    loc = json.decode(location)
+    if outside_uk_bounds(loc):
+        return [schema.Option(
+            display = "Default option - location is outside the UK",
+            value = json.encode({
+                "station_id": HOLBORN_ID,
+                "station_name": "Holborn",
+                "line_id": "central",
+            }),
+        )]
+
+    data = fetch_stations(loc)
+    if not data:
+        return []
     options = []
     for station in data["stopPoints"]:
         if not station.get("id"):
-            fail("TFL station result does not include id")
+            print("TFL station result does not include id")
+            continue
         if not station.get("commonName"):
-            fail("TFL station result does not include name")
+            print("TFL station result does not include name")
+            continue
         if not station.get("lineModeGroups"):
-            fail("TFL station result does not include lines")
+            print("TFL station result does not include lines")
+            continue
 
         station_name = station["commonName"].removesuffix(" Underground Station")
         for line_group in station["lineModeGroups"]:
             if not line_group.get("modeName"):
-                fail("TFL station result does not include mode")
+                print("TFL station result does not include mode")
+                continue
             if not line_group.get("lineIdentifier"):
-                fail("TFL station result does not include line identifier")
+                print("TFL station result does not include line identifier")
+                continue
             if line_group["modeName"] != "tube":
                 continue
 
@@ -167,7 +194,8 @@ def fetch_arrivals(stop_id):
         },
     )
     if resp.status_code != 200:
-        fail("TFL StopPoint request failed with status ", resp.status_code)
+        print("TFL StopPoint request failed with status ", resp.status_code)
+        return None
     cache.set(stop_id, resp.body(), ttl_seconds = 30)
     return resp.json()
 
@@ -193,14 +221,19 @@ def format_times(seconds):
 # Group arrivals data by platform/direction and format for humans
 def get_arrivals(stop_id, line_id):
     all_arrivals = fetch_arrivals(stop_id)
+    if not all_arrivals:
+        return []
     by_direction = {}
     for arrival in all_arrivals:
         if not arrival.get("lineId"):
-            fail("TFL arrivals data does not include line")
+            print("TFL arrivals data does not include line")
+            continue
         if not arrival.get("platformName"):
-            fail("TFL arrivals data does not include platform")
+            print("TFL arrivals data does not include platform")
+            continue
         if not arrival.get("timeToStation"):
-            fail("TFL arrivals data does not include arrival time")
+            print("TFL arrivals data does not include arrival time")
+            continue
 
         if arrival["lineId"] != line_id:
             continue
@@ -235,8 +268,10 @@ def render_arrivals(arrivals):
         return [
             render.Box(
                 width = 64,
-                child = render.Text(
-                    content = "No arrivals",
+                child = render.WrappedText(
+                    content = "No arrivals data",
+                    width = 62,
+                    align = "center",
                     color = ORANGE,
                 ),
             ),
