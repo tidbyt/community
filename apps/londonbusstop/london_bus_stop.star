@@ -48,8 +48,7 @@ def extract_stop(stop):
     )
 
 # Perform the actual fetch of stops for a location, but use cache if available
-def fetch_stops(location):
-    loc = json.decode(location)
+def fetch_stops(loc):
     truncated_lat = math.round(1000.0 * float(loc["lat"])) / 1000.0  # Truncate to 3dp for better caching
     truncated_lng = math.round(1000.0 * float(loc["lng"])) / 1000.0  # Means to the nearest ~110 metres.
     cache_key = "{},{}".format(truncated_lat, truncated_lng)
@@ -71,15 +70,34 @@ def fetch_stops(location):
         },
     )
     if resp.status_code != 200:
-        fail("TFL StopPoint search failed with status ", resp.status_code)
+        print("TFL StopPoint search failed with status ", resp.status_code)
+        return None
     if not resp.json().get("stopPoints"):
-        fail("TFL StopPoint search does not contain stops")
+        print("TFL StopPoint search does not contain stops")
+        return None
     cache.set(cache_key, resp.body(), ttl_seconds = 86400)  # Bus stops don't move often
     return resp.json()
 
+# API gives errors when searching for locations outside the United Kingdom.
+def outside_uk_bounds(loc):
+    lat = float(loc["lat"])
+    lng = float(loc["lng"])
+    if lat <= 49.9 or lat >= 58.7 or lng <= -11.05 or lng >= 1.78:
+        return True
+    return False
+
 # Find list of stops near a given location.
 def get_stops(location):
-    data = fetch_stops(location)
+    loc = json.decode(location)
+    if outside_uk_bounds(loc):
+        return [schema.Option(
+            display = "Default option - location is outside the UK",
+            value = DEFAULT_STOP_ID,
+        )]
+
+    data = fetch_stops(loc)
+    if not data:
+        return []
     extracted = [extract_stop(stop) for stop in data["stopPoints"]]
     return [e for e in extracted if e]
 
@@ -95,7 +113,8 @@ def fetch_stop(stop_id):
         },
     )
     if resp.status_code != 200:
-        fail("TFL StopPoint request failed with status ", resp.status_code)
+        print("TFL StopPoint request failed with status ", resp.status_code)
+        return None
     cache.set(stop_id, resp.body(), ttl_seconds = 30)
     return resp.json()
 
@@ -106,6 +125,8 @@ def fetch_stop(stop_id):
 # arrivals data if you look up the parent ID.
 def get_stop(stop_id):
     data = fetch_stop(stop_id)
+    if not data:
+        return None
 
     # Looking up a child returns a response about the parent, which contains
     # a child object.
@@ -114,16 +135,18 @@ def get_stop(stop_id):
             continue
 
         if not child.get("commonName"):
-            fail("TFL StopPoint response did not contain name")
+            print("TFL StopPoint response did not contain name")
+            continue
         if not child.get("stopLetter"):
-            fail("TFL StopPoint response did not contain stop letter")
+            print("TFL StopPoint response did not contain stop letter")
+            continue
 
         return {
             "name": child["commonName"],
             "code": child["stopLetter"],
         }
 
-    fail("TFL StopPoint response did not contain stop")
+    return None
 
 def get_arrivals(stop_id):
     resp = http.get(
@@ -139,9 +162,11 @@ def get_arrivals(stop_id):
     arrivals = []
     for arrival in resp.json():
         if not arrival.get("lineName"):
-            fail("TFL Arrivals response did not contain line")
+            print("TFL Arrivals response did not contain line")
+            continue
         if not arrival.get("timeToStation"):
-            fail("TFL Arrivals response did not contain arrival prediction")
+            print("TFL Arrivals response did not contain arrival prediction")
+            continue
         arrivals.append({
             "line": arrival["lineName"],
             "due_in_seconds": arrival["timeToStation"],
@@ -263,7 +288,14 @@ def main(config):
         stop_id = json.decode(stop_id)["value"]
 
     stop = get_stop(stop_id)
-    arrivals = get_arrivals(stop_id)
+    if not stop:
+        arrivals = []
+        stop_name = "Unknown stop"
+        stop_code = "?"
+    else:
+        arrivals = get_arrivals(stop_id)
+        stop_name = stop["name"]
+        stop_code = stop["code"]
 
     return render.Root(
         delay = 25,
@@ -274,7 +306,7 @@ def main(config):
             children = [
                 # Top part is about the stop, because there are several near my flat
                 # and I want to keep an eye on all of them
-                render_stop_details(stop["name"], stop["code"]),
+                render_stop_details(stop_name, stop_code),
                 render_separator(),
                 # Bottom part shows the countdown for the next few arrivals
                 render_arrivals(arrivals[0:3]),
