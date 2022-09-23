@@ -113,8 +113,10 @@ def get_dock(dock_id):
     return name, acoustic_count, electric_count
 
 def main(config):
-    dock_id = config.get("dock")
-    if not dock_id:
+    dock = config.get("dock")
+    if dock:
+        dock_id = json.decode(dock)["value"]
+    else:
         dock_id = DEFAULT_DOCK_ID
     dock_name, acoustic_count, electric_count = get_dock(dock_id)
 
