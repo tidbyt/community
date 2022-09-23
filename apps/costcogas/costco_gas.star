@@ -218,7 +218,11 @@ def get_warehouses(location):
     ]
 
 def get_gas_prices(config):
-    warehouse = config.get("warehouse_by_loc", DEFAULT_CONFIG["warehouse"])
+    warehouse = DEFAULT_CONFIG["warehouse"]
+    warehouse_cfg = config.get("warehouse_by_loc")
+    if warehouse_cfg:
+        warehouse = json.decode(warehouse_cfg)["value"]
+
     warehouse_data = get_cached_data(API_WAREHOUSE_DETAILS.format(warehouse), 3600)
 
     if type(warehouse_data) != "list" or len(warehouse_data) == 0:
