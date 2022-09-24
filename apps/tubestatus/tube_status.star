@@ -19,6 +19,9 @@ STATUS_URL = "https://api.tfl.gov.uk/Line/Mode/%s/Status"
 WHITE = "#FFF"
 BLACK = "#000"
 
+DISPLAY_SCROLL = "DISPLAY_SCROLL"
+DISPLAY_SEQUENTIAL = "DISPLAY_SEQUENTIAL"
+
 LINES = {
     "bakerloo": {
         "display": "Bakerloo",
@@ -212,26 +215,73 @@ def render_status(status):
         ),
     )
 
-def main(config):
-    lines = fetch_lines()
-
-    return render.Root(
-        delay = 49,
-        child = render.Marquee(
-            scroll_direction = "vertical",
-            height = 32,
-            offset_start = 32,
-            offset_end = 0,
-            child = render.Column(
-                main_align = "start",
-                cross_align = "start",
-                children = [render_status(line) for line in lines],
-            ),
+def render_marquee(lines):
+    return render.Marquee(
+        scroll_direction = "vertical",
+        height = 32,
+        offset_start = 32,
+        offset_end = 0,
+        child = render.Column(
+            main_align = "start",
+            cross_align = "start",
+            children = [render_status(line) for line in lines],
         ),
     )
 
+def render_sequential(lines):
+    frames = []
+    for i in range(0, len(lines), 2):
+        panes = [render_status(lines[i])]
+        if i + 1 < len(lines):
+            panes.append(render_status(lines[i + 1]))
+
+        frame = render.Column(
+            children = panes,
+        )
+        frames.append(frame)
+
+    return render.Animation(
+        children = frames,
+    )
+
+def main(config):
+    lines = fetch_lines()
+
+    display_mode = config.get("display_mode", DISPLAY_SEQUENTIAL)
+    if display_mode == DISPLAY_SCROLL:
+        rendered = render_marquee(lines)
+        delay = 49
+    elif display_mode == DISPLAY_SEQUENTIAL:
+        rendered = render_sequential(lines)
+        delay = 2000
+
+    return render.Root(
+        delay = delay,
+        child = rendered,
+    )
+
 def get_schema():
+    display_modes = [
+        schema.Option(
+            display = "Scrolling",
+            value = DISPLAY_SCROLL,
+        ),
+        schema.Option(
+            display = "Sequential",
+            value = DISPLAY_SEQUENTIAL,
+        ),
+    ]
+
     return schema.Schema(
         version = "1",
-        fields = [],
+        fields = [
+            schema.Dropdown(
+                id = "display_mode",
+                name = "Display mode",
+                desc = "How to animate the status for different lines",
+                icon = "display",
+                default = DISPLAY_SEQUENTIAL,
+                options = display_modes,
+            ),
+        ],
     )

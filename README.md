@@ -1,4 +1,5 @@
 # Community Apps
+[![Docs](https://img.shields.io/badge/docs-tidbyt.dev-blue?style=flat-square)](https://tidbyt.dev)
 [![Build Status](https://img.shields.io/github/workflow/status/tidbyt/community/Build%20and%20Release?style=flat-square)](https://github.com/tidbyt/community/actions/workflows/main.yml)
 [![Discourse](https://img.shields.io/discourse/status?server=https%3A%2F%2Fdiscuss.tidbyt.com&style=flat-square)](https://discuss.tidbyt.com/)
 [![Discord Server](https://img.shields.io/discord/928484660785336380?style=flat-square)](https://discord.gg/r45MXG4kZc)
@@ -12,13 +13,13 @@ This repo is for publishing apps to all Tidbyt users. Interested in developing a
 📸  [Fuzzy Clock](apps/fuzzyclock/fuzzy_clock.star) by [Max Timkovich][5], photographed  by [Tidbyt][1].
 
 ## Quick Start
-You should really read our [contributions guide](docs/CONTRIBUTING.md), our guide on [Publishing Apps](docs/guides/publishing_apps.md), and the section below before diving in. But if you just want to go for it, run the following to generate all the code you need:
+You should really read our [contributions guide](docs/CONTRIBUTING.md), our guide on [Publishing Apps](https://tidbyt.dev/docs/integrate/pushing-apps), and the section below before diving in. But if you just want to go for it, run the following to generate all the code you need:
 ```
 make app
 ```
 
 ## Frequently Asked Questions
-Confused by the linter? Want to know where your app is in the release process? Checkout our [FAQ](docs/FAQ.md).
+Confused by the linter? Want to know where your app is in the release process? Checkout our [FAQ](https://tidbyt.dev/docs/publish/FAQ).
 
 ## Contributing Changes
 First off, we're over the moon that you're here and want to share what you've been working on with the broader Tidbyt user base 🎉.
@@ -27,7 +28,7 @@ For all contributions, please see our [contributions guide](docs/CONTRIBUTING.md
 code of conduct, policies, and legal info.
 
 **Do you want to publish an app?**
-- Wahoo! Check out our guide on [Publishing Apps](docs/guides/publishing_apps.md)!
+- Wahoo! Check out our guide on [Publishing Apps](https://tidbyt.dev/docs/publish/publishing-apps)!
 
 **Did you find a bug?**
 - Do **not** open up a GitHub issue if the bug is a security vulnerability, and instead to refer to our [security policy](docs/SECURITY.md).
@@ -38,7 +39,7 @@ code of conduct, policies, and legal info.
 - Thank you!! 🙏 please submit a pull request.
 
 **Do you intend to add a new feature or change an existing one?**
-- Check out our guide on [modifying apps](docs/guides/modifying_apps.md) before you make a pull request.
+- Check out our guide on [modifying apps](https://tidbyt.dev/docs/publish/modifying-apps) before you make a pull request.
 
 ## Thanks
 Thanks so much for your interest in contributing to Community Apps. We deeply value contributions of any size. It takes an army to support the deeply specialized use cases of the Tidbyt community and we can't thank you enough.

@@ -42,33 +42,27 @@ def extract_stop(stop):
         print("TFL StopPoint search result does not contain id")
         return None
 
-    towards = None
-    for prop in stop["additionalProperties"]:
-        if prop["key"] != "Towards":
-            continue
-        towards = prop["value"]
-        break
-    if not towards:
-        print("TFL StopPoint search result does not contain direction")
-        return None
-
     return schema.Option(
-        display = "%s - %s towards %s" % (stop["stopLetter"], stop["commonName"], towards),
+        display = "%s - %s" % (stop["stopLetter"], stop["commonName"]),
         value = stop["id"],
     )
 
 # Perform the actual fetch of stops for a location, but use cache if available
 def fetch_stops(location):
-    cached = cache.get(location)
+    loc = json.decode(location)
+    truncated_lat = math.round(1000.0 * float(loc["lat"])) / 1000.0  # Truncate to 3dp for better caching
+    truncated_lng = math.round(1000.0 * float(loc["lng"])) / 1000.0  # Means to the nearest ~110 metres.
+    cache_key = "{},{}".format(truncated_lat, truncated_lng)
+
+    cached = cache.get(cache_key)
     if cached:
         return json.decode(cached)
-    loc = json.decode(location)
     resp = http.get(
         STOP_URL,
         params = {
             "app_key": app_key(),
-            "lat": loc["lat"],
-            "lon": loc["lng"],
+            "lat": str(truncated_lat),
+            "lon": str(truncated_lng),
             "radius": "300",
             "stopTypes": "NaptanPublicBusCoachTram",
             "modes": "bus",
@@ -80,7 +74,7 @@ def fetch_stops(location):
         fail("TFL StopPoint search failed with status ", resp.status_code)
     if not resp.json().get("stopPoints"):
         fail("TFL StopPoint search does not contain stops")
-    cache.set(location, resp.body(), ttl_seconds = 86400)  # Bus stops don't move often
+    cache.set(cache_key, resp.body(), ttl_seconds = 86400)  # Bus stops don't move often
     return resp.json()
 
 # Find list of stops near a given location.
@@ -119,24 +113,14 @@ def get_stop(stop_id):
         if child["naptanId"] != stop_id:
             continue
 
-        towards = None
-        for prop in child["additionalProperties"]:
-            if prop["key"] != "Towards":
-                continue
-            towards = prop["value"]
-            break
-
         if not child.get("commonName"):
             fail("TFL StopPoint response did not contain name")
         if not child.get("stopLetter"):
             fail("TFL StopPoint response did not contain stop letter")
-        if not towards:
-            fail("TFL StopPoint response did not contain direction")
 
         return {
             "name": child["commonName"],
             "code": child["stopLetter"],
-            "towards": towards,
         }
 
     fail("TFL StopPoint response did not contain stop")
@@ -161,6 +145,7 @@ def get_arrivals(stop_id):
         arrivals.append({
             "line": arrival["lineName"],
             "due_in_seconds": arrival["timeToStation"],
+            "destination": arrival["destinationName"],
         })
 
     arrivals = sorted(arrivals, key = lambda x: x["due_in_seconds"])
@@ -169,7 +154,7 @@ def get_arrivals(stop_id):
     return arrivals
 
 # Show a single row in the countdow  time
-def render_arrival(index, line, due_in_seconds):
+def render_arrival(index, line, destination, due_in_seconds):
     # Not 100% confident this is what the countdown timers at stops do,
     # but they have both "due" and "1 min", so there must be a difference.
     if due_in_seconds < 30:
@@ -177,7 +162,7 @@ def render_arrival(index, line, due_in_seconds):
     else:
         due = "%d min" % math.round(due_in_seconds / 60.0)
 
-    return render.Row(
+    due_row = render.Row(
         expanded = True,
         children = [
             # Include an index to a) mimic the countdown timers at bus stops
@@ -192,6 +177,20 @@ def render_arrival(index, line, due_in_seconds):
             ),
         ],
     )
+    destination_row = render.Row(
+        expanded = True,
+        children = [
+            # Include an index to a) mimic the countdown timers at bus stops
+            # and b) if I can work out how to scroll to show more than 3 for
+            # particularly busy stops.
+            render.WrappedText(str(index), width = 8, color = ORANGE),
+            render.WrappedText(destination, width = 54, height = 8, color = ORANGE),
+        ],
+    )
+
+    return render.Animation(
+        children = [due_row] * 100 + [destination_row] * 100,
+    )
 
 # Show rows in the countdown timer
 def render_arrivals(arrivals):
@@ -204,19 +203,22 @@ def render_arrivals(arrivals):
             ),
         )
 
-    return render.Box(
-        height = COUNTDOWN_HEIGHT,
-        child = render.Column(
-            main_align = "start",
-            expanded = True,
-            children = [
-                render_arrival(a["index"], a["line"], a["due_in_seconds"])
-                for a in arrivals
-            ],
+    return render.Padding(
+        pad = (1, 0, 1, 0),
+        child = render.Box(
+            height = COUNTDOWN_HEIGHT,
+            child = render.Column(
+                main_align = "start",
+                expanded = True,
+                children = [
+                    render_arrival(a["index"], a["line"], a["destination"], a["due_in_seconds"])
+                    for a in arrivals
+                ],
+            ),
         ),
     )
 
-def render_stop_details(name, towards, code):
+def render_stop_details(name, code):
     return render.Row(
         expanded = True,
         main_align = "space_between",
@@ -227,7 +229,7 @@ def render_stop_details(name, towards, code):
                 scroll_direction = "horizontal",
                 width = 50,
                 height = 8,
-                child = render.WrappedText("%s towards %s" % (name, towards)),
+                child = render.WrappedText("%s" % name),
             ),
             # There are often multiple nearby stops with the same name, so be precise.
             # Can be up to two letters long.
@@ -272,7 +274,7 @@ def main(config):
             children = [
                 # Top part is about the stop, because there are several near my flat
                 # and I want to keep an eye on all of them
-                render_stop_details(stop["name"], stop["towards"], stop["code"]),
+                render_stop_details(stop["name"], stop["code"]),
                 render_separator(),
                 # Bottom part shows the countdown for the next few arrivals
                 render_arrivals(arrivals[0:3]),

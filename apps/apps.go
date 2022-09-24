@@ -10,6 +10,7 @@ import (
 	"tidbyt.dev/community/apps/abstractclock"
 	"tidbyt.dev/community/apps/advice"
 	"tidbyt.dev/community/apps/afl"
+	"tidbyt.dev/community/apps/amazing"
 	"tidbyt.dev/community/apps/ambientweather"
 	"tidbyt.dev/community/apps/analogclock"
 	"tidbyt.dev/community/apps/analogtime"
@@ -21,7 +22,9 @@ import (
 	"tidbyt.dev/community/apps/bikeshare"
 	"tidbyt.dev/community/apps/binaryclock"
 	"tidbyt.dev/community/apps/blackout"
+	"tidbyt.dev/community/apps/borisbikes"
 	"tidbyt.dev/community/apps/burgeroftheday"
+	"tidbyt.dev/community/apps/busytube"
 	"tidbyt.dev/community/apps/carenewables"
 	"tidbyt.dev/community/apps/charlestownferry"
 	"tidbyt.dev/community/apps/chessviewer"
@@ -80,6 +83,7 @@ import (
 	"tidbyt.dev/community/apps/lirr"
 	"tidbyt.dev/community/apps/londonbusstop"
 	"tidbyt.dev/community/apps/manifest"
+	"tidbyt.dev/community/apps/maze"
 	"tidbyt.dev/community/apps/mbta"
 	"tidbyt.dev/community/apps/mbtanewtrains"
 	"tidbyt.dev/community/apps/metar"
@@ -131,6 +135,7 @@ import (
 	"tidbyt.dev/community/apps/randomslackmoji"
 	"tidbyt.dev/community/apps/redditimages"
 	"tidbyt.dev/community/apps/redditrplace"
+	"tidbyt.dev/community/apps/roblox"
 	"tidbyt.dev/community/apps/sbbtimetable"
 	"tidbyt.dev/community/apps/severewxalertsusa"
 	"tidbyt.dev/community/apps/sfnextmuni"
@@ -159,6 +164,7 @@ import (
 	"tidbyt.dev/community/apps/tempest"
 	"tidbyt.dev/community/apps/teslafi"
 	"tidbyt.dev/community/apps/testpatterns"
+	"tidbyt.dev/community/apps/textbyt"
 	"tidbyt.dev/community/apps/theysaidso"
 	"tidbyt.dev/community/apps/tindiesales"
 	"tidbyt.dev/community/apps/todoist"
@@ -194,6 +200,7 @@ func GetManifests() []manifest.Manifest {
 		abstractclock.New(),
 		advice.New(),
 		afl.New(),
+		amazing.New(),
 		ambientweather.New(),
 		analogclock.New(),
 		analogtime.New(),
@@ -205,7 +212,9 @@ func GetManifests() []manifest.Manifest {
 		bikeshare.New(),
 		binaryclock.New(),
 		blackout.New(),
+		borisbikes.New(),
 		burgeroftheday.New(),
+		busytube.New(),
 		carenewables.New(),
 		charlestownferry.New(),
 		chessviewer.New(),
@@ -263,6 +272,7 @@ func GetManifests() []manifest.Manifest {
 		life.New(),
 		lirr.New(),
 		londonbusstop.New(),
+		maze.New(),
 		mbta.New(),
 		mbtanewtrains.New(),
 		metar.New(),
@@ -314,6 +324,7 @@ func GetManifests() []manifest.Manifest {
 		randomslackmoji.New(),
 		redditimages.New(),
 		redditrplace.New(),
+		roblox.New(),
 		sbbtimetable.New(),
 		severewxalertsusa.New(),
 		sfnextmuni.New(),
@@ -342,6 +353,7 @@ func GetManifests() []manifest.Manifest {
 		tempest.New(),
 		teslafi.New(),
 		testpatterns.New(),
+		textbyt.New(),
 		theysaidso.New(),
 		tindiesales.New(),
 		todoist.New(),
