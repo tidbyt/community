@@ -75,8 +75,10 @@ import (
 	"tidbyt.dev/community/apps/metar"
 	"tidbyt.dev/community/apps/mindthegap"
 	"tidbyt.dev/community/apps/mlbleaders"
+	"tidbyt.dev/community/apps/mlbscoreboard"
 	"tidbyt.dev/community/apps/mlbscores"
 	"tidbyt.dev/community/apps/mlbstandings"
+	"tidbyt.dev/community/apps/mlbwildcardrace"
 	"tidbyt.dev/community/apps/mlsscores"
 	"tidbyt.dev/community/apps/mnlightrail"
 	"tidbyt.dev/community/apps/moretransit"
@@ -238,8 +240,10 @@ func GetManifests() []manifest.Manifest {
 		metar.New(),
 		mindthegap.New(),
 		mlbleaders.New(),
+		mlbscoreboard.New(),
 		mlbscores.New(),
 		mlbstandings.New(),
+		mlbwildcardrace.New(),
 		mlsscores.New(),
 		mnlightrail.New(),
 		moretransit.New(),
