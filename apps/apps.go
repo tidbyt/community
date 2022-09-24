@@ -89,7 +89,6 @@ import (
 	"tidbyt.dev/community/apps/metar"
 	"tidbyt.dev/community/apps/mindthegap"
 	"tidbyt.dev/community/apps/mlbleaders"
-	"tidbyt.dev/community/apps/mlbscoreboard"
 	"tidbyt.dev/community/apps/mlbscores"
 	"tidbyt.dev/community/apps/mlbstandings"
 	"tidbyt.dev/community/apps/mlbwildcardrace"
