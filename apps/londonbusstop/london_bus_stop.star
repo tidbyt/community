@@ -19,6 +19,7 @@ ARRIVALS_URL = "https://api.tfl.gov.uk/StopPoint/%s/Arrivals"
 
 # Allows 500 queries per minute
 ENCRYPTED_API_KEY = "AV6+xWcELQeKmsYDiEPA6VUWk2IZKw+uc9dkaM5cXT/xirUKWgWKfsRAQz2pOxq0eKTNhb/aShsRjavxA84Ay12p6NaZDnDOgVeVxoMCCOnWxJsxmURHogJHpVQpuqBTNttfvafOj0PC1zUXkEpcN7EYhveycs6qxmouIwpDzY5I93wpTy4="
+NO_DATA_IN_CACHE = ""
 
 RED = "#DA291C"  # Pantone 485 C - same as the buses
 ORANGE = "#FFA500"  # Like the countdown timers at bus stops
@@ -54,6 +55,8 @@ def fetch_stops(loc):
     cache_key = "{},{}".format(truncated_lat, truncated_lng)
 
     cached = cache.get(cache_key)
+    if cached == NO_DATA_IN_CACHE:
+        return None
     if cached:
         return json.decode(cached)
     resp = http.get(
@@ -71,9 +74,11 @@ def fetch_stops(loc):
     )
     if resp.status_code != 200:
         print("TFL StopPoint search failed with status ", resp.status_code)
+        cache.set(cache_key, NO_DATA_IN_CACHE, ttl_seconds = 30)
         return None
     if not resp.json().get("stopPoints"):
         print("TFL StopPoint search does not contain stops")
+        cache.set(cache_key, NO_DATA_IN_CACHE, ttl_seconds = 30)
         return None
     cache.set(cache_key, resp.body(), ttl_seconds = 86400)  # Bus stops don't move often
     return resp.json()
@@ -104,6 +109,8 @@ def get_stops(location):
 # Perform the actual fetch for a stop, but use cache if available.
 def fetch_stop(stop_id):
     cached = cache.get(stop_id)
+    if cached == NO_DATA_IN_CACHE:
+        return None
     if cached:
         return json.decode(cached)
     resp = http.get(
@@ -114,6 +121,7 @@ def fetch_stop(stop_id):
     )
     if resp.status_code != 200:
         print("TFL StopPoint request failed with status ", resp.status_code)
+        cache.set(stop_id, NO_DATA_IN_CACHE, ttl_seconds = 30)
         return None
     cache.set(stop_id, resp.body(), ttl_seconds = 30)
     return resp.json()

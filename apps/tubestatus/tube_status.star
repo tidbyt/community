@@ -21,6 +21,7 @@ BLACK = "#000"
 
 DISPLAY_SCROLL = "DISPLAY_SCROLL"
 DISPLAY_SEQUENTIAL = "DISPLAY_SEQUENTIAL"
+NO_DATA_IN_CACHE = ""
 
 LINES = {
     "bakerloo": {
@@ -146,6 +147,8 @@ SEVERITIES = {
 def fetch_response():
     cache_key = "api_response"  # it's always the same input
     cached = cache.get(cache_key)
+    if cached == NO_DATA_IN_CACHE:
+        return None
     if cached:
         return json.decode(cached)
     app_key = secret.decrypt(ENCRYPTED_APP_KEY) or ""  # fall back to anonymous quota
@@ -157,6 +160,7 @@ def fetch_response():
     )
     if resp.status_code != 200:
         print("TFL status request failed with status code ", resp.status_code)
+        cache.set(cache_key, NO_DATA_IN_CACHE, ttl_seconds = 30)
         return None
     cache.set(cache_key, resp.body(), ttl_seconds = 60)
     return resp.json()

@@ -27,6 +27,7 @@ STATION_URL = "https://api.tfl.gov.uk/StopPoint"
 CROWDING_LIVE_URL = "https://api.tfl.gov.uk/Crowding/%s/Live"
 CROWDING_TYPICAL_URL = "https://api.tfl.gov.uk/Crowding/%s/%s"
 ENCRYPTED_APP_KEY = "AV6+xWcEidogMm49QBNMdHN1M2Ysyt35b6k5o9A1/jHKh4sM5Czv5BffoQw0QBvCR7jr/pFvd4eHZqjuLWYkEX4MTpBTAjTFeTGS3ynqTeumZB7CCghUoULPLDscavZpf9X9m/OzQXsPlNS86qKGcLaJ4B/AaVZ8CLvccNTtKgoJYWq8zYI="
+NO_DATA_IN_CACHE = ""
 
 CONTAINER_WIDTH = 62
 CONTAINER_HEIGHT = 30
@@ -48,6 +49,8 @@ def fetch_stations(loc):
     cache_key = "{},{}".format(rounded_lat, rounded_lng)
 
     cached = cache.get(cache_key)
+    if cached == NO_DATA_IN_CACHE:
+        return None
     if cached:
         return json.decode(cached)
     resp = http.get(
@@ -65,9 +68,11 @@ def fetch_stations(loc):
     )
     if resp.status_code != 200:
         print("TFL station search failed with status ", resp.status_code)
+        cache.set(cache_key, NO_DATA_IN_CACHE, ttl_seconds = 30)
         return None
     if not resp.json().get("stopPoints"):
         print("TFL station search does not contain stops")
+        cache.set(cache_key, NO_DATA_IN_CACHE, ttl_seconds = 30)
         return None
     cache.set(cache_key, resp.body(), ttl_seconds = 86400)  # Tube stations don't move often
     return resp.json()
@@ -119,6 +124,8 @@ def list_stations(location):
 def fetch_live_crowdedness(naptan_id):
     live_url = CROWDING_LIVE_URL % naptan_id
     cached = cache.get(live_url)
+    if cached == NO_DATA_IN_CACHE:
+        return None
     if cached:
         return json.decode(cached)
     resp = http.get(
@@ -129,9 +136,11 @@ def fetch_live_crowdedness(naptan_id):
     )
     if resp.status_code != 200:
         print("TFL live crowding query failed with status ", resp.status_code)
+        cache.set(live_url, NO_DATA_IN_CACHE, ttl_seconds = 30)
         return None
     if not resp.json().get("dataAvailable"):
         print("TFL live crowdedness data not available")
+        cache.set(live_url, NO_DATA_IN_CACHE, ttl_seconds = 30)
         return None
     cache.set(live_url, resp.body(), ttl_seconds = 300)  # Data is updated every 5 mins
     return resp.json()

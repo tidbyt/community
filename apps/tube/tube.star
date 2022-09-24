@@ -17,6 +17,7 @@ load("secret.star", "secret")
 ENCRYPTED_APP_KEY = "AV6+xWcEgG4Ru4ZCA4ggWDRK+4zP4YCk4pCZrLiuXoCVSc677Sipk1Wnrag92v1k4qfa9n8e9FuCdsoLbov5osfGWOWUCYDkR3xh/uEsXOLVJvAr8iUXf6RSac2PXnDZ//z+hhgBzVldDDI/9CD8K8MJa0u75SG9EhZYidD9OXh0NggRHeE="
 STATION_URL = "https://api.tfl.gov.uk/StopPoint"
 ARRIVALS_URL = "https://api.tfl.gov.uk/StopPoint/%s/Arrivals"
+NO_DATA_IN_CACHE = ""
 
 HOLBORN_ID = "940GZZLUHBN"
 
@@ -97,6 +98,8 @@ def fetch_stations(loc):
     cache_key = "{},{}".format(truncated_lat, truncated_lng)
 
     cached = cache.get(cache_key)
+    if cached == NO_DATA_IN_CACHE:
+        return None
     if cached:
         return json.decode(cached)
     resp = http.get(
@@ -114,9 +117,11 @@ def fetch_stations(loc):
     )
     if resp.status_code != 200:
         print("TFL station search failed with status ", resp.status_code)
+        cache.set(cache_key, NO_DATA_IN_CACHE, ttl_seconds = 30)
         return None
     if not resp.json().get("stopPoints"):
         print("TFL station search does not contain stops")
+        cache.set(cache_key, NO_DATA_IN_CACHE, ttl_seconds = 30)
         return None
     cache.set(cache_key, resp.body(), ttl_seconds = 86400)  # Tube stations don't move often
     return resp.json()
@@ -185,6 +190,8 @@ def get_stations(location):
 # Lookup upcoming arrivals for our given station, or use cache if available.
 def fetch_arrivals(stop_id):
     cached = cache.get(stop_id)
+    if cached == NO_DATA_IN_CACHE:
+        return None
     if cached:
         return json.decode(cached)
     resp = http.get(
@@ -195,6 +202,7 @@ def fetch_arrivals(stop_id):
     )
     if resp.status_code != 200:
         print("TFL StopPoint request failed with status ", resp.status_code)
+        cache.set(stop_id, NO_DATA_IN_CACHE, ttl_seconds = 30)
         return None
     cache.set(stop_id, resp.body(), ttl_seconds = 30)
     return resp.json()
