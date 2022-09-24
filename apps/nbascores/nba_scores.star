@@ -137,13 +137,13 @@ def main(config):
 
             homeLogoCheck = competition["competitors"][0]["team"].get("logo", "NO")
             if homeLogoCheck == "NO":
-                homeLogoURL = "https://a.espncdn.com/i/espn/misc_logos/500/ncaa_football.vresize.50.50.medium.1.png"
+                homeLogoURL = "https://i.ibb.co/5LMp8T1/transparent.png"
             else:
                 homeLogoURL = competition["competitors"][0]["team"]["logo"]
 
             awayLogoCheck = competition["competitors"][1]["team"].get("logo", "NO")
             if awayLogoCheck == "NO":
-                homeLogoURL = "https://a.espncdn.com/i/espn/misc_logos/500/ncaa_football.vresize.50.50.medium.1.png"
+                awayLogoURL = "https://i.ibb.co/5LMp8T1/transparent.png"
             else:
                 awayLogoURL = competition["competitors"][1]["team"]["logo"]
             homeLogo = get_logoType(home, homeLogoURL)

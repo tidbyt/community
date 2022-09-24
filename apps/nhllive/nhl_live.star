@@ -133,6 +133,16 @@ def main(config):
             game_update = get_live_game_update(gamePk, config, game_state, game_info["goals_away"], game_info["goals_home"])
         else:
             game_update = game_info
+
+        # This isn't ideal but the quickest way to avoid some bigger rewrites. We cache the game_update, which is
+        #  a problem for Preview games + timezones. So, if we're in preview, let's just update this before displaying.
+        if game_state == "Preview":
+            print("  - PREVIEW: Updating GameTime")
+            game_schedule = time.parse_time(gameDate)
+            game_schedule = game_schedule.in_location(get_timezone(config))
+            game_schedule = game_schedule.format("Mon, Jan 2 @ 3:04PM")
+            game_update["game_update"] = "Next Game: " + game_schedule
+
     else:
         print("  - ERROR: No GamePk Found. Displaying NHL Logo.")
         return render.Root(
