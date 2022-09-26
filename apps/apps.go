@@ -66,6 +66,7 @@ import (
 	"tidbyt.dev/community/apps/gapilotbuddy"
 	"tidbyt.dev/community/apps/goodservice"
 	"tidbyt.dev/community/apps/happyhour"
+	"tidbyt.dev/community/apps/hexdailystats"
 	"tidbyt.dev/community/apps/howoldami"
 	"tidbyt.dev/community/apps/hurricanetracker"
 	"tidbyt.dev/community/apps/hvvdepartures"
@@ -97,6 +98,7 @@ import (
 	"tidbyt.dev/community/apps/moretransit"
 	"tidbyt.dev/community/apps/moviequotes"
 	"tidbyt.dev/community/apps/mvv"
+	"tidbyt.dev/community/apps/nascarnextrace"
 	"tidbyt.dev/community/apps/natdex"
 	"tidbyt.dev/community/apps/nationaltoday"
 	"tidbyt.dev/community/apps/nbascores"
@@ -190,6 +192,7 @@ import (
 	"tidbyt.dev/community/apps/wordlebyt"
 	"tidbyt.dev/community/apps/wordoftheday"
 	"tidbyt.dev/community/apps/worldclock"
+	"tidbyt.dev/community/apps/zenhub"
 )
 
 // GetManifests returns a list of all apps in the this repository. Add your applet
@@ -255,6 +258,7 @@ func GetManifests() []manifest.Manifest {
 		gapilotbuddy.New(),
 		goodservice.New(),
 		happyhour.New(),
+		hexdailystats.New(),
 		howoldami.New(),
 		hurricanetracker.New(),
 		hvvdepartures.New(),
@@ -285,6 +289,7 @@ func GetManifests() []manifest.Manifest {
 		moretransit.New(),
 		moviequotes.New(),
 		mvv.New(),
+		nascarnextrace.New(),
 		natdex.New(),
 		nationaltoday.New(),
 		nbascores.New(),
@@ -378,6 +383,7 @@ func GetManifests() []manifest.Manifest {
 		wordlebyt.New(),
 		wordoftheday.New(),
 		worldclock.New(),
+		zenhub.New(),
 	}
 }
 
