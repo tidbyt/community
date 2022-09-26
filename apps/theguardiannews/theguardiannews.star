@@ -34,7 +34,7 @@ def main(config):
     news = json.decode(get_cacheable_data(NEWS_API + edition.lower()))
 
     return render.Root(
-        delay = 190,
+        delay = 70,
         child = render.Column(
             children = [
                 render.Box(
@@ -105,7 +105,7 @@ def get_schema():
                 id = "articlecount",
                 name = "Article Count",
                 desc = "Select number of articles to display",
-                icon = "newspaper",
+                icon = "hashtag",
                 default = "3",
                 options = [
                     schema.Option(
