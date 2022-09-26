@@ -91,6 +91,7 @@ import (
 	"tidbyt.dev/community/apps/mlbleaders"
 	"tidbyt.dev/community/apps/mlbscores"
 	"tidbyt.dev/community/apps/mlbstandings"
+	"tidbyt.dev/community/apps/mlbwildcardrace"
 	"tidbyt.dev/community/apps/mlsscores"
 	"tidbyt.dev/community/apps/mnlightrail"
 	"tidbyt.dev/community/apps/moonphase"
@@ -279,6 +280,7 @@ func GetManifests() []manifest.Manifest {
 		mlbleaders.New(),
 		mlbscores.New(),
 		mlbstandings.New(),
+		mlbwildcardrace.New(),
 		mlsscores.New(),
 		mnlightrail.New(),
 		moonphase.New(),
