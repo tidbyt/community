@@ -67,6 +67,8 @@ def main(config):
         return error_view("API Rate Limit")
     elif orders == ERROR_UNKNOWN:
         return error_view("Unknown Error")
+    elif len(orders) == 0:
+        return error_view("No Orders")
 
     metric = config.get("metric") or "revenue"
     metric_alignment = config.get("metric_alignment") or "center"
@@ -75,7 +77,7 @@ def main(config):
     show_chart = config.bool("show_chart")
     fill_chart = config.bool("fill_chart")
     metric_font = config.get("metric_font") or "5x8"
-    excluded_skus = config.get("excluded_skus").split(",") if config.get("excluded_skus") else None
+    excluded_skus = config.get("excluded_skus").split(",") if config.get("excluded_skus") else []
     content = "-"
     plot_data = None
     if metric == "revenue":
@@ -472,6 +474,9 @@ def get_orders(store_name, api_token, start_time, since_id):
     order_count = get_total_orders_count(store_name, api_token, start_time, since_id)
     if is_response_error(order_count):
         return order_count
+
+    if order_count == 0:
+        return []
 
     total_pages = int(order_count / 250) + 1
     since_id = None
