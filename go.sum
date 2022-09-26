@@ -313,5 +313,5 @@ gopkg.in/yaml.v3 v3.0.1 h1:fxVm/GzAzEWqLHuvctI91KS9hhNmmWOoWu0XTYJS7CA=
 gopkg.in/yaml.v3 v3.0.1/go.mod h1:K4uyk7z7BCEPqu6E+C64Yfv1cQ7kz7rIZviUmN+EgEM=
 honnef.co/go/tools v0.0.0-20190102054323-c2f93a96b099/go.mod h1:rf3lG4BRIbNafJWhAfAdb/ePZxsR/4RtNHQocxwk9r4=
 honnef.co/go/tools v0.0.0-20190523083050-ea95bdfd59fc/go.mod h1:rf3lG4BRIbNafJWhAfAdb/ePZxsR/4RtNHQocxwk9r4=
-tidbyt.dev/pixlet v0.18.3 h1:5312javJKx5r882Jnvc8t07h8mGBp12I3xGZ/NEXkvM=
-tidbyt.dev/pixlet v0.18.3/go.mod h1:H9rP/sU6MbTS2+nb9qJKQJmYQUU+NvEBVBB645dC09Y=
+tidbyt.dev/pixlet v0.19.0 h1:LdQRKHRfdxkpIHENWsPy3Bf149lclWupuI95ZvoDdCI=
+tidbyt.dev/pixlet v0.19.0/go.mod h1:jrfZ2rB027lzTpCgZuLRib7VZ/s/s4ExJ4PCRrzevXM=
