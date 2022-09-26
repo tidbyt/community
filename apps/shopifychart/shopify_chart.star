@@ -486,10 +486,10 @@ def get_orders(store_name, api_token, start_time, since_id):
             return chunk
         else:
             orders.extend(chunk)
-            since_id = str(int(chunk[-1]["id"]))
-            print("Setting since_id {}".format(since_id))
             if len(chunk) == 0:
                 break
+            since_id = str(int(chunk[-1]["id"]))
+            print("Setting since_id {}".format(since_id))
 
     orders = [o for o in orders if o["financial_status"] not in ["refunded", "voided"]]
     print("Fetched {} orders".format(len(orders)))
