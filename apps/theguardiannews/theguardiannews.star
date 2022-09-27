@@ -7,7 +7,8 @@ load("cache.star", "cache")
 # cache data for 15 minutes - cycle through with cache on the API side
 CACHE_TTL_SECONDS = 900
 
-#we grab the current news  website and cache it at this api location to prevent getting rate limited website, data is refreshed on a regular basis
+# we grab the current news from the open api and cache it at this api location to prevent getting rate limited website, 
+# data is refreshed on a regular basis
 NEWS_API = "https://tidbyt.apis.ajcomputers.com/theguardian/api/"
 DEFAULT_NEWS = "Intl"
 DEFAULT_ARTICLE_COUNT = "3"
