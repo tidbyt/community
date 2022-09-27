@@ -341,6 +341,7 @@ def main(config):
                                 ),
                                 render.WrappedText(
                                     content = LINES[line_id]["display"],
+                                    color = textColour(line_id),
                                     align = "center",
                                     width = 62,
                                     height = 8,
