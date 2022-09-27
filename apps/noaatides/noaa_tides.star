@@ -5,8 +5,8 @@ Description: Display daily tides from NOAA stations.
 Author: tavdog
 """
 
-production = False
-debug = True  #  debug mode will not hit network apis
+production = True
+debug = False  #  debug mode will not hit network apis
 print_debug = True
 
 load("render.star", "render")
@@ -123,37 +123,35 @@ def get_stations(location):  # assume we have a valid location json string
 def get_tides_hilo(station_id):
     tides = {}
     url = NOAA_API_URL_HILO % (station_id)
-    debug_print("HILO Url : " + url)
     if not debug:
+        debug_print("HILO Url : " + url)
         resp = http.get(url)
         if resp.status_code != 200:
-            return None
+            tides = None
         else:
             tides = json.decode(resp.body())
             debug_print(tides)
-    else:  # in debug mode just use static json example
-        tides_json = """{"predictions": [ {"t": "2022-03-04 11:05", "v": "-5.532", "type": "L"}, {"t": "2022-03-04 17:10", "v": "12.85", "type": "H"}, {"t": "2022-03-04 22:52", "v": "-1.058", "type": "L"}]}"""
+    else:  # in debug mode return None so main program will just use hilo data for graphing
+        tides_json = """{"predictions": [{"t": "2022-03-04 00:19", "v": "1.630", "type": "H"}, {"t": "2022-03-04 11:05", "v": "-5.532", "type": "L"}, {"t": "2022-03-04 17:10", "v": "12.85", "type": "H"}, {"t": "2022-03-04 22:52", "v": "-1.058", "type": "L"}]}"""
         tides = json.decode(tides_json)
     return tides
 
 def get_tides_graph(station_id):
     tides = {}
     url = NOAA_API_URL_GRAPH % (station_id)
-    debug_print("Graph Url : " + url)
     if not debug:
+        debug_print("Graph Url : " + url)
         resp = http.get(url)
         if resp.status_code != 200:
-            return None
+            tides = None
         else:
             tides = json.decode(resp.body())
-            debug_print(tides)
     else:
-        tides_json = """{"predictions": [{"t": "2022-03-04 00:19", "v": "1.630", "type": "H"}, {"t": "2022-03-04 11:05", "v": "-5.532", "type": "L"}, {"t": "2022-03-04 17:10", "v": "12.85", "type": "H"}, {"t": "2022-03-04 22:52", "v": "-1.058", "type": "L"}]}"""
-        tides = json.decode(tides_json)
+        tides = None
     return tides
 
 def main(config):
-    debug_print("############################################################")
+    debug_print("Program Start ############################################################")
     units = "ft"
 
     # get preferences
@@ -211,24 +209,29 @@ def main(config):
             cache.set(cache_key_hilo, json.encode(tides_hilo), ttl_seconds = 14400)  # 4 hours
             cache.set(cache_key_graph, json.encode(tides_graph), ttl_seconds = 14400)  # 4 hours
 
+    debug_print("Tides HILO : " + str(tides_hilo))
+    debug_print("Tides GRAPH: " + str(tides_graph))
     line_color = color_low
     lines = list()
 
     # check for custom name label
+    debug_print("station_name:" + str(station_name))
     if station_name == None or station_name == "":  # set via config.get at the top
         lines.append(render.Text(content = "NOAA Tides", color = color_label, font = "tb-8"))
     else:
         # if station name is short enough we can use tb-8
-        if len(station_name) < 13:
-            station_name = station_name[0:12]
+        if len(station_name) < 12:
             lines.append(render.Text(content = station_name, color = color_label, font = "tb-8"))
-
         else:
-            station_name = station_name[0:16]
+            if len(station_name) > 16:
+                station_name = station_name[0:16]
             lines.append(render.Text(content = station_name, color = color_label, font = "tom-thumb"))
 
+    points = []
     # generate up HILO lines
-    if tides_hilo and "predictions" in tides_hilo:
+    debug_print("generating hilos")
+    if tides_hilo != None and "predictions" in tides_hilo:
+        debug_print("tide data is present")
         for pred in tides_hilo["predictions"]:
             if units_pref == "meters":
                 v = int((float(pred["v"]) / 3 + 0.05) * 10) / 10.0  # round to 1 decimal
@@ -286,6 +289,14 @@ def main(config):
                     ],
                 ),
             )
+        # Create the graph points list and populate it
+        if tides_graph == None or "predictions" not in tides_graph:
+            tides_graph = tides_hilo
+        x = 0
+        for height_at_time in tides_graph["predictions"]:
+            points.append((x, float(height_at_time["v"])))
+            x = x + 1
+
     else:  # render an error message
         lines.append(render.WrappedText(
             content = "Invalid Station ID",
@@ -293,17 +304,6 @@ def main(config):
             color = "#FF0000",
             align = "center",
         ))
-
-    # Create the graph points list and populate it
-    points = []
-    if "predictions" not in tides_graph:
-        tides_graph = tides_hilo
-    if tides_graph and "predictions" in tides_graph:  # make sure we actually have some data
-        x = 0
-        for height_at_time in tides_graph["predictions"]:
-            points.append((x, float(height_at_time["v"])))
-            x = x + 1
-
     main_text = render.Box(
         child = render.Column(
             expanded = True,
@@ -312,7 +312,6 @@ def main(config):
             children = lines,
         ),
     )
-
     data_graph = render.Plot(
         data = points,
         width = 64,
@@ -322,7 +321,7 @@ def main(config):
         fill = True,
     )
     root_children = [main_text]
-    if config.get("display_graph", "true") == "true":
+    if config.get("display_graph", "true") == "true" and len(points) > 0:
         root_children = [data_graph, main_text]
 
     return render.Root(
@@ -444,14 +443,14 @@ def get_schema():
             default = "feet",
         ),
     )
-    # fields.append(
-    #     schema.Text(
-    #         id = "station_id",
-    #         name = "Manual Station ID Input",
-    #         icon = "monument",
-    #         desc = "Optional manual station id",
-    #     ),
-    # )
+    fields.append(
+        schema.Text(
+            id = "station_id",
+            name = "Manual Station ID Input",
+            icon = "monument",
+            desc = "Optional manual station id",
+        ),
+    )
 
     return schema.Schema(
         version = "1",
