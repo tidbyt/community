@@ -216,9 +216,16 @@ def main(config):
 
     # check for custom name label
     if station_name == None or station_name == "":  # set via config.get at the top
-        lines.append(render.Text(content = "Local Tides", color = color_label, font = "tom-thumb"))
+        lines.append(render.Text(content = "NOAA Tides", color = color_label, font = "tb-8"))
     else:
-        lines.append(render.Text(content = station_name, color = color_label, font = "tom-thumb"))
+        # if station name is short enough we can use tb-8
+        if len(station_name) < 13:
+            station_name = station_name[0:12]
+            lines.append(render.Text(content = station_name, color = color_label, font = "tb-8"))
+
+        else:
+            station_name = station_name[0:16]
+            lines.append(render.Text(content = station_name, color = color_label, font = "tom-thumb"))
 
     # generate up HILO lines
     if tides_hilo and "predictions" in tides_hilo:
