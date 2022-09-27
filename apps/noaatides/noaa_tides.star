@@ -7,7 +7,7 @@ Author: tavdog
 
 production = True
 debug = False  #  debug mode will not hit network apis
-print_debug = True
+print_debug = False
 
 load("render.star", "render")
 load("schema.star", "schema")
@@ -120,6 +120,7 @@ def get_stations(location):  # assume we have a valid location json string
     return station_options
 
     # return decode json object of tide data
+
 def get_tides_hilo(station_id):
     tides = {}
     url = NOAA_API_URL_HILO % (station_id)
@@ -158,7 +159,7 @@ def main(config):
     units_pref = config.get("h_units", "feet")
     time_format = config.get("time_format", "24HR")
     station_id = config.get("station_id", "")
-    station_name = config.get("station_name")      #  we want this to be blank or None
+    station_name = config.get("station_name")  #  we want this to be blank or None
     color_label = config.get("label_color", "#0a0")  # green
     color_low = config.get("low_color", "#A00")  # red
     color_high = config.get("high_color", "#D2691E")  # nice orange
@@ -168,7 +169,7 @@ def main(config):
     if station_id == "none" or station_id == "" or not station_id:  # if manual input is empty load from local selection
         debug_print("getting local_station_id")
         if production:
-            local_selection = config.get("local_station_id", '{"display": "Station 1613198 - Example", "value": "1613198"}')
+            local_selection = config.get("local_station_id", '{"display": "Kahului Harbor", "value": "1613198"}')
         else:
             local_selection = config.get("local_station_id", "1613198")  # default is Waimea
 
@@ -228,6 +229,7 @@ def main(config):
             lines.append(render.Text(content = station_name, color = color_label, font = "tom-thumb"))
 
     points = []
+
     # generate up HILO lines
     debug_print("generating hilos")
     if tides_hilo != None and "predictions" in tides_hilo:
@@ -289,6 +291,7 @@ def main(config):
                     ],
                 ),
             )
+
         # Create the graph points list and populate it
         if tides_graph == None or "predictions" not in tides_graph:
             tides_graph = tides_hilo
@@ -297,13 +300,14 @@ def main(config):
             points.append((x, float(height_at_time["v"])))
             x = x + 1
 
-    else:  # render an error message
+    else:  # append error message to lines, return it down below
         lines.append(render.WrappedText(
             content = "Invalid Station ID",
             font = "tb-8",
             color = "#FF0000",
             align = "center",
         ))
+
     main_text = render.Box(
         child = render.Column(
             expanded = True,
@@ -321,7 +325,8 @@ def main(config):
         fill = True,
     )
     root_children = [main_text]
-    if config.get("display_graph", "true") == "true" and len(points) > 0:
+
+    if config.get("display_graph", "true") == "true" and len(points) > 0:  # panic if we try to render an empty graph object
         root_children = [data_graph, main_text]
 
     return render.Root(
