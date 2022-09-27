@@ -6,7 +6,7 @@ Author: tavdog
 """
 
 production = False
-debug = False
+debug = True  #  debug mode will not hit network apis
 print_debug = True
 
 load("render.star", "render")
