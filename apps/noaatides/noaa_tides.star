@@ -34,7 +34,7 @@ def debug_print(arg):
     if print_debug:
         print(arg)
 
-def get_stations(location):  # assume we have a valid location json
+def get_stations(location):  # assume we have a valid location json string
     location = json.decode(location)
     stations_json = {}
     station_options = list()
@@ -119,7 +119,7 @@ def get_stations(location):  # assume we have a valid location json
 
     return station_options
 
-# return decode json object of tide data
+    # return decode json object of tide data
 def get_tides_hilo(station_id):
     tides = {}
     url = NOAA_API_URL_HILO % (station_id)
@@ -154,13 +154,13 @@ def get_tides_graph(station_id):
 
 def main(config):
     debug_print("############################################################")
+    units = "ft"
 
     # get preferences
     units_pref = config.get("h_units", "feet")
     time_format = config.get("time_format", "24HR")
-    units = "ft"
     station_id = config.get("station_id", "")
-    station_name = config.get("station_name", "Local Tides")
+    station_name = config.get("station_name")      #  we want this to be blank or None
     color_label = config.get("label_color", "#0a0")  # green
     color_low = config.get("low_color", "#A00")  # red
     color_high = config.get("high_color", "#D2691E")  # nice orange
@@ -170,7 +170,7 @@ def main(config):
     if station_id == "none" or station_id == "" or not station_id:  # if manual input is empty load from local selection
         debug_print("getting local_station_id")
         if production:
-            local_selection = config.get("local_station_id", '{"display": "Station 1613198 - Example", "value": "1613198"}')  # default is
+            local_selection = config.get("local_station_id", '{"display": "Station 1613198 - Example", "value": "1613198"}')
         else:
             local_selection = config.get("local_station_id", "1613198")  # default is Waimea
 
@@ -181,13 +181,14 @@ def main(config):
         # this is needed for locationbased selection in production environment
         if "value" in local_selection:
             station_id = json.decode(local_selection)["value"]
-            station_name = json.decode(local_selection)["display"]
+            if station_name == None or station_name == "":
+                station_name = json.decode(local_selection)["display"]
         else:
             station_id = local_selection  # san fran
 
     debug_print("using station_id: " + station_id)
 
-    # CACHINE CODE
+    ################################ CACHINE CODE
     tides_hilo = {}
 
     #load HILO cache
@@ -214,7 +215,7 @@ def main(config):
     lines = list()
 
     # check for custom name label
-    if len(station_name) == 0:  # set via config.get at the top
+    if station_name == None or station_name == "":  # set via config.get at the top
         lines.append(render.Text(content = "Local Tides", color = color_label, font = "tom-thumb"))
     else:
         lines.append(render.Text(content = station_name, color = color_label, font = "tom-thumb"))
