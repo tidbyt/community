@@ -1,5 +1,5 @@
 """
-Applet: LaunchCountdown/siteminderagent/forms/nfcu.fcc
+Applet: LaunchCountdown
 Summary: Displays next world launch
 Description: Displays the next rocket launch in the world.
 Author: Robert Ison
