@@ -4,6 +4,7 @@ load("encoding/base64.star", "base64")
 load("cache.star", "cache")
 load("encoding/json.star", "json")
 load("schema.star", "schema")
+load("hash.star", "hash")
 
 ZENHUB_REST_API_URL = "https://api.zenhub.com"
 ZENHUB_GQL_API_URL = "https://api.zenhub.com/public/graphql"
@@ -94,8 +95,8 @@ def main(config):
     if len(selected_assignees) > 0:
         filters["assignees"] = {"in": selected_assignees}
 
-    pipeline_cache = cache.get("zenhubapp_pipeline")
-    issues_cache = cache.get("zenhubapp_issues")
+    pipeline_cache = cache.get("zenhubapp_pipeline_%s" % hash.md5(zenhub_gql_api_key))
+    issues_cache = cache.get("zenhubapp_issues_%s" % hash.md5(zenhub_gql_api_key))
 
     if pipeline_cache != None:
         print("[ZENHUB APP] Pipeline cache hit")
@@ -127,7 +128,7 @@ def main(config):
         else:
             return render_error("Pipeline not found")
 
-        cache.set("zenhubapp_pipeline", str(pipeline_id), ttl_seconds = 120)
+        cache.set("zenhubapp_pipeline_%s" % hash.md5(zenhub_gql_api_key), str(pipeline_id), ttl_seconds = 120)
 
     if issues_cache != None:
         print("[ZENHUB APP] Issues cache hit")
@@ -169,7 +170,7 @@ def main(config):
             return render_error("Invalid Zenhub config")
 
         issues = issues_res.json()["data"]["searchIssuesByPipeline"]["nodes"]
-        cache.set("zenhubapp_issues", str(issues), ttl_seconds = 120)
+        cache.set("zenhubapp_issues_%s" % hash.md5(zenhub_gql_api_key), str(issues), ttl_seconds = 120)
 
     issue_rows = []
 
