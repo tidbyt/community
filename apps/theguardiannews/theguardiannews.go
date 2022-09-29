@@ -17,7 +17,7 @@ func New() manifest.Manifest {
 		Name:        "The Guardian News",
 		Author:      "jvivona",
 		Summary:     "Guardian News Headlines",
-		Desc:        "Gets latest new articles from The Guardian and displays up to 3 articles for selected edition",
+		Desc:        "Gets latest new articles from The Guardian and displays up to 3 articles for selected edition.",
 		FileName:    "theguardiannews.star",
 		PackageName: "theguardiannews",
 		Source:      source,
