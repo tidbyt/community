@@ -26,12 +26,15 @@ DEFAULT_DOCK_ID = "BikePoints_614"
 ENCRYPTED_APP_KEY = "AV6+xWcEJKHv8HrhH6FLyaWzsz0i+mcRr8QYac5oRBnj3Cruqdg/l/CuruDiOf4ILRyQPe5/7yoV3Wu8kdXr6WC4rK4FH/1FDuJksEGpdW9NKQj9m/mO3JH/s8B4ygGnPwstFgB/OWHTJh/92hu1hcpGVLhj4QHTY7Eai7HMqKg94x4Sk9I="
 LIST_DOCKS_URL = "https://api.tfl.gov.uk/BikePoint"
 DOCK_URL = "https://api.tfl.gov.uk/BikePoint/%s"
+NO_DATA_IN_CACHE = ""
 
 def app_key():
     return secret.decrypt(ENCRYPTED_APP_KEY) or ""  # Fall back to freebie quota
 
 def fetch_docks():
     cached = cache.get(LIST_DOCKS_URL)
+    if cached == NO_DATA_IN_CACHE:
+        return None
     if cached:
         return json.decode(cached)
     resp = http.get(
@@ -41,13 +44,31 @@ def fetch_docks():
         },
     )
     if resp.status_code != 200:
-        fail("TFL BikePoint query failed with status ", resp.status_code)
+        print("TFL BikePoint query failed with status ", resp.status_code)
+        cache.set(LIST_DOCKS_URL, NO_DATA_IN_CACHE, ttl_seconds = 30)
+        return None
     cache.set(LIST_DOCKS_URL, resp.body(), ttl_seconds = 86400)  # Bike docks don't move often
     return resp.json()
 
+# API gives errors when searching for locations outside the United Kingdom.
+def outside_uk_bounds(loc):
+    lat = float(loc["lat"])
+    lng = float(loc["lng"])
+    if lat <= 49.9 or lat >= 58.7 or lng <= -11.05 or lng >= 1.78:
+        return True
+    return False
+
 def list_docks(location):
     loc = json.decode(location)
+    if outside_uk_bounds(loc):
+        return [schema.Option(
+            display = "Default option - location is outside the UK",
+            value = DEFAULT_DOCK_ID,
+        )]
+
     docks = fetch_docks()
+    if not docks:
+        return []
     options = []
     for dock in docks:
         id = dock["id"]
@@ -55,7 +76,8 @@ def list_docks(location):
         lat = dock["lat"]
         lon = dock["lon"]
         if None in (id, name, lat, lon):
-            fail("TFL Bikepoint query missing required field: ", dock)
+            print("TFL Bikepoint query missing required field: ", dock)
+            continue
         option = schema.Option(
             display = name,
             value = id,
@@ -67,6 +89,8 @@ def list_docks(location):
 
 def fetch_dock(dock_id):
     cached = cache.get(dock_id)
+    if cached == NO_DATA_IN_CACHE:
+        return None
     if cached:
         return json.decode(cached)
     resp = http.get(
@@ -76,13 +100,16 @@ def fetch_dock(dock_id):
         },
     )
     if resp.status_code != 200:
-        fail("TFL BikePoint request failed with status ", resp.status_code)
+        print("TFL BikePoint request failed with status ", resp.status_code)
+        cache.set(dock_id, NO_DATA_IN_CACHE, ttl_seconds = 30)
+        return None
     cache.set(dock_id, resp.body(), ttl_seconds = 30)
     return resp.json()
 
 def tidy_name(name):
     if not name:
-        fail("TFL BikePoint request did not contain dock name")
+        print("TFL BikePoint request did not contain dock name")
+        return "Unknown dock"
 
     # Don't need the bit of town, user chose the location.
     comma = name.rfind(",")
@@ -102,6 +129,8 @@ def tidy_name(name):
 
 def get_dock(dock_id):
     resp = fetch_dock(dock_id)
+    if not resp:
+        return "No data", "?", "?"
     name = tidy_name(resp["commonName"])
     acoustic_count = 0
     electric_count = 0
