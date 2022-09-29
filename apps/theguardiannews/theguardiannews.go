@@ -13,7 +13,7 @@ var source []byte
 func New() manifest.Manifest {
 	return manifest.Manifest{
 		ID:          "theguardiannews",
-		Name:        "The Guardian News Headlines",
+		Name:        "The Guardian News",
 		Author:      "jvivona",
 		Summary:     "The Guardian News Headlines applet ",
 		Desc:        "gets latest new articles from The Guardian public/open API and displays up to 3 articles for selected edition",
