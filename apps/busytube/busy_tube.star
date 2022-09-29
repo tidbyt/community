@@ -18,6 +18,7 @@ load("time.star", "time")
 RED = "#d3212c"
 GREEN = "#69b34c"
 ORANGE = "#ff980e"
+GREY = "#666"
 WHITE = "#fff"
 
 DEFAULT_STATION_NAME = "Russell Square"
@@ -27,6 +28,7 @@ STATION_URL = "https://api.tfl.gov.uk/StopPoint"
 CROWDING_LIVE_URL = "https://api.tfl.gov.uk/Crowding/%s/Live"
 CROWDING_TYPICAL_URL = "https://api.tfl.gov.uk/Crowding/%s/%s"
 ENCRYPTED_APP_KEY = "AV6+xWcEidogMm49QBNMdHN1M2Ysyt35b6k5o9A1/jHKh4sM5Czv5BffoQw0QBvCR7jr/pFvd4eHZqjuLWYkEX4MTpBTAjTFeTGS3ynqTeumZB7CCghUoULPLDscavZpf9X9m/OzQXsPlNS86qKGcLaJ4B/AaVZ8CLvccNTtKgoJYWq8zYI="
+NO_DATA_IN_CACHE = ""
 
 CONTAINER_WIDTH = 62
 CONTAINER_HEIGHT = 30
@@ -42,13 +44,14 @@ def app_key():
     return secret.decrypt(ENCRYPTED_APP_KEY)  # No freebie quota available, have to use app key
 
 # Get list of stations near a given location, or look up from cache if available.
-def fetch_stations(location):
-    loc = json.decode(location)
+def fetch_stations(loc):
     rounded_lat = math.round(1000.0 * float(loc["lat"])) / 1000.0  # truncate to 3dp, which means
     rounded_lng = math.round(1000.0 * float(loc["lng"])) / 1000.0  # to the nearest ~110 metres.
     cache_key = "{},{}".format(rounded_lat, rounded_lng)
 
     cached = cache.get(cache_key)
+    if cached == NO_DATA_IN_CACHE:
+        return None
     if cached:
         return json.decode(cached)
     resp = http.get(
@@ -65,21 +68,47 @@ def fetch_stations(location):
         },
     )
     if resp.status_code != 200:
-        fail("TFL station search failed with status ", resp.status_code)
+        print("TFL station search failed with status ", resp.status_code)
+        cache.set(cache_key, NO_DATA_IN_CACHE, ttl_seconds = 30)
+        return None
     if not resp.json().get("stopPoints"):
-        fail("TFL station search does not contain stops")
+        print("TFL station search does not contain stops")
+        cache.set(cache_key, NO_DATA_IN_CACHE, ttl_seconds = 30)
+        return None
     cache.set(cache_key, resp.body(), ttl_seconds = 86400)  # Tube stations don't move often
     return resp.json()
 
+# API gives errors when searching for locations outside the United Kingdom.
+def outside_uk_bounds(loc):
+    lat = float(loc["lat"])
+    lng = float(loc["lng"])
+    if lat <= 49.9 or lat >= 58.7 or lng <= -11.05 or lng >= 1.78:
+        return True
+    return False
+
 # Find and extract details of all stations near a given location.
 def list_stations(location):
-    data = fetch_stations(location)
+    loc = json.decode(location)
+    if outside_uk_bounds(loc):
+        return [schema.Option(
+            display = "Default option - location is outside the UK",
+            value = json.encode({
+                "naptanId": DEFAULT_NAPTAN_ID,
+                "name": DEFAULT_STATION_NAME,
+            }),
+        )]
+
+    data = fetch_stations(loc)
+    if not data:
+        return []
     options = []
     for station in data["stopPoints"]:
         if not station.get("naptanId"):
-            fail("TFL station result does not include naptanId")
+            print("TFL station result does not include naptanId")
+            continue
         if not station.get("commonName"):
-            fail("TFL station result does not include name")
+            print("TFL station result does not include name")
+            continue
 
         station_name = station["commonName"].removesuffix(" Underground Station")
         option = schema.Option(
@@ -96,6 +125,8 @@ def list_stations(location):
 def fetch_live_crowdedness(naptan_id):
     live_url = CROWDING_LIVE_URL % naptan_id
     cached = cache.get(live_url)
+    if cached == NO_DATA_IN_CACHE:
+        return None
     if cached:
         return json.decode(cached)
     resp = http.get(
@@ -105,15 +136,21 @@ def fetch_live_crowdedness(naptan_id):
         },
     )
     if resp.status_code != 200:
-        fail("TFL live crowding query failed with status ", resp.status_code)
+        print("TFL live crowding query failed with status ", resp.status_code)
+        cache.set(live_url, NO_DATA_IN_CACHE, ttl_seconds = 30)
+        return None
     if not resp.json().get("dataAvailable"):
-        fail("TFL live crowdedness data not available")
+        print("TFL live crowdedness data not available")
+        cache.set(live_url, NO_DATA_IN_CACHE, ttl_seconds = 30)
+        return None
     cache.set(live_url, resp.body(), ttl_seconds = 300)  # Data is updated every 5 mins
     return resp.json()
 
 # Extract data about currrent crowdedness from API response
 def get_live_crowdedness(naptan_id):
     resp = fetch_live_crowdedness(naptan_id)
+    if not resp:
+        return None
     return resp["percentageOfBaseline"]
 
 # Follows same numbering as humanize.day_of_week
@@ -148,9 +185,11 @@ def fetch_typical_crowdedness(naptan_id, now):
         },
     )
     if resp.status_code != 200:
-        fail("TFL live crowding query failed with status ", resp.status_code)
+        print("TFL live crowding query failed with status ", resp.status_code)
+        return None
     if not resp.json().get("isFound"):
-        fail("TFL live crowdedness data not available")
+        print("TFL live crowdedness data not available")
+        return None
     cache.set(typical_url, resp.body(), ttl_seconds = 604800)  # Data only needed once a week
     return resp.json()
 
@@ -164,6 +203,8 @@ def extract_time(timeBand):
 # Extract data about typical crowdedness from API response.
 def get_typical_crowdedness(naptan_id, now):
     resp = fetch_typical_crowdedness(naptan_id, now)
+    if not resp:
+        return []
     data = []
     for band in resp["timeBands"]:
         data.append((extract_time(band["timeBand"]), band["percentageOfBaseLine"]))
@@ -172,11 +213,14 @@ def get_typical_crowdedness(naptan_id, now):
 # Using labels suggested by TfL themselves
 # https://techforum.tfl.gov.uk/t/data-drop-near-real-time-crowding-data-api/1916
 def format(crowdedness):
-    if (crowdedness) < QUIET_MAX:
-        return "Quiet", GREEN
-    if (crowdedness) < BUSY_MAX:
-        return "Busy", ORANGE
-    return "Very busy", RED
+    if not crowdedness:
+        return "Unknown", GREY, "?%"
+    number = "{}%".format(int(100 * crowdedness))
+    if crowdedness < QUIET_MAX:
+        return "Quiet", GREEN, number
+    if crowdedness < BUSY_MAX:
+        return "Busy", ORANGE, number
+    return "Very busy", RED, number
 
 def main(config):
     station = config.get("station")
@@ -192,7 +236,7 @@ def main(config):
     pct_peak_crowdedness = get_live_crowdedness(naptan_id)
 
     # Pick a colour and phrase to convey status.
-    status, status_colour = format(pct_peak_crowdedness)
+    status, status_colour, status_number = format(pct_peak_crowdedness)
 
     # Show where we are in the graph.
     now = time.now().in_location("Europe/London")
@@ -223,7 +267,7 @@ def main(config):
                             expanded = True,
                             children = [
                                 render.Text(status, color = status_colour),
-                                render.Text("{}%".format(int(100 * pct_peak_crowdedness)), color = status_colour),
+                                render.Text(status_number, color = status_colour),
                             ],
                         ),
                         # Typical crowdedness for this day of the week
@@ -261,7 +305,7 @@ def get_schema():
         fields = [
             schema.LocationBased(
                 id = "station",
-                name = "Station and line",
+                name = "Station",
                 desc = "The tube station to check capacity for",
                 icon = "trainSubway",
                 handler = list_stations,
