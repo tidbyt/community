@@ -289,7 +289,6 @@ func GetManifests() []manifest.Manifest {
 		moretransit.New(),
 		moviequotes.New(),
 		mvv.New(),
-		nascarnextrace.New(),
 		natdex.New(),
 		nationaltoday.New(),
 		nbascores.New(),
