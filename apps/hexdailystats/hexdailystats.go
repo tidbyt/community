@@ -17,9 +17,9 @@ func New() manifest.Manifest {
 		Name:        "HEX Daily Stats",
 		Author:      "kmphua",
 		Summary:     "HEX Daily Stats",
-		Desc:        "Displays HEX price, Payout per T-Share and T-Share rate",
+		Desc:        "Displays HEX price, Payout per T-Share and T-Share rate.",
 		FileName:    "hex_daily_stats.star",
 		PackageName: "hexdailystats",
-		Source:  source,
+		Source:      source,
 	}
 }
