@@ -7,6 +7,7 @@ import (
 	"tidbyt.dev/community/apps/manifest"
 )
 
+//go:embed theguardiannews.star
 var source []byte
 
 // New creates instance of applet.
