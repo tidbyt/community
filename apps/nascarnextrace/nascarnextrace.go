@@ -7,7 +7,7 @@ import (
 	"tidbyt.dev/community/apps/manifest"
 )
 
-
+//go:embed nascarnextrace.star
 var source []byte
 
 // New creates instance of applet.
@@ -17,9 +17,9 @@ func New() manifest.Manifest {
 		Name:        "NASCAR Next Race",
 		Author:      "jvivona",
 		Summary:     "Next NASCAR Race ",
-		Desc:        "Shows Time date and location of Next NASCAR race for selected series.",
+		Desc:        "Shows time, date and location of next NASCAR race for selected series.",
 		FileName:    "nascarnextrace.star",
 		PackageName: "nascarnextrace",
-		Source:  source,
+		Source:      source,
 	}
 }
