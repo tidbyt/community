@@ -10,6 +10,111 @@ ZENHUB_REST_API_URL = "https://api.zenhub.com"
 ZENHUB_GQL_API_URL = "https://api.zenhub.com/public/graphql"
 ZENHUB_ICON = base64.decode("""iVBORw0KGgoAAAANSUhEUgAAAAgAAAAICAYAAADED76LAAAAAXNSR0IArs4c6QAAAN1JREFUKFM1jjFKA2EUhL9RVjC9hlitYBHwALoRIU3wBIIQ9QQWgWittQpu4Q0SQcgRkkbBoBcQCyXZIhK0T0hWePJ+sRtm5n3zlGYVk0Ej7msry4N+Xo9Ub04NDKXZjskMA+714B4btz8gQ4AkcTOoeE5rfIctiM3OKt5sXxekZDg3T/PvT8qPNT56Z+QXe0TFkt+g7WFuEszGI5bPu8S1S952u0TFNV9BSBw1J2Hwdf8L//J4pe42jfhJOjydBoLPvJ8sBuyBVR3+N/FfaF0VlGQzc9RLvKR0kAT9C5GsVRBZZKbEAAAAAElFTkSuQmCC""")
 
+issue_colors = [
+    "#91e03a",  # ZH Green
+    "#37e1fb",  # ZH Blue
+    "#5c74f7",  # ZH Purple
+]
+def render_welcome():
+    return render.Root(
+        child=render.Column(
+            expanded=True,
+            main_align="space_evenly",
+            cross_align="center",
+            children=[
+                render.Padding(
+                    pad=(1, 1, 0, 0),
+                    child=render.Row(
+                        expanded=True,
+                        main_align="start",
+                        cross_align="center",
+                        children=[
+                            render.Image(src=ZENHUB_ICON),
+                            render.Padding(
+                                pad=(1, 0, 0, 0),
+                                child=render.Marquee(
+                                    width=50,
+                                    align="start",
+                                    child=render.Text("Backlog"),
+                                ),
+                            ),
+                        ],
+                    ),
+                ),
+                render.Padding(
+                    pad=(1, 1, 0, 0),
+                    child=render.Column(
+                        expanded=True,
+                        main_align="space_evenly",
+                        cross_align="start",
+                        children=[
+                            render.Row(
+                                expanded=True,
+                                main_align="space_evenly",
+                                cross_align="center",
+                                children=[
+                                    render.Text(
+                                        font="CG-pixel-3x5-mono",
+                                        content="0001:",
+                                        color=issue_colors[0],
+                                    ),
+                                    render.Marquee(
+                                        width=50,
+                                        offset_start=0,
+                                        child=render.Text(
+                                            font="CG-pixel-3x5-mono",
+                                            content="Get API Keys ",
+                                        ),
+                                    ),
+                                ],
+                            ),
+                            render.Row(
+                                expanded=True,
+                                main_align="space_evenly",
+                                cross_align="center",
+                                children=[
+                                    render.Text(
+                                        font="CG-pixel-3x5-mono",
+                                        content="0002:",
+                                        color=issue_colors[1],
+                                    ),
+                                    render.Marquee(
+                                        width=50,
+                                        offset_start=0,
+                                        child=render.Text(
+                                            font="CG-pixel-3x5-mono",
+                                            content="Get Workspace ID",
+                                        ),
+                                    ),
+                                ],
+                            ),
+                            render.Row(
+                                expanded=True,
+                                main_align="space_evenly",
+                                cross_align="center",
+                                children=[
+                                    render.Text(
+                                        font="CG-pixel-3x5-mono",
+                                        content="0003:",
+                                        color=issue_colors[2],
+                                    ),
+                                    render.Marquee(
+                                        width=50,
+                                        offset_start=0,
+                                        child=render.Text(
+                                            font="CG-pixel-3x5-mono",
+                                            content="Get Repository ID",
+                                        ),
+                                    ),
+                                ],
+                            )
+                        ],
+                    ),
+                ),
+            ],
+        ),
+    )
+
 def render_error(message, small = False):
     return render.Root(
         child = render.Column(
@@ -66,6 +171,9 @@ def main(config):
     selected_pipeline = config.str("selected_pipeline", None)
     selected_labels = config.str("selected_labels", "")
     selected_assignees = config.str("selected_assignees", "")
+
+    if not zenhub_rest_api_key and not zenhub_gql_api_key:
+        return render_welcome()
 
     if not zenhub_rest_api_key:
         return render_error("REST API Token missing")
@@ -174,12 +282,6 @@ def main(config):
 
     issue_rows = []
 
-    issue_colors = [
-        "#91e03a",  # ZH Green
-        "#37e1fb",  # ZH Blue
-        "#5c74f7",  # ZH Purple
-    ]
-
     if len(issues) == 0:
         issue_rows = [
             render.Row(
@@ -264,25 +366,25 @@ def get_schema():
             schema.Text(
                 id = "zenhub_rest_api_key",
                 name = "Zenhub REST API Token",
-                desc = "Your personal Zenhub REST API Token. Generated at https://app.zenhub.com/settings/tokens",
+                desc = "Your personal Zenhub REST API Token",
                 icon = "key",
             ),
             schema.Text(
                 id = "zenhub_gql_api_key",
                 name = "Zenhub GraphQL Personal API Key",
-                desc = "Your personal Zenhub GraphQL API Key. Generated at https://app.zenhub.com/settings/tokens",
+                desc = "Your personal Zenhub GraphQL API Key",
                 icon = "key",
             ),
             schema.Text(
                 id = "workspace_id",
                 name = "Zenhub Workspace ID",
-                desc = "Your Zenhub Workspace ID. More info in https://github.com/ZenHubIO/API#endpoint-reference",
+                desc = "Your Zenhub Workspace ID",
                 icon = "key",
             ),
             schema.Text(
                 id = "repo_id",
                 name = "Zenhub Repository ID",
-                desc = "Your Zenhub Repository ID. More info in https://github.com/ZenHubIO/API#endpoint-reference",
+                desc = "Your Zenhub Repository ID",
                 icon = "key",
             ),
             schema.Text(
@@ -294,13 +396,13 @@ def get_schema():
             schema.Text(
                 id = "selected_labels",
                 name = "Filter by Labels",
-                desc = "Labels to filter the issues. Separate by comma with no spaces. For example: backend,frontend,mobile",
+                desc = "Labels to filter the issues. Separate by comma with no spaces",
                 icon = "tags",
             ),
             schema.Text(
                 id = "selected_assignees",
                 name = "Filter by Assignees",
-                desc = "Github user to filter the issues by assignee. Separate by comma with no spaces. For example: user1,johndoe999",
+                desc = "Github user to filter the issues by assignee. Separate by comma with no spaces",
                 icon = "users",
             ),
         ],
