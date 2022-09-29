@@ -396,7 +396,7 @@ def render_arrivals(arrivals):
     frames = []
     for i in range(0, len(arrivals), 3):
         frame = render_arrivals_frame(arrivals.items()[i:i + 3])
-        frames.append(frame)
+        frames.extend([frame] * 100)
     return render.Animation(
         children = frames,
     )
@@ -419,7 +419,7 @@ def main(config):
     # some station names are very long like High Street Kensington or
     # King's Cross St. Pancras, so we need all the space for the name.
     return render.Root(
-        delay = 2000,
+        delay = 25,
         child = render.Column(
             children = [
                 render.Box(
