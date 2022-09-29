@@ -24,6 +24,7 @@ NO_DATA_IN_CACHE = ""
 RED = "#DA291C"  # Pantone 485 C - same as the buses
 ORANGE = "#FFA500"  # Like the countdown timers at bus stops
 COUNTDOWN_HEIGHT = 24
+FONT = "tom-thumb"
 
 def app_key():
     return secret.decrypt(ENCRYPTED_API_KEY) or ""  # fall back to anonymous quota
@@ -201,12 +202,28 @@ def render_arrival(index, line, destination, due_in_seconds):
             # Include an index to a) mimic the countdown timers at bus stops
             # and b) if I can work out how to scroll to show more than 3 for
             # particularly busy stops.
-            render.WrappedText(str(index), width = 8, color = ORANGE),
-            render.WrappedText(line, width = 20, color = ORANGE),
+            render.WrappedText(
+                content = str(index),
+                width = 8,
+                color = ORANGE,
+                font = FONT,
+            ),
+            render.WrappedText(
+                content = line,
+                width = 20,
+                color = ORANGE,
+                font = FONT,
+            ),
             render.Row(
                 main_align = "end",
                 expanded = True,
-                children = [render.Text(due, color = ORANGE)],
+                children = [
+                    render.Text(
+                        content = due,
+                        color = ORANGE,
+                        font = FONT,
+                    ),
+                ],
             ),
         ],
     )
@@ -214,10 +231,21 @@ def render_arrival(index, line, destination, due_in_seconds):
         expanded = True,
         children = [
             # Include an index to a) mimic the countdown timers at bus stops
-            # and b) if I can work out how to scroll to show more than 3 for
+            # and b) if I can work out how to scroll to show more than 4 for
             # particularly busy stops.
-            render.WrappedText(str(index), width = 8, color = ORANGE),
-            render.WrappedText(destination, width = 54, height = 8, color = ORANGE),
+            render.WrappedText(
+                content = str(index),
+                width = 8,
+                color = ORANGE,
+                font = FONT,
+            ),
+            render.WrappedText(
+                content = destination,
+                width = 54,
+                height = 6,
+                color = ORANGE,
+                font = FONT,
+            ),
         ],
     )
 
@@ -258,20 +286,29 @@ def render_stop_details(name, code):
         children = [
             # There's no room to say where each bus is heading, so just give the
             # direction for the stop. That makes it long, so scroll it.
-            render.Marquee(
-                scroll_direction = "horizontal",
-                width = 50,
-                height = 8,
-                child = render.WrappedText("%s" % name),
+            render.Padding(
+                pad = (1, 1, 1, 0),
+                child = render.Marquee(
+                    scroll_direction = "horizontal",
+                    width = 50,
+                    height = 6,
+                    child = render.Text(
+                        content = name,
+                        font = FONT,
+                    ),
+                ),
             ),
             # There are often multiple nearby stops with the same name, so be precise.
             # Can be up to two letters long.
             render.Box(
                 width = 13,
-                height = 8,
+                height = 7,
                 child = render.Padding(
-                    pad = (1, 0, 0, 0),
-                    child = render.Text(code),
+                    pad = (1, 1, 0, 0),
+                    child = render.Text(
+                        content = code,
+                        font = FONT,
+                    ),
                 ),
                 color = RED,
             ),
@@ -317,7 +354,7 @@ def main(config):
                 render_stop_details(stop_name, stop_code),
                 render_separator(),
                 # Bottom part shows the countdown for the next few arrivals
-                render_arrivals(arrivals[0:3]),
+                render_arrivals(arrivals[0:4]),
             ],
         ),
     )
