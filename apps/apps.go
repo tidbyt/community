@@ -165,6 +165,7 @@ import (
 	"tidbyt.dev/community/apps/teslafi"
 	"tidbyt.dev/community/apps/testpatterns"
 	"tidbyt.dev/community/apps/textbyt"
+	"tidbyt.dev/community/apps/theguardiannews"
 	"tidbyt.dev/community/apps/theysaidso"
 	"tidbyt.dev/community/apps/tindiesales"
 	"tidbyt.dev/community/apps/todoist"
@@ -354,6 +355,7 @@ func GetManifests() []manifest.Manifest {
 		teslafi.New(),
 		testpatterns.New(),
 		textbyt.New(),
+		theguardiannews.New(),
 		theysaidso.New(),
 		tindiesales.New(),
 		todoist.New(),
