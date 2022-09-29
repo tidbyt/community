@@ -29,23 +29,9 @@ EIGHT_AND_A_HALF_DEGREES_BELOW_HORIZON = "ASTRONOMICAL"
 FIFTY_MINUTES_AFTER_SUNSET = "50_MINUTES_AFTER_SUNSET"
 RABBEINU_TAM = "RABBEINU_TAM"
 
-# Consistent with output of day_of_week
+# Consistent with output of humanize.day_of_week
 FRIDAY = 5
 SATURDAY = 6
-
-# Zeller's Congruence
-# https://www.rfc-editor.org/rfc/rfc3339#page-14
-# 0 is Sunday, 6 is Saturday
-def day_of_week(year, month, day):
-    month = month - 2
-    if month < 1:
-        month = month + 12
-        year = year - 1
-
-    century = math.floor(year / 100)
-    year = math.mod(year, 100)
-
-    return int(math.mod(math.floor((13 * month + 1) / 5) + day + year + math.floor(year / 4) + math.floor(century / 4) + 5 * century, 7))
 
 def end_time(method, latitude, longitude, end_day, timezone):
     if method == EIGHT_AND_A_HALF_DEGREES_BELOW_HORIZON:
@@ -106,7 +92,7 @@ def main(config):
 
     now = time.now().in_location(location["timezone"])
     today = time.time(year = now.year, month = now.month, day = now.day)
-    weekday = day_of_week(now.year, now.month, now.day)
+    weekday = humanize.day_of_week(today)
 
     if config.bool("weekend_only", DEFAULT_WEEKEND_ONLY) and weekday != FRIDAY and weekday != SATURDAY:
         return []
