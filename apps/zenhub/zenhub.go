@@ -17,7 +17,7 @@ func New() manifest.Manifest {
 		Name:        "Zenhub",
 		Author:      "thiagobrez",
 		Summary:     "Displays Zenhub issues",
-		Desc:        "Displays your last 3 Zenhub issues from the chosen pipeline, and filter by labels and assignees. To generate your API Keys, visit https://app.zenhub.com/settings/tokens. To retrieve your Workspace and Repository IDs, see https://github.com/ZenHubIO/API#endpoint-reference",
+		Desc:        "Displays your last 3 Zenhub issues from the chosen pipeline, and filter by labels and assignees. To generate your API Keys, visit https://app.zenhub.com/settings/tokens. To retrieve your Workspace and Repository IDs, see https://github.com/ZenHubIO/API#endpoint-reference.",
 		FileName:    "zenhub.star",
 		PackageName: "zenhub",
 		Source:  source,
