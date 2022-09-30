@@ -15,99 +15,100 @@ issue_colors = [
     "#37e1fb",  # ZH Blue
     "#5c74f7",  # ZH Purple
 ]
+
 def render_welcome():
     return render.Root(
-        child=render.Column(
-            expanded=True,
-            main_align="space_evenly",
-            cross_align="center",
-            children=[
+        child = render.Column(
+            expanded = True,
+            main_align = "space_evenly",
+            cross_align = "center",
+            children = [
                 render.Padding(
-                    pad=(1, 1, 0, 0),
-                    child=render.Row(
-                        expanded=True,
-                        main_align="start",
-                        cross_align="center",
-                        children=[
-                            render.Image(src=ZENHUB_ICON),
+                    pad = (1, 1, 0, 0),
+                    child = render.Row(
+                        expanded = True,
+                        main_align = "start",
+                        cross_align = "center",
+                        children = [
+                            render.Image(src = ZENHUB_ICON),
                             render.Padding(
-                                pad=(1, 0, 0, 0),
-                                child=render.Marquee(
-                                    width=50,
-                                    align="start",
-                                    child=render.Text("Backlog"),
+                                pad = (1, 0, 0, 0),
+                                child = render.Marquee(
+                                    width = 50,
+                                    align = "start",
+                                    child = render.Text("Backlog"),
                                 ),
                             ),
                         ],
                     ),
                 ),
                 render.Padding(
-                    pad=(1, 1, 0, 0),
-                    child=render.Column(
-                        expanded=True,
-                        main_align="space_evenly",
-                        cross_align="start",
-                        children=[
+                    pad = (1, 1, 0, 0),
+                    child = render.Column(
+                        expanded = True,
+                        main_align = "space_evenly",
+                        cross_align = "start",
+                        children = [
                             render.Row(
-                                expanded=True,
-                                main_align="space_evenly",
-                                cross_align="center",
-                                children=[
+                                expanded = True,
+                                main_align = "space_evenly",
+                                cross_align = "center",
+                                children = [
                                     render.Text(
-                                        font="CG-pixel-3x5-mono",
-                                        content="0001:",
-                                        color=issue_colors[0],
+                                        font = "CG-pixel-3x5-mono",
+                                        content = "0001:",
+                                        color = issue_colors[0],
                                     ),
                                     render.Marquee(
-                                        width=50,
-                                        offset_start=0,
-                                        child=render.Text(
-                                            font="CG-pixel-3x5-mono",
-                                            content="Get API Keys ",
+                                        width = 50,
+                                        offset_start = 0,
+                                        child = render.Text(
+                                            font = "CG-pixel-3x5-mono",
+                                            content = "Get API Keys ",
                                         ),
                                     ),
                                 ],
                             ),
                             render.Row(
-                                expanded=True,
-                                main_align="space_evenly",
-                                cross_align="center",
-                                children=[
+                                expanded = True,
+                                main_align = "space_evenly",
+                                cross_align = "center",
+                                children = [
                                     render.Text(
-                                        font="CG-pixel-3x5-mono",
-                                        content="0002:",
-                                        color=issue_colors[1],
+                                        font = "CG-pixel-3x5-mono",
+                                        content = "0002:",
+                                        color = issue_colors[1],
                                     ),
                                     render.Marquee(
-                                        width=50,
-                                        offset_start=0,
-                                        child=render.Text(
-                                            font="CG-pixel-3x5-mono",
-                                            content="Get Workspace ID",
+                                        width = 50,
+                                        offset_start = 0,
+                                        child = render.Text(
+                                            font = "CG-pixel-3x5-mono",
+                                            content = "Get Workspace ID",
                                         ),
                                     ),
                                 ],
                             ),
                             render.Row(
-                                expanded=True,
-                                main_align="space_evenly",
-                                cross_align="center",
-                                children=[
+                                expanded = True,
+                                main_align = "space_evenly",
+                                cross_align = "center",
+                                children = [
                                     render.Text(
-                                        font="CG-pixel-3x5-mono",
-                                        content="0003:",
-                                        color=issue_colors[2],
+                                        font = "CG-pixel-3x5-mono",
+                                        content = "0003:",
+                                        color = issue_colors[2],
                                     ),
                                     render.Marquee(
-                                        width=50,
-                                        offset_start=0,
-                                        child=render.Text(
-                                            font="CG-pixel-3x5-mono",
-                                            content="Get Repository ID",
+                                        width = 50,
+                                        offset_start = 0,
+                                        child = render.Text(
+                                            font = "CG-pixel-3x5-mono",
+                                            content = "Get Repository ID",
                                         ),
                                     ),
                                 ],
-                            )
+                            ),
                         ],
                     ),
                 ),
