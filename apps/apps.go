@@ -99,6 +99,7 @@ import (
 	"tidbyt.dev/community/apps/moretransit"
 	"tidbyt.dev/community/apps/moviequotes"
 	"tidbyt.dev/community/apps/mvv"
+	"tidbyt.dev/community/apps/nascarnextrace"
 	"tidbyt.dev/community/apps/natdex"
 	"tidbyt.dev/community/apps/nationaltoday"
 	"tidbyt.dev/community/apps/nbascores"
@@ -139,6 +140,7 @@ import (
 	"tidbyt.dev/community/apps/redditimages"
 	"tidbyt.dev/community/apps/redditrplace"
 	"tidbyt.dev/community/apps/roblox"
+	"tidbyt.dev/community/apps/rules4life"
 	"tidbyt.dev/community/apps/sbbtimetable"
 	"tidbyt.dev/community/apps/severewxalertsusa"
 	"tidbyt.dev/community/apps/sfnextmuni"
@@ -292,6 +294,7 @@ func GetManifests() []manifest.Manifest {
 		moretransit.New(),
 		moviequotes.New(),
 		mvv.New(),
+		nascarnextrace.New(),
 		natdex.New(),
 		nationaltoday.New(),
 		nbascores.New(),
@@ -332,6 +335,7 @@ func GetManifests() []manifest.Manifest {
 		redditimages.New(),
 		redditrplace.New(),
 		roblox.New(),
+		rules4life.New(),
 		sbbtimetable.New(),
 		severewxalertsusa.New(),
 		sfnextmuni.New(),
