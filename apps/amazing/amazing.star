@@ -8,6 +8,7 @@ Author: dinosaursrarr
 load("random.star", "random")
 load("render.star", "render")
 load("schema.star", "schema")
+load("time.star", "time")
 
 # Tidbyt size is fixed
 WIDTH_CELLS = 32
@@ -498,6 +499,9 @@ def main(config):
     background = render.Box(
         color = background_colour,
     )
+
+    # seed the RNG with a new value every 15 seconds
+    random.seed(time.now().unix // 15)
 
     return draw_animation(algorithm, wall_cell, background)
 
