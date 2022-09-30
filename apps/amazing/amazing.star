@@ -476,9 +476,6 @@ COLOURS = [
 ]
 
 def main(config):
-    # seed the RNG with a new value every 15 seconds
-    random.seed(time.now().unix // 15)
-
     algorithm_name = config.get("algorithm")
     if not algorithm_name or algorithm_name == CHOOSE_RANDOM_ALGORITHM:
         index = random.number(0, len(ALGORITHMS) - 1)
@@ -502,6 +499,9 @@ def main(config):
     background = render.Box(
         color = background_colour,
     )
+
+    # seed the RNG with a new value every 15 seconds
+    random.seed(time.now().unix // 15)
 
     return draw_animation(algorithm, wall_cell, background)
 
