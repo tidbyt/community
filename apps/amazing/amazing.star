@@ -476,8 +476,8 @@ COLOURS = [
 ]
 
 def main(config):
-    # seed the RNG with a new value every 8 seconds
-    random.seed(time.now().unix // 8)
+    # seed the RNG with a new value every 15 seconds
+    random.seed(time.now().unix // 15)
 
     algorithm_name = config.get("algorithm")
     if not algorithm_name or algorithm_name == CHOOSE_RANDOM_ALGORITHM:
