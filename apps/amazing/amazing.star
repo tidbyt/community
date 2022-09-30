@@ -8,6 +8,7 @@ Author: dinosaursrarr
 load("random.star", "random")
 load("render.star", "render")
 load("schema.star", "schema")
+load("time.star", "time")
 
 # Tidbyt size is fixed
 WIDTH_CELLS = 32
@@ -475,6 +476,9 @@ COLOURS = [
 ]
 
 def main(config):
+    # seed the RNG with a new value every 8 seconds
+    random.seed(time.now().unix // 8)
+
     algorithm_name = config.get("algorithm")
     if not algorithm_name or algorithm_name == CHOOSE_RANDOM_ALGORITHM:
         index = random.number(0, len(ALGORITHMS) - 1)
