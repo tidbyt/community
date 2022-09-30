@@ -242,10 +242,8 @@ def render_destination(index, destination):
                 color = ORANGE,
                 font = FONT,
             ),
-            render.WrappedText(
+            render.Text(
                 content = destination,
-                width = 54,
-                height = 6,
                 color = ORANGE,
                 font = FONT,
             ),
