@@ -47,7 +47,7 @@ DEPARTURES_REQUEST = """
    </soap:Header>
    <soap:Body>
       <ldb:GetDepBoardWithDetailsRequest>
-         <ldb:numRows>%s</ldb:numRows>
+         <ldb:numRows>4</ldb:numRows>
          <ldb:crs>%s</ldb:crs>%s
       </ldb:GetDepBoardWithDetailsRequest>
    </soap:Body>
@@ -158,23 +158,16 @@ def fetch_stations():
     cache.set(STATION_FEED_URL, json.encode(stations), ttl_seconds = 86400)  # Stations don't move often
     return stations
 
-def fetch_departures(station, via, display_mode):
+def fetch_departures(station, via):
     if len(via) > 0:
         filter = DEPARTURES_FILTER % via
     else:
         filter = ""
 
-    if display_mode == DISPLAY_DETAILED:
-        num_rows = 2
-    elif display_mode == DISPLAY_COMPACT:
-        num_rows = 4
-    else:
-        fail("Invalid config option for " + DISPLAY_MODE)
-
     app_key = darwin_app_key()
     if not app_key:
         return None
-    request = DEPARTURES_REQUEST % (app_key, num_rows, station, filter)
+    request = DEPARTURES_REQUEST % (app_key, station, filter)
 
     cached = cache.get(request)
     if cached == EMPTY_DATA_IN_CACHE:
@@ -372,8 +365,14 @@ def main(config):
         filter_crs = ""
 
     display_mode = config.get(DISPLAY_MODE) or DISPLAY_DETAILED
+    if display_mode == DISPLAY_DETAILED:
+        max_trains = 2
+    elif display_mode == DISPLAY_COMPACT:
+        max_trains = 4
+    else:
+        fail("Invalid display mode %s" % display_mode)
 
-    resp = fetch_departures(origin_station["crs"], filter_crs, display_mode)
+    resp = fetch_departures(origin_station["crs"], filter_crs)
     if not resp:
         return render_error("Train times not available")
     departures = xpath.loads(resp)
@@ -381,7 +380,8 @@ def main(config):
     if len(trains) == 0:
         rendered_trains = [render_no_departures()]
     else:
-        rendered_trains = [render_train(departures, stations, t + 1, display_mode) for t in range(len(trains))]
+        max_trains = min(max_trains, len(trains))
+        rendered_trains = [render_train(departures, stations, t + 1, display_mode) for t in range(max_trains)]
 
     return render.Root(
         child = render.Column(
