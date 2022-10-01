@@ -86,14 +86,20 @@ def fetch_knowledge_base_authentication_token():
     if cached:
         return cached
 
+    username = knowledge_base_username()
+    if not username:
+        return None
+    password = knowledge_base_password()
+    if not password:
+        return None
     resp = http.post(
         url = KNOWLEDGE_BASE_AUTHENTICATE_URL,
         headers = {
             "Content-Type": "application/x-www-form-urlencoded",
         },
         form_body = {
-            "username": knowledge_base_username(),
-            "password": knowledge_base_password(),
+            "username": username,
+            "password": password,
         },
     )
     if resp.status_code != 200:
@@ -165,7 +171,10 @@ def fetch_departures(station, via, display_mode):
     else:
         fail("Invalid config option for " + DISPLAY_MODE)
 
-    request = DEPARTURES_REQUEST % (darwin_app_key(), num_rows, station, filter)
+    app_key = darwin_app_key()
+    if not app_key:
+        return None
+    request = DEPARTURES_REQUEST % (app_key, num_rows, station, filter)
 
     cached = cache.get(request)
     if cached == EMPTY_DATA_IN_CACHE:
@@ -348,7 +357,9 @@ def main(config):
     if not stations:
         return render_error("Station list not available")
 
-    origin_option = config.get(ORIGIN_STATION)
+    origin_option = config.get(ORIGIN_STATION) or NO_DESTINATION
+    if origin_option == NO_DESTINATION:
+        return render_error("Station list not available")
     if not origin_option:
         origin_station = stations["KGX"]  # default to London King's Cross
     else:
@@ -383,20 +394,25 @@ def main(config):
     )
 
 def get_schema():
-    stations = fetch_stations()
-    if not stations:
-        fail("Station list not available")
-    station_options = [
-        schema.Option(
-            display = station["name"],
-            value = json.encode(station),
-        )
-        for station in sorted(stations.values(), key = lambda s: s["name"])
-    ]
     no_destination_option = schema.Option(
         display = NO_DESTINATION,
         value = NO_DESTINATION,
     )
+
+    stations = fetch_stations()
+    if not stations:
+        default_station = NO_DESTINATION
+        station_options = [no_destination_option]
+    else:
+        station_options = [
+            schema.Option(
+                display = station["name"],
+                value = json.encode(station),
+            )
+            for station in sorted(stations.values(), key = lambda s: s["name"])
+        ]
+        default_station = station_options[0].value
+    
 
     return schema.Schema(
         version = "1",
@@ -406,7 +422,7 @@ def get_schema():
                 name = "Origin",
                 desc = "Station to look up departure times for",
                 icon = "train",
-                default = station_options[0].value,
+                default = default_station,
                 options = station_options,
             ),
             schema.Dropdown(
