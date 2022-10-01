@@ -412,7 +412,6 @@ def get_schema():
             for station in sorted(stations.values(), key = lambda s: s["name"])
         ]
         default_station = station_options[0].value
-    
 
     return schema.Schema(
         version = "1",
