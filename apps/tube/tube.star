@@ -26,7 +26,7 @@ BLACK = "#000"
 ORANGE = "#FFA500"
 FONT = "tom-thumb"
 
-MODES = ["tube", "elizabeth-line", "dlr", "overground"]
+MODES = ["tube", "elizabeth-line", "dlr", "overground", "tram"]
 LINES = {
     "bakerloo": {
         "display": "Bakerloo",
@@ -86,6 +86,11 @@ LINES = {
     "piccadilly": {
         "display": "Piccadilly",
         "colour": "#0019A8",
+        "textColour": WHITE,
+    },
+    "tram": {
+        "display": "Tram",
+        "colour": "#66CC00",
         "textColour": WHITE,
     },
     "victoria": {
@@ -153,6 +158,7 @@ def format_option_station(name):
         " DLR Station",
         " Rail Station",
         " (London)",
+        " Tram Stop",
     ]
     for suffix in suffixes:
         name = name.removesuffix(suffix)
