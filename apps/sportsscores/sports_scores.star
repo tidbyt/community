@@ -6,7 +6,7 @@ Author: rs7q5
 """
 #sports_scores.star
 #Created 20220220 RIS
-#Last Modified 20220908 RIS
+#Last Modified 20221001 RIS
 
 load("render.star", "render")
 load("http.star", "http")
@@ -186,7 +186,7 @@ def get_schema():
             ),
             schema.Toggle(
                 id = "hide_ordinal",
-                name = "Hide the ordinal endings to the game status?",
+                name = "Hide ordinal endings of the game status?",
                 desc = "Enable to hide ordinal endings (e.g. only show 1 instead of 1st).",
                 icon = "eyeSlash",
                 default = False,
@@ -318,6 +318,7 @@ def get_frames(stats, league_txt, font, config):
             ctmp3 = "#52BB52"  #light green
 
         status_tmp = team["status"].split("/")
+
         if status_tmp[0] == "time":  #reformat game time
             status_tmp = adjust_gametime(status_tmp[1], config).split("/")
         elif config.bool("hide_ordinal", False) and len(status_tmp) == 2:
