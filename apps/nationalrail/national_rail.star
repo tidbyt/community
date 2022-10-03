@@ -127,7 +127,7 @@ def extract_stations(station_feed):
             continue
 
         station["name"] = feed.query("/StationList/Station[%s]/Name" % (i + 1))
-        station["sixteen_char_name"] = feed.query("/StationList/Station[%s]/SixteenCharacterName" % (i + 1)).title()
+        station["sixteen_char_name"] = feed.query("/StationList/Station[%s]/SixteenCharacterName" % (i + 1)).title().rstrip(".")
         station["lat"] = feed.query("/StationList/Station[%s]/Latitude" % (i + 1))
         station["lng"] = feed.query("/StationList/Station[%s]/Longitude" % (i + 1))
         stations[station["crs"]] = station
@@ -350,7 +350,7 @@ def main(config):
     if not stations:
         return render_error("Station list not available")
 
-    origin_option = config.get(ORIGIN_STATION) or NO_DESTINATION
+    origin_option = config.get(ORIGIN_STATION)
     if origin_option == NO_DESTINATION:
         return render_error("Station list not available")
     if not origin_option:
