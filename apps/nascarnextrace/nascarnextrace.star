@@ -9,7 +9,6 @@ load("render.star", "render")
 load("http.star", "http")
 load("encoding/json.star", "json")
 load("time.star", "time")
-load("encoding/base64.star", "base64")
 load("schema.star", "schema")
 load("cache.star", "cache")
 
@@ -34,8 +33,6 @@ def main(config):
     #TIme and date Information
     # Get the current time in 24 hour format
     timezone = config.get("$tz", DEFAULT_TIMEZONE)  # Utilize special timezone variable to get TZ - otherwise assume US Eastern w/DST
-    now = time.now().in_location(timezone)
-    Year = now.format("2006")
     series = config.get("NASCAR_Series", DEFAULT_SERIES)
 
     NASCAR_DATA = json.decode(get_cachable_data(NASCAR_API + series))
@@ -110,16 +107,16 @@ def get_schema():
     )
 
 def get_cachable_data(url):
-    key = base64.encode(url)
+    key = url
 
     data = cache.get(key)
     if data != None:
-        return base64.decode(data)
+        return data
 
     res = http.get(url = url)
     if res.status_code != 200:
         fail("request to %s failed with status code: %d - %s" % (url, res.status_code, res.body()))
 
-    cache.set(key, base64.encode(res.body()), ttl_seconds = CACHE_TTL_SECONDS)
+    cache.set(key, res.body(), ttl_seconds = CACHE_TTL_SECONDS)
 
     return res.body()
