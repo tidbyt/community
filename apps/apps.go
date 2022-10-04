@@ -66,6 +66,7 @@ import (
 	"tidbyt.dev/community/apps/gapilotbuddy"
 	"tidbyt.dev/community/apps/goodservice"
 	"tidbyt.dev/community/apps/happyhour"
+	"tidbyt.dev/community/apps/hexdailystats"
 	"tidbyt.dev/community/apps/howoldami"
 	"tidbyt.dev/community/apps/hurricanetracker"
 	"tidbyt.dev/community/apps/hvvdepartures"
@@ -104,6 +105,7 @@ import (
 	"tidbyt.dev/community/apps/ncaafscores"
 	"tidbyt.dev/community/apps/ncaafstandings"
 	"tidbyt.dev/community/apps/nearearthobjs"
+	"tidbyt.dev/community/apps/neotrack"
 	"tidbyt.dev/community/apps/netatmo"
 	"tidbyt.dev/community/apps/nflscores"
 	"tidbyt.dev/community/apps/nflstandings"
@@ -258,6 +260,7 @@ func GetManifests() []manifest.Manifest {
 		gapilotbuddy.New(),
 		goodservice.New(),
 		happyhour.New(),
+		hexdailystats.New(),
 		howoldami.New(),
 		hurricanetracker.New(),
 		hvvdepartures.New(),
@@ -295,6 +298,7 @@ func GetManifests() []manifest.Manifest {
 		ncaafscores.New(),
 		ncaafstandings.New(),
 		nearearthobjs.New(),
+		neotrack.New(),
 		netatmo.New(),
 		nflscores.New(),
 		nflstandings.New(),
