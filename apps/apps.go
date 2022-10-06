@@ -197,6 +197,7 @@ import (
 	"tidbyt.dev/community/apps/wordlebyt"
 	"tidbyt.dev/community/apps/wordoftheday"
 	"tidbyt.dev/community/apps/worldclock"
+	"tidbyt.dev/community/apps/zenhub"
 )
 
 // GetManifests returns a list of all apps in the this repository. Add your applet
@@ -392,6 +393,7 @@ func GetManifests() []manifest.Manifest {
 		wordlebyt.New(),
 		wordoftheday.New(),
 		worldclock.New(),
+		zenhub.New(),
 	}
 }
 
