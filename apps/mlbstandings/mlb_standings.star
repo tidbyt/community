@@ -82,8 +82,12 @@ def main(config):
                 entriesToDisplay = teamsToShow
                 divisionName = s["shortName"]
                 divisionName = divisionName.replace(" Cent", " Central")
+                stats = entries[0]["stats"]
 
-                entries = sorted(entries, key = lambda e: e["stats"][4]["value"])
+                for j, k in enumerate(stats):
+                    if k["name"] == "gamesBehind":
+                        statNumber = j
+                entries = sorted(entries, key = lambda e: e["stats"][statNumber]["value"])
 
                 for x in range(0, len(entries), entriesToDisplay):
                     cycleCount = cycleCount + 1
@@ -306,10 +310,15 @@ def get_team(x, s, entriesToDisplay, colHeight, now, timeColor, divisionName, sh
             teamName = s[i + x]["team"]["abbreviation"]
             teamColor = get_team_color(teamID)
             teamLogo = get_logoType(teamName, s[i + x]["team"]["logos"][1]["href"])
-            teamWins = s[i + x]["stats"][1]["displayValue"]
-            teamLosses = s[i + x]["stats"][2]["displayValue"]
+            stats = s[i + x]["stats"]
+            for j, k in enumerate(stats):
+                if k["name"] == "wins":
+                    teamWins = k["displayValue"]
+                if k["name"] == "losses":
+                    teamLosses = k["displayValue"]
+                if k["name"] == "gamesBehind":
+                    teamGB = k["displayValue"]
             teamRecord = teamWins + "-" + teamLosses
-            teamGB = s[i + x]["stats"][4]["displayValue"]
 
             team = render.Column(
                 children = [
