@@ -31,6 +31,8 @@ def main(config):
     username = config.get("username", "")
     profile_json = get_player_profile(username)
 
+    horizontal_divider = render.Box(height = 1, color = "#555")
+
     rapid = 0
     blitz = 0
     bullet = 0
@@ -51,12 +53,14 @@ def main(config):
                         render.Text(content = "Blitz: %d" % blitz, color = "#FFD502"),
                     ],
                 ),
+                horizontal_divider,
                 render.Row(
                     children = [
                         render.Image(BULLET_ICON),
                         render.Text(content = "Bullet: %d" % bullet, color = "#8EB900"),
                     ],
                 ),
+                horizontal_divider,
                 render.Row(
                     children = [
                         render.Padding(
