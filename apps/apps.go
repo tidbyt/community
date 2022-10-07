@@ -27,6 +27,7 @@ import (
 	"tidbyt.dev/community/apps/busytube"
 	"tidbyt.dev/community/apps/carenewables"
 	"tidbyt.dev/community/apps/charlestownferry"
+	"tidbyt.dev/community/apps/chessrating"
 	"tidbyt.dev/community/apps/chessviewer"
 	"tidbyt.dev/community/apps/climateclock"
 	"tidbyt.dev/community/apps/clockbyhenry"
@@ -224,6 +225,7 @@ func GetManifests() []manifest.Manifest {
 		busytube.New(),
 		carenewables.New(),
 		charlestownferry.New(),
+		chessrating.New(),
 		chessviewer.New(),
 		climateclock.New(),
 		clockbyhenry.New(),
