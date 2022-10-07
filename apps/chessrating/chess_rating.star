@@ -65,7 +65,7 @@ def main(config):
                                 width = 6,
                                 height = 6,
                             ),
-                            pad = (1, 1, 1, 1),
+                            pad = 1,
                         ),
                         render.Text(content = "Rapid: %d" % rapid, color = "#AEC3DD"),
                     ],
