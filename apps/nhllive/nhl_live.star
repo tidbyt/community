@@ -334,8 +334,7 @@ def get_game(date, teamId):
                 cache.set("game_" + gamePk + "_scorehome", str(score_home), ttl_seconds = CACHE_GAME_SECONDS)
 
                 # Associate team with game in cache
-                cache.set("teamid_" + str(teamid_away) + "_gamepk", str(gamePk), ttl_seconds = CACHE_GAME_SECONDS)
-                cache.set("teamid_" + str(teamid_home) + "_gamepk", str(gamePk), ttl_seconds = CACHE_GAME_SECONDS)
+                cache.set("teamid_" + str(teamId) + "_gamepk", str(gamePk), ttl_seconds = CACHE_GAME_SECONDS)
     else:
         print("  - CACHE: Game Info Found for GamePk %s" % gamePk)
 
