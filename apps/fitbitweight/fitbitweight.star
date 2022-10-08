@@ -217,8 +217,8 @@ def get_plot_display_from_plot(plot, color = WHITE_COLOR, height = 13):
         width = 64,
         height = height,
         color = color,
-        xlim = (0.0, 1.0),
         ylim = (0.0, 1.0),
+        xlim = (0.0, 1.0),
         fill = True,
     )
 
