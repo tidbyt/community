@@ -6,7 +6,6 @@ Author: Robert Ison
 """
 
 load("cache.star", "cache")
-load("encoding/base64.star", "base64")
 load("encoding/json.star", "json")
 load("http.star", "http")
 load("humanize.star", "humanize")
@@ -123,7 +122,7 @@ def main(config):
     fat_plot = get_plot_from_data(fat_json, period)
     bmi_plot = get_plot_from_data(bmi_json, period)
 
-    display_weight = "%s%s " % ((humanize.comma(int(current_weight * 100) / 100.0)), displayUnits)
+    display_weight = "%s%s " % ((humanize.comma(int(current_weight * 100) // 100.0)), displayUnits)
     if secondary_display == "bodyfat" and current_fat > 0:
         numbers_row = render.Row(
             main_align = "left",
@@ -132,7 +131,7 @@ def main(config):
                 render.Marquee(
                     width = 32,
                     child =
-                        render.Text(("%s%% body fat" % (humanize.comma(int(current_fat * 100) / 100.0))), color = FAT_COLOR, font = DISPLAY_FONT),
+                        render.Text(("%s%% body fat" % (humanize.comma(int(current_fat * 100) // 100.0))), color = FAT_COLOR, font = DISPLAY_FONT),
                 ),
             ],
         )
@@ -145,7 +144,7 @@ def main(config):
                 render.Text(display_weight, color = WEIGHT_COLOR, font = DISPLAY_FONT),
                 render.Marquee(
                     width = 32,
-                    child = render.Text(("BMI: %s %s" % (humanize.comma(int(current_bmi * 100) / 100.0), display_color[0])), color = display_color[1], font = DISPLAY_FONT),
+                    child = render.Text(("BMI: %s %s" % (humanize.comma(int(current_bmi * 100) // 100.0), display_color[0])), color = display_color[1], font = DISPLAY_FONT),
                 ),
             ],
         )
@@ -156,7 +155,7 @@ def main(config):
                 render.Text(display_weight, color = WHITE_COLOR, font = DISPLAY_FONT),
                 render.Marquee(
                     width = 32,
-                    child = render.Text("%s%s %s since %s" % (sign, humanize.comma(int(weight_change * 100) / 100.0), displayUnits, first_weight_date), color = WEIGHT_COLOR, font = DISPLAY_FONT),
+                    child = render.Text("%s%s %s since %s" % (sign, humanize.comma(int(weight_change * 100) // 100.0), displayUnits, first_weight_date), color = WEIGHT_COLOR, font = DISPLAY_FONT),
                 ),
             ],
         )
@@ -188,7 +187,7 @@ def get_starting_value(json_data, period, itemName = "value"):
             current_value = float(item["value"])
 
             date_diff = time.now() - current_date
-            days = math.floor(date_diff.hours / 24)
+            days = math.floor(date_diff.hours // 24)
 
             number_of_days = int(period)
 
@@ -218,8 +217,8 @@ def get_plot_display_from_plot(plot, color = WHITE_COLOR, height = 13):
         width = 64,
         height = height,
         color = color,
-        ylim = (0.0, 1.0),
         xlim = (0.0, 1.0),
+        ylim = (0.0, 1.0),
         fill = True,
     )
 
@@ -238,7 +237,7 @@ def get_plot_from_data(json_data, period):
             current_value = float(item["value"])
 
             date_diff = time.now() - current_date
-            days = math.floor(date_diff.hours / 24)
+            days = math.floor(date_diff.hours // 24)
 
             number_of_days = int(period)
 
@@ -285,13 +284,13 @@ def get_plot_from_data(json_data, period):
         value_range = 1
 
     #now plot the data:
-    plot = [(0.0, float((starting_value - smallest) / (value_range)))]
+    plot = [(0.0, float((starting_value - smallest) // (value_range)))]
     for i in json_data:
         for item in json_data[i]:
             current_date = get_timestamp_from_date(item["dateTime"])
             current_value = float(item["value"])
-            x_val = (current_date - oldest_date).hours / (newest_date - oldest_date).hours
-            y_val = (current_value - smallest) / (value_range)
+            x_val = (current_date - oldest_date).hours // (newest_date - oldest_date).hours
+            y_val = (current_value - smallest) // (value_range)
             plot.append((float(x_val), plot[-1][1]))
             plot.append((float(x_val), float(y_val)))
 
