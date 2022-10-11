@@ -10,6 +10,8 @@ load("schema.star", "schema")
 load("animation.star", "animation")
 load("http.star", "http")
 load("humanize.star", "humanize")
+load("cache.star", "cache")
+load("encoding/json.star", "json")
 
 # Theme
 BACKGROUND_COLOR = "#000000"
@@ -28,6 +30,7 @@ POSITIVE_PLOT_FILL = "#57ab5ab8"
 NEGATIVE_PLOT_FILL = "#f4433670"
 
 # Timings
+CACHE_TTL = 240
 FLIP_DIGIT_DURATION = 50
 END_DURATION = 100000
 
@@ -65,17 +68,23 @@ def main(config):
         days=DAYS
     )
 
-    price_response = http.get(api_price_url)
-    if price_response.status_code != 200:
-        fail("Request failed with status %d", price_response.status_code)
+    # Get data from cache or API
+    cached_price_response = cache.get("price_response")
+    if cached_price_response != None:
+        # Cache Hit: Displays cached data
+        json_response = json.decode(cached_price_response)
+    else:
+        # Cache Miss: Request api and set cache
+        price_response = http.get(api_price_url)
+        if price_response.status_code != 200:
+            fail("Request failed with status %d", price_response.status_code)
+        json_response = price_response.json()
+        cache.set("price_response", json.encode(json_response), ttl_seconds=CACHE_TTL)
 
-    json_response = price_response.json()
     prices = []
 
     for price in list(json_response):
         prices.append(float(price[bid_ask]))
-
-
 
     stack = render.Stack(
         children=[
