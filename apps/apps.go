@@ -32,6 +32,7 @@ import (
 	"tidbyt.dev/community/apps/clockbyhenry"
 	"tidbyt.dev/community/apps/cltlightrail"
 	"tidbyt.dev/community/apps/coingeckoprice"
+	"tidbyt.dev/community/apps/coinprices"
 	"tidbyt.dev/community/apps/colorfulclock"
 	"tidbyt.dev/community/apps/costcogas"
 	"tidbyt.dev/community/apps/countdownclock"
@@ -114,6 +115,7 @@ import (
 	"tidbyt.dev/community/apps/nhllive"
 	"tidbyt.dev/community/apps/nhlnextgame"
 	"tidbyt.dev/community/apps/nhlscores"
+	"tidbyt.dev/community/apps/nhlstandings"
 	"tidbyt.dev/community/apps/nightscout"
 	"tidbyt.dev/community/apps/nixelclock"
 	"tidbyt.dev/community/apps/noaabuoy"
@@ -228,6 +230,7 @@ func GetManifests() []manifest.Manifest {
 		clockbyhenry.New(),
 		cltlightrail.New(),
 		coingeckoprice.New(),
+		coinprices.New(),
 		colorfulclock.New(),
 		costcogas.New(),
 		countdownclock.New(),
@@ -309,6 +312,7 @@ func GetManifests() []manifest.Manifest {
 		nhllive.New(),
 		nhlnextgame.New(),
 		nhlscores.New(),
+		nhlstandings.New(),
 		nightscout.New(),
 		nixelclock.New(),
 		noaabuoy.New(),
