@@ -11,21 +11,6 @@ load("animation.star", "animation")
 load("http.star", "http")
 load("humanize.star", "humanize")
 
-# Configs
-# quantity of floating points
-# origin coin
-# target coin
-API_URL = "https://economia.awesomeapi.com.br/json/daily"
-ORIGIN_COIN = "USD"
-TARGET_COIN = "BRL"
-DAYS = 5
-API_PRICE_URL = "{api}/{origin}-{target}/{days}".format(
-    api=API_URL,
-    origin=ORIGIN_COIN,
-    target=TARGET_COIN,
-    days=DAYS
-)
-
 # Theme
 BACKGROUND_COLOR = "#000000"
 FLIP_BACKGROUND_COLOR = "#333333"
@@ -51,8 +36,36 @@ EASE_IN = "ease_in"
 EASE_OUT = "ease_out"
 EASE_IN_OUT = "ease_in_out"
 
+# Constants
+COINS = ["BRL", "USD", "EUR"]
+API_URL = "https://economia.awesomeapi.com.br/json/daily"
+DEFAULT_FROM_COIN = "USD"
+DEFAULT_TO_COIN = "BRL"
+DEFAULT_DECIMAL_POINTS = "2"
+DEFAULT_BID_ASK = "bid"
+DAYS = 5
+
 def main(config):
-    price_response = http.get(API_PRICE_URL)
+    # Load config settings from mobile app, or set defaults
+    from_coin = config.str("from_coin", DEFAULT_FROM_COIN)
+    to_coin = config.str("to_coin", DEFAULT_TO_COIN)
+    price_precision = config.str("price_precision", DEFAULT_DECIMAL_POINTS)
+    bid_ask = config.str("bid_ask", DEFAULT_BID_ASK)
+
+    # Validate chosen options
+    if from_coin == to_coin:
+        coins = list(COINS)
+        coins.remove(from_coin)
+        to_coin = coins[0]
+
+    api_price_url = "{api}/{from_coin}-{to_coin}/{days}".format(
+        api=API_URL,
+        from_coin=from_coin,
+        to_coin=to_coin,
+        days=DAYS
+    )
+
+    price_response = http.get(api_price_url)
     if price_response.status_code != 200:
         fail("Request failed with status %d", price_response.status_code)
 
@@ -60,28 +73,32 @@ def main(config):
     prices = []
 
     for price in list(json_response):
-        prices.append(float(price["ask"]))
+        prices.append(float(price[bid_ask]))
+
+
 
     stack = render.Stack(
         children=[
           # Render animated five days tendency line
-          animate_history_chart(prices),
+          animate_history_chart(prices, price_precision),
           # Render currency info with flip display animation
-          animate_currency_info(prices)
+          animate_currency_info(prices, from_coin, to_coin, price_precision)
         ]
     )
 
     return render.Root(child = stack)
 
-def currency_info(prices):
+def currency_info(prices, from_coin, to_coin, price_precision):
     latest_price = prices[0]
     yesterday_price = prices[1]
-
-    fomatted_latest_price = humanize.float("#.##", latest_price)
-    print(fomatted_latest_price)
     yesterday_today_variation = latest_price - yesterday_price
-    formatted_variation = humanize.float("#.####", yesterday_today_variation)
-    # formatted_variation = str(yesterday_today_variation)[0:7]
+
+    precision_format = "#."
+    for point in range(int(price_precision)):
+        precision_format = precision_format +  "#"
+
+    fomatted_latest_price = humanize.float(precision_format, latest_price)
+    formatted_variation = humanize.float(precision_format, yesterday_today_variation)
     is_negative = str(yesterday_today_variation).find("-") > -1
     variation_text_color = NEGATIVE_TEXT_COLOR if is_negative else POSITIVE_TEXT_COLOR
 
@@ -90,7 +107,7 @@ def currency_info(prices):
     origin_currency = render.Row(
         children=[
             render.Text("1", color = TEXT_COLOR, font = DEFAULT_FONT),
-            render.Text("USD", color = DARKER_TEXT_COLOR, font = DEFAULT_FONT),
+            render.Text(from_coin, color = DARKER_TEXT_COLOR, font = DEFAULT_FONT),
         ]
     )
 
@@ -100,14 +117,17 @@ def currency_info(prices):
         children=[
             flip_display(fomatted_latest_price),
             render.Box(width=1, height=8),
-            render.Text("BRL", color = DARKER_TEXT_COLOR, font = DEFAULT_FONT)
+            render.Text(to_coin, color = DARKER_TEXT_COLOR, font = DEFAULT_FONT)
         ]
     )
 
-    currency_variation = render.Text(
-        formatted_variation,
-        font = DEFAULT_FONT,
-        color = variation_text_color
+    currency_variation = render.Padding(
+        pad=(0, 1, 0, 0),
+        child=render.Text(
+            formatted_variation,
+            font = DEFAULT_FONT,
+            color = variation_text_color
+        )
     )
 
     return render.Row(
@@ -128,12 +148,12 @@ def currency_info(prices):
             ]
         )
 
-def animate_currency_info(prices):
+def animate_currency_info(prices, from_coin, to_coin, price_precision):
     return render.Stack(
             children = [
                 # Create currency info animation (based on schema configs + api data)
                 animation.Transformation(
-                    child = currency_info(prices),
+                    child = currency_info(prices, from_coin, to_coin, price_precision),
                     duration = 20,
                     delay = 0,
                     origin=animation.Origin(0, 0),
@@ -175,7 +195,13 @@ def history_chart(prices):
         y_lim = (min(days_value_variation), max(days_value_variation)),
     )
 
-def animate_history_chart(prices):
+def animate_history_chart(prices, price_precision):
+    end_animation_scale = {
+        "2": 1,
+        "3": 0.85,
+        "4": 0.65
+    }
+
     return render.Stack(
             children = [
                 # Create five days tendency line animation
@@ -192,7 +218,7 @@ def animate_history_chart(prices):
                         ),
                          animation.Keyframe(
                             percentage = 1.0,
-                            transforms = [animation.Translate(2, 5), animation.Scale(1, 1)],
+                            transforms = [animation.Translate(2, 5), animation.Scale(end_animation_scale[price_precision], 1)],
                         ),
                     ],
                 ),
@@ -280,7 +306,83 @@ def end_animation():
     )
 
 def get_schema():
+    coin_options = [
+        schema.Option(
+            display = "Brazilian Real",
+            value = "BRL",
+        ),
+        schema.Option(
+            display = "United States Dollar",
+            value = "USD",
+        ),
+        schema.Option(
+            display = "Euro",
+            value = "EUR",
+        ),
+    ]
+
+    points_options = [
+        schema.Option(
+            display = "Two",
+            value = "2",
+        ),
+        schema.Option(
+            display = "Three",
+            value = "3",
+        ),
+        schema.Option(
+            display = "Four",
+            value = "4",
+        )
+    ]
+
+    exchange_spread_options = [
+        schema.Option(
+            display = "Bid",
+            value = "bid",
+        ),
+        schema.Option(
+            display = "Ask",
+            value = "ask",
+        )
+    ]
+
+    coin_price_fields = [
+        schema.Dropdown(
+            id = "from_coin",
+            name = "From",
+            desc = "Coin exchange origin",
+            icon = "coins",
+            default = coin_options[1].value,
+            options = coin_options,
+        ),
+        schema.Dropdown(
+            id = "to_coin",
+            name = "To",
+            desc = "Coin exchange target",
+            icon = "coins",
+            default = coin_options[0].value,
+            options = coin_options,
+        ),
+        schema.Dropdown(
+            id = "price_precision",
+            name = "Precision",
+            desc = "Values decimal points desired",
+            icon = "circleDot",
+            default = points_options[0].value,
+            options = points_options,
+        ),
+        schema.Dropdown(
+            id = "bid_ask",
+            name = "Exchange Spread",
+            desc = "Bid or Ask price",
+            icon = "moneyBill",
+            default = exchange_spread_options[0].value,
+            options = exchange_spread_options,
+        )
+    ]
+
     return schema.Schema(
         version = "1",
-        fields = [],
+        fields = coin_price_fields,
     )
