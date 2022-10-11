@@ -107,6 +107,7 @@ import (
 	"tidbyt.dev/community/apps/ncaafstandings"
 	"tidbyt.dev/community/apps/nearearthobjs"
 	"tidbyt.dev/community/apps/neotrack"
+	"tidbyt.dev/community/apps/nesquotes"
 	"tidbyt.dev/community/apps/netatmo"
 	"tidbyt.dev/community/apps/nflscores"
 	"tidbyt.dev/community/apps/nflstandings"
@@ -302,6 +303,7 @@ func GetManifests() []manifest.Manifest {
 		ncaafstandings.New(),
 		nearearthobjs.New(),
 		neotrack.New(),
+		nesquotes.New(),
 		netatmo.New(),
 		nflscores.New(),
 		nflstandings.New(),
