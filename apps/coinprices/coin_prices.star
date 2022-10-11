@@ -62,10 +62,10 @@ def main(config):
         to_coin = coins[0]
 
     api_price_url = "{api}/{from_coin}-{to_coin}/{days}".format(
-        api=API_URL,
-        from_coin=from_coin,
-        to_coin=to_coin,
-        days=DAYS
+        api = API_URL,
+        from_coin = from_coin,
+        to_coin = to_coin,
+        days = DAYS,
     )
 
     # Get data from cache or API
@@ -79,7 +79,7 @@ def main(config):
         if price_response.status_code != 200:
             fail("Request failed with status %d", price_response.status_code)
         json_response = price_response.json()
-        cache.set("price_response", json.encode(json_response), ttl_seconds=CACHE_TTL)
+        cache.set("price_response", json.encode(json_response), ttl_seconds = CACHE_TTL)
 
     prices = []
 
@@ -87,12 +87,12 @@ def main(config):
         prices.append(float(price[bid_ask]))
 
     stack = render.Stack(
-        children=[
-          # Render animated five days tendency line
-          animate_history_chart(prices, price_precision),
-          # Render currency info with flip display animation
-          animate_currency_info(prices, from_coin, to_coin, price_precision)
-        ]
+        children = [
+            # Render animated five days tendency line
+            animate_history_chart(prices, price_precision),
+            # Render currency info with flip display animation
+            animate_currency_info(prices, from_coin, to_coin, price_precision),
+        ],
     )
 
     return render.Root(child = stack)
@@ -104,88 +104,89 @@ def currency_info(prices, from_coin, to_coin, price_precision):
 
     precision_format = "#."
     for point in range(int(price_precision)):
-        precision_format = precision_format +  "#"
+        precision_format = precision_format + "#"
 
     fomatted_latest_price = humanize.float(precision_format, latest_price)
     formatted_variation = humanize.float(precision_format, yesterday_today_variation)
     is_negative = str(yesterday_today_variation).find("-") > -1
     variation_text_color = NEGATIVE_TEXT_COLOR if is_negative else POSITIVE_TEXT_COLOR
 
-    divider = render.Box(width=5, height=8)
+    divider = render.Box(width = 5, height = 8)
 
     origin_currency = render.Row(
-        children=[
+        children = [
             render.Text("1", color = TEXT_COLOR, font = DEFAULT_FONT),
             render.Text(from_coin, color = DARKER_TEXT_COLOR, font = DEFAULT_FONT),
-        ]
+        ],
     )
 
     target_currency = render.Row(
-        main_align="end",
-        cross_align="end",
-        children=[
+        main_align = "end",
+        cross_align = "end",
+        children = [
             flip_display(fomatted_latest_price),
-            render.Box(width=1, height=8),
-            render.Text(to_coin, color = DARKER_TEXT_COLOR, font = DEFAULT_FONT)
-        ]
+            render.Box(width = 1, height = 8),
+            render.Text(to_coin, color = DARKER_TEXT_COLOR, font = DEFAULT_FONT),
+        ],
     )
 
     currency_variation = render.Padding(
-        pad=(0, 1, 0, 0),
-        child=render.Text(
+        pad = (0, 1, 0, 0),
+        child = render.Text(
             formatted_variation,
             font = DEFAULT_FONT,
-            color = variation_text_color
-        )
+            color = variation_text_color,
+        ),
     )
 
     return render.Row(
-        expanded=True,
-        main_align="space_between",
-        cross_align="end",
-            children=[
-                divider,
-                render.Column(
-                    main_align="end",
-                    cross_align="end",
-                    children=[
-                        origin_currency,
-                        target_currency,
-                        currency_variation
-                    ]
-                ),
-            ]
-        )
+        expanded = True,
+        main_align = "space_between",
+        cross_align = "end",
+        children = [
+            divider,
+            render.Column(
+                main_align = "end",
+                cross_align = "end",
+                children = [
+                    origin_currency,
+                    target_currency,
+                    currency_variation,
+                ],
+            ),
+        ],
+    )
 
 def animate_currency_info(prices, from_coin, to_coin, price_precision):
     return render.Stack(
-            children = [
-                # Create currency info animation (based on schema configs + api data)
-                animation.Transformation(
-                    child = currency_info(prices, from_coin, to_coin, price_precision),
-                    duration = 20,
-                    delay = 0,
-                    origin=animation.Origin(0, 0),
-                    keyframes = [
-                         animation.Keyframe(
-                            percentage = 0.0,
-                            transforms = [animation.Translate(-40, 6)],
-                            curve=EASE_IN_OUT
-                        ),
-                         animation.Keyframe(
-                            percentage = 1.0,
-                            transforms = [animation.Translate(-1, 6)],
-                        ),
-                    ],
-                ),
-                # End animation
-                end_animation(),
-            ]
-        )
+        children = [
+            # Create currency info animation (based on schema configs + api data)
+            animation.Transformation(
+                child = currency_info(prices, from_coin, to_coin, price_precision),
+                duration = 20,
+                delay = 0,
+                origin = animation.Origin(0, 0),
+                keyframes = [
+                    animation.Keyframe(
+                        percentage = 0.0,
+                        transforms = [animation.Translate(-40, 6)],
+                        curve = EASE_IN_OUT,
+                    ),
+                    animation.Keyframe(
+                        percentage = 1.0,
+                        transforms = [animation.Translate(-1, 6)],
+                    ),
+                ],
+            ),
+            # End animation
+            end_animation(),
+        ],
+    )
 
 def history_chart(prices):
     # Always using yesterday bid/ask baseline value for comparison
     comparison_price = prices[1]
+
     # Get the variation for tendency line
     days_value_variation = [value - comparison_price for value in prices]
     price_history = reversed(days_value_variation)
@@ -208,68 +209,68 @@ def animate_history_chart(prices, price_precision):
     end_animation_scale = {
         "2": 1,
         "3": 0.85,
-        "4": 0.65
+        "4": 0.65,
     }
 
     return render.Stack(
-            children = [
-                # Create five days tendency line animation
-                animation.Transformation(
-                    child = history_chart(prices),
-                    duration = 20,
-                    delay = 0,
-                    origin=animation.Origin(0, 0),
-                    keyframes = [
-                         animation.Keyframe(
-                            percentage = 0.0,
-                            transforms = [animation.Translate(-5, 5), animation.Scale(0, 1)],
-                            curve=EASE_IN_OUT
-                        ),
-                         animation.Keyframe(
-                            percentage = 1.0,
-                            transforms = [animation.Translate(2, 5), animation.Scale(end_animation_scale[price_precision], 1)],
-                        ),
-                    ],
-                ),
-                # End animation
-                end_animation(),
-            ]
-        )
+        children = [
+            # Create five days tendency line animation
+            animation.Transformation(
+                child = history_chart(prices),
+                duration = 20,
+                delay = 0,
+                origin = animation.Origin(0, 0),
+                keyframes = [
+                    animation.Keyframe(
+                        percentage = 0.0,
+                        transforms = [animation.Translate(-5, 5), animation.Scale(0, 1)],
+                        curve = EASE_IN_OUT,
+                    ),
+                    animation.Keyframe(
+                        percentage = 1.0,
+                        transforms = [animation.Translate(2, 5), animation.Scale(end_animation_scale[price_precision], 1)],
+                    ),
+                ],
+            ),
+            # End animation
+            end_animation(),
+        ],
+    )
 
 def flip_display(value):
     price_digits = list(str(value).elems())
     display_children = []
 
     for digit in price_digits:
-        value = digit if digit != '.' else 10
+        value = digit if digit != "." else 10
         display_children.append(flip_digit(int(value)))
 
-    display = render.Row(children=display_children)
+    display = render.Row(children = display_children)
 
     return display
 
 def flip_digit(number):
-    digits = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '.']
+    digits = ["0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "."]
     digits_children = []
 
     for digit in list(digits):
         text = render.Text(
             digit,
             color = HIGHLIGHT_TEXT_COLOR,
-            font = DEFAULT_FONT
+            font = DEFAULT_FONT,
         )
         digits_children.append(text)
 
     numbers_column = render.Column(
-        children=
-        digits_children
+        children =
+            digits_children,
     )
 
     flip_box = render.Stack(
         children = [
             render.Box(
                 child = render.Stack(
-                    children=[
+                    children = [
                         # Digit flip animation
                         animation.Transformation(
                             child = numbers_column,
@@ -289,19 +290,20 @@ def flip_digit(number):
                         ),
                         # End animation
                         end_animation(),
-                    ]
+                    ],
                 ),
                 color = FLIP_BACKGROUND_COLOR,
-                width=5,
-                height=66,
-                padding=1
-            )
-        ]
+                width = 5,
+                height = 66,
+                padding = 1,
+            ),
+        ],
     )
 
-    wrapper_box = render.Box(child=flip_box,
-        height=7,
-        width=5
+    wrapper_box = render.Box(
+        child = flip_box,
+        height = 7,
+        width = 5,
     )
 
     return wrapper_box
@@ -342,7 +344,7 @@ def get_schema():
         schema.Option(
             display = "Four",
             value = "4",
-        )
+        ),
     ]
 
     exchange_spread_options = [
@@ -353,7 +355,7 @@ def get_schema():
         schema.Option(
             display = "Ask",
             value = "ask",
-        )
+        ),
     ]
 
     coin_price_fields = [
@@ -388,7 +390,7 @@ def get_schema():
             icon = "moneyBill",
             default = exchange_spread_options[0].value,
             options = exchange_spread_options,
-        )
+        ),
     ]
 
     return schema.Schema(
