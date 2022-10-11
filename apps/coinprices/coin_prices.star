@@ -68,8 +68,13 @@ def main(config):
         days = DAYS,
     )
 
+    cache_key = "price_response_{from_coin}_{to_coin}".format(
+        from_coin = from_coin,
+        to_coin = to_coin,
+    )
+
     # Get data from cache or API
-    cached_price_response = cache.get("price_response")
+    cached_price_response = cache.get(cache_key)
     if cached_price_response != None:
         # Cache Hit: Displays cached data
         json_response = json.decode(cached_price_response)
@@ -79,7 +84,7 @@ def main(config):
         if price_response.status_code != 200:
             fail("Request failed with status %d", price_response.status_code)
         json_response = price_response.json()
-        cache.set("price_response", json.encode(json_response), ttl_seconds = CACHE_TTL)
+        cache.set(cache_key, json.encode(json_response), ttl_seconds = CACHE_TTL)
 
     prices = []
 
