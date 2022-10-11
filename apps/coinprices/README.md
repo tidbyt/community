@@ -2,7 +2,7 @@
 
 ## Motivation
 
-Display one exchange rate against other of your choice on your Tidbyt. Data provided by [AwesomeAPI](https://docs.awesomeapi.com.br/). As the Brazilian community grows, this Applet support BRL currency so you can check it against USD or EUR.
+Display one exchange rate against another of your choice on your Tidbyt. Data provided by [AwesomeAPI](https://docs.awesomeapi.com.br/). As the Brazilian community grows, this Applet support BRL currency so you can check it against USD or EUR.
 
 ### Available Options
 
