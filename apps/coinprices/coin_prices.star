@@ -8,6 +8,23 @@ Author: alan-oliv
 load("render.star", "render")
 load("schema.star", "schema")
 load("animation.star", "animation")
+load("http.star", "http")
+load("humanize.star", "humanize")
+
+# Configs
+# quantity of floating points
+# origin coin
+# target coin
+API_URL = "https://economia.awesomeapi.com.br/json/daily"
+ORIGIN_COIN = "USD"
+TARGET_COIN = "BRL"
+DAYS = 5
+API_PRICE_URL = "{api}/{origin}-{target}/{days}".format(
+    api=API_URL,
+    origin=ORIGIN_COIN,
+    target=TARGET_COIN,
+    days=DAYS
+)
 
 # Theme
 BACKGROUND_COLOR = "#000000"
@@ -35,24 +52,38 @@ EASE_OUT = "ease_out"
 EASE_IN_OUT = "ease_in_out"
 
 def main(config):
+    price_response = http.get(API_PRICE_URL)
+    if price_response.status_code != 200:
+        fail("Request failed with status %d", price_response.status_code)
+
+    json_response = price_response.json()
+    prices = []
+
+    for price in list(json_response):
+        prices.append(float(price["ask"]))
+
     stack = render.Stack(
         children=[
-          animate_history_chart(),
-          animate_currency_info()
+          # Render animated five days tendency line
+          animate_history_chart(prices),
+          # Render currency info with flip display animation
+          animate_currency_info(prices)
         ]
     )
 
     return render.Root(child = stack)
 
-def currency_info():
-    today_price = 1
-    yesterday_price = 2
+def currency_info(prices):
+    latest_price = prices[0]
+    yesterday_price = prices[1]
 
-    fomatted_today_price = "{}".format(today_price);
-    yesterday_today_variation = today_price - yesterday_price
-    formatted_variation = str(yesterday_today_variation)[0:7]
+    fomatted_latest_price = humanize.float("#.##", latest_price)
+    print(fomatted_latest_price)
+    yesterday_today_variation = latest_price - yesterday_price
+    formatted_variation = humanize.float("#.####", yesterday_today_variation)
+    # formatted_variation = str(yesterday_today_variation)[0:7]
     is_negative = str(yesterday_today_variation).find("-") > -1
-    variation_text_color = POSITIVE_TEXT_COLOR if is_negative else NEGATIVE_TEXT_COLOR
+    variation_text_color = NEGATIVE_TEXT_COLOR if is_negative else POSITIVE_TEXT_COLOR
 
     divider = render.Box(width=5, height=8)
 
@@ -67,7 +98,7 @@ def currency_info():
         main_align="end",
         cross_align="end",
         children=[
-            flip_display(5.21),
+            flip_display(fomatted_latest_price),
             render.Box(width=1, height=8),
             render.Text("BRL", color = DARKER_TEXT_COLOR, font = DEFAULT_FONT)
         ]
@@ -97,12 +128,12 @@ def currency_info():
             ]
         )
 
-def animate_currency_info():
+def animate_currency_info(prices):
     return render.Stack(
             children = [
-                # Currency price history animation
+                # Create currency info animation (based on schema configs + api data)
                 animation.Transformation(
-                    child = currency_info(),
+                    child = currency_info(prices),
                     duration = 20,
                     delay = 0,
                     origin=animation.Origin(0, 0),
@@ -123,15 +154,16 @@ def animate_currency_info():
             ]
         )
 
-def history_chart():
+def history_chart(prices):
+    # Always using yesterday bid/ask baseline value for comparison
+    comparison_price = prices[1]
+    # Get the variation for tendency line
+    days_value_variation = [value - comparison_price for value in prices]
+    price_history = reversed(days_value_variation)
+
+    # Render five days tendency line (based on schema configs + api data)
     return render.Plot(
-        data = [
-            (0, 2),
-            (1, 3),
-            (2, 1),
-            (3, -1),
-            (4, 0)
-        ],
+        data = enumerate(price_history),
         width = 26,
         height = 22,
         fill = True,
@@ -140,15 +172,15 @@ def history_chart():
         fill_color = POSITIVE_PLOT_FILL,
         fill_color_inverted = NEGATIVE_PLOT_FILL,
         x_lim = (0, 4),
-        y_lim = (-1, 3),
+        y_lim = (min(days_value_variation), max(days_value_variation)),
     )
 
-def animate_history_chart():
+def animate_history_chart(prices):
     return render.Stack(
             children = [
-                # Currency price history animation
+                # Create five days tendency line animation
                 animation.Transformation(
-                    child = history_chart(),
+                    child = history_chart(prices),
                     duration = 20,
                     delay = 0,
                     origin=animation.Origin(0, 0),
@@ -203,7 +235,7 @@ def flip_digit(number):
             render.Box(
                 child = render.Stack(
                     children=[
-                        # Digit animation
+                        # Digit flip animation
                         animation.Transformation(
                             child = numbers_column,
                             duration = FLIP_DIGIT_DURATION,
