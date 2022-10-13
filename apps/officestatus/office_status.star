@@ -128,12 +128,9 @@ GRAPH_CLIENT_SECRET_DEFAULT = "78910"
 # Hash Strings to encrypt/store secrets required by MSFT Graph API access. These ultimately get replaced with Tidbyt Hash when the
 # App is placed into the production environment. Application folder name is "officestatus". These (hashed) secrets are tied to
 # the common tenant version of the Web App (Tidbyt_Ocal)
-GRAPH_CLIENT_ID_HASH = """
-GRAPH_CLIENT_ID_HASH
-"""
-GRAPH_CLIENT_SECRET_HASH = """
-GRAPH_CLIENT_SECRET_HASH
-"""
+GRAPH_CLIENT_ID_HASH = "AV6+xWcEEXuYe3pTryNhDHEtNSvhVh5AzuB80JlncWy6vIj/rgonoeEGOXIzDClOEJkL0RAWAKCFRpSglnBCRa0G3ABIpSSA/zXdCSugEoqA4zDfEBxTh78LvvZ6r0pBfoUj1eHRYxH1PTSbKKKBdPg7mdtyC5lfsMyAYYPyqLq6XX0sGBR4f7IR"
+
+GRAPH_CLIENT_SECRET_HASH = "AV6+xWcESGhLr279hd21f9Zt1YQ4CUEeNMJ+obZE+PENXR6PbXAeO0ZMrz3QQ422C1ZFUBpmOqspjwfRf1WBzqL5BbDxOSPLWpVuakjDnRTdxZCJfQYNR5tpZj3QYvdZeImhrHLpPgWRIPxkjFezKXTHglX/Jdvry401sMaFgNmhc+N4racVgDIC7NU8fQ=="
 
 # MSFT Graph uses 3 secrets to operate. There is the usual Client Secret and Client ID, but Graph uses the Tenant ID as part of
 # The endpoint URL. For public usage, the Tenant ID is set to "Common"
@@ -167,18 +164,15 @@ GRAPH_BUCKET_SIZE = 10
 NUMBER_OF_GRAPH_FETCH_ITERATIONS = int(MAX_GRAPH_EVENT_FETCH_WEEK / GRAPH_BUCKET_SIZE)
 
 # Default (invalid) client ID and Secrets to keep the run time Env happy when running in Debug Mode
-WEBEX_CLIENT_ID_DEFAULT = "123456"
-WEBEX_CLIENT_SECRET_DEFAULT = "78910"
+WEBEX_CLIENT_ID_DEFAULT = "Cde2026daea69cfb4877517b5654e4196ba50fc3defde23f95ee8688c91053ce7"
+WEBEX_CLIENT_SECRET_DEFAULT = "f9a19966c40498aae12348ac53273b1edc414a86a342ec4c01c4f00a1af32e14"
 
 # Hash Strings to encrypt/store secrets required for Webex API access. These ultimately get replaced with Tidbyt Hash when the
 # App is placed into the production environment. Application folder name is "officestatus". These (hashed) secrets are tied to
 # the common tenant version of the Web App (Tidbyt_Ocal)
-WEBEX_CLIENT_ID_HASH = """
-WEBEX_CLIENT_ID_HASH
-"""
-WEBEX_CLIENT_SECRET_HASH = """
-WEBEX_CLIENT_SECRET_HASH
-"""
+WEBEX_CLIENT_ID_HASH = "AV6+xWcEo0OJA8UWuJWzG3SKr1yzOF98lUceQ3941XZ/inLXZcZwKqowtwTkZ0Te3GqhpcMCiOaHFmww3ZfbcbvKz1uBuOO2Kcwics2c6VOZLXWePYyE553apGLnqhNV/7DM/0s/cjB7GdsC/ip9rqxhVBc4Zc3v0lbFU4FPKLrBCZ7NLOKkPKmUQu0bEtC+wcPxf6Q+AtUCF+Om04rk2Bkxc2cS8aY="
+
+WEBEX_CLIENT_SECRET_HASH = "AV6+xWcEsCpYdDpNv1a5QQrxHm2Ao320TyUF/YK8znlP3zfng1tyG9Oah7jobbm3awFwfXKVp3ztYE/JA3+P8cI/5bRq15d5uPiRoOvEMBh2uoX2FosoH0/aluqYajvNIf3sGS/sgAQPG8924a89KHqyqGFsyYAPiWJM/T5ujLE/FcSSORvMigIhamu4Qe+719qXTHGpyKLnpMukw1xSwBAYzUMBZg=="
 
 # Credentials are hardcoded here for debug with Pixlet "Serve" mode, then replaced with Tidbyt Secrets for production code
 #WEBEX_CLIENT_ID = "WEBEX_CLIENT_ID"
@@ -822,7 +816,8 @@ def get_schema():
                 client_id = (GRAPH_CLIENT_ID or GRAPH_CLIENT_ID_DEFAULT),
                 authorization_endpoint = GRAPH_EVENTFETCH_AUTH_ENDPOINT,
                 scopes = [
-                    "offline_access%20Calendars.read",
+                    "offline_access",
+                    "Calendars.read",
                 ],
             ),
             schema.OAuth2(
