@@ -141,6 +141,7 @@ import (
 	"tidbyt.dev/community/apps/redditimages"
 	"tidbyt.dev/community/apps/redditrplace"
 	"tidbyt.dev/community/apps/roblox"
+	"tidbyt.dev/community/apps/rules4life"
 	"tidbyt.dev/community/apps/sbbtimetable"
 	"tidbyt.dev/community/apps/severewxalertsusa"
 	"tidbyt.dev/community/apps/sfnextmuni"
@@ -337,6 +338,7 @@ func GetManifests() []manifest.Manifest {
 		redditimages.New(),
 		redditrplace.New(),
 		roblox.New(),
+		rules4life.New(),
 		sbbtimetable.New(),
 		severewxalertsusa.New(),
 		sfnextmuni.New(),
