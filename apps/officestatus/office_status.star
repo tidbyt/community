@@ -164,15 +164,15 @@ GRAPH_BUCKET_SIZE = 10
 NUMBER_OF_GRAPH_FETCH_ITERATIONS = int(MAX_GRAPH_EVENT_FETCH_WEEK / GRAPH_BUCKET_SIZE)
 
 # Default (invalid) client ID and Secrets to keep the run time Env happy when running in Debug Mode
-WEBEX_CLIENT_ID_DEFAULT = "Cde2026daea69cfb4877517b5654e4196ba50fc3defde23f95ee8688c91053ce7"
-WEBEX_CLIENT_SECRET_DEFAULT = "f9a19966c40498aae12348ac53273b1edc414a86a342ec4c01c4f00a1af32e14"
+WEBEX_CLIENT_ID_DEFAULT = ""
+WEBEX_CLIENT_SECRET_DEFAULT = ""
 
 # Hash Strings to encrypt/store secrets required for Webex API access. These ultimately get replaced with Tidbyt Hash when the
 # App is placed into the production environment. Application folder name is "officestatus". These (hashed) secrets are tied to
 # the common tenant version of the Web App (Tidbyt_Ocal)
 WEBEX_CLIENT_ID_HASH = "AV6+xWcEo0OJA8UWuJWzG3SKr1yzOF98lUceQ3941XZ/inLXZcZwKqowtwTkZ0Te3GqhpcMCiOaHFmww3ZfbcbvKz1uBuOO2Kcwics2c6VOZLXWePYyE553apGLnqhNV/7DM/0s/cjB7GdsC/ip9rqxhVBc4Zc3v0lbFU4FPKLrBCZ7NLOKkPKmUQu0bEtC+wcPxf6Q+AtUCF+Om04rk2Bkxc2cS8aY="
 
-WEBEX_CLIENT_SECRET_HASH = "AV6+xWcEsCpYdDpNv1a5QQrxHm2Ao320TyUF/YK8znlP3zfng1tyG9Oah7jobbm3awFwfXKVp3ztYE/JA3+P8cI/5bRq15d5uPiRoOvEMBh2uoX2FosoH0/aluqYajvNIf3sGS/sgAQPG8924a89KHqyqGFsyYAPiWJM/T5ujLE/FcSSORvMigIhamu4Qe+719qXTHGpyKLnpMukw1xSwBAYzUMBZg=="
+WEBEX_CLIENT_SECRET_HASH = "AV6+xWcE0orcfJj4wNNbdOQu2ws+0qzBbRL0QIe3r84+kVYaO8NBR7CiH5iArJwcigKHzHoJnGe1PH69S4Z0kjto82zMfKZOn0ehkpuTCNt1QbXNG4TZgIcKEbkMnUa5sLZ9c+hW5UQ6lt0mbBve/bf7fJYf+X7Wa6gEGnFrqoK1lXuJmzBjwBJfw34kjlFJrITT2eDwsJJd1ZK8uHi+3CI1lhwAOw=="
 
 # Credentials are hardcoded here for debug with Pixlet "Serve" mode, then replaced with Tidbyt Secrets for production code
 #WEBEX_CLIENT_ID = "WEBEX_CLIENT_ID"
