@@ -133,7 +133,7 @@ def get_schema():
             id = "sprite_position",
             name = "Image Position",
             desc = "Where to display the image relative to the quote",
-            icon = "right-left",
+            icon = "rightLeft",
             default = "random",
             options = [
                 schema.Option(
