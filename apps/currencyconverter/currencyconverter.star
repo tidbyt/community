@@ -842,7 +842,7 @@ def get_schema():
                 id = "local",
                 name = "Local",
                 desc = "Your local currency",
-                icon = "place",
+                icon = "locationDot",
                 options = currency_options,
                 default = currency_options[0].value,
             ),
