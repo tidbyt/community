@@ -242,7 +242,7 @@ def get_bearing(lat_1, lng_1, lat_2, lng_2):
         bearing = 360 + bearing
 
     # have bearning in degrees, not convert to cardinal point
-    compass_brackets = ["North", "North East", "East", "South East", "South", "South West", "West", "North West", "North"]
+    compass_brackets = ["North", "Northeast", "East", "Southeast", "South", "Southwest", "West", "Northwest", "North"]
 
     # buildifier: disable=integer-division
     display_cardinal_point = compass_brackets[int(math.round(bearing / 45))]
