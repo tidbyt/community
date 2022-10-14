@@ -8,17 +8,22 @@ Author: humbertogontijo
 load("render.star", "render")
 load("schema.star", "schema")
 load("http.star", "http")
+load("cache.star", "cache")
 
 SHOULD_I_DEPLOY_URL = "https://shouldideploy.today/api?tz="
 DEFAULT_TIMEZONE = "UTC"
 
 def main(config):
     tz = config.get("tz", DEFAULT_TIMEZONE)
-    resp = http.get(SHOULD_I_DEPLOY_URL + tz)
-    if resp.status_code != 200:
-        fail("Request failed with status %d", resp.status_code)
-
-    msg_txt = resp.json()["message"]
+    resp_cache = cache.get("api_message")
+    if resp_cache != None:
+        msg_txt = resp_cache
+    else:
+        resp = http.get(SHOULD_I_DEPLOY_URL + tz)
+        if resp.status_code != 200:
+            fail("Request failed with status %d", resp.status_code)
+        msg_txt = resp.json()["message"]
+        cache.set("api_message", msg_txt, ttl_seconds = 120)
 
     return render.Root(
         child = render.Column(
