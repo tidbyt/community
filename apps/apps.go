@@ -32,10 +32,12 @@ import (
 	"tidbyt.dev/community/apps/clockbyhenry"
 	"tidbyt.dev/community/apps/cltlightrail"
 	"tidbyt.dev/community/apps/coingeckoprice"
+	"tidbyt.dev/community/apps/coinprices"
 	"tidbyt.dev/community/apps/colorfulclock"
 	"tidbyt.dev/community/apps/costcogas"
 	"tidbyt.dev/community/apps/countdownclock"
 	"tidbyt.dev/community/apps/cryptotracker"
+	"tidbyt.dev/community/apps/currencyconverter"
 	"tidbyt.dev/community/apps/dailykanji"
 	"tidbyt.dev/community/apps/dateprogress"
 	"tidbyt.dev/community/apps/datetimeclock"
@@ -99,13 +101,16 @@ import (
 	"tidbyt.dev/community/apps/moretransit"
 	"tidbyt.dev/community/apps/moviequotes"
 	"tidbyt.dev/community/apps/mvv"
+	"tidbyt.dev/community/apps/nascarnextrace"
 	"tidbyt.dev/community/apps/natdex"
+	"tidbyt.dev/community/apps/nationalrail"
 	"tidbyt.dev/community/apps/nationaltoday"
 	"tidbyt.dev/community/apps/nbascores"
 	"tidbyt.dev/community/apps/ncaafscores"
 	"tidbyt.dev/community/apps/ncaafstandings"
 	"tidbyt.dev/community/apps/nearearthobjs"
 	"tidbyt.dev/community/apps/neotrack"
+	"tidbyt.dev/community/apps/nesquotes"
 	"tidbyt.dev/community/apps/netatmo"
 	"tidbyt.dev/community/apps/nflscores"
 	"tidbyt.dev/community/apps/nflstandings"
@@ -113,6 +118,7 @@ import (
 	"tidbyt.dev/community/apps/nhllive"
 	"tidbyt.dev/community/apps/nhlnextgame"
 	"tidbyt.dev/community/apps/nhlscores"
+	"tidbyt.dev/community/apps/nhlstandings"
 	"tidbyt.dev/community/apps/nightscout"
 	"tidbyt.dev/community/apps/nixelclock"
 	"tidbyt.dev/community/apps/noaabuoy"
@@ -139,6 +145,7 @@ import (
 	"tidbyt.dev/community/apps/redditimages"
 	"tidbyt.dev/community/apps/redditrplace"
 	"tidbyt.dev/community/apps/roblox"
+	"tidbyt.dev/community/apps/rules4life"
 	"tidbyt.dev/community/apps/sbbtimetable"
 	"tidbyt.dev/community/apps/severewxalertsusa"
 	"tidbyt.dev/community/apps/sfnextmuni"
@@ -195,6 +202,7 @@ import (
 	"tidbyt.dev/community/apps/wordlebyt"
 	"tidbyt.dev/community/apps/wordoftheday"
 	"tidbyt.dev/community/apps/worldclock"
+	"tidbyt.dev/community/apps/zenhub"
 )
 
 // GetManifests returns a list of all apps in the this repository. Add your applet
@@ -226,10 +234,12 @@ func GetManifests() []manifest.Manifest {
 		clockbyhenry.New(),
 		cltlightrail.New(),
 		coingeckoprice.New(),
+		coinprices.New(),
 		colorfulclock.New(),
 		costcogas.New(),
 		countdownclock.New(),
 		cryptotracker.New(),
+		currencyconverter.New(),
 		dailykanji.New(),
 		dateprogress.New(),
 		datetimeclock.New(),
@@ -292,13 +302,16 @@ func GetManifests() []manifest.Manifest {
 		moretransit.New(),
 		moviequotes.New(),
 		mvv.New(),
+		nascarnextrace.New(),
 		natdex.New(),
+		nationalrail.New(),
 		nationaltoday.New(),
 		nbascores.New(),
 		ncaafscores.New(),
 		ncaafstandings.New(),
 		nearearthobjs.New(),
 		neotrack.New(),
+		nesquotes.New(),
 		netatmo.New(),
 		nflscores.New(),
 		nflstandings.New(),
@@ -306,6 +319,7 @@ func GetManifests() []manifest.Manifest {
 		nhllive.New(),
 		nhlnextgame.New(),
 		nhlscores.New(),
+		nhlstandings.New(),
 		nightscout.New(),
 		nixelclock.New(),
 		noaabuoy.New(),
@@ -332,6 +346,7 @@ func GetManifests() []manifest.Manifest {
 		redditimages.New(),
 		redditrplace.New(),
 		roblox.New(),
+		rules4life.New(),
 		sbbtimetable.New(),
 		severewxalertsusa.New(),
 		sfnextmuni.New(),
@@ -388,6 +403,7 @@ func GetManifests() []manifest.Manifest {
 		wordlebyt.New(),
 		wordoftheday.New(),
 		worldclock.New(),
+		zenhub.New(),
 	}
 }
 
