@@ -16,7 +16,7 @@ func New() manifest.Manifest {
 		ID:          "nhl-standings",
 		Name:        "NHL Standings",
 		Author:      "LunchBox8484",
-		Summary:     "NHL football standings",
+		Summary:     "NHL hockey standings",
 		Desc:        "View NHL standings by division.",
 		FileName:    "nhl_standings.star",
 		PackageName: "nhlstandings",
