@@ -2891,6 +2891,7 @@ def distance(station, location):
     return math.pow(station["lat"] - float(location["lat"]), 2) + math.pow(station["lng"] - float(location["lng"]), 2)
 
 def list_stations(location):
+    location = json.decode(location)
     return [
         schema.Option(display = station["name"], value = json.encode(station))
         for station in sorted(STATIONS.values(), key = lambda x: distance(x, location))
