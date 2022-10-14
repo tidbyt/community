@@ -36,6 +36,7 @@ import (
 	"tidbyt.dev/community/apps/costcogas"
 	"tidbyt.dev/community/apps/countdownclock"
 	"tidbyt.dev/community/apps/cryptotracker"
+	"tidbyt.dev/community/apps/currencyconverter"
 	"tidbyt.dev/community/apps/dailykanji"
 	"tidbyt.dev/community/apps/dateprogress"
 	"tidbyt.dev/community/apps/datetimeclock"
@@ -99,9 +100,7 @@ import (
 	"tidbyt.dev/community/apps/moretransit"
 	"tidbyt.dev/community/apps/moviequotes"
 	"tidbyt.dev/community/apps/mvv"
-	"tidbyt.dev/community/apps/nascarnextrace"
 	"tidbyt.dev/community/apps/natdex"
-	"tidbyt.dev/community/apps/nationalrail"
 	"tidbyt.dev/community/apps/nationaltoday"
 	"tidbyt.dev/community/apps/nbascores"
 	"tidbyt.dev/community/apps/ncaafscores"
@@ -141,6 +140,7 @@ import (
 	"tidbyt.dev/community/apps/redditimages"
 	"tidbyt.dev/community/apps/redditrplace"
 	"tidbyt.dev/community/apps/roblox"
+	"tidbyt.dev/community/apps/rules4life"
 	"tidbyt.dev/community/apps/sbbtimetable"
 	"tidbyt.dev/community/apps/severewxalertsusa"
 	"tidbyt.dev/community/apps/sfnextmuni"
@@ -198,7 +198,6 @@ import (
 	"tidbyt.dev/community/apps/wordlebyt"
 	"tidbyt.dev/community/apps/wordoftheday"
 	"tidbyt.dev/community/apps/worldclock"
-	"tidbyt.dev/community/apps/zenhub"
 )
 
 // GetManifests returns a list of all apps in the this repository. Add your applet
@@ -234,6 +233,7 @@ func GetManifests() []manifest.Manifest {
 		costcogas.New(),
 		countdownclock.New(),
 		cryptotracker.New(),
+		currencyconverter.New(),
 		dailykanji.New(),
 		dateprogress.New(),
 		datetimeclock.New(),
@@ -296,9 +296,7 @@ func GetManifests() []manifest.Manifest {
 		moretransit.New(),
 		moviequotes.New(),
 		mvv.New(),
-		nascarnextrace.New(),
 		natdex.New(),
-		nationalrail.New(),
 		nationaltoday.New(),
 		nbascores.New(),
 		ncaafscores.New(),
@@ -338,6 +336,7 @@ func GetManifests() []manifest.Manifest {
 		redditimages.New(),
 		redditrplace.New(),
 		roblox.New(),
+		rules4life.New(),
 		sbbtimetable.New(),
 		severewxalertsusa.New(),
 		sfnextmuni.New(),
@@ -395,7 +394,6 @@ func GetManifests() []manifest.Manifest {
 		wordlebyt.New(),
 		wordoftheday.New(),
 		worldclock.New(),
-		zenhub.New(),
 	}
 }
 

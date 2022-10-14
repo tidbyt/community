@@ -10,32 +10,20 @@ load("schema.star", "schema")
 load("http.star", "http")
 load("math.star", "math")
 load("encoding/base64.star", "base64")
+load("encoding/json.star", "json")
 load("cache.star", "cache")
 
-LEET_CODE_STATS_URL = "https://leetcode-stats-api.herokuapp.com/{user_name}"
+LEETCODE_BASE_URL = "https://leetcode.com/{0}"
 EASY_COLOR = "#00E400"
 MEDIUM_COLOR = "#FFA400"
 HARD_COLOR = "#E60707"
 FONT = "5x8"
-TOTAL_HIST_LENGTH = 52
+TOTAL_HIST_LENGTH = 62
 LEET_CODE_LOGO = base64.decode("""
 iVBORw0KGgoAAAANSUhEUgAAAAgAAAAJCAYAAAAPU20uAAAAAXNSR0IArs4c6QAAAERlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAA6ABAAMAAAABAAEAAKACAAQAAAABAAAACKADAAQAAAABAAAACQAAAACo5FLiAAAAWklEQVQYGV1OgQ3AMAiCZVfupt7RnenEpUYlaUJBBQIwfwkzA8n8X8mcTFNeDsjES9iuKz93z7EjSnGNU17NnPv3FNZaTVJdHWnN60SUVISGDmrRuDANPkcBPgGIK90UIPuQAAAAAElFTkSuQmCC
 """)
 HEADER_FONT = "CG-pixel-3x5-mono"
 HTTP_SUCCESS_CODE = 200
-
-## cache key formats
-TOTAL_SOLVED_CACHE_KEY = "{0}^total_solved"
-EASY_SOLVED_CACHE_KEY = "{0}^easy_solved"
-MEDIUM_SOLVED_CACHE_KEY = "{0}^medium_solved"
-HARD_SOLVED_CACHE_KEY = "{0}^hard_solved"
-EASY_TOTAL_CACHE_KEY = "{0}^easy_total"
-MEDIUM_TOTAL_CACHE_KEY = "{0}^medium_total"
-HARD_TOTAL_CACHE_KEY = "{0}^hard_total"
-EASY_PCT_CACHE_KEY = "{0}^easy_pct"
-MEDIUM_PCT_CACHE_KEY = "{0}^medium_pct"
-HARD_PCT_CACHE_KEY = "{0}^hard_pct"
-HIST_MAX_LENGTH_CACHE_KEY = "{0}^hist_max_length"
 
 CACHE_LIFE_LENGTH_SECONDS = 300
 
@@ -160,41 +148,70 @@ def render_Header(msg):
     )
 
 def get_Stats(user_name):
-    total_solved = cache.get(TOTAL_SOLVED_CACHE_KEY.format(user_name))
-    easy_solved = cache.get(EASY_SOLVED_CACHE_KEY.format(user_name))
-    medium_solved = cache.get(MEDIUM_SOLVED_CACHE_KEY.format(user_name))
-    hard_solved = cache.get(HARD_SOLVED_CACHE_KEY.format(user_name))
-    easy_pct = cache.get(EASY_PCT_CACHE_KEY.format(user_name))
-    medium_pct = cache.get(MEDIUM_PCT_CACHE_KEY.format(user_name))
-    hard_pct = cache.get(HARD_PCT_CACHE_KEY.format(user_name))
-    hist_max_length = cache.get(HIST_MAX_LENGTH_CACHE_KEY.format(user_name))
+    my_stats_cached = cache.get(user_name)
 
-    # if any of the above are not found in the cache, then use http response
-    if total_solved == None or easy_solved == None or medium_solved == None or hard_solved == None or easy_pct == None or medium_pct == None or hard_pct == None:
+    # if we didn't find stats in the cache, get them from http endpoint
+    if my_stats_cached == None:
         my_stats = get_StatsHttp(user_name)
 
         # cache them if the response code was successful
         if my_stats.ResponseCode == HTTP_SUCCESS_CODE:
             cache_StatsObj(user_name, my_stats)
     else:
-        my_stats = struct(Header = user_name, TotalSolved = total_solved, EasySolved = easy_solved, MediumSolved = medium_solved, HardSolved = hard_solved, EasyPercent = easy_pct, MediumPercent = medium_pct, HardPercent = hard_pct, HistogramMaxLength = hist_max_length)
+        decoded = json.decode(my_stats_cached)
+        my_stats = get_statsStruct(decoded)
 
     return my_stats
 
 def get_StatsHttp(user_name):
-    response = http.get(LEET_CODE_STATS_URL.format(user_name = user_name))
+    headers = {
+        "Content-Type": "application/json",
+        "referer": LEETCODE_BASE_URL.format(user_name),
+    }
+
+    # get the graphql query to use
+    json_body = get_query(user_name)
+
+    # use POST to get data
+    response = http.post(url = LEETCODE_BASE_URL.format("graphql"), headers = headers, json_body = json_body)
+
+    # check status_code to see if we were successful
     code = response.status_code
 
     # if we fail bubble this up
     if code != HTTP_SUCCESS_CODE:
         return struct(Header = "HTTP error code: {0}".format(code), TotalSolved = 0, EasySolved = 0, MediumSolved = 0, HardSolved = 0, EasyPercent = 0, MediumPercent = 0, HardPercent = 0, HistogramMaxLength = 0, ResponseCode = code)
 
-    json_response = response.json()
+    resp_as_json = response.json()
 
-    total_solved = json_response["totalSolved"]
-    easy_solved = json_response["easySolved"]
-    medium_solved = json_response["mediumSolved"]
-    hard_solved = json_response["hardSolved"]
+    # if we were successful, we can parse the response
+    # check for errors first
+    # if there is an error, display it in the header (usually "user does not exist")
+    errors = resp_as_json.get("errors")
+    if errors != None:
+        for error in errors:
+            return struct(Header = error.get("message"), TotalSolved = 0, EasySolved = 0, MediumSolved = 0, HardSolved = 0, EasyPercent = 0, MediumPercent = 0, HardPercent = 0, HistogramMaxLength = 0, ResponseCode = code)
+
+    accepted_submissions = resp_as_json["data"]["matchedUser"]["submitStats"]["acSubmissionNum"]
+
+    # parse through the list and get the easy/medium/hard counts
+    # initialize variables to please the linter
+    total_solved = 1
+    easy_solved = 0
+    medium_solved = 0
+    hard_solved = 0
+    for stat in accepted_submissions:
+        difficulty = stat["difficulty"]
+        count = stat["count"]
+        if difficulty == "All":
+            total_solved = count
+        if difficulty == "Easy":
+            easy_solved = count
+        if difficulty == "Medium":
+            medium_solved = count
+        if difficulty == "Hard":
+            hard_solved = count
+
     easy_pct = get_PercentageSolved(easy_solved, total_solved)
     medium_pct = get_PercentageSolved(medium_solved, total_solved)
     hard_pct = get_PercentageSolved(hard_solved, total_solved)
@@ -213,11 +230,26 @@ def get_StatsHttp(user_name):
     return struct(Header = user_name, TotalSolved = total_solved, EasySolved = easy_solved, MediumSolved = medium_solved, HardSolved = hard_solved, EasyPercent = easy_pct, MediumPercent = medium_pct, HardPercent = hard_pct, HistogramMaxLength = hist_max_length, ResponseCode = code)
 
 def cache_StatsObj(user_name, statsObj):
-    cache.set(TOTAL_SOLVED_CACHE_KEY.format(user_name), str(int(statsObj.TotalSolved)), ttl_seconds = CACHE_LIFE_LENGTH_SECONDS)
-    cache.set(EASY_SOLVED_CACHE_KEY.format(user_name), str(int(statsObj.EasySolved)), ttl_seconds = CACHE_LIFE_LENGTH_SECONDS)
-    cache.set(MEDIUM_SOLVED_CACHE_KEY.format(user_name), str(int(statsObj.MediumSolved)), ttl_seconds = CACHE_LIFE_LENGTH_SECONDS)
-    cache.set(HARD_SOLVED_CACHE_KEY.format(user_name), str(int(statsObj.HardSolved)), ttl_seconds = CACHE_LIFE_LENGTH_SECONDS)
-    cache.set(EASY_PCT_CACHE_KEY.format(user_name), str(statsObj.EasyPercent), ttl_seconds = CACHE_LIFE_LENGTH_SECONDS)
-    cache.set(MEDIUM_PCT_CACHE_KEY.format(user_name), str(statsObj.MediumPercent), ttl_seconds = CACHE_LIFE_LENGTH_SECONDS)
-    cache.set(HARD_PCT_CACHE_KEY.format(user_name), str(statsObj.HardPercent), ttl_seconds = CACHE_LIFE_LENGTH_SECONDS)
-    cache.set(HIST_MAX_LENGTH_CACHE_KEY.format(user_name), str(int(statsObj.HistogramMaxLength)), ttl_seconds = CACHE_LIFE_LENGTH_SECONDS)
+    stats_as_json = json.encode(statsObj)
+    cache.set(user_name, str(stats_as_json), ttl_seconds = CACHE_LIFE_LENGTH_SECONDS)
+
+def get_query(user_name):
+    return {
+        "query": "query getUserProfile($username: String!) { allQuestionsCount { difficulty count } matchedUser(username: $username) { contributions { points } profile { reputation ranking } submissionCalendar submitStats { acSubmissionNum { difficulty count submissions } totalSubmissionNum { difficulty count submissions } } } }",
+        "variables": {
+            "username": user_name,
+        },
+    }
+
+def get_statsStruct(stats_as_json):
+    user_name = stats_as_json.get("Header")
+    total_solved = stats_as_json.get("TotalSolved")
+    easy_solved = stats_as_json.get("EasySolved")
+    medium_solved = stats_as_json.get("MediumSolved")
+    hard_solved = stats_as_json.get("HardSolved")
+    easy_pct = stats_as_json.get("EasyPercent")
+    medium_pct = stats_as_json.get("MediumPercent")
+    hard_pct = stats_as_json.get("HardPercent")
+    hist_max_length = stats_as_json.get("HistogramMaxLength")
+    code = stats_as_json.get("ResponseCode")
+    return struct(Header = user_name, TotalSolved = total_solved, EasySolved = easy_solved, MediumSolved = medium_solved, HardSolved = hard_solved, EasyPercent = easy_pct, MediumPercent = medium_pct, HardPercent = hard_pct, HistogramMaxLength = hist_max_length, ResponseCode = code)
