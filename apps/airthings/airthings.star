@@ -34,6 +34,15 @@ load("http.star", "http")
 load("cache.star", "cache")
 
 def main(config):
+
+    # Require secrets
+    if config["clientId"] == "" or config["clientSecret"] == "" or config["serialNumber"] == "":
+        return render.Root(
+            child = render.WrappedText(
+                content = "AirThings credentials missing."
+            )
+        )
+
     access_token = cache.get("access_token")
     if access_token == None:
         print("[+] Refreshing Token...")
@@ -41,10 +50,39 @@ def main(config):
     else:
         print("[+] Using Cached Token...")
     
+    # https://developer.airthings.com/consumer-api-docs/#operation/Device%20samples%20latest-values
     samples = get_samples(config, access_token)
 
     co2 = samples["data"]["co2"]
     pm25 = samples["data"]["pm25"]
+    temp = samples["data"]["temp"]
+    voc = samples["data"]["voc"]
+
+    # https://help.airthings.com/en/articles/5367327-view-understanding-the-sensor-thresholds
+    co2_color = "#0f0"
+    pm25_color = "#0f0"
+    temp_color = "#0f0"
+    voc_color = "#0f0"
+
+    if co2 > 1000:
+        co2_color = "#f00"
+    elif co2 > 800:
+        co2_color = "#ff0"
+
+    if pm25 > 25:
+        pm25_color = "#f00"
+    elif pm25 > 10:
+        pm25_color = "#ff0"
+
+    if temp > 25:
+        temp_color = "#f00"
+    elif temp > 20:
+        temp_color = "#ff0"
+    
+    if voc > 2000:
+        voc_color = "#f00"
+    elif voc > 250:
+        voc_color = "#ff0"
 
     return render.Root(
         child = render.Column(
@@ -55,11 +93,11 @@ def main(config):
                     children = [
                         render.Text(
                             content = "CO2",
-                            color = "#2a2",
+                            color = co2_color
                         ),
                         render.Text(
                             content = str(co2),
-                            color = "#2a2"
+                            color = co2_color
                         ),
                     ],
                 ),
@@ -69,11 +107,39 @@ def main(config):
                     children = [
                         render.Text(
                             content = "Pm2.5",
-                            color = "#66f",
+                            color = pm25_color
                         ),
                         render.Text(
                             content = str(pm25),
-                            color = "#66f"
+                            color = pm25_color
+                        ),
+                    ],
+                ),
+                render.Row(
+                    expanded=True,
+                    main_align = "space_between",
+                    children = [
+                        render.Text(
+                            content = "Temp",
+                            color = temp_color
+                        ),
+                        render.Text(
+                            content = str(temp),
+                            color = temp_color
+                        ),
+                    ],
+                ),
+                render.Row(
+                    expanded=True,
+                    main_align = "space_between",
+                    children = [
+                        render.Text(
+                            content = "VOC",
+                            color = voc_color
+                        ),
+                        render.Text(
+                            content = str(voc),
+                            color = voc_color
                         ),
                     ],
                 ),
