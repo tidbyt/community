@@ -34,13 +34,12 @@ load("http.star", "http")
 load("cache.star", "cache")
 
 def main(config):
-
     # Require secrets
     if config["clientId"] == "" or config["clientSecret"] == "" or config["serialNumber"] == "":
         return render.Root(
             child = render.WrappedText(
-                content = "AirThings credentials missing."
-            )
+                content = "AirThings credentials missing.",
+            ),
         )
 
     access_token = cache.get("access_token")
@@ -49,7 +48,7 @@ def main(config):
         access_token = client_credentials_grant_flow(config)
     else:
         print("[+] Using Cached Token...")
-    
+
     # https://developer.airthings.com/consumer-api-docs/#operation/Device%20samples%20latest-values
     samples = get_samples(config, access_token)
 
@@ -78,7 +77,7 @@ def main(config):
         temp_color = "#f00"
     elif temp > 20:
         temp_color = "#ff0"
-    
+
     if voc > 2000:
         voc_color = "#f00"
     elif voc > 250:
@@ -88,58 +87,58 @@ def main(config):
         child = render.Column(
             children = [
                 render.Row(
-                    expanded=True,
+                    expanded = True,
                     main_align = "space_between",
                     children = [
                         render.Text(
                             content = "CO2",
-                            color = co2_color
+                            color = co2_color,
                         ),
                         render.Text(
                             content = str(co2),
-                            color = co2_color
+                            color = co2_color,
                         ),
                     ],
                 ),
                 render.Row(
-                    expanded=True,
+                    expanded = True,
                     main_align = "space_between",
                     children = [
                         render.Text(
                             content = "Pm2.5",
-                            color = pm25_color
+                            color = pm25_color,
                         ),
                         render.Text(
                             content = str(pm25),
-                            color = pm25_color
+                            color = pm25_color,
                         ),
                     ],
                 ),
                 render.Row(
-                    expanded=True,
+                    expanded = True,
                     main_align = "space_between",
                     children = [
                         render.Text(
                             content = "Temp",
-                            color = temp_color
+                            color = temp_color,
                         ),
                         render.Text(
                             content = str(temp),
-                            color = temp_color
+                            color = temp_color,
                         ),
                     ],
                 ),
                 render.Row(
-                    expanded=True,
+                    expanded = True,
                     main_align = "space_between",
                     children = [
                         render.Text(
                             content = "VOC",
-                            color = voc_color
+                            color = voc_color,
                         ),
                         render.Text(
                             content = str(voc),
-                            color = voc_color
+                            color = voc_color,
                         ),
                     ],
                 ),
@@ -161,20 +160,19 @@ def get_samples(config, access_token):
     if res.status_code != 200:
         print("Error fetching samples: %s" % (res.body()))
         fail("fetching samples failed with status code: %d - %s" % (res.status_code, res.body()))
-    
+
     status = res.json()
     return status
-
 
 def client_credentials_grant_flow(config):
     clientSecret = config.str("clientSecret")
     clientId = config.str("clientId")
 
     form_body = dict(
-        client_id =  clientId,
+        client_id = clientId,
         client_secret = clientSecret,
         grant_type = "client_credentials",
-        scope = "read:device:current_values"
+        scope = "read:device:current_values",
     )
 
     res = http.post(
@@ -183,7 +181,7 @@ def client_credentials_grant_flow(config):
             "Content-Type": "application/x-www-form-urlencoded",
             "Accept": "*/*",
         },
-        form_body = form_body
+        form_body = form_body,
     )
 
     if res.status_code == 200:
@@ -200,7 +198,6 @@ def client_credentials_grant_flow(config):
 
     cache.set("access_token", access_token, ttl_seconds = int(expires_in) - 30)
     return access_token
-
 
 def get_schema():
     return schema.Schema(
