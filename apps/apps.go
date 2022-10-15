@@ -10,6 +10,7 @@ import (
 	"tidbyt.dev/community/apps/abstractclock"
 	"tidbyt.dev/community/apps/advice"
 	"tidbyt.dev/community/apps/afl"
+	"tidbyt.dev/community/apps/airthings"
 	"tidbyt.dev/community/apps/amazing"
 	"tidbyt.dev/community/apps/ambientweather"
 	"tidbyt.dev/community/apps/analogclock"
@@ -106,6 +107,7 @@ import (
 	"tidbyt.dev/community/apps/nationalrail"
 	"tidbyt.dev/community/apps/nationaltoday"
 	"tidbyt.dev/community/apps/nbascores"
+	"tidbyt.dev/community/apps/nbastandings"
 	"tidbyt.dev/community/apps/ncaafscores"
 	"tidbyt.dev/community/apps/ncaafstandings"
 	"tidbyt.dev/community/apps/nearearthobjs"
@@ -125,6 +127,7 @@ import (
 	"tidbyt.dev/community/apps/noaatides"
 	"tidbyt.dev/community/apps/nyancat"
 	"tidbyt.dev/community/apps/nycbus"
+	"tidbyt.dev/community/apps/officestatus"
 	"tidbyt.dev/community/apps/ogsgamesviewer"
 	"tidbyt.dev/community/apps/ohhighwaysigns"
 	"tidbyt.dev/community/apps/outlookcalendar"
@@ -212,6 +215,7 @@ func GetManifests() []manifest.Manifest {
 		abstractclock.New(),
 		advice.New(),
 		afl.New(),
+		airthings.New(),
 		amazing.New(),
 		ambientweather.New(),
 		analogclock.New(),
@@ -307,6 +311,7 @@ func GetManifests() []manifest.Manifest {
 		nationalrail.New(),
 		nationaltoday.New(),
 		nbascores.New(),
+		nbastandings.New(),
 		ncaafscores.New(),
 		ncaafstandings.New(),
 		nearearthobjs.New(),
@@ -326,6 +331,7 @@ func GetManifests() []manifest.Manifest {
 		noaatides.New(),
 		nyancat.New(),
 		nycbus.New(),
+		officestatus.New(),
 		ogsgamesviewer.New(),
 		ohhighwaysigns.New(),
 		outlookcalendar.New(),
