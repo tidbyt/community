@@ -35,7 +35,11 @@ load("cache.star", "cache")
 
 def main(config):
     # Require secrets
-    if config["clientId"] == "" or config["clientSecret"] == "" or config["serialNumber"] == "":
+    clientId = config.get("clientId")
+    clientSecret = config.get("clientSecret")
+    serialNumber = config.get("serialNumber")
+
+    if not clientId or not clientSecret or not serialNumber:
         return render.Root(
             child = render.WrappedText(
                 content = "AirThings credentials missing.",
@@ -43,7 +47,7 @@ def main(config):
         )
 
     access_token = cache.get("access_token")
-    if access_token == None:
+    if access_token == None or access_token == "":
         print("[+] Refreshing Token...")
         access_token = client_credentials_grant_flow(config)
     else:
@@ -187,6 +191,7 @@ def client_credentials_grant_flow(config):
     if res.status_code == 200:
         print("Success")
     else:
+        cache.set("access_token", "")
         print("Error Fetching access_token: %s" % (res.body()))
         fail("token request failed with status code: %d - %s" % (res.status_code, res.body()))
         return None
