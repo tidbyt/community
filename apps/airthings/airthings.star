@@ -46,10 +46,14 @@ def main(config):
             ),
         )
 
-    access_token = cache.get("access_token")
+    # Key unique to the user to fetch cached access_token
+    access_token_cache_key = "%s-%s" % (clientId, serialNumber)
+
+
+    access_token = cache.get(access_token_cache_key)
     if access_token == None or access_token == "":
         print("[+] Refreshing Token...")
-        access_token = client_credentials_grant_flow(config)
+        access_token = client_credentials_grant_flow(config, access_token_cache_key)
     else:
         print("[+] Using Cached Token...")
 
@@ -168,7 +172,7 @@ def get_samples(config, access_token):
     status = res.json()
     return status
 
-def client_credentials_grant_flow(config):
+def client_credentials_grant_flow(config, access_token_cache_key):
     clientSecret = config.str("clientSecret")
     clientId = config.str("clientId")
 
@@ -191,7 +195,7 @@ def client_credentials_grant_flow(config):
     if res.status_code == 200:
         print("Success")
     else:
-        cache.set("access_token", "")
+        cache.set(access_token_cache_key, "")
         print("Error Fetching access_token: %s" % (res.body()))
         fail("token request failed with status code: %d - %s" % (res.status_code, res.body()))
         return None
@@ -201,7 +205,7 @@ def client_credentials_grant_flow(config):
     token_type = token_params["token_type"]
     expires_in = token_params["expires_in"]
 
-    cache.set("access_token", access_token, ttl_seconds = int(expires_in) - 30)
+    cache.set(access_token_cache_key, access_token, ttl_seconds = int(expires_in) - 30)
     return access_token
 
 def get_schema():
