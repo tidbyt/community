@@ -25,3 +25,6 @@ BUILD.bazel
 # Pixlet
 *.webp
 *.gif
+
+# IntelliJ
+.idea/
