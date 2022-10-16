@@ -17,7 +17,7 @@ func New() manifest.Manifest {
 		Name:        "Tube",
 		Author:      "dinosaursrarr",
 		Summary:     "London Underground arrivals",
-		Desc:        "Upcoming arrivals for a particular Tube station.",
+		Desc:        "Upcoming arrivals for a particular Tube, Elizabeth Line, DLR or Overground station.",
 		FileName:    "tube.star",
 		PackageName: "tube",
 		Source:  source,

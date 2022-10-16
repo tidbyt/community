@@ -13,7 +13,7 @@ This repo is for publishing apps to all Tidbyt users. Interested in developing a
 📸  [Fuzzy Clock](apps/fuzzyclock/fuzzy_clock.star) by [Max Timkovich][5], photographed  by [Tidbyt][1].
 
 ## Quick Start
-You should really read our [contributions guide](docs/CONTRIBUTING.md), our guide on [Publishing Apps](https://tidbyt.dev/docs/integrate/pushing-apps), and the section below before diving in. But if you just want to go for it, run the following to generate all the code you need:
+You should really read our [contributions guide](docs/CONTRIBUTING.md), our guide on [Publishing Apps](https://tidbyt.dev/docs/integrate/pushing-apps), and the section below before diving in. But if you just want to go for it, install [go1.16](https://go.dev/) or later and run the following to generate all the code you need:
 ```
 make app
 ```

@@ -16,6 +16,7 @@ STATION_NAME_KEY = "station_name_key"
 TRAIN_TIME_KEY = "train_time_key"
 
 def main(config):
+    return []
     station = config.get("station") or "JOURNAL_SQUARE"
     all_trains = getTrainDataFromApi(station)
 
@@ -238,6 +239,7 @@ def getAllStations():
     return stations
 
 # OPTIONS FOR USER
+"""
 def get_schema():
     options = getAllStations()
     return schema.Schema(
@@ -253,3 +255,4 @@ def get_schema():
             ),
         ],
     )
+"""

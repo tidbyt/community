@@ -376,7 +376,7 @@ def bisect(sequence, width_start, width_end, height_start, height_end):
     if should_bisect_horizontally(width, height):
         bisect_height = int(random.number(height_start, height_end))
         gap = int(random.number(width_start, width_end))
-        for x in range(width_start, width_end):
+        for x in range(width_start + 1, width_end):
             if x == gap:
                 continue
             carved = ((x, bisect_height), (x - 1, bisect_height))
@@ -386,7 +386,7 @@ def bisect(sequence, width_start, width_end, height_start, height_end):
     else:
         bisect_width = int(random.number(width_start, width_end))
         gap = int(random.number(height_start, height_end))
-        for y in range(height_start, height_end):
+        for y in range(height_start + 1, height_end):
             if y == gap:
                 continue
             carved = ((bisect_width, y), (bisect_width, y - 1))
