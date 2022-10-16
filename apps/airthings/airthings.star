@@ -49,7 +49,6 @@ def main(config):
     # Key unique to the user to fetch cached access_token
     access_token_cache_key = "%s-%s" % (clientId, serialNumber)
 
-
     access_token = cache.get(access_token_cache_key)
     if access_token == None or access_token == "":
         print("[+] Refreshing Token...")
