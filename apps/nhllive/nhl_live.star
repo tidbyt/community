@@ -181,7 +181,7 @@ def main(config):
     # Game Day Only
     if config.bool("gameday", False) and (isGameToday == False or isGameToday == "False"):
         print("  - No %s games today, returning nothing." % str(team))
-        return [] 
+        return []
 
     return render.Root(
         child = render.Column(
