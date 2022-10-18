@@ -82,13 +82,23 @@ def main(config):
 
     if temp > 25:
         temp_color = "#f00"
-    elif temp > 20:
+    elif temp > 22:
         temp_color = "#ff0"
 
     if voc > 2000:
         voc_color = "#f00"
     elif voc > 250:
         voc_color = "#ff0"
+
+    all_green = True
+    for sample in [co2_color, pm25_color, temp_color, voc_color]:
+        if not sample == "#0f0":
+            all_green = False
+            break
+
+    if all_green:
+        # Skip rendering
+        return []
 
     return render.Root(
         child = render.Column(
