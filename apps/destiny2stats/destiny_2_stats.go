@@ -4,11 +4,16 @@ package destiny2stats
 import (
 	_ "embed"
 
+	"tidbyt.dev/community/apps"
 	"tidbyt.dev/community/apps/manifest"
 )
 
 //go:embed destiny_2_stats.star
 var source []byte
+
+func init() {
+	apps.Manifests = append(apps.Manifests, New())
+}
 
 // New creates a new instance of the Destiny 2 Stats applet.
 func New() manifest.Manifest {
@@ -20,6 +25,6 @@ func New() manifest.Manifest {
 		Desc:        "Gets the emblem, race, class, and light level of your most recently played Destiny 2 character.",
 		FileName:    "destiny_2_stats.star",
 		PackageName: "destiny2stats",
-		Source:  source,
+		Source:      source,
 	}
 }

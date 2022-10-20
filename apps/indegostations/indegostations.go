@@ -4,11 +4,16 @@ package indegostations
 import (
 	_ "embed"
 
+	"tidbyt.dev/community/apps"
 	"tidbyt.dev/community/apps/manifest"
 )
 
 //go:embed indego_stations.star
 var source []byte
+
+func init() {
+	apps.Manifests = append(apps.Manifests, New())
+}
 
 // New creates a new instance of the Indego Stations applet.
 func New() manifest.Manifest {
@@ -20,6 +25,6 @@ func New() manifest.Manifest {
 		Desc:        "The user selects an Indego (Philadelphia bike share) station and Tidbyt will regularly display the number of regular and electric bikes available.",
 		FileName:    "indego_stations.star",
 		PackageName: "indegostations",
-		Source:  source,
+		Source:      source,
 	}
 }

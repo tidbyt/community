@@ -4,11 +4,16 @@ package netatmo
 import (
 	_ "embed"
 
+	"tidbyt.dev/community/apps"
 	"tidbyt.dev/community/apps/manifest"
 )
 
 //go:embed netatmo.star
 var source []byte
+
+func init() {
+	apps.Manifests = append(apps.Manifests, New())
+}
 
 // New creates a new instance of the Netatmo applet.
 func New() manifest.Manifest {
@@ -20,6 +25,6 @@ func New() manifest.Manifest {
 		Desc:        "Get your current weather from your Netatmo weather station.",
 		FileName:    "netatmo.star",
 		PackageName: "netatmo",
-		Source:  source,
+		Source:      source,
 	}
 }

@@ -4,11 +4,16 @@ package kickstarter
 import (
 	_ "embed"
 
+	"tidbyt.dev/community/apps"
 	"tidbyt.dev/community/apps/manifest"
 )
 
 //go:embed kickstarter.star
 var source []byte
+
+func init() {
+	apps.Manifests = append(apps.Manifests, New())
+}
 
 // New creates a new instance of the Kickstarter applet.
 func New() manifest.Manifest {
@@ -20,6 +25,6 @@ func New() manifest.Manifest {
 		Desc:        "Display the total amount raised and the number of backers for a Kickstarter project. The project must be publicly visible.",
 		FileName:    "kickstarter.star",
 		PackageName: "kickstarter",
-		Source:  source,
+		Source:      source,
 	}
 }

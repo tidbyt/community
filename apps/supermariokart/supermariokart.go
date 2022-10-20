@@ -4,11 +4,16 @@ package supermariokart
 import (
 	_ "embed"
 
+	"tidbyt.dev/community/apps"
 	"tidbyt.dev/community/apps/manifest"
 )
 
 //go:embed super_mario_kart.star
 var source []byte
+
+func init() {
+	apps.Manifests = append(apps.Manifests, New())
+}
 
 // New creates a new instance of the Super Mario Kart applet.
 func New() manifest.Manifest {
@@ -20,6 +25,6 @@ func New() manifest.Manifest {
 		Desc:        "Animated characters & items from the 1992 Super Mario Kart game.",
 		FileName:    "super_mario_kart.star",
 		PackageName: "supermariokart",
-		Source:  source,
+		Source:      source,
 	}
 }

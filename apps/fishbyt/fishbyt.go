@@ -4,11 +4,16 @@ package fishbyt
 import (
 	_ "embed"
 
+	"tidbyt.dev/community/apps"
 	"tidbyt.dev/community/apps/manifest"
 )
 
 //go:embed fishbyt.star
 var source []byte
+
+func init() {
+	apps.Manifests = append(apps.Manifests, New())
+}
 
 // New creates a new instance of the Fishbyt applet.
 func New() manifest.Manifest {
@@ -20,6 +25,6 @@ func New() manifest.Manifest {
 		Desc:        "Gaze upon glorious marine life.",
 		FileName:    "fishbyt.star",
 		PackageName: "fishbyt",
-		Source:  source,
+		Source:      source,
 	}
 }

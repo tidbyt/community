@@ -4,11 +4,16 @@ package shouldideploy
 import (
 	_ "embed"
 
+	"tidbyt.dev/community/apps"
 	"tidbyt.dev/community/apps/manifest"
 )
 
 //go:embed should_i_deploy.star
 var source []byte
+
+func init() {
+	apps.Manifests = append(apps.Manifests, New())
+}
 
 // New creates a new instance of the Should I Deploy applet.
 func New() manifest.Manifest {
@@ -20,6 +25,6 @@ func New() manifest.Manifest {
 		Desc:        "Display shouldideploy.today answer.",
 		FileName:    "should_i_deploy.star",
 		PackageName: "shouldideploy",
-		Source:  source,
+		Source:      source,
 	}
 }
