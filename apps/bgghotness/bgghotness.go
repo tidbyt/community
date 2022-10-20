@@ -4,11 +4,16 @@ package bgghotness
 import (
 	_ "embed"
 
+	"tidbyt.dev/community/apps"
 	"tidbyt.dev/community/apps/manifest"
 )
 
 //go:embed bgg_hotness.star
 var source []byte
+
+func init() {
+	apps.Manifests = append(apps.Manifests, New())
+}
 
 // New creates a new instance of the BGG Hotness applet.
 func New() manifest.Manifest {
@@ -20,6 +25,6 @@ func New() manifest.Manifest {
 		Desc:        "Shows the top items from BoardGameGeek's Board Game Hotness list.",
 		FileName:    "bgg_hotness.star",
 		PackageName: "bgghotness",
-		Source:  source,
+		Source:      source,
 	}
 }

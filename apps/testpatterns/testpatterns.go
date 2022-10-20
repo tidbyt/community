@@ -4,11 +4,16 @@ package testpatterns
 import (
 	_ "embed"
 
+	"tidbyt.dev/community/apps"
 	"tidbyt.dev/community/apps/manifest"
 )
 
 //go:embed test_patterns.star
 var source []byte
+
+func init() {
+	apps.Manifests = append(apps.Manifests, New())
+}
 
 // New creates a new instance of the Test Patterns applet.
 func New() manifest.Manifest {
@@ -20,6 +25,6 @@ func New() manifest.Manifest {
 		Desc:        "Test patterns are as old as TV broadcasts.",
 		FileName:    "test_patterns.star",
 		PackageName: "testpatterns",
-		Source:  source,
+		Source:      source,
 	}
 }

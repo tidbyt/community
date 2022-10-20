@@ -4,11 +4,16 @@ package fitbitweight
 import (
 	_ "embed"
 
+	"tidbyt.dev/community/apps"
 	"tidbyt.dev/community/apps/manifest"
 )
 
 //go:embed fitbitweight.star
 var source []byte
+
+func init() {
+	apps.Manifests = append(apps.Manifests, New())
+}
 
 // New creates a new instance of the FitbitWeight applet.
 func New() manifest.Manifest {
@@ -20,6 +25,6 @@ func New() manifest.Manifest {
 		Desc:        "Displays your Fitbit recent weigh-ins.",
 		FileName:    "fitbitweight.star",
 		PackageName: "fitbitweight",
-		Source:  source,
+		Source:      source,
 	}
 }

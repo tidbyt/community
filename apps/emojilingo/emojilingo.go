@@ -4,11 +4,16 @@ package emojilingo
 import (
 	_ "embed"
 
+	"tidbyt.dev/community/apps"
 	"tidbyt.dev/community/apps/manifest"
 )
 
 //go:embed emoji_lingo.star
 var source []byte
+
+func init() {
+	apps.Manifests = append(apps.Manifests, New())
+}
 
 // New creates a new instance of the Emoji Lingo applet.
 func New() manifest.Manifest {
@@ -20,6 +25,6 @@ func New() manifest.Manifest {
 		Desc:        "Displays a random emoji and its unique short text annotation from the Unicode Consortium in a given language.",
 		FileName:    "emoji_lingo.star",
 		PackageName: "emojilingo",
-		Source:  source,
+		Source:      source,
 	}
 }

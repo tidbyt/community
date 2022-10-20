@@ -4,11 +4,16 @@ package plausiblestats
 import (
 	_ "embed"
 
+	"tidbyt.dev/community/apps"
 	"tidbyt.dev/community/apps/manifest"
 )
 
 //go:embed plausible_stats.star
 var source []byte
+
+func init() {
+	apps.Manifests = append(apps.Manifests, New())
+}
 
 // New creates a new instance of the Plausible Stats applet.
 func New() manifest.Manifest {
@@ -20,6 +25,6 @@ func New() manifest.Manifest {
 		Desc:        "Display your website's stats from your Plausible.io account.",
 		FileName:    "plausible_stats.star",
 		PackageName: "plausiblestats",
-		Source:  source,
+		Source:      source,
 	}
 }

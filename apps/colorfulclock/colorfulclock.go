@@ -4,11 +4,16 @@ package colorfulclock
 import (
 	_ "embed"
 
+	"tidbyt.dev/community/apps"
 	"tidbyt.dev/community/apps/manifest"
 )
 
 //go:embed colorful_clock.star
 var source []byte
+
+func init() {
+	apps.Manifests = append(apps.Manifests, New())
+}
 
 // New creates a new instance of the Color Analog Clock applet.
 func New() manifest.Manifest {
@@ -20,6 +25,6 @@ func New() manifest.Manifest {
 		Desc:        "Shows the time like on an old wall clock.",
 		FileName:    "colorful_clock.star",
 		PackageName: "colorfulclock",
-		Source:  source,
+		Source:      source,
 	}
 }

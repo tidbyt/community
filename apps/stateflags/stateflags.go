@@ -4,11 +4,16 @@ package stateflags
 import (
 	_ "embed"
 
+	"tidbyt.dev/community/apps"
 	"tidbyt.dev/community/apps/manifest"
 )
 
 //go:embed state_flags.star
 var source []byte
+
+func init() {
+	apps.Manifests = append(apps.Manifests, New())
+}
 
 // New creates a new instance of the State Flags applet.
 func New() manifest.Manifest {
@@ -20,6 +25,6 @@ func New() manifest.Manifest {
 		Desc:        "Displays state flags.",
 		FileName:    "state_flags.star",
 		PackageName: "stateflags",
-		Source:  source,
+		Source:      source,
 	}
 }

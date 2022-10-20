@@ -4,11 +4,16 @@ package leetcodestats
 import (
 	_ "embed"
 
+	"tidbyt.dev/community/apps"
 	"tidbyt.dev/community/apps/manifest"
 )
 
 //go:embed leetcodestats.star
 var source []byte
+
+func init() {
+	apps.Manifests = append(apps.Manifests, New())
+}
 
 // New creates a new instance of the LeetCodeStats applet.
 func New() manifest.Manifest {
@@ -20,6 +25,6 @@ func New() manifest.Manifest {
 		Desc:        "Displays your LeetCode stats in a nice way.",
 		FileName:    "leetcodestats.star",
 		PackageName: "leetcodestats",
-		Source:  source,
+		Source:      source,
 	}
 }
