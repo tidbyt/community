@@ -4,11 +4,16 @@ package fivesomewhere
 import (
 	_ "embed"
 
+	"tidbyt.dev/community/apps"
 	"tidbyt.dev/community/apps/manifest"
 )
 
 //go:embed five_somewhere.star
 var source []byte
+
+func init() {
+	apps.Manifests = append(apps.Manifests, New())
+}
 
 // New creates a new instance of the Five Somewhere applet.
 func New() manifest.Manifest {
@@ -20,6 +25,6 @@ func New() manifest.Manifest {
 		Desc:        "Displays a random timezone where it's currently in the 5 o'clock hour.",
 		FileName:    "five_somewhere.star",
 		PackageName: "fivesomewhere",
-		Source:  source,
+		Source:      source,
 	}
 }

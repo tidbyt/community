@@ -4,11 +4,16 @@ package ambientweather
 import (
 	_ "embed"
 
+	"tidbyt.dev/community/apps"
 	"tidbyt.dev/community/apps/manifest"
 )
 
 //go:embed ambient_weather.star
 var source []byte
+
+func init() {
+	apps.Manifests = append(apps.Manifests, New())
+}
 
 // New creates a new instance of the Ambient Weather applet.
 func New() manifest.Manifest {
@@ -20,6 +25,6 @@ func New() manifest.Manifest {
 		Desc:        "Show readings from your Ambient weather station.",
 		FileName:    "ambient_weather.star",
 		PackageName: "ambientweather",
-		Source:  source,
+		Source:      source,
 	}
 }

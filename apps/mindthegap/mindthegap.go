@@ -4,11 +4,16 @@ package mindthegap
 import (
 	_ "embed"
 
+	"tidbyt.dev/community/apps"
 	"tidbyt.dev/community/apps/manifest"
 )
 
 //go:embed mind_the_gap.star
 var source []byte
+
+func init() {
+	apps.Manifests = append(apps.Manifests, New())
+}
 
 // New creates a new instance of the Mind The Gap applet.
 func New() manifest.Manifest {
@@ -20,6 +25,6 @@ func New() manifest.Manifest {
 		Desc:        "Important advice for Londoners to remember at all times.",
 		FileName:    "mind_the_gap.star",
 		PackageName: "mindthegap",
-		Source:  source,
+		Source:      source,
 	}
 }

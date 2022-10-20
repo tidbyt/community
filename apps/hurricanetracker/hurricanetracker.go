@@ -4,11 +4,16 @@ package hurricanetracker
 import (
 	_ "embed"
 
+	"tidbyt.dev/community/apps"
 	"tidbyt.dev/community/apps/manifest"
 )
 
 //go:embed hurricanetracker.star
 var source []byte
+
+func init() {
+	apps.Manifests = append(apps.Manifests, New())
+}
 
 // New creates a new instance of the HurricaneTracker applet.
 func New() manifest.Manifest {
@@ -20,6 +25,6 @@ func New() manifest.Manifest {
 		Desc:        "Display NHC Hurricane info.",
 		FileName:    "hurricanetracker.star",
 		PackageName: "hurricanetracker",
-		Source:  source,
+		Source:      source,
 	}
 }

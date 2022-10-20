@@ -4,11 +4,16 @@ package soundtransit
 import (
 	_ "embed"
 
+	"tidbyt.dev/community/apps"
 	"tidbyt.dev/community/apps/manifest"
 )
 
 //go:embed sound_transit.star
 var source []byte
+
+func init() {
+	apps.Manifests = append(apps.Manifests, New())
+}
 
 // New creates a new instance of the Sound Transit applet.
 func New() manifest.Manifest {
@@ -20,6 +25,6 @@ func New() manifest.Manifest {
 		Desc:        "Shows upcoming arrivals at up to 2 different stations in Sound Transit's Link light rail system in Seattle.",
 		FileName:    "sound_transit.star",
 		PackageName: "soundtransit",
-		Source:  source,
+		Source:      source,
 	}
 }

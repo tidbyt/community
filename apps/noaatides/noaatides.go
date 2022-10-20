@@ -4,11 +4,16 @@ package noaatides
 import (
 	_ "embed"
 
+	"tidbyt.dev/community/apps"
 	"tidbyt.dev/community/apps/manifest"
 )
 
 //go:embed noaa_tides.star
 var source []byte
+
+func init() {
+	apps.Manifests = append(apps.Manifests, New())
+}
 
 // New creates a new instance of the NOAA Tides applet.
 func New() manifest.Manifest {
@@ -20,6 +25,6 @@ func New() manifest.Manifest {
 		Desc:        "Display daily tides from NOAA stations.",
 		FileName:    "noaa_tides.star",
 		PackageName: "noaatides",
-		Source:  source,
+		Source:      source,
 	}
 }

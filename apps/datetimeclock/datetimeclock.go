@@ -4,11 +4,16 @@ package datetimeclock
 import (
 	_ "embed"
 
+	"tidbyt.dev/community/apps"
 	"tidbyt.dev/community/apps/manifest"
 )
 
 //go:embed date_time_clock.star
 var source []byte
+
+func init() {
+	apps.Manifests = append(apps.Manifests, New())
+}
 
 // New creates a new instance of the Date Time Clock applet.
 func New() manifest.Manifest {
@@ -20,6 +25,6 @@ func New() manifest.Manifest {
 		Desc:        "Displays the full date and current time for user.",
 		FileName:    "date_time_clock.star",
 		PackageName: "datetimeclock",
-		Source:  source,
+		Source:      source,
 	}
 }

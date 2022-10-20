@@ -4,11 +4,16 @@ package preciousmetals
 import (
 	_ "embed"
 
+	"tidbyt.dev/community/apps"
 	"tidbyt.dev/community/apps/manifest"
 )
 
 //go:embed precious_metals.star
 var source []byte
+
+func init() {
+	apps.Manifests = append(apps.Manifests, New())
+}
 
 // New creates a new instance of the Precious Metals applet.
 func New() manifest.Manifest {
@@ -20,6 +25,6 @@ func New() manifest.Manifest {
 		Desc:        "Quotes for gold, platinum and silver.",
 		FileName:    "precious_metals.star",
 		PackageName: "preciousmetals",
-		Source:  source,
+		Source:      source,
 	}
 }

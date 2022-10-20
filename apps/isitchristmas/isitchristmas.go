@@ -4,11 +4,16 @@ package isitchristmas
 import (
 	_ "embed"
 
+	"tidbyt.dev/community/apps"
 	"tidbyt.dev/community/apps/manifest"
 )
 
 //go:embed is_it_christmas.star
 var source []byte
+
+func init() {
+	apps.Manifests = append(apps.Manifests, New())
+}
 
 // New creates a new instance of the Is It Christmas applet.
 func New() manifest.Manifest {
@@ -20,6 +25,6 @@ func New() manifest.Manifest {
 		Desc:        "Is it christmas: yes/no.",
 		FileName:    "is_it_christmas.star",
 		PackageName: "isitchristmas",
-		Source:  source,
+		Source:      source,
 	}
 }

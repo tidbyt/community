@@ -4,11 +4,16 @@ package busytube
 import (
 	_ "embed"
 
+	"tidbyt.dev/community/apps"
 	"tidbyt.dev/community/apps/manifest"
 )
 
 //go:embed busy_tube.star
 var source []byte
+
+func init() {
+	apps.Manifests = append(apps.Manifests, New())
+}
 
 // New creates a new instance of the Busy Tube applet.
 func New() manifest.Manifest {
@@ -20,6 +25,6 @@ func New() manifest.Manifest {
 		Desc:        "Tells you how busy a given TfL-operated station in London currently is. Data updated every five minutes.",
 		FileName:    "busy_tube.star",
 		PackageName: "busytube",
-		Source:  source,
+		Source:      source,
 	}
 }

@@ -4,11 +4,16 @@ package zenhub
 import (
 	_ "embed"
 
+	"tidbyt.dev/community/apps"
 	"tidbyt.dev/community/apps/manifest"
 )
 
 //go:embed zenhub.star
 var source []byte
+
+func init() {
+	apps.Manifests = append(apps.Manifests, New())
+}
 
 // New creates a new instance of the Zenhub applet.
 func New() manifest.Manifest {
@@ -20,6 +25,6 @@ func New() manifest.Manifest {
 		Desc:        "Displays your last 3 Zenhub issues from the chosen pipeline, and filter by labels and assignees. To generate your API Keys, visit https://app.zenhub.com/settings/tokens. To retrieve your Workspace and Repository IDs, see https://github.com/ZenHubIO/API#endpoint-reference.",
 		FileName:    "zenhub.star",
 		PackageName: "zenhub",
-		Source:  source,
+		Source:      source,
 	}
 }

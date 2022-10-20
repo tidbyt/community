@@ -4,11 +4,16 @@ package teslafi
 import (
 	_ "embed"
 
+	"tidbyt.dev/community/apps"
 	"tidbyt.dev/community/apps/manifest"
 )
 
 //go:embed teslafi.star
 var source []byte
+
+func init() {
+	apps.Manifests = append(apps.Manifests, New())
+}
 
 // New creates a new instance of the TeslaFi applet.
 func New() manifest.Manifest {
@@ -20,6 +25,6 @@ func New() manifest.Manifest {
 		Desc:        "Shows your Teslas current Name, Charge in Mi/KM and battery %. Also shows if its charging or not.",
 		FileName:    "teslafi.star",
 		PackageName: "teslafi",
-		Source:  source,
+		Source:      source,
 	}
 }
