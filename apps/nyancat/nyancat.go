@@ -4,11 +4,16 @@ package nyancat
 import (
 	_ "embed"
 
+	"tidbyt.dev/community/apps"
 	"tidbyt.dev/community/apps/manifest"
 )
 
 //go:embed nyan_cat.star
 var source []byte
+
+func init() {
+	apps.Manifests = append(apps.Manifests, New())
+}
 
 // New creates a new instance of the Nyan Cat applet.
 func New() manifest.Manifest {
@@ -20,6 +25,6 @@ func New() manifest.Manifest {
 		Desc:        "An animated cartoon cat with a Pop-Tart for a torso.",
 		FileName:    "nyan_cat.star",
 		PackageName: "nyancat",
-		Source:  source,
+		Source:      source,
 	}
 }

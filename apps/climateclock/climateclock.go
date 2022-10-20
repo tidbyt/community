@@ -4,11 +4,16 @@ package climateclock
 import (
 	_ "embed"
 
+	"tidbyt.dev/community/apps"
 	"tidbyt.dev/community/apps/manifest"
 )
 
 //go:embed climate_clock.star
 var source []byte
+
+func init() {
+	apps.Manifests = append(apps.Manifests, New())
+}
 
 // New creates a new instance of the Climate Clock applet.
 func New() manifest.Manifest {
@@ -20,6 +25,6 @@ func New() manifest.Manifest {
 		Desc:        "The most important number in the world.",
 		FileName:    "climate_clock.star",
 		PackageName: "climateclock",
-		Source:  source,
+		Source:      source,
 	}
 }

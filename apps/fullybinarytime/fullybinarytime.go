@@ -4,11 +4,16 @@ package fullybinarytime
 import (
 	_ "embed"
 
+	"tidbyt.dev/community/apps"
 	"tidbyt.dev/community/apps/manifest"
 )
 
 //go:embed fullybinarytime.star
 var source []byte
+
+func init() {
+	apps.Manifests = append(apps.Manifests, New())
+}
 
 // New creates a new instance of the FullyBinaryTime applet.
 func New() manifest.Manifest {
@@ -20,6 +25,6 @@ func New() manifest.Manifest {
 		Desc:        "Displays the current time using fully binary time. First divide the day into two 12 hour parts, then each of those into two 6 hour parts, then two 3 hour parts, and so on up to 16 bits of precision.",
 		FileName:    "fullybinarytime.star",
 		PackageName: "fullybinarytime",
-		Source:  source,
+		Source:      source,
 	}
 }

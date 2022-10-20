@@ -4,11 +4,16 @@ package theysaidso
 import (
 	_ "embed"
 
+	"tidbyt.dev/community/apps"
 	"tidbyt.dev/community/apps/manifest"
 )
 
 //go:embed they_said_so.star
 var source []byte
+
+func init() {
+	apps.Manifests = append(apps.Manifests, New())
+}
 
 // New creates a new instance of the They Said So applet.
 func New() manifest.Manifest {
@@ -20,6 +25,6 @@ func New() manifest.Manifest {
 		Desc:        "Quote of the day powered by theysaidso.com.",
 		FileName:    "they_said_so.star",
 		PackageName: "theysaidso",
-		Source:  source,
+		Source:      source,
 	}
 }

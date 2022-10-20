@@ -4,11 +4,16 @@ package desknametag
 import (
 	_ "embed"
 
+	"tidbyt.dev/community/apps"
 	"tidbyt.dev/community/apps/manifest"
 )
 
 //go:embed desk_name_tag.star
 var source []byte
+
+func init() {
+	apps.Manifests = append(apps.Manifests, New())
+}
 
 // New creates a new instance of the Desk Name Tag applet.
 func New() manifest.Manifest {
@@ -20,6 +25,6 @@ func New() manifest.Manifest {
 		Desc:        "Displays basic employee information to coworkers.",
 		FileName:    "desk_name_tag.star",
 		PackageName: "desknametag",
-		Source:  source,
+		Source:      source,
 	}
 }

@@ -95,11 +95,9 @@ TIME_PERIOD_KEY = "time_period"
 
 SHOULD_SHOW_CHART_KEY = "should_show_chart"
 CHART_TIME_PERIOD_KEY = "chart_time_period"
-GENERATED_CHART_KEY = "generated_chart"
 
-USE_CUSTOM_FAVICON_KEY = "use_custom_favicon"
+FAVICON_PATH_KEY = "favicon_path_key"
 FAVICON_PATH = "favicon_path"
-GENERATED_FAVICON_KEY = "generated_favicon"
 FAVICON_FILENAMES = ["favicon.png", "favicon-16x16.png", "favicon-32x32.png"]
 
 # Cache identifiers and TTL values
@@ -120,26 +118,22 @@ iVBORw0KGgoAAAANSUhEUgAAAS8AAABQCAIAAADHv2QvAAAbBElEQVR4AeyZA5AzyxaAe83ftm2ubWaj
 def main(config):
     # Show the demo screen for the store page.
     if config.get(DOMAIN_KEY) == None and config.get(PLAUSIBLE_API_KEY) == None:
-        print("Missing domain or Plausible key, rendering demo")
         return render_demo_screen()
 
     time_period = config.get(TIME_PERIOD_KEY) or TIME_PERIOD_OPTIONS[0].value
     metric = config.get(METRIC_KEY) or METRIC_OPTIONS[0].value
     token = config.get(PLAUSIBLE_API_KEY)
-    use_custom_favicon = config.bool(USE_CUSTOM_FAVICON_KEY)
-    favicon_path = config.get(FAVICON_PATH)
-    should_show_chart = config.bool(SHOULD_SHOW_CHART_KEY)
-    chart_time_period = config.get(CHART_TIME_PERIOD_KEY) or CHART_TIME_PERIOD_OPTIONS[0].value
+    chart_time_period = config.get(CHART_TIME_PERIOD_KEY)
     domain = sanitize_domain(config.get(DOMAIN_KEY))
+    should_show_chart = config.bool(SHOULD_SHOW_CHART_KEY)
+    custom_favicon_path = config.get(FAVICON_PATH_KEY)
 
     # Alert the user if the domain is bad
     if domain == None:
-        print("The domain that was passed in was bad, showing error screen")
         return render_error_screen("Domain not set correctly")
 
     # Alert the user if the Plausible API Token is missing
     if token == None:
-        print("Plausible API Token is missing, showing error screen")
         return render_error_screen("Plausible API Key is missing!")
 
     # Fetch the stat for the given metric from Plausible.io
@@ -166,18 +160,16 @@ def main(config):
         formatted_stat = compact_number(stat)
 
     # Get the favicon based on if the user wants to set a custom favicon or not
-    if use_custom_favicon:
-        print("Using custom favicon path")
-        favicon = get_favicon(domain, favicon_path, token)
+    if custom_favicon_path != None:
+        favicon = get_favicon(domain, custom_favicon_path, token)
     else:
-        print("Fetching standard favicon")
         favicon = get_favicon(domain, None, token)
 
     # Determine if the user wants to show the historical chart or not.
     # If yes, fetch the data from Plausible.io's API and convert it to the format render.Plot needs
     # If no, do nothing
     # Either way, the end result is a list of children that will be rendered later
-    if should_show_chart == True:
+    if should_show_chart:
         results = get_plausible_data("timeseries", token, domain, chart_time_period, metric)
 
         # Verify that the data was returned and that it was a 200 status code.
@@ -221,36 +213,24 @@ def get_schema():
         version = "1",
         fields = [
             schema.Text(
-                id = DOMAIN_KEY,
-                name = "Domain",
-                desc = "Your domain to get metrics for. ",
-                icon = "gear",
-                default = "",
-            ),
-            schema.Toggle(
-                id = USE_CUSTOM_FAVICON_KEY,
-                name = "Custom Favicon Path",
-                desc = "Toggle if your favicon image isn't at the root of your site",
-                icon = "image",
-                default = False,
-            ),
-            schema.Generated(
-                id = GENERATED_FAVICON_KEY,
-                source = USE_CUSTOM_FAVICON_KEY,
-                handler = custom_favicon_options,
-            ),
-            schema.Text(
                 id = PLAUSIBLE_API_KEY,
                 name = "Plausible API Key",
                 desc = "Get it at plausible.io/settings",
                 icon = "key",
                 default = "",
             ),
+            schema.Text(
+                id = DOMAIN_KEY,
+                name = "Domain",
+                desc = "The domain who's stats are being tracked by Plausible.io",
+                icon = "link",
+                default = "",
+            ),
             schema.Dropdown(
                 id = METRIC_KEY,
                 name = "Metric",
                 desc = "Choose the site metric you'd like to display",
-                icon = "chartSimple",
+                icon = "table",
                 default = METRIC_OPTIONS[0].value,
                 options = METRIC_OPTIONS,
             ),
@@ -262,51 +242,30 @@ def get_schema():
                 default = TIME_PERIOD_OPTIONS[0].value,
                 options = TIME_PERIOD_OPTIONS,
             ),
-            schema.Toggle(
-                id = SHOULD_SHOW_CHART_KEY,
-                name = "Show Chart?",
-                desc = "Toggles the display of the historical chart under the count",
-                icon = "chartLine",
-                default = True,
-            ),
-            schema.Generated(
-                id = GENERATED_CHART_KEY,
-                source = SHOULD_SHOW_CHART_KEY,
-                handler = chart_period_options,
-            ),
-        ],
-    )
-
-# Generates the options to choose the time period to chart.
-def chart_period_options(should_show_chart):
-    if should_show_chart:
-        return [
             schema.Dropdown(
                 id = CHART_TIME_PERIOD_KEY,
                 name = "Chart Time Period",
                 desc = "Customize the time period for the chart",
-                icon = "calendar-days",
+                icon = "chartLine",
                 default = CHART_TIME_PERIOD_OPTIONS[0].value,
                 options = CHART_TIME_PERIOD_OPTIONS,
             ),
-        ]
-    else:
-        return []
-
-# Generates a text input for the user to add the URL to their favicon.
-def custom_favicon_options(use_custom_favicon):
-    if use_custom_favicon:
-        return [
             schema.Text(
-                id = FAVICON_PATH,
-                name = "Relative Path",
-                desc = "Relative path from your site root to a .png favicon eg. /favicons/ (leading and trailing slashes are optional).",
-                icon = "link",
+                id = FAVICON_PATH_KEY,
+                name = "Advanced: Favicon Path",
+                desc = "The relative path to the favicon on your site (eg: favicons/). Note: The favicon must be named favicon.png, favicon-16x16.png, or favicon-32x32.png",
+                icon = "icons",
                 default = "",
             ),
-        ]
-    else:
-        return []
+            schema.Toggle(
+                id = SHOULD_SHOW_CHART_KEY,
+                name = "Advanced: Chart Visibility",
+                desc = "Optionally show or hide the historical chart",
+                icon = "eyeSlash",
+                default = True,
+            ),
+        ],
+    )
 
 # These values are unfortunately duplicated from the options constants defined for the schema
 def make_description_text(time_period):
@@ -415,13 +374,10 @@ def sanitize_domain(domain):
 # icon by assuming the three most common favicon filenames.
 # Defaults to GLOBE_IMAGE if it fails.
 def get_favicon(domain, favicon_path, token):
-    cache_id = FAVICON_CACHE_ID + "_" + token + "_" + domain
-
+    cache_id = FAVICON_CACHE_ID + "_" + token + "_" + domain + "_" + (favicon_path or "")
     cached_favicon = cache.get(cache_id)
 
-    print("Checking cache for favicon")
-    if cached_favicon != None:
-        print("Returning cached favicon")
+    if cached_favicon != None and cached_favicon != "":
         return cached_favicon
 
     favicon_url = "http://" + domain + "/"
@@ -430,22 +386,18 @@ def get_favicon(domain, favicon_path, token):
         # Normalize the favicon path by stripping any possible leading and trailing "/" characters, before
         # re-adding them. To give ourselves a high chance of getting it right.
         formatted_favicon_path = "/" + favicon_path.strip("/") + "/"
-        favicon_url = favicon_url + favicon_path
+        favicon_url = favicon_url + formatted_favicon_path
 
     for f in FAVICON_FILENAMES:
         final_url = favicon_url + f
-        print("Fetching favicon at", final_url)
         response = http.get(favicon_url + f)
         if response.status_code != 200:
-            print("Failed", response.status_code)
             continue
         favicon = response.body()
         cache.set(cache_id, favicon, ttl_seconds = FAVICON_CACHE_TTL)
-        print("Returning favicon at", favicon_url + f)
         return favicon
 
-    print("No favicon found, returning default")
-    cache.set(cache_id, None, ttl_seconds = FAVICON_CACHE_TTL)
+    cache.set(cache_id, "", ttl_seconds = 0)
     return GLOBE_IMAGE
 
 # Makes a call to the plausible.io stats endpoint.
@@ -455,18 +407,12 @@ def get_favicon(domain, favicon_path, token):
 #    time_period: The time period to check (doesn't support custom date ranges)
 #    metric: The metric value to return
 def get_plausible_data(endpoint, token, domain, time_period, metric):
-    print("Getting data from Plausible API")
-
     cache_id = "_".join([REQUEST_CACHE_ID, token, endpoint, domain, time_period, metric])
-
-    print("Checking cache")
 
     cached_request = cache.get(cache_id)
     if cached_request != None:
-        print("Returning cached data")
-        return json.decode(cached_request)
+        return (json.decode(cached_request), 200)
 
-    print("Building new request")
     site_id_param = "?site_id=" + domain
     time_period_param = "&period=" + time_period
     metrics_param = "&metrics=" + metric
@@ -477,10 +423,7 @@ def get_plausible_data(endpoint, token, domain, time_period, metric):
         past = "2000-01-01"
         now = humanize.time_format("yyyy-MM-dd", time.now())
         request_url = request_url + "&date=" + past + "," + now
-        print(past, now)
 
-    print("Final URL:" + request_url)
-    print("Making request")
     response = http.get(
         request_url,
         headers = {
@@ -489,8 +432,7 @@ def get_plausible_data(endpoint, token, domain, time_period, metric):
     )
 
     if response.status_code != 200:
-        print("Request failed with %d" % response.status_code)
-        cache.set(cache_id, None, ttl_seconds = REQUEST_CACHE_TTL)
+        cache.set(cache_id, "", ttl_seconds = 0)
         return (None, response.status_code)
 
     results = response.json()["results"]
