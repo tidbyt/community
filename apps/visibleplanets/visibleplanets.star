@@ -79,29 +79,51 @@ def main(config):
 
     is_after_sunrise = (sunset_in) < 0
     is_before_sunset = (sunrise_in > 0)
+
+    # check offset is how many hours off of the current time do we query astronomyapi for the data of the planet position
+    # because if it is during the day, we should move it to sunset time to know if it'll be an evening star to view
+    check_offset = 0
     cache_ttl = 60 * 60 * 1  #1 Hour default
     visibility_disclaimer = ""
 
     if (is_after_sunrise == True and is_before_sunset == True):
+        #Daytime
         if (abs(sunrise_in) < abs(sunset_in)):
+            #closer to sunrise
             if is_inner_planet:
                 visibility_disclaimer = "around sunrise at %s" % sunrise_time.format(time_display_format)
             else:
                 visibility_disclaimer = "before sunrise at %s" % sunrise_time.format(time_display_format)
         else:
+            #closer to sunset
             # since we can't see this till sunset, let's cache this until
-            # 30 minutes before sunset
+            # 30 minutes before sunset, save a few API calls
             sunset_cache_time = math.floor((abs(sunset_in) * 60 - 30) * 60 * 60)
+
+            check_offset = abs(sunset_in)
             if sunset_cache_time > cache_ttl:
                 cache_ttl = sunset_cache_time
             if is_inner_planet:
+                #let's check visibility of inner planets at sunset instead of now
+                #to avoid telling folks the planet will be visible in the evening, when it might
+                #dip below the horizon before then.
+                check_offset = abs(sunset_in)
                 visibility_disclaimer = "around sunset at %s" % sunset_time.format(time_display_format)
             else:
                 visibility_disclaimer = "after sunset at %s" % sunset_time.format(time_display_format)
     elif (abs(sunrise_in) < abs(sunset_in)):
+        #Nighttime closer to sunrise
         visibility_disclaimer = "before sunrise at %s" % sunrise_time.format(time_display_format)
     else:
+        #Nighttime closer to sunset
         visibility_disclaimer = "after sunset at %s" % sunset_time.format(time_display_format)
+
+    #Last cache time override, inner plannet within an hour of sunrise or sunset
+    #update every 15 minutes as their visibility is short, and changes quickly
+    #during this time of day
+    if is_inner_planet:
+        if (((abs(sunrise_in)) < 1) or (abs(sunrise_in)) < 1):
+            cache_ttl = 15 * 60
 
     #JSon Data holding planetary positioning data
     position_json = None
@@ -109,8 +131,11 @@ def main(config):
     #Cache Name based on planet and location
     cache_name = "%s_%s_%s" % (planet, location["lng"], location["lat"])
     cache_contents = cache.get(cache_name)
+
+    #Check now or include an offset
+    check_time = get_local_time(location, check_offset)
     if cache_contents == None:
-        position_json = get_body_position(planet, location)
+        position_json = get_body_position(planet, location, check_time)
         cache.set(cache_name, json.encode(position_json), ttl_seconds = cache_ttl)
     else:
         position_json = json.decode(cache_contents)
@@ -147,7 +172,10 @@ def main(config):
     else:
         #above horizon
         row1 = "%s at %s°" % (get_cardinal_position_from_degrees(float(bearing)), altitude)
-        row2 = "Mag %s %s %s in %s %s" % (humanize.float("#.#", magnitude), get_magnitude_description(magnitude), visibility_disclaimer, constellation, distance)
+        if is_inner_planet:
+            row2 = "Mag %s in %s %s" % (humanize.float("#.#", magnitude), constellation, distance)
+        else:
+            row2 = "Mag %s %s %s in %s %s" % (humanize.float("#.#", magnitude), get_magnitude_description(magnitude), visibility_disclaimer, constellation, distance)
 
     if show_display == True:
         return get_display(image, planet, row1, row2)
@@ -216,7 +244,7 @@ def get_magnitude_description(magnitude):
     elif magnitude < 30:
         description = "near limit of Hubble telescope"
     else:
-        description = "near limit of James Webb Space telescope"
+        description = "you might need the James Webb Space telescope"
 
     return description
 
@@ -229,34 +257,29 @@ def get_cardinal_position_from_degrees(bearing):
         The Cardinal position (N, NW, NE, S, SW, SE, E, W)
     """
 
-    # our compass brackets are broken up in 45 degree increments from 0 8
-    # to find the right bracket we need degrees from 0 to 360 then divide by 45 and round
-    # what we get though is degrees -180 to 0 to 180 so this will convert to 0 to 360
     if bearing < 0:
         bearing = 360 + bearing
 
     # have bearning in degrees, not convert to cardinal point
-    compass_brackets = ["North", "NE", "East", "SE", "South", "SW", "West", "NW", "North"]
-
-    # buildifier: disable=integer-division
-    display_cardinal_point = compass_brackets[int(math.round(bearing / 45))]
-
+    compass_brackets = ["North", "NNE", "NE", "ENE", "East", "ESE", "SE", "SSE", "South", "SSW", "SW", "WSW", "West", "WNW", "NW", "NNW", "North"]
+    display_cardinal_point = compass_brackets[int(math.round(bearing // 22.5))]
     return display_cardinal_point
 
-def get_body_position(body, location):
+def get_body_position(body, location, check_time):
     """ Gets the JSon Data from astronomyapi
 
     Args:
         body: Which celestial body we want info on
         location: Location of the observer
+        check_time: Time to get the data for the given planet
     Returns:
         JSon Data
     """
-    local_time = get_local_time(location)
-    date_code = "%s-%s-%s" % (two_character_time_date_part(local_time.year), two_character_time_date_part(local_time.month), two_character_time_date_part(local_time.day))
-    tomorrow_date_code = local_time + time.parse_duration("24h")
+
+    date_code = "%s-%s-%s" % (two_character_time_date_part(check_time.year), two_character_time_date_part(check_time.month), two_character_time_date_part(check_time.day))
+    tomorrow_date_code = check_time + time.parse_duration("24h")
     tomorrow_date_code = "%s-%s-%s" % (two_character_time_date_part(tomorrow_date_code.year), two_character_time_date_part(tomorrow_date_code.month), two_character_time_date_part(tomorrow_date_code.day))
-    time_code = "%s:%s:%s" % (two_character_time_date_part(local_time.hour), two_character_time_date_part(local_time.minute), two_character_time_date_part(local_time.second))
+    time_code = "%s:%s:%s" % (two_character_time_date_part(check_time.hour), two_character_time_date_part(check_time.minute), two_character_time_date_part(check_time.second))
 
     params = {
         "body": body,
@@ -307,16 +330,21 @@ def get_bodies(app_hash):
     else:
         return None
 
-def get_local_time(config):
+def get_local_time(config, offset_hours):
     """ Returns the local time based on the configuration of the app
 
     Args:
         config: the config object provided by the Tidbyt platform
+        offset_hours: it will add this many hours (subtrack if negative) to the current local time
     Returns:
         The local time
     """
     timezone = json.decode(config.get("location", default_location))["timezone"]
-    local_time = time.now().in_location(timezone)
+    offset_hours = offset_hours
+
+    #local_time = time.now().in_location(timezone)
+    local_time = time.now() + time.parse_duration("%sh" % offset_hours)
+    local_time = local_time.in_location(timezone)
     return local_time
 
 def get_schema():
