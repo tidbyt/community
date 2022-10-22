@@ -17,7 +17,7 @@ load("humanize.star", "humanize")  #for easy reading numbers and times
 load("sunrise.star", "sunrise")  #to calcuate day/night and when planets will be visible
 
 app_hash = "M2IxYmY2OWUtZWIzMS00NTM0LTkyOWItMmRiMDlhMWVkYjI5OmZhN2YxOTM2M2I2N2QzZDNiYjEzNmNkMDhjMzM3YmUzZTQwMjE3ODg1MjIzY2QyYTNiNzFkZDlhYzU1YzBkODdkOWE0YjFiODkwMWUxN2JkZDU3YmZjOTBmZWI4NmE5MjdlMTBjNjZhYWFkYzFhMjE1NjdiOGYxNTUxOGNmMDU1ZGMwOTFhNzg5Nzc5M2FhNDE5OTUyMDAzNTUyY2U2ZWQ5NWUxNDZmMjkxZWQ0M2RhYzNjNGRmMjNmYTc5NTU2OTQ0MGVlNWY1N2NhOTJmYjNmYTg4OWYxOWFlNWQxMzU2"
-time_display_format = "4:20 PM"  # don't do drugs kids!
+time_display_format = "03:04 PM"
 
 #planet images
 planet_images = {
