@@ -6,6 +6,7 @@ load("cache.star", "cache")
 load("time.star", "time")
 load("humanize.star", "humanize")
 load("encoding/json.star", "json")
+load("hash.star", "hash")
 
 METRIC_OPTIONS = [
     schema.Option(
@@ -101,10 +102,11 @@ FAVICON_PATH = "favicon_path"
 FAVICON_FILENAMES = ["favicon.png", "favicon-16x16.png", "favicon-32x32.png"]
 
 # Cache identifiers and TTL values
-REQUEST_CACHE_ID = "request"
+REQUEST_CACHE_ID = "plausible_request"
 REQUEST_CACHE_TTL = 600  # 10 minutes
-FAVICON_CACHE_ID = "favicon"
+FAVICON_CACHE_ID = "plausible_favicon"
 FAVICON_CACHE_TTL = 86400  # 1 day
+DISABLE_CACHE = False  # Useful while debugging
 
 # Fallback Images
 GLOBE_IMAGE = base64.decode("""
@@ -118,6 +120,7 @@ iVBORw0KGgoAAAANSUhEUgAAAS8AAABQCAIAAADHv2QvAAAbBElEQVR4AeyZA5AzyxaAe83ftm2ubWaj
 def main(config):
     # Show the demo screen for the store page.
     if config.get(DOMAIN_KEY) == None and config.get(PLAUSIBLE_API_KEY) == None:
+        print("Domain and API key are missing, rendering demo.")
         return render_demo_screen()
 
     time_period = config.get(TIME_PERIOD_KEY) or TIME_PERIOD_OPTIONS[0].value
@@ -130,24 +133,48 @@ def main(config):
 
     # Alert the user if the domain is bad
     if domain == None:
+        print("Invalid domain, rendering error screen")
         return render_error_screen("Domain not set correctly")
 
     # Alert the user if the Plausible API Token is missing
     if token == None:
+        print("API key missing, rendering error screen")
         return render_error_screen("Plausible API Key is missing!")
 
     # Fetch the stat for the given metric from Plausible.io
-    stats_results = get_plausible_data("aggregate", token, domain, time_period, metric)
+    stats_response = get_plausible_data("aggregate", token, domain, time_period, metric)
+
+    stats_dict = stats_response[0]
+    response_code = stats_response[1]
 
     # A 401 error says that the API key and site ID provided to Plausible was incorrect.
-    if stats_results[1] == 401:
+    if response_code == 401:
         return render_error_screen("Invalid API Key or domain used.")
 
     # Make sure that we have data, and that the returned response code was 200.
-    if stats_results[0] != None and stats_results[1] != 200:
+    if stats_dict == None and response_code != 200:
         return render_error_screen("Request failed")
 
-    stat = "%d" % stats_results[0][metric]["value"]
+    # Safely get the metric in question
+    metric_dict = stats_dict.get(metric)
+
+    # Verify that we got the correct response
+    if metric_dict == None:
+        return render_error_screen("Invalid Response from Plausible")
+
+    # Safely get the value (as a string)
+    stat_string = metric_dict.get("value")
+
+    # Verify that we got the correct response here too
+    if stat_string == None:
+        return render_error_screen("Invalid Response from Plausible")
+
+    # Convert the value into an integer
+    stat = int(stat_string)
+
+    # At this point, we know the data is correct. Cache it.
+    cache_id = make_cache_id(REQUEST_CACHE_ID, ["aggregate", token, domain, time_period, metric])
+    cache_value(cache_id, json.encode(stats_dict), REQUEST_CACHE_TTL)
 
     # Bounce rate and visit duration need special suffixes, otherwise run the compact_number
     # method on the value to get a string that fits into 6 digits.
@@ -174,7 +201,7 @@ def main(config):
 
         # Verify that the data was returned and that it was a 200 status code.
         if results[0] != None or results[1] != 200:
-            # The error stat is to just return the larger text as the chart's data was invalid.
+            # The error state is to just return the larger text as the chart's data was invalid.
             rendered_stats = render.Padding(
                 pad = (0, 3, 0, 0),
                 child = render.Marquee(
@@ -190,6 +217,8 @@ def main(config):
         largest_value = plot_data[1]
         rendered_stats = render.Text(formatted_stat, font = "6x13")
         rendered_plot = render_plot(plot_data[0], number_of_data_points, largest_value)
+        cache_id = make_cache_id(REQUEST_CACHE_ID, ["timeseries", token, domain, time_period, metric])
+        cache_value(cache_id, json.encode(results), REQUEST_CACHE_TTL)
     else:
         rendered_stats = render.Padding(
             pad = (0, 3, 0, 0),
@@ -213,17 +242,17 @@ def get_schema():
         version = "1",
         fields = [
             schema.Text(
-                id = PLAUSIBLE_API_KEY,
-                name = "Plausible API Key",
-                desc = "Get it at plausible.io/settings",
-                icon = "key",
-                default = "",
-            ),
-            schema.Text(
                 id = DOMAIN_KEY,
                 name = "Domain",
                 desc = "The domain who's stats are being tracked by Plausible.io",
                 icon = "link",
+                default = "",
+            ),
+            schema.Text(
+                id = PLAUSIBLE_API_KEY,
+                name = "Plausible API Key",
+                desc = "Get it at plausible.io/settings",
+                icon = "key",
                 default = "",
             ),
             schema.Dropdown(
@@ -353,12 +382,17 @@ def decorate_value(value, decimal_index, suffix):
 # Removes the chance for human error. Does its best to remove
 # the scheme and "www" subdomain if present.
 def sanitize_domain(domain):
+    # Strip out any and all whitespace characters
+    stripped_domain = "".join(domain.split())
+
     # Check for empty at first
-    if domain == "" or domain == None:
+    if stripped_domain == "" or stripped_domain == None:
+        print("Invalid domain %s" % domain)
         return None
 
-    # Remove whitespace
-    stripped_domain = domain.lstrip()
+    # Lowercae the URL since the Tidbyt app is agressive about adding
+    # capital letters to the beginning of entered strings.
+    stripped_domain.lower()
 
     # Strip out "http://" or "https://"
     prefix_free_domain = stripped_domain.split("://").pop()
@@ -366,18 +400,30 @@ def sanitize_domain(domain):
     # Remove "www."
     final_url = prefix_free_domain.removeprefix("www.")
 
-    # Don't bother
+    # Do one final check to make sure we have at least a valid host
+    # ie. "something.tld"
+    if len(final_url.split(".")) < 2:
+        print("Invalid domain %s" % domain)
+        return None
 
+    print("Sanitized domain: %s" % final_url)
     return final_url
+
+def make_cache_id(key, list):
+    merged_properties = "_".join(list)
+    cache_id = key + "_" + hash.sha1(merged_properties)
+
+    # print("Cache ID: %s" % cache_id)
+    return cache_id
 
 # Makes a request to the domain, and will attempt to return the site's favicon
 # icon by assuming the three most common favicon filenames.
 # Defaults to GLOBE_IMAGE if it fails.
 def get_favicon(domain, favicon_path, token):
-    cache_id = FAVICON_CACHE_ID + "_" + token + "_" + domain + "_" + (favicon_path or "")
-    cached_favicon = cache.get(cache_id)
+    favicon_cache_id = make_cache_id(FAVICON_CACHE_ID, [domain, token, (favicon_path or "")])
+    cached_favicon = cached_value(favicon_cache_id)
 
-    if cached_favicon != None and cached_favicon != "":
+    if cached_favicon != None:
         return cached_favicon
 
     favicon_url = "http://" + domain + "/"
@@ -390,14 +436,13 @@ def get_favicon(domain, favicon_path, token):
 
     for f in FAVICON_FILENAMES:
         final_url = favicon_url + f
-        response = http.get(favicon_url + f)
+        response = http.get(final_url)
         if response.status_code != 200:
             continue
         favicon = response.body()
-        cache.set(cache_id, favicon, ttl_seconds = FAVICON_CACHE_TTL)
+        cache_value(favicon_cache_id, favicon, FAVICON_CACHE_TTL)
         return favicon
 
-    cache.set(cache_id, "", ttl_seconds = 0)
     return GLOBE_IMAGE
 
 # Makes a call to the plausible.io stats endpoint.
@@ -407,10 +452,11 @@ def get_favicon(domain, favicon_path, token):
 #    time_period: The time period to check (doesn't support custom date ranges)
 #    metric: The metric value to return
 def get_plausible_data(endpoint, token, domain, time_period, metric):
-    cache_id = "_".join([REQUEST_CACHE_ID, token, endpoint, domain, time_period, metric])
-
-    cached_request = cache.get(cache_id)
+    print("Getting data from Plausible:  %s" % ",".join([domain, time_period, metric]))
+    request_cache_id = make_cache_id(REQUEST_CACHE_ID, [token, endpoint, domain, time_period, metric])
+    cached_request = cached_value(request_cache_id)
     if cached_request != None:
+        print("Cached data found")
         return (json.decode(cached_request), 200)
 
     site_id_param = "?site_id=" + domain
@@ -431,13 +477,18 @@ def get_plausible_data(endpoint, token, domain, time_period, metric):
         },
     )
 
+    # We return the status code in the event of an error because Plausible uses
+    # error codes as indicators as to why things failed.
     if response.status_code != 200:
-        cache.set(cache_id, "", ttl_seconds = 0)
         return (None, response.status_code)
 
-    results = response.json()["results"]
-    encoded_results = json.encode(results)
-    cache.set(cache_id, encoded_results, ttl_seconds = REQUEST_CACHE_TTL)
+    # Safely unwrap the results object.
+    results = response.json().get("results")
+
+    # Return an error if it's invalid.
+    if results == None:
+        return (None, 500)
+
     return (results, 200)
 
 # Takes the API result from Plausible and converts it to the
@@ -454,6 +505,20 @@ def convert_result_for_plot(results, metric):
         if safe_value > largest_value:
             largest_value = safe_value
     return (final_data, largest_value)
+
+def cache_value(key, value, ttl):
+    if DISABLE_CACHE:
+        print("Cache disabled, won't set")
+        return
+    print("Cacheing: %s" % key)
+    cache.set(key, value, ttl_seconds = ttl)
+
+def cached_value(key):
+    print("Checking cache for key: %s" % key)
+    if DISABLE_CACHE:
+        print("Cache disabled, won't get")
+        return None
+    return cache.get(key)
 
 # Render the screen using the provided values
 def render_screen(favicon, rendered_stats, rendered_plot, marquee_text):
