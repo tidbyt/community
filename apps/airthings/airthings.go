@@ -17,9 +17,9 @@ func New() manifest.Manifest {
 		Name:        "AirThings",
 		Author:      "joshspicer",
 		Summary:     "Environment sensor readings",
-		Desc:        "Environment sensor readings from an AirThings sensor.",
+		Desc:        "Interact with the API by creating a client app at https://dashboard.airthings.com/integrations/api-integration",
 		FileName:    "airthings.star",
 		PackageName: "airthings",
-		Source:  source,
+		Source:      source,
 	}
 }
