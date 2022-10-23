@@ -4,11 +4,16 @@ package metar
 import (
 	_ "embed"
 
+	"tidbyt.dev/community/apps"
 	"tidbyt.dev/community/apps/manifest"
 )
 
 //go:embed metar.star
 var source []byte
+
+func init() {
+	apps.Manifests = append(apps.Manifests, New())
+}
 
 // New creates a new instance of the METAR applet.
 func New() manifest.Manifest {
@@ -20,6 +25,6 @@ func New() manifest.Manifest {
 		Desc:        "Show METAR text for one airport or flight category (VFR/IFR/etc.) for up to 15 airports.",
 		FileName:    "metar.star",
 		PackageName: "metar",
-		Source:  source,
+		Source:      source,
 	}
 }

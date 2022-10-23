@@ -4,11 +4,16 @@ package effheadlines
 import (
 	_ "embed"
 
+	"tidbyt.dev/community/apps"
 	"tidbyt.dev/community/apps/manifest"
 )
 
 //go:embed effheadlines.star
 var source []byte
+
+func init() {
+	apps.Manifests = append(apps.Manifests, New())
+}
 
 // New creates a new instance of the EFF Headlines applet.
 func New() manifest.Manifest {
@@ -20,6 +25,6 @@ func New() manifest.Manifest {
 		Desc:        "Get the latest headlines from the Electronic Frontier Foundation.",
 		FileName:    "effheadlines.star",
 		PackageName: "effheadlines",
-		Source:  source,
+		Source:      source,
 	}
 }

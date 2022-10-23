@@ -4,11 +4,16 @@ package nearearthobjs
 import (
 	_ "embed"
 
+	"tidbyt.dev/community/apps"
 	"tidbyt.dev/community/apps/manifest"
 )
 
 //go:embed near_earth_objs.star
 var source []byte
+
+func init() {
+	apps.Manifests = append(apps.Manifests, New())
+}
 
 // New creates a new instance of the Near Earth Objs applet.
 func New() manifest.Manifest {
@@ -20,6 +25,6 @@ func New() manifest.Manifest {
 		Desc:        "Displays the name, speed, distance, and arrival of the next near Earth object from NeoWs.",
 		FileName:    "near_earth_objs.star",
 		PackageName: "nearearthobjs",
-		Source:  source,
+		Source:      source,
 	}
 }

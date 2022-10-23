@@ -4,11 +4,16 @@ package tcatbusarrivals
 import (
 	_ "embed"
 
+	"tidbyt.dev/community/apps"
 	"tidbyt.dev/community/apps/manifest"
 )
 
 //go:embed tcat_bus_arrivals.star
 var source []byte
+
+func init() {
+	apps.Manifests = append(apps.Manifests, New())
+}
 
 // New creates a new instance of the TCAT Bus Arrivals applet.
 func New() manifest.Manifest {
@@ -20,6 +25,6 @@ func New() manifest.Manifest {
 		Desc:        "Display Arrival Times for TCAT Ithaca Buses at a Specific Stop.",
 		FileName:    "tcat_bus_arrivals.star",
 		PackageName: "tcatbusarrivals",
-		Source:  source,
+		Source:      source,
 	}
 }

@@ -4,11 +4,16 @@ package arcadeclassics
 import (
 	_ "embed"
 
+	"tidbyt.dev/community/apps"
 	"tidbyt.dev/community/apps/manifest"
 )
 
 //go:embed arcade_classics.star
 var source []byte
+
+func init() {
+	apps.Manifests = append(apps.Manifests, New())
+}
 
 // New creates a new instance of the Arcade Classics applet.
 func New() manifest.Manifest {
@@ -20,6 +25,6 @@ func New() manifest.Manifest {
 		Desc:        "Animations from classic arcade video games.",
 		FileName:    "arcade_classics.star",
 		PackageName: "arcadeclassics",
-		Source:  source,
+		Source:      source,
 	}
 }

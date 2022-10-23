@@ -4,11 +4,16 @@ package binaryclock
 import (
 	_ "embed"
 
+	"tidbyt.dev/community/apps"
 	"tidbyt.dev/community/apps/manifest"
 )
 
 //go:embed binary_clock.star
 var source []byte
+
+func init() {
+	apps.Manifests = append(apps.Manifests, New())
+}
 
 // New creates a new instance of the Binary Clock applet.
 func New() manifest.Manifest {
@@ -20,6 +25,6 @@ func New() manifest.Manifest {
 		Desc:        "This app show the current date and time in a binary format.",
 		FileName:    "binary_clock.star",
 		PackageName: "binaryclock",
-		Source:  source,
+		Source:      source,
 	}
 }
