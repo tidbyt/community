@@ -4,16 +4,11 @@ package digitalrain
 import (
 	_ "embed"
 
-	"tidbyt.dev/community/apps"
 	"tidbyt.dev/community/apps/manifest"
 )
 
 //go:embed digital_rain.star
 var source []byte
-
-func init() {
-	apps.Manifests = append(apps.Manifests, New())
-}
 
 // New creates a new instance of the Digital Rain applet.
 func New() manifest.Manifest {
@@ -25,6 +20,6 @@ func New() manifest.Manifest {
 		Desc:        "Generates an animation loop of falling code similar to that from the Matrix movie. A new sequence every 30 minutes.",
 		FileName:    "digital_rain.star",
 		PackageName: "digitalrain",
-		Source:      source,
+		Source:  source,
 	}
 }

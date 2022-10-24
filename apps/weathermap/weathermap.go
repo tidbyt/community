@@ -4,16 +4,11 @@ package weathermap
 import (
 	_ "embed"
 
-	"tidbyt.dev/community/apps"
 	"tidbyt.dev/community/apps/manifest"
 )
 
 //go:embed weather_map.star
 var source []byte
-
-func init() {
-	apps.Manifests = append(apps.Manifests, New())
-}
 
 // New creates a new instance of the Weather Map applet.
 func New() manifest.Manifest {
@@ -25,6 +20,6 @@ func New() manifest.Manifest {
 		Desc:        "Display real-time precipitation radar for a location. Powered by the RainViewer API.",
 		FileName:    "weather_map.star",
 		PackageName: "weathermap",
-		Source:      source,
+		Source:  source,
 	}
 }

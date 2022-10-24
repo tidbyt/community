@@ -4,16 +4,11 @@ package snyk
 import (
 	_ "embed"
 
-	"tidbyt.dev/community/apps"
 	"tidbyt.dev/community/apps/manifest"
 )
 
 //go:embed snyk.star
 var source []byte
-
-func init() {
-	apps.Manifests = append(apps.Manifests, New())
-}
 
 // New creates a new instance of the Snyk applet.
 func New() manifest.Manifest {
@@ -25,6 +20,6 @@ func New() manifest.Manifest {
 		Desc:        "Shows medium/high/critical issue counts for the configured Snyk project.",
 		FileName:    "snyk.star",
 		PackageName: "snyk",
-		Source:      source,
+		Source:  source,
 	}
 }

@@ -4,16 +4,11 @@ package dwheadline
 import (
 	_ "embed"
 
-	"tidbyt.dev/community/apps"
 	"tidbyt.dev/community/apps/manifest"
 )
 
 //go:embed dw_headline.star
 var source []byte
-
-func init() {
-	apps.Manifests = append(apps.Manifests, New())
-}
 
 // New creates a new instance of the DW Headline applet.
 func New() manifest.Manifest {
@@ -25,6 +20,6 @@ func New() manifest.Manifest {
 		Desc:        "Shows the latest published headline on DailyWire.com.",
 		FileName:    "dw_headline.star",
 		PackageName: "dwheadline",
-		Source:      source,
+		Source:  source,
 	}
 }

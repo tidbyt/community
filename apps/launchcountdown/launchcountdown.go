@@ -4,16 +4,11 @@ package launchcountdown
 import (
 	_ "embed"
 
-	"tidbyt.dev/community/apps"
 	"tidbyt.dev/community/apps/manifest"
 )
 
 //go:embed launchcountdown.star
 var source []byte
-
-func init() {
-	apps.Manifests = append(apps.Manifests, New())
-}
 
 // New creates a new instance of the LaunchCountdown applet.
 func New() manifest.Manifest {
@@ -25,6 +20,6 @@ func New() manifest.Manifest {
 		Desc:        "Displays the next rocket launch in the world.",
 		FileName:    "launchcountdown.star",
 		PackageName: "launchcountdown",
-		Source:      source,
+		Source:  source,
 	}
 }

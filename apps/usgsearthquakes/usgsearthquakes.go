@@ -4,16 +4,11 @@ package usgsearthquakes
 import (
 	_ "embed"
 
-	"tidbyt.dev/community/apps"
 	"tidbyt.dev/community/apps/manifest"
 )
 
 //go:embed usgs_earthquakes.star
 var source []byte
-
-func init() {
-	apps.Manifests = append(apps.Manifests, New())
-}
 
 // New creates a new instance of the USGS Earthquakes applet.
 func New() manifest.Manifest {
@@ -25,6 +20,6 @@ func New() manifest.Manifest {
 		Desc:        "Displays the most recent earthquakes based on location.",
 		FileName:    "usgs_earthquakes.star",
 		PackageName: "usgsearthquakes",
-		Source:      source,
+		Source:  source,
 	}
 }

@@ -4,16 +4,11 @@ package solarelevation
 import (
 	_ "embed"
 
-	"tidbyt.dev/community/apps"
 	"tidbyt.dev/community/apps/manifest"
 )
 
 //go:embed solar_elevation.star
 var source []byte
-
-func init() {
-	apps.Manifests = append(apps.Manifests, New())
-}
 
 // New creates a new instance of the Solar Elevation applet.
 func New() manifest.Manifest {
@@ -25,6 +20,6 @@ func New() manifest.Manifest {
 		Desc:        "A clock for when you cannot look out of the window or at an actual clock. How high is the sun above or below the horizon right now?",
 		FileName:    "solar_elevation.star",
 		PackageName: "solarelevation",
-		Source:      source,
+		Source:  source,
 	}
 }

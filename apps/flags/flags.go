@@ -4,16 +4,11 @@ package flags
 import (
 	_ "embed"
 
-	"tidbyt.dev/community/apps"
 	"tidbyt.dev/community/apps/manifest"
 )
 
 //go:embed flags.star
 var source []byte
-
-func init() {
-	apps.Manifests = append(apps.Manifests, New())
-}
 
 // New creates a new instance of the Flags applet.
 func New() manifest.Manifest {
@@ -25,6 +20,6 @@ func New() manifest.Manifest {
 		Desc:        "Displays a random or specific country flag.",
 		FileName:    "flags.star",
 		PackageName: "flags",
-		Source:      source,
+		Source:  source,
 	}
 }

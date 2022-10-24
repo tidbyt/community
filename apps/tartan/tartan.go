@@ -4,16 +4,11 @@ package tartan
 import (
 	_ "embed"
 
-	"tidbyt.dev/community/apps"
 	"tidbyt.dev/community/apps/manifest"
 )
 
 //go:embed tartan.star
 var source []byte
-
-func init() {
-	apps.Manifests = append(apps.Manifests, New())
-}
 
 // New creates a new instance of the Tartan applet.
 func New() manifest.Manifest {
@@ -25,6 +20,6 @@ func New() manifest.Manifest {
 		Desc:        "Renders a tartan based on thread count instructions and displays it on screen.",
 		FileName:    "tartan.star",
 		PackageName: "tartan",
-		Source:      source,
+		Source:  source,
 	}
 }

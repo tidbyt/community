@@ -4,16 +4,11 @@ package lirr
 import (
 	_ "embed"
 
-	"tidbyt.dev/community/apps"
 	"tidbyt.dev/community/apps/manifest"
 )
 
 //go:embed lirr.star
 var source []byte
-
-func init() {
-	apps.Manifests = append(apps.Manifests, New())
-}
 
 // New creates a new instance of the LIRR applet.
 func New() manifest.Manifest {
@@ -25,6 +20,6 @@ func New() manifest.Manifest {
 		Desc:        "Long Island Railroad Train Times.",
 		FileName:    "lirr.star",
 		PackageName: "lirr",
-		Source:      source,
+		Source:  source,
 	}
 }

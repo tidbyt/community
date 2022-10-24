@@ -4,16 +4,11 @@ package outlookcalendar
 import (
 	_ "embed"
 
-	"tidbyt.dev/community/apps"
 	"tidbyt.dev/community/apps/manifest"
 )
 
 //go:embed outlook_calendar.star
 var source []byte
-
-func init() {
-	apps.Manifests = append(apps.Manifests, New())
-}
 
 // New creates a new instance of the Outlook Calendar applet.
 func New() manifest.Manifest {
@@ -25,6 +20,6 @@ func New() manifest.Manifest {
 		Desc:        "Shows the date, next meeting and time from your Outlook Calendar.",
 		FileName:    "outlook_calendar.star",
 		PackageName: "outlookcalendar",
-		Source:      source,
+		Source:  source,
 	}
 }

@@ -4,16 +4,11 @@ package maze
 import (
 	_ "embed"
 
-	"tidbyt.dev/community/apps"
 	"tidbyt.dev/community/apps/manifest"
 )
 
 //go:embed maze.star
 var source []byte
-
-func init() {
-	apps.Manifests = append(apps.Manifests, New())
-}
 
 // New creates a new instance of the Maze applet.
 func New() manifest.Manifest {
@@ -25,6 +20,6 @@ func New() manifest.Manifest {
 		Desc:        "Draws a maze and then animates solving the maze.",
 		FileName:    "maze.star",
 		PackageName: "maze",
-		Source:      source,
+		Source:  source,
 	}
 }

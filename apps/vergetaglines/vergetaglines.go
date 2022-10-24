@@ -4,16 +4,11 @@ package vergetaglines
 import (
 	_ "embed"
 
-	"tidbyt.dev/community/apps"
 	"tidbyt.dev/community/apps/manifest"
 )
 
 //go:embed verge_taglines.star
 var source []byte
-
-func init() {
-	apps.Manifests = append(apps.Manifests, New())
-}
 
 // New creates a new instance of the Verge Taglines applet.
 func New() manifest.Manifest {
@@ -25,6 +20,6 @@ func New() manifest.Manifest {
 		Desc:        "Displays the latest tagline from the top of popular tech news site The Verge (dot com).",
 		FileName:    "verge_taglines.star",
 		PackageName: "vergetaglines",
-		Source:      source,
+		Source:  source,
 	}
 }

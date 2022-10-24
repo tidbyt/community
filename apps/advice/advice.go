@@ -4,16 +4,11 @@ package advice
 import (
 	_ "embed"
 
-	"tidbyt.dev/community/apps"
 	"tidbyt.dev/community/apps/manifest"
 )
 
 //go:embed advice.star
 var source []byte
-
-func init() {
-	apps.Manifests = append(apps.Manifests, New())
-}
 
 // New creates a new instance of the Advice applet.
 func New() manifest.Manifest {
@@ -25,6 +20,6 @@ func New() manifest.Manifest {
 		Desc:        "Shows random advice from AdviceSlip.com.",
 		FileName:    "advice.star",
 		PackageName: "advice",
-		Source:      source,
+		Source:  source,
 	}
 }
