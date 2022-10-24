@@ -4,16 +4,11 @@ package isstracker
 import (
 	_ "embed"
 
-	"tidbyt.dev/community/apps"
 	"tidbyt.dev/community/apps/manifest"
 )
 
 //go:embed iss_tracker.star
 var source []byte
-
-func init() {
-	apps.Manifests = append(apps.Manifests, New())
-}
 
 // New creates a new instance of the ISS Tracker applet.
 func New() manifest.Manifest {
@@ -25,6 +20,6 @@ func New() manifest.Manifest {
 		Desc:        "Tracks the position of the International Space Station using LAT/LONG coordinates.",
 		FileName:    "iss_tracker.star",
 		PackageName: "isstracker",
-		Source:      source,
+		Source:  source,
 	}
 }

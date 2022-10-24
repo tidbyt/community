@@ -4,16 +4,11 @@ package surfforecast
 import (
 	_ "embed"
 
-	"tidbyt.dev/community/apps"
 	"tidbyt.dev/community/apps/manifest"
 )
 
 //go:embed surf_forecast.star
 var source []byte
-
-func init() {
-	apps.Manifests = append(apps.Manifests, New())
-}
 
 // New creates a new instance of the Surf Forecast applet.
 func New() manifest.Manifest {
@@ -25,6 +20,6 @@ func New() manifest.Manifest {
 		Desc:        "Daily surf forecast for any spot on Surfline.",
 		FileName:    "surf_forecast.star",
 		PackageName: "surfforecast",
-		Source:      source,
+		Source:  source,
 	}
 }

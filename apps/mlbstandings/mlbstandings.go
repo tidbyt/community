@@ -4,16 +4,11 @@ package mlbstandings
 import (
 	_ "embed"
 
-	"tidbyt.dev/community/apps"
 	"tidbyt.dev/community/apps/manifest"
 )
 
 //go:embed mlb_standings.star
 var source []byte
-
-func init() {
-	apps.Manifests = append(apps.Manifests, New())
-}
 
 // New creates a new instance of the MLB Standings applet.
 func New() manifest.Manifest {
@@ -25,6 +20,6 @@ func New() manifest.Manifest {
 		Desc:        "View MLB standings by division.",
 		FileName:    "mlb_standings.star",
 		PackageName: "mlbstandings",
-		Source:      source,
+		Source:  source,
 	}
 }

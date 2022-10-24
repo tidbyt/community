@@ -4,16 +4,11 @@ package subreddit
 import (
 	_ "embed"
 
-	"tidbyt.dev/community/apps"
 	"tidbyt.dev/community/apps/manifest"
 )
 
 //go:embed subreddit.star
 var source []byte
-
-func init() {
-	apps.Manifests = append(apps.Manifests, New())
-}
 
 // New creates a new instance of the Subreddit applet.
 func New() manifest.Manifest {
@@ -25,6 +20,6 @@ func New() manifest.Manifest {
 		Desc:        "Display the #1 post of a subreddit.",
 		FileName:    "subreddit.star",
 		PackageName: "subreddit",
-		Source:      source,
+		Source:  source,
 	}
 }

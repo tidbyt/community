@@ -4,16 +4,11 @@ package gapilotbuddy
 import (
 	_ "embed"
 
-	"tidbyt.dev/community/apps"
 	"tidbyt.dev/community/apps/manifest"
 )
 
 //go:embed ga_pilot_buddy.star
 var source []byte
-
-func init() {
-	apps.Manifests = append(apps.Manifests, New())
-}
 
 // New creates a new instance of the GA Pilot Buddy applet.
 func New() manifest.Manifest {
@@ -25,6 +20,6 @@ func New() manifest.Manifest {
 		Desc:        "See local aerodrome flight rules and current abbreviated METAR information.",
 		FileName:    "ga_pilot_buddy.star",
 		PackageName: "gapilotbuddy",
-		Source:      source,
+		Source:  source,
 	}
 }

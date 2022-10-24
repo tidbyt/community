@@ -4,16 +4,11 @@ package transsee
 import (
 	_ "embed"
 
-	"tidbyt.dev/community/apps"
 	"tidbyt.dev/community/apps/manifest"
 )
 
 //go:embed transsee.star
 var source []byte
-
-func init() {
-	apps.Manifests = append(apps.Manifests, New())
-}
 
 // New creates a new instance of the TransSee applet.
 func New() manifest.Manifest {
@@ -25,6 +20,6 @@ func New() manifest.Manifest {
 		Desc:        "Provides real-time transit predictions based on actual travel times for over 150 agencies. Requires paid premium. See transsee.ca/tidbyt for usage information.",
 		FileName:    "transsee.star",
 		PackageName: "transsee",
-		Source:      source,
+		Source:  source,
 	}
 }

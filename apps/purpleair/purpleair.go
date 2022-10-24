@@ -4,16 +4,11 @@ package purpleair
 import (
 	_ "embed"
 
-	"tidbyt.dev/community/apps"
 	"tidbyt.dev/community/apps/manifest"
 )
 
 //go:embed purpleair.star
 var source []byte
-
-func init() {
-	apps.Manifests = append(apps.Manifests, New())
-}
 
 // New creates a new instance of the PurpleAir applet.
 func New() manifest.Manifest {
@@ -25,6 +20,6 @@ func New() manifest.Manifest {
 		Desc:        "Displays the local air quality index from a nearby PurpleAir sensor. Choose a sensor close to you or provide a specific sensor id.",
 		FileName:    "purpleair.star",
 		PackageName: "purpleair",
-		Source:      source,
+		Source:  source,
 	}
 }

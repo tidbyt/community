@@ -4,16 +4,11 @@ package cltlightrail
 import (
 	_ "embed"
 
-	"tidbyt.dev/community/apps"
 	"tidbyt.dev/community/apps/manifest"
 )
 
 //go:embed clt_lightrail.star
 var source []byte
-
-func init() {
-	apps.Manifests = append(apps.Manifests, New())
-}
 
 // New creates a new instance of the CLT Lightrail applet.
 func New() manifest.Manifest {
@@ -25,6 +20,6 @@ func New() manifest.Manifest {
 		Desc:        "Displays in real-time when North & South lightrail trains will arrive in Charlotte's LYNX Lightrail System - All Stations available.",
 		FileName:    "clt_lightrail.star",
 		PackageName: "cltlightrail",
-		Source:      source,
+		Source:  source,
 	}
 }

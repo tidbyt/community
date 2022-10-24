@@ -4,16 +4,11 @@ package currencyconverter
 import (
 	_ "embed"
 
-	"tidbyt.dev/community/apps"
 	"tidbyt.dev/community/apps/manifest"
 )
 
 //go:embed currencyconverter.star
 var source []byte
-
-func init() {
-	apps.Manifests = append(apps.Manifests, New())
-}
 
 // New creates a new instance of the CurrencyConverter applet.
 func New() manifest.Manifest {
@@ -25,6 +20,6 @@ func New() manifest.Manifest {
 		Desc:        "Displays current currency exchange rates.",
 		FileName:    "currencyconverter.star",
 		PackageName: "currencyconverter",
-		Source:      source,
+		Source:  source,
 	}
 }

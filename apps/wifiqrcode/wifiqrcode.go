@@ -4,16 +4,11 @@ package wifiqrcode
 import (
 	_ "embed"
 
-	"tidbyt.dev/community/apps"
 	"tidbyt.dev/community/apps/manifest"
 )
 
 //go:embed wifi_qr_code.star
 var source []byte
-
-func init() {
-	apps.Manifests = append(apps.Manifests, New())
-}
 
 // New creates a new instance of the WiFi QR Code applet.
 func New() manifest.Manifest {
@@ -25,6 +20,6 @@ func New() manifest.Manifest {
 		Desc:        "This app creates a scannable WiFi QR code. It is not compatible with Enterprise networks. Since there are display limitations with the Tidbyt, not all networks will be able to be encoded. Simply scan the QR code and your phone will join the WiFi network.",
 		FileName:    "wifi_qr_code.star",
 		PackageName: "wifiqrcode",
-		Source:      source,
+		Source:  source,
 	}
 }
