@@ -4,16 +4,11 @@ package ncaafscores
 import (
 	_ "embed"
 
-	"tidbyt.dev/community/apps"
 	"tidbyt.dev/community/apps/manifest"
 )
 
 //go:embed ncaaf_scores.star
 var source []byte
-
-func init() {
-	apps.Manifests = append(apps.Manifests, New())
-}
 
 // New creates a new instance of the NCAAF Scores applet.
 func New() manifest.Manifest {

@@ -4,16 +4,11 @@ package mbta
 import (
 	_ "embed"
 
-	"tidbyt.dev/community/apps"
 	"tidbyt.dev/community/apps/manifest"
 )
 
 //go:embed mbta.star
 var source []byte
-
-func init() {
-	apps.Manifests = append(apps.Manifests, New())
-}
 
 // New creates a new instance of the MBTA applet.
 func New() manifest.Manifest {
@@ -25,6 +20,6 @@ func New() manifest.Manifest {
 		Desc:        "MBTA bus and rail departure times.",
 		FileName:    "mbta.star",
 		PackageName: "mbta",
-		Source:      source,
+		Source:  source,
 	}
 }

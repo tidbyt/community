@@ -4,16 +4,11 @@ package baywheels
 import (
 	_ "embed"
 
-	"tidbyt.dev/community/apps"
 	"tidbyt.dev/community/apps/manifest"
 )
 
 //go:embed bay_wheels.star
 var source []byte
-
-func init() {
-	apps.Manifests = append(apps.Manifests, New())
-}
 
 // New creates a new instance of the Bay Wheels applet.
 func New() manifest.Manifest {
@@ -25,6 +20,6 @@ func New() manifest.Manifest {
 		Desc:        "Shows the availability of bikes and e-bikes at a Bay Wheels station.",
 		FileName:    "bay_wheels.star",
 		PackageName: "baywheels",
-		Source:      source,
+		Source:  source,
 	}
 }

@@ -4,16 +4,11 @@ package sunrisesunset
 import (
 	_ "embed"
 
-	"tidbyt.dev/community/apps"
 	"tidbyt.dev/community/apps/manifest"
 )
 
 //go:embed sunrise_sunset.star
 var source []byte
-
-func init() {
-	apps.Manifests = append(apps.Manifests, New())
-}
 
 // New creates a new instance of the Sunrise Sunset applet.
 func New() manifest.Manifest {
@@ -25,6 +20,6 @@ func New() manifest.Manifest {
 		Desc:        "Displays with icon sunrise and sunset times.",
 		FileName:    "sunrise_sunset.star",
 		PackageName: "sunrisesunset",
-		Source:      source,
+		Source:  source,
 	}
 }

@@ -4,16 +4,11 @@ package web3counter
 import (
 	_ "embed"
 
-	"tidbyt.dev/community/apps"
 	"tidbyt.dev/community/apps/manifest"
 )
 
 //go:embed web_3_counter.star
 var source []byte
-
-func init() {
-	apps.Manifests = append(apps.Manifests, New())
-}
 
 // New creates a new instance of the Web 3 Counter applet.
 func New() manifest.Manifest {
@@ -25,6 +20,6 @@ func New() manifest.Manifest {
 		Desc:        "Displays the total dollar value of lost assets due to various crypto scams, rugpulls, and crashes. Data comes from web3isgoinggreat.com, which is very tongue-in-cheek.",
 		FileName:    "web_3_counter.star",
 		PackageName: "web3counter",
-		Source:      source,
+		Source:  source,
 	}
 }

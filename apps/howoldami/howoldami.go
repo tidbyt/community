@@ -4,16 +4,11 @@ package howoldami
 import (
 	_ "embed"
 
-	"tidbyt.dev/community/apps"
 	"tidbyt.dev/community/apps/manifest"
 )
 
 //go:embed howoldami.star
 var source []byte
-
-func init() {
-	apps.Manifests = append(apps.Manifests, New())
-}
 
 // New creates a new instance of the How Old Am I applet.
 func New() manifest.Manifest {
@@ -25,6 +20,6 @@ func New() manifest.Manifest {
 		Desc:        "Calculates age based on given date and time.",
 		FileName:    "howoldami.star",
 		PackageName: "howoldami",
-		Source:      source,
+		Source:  source,
 	}
 }

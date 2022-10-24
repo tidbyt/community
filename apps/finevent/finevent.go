@@ -4,16 +4,11 @@ package finevent
 import (
 	_ "embed"
 
-	"tidbyt.dev/community/apps"
 	"tidbyt.dev/community/apps/manifest"
 )
 
 //go:embed finevent.star
 var source []byte
-
-func init() {
-	apps.Manifests = append(apps.Manifests, New())
-}
 
 // New creates a new instance of the Finevent applet.
 func New() manifest.Manifest {
@@ -25,6 +20,6 @@ func New() manifest.Manifest {
 		Desc:        "Displays recent and upcoming economic releases.",
 		FileName:    "finevent.star",
 		PackageName: "finevent",
-		Source:      source,
+		Source:  source,
 	}
 }

@@ -4,16 +4,11 @@ package espnnews
 import (
 	_ "embed"
 
-	"tidbyt.dev/community/apps"
 	"tidbyt.dev/community/apps/manifest"
 )
 
 //go:embed espn_news.star
 var source []byte
-
-func init() {
-	apps.Manifests = append(apps.Manifests, New())
-}
 
 // New creates a new instance of the ESPN News applet.
 func New() manifest.Manifest {
@@ -25,6 +20,6 @@ func New() manifest.Manifest {
 		Desc:        "Displays the top three headlines from the Top Headlines section on ESPN or a specific user-selected sport.",
 		FileName:    "espn_news.star",
 		PackageName: "espnnews",
-		Source:      source,
+		Source:  source,
 	}
 }

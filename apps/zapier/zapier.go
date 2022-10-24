@@ -4,16 +4,11 @@ package zapier
 import (
 	_ "embed"
 
-	"tidbyt.dev/community/apps"
 	"tidbyt.dev/community/apps/manifest"
 )
 
 //go:embed zapier.star
 var source []byte
-
-func init() {
-	apps.Manifests = append(apps.Manifests, New())
-}
 
 // New creates a new instance of the Zapier applet.
 func New() manifest.Manifest {
@@ -25,6 +20,6 @@ func New() manifest.Manifest {
 		Desc:        "The Zapier app allows you to trigger information on your Tidbyt from a Zap.",
 		FileName:    "zapier.star",
 		PackageName: "zapier",
-		Source:  source,
+		Source:      source,
 	}
 }

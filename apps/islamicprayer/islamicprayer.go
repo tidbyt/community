@@ -4,16 +4,11 @@ package islamicprayer
 import (
 	_ "embed"
 
-	"tidbyt.dev/community/apps"
 	"tidbyt.dev/community/apps/manifest"
 )
 
 //go:embed islamic_prayer.star
 var source []byte
-
-func init() {
-	apps.Manifests = append(apps.Manifests, New())
-}
 
 // New creates a new instance of the Islamic Prayer applet.
 func New() manifest.Manifest {
@@ -25,6 +20,6 @@ func New() manifest.Manifest {
 		Desc:        "Islamic prayer times for the day.",
 		FileName:    "islamic_prayer.star",
 		PackageName: "islamicprayer",
-		Source:      source,
+		Source:  source,
 	}
 }

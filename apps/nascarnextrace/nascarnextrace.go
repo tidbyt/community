@@ -4,16 +4,11 @@ package nascarnextrace
 import (
 	_ "embed"
 
-	"tidbyt.dev/community/apps"
 	"tidbyt.dev/community/apps/manifest"
 )
 
 //go:embed nascarnextrace.star
 var source []byte
-
-func init() {
-	apps.Manifests = append(apps.Manifests, New())
-}
 
 // New creates instance of applet.
 func New() manifest.Manifest {

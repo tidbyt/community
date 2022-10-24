@@ -4,16 +4,11 @@ package formula1
 import (
 	_ "embed"
 
-	"tidbyt.dev/community/apps"
 	"tidbyt.dev/community/apps/manifest"
 )
 
 //go:embed formula_1.star
 var source []byte
-
-func init() {
-	apps.Manifests = append(apps.Manifests, New())
-}
 
 // New creates a new instance of the Formula 1 applet.
 func New() manifest.Manifest {
@@ -25,6 +20,6 @@ func New() manifest.Manifest {
 		Desc:        "Shows Time date and location of Next F1 race.",
 		FileName:    "formula_1.star",
 		PackageName: "formula1",
-		Source:      source,
+		Source:  source,
 	}
 }
