@@ -89,6 +89,7 @@ import (
 	"tidbyt.dev/community/apps/maze"
 	"tidbyt.dev/community/apps/mbta"
 	"tidbyt.dev/community/apps/mbtanewtrains"
+	"tidbyt.dev/community/apps/mcserverstatus"
 	"tidbyt.dev/community/apps/metar"
 	"tidbyt.dev/community/apps/mindthegap"
 	"tidbyt.dev/community/apps/mlbleaders"
@@ -294,6 +295,7 @@ func GetManifests() []manifest.Manifest {
 		maze.New(),
 		mbta.New(),
 		mbtanewtrains.New(),
+		mcserverstatus.New(),
 		metar.New(),
 		mindthegap.New(),
 		mlbleaders.New(),
