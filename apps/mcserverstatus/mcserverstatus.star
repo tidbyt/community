@@ -66,7 +66,6 @@ def get_schema():
                 id = "server_ip",
                 name = "Server IP",
                 desc = "The IP of the Minecraft server you want to monitor.",
-                default = "mc.hypixel.net",
                 icon = "computer",
             ),
             schema.Text(
