@@ -164,6 +164,7 @@ import (
 	"tidbyt.dev/community/apps/spotthestation"
 	"tidbyt.dev/community/apps/stateflags"
 	"tidbyt.dev/community/apps/steam"
+	"tidbyt.dev/community/apps/steamsales"
 	"tidbyt.dev/community/apps/stepcounter"
 	"tidbyt.dev/community/apps/stockticker"
 	"tidbyt.dev/community/apps/strava"
@@ -369,6 +370,7 @@ func GetManifests() []manifest.Manifest {
 		spotthestation.New(),
 		stateflags.New(),
 		steam.New(),
+		steamsales.New(),
 		stepcounter.New(),
 		stockticker.New(),
 		strava.New(),
