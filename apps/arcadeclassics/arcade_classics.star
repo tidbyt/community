@@ -84,7 +84,6 @@ SPEED_LIST = {
 DEFAULT_ANIMATION = PACMAN_ANIMATION
 
 ANIMATION_LIST = {
-    "Centipede": CENTIPEDE_ANIMATION,
     "Pac-Man": PACMAN_ANIMATION,
     "Space Invaders": SPACE_INVADERS_ANIMATION,
     "Random": RANDOM_ANIMATION,
@@ -108,7 +107,7 @@ def get_schema():
                 id = "animation",
                 name = "Animation",
                 desc = "Which game animation to show.",
-                icon = "cog",
+                icon = "gear",
                 default = DEFAULT_ANIMATION,
                 options = animation_options,
             ),
@@ -116,7 +115,7 @@ def get_schema():
                 id = "speed",
                 name = "Speed",
                 desc = "Change the speed of the animation.",
-                icon = "cog",
+                icon = "gear",
                 default = DEFAULT_SPEED,
                 options = speed_options,
             ),

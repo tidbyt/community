@@ -193,6 +193,9 @@ def main(config):
                     ),
                 ))
 
+    if len(blocks) == 0:
+        return []
+
     return render.Root(
         child = render.Marquee(
             height = 32,
@@ -229,7 +232,7 @@ def get_schema():
                 id = "stop_id",
                 name = "Station",
                 desc = "Station to show subway departures",
-                icon = "subway",
+                icon = "trainSubway",
                 default = "M16",
                 options = stops_options,
             ),
