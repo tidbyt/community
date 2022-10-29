@@ -478,7 +478,7 @@ def refreshWebexAccessToken(config):
         return cache.get(webex_refresh_token)
 
 def getWebexDetails(webex_access_token):
-    # Calls webex personal details api
+    # Calls Webex personal details api
     # Returns an object with details about the user
     webex_too_many_requests = cache.get(webex_access_token + "_webex_too_many_requests")
     if webex_too_many_requests != None:
