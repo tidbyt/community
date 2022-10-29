@@ -201,7 +201,7 @@ DEFAULT_LOCATION = """
 	"timezone": "America/Chicago"
 }
 """
-TTL_SECONDS = 60
+TTL_SECONDS = 30
 
 def refreshGraphAccessToken(config):
     # Grab Secrets from Parameters if running in Render mode.   Hash functions will return null value if running locally
