@@ -590,6 +590,12 @@ def getAvailability(calendar_app_status, messaging_app_status):
             "status": "busy",
             "time": calendar_app_status["time"],
         }
+    elif (calendar_app_status["status"] == "free"):
+        return {
+            "isAllDay": calendar_app_status["isAllDay"],
+            "status": "free",
+            "time": calendar_app_status["time"],
+        }
     elif (messaging_app_status == "busy"):
         return {
             "isAllDay": None,
