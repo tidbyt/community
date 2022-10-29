@@ -40,7 +40,7 @@ MNLfjMdrr+m1Qo1LUGMt0QFP7DAPKjxw7EIFXpik3cijtoE2XhpSiXuGG6ZYYJmE9rHW
 dfRlZsGg2lj83+iW/jP5j9A4atvOOPqcosIsKMM7pd0FGpyDRpwF3ljQIMhNRxrbAAAA
 AElFTkSuQmCC
 """,
-        "schedule_prefix": "Availalble in ",
+        "schedule_prefix": "Available in ",
         "status_label": "busy",
     },
     "free": {
