@@ -40,7 +40,7 @@ MNLfjMdrr+m1Qo1LUGMt0QFP7DAPKjxw7EIFXpik3cijtoE2XhpSiXuGG6ZYYJmE9rHW
 dfRlZsGg2lj83+iW/jP5j9A4atvOOPqcosIsKMM7pd0FGpyDRpwF3ljQIMhNRxrbAAAA
 AElFTkSuQmCC
 """,
-        "schedule_prefix": "Available in ",
+        "schedule_prefix": "For ",
         "status_label": "busy",
     },
     "free": {
@@ -75,7 +75,7 @@ ap2guWTMS15e7n/OuSeP/9PBNW432LvgMQ6YYYIn5sEqX9MswCgXHAT7bdzG0C5WoBXa
 JsUNR5yQRnWCJc444P5N7uLNcAnDNK+lqKGJMvpY4IUe1qHVE5SwRxWN+PEbq6h8YPgB
 eXwhnvIE4jgAAAAASUVORK5CYII=
 """,
-        "schedule_prefix": "For the next ",
+        "schedule_prefix": "For ",
         "status_label": "remote",
     },
     "remote_busy": {
@@ -87,7 +87,7 @@ ap2guWTMS15e7n/OuSeP/9PBNW432LvgMQ6YYYIn5sEqX9MswCgXHAT7bdzG0C5WoBXa
 JsUNR5yQRnWCJc444P5N7uLNcAnDNK+lqKGJMvpY4IUe1qHVE5SwRxWN+PEbq6h8YPgB
 eXwhnvIE4jgAAAAASUVORK5CYII=
 """,
-        "schedule_prefix": "Available in ",
+        "schedule_prefix": "Busy for ",
         "status_label": "remote",
     },
     "remote_free": {
@@ -99,7 +99,7 @@ ap2guWTMS15e7n/OuSeP/9PBNW432LvgMQ6YYYIn5sEqX9MswCgXHAT7bdzG0C5WoBXa
 JsUNR5yQRnWCJc444P5N7uLNcAnDNK+lqKGJMvpY4IUe1qHVE5SwRxWN+PEbq6h8YPgB
 eXwhnvIE4jgAAAAASUVORK5CYII=
 """,
-        "schedule_prefix": "Available for ",
+        "schedule_prefix": "Free for ",
         "status_label": "remote",
     },
     "unknown": {
