@@ -129,7 +129,6 @@ GRAPH_CLIENT_SECRET_DEFAULT = "78910"
 # App is placed into the production environment. Application folder name is "officestatus". These (hashed) secrets are tied to
 # the common tenant version of the Web App (Tidbyt_Ocal)
 GRAPH_CLIENT_ID_HASH = "AV6+xWcEEXuYe3pTryNhDHEtNSvhVh5AzuB80JlncWy6vIj/rgonoeEGOXIzDClOEJkL0RAWAKCFRpSglnBCRa0G3ABIpSSA/zXdCSugEoqA4zDfEBxTh78LvvZ6r0pBfoUj1eHRYxH1PTSbKKKBdPg7mdtyC5lfsMyAYYPyqLq6XX0sGBR4f7IR"
-
 GRAPH_CLIENT_SECRET_HASH = "AV6+xWcESGhLr279hd21f9Zt1YQ4CUEeNMJ+obZE+PENXR6PbXAeO0ZMrz3QQ422C1ZFUBpmOqspjwfRf1WBzqL5BbDxOSPLWpVuakjDnRTdxZCJfQYNR5tpZj3QYvdZeImhrHLpPgWRIPxkjFezKXTHglX/Jdvry401sMaFgNmhc+N4racVgDIC7NU8fQ=="
 
 # MSFT Graph uses 3 secrets to operate. There is the usual Client Secret and Client ID, but Graph uses the Tenant ID as part of
@@ -171,7 +170,6 @@ WEBEX_CLIENT_SECRET_DEFAULT = "78910"
 # App is placed into the production environment. Application folder name is "officestatus". These (hashed) secrets are tied to
 # the common tenant version of the Web App (Tidbyt_Ocal)
 WEBEX_CLIENT_ID_HASH = "AV6+xWcEo0OJA8UWuJWzG3SKr1yzOF98lUceQ3941XZ/inLXZcZwKqowtwTkZ0Te3GqhpcMCiOaHFmww3ZfbcbvKz1uBuOO2Kcwics2c6VOZLXWePYyE553apGLnqhNV/7DM/0s/cjB7GdsC/ip9rqxhVBc4Zc3v0lbFU4FPKLrBCZ7NLOKkPKmUQu0bEtC+wcPxf6Q+AtUCF+Om04rk2Bkxc2cS8aY="
-
 WEBEX_CLIENT_SECRET_HASH = "AV6+xWcE0orcfJj4wNNbdOQu2ws+0qzBbRL0QIe3r84+kVYaO8NBR7CiH5iArJwcigKHzHoJnGe1PH69S4Z0kjto82zMfKZOn0ehkpuTCNt1QbXNG4TZgIcKEbkMnUa5sLZ9c+hW5UQ6lt0mbBve/bf7fJYf+X7Wa6gEGnFrqoK1lXuJmzBjwBJfw34kjlFJrITT2eDwsJJd1ZK8uHi+3CI1lhwAOw=="
 
 # Credentials are hardcoded here for debug with Pixlet "Serve" mode, then replaced with Tidbyt Secrets for production code
@@ -528,24 +526,20 @@ def getWebexStatus(webex_access_token):
         return "unknown"
 
 def getAvailability(calendar_app_status, messaging_app_status):
-    if (calendar_app_status == None and messaging_app_status == None):
-        return {
-            "isAllDay": None,
-            "status": "unknown",
-            "time": None,
-        }
-    elif (calendar_app_status == None and messaging_app_status != None):
-        return {
-            "isAllDay": None,
-            "status": messaging_app_status,
-            "time": None,
-        }
-    elif (calendar_app_status != None and messaging_app_status == None):
-        return {
-            "isAllDay": calendar_app_status["isAllDay"],
-            "status": calendar_app_status["status"],
-            "time": calendar_app_status["time"],
-        }
+    # Determines availability based on calendar and messaging status
+    if (calendar_app_status == None):
+        if (messaging_app_status != None):
+            return {
+                "isAllDay": None,
+                "status": messaging_app_status,
+                "time": None,
+            }
+        else:
+            return {
+                "isAllDay": None,
+                "status": "unknown",
+                "time": None,
+            }
     elif (calendar_app_status["status"] == "away" or messaging_app_status == "away"):
         return {
             "isAllDay": calendar_app_status["isAllDay"],
@@ -558,11 +552,11 @@ def getAvailability(calendar_app_status, messaging_app_status):
             "status": "remote_busy",
             "time": calendar_app_status["time"],
         }
-    elif (calendar_app_status["status"] == "remote_free"):
+    elif (calendar_app_status["status"] == "remote_free" or calendar_app_status["status"] == "remote"):
         if (messaging_app_status == "busy"):
             return {
                 "isAllDay": calendar_app_status["isAllDay"],
-                "status": "remote_busy",
+                "status": "remote",
                 "time": None,
             }
         else:
@@ -571,49 +565,37 @@ def getAvailability(calendar_app_status, messaging_app_status):
                 "status": "remote_free",
                 "time": calendar_app_status["time"],
             }
-    elif (calendar_app_status["status"] == "remote"):
-        if (messaging_app_status == "busy"):
-            return {
-                "isAllDay": calendar_app_status["isAllDay"],
-                "status": "remote_busy",
-                "time": calendar_app_status["time"],
-            }
-        else:
-            return {
-                "isAllDay": calendar_app_status["isAllDay"],
-                "status": "remote",
-                "time": calendar_app_status["time"],
-            }
     elif (calendar_app_status["status"] == "busy"):
         return {
             "isAllDay": calendar_app_status["isAllDay"],
             "status": "busy",
             "time": calendar_app_status["time"],
         }
-    elif (messaging_app_status == "busy"):
-        return {
-            "isAllDay": None,
-            "status": "busy",
-            "time": None,
-        }
     elif (calendar_app_status["status"] == "free"):
-        return {
-            "isAllDay": calendar_app_status["isAllDay"],
-            "status": "free",
-            "time": calendar_app_status["time"],
-        }
-    elif (messaging_app_status == "free"):
-        return {
-            "isAllDay": None,
-            "status": "free",
-            "time": calendar_app_status["time"],
-        }
-    elif (messaging_app_status == "offline"):
-        return {
-            "isAllDay": None,
-            "status": "offline",
-            "time": None,
-        }
+        if (messaging_app_status == "busy"):
+            return {
+                "isAllDay": calendar_app_status["isAllDay"],
+                "status": "busy",
+                "time": None,
+            }
+        elif (messaging_app_status == "offline"):
+            return {
+                "isAllDay": None,
+                "status": "offline",
+                "time": None,
+            }
+        elif (messaging_app_status == "free"):
+            return {
+                "isAllDay": calendar_app_status["isAllDay"],
+                "status": "free",
+                "time": calendar_app_status["time"],
+            }
+        else:
+            return {
+                "isAllDay": calendar_app_status["isAllDay"],
+                "status": "free",
+                "time": calendar_app_status["time"],
+            }
     else:
         return {
             "isAllDay": None,
