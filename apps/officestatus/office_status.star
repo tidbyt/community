@@ -164,7 +164,7 @@ GRAPH_BUCKET_SIZE = 10
 NUMBER_OF_GRAPH_FETCH_ITERATIONS = int(MAX_GRAPH_EVENT_FETCH_WEEK / GRAPH_BUCKET_SIZE)
 
 # Default (invalid) client ID and Secrets to keep the run time Env happy when running in Debug Mode
-WEBEX_CLIENT_ID_DEFAULT = ""
+WEBEX_CLIENT_ID_DEFAULT = "12345"
 WEBEX_CLIENT_SECRET_DEFAULT = ""
 
 # Hash Strings to encrypt/store secrets required for Webex API access. These ultimately get replaced with Tidbyt Hash when the
