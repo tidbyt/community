@@ -132,7 +132,7 @@ def main(config):
                     second_eta = (int((r["times"][1]) - ts) / 60)
                     second_train_is_delayed = r["is_delayed"][1]
                     if second_train_is_delayed:
-                        if second_eta < 1:
+                        if first_eta < 1:
                             text = text + ", delay"
                         else:
                             text = text + " min, delay"
