@@ -420,46 +420,38 @@ def getGraphStatus(graph_access_token, timezone):
         }
 
 def refreshWebexAccessToken(config):
-    # Accepts config
-    # Returns a Webex access token
-    if WEBEX_CLIENT_ID:
-        webex_client_id = WEBEX_CLIENT_ID
-    else:
-        webex_client_id = config.get("webex_client_id")
+    # Use refresh token to collect access token
+    webex_refresh_token = config.get("webex_auth")
 
-    if WEBEX_CLIENT_SECRET:
-        webex_client_secret = WEBEX_CLIENT_SECRET
-    else:
-        webex_client_secret = config.get("webex_client_secret")
-
-    # Refresh token comes from oauth handler params when running in Production/Serve mode
-    # Refresh token comes from config when running locally/Render
-    webex_refresh_token = config.get("webex_auth") or config.get("webex_refresh_token")
-
-    if not webex_refresh_token:
-        return None
-    else:
+    if webex_refresh_token:
         webex_access_token = cache.get(webex_refresh_token)
+    else:
+        return None
 
-    if not webex_access_token:
-        params = {
-            "grant_type": "refresh_token",
-            "client_id": webex_client_id,
-            "client_secret": webex_client_secret,
-            "refresh_token": webex_refresh_token,
-        }
+    if webex_access_token:
+        return cache.get(webex_refresh_token)
+    else:
         headers = {
             "Content-Type": "application/x-www-form-urlencoded",
         }
-        refresh = http.post(WEBEX_TOKEN_ENDPOINT, params = params, headers = headers)
+        params = {
+            "grant_type": "refresh_token",
+            "client_id": (WEBEX_CLIENT_ID or WEBEX_CLIENT_ID_DEFAULT),
+            "client_secret": (WEBEX_CLIENT_SECRET or WEBEX_CLIENT_SECRET_DEFAULT),
+            "refresh_token": webex_refresh_token,
+        }
+        response = http.post(WEBEX_TOKEN_ENDPOINT, headers = headers, params = params)
 
-        if refresh.status_code != 200:
-            fail("Refresh of Access Token failed with Status Code: %d - %s" % (refresh.status_code, refresh.body()))
+        if response.status_code != 200:
+            fail("Refresh of Access Token failed with Status Code: %d - %s" % (response.status_code, response.body()))
 
-        return refresh.json()["access_token"]
-        cache.set(webex_refresh_token, webex_access_token, ttl_seconds = int(refresh.json()["expires_in"] - 30))
-    else:
-        return cache.get(webex_refresh_token)
+        response_json = response.json()
+        cache.set(
+            response_json["refresh_token"],
+            response_json["access_token"],
+            ttl_seconds = int(response_json["expires_in"] - 30)
+        )
+        return response_json["access_token"]
 
 def getWebexDetails(webex_access_token):
     # Calls Webex personal details api
@@ -738,10 +730,10 @@ def graph_oauth_handler(params):
 def webex_oauth_handler(params):
     # This handler is invoked once the user selects the "Authorize your Webex Teams Account" from the Mobile app
     # It passes Params from a successful user Auth, including the Code that must be exchanged for a Refresh token
+    params = json.decode(params)
     headers = {
         "Content-Type": "application/x-www-form-urlencoded",
     }
-    params = json.decode(params)
     params = {
         "grant_type": "authorization_code",
         "client_id": params["client_id"],
@@ -755,14 +747,13 @@ def webex_oauth_handler(params):
         fail("token request failed with status code: %d - %s" %
              (response.status_code, response.body()))
 
-    token_params = response.json()
-    refresh_token = token_params["refresh_token"]
+    response_json = response.json()
     cache.set(
-        refresh_token,
-        token_params["access_token"],
-        ttl_seconds = int(token_params["expires_in"] - 30),
+        response_json["refresh_token"],
+        response_json["access_token"],
+        ttl_seconds = int(response_json["expires_in"] - 30),
     )
-    return refresh_token
+    return response_json["refresh_token"]
 
 def get_schema():
     return schema.Schema(
