@@ -449,7 +449,7 @@ def refreshWebexAccessToken(config):
         cache.set(
             response_json["refresh_token"],
             response_json["access_token"],
-            ttl_seconds = int(response_json["expires_in"] - 30)
+            ttl_seconds = int(response_json["expires_in"] - 30),
         )
         return response_json["access_token"]
 
