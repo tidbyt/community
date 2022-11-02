@@ -145,12 +145,12 @@ GRAPH_CLIENT_ID = secret.decrypt(GRAPH_CLIENT_ID_HASH)
 GRAPH_CLIENT_SECRET = secret.decrypt(GRAPH_CLIENT_SECRET_HASH)
 
 # Graph auth related End points
-GRAPH_EVENTFETCH_AUTH_ENDPOINT = (
+GRAPH_AUTH_ENDPOINT = (
     "https://login.microsoftonline.com/" +
     (GRAPH_TENANT_ID or GRAPH_TENANT_ID_DEFAULT) +
     "/oauth2/v2.0/authorize"
 )
-GRAPH_EVENTFETCH_TOKEN_ENDPOINT = (
+GRAPH_TOKEN_ENDPOINT = (
     "https://login.microsoftonline.com/" +
     (GRAPH_TENANT_ID or GRAPH_TENANT_ID_DEFAULT) +
     "/oauth2/v2.0/token"
@@ -202,53 +202,39 @@ DEFAULT_LOCATION = """
 TTL_SECONDS = 30
 
 def refreshGraphAccessToken(config):
-    # Grab Secrets from Parameters if running in Render mode.   Hash functions will return null value if running locally
-    # They only return value when running on Tidbyt Servers.
-    if GRAPH_CLIENT_ID:
-        graph_client_id = GRAPH_CLIENT_ID
-    else:
-        graph_client_id = config.get("graph_client_id")
+    # Use refresh token to collect access token
+    graph_refresh_token = config.get("graph_auth")
 
-    if GRAPH_CLIENT_SECRET:
-        graph_client_secret = GRAPH_CLIENT_SECRET
-    else:
-        graph_client_secret = config.get("graph_client_secret")
-
-    if GRAPH_TENANT_ID:
-        graph_tenant_id = GRAPH_TENANT_ID
-    else:
-        graph_tenant_id = config.get("graph_tenant_id") or GRAPH_TENANT_ID_DEFAULT
-
-    graph_token_endpoint = "https://login.microsoftonline.com/" + graph_tenant_id + "/oauth2/v2.0/token"
-
-    # Refresh token comes from Auth Handler params when running in Production/Serve mode....from Conflig when running locally/Render
-    graph_refresh_token = config.get("graph_auth") or config.get("graph_refresh_token")
-
-    # Return none if the user is not authorized
-    if not graph_refresh_token:
-        return None
-    else:
+    if graph_refresh_token:
         graph_access_token = cache.get(graph_refresh_token)
-
-    # In Production deployment, this redirect_uri should be replaced with Tidbyt callback uri
-    if not graph_access_token:
-        refresh_body = (
-            "refresh_token=" + graph_refresh_token +
-            "&redirect_uri=http://localhost/oauth-callback" +
-            "&client_id=" + graph_client_id +
-            "&client_secret=" + graph_client_secret +
-            "&grant_type=refresh_token" +
-            "&scope=offline_access%20Calendars.read"
-        )
-        refresh = http.post(graph_token_endpoint, body = refresh_body)
-
-        if refresh.status_code != 200:
-            fail("Refresh of Access Token failed with Status Code: %d - %s" % (refresh.status_code, refresh.body()))
-
-        return refresh.json()["access_token"]
-        cache.set(graph_refresh_token, graph_access_token, ttl_seconds = int(refresh.json()["expires_in"] - 30))
     else:
-        return cache.get(graph_refresh_token)
+        return None
+
+    if graph_access_token:
+        return graph_access_token
+    else:
+        headers = {
+            "Content-type": "application/x-www-form-urlencoded",
+        }
+        body = (
+            "client_id=" + (GRAPH_CLIENT_ID or GRAPH_CLIENT_ID_DEFAULT) +
+            "&scope=offline_access%20Calendars.read" +
+            "&refresh_token=" + graph_refresh_token +
+            "&grant_type=refresh_token" +
+            "&client_secret=" + (GRAPH_CLIENT_SECRET or GRAPH_CLIENT_SECRET_DEFAULT)
+        )
+        response = http.post(url = GRAPH_TOKEN_ENDPOINT, headers = headers, body = body)
+
+        if response.status_code != 200:
+            fail("Refresh of Access Token failed with Status Code: %d - %s" % (response.status_code, response.body()))
+
+        response_json = response.json()
+        cache.set(
+            response_json["refresh_token"],
+            response_json["access_token"],
+            ttl_seconds = int(response_json["expires_in"] - 30),
+        )
+        return response_json["access_token"]
 
 def getGraphEvents(graph_access_token, timezone):
     # Calls graph calendar view api
@@ -723,32 +709,31 @@ def main(config):
 def graph_oauth_handler(params):
     # This handler is invoked once the user selects the "Authorize my Outlook Acccount" from the Mobile app
     # It passes Params from a successful user Auth, including the Code that must be exchanged for a Refresh token
+    params = json.decode(params)
     headers = {
         "Content-type": "application/x-www-form-urlencoded",
     }
-    params = json.decode(params)
     body = (
-        "grant_type=authorization_code" +
-        "&client_id=" + params["client_id"] +
-        "&client_secret=" + (GRAPH_CLIENT_SECRET or GRAPH_CLIENT_SECRET_DEFAULT) +  # Provide runtime a default secret
-        "&code=" + params["code"] +
+        "client_id=" + params["client_id"] +
         "&scope=offline_access%20Calendars.read" +
-        "&redirect_uri=" + params["redirect_uri"]
+        "&code=" + params["code"] +
+        "&redirect_uri=" + params["redirect_uri"] +
+        "&grant_type=authorization_code" +
+        "&client_secret=" + (GRAPH_CLIENT_SECRET or GRAPH_CLIENT_SECRET_DEFAULT)  # Provide runtime a default secret
     )
-    response = http.post(url = GRAPH_EVENTFETCH_TOKEN_ENDPOINT, headers = headers, body = body)
+    response = http.post(url = GRAPH_TOKEN_ENDPOINT, headers = headers, body = body)
 
     if response.status_code != 200:
         fail("token request failed with status code: %d - %s" %
              (response.status_code, response.body()))
 
-    token_params = response.json()
-    refresh_token = token_params["refresh_token"]
+    response_json = response.json()
     cache.set(
-        refresh_token,
-        token_params["access_token"],
-        ttl_seconds = int(token_params["expires_in"] - 30),
+        response_json["refresh_token"],
+        response_json["access_token"],
+        ttl_seconds = int(response_json["expires_in"] - 30),
     )
-    return refresh_token
+    return response_json["refresh_token"]
 
 def webex_oauth_handler(params):
     # This handler is invoked once the user selects the "Authorize your Webex Teams Account" from the Mobile app
@@ -802,7 +787,7 @@ def get_schema():
                 icon = "windows",
                 handler = graph_oauth_handler,
                 client_id = (GRAPH_CLIENT_ID or GRAPH_CLIENT_ID_DEFAULT),
-                authorization_endpoint = GRAPH_EVENTFETCH_AUTH_ENDPOINT,
+                authorization_endpoint = GRAPH_AUTH_ENDPOINT,
                 scopes = [
                     "offline_access",
                     "Calendars.read",
