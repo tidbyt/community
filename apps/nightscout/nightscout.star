@@ -117,7 +117,7 @@ def main(config):
 
     ago_dashes = "-" * reading_mins_ago
     full_ago_dashes = ago_dashes
-    
+
     # Default state is yellow to make the logic easier
     color_reading = COLOR_YELLOW
     color_delta = COLOR_GREY
@@ -168,12 +168,12 @@ def main(config):
         color_clock = COLOR_NIGHT
 
     print(ago_dashes)
-    
+
     if show_clock == "true":
         lg_clock = [
             render.Stack(
                 children = [
-                    render.Box(height=32, width=64),
+                    render.Box(height = 32, width = 64),
                     render.Column(
                         main_align = "start",
                         cross_align = "center",
@@ -208,7 +208,7 @@ def main(config):
                         main_align = "start",
                         cross_align = "center",
                         children = [
-                            render.Box(height=13),
+                            render.Box(height = 13),
                             render.Row(
                                 cross_align = "center",
                                 main_align = "space_evenly",
@@ -236,7 +236,7 @@ def main(config):
                         main_align = "start",
                         cross_align = "center",
                         children = [
-                            render.Box(height=26),
+                            render.Box(height = 26),
                             render.Row(
                                 cross_align = "center",
                                 main_align = "space_evenly",
@@ -252,12 +252,12 @@ def main(config):
                             ),
                         ],
                     ),
-                ]
+                ],
             ),
         ]
-        
+
         left_col_width = 20
-        
+
         sm_clock = [
             render.WrappedText(
                 content = now.format("3:04"),
@@ -278,7 +278,7 @@ def main(config):
         lg_clock = [
             render.Stack(
                 children = [
-                    render.Box(height=32, width=64),
+                    render.Box(height = 32, width = 64),
                     render.Column(
                         main_align = "start",
                         cross_align = "center",
@@ -308,7 +308,7 @@ def main(config):
                         main_align = "start",
                         cross_align = "center",
                         children = [
-                            render.Box(height=11),
+                            render.Box(height = 11),
                             render.Row(
                                 cross_align = "center",
                                 main_align = "space_evenly",
@@ -328,7 +328,7 @@ def main(config):
                         main_align = "start",
                         cross_align = "center",
                         children = [
-                            render.Box(height=26),
+                            render.Box(height = 26),
                             render.Row(
                                 cross_align = "center",
                                 main_align = "space_evenly",
@@ -344,19 +344,19 @@ def main(config):
                             ),
                         ],
                     ),
-                ]
+                ],
             ),
         ]
-        
+
         left_col_width = 20
-        
+
         sm_clock = [
             render.Box(
                 width = left_col_width,
                 height = 6,
             ),
         ]
-    
+
     if show_graph == "false":
         return render.Root(
             render.Box(
@@ -546,16 +546,16 @@ def get_schema():
     hostOptions = [
         schema.Option(
             display = "T1Pal",
-            value = "t1pal.com"
+            value = "t1pal.com",
         ),
         schema.Option(
             display = "10BE",
-            value = "10be.de"
+            value = "10be.de",
         ),
         schema.Option(
             display = "Heroku",
-            value = "herokuapp.com"
-        )
+            value = "herokuapp.com",
+        ),
     ]
     return schema.Schema(
         version = "1",
