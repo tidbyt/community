@@ -31,6 +31,7 @@ DEFAULT_URGENT_HIGH = 200
 DEFAULT_URGENT_LOW = 70
 
 DEFAULT_SHOW_GRAPH = "true"
+DEFAULT_SHOW_CLOCK = "true"
 DEFAULT_NIGHT_MODE = "false"
 GRAPH_WIDTH = 43
 GRAPH_BOTTOM = 50
@@ -50,6 +51,7 @@ DEFAULT_LOCATION = """
 """
 
 DEFAULT_NSID = ""
+DEFAULT_NSHOST = ""
 
 def main(config):
     UTC_TIME_NOW = time.now().in_location("UTC")
@@ -61,15 +63,17 @@ def main(config):
     sun_rise = sunrise.sunrise(lat, lng, now)
     sun_set = sunrise.sunset(lat, lng, now)
     nightscout_id = config.get("nightscout_id", DEFAULT_NSID)
+    nightscout_host = config.get("nightscout_host", DEFAULT_NSHOST)
     normal_high = int(config.get("normal_high", DEFAULT_NORMAL_HIGH))
     normal_low = int(config.get("normal_low", DEFAULT_NORMAL_LOW))
     urgent_high = int(config.get("urgent_high", DEFAULT_URGENT_HIGH))
     urgent_low = int(config.get("urgent_low", DEFAULT_URGENT_LOW))
     show_graph = config.get("show_graph", DEFAULT_SHOW_GRAPH)
+    show_clock = config.get("show_clock", DEFAULT_SHOW_CLOCK)
     night_mode = config.get("night_mode", DEFAULT_NIGHT_MODE)
 
     if nightscout_id != None:
-        nightscout_data_json, status_code = get_nightscout_data(nightscout_id)
+        nightscout_data_json, status_code = get_nightscout_data(nightscout_id, nightscout_host)
     else:
         nightscout_data_json, status_code = EXAMPLE_DATA, 0
 
@@ -112,7 +116,8 @@ def main(config):
     print(human_reading_ago)
 
     ago_dashes = "-" * reading_mins_ago
-
+    full_ago_dashes = ago_dashes
+    
     # Default state is yellow to make the logic easier
     color_reading = COLOR_YELLOW
     color_delta = COLOR_GREY
@@ -136,6 +141,7 @@ def main(config):
         direction = "None"
         str_delta = "old"
         ago_dashes = ">" + str(reading_mins_ago)
+        full_ago_dashes = human_reading_ago
     elif (sgv_current <= normal_high and sgv_current >= normal_low):
         # We're in the normal range, so use green.
         color_reading = COLOR_GREEN
@@ -162,7 +168,141 @@ def main(config):
         color_clock = COLOR_NIGHT
 
     print(ago_dashes)
-
+    
+    if show_clock == "true":
+        lg_clock = [
+            render.Row(
+                cross_align = "center",
+                main_align = "space_evenly",
+                expanded = True,
+                children = [
+                    render.Text(
+                        content = str(int(sgv_current)),
+                        font = "6x13",
+                        color = color_reading,
+                    ),
+                    render.Text(
+                        content = str_delta,
+                        font = "tom-thumb",
+                        color = color_delta,
+                        offset = -1,
+                    ),
+                    render.Text(
+                        content = ARROWS[direction],
+                        font = "6x13",
+                        color = color_arrow,
+                        offset = 1,
+                    ),
+                ],
+            ),
+            render.Row(
+                cross_align = "center",
+                main_align = "space_evenly",
+                expanded = True,
+                children = [
+                    render.Animation(
+                        children = [
+                            render.Text(
+                                content = now.format("3:04 PM"),
+                                font = "6x13",
+                                color = color_clock,
+                            ),
+                            render.Text(
+                                content = now.format("3 04 PM"),
+                                font = "6x13",
+                                color = color_clock,
+                            ),
+                        ],
+                    ),
+                ]
+            ),
+            render.Row(
+                cross_align = "center",
+                main_align = "space_evenly",
+                expanded = True,
+                children = [
+                    render.Text(
+                        content = full_ago_dashes,
+                        font = "tom-thumb",
+                        color = color_ago,
+                    ),
+                ]
+            )
+        ]
+        
+        left_col_width = 20
+        
+        sm_clock = [
+            render.WrappedText(
+                content = now.format("3:04"),
+                font = "tom-thumb",
+                color = color_clock,
+                width = left_col_width,
+                align = "center",
+            ),
+            render.WrappedText(
+                content = now.format("3 04"),
+                font = "tom-thumb",
+                color = color_clock,
+                width = left_col_width,
+                align = "center",
+            ),
+        ]
+    else:
+        lg_clock = [
+            render.Row(
+                cross_align = "center",
+                main_align = "space_evenly",
+                expanded = True,
+                children = [
+                    render.Text(
+                        content = str(int(sgv_current)),
+                        font = "10x20",
+                        color = color_reading,
+                    ),
+                    render.Text(
+                        content = str_delta,
+                        font = "6x13",
+                        color = color_delta,
+                        offset = 0,
+                    ),
+                ],
+            ),
+            render.Row(
+                cross_align = "center",
+                main_align = "space_evenly",
+                children = [
+                    render.Text(
+                        content = ARROWS[direction],
+                        font = "10x20",
+                        color = color_arrow,
+                        offset = 1,
+                    ),
+                ]
+            ),
+            render.Row(
+                cross_align = "center",
+                main_align = "space_evenly",
+                expanded = True,
+                children = [
+                    render.Text(
+                        content = full_ago_dashes,
+                        font = "tom-thumb",
+                        color = color_ago,
+                    ),
+                ]
+            )
+        ]
+        
+        left_col_width = 20
+        
+        sm_clock = [
+            render.Box(
+                width = left_col_width,
+                height = 6,
+            ),
+        ]
+    
     if show_graph == "false":
         return render.Root(
             render.Box(
@@ -175,51 +315,7 @@ def main(config):
                             cross_align = "center",
                             main_align = "space_between",
                             expanded = True,
-                            children = [
-                                render.Row(
-                                    cross_align = "center",
-                                    main_align = "space_evenly",
-                                    expanded = True,
-                                    children = [
-                                        render.Text(
-                                            content = str(int(sgv_current)),
-                                            font = "6x13",
-                                            color = color_reading,
-                                        ),
-                                        render.Text(
-                                            content = str_delta,
-                                            font = "tom-thumb",
-                                            color = color_delta,
-                                            offset = -1,
-                                        ),
-                                        render.Text(
-                                            content = ARROWS[direction],
-                                            font = "6x13",
-                                            color = color_arrow,
-                                            offset = 1,
-                                        ),
-                                    ],
-                                ),
-                                render.Text(
-                                    content = human_reading_ago,
-                                    font = "CG-pixel-3x5-mono",
-                                    color = color_ago,
-                                ),
-                                render.Animation(
-                                    children = [
-                                        render.Text(
-                                            content = now.format("3:04 PM"),
-                                            font = "6x13",
-                                            color = color_clock,
-                                        ),
-                                        render.Text(
-                                            content = now.format("3 04 PM"),
-                                            font = "6x13",
-                                            color = color_clock,
-                                        ),
-                                    ],
-                                ),
-                            ],
+                            children = lg_clock,
                         ),
                     ],
                 ),
@@ -227,8 +323,6 @@ def main(config):
             delay = 500,
         )
     else:
-        left_col_width = 20
-
         # high and low lines
         graph_plot = []
         min_time = OLDEST_READING_TARGET.unix
@@ -326,22 +420,7 @@ def main(config):
                                 render.Row(
                                     children = [
                                         render.Animation(
-                                            children = [
-                                                render.WrappedText(
-                                                    content = now.format("3:04"),
-                                                    font = "tom-thumb",
-                                                    color = color_clock,
-                                                    width = left_col_width,
-                                                    align = "center",
-                                                ),
-                                                render.WrappedText(
-                                                    content = now.format("3 04"),
-                                                    font = "tom-thumb",
-                                                    color = color_clock,
-                                                    width = left_col_width,
-                                                    align = "center",
-                                                ),
-                                            ],
+                                            sm_clock,
                                         ),
                                     ],
                                 ),
@@ -350,7 +429,7 @@ def main(config):
                                     cross_align = "start",
                                     children = [
                                         render.WrappedText(
-                                            content = ago_dashes,
+                                            content = full_ago_dashes,
                                             font = "tom-thumb",
                                             color = color_ago,
                                             width = left_col_width,
@@ -410,6 +489,20 @@ def main(config):
         )
 
 def get_schema():
+    hostOptions = [
+        schema.Option(
+            display = "T1Pal",
+            value = "t1pal.com"
+        ),
+        schema.Option(
+            display = "10BE",
+            value = "10be.de"
+        ),
+        schema.Option(
+            display = "Heroku",
+            value = "herokuapp.com"
+        )
+    ]
     return schema.Schema(
         version = "1",
         fields = [
@@ -419,10 +512,18 @@ def get_schema():
                 desc = "Location for which to display time.",
                 icon = "locationDot",
             ),
+            schema.Dropdown(
+                id = "nightscout_host",
+                name = "Nightscout Provider",
+                desc = "Your Nightscout Provider",
+                icon = "gear",
+                default = hostOptions[0].value,
+                options = hostOptions,
+            ),
             schema.Text(
                 id = "nightscout_id",
-                name = "Nightscout URL",
-                desc = "Your Nightscout URL (i.e. abc123.herokuapp.com)",
+                name = "Nightscout ID",
+                desc = "Your Nightscout ID (i.e. [nightscoutID].t1pal.com)",
                 icon = "gear",
             ),
             schema.Text(
@@ -430,29 +531,40 @@ def get_schema():
                 name = "Normal High Threshold",
                 desc = "Anything above this is displayed yellow unless it is above the Urgent High Threshold (default " + str(DEFAULT_NORMAL_HIGH) + ")",
                 icon = "hashtag",
+                default = str(DEFAULT_NORMAL_HIGH),
             ),
             schema.Text(
                 id = "normal_low",
                 name = "Normal Low Threshold",
                 desc = "Anything below this is displayed yellow unless it is below the Urgent Low Threshold (default " + str(DEFAULT_NORMAL_LOW) + ")",
                 icon = "hashtag",
+                default = str(DEFAULT_NORMAL_LOW),
             ),
             schema.Text(
                 id = "urgent_high",
                 name = "Urgent High Threshold",
                 desc = "Anything above this is displayed red (Default " + str(DEFAULT_URGENT_HIGH) + ")",
                 icon = "hashtag",
+                default = str(DEFAULT_URGENT_HIGH),
             ),
             schema.Text(
                 id = "urgent_low",
                 name = "Urgent Low Threshold",
                 desc = "Anything below this is displayed red (Default " + str(DEFAULT_URGENT_LOW) + ")",
                 icon = "hashtag",
+                default = str(DEFAULT_URGENT_LOW),
             ),
             schema.Toggle(
                 id = "show_graph",
                 name = "Show Graph",
                 desc = "Show graph along with reading",
+                icon = "gear",
+                default = True,
+            ),
+            schema.Toggle(
+                id = "show_clock",
+                name = "Show Clock",
+                desc = "Show clock along with reading",
                 icon = "gear",
                 default = True,
             ),
@@ -468,7 +580,7 @@ def get_schema():
 
 # This method returns a tuple of a nightscout_data and a status_code. If it's
 # served from cache, we return a status_code of 0.
-def get_nightscout_data(nightscout_id):
+def get_nightscout_data(nightscout_id, nightscout_host):
     key = nightscout_id + "_nightscout_data"
 
     # Get the JSON object from the cache
@@ -480,8 +592,7 @@ def get_nightscout_data(nightscout_id):
     # If it's not in the cache, construct it from a response.
     print("Miss - calling Nightscout API")
 
-    nightscout_url = "https://" + nightscout_id + "/api/v1/entries.json?count=100"
-    #nightscout_url = "https://" + nightscout_id + "/api/v1/entries/sgv.json?find[date][$gte]=" + str((OLDEST_READING_TARGET.unix-600) * 1000) + "&count=100"
+    nightscout_url = "https://" + nightscout_id + "." + nightscout_host + "/api/v1/entries.json?count=100"
 
     print(nightscout_url)
 
