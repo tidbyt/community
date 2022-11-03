@@ -171,63 +171,89 @@ def main(config):
     
     if show_clock == "true":
         lg_clock = [
-            render.Row(
-                cross_align = "center",
-                main_align = "space_evenly",
-                expanded = True,
+            render.Stack(
                 children = [
-                    render.Text(
-                        content = str(int(sgv_current)),
-                        font = "6x13",
-                        color = color_reading,
-                    ),
-                    render.Text(
-                        content = str_delta,
-                        font = "tom-thumb",
-                        color = color_delta,
-                        offset = -1,
-                    ),
-                    render.Text(
-                        content = ARROWS[direction],
-                        font = "6x13",
-                        color = color_arrow,
-                        offset = 1,
-                    ),
-                ],
-            ),
-            render.Row(
-                cross_align = "center",
-                main_align = "space_evenly",
-                expanded = True,
-                children = [
-                    render.Animation(
+                    render.Box(height=32, width=64),
+                    render.Column(
+                        main_align = "start",
+                        cross_align = "center",
                         children = [
-                            render.Text(
-                                content = now.format("3:04 PM"),
-                                font = "6x13",
-                                color = color_clock,
+                            render.Row(
+                                cross_align = "center",
+                                main_align = "space_evenly",
+                                expanded = True,
+                                children = [
+                                    render.Text(
+                                        content = str(int(sgv_current)),
+                                        font = "6x13",
+                                        color = color_reading,
+                                    ),
+                                    render.Text(
+                                        content = str_delta,
+                                        font = "tom-thumb",
+                                        color = color_delta,
+                                        offset = -1,
+                                    ),
+                                    render.Text(
+                                        content = ARROWS[direction],
+                                        font = "6x13",
+                                        color = color_arrow,
+                                        offset = 1,
+                                    ),
+                                ],
                             ),
-                            render.Text(
-                                content = now.format("3 04 PM"),
-                                font = "6x13",
-                                color = color_clock,
+                        ],
+                    ),
+                    render.Column(
+                        main_align = "start",
+                        cross_align = "center",
+                        children = [
+                            render.Box(height=13),
+                            render.Row(
+                                cross_align = "center",
+                                main_align = "space_evenly",
+                                expanded = True,
+                                children = [
+                                    render.Animation(
+                                        children = [
+                                            render.Text(
+                                                content = now.format("3:04 PM"),
+                                                font = "6x13",
+                                                color = color_clock,
+                                            ),
+                                            render.Text(
+                                                content = now.format("3 04 PM"),
+                                                font = "6x13",
+                                                color = color_clock,
+                                            ),
+                                        ],
+                                    ),
+                                ],
+                            ),
+                        ],
+                    ),
+                    render.Column(
+                        main_align = "start",
+                        cross_align = "center",
+                        children = [
+                            render.Box(height=26),
+                            render.Row(
+                                cross_align = "center",
+                                main_align = "space_evenly",
+                                expanded = True,
+                                children = [
+                                    render.Text(
+                                        content = full_ago_dashes,
+                                        font = "tom-thumb",
+                                        color = color_ago,
+                                        offset = 0,
+                                    ),
+                                ],
                             ),
                         ],
                     ),
                 ]
             ),
-            render.Row(
-                cross_align = "center",
-                main_align = "space_evenly",
-                expanded = True,
-                children = [
-                    render.Text(
-                        content = full_ago_dashes,
-                        font = "tom-thumb",
-                        color = color_ago,
-                    ),
-                ]
-            )
         ]
         
         left_col_width = 20
@@ -250,48 +276,76 @@ def main(config):
         ]
     else:
         lg_clock = [
-            render.Row(
-                cross_align = "center",
-                main_align = "space_evenly",
-                expanded = True,
+            render.Stack(
                 children = [
-                    render.Text(
-                        content = str(int(sgv_current)),
-                        font = "10x20",
-                        color = color_reading,
+                    render.Box(height=32, width=64),
+                    render.Column(
+                        main_align = "start",
+                        cross_align = "center",
+                        children = [
+                            render.Row(
+                                cross_align = "center",
+                                main_align = "space_evenly",
+                                expanded = True,
+                                children = [
+                                    render.Text(
+                                        content = str(int(sgv_current)),
+                                        font = "10x20",
+                                        color = color_reading,
+                                        offset = 1,
+                                    ),
+                                    render.Text(
+                                        content = str_delta,
+                                        font = "6x13",
+                                        color = color_delta,
+                                        offset = 0,
+                                    ),
+                                ],
+                            ),
+                        ],
                     ),
-                    render.Text(
-                        content = str_delta,
-                        font = "6x13",
-                        color = color_delta,
-                        offset = 0,
+                    render.Column(
+                        main_align = "start",
+                        cross_align = "center",
+                        children = [
+                            render.Box(height=11),
+                            render.Row(
+                                cross_align = "center",
+                                main_align = "space_evenly",
+                                expanded = True,
+                                children = [
+                                    render.Text(
+                                        content = ARROWS[direction],
+                                        font = "10x20",
+                                        color = color_arrow,
+                                        offset = 0,
+                                    ),
+                                ],
+                            ),
+                        ],
                     ),
-                ],
-            ),
-            render.Row(
-                cross_align = "center",
-                main_align = "space_evenly",
-                children = [
-                    render.Text(
-                        content = ARROWS[direction],
-                        font = "10x20",
-                        color = color_arrow,
-                        offset = 1,
+                    render.Column(
+                        main_align = "start",
+                        cross_align = "center",
+                        children = [
+                            render.Box(height=26),
+                            render.Row(
+                                cross_align = "center",
+                                main_align = "space_evenly",
+                                expanded = True,
+                                children = [
+                                    render.Text(
+                                        content = full_ago_dashes,
+                                        font = "tom-thumb",
+                                        color = color_ago,
+                                        offset = 0,
+                                    ),
+                                ],
+                            ),
+                        ],
                     ),
                 ]
             ),
-            render.Row(
-                cross_align = "center",
-                main_align = "space_evenly",
-                expanded = True,
-                children = [
-                    render.Text(
-                        content = full_ago_dashes,
-                        font = "tom-thumb",
-                        color = color_ago,
-                    ),
-                ]
-            )
         ]
         
         left_col_width = 20
