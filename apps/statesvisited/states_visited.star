@@ -120,16 +120,15 @@ def main(config):
                 render.Image(base64.decode(STATES[state]), 64)
                 for state in STATES
                 if config.get(state) and config.get(state) != "false"
-            ]
-        )  
+            ],
+        ),
     )
-
 
 def get_schema():
     return schema.Schema(
         version = "1",
         fields = [
-            schema.Toggle(id = state, name = state, desc = STATE_NAMES[state], icon="landmarkFlag")
+            schema.Toggle(id = state, name = state, desc = STATE_NAMES[state], icon = "landmarkFlag")
             for state in STATES
         ],
     )
