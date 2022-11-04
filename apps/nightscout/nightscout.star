@@ -544,17 +544,65 @@ def main(config):
 
 def get_schema():
     hostOptions = [
-        schema.Option(
-            display = "T1Pal",
-            value = "t1pal.com",
-        ),
+        #schema.Option(
+        #    display = "Adaptable.io",
+        #    value = "xxx.net",
+        #),
         schema.Option(
             display = "10BE",
             value = "10be.de",
         ),
         schema.Option(
+            display = "Azure",
+            value = "azurewebsites.net",
+        ),
+        #schema.Option(
+        #    display = "Digital Ocean",
+        #    value = "xxx.com",
+        #),
+        #schema.Option(
+        #    display = "Docker",
+        #    value = "xxx.com",
+        #),
+        #schema.Option(
+        #    display = "fly.io",
+        #    value = "xxx.com",
+        #),
+        #schema.Option(
+        #    display = "Google",
+        #    value = "xxx.com",
+        #),
+        #schema.Option(
+        #    display = "Glitch",
+        #    value = "xxx.com",
+        #),
+        schema.Option(
             display = "Heroku",
             value = "herokuapp.com",
+        ),
+        #schema.Option(
+        #    display = "Northflank",
+        #    value = "xxx.com",
+        #),
+        #schema.Option(
+        #    display = "Oracle",
+        #    value = "xxx.com",
+        #),
+        schema.Option(
+            display = "Railway",
+            value = "up.railway.app",
+        ),
+        #schema.Option(
+        #    display = "Render",
+        #    value = "xxx.app",
+        #),
+        #schema.Option(
+        #    display = "Synology",
+        #    value = "xxx.app",
+        #),
+        schema.Option(
+            display = "T1Pal",
+            value = "t1pal.com",
         ),
     ]
     return schema.Schema(
