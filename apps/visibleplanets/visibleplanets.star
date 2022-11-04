@@ -80,6 +80,12 @@ def main(config):
     is_after_sunrise = (sunset_in) < 0
     is_before_sunset = (sunrise_in > 0)
 
+    #we've calculated sunset and sunrise with the exact gps coordinates, but now we will round the coordinates to one decimal
+    #place for two reasons: 1) We don't give the API host the exact position of the Tidbyt user, and 2) We can cache less by grouping people that live close enough to share the same rounded coordinates
+
+    location["lng"] = str((math.round(float(location["lng"]) * 10)) * math.pow(10, -1))
+    location["lat"] = str((math.round(float(location["lat"]) * 10)) * math.pow(10, -1))
+
     # check offset is how many hours off of the current time do we query astronomyapi for the data of the planet position
     # because if it is during the day, we should move it to sunset time to know if it'll be an evening star to view
     check_offset = 0
@@ -316,19 +322,6 @@ def two_character_time_date_part(number):
         return "0" + str(number)
     else:
         return str(number)
-
-def get_bodies(app_hash):
-    res = http.get(
-        url = "https://api.astronomyapi.com/api/v2/bodies",
-        headers = {
-            "Authorization": "Basic %s" % app_hash,
-        },
-    )
-
-    if res.status_code == 200:
-        return res.json()
-    else:
-        return None
 
 def get_local_time(config, offset_hours):
     """ Returns the local time based on the configuration of the app
