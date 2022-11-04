@@ -4,16 +4,11 @@ package wordoftheday
 import (
 	_ "embed"
 
-	"tidbyt.dev/community/apps"
 	"tidbyt.dev/community/apps/manifest"
 )
 
 //go:embed word_of_the_day.star
 var source []byte
-
-func init() {
-	apps.Manifests = append(apps.Manifests, New())
-}
 
 // New creates a new instance of the Word Of The Day applet.
 func New() manifest.Manifest {
@@ -25,6 +20,6 @@ func New() manifest.Manifest {
 		Desc:        "Displays the Merriam-Webster Word Of The Day.",
 		FileName:    "word_of_the_day.star",
 		PackageName: "wordoftheday",
-		Source:      source,
+		Source:  source,
 	}
 }

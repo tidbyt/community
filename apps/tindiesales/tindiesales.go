@@ -4,16 +4,11 @@ package tindiesales
 import (
 	_ "embed"
 
-	"tidbyt.dev/community/apps"
 	"tidbyt.dev/community/apps/manifest"
 )
 
 //go:embed tindie_sales.star
 var source []byte
-
-func init() {
-	apps.Manifests = append(apps.Manifests, New())
-}
 
 // New creates a new instance of the Tindie Sales applet.
 func New() manifest.Manifest {
@@ -25,6 +20,6 @@ func New() manifest.Manifest {
 		Desc:        "Tindie is an online marketplace for maker-made products. This app displays sales stats for your Tindie store.",
 		FileName:    "tindie_sales.star",
 		PackageName: "tindiesales",
-		Source:      source,
+		Source:  source,
 	}
 }

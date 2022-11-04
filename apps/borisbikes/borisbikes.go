@@ -4,16 +4,11 @@ package borisbikes
 import (
 	_ "embed"
 
-	"tidbyt.dev/community/apps"
 	"tidbyt.dev/community/apps/manifest"
 )
 
 //go:embed boris_bikes.star
 var source []byte
-
-func init() {
-	apps.Manifests = append(apps.Manifests, New())
-}
 
 // New creates a new instance of the Boris Bikes applet.
 func New() manifest.Manifest {
@@ -25,6 +20,6 @@ func New() manifest.Manifest {
 		Desc:        "Availability for a Santander bicycle dock in London.",
 		FileName:    "boris_bikes.star",
 		PackageName: "borisbikes",
-		Source:      source,
+		Source:  source,
 	}
 }

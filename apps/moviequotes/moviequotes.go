@@ -4,16 +4,11 @@ package moviequotes
 import (
 	_ "embed"
 
-	"tidbyt.dev/community/apps"
 	"tidbyt.dev/community/apps/manifest"
 )
 
 //go:embed movie_quotes.star
 var source []byte
-
-func init() {
-	apps.Manifests = append(apps.Manifests, New())
-}
 
 // New creates a new instance of the Movie Quotes applet.
 func New() manifest.Manifest {
@@ -25,6 +20,6 @@ func New() manifest.Manifest {
 		Desc:        "Random movie quote from AFI top 100 movie quotes.",
 		FileName:    "movie_quotes.star",
 		PackageName: "moviequotes",
-		Source:      source,
+		Source:  source,
 	}
 }

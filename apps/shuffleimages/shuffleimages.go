@@ -4,16 +4,11 @@ package shuffleimages
 import (
 	_ "embed"
 
-	"tidbyt.dev/community/apps"
 	"tidbyt.dev/community/apps/manifest"
 )
 
 //go:embed shuffle_images.star
 var source []byte
-
-func init() {
-	apps.Manifests = append(apps.Manifests, New())
-}
 
 // New creates a new instance of the Shuffle Images applet.
 func New() manifest.Manifest {
@@ -25,6 +20,6 @@ func New() manifest.Manifest {
 		Desc:        "Randomly displays an image from a user-specified list.",
 		FileName:    "shuffle_images.star",
 		PackageName: "shuffleimages",
-		Source:      source,
+		Source:  source,
 	}
 }

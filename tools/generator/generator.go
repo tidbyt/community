@@ -2,8 +2,10 @@ package generator
 
 import (
 	_ "embed"
+	"io/ioutil"
 	"os"
 	"path"
+	"sort"
 	"text/template"
 
 	"tidbyt.dev/community/apps/manifest"
@@ -20,10 +22,19 @@ var starSource string
 //go:embed templates/source.go.tmpl
 var goSource string
 
+//go:embed templates/apps.go.tmpl
+var appsSource string
+
 // Generator provides a structure for generating apps.
 type Generator struct {
 	starTmpl *template.Template
 	goTmpl   *template.Template
+	appsTmpl *template.Template
+}
+
+type appsDef struct {
+	Imports  []string
+	Packages []string
 }
 
 // NewGenerator creates an instantiated generator with the templates parsed.
@@ -38,9 +49,15 @@ func NewGenerator() (*Generator, error) {
 		return nil, err
 	}
 
+	appsTmpl, err := template.New("apps").Parse(appsSource)
+	if err != nil {
+		return nil, err
+	}
+
 	return &Generator{
 		starTmpl: starTmpl,
 		goTmpl:   goTmpl,
+		appsTmpl: appsTmpl,
 	}, nil
 }
 
@@ -57,12 +74,27 @@ func (g *Generator) GenerateApp(app *manifest.Manifest) error {
 		return err
 	}
 
-	return g.generateGo(app)
+	err = g.generateGo(app)
+	if err != nil {
+		return err
+	}
+
+	return g.updateApps()
 }
 
 // RemoveApp removes an app from the apps directory.
 func (g *Generator) RemoveApp(app *manifest.Manifest) error {
-	return g.removeDir(app)
+	err := g.removeDir(app)
+	if err != nil {
+		return err
+	}
+
+	return g.updateApps()
+}
+
+// UpdateApps generates the app list in apps.go.
+func (g *Generator) UpdateApps() error {
+	return g.updateApps()
 }
 
 func (g *Generator) createDir(app *manifest.Manifest) error {
@@ -73,6 +105,43 @@ func (g *Generator) createDir(app *manifest.Manifest) error {
 func (g *Generator) removeDir(app *manifest.Manifest) error {
 	p := path.Join(appsDir, app.PackageName)
 	return os.RemoveAll(p)
+}
+
+func (g *Generator) updateApps() error {
+	imports := []string{
+		"tidbyt.dev/community/" + appsDir + "/manifest",
+	}
+	packages := []string{}
+
+	files, err := ioutil.ReadDir(appsDir)
+	if err != nil {
+		return err
+	}
+
+	for _, f := range files {
+		if f.IsDir() && f.Name() != "manifest" {
+			imp := "tidbyt.dev/community/" + appsDir + "/" + f.Name()
+			imports = append(imports, imp)
+			packages = append(packages, f.Name())
+		}
+	}
+	p := path.Join(appsDir, appsDir+goExt)
+
+	file, err := os.Create(p)
+	if err != nil {
+		return err
+	}
+	defer file.Close()
+
+	sort.Strings(imports)
+	sort.Strings(packages)
+
+	a := &appsDef{
+		Imports:  imports,
+		Packages: packages,
+	}
+
+	return g.appsTmpl.Execute(file, a)
 }
 
 func (g *Generator) generateStarlark(app *manifest.Manifest) error {

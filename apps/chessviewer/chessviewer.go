@@ -4,16 +4,11 @@ package chessviewer
 import (
 	_ "embed"
 
-	"tidbyt.dev/community/apps"
 	"tidbyt.dev/community/apps/manifest"
 )
 
 //go:embed chess_viewer.star
 var source []byte
-
-func init() {
-	apps.Manifests = append(apps.Manifests, New())
-}
 
 // New creates a new instance of the Chess Viewer applet.
 func New() manifest.Manifest {
@@ -25,6 +20,6 @@ func New() manifest.Manifest {
 		Desc:        "This app shows a visual representation of currently active chess games for a given user on Chess.com.",
 		FileName:    "chess_viewer.star",
 		PackageName: "chessviewer",
-		Source:      source,
+		Source:  source,
 	}
 }

@@ -4,16 +4,11 @@ package sportsrankings
 import (
 	_ "embed"
 
-	"tidbyt.dev/community/apps"
 	"tidbyt.dev/community/apps/manifest"
 )
 
 //go:embed sports_rankings.star
 var source []byte
-
-func init() {
-	apps.Manifests = append(apps.Manifests, New())
-}
 
 // New creates a new instance of the Sports Rankings applet.
 func New() manifest.Manifest {
@@ -25,6 +20,6 @@ func New() manifest.Manifest {
 		Desc:        "Shows the AP poll rankings for various sports. Currently supports college football and men's and women's college basketball.",
 		FileName:    "sports_rankings.star",
 		PackageName: "sportsrankings",
-		Source:      source,
+		Source:  source,
 	}
 }

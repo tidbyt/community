@@ -4,16 +4,11 @@ package nationaltoday
 import (
 	_ "embed"
 
-	"tidbyt.dev/community/apps"
 	"tidbyt.dev/community/apps/manifest"
 )
 
 //go:embed nationaltoday.star
 var source []byte
-
-func init() {
-	apps.Manifests = append(apps.Manifests, New())
-}
 
 // New creates a new instance of the NationalToday applet.
 func New() manifest.Manifest {
@@ -25,6 +20,6 @@ func New() manifest.Manifest {
 		Desc:        "Displays today's holidays from NationalToday.",
 		FileName:    "nationaltoday.star",
 		PackageName: "nationaltoday",
-		Source:      source,
+		Source:  source,
 	}
 }
