@@ -25,7 +25,7 @@ CONST_VALUES = """
 {
     "cup" : [ "cup", "#000", "#fff", "NASCAR Cup Series" ],
     "xfinity" : [ "xfinity", "#4427ad", "#fff", "NASCAR Xfinity Series" ],
-    "trucks" : [ "trucks", "#00669e", "#fff", "Camping World Truck Series" ]
+    "trucks" : [ "trucks", "#990000", "#fff", "Crafts- man Truck Series" ]
 }
 """
 
@@ -98,7 +98,7 @@ def get_schema():
                         value = "xfinity",
                     ),
                     schema.Option(
-                        display = "Camping World Truck Series",
+                        display = "Craftsman Truck Series",
                         value = "trucks",
                     ),
                 ],
