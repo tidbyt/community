@@ -564,10 +564,10 @@ def get_schema():
         #    display = "Docker",
         #    value = "xxx.com",
         #),
-        #schema.Option(
-        #    display = "fly.io",
-        #    value = "xxx.com",
-        #),
+        schema.Option(
+            display = "fly.io",
+            value = "fly.dev",
+        ),
         #schema.Option(
         #    display = "Google",
         #    value = "xxx.com",
@@ -580,10 +580,10 @@ def get_schema():
             display = "Heroku",
             value = "herokuapp.com",
         ),
-        #schema.Option(
-        #    display = "Northflank",
-        #    value = "xxx.com",
-        #),
+        schema.Option(
+            display = "Northflank",
+            value = "code.run",
+        ),
         #schema.Option(
         #    display = "Oracle",
         #    value = "xxx.com",
