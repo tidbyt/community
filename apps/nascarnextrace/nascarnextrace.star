@@ -45,7 +45,7 @@ def main(config):
     date_and_time = NASCAR_DATA["Race_Date"]
     date_and_time3 = time.parse_time(date_and_time, "2006-01-02T15:04:05-0700").in_location(timezone)
     date_str = date_and_time3.format("Jan 02").upper()  #current format of your current date str
-    time_str = date_and_time3.format("15:04")  #outputs military time but can change 15 to 3 to not do that. The Only thing missing from your current string though is the time zone, but if they're doing local time that's pretty irrelevant
+    time_str = "Time TBD" if date_and_time.endswith("T00:00:00-0500") else date_and_time3.format("15:04")  
     tv_str = NASCAR_DATA["Race_TV_Display"] if NASCAR_DATA["Race_TV_Display"] != "" else "TBD"
 
     return render.Root(
@@ -63,13 +63,13 @@ def main(config):
                     children = [
                         render.Box(width = 30, height = 24, color = series_bkg_color, child = render.WrappedText(series_title, color = series_txt_color, align = "center", font = "tom-thumb")),
                         render.Padding(
-                            pad = (1, 0, 0, 0),
+                            pad = (1, 3, 0, 0),
                             child =
                                 render.Column(
                                     children = [
-                                        render.Text(date_str, font = "5x8"),
-                                        render.Text(time_str),
-                                        render.Text("TV " + tv_str),
+                                        render.Text(date_str, font = "tom-thumb"),
+                                        render.Text(time_str, font = "tom-thumb"),
+                                        render.Text("TV " + tv_str, font = "tom-thumb"),
                                     ],
                                 ),
                         ),
