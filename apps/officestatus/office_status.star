@@ -311,44 +311,31 @@ def sortGraphEventByEndDate(graph_event):
     # Defines end date as sort key
     return graph_event["end"]["dateTime"]
 
-def getGraphLatestOofEvent(graph_events):
+def getGraphLatestEventByShowAs(graph_events, show_as):
     # Accepts a json array of graph events
-    # Returns the out of office event with the latest end date
+    # Returns latest event for the provided show as value
     if (graph_events != None):
-        graph_events_reverse_sorted = sorted(
+        graph_events_sorted = sorted(
             graph_events,
             key = sortGraphEventByEndDate,
-            reverse = True,
+            reverse = False,
         )
-        for graph_event in graph_events_reverse_sorted:
-            if (graph_event["showAs"]) == "oof":
-                return graph_event
-
-def getGraphLatestBusyEvent(graph_events):
-    # Accepts a json array of graph events
-    # Returns the busy event with the latest end date
-    if (graph_events != None):
-        graph_events_reverse_sorted = sorted(
-            graph_events,
-            key = sortGraphEventByEndDate,
-            reverse = True,
-        )
-        for graph_event in graph_events_reverse_sorted:
-            if (graph_event["showAs"]) == "busy":
-                return graph_event
-
-def getGraphLatestWfhEvent(graph_events):
-    # Accepts a json array of graph events
-    # Returns the working elsewhere event with the latest end date
-    if (graph_events != None):
-        graph_events_reverse_sorted = sorted(
-            graph_events,
-            key = sortGraphEventByEndDate,
-            reverse = True,
-        )
-        for graph_event in graph_events_reverse_sorted:
-            if (graph_event["showAs"]) == "workingElsewhere":
-                return graph_event
+        latest_graph_event = None
+        for graph_event in graph_events_sorted:
+            if (graph_event["showAs"] == show_as and latest_graph_event == None):
+                latest_graph_event = graph_event
+            elif (
+                graph_event["showAs"] == show_as and
+                graph_event["end"]["dateTime"] > latest_graph_event["end"]["dateTime"] and
+                (
+                    graph_event["isAllDay"] == True or
+                    (
+                        graph_event["isAllDay"] == False and
+                        latest_graph_event["isAllDay"] == False
+                    )
+                )
+            ):latest_graph_event = graph_event
+        return latest_graph_event
 
 def sortGraphEventByStartDate(graph_event):
     # Defines start date as sort key
@@ -372,9 +359,9 @@ def getGraphStatus(graph_access_token, timezone):
     # Determines a user's status based on graph events returned
     graph_events = getGraphEvents(graph_access_token, timezone)
     graph_current_events = getGraphCurrentEvents(graph_events)
-    graph_oof_event = getGraphLatestOofEvent(graph_current_events)
-    graph_busy_event = getGraphLatestBusyEvent(graph_current_events)
-    graph_wfh_event = getGraphLatestWfhEvent(graph_current_events)
+    graph_oof_event = getGraphLatestEventByShowAs(graph_current_events, "oof")
+    graph_busy_event = getGraphLatestEventByShowAs(graph_current_events, "busy")
+    graph_wfh_event = getGraphLatestEventByShowAs(graph_current_events, "workingElsewhere")
     graph_next_event = getGraphNextEvent(graph_events)
     if (graph_oof_event != None):
         return {
