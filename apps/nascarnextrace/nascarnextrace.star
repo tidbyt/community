@@ -45,7 +45,7 @@ def main(config):
     date_and_time = NASCAR_DATA["Race_Date"]
     date_and_time3 = time.parse_time(date_and_time, "2006-01-02T15:04:05-0700").in_location(timezone)
     date_str = date_and_time3.format("Jan 02").upper()  #current format of your current date str
-    time_str = "Time TBD" if date_and_time.endswith("T00:00:00-0500") else date_and_time3.format("15:04")  
+    time_str = "Time TBD" if date_and_time.endswith("T00:00:00-0500") else date_and_time3.format("15:04")
     tv_str = NASCAR_DATA["Race_TV_Display"] if NASCAR_DATA["Race_TV_Display"] != "" else "TBD"
 
     return render.Root(
