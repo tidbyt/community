@@ -595,21 +595,20 @@ def getSchedule(availability, timezone):
             )
             relative_time = re.sub("(minutes|minute)", "min", relative_time)
             return (STATUS_MAP[availability["status"]]["schedule_prefix"] + relative_time)
+        elif (
+            time.parse_time(availability["time"], "2006-01-02T15:04:05").format("2006-01-02") !=
+            (time.now().in_location(timezone) + time.parse_duration("24h")).format("2006-01-02")
+        ):
+            relative_time = humanize.relative_time(
+                time.now().in_location("UTC"),
+                time.parse_time(
+                    availability["time"],
+                    "2006-01-02T15:04:05",
+                ) + time.parse_duration("24h"),
+            )
+            return (STATUS_MAP[availability["status"]]["schedule_prefix"] + relative_time)
         else:
-            if (
-                time.parse_time(availability["time"], "2006-01-02T15:04:05").format("2006-01-02") !=
-                (time.now().in_location(timezone) + time.parse_duration("24h")).format("2006-01-02")
-            ):
-                relative_time = humanize.relative_time(
-                    time.now().in_location("UTC"),
-                    time.parse_time(
-                        availability["time"],
-                        "2006-01-02T15:04:05",
-                    ) + time.parse_duration("24h"),
-                )
-                return (STATUS_MAP[availability["status"]]["schedule_prefix"] + relative_time)
-            else:
-                return "Until tomorrow"
+            return "Until tomorrow"
     else:
         return "Until later"
 
