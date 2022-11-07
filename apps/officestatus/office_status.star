@@ -136,13 +136,13 @@ GRAPH_CLIENT_SECRET_HASH = "AV6+xWcESGhLr279hd21f9Zt1YQ4CUEeNMJ+obZE+PENXR6PbXAe
 # Secrets are hardcoded here for debug with Pixlet "Serve" mode, then replaced with Tidbyt Secrets for production code
 
 # Common Tenant (will encrypt these as the production values)
-GRAPH_CLIENT_ID = "5a7824f2-595e-4a50-9d07-6492f829cc89"
-GRAPH_CLIENT_SECRET = "I~68Q~7RAMZocjsZuqmjMPdk.N.4h4iECdA45bzj"
+#GRAPH_CLIENT_ID = "GRAPH_CLIENT_ID"
+#GRAPH_CLIENT_SECRET = "GRAPH_CLIENT_SECRET"
 
 # Production Code - runs in the Tidbyt production environment
 GRAPH_TENANT_ID = ""
-#GRAPH_CLIENT_ID = secret.decrypt(GRAPH_CLIENT_ID_HASH)
-#GRAPH_CLIENT_SECRET = secret.decrypt(GRAPH_CLIENT_SECRET_HASH)
+GRAPH_CLIENT_ID = secret.decrypt(GRAPH_CLIENT_ID_HASH)
+GRAPH_CLIENT_SECRET = secret.decrypt(GRAPH_CLIENT_SECRET_HASH)
 
 # Graph auth related End points
 GRAPH_AUTH_ENDPOINT = (
@@ -173,12 +173,12 @@ WEBEX_CLIENT_ID_HASH = "AV6+xWcEo0OJA8UWuJWzG3SKr1yzOF98lUceQ3941XZ/inLXZcZwKqow
 WEBEX_CLIENT_SECRET_HASH = "AV6+xWcE0orcfJj4wNNbdOQu2ws+0qzBbRL0QIe3r84+kVYaO8NBR7CiH5iArJwcigKHzHoJnGe1PH69S4Z0kjto82zMfKZOn0ehkpuTCNt1QbXNG4TZgIcKEbkMnUa5sLZ9c+hW5UQ6lt0mbBve/bf7fJYf+X7Wa6gEGnFrqoK1lXuJmzBjwBJfw34kjlFJrITT2eDwsJJd1ZK8uHi+3CI1lhwAOw=="
 
 # Credentials are hardcoded here for debug with Pixlet "Serve" mode, then replaced with Tidbyt Secrets for production code
-WEBEX_CLIENT_ID = "Cdb10ded154a0be46b74a5f2455314e501732dea99fa1e3fa9fb9313d110d3907"
-WEBEX_CLIENT_SECRET = "91a039a60d27a773db8cd186e3c302769dc9608e15561ac0ce1055313d81eff5"
+#WEBEX_CLIENT_ID = "WEBEX_CLIENT_ID"
+#WEBEX_CLIENT_SECRET = "WEBEX_CLIENT_SECRET"
 
 # Credentials to be decrypted for use in production code
-#WEBEX_CLIENT_ID = secret.decrypt(WEBEX_CLIENT_ID_HASH)
-#WEBEX_CLIENT_SECRET = secret.decrypt(WEBEX_CLIENT_SECRET_HASH)
+WEBEX_CLIENT_ID = secret.decrypt(WEBEX_CLIENT_ID_HASH)
+WEBEX_CLIENT_SECRET = secret.decrypt(WEBEX_CLIENT_SECRET_HASH)
 
 # Webex related end points
 WEBEX_AUTH_ENDPOINT = "https://webexapis.com/v1/authorize"
