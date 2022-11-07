@@ -334,7 +334,8 @@ def getGraphLatestEventByShowAs(graph_events, show_as):
                         latest_graph_event["isAllDay"] == False
                     )
                 )
-            ):latest_graph_event = graph_event
+            ):
+                latest_graph_event = graph_event
         return latest_graph_event
 
 def sortGraphEventByStartDate(graph_event):
