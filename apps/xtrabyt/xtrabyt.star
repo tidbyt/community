@@ -9,7 +9,7 @@ load("render.star", "render")
 load("schema.star", "schema")
 load("http.star", "http")
 
-BASE_URL = 'https://xtrabyt.com'
+BASE_URL = "https://xtrabyt.com"
 
 def main(config):
     key = config.get("key") or None
@@ -17,14 +17,14 @@ def main(config):
     if (key == None):
         return renderWelcome()
     else:
-        response = http.get(BASE_URL + '/views/' + key)
+        response = http.get(BASE_URL + "/views/" + key)
 
     if response.status_code == 200:
         data = response.json()
-        if (data['type'] == 'image'):
-            return renderImage(data['content']);
+        if (data["type"] == "image"):
+            return renderImage(data["content"])
         else:
-            return renderError(key, data['type'])
+            return renderError(key, data["type"])
     elif response.status_code == 503:
         return renderMaintenance()
     else:
@@ -34,24 +34,24 @@ def renderError(key, status):
     return render.Root(
         child = render.Box(
             render.Column(
-                expanded=True,
-                main_align="space_evenly",
-                cross_align="center",
+                expanded = True,
+                main_align = "space_evenly",
+                cross_align = "center",
                 children = [
                     render.Text(
                         content = "Xtrabyt Error",
-                        font = "CG-pixel-3x5-mono"
+                        font = "CG-pixel-3x5-mono",
                     ),
                     render.Text(
                         content = str(status),
-                        font = "6x13"
+                        font = "6x13",
                     ),
                     render.Text(
                         content = "KEY: " + key,
-                        font = "tom-thumb"
+                        font = "tom-thumb",
                     ),
                 ],
-            )
+            ),
         ),
     )
 
@@ -65,21 +65,21 @@ def renderWelcome():
                 children = [
                     render.Text(
                         content = "Welcome To",
-                        font = "CG-pixel-4x5-mono"
+                        font = "CG-pixel-4x5-mono",
                     ),
                     render.Text(
-                        content = 'XTRABYT',
-                        font = "6x13"
+                        content = "XTRABYT",
+                        font = "6x13",
                     ),
                     render.Marquee(
                         width = 64,
                         child = render.Text(
-                        content = 'Get started at Xtrabyt.com',
-                        font = "CG-pixel-3x5-mono"
-                    ),
+                            content = "Get started at Xtrabyt.com",
+                            font = "CG-pixel-3x5-mono",
+                        ),
                     ),
                 ],
-            )
+            ),
         ),
     )
 
@@ -93,21 +93,21 @@ def renderMaintenance():
                 children = [
                     render.Text(
                         content = "Xtrabyt.com is ",
-                        font = "CG-pixel-4x5-mono"
+                        font = "CG-pixel-4x5-mono",
                     ),
                     render.Text(
-                        content = 'down for',
-                        font = "6x13"
+                        content = "down for",
+                        font = "6x13",
                     ),
                     render.Marquee(
                         width = 64,
                         child = render.Text(
-                        content = 'maintnenace',
-                        font = "CG-pixel-3x5-mono"
-                    ),
+                            content = "maintnenace",
+                            font = "CG-pixel-3x5-mono",
+                        ),
                     ),
                 ],
-            )
+            ),
         ),
     )
 
@@ -116,7 +116,7 @@ def renderImage(imgUrl):
     if response.status_code == 200:
         img = response.body()
     else:
-        img = 'https://xtrabyt.com/images/logo.png'
+        img = "https://xtrabyt.com/images/logo.png"
     return render.Root(
         delay = 500,
         child = render.Box(
