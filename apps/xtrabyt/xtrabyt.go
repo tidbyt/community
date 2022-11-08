@@ -17,7 +17,7 @@ func New() manifest.Manifest {
 		Name:        "Xtrabyt",
 		Author:      "vmitchell85",
 		Summary:     "Display Xtrabyt.com View",
-		Desc:        "Display a custom drawing or intergration  view from Xtrabyt.com.",
+		Desc:        "Display a custom drawing or integration view from Xtrabyt.com.",
 		FileName:    "xtrabyt.star",
 		PackageName: "xtrabyt",
 		Source:  source,

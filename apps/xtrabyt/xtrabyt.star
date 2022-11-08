@@ -1,7 +1,7 @@
 """
 Applet: Xtrabyt
 Summary: Display Xtrabyt.com View
-Description: Display a custom drawing or intergration  view from Xtrabyt.com.
+Description: Display a custom drawing or integration view from Xtrabyt.com.
 Author: vmitchell85
 """
 
