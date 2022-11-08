@@ -116,7 +116,7 @@ def getNew():
     if char_name == "None":
         return getNew()
     else:
-        return [char_name, char_desc, char_comics, char_series, charStories]
+        return [char_name, char_desc, char_comics, char_series]
 
 def get_schema():
     return schema.Schema(
