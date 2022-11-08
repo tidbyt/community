@@ -112,7 +112,6 @@ def getNew():
     cache.set("char_desc", char_desc)
     cache.set("char_comics", str(char_comics))
     cache.set("char_series", str(char_series))
-    cache.set("charStories", str(charStories))
 
     if char_name == "None":
         return getNew()
