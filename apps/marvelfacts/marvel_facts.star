@@ -20,11 +20,6 @@ BASE_URL = "https://gateway.marvel.com:443/v1/public/characters?apikey=422c32a7c
 LIMIT = "50"
 
 def main():
-    """The main function of the program
-
-    Sets up display and checks cache 
-
-    """
     rate_cached = cache.get("new-char")
     if rate_cached != None:
         print("Hit! Displaying cached data.")
@@ -39,10 +34,10 @@ def main():
         char_desc = char[1]
         char_comics = char[2]
         char_series = char[3]
-        cache.set("new-char", "got", ttl_seconds=1800)
+        cache.set("new-char", "got", ttl_seconds = 1800)
 
     if char_desc == "":
-        next_text = "Comics: "+str(char_comics)+"\nSeries: "+str(char_series)
+        next_text = "Comics: " + str(char_comics) + "\nSeries: " + str(char_series)
     else:
         next_text = char_desc
 
@@ -50,66 +45,61 @@ def main():
         child = render.Stack(
             children = [
                 render.Box(
-            color="#a31212",
-            child=render.Box(
-                width=62,
-                height=30,
-                color="#000000"
-            )
-        ),render.Column(
-            children = [
-                render.Row(
-                        expanded=True,
-                        main_align="center",
-                        children = [render.Marquee(
-                                        width=62,
-                                        height=8,
-                                        align="center",
-                                        child=render.Text(str(char_name), font="Dina_r400-6"),
-                                        scroll_direction="horizontal",
-                                    )]
-        ),
-        render.Row(
-            main_align="space_evenly",
-            cross_align="center",
-            expanded = True,
-            children = [
-                render.Marquee(
-                    width=60,
-                    height=22,
-                    align="center",
-                    child=render.WrappedText(content=str(next_text), width=64,font="tb-8",align="center"),
-                    scroll_direction="vertical"
+                    color = "#a31212",
+                    child = render.Box(
+                        width = 62,
+                        height = 30,
+                        color = "#000000",
+                    ),
                 ),
-                
-            ]
-        )
-        ],
-        )
-        ]
-        )
+                render.Column(
+                    children = [
+                        render.Row(
+                            expanded = True,
+                            main_align = "center",
+                            children = [render.Marquee(
+                                width = 62,
+                                height = 8,
+                                align = "center",
+                                child = render.Text(str(char_name), font = "Dina_r400-6"),
+                                scroll_direction = "horizontal",
+                            )],
+                        ),
+                        render.Row(
+                            main_align = "space_evenly",
+                            cross_align = "center",
+                            expanded = True,
+                            children = [
+                                render.Marquee(
+                                    width = 60,
+                                    height = 22,
+                                    align = "center",
+                                    child = render.WrappedText(content = str(next_text), width = 64, font = "tb-8", align = "center"),
+                                    scroll_direction = "vertical",
+                                ),
+                            ],
+                        ),
+                    ],
+                ),
+            ],
+        ),
     )
-    
 
+# Gets new character from the database
 def getNew():
-"""getNew function
-
-    Gets a new character from the database
-
-    """
     now = str(time.now()).split(" ")[1]
-    digest = str(now)+PRIV_KEY+PUB_KEY
+    digest = str(now) + PRIV_KEY + PUB_KEY
     FULL_KEY = hash.md5(digest)
 
-    MAX_OFFSET = 1562-int(LIMIT)-1
+    MAX_OFFSET = 1562 - int(LIMIT) - 1
     OFFSET = random.number(0, MAX_OFFSET)
 
-    FINAL_URL = BASE_URL+"&limit="+LIMIT+"&offset="+str(OFFSET)+"&ts="+str(now)+"&hash="+FULL_KEY
-    
+    FINAL_URL = BASE_URL + "&limit=" + LIMIT + "&offset=" + str(OFFSET) + "&ts=" + str(now) + "&hash=" + FULL_KEY
+
     full_list = http.get(FINAL_URL).body()
     full_json = json.decode(full_list)
-    
-    CHOICE = random.number(0, int(LIMIT)-1)
+
+    CHOICE = random.number(0, int(LIMIT) - 1)
 
     CHARACTER = full_json["data"]["results"][CHOICE]
 
