@@ -136,7 +136,7 @@ def main(config):
 
         # This isn't ideal but the quickest way to avoid some bigger rewrites. We cache the game_update, which is
         #  a problem for Preview games + timezones. So, if we're in preview, let's just update this before displaying.
-        if game_state == "Preview":
+        if game_info["game_state"] == "Preview":
             print("  - PREVIEW: Updating GameTime")
             game_schedule = time.parse_time(gameDate)
             game_schedule = game_schedule.in_location(get_timezone(config))
@@ -334,8 +334,7 @@ def get_game(date, teamId):
                 cache.set("game_" + gamePk + "_scorehome", str(score_home), ttl_seconds = CACHE_GAME_SECONDS)
 
                 # Associate team with game in cache
-                cache.set("teamid_" + str(teamid_away) + "_gamepk", str(gamePk), ttl_seconds = CACHE_GAME_SECONDS)
-                cache.set("teamid_" + str(teamid_home) + "_gamepk", str(gamePk), ttl_seconds = CACHE_GAME_SECONDS)
+                cache.set("teamid_" + str(teamId) + "_gamepk", str(gamePk), ttl_seconds = CACHE_GAME_SECONDS)
     else:
         print("  - CACHE: Game Info Found for GamePk %s" % gamePk)
 
