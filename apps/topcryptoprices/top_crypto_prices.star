@@ -10,15 +10,14 @@ Comments: Written to display the price info of top cryptocurrencies on a Tidbyt 
 Copyright: © 2022 Jeroen Houttuin, Playak - jeroen@playak.com - https://playak.com
 """
 
-# CONFIG START
+# CONFIG
 TTL = 60  # time to live for the API cache. Be nice to the free Coingecko API provider!
 PEGGEDCOINS = " USDT USDC BUSD STETH DAI FRAX WBTC USDP GUSD TUSD CUSDC USDD CUSDT USDD PAXG XAUT "  # ignore pegged tokens
 DEFAULTDELAY = "2000"
 DEFAULTNUMCOINS = "5"
-DEFAULTEXCLUDES = "SHIB BSV"  # SHIB because it messes up formatting and I cannot solve it :( BSV for obvious reasons
+DEFAULTEXCLUDES = "SHIB BSV"  # SHIB because it messes up formatting and I cannot solve it. BSV for obvious reasons.
 DEFAULTCURRENCY = "USD"
 DEFAULTEXCLUDEPEGGED = True
-# CONFIG END
 
 # LOAD MODULES
 load("render.star", "render")
