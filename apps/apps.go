@@ -106,6 +106,7 @@ import (
 	"tidbyt.dev/community/apps/nationalrail"
 	"tidbyt.dev/community/apps/nationaltoday"
 	"tidbyt.dev/community/apps/nbascores"
+	"tidbyt.dev/community/apps/nbastandings"
 	"tidbyt.dev/community/apps/ncaafscores"
 	"tidbyt.dev/community/apps/ncaafstandings"
 	"tidbyt.dev/community/apps/nearearthobjs"
@@ -125,6 +126,7 @@ import (
 	"tidbyt.dev/community/apps/noaatides"
 	"tidbyt.dev/community/apps/nyancat"
 	"tidbyt.dev/community/apps/nycbus"
+	"tidbyt.dev/community/apps/officestatus"
 	"tidbyt.dev/community/apps/ogsgamesviewer"
 	"tidbyt.dev/community/apps/ohhighwaysigns"
 	"tidbyt.dev/community/apps/outlookcalendar"
@@ -151,6 +153,7 @@ import (
 	"tidbyt.dev/community/apps/sfnextmuni"
 	"tidbyt.dev/community/apps/shabbat"
 	"tidbyt.dev/community/apps/shopifychart"
+	"tidbyt.dev/community/apps/shouldideploy"
 	"tidbyt.dev/community/apps/shuffleimages"
 	"tidbyt.dev/community/apps/snyk"
 	"tidbyt.dev/community/apps/solarelevation"
@@ -202,6 +205,7 @@ import (
 	"tidbyt.dev/community/apps/wordlebyt"
 	"tidbyt.dev/community/apps/wordoftheday"
 	"tidbyt.dev/community/apps/worldclock"
+	"tidbyt.dev/community/apps/zapier"
 	"tidbyt.dev/community/apps/zenhub"
 )
 
@@ -307,6 +311,7 @@ func GetManifests() []manifest.Manifest {
 		nationalrail.New(),
 		nationaltoday.New(),
 		nbascores.New(),
+		nbastandings.New(),
 		ncaafscores.New(),
 		ncaafstandings.New(),
 		nearearthobjs.New(),
@@ -326,6 +331,7 @@ func GetManifests() []manifest.Manifest {
 		noaatides.New(),
 		nyancat.New(),
 		nycbus.New(),
+		officestatus.New(),
 		ogsgamesviewer.New(),
 		ohhighwaysigns.New(),
 		outlookcalendar.New(),
@@ -352,6 +358,7 @@ func GetManifests() []manifest.Manifest {
 		sfnextmuni.New(),
 		shabbat.New(),
 		shopifychart.New(),
+		shouldideploy.New(),
 		shuffleimages.New(),
 		snyk.New(),
 		solarelevation.New(),
@@ -403,6 +410,7 @@ func GetManifests() []manifest.Manifest {
 		wordlebyt.New(),
 		wordoftheday.New(),
 		worldclock.New(),
+		zapier.New(),
 		zenhub.New(),
 	}
 }

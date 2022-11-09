@@ -20,6 +20,7 @@ NAME_OVERRIDE = {
     "Grand Central-42 St": "Grand Cntrl",
     "Times Sq-42 St": "Times Sq",
     "Coney Island-Stillwell Av": "Coney Is",
+    "South Ferry": "S Ferry",
 }
 
 STREET_ABBREVIATIONS = [
@@ -42,6 +43,9 @@ ABBREVIATIONS = {
     "Channel": "Chnl",
     "Green": "Grn",
     "Broadway": "Bway",
+    "Queensboro": "Q Boro",
+    "Plaza": "Plz",
+    "Whitehall": "Whthall",
 }
 
 DIAMONDS = {
@@ -132,7 +136,7 @@ def main(config):
                     second_eta = (int((r["times"][1]) - ts) / 60)
                     second_train_is_delayed = r["is_delayed"][1]
                     if second_train_is_delayed:
-                        if second_eta < 1:
+                        if first_eta < 1:
                             text = text + ", delay"
                         else:
                             text = text + " min, delay"
@@ -262,7 +266,7 @@ def get_schema():
 
 def condense_name(name):
     name = name.replace(" - ", "-")
-    if len(name) < 12:
+    if len(name) < 11:
         return name
 
     if NAME_OVERRIDE.get(name):

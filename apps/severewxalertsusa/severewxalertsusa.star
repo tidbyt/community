@@ -53,7 +53,7 @@ def main(config):
         columnFrames.append(render_summary_card_zero_alerts(jsonLocation))
 
     return render.Root(
-        render.Sequence(columnFrames),
+        render.Animation(columnFrames),
         delay = 5000,
     )
 
