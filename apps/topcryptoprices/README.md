@@ -1,6 +1,8 @@
 # Top Crypto Prices
 
-This app shows the latest prices (USD) and changes for the top 10 cryptocurrencies. 
+This app shows the latest prices and 24hr price changes for the top cryptocurrencies.
+
+Prices can be displayed in many currencies, and certain coins can be excluded.
 
 It is a very simple app, but does exactly what I needed for myself, and why I bought the Tidbyt in the first place. Since there was no app that could do what I had hoped for, I wrote one myself.
 
@@ -14,4 +16,4 @@ The gif animation shows a full animation loop, but looks kind of ugly compared t
 
 Enjoy,  
 Jeroen Playak  
-2022-11-06
+2022-11-09
