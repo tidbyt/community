@@ -16,7 +16,7 @@ func New() manifest.Manifest {
 		ID:          "top-crypto-prices",
 		Name:        "Top Crypto Prices",
 		Author:      "playak",
-		Summary:     "Top 10 Crypto Prices in USD",
+		Summary:     "Top Crypto Prices",
 		Desc:        "This app shows price info for the top 10 cryptocurrencies in USD. Prices are provided once per minute through the free Coingecko API.",
 		FileName:    "top_crypto_prices.star",
 		PackageName: "topcryptoprices",
