@@ -18,6 +18,7 @@ DEFAULTNUMCOINS = "5"
 DEFAULTEXCLUDES = "SHIB BSV"  # SHIB because it messes up formatting and I cannot solve it. BSV for obvious reasons.
 DEFAULTCURRENCY = "USD"
 DEFAULTEXCLUDEPEGGED = True
+DEFAULTSHOWCREDITS = False
 
 # LOAD MODULES
 load("render.star", "render")
@@ -108,13 +109,13 @@ def main(config):
         if " " + coininfo["symbol"].upper() + " " not in BLACKLIST.upper() and counter < int(config.get("numcoins", DEFAULTNUMCOINS)):
             COINS.append({"rank": int(coininfo["market_cap_rank"]), "ticker": coininfo["symbol"].upper(), "price": coininfo["current_price"], "change": coininfo["price_change_percentage_24h"]})
             counter += 1
-
     if DEBUG > 1:
         print(COINS)
     coinlines = []
     for coininfo in COINS:
         coinlines.append(renderbox(coininfo))
-    coinlines.append(renderbox(credits, color = "#444"))
+    if config.bool("showcredits", DEFAULTSHOWCREDITS):
+        coinlines.append(renderbox(credits, color = "#444"))
     if DEBUG > 1:
         print(coinlines)
     return render.Root(
@@ -326,6 +327,13 @@ def get_schema():
                 desc = "Exclude stablecoins and wrapped coins.",
                 icon = "scaleBalanced",
                 default = DEFAULTEXCLUDEPEGGED,
+            ),
+            schema.Toggle(
+                id = "showcredits",
+                name = "Show Credits",
+                desc = "Show credits on last slide.",
+                icon = "copyright",
+                default = DEFAULTSHOWCREDITS,
             ),
         ],
     )
