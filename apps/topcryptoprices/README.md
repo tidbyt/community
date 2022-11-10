@@ -14,6 +14,10 @@ The gif animation shows a full animation loop, but looks kind of ugly compared t
 
 ![Top Crypto Prices Applet for Tidbyt gif animation](top_crypto_prices.gif)
 
+Many configuration options, eg you can show prices in AUD, CAD, CHF, CNY, EUR, GBP, INR, JPY, NOK, NZD, USD or ZAR.
+
+![Top Crypto Prices Applet for Tidbyt gif animation](topcryptoprises-config.jpg)
+
 Enjoy,  
 Jeroen Playak  
 2022-11-09

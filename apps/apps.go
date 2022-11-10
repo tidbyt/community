@@ -184,7 +184,6 @@ import (
 	"tidbyt.dev/community/apps/todoist"
 	"tidbyt.dev/community/apps/todoistnext"
 	"tidbyt.dev/community/apps/topcryptoprices"
-	"tidbyt.dev/community/apps/topcryptos"
 	"tidbyt.dev/community/apps/traffic"
 	"tidbyt.dev/community/apps/transsee"
 	"tidbyt.dev/community/apps/tube"
@@ -391,7 +390,6 @@ func GetManifests() []manifest.Manifest {
 		todoist.New(),
 		todoistnext.New(),
 		topcryptoprices.New(),
-		topcryptos.New(),
 		traffic.New(),
 		transsee.New(),
 		tube.New(),
