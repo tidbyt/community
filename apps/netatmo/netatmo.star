@@ -122,7 +122,7 @@ def temp_and_humid_row(module, name, fahrenheit):
         child = render.Row(
             children = [
                 render.Text(name, font = "tom-thumb"),
-                render.Text("%dº" % (temp), font = "tom-thumb", color = "#093"),
+                render.Text("%d°" % (temp), font = "tom-thumb", color = "#093"),
                 temp_trend,
                 render.Text("%d%%" % humid, font = "tom-thumb", color = "#039"),
             ],
