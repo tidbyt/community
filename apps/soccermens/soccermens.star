@@ -441,10 +441,6 @@ leagueOptions = [
         display = "English Carabo Cup",
         value = "eng.league_cup",
     ),
-#    schema.Option(
-#        display = "English FA Cup",
-#        value = "eng.fa",
-#    ),
     schema.Option(
         display = "English Premier League",
         value = "eng.1",
@@ -461,10 +457,6 @@ leagueOptions = [
         display = "German Bundesliga",
         value = "ger.1",
     ),
-    #schema.Option(
-    #    display = "Israeli Premier League",
-    #    value = "isr.1",
-    #),
     schema.Option(
         display = "Italian Serie A",
         value = "ita.1",
@@ -472,7 +464,7 @@ leagueOptions = [
     schema.Option(
         display = "Mexican Liga BBVA MX",
         value = "mex.1",
-    ),    
+    ),
     schema.Option(
         display = "Scottish Premiership",
         value = "sco.1",
@@ -480,7 +472,7 @@ leagueOptions = [
     schema.Option(
         display = "Spanish LaLiga",
         value = "esp.1",
-    ),    
+    ),
     schema.Option(
         display = "UEFA Champions League",
         value = "uefa.champions",
@@ -622,7 +614,7 @@ def get_schema():
     return schema.Schema(
         version = "1",
         fields = [
-           schema.Dropdown(
+            schema.Dropdown(
                 id = "leagueOptions",
                 name = "League / Tournament",
                 desc = "League or Tournament ",
@@ -707,12 +699,9 @@ def get_record(record):
     return theRecord
 
 def get_background_color(team, displayType, color, altColor):
-    #altcolors = json.decode(ALT_COLOR)
-    #usealt = altcolors.get(team, "NO")
     if displayType == "black" or displayType == "retro":
         color = "#222"
-    #elif usealt != "NO":
-    #    color = altcolors[team]
+
     else:
         color = "#" + color
     if color == "#ffffff" or color == "#000000":
