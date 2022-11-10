@@ -322,7 +322,7 @@ def get_schema():
             ),
             schema.Toggle(
                 id = "show_progress_bar",
-                name = "Show Progress Bar?",
+                name = "Show progress bar?",
                 desc = "Enable to display progress bar on shabbat",
                 icon = "eye",
                 default = DEFAULT_SHOW_PROGRESS_BAR,
