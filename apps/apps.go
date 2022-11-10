@@ -86,6 +86,7 @@ import (
 	"tidbyt.dev/community/apps/lirr"
 	"tidbyt.dev/community/apps/londonbusstop"
 	"tidbyt.dev/community/apps/manifest"
+	"tidbyt.dev/community/apps/marvelfacts"
 	"tidbyt.dev/community/apps/maze"
 	"tidbyt.dev/community/apps/mbta"
 	"tidbyt.dev/community/apps/mbtanewtrains"
@@ -163,6 +164,7 @@ import (
 	"tidbyt.dev/community/apps/sportsstandings"
 	"tidbyt.dev/community/apps/spotthestation"
 	"tidbyt.dev/community/apps/stateflags"
+	"tidbyt.dev/community/apps/statesvisited"
 	"tidbyt.dev/community/apps/steam"
 	"tidbyt.dev/community/apps/stepcounter"
 	"tidbyt.dev/community/apps/stockticker"
@@ -183,6 +185,7 @@ import (
 	"tidbyt.dev/community/apps/tindiesales"
 	"tidbyt.dev/community/apps/todoist"
 	"tidbyt.dev/community/apps/todoistnext"
+	"tidbyt.dev/community/apps/topcryptoprices"
 	"tidbyt.dev/community/apps/traffic"
 	"tidbyt.dev/community/apps/transsee"
 	"tidbyt.dev/community/apps/tube"
@@ -206,6 +209,7 @@ import (
 	"tidbyt.dev/community/apps/wordoftheday"
 	"tidbyt.dev/community/apps/worldclock"
 	"tidbyt.dev/community/apps/wowtoken"
+	"tidbyt.dev/community/apps/xtrabyt"
 	"tidbyt.dev/community/apps/zapier"
 	"tidbyt.dev/community/apps/zenhub"
 )
@@ -292,6 +296,7 @@ func GetManifests() []manifest.Manifest {
 		life.New(),
 		lirr.New(),
 		londonbusstop.New(),
+		marvelfacts.New(),
 		maze.New(),
 		mbta.New(),
 		mbtanewtrains.New(),
@@ -369,6 +374,7 @@ func GetManifests() []manifest.Manifest {
 		sportsstandings.New(),
 		spotthestation.New(),
 		stateflags.New(),
+		statesvisited.New(),
 		steam.New(),
 		stepcounter.New(),
 		stockticker.New(),
@@ -389,6 +395,7 @@ func GetManifests() []manifest.Manifest {
 		tindiesales.New(),
 		todoist.New(),
 		todoistnext.New(),
+		topcryptoprices.New(),
 		traffic.New(),
 		transsee.New(),
 		tube.New(),
@@ -412,6 +419,7 @@ func GetManifests() []manifest.Manifest {
 		wordoftheday.New(),
 		worldclock.New(),
 		wowtoken.New(),
+		xtrabyt.New(),
 		zapier.New(),
 		zenhub.New(),
 	}
