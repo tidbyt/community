@@ -19,6 +19,4 @@ Displayed:
 
 Thanks a lot to a bunch of folks who have worked on these various sports apps.  
 
-## Screenshot
-
 ![screenshot](soccermens.gif)
