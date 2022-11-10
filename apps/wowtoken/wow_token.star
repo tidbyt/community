@@ -67,8 +67,8 @@ def main(config):
     if data_available:
         display.append(render.Row(
             children = [
-                render.Text("{}".format(humanize.comma(token_price)))
-            ]
+                render.Text("{}".format(humanize.comma(token_price))),
+            ],
         ))
 
     return render.Root(
@@ -82,7 +82,7 @@ def main(config):
                     render.Column(
                         main_align = "space_evenly",
                         expanded = True,
-                        children = display
+                        children = display,
                     ),
                 ],
             ),

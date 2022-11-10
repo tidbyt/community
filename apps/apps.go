@@ -205,6 +205,7 @@ import (
 	"tidbyt.dev/community/apps/wordlebyt"
 	"tidbyt.dev/community/apps/wordoftheday"
 	"tidbyt.dev/community/apps/worldclock"
+	"tidbyt.dev/community/apps/wowtoken"
 	"tidbyt.dev/community/apps/zapier"
 	"tidbyt.dev/community/apps/zenhub"
 )
@@ -410,6 +411,7 @@ func GetManifests() []manifest.Manifest {
 		wordlebyt.New(),
 		wordoftheday.New(),
 		worldclock.New(),
+		wowtoken.New(),
 		zapier.New(),
 		zenhub.New(),
 	}
