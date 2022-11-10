@@ -109,6 +109,7 @@ import (
 	"tidbyt.dev/community/apps/nbastandings"
 	"tidbyt.dev/community/apps/ncaafscores"
 	"tidbyt.dev/community/apps/ncaafstandings"
+	"tidbyt.dev/community/apps/ncaamscores"
 	"tidbyt.dev/community/apps/nearearthobjs"
 	"tidbyt.dev/community/apps/neotrack"
 	"tidbyt.dev/community/apps/nesquotes"

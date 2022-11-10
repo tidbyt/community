@@ -1,6 +1,6 @@
 """
 Applet: NCAAM Scores
-Summary: Displays NCAA Men's Basketball scores
+Summary: Displays NCAA Mens Basketball scores
 Description: Displays live and upcoming NCAA Basketball scores from a data feed.
 Author: LunchBox8484
 """
