@@ -110,6 +110,7 @@ import (
 	"tidbyt.dev/community/apps/nbastandings"
 	"tidbyt.dev/community/apps/ncaafscores"
 	"tidbyt.dev/community/apps/ncaafstandings"
+	"tidbyt.dev/community/apps/ncaamscores"
 	"tidbyt.dev/community/apps/nearearthobjs"
 	"tidbyt.dev/community/apps/neotrack"
 	"tidbyt.dev/community/apps/nesquotes"
@@ -198,6 +199,7 @@ import (
 	"tidbyt.dev/community/apps/usyieldcurve"
 	"tidbyt.dev/community/apps/vergetaglines"
 	"tidbyt.dev/community/apps/verticalmessage"
+	"tidbyt.dev/community/apps/visibleplanets"
 	"tidbyt.dev/community/apps/wantedposter"
 	"tidbyt.dev/community/apps/warframecycles"
 	"tidbyt.dev/community/apps/weathermap"
@@ -319,6 +321,7 @@ func GetManifests() []manifest.Manifest {
 		nbastandings.New(),
 		ncaafscores.New(),
 		ncaafstandings.New(),
+		ncaamscores.New(),
 		nearearthobjs.New(),
 		neotrack.New(),
 		nesquotes.New(),
@@ -407,6 +410,7 @@ func GetManifests() []manifest.Manifest {
 		usyieldcurve.New(),
 		vergetaglines.New(),
 		verticalmessage.New(),
+		visibleplanets.New(),
 		wantedposter.New(),
 		warframecycles.New(),
 		weathermap.New(),
