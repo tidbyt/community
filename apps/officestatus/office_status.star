@@ -28,7 +28,7 @@ Scd4GKZ9cK9GWOEXpxgHl6FJcB/hP3AQ/BX8HvMDbPGEGywxjV7G7hHbFD+4wwQFFpGx
 wA7X4ZFHzhnWOMExNpiHlg/8PxiecYQhrnCOM7yhbr+niuuXuAiuGvEP/lMlte6HL6QA
 AAAASUVORK5CYII=
 """,
-        "schedule_prefix": "Back in ",
+        "schedule_prefix": "For ",
         "status_label": "away",
     },
     "busy": {
@@ -40,7 +40,7 @@ MNLfjMdrr+m1Qo1LUGMt0QFP7DAPKjxw7EIFXpik3cijtoE2XhpSiXuGG6ZYYJmE9rHW
 dfRlZsGg2lj83+iW/jP5j9A4atvOOPqcosIsKMM7pd0FGpyDRpwF3ljQIMhNRxrbAAAA
 AElFTkSuQmCC
 """,
-        "schedule_prefix": "Availalble in ",
+        "schedule_prefix": "For ",
         "status_label": "busy",
     },
     "free": {
@@ -75,7 +75,7 @@ ap2guWTMS15e7n/OuSeP/9PBNW432LvgMQ6YYYIn5sEqX9MswCgXHAT7bdzG0C5WoBXa
 JsUNR5yQRnWCJc444P5N7uLNcAnDNK+lqKGJMvpY4IUe1qHVE5SwRxWN+PEbq6h8YPgB
 eXwhnvIE4jgAAAAASUVORK5CYII=
 """,
-        "schedule_prefix": "For the next ",
+        "schedule_prefix": "For ",
         "status_label": "remote",
     },
     "remote_busy": {
@@ -87,7 +87,7 @@ ap2guWTMS15e7n/OuSeP/9PBNW432LvgMQ6YYYIn5sEqX9MswCgXHAT7bdzG0C5WoBXa
 JsUNR5yQRnWCJc444P5N7uLNcAnDNK+lqKGJMvpY4IUe1qHVE5SwRxWN+PEbq6h8YPgB
 eXwhnvIE4jgAAAAASUVORK5CYII=
 """,
-        "schedule_prefix": "Available in ",
+        "schedule_prefix": "Busy for ",
         "status_label": "remote",
     },
     "remote_free": {
@@ -99,7 +99,7 @@ ap2guWTMS15e7n/OuSeP/9PBNW432LvgMQ6YYYIn5sEqX9MswCgXHAT7bdzG0C5WoBXa
 JsUNR5yQRnWCJc444P5N7uLNcAnDNK+lqKGJMvpY4IUe1qHVE5SwRxWN+PEbq6h8YPgB
 eXwhnvIE4jgAAAAASUVORK5CYII=
 """,
-        "schedule_prefix": "Available for ",
+        "schedule_prefix": "Free for ",
         "status_label": "remote",
     },
     "unknown": {
@@ -129,7 +129,6 @@ GRAPH_CLIENT_SECRET_DEFAULT = "78910"
 # App is placed into the production environment. Application folder name is "officestatus". These (hashed) secrets are tied to
 # the common tenant version of the Web App (Tidbyt_Ocal)
 GRAPH_CLIENT_ID_HASH = "AV6+xWcEEXuYe3pTryNhDHEtNSvhVh5AzuB80JlncWy6vIj/rgonoeEGOXIzDClOEJkL0RAWAKCFRpSglnBCRa0G3ABIpSSA/zXdCSugEoqA4zDfEBxTh78LvvZ6r0pBfoUj1eHRYxH1PTSbKKKBdPg7mdtyC5lfsMyAYYPyqLq6XX0sGBR4f7IR"
-
 GRAPH_CLIENT_SECRET_HASH = "AV6+xWcESGhLr279hd21f9Zt1YQ4CUEeNMJ+obZE+PENXR6PbXAeO0ZMrz3QQ422C1ZFUBpmOqspjwfRf1WBzqL5BbDxOSPLWpVuakjDnRTdxZCJfQYNR5tpZj3QYvdZeImhrHLpPgWRIPxkjFezKXTHglX/Jdvry401sMaFgNmhc+N4racVgDIC7NU8fQ=="
 
 # MSFT Graph uses 3 secrets to operate. There is the usual Client Secret and Client ID, but Graph uses the Tenant ID as part of
@@ -146,12 +145,12 @@ GRAPH_CLIENT_ID = secret.decrypt(GRAPH_CLIENT_ID_HASH)
 GRAPH_CLIENT_SECRET = secret.decrypt(GRAPH_CLIENT_SECRET_HASH)
 
 # Graph auth related End points
-GRAPH_EVENTFETCH_AUTH_ENDPOINT = (
+GRAPH_AUTH_ENDPOINT = (
     "https://login.microsoftonline.com/" +
     (GRAPH_TENANT_ID or GRAPH_TENANT_ID_DEFAULT) +
     "/oauth2/v2.0/authorize"
 )
-GRAPH_EVENTFETCH_TOKEN_ENDPOINT = (
+GRAPH_TOKEN_ENDPOINT = (
     "https://login.microsoftonline.com/" +
     (GRAPH_TENANT_ID or GRAPH_TENANT_ID_DEFAULT) +
     "/oauth2/v2.0/token"
@@ -164,14 +163,13 @@ GRAPH_BUCKET_SIZE = 10
 NUMBER_OF_GRAPH_FETCH_ITERATIONS = int(MAX_GRAPH_EVENT_FETCH_WEEK / GRAPH_BUCKET_SIZE)
 
 # Default (invalid) client ID and Secrets to keep the run time Env happy when running in Debug Mode
-WEBEX_CLIENT_ID_DEFAULT = "12345"
-WEBEX_CLIENT_SECRET_DEFAULT = ""
+WEBEX_CLIENT_ID_DEFAULT = "123456"
+WEBEX_CLIENT_SECRET_DEFAULT = "78910"
 
 # Hash Strings to encrypt/store secrets required for Webex API access. These ultimately get replaced with Tidbyt Hash when the
 # App is placed into the production environment. Application folder name is "officestatus". These (hashed) secrets are tied to
 # the common tenant version of the Web App (Tidbyt_Ocal)
 WEBEX_CLIENT_ID_HASH = "AV6+xWcEo0OJA8UWuJWzG3SKr1yzOF98lUceQ3941XZ/inLXZcZwKqowtwTkZ0Te3GqhpcMCiOaHFmww3ZfbcbvKz1uBuOO2Kcwics2c6VOZLXWePYyE553apGLnqhNV/7DM/0s/cjB7GdsC/ip9rqxhVBc4Zc3v0lbFU4FPKLrBCZ7NLOKkPKmUQu0bEtC+wcPxf6Q+AtUCF+Om04rk2Bkxc2cS8aY="
-
 WEBEX_CLIENT_SECRET_HASH = "AV6+xWcE0orcfJj4wNNbdOQu2ws+0qzBbRL0QIe3r84+kVYaO8NBR7CiH5iArJwcigKHzHoJnGe1PH69S4Z0kjto82zMfKZOn0ehkpuTCNt1QbXNG4TZgIcKEbkMnUa5sLZ9c+hW5UQ6lt0mbBve/bf7fJYf+X7Wa6gEGnFrqoK1lXuJmzBjwBJfw34kjlFJrITT2eDwsJJd1ZK8uHi+3CI1lhwAOw=="
 
 # Credentials are hardcoded here for debug with Pixlet "Serve" mode, then replaced with Tidbyt Secrets for production code
@@ -201,56 +199,42 @@ DEFAULT_LOCATION = """
 	"timezone": "America/Chicago"
 }
 """
-TTL_SECONDS = 60
+TTL_SECONDS = 30
 
 def refreshGraphAccessToken(config):
-    # Grab Secrets from Parameters if running in Render mode.   Hash functions will return null value if running locally
-    # They only return value when running on Tidbyt Servers.
-    if GRAPH_CLIENT_ID:
-        graph_client_id = GRAPH_CLIENT_ID
-    else:
-        graph_client_id = config.get("graph_client_id")
+    # Use refresh token to collect access token
+    graph_refresh_token = config.get("graph_auth")
 
-    if GRAPH_CLIENT_SECRET:
-        graph_client_secret = GRAPH_CLIENT_SECRET
-    else:
-        graph_client_secret = config.get("graph_client_secret")
-
-    if GRAPH_TENANT_ID:
-        graph_tenant_id = GRAPH_TENANT_ID
-    else:
-        graph_tenant_id = config.get("graph_tenant_id") or GRAPH_TENANT_ID_DEFAULT
-
-    graph_token_endpoint = "https://login.microsoftonline.com/" + graph_tenant_id + "/oauth2/v2.0/token"
-
-    # Refresh token comes from Auth Handler params when running in Production/Serve mode....from Conflig when running locally/Render
-    graph_refresh_token = config.get("graph_auth") or config.get("graph_refresh_token")
-
-    # Return none if the user is not authorized
-    if not graph_refresh_token:
-        return None
-    else:
+    if graph_refresh_token:
         graph_access_token = cache.get(graph_refresh_token)
-
-    # In Production deployment, this redirect_uri should be replaced with Tidbyt callback uri
-    if not graph_access_token:
-        refresh_body = (
-            "refresh_token=" + graph_refresh_token +
-            "&redirect_uri=http://localhost/oauth-callback" +
-            "&client_id=" + graph_client_id +
-            "&client_secret=" + graph_client_secret +
-            "&grant_type=refresh_token" +
-            "&scope=offline_access%20Calendars.read"
-        )
-        refresh = http.post(graph_token_endpoint, body = refresh_body)
-
-        if refresh.status_code != 200:
-            fail("Refresh of Access Token failed with Status Code: %d - %s" % (refresh.status_code, refresh.body()))
-
-        return refresh.json()["access_token"]
-        cache.set(graph_refresh_token, graph_access_token, ttl_seconds = int(refresh.json()["expires_in"] - 30))
     else:
-        return cache.get(graph_refresh_token)
+        return None
+
+    if graph_access_token:
+        return graph_access_token
+    else:
+        headers = {
+            "Content-type": "application/x-www-form-urlencoded",
+        }
+        body = (
+            "client_id=" + (GRAPH_CLIENT_ID or GRAPH_CLIENT_ID_DEFAULT) +
+            "&scope=offline_access%20Calendars.read" +
+            "&refresh_token=" + graph_refresh_token +
+            "&grant_type=refresh_token" +
+            "&client_secret=" + (GRAPH_CLIENT_SECRET or GRAPH_CLIENT_SECRET_DEFAULT)
+        )
+        response = http.post(url = GRAPH_TOKEN_ENDPOINT, headers = headers, body = body)
+
+        if response.status_code != 200:
+            fail("Refresh of Access Token failed with Status Code: %d - %s" % (response.status_code, response.body()))
+
+        response_json = response.json()
+        cache.set(
+            response_json["refresh_token"],
+            response_json["access_token"],
+            ttl_seconds = int(response_json["expires_in"] - 30),
+        )
+        return response_json["access_token"]
 
 def getGraphEvents(graph_access_token, timezone):
     # Calls graph calendar view api
@@ -327,44 +311,32 @@ def sortGraphEventByEndDate(graph_event):
     # Defines end date as sort key
     return graph_event["end"]["dateTime"]
 
-def getGraphLatestOofEvent(graph_events):
+def getGraphLatestEventByShowAs(graph_events, show_as):
     # Accepts a json array of graph events
-    # Returns the out of office event with the latest end date
+    # Returns latest event for the provided show as value
     if (graph_events != None):
-        graph_events_reverse_sorted = sorted(
+        graph_events_sorted = sorted(
             graph_events,
             key = sortGraphEventByEndDate,
-            reverse = True,
+            reverse = False,
         )
-        for graph_event in graph_events_reverse_sorted:
-            if (graph_event["showAs"]) == "oof":
-                return graph_event
-
-def getGraphLatestBusyEvent(graph_events):
-    # Accepts a json array of graph events
-    # Returns the busy event with the latest end date
-    if (graph_events != None):
-        graph_events_reverse_sorted = sorted(
-            graph_events,
-            key = sortGraphEventByEndDate,
-            reverse = True,
-        )
-        for graph_event in graph_events_reverse_sorted:
-            if (graph_event["showAs"]) == "busy":
-                return graph_event
-
-def getGraphLatestWfhEvent(graph_events):
-    # Accepts a json array of graph events
-    # Returns the working elsewhere event with the latest end date
-    if (graph_events != None):
-        graph_events_reverse_sorted = sorted(
-            graph_events,
-            key = sortGraphEventByEndDate,
-            reverse = True,
-        )
-        for graph_event in graph_events_reverse_sorted:
-            if (graph_event["showAs"]) == "workingElsewhere":
-                return graph_event
+        latest_graph_event = None
+        for graph_event in graph_events_sorted:
+            if (graph_event["showAs"] == show_as and latest_graph_event == None):
+                latest_graph_event = graph_event
+            elif (
+                graph_event["showAs"] == show_as and
+                graph_event["end"]["dateTime"] > latest_graph_event["end"]["dateTime"] and
+                (
+                    graph_event["isAllDay"] == True or
+                    (
+                        graph_event["isAllDay"] == False and
+                        latest_graph_event["isAllDay"] == False
+                    )
+                )
+            ):
+                latest_graph_event = graph_event
+        return latest_graph_event
 
 def sortGraphEventByStartDate(graph_event):
     # Defines start date as sort key
@@ -388,9 +360,9 @@ def getGraphStatus(graph_access_token, timezone):
     # Determines a user's status based on graph events returned
     graph_events = getGraphEvents(graph_access_token, timezone)
     graph_current_events = getGraphCurrentEvents(graph_events)
-    graph_oof_event = getGraphLatestOofEvent(graph_current_events)
-    graph_busy_event = getGraphLatestBusyEvent(graph_current_events)
-    graph_wfh_event = getGraphLatestWfhEvent(graph_current_events)
+    graph_oof_event = getGraphLatestEventByShowAs(graph_current_events, "oof")
+    graph_busy_event = getGraphLatestEventByShowAs(graph_current_events, "busy")
+    graph_wfh_event = getGraphLatestEventByShowAs(graph_current_events, "workingElsewhere")
     graph_next_event = getGraphNextEvent(graph_events)
     if (graph_oof_event != None):
         return {
@@ -436,49 +408,41 @@ def getGraphStatus(graph_access_token, timezone):
         }
 
 def refreshWebexAccessToken(config):
-    # Accepts config
-    # Returns a Webex access token
-    if WEBEX_CLIENT_ID:
-        webex_client_id = WEBEX_CLIENT_ID
-    else:
-        webex_client_id = config.get("webex_client_id")
+    # Use refresh token to collect access token
+    webex_refresh_token = config.get("webex_auth")
 
-    if WEBEX_CLIENT_SECRET:
-        webex_client_secret = WEBEX_CLIENT_SECRET
-    else:
-        webex_client_secret = config.get("webex_client_secret")
-
-    # Refresh token comes from oauth handler params when running in Production/Serve mode
-    # Refresh token comes from config when running locally/Render
-    webex_refresh_token = config.get("webex_auth") or config.get("webex_refresh_token")
-
-    if not webex_refresh_token:
-        return None
-    else:
+    if webex_refresh_token:
         webex_access_token = cache.get(webex_refresh_token)
+    else:
+        return None
 
-    if not webex_access_token:
-        params = {
-            "grant_type": "refresh_token",
-            "client_id": webex_client_id,
-            "client_secret": webex_client_secret,
-            "refresh_token": webex_refresh_token,
-        }
+    if webex_access_token:
+        return cache.get(webex_refresh_token)
+    else:
         headers = {
             "Content-Type": "application/x-www-form-urlencoded",
         }
-        refresh = http.post(WEBEX_TOKEN_ENDPOINT, params = params, headers = headers)
+        params = {
+            "grant_type": "refresh_token",
+            "client_id": (WEBEX_CLIENT_ID or WEBEX_CLIENT_ID_DEFAULT),
+            "client_secret": (WEBEX_CLIENT_SECRET or WEBEX_CLIENT_SECRET_DEFAULT),
+            "refresh_token": webex_refresh_token,
+        }
+        response = http.post(WEBEX_TOKEN_ENDPOINT, headers = headers, params = params)
 
-        if refresh.status_code != 200:
-            fail("Refresh of Access Token failed with Status Code: %d - %s" % (refresh.status_code, refresh.body()))
+        if response.status_code != 200:
+            fail("Refresh of Access Token failed with Status Code: %d - %s" % (response.status_code, response.body()))
 
-        return refresh.json()["access_token"]
-        cache.set(webex_refresh_token, webex_access_token, ttl_seconds = int(refresh.json()["expires_in"] - 30))
-    else:
-        return cache.get(webex_refresh_token)
+        response_json = response.json()
+        cache.set(
+            response_json["refresh_token"],
+            response_json["access_token"],
+            ttl_seconds = int(response_json["expires_in"] - 30),
+        )
+        return response_json["access_token"]
 
 def getWebexDetails(webex_access_token):
-    # Calls webex personal details api
+    # Calls Webex personal details api
     # Returns an object with details about the user
     webex_too_many_requests = cache.get(webex_access_token + "_webex_too_many_requests")
     if webex_too_many_requests != None:
@@ -528,24 +492,20 @@ def getWebexStatus(webex_access_token):
         return "unknown"
 
 def getAvailability(calendar_app_status, messaging_app_status):
-    if (calendar_app_status == None and messaging_app_status == None):
-        return {
-            "isAllDay": None,
-            "status": "unknown",
-            "time": None,
-        }
-    elif (calendar_app_status == None and messaging_app_status != None):
-        return {
-            "isAllDay": None,
-            "status": messaging_app_status,
-            "time": None,
-        }
-    elif (calendar_app_status != None and messaging_app_status == None):
-        return {
-            "isAllDay": calendar_app_status["isAllDay"],
-            "status": calendar_app_status["status"],
-            "time": calendar_app_status["time"],
-        }
+    # Determines availability based on calendar and messaging status
+    if (calendar_app_status == None):
+        if (messaging_app_status != None):
+            return {
+                "isAllDay": None,
+                "status": messaging_app_status,
+                "time": None,
+            }
+        else:
+            return {
+                "isAllDay": None,
+                "status": "unknown",
+                "time": None,
+            }
     elif (calendar_app_status["status"] == "away" or messaging_app_status == "away"):
         return {
             "isAllDay": calendar_app_status["isAllDay"],
@@ -558,11 +518,11 @@ def getAvailability(calendar_app_status, messaging_app_status):
             "status": "remote_busy",
             "time": calendar_app_status["time"],
         }
-    elif (calendar_app_status["status"] == "remote_free"):
+    elif (calendar_app_status["status"] == "remote_free" or calendar_app_status["status"] == "remote"):
         if (messaging_app_status == "busy"):
             return {
                 "isAllDay": calendar_app_status["isAllDay"],
-                "status": "remote_busy",
+                "status": "remote",
                 "time": None,
             }
         else:
@@ -571,43 +531,37 @@ def getAvailability(calendar_app_status, messaging_app_status):
                 "status": "remote_free",
                 "time": calendar_app_status["time"],
             }
-    elif (calendar_app_status["status"] == "remote"):
-        if (messaging_app_status == "busy"):
-            return {
-                "isAllDay": calendar_app_status["isAllDay"],
-                "status": "remote_busy",
-                "time": calendar_app_status["time"],
-            }
-        else:
-            return {
-                "isAllDay": calendar_app_status["isAllDay"],
-                "status": "remote",
-                "time": calendar_app_status["time"],
-            }
     elif (calendar_app_status["status"] == "busy"):
         return {
             "isAllDay": calendar_app_status["isAllDay"],
             "status": "busy",
             "time": calendar_app_status["time"],
         }
-    elif (messaging_app_status == "busy"):
-        return {
-            "isAllDay": None,
-            "status": "busy",
-            "time": None,
-        }
-    elif (messaging_app_status == "free"):
-        return {
-            "isAllDay": None,
-            "status": "free",
-            "time": calendar_app_status["time"],
-        }
-    elif (messaging_app_status == "offline"):
-        return {
-            "isAllDay": None,
-            "status": "offline",
-            "time": None,
-        }
+    elif (calendar_app_status["status"] == "free"):
+        if (messaging_app_status == "busy"):
+            return {
+                "isAllDay": calendar_app_status["isAllDay"],
+                "status": "busy",
+                "time": None,
+            }
+        elif (messaging_app_status == "offline"):
+            return {
+                "isAllDay": None,
+                "status": "offline",
+                "time": None,
+            }
+        elif (messaging_app_status == "free"):
+            return {
+                "isAllDay": calendar_app_status["isAllDay"],
+                "status": "free",
+                "time": calendar_app_status["time"],
+            }
+        else:
+            return {
+                "isAllDay": calendar_app_status["isAllDay"],
+                "status": "free",
+                "time": calendar_app_status["time"],
+            }
     else:
         return {
             "isAllDay": None,
@@ -619,17 +573,7 @@ def getSchedule(availability, timezone):
     # Accepts a json object representing the user's availability
     # Returns a string to display the user's schedule
     if (availability["time"] != None):
-        if (
-            (
-                availability["isAllDay"] == False
-            ) or (
-                availability["isAllDay"] == True and
-                (
-                    time.parse_time(availability["time"], "2006-01-02T15:04:05").format("2006-01-02") !=
-                    (time.now().in_location(timezone) + time.parse_duration("24h")).format("2006-01-02")
-                )
-            )
-        ):
+        if (availability["isAllDay"] == False):
             relative_time = humanize.relative_time(
                 time.now().in_location("UTC"),
                 time.parse_time(
@@ -638,6 +582,18 @@ def getSchedule(availability, timezone):
                 ),
             )
             relative_time = re.sub("(minutes|minute)", "min", relative_time)
+            return (STATUS_MAP[availability["status"]]["schedule_prefix"] + relative_time)
+        elif (
+            time.parse_time(availability["time"], "2006-01-02T15:04:05").format("2006-01-02") !=
+            (time.now().in_location(timezone) + time.parse_duration("24h")).format("2006-01-02")
+        ):
+            relative_time = humanize.relative_time(
+                time.now().in_location("UTC"),
+                time.parse_time(
+                    availability["time"],
+                    "2006-01-02T15:04:05",
+                ) + time.parse_duration("24h"),
+            )
             return (STATUS_MAP[availability["status"]]["schedule_prefix"] + relative_time)
         else:
             return "Until tomorrow"
@@ -735,40 +691,39 @@ def main(config):
 def graph_oauth_handler(params):
     # This handler is invoked once the user selects the "Authorize my Outlook Acccount" from the Mobile app
     # It passes Params from a successful user Auth, including the Code that must be exchanged for a Refresh token
+    params = json.decode(params)
     headers = {
         "Content-type": "application/x-www-form-urlencoded",
     }
-    params = json.decode(params)
     body = (
-        "grant_type=authorization_code" +
-        "&client_id=" + params["client_id"] +
-        "&client_secret=" + (GRAPH_CLIENT_SECRET or GRAPH_CLIENT_SECRET_DEFAULT) +  # Provide runtime a default secret
-        "&code=" + params["code"] +
+        "client_id=" + params["client_id"] +
         "&scope=offline_access%20Calendars.read" +
-        "&redirect_uri=" + params["redirect_uri"]
+        "&code=" + params["code"] +
+        "&redirect_uri=" + params["redirect_uri"] +
+        "&grant_type=authorization_code" +
+        "&client_secret=" + (GRAPH_CLIENT_SECRET or GRAPH_CLIENT_SECRET_DEFAULT)  # Provide runtime a default secret
     )
-    response = http.post(url = GRAPH_EVENTFETCH_TOKEN_ENDPOINT, headers = headers, body = body)
+    response = http.post(url = GRAPH_TOKEN_ENDPOINT, headers = headers, body = body)
 
     if response.status_code != 200:
         fail("token request failed with status code: %d - %s" %
              (response.status_code, response.body()))
 
-    token_params = response.json()
-    refresh_token = token_params["refresh_token"]
+    response_json = response.json()
     cache.set(
-        refresh_token,
-        token_params["access_token"],
-        ttl_seconds = int(token_params["expires_in"] - 30),
+        response_json["refresh_token"],
+        response_json["access_token"],
+        ttl_seconds = int(response_json["expires_in"] - 30),
     )
-    return refresh_token
+    return response_json["refresh_token"]
 
 def webex_oauth_handler(params):
     # This handler is invoked once the user selects the "Authorize your Webex Teams Account" from the Mobile app
     # It passes Params from a successful user Auth, including the Code that must be exchanged for a Refresh token
+    params = json.decode(params)
     headers = {
         "Content-Type": "application/x-www-form-urlencoded",
     }
-    params = json.decode(params)
     params = {
         "grant_type": "authorization_code",
         "client_id": params["client_id"],
@@ -782,14 +737,13 @@ def webex_oauth_handler(params):
         fail("token request failed with status code: %d - %s" %
              (response.status_code, response.body()))
 
-    token_params = response.json()
-    refresh_token = token_params["refresh_token"]
+    response_json = response.json()
     cache.set(
-        refresh_token,
-        token_params["access_token"],
-        ttl_seconds = int(token_params["expires_in"] - 30),
+        response_json["refresh_token"],
+        response_json["access_token"],
+        ttl_seconds = int(response_json["expires_in"] - 30),
     )
-    return refresh_token
+    return response_json["refresh_token"]
 
 def get_schema():
     return schema.Schema(
@@ -814,7 +768,7 @@ def get_schema():
                 icon = "windows",
                 handler = graph_oauth_handler,
                 client_id = (GRAPH_CLIENT_ID or GRAPH_CLIENT_ID_DEFAULT),
-                authorization_endpoint = GRAPH_EVENTFETCH_AUTH_ENDPOINT,
+                authorization_endpoint = GRAPH_AUTH_ENDPOINT,
                 scopes = [
                     "offline_access",
                     "Calendars.read",
