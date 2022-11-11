@@ -11,18 +11,18 @@ Displayed:
 
 ## Configuration
 - Select League / Tournament to display.  Current Leagues / Tournament options are:
-        Dutch Eredivisie
-        English Carabo Cup
-        English Premier League
-        French Ligue 1
-        FIFA World Cup
-        German Bundesliga
-        Italian Serie A
-        Mexican Liga BBVA MX
-        Scottish Premiership
-        Spanish LaLiga
-        UEFA Champions League
-        UEFA Europa League
+    * Dutch Eredivisie
+    * English Carabo Cup
+    * English Premier League
+    * French Ligue 1
+    * FIFA World Cup
+    * German Bundesliga
+    * Italian Serie A
+    * Mexican Liga BBVA MX
+    * Scottish Premiership
+    * Spanish LaLiga
+    * UEFA Champions League
+    * UEFA Europa League
 - Select display type
 - Select color for time
 - Select instance count & instance number **  this slows down the cycle of scores - add multiple instances to spread out the timing of rotation
