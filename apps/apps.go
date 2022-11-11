@@ -370,7 +370,7 @@ func GetManifests() []manifest.Manifest {
 		shouldideploy.New(),
 		shuffleimages.New(),
 		snyk.New(),
-		soccer.New(),
+		soccermens.New(),
 		solarelevation.New(),
 		soundtransit.New(),
 		sportsrankings.New(),
