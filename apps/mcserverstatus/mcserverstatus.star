@@ -21,8 +21,6 @@ def main(config):
     server_ip = config.get("server_ip") or "mc.hypixel.net"
     server_port = config.get("server_port") or None
 
-    print(minecraft_edition)
-
     req = http.get("https://api.mcsrvstat.us/" + ("bedrock/" if minecraft_edition else "") + "2/" + server_ip + (":" + server_port if server_port else ""))
 
     if req.status_code != 200:
