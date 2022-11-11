@@ -16,7 +16,7 @@ func New() manifest.Manifest {
 		ID:          "soccermens",
 		Name:        "Mens Soccer",
 		Author:      "jvivona",
-		Summary:     "Soccer scores for various leagues",
+		Summary:     "Mens Soccer scores",
 		Desc:        "Shows upcoming games, current score, date and time of game for selected league / tournament.",
 		FileName:    "soccermens.star",
 		PackageName: "soccermens",
