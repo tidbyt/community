@@ -189,6 +189,7 @@ import (
 	"tidbyt.dev/community/apps/topcryptoprices"
 	"tidbyt.dev/community/apps/traffic"
 	"tidbyt.dev/community/apps/transsee"
+	"tidbyt.dev/community/apps/trivia"
 	"tidbyt.dev/community/apps/tube"
 	"tidbyt.dev/community/apps/tubestatus"
 	"tidbyt.dev/community/apps/tvquotes"
@@ -199,6 +200,7 @@ import (
 	"tidbyt.dev/community/apps/usyieldcurve"
 	"tidbyt.dev/community/apps/vergetaglines"
 	"tidbyt.dev/community/apps/verticalmessage"
+	"tidbyt.dev/community/apps/visibleplanets"
 	"tidbyt.dev/community/apps/wantedposter"
 	"tidbyt.dev/community/apps/warframecycles"
 	"tidbyt.dev/community/apps/weathermap"
@@ -400,6 +402,7 @@ func GetManifests() []manifest.Manifest {
 		topcryptoprices.New(),
 		traffic.New(),
 		transsee.New(),
+		trivia.New(),
 		tube.New(),
 		tubestatus.New(),
 		tvquotes.New(),
@@ -410,6 +413,7 @@ func GetManifests() []manifest.Manifest {
 		usyieldcurve.New(),
 		vergetaglines.New(),
 		verticalmessage.New(),
+		visibleplanets.New(),
 		wantedposter.New(),
 		warframecycles.New(),
 		weathermap.New(),
