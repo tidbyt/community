@@ -17,10 +17,13 @@ def main(config):
     if rate_cached != None:
         rate = int(rate_cached)
 
+    minecraft_edition = config.get("minecraft_edition") or 0
     server_ip = config.get("server_ip") or "mc.hypixel.net"
     server_port = config.get("server_port") or None
 
-    req = http.get("https://api.mcsrvstat.us/2/" + server_ip + (":" + server_port if server_port else ""))
+    print(minecraft_edition)
+
+    req = http.get("https://api.mcsrvstat.us/" + ("bedrock/" if minecraft_edition else "") + "2/" + server_ip + (":" + server_port if server_port else ""))
 
     if req.status_code != 200:
         fail("API request failed with status %d", req.status_code)
@@ -59,9 +62,28 @@ def main(config):
     )
 
 def get_schema():
+    options = [
+        schema.Option(
+            display = "Java",
+            value = "0",
+        ),
+        schema.Option(
+            display = "Bedrock",
+            value = "1",
+        ),
+    ]
+
     return schema.Schema(
         version = "1",
         fields = [
+            schema.Dropdown(
+                id = "minecraft_edition",
+                name = "Minecraft Edition",
+                desc = "The Minecraft edition (Java or Bedrock) of the server you want to monitor.",
+                icon = "wrench",
+                default = options[0].value,
+                options = options,
+            ),
             schema.Text(
                 id = "server_ip",
                 name = "Server IP",
