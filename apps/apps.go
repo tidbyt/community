@@ -200,7 +200,6 @@ import (
 	"tidbyt.dev/community/apps/usyieldcurve"
 	"tidbyt.dev/community/apps/vergetaglines"
 	"tidbyt.dev/community/apps/verticalmessage"
-	"tidbyt.dev/community/apps/visibleplanets"
 	"tidbyt.dev/community/apps/wantedposter"
 	"tidbyt.dev/community/apps/warframecycles"
 	"tidbyt.dev/community/apps/weathermap"
@@ -413,7 +412,6 @@ func GetManifests() []manifest.Manifest {
 		usyieldcurve.New(),
 		vergetaglines.New(),
 		verticalmessage.New(),
-		visibleplanets.New(),
 		wantedposter.New(),
 		warframecycles.New(),
 		weathermap.New(),
