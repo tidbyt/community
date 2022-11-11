@@ -1,18 +1,16 @@
 """
 Applet: SoccerMens
 Summary: Displays men's soccer scores for various leages and tournaments
-Description: Displays live and upcoming EPL scores from a data feed.   Heavily taken from the other sports score apps.
+Description: Displays live and upcoming soccer scores from a data feed.   Heavily taken from the other sports score apps.
 Author: jvivona
 """
 
 load("cache.star", "cache")
-load("encoding/base64.star", "base64")
 load("encoding/json.star", "json")
 load("http.star", "http")
 load("render.star", "render")
 load("schema.star", "schema")
 load("time.star", "time")
-load("math.star", "math")
 
 CACHE_TTL_SECONDS = 60
 DEFAULT_TIMEZONE = "America/New_York"
@@ -21,7 +19,6 @@ SPORT = "soccer"
 DEFAULT_LEAGUE = "ger.1"
 API = "https://site.api.espn.com/apis/site/v2/sports/" + SPORT + "/"
 
-#+ "/" + LEAGUE + "/scoreboard"
 SHORTENED_WORDS = """
 {
     " PM": "P",
@@ -41,7 +38,6 @@ def main(config):
     renderCategory = []
     selectedLeague = config.get("leagueOptions", DEFAULT_LEAGUE)
     league = {API: API + selectedLeague + "/scoreboard"}
-    print(league)
     instanceNumber = int(config.get("instanceNumber", 1))
     totalInstances = int(config.get("instancesCount", 1))
     scores = get_scores(league, instanceNumber, totalInstances)
@@ -118,9 +114,23 @@ def main(config):
                 scoreFont = "CG-pixel-3x5-mono"
                 convertedTime = time.parse_time(gameTime, format = "2006-01-02T15:04Z").in_location(timezone)
                 if convertedTime.format("1/2") != now.format("1/2"):
-                    gameTime = convertedTime.format("1/2 - 3:04PM")
+                    # check to see if the game is today or not.   If not today, show date + time
+                    # use settings to determine if INTL or US + time
+                    if config.bool("is_us_date_format", False):
+                        gameDate = convertedTime.format("1/2 ")
+                    else:
+                        gameDate = convertedTime.format("2 Jan ")
+                    if config.bool("is_24_hour_format", False):
+                        gameTimeFmt = convertedTime.format("15:04")
+                    else:
+                        gameTimeFmt = convertedTime.format("3:04 PM")
+                    gameTime = gameDate + gameTimeFmt
                 else:
-                    gameTime = convertedTime.format("3:04 PM")
+                    if config.bool("is_24_hour_format", False):
+                        gameTimeFmt = convertedTime.format("15:04")
+                    else:
+                        gameTimeFmt = convertedTime.format("3:04 PM")
+                    gameTime = gameTimeFmt
                 checkSeries = competition.get("series", "NO")
                 checkRecord = homeCompetitor.get("records", "NO")
                 if checkRecord == "NO":
@@ -641,7 +651,7 @@ def get_schema():
             schema.Dropdown(
                 id = "instancesCount",
                 name = "Total Instances of App",
-                desc = "This determines which set of scores to display based on the 'Scores to Display' setting.",
+                desc = "Total Instance Count (# of times you have added this app to your Tidbyt).",
                 icon = "clock",
                 default = instancesCounts[0].value,
                 options = instancesCounts,
@@ -653,6 +663,20 @@ def get_schema():
                 icon = "clock",
                 default = instanceNumbers[0].value,
                 options = instanceNumbers,
+            ),
+            schema.Toggle(
+                id = "is_24_hour_format",
+                name = "24 hour format",
+                desc = "Display the time in 24 hour format.",
+                icon = "clock",
+                default = False,
+            ),
+            schema.Toggle(
+                id = "is_us_date_format",
+                name = "US Date format",
+                desc = "Display the date in US format (default is Intl).",
+                icon = "calendarDays",
+                default = False,
             ),
         ],
     )
