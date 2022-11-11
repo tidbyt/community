@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+<svg
+   xmlns:dc="http://purl.org/dc/elements/1.1/"
+   xmlns:cc="http://web.resource.org/cc/"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:xlink="http://www.w3.org/1999/xlink"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   id="svg1923"
+   sodipodi:version="0.32"
+   inkscape:version="0.44"
+   width="1182"
+   height="635"
+   version="1.0"
+   sodipodi:docbase="/Users/amyshore/Desktop"
+   sodipodi:docname="usa.svg">
+  <metadata
+     id="metadata1928">
+    <rdf:RDF>
+      <cc:Work
+         rdf:about="">
+        <dc:format>image/svg+xml</dc:format>
+        <dc:type
+           rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
+      </cc:Work>
+    </rdf:RDF>
+  </metadata>
+  <defs
+     id="defs1926" />
+  <sodipodi:namedview
+     inkscape:window-height="752"
+     inkscape:window-width="1280"
+     inkscape:pageshadow="2"
+     inkscape:pageopacity="0.0"
+     guidetolerance="10.0"
+     gridtolerance="10.0"
+     objecttolerance="10.0"
+     borderopacity="1.0"
+     bordercolor="#666666"
+     pagecolor="#ffffff"
+     id="base"
+     inkscape:zoom="0.59527559"
+     inkscape:cx="775.234"
+     inkscape:cy="319.32597"
+     inkscape:window-x="0"
+     inkscape:window-y="22"
+     inkscape:current-layer="layer2" />
+  <g
+     inkscape:groupmode="layer"
+     id="layer1"
+     inkscape:label="bg"
+     style="opacity:1;display:none"
+     sodipodi:insensitive="true">
+    <image
+       xlink:href="ElectoralCollege1996-Large.png"
+       sodipodi:absref="/Users/amyshore/Desktop/ElectoralCollege1996-Large.png"
+       width="1182"
+       height="635"
+       id="image1930"
+       x="-1.3571358"
+       y="1.6798911" />
+  </g>
+  <g
+     inkscape:groupmode="layer"
+     id="layer2"
+     inkscape:label="vector"
+     style="opacity:0.9;display:inline"> <path style="fill:#3caea3;fill-opacity:1;fill-rule:evenodd;stroke:black;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1" d="M 626.15852,449.27398 C 626.15852,449.27398 622.89182,454.91634 624.37672,456.40117 C 625.86152,457.886 629.42512,459.96476 629.42512,459.96476 C 629.42512,459.96476 628.53422,460.5587 629.12812,462.04353 C 629.72202,463.52836 631.20692,464.41926 631.20692,464.41926 L 627.64332,470.06161 L 634.17652,470.65555 C 634.17652,470.65555 628.23722,473.92217 630.01902,476.89183 C 631.80082,479.8615 638.33412,482.83116 639.52192,483.12812 C 640.70982,483.42509 639.81892,486.98868 637.44322,487.58262 C 635.06742,488.17655 627.04942,482.23723 625.56452,482.23723 C 624.07972,482.23723 622.59492,485.80082 619.92222,485.80082 C 617.24952,485.80082 612.49802,485.20689 612.49802,485.20689 C 612.49802,485.20689 611.90412,489.06745 607.74662,487.58262 C 603.58902,486.09779 603.29212,484.61295 600.91632,481.04936 C 598.54062,477.48577 597.64972,476.2979 593.49222,475.70397 C 589.33472,475.11004 588.44382,476.89183 584.28622,477.78273 C 580.12872,478.67363 573.89242,479.56453 571.51672,478.37667 C 569.14102,477.1888 562.31072,474.21914 559.04412,474.21914 C 555.77752,474.21914 553.40172,475.11004 553.40172,475.11004 C 553.40172,475.11004 555.77752,465.31016 556.66842,461.15263 C 557.55932,456.9951 558.45022,446.60129 557.26232,445.11646 C 556.07442,443.63163 552.51092,440.95893 552.80782,437.98927 C 553.10482,435.01961 549.24422,427.89242 549.24422,427.89242 L 548.65032,406.21389 L 598.83762,406.80783 C 598.83762,406.80783 604.18302,410.96535 603.58902,412.74715 C 602.99512,414.52895 602.10422,418.09254 602.10422,418.09254 C 602.10422,418.09254 604.47992,418.3895 603.88602,421.9531 C 603.29212,425.51669 599.43152,430.26815 598.24362,433.53478 C 597.05582,436.80141 593.78912,447.19522 595.57092,448.08612 C 597.35272,448.97702 602.99512,446.89825 608.04352,447.19522 C 613.09192,447.49219 625.86152,449.27398 626.15852,449.27398 z " id="path12610" />   </g>
+</svg>
