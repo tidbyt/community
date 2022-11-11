@@ -158,6 +158,7 @@ import (
 	"tidbyt.dev/community/apps/shouldideploy"
 	"tidbyt.dev/community/apps/shuffleimages"
 	"tidbyt.dev/community/apps/snyk"
+	"tidbyt.dev/community/apps/soccermens"
 	"tidbyt.dev/community/apps/solarelevation"
 	"tidbyt.dev/community/apps/soundtransit"
 	"tidbyt.dev/community/apps/sportsrankings"
@@ -369,6 +370,7 @@ func GetManifests() []manifest.Manifest {
 		shouldideploy.New(),
 		shuffleimages.New(),
 		snyk.New(),
+		soccer.New(),
 		solarelevation.New(),
 		soundtransit.New(),
 		sportsrankings.New(),
