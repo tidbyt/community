@@ -74,6 +74,7 @@ import (
 	"tidbyt.dev/community/apps/hvvdepartures"
 	"tidbyt.dev/community/apps/ifparank"
 	"tidbyt.dev/community/apps/indegostations"
+	"tidbyt.dev/community/apps/inseason"
 	"tidbyt.dev/community/apps/isitchristmas"
 	"tidbyt.dev/community/apps/islamicprayer"
 	"tidbyt.dev/community/apps/isstracker"
@@ -280,6 +281,7 @@ func GetManifests() []manifest.Manifest {
 		hvvdepartures.New(),
 		ifparank.New(),
 		indegostations.New(),
+		inseason.New(),
 		isitchristmas.New(),
 		islamicprayer.New(),
 		isstracker.New(),
