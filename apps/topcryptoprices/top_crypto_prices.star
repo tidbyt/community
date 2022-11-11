@@ -115,7 +115,7 @@ def main(config):
     for coininfo in COINS:
         coinlines.append(renderbox(coininfo))
     if config.bool("showcredits", DEFAULTSHOWCREDITS):
-        coinlines.append(renderbox(credits, color = "#444"))
+        coinlines.append(renderbox(credits, color = "#AEA"))
     if DEBUG > 1:
         print(coinlines)
     return render.Root(
@@ -200,7 +200,11 @@ def get_schema():
         ),
         schema.Option(
             display = "2 seconds",
-            value = DEFAULTDELAY,
+            value = "2000",
+        ),
+        schema.Option(
+            display = "3 seconds",
+            value = "3000",
         ),
         schema.Option(
             display = "5 seconds",
@@ -222,7 +226,7 @@ def get_schema():
         ),
         schema.Option(
             display = "5",
-            value = DEFAULTNUMCOINS,
+            value = "5",
         ),
         schema.Option(
             display = "10",
@@ -243,6 +247,10 @@ def get_schema():
             value = "AUD",
         ),
         schema.Option(
+            display = "BRL",
+            value = "BRL",
+        ),
+        schema.Option(
             display = "CAD",
             value = "CAD",
         ),
@@ -255,12 +263,32 @@ def get_schema():
             value = "CNY",
         ),
         schema.Option(
+            display = "CZK",
+            value = "CZK",
+        ),
+        schema.Option(
+            display = "DKK",
+            value = "DKK",
+        ),
+        schema.Option(
             display = "EUR",
             value = "EUR",
         ),
         schema.Option(
             display = "GBP",
             value = "GBP",
+        ),
+        schema.Option(
+            display = "HUF",
+            value = "HUF",
+        ),
+        schema.Option(
+            display = "IDR",
+            value = "IDR",
+        ),
+        schema.Option(
+            display = "ILS",
+            value = "ILS",
         ),
         schema.Option(
             display = "INR",
@@ -271,12 +299,48 @@ def get_schema():
             value = "JPY",
         ),
         schema.Option(
+            display = "KRW",
+            value = "KRW",
+        ),
+        schema.Option(
+            display = "MXN",
+            value = "MXN",
+        ),
+        schema.Option(
             display = "NOK",
             value = "NOK",
         ),
         schema.Option(
             display = "NZD",
             value = "NZD",
+        ),
+        schema.Option(
+            display = "PLN",
+            value = "PLN",
+        ),
+        schema.Option(
+            display = "RUB",
+            value = "RUB",
+        ),
+        schema.Option(
+            display = "SEK",
+            value = "SEK",
+        ),
+        schema.Option(
+            display = "SGD",
+            value = "SGD",
+        ),
+        schema.Option(
+            display = "THB",
+            value = "THB",
+        ),
+        schema.Option(
+            display = "TRY",
+            value = "TRY",
+        ),
+        schema.Option(
+            display = "TWD",
+            value = "TWD",
         ),
         schema.Option(
             display = "USD",
