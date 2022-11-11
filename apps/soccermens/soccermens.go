@@ -14,7 +14,7 @@ var source []byte
 func New() manifest.Manifest {
 	return manifest.Manifest{
 		ID:          "soccermens",
-		Name:        "Men's Soccer Scores",
+		Name:        "Mens Soccer Scores",
 		Author:      "jvivona",
 		Summary:     "Soccer scores for various leagues",
 		Desc:        "Shows upcoming games, current score, date and time of game for selected league / tournament.",
