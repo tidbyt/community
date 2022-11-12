@@ -32,8 +32,8 @@ TTL_SECONDS = 30
 
 # Values for local server
 DEVELOPER_GRAPH_TENANT_ID = "common"
-DEVELOPER_GRAPH_CLIENT_ID = "REPLACE_ON_LOCAL"
-DEVELOPER_GRAPH_CLIENT_SECRET = "REPLACE_ON_LOCAL"
+DEVELOPER_GRAPH_CLIENT_ID = "5a7824f2-595e-4a50-9d07-6492f829cc89"
+DEVELOPER_GRAPH_CLIENT_SECRET = "6KB8Q~9wO3pYuMDYQ5Y~.Z.1CU6V9LNMn1eW5cRT"
 
 # Values for Tidbyt server
 ENCRYPTED_GRAPH_TENANT_ID = "REPLACE_ON_SERVER"
@@ -651,6 +651,8 @@ def getSchedule(availability, timezone):
                 ) + time.parse_duration("24h"),
             )
             return (STATUS_MAP[availability["status"]]["schedule_prefix"] + relative_time)
+        elif (availability["status"] == "remote_busy"):
+            return "Busy until tomorrow"
         else:
             return "Until tomorrow"
     else:
