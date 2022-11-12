@@ -1,3 +1,10 @@
+"""
+Applet: Plausible Analytics
+Summary: Plausible Analytics Display
+Description: Display you website's analytics from your Plausible Analytics account.
+Author: brettohland
+"""
+
 load("render.star", "render")
 load("encoding/base64.star", "base64")
 load("http.star", "http")
@@ -319,8 +326,8 @@ def make_description_text(time_period):
     return "Total"
 
 # Converts a large number into a compact string that is 6 characters or less.
-# Values under 1,000 will be returned as-is eg. 120 stays 120
-# Values over 1,000 will have the suffix "K" eg. 1,234 becomes 1.234K
+# Values under 10,000 will be returned as-is eg. 120 stays 120
+# Values over 10,000 will have the suffix "K" eg. 12,345 becomes 12.34K
 # Values over 1,000,000 will have the suffix "M" eg. 1,234,567 becomes 1.23M
 # Values over 1,000,000,000 will have the suffix "B" eg, 1,234,456,789 becomes 1.23B
 # Values over a billion will return the string "A LOT!" (What are you? Google?)
@@ -330,9 +337,9 @@ def compact_number(number):
     # Get length of string
     character_count = len(value_string)
 
-    # Return the string if it's less than 4
-    if character_count <= 3:
-        return value_string
+    # Return the string if it's 4 characters or less
+    if character_count <= 4:
+        return humanize.comma(number)
 
     # Thousands
     if character_count <= 6:
