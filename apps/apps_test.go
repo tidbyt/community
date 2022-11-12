@@ -47,16 +47,16 @@ func TestAllAppsRegistered(t *testing.T) {
 		"manifest",
 	}
 
-	dirs, err := os.ReadDir(".")
-	if err != nil {
-		assert.NoError(t, err)
-	}
 	manifests := apps.GetManifests()
 	registered := make(map[string]bool, len(manifests))
 	for _, app := range manifests {
 		registered[app.PackageName] = true
 	}
 
+	dirs, err := os.ReadDir(".")
+	if err != nil {
+		assert.NoError(t, err)
+	}
 	for _, dir := range dirs {
 		if !dir.IsDir() {
 			continue
