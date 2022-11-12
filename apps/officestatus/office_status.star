@@ -170,6 +170,94 @@ DEFAULT_LOCATION = """
 """
 TTL_SECONDS = 30
 
+def main(config):
+    name = config.str("name", DEFAULT_NAME)
+    timezone = json.decode(config.get("location", DEFAULT_LOCATION))["timezone"]
+
+    # Retrieve Graph API access token, returns None if user is not logged in
+    graph_access_token = refreshGraphAccessToken(config)
+    if (graph_access_token != None):
+        calendar_app_status = getGraphStatus(graph_access_token, timezone)
+    else:
+        calendar_app_status = None
+
+    # Retrieve Webex API access token, returns None if user is not logged in
+    webex_access_token = refreshWebexAccessToken(config)
+    if (webex_access_token != None):
+        messaging_app_status = getWebexStatus(webex_access_token)
+    else:
+        messaging_app_status = None
+
+    availability = getAvailability(calendar_app_status, messaging_app_status)
+    status = STATUS_MAP[availability["status"]]["status_label"].upper()
+    color = STATUS_MAP[availability["status"]]["color"]
+    image = base64.decode(STATUS_MAP[availability["status"]]["image"])
+    schedule = getSchedule(availability, timezone)
+
+    return render.Root(
+        delay = 125,
+        child = render.Row(
+            children = [
+                render.Stack(
+                    children = [
+                        render.Column(
+                            children = [
+                                render.Box(
+                                    color = color,
+                                    width = 10,
+                                ),
+                            ],
+                        ),
+                        render.Column(
+                            children = [
+                                render.Box(
+                                    child = render.Image(src = image),
+                                    width = 10,
+                                ),
+                            ],
+                        ),
+                    ],
+                ),
+                render.Padding(
+                    child = render.Column(
+                        expanded = True,
+                        children = [
+                            render.Marquee(
+                                child = render.Text(
+                                    content = name + " is",
+                                    font = "tom-thumb",
+                                ),
+                                offset_start = 1,
+                                offset_end = 52,
+                                width = 52,
+                            ),
+                            render.Marquee(
+                                child = render.Text(
+                                    content = status.upper(),
+                                    font = "6x13",
+                                ),
+                                offset_start = 1,
+                                offset_end = 52,
+                                width = 52,
+                            ),
+                            render.Marquee(
+                                child = render.Text(
+                                    content = schedule,
+                                    font = "tom-thumb",
+                                ),
+                                offset_start = 1,
+                                offset_end = 52,
+                                width = 52,
+                            ),
+                        ],
+                        main_align = "space_evenly",
+                    ),
+                    pad = (2, 0, 0, 0),
+                ),
+            ],
+        ),
+    )
+
 def refreshGraphAccessToken(config):
     # Use refresh token to collect access token
     graph_refresh_token = config.get("graph_auth")
@@ -568,94 +656,6 @@ def getSchedule(availability, timezone):
             return "Until tomorrow"
     else:
         return "Until later"
-
-def main(config):
-    name = config.str("name", DEFAULT_NAME)
-    timezone = json.decode(config.get("location", DEFAULT_LOCATION))["timezone"]
-
-    # Retrieve Graph API access token, returns None if user is not logged in
-    graph_access_token = refreshGraphAccessToken(config)
-    if (graph_access_token != None):
-        calendar_app_status = getGraphStatus(graph_access_token, timezone)
-    else:
-        calendar_app_status = None
-
-    # Retrieve Webex API access token, returns None if user is not logged in
-    webex_access_token = refreshWebexAccessToken(config)
-    if (webex_access_token != None):
-        messaging_app_status = getWebexStatus(webex_access_token)
-    else:
-        messaging_app_status = None
-
-    availability = getAvailability(calendar_app_status, messaging_app_status)
-    status = STATUS_MAP[availability["status"]]["status_label"].upper()
-    color = STATUS_MAP[availability["status"]]["color"]
-    image = base64.decode(STATUS_MAP[availability["status"]]["image"])
-    schedule = getSchedule(availability, timezone)
-
-    return render.Root(
-        delay = 125,
-        child = render.Row(
-            children = [
-                render.Stack(
-                    children = [
-                        render.Column(
-                            children = [
-                                render.Box(
-                                    color = color,
-                                    width = 10,
-                                ),
-                            ],
-                        ),
-                        render.Column(
-                            children = [
-                                render.Box(
-                                    child = render.Image(src = image),
-                                    width = 10,
-                                ),
-                            ],
-                        ),
-                    ],
-                ),
-                render.Padding(
-                    child = render.Column(
-                        expanded = True,
-                        children = [
-                            render.Marquee(
-                                child = render.Text(
-                                    content = name + " is",
-                                    font = "tom-thumb",
-                                ),
-                                offset_start = 1,
-                                offset_end = 52,
-                                width = 52,
-                            ),
-                            render.Marquee(
-                                child = render.Text(
-                                    content = status.upper(),
-                                    font = "6x13",
-                                ),
-                                offset_start = 1,
-                                offset_end = 52,
-                                width = 52,
-                            ),
-                            render.Marquee(
-                                child = render.Text(
-                                    content = schedule,
-                                    font = "tom-thumb",
-                                ),
-                                offset_start = 1,
-                                offset_end = 52,
-                                width = 52,
-                            ),
-                        ],
-                        main_align = "space_evenly",
-                    ),
-                    pad = (2, 0, 0, 0),
-                ),
-            ],
-        ),
-    )
 
 def graph_oauth_handler(params):
     # This handler is invoked once the user selects the "Authorize my Outlook Acccount" from the Mobile app
