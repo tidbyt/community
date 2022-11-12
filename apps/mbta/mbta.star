@@ -25,7 +25,7 @@ T_ABBREV = {
 def main(config):
     option = config.get("stop", '{"display": "South Station", "value": "place-sstat"}')
     stop = json.decode(option)
-    mintime = config.get("mintime", '0')
+    mintime = config.get("mintime", "0")
 
     params = {
         "sort": "arrival_time",
@@ -53,8 +53,8 @@ def main(config):
             t = time.parse_time(tm)
             arr = t - time.now()
             if arr.minutes >= float(mintime):
-                 rows.extend(r)
-                 rows.append(render.Box(height = 1, width = 64, color = "#ccffff"))
+                rows.extend(r)
+                rows.append(render.Box(height = 1, width = 64, color = "#ccffff"))
 
     if rows:
         return render.Root(
@@ -184,15 +184,25 @@ def get_stops(location):
     return stops
 
 def get_schema():
-    options = [schema.Option(display = "0 minutes", value = "0"), schema.Option(display = "1 minutes", value = "1"),
-               schema.Option(display = "2 minutes", value = "2"), schema.Option(display = "3 minutes", value = "3"),
-               schema.Option(display = "4 minutes", value = "4"), schema.Option(display = "5 minutes", value = "5"),
-               schema.Option(display = "6 minutes", value = "6"), schema.Option(display = "7 minutes", value = "7"),
-               schema.Option(display = "8 minutes", value = "8"), schema.Option(display = "9 minutes", value = "9"),
-               schema.Option(display = "10 minutes", value = "10"), schema.Option(display = "15 minutes", value = "15"),
-               schema.Option(display = "20 minutes", value = "20"), schema.Option(display = "25 minutes", value = "25"),
-               schema.Option(display = "30 minutes", value = "30"), schema.Option(display = "45 minutes", value = "45"),
-               schema.Option(display = "60 minutes", value = "60"),]
+    options = [
+        schema.Option(display = "0 minutes", value = "0"),
+        schema.Option(display = "1 minutes", value = "1"),
+        schema.Option(display = "2 minutes", value = "2"),
+        schema.Option(display = "3 minutes", value = "3"),
+        schema.Option(display = "4 minutes", value = "4"),
+        schema.Option(display = "5 minutes", value = "5"),
+        schema.Option(display = "6 minutes", value = "6"),
+        schema.Option(display = "7 minutes", value = "7"),
+        schema.Option(display = "8 minutes", value = "8"),
+        schema.Option(display = "9 minutes", value = "9"),
+        schema.Option(display = "10 minutes", value = "10"),
+        schema.Option(display = "15 minutes", value = "15"),
+        schema.Option(display = "20 minutes", value = "20"),
+        schema.Option(display = "25 minutes", value = "25"),
+        schema.Option(display = "30 minutes", value = "30"),
+        schema.Option(display = "45 minutes", value = "45"),
+        schema.Option(display = "60 minutes", value = "60"),
+    ]
 
     return schema.Schema(
         version = "1",
@@ -204,13 +214,13 @@ def get_schema():
                 icon = "bus",
                 handler = get_stops,
             ),
-             schema.Dropdown(
+            schema.Dropdown(
                 id = "mintime",
                 name = "Show arriving in",
                 desc = "Minimum arrival time.",
                 icon = "bus",
                 default = options[0].value,
-                options = options
+                options = options,
             ),
         ],
     )
