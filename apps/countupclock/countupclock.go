@@ -1,5 +1,5 @@
 // Package countupclock provides clock time since an event.
-package soccermens
+package countupclock
 
 import (
 	_ "embed"
