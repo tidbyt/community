@@ -16,10 +16,11 @@ load("schema.star", "schema")
 load("secret.star", "secret")
 load("time.star", "time")
 
-# Map available status options for display
 STATUS_MAP = {
     "away": {
         "color": "#FF00FF",
+        "schedule_prefix": "For ",
+        "status_label": "away",
         "image": """
 iVBORw0KGgoAAAANSUhEUgAAAAoAAAALCAYAAABGbhwYAAAACXBIWXMAAC4jAAAuIwF4
 pT92AAAAvElEQVQYlWXQMUoDARCF4c/NWiaNKASRgI02WwRM2MLCYg/gAWz1FoqV18gB
@@ -28,11 +29,11 @@ Scd4GKZ9cK9GWOEXpxgHl6FJcB/hP3AQ/BX8HvMDbPGEGywxjV7G7hHbFD+4wwQFFpGx
 wA7X4ZFHzhnWOMExNpiHlg/8PxiecYQhrnCOM7yhbr+niuuXuAiuGvEP/lMlte6HL6QA
 AAAASUVORK5CYII=
 """,
-        "schedule_prefix": "For ",
-        "status_label": "away",
     },
     "busy": {
         "color": "#FF0000",
+        "schedule_prefix": "For ",
+        "status_label": "busy",
         "image": """
 iVBORw0KGgoAAAANSUhEUgAAAAoAAAAKCAYAAACNMs+9AAAACXBIWXMAAC4jAAAuIwF4
 pT92AAAAh0lEQVQYlX3QOw7CQAyE4S8SFyCUlHApaioINAn3oQJulJRQQBluwKPAUdCK
@@ -40,22 +41,22 @@ MNLfjMdrr+m1Qo1LUGMt0QFP7DAPKjxw7EIFXpik3cijtoE2XhpSiXuGG6ZYYJmE9rHW
 dfRlZsGg2lj83+iW/jP5j9A4atvOOPqcosIsKMM7pd0FGpyDRpwF3ljQIMhNRxrbAAAA
 AElFTkSuQmCC
 """,
-        "schedule_prefix": "For ",
-        "status_label": "busy",
     },
     "free": {
         "color": "#00FF00",
+        "schedule_prefix": "For ",
+        "status_label": "free",
         "image": """
 iVBORw0KGgoAAAANSUhEUgAAAAoAAAAICAYAAADA+m62AAAACXBIWXMAAC4jAAAuIwF4
 pT92AAAAb0lEQVQYlYXOsQnCUBAG4C8khQMIGccJsoCNSFrLLCPWlklhJ7hDLDNIOovY
 XOAhD3PNcT8fP8f2XDFtoQ4LHv/QJdBtDWoUP6gNdE/DD8bkPgYaUlRixgn7aO7xRJP7
 5xwtC145UMZ+Y4cKhxz8Al5ZEuTs2wZwAAAAAElFTkSuQmCC
 """,
-        "schedule_prefix": "For ",
-        "status_label": "free",
     },
     "offline": {
         "color": "#808080",
+        "schedule_prefix": "Until Later",
+        "status_label": "offline",
         "image": """
 iVBORw0KGgoAAAANSUhEUgAAAAoAAAAKCAYAAACNMs+9AAAACXBIWXMAAC4jAAAuIwF4
 pT92AAAAo0lEQVQYlW3QOQpCQRAE0Ic3cDmA4BX0AF7FTL5LoFfwJG6hNzAVTAyEL5gY
@@ -63,11 +64,11 @@ aeYBDFwCe/DzsaGha6qmpqf4VR85DtE5MqVa4oUpOmhjgidWSZThjXrgORYx14IbwB3j
 gvseuwIehsat4AZHbAu4gWulvCw26MaO8EjEHaOSeIZzzL30dPpM7Y97NbhhOlj5RjFB
 C03fXJ9Yl29nOOESfRKxwAds1CbJl+J/zQAAAABJRU5ErkJggg==
 """,
-        "schedule_prefix": "Until Later",
-        "status_label": "offline",
     },
     "remote": {
         "color": "#0000FF",
+        "schedule_prefix": "For ",
+        "status_label": "remote",
         "image": """
 iVBORw0KGgoAAAANSUhEUgAAAAoAAAAICAYAAADA+m62AAAACXBIWXMAAC4jAAAuIwF4
 pT92AAAAkklEQVQYlV3PMQ4BURSF4W9iKjQkWtEpKel0YhESYwNKG7AOiU5FyT4UoqMT
@@ -75,11 +76,11 @@ ap2guWTMS15e7n/OuSeP/9PBNW432LvgMQ6YYYIn5sEqX9MswCgXHAT7bdzG0C5WoBXa
 JsUNR5yQRnWCJc444P5N7uLNcAnDNK+lqKGJMvpY4IUe1qHVE5SwRxWN+PEbq6h8YPgB
 eXwhnvIE4jgAAAAASUVORK5CYII=
 """,
-        "schedule_prefix": "For ",
-        "status_label": "remote",
     },
     "remote_busy": {
         "color": "#0000FF",
+        "schedule_prefix": "Busy for ",
+        "status_label": "remote",
         "image": """
 iVBORw0KGgoAAAANSUhEUgAAAAoAAAAICAYAAADA+m62AAAACXBIWXMAAC4jAAAuIwF4
 pT92AAAAkklEQVQYlV3PMQ4BURSF4W9iKjQkWtEpKel0YhESYwNKG7AOiU5FyT4UoqMT
@@ -87,11 +88,11 @@ ap2guWTMS15e7n/OuSeP/9PBNW432LvgMQ6YYYIn5sEqX9MswCgXHAT7bdzG0C5WoBXa
 JsUNR5yQRnWCJc444P5N7uLNcAnDNK+lqKGJMvpY4IUe1qHVE5SwRxWN+PEbq6h8YPgB
 eXwhnvIE4jgAAAAASUVORK5CYII=
 """,
-        "schedule_prefix": "Busy for ",
-        "status_label": "remote",
     },
     "remote_free": {
         "color": "#0000FF",
+        "schedule_prefix": "Free for ",
+        "status_label": "remote",
         "image": """
 iVBORw0KGgoAAAANSUhEUgAAAAoAAAAICAYAAADA+m62AAAACXBIWXMAAC4jAAAuIwF4
 pT92AAAAkklEQVQYlV3PMQ4BURSF4W9iKjQkWtEpKel0YhESYwNKG7AOiU5FyT4UoqMT
@@ -99,11 +100,11 @@ ap2guWTMS15e7n/OuSeP/9PBNW432LvgMQ6YYYIn5sEqX9MswCgXHAT7bdzG0C5WoBXa
 JsUNR5yQRnWCJc444P5N7uLNcAnDNK+lqKGJMvpY4IUe1qHVE5SwRxWN+PEbq6h8YPgB
 eXwhnvIE4jgAAAAASUVORK5CYII=
 """,
-        "schedule_prefix": "Free for ",
-        "status_label": "remote",
     },
     "unknown": {
         "color": "#FFFF00",
+        "schedule_prefix": None,
+        "status_label": "unknown",
         "image": """
 iVBORw0KGgoAAAANSUhEUgAAAAoAAAAKCAYAAACNMs+9AAAACXBIWXMAAC4jAAAuIwF4
 pT92AAAAt0lEQVQYlV3QP0pDYRAE8B9ptHiFghYBOw8gXsAD2EggRcADhPhio0fwBF4g
@@ -112,82 +113,50 @@ HOMKH1jjAkW4Pnyjm6MFnvEUAdzgB75wUrPyEmGR/bMRsNsTDXCNc2xwCg0c4HZP2MQ0
 XqGDQ4mg+gws8RZ8FO6+emWUeB5xmX5IPOOafyVWmGMW3K/IP3NkKS2ii0XRAAAAAElF
 TkSuQmCC
 """,
-        "schedule_prefix": None,
-        "status_label": "unknown",
     },
 }
 
-# Except for Tenant ID - MSFT "common" Tenant is used to enable the App to access data from all Enterprise Tenants and/or Personal Outlook Accounts
-# When running non-server mode we pass the Tenant ID via config to test with a specific Enterprise Tenant
-GRAPH_TENANT_ID_DEFAULT = "common"
+# Values for local server
+DEVELOPER_GRAPH_TENANT_ID = "common"
+DEVELOPER_GRAPH_CLIENT_ID = "REPLACE_ON_LOCAL"
+DEVELOPER_GRAPH_CLIENT_SECRET = "REPLACE_ON_LOCAL"
 
-# Default (invalid) client ID and Secrets to keep the run time environment happy when running in Debug Mode
-GRAPH_CLIENT_ID_DEFAULT = "123456"
-GRAPH_CLIENT_SECRET_DEFAULT = "78910"
+# Values for Tidbyt server
+ENCRYPTED_GRAPH_TENANT_ID = "REPLACE_ON_SERVER"
+ENCRYPTED_GRAPH_CLIENT_ID = "REPLACE_ON_SERVER"
+ENCRYPTED_GRAPH_CLIENT_SECRET = "REPLACE_ON_SERVER"
 
-# Hash Strings to encrypt/store secrets required by MSFT Graph API access. These ultimately get replaced with Tidbyt Hash when the
-# App is placed into the production environment. Application folder name is "officestatus". These (hashed) secrets are tied to
-# the common tenant version of the Web App (Tidbyt_Ocal)
-GRAPH_CLIENT_ID_HASH = "AV6+xWcEEXuYe3pTryNhDHEtNSvhVh5AzuB80JlncWy6vIj/rgonoeEGOXIzDClOEJkL0RAWAKCFRpSglnBCRa0G3ABIpSSA/zXdCSugEoqA4zDfEBxTh78LvvZ6r0pBfoUj1eHRYxH1PTSbKKKBdPg7mdtyC5lfsMyAYYPyqLq6XX0sGBR4f7IR"
-GRAPH_CLIENT_SECRET_HASH = "AV6+xWcESGhLr279hd21f9Zt1YQ4CUEeNMJ+obZE+PENXR6PbXAeO0ZMrz3QQ422C1ZFUBpmOqspjwfRf1WBzqL5BbDxOSPLWpVuakjDnRTdxZCJfQYNR5tpZj3QYvdZeImhrHLpPgWRIPxkjFezKXTHglX/Jdvry401sMaFgNmhc+N4racVgDIC7NU8fQ=="
+# Set globals for graph authentication
+GRAPH_TENANT_ID = secret.decrypt(ENCRYPTED_GRAPH_TENANT_ID) or DEVELOPER_GRAPH_TENANT_ID
+GRAPH_CLIENT_ID = secret.decrypt(ENCRYPTED_GRAPH_CLIENT_ID) or DEVELOPER_GRAPH_CLIENT_ID
+GRAPH_CLIENT_SECRET = secret.decrypt(ENCRYPTED_GRAPH_CLIENT_SECRET) or DEVELOPER_GRAPH_CLIENT_SECRET
+GRAPH_AUTH_ENDPOINT = ("https://login.microsoftonline.com/" + GRAPH_TENANT_ID + "/oauth2/v2.0/authorize")
+GRAPH_TOKEN_ENDPOINT = ("https://login.microsoftonline.com/" + GRAPH_TENANT_ID + "/oauth2/v2.0/token")
 
-# MSFT Graph uses 3 secrets to operate. There is the usual Client Secret and Client ID, but Graph uses the Tenant ID as part of
-# The endpoint URL. For public usage, the Tenant ID is set to "Common"
-# Secrets are hardcoded here for debug with Pixlet "Serve" mode, then replaced with Tidbyt Secrets for production code
-
-# Common Tenant (will encrypt these as the production values)
-#GRAPH_CLIENT_ID = "GRAPH_CLIENT_ID"
-#GRAPH_CLIENT_SECRET = "GRAPH_CLIENT_SECRET"
-
-# Production Code - runs in the Tidbyt production environment
-GRAPH_TENANT_ID = ""
-GRAPH_CLIENT_ID = secret.decrypt(GRAPH_CLIENT_ID_HASH)
-GRAPH_CLIENT_SECRET = secret.decrypt(GRAPH_CLIENT_SECRET_HASH)
-
-# Graph auth related End points
-GRAPH_AUTH_ENDPOINT = (
-    "https://login.microsoftonline.com/" +
-    (GRAPH_TENANT_ID or GRAPH_TENANT_ID_DEFAULT) +
-    "/oauth2/v2.0/authorize"
-)
-GRAPH_TOKEN_ENDPOINT = (
-    "https://login.microsoftonline.com/" +
-    (GRAPH_TENANT_ID or GRAPH_TENANT_ID_DEFAULT) +
-    "/oauth2/v2.0/token"
-)
-
-# Graph calendar view URL for retrieving calendar events and paging variables
+# Set globals for graph calendar view endpoint
 GRAPH_CALENDAR_VIEW_URL = "https://graph.microsoft.com/v1.0/me/calendarview"
 MAX_GRAPH_EVENT_FETCH_WEEK = 100
 GRAPH_BUCKET_SIZE = 10
 NUMBER_OF_GRAPH_FETCH_ITERATIONS = int(MAX_GRAPH_EVENT_FETCH_WEEK / GRAPH_BUCKET_SIZE)
 
-# Default (invalid) client ID and Secrets to keep the run time Env happy when running in Debug Mode
-WEBEX_CLIENT_ID_DEFAULT = "123456"
-WEBEX_CLIENT_SECRET_DEFAULT = "78910"
+# Values for local server
+DEVELOPER_WEBEX_CLIENT_ID = "REPLACE_ON_LOCAL"
+DEVELOPER_WEBEX_CLIENT_SECRET = "REPLACE_ON_LOCAL"
 
-# Hash Strings to encrypt/store secrets required for Webex API access. These ultimately get replaced with Tidbyt Hash when the
-# App is placed into the production environment. Application folder name is "officestatus". These (hashed) secrets are tied to
-# the common tenant version of the Web App (Tidbyt_Ocal)
-WEBEX_CLIENT_ID_HASH = "AV6+xWcEo0OJA8UWuJWzG3SKr1yzOF98lUceQ3941XZ/inLXZcZwKqowtwTkZ0Te3GqhpcMCiOaHFmww3ZfbcbvKz1uBuOO2Kcwics2c6VOZLXWePYyE553apGLnqhNV/7DM/0s/cjB7GdsC/ip9rqxhVBc4Zc3v0lbFU4FPKLrBCZ7NLOKkPKmUQu0bEtC+wcPxf6Q+AtUCF+Om04rk2Bkxc2cS8aY="
-WEBEX_CLIENT_SECRET_HASH = "AV6+xWcE0orcfJj4wNNbdOQu2ws+0qzBbRL0QIe3r84+kVYaO8NBR7CiH5iArJwcigKHzHoJnGe1PH69S4Z0kjto82zMfKZOn0ehkpuTCNt1QbXNG4TZgIcKEbkMnUa5sLZ9c+hW5UQ6lt0mbBve/bf7fJYf+X7Wa6gEGnFrqoK1lXuJmzBjwBJfw34kjlFJrITT2eDwsJJd1ZK8uHi+3CI1lhwAOw=="
+# Values for Tidbyt server
+ENCRYPTED_WEBEX_CLIENT_ID = "REPLACE_ON_SERVER"
+ENCRYPTED_WEBEX_CLIENT_SECRET = "REPLACE_ON_SERVER"
 
-# Credentials are hardcoded here for debug with Pixlet "Serve" mode, then replaced with Tidbyt Secrets for production code
-#WEBEX_CLIENT_ID = "WEBEX_CLIENT_ID"
-#WEBEX_CLIENT_SECRET = "WEBEX_CLIENT_SECRET"
-
-# Credentials to be decrypted for use in production code
-WEBEX_CLIENT_ID = secret.decrypt(WEBEX_CLIENT_ID_HASH)
-WEBEX_CLIENT_SECRET = secret.decrypt(WEBEX_CLIENT_SECRET_HASH)
-
-# Webex related end points
+# Set globals for webex authentication
+WEBEX_CLIENT_ID = secret.decrypt(ENCRYPTED_WEBEX_CLIENT_ID) or DEVELOPER_WEBEX_CLIENT_ID
+WEBEX_CLIENT_SECRET = secret.decrypt(ENCRYPTED_WEBEX_CLIENT_SECRET) or DEVELOPER_WEBEX_CLIENT_SECRET
 WEBEX_AUTH_ENDPOINT = "https://webexapis.com/v1/authorize"
 WEBEX_TOKEN_ENDPOINT = "https://webexapis.com/v1/access_token"
 
-# Webex personal details for retrieving calendar events
-WEBEX_URL = "https://webexapis.com/v1/people/me"
+# Set globals for webex personal details endpoint
+WEBEX_PERSONAL_DETAILS_URL = "https://webexapis.com/v1/people/me"
 
-# Basic schema defaults
+# Set basic schema defaults
 DEFAULT_NAME = "Jane Smith"
 DEFAULT_LOCATION = """
 {
@@ -217,11 +186,11 @@ def refreshGraphAccessToken(config):
             "Content-type": "application/x-www-form-urlencoded",
         }
         body = (
-            "client_id=" + (GRAPH_CLIENT_ID or GRAPH_CLIENT_ID_DEFAULT) +
+            "client_id=" + GRAPH_CLIENT_ID +
             "&scope=offline_access%20Calendars.read" +
             "&refresh_token=" + graph_refresh_token +
             "&grant_type=refresh_token" +
-            "&client_secret=" + (GRAPH_CLIENT_SECRET or GRAPH_CLIENT_SECRET_DEFAULT)
+            "&client_secret=" + GRAPH_CLIENT_SECRET
         )
         response = http.post(url = GRAPH_TOKEN_ENDPOINT, headers = headers, body = body)
 
@@ -424,8 +393,8 @@ def refreshWebexAccessToken(config):
         }
         params = {
             "grant_type": "refresh_token",
-            "client_id": (WEBEX_CLIENT_ID or WEBEX_CLIENT_ID_DEFAULT),
-            "client_secret": (WEBEX_CLIENT_SECRET or WEBEX_CLIENT_SECRET_DEFAULT),
+            "client_id": WEBEX_CLIENT_ID,
+            "client_secret": WEBEX_CLIENT_SECRET,
             "refresh_token": webex_refresh_token,
         }
         response = http.post(WEBEX_TOKEN_ENDPOINT, headers = headers, params = params)
@@ -455,7 +424,7 @@ def getWebexDetails(webex_access_token):
         headers = {
             "Authorization": "Bearer " + webex_access_token,
         }
-        response = http.get(WEBEX_URL, headers = headers)
+        response = http.get(WEBEX_PERSONAL_DETAILS_URL, headers = headers)
 
         # Set a cache key if API response that there have been too many requests
         if response.status_code == 429:
@@ -701,7 +670,7 @@ def graph_oauth_handler(params):
         "&code=" + params["code"] +
         "&redirect_uri=" + params["redirect_uri"] +
         "&grant_type=authorization_code" +
-        "&client_secret=" + (GRAPH_CLIENT_SECRET or GRAPH_CLIENT_SECRET_DEFAULT)  # Provide runtime a default secret
+        "&client_secret=" + GRAPH_CLIENT_SECRET  # Provide runtime a default secret
     )
     response = http.post(url = GRAPH_TOKEN_ENDPOINT, headers = headers, body = body)
 
@@ -727,7 +696,7 @@ def webex_oauth_handler(params):
     params = {
         "grant_type": "authorization_code",
         "client_id": params["client_id"],
-        "client_secret": WEBEX_CLIENT_SECRET or WEBEX_CLIENT_SECRET_DEFAULT,  # Provide runtime a default secret
+        "client_secret": WEBEX_CLIENT_SECRET,  # Provide runtime a default secret
         "code": params["code"],
         "redirect_uri": params["redirect_uri"],
     }
@@ -767,7 +736,7 @@ def get_schema():
                 desc = "Authorize your Microsoft Outlook Calendar",
                 icon = "windows",
                 handler = graph_oauth_handler,
-                client_id = (GRAPH_CLIENT_ID or GRAPH_CLIENT_ID_DEFAULT),
+                client_id = GRAPH_CLIENT_ID,
                 authorization_endpoint = GRAPH_AUTH_ENDPOINT,
                 scopes = [
                     "offline_access",
@@ -780,7 +749,7 @@ def get_schema():
                 desc = "Authorize your Webex Teams Account",
                 icon = "message",
                 handler = webex_oauth_handler,
-                client_id = (WEBEX_CLIENT_ID or WEBEX_CLIENT_ID_DEFAULT),
+                client_id = WEBEX_CLIENT_ID,
                 authorization_endpoint = WEBEX_AUTH_ENDPOINT,
                 scopes = [
                     "spark:people_read",
