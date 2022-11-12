@@ -356,9 +356,8 @@ def getGraphCurrentEvents(graph_events):
                     graph_event["end"]["dateTime"],
                     "2006-01-02T15:04:05",
                 ) >= time.now().in_location("UTC")
-            ) or graph_event["isAllDay"] == True
-        ):
-            graph_current_events.append(graph_event)
+            )
+        ): graph_current_events.append(graph_event)
     if (graph_current_events != []):
         return graph_current_events
     else:
