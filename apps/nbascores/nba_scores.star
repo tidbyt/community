@@ -95,7 +95,7 @@ def main(config):
         showDateTime = config.bool("displayDateTime")
         pregameDisplay = config.get("pregameDisplay", "record")
         timeColor = config.get("displayTimeColor", "#FFF")
-        rotationSpeed = 15 / len(scores)
+        rotationSpeed = get_rotationSpeed(scores, config.get("rotationSpeed", "record"))
         location = config.get("location", DEFAULT_LOCATION)
         loc = json.decode(location)
         timezone = loc["timezone"]
@@ -689,6 +689,25 @@ colorOptions = [
     ),
 ]
 
+rotationSpeedOptions = [
+    schema.Option(
+        display = "Automatic",
+        value = "automatic",
+    ),
+    schema.Option(
+        display = "5 Seconds",
+        value = "5_seconds",
+    ),
+    schema.Option(
+        display = "15 Seconds",
+        value = "15_seconds",
+    ),
+    schema.Option(
+        display = "30 Seconds",
+        value = "30_seconds",
+    ),
+]
+
 def get_schema():
     return schema.Schema(
         version = "1",
@@ -729,6 +748,14 @@ def get_schema():
                 icon = "gear",
                 default = colorOptions[0].value,
                 options = colorOptions,
+            ),
+            schema.Dropdown(
+                id = "rotationSpeed",
+                name = "Rotation Speed",
+                desc = "Select how fast you want to rotate through the games.",
+                icon = "gear",
+                default = rotationSpeedOptions[0].value,
+                options = rotationSpeedOptions,
             ),
             schema.Dropdown(
                 id = "instancesCount",
@@ -902,3 +929,19 @@ def get_cachable_data(url, ttl_seconds = CACHE_TTL_SECONDS):
     cache.set(key, base64.encode(res.body()), ttl_seconds = CACHE_TTL_SECONDS)
 
     return res.body()
+
+def get_rotationSpeed(scores, rotationSpeedConfig):
+    defaultRotationSpeed = 15 / len(scores)
+
+    if rotationSpeedConfig == "automatic":
+        rotationSpeed = defaultRotationSpeed
+    elif rotationSpeedConfig == "5_seconds":
+        rotationSpeed = 5
+    elif rotationSpeedConfig == "15_seconds":
+        rotationSpeed = 15
+    elif rotationSpeedConfig == "30_seconds":
+        rotationSpeed = 30
+    else:
+        defaultRotationSpeed
+
+    return rotationSpeed
