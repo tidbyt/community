@@ -16,6 +16,60 @@ load("schema.star", "schema")
 load("secret.star", "secret")
 load("time.star", "time")
 
+# Set basic schema defaults
+DEFAULT_NAME = "Jane Smith"
+DEFAULT_LOCATION = """
+{
+	"lat": "40.6781784",
+	"lng": "-73.9441579",
+	"description": "Brooklyn, NY, USA",
+	"locality": "Brooklyn",
+	"place_id": "ChIJCSF8lBZEwokRhngABHRcdoI",
+	"timezone": "America/Chicago"
+}
+"""
+TTL_SECONDS = 30
+
+# Values for local server
+DEVELOPER_GRAPH_TENANT_ID = "common"
+DEVELOPER_GRAPH_CLIENT_ID = "REPLACE_ON_LOCAL"
+DEVELOPER_GRAPH_CLIENT_SECRET = "REPLACE_ON_LOCAL"
+
+# Values for Tidbyt server
+ENCRYPTED_GRAPH_TENANT_ID = "REPLACE_ON_SERVER"
+ENCRYPTED_GRAPH_CLIENT_ID = "REPLACE_ON_SERVER"
+ENCRYPTED_GRAPH_CLIENT_SECRET = "REPLACE_ON_SERVER"
+
+# Set globals for graph authentication
+GRAPH_TENANT_ID = secret.decrypt(ENCRYPTED_GRAPH_TENANT_ID) or DEVELOPER_GRAPH_TENANT_ID
+GRAPH_CLIENT_ID = secret.decrypt(ENCRYPTED_GRAPH_CLIENT_ID) or DEVELOPER_GRAPH_CLIENT_ID
+GRAPH_CLIENT_SECRET = secret.decrypt(ENCRYPTED_GRAPH_CLIENT_SECRET) or DEVELOPER_GRAPH_CLIENT_SECRET
+GRAPH_AUTH_ENDPOINT = ("https://login.microsoftonline.com/" + GRAPH_TENANT_ID + "/oauth2/v2.0/authorize")
+GRAPH_TOKEN_ENDPOINT = ("https://login.microsoftonline.com/" + GRAPH_TENANT_ID + "/oauth2/v2.0/token")
+
+# Set globals for graph calendar view endpoint
+GRAPH_CALENDAR_VIEW_URL = "https://graph.microsoft.com/v1.0/me/calendarview"
+MAX_GRAPH_EVENT_FETCH_WEEK = 100
+GRAPH_BUCKET_SIZE = 10
+NUMBER_OF_GRAPH_FETCH_ITERATIONS = int(MAX_GRAPH_EVENT_FETCH_WEEK / GRAPH_BUCKET_SIZE)
+
+# Values for local server
+DEVELOPER_WEBEX_CLIENT_ID = "REPLACE_ON_LOCAL"
+DEVELOPER_WEBEX_CLIENT_SECRET = "REPLACE_ON_LOCAL"
+
+# Values for Tidbyt server
+ENCRYPTED_WEBEX_CLIENT_ID = "REPLACE_ON_SERVER"
+ENCRYPTED_WEBEX_CLIENT_SECRET = "REPLACE_ON_SERVER"
+
+# Set globals for webex authentication
+WEBEX_CLIENT_ID = secret.decrypt(ENCRYPTED_WEBEX_CLIENT_ID) or DEVELOPER_WEBEX_CLIENT_ID
+WEBEX_CLIENT_SECRET = secret.decrypt(ENCRYPTED_WEBEX_CLIENT_SECRET) or DEVELOPER_WEBEX_CLIENT_SECRET
+WEBEX_AUTH_ENDPOINT = "https://webexapis.com/v1/authorize"
+WEBEX_TOKEN_ENDPOINT = "https://webexapis.com/v1/access_token"
+
+# Set globals for webex personal details endpoint
+WEBEX_PERSONAL_DETAILS_URL = "https://webexapis.com/v1/people/me"
+
 STATUS_MAP = {
     "away": {
         "color": "#FF00FF",
@@ -115,60 +169,6 @@ TkSuQmCC
 """,
     },
 }
-
-# Values for local server
-DEVELOPER_GRAPH_TENANT_ID = "common"
-DEVELOPER_GRAPH_CLIENT_ID = "REPLACE_ON_LOCAL"
-DEVELOPER_GRAPH_CLIENT_SECRET = "REPLACE_ON_LOCAL"
-
-# Values for Tidbyt server
-ENCRYPTED_GRAPH_TENANT_ID = "REPLACE_ON_SERVER"
-ENCRYPTED_GRAPH_CLIENT_ID = "REPLACE_ON_SERVER"
-ENCRYPTED_GRAPH_CLIENT_SECRET = "REPLACE_ON_SERVER"
-
-# Set globals for graph authentication
-GRAPH_TENANT_ID = secret.decrypt(ENCRYPTED_GRAPH_TENANT_ID) or DEVELOPER_GRAPH_TENANT_ID
-GRAPH_CLIENT_ID = secret.decrypt(ENCRYPTED_GRAPH_CLIENT_ID) or DEVELOPER_GRAPH_CLIENT_ID
-GRAPH_CLIENT_SECRET = secret.decrypt(ENCRYPTED_GRAPH_CLIENT_SECRET) or DEVELOPER_GRAPH_CLIENT_SECRET
-GRAPH_AUTH_ENDPOINT = ("https://login.microsoftonline.com/" + GRAPH_TENANT_ID + "/oauth2/v2.0/authorize")
-GRAPH_TOKEN_ENDPOINT = ("https://login.microsoftonline.com/" + GRAPH_TENANT_ID + "/oauth2/v2.0/token")
-
-# Set globals for graph calendar view endpoint
-GRAPH_CALENDAR_VIEW_URL = "https://graph.microsoft.com/v1.0/me/calendarview"
-MAX_GRAPH_EVENT_FETCH_WEEK = 100
-GRAPH_BUCKET_SIZE = 10
-NUMBER_OF_GRAPH_FETCH_ITERATIONS = int(MAX_GRAPH_EVENT_FETCH_WEEK / GRAPH_BUCKET_SIZE)
-
-# Values for local server
-DEVELOPER_WEBEX_CLIENT_ID = "REPLACE_ON_LOCAL"
-DEVELOPER_WEBEX_CLIENT_SECRET = "REPLACE_ON_LOCAL"
-
-# Values for Tidbyt server
-ENCRYPTED_WEBEX_CLIENT_ID = "REPLACE_ON_SERVER"
-ENCRYPTED_WEBEX_CLIENT_SECRET = "REPLACE_ON_SERVER"
-
-# Set globals for webex authentication
-WEBEX_CLIENT_ID = secret.decrypt(ENCRYPTED_WEBEX_CLIENT_ID) or DEVELOPER_WEBEX_CLIENT_ID
-WEBEX_CLIENT_SECRET = secret.decrypt(ENCRYPTED_WEBEX_CLIENT_SECRET) or DEVELOPER_WEBEX_CLIENT_SECRET
-WEBEX_AUTH_ENDPOINT = "https://webexapis.com/v1/authorize"
-WEBEX_TOKEN_ENDPOINT = "https://webexapis.com/v1/access_token"
-
-# Set globals for webex personal details endpoint
-WEBEX_PERSONAL_DETAILS_URL = "https://webexapis.com/v1/people/me"
-
-# Set basic schema defaults
-DEFAULT_NAME = "Jane Smith"
-DEFAULT_LOCATION = """
-{
-	"lat": "40.6781784",
-	"lng": "-73.9441579",
-	"description": "Brooklyn, NY, USA",
-	"locality": "Brooklyn",
-	"place_id": "ChIJCSF8lBZEwokRhngABHRcdoI",
-	"timezone": "America/Chicago"
-}
-"""
-TTL_SECONDS = 30
 
 def main(config):
     name = config.str("name", DEFAULT_NAME)
