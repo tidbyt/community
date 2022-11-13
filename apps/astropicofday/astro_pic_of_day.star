@@ -57,7 +57,7 @@ def main():
                 animation.Transformation(
                     child = render.Box(
                         child = render.Box(
-                            color = "#c3c3c325",
+                            color = "#00000099",
                             width = 64,
                             child = render.Column(
                                 cross_align = "center",
@@ -67,7 +67,7 @@ def main():
                                         height = 8,
                                     ),
                                     render.Padding(
-                                        pad = (5, 2, 5, 0),
+                                        pad = (1, 2, 1, 0),
                                         child = render.WrappedText(
                                             align = "center",
                                             content = title,
