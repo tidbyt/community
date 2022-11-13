@@ -702,7 +702,7 @@ def webex_oauth_handler(params):
     params = {
         "grant_type": "authorization_code",
         "client_id": params["client_id"],
-        "client_secret": WEBEX_CLIENT_SECRET,  # Provide runtime a default secret
+        "client_secret": WEBEX_CLIENT_SECRET,
         "code": params["code"],
         "redirect_uri": params["redirect_uri"],
     }
