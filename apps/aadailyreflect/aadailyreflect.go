@@ -16,7 +16,7 @@ func New() manifest.Manifest {
 		ID:          "aadailyreflect",
 		Name:        "AA Daily Reflect",
 		Author:      "jvivona",
-		Summary:     "Shows daily reflection from AA",
+		Summary:     "Daily reflection from AA",
 		Desc:        "Shows todays daily reflection title, summary and reference from aa.org/daily-reflections",
 		FileName:    "aadailyreflect.star",
 		PackageName: "aadailyreflect",
