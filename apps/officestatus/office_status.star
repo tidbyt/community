@@ -32,8 +32,8 @@ TTL_SECONDS = 30
 
 # Values for local server
 DEVELOPER_GRAPH_TENANT_ID = "common"
-DEVELOPER_GRAPH_CLIENT_ID = "REPLACE_ON_LOCAL"
-DEVELOPER_GRAPH_CLIENT_SECRET = "REPLACE_ON_LOCAL"
+DEVELOPER_GRAPH_CLIENT_ID = "5a7824f2-595e-4a50-9d07-6492f829cc89"
+DEVELOPER_GRAPH_CLIENT_SECRET = "ocP8Q~0L5Eyy3kqG.ikeRZsClzlYnCBKO4u_2a04"
 
 # Values for Tidbyt server
 ENCRYPTED_GRAPH_TENANT_ID = "REPLACE_ON_SERVER"
@@ -341,21 +341,24 @@ def getGraphEvents(graph_access_token, timezone):
         )
         return graph_events
 
-def getGraphCurrentEvents(graph_events):
+def getGraphCurrentEvents(graph_events, timezone):
     # Accepts a json array of graph events
     # Returns an array of events happening now
     graph_current_events = []
     for graph_event in graph_events:
+        start_time = time.parse_time(graph_event["start"]["dateTime"], "2006-01-02T15:04:05")
+        end_time = time.parse_time(graph_event["end"]["dateTime"], "2006-01-02T15:04:05")
+        start_date = time.parse_time(start_time.format("2006-01-02"), "2006-01-02")
+        end_date = time.parse_time(end_time.format("2006-01-02"), "2006-01-02")
         if (
             (
-                time.parse_time(
-                    graph_event["start"]["dateTime"],
-                    "2006-01-02T15:04:05",
-                ) <= time.now().in_location("UTC") and
-                time.parse_time(
-                    graph_event["end"]["dateTime"],
-                    "2006-01-02T15:04:05",
-                ) >= time.now().in_location("UTC")
+                graph_event["isAllDay"] == False and
+                start_time <= time.now().in_location("UTC") and
+                end_time >= time.now().in_location("UTC")
+            ) or (
+                graph_event["isAllDay"] == True and
+                start_date <= time.now().in_location(timezone) and
+                end_date >= time.now().in_location(timezone)
             )
         ):
             graph_current_events.append(graph_event)
@@ -416,7 +419,7 @@ def getGraphNextEvent(graph_events):
 def getGraphStatus(graph_access_token, timezone):
     # Determines a user's status based on graph events returned
     graph_events = getGraphEvents(graph_access_token, timezone)
-    graph_current_events = getGraphCurrentEvents(graph_events)
+    graph_current_events = getGraphCurrentEvents(graph_events, timezone)
     graph_oof_event = getGraphLatestEventByShowAs(graph_current_events, "oof")
     graph_busy_event = getGraphLatestEventByShowAs(graph_current_events, "busy")
     graph_wfh_event = getGraphLatestEventByShowAs(graph_current_events, "workingElsewhere")
