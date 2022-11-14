@@ -21,9 +21,9 @@ DEFAULT_LOCATION = """
 	"timezone": "America/Los_Angeles"
 }
 """
-PREDICTIONS_URL = "https://retro.umoiq.com/service/publicJSONFeed?command=predictions&a=sf-muni&stopId=%s&useShortTitles=true%s"
-ROUTES_URL = "https://retro.umoiq.com/service/publicJSONFeed?command=routeList&a=sf-muni&useShortTitles=true"
-STOPS_URL = "https://retro.umoiq.com/service/publicJSONFeed?command=routeConfig&a=sf-muni&r=%s&useShortTitles=true"
+PREDICTIONS_URL = https://api.511.org/transit/StopMonitoring?format=json&api_key=%s&agency=SF&stopCode=%s"
+ROUTES_URL = "https://api.511.org/transit/lines?format=json&api_key=%s&operator_id=SF"
+STOPS_URL = "https://api.511.org/transit/stops?format=json&api_key=%s&operator_id=SF"
 
 # Colours for Muni Metro/Street Car lines
 MUNI_COLORS = {
@@ -192,30 +192,30 @@ def get_schema():
 def get_stops(location):
     loc = json.decode(location)
 
-    (timestamp, raw_routes) = fetch_cached(ROUTES_URL, 86400)
-    routes = [route["tag"] for route in raw_routes["route"]]
-
     stops = {}
 
-    for route in routes:
-        (timestamp, raw_stops) = fetch_cached((STOPS_URL % route), 86400)
-        stops.update([(stop["stopId"], stop) for stop in raw_stops["route"]["stop"]])
+    # TODO: encrypt a real secret.
+    api_key = config.get("dev_api_key")
+    (timestamp, raw_stops) = fetch_cached(STOPS_URL % api_key, 86400)
+    stops.update([(stop["stopId"], stop) for stop in raw_stops["Contents"]["dataObjects"]["ScheduledStopPoint"]])
 
     return [
         schema.Option(
-            display = "%s (#%s)" % (stop["title"], stop["stopId"]),
+            display = "%s (#%s)" % (stop["Name"], stop["id"]),
             value = stop["stopId"],
         )
-        for stop in sorted(stops.values(), key = lambda stop: square_distance(loc["lat"], loc["lng"], stop["lat"], stop["lon"]))
+        for stop in sorted(stops.values(), key = lambda stop: square_distance(loc["lat"], loc["lng"], stop["Location"]["Latitude"], stop["Location"]["Longitude"]))
     ]
 
 # Function to get the available route list for route filter selection. Additionally adds 'all-routes' option to the beginning of the list
 def get_route_list():
-    (timestamp, raw_routes) = fetch_cached(ROUTES_URL, 86400)
+    # TODO: encrypt a real secret.
+    api_key = config.get("dev_api_key")
+    (timestamp, raw_routes) = fetch_cached(ROUTES_URL % api_key, 86400)
     route_list = [
         schema.Option(
-            display = route["title"],
-            value = route["tag"],
+            display = route["Name"],
+            value = route["Id"],
         )
         for route in raw_routes["route"]
     ]
@@ -257,16 +257,16 @@ def main(config):
     stopId = stop["value"]
     route_filter = config.get("route_filter", DEFAULT_CONFIG["route_filter"])
 
-    if route_filter != "all-routes":
-        (data_timestamp, data) = fetch_cached(PREDICTIONS_URL % (stopId, "&r=" + route_filter), 240)
-    else:
-        (data_timestamp, data) = fetch_cached(PREDICTIONS_URL % (stopId, ""), 240)
+    # TODO: encrypt a real secret.
+    api_key = config.get("dev_api_key")
+    (data_timestamp, data) = fetch_cached(PREDICTIONS_URL % (api_key, stopId), 240)
 
-    routes = data.get("predictions", [])
-    data_age_seconds = time.now().unix - data_timestamp
-
-    if type(routes) != "list":
-        routes = [routes]
+    service = data.get("ServiceDelivery", {})
+    if not service or not service["Status"]:
+        return []
+    
+    stopMonitoring = service["StopMonitoringDelivery"]
+    monitoredVisits = stopMonitoring["MonitoredStopVisit"]
 
     minimum_time_string = config.str("minimum_time", "0")
     minimum_time = int(minimum_time_string) if minimum_time_string.isdigit() else 0
@@ -274,55 +274,65 @@ def main(config):
     messages = []
     stopTitle = stop["display"]
 
-    for route in routes:
-        if "routeTag" not in route or "direction" not in route:
-            continue
-        routeTag = route["routeTag"]
+    data_age_seconds = time.now().unix - data_timestamp
 
-        if "stopTitle" in route:
-            stopTitle = route["stopTitle"]
+    for visit in monitoredVisits:
+      if "MonitoredVehicleJourney" not in visit:
+          continue
+      vehicle = visit["MonitoredVehicleJourney"]
 
-        if "message" in route:
-            message = route["message"]
-            if type(message) != "list":
-                message = [message]
-            for m in message:
-                if m not in messages:
-                    messages.append(m)
+      routeTag = vehicle["LineRef"]
+      if route_filter != "all_routes" && routeTag != route_filter:
+          continue
 
-        destinations = route["direction"]
-        if type(destinations) != "list":
-            destinations = [destinations]
-        for dest in destinations:
-            if "title" not in dest or "prediction" not in dest:
-                continue
-            destTitle = dest["title"].replace("Inbound to ", "").replace("Outbound to ", "").replace(" Station", "")
-            predictions = dest["prediction"]
-            if type(predictions) != "list":
-                predictions = [predictions]
 
-            # Hack for KT interlining, until the Central Subway opens. If stop is in override list, then route designation overriden. Else, use Inbound/Outbound direction to determine route letter
-            if routeTag == "KT":
-                kt_override_stops = {}
-                for stop in K_INBOUND_STOPS:
-                    kt_override_stops[stop] = "K"
-                for stop in T_OUTBOUND_STOPS:
-                    kt_override_stops[stop] = "T"
-                routeTag = kt_override_stops.get(stopId, "T" if "Inbound" in dest["title"] else "K")
+      if "DestinationName" not in vehicle:
+          continue
+      destTitle = vehicle["DestinationName"].replace(" Station", "")
 
-            titleKey = routeTag if "short" == config.get("prediction_format") else (routeTag, destTitle)
-            seconds = [int(prediction["seconds"]) - data_age_seconds for prediction in predictions if "seconds" in prediction]
-            minutes = [int(time / 60) for time in seconds if int(time / 60) >= minimum_time]
+      if "MonitoredCall" not in vehicle:
+          continue
+      call = vehicle["MonitoredCall"]
+      stopId = call["StopPointRef"]
+      stopTitle = call["StopPointName"]
 
-            prediction_map[titleKey] = [str(time) for time in sorted(minutes)]
+      # Hack for KT interlining, until the Central Subway opens. If stop is in override list, then route designation overriden. Else, use Inbound/Outbound direction to determine route letter
+      if routeTag == "KT":
+          kt_override_stops = {}
+          for stop in K_INBOUND_STOPS:
+              kt_override_stops[stop] = "K"
+          for stop in T_OUTBOUND_STOPS:
+              kt_override_stops[stop] = "T"
+          routeTag = kt_override_stops.get(stopId, "T" if vehicle["DirectionRef"] == "IB" else "K")
+
+      titleKey = routeTag if "short" == config.get("prediction_format") else (routeTag, destTitle)
+
+      seconds = aimedArrivalTime.unix - time.now().unix
+      minutes = int(time / 60) 
+
+      if int(time / 60) >= minimum_time:
+        prediction_map[titleKey] = [str(time) for time in sorted(minutes)]
 
     output = sorted(prediction_map.items(), key = lambda kv: int(min(kv[1], key = int))) if prediction_map.items() else []
-    lowest_message_pri = config.get("service_messages")
-    messages = [
-        message["text"]
-        for message in messages
-        if higher_priority_than(message["priority"], lowest_message_pri)
-    ]
+      
+####
+# TODO: messages?
+#        if "message" in route:
+#            message = route["message"]
+#            if type(message) != "list":
+#                message = [message]
+#            for m in message:
+#                if m not in messages:
+#                    messages.append(m)
+#
+#    lowest_message_pri = config.get("service_messages")
+#    messages = [
+#        message["text"]
+#        for message in messages
+#        if higher_priority_than(message["priority"], lowest_message_pri)
+#    ]
+    messages = []
+####
 
     lines = 4
     height = 32
