@@ -12,54 +12,98 @@ load("cache.star", "cache")
 load("schema.star", "schema")
 
 BASE_API_URL = "https://secure.oneswitchboard.com/handle_tidbyt/"
-SB_ICON = base64.decode("""iVBORw0KGgoAAAANSUhEUgAAABkAAAAZCAYAAADE6YVjAAAAAXNSR0IArs4c6QAAA6dJREFUSEu1ln9oVWUYxz/vvefE3XZLm6wmVFs0mFuShLiybXQLKRtt9MMNbAyGOukfmZYXhdKKitUfaSmUhCaoSK0FKRWbhXfNa4mgzLkmxQgnxepO3Wmb07t77n3jvdvZPef+2O3n8985z/N+v8/zfd/3eV7BnObzokfWIUUdsBhYALiAGDAG9ANdmNH34furmaBEeofPgxZtA9kC5M2dSNwbRvAJEa0Vuo3k+FQS/aFl4OpActdfAE8KEVdANGD2HLc7nCTuyhqEaE/OvmVtLWWLih2APcFePj9yIl0eMSRNRIOHLWeCRFUgXQFF4HIJWjc0sPjeu+Nxzzz9MPPnex2AhjHBh3u/wJvn4eLQMDEZ450dH1sxMZArMU9+rX7MkKg9MHuBUvVzy+ZG3mp7Pqta+z46Rsk9C1mzfjdfHt3G8sr1GH9MzKwTVzCj5fBdaJpEq3oDeMlCHeg7RFlZEef6BhkdHadiWRm5uR4HaSg0in/rB2iam2vXbhAKXSXQfdaZmGQf0eA6AT4vmvkzUGBF/P7rUebNy6Og8EnGJ66j9qS83Lkn3/Zk3BM7UQxTKxLo1c1Iud/uUSRebw4FC2uZnLyRVbY5A4TcJNCqj4BUl23W/lMSOC3Qqs7P3GYHiV2uf1cKEUUyDBTagS70H2ZR6Z0ET/YzNmadlrmpRi6PsnHTLtvpSsQruS6DVD1p1l7Z1syr29f+7QI+7QjQsHp7yrq0lSRfxmxsHs9N1K96BLfbzYLbalKqSbsn2UDT+c/3Hoh3iOKSeoaGfrOHRAR6VTuS+n8CbF/Te2Y/S+4rSUcSELirn0XIjv+NRIgWAUt19JzBbK295onl+F9c7chlZMSgqfl1wuEIGeSKYEYLp3uXXrkRKXbaEd7b0cqlXwyeqnuQHwYu0dT4aEr/isUkAxcu4na5KC2dHj833/qYvUu8iRl8eaYLL9XRcoJAhUUU+GYX/q0H2btnA53HzrDFvyqrojvfbecF/+7pOCkGibrvh+6JxDzx+IoxzdNWoyy8PZ/iosQd9W9+Lj5X7BYOT9H29kEmJ6cwjHEOHOqMSxcfxy5RwdSJPvXhnIx61RIkatDMdmQLND//FlY+/oCDRA2uzq5TKNlsFgZWYAaVMnFL85Dw3YFmfmaXLqtOiYAfcVNHOPiTfU2G14o6cbmNSNmW3NcyEBoI+RoRfQ90p8yGDCQWlDoQedUga0GuANTQzwGuI8UwyC6QXxHVj6cDt1D+BMh2T15AzmrQAAAAAElFTkSuQmCC""")
+SB_ICON = base64.decode("""iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAAXNSR0IArs4c6QAAAmVJREFUOE+dk11Ik2EUx3/P3tePTZ0zdeDCglmCIFjMlMxqFH4EJcMmXnelZakQRVT0hRFJEN1EN0oJGVQqFWWU2STCi4wM06lB2jQMb5rfa1tbvK/OmiFU5+45h//vOef/nEcQFhYdEbpMoJpAYBtCrF8qf0HQTVBcwy+9B8dsSCZ+6a1JSP46BOWAIRy8fJpB0IZPnIBXE0p2CWBNQva36/UxlmxLhkhLS6HUtpMEQ5yqvNvSidPpYmpqlg/9n4LT03P9+EWhAhFg0SFp6xEcqjlSJg5X7UeWJdalGtFoNCrA0dXL0NA4A4MuOjq6GXCOKlc34ZOrBBE7NhMMdCptt9yrQxsVRcfLHooLc9HHxaiAxpuPedMzyNy8B5frKx6PV0nPgNgjkPJvIKhQMg9aL9PbO8zZCw2rWLAiLcRtgZzfByjO/zsAJhXAt5DrtxpPUVyUy8iIavAfseDxUn+lmfan3cu1MEDOlgxqq8swxC+6vzI2pqfycXgMm/0kXq9PLSuAd8Cmvxm6ssKGvdSKvfw0bre6S+MCeftVCNb+FyBIgyAyL5OA5gVgTFyjJysrHZMpCVNKIgcrbSpXabe1rYs081qSkxPYW3JMeVI3QhQJsEYj+88BR81mk1yweyvZlnSMRgMl+/JUQCAQwDU2yfy8h+Y7z7l4qSlIkOv8WDgeWuVYZP8TSdLkGeJjJa02CrPZRE11mQr47vHy8NFrRkYncA5+Vlb5LX65ABzu3z6TRYesPQMcUMZZxZNJEM34pfOKePEVwsIaTaR3AwGNHdgF5CyV+yD4DCHdx6dxgsMTkv0Eyz3VGTMtt6oAAAAASUVORK5CYII=""")
+LOGO_WIDTH = 16
+LOGO_HEIGHT = 16
+FULL_WIDTH = 64
+FULL_HEIGHT = 32
+JSON_VALUE_KEY = "value"
 
 def render_failure():
     return render.Root(
         child = render.Box(
-            # This Box exists to provide vertical centering
-            render.Row(
-                expanded = True,  # Use as much horizontal space as possible
-                cross_align = "center",  # Controls vertical alignment
+            child = render.Column(
+                expanded = True,
+                main_align = "space_between",
+                cross_align = "center",
                 children = [
-                    render.Image(src = SB_ICON),
-                    render.Marquee(width = 64 - 25, child = render.Text("Switchboard")),
+                    render.Box(render.Text("Switchboard"), height = FULL_HEIGHT - LOGO_HEIGHT),
+                    render.Stack(
+                        children = [
+                            render.Box(height = LOGO_HEIGHT, color = "#00054d"),
+                            render.Row(expanded = True, main_align = "start", children = [render.Image(src = SB_ICON)]),
+                            render.Row(
+                                main_align = "end",
+                                cross_align = "end",
+                                expanded = True,
+                                children = [
+                                    render.Box(
+                                        render.Marquee(
+                                            align = "end",
+                                            width = FULL_WIDTH - LOGO_WIDTH,
+                                            child = render.Text("Raised: ???", color = "#FFF"),
+                                        ),
+                                        height = LOGO_HEIGHT,
+                                        width = FULL_WIDTH - LOGO_WIDTH,
+                                    ),
+                                ],
+                            ),
+                        ],
+                    ),
                 ],
             ),
         ),
     )
 
 def main(config):
-    sb_api_token = config.get("sb_api_token") or "NO_API_TOKEN"
-    if sb_api_token == "NO_API_TOKEN":
+    sb_api_token = config.get("sb_api_token") or None
+    if not sb_api_token:
         return render_failure()
 
     api_url = BASE_API_URL + "?sb_api_token=%s" % sb_api_token
 
     sb_cached_result = cache.get("sb_cached_result")
     if sb_cached_result != None:
-        print("Hit! Displaying cached data.")
         data = sb_cached_result
     else:
-        print("Miss! Calling API.")
         res = http.get(api_url)
         if res.status_code != 200:
+            fail("Failed with status code %d" % res.status_code)
             return render_failure()
 
-        data = res.json()["donations"]
+        data = res.json()[JSON_VALUE_KEY]
         cache.set("sb_cached_result", data, ttl_seconds = 5)
-
-    data = res.json()["donations"]
 
     return render.Root(
         child = render.Box(
-            # This Box exists to provide vertical centering
-            render.Row(
-                expanded = True,  # Use as much horizontal space as possible
-                cross_align = "center",  # Controls vertical alignment
+            child = render.Column(
+                expanded = True,
+                main_align = "space_between",
+                cross_align = "center",
                 children = [
-                    render.Image(src = SB_ICON),
-                    render.Marquee(width = 64 - 25, child = render.Text(data)),
+                    render.Box(render.Text("Switchboard"), height = FULL_HEIGHT - LOGO_HEIGHT),
+                    render.Stack(
+                        children = [
+                            render.Box(height = LOGO_HEIGHT, color = "#00054d"),
+                            render.Row(expanded = True, main_align = "start", children = [render.Image(src = SB_ICON)]),
+                            render.Row(
+                                main_align = "end",
+                                cross_align = "end",
+                                expanded = True,
+                                children = [
+                                    render.Box(
+                                        render.Marquee(
+                                            align = "end",
+                                            width = FULL_WIDTH - LOGO_WIDTH,
+                                            child = render.Text(data, color = "#FFF"),
+                                        ),
+                                        height = LOGO_HEIGHT,
+                                        width = FULL_WIDTH - LOGO_WIDTH,
+                                    ),
+                                ],
+                            ),
+                        ],
+                    ),
                 ],
             ),
         ),
