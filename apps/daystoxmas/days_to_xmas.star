@@ -2,7 +2,7 @@
 Applet: Days to Xmas
 Summary: Displays Days to Xmas
 Description: Display a countdown of days left til Christmas Day.
-Author: Mike Godfrey
+Author: Godfrey Systems Web Development
 """
 
 load("render.star", "render")

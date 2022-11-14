@@ -15,7 +15,7 @@ func New() manifest.Manifest {
 	return manifest.Manifest{
 		ID:          "days-to-xmas",
 		Name:        "Days to Xmas",
-		Author:      "Mike Godfrey",
+		Author:      "Godfrey Systems Web Development",
 		Summary:     "Displays Days to Xmas",
 		Desc:        "Display a countdown of days left til Christmas Day.",
 		FileName:    "days_to_xmas.star",
