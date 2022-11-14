@@ -2,5 +2,5 @@
 
 Display a countdown of days left til Christmas Day.
 
-![Days to Xmas Countdown Applet for Tidbyt](days_to_xmas.gif)
+![Days to Xmas Countdown Applet for Tidbyt](screenshot.png)
 
