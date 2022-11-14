@@ -54,7 +54,7 @@ def main(config):
         if rep.status_code != 200:
             fail("Spin request failed with status %d", rep.status_code)
         rep = rep.json()
-        cache.set("scooter_information", json.encode(rep), ttl_seconds=240)
+        cache.set("scooter_information", json.encode(rep), ttl_seconds = 240)
 
     # Start with a super-far distance and no closest bike
     closest_distance = 100000
