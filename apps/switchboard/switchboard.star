@@ -41,7 +41,7 @@ def render_failure():
                                         render.Marquee(
                                             align = "end",
                                             width = FULL_WIDTH - LOGO_WIDTH,
-                                            child = render.Text("Raised: ???", color = "#FFF"),
+                                            child = render.Text("API TOKEN REQUIRED", color = "#FFF"),
                                         ),
                                         height = LOGO_HEIGHT,
                                         width = FULL_WIDTH - LOGO_WIDTH,
@@ -68,7 +68,6 @@ def main(config):
     else:
         res = http.get(api_url)
         if res.status_code != 200:
-            fail("Failed with status code %d" % res.status_code)
             return render_failure()
 
         data = res.json()[JSON_VALUE_KEY]
