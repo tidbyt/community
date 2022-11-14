@@ -71,7 +71,7 @@ def main(config):
             return render_failure()
 
         data = res.json()[JSON_VALUE_KEY]
-        cache.set("sb_cached_result", data, ttl_seconds = 5)
+        cache.set("sb_cached_result", data, ttl_seconds = 120)
 
     return render.Root(
         child = render.Box(
