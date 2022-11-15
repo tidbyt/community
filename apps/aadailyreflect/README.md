@@ -1,6 +1,6 @@
 # AA Daily Reflection
 
-Shows the Daily Reflection from the AA.org website
+Shows the Daily Reflection from the AA.org/daily-reflection website
 
 Displayed:
 
