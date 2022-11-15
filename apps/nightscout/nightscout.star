@@ -769,8 +769,8 @@ ARROWS = {
 }
 
 EXAMPLE_DATA = {
-    "sgv_current": "333",
-    "sgv_delta": "-4",
+    "sgv_current": "85",
+    "sgv_delta": "-2",
     "latest_reading_date_string": time.now().format("2006-01-02T15:04:05.999999999Z07:00"),
     "trend": "0",
     "direction": "Flat",
