@@ -544,6 +544,10 @@ def main(config):
 
 def get_schema():
     hostOptions = [
+        schema.Option(
+            display = "Heroku",
+            value = "herokuapp.com",
+        ),
         #schema.Option(
         #    display = "Adaptable.io",
         #    value = "xxx.net",
@@ -576,10 +580,6 @@ def get_schema():
         #    display = "Glitch",
         #    value = "xxx.com",
         #),
-        schema.Option(
-            display = "Heroku",
-            value = "herokuapp.com",
-        ),
         schema.Option(
             display = "Northflank",
             value = "code.run",
@@ -625,7 +625,7 @@ def get_schema():
             schema.Text(
                 id = "nightscout_id",
                 name = "Nightscout ID",
-                desc = "Your Nightscout ID (i.e. [nightscoutID].t1pal.com)",
+                desc = "Your Nightscout ID (i.e. [nightscoutID].heroku.com)",
                 icon = "gear",
             ),
             schema.Text(
