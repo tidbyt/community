@@ -1,7 +1,7 @@
 """
 Applet: SF Next Muni
 Summary: SF Muni arrival times
-Description: Shows the predicted arrival times from NextBus for a given SF Muni stop.
+Description: Shows the predicted arrival times from 511.org for a given SF Muni stop.
 Author: Martin Strauss
 """
 
@@ -10,6 +10,7 @@ load("encoding/json.star", "json")
 load("http.star", "http")
 load("render.star", "render")
 load("schema.star", "schema")
+load("secret.star", "secret")
 load("time.star", "time")
 
 DEFAULT_LOCATION = """
@@ -21,9 +22,13 @@ DEFAULT_LOCATION = """
 	"timezone": "America/Los_Angeles"
 }
 """
-PREDICTIONS_URL = https://api.511.org/transit/StopMonitoring?format=json&api_key=%s&agency=SF&stopCode=%s"
+PREDICTIONS_URL = "https://api.511.org/transit/StopMonitoring?format=json&api_key=%s&agency=SF&stopCode=%s"
 ROUTES_URL = "https://api.511.org/transit/lines?format=json&api_key=%s&operator_id=SF"
 STOPS_URL = "https://api.511.org/transit/stops?format=json&api_key=%s&operator_id=SF"
+
+API_KEY_SECRET=""
+DO_NOT_SUBMIT_DEV_API_KEY="5abe8c24-3965-418e-a0b6-02f20a839ed6"
+API_KEY=secret.decrypt(API_KEY_SECRET) or DO_NOT_SUBMIT_DEV_API_KEY
 
 # Colours for Muni Metro/Street Car lines
 MUNI_COLORS = {
@@ -194,30 +199,27 @@ def get_stops(location):
 
     stops = {}
 
-    # TODO: encrypt a real secret.
-    api_key = config.get("dev_api_key")
-    (timestamp, raw_stops) = fetch_cached(STOPS_URL % api_key, 86400)
-    stops.update([(stop["stopId"], stop) for stop in raw_stops["Contents"]["dataObjects"]["ScheduledStopPoint"]])
+    (timestamp, raw_stops) = fetch_cached(STOPS_URL % API_KEY, 86400)
+    stops.update([(stop["id"], stop) for stop in raw_stops["Contents"]["dataObjects"]["ScheduledStopPoint"]])
 
     return [
         schema.Option(
             display = "%s (#%s)" % (stop["Name"], stop["id"]),
-            value = stop["stopId"],
+            value = stop["id"],
         )
         for stop in sorted(stops.values(), key = lambda stop: square_distance(loc["lat"], loc["lng"], stop["Location"]["Latitude"], stop["Location"]["Longitude"]))
     ]
 
 # Function to get the available route list for route filter selection. Additionally adds 'all-routes' option to the beginning of the list
 def get_route_list():
-    # TODO: encrypt a real secret.
-    api_key = config.get("dev_api_key")
-    (timestamp, raw_routes) = fetch_cached(ROUTES_URL % api_key, 86400)
+    (timestamp, routes) = fetch_cached(ROUTES_URL % API_KEY, 86400)
+
     route_list = [
         schema.Option(
-            display = route["Name"],
+            display = "%s %s" % (route["Id"], route["Name"]),
             value = route["Id"],
         )
-        for route in raw_routes["route"]
+        for route in routes
     ]
     route_list.insert(
         0,
@@ -239,12 +241,16 @@ def fetch_cached(url, ttl):
     if cached and timestamp:
         return (int(timestamp), json.decode(cached))
     else:
+        print(url)
         res = http.get(url)
         if res.status_code != 200:
-            fail("NextBus request to %s failed with status %d", (url, res.status_code))
-        data = res.json()
+            fail("511.org request to %s failed with status %d", (url, res.status_code))
+        
+        # Trim off the UTF-8 byte-order mark
+        body = res.body().lstrip("\ufeff")
+        data = json.decode(body)
         timestamp = time.now().unix
-        cache.set(url, str(data), ttl_seconds = ttl)
+        cache.set(url, body, ttl_seconds = ttl)
         cache.set(("timestamp::%s" % url), str(timestamp), ttl_seconds = ttl)
         return (timestamp, data)
 
@@ -257,14 +263,12 @@ def main(config):
     stopId = stop["value"]
     route_filter = config.get("route_filter", DEFAULT_CONFIG["route_filter"])
 
-    # TODO: encrypt a real secret.
-    api_key = config.get("dev_api_key")
-    (data_timestamp, data) = fetch_cached(PREDICTIONS_URL % (api_key, stopId), 240)
+    (data_timestamp, data) = fetch_cached(PREDICTIONS_URL % (API_KEY, stopId), 240)
 
     service = data.get("ServiceDelivery", {})
     if not service or not service["Status"]:
         return []
-    
+
     stopMonitoring = service["StopMonitoringDelivery"]
     monitoredVisits = stopMonitoring["MonitoredStopVisit"]
 
@@ -277,43 +281,49 @@ def main(config):
     data_age_seconds = time.now().unix - data_timestamp
 
     for visit in monitoredVisits:
-      if "MonitoredVehicleJourney" not in visit:
-          continue
-      vehicle = visit["MonitoredVehicleJourney"]
+        if "MonitoredVehicleJourney" not in visit:
+            continue
+        vehicle = visit["MonitoredVehicleJourney"]
 
-      routeTag = vehicle["LineRef"]
-      if route_filter != "all_routes" && routeTag != route_filter:
-          continue
+        routeTag = vehicle["LineRef"]
+        if route_filter != "all-routes" and routeTag != route_filter:
+            continue
 
+        if "DestinationName" not in vehicle:
+            continue
+        destTitle = vehicle["DestinationName"].replace(" Station", "")
 
-      if "DestinationName" not in vehicle:
-          continue
-      destTitle = vehicle["DestinationName"].replace(" Station", "")
+        if "MonitoredCall" not in vehicle:
+            continue
+        call = vehicle["MonitoredCall"]
+        stopId = call["StopPointRef"]
+        stopTitle = call["StopPointName"]
 
-      if "MonitoredCall" not in vehicle:
-          continue
-      call = vehicle["MonitoredCall"]
-      stopId = call["StopPointRef"]
-      stopTitle = call["StopPointName"]
+        # Hack for KT interlining, until the Central Subway opens. If stop is in override list, then route designation overriden. Else, use Inbound/Outbound direction to determine route letter
+        if routeTag == "KT":
+            kt_override_stops = {}
+            for stop in K_INBOUND_STOPS:
+                kt_override_stops[stop] = "K"
+            for stop in T_OUTBOUND_STOPS:
+                kt_override_stops[stop] = "T"
+            routeTag = kt_override_stops.get(stopId, "T" if vehicle["DirectionRef"] == "IB" else "K")
 
-      # Hack for KT interlining, until the Central Subway opens. If stop is in override list, then route designation overriden. Else, use Inbound/Outbound direction to determine route letter
-      if routeTag == "KT":
-          kt_override_stops = {}
-          for stop in K_INBOUND_STOPS:
-              kt_override_stops[stop] = "K"
-          for stop in T_OUTBOUND_STOPS:
-              kt_override_stops[stop] = "T"
-          routeTag = kt_override_stops.get(stopId, "T" if vehicle["DirectionRef"] == "IB" else "K")
+        titleKey = routeTag if "short" == config.get("prediction_format") else (routeTag, destTitle)
+        if titleKey not in prediction_map:
+            prediction_map[titleKey] = []
 
-      titleKey = routeTag if "short" == config.get("prediction_format") else (routeTag, destTitle)
+        aimedArrivalTime = time.parse_time(call["AimedArrivalTime"])
+        seconds = aimedArrivalTime.unix - time.now().unix
+        minutes = int(seconds / 60) 
 
-      seconds = aimedArrivalTime.unix - time.now().unix
-      minutes = int(time / 60) 
+        if minutes >= minimum_time:
+            prediction_map[titleKey].append(minutes)
+    
+    output_map = {}
+    for key in prediction_map:
+        output_map[key] = [str(prediction) for prediction in sorted(prediction_map[key])]
 
-      if int(time / 60) >= minimum_time:
-        prediction_map[titleKey] = [str(time) for time in sorted(minutes)]
-
-    output = sorted(prediction_map.items(), key = lambda kv: int(min(kv[1], key = int))) if prediction_map.items() else []
+    output = sorted(output_map.items(), key = lambda kv: int(min(kv[1], key = int))) if output_map.items() else []
       
 ####
 # TODO: messages?
