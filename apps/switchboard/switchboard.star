@@ -54,7 +54,7 @@ def render_top_row(top_text = ""):
 
         ],
     )
-
+    
 
 def render_bottom_row(marquee_text, thermometer_width):
     return render.Stack(
@@ -77,11 +77,6 @@ def render_bottom_row(marquee_text, thermometer_width):
     )
 
 def render_layout(marquee_text, top_text, thermometer_width):
-    if not top_text:
-        top_text = ""
-    if not thermometer_width:
-        thermometer_width = FULL_WIDTH
-
     # Value will be the text rendered in the bottom marquee
     return render.Root(
         child = render.Box(
@@ -120,7 +115,7 @@ def main(config):
         res = http.get(api_url)
         if res.status_code != 200:
             # Something went wrong with the API request
-            return render_failure(f"REQUEST FAILED: {res.status_code}", current_time_str)
+            return render_failure("REQUEST FAILED: " + res.status_code, current_time_str)
 
         # Store the retrieved data in cache
         res_json = res.json()
