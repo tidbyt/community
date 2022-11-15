@@ -29,11 +29,10 @@ DEFAULT_LOCATION = """
         "place_id": "ChIJCSF8lBZEwokRhngABHRcdoI",
         "timezone": "America/New_York"
     }
-""" # From https://github.com/tidbyt/pixlet/blob/main/examples/sunrise.star, works as a default for us too
+"""  # From https://github.com/tidbyt/pixlet/blob/main/examples/sunrise.star, works as a default for us too
 
 def render_failure(failure_message, current_time_str):
     return render_layout(failure_message, current_time_str, FULL_WIDTH)
-
 
 def render_top_row(top_text = ""):
     return render.Row(
@@ -45,16 +44,14 @@ def render_top_row(top_text = ""):
                     children = [
                         render.Box(
                             render.Text(top_text),
-                        )
+                        ),
                     ],
                 ),
                 height = FULL_HEIGHT - LOGO_HEIGHT,
                 width = FULL_WIDTH - LOGO_WIDTH,
             ),
-
         ],
     )
-    
 
 def render_bottom_row(marquee_text, thermometer_width):
     return render.Stack(
@@ -138,7 +135,6 @@ def main(config):
 
     return render_layout(marquee_text, top_text, thermometer_width)
 
-
 def get_schema():
     return schema.Schema(
         version = "1",
@@ -154,6 +150,6 @@ def get_schema():
                 name = "Location",
                 desc = "Location for which to display time.",
                 icon = "locationDot",
-            )
+            ),
         ],
     )
