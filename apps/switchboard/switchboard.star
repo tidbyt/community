@@ -112,7 +112,7 @@ def main(config):
         res = http.get(api_url)
         if res.status_code != 200:
             # Something went wrong with the API request
-            return render_failure("REQUEST FAILED: " + res.status_code, current_time_str)
+            return render_failure("REQUEST FAILED: " + str(res.status_code), current_time_str)
 
         # Store the retrieved data in cache
         res_json = res.json()
