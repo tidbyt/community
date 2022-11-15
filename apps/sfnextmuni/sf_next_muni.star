@@ -26,8 +26,8 @@ PREDICTIONS_URL = "https://api.511.org/transit/StopMonitoring?format=json&api_ke
 ROUTES_URL = "https://api.511.org/transit/lines?format=json&api_key=%s&operator_id=SF"
 STOPS_URL = "https://api.511.org/transit/stops?format=json&api_key=%s&operator_id=SF"
 
-API_KEY_SECRET="AV6+xWcEpL1PDDUiE097ZMQVqKZyrPv0CDOCnDeKJ/6v3qth7N/PdYwvvagrIsjOG+eALAdjOGa3QDqynnAWpluesKuK/egvlzoUAPfa9bvDHEZLGNwSksS9IpV8L5fdpptRA7+hDcalGGb7HeGjhtxCNGoGMKI2crxrzxNhaXrrEY6J9MMQjVc="
-API_KEY=secret.decrypt(API_KEY_SECRET)
+API_KEY_SECRET = "AV6+xWcEpL1PDDUiE097ZMQVqKZyrPv0CDOCnDeKJ/6v3qth7N/PdYwvvagrIsjOG+eALAdjOGa3QDqynnAWpluesKuK/egvlzoUAPfa9bvDHEZLGNwSksS9IpV8L5fdpptRA7+hDcalGGb7HeGjhtxCNGoGMKI2crxrzxNhaXrrEY6J9MMQjVc="
+API_KEY = secret.decrypt(API_KEY_SECRET)
 
 # Colours for Muni Metro/Street Car lines
 MUNI_COLORS = {
@@ -244,7 +244,7 @@ def fetch_cached(url, ttl):
         res = http.get(url)
         if res.status_code != 200:
             fail("511.org request to %s failed with status %d", (url, res.status_code))
-        
+
         # Trim off the UTF-8 byte-order mark
         body = res.body().lstrip("\ufeff")
         data = json.decode(body)
@@ -313,35 +313,35 @@ def main(config):
 
         aimedArrivalTime = time.parse_time(call["AimedArrivalTime"])
         seconds = aimedArrivalTime.unix - time.now().unix
-        minutes = int(seconds / 60) 
+        minutes = int(seconds / 60)
 
         if minutes >= minimum_time:
             prediction_map[titleKey].append(minutes)
-    
+
     output_map = {}
     for key in prediction_map:
         output_map[key] = [str(prediction) for prediction in sorted(prediction_map[key])]
 
     output = sorted(output_map.items(), key = lambda kv: int(min(kv[1], key = int))) if output_map.items() else []
-      
-####
-# TODO: messages?
-#        if "message" in route:
-#            message = route["message"]
-#            if type(message) != "list":
-#                message = [message]
-#            for m in message:
-#                if m not in messages:
-#                    messages.append(m)
-#
-#    lowest_message_pri = config.get("service_messages")
-#    messages = [
-#        message["text"]
-#        for message in messages
-#        if higher_priority_than(message["priority"], lowest_message_pri)
-#    ]
+
+    ####
+    # TODO: messages?
+    #        if "message" in route:
+    #            message = route["message"]
+    #            if type(message) != "list":
+    #                message = [message]
+    #            for m in message:
+    #                if m not in messages:
+    #                    messages.append(m)
+    #
+    #    lowest_message_pri = config.get("service_messages")
+    #    messages = [
+    #        message["text"]
+    #        for message in messages
+    #        if higher_priority_than(message["priority"], lowest_message_pri)
+    #    ]
     messages = []
-####
+    ####
 
     lines = 4
     height = 32
