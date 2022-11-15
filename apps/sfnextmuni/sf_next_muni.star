@@ -22,6 +22,12 @@ DEFAULT_LOCATION = """
 	"timezone": "America/Los_Angeles"
 }
 """
+DEFAULT_STOP = """
+{
+    "display":"Metro Powell Station/Outbound (#16995)",
+    "value":"16995"
+}
+"""
 PREDICTIONS_URL = "https://api.511.org/transit/StopMonitoring?format=json&api_key=%s&agency=SF&stopCode=%s"
 ROUTES_URL = "https://api.511.org/transit/lines?format=json&api_key=%s&operator_id=SF"
 STOPS_URL = "https://api.511.org/transit/stops?format=json&api_key=%s&operator_id=SF"
@@ -199,6 +205,10 @@ def get_stops(location):
     stops = {}
 
     (timestamp, raw_stops) = fetch_cached(STOPS_URL % API_KEY, 86400)
+
+    if "Contents" not in raw_stops:
+        return []
+
     stops.update([(stop["id"], stop) for stop in raw_stops["Contents"]["dataObjects"]["ScheduledStopPoint"]])
 
     return [
@@ -240,10 +250,10 @@ def fetch_cached(url, ttl):
     if cached and timestamp:
         return (int(timestamp), json.decode(cached))
     else:
-        print(url)
         res = http.get(url)
         if res.status_code != 200:
-            fail("511.org request to %s failed with status %d", (url, res.status_code))
+            print("511.org request to %s failed with status %d", (url, res.status_code))
+            return (time.now().unix, {})
 
         # Trim off the UTF-8 byte-order mark
         body = res.body().lstrip("\ufeff")
@@ -257,12 +267,14 @@ def higher_priority_than(pri, threshold):
     return threshold == "Low" or pri == "High" or threshold == pri
 
 def main(config):
-    default_stop = json.encode(get_stops(DEFAULT_LOCATION)[0])
+    default_stops = get_stops(DEFAULT_LOCATION)
+    default_stop = json.encode(default_stops[0]) if default_stops else DEFAULT_STOP
     stop = json.decode(config.get("stop_code", default_stop))
     stopId = stop["value"]
     route_filter = config.get("route_filter", DEFAULT_CONFIG["route_filter"])
 
-    (data_timestamp, data) = fetch_cached(PREDICTIONS_URL % (API_KEY, stopId), 240)
+    api_key = API_KEY or config.get("dev_api_key")
+    (data_timestamp, data) = fetch_cached(PREDICTIONS_URL % (api_key, stopId), 240)
 
     service = data.get("ServiceDelivery", {})
     if not service or not service["Status"]:
