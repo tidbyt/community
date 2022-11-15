@@ -21,6 +21,7 @@ DEFAULT_LOCATION = """
 }
 """
 DEFAULT_IS_24_HOUR_FORMAT = False
+DEFAULT_IS_US_DATE_FORMAT = False
 
 def main(config):
     location = config.get("location", DEFAULT_LOCATION)
@@ -28,7 +29,12 @@ def main(config):
     timezone = loc["timezone"]
 
     now = time.now().in_location(timezone)
+
+    is_us_date_format = config.bool("is_us_date_format", DEFAULT_IS_US_DATE_FORMAT)
     now_date = now.format("2 Jan 2006").upper()
+    if is_us_date_format:
+        now_date = now.format("Jan 2 2006").upper()
+
     day = now.format("Monday").upper()
 
     is_24_hour_format = config.bool("is_24_hour_format", DEFAULT_IS_24_HOUR_FORMAT)
@@ -85,6 +91,12 @@ def get_schema():
                 name = "24 hour format",
                 desc = "Display the time in 24 hour format.",
                 icon = "clock",
+            ),
+            schema.Toggle(
+                id = "is_us_date_format",
+                name = "US Date format",
+                desc = "Display the date in US format (default is Intl).",
+                icon = "calendarDays",
             ),
         ],
     )
