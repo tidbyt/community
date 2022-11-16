@@ -90,11 +90,10 @@ def pagerduty_api_call(config, url, use_cache = True):
             # buildifier: disable=print
             print("pagerduty_api_call failed: %s - %s " % (res.status_code, res.body()))
             return None
+        elif len(res.body()) > 0:
+            cached_res = res.body()
         else:
-            if len(res.body()) > 0:
-                cached_res = res.body()
-            else:
-                cached_res = '{"status": %i}' % res.status_code
+            cached_res = '{"status": %i}' % res.status_code
 
         if use_cache:
             cache.set(cache_key, cached_res, DEFAULT_CACHE_TTL)
@@ -442,7 +441,7 @@ def build_teams(refresh_token):
 
     if not teams_supported:
         return None
-    
+
     options = [
         schema.Option(
             display = "All",
