@@ -74,7 +74,6 @@ def render_bottom_row(marquee_text, thermometer_width):
     )
 
 def render_layout(marquee_text, top_text, thermometer_width):
-    # Value will be the text rendered in the bottom marquee
     return render.Root(
         child = render.Box(
             child = render.Column(
