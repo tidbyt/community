@@ -14,23 +14,28 @@ load("humanize.star", "humanize")
 load("encoding/base64.star", "base64")
 load("schema.star", "schema")
 
-JSERVICE = "http://jservice.io/api/random"
-CACHE_TTL_SECONDS = 15
+NUM_QUESTIONS = 100
+JSERVICE = "http://jservice.io/api/random?count=%d" % NUM_QUESTIONS
+CACHE_TTL_SECONDS = 15 * NUM_QUESTIONS
 
 def get_data():
-    data = cache.get("data")
+    questions = cache.get("questions")
 
-    if data != None:
-        body = base64.decode(data)
+    if questions != None:
+        body = base64.decode(questions)
+        question_index = int(cache.get("question_index")) + 1
     else:
         rep = http.get(JSERVICE)
         if rep.status_code != 200:
             fail("Jservice (Trivia) request failed with status %d", rep.status_code)
 
         body = rep.body()
-        cache.set("data", base64.encode(body), ttl_seconds = CACHE_TTL_SECONDS)
+        question_index = 0
+        cache.set("questions", base64.encode(body), ttl_seconds = CACHE_TTL_SECONDS)
 
-    return json.decode(body)[0]
+    cache.set("question_index", str(question_index), ttl_seconds = CACHE_TTL_SECONDS)
+
+    return json.decode(body)[question_index % NUM_QUESTIONS]
 
 def remove_chars(strr):
     return re.compile(r"<[^>]+>").sub("", strr)
@@ -88,7 +93,7 @@ def main():
                                 children = [
                                     render.WrappedText(
                                         content = "Category:\n%s\n----------\n \n%s\n----------\n \n \n \n%s" % (category, question, answer),
-                                        font = "tom-thumb",
+                                        font = "tb-8",
                                         align = "center",
                                     ),
                                 ],
