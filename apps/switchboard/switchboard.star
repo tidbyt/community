@@ -13,7 +13,7 @@ load("schema.star", "schema")
 load("encoding/json.star", "json")
 load("time.star", "time")
 
-BASE_API_URL = "https://secure.oneswitchboard.com/handle_tidbyt/"
+BASE_API_URL = "https://secure.oneswitchboard.com/api/handle_tidbyt/"
 SB_ICON = base64.decode("""iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAAXNSR0IArs4c6QAAAmVJREFUOE+dk11Ik2EUx3/P3tePTZ0zdeDCglmCIFjMlMxqFH4EJcMmXnelZakQRVT0hRFJEN1EN0oJGVQqFWWU2STCi4wM06lB2jQMb5rfa1tbvK/OmiFU5+45h//vOef/nEcQFhYdEbpMoJpAYBtCrF8qf0HQTVBcwy+9B8dsSCZ+6a1JSP46BOWAIRy8fJpB0IZPnIBXE0p2CWBNQva36/UxlmxLhkhLS6HUtpMEQ5yqvNvSidPpYmpqlg/9n4LT03P9+EWhAhFg0SFp6xEcqjlSJg5X7UeWJdalGtFoNCrA0dXL0NA4A4MuOjq6GXCOKlc34ZOrBBE7NhMMdCptt9yrQxsVRcfLHooLc9HHxaiAxpuPedMzyNy8B5frKx6PV0nPgNgjkPJvIKhQMg9aL9PbO8zZCw2rWLAiLcRtgZzfByjO/zsAJhXAt5DrtxpPUVyUy8iIavAfseDxUn+lmfan3cu1MEDOlgxqq8swxC+6vzI2pqfycXgMm/0kXq9PLSuAd8Cmvxm6ssKGvdSKvfw0bre6S+MCeftVCNb+FyBIgyAyL5OA5gVgTFyjJysrHZMpCVNKIgcrbSpXabe1rYs081qSkxPYW3JMeVI3QhQJsEYj+88BR81mk1yweyvZlnSMRgMl+/JUQCAQwDU2yfy8h+Y7z7l4qSlIkOv8WDgeWuVYZP8TSdLkGeJjJa02CrPZRE11mQr47vHy8NFrRkYncA5+Vlb5LX65ABzu3z6TRYesPQMcUMZZxZNJEM34pfOKePEVwsIaTaR3AwGNHdgF5CyV+yD4DCHdx6dxgsMTkv0Eyz3VGTMtt6oAAAAASUVORK5CYII=""")
 LOGO_WIDTH = 16
 LOGO_HEIGHT = 16
