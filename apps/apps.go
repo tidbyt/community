@@ -192,6 +192,7 @@ import (
 	"tidbyt.dev/community/apps/topcryptoprices"
 	"tidbyt.dev/community/apps/traffic"
 	"tidbyt.dev/community/apps/transsee"
+	"tidbyt.dev/community/apps/trivia"
 	"tidbyt.dev/community/apps/tube"
 	"tidbyt.dev/community/apps/tubestatus"
 	"tidbyt.dev/community/apps/tvquotes"
@@ -406,6 +407,7 @@ func GetManifests() []manifest.Manifest {
 		topcryptoprices.New(),
 		traffic.New(),
 		transsee.New(),
+		trivia.New(),
 		tube.New(),
 		tubestatus.New(),
 		tvquotes.New(),
