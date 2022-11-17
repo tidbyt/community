@@ -1,4 +1,4 @@
-# Plausible Stats On Your Tidbyt
+# Plausible Analytics On Your Tidbyt
 
 An app for the [Tidbyt](https://tidbyt.com) that uses the [plausible.io stats API](https://plausible.io/docs/stats-api) to display metrics about your website.
 
@@ -22,10 +22,9 @@ The following options can be set via the Schema, or passed in via the `pixlet re
 | `plausible_api_key`  | Any String                                                                 | YES      | Generate a new API key at https://plausible.io/settings#api-keys                                                                                                            |
 | `metric`             | String: `pageviews`, `visitors`, `bounce_rate`, `visit_duration`, `visits` | NO       | The metric to display. Defaults to `pageviews`                                                                                                                              |
 | `time_period`        | String: `day`, `7d`, `30d`, `month`, `6mo`, `12mo`, `custom`               | NO       | The time period for the stats to display. Defaults to `day`. **NOTE** `custom` will get the metric value count for all time                                                 |
-| `should_show_chart`  | Bool                                                                       | NO       | Defaults to `true`. Controls the visibility of the historical chart                                                                                                         |
 | `chart_time_period`  | String: `7d`, `30d`, `month`, `6mo`, `12mo`                                | NO       | Defaults to `7d`. The historical time period for the chart display                                                                                                          |
-| `use_custom_favicon` | Bool                                                                       | NO       | Defaults to `true`. If yes, the app will attempt to download the first `png` file named `favicon`, `favicon-32x32`, or `favicon16x16` from the root of the domain passed in |
 | `favicon_path`       | Any String                                                                 | NO       | The relative path to the favicon file to display eg. `/favicon/favicon.png`                                                                                                 |
+| `should_show_chart`  | Bool                                                                       | NO       | Defaults to `true`. Controls the visibility of the historical chart                                                                                                         |
 
 ## Screenshots
 
