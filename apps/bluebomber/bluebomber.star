@@ -1,3 +1,10 @@
+"""
+Applet: Xtrabyt
+Summary: Display Xtrabyt.com View
+Description: Display a custom drawing or integration view from Xtrabyt.com.
+Author: vmitchell85
+"""
+
 load("encoding/base64.star", "base64")
 load("render.star", "render")
 load("schema.star", "schema")
