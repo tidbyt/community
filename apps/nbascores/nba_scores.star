@@ -942,6 +942,6 @@ def get_rotationSpeed(scores, rotationSpeedConfig):
     elif rotationSpeedConfig == "30_seconds":
         rotationSpeed = 30
     else:
-        defaultRotationSpeed
+        rotationSpeed = defaultRotationSpeed
 
     return rotationSpeed
