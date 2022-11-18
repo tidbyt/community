@@ -7,6 +7,7 @@ package apps
 import (
 	"errors"
 
+	"tidbyt.dev/community/apps/aadailyreflect"
 	"tidbyt.dev/community/apps/abstractclock"
 	"tidbyt.dev/community/apps/advice"
 	"tidbyt.dev/community/apps/afl"
@@ -226,6 +227,7 @@ import (
 // below to include it in the Tidbyt Mobile app for all Tidbyt users.
 func GetManifests() []manifest.Manifest {
 	return []manifest.Manifest{
+		aadailyreflect.New(),
 		abstractclock.New(),
 		advice.New(),
 		afl.New(),
