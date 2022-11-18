@@ -45,6 +45,7 @@ import (
 	"tidbyt.dev/community/apps/dateprogress"
 	"tidbyt.dev/community/apps/datetimeclock"
 	"tidbyt.dev/community/apps/daynightmap"
+	"tidbyt.dev/community/apps/daystoxmas"
 	"tidbyt.dev/community/apps/desknametag"
 	"tidbyt.dev/community/apps/destiny2stats"
 	"tidbyt.dev/community/apps/digibyteprice"
@@ -266,6 +267,7 @@ func GetManifests() []manifest.Manifest {
 		dateprogress.New(),
 		datetimeclock.New(),
 		daynightmap.New(),
+		daystoxmas.New(),
 		desknametag.New(),
 		destiny2stats.New(),
 		digibyteprice.New(),
