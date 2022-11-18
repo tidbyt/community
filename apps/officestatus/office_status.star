@@ -32,8 +32,8 @@ TTL_SECONDS = 30
 
 # Values for local server
 DEVELOPER_GRAPH_TENANT_ID = "common"
-DEVELOPER_GRAPH_CLIENT_ID = "REPLACE_ON_LOCAL"
-DEVELOPER_GRAPH_CLIENT_SECRET = "REPLACE_ON_LOCAL"
+DEVELOPER_GRAPH_CLIENT_ID = "5a7824f2-595e-4a50-9d07-6492f829cc89"
+DEVELOPER_GRAPH_CLIENT_SECRET = "CDo8Q~72Kz3AM21I2PiSX2tep7bmy4uTueEzbdgB"
 
 # Values for Tidbyt server
 ENCRYPTED_GRAPH_TENANT_ID = "REPLACE_ON_SERVER"
@@ -348,8 +348,8 @@ def getGraphCurrentEvents(graph_events, timezone):
     for graph_event in graph_events:
         start_time = time.parse_time(graph_event["start"]["dateTime"], "2006-01-02T15:04:05")
         end_time = time.parse_time(graph_event["end"]["dateTime"], "2006-01-02T15:04:05")
-        start_date = time.parse_time(start_time.format("2006-01-02"), "2006-01-02")
-        end_date = time.parse_time(end_time.format("2006-01-02"), "2006-01-02")
+        start_date = time.parse_time(start_time.format("2006-01-02"), "2006-01-02", timezone)
+        end_date = time.parse_time(end_time.format("2006-01-02"), "2006-01-02", timezone)
         if (
             (
                 graph_event["isAllDay"] == False and
