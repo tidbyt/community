@@ -80,7 +80,7 @@ BOSS_LIST = {
     "COMMANDO": "COMMANDO",
     "NITRO": "NITRO",
     "STRIKE": "STRIKE",
-    "PUMP": "PUMP"
+    "PUMP": "PUMP",
 }
 
 def main(config):
