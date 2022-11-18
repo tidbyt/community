@@ -6,7 +6,7 @@ Author: rs7q5
 """
 #sports_scores.star
 #Created 20220220 RIS
-#Last Modified 20221001 RIS
+#Last Modified 20221116 RIS
 
 load("render.star", "render")
 load("http.star", "http")
@@ -600,7 +600,7 @@ def get_nhlgames(today_str):
     stats = []
     for i, game in enumerate(data2):
         stats_tmp = dict()
-        status = game["status"]["codedGameState"]  #Need to figure out what the possible values are here (may impact inning info)
+        status = game["status"]["codedGameState"]  #Need to figure out what the possible values are here (may impact info)
 
         #get team info
         #team_info = dict()
@@ -670,7 +670,7 @@ def get_basketballgames(today_str, league):
     for i, game in enumerate(data2):
         stats_tmp = dict()
         stats_tmp2 = dict()
-        status = game["status"]["type"]["id"]  #["codedGameState"] #Need to figure out what the possible values are here (may impact inning info)
+        status = game["status"]["type"]["id"]  #["codedGameState"] #Need to figure out what the possible values are here (may impact info)
 
         #get team info
         stats_tmp["highlight"] = None
@@ -688,7 +688,7 @@ def get_basketballgames(today_str, league):
         if status == "1":
             #status_txt = "Preview"
             game_time_tmp = game["date"].replace("Z", ":00Z")  #date does not include seconds so add here to parse time
-            status_txt = "time/" + game["gameDate"]  #adjust game time in get_frames so it works witch cached data
+            status_txt = "time/" + game_time_tmp  #adjust game time in get_frames so it works witch cached data
             stats_tmp["highlight"] = "scores"
             stats_tmp2["highlight"] = "scores"
         elif game["status"]["type"]["state"] == "in" or status in ["2", "3"]:  #linescore!=[]: #this should cover live and final states
@@ -738,7 +738,7 @@ def get_footballgames(today_str, league):
     for i, game in enumerate(data2):
         stats_tmp = dict()
         stats_tmp2 = dict()
-        status = game["status"]["type"]["id"]  #["codedGameState"] #Need to figure out what the possible values are here (may impact inning info)
+        status = game["status"]["type"]["id"]  #["codedGameState"] #Need to figure out what the possible values are here (may impact info)
 
         #get team info
         stats_tmp["highlight"] = None
@@ -804,7 +804,7 @@ def get_soccergames(today_str, league):
     for i, game in enumerate(data2):
         stats_tmp = dict()
         stats_tmp2 = dict()
-        status = game["status"]["type"]["id"]  #["codedGameState"] #Need to figure out what the possible values are here (may impact inning info)
+        status = game["status"]["type"]["id"]  #["codedGameState"] #Need to figure out what the possible values are here (may impact info)
 
         #get team info
         stats_tmp["highlight"] = None
