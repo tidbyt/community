@@ -25,7 +25,6 @@ BOSS_LIST = {
     "FIRE": "FIRE",
     "BOMB": "BOMB",
     "ELEC": "ELEC",
-
     "CRASH": "CRASH",
     "BUBBLE": "BUBBLE",
     "METAL": "METAL",
@@ -34,7 +33,6 @@ BOSS_LIST = {
     "FLASH": "FLASH",
     "WOOD": "WOOD",
     "HEAT": "HEAT",
-
     "NEEDLE": "NEEDLE",
     "MAGNET": "MAGNET",
     "GEMINI": "GEMINI",
@@ -43,7 +41,6 @@ BOSS_LIST = {
     "SNAKE": "SNAKE",
     "SHADOW": "SHADOW",
     "SPARK": "SPARK",
-
     "TOAD": "TOAD",
     "BRIGHT": "BRIGHT",
     "PHARAOH": "PHARAOH",
@@ -52,7 +49,6 @@ BOSS_LIST = {
     "SKULL": "SKULL",
     "DIVE": "DIVE",
     "DRILL": "DRILL",
-
     "GRAVITY": "GRAVITY",
     "GYRO": "GYRO",
     "CRYSTAL": "CRYSTAL",
@@ -61,7 +57,6 @@ BOSS_LIST = {
     "CHARGE": "CHARGE",
     "WAVE": "WAVE",
     "STAR": "STAR",
-
     "BLIZZARD": "BLIZZARD",
     "WIND": "WIND",
     "FLAME": "FLAME",
@@ -70,7 +65,6 @@ BOSS_LIST = {
     "YAMATO": "YAMATO",
     "KNIGHT": "KNIGHT",
     "CENTAUR": "CENTAUR",
-
     "CONCRETE": "CONCRETE",
     "JEWEL": "JEWEL",
     "HORNET": "HORNET",
@@ -79,7 +73,6 @@ BOSS_LIST = {
     "GALAXY": "GALAXY",
     "MAGMA": "MAGMA",
     "SPLASH": "SPLASH",
-
     "CHILL": "CHILL",
     "BLADE": "BLADE",
     "SOLAR": "SOLAR",
@@ -87,7 +80,7 @@ BOSS_LIST = {
     "COMMANDO": "COMMANDO",
     "NITRO": "NITRO",
     "STRIKE": "STRIKE",
-    "PUMP": "PUMP",
+    "PUMP": "PUMP"
 }
 
 def main(config):
@@ -300,10 +293,10 @@ def main(config):
                                 cross_align = "center",
                                 expanded = True,
                                 children = textchildren,
-                            ),
-                        ],
-                    ),
-                ),
-            ],
-        ),
+                            )
+                        ]
+                    )
+                )
+            ]
+        )
     )
