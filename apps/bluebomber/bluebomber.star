@@ -235,33 +235,33 @@ def main(config):
             render.Box(width = 30, height = 1),
             render.Text(
                 content = boss_img,
-                font = "CG-pixel-3x5-mono"
+                font = "CG-pixel-3x5-mono",
             ),
             render.Box(height = 1, width = 1),
             render.Text(
                 content = BOSSGENDER,
-                font = "CG-pixel-3x5-mono"
-            )
+                font = "CG-pixel-3x5-mono",
+            ),
         ]
     elif len(boss_img) > 3:
         textchildren = [
             render.Box(width = 30, height = 1),
             render.Text(
                 content = boss_img,
-                font = "5x8"
+                font = "5x8",
             ),
             render.Text(
                 content = BOSSGENDER,
-                font = "5x8"
-            )
+                font = "5x8",
+            ),
         ]
     else:
         textchildren = [
             render.Box(width = 35, height = 1),
             render.Text(
                 content = boss_img + BOSSGENDER,
-                font = "5x8"
-            )
+                font = "5x8",
+            ),
         ]
 
     # Build our main layout!
@@ -279,9 +279,9 @@ def main(config):
                         render.Column(
                             expanded = True,
                             main_align = "center",
-                            children = [render.Image(src = BOSSIMG)]
-                        )
-                    ]
+                            children = [render.Image(src = BOSSIMG)],
+                        ),
+                    ],
                 ),
                 render.Box(
                     width = 32,
@@ -292,11 +292,11 @@ def main(config):
                                 main_align = "center",
                                 cross_align = "center",
                                 expanded = True,
-                                children = textchildren
-                            )
-                        ]
-                    )
-                )
-            ]
-        )
+                                children = textchildren,
+                            ),
+                        ],
+                    ),
+                ),
+            ],
+        ),
     )
