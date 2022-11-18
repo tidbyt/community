@@ -41,9 +41,9 @@ def main(config):
                     color = "#D2691E",
                 ),
                 render.Marquee(
-                    height = 32,
-                    offset_start = 32,
-                    offset_end = 32,
+                    height = 23,  # 32 - 8 (author line) - 1 (divider line)
+                    offset_start = 24,
+                    offset_end = 24,
                     child = render.WrappedText(
                         content = msg_txt,
                         width = 64,

@@ -16,7 +16,7 @@ load("cache.star", "cache")
 load("time.star", "time")
 
 exchange_rate_api_key = "382c82c0e47531184b366111"
-exchange_rate_api_key_encrypted = "AV6+xWcEA/D7Sbl+qu0YXdp6FPE1oBYy3QwUzkDCapNUUl+G1G0QtHQr2kCF69VngtcW+w22jCNSAHUZ3MCk05wErLY6V4U3edJVq49L2VKoZNLZrnvilzxi86sYDSchjyz9wAcryKRabjIriSQgSj1xtV3IDY7OM83YBnna"
+exchange_rate_api_key_encrypted = "AV6+xWcEXP7etGoIWOhZZ4spSkJcCWWY9zg31IBiDre6tG5KRQPaD2yzU1SKrbJMsNeqjJW1rwt5iu+tEnP4qKecP8hSqdycpc/jrPcoqBFkHzM8Wr9CC2oQ5gnfF+KX8nxRx6IbX4FhVHwMAqOFKT/1Z23v50mqeatEWFVw"
 currencies = {
     "eur": {
         "name": "Euro",
