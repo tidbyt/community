@@ -15,20 +15,6 @@ color_key = {
     "mythic": "#fcd03e",
     "exotic": "#0abfd0",
     "transcendent": "#da505d",
-    "marvel series": "#fff",
-    "dark series": "#fff",
-    "dc series": "#fff",
-    "icon series": "#fff",
-    "frozen series": "#fff",
-    "lava series": "#fff",
-    "star wars series": "#fff",
-    "shadow series": "#fff",
-    "slurp series": "#fff",
-    "gaming legends series": "#fff",
-    "quality": "#fff",
-    "fine": "#fff",
-    "sturdy": "#fff",
-    "icon": "#fff",
 }
 
 def main(config):
@@ -44,17 +30,21 @@ def main(config):
             items = json.decode(items)
 
         picked = random.number(0, len(items) - 1)
+        picked_item = items[picked]
+
+        color = color_key.get(picked_item["rarity"].lower())
+        if color == None:
+            color = "#fff"
 
         image_resp = http.get(items[picked]["imageUrl"])
-
-        print(items[picked])
+        image = image_resp.body()
 
         return render.Root(
             render.Stack(
                 children = [
                     render.Column(
                         main_align = "end",
-                        children = [render.Image(src = image_resp.body(), height = 32)],
+                        children = [render.Image(src = image, height = 32)],
                     ),
                     render.Marquee(
                         width = 64,
@@ -64,8 +54,8 @@ def main(config):
                         child = render.Padding(
                             pad = (0, 2, 2, 0),
                             child = render.Text(
-                                content = items[picked]["name"],
-                                color = color_key[items[picked]["rarity"].lower()],
+                                content = picked_item["name"],
+                                color = color,
                             ),
                         ),
                     ),
