@@ -884,7 +884,7 @@ def get_schema():
             ),
             schema.Toggle(
                 id = "animations",
-                name = "Enable Animations",
+                name = "Show Animations",
                 desc = "Turn on entry and exit animations.",
                 icon = "arrowsRotate",
                 default = False,
