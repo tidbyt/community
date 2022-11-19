@@ -33,8 +33,8 @@ TTL_SECONDS = 30
 
 # Values for local server
 DEVELOPER_MSFT_TENANT_ID = "common"
-DEVELOPER_MSFT_CLIENT_ID = "5a7824f2-595e-4a50-9d07-6492f829cc89"
-DEVELOPER_MSFT_CLIENT_SECRET = "fp28Q~ZHiSXgP6vrnHbxfURV5fSCdLRNElI7zbJK"
+DEVELOPER_MSFT_CLIENT_ID = "REPLACE_ON_LOCAL"
+DEVELOPER_MSFT_CLIENT_SECRET = "REPLACE_ON_LOCAL"
 
 # Values for Tidbyt server
 ENCRYPTED_MSFT_TENANT_ID = "REPLACE_ON_SERVER"
@@ -177,24 +177,24 @@ def main(config):
     animations = config.bool("animations", False)
 
     # Retrieve MSFT API access token, returns None if user is not logged in
-    msft_access_token = refreshMSFTAccessToken(config)
+    msft_access_token = refresh_msft_access_token(config)
     if (msft_access_token != None):
-        calendar_app_status = getMSFTStatus(msft_access_token, timezone)
+        calendar_app_status = get_msft_status(msft_access_token, timezone)
     else:
         calendar_app_status = None
 
     # Retrieve Webex API access token, returns None if user is not logged in
-    webex_access_token = refreshWebexAccessToken(config)
+    webex_access_token = refresh_webex_access_token(config)
     if (webex_access_token != None):
-        messaging_app_status = getWebexStatus(webex_access_token)
+        messaging_app_status = get_webex_status(webex_access_token)
     else:
         messaging_app_status = None
 
-    availability = getAvailability(calendar_app_status, messaging_app_status)
+    availability = get_availability(calendar_app_status, messaging_app_status)
     status = STATUS_MAP[availability["status"]]["status_label"].upper()
     color = STATUS_MAP[availability["status"]]["color"]
     image = base64.decode(STATUS_MAP[availability["status"]]["image"])
-    schedule = getSchedule(availability, timezone)
+    schedule = get_schedule(availability, timezone)
 
     if not animations:
         return render.Root(
@@ -379,7 +379,7 @@ def main(config):
             ),
         )
 
-def refreshMSFTAccessToken(config):
+def refresh_msft_access_token(config):
     # Use refresh token to collect access token
     msft_refresh_token = config.get("msft_auth")
 
@@ -414,7 +414,7 @@ def refreshMSFTAccessToken(config):
         )
         return response_json["access_token"]
 
-def getMSFTEvents(msft_access_token, timezone):
+def get_msft_events(msft_access_token, timezone):
     # Calls MSFT calendar view api
     # Returns all busy, out of office, or working elsewhere events
     # From the user's default outlook calendar for the day
@@ -462,7 +462,7 @@ def getMSFTEvents(msft_access_token, timezone):
         )
         return msft_events
 
-def getMSFTCurrentEvents(msft_events, timezone):
+def get_msft_current_events(msft_events, timezone):
     # Accepts a json array of MSFT events
     # Returns an array of events happening now
     msft_current_events = []
@@ -488,17 +488,17 @@ def getMSFTCurrentEvents(msft_events, timezone):
     else:
         return None
 
-def sortMSFTEventByEndDate(msft_event):
+def sort_msft_event_by_end_date(msft_event):
     # Defines end date as sort key
     return msft_event["end"]["dateTime"]
 
-def getMSFTLatestEventByShowAs(msft_events, show_as):
+def get_msft_latest_event_by_show_as(msft_events, show_as):
     # Accepts a json array of MSFT events
     # Returns latest event for the provided show as value
     if (msft_events != None):
         msft_events_sorted = sorted(
             msft_events,
-            key = sortMSFTEventByEndDate,
+            key = sort_msft_event_by_end_date,
             reverse = False,
         )
         latest_msft_event = None
@@ -519,14 +519,14 @@ def getMSFTLatestEventByShowAs(msft_events, show_as):
                 latest_msft_event = msft_event
         return latest_msft_event
 
-def sortMSFTEventByStartDate(msft_event):
+def sort_msft_event_by_start_date(msft_event):
     # Defines start date as sort key
     return msft_event["start"]["dateTime"]
 
-def getMSFTNextEvent(msft_events):
+def get_msft_next_event(msft_events):
     # Accepts a json array of MSFT events
     # Returns the next busy or out of office event
-    msft_events_sorted = sorted(msft_events, key = sortMSFTEventByStartDate)
+    msft_events_sorted = sorted(msft_events, key = sort_msft_event_by_start_date)
     for msft_event in msft_events_sorted:
         if (
             time.parse_time(
@@ -537,14 +537,14 @@ def getMSFTNextEvent(msft_events):
         ):
             return msft_event
 
-def getMSFTStatus(msft_access_token, timezone):
+def get_msft_status(msft_access_token, timezone):
     # Determines a user's status based on MSFT events returned
-    msft_events = getMSFTEvents(msft_access_token, timezone)
-    msft_current_events = getMSFTCurrentEvents(msft_events, timezone)
-    msft_oof_event = getMSFTLatestEventByShowAs(msft_current_events, "oof")
-    msft_busy_event = getMSFTLatestEventByShowAs(msft_current_events, "busy")
-    msft_wfh_event = getMSFTLatestEventByShowAs(msft_current_events, "workingElsewhere")
-    msft_next_event = getMSFTNextEvent(msft_events)
+    msft_events = get_msft_events(msft_access_token, timezone)
+    msft_current_events = get_msft_current_events(msft_events, timezone)
+    msft_oof_event = get_msft_latest_event_by_show_as(msft_current_events, "oof")
+    msft_busy_event = get_msft_latest_event_by_show_as(msft_current_events, "busy")
+    msft_wfh_event = get_msft_latest_event_by_show_as(msft_current_events, "workingElsewhere")
+    msft_next_event = get_msft_next_event(msft_events)
     if (msft_oof_event != None):
         return {
             "isAllDay": msft_oof_event["isAllDay"],
@@ -588,7 +588,7 @@ def getMSFTStatus(msft_access_token, timezone):
             "time": None,
         }
 
-def refreshWebexAccessToken(config):
+def refresh_webex_access_token(config):
     # Use refresh token to collect access token
     webex_refresh_token = config.get("webex_auth")
 
@@ -622,7 +622,7 @@ def refreshWebexAccessToken(config):
         )
         return response_json["access_token"]
 
-def getWebexDetails(webex_access_token):
+def get_webex_details(webex_access_token):
     # Calls Webex personal details api
     # Returns an object with details about the user
     webex_too_many_requests = cache.get(webex_access_token + "_webex_too_many_requests")
@@ -657,9 +657,9 @@ def getWebexDetails(webex_access_token):
         )
         return response_json
 
-def getWebexStatus(webex_access_token):
+def get_webex_status(webex_access_token):
     # Determines the user's status based on webex details
-    webex_details = getWebexDetails(webex_access_token)
+    webex_details = get_webex_details(webex_access_token)
     status = webex_details["status"]
     if (status == "OutOfOffice"):
         return "away"
@@ -672,7 +672,7 @@ def getWebexStatus(webex_access_token):
     else:
         return "unknown"
 
-def getAvailability(calendar_app_status, messaging_app_status):
+def get_availability(calendar_app_status, messaging_app_status):
     # Determines availability based on calendar and messaging status
     if (calendar_app_status == None):
         if (messaging_app_status != None):
@@ -750,7 +750,7 @@ def getAvailability(calendar_app_status, messaging_app_status):
             "time": None,
         }
 
-def getSchedule(availability, timezone):
+def get_schedule(availability, timezone):
     # Accepts a json object representing the user's availability
     # Returns a string to display the user's schedule
     if (availability["time"] != None):
