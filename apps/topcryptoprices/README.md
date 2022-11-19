@@ -14,7 +14,7 @@ The gif animation shows a full animation loop, but looks kind of ugly compared t
 
 ![Top Crypto Prices Applet for Tidbyt gif animation](top_crypto_prices.gif)
 
-Many configuration options, eg you can show prices in AUD, CAD, CHF, CNY, EUR, GBP, INR, JPY, NOK, NZD, USD or ZAR.
+More than 20 fiat currencies to display prices in. All ticker symbols are colored after the coin logo colors. Stable coins and wrapped coins are excluded by default, but can be switched on. Further options to control rotation speed, number of coins, and manual excludes.
 
 ![Top Crypto Prices Applet for Tidbyt gif animation](topcryptoprises-config.jpg)
 
