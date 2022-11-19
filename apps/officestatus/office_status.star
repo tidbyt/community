@@ -29,7 +29,7 @@ DEFAULT_LOCATION = """
 	"timezone": "America/Chicago"
 }
 """
-TTL_SECONDS = 1
+TTL_SECONDS = 30
 
 # Values for local server
 DEVELOPER_MSFT_TENANT_ID = "common"
