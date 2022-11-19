@@ -29,30 +29,30 @@ DEFAULT_LOCATION = """
 	"timezone": "America/Chicago"
 }
 """
-TTL_SECONDS = 30
+TTL_SECONDS = 1
 
 # Values for local server
-DEVELOPER_GRAPH_TENANT_ID = "common"
-DEVELOPER_GRAPH_CLIENT_ID = "REPLACE_ON_LOCAL"
-DEVELOPER_GRAPH_CLIENT_SECRET = "REPLACE_ON_LOCAL"
+DEVELOPER_MSFT_TENANT_ID = "common"
+DEVELOPER_MSFT_CLIENT_ID = "5a7824f2-595e-4a50-9d07-6492f829cc89"
+DEVELOPER_MSFT_CLIENT_SECRET = "fp28Q~ZHiSXgP6vrnHbxfURV5fSCdLRNElI7zbJK"
 
 # Values for Tidbyt server
-ENCRYPTED_GRAPH_TENANT_ID = "REPLACE_ON_SERVER"
-ENCRYPTED_GRAPH_CLIENT_ID = "REPLACE_ON_SERVER"
-ENCRYPTED_GRAPH_CLIENT_SECRET = "REPLACE_ON_SERVER"
+ENCRYPTED_MSFT_TENANT_ID = "REPLACE_ON_SERVER"
+ENCRYPTED_MSFT_CLIENT_ID = "REPLACE_ON_SERVER"
+ENCRYPTED_MSFT_CLIENT_SECRET = "REPLACE_ON_SERVER"
 
-# Set globals for graph authentication
-GRAPH_TENANT_ID = secret.decrypt(ENCRYPTED_GRAPH_TENANT_ID) or DEVELOPER_GRAPH_TENANT_ID
-GRAPH_CLIENT_ID = secret.decrypt(ENCRYPTED_GRAPH_CLIENT_ID) or DEVELOPER_GRAPH_CLIENT_ID
-GRAPH_CLIENT_SECRET = secret.decrypt(ENCRYPTED_GRAPH_CLIENT_SECRET) or DEVELOPER_GRAPH_CLIENT_SECRET
-GRAPH_AUTH_ENDPOINT = ("https://login.microsoftonline.com/" + GRAPH_TENANT_ID + "/oauth2/v2.0/authorize")
-GRAPH_TOKEN_ENDPOINT = ("https://login.microsoftonline.com/" + GRAPH_TENANT_ID + "/oauth2/v2.0/token")
+# Set globals for MSFT authentication
+MSFT_TENANT_ID = secret.decrypt(ENCRYPTED_MSFT_TENANT_ID) or DEVELOPER_MSFT_TENANT_ID
+MSFT_CLIENT_ID = secret.decrypt(ENCRYPTED_MSFT_CLIENT_ID) or DEVELOPER_MSFT_CLIENT_ID
+MSFT_CLIENT_SECRET = secret.decrypt(ENCRYPTED_MSFT_CLIENT_SECRET) or DEVELOPER_MSFT_CLIENT_SECRET
+MSFT_AUTH_ENDPOINT = ("https://login.microsoftonline.com/" + MSFT_TENANT_ID + "/oauth2/v2.0/authorize")
+MSFT_TOKEN_ENDPOINT = ("https://login.microsoftonline.com/" + MSFT_TENANT_ID + "/oauth2/v2.0/token")
 
-# Set globals for graph calendar view endpoint
-GRAPH_CALENDAR_VIEW_URL = "https://graph.microsoft.com/v1.0/me/calendarview"
-MAX_GRAPH_EVENT_FETCH_WEEK = 100
-GRAPH_BUCKET_SIZE = 10
-NUMBER_OF_GRAPH_FETCH_ITERATIONS = int(MAX_GRAPH_EVENT_FETCH_WEEK / GRAPH_BUCKET_SIZE)
+# Set globals for MSFT calendar view endpoint
+MSFT_CALENDAR_VIEW_URL = "https://graph.microsoft.com/v1.0/me/calendarview"
+MAX_MSFT_EVENT_FETCH_WEEK = 100
+MSFT_BUCKET_SIZE = 10
+NUMBER_OF_MSFT_FETCH_ITERATIONS = int(MAX_MSFT_EVENT_FETCH_WEEK / MSFT_BUCKET_SIZE)
 
 # Values for local server
 DEVELOPER_WEBEX_CLIENT_ID = "REPLACE_ON_LOCAL"
@@ -176,10 +176,10 @@ def main(config):
     timezone = json.decode(config.get("location", DEFAULT_LOCATION))["timezone"]
     animations = config.bool("animations", False)
 
-    # Retrieve Graph API access token, returns None if user is not logged in
-    graph_access_token = refreshGraphAccessToken(config)
-    if (graph_access_token != None):
-        calendar_app_status = getGraphStatus(graph_access_token, timezone)
+    # Retrieve MSFT API access token, returns None if user is not logged in
+    msft_access_token = refreshMSFTAccessToken(config)
+    if (msft_access_token != None):
+        calendar_app_status = getMSFTStatus(msft_access_token, timezone)
     else:
         calendar_app_status = None
 
@@ -379,29 +379,29 @@ def main(config):
             ),
         )
 
-def refreshGraphAccessToken(config):
+def refreshMSFTAccessToken(config):
     # Use refresh token to collect access token
-    graph_refresh_token = config.get("graph_auth")
+    msft_refresh_token = config.get("msft_auth")
 
-    if graph_refresh_token:
-        graph_access_token = cache.get(graph_refresh_token)
+    if msft_refresh_token:
+        msft_access_token = cache.get(msft_refresh_token)
     else:
         return None
 
-    if graph_access_token:
-        return graph_access_token
+    if msft_access_token:
+        return msft_access_token
     else:
         headers = {
             "Content-type": "application/x-www-form-urlencoded",
         }
         body = (
-            "client_id=" + GRAPH_CLIENT_ID +
+            "client_id=" + MSFT_CLIENT_ID +
             "&scope=offline_access%20Calendars.read" +
-            "&refresh_token=" + graph_refresh_token +
+            "&refresh_token=" + msft_refresh_token +
             "&grant_type=refresh_token" +
-            "&client_secret=" + GRAPH_CLIENT_SECRET
+            "&client_secret=" + MSFT_CLIENT_SECRET
         )
-        response = http.post(url = GRAPH_TOKEN_ENDPOINT, headers = headers, body = body)
+        response = http.post(url = MSFT_TOKEN_ENDPOINT, headers = headers, body = body)
 
         if response.status_code != 200:
             fail("Refresh of Access Token failed with Status Code: %d - %s" % (response.status_code, response.body()))
@@ -414,172 +414,172 @@ def refreshGraphAccessToken(config):
         )
         return response_json["access_token"]
 
-def getGraphEvents(graph_access_token, timezone):
-    # Calls graph calendar view api
+def getMSFTEvents(msft_access_token, timezone):
+    # Calls MSFT calendar view api
     # Returns all busy, out of office, or working elsewhere events
     # From the user's default outlook calendar for the day
-    graph_events_cached = cache.get(graph_access_token + "_graph_events_cached")
-    if graph_events_cached != None:
-        return json.decode(graph_events_cached)
+    msft_events_cached = cache.get(msft_access_token + "_msft_events_cached")
+    if msft_events_cached != None:
+        return json.decode(msft_events_cached)
     else:
         current_time = time.now().in_location(timezone)
         current_date = current_time.format("2006-01-02T")
         current_timezone = current_time.format("Z07:00")
-        graph_start_date_time = current_date + "00:00:00" + current_timezone
-        graph_end_date_time = (
+        msft_start_date_time = current_date + "00:00:00" + current_timezone
+        msft_end_date_time = (
             time.parse_time(current_date, "2006-01-02T", timezone) +
             time.parse_duration("24h")
         ).format("2006-01-02T15:04:05Z07:00")
-        url = GRAPH_CALENDAR_VIEW_URL
+        url = MSFT_CALENDAR_VIEW_URL
         headers = {
-            "Authorization": "Bearer " + graph_access_token,
+            "Authorization": "Bearer " + msft_access_token,
         }
         params = {
-            "startdatetime": graph_start_date_time,
-            "enddatetime": graph_end_date_time,
+            "startdatetime": msft_start_date_time,
+            "enddatetime": msft_end_date_time,
             "$select": "showAs, start, end, isAllDay",
             "$filter": "(showAs eq 'busy' or showAs eq 'oof' or " +
                        "showAs eq 'workingElsewhere') and isCancelled eq false",
             "$orderby": "start/dateTime",
         }
-        graph_events = []
+        msft_events = []
 
-        # Handling graph api paging
-        for x in range(NUMBER_OF_GRAPH_FETCH_ITERATIONS):
+        # Handling MSFT api paging
+        for x in range(NUMBER_OF_MSFT_FETCH_ITERATIONS):
             response = http.get(url = url, headers = headers, params = params)
             if response.status_code != 200:
-                fail("Graph request failed with status:%d - %s" % (response.status_code, response.body()))
+                fail("MSFT request failed with status:%d - %s" % (response.status_code, response.body()))
 
             for event in response.json()["value"]:
-                graph_events.append(event)
+                msft_events.append(event)
             url = response.json().get("@odata.nextLink")
             if not url:
                 break
         cache.set(
-            graph_access_token + "_graph_events_cached",
-            json.encode(graph_events),
+            msft_access_token + "_msft_events_cached",
+            json.encode(msft_events),
             ttl_seconds = TTL_SECONDS,
         )
-        return graph_events
+        return msft_events
 
-def getGraphCurrentEvents(graph_events, timezone):
-    # Accepts a json array of graph events
+def getMSFTCurrentEvents(msft_events, timezone):
+    # Accepts a json array of MSFT events
     # Returns an array of events happening now
-    graph_current_events = []
-    for graph_event in graph_events:
-        start_time = time.parse_time(graph_event["start"]["dateTime"], "2006-01-02T15:04:05")
-        end_time = time.parse_time(graph_event["end"]["dateTime"], "2006-01-02T15:04:05")
+    msft_current_events = []
+    for msft_event in msft_events:
+        start_time = time.parse_time(msft_event["start"]["dateTime"], "2006-01-02T15:04:05")
+        end_time = time.parse_time(msft_event["end"]["dateTime"], "2006-01-02T15:04:05")
         start_date = time.parse_time(start_time.format("2006-01-02"), "2006-01-02", timezone)
         end_date = time.parse_time(end_time.format("2006-01-02"), "2006-01-02", timezone)
         if (
             (
-                graph_event["isAllDay"] == False and
+                msft_event["isAllDay"] == False and
                 start_time <= time.now().in_location("UTC") and
                 end_time >= time.now().in_location("UTC")
             ) or (
-                graph_event["isAllDay"] == True and
+                msft_event["isAllDay"] == True and
                 start_date <= time.now().in_location(timezone) and
                 end_date >= time.now().in_location(timezone)
             )
         ):
-            graph_current_events.append(graph_event)
-    if (graph_current_events != []):
-        return graph_current_events
+            msft_current_events.append(msft_event)
+    if (msft_current_events != []):
+        return msft_current_events
     else:
         return None
 
-def sortGraphEventByEndDate(graph_event):
+def sortMSFTEventByEndDate(msft_event):
     # Defines end date as sort key
-    return graph_event["end"]["dateTime"]
+    return msft_event["end"]["dateTime"]
 
-def getGraphLatestEventByShowAs(graph_events, show_as):
-    # Accepts a json array of graph events
+def getMSFTLatestEventByShowAs(msft_events, show_as):
+    # Accepts a json array of MSFT events
     # Returns latest event for the provided show as value
-    if (graph_events != None):
-        graph_events_sorted = sorted(
-            graph_events,
-            key = sortGraphEventByEndDate,
+    if (msft_events != None):
+        msft_events_sorted = sorted(
+            msft_events,
+            key = sortMSFTEventByEndDate,
             reverse = False,
         )
-        latest_graph_event = None
-        for graph_event in graph_events_sorted:
-            if (graph_event["showAs"] == show_as and latest_graph_event == None):
-                latest_graph_event = graph_event
+        latest_msft_event = None
+        for msft_event in msft_events_sorted:
+            if (msft_event["showAs"] == show_as and latest_msft_event == None):
+                latest_msft_event = msft_event
             elif (
-                graph_event["showAs"] == show_as and
-                graph_event["end"]["dateTime"] > latest_graph_event["end"]["dateTime"] and
+                msft_event["showAs"] == show_as and
+                msft_event["end"]["dateTime"] > latest_msft_event["end"]["dateTime"] and
                 (
-                    graph_event["isAllDay"] == True or
+                    msft_event["isAllDay"] == True or
                     (
-                        graph_event["isAllDay"] == False and
-                        latest_graph_event["isAllDay"] == False
+                        msft_event["isAllDay"] == False and
+                        latest_msft_event["isAllDay"] == False
                     )
                 )
             ):
-                latest_graph_event = graph_event
-        return latest_graph_event
+                latest_msft_event = msft_event
+        return latest_msft_event
 
-def sortGraphEventByStartDate(graph_event):
+def sortMSFTEventByStartDate(msft_event):
     # Defines start date as sort key
-    return graph_event["start"]["dateTime"]
+    return msft_event["start"]["dateTime"]
 
-def getGraphNextEvent(graph_events):
-    # Accepts a json array of graph events
+def getMSFTNextEvent(msft_events):
+    # Accepts a json array of MSFT events
     # Returns the next busy or out of office event
-    graph_events_sorted = sorted(graph_events, key = sortGraphEventByStartDate)
-    for graph_event in graph_events_sorted:
+    msft_events_sorted = sorted(msft_events, key = sortMSFTEventByStartDate)
+    for msft_event in msft_events_sorted:
         if (
             time.parse_time(
-                graph_event["start"]["dateTime"],
+                msft_event["start"]["dateTime"],
                 "2006-01-02T15:04:05",
             ) >= time.now().in_location("UTC") and
-            graph_event["showAs"] in ("busy", "oof")
+            msft_event["showAs"] in ("busy", "oof")
         ):
-            return graph_event
+            return msft_event
 
-def getGraphStatus(graph_access_token, timezone):
-    # Determines a user's status based on graph events returned
-    graph_events = getGraphEvents(graph_access_token, timezone)
-    graph_current_events = getGraphCurrentEvents(graph_events, timezone)
-    graph_oof_event = getGraphLatestEventByShowAs(graph_current_events, "oof")
-    graph_busy_event = getGraphLatestEventByShowAs(graph_current_events, "busy")
-    graph_wfh_event = getGraphLatestEventByShowAs(graph_current_events, "workingElsewhere")
-    graph_next_event = getGraphNextEvent(graph_events)
-    if (graph_oof_event != None):
+def getMSFTStatus(msft_access_token, timezone):
+    # Determines a user's status based on MSFT events returned
+    msft_events = getMSFTEvents(msft_access_token, timezone)
+    msft_current_events = getMSFTCurrentEvents(msft_events, timezone)
+    msft_oof_event = getMSFTLatestEventByShowAs(msft_current_events, "oof")
+    msft_busy_event = getMSFTLatestEventByShowAs(msft_current_events, "busy")
+    msft_wfh_event = getMSFTLatestEventByShowAs(msft_current_events, "workingElsewhere")
+    msft_next_event = getMSFTNextEvent(msft_events)
+    if (msft_oof_event != None):
         return {
-            "isAllDay": graph_oof_event["isAllDay"],
+            "isAllDay": msft_oof_event["isAllDay"],
             "status": "away",
-            "time": graph_oof_event["end"]["dateTime"],
+            "time": msft_oof_event["end"]["dateTime"],
         }
-    elif (graph_wfh_event != None and graph_busy_event != None):
+    elif (msft_wfh_event != None and msft_busy_event != None):
         return {
-            "isAllDay": graph_busy_event["isAllDay"],
+            "isAllDay": msft_busy_event["isAllDay"],
             "status": "remote_busy",
-            "time": graph_busy_event["end"]["dateTime"],
+            "time": msft_busy_event["end"]["dateTime"],
         }
-    elif (graph_wfh_event != None and graph_next_event != None):
+    elif (msft_wfh_event != None and msft_next_event != None):
         return {
-            "isAllDay": graph_next_event["isAllDay"],
+            "isAllDay": msft_next_event["isAllDay"],
             "status": "remote_free",
-            "time": graph_next_event["start"]["dateTime"],
+            "time": msft_next_event["start"]["dateTime"],
         }
-    elif (graph_wfh_event != None):
+    elif (msft_wfh_event != None):
         return {
-            "isAllDay": graph_wfh_event["isAllDay"],
+            "isAllDay": msft_wfh_event["isAllDay"],
             "status": "remote",
             "time": None,
         }
-    elif (graph_busy_event != None):
+    elif (msft_busy_event != None):
         return {
-            "isAllDay": graph_busy_event["isAllDay"],
+            "isAllDay": msft_busy_event["isAllDay"],
             "status": "busy",
-            "time": graph_busy_event["end"]["dateTime"],
+            "time": msft_busy_event["end"]["dateTime"],
         }
-    elif (graph_next_event != None):
+    elif (msft_next_event != None):
         return {
-            "isAllDay": graph_next_event["isAllDay"],
+            "isAllDay": msft_next_event["isAllDay"],
             "status": "free",
-            "time": graph_next_event["start"]["dateTime"],
+            "time": msft_next_event["start"]["dateTime"],
         }
     else:
         return {
@@ -784,7 +784,7 @@ def getSchedule(availability, timezone):
     else:
         return "Until later"
 
-def graph_oauth_handler(params):
+def msft_oauth_handler(params):
     # This handler is invoked once the user selects the "Authorize my Outlook Acccount" from the Mobile app
     # It passes Params from a successful user Auth, including the Code that must be exchanged for a Refresh token
     params = json.decode(params)
@@ -797,9 +797,9 @@ def graph_oauth_handler(params):
         "&code=" + params["code"] +
         "&redirect_uri=" + params["redirect_uri"] +
         "&grant_type=authorization_code" +
-        "&client_secret=" + GRAPH_CLIENT_SECRET  # Provide runtime a default secret
+        "&client_secret=" + MSFT_CLIENT_SECRET  # Provide runtime a default secret
     )
-    response = http.post(url = GRAPH_TOKEN_ENDPOINT, headers = headers, body = body)
+    response = http.post(url = MSFT_TOKEN_ENDPOINT, headers = headers, body = body)
 
     if response.status_code != 200:
         fail("token request failed with status code: %d - %s" %
@@ -858,13 +858,13 @@ def get_schema():
                 icon = "locationDot",
             ),
             schema.OAuth2(
-                id = "graph_auth",
+                id = "msft_auth",
                 name = "Microsoft Outlook",
                 desc = "Authorize your Microsoft Outlook Calendar",
                 icon = "windows",
-                handler = graph_oauth_handler,
-                client_id = GRAPH_CLIENT_ID,
-                authorization_endpoint = GRAPH_AUTH_ENDPOINT,
+                handler = msft_oauth_handler,
+                client_id = MSFT_CLIENT_ID,
+                authorization_endpoint = MSFT_AUTH_ENDPOINT,
                 scopes = [
                     "offline_access",
                     "Calendars.read",
