@@ -37,7 +37,7 @@ GRAPH_WIDTH = 43
 GRAPH_BOTTOM = 50
 GRAPH_TOP = 275
 
-CACHE_TTL_SECONDS = 0
+CACHE_TTL_SECONDS = 1800 #30 mins
 
 DEFAULT_LOCATION = """
 {
@@ -83,6 +83,7 @@ def main(config):
     elif status_code > 200:
         return display_failure("Nightscout Error: " + str(status_code))
 
+    
     # Pull the data from the cache
     sgv_current = int(nightscout_data_json["sgv_current"])
     sgv_delta = int(nightscout_data_json["sgv_delta"])
@@ -685,15 +686,6 @@ def get_schema():
 def get_nightscout_data(nightscout_id, nightscout_host):
     key = nightscout_id + "_nightscout_data"
 
-    # Get the JSON object from the cache
-    nightscout_data_cached = cache.get(key)
-    if nightscout_data_cached != None:
-        print("Hit - displaying cached data")
-        return json.decode(nightscout_data_cached), 0
-
-    # If it's not in the cache, construct it from a response.
-    print("Miss - calling Nightscout API")
-
     nightscout_url = "https://" + nightscout_id + "." + nightscout_host + "/api/v1/entries.json?count=100"
 
     print(nightscout_url)
@@ -701,7 +693,18 @@ def get_nightscout_data(nightscout_id, nightscout_host):
     # Request latest entries from the Nightscout URL
     resp = http.get(nightscout_url)
     if resp.status_code != 200:
+    
+        # If Error, Get the JSON object from the cache
+        nightscout_data_cached = cache.get(key)
+        if nightscout_data_cached != None:
+            print("NS Error - displaying cached data")
+            return json.decode(nightscout_data_cached), 0
+
+        # If it's not in the cache, return the NS error.
+        print("NS Error - Display Error")
+    
         return {}, resp.status_code
+        
     latest_reading = resp.json()[0]
     previous_reading = resp.json()[1]
 
