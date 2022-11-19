@@ -5,6 +5,7 @@ Description: Show coworkers whether you're free, busy, or remote.
 Author: Brian Bell
 """
 
+load("animation.star", "animation")
 load("cache.star", "cache")
 load("encoding/base64.star", "base64")
 load("encoding/json.star", "json")
@@ -173,6 +174,7 @@ TkSuQmCC
 def main(config):
     name = config.str("name", DEFAULT_NAME)
     timezone = json.decode(config.get("location", DEFAULT_LOCATION))["timezone"]
+    animations = config.bool("animations", False)
 
     # Retrieve Graph API access token, returns None if user is not logged in
     graph_access_token = refreshGraphAccessToken(config)
@@ -194,69 +196,188 @@ def main(config):
     image = base64.decode(STATUS_MAP[availability["status"]]["image"])
     schedule = getSchedule(availability, timezone)
 
-    return render.Root(
-        delay = 125,
-        child = render.Row(
-            children = [
-                render.Stack(
-                    children = [
-                        render.Column(
+    if not animations:
+        return render.Root(
+            child = render.Row(
+                children = [
+                    render.Box(
+                        color = color,
+                        width = 10,
+                        child = render.Image(src = image, width = 10),
+                    ),
+                    render.Padding(
+                        pad = (1, 2, 0, 1),
+                        child = render.Column(
+                            expanded = True,
+                            main_align = "space_between",
                             children = [
-                                render.Box(
-                                    color = color,
-                                    width = 10,
+                                render.Marquee(
+                                    child = render.Text(
+                                        content = name + " is",
+                                        font = "tom-thumb",
+                                    ),
+                                    offset_start = 80,
+                                    offset_end = 0,
+                                    width = 52,
                                 ),
-                            ],
-                        ),
-                        render.Column(
-                            children = [
-                                render.Box(
-                                    child = render.Image(src = image),
-                                    width = 10,
-                                ),
-                            ],
-                        ),
-                    ],
-                ),
-                render.Padding(
-                    child = render.Column(
-                        expanded = True,
-                        children = [
-                            render.Marquee(
-                                child = render.Text(
-                                    content = name + " is",
-                                    font = "tom-thumb",
-                                ),
-                                offset_start = 0,
-                                offset_end = 0,
-                                width = 52,
-                            ),
-                            render.Marquee(
-                                child = render.Text(
+                                render.Text(
                                     content = status.upper(),
                                     font = "6x13",
                                 ),
-                                offset_start = 1,
-                                offset_end = 52,
-                                width = 52,
-                            ),
-                            render.Marquee(
-                                child = render.Text(
-                                    content = schedule,
-                                    font = "tom-thumb",
+                                render.Marquee(
+                                    child = render.Text(
+                                        content = schedule,
+                                        font = "tom-thumb",
+                                    ),
+                                    offset_start = 80,
+                                    offset_end = 0,
+                                    width = 52,
                                 ),
-                                offset_start = 0,
-                                offset_end = 0,
-                                width = 52,
+                            ],
+                        ),
+                    ),
+                ],
+            ),
+        )
+    else:
+        return render.Root(
+            child = render.Stack(
+                children = [
+                    # Left side color indicator
+                    animation.Transformation(
+                        child = render.Box(
+                            color = color,
+                            width = 10,
+                            child = render.Image(src = image, width = 10),
+                        ),
+                        duration = 282,
+                        delay = 0,
+                        keyframes = [
+                            animation.Keyframe(
+                                percentage = 0.0,
+                                transforms = [animation.Translate(-64, 0)],
+                                curve = "ease_in_out",
+                            ),
+                            animation.Keyframe(
+                                percentage = 0.16,
+                                transforms = [animation.Translate(0, 0)],
+                                curve = "ease_in_out",
+                            ),
+                            animation.Keyframe(
+                                percentage = 0.80,
+                                transforms = [animation.Translate(0, 0)],
+                                curve = "ease_in_out",
+                            ),
+                            animation.Keyframe(
+                                percentage = 1.0,
+                                transforms = [animation.Translate(-64, 0)],
                             ),
                         ],
-                        main_align = "space_evenly",
                     ),
-                    pad = (2, 0, 0, 0),
-                ),
-            ],
-        ),
-    )
+                    # Name row
+                    animation.Transformation(
+                        child = render.Marquee(
+                            child = render.Text(
+                                content = name + " is",
+                                font = "tom-thumb",
+                            ),
+                            offset_start = 80,
+                            offset_end = 0,
+                            width = 52,
+                        ),
+                        duration = 250,
+                        delay = 30,
+                        keyframes = [
+                            animation.Keyframe(
+                                percentage = 0.0,
+                                transforms = [animation.Translate(11, 34)],
+                                curve = "ease_in_out",
+                            ),
+                            animation.Keyframe(
+                                percentage = 0.10,
+                                transforms = [animation.Translate(11, 2)],
+                                curve = "ease_in_out",
+                            ),
+                            animation.Keyframe(
+                                percentage = 0.81,
+                                transforms = [animation.Translate(11, 2)],
+                                curve = "ease_in_out",
+                            ),
+                            animation.Keyframe(
+                                percentage = 1.0,
+                                transforms = [animation.Translate(-53, 2)],
+                            ),
+                        ],
+                    ),
+                    # Status row
+                    animation.Transformation(
+                        child = render.Text(
+                            content = status.upper(),
+                            font = "6x13",
+                        ),
+                        duration = 250,
+                        delay = 30,
+                        keyframes = [
+                            animation.Keyframe(
+                                percentage = 0.0,
+                                transforms = [animation.Translate(11, 42)],
+                                curve = "ease_in_out",
+                            ),
+                            animation.Keyframe(
+                                percentage = 0.17,
+                                transforms = [animation.Translate(11, 10)],
+                                curve = "ease_in_out",
+                            ),
+                            animation.Keyframe(
+                                percentage = 0.83,
+                                transforms = [animation.Translate(11, 10)],
+                                curve = "ease_in_out",
+                            ),
+                            animation.Keyframe(
+                                percentage = 1.0,
+                                transforms = [animation.Translate(-53, 10)],
+                            ),
+                        ],
+                    ),
+                    # Schedule row
+                    animation.Transformation(
+                        child = render.Marquee(
+                            child = render.Text(
+                                content = schedule,
+                                font = "tom-thumb",
+                            ),
+                            offset_start = 80,
+                            offset_end = 0,
+                            width = 52,
+                        ),
+                        duration = 250,
+                        delay = 30,
+                        wait_for_child = True,
+                        keyframes = [
+                            animation.Keyframe(
+                                percentage = 0.0,
+                                transforms = [animation.Translate(11, 57)],
+                                curve = "ease_in_out",
+                            ),
+                            animation.Keyframe(
+                                percentage = 0.20,
+                                transforms = [animation.Translate(11, 25)],
+                                curve = "ease_in_out",
+                            ),
+                            animation.Keyframe(
+                                percentage = 0.85,
+                                transforms = [animation.Translate(11, 25)],
+                                curve = "ease_in_out",
+                            ),
+                            animation.Keyframe(
+                                percentage = 1.0,
+                                transforms = [animation.Translate(-53, 25)],
+                            ),
+                        ],
+                    ),
+                ],
+            ),
+        )
 
 def refreshGraphAccessToken(config):
     # Use refresh token to collect access token
@@ -760,6 +881,13 @@ def get_schema():
                 scopes = [
                     "spark:people_read",
                 ],
+            ),
+            schema.Toggle(
+                id = "animations",
+                name = "Enable Animations",
+                desc = "Turn on entry and exit animations.",
+                icon = "arrowsRotate",
+                default = False,
             ),
         ],
     )
