@@ -120,7 +120,7 @@ def main(config):
 
     # Default state is yellow to make the logic easier
     color_reading = COLOR_YELLOW
-    color_delta = COLOR_GREY
+    color_delta = COLOR_YELLOW
     color_arrow = COLOR_YELLOW
     color_ago = COLOR_GREY
     color_graph_urgent_high = COLOR_RED
