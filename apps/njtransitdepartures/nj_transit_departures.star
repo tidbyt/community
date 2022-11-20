@@ -49,7 +49,16 @@ def get_schema():
         ],
     )
 
-def getNJTransitHTML(station):
+'''
+Function gets all depatures for a given station
+returns a list of structs with the following fields
+
+depature_item struct:
+    departing_at: string
+    destination: string
+    train_number: string
+'''
+def get_departures_for_station(station):
 
     station_suffix = station.replace(' ', "%20")
     station_url = "{}/{}".format(NJ_TRANSIT_DV_URL, station_suffix)
@@ -60,10 +69,54 @@ def getNJTransitHTML(station):
         print("Got code '%s' from page response" % nj_dv_page_response.status_code)
         return None
 
-    html_response = html(wotd_page_response.body())
+    selector = html(wotd_page_response.body())
+    departures = selector.find(".list-unstyled").first().children()
 
-    return html_response
+    result = []
 
+    for departure in departures:
+        result.append(extract_fields_from_departure(departure))
+
+    return result
+
+'''
+Function Extracts necessary data from HTML of a given depature
+'''
+def extract_fields_from_departure(departure):
+    data = departure.find(".media-body").first().children()
+
+    depature_time = get_departure_time(data)
+    destination_name = get_destination_name(data)
+    train_number = get_train_number(data)
+
+    return struct(departing_at = depature_time, destination = destation_name, train_number = train_number)
+
+'''
+Function gets depature time for a given depature
+'''
+def get_departure_time(data):
+    time_string = data.find(".d-block ff-secondary--bold flex-grow-1 h2 mb-0").first().text()
+    return time_string
+
+'''
+Function gets the train number from a given depature
+'''
+def get_train_number(data):
+    nodes = data.find(".media-body").first().find(".mb-0")
+    train_number = nodes.get(1).text()
+    return train_number
+'''
+Function gets the destation froma  given depature
+'''
+def get_destination_name(data):
+    nodes = data.find(".media-body").first().find(".mb-0")
+    destination_name = nodes.get(0).text()
+    return destination_name
+
+'''
+Function fetches trains station list from NJ Transit website
+To be used for creating Schema option list
+'''
 def fetch_stations_from_website():
 
     result = []
@@ -82,7 +135,9 @@ def fetch_stations_from_website():
     return result
 
 
-
+'''
+Creates a list of schema options from station list
+'''
 def getStationListOptions():
     
     options = []
@@ -97,7 +152,9 @@ def getStationListOptions():
 
     return options
 
-
+'''
+Helper function to create a schema option of a given display name and value
+'''
 def create_option(display_name, value):
     return schema.Option(
             display = display_name,
