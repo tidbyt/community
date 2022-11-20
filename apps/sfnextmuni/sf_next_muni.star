@@ -302,7 +302,7 @@ def main(config):
     messages = getMessages(api_key, config, routes, stopId)
 
     ## Render the title, predictions and messages
-    if not stopTitle and not predictions and not messages: 
+    if not stopTitle and not predictions and not messages:
         return []
 
     return renderOutput(stopTitle, predictions, messages, config)
