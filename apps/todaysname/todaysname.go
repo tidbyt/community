@@ -15,7 +15,7 @@ func New() manifest.Manifest {
 	return manifest.Manifest{
 		ID:          "todays-name",
 		Name:        "Todays Name",
-		Author:      "Ylva Strandell",
+		Author:      "y34752",
 		Summary:     "Shows todays name in Sweden",
 		Desc:        "The app shows todays nameday names in SWeden.",
 		FileName:    "todays_name.star",

@@ -2,7 +2,7 @@
 Applet: Todays Name
 Summary: Shows todays name in Sweden
 Description: The app shows todays nameday names in SWeden.
-Author: Ylva Strandell
+Author: y34752
 """
 
 load("encoding/json.star", "json")
