@@ -7,6 +7,7 @@ package apps
 import (
 	"errors"
 
+	"tidbyt.dev/community/apps/aadailyreflect"
 	"tidbyt.dev/community/apps/abstractclock"
 	"tidbyt.dev/community/apps/advice"
 	"tidbyt.dev/community/apps/afl"
@@ -15,6 +16,7 @@ import (
 	"tidbyt.dev/community/apps/analogclock"
 	"tidbyt.dev/community/apps/analogtime"
 	"tidbyt.dev/community/apps/arcadeclassics"
+	"tidbyt.dev/community/apps/astropicofday"
 	"tidbyt.dev/community/apps/baywheels"
 	"tidbyt.dev/community/apps/bgghotness"
 	"tidbyt.dev/community/apps/biblevotd"
@@ -36,12 +38,14 @@ import (
 	"tidbyt.dev/community/apps/colorfulclock"
 	"tidbyt.dev/community/apps/costcogas"
 	"tidbyt.dev/community/apps/countdownclock"
+	"tidbyt.dev/community/apps/countupclock"
 	"tidbyt.dev/community/apps/cryptotracker"
 	"tidbyt.dev/community/apps/currencyconverter"
 	"tidbyt.dev/community/apps/dailykanji"
 	"tidbyt.dev/community/apps/dateprogress"
 	"tidbyt.dev/community/apps/datetimeclock"
 	"tidbyt.dev/community/apps/daynightmap"
+	"tidbyt.dev/community/apps/daystoxmas"
 	"tidbyt.dev/community/apps/desknametag"
 	"tidbyt.dev/community/apps/destiny2stats"
 	"tidbyt.dev/community/apps/digibyteprice"
@@ -74,6 +78,7 @@ import (
 	"tidbyt.dev/community/apps/hvvdepartures"
 	"tidbyt.dev/community/apps/ifparank"
 	"tidbyt.dev/community/apps/indegostations"
+	"tidbyt.dev/community/apps/inseason"
 	"tidbyt.dev/community/apps/isitchristmas"
 	"tidbyt.dev/community/apps/islamicprayer"
 	"tidbyt.dev/community/apps/isstracker"
@@ -110,6 +115,7 @@ import (
 	"tidbyt.dev/community/apps/nbastandings"
 	"tidbyt.dev/community/apps/ncaafscores"
 	"tidbyt.dev/community/apps/ncaafstandings"
+	"tidbyt.dev/community/apps/ncaamscores"
 	"tidbyt.dev/community/apps/nearearthobjs"
 	"tidbyt.dev/community/apps/neotrack"
 	"tidbyt.dev/community/apps/nesquotes"
@@ -135,7 +141,7 @@ import (
 	"tidbyt.dev/community/apps/pathtrainschedule"
 	"tidbyt.dev/community/apps/petpikachu"
 	"tidbyt.dev/community/apps/phaseofmoon"
-	"tidbyt.dev/community/apps/plausiblestats"
+	"tidbyt.dev/community/apps/plausibleanalytics"
 	"tidbyt.dev/community/apps/pokedex"
 	"tidbyt.dev/community/apps/pollencount"
 	"tidbyt.dev/community/apps/powerball"
@@ -157,8 +163,10 @@ import (
 	"tidbyt.dev/community/apps/shouldideploy"
 	"tidbyt.dev/community/apps/shuffleimages"
 	"tidbyt.dev/community/apps/snyk"
+	"tidbyt.dev/community/apps/soccermens"
 	"tidbyt.dev/community/apps/solarelevation"
 	"tidbyt.dev/community/apps/soundtransit"
+	"tidbyt.dev/community/apps/spinbyt"
 	"tidbyt.dev/community/apps/sportsrankings"
 	"tidbyt.dev/community/apps/sportsscores"
 	"tidbyt.dev/community/apps/sportsstandings"
@@ -174,6 +182,7 @@ import (
 	"tidbyt.dev/community/apps/supermariokart"
 	"tidbyt.dev/community/apps/surfforecast"
 	"tidbyt.dev/community/apps/surflive"
+	"tidbyt.dev/community/apps/switchboard"
 	"tidbyt.dev/community/apps/tartan"
 	"tidbyt.dev/community/apps/tcatbusarrivals"
 	"tidbyt.dev/community/apps/tempest"
@@ -188,6 +197,7 @@ import (
 	"tidbyt.dev/community/apps/topcryptoprices"
 	"tidbyt.dev/community/apps/traffic"
 	"tidbyt.dev/community/apps/transsee"
+	"tidbyt.dev/community/apps/trivia"
 	"tidbyt.dev/community/apps/tube"
 	"tidbyt.dev/community/apps/tubestatus"
 	"tidbyt.dev/community/apps/tvquotes"
@@ -198,6 +208,7 @@ import (
 	"tidbyt.dev/community/apps/usyieldcurve"
 	"tidbyt.dev/community/apps/vergetaglines"
 	"tidbyt.dev/community/apps/verticalmessage"
+	"tidbyt.dev/community/apps/visibleplanets"
 	"tidbyt.dev/community/apps/wantedposter"
 	"tidbyt.dev/community/apps/warframecycles"
 	"tidbyt.dev/community/apps/weathermap"
@@ -208,6 +219,7 @@ import (
 	"tidbyt.dev/community/apps/wordlebyt"
 	"tidbyt.dev/community/apps/wordoftheday"
 	"tidbyt.dev/community/apps/worldclock"
+	"tidbyt.dev/community/apps/wowtoken"
 	"tidbyt.dev/community/apps/xtrabyt"
 	"tidbyt.dev/community/apps/zapier"
 	"tidbyt.dev/community/apps/zenhub"
@@ -217,6 +229,7 @@ import (
 // below to include it in the Tidbyt Mobile app for all Tidbyt users.
 func GetManifests() []manifest.Manifest {
 	return []manifest.Manifest{
+		aadailyreflect.New(),
 		abstractclock.New(),
 		advice.New(),
 		afl.New(),
@@ -225,6 +238,7 @@ func GetManifests() []manifest.Manifest {
 		analogclock.New(),
 		analogtime.New(),
 		arcadeclassics.New(),
+		astropicofday.New(),
 		baywheels.New(),
 		bgghotness.New(),
 		biblevotd.New(),
@@ -246,12 +260,14 @@ func GetManifests() []manifest.Manifest {
 		colorfulclock.New(),
 		costcogas.New(),
 		countdownclock.New(),
+		countupclock.New(),
 		cryptotracker.New(),
 		currencyconverter.New(),
 		dailykanji.New(),
 		dateprogress.New(),
 		datetimeclock.New(),
 		daynightmap.New(),
+		daystoxmas.New(),
 		desknametag.New(),
 		destiny2stats.New(),
 		digibyteprice.New(),
@@ -284,6 +300,7 @@ func GetManifests() []manifest.Manifest {
 		hvvdepartures.New(),
 		ifparank.New(),
 		indegostations.New(),
+		inseason.New(),
 		isitchristmas.New(),
 		islamicprayer.New(),
 		isstracker.New(),
@@ -319,6 +336,7 @@ func GetManifests() []manifest.Manifest {
 		nbastandings.New(),
 		ncaafscores.New(),
 		ncaafstandings.New(),
+		ncaamscores.New(),
 		nearearthobjs.New(),
 		neotrack.New(),
 		nesquotes.New(),
@@ -344,7 +362,7 @@ func GetManifests() []manifest.Manifest {
 		pathtrainschedule.New(),
 		petpikachu.New(),
 		phaseofmoon.New(),
-		plausiblestats.New(),
+		plausibleanalytics.New(),
 		pokedex.New(),
 		pollencount.New(),
 		powerball.New(),
@@ -366,8 +384,10 @@ func GetManifests() []manifest.Manifest {
 		shouldideploy.New(),
 		shuffleimages.New(),
 		snyk.New(),
+		soccermens.New(),
 		solarelevation.New(),
 		soundtransit.New(),
+		spinbyt.New(),
 		sportsrankings.New(),
 		sportsscores.New(),
 		sportsstandings.New(),
@@ -383,6 +403,7 @@ func GetManifests() []manifest.Manifest {
 		supermariokart.New(),
 		surfforecast.New(),
 		surflive.New(),
+		switchboard.New(),
 		tartan.New(),
 		tcatbusarrivals.New(),
 		tempest.New(),
@@ -397,6 +418,7 @@ func GetManifests() []manifest.Manifest {
 		topcryptoprices.New(),
 		traffic.New(),
 		transsee.New(),
+		trivia.New(),
 		tube.New(),
 		tubestatus.New(),
 		tvquotes.New(),
@@ -407,6 +429,7 @@ func GetManifests() []manifest.Manifest {
 		usyieldcurve.New(),
 		vergetaglines.New(),
 		verticalmessage.New(),
+		visibleplanets.New(),
 		wantedposter.New(),
 		warframecycles.New(),
 		weathermap.New(),
@@ -417,6 +440,7 @@ func GetManifests() []manifest.Manifest {
 		wordlebyt.New(),
 		wordoftheday.New(),
 		worldclock.New(),
+		wowtoken.New(),
 		xtrabyt.New(),
 		zapier.New(),
 		zenhub.New(),
