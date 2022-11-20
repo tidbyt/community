@@ -27,9 +27,20 @@ def main(config):
 
     selected_station = config.get("station", DEFAULT_STATION)
 
-    return render.Root(
-        child = render.Text("Hello, World!")
+    departures = get_departures_for_station(selected_station)
+
+
+    marquee = render.Marquee(
+        width=64,
+        child=render.Text("✈"),
+        offset_start=5,
+        offset_end=32,
     )
+
+    return render.Root(
+        child = marquee
+    )
+    return
 
 
 
@@ -62,8 +73,13 @@ depature_item struct:
 '''
 def get_departures_for_station(station):
 
+
+    print("Getting departures for '%s'" % station)
+
     station_suffix = station.replace(' ', "%20")
     station_url = "{}/{}".format(NJ_TRANSIT_DV_URL, station_suffix)
+
+    print(station_url)
 
     nj_dv_page_response = http.get(station_url)
 
@@ -72,12 +88,17 @@ def get_departures_for_station(station):
         return None
 
     selector = html(nj_dv_page_response.body())
-    departures = selector.find(".list-unstyled").first().children()
+    departures = selector.find(".border.mb-3.rounded")
+
+    print("Found '%s' departures" % departures.len())
 
     result = []
 
-    for departure in departures:
-        result.append(extract_fields_from_departure(departure))
+    for index in range(0, departures.len()):
+        departure = departures.eq(index)
+        item = extract_fields_from_departure(departure)
+        print("{}/{}/{}".format(item.departing_at, item.destination, item.train_number))
+        result.append(item)
 
     return result
 
@@ -85,8 +106,9 @@ def get_departures_for_station(station):
 Function Extracts necessary data from HTML of a given depature
 '''
 def extract_fields_from_departure(departure):
-    data = departure.find(".media-body").first().children()
 
+    data = departure.find(".media-body").first()
+    
     depature_time = get_departure_time(data)
     destination_name = get_destination_name(data)
     train_number = get_train_number(data)
@@ -97,22 +119,23 @@ def extract_fields_from_departure(departure):
 Function gets depature time for a given depature
 '''
 def get_departure_time(data):
-    time_string = data.find(".d-block.ff-secondary--bold.flex-grow-1.h2.mb-0").first().text()
-    return time.parse_time(time_string)
+    time_string = data.find(".d-block.ff-secondary--bold.flex-grow-1.h2.mb-0").first().text().strip()
+    return time_string
 
 '''
 Function gets the train number from a given depature
 '''
 def get_train_number(data):
     nodes = data.find(".media-body").first().find(".mb-0")
-    train_number = nodes.get(1).text()
+    srvc_train_number = nodes.eq(1).text().strip().split()
+    train_number = "{} {}".format(srvc_train_number[0].strip(), srvc_train_number[2].strip())
     return train_number
 '''
 Function gets the destation froma  given depature
 '''
 def get_destination_name(data):
     nodes = data.find(".media-body").first().find(".mb-0")
-    destination_name = nodes.get(0).text()
+    destination_name = nodes.eq(0).text().strip()
     return destination_name
 
 '''
@@ -132,7 +155,7 @@ def fetch_stations_from_website():
     stations = selector.find(".vbt-autocomplete-list.list-unstyled.position-absolute.pt-1.shadow.w-100").first().children()
     print("Got response of '%s' stations" % stations.len())
 
-    for index in range(1, stations.len()):
+    for index in range(0, stations.len()):
         station = stations.eq(index)
         station_name = station.find("a").first().text()
         print("Found station '%s' from page response" % station_name)
