@@ -15,12 +15,16 @@ load("encoding/base64.star", "base64")
 
 #URL TO NJ TRANSIT DEPARTURE VISION WEBSITE
 NJ_TRANSIT_DV_URL = "https://www.njtransit.com/dv-to"
-STATIONS_ENCODED = "U1RBVElPTiBOQU1FLFNUQVRJT04gMkNIQVIKQWJlcmRlZW4tTWF0YXdhbixBTQpBYnNlY29uLEFCCkFsbGVuZGFsZSxBWgpBbGxlbmh1cnN0LEFICkFuZGVyc29uIFN0cmVldCxBUwpBbm5hbmRhbGUsQU4KQXNidXJ5IFBhcmssQVAKQXRjbyxBTwpBdGxhbnRpYyBDaXR5IFJhaWwgVGVybWluYWwsQUMKQXZlbmVsLEFWCkJhc2tpbmcgUmlkZ2UsQkkKQmF5IEhlYWQsQkgKQmF5IFN0cmVldCxNQwpCZWxtYXIsQlMKQmVya2VsZXkgSGVpZ2h0cyxCWQpCZXJuYXJkc3ZpbGxlLEJWCkJsb29tZmllbGQsQk0KQm9vbnRvbixCTgpCb3VuZCBCcm9vayxCSwpCcmFkbGV5IEJlYWNoLEJCCkJyaWNrIENodXJjaCxCVQpCcmlkZ2V3YXRlcixCVwpCcm9hZHdheS1GYWlybGF3bixCRgpDYW1wYmVsbCBIYWxsLENCCkNoYXRoYW0sQ00KQ2hlcnJ5IEhpbGwsQ1kKQ2xpZnRvbixJRgpDb252ZW50IFN0YXRpb24sQ04KQ3JhbmZvcmQsWEMKRGVsYXdhbm5hLERMCkRlbnZpbGxlLERWCkRvdmVyLERPCkR1bmVsbGVuLEROCkVhc3QgT3JhbmdlLEVPCkVkaXNvbixFRApFZ2cgSGFyYm9yIENpdHksRUgKRWxiZXJvbixFTApFbGl6YWJldGgsRVoKRW1lcnNvbixFTgpFc3NleCBTdHJlZXQsRVgKRmFud29vZCxGVwpGYXIgSGlsbHMsRkgKRmluZGVybmUsRkUKR2FyZmllbGQsR0QKR2Fyd29vZCxHVwpHaWxsZXR0ZSxHSQpHbGFkc3RvbmUsR0wKR2xlbiBSaWRnZSxHRwpHbGVuIFJvY2ssUlMKR2xlbiBSb2NrIEJvcm8gSGFsbCxHSwpHcmVhdCBOb3RjaCxHQQpIYWNrZXR0c3Rvd24sSFEKSGFtaWx0b24sSEwKSGFtbW9udG9uLEhOCkhhcnJpbWFuLEhSCkhhd3Rob3JuZSxIVwpIYXpsZXQsSFoKSGlnaCBCcmlkZ2UsSEcKSGlnaGxhbmQgQXZlbnVlLEhJCkhpbGxzZGFsZSxIRApIb2Jva2VuLEhCCkhvaG9rdXMsVUYKSmVyc2V5IEF2ZW51ZSxKQQpLaW5nc2xhbmQsS0cKTGFrZSBIb3BhdGNvbmcsSFAKTGViYW5vbixPTgpMaW5jb2xuIFBhcmssTFAKTGluZGVuLExJCkxpbmRlbndvbGQsTFcKTGl0dGxlIEZhbGxzLEZBCkxpdHRsZSBTaWx2ZXIsTFMKTG9uZyBCcmFuY2gsTEIKTHluZGh1cnN0LExOCkx5b25zLExZCk1hZGlzb24sTUEKTWFod2FoLE1aCk1hbmFzcXVhbixTUQpNYXBsZXdvb2QsTVcKTWV0cm8gUGFyayxNUApNZXR1Y2hlbixNVQpNaWRkbGV0b24gTkosTUkKTWlkZGxldG93biBOWSxNRApNaWxsYnVybixNQgpNaWxsaW5ndG9uLEdPCk1vbnRjbGFpciBTdGF0ZSBVLFVWCk1vbm1vdXRoIFBhcmssTUsKTW9udGNsYWlyIEhlaWdodHMsSFMKTW9udHZhbGUsWk0KTW9ycmlzIFBsYWlucyxNWApNb3JyaXN0b3duLE1SCk1vdW50IE9saXZlLE9MCk1vdW50IFRhYm9yLFRCCk1vdW50YWluIEF2ZW51ZSxNUwpNb3VudGFpbiBMYWtlcyxNTApNb3VudGFpbiBTdGF0aW9uLE1UCk1vdW50YWluIFZpZXcsTVYKTXVycmF5IEhpbGwsTUgKTmFudWV0LE5OCk5ldGNvbmcsTlQKTmV0aGVyd29vZCxORQpOZXcgQnJ1bnN3aWNrLE5CCk5ldyBQcm92aWRlbmNlLE5WCk5ld2FyayBBaXJwb3J0LE5BCk5ld2FyayBCcm9hZCBTdHJlZXQsTkQKTmV3YXJrIFBlbm4gU3RhdGlvbixOUApOb3J0aCBCcmFuY2gsT1IKTm9ydGggRWxpemFiZXRoLE5aCk5ldyBCcmlkZ2UgTGFuZGluZyxOSApPcmFkZWxsLE9ECk9yYW5nZSxPRwpPdHRpc3ZpbGxlLE9TClBhcmsgUmlkZ2UsUFYKUGFzc2FpYyxQUwpQYXRlcnNvbixSTgpQZWFwYWNrLFBDClBlYXJsIFJpdmVyLFBRCk5ldyB5b3JrIFBlbm4gU3RhdGlvbixOWQpQZXJ0aCBBbWJveSxQRQpQaGlsYWRlbHBoaWEsUEgKUGxhaW5maWVsZCxQRgpQbGF1ZGVydmlsbGUsUEwKUG9pbnQgUGxlYXNhbnQgQmVhY2gsUFAKUG9ydCBKZXJ2aXMsUE8KUHJpbmNldG9uLFBSClByaW5jZXRvbiBKdW5jdGlvbixQSgpSYWRidXJuLUZhaXJsYXduLEZaClJhaHdheSxSSApSYW1zZXksUlkKUmFtc2V5IFJ0IDE3LDE3ClJhcml0YW4sUkEKUmVkIEJhbmssUkIKUmlkZ2V3b29kLFJXClJpdmVyIEVkZ2UsUkcKUm9zZWxsZSBQYXJrLFJMClJ1dGhlcmZvcmQsUkYKU2FsaXNidXJ5IE1pbGxzLUNvcm53YWxsLENXClNlY2F1Y3VzIFVwcGVyIEx2bCxTRQpTZWNhdWN1cyBMb3dlciBMdmwsVFMKU2hvcnQgSGlsbHMsUlQKU2xvYXRzYnVyZyxYRwpTb21lcnZpbGxlLFNNClNvdXRoIEFtYm95LENIClNvdXRoIE9yYW5nZSxTTwpTcHJpbmcgTGFrZSxMQQpTcHJpbmcgVmFsbGV5LFNWClN0aXJsaW5nLFNHClN1ZmZlcm4sU0YKU3VtbWl0LFNUClRldGVyYm9ybyxURQpUb3dhY28sVE8KVHJlbnRvbixUUgpUdXhlZG8sVEMKVW5pb24sVVMKVXBwZXIgTW9udGNsYWlyLFVNCldhbGR3aWNrLFdLCldhbG51dCBTdHJlZXQsV0EKV2F0Y2h1bmcgQXZlbnVlLFdHCldhdHNlc3NpbmcgQXZlbnVlLFdUCldheW5lLVJvdXRlIDIzLDIzCldlc3RmaWVsZCxXRgpXZXN0d29vZCxXVwpXaGl0ZSBIb3VzZSxXSApXb29kIFJpZGdlLFdSCldvb2RicmlkZ2UsV0IKV29vZGNsaWZmIExha2UsV0w="
-STATION_NAME_COL = 0
-STATION_2CHAR_COL = 1
+DEFAULT_STATION = "New York Penn Station"
+
+
+
+STATION_CACHE_KEY = "stations"
+STATION_CACHE_TTL = 604800 #1 Week
 
 def main(config):
 
+    selected_station = config.get("station", DEFAULT_STATION)
     return render.Root(
         child = render.Text("Hello, World!")
     )
@@ -29,7 +33,7 @@ def main(config):
 
 def get_schema():
     
-    options = getStationList()
+    options = getStationListOptions()
 
     return schema.Schema(
         version = "1",
@@ -60,20 +64,38 @@ def getNJTransitHTML(station):
 
     return html_response
 
+def fetch_stations_from_website():
 
-def getStationList():
+    result = []
+    nj_dv_page_response = http.get(station_url)
+
+    if nj_dv_page_response.status_code != 200:
+        print("Got code '%s' from page response" % nj_dv_page_response.status_code)
+        return result
+
+    selector = html(nj_dv_page_response.body())
+    stations = selector.find(".vbt-autocomplete-list list-unstyled position-absolute pt-1 shadow w-100").first().children()
+
+    for station in stations:
+        result.append(station.find("a").first().text())
+
+    return result
+
+
+
+def getStationListOptions():
     
-    stations_csv_str = base64.decode(STATIONS_ENCODED)
-    stations_list = csv.read_all(stations_csv_str, skip = 1) #Skips header row
+    options = []
+    stations = json.decode(cache.get(STATION_CACHE_KEY))
 
+    if stations == None:
+        stations = fetch_stations_from_website()
+        cache.set(STATION_CACHE_KEY, json.encode(stations), STATION_CACHE_TTL)
+    
+    for station in stations:
+        options.append(create_option(station, station))
 
-    stations = []
-
-    #Loop through CSV and get station name and create option
-    for row in stations_list:
-        stations.append(create_option(row[STATION_NAME_COL], row[STATION_NAME_COL]))
-
-    return stations
+    return options
 
 
 def create_option(display_name, value):
