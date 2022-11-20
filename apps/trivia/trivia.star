@@ -40,16 +40,19 @@ def get_data():
 def remove_chars(strr):
     return re.compile(r"<[^>]+>").sub("", strr)
 
-def calc_delay(question):
-    Q_LEN = len(question)
+def calc_delay(question, category):
+    Q_LEN = len(question) + len(category)
 
-    if Q_LEN < 20:
-        return 160
+    if Q_LEN < 30:
+        return 15
+
+    elif Q_LEN < 40:
+        return 10
 
     elif Q_LEN < 50:
-        return 140
+        return 5
 
-    return 100
+    return 0
 
 def get_value(value):
     if value == None:
@@ -57,14 +60,14 @@ def get_value(value):
 
     return humanize.comma(value)
 
-def main():
+def main(config):
     body = get_data()
     value = get_value(body["value"])
     question = remove_chars(body["question"])
     answer = remove_chars(body["answer"])
     category = remove_chars(body["category"]["title"])
 
-    DELAY = calc_delay(question)
+    DELAY = int(config.str("scroll_speed", DEFAULT_SPEED)) + calc_delay(question, category)
 
     return render.Root(
         child = render.Box(
@@ -111,8 +114,26 @@ def main():
         delay = DELAY,
     )
 
+DEFAULT_SPEED = "70"
+
 def get_schema():
+    scroll_speed = [
+        schema.Option(display = "Slower", value = "110"),
+        schema.Option(display = "Slow", value = "90"),
+        schema.Option(display = "Normal (Default)", value = DEFAULT_SPEED),
+        schema.Option(display = "Fast", value = "60"),
+        schema.Option(display = "Faster", value = "40"),
+    ]
     return schema.Schema(
         version = "1",
-        fields = [],
+        fields = [
+            schema.Dropdown(
+                id = "scroll_speed",
+                name = "Scroll speed",
+                desc = "Text scrolling speed",
+                icon = "personRunning",
+                default = scroll_speed[2].value,
+                options = scroll_speed,
+            ),
+        ],
     )
