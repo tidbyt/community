@@ -18,10 +18,25 @@ load("time.star", "time")
 NJ_TRANSIT_DV_URL = "https://www.njtransit.com/dv-to"
 DEFAULT_STATION = "New York Penn Station"
 
-
-
 STATION_CACHE_KEY = "stations"
 STATION_CACHE_TTL = 604800 #1 Week
+
+#Gets Hex color code for a given service line
+COLOR_MAP = {
+    #Rail Lines
+    "ACRL": "#2e55a5", #Atlantic City
+    "AMTK": "#ffca18", #Amtrak 
+    "BERG": "#c3c3c3", #Bergen
+    "MAIN": "#fbb600", #Main-Bergen Line
+    "MOBO": "#c26366", #Montclair-Boonton
+    "M&E": "#28943b", #Morris & Essex
+    "NEC": "#f54f5e", #Northeast Corridor
+    "NJCL": "#339cdb", #North Jersey Coast
+    "PASC": "#a34e8a", #Pascack Valley
+    "RARV": "#ff9315", #Raritan Valley rgb(255, 153, 62),
+    }
+
+DEFAULT_COLOR = "#908E8E" #If a line doesnt have a mapping fall back to this
 
 def main(config):
 
@@ -42,7 +57,27 @@ def main(config):
     )
     return
 
+'''
+Creates a Row and adds needed children objects
+for a single departure.
+'''
+def render_departure(departure):
 
+    background = render.Box(width=64, height=15, color=COLOR_MAP.get(departure.service_line, DEFAULT_COLOR))
+    destination = render.Text(departure.destination_name)
+
+    stacked = render.Stack(
+        children = [
+            background,
+            destination
+        ]
+    )
+
+    return render.Row(
+        children=[
+            background
+        ]
+    )
 
 def get_schema():
     
@@ -69,7 +104,10 @@ returns a list of structs with the following fields
 depature_item struct:
     departing_at: string
     destination: string
-    train_number: time
+    service_line: string
+    train_number: string
+    track_number: string
+    departing_in: string
 '''
 def get_departures_for_station(station):
 
@@ -97,7 +135,6 @@ def get_departures_for_station(station):
     for index in range(0, departures.len()):
         departure = departures.eq(index)
         item = extract_fields_from_departure(departure)
-        print("{}/{}/{}".format(item.departing_at, item.destination, item.train_number))
         result.append(item)
 
     return result
@@ -111,9 +148,29 @@ def extract_fields_from_departure(departure):
     
     depature_time = get_departure_time(data)
     destination_name = get_destination_name(data)
+    service_line = get_service_line(data)
     train_number = get_train_number(data)
+    track_number = get_track_number(data)
+    departing_in = get_real_time_estimated_departure(data)
 
-    return struct(departing_at = depature_time, destination = destination_name, train_number = train_number)
+    print("{}\t{}\t{}\t{}\t{}\t{}\n".format(
+                depature_time,
+                destination_name,
+                service_line,
+                train_number,
+                track_number,
+                departing_in
+            )
+        )
+
+    return struct(
+        departing_at = depature_time, 
+        destination = destination_name,
+        service_line = service_line, 
+        train_number = train_number,
+        track_number = track_number,
+        departing_in = departing_in
+        )
 
 '''
 Function gets depature time for a given depature
@@ -122,14 +179,27 @@ def get_departure_time(data):
     time_string = data.find(".d-block.ff-secondary--bold.flex-grow-1.h2.mb-0").first().text().strip()
     return time_string
 
+
+'''
+Function gets the service line the train is running on
+'''
+def get_service_line(data):
+    nodes = data.find(".media-body").first().find(".mb-0")
+    string = nodes.eq(1).text().strip().split()
+    service_line = string[0].strip()
+
+    return service_line
+
+
 '''
 Function gets the train number from a given depature
 '''
 def get_train_number(data):
     nodes = data.find(".media-body").first().find(".mb-0")
     srvc_train_number = nodes.eq(1).text().strip().split()
-    train_number = "{} {}".format(srvc_train_number[0].strip(), srvc_train_number[2].strip())
+    train_number = srvc_train_number[2].strip()
     return train_number
+
 '''
 Function gets the destation froma  given depature
 '''
@@ -137,6 +207,36 @@ def get_destination_name(data):
     nodes = data.find(".media-body").first().find(".mb-0")
     destination_name = nodes.eq(0).text().strip()
     return destination_name
+
+'''
+Will attempt to get given departing time from nj transit
+If not availble will return the in X min via the scheduled
+Departure time - time.now()
+'''
+def get_real_time_estimated_departure(data):
+    nodes = data.find(".media-body").first().find(".mb-0")
+    node = nodes.eq(2)
+
+    if node != None:
+        departing_in = node.text().strip()
+    else:
+        departing_in = None
+
+    return departing_in
+
+'''
+Returns the track number the train will be departing from.
+May not be availble until about 10 minutes before scheduled departure time.
+'''
+def get_track_number(data):
+    node = data.find(".align-self-end.mb-0").first()
+
+    if node != None:
+        track = node.text().strip()
+    else:
+        track = ""
+
+    return track
 
 '''
 Function fetches trains station list from NJ Transit website
