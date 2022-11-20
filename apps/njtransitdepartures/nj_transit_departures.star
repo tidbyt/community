@@ -12,6 +12,7 @@ load("render.star", "render")
 load("schema.star", "schema")
 load("encoding/csv.star", "csv")
 load("encoding/base64.star", "base64")
+load("time.star", "time")
 
 #URL TO NJ TRANSIT DEPARTURE VISION WEBSITE
 NJ_TRANSIT_DV_URL = "https://www.njtransit.com/dv-to"
@@ -25,6 +26,7 @@ STATION_CACHE_TTL = 604800 #1 Week
 def main(config):
 
     selected_station = config.get("station", DEFAULT_STATION)
+
     return render.Root(
         child = render.Text("Hello, World!")
     )
@@ -56,7 +58,7 @@ returns a list of structs with the following fields
 depature_item struct:
     departing_at: string
     destination: string
-    train_number: string
+    train_number: time
 '''
 def get_departures_for_station(station):
 
@@ -69,7 +71,7 @@ def get_departures_for_station(station):
         print("Got code '%s' from page response" % nj_dv_page_response.status_code)
         return None
 
-    selector = html(wotd_page_response.body())
+    selector = html(nj_dv_page_response.body())
     departures = selector.find(".list-unstyled").first().children()
 
     result = []
@@ -89,14 +91,14 @@ def extract_fields_from_departure(departure):
     destination_name = get_destination_name(data)
     train_number = get_train_number(data)
 
-    return struct(departing_at = depature_time, destination = destation_name, train_number = train_number)
+    return struct(departing_at = depature_time, destination = destination_name, train_number = train_number)
 
 '''
 Function gets depature time for a given depature
 '''
 def get_departure_time(data):
-    time_string = data.find(".d-block ff-secondary--bold flex-grow-1 h2 mb-0").first().text()
-    return time_string
+    time_string = data.find(".d-block.ff-secondary--bold.flex-grow-1.h2.mb-0").first().text()
+    return time.parse_time(time_string)
 
 '''
 Function gets the train number from a given depature
@@ -120,17 +122,21 @@ To be used for creating Schema option list
 def fetch_stations_from_website():
 
     result = []
-    nj_dv_page_response = http.get(station_url)
+    nj_dv_page_response = http.get(NJ_TRANSIT_DV_URL)
 
     if nj_dv_page_response.status_code != 200:
         print("Got code '%s' from page response" % nj_dv_page_response.status_code)
         return result
-
+    
     selector = html(nj_dv_page_response.body())
-    stations = selector.find(".vbt-autocomplete-list list-unstyled position-absolute pt-1 shadow w-100").first().children()
+    stations = selector.find(".vbt-autocomplete-list.list-unstyled.position-absolute.pt-1.shadow.w-100").first().children()
+    print("Got response of '%s' stations" % stations.len())
 
-    for station in stations:
-        result.append(station.find("a").first().text())
+    for index in range(1, stations.len()):
+        station = stations.eq(index)
+        station_name = station.find("a").first().text()
+        print("Found station '%s' from page response" % station_name)
+        result.append(station_name)
 
     return result
 
@@ -141,7 +147,12 @@ Creates a list of schema options from station list
 def getStationListOptions():
     
     options = []
-    stations = json.decode(cache.get(STATION_CACHE_KEY))
+    cache_string = cache.get(STATION_CACHE_KEY)
+
+    stations = None
+
+    if cache_string != None:
+        stations = json.decode(cache_string)
 
     if stations == None:
         stations = fetch_stations_from_website()
