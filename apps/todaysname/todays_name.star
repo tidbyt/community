@@ -1,7 +1,7 @@
 """
-Applet: Todays Name
-Summary: Shows todays name in Sweden
-Description: The app shows todays nameday names in SWeden.
+Applet: Swedish Today's Name
+Summary: Shows today's name in Sweden
+Description: The app shows today's nameday names in Sweden.
 Author: y34752
 """
 
