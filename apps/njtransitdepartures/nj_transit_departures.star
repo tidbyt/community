@@ -21,6 +21,10 @@ DEFAULT_STATION = "New York Penn Station"
 STATION_CACHE_KEY = "stations"
 STATION_CACHE_TTL = 604800 #1 Week
 
+TIMEZONE = "America/New_York"
+
+#DISPLAYS FIRST 3 Departures by default
+DISPLAY_COUNT = 2
 #Gets Hex color code for a given service line
 COLOR_MAP = {
     #Rail Lines
@@ -33,7 +37,7 @@ COLOR_MAP = {
     "NEC": "#f54f5e", #Northeast Corridor
     "NJCL": "#339cdb", #North Jersey Coast
     "PASC": "#a34e8a", #Pascack Valley
-    "RARV": "#ff9315", #Raritan Valley rgb(255, 153, 62),
+    "RARV": "#ff9315", #Raritan Valley
     }
 
 DEFAULT_COLOR = "#908E8E" #If a line doesnt have a mapping fall back to this
@@ -45,38 +49,97 @@ def main(config):
     departures = get_departures_for_station(selected_station)
 
 
-    marquee = render.Marquee(
-        width=64,
-        child=render.Text("✈"),
-        offset_start=5,
-        offset_end=32,
-    )
+    rendered_rows = render_departure_list(departures)
 
     return render.Root(
-        child = marquee
+        delay = 75,
+        max_age = 60,
+        child = rendered_rows
     )
-    return
+    
+'''
+Renders a given lists of departures
+'''
+def render_departure_list(departures):
+    rendered = []
+
+    for d in departures:
+        rendered.append(render_departure_row(d))
+
+    return render.Column(
+            expanded = True,
+            main_align = "start",
+            children = [
+                rendered[0],
+                render.Box(
+                    width = 64,
+                    height = 1,
+                    color = "#666",
+                ),
+                rendered[1],
+            ],
+        )
 
 '''
 Creates a Row and adds needed children objects
 for a single departure.
 '''
-def render_departure(departure):
+def render_departure_row(departure):
 
-    background = render.Box(width=64, height=15, color=COLOR_MAP.get(departure.service_line, DEFAULT_COLOR))
-    destination = render.Text(departure.destination_name)
+    background_color = render.Box(width=22, height=11, color=COLOR_MAP.get(departure.service_line, DEFAULT_COLOR))
+    destination_text = render.Marquee(
+        width = 36,
+        child = render.Text(departure.destination, font = "Dina_r400-6", offset = -2, height = 7,)
+        )
 
-    stacked = render.Stack(
-        children = [
-            background,
-            destination
-        ]
-    )
+    departing_in_text = render.Text(departure.departing_in, color = "#f3ab3f")
+
+    #If we have a Track Number append and make it a scroll marquee
+    if departure.track_number != None:
+        depart = "{} - Track {}".format(departure.departing_in, departure.track_number)
+        departing_in_text = render.Marquee(
+            width = 36,
+            child = render.Text(depart, color = "#f3ab3f")
+        )
+
+    if departure.departing_in.startswith("at"):
+        departing_in_text = render.Marquee(
+                width = 36,
+                child = render.Text(departure.departing_in, color = "#f3ab3f")
+            )
+    
+    child_train_number = render.Text(departure.train_number, font = "CG-pixel-4x5-mono")
+
+    if len(departure.train_number) > 4:
+        child_train_number = render.Marquee(child=child_train_number)
+
+    train_number = render.Box(
+                    color = "#0000",
+                    width = 22,
+                    height = 11,
+                    child = child_train_number
+                )
+
+    stack = render.Stack(children = [
+                background_color,
+                train_number
+            ])
+
+    column = render.Column(
+                children = [
+                    destination_text,
+                    departing_in_text,
+                ],
+            )
 
     return render.Row(
-        children=[
-            background
-        ]
+        expanded = True,
+        main_align = "space_evenly",
+        cross_align = "center",
+        children = [
+            stack,
+            column
+        ],
     )
 
 def get_schema():
@@ -137,6 +200,9 @@ def get_departures_for_station(station):
         item = extract_fields_from_departure(departure)
         result.append(item)
 
+        if len(result) == DISPLAY_COUNT:
+            return result
+
     return result
 
 '''
@@ -146,15 +212,15 @@ def extract_fields_from_departure(departure):
 
     data = departure.find(".media-body").first()
     
-    depature_time = get_departure_time(data)
+    departure_time = get_departure_time(data)
     destination_name = get_destination_name(data)
     service_line = get_service_line(data)
     train_number = get_train_number(data)
     track_number = get_track_number(data)
-    departing_in = get_real_time_estimated_departure(data)
+    departing_in = get_real_time_estimated_departure(data, departure_time)
 
     print("{}\t{}\t{}\t{}\t{}\t{}\n".format(
-                depature_time,
+                departure_time,
                 destination_name,
                 service_line,
                 train_number,
@@ -164,7 +230,7 @@ def extract_fields_from_departure(departure):
         )
 
     return struct(
-        departing_at = depature_time, 
+        departing_at = departure_time, 
         destination = destination_name,
         service_line = service_line, 
         train_number = train_number,
@@ -205,7 +271,7 @@ Function gets the destation froma  given depature
 '''
 def get_destination_name(data):
     nodes = data.find(".media-body").first().find(".mb-0")
-    destination_name = nodes.eq(0).text().strip()
+    destination_name = nodes.eq(0).text().strip().replace('✈', "EWR").upper()
     return destination_name
 
 '''
@@ -213,16 +279,21 @@ Will attempt to get given departing time from nj transit
 If not availble will return the in X min via the scheduled
 Departure time - time.now()
 '''
-def get_real_time_estimated_departure(data):
+def get_real_time_estimated_departure(data, scheduled_time):
     nodes = data.find(".media-body").first().find(".mb-0")
     node = nodes.eq(2)
 
+    departing_in = ""
+
     if node != None:
-        departing_in = node.text().strip()
-    else:
-        departing_in = None
+        departing_in = node.text().strip().removeprefix("in ")
+    
+    #If we cant get from NJT return scheduled Departure time
+    if len(departing_in) == 0:
+        departing_in = "at {}".format(scheduled_time)
 
     return departing_in
+
 
 '''
 Returns the track number the train will be departing from.
@@ -232,9 +303,13 @@ def get_track_number(data):
     node = data.find(".align-self-end.mb-0").first()
 
     if node != None:
-        track = node.text().strip()
+        text = node.text().strip().split()
+        if len(text) > 1:
+            track = text[1].strip()
+        else:
+            track = None
     else:
-        track = ""
+        track = None
 
     return track
 
