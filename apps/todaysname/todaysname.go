@@ -17,7 +17,7 @@ func New() manifest.Manifest {
 		Name:        "Todays Name",
 		Author:      "y34752",
 		Summary:     "Shows todays name in Sweden",
-		Desc:        "The app shows todays nameday names in SWeden.",
+		Desc:        "The app shows today's name day names in Sweden.",
 		FileName:    "todays_name.star",
 		PackageName: "todaysname",
 		Source:  source,
