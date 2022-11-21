@@ -1,5 +1,5 @@
-// Package njtransitdepatures provides details for the NJ Transit Departures applet.
-package njtransitdepatures
+// Package njtransitdepartures provides details for the NJ Transit Departures applet.
+package njtransitdepartures
 
 import (
 	_ "embed"
@@ -16,8 +16,8 @@ func New() manifest.Manifest {
 		ID:          "nj-transit-departures",
 		Name:        "NJ Transit Departures",
 		Author:      "Jason-J-Hunt",
-		Summary:     "NJ Transit Depatures",
-		Desc:        "See the upcoming train depatures of a selected NJ Transit station",
+		Summary:     "NJ Transit Departures",
+		Desc:        "See the upcoming train departures of a selected NJ Transit station",
 		FileName:    "nj_transit_departures.star",
 		PackageName: "njtransitdepartures",
 		Source:  source,
