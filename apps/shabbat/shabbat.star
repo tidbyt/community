@@ -221,9 +221,22 @@ def main(config):
     if method == "degrees_below_horizon":
         degrees_below_horizon = float(config.get("degrees_below_horizon", DEFAULT_DEGREES_BELOW_HORIZON))
         halakhic_min = None
+    elif method == "EIGHT_AND_A_HALF_DEGREES_BELOW_HORIZON":
+        degrees_below_horizon = -8.5
+        halakhic_min = None
     elif method == "halakhic_min":
         degrees_below_horizon = None
         halakhic_min = int(config.get("halakhic_min", DEFAULT_HALAKHIC_MINUTES))
+    elif method == "RABBEINU_TAM":
+        # Catch old rabbeinu tam method
+        method = "rabbeinu_tam"
+        degrees_below_horizon = None
+        halakhic_min = None
+    elif method == "FIFTY_MINUTES_AFTER_SUNSET":
+        # Catch old fifty minutes
+        method = "fifty_minutes"
+        degrees_below_horizon = None
+        halakhic_min = None
     else:
         degrees_below_horizon = None
         halakhic_min = None
