@@ -15,6 +15,7 @@ import (
 	"tidbyt.dev/community/apps/ambientweather"
 	"tidbyt.dev/community/apps/analogclock"
 	"tidbyt.dev/community/apps/analogtime"
+	"tidbyt.dev/community/apps/appletv"
 	"tidbyt.dev/community/apps/arcadeclassics"
 	"tidbyt.dev/community/apps/astropicofday"
 	"tidbyt.dev/community/apps/baywheels"
@@ -245,6 +246,7 @@ func GetManifests() []manifest.Manifest {
 		ambientweather.New(),
 		analogclock.New(),
 		analogtime.New(),
+		appletv.New(),
 		arcadeclassics.New(),
 		astropicofday.New(),
 		baywheels.New(),
