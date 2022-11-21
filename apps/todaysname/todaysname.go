@@ -13,8 +13,8 @@ var source []byte
 // New creates a new instance of the Todays Name applet.
 func New() manifest.Manifest {
 	return manifest.Manifest{
-		ID:          "todays-name",
-		Name:        "Todays Name",
+		ID:          "swedish-todays-name",
+		Name:        "Swedish Today's Name",
 		Author:      "y34752",
 		Summary:     "Shows todays name in Sweden",
 		Desc:        "The app shows today's name day names in Sweden.",
