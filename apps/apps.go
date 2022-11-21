@@ -130,7 +130,6 @@ import (
 	"tidbyt.dev/community/apps/nightscout"
 	"tidbyt.dev/community/apps/nixelclock"
 	"tidbyt.dev/community/apps/njtransit"
-	"tidbyt.dev/community/apps/njtransitdepartures"
 	"tidbyt.dev/community/apps/noaabuoy"
 	"tidbyt.dev/community/apps/noaatides"
 	"tidbyt.dev/community/apps/nyancat"
@@ -353,7 +352,6 @@ func GetManifests() []manifest.Manifest {
 		nightscout.New(),
 		nixelclock.New(),
 		njtransit.New(),
-		njtransitdepartures.New(),
 		noaabuoy.New(),
 		noaatides.New(),
 		nyancat.New(),
