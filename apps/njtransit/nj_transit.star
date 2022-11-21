@@ -57,8 +57,8 @@ def main(config):
         child = rendered_rows,
     )
 
-"""\r
-Renders a given lists of departures\r
+"""
+Renders a given lists of departures
 """
 
 def render_departure_list(departures):
@@ -81,9 +81,9 @@ def render_departure_list(departures):
         ],
     )
 
-"""\r
-Creates a Row and adds needed children objects\r
-for a single departure.\r
+"""
+Creates a Row and adds needed children objects
+for a single departure.
 """
 
 def render_departure_row(departure):
@@ -160,17 +160,17 @@ def get_schema():
         ],
     )
 
-"""\r
-Function gets all depatures for a given station\r
-returns a list of structs with the following fields\r
-\r
-depature_item struct:\r
-    departing_at: string\r
-    destination: string\r
-    service_line: string\r
-    train_number: string\r
-    track_number: string\r
-    departing_in: string\r
+"""
+Function gets all depatures for a given station
+returns a list of structs with the following fields
+
+depature_item struct:
+    departing_at: string
+    destination: string
+    service_line: string
+    train_number: string
+    track_number: string
+    departing_in: string
 """
 
 def get_departures_for_station(station):
@@ -204,8 +204,8 @@ def get_departures_for_station(station):
 
     return result
 
-"""\r
-Function Extracts necessary data from HTML of a given depature\r
+"""
+Function Extracts necessary data from HTML of a given depature
 """
 
 def extract_fields_from_departure(departure):
@@ -238,16 +238,16 @@ def extract_fields_from_departure(departure):
         departing_in = departing_in,
     )
 
-"""\r
-Function gets depature time for a given depature\r
+"""
+Function gets depature time for a given depature
 """
 
 def get_departure_time(data):
     time_string = data.find(".d-block.ff-secondary--bold.flex-grow-1.h2.mb-0").first().text().strip()
     return time_string
 
-"""\r
-Function gets the service line the train is running on\r
+"""
+Function gets the service line the train is running on
 """
 
 def get_service_line(data):
@@ -257,8 +257,8 @@ def get_service_line(data):
 
     return service_line
 
-"""\r
-Function gets the train number from a given depature\r
+"""
+Function gets the train number from a given depature
 """
 
 def get_train_number(data):
@@ -267,19 +267,19 @@ def get_train_number(data):
     train_number = srvc_train_number[2].strip()
     return train_number
 
-"""\r
-Function gets the destation froma  given depature\r
+"""
+Function gets the destation froma  given depature
 """
 
 def get_destination_name(data):
     nodes = data.find(".media-body").first().find(".mb-0")
-    destination_name = nodes.eq(0).text().strip().replace("\342\234\210", "EWR").upper()
+    destination_name = nodes.eq(0).text().strip().replace('\u2708', "EWR").upper()
     return destination_name
 
-"""\r
-Will attempt to get given departing time from nj transit\r
-If not availble will return the in X min via the scheduled\r
-Departure time - time.now()\r
+"""
+Will attempt to get given departing time from nj transit
+If not availble will return the in X min via the scheduled
+Departure time - time.now()
 """
 
 def get_real_time_estimated_departure(data, scheduled_time):
@@ -297,9 +297,9 @@ def get_real_time_estimated_departure(data, scheduled_time):
 
     return departing_in
 
-"""\r
-Returns the track number the train will be departing from.\r
-May not be availble until about 10 minutes before scheduled departure time.\r
+"""
+Returns the track number the train will be departing from.
+May not be availble until about 10 minutes before scheduled departure time.
 """
 
 def get_track_number(data):
@@ -316,9 +316,9 @@ def get_track_number(data):
 
     return track
 
-"""\r
-Function fetches trains station list from NJ Transit website\r
-To be used for creating Schema option list\r
+"""
+Function fetches trains station list from NJ Transit website
+To be used for creating Schema option list
 """
 
 def fetch_stations_from_website():
@@ -341,8 +341,8 @@ def fetch_stations_from_website():
 
     return result
 
-"""\r
-Creates a list of schema options from station list\r
+"""
+Creates a list of schema options from station list
 """
 
 def getStationListOptions():
@@ -363,8 +363,8 @@ def getStationListOptions():
 
     return options
 
-"""\r
-Helper function to create a schema option of a given display name and value\r
+"""
+Helper function to create a schema option of a given display name and value
 """
 
 def create_option(display_name, value):
