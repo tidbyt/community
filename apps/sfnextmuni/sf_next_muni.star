@@ -103,25 +103,6 @@ DEFAULT_CONFIG = {
 }
 
 def get_schema():
-    priorities = [
-        schema.Option(
-            display = "High",
-            value = "High",
-        ),
-        schema.Option(
-            display = "Normal",
-            value = "Normal",
-        ),
-        schema.Option(
-            display = "Low",
-            value = "Low",
-        ),
-        schema.Option(
-            display = "None",
-            value = "none",
-        ),
-    ]
-
     formats = [
         schema.Option(
             display = "With destination",
