@@ -107,7 +107,7 @@ def main(config):
         res_json = json.decode(sb_cached_json)
     else:
         # Cache miss, re-retrieve from API
-        res = http.get(BASE_API_URL, auth=("Switchboard", sb_api_token))
+        res = http.get(BASE_API_URL, auth = ("Switchboard", sb_api_token))
         if res.status_code != 200:
             # Something went wrong with the API request
             return render_failure("REQUEST FAILED: " + str(res.status_code), current_time_str)
