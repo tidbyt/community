@@ -28,7 +28,7 @@ DEFAULT_STOP = """
     "value":"16995"
 }
 """
-PREDICTIONS_URL = "https://api.511.org/transit/StopMonitoring?format=json&api_key=%s&agency=SF&stopCode=%s"
+PREDICTIONS_URL = "https://api.511.org/transit/StopMonitoring?format=json&api_key=%s&agency=SF"
 ROUTES_URL = "https://api.511.org/transit/lines?format=json&api_key=%s&operator_id=SF"
 STOPS_URL = "https://api.511.org/transit/stops?format=json&api_key=%s&operator_id=SF"
 
@@ -274,7 +274,7 @@ def main(config):
     route_filter = config.get("route_filter", DEFAULT_CONFIG["route_filter"])
 
     api_key = API_KEY or config.get("dev_api_key")
-    (data_timestamp, data) = fetch_cached(PREDICTIONS_URL % (api_key, stopId), 240)
+    (data_timestamp, data) = fetch_cached(PREDICTIONS_URL % api_key, 240)
 
     service = data.get("ServiceDelivery", {})
     if not service or not service["Status"]:
@@ -307,7 +307,10 @@ def main(config):
         if "MonitoredCall" not in vehicle:
             continue
         call = vehicle["MonitoredCall"]
-        stopId = call["StopPointRef"]
+
+        if call["StopPointRef"] != stopId:
+            continue
+
         stopTitle = call["StopPointName"]
 
         # Hack for KT interlining, until the Central Subway opens. If stop is in override list, then route designation overriden. Else, use Inbound/Outbound direction to determine route letter
