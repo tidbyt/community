@@ -10,6 +10,7 @@ load("http.star", "http")
 load("time.star", "time")
 load("encoding/base64.star", "base64")
 load("encoding/json.star", "json")
+load("encoding/csv.star", "csv")
 load("cache.star", "cache")
 load("schema.star", "schema")
 load("re.star", "re")
@@ -39,6 +40,9 @@ GRAPH_TOP = 275
 
 CACHE_TTL_SECONDS = 1800  #30 mins
 
+PROVIDER_CACHE_TTL = 7200 #2 hours
+NS_PROVIDERS = "https://gist.githubusercontent.com/IsThisPaul/e976c41112d79383c51ed7315bb114ab/raw/170f967eba27587ffd289631c1a2ae9e31f1bee3/nightscout_providers.csv"
+        
 DEFAULT_LOCATION = """
 {
     "lat": "40.666250",
@@ -53,6 +57,21 @@ DEFAULT_LOCATION = """
 DEFAULT_NSID = ""
 DEFAULT_NSHOST = ""
 
+def get_providers():
+    # Check cache for providers
+    providers = cache.get("ns_providers")
+    
+    # If no cached providers, fetch from server
+    if providers == None:
+        request = http.get(NS_PROVIDERS)
+        if request.status_code != 200:
+            print("Unexpected status code: " + request.status_code)
+            return ["Heroku", "herokuapp.com"]
+            
+        providers = request.body()
+        cache.set("nightscout_providers", providers, ttl_seconds = PROVIDER_CACHE_TTL)
+    return csv.read_all(providers)
+    
 def main(config):
     UTC_TIME_NOW = time.now().in_location("UTC")
     OLDEST_READING_TARGET = UTC_TIME_NOW - time.parse_duration(str(5 * GRAPH_WIDTH) + "m")
@@ -543,68 +562,18 @@ def main(config):
         )
 
 def get_schema():
-    hostOptions = [
-        schema.Option(
-            display = "Heroku",
-            value = "herokuapp.com",
-        ),
-        #schema.Option(
-        #    display = "Adaptable.io",
-        #    value = "xxx.net",
-        #),
-        schema.Option(
-            display = "10BE",
-            value = "10be.de",
-        ),
-        schema.Option(
-            display = "Azure",
-            value = "azurewebsites.net",
-        ),
-        #schema.Option(
-        #    display = "Digital Ocean",
-        #    value = "xxx.com",
-        #),
-        #schema.Option(
-        #    display = "Docker",
-        #    value = "xxx.com",
-        #),
-        schema.Option(
-            display = "fly.io",
-            value = "fly.dev",
-        ),
-        #schema.Option(
-        #    display = "Google",
-        #    value = "xxx.com",
-        #),
-        #schema.Option(
-        #    display = "Glitch",
-        #    value = "xxx.com",
-        #),
-        schema.Option(
-            display = "Northflank",
-            value = "code.run",
-        ),
-        #schema.Option(
-        #    display = "Oracle",
-        #    value = "xxx.com",
-        #),
-        schema.Option(
-            display = "Railway",
-            value = "up.railway.app",
-        ),
-        #schema.Option(
-        #    display = "Render",
-        #    value = "xxx.app",
-        #),
-        #schema.Option(
-        #    display = "Synology",
-        #    value = "xxx.app",
-        #),
-        schema.Option(
-            display = "T1Pal",
-            value = "t1pal.com",
-        ),
-    ]
+    providers = get_providers()
+    
+    hostOptions = []
+    
+    for index in range(0, len(providers)):
+        hostOptions.append(
+            schema.Option(
+                display = providers[index][0],
+                value = providers[index][1],
+            ),
+        )
+    
     return schema.Schema(
         version = "1",
         fields = [
@@ -683,7 +652,7 @@ def get_schema():
 # This method returns a tuple of a nightscout_data and a status_code. If it's
 # served from cache, we return a status_code of 0.
 def get_nightscout_data(nightscout_id, nightscout_host):
-    key = nightscout_id + "_nightscout_data"
+    key = nightscout_id + "." + nightscout_host + "_nightscout_data"
 
     nightscout_url = "https://" + nightscout_id + "." + nightscout_host + "/api/v1/entries.json?count=100"
 
