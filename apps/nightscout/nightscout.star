@@ -40,9 +40,9 @@ GRAPH_TOP = 275
 
 CACHE_TTL_SECONDS = 1800  #30 mins
 
-PROVIDER_CACHE_TTL = 7200 #2 hours
+PROVIDER_CACHE_TTL = 7200  #2 hours
 NS_PROVIDERS = "https://gist.githubusercontent.com/IsThisPaul/e976c41112d79383c51ed7315bb114ab/raw/170f967eba27587ffd289631c1a2ae9e31f1bee3/nightscout_providers.csv"
-        
+
 DEFAULT_LOCATION = """
 {
     "lat": "40.666250",
@@ -60,18 +60,18 @@ DEFAULT_NSHOST = ""
 def get_providers():
     # Check cache for providers
     providers = cache.get("ns_providers")
-    
+
     # If no cached providers, fetch from server
     if providers == None:
         request = http.get(NS_PROVIDERS)
         if request.status_code != 200:
             print("Unexpected status code: " + request.status_code)
             return ["Heroku", "herokuapp.com"]
-            
+
         providers = request.body()
         cache.set("nightscout_providers", providers, ttl_seconds = PROVIDER_CACHE_TTL)
     return csv.read_all(providers)
-    
+
 def main(config):
     UTC_TIME_NOW = time.now().in_location("UTC")
     OLDEST_READING_TARGET = UTC_TIME_NOW - time.parse_duration(str(5 * GRAPH_WIDTH) + "m")
@@ -563,9 +563,9 @@ def main(config):
 
 def get_schema():
     providers = get_providers()
-    
+
     hostOptions = []
-    
+
     for index in range(0, len(providers)):
         hostOptions.append(
             schema.Option(
@@ -573,7 +573,7 @@ def get_schema():
                 value = providers[index][1],
             ),
         )
-    
+
     return schema.Schema(
         version = "1",
         fields = [
