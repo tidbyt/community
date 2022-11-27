@@ -22,7 +22,7 @@ DEFAULT_TIMEZONE = "America/New_York"
 NASCAR_API = "https://tidbyt.apis.ajcomputers.com/nascar/api/"
 DEFAULT_SERIES = "cup"
 DEFAULT_TIME_24 = False
-DEFAILT_DATE_US = True
+DEFAULT_DATE_US = True
 
 REGULAR_FONT = "tom-thumb"
 DATETIME_FONT = "tb-8"
@@ -224,7 +224,7 @@ def get_schema():
                 name = "US Date format",
                 desc = "Display the date in US format.",
                 icon = "calendarDays",
-                default = DEFAILT_DATE_US,
+                default = DEFAULT_DATE_US,
             ),
         ],
     )
