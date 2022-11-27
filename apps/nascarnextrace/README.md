@@ -13,6 +13,7 @@ Displayed:
 
 ## Configuration
 - Select series to display (cup series is default)
+- For Race / Track / Date and Time - select display option:  fade or slide
 - Select Date and Time Format
 
 ## Thanks
