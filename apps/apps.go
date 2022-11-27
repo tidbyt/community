@@ -378,7 +378,7 @@ func GetManifests() []manifest.Manifest {
 		rules4life.New(),
 		sbbtimetable.New(),
 		severewxalertsusa.New(),
-		//sfnextmuni.New(),
+		sfnextmuni.New(),
 		shabbat.New(),
 		shopifychart.New(),
 		shouldideploy.New(),
