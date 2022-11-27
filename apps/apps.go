@@ -157,7 +157,7 @@ import (
 	"tidbyt.dev/community/apps/rules4life"
 	"tidbyt.dev/community/apps/sbbtimetable"
 	"tidbyt.dev/community/apps/severewxalertsusa"
-	//"tidbyt.dev/community/apps/sfnextmuni"
+	"tidbyt.dev/community/apps/sfnextmuni"
 	"tidbyt.dev/community/apps/shabbat"
 	"tidbyt.dev/community/apps/shopifychart"
 	"tidbyt.dev/community/apps/shouldideploy"
