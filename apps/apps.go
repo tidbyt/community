@@ -182,6 +182,7 @@ import (
 	"tidbyt.dev/community/apps/supermariokart"
 	"tidbyt.dev/community/apps/surfforecast"
 	"tidbyt.dev/community/apps/surflive"
+	"tidbyt.dev/community/apps/swedishnameday"
 	"tidbyt.dev/community/apps/switchboard"
 	"tidbyt.dev/community/apps/tartan"
 	"tidbyt.dev/community/apps/tcatbusarrivals"
@@ -192,7 +193,6 @@ import (
 	"tidbyt.dev/community/apps/theguardiannews"
 	"tidbyt.dev/community/apps/theysaidso"
 	"tidbyt.dev/community/apps/tindiesales"
-	"tidbyt.dev/community/apps/todaysname"
 	"tidbyt.dev/community/apps/todoist"
 	"tidbyt.dev/community/apps/todoistnext"
 	"tidbyt.dev/community/apps/topcryptoprices"
@@ -404,6 +404,7 @@ func GetManifests() []manifest.Manifest {
 		supermariokart.New(),
 		surfforecast.New(),
 		surflive.New(),
+		swedishnameday.New(),
 		switchboard.New(),
 		tartan.New(),
 		tcatbusarrivals.New(),
@@ -414,7 +415,6 @@ func GetManifests() []manifest.Manifest {
 		theguardiannews.New(),
 		theysaidso.New(),
 		tindiesales.New(),
-		todaysname.New(),
 		todoist.New(),
 		todoistnext.New(),
 		topcryptoprices.New(),
