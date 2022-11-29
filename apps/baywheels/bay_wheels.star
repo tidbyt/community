@@ -76,7 +76,7 @@ def main(config):
                     cross_align = "center",
                     expanded = True,
                     children = [
-                        render.Image(src = IMAGE_BICYCLE, width = 32, height = 32),
+                        render.Image(src = IMAGE_BICYCLE, width = 32, height = 18),
                         render.Column(
                             main_align = "space_evenly",
                             cross_align = "end",
