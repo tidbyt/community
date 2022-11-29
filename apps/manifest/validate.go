@@ -4,6 +4,9 @@ import (
 	"fmt"
 	"strings"
 	"unicode"
+
+	"golang.org/x/text/cases"
+	"golang.org/x/text/language"
 )
 
 const (
@@ -23,6 +26,12 @@ var punctuation []string = []string{
 	".",
 	"!",
 	"?",
+}
+
+var titleCaser cases.Caser
+
+func init() {
+	titleCaser = cases.Title(language.English, cases.NoLower)
 }
 
 // ValidateName ensures the app name provided adheres to the standards for app
@@ -181,7 +190,7 @@ func titleCase(input string) string {
 		if strings.Contains(smallwords, " "+word+" ") && word != string(word[0]) {
 			words[index] = word
 		} else {
-			words[index] = strings.Title(word)
+			words[index] = titleCaser.String(word)
 		}
 	}
 
