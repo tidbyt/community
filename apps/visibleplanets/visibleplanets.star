@@ -383,7 +383,7 @@ def get_schema():
             ),
             schema.Toggle(
                 id = "hide_quiet",
-                name = "Hide when the selected planet is below the horizon",
+                name = "Hide if not visible",
                 desc = "Skip displaying this app when the selected planet is below the horizon?",
                 icon = "gear",
                 default = True,
