@@ -72,7 +72,7 @@ func ValidateSummary(summary string) error {
 	}
 
 	words := strings.Split(summary, " ")
-	if len(words) > 0 && words[0] != strings.Title(words[0]) {
+	if len(words) > 0 && words[0] != titleCaser.String(words[0]) {
 		return fmt.Errorf("app summaries should start with an uppercased character")
 	}
 
@@ -98,7 +98,7 @@ func ValidateDesc(desc string) error {
 	}
 
 	words := strings.Split(desc, " ")
-	if len(words) > 0 && words[0] != strings.Title(words[0]) {
+	if len(words) > 0 && words[0] != titleCaser.String(words[0]) {
 		return fmt.Errorf("app descriptions should start with an uppercased character")
 	}
 
