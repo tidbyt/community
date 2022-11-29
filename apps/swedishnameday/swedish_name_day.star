@@ -1,5 +1,5 @@
 """
-Applet: Swedish Today's Name
+Applet: Swedish Name Day
 Summary: Shows today's name in Sweden
 Description: The app shows today's nameday names in Sweden.
 Author: y34752
