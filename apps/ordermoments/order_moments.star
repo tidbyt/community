@@ -47,13 +47,12 @@ MILESTONE_DEFINITIONS = [
     (10000, 1000),
     (100000, 5000),
     (500000, 10000),
-    (1000000, 100000)
+    (1000000, 100000),
 ]
 
 # MAIN
 # ----
 def main(config):
-
     store_name = config.get("store_name")
     api_token = config.get("api_token")
 
@@ -77,7 +76,7 @@ def main(config):
     milestone = get_milestone(order_count)
     if milestone > celebration["orders"]:
         new_celebration = {
-            "orders": milestone
+            "orders": milestone,
         }
         if celebration.get("id"):
             new_celebration["id"] = celebration["id"]
@@ -95,10 +94,10 @@ def main(config):
                             cross_align = "center",
                             children = [
                                 render.Text(get_formatted_number(milestone)),
-                                render.Text("orders!")
-                            ]
-                        )
-                    )
+                                render.Text("orders!"),
+                            ],
+                        ),
+                    ),
                 ],
             ),
         )
@@ -113,12 +112,11 @@ def main(config):
 # milestone: A number to be formatted
 # Returns: A string representing a friendly formatted number
 def get_formatted_number(number):
-
     if number % 1000000000 == 0:
         return "%sB" % humanize.comma(number // 1000000000)
     elif number % 1000000 == 0:
         return "%sM" % humanize.comma(number // 1000000)
-    elif number % 1000  == 0:
+    elif number % 1000 == 0:
         return "%sk" % humanize.comma(number // 1000)
     else:
         return humanize.comma(number)
@@ -128,10 +126,8 @@ def get_formatted_number(number):
 # -----------------------------------------------------------------------------------------
 # Returns: a number representing the most applicable milestone for a number of orders.
 def get_milestone(order_count):
- 
     previous = MILESTONE_DEFINITIONS[0]
     for base, step in MILESTONE_DEFINITIONS:
-
         if order_count > base:
             previous = (base, step)
             continue
@@ -144,7 +140,6 @@ def get_milestone(order_count):
 # last_celebration: A dict with data from the last celebration
 # orders: A number of current orders
 def should_celebrate(last_celebration):
-
     # If we don't have a date for our last celebration, we know it's new
     if last_celebration.get("date") == None:
         return True
@@ -166,13 +161,12 @@ def should_celebrate(last_celebration):
         additional_time = 48
     elif day_of_week[0] == "S":
         if day_of_week == "Sat":
-            additional_time = (time.time(year=lcd.year, month=lcd.month, day=lcd.day + 1, hour=23, minute=59) - lcd).hours
+            additional_time = (time.time(year = lcd.year, month = lcd.month, day = lcd.day + 1, hour = 23, minute = 59) - lcd).hours
         else:
-            additional_time = (time.time(year=lcd.year, month=lcd.month, day=lcd.day, hour=23, minute=59) - lcd).hours
+            additional_time = (time.time(year = lcd.year, month = lcd.month, day = lcd.day, hour = 23, minute = 59) - lcd).hours
 
     # We celebrate if the time since the last milestone is less than the celebration duration
     return time_since.hours < (24 + additional_time)
-
 
 # GET LATEST CELEBRATION
 # Retrieves remote data representing our latest celebration from a shop metafield.
@@ -181,17 +175,16 @@ def should_celebrate(last_celebration):
 # api_token: A Shopify API token
 # Returns: A dict with id, date, and orders keys, or a dict with an error key if failed
 def get_latest_celebration(store_name, api_token):
-    
     # Check our cache
     cache_key = CACHE_ID_METAFIELD.format(hash.sha1(store_name))
     cached_metafields = cache.get(cache_key)
 
     if not cached_metafields:
         # Nothing was cached, so fetch it now
-        url = REST_ENDPOINT.format(store_name,METAFIELD_ENDPOINT)
+        url = REST_ENDPOINT.format(store_name, METAFIELD_ENDPOINT)
         headers = {"Content-Type": "application/json", "X-Shopify-Access-Token": api_token}
         response = http.get(url = url, params = {"owner-resource": METAFIELD_OWNER}, headers = headers)
-        
+
         if response.status_code != 200:
             print("get_latest_celebration Error ❌: Status code %d, URL %s, Body %s" % (response.status_code, response.url, response.body()))
             return {"error": response.status_code}
@@ -212,15 +205,14 @@ def get_latest_celebration(store_name, api_token):
             return {
                 "id": metafield["id"],
                 "date": time.parse_time(metafield["updated_at"]).in_location("utc"),
-                "orders": metafield["value"]
+                "orders": metafield["value"],
             }
 
     # If nothing was celebrated yet, our last number of celebrated orders is 0 on the epoch
     return {
         "orders": 0,
-        "date": time.from_timestamp(0)
+        "date": time.from_timestamp(0),
     }
-
 
 # STORE LATEST CELEBRATION
 # Creates or updates remote data representing our latest celebration as a shop metafield.
@@ -230,11 +222,9 @@ def get_latest_celebration(store_name, api_token):
 # api_token: A Shopify API token
 # Returns: True if successful, False otherwise
 def store_latest_celebration(celebration, store_name, api_token):
-
     headers = {"Content-Type": "application/json", "X-Shopify-Access-Token": api_token}
 
     if not celebration.get("id"):
-
         # An ID isn't already available, so we're storing our data as a metafield
         # for the first time.
 
@@ -245,7 +235,7 @@ def store_latest_celebration(celebration, store_name, api_token):
             "type": "number_integer",
             "key": METAFIELD_KEY,
             "description": METAFIELD_DESCRIPTION,
-            "value": celebration["orders"]
+            "value": celebration["orders"],
         }
 
         response = http.post(url = url, headers = headers, json_body = {"metafield": payload})
@@ -256,7 +246,6 @@ def store_latest_celebration(celebration, store_name, api_token):
         return True
 
     else:
-
         # An ID is available, so we're updating our existing metafield with a new order count.
 
         url = REST_ENDPOINT.format(store_name, METAFIELD_UPDATE_ENDPOINT.format("%d" % celebration["id"]))
@@ -268,7 +257,7 @@ def store_latest_celebration(celebration, store_name, api_token):
             return False
 
         return True
-        
+
 # GET ORDER COUNT
 # Gets a number of orders for a provided store name using a provided API token
 # -----------------------------------------------------------------------------------------
@@ -276,14 +265,13 @@ def store_latest_celebration(celebration, store_name, api_token):
 # api_token: An API token
 # Returns: A number representing the order count for a store, or -1 if the count couldn't be fetched
 def get_order_count(store_name, api_token):
-
     # Check our cache
     cache_key = CACHE_ID_ORDERS.format(hash.sha1(store_name))
     cached_orders = cache.get(cache_key)
 
     if not cached_orders:
         # Nothing was in the cache, so fetch our orders now
-        url = REST_ENDPOINT.format(store_name,COUNT_ENDPOINT)
+        url = REST_ENDPOINT.format(store_name, COUNT_ENDPOINT)
         headers = {"Content-Type": "application/json", "X-Shopify-Access-Token": api_token}
         response = http.get(url = url, params = {"status": "any"}, headers = headers)
 
@@ -301,7 +289,7 @@ def get_order_count(store_name, api_token):
         # Use our cached value
         print("Cache 💾: Found cached value for key %s" % cache_key)
         order_count = json.decode(cached_orders)
-    
+
     # Return our count value
     return order_count["count"]
 
@@ -325,13 +313,11 @@ def error_view(message):
                             width = 64,
                             offset_start = 64,
                             child = render.Text(content = message, color = "#FF0"),
-                        )
+                        ),
                     ],
-                )
-            ]
-        )
-        
-            
+                ),
+            ],
+        ),
     )
 
 # Get Schema

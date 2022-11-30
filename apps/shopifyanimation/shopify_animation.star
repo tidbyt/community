@@ -13,9 +13,8 @@ load("encoding/base64.star", "base64")
 def main(config):
     return render.Root(
         render.Image(SHOPPY_ANIMATION),
-        delay = 120
+        delay = 120,
     )
-    
 
 def get_schema():
     return schema.Schema(
