@@ -160,6 +160,8 @@ import (
 	"tidbyt.dev/community/apps/sfnextmuni"
 	"tidbyt.dev/community/apps/shabbat"
 	"tidbyt.dev/community/apps/shopifychart"
+	"tidbyt.dev/community/apps/shopifyorders"
+	"tidbyt.dev/community/apps/shopifysales"
 	"tidbyt.dev/community/apps/shouldideploy"
 	"tidbyt.dev/community/apps/shuffleimages"
 	"tidbyt.dev/community/apps/snyk"
@@ -382,6 +384,8 @@ func GetManifests() []manifest.Manifest {
 		sfnextmuni.New(),
 		shabbat.New(),
 		shopifychart.New(),
+		shopifyorders.New(),
+		shopifysales.New(),
 		shouldideploy.New(),
 		shuffleimages.New(),
 		snyk.New(),
