@@ -136,6 +136,7 @@ import (
 	"tidbyt.dev/community/apps/officestatus"
 	"tidbyt.dev/community/apps/ogsgamesviewer"
 	"tidbyt.dev/community/apps/ohhighwaysigns"
+	"tidbyt.dev/community/apps/ordermoments"
 	"tidbyt.dev/community/apps/ordertrends"
 	"tidbyt.dev/community/apps/outlookcalendar"
 	"tidbyt.dev/community/apps/pagerduty"
@@ -161,6 +162,7 @@ import (
 	"tidbyt.dev/community/apps/severewxalertsusa"
 	"tidbyt.dev/community/apps/sfnextmuni"
 	"tidbyt.dev/community/apps/shabbat"
+	"tidbyt.dev/community/apps/shopifyanimation"
 	"tidbyt.dev/community/apps/shopifychart"
 	"tidbyt.dev/community/apps/shopifyneworder"
 	"tidbyt.dev/community/apps/shopifyorders"
@@ -363,6 +365,7 @@ func GetManifests() []manifest.Manifest {
 		officestatus.New(),
 		ogsgamesviewer.New(),
 		ohhighwaysigns.New(),
+		ordermoments.New(),
 		ordertrends.New(),
 		outlookcalendar.New(),
 		pagerduty.New(),
@@ -388,6 +391,7 @@ func GetManifests() []manifest.Manifest {
 		severewxalertsusa.New(),
 		sfnextmuni.New(),
 		shabbat.New(),
+		shopifyanimation.New(),
 		shopifychart.New(),
 		shopifyneworder.New(),
 		shopifyorders.New(),
