@@ -136,6 +136,7 @@ import (
 	"tidbyt.dev/community/apps/officestatus"
 	"tidbyt.dev/community/apps/ogsgamesviewer"
 	"tidbyt.dev/community/apps/ohhighwaysigns"
+	"tidbyt.dev/community/apps/ordertrends"
 	"tidbyt.dev/community/apps/outlookcalendar"
 	"tidbyt.dev/community/apps/pagerduty"
 	"tidbyt.dev/community/apps/pathtrainschedule"
@@ -155,11 +156,13 @@ import (
 	"tidbyt.dev/community/apps/redditrplace"
 	"tidbyt.dev/community/apps/roblox"
 	"tidbyt.dev/community/apps/rules4life"
+	"tidbyt.dev/community/apps/salestrends"
 	"tidbyt.dev/community/apps/sbbtimetable"
 	"tidbyt.dev/community/apps/severewxalertsusa"
 	"tidbyt.dev/community/apps/sfnextmuni"
 	"tidbyt.dev/community/apps/shabbat"
 	"tidbyt.dev/community/apps/shopifychart"
+	"tidbyt.dev/community/apps/shopifyneworder"
 	"tidbyt.dev/community/apps/shopifyorders"
 	"tidbyt.dev/community/apps/shopifysales"
 	"tidbyt.dev/community/apps/shouldideploy"
@@ -360,6 +363,7 @@ func GetManifests() []manifest.Manifest {
 		officestatus.New(),
 		ogsgamesviewer.New(),
 		ohhighwaysigns.New(),
+		ordertrends.New(),
 		outlookcalendar.New(),
 		pagerduty.New(),
 		pathtrainschedule.New(),
@@ -379,11 +383,13 @@ func GetManifests() []manifest.Manifest {
 		redditrplace.New(),
 		roblox.New(),
 		rules4life.New(),
+		salestrends.New(),
 		sbbtimetable.New(),
 		severewxalertsusa.New(),
 		sfnextmuni.New(),
 		shabbat.New(),
 		shopifychart.New(),
+		shopifyneworder.New(),
 		shopifyorders.New(),
 		shopifysales.New(),
 		shouldideploy.New(),
