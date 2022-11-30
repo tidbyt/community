@@ -14,10 +14,10 @@ var source []byte
 func New() manifest.Manifest {
 	return manifest.Manifest{
 		ID:          "shopify-animation",
-		Name:        "Shopify Animation",
+		Name:        "Shoppy Pixels",
 		Author:      "Shopify",
-		Summary:     "Displays fun animations",
-		Desc:        "Shoppy, the Shopify shopping bag would like to visit your TidByt.",
+		Summary:     "Animated Shoppy app",
+		Desc:        "Enjoy a retro animated experience with Shoppy, the entrepreneurs mascot.",
 		FileName:    "shopify_animation.star",
 		PackageName: "shopifyanimation",
 		Source:  source,

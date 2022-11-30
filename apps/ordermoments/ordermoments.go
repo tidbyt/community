@@ -14,7 +14,7 @@ var source []byte
 func New() manifest.Manifest {
 	return manifest.Manifest{
 		ID:          "order-moments",
-		Name:        "Order Moments",
+		Name:        "Shopify Celebrate",
 		Author:      "Shopify",
 		Summary:     "Celebrate major moments",
 		Desc:        "Get celebratory notifications when you hit specific order milestones.",
