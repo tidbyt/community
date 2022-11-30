@@ -182,6 +182,7 @@ import (
 	"tidbyt.dev/community/apps/supermariokart"
 	"tidbyt.dev/community/apps/surfforecast"
 	"tidbyt.dev/community/apps/surflive"
+	"tidbyt.dev/community/apps/swedishnameday"
 	"tidbyt.dev/community/apps/switchboard"
 	"tidbyt.dev/community/apps/tartan"
 	"tidbyt.dev/community/apps/tcatbusarrivals"
@@ -403,6 +404,7 @@ func GetManifests() []manifest.Manifest {
 		supermariokart.New(),
 		surfforecast.New(),
 		surflive.New(),
+		swedishnameday.New(),
 		switchboard.New(),
 		tartan.New(),
 		tcatbusarrivals.New(),
