@@ -15,8 +15,7 @@ load("http.star", "http")
 load("cache.star", "cache")
 load("time.star", "time")
 
-exchange_rate_api_key = "382c82c0e47531184b366111"
-exchange_rate_api_key_encrypted = "AV6+xWcEXP7etGoIWOhZZ4spSkJcCWWY9zg31IBiDre6tG5KRQPaD2yzU1SKrbJMsNeqjJW1rwt5iu+tEnP4qKecP8hSqdycpc/jrPcoqBFkHzM8Wr9CC2oQ5gnfF+KX8nxRx6IbX4FhVHwMAqOFKT/1Z23v50mqeatEWFVw"
+exchange_rate_api_key_encrypted = "AV6+xWcEgGYjQTm8oQcY29fZhBrvA5Jat0tLRv+ucm3y9Wkd7Y2h80vCb01gxpQbqepXp6VdVUgVN10iU50qPfgGCykKXuGwS9PtpQJdaVGq9K70Hp29eZMzg9ctcSEt8phJJxDxPanLLBejSiMGvZmxA+EVsBA4cGl5yPFE"
 currencies = {
     "eur": {
         "name": "Euro",
@@ -627,7 +626,7 @@ def main(config):
     local_currency = config.get("local") or "usd"
     foreign_currency = config.get("foreign") or "cad"
 
-    key = secret.decrypt(exchange_rate_api_key_encrypted) or exchange_rate_api_key
+    key = secret.decrypt(exchange_rate_api_key_encrypted)
     exchange_rate_url = "https://v6.exchangerate-api.com/v6/%s/latest/%s" % (key, local_currency.lower())
 
     exchange_data_encoded_json = cache.get(exchange_rate_url)
