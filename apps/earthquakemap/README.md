@@ -1,11 +1,6 @@
 <!-- Improved compatibility of back to top link: See: https://github.com/othneildrew/Best-README-Template/pull/73 -->
 <a name="readme-top"></a>
 
-[![Contributors][contributors-shield]][contributors-url]
-[![Forks][forks-shield]][forks-url]
-[![Stargazers][stars-shield]][stars-url]
-[![Issues][issues-shield]][issues-url]
-
 # Earthquake Map Applet for Tidbyt
 
 ## Description
@@ -41,15 +36,6 @@ Project Link: [https://github.com/SpinStabilized/tidbyt-earthquakemap](https://g
 * The Tidbyt community of developers
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
-
-[contributors-shield]: https://img.shields.io/github/contributors/SpinStabilized/tirbyt-earthquakemap.svg?style=for-the-badge
-[contributors-url]: https://github.com/SpinStabilized/tirbyt-earthquakemap/graphs/contributors
-[forks-shield]: https://img.shields.io/github/forks/SpinStabilized/tirbyt-earthquakemap.svg?style=for-the-badge
-[forks-url]: https://github.com/SpinStabilized/tirbyt-earthquakemap/network/members
-[stars-shield]: https://img.shields.io/github/stars/SpinStabilized/tirbyt-earthquakemap.svg?style=for-the-badge
-[stars-url]: https://github.com/SpinStabilized/tirbyt-earthquakemap/stargazers
-[issues-shield]: https://img.shields.io/github/issues/SpinStabilized/tirbyt-earthquakemap.svg?style=for-the-badge
-[issues-url]: https://github.com/SpinStabilized/tirbyt-earthquakemap/issues
 
 [tidbyt-url]: https://tidbyt.com/
 [tidbyt-dev-url]: https://tidbyt.dev/
