@@ -274,7 +274,7 @@ def main(config):
     time_filter_units = config.get("time_filter_units") or DEFAULT_TIME_FILTER_UNITS
     hide_when_empty = config.bool("hide_when_empty") or DEFAULT_HIDE_WHEN_EMPTY
     map_center_id = config.str("map_center_id") or DEFAULT_MAP_CENTER_ID
-    user_location = config.str('user_location') or DEFAULT_USER_LOCATION
+    user_location = config.str("user_location") or DEFAULT_USER_LOCATION
 
     time_filter = duration_calc(time_filter_duration, time_filter_units)
 
@@ -283,7 +283,7 @@ def main(config):
     elif map_center_id == "Date Line":
         map_center = -180
     elif map_center_id == "Tidbyt Location":
-        map_center = -76
+        map_center = user_location
     else:
         map_center = json.decode(user_location)["lng"]
 
