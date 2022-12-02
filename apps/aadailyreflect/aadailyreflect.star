@@ -6,9 +6,7 @@ Author: jvivona
 """
 
 load("render.star", "render")
-load("schema.star", "schema")
 load("time.star", "time")
-load("math.star", "math")
 load("cache.star", "cache")
 load("http.star", "http")
 load("encoding/json.star", "json")
@@ -47,12 +45,13 @@ REFERENCE_OFFSET = 0
 
 def main(config):
     return render.Root(
-        delay = 100,
+        delay = 75,
         child = render.Column(
             children = [
                 render.Marquee(
                     height = REFLECTION_AREA_HEIGHT,
                     scroll_direction = "vertical",
+                    offset_start = 16,
                     child =
                         render.Column(
                             main_align = "space_between",
@@ -119,7 +118,7 @@ def extract_text(content, start_string, end_string, offset):
     text_end = content.find(end_string, text_start)
     if text_start == -1 or text_end == -1:
         return ""
-    return content[text_start + len(start_string) + offset:text_end]
+    return content[text_start + len(start_string) + offset:text_end].replace("&quot;", "\"")
 
 def error():
     return render.WrappedText("An error has occurred getting the daily reflection.", width = 64)
