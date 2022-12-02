@@ -42,6 +42,7 @@ import (
 	"tidbyt.dev/community/apps/cryptotracker"
 	"tidbyt.dev/community/apps/currencyconverter"
 	"tidbyt.dev/community/apps/dailykanji"
+	"tidbyt.dev/community/apps/datadogmonitors"
 	"tidbyt.dev/community/apps/dateprogress"
 	"tidbyt.dev/community/apps/datetimeclock"
 	"tidbyt.dev/community/apps/daynightmap"
@@ -272,6 +273,7 @@ func GetManifests() []manifest.Manifest {
 		cryptotracker.New(),
 		currencyconverter.New(),
 		dailykanji.New(),
+		datadogmonitors.New(),
 		dateprogress.New(),
 		datetimeclock.New(),
 		daynightmap.New(),
