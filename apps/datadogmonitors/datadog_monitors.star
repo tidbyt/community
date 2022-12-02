@@ -4,7 +4,7 @@ Summary: View your DataDog Monitors
 Description: By default displays any monitors that are in the status alert but allows for customizing the query yourself based on DataDog's syntax.
 Author: Cavallando
 """
-# I'm new to golang, sorry if this looks bad :)
+# I'm new to starlark, sorry if this looks bad :)
 
 load("render.star", "render")
 load("animation.star", "animation")

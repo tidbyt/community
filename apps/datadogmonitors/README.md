@@ -4,3 +4,4 @@ Displays any triggered monitors connected to your DataDog account. A valid DataD
 
 ![DataDog Monitors for Tidbyt - Success Example](screenshot.png)
 ![DataDog Monitors for Tidbyt - Error Example](screenshot_errors.png)
+![DataDog Monitors for Tidbyt - Auth Example](screenshot_auth.png)
