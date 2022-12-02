@@ -95,14 +95,14 @@ def main(config):
                 children.append(
                     animation.Transformation(
                         duration = 150,
-                        child = render.WrappedText(width = 25, height=25, content = monitor.get("name", "Monitor Triggered")),
+                        child = render.WrappedText(width = 25, height = 25, content = monitor.get("name", "Monitor Triggered")),
                         keyframes = keyframes,
                     ),
                 )
             child = render.Row(
                 expanded = False,
                 main_align = "center",
-                cross_align ="center",
+                cross_align = "center",
                 children = [
                     render.Box(width = 18, height = 18, child = render.Image(width = 18, height = 18, src = ALERT_ICON)),
                     render.Sequence(children = children),
