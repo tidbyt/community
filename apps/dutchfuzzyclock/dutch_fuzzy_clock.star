@@ -42,7 +42,7 @@ numbersPerLang = {
         5: "FIVE",
         6: "SIX",
         7: "SEVEN",
-        8: "EIGTH",
+        8: "EIGHT",
         9: "NINE",
         10: "TEN",
         11: "ELEVEN",
@@ -158,7 +158,7 @@ def get_schema():
             schema.Location(
                 id = "location",
                 name = "Location",
-                icon = "place",
+                icon = "locationDot",
                 desc = "Location for which to display time",
             ),
             schema.Dropdown(

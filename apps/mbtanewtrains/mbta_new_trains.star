@@ -55,21 +55,25 @@ CACHE_TTL_SECONDS = 3600 * 24  # 1 day in seconds.
 #         "direction": 0,
 #         "stationId": "place-rugg",
 #         "route": "Orange"
+#         "isNewTrain": "true"
 #     },
 #     {
 #         "direction": 0,
 #         "stationId": "place-unsqu",
 #         "route": "Green-E"
+#         "isNewTrain": "true"
 #     },
 #     {
 #         "direction": 1,
 #         "stationId": "place-bbsta",
-#         "route": "Orange"
+#         "route": "Orange",
+#         "isNewTrain": "true"
 #     },
 #         {
 #         "direction": 1,
 #         "stationId": "place-davis",
-#         "route": "Red-A"
+#         "route": "Red-A",
+#         "isNewTrain": "true"
 #     },
 # ]
 
@@ -109,6 +113,9 @@ def mapRouteToColor(route, config):
     return None
 
 def createTrain(loc, config):
+    if loc["isNewTrain"] != True:
+        return None
+
     routeResult = mapRouteToColor(loc["route"], config)
     if routeResult == None:
         return
@@ -205,6 +212,8 @@ def displayDigest(apiResult, config):
     g = 0
     o = 0
     for loc in apiResult:
+        if loc["isNewTrain"] != True:
+            continue
         route = loc["route"]
         if "Red" in route:
             r += 1
@@ -255,28 +264,28 @@ def get_schema():
                 id = "showLiveLocations",
                 name = "Show Live Locations",
                 desc = "Shows live location of new trains in a scrolling marquee.  If disabled, only the count of new trains running will be displayed.",
-                icon = "cog",
+                icon = "gear",
                 default = False,
             ),
             schema.Toggle(
                 id = "disableRed",
                 name = "Hide Red Line Trains",
                 desc = "If enabled, new trains on the red line will be hidden.",
-                icon = "cog",
+                icon = "gear",
                 default = False,
             ),
             schema.Toggle(
                 id = "disableGreen",
                 name = "Hide Green Line Trains",
                 desc = "If enabled, new trains on the green line will be hidden.",
-                icon = "cog",
+                icon = "gear",
                 default = False,
             ),
             schema.Toggle(
                 id = "disableOrange",
                 name = "Hide Orange Line Trains",
                 desc = "If enabled, new trains on the orange line will be hidden.",
-                icon = "cog",
+                icon = "gear",
                 default = False,
             ),
         ],

@@ -197,7 +197,7 @@ def get_schema():
             schema.Dropdown(
                 id = "clock_style",
                 name = "Clock style",
-                icon = "cog",
+                icon = "gear",
                 desc = "Change current clock style.",
                 default = styleoptions[0].value,
                 options = styleoptions,
@@ -219,7 +219,7 @@ def get_schema():
             schema.Toggle(
                 id = "has_flashing_seperator",
                 name = "Flashing separator",
-                icon = "cog",
+                icon = "gear",
                 desc = "Enable/disable flashing number seperator.",
                 default = DEFAULT_HAS_FLASHING_SEPERATOR,
             ),

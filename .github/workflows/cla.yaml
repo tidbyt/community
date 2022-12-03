@@ -18,7 +18,7 @@ jobs:
           PERSONAL_ACCESS_TOKEN: ${{ secrets.TIDBYT_GITHUB_TOKEN }}
         with:
           path-to-document: https://github.com/tidbyt/community/blob/main/docs/CLA.md
-          allowlist: tidbyt-bot,renovate-bot
+          allowlist: tidbyt-bot,renovate-bot,renovate[bot]
 
           remote-organization-name: tidbyt
           remote-repository-name: cla-signatures

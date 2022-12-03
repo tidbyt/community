@@ -1,6 +1,7 @@
 package apps_test
 
 import (
+	"os"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -38,4 +39,37 @@ func TestFindManifest(t *testing.T) {
 	// App that should not exist.
 	_, err = apps.FindManifest("foo-bar-123")
 	assert.Error(t, err)
+}
+
+func TestAllAppsRegistered(t *testing.T) {
+	// List of directories that are not expected to be registered in apps.go.
+	exclusions := []string{
+		"manifest",
+	}
+
+	manifests := apps.GetManifests()
+	registered := make(map[string]bool, len(manifests))
+	for _, app := range manifests {
+		registered[app.PackageName] = true
+	}
+
+	dirs, err := os.ReadDir(".")
+	if err != nil {
+		assert.NoError(t, err)
+	}
+	for _, dir := range dirs {
+		if !dir.IsDir() {
+			continue
+		}
+		excluded := false
+		for _, exclusion := range exclusions {
+			if dir.Name() == exclusion {
+				excluded = true
+			}
+		}
+		if excluded {
+			continue
+		}
+		assert.Containsf(t, registered, dir.Name(), "Package %s is not registered", dir.Name())
+	}
 }

@@ -157,7 +157,7 @@ def get_schema():
                 id = "location",
                 name = "Location",
                 desc = "Location for which to display time.",
-                icon = "place",
+                icon = "locationDot",
             ),
             schema.Text(
                 id = "nightscout_id",
@@ -169,25 +169,25 @@ def get_schema():
                 id = "normal_high",
                 name = "Normal High Threshold",
                 desc = "Anything above this is displayed yellow unless it is above the Urgent High Threshold (default " + str(DEFAULT_NORMAL_HIGH) + ")",
-                icon = "inputNumeric",
+                icon = "hashtag",
             ),
             schema.Text(
                 id = "normal_low",
                 name = "Normal Low Threshold",
                 desc = "Anything below this is displayed yellow unless it is below the Urgent Low Threshold (default " + str(DEFAULT_NORMAL_LOW) + ")",
-                icon = "inputNumeric",
+                icon = "hashtag",
             ),
             schema.Text(
                 id = "urgent_high",
                 name = "Urgent High Threshold",
                 desc = "Anything above this is displayed red (Default " + str(DEFAULT_URGENT_HIGH) + ")",
-                icon = "inputNumeric",
+                icon = "hashtag",
             ),
             schema.Text(
                 id = "urgent_low",
                 name = "Urgent Low Threshold",
                 desc = "Anything below this is displayed red (Default " + str(DEFAULT_URGENT_LOW) + ")",
-                icon = "inputNumeric",
+                icon = "hashtag",
             ),
         ],
     )
