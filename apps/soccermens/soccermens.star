@@ -478,6 +478,22 @@ leagueOptions = [
         value = "eng.fa",
     ),
     schema.Option(
+        display = "English League Championship",
+        value = "eng.2",
+    ),
+    schema.Option(
+        display = "English League One",
+        value = "eng.3",
+    ),
+    schema.Option(
+        display = "English League Two",
+        value = "eng.4",
+    ),
+    schema.Option(
+        display = "English National League",
+        value = "eng.5",
+    ),
+    schema.Option(
         display = "English Premier League",
         value = "eng.1",
     ),
