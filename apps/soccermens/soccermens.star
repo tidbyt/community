@@ -895,7 +895,7 @@ def get_gametime_column(display, gameTime, textColor, backgroundColor, borderCol
         ]
     return gameTimeColumn
 
-def get_cachable_data(url, CACHE_TTL_SECONDS):
+def get_cachable_data(url):
     key = url
 
     data = cache.get(key)
