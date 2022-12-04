@@ -29,7 +29,7 @@ Displayed:
 
 ## Thanks
 
-Thanks a lot to a bunch of folks who have worked on these various sports apps.  
+Thanks a lot to a bunch of folks who have worked on these various sports apps.  @LunchBox8484 is the original author of many of them.
 
 ## Screenshot
 
