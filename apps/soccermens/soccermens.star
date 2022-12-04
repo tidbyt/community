@@ -42,7 +42,7 @@ def main(config):
 
     # we already need now value in multiple places - so just go ahead and get it and use it
     timezone = config.get("$tz", DEFAULT_TIMEZONE)
-    now = time.now().in_location(timezone)	
+    now = time.now().in_location(timezone)
 
     # calculate start and end date if we are set to use range of days
     date_range_search = ""
@@ -50,15 +50,15 @@ def main(config):
         back_time = now - time.parse_duration("%dh" % (int(config.get("days_back", 1)) * 24))
         fwd_time = now + time.parse_duration("%dh" % (int(config.get("days_forward", 1)) * 24))
         date_range_search = "?dates=%s-%s" % (back_time.format("20060102"), (fwd_time.format("20060102")))
-    
+
     league = {API: API + selectedLeague + "/scoreboard" + date_range_search}
     instanceNumber = int(config.get("instanceNumber", 1))
     totalInstances = int(config.get("instancesCount", 1))
     scores = get_scores(league, instanceNumber, totalInstances)
 
     if len(scores) > 0:
-	
         displayType = config.get("displayType", "colors")
+
         #logoType = config.get("logoType", "primary")
         timeColor = config.get("displayTimeColor", "#FFF")
         rotationSpeed = 15 // len(scores)
@@ -739,7 +739,7 @@ def get_schema():
                 icon = "calendarDays",
                 default = False,
             ),
-			schema.Toggle(
+            schema.Toggle(
                 id = "day_range",
                 name = "Enable range of days",
                 desc = "Enable showing scores in a range of days",
@@ -750,35 +750,33 @@ def get_schema():
                 id = "generated",
                 source = "day_range",
                 handler = show_day_range,
-            )
+            ),
         ],
     )
-
 
 def show_day_range(day_range):
     # need to do the string comparison here to make it consistent instead of converting to bool - its a whole thing
     if day_range == "true":
         return [
- 			schema.Dropdown(
+            schema.Dropdown(
                 id = "days_back",
                 name = "# of days back to show",
                 desc = "Get only data from Today +/- 1 Day",
                 icon = "arrowLeft",
                 default = "1",
-                options = daysOptions
+                options = daysOptions,
             ),
-			schema.Dropdown	(
+            schema.Dropdown(
                 id = "days_forward",
                 name = "# of days forward to show",
                 desc = "Number of days forward to search for scores",
                 icon = "arrowRight",
                 default = "1",
-                options = daysOptions
+                options = daysOptions,
             ),
         ]
     else:
         return []
-
 
 def get_scores(urls, instanceNumber, totalInstances):
     allscores = []
@@ -789,6 +787,7 @@ def get_scores(urls, instanceNumber, totalInstances):
         allscores.extend(decodedata["events"])
         all([i, allscores])
     allScoresLength = len(allscores)
+
     #scoresLengthPerInstance = allScoresLength / totalInstances
     if instanceNumber > totalInstances:
         for i in range(0, int(len(allscores))):
