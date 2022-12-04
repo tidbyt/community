@@ -663,10 +663,6 @@ daysOptions = [
         display = "3",
         value = "3",
     ),
-    schema.Option(
-        display = "14",
-        value = "14",
-    ),
 ]
 
 def get_schema():

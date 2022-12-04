@@ -13,6 +13,7 @@ Displayed:
 - Select League / Tournament to display.  Current Leagues / Tournament options are:
     * Dutch Eredivisie
     * English Carabo Cup
+    * English FA Cup
     * English Premier League
     * French Ligue 1
     * FIFA World Cup
@@ -26,6 +27,7 @@ Displayed:
 - Select display type
 - Select color for time
 - Select instance count & instance number **  this slows down the cycle of scores - add multiple instances to spread out the timing of rotation
+- Select if you want to show a range of days forward / back instead of just the default API results & specify how many days forward and back.
 
 ## Thanks
 
