@@ -1,7 +1,7 @@
 """
 Applet: SoccerMens
 Summary: Displays men's soccer scores for various leages and tournaments
-Description: Displays live and upcoming soccer scores from a data feed.   Heavily taken from the other sports score apps.
+Description: Displays live and upcoming soccer scores from a data feed.   Heavily taken from the other sports score apps - @LunchBox8484 is the original.
 Author: jvivona
 """
 
