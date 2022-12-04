@@ -59,9 +59,9 @@ def main(config):
     if len(scores) > 0:
 	
         displayType = config.get("displayType", "colors")
-        logoType = config.get("logoType", "primary")
+        #logoType = config.get("logoType", "primary")
         timeColor = config.get("displayTimeColor", "#FFF")
-        rotationSpeed = 15 / len(scores)
+        rotationSpeed = 15 // len(scores)
 
         for i, s in enumerate(scores):
             gameStatus = s["status"]["type"]["state"]
@@ -789,7 +789,7 @@ def get_scores(urls, instanceNumber, totalInstances):
         allscores.extend(decodedata["events"])
         all([i, allscores])
     allScoresLength = len(allscores)
-    scoresLengthPerInstance = allScoresLength / totalInstances
+    #scoresLengthPerInstance = allScoresLength / totalInstances
     if instanceNumber > totalInstances:
         for i in range(0, int(len(allscores))):
             allscores.pop()
@@ -895,7 +895,7 @@ def get_gametime_column(display, gameTime, textColor, backgroundColor, borderCol
         ]
     return gameTimeColumn
 
-def get_cachable_data(url, ttl_seconds = CACHE_TTL_SECONDS):
+def get_cachable_data(url, CACHE_TTL_SECONDS):
     key = url
 
     data = cache.get(key)
@@ -906,6 +906,6 @@ def get_cachable_data(url, ttl_seconds = CACHE_TTL_SECONDS):
     if res.status_code != 200:
         fail("request to %s failed with status code: %d - %s" % (url, res.status_code, res.body()))
 
-    cache.set(key, res.body(), ttl_seconds = CACHE_TTL_SECONDS)
+    cache.set(key, res.body(), CACHE_TTL_SECONDS)
 
     return res.body()
