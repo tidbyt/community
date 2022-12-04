@@ -110,9 +110,7 @@ def main(config):
                 awayLogoURL = "https://a.espncdn.com/i/espn/misc_logos/500/ncaa_football.vresize.50.50.medium.1.png"
             else:
                 awayLogoURL = competition["competitors"][1]["team"]["logo"]
-            print("home logo url = " + homeLogoURL)
             homeLogo = get_logoType(home, homeLogoURL if homeLogoURL != "" else MISSING_LOGO)
-            print("away logo url = " + awayLogoURL)
             awayLogo = get_logoType(away, awayLogoURL if awayLogoURL != "" else MISSING_LOGO)
             homeLogoSize = get_logoSize(home)
             awayLogoSize = get_logoSize(away)
@@ -822,10 +820,8 @@ def get_background_color(team, displayType, color, altColor):
     return color
 
 def get_logoType(team, logo):
-    print (team)
     logo = logo.replace("500/scoreboard", "500-dark/scoreboard")
     logo = logo.replace("https://a.espncdn.com/", "https://a.espncdn.com/combiner/i?img=", 36000)
-    print (logo)
     logo = get_cachable_data(logo + "&h=50&w=50")
     return logo
 
