@@ -16,7 +16,7 @@ CACHE_TTL_SECONDS = 60
 DEFAULT_TIMEZONE = "America/New_York"
 SPORT = "soccer"
 
-MISSING_LOGO = "https://tidbyt.apis.ajcomputers.com/soccer/logos/blank.png?blank=png"
+MISSING_LOGO = "https://upload.wikimedia.org/wikipedia/commons/c/ca/1x1.png?src=soccermens"
 
 DEFAULT_LEAGUE = "ger.1"
 API = "https://site.api.espn.com/apis/site/v2/sports/" + SPORT + "/"
