@@ -20,6 +20,7 @@ func TestValidateName(t *testing.T) {
 		{input: "coolApp", shouldErr: true},
 		{input: "Really Really Long App Name", shouldErr: true},
 		{input: "", shouldErr: true},
+		{input: "Clark's App", shouldErr: false},
 	}
 
 	for _, tc := range tests {

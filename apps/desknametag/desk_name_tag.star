@@ -99,14 +99,14 @@ def get_schema():
             ),
             schema.Text(
                 id = "text_color",
-                name = "Text Color",
-                desc = "Enter a valid hex string: #FFFFFF",
+                name = "Text Color (ex: #FFFFFF)",
+                desc = "Enter a valid color hex code: #FFFFFF",
                 icon = "paintbrush",
             ),
             schema.Text(
                 id = "background_color",
-                name = "Background Color",
-                desc = "Enter a valid hex string: #00008B",
+                name = "Background Color (ex: #00008B)",
+                desc = "Enter a valid color hex code: #00008B",
                 icon = "fillDrip",
             ),
         ],
