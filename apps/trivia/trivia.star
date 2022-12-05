@@ -40,16 +40,19 @@ def get_data():
 def remove_chars(strr):
     return re.compile(r"<[^>]+>").sub("", strr)
 
-def calc_delay(question):
-    Q_LEN = len(question)
+def calc_delay(question, category):
+    Q_LEN = len(question) + len(category)
 
-    if Q_LEN < 20:
-        return 160
+    if Q_LEN < 30:
+        return 15
+
+    elif Q_LEN < 40:
+        return 10
 
     elif Q_LEN < 50:
-        return 140
+        return 5
 
-    return 100
+    return 0
 
 def get_value(value):
     if value == None:
@@ -57,14 +60,15 @@ def get_value(value):
 
     return humanize.comma(value)
 
-def main():
+def main(config):
     body = get_data()
     value = get_value(body["value"])
     question = remove_chars(body["question"])
     answer = remove_chars(body["answer"])
     category = remove_chars(body["category"]["title"])
 
-    DELAY = calc_delay(question)
+    DELAY = int(config.str("scroll_speed", DEFAULT_SPEED)) + calc_delay(question, category)
+    ANSWER_DELAY = config.str("answer_delay", DEFAULT_ANSWER_DELAY)
 
     return render.Root(
         child = render.Box(
@@ -92,7 +96,7 @@ def main():
                             child = render.Column(
                                 children = [
                                     render.WrappedText(
-                                        content = "Category:\n%s\n----------\n \n%s\n----------\n \n \n \n%s" % (category, question, answer),
+                                        content = "Category:\n%s\n----------\n \n%s\n----------\n %s%s" % (category, question, ANSWER_DELAY, answer),
                                         font = "tb-8",
                                         align = "center",
                                     ),
@@ -111,8 +115,42 @@ def main():
         delay = DELAY,
     )
 
+DEFAULT_SPEED = "70"
+DEFAULT_ANSWER_DELAY = "\n \n"
+
 def get_schema():
+    scroll_speed = [
+        schema.Option(display = "Slower", value = "110"),
+        schema.Option(display = "Slow", value = "90"),
+        schema.Option(display = "Normal (Default)", value = DEFAULT_SPEED),
+        schema.Option(display = "Fast", value = "60"),
+        schema.Option(display = "Faster", value = "40"),
+    ]
+    answer_delay = [
+        schema.Option(display = "Slower", value = "\n \n \n \n"),
+        schema.Option(display = "Slow", value = "\n \n \n"),
+        schema.Option(display = "Normal (Default)", value = DEFAULT_ANSWER_DELAY),
+        schema.Option(display = "Fast", value = "\n"),
+        schema.Option(display = "Immediate", value = " "),
+    ]
     return schema.Schema(
         version = "1",
-        fields = [],
+        fields = [
+            schema.Dropdown(
+                id = "scroll_speed",
+                name = "Scroll speed",
+                desc = "Text scrolling speed",
+                icon = "personRunning",
+                default = DEFAULT_SPEED,
+                options = scroll_speed,
+            ),
+            schema.Dropdown(
+                id = "answer_delay",
+                name = "Answer delay",
+                desc = "How long before answer shows",
+                icon = "clock",
+                default = DEFAULT_ANSWER_DELAY,
+                options = answer_delay,
+            ),
+        ],
     )

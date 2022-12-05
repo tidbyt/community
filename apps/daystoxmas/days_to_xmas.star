@@ -16,20 +16,19 @@ PRESENT_ICON = base64.decode("R0lGODlhEgAOAPeWAP8AAPYVGP8AAQF1Ef8lMv8mM4swD0FYCg
 
 def main(config):
     timezone = config.get("$tz", "America/Chicago")  # Utilize special timezone variable
-    current_timestamp = time.now().in_location(timezone)
-    current_xmas = time.time(year = current_timestamp.year, month = 12, day = 25).in_location(timezone)
+    now = time.now().in_location(timezone)
+    today = time.time(year = now.year, month = now.month, day = now.day, location = timezone)
+    current_xmas = time.time(year = today.year, month = 12, day = 25, location = timezone)
 
-    if (current_timestamp < current_xmas):
-        xmas_timestamp = time.time(year = current_timestamp.year, month = 12, day = 25).in_location(timezone)
-        xmasdateString = time.time(year = current_timestamp.year, month = 12, day = 26).in_location(timezone).format("Jan 02, 2006")
+    if today <= current_xmas:
+        xmas_timestamp = time.time(year = today.year, month = 12, day = 25).in_location(timezone)
+        xmasdateString = time.time(year = today.year, month = 12, day = 26).in_location(timezone).format("Jan 02, 2006")
     else:
-        xmas_timestamp = time.time(year = current_timestamp.year + 1, month = 12, day = 25).in_location(timezone)
-        xmasdateString = time.time(year = current_timestamp.year + 1, month = 12, day = 26).in_location(timezone).format("Jan 02, 2006")
+        xmas_timestamp = time.time(year = today.year + 1, month = 12, day = 25).in_location(timezone)
+        xmasdateString = time.time(year = today.year + 1, month = 12, day = 26).in_location(timezone).format("Jan 02, 2006")
 
     dateDiff = xmas_timestamp - time.now().in_location(timezone)
-    days = math.floor(dateDiff.hours / 24)
-    hours = math.floor(dateDiff.hours - days * 24)
-    minutes = math.floor(dateDiff.minutes - (days * 24 * 60 + hours * 60))
+    days = math.ceil(dateDiff.hours / 24)
 
     dayString = str(days)
     dayString2 = "{}".format("Day" if days == 1 else "Days ") + " left"
