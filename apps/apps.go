@@ -147,6 +147,7 @@ import (
 	"tidbyt.dev/community/apps/plausibleanalytics"
 	"tidbyt.dev/community/apps/pokedex"
 	"tidbyt.dev/community/apps/pollencount"
+	"tidbyt.dev/community/apps/positivequote"
 	"tidbyt.dev/community/apps/powerball"
 	"tidbyt.dev/community/apps/preciousmetals"
 	"tidbyt.dev/community/apps/pubgstats"
@@ -377,6 +378,7 @@ func GetManifests() []manifest.Manifest {
 		plausibleanalytics.New(),
 		pokedex.New(),
 		pollencount.New(),
+		positivequote.New(),
 		powerball.New(),
 		preciousmetals.New(),
 		pubgstats.New(),
