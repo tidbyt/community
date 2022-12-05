@@ -54,6 +54,7 @@ import (
 	"tidbyt.dev/community/apps/dutchfuzzyclock"
 	"tidbyt.dev/community/apps/dvdlogo"
 	"tidbyt.dev/community/apps/dwheadline"
+	"tidbyt.dev/community/apps/earthquakemap"
 	"tidbyt.dev/community/apps/effheadlines"
 	"tidbyt.dev/community/apps/emojilingo"
 	"tidbyt.dev/community/apps/eplscores"
@@ -136,6 +137,8 @@ import (
 	"tidbyt.dev/community/apps/officestatus"
 	"tidbyt.dev/community/apps/ogsgamesviewer"
 	"tidbyt.dev/community/apps/ohhighwaysigns"
+	"tidbyt.dev/community/apps/ordermoments"
+	"tidbyt.dev/community/apps/ordertrends"
 	"tidbyt.dev/community/apps/outlookcalendar"
 	"tidbyt.dev/community/apps/pagerduty"
 	"tidbyt.dev/community/apps/pathtrainschedule"
@@ -155,11 +158,16 @@ import (
 	"tidbyt.dev/community/apps/redditrplace"
 	"tidbyt.dev/community/apps/roblox"
 	"tidbyt.dev/community/apps/rules4life"
+	"tidbyt.dev/community/apps/salestrends"
 	"tidbyt.dev/community/apps/sbbtimetable"
 	"tidbyt.dev/community/apps/severewxalertsusa"
 	"tidbyt.dev/community/apps/sfnextmuni"
 	"tidbyt.dev/community/apps/shabbat"
+	"tidbyt.dev/community/apps/shopifyanimation"
 	"tidbyt.dev/community/apps/shopifychart"
+	"tidbyt.dev/community/apps/shopifyneworder"
+	"tidbyt.dev/community/apps/shopifyorders"
+	"tidbyt.dev/community/apps/shopifysales"
 	"tidbyt.dev/community/apps/shouldideploy"
 	"tidbyt.dev/community/apps/shuffleimages"
 	"tidbyt.dev/community/apps/snyk"
@@ -182,6 +190,7 @@ import (
 	"tidbyt.dev/community/apps/supermariokart"
 	"tidbyt.dev/community/apps/surfforecast"
 	"tidbyt.dev/community/apps/surflive"
+	"tidbyt.dev/community/apps/swedishnameday"
 	"tidbyt.dev/community/apps/switchboard"
 	"tidbyt.dev/community/apps/tartan"
 	"tidbyt.dev/community/apps/tcatbusarrivals"
@@ -276,6 +285,7 @@ func GetManifests() []manifest.Manifest {
 		dutchfuzzyclock.New(),
 		dvdlogo.New(),
 		dwheadline.New(),
+		earthquakemap.New(),
 		effheadlines.New(),
 		emojilingo.New(),
 		eplscores.New(),
@@ -357,6 +367,8 @@ func GetManifests() []manifest.Manifest {
 		officestatus.New(),
 		ogsgamesviewer.New(),
 		ohhighwaysigns.New(),
+		ordermoments.New(),
+		ordertrends.New(),
 		outlookcalendar.New(),
 		pagerduty.New(),
 		pathtrainschedule.New(),
@@ -376,11 +388,16 @@ func GetManifests() []manifest.Manifest {
 		redditrplace.New(),
 		roblox.New(),
 		rules4life.New(),
+		salestrends.New(),
 		sbbtimetable.New(),
 		severewxalertsusa.New(),
 		sfnextmuni.New(),
 		shabbat.New(),
+		shopifyanimation.New(),
 		shopifychart.New(),
+		shopifyneworder.New(),
+		shopifyorders.New(),
+		shopifysales.New(),
 		shouldideploy.New(),
 		shuffleimages.New(),
 		snyk.New(),
@@ -403,6 +420,7 @@ func GetManifests() []manifest.Manifest {
 		supermariokart.New(),
 		surfforecast.New(),
 		surflive.New(),
+		swedishnameday.New(),
 		switchboard.New(),
 		tartan.New(),
 		tcatbusarrivals.New(),

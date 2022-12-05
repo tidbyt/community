@@ -16,7 +16,7 @@ func New() manifest.Manifest {
 		ID:          "nascarnextrace",
 		Name:        "NASCAR Next Race",
 		Author:      "jvivona",
-		Summary:     "Next NASCAR Race ",
+		Summary:     "Next NASCAR Race",
 		Desc:        "Shows time, date and location of next NASCAR race for selected series.",
 		FileName:    "nascarnextrace.star",
 		PackageName: "nascarnextrace",

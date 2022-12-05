@@ -14,12 +14,12 @@ var source []byte
 func New() manifest.Manifest {
 	return manifest.Manifest{
 		ID:          "inseason",
-		Name:        "InSeason",
+		Name:        "In Season",
 		Author:      "Robert Ison",
 		Summary:     "Displays In Season Foods",
-		Desc:        "Displays In Season Foods for your location.",
+		Desc:        "Displays In Season Foods for your region.",
 		FileName:    "inseason.star",
 		PackageName: "inseason",
-		Source:  source,
+		Source:      source,
 	}
 }
