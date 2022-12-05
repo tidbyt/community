@@ -27,7 +27,7 @@ DEFAULT_QUERY = "status:alert"
 def main(config):
     DD_API_KEY = config.str("api_key", "")
     DD_APP_KEY = config.str("app_key", "")
-    CACHE_KEY = "{}-{}-".format(CACHE_KEY_PREFIX, DD_API_KEY, DD_APP_KEY)
+    CACHE_KEY = "{}-{}-{}".format(CACHE_KEY_PREFIX, DD_API_KEY, DD_APP_KEY)
     monitors_query = config.str("custom_query", DEFAULT_QUERY)
 
     monitors_cached = cache.get(CACHE_KEY)
