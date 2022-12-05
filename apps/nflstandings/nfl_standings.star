@@ -78,13 +78,16 @@ def main(config):
             if entries:
                 entriesToDisplay = teamsToShow
                 divisionName = s["name"]
-                stats = entries[0]["stats"]
+                sortOrder = {}
 
-                for j, k in enumerate(stats):
-                    if k["name"] == "gamesBehind":
-                        statNumber = j
-
-                entries = sorted(entries, key = lambda e: e["stats"][statNumber]["value"])
+                for j, k in enumerate(entries):
+                    stats = entries[j]["stats"]
+                    for l, m in enumerate(stats):
+                        if m["name"] == "gamesBehind":
+                            sortOrder[entries[j]["team"]["id"]] = stats[l]["value"]
+                sortOrder = {k: v for k, v in sorted(sortOrder.items(), key = lambda item: item[1])}
+                keysList = list(sortOrder.keys())
+                entries = sorted(entries, key = lambda e: keysList.index(e["team"]["id"]))
 
                 for x in range(0, len(entries), entriesToDisplay):
                     cycleCount = cycleCount + 1
