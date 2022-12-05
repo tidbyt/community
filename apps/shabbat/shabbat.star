@@ -1,5 +1,5 @@
 """
-Applet: Shabbat Times 
+Applet: Shabbat
 Summary: Start and end of Shabbat
 Description: Shows weekly shabbat start and end times.
 Author: dinosaursrarr.  Updated by NudnikShpilkis
