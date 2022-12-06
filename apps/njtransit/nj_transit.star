@@ -23,7 +23,7 @@ STATION_CACHE_KEY = "stations"
 STATION_CACHE_TTL = 604800  #1 Week
 
 DEPARTURES_CACHE_KEY = "departures"
-DEPARTURES_CACHE_TTL = 60 # 1 minute
+DEPARTURES_CACHE_TTL = 60  # 1 minute
 
 TIMEZONE = "America/New_York"
 
@@ -330,7 +330,6 @@ def fetch_stations_from_website():
     nj_dv_page_response_body = cache.get(DEPARTURES_CACHE_KEY)
 
     if nj_dv_page_response_body == None:
-        
         nj_dv_page_response = http.get(NJ_TRANSIT_DV_URL)
 
         if nj_dv_page_response.status_code != 200:
@@ -338,7 +337,7 @@ def fetch_stations_from_website():
             return result
 
         nj_dv_page_response_body = nj_dv_page_response.body()
-        
+
         cache.set(DEPARTURES_CACHE_KEY, nj_dv_page_response.body(), DEPARTURES_CACHE_TTL)
 
     selector = html(nj_dv_page_response_body)
