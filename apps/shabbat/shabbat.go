@@ -16,10 +16,10 @@ func New() manifest.Manifest {
 		ID:          "shabbat",
 		Name:        "Shabbat",
 		Author:      "dinosaursrarr",
-		Summary:     "Start and end of Shabbat",
-		Desc:        "Shows the start and end times of the current or upcoming Shabbat observance.",
+		Summary:     "Weekly shabbat times",
+		Desc:        "Displays weekly shabbat times.",
 		FileName:    "shabbat.star",
 		PackageName: "shabbat",
-		Source:  source,
+		Source:      source,
 	}
 }
