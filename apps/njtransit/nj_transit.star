@@ -22,6 +22,9 @@ DEFAULT_STATION = "New York Penn Station"
 STATION_CACHE_KEY = "stations"
 STATION_CACHE_TTL = 604800  #1 Week
 
+DEPARTURES_CACHE_KEY = "departures"
+DEPARTURES_CACHE_TTL = 60 # 1 minute
+
 TIMEZONE = "America/New_York"
 
 #DISPLAYS FIRST 3 Departures by default
@@ -323,13 +326,22 @@ To be used for creating Schema option list
 
 def fetch_stations_from_website():
     result = []
-    nj_dv_page_response = http.get(NJ_TRANSIT_DV_URL)
 
-    if nj_dv_page_response.status_code != 200:
-        print("Got code '%s' from page response" % nj_dv_page_response.status_code)
-        return result
+    nj_dv_page_response_body = cache.get(DEPARTURES_CACHE_KEY)
 
-    selector = html(nj_dv_page_response.body())
+    if nj_dv_page_response_body == None:
+        
+        nj_dv_page_response = http.get(NJ_TRANSIT_DV_URL)
+
+        if nj_dv_page_response.status_code != 200:
+            print("Got code '%s' from page response" % nj_dv_page_response.status_code)
+            return result
+
+        nj_dv_page_response_body = nj_dv_page_response.body()
+        
+        cache.set(DEPARTURES_CACHE_KEY, nj_dv_page_response.body(), DEPARTURES_CACHE_TTL)
+
+    selector = html(nj_dv_page_response_body)
     stations = selector.find(".vbt-autocomplete-list.list-unstyled.position-absolute.pt-1.shadow.w-100").first().children()
     print("Got response of '%s' stations" % stations.len())
 
