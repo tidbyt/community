@@ -168,6 +168,7 @@ import (
 	"tidbyt.dev/community/apps/shabbat"
 	"tidbyt.dev/community/apps/shopifyanimation"
 	"tidbyt.dev/community/apps/shopifychart"
+	"tidbyt.dev/community/apps/shopifymemories"
 	"tidbyt.dev/community/apps/shopifyneworder"
 	"tidbyt.dev/community/apps/shopifyorders"
 	"tidbyt.dev/community/apps/shopifysales"
@@ -402,6 +403,7 @@ func GetManifests() []manifest.Manifest {
 		shabbat.New(),
 		shopifyanimation.New(),
 		shopifychart.New(),
+		shopifymemories.New(),
 		shopifyneworder.New(),
 		shopifyorders.New(),
 		shopifysales.New(),
