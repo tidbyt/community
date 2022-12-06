@@ -24,6 +24,7 @@ import (
 	"tidbyt.dev/community/apps/bikeshare"
 	"tidbyt.dev/community/apps/binaryclock"
 	"tidbyt.dev/community/apps/blackout"
+	"tidbyt.dev/community/apps/bluebomber"
 	"tidbyt.dev/community/apps/borisbikes"
 	"tidbyt.dev/community/apps/burgeroftheday"
 	"tidbyt.dev/community/apps/busytube"
@@ -72,6 +73,7 @@ import (
 	"tidbyt.dev/community/apps/fullybinarytime"
 	"tidbyt.dev/community/apps/fuzzyclock"
 	"tidbyt.dev/community/apps/gapilotbuddy"
+	"tidbyt.dev/community/apps/githubstargazers"
 	"tidbyt.dev/community/apps/goodservice"
 	"tidbyt.dev/community/apps/happyhour"
 	"tidbyt.dev/community/apps/hexdailystats"
@@ -148,6 +150,7 @@ import (
 	"tidbyt.dev/community/apps/plausibleanalytics"
 	"tidbyt.dev/community/apps/pokedex"
 	"tidbyt.dev/community/apps/pollencount"
+	"tidbyt.dev/community/apps/positivequote"
 	"tidbyt.dev/community/apps/powerball"
 	"tidbyt.dev/community/apps/preciousmetals"
 	"tidbyt.dev/community/apps/pubgstats"
@@ -206,6 +209,7 @@ import (
 	"tidbyt.dev/community/apps/todoistnext"
 	"tidbyt.dev/community/apps/topcryptoprices"
 	"tidbyt.dev/community/apps/traffic"
+	"tidbyt.dev/community/apps/trambyt"
 	"tidbyt.dev/community/apps/transsee"
 	"tidbyt.dev/community/apps/trivia"
 	"tidbyt.dev/community/apps/tube"
@@ -256,6 +260,7 @@ func GetManifests() []manifest.Manifest {
 		bikeshare.New(),
 		binaryclock.New(),
 		blackout.New(),
+		bluebomber.New(),
 		borisbikes.New(),
 		burgeroftheday.New(),
 		busytube.New(),
@@ -304,6 +309,7 @@ func GetManifests() []manifest.Manifest {
 		fullybinarytime.New(),
 		fuzzyclock.New(),
 		gapilotbuddy.New(),
+		githubstargazers.New(),
 		goodservice.New(),
 		happyhour.New(),
 		hexdailystats.New(),
@@ -379,6 +385,7 @@ func GetManifests() []manifest.Manifest {
 		plausibleanalytics.New(),
 		pokedex.New(),
 		pollencount.New(),
+		positivequote.New(),
 		powerball.New(),
 		preciousmetals.New(),
 		pubgstats.New(),
@@ -437,6 +444,7 @@ func GetManifests() []manifest.Manifest {
 		todoistnext.New(),
 		topcryptoprices.New(),
 		traffic.New(),
+		trambyt.New(),
 		transsee.New(),
 		trivia.New(),
 		tube.New(),
