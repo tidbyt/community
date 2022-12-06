@@ -14,10 +14,10 @@ var source []byte
 func New() manifest.Manifest {
 	return manifest.Manifest{
 		ID:          "shopify-new-order",
-		Name:        "Shopify New Order",
+		Name:        "Shopify items",
 		Author:      "Shopify",
-		Summary:     "Display recent orders",
-		Desc:        "Display recent orders for your Shopify store.",
+		Summary:     "See what’s selling",
+		Desc:        "Display the products being sold in every order so you can easily track your best sellers.",
 		FileName:    "shopify_new_order.star",
 		PackageName: "shopifyneworder",
 		Source:  source,
