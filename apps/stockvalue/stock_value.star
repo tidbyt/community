@@ -74,7 +74,7 @@ def get_schema():
                 id = "symbol",
                 name = "Symbol?",
                 desc = "What stock symbol to track?",
-                icon = "chart-line",
+                icon = "chartLine",
             ),
             schema.Text(
                 id = "shares",
