@@ -14,7 +14,7 @@ var source []byte
 func New() manifest.Manifest {
 	return manifest.Manifest{
 		ID:          "shopify-sales",
-		Name:        "Shopify stats",
+		Name:        "Shopify Stats",
 		Author:      "Shopify",
 		Summary:     "Time period sales tracker",
 		Desc:        "Show your sales from a specific time period like Black Friday, peak selling seasons, and more.",

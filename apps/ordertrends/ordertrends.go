@@ -14,7 +14,7 @@ var source []byte
 func New() manifest.Manifest {
 	return manifest.Manifest{
 		ID:          "shopify-order-trends",
-		Name:        "Shopify orders",
+		Name:        "Shopify Orders",
 		Author:      "Shopify",
 		Summary:     "Display order totals",
 		Desc:        "Showcase your daily, weekly, monthly, or annual order totals.",

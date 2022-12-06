@@ -14,7 +14,7 @@ var source []byte
 func New() manifest.Manifest {
 	return manifest.Manifest{
 		ID:          "shopify-new-order",
-		Name:        "Shopify items",
+		Name:        "Shopify Items",
 		Author:      "Shopify",
 		Summary:     "See what’s selling",
 		Desc:        "Display the products being sold in every order so you can easily track your best sellers.",

@@ -14,7 +14,7 @@ var source []byte
 func New() manifest.Manifest {
 	return manifest.Manifest{
 		ID:          "shopify-orders",
-		Name:        "Shopify select",
+		Name:        "Shopify Select",
 		Author:      "Shopify",
 		Summary:     "Time period order tracker",
 		Desc:        "View orders you've received during a specific time period like Black Friday, seasonal sales, holiday season, and more.",
