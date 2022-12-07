@@ -114,17 +114,16 @@ def duration_calc(time_filter, units = None):
        (number) The input time in seconds.
     """
     conversion_dict = {
-        'seconds': 1,
-        'minutes': 60,
-        'hours': 60 * 60,
-        'days': 60 * 60 * 24,
+        "seconds": 1,
+        "minutes": 60,
+        "hours": 60 * 60,
+        "days": 60 * 60 * 24,
     }
 
     if units == None or units not in conversion_dict.keys():
         units = "minutes"
 
     return time_filter * conversion_dict[units]
-
 
 #-------------------------------------------------------------------------------
 # Map Utility Functions
@@ -273,12 +272,12 @@ def main(config):
 
     time_filter = duration_calc(time_filter_duration, time_filter_units)
 
-    if map_center_id == 'Prime Meridian':
+    if map_center_id == "Prime Meridian":
         map_center = 0
-    elif map_center_id == 'Date Line':
+    elif map_center_id == "Date Line":
         map_center = -180
-    elif map_center_id == 'Tidbyt Location':
-        map_center = int(float(json.decode(user_location)['lng']))
+    elif map_center_id == "Tidbyt Location":
+        map_center = int(float(json.decode(user_location)["lng"]))
     else:
         map_center = 0
 
