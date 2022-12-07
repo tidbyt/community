@@ -323,7 +323,7 @@ def main(config):
                 animation.Transformation(
                     child = render_memory_frame(content, text_color, background_color),
                     duration = 0,
-                    delay = 240,
+                    delay = 220,
                     keyframes = [
                         animation.Keyframe(
                             percentage = 0.0,
