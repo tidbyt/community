@@ -288,22 +288,22 @@ def main(config):
     end_date = api_data.get("endDate")
 
     if relative_date == "last_day":
-        label = "sales last 24 hours"
+        rendered_text = render_single_label("sales last 24 hours")
     elif relative_date == "last_7_days":
-        label = "sales last 7 days"
+        rendered_text = render_single_label("sales last 7 days")
     elif relative_date == "last_30_days":
-        label = "sales last 30 days"
+        rendered_text = render_single_label("sales last 30 days")
     elif relative_date == "last_365_days":
-        label = "sales last 365 days"
+        rendered_text = render_single_label("sales last 365 days")
     else:
-        label = "sales, {} - {}".format(start_date, end_date)
+        rendered_text = render_double_label("{} to {}".format(start_date, end_date))
 
     return render.Root(
         child = render.Stack(
             children = [
                 render.Image(src = base64.decode(IMAGE_PICTURE_FRAME_BG)),
                 render.Box(
-                    padding = 5,
+                    padding = 7,
                     child = render.Column(
                         cross_align = "center",
                         children = [
@@ -313,16 +313,63 @@ def main(config):
                                 color = COLOR_ALOE,
                                 font = FONT_TOM_THUMB,
                             ),
-                            render.WrappedText(
-                                align = "center",
-                                content = label,
-                                font = FONT_TOM_THUMB,
-                            ),
+                            rendered_text,
                         ],
                     ),
                 ),
             ],
         ),
+    )
+
+def render_single_label(label):
+    return render.WrappedText(
+        align = "center",
+        content = label,
+        font = FONT_TOM_THUMB,
+    )
+
+def render_double_label(label):
+    return render.Column(
+        cross_align = "center",
+        children = [
+            render.Text(
+                content = "sales",
+                font = FONT_TOM_THUMB,
+            ),
+            render.Marquee(
+                child = render.Row(
+                    children = [
+                        render.Text(
+                            content = label,
+                            font = FONT_TOM_THUMB,
+                        ),
+                        render.Box(
+                            width = 15,
+                        ),
+                        render.Text(
+                            content = label,
+                            font = FONT_TOM_THUMB,
+                        ),
+                        render.Box(
+                            width = 15,
+                        ),
+                        render.Text(
+                            content = label,
+                            font = FONT_TOM_THUMB,
+                        ),
+                        render.Box(
+                            width = 15,
+                        ),
+                        render.Text(
+                            content = label,
+                            font = FONT_TOM_THUMB,
+                        ),
+                    ],
+                ),
+                offset_start = 15,
+                width = 50,
+            ),
+        ],
     )
 
 date_range_options = [
