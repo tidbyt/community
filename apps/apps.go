@@ -43,6 +43,7 @@ import (
 	"tidbyt.dev/community/apps/cryptotracker"
 	"tidbyt.dev/community/apps/currencyconverter"
 	"tidbyt.dev/community/apps/dailykanji"
+	"tidbyt.dev/community/apps/datadogmonitors"
 	"tidbyt.dev/community/apps/dateprogress"
 	"tidbyt.dev/community/apps/datetimeclock"
 	"tidbyt.dev/community/apps/daynightmap"
@@ -132,6 +133,7 @@ import (
 	"tidbyt.dev/community/apps/nhlstandings"
 	"tidbyt.dev/community/apps/nightscout"
 	"tidbyt.dev/community/apps/nixelclock"
+	"tidbyt.dev/community/apps/njtransit"
 	"tidbyt.dev/community/apps/noaabuoy"
 	"tidbyt.dev/community/apps/noaatides"
 	"tidbyt.dev/community/apps/nyancat"
@@ -168,6 +170,7 @@ import (
 	"tidbyt.dev/community/apps/shabbat"
 	"tidbyt.dev/community/apps/shopifyanimation"
 	"tidbyt.dev/community/apps/shopifychart"
+	"tidbyt.dev/community/apps/shopifymemories"
 	"tidbyt.dev/community/apps/shopifyneworder"
 	"tidbyt.dev/community/apps/shopifyorders"
 	"tidbyt.dev/community/apps/shopifysales"
@@ -278,6 +281,7 @@ func GetManifests() []manifest.Manifest {
 		cryptotracker.New(),
 		currencyconverter.New(),
 		dailykanji.New(),
+		datadogmonitors.New(),
 		dateprogress.New(),
 		datetimeclock.New(),
 		daynightmap.New(),
@@ -366,6 +370,7 @@ func GetManifests() []manifest.Manifest {
 		nhlstandings.New(),
 		nightscout.New(),
 		nixelclock.New(),
+		njtransit.New(),
 		noaabuoy.New(),
 		noaatides.New(),
 		nyancat.New(),
@@ -402,6 +407,7 @@ func GetManifests() []manifest.Manifest {
 		shabbat.New(),
 		shopifyanimation.New(),
 		shopifychart.New(),
+		shopifymemories.New(),
 		shopifyneworder.New(),
 		shopifyorders.New(),
 		shopifysales.New(),
