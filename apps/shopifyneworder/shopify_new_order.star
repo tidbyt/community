@@ -333,7 +333,7 @@ def main(config):
     logo = api_config.get("logo", IMAGE_RECENT_ORDERS)
 
     return render.Root(
-        delay = 3,
+        delay = 100,
         child = render.Column(
             expanded = True,
             children = [
