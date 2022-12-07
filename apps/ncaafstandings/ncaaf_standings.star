@@ -451,6 +451,7 @@ def get_logoType(team, logo):
 def get_top_column(showDateTime, now, timeColor, divisionName, renderCategory, colHeight):
     topColumn = []
     if showDateTime:
+        divisionName = divisionName.replace("Playoff Committee Rankings", "CFP")
         theTime = now.format("3:04")
         if len(str(theTime)) > 4:
             timeBox = 24
@@ -478,6 +479,7 @@ def get_top_column(showDateTime, now, timeColor, divisionName, renderCategory, c
             render.Animation(children = renderCategory),
         ]
     else:
+        divisionName = divisionName.replace("Playoff Committee Rankings", "CFP Ranking")
         topColumn = [
             render.Box(width = 64, height = colHeight, color = "#000", child = render.Row(expanded = True, main_align = "start", cross_align = "center", children = [
                 render.Box(width = 64, height = colHeight, child = render.Text(content = divisionName, color = "#ff0", font = "CG-pixel-3x5-mono")),
