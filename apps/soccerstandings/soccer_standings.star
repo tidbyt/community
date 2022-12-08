@@ -30,7 +30,7 @@ def main(config):
     teamsToShow = 4
 
     selectedLeague = config.get("LeagueOptions", DEFAULT_LEAGUE)
-    selectedDisplay = config.get("ColourOptions", "Black")
+    selectedDisplay = config.get("ColorOptions", "Black")
     league2 = {API: API + selectedLeague + "/standings"}
 
     standings = get_standings(league2)
@@ -134,14 +134,14 @@ LeagueOptions = [
     ),
 ]
 
-ColourOptions = [
+ColorOptions = [
     schema.Option(
         display = "Black",
         value = "black",
     ),
     schema.Option(
-        display = "Colour",
-        value = "colour",
+        display = "Color",
+        value = "color",
     ),
 ]
 
@@ -158,12 +158,12 @@ def get_schema():
                 options = LeagueOptions,
             ),
             schema.Dropdown(
-                id = "ColourOptions",
+                id = "ColorOptions",
                 name = "Display",
-                desc = "Colour or Black?",
+                desc = "Color or Black?",
                 icon = "gear",
-                default = ColourOptions[0].value,
-                options = ColourOptions,
+                default = ColorOptions[0].value,
+                options = ColorOptions,
             ),
         ],
     )
@@ -201,7 +201,7 @@ def get_team(x, s, entriesToDisplay, colHeight, LeagueName, topcolHeight, select
             teamName = s[i + x]["team"]["abbreviation"]
             teamColor = "#000"
 
-            if selectedDisplay == "colour":
+            if selectedDisplay == "color":
                 teamColor = get_team_color(teamID)
 
             stats = s[i + x]["stats"]
