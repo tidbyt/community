@@ -14,12 +14,12 @@ var source []byte
 func New() manifest.Manifest {
 	return manifest.Manifest{
 		ID:          "github-badge",
-		Name:        "Github Badge",
+		Name:        "GitHub Badge",
 		Author:      "Cavallando",
-		Summary:     "Github action status",
-		Desc:        "Displays a Github badge for the status of the configured Action.",
+		Summary:     "GitHub action status",
+		Desc:        "Displays a GitHub badge for the status of the configured Action.",
 		FileName:    "github_badge.star",
 		PackageName: "githubbadge",
-		Source:  source,
+		Source:      source,
 	}
 }
