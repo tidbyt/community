@@ -8,6 +8,7 @@ Author: joevgreathead
 load("render.star", "render")
 load("http.star", "http")
 load("html.star", "html")
+load("encoding/json.star", "json")
 load("encoding/base64.star", "base64")
 load("cache.star", "cache")
 load("random.star", "random")
@@ -65,7 +66,9 @@ PLACEHOLDER_TEXT = "THE VERGE"
 
 SITE = "https://www.theverge.com"
 CACHE_KEY_TAGLINE = "verge-dot-com-tagline"
-SELECTOR_TAGLINE = ".duet--recirculation--storystream-header > p > span > a"
+
+# SELECTOR_TAGLINE = ".duet--recirculation--storystream-header > p > span > a"
+SELECTOR_TAGLINE = "script#__NEXT_DATA__"
 
 def main():
     tagline = cache.get(CACHE_KEY_TAGLINE)
@@ -74,6 +77,8 @@ def main():
         resp = http.get(SITE)
         html_body = html(resp.body())
         tagline = get_tagline(html_body)
+        if tagline == None or tagline == "":
+            tagline = PLACEHOLDER_TEXT
         cache.set(CACHE_KEY_TAGLINE, tagline, ttl_seconds = 900)
 
     return render.Root(
@@ -85,12 +90,24 @@ def main():
         ),
     )
 
+def map_to_tagline():
+    return ["props", "pageProps", "hydration", "responses", 1, "data", "cellData", "prestoComponentData", "masthead_tagline"]
+
 def get_tagline(html_body):
-    text = html_body.find(SELECTOR_TAGLINE).text()
-    if text == None:
-        return PLACEHOLDER_TEXT
-    else:
-        return text
+    json_blob = html_body.find(SELECTOR_TAGLINE).text()
+    json_object = json.decode(json_blob)
+
+    current_ref = json_object
+    for key in map_to_tagline():
+        if key == 1:
+            if len(current_ref) >= 1:
+                current_ref = current_ref[1]
+        elif key in current_ref:
+            current_ref = current_ref[key]
+        else:
+            return None
+
+    return current_ref
 
 def content(value):
     return [

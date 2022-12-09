@@ -100,7 +100,6 @@ def main(config):
         return render_failure("API TOKEN REQUIRED", current_time_str)
 
     # Load layout data
-    api_url = BASE_API_URL + "?sb_api_token=%s" % sb_api_token
     sb_cached_json = cache.get("sb_cached_json")
 
     if sb_cached_json != None:
@@ -108,7 +107,7 @@ def main(config):
         res_json = json.decode(sb_cached_json)
     else:
         # Cache miss, re-retrieve from API
-        res = http.get(api_url)
+        res = http.get(BASE_API_URL, auth = ("Switchboard", sb_api_token))
         if res.status_code != 200:
             # Something went wrong with the API request
             return render_failure("REQUEST FAILED: " + str(res.status_code), current_time_str)
