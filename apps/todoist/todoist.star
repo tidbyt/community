@@ -47,11 +47,14 @@ l/d/WBrBhOVz/g1OHB6agdqc6AAAAABJRU5ErkJggg==
 
 DEFAULT_NAME = "Todoist"
 DEFAULT_FILTER = "today | overdue"
+DEFAULT_SHOW_IF_EMPTY = True
 
-TODOIST_URL = "https://api.todoist.com/rest/v1/tasks"
+NO_TASKS_CONTENT = "No Tasks :)"
 
-OAUTH2_CLIENT_ID = secret.decrypt("AV6+xWcEe4cKZstUvQGH2NDS19WbAghL0g2Jbr/hbafmY5ucg2+QDLudM0v8BZF0yva72PcpzrwONQk5bBS/Xq9fMM1m/dZt0ygfQk6GdNpETqE37xkEOec8xH73NLEPXe/tUr6rxT7m31aIyIJGY+ybxrPM+qfkDVQLURKg0ty7fZ488Q8=")
-OAUTH2_CLIENT_SECRET = secret.decrypt("AV6+xWcEVAQANVlwiJglidYagwD1LXLLGtsl0sanTTcbLp5CtqsomyWwhUEuC3Xlz6kAsEMPkeTkuZkD3XWl9UwmPeZQgL8Nrk+tVtE/LlaDP9MsPdX4oxSaZQmMSpbyjpX/OMxqeViDedeb6q7umzHWyclRY17CS+JPdTU0TsYo+Ultvo8=")
+TODOIST_URL = "https://api.todoist.com/rest/v2/tasks"
+
+OAUTH2_CLIENT_ID = secret.decrypt("AV6+xWcE3uxifd70n+JncXgagNue2eYtPYP05tbS77/hAd//mp4OQfMp+easxFROFLbCWsen/FCCDIzz8y5huFcAfV0hdyGL3mTGWaoUO2tVBvUUtGqPbOfb3HdJxMjuMb7C1fDFNqhdXhfJmo+UgRzRYzVZ/Q/C/sSl7U25DOrtKqhRs8I=")
+OAUTH2_CLIENT_SECRET = secret.decrypt("AV6+xWcEYGPbL6d105xHQ68RZWY/KSrCK/ivqz2Y2AkrVuPO9iUFkYXBqoJs4phKRdeh2QxHjjGTuwQ7RakOEPrER+2VACdGHiiytCIpMZ5Qst1PeuMT5NECKqmHhW73MwReMBtvyPl0SbjdF8XijqzhK/YvcDTwVOdZZALaj+3dvGnqANk=")
 
 def main(config):
     token = config.get("auth") or config.get("dev_api_key")
@@ -76,11 +79,15 @@ def main(config):
             if num_tasks == -1:
                 content = "Error"
             elif num_tasks == 0:
-                content = "No Tasks :)"
+                content = NO_TASKS_CONTENT
             else:
                 content = humanize.plural(int(num_tasks), "Task")
 
-            cache.set(cache_key, content, 3600)
+            cache.set(cache_key, content, ttl_seconds = 60)
+
+        if (content == NO_TASKS_CONTENT and not config.bool("show")):
+            # Don't display the app in the user's rotation
+            return []
 
     else:
         # This is used to display the app preview image
@@ -140,7 +147,7 @@ def get_schema():
                 id = "auth",
                 name = "Todoist",
                 desc = "Connect your Todoist account.",
-                icon = "square-check",
+                icon = "squareCheck",
                 handler = oauth_handler,
                 client_id = OAUTH2_CLIENT_ID or "fake-client-id",
                 authorization_endpoint = "https://todoist.com/oauth/authorize",
@@ -152,15 +159,22 @@ def get_schema():
                 id = "name",
                 name = "Name",
                 desc = "Name to display",
-                icon = "input-text",
+                icon = "iCursor",
                 default = DEFAULT_NAME,
             ),
             schema.Text(
                 id = "filter",
                 name = "Filter",
                 desc = "Filter to apply to tasks.",
-                icon = "filter-list",
+                icon = "filter",
                 default = DEFAULT_FILTER,
+            ),
+            schema.Toggle(
+                id = "show",
+                name = "Show When No Tasks",
+                desc = "Show this app when there are no tasks.",
+                icon = "eye",
+                default = DEFAULT_SHOW_IF_EMPTY,
             ),
         ],
     )

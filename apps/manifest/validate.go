@@ -4,12 +4,15 @@ import (
 	"fmt"
 	"strings"
 	"unicode"
+
+	"golang.org/x/text/cases"
+	"golang.org/x/text/language"
 )
 
 const (
 	// Our longest app name to date. This can be updated, but it will need to
 	// be tested in the mobile app.
-	MaxNameLength = 16
+	MaxNameLength = 17
 
 	// Our longest app summary to date. This can be updated, but it will need to
 	// be tested in the mobile app.
@@ -25,6 +28,12 @@ var punctuation []string = []string{
 	"?",
 }
 
+var titleCaser cases.Caser
+
+func init() {
+	titleCaser = cases.Title(language.English, cases.NoLower)
+}
+
 // ValidateName ensures the app name provided adheres to the standards for app
 // names. We're picky here because these will display in the Tidbyt mobile app
 // and need to display properly.
@@ -33,7 +42,7 @@ func ValidateName(name string) error {
 		return fmt.Errorf("name cannot be empty")
 	}
 
-	if name != strings.Title(name) {
+	if name != titleCase(name) {
 		return fmt.Errorf("'%s' should be title case, 'Fuzzy Clock' for example", name)
 	}
 
@@ -63,7 +72,7 @@ func ValidateSummary(summary string) error {
 	}
 
 	words := strings.Split(summary, " ")
-	if len(words) > 0 && words[0] != strings.Title(words[0]) {
+	if len(words) > 0 && words[0] != titleCaser.String(words[0]) {
 		return fmt.Errorf("app summaries should start with an uppercased character")
 	}
 
@@ -89,7 +98,7 @@ func ValidateDesc(desc string) error {
 	}
 
 	words := strings.Split(desc, " ")
-	if len(words) > 0 && words[0] != strings.Title(words[0]) {
+	if len(words) > 0 && words[0] != titleCaser.String(words[0]) {
 		return fmt.Errorf("app descriptions should start with an uppercased character")
 	}
 
@@ -171,4 +180,19 @@ func ValidateID(id string) error {
 	}
 
 	return nil
+}
+
+func titleCase(input string) string {
+	words := strings.Split(input, " ")
+	smallwords := " a an on the to of "
+
+	for index, word := range words {
+		if strings.Contains(smallwords, " "+word+" ") && word != string(word[0]) {
+			words[index] = word
+		} else {
+			words[index] = titleCaser.String(word)
+		}
+	}
+
+	return strings.Join(words, " ")
 }

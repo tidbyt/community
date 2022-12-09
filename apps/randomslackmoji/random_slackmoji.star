@@ -138,7 +138,7 @@ def get_schema():
                 id = SCHEMA_QUERY_ID,
                 name = "Search Query",
                 desc = "Optional search to narrow down the image results.",
-                icon = "magnifying-glass",
+                icon = "magnifyingGlass",
                 default = "",
             ),
         ],
