@@ -204,6 +204,8 @@ def get_stops(location):
 
     stops = {}
 
+    if not API_KEY: return []
+
     (timestamp, raw_stops) = fetch_cached(STOPS_URL % API_KEY, 86400)
 
     if "Contents" not in raw_stops:
@@ -221,6 +223,8 @@ def get_stops(location):
 
 # Function to get the available route list for route filter selection. Additionally adds 'all-routes' option to the beginning of the list
 def get_route_list():
+    if not API_KEY: return []
+
     (timestamp, routes) = fetch_cached(ROUTES_URL % API_KEY, 86400)
 
     route_list = [
