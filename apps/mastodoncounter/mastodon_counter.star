@@ -1,7 +1,7 @@
 """
 Applet: Mastodon Counter
 Summary: Shows your follower count
-Description: Shows how many followers you've got on Mastodon. If you want, it can even promote your Mastodon handle and encourage people to follow you.
+Description: Shows how many followers you have on Mastodon. If you want, it can even promote your Mastodon handle and encourage people to follow you.
 Author: meejle
 """
 
