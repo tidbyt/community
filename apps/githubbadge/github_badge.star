@@ -145,7 +145,7 @@ def get_schema():
                 id = "repo_name",
                 name = "Repo Name",
                 desc = "Name of the repository",
-                icon = "box-archive",
+                icon = "boxArchive",
             ),
             schema.Text(
                 id = "owner_name",
@@ -163,7 +163,7 @@ def get_schema():
                 id = "display_text",
                 name = "Display text",
                 desc = "Text to display for the workflow, defaults to user/repo.",
-                icon = "text",
+                icon = "font",
             ),
         ],
     )
