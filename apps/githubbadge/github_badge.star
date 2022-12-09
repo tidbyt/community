@@ -117,8 +117,8 @@ def main(config):
         workflow_data, err = fetch_workflow_data(config)
         cache.set(CACHE_KEY, json.encode(workflow_data), ttl_seconds = 240)
 
-    if True:
-        return render_status_badge("success", "passing")
+    if err:
+        return render_status_badge("failed", err)
     elif len(workflow_data) == 0 and access_token == None:
         return render_status_badge("success", "tidbyt/pixlet")
     elif workflow_data and type(workflow_data) != "string":
