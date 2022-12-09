@@ -2,7 +2,6 @@ package generator
 
 import (
 	_ "embed"
-	"io/ioutil"
 	"os"
 	"path"
 	"sort"
@@ -113,7 +112,7 @@ func (g *Generator) updateApps() error {
 	}
 	packages := []string{}
 
-	files, err := ioutil.ReadDir(appsDir)
+	files, err := os.ReadDir(appsDir)
 	if err != nil {
 		return err
 	}

@@ -67,11 +67,20 @@ def fetch_data(buoy_id, last_data):
     debug_print("fetching....")
     data = dict()
     url = "https://www.ndbc.noaa.gov/data/latest_obs/%s.rss" % buoy_id.lower()
+    debug_print("url: " + url)
     resp = http.get(url)
+    debug_print(resp)
     if resp.status_code != 200:
-        data["name"] = buoy_id
-        data["error"] = "ID not valid"
-        return data
+        if len(last_data) != 0:  # try to return the last cached data if it exists to account for spurious api failures
+            return last_data
+        elif resp.status_code == 404:
+            data["name"] = buoy_id
+            data["error"] = "ID not valid"
+            return data
+        else:
+            data["name"] = buoy_id
+            data["error"] = "Code: " + str(resp.status_code)
+            return data
     else:
         data["name"] = name_from_rss(xpath.loads(resp.body())) or buoy_id
 
@@ -142,23 +151,24 @@ def main(config):
     # CACHING FOR MAIN DATA OBJECT
     cache_key = "noaa_buoy_%s" % (buoy_id)
     cache_str = cache.get(cache_key)  #  not actually a json object yet, just a string
-    if cache_str != None:
+    if cache_str != None:  # and cache_str != "{}":
         debug_print("cache :" + cache_str)
         data = json.decode(cache_str)
 
     # CACHING FOR USECACHE : use this cache item to control wether to fetch new data or not, and update the main data cache
     usecache_key = "noaa_buoy_%s_usecache" % (buoy_id)
     usecache = cache.get(usecache_key)  #  not actually a json object yet, just a string
-    if usecache:
-        debug_print("using cache")
+    if usecache and len(data) != 0:
+        debug_print("using cache since usecache_key is set")
     else:
+        debug_print("no usecache so fetching data")
         data = fetch_data(buoy_id, data)  # we pass in old data object so we can re-use data if missing from fetched data
         if data != None:
-            cache.set(cache_key, json.encode(data), ttl_seconds = 1200)  # 20 minutes, should never actually expire because always getting re set
+            cache.set(cache_key, json.encode(data), ttl_seconds = 1800)  # 30 minutes, should never actually expire because always getting re set
             cache.set(cache_key + "_usecache", '{"usecache":"true"}', ttl_seconds = 600)  # 10 minutes
 
     if buoy_name == "" and "name" in data:
-        #debug_print("setting buoy_name to : " + data["name"])
+        debug_print("setting buoy_name to : " + data["name"])
         buoy_name = data["name"]
 
         # trim to max width of 14 chars or two words

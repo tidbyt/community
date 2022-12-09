@@ -2,7 +2,7 @@ package manifest_test
 
 import (
 	_ "embed"
-	"io/ioutil"
+	"os"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -24,7 +24,7 @@ func TestManifest(t *testing.T) {
 		Source:      source,
 	}
 
-	expected, err := ioutil.ReadFile("testdata/source.star")
+	expected, err := os.ReadFile("testdata/source.star")
 	assert.NoError(t, err)
 	assert.Equal(t, m.Source, expected)
 }
