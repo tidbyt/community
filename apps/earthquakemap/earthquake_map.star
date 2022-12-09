@@ -332,6 +332,7 @@ def blink_pixel(x, y, color):
         color = color[:-1]
     if len(color) == 9:
         color = color[:-2]
+
     # alpha_range = [i / 100 for i in range(0, 100, 10)] + [i / 100 for i in range(99, 1, -10)]
     alpha_range = [0, 100]
     blink_pixel = [pixel(x, y, color, alpha = i) for i in alpha_range]
