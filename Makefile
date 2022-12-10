@@ -17,5 +17,8 @@ format: lint
 test:
 	go test -v -cover ./...
 
+sync:
+	go run tools/main.go sync
+
 app:
 	@ go run tools/main.go create
