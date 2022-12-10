@@ -31,6 +31,7 @@ DEFAULT_STOP = """
 PREDICTIONS_URL = "https://api.511.org/transit/StopMonitoring?format=json&api_key=%s&agency=SF&stopCode=%s"
 ROUTES_URL = "https://api.511.org/transit/lines?format=json&api_key=%s&operator_id=SF"
 STOPS_URL = "https://api.511.org/transit/stops?format=json&api_key=%s&operator_id=SF"
+ALERTS_URL = "https://api.511.org/transit/servicealerts?format=json&api_key=%s&agency=SF"
 
 API_KEY_SECRET = "AV6+xWcEQi9NDhqpC/pp2NupmNWFYTeBYuCVcXrkAb8agjj6sL6ZRfIvKDt7iPzpYJ5VE83c2R2cQt7Fn1luIqO04BoQXu9fadB3CYMvvqi56Z++YIkZm7hTol6xnnom3xszeArqfUf/TJXjgaobdX3fToZS8W8LuBB67LVAcsngq9/FP6Yshrj6"
 API_KEY = secret.decrypt(API_KEY_SECRET)
@@ -102,25 +103,6 @@ DEFAULT_CONFIG = {
 }
 
 def get_schema():
-    priorities = [
-        schema.Option(
-            display = "High",
-            value = "High",
-        ),
-        schema.Option(
-            display = "Normal",
-            value = "Normal",
-        ),
-        schema.Option(
-            display = "Low",
-            value = "Low",
-        ),
-        schema.Option(
-            display = "None",
-            value = "none",
-        ),
-    ]
-
     formats = [
         schema.Option(
             display = "With destination",
@@ -181,13 +163,33 @@ def get_schema():
                 default = "long",
                 options = formats,
             ),
-            schema.Dropdown(
-                id = "service_messages",
-                name = "Show service messages",
-                desc = "The lowest priority of service message to be displayed.",
+            schema.Toggle(
+                id = "agency_alerts",
+                name = "Show agency-wide service alerts",
+                desc = "Show service alerts targeted to all of SF Muni.",
                 icon = "exclamation",
-                default = priorities[0].value,
-                options = priorities,
+                default = False,
+            ),
+            schema.Toggle(
+                id = "route_alerts",
+                name = "Show route-specific service alerts",
+                desc = "Show service alerts targeted to the routes at the selected stop.",
+                icon = "exclamation",
+                default = False,
+            ),
+            schema.Toggle(
+                id = "stop_alerts",
+                name = "Show stop-specific service alerts",
+                desc = "Show service alerts targeted to the selected stop.",
+                icon = "exclamation",
+                default = False,
+            ),
+            schema.Text(
+                id = "alert_languages",
+                name = "Service alert langauges",
+                desc = "Languages to show service alerts in, separated by commas.",
+                icon = "flag",
+                default = "en",
             ),
             schema.Text(
                 id = "minimum_time",
@@ -271,23 +273,39 @@ def main(config):
     default_stop = json.encode(default_stops[0]) if default_stops else DEFAULT_STOP
     stop = json.decode(config.get("stop_code", default_stop))
     stopId = stop["value"]
-    route_filter = config.get("route_filter", DEFAULT_CONFIG["route_filter"])
 
     api_key = API_KEY or config.get("dev_api_key")
+
+    ## Fetch and parse predictions
+    (stopTitle, routes, predictions) = getPredictions(api_key, config, stop)
+
+    ## Fetch, parse and filter service messages
+    messages = getMessages(api_key, config, routes, stopId)
+
+    ## Render the title, predictions and messages
+    if not stopTitle and not predictions and not messages:
+        return []
+
+    return renderOutput(stopTitle, predictions, messages, config)
+
+def getPredictions(api_key, config, stop):
+    stopId = stop["value"]
+    stopTitle = stop["display"]
     (data_timestamp, data) = fetch_cached(PREDICTIONS_URL % (api_key, stopId), 240)
 
     service = data.get("ServiceDelivery", {})
     if not service or not service["Status"]:
-        return []
+        return (stopTitle, [], [])
 
     stopMonitoring = service["StopMonitoringDelivery"]
     monitoredVisits = stopMonitoring["MonitoredStopVisit"]
 
+    route_filter = config.get("route_filter", DEFAULT_CONFIG["route_filter"])
+
     minimum_time_string = config.str("minimum_time", "0")
     minimum_time = int(minimum_time_string) if minimum_time_string.isdigit() else 0
     prediction_map = {}
-    messages = []
-    stopTitle = stop["display"]
+    routes = []
 
     data_age_seconds = time.now().unix - data_timestamp
 
@@ -299,6 +317,9 @@ def main(config):
         routeTag = vehicle["LineRef"]
         if route_filter != "all-routes" and routeTag != route_filter:
             continue
+
+        if routeTag not in routes:
+            routes.append(routeTag)
 
         if "DestinationName" not in vehicle:
             continue
@@ -336,25 +357,43 @@ def main(config):
 
     output = sorted(output_map.items(), key = lambda kv: int(min(kv[1], key = int))) if output_map.items() else []
 
-    ####
-    # TODO: messages?
-    #        if "message" in route:
-    #            message = route["message"]
-    #            if type(message) != "list":
-    #                message = [message]
-    #            for m in message:
-    #                if m not in messages:
-    #                    messages.append(m)
-    #
-    #    lowest_message_pri = config.get("service_messages")
-    #    messages = [
-    #        message["text"]
-    #        for message in messages
-    #        if higher_priority_than(message["priority"], lowest_message_pri)
-    #    ]
-    messages = []
-    ####
+    return (stopTitle, routes, output)
 
+def getMessages(api_key, config, routes, stopId):
+    (data_timestamp, data) = fetch_cached(ALERTS_URL % api_key, 240)
+
+    # https://developers.google.com/transit/gtfs-realtime/reference#message-feedentity
+    entities = data.get("Entities")
+
+    messages = []
+
+    if not entities:
+        return messages
+
+    for entry in entities:
+        # https://developers.google.com/transit/gtfs-realtime/reference#message-alert
+        alert = entry["Alert"]
+        if not alert:
+            continue
+
+        languages = config.str("alert_languages", "en").split(",")
+        translations = [translation["Text"] for translation in alert["HeaderText"]["Translations"] if translation["Language"] == "en"]
+
+        if not translations:
+            continue
+
+        # https://developers.google.com/transit/gtfs-realtime/reference#message-entityselector
+        informedAgencies = [entity["AgencyId"] for entity in alert["InformedEntities"] if "AgencyId" in entity]
+        informedRoutes = [entity["RouteId"] for entity in alert["InformedEntities"] if "RouteId" in entity]
+        informedStops = [entity["StopId"] for entity in alert["InformedEntities"] if "StopId" in entity]
+        if ((config.bool("agency_alerts") and "SF" in informedAgencies) or
+            (config.bool("route_alerts") and [route for route in informedRoutes if route in routes]) or
+            (config.bool("stop_alerts") and stopId in informedStops)):
+            messages.extend(translations)
+
+    return messages
+
+def renderOutput(stopTitle, output, messages, config):
     lines = 4
     height = 32
 

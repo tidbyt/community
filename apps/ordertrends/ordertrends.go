@@ -14,10 +14,10 @@ var source []byte
 func New() manifest.Manifest {
 	return manifest.Manifest{
 		ID:          "shopify-order-trends",
-		Name:        "Order Trends",
+		Name:        "Shopify Orders",
 		Author:      "Shopify",
-		Summary:     "Show trending order counts",
-		Desc:        "Show daily, weekly, monthly and/or yearly order counts for your Shopify store.",
+		Summary:     "Display order totals",
+		Desc:        "Showcase your daily, weekly, monthly, or annual order totals.",
 		FileName:    "order_trends.star",
 		PackageName: "ordertrends",
 		Source:  source,

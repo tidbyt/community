@@ -37,7 +37,6 @@ ALT_COLOR = """
 """
 ALT_LOGO = """
 {
-    "UTAH": "https://b.fssta.com/uploads/application/nba/team-logos/Jazz.png",
     "HOU": "https://b.fssta.com/uploads/application/nba/team-logos/Rockets-alternate.png",
     "PHI": "https://b.fssta.com/uploads/application/nba/team-logos/76ers.png"
 }
@@ -90,7 +89,7 @@ def main(config):
 
             if entries:
                 entriesToDisplay = teamsToShow
-                divisionName = s["name"].replace(" Division", "")
+                divisionName = s["name"].replace(" Division", "").replace(" Conference", "")
                 stats = entries[0]["stats"]
 
                 for j, k in enumerate(stats):

@@ -9,16 +9,16 @@ require (
 
 require (
 	github.com/manifoldco/promptui v0.9.0
-	golang.org/x/text v0.4.0
-	tidbyt.dev/pixlet v0.21.0
+	golang.org/x/text v0.5.0
+	tidbyt.dev/pixlet v0.22.8
 )
 
 require (
-	github.com/PuerkitoBio/goquery v1.5.1 // indirect
-	github.com/andybalholm/cascadia v1.1.0 // indirect
-	github.com/antchfx/xmlquery v1.3.12 // indirect
+	github.com/PuerkitoBio/goquery v1.8.0 // indirect
+	github.com/andybalholm/cascadia v1.3.1 // indirect
+	github.com/antchfx/xmlquery v1.3.13 // indirect
 	github.com/antchfx/xpath v1.2.1 // indirect
-	github.com/chzyer/readline v1.5.0 // indirect
+	github.com/chzyer/readline v1.5.1 // indirect
 	github.com/davecgh/go-spew v1.1.1 // indirect
 	github.com/dustin/go-humanize v1.0.0 // indirect
 	github.com/go-playground/locales v0.14.0 // indirect
@@ -26,8 +26,9 @@ require (
 	github.com/go-playground/validator/v10 v10.11.1 // indirect
 	github.com/golang/freetype v0.0.0-20170609003504-e2365dfdc4a0 // indirect
 	github.com/golang/groupcache v0.0.0-20210331224755-41bb18bfe9da // indirect
+	github.com/google/go-cmp v0.5.9 // indirect
 	github.com/google/tink/go v1.7.0 // indirect
-	github.com/inconshreveable/mousetrap v1.0.1 // indirect
+	github.com/inconshreveable/mousetrap v1.1.0 // indirect
 	github.com/leodido/go-urn v1.2.1 // indirect
 	github.com/mitchellh/hashstructure/v2 v2.0.2 // indirect
 	github.com/nathan-osman/go-sunrise v1.1.0 // indirect
@@ -41,11 +42,11 @@ require (
 	github.com/tidbyt/gg v0.0.0-20220808163829-95806fa1d427 // indirect
 	github.com/tidbyt/go-libwebp v0.0.0-20220802221933-1fabc3b46601 // indirect
 	github.com/zachomedia/go-bdf v0.0.0-20220611021443-a3af701111be // indirect
-	go.starlark.net v0.0.0-20221010140840-6bf6f0955179 // indirect
-	golang.org/x/crypto v0.0.0-20220411220226-7b82a4e95df4 // indirect
-	golang.org/x/image v0.0.0-20220902085622-e7cb96979f69 // indirect
-	golang.org/x/net v0.0.0-20220624214902-1bab6f366d9e // indirect
-	golang.org/x/sys v0.0.0-20220811171246-fbc7d0a398ab // indirect
-	google.golang.org/protobuf v1.28.0 // indirect
+	go.starlark.net v0.0.0-20221205180719-3fd0dac74452 // indirect
+	golang.org/x/crypto v0.3.0 // indirect
+	golang.org/x/image v0.2.0 // indirect
+	golang.org/x/net v0.2.0 // indirect
+	golang.org/x/sys v0.3.0 // indirect
+	google.golang.org/protobuf v1.28.1 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
 )
