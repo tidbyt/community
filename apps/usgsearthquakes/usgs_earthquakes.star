@@ -37,6 +37,7 @@ load("encoding/json.star", "json")
 load("http.star", "http")
 load("humanize.star", "humanize")
 load("render.star", "render")
+load("animation.star", "animation")
 load("schema.star", "schema")
 load("time.star", "time")
 
@@ -168,7 +169,7 @@ def get_page_frame(mag_str, mag_color, place_str, place_x, time_str):
                     main_align = "center",
                 ),
                 render.Box(
-                    child = render.AnimatedPositioned(
+                    child = animation.AnimatedPositioned(
                         child = render.Text(place_str),
                         curve = "linear",
                         duration = 0,
