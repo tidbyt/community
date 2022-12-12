@@ -35,7 +35,18 @@ BADGE_BACKGROUND = base64.decode("""
 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
 """)
 
+DEFAULT_BRANCH = "main"
+
 def get_status_icon(status):
+    """Gets the decoded icon string for a given Workflow Status from github 
+
+    Args:
+        status: The status of the workflow, can be anyone of the statuses found here
+            https://docs.github.com/en/rest/actions/workflow-runs?apiVersion=2022-11-28#list-workflow-runs-for-a-workflow
+
+    Returns:
+    The appropriate icon string
+    """
     if status == "completed" or status == "success":
         return GITHUB_SUCCESS_ICON
     elif status == "failed" or status == "timed_out":
@@ -48,15 +59,24 @@ def get_status_icon(status):
         return GITHUB_LOADING_ICON
 
 def fetch_workflow_data(config):
+    """Fetches the workflow data from GitHub
+
+    Args:
+        config: The schema config from TidByt
+
+    Returns:
+        The workflow data if it can be found or an error message from the request
+    """
     access_token = config.str("access_token")
     repo_name = config.str("repo_name")
     owner_name = config.str("owner_name")
     workflow_id = config.str("workflow_id")
+    branch = config.str("branch", DEFAULT_BRANCH)
 
     if access_token:
         data = http.get(
             "https://api.github.com/repos/{}/{}/actions/workflows/{}/runs".format(owner_name, repo_name, workflow_id),
-            params = {"branch": "main", "per_page": "1", "page": "1"},
+            params = {"branch": branch, "per_page": "1", "page": "1"},
             headers = {"Accept": "application/vnd.github+json", "Authorization": "Bearer {}".format(access_token), "X-GitHub-Api-Version": "2022-11-28"},
         ).json()
 
@@ -101,10 +121,17 @@ def render_status_badge(status, display_text):
     )
 
 def main(config):
+    """Main render function for the App
+
+    Args:
+        config: The schema config from TidByt
+
+    Returns:
+        A Root view to render to the app
+    """
     access_token = config.get("access_token") or None
     repo_name = config.str("repo_name")
     owner_name = config.str("owner_name")
-    workflow_id = config.str("workflow_id")
     display_text = get_display_text(config)
     CACHE_KEY = "{}-{}/{}".format(access_token, owner_name, repo_name)
 
@@ -123,7 +150,6 @@ def main(config):
         return render_status_badge("success", "tidbyt/pixlet")
     elif workflow_data and type(workflow_data) != "string":
         status = workflow_data.get("status")
-        workflow_name = workflow_data.get("name")
 
         return render_status_badge(status, display_text)
     elif workflow_data:
@@ -164,6 +190,13 @@ def get_schema():
                 name = "Display text",
                 desc = "Text to display for the workflow, defaults to user/repo.",
                 icon = "font",
+            ),
+            schema.Text(
+                id = "branch",
+                name = "Branch name",
+                desc = "Name of the branch to listen for workflow runs, defaults to main",
+                icon = "codeBranch",
+                default = "main",
             ),
         ],
     )
