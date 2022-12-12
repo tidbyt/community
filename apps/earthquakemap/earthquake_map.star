@@ -1,7 +1,7 @@
 """
 Applet: Earthquake Map
 Summary: Map of global earthquakes
-Description: Display a map of earthquakes based on USGS data.
+Description: Display a map of earthquakes based on USGS data. (v0.1.2)
 Author: Brian McLaughlin (SpinStabilized)
 """
 
@@ -268,7 +268,7 @@ def main(config):
     time_filter_units = config.get("time_filter_units") or DEFAULT_TIME_FILTER_UNITS
     hide_when_empty = config.bool("hide_when_empty") or DEFAULT_HIDE_WHEN_EMPTY
     map_center_id = config.str("map_center_id") or DEFAULT_MAP_CENTER_ID
-    user_location = config.str("user_location") or DEFAULT_USER_LOCATION
+    user_location = config.str("location") or DEFAULT_USER_LOCATION
 
     time_filter = duration_calc(time_filter_duration, time_filter_units)
 
