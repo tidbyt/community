@@ -202,6 +202,9 @@ def get_schema():
     )
 
 def get_stops(location):
+    if not API_KEY:
+        return []
+
     loc = json.decode(location)
 
     stops = {}
@@ -223,6 +226,14 @@ def get_stops(location):
 
 # Function to get the available route list for route filter selection. Additionally adds 'all-routes' option to the beginning of the list
 def get_route_list():
+    if not API_KEY:
+        return [
+            schema.Option(
+                display = "All Routes",
+                value = "all-routes",
+            ),
+        ]
+
     (timestamp, routes) = fetch_cached(ROUTES_URL % API_KEY, 86400)
 
     route_list = [
@@ -344,8 +355,8 @@ def getPredictions(api_key, config, stop):
         if titleKey not in prediction_map:
             prediction_map[titleKey] = []
 
-        aimedArrivalTime = time.parse_time(call["AimedArrivalTime"])
-        seconds = aimedArrivalTime.unix - time.now().unix
+        expectedArrivalTime = time.parse_time(call["ExpectedArrivalTime"])
+        seconds = expectedArrivalTime.unix - time.now().unix
         minutes = int(seconds / 60)
 
         if minutes >= minimum_time:
