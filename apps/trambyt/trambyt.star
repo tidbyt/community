@@ -73,14 +73,18 @@ def main(config):
 
         # extract all deperaturs
         deps = []
-        for dep in rep.json()["DepartureBoard"]["Departure"]:
-            d = dep["date"]
-            t = dep["rtTime"] or dep["time"]
+        j = rep.json()["DepartureBoard"]
+        if "Departure" in j:
+            for dep in j["Departure"]:
+                d = dep["date"]
+                t = dep.get("rtTime") or dep["time"]
 
-            dur = time.parse_time(d + "T" + t, "2006-01-02T15:04", "Europe/Stockholm") - now
-            fmt_dur = format_duration(dur)
+                dur = time.parse_time(d + "T" + t, "2006-01-02T15:04", "Europe/Stockholm") - now
+                fmt_dur = format_duration(dur)
 
-            deps.append((dur, fmt_dur, dep["sname"], dep["direction"], dep["bgColor"].lower()))
+                deps.append((dur, fmt_dur, dep["sname"], dep["direction"], dep["bgColor"].lower()))
+        else:
+            return render.Root(render.WrappedText("Departures not available for location"))
 
         # sort on next departures and pick the next two
         departures = []
@@ -94,8 +98,17 @@ def main(config):
         cache.set("departures", departures, ttl_seconds = 60)
 
     # render
+    departures = departures.split("\n")
+
+    max_width = 1
+    for dep in departures:
+        _, sname, _, _ = dep.split("\t")
+        max_width = max(max_width, len(sname))
+
+    badge_width = 6 + max_width * 5
+    text_width = 60 - badge_width
     texts = []
-    for dep in departures.split("\n"):
+    for dep in departures:
         dep_time, sname, direction, color = dep.split("\t")
 
         texts.append(
@@ -103,12 +116,12 @@ def main(config):
                 children = [
                     render.Box(
                         child = render.Text(sname, color = color, font = "6x13"),
-                        width = 11,
+                        width = badge_width,
                         height = 15,
                     ),
                     render.Column(
                         children = [
-                            render.Marquee(child = render.Text(direction), width = 49),
+                            render.Marquee(child = render.Text(direction), width = text_width),
                             render.Text(dep_time, font = "tom-thumb", color = "#f2a93b"),
                         ],
                     ),
@@ -135,15 +148,22 @@ def get_stops(location):
             fail("API request failed with status %d", rep.status_code)
 
         options = []
+        seen = {}
         for stop in rep.json()["LocationList"]["StopLocation"]:
-            # ignore the more detailed stops
-            if "track" in stop:
+            stop_name = stop["name"]
+            stop_id = stop["id"]
+            if len(stop_id) != 16:
+                # only stops with long identifiers seems to have departures ¯\_(ツ)_/¯
                 continue
+
+            if stop_name in seen:
+                continue
+            seen[stop_name] = True
 
             options.append(
                 schema.Option(
-                    display = stop["name"],
-                    value = stop["id"],
+                    display = stop_name,
+                    value = stop_id,
                 ),
             )
 

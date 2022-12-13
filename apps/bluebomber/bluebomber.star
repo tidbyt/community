@@ -20,6 +20,7 @@ BGBLURIMAGE = base64.decode("""R0lGODlhQAAOAJECAAGW5AGN1gAAAAAAACH/C05FVFNDQVBFM
 
 BOSS_LIST = {
     "MEGA": "MEGA",
+    "PROTO": "PROTO",
     "CUT": "CUT",
     "GUTS": "GUTS",
     "ICE": "ICE",
