@@ -1,3 +1,10 @@
+"""
+Applet: Fortnite Store
+Summary: See the Fortnite shop
+Description: See items currently featured in the Fortnite shop.
+Author: naominori
+"""
+
 load("secret.star", "secret")
 load("cache.star", "cache")
 load("http.star", "http")
@@ -5,6 +12,7 @@ load("encoding/json.star", "json")
 load("encoding/base64.star", "base64")
 load("render.star", "render")
 load("random.star", "random")
+load("schema.star", "schema")
 
 color_key = {
     "handmade": "#fff",
@@ -79,3 +87,9 @@ def main(config):
                 ],
             ),
         )
+
+def get_schema():
+    return schema.Schema(
+        version = "1",
+        fields = [],
+    )

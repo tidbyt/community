@@ -68,6 +68,7 @@ import (
 	"tidbyt.dev/community/apps/fivesomewhere"
 	"tidbyt.dev/community/apps/flags"
 	"tidbyt.dev/community/apps/formula1"
+	"tidbyt.dev/community/apps/fortnitestore"
 	"tidbyt.dev/community/apps/fullybinarytime"
 	"tidbyt.dev/community/apps/fuzzyclock"
 	"tidbyt.dev/community/apps/gapilotbuddy"
@@ -299,6 +300,7 @@ func GetManifests() []manifest.Manifest {
 		fivesomewhere.New(),
 		flags.New(),
 		formula1.New(),
+		fortnitestore.New(),
 		fullybinarytime.New(),
 		fuzzyclock.New(),
 		gapilotbuddy.New(),
