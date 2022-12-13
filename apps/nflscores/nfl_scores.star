@@ -34,6 +34,7 @@ SHORTENED_WORDS = """
     " AM": "A",
     " - ": " ",
     " / ": " ",
+    " of": "",
     "Postponed": "PPD",
     "Overtime": "OT",
     "1st Half": "1H",
@@ -48,6 +49,7 @@ ALT_COLOR = """
 {
     "LAC": "#1281c4",
     "LAR": "#003594",
+    "MIA": "#008E97",
     "NO": "#000000",
     "SEA": "#002244",
     "TB": "#34302B",
