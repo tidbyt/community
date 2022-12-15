@@ -2,7 +2,7 @@
 Applet: Fortnite Store
 Summary: Preview the Fortnite store
 Description: See items currently featured in the Fortnite store.
-Author: naominori
+Author: naomi-nori
 """
 
 load("secret.star", "secret")
