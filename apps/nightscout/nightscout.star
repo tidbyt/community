@@ -106,7 +106,6 @@ def main(config):
     sgv_current = int(nightscout_data_json["sgv_current"])
     sgv_delta = int(nightscout_data_json["sgv_delta"])
     latest_reading_dt = time.parse_time(nightscout_data_json["latest_reading_date_string"])
-    trend = nightscout_data_json["trend"]
     direction = nightscout_data_json["direction"]
     history = nightscout_data_json["history"]
 
@@ -686,8 +685,7 @@ def get_nightscout_data(nightscout_id, nightscout_host):
     # Delta between the current and previous
     sgv_delta = int(sgv_current - previous_reading["sgv"])
 
-    # Get the trend
-    trend = latest_reading["trend"]
+    # Get the direction
     direction = latest_reading["direction"]
 
     print("%d %d %s" % (sgv_current, sgv_delta, ARROWS[direction]))
@@ -705,7 +703,6 @@ def get_nightscout_data(nightscout_id, nightscout_host):
         "sgv_current": str(int(sgv_current)),
         "sgv_delta": str(int(sgv_delta)),
         "latest_reading_date_string": latest_reading_date_string,
-        "trend": trend,
         "direction": direction,
         "history": history,
     }
@@ -742,7 +739,6 @@ EXAMPLE_DATA = {
     "sgv_current": "85",
     "sgv_delta": "-2",
     "latest_reading_date_string": time.now().format("2006-01-02T15:04:05.999999999Z07:00"),
-    "trend": "0",
     "direction": "Flat",
     "history": [(1658171112, 141), (1658170812, 133), (1658170512, 129), (1658170212, 125), (1658169912, 121), (1658169612, 116), (1658169312, 114), (1658169012, 109), (1658168712, 105), (1658168412, 103), (1658168112, 107), (1658167812, 114), (1658167512, 119), (1658167212, 123), (1658166912, 127), (1658166612, 126), (1658166312, 124), (1658166012, 108), (1658165712, 103), (1658165412, 100), (1658165112, 96), (1658164812, 93), (1658164512, 93), (1658164212, 95), (1658163911, 93), (1658163612, 92), (1658163311, 91), (1658163011, 87), (1658162712, 86), (1658162412, 87), (1658162112, 88), (1658161812, 87), (1658161512, 87), (1658161212, 85), (1658160912, 84), (1658160612, 83), (1658160312, 80), (1658160012, 83), (1658159712, 88), (1658159412, 90), (1658159111, 88), (1658158812, 87), (1658158512, 85)],
 }
