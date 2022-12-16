@@ -25,6 +25,7 @@ COLOR_GREEN = "#2b3"
 COLOR_GREY = "#777"
 COLOR_WHITE = "#fff"
 COLOR_NIGHT = "#444"
+COLOR_HOURS = "#222"
 
 DEFAULT_NORMAL_HIGH = 180
 DEFAULT_NORMAL_LOW = 100
@@ -398,6 +399,7 @@ def main(config):
     else:
         # high and low lines
         graph_plot = []
+        graph_hour_bars = []
         min_time = OLDEST_READING_TARGET.unix
 
         # the rest of the graph
@@ -428,6 +430,19 @@ def main(config):
 
             if this_point < urgent_low:
                 graph_point_color = color_graph_urgent_low
+
+            min_hour = time.from_timestamp(min_time, 0).hour
+            max_hour = time.from_timestamp(max_time, 0).hour
+            if min_hour < max_hour:
+                # Add hour marker at this point
+                graph_hour_bars.append(render.Padding(
+                    pad = (point, 0, 0, 0),
+                    child = render.Box(
+                        width = 1,
+                        height = 32,
+                        color = COLOR_HOURS,
+                    ),
+                ))
 
             graph_plot.append(
                 render.Plot(
@@ -519,6 +534,9 @@ def main(config):
                             children = [
                                 render.Stack(
                                     children = [
+                                        render.Stack(
+                                            children = graph_hour_bars,
+                                        ),
                                         render.Plot(
                                             data = [
                                                 (0, normal_low),
