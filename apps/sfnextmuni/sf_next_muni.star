@@ -225,7 +225,13 @@ def get_stops(location):
 
 # Function to get the available route list for route filter selection. Additionally adds 'all-routes' option to the beginning of the list
 def get_route_list():
-    if not API_KEY: return []
+    if not API_KEY:
+        return [
+            schema.Option(
+                display = "All Routes",
+                value = "all-routes",
+            ),
+        ]
 
     (timestamp, routes) = fetch_cached(ROUTES_URL % API_KEY, 86400)
 
@@ -305,7 +311,7 @@ def getPredictions(api_key, config, stop):
     routes = []
     stops = fetch_stops(api_key)
     if stopId in stops:
-        stopTitle = stops[stopId]
+        stopTitle = stops[stopId]["Name"]
 
     data_age_seconds = time.now().unix - data_timestamp
 
@@ -345,7 +351,7 @@ def getPredictions(api_key, config, stop):
         if not predictions:
             continue
 
-        destTitle = stops[predictions[-1]["StopId"]]
+        destTitle = stops[predictions[-1]["StopId"]]["Name"]
 
         # Hack for KT interlining, until the Central Subway opens. If stop is in override list, then route designation overriden. Else, use Inbound/Outbound direction to determine route letter
         if routeTag == "KT":
@@ -354,15 +360,17 @@ def getPredictions(api_key, config, stop):
                 kt_override_stops[stop] = "K"
             for stop in T_OUTBOUND_STOPS:
                 kt_override_stops[stop] = "T"
-            routeTag = kt_override_stops.get(stopId, "T" if vehicle["DirectionRef"] == "IB" else "K")
+            routeTag = kt_override_stops.get(stopId, "T" if tripUpdate["Trip"]["DirectionId"] == 1 else "K")
+
+        predictedTimes = [p["Time"] for p in predictions if p["StopId"] == stopId]
+        if not predictedTimes:
+            continue
+        seconds = predictedTimes[0] - time.now().unix
+        minutes = int(seconds / 60)
 
         titleKey = routeTag if "short" == config.get("prediction_format") else (routeTag, destTitle)
         if titleKey not in prediction_map:
             prediction_map[titleKey] = []
-
-        predictedTime = predictions[stopId]["Time"]
-        seconds = predictedTime.unix - time.now().unix
-        minutes = int(seconds / 60)
 
         if minutes >= minimum_time:
             prediction_map[titleKey].append(minutes)
