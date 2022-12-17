@@ -34,6 +34,7 @@ SHORTENED_WORDS = """
     " AM": "A",
     " - ": " ",
     " / ": " ",
+    " of": "",
     "Postponed": "PPD",
     "Overtime": "OT",
     "1st Half": "1H",

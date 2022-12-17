@@ -212,6 +212,9 @@ def fetch_stops(api_key):
     return stops
 
 def get_stops(location):
+    if not API_KEY:
+        return []
+
     loc = json.decode(location)
     stops = fetch_stops(API_KEY)
 
