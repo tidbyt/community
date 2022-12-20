@@ -35,6 +35,7 @@ SHORTENED_WORDS = """
     " AM": "A",
     " - ": " ",
     " / ": " ",
+    " of": "",
     "Postponed": "PPD",
     "Overtime": "OT",
     "1st Half": "1H",
@@ -66,7 +67,8 @@ ALT_COLOR = """
     "MRSH" : "#000000",
     "UNC" : "#13294B",
     "COLO" : "#000000",
-    "IOWA" : "#000000"
+    "IOWA" : "#000000",
+    "RICE" : "#00205B"
 }
 """
 ALT_LOGO = """
