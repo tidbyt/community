@@ -35,29 +35,20 @@ BACKGROUND_COLORS = [
 ]
 
 RAINBOW_COLORS = {
-    "red": "#FF4444",
+    "red": "#F44",
     "orange": "#FFA500",
-    "yellow": "#FFFF00",
-    "green": "#00FF00",
-    "blue": "#7777FF",
+    "yellow": "#FF0",
+    "green": "#0F0",
+    "blue": "#77F",
     "indigo": "#8F00F8",
     "violet": "#EE82EE",
 }
 STAR_COLOR_RANDOM = "random"
-STAR_COLOR_RAINBOW = "rainbow"
-DEFAULT_STAR_COLOR_OPTION = 2
-STAR_COLOR_OPTIONS = [
-    schema.Option(
-        display = "Random",
-        value = STAR_COLOR_RANDOM,
-    ),
-    schema.Option(
-        display = "Rainbow",
-        value = STAR_COLOR_RAINBOW,
-    ),
+DEFAULT_STAR_COLOR = 2
+STAR_COLORS = [
     schema.Option(
         display = "White",
-        value = "#FFFFFF",
+        value = "#FFF",
     ),
     schema.Option(
         display = "Red",
@@ -87,9 +78,17 @@ STAR_COLOR_OPTIONS = [
         display = "Violet",
         value = RAINBOW_COLORS["violet"],
     ),
+    schema.Option(
+        display = "Random",
+        value = STAR_COLOR_RANDOM,
+    ),
+    schema.Option(
+        display = "Rainbow",
+        value = ",".join(RAINBOW_COLORS.values()),
+    ),
 ]
-DEFAULT_USE_CUSTOM_STAR_COLOR = False
-DEFAULT_CUSTOM_STAR_COLOR = ""
+DEFAULT_USE_CUSTOM_STAR_COLORS = False
+DEFAULT_CUSTOM_STAR_COLORS = ""
 
 DEFAULT_STAR_COUNT = 1
 STAR_COUNTS = [
@@ -160,7 +159,7 @@ SPEEDS = [
 ]
 
 def main(config):
-    star_color = get_star_color_config(config)
+    star_color = get_palette(config)
     if star_color == None:
         return render.Root(
             child = render.WrappedText(
@@ -204,15 +203,12 @@ def random_speed(config):
     speed = float(config.get("star_speed", SPEEDS[DEFAULT_SPEED].value))
     return random.number(1, 8) / 4 * speed
 
-def make_stars(config, color):
+def make_stars(config, palette):
     """
     Creates a list of stars. Each star is represented as a point on a circle with an angle, radius, and speed.
     Each frame, radius will increase by the speed value to simulate movement.
     """
     count = int(config.get("star_count", STAR_COUNTS[DEFAULT_STAR_COUNT].value))
-
-    if color == STAR_COLOR_RANDOM:
-        color = random_color()
 
     stars = []
     for i in range(count):
@@ -220,7 +216,7 @@ def make_stars(config, color):
             "angle": random_angle(),
             "radius": random_radius(),
             "speed": random_speed(config),
-            "color": color if color != STAR_COLOR_RAINBOW else random_color(),
+            "color": random_palette_color(palette),
         })
     return stars
 
@@ -296,21 +292,31 @@ def get_alpha(radius):
     hex = ("0%X" % alpha)[-2:]
     return hex
 
-def get_star_color_config(config):
+def get_palette(config):
     """Gets either the chosen color or the custom color. Custom colors are validated, and all colors are sanitized."""
-    if config.bool("use_custom_star_color", DEFAULT_USE_CUSTOM_STAR_COLOR):
-        star_color = config.get("custom_star_color", DEFAULT_CUSTOM_STAR_COLOR)
-        if valid_color(star_color):
-            return sanitize_color(star_color)
-        else:
-            return None
+    if config.bool("use_custom_star_colors", DEFAULT_USE_CUSTOM_STAR_COLORS):
+        palette = config.get("custom_star_colors", DEFAULT_CUSTOM_STAR_COLORS)
     else:
-        return config.get("star_color", STAR_COLOR_OPTIONS[DEFAULT_STAR_COLOR_OPTION].value)
+        palette = config.get("star_color", STAR_COLORS[DEFAULT_STAR_COLOR].value)
+        if palette == STAR_COLOR_RANDOM:
+            palette = [random_palette_color(RAINBOW_COLORS.values())]
 
-def random_color():
+    if type(palette) == "string":
+        palette = palette.split(",")
+        for i in range(len(palette)):
+            palette[i] = palette[i].strip()
+            if not valid_color(palette[i]):
+                return None
+
+    for i in range(len(palette)):
+        palette[i] = sanitize_color(palette[i])
+
+    return palette
+
+def random_palette_color(palette):
     """Returns a random color in STAR_COLORS"""
-    i = random.number(0, len(RAINBOW_COLORS) - 1)
-    return RAINBOW_COLORS.values()[i]
+    i = random.number(0, len(palette) - 1)
+    return palette[i]
 
 def valid_color(color):
     """Validates hex color"""
@@ -347,25 +353,25 @@ def get_schema():
             ),
             schema.Dropdown(
                 id = "star_color",
-                name = "Star Color",
-                desc = "Change the color of the stars",
+                name = "Star Colors",
+                desc = "Change the star palette",
                 icon = "palette",
-                default = STAR_COLOR_OPTIONS[DEFAULT_STAR_COLOR_OPTION].value,
-                options = STAR_COLOR_OPTIONS,
+                default = STAR_COLORS[DEFAULT_STAR_COLOR].value,
+                options = STAR_COLORS,
             ),
             schema.Toggle(
-                id = "use_custom_star_color",
-                name = "Use Custom Star Color?",
-                desc = "Enables star custom color",
+                id = "use_custom_star_colors",
+                name = "Use Custom Star Colors?",
+                desc = "Enables custom star palette",
                 icon = "palette",
-                default = DEFAULT_USE_CUSTOM_STAR_COLOR,
+                default = DEFAULT_USE_CUSTOM_STAR_COLORS,
             ),
             schema.Text(
-                id = "custom_star_color",
-                name = "Custom Star Color",
-                desc = "Hex code for custom star color",
+                id = "custom_star_colors",
+                name = "Custom Star Colors",
+                desc = "Comma-separated list of hex codes for stars",
                 icon = "palette",
-                default = DEFAULT_CUSTOM_STAR_COLOR,
+                default = DEFAULT_CUSTOM_STAR_COLORS,
             ),
             schema.Dropdown(
                 id = "star_count",
