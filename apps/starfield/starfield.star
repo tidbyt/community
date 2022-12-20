@@ -34,31 +34,58 @@ BACKGROUND_COLORS = [
     ),
 ]
 
-DEFAULT_STAR_COLOR = 0
-STAR_COLORS = [
+RAINBOW_COLORS = {
+    "red": "#FF4444",
+    "orange": "#FFA500",
+    "yellow": "#FFFF00",
+    "green": "#00FF00",
+    "blue": "#7777FF",
+    "indigo": "#8F00F8",
+    "violet": "#EE82EE",
+}
+STAR_COLOR_RANDOM = "random"
+STAR_COLOR_RAINBOW = "rainbow"
+DEFAULT_STAR_COLOR_OPTION = 2
+STAR_COLOR_OPTIONS = [
     schema.Option(
-        display = "White",
-        value = "#FFF",
+        display = "Random",
+        value = STAR_COLOR_RANDOM,
     ),
     schema.Option(
-        display = "Yellow",
-        value = "#FF0",
+        display = "Rainbow",
+        value = STAR_COLOR_RAINBOW,
+    ),
+    schema.Option(
+        display = "White",
+        value = "#FFFFFF",
     ),
     schema.Option(
         display = "Red",
-        value = "#F44",
-    ),
-    schema.Option(
-        display = "Blue",
-        value = "#77F",
-    ),
-    schema.Option(
-        display = "Green",
-        value = "#0F0",
+        value = RAINBOW_COLORS["red"],
     ),
     schema.Option(
         display = "Orange",
-        value = "#FFA500",
+        value = RAINBOW_COLORS["orange"],
+    ),
+    schema.Option(
+        display = "Yellow",
+        value = RAINBOW_COLORS["yellow"],
+    ),
+    schema.Option(
+        display = "Green",
+        value = RAINBOW_COLORS["green"],
+    ),
+    schema.Option(
+        display = "Blue",
+        value = RAINBOW_COLORS["blue"],
+    ),
+    schema.Option(
+        display = "Indigo",
+        value = RAINBOW_COLORS["indigo"],
+    ),
+    schema.Option(
+        display = "Violet",
+        value = RAINBOW_COLORS["violet"],
     ),
 ]
 DEFAULT_USE_CUSTOM_STAR_COLOR = False
@@ -133,8 +160,6 @@ SPEEDS = [
 ]
 
 def main(config):
-    stars = make_stars(config)
-
     star_color = get_star_color_config(config)
     if star_color == None:
         return render.Root(
@@ -143,9 +168,11 @@ def main(config):
             ),
         )
 
+    stars = make_stars(config, star_color)
+
     frames = []
     for i in range(FRAMES):
-        frames.append(render_frame(config, stars, star_color))
+        frames.append(render_frame(config, stars))
 
     return render.Root(
         delay = DELAY,
@@ -177,12 +204,15 @@ def random_speed(config):
     speed = float(config.get("star_speed", SPEEDS[DEFAULT_SPEED].value))
     return random.number(1, 8) / 4 * speed
 
-def make_stars(config):
+def make_stars(config, color):
     """
     Creates a list of stars. Each star is represented as a point on a circle with an angle, radius, and speed.
     Each frame, radius will increase by the speed value to simulate movement.
     """
     count = int(config.get("star_count", STAR_COUNTS[DEFAULT_STAR_COUNT].value))
+
+    if color == STAR_COLOR_RANDOM:
+        color = random_color()
 
     stars = []
     for i in range(count):
@@ -190,10 +220,11 @@ def make_stars(config):
             "angle": random_angle(),
             "radius": random_radius(),
             "speed": random_speed(config),
+            "color": color if color != STAR_COLOR_RAINBOW else random_color(),
         })
     return stars
 
-def render_frame(config, stars, star_color):
+def render_frame(config, stars):
     """Iterates over every star, moving each one then rendering a frame."""
     streak_length = float(config.get("star_tail_length", DEFAULT_TAIL_LENGTH))
 
@@ -205,7 +236,7 @@ def render_frame(config, stars, star_color):
         radius = star["radius"]
         x, y, ok = get_star_xy(radius, star["angle"])
         if ok:
-            color = star_color + get_alpha(radius)
+            color = star["color"] + get_alpha(radius)
             children.append(render_pixel(x, y, color))
 
         # Render trail
@@ -215,7 +246,7 @@ def render_frame(config, stars, star_color):
                 break
             x, y, ok = get_star_xy(tail_radius, star["angle"])
             if ok:
-                color = star_color + get_alpha(radius)
+                color = star["color"] + get_alpha(radius)
                 children.append(render_pixel(x, y, color))
 
         # Reset when star and trail is out of bounds
@@ -269,12 +300,17 @@ def get_star_color_config(config):
     """Gets either the chosen color or the custom color. Custom colors are validated, and all colors are sanitized."""
     if config.bool("use_custom_star_color", DEFAULT_USE_CUSTOM_STAR_COLOR):
         star_color = config.get("custom_star_color", DEFAULT_CUSTOM_STAR_COLOR)
-        if not valid_color(star_color):
+        if valid_color(star_color):
+            return sanitize_color(star_color)
+        else:
             return None
     else:
-        star_color = config.get("star_color", STAR_COLORS[DEFAULT_STAR_COLOR].value)
+        return config.get("star_color", STAR_COLOR_OPTIONS[DEFAULT_STAR_COLOR_OPTION].value)
 
-    return sanitize_color(star_color)
+def random_color():
+    """Returns a random color in STAR_COLORS"""
+    i = random.number(0, len(RAINBOW_COLORS) - 1)
+    return RAINBOW_COLORS.values()[i]
 
 def valid_color(color):
     """Validates hex color"""
@@ -314,8 +350,8 @@ def get_schema():
                 name = "Star Color",
                 desc = "Change the color of the stars",
                 icon = "palette",
-                default = STAR_COLORS[DEFAULT_STAR_COLOR].value,
-                options = STAR_COLORS,
+                default = STAR_COLOR_OPTIONS[DEFAULT_STAR_COLOR_OPTION].value,
+                options = STAR_COLOR_OPTIONS,
             ),
             schema.Toggle(
                 id = "use_custom_star_color",
