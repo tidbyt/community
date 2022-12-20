@@ -46,7 +46,7 @@ def main(config):
 
     # calculate start and end date if we are set to use range of days
     date_range_search = ""
-    if config.bool("day_range", True):
+    if config.bool("day_range", False):
         back_time = now - time.parse_duration("%dh" % (int(config.get("days_back", 1)) * 24))
         fwd_time = now + time.parse_duration("%dh" % (int(config.get("days_forward", 1)) * 24))
         date_range_search = "?dates=%s-%s" % (back_time.format("20060102"), (fwd_time.format("20060102")))
