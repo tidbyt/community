@@ -86,6 +86,10 @@ STAR_COLORS = [
         display = "Rainbow",
         value = ",".join(RAINBOW_COLORS.values()),
     ),
+    schema.Option(
+        display = "Christmas",
+        value = "%s,%s" % (RAINBOW_COLORS["red"], RAINBOW_COLORS["green"]),
+    ),
 ]
 DEFAULT_USE_CUSTOM_STAR_COLORS = False
 DEFAULT_CUSTOM_STAR_COLORS = ""
