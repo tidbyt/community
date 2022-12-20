@@ -14,7 +14,11 @@ Displayed:
     * Dutch Eredivisie
     * English Carabo Cup
     * English FA Cup
-    * English Premier League
+    * English League Championship
+    * English League One
+    * English League Two
+    * English National League
+    * English Premiere League
     * French Ligue 1
     * FIFA World Cup
     * German Bundesliga
