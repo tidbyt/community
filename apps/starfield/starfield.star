@@ -314,7 +314,7 @@ def random_color():
 
 def valid_color(color):
     """Validates hex color"""
-    match = re.findall("^#[0-9a-fA-F]{8}$|#[0-9a-fA-F]{6}$|#[0-9a-fA-F]{4}$|#[0-9a-fA-F]{3}$", color)
+    match = re.findall("^#([0-9a-fA-F]{8}|[0-9a-fA-F]{6}|[0-9a-fA-F]{4}|[0-9a-fA-F]{3})$", color)
     return len(match) == 1
 
 def sanitize_color(color):
