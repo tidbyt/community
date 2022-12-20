@@ -89,7 +89,7 @@ def main(config):
         showDateTime = config.bool("displayDateTime")
         pregameDisplay = config.get("pregameDisplay", "record")
         timeColor = config.get("displayTimeColor", "#FFF")
-        rotationSpeed = 15 / len(scores)
+        rotationSpeed = 35 / len(scores)
         location = config.get("location", DEFAULT_LOCATION)
         loc = json.decode(location)
         timezone = loc["timezone"]
