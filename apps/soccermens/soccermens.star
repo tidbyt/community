@@ -713,7 +713,7 @@ def get_schema():
                 id = "instancesCount",
                 name = "Total Instances of App",
                 desc = "Total Instance Count (# of times you have added this app to your Tidbyt).",
-                icon = "listOf",
+                icon = "list",
                 default = instancesCounts[0].value,
                 options = instancesCounts,
             ),
