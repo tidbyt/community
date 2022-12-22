@@ -4,6 +4,7 @@ Summary: Displays LOTR quotes
 Description: Displays random quotes from LOTR trilogy.
 Author: Jake Manske
 """
+
 load("render.star", "render")
 load("schema.star", "schema")
 load("cache.star", "cache")
@@ -23,14 +24,14 @@ LOTR_URL = "https://the-one-api.dev/v2"
 
 HTTP_OK = 200
 
-CACHE_TIMEOUT = 600 # ten minutes
+CACHE_TIMEOUT = 600  # ten minutes
 
 def main(config):
     char_id = config.get("character") or RANDOM
 
     # if character is set to random, choose one at random based on timestamp
     if char_id == RANDOM:
-        rand_char = int(time.now().nanosecond / 1000 ) % len(CHARACTER_LOOKUP)
+        rand_char = int(time.now().nanosecond / 1000) % len(CHARACTER_LOOKUP)
         char_id = CHARACTER_LOOKUP.keys()[rand_char]
 
     # see if there is quote info in the cache for that character
@@ -40,15 +41,15 @@ def main(config):
     if quote_info == None:
         api_key = secret.decrypt(ENCRYPTED_API_KEY)
         headers = {
-                "Content-Type": "application/json",
-                "Authorization": "Bearer {0}".format(api_key)
-            }
+            "Content-Type": "application/json",
+            "Authorization": "Bearer {0}".format(api_key),
+        }
         resp = http.get("https://the-one-api.dev/v2/character/{0}/quote".format(char_id), headers = headers)
 
         # check the HTTP response code
         # if we fail, send back "shall not pass"
         status_code = resp.status_code
-        if(status_code != HTTP_OK):
+        if (status_code != HTTP_OK):
             char_id = GANDALF_ID
             quote = SHALL_NOT_PASS_QUOTE.format(status_code, resp.json()["message"])
             movie = SHALL_NOT_PASS_MOVIE
@@ -56,23 +57,23 @@ def main(config):
             quotes = resp.json()["docs"]
 
             # get a "random" quote_id based on the current timestamp
-            quote_id = int(time.now().nanosecond / 1000 ) % len(quotes)
+            quote_id = int(time.now().nanosecond / 1000) % len(quotes)
 
             quote = quotes[quote_id].get("dialog")
-            
+
             # clean up the quote if necessary, the db is not perfect
             if not quote_has_punctuation(quote):
                 quote = quote + "."
-            
+
             # map it to the right movie
             movie = MOVIE_LOOKUP[quotes[quote_id].get("movie")]
 
         # save info to dict to serialize to cache if we were successful
-        quote_info = { "quote": quote, "movie": movie }
+        quote_info = {"quote": quote, "movie": movie}
 
         # cache the quote if we successfully got it from endpoint
         # if we didn't, we will want to just try again
-        if(status_code == HTTP_OK):
+        if (status_code == HTTP_OK):
             cache.set(char_id, json.encode(quote_info), ttl_seconds = CACHE_TIMEOUT)
 
         print("cache miss, remaining: " + str(resp.headers.get("X-Ratelimit-Remaining")))
@@ -97,13 +98,13 @@ def main(config):
                             content = quote_info.get("quote"),
                             font = "CG-pixel-3x5-mono",
                             linespacing = 1,
-                            width = 64
+                            width = 64,
                         ),
                         height = 16,
                         scroll_direction = "vertical",
                         offset_start = 16,
-                        align = "center"
-                    )
+                        align = "center",
+                    ),
                 ),
                 render.Row(
                     main_align = "start",
@@ -117,20 +118,20 @@ def main(config):
                                 render.Text(
                                     content = character_to_use.Name,
                                     font = character_to_use.Font,
-                                    color = character_to_use.Color
+                                    color = character_to_use.Color,
                                 ),
                                 render.WrappedText(
                                     content = quote_info.get("movie"),
                                     font = MOVIE_FONT,
                                     color = MOVIE_COLOR,
-                                    linespacing = 1
+                                    linespacing = 1,
                                 ),
-                            ]
-                        )
-                    ]
-                )
-            ]
-        )
+                            ],
+                        ),
+                    ],
+                ),
+            ],
+        ),
     )
 
 def quote_has_punctuation(quote):
@@ -199,31 +200,30 @@ iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAABGdBTUEAALGPC/xhBQAAACBjSFJNAAB6
 """)
 
 CHARACTER_LOOKUP = {
-    "5cd99d4bde30eff6ebccfc07" : struct_Char("Arwen", "5cd99d4bde30eff6ebccfc07", MOVIE_FONT, "#9d9ea0", ARWEN_IMG),
-    "5cd99d4bde30eff6ebccfbe6" : struct_Char("Aragorn", "5cd99d4bde30eff6ebccfbe6", MOVIE_FONT, "#d0ad39", ARAGORN_IMG),
-    "5cd99d4bde30eff6ebccfc38" : struct_Char("Bilbo", "5cd99d4bde30eff6ebccfc38", MOVIE_FONT, "#703a07", BILBO_IMG),
-    "5cd99d4bde30eff6ebccfc57" : struct_Char("Boromir", "5cd99d4bde30eff6ebccfc57", MOVIE_FONT, "#d0ad39", BOROMIR_IMG),
-    "5cd99d4bde30eff6ebccfcc8" : struct_Char("Elrond", "5cd99d4bde30eff6ebccfcc8", MOVIE_FONT, "#eadede", ELROND_IMG),
-    "5cdbdecb6dc0baeae48cfa5a" : struct_Char("Eomer", "5cdbdecb6dc0baeae48cfa5a", MOVIE_FONT, "#b9941a", EOMER_IMG),
-    "5cd99d4bde30eff6ebccfc15" : struct_Char("Frodo", "5cd99d4bde30eff6ebccfc15", MOVIE_FONT, "#703a07", FRODO_IMG),
-    "5cd99d4bde30eff6ebccfd06" : struct_Char("Galadriel", "5cd99d4bde30eff6ebccfd06", MOVIE_FONT, "#eadede", GALADIREL_IMG),
-    "5cd99d4bde30eff6ebccfea0" : struct_Char("Gandalf", "5cd99d4bde30eff6ebccfea0", MOVIE_FONT, "#807f7f", GANDALF_IMG),
-    "5cd99d4bde30eff6ebccfd23" : struct_Char("Gimli", "5cd99d4bde30eff6ebccfd23", MOVIE_FONT, "#9c2200", GIMLI_IMG),
-    "5cd99d4bde30eff6ebccfe9e" : struct_Char("Gollum", "5cd99d4bde30eff6ebccfe9e", MOVIE_FONT, "#b2a569", GOLLUM_IMG),
-    "5cd99d4bde30eff6ebccfd81" : struct_Char("Legolas", "5cd99d4bde30eff6ebccfd81", MOVIE_FONT, "#21471c", LEGOLAS_IMG),
-    "5cd99d4bde30eff6ebccfd0d" : struct_Char("Samwise", "5cd99d4bde30eff6ebccfd0d", MOVIE_FONT, "#ffd1a9", SAMWISE_IMG),
-    "5cd99d4bde30eff6ebccfea4" : struct_Char("Saruman", "5cd99d4bde30eff6ebccfea4", MOVIE_FONT, "#FFFFFF", SARUMAN_IMG),
-    "5cd99d4bde30eff6ebccfea5" : struct_Char("Sauron", "5cd99d4bde30eff6ebccfea5", MOVIE_FONT, "#c90000", SAURON_IMG)
+    "5cd99d4bde30eff6ebccfc07": struct_Char("Arwen", "5cd99d4bde30eff6ebccfc07", MOVIE_FONT, "#9d9ea0", ARWEN_IMG),
+    "5cd99d4bde30eff6ebccfbe6": struct_Char("Aragorn", "5cd99d4bde30eff6ebccfbe6", MOVIE_FONT, "#d0ad39", ARAGORN_IMG),
+    "5cd99d4bde30eff6ebccfc38": struct_Char("Bilbo", "5cd99d4bde30eff6ebccfc38", MOVIE_FONT, "#703a07", BILBO_IMG),
+    "5cd99d4bde30eff6ebccfc57": struct_Char("Boromir", "5cd99d4bde30eff6ebccfc57", MOVIE_FONT, "#d0ad39", BOROMIR_IMG),
+    "5cd99d4bde30eff6ebccfcc8": struct_Char("Elrond", "5cd99d4bde30eff6ebccfcc8", MOVIE_FONT, "#eadede", ELROND_IMG),
+    "5cdbdecb6dc0baeae48cfa5a": struct_Char("Eomer", "5cdbdecb6dc0baeae48cfa5a", MOVIE_FONT, "#b9941a", EOMER_IMG),
+    "5cd99d4bde30eff6ebccfc15": struct_Char("Frodo", "5cd99d4bde30eff6ebccfc15", MOVIE_FONT, "#703a07", FRODO_IMG),
+    "5cd99d4bde30eff6ebccfd06": struct_Char("Galadriel", "5cd99d4bde30eff6ebccfd06", MOVIE_FONT, "#eadede", GALADIREL_IMG),
+    "5cd99d4bde30eff6ebccfea0": struct_Char("Gandalf", "5cd99d4bde30eff6ebccfea0", MOVIE_FONT, "#807f7f", GANDALF_IMG),
+    "5cd99d4bde30eff6ebccfd23": struct_Char("Gimli", "5cd99d4bde30eff6ebccfd23", MOVIE_FONT, "#9c2200", GIMLI_IMG),
+    "5cd99d4bde30eff6ebccfe9e": struct_Char("Gollum", "5cd99d4bde30eff6ebccfe9e", MOVIE_FONT, "#b2a569", GOLLUM_IMG),
+    "5cd99d4bde30eff6ebccfd81": struct_Char("Legolas", "5cd99d4bde30eff6ebccfd81", MOVIE_FONT, "#21471c", LEGOLAS_IMG),
+    "5cd99d4bde30eff6ebccfd0d": struct_Char("Samwise", "5cd99d4bde30eff6ebccfd0d", MOVIE_FONT, "#ffd1a9", SAMWISE_IMG),
+    "5cd99d4bde30eff6ebccfea4": struct_Char("Saruman", "5cd99d4bde30eff6ebccfea4", MOVIE_FONT, "#FFFFFF", SARUMAN_IMG),
+    "5cd99d4bde30eff6ebccfea5": struct_Char("Sauron", "5cd99d4bde30eff6ebccfea5", MOVIE_FONT, "#c90000", SAURON_IMG),
 }
 
 MOVIE_LOOKUP = {
-    "5cd95395de30eff6ebccde5b" : "The Two Towers",
-    "5cd95395de30eff6ebccde5c" : "Fellowship of the Ring",
-    "5cd95395de30eff6ebccde5d" : "The Return of the King"
+    "5cd95395de30eff6ebccde5b": "The Two Towers",
+    "5cd95395de30eff6ebccde5c": "Fellowship of the Ring",
+    "5cd95395de30eff6ebccde5d": "The Return of the King",
 }
 
 RANDOM = "Random"
-
 
 def get_schema():
     options = []
@@ -231,15 +231,16 @@ def get_schema():
         options.append(
             schema.Option(
                 display = character.Name,
-                value = character.Id
-            )
+                value = character.Id,
+            ),
         )
+
     # add a "random" option
     options.append(
         schema.Option(
             display = RANDOM,
-            value = RANDOM
-        )
+            value = RANDOM,
+        ),
     )
     return schema.Schema(
         version = "1",
@@ -249,8 +250,8 @@ def get_schema():
                 name = "Character",
                 desc = "The character to display a quote for.",
                 icon = "messageQuote",
-                default = RANDOM, # random default
+                default = RANDOM,  # random default
                 options = options,
-            )
+            ),
         ],
     )
