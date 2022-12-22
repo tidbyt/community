@@ -249,7 +249,7 @@ def get_schema():
                 id = "character",
                 name = "Character",
                 desc = "The character to display a quote for.",
-                icon = "quotes",
+                icon = "quoteRight",
                 default = RANDOM,  # random default
                 options = options,
             ),
