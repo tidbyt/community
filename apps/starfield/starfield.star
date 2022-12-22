@@ -90,6 +90,14 @@ STAR_COLORS = [
         display = "Christmas",
         value = "%s,%s" % (RAINBOW_COLORS["red"], RAINBOW_COLORS["green"]),
     ),
+    schema.Option(
+        display = "Halloween",
+        value = "%s,%s,%s" % (RAINBOW_COLORS["orange"], RAINBOW_COLORS["orange"], RAINBOW_COLORS["indigo"]),
+    ),
+    schema.Option(
+        display = "Fall",
+        value = "%s,%s,%s" % (RAINBOW_COLORS["red"], RAINBOW_COLORS["orange"], RAINBOW_COLORS["yellow"]),
+    ),
 ]
 DEFAULT_USE_CUSTOM_STAR_COLORS = False
 DEFAULT_CUSTOM_STAR_COLORS = ""
