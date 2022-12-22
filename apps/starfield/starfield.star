@@ -44,7 +44,7 @@ RAINBOW_COLORS = {
     "violet": "#EE82EE",
 }
 STAR_COLOR_RANDOM = "random"
-DEFAULT_STAR_COLOR = 2
+DEFAULT_STAR_COLOR = 0
 STAR_COLORS = [
     schema.Option(
         display = "White",
