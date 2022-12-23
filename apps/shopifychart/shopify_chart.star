@@ -38,6 +38,7 @@ def main(config):
     location = config.get("location") or None
     timezone = "America/New_York"
     if location:
+        location = json.decode(location)
         timezone = location.get("timezone") or "America/New_York"
     current_time = time.now().in_location(timezone)
     start_of_day = time.time(year = current_time.year, month = current_time.month, day = current_time.day, location = timezone)
@@ -66,6 +67,8 @@ def main(config):
         return error_view("API Rate Limit")
     elif orders == ERROR_UNKNOWN:
         return error_view("Unknown Error")
+    elif len(orders) == 0:
+        return error_view("No Orders")
 
     metric = config.get("metric") or "revenue"
     metric_alignment = config.get("metric_alignment") or "center"
@@ -74,7 +77,7 @@ def main(config):
     show_chart = config.bool("show_chart")
     fill_chart = config.bool("fill_chart")
     metric_font = config.get("metric_font") or "5x8"
-    excluded_skus = config.get("excluded_skus").split(",") if config.get("excluded_skus") else None
+    excluded_skus = config.get("excluded_skus").split(",") if config.get("excluded_skus") else []
     content = "-"
     plot_data = None
     if metric == "revenue":
@@ -228,7 +231,7 @@ def get_schema():
                 id = "location",
                 name = "Store Location",
                 desc = "The location timezone to use to calculate daily metrics.",
-                icon = "place",
+                icon = "locationDot",
             ),
             schema.Dropdown(
                 id = "metric",
@@ -414,9 +417,9 @@ def should_order_be_excluded(order, excluded_skus):
 def should_line_item_be_excluded(line_item, excluded_skus):
     if line_item["gift_card"]:
         return True
-
-    if excluded_skus:
-        sku = line_item["sku"]
+    excluded_skus = [es.lower().strip() for es in excluded_skus]
+    sku = line_item["sku"].lower() if line_item.get("sku") else None
+    if excluded_skus and sku:
         for ex_sku in excluded_skus:
             if ex_sku in sku:
                 # print("{} is excluded".format(sku))
@@ -472,6 +475,9 @@ def get_orders(store_name, api_token, start_time, since_id):
     if is_response_error(order_count):
         return order_count
 
+    if order_count == 0:
+        return []
+
     total_pages = int(order_count / 250) + 1
     since_id = None
     for current_page in range(total_pages):
@@ -480,10 +486,10 @@ def get_orders(store_name, api_token, start_time, since_id):
             return chunk
         else:
             orders.extend(chunk)
-            since_id = str(int(chunk[-1]["id"]))
-            print("Setting since_id {}".format(since_id))
             if len(chunk) == 0:
                 break
+            since_id = str(int(chunk[-1]["id"]))
+            print("Setting since_id {}".format(since_id))
 
     orders = [o for o in orders if o["financial_status"] not in ["refunded", "voided"]]
     print("Fetched {} orders".format(len(orders)))

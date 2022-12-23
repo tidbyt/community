@@ -306,7 +306,7 @@ def get_schema():
                 id = "location",
                 name = "Location",
                 desc = "Location required to find pollen count in your area.",
-                icon = "map-location",
+                icon = "mapLocation",
             ),
         ],
     )

@@ -62,7 +62,7 @@ def main():
             children = [
                 render.Text("JokeAPI", color = "#6600cc", font = font),
                 render.Marquee(
-                    height = 32,
+                    height = 24,
                     scroll_direction = "vertical",
                     child = render.Column(
                         main_align = "space_between",
