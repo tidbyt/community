@@ -12,7 +12,7 @@ load("time.star", "time")
 load("cache.star", "cache")
 load("schema.star", "schema")
 
-is_debug = False
+is_debug = True
 
 PRECIOUS_METAL_NAMES = {
     "gold": "Gold",
@@ -45,23 +45,26 @@ def main(config):
     # So we will pull down the price history for the PM and look for the first quote after 5PM and use that as our closing price
     # We wont grab the new closing price until midnight Eastern time (why we always go back a day) to give time for people to see the results against todays close
     # at midnight we will start again
-    # This means our graph will be for an X axis of 31 hours. When it starts over at midnight it will start with 7 hours of data
+    # This means our graph will be for an X axis of 30 hours. When it starts over at midnight it will start with 7 hours of data
 
     HistoricalPrices = {}
     is_cached = True
 
     ClosingPrice = 0
-    closing_price_twenty = 0
     CurrentTime = time.now().in_location("America/New_York")
 
     Yesterday = CurrentTime - time.parse_duration("24h")
 
     ClosingTime = time.time(year = Yesterday.year, month = Yesterday.month, day = Yesterday.day, hour = closing_hour, minute = 0, second = 0, location = "America/New_York")
+    NextSessionStartTime = time.time(year = Yesterday.year, month = Yesterday.month, day = Yesterday.day, hour = (closing_hour + 1), minute = 0, second = 0, location = "America/New_York")
 
     if (is_debug == True):
-        print("Using " + ClosingTime.format("January 2, 15:04:05, 2006") + " As Precious Metal closing time")
+        print("Using " + ClosingTime.format("January 2, 15:04:05, 2006 TZ Z07:00") + " As Precious Metal closing time")
+        print("Using " + NextSessionStartTime.format("January 2, 15:04:05, 2006 TZ Z07:00") + " As Precious Metal session start time")
 
-    ClosingTimeMili = int(ClosingTime.unix_nano) / (1000000)
+    ClosingTimeMili = int(ClosingTime.unix_nano) / 1000000
+    NextSessionStartMili = int(NextSessionStartTime.unix_nano) / 1000000
+    sessionstart_price_twenty = NextSessionStartMili / 1000 / 20 / 60
 
     if (is_debug == True):
         print("%d" % (ClosingTimeMili))
@@ -91,11 +94,9 @@ def main(config):
         last_matched_time_delta = -1
 
         for json_entry in httpresponse.json():
-            #        if (int(json_entry["timestamp"]) < ClosingTimeMili):
-            #            # This price is from before closing time, so we just don't care about it at all
-            #            continue
             # Lets put this value in the historical prices dictionary, but lets do it in 20 minute chunks and not miliseconds to reduce entries
-            # Afterall the tidbit only has 64 pixels wide
+            # We may have more than one match in 20 minutes, but this isn't perfect. One price over a 20 minute period is enough.
+            # Afterall the tidbit only has 64 pixels width
             TwentyMinuteTimestamp = int(int(json_entry["timestamp"]) / 1000 / (20 * 60))
             HistoricalPrices[TwentyMinuteTimestamp] = float(json_entry["price"])
 
@@ -103,7 +104,6 @@ def main(config):
                 # We should ignore this value, our current closing price is closer to 5PM
                 continue
             ClosingPrice = float(json_entry["price"])
-            closing_price_twenty = int(int(json_entry["timestamp"]) / 1000 / (20 * 60))
             last_matched_time_delta = abs(int(json_entry["timestamp"]) - ClosingTimeMili)
 
         cache.set(closing_cache_key, "%f" % (ClosingPrice), ttl_seconds = (60 * 60))  #We will stretch this one since its really graphstart that handles state of cache
@@ -112,7 +112,7 @@ def main(config):
         ClosingPrice = float(closing_cache)
 
     if (is_debug == True):
-        print("Closing Price %f at %d" % (ClosingPrice, (closing_price_twenty * 20 * 60)))
+        print("Closing Price %f" % (ClosingPrice))
 
     realtime_price = 0
 
@@ -162,8 +162,8 @@ def main(config):
     # Now lets build the plot array if we arent cached
     if (is_cached == False):
         for timekey in sorted(HistoricalPrices):
-            if (int(timekey) < closing_price_twenty):
-                # This entry is from before our established closing price, not part of graph
+            if (int(timekey) < sessionstart_price_twenty):
+                # This entry is from before our established session start time of 6PM, not part of graph
                 continue
             if ((int(timekey) != last_timekey + 1) and last_timekey != 0):
                 for x in range(last_timekey + 1, int(timekey)):
@@ -183,7 +183,7 @@ def main(config):
             cache.set(PRECIOUS_METAL + ":" + "%d" % (timekey), "%f" % (PercentageChange_hist), 172800)
             if (mingraph == 0):
                 mingraph = int(timekey)
-                maxgraph = mingraph + (31 * 3)  # 20 minute intervales means 3 per hour
+                maxgraph = mingraph + (30 * 3)  # 20 minute intervals means 3 per hour, a total of 30 hours between 6PM and Midnight the next night
 
         cache.set(PRECIOUS_METAL + ":GRAPHSTART", "%d" % (mingraph), (20 * 60))
         cache.set(PRECIOUS_METAL + ":GRAPHEND", "%d" % (last_timekey), (20 * 60))
@@ -194,18 +194,19 @@ def main(config):
     else:
         mingraph = int(graphstart_cache)
         graphend = int(graphend_cache)
-        maxgraph = mingraph + (31 * 3)
+        maxgraph = mingraph + (30 * 3)
 
         for timekey in range(mingraph, graphend + 1):
             percent_cache = cache.get(PRECIOUS_METAL + ":" + "%d" % (timekey))
-        if (percent_cache == None):
-            cache.set(PRECIOUS_METAL + ":GRAPHSTART", "")
-            cache.set(PRECIOUS_METAL + ":GRAPHEND", "")
-            fail("Tried to fetch cache key " + PRECIOUS_METAL + ":" + "%d" % (timekey) + "but failed, invalidating cache")
 
-        if (is_debug == True):
-            print("%d %f" % (timekey, float(cache.get(PRECIOUS_METAL + ":" + "%d" % (timekey)))))
-        plot_array.append((int(timekey), float(cache.get(PRECIOUS_METAL + ":" + "%d" % (timekey)))))
+            if (percent_cache == None):
+                cache.set(PRECIOUS_METAL + ":GRAPHSTART", "")
+                cache.set(PRECIOUS_METAL + ":GRAPHEND", "")
+                fail("Tried to fetch cache key " + PRECIOUS_METAL + ":" + "%d" % (timekey) + "but failed, invalidating cache")
+
+            if (is_debug == True):
+                print("%d %f" % (timekey, float(cache.get(PRECIOUS_METAL + ":" + "%d" % (timekey)))))
+            plot_array.append((int(timekey), float(cache.get(PRECIOUS_METAL + ":" + "%d" % (timekey)))))
 
     return render.Root(
         child = render.Column(
