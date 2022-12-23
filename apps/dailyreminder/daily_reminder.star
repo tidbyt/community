@@ -1,8 +1,8 @@
 """
 Applet: Daily Reminder
 Summary: A daily reminder app
-Description: Set a reminder for each day of week.
-Author: sepowitz
+Description: Set a reminder for each day of the week
+Author: Sebastian Odell
 """
 
 load("render.star", "render")
@@ -23,107 +23,109 @@ DEFAULT_LOCATION = """
 """
 
 def main(config):
-    location = config.get("location", DEFAULT_LOCATION)
-    loc = json.decode(location)
-    timezone = loc["timezone"]
+  location = config.get("location", DEFAULT_LOCATION)
+  loc = json.decode(location)
+  timezone = loc["timezone"]
 
-    now = time.now().in_location(timezone)
-    today_in_words = now.format("Monday").lower()
-    date_dm = now.format("01/02")
+  now = time.now().in_location(timezone)
+  today_in_words = now.format("Monday").lower()
+  date_dm = now.format("01/02")
 
-    default_reminder = config.get("default", FALLBACK_REMINDER)
-    todays_reminder = config.get(today_in_words, default_reminder)
+  default_reminder = config.get("default", FALLBACK_REMINDER)
+  todays_reminder = config.get(today_in_words, default_reminder)
 
-    reminder = todays_reminder or default_reminder or FALLBACK_REMINDER
+  reminder = todays_reminder or default_reminder or FALLBACK_REMINDER
 
-    return render.Root(
-        render.Column(
+  return render.Root(
+    render.Column(
+      children = [
+        render.Box(
+          color='#FFF',
+          height = 9,
+          child = render.Row(
             children = [
-                render.Box(
-                    color = "#FFF",
-                    height = 9,
-                    child = render.Row(
-                        children = [
-                            render.Text(
-                                "{}".format(today_in_words),
-                                color = "#000",
-                            ),
-                        ],
-                    ),
-                ),
-                render.Box(
-                    child = render.Row(
-                        children = [
-                            render.Marquee(
-                                width = 64,
-                                child = render.Text(
-                                    content = reminder,
-                                ),
-                            ),
-                        ],
-                    ),
-                ),
-            ],
+              render.Text(
+                "{}".format(today_in_words), 
+                color = "#000"
+              )
+            ]
+          )
         ),
+        render.Box(
+          child = render.Row(
+            children = [
+              render.Marquee(
+                width = 64,
+                child = render.Text(
+                  content = reminder,
+                )
+              )
+            ]
+          )
+        )
+      ]
     )
+  )
+description = "Remind me to..."
+calendar_icon = "calendar"
 
 def get_schema():
     return schema.Schema(
         version = "1",
         fields = [
-            schema.Location(
-                id = "location",
-                name = "Location",
-                desc = "Location for timezone",
-                icon = "locationDot",
-            ),
-            schema.Text(
-                id = "default",
-                name = "Default Reminder",
-                desc = "Show me when no reminder has been set",
-                icon = "calendar",
-            ),
-            schema.Text(
-                id = "monday",
-                name = "Monday",
-                desc = "Reminder me to...",
-                icon = "calendar",
-            ),
-            schema.Text(
-                id = "tuesday",
-                name = "Tuesday",
-                desc = "Reminder me to...",
-                icon = "calendar",
-            ),
-            schema.Text(
-                id = "wednesday",
-                name = "Wednesday",
-                desc = "Reminder me to...",
-                icon = "calendar",
-            ),
-            schema.Text(
-                id = "thursday",
-                name = "Thursday",
-                desc = "Reminder me to...",
-                icon = "calendar",
-            ),
-            schema.Text(
-                id = "friday",
-                name = "Friday",
-                desc = "Reminder me to...",
-                icon = "calendar",
-            ),
-            schema.Text(
-                id = "saturday",
-                name = "Saturday",
-                desc = "Reminder me to...",
-                icon = "calendar",
-            ),
-            schema.Text(
-                id = "sunday",
-                name = "Sunday",
-                desc = "Reminder me to...",
-                icon = "calendar",
-            ),
+          schema.Location(
+            id = "location",
+            name = "Location",
+            desc = "Location for timezone",
+            icon = "locationDot",
+          ),
+          schema.Text(
+              id = "default",
+              name = "Default Reminder",
+              desc = "Show me when no reminder has been set",
+              icon = calendar_icon,
+          ),
+          schema.Text(
+              id = "monday",
+              name = "Monday",
+              desc = description,
+              icon = calendar_icon,
+          ),
+          schema.Text(
+              id = "tuesday",
+              name = "Tuesday",
+              desc = description,
+              icon = calendar_icon,
+          ),
+          schema.Text(
+              id = "wednesday",
+              name = "Wednesday",
+              desc = description,
+              icon = calendar_icon,
+          ),
+          schema.Text(
+              id = "thursday",
+              name = "Thursday",
+              desc = description,
+              icon = calendar_icon,
+          ),
+          schema.Text(
+              id = "friday",
+              name = "Friday",
+              desc = description,
+              icon = calendar_icon,
+          ),
+          schema.Text(
+              id = "saturday",
+              name = "Saturday",
+              desc = description,
+              icon = calendar_icon,
+          ),
+          schema.Text(
+              id = "sunday",
+              name = "Sunday",
+              desc = description,
+              icon = calendar_icon,
+          ),
         ],
     )
