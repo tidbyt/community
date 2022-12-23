@@ -107,6 +107,7 @@ import (
 	"tidbyt.dev/community/apps/mlbwildcardrace"
 	"tidbyt.dev/community/apps/mlsscores"
 	"tidbyt.dev/community/apps/mnlightrail"
+	"tidbyt.dev/community/apps/mnmetrotransit"
 	"tidbyt.dev/community/apps/moonphase"
 	"tidbyt.dev/community/apps/moretransit"
 	"tidbyt.dev/community/apps/moviequotes"
@@ -345,6 +346,7 @@ func GetManifests() []manifest.Manifest {
 		mlbwildcardrace.New(),
 		mlsscores.New(),
 		mnlightrail.New(),
+		mnmetrotransit.New(),
 		moonphase.New(),
 		moretransit.New(),
 		moviequotes.New(),
