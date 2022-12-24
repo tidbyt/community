@@ -125,7 +125,7 @@ def main(config):
     frame_final = render.Column(
         main_align = "space_between",
         children = [
-            render.Marquee(header_all, width = 64),
+            render.Marquee(header_all, width = 64, offset_start = 64, offset_end = 64),
             line1,  #watchers, forks, stargazers
             line2,  #issues/pull requests
             line3,  #last commit and version
