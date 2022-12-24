@@ -128,7 +128,7 @@ def main(config):
             render.Marquee(header_all, width = 64, offset_start = 64, offset_end = 64),
             line1,  #watchers, forks, stargazers
             line2,  #issues/pull requests
-            line3,  #last commit and version
+            line3,  #latest commit and version
         ],
     )
 
@@ -351,7 +351,7 @@ def latest_commit(data):
             time_info.append(render.Padding(render.Text(content = x, height = 9, offset = 1, font = FONT), pad = (shift, 0, 0, 0)))
 
         final_frame_vec = [
-            render.Text("Last", height = 9, offset = 1, font = FONT),
+            render.Text("Latest", height = 9, offset = 1, font = FONT),
             render.Padding(child = render.Text("commit:", height = 9, offset = 1, font = FONT), pad = (2, 0, 0, 0)),
             #render.Padding(child = render.Text(oid_short, height = 9, offset = 1, font = FONT), pad = (2, 0, 0, 0)),
             ######
