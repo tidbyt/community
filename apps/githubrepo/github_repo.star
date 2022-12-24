@@ -203,7 +203,7 @@ def get_repository(config):
                         target {
                             ... on Commit {
                             id
-                            oid
+                            abbreviatedOid
                             messageHeadline
                             committedDate
                             statusCheckRollup {
@@ -335,7 +335,7 @@ def latest_commit(data):
     if commit_data == None:
         final_text = render.Text("Cannot get latest commit for specified branch!!!")
     else:
-        oid_short = commit_data["target"]["oid"][0:7]  #shortened commit id
+        oid_short = commit_data["target"]["abbreviatedOid"]  #shortened commit id
 
         #get status id icon
         commit_status = commit_data["target"]["statusCheckRollup"]["state"].lower()
