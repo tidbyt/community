@@ -1,7 +1,7 @@
 """
 Applet: Please Stand By
-Summary: Displays Please Stand By message
-Description: Displays Please Stand By message
+Summary: Displays Please Stand By
+Description: Displays Please Stand By message.
 Author: Ethan Fuerst (@ethanfuerst)
 """
 

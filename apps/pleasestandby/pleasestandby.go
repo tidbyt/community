@@ -16,10 +16,10 @@ func New() manifest.Manifest {
 		ID:          "please-stand-by",
 		Name:        "Please Stand By",
 		Author:      "Ethan Fuerst (@ethanfuerst)",
-		Summary:     "Displays Please Stand By message",
-		Desc:        "Displays Please Stand By message",
+		Summary:     "Displays Please Stand By",
+		Desc:        "Displays Please Stand By message.",
 		FileName:    "please_stand_by.star",
 		PackageName: "pleasestandby",
-		Source:      source,
+		Source:  source,
 	}
 }
