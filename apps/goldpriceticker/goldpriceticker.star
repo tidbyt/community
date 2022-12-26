@@ -191,7 +191,7 @@ def main(config):
             print(PRECIOUS_METAL + ":GRAPHSTART=" + "%d" % (mingraph))
             print(PRECIOUS_METAL + ":GRAPHEND=" + "%d" % (last_timekey))
 
-    else:
+    elif (int(graphstart_cache) != 0):  #If graphstart_cache is 0, market is probably closed
         mingraph = int(graphstart_cache)
         graphend = int(graphend_cache)
         maxgraph = mingraph + (30 * 3)
@@ -207,6 +207,25 @@ def main(config):
             if (is_debug == True):
                 print("%d %f" % (timekey, float(cache.get(PRECIOUS_METAL + ":" + "%d" % (timekey)))))
             plot_array.append((int(timekey), float(cache.get(PRECIOUS_METAL + ":" + "%d" % (timekey)))))
+
+    PLOT_SECTION = ""
+
+    # When the market is closed, we wont have anything to graph so lets put a single set of zeroes in the graph
+    if (mingraph == 0):
+        PLOT_SECTION = render.Text(
+            content = "Market Closed",
+            color = (white_color),
+        )
+    else:
+        PLOT_SECTION = render.Plot(
+            data = plot_array,
+            width = 64,
+            height = 20,
+            x_lim = (mingraph, maxgraph),
+            color = green_color_graph,
+            color_inverted = red_color_graph,
+            fill = True,
+        )
 
     return render.Root(
         child = render.Column(
@@ -252,15 +271,8 @@ def main(config):
                         ],
                     ),
                 ),
-                render.Plot(
-                    data = plot_array,
-                    width = 64,
-                    height = 20,
-                    x_lim = (mingraph, maxgraph),
-                    color = green_color_graph,
-                    color_inverted = red_color_graph,
-                    fill = True,
-                ),
+                PLOT_SECTION,
+                # ),
             ],
         ),
     )
