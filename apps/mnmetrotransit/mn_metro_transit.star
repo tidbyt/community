@@ -2,7 +2,7 @@
 Applet: MN Metro Transit
 Summary: Train, BRT, ABRT, and Bus Departure Times
 Description: Shows Transit Departure Times from Selected Stop.
-Authors: Alex Miller & Jonathan Wescott
+Author: Alex Miller & Jonathan Wescott
 """
 
 load("render.star", "render")
