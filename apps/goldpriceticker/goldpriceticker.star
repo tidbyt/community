@@ -41,7 +41,7 @@ def main(config):
     if (config.str("metal") == "gold" or config.str("metal") == "silver" or config.str("metal") == "platinum" or config.str("metal") == "palladium"):
         PRECIOUS_METAL = config.str("metal")
 
-    # Precious metal markets are open almost 24x7, so its hard to determine what a closing price is. However according to Kitco, its 5PM
+    # Precious metal markets are open almost 24x5, so its hard to determine what a closing price is. However according to Kitco, its 5PM
     # So we will pull down the price history for the PM and look for the first quote after 5PM and use that as our closing price
     # We wont grab the new closing price until midnight Eastern time (why we always go back a day) to give time for people to see the results against todays close
     # at midnight we will start again
