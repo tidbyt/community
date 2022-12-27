@@ -24,12 +24,15 @@ def main(config):
     json_image = ""
     data = ""
     lb_data = ""
+
     # set vars to schema input
     riot_name = config.str("riot_name", DEFAULT_RIOT_NAME)
     riot_tag = config.str("riot_tag", DEFAULT_RIOT_TAG)
+
     # define custom riot id api link to ref user's stats
     val_tag_api_link = "https://api.henrikdev.xyz/valorant/v2/mmr/na/" + riot_name + "/" + riot_tag
     provided_val_tag_name = riot_name + "#" + riot_tag
+
     #future plan!
     #allow for riot#id input instead of two field
     #turn riot_nameTag into Name and Tag
@@ -44,26 +47,34 @@ def main(config):
         val_tag_api_link = "https://api.henrikdev.xyz/valorant/v2/mmr/na/" + lb_data1
         print("val_tag_api_link is: " + val_tag_api_link)
         print("checked lb, api link set as: " + val_tag_api_link)
+
     # call get api data function (check if have cache or make fresh api call) w/ ttl of 300 to not rate limit api
     user_stat_data = getAPIDataCacheOrHTTP(val_tag_api_link, data, ttl_seconds = 300)
+
     # encode json data for parsing later
     user_stat_data = json.encode(user_stat_data)
+
     #call user stats function passing in API JSON data and provided_val_tag_name
     if user_stat_data == None:
         print("yo u aint got NO data my boy das not good")
         # draft fail render screen here
         # it wont reach this point as if it has no data it will either 404/error from api HTTP req OR it will default to #1 leaderboard spot
+
     else:
         print("You have data, proceeding")
+
         # set data variables from cached/parsed json
         rank = json.decode(user_stat_data)["data"]["current_data"]["currenttierpatched"]
         json_image = json.decode(user_stat_data)["data"]["current_data"]["images"]["small"]
+
         # exception case if rank is set to none set text/image to unranked so it can still pass data
         if rank == None:
             rank = "Unranked"
             json_image = "https://trackercdn.com/cdn/tracker.gg/valorant/icons/tiersv2/0.png"
+
         # get base64 image from json png url
         rank_image = getImage(json_image)
+
     # render data
     print(provided_val_tag_name + ", " + rank)
     return renderStats(rank, rank_image, provided_val_tag_name)
