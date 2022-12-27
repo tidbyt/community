@@ -1,6 +1,6 @@
 """
 Applet: MN Metro Transit
-Summary: Train, BRT, ABRT, and Bus Departure Times
+Summary: Transit Departure Times
 Description: Shows Transit Departure Times from Selected Stop.
 Author: Alex Miller & Jonathan Wescott
 """
@@ -192,8 +192,8 @@ def get_schema():
             schema.Text(
                 id = "stop_code",
                 name = "Stop ID",
-                desc = "Light Rail Station's Stop ID from (https://www.metrotransit.org/stops-stations)",
-                icon = "train",
+                desc = "Station's Stop ID from (https://www.metrotransit.org/stops-stations)",
+                icon = "trainTram",
             ),
         ],
     )
