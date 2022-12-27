@@ -12,6 +12,11 @@ load("cache.star", "cache")
 load("encoding/json.star", "json")
 load("re.star", "re")
 
+# DEFAULTS
+DEFAULT_RIOT_NAME = "Dante"
+
+DEFAULT_RIOT_TAG = "aim"
+
 def main(config):
     #set vars
     rank = ""
@@ -21,11 +26,11 @@ def main(config):
     lb_data = ""
 
     # set vars to schema input
-    riot_name = config.str("riot_name")
-    riot_tag = config.str("riot_tag")
+    riot_name = config.str("riot_name", DEFAULT_RIOT_NAME)
+    riot_tag = config.str("riot_tag", DEFAULT_RIOT_TAG)
 
     # define custom riot id api link to ref user's stats
-    val_tag_api_link = "https://api.henrikdev.xyz/valorant/v2/mmr/na/" + config.str("riot_name") + "/" + config.str("riot_tag")
+    val_tag_api_link = "https://api.henrikdev.xyz/valorant/v2/mmr/na/" + riot_name + "/" + riot_tag
 
     provided_val_tag_name = riot_name + "#" + riot_tag
 
