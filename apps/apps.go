@@ -222,6 +222,7 @@ import (
 	"tidbyt.dev/community/apps/unsplash"
 	"tidbyt.dev/community/apps/usgsearthquakes"
 	"tidbyt.dev/community/apps/usyieldcurve"
+	"tidbyt.dev/community/apps/valorantstats"
 	"tidbyt.dev/community/apps/vergetaglines"
 	"tidbyt.dev/community/apps/verticalmessage"
 	"tidbyt.dev/community/apps/visibleplanets"
@@ -460,6 +461,7 @@ func GetManifests() []manifest.Manifest {
 		unsplash.New(),
 		usgsearthquakes.New(),
 		usyieldcurve.New(),
+		valorantstats.New(),
 		vergetaglines.New(),
 		verticalmessage.New(),
 		visibleplanets.New(),
