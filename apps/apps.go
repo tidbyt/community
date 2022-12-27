@@ -145,6 +145,7 @@ import (
 	"tidbyt.dev/community/apps/ordertrends"
 	"tidbyt.dev/community/apps/outlookcalendar"
 	"tidbyt.dev/community/apps/pagerduty"
+	"tidbyt.dev/community/apps/paraland"
 	"tidbyt.dev/community/apps/pathtrainschedule"
 	"tidbyt.dev/community/apps/petpikachu"
 	"tidbyt.dev/community/apps/phaseofmoon"
@@ -383,6 +384,7 @@ func GetManifests() []manifest.Manifest {
 		ordertrends.New(),
 		outlookcalendar.New(),
 		pagerduty.New(),
+		paraland.New(),
 		pathtrainschedule.New(),
 		petpikachu.New(),
 		phaseofmoon.New(),
