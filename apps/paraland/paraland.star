@@ -6,10 +6,10 @@ Author: yonodactyl
 """
 
 # CONFIG
-SEATTLE_MORNING = "https://user-images.githubusercontent.com/18172931/209709787-a0de07b4-73b6-4b07-9dca-bb3afdac0ec9.gif"  # Seattle - Morning GIF
-ARIZONA_DAY = "https://user-images.githubusercontent.com/18172931/209717878-52336c10-d1f6-43fb-b2e1-87e3f35f4f96.gif"  # Arizona Desert - Day GIF
-NORTH_CAROLINA_MORNING = "https://user-images.githubusercontent.com/18172931/209722206-59e215d5-b25c-44f9-9f31-37171fd6fe6e.gif"  # NC Blue Ridge Mountain - Morning GIF
-DEFAULT_MORNING = "https://user-images.githubusercontent.com/18172931/209724120-57b351d1-79e6-47fc-b32d-73a23c371758.gif"  # Default Image
+SEATTLE_MORNING = "https://raw.githubusercontent.com/Yonodactyl/TidbytGIFs/main/Paraland/seattle.gif"  # Seattle - Morning GIF
+ARIZONA_DAY = "https://raw.githubusercontent.com/Yonodactyl/TidbytGIFs/main/Paraland/arizona.gif"  # Arizona Desert - Day GIF
+NORTH_CAROLINA_MORNING = "https://raw.githubusercontent.com/Yonodactyl/TidbytGIFs/main/Paraland/north-carolina.gif"  # NC Blue Ridge Mountain - Morning GIF
+DEFAULT_MORNING = "https://raw.githubusercontent.com/Yonodactyl/TidbytGIFs/main/Paraland/the-unknown.gif"  # Default Image
 
 DEFAULT_DELAY = "150"
 TTL = 86400
