@@ -27,18 +27,25 @@ def main(config):
     selected_img = config.get("image", DEFAULT_MORNING)
     selected_speed = int(config.get("scroll_delay", DEFAULT_DELAY))
 
-    # If the selected image contains the string `.gif` we should grab the URL and fetch/cache the `.gif`
-    if selected_img.endswith(".gif"):
-        img_src = get_cached(selected_img)
-    else:
-        # Defaults to Base64 `.gif`
-        img_src = DEFAULT_MORNING
+    # Grab the URL and fetch/cache the `.gif`
+    img_src = get_cached(selected_img)
 
-    # Render an image with a slight delay
-    return render.Root(
-        delay = selected_speed,
-        child = render.Image(src = img_src),
-    )
+    if img_src == None:
+        # Render an image with a slight delay
+        return render.Root(
+            child = render.Box(
+                child = render.Marquee(
+                    width=64,
+                    child=render.Text("Unable to render the data")
+                )
+            )
+        )
+    else:
+        # Render an image with a slight delay
+        return render.Root(
+            delay = selected_speed,
+            child = render.Image(src = img_src),
+        )
 
 def get_schema():
     # Speed options for the parallax
@@ -113,8 +120,8 @@ def get_cached(url, ttl_seconds = TTL):
 
     # An error occured
     if res.status_code != 200:
-        # To maintain app integrity, show default in the event of a failure
-        return DEFAULT_MORNING
+        # In the event of a failure, we should return an empty string
+        return None
 
     # Grab responses body
     data = res.body()
