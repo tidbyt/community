@@ -35,10 +35,10 @@ def main(config):
         return render.Root(
             child = render.Box(
                 child = render.Marquee(
-                    width=64,
-                    child=render.Text("Unable to render the data")
-                )
-            )
+                    width = 64,
+                    child = render.Text("Unable to render the data"),
+                ),
+            ),
         )
     else:
         # Render an image with a slight delay
