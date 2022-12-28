@@ -91,7 +91,7 @@ def get_schema():
                 id = "image",
                 name = "Landscape",
                 desc = "The Landscape GIF to be looped",
-                icon = "mountains",
+                icon = "mountain",
                 default = options[0].value,
                 options = options,
             ),
