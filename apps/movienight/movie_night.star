@@ -51,24 +51,24 @@ def main(config):
     nowPlayingColor = headlineColor
 
     # Countdown Display
-    # if over 24 hrs away, set a day count
     if timeDiff.hours >= 24:
+        # if over 24 hrs away, set a day count
         # get formatted time difference
         timeLeft = humanize.relative_time(showTime, now)
         timeColor = timeDaysColor
-        # otherwise show hours and minutes left
 
     elif timeDiff.minutes >= 60:
+        # otherwise show hours and minutes left
         timeLeft = str(int(timeDiff.hours)) + "H " + str(int(timeDiff.minutes % 60)) + "M"
         timeColor = timeHoursColor
-        # show only minutes if less than an hour left
 
     elif timeDiff.minutes > 0:
+        # show only minutes if less than an hour left
         timeLeft = str(int(timeDiff.minutes % 60)) + "M"
         timeColor = timeMinutesColor
-        # on or past movie start time
 
     else:
+        # show message when past movie start time
         timeLeft = "Showtime!"
 
         # update font to preserve space
