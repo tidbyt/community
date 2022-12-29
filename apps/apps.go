@@ -109,6 +109,7 @@ import (
 	"tidbyt.dev/community/apps/mnlightrail"
 	"tidbyt.dev/community/apps/moonphase"
 	"tidbyt.dev/community/apps/moretransit"
+	"tidbyt.dev/community/apps/movienight"
 	"tidbyt.dev/community/apps/moviequotes"
 	"tidbyt.dev/community/apps/mvv"
 	"tidbyt.dev/community/apps/nascarnextrace"
@@ -347,6 +348,7 @@ func GetManifests() []manifest.Manifest {
 		mnlightrail.New(),
 		moonphase.New(),
 		moretransit.New(),
+		movienight.New(),
 		moviequotes.New(),
 		mvv.New(),
 		nascarnextrace.New(),
