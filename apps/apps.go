@@ -64,6 +64,7 @@ import (
 	"tidbyt.dev/community/apps/ethstaker"
 	"tidbyt.dev/community/apps/fairfaxconnector"
 	"tidbyt.dev/community/apps/fantasynamegen"
+	"tidbyt.dev/community/apps/fido"
 	"tidbyt.dev/community/apps/finevent"
 	"tidbyt.dev/community/apps/fishbyt"
 	"tidbyt.dev/community/apps/fitbitweight"
@@ -145,6 +146,7 @@ import (
 	"tidbyt.dev/community/apps/ordertrends"
 	"tidbyt.dev/community/apps/outlookcalendar"
 	"tidbyt.dev/community/apps/pagerduty"
+	"tidbyt.dev/community/apps/paraland"
 	"tidbyt.dev/community/apps/pathtrainschedule"
 	"tidbyt.dev/community/apps/petpikachu"
 	"tidbyt.dev/community/apps/phaseofmoon"
@@ -303,6 +305,7 @@ func GetManifests() []manifest.Manifest {
 		ethstaker.New(),
 		fairfaxconnector.New(),
 		fantasynamegen.New(),
+		fido.New(),
 		finevent.New(),
 		fishbyt.New(),
 		fitbitweight.New(),
@@ -383,6 +386,7 @@ func GetManifests() []manifest.Manifest {
 		ordertrends.New(),
 		outlookcalendar.New(),
 		pagerduty.New(),
+		paraland.New(),
 		pathtrainschedule.New(),
 		petpikachu.New(),
 		phaseofmoon.New(),
