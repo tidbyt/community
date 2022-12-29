@@ -7,6 +7,7 @@ Authors: Alex Miller & Jonathan Wescott
 
 load("render.star", "render")
 load("http.star", "http")
+load("encoding/json.star", "json")
 load("schema.star", "schema")
 
 #Assign Default Stop Code
@@ -16,7 +17,7 @@ DEFAULT_STOP_CODE = "15264"
 def main(config):
     #Establish API URL
     stop_code = config.get("stop_code", DEFAULT_STOP_CODE)
-    url = "https://svc.metrotransit.org/NexTripv2/" + stop_code
+    url = "https://svc.metrotransit.org/NexTripv2/" + stop_code + "?format=json"
     MTT = http.get(url).json()
 
     CB = "#333"
