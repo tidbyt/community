@@ -38,13 +38,13 @@ iVBORw0KGgoAAAANSUhEUgAAAEAAAAAgCAYAAACinX6EAAAAAXNSR0IArs4c6QAAAUdJREFUaIHtlTFL
 """)
 
 # Pet Actions
-FIDO_WALK = 'https://raw.githubusercontent.com/Yonodactyl/TidbytGIFs/main/Fido/fido_walk.gif'
-FIDO_SIT = 'https://raw.githubusercontent.com/Yonodactyl/TidbytGIFs/main/Fido/fido_sit.gif'
+FIDO_WALK = "https://raw.githubusercontent.com/Yonodactyl/TidbytGIFs/main/Fido/fido_walk.gif"
+FIDO_SIT = "https://raw.githubusercontent.com/Yonodactyl/TidbytGIFs/main/Fido/fido_sit.gif"
 
 def main(config):
     # Set configuration variables
     timezone = config.get("$tz", DEFAULT_TIMEZONE)
-    pet_name = config.get('pet_name', DEFAULT_PAL_NAME)
+    pet_name = config.get("pet_name", DEFAULT_PAL_NAME)
     pet_birthday = config.str("pet_birthday", DEFAULT_BIRTHDAY)
     action_config = config.get("pet_action", FIDO_SIT)
     stats_config = config.bool("showing_stats", False)
@@ -65,24 +65,24 @@ def main(config):
             ),
         )
     else:
-        # Main Render for the the dog and environment. 
+        # Main Render for the the dog and environment.
         return render.Root(
             delay = 150,
             child = render.Stack(
                 children = [
-                    render.Image(src = SKY), # Furthest Background
-                    render.Image(src = FENCE), # Background Element
-                    render.Image(src = action), # Your Pet
-                    render.Image(src = GRASS), # Foreground Element
+                    render.Image(src = SKY),  # Furthest Background
+                    render.Image(src = FENCE),  # Background Element
+                    render.Image(src = action),  # Your Pet
+                    render.Image(src = GRASS),  # Foreground Element
                     # Pet Name and Age Banner
                     render.Box(
                         height = 7,
                         width = 64 if stats_config else 32,
                         color = "#000",
-                        child = pet_info(pet_name.upper(), pet_age) if stats_config else return_pal(pet_name.upper())
+                        child = pet_info(pet_name.upper(), pet_age) if stats_config else return_pal(pet_name.upper()),
                     ),
-                ]
-            )
+                ],
+            ),
         )
 
 # Returns the pet information like the name and age
@@ -93,26 +93,25 @@ def pet_info(name, pet_age):
             render.Row(
                 children = [
                     return_pal(name),
-                    return_pal_age(pet_age)
-                ]
+                    return_pal_age(pet_age),
+                ],
             ),
-        ]
+        ],
     )
 
 # Dog Age Calculation Helper
 # This function returns the age of the dog in a readable format. i.e. - `1 y` or `28 d` (1 year or 28 days, respectively)
 def convert_hours_to_age(pet_age):
     years = pet_age.hours / HOURS_IN_YEAR
-    
 
     # TODO: Clean this function up some time to better return days - maybe the humanize module can help?
     if years < 1 and years > 0:
-        age = str("{days}d").format(days=int(pet_age.hours / 24)) # Handle days
+        age = str("{days}d").format(days = int(pet_age.hours / 24))  # Handle days
     elif years < 0:
-        age = "Time Traveler" # Handle case where the user puts the birthdate in the future
+        age = "Time Traveler"  # Handle case where the user puts the birthdate in the future
     else:
-        age = str("{years}y").format(years=int(years / 1)) # Handle years
-    
+        age = str("{years}y").format(years = int(years / 1))  # Handle years
+
     return age
 
 # Returns the age of the dog in Hours.
@@ -122,59 +121,56 @@ def return_dog_age_in_hours(timezone, birthdate):
 
     return current_time - start_time
 
-
 # AGE HANDLERS
 
 # Returns the name of the Pal in either a Text or Marquee+Text variant.
 def return_pal(name):
     # This is determined by the length of the name of the pet.
-    # Anything above 7 should be rendered as scrolling text because it wont fit within the bounds of the Box.   
+    # Anything above 7 should be rendered as scrolling text because it wont fit within the bounds of the Box.
     if len(name) <= 7:
-        return return_wrapped_text(name, width=32)
+        return return_wrapped_text(name, width = 32)
     else:
-        return return_marquee_text(name, width=32)
+        return return_marquee_text(name, width = 32)
 
 # Returns the age of the Pal in a formatted string
 def return_pal_age(pet_age):
     converted_age = convert_hours_to_age(pet_age)
-    formatted_age_str = "Age: {age}".format(age=converted_age)
+    formatted_age_str = "Age: {age}".format(age = converted_age)
 
     if len(formatted_age_str) <= 7:
-        return return_wrapped_text(formatted_age_str, color="#add8e6", align="center")
+        return return_wrapped_text(formatted_age_str, color = "#add8e6", align = "center")
     else:
-        return return_marquee_text(formatted_age_str, color="#add8e6")
-
-
+        return return_marquee_text(formatted_age_str, color = "#add8e6")
 
 # Returns left aligned, 32 pixel wide and high Wrapped Text with the passed in parameter.
-def return_wrapped_text(text, color="#fff", align="left", width=32, height=7):
+def return_wrapped_text(text, color = "#fff", align = "left", width = 32, height = 7):
     return render.Padding(
-        pad = (1,1,0,0),
+        pad = (1, 1, 0, 0),
         child = render.WrappedText(
-            content=text,
-            color=color,
-            font="tom-thumb",
-            width=width,
-            align=align
+            content = text,
+            color = color,
+            font = "tom-thumb",
+            width = width,
+            align = align,
         ),
     )
 
 # Returns 32 pixel wide, 7 pixel high (default) Marquee Text with the passed in parameter.
-def return_marquee_text(text, color="#fff", width=32, height=7, direction="horizontal"):
+def return_marquee_text(text, color = "#fff", width = 32, height = 7, direction = "horizontal"):
     return render.Padding(
-        pad = (1,1,0,0),
+        pad = (1, 1, 0, 0),
         child = render.Marquee(
             width = width,
             scroll_direction = direction,
             child = render.WrappedText(
-                content=text,
-                color=color,
-                font="tom-thumb",
-                align="left"
+                content = text,
+                color = color,
+                font = "tom-thumb",
+                align = "left",
             ),
             offset_start = 1,
             offset_end = 1,
-        )
+        ),
     )
 
 def get_schema():
@@ -198,13 +194,13 @@ def get_schema():
                 name = "Pet Name",
                 desc = "What is your pet's name?",
                 icon = "pencil",
-                default = "FIDO"
+                default = "FIDO",
             ),
             schema.DateTime(
                 id = "pet_birthday",
                 name = "Pet Birthday",
                 desc = "When is your pet's birthday?",
-                icon = "calendarDay"
+                icon = "calendarDay",
             ),
             schema.Dropdown(
                 id = "pet_action",
@@ -220,7 +216,7 @@ def get_schema():
                 desc = "Show or hide stats",
                 icon = "barsProgress",
                 default = False,
-            )
+            ),
         ],
     )
 
