@@ -13,7 +13,7 @@ var source []byte
 // New creates a new instance of the MN Metro Transit applet.
 func New() manifest.Manifest {
 	return manifest.Manifest{
-		ID:          "mn-metro-transit",
+		ID:          "mnmetrotransit",
 		Name:        "MN Metro Trasnit",
 		Author:      "Jonathan Wescott & Alex Miller",
 		Summary:     "Metro Transit Departures",
