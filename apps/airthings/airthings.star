@@ -42,7 +42,7 @@ def main(config):
     # Options
     skipRenderIfAllGreen = config.bool("skipRenderIfAllGreen")
 
-    hidePm25 = config.bool("hidePm25") 
+    hidePm25 = config.bool("hidePm25")
     hideVoc = config.bool("hideVoc")
     hideTemp = config.bool("hideTemp")
     hideCo2 = config.bool("hideCo2")
@@ -71,6 +71,7 @@ def main(config):
 
     if samplesString == None or samplesString == "":
         print("[+] Fetching Samples...")
+
         # https://developer.airthings.com/consumer-api-docs/#operation/Device%20samples%20latest-values
         samples = get_samples(config, access_token, SAMPLES_CACHE_KEY)
     else:
@@ -119,12 +120,12 @@ def main(config):
 
     allGreen = True
     for (sample, hidden) in [
-                (co2_color, hideCo2),
-                (pm25_color, hidePm25),
-                (temp_color, hideTemp),
-                (voc_color, hideVoc),
-                (humidity_color, hideHumidity)
-             ]:
+        (co2_color, hideCo2),
+        (pm25_color, hidePm25),
+        (temp_color, hideTemp),
+        (voc_color, hideVoc),
+        (humidity_color, hideHumidity),
+    ]:
         if hidden:
             continue
 
@@ -139,38 +140,36 @@ def main(config):
 
     items = []
     for (hide, reading, color, displayName) in [
-            (hideCo2, co2,co2_color, "Co2"),
-            (hidePm25, pm25,pm25_color, "Pm2.5"),
-            (hideTemp, temp,temp_color, "Temp"),
-            (hideVoc, voc,voc_color, "VOC"),
-            (hideHumidity, humidity,humidity_color, "Humidity"),
-            ]:
-
+        (hideCo2, co2, co2_color, "Co2"),
+        (hidePm25, pm25, pm25_color, "Pm2.5"),
+        (hideTemp, temp, temp_color, "Temp"),
+        (hideVoc, voc, voc_color, "VOC"),
+        (hideHumidity, humidity, humidity_color, "Humidity"),
+    ]:
         if hide:
             continue
 
         items.append(
-             render.Row(
-                        expanded = True,
-                        main_align = "space_between",
-                        children = [
-                            render.Text(
-                                content = displayName,
-                                color = color,
-                            ),
-                            render.Text(
-                                content = str(reading),
-                                color = color,
-                            ),
-                        ],
+            render.Row(
+                expanded = True,
+                main_align = "space_between",
+                children = [
+                    render.Text(
+                        content = displayName,
+                        color = color,
                     ),
+                    render.Text(
+                        content = str(reading),
+                        color = color,
+                    ),
+                ],
+            ),
         )
 
-
     return render.Root(
-            child = render.Column(
-                children = items
-            )
+        child = render.Column(
+            children = items,
+        ),
     )
 
 def get_samples(config, access_token, SAMPLES_CACHE_KEY):
