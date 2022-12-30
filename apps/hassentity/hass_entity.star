@@ -11,7 +11,7 @@ load("encoding/json.star", "json")
 load("http.star", "http")
 load("cache.star", "cache")
 
-STATIC_ENDPOINT = "/api/states"
+STATIC_ENDPOINT = "/api/states/"
 
 def main(config):
     return render.Root(
@@ -67,7 +67,7 @@ def get_entity_states(config):
         return []
 
     full_token = "Bearer " + token
-    full_url = ha_ip + STATES_URL + entity_name
+    full_url = ha_ip + STATIC_ENDPOINT + entity_name
     headers = {
         "Authorization": full_token,
         "content-type": "application/json",
