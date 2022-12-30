@@ -1,8 +1,8 @@
 """
 Applet: MN Metro Transit
-Summary: Metro Transit Departures
-Description: Show Train, BRT, ABRT, and Bus Departure Times from a Selected Stop using a Metro Transit Stop Code.
-Authors: Alex Miller & Jonathan Wescott
+Summary: Train, BRT, ABRT, and Bus Departure Times
+Description: Shows Transit Departure Times from Selected Stop.
+Author: Alex Miller & Jonathan Wescott
 """
 
 load("render.star", "render")
@@ -12,7 +12,6 @@ load("schema.star", "schema")
 
 #Assign Default Stop Code
 DEFAULT_STOP_CODE = "15264"
-
 
 def main(config):
     #Establish API URL
@@ -24,6 +23,7 @@ def main(config):
     CB2 = "#333"
     CT = "#fa0"
     CT2 = "#fa0"
+
     #invalid stop code page
     if "title" in MTT:
         stopDesc = "Invalid Stop Number"
@@ -38,7 +38,7 @@ def main(config):
         depText1 = "Bad"
         depText2 = "Stop#"
 
-    #no transit page
+        #no transit page
     elif len(MTT["departures"]) == 0:
         stopDesc = MTT["stops"][0]["description"]
         route1 = "  No"
@@ -52,7 +52,7 @@ def main(config):
         depText1 = ""
         depText2 = ""
 
-    #only 1 more departure
+        #only 1 more departure
     elif len(MTT["departures"]) == 1:
         stopDesc = MTT["stops"][0]["description"]
         route1 = MTT["departures"][0]["route_short_name"]
@@ -66,9 +66,9 @@ def main(config):
         CT = "#fa0"
         CT2 = "#777"
 
-    #normal functioning page
+        #normal functioning page
     else:
-    #departure slot 1
+        #departure slot 1
         #Find color and destination of first and second train and use that for rendering square color and 3 letter destination code
         stopDesc = MTT["stops"][0]["description"]
         route1 = MTT["departures"][0]["route_short_name"]
@@ -110,19 +110,19 @@ def main(config):
     elif route1 == "Red":
         CB = "#F00"
         CT = "#222"
-    
+
     if route1[2:7] == "Line":
         CB = "#555"
-        CT = "#FFF"  
+        CT = "#FFF"
 
-#departure slot 2
+    #departure slot 2
     if route2 == "Blue":
         CB2 = "#00a"
         CT2 = "#FFF"
 
     elif route2 == "Green":
         CB2 = "#070"
-        CT2 = "#FFF" 
+        CT2 = "#FFF"
 
     elif route2 == "Orange":
         CB2 = "#fa0"
@@ -130,13 +130,11 @@ def main(config):
 
     elif route2 == "Red":
         CB2 = "#F00"
-        CT2 = "#222"  
+        CT2 = "#222"
 
     if route2[2:7] == "Line":
         CB2 = "#555"
         CT2 = "#FFF"
-
-         
 
     return render.Root(
         child = render.Column(
