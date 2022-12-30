@@ -17,13 +17,17 @@ def main(config):
     entity_name = config.get("entity_name", None)
     attributes = config.get("attributes", None)
 
+    print(attributes)
+
     if is_string_blank(entity_name):
         print("using sample data")
-        states = json.decode(SAMPLE_DATA)
+        states = SAMPLE_DATA
     else:
         states = get_entity_states(config)
 
-    friendly_name = states["attributes"]["friendly_name"]
+    friendly_name = config.get("friendly_name", None)
+    if is_string_blank(friendly_name):
+        friendly_name = states["attributes"]["friendly_name"]
 
     if is_string_blank(attributes):
         state = states["state"]
@@ -46,7 +50,7 @@ def main(config):
                     color = "#ffffff",
                     linespacing = 0,
                     width = 64,
-                    height = 24,
+                    height = 8,
                 ),
                 render.Box(
                     height = 1,
