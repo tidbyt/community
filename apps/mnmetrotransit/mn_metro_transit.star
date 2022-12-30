@@ -210,7 +210,7 @@ def get_schema():
                 id = "stop_code",
                 name = "Stop ID",
                 desc = "Station's Stop ID from (https://www.metrotransit.org/stops-stations)",
-                icon = "train",
+                icon = "trainTram",
             ),
         ],
     )
