@@ -16,7 +16,7 @@ load("xpath.star", "xpath")
 
 # Used to query Darwin to get live train information.
 # Allows 5000 requests per hour (~1.38 qps) for free. Can buy more if needed.
-ENCRYPTED_DARWIN_APP_KEY = "AV6+xWcEpjb3YSvq0m3DedNFUrniZqd3qLkIUYz5+HhnX5/bJa681u67XiPHyzH0uBBMcNXh7LJGYtRIcJLKAwWByZ3VOL0VP5jRhX4KY4aq1/sMwKr7X+VokgXMYE2Ci6gqAGdd9xWPejcnVa9F3lIpwRIutikv0TVmY0PJXCqQejyYiEHwozEl"
+ENCRYPTED_DARWIN_APP_KEY = "AV6+xWcEcp22TJpUDqD43p0y2aTxlhn9yaUdbwfZcN1lEjVeDIZVIYmIS5E0Gn/pB0AmjqZmXkSrsfWBRAaYMH9mS1AP7wk1/ipUhjDFmhA1Wftr/nPyfksdWZzTn8oGWlA96RRWuunIPPTfFja5fZomy9fzDtDr4LWV9dAcQGj5c2Zs0uA8FlAa"
 DARWIN_SOAP_URL = "https://lite.realtime.nationalrail.co.uk/OpenLDBWS/ldb9.asmx"
 
 # Filters for trains that call at a given station, if selected. This is an excerpt
