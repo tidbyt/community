@@ -12,7 +12,6 @@ load("schema.star", "schema")
 load("cache.star", "cache")
 load("encoding/json.star", "json")
 load("time.star", "time")
-load("math.star", "math")
 load("random.star", "random")
 
 # CONSTANTS
