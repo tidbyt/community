@@ -39,6 +39,15 @@ def main(config):
     clientSecret = config.get("clientSecret")
     serialNumber = config.get("serialNumber")
 
+    # Options
+    skipRenderIfAllGreen = config.bool("skipRenderIfAllGreen")
+
+    hidePm25 = config.bool("hidePm25") 
+    hideVoc = config.bool("hideVoc")
+    hideTemp = config.bool("hideTemp")
+    hideCo2 = config.bool("hideCo2")
+    hideHumidity = config.bool("hideHumidity")
+
     if not clientId or not clientSecret or not serialNumber:
         return render.Root(
             child = render.WrappedText(
@@ -47,28 +56,41 @@ def main(config):
         )
 
     # Key unique to the user to fetch cached access_token
-    access_token_cache_key = "%s-%s" % (clientId, serialNumber)
+    ACCESS_TOKEN_CACHE_KEY = "%s-%s-%s" % (clientId, serialNumber, clientSecret)
+    SAMPLES_CACHE_KEY = "samples-%s-%s" % (clientId, serialNumber)
 
-    access_token = cache.get(access_token_cache_key)
+    access_token = cache.get(ACCESS_TOKEN_CACHE_KEY)
     if access_token == None or access_token == "":
         print("[+] Refreshing Token...")
-        access_token = client_credentials_grant_flow(config, access_token_cache_key)
+        access_token = client_credentials_grant_flow(config, ACCESS_TOKEN_CACHE_KEY)
     else:
         print("[+] Using Cached Token...")
 
-    # https://developer.airthings.com/consumer-api-docs/#operation/Device%20samples%20latest-values
-    samples = get_samples(config, access_token)
+    # Read samples from cache if available
+    samplesString = cache.get(SAMPLES_CACHE_KEY)
+
+    if samplesString == None or samplesString == "":
+        print("[+] Fetching Samples...")
+        # https://developer.airthings.com/consumer-api-docs/#operation/Device%20samples%20latest-values
+        samples = get_samples(config, access_token, SAMPLES_CACHE_KEY)
+    else:
+        print("[+] Using Cached Samples...")
+        samples = json.decode(samplesString)
+
+    print(samples)
 
     co2 = samples["data"]["co2"]
     pm25 = samples["data"]["pm25"]
     temp = samples["data"]["temp"]
     voc = samples["data"]["voc"]
+    humidity = samples["data"]["humidity"]
 
     # https://help.airthings.com/en/articles/5367327-view-understanding-the-sensor-thresholds
     co2_color = "#0f0"
     pm25_color = "#0f0"
     temp_color = "#0f0"
     voc_color = "#0f0"
+    humidity_color = "#0f0"
 
     if co2 > 1000:
         co2_color = "#f00"
@@ -90,80 +112,68 @@ def main(config):
     elif voc > 250:
         voc_color = "#ff0"
 
-    all_green = True
-    for sample in [co2_color, pm25_color, temp_color, voc_color]:
+    if humidity > 70 or humidity < 30:
+        humidity_color = "#f00"
+    elif humidity > 60:
+        humidity_color = "#ff0"
+
+    allGreen = True
+    for (sample, hidden) in [
+                (co2_color, hideCo2),
+                (pm25_color, hidePm25),
+                (temp_color, hideTemp),
+                (voc_color, hideVoc),
+                (humidity_color, hideHumidity)
+             ]:
+        if hidden:
+            continue
+
         if not sample == "#0f0":
-            all_green = False
+            allGreen = False
             break
 
-    if all_green:
+    if skipRenderIfAllGreen and allGreen:
         # Skip rendering
+        print("All green, nothing to report!")
         return []
 
+    items = []
+    for (hide, reading, color, displayName) in [
+            (hideCo2, co2,co2_color, "Co2"),
+            (hidePm25, pm25,pm25_color, "Pm2.5"),
+            (hideTemp, temp,temp_color, "Temp"),
+            (hideVoc, voc,voc_color, "VOC"),
+            (hideHumidity, humidity,humidity_color, "Humidity"),
+            ]:
+
+        if hide:
+            continue
+
+        items.append(
+             render.Row(
+                        expanded = True,
+                        main_align = "space_between",
+                        children = [
+                            render.Text(
+                                content = displayName,
+                                color = color,
+                            ),
+                            render.Text(
+                                content = str(reading),
+                                color = color,
+                            ),
+                        ],
+                    ),
+        )
+
+
     return render.Root(
-        child = render.Column(
-            children = [
-                render.Row(
-                    expanded = True,
-                    main_align = "space_between",
-                    children = [
-                        render.Text(
-                            content = "CO2",
-                            color = co2_color,
-                        ),
-                        render.Text(
-                            content = str(co2),
-                            color = co2_color,
-                        ),
-                    ],
-                ),
-                render.Row(
-                    expanded = True,
-                    main_align = "space_between",
-                    children = [
-                        render.Text(
-                            content = "Pm2.5",
-                            color = pm25_color,
-                        ),
-                        render.Text(
-                            content = str(pm25),
-                            color = pm25_color,
-                        ),
-                    ],
-                ),
-                render.Row(
-                    expanded = True,
-                    main_align = "space_between",
-                    children = [
-                        render.Text(
-                            content = "Temp",
-                            color = temp_color,
-                        ),
-                        render.Text(
-                            content = str(temp),
-                            color = temp_color,
-                        ),
-                    ],
-                ),
-                render.Row(
-                    expanded = True,
-                    main_align = "space_between",
-                    children = [
-                        render.Text(
-                            content = "VOC",
-                            color = voc_color,
-                        ),
-                        render.Text(
-                            content = str(voc),
-                            color = voc_color,
-                        ),
-                    ],
-                ),
-            ],
-        ),
+            child = render.Column(
+                children = items
+            )
     )
 
-def get_samples(config, access_token):
+def get_samples(config, access_token, SAMPLES_CACHE_KEY):
     serial_number = config["serialNumber"]
     if serial_number == None:
         fail("serial_number is required")
@@ -179,6 +189,10 @@ def get_samples(config, access_token):
         fail("fetching samples failed with status code: %d - %s" % (res.status_code, res.body()))
 
     status = res.json()
+
+    # Cache samples for 5 minutes
+    cache.set(SAMPLES_CACHE_KEY, res.body(), 60 * 5)
+
     return status
 
 def client_credentials_grant_flow(config, access_token_cache_key):
@@ -238,6 +252,48 @@ def get_schema():
                 name = "Serial Number for AirThings Device",
                 desc = "Taken from the target device on https://dashboard.airthings.com/",
                 icon = "gear",
+            ),
+            schema.Toggle(
+                id = "skipRenderIfAllGreen",
+                name = "Skip Render If All Green",
+                desc = "If all readings are normal, skip rendering this applet",
+                icon = "arrowLeft",
+                default = False,
+            ),
+            schema.Toggle(
+                id = "hidePm25",
+                name = "Hide Pm2.5",
+                desc = "Hide Pm2.5 reading",
+                icon = "gear",
+                default = False,
+            ),
+            schema.Toggle(
+                id = "hideVoc",
+                name = "Hide VOC",
+                desc = "Hide VOC reading",
+                icon = "gear",
+                default = False,
+            ),
+            schema.Toggle(
+                id = "hideHumidity",
+                name = "Hide Humidity",
+                desc = "Hide Humidity reading",
+                icon = "gear",
+                default = False,
+            ),
+            schema.Toggle(
+                id = "hideTemp",
+                name = "Hide Temperature",
+                desc = "Hide Temperature reading",
+                icon = "gear",
+                default = True,
+            ),
+            schema.Toggle(
+                id = "hideCo2",
+                name = "Hide CO2",
+                desc = "Hide CO2 reading",
+                icon = "gear",
+                default = False,
             ),
         ],
     )
