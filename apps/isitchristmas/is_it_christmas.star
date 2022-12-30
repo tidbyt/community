@@ -169,6 +169,10 @@ def get_schema():
     # https://en.wikipedia.org/wiki/Christmas#Date_according_to_Julian_calendar
     date_options = [
         schema.Option(
+            display = "24 December",
+            value = "12-24",
+        ),
+        schema.Option(
             display = "25 December",
             value = "12-25",
         ),
@@ -214,7 +218,7 @@ def get_schema():
                 name = "Christmas date",
                 desc = "When do you celebrate Christmas?",
                 icon = "calendar",
-                default = date_options[0].value,
+                default = date_options[1].value,
                 options = date_options,
             ),
         ],
