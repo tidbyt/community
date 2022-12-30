@@ -135,3 +135,16 @@ def get_entity_states(config):
     print(states)
 
     return states
+
+SAMPLE_DATA = {
+    "entity_id": "switch.front_door",
+    "state": "off",
+    "attributes": {
+        "friendly_name": "Front Door",
+    },
+    "last_changed": "2020-12-30T04:00:00.000000+00:00",
+    "last_updated": "2020-12-30T04:00:00.000000+00:00",
+    "context": {
+        "id": "ABCDEFG",
+    },
+}
