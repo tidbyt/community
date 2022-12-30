@@ -14,8 +14,57 @@ load("cache.star", "cache")
 STATIC_ENDPOINT = "/api/states/"
 
 def main(config):
+    entity_name = config.get("entity_name", None)
+    attributes = config.get("attributes", None)
+
+    if is_string_blank(entity_name):
+        print("using sample data")
+        states = json.decode(SAMPLE_DATA)
+    else:
+        states = get_entity_states(config)
+
+    friendly_name = states["attributes"]["friendly_name"]
+
+    if is_string_blank(attributes):
+        state = states["state"]
+    else:
+        state = states["attributes"][attributes]
+
+    if "unit_of_measurement" in states["attributes"].keys():
+        state = state + states["attributes"]["unit_of_measurement"]
+
+    icon = None
+    if "icon" in states["attributes"].keys():
+        icon = states["attributes"]["icon"]
+
     return render.Root(
-        child = render.Box(height = 1, width = 1),
+        delay = 120,
+        child = render.Column(
+            children = [
+                render.WrappedText(
+                    content = friendly_name,
+                    color = "#ffffff",
+                    linespacing = 0,
+                    width = 64,
+                    height = 24,
+                ),
+                render.Box(
+                    height = 1,
+                    width = 64,
+                    color = "#ffffff",
+                ),
+                render.Marquee(
+                    height = 23,  # 32 - 8 (author line) - 1 (divider line)
+                    offset_start = 10,
+                    offset_end = 10,
+                    child = render.WrappedText(
+                        content = state,
+                        width = 64,
+                    ),
+                    scroll_direction = "vertical",
+                ),
+            ],
+        ),
     )
 
 def get_schema():
