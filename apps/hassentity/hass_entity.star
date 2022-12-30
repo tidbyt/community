@@ -12,6 +12,7 @@ load("http.star", "http")
 load("cache.star", "cache")
 
 STATIC_ENDPOINT = "/api/states/"
+DEFAULT_COLOR = "#ffffff"
 
 def main(config):
     entity_name = config.get("entity_name", None)
@@ -39,20 +40,24 @@ def main(config):
     if "icon" in states["attributes"].keys():
         icon = states["attributes"]["icon"]
 
+    header_color = config.get("header_color", DEFAULT_COLOR)
+    separator_color = config.get("separator_color", DEFAULT_COLOR)
+    value_color = config.get("value_color", DEFAULT_COLOR)
+
     return render.Root(
         delay = 6000,
         child = render.Column(
             children = [
                 render.WrappedText(
                     content = friendly_name,
-                    color = "#ffffff",
+                    color = header_color,
                     linespacing = 0,
                     width = 64,
                 ),
                 render.Box(
                     height = 1,
                     width = 64,
-                    color = "#ffffff",
+                    color = separator_color,
                 ),
                 render.Marquee(
                     height = 23,  # 32 - 8 (author line) - 1 (divider line)
@@ -61,6 +66,7 @@ def main(config):
                     child = render.WrappedText(
                         content = state,
                         width = 64,
+                        color = value_color,
                     ),
                     scroll_direction = "vertical",
                 ),
@@ -101,6 +107,24 @@ def get_schema():
                 name = "Name Override",
                 desc = "Optionaly override the entity friendly name",
                 icon = "inputText",
+            ),
+            schema.Text(
+                id = "header_color",
+                name = "Header Color",
+                desc = "Provide a hex code for the header color Ex. #ff00ff",
+                icon = "palette",
+            ),
+            schema.Text(
+                id = "separator_color",
+                name = "Separator Color",
+                desc = "Provide a hex code for the separator color Ex. #ff00ff",
+                icon = "palette",
+            ),
+            schema.Text(
+                id = "value_color",
+                name = "Value Color",
+                desc = "Provide a hex code for the value color Ex. #ff00ff",
+                icon = "palette",
             ),
         ],
     )
