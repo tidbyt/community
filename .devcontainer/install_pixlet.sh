@@ -4,7 +4,7 @@ export DEBIAN_FRONTEND=noninteractive
 
 set -e
 
-# This script will unstall the latest released version of pixlet,
+# This script will install the latest released version of pixlet,
 # Unless this argument is set to a specific version tag
 # e.g. v0.22.7
 PIN_VERSION_TAG="v0.22.7"
