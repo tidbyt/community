@@ -15,9 +15,7 @@ STATIC_ENDPOINT = "/api/states/"
 
 def main(config):
     entity_name = config.get("entity_name", None)
-    attributes = config.get("attributes", None)
-
-    print(attributes)
+    attribute = config.get("attribute", None)
 
     if is_string_blank(entity_name):
         print("using sample data")
@@ -29,10 +27,10 @@ def main(config):
     if is_string_blank(friendly_name):
         friendly_name = states["attributes"]["friendly_name"]
 
-    if is_string_blank(attributes):
+    if is_string_blank(attribute):
         state = states["state"]
     else:
-        state = states["attributes"][attributes]
+        state = states["attributes"][attribute]
 
     if "unit_of_measurement" in states["attributes"].keys():
         state = state + states["attributes"]["unit_of_measurement"]
@@ -77,33 +75,33 @@ def get_schema():
         fields = [
             schema.Text(
                 id = "ha_ip",
-                name = "Home Assistant http(s)://IP(:Port)",
-                desc = "Home Assistant external IP address (and optional port).",
-                icon = "key",
+                name = "Home Assistant External Url",
+                desc = "IP address and optional port. Ex. https://abc.nabu.casa or https://hass.mydomain:8123",
+                icon = "link",
             ),
             schema.Text(
                 id = "token",
                 name = "Token",
-                desc = "Home Assistant Long-Lived Access Token.",
+                desc = "Home Assistant Long-Lived Access Token",
                 icon = "key",
             ),
             schema.Text(
                 id = "entity_name",
                 name = "Entity Name",
-                desc = "Entity name ex. sensor.front_door",
-                icon = "key",
+                desc = "Entity name ex. 'sensor.front_door'",
+                icon = "inputText",
             ),
             schema.Text(
                 id = "attribute",
                 name = "Attribute",
-                desc = "Optionaly show the value of an attribute.",
-                icon = "key",
+                desc = "Optionaly show the value of an attribute for the entity",
+                icon = "inputText",
             ),
             schema.Text(
                 id = "friendly_name",
-                name = "Friendly Name",
-                desc = "Optionaly override the entity friently name.",
-                icon = "key",
+                name = "Name Override",
+                desc = "Optionaly override the entity friendly name",
+                icon = "inputText",
             ),
         ],
     )
