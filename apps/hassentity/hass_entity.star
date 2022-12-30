@@ -40,7 +40,7 @@ def main(config):
         icon = states["attributes"]["icon"]
 
     return render.Root(
-        delay = 120,
+        delay = 6000,
         child = render.Column(
             children = [
                 render.WrappedText(
@@ -48,7 +48,6 @@ def main(config):
                     color = "#ffffff",
                     linespacing = 0,
                     width = 64,
-                    height = 8,
                 ),
                 render.Box(
                     height = 1,
@@ -76,7 +75,7 @@ def get_schema():
             schema.Text(
                 id = "ha_ip",
                 name = "Home Assistant External Url",
-                desc = "IP address and optional port. Ex. https://abc.nabu.casa or https://hass.mydomain:8123",
+                desc = "External HA Url (and optional port). Ex. https://abc.ui.nabu.casa or https://hass.mydomain:8123",
                 icon = "link",
             ),
             schema.Text(
@@ -109,6 +108,7 @@ def get_schema():
 def is_string_blank(string):
     return string == None or len(string) == 0
 
+# Retrieve entity state from Home Assistant, return json response
 def get_entity_states(config):
     ha_ip = config.get("ha_ip", None)
     token = config.get("token", None)
