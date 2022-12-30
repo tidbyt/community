@@ -65,6 +65,7 @@ def main(config):
         CB2 = "#222"
         CT = "#fa0"
         CT2 = "#777"
+
     #normal functioning page
     else:
     #departure slot 1
@@ -76,7 +77,6 @@ def main(config):
         r2Desc = MTT["departures"][1]["direction_text"]
         depText1 = MTT["departures"][0]["departure_text"]
         depText2 = MTT["departures"][1]["departure_text"]
-
 
     if r1Desc == "NB":
         r1Desc = "North"
@@ -210,7 +210,7 @@ def get_schema():
                 id = "stop_code",
                 name = "Stop ID",
                 desc = "Station's Stop ID from (https://www.metrotransit.org/stops-stations)",
-                icon = "trainTram",
+                icon = "train",
             ),
         ],
     )
