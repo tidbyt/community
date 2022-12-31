@@ -23,6 +23,13 @@
 				"stackbuild.bazel-stack-vscode"
 			]
 		}
+	},
+
+	"portsAttributes": {
+		"8080": {
+			"label": "Pixlet Serve",
+			"onAutoForward": "notify"
+		}
 	}
 
 	// Uncomment to connect as root instead. More info: https://aka.ms/dev-containers-non-root.
