@@ -92,7 +92,6 @@ def main(config):
 
 # Object Interaction
 def interacting_object(action_config):
-
     """
     Handle potential object interactions - in this case fetching the ball
     """
