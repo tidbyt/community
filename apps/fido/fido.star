@@ -37,9 +37,13 @@ FENCE = base64.decode("""
 iVBORw0KGgoAAAANSUhEUgAAAEAAAAAgCAYAAACinX6EAAAAAXNSR0IArs4c6QAAAUdJREFUaIHtlTFLAzEYht/EA5cDl8IpXUQcOpaCo3Tp4Og/8S/4F/wnjg5ZCt0OSsYudhQzCha8QeqUMx6XS9LkWqHfs1yekLt78+U7DiAIgiAIgiAIgiCODwYALw/3Wz1x9/TMfFxIhdm4+Lfuux8+HU1qAQBfn42LaBdSBXnI8333w/VASGXO78V1aCFVp/eZ5+RycPFYfX7VL1u8fsDmQiq8bb6T+zDPOj32+bfXZ7g6z1udA7/tprG5LorNXffb3PfEmh3hymNbb/qfDoit+Pp9s5MP86wOZvO+OoR3VSj0hGLcRcr3mR3I2ya1m4S6i1JVrWNfYvKZh93bX6CLUlWYr5ZMb9wc+5Iqb4YDMF8tmXk9JNy9JB365Jvz09Fke1Oc7jNKjbMDUgdrbnaX7z8EV34WWv1SVVFFCb2/7/UEQRBHzQ8p2EzduEqDNAAAAABJRU5ErkJggg==
 """)
 
+# Animated Actions
+BALL_THROW = "https://raw.githubusercontent.com/Yonodactyl/TidbytGIFs/main/Fido/ball_throw.gif"
+
 # Pet Actions
 FIDO_WALK = "https://raw.githubusercontent.com/Yonodactyl/TidbytGIFs/main/Fido/fido_walk.gif"
 FIDO_SIT = "https://raw.githubusercontent.com/Yonodactyl/TidbytGIFs/main/Fido/fido_sit.gif"
+FIDO_FETCH = "https://raw.githubusercontent.com/Yonodactyl/TidbytGIFs/main/Fido/fido_fetch.gif"
 
 def main(config):
     # Set configuration variables
@@ -73,6 +77,7 @@ def main(config):
                     render.Image(src = SKY),  # Furthest Background
                     render.Image(src = FENCE),  # Background Element
                     render.Image(src = action),  # Your Pet
+                    interacting_object(action_config),
                     render.Image(src = GRASS),  # Foreground Element
                     # Pet Name and Age Banner
                     render.Box(
@@ -84,6 +89,16 @@ def main(config):
                 ],
             ),
         )
+
+# Object Interaction
+def interacting_object(action_config):
+
+    """
+    Handle potential object interactions - in this case fetching the ball
+    """
+    if action_config == FIDO_FETCH:
+        action = get_cached(BALL_THROW)
+        return render.Image(src = action)
 
 # Returns the pet information like the name and age
 def pet_info(name, pet_age):
@@ -183,6 +198,10 @@ def get_schema():
         schema.Option(
             display = "Walk",
             value = FIDO_WALK,
+        ),
+        schema.Option(
+            display = "Fetch",
+            value = FIDO_FETCH,
         ),
     ]
 
