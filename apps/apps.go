@@ -59,7 +59,6 @@ import (
 	"tidbyt.dev/community/apps/earthquakemap"
 	"tidbyt.dev/community/apps/effheadlines"
 	"tidbyt.dev/community/apps/emojilingo"
-	"tidbyt.dev/community/apps/epicskireport"
 	"tidbyt.dev/community/apps/eplscores"
 	"tidbyt.dev/community/apps/espnnews"
 	"tidbyt.dev/community/apps/ethstaker"
@@ -300,7 +299,6 @@ func GetManifests() []manifest.Manifest {
 		earthquakemap.New(),
 		effheadlines.New(),
 		emojilingo.New(),
-		epicskireport.New(),
 		eplscores.New(),
 		espnnews.New(),
 		ethstaker.New(),
