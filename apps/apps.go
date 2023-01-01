@@ -59,6 +59,7 @@ import (
 	"tidbyt.dev/community/apps/earthquakemap"
 	"tidbyt.dev/community/apps/effheadlines"
 	"tidbyt.dev/community/apps/emojilingo"
+	"tidbyt.dev/community/apps/epicskireport"
 	"tidbyt.dev/community/apps/eplscores"
 	"tidbyt.dev/community/apps/espnnews"
 	"tidbyt.dev/community/apps/ethstaker"
@@ -176,6 +177,7 @@ import (
 	"tidbyt.dev/community/apps/shopifysales"
 	"tidbyt.dev/community/apps/shouldideploy"
 	"tidbyt.dev/community/apps/shuffleimages"
+	"tidbyt.dev/community/apps/skireport"
 	"tidbyt.dev/community/apps/snyk"
 	"tidbyt.dev/community/apps/soccermens"
 	"tidbyt.dev/community/apps/solarelevation"
@@ -298,6 +300,7 @@ func GetManifests() []manifest.Manifest {
 		earthquakemap.New(),
 		effheadlines.New(),
 		emojilingo.New(),
+		epicskireport.New(),
 		eplscores.New(),
 		espnnews.New(),
 		ethstaker.New(),
@@ -414,6 +417,7 @@ func GetManifests() []manifest.Manifest {
 		shopifysales.New(),
 		shouldideploy.New(),
 		shuffleimages.New(),
+		skireport.New(),
 		snyk.New(),
 		soccermens.New(),
 		solarelevation.New(),
