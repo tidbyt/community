@@ -25,18 +25,17 @@ ENCRYPTED_L_STOPS_APP_TOKEN = "AV6+xWcEcNAHgfRCfqC1bm9lk7oW7Yat8yu23GbM3lqVJXYlJ
 COLOR_MAP = {
     # Train Lines
     "Red": "#c60c30",  # Red line
-    "Blue": "#00a1de", # Blue line
+    "Blue": "#00a1de",  # Blue line
     "Brn": "#62361b",  # Brown line
-    "G": "#009b3a",    # Green line
+    "G": "#009b3a",  # Green line
     "Org": "#f9461c",  # Orange line
-    "P": "#522398",    # Purple line
-    "Pink": "#e27ea6", # Pink line
-    "Y": "#f9e300",    # Yellow line
+    "P": "#522398",  # Purple line
+    "Pink": "#e27ea6",  # Pink line
+    "Y": "#f9e300",  # Yellow line
 }
 
 DEFAULT_COLOR = "#ffffff"  # If a line doesnt have a mapping fall back to this
 DEFAULT_STATION = "Paulina (Brown Line)"
-
 
 def main(config):
     selected_station = config.get("station", DEFAULT_STATION)
@@ -52,7 +51,6 @@ def main(config):
         max_age = 60,
         child = rendered_rows,
     )
-
 
 def get_schema():
     options = get_station_options(get_stations())
@@ -71,10 +69,10 @@ def get_schema():
         ],
     )
 
-
 """
 Renders a given lists of arrivals
 """
+
 def render_arrival_list(arrivals):
     rendered = []
 
@@ -115,18 +113,18 @@ def render_arrival_list(arrivals):
         ],
     )
 
-
 """
 Creates a Row and adds needed children objects
 for a single arrival
 """
+
 def render_arrival_row(arrival):
     background_color = render.Box(width = 22, height = 11, color = arrival["color_hex"])
     destination_text = render.Marquee(
         width = 36,
-        child = render.Text(arrival["destination_name"], font="CG-pixel-4x5-mono", height=7),
+        child = render.Text(arrival["destination_name"], font = "CG-pixel-4x5-mono", height = 7),
     )
-    arrival_in_text = render.Text(arrival["eta_text"], color="#f3ab3f")
+    arrival_in_text = render.Text(arrival["eta_text"], color = "#f3ab3f")
 
     stack = render.Stack(children = [
         background_color,
@@ -149,22 +147,22 @@ def render_arrival_row(arrival):
         ],
     )
 
-
 """
 Creates a Row and adds needed children objects
 for a single arrival.
 """
+
 def get_selected_station_map_id(selected_station):
     for station in get_stations():
-        if station['station_descriptive_name'] == selected_station:
+        if station["station_descriptive_name"] == selected_station:
             return station["map_id"]
     fail("The stop selected was not matched to a formatted stop")
-
 
 """
 Gets a list of "L" stations from API and
 eliminates duplicate stations
 """
+
 def get_stations():
     cache_stations = cache.get(L_STOPS_CACHE_KEY)
     if cache_stations != None:
@@ -175,8 +173,8 @@ def get_stations():
     response = http.get(
         CTA_STATIONS_URL,
         params = {
-            "$$app_token": secret.decrypt(ENCRYPTED_L_STOPS_APP_TOKEN)
-        }
+            "$$app_token": secret.decrypt(ENCRYPTED_L_STOPS_APP_TOKEN),
+        },
     )
     if response.status_code != 200:
         fail("CTA L Stops request failed with status %d", response.status_code)
@@ -190,11 +188,11 @@ def get_stations():
     cache.set(L_STOPS_CACHE_KEY, json.encode(deduped_stations), ttl_seconds = 3600)
     return deduped_stations
 
-
 """
 Formats list of "L" stations into options
 for dropdown
 """
+
 def get_station_options(station_mapping):
     station_options = [
         schema.Option(display = "%s" % station["station_descriptive_name"], value = station["station_descriptive_name"])
@@ -202,30 +200,30 @@ def get_station_options(station_mapping):
     ]
     return station_options
 
-
 """
 Creates a dictionary for the passed in "L" station
 containing station name and id
 """
+
 def build_station(station):
     return {
         "station_descriptive_name": station["station_descriptive_name"],
-        "map_id": station["map_id"]
+        "map_id": station["map_id"],
     }
-
 
 """
 Gets top 2 arrivals scheduled for the selected station
 from CTA Arrivals API
 """
+
 def get_journeys(station_code):
     response = http.get(
         CTA_ARRIVALS_URL,
         params = {
             "key": secret.decrypt(ENCRYPTED_ARRIVALS_API_KEY),
             "mapid": station_code,
-            "outputType": "JSON"
-        }
+            "outputType": "JSON",
+        },
     )
     if response.status_code != 200:
         fail("CTA Arrivals request failed with status %d", response.status_code)
@@ -239,18 +237,18 @@ def get_journeys(station_code):
 
     return [build_journey(prediction) for prediction in journeys[:2]]
 
-
 """
 Parses CTA Arrivals API response for fields that we
 are interested in
 """
+
 def build_journey(prediction):
     destination_name = prediction["destNm"]
     line = prediction["rt"]
     color_hex = COLOR_MAP[line]
     is_scheduled = prediction["isSch"]
     now = time.now().in_location("America/Chicago")
-    arrival_time = time.parse_time(prediction["arrT"], format="2006-01-02T15:04:05", location="America/Chicago")
+    arrival_time = time.parse_time(prediction["arrT"], format = "2006-01-02T15:04:05", location = "America/Chicago")
     diff = arrival_time - now
     diff_minutes = int(diff.minutes)
     eta_text = "%d min" % diff_minutes if diff_minutes > 1 else "Due"
@@ -260,5 +258,5 @@ def build_journey(prediction):
         "line": line,
         "color_hex": color_hex,
         "eta_text": eta_text,
-        "is_scheduled": is_scheduled
+        "is_scheduled": is_scheduled,
     }
