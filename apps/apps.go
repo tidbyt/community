@@ -73,11 +73,14 @@ import (
 	"tidbyt.dev/community/apps/fullybinarytime"
 	"tidbyt.dev/community/apps/fuzzyclock"
 	"tidbyt.dev/community/apps/gapilotbuddy"
+	"tidbyt.dev/community/apps/githubbadge"
 	"tidbyt.dev/community/apps/githubstargazers"
 	"tidbyt.dev/community/apps/goodservice"
 	"tidbyt.dev/community/apps/happyhour"
+	"tidbyt.dev/community/apps/hexcolorclock"
 	"tidbyt.dev/community/apps/hexdailystats"
 	"tidbyt.dev/community/apps/howoldami"
+	"tidbyt.dev/community/apps/hubblelive"
 	"tidbyt.dev/community/apps/hurricanetracker"
 	"tidbyt.dev/community/apps/hvvdepartures"
 	"tidbyt.dev/community/apps/ifparank"
@@ -237,6 +240,7 @@ import (
 	"tidbyt.dev/community/apps/worldclock"
 	"tidbyt.dev/community/apps/wowtoken"
 	"tidbyt.dev/community/apps/xtrabyt"
+	"tidbyt.dev/community/apps/yulelog"
 	"tidbyt.dev/community/apps/zapier"
 	"tidbyt.dev/community/apps/zenhub"
 )
@@ -311,11 +315,14 @@ func GetManifests() []manifest.Manifest {
 		fullybinarytime.New(),
 		fuzzyclock.New(),
 		gapilotbuddy.New(),
+		githubbadge.New(),
 		githubstargazers.New(),
 		goodservice.New(),
 		happyhour.New(),
+		hexcolorclock.New(),
 		hexdailystats.New(),
 		howoldami.New(),
+		hubblelive.New(),
 		hurricanetracker.New(),
 		hvvdepartures.New(),
 		ifparank.New(),
@@ -474,6 +481,7 @@ func GetManifests() []manifest.Manifest {
 		worldclock.New(),
 		wowtoken.New(),
 		xtrabyt.New(),
+		yulelog.New(),
 		zapier.New(),
 		zenhub.New(),
 	}
