@@ -1,7 +1,7 @@
 """
 Applet: CTA "L" Tracker
 Summary: CTA "L" Train arrivals
-Description: Shows the next two arriving CTA "L" Trains for a selected station. If there is an "S" to the right of an estimated arrival, that means this arrival is scheduled rather than live, and therefore may not be accurate.
+Description: Shows the next two arriving CTA "L" Trains for a selected station. If there is an "S" to the right of an estimated arrival, that means this arrival is scheduled rather than live.
 Author: samshapiro13
 """
 
@@ -34,7 +34,6 @@ COLOR_MAP = {
     "Y": "#f9e300",  # Yellow line
 }
 
-DEFAULT_COLOR = "#ffffff"  # If a line doesnt have a mapping fall back to this
 DEFAULT_STATION = "Paulina (Brown Line)"
 
 def main(config):
