@@ -79,6 +79,7 @@ import (
 	"tidbyt.dev/community/apps/happyhour"
 	"tidbyt.dev/community/apps/hexdailystats"
 	"tidbyt.dev/community/apps/howoldami"
+	"tidbyt.dev/community/apps/hubblelive"
 	"tidbyt.dev/community/apps/hurricanetracker"
 	"tidbyt.dev/community/apps/hvvdepartures"
 	"tidbyt.dev/community/apps/ifparank"
@@ -319,6 +320,7 @@ func GetManifests() []manifest.Manifest {
 		happyhour.New(),
 		hexdailystats.New(),
 		howoldami.New(),
+		hubblelive.New(),
 		hurricanetracker.New(),
 		hvvdepartures.New(),
 		ifparank.New(),
