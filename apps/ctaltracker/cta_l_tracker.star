@@ -1,7 +1,7 @@
 """
 Applet: CTA "L" Tracker
 Summary: CTA "L" Train arrivals
-Description: Shows the next two arriving CTA "L" Trains for a selected station.
+Description: Shows the next two arriving CTA "L" Trains for a selected station. If there is an "S" to the right of an estimated arrival, that means this arrival is scheduled rather than live, and therefore may not be accurate.
 Author: samshapiro13
 """
 
