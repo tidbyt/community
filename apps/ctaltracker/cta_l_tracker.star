@@ -53,7 +53,19 @@ def main(config):
     )
 
 def get_schema():
+    no_stations_option = schema.Option(
+        display = "No Stations Available",
+        value = "No Stations Available",
+    )
+
     options = get_station_options(get_stations())
+
+    if not options:
+        default_station = "No Stations Available"
+        station_options = [no_stations_option]
+    else:
+        default_station = options[0].value
+        station_options = options
 
     return schema.Schema(
         version = "1",
@@ -63,8 +75,8 @@ def get_schema():
                 name = "Departing Station",
                 desc = "The CTA \"L\" Station to get departure schedule for.",
                 icon = "train",
-                default = options[0].value,
-                options = options,
+                default = default_station,
+                options = station_options,
             ),
         ],
     )
@@ -76,10 +88,11 @@ Renders a given lists of arrivals
 def render_arrival_list(arrivals):
     rendered = []
 
-    for a in arrivals:
-        rendered.append(render_arrival_row(a))
+    if arrivals:
+        for a in arrivals:
+            rendered.append(render_arrival_row(a))
 
-    if rendered == None or len(rendered) == 0:
+    if rendered == None or len(rendered) == 0 or arrivals == None:
         return render.Column(
             expanded = True,
             main_align = "space_evenly",
@@ -153,7 +166,11 @@ for a single arrival.
 """
 
 def get_selected_station_map_id(selected_station):
-    for station in get_stations():
+    stations = get_stations()
+    if not stations:
+        return None
+
+    for station in stations:
         if station["station_descriptive_name"] == selected_station:
             return station["map_id"]
     fail("The stop selected was not matched to a formatted stop")
@@ -170,10 +187,14 @@ def get_stations():
 
     print("Miss! No L Stops info in cache, calling L Stops API.")
 
+    app_token = secret.decrypt(ENCRYPTED_L_STOPS_APP_TOKEN)
+    if not app_token:
+        return None
+
     response = http.get(
         CTA_STATIONS_URL,
         params = {
-            "$$app_token": secret.decrypt(ENCRYPTED_L_STOPS_APP_TOKEN),
+            "$$app_token": app_token,
         },
     )
     if response.status_code != 200:
@@ -194,6 +215,9 @@ for dropdown
 """
 
 def get_station_options(station_mapping):
+    if not station_mapping:
+        return None
+
     station_options = [
         schema.Option(display = "%s" % station["station_descriptive_name"], value = station["station_descriptive_name"])
         for station in station_mapping
@@ -217,10 +241,14 @@ from CTA Arrivals API
 """
 
 def get_journeys(station_code):
+    api_key = secret.decrypt(ENCRYPTED_ARRIVALS_API_KEY)
+    if api_key == None or station_code == None:
+        return None
+
     response = http.get(
         CTA_ARRIVALS_URL,
         params = {
-            "key": secret.decrypt(ENCRYPTED_ARRIVALS_API_KEY),
+            "key": api_key,
             "mapid": station_code,
             "outputType": "JSON",
         },
