@@ -41,7 +41,8 @@ GRAPH_TOP = 275
 CACHE_TTL_SECONDS = 1800  #30 mins
 
 PROVIDER_CACHE_TTL = 7200  #2 hours
-NS_PROVIDERS = "https://raw.githubusercontent.com/IsThisPaul/TidBytCommunity/Nightscout-Provider-File/apps/nightscout/nightscout_providers.csv"
+
+NS_PROVIDERS = "https://raw.githubusercontent.com/tidbyt/community/main/apps/nightscout/nightscout_providers.csv"
 
 DEFAULT_LOCATION = """
 {
