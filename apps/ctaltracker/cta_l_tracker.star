@@ -13,13 +13,13 @@ load("cache.star", "cache")
 load("encoding/json.star", "json")
 load("secret.star", "secret")
 
-CTA_STATIONS_URL = 'https://data.cityofchicago.org/resource/8pix-ypme.json'
-CTA_ARRIVALS_URL = 'https://lapi.transitchicago.com/api/1.0/ttarrivals.aspx'
+CTA_STATIONS_URL = "https://data.cityofchicago.org/resource/8pix-ypme.json"
+CTA_ARRIVALS_URL = "https://lapi.transitchicago.com/api/1.0/ttarrivals.aspx"
 
 L_STOPS_CACHE_KEY = "lstops"
 
-SAM_ARRIVALS_API_KEY = '72819e3881d942b5953c2af10fe2b232'
-SAM_L_STOPS_APP_TOKEN = 'zfAgcvAdwKl76ArMjkuPjQ73v'
+ENCRYPTED_ARRIVALS_API_KEY = "AV6+xWcE9R7OupjI2rn53IDVf1ugH+B6N89gLDnAxQgCMrMI7+1G1MKPQwYUfhEYYOcdCSsdIatrgyRuXcPxQvoe209xribilCpnO+g84F1Kxkq1gxJahr+Aidyt/neG1K1ynlCLpGnz3qdYJazAF3q9EAyLinyRC0EYlNRDSpm5+WllTpE="
+ENCRYPTED_L_STOPS_APP_TOKEN = "AV6+xWcEcNAHgfRCfqC1bm9lk7oW7Yat8yu23GbM3lqVJXYlJmW78kPw7M15dlEH6DgFzSqfDbTya0MPluH7k8g7EscZNMPJCguIBwEttuSJkiI3jG0FfQwvLLLL+FRgdCQBWioLv7ivU3K3/bmjecNAKyMWarehpu5IQac0GA=="
 
 # Gets Hex color code for a given train line
 COLOR_MAP = {
@@ -175,7 +175,7 @@ def get_stations():
     response = http.get(
         CTA_STATIONS_URL,
         params = {
-            "$$app_token": SAM_L_STOPS_APP_TOKEN
+            "$$app_token": secret.decrypt(ENCRYPTED_L_STOPS_APP_TOKEN)
         }
     )
     if response.status_code != 200:
@@ -222,7 +222,7 @@ def get_journeys(station_code):
     response = http.get(
         CTA_ARRIVALS_URL,
         params = {
-            "key": SAM_ARRIVALS_API_KEY,
+            "key": secret.decrypt(ENCRYPTED_ARRIVALS_API_KEY),
             "mapid": station_code,
             "outputType": "JSON"
         }
