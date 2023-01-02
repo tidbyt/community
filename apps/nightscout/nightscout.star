@@ -25,6 +25,7 @@ COLOR_GREEN = "#2b3"
 COLOR_GREY = "#777"
 COLOR_WHITE = "#fff"
 COLOR_NIGHT = "#444"
+COLOR_HOURS = "#222"
 
 DEFAULT_NORMAL_HIGH = 180
 DEFAULT_NORMAL_LOW = 100
@@ -32,6 +33,7 @@ DEFAULT_URGENT_HIGH = 200
 DEFAULT_URGENT_LOW = 70
 
 DEFAULT_SHOW_GRAPH = "true"
+DEFAULT_SHOW_GRAPH_HOUR_BARS = True
 DEFAULT_SHOW_CLOCK = "true"
 DEFAULT_NIGHT_MODE = "false"
 GRAPH_WIDTH = 43
@@ -89,6 +91,7 @@ def main(config):
     urgent_high = int(config.get("urgent_high", DEFAULT_URGENT_HIGH))
     urgent_low = int(config.get("urgent_low", DEFAULT_URGENT_LOW))
     show_graph = config.get("show_graph", DEFAULT_SHOW_GRAPH)
+    show_graph_hour_bars = config.bool("show_graph_hour_bars", DEFAULT_SHOW_GRAPH_HOUR_BARS)
     show_clock = config.get("show_clock", DEFAULT_SHOW_CLOCK)
     night_mode = config.get("night_mode", DEFAULT_NIGHT_MODE)
 
@@ -398,6 +401,7 @@ def main(config):
     else:
         # high and low lines
         graph_plot = []
+        graph_hour_bars = []
         min_time = OLDEST_READING_TARGET.unix
 
         # the rest of the graph
@@ -428,6 +432,20 @@ def main(config):
 
             if this_point < urgent_low:
                 graph_point_color = color_graph_urgent_low
+
+            if show_graph_hour_bars:
+                min_hour = time.from_timestamp(min_time, 0).hour
+                max_hour = time.from_timestamp(max_time, 0).hour
+                if min_hour < max_hour:
+                    # Add hour marker at this point
+                    graph_hour_bars.append(render.Padding(
+                        pad = (point, 0, 0, 0),
+                        child = render.Box(
+                            width = 1,
+                            height = 32,
+                            color = COLOR_HOURS,
+                        ),
+                    ))
 
             graph_plot.append(
                 render.Plot(
@@ -519,6 +537,9 @@ def main(config):
                             children = [
                                 render.Stack(
                                     children = [
+                                        render.Stack(
+                                            children = graph_hour_bars,
+                                        ),
                                         render.Plot(
                                             data = [
                                                 (0, normal_low),
@@ -631,6 +652,13 @@ def get_schema():
                 desc = "Show graph along with reading",
                 icon = "gear",
                 default = True,
+            ),
+            schema.Toggle(
+                id = "show_graph_hour_bars",
+                name = "Show Graph Hours",
+                desc = "Show hour makings on the graph",
+                icon = "gear",
+                default = DEFAULT_SHOW_GRAPH_HOUR_BARS,
             ),
             schema.Toggle(
                 id = "show_clock",
