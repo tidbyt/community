@@ -153,6 +153,7 @@ import (
 	"tidbyt.dev/community/apps/petpikachu"
 	"tidbyt.dev/community/apps/phaseofmoon"
 	"tidbyt.dev/community/apps/plausibleanalytics"
+	"tidbyt.dev/community/apps/pleasestandby"
 	"tidbyt.dev/community/apps/pokedex"
 	"tidbyt.dev/community/apps/pollencount"
 	"tidbyt.dev/community/apps/positivequote"
@@ -396,6 +397,7 @@ func GetManifests() []manifest.Manifest {
 		petpikachu.New(),
 		phaseofmoon.New(),
 		plausibleanalytics.New(),
+		pleasestandby.New(),
 		pokedex.New(),
 		pollencount.New(),
 		positivequote.New(),
