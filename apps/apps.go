@@ -222,6 +222,7 @@ import (
 	"tidbyt.dev/community/apps/tvquotes"
 	"tidbyt.dev/community/apps/twitch"
 	"tidbyt.dev/community/apps/twitterfollows"
+	"tidbyt.dev/community/apps/twittertrends"
 	"tidbyt.dev/community/apps/unsplash"
 	"tidbyt.dev/community/apps/usgsearthquakes"
 	"tidbyt.dev/community/apps/usyieldcurve"
@@ -463,6 +464,7 @@ func GetManifests() []manifest.Manifest {
 		tvquotes.New(),
 		twitch.New(),
 		twitterfollows.New(),
+		twittertrends.New(),
 		unsplash.New(),
 		usgsearthquakes.New(),
 		usyieldcurve.New(),
