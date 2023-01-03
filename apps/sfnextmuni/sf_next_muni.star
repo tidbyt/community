@@ -28,12 +28,12 @@ DEFAULT_STOP = """
     "value":"16995"
 }
 """
-PREDICTIONS_URL = "https://api.511.org/transit/StopMonitoring?format=json&api_key=%s&agency=SF&stopCode=%s"
+PREDICTIONS_URL = "https://api.511.org/transit/TripUpdates?format=json&api_key=%s&agency=SF"
 ROUTES_URL = "https://api.511.org/transit/lines?format=json&api_key=%s&operator_id=SF"
 STOPS_URL = "https://api.511.org/transit/stops?format=json&api_key=%s&operator_id=SF"
 ALERTS_URL = "https://api.511.org/transit/servicealerts?format=json&api_key=%s&agency=SF"
 
-API_KEY_SECRET = "AV6+xWcEQi9NDhqpC/pp2NupmNWFYTeBYuCVcXrkAb8agjj6sL6ZRfIvKDt7iPzpYJ5VE83c2R2cQt7Fn1luIqO04BoQXu9fadB3CYMvvqi56Z++YIkZm7hTol6xnnom3xszeArqfUf/TJXjgaobdX3fToZS8W8LuBB67LVAcsngq9/FP6Yshrj6"
+API_KEY_SECRET = "AV6+xWcE6z4U+vmciPBh5GdNyXKcko8fcKl17jwemkRKegnos3/IkVg0pN1OICdKLqW6y/0vEK6mqBJKo791YHZo0Y4wYzb+3YufFeh5GG8F/dNuYVkiQWT1vJKq6njp43a6BJeTIgdqTKTNriMa6GKKL/lV6Ezkr7UFaOM0HVaiSnnx/Y6EhFWN"
 API_KEY = secret.decrypt(API_KEY_SECRET)
 
 # Colours for Muni Metro/Street Car lines
@@ -201,20 +201,22 @@ def get_schema():
         ],
     )
 
+def fetch_stops(api_key):
+    stops = {}
+
+    (timestamp, raw_stops) = fetch_cached(STOPS_URL % api_key, 86400)
+
+    if "Contents" in raw_stops:
+        stops.update([(stop["id"], stop) for stop in raw_stops["Contents"]["dataObjects"]["ScheduledStopPoint"]])
+
+    return stops
+
 def get_stops(location):
     if not API_KEY:
         return []
 
     loc = json.decode(location)
-
-    stops = {}
-
-    (timestamp, raw_stops) = fetch_cached(STOPS_URL % API_KEY, 86400)
-
-    if "Contents" not in raw_stops:
-        return []
-
-    stops.update([(stop["id"], stop) for stop in raw_stops["Contents"]["dataObjects"]["ScheduledStopPoint"]])
+    stops = fetch_stops(API_KEY)
 
     return [
         schema.Option(
@@ -302,14 +304,7 @@ def main(config):
 def getPredictions(api_key, config, stop):
     stopId = stop["value"]
     stopTitle = stop["display"]
-    (data_timestamp, data) = fetch_cached(PREDICTIONS_URL % (api_key, stopId), 240)
-
-    service = data.get("ServiceDelivery", {})
-    if not service or not service["Status"]:
-        return (stopTitle, [], [])
-
-    stopMonitoring = service["StopMonitoringDelivery"]
-    monitoredVisits = stopMonitoring["MonitoredStopVisit"]
+    (data_timestamp, data) = fetch_cached(PREDICTIONS_URL % api_key, 240)
 
     route_filter = config.get("route_filter", DEFAULT_CONFIG["route_filter"])
 
@@ -317,30 +312,49 @@ def getPredictions(api_key, config, stop):
     minimum_time = int(minimum_time_string) if minimum_time_string.isdigit() else 0
     prediction_map = {}
     routes = []
+    stops = fetch_stops(api_key)
+    if stopId in stops:
+        stopTitle = stops[stopId]["Name"]
 
     data_age_seconds = time.now().unix - data_timestamp
 
-    for visit in monitoredVisits:
-        if "MonitoredVehicleJourney" not in visit:
-            continue
-        vehicle = visit["MonitoredVehicleJourney"]
+    entities = data.get("Entities", {})
+    if not entities:
+        return (stopTitle, [], [])
 
-        routeTag = vehicle["LineRef"]
+    for entity in entities:
+        if not entity["TripUpdate"]:
+            continue
+
+        tripUpdate = entity["TripUpdate"]
+        if not tripUpdate["Trip"] or not tripUpdate["StopTimeUpdates"]:
+            continue
+
+        routeTag = tripUpdate["Trip"]["RouteId"]
         if route_filter != "all-routes" and routeTag != route_filter:
             continue
 
         if routeTag not in routes:
             routes.append(routeTag)
 
-        if "DestinationName" not in vehicle:
+        predictions = []
+        for update in sorted(tripUpdate["StopTimeUpdates"], key = lambda u: u["StopSequence"]):
+            if update["Departure"]:
+                predictions.append({
+                    "StopSequence": update["StopSequence"],
+                    "StopId": update["StopId"],
+                    "Time": update["Departure"]["Time"],
+                })
+            elif update["Arrival"]:
+                predictions.append({
+                    "StopSequence": update["StopSequence"],
+                    "StopId": update["StopId"],
+                    "Time": update["Arrival"]["Time"],
+                })
+        if not predictions:
             continue
-        destTitle = vehicle["DestinationName"].replace(" Station", "")
 
-        if "MonitoredCall" not in vehicle:
-            continue
-        call = vehicle["MonitoredCall"]
-        stopId = call["StopPointRef"]
-        stopTitle = call["StopPointName"]
+        destTitle = stops[predictions[-1]["StopId"]]["Name"]
 
         # Hack for KT interlining, until the Central Subway opens. If stop is in override list, then route designation overriden. Else, use Inbound/Outbound direction to determine route letter
         if routeTag == "KT":
@@ -349,15 +363,17 @@ def getPredictions(api_key, config, stop):
                 kt_override_stops[stop] = "K"
             for stop in T_OUTBOUND_STOPS:
                 kt_override_stops[stop] = "T"
-            routeTag = kt_override_stops.get(stopId, "T" if vehicle["DirectionRef"] == "IB" else "K")
+            routeTag = kt_override_stops.get(stopId, "T" if tripUpdate["Trip"]["DirectionId"] == 1 else "K")
+
+        predictedTimes = [p["Time"] for p in predictions if p["StopId"] == stopId]
+        if not predictedTimes:
+            continue
+        seconds = predictedTimes[0] - time.now().unix
+        minutes = int(seconds / 60)
 
         titleKey = routeTag if "short" == config.get("prediction_format") else (routeTag, destTitle)
         if titleKey not in prediction_map:
             prediction_map[titleKey] = []
-
-        expectedArrivalTime = time.parse_time(call["ExpectedArrivalTime"])
-        seconds = expectedArrivalTime.unix - time.now().unix
-        minutes = int(seconds / 60)
 
         if minutes >= minimum_time:
             prediction_map[titleKey].append(minutes)
