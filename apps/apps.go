@@ -161,6 +161,7 @@ import (
 	"tidbyt.dev/community/apps/pulsechain"
 	"tidbyt.dev/community/apps/purpleair"
 	"tidbyt.dev/community/apps/randomcats"
+	"tidbyt.dev/community/apps/randomcolors"
 	"tidbyt.dev/community/apps/randomslackmoji"
 	"tidbyt.dev/community/apps/redditimages"
 	"tidbyt.dev/community/apps/redditrplace"
@@ -402,6 +403,7 @@ func GetManifests() []manifest.Manifest {
 		pulsechain.New(),
 		purpleair.New(),
 		randomcats.New(),
+		randomcolors.New(),
 		randomslackmoji.New(),
 		redditimages.New(),
 		redditrplace.New(),
