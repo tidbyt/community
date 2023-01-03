@@ -83,6 +83,7 @@ import (
 	"tidbyt.dev/community/apps/hubblelive"
 	"tidbyt.dev/community/apps/hurricanetracker"
 	"tidbyt.dev/community/apps/hvvdepartures"
+	"tidbyt.dev/community/apps/idlegardener"
 	"tidbyt.dev/community/apps/ifparank"
 	"tidbyt.dev/community/apps/indegostations"
 	"tidbyt.dev/community/apps/inseason"
@@ -328,6 +329,7 @@ func GetManifests() []manifest.Manifest {
 		hubblelive.New(),
 		hurricanetracker.New(),
 		hvvdepartures.New(),
+		idlegardener.New(),
 		ifparank.New(),
 		indegostations.New(),
 		inseason.New(),
