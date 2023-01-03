@@ -63,7 +63,7 @@ def main(config):
         """
         #Used for testing (replace the values with your keys but keep the colon)
         test_api_parameters = {
-            "client_id": "key:secretkey",
+            "client_id": "key:secret_key",
         }
 
         #Submit authentication request to Twitter
@@ -86,7 +86,7 @@ def main(config):
         cache.set("twitter_trends_rate", json.encode(top_trends), ttl_seconds = 120)
 
     #Get limit, default to 10
-    limit = 10
+    limit = 15
     #Commenting out Schema for tests
     """
     if config.get("key", None) != None:
@@ -114,6 +114,7 @@ def main(config):
                     ),
                     render.Marquee(
                         height = 32,
+                        offset_start=15,
                         scroll_direction = "vertical",
                         child = render.Column(
                             main_align = "space_between",
@@ -230,9 +231,10 @@ def format_trends(trends_dict, limit):
 
         #End if the list exceeds the limit
         if len(text_list) == (limit * 2):
-            return text_list
+            #Doubles the list up for continuous scrolling
+            return text_list + text_list
 
-    return text_list
+    return text_list 
 """
 def get_schema():
     return schema.Schema(
