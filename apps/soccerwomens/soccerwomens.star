@@ -1,6 +1,6 @@
 """
-Applet: SoccerMens
-Summary: Displays men's soccer scores for various leages and tournaments
+Applet: SoccerWomens
+Summary: Displays women's soccer scores for various leages and tournaments
 Description: Displays live and upcoming soccer scores from a data feed.   Heavily taken from the other sports score apps - @LunchBox8484 is the original.
 Author: jvivona
 """
@@ -18,7 +18,7 @@ SPORT = "soccer"
 
 MISSING_LOGO = "https://upload.wikimedia.org/wikipedia/commons/c/ca/1x1.png?src=soccermens"
 
-DEFAULT_LEAGUE = "ger.1"
+DEFAULT_LEAGUE = "eng.w.1"
 API = "https://site.api.espn.com/apis/site/v2/sports/" + SPORT + "/"
 
 SHORTENED_WORDS = """
@@ -49,6 +49,11 @@ def main(config):
     if config.bool("day_range", False):
         back_time = now - time.parse_duration("%dh" % (int(config.get("days_back", 1)) * 24))
         fwd_time = now + time.parse_duration("%dh" % (int(config.get("days_forward", 1)) * 24))
+        date_range_search = "?dates=%s-%s" % (back_time.format("20060102"), (fwd_time.format("20060102")))
+    elif selectedLeague == "aus.w.1":
+        # fix for feed - Aus Women's league - by default shows no scheduled matches - have to force a date range, if you have not already selected one
+        back_time = now - time.parse_duration("%dh" % (0 * 24))
+        fwd_time = now + time.parse_duration("%dh" % (6 * 24))
         date_range_search = "?dates=%s-%s" % (back_time.format("20060102"), (fwd_time.format("20060102")))
 
     league = {API: API + selectedLeague + "/scoreboard" + date_range_search}
@@ -466,72 +471,40 @@ def main(config):
 
 leagueOptions = [
     schema.Option(
-        display = "Dutch Eredivisie",
-        value = "ned.1",
+        display = "Australian A-League Women",
+        value = "aus.w.1",
     ),
     schema.Option(
-        display = "English Carabo Cup",
-        value = "eng.league_cup",
+        display = "CONCACAF W Championship",
+        value = "concacaf.womens.championship",
     ),
     schema.Option(
-        display = "English FA Cup",
-        value = "eng.fa",
+        display = "English Women's Champions League",
+        value = "uefa.wchampions",
     ),
     schema.Option(
-        display = "English League Championship",
-        value = "eng.2",
+        display = "English Women's FA Cup",
+        value = "eng.w.fa",
     ),
     schema.Option(
-        display = "English League One",
-        value = "eng.3",
+        display = "English Women's Super League",
+        value = "eng.w.1",
     ),
     schema.Option(
-        display = "English League Two",
-        value = "eng.4",
+        display = "United States NWSL",
+        value = "usa.nwsl",
     ),
     schema.Option(
-        display = "English National League",
-        value = "eng.5",
+        display = "Women's International Friendly",
+        value = "fifa.friendly.w",
     ),
     schema.Option(
-        display = "English Premier League",
-        value = "eng.1",
+        display = "Women's Olympics Tournament",
+        value = "fifa.w.olympics",
     ),
     schema.Option(
-        display = "French Ligue 1",
-        value = "fra.1",
-    ),
-    schema.Option(
-        display = "FIFA World Cup",
-        value = "fifa.world",
-    ),
-    schema.Option(
-        display = "German Bundesliga",
-        value = "ger.1",
-    ),
-    schema.Option(
-        display = "Italian Serie A",
-        value = "ita.1",
-    ),
-    schema.Option(
-        display = "Mexican Liga BBVA MX",
-        value = "mex.1",
-    ),
-    schema.Option(
-        display = "Scottish Premiership",
-        value = "sco.1",
-    ),
-    schema.Option(
-        display = "Spanish LaLiga",
-        value = "esp.1",
-    ),
-    schema.Option(
-        display = "UEFA Champions League",
-        value = "uefa.champions",
-    ),
-    schema.Option(
-        display = "UEFA Europa League",
-        value = "uefa.europa",
+        display = "Women's World Cup",
+        value = "fifa.wwc",
     ),
 ]
 
@@ -761,7 +734,7 @@ def show_day_range(day_range):
             schema.Dropdown(
                 id = "days_back",
                 name = "# of days back to show",
-                desc = "Get only data from Today +/- 1 Day",
+                desc = "Number of days back to search for scores",
                 icon = "arrowLeft",
                 default = "1",
                 options = daysOptions,

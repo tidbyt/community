@@ -13,7 +13,12 @@ Displayed:
 - Select League / Tournament to display.  Current Leagues / Tournament options are:
     * Dutch Eredivisie
     * English Carabo Cup
-    * English Premier League
+    * English FA Cup
+    * English League Championship
+    * English League One
+    * English League Two
+    * English National League
+    * English Premiere League
     * French Ligue 1
     * FIFA World Cup
     * German Bundesliga
@@ -26,10 +31,11 @@ Displayed:
 - Select display type
 - Select color for time
 - Select instance count & instance number **  this slows down the cycle of scores - add multiple instances to spread out the timing of rotation
+- Select if you want to show a range of days forward / back instead of just the default API results & specify how many days forward and back.
 
 ## Thanks
 
-Thanks a lot to a bunch of folks who have worked on these various sports apps.  
+Thanks a lot to a bunch of folks who have worked on these various sports apps.  @LunchBox8484 is the original author of many of them.
 
 ## Screenshot
 
