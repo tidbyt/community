@@ -77,6 +77,7 @@ import (
 	"tidbyt.dev/community/apps/gapilotbuddy"
 	"tidbyt.dev/community/apps/githubbadge"
 	"tidbyt.dev/community/apps/githubstargazers"
+	"tidbyt.dev/community/apps/goldpriceticker"
 	"tidbyt.dev/community/apps/goodservice"
 	"tidbyt.dev/community/apps/happyhour"
 	"tidbyt.dev/community/apps/hexcolorclock"
@@ -327,6 +328,7 @@ func GetManifests() []manifest.Manifest {
 		gapilotbuddy.New(),
 		githubbadge.New(),
 		githubstargazers.New(),
+		goldpriceticker.New(),
 		goodservice.New(),
 		happyhour.New(),
 		hexcolorclock.New(),
