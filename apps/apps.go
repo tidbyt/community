@@ -64,6 +64,7 @@ import (
 	"tidbyt.dev/community/apps/ethstaker"
 	"tidbyt.dev/community/apps/fairfaxconnector"
 	"tidbyt.dev/community/apps/fantasynamegen"
+	"tidbyt.dev/community/apps/fido"
 	"tidbyt.dev/community/apps/finevent"
 	"tidbyt.dev/community/apps/fishbyt"
 	"tidbyt.dev/community/apps/fitbitweight"
@@ -310,6 +311,7 @@ func GetManifests() []manifest.Manifest {
 		ethstaker.New(),
 		fairfaxconnector.New(),
 		fantasynamegen.New(),
+		fido.New(),
 		finevent.New(),
 		fishbyt.New(),
 		fitbitweight.New(),
