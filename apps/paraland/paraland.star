@@ -21,7 +21,6 @@ def main(config):
         delay = selected_speed,
         child = render.Image(src = selected_img),
     )
-    
 
 def get_schema():
     # Speed options for the parallax
