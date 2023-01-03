@@ -12,7 +12,7 @@ load("encoding/json.star", "json")
 load("cache.star", "cache")
 
 #SCHEMA is erroring on me saying invaild module.
-#load("schema.star", "schema")
+load("schema.star", "schema")
 
 #In my implementation, this is how I connect to the Twitter API using my account Key:Secret Key
 #I dont know if this works with the OAuth2 Schema because I didnt have a way of testing it to my knowledge.
@@ -51,7 +51,7 @@ def main(config):
         #Commenting out Schema for tests
 
         #Check for API keys
-        """
+        
         if config.get("key", None) != None or config.get("secret", None) != None:
             api_parameters = {
                 "client_id": "{}:{}".format(config.get("key", None), config.get("secret", None)),
@@ -60,7 +60,7 @@ def main(config):
             return render.Root(
                 render.WrappedText("No API Keys!"),
             )
-        """
+        
         #Used for testing (replace the values with your keys but keep the colon)
         test_api_parameters = {
             "client_id": "key:secret_key",
@@ -85,15 +85,13 @@ def main(config):
         #Save to cache for 2 Minutes
         cache.set("twitter_trends_rate", json.encode(top_trends), ttl_seconds = 120)
 
-    #Get limit, default to 10
-    limit = 15
-    #Commenting out Schema for tests
-    """
+    #Get limit, default to 15
+    
     if config.get("key", None) != None:
         limit = int(config.get("key", None))
     else:
-        limit = 10
-    """
+        limit = 15
+    
     top_trends_formatted = format_trends(top_trends, limit)
 
     #Render Screen
@@ -235,7 +233,7 @@ def format_trends(trends_dict, limit):
             return text_list + text_list
 
     return text_list 
-"""
+
 def get_schema():
     return schema.Schema(
         version = "1",
@@ -260,4 +258,3 @@ def get_schema():
             ),
         ],
     )
-    """
