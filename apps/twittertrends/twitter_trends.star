@@ -87,7 +87,6 @@ def main(config):
 
     #Get limit, default to 10
     limit = 10
-
     #Commenting out Schema for tests
     """
     if config.get("key", None) != None:
@@ -161,34 +160,6 @@ def oauth_handler(params):
              (auth_resp.status_code, auth_resp.body()))
 
     return auth_resp.json()["access_token"]
-
-def authenticate():
-    """authenticate() Uses the provided API keys to request permission to use the Twitter API.
-
-    Returns:
-        json: The return from the API request
-    """
-    consumer_key = "3fxGsZlSDqY8L3reOOqXGuojC"
-    consumer_secret_key = "q3BfO4ZWZuj4VNLwmWymooTtqHaDuiz2WVRisSDCQ1t4YlwodI"
-
-    #Reformat the keys
-    key_secret = "{}:{}".format(consumer_key, consumer_secret_key)
-
-    #Encode the keys
-    b64_encoded_key = base64.encode(key_secret)
-
-    #Set up authentication values
-    base_url = "https://api.twitter.com/"
-    auth_url = "{}oauth2/token".format(base_url)
-    auth_headers = {
-        "Authorization": "Basic {}".format(b64_encoded_key),
-        "Content-Type": "application/x-www-form-urlencoded;charset=UTF-6",
-    }
-    auth_data = {
-        "grant_type": "client_credentials",
-    }
-
-    return http.post(auth_url, headers = auth_headers, form_body = auth_data)
 
 def get_data(access_token):
     """get_data will request the top trending hashtags from Twitter.
