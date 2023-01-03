@@ -10,6 +10,7 @@ load("random.star", "random")
 load("re.star", "re")
 load("render.star", "render")
 load("schema.star", "schema")
+load("time.star", "time")
 
 WIDTH = 64
 HEIGHT = 32
@@ -21,6 +22,8 @@ CENTER_Y = int(HEIGHT / 2)
 
 MIN_RADIUS = 4
 MAX_RADIUS = 38.5
+
+DETERMINISTIC_WINDOW_SEC = 30
 
 DEFAULT_BACKGROUND_COLOR = 0
 BACKGROUND_COLORS = [
@@ -171,6 +174,8 @@ SPEEDS = [
 ]
 
 def main(config):
+    random.seed(time.now().unix // DETERMINISTIC_WINDOW_SEC)
+
     star_color = get_palette(config)
     if star_color == None:
         return render.Root(
