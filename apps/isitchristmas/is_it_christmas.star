@@ -50,7 +50,7 @@ def main(config):
     day = now.day
     month = now.month
 
-    christmas_date = config.get("christmas_date")
+    christmas_date = config.get("christmas_date", "12-25")
     christmas_month = int(christmas_date[:2])
     christmas_day = int(christmas_date[3:])
 
@@ -105,7 +105,7 @@ def main(config):
 def get_daysleft(today, timezone, christmas_month, christmas_day):
     if today.month == christmas_month and today.day > christmas_day:
         year = today.year + 1
-    if today.month > christmas_month:
+    elif today.month > christmas_month:
         year = today.year + 1
     else:
         year = today.year
