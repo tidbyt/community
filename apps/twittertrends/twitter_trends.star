@@ -6,13 +6,14 @@ Author: Joseph Esposito
 """
 
 load("render.star", "render")
+load("schema.star", "schema")
 load("http.star", "http")
 load("encoding/base64.star", "base64")
 load("encoding/json.star", "json")
 load("cache.star", "cache")
 
-#SCHEMA is erroring on me saying invaild module.
-load("schema.star", "schema")
+#SCHEMA is erroring on me saying invalid module.
+
 
 #In my implementation, this is how I connect to the Twitter API using my account Key:Secret Key
 #I dont know if this works with the OAuth2 Schema because I didnt have a way of testing it to my knowledge.
@@ -67,7 +68,7 @@ def main(config):
         }
 
         #Submit authentication request to Twitter
-        token = oauth_handler(json.encode(test_api_parameters))
+        token = oauth_handler(json.encode(api_parameters))
 
         #Submit request to Twitter API v1.1
         rep = get_data(token)
