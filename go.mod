@@ -9,7 +9,7 @@ require (
 
 require (
 	github.com/manifoldco/promptui v0.9.0
-	golang.org/x/text v0.5.0
+	golang.org/x/text v0.6.0
 	tidbyt.dev/pixlet v0.22.8
 )
 
