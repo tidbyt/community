@@ -141,6 +141,12 @@ def get_entity_states(config):
     if is_string_blank(token) or is_string_blank(entity_name) or is_string_blank(ha_ip):
         return []
 
+    chached_states = cache.get(token)
+
+    if chached_states != None:
+        print("Using cached state")
+        return json.decode(chached_states)
+
     full_token = "Bearer " + token
     full_url = ha_ip + STATIC_ENDPOINT + entity_name
     headers = {
@@ -158,7 +164,8 @@ def get_entity_states(config):
              (res.status_code, res.body()))
 
     states = res.json()
-    print(states)
+
+    cache.set(token, json.encode(states), ttl_seconds = 6)
 
     return states
 
