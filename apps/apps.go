@@ -75,6 +75,7 @@ import (
 	"tidbyt.dev/community/apps/fullybinarytime"
 	"tidbyt.dev/community/apps/fuzzyclock"
 	"tidbyt.dev/community/apps/gapilotbuddy"
+	"tidbyt.dev/community/apps/githubrepo"
 	"tidbyt.dev/community/apps/githubbadge"
 	"tidbyt.dev/community/apps/githubstargazers"
 	"tidbyt.dev/community/apps/goldpriceticker"
@@ -155,6 +156,7 @@ import (
 	"tidbyt.dev/community/apps/ordertrends"
 	"tidbyt.dev/community/apps/outlookcalendar"
 	"tidbyt.dev/community/apps/pagerduty"
+	"tidbyt.dev/community/apps/paraland"
 	"tidbyt.dev/community/apps/pathtrainschedule"
 	"tidbyt.dev/community/apps/petpikachu"
 	"tidbyt.dev/community/apps/phaseofmoon"
@@ -327,6 +329,7 @@ func GetManifests() []manifest.Manifest {
 		fullybinarytime.New(),
 		fuzzyclock.New(),
 		gapilotbuddy.New(),
+		githubrepo.New(),
 		githubbadge.New(),
 		githubstargazers.New(),
 		goldpriceticker.New(),
@@ -406,6 +409,7 @@ func GetManifests() []manifest.Manifest {
 		ordertrends.New(),
 		outlookcalendar.New(),
 		pagerduty.New(),
+		paraland.New(),
 		pathtrainschedule.New(),
 		petpikachu.New(),
 		phaseofmoon.New(),
