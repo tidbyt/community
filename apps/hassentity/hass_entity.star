@@ -12,7 +12,7 @@ load("http.star", "http")
 load("cache.star", "cache")
 
 STATIC_ENDPOINT = "/api/states/"
-DEFAULT_COLOR = "#ffffff"
+DEFAULT_COLOR = "#aaaaaa"
 
 def main(config):
     entity_name = config.get("entity_name", None)
