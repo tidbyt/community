@@ -1,7 +1,7 @@
 """
 Applet: Hass Entity
 Summary: Display Hass entity state
-Description: Display an externaly accessible Home Assistant entity state or attribute.
+Description: Display an externally accessible Home Assistant entity state or attribute.
 Author: InTheDaylight14
 """
 

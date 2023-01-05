@@ -17,7 +17,7 @@ func New() manifest.Manifest {
 		Name:        "Hass Entity",
 		Author:      "InTheDaylight14",
 		Summary:     "Display Hass entity state",
-		Desc:        "Display an externaly accessible Home Assistant entity state or attribute.",
+		Desc:        "Display an externally accessible Home Assistant entity state or attribute.",
 		FileName:    "hass_entity.star",
 		PackageName: "hassentity",
 		Source:  source,
