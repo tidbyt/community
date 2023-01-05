@@ -29,7 +29,7 @@ def main(config):
     orientation_bool = config.get("orientation") or DEFAULT_ORIENTATION_BOOL
 
     if orientation_bool:
-        orientation = "verticle"
+        orientation = "vertical"
     else:
         orientation = "horizontal"
 
@@ -79,8 +79,8 @@ def get_schema():
         fields = [
             schema.Toggle(
                 id = "orientation",
-                name = "Verticle Orientation?",
-                desc = "Show map in verticle orientation?",
+                name = "Vertical Orientation?",
+                desc = "Show map in vertical orientation?",
                 icon = "rectangle-vertical",
                 default = False,
             ),
@@ -185,7 +185,7 @@ def render_train(train, orientation):
 
     color = "#ffffff"
 
-    if orientation == "verticle":
+    if orientation == "vertical":
         return render.Plot(
             data = location,
             width = 64,
@@ -360,7 +360,7 @@ def get_arrivals(config):
     return arrivals
 
 RED_LINE_POINTS = {
-    "verticle": [
+    "vertical": [
         (0, 13),
         (1, 14),
         (3, 14),
@@ -386,7 +386,7 @@ RED_LINE_POINTS = {
     ],
 }
 GOLD_LINE_POINTS = {
-    "verticle": [
+    "vertical": [
         (6, 23),
         (17, 12),
         (34, 12),
@@ -404,7 +404,7 @@ GOLD_LINE_POINTS = {
     ],
 }
 BLUE_LINE_POINTS = {
-    "verticle": [
+    "vertical": [
         (34, 0),
         (34, 31),
     ],
@@ -414,7 +414,7 @@ BLUE_LINE_POINTS = {
     ],
 }
 GREEN_LINE_POINTS = {
-    "verticle": [
+    "vertical": [
         (31, 3),
         (33, 5),
         (33, 20),
@@ -427,18 +427,18 @@ GREEN_LINE_POINTS = {
 }
 
 RED_LINE_FIVE_POINTS = {
-    "verticle": [(34, 11), (34, 11)],
+    "vertical": [(34, 11), (34, 11)],
     "horizontal": [(9, 15), (9, 15)],
 }
 
 GOLD_LINE_FIVE_POINTS = {
-    "verticle": [(33, 12), (33, 12)],
+    "vertical": [(33, 12), (33, 12)],
     "horizontal": [(10, 16), (10, 16)],
 }
 
 #RED and GOLD use longitude to estimate location on map
 RED_LINE_MAP = {
-    "verticle": [
+    "vertical": [
         (34, 0, 13),
         (33.933, 1, 14),
         (33.9222, 2, 14),
@@ -539,7 +539,7 @@ RED_LINE_MAP = {
 }
 
 GOLD_LINE_MAP = {
-    "verticle": [
+    "vertical": [
         (34, 6, 23),
         (33.8963, 7, 22),
         (33.8874, 8, 21),
@@ -632,7 +632,7 @@ GOLD_LINE_MAP = {
 
 #GREEN and BLUE use latitude to estimate location on map
 GREEN_LINE_MAP = {
-    "verticle": [
+    "vertical": [
         (-85, 31, 3),
         (-84.70905, 32, 4),
         (-84.4181, 33, 5),
@@ -672,7 +672,7 @@ GREEN_LINE_MAP = {
 }
 
 BLUE_LINE_MAP = {
-    "verticle": [
+    "vertical": [
         (-85, 34, 0),
         (-84.4629, 34, 1),
         (-84.4547, 34, 2),
