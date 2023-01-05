@@ -16,7 +16,7 @@ load("cache.star", "cache")
 
 
 #In my implementation, this is how I connect to the Twitter API using my account Key:Secret Key
-#I dont know if this works with the OAuth2 Schema because I didnt have a way of testing it to my knowledge.
+#I don't know if this works with the OAuth2 Schema because I didn't have a way of testing it to my knowledge.
 #In order to get the twitter API keys I applied for an elevated developer account, which was free and easy.
 
 TWITTER_TRENDS_URL = "https://api.twitter.com/1.1/trends/place.json"
@@ -193,6 +193,7 @@ def format_trends(trends_dict, limit):
     #Orange: #ff8c00 Less than 250K
     #Purple: #4d0b80 Less than 500K
     #Red: #a30707 More than 500K
+    #Gold: #cfc91f More than 1M
 
     text_list = []
 
@@ -213,8 +214,10 @@ def format_trends(trends_dict, limit):
                 color = "#ff8c00"  #Orange
             elif vol < 500000:
                 color = "#4d0b80"  #Purple
-            else:
+            elif vol < 999999:
                 color = "#a30707"  #Red
+            else:
+                color = "#cfc91f"  #Gold
 
         #Adjust font if text is long
         if len(key) < 14:
