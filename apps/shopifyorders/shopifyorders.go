@@ -14,10 +14,10 @@ var source []byte
 func New() manifest.Manifest {
 	return manifest.Manifest{
 		ID:          "shopify-orders",
-		Name:        "Shopify Orders",
+		Name:        "Shopify Select",
 		Author:      "Shopify",
-		Summary:     "Show Shopify orders count",
-		Desc:        "Show your Shopify store orders count over a specific time period.",
+		Summary:     "Time period order tracker",
+		Desc:        "View orders you've received during a specific time period like Black Friday, seasonal sales, holiday season, and more.",
 		FileName:    "shopify_orders.star",
 		PackageName: "shopifyorders",
 		Source:  source,

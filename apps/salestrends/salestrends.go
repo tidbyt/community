@@ -14,10 +14,10 @@ var source []byte
 func New() manifest.Manifest {
 	return manifest.Manifest{
 		ID:          "shopify-sales-trends",
-		Name:        "Sales Trends",
+		Name:        "Shopify Sales",
 		Author:      "Shopify",
-		Summary:     "Show trending sales numbers",
-		Desc:        "Show daily, weekly, monthly and/or yearly sales numbers for your Shopify store.",
+		Summary:     "Display sales totals",
+		Desc:        "Showcase your daily, weekly, monthly, or annual sales totals.",
 		FileName:    "sales_trends.star",
 		PackageName: "salestrends",
 		Source:  source,

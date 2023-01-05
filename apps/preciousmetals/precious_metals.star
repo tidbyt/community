@@ -39,8 +39,8 @@ def main(config):
                         main_align = "center",
                         cross_align = "center",
                         children = [
-                            render.Text(height = 10, color = "#C0C0C0", font = "tom-thumb", content = "Au %s" % silver),
-                            render.Text(height = 10, color = "#FFD700", font = "tom-thumb", content = "Ag %s" % gold),
+                            render.Text(height = 10, color = "#C0C0C0", font = "tom-thumb", content = "Ag %s" % silver),
+                            render.Text(height = 10, color = "#FFD700", font = "tom-thumb", content = "Au %s" % gold),
                             render.Text(height = 10, color = "#E5E4E2", font = "tom-thumb", content = "Pt %s" % platinum),
                         ],
                     ),
