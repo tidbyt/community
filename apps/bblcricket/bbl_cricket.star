@@ -13,15 +13,9 @@ Description: This app takes the selected team and displays the current match sit
 Author: M0ntyP 
 """
 
-"""
-Stuff to fix up -
-Look at pushing the "render" bits to a list with extend etc. and have a single render.Root to tighten it up
-Bad light status
-"""
-
 LiveGames_URL = "https://hs-consumer-api.espncricinfo.com/v1/pages/matches/current?lang=en&latest=true"
 Standings_URL = "https://hs-consumer-api.espncricinfo.com/v1/pages/series/standings?lang=en&seriesId=1324623"
-DEFAULT_TEAM = "4843"
+DEFAULT_TEAM = "4848"
 
 DEFAULT_LOCATION = """ 
 {
@@ -173,22 +167,21 @@ def main(config):
 
             # what to show on the status bar, depending on state of game, team batting first or second & fall of wicket
             if T20_Innings == 1:
-                if MatchStatus == "Innings break":
-                    T20_Status1 = MatchStatus
-                    T20_Status4 = MatchStatus
-                elif MatchStatus == "Live":
+                if MatchStatus == "Live":
                     T20_Status1 = "1st Inns - " + MatchStatus
                     T20_Status4 = "Proj Score: " + ProjScore
+                elif MatchStatus == "Innings break":
+                    T20_Status1 = MatchStatus
+                    T20_Status4 = MatchStatus
                 elif MatchStatus == "Match delayed by rain":
                     MatchStatus = "Rain Delay"
                     T20_Status1 = MatchStatus
                 else:
                     T20_Status1 = MatchStatus
-
                 T20_Status2 = "Overs: " + Overs
                 T20_Status3 = "Run Rate: " + CRR
+                # 2nd Innings underway
 
-                # Team batting second
             else:
                 T20_Status1 = BattingTeamAbbr + TrailBy
                 T20_Status2 = "Overs: " + Overs
@@ -210,48 +203,46 @@ def main(config):
                     T20_Status2 = BattingTeamAbbr + TrailBy
                     T20_Status3 = "Overs: " + Overs
                     T20_Status4 = "Req Rate: " + RRR
-
-                # Display all status msg in red
                 T20_StatusColor = "#f00"
+
+            renderScreens = [
+                render.Column(
+                    children = [
+                        TeamScore(BattingTeam, BattingTeamColor, Wickets, Runs),
+                        BatsmanScore(Batsman1, Batsman1_Runs_Str, BatsmanColor),
+                        BatsmanScore(Batsman2, Batsman2_Runs_Str, Batsman2Color),
+                        StatusRow(T20_Status1, T20_StatusColor),
+                    ],
+                ),
+                render.Column(
+                    children = [
+                        TeamScore(BattingTeam, BattingTeamColor, Wickets, Runs),
+                        BatsmanScore(Batsman1, Batsman1_Runs_Str, BatsmanColor),
+                        BatsmanScore(Batsman2, Batsman2_Runs_Str, Batsman2Color),
+                        StatusRow(T20_Status2, T20_StatusColor),
+                    ],
+                ),
+                render.Column(
+                    children = [
+                        TeamScore(BattingTeam, BattingTeamColor, Wickets, Runs),
+                        BatsmanScore(Batsman1, Batsman1_Runs_Str, BatsmanColor),
+                        BatsmanScore(Batsman2, Batsman2_Runs_Str, Batsman2Color),
+                        StatusRow(T20_Status3, T20_StatusColor),
+                    ],
+                ),
+                render.Column(
+                    children = [
+                        TeamScore(BattingTeam, BattingTeamColor, Wickets, Runs),
+                        BatsmanScore(Batsman1, Batsman1_Runs_Str, BatsmanColor),
+                        BatsmanScore(Batsman2, Batsman2_Runs_Str, Batsman2Color),
+                        StatusRow(T20_Status4, T20_StatusColor),
+                    ],
+                ),
+            ]
 
             return render.Root(
                 delay = int(4000),
-                child = render.Animation(
-                    children = [
-                        render.Column(
-                            children = [
-                                TeamScore(BattingTeam, BattingTeamColor, Wickets, Runs),
-                                BatsmanScore(Batsman1, Batsman1_Runs_Str, BatsmanColor),
-                                BatsmanScore(Batsman2, Batsman2_Runs_Str, Batsman2Color),
-                                StatusRow(T20_Status1, T20_StatusColor),
-                            ],
-                        ),
-                        render.Column(
-                            children = [
-                                TeamScore(BattingTeam, BattingTeamColor, Wickets, Runs),
-                                BatsmanScore(Batsman1, Batsman1_Runs_Str, BatsmanColor),
-                                BatsmanScore(Batsman2, Batsman2_Runs_Str, Batsman2Color),
-                                StatusRow(T20_Status2, T20_StatusColor),
-                            ],
-                        ),
-                        render.Column(
-                            children = [
-                                TeamScore(BattingTeam, BattingTeamColor, Wickets, Runs),
-                                BatsmanScore(Batsman1, Batsman1_Runs_Str, BatsmanColor),
-                                BatsmanScore(Batsman2, Batsman2_Runs_Str, Batsman2Color),
-                                StatusRow(T20_Status3, T20_StatusColor),
-                            ],
-                        ),
-                        render.Column(
-                            children = [
-                                TeamScore(BattingTeam, BattingTeamColor, Wickets, Runs),
-                                BatsmanScore(Batsman1, Batsman1_Runs_Str, BatsmanColor),
-                                BatsmanScore(Batsman2, Batsman2_Runs_Str, Batsman2Color),
-                                StatusRow(T20_Status4, T20_StatusColor),
-                            ],
-                        ),
-                    ],
-                ),
+                child = render.Animation(children = renderScreens),
             )
 
             # Game has completed
@@ -481,130 +472,48 @@ def main(config):
             T20_Status4 = "MOM: " + MOM
             T20_Status4Color = MOM_TeamColor
 
-            return render.Root(
-                delay = int(4000),
-                child = render.Animation(
+            renderScreens = [
+                render.Column(
                     children = [
-                        render.Column(
-                            children = [
-                                TeamScore(BattingTeam, BattingTeamColor, Wickets, Runs),
-                                BatsmanScore(Batsman1, Batsman1_Runs_Str, BatsmanColor),
-                                BatsmanScore(Batsman2, Batsman2_Runs_Str, Batsman2Color),
-                                StatusRow(T20_Status1, T20_Status1Color),
-                            ],
-                        ),
-                        render.Column(
-                            children = [
-                                TeamScore(BattingTeam, BattingTeamColor, Wickets, Runs),
-                                BatsmanScore(Batsman1, Batsman1_Runs_Str, BatsmanColor),
-                                BatsmanScore(Batsman2, Batsman2_Runs_Str, Batsman2Color),
-                                StatusRow(T20_Status2, T20_Status2Color),
-                            ],
-                        ),
-                        render.Column(
-                            children = [
-                                TeamScore(BattingTeam, BattingTeamColor, Wickets, Runs),
-                                BatsmanScore(Batsman1, Batsman1_Runs_Str, BatsmanColor),
-                                BatsmanScore(Batsman2, Batsman2_Runs_Str, Batsman2Color),
-                                StatusRow(T20_Status3, T20_Status3Color),
-                            ],
-                        ),
-                        render.Column(
-                            children = [
-                                TeamScore(BattingTeam, BattingTeamColor, Wickets, Runs),
-                                BatsmanScore(Batsman1, Batsman1_Runs_Str, BatsmanColor),
-                                BatsmanScore(Batsman2, Batsman2_Runs_Str, Batsman2Color),
-                                StatusRow(T20_Status4, T20_Status1Color),
-                            ],
-                        ),
+                        TeamScore(BattingTeam, BattingTeamColor, Wickets, Runs),
+                        BatsmanScore(Batsman1, Batsman1_Runs_Str, BatsmanColor),
+                        BatsmanScore(Batsman2, Batsman2_Runs_Str, Batsman2Color),
+                        StatusRow(T20_Status1, T20_StatusColor),
                     ],
                 ),
+                render.Column(
+                    children = [
+                        TeamScore(BattingTeam, BattingTeamColor, Wickets, Runs),
+                        BatsmanScore(Batsman1, Batsman1_Runs_Str, BatsmanColor),
+                        BatsmanScore(Batsman2, Batsman2_Runs_Str, Batsman2Color),
+                        StatusRow(T20_Status2, T20_StatusColor),
+                    ],
+                ),
+                render.Column(
+                    children = [
+                        TeamScore(BattingTeam, BattingTeamColor, Wickets, Runs),
+                        BatsmanScore(Batsman1, Batsman1_Runs_Str, BatsmanColor),
+                        BatsmanScore(Batsman2, Batsman2_Runs_Str, Batsman2Color),
+                        StatusRow(T20_Status3, T20_StatusColor),
+                    ],
+                ),
+                render.Column(
+                    children = [
+                        TeamScore(BattingTeam, BattingTeamColor, Wickets, Runs),
+                        BatsmanScore(Batsman1, Batsman1_Runs_Str, BatsmanColor),
+                        BatsmanScore(Batsman2, Batsman2_Runs_Str, Batsman2Color),
+                        StatusRow(T20_Status4, T20_StatusColor),
+                    ],
+                ),
+            ]
+
+            return render.Root(
+                delay = int(4000),
+                child = render.Animation(children = renderScreens),
             )
 
             # Game is coming up
-        elif Match_JSON["match"]["stage"] == "SCHEDULED":
-            # Who is playing who
-            Team1_Name = Match_JSON["match"]["teams"][0]["team"]["name"]
-            Team2_Name = Match_JSON["match"]["teams"][1]["team"]["name"]
-            Team1_ID = Match_JSON["match"]["teams"][0]["team"]["id"]
-            Team2_ID = Match_JSON["match"]["teams"][1]["team"]["id"]
-
-            Team1_Color = getTeamFontColor(Team1_ID)
-            Team2_Color = getTeamFontColor(Team2_ID)
-
-            # Get the time of the game in the user's timezone
-            StartTime = Match_JSON["match"]["startTime"]
-            ParseTime = time.parse_time(StartTime, format = "2006-01-02T15:04:00.000Z")
-            MatchTimezone = Match_JSON["match"]["ground"]["town"]["timezone"]
-
-            location = DEFAULT_LOCATION
-            loc = json.decode(location)
-            timezone = loc["timezone"]
-
-            MyTime = time.parse_time(StartTime, format = "2006-01-02T15:04:00.000Z").in_location(timezone)
-            Time = MyTime.format("15:04")
-            Date = MyTime.format("Jan 2")
-
-            Standings_JSON = http.get(Standings_URL).json()
-            Ladder = Standings_JSON["content"]["standings"]["groups"][0]["teamStats"]
-
-            # Team1 Record
-            for x in range(0, len(Ladder), 1):
-                if Ladder[x]["teamInfo"]["id"] == Team1_ID:
-                    Won1 = humanize.ftoa(Ladder[x]["matchesWon"])
-                    Lost1 = humanize.ftoa(Ladder[x]["matchesLost"])
-                    NR1 = humanize.ftoa(Ladder[x]["matchesNoResult"])
-
-            # Team2 Record
-            for x in range(0, len(Ladder), 1):
-                if Ladder[x]["teamInfo"]["id"] == Team2_ID:
-                    Won2 = humanize.ftoa(Ladder[x]["matchesWon"])
-                    Lost2 = humanize.ftoa(Ladder[x]["matchesLost"])
-                    NR2 = humanize.ftoa(Ladder[x]["matchesNoResult"])
-
-            return render.Root(
-                child = render.Column(
-                    main_align = "start",
-                    cross_align = "start",
-                    children = [
-                        render.Row(
-                            children = [
-                                render.Box(width = 44, height = 12, child = render.Padding(
-                                    pad = (2, 1, 0, 0),
-                                    child = render.Marquee(
-                                        width = 44,
-                                        child = render.Text(content = Team1_Name, color = Team1_Color, font = "CG-pixel-3x5-mono", offset = 0),
-                                    ),
-                                )),
-                                render.Box(width = 20, height = 12, child = render.Text(content = Won1 + "-" + Lost1 + "-" + NR1, color = Team1_Color, font = "CG-pixel-3x5-mono")),
-                            ],
-                        ),
-                        render.Row(
-                            children = [
-                                render.Box(width = 44, height = 12, child = render.Padding(
-                                    pad = (2, 1, 0, 0),
-                                    child = render.Marquee(
-                                        width = 44,
-                                        child = render.Text(content = Team2_Name, color = Team2_Color, font = "CG-pixel-3x5-mono", offset = 0),
-                                    ),
-                                )),
-                                render.Box(width = 20, height = 12, child = render.Text(content = Won2 + "-" + Lost2 + "-" + NR2, color = Team2_Color, font = "CG-pixel-3x5-mono")),
-                            ],
-                        ),
-                        render.Row(
-                            expanded = True,
-                            main_align = "space_between",
-                            cross_align = "end",
-                            children = [
-                                render.Box(width = 64, height = 8, child = render.Text(content = Date + " - " + Time, color = "#FFF", font = "CG-pixel-3x5-mono")),
-                            ],
-                        ),
-                    ],
-                ),
-            )
-
-            # Game is just about to start
-        elif Match_JSON["match"]["state"] == "PRE":
+        elif Match_JSON["match"]["stage"] == "SCHEDULED" or "PRE":
             # Who is playing who
             Team1_Name = Match_JSON["match"]["teams"][0]["team"]["name"]
             Team2_Name = Match_JSON["match"]["teams"][1]["team"]["name"]
