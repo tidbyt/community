@@ -441,9 +441,14 @@ def main(config):
 
             BattingTeam = Match_JSON["scorecard"]["innings"][Innings]["team"]["name"]
 
-            MOM = Match_JSON["supportInfo"]["playersOfTheMatch"][0]["player"]["fieldingName"]
-            MOM_TeamID = Match_JSON["supportInfo"]["mostValuedPlayerOfTheMatch"]["team"]["id"]
-            MOM_TeamColor = getTeamFontColor(MOM_TeamID)
+            if (Match_JSON["supportInfo"]["mostValuedPlayerOfTheMatch"]):
+                #print("YES")
+                MVP = Match_JSON["supportInfo"]["mostValuedPlayerOfTheMatch"]["player"]["fieldingName"]
+                MVP_TeamID = Match_JSON["supportInfo"]["mostValuedPlayerOfTheMatch"]["team"]["id"]
+                MVP_TeamColor = getTeamFontColor(MVP_TeamID)
+            else:
+                MVP = "TBA"
+                MVP_TeamColor = "#fff"
             WinnerID = Match_JSON["match"]["winnerTeamId"]
             WinnerColor = getTeamFontColor(WinnerID)
 
@@ -469,8 +474,8 @@ def main(config):
             T20_Status2Color = "#fff"
             T20_Status3 = BestBowl + " " + BestBowlWickets + "/" + BestBowlRuns
             T20_Status3Color = "#fff"
-            T20_Status4 = "MOM: " + MOM
-            T20_Status4Color = MOM_TeamColor
+            T20_Status4 = "MVP: " + MVP
+            T20_Status4Color = MVP_TeamColor
 
             renderScreens = [
                 render.Column(
@@ -478,7 +483,7 @@ def main(config):
                         TeamScore(BattingTeam, BattingTeamColor, Wickets, Runs),
                         BatsmanScore(Batsman1, Batsman1_Runs_Str, BatsmanColor),
                         BatsmanScore(Batsman2, Batsman2_Runs_Str, Batsman2Color),
-                        StatusRow(T20_Status1, T20_StatusColor),
+                        StatusRow(T20_Status1, T20_Status1Color),
                     ],
                 ),
                 render.Column(
@@ -486,7 +491,7 @@ def main(config):
                         TeamScore(BattingTeam, BattingTeamColor, Wickets, Runs),
                         BatsmanScore(Batsman1, Batsman1_Runs_Str, BatsmanColor),
                         BatsmanScore(Batsman2, Batsman2_Runs_Str, Batsman2Color),
-                        StatusRow(T20_Status2, T20_StatusColor),
+                        StatusRow(T20_Status2, T20_Status2Color),
                     ],
                 ),
                 render.Column(
@@ -494,7 +499,7 @@ def main(config):
                         TeamScore(BattingTeam, BattingTeamColor, Wickets, Runs),
                         BatsmanScore(Batsman1, Batsman1_Runs_Str, BatsmanColor),
                         BatsmanScore(Batsman2, Batsman2_Runs_Str, Batsman2Color),
-                        StatusRow(T20_Status3, T20_StatusColor),
+                        StatusRow(T20_Status3, T20_Status3Color),
                     ],
                 ),
                 render.Column(
@@ -502,7 +507,7 @@ def main(config):
                         TeamScore(BattingTeam, BattingTeamColor, Wickets, Runs),
                         BatsmanScore(Batsman1, Batsman1_Runs_Str, BatsmanColor),
                         BatsmanScore(Batsman2, Batsman2_Runs_Str, Batsman2Color),
-                        StatusRow(T20_Status4, T20_StatusColor),
+                        StatusRow(T20_Status4, T20_Status4Color),
                     ],
                 ),
             ]
