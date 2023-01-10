@@ -11,9 +11,6 @@ load("html.star", "html")
 load("http.star", "http")
 load("render.star", "render")
 load("schema.star", "schema")
-load("encoding/csv.star", "csv")
-load("encoding/base64.star", "base64")
-load("time.star", "time")
 
 #URL TO NJ TRANSIT DEPARTURE VISION WEBSITE
 NJ_TRANSIT_DV_URL = "https://www.njtransit.com/dv-to"
@@ -36,9 +33,9 @@ COLOR_MAP = {
     "ACRL": "#2e55a5",  #Atlantic City
     "AMTK": "#ffca18",  #Amtrak
     "BERG": "#c3c3c3",  #Bergen
+    "M&E": "#28943b",  #Morris & Essex
     "MAIN": "#fbb600",  #Main-Bergen Line
     "MOBO": "#c26366",  #Montclair-Boonton
-    "M&E": "#28943b",  #Morris & Essex
     "NEC": "#f54f5e",  #Northeast Corridor
     "NJCL": "#339cdb",  #North Jersey Coast
     "PASC": "#a34e8a",  #Pascack Valley
@@ -276,7 +273,7 @@ Function gets the destation froma  given depature
 
 def get_destination_name(data):
     nodes = data.find(".media-body").first().find(".mb-0")
-    destination_name = nodes.eq(0).text().strip().replace("\u2708", "EWR").upper()
+    destination_name = nodes.eq(0).text().strip().replace("\\u2708", "EWR").upper()
     return destination_name
 
 """

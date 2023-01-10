@@ -30,19 +30,19 @@ Author: Henry So, Jr.
 
 # See comments in the code for further attribution
 
-load("time.star", "time")
+load("encoding/base64.star", "base64")
+load("encoding/json.star", "json")
 load("math.star", "math")
 load("render.star", "render")
 load("schema.star", "schema")
-load("encoding/base64.star", "base64")
-load("encoding/json.star", "json")
+load("time.star", "time")
 
 WIDTH = 64
 HALF_W = WIDTH // 2
 HEIGHT = 32
 HALF_H = HEIGHT // 2
-HDIV = 360 / WIDTH
-HALF_HDIV = HDIV / 2
+HDIV = 360 // WIDTH
+HALF_HDIV = HDIV // 2
 COEF = 360 / 365.24
 DATE_H = 7
 
@@ -249,7 +249,7 @@ def sunrise_plot(tm):
     return (
         tan_dec > 0,
         [
-            HALF_H - round(lat(lon) * HALF_H / 90)
+            HALF_H - round(lat(lon) * HALF_H // 90)
             #lat(lon)
             for lon in LONGITUDES
         ],
@@ -312,9 +312,9 @@ LONGITUDES = [
 DEFAULT_TIMEZONE = "America/New_York"
 
 TIME_FORMATS = {
-    "omit": None,
     "12-hour": ("3:04", "3 04", True),
     "24-hour": ("15:04", "15 04", False),
+    "omit": None,
 }
 
 CHARS = {

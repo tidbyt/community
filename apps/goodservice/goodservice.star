@@ -5,11 +5,11 @@ Description: Projected New York City subway departure times, powered by goodserv
 Author: blahblahblah-
 """
 
+load("encoding/base64.star", "base64")
+load("http.star", "http")
 load("render.star", "render")
 load("schema.star", "schema")
 load("time.star", "time")
-load("http.star", "http")
-load("encoding/base64.star", "base64")
 
 DEFAULT_STOP_ID = "M16"
 DEFAULT_DIRECTION = "both"
@@ -17,10 +17,10 @@ GOOD_SERVICE_STOPS_URL_BASE = "https://goodservice.io/api/stops/"
 GOOD_SERVICE_ROUTES_URL = "https://goodservice.io/api/routes/"
 
 NAME_OVERRIDE = {
-    "Grand Central-42 St": "Grand Cntrl",
-    "Times Sq-42 St": "Times Sq",
     "Coney Island-Stillwell Av": "Coney Is",
+    "Grand Central-42 St": "Grand Cntrl",
     "South Ferry": "S Ferry",
+    "Times Sq-42 St": "Times Sq",
 }
 
 STREET_ABBREVIATIONS = [
@@ -33,19 +33,19 @@ STREET_ABBREVIATIONS = [
 ]
 
 ABBREVIATIONS = {
-    "World Trade Center": "WTC",
-    "Center": "Ctr",
-    "Metropolitan": "Metrop",
-    "Blvd": "Bl",
-    "Park": "Pk",
     "Beach": "Bch",
-    "Rockaway": "Rckwy",
+    "Blvd": "Bl",
+    "Broadway": "Bway",
+    "Center": "Ctr",
     "Channel": "Chnl",
     "Green": "Grn",
-    "Broadway": "Bway",
-    "Queensboro": "Q Boro",
+    "Metropolitan": "Metrop",
+    "Park": "Pk",
     "Plaza": "Plz",
+    "Queensboro": "Q Boro",
+    "Rockaway": "Rckwy",
     "Whitehall": "Whthall",
+    "World Trade Center": "WTC",
 }
 
 DIAMONDS = {
@@ -100,7 +100,7 @@ def main(config):
                 else:
                     continue
             else:
-                upcoming_routes[dir].append({"route_id": trip["route_id"], "destination_stop": trip["destination_stop"], "times": [trip["estimated_current_stop_arrival_time"]], "is_delayed": [trip["is_delayed"]]})
+                upcoming_routes[dir].append({"destination_stop": trip["destination_stop"], "is_delayed": [trip["is_delayed"]], "route_id": trip["route_id"], "times": [trip["estimated_current_stop_arrival_time"]]})
 
         for dir in directions:
             for r in upcoming_routes[dir]:
@@ -120,7 +120,7 @@ def main(config):
                         destination = condense_name(s["name"])
                         break
 
-                first_eta = (int(r["times"][0]) - ts) / 60
+                first_eta = (int(r["times"][0]) - ts) // 60
                 first_train_is_delayed = r["is_delayed"][0]
 
                 if first_train_is_delayed:
@@ -133,7 +133,7 @@ def main(config):
                 if len(r["times"]) == 1 and text != "due" and text != "delay":
                     text = text + " min"
                 elif text != "delay":
-                    second_eta = (int((r["times"][1]) - ts) / 60)
+                    second_eta = (int((r["times"][1]) - ts) // 60)
                     second_train_is_delayed = r["is_delayed"][1]
                     if second_train_is_delayed:
                         if first_eta < 1:

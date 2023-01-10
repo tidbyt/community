@@ -5,13 +5,13 @@ Description: Show Current exchange rate for multiple coins.
 Author: alan-oliv
 """
 
-load("render.star", "render")
-load("schema.star", "schema")
 load("animation.star", "animation")
-load("http.star", "http")
-load("humanize.star", "humanize")
 load("cache.star", "cache")
 load("encoding/json.star", "json")
+load("http.star", "http")
+load("humanize.star", "humanize")
+load("render.star", "render")
+load("schema.star", "schema")
 
 # Theme
 BACKGROUND_COLOR = "#000000"

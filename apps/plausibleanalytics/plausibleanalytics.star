@@ -5,15 +5,15 @@ Description: Display you website's analytics from your Plausible Analytics accou
 Author: brettohland
 """
 
-load("render.star", "render")
-load("encoding/base64.star", "base64")
-load("http.star", "http")
-load("schema.star", "schema")
 load("cache.star", "cache")
-load("time.star", "time")
-load("humanize.star", "humanize")
+load("encoding/base64.star", "base64")
 load("encoding/json.star", "json")
 load("hash.star", "hash")
+load("http.star", "http")
+load("humanize.star", "humanize")
+load("render.star", "render")
+load("schema.star", "schema")
+load("time.star", "time")
 
 METRIC_OPTIONS = [
     schema.Option(

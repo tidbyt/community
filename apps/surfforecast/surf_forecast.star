@@ -5,15 +5,15 @@ Description: Daily surf forecast for any spot on Surfline.
 Author: smith-kyle
 """
 
-load("render.star", "render")
-load("math.star", "math")
-load("http.star", "http")
-load("time.star", "time")
+load("cache.star", "cache")
 load("encoding/base64.star", "base64")
 load("encoding/json.star", "json")
-load("cache.star", "cache")
-load("sunrise.star", "sunrise")
+load("http.star", "http")
+load("math.star", "math")
+load("render.star", "render")
 load("schema.star", "schema")
+load("sunrise.star", "sunrise")
+load("time.star", "time")
 
 SURFLINE_RATING_URL = "https://services.surfline.com/kbyg/spots/forecasts/rating?spotId={spot_id}&days=1&intervalHours=1&correctedWind=False"
 SURFLINE_WAVE_URL = "https://services.surfline.com/kbyg/spots/forecasts/wave?spotId={spot_id}&days=1&intervalHours=1"
@@ -21,22 +21,22 @@ SURFLINE_WIND_URL = "https://services.surfline.com/kbyg/spots/forecasts/wind?spo
 SURFLINE_QUERY_URL = "https://services.surfline.com/onboarding/spots?query={query}&limit=5&offset=0&camsOnly=false"
 
 COLOR_BY_SURFLINE_RATING = {
-    "FLAT": "#A2ACB9",
-    "VERY_POOR": "#A2ACB9",
-    "POOR": "#429CFF",
-    "POOR_TO_FAIR": "#2FD2E8",
+    "EPIC": "#DD452D",
     "FAIR": "#18D64C",
     "FAIR_TO_GOOD": "#FFD100",
+    "FLAT": "#A2ACB9",
     "GOOD": "#FF8F00",
-    "EPIC": "#DD452D",
+    "POOR": "#429CFF",
+    "POOR_TO_FAIR": "#2FD2E8",
+    "VERY_POOR": "#A2ACB9",
 }
 
 COLORS = {
-    "MAX_BAR": "#66b5fa",
-    "MIN_BAR": "#0058b0",
     "BLACK": "#000000",
     "DAYLIGHT": "#ffffff28",
     "DUSK": "#ffffff22",
+    "MAX_BAR": "#66b5fa",
+    "MIN_BAR": "#0058b0",
 }
 
 DEFAULT_SPOT = {
@@ -76,11 +76,11 @@ TIME_INDEXES = [1, 4, 7, 10, 13, 16, 19, 22]
 def get_state(config):
     now = time.now()
     return {
-        "now": now,
-        "spot_id": get_spot_id_from_config(config),
         "display_name": get_display_name_from_config(config),
-        "wave_response": get_wave_response(config),
+        "now": now,
         "rating_response": get_rating_response(config),
+        "spot_id": get_spot_id_from_config(config),
+        "wave_response": get_wave_response(config),
         "wind_response": get_wind_response(config),
     }
 
@@ -147,12 +147,12 @@ def get_is_rise_before_set(state):
 def get_rise_as_ratio_of_day(state):
     sunrise_local = get_sunrise_local(state)
     utc_offset = get_utc_offset(state)
-    return ((normalize_hour(sunrise_local.hour + utc_offset)) * 60 + sunrise_local.minute) / (24 * 60)
+    return ((normalize_hour(sunrise_local.hour + utc_offset)) * 60 + sunrise_local.minute) // (24 * 60)
 
 def get_set_as_ratio_of_day(state):
     sunset_local = get_sunset_local(state)
     utc_offset = get_utc_offset(state)
-    return ((normalize_hour(sunset_local.hour + utc_offset)) * 60 + sunset_local.minute) / (24 * 60)
+    return ((normalize_hour(sunset_local.hour + utc_offset)) * 60 + sunset_local.minute) // (24 * 60)
 
 def get_sunlight_left_padding(state):
     rise_as_ratio_of_day = get_rise_as_ratio_of_day(state)
@@ -264,10 +264,10 @@ def get_bar_data(state):
 
     return [
         {
+            "IS_CURRENT": w == current_displayed_wave,
             "MAX_BAR_HEIGHT": get_top_bar_height(w, wave_ft_to_pixel),
             "MIN_BAR_HEIGHT": get_bottom_bar_height(w, wave_ft_to_pixel),
             "RATING_COLOR": get_rating_color(r),
-            "IS_CURRENT": w == current_displayed_wave,
         }
         for r, w in zip(ratings, waves)
     ]

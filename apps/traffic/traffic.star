@@ -6,14 +6,14 @@ Author: Rob Kimball
 Honorable Mention: LukiLeu, for the inspiration with Google Traffic
 """
 
+load("cache.star", "cache")
+load("encoding/base64.star", "base64")
+load("encoding/json.star", "json")
 load("http.star", "http")
 load("math.star", "math")
-load("time.star", "time")
-load("cache.star", "cache")
 load("render.star", "render")
 load("schema.star", "schema")
-load("encoding/json.star", "json")
-load("encoding/base64.star", "base64")
+load("time.star", "time")
 
 BING_URL = "http://dev.virtualearth.net/REST/v1"
 MQ_URL = "http://www.mapquestapi.com"
@@ -21,9 +21,9 @@ ORS_URL = "https://api.openrouteservice.org"
 
 BASE_CACHE = "traffic"
 CACHE_TTL = {
-    "location": 60 * 60 * 365,  # locations are very unlikely to change coorindates, so we'll keep these for 1 year
-    "directions": 60 * 5,  # to reduce API load, we'll only request directions every 5 minutes
     "bing": 60 * 15,  # Bing Maps allows 125k transactions annually before we're billed, so we'll cache slightly longer
+    "directions": 60 * 5,  # to reduce API load, we'll only request directions every 5 minutes
+    "location": 60 * 60 * 365,  # locations are very unlikely to change coorindates, so we'll keep these for 1 year
 }
 
 DEFAULT_FONT = "tb-8"
@@ -45,14 +45,14 @@ the time in red if we estimate the trip will be twice as long as it would be wit
 
 SAMPLE_DATA = {
     "coordinates": {
-        "origin": ("40.644461105185385", "-73.78255247613296"),  # Kennedy Airport
         "destination": ("40.771771628998565", "-73.97485055572092"),  # Central Park
+        "origin": ("40.644461105185385", "-73.78255247613296"),  # Kennedy Airport
         # "origin": ("47.378954", "8.535667"),  # Zurich, CHE
         # "destination": ("47.165775", "8.516988"),  # Zug, CHE
     },
     "labels": {
-        "origin": "JFK Airport",
         "destination": "Central Park",
+        "origin": "JFK Airport",
         # "origin": "Zurich",
         # "destination": "Zug",
     },
@@ -60,19 +60,19 @@ SAMPLE_DATA = {
     "time_to_destination": {
         "Driving": time.parse_duration("994.7s"),
         "Transit": time.parse_duration("3120.1s"),
-        "fastest": time.parse_duration("994.7s"),
-        "shortest": time.parse_duration("994.7s"),
+        "bicycle": time.parse_duration("2259.8s"),
+        "cycling-electric": time.parse_duration("1843.6s"),
+        "cycling-mountain": time.parse_duration("1960.1s"),
+        "cycling-regular": time.parse_duration("2259.8s"),
+        "cycling-road": time.parse_duration("1743.2s"),
         "driving-car": time.parse_duration("994.7s"),
         "driving-hgv": time.parse_duration("1058.1s"),
-        "bicycle": time.parse_duration("2259.8s"),
-        "cycling-road": time.parse_duration("1743.2s"),
-        "cycling-regular": time.parse_duration("2259.8s"),
-        "cycling-mountain": time.parse_duration("1960.1s"),
-        "cycling-electric": time.parse_duration("1843.6s"),
-        "pedestrian": time.parse_duration("5601.3s"),
-        "wheelchair": time.parse_duration("6517.7s"),
+        "fastest": time.parse_duration("994.7s"),
         "foot-hiking": time.parse_duration("6352.5s"),
         "foot-walking": time.parse_duration("5601.3s"),
+        "pedestrian": time.parse_duration("5601.3s"),
+        "shortest": time.parse_duration("994.7s"),
+        "wheelchair": time.parse_duration("6517.7s"),
     },
 }
 
@@ -85,24 +85,24 @@ BING_MODES = {
 }
 
 ORS_MODES = {
+    "E-Bike": "cycling-electric",
     # We'll use MapQuest for these modes
     # "Car": "driving-car",
     # "Bike": "cycling-regular",
     # "Walking": "foot-walking",  # this mode includes ferries by default but not other forms of public transit
     "Hiking": "foot-hiking",
-    "Wheelchair": "wheelchair",
-    "Road bike": "cycling-road",
-    "E-Bike": "cycling-electric",
     "Mountain bike": "cycling-mountain",
+    "Road bike": "cycling-road",
+    "Wheelchair": "wheelchair",
     # "Truck (LGV)": "driving-hgv",  # This isn't useful unless we allow people to specify the dimensions of the truck
 }
 
 # "routeType" parameter
 MQ_MODES = {
+    "Bike": "bicycle",
     "Driving - Fastest": "fastest",
     "Driving - Shortest": "shortest",
     "Walking": "pedestrian",
-    "Bike": "bicycle",
 }
 
 def round(num, precision):
@@ -565,16 +565,16 @@ def main(config):
             avoid_configs = {
                 "avoid_bandt": ["Bridge", "Tunnel"],
                 "avoid_ferry": ["Ferry"],
+                "avoid_highways": ["Limited Access"],
                 "avoid_tolls": ["Toll Road"],
                 "avoid_unpaved": ["Unpaved"],
-                "avoid_highways": ["Limited Access"],
             }
         elif service == "Bing":
             avoid_configs = {
                 "avoid_ferry": ["ferry"],
-                "avoid_tolls": ["tolls"],
                 # Minimize instead of remove since we still want the routing to succeed if we can't do without it
                 "avoid_highways": ["minimizeHighways"],
+                "avoid_tolls": ["tolls"],
             }
         avoids = []
         for cfg_key, features in avoid_configs.items():
@@ -812,16 +812,16 @@ WHEELCHAIR_ICON = base64.decode("""iVBORw0KGgoAAAANSUhEUgAAAAoAAAAKCAYAAACNMs+9A
 
 MODE_ICONS = {
     "Driving": CAR_ICON,
-    "fastest": CAR_ICON,
-    "shortest": CAR_ICON,
-    "driving-car": CAR_ICON,
     "Transit": TRAIN_ICON,
-    "pedestrian": WALK_ICON,
-    "foot-hiking": WALK_ICON,
     "bicycle": BIKE_ICON,
-    "cycling-regular": BIKE_ICON,
     "cycling-electric": EBIKE_ICON,
-    "wheelchair": WHEELCHAIR_ICON,
-    "cycling-road": BIKE_ICON,
     "cycling-mountain": MTNBIKE_ICON,
+    "cycling-regular": BIKE_ICON,
+    "cycling-road": BIKE_ICON,
+    "driving-car": CAR_ICON,
+    "fastest": CAR_ICON,
+    "foot-hiking": WALK_ICON,
+    "pedestrian": WALK_ICON,
+    "shortest": CAR_ICON,
+    "wheelchair": WHEELCHAIR_ICON,
 }

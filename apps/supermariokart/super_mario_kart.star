@@ -11,15 +11,15 @@ load("schema.star", "schema")
 load("time.star", "time")
 
 CHARACTER_LIST = {
+    "Bowser": "bowser",
+    "Donkey Kong": "dk",
+    "Koopa": "koopa",
+    "Luigi": "luigi",
     "Mario": "mario",
     "Peach": "peach",
-    "Bowser": "bowser",
-    "Toad": "toad",
-    "Koopa": "koopa",
-    "Donkey Kong": "dk",
-    "Yoshi": "yoshi",
-    "Luigi": "luigi",
     "Random": "random",
+    "Toad": "toad",
+    "Yoshi": "yoshi",
 }
 
 def main(config):

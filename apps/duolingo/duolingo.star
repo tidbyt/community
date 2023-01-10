@@ -6,16 +6,15 @@ Author: Olly Stedall @saltedlolly
 Thanks: @drudge @whyamIhere @AmillionAir
 """
 
-print(" ---------------------------------------------------------------------------------------------------------------------")
-
-load("render.star", "render")
-load("http.star", "http")
+load("cache.star", "cache")
 load("encoding/base64.star", "base64")
 load("encoding/json.star", "json")
-load("cache.star", "cache")
+load("http.star", "http")
+load("render.star", "render")
 load("schema.star", "schema")
-load("math.star", "math")
 load("time.star", "time")
+
+print(" ---------------------------------------------------------------------------------------------------------------------")
 
 # Set applet defaults
 DEFAULT_USERNAME = "saltedlolly"
@@ -141,35 +140,35 @@ UklGRtIFAABXRUJQVlA4WAoAAAACAAAAGAAAAgAAQU5JTQYAAAD/////AABBTk1GTAAAAAAAAAAAABgA
 """)
 
 DISPLAY_VIEW_LIST = {
-    "Today": "today",
     "One Week": "week",
+    "Today": "today",
     "Two Weeks": "twoweeks",
 }
 
 DISPLAY_HEADER_LIST = {
     "None": "none",
-    "Streak + Today XP": "todayxp",
     "Streak + Chart XP": "chartxp",
+    "Streak + Today XP": "todayxp",
     "Streak + Total XP": "totalxp",
 }
 
 XP_TARGET_LIST = {
-    "None": "0",
-    "20xp": "20",
-    "30xp": "30",
-    "40xp": "40",
-    "50xp": "50",
-    "60xp": "60",
-    "75xp": "75",
     "100xp": "100",
     "125xp": "125",
     "150xp": "150",
     "175xp": "175",
     "200xp": "200",
+    "20xp": "20",
     "250xp": "250",
     "300xp": "300",
+    "30xp": "30",
     "400xp": "400",
+    "40xp": "40",
     "500xp": "500",
+    "50xp": "50",
+    "60xp": "60",
+    "75xp": "75",
+    "None": "0",
 }
 
 def get_schema():
@@ -400,7 +399,7 @@ def main(config):
                 cache.set(duolingo_cache_key_xp_query_time, str(time_now_formatted), ttl_seconds = 900)
 
         # Setup dummy data for use on days with no data available
-        dummy_data = {"gainedXp": 0, "streakExtended": False, "frozen": False, "repaired": False, "dummyData": True}
+        dummy_data = {"dummyData": True, "frozen": False, "gainedXp": 0, "repaired": False, "streakExtended": False}
 
         # If there is no data returned at all for the time frame then we can assume no lessons have been completed recently
         # In this case we need to insert dummy data for the entire time frame
@@ -611,7 +610,7 @@ def main(config):
             # Calculate percentage achieved of progress bar
             xp_target = int(xp_target)
             if xp_target != 0:
-                progressbar_perc = (int(duolingo_xptoday) / int(xp_target)) * 100
+                progressbar_perc = (int(duolingo_xptoday) // int(xp_target)) * 100
             else:
                 progressbar_perc = 0
                 print("Note: No daily XP target is selected.")
@@ -722,7 +721,7 @@ def main(config):
             if int(duolingo_xptoday) >= int(xp_target):
                 if int(duolingo_xptoday) >= (5 * int(xp_target)):
                     progressbar_col = "#28ff00"  # lime green
-                    high_multiplier = int(duolingo_xptoday) / int(int(xp_target))
+                    high_multiplier = int(duolingo_xptoday) // int(int(xp_target))
                     multiplier_text = str(int(high_multiplier)) + "x"
                     PROGRESSBAR_ANI = PROGRESSBAR_DARKBLUE_ARROWS
                 elif int(duolingo_xptoday) >= (4 * int(xp_target)):
@@ -746,7 +745,7 @@ def main(config):
                 multiplier_text = None
 
             #   Second, work out the current length the progress bar should be
-            progressbar_current_length = int((progressbar_total_length / 100) * progressbar_perc)
+            progressbar_current_length = int((progressbar_total_length // 100) * progressbar_perc)
 
             if progressbar_current_length < progressbar_total_length:
                 fadeList = []  # This sets up the fading progress indicator
@@ -1057,10 +1056,10 @@ def main(config):
 
             # Calculate this week vertical bar height
             # First, work out percentage progress towards the upper_chart_value
-            vertbar_current_perc = (int(xp_day_score) / int(upper_chart_value)) * 100
+            vertbar_current_perc = (int(xp_day_score) // int(upper_chart_value)) * 100
 
             # Second, work out the current height the vertical bar should be
-            vertbar_current_height = int((vertbar_total_height / 100) * vertbar_current_perc)
+            vertbar_current_height = int((vertbar_total_height // 100) * vertbar_current_perc)
 
             # Ensure the bar has at least one pixel height if a lesson has been completed (to prevent it showing as zero when other lessons have very high scores)
             if vertbar_current_height == 0 and int(xp_day_score) > 0:
@@ -1069,10 +1068,10 @@ def main(config):
             # Calculate last weeks vertical bar length, if it is being displayed
             if display_view == "twoweeks":
                 # First, work out percentage progress towards the upper_chart_value
-                vertbar_lastweek_perc = (int(xp_day_score_lastweek) / int(upper_chart_value)) * 100
+                vertbar_lastweek_perc = (int(xp_day_score_lastweek) // int(upper_chart_value)) * 100
 
                 # Second, work out the current height the vertical bar should be
-                vertbar_lastweek_height = int((vertbar_total_height / 100) * vertbar_lastweek_perc)
+                vertbar_lastweek_height = int((vertbar_total_height // 100) * vertbar_lastweek_perc)
 
                 # Ensure the bar has at least one pixel height if a lesson has been completed (to prevent it showing as zero when other lessons have very high scores)
                 if vertbar_lastweek_height == 0 and int(xp_day_score) > 0:

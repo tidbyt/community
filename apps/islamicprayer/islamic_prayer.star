@@ -7,12 +7,11 @@ Author: Austin Fonacier
 
 load("render.star", "render")
 load("schema.star", "schema")
-load("animation.star", "animation")
-load("time.star", "time")
 load("cache.star", "cache")
-load("humanize.star", "humanize")
-load("http.star", "http")
 load("encoding/json.star", "json")
+load("http.star", "http")
+load("humanize.star", "humanize")
+load("time.star", "time")
 
 DEFAULT_LOCATION = {
     "lat": 34.0522,

@@ -5,14 +5,14 @@ Description: Gets the emblem, race, class, and light level of your most recently
 Author: brandontod97
 """
 
-load("render.star", "render")
-load("time.star", "time")
-load("http.star", "http")
-load("schema.star", "schema")
-load("encoding/base64.star", "base64")
 load("cache.star", "cache")
+load("encoding/base64.star", "base64")
 load("encoding/json.star", "json")
+load("http.star", "http")
+load("render.star", "render")
+load("schema.star", "schema")
 load("secret.star", "secret")
+load("time.star", "time")
 
 DEFAULT_DISPLAY_NAME = secret.decrypt("""
 AV6+xWcEj0nmtoLiblYJL8Tu387oZYnoFkMIzs29sUMlHtqDcNuaBDSg
@@ -108,8 +108,8 @@ def main(config):
 
 def get_last_played_character(characters_list):
     most_recent_character = {
-        "id": "",
         "date": time.parse_time("1999-01-01T00:01:00.00Z"),
+        "id": "",
     }
 
     for character in characters_list:

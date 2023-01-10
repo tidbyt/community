@@ -10,8 +10,8 @@ load("encoding/base64.star", "base64")
 load("encoding/json.star", "json")
 load("http.star", "http")
 load("render.star", "render")
-load("secret.star", "secret")
 load("schema.star", "schema")
+load("secret.star", "secret")
 
 CACHE_TTL_SECONDS = 300
 API_BASE_URL = "http://api.steampowered.com/"
@@ -56,9 +56,9 @@ def main(config):
             main_icon = base64.decode(steam_game_icon_cached)
         else:
             # Grab the game Icon - this is groooooosss
-            json_blob = json.encode({"steamid": steam_id, "include_appinfo": True, "appids_filter": [current_game_id]})
+            json_blob = json.encode({"appids_filter": [current_game_id], "include_appinfo": True, "steamid": steam_id})
 
-            resp = http.get(API_OWNED_GAMES, params = {"key": api_key, "input_json": str(json_blob)})
+            resp = http.get(API_OWNED_GAMES, params = {"input_json": str(json_blob), "key": api_key})
 
             if resp.status_code != 200:
                 return display_failure("Failed to get the current game icon with code {}".format(resp.status_code))
@@ -173,7 +173,7 @@ xOjIzOjQ5KzAwOjAwzjOP0gAAAABJRU5ErkJggg==
 """)
 
 DEMO_DATA = {
-    "player_name": "Demo Player",
     "game_string": "Farcry 5   Goldeneye 007   Half-Life 2   Halo Infinite",
     "main_icon": STEAM_ICON,
+    "player_name": "Demo Player",
 }

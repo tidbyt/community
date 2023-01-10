@@ -5,14 +5,14 @@ Description: Display real-time departure times for trains, buses and ferries in 
 Author: fxb (Felix Bruns)
 """
 
-load("render.star", "render")
-load("schema.star", "schema")
-load("http.star", "http")
 load("cache.star", "cache")
-load("time.star", "time")
-load("math.star", "math")
 load("encoding/base64.star", "base64")
 load("encoding/json.star", "json")
+load("http.star", "http")
+load("math.star", "math")
+load("render.star", "render")
+load("schema.star", "schema")
+load("time.star", "time")
 
 # The API endpoints used to retrieve locations and departures.
 #
@@ -53,33 +53,33 @@ IMAGE_AKN = base64.decode("iVBORw0KGgoAAAANSUhEUgAAAA4AAAAJCAYAAAACTR1pAAAAVElEQ
 
 # Configuration for backgrounds and colors for all known lines.
 LINE_CONFIG = {
+
+    # AKN commuter trains
+    "a1": {"color": "#ffffff", "image": IMAGE_AKN},
+    "a2": {"color": "#ffffff", "image": IMAGE_AKN},
+    "a3": {"color": "#ffffff", "image": IMAGE_AKN},
+
+    # Buses (MetroBus, XpressBus, NachtBus)
+    "metro_bus": {"color": "#ffffff", "image": IMAGE_METRO_BUS},
+    "night_bus": {"color": "#ffffff", "image": IMAGE_NIGHT_BUS},
+
+    # Regional trains (Regional-Bahn, Regional-Express)
+    "rb": {"background-color": "#2f2f2f", "color": "#ffffff"},
+    "re": {"background-color": "#2f2f2f", "color": "#ffffff"},
+
+    # Suburban trains (S-Bahn)
+    "s1": {"color": "#ffffff", "image": IMAGE_S1},
+    "s11": {"color": "#1a962b", "image": IMAGE_S11},
+    "s2": {"color": "#b41439", "image": IMAGE_S2},
+    "s21": {"color": "#ffffff", "image": IMAGE_S21},
+    "s3": {"color": "#ffffff", "image": IMAGE_S3_S31},
+    "s31": {"color": "#ffffff", "image": IMAGE_S3_S31},
     # Subways (U-Bahn)
     "u1": {"background-color": "#0072bc", "color": "#ffffff"},
     "u2": {"background-color": "#ed1c24", "color": "#ffffff"},
     "u3": {"background-color": "#ffde00", "color": "#2f2f2f"},
     "u4": {"background-color": "#00aaad", "color": "#ffffff"},
-
-    # Suburban trains (S-Bahn)
-    "s1": {"image": IMAGE_S1, "color": "#ffffff"},
-    "s11": {"image": IMAGE_S11, "color": "#1a962b"},
-    "s2": {"image": IMAGE_S2, "color": "#b41439"},
-    "s21": {"image": IMAGE_S21, "color": "#ffffff"},
-    "s3": {"image": IMAGE_S3_S31, "color": "#ffffff"},
-    "s31": {"image": IMAGE_S3_S31, "color": "#ffffff"},
-
-    # AKN commuter trains
-    "a1": {"image": IMAGE_AKN, "color": "#ffffff"},
-    "a2": {"image": IMAGE_AKN, "color": "#ffffff"},
-    "a3": {"image": IMAGE_AKN, "color": "#ffffff"},
-
-    # Buses (MetroBus, XpressBus, NachtBus)
-    "metro_bus": {"image": IMAGE_METRO_BUS, "color": "#ffffff"},
-    "xpress_bus": {"image": IMAGE_XPRESS_BUS, "color": "#ffffff"},
-    "night_bus": {"image": IMAGE_NIGHT_BUS, "color": "#ffffff"},
-
-    # Regional trains (Regional-Bahn, Regional-Express)
-    "rb": {"background-color": "#2f2f2f", "color": "#ffffff"},
-    "re": {"background-color": "#2f2f2f", "color": "#ffffff"},
+    "xpress_bus": {"color": "#ffffff", "image": IMAGE_XPRESS_BUS},
 }
 
 # These are used as fallbacks in case there is no specific config above.
@@ -333,10 +333,10 @@ def fetch_departures(station_id, extra_params = {}, duration_minutes = 1440, max
     # Set base request parameters.
     params = {
         "duration": str(duration_minutes),
-        "results": str(max_results),
         "includeRelatedStations": "true",
         "linesOfStops": "false",
         "remarks": "false",
+        "results": str(max_results),
         "stopovers": "false",
     }
 
@@ -410,17 +410,17 @@ def parse_config(config):
 
     # API request parameters derived from the applet configuration.
     params = {
-        "subway": bool_str(include_subway),
-        "suburban": bool_str(include_suburban),
+        "akn": bool_str(include_akn),
+        "anruf-sammel-taxi": "false",
         "bus": bool_str(include_bus),
         "express-bus": bool_str(include_express_bus),
-        "akn": bool_str(include_akn),
-        "regional-train": bool_str(include_rb),
-        "regional-express-train": bool_str(include_re),
         "ferry": bool_str(include_ferry),
-        "anruf-sammel-taxi": "false",
-        "long-distance-train": "false",
         "long-distance-bus": "false",
+        "long-distance-train": "false",
+        "regional-express-train": bool_str(include_re),
+        "regional-train": bool_str(include_rb),
+        "suburban": bool_str(include_suburban),
+        "subway": bool_str(include_subway),
     }
 
     # If a direction was set, add it to the API request parameters.
@@ -515,13 +515,13 @@ def find_stations(query, max_results = 2):
         return []
 
     response = http.get(url = HVV_REST_API_LOCATIONS_URL, params = {
-        "query": query,
+        "addresses": "false",
         "fuzzy": "true",
+        "linesOfStops": "false",
+        "poi": "false",
+        "query": query,
         "results": str(max_results),
         "stops": "true",
-        "addresses": "false",
-        "poi": "false",
-        "linesOfStops": "false",
     })
 
     if response.status_code != 200:

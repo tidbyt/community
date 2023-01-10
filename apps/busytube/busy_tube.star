@@ -58,13 +58,13 @@ def fetch_stations(loc):
         STATION_URL,
         params = {
             "app_key": app_key(),
+            "categories": "none",
             "lat": str(rounded_lat),
             "lon": str(rounded_lng),
-            "radius": "500",
-            "stopTypes": "NaptanMetroStation",
-            "returnLines": "false",
             "modes": "tube",
-            "categories": "none",
+            "radius": "500",
+            "returnLines": "false",
+            "stopTypes": "NaptanMetroStation",
         },
     )
     if resp.status_code != 200:
@@ -93,8 +93,8 @@ def list_stations(location):
         return [schema.Option(
             display = "Default option - location is outside the UK",
             value = json.encode({
-                "naptanId": DEFAULT_NAPTAN_ID,
                 "name": DEFAULT_STATION_NAME,
+                "naptanId": DEFAULT_NAPTAN_ID,
             }),
         )]
 
@@ -114,8 +114,8 @@ def list_stations(location):
         option = schema.Option(
             display = station_name,
             value = json.encode({
-                "naptanId": station["naptanId"],
                 "name": station_name,
+                "naptanId": station["naptanId"],
             }),
         )
         options.append(option)

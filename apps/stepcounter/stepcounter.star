@@ -1,10 +1,10 @@
-load("render.star", "render")
-load("http.star", "http")
 load("cache.star", "cache")
-load("time.star", "time")
+load("encoding/json.star", "json")
+load("http.star", "http")
+load("render.star", "render")
 load("schema.star", "schema")
 load("secret.star", "secret")
-load("encoding/json.star", "json")
+load("time.star", "time")
 
 # The daily step goal - this determines the coaching message you receive
 STEP_GOAL = 10000
@@ -15,13 +15,13 @@ DEBUG_ON = 1
 # Conversion from Day of the Week (string) to a Number (relative to Sunday)
 # Used to Calculate backward in time to get total steps from the beginning of the week.
 WEEKDAY_TO_INT = {
-    "Sunday": 0,
+    "Friday": 5,
     "Monday": 1,
+    "Saturday": 6,
+    "Sunday": 0,
+    "Thursday": 4,
     "Tuesday": 2,
     "Wednesday": 3,
-    "Thursday": 4,
-    "Friday": 5,
-    "Saturday": 6,
 }
 
 # Other Conversions for obtaining Historical Day
@@ -108,10 +108,10 @@ def main(config):
         # This is the JSON format for supplying an OAUTH refresh token to receive a new Authorization Token
 
         GOOGLE_OAUTH_TOKEN_REFRESH_BODY = {
+            "client_id": client_id,
             "client_secret": client_secret,
             "grant_type": "refresh_token",
             "refresh_token": GOOGLEFIT_REFRESH_TOKEN,
-            "client_id": client_id,
         }
 
         # Make the Google Oauth API call - POST - to exchange Refresh token for Auth Token
@@ -130,8 +130,8 @@ def main(config):
 
     # Header to Specify JSON format for the FIT API Data Aggregation
     GOOGLEFIT_POST_HEADERS = {
-        "Content-type": "application/json",
         "Authorization": GOOGLEFIT_OAUTH_TOKEN,
+        "Content-type": "application/json",
     }
 
     # LOOKS LIKE A BUG HERE (Timezone)?  How does the Tidbyt Server pick the timezone?   Need to figure that out.  There is some discussion on Discord - search "Time Zone"
@@ -206,7 +206,7 @@ def main(config):
     # Now select the appropriate "Coaching" message depending on Progress toward step count goal.  Count from 8am-midnight
     # Future enhancement ideas: Count Window set via Parameter/Env variable; Make the coaching message dependent on % of the Expected step count achieved instead of fixed delta from expected.
     if hour_time > 8:  # Avoid divide by zero for early wake up days.
-        progress_percent_expected = (hour_time - 8) / 16  # FUTURE ENHANCEMENT: Make the time range a parameter/ENV
+        progress_percent_expected = (hour_time - 8) // 16  # FUTURE ENHANCEMENT: Make the time range a parameter/ENV
     else:
         progress_percent_expected = 0
 
@@ -415,8 +415,8 @@ def get_stepcount(start_time, end_time, fit_headers):
             "dataSourceId": "derived:com.google.step_count.delta:com.google.android.gms:estimated_steps",
         }],
         "bucketByTime": {"durationMillis": 604800000},
-        "startTimeMillis": start_time,
         "endTimeMillis": end_time,
+        "startTimeMillis": start_time,
     }
 
     rep = http.post(GOOGLEFIT_DATASET_URL, headers = fit_headers, json_body = GOOGLEFIT_POSTREQUEST_BODY)

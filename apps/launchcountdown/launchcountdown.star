@@ -5,14 +5,14 @@ Description: Displays the next rocket launch in the world.
 Author: Robert Ison
 """
 
-load("render.star", "render")
-load("schema.star", "schema")
 load("cache.star", "cache")
 load("encoding/base64.star", "base64")
 load("encoding/json.star", "json")
 load("http.star", "http")
-load("time.star", "time")
 load("math.star", "math")
+load("render.star", "render")
+load("schema.star", "schema")
+load("time.star", "time")
 
 #Constants
 ROCKET_LAUNCH_URL = "https://fdo.rocketlaunch.live/json/launches/next/5"

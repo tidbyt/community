@@ -29,13 +29,13 @@ Author: Henry So, Jr.
 
 # Note: this app uses theysaidso.com's public RSS feed (via feedburner)
 
+load("cache.star", "cache")
+load("encoding/base64.star", "base64")
+load("encoding/json.star", "json")
 load("http.star", "http")
 load("render.star", "render")
 load("schema.star", "schema")
-load("cache.star", "cache")
 load("xpath.star", "xpath")
-load("encoding/base64.star", "base64")
-load("encoding/json.star", "json")
 
 URL = "http://feeds.feedburner.com/theysaidso/qod"
 
@@ -83,8 +83,8 @@ def main(config):
                 xml = xpath.loads(content.body())
                 data = {
                     c: {
-                        "quote": xml.query("//item[ends-with(link,'#" + c + "')]/quote"),
                         "author": xml.query("//item[ends-with(link,'#" + c + "')]/author"),
+                        "quote": xml.query("//item[ends-with(link,'#" + c + "')]/quote"),
                     }
                     for c in CATEGORIES
                 }
@@ -92,8 +92,8 @@ def main(config):
                 #print('Server returned %s' % content.status_code)
                 data = {
                     c: {
-                        "quote": 'Forsooth, the server quoteth "%s".' % content.status_code,
                         "author": "Anonymous",
+                        "quote": 'Forsooth, the server quoteth "%s".' % content.status_code,
                     }
                     for c in CATEGORIES
                 }

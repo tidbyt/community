@@ -1,10 +1,10 @@
-load("render.star", "render")
-load("http.star", "http")
-load("encoding/base64.star", "base64")
 load("cache.star", "cache")
+load("encoding/base64.star", "base64")
 load("encoding/json.star", "json")
-load("schema.star", "schema")
 load("hash.star", "hash")
+load("http.star", "http")
+load("render.star", "render")
+load("schema.star", "schema")
 
 ZENHUB_REST_API_URL = "https://api.zenhub.com"
 ZENHUB_GQL_API_URL = "https://api.zenhub.com/public/graphql"
@@ -216,8 +216,8 @@ def main(config):
         board_res = http.get(
             "%s/p2/workspaces/%s/repositories/%d/board" % (ZENHUB_REST_API_URL, workspace_id, repo_id),
             headers = {
-                "X-Authentication-Token": zenhub_rest_api_key,
                 "Content-Type": "application/json",
+                "X-Authentication-Token": zenhub_rest_api_key,
             },
         )
 
@@ -254,10 +254,6 @@ def main(config):
             },
             json_body = {
                 "operationName": "searchIssuesByPipeline",
-                "variables": {
-                    "pipelineId": pipeline_id,
-                    "filters": filters,
-                },
                 "query": """
                     query searchIssuesByPipeline($pipelineId: ID!, $filters: IssueSearchFiltersInput!) {
                       searchIssuesByPipeline(
@@ -272,6 +268,10 @@ def main(config):
                       }
                     }
                 """,
+                "variables": {
+                    "filters": filters,
+                    "pipelineId": pipeline_id,
+                },
             },
         )
 

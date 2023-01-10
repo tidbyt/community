@@ -67,10 +67,10 @@ def jsonToTrainData(json):
     trains_data = []
     for train in json:
         data = {
+            "direction": train["direction"],
+            "minutes": getArrivalInMinutes(train["projectedArrival"]),
             "name": train["lineName"],
             "status": train["status"].replace("_", " "),
-            "minutes": getArrivalInMinutes(train["projectedArrival"]),
-            "direction": train["direction"],
         }
         trains_data.append(data)
 

@@ -1,10 +1,10 @@
-load("render.star", "render")
-load("http.star", "http")
+load("cache.star", "cache")
 load("encoding/base64.star", "base64")
 load("encoding/json.star", "json")
-load("cache.star", "cache")
-load("time.star", "time")
+load("http.star", "http")
+load("render.star", "render")
 load("schema.star", "schema")
+load("time.star", "time")
 
 ERROR_ICON = base64.decode("""
 iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/
@@ -24,17 +24,17 @@ SBB_COMPLETION_TRAINSTATION_STRING = "sl-icon-type-train"
 FONT_TO_USE = "CG-pixel-3x5-mono"
 NO_FRAMES_TOGGLE = 20
 COLOR_CATEGORY = {
-    "IC": "#700",
-    "ICN": "#700",
-    "ICE": "#700",
     "EC": "#700",
+    "IC": "#700",
+    "ICE": "#700",
+    "ICN": "#700",
     "IR": "#700",
+    "NJ": "#700",
     "RE": "#700",
     "RJX": "#700",
-    "TGV": "#700",
-    "NJ": "#700",
     "S": "#007",
     "SN": "#111",
+    "TGV": "#700",
 }
 COLOR_DELAY = "#F00"
 

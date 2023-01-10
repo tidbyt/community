@@ -6,11 +6,11 @@ Author: possan
 """
 
 load("encoding/json.star", "json")
+load("math.star", "math")
+load("re.star", "re")
 load("render.star", "render")
 load("schema.star", "schema")
-load("math.star", "math")
 load("time.star", "time")
-load("re.star", "re")
 
 DEFAULT_TIMEZONE = "Europe/Stockholm"
 
@@ -63,12 +63,12 @@ def hsl_to_rgb(h, s, l):
             t += 1
         if t > 1:
             t -= 1
-        if t < 1 / 6:
+        if t < 1 // 6:
             return p + (q - p) * 6 * t
-        if t < 1 / 2:
+        if t < 1 // 2:
             return q
-        if t < 2 / 3:
-            return p + (q - p) * (2 / 3 - t) * 6
+        if t < 2 // 3:
+            return p + (q - p) * (2 // 3 - t) * 6
         return p
 
     h = h / 360
@@ -77,9 +77,9 @@ def hsl_to_rgb(h, s, l):
     else:
         q = l * (1 + s) if l < 0.5 else l + s - l * s
         p = 2 * l - q
-        r = hue_to_rgb(p, q, h + 1 / 3)
+        r = hue_to_rgb(p, q, h + 1 // 3)
         g = hue_to_rgb(p, q, h)
-        b = hue_to_rgb(p, q, h - 1 / 3)
+        b = hue_to_rgb(p, q, h - 1 // 3)
 
     return int(math.round(r * 255)), int(math.round(g * 255)), int(math.round(b * 255))
 
@@ -110,7 +110,7 @@ def rgb_to_hex(r, g, b):
     return "#" + str("%x" % ((1 << 24) + (r << 16) + (g << 8) + b))[1:]
 
 def calc_day_progress(now):
-    day_progress = 100 * ((now.hour * 60 * 60) + (now.minute * 60) + now.second) / (24 * 60 * 60)
+    day_progress = 100 * ((now.hour * 60 * 60) + (now.minute * 60) + now.second) // (24 * 60 * 60)
 
     return day_progress
 
@@ -173,13 +173,13 @@ def main(config):
     year_progress = calc_year_progress(now, timezone)
 
     state = {
-        "show_labels": config.bool(P_SHOW_LABELS, True),
-        "show_values": config.bool(P_SHOW_VALUES, True),
-        "show_day": config.bool(P_SHOW_DAY, True),
-        "show_month": config.bool(P_SHOW_MONTH, True),
-        "show_year": config.bool(P_SHOW_YEAR, True),
         "day_progress": day_progress,
         "month_progress": month_progress,
+        "show_day": config.bool(P_SHOW_DAY, True),
+        "show_labels": config.bool(P_SHOW_LABELS, True),
+        "show_month": config.bool(P_SHOW_MONTH, True),
+        "show_values": config.bool(P_SHOW_VALUES, True),
+        "show_year": config.bool(P_SHOW_YEAR, True),
         "year_progress": year_progress,
     }
 
@@ -349,7 +349,7 @@ def render_progress_bar(state, label, percent, col1, col2, col3, animprogress):
         )
         widthmax -= 4
 
-    progresswidth = max(1, int(widthmax * animpercent / 100))
+    progresswidth = max(1, int(widthmax * animpercent // 100))
 
     progressfill = None
     if animpercent > 0:

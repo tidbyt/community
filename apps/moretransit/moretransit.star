@@ -5,8 +5,8 @@ Description: See next transit arrivals from TransSee. Optimized for NYC Subway a
 Author: gdcolella
 """
 
-load("render.star", "render")
 load("http.star", "http")
+load("render.star", "render")
 load("schema.star", "schema")
 
 MAX_SUBWAYS = 4
@@ -33,17 +33,17 @@ sample_config_line2 = "mtasubway:F:F18N"
 sample_response_data = {
     "A:A40N": {
         "predictions": [
-            {"color": "0039a6", "stopTitle": "High St", "direction": [{"prediction": [{"minutes": "10"}, {"minutes": "12"}, {"minutes": "16"}]}]},
+            {"color": "0039a6", "direction": [{"prediction": [{"minutes": "10"}, {"minutes": "12"}, {"minutes": "16"}]}], "stopTitle": "High St"},
         ],
     },
     "C:A40N": {
         "predictions": [
-            {"color": "0039a6", "stopTitle": "High St", "direction": [{"prediction": [{"minutes": "13"}, {"minutes": "15"}, {"minutes": "17"}]}]},
+            {"color": "0039a6", "direction": [{"prediction": [{"minutes": "13"}, {"minutes": "15"}, {"minutes": "17"}]}], "stopTitle": "High St"},
         ],
     },
     "F:F18N": {
         "predictions": [
-            {"color": "ff6319", "stopTitle": "York St", "direction": [{"prediction": [{"minutes": "13"}, {"minutes": "15"}, {"minutes": "17"}]}]},
+            {"color": "ff6319", "direction": [{"prediction": [{"minutes": "13"}, {"minutes": "15"}, {"minutes": "17"}]}], "stopTitle": "York St"},
         ],
     },
 }

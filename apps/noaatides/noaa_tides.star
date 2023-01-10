@@ -5,18 +5,16 @@ Description: Display daily tides from NOAA stations.
 Author: tavdog
 """
 
+load("cache.star", "cache")
+load("encoding/json.star", "json")
+load("http.star", "http")
+load("humanize.star", "humanize")
+load("render.star", "render")
+load("schema.star", "schema")
+
 production = True
 debug = False  #  debug mode will not hit network apis
 print_debug = False
-
-load("render.star", "render")
-load("schema.star", "schema")
-load("http.star", "http")
-load("encoding/json.star", "json")
-load("cache.star", "cache")
-load("xpath.star", "xpath")
-load("re.star", "re")
-load("humanize.star", "humanize")
 
 default_location = """
   {
@@ -346,12 +344,12 @@ def main(config):
     )
 
 COLOR_LIST = {
-    "White": "#fff",
-    "Cyan": "#0ff",
-    "Red": "#a00",
-    "Green": "#0a0",
     "Blue": "#00a",
+    "Cyan": "#0ff",
+    "Green": "#0a0",
     "Orange": "#D2691E",
+    "Red": "#a00",
+    "White": "#fff",
 }
 
 def get_schema():

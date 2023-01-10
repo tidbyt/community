@@ -5,11 +5,11 @@ Description: This app show the current date and time in a binary format.
 Author: LukiLeu
 """
 
+load("encoding/json.star", "json")
+load("math.star", "math")
 load("render.star", "render")
 load("schema.star", "schema")
-load("encoding/json.star", "json")
 load("time.star", "time")
-load("math.star", "math")
 
 # Define some constants
 DEFAULT_LOCATION = {
@@ -24,31 +24,32 @@ MAX_VALUE = 2048
 
 DEFAULT_COLORS = {
     "Black": "#000",
-    "White 100%": "#fff",
-    "White 50%": "#777",
-    "White 20%": "#222",
-    "Red 100%": "#f00",
-    "Red 50%": "#700",
-    "Red 20%": "#200",
-    "Green 100%": "#0f0",
-    "Green 50%": "#070",
-    "Green 20%": "#020",
     "Blue 100%": "#00f",
-    "Blue 50%": "#007",
     "Blue 20%": "#002",
-    "Yellow 100%": "#ff0",
-    "Yellow 50%": "#770",
-    "Yellow 20%": "#220",
+    "Blue 50%": "#007",
     "Cyan 100%": "#0ff",
-    "Cyan 50%": "#077",
     "Cyan 20%": "#022",
+    "Cyan 50%": "#077",
+    "Green 100%": "#0f0",
+    "Green 20%": "#020",
+    "Green 50%": "#070",
     "Magenta 100%": "#f0f",
-    "Magenta 50%": "#707",
     "Magenta 20%": "#202",
+    "Magenta 50%": "#707",
+    "Red 100%": "#f00",
+    "Red 20%": "#200",
+    "Red 50%": "#700",
+    "White 100%": "#fff",
+    "White 20%": "#222",
+    "White 50%": "#777",
+    "Yellow 100%": "#ff0",
+    "Yellow 20%": "#220",
+    "Yellow 50%": "#770",
 }
 
 DEFAULT_BARWIDTH = {
     "1 Pixel": "1",
+    "10 Pixel": "10",
     "2 Pixel": "2",
     "3 Pixel": "3",
     "4 Pixel": "4",
@@ -57,7 +58,6 @@ DEFAULT_BARWIDTH = {
     "7 Pixel": "7",
     "8 Pixel": "8",
     "9 Pixel": "9",
-    "10 Pixel": "10",
 }
 
 DEFAULT_BARHEIGHT = {

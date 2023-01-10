@@ -7,9 +7,9 @@ Author: Nick Kuzmik (github.com/kuzmik)
 
 load("cache.star", "cache")
 load("http.star", "http")
+load("humanize.star", "humanize")
 load("render.star", "render")
 load("schema.star", "schema")
-load("humanize.star", "humanize")
 
 W3IGG_API = "https://web3isgoinggreat.com/api/griftTotal"
 

@@ -5,15 +5,15 @@ Description: Get celebratory notifications when you hit specific order milestone
 Author: Shopify
 """
 
-load("render.star", "render")
-load("schema.star", "schema")
-load("http.star", "http")
-load("time.star", "time")
+load("cache.star", "cache")
 load("encoding/base64.star", "base64")
 load("encoding/json.star", "json")
-load("humanize.star", "humanize")
-load("cache.star", "cache")
 load("hash.star", "hash")
+load("http.star", "http")
+load("humanize.star", "humanize")
+load("render.star", "render")
+load("schema.star", "schema")
+load("time.star", "time")
 
 # Messages
 ERROR_TEXT = "We hit a snag. Please check your app."
@@ -203,15 +203,15 @@ def get_latest_celebration(store_name, api_token):
     for metafield in metafields["metafields"]:
         if metafield["namespace"] == METAFIELD_NAMESPACE and metafield["key"] == METAFIELD_KEY:
             return {
-                "id": metafield["id"],
                 "date": time.parse_time(metafield["updated_at"]).in_location("utc"),
+                "id": metafield["id"],
                 "orders": metafield["value"],
             }
 
     # If nothing was celebrated yet, our last number of celebrated orders is 0 on the epoch
     return {
-        "orders": 0,
         "date": time.from_timestamp(0),
+        "orders": 0,
     }
 
 # STORE LATEST CELEBRATION
@@ -231,10 +231,10 @@ def store_latest_celebration(celebration, store_name, api_token):
         url = REST_ENDPOINT.format(store_name, METAFIELD_ENDPOINT)
 
         payload = {
+            "description": METAFIELD_DESCRIPTION,
+            "key": METAFIELD_KEY,
             "namespace": METAFIELD_NAMESPACE,
             "type": "number_integer",
-            "key": METAFIELD_KEY,
-            "description": METAFIELD_DESCRIPTION,
             "value": celebration["orders"],
         }
 

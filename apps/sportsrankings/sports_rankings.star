@@ -5,12 +5,12 @@ Description: Shows the poll rankings for various sports. Currently supports coll
 Author: Derek Holevinsky
 """
 
-load("render.star", "render")
-load("http.star", "http")
+load("cache.star", "cache")
 load("encoding/base64.star", "base64")
 load("encoding/json.star", "json")
+load("http.star", "http")
+load("render.star", "render")
 load("schema.star", "schema")
-load("cache.star", "cache")
 
 # URLs
 BASE_URL = "https://site.api.espn.com/apis/site/v2/sports/"

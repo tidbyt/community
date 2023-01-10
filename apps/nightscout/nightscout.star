@@ -5,16 +5,13 @@ Description: Displays Continuous Glucose Monitoring (CGM) data from the Nightsco
 Authors: Jeremy Tavener, Paul Murphy
 """
 
-load("render.star", "render")
 load("http.star", "http")
+load("render.star", "render")
 load("time.star", "time")
-load("encoding/base64.star", "base64")
-load("encoding/json.star", "json")
-load("encoding/csv.star", "csv")
 load("cache.star", "cache")
+load("encoding/csv.star", "csv")
+load("encoding/json.star", "json")
 load("schema.star", "schema")
-load("re.star", "re")
-load("humanize.star", "humanize")
 load("sunrise.star", "sunrise")
 
 COLOR_RED = "#C00"
@@ -722,18 +719,18 @@ def get_nightscout_data(nightscout_id, nightscout_host):
     history = []
 
     for x in resp.json():
-        history.append(tuple((int(int(x["date"]) / 1000), int(x["sgv"]))))
+        history.append(tuple((int(int(x["date"]) // 1000), int(x["sgv"]))))
         #print (x["dateString"])
         #print (str(int(x["date"] / 1000)) + ":" + str(int(x["sgv"])))
 
     #print (history)
 
     nightscout_data = {
-        "sgv_current": str(int(sgv_current)),
-        "sgv_delta": str(int(sgv_delta)),
-        "latest_reading_date_string": latest_reading_date_string,
         "direction": direction,
         "history": history,
+        "latest_reading_date_string": latest_reading_date_string,
+        "sgv_current": str(int(sgv_current)),
+        "sgv_delta": str(int(sgv_delta)),
     }
 
     cache.set(key, json.encode(nightscout_data), ttl_seconds = CACHE_TTL_SECONDS)
@@ -751,23 +748,23 @@ def display_failure(msg):
     )
 
 ARROWS = {
-    "None": "",
+    "Dash": "-",
     "DoubleDown": "↓↓",
     "DoubleUp": "↑↑",
+    "Error": "?",
     "Flat": "→",
     "FortyFiveDown": "↘",
     "FortyFiveUp": "↗",
+    "NOT COMPUTABLE": "?",
+    "None": "",
     "SingleDown": "↓",
     "SingleUp": "↑",
-    "Error": "?",
-    "Dash": "-",
-    "NOT COMPUTABLE": "?",
 }
 
 EXAMPLE_DATA = {
-    "sgv_current": "85",
-    "sgv_delta": "-2",
-    "latest_reading_date_string": time.now().format("2006-01-02T15:04:05.999999999Z07:00"),
     "direction": "Flat",
     "history": [(1658171112, 141), (1658170812, 133), (1658170512, 129), (1658170212, 125), (1658169912, 121), (1658169612, 116), (1658169312, 114), (1658169012, 109), (1658168712, 105), (1658168412, 103), (1658168112, 107), (1658167812, 114), (1658167512, 119), (1658167212, 123), (1658166912, 127), (1658166612, 126), (1658166312, 124), (1658166012, 108), (1658165712, 103), (1658165412, 100), (1658165112, 96), (1658164812, 93), (1658164512, 93), (1658164212, 95), (1658163911, 93), (1658163612, 92), (1658163311, 91), (1658163011, 87), (1658162712, 86), (1658162412, 87), (1658162112, 88), (1658161812, 87), (1658161512, 87), (1658161212, 85), (1658160912, 84), (1658160612, 83), (1658160312, 80), (1658160012, 83), (1658159712, 88), (1658159412, 90), (1658159111, 88), (1658158812, 87), (1658158512, 85)],
+    "latest_reading_date_string": time.now().format("2006-01-02T15:04:05.999999999Z07:00"),
+    "sgv_current": "85",
+    "sgv_delta": "-2",
 }

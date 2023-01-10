@@ -37,10 +37,10 @@ yQkCZkebjJuDShi6M4BV0SmyEYbocpwmUjVs/i8xNlNpDkB5JCiaR4IKQYlgBQYppQskCWBwCgNlQN
 phkLigAAAABJRU5ErkJggg==
 """)
 FLIGHT_RULES_COLOR_MAP = {
-    "VFR": "#01CF00",
-    "MVFR": "#0061E7",
     "IFR": "#EB0000",
     "LIFR": "#D300D3",
+    "MVFR": "#0061E7",
+    "VFR": "#01CF00",
 }
 
 def get_avwx_headers(config):

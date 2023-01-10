@@ -2,8 +2,8 @@ load("encoding/base64.star", "base64")
 load("encoding/json.star", "json")
 load("http.star", "http")
 load("render.star", "render")
-load("time.star", "time")
 load("secret.star", "secret")
+load("time.star", "time")
 
 TEMPEST_AUTH_URL = "https://tempestwx.com/authorize.html"
 
@@ -50,11 +50,11 @@ def main(config):
             },
             params = {
                 "station_id": station_id,
-                "units_temp": units["units_temp"],
-                "units_wind": units["units_wind"],
-                "units_pressure": units["units_pressure"],
                 "units_distance": units["units_distance"],
                 "units_precip": units["units_precip"],
+                "units_pressure": units["units_pressure"],
+                "units_temp": units["units_temp"],
+                "units_wind": units["units_wind"],
             },
         )
         if res.status_code != 200:
@@ -161,26 +161,26 @@ def main(config):
 def get_schema():
     return [
         {
+            "authorization_endpoint": TEMPEST_AUTH_URL,
+            "client_id": OAUTH2_CLIENT_ID,
+            "description": "Connect your Tempest weather station",
+            "handler": "oauth_handler",
+            "icon": "cloud",
             "id": "auth",
             "name": "Tempest",
-            "description": "Connect your Tempest weather station",
-            "icon": "cloud",
-            "type": "oauth2",
-            "handler": "oauth_handler",
-            "client_id": OAUTH2_CLIENT_ID,
-            "authorization_endpoint": TEMPEST_AUTH_URL,
             "scopes": ["user"],
+            "type": "oauth2",
         },
         {
-            "id": "station",
-            "type": "generated",
-            "source": "auth",
             "handler": "get_stations",
+            "id": "station",
+            "source": "auth",
+            "type": "generated",
             "visibility": {
-                "type": "invisible",
                 "condition": "not_equal",
-                "variable": "auth",
+                "type": "invisible",
                 "value": "",
+                "variable": "auth",
             },
         },
     ]
@@ -200,21 +200,21 @@ def get_stations(auth):
 
     options = [
         {
-            "value": str(int(station["station_id"])),
             "text": station["name"],
+            "value": str(int(station["station_id"])),
         }
         for station in res.json()["stations"]
     ]
 
     return [
         {
+            "default": options[0]["value"],
+            "description": "Tempest weather station",
+            "icon": "temperatureHigh",
             "id": "station",
             "name": "Station",
-            "icon": "temperatureHigh",
-            "description": "Tempest weather station",
-            "type": "dropdown",
             "options": options,
-            "default": options[0]["value"],
+            "type": "dropdown",
         },
     ]
 
@@ -5163,6 +5163,21 @@ AAAAd0SU1FB+QDBBUeOG9t+GkAAAAZdEVYdENvbW1lbnQAQ3JlYXRlZCB3aXRoIEdJTVBX
 gQ4XAAAATElEQVQoz2NkYGD4z0AiYGIgA7BgE/z/2hrOZhQ9StgmZA3Y+Bg2EbIBwyZiNZ
 AdEJRpQnYSNs8jA0b0yMWmAd2PTIQUYAsURrolIwA2fBgZWqCnTgAAAABJRU5ErkJggg==
 """,
+    "moonyish.png": """
+iVBORw0KGgoAAAANSUhEUgAAAA0AAAANCAYAAABy6+R8AAABhGlDQ1BJQ0MgcHJvZmlsZQ
+AAKJF9kT1Iw0AcxV/TiiIVBTuIOGSoThZERR21CkWoEGqFVh1MLv2CJg1Jiouj4Fpw8GOx
+6uDirKuDqyAIfoA4OTopukiJ/0sKLWI8OO7Hu3uPu3eAUC8zzQqNAZpum6lEXMxkV8XOVw
+QRQgTT6JOZZcxJUhK+4+seAb7exXiW/7k/R4+asxgQEIlnmWHaxBvEU5u2wXmfOMKKskp8
+Tjxq0gWJH7muePzGueCywDMjZjo1TxwhFgttrLQxK5oa8SRxVNV0yhcyHquctzhr5Spr3p
+O/MJzTV5a5TnMICSxiCRJEKKiihDJsxGjVSbGQov24j3/Q9UvkUshVAiPHAirQILt+8D/4
+3a2Vnxj3ksJxoOPFcT6Ggc5doFFznO9jx2mcAMFn4Epv+St1YOaT9FpLix4BvdvAxXVLU/
+aAyx1g4MmQTdmVgjSFfB54P6NvygL9t0D3mtdbcx+nD0CaukreAAeHwEiBstd93t3V3tu/
+Z5r9/QBe53KfIhP12QAAAAZiS0dEAP8A/wD/oL2nkwAAAAlwSFlzAAALEwAACxMBAJqcGA
+AAAAd0SU1FB+QDBBUhKsQKox0AAAAZdEVYdENvbW1lbnQAQ3JlYXRlZCB3aXRoIEdJTVBX
+gQ4XAAAAbElEQVQoz52S7Q2AIAxE3xlG0Gl0fJ0Gd6g/hEQEFLikCR95ba+pAKNT7uvT/J
+rctRwATK3A8821ArFKBpm97J1bBiTtZQDAvNf9/sqvFqZ8h/UowLJiX2VJuj3FQysAoLgR
+tYKlpBpZo4kBXblzdDGgW8ZbAAAAAElFTkSuQmCC
+""",
     "rainy.png": """
 iVBORw0KGgoAAAANSUhEUgAAAA0AAAANCAYAAABy6+R8AAABhGlDQ1BJQ0MgcHJvZmlsZQ
 AAKJF9kT1Iw0AcxV/TiiIVBTuIOGSoThZERR21CkWoEGqFVh1MLv2CJg1Jiouj4Fpw8GOx
@@ -5221,6 +5236,21 @@ AAAAd0SU1FB+QDBBQ5HxFglVAAAAAZdEVYdENvbW1lbnQAQ3JlYXRlZCB3aXRoIEdJTVBX
 gQ4XAAAAYUlEQVQoz2NgYGD4jw3/f239H5ccEwMDA8P/19YMxABkdQRNRpdnhDJwmsgoeh
 TDRiZ8GnA5nYmQAmziLDABbM7ApZmFGMXo/mPCJohLMc6AQFeAyyCS44kBlwYCYqSnPQAb
 5W9EvIXnIQAAAABJRU5ErkJggg==""",
+    "sunnyish.png": """
+iVBORw0KGgoAAAANSUhEUgAAAA0AAAANCAYAAABy6+R8AAABhGlDQ1BJQ0MgcHJvZmlsZQ
+AAKJF9kT1Iw0AcxV/TiiIVBTuIOGSoThZERR21CkWoEGqFVh1MLv2CJg1Jiouj4Fpw8GOx
+6uDirKuDqyAIfoA4OTopukiJ/0sKLWI8OO7Hu3uPu3eAUC8zzQqNAZpum6lEXMxkV8XOVw
+QRQgTT6JOZZcxJUhK+4+seAb7exXiW/7k/R4+asxgQEIlnmWHaxBvEU5u2wXmfOMKKskp8
+Tjxq0gWJH7muePzGueCywDMjZjo1TxwhFgttrLQxK5oa8SRxVNV0yhcyHquctzhr5Spr3p
+O/MJzTV5a5TnMICSxiCRJEKKiihDJsxGjVSbGQov24j3/Q9UvkUshVAiPHAirQILt+8D/4
+3a2Vnxj3ksJxoOPFcT6Ggc5doFFznO9jx2mcAMFn4Epv+St1YOaT9FpLix4BvdvAxXVLU/
+aAyx1g4MmQTdmVgjSFfB54P6NvygL9t0D3mtdbcx+nD0CaukreAAeHwEiBstd93t3V3tu/
+Z5r9/QBe53KfIhP12QAAAAZiS0dEAP8A/wD/oL2nkwAAAAlwSFlzAAALEwAACxMBAJqcGA
+AAAAd0SU1FB+QDBBUhG5XUoycAAAAZdEVYdENvbW1lbnQAQ3JlYXRlZCB3aXRoIEdJTVBX
+gQ4XAAAAbUlEQVQoz52R0Q2AIAxEX4kj6DQ4vk6DO9QfSABbQZuQkJR3dy0Aah1NUb1eAN
+AUman63VC570u+uIqynQ/HBlLt+Gs3weACAOuBNfPiAjWYHQss+kp0s4i08b5UKPSsS7M9
+L6Ulav7TMN6fmW4ZiETQdYb80QAAAABJRU5ErkJggg==
+""",
     "thundery.png": """
 iVBORw0KGgoAAAANSUhEUgAAAA0AAAANCAYAAABy6+R8AAABhGlDQ1BJQ0MgcHJvZmlsZQ
 AAKJF9kT1Iw0AcxV/TiiIVBTuIOGSoThZERR21CkWoEGqFVh1MLv2CJg1Jiouj4Fpw8GOx
@@ -5263,36 +5293,6 @@ AAAAd0SU1FB+QDBBYAFfy1JZoAAAAZdEVYdENvbW1lbnQAQ3JlYXRlZCB3aXRoIEdJTVBX
 gQ4XAAAAW0lEQVQoz52QUQrAMAhDk9L7Xzn72ARrFab9UmpMfAQgNN+qPiSVfSkieQz6nh
 YvbrbBLAE7N0kCSWzvEiNdsT5nTujtjE7mOHaym/jWtS4S/EXPtvt6dQVjeg/Wq0ED7siM
 GwAAAABJRU5ErkJggg==""",
-    "moonyish.png": """
-iVBORw0KGgoAAAANSUhEUgAAAA0AAAANCAYAAABy6+R8AAABhGlDQ1BJQ0MgcHJvZmlsZQ
-AAKJF9kT1Iw0AcxV/TiiIVBTuIOGSoThZERR21CkWoEGqFVh1MLv2CJg1Jiouj4Fpw8GOx
-6uDirKuDqyAIfoA4OTopukiJ/0sKLWI8OO7Hu3uPu3eAUC8zzQqNAZpum6lEXMxkV8XOVw
-QRQgTT6JOZZcxJUhK+4+seAb7exXiW/7k/R4+asxgQEIlnmWHaxBvEU5u2wXmfOMKKskp8
-Tjxq0gWJH7muePzGueCywDMjZjo1TxwhFgttrLQxK5oa8SRxVNV0yhcyHquctzhr5Spr3p
-O/MJzTV5a5TnMICSxiCRJEKKiihDJsxGjVSbGQov24j3/Q9UvkUshVAiPHAirQILt+8D/4
-3a2Vnxj3ksJxoOPFcT6Ggc5doFFznO9jx2mcAMFn4Epv+St1YOaT9FpLix4BvdvAxXVLU/
-aAyx1g4MmQTdmVgjSFfB54P6NvygL9t0D3mtdbcx+nD0CaukreAAeHwEiBstd93t3V3tu/
-Z5r9/QBe53KfIhP12QAAAAZiS0dEAP8A/wD/oL2nkwAAAAlwSFlzAAALEwAACxMBAJqcGA
-AAAAd0SU1FB+QDBBUhKsQKox0AAAAZdEVYdENvbW1lbnQAQ3JlYXRlZCB3aXRoIEdJTVBX
-gQ4XAAAAbElEQVQoz52S7Q2AIAxE3xlG0Gl0fJ0Gd6g/hEQEFLikCR95ba+pAKNT7uvT/J
-rctRwATK3A8821ArFKBpm97J1bBiTtZQDAvNf9/sqvFqZ8h/UowLJiX2VJuj3FQysAoLgR
-tYKlpBpZo4kBXblzdDGgW8ZbAAAAAElFTkSuQmCC
-""",
-    "sunnyish.png": """
-iVBORw0KGgoAAAANSUhEUgAAAA0AAAANCAYAAABy6+R8AAABhGlDQ1BJQ0MgcHJvZmlsZQ
-AAKJF9kT1Iw0AcxV/TiiIVBTuIOGSoThZERR21CkWoEGqFVh1MLv2CJg1Jiouj4Fpw8GOx
-6uDirKuDqyAIfoA4OTopukiJ/0sKLWI8OO7Hu3uPu3eAUC8zzQqNAZpum6lEXMxkV8XOVw
-QRQgTT6JOZZcxJUhK+4+seAb7exXiW/7k/R4+asxgQEIlnmWHaxBvEU5u2wXmfOMKKskp8
-Tjxq0gWJH7muePzGueCywDMjZjo1TxwhFgttrLQxK5oa8SRxVNV0yhcyHquctzhr5Spr3p
-O/MJzTV5a5TnMICSxiCRJEKKiihDJsxGjVSbGQov24j3/Q9UvkUshVAiPHAirQILt+8D/4
-3a2Vnxj3ksJxoOPFcT6Ggc5doFFznO9jx2mcAMFn4Epv+St1YOaT9FpLix4BvdvAxXVLU/
-aAyx1g4MmQTdmVgjSFfB54P6NvygL9t0D3mtdbcx+nD0CaukreAAeHwEiBstd93t3V3tu/
-Z5r9/QBe53KfIhP12QAAAAZiS0dEAP8A/wD/oL2nkwAAAAlwSFlzAAALEwAACxMBAJqcGA
-AAAAd0SU1FB+QDBBUhG5XUoycAAAAZdEVYdENvbW1lbnQAQ3JlYXRlZCB3aXRoIEdJTVBX
-gQ4XAAAAbUlEQVQoz52R0Q2AIAxEX4kj6DQ4vk6DO9QfSABbQZuQkJR3dy0Aah1NUb1eAN
-AUman63VC570u+uIqynQ/HBlLt+Gs3weACAOuBNfPiAjWYHQss+kp0s4i08b5UKPSsS7M9
-L6Ulav7TMN6fmW4ZiETQdYb80QAAAABJRU5ErkJggg==
-""",
 }
 
 ARROW_DOWN = """R0lGODdhBgAGAIAAAP///wAAACwAAAAABgAGAAACCkSOhqca5l4DtAAAOw=="""

@@ -29,78 +29,78 @@ FONT = "tom-thumb"
 MODES = ["tube", "elizabeth-line", "dlr", "overground", "tram"]
 LINES = {
     "bakerloo": {
-        "display": "Bakerloo",
         "colour": "#894E24",
+        "display": "Bakerloo",
         "textColour": WHITE,
     },
     "central": {
-        "display": "Central",
         "colour": "#DC241F",
+        "display": "Central",
         "textColour": WHITE,
     },
     "circle": {
-        "display": "Circle",
         "colour": "#FFCC00",
+        "display": "Circle",
         "textColour": BLACK,
     },
     "district": {
-        "display": "District",
         "colour": "#007229",
+        "display": "District",
         "textColour": WHITE,
     },
     "dlr": {
-        "display": "Docklands",
         "colour": "#00AFAD",
+        "display": "Docklands",
         "textColour": BLACK,
     },
     "elizabeth": {
-        "display": "Elizabeth",
         "colour": "#6950A1",
+        "display": "Elizabeth",
         "textColour": WHITE,
     },
     "hammersmith-city": {
-        "display": "H'smith & City",
         "colour": "#D799AF",
+        "display": "H'smith & City",
         "textColour": BLACK,
     },
     "jubilee": {
-        "display": "Jubilee",
         "colour": "#6A7278",
+        "display": "Jubilee",
         "textColour": WHITE,
     },
     "london-overground": {
-        "display": "Overground",
         "colour": "#D05F0E",
+        "display": "Overground",
         "textColour": BLACK,
     },
     "metropolitan": {
-        "display": "Metropolitan",
         "colour": "#751056",
+        "display": "Metropolitan",
         "textColour": WHITE,
     },
     "northern": {
-        "display": "Northern",
         "colour": BLACK,
+        "display": "Northern",
         "textColour": WHITE,
     },
     "piccadilly": {
-        "display": "Piccadilly",
         "colour": "#0019A8",
+        "display": "Piccadilly",
         "textColour": WHITE,
     },
     "tram": {
-        "display": "Tram",
         "colour": "#66CC00",
+        "display": "Tram",
         "textColour": WHITE,
     },
     "victoria": {
-        "display": "Victoria",
         "colour": "#00A0E2",
+        "display": "Victoria",
         "textColour": BLACK,
     },
     "waterloo-city": {
-        "display": "W'loo & City",
         "colour": "#76D0BD",
+        "display": "W'loo & City",
         "textColour": BLACK,
     },
 }
@@ -123,13 +123,13 @@ def fetch_stations(loc):
         STATION_URL,
         params = {
             "app_key": app_key(),
+            "categories": "none",
             "lat": str(truncated_lat),
             "lon": str(truncated_lng),
-            "radius": "500",
-            "stopTypes": "NaptanMetroStation,NaptanRailStation",
-            "returnLines": "true",
             "modes": ",".join(MODES),
-            "categories": "none",
+            "radius": "500",
+            "returnLines": "true",
+            "stopTypes": "NaptanMetroStation,NaptanRailStation",
         },
     )
     if resp.status_code != 200:
@@ -173,10 +173,10 @@ def format_title_station(name):
     name = format_option_station(name)
 
     replacements = {
-        "Street": "St",
-        "Road": "Rd",
         "Great": "Gt",
+        "Road": "Rd",
         "Square": "Sq",
+        "Street": "St",
     }
     words = name.split(" ")
     for i in range(len(words)):
@@ -224,9 +224,9 @@ def get_stations(location):
         return [schema.Option(
             display = "Default option - location is outside the UK",
             value = json.encode({
+                "line_id": "central",
                 "station_id": HOLBORN_ID,
                 "station_name": "Holborn",
-                "line_id": "central",
             }),
         )]
 
@@ -262,9 +262,9 @@ def get_stations(location):
                     display = "%s - %s" % (station_name, line_name),
                     # Return a composite value to avoid multiple API calls
                     value = json.encode({
+                        "line_id": line,
                         "station_id": station["id"],
                         "station_name": station_name,
-                        "line_id": line,
                     }),
                 )
                 options.append(option)

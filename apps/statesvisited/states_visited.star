@@ -5,9 +5,9 @@ Description: Select the states you have been to and show them off on your Tidbyt
 Author: sloanesturz
 """
 
+load("encoding/base64.star", "base64")
 load("render.star", "render")
 load("schema.star", "schema")
-load("encoding/base64.star", "base64")
 
 STATES = {
     "AL": "iVBORw0KGgoAAAANSUhEUgAAAHgAAABACAYAAADRTbMSAAAABmJLR0QA/wD/AP+gvaeTAAABVklEQVR4nO3Xv0pCYRzG8edoWGQGJklgEbgmhdXWVgQtNXUNDQ3t3kDQTbR0DW4tTUeIcKhNwcFKaojM8FSeP62hbb75Snw/42/6wgPv4UgAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAADAn4jbDjDFsR0wDsrnOycLmWQhOR3PylHW8/y549Nq0XXvPdttw5qwHTAOlnOp3fzizMbP2+F2bs117yu2mkyJ2Q4YB44U9N+KK+l1Gy2mMbAkRZHff5pPT+7pH3zCGFiSnCjsP+WXUpsXZ1v7NnJMYmBJYTQ4sONIq4XMgY0ekxhYksLYwBMtSe12727UKaYxsCQ/iLq/3RNTsdlRt5jGb5IkPwieJanZ6j70en6t0w0ar29ftXrz/cZ227AYWJL3ET55n0Fwdf1YOipVLm33mMTAkuqNTvm2/lJNJvyW7RYAAAAAAAAAAAAAAAB9A4/ZVBK/xUnRAAAAAElFTkSuQmCC",
@@ -61,10 +61,10 @@ STATES = {
 }
 
 STATE_NAMES = {
-    "AL": "Alabama",
     "AK": "Alaska",
-    "AZ": "Arizona",
+    "AL": "Alabama",
     "AR": "Arkansas",
+    "AZ": "Arizona",
     "CA": "California",
     "CO": "Colorado",
     "CT": "Connecticut",
@@ -72,29 +72,29 @@ STATE_NAMES = {
     "FL": "Florida",
     "GA": "Georgia",
     "HI": "Hawaii",
+    "IA": "Iowa",
     "ID": "Idaho",
     "IL": "Illinois",
     "IN": "Indiana",
-    "IA": "Iowa",
     "KS": "Kansas",
     "KY": "Kentucky",
     "LA": "Louisiana",
-    "ME": "Maine",
-    "MD": "Maryland",
     "MA": "Massachusetts",
+    "MD": "Maryland",
+    "ME": "Maine",
     "MI": "Michigan",
     "MN": "Minnesota",
-    "MS": "Mississippi",
     "MO": "Missouri",
+    "MS": "Mississippi",
     "MT": "Montana",
+    "NC": "North Carolina",
+    "ND": "North Dakota",
     "NE": "Nebraska",
-    "NV": "Nevada",
     "NH": "New Hampshire",
     "NJ": "New Jersey",
     "NM": "New Mexico",
+    "NV": "Nevada",
     "NY": "New York",
-    "NC": "North Carolina",
-    "ND": "North Dakota",
     "OH": "Ohio",
     "OK": "Oklahoma",
     "OR": "Oregon",
@@ -105,11 +105,11 @@ STATE_NAMES = {
     "TN": "Tennessee",
     "TX": "Texas",
     "UT": "Utah",
-    "VT": "Vermont",
     "VA": "Virginia",
+    "VT": "Vermont",
     "WA": "Washington",
-    "WV": "West Virginia",
     "WI": "Wisconsin",
+    "WV": "West Virginia",
     "WY": "Wyoming",
 }
 

@@ -5,22 +5,22 @@ Description: See how California is using renewable energy in its power grid righ
 Author: @sloanesturz
 """
 
-load("render.star", "render")
-load("http.star", "http")
 load("cache.star", "cache")
-load("humanize.star", "humanize")
 load("encoding/csv.star", "csv")
+load("http.star", "http")
+load("humanize.star", "humanize")
+load("render.star", "render")
 load("schema.star", "schema")
 
 FUEL_URL = "https://www.caiso.com/outlook/SP/fuelsource.csv"
 
 GREEN_FUEL_TYPES = {
+    "Biogas": "#b7b464",
+    "Biomass": "#8d8b00",
+    "Geothermal": "#8f500d",
+    "Small hydro": "#89d1ca",
     "Solar": "#ffa300",
     "Wind": "#3b6e8f",
-    "Geothermal": "#8f500d",
-    "Biomass": "#8d8b00",
-    "Biogas": "#b7b464",
-    "Small hydro": "#89d1ca",
 }
 
 CACHE_KEY = "FUEL_USAGE_DATA"

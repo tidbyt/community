@@ -31,13 +31,13 @@ Author: Chris Silverberg (csilv)
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
+load("animation.star", "animation")
 load("cache.star", "cache")
 load("encoding/base64.star", "base64")
 load("encoding/json.star", "json")
 load("http.star", "http")
 load("humanize.star", "humanize")
 load("render.star", "render")
-load("animation.star", "animation")
 load("schema.star", "schema")
 load("time.star", "time")
 
@@ -147,7 +147,7 @@ def get_page_frames(quake, timezone):
         #frames_a.extend(frames_b)
 
     else:
-        place_x = int((DEVICE_WIDTH - place_len) / 2)
+        place_x = int((DEVICE_WIDTH - place_len) // 2)
         return [
             get_page_frame(mag_str, mag_color, place_str, place_x, time_str),
         ] * DEVICE_WIDTH
@@ -220,8 +220,8 @@ def fetch_earthquakes(lat, lng, radius, magnitude):
 
     params = {
         "format": "geojson",
-        "minmagnitude": magnitude,
         "limit": str(MAX_QUAKES),
+        "minmagnitude": magnitude,
     }
     if radius != "0":
         geo_params = {

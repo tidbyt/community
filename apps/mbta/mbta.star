@@ -9,8 +9,8 @@ load("encoding/json.star", "json")
 load("http.star", "http")
 load("render.star", "render")
 load("schema.star", "schema")
-load("time.star", "time")
 load("secret.star", "secret")
+load("time.star", "time")
 
 URL = "https://api-v3.mbta.com/predictions"
 
@@ -28,9 +28,9 @@ def main(config):
     mintime = config.get("mintime", "0")
 
     params = {
-        "sort": "arrival_time",
-        "include": "route",
         "filter[stop]": stop["value"],
+        "include": "route",
+        "sort": "arrival_time",
     }
     if API_KEY:
         params["api_key"] = API_KEY
@@ -159,9 +159,9 @@ def find(xs, pred):
 def get_stops(location):
     loc = json.decode(location)
     params = {
-        "page[limit]": "100",
         "filter[latitude]": loc["lat"],
         "filter[longitude]": loc["lng"],
+        "page[limit]": "100",
         "sort": "distance",
     }
     if API_KEY:

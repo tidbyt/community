@@ -50,7 +50,7 @@ MSFT_TOKEN_ENDPOINT = ("https://login.microsoftonline.com/" + MSFT_TENANT_ID + "
 MSFT_CALENDAR_VIEW_URL = "https://graph.microsoft.com/v1.0/me/calendarview"
 MAX_MSFT_EVENT_FETCH_WEEK = 100
 MSFT_BUCKET_SIZE = 10
-NUMBER_OF_MSFT_FETCH_ITERATIONS = int(MAX_MSFT_EVENT_FETCH_WEEK / MSFT_BUCKET_SIZE)
+NUMBER_OF_MSFT_FETCH_ITERATIONS = int(MAX_MSFT_EVENT_FETCH_WEEK // MSFT_BUCKET_SIZE)
 
 # Values for local server
 DEVELOPER_WEBEX_CLIENT_ID = "REPLACE_ON_LOCAL"
@@ -72,8 +72,6 @@ WEBEX_PERSONAL_DETAILS_URL = "https://webexapis.com/v1/people/me"
 STATUS_MAP = {
     "away": {
         "color": "#FF00FF",
-        "schedule_prefix": "For ",
-        "status_label": "away",
         "image": """
 iVBORw0KGgoAAAANSUhEUgAAAAoAAAALCAYAAABGbhwYAAAACXBIWXMAAC4jAAAuIwF4
 pT92AAAAvElEQVQYlWXQMUoDARCF4c/NWiaNKASRgI02WwRM2MLCYg/gAWz1FoqV18gB
@@ -82,11 +80,11 @@ Scd4GKZ9cK9GWOEXpxgHl6FJcB/hP3AQ/BX8HvMDbPGEGywxjV7G7hHbFD+4wwQFFpGx
 wA7X4ZFHzhnWOMExNpiHlg/8PxiecYQhrnCOM7yhbr+niuuXuAiuGvEP/lMlte6HL6QA
 AAAASUVORK5CYII=
 """,
+        "schedule_prefix": "For ",
+        "status_label": "away",
     },
     "busy": {
         "color": "#FF0000",
-        "schedule_prefix": "For ",
-        "status_label": "busy",
         "image": """
 iVBORw0KGgoAAAANSUhEUgAAAAoAAAAKCAYAAACNMs+9AAAACXBIWXMAAC4jAAAuIwF4
 pT92AAAAh0lEQVQYlX3QOw7CQAyE4S8SFyCUlHApaioINAn3oQJulJRQQBluwKPAUdCK
@@ -94,22 +92,22 @@ MNLfjMdrr+m1Qo1LUGMt0QFP7DAPKjxw7EIFXpik3cijtoE2XhpSiXuGG6ZYYJmE9rHW
 dfRlZsGg2lj83+iW/jP5j9A4atvOOPqcosIsKMM7pd0FGpyDRpwF3ljQIMhNRxrbAAAA
 AElFTkSuQmCC
 """,
+        "schedule_prefix": "For ",
+        "status_label": "busy",
     },
     "free": {
         "color": "#00FF00",
-        "schedule_prefix": "For ",
-        "status_label": "free",
         "image": """
 iVBORw0KGgoAAAANSUhEUgAAAAoAAAAICAYAAADA+m62AAAACXBIWXMAAC4jAAAuIwF4
 pT92AAAAb0lEQVQYlYXOsQnCUBAG4C8khQMIGccJsoCNSFrLLCPWlklhJ7hDLDNIOovY
 XOAhD3PNcT8fP8f2XDFtoQ4LHv/QJdBtDWoUP6gNdE/DD8bkPgYaUlRixgn7aO7xRJP7
 5xwtC145UMZ+Y4cKhxz8Al5ZEuTs2wZwAAAAAElFTkSuQmCC
 """,
+        "schedule_prefix": "For ",
+        "status_label": "free",
     },
     "offline": {
         "color": "#808080",
-        "schedule_prefix": "Until Later",
-        "status_label": "offline",
         "image": """
 iVBORw0KGgoAAAANSUhEUgAAAAoAAAAKCAYAAACNMs+9AAAACXBIWXMAAC4jAAAuIwF4
 pT92AAAAo0lEQVQYlW3QOQpCQRAE0Ic3cDmA4BX0AF7FTL5LoFfwJG6hNzAVTAyEL5gY
@@ -117,11 +115,11 @@ aeYBDFwCe/DzsaGha6qmpqf4VR85DtE5MqVa4oUpOmhjgidWSZThjXrgORYx14IbwB3j
 gvseuwIehsat4AZHbAu4gWulvCw26MaO8EjEHaOSeIZzzL30dPpM7Y97NbhhOlj5RjFB
 C03fXJ9Yl29nOOESfRKxwAds1CbJl+J/zQAAAABJRU5ErkJggg==
 """,
+        "schedule_prefix": "Until Later",
+        "status_label": "offline",
     },
     "remote": {
         "color": "#0000FF",
-        "schedule_prefix": "For ",
-        "status_label": "remote",
         "image": """
 iVBORw0KGgoAAAANSUhEUgAAAAoAAAAICAYAAADA+m62AAAACXBIWXMAAC4jAAAuIwF4
 pT92AAAAkklEQVQYlV3PMQ4BURSF4W9iKjQkWtEpKel0YhESYwNKG7AOiU5FyT4UoqMT
@@ -129,11 +127,11 @@ ap2guWTMS15e7n/OuSeP/9PBNW432LvgMQ6YYYIn5sEqX9MswCgXHAT7bdzG0C5WoBXa
 JsUNR5yQRnWCJc444P5N7uLNcAnDNK+lqKGJMvpY4IUe1qHVE5SwRxWN+PEbq6h8YPgB
 eXwhnvIE4jgAAAAASUVORK5CYII=
 """,
+        "schedule_prefix": "For ",
+        "status_label": "remote",
     },
     "remote_busy": {
         "color": "#0000FF",
-        "schedule_prefix": "Busy for ",
-        "status_label": "remote",
         "image": """
 iVBORw0KGgoAAAANSUhEUgAAAAoAAAAICAYAAADA+m62AAAACXBIWXMAAC4jAAAuIwF4
 pT92AAAAkklEQVQYlV3PMQ4BURSF4W9iKjQkWtEpKel0YhESYwNKG7AOiU5FyT4UoqMT
@@ -141,11 +139,11 @@ ap2guWTMS15e7n/OuSeP/9PBNW432LvgMQ6YYYIn5sEqX9MswCgXHAT7bdzG0C5WoBXa
 JsUNR5yQRnWCJc444P5N7uLNcAnDNK+lqKGJMvpY4IUe1qHVE5SwRxWN+PEbq6h8YPgB
 eXwhnvIE4jgAAAAASUVORK5CYII=
 """,
+        "schedule_prefix": "Busy for ",
+        "status_label": "remote",
     },
     "remote_free": {
         "color": "#0000FF",
-        "schedule_prefix": "Free for ",
-        "status_label": "remote",
         "image": """
 iVBORw0KGgoAAAANSUhEUgAAAAoAAAAICAYAAADA+m62AAAACXBIWXMAAC4jAAAuIwF4
 pT92AAAAkklEQVQYlV3PMQ4BURSF4W9iKjQkWtEpKel0YhESYwNKG7AOiU5FyT4UoqMT
@@ -153,11 +151,11 @@ ap2guWTMS15e7n/OuSeP/9PBNW432LvgMQ6YYYIn5sEqX9MswCgXHAT7bdzG0C5WoBXa
 JsUNR5yQRnWCJc444P5N7uLNcAnDNK+lqKGJMvpY4IUe1qHVE5SwRxWN+PEbq6h8YPgB
 eXwhnvIE4jgAAAAASUVORK5CYII=
 """,
+        "schedule_prefix": "Free for ",
+        "status_label": "remote",
     },
     "unknown": {
         "color": "#FFFF00",
-        "schedule_prefix": None,
-        "status_label": "unknown",
         "image": """
 iVBORw0KGgoAAAANSUhEUgAAAAoAAAAKCAYAAACNMs+9AAAACXBIWXMAAC4jAAAuIwF4
 pT92AAAAt0lEQVQYlV3QP0pDYRAE8B9ptHiFghYBOw8gXsAD2EggRcADhPhio0fwBF4g
@@ -166,6 +164,8 @@ HOMKH1jjAkW4Pnyjm6MFnvEUAdzgB75wUrPyEmGR/bMRsNsTDXCNc2xwCg0c4HZP2MQ0
 XqGDQ4mg+gws8RZ8FO6+emWUeB5xmX5IPOOafyVWmGMW3K/IP3NkKS2ii0XRAAAAAElF
 TkSuQmCC
 """,
+        "schedule_prefix": None,
+        "status_label": "unknown",
     },
 }
 
@@ -433,12 +433,12 @@ def get_msft_events(msft_access_token, timezone):
             "Authorization": "Bearer " + msft_access_token,
         }
         params = {
-            "startdatetime": msft_start_date_time,
-            "enddatetime": msft_end_date_time,
-            "$select": "showAs, start, end, isAllDay",
             "$filter": "(showAs eq 'busy' or showAs eq 'oof' or " +
                        "showAs eq 'workingElsewhere') and isCancelled eq false",
             "$orderby": "start/dateTime",
+            "$select": "showAs, start, end, isAllDay",
+            "enddatetime": msft_end_date_time,
+            "startdatetime": msft_start_date_time,
         }
         msft_events = []
 
@@ -602,9 +602,9 @@ def refresh_webex_access_token(config):
             "Content-Type": "application/x-www-form-urlencoded",
         }
         params = {
-            "grant_type": "refresh_token",
             "client_id": WEBEX_CLIENT_ID,
             "client_secret": WEBEX_CLIENT_SECRET,
+            "grant_type": "refresh_token",
             "refresh_token": webex_refresh_token,
         }
         response = http.post(WEBEX_TOKEN_ENDPOINT, headers = headers, params = params)
@@ -819,10 +819,10 @@ def webex_oauth_handler(params):
         "Content-Type": "application/x-www-form-urlencoded",
     }
     params = {
-        "grant_type": "authorization_code",
         "client_id": params["client_id"],
         "client_secret": WEBEX_CLIENT_SECRET,
         "code": params["code"],
+        "grant_type": "authorization_code",
         "redirect_uri": params["redirect_uri"],
     }
     response = http.post(url = WEBEX_TOKEN_ENDPOINT, headers = headers, params = params)

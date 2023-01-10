@@ -5,16 +5,16 @@ Description: Displays your YTD or all-time athlete stats recorded on Strava.
 Author: Rob Kimball
 """
 
-load("http.star", "http")
-load("math.star", "math")
-load("time.star", "time")
 load("cache.star", "cache")
+load("encoding/base64.star", "base64")
+load("encoding/json.star", "json")
+load("http.star", "http")
+load("humanize.star", "humanize")
+load("math.star", "math")
 load("render.star", "render")
 load("schema.star", "schema")
 load("secret.star", "secret")
-load("humanize.star", "humanize")
-load("encoding/json.star", "json")
-load("encoding/base64.star", "base64")
+load("time.star", "time")
 
 STRAVA_BASE = "https://www.strava.com/api/v3"
 CLIENT_ID = "79662"
@@ -29,9 +29,9 @@ RATE_LIMIT_CACHE_KEY = "rate-limit-backoff"
 PREVIEW_DATA = {
     "count": 1408,
     "distance": 56159815,
-    "moving_time": 2318919,
     "elapsed_time": 2615958,
     "elevation_gain": 125800,
+    "moving_time": 2318919,
 }
 
 CACHE_TTL = 60 * 60 * 24  # updates once daily
@@ -264,8 +264,8 @@ def progress_chart(config, refresh_token, sport, units):
     logo = []
     if show_logo:
         sport_icon = {
-            "run": RUN_ICON,
             "ride": RIDE_ICON,
+            "run": RUN_ICON,
             "swim": SWIM_ICON,
         }[sport]
         logo.append(
@@ -508,8 +508,8 @@ def athlete_stats(config, refresh_token, period, sport, units):
         display_header.append(render.Image(src = STRAVA_ICON))
 
     sport_verb = {
-        "run": "running",
         "ride": "cycling",
+        "run": "running",
         "swim": "swim",
     }[sport]
 
@@ -524,8 +524,8 @@ def athlete_stats(config, refresh_token, period, sport, units):
         )
 
     sport_icon = {
-        "run": RUN_ICON,
         "ride": RIDE_ICON,
+        "run": RUN_ICON,
         "swim": SWIM_ICON,
     }[sport]
 
@@ -635,8 +635,8 @@ def last_activity(config, refresh_token, sport, units):
     title_width = 64
     if show_logo:
         sport_icon = {
-            "run": RUN_ICON,
             "ride": RIDE_ICON,
+            "run": RUN_ICON,
             "swim": SWIM_ICON,
         }[sport]
         title_width -= 10

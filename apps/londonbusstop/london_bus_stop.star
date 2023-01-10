@@ -64,13 +64,13 @@ def fetch_stops(loc):
         STOP_URL,
         params = {
             "app_key": app_key(),
+            "categories": "Direction",
             "lat": str(truncated_lat),
             "lon": str(truncated_lng),
-            "radius": "300",
-            "stopTypes": "NaptanPublicBusCoachTram",
             "modes": "bus",
+            "radius": "300",
             "returnLines": "false",
-            "categories": "Direction",
+            "stopTypes": "NaptanPublicBusCoachTram",
         },
     )
     if resp.status_code != 200:
@@ -151,8 +151,8 @@ def get_stop(stop_id):
             continue
 
         return {
-            "name": child["commonName"],
             "code": child["stopLetter"],
+            "name": child["commonName"],
         }
 
     return None
@@ -161,8 +161,8 @@ def get_arrivals(stop_id):
     resp = http.get(
         ARRIVALS_URL % stop_id,
         params = {
-            "serviceTypes": "bus,night",
             "app_key": app_key(),
+            "serviceTypes": "bus,night",
         },
     )
     if resp.status_code != 200:
@@ -177,9 +177,9 @@ def get_arrivals(stop_id):
             print("TFL Arrivals response did not contain arrival prediction")
             continue
         arrivals.append({
-            "line": arrival["lineName"],
-            "due_in_seconds": arrival["timeToStation"],
             "destination": arrival["destinationName"],
+            "due_in_seconds": arrival["timeToStation"],
+            "line": arrival["lineName"],
         })
 
     arrivals = sorted(arrivals, key = lambda x: x["due_in_seconds"])

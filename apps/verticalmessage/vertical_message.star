@@ -9,16 +9,16 @@ Author: rs7q5
 #Created 20220221 RIS
 #Last Modified 20220515 RIS
 
+load("re.star", "re")
 load("render.star", "render")
 load("schema.star", "schema")
-load("re.star", "re")
 
 COLOR_LIST = {
-    "White": "#fff",
-    "Red": "#a00",
-    "Green": "#0a0",
     "Blue": "#00a",
+    "Green": "#0a0",
     "Orange": "#D2691E",
+    "Red": "#a00",
+    "White": "#fff",
 }
 
 DEFAULT_MSG = "A really long message that just keeps on going and going and going and going and never stops"

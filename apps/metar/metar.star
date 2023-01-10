@@ -1,8 +1,6 @@
-load("render.star", "render")
-load("http.star", "http")
 load("cache.star", "cache")
-load("encoding/json.star", "json")
-load("secret.star", "secret")
+load("http.star", "http")
+load("render.star", "render")
 load("schema.star", "schema")
 
 ADDS_URL = "https://www.aviationweather.gov/adds/dataserver_current/httpparam?dataSource=metars&requestType=retrieve&format=csv&stationString=%s&mostrecentforeachstation=constraint&hoursBeforeNow=2"
@@ -24,8 +22,8 @@ def decoded_result_for_airport(config, airport):
         if rep.status_code != 200:
             return {
                 "color": "#000000",
-                "text": "Received error %s for %s" % (rep.status_code, airport),
                 "flight_category": "ERR",
+                "text": "Received error %s for %s" % (rep.status_code, airport),
             }
 
         result = rep.body()
@@ -47,15 +45,15 @@ def decoded_result_for_airport(config, airport):
     if data_line == None:
         return {
             "color": "#000000",
-            "text": "Invalid airport code %s" % airport,
             "flight_category": "ERR",
+            "text": "Invalid airport code %s" % airport,
         }
 
     if key_line == None:
         return {
             "color": "#000000",
-            "text": "Could not parse METAR",
             "flight_category": "ERR",
+            "text": "Could not parse METAR",
         }
 
     decoded = {}
@@ -64,8 +62,8 @@ def decoded_result_for_airport(config, airport):
 
     response = {
         "color": color_for_state(decoded),
-        "text": decoded["raw_text"],
         "flight_category": decoded["flight_category"],
+        "text": decoded["raw_text"],
     }
     return response
 

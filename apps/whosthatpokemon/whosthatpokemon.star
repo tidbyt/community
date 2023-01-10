@@ -6,13 +6,12 @@ Author: Nicole Brooks
 """
 
 load("render.star", "render")
-load("time.star", "time")
+load("cache.star", "cache")
 load("encoding/base64.star", "base64")
 load("encoding/json.star", "json")
 load("http.star", "http")
-load("schema.star", "schema")
-load("cache.star", "cache")
 load("random.star", "random")
+load("schema.star", "schema")
 
 ALL_POKEMON = 898
 CLASSIC_POKEMON = 386
@@ -130,8 +129,8 @@ def getSpeed(config):
 def compileFrames(name, silhouette, revealedImage, speed):
     frames = []
     frameCount = int(speed * 8)
-    startTransition = frameCount / 2 - 4
-    endTransition = frameCount / 2 + 4
+    startTransition = frameCount // 2 - 4
+    endTransition = frameCount // 2 + 4
     transitionFrame = 0
     for frame in range(1, frameCount):
         if frame < startTransition:

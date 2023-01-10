@@ -5,12 +5,12 @@ Description: Displays the standings (in terms of games behind) for the MLB wild 
 Author: Jake Manske
 """
 
+load("cache.star", "cache")
+load("encoding/base64.star", "base64")
+load("encoding/json.star", "json")
+load("http.star", "http")
 load("render.star", "render")
 load("schema.star", "schema")
-load("http.star", "http")
-load("encoding/base64.star", "base64")
-load("cache.star", "cache")
-load("encoding/json.star", "json")
 load("time.star", "time")
 
 MLB_STANDINGS_URL = "https://statsapi.mlb.com/api/v1/standings"
@@ -141,7 +141,7 @@ def get_StandingsCache(league_id):
     return json.decode(standings)
 
 def get_StandingsHttp(league_id, year):
-    query_params = {"standingsTypes": "wildCard", "leagueId": league_id, "season": year}
+    query_params = {"leagueId": league_id, "season": year, "standingsTypes": "wildCard"}
     standings_data = http.get(MLB_STANDINGS_URL, params = query_params)
 
     standings = []
@@ -174,7 +174,7 @@ def get_StandingsHttp(league_id, year):
         games_back = team["wildCardGamesBack"]
 
         # add to list
-        standings.append({"TeamId": team_id, "GamesBack": games_back})
+        standings.append({"GamesBack": games_back, "TeamId": team_id})
         limiter += 1
 
     # cache standings by league id

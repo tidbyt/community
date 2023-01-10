@@ -27,13 +27,13 @@ Author: Henry So, Jr.
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-load("render.star", "render")
-load("schema.star", "schema")
-load("time.star", "time")
-load("re.star", "re")
-load("sunrise.star", "sunrise")
 load("encoding/base64.star", "base64")
 load("encoding/json.star", "json")
+load("re.star", "re")
+load("render.star", "render")
+load("schema.star", "schema")
+load("sunrise.star", "sunrise")
+load("time.star", "time")
 
 # parameters:
 # location - the location for rendering
@@ -349,13 +349,13 @@ SEASON_AUTUMN_N = "#840"
 # Season 3 is Sep-Dec
 SEASON_THEMES = {
     "nh": {
-        "description": "4 Season, N. Hemi.",
         "d": [
             SEASON_WINTER_D,
             SEASON_SPRING_D,
             SEASON_SUMMER_D,
             SEASON_AUTUMN_D,
         ],
+        "description": "4 Season, N. Hemi.",
         "n": [
             SEASON_WINTER_N,
             SEASON_SPRING_N,
@@ -364,13 +364,13 @@ SEASON_THEMES = {
         ],
     },
     "sh": {
-        "description": "4 Season, S. Hemi.",
         "d": [
             SEASON_SUMMER_D,
             SEASON_AUTUMN_D,
             SEASON_WINTER_D,
             SEASON_SPRING_D,
         ],
+        "description": "4 Season, S. Hemi.",
         "n": [
             SEASON_SUMMER_N,
             SEASON_AUTUMN_N,
@@ -379,13 +379,13 @@ SEASON_THEMES = {
         ],
     },
     "wd-nh": {
-        "description": "Wet-Dry, N. Hemi.",
         "d": [
             SEASON_WINTER_D,
             SEASON_SUMMER_D,
             SEASON_SUMMER_D,
             SEASON_WINTER_D,
         ],
+        "description": "Wet-Dry, N. Hemi.",
         "n": [
             SEASON_WINTER_N,
             SEASON_SUMMER_N,
@@ -394,13 +394,13 @@ SEASON_THEMES = {
         ],
     },
     "wd-sh": {
-        "description": "Wet-Dry, S. Hemi.",
         "d": [
             SEASON_SUMMER_D,
             SEASON_WINTER_D,
             SEASON_WINTER_D,
             SEASON_SUMMER_D,
         ],
+        "description": "Wet-Dry, S. Hemi.",
         "n": [
             SEASON_SUMMER_N,
             SEASON_WINTER_N,

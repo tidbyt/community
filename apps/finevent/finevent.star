@@ -5,30 +5,30 @@ Description: Displays the daily economic or earnings calendar.
 Author: Rob Kimball
 """
 
-load("http.star", "http")
-load("time.star", "time")
 load("cache.star", "cache")
+load("encoding/base64.star", "base64")
+load("encoding/json.star", "json")
+load("http.star", "http")
 load("render.star", "render")
 load("schema.star", "schema")
-load("encoding/json.star", "json")
-load("encoding/base64.star", "base64")
+load("time.star", "time")
 
 BASE_URL = "https://api.tradingeconomics.com"
 AUTH = "guest:guest"
 SAMPLE_DATA = [
-    {"CalendarId": "292068", "Date": "2022-03-23T07:00:00", "Country": "United Kingdom", "Category": "Inflation Rate", "Event": "Inflation Rate YoY", "Reference": "Feb", "ReferenceDate": "2022-02-28T00:00:00", "Source": "Office for National Statistics", "SourceURL": "http://www.ons.gov.uk/", "Actual": "6.2%", "Previous": "5.5%", "Forecast": "5.9%", "TEForecast": "6.1%", "URL": "/united-kingdom/inflation-cpi", "DateSpan": "0", "Importance": 3, "LastUpdate": "2022-03-23T07:00:00", "Revised": "", "Currency": "", "Unit": "%", "Ticker": "UKRPCJYR", "Symbol": "UKRPCJYR"},
-    {"CalendarId": "292037", "Date": "2022-03-23T14:00:00", "Country": "United States", "Category": "New Home Sales", "Event": "New Home Sales", "Reference": "Feb", "ReferenceDate": "2022-02-28T00:00:00", "Source": "U.S. Census Bureau", "SourceURL": "https://www.census.gov", "Actual": "0.772M", "Previous": "0.788M", "Forecast": "0.81M", "TEForecast": "0.81M", "URL": "/united-states/new-home-sales", "DateSpan": "0", "Importance": 3, "LastUpdate": "2022-03-23T14:00:00", "Revised": "0.801M", "Currency": "", "Unit": "M", "Ticker": "UNITEDSTANEWHOMSAL", "Symbol": "UNITEDSTANEWHOMSAL"},
-    {"CalendarId": "310998", "Date": "2022-03-24T00:00:00", "Country": "Belgium", "Category": "Calendar", "Event": "Extraordinary NATO Summit", "Reference": "", "ReferenceDate": None, "Source": "", "SourceURL": "", "Actual": "", "Previous": "", "Forecast": "", "TEForecast": "", "URL": "/belgium/calendar", "DateSpan": "1", "Importance": 3, "LastUpdate": "2022-03-18T11:24:00", "Revised": "", "Currency": "", "Unit": "", "Ticker": "BEL CALENDAR", "Symbol": ""},
-    {"CalendarId": "292083", "Date": "2022-03-24T08:30:00", "Country": "Germany", "Category": "Manufacturing PMI", "Event": "Markit Manufacturing PMI Flash", "Reference": "Mar", "ReferenceDate": "2022-03-31T00:00:00", "Source": "Markit Economics", "SourceURL": "https://www.markiteconomics.com", "Actual": "", "Previous": "58.4", "Forecast": "55.8", "TEForecast": "56.2", "URL": "/germany/manufacturing-pmi", "DateSpan": "0", "Importance": 3, "LastUpdate": "2022-03-21T14:15:00", "Revised": "", "Currency": "", "Unit": "", "Ticker": "GERMANYMANPMI", "Symbol": "GERMANYMANPMI"},
-    {"CalendarId": "292088", "Date": "2022-03-24T09:30:00", "Country": "United Kingdom", "Category": "Manufacturing PMI", "Event": "Markit/CIPS Manufacturing PMI Flash", "Reference": "Mar", "ReferenceDate": "2022-03-31T00:00:00", "Source": "Markit Economics", "SourceURL": "https://www.markiteconomics.com", "Actual": "", "Previous": "58", "Forecast": "56.7", "TEForecast": "57.1", "URL": "/united-kingdom/manufacturing-pmi", "DateSpan": "0", "Importance": 3, "LastUpdate": "2022-03-21T14:15:00", "Revised": "", "Currency": "", "Unit": "", "Ticker": "UNITEDKINMANPMI", "Symbol": "UNITEDKINMANPMI"},
-    {"CalendarId": "292089", "Date": "2022-03-24T09:30:00", "Country": "United Kingdom", "Category": "Services PMI", "Event": "Markit/CIPS UK Services PMI Flash", "Reference": "Mar", "ReferenceDate": "2022-03-31T00:00:00", "Source": "Markit Economics", "SourceURL": "https://www.markiteconomics.com", "Actual": "", "Previous": "60.5", "Forecast": "58", "TEForecast": "58.8", "URL": "/united-kingdom/services-pmi", "DateSpan": "0", "Importance": 3, "LastUpdate": "2022-03-21T14:15:00", "Revised": "", "Currency": "", "Unit": "", "Ticker": "UNITEDKINSERPMI", "Symbol": "UNITEDKINSERPMI"},
-    {"CalendarId": "292098", "Date": "2022-03-24T12:30:00", "Country": "United States", "Category": "Durable Goods Orders", "Event": "Durable Goods Orders MoM", "Reference": "Feb", "ReferenceDate": "2022-02-28T00:00:00", "Source": "U.S. Census Bureau", "SourceURL": "https://www.census.gov/", "Actual": "", "Previous": "1.6%", "Forecast": "-0.5%", "TEForecast": "-0.5%", "URL": "/united-states/durable-goods-orders", "DateSpan": "0", "Importance": 3, "LastUpdate": "2022-03-21T14:15:00", "Revised": "", "Currency": "", "Unit": "%", "Ticker": "UNITEDSTADURGOOORD", "Symbol": "UNITEDSTADURGOOORD"},
-    {"CalendarId": "291879", "Date": "2022-03-25T00:01:00", "Country": "United Kingdom", "Category": "Consumer Confidence", "Event": "Gfk Consumer Confidence", "Reference": "Mar", "ReferenceDate": "2022-03-31T00:00:00", "Source": "GfK Group", "SourceURL": "https://www.gfk.com", "Actual": "", "Previous": "-26", "Forecast": "-30", "TEForecast": "-35", "URL": "/united-kingdom/consumer-confidence", "DateSpan": "0", "Importance": 3, "LastUpdate": "2022-03-21T14:15:00", "Revised": "", "Currency": "", "Unit": "", "Ticker": "UKCCI", "Symbol": "UKCCI"},
-    {"CalendarId": "292119", "Date": "2022-03-25T07:00:00", "Country": "United Kingdom", "Category": "Retail Sales MoM", "Event": "Retail Sales MoM", "Reference": "Feb", "ReferenceDate": "2022-02-28T00:00:00", "Source": "Office for National Statistics", "SourceURL": "http://www.ons.gov.uk/", "Actual": "", "Previous": "1.9%", "Forecast": "0.6%", "TEForecast": "0.7%", "URL": "/united-kingdom/retail-sales", "DateSpan": "0", "Importance": 3, "LastUpdate": "2022-03-21T14:15:00", "Revised": "", "Currency": "", "Unit": "%", "Ticker": "GBRRETAILSALESMOM", "Symbol": "GBRRetailSalesMoM"},
-    {"CalendarId": "292169", "Date": "2022-03-25T09:00:00", "Country": "Germany", "Category": "Business Confidence", "Event": "Ifo Business Climate", "Reference": "Mar", "ReferenceDate": "2022-03-31T00:00:00", "Source": "Ifo Institute", "SourceURL": "https://www.ifo.de", "Actual": "", "Previous": "98.9", "Forecast": "94.2", "TEForecast": "92.2", "URL": "/germany/business-confidence", "DateSpan": "0", "Importance": 3, "LastUpdate": "2022-03-21T14:15:00", "Revised": "", "Currency": "", "Unit": "", "Ticker": "GRIFPBUS", "Symbol": "GRIFPBUS"},
-    {"CalendarId": "292037", "Date": "2022-03-23T14:00:00", "Country": "United States", "Category": "New Home Sales", "Event": "New Home Sales", "Reference": "Feb", "ReferenceDate": "2022-02-28T00:00:00", "Source": "U.S. Census Bureau", "SourceURL": "https://www.census.gov", "Actual": "0.772M", "Previous": "0.788M", "Forecast": "0.81M", "TEForecast": "0.81M", "URL": "/united-states/new-home-sales", "DateSpan": "0", "Importance": 3, "LastUpdate": "2022-03-23T14:00:00", "Revised": "0.801M", "Currency": "", "Unit": "M", "Ticker": "UNITEDSTANEWHOMSAL", "Symbol": "UNITEDSTANEWHOMSAL"},
-    {"CalendarId": "292098", "Date": "2022-03-24T12:30:00", "Country": "United States", "Category": "Durable Goods Orders", "Event": "Durable Goods Orders MoM", "Reference": "Feb", "ReferenceDate": "2022-02-28T00:00:00", "Source": "U.S. Census Bureau", "SourceURL": "https://www.census.gov/", "Actual": "", "Previous": "1.6%", "Forecast": "-0.5%", "TEForecast": "-0.5%", "URL": "/united-states/durable-goods-orders", "DateSpan": "0", "Importance": 3, "LastUpdate": "2022-03-21T14:15:00", "Revised": "", "Currency": "", "Unit": "%", "Ticker": "UNITEDSTADURGOOORD", "Symbol": "UNITEDSTADURGOOORD"},
-    {"CalendarId": "292693", "Date": "2022-03-29T14:00:00", "Country": "United States", "Category": "Job Offers", "Event": "JOLTs Job Openings", "Reference": "Feb", "ReferenceDate": "2022-02-28T00:00:00", "Source": "U.S. Bureau of Labor Statistics", "SourceURL": "http://www.bls.gov", "Actual": "", "Previous": "11.263M", "Forecast": "", "TEForecast": "", "URL": "/united-states/job-offers", "DateSpan": "0", "Importance": 3, "LastUpdate": "2022-03-17T16:37:00", "Revised": "", "Currency": "", "Unit": "M", "Ticker": "UNITEDSTAJOBOFF", "Symbol": "UNITEDSTAJOBOFF"},
+    {"Actual": "6.2%", "CalendarId": "292068", "Category": "Inflation Rate", "Country": "United Kingdom", "Currency": "", "Date": "2022-03-23T07:00:00", "DateSpan": "0", "Event": "Inflation Rate YoY", "Forecast": "5.9%", "Importance": 3, "LastUpdate": "2022-03-23T07:00:00", "Previous": "5.5%", "Reference": "Feb", "ReferenceDate": "2022-02-28T00:00:00", "Revised": "", "Source": "Office for National Statistics", "SourceURL": "http://www.ons.gov.uk/", "Symbol": "UKRPCJYR", "TEForecast": "6.1%", "Ticker": "UKRPCJYR", "URL": "/united-kingdom/inflation-cpi", "Unit": "%"},
+    {"Actual": "0.772M", "CalendarId": "292037", "Category": "New Home Sales", "Country": "United States", "Currency": "", "Date": "2022-03-23T14:00:00", "DateSpan": "0", "Event": "New Home Sales", "Forecast": "0.81M", "Importance": 3, "LastUpdate": "2022-03-23T14:00:00", "Previous": "0.788M", "Reference": "Feb", "ReferenceDate": "2022-02-28T00:00:00", "Revised": "0.801M", "Source": "U.S. Census Bureau", "SourceURL": "https://www.census.gov", "Symbol": "UNITEDSTANEWHOMSAL", "TEForecast": "0.81M", "Ticker": "UNITEDSTANEWHOMSAL", "URL": "/united-states/new-home-sales", "Unit": "M"},
+    {"Actual": "", "CalendarId": "310998", "Category": "Calendar", "Country": "Belgium", "Currency": "", "Date": "2022-03-24T00:00:00", "DateSpan": "1", "Event": "Extraordinary NATO Summit", "Forecast": "", "Importance": 3, "LastUpdate": "2022-03-18T11:24:00", "Previous": "", "Reference": "", "ReferenceDate": None, "Revised": "", "Source": "", "SourceURL": "", "Symbol": "", "TEForecast": "", "Ticker": "BEL CALENDAR", "URL": "/belgium/calendar", "Unit": ""},
+    {"Actual": "", "CalendarId": "292083", "Category": "Manufacturing PMI", "Country": "Germany", "Currency": "", "Date": "2022-03-24T08:30:00", "DateSpan": "0", "Event": "Markit Manufacturing PMI Flash", "Forecast": "55.8", "Importance": 3, "LastUpdate": "2022-03-21T14:15:00", "Previous": "58.4", "Reference": "Mar", "ReferenceDate": "2022-03-31T00:00:00", "Revised": "", "Source": "Markit Economics", "SourceURL": "https://www.markiteconomics.com", "Symbol": "GERMANYMANPMI", "TEForecast": "56.2", "Ticker": "GERMANYMANPMI", "URL": "/germany/manufacturing-pmi", "Unit": ""},
+    {"Actual": "", "CalendarId": "292088", "Category": "Manufacturing PMI", "Country": "United Kingdom", "Currency": "", "Date": "2022-03-24T09:30:00", "DateSpan": "0", "Event": "Markit/CIPS Manufacturing PMI Flash", "Forecast": "56.7", "Importance": 3, "LastUpdate": "2022-03-21T14:15:00", "Previous": "58", "Reference": "Mar", "ReferenceDate": "2022-03-31T00:00:00", "Revised": "", "Source": "Markit Economics", "SourceURL": "https://www.markiteconomics.com", "Symbol": "UNITEDKINMANPMI", "TEForecast": "57.1", "Ticker": "UNITEDKINMANPMI", "URL": "/united-kingdom/manufacturing-pmi", "Unit": ""},
+    {"Actual": "", "CalendarId": "292089", "Category": "Services PMI", "Country": "United Kingdom", "Currency": "", "Date": "2022-03-24T09:30:00", "DateSpan": "0", "Event": "Markit/CIPS UK Services PMI Flash", "Forecast": "58", "Importance": 3, "LastUpdate": "2022-03-21T14:15:00", "Previous": "60.5", "Reference": "Mar", "ReferenceDate": "2022-03-31T00:00:00", "Revised": "", "Source": "Markit Economics", "SourceURL": "https://www.markiteconomics.com", "Symbol": "UNITEDKINSERPMI", "TEForecast": "58.8", "Ticker": "UNITEDKINSERPMI", "URL": "/united-kingdom/services-pmi", "Unit": ""},
+    {"Actual": "", "CalendarId": "292098", "Category": "Durable Goods Orders", "Country": "United States", "Currency": "", "Date": "2022-03-24T12:30:00", "DateSpan": "0", "Event": "Durable Goods Orders MoM", "Forecast": "-0.5%", "Importance": 3, "LastUpdate": "2022-03-21T14:15:00", "Previous": "1.6%", "Reference": "Feb", "ReferenceDate": "2022-02-28T00:00:00", "Revised": "", "Source": "U.S. Census Bureau", "SourceURL": "https://www.census.gov/", "Symbol": "UNITEDSTADURGOOORD", "TEForecast": "-0.5%", "Ticker": "UNITEDSTADURGOOORD", "URL": "/united-states/durable-goods-orders", "Unit": "%"},
+    {"Actual": "", "CalendarId": "291879", "Category": "Consumer Confidence", "Country": "United Kingdom", "Currency": "", "Date": "2022-03-25T00:01:00", "DateSpan": "0", "Event": "Gfk Consumer Confidence", "Forecast": "-30", "Importance": 3, "LastUpdate": "2022-03-21T14:15:00", "Previous": "-26", "Reference": "Mar", "ReferenceDate": "2022-03-31T00:00:00", "Revised": "", "Source": "GfK Group", "SourceURL": "https://www.gfk.com", "Symbol": "UKCCI", "TEForecast": "-35", "Ticker": "UKCCI", "URL": "/united-kingdom/consumer-confidence", "Unit": ""},
+    {"Actual": "", "CalendarId": "292119", "Category": "Retail Sales MoM", "Country": "United Kingdom", "Currency": "", "Date": "2022-03-25T07:00:00", "DateSpan": "0", "Event": "Retail Sales MoM", "Forecast": "0.6%", "Importance": 3, "LastUpdate": "2022-03-21T14:15:00", "Previous": "1.9%", "Reference": "Feb", "ReferenceDate": "2022-02-28T00:00:00", "Revised": "", "Source": "Office for National Statistics", "SourceURL": "http://www.ons.gov.uk/", "Symbol": "GBRRetailSalesMoM", "TEForecast": "0.7%", "Ticker": "GBRRETAILSALESMOM", "URL": "/united-kingdom/retail-sales", "Unit": "%"},
+    {"Actual": "", "CalendarId": "292169", "Category": "Business Confidence", "Country": "Germany", "Currency": "", "Date": "2022-03-25T09:00:00", "DateSpan": "0", "Event": "Ifo Business Climate", "Forecast": "94.2", "Importance": 3, "LastUpdate": "2022-03-21T14:15:00", "Previous": "98.9", "Reference": "Mar", "ReferenceDate": "2022-03-31T00:00:00", "Revised": "", "Source": "Ifo Institute", "SourceURL": "https://www.ifo.de", "Symbol": "GRIFPBUS", "TEForecast": "92.2", "Ticker": "GRIFPBUS", "URL": "/germany/business-confidence", "Unit": ""},
+    {"Actual": "0.772M", "CalendarId": "292037", "Category": "New Home Sales", "Country": "United States", "Currency": "", "Date": "2022-03-23T14:00:00", "DateSpan": "0", "Event": "New Home Sales", "Forecast": "0.81M", "Importance": 3, "LastUpdate": "2022-03-23T14:00:00", "Previous": "0.788M", "Reference": "Feb", "ReferenceDate": "2022-02-28T00:00:00", "Revised": "0.801M", "Source": "U.S. Census Bureau", "SourceURL": "https://www.census.gov", "Symbol": "UNITEDSTANEWHOMSAL", "TEForecast": "0.81M", "Ticker": "UNITEDSTANEWHOMSAL", "URL": "/united-states/new-home-sales", "Unit": "M"},
+    {"Actual": "", "CalendarId": "292098", "Category": "Durable Goods Orders", "Country": "United States", "Currency": "", "Date": "2022-03-24T12:30:00", "DateSpan": "0", "Event": "Durable Goods Orders MoM", "Forecast": "-0.5%", "Importance": 3, "LastUpdate": "2022-03-21T14:15:00", "Previous": "1.6%", "Reference": "Feb", "ReferenceDate": "2022-02-28T00:00:00", "Revised": "", "Source": "U.S. Census Bureau", "SourceURL": "https://www.census.gov/", "Symbol": "UNITEDSTADURGOOORD", "TEForecast": "-0.5%", "Ticker": "UNITEDSTADURGOOORD", "URL": "/united-states/durable-goods-orders", "Unit": "%"},
+    {"Actual": "", "CalendarId": "292693", "Category": "Job Offers", "Country": "United States", "Currency": "", "Date": "2022-03-29T14:00:00", "DateSpan": "0", "Event": "JOLTs Job Openings", "Forecast": "", "Importance": 3, "LastUpdate": "2022-03-17T16:37:00", "Previous": "11.263M", "Reference": "Feb", "ReferenceDate": "2022-02-28T00:00:00", "Revised": "", "Source": "U.S. Bureau of Labor Statistics", "SourceURL": "http://www.bls.gov", "Symbol": "UNITEDSTAJOBOFF", "TEForecast": "", "Ticker": "UNITEDSTAJOBOFF", "URL": "/united-states/job-offers", "Unit": "M"},
 ]
 DATEFMT = "2006-01-02T15:04:05"
 MAX_RELEASE_SECONDS = 60 * 90  # we only show releases occurring the last/next N minutes
@@ -92,7 +92,6 @@ REGIONS = {
 
 ISO3166 = {
     "Afghanistan": "af",
-    "Åland Islands": "ax",
     "Albania": "al",
     "Algeria": "dz",
     "American Samoa": "as",
@@ -124,8 +123,9 @@ ISO3166 = {
     "Bouvet Island": "bv",
     "Brazil": "br",
     "British Indian Ocean Territory": "io",
-    "Brunei Darussalam": "bn",
+    "British Virgin Islands": "vg",
     "Brunei": "bn",
+    "Brunei Darussalam": "bn",
     "Bulgaria": "bg",
     "Burkina Faso": "bf",
     "Burundi": "bi",
@@ -144,15 +144,14 @@ ISO3166 = {
     "Comoros": "km",
     "Congo": "cg",
     "Congo, the Democratic Republic of the": "cd",
-    "Democratic Republic of the Congo": "cd",
     "Cook Islands": "ck",
     "Costa Rica": "cr",
-    "Côte d'Ivoire": "ci",
-    "Ivory Coast": "ci",
     "Croatia": "hr",
     "Cuba": "cu",
     "Cyprus": "cy",
     "Czech Republic": "cz",
+    "Côte d'Ivoire": "ci",
+    "Democratic Republic of the Congo": "cd",
     "Denmark": "dk",
     "Djibouti": "dj",
     "Dominica": "dm",
@@ -168,6 +167,7 @@ ISO3166 = {
     "European Union": "eu",
     "Falkland Islands (Malvinas)": "fk",
     "Faroe Islands": "fo",
+    "Federated States of Micronesia": "fm",
     "Fiji": "fj",
     "Finland": "fi",
     "France": "fr",
@@ -206,6 +206,7 @@ ISO3166 = {
     "Isle of Man": "im",
     "Israel": "il",
     "Italy": "it",
+    "Ivory Coast": "ci",
     "Jamaica": "jm",
     "Japan": "jp",
     "Jersey": "je",
@@ -215,7 +216,6 @@ ISO3166 = {
     "Kiribati": "ki",
     "Korea, Democratic People's Republic of": "kp",
     "Korea, Republic of": "kr",
-    "Republic of Korea": "kr",
     "Kuwait": "kw",
     "Kyrgyzstan": "kg",
     "Lao People's Democratic Republic": "la",
@@ -244,10 +244,8 @@ ISO3166 = {
     "Mexico": "mx",
     "Micronesia": "fm",
     "Micronesia, Federated States of": "fm",
-    "Federated States of Micronesia": "fm",
     "Moldova": "md",
     "Moldova, Republic of": "md",
-    "Republic of Moldova": "md",
     "Monaco": "mc",
     "Mongolia": "mn",
     "Montenegro": "me",
@@ -284,17 +282,19 @@ ISO3166 = {
     "Portugal": "pt",
     "Puerto Rico": "pr",
     "Qatar": "qa",
-    "Réunion": "re",
+    "Republic of Korea": "kr",
+    "Republic of Moldova": "md",
     "Romania": "ro",
     "Russian Federation": "ru",
     "Rwanda": "rw",
+    "Réunion": "re",
     "Saint Barthélemy": "bl",
     "Saint Helena": "sh",
     "Saint Helena, Ascension and Tristan da Cunha": "sh",
     "Saint Kitts and Nevis": "kn",
     "Saint Lucia": "lc",
-    "Saint Martin (French part)": "mf",
     "Saint Martin": "mf",
+    "Saint Martin (French part)": "mf",
     "Saint Pierre and Miquelon": "pm",
     "Saint Vincent and the Grenadines": "vc",
     "Samoa": "ws",
@@ -311,9 +311,9 @@ ISO3166 = {
     "Solomon Islands": "sb",
     "Somalia": "so",
     "South Africa": "za",
-    "South Korea": "kr",
     "South Georgia": "gs",
     "South Georgia and the South Sandwich Islands": "gs",
+    "South Korea": "kr",
     "Spain": "es",
     "Sri Lanka": "lk",
     "Sudan": "sd",
@@ -323,11 +323,11 @@ ISO3166 = {
     "Sweden": "se",
     "Switzerland": "ch",
     "Syrian Arab Republic": "sy",
-    "Taiwan, Province of China": "tw",
     "Taiwan": "tw",
+    "Taiwan, Province of China": "tw",
     "Tajikistan": "tj",
-    "Tanzania, United Republic of": "tz",
     "Tanzania": "tz",
+    "Tanzania, United Republic of": "tz",
     "Thailand": "th",
     "Timor-Leste": "tl",
     "Togo": "tg",
@@ -339,6 +339,7 @@ ISO3166 = {
     "Turkmenistan": "tm",
     "Turks and Caicos Islands": "tc",
     "Tuvalu": "tv",
+    "U.S. Virgin Islands": "vi",
     "Uganda": "ug",
     "Ukraine": "ua",
     "United Arab Emirates": "ae",
@@ -348,19 +349,18 @@ ISO3166 = {
     "Uruguay": "uy",
     "Uzbekistan": "uz",
     "Vanuatu": "vu",
-    "Venezuela, Bolivarian Republic of": "ve",
     "Venezuela": "ve",
+    "Venezuela, Bolivarian Republic of": "ve",
     "Viet Nam": "vn",
     "Vietnam": "vn",
     "Virgin Islands, British": "vg",
-    "British Virgin Islands": "vg",
     "Virgin Islands, U.S.": "vi",
-    "U.S. Virgin Islands": "vi",
     "Wallis and Futuna": "wf",
     "Western Sahara": "eh",
     "Yemen": "ye",
     "Zambia": "zm",
     "Zimbabwe": "zw",
+    "Åland Islands": "ax",
 }
 
 IMPORTANCE_ICONS = {
@@ -504,9 +504,9 @@ def main(config):
     print(importance, display_time, country, name, survey, right)
 
     defaults = {
-        "main_align": "space_between",
-        "expanded": True,
         "cross_align": "start",
+        "expanded": True,
+        "main_align": "space_between",
     }
 
     return render.Root(

@@ -5,14 +5,14 @@ Description: Track changes to the yield curve over different US Treasury maturit
 Author: Rob Kimball
 """
 
+load("cache.star", "cache")
+load("encoding/json.star", "json")
 load("http.star", "http")
 load("math.star", "math")
-load("time.star", "time")
-load("cache.star", "cache")
-load("xpath.star", "xpath")
 load("render.star", "render")
 load("schema.star", "schema")
-load("encoding/json.star", "json")
+load("time.star", "time")
+load("xpath.star", "xpath")
 
 DATEFMT = "2006-01-02T15:04:05"
 DATA_LOCS = {
@@ -33,38 +33,38 @@ DATA_LOCS = {
 
 ZOOMS = {
     "All": "0",
-    "Short (1-12m)": "1,2,3,6,12",
-    "Medium (1-7y)": "12,24,36,60,84",
     "Long (7-30y)": "84,120,240,360",
+    "Medium (1-7y)": "12,24,36,60,84",
+    "Short (1-12m)": "1,2,3,6,12",
 }
 
 # RGB Coefficients
 COLOR_VECTORS = {
-    "Red": (1.0, 0.1, 0.1),
-    "Green": (0.1, 1.0, 0.1),
-    "Blue": (0.1, 0.1, 1.0),
-    "Yellow": (1.0, 1.0, 0.1),
-    "Orange": (1.0, 0.66, 0.1),
-    "Purple": (0.5, 0.1, 1.0),
-    "Pink": (1.0, 0.1, 0.8),
     "Bloomberg": (0.98, 0.545, 0.117),
+    "Blue": (0.1, 0.1, 1.0),
     "FactSet": (0.0, 0.682, 0.937),
+    "Green": (0.1, 1.0, 0.1),
     "Multi-color": (),
+    "Orange": (1.0, 0.66, 0.1),
+    "Pink": (1.0, 0.1, 0.8),
+    "Purple": (0.5, 0.1, 1.0),
+    "Red": (1.0, 0.1, 0.1),
+    "Yellow": (1.0, 1.0, 0.1),
 }
 
 X_AXIS = {
+    "10YEAR": 120.0,
     "1MONTH": 1.0,
-    "2MONTH": 2.0,
-    "3MONTH": 3.0,
-    "6MONTH": 6.0,
     "1YEAR": 12.0,
+    "20YEAR": 240.0,
+    "2MONTH": 2.0,
     "2YEAR": 24.0,
+    "30YEAR": 360.0,
+    "3MONTH": 3.0,
     "3YEAR": 36.0,
     "5YEAR": 60.0,
+    "6MONTH": 6.0,
     "7YEAR": 84.0,
-    "10YEAR": 120.0,
-    "20YEAR": 240.0,
-    "30YEAR": 360.0,
 }
 
 def round(num, precision):
@@ -86,7 +86,7 @@ def piecewise_log(x):
     if x < 12:
         x = math.log(x) * 5
     else:
-        x = x / 12 + 11
+        x = x // 12 + 11
     return math.round(x)
 
 def linear_scale(x):
@@ -191,8 +191,8 @@ def main(config):
         else:
             curve = [(scale_axis(X_AXIS[k]), entry.get(k, 0.0)) for k in X_AXIS.keys()]
             stats = {
-                "US 10Y ": round(dates[-1]["10YEAR"], 3),
                 "10Y-2Y ": round(dates[-1]["10YEAR"] - dates[-1]["2YEAR"], 3),
+                "US 10Y ": round(dates[-1]["10YEAR"], 3),
             }
         plots.append(render.Plot(
             data = curve,

@@ -5,13 +5,13 @@ Description: Show your Shopify store orders count over a specific time period.
 Author: Shopify
 """
 
+load("animation.star", "animation")
+load("cache.star", "cache")
+load("encoding/base64.star", "base64")
+load("encoding/json.star", "json")
+load("http.star", "http")
 load("render.star", "render")
 load("schema.star", "schema")
-load("http.star", "http")
-load("animation.star", "animation")
-load("encoding/base64.star", "base64")
-load("cache.star", "cache")
-load("encoding/json.star", "json")
 
 # CONFIG
 SHOPIFY_COUNTER_API_HOST = "https://www.shopcounter.app"
@@ -273,9 +273,9 @@ def main(config):
     counter_id = config.get("counterId")
     relative_date = config.get("relativeDate")
     request_config = {
+        "endDate": config.get("endDate"),
         "relativeDate": relative_date,
         "startDate": config.get("startDate"),
-        "endDate": config.get("endDate"),
     }
     api_response = api_fetch(counter_id, request_config)
     if not api_response:

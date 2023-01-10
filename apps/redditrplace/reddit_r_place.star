@@ -5,13 +5,13 @@ Description: See tidbits of what Redditors created for r/place.
 Author: funkfinger
 """
 
-load("render.star", "render")
-load("http.star", "http")
-load("random.star", "random")
 load("animation.star", "animation")
-load("schema.star", "schema")
 load("cache.star", "cache")
 load("encoding/base64.star", "base64")
+load("http.star", "http")
+load("random.star", "random")
+load("render.star", "render")
+load("schema.star", "schema")
 
 VIEWPORT_WIDTH = 64
 VIEWPORT_HEIGHT = 32
@@ -19,16 +19,16 @@ VIEWPORT_HEIGHT = 32
 CACHE_TTL_SECONDS = 3600 * 24 * 30  # 30 days in seconds.
 
 place_image = {
-    "2022": {
-        "url": "https://i.imgur.com/rzUhL4w.png",
-        "width": 2000,
-        "height": 2000,
-    },
     "2017": {
+        "height": 1000,
         # "url": "https://i.imgur.com/2Jq2ina.png",
         "url": "https://i.imgur.com/2yz7Go2.png",  # this is the cleaned version...
         "width": 1000,
-        "height": 1000,
+    },
+    "2022": {
+        "height": 2000,
+        "url": "https://i.imgur.com/rzUhL4w.png",
+        "width": 2000,
     },
 }
 

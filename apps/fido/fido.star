@@ -5,17 +5,14 @@ Description: Fido is a pixel pal that will sit, walk, and feast inside your Tidb
 Author: yonodactyl
 """
 
+load("cache.star", "cache")
+
 # LOAD MODULES
 load("encoding/base64.star", "base64")
+load("http.star", "http")
 load("render.star", "render")
 load("schema.star", "schema")
-load("http.star", "http")
-load("cache.star", "cache")
-load("encoding/json.star", "json")
 load("time.star", "time")
-load("math.star", "math")
-load("random.star", "random")
-load("humanize.star", "humanize")
 
 # CONFIG
 TTL = 86400
@@ -124,7 +121,7 @@ def convert_hours_to_age(pet_age):
     elif years < 0:
         age = "Time Traveler"  # Handle case where the user puts the birthdate in the future
     else:
-        age = str("{years}y").format(years = int(years / 1))  # Handle years
+        age = str("{years}y").format(years = int(years // 1))  # Handle years
 
     return age
 

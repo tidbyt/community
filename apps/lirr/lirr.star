@@ -5,12 +5,12 @@ Description: Long Island Railroad Train Times.
 Author: bralax
 """
 
-load("render.star", "render")
-load("http.star", "http")
-load("encoding/json.star", "json")
 load("cache.star", "cache")
-load("schema.star", "schema")
+load("encoding/json.star", "json")
+load("http.star", "http")
 load("math.star", "math")
+load("render.star", "render")
+load("schema.star", "schema")
 load("time.star", "time")
 
 DELTA = .1
@@ -104,19 +104,19 @@ def display_time(time_string):
 
 def now():
     tim = time.now().in_location("America/New_York")
-    return {"time": (tim.hour * 3600) + (tim.minute * 60) + tim.second, "date": tim.year * 10000 + tim.month * 100 + tim.day, "timeObj": tim}
+    return {"date": tim.year * 10000 + tim.month * 100 + tim.day, "time": (tim.hour * 3600) + (tim.minute * 60) + tim.second, "timeObj": tim}
 
 def prevDay(cur_date):
     tim = cur_date["timeObj"]
     duration = time.parse_duration("24h")
     tim = tim - duration
-    return {"time": (tim.hour * 3600) + (tim.minute * 60) + tim.second, "date": tim.year * 10000 + tim.month * 100 + tim.day, "timeObj": tim}
+    return {"date": tim.year * 10000 + tim.month * 100 + tim.day, "time": (tim.hour * 3600) + (tim.minute * 60) + tim.second, "timeObj": tim}
 
 def nextDay(cur_date):
     tim = cur_date["timeObj"]
     duration = time.parse_duration("24h")
     tim = tim + duration
-    return {"time": (tim.hour * 3600) + (tim.minute * 60) + tim.second, "date": tim.year * 10000 + tim.month * 100 + tim.day, "timeObj": tim}
+    return {"date": tim.year * 10000 + tim.month * 100 + tim.day, "time": (tim.hour * 3600) + (tim.minute * 60) + tim.second, "timeObj": tim}
 
 def getIds(gtfs, station_id):
     ids = []
@@ -187,7 +187,7 @@ def parse_gtfs(gtfs):
     routes = generate_routeslist(gtfs)
     stops = generate_stoplist(gtfs)
     stop_times = generate_stoptimelist(remove_destinations(gtfs["stop_times"], trips, stops))
-    return {"stop_times": stop_times, "calendar": calendar, "trips": trips, "routes": routes, "stops": stops}
+    return {"calendar": calendar, "routes": routes, "stop_times": stop_times, "stops": stops, "trips": trips}
 
 def generate_calendar(gtfs):
     calendar_dates = gtfs["calendar_dates"]

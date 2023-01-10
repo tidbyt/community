@@ -199,10 +199,10 @@ def get_sensors(location):
     # Get the sensor list constrained to a small area around this location
     delta = 0.035
     params = {
-        "nwlng": str(longitude - delta),
         "nwlat": str(latitude + delta),
-        "selng": str(longitude + delta),
+        "nwlng": str(longitude - delta),
         "selat": str(latitude - delta),
+        "selng": str(longitude + delta),
     }
 
     cache_key = None
@@ -231,7 +231,7 @@ def get_sensors(location):
 
             # Calculate miles/km
             distance = distance_between(latitude, longitude, item[3], item[4])
-            distance = int(distance * 100) / 100
+            distance = int(distance * 100) // 100
             name = "(%f) %s" % (distance, item[1])
 
             name = name.replace("0000", "")
@@ -252,7 +252,7 @@ def distance_between(lat1, lng1, lat2, lng2):
     delta_lat = (lat2 - lat1) * math.pi / 180
     delta_lng = (lng2 - lng1) * math.pi / 180
 
-    a = math.pow(math.sin(delta_lat / 2), 2) + math.cos(la1) * math.cos(la2) * math.pow(math.sin(delta_lng / 2), 2)
+    a = math.pow(math.sin(delta_lat // 2), 2) + math.cos(la1) * math.cos(la2) * math.pow(math.sin(delta_lng // 2), 2)
     c = 2 * math.atan2(math.sqrt(a), math.sqrt(1 - a))
     d = r * c  # d is in meters
     km = d / 1000
@@ -321,14 +321,14 @@ def fetch_sensor_data(api_key, url, params, cache_key):
                 locationType = sensor.get("location_type", 0)
 
                 air_dict = {
-                    "name": name,
-                    "temperature": temp,
-                    "humidity": humidity,
-                    "pm_a": pm_a,
-                    "pm_b": pm_b,
                     "confidence": confidence,
                     "confidenceAuto": confidenceAuto,
+                    "humidity": humidity,
                     "locationType": locationType,
+                    "name": name,
+                    "pm_a": pm_a,
+                    "pm_b": pm_b,
+                    "temperature": temp,
                 }
 
                 air_cached = json.encode(air_dict)

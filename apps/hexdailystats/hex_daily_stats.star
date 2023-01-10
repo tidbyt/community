@@ -6,12 +6,12 @@ Author: kmphua
 Thanks: aschober, bretep, codeakk
 """
 
-load("render.star", "render")
-load("http.star", "http")
+load("cache.star", "cache")
 load("encoding/base64.star", "base64")
 load("encoding/json.star", "json")
-load("cache.star", "cache")
+load("http.star", "http")
 load("math.star", "math")
+load("render.star", "render")
 
 COINGECKO_PRICE_URL = "https://api.coingecko.com/api/v3/coins/{}?localization=false&tickers=false&community_data=false&developer_data=false"
 
@@ -74,7 +74,7 @@ def main(config):
     share_rate = NO_DATA
 
     if global_infos_data != None:
-        share_rate = str(int(global_infos_data["data"]["globalInfos"][0]["shareRate"]) / 10)
+        share_rate = str(int(global_infos_data["data"]["globalInfos"][0]["shareRate"]) // 10)
 
     # Setup display rows
     displayRows = []

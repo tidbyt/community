@@ -164,10 +164,10 @@ def duration_calc(time_filter, units = None):
        (number) The input time in seconds.
     """
     conversion_dict = {
-        "seconds": 1,
-        "minutes": 60,
-        "hours": 60 * 60,
         "days": 60 * 60 * 24,
+        "hours": 60 * 60,
+        "minutes": 60,
+        "seconds": 1,
     }
 
     if units == None or units not in conversion_dict.keys():
@@ -218,13 +218,13 @@ def map_projection(longitude, latitude, screen_width = 64, screen_height = 32):
     Returns:
         An (x, y) tuple in the screen/image pixel coordinates
     """
-    radius = screen_width / (2 * math.pi)
+    radius = screen_width // (2 * math.pi)
     longitude_radians = math.radians(longitude + 180)
     latitude_radians = math.radians(latitude)
 
     x = longitude_radians * radius
     y_from_eq = radius * math.log(math.tan(math.pi / 4 + latitude_radians / 2))
-    y = screen_height / 2 - y_from_eq
+    y = screen_height // 2 - y_from_eq
     return int(x), int(y)
 
 def render_map(map_array, map_center = 0, brightness = 0.25):
@@ -360,10 +360,10 @@ def main(config):
     user_location = config.str("location", DEFAULT_USER_LOCATION)
     type_filter = {
         "earthquake": config.bool("include_earthquake", DEFAULT_INCLUDE_EARTHQUAKE),
-        "ice quake": config.bool("include_icequake", DEFAULT_INCLUDE_ICEQUAKE),
-        "quarry blast": config.bool("include_quarry", DEFAULT_INCLUDE_QUARRY),
         "explosion": config.bool("include_explosion", DEFAULT_INCLUDE_EXPLOSION),
+        "ice quake": config.bool("include_icequake", DEFAULT_INCLUDE_ICEQUAKE),
         "other event": config.bool("include_other", DEFAULT_INCLUDE_OTHER),
+        "quarry blast": config.bool("include_quarry", DEFAULT_INCLUDE_QUARRY),
     }
     map_brightness = float(config.get("map_brightness", DEFAULT_MAP_BRIGHTNESS))
 

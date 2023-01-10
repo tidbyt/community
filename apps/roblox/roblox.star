@@ -5,13 +5,13 @@ Description: Real time views of your Roblox experiences.
 Author: Chad Milburn / CODESTRONG
 """
 
-load("http.star", "http")
-load("time.star", "time")
 load("cache.star", "cache")
-load("schema.star", "schema")
-load("render.star", "render")
-load("encoding/json.star", "json")
 load("encoding/base64.star", "base64")
+load("encoding/json.star", "json")
+load("http.star", "http")
+load("render.star", "render")
+load("schema.star", "schema")
+load("time.star", "time")
 
 ### CONSTANTS
 TTL_SECONDS = 240
@@ -161,7 +161,7 @@ def main(config):
         for friend in userFriends:
             getUserAvatar = "https://thumbnails.roblox.com/v1/users/avatar-headshot?userIds=%d&size=48x48&format=Png&isCircular=true" % friend["id"]
             repGetUserAvatar = http.get(getUserAvatar)
-            friendObject = {"username": friend["name"], "id": "%d" % friend["id"], "isOnline": friend["isOnline"], "avatarUrl": repGetUserAvatar.json()["data"][0]["imageUrl"]}
+            friendObject = {"avatarUrl": repGetUserAvatar.json()["data"][0]["imageUrl"], "id": "%d" % friend["id"], "isOnline": friend["isOnline"], "username": friend["name"]}
             friendsList.append(friendObject)
 
         ### SORT BY ONLINE STATUS
@@ -237,7 +237,7 @@ def main(config):
         for game in userFavoriteGames:
             getGameAvatar = "https://thumbnails.roblox.com/v1/games/icons?universeIds=%d&size=50x50&format=Png&isCircular=false" % game["id"]
             repGetUserGame = http.get(getGameAvatar)
-            gameObject = {"gameId": "%d" % game["id"], "avatarUrl": repGetUserGame.json()["data"][0]["imageUrl"]}
+            gameObject = {"avatarUrl": repGetUserGame.json()["data"][0]["imageUrl"], "gameId": "%d" % game["id"]}
             favoriteGamesList.append(gameObject)
 
         ### BUILD POPULATE FAVORITE GAMES

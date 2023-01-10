@@ -12,8 +12,6 @@ load("http.star", "http")
 load("render.star", "render")
 load("schema.star", "schema")
 load("time.star", "time")
-load("math.star", "math")
-load("random.star", "random")
 
 CACHE_TTL_SECONDS = 60
 DEFAULT_LOCATION = """

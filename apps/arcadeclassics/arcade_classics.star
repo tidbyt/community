@@ -6,10 +6,10 @@ Author: Steve Otteson
 """
 
 load("encoding/base64.star", "base64")
+load("math.star", "math")
 load("render.star", "render")
 load("schema.star", "schema")
 load("time.star", "time")
-load("math.star", "math")
 
 FRAME_WIDTH = 64
 FRAME_HEIGHT = 32
@@ -46,7 +46,7 @@ def main(config):
     delay = speed * time.millisecond
 
     app_cycle_speed = SECONDS_TO_RENDER * time.second
-    num_frames = math.ceil(app_cycle_speed / delay)
+    num_frames = math.ceil(app_cycle_speed // delay)
 
     allFrames = []
     for i in range(1, 1000):
@@ -73,20 +73,20 @@ def rand(seed, max):
 DEFAULT_SPEED = "30"
 
 SPEED_LIST = {
-    "Snail": "50",
-    "Slow": "40",
-    "Medium": "30",
     "Fast": "20",
-    "Turbo": "10",
+    "Medium": "30",
     "Random": "-1",
+    "Slow": "40",
+    "Snail": "50",
+    "Turbo": "10",
 }
 
 DEFAULT_ANIMATION = PACMAN_ANIMATION
 
 ANIMATION_LIST = {
     "Pac-Man": PACMAN_ANIMATION,
-    "Space Invaders": SPACE_INVADERS_ANIMATION,
     "Random": RANDOM_ANIMATION,
+    "Space Invaders": SPACE_INVADERS_ANIMATION,
 }
 
 def get_schema():
@@ -437,11 +437,11 @@ def get_leg_index(state):
 
 def create_head(x, y, xDir, yDir):
     ret = {
-        "x": x,
-        "y": y,
-        "xDir": xDir,
-        "yDir": yDir,
         "turnFrame": -1,
+        "x": x,
+        "xDir": xDir,
+        "y": y,
+        "yDir": yDir,
     }
 
     return ret

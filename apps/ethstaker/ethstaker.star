@@ -6,9 +6,9 @@ Author: ColinCampbell
 """
 
 load("cache.star", "cache")
-load("http.star", "http")
 load("encoding/base64.star", "base64")
 load("encoding/json.star", "json")
+load("http.star", "http")
 load("math.star", "math")
 load("render.star", "render")
 load("schema.star", "schema")
@@ -178,9 +178,9 @@ def load_validator_slot_statuses(api_key, validator_indices):
             }
 
         slot_attestations.append({
-            "validator_index": validator_index,
             "attestation_slot": attestation_slot,
             "raw_status": raw_status,
+            "validator_index": validator_index,
         })
 
     return map(

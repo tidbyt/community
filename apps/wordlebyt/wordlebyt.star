@@ -61,9 +61,9 @@ def main(config):
 
     #Dictionary for Colors
     colordictionary = {
-        "🟩": "#538d4e",
-        "🟨": "#b59f3b",
         "⬛": "#3a3a3c",
+        "🟨": "#b59f3b",
+        "🟩": "#538d4e",
     }
 
     return render.Root(

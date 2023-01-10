@@ -1,12 +1,11 @@
-load("render.star", "render")
-load("http.star", "http")
 load("cache.star", "cache")
-load("time.star", "time")
+load("encoding/base64.star", "base64")
+load("encoding/json.star", "json")
+load("http.star", "http")
+load("render.star", "render")
 load("schema.star", "schema")
 load("secret.star", "secret")
-load("encoding/json.star", "json")
-load("encoding/base64.star", "base64")
-load("humanize.star", "humanize")
+load("time.star", "time")
 
 CAL_ICON = base64.decode("""iVBORw0KGgoAAAANSUhEUgAAAEAAAAAgCAYAAACinX6EAAAAAXNSR0IArs4c6QAAAOlJREFUaEPtl0EKg1AMRPUW3Xsv957i80/Rfe/VvbewKG1RERO+TzEwrj6SPxlnJgHr6sQnpTTknOuxBXWm6U7kkOfVD2uc9H5Wuemm19R50aN9HOZ/GOBPaBRgRYhyfY6z16/EyFMFKCHkvrMhuPvurFAClKi2eQdyxM0H6qcEuBW3CiFHrDZagj8FIME1Au7IWYWQI1YbjYBG4KsAlDjtAPfMWYWQI1abe+8AN3uo8FZ/g9A3XQ3D7YCrmUP9JAAkZFgYJSCsdRBxJQASMiyMEhDWOoi4EgAJGRZGCQhrHURcCYCEDAvzAXMPoSHYT20lAAAAAElFTkSuQmCC""")
 
@@ -16,13 +15,13 @@ DEBUG_ON = 1
 # Conversion from Day of the Week (string) to a Number (relative to Sunday)
 # Used to Calculate backward in time to get total steps from the beginning of the week.
 WEEKDAY_TO_INT = {
-    "Sunday": 6,
+    "Friday": 4,
     "Monday": 0,
+    "Saturday": 5,
+    "Sunday": 6,
+    "Thursday": 3,
     "Tuesday": 1,
     "Wednesday": 2,
-    "Thursday": 3,
-    "Friday": 4,
-    "Saturday": 5,
 }
 
 # Colors to Display the stats, indicates Concern Level of collaboration time
@@ -45,7 +44,7 @@ TENANT_ID_DEFAULT = "common"
 # Maximum Number of Events that can be fetched in a week.  Needs to be specified due to link chaining by Graph and also since Tidbyt doesn't permit the WHILE construct.
 MAX_EVENT_FETCH_WEEK = 100
 MSFT_GRAPH_BUCKET_SIZE = 10
-NUMBER_OF_FETCH_ITERATIONS = int(MAX_EVENT_FETCH_WEEK / MSFT_GRAPH_BUCKET_SIZE)
+NUMBER_OF_FETCH_ITERATIONS = int(MAX_EVENT_FETCH_WEEK // MSFT_GRAPH_BUCKET_SIZE)
 
 # Other Conversions for obtaining Historical Day
 SECONDS_IN_A_DAY = 3600 * 24

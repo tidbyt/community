@@ -5,14 +5,14 @@ Description: Show departures for Västtrafik stops.
 Author: protocol7
 """
 
-load("render.star", "render")
-load("http.star", "http")
-load("time.star", "time")
 load("cache.star", "cache")
-load("schema.star", "schema")
-load("secret.star", "secret")
 load("encoding/base64.star", "base64")
 load("encoding/json.star", "json")
+load("http.star", "http")
+load("render.star", "render")
+load("schema.star", "schema")
+load("secret.star", "secret")
+load("time.star", "time")
 
 API_KEY = "VS_fuDj3YZhsRzFBYdV7fLDMQcAa"
 API_SECRET = "AV6+xWcExWH7Oc5Vn1VWhdnAoHLcQVt2ZkldnfOhYQCa6DBRbGzPTvi+pNO3dRm6DjE5Y+dEiudkyg+8wm6Dzn711OXmcydvnkPERtF8NlHfqZ+JAqa60q+i2y1FISJMJZINKZH0gFClVR69DGiQ+GfGwts/2FOpzR9vNAva9ugvmQ=="
@@ -47,7 +47,7 @@ def get_access_token(config):
         j = rep.json()
         access_token = j["access_token"]
 
-        cache.set("access_token", access_token, ttl_seconds = int(int(j["expires_in"]) / 2))
+        cache.set("access_token", access_token, ttl_seconds = int(int(j["expires_in"]) // 2))
 
     return access_token
 
@@ -66,7 +66,7 @@ def main(config):
         rep = http.get(
             DEPARTURES_URL,
             headers = {"Authorization": "Bearer " + access_token},
-            params = {"time": now.format("15:04"), "date": now.format("2006-01-02"), "id": location_id},
+            params = {"date": now.format("2006-01-02"), "id": location_id, "time": now.format("15:04")},
         )
         if rep.status_code != 200:
             fail("API request failed with status %d", rep.status_code)

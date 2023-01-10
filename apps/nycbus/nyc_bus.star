@@ -5,11 +5,11 @@ Description: Real time bus departures for your preferred stop.
 Author: samandmoore
 """
 
-load("re.star", "re")
 load("cache.star", "cache")
 load("encoding/base64.star", "base64")
 load("encoding/json.star", "json")
 load("http.star", "http")
+load("re.star", "re")
 load("render.star", "render")
 load("schema.star", "schema")
 load("secret.star", "secret")
@@ -20,7 +20,7 @@ ENCRYPTED_API_KEY = "AV6+xWcEsr4R4d680czLc/RnfvU1ZpOx7ofrv0uAb8j7KoKa/Mw9Apbv6df
 BUSTIME_STOP_TIMES_URL = "http://bustime.mta.info/api/siri/stop-monitoring.json"
 BUSTIME_STOP_INFO_URL = "http://bustime.mta.info/api/where/stop/%s.json"
 BUSTIME_STOPS_FOR_LOCATION_URL = "http://bustime.mta.info/api/where/stops-for-location.json"
-PREVIEW_DATA = [{"line_color": "FAA61A", "line_name": "Q100", "destination_name": "LIMITED LI CITY QUEENS PLZ", "eta_text": "15 min"}, {"line_color": "00AEEF", "line_name": "Q69", "destination_name": "LI CITY QUEENS PLZ via DITMARS BL via 21 ST", "eta_text": "45 min"}]
+PREVIEW_DATA = [{"destination_name": "LIMITED LI CITY QUEENS PLZ", "eta_text": "15 min", "line_color": "FAA61A", "line_name": "Q100"}, {"destination_name": "LI CITY QUEENS PLZ via DITMARS BL via 21 ST", "eta_text": "45 min", "line_color": "00AEEF", "line_name": "Q69"}]
 
 def get_schema():
     return schema.Schema(
@@ -182,9 +182,9 @@ def get_journeys(api_key, stop_code):
     rep = http.get(
         BUSTIME_STOP_TIMES_URL,
         params = {
-            "version": "2",
-            "key": api_key,
             "MonitoringRef": stop_code,
+            "key": api_key,
+            "version": "2",
         },
     )
     if rep.status_code != 200:
@@ -222,10 +222,10 @@ def build_journey(raw_journey, api_key):
     diff_minutes = int(diff.minutes)
     eta_text = "%d min" % diff_minutes if diff_minutes > 0 else "now"
     return {
-        "line_color": line_color,
-        "line_name": line_name,
         "destination_name": destination_name,
         "eta_text": eta_text,
+        "line_color": line_color,
+        "line_name": line_name,
     }
 
 def get_line_info(stop_id, line_ref, api_key):

@@ -5,11 +5,9 @@ Description: This is a simple stock ticker app, that will display a stock ticker
 Author: hollowmatt
 """
 
-load("render.star", "render")
 load("http.star", "http")
-load("math.star", "math")
+load("render.star", "render")
 load("encoding/base64.star", "base64")
-load("encoding/json.star", "json")
 load("cache.star", "cache")
 load("schema.star", "schema")
 

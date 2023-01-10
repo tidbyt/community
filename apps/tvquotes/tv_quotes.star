@@ -9,10 +9,10 @@ Author: rs7q5
 #Created 20220525 RIS
 #Last Modified 20220531 RIS
 
-load("render.star", "render")
-load("http.star", "http")
-load("encoding/json.star", "json")
 load("cache.star", "cache")
+load("encoding/json.star", "json")
+load("http.star", "http")
+load("render.star", "render")
 load("schema.star", "schema")
 
 font = "CG-pixel-3x5-mono"
@@ -214,8 +214,8 @@ def get_quote(config):
         if rep.status_code != 200:
             print("TV Quote request failed with status %d" % rep.status_code)
             return {
-                "show": "Error",
                 "character": "",
+                "show": "Error",
                 "text": "Could not get TV Quote!!!!",
             }
         else:

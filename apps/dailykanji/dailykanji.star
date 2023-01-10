@@ -113,7 +113,7 @@ def get_random_kanji(kanji_image_list):
 
 def random(min, max):
     now = time.now()
-    rand = int(str(now.nanosecond)[-6:-3]) / 1000
+    rand = int(str(now.nanosecond)[-6:-3]) // 1000
     return int(rand * (max - min) + min)
 
 def display_kanji_with_image_url(individual_kanji, kanji_alive_key):

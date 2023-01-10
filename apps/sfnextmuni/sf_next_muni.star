@@ -45,8 +45,8 @@ MUNI_COLORS = {
     "L": "#92278f",
     "M": "#008752",
     "N": "#00539b",
-    "T": "#d31245",
     "S": "#ffcc00",
+    "T": "#d31245",
 }
 
 # Display the route letter in black text (#000000) inside the circle for these routes
@@ -98,8 +98,8 @@ T_OUTBOUND_STOPS = [
 
 # Dictionary to define default config values when pixlet commands are run as get_schema() currently not referenced then
 DEFAULT_CONFIG = {
-    "route_filter": "all-routes",
     "prediction_format": "long",
+    "route_filter": "all-routes",
 }
 
 def get_schema():
@@ -271,7 +271,7 @@ def fetch_cached(url, ttl):
             return (time.now().unix, {})
 
         # Trim off the UTF-8 byte-order mark
-        body = res.body().lstrip("\ufeff")
+        body = res.body().lstrip("\\ufeff")
         data = json.decode(body)
         timestamp = time.now().unix
         cache.set(url, body, ttl_seconds = ttl)
@@ -341,14 +341,14 @@ def getPredictions(api_key, config, stop):
         for update in sorted(tripUpdate["StopTimeUpdates"], key = lambda u: u["StopSequence"]):
             if update["Departure"]:
                 predictions.append({
-                    "StopSequence": update["StopSequence"],
                     "StopId": update["StopId"],
+                    "StopSequence": update["StopSequence"],
                     "Time": update["Departure"]["Time"],
                 })
             elif update["Arrival"]:
                 predictions.append({
-                    "StopSequence": update["StopSequence"],
                     "StopId": update["StopId"],
+                    "StopSequence": update["StopSequence"],
                     "Time": update["Arrival"]["Time"],
                 })
         if not predictions:

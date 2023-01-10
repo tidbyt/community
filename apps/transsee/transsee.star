@@ -5,9 +5,9 @@ Description: Provides real-time transit predictions based on actual travel times
 Author: doconno@gmail.com
 """
 
+load("http.star", "http")
 load("render.star", "render")
 load("schema.star", "schema")
-load("http.star", "http")
 
 def main(config):
     if config.str("id") == None:

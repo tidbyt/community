@@ -5,11 +5,11 @@ Description: Displays the time in up to four different locations.
 Author: Elliot Bentley
 """
 
-load("render.star", "render")
-load("time.star", "time")
-load("schema.star", "schema")
 load("encoding/json.star", "json")
+load("render.star", "render")
+load("schema.star", "schema")
 load("sunrise.star", "sunrise")
+load("time.star", "time")
 
 number_font = "tom-thumb"
 font = "tom-thumb"
@@ -26,23 +26,23 @@ def main(config):
     else:
         locations = [
             {
-                "timezone": "America/New_York",
-                "locality": "New York",
                 "lat": 0,
                 "lng": 0,
+                "locality": "New York",
+                "timezone": "America/New_York",
             },
-            {"timezone": "Europe/London", "locality": "London", "lat": 0, "lng": 0},
+            {"lat": 0, "lng": 0, "locality": "London", "timezone": "Europe/London"},
             {
-                "timezone": "Asia/Tokyo",
-                "locality": "Tokyo",
                 "lat": 35.703286,
                 "lng": 139.748475,
+                "locality": "Tokyo",
+                "timezone": "Asia/Tokyo",
             },
             {
-                "timezone": "America/Sao_Paulo",
-                "locality": "São Paulo",
                 "lat": -23.55,
                 "lng": -46.633333,
+                "locality": "São Paulo",
+                "timezone": "America/Sao_Paulo",
             },
         ]
 

@@ -27,12 +27,12 @@ Author: Chris Wyman
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-load("render.star", "render")
-load("schema.star", "schema")
-load("time.star", "time")
 load("encoding/base64.star", "base64")
 load("encoding/json.star", "json")
 load("math.star", "math")
+load("render.star", "render")
+load("schema.star", "schema")
+load("time.star", "time")
 
 #
 # Default location
@@ -52,9 +52,9 @@ DEFAULT_LOCATION = """
 #
 
 TIME_FORMATS = {
-    "None": None,
     "12 hour": ("3:04", "3 04", True),
     "24 hour": ("15:04", "15 04", False),
+    "None": None,
 }
 
 #
@@ -277,13 +277,13 @@ def percent_illuminated(x, y, phase, latitude):
     # logic: within FADE_LNG, take 4th root of delta to determine brightness
     # reason: make line between light/shadow crisp, sharp at the dark side, soften the curve towards maximum brightness, no other reason than it looked good to me and made time near full moon look good shading-wise
 
-    if (moon_lng < math.pi / 2 or moon_lng > 3 * math.pi / 2):
+    if (moon_lng < math.pi / 2 or moon_lng > 3 * math.pi // 2):
         illum = SHADOW_LEVEL
     elif (moon_lng - math.pi / 2 > 0 and moon_lng - math.pi / 2 <= FADE_LNG):
-        illum = SHADOW_LEVEL + math.sqrt(math.sqrt(1 - SHADOW_LEVEL) * ((moon_lng - math.pi / 2) / FADE_LNG))
-    elif (3 * math.pi / 2 - moon_lng > 0 and 3 * math.pi / 2 - moon_lng <= FADE_LNG):
-        illum = SHADOW_LEVEL + math.sqrt(math.sqrt(1 - SHADOW_LEVEL) * ((3 * math.pi / 2 - moon_lng) / FADE_LNG))
-    elif (moon_lng > math.pi / 2 + FADE_LNG or moon_lng < 3 * math.pi / 2 - FADE_LNG):
+        illum = SHADOW_LEVEL + math.sqrt(math.sqrt(1 - SHADOW_LEVEL) * ((moon_lng - math.pi / 2) // FADE_LNG))
+    elif (3 * math.pi // 2 - moon_lng > 0 and 3 * math.pi // 2 - moon_lng <= FADE_LNG):
+        illum = SHADOW_LEVEL + math.sqrt(math.sqrt(1 - SHADOW_LEVEL) * ((3 * math.pi // 2 - moon_lng) // FADE_LNG))
+    elif (moon_lng > math.pi / 2 + FADE_LNG or moon_lng < 3 * math.pi // 2 - FADE_LNG):
         illum = 1.0
 
     return illum

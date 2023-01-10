@@ -55,7 +55,7 @@ def main():
 
         cache.set(
             CACHE_KEY,
-            json.encode({"word": word, "definition": definition}),
+            json.encode({"definition": definition, "word": word}),
             CACHE_TTL,
         )
 

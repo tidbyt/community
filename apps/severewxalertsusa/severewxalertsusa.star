@@ -5,14 +5,14 @@ Description: Display count and contents of Severe Weather Alerts issued by the U
 Author: aschechter88
 """
 
+load("cache.star", "cache")
+load("encoding/base64.star", "base64")
+load("encoding/json.star", "json")
+load("http.star", "http")
+load("math.star", "math")
 load("render.star", "render")
 load("schema.star", "schema")
-load("http.star", "http")
-load("encoding/json.star", "json")
-load("encoding/base64.star", "base64")
 load("time.star", "time")
-load("cache.star", "cache")
-load("math.star", "math")
 
 DEFAULT_LOCATION = """
 {
@@ -359,4 +359,4 @@ def render_summary_card_zero_alerts(location):
     return render.Column(master_column)
 
 def truncate_location_digits(inputDigits):
-    return str(int(math.round(float(inputDigits) * 200)) / 200)
+    return str(int(math.round(float(inputDigits) * 200)) // 200)

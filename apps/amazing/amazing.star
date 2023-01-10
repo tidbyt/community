@@ -266,9 +266,9 @@ def row_to_sets(row):
     for cell in range(1, len(row)):
         if row[cell] == row[cell - 1]:
             continue
-        sets[row[cell - 1]] = {"start": sets[row[cell - 1]]["start"], "end": cell}
+        sets[row[cell - 1]] = {"end": cell, "start": sets[row[cell - 1]]["start"]}
         sets[row[cell]] = {"start": cell}
-    sets[row[-1]] = {"start": sets[row[-1]]["start"], "end": len(row)}
+    sets[row[-1]] = {"end": len(row), "start": sets[row[-1]]["start"]}
     return sets
 
 def eller():
@@ -443,17 +443,17 @@ def sidewinder():
 # Orchestre choosing a technique and running it
 CHOOSE_RANDOM_ALGORITHM = "#"
 ALGORITHMS = {
+    "Aldous-Broder": aldous_broder,
     # Many thanks to https://weblog.jamisbuck.org
     "Backtracking": backtracking,
-    "Randomized Kruskal": randomized_kruskal,
-    "Randomized Prim": randomized_prim,
-    "Aldous-Broder": aldous_broder,
-    "Wilson": wilson,
+    "Binary tree": binary_tree,
     "Eller": eller,
     "Hunt and kill": hunt_and_kill,
+    "Randomized Kruskal": randomized_kruskal,
+    "Randomized Prim": randomized_prim,
     "Recursive division": recursive_division,
-    "Binary tree": binary_tree,
     "Sidewinder": sidewinder,
+    "Wilson": wilson,
 }
 
 COLOURS = [

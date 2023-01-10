@@ -5,9 +5,9 @@ Description: The Zapier app allows you to trigger information on your Tidbyt fro
 Author: Tidbyt
 """
 
+load("encoding/base64.star", "base64")
 load("render.star", "render")
 load("schema.star", "schema")
-load("encoding/base64.star", "base64")
 
 def main(config):
     primary = config.str("primary", "")
@@ -245,23 +245,23 @@ Djym4Pv03sSMyxXtk3fT+IgJfyh/04ByjCE9lZ0AAAAASUVORK5CYII=
 
 MESSAGE_TYPES = {
     "generic": {
-        "name": "Generic",
-        "icon": GENERIC_ICON,
         "color": "#7AB0FF",
-    },
-    "slack": {
-        "name": "Slack",
-        "icon": SLACK_ICON,
-        "color": "#2EB67D",
-    },
-    "shopify": {
-        "name": "Shopify",
-        "icon": SHOPIFY_ICON,
-        "color": "#95BF47",
+        "icon": GENERIC_ICON,
+        "name": "Generic",
     },
     "github": {
-        "name": "GitHub",
-        "icon": GITHUB_ICON,
         "color": "#FFFFFF",
+        "icon": GITHUB_ICON,
+        "name": "GitHub",
+    },
+    "shopify": {
+        "color": "#95BF47",
+        "icon": SHOPIFY_ICON,
+        "name": "Shopify",
+    },
+    "slack": {
+        "color": "#2EB67D",
+        "icon": SLACK_ICON,
+        "name": "Slack",
     },
 }

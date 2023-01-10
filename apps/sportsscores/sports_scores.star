@@ -8,13 +8,13 @@ Author: rs7q5
 #Created 20220220 RIS
 #Last Modified 20221116 RIS
 
-load("render.star", "render")
-load("http.star", "http")
-load("encoding/json.star", "json")
 load("cache.star", "cache")
+load("encoding/json.star", "json")
+load("http.star", "http")
+load("humanize.star", "humanize")
+load("render.star", "render")
 load("schema.star", "schema")
 load("time.star", "time")
-load("humanize.star", "humanize")
 
 #this list are the sports that can have their scores pulled
 #list for each league is [display text, url code added to base code, timezone to reset day stuff]
@@ -22,23 +22,23 @@ SPORTS_LIST = {
     "Baseball": ("MLB", {
         "MLB": ["MLB", "mlb", "America/New_York"],
     }),
+    "Basketball": ("NBA", {
+        "NBA": ["NBA", "nba", "America/New_York"],
+        "NCAAM": ["NCAAM", "mens-college-basketball", "America/New_York"],
+        "NCAAW": ["NCAAW", "womens-college-basketball", "America/New_York"],
+        "WNBA": ["WNBA", "wnba", "America/New_York"],
+    }),
+    "Football": ("NFL", {
+        "NCAAF": ["NCAAF", "college-football", "America/New_York"],
+        "NFL": ["NFL", "nfl", "America/New_York"],
+    }),
     "Hockey": ("NHL", {
         "NHL": ["NHL", "nhl", "America/New_York"],
     }),
-    "Basketball": ("NBA", {
-        "NBA": ["NBA", "nba", "America/New_York"],
-        "WNBA": ["WNBA", "wnba", "America/New_York"],
-        "NCAAM": ["NCAAM", "mens-college-basketball", "America/New_York"],
-        "NCAAW": ["NCAAW", "womens-college-basketball", "America/New_York"],
-    }),
-    "Football": ("NFL", {
-        "NFL": ["NFL", "nfl", "America/New_York"],
-        "NCAAF": ["NCAAF", "college-football", "America/New_York"],
-    }),
     "Soccer": ("MLS", {
+        "EPL": ["EPL (scores reset at 11am London time)", "eng.1", "Europe/London"],
         "MLS": ["MLS", "usa.1", "America/New_York"],
         "NWSL": ["NWSL", "usa.nwsl", "America/New_York"],
-        "EPL": ["EPL (scores reset at 11am London time)", "eng.1", "Europe/London"],
     }),
 }
 TWO_LINE_LEAGUES = ["NBA", "WNBA", "NCAAM", "NCAAW"]  #sports whose standings take up two lines

@@ -162,11 +162,11 @@ def main(config):
                 image_rep = http.get(
                     thumb_url,
                     params = {
-                        "fit": "crop",
                         "crop": "edges",
-                        "w": "64",
-                        "h": "32",
+                        "fit": "crop",
                         "fm": "png",
+                        "h": "32",
+                        "w": "64",
                     },
                 )
 

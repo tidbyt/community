@@ -34,8 +34,8 @@ CYAN = "#00ffff"
 WHITE = "#ffffff"
 OBS_STATE_COLORS = {
     "Acquiring New Target": ORANGE,
-    "Observing": GREEN,
     "Calibrating": YELLOW,
+    "Observing": GREEN,
 }
 
 # Screen Constants and Font Specifics

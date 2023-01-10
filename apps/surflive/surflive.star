@@ -5,14 +5,14 @@ Description: Shows the current surf conditions for a surf spot.
 Author: rcarton
 """
 
-load("render.star", "render")
-load("time.star", "time")
+load("cache.star", "cache")
 load("encoding/base64.star", "base64")
 load("encoding/json.star", "json")
-load("cache.star", "cache")
 load("http.star", "http")
 load("math.star", "math")
+load("render.star", "render")
 load("schema.star", "schema")
+load("time.star", "time")
 
 #### CONFIG THINGS
 
@@ -214,12 +214,12 @@ def get_wind_forecast(spot_id):
     wind = wf["wind"]
 
     return {
-        "ts": int(math.round(wind["timestamp"])),
-        "score": wind["optimalScore"],
-        "unit": units["windSpeed"].lower(),
-        "speed": int(math.round(wind["speed"])),
         "direction": direction_to_human(wind["direction"]),
         "direction_deg": wind["direction"],
+        "score": wind["optimalScore"],
+        "speed": int(math.round(wind["speed"])),
+        "ts": int(math.round(wind["timestamp"])),
+        "unit": units["windSpeed"].lower(),
     }
 
 def direction_to_human(num):

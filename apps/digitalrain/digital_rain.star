@@ -31,10 +31,10 @@ Author: Henry So, Jr.
 # Via the configuration below, this app will show a different sequence every
 # 30 minutes (see SEED_GRANULARITY)
 
-load("time.star", "time")
+load("encoding/base64.star", "base64")
 load("render.star", "render")
 load("schema.star", "schema")
-load("encoding/base64.star", "base64")
+load("time.star", "time")
 
 # for column styles:
 # 'speed' is the number of frames before the drop moves, so a lower number
@@ -43,19 +43,19 @@ load("encoding/base64.star", "base64")
 # 'drop_variance' is the amount by which the drop's trail can be longer
 
 FAST_COLUMN = {
-    "speed": 1,
     "drop_min": 9,
     "drop_variance": 9,
+    "speed": 1,
 }
 NORMAL_COLUMN = {
-    "speed": 2,
     "drop_min": 9,
     "drop_variance": 9,
+    "speed": 2,
 }
 SLOW_COLUMN = {
-    "speed": 3,
     "drop_min": 7,
     "drop_variance": 5,
+    "speed": 3,
 }
 
 # this sets the relative frequency of different column types
@@ -193,23 +193,23 @@ def generate_column(seed, char_size, color_number):
 
     second_drop = {
         "chars": [rand(seed, CHAR_COUNT) for i in range(char_size["rows"])],
+        "colors": colors_of(seed, color_number),
+        "drop_size": style["drop_min"] + rand(seed, style["drop_variance"]),
         "mutations": [0 for i in range(char_size["rows"])],
         "offset": offset + ((size - SECOND_DROP_VARIANCE) // 2) +
                   rand(seed, SECOND_DROP_VARIANCE),
-        "drop_size": style["drop_min"] + rand(seed, style["drop_variance"]),
-        "colors": colors_of(seed, color_number),
     } if speed == 1 and rand(seed, 7) < 2 else None
 
     return {
-        "speed": speed,
-        "frame_offset": rand(seed, speed),
-        "size": size,
         "chars": [rand(seed, CHAR_COUNT) for i in range(char_size["rows"])],
+        "colors": colors,
+        "drop_size": drop_size,
+        "frame_offset": rand(seed, speed),
         "mutations": [0 for i in range(char_size["rows"])],
         "offset": offset,
-        "drop_size": drop_size,
-        "colors": colors,
         "second_drop": second_drop,
+        "size": size,
+        "speed": speed,
     }
 
 # Returns the colors structure to use for the given the color_number
@@ -329,9 +329,9 @@ def compute_drop(seed, char_size, speed, size, drop, f, do_mutate):
 
     return {
         "chars": chars_of(char_size, chars, pos, size, drop_size),
-        "size": size,
-        "drop_size": drop_size,
         "colors": drop["colors"],
+        "drop_size": drop_size,
+        "size": size,
     }
 
 # Mutates the visible characters randomly
@@ -422,24 +422,24 @@ COLORS = [
 ]
 COLOR_COUNT = len(COLORS)
 COLOR_NAMES = {
+    "blue": 0,
+    "cyan": 2,
+    "green": 1,
+    "magenta": 4,
+    "multicolor": -1,
     "random": 6,
     "random-mono": 7,
-    "blue": 0,
-    "green": 1,
-    "cyan": 2,
     "red": 3,
-    "magenta": 4,
     "yellow": 5,
-    "multicolor": -1,
 }
 
 CHAR_SIZES = {
     t[0]: {
-        "w": t[1],
-        "h": t[2],
-        "columns": (WIDTH // (t[1] + 1)) + 1,
-        "rows": (HEIGHT // (t[2] + 1)) + 1,
         "chars": [base64.decode(i) for i in t[3]],
+        "columns": (WIDTH // (t[1] + 1)) + 1,
+        "h": t[2],
+        "rows": (HEIGHT // (t[2] + 1)) + 1,
+        "w": t[1],
     }
     for t in [
         ("normal", 5, 7, [

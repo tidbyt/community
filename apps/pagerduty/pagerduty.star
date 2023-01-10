@@ -7,12 +7,12 @@ Author: drudge
 
 load("cache.star", "cache")
 load("encoding/json.star", "json")
-load("humanize.star", "humanize")
 load("http.star", "http")
-load("time.star", "time")
+load("humanize.star", "humanize")
+load("render.star", "render")
 load("schema.star", "schema")
 load("secret.star", "secret")
-load("render.star", "render")
+load("time.star", "time")
 
 DEFAULT_TIMEZONE = "US/Eastern"
 DEFAULT_ONLY_LEVEL_1 = False
@@ -81,8 +81,8 @@ def pagerduty_api_call(config, url, use_cache = True):
         res = http.get(
             url,
             headers = {
-                "Authorization": "Bearer %s" % access_token,
                 "Accept": "application/vnd.pagerduty+json;version=2",
+                "Authorization": "Bearer %s" % access_token,
             },
         )
 

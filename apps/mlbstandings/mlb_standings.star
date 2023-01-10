@@ -12,7 +12,6 @@ load("http.star", "http")
 load("render.star", "render")
 load("schema.star", "schema")
 load("time.star", "time")
-load("math.star", "math")
 
 CACHE_TTL_SECONDS = 300
 DEFAULT_LOCATION = """
@@ -57,9 +56,9 @@ def main(config):
     timezone = loc["timezone"]
     now = time.now().in_location(timezone)
     if divisionType == "al":
-        league = {"aleast": API + "?group=1", "alcentral": API + "?group=2", "alwest": API + "?group=3"}
+        league = {"alcentral": API + "?group=2", "aleast": API + "?group=1", "alwest": API + "?group=3"}
     elif divisionType == "nl":
-        league = {"nleast": API + "?group=4", "nlcentral": API + "?group=5", "nlwest": API + "?group=6"}
+        league = {"nlcentral": API + "?group=5", "nleast": API + "?group=4", "nlwest": API + "?group=6"}
     elif divisionType == "0":
         apiURL = API
         league = {LEAGUE: apiURL}
@@ -107,7 +106,7 @@ def main(config):
                     )
 
         return render.Root(
-            delay = int(15000 / cycleOptions / cycleCount),
+            delay = int(15000 / cycleOptions // cycleCount),
             child = render.Animation(children = renderCategory),
         )
     else:

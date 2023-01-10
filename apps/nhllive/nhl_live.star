@@ -5,14 +5,14 @@ Description: Displays live game stats or next scheduled NHL game information
 Author: Reed Arneson
 """
 
-load("render.star", "render")
-load("http.star", "http")
-load("encoding/base64.star", "base64")
-load("time.star", "time")
-load("encoding/json.star", "json")
-load("schema.star", "schema")
-load("random.star", "random")
 load("cache.star", "cache")
+load("encoding/base64.star", "base64")
+load("encoding/json.star", "json")
+load("http.star", "http")
+load("random.star", "random")
+load("render.star", "render")
+load("schema.star", "schema")
+load("time.star", "time")
 
 APP_VERSION = "1.3.0"
 
@@ -61,38 +61,38 @@ mJYv379CmzyIDEA/Aa7ZTTsFScAAAAASUVORK5CYII=
 
 # Some teams have abbr_fix due to inconsistent pattern by logo scrape source
 TEAMS_LIST = {
-    1: {"name": "New Jersey Devils", "abbreviation": "NJD"},
-    2: {"name": "New York Islanders", "abbreviation": "NYI"},
-    3: {"name": "New York Rangers", "abbreviation": "NYR"},
-    4: {"name": "Philadelphia Flyers", "abbreviation": "PHI"},
-    5: {"name": "Pittsburgh Penguins", "abbreviation": "PIT"},
-    6: {"name": "Boston Bruins", "abbreviation": "BOS"},
-    7: {"name": "Buffalo Sabres", "abbreviation": "BUF"},
-    8: {"name": "Montreal Canadiens", "abbreviation": "MTL"},
-    9: {"name": "Ottawa Senators", "abbreviation": "OTT"},
-    10: {"name": "Toronto Maple Leafs", "abbreviation": "TOR"},
-    12: {"name": "Carolina Hurricanes", "abbreviation": "CAR"},
-    13: {"name": "Florida Panthers", "abbreviation": "FLA"},
-    14: {"name": "Tampa Bay Lightning", "abbreviation": "TBL", "abbr_fix": "TB"},
-    15: {"name": "Washington Capitals", "abbreviation": "WSH"},
-    16: {"name": "Chicago Blackhawks", "abbreviation": "CHI"},
-    17: {"name": "Detroit Red Wings", "abbreviation": "DET"},
-    18: {"name": "Nashville Predators", "abbreviation": "NSH"},
-    19: {"name": "St. Louis Blues", "abbreviation": "STL"},
-    20: {"name": "Calgary Flames", "abbreviation": "CGY"},
-    21: {"name": "Colorado Avalanche", "abbreviation": "COL"},
-    22: {"name": "Edmonton Oilers", "abbreviation": "EDM"},
-    23: {"name": "Vancouver Canucks", "abbreviation": "VAN"},
-    24: {"name": "Anaheim Ducks", "abbreviation": "ANA"},
-    25: {"name": "Dallas Stars", "abbreviation": "DAL"},
-    26: {"name": "Los Angeles Kings", "abbreviation": "LAK", "abbr_fix": "LA"},
-    28: {"name": "San Jose Sharks", "abbreviation": "SJS", "abbr_fix": "SJ"},
-    29: {"name": "Columbus Blue Jackets", "abbreviation": "CBJ"},
-    30: {"name": "Minnesota Wild", "abbreviation": "MIN"},
-    52: {"name": "Winnipeg Jets", "abbreviation": "WPG"},
-    53: {"name": "Arizona Coyotes", "abbreviation": "ARI"},
-    54: {"name": "Vegas Golden Knights", "abbreviation": "VGK"},
-    55: {"name": "Seattle Kraken", "abbreviation": "SEA"},
+    1: {"abbreviation": "NJD", "name": "New Jersey Devils"},
+    2: {"abbreviation": "NYI", "name": "New York Islanders"},
+    3: {"abbreviation": "NYR", "name": "New York Rangers"},
+    4: {"abbreviation": "PHI", "name": "Philadelphia Flyers"},
+    5: {"abbreviation": "PIT", "name": "Pittsburgh Penguins"},
+    6: {"abbreviation": "BOS", "name": "Boston Bruins"},
+    7: {"abbreviation": "BUF", "name": "Buffalo Sabres"},
+    8: {"abbreviation": "MTL", "name": "Montreal Canadiens"},
+    9: {"abbreviation": "OTT", "name": "Ottawa Senators"},
+    10: {"abbreviation": "TOR", "name": "Toronto Maple Leafs"},
+    12: {"abbreviation": "CAR", "name": "Carolina Hurricanes"},
+    13: {"abbreviation": "FLA", "name": "Florida Panthers"},
+    14: {"abbr_fix": "TB", "abbreviation": "TBL", "name": "Tampa Bay Lightning"},
+    15: {"abbreviation": "WSH", "name": "Washington Capitals"},
+    16: {"abbreviation": "CHI", "name": "Chicago Blackhawks"},
+    17: {"abbreviation": "DET", "name": "Detroit Red Wings"},
+    18: {"abbreviation": "NSH", "name": "Nashville Predators"},
+    19: {"abbreviation": "STL", "name": "St. Louis Blues"},
+    20: {"abbreviation": "CGY", "name": "Calgary Flames"},
+    21: {"abbreviation": "COL", "name": "Colorado Avalanche"},
+    22: {"abbreviation": "EDM", "name": "Edmonton Oilers"},
+    23: {"abbreviation": "VAN", "name": "Vancouver Canucks"},
+    24: {"abbreviation": "ANA", "name": "Anaheim Ducks"},
+    25: {"abbreviation": "DAL", "name": "Dallas Stars"},
+    26: {"abbr_fix": "LA", "abbreviation": "LAK", "name": "Los Angeles Kings"},
+    28: {"abbr_fix": "SJ", "abbreviation": "SJS", "name": "San Jose Sharks"},
+    29: {"abbreviation": "CBJ", "name": "Columbus Blue Jackets"},
+    30: {"abbreviation": "MIN", "name": "Minnesota Wild"},
+    52: {"abbreviation": "WPG", "name": "Winnipeg Jets"},
+    53: {"abbreviation": "ARI", "name": "Arizona Coyotes"},
+    54: {"abbreviation": "VGK", "name": "Vegas Golden Knights"},
+    55: {"abbreviation": "SEA", "name": "Seattle Kraken"},
 }
 
 # Main App
@@ -420,16 +420,16 @@ def get_linescore_game_data(gamePk, config):
         currentPeriodTimeRemaining = game["dates"][0]["games"][0]["linescore"]["currentPeriodTimeRemaining"]
 
     game_info = {
-        "game_state": str(game_state),
-        "goals_away": str(goals_away),
-        "goals_home": str(goals_home),
-        "is_pp_away": str(is_pp_away),
-        "is_pp_home": str(is_pp_home),
-        "is_empty_away": str(is_empty_away),
-        "is_empty_home": str(is_empty_home),
         "INFO": str(info),
         "game_period": str(currentPeriodOrdinal),
+        "game_state": str(game_state),
         "game_time": str(currentPeriodTimeRemaining),
+        "goals_away": str(goals_away),
+        "goals_home": str(goals_home),
+        "is_empty_away": str(is_empty_away),
+        "is_empty_home": str(is_empty_home),
+        "is_pp_away": str(is_pp_away),
+        "is_pp_home": str(is_pp_home),
     }
 
     game_info_enc = json.encode(game_info)
@@ -487,17 +487,17 @@ def get_live_game_update(gamePk, config, game_state, goals_away, goals_home):
         give = get_giveaways(game)
 
         game_updates = {
-            "SOG": str(sog),
+            "BLK": str(blk),
+            "FO": str(fo),
+            "GIVE": str(give),
+            "HIT": str(hit),
             "LG": str(lg),
-            "PLAY": str(play),
             "PEN": str(pen),
             "PIM": str(pim),
+            "PLAY": str(play),
             "PPG": str(ppg),
-            "FO": str(fo),
-            "HIT": str(hit),
-            "BLK": str(blk),
+            "SOG": str(sog),
             "TAKE": str(take),
-            "GIVE": str(give),
             "update": str(update),
         }
 

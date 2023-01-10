@@ -12,9 +12,9 @@ load("time.star", "time")
 
 DEFAULT_TIMEZONE = "America/New_York"
 DEFAULT_LOCATION = {
+    "description": "Brooklyn, NY, USA",
     "lat": "40.6781784",
     "lng": "-73.9441579",
-    "description": "Brooklyn, NY, USA",
     "locality": "Brooklyn",
     "place_id": "ChIJCSF8lBZEwokRhngABHRcdoI",
     "timezone": DEFAULT_TIMEZONE,
@@ -103,8 +103,8 @@ def get_color(now, use_more_colors = DEFAULT_USE_MORE_COLORS):
         # Scale 0-60 to 0-255
         min_dec = now.minute / 60
         sec_dec = now.second / 60
-        red = int((now.hour + min_dec + sec_dec / 60) / 24 * 0xFF)
-        green = int((now.minute + sec_dec) / 60 * 0xFF)
+        red = int((now.hour + min_dec + sec_dec // 60) // 24 * 0xFF)
+        green = int((now.minute + sec_dec) // 60 * 0xFF)
         blue = int(now.second / 60 * 0xFF)
 
         # Add numbers as hex to bg_color

@@ -8,7 +8,6 @@ Author: Neal Wright
 load("cache.star", "cache")
 load("encoding/json.star", "json")
 load("http.star", "http")
-load("re.star", "re")
 load("render.star", "render")
 load("schema.star", "schema")
 
@@ -58,45 +57,45 @@ PIECE_THEME_OPTIONS = [
 ANIMATION_FRAMES = 60
 PIECE_CHARS = "pPnNbBrRqQkK"
 PIECE_COUNTS = {
-    "p": {
-        "count": 8,
-        "value": 1,
+    "b": {
+        "count": 2,
+        "value": 3,
     },
     "n": {
         "count": 2,
         "value": 3,
     },
-    "b": {
-        "count": 2,
-        "value": 3,
-    },
-    "r": {
-        "count": 2,
-        "value": 5,
+    "p": {
+        "count": 8,
+        "value": 1,
     },
     "q": {
         "count": 1,
         "value": 9,
+    },
+    "r": {
+        "count": 2,
+        "value": 5,
     },
 }
 
 # Color Constants #
 # --------------- #
 BOARD_COLORS = {
-    "summer": {
-        "board_color_1": "#8d1c1c",
-        "board_color_2": "#ff8f00",
-        "king_color": "#40ff2b",
+    "autumn": {
+        "board_color_1": "#a35c26",
+        "board_color_2": "#c89169",
+        "king_color": "#ffa80b",
     },
     "spring": {
         "board_color_1": "#1b872e",
         "board_color_2": "#5bc66f",
         "king_color": "#ff5a35",
     },
-    "autumn": {
-        "board_color_1": "#a35c26",
-        "board_color_2": "#c89169",
-        "king_color": "#ffa80b",
+    "summer": {
+        "board_color_1": "#8d1c1c",
+        "board_color_2": "#ff8f00",
+        "king_color": "#40ff2b",
     },
     "winter": {
         "board_color_1": "#0064c1",
@@ -106,17 +105,17 @@ BOARD_COLORS = {
 }
 MATERIAL_COUNT_COLOR = "#8ec24c"
 PAWN_COLORS = {
-    "w": [
-        "",
-        "#ffeb96",
-        "#ffffff",
-        "#fff6e0",
-    ],
     "b": [
         "",
         "#484848",
         "#ffffff",
         "#6d6d6d",
+    ],
+    "w": [
+        "",
+        "#ffeb96",
+        "#ffffff",
+        "#fff6e0",
     ],
 }
 PIECE_WHITE = "#ffffff"
@@ -135,77 +134,31 @@ PAWN_MATRIX = [
     [0, 3, 2, 1, 1, 1, 1, 0],
 ]
 PIECE_GRAPHICS = {
-    "p": {
-        "minim": [
-            [0, 0, 0, 0],
-            [0, 1, 1, 0],
-            [0, 1, 1, 0],
-            [0, 0, 0, 0],
-        ],
-        "block": [
-            [0, 0, 0, 0],
-            [0, 0, 0, 0],
-            [0, 1, 1, 0],
-            [0, 1, 1, 0],
-        ],
-        "dot": [
-            [0, 0, 0, 0],
-            [0, 1, 0, 0],
-            [0, 0, 0, 0],
-            [0, 0, 0, 0],
-        ],
-        "point": [
-            [1, 0, 0, 0],
-            [0, 0, 0, 0],
-            [0, 0, 0, 0],
-            [0, 0, 0, 0],
-        ],
-    },
-    "n": {
-        "minim": [
-            [0, 0, 0, 0],
-            [0, 1, 1, 1],
-            [0, 1, 0, 0],
-            [0, 1, 0, 0],
-        ],
-        "block": [
-            [0, 0, 0, 0],
-            [0, 1, 1, 1],
-            [0, 1, 1, 1],
-            [0, 1, 1, 0],
-        ],
-        "dot": [
-            [0, 0, 0, 0],
-            [0, 1, 1, 0],
-            [0, 1, 0, 0],
-            [0, 0, 0, 0],
-        ],
-        "point": [
-            [1, 1, 0, 0],
-            [1, 0, 0, 0],
-            [0, 0, 0, 0],
-            [0, 0, 0, 0],
-        ],
-    },
+    " ": [
+        [0, 0, 0, 0],
+        [0, 0, 0, 0],
+        [0, 0, 0, 0],
+        [0, 0, 0, 0],
+    ],
     "b": {
+        "block": [
+            [0, 1, 1, 0],
+            [1, 0, 0, 1],
+            [0, 1, 1, 0],
+            [0, 1, 1, 0],
+        ],
+        "dot": [
+            [0, 0, 0, 0],
+            [0, 0, 1, 0],
+            [0, 1, 0, 0],
+            [0, 0, 0, 0],
+        ],
         "minim": [
             [0, 0, 0, 1],
             [0, 0, 1, 0],
             [0, 1, 0, 0],
             [1, 0, 0, 0],
         ],
-        "block": [
-            [0, 1, 1, 0],
-            [1, 0, 0, 1],
-            [0, 1, 1, 0],
-            [0, 1, 1, 0],
-        ],
-        "dot": [
-            [0, 0, 0, 0],
-            [0, 0, 1, 0],
-            [0, 1, 0, 0],
-            [0, 0, 0, 0],
-        ],
         "point": [
             [1, 0, 0, 0],
             [0, 1, 0, 0],
@@ -213,65 +166,7 @@ PIECE_GRAPHICS = {
             [0, 0, 0, 0],
         ],
     },
-    "r": {
-        "minim": [
-            [1, 0, 0, 1],
-            [0, 1, 1, 0],
-            [0, 1, 1, 0],
-            [0, 1, 1, 0],
-        ],
-        "block": [
-            [1, 0, 0, 1],
-            [0, 1, 1, 0],
-            [0, 1, 1, 0],
-            [0, 1, 1, 0],
-        ],
-        "dot": [
-            [0, 1, 0, 0],
-            [0, 1, 1, 0],
-            [0, 1, 1, 0],
-            [0, 0, 0, 0],
-        ],
-        "point": [
-            [1, 1, 1, 0],
-            [1, 1, 0, 0],
-            [0, 0, 0, 0],
-            [0, 0, 0, 0],
-        ],
-    },
-    "q": {
-        "minim": [
-            [1, 0, 0, 1],
-            [0, 1, 1, 0],
-            [0, 1, 1, 0],
-            [1, 0, 0, 1],
-        ],
-        "block": [
-            [1, 0, 0, 1],
-            [0, 1, 1, 0],
-            [0, 1, 1, 0],
-            [1, 0, 0, 1],
-        ],
-        "dot": [
-            [0, 1, 1, 0],
-            [0, 1, 1, 1],
-            [0, 1, 1, 0],
-            [0, 1, 1, 0],
-        ],
-        "point": [
-            [1, 1, 1, 0],
-            [1, 1, 1, 0],
-            [1, 1, 1, 0],
-            [0, 0, 0, 0],
-        ],
-    },
     "k": {
-        "minim": [
-            [0, 1, 1, 0],
-            [1, 2, 2, 1],
-            [0, 1, 1, 0],
-            [0, 1, 1, 0],
-        ],
         "block": [
             [0, 1, 1, 0],
             [1, 2, 2, 1],
@@ -282,6 +177,12 @@ PIECE_GRAPHICS = {
             [0, 1, 1, 0],
             [2, 1, 1, 2],
             [2, 1, 1, 2],
+            [0, 1, 1, 0],
+        ],
+        "minim": [
+            [0, 1, 1, 0],
+            [1, 2, 2, 1],
+            [0, 1, 1, 0],
             [0, 1, 1, 0],
         ],
         "point": [
@@ -291,12 +192,110 @@ PIECE_GRAPHICS = {
             [0, 0, 0, 2],
         ],
     },
-    " ": [
-        [0, 0, 0, 0],
-        [0, 0, 0, 0],
-        [0, 0, 0, 0],
-        [0, 0, 0, 0],
-    ],
+    "n": {
+        "block": [
+            [0, 0, 0, 0],
+            [0, 1, 1, 1],
+            [0, 1, 1, 1],
+            [0, 1, 1, 0],
+        ],
+        "dot": [
+            [0, 0, 0, 0],
+            [0, 1, 1, 0],
+            [0, 1, 0, 0],
+            [0, 0, 0, 0],
+        ],
+        "minim": [
+            [0, 0, 0, 0],
+            [0, 1, 1, 1],
+            [0, 1, 0, 0],
+            [0, 1, 0, 0],
+        ],
+        "point": [
+            [1, 1, 0, 0],
+            [1, 0, 0, 0],
+            [0, 0, 0, 0],
+            [0, 0, 0, 0],
+        ],
+    },
+    "p": {
+        "block": [
+            [0, 0, 0, 0],
+            [0, 0, 0, 0],
+            [0, 1, 1, 0],
+            [0, 1, 1, 0],
+        ],
+        "dot": [
+            [0, 0, 0, 0],
+            [0, 1, 0, 0],
+            [0, 0, 0, 0],
+            [0, 0, 0, 0],
+        ],
+        "minim": [
+            [0, 0, 0, 0],
+            [0, 1, 1, 0],
+            [0, 1, 1, 0],
+            [0, 0, 0, 0],
+        ],
+        "point": [
+            [1, 0, 0, 0],
+            [0, 0, 0, 0],
+            [0, 0, 0, 0],
+            [0, 0, 0, 0],
+        ],
+    },
+    "q": {
+        "block": [
+            [1, 0, 0, 1],
+            [0, 1, 1, 0],
+            [0, 1, 1, 0],
+            [1, 0, 0, 1],
+        ],
+        "dot": [
+            [0, 1, 1, 0],
+            [0, 1, 1, 1],
+            [0, 1, 1, 0],
+            [0, 1, 1, 0],
+        ],
+        "minim": [
+            [1, 0, 0, 1],
+            [0, 1, 1, 0],
+            [0, 1, 1, 0],
+            [1, 0, 0, 1],
+        ],
+        "point": [
+            [1, 1, 1, 0],
+            [1, 1, 1, 0],
+            [1, 1, 1, 0],
+            [0, 0, 0, 0],
+        ],
+    },
+    "r": {
+        "block": [
+            [1, 0, 0, 1],
+            [0, 1, 1, 0],
+            [0, 1, 1, 0],
+            [0, 1, 1, 0],
+        ],
+        "dot": [
+            [0, 1, 0, 0],
+            [0, 1, 1, 0],
+            [0, 1, 1, 0],
+            [0, 0, 0, 0],
+        ],
+        "minim": [
+            [1, 0, 0, 1],
+            [0, 1, 1, 0],
+            [0, 1, 1, 0],
+            [0, 1, 1, 0],
+        ],
+        "point": [
+            [1, 1, 1, 0],
+            [1, 1, 0, 0],
+            [0, 0, 0, 0],
+            [0, 0, 0, 0],
+        ],
+    },
 }
 
 # Famous Games #
@@ -304,9 +303,7 @@ PIECE_GRAPHICS = {
 # To show when username is empty #
 FAMOUS_GAMES = [
     {
-        "white": "V. Topalov",
         "black": "A. Shirov",
-        "turn": "white",
         "board_state": [
             [" ", " ", " ", " ", " ", " ", " ", " "],
             [" ", " ", " ", " ", " ", " ", " ", " "],
@@ -321,11 +318,11 @@ FAMOUS_GAMES = [
             "black_material": 2,
             "white_material": 0,
         },
+        "turn": "white",
+        "white": "V. Topalov",
     },
     {
-        "white": "R. Meier",
         "black": "S. Muller",
-        "turn": "black",
         "board_state": [
             [" ", " ", "r", "q", " ", " ", "k", "b"],
             ["p", "b", "Q", "r", " ", " ", " ", "p"],
@@ -340,11 +337,11 @@ FAMOUS_GAMES = [
             "black_material": 0,
             "white_material": 0,
         },
+        "turn": "black",
+        "white": "R. Meier",
     },
     {
-        "white": "S. Levitsky",
         "black": "F. J. Marshall",
-        "turn": "white",
         "board_state": [
             [" ", " ", " ", " ", " ", "r", "k", " "],
             ["p", "p", " ", " ", " ", " ", "p", "p"],
@@ -359,11 +356,11 @@ FAMOUS_GAMES = [
             "black_material": 3,
             "white_material": 0,
         },
+        "turn": "white",
+        "white": "S. Levitsky",
     },
     {
-        "white": "E. Y. Vladimirov",
         "black": "V. V. Epishin",
-        "turn": "black",
         "board_state": [
             ["r", " ", " ", " ", " ", "k", " ", "r"],
             [" ", "b", " ", " ", "b", "P", "R", " "],
@@ -378,11 +375,11 @@ FAMOUS_GAMES = [
             "black_material": 10,
             "white_material": 0,
         },
+        "turn": "black",
+        "white": "E. Y. Vladimirov",
     },
     {
-        "white": "S. Flohr",
         "black": "E. Geller",
-        "turn": "white",
         "board_state": [
             [" ", " ", " ", " ", " ", " ", " ", " "],
             [" ", " ", " ", " ", " ", " ", "k", "p"],
@@ -397,6 +394,8 @@ FAMOUS_GAMES = [
             "black_material": 1,
             "white_material": 0,
         },
+        "turn": "white",
+        "white": "S. Flohr",
     },
 ]
 
@@ -678,16 +677,16 @@ def get_board_state_array(game_fen):
 
 def get_material_count(board_state_array):
     counts = {
-        "p": 0,
-        "P": 0,
-        "n": 0,
-        "N": 0,
-        "b": 0,
         "B": 0,
-        "r": 0,
-        "R": 0,
-        "q": 0,
+        "N": 0,
+        "P": 0,
         "Q": 0,
+        "R": 0,
+        "b": 0,
+        "n": 0,
+        "p": 0,
+        "q": 0,
+        "r": 0,
     }
     white_material = 0
     black_material = 0
@@ -710,8 +709,8 @@ def get_material_count(board_state_array):
         white_material -= black_material
         black_material = 0
     return {
-        "white_material": white_material,
         "black_material": black_material,
+        "white_material": white_material,
     }
 
 def parse_pgn(game_pgn):

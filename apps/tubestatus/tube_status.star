@@ -25,94 +25,94 @@ NO_DATA_IN_CACHE = ""
 
 LINES = {
     "bakerloo": {
-        "display": "Bakerloo",
         "colour": "#894E24",
-        "textColour": WHITE,
+        "display": "Bakerloo",
         "index": 0,
+        "textColour": WHITE,
     },
     "central": {
-        "display": "Central",
         "colour": "#DC241F",
-        "textColour": WHITE,
+        "display": "Central",
         "index": 1,
+        "textColour": WHITE,
     },
     "circle": {
-        "display": "Circle",
         "colour": "#FFCC00",
-        "textColour": BLACK,
+        "display": "Circle",
         "index": 2,
+        "textColour": BLACK,
     },
     "district": {
-        "display": "District",
         "colour": "#007229",
-        "textColour": WHITE,
+        "display": "District",
         "index": 3,
-    },
-    "elizabeth": {
-        "display": "Elizabeth",
-        "colour": "#6950A1",
         "textColour": WHITE,
-        "index": 4,
-    },
-    "hammersmith-city": {
-        "display": "H'smith & City",
-        "colour": "#D799AF",
-        "textColour": BLACK,
-        "index": 5,
-    },
-    "jubilee": {
-        "display": "Jubilee",
-        "colour": "#6A7278",
-        "textColour": WHITE,
-        "index": 6,
-    },
-    "metropolitan": {
-        "display": "Metropolitan",
-        "colour": "#751056",
-        "textColour": WHITE,
-        "index": 7,
-    },
-    "northern": {
-        "display": "Northern",
-        "colour": BLACK,
-        "textColour": WHITE,
-        "index": 8,
-    },
-    "piccadilly": {
-        "display": "Piccadilly",
-        "colour": "#0019A8",
-        "textColour": WHITE,
-        "index": 9,
-    },
-    "victoria": {
-        "display": "Victoria",
-        "colour": "#00A0E2",
-        "textColour": BLACK,
-        "index": 10,
-    },
-    "waterloo-city": {
-        "display": "W'loo & City",
-        "colour": "#76D0BD",
-        "textColour": BLACK,
-        "index": 11,
-    },
-    "london-overground": {
-        "display": "Overground",
-        "colour": "#D05F0E",
-        "textColour": BLACK,
-        "index": 12,
     },
     "dlr": {
-        "display": "Docklands",
         "colour": "#00AFAD",
-        "textColour": BLACK,
+        "display": "Docklands",
         "index": 14,
+        "textColour": BLACK,
+    },
+    "elizabeth": {
+        "colour": "#6950A1",
+        "display": "Elizabeth",
+        "index": 4,
+        "textColour": WHITE,
+    },
+    "hammersmith-city": {
+        "colour": "#D799AF",
+        "display": "H'smith & City",
+        "index": 5,
+        "textColour": BLACK,
+    },
+    "jubilee": {
+        "colour": "#6A7278",
+        "display": "Jubilee",
+        "index": 6,
+        "textColour": WHITE,
+    },
+    "london-overground": {
+        "colour": "#D05F0E",
+        "display": "Overground",
+        "index": 12,
+        "textColour": BLACK,
+    },
+    "metropolitan": {
+        "colour": "#751056",
+        "display": "Metropolitan",
+        "index": 7,
+        "textColour": WHITE,
+    },
+    "northern": {
+        "colour": BLACK,
+        "display": "Northern",
+        "index": 8,
+        "textColour": WHITE,
+    },
+    "piccadilly": {
+        "colour": "#0019A8",
+        "display": "Piccadilly",
+        "index": 9,
+        "textColour": WHITE,
     },
     "tram": {
-        "display": "Tram",
         "colour": "#66CC00",
-        "textColour": WHITE,
+        "display": "Tram",
         "index": 15,
+        "textColour": WHITE,
+    },
+    "victoria": {
+        "colour": "#00A0E2",
+        "display": "Victoria",
+        "index": 10,
+        "textColour": BLACK,
+    },
+    "waterloo-city": {
+        "colour": "#76D0BD",
+        "display": "W'loo & City",
+        "index": 11,
+        "textColour": BLACK,
     },
 }
 
@@ -195,11 +195,11 @@ def fetch_lines():
             continue
 
         lines.append({
-            "display": LINES[id]["display"],
             "colour": LINES[id]["colour"],
-            "textColour": LINES[id]["textColour"],
+            "display": LINES[id]["display"],
             "index": LINES[id]["index"],
             "status": SEVERITIES[severity],
+            "textColour": LINES[id]["textColour"],
         })
 
     # Sort in the familiar order, even if hand-curated.

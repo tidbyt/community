@@ -5,20 +5,20 @@ Description: Close to realtime precious metal prices and a graph comparing the p
 Author: Aaron Brace
 """
 
-load("render.star", "render")
+load("cache.star", "cache")
 load("http.star", "http")
 load("humanize.star", "humanize")
-load("time.star", "time")
-load("cache.star", "cache")
+load("render.star", "render")
 load("schema.star", "schema")
+load("time.star", "time")
 
 is_debug = True
 
 PRECIOUS_METAL_NAMES = {
     "gold": "Gold",
-    "silver": "Silver",
-    "platinum": "Platnm",
     "palladium": "Palladm",
+    "platinum": "Platnm",
+    "silver": "Silver",
 }
 timezone = "America/New_York"
 closing_hour = 17
@@ -62,9 +62,9 @@ def main(config):
         print("Using " + ClosingTime.format("January 2, 15:04:05, 2006 TZ Z07:00") + " As Precious Metal closing time")
         print("Using " + NextSessionStartTime.format("January 2, 15:04:05, 2006 TZ Z07:00") + " As Precious Metal session start time")
 
-    ClosingTimeMili = int(ClosingTime.unix_nano) / 1000000
-    NextSessionStartMili = int(NextSessionStartTime.unix_nano) / 1000000
-    sessionstart_price_twenty = NextSessionStartMili / 1000 / 20 / 60
+    ClosingTimeMili = int(ClosingTime.unix_nano) // 1000000
+    NextSessionStartMili = int(NextSessionStartTime.unix_nano) // 1000000
+    sessionstart_price_twenty = NextSessionStartMili // 1000 / 20 // 60
 
     if (is_debug == True):
         print("%d" % (ClosingTimeMili))
@@ -97,7 +97,7 @@ def main(config):
             # Lets put this value in the historical prices dictionary, but lets do it in 20 minute chunks and not miliseconds to reduce entries
             # We may have more than one match in 20 minutes, but this isn't perfect. One price over a 20 minute period is enough.
             # Afterall the tidbit only has 64 pixels width
-            TwentyMinuteTimestamp = int(int(json_entry["timestamp"]) / 1000 / (20 * 60))
+            TwentyMinuteTimestamp = int(int(json_entry["timestamp"]) / 1000 // (20 * 60))
             HistoricalPrices[TwentyMinuteTimestamp] = float(json_entry["price"])
 
             if (last_matched_time_delta != -1 and abs(int(json_entry["timestamp"]) - ClosingTimeMili) > last_matched_time_delta):

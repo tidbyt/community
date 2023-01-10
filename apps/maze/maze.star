@@ -80,7 +80,7 @@ def neighbors(grid, cell):
 
 # Make a new cell representing this row and column
 def new_cell(row, col):
-    return {"row": row, "col": col, "links": []}
+    return {"col": col, "links": [], "row": row}
 
 # Return True/False if the two cells a and b are the same cell
 def same_cell(a, b):
@@ -160,8 +160,8 @@ def draw_path(colors, frame, path):
         if len(path) <= 1:
             opacity = 255
         else:
-            opacity = int(index / (len(path) - 1) * 254)
-        opacity = digit_to_hex(int(opacity / 16)) + digit_to_hex(opacity % 16)
+            opacity = int(index // (len(path) - 1) * 254)
+        opacity = digit_to_hex(int(opacity // 16)) + digit_to_hex(opacity % 16)
 
         color = colors["solve_color"] + opacity
 
@@ -175,8 +175,8 @@ def draw_path(colors, frame, path):
         col = cell[1] * 2 + 1
         frame[row][col] = pixel
 
-        mid_row = int((prev_row + row) / 2)
-        mid_col = int((prev_col + col) / 2)
+        mid_row = int((prev_row + row) // 2)
+        mid_col = int((prev_col + col) // 2)
         frame[mid_row][mid_col] = pixel
 
         prev_row = row

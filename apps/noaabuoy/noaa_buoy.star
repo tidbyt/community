@@ -5,13 +5,13 @@ Description: Display swell,wind,temperature,misc data for user specified buoy. F
 Author: tavdog
 """
 
+load("cache.star", "cache")
+load("encoding/json.star", "json")
+load("http.star", "http")
+load("re.star", "re")
 load("render.star", "render")
 load("schema.star", "schema")
-load("http.star", "http")
-load("encoding/json.star", "json")
-load("cache.star", "cache")
 load("xpath.star", "xpath")
-load("re.star", "re")
 
 print_debug = False
 

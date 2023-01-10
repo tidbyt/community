@@ -8,22 +8,18 @@ Author: rs7q5
 #Created 20220119 RIS
 #Last Modified 20221022 RIS
 
-load("render.star", "render")
 load("http.star", "http")
-load("encoding/base64.star", "base64")
-load("encoding/json.star", "json")
+load("render.star", "render")
 load("cache.star", "cache")
+load("encoding/json.star", "json")
+load("re.star", "re")
 load("schema.star", "schema")
 load("time.star", "time")
-load("re.star", "re")
 
 #this list are the sports that can have their standings pulled
 SPORTS_LIST = {
     "Baseball": ("MLB", {
         "MLB": ["MLB", "mlb", "(1 = AL, 2 = NL)"],
-    }),
-    "Hockey": ("NHL", {
-        "NHL": ["NHL", "nhl", "(1 = East, 2 = West)"],
     }),
     "Basketball": ("NBA", {
         "NBA": ["NBA", "nba", "(1 = East, 2 = West)"],
@@ -31,6 +27,9 @@ SPORTS_LIST = {
     }),
     "Football": ("NFL", {
         "NFL": ["NFL", "nfl", "(1 = AFC, 2 = NFC)"],
+    }),
+    "Hockey": ("NHL", {
+        "NHL": ["NHL", "nhl", "(1 = East, 2 = West)"],
     }),
 }
 

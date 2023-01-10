@@ -8,30 +8,30 @@ Author: rs7q5
 #Created 20211231 RIS
 #Last Modified 20220501 RIS
 
-load("render.star", "render")
-load("http.star", "http")
 load("cache.star", "cache")
+load("http.star", "http")
+load("render.star", "render")
 load("schema.star", "schema")
 
 #this list are any of the sports that have a "Top headlines" section and can be done with the following base ESPN_URL
 ESPN_URL = "https://www.espn.com/"
 ESPN_SPORTS_LIST = {
     "All": ["All", ""],  #default
-    "NFL": ["NFL", "nfl"],
-    "NBA": ["NBA", "nba"],
-    "NHL": ["NHL", "nhl"],
-    "Soccer": ["SOCC", "soccer"],
-    "Golf": ["Golf", "golf"],
-    "NCAAF": ["NCAAF", "college-football"],
     "College Sports": ["COL.", "college-sports"],
     "F1": ["F1", "f1"],
+    "Golf": ["Golf", "golf"],
     "MLB": ["MLB", "mlb"],
     "MMA": ["MMA", "mma"],
     "NASCAR": ["NASC", "racing/nascar"],
+    "NBA": ["NBA", "nba"],
+    "NCAAF": ["NCAAF", "college-football"],
     "NCAAM": ["NCAAM", "mens-college-basketball"],
     "NCAAW": ["NCAAW", "womens-college-basketball"],
+    "NFL": ["NFL", "nfl"],
+    "NHL": ["NHL", "nhl"],
     "Olympic Sports": ["OLY", "olympics"],
     "Racing": ["RCNG", "racing"],
+    "Soccer": ["SOCC", "soccer"],
     "Tennis": ["TENNS", "tennis"],
     "WNBA": ["WNBA", "wnba"],
 }

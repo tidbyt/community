@@ -6,10 +6,10 @@ Author: Remy Blok
 """
 # Special thanks to Max Timkovich for the original English Fuzzy Clock
 
+load("encoding/json.star", "json")
 load("render.star", "render")
 load("schema.star", "schema")
 load("time.star", "time")
-load("encoding/json.star", "json")
 
 DEFAULT_LOCATION = {
     "lat": 52.4,
@@ -19,21 +19,6 @@ DEFAULT_LOCATION = {
 DEFAULT_TIMEZONE = "Europe/Amsterdam"
 
 numbersPerLang = {
-    "nl-NL": {
-        1: "ÉÉN",
-        2: "TWEE",
-        3: "DRIE",
-        4: "VIER",
-        5: "VIJF",
-        6: "ZES",
-        7: "ZEVEN",
-        8: "ACHT",
-        9: "NEGEN",
-        10: "TIEN",
-        11: "ELF",
-        12: "TWAALF",
-        15: "KWART",
-    },
     "en-US": {
         1: "ONE",
         2: "TWO",
@@ -49,27 +34,42 @@ numbersPerLang = {
         12: "TWELVE",
         15: "QUARTER",
     },
+    "nl-NL": {
+        1: "ÉÉN",
+        2: "TWEE",
+        3: "DRIE",
+        4: "VIER",
+        5: "VIJF",
+        6: "ZES",
+        7: "ZEVEN",
+        8: "ACHT",
+        9: "NEGEN",
+        10: "TIEN",
+        11: "ELF",
+        12: "TWAALF",
+        15: "KWART",
+    },
 }
 numbersPerLang["en-GB"] = numbersPerLang["en-US"]
 
 wordsPerLang = {
-    "nl-NL": {
-        "hour": "UUR",
+    "en-GB": {
         "half": "HALF",
-        "to": "VOOR",
-        "past": "OVER",
+        "hour": "O'CLOCK",
+        "past": "PAST",
+        "to": "TO",
     },
     "en-US": {
-        "hour": "O'CLOCK",
         "half": "HALF",
+        "hour": "O'CLOCK",
+        "past": "PAST",
         "to": "TILL",
-        "past": "PAST",
     },
-    "en-GB": {
-        "hour": "O'CLOCK",
+    "nl-NL": {
         "half": "HALF",
-        "to": "TO",
-        "past": "PAST",
+        "hour": "UUR",
+        "past": "OVER",
+        "to": "VOOR",
     },
 }
 

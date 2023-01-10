@@ -5,13 +5,13 @@ Description: Show a random image post from a custom list of subreddits (up to 10
 Author: Nicole Brooks
 """
 
-load("render.star", "render")
-load("time.star", "time")
+load("cache.star", "cache")
 load("encoding/base64.star", "base64")
 load("encoding/json.star", "json")
 load("http.star", "http")
+load("render.star", "render")
 load("schema.star", "schema")
-load("cache.star", "cache")
+load("time.star", "time")
 
 DEFAULT_SUBREDDITS = ["blackcats", "aww", "eyebleach", "itookapicture", "cats", "pic", "otters", "plants"]
 APPROVED_FILETYPES = [".png", ".jpg", ".jpeg", ".bmp"]
@@ -172,9 +172,9 @@ def handleApiError(data = None):
         message = data["message"]
     print("error :( " + message)
     return {
+        "id": "00000",
         "sub": "r/???",
         "title": "error",
-        "id": "00000",
     }
 
 # Get random post from all image posts for that sub. Build and return display data.
@@ -184,18 +184,18 @@ def setRandomPost(allImagePosts, subname):
         print("Post picked is:")
         print(chosen["title"] + " | " + chosen["id"])
         return {
-            "url": chosen["url"],
-            "sub": chosen["subreddit_name_prefixed"],
             "id": chosen["id"],
+            "sub": chosen["subreddit_name_prefixed"],
             "title": chosen["title"],
+            "url": chosen["url"],
         }
         # This else will only run if there are no image posts in the top 30 in /r/hot for a sub.
 
     else:
         return {
+            "id": "00000",
             "sub": "r/" + subname,
             "title": "no results",
-            "id": "00000",
         }
 
 def get_schema():

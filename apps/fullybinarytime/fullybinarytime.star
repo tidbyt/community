@@ -113,7 +113,7 @@ def make_frame(elapsed):
     for level in range(0, CLOCK_BITS):
         levels.append(numerator // divisor)
         numerator = math.mod(numerator, divisor)
-        divisor /= 2
+        divisor //= 2
 
     return render.Stack(
         children = [

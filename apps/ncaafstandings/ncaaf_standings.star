@@ -12,7 +12,6 @@ load("http.star", "http")
 load("render.star", "render")
 load("schema.star", "schema")
 load("time.star", "time")
-load("math.star", "math")
 
 CACHE_TTL_SECONDS = 300
 DEFAULT_LOCATION = """
@@ -175,7 +174,7 @@ def main(config):
             )
 
         return render.Root(
-            delay = int(15000 / cycleOptions / cycleCount),
+            delay = int(15000 / cycleOptions // cycleCount),
             child = render.Column(
                 children = get_top_column(showDateTime, now, timeColor, divisionName, renderCategory, showDateTime and 8 or 5),
             ),

@@ -48,7 +48,7 @@ def main(config):
     index = int(frames_since_epoch % NUM_STATES)
 
     app_cycle_speed = 30 * time.second
-    num_frames = math.ceil(app_cycle_speed / delay)
+    num_frames = math.ceil(app_cycle_speed // delay)
 
     frames = [
         get_frame(get_state(i))
