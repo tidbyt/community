@@ -11,7 +11,7 @@ load("http.star", "http")
 load("encoding/json.star", "json")
 load("humanize.star", "humanize")
 load("schema.star", "schema")
-
+load("cache.star", "cache")
 #Icons
 MOUNTAIN_ICON = base64.decode("""iVBORw0KGgoAAAANSUhEUgAAABAAAAANCAYAAACgu+4kAAAA0ElEQVQoU4WRsQ0CMQxFkykogIaWHeBKGIEmBVtAdVRsgZQ0bIEQNZRsQMMUR74lR8bny/0mUhw//+94l9Vl4fRZOKVqNerRDQxkGAPkAAntAWKMXQiBuDVHPNhLGppRYMAQRLouAFymlNzlunTNauLaw8y15w+9PR3nxSkGSmdUwGQ0sgDQAsSK59ebJ9mWsgCL6Y2e6HhVAMe4P75/7nBfljjkABN5WrN9mfEAMh3sd+9iF4vEQ4boeD0AN/NvyN0gyihgbJl64WaE2ndqwA/LoG2en1wa6AAAAABJRU5ErkJggg==""")
 GREEN_CIRCLE = base64.decode("""iVBORw0KGgoAAAANSUhEUgAAAAUAAAAFCAYAAACNbyblAAAAIElEQVQIW2NkAAKeNJX/IBoEvsy6w8iILACTIEEQm5kApvsMxdxRJEEAAAAASUVORK5CYII=""")
@@ -93,7 +93,11 @@ def Getweather_data(resort):
         dict: a dict containing the temperature, snowfall and description attributes. description is not currently used. Returns None if their is an error fetching the results.
     """
 
+
     url = RESORT_URLS[resort] + WEATHER_URL_STUB
+    if(cache.get(url) != None):
+        cached_string = cache.get(url)
+        return json.decode(cached_string)
     r = http.get(url)
     response = r.body()
     temperature = None
@@ -119,8 +123,11 @@ def Getweather_data(resort):
                 snowfall = json.decode(trimToJSON(line))["TwentyFourHourSnowfall"]["Inches"]
     if temperature == None or snowfall == None:
         return None
-    return dict(temperature = temperature, snowfall = snowfall, description = weather_description)
 
+    results = dict(temperature = temperature, snowfall = snowfall, description = weather_description)
+    url = RESORT_URLS[resort] + WEATHER_URL_STUB
+    cache.set(url, json.encode(results), 600)
+    return results
 def getTerrain(resort):
     """Gets the Trail status from a particular resort by scraping the website associated with the resort
 
@@ -131,7 +138,9 @@ def getTerrain(resort):
         _type_: _description_
     """
     url = RESORT_URLS[resort] + TERRAIN_URL_STUB
-
+    #Check the Cache
+    if cache.get(url) !=None:
+        return json.decode(cache.get(url))
     # Pull an HTML response of the lift status page
     r = http.get(url)
     response = r.body()
@@ -170,22 +179,29 @@ def getTerrain(resort):
     summary = {}
 
     for trail in trails:
-        if trail["Difficulty"] not in summary.keys():
-            summary[trail["Difficulty"]] = dict(open = 0, total = 1)
+        if repr(trail["Difficulty"]) not in summary.keys():
+            summary[repr(trail["Difficulty"])] = dict(open = 0, total = 1)
         else:
-            summary[trail["Difficulty"]]["total"] += 1
+            summary[repr(trail["Difficulty"])]["total"] += 1
 
         if trail["IsOpen"]:
-            summary[trail["Difficulty"]]["open"] += 1
-    for x in [1, 2, 3]:
+            summary[repr(trail["Difficulty"])]["open"] += 1
+    for x in ['1', '2', '3']:
         if x not in summary.keys():
             summary[x] = dict(open = 0, total = 0)
 
     summary.pop(5, None)
-    if 4 in summary.keys():
-        summary[3]["open"] += summary[4]["open"]
-        summary[3]["total"] += summary[4]["total"]
-    summary.pop(4, None)
+    if '4' in summary.keys():
+        summary['3']["open"] += summary['4']["open"]
+        summary['3']["total"] += summary['4']["total"]
+    summary.pop('4', None)
+
+    #this turns everything into to strings because the json encoder is picky and needed for caching
+    for x in summary.keys():
+        for y in summary[x].keys():
+            summary[x][y] = repr(summary[x][y])
+    url = RESORT_URLS[resort] + TERRAIN_URL_STUB
+    cache.set(url, json.encode(summary), 600)
     return summary
 
 def titleRow(resort):
@@ -207,9 +223,9 @@ def trailStatus(image, open, total):
     Returns:
         render: a row of one difficulties trail info
     """
-    if open == 0:
+    if int(open) == 0:
         color = "#BB1111"  #Red
-    elif open / total < 0.5:
+    elif int(open) / int(total) < 0.5:
         color = "#DFEF21"  #Yellow
     else:
         color = "#0FA700"  #Green
@@ -217,9 +233,9 @@ def trailStatus(image, open, total):
         children = [
             render.Image(src = image),
             render.Image(src = SPACER),
-            render.Text(repr(open), font = "CG-pixel-3x5-mono", color = color),
+            render.Text(open, font = "CG-pixel-3x5-mono", color = color),
             render.Text("/", font = "CG-pixel-3x5-mono", color = color),
-            render.Text(repr(total), font = "CG-pixel-3x5-mono", color = color),
+            render.Text(total, font = "CG-pixel-3x5-mono", color = color),
         ],
     )
 
@@ -238,9 +254,9 @@ def trailStatusColumn(resort):
         expanded = True,
         main_align = "space_around",
         children = [
-            trailStatus(GREEN_CIRCLE, summary[1]["open"], summary[1]["total"]),
-            trailStatus(BLUE_SQUARE, summary[2]["open"], summary[2]["total"]),
-            trailStatus(BLACK_DIAMOND, summary[3]["open"], summary[3]["total"]),
+            trailStatus(GREEN_CIRCLE, summary['1']["open"], summary['1']["total"]),
+            trailStatus(BLUE_SQUARE, summary['2']["open"], summary['2']["total"]),
+            trailStatus(BLACK_DIAMOND, summary['3']["open"], summary['3']["total"]),
         ],
     )
 
