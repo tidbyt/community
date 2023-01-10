@@ -9,8 +9,8 @@ require (
 
 require (
 	github.com/manifoldco/promptui v0.9.0
-	golang.org/x/text v0.5.0
-	tidbyt.dev/pixlet v0.22.8
+	golang.org/x/text v0.6.0
+	tidbyt.dev/pixlet v0.23.0
 )
 
 require (
@@ -42,11 +42,11 @@ require (
 	github.com/tidbyt/gg v0.0.0-20220808163829-95806fa1d427 // indirect
 	github.com/tidbyt/go-libwebp v0.0.0-20220802221933-1fabc3b46601 // indirect
 	github.com/zachomedia/go-bdf v0.0.0-20220611021443-a3af701111be // indirect
-	go.starlark.net v0.0.0-20221205180719-3fd0dac74452 // indirect
+	go.starlark.net v0.0.0-20230105143730-d7da88764354 // indirect
 	golang.org/x/crypto v0.3.0 // indirect
-	golang.org/x/image v0.2.0 // indirect
-	golang.org/x/net v0.2.0 // indirect
-	golang.org/x/sys v0.3.0 // indirect
+	golang.org/x/image v0.3.0 // indirect
+	golang.org/x/net v0.5.0 // indirect
+	golang.org/x/sys v0.4.0 // indirect
 	google.golang.org/protobuf v1.28.1 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
 )
