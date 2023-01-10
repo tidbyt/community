@@ -10,12 +10,13 @@ load("math.star", "math")
 load("schema.star", "schema")
 load("encoding/base64.star", "base64")
 load("encoding/json.star", "json")
-load("secret.star", "secret")
 load("http.star", "http")
+load("secret.star", "secret")
 load("cache.star", "cache")
 load("time.star", "time")
 
-exchange_rate_api_key_encrypted = "AV6+xWcEgGYjQTm8oQcY29fZhBrvA5Jat0tLRv+ucm3y9Wkd7Y2h80vCb01gxpQbqepXp6VdVUgVN10iU50qPfgGCykKXuGwS9PtpQJdaVGq9K70Hp29eZMzg9ctcSEt8phJJxDxPanLLBejSiMGvZmxA+EVsBA4cGl5yPFE"
+# Exchangerate-API.com
+exchange_rate_api_key_encrypted = "AV6+xWcE6KWsrRliHOZcKJVyXI3FjL2CLElhdx3nDqOch2xIcpaRAebO4oDNuvi9u0s6Q7tguGBhV1CZzcvQ/i+TWPvpMgWUZ4ceHM1TsAU2xZ13bJUAaxzSLcde1jJrlPD/pjE4DVMBW7jxOWvS/lmfQnzpgL3uTIrXf2S8"
 currencies = {
     "eur": {
         "name": "Euro",
@@ -621,17 +622,22 @@ def get_currency_information(currency_url):
     else:
         return None
 
-# buildifier: disable=function-docstring
 def main(config):
+    """ Main
+
+    Args:
+        config: The past in configuration which includes selected countries
+    Returns:
+        Display to Tidbyt
+    """
     local_currency = config.get("local") or "usd"
     foreign_currency = config.get("foreign") or "cad"
 
-    key = secret.decrypt(exchange_rate_api_key_encrypted)
+    key = config.get("APIKEY", secret.decrypt(exchange_rate_api_key_encrypted))
     exchange_rate_url = "https://v6.exchangerate-api.com/v6/%s/latest/%s" % (key, local_currency.lower())
 
     exchange_data_encoded_json = cache.get(exchange_rate_url)
     if exchange_data_encoded_json == None:
-        # print("Refreshing Data From API")
         exchange_data_decoded_json = get_currency_information(exchange_rate_url)
 
         # calculate 5 minutes past the stated next update date to make sure it it'll be updated next time we call
@@ -687,6 +693,8 @@ def main(config):
 
 def get_schema():
     currency_options = [
+        schema.Option(value = "CAD", display = "Canada"),
+        schema.Option(value = "GBP", display = "United Kingdom"),
         schema.Option(value = "USD", display = "United States"),
         schema.Option(value = "ALL", display = "Albania"),
         schema.Option(value = "AOA", display = "Angola"),
