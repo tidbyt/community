@@ -7,13 +7,11 @@ Author: snorremd
 
 load("cache.star", "cache")
 load("encoding/base64.star", "base64")
-load("encoding/json.star", "json")
 load("encoding/csv.star", "csv")
+load("encoding/json.star", "json")
 load("http.star", "http")
-load("humanize.star", "humanize")
 load("render.star", "render")
 load("schema.star", "schema")
-load("time.star", "time")
 
 # URL to a CSV file containing the bikeshare providers supporting GBFS
 BIKESHARE_STATION_START = '{"url": "https://gbfs.urbansharing.com/bergenbysykkel.no/station_status.json", "station": { "station_id": "368", "name": "Festplassen", "address": "Christies gate 3A", "rental_uris": {"android": "bergenbysykkel://stations/368", "ios": "bergenbysykkel://stations/368"}, "lat": 60.391123958982405, "lon": 5.325713785893413, "capacity": 25 } }'

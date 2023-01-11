@@ -1,10 +1,10 @@
-load("render.star", "render")
-load("http.star", "http")
-load("encoding/base64.star", "base64")
 load("cache.star", "cache")
+load("encoding/base64.star", "base64")
 load("encoding/json.star", "json")
-load("schema.star", "schema")
 load("hash.star", "hash")
+load("http.star", "http")
+load("render.star", "render")
+load("schema.star", "schema")
 
 ZENHUB_REST_API_URL = "https://api.zenhub.com"
 ZENHUB_GQL_API_URL = "https://api.zenhub.com/public/graphql"

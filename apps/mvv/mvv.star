@@ -60,12 +60,12 @@ def searchStop(pattern):
     options1 = []
     for [id, name] in Stops.items():
         if name.lower().startswith(pattern.lower()):
-            options1 += [schema.Option(value = id, display = name)]
+            options1.append(schema.Option(value = id, display = name))
 
     options2 = []
     for [id, name] in Stops.items():
         if pattern.lower() in name.lower():
-            options2 += [schema.Option(value = id, display = name)]
+            options2.append(schema.Option(value = id, display = name))
 
     return (sorted(options1, key = key) + sorted(options2, key = key))[:25]
 
@@ -251,7 +251,7 @@ def processDepartures(departures, now, filters):
                     known = True
 
             if not known and wait >= 0:
-                lines[idx]["departures"] += [{"planned": planned, "actual": actual, "wait": wait}]
+                lines[idx]["departures"].append({"planned": planned, "actual": actual, "wait": wait})
 
     # Remove entries with no departures
     lines = [x for x in lines.values() if x["departures"] != []]
@@ -357,9 +357,9 @@ def main(config):
         for i in line.split():
             if "#" in i:
                 (i, platform) = i.split("#")
-                filters += [(i.strip(), platform.strip())]
+                filters.append((i.strip(), platform.strip()))
             else:
-                filters += [(i.strip(), "")]
+                filters.append((i.strip(), ""))
 
         lines = processDepartures(departures, now, filters)
         children = [renderLine(l, now, alternate_style, abbreviate) for l in lines][0:2]

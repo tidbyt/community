@@ -5,13 +5,13 @@ Description: Displays random quotes from Nintendo Entertainment System games.
 Author: Mark McIntyre
 """
 
-load("render.star", "render")
-load("random.star", "random")
-load("schema.star", "schema")
-load("encoding/csv.star", "csv")
-load("http.star", "http")
 load("cache.star", "cache")
 load("encoding/base64.star", "base64")
+load("encoding/csv.star", "csv")
+load("http.star", "http")
+load("random.star", "random")
+load("render.star", "render")
+load("schema.star", "schema")
 
 CSV_ENDPOINT = "https://gist.githubusercontent.com/markmcintyre/b39cf560d7e66bc0b987f809ca4a568f/raw/nes-quotes.csv"
 GAME_COL = 0

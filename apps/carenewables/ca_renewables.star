@@ -5,11 +5,11 @@ Description: See how California is using renewable energy in its power grid righ
 Author: @sloanesturz
 """
 
-load("render.star", "render")
-load("http.star", "http")
 load("cache.star", "cache")
-load("humanize.star", "humanize")
 load("encoding/csv.star", "csv")
+load("http.star", "http")
+load("humanize.star", "humanize")
+load("render.star", "render")
 load("schema.star", "schema")
 
 FUEL_URL = "https://www.caiso.com/outlook/SP/fuelsource.csv"

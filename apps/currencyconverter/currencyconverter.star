@@ -5,14 +5,14 @@ Description: Displays current currency exchange rates.
 Author: Robert Ison
 """
 
-load("render.star", "render")
-load("math.star", "math")
-load("schema.star", "schema")
+load("cache.star", "cache")
 load("encoding/base64.star", "base64")
 load("encoding/json.star", "json")
-load("secret.star", "secret")
 load("http.star", "http")
-load("cache.star", "cache")
+load("math.star", "math")
+load("render.star", "render")
+load("schema.star", "schema")
+load("secret.star", "secret")
 load("time.star", "time")
 
 exchange_rate_api_key = "382c82c0e47531184b366111"

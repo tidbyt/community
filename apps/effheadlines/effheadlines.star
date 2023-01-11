@@ -2,10 +2,10 @@ load("cache.star", "cache")
 load("encoding/base64.star", "base64")
 load("encoding/json.star", "json")
 load("http.star", "http")
+load("qrcode.star", "qrcode")
 load("random.star", "random")
 load("re.star", "re")
 load("render.star", "render")
-load("qrcode.star", "qrcode")
 
 EFF_XML_URL = "https://www.eff.org/rss/updates.xml"
 

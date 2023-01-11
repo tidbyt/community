@@ -5,14 +5,14 @@ Description: Gets the emblem, race, class, and light level of your most recently
 Author: brandontod97
 """
 
-load("render.star", "render")
-load("time.star", "time")
-load("http.star", "http")
-load("schema.star", "schema")
-load("encoding/base64.star", "base64")
 load("cache.star", "cache")
+load("encoding/base64.star", "base64")
 load("encoding/json.star", "json")
+load("http.star", "http")
+load("render.star", "render")
+load("schema.star", "schema")
 load("secret.star", "secret")
+load("time.star", "time")
 
 DEFAULT_DISPLAY_NAME = secret.decrypt("""
 AV6+xWcEj0nmtoLiblYJL8Tu387oZYnoFkMIzs29sUMlHtqDcNuaBDSg

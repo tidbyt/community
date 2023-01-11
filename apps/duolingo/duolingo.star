@@ -6,16 +6,15 @@ Author: Olly Stedall @saltedlolly
 Thanks: @drudge @whyamIhere @AmillionAir
 """
 
-print(" ---------------------------------------------------------------------------------------------------------------------")
-
-load("render.star", "render")
-load("http.star", "http")
+load("cache.star", "cache")
 load("encoding/base64.star", "base64")
 load("encoding/json.star", "json")
-load("cache.star", "cache")
+load("http.star", "http")
+load("render.star", "render")
 load("schema.star", "schema")
-load("math.star", "math")
 load("time.star", "time")
+
+print(" ---------------------------------------------------------------------------------------------------------------------")
 
 # Set applet defaults
 DEFAULT_USERNAME = "saltedlolly"

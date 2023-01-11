@@ -5,11 +5,11 @@ Description: Display info for a Twitch username.
 Author: drudge
 """
 
-load("encoding/base64.star", "base64")
 load("cache.star", "cache")
-load("humanize.star", "humanize")
-load("http.star", "http")
+load("encoding/base64.star", "base64")
 load("encoding/json.star", "json")
+load("http.star", "http")
+load("humanize.star", "humanize")
 load("render.star", "render")
 load("schema.star", "schema")
 load("secret.star", "secret")

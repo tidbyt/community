@@ -5,12 +5,12 @@ Description: Show readings from your Ambient weather station.
 Author: Jon Maddox
 """
 
+load("cache.star", "cache")
+load("encoding/json.star", "json")
+load("http.star", "http")
 load("render.star", "render")
 load("schema.star", "schema")
-load("encoding/json.star", "json")
 load("time.star", "time")
-load("http.star", "http")
-load("cache.star", "cache")
 
 AMBIENT_DEVICES_URL = "https://api.ambientweather.net/v1/devices"
 

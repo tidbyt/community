@@ -9,12 +9,12 @@ Author: rs7q5
 #Created 20220204 RIS
 #Last Modified 20220426 RIS
 
-load("render.star", "render")
-load("schema.star", "schema")
 load("encoding/json.star", "json")
 load("math.star", "math")
-load("time.star", "time")
 load("re.star", "re")
+load("render.star", "render")
+load("schema.star", "schema")
+load("time.star", "time")
 
 DEFAULT_LOCATION = """
 {

@@ -8,13 +8,13 @@ Author: rs7q5
 #Created 20220220 RIS
 #Last Modified 20221116 RIS
 
-load("render.star", "render")
-load("http.star", "http")
-load("encoding/json.star", "json")
 load("cache.star", "cache")
+load("encoding/json.star", "json")
+load("http.star", "http")
+load("humanize.star", "humanize")
+load("render.star", "render")
 load("schema.star", "schema")
 load("time.star", "time")
-load("humanize.star", "humanize")
 
 #this list are the sports that can have their scores pulled
 #list for each league is [display text, url code added to base code, timezone to reset day stuff]

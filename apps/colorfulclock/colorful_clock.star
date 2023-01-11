@@ -5,11 +5,11 @@ Description: Shows the time like on an old wall clock.
 Author: LukiLeu
 """
 
+load("encoding/json.star", "json")
+load("math.star", "math")
 load("render.star", "render")
 load("schema.star", "schema")
-load("encoding/json.star", "json")
 load("time.star", "time")
-load("math.star", "math")
 
 # Define some constants
 DEFAULT_LOCATION = {
