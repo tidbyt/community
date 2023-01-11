@@ -6,9 +6,8 @@ Author: Shopify
 """
 
 load("render.star", "render")
-load("animation.star", "animation")
-load("schema.star", "schema")
 load("encoding/base64.star", "base64")
+load("schema.star", "schema")
 
 def main(config):
     return render.Root(

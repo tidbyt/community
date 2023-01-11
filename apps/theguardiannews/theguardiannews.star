@@ -1,8 +1,8 @@
-load("render.star", "render")
-load("http.star", "http")
-load("encoding/json.star", "json")
-load("schema.star", "schema")
 load("cache.star", "cache")
+load("encoding/json.star", "json")
+load("http.star", "http")
+load("render.star", "render")
+load("schema.star", "schema")
 
 # cache data for 15 minutes - cycle through with cache on the API side
 CACHE_TTL_SECONDS = 900

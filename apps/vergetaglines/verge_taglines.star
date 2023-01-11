@@ -5,13 +5,13 @@ Description: Displays the latest tagline from the top of popular tech news site 
 Author: joevgreathead
 """
 
-load("render.star", "render")
-load("http.star", "http")
-load("html.star", "html")
-load("encoding/json.star", "json")
-load("encoding/base64.star", "base64")
 load("cache.star", "cache")
+load("encoding/base64.star", "base64")
+load("encoding/json.star", "json")
+load("html.star", "html")
+load("http.star", "http")
 load("random.star", "random")
+load("render.star", "render")
 
 # 16x16
 VERGE_LOGO = base64.decode("""

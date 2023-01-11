@@ -5,11 +5,11 @@ Description: Projected New York City subway departure times, powered by goodserv
 Author: blahblahblah-
 """
 
+load("encoding/base64.star", "base64")
+load("http.star", "http")
 load("render.star", "render")
 load("schema.star", "schema")
 load("time.star", "time")
-load("http.star", "http")
-load("encoding/base64.star", "base64")
 
 DEFAULT_STOP_ID = "M16"
 DEFAULT_DIRECTION = "both"

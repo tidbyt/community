@@ -6,14 +6,14 @@ Author: Rob Kimball
 Honorable Mention: LukiLeu, for the inspiration with Google Traffic
 """
 
+load("cache.star", "cache")
+load("encoding/base64.star", "base64")
+load("encoding/json.star", "json")
 load("http.star", "http")
 load("math.star", "math")
-load("time.star", "time")
-load("cache.star", "cache")
 load("render.star", "render")
 load("schema.star", "schema")
-load("encoding/json.star", "json")
-load("encoding/base64.star", "base64")
+load("time.star", "time")
 
 BING_URL = "http://dev.virtualearth.net/REST/v1"
 MQ_URL = "http://www.mapquestapi.com"

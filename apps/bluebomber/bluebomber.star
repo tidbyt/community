@@ -7,7 +7,6 @@ Author: vmitchell85
 
 load("encoding/base64.star", "base64")
 load("render.star", "render")
-load("schema.star", "schema")
 load("random.star", "random")
 
 DEFAULT_BOSS = "PROTO"

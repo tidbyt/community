@@ -6,10 +6,10 @@ Author: Steve Otteson
 """
 
 load("encoding/base64.star", "base64")
+load("math.star", "math")
 load("render.star", "render")
 load("schema.star", "schema")
 load("time.star", "time")
-load("math.star", "math")
 
 FRAME_WIDTH = 64
 FRAME_HEIGHT = 32

@@ -5,9 +5,9 @@ Description: Display a custom drawing or integration view from Xtrabyt.com.
 Author: vmitchell85
 """
 
+load("http.star", "http")
 load("render.star", "render")
 load("schema.star", "schema")
-load("http.star", "http")
 
 BASE_URL = "https://xtrabyt.com"
 

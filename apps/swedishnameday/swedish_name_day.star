@@ -8,9 +8,8 @@ Author: y34752
 load("encoding/json.star", "json")
 load("render.star", "render")
 load("schema.star", "schema")
-load("re.star", "re")
-load("http.star", "http")
 load("cache.star", "cache")
+load("http.star", "http")
 
 def getlistasstring(listin):
     ref = ""

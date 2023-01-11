@@ -1,8 +1,6 @@
-load("render.star", "render")
-load("http.star", "http")
 load("cache.star", "cache")
-load("encoding/json.star", "json")
-load("secret.star", "secret")
+load("http.star", "http")
+load("render.star", "render")
 load("schema.star", "schema")
 
 ADDS_URL = "https://www.aviationweather.gov/adds/dataserver_current/httpparam?dataSource=metars&requestType=retrieve&format=csv&stationString=%s&mostrecentforeachstation=constraint&hoursBeforeNow=2"

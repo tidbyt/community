@@ -5,13 +5,13 @@ Description: Displays your LeetCode stats in a nice way.
 Author: Jake Manske
 """
 
-load("render.star", "render")
-load("schema.star", "schema")
-load("http.star", "http")
-load("math.star", "math")
+load("cache.star", "cache")
 load("encoding/base64.star", "base64")
 load("encoding/json.star", "json")
-load("cache.star", "cache")
+load("http.star", "http")
+load("math.star", "math")
+load("render.star", "render")
+load("schema.star", "schema")
 
 LEETCODE_BASE_URL = "https://leetcode.com/{0}"
 EASY_COLOR = "#00E400"

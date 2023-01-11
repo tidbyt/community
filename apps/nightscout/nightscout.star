@@ -5,16 +5,13 @@ Description: Displays Continuous Glucose Monitoring (CGM) data from the Nightsco
 Authors: Jeremy Tavener, Paul Murphy
 """
 
-load("render.star", "render")
 load("http.star", "http")
+load("render.star", "render")
 load("time.star", "time")
-load("encoding/base64.star", "base64")
-load("encoding/json.star", "json")
-load("encoding/csv.star", "csv")
 load("cache.star", "cache")
+load("encoding/csv.star", "csv")
+load("encoding/json.star", "json")
 load("schema.star", "schema")
-load("re.star", "re")
-load("humanize.star", "humanize")
 load("sunrise.star", "sunrise")
 
 COLOR_RED = "#C00"

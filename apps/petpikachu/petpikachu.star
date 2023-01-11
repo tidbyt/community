@@ -7,11 +7,11 @@ Thanks: Code usage: Steve Otteson. Sprite source: https://www.youtube.com/watch?
 """
 
 load("encoding/base64.star", "base64")
+load("encoding/json.star", "json")
+load("random.star", "random")
 load("render.star", "render")
 load("schema.star", "schema")
 load("time.star", "time")
-load("random.star", "random")
-load("encoding/json.star", "json")
 
 DEFAULT_TIME_ZONE = "America/Phoenix"
 BG_COLOR = "#95a87e"
