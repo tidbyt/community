@@ -5,8 +5,8 @@ Description: Shoppy, the Shopify shopping bag would like to visit your TidByt.
 Author: Shopify
 """
 
-load("render.star", "render")
 load("encoding/base64.star", "base64")
+load("render.star", "render")
 load("schema.star", "schema")
 
 def main(config):

@@ -65,15 +65,6 @@ def main(config):
     hour_pt = (hour_len * math.sin(theta), hour_len * math.cos(theta))
     minute_pt = (minute_len * math.sin(theta2), minute_len * math.cos(theta2))
 
-    hand_pts = [
-        (hour_len * math.sin(theta), hour_len * math.cos(theta)),
-        (0.0, 0.0),
-        (minute_len * math.sin(theta2), minute_len * math.cos(theta2)),
-    ]
-
-    plot_hands = render.Plot(width = 32, height = 32, data = hand_pts, x_lim = ax_lims, y_lim = ax_lims, color = "#fff")
-    plot_hands2 = render.Padding(plot_hands, pad = (16, 0, 16, 0))
-
     #used this to see if coloring the hour hand was better
     plot_handsa = render.Plot(width = 32, height = 32, data = [(0.0, 0.0), hour_pt], x_lim = ax_lims, y_lim = ax_lims, color = hour_color)
     plot_handsb = render.Plot(width = 32, height = 32, data = [(0.0, 0.0), minute_pt], x_lim = ax_lims, y_lim = ax_lims, color = minute_color)

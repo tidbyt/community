@@ -25,9 +25,9 @@ GREEN_FUEL_TYPES = {
 
 CACHE_KEY = "FUEL_USAGE_DATA"
 
-def sum(l):
+def sum(input_list):
     total = 0
-    for i in l:
+    for i in input_list:
         total += float(i)
     return total
 
