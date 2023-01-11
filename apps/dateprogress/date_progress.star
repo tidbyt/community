@@ -6,11 +6,11 @@ Author: possan
 """
 
 load("encoding/json.star", "json")
+load("math.star", "math")
+load("re.star", "re")
 load("render.star", "render")
 load("schema.star", "schema")
-load("math.star", "math")
 load("time.star", "time")
-load("re.star", "re")
 
 DEFAULT_TIMEZONE = "Europe/Stockholm"
 

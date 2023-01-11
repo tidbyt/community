@@ -5,10 +5,10 @@ Description: Displays state flags.
 Author: Robert Ison
 """
 
-load("render.star", "render")
-load("schema.star", "schema")
 load("encoding/base64.star", "base64")  #Used to read encoded image
 load("random.star", "random")
+load("render.star", "render")
+load("schema.star", "schema")
 
 DISPLAY_FONT = "5x8"
 DISPLAY_COLOR_1 = "#B31942"  #Red

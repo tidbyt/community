@@ -27,11 +27,11 @@ Author: joshspicer
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-load("render.star", "render")
-load("schema.star", "schema")
+load("cache.star", "cache")
 load("encoding/json.star", "json")
 load("http.star", "http")
-load("cache.star", "cache")
+load("render.star", "render")
+load("schema.star", "schema")
 
 def main(config):
     # Require secrets

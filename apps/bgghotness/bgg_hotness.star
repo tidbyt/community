@@ -31,14 +31,14 @@ Author: Henry So, Jr.
 # (https://boardgamegeek.com/wiki/page/BGG_XML_API2)
 # to show BoardGameGeek's Board Game Hotness list
 
-load("render.star", "render")
-load("schema.star", "schema")
-load("xpath.star", "xpath")
-load("http.star", "http")
 load("cache.star", "cache")
-load("time.star", "time")
 load("encoding/base64.star", "base64")
 load("encoding/json.star", "json")
+load("http.star", "http")
+load("render.star", "render")
+load("schema.star", "schema")
+load("time.star", "time")
+load("xpath.star", "xpath")
 
 def main():
     now = time.now().unix

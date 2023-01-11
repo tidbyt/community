@@ -7,11 +7,10 @@ Thanks: Joey Hoer, whose "Big Number Clock" code this is based on.
 Notes: Numbers are 15 pixels wide. Seperator is 4 pixels wide. This is the widest you can effectively make a digital clock to fill all 64 pixels while maintaining numbers of equal width with space for a seperator.
 """
 
+load("encoding/base64.star", "base64")
 load("render.star", "render")
 load("schema.star", "schema")
 load("time.star", "time")
-load("encoding/base64.star", "base64")
-load("encoding/json.star", "json")
 
 DEFAULT_TIMEZONE = "Europe/London"
 DEFAULT_IS_24_HOUR_FORMAT = False

@@ -5,14 +5,15 @@ Description: The Idle Gardener is an Idle tree growing tycoon that takes absolut
 Author: yonodactyl
 """
 
+load("cache.star", "cache")
+
 # LOAD MODULES
 load("encoding/base64.star", "base64")
+load("encoding/json.star", "json")
+load("random.star", "random")
 load("render.star", "render")
 load("schema.star", "schema")
-load("cache.star", "cache")
-load("encoding/json.star", "json")
 load("time.star", "time")
-load("random.star", "random")
 
 # CONSTANTS
 TREE_GROWN = "iVBORw0KGgoAAAANSUhEUgAAAAgAAAAICAYAAADED76LAAAAAXNSR0IArs4c6QAAAEFJREFUGJVjYCAAGGGM5GO+/5El5lptZmRgYGBgImQCC4xxfu0PrAqIN+H5qV8M0Uy/GBgYGBiW/mPDVIAuQTQAABWCDdre18jnAAAAAElFTkSuQmCC"

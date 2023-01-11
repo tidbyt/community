@@ -31,10 +31,10 @@ Author: Henry So, Jr.
 # Via the configuration below, this app will show a different sequence every
 # 30 minutes (see SEED_GRANULARITY)
 
-load("time.star", "time")
+load("encoding/base64.star", "base64")
 load("render.star", "render")
 load("schema.star", "schema")
-load("encoding/base64.star", "base64")
+load("time.star", "time")
 
 # for column styles:
 # 'speed' is the number of frames before the drop moves, so a lower number

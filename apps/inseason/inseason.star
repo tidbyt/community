@@ -6,8 +6,8 @@ Author: Robert Ison
 """
 
 load("encoding/base64.star", "base64")  #Used to read encoded image
-load("render.star", "render")
 load("random.star", "random")
+load("render.star", "render")
 load("schema.star", "schema")
 load("time.star", "time")
 

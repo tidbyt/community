@@ -8,9 +8,9 @@ Author: rs7q5
 #Created 20211231 RIS
 #Last Modified 20220501 RIS
 
-load("render.star", "render")
-load("http.star", "http")
 load("cache.star", "cache")
+load("http.star", "http")
+load("render.star", "render")
 load("schema.star", "schema")
 
 #this list are any of the sports that have a "Top headlines" section and can be done with the following base ESPN_URL
