@@ -8,7 +8,6 @@ Author: Neal Wright
 load("cache.star", "cache")
 load("encoding/json.star", "json")
 load("http.star", "http")
-load("re.star", "re")
 load("render.star", "render")
 load("schema.star", "schema")
 

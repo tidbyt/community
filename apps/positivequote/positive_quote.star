@@ -9,7 +9,6 @@ load("cache.star", "cache")
 load("encoding/base64.star", "base64")
 load("http.star", "http")
 load("render.star", "render")
-load("schema.star", "schema")
 
 TTL_SECONDS = 30
 

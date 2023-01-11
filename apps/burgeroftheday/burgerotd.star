@@ -7,12 +7,12 @@ Thanks: @whyamihere @dinotash @inxi @J.R. @Milx
 """
 
 load("encoding/base64.star", "base64")
+load("encoding/json.star", "json")
+load("math.star", "math")
+load("random.star", "random")
 load("render.star", "render")
 load("schema.star", "schema")
-load("math.star", "math")
 load("time.star", "time")
-load("random.star", "random")
-load("encoding/json.star", "json")
 
 #64 x 19
 BOBS_LOGO = base64.decode("""

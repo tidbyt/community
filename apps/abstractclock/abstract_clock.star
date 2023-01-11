@@ -5,11 +5,11 @@ Description: Uses 60 Pixels to display time across width of Tidbyt.
 Author: AmillionAir
 """
 
-load("render.star", "render")
-load("time.star", "time")
-load("encoding/json.star", "json")
 load("encoding/base64.star", "base64")
+load("encoding/json.star", "json")
+load("render.star", "render")
 load("schema.star", "schema")
+load("time.star", "time")
 
 DEFAULT_LOCATION = """
 {

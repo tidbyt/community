@@ -7,12 +7,12 @@ Description: Display a large retro-style clock; the clock can change color
 Author: Joey Hoer
 """
 
-load("render.star", "render")
-load("schema.star", "schema")
-load("time.star", "time")
-load("sunrise.star", "sunrise")
 load("encoding/base64.star", "base64")
 load("encoding/json.star", "json")
+load("render.star", "render")
+load("schema.star", "schema")
+load("sunrise.star", "sunrise")
+load("time.star", "time")
 
 # Default configuration values
 DEFAULT_LOCATION = {

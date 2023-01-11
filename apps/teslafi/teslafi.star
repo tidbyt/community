@@ -7,14 +7,13 @@ Author: mrrobot245
 """
 
 load("encoding/json.star", "json")
+load("math.star", "math")
 load("render.star", "render")
 load("schema.star", "schema")
-load("math.star", "math")
-load("time.star", "time")
-load("re.star", "re")
-load("http.star", "http")
-load("encoding/base64.star", "base64")
 load("cache.star", "cache")
+load("encoding/base64.star", "base64")
+load("http.star", "http")
+load("re.star", "re")
 
 FRAME_WIDTH = 64
 

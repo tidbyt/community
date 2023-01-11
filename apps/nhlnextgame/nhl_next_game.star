@@ -5,14 +5,14 @@ Description: Gets info on preferred NHL teams next game.
 Author: AKKanMan
 """
 
-load("render.star", "render")
-load("time.star", "time")
-load("humanize.star", "humanize")
-load("encoding/base64.star", "base64")
-load("http.star", "http")
-load("schema.star", "schema")
 load("cache.star", "cache")
+load("encoding/base64.star", "base64")
 load("encoding/json.star", "json")
+load("http.star", "http")
+load("humanize.star", "humanize")
+load("render.star", "render")
+load("schema.star", "schema")
+load("time.star", "time")
 
 def getTeamIconFromID(teamID):
     if teamID == 2:  #NYI

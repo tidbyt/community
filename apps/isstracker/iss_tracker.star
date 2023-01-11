@@ -5,10 +5,10 @@ Description: Tracks the position of the International Space Station using LAT/LO
 Author: Chris Jones (@IPv6Freely)
 """
 
-load("render.star", "render")
-load("schema.star", "schema")
 load("encoding/base64.star", "base64")
 load("http.star", "http")
+load("render.star", "render")
+load("schema.star", "schema")
 load("time.star", "time")
 
 ISS_URL = "http://api.open-notify.org/iss-now.json"

@@ -6,12 +6,12 @@ Author: Allen Schober (@aschober)
 Thanks: @saltedlolly as this is based on the digibyteprice app.
 """
 
-load("render.star", "render")
-load("http.star", "http")
-load("encoding/json.star", "json")
 load("cache.star", "cache")
-load("schema.star", "schema")
+load("encoding/json.star", "json")
+load("http.star", "http")
 load("math.star", "math")
+load("render.star", "render")
+load("schema.star", "schema")
 
 URL_COINGECKO_PRICE = "https://api.coingecko.com/api/v3/coins/{}?localization=false&tickers=false&community_data=false&developer_data=false"
 

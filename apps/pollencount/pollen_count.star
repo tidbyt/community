@@ -5,13 +5,13 @@ Description: Displays a pollen count for your area. Enter your location for upda
 Author: Nicole Brooks
 """
 
-load("render.star", "render")
-load("schema.star", "schema")
 load("cache.star", "cache")
-load("secret.star", "secret")
 load("encoding/base64.star", "base64")
 load("encoding/json.star", "json")
 load("http.star", "http")
+load("render.star", "render")
+load("schema.star", "schema")
+load("secret.star", "secret")
 
 DEFAULT_LOC = {
     "lat": 40.63,

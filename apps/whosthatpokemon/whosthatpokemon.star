@@ -6,13 +6,12 @@ Author: Nicole Brooks
 """
 
 load("render.star", "render")
-load("time.star", "time")
+load("cache.star", "cache")
 load("encoding/base64.star", "base64")
 load("encoding/json.star", "json")
 load("http.star", "http")
-load("schema.star", "schema")
-load("cache.star", "cache")
 load("random.star", "random")
+load("schema.star", "schema")
 
 ALL_POKEMON = 898
 CLASSIC_POKEMON = 386

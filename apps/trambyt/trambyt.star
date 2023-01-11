@@ -5,14 +5,14 @@ Description: Show departures for Västtrafik stops.
 Author: protocol7
 """
 
-load("render.star", "render")
-load("http.star", "http")
-load("time.star", "time")
 load("cache.star", "cache")
-load("schema.star", "schema")
-load("secret.star", "secret")
 load("encoding/base64.star", "base64")
 load("encoding/json.star", "json")
+load("http.star", "http")
+load("render.star", "render")
+load("schema.star", "schema")
+load("secret.star", "secret")
+load("time.star", "time")
 
 API_KEY = "VS_fuDj3YZhsRzFBYdV7fLDMQcAa"
 API_SECRET = "AV6+xWcExWH7Oc5Vn1VWhdnAoHLcQVt2ZkldnfOhYQCa6DBRbGzPTvi+pNO3dRm6DjE5Y+dEiudkyg+8wm6Dzn711OXmcydvnkPERtF8NlHfqZ+JAqa60q+i2y1FISJMJZINKZH0gFClVR69DGiQ+GfGwts/2FOpzR9vNAva9ugvmQ=="
