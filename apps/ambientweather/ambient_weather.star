@@ -10,7 +10,6 @@ load("encoding/json.star", "json")
 load("http.star", "http")
 load("render.star", "render")
 load("schema.star", "schema")
-load("time.star", "time")
 
 AMBIENT_DEVICES_URL = "https://api.ambientweather.net/v1/devices"
 
@@ -33,18 +32,12 @@ def main(config):
     conditions = station["lastData"]
 
     temp = "%d°" % conditions["tempf"]
-    feelsLikeTemp = "%d°" % conditions["feelsLike"]
     humidity = "%d%%" % conditions["humidity"]
     windSpeed = "%dmph" % conditions["windspeedmph"]
-    windGust = "%dmph" % conditions["windgustmph"]
     windDirection = wind_direction(conditions["winddir"])
     windSpeed = "%s %s" % (windSpeed, windDirection)
     uv = "UV %d" % conditions["uv"]
-    pressure = "%g" % conditions["baromrelin"]
     stationName = station["info"]["name"]
-
-    timezone = conditions["tz"]
-    now = time.now().in_location(timezone)
 
     title = config.get("title", None)
     if is_string_blank(title):

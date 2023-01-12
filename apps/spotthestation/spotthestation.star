@@ -104,7 +104,7 @@ def get_local_offset(config):
     else:
         return time.parse_duration("+0h")
 
-def get_timestamp_from_item(item, config):
+def get_timestamp_from_item(item):
     description = item.replace("\n", "").replace("\t", "").split("<br/>")
     item_date = description[0].replace("Date: ", "").split(" ")
     item_time = description[1].replace("Time: ", "").split(" ")
@@ -166,7 +166,7 @@ def main(config):
         for i in range(1, number_of_listed_sightings + 1):
             current_query = "//item[" + str(i) + "]/description"
             current_description = xpath.loads(iss_xml_body).query(current_query)
-            current_time_stamp = get_timestamp_from_item(current_description, config)
+            current_time_stamp = get_timestamp_from_item(current_description)
             timezone = json.decode(config.get("location", DEFAULT_LOCATION))["timezone"]
             current_item_time = time.parse_time(current_time_stamp).in_location(timezone) + get_local_offset(config)
 
@@ -199,7 +199,7 @@ def main(config):
             #Let's cache this XML as long as we have good data
             current_query = "//item[" + str(number_of_listed_sightings) + "]/description"
             current_description = xpath.loads(iss_xml_body).query(current_query)
-            current_time_stamp = get_timestamp_from_item(current_description, config)
+            current_time_stamp = get_timestamp_from_item(current_description)
             time_of_furthest_known_sighting = current_time_stamp
             date_diff = time.parse_time(time_of_furthest_known_sighting) - get_local_time(config)
         else:

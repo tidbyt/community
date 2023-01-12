@@ -204,7 +204,7 @@ def get_schema():
 def fetch_stops(api_key):
     stops = {}
 
-    (timestamp, raw_stops) = fetch_cached(STOPS_URL % api_key, 86400)
+    (_, raw_stops) = fetch_cached(STOPS_URL % api_key, 86400)
 
     if "Contents" in raw_stops:
         stops.update([(stop["id"], stop) for stop in raw_stops["Contents"]["dataObjects"]["ScheduledStopPoint"]])
@@ -236,7 +236,7 @@ def get_route_list():
             ),
         ]
 
-    (timestamp, routes) = fetch_cached(ROUTES_URL % API_KEY, 86400)
+    (_, routes) = fetch_cached(ROUTES_URL % API_KEY, 86400)
 
     route_list = [
         schema.Option(
@@ -271,7 +271,7 @@ def fetch_cached(url, ttl):
             return (time.now().unix, {})
 
         # Trim off the UTF-8 byte-order mark
-        body = res.body().lstrip("\ufeff")
+        body = res.body().lstrip("\\ufeff")
         data = json.decode(body)
         timestamp = time.now().unix
         cache.set(url, body, ttl_seconds = ttl)
@@ -315,8 +315,6 @@ def getPredictions(api_key, config, stop):
     stops = fetch_stops(api_key)
     if stopId in stops:
         stopTitle = stops[stopId]["Name"]
-
-    data_age_seconds = time.now().unix - data_timestamp
 
     entities = data.get("Entities", {})
     if not entities:
@@ -387,7 +385,7 @@ def getPredictions(api_key, config, stop):
     return (stopTitle, routes, output)
 
 def getMessages(api_key, config, routes, stopId):
-    (data_timestamp, data) = fetch_cached(ALERTS_URL % api_key, 240)
+    (_, data) = fetch_cached(ALERTS_URL % api_key, 240)
 
     # https://developers.google.com/transit/gtfs-realtime/reference#message-feedentity
     entities = data.get("Entities")

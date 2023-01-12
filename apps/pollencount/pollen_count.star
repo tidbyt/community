@@ -50,7 +50,7 @@ def main(config):
         print("Cache miss, calling API")
 
         #If not, make API call and cache result
-        todaysCount = getTodaysCount(latLngStr, secret)
+        todaysCount = getTodaysCount(latLngStr)
 
     firstMixin = None
     secondMixin = None
@@ -185,9 +185,8 @@ def roundToHalf(floatNum):
     return num
 
 # Make API call and process data.
-def getTodaysCount(latLng, secret):
+def getTodaysCount(latLng):
     print("Getting API for: " + latLng + " for " + str(3600 * 12) + " seconds")
-    url = API_URL_BASE + latLng + SECRET_PROPERTY + secret
     rep = http.get(API_URL_BASE + latLng)
     data = rep.json()
 

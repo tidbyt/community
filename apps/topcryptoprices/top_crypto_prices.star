@@ -142,7 +142,6 @@ def renderpercentage(p):
     return render.Text(str(p) + "%", color = color)
 
 def renderprice(p):
-    decimals = -1
     if p >= 1000:
         p = int(p)
     else:

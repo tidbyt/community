@@ -424,7 +424,7 @@ def main(config):
 
     frames = []
 
-    for i in range(0, 5):
+    for _ in range(0, 5):
         state = get_random_state()
         frames.append(render.Image(src = base64.decode(state["flag"]), height = 32))
 

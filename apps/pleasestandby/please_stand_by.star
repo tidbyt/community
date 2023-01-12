@@ -90,7 +90,7 @@ def ani_image():
         ],
     )
 
-def main(config):
+def main():
     return render.Root(
         delay = 100,
         child = ani_image(),

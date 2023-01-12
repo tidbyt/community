@@ -15,7 +15,7 @@ TO_NJ = "TO_NJ"
 STATION_NAME_KEY = "station_name_key"
 TRAIN_TIME_KEY = "train_time_key"
 
-def main(config):
+def main():
     # station = config.get("station") or "JOURNAL_SQUARE"
     # all_trains = getTrainDataFromApi(station)
 

@@ -75,7 +75,7 @@ def to_rgb(color, combine = None, combine_level = 0.5):
     return "#" + str("%x" % ((1 << 24) + (r << 16) + (g << 8) + b))[1:]
 
 # render a single item's progress
-def render_progress(item, config, padding, frame_info):
+def render_progress(item, padding, frame_info):
     stack_children = [
         render.Box(width = C_DISPLAY_WIDTH, height = C_HEIGHT + padding, color = to_rgb(C_BACKGROUND)),
     ]
@@ -157,7 +157,7 @@ def render_progress(item, config, padding, frame_info):
     )
 
 # render a single animation frame of a single item, calculating current frame for animation purposes
-def render_frame_item(items, i, config, fr):
+def render_frame_item(items, i, fr):
     # if 4 items are shown, reduce spacing between lines to show all 4
     padding = 2
     if len(items) >= 4:
@@ -165,16 +165,16 @@ def render_frame_item(items, i, config, fr):
 
     relative_frame = max(0, min(fr - i * C_ITEM_FRAMES, C_ANIMATION_FRAMES))
     progress = math.pow(math.sin(0.5 * math.pi * relative_frame / C_ANIMATION_FRAMES), 2)
-    return render_progress(items[i], config, padding, {
+    return render_progress(items[i], padding, {
         "items": len(items),
         "frame": fr,
         "progress": progress,
     })
 
 # render a single animation frame
-def render_frame(items, config, fr):
+def render_frame(items, fr):
     children = [
-        render_frame_item(items, i, config, fr)
+        render_frame_item(items, i, fr)
         for i in range(len(items))
     ]
 
@@ -195,7 +195,7 @@ def main(config):
         child = render.Box(
             child = render.Animation(
                 children = [
-                    render_frame(items, config, fr)
+                    render_frame(items, fr)
                     for fr in range(frames)
                 ],
             ),

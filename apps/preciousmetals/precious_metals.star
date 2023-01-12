@@ -14,7 +14,7 @@ METALS_PRICE_URL = "https://api.metals.live/v1/spot"
 
 IMAGE = base64.decode("""iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAAXNSR0IArs4c6QAAAHhJREFUOE+1k7sNwDAIRPGojBB5DisjMGoiCiTCJyJGoXHhu2dOhgHNGk0/pABEvCyciJw+BLB5HtM1t84FFuIAmVloFvIAWDOLpXRHGpICWBTFYGAJIEI+LagM0Lm3IkT5XyPwZesX5MXWHGjI9iR+2Y//lqnaxQ21HFYRgy5eOgAAAABJRU5ErkJggg==""")
 
-def main(config):
+def main():
     rep = http.get(METALS_PRICE_URL)
     if rep.status_code != 200:
         fail("api.metals.live request failed with status %d", rep.status_code)

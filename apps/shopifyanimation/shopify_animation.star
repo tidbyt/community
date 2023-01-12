@@ -9,7 +9,7 @@ load("encoding/base64.star", "base64")
 load("render.star", "render")
 load("schema.star", "schema")
 
-def main(config):
+def main():
     return render.Root(
         render.Image(SHOPPY_ANIMATION),
         delay = 120,

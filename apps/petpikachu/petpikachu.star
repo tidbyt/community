@@ -17,8 +17,6 @@ DEFAULT_TIME_ZONE = "America/Phoenix"
 BG_COLOR = "#95a87e"
 
 def main(config):
-    FRAME_DELAY = 750
-
     def getFrames(animationName):
         FRAMES = []
         for i in range(0, len(animationName[0])):

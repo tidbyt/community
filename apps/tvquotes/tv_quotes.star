@@ -226,7 +226,6 @@ def get_quote(config):
 
 def format_quote(quote):
     #formats quote text
-    quote_split = quote.splitlines()
     frame_data = []
     for (idx, line) in enumerate(quote.splitlines()):
         if idx % 2 == 0:
