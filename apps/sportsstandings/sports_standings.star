@@ -8,14 +8,13 @@ Author: rs7q5
 #Created 20220119 RIS
 #Last Modified 20230112 RIS
 
-load("render.star", "render")
 load("http.star", "http")
-load("encoding/base64.star", "base64")
-load("encoding/json.star", "json")
+load("render.star", "render")
 load("cache.star", "cache")
+load("encoding/json.star", "json")
+load("re.star", "re")
 load("schema.star", "schema")
 load("time.star", "time")
-load("re.star", "re")
 
 #this list are the sports that can have their standings pulled
 SPORTS_LIST = {
