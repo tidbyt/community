@@ -287,6 +287,8 @@ def fetch_sensor_data(api_key, url, params, cache_key):
     if cache_key != None:
         cached_data = cache.get(cache_key)
 
+    air_dict = {}
+
     if cached_data != None:
         # Use what's in the cache
         print("Found cached data")

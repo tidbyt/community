@@ -68,6 +68,7 @@ def get_rocket_launch_json():
 
                     #If the JSON feed updates to include the seconds, or it the fix above did it,
                     #we'll parse the time now
+                    window_open_time = None
                     if (len(window_open_text) == 20):
                         window_open_time = time.parse_time(window_open_text)
 

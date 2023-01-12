@@ -69,6 +69,8 @@ def main(config):
         vendor = default_vendor
     print("Vendor: %s" % vendor)
 
+    random_emoji_base64 = None
+
     # Try to find data from cache...
     # Also caching by vendor, since base64 would be different...
     # An emoji caches by its base64 in a given language, but it

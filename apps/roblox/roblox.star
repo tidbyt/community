@@ -39,6 +39,9 @@ def main(config):
     ### SET USERNAME
     username = config.str("username") if config.str("username") != None and config.str("username") != "" else DEFAULT_USER_NAME
 
+    renderGame = []
+    renderFriend = []
+
     ### GET USER ID
     user_id_cached = cache.get("user_id_%s" % username)
     if user_id_cached != None and user_id_cached != str(""):

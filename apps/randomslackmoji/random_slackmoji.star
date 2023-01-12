@@ -64,9 +64,10 @@ def get_query_url(query):
 
 # fetches a random slackmoji image url
 def get_slackmoji_url(query):
+    cache_name = "slackmoji_url_" + query
+
     # return cached url if available
     if USE_CACHE:
-        cache_name = "slackmoji_url_" + query
         cached_url = cache.get(cache_name)
         if cached_url != None:
             return cached_url
@@ -83,9 +84,10 @@ def get_slackmoji_url(query):
 # downloads an image from the provided url
 def get_image(url):
     if url:
+        cache_name = "slackmoji_image_" + url
+
         # return cached image if available
         if USE_CACHE:
-            cache_name = "slackmoji_image_" + url
             cached_image = cache.get(cache_name)
             if cached_image != None:
                 return base64.decode(cached_image)

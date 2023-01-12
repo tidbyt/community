@@ -64,6 +64,7 @@ def main(config):
                 divisionName = s["name"].replace(" Division", "")
                 stats = entries[0]["stats"]
 
+                statNumber = 0
                 for j, k in enumerate(stats):
                     if k["name"] == "points":
                         statNumber = j
@@ -227,6 +228,11 @@ def get_team_color(teamid):
 
 def get_team(x, s, entriesToDisplay, colHeight, now, timeColor, divisionName, showDateTime, topcolHeight):
     output = []
+    teamWins = ""
+    teamLosses = ""
+    teamOTL = ""
+    teamPoints = ""
+
     if showDateTime:
         theTime = now.format("3:04")
         if len(str(theTime)) > 4:

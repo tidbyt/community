@@ -11,7 +11,6 @@ load("encoding/json.star", "json")
 load("http.star", "http")
 load("render.star", "render")
 load("schema.star", "schema")
-load("secret.star", "secret")
 
 DEFAULT_LOC = {
     "lat": 40.63,
@@ -30,7 +29,7 @@ SECRET_PROPERTY = "&apikey="
 
 def main(config):
     print("Initializing Pollen Count...")
-    secret = secret.decrypt("AV6+xWcEKqQk8lv8vqNkwdwM++h3fRDmbM3vyizZBmHOwUXUUC5WmiN+FbU8lSwyYnQacojyuFmWiovZ8VmRyq+qQ9oa8CQzBcwmQ9YVyaFAc9ij/sV2Yh4wmr3b/4KPyG28wjhGGDj2E4YlvbFxlGoWCegZlY0GlylbTNozom5PrURH6lM=") or ""
+    # secret = secret.decrypt("AV6+xWcEKqQk8lv8vqNkwdwM++h3fRDmbM3vyizZBmHOwUXUUC5WmiN+FbU8lSwyYnQacojyuFmWiovZ8VmRyq+qQ9oa8CQzBcwmQ9YVyaFAc9ij/sV2Yh4wmr3b/4KPyG28wjhGGDj2E4YlvbFxlGoWCegZlY0GlylbTNozom5PrURH6lM=") or ""
 
     #Get lat and long from schema.
     location = config.get("location")
@@ -182,6 +181,9 @@ def roundToHalf(floatNum):
         num = noDecimal
     elif decimal > .7:
         num = noDecimal + 1
+    else:
+        num = None
+
     return num
 
 # Make API call and process data.

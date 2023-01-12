@@ -59,6 +59,22 @@ def main(config):
     zariman_remaining_cache_key = "wf_%s_zariman_remaining_cached" % platform
     zariman_remaining_cached = cache.get(zariman_remaining_cache_key)
 
+    cetuscolor = ""
+    earthcolor = ""
+    cambioncolor = ""
+    valliscolor = ""
+    zarimancolor = ""
+    cetusremaining = None
+    cetusactive = None
+    earthremaining = None
+    earthactive = None
+    cambionremaining = None
+    cambionactive = None
+    vallisremaining = None
+    vallisactive = None
+    zarimanremaining = None
+    zarimanactive = None
+
     if cetus_active_cached != None and cetus_remaining_cached != None:
         print("Hit! Displaying cached data.")
         cetusactive = cetus_active_cached

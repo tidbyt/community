@@ -197,6 +197,8 @@ def main(config):
     cache_key_graph = "noaa_tides_graph_%s" % (station_id)
     cache_str_graph = cache.get(cache_key_graph)
 
+    tides_graph = {}
+
     if cache_str_hilo != None:
         debug_print("loading cached data")
         tides_hilo = json.decode(cache_str_hilo)

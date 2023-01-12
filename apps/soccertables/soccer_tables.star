@@ -32,6 +32,7 @@ def main(config):
     league2 = {API: API + selectedLeague + "/standings"}
 
     standings = get_standings(league2)
+    statNumber = 0
 
     if (standings):
         cycleCount = 0
@@ -182,6 +183,12 @@ def get_team_color(teamid):
 
 def get_team(x, s, entriesToDisplay, colHeight, LeagueName, topcolHeight, selectedDisplay):
     output = []
+
+    teamRecord = ""
+    teamWins = ""
+    teamLosses = ""
+    teamDraws = ""
+    teamPoints = ""
 
     topColumn = [render.Box(width = 64, height = topcolHeight, color = "#000", child = render.Row(expanded = True, main_align = "start", cross_align = "center", children = [
         render.Box(width = 64, height = topcolHeight, child = render.Text(content = LeagueName, color = "#ff0", font = "CG-pixel-3x5-mono")),
