@@ -96,6 +96,8 @@ def interacting_object(action_config):
         action = get_cached(BALL_THROW)
         return render.Image(src = action)
 
+    return None
+
 # Returns the pet information like the name and age
 def pet_info(name, pet_age):
     return render.Column(

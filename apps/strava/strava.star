@@ -1087,6 +1087,10 @@ def format_duration(d, resolution = "minutes"):
             m = "0" + m
         return "%s:%s" % (h, m)
 
+    else:
+        # Should never get here.
+        return ""
+
 def oauth_handler(params):
     params = json.decode(params)
     auth_code = params.get("code")

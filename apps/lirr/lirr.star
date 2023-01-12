@@ -152,6 +152,8 @@ def getId(gtfs, station_id, time_now, startingIndex = 0):
         if stop_time["timestamp"] > tim and str(cur_date) in gtfs["calendar"] and gtfs["trips"][stop_time["trip_id"]]["service_id"] in gtfs["calendar"][str(cur_date)]:
             return i
 
+    return None
+
 def get_stations(loc):
     location = json.decode(loc)
     res = get_gtfs()

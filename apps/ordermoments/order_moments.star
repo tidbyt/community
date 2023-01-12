@@ -134,6 +134,9 @@ def get_milestone(order_count):
 
         return ((order_count - previous[0]) // previous[1]) * previous[1] + previous[0]
 
+    # Should never get here.
+    return 0
+
 # SHOULD CELEBRATE
 # Returns whether or not we should celebrate now, given the previous celebration milestone
 # -----------------------------------------------------------------------------------------
