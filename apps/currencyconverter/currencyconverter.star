@@ -16,7 +16,7 @@ load("cache.star", "cache")
 load("time.star", "time")
 
 # Exchangerate-API.com
-exchange_rate_api_key_encrypted = "AV6+xWcE6KWsrRliHOZcKJVyXI3FjL2CLElhdx3nDqOch2xIcpaRAebO4oDNuvi9u0s6Q7tguGBhV1CZzcvQ/i+TWPvpMgWUZ4ceHM1TsAU2xZ13bJUAaxzSLcde1jJrlPD/pjE4DVMBW7jxOWvS/lmfQnzpgL3uTIrXf2S8"
+exchange_rate_api_key_encrypted = "AV6+xWcE2EJ1am5cfNlWEh7R0E3NbcVBkpTEcQbuoSDokWbHW020B9OGl6dshXbNpl3oGGSEANUBz/M7B4LOQGCT/UnVOrcR1DHaijlxKN3UT+Y29y9ZgKs4XS2qk/OZQgFqvSWs/160vJCiM7DSktYV5kddXa7Iy4y42sVN"
 currencies = {
     "eur": {
         "name": "Euro",
