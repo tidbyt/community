@@ -5,11 +5,11 @@ Description: Display real-time MARTA train locations.
 Author: InTheDaylight14
 """
 
-load("render.star", "render")
-load("schema.star", "schema")
-load("http.star", "http")
 load("cache.star", "cache")
 load("encoding/json.star", "json")
+load("http.star", "http")
+load("render.star", "render")
+load("schema.star", "schema")
 load("secret.star", "secret")
 
 TEXT_COLOR = "#aaaaaa"
@@ -230,8 +230,6 @@ def arrival_template(config, color, time, head_sign):
     if len(time) < 2:
         time = "0" + time
 
-    width = 29
-
     head_sign = HEAD_SIGN_MAP[head_sign]
 
     return render.Row(
@@ -288,8 +286,6 @@ def render_headsign_text(config, head_sign):
         return render.Text(head_sign, font = FONT, color = TEXT_COLOR)
 
 def render_arrivals(config):
-    station = STATIONS_MAP[config.get("station") or DEFAULT_STATION]
-
     rendered_arrivals = []
     station_arrivals = get_arrivals(config)
 
