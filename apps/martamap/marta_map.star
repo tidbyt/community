@@ -156,7 +156,7 @@ def get_trains(MARTA_API_URL):
         if arrival["TRAIN_ID"] not in trains.keys():
             trains[arrival["TRAIN_ID"]] = arrival
 
-    cache.set("cached_trains", json.encode(trains), ttl_seconds = 10)
+    cache.set("cached_trains", json.encode(trains), ttl_seconds = 20)
 
     return trains
 
