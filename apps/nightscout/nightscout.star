@@ -433,7 +433,7 @@ def main(config):
             if show_graph_hour_bars:
                 min_hour = time.from_timestamp(min_time, 0).hour
                 max_hour = time.from_timestamp(max_time, 0).hour
-                if min_hour < max_hour:
+                if min_hour != max_hour:
                     # Add hour marker at this point
                     graph_hour_bars.append(render.Padding(
                         pad = (point, 0, 0, 0),
