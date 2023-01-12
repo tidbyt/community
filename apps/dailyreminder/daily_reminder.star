@@ -5,9 +5,9 @@ Description: Set a reminder for each day of the week
 Author: Sebastian Odell
 """
 
+load("encoding/json.star", "json")
 load("render.star", "render")
 load("schema.star", "schema")
-load("encoding/json.star", "json")
 load("time.star", "time")
 
 FALLBACK_REMINDER = "Life is beautiful"
