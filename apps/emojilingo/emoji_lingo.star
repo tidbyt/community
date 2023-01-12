@@ -24,11 +24,6 @@ EMOJI_LIST_URL = "https://emoji-lingo.s3.amazonaws.com/emoji-list-%s.csv"
 EMOJI_NAMES_URL = "https://emoji-lingo.s3.amazonaws.com/locale/%s.csv"
 EMOJI_BASE64_URL = "https://emoji-lingo.s3.amazonaws.com/base64/%s/%s.txt"
 
-def findCodeInList(code, emojiList):
-    for item in emojiList:
-        if item["code"] == code:
-            return item
-
 def normalizeCode(code):
     return re.sub(r" +", "-", code)
 

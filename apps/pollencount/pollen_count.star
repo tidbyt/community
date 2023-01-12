@@ -257,6 +257,8 @@ def getColor(index):
         return COLORS["yellow"]
     elif index >= 4:
         return COLORS["red"]
+    else:
+        return ""
 
 # Get display text for index.
 def getName(indexName):
@@ -266,6 +268,8 @@ def getName(indexName):
         return "GRASS"
     elif indexName == "treeIndex":
         return "TREE"
+    else:
+        return ""
 
 # Returns appropriate sky image to show.
 def getSky(average):
@@ -275,6 +279,8 @@ def getSky(average):
         return images["skyMedPollen"]
     elif average >= 3.5:
         return images["skyHighPollen"]
+    else:
+        return ""
 
 # Returns appropriate ground image to show.
 def getGround(topTwo):

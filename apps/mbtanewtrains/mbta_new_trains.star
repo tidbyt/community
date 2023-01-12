@@ -118,7 +118,7 @@ def createTrain(loc, config):
 
     routeResult = mapRouteToColor(loc["route"], config)
     if routeResult == None:
-        return
+        return None
     (color, line) = routeResult
 
     stationName = mapStationIdToName(loc["stationId"])
@@ -205,7 +205,7 @@ def renderDigestRow(color, count, disabled):
             ),
         )
     else:
-        return
+        return None
 
 def displayDigest(apiResult, config):
     r = 0

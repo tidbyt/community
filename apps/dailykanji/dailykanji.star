@@ -111,6 +111,9 @@ def get_random_kanji(kanji_image_list):
             return item
         i = i + 1
 
+    # Should never get here.
+    return kanji_images[0]
+
 def random(min, max):
     now = time.now()
     rand = int(str(now.nanosecond)[-6:-3]) / 1000
