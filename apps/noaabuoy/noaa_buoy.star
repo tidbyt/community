@@ -211,9 +211,8 @@ def main(config):
             ),
         )
 
-        #SWELL###########################################################
-
     elif (data.get("DPD") and config.get("display_swell", True) == "true" and swell_over_threshold(min_size, h_unit_pref, data)):
+        #SWELL###########################################################
         height = ""
         if "MWD" in data:
             mwd = data["MWD"]
@@ -357,10 +356,9 @@ def main(config):
             ),
         )
 
+    elif (config.get("display_misc", False) == "true"):
         # MISC ################################################################
         # DEW with PRES with ATMP    or  TIDE with WTMP with SAL  or
-
-    elif (config.get("display_misc", False) == "true"):
         if "TIDE" in data:  # do some tide stuff, usually wtmp is included and somties SAL?
             water = "--"
             if data.get("WTMP"):

@@ -115,9 +115,8 @@ def get_stations(location):  # assume we have a valid location json string
             ),
         )
 
-    return station_options
-
     # return decode json object of tide data
+    return station_options
 
 def get_tides_hilo(station_id):
     tides = {}

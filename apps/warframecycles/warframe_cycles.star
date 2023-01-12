@@ -29,7 +29,6 @@ def time_dict_conversion(timedict):
             timedict["h"] = str(int(timedict["h"]) - 1)
             timedict["m"] = str(60 + int(timedict["m"]))
         return "%s:%s" % (timedict["h"], timedict["m"])
-    return ""
 
 def main(config):
     platform = config.str("platform", "pc")

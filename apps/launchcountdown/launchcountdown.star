@@ -55,7 +55,6 @@ def get_rocket_launch_json():
 
         if rocket_launch_http.status_code != 200:
             fail("RocketLaunch.live feed failed: %d", rocket_launch_http.status_code)
-            return None
         else:
             rocket_launch_data = rocket_launch_http.json()
 
