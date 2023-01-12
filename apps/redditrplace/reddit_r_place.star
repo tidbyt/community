@@ -5,13 +5,13 @@ Description: See tidbits of what Redditors created for r/place.
 Author: funkfinger
 """
 
-load("render.star", "render")
-load("http.star", "http")
-load("random.star", "random")
 load("animation.star", "animation")
-load("schema.star", "schema")
 load("cache.star", "cache")
 load("encoding/base64.star", "base64")
+load("http.star", "http")
+load("random.star", "random")
+load("render.star", "render")
+load("schema.star", "schema")
 
 VIEWPORT_WIDTH = 64
 VIEWPORT_HEIGHT = 32

@@ -245,7 +245,6 @@ def get_sensors(location):
 # Use the haversine formula to calculate the distance between two points in miles
 # https://www.movable-type.co.uk/scripts/latlong.html
 def distance_between(lat1, lng1, lat2, lng2):
-    distance = 1.0
     r = 6371e3
     la1 = lat1 * math.pi / 180
     la2 = lat2 * math.pi / 180

@@ -5,12 +5,12 @@ Description: Close to realtime precious metal prices and a graph comparing the p
 Author: Aaron Brace
 """
 
-load("render.star", "render")
+load("cache.star", "cache")
 load("http.star", "http")
 load("humanize.star", "humanize")
-load("time.star", "time")
-load("cache.star", "cache")
+load("render.star", "render")
 load("schema.star", "schema")
+load("time.star", "time")
 
 is_debug = True
 
@@ -113,8 +113,6 @@ def main(config):
 
     if (is_debug == True):
         print("Closing Price %f" % (ClosingPrice))
-
-    realtime_price = 0
 
     realtime_cache = cache.get(PRECIOUS_METAL)
 

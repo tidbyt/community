@@ -443,7 +443,7 @@ def get_msft_events(msft_access_token, timezone):
         msft_events = []
 
         # Handling MSFT api paging
-        for x in range(NUMBER_OF_MSFT_FETCH_ITERATIONS):
+        for _ in range(NUMBER_OF_MSFT_FETCH_ITERATIONS):
             response = http.get(url = url, headers = headers, params = params)
             if response.status_code != 200:
                 fail("MSFT request failed with status:%d - %s" % (response.status_code, response.body()))
@@ -517,6 +517,8 @@ def get_msft_latest_event_by_show_as(msft_events, show_as):
                 latest_msft_event = msft_event
         return latest_msft_event
 
+    return None
+
 def sort_msft_event_by_start_date(msft_event):
     # Defines start date as sort key
     return msft_event["start"]["dateTime"]
@@ -534,6 +536,9 @@ def get_msft_next_event(msft_events):
             msft_event["showAs"] in ("busy", "oof")
         ):
             return msft_event
+
+    # Should never get here.
+    return ""
 
 def get_msft_status(msft_access_token, timezone):
     # Determines a user's status based on MSFT events returned
