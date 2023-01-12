@@ -5,9 +5,9 @@ Description: Show any progress bar using config properties, which can be updated
 Author: wojciechka
 """
 
+load("math.star", "math")
 load("render.star", "render")
 load("schema.star", "schema")
-load("math.star", "math")
 
 # number of items to render
 NUM_ITEMS = 4
@@ -93,7 +93,7 @@ def render_progress(item, config, padding, frame_info):
 
         progress_width = C_MIN_WIDTH + int(math.round(float(C_DISPLAY_WIDTH - C_MIN_WIDTH) * progress * frame_info["progress"]))
 
-        stack_children += [
+        stack_children.append(
             render.Box(
                 width = progress_width,
                 padding = 1,
@@ -103,14 +103,14 @@ def render_progress(item, config, padding, frame_info):
                     color = to_rgb(color, combine = C_BACKGROUND, combine_level = 0.8),
                 ),
             ),
-        ]
+        )
     else:
         # render an animated item without progress specified
         position = frame_info["frame"] % C_INFINITE_PROGRESS_FRAMES
         if position >= C_INFINITE_PROGRESS_PAD_FRAMES:
             position = C_INFINITE_PROGRESS_FRAMES - position
         position = int(math.round(position / C_INFINITE_PROGRESS_PAD_SCALE))
-        stack_children += [
+        stack_children.append(
             render.Box(
                 width = C_DISPLAY_WIDTH,
                 padding = 1,
@@ -124,10 +124,10 @@ def render_progress(item, config, padding, frame_info):
                     ),
                 ),
             ),
-        ]
+        )
 
     # stack the progress bar with label
-    stack_children += [
+    stack_children.append(
         render.Row(
             expanded = True,
             main_align = "space_evenly",
@@ -142,7 +142,7 @@ def render_progress(item, config, padding, frame_info):
                 ),
             ],
         ),
-    ]
+    )
 
     # render the entire row
     return render.Row(
@@ -219,7 +219,7 @@ def get_progress_items(config):
                     progress = 100.0
             else:
                 progress = None
-            items += [[label, color, progress]]
+            items.append([label, color, progress])
 
         # show up to 4 items, regardless of how many were configured
         if len(items) >= 4:
