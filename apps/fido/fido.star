@@ -156,7 +156,7 @@ def return_pal_age(pet_age):
         return return_marquee_text(formatted_age_str, color = "#add8e6")
 
 # Returns left aligned, 32 pixel wide and high Wrapped Text with the passed in parameter.
-def return_wrapped_text(text, color = "#fff", align = "left", width = 32, height = 7):
+def return_wrapped_text(text, color = "#fff", align = "left", width = 32):
     return render.Padding(
         pad = (1, 1, 0, 0),
         child = render.WrappedText(
@@ -169,7 +169,7 @@ def return_wrapped_text(text, color = "#fff", align = "left", width = 32, height
     )
 
 # Returns 32 pixel wide, 7 pixel high (default) Marquee Text with the passed in parameter.
-def return_marquee_text(text, color = "#fff", width = 32, height = 7, direction = "horizontal"):
+def return_marquee_text(text, color = "#fff", width = 32, direction = "horizontal"):
     return render.Padding(
         pad = (1, 1, 0, 0),
         child = render.Marquee(

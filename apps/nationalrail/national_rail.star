@@ -2907,11 +2907,6 @@ def list_filter_stations(location):
     return [no_destination_option] + list_stations(location)
 
 def get_schema():
-    station_options = [
-        schema.Option(display = station["name"], value = json.encode(station))
-        for station in sorted(STATIONS.values(), key = lambda x: x["name"])
-    ]
-
     return schema.Schema(
         version = "1",
         fields = [

@@ -130,12 +130,6 @@ def main(config):
         # as the first tuple element. So sorted() will sort by arrival time.
         all_arrivals_to_stop = sorted(all_arrivals_to_stop, key = lambda x: x[0])
 
-        # Get the minimum minutes an ETA should be to be displayed
-        # from config. If this is None, use MIN_MINUTES.
-        # MIN_MINUTES is already an int, so the int conversion will be
-        # redundant but OK.
-        min_mins = int(config.get("minTime") or MIN_MINUTES)
-
         for (eta, color, name) in all_arrivals_to_stop:
             if eta > MIN_MINUTES and len(renderable_subways) < MAX_SUBWAYS:
                 renderer = overlay_subway

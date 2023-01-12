@@ -269,7 +269,7 @@ def main(config):
     # Currently this does not work, becasue app rotation prevents the animation
     # from progressing past a few seconds.
     duration = 1  # in minutes; 1440 = 24 hours
-    for i in range(0, duration):
+    for _ in range(0, duration):
         frames.append(get_time_image(print_time, NUMBER_IMGS, SEP, is_24_hour_format = is_24_hour_format, has_leading_zero = has_leading_zero, has_seperator = True))
 
         if has_flashing_seperator:
@@ -310,7 +310,6 @@ def get_time_image(t, NUMBER_IMGS, SEP, is_24_hour_format = True, has_leading_ze
     if is_24_hour_format == True:
         hh = t.format("15")  # Format for 24 hour time
     mm = t.format("04")
-    ss = t.format("05")
 
     seperator = render.Box(
         width = 4,
