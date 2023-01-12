@@ -35,7 +35,7 @@ POST_HEADERS = {
 DAILY_DATA_UPDATES_QUERY = "{\"query\": \"{ dailyDataUpdates(orderBy: timestamp orderDirection: desc first: 1) { payoutPerTShare } }\" }"
 GLOBAL_INFOS_QUERY = "{\"query\": \"{ globalInfos(orderBy: timestamp orderDirection: desc first: 1)  { hexDay, shareRate } }\" }"
 
-def main(config):
+def main():
     # Get coin data for selected coin from CoinGecko
     coin_data = get_json_from_cache_or_http(COINGECKO_PRICE_URL.format("hex"), ttl_seconds = 600)
 

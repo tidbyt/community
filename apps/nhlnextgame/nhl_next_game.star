@@ -170,7 +170,6 @@ def main(config):
         cache.set("nhl_data/%s" % main_team_id, json.encode(nhldata), ttl_seconds = 3600)
     homeTeamID = nhldata["teams"][0]["nextGameSchedule"]["dates"][0]["games"][0]["teams"]["home"]["team"]["id"]
     awayTeamID = nhldata["teams"][0]["nextGameSchedule"]["dates"][0]["games"][0]["teams"]["away"]["team"]["id"]
-    nextgamedate = nhldata["teams"][0]["nextGameSchedule"]["dates"][0]["date"]
     homeTeamRecord = str(int(nhldata["teams"][0]["nextGameSchedule"]["dates"][0]["games"][0]["teams"]["home"]["leagueRecord"]["wins"])) + "-" + str(int(nhldata["teams"][0]["nextGameSchedule"]["dates"][0]["games"][0]["teams"]["home"]["leagueRecord"]["losses"])) + "-" + str(int(nhldata["teams"][0]["nextGameSchedule"]["dates"][0]["games"][0]["teams"]["home"]["leagueRecord"]["ot"]))
     awayTeamRecord = str(int(nhldata["teams"][0]["nextGameSchedule"]["dates"][0]["games"][0]["teams"]["away"]["leagueRecord"]["wins"])) + "-" + str(int(nhldata["teams"][0]["nextGameSchedule"]["dates"][0]["games"][0]["teams"]["away"]["leagueRecord"]["losses"])) + "-" + str(int(nhldata["teams"][0]["nextGameSchedule"]["dates"][0]["games"][0]["teams"]["away"]["leagueRecord"]["ot"]))
     homeTeamIcon = base64.decode(getTeamIconFromID(homeTeamID))

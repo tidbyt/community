@@ -193,7 +193,7 @@ def marquee_text(text, width = SCREEN_WIDTH, font = SMALL_FONT, color = WHITE):
 # Main
 #-------------------------------------------------------------------------------
 
-def main(config):
+def main():
     """Main function body.
 
     Args:
