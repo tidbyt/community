@@ -119,7 +119,7 @@ def main(config):
 
     frames_all = []
     frames_all2 = []
-    for idx, x in enumerate(statName_vec):
+    for _, x in enumerate(statName_vec):
         #get data
 
         stat_tmp = get_leaders(x)
@@ -326,7 +326,7 @@ def get_leaders(statName):
             stats = dict()
 
             #print(data["statGroup"])
-            for idx, x in enumerate(data):
+            for _, x in enumerate(data):
                 stats_tmp = []
                 statGroup = x["statGroup"]
                 if x.get("leaders") != None:
@@ -359,8 +359,6 @@ def get_frame_single(stat):
 
                 #format rank and name
                 name_tmp = split_sentence(y[1], 8, join_word = True)
-                name_row = len(name_tmp) // 8 + 1
-                row_ht = name_row * 5  #was used to set row height of text for name_final
                 name_final = render.WrappedText(content = name_tmp, width = 32, font = font4, color = ctmp)
                 rank_name = render.Row(
                     children = [
