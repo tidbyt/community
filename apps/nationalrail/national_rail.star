@@ -2849,14 +2849,16 @@ def render_train(train, display_mode):
     fail("Invalid display mode: %s" % display_mode)
 
 def main(config):
-    origin_station = config.get(ORIGIN_STATION) or json.encode(STATIONS["KGX"])
-    origin_station = json.decode(origin_station)
+    origin_station = STATIONS["KGX"]
+    if ORIGIN_STATION in config:
+        origin_station = json.decode(json.decode(config[ORIGIN_STATION])["value"])
 
+    filter_crs = ""
     destination_station = config.get(DESTINATION_STATION)
-    if destination_station and destination_station != NO_DESTINATION:
-        filter_crs = json.decode(destination_station)["crs"]
-    else:
-        filter_crs = ""
+    if destination_station:
+        destination_station_value = json.decode(destination_station)["value"]
+        if destination_station_value != NO_DESTINATION:
+            filter_crs = json.decode(destination_station_value)
 
     display_mode = config.get(DISPLAY_MODE) or DISPLAY_DETAILED
     if display_mode == DISPLAY_DETAILED:
