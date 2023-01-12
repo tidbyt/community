@@ -5,12 +5,12 @@ Description: Test your Pokemon Master knowledge with this rendition of "Who's Th
 Author: Nicole Brooks
 """
 
-load("render.star", "render")
 load("cache.star", "cache")
 load("encoding/base64.star", "base64")
 load("encoding/json.star", "json")
 load("http.star", "http")
 load("random.star", "random")
+load("render.star", "render")
 load("schema.star", "schema")
 
 ALL_POKEMON = 898
