@@ -1,3 +1,11 @@
+"""
+Applet: The Guardian News
+Author: jvivona
+Summary: Guardian News Headlines
+Description: Gets latest new articles from The Guardian and displays up to 3 articles
+    for selected edition.
+"""
+
 load("cache.star", "cache")
 load("encoding/json.star", "json")
 load("http.star", "http")

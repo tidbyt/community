@@ -1,3 +1,12 @@
+"""
+Applet: METAR
+Author: Alexander Valys
+Summary: METAR aviation weather
+Description: Show METAR (aviation weather) text for one airport or flight
+    category (VFR/IFR/etc.) for up to 15 airports. Separate airport identifiers
+    by commas to display multiple airports.
+"""
+
 load("cache.star", "cache")
 load("http.star", "http")
 load("render.star", "render")

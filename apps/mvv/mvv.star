@@ -1,6 +1,9 @@
-#
-# MVV departure times for Tidbyt.
-#
+"""
+Applet: MVV
+Author: Robin Sommer
+Summary: MVV departures (Munich)
+Description: Departure times for the Münchner Verkehrsverbund (MVV).
+"""
 
 load("cache.star", "cache")
 load("encoding/base64.star", "base64")

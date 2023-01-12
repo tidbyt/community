@@ -1,3 +1,10 @@
+"""
+Applet: Test Patterns
+Author: harrisonpage
+Summary: Pretty test patterns
+Description: Test patterns are as old as TV broadcasts.
+"""
+
 load("random.star", "random")
 load("render.star", "render")
 
