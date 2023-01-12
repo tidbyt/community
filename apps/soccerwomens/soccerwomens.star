@@ -108,6 +108,7 @@ def main(config):
             awayLogoSize = get_logoSize()
             homeScore = ""
             awayScore = ""
+            gameTime = ""
             homeScoreColor = "#fff"
             awayScoreColor = "#fff"
             teamFont = "Dina_r400-6"

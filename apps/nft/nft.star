@@ -24,6 +24,7 @@ def main(config):
     nft = nfts[random(len(nfts))]
     (nft_name, nft_thumbnail) = fetch_nft_thumbnail(nft)
 
+    floor_price = None
     display_floor = config.bool("display_floor", False)
     if display_floor:
         collection_stats = fetch_collection_stats(nft)

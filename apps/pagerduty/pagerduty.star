@@ -286,6 +286,7 @@ def get_state(config):
 
     if is_preview:
         oncall = True
+        account_has_teams = False
         counts = dict(
             total = 42,
             triggered = 7,

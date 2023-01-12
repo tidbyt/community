@@ -357,6 +357,7 @@ def get_schema():
     )
 
 def get_standings(urls):
+    decodedata = {}
     for _, s in urls.items():
         data = get_cachable_data(s)
         decodedata = json.decode(data)

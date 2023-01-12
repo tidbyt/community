@@ -305,6 +305,7 @@ def get_leaders(statName):
     today = time.now().in_location("America/New_York")  #get year (season)
 
     #check for cached data
+    stats = {}
     stat_cached = cache.get("mlb_leagueleaders_%s" % statName)
     if stat_cached != None:
         print("Hit! Displaying MLB league leaders in %s data." % statName)

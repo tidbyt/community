@@ -168,6 +168,10 @@ def main(config):
         print("Error: No price data available")
 
     # DISPLAY PRICES
+    currency = ""
+    currency_price = ""
+    currency_symbol = ""
+    currency_country = ""
 
     if data_available:
         # Setup each currency
