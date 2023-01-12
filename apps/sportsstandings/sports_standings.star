@@ -6,7 +6,7 @@ Author: rs7q5
 """
 #sports_standings.star
 #Created 20220119 RIS
-#Last Modified 20221022 RIS
+#Last Modified 20230112 RIS
 
 load("cache.star", "cache")
 load("encoding/json.star", "json")
@@ -324,9 +324,9 @@ def get_mlbstandings():
         cnt = 0
         for (j, team) in enumerate(standings_data):  #iterate through each team in each division
             #get index of abbreviations (when playoff stuff gets added variables get shifted, WILL FAIL IF NONE OF THESE EXIST, WHICH SHOULDN'T HAPPEN)
-            stat_name = [x["abbreviation"] for x in team["stats"]]
-            total_idx = stat_name.index("Total")
-            GB_idx = stat_name.index("GB")
+            stat_name = [x["name"] for x in team["stats"]]  #not all stats have abbreviation so used name
+            total_idx = stat_name.index("overall")
+            GB_idx = stat_name.index("gamesBehind")
 
             name = team["team"]["abbreviation"]
             record = team["stats"][total_idx]["displayValue"]  #W-L
@@ -358,10 +358,10 @@ def get_nhlstandings():
                 name = team["team"]["abbreviation"]
 
                 #get index of abbreviations (when playoff stuff gets added variables get shifted, WILL FAIL IF NONE OF THESE EXIST, WHICH SHOULDN'T HAPPEN)
-                stat_name = [x["abbreviation"] for x in team["stats"]]
-                total_idx = stat_name.index("TOTAL")
-                pt_idx = stat_name.index("PTS")
-                GP_idx = stat_name.index("GP")
+                stat_name = [x["name"] for x in team["stats"]]  #not all stats have abbreviation so used name
+                total_idx = stat_name.index("overall")
+                pt_idx = stat_name.index("points")
+                GP_idx = stat_name.index("gamesPlayed")
 
                 record = team["stats"][total_idx]["displayValue"]  #W-L-OTL, pts
                 pts = team["stats"][pt_idx]["value"]  #points
@@ -399,10 +399,12 @@ def get_basketballstandings(league_ext):
         cnt = 0
         for (j, team) in enumerate(div_data):  #iterate through each team in each division
             name = team["team"]["abbreviation"]
-            stat_name = [x["shortDisplayName"] for x in team["stats"]]
-            total_idx = stat_name.index("OVER")
-            pct_idx = stat_name.index("PCT")
-            GB_idx = stat_name.index("GB")
+
+            #get index of abbreviations (when playoff stuff gets added variables get shifted, WILL FAIL IF NONE OF THESE EXIST, WHICH SHOULDN'T HAPPEN)
+            stat_name = [x["name"] for x in team["stats"]]  #not all stats have abbreviation so used name
+            total_idx = stat_name.index("overall")
+            pct_idx = stat_name.index("winPercent")
+            GB_idx = stat_name.index("gamesBehind")
             record = team["stats"][total_idx]["displayValue"]  #W-L
             GB = team["stats"][GB_idx]["displayValue"]  #games behind
             pct = team["stats"][pct_idx]["value"]  #win percent
@@ -436,11 +438,9 @@ def get_footballstandings():
                 name = team["team"]["abbreviation"]
 
                 #get index of abbreviations (when playoff stuff gets added variables get shifted, WILL FAIL IF NONE OF THESE EXIST, WHICH SHOULDN'T HAPPEN)
-                #stat_name = [x["abbreviation"] for x in team["stats"]]
                 stat_name = [x["name"] for x in team["stats"]]  #not all stats have abbreviation so used name
-                total_idx = stat_name.index("All Splits")
+                total_idx = stat_name.index("overall")  #stat used to be "All Splits"
                 pct_idx = stat_name.index("winPercent")
-
                 record = team["stats"][total_idx]["displayValue"]  #W-L-T
                 pct = team["stats"][pct_idx]["value"]  #win percent
                 pct_str = team["stats"][pct_idx]["displayValue"]
