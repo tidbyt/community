@@ -75,7 +75,7 @@ def main(config):
         )
 
 def header_status(statuses):
-    status_counts = count_list_by(statuses, lambda status: status)
+    status_counts = count_list_by(statuses, lambda statuses: statuses)
     sorted_status_keys = sorted(status_counts.keys(), reverse = True, key = status_score)
     status = sorted_status_keys[0]
 
