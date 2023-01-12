@@ -12,7 +12,6 @@ load("http.star", "http")
 load("render.star", "render")
 load("schema.star", "schema")
 load("time.star", "time")
-load("math.star", "math")
 
 CACHE_TTL_SECONDS = 60
 DEFAULT_LOCATION = """
@@ -33,8 +32,18 @@ SHORTENED_WORDS = """
     " PM": "P",
     " AM": "A",
     " Wins": "",
+    " wins": "",
+    " Win": "",
+    " win": "",
     " Leads": "",
+    " lead": "",
+    " Leads": "",
+    " lead": "",
     " Series": "",
+    " series": "",
+    " Tied": "",
+    " tied": "",
+    " of": "",
     " - ": " ",
     " / ": " ",
     "Postponed": "PPD",

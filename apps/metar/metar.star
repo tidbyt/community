@@ -1,12 +1,19 @@
-load("render.star", "render")
-load("http.star", "http")
+"""
+Applet: METAR
+Author: Alexander Valys
+Summary: METAR aviation weather
+Description: Show METAR (aviation weather) text for one airport or flight
+    category (VFR/IFR/etc.) for up to 15 airports. Separate airport identifiers
+    by commas to display multiple airports.
+"""
+
 load("cache.star", "cache")
-load("encoding/json.star", "json")
-load("secret.star", "secret")
+load("http.star", "http")
+load("render.star", "render")
 load("schema.star", "schema")
 
 ADDS_URL = "https://www.aviationweather.gov/adds/dataserver_current/httpparam?dataSource=metars&requestType=retrieve&format=csv&stationString=%s&mostrecentforeachstation=constraint&hoursBeforeNow=2"
-DEFAULT_AIRPORT = "KJFK"
+DEFAULT_AIRPORT = "KJFK, KLGA, KBOS, KDCA"
 
 # encryption, schema
 # fail expired, add timeout to Root

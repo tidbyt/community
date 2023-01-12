@@ -1,14 +1,15 @@
 """
-Applet: InSeason
+Applet: In Season
 Summary: Displays In Season Foods
 Description: Displays In Season Foods for your location.
 Author: Robert Ison
 """
 
+load("encoding/base64.star", "base64")  #Used to read encoded image
+load("random.star", "random")
 load("render.star", "render")
 load("schema.star", "schema")
 load("time.star", "time")
-load("encoding/base64.star", "base64")  #Used to read encoded image
 
 REGION_OPTIONS = [
     schema.Option(value = "0", display = "Northwest (Wyoming, Montana, Idaho, Washington, Oregon"),
@@ -106,7 +107,6 @@ def main(config):
     Returns:
         main display
     """
-    print(config.get("speed"))
 
     # Figure out what season we are in
     season_number = config.get("season") or "auto"
@@ -120,7 +120,7 @@ def main(config):
     region = config.get("region") or REGION_OPTIONS[0].value
 
     # get the list of seasonal items
-    display_items = "Seasonal in %s includes %s." % (SEASONS[season_number], get_display_list(IN_SEASON_ARRAY[int(region)][season_number]))
+    display_items = "Seasonal in %s: %s." % (SEASONS[season_number], get_display_list(IN_SEASON_ARRAY[int(region)][season_number]))
 
     # get the coresponding images, if they exist
     images = get_display_images(IN_SEASON_ARRAY[int(region)][season_number])
@@ -154,6 +154,13 @@ def main(config):
         ),
     )
 
+def get_random_number(x):
+    return random.number(0, x)
+
+def randomize_list(items):
+    items = sorted(items, reverse = False, key = get_random_number)
+    return items
+
 def get_display_list(items):
     """ 
     Gets the list of in season foods in a human readable format
@@ -163,6 +170,9 @@ def get_display_list(items):
     Returns:
         Easy to read display list
     """
+
+    # since the text often cuts off, let's scramble the list each time
+    items = randomize_list(items)
 
     return_value = ""
     for i in items:

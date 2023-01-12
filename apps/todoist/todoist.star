@@ -51,7 +51,7 @@ DEFAULT_SHOW_IF_EMPTY = True
 
 NO_TASKS_CONTENT = "No Tasks :)"
 
-TODOIST_URL = "https://api.todoist.com/rest/v1/tasks"
+TODOIST_URL = "https://api.todoist.com/rest/v2/tasks"
 
 OAUTH2_CLIENT_ID = secret.decrypt("AV6+xWcE3uxifd70n+JncXgagNue2eYtPYP05tbS77/hAd//mp4OQfMp+easxFROFLbCWsen/FCCDIzz8y5huFcAfV0hdyGL3mTGWaoUO2tVBvUUtGqPbOfb3HdJxMjuMb7C1fDFNqhdXhfJmo+UgRzRYzVZ/Q/C/sSl7U25DOrtKqhRs8I=")
 OAUTH2_CLIENT_SECRET = secret.decrypt("AV6+xWcEYGPbL6d105xHQ68RZWY/KSrCK/ivqz2Y2AkrVuPO9iUFkYXBqoJs4phKRdeh2QxHjjGTuwQ7RakOEPrER+2VACdGHiiytCIpMZ5Qst1PeuMT5NECKqmHhW73MwReMBtvyPl0SbjdF8XijqzhK/YvcDTwVOdZZALaj+3dvGnqANk=")

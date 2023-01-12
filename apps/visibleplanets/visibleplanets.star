@@ -1,20 +1,20 @@
 """
 Applet: Visible Planets
 Summary: Displays visible planets
-Description: Displays visible planets.
+Description: Displays direction and degrees above the horizon for the selected planet.
 Author: Robert Ison
 """
 
-load("schema.star", "schema")
-load("http.star", "http")  #for calling to astronomyapi.com
-load("encoding/json.star", "json")  #Used to figure out timezone
-load("time.star", "time")  #Used to display time and calcuate lenght of TTL cache
-load("encoding/base64.star", "base64")  #to encode/decode json data going to and from cache
-load("render.star", "render")
 load("cache.star", "cache")
-load("math.star", "math")  #for calculating distance to planets
+load("encoding/base64.star", "base64")  #to encode/decode json data going to and from cache
+load("encoding/json.star", "json")  #Used to figure out timezone
+load("http.star", "http")  #for calling to astronomyapi.com
 load("humanize.star", "humanize")  #for easy reading numbers and times
+load("math.star", "math")  #for calculating distance to planets
+load("render.star", "render")
+load("schema.star", "schema")
 load("sunrise.star", "sunrise")  #to calcuate day/night and when planets will be visible
+load("time.star", "time")  #Used to display time and calcuate lenght of TTL cache
 
 app_hash = "M2IxYmY2OWUtZWIzMS00NTM0LTkyOWItMmRiMDlhMWVkYjI5OmZhN2YxOTM2M2I2N2QzZDNiYjEzNmNkMDhjMzM3YmUzZTQwMjE3ODg1MjIzY2QyYTNiNzFkZDlhYzU1YzBkODdkOWE0YjFiODkwMWUxN2JkZDU3YmZjOTBmZWI4NmE5MjdlMTBjNjZhYWFkYzFhMjE1NjdiOGYxNTUxOGNmMDU1ZGMwOTFhNzg5Nzc5M2FhNDE5OTUyMDAzNTUyY2U2ZWQ5NWUxNDZmMjkxZWQ0M2RhYzNjNGRmMjNmYTc5NTU2OTQ0MGVlNWY1N2NhOTJmYjNmYTg4OWYxOWFlNWQxMzU2"
 time_display_format = "3:04 PM"
@@ -81,7 +81,9 @@ def main(config):
     is_before_sunset = (sunrise_in > 0)
 
     #we've calculated sunset and sunrise with the exact gps coordinates, but now we will round the coordinates to one decimal
-    #place for two reasons: 1) We don't give the API host the exact position of the Tidbyt user, and 2) We can cache less by grouping people that live close enough to share the same rounded coordinates
+    #place for two reasons:
+    #1) We don't give the API host the exact position of any Tidbyt user, and
+    #2) We can reduce api calls by grouping people that live close enough to share the same rounded coordinates
 
     location["lng"] = str((math.round(float(location["lng"]) * 10)) * math.pow(10, -1))
     location["lat"] = str((math.round(float(location["lat"]) * 10)) * math.pow(10, -1))
@@ -94,12 +96,9 @@ def main(config):
 
     if (is_after_sunrise == True and is_before_sunset == True):
         #Daytime
-        if (abs(sunrise_in) < abs(sunset_in)):
+        if ((abs(sunrise_in) < abs(sunset_in)) and is_inner_planet):
             #closer to sunrise
-            if is_inner_planet:
-                visibility_disclaimer = "around sunrise at %s" % sunrise_time.format(time_display_format)
-            else:
-                visibility_disclaimer = "before sunrise at %s" % sunrise_time.format(time_display_format)
+            visibility_disclaimer = "around sunrise at %s" % sunrise_time.format(time_display_format)
         else:
             #closer to sunset
             # since we can't see this till sunset, let's cache this until
@@ -162,9 +161,9 @@ def main(config):
     distance = position_json["data"]["table"]["rows"][0]["cells"][0]["distance"]["fromEarth"]["km"]
 
     if system == "metric":
-        distance = "%s KMs away" % humanize.int("###,###,###", math.floor(float(distance)))
+        distance_display = "%s KMs away" % get_readable_large_number(distance)
     else:
-        distance = "%s miles away" % humanize.int("###,###,###", math.floor(float(distance) * 0.6213712))
+        distance_display = "%s miles away" % get_readable_large_number(math.floor(float(distance) * 0.6213712))
 
     show_display = True
 
@@ -174,14 +173,14 @@ def main(config):
             show_display = False
         else:
             row1 = "Not Visible as it is below the horizon."
-            row2 = "%s" % distance
+            row2 = "%s" % distance_display
     else:
         #above horizon
         row1 = "%s at %s°" % (get_cardinal_position_from_degrees(float(bearing)), altitude)
         if is_inner_planet:
-            row2 = "Mag %s in %s %s" % (humanize.float("#.#", magnitude), constellation, distance)
+            row2 = "Mag %s in %s %s" % (humanize.float("#.#", magnitude), constellation, distance_display)
         else:
-            row2 = "Mag %s %s %s in %s %s" % (humanize.float("#.#", magnitude), get_magnitude_description(magnitude), visibility_disclaimer, constellation, distance)
+            row2 = "Mag %s %s %s in %s %s" % (humanize.float("#.#", magnitude), get_magnitude_description(magnitude), visibility_disclaimer, constellation, distance_display)
 
     if show_display == True:
         return get_display(image, planet, row1, row2)
@@ -191,6 +190,16 @@ def main(config):
         return []
 
 def get_display(image, planet, row1, row2):
+    """ Gets the display based on the selected image, planet and calculated describtion
+
+    Args:
+        image: the image of the given planet
+        planet: the name of the planet we are displaying
+        row1: Row1 Text is generally the direction and degrees above horizon to view the planet
+        row2: Row2 Gives additional information on when to look, which constellation, and distance from earth
+    Returns:
+        The display information for your Tidbyt
+    """
     return render.Root(
         render.Column(
             children = [
@@ -266,10 +275,32 @@ def get_cardinal_position_from_degrees(bearing):
     if bearing < 0:
         bearing = 360 + bearing
 
-    # have bearning in degrees, not convert to cardinal point
+    # have bearning in degrees, now convert to cardinal point
     compass_brackets = ["North", "NNE", "NE", "ENE", "East", "ESE", "SE", "SSE", "South", "SSW", "SW", "WSW", "West", "WNW", "NW", "NNW", "North"]
     display_cardinal_point = compass_brackets[int(math.round(bearing // 22.5))]
     return display_cardinal_point
+
+def get_readable_large_number(number):
+    """ Gets a readable version of a large number 25B instead of 25,123,345,345 for example.
+
+    Args:
+        number: The actual number
+    Returns:
+        Readable display number as a string
+    """
+
+    abbreviation = ("", "thousand", "million", "billion", "trillion")
+    checkval = float(number)
+    returnval = ""
+    for i in range(0, 5):
+        returnval = "%s %s" % (humanize.float("#.#", checkval), abbreviation[i])
+        if checkval < 1000:
+            break
+
+        # buildifier: disable=integer-division
+        checkval = checkval / 1000
+
+    return returnval
 
 def get_body_position(body, location, check_time):
     """ Gets the JSon Data from astronomyapi
@@ -363,9 +394,9 @@ def get_schema():
                 id = "planet",
                 name = "Planet",
                 desc = "Pick the planet you want to track.",
-                icon = "satelliteDish",  #skyatlas #moon, globe, mars, marsandvenus satelliteDish
+                icon = "globe",  #skyatlas #moon, globe, mars, marsandvenus satelliteDish
                 options = planet_options,
-                default = planet_options[0].value,
+                default = planet_options[5].value,
             ),
             schema.Location(
                 id = "location",
@@ -383,7 +414,7 @@ def get_schema():
             ),
             schema.Toggle(
                 id = "hide_quiet",
-                name = "Hide when the selected planet is below the horizon",
+                name = "Hide if not visible",
                 desc = "Skip displaying this app when the selected planet is below the horizon?",
                 icon = "gear",
                 default = True,

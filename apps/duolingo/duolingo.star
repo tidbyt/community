@@ -6,16 +6,15 @@ Author: Olly Stedall @saltedlolly
 Thanks: @drudge @whyamIhere @AmillionAir
 """
 
-print(" ---------------------------------------------------------------------------------------------------------------------")
-
-load("render.star", "render")
-load("http.star", "http")
+load("cache.star", "cache")
 load("encoding/base64.star", "base64")
 load("encoding/json.star", "json")
-load("cache.star", "cache")
+load("http.star", "http")
+load("render.star", "render")
 load("schema.star", "schema")
-load("math.star", "math")
 load("time.star", "time")
+
+print(" ---------------------------------------------------------------------------------------------------------------------")
 
 # Set applet defaults
 DEFAULT_USERNAME = "saltedlolly"
@@ -250,7 +249,6 @@ def main(config):
 
     duolingo_cache_key_userid = "%s_userid" % duolingo_cache_key_username
     duolingo_cache_key_xpsummary_json = "%s_xpsummary_json" % duolingo_cache_key_username
-    duolingo_cache_key_main_json = "%s_main_json" % duolingo_cache_key_username
     duolingo_cache_key_saveddate = "%s_saveddate" % duolingo_cache_key_username
     duolingo_cache_key_totalxp_daystart = "%s_totalxp_daystart" % duolingo_cache_key_username
     duolingo_cache_key_streak_daystart = "%s_streak_daystart" % duolingo_cache_key_username
@@ -260,7 +258,6 @@ def main(config):
     duolingo_userid_cached = cache.get(duolingo_cache_key_userid)
     duolingo_xpsummary_json_cached = cache.get(duolingo_cache_key_xpsummary_json)
     duolingo_xp_query_time_cached = cache.get(duolingo_cache_key_xp_query_time)
-    duolingo_main_json_cached = cache.get(duolingo_cache_key_main_json)
     duolingo_saveddate_cached = cache.get(duolingo_cache_key_saveddate)
     duolingo_totalxp_daystart_cached = cache.get(duolingo_cache_key_totalxp_daystart)
     duolingo_streak_daystart_cached = cache.get(duolingo_cache_key_streak_daystart)
@@ -510,7 +507,6 @@ def main(config):
                     if duolingo_main_query.status_code != 200:
                         print("Duolingo query failed with status %d", duolingo_main_query.status_code)
                         display_error_msg = True
-                        error_message = "Error: Duolingo query failed. Check internet connectivity."
                     else:
                         duolingo_main_json = duolingo_main_query.json()
                         duolingo_totalxp = int(duolingo_main_json["users"][0]["totalXp"])
@@ -1697,10 +1693,6 @@ def main(config):
                 expanded = False,
                 children = show_chartbar,
             )
-
-            # Setup which streak icon to display
-            streak_icon_day_frozen = bool(duolingo_xpsummary_json["summaries"][daynum]["frozen"])
-            streak_icon_day_extended = bool(duolingo_xpsummary_json["summaries"][daynum]["streakExtended"])
 
             # Get day of week, based on when the xp summary data was last updated:
             if daynum == 0:  # TODAY

@@ -6,14 +6,14 @@ Author: Rob Kimball
 Honorable Mention: LukiLeu, for the inspiration with Google Traffic
 """
 
+load("cache.star", "cache")
+load("encoding/base64.star", "base64")
+load("encoding/json.star", "json")
 load("http.star", "http")
 load("math.star", "math")
-load("time.star", "time")
-load("cache.star", "cache")
 load("render.star", "render")
 load("schema.star", "schema")
-load("encoding/json.star", "json")
-load("encoding/base64.star", "base64")
+load("time.star", "time")
 
 BING_URL = "http://dev.virtualearth.net/REST/v1"
 MQ_URL = "http://www.mapquestapi.com"
@@ -28,7 +28,7 @@ CACHE_TTL = {
 
 DEFAULT_FONT = "tb-8"
 COMPACT_FONT = "tom-thumb"
-"""The use of two fonts here means we won't have to Marquee the origin/destination labels until they are very long"""
+# The use of two fonts here means we won't have to Marquee the origin/destination labels until they are very long
 
 RATIO_COLORS = {
     0.0: "#090",
@@ -36,12 +36,10 @@ RATIO_COLORS = {
     1.4: "#F50",
     2.0: "#900",
 }
-"""
-When we are able to get both typical travel times, and a time including traffic, we can calculate the ratio and change
-the color of the duration text based on how much higher it is. We can safely assume that it will never be lower than 1,
-We change from green to white when the time is 20% higher, white to yellow if it exceeds +70%, and finally we'll display
-the time in red if we estimate the trip will be twice as long as it would be without traffic.
-"""
+# When we are able to get both typical travel times, and a time including traffic, we can calculate the ratio and change
+# the color of the duration text based on how much higher it is. We can safely assume that it will never be lower than 1,
+# We change from green to white when the time is 20% higher, white to yellow if it exceeds +70%, and finally we'll display
+# the time in red if we estimate the trip will be twice as long as it would be without traffic.
 
 SAMPLE_DATA = {
     "coordinates": {

@@ -12,8 +12,6 @@ load("http.star", "http")
 load("render.star", "render")
 load("schema.star", "schema")
 load("time.star", "time")
-load("math.star", "math")
-load("random.star", "random")
 
 CACHE_TTL_SECONDS = 60
 DEFAULT_LOCATION = """
@@ -35,6 +33,7 @@ SHORTENED_WORDS = """
     " AM": "A",
     " - ": " ",
     " / ": " ",
+    " of": "",
     "Postponed": "PPD",
     "Overtime": "OT",
     "1st Half": "1H",
@@ -66,7 +65,8 @@ ALT_COLOR = """
     "MRSH" : "#000000",
     "UNC" : "#13294B",
     "COLO" : "#000000",
-    "IOWA" : "#000000"
+    "IOWA" : "#000000",
+    "RICE" : "#00205B"
 }
 """
 ALT_LOGO = """

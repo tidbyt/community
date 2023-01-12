@@ -12,7 +12,6 @@ load("http.star", "http")
 load("render.star", "render")
 load("schema.star", "schema")
 load("time.star", "time")
-load("math.star", "math")
 
 CACHE_TTL_SECONDS = 60
 DEFAULT_LOCATION = """
@@ -33,10 +32,20 @@ SHORTENED_WORDS = """
     " PM": "P",
     " AM": "A",
     " Wins": "",
+    " wins": "",
+    " Win": "",
+    " win": "",
     " Leads": "",
+    " lead": "",
+    " Leads": "",
+    " lead": "",
     " Series": "",
+    " series": "",
+    " Tied": "",
+    " tied": "",
     " - ": " ",
     " / ": " ",
+    " of": "",
     "Postponed": "PPD",
     "Overtime": "OT",
     "1st Half": "1H",
@@ -56,7 +65,6 @@ ALT_COLOR = """
 """
 ALT_LOGO = """
 {
-    "UTAH": "https://b.fssta.com/uploads/application/nba/team-logos/Jazz.png",
     "HOU": "https://b.fssta.com/uploads/application/nba/team-logos/Rockets-alternate.png",
     "PHI": "https://b.fssta.com/uploads/application/nba/team-logos/76ers.png"
 }

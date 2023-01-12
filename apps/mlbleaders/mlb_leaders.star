@@ -8,13 +8,13 @@ Author: rs7q5
 #Created 20220412 RIS
 #Last Modified 20220510 RIS
 
-load("render.star", "render")
-load("http.star", "http")
-load("encoding/json.star", "json")
 load("cache.star", "cache")
+load("encoding/json.star", "json")
+load("http.star", "http")
+load("random.star", "random")
+load("render.star", "render")
 load("schema.star", "schema")
 load("time.star", "time")
-load("random.star", "random")
 
 #this list are the sports that can have their standings pulled
 #leaderType_URL = "https://statsapi.mlb.com/api/v1/leagueLeaderTypes"

@@ -6,9 +6,9 @@ Author: ColinCampbell
 """
 
 load("cache.star", "cache")
-load("http.star", "http")
 load("encoding/base64.star", "base64")
 load("encoding/json.star", "json")
+load("http.star", "http")
 load("math.star", "math")
 load("render.star", "render")
 load("schema.star", "schema")
@@ -319,6 +319,6 @@ def reduce(list, acc, f):
 
 def fill_list(n, item):
     result = []
-    for i in range(n):
+    for _ in range(n):
         result.append(item)
     return result
