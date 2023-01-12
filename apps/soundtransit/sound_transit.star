@@ -146,8 +146,6 @@ def show_stops(stop_id1, stop_id2, scroll_names):
         sequence_children[1],
     ])
 
-    return render.Sequence(children = sequence_children)
-
 def main(config):
     scroll_names = config.bool("scroll_names", SHOULD_SCROLL_DEFAULT)
     station1 = none_str_to_none_val(config.get("station1", STATION1_DEFAULT))
