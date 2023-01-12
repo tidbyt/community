@@ -5,13 +5,13 @@ Description: Shows the next two arriving CTA "L" Trains for a selected station. 
 Author: samshapiro13
 """
 
-load("render.star", "render")
-load("http.star", "http")
-load("time.star", "time")
-load("schema.star", "schema")
 load("cache.star", "cache")
 load("encoding/json.star", "json")
+load("http.star", "http")
+load("render.star", "render")
+load("schema.star", "schema")
 load("secret.star", "secret")
+load("time.star", "time")
 
 CTA_STATIONS_URL = "https://data.cityofchicago.org/resource/8pix-ypme.json"
 CTA_ARRIVALS_URL = "https://lapi.transitchicago.com/api/1.0/ttarrivals.aspx"
