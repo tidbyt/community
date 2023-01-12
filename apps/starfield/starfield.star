@@ -187,7 +187,7 @@ def main(config):
     stars = make_stars(config, star_color)
 
     frames = []
-    for i in range(FRAMES):
+    for _ in range(FRAMES):
         frames.append(render_frame(config, stars))
 
     return render.Root(
@@ -228,7 +228,7 @@ def make_stars(config, palette):
     count = int(config.get("star_count", STAR_COUNTS[DEFAULT_STAR_COUNT].value))
 
     stars = []
-    for i in range(count):
+    for _ in range(count):
         stars.append({
             "angle": random_angle(),
             "radius": random_radius(),

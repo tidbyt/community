@@ -27,7 +27,7 @@ EMOJI_BASE64_URL = "https://emoji-lingo.s3.amazonaws.com/base64/%s/%s.txt"
 def normalizeCode(code):
     return re.sub(r" +", "-", code)
 
-def getEmojiList(locale, vendor):
+def getEmojiList(vendor):
     emoji_base64_list_cache = cache.get("emoji_base64_list")
     if emoji_base64_list_cache != None:
         print("Using cache for emoji base64")
@@ -93,7 +93,7 @@ def main(config):
     # name_item not set, because not found on cache
     if name_item == None:
         # get emoji lists (emoji base64 and the names per locale)
-        emoji_list = getEmojiList(locale, vendor)
+        emoji_list = getEmojiList(vendor)
         emoji_names = getEmojiNames(locale)
         valid_emoji_base64_list = list()
         for code in emoji_list:

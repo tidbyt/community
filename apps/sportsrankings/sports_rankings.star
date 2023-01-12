@@ -136,7 +136,7 @@ def main(config):
             ],
         )
 
-    def get_all_pages(currentPage):
+    def get_all_pages():
         return [
             get_page(0),
             get_page(1),
@@ -156,7 +156,7 @@ def main(config):
                     render.Box(child = render.Row(expanded = True, main_align = "space_between", cross_align = "center", children = [
                         render.Image(src = get_icon()),
                         render.Animation(
-                            children = get_all_pages(0),
+                            children = get_all_pages(),
                         ),
                     ])),
                 ],
@@ -205,7 +205,7 @@ def get_cachable_data(url, ttl_seconds = CACHE_TTL):
     if res.status_code != 200:
         fail("request to %s failed with status code: %d - %s" % (url, res.status_code, res.body()))
 
-    cache.set(key, base64.encode(res.body()), ttl_seconds = CACHE_TTL)
+    cache.set(key, base64.encode(res.body()), ttl_seconds = ttl_seconds)
 
     return res.body()
 

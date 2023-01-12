@@ -131,7 +131,7 @@ def main(config):
     clock_frames = []
 
     # Render 30 seconds
-    for i in range(0, 30):
+    for _ in range(0, 30):
         clock_frames.append(
             render_clock(current_time, color_background, color_border, color_clock, color_marks, color_hour, color_minute, color_second),
         )

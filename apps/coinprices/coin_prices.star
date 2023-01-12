@@ -108,7 +108,7 @@ def currency_info(prices, from_coin, to_coin, price_precision):
     yesterday_today_variation = latest_price - yesterday_price
 
     precision_format = "#."
-    for point in range(int(price_precision)):
+    for _ in range(int(price_precision)):
         precision_format = precision_format + "#"
 
     fomatted_latest_price = humanize.float(precision_format, latest_price)

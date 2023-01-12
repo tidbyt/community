@@ -13,9 +13,7 @@ load("schema.star", "schema")
 
 W3IGG_API = "https://web3isgoinggreat.com/api/griftTotal"
 
-def main(config):
-    use_cache = config.bool("use_cache", True)
-
+def main():
     total = get_total()
 
     return render.Root(

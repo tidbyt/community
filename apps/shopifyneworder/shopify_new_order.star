@@ -276,7 +276,7 @@ def int_to_hex(decimal):
     i = int(decimal)
     if i == 0:
         return "00"
-    for k in range(0, 100):
+    for _ in range(0, 100):
         if i <= 0:
             break
         hex = HEX_DIGITS[i % 16] + hex
@@ -337,7 +337,7 @@ def main(config):
         child = render.Column(
             expanded = True,
             children = [
-                render_header_row(base64.decode(logo), "new orders\this month", text_color, background_color),
+                render_header_row(base64.decode(logo), text_color, background_color),
                 render.Box(
                     width = 64,
                     height = 1,
@@ -389,7 +389,7 @@ def render_marquee(orders):
         ],
     )
 
-def render_header_row(image, title, text_color, background_color):
+def render_header_row(image, text_color, background_color):
     return render.Box(
         child = render.Row(
             children = [

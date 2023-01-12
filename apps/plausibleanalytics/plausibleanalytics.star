@@ -377,7 +377,7 @@ def decorate_value(value, decimal_index, suffix):
     joined = "".join(cropped_list)
 
     # Loop through and remove any and all trailing "0" characters
-    for i in range(len(joined)):
+    for _ in range(len(joined)):
         joined = joined.removesuffix("0")
 
     # Remove a trailing decimal separator if present

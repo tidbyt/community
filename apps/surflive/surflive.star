@@ -62,8 +62,6 @@ def main(config):
 
     print("spot_name={} conditions={}".format(spot_name, json.encode(conditions)))
 
-    font = config.get("font", "5x8")
-
     if conditions != None:
         top_level = [
             render_spot_name(spot_name),

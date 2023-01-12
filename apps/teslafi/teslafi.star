@@ -141,28 +141,15 @@ def main(config):
         rangemi = rep["est_battery_range"]
         if (config.bool("mi2km") == True):
             rangemi = math.round((float(rangemi) * 1.60934) * 100) / 100
-        chargelimit = rep["charge_limit_soc"]
         batterylevel = rep["usable_battery_level"]
         chargingstate = rep["charging_state"]
 
-        chargeColor = ""
-        barcolor = "#0f0"
         if chargingstate == "Charging":
             image = BOLT_ANIMATED
-            chargeColor = "#00FF00"
-            endcolor = "#00ff00"
         elif chargingstate == "Complete":
             image = BOLT_GREEN
-            endcolor = "#808080"
         else:
             image = BOLT_GREY
-            endcolor = "#808080"
-        if int(batterylevel) <= 10:
-            chargeColor = "#FF0000"
-            barcolor = "#FF0000"
-        if int(batterylevel) <= 20 and int(batterylevel) > 10:
-            chargeColor = "#FFFF00"
-            barcolor = "#FFFF00"
 
     state = {
         "batterylevel": batterylevel,
@@ -191,14 +178,9 @@ def easeOut(t):
 def render_progress_bar(state, label, percent, col1, col2, col3, animprogress):
     animpercent = easeOut(animprogress / 100) * percent
 
-    col2orwhite = col2
-    if percent >= 100:
-        col2orwhite = col1
-
     label1color = lightness("#fff", animprogress / 100)
     label2align = "start"
     label2color = lightness(col3, animprogress / 100)
-    label3color = lightness("#fff", animprogress / 100)
 
     labelcomponent = None
     widthmax = FRAME_WIDTH - 1

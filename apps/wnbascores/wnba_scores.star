@@ -67,7 +67,6 @@ def main(config):
     scores = get_scores(league, instanceNumber, totalInstances)
     if len(scores) > 0:
         displayType = config.get("displayType", "colors")
-        logoType = config.get("logoType", "primary")
         showDateTime = config.bool("displayDateTime")
         pregameDisplay = config.get("pregameDisplay", "record")
         timeColor = config.get("displayTimeColor", "#FFF")
@@ -77,7 +76,7 @@ def main(config):
         timezone = loc["timezone"]
         now = time.now().in_location(timezone)
 
-        for i, s in enumerate(scores):
+        for _, s in enumerate(scores):
             gameStatus = s["status"]["type"]["state"]
             competition = s["competitions"][0]
             home = competition["competitors"][0]["team"]["abbreviation"]
@@ -96,20 +95,8 @@ def main(config):
             else:
                 awayPrimaryColor = competition["competitors"][1]["team"]["color"]
 
-            homeAltColorCheck = competition["competitors"][0]["team"].get("alternateColor", "NO")
-            if homeAltColorCheck == "NO":
-                homeAltColor = "000000"
-            else:
-                homeAltColor = competition["competitors"][0]["team"]["alternateColor"]
-
-            awayAltColorCheck = competition["competitors"][1]["team"].get("alternateColor", "NO")
-            if awayAltColorCheck == "NO":
-                awayAltColor = "000000"
-            else:
-                awayAltColor = competition["competitors"][1]["team"]["alternateColor"]
-
-            homeColor = get_background_color(home, displayType, homePrimaryColor, homeAltColor)
-            awayColor = get_background_color(away, displayType, awayPrimaryColor, awayAltColor)
+            homeColor = get_background_color(home, displayType, homePrimaryColor)
+            awayColor = get_background_color(away, displayType, awayPrimaryColor)
 
             homeLogoCheck = competition["competitors"][0]["team"].get("logo", "NO")
             if homeLogoCheck == "NO":
@@ -134,7 +121,6 @@ def main(config):
             scoreFont = "Dina_r400-6"
 
             if gameStatus == "pre":
-                gameDateTime = s["status"]["type"]["shortDetail"]
                 gameTime = s["date"]
                 scoreFont = "CG-pixel-3x5-mono"
                 convertedTime = time.parse_time(gameTime, format = "2006-01-02T15:04Z").in_location(timezone)
@@ -233,7 +219,7 @@ def main(config):
                                     expanded = True,
                                     main_align = "space_between",
                                     cross_align = "start",
-                                    children = get_date_column(showDateTime, now, retroTextColor, retroBackgroundColor, retroBorderColor, displayType, gameTime, timeColor),
+                                    children = get_date_column(showDateTime, now, retroTextColor, retroBorderColor, displayType, gameTime, timeColor),
                                 ),
                                 render.Column(
                                     children = [
@@ -272,7 +258,7 @@ def main(config):
                                     expanded = True,
                                     main_align = "space_between",
                                     cross_align = "start",
-                                    children = get_date_column(showDateTime, now, textColor, backgroundColor, borderColor, displayType, gameTime, timeColor),
+                                    children = get_date_column(showDateTime, now, textColor, borderColor, displayType, gameTime, timeColor),
                                 ),
                                 render.Column(
                                     children = [
@@ -316,7 +302,7 @@ def main(config):
                                     expanded = True,
                                     main_align = "space_between",
                                     cross_align = "start",
-                                    children = get_date_column(showDateTime, now, textColor, backgroundColor, borderColor, displayType, gameTime, timeColor),
+                                    children = get_date_column(showDateTime, now, textColor, borderColor, displayType, gameTime, timeColor),
                                 ),
                                 render.Row(
                                     expanded = True,
@@ -379,7 +365,7 @@ def main(config):
                                     expanded = True,
                                     main_align = "space_between",
                                     cross_align = "start",
-                                    children = get_date_column(showDateTime, now, textColor, backgroundColor, borderColor, displayType, gameTime, timeColor),
+                                    children = get_date_column(showDateTime, now, textColor, borderColor, displayType, gameTime, timeColor),
                                 ),
                                 render.Row(
                                     expanded = True,
@@ -428,7 +414,7 @@ def main(config):
                                     expanded = True,
                                     main_align = "space_between",
                                     cross_align = "start",
-                                    children = get_date_column(showDateTime, now, textColor, backgroundColor, borderColor, displayType, gameTime, timeColor),
+                                    children = get_date_column(showDateTime, now, textColor, borderColor, displayType, gameTime, timeColor),
                                 ),
                                 render.Row(
                                     expanded = True,
@@ -479,7 +465,7 @@ def main(config):
                                     expanded = True,
                                     main_align = "space_between",
                                     cross_align = "start",
-                                    children = get_date_column(showDateTime, now, textColor, backgroundColor, borderColor, displayType, gameTime, timeColor),
+                                    children = get_date_column(showDateTime, now, textColor, borderColor, displayType, gameTime, timeColor),
                                 ),
                                 render.Row(
                                     expanded = True,
@@ -727,14 +713,11 @@ def get_schema():
 
 def get_scores(urls, instanceNumber, totalInstances):
     allscores = []
-    minPerBucket = 3
     for i, s in urls.items():
         data = get_cachable_data(s)
         decodedata = json.decode(data)
         allscores.extend(decodedata["events"])
         all([i, allscores])
-    allScoresLength = len(allscores)
-    scoresLengthPerInstance = allScoresLength / totalInstances
     if instanceNumber > totalInstances:
         for i in range(0, int(len(allscores))):
             allscores.pop()
@@ -777,7 +760,7 @@ def get_record(record):
         theRecord = record
     return theRecord
 
-def get_background_color(team, displayType, color, altColor):
+def get_background_color(team, displayType, color):
     altcolors = json.decode(ALT_COLOR)
     usealt = altcolors.get(team, "NO")
     if displayType == "black" or displayType == "retro":
@@ -810,7 +793,7 @@ def get_logoSize(team):
         logosize = int(16)
     return logosize
 
-def get_date_column(display, now, textColor, backgroundColor, borderColor, displayType, gameTime, timeColor):
+def get_date_column(display, now, textColor, borderColor, displayType, gameTime, timeColor):
     if display:
         theTime = now.format("3:04")
         if len(str(theTime)) > 4:

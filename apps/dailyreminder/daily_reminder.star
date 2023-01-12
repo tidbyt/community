@@ -29,7 +29,6 @@ def main(config):
 
     now = time.now().in_location(timezone)
     today_in_words = now.format("Monday").lower()
-    date_dm = now.format("01/02")
 
     default_reminder = config.get("default", FALLBACK_REMINDER)
     todays_reminder = config.get(today_in_words, default_reminder)

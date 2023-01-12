@@ -83,7 +83,6 @@ def main(config):
     title_format = []
     if config.bool("scroll_vertical", False):  #scroll text vertically if true
         #redo titles to make sure words don't get cut off
-        title_max_line = 12  #max of 12 lines in a headline
         for title_tmp in title:
             title_tmp2 = split_sentence(title_tmp.rstrip(), 9, join_word = True).rstrip()
 

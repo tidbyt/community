@@ -325,10 +325,6 @@ def easeOut(t):
 def render_progress_bar(state, label, percent, col1, col2, col3, animprogress):
     animpercent = easeOut(animprogress / 100) * percent
 
-    col2orwhite = col2
-    if percent >= 100:
-        col2orwhite = col1
-
     label1color = lightness("#fff", animprogress / 100)
 
     label2align = "start"
