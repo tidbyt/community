@@ -6,15 +6,14 @@ To grab the API key to go TeslaFi -> Settings -> Account -> Advanced -> TeslaFi 
 Author: mrrobot245
 """
 
+load("cache.star", "cache")
+load("encoding/base64.star", "base64")
 load("encoding/json.star", "json")
+load("http.star", "http")
+load("math.star", "math")
+load("re.star", "re")
 load("render.star", "render")
 load("schema.star", "schema")
-load("math.star", "math")
-load("time.star", "time")
-load("re.star", "re")
-load("http.star", "http")
-load("encoding/base64.star", "base64")
-load("cache.star", "cache")
 
 FRAME_WIDTH = 64
 

@@ -9,12 +9,12 @@ Author: rs7q5
 #Created 20220130 RIS
 #Last Modified 20220807 RIS
 
-load("render.star", "render")
-load("http.star", "http")
-load("encoding/json.star", "json")
 load("cache.star", "cache")
-load("re.star", "re")
+load("encoding/json.star", "json")
+load("http.star", "http")
 load("qrcode.star", "qrcode")
+load("re.star", "re")
+load("render.star", "render")
 load("schema.star", "schema")
 
 BASE_URL = "https://nationaltoday.com/what-is-today/"

@@ -5,8 +5,8 @@ Description: See next transit arrivals from TransSee. Optimized for NYC Subway a
 Author: gdcolella
 """
 
-load("render.star", "render")
 load("http.star", "http")
+load("render.star", "render")
 load("schema.star", "schema")
 
 MAX_SUBWAYS = 4

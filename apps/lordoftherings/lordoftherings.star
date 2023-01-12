@@ -5,17 +5,17 @@ Description: Displays random quotes from LOTR trilogy.
 Author: Jake Manske
 """
 
-load("render.star", "render")
-load("schema.star", "schema")
 load("cache.star", "cache")
-load("http.star", "http")
 load("encoding/base64.star", "base64")
 load("encoding/json.star", "json")
-load("time.star", "time")
+load("http.star", "http")
+load("render.star", "render")
+load("schema.star", "schema")
 load("secret.star", "secret")
+load("time.star", "time")
 
 # using "lordoftherings"
-ENCRYPTED_API_KEY = "AV6+xWcEL+BYtojXNNittqiAEMuMh4JSMGjlL0/b/+yIGLDp243YwyfNWnRw7LjXN3NWPoKuOqwvx4rZV2TP+RRXy4DaaVzPWxPL0nWW6OjShg4ehcBiXCCjt4KFJQ3fMK/wNZUll88h98pkVVe/r6pwk3Tv6tmyU5E="
+ENCRYPTED_API_KEY = "AV6+xWcE4VltFa9T2uqMvHJJvQmY+pl+upIgaFFPddIeaqFrJOg8lTPlzBnd4jN+EFw9k+ixYNjfzmJSCjYl4NLIw3NTUq96cWO0erM1BTMMh5SsurAc+4R2LZQ2iI+YHAlP5Go0Y5oe1WtMAfv3Zc47AaCh5Xl61QM="
 
 MOVIE_FONT = "CG-pixel-3x5-mono"
 MOVIE_COLOR = "#701010"

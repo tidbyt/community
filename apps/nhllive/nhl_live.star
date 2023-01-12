@@ -5,14 +5,14 @@ Description: Displays live game stats or next scheduled NHL game information
 Author: Reed Arneson
 """
 
-load("render.star", "render")
-load("http.star", "http")
-load("encoding/base64.star", "base64")
-load("time.star", "time")
-load("encoding/json.star", "json")
-load("schema.star", "schema")
-load("random.star", "random")
 load("cache.star", "cache")
+load("encoding/base64.star", "base64")
+load("encoding/json.star", "json")
+load("http.star", "http")
+load("random.star", "random")
+load("render.star", "render")
+load("schema.star", "schema")
+load("time.star", "time")
 
 APP_VERSION = "1.3.0"
 

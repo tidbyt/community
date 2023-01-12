@@ -5,15 +5,15 @@ Description: Displays a random emoji and its unique short text annotation from t
 Author: Cedric Sam
 """
 
-load("schema.star", "schema")
-load("re.star", "re")
+load("cache.star", "cache")
+load("compress/gzip.star", "gzip")
+load("encoding/base64.star", "base64")
+load("encoding/csv.star", "csv")
 load("http.star", "http")
 load("random.star", "random")
+load("re.star", "re")
 load("render.star", "render")
-load("compress/gzip.star", "gzip")
-load("encoding/csv.star", "csv")
-load("encoding/base64.star", "base64")
-load("cache.star", "cache")
+load("schema.star", "schema")
 
 default_locale = "fr_CA"
 default_vendor = "apple"
@@ -23,11 +23,6 @@ test_emoji = None
 EMOJI_LIST_URL = "https://emoji-lingo.s3.amazonaws.com/emoji-list-%s.csv"
 EMOJI_NAMES_URL = "https://emoji-lingo.s3.amazonaws.com/locale/%s.csv"
 EMOJI_BASE64_URL = "https://emoji-lingo.s3.amazonaws.com/base64/%s/%s.txt"
-
-def findCodeInList(code, emojiList):
-    for item in emojiList:
-        if item["code"] == code:
-            return item
 
 def normalizeCode(code):
     return re.sub(r" +", "-", code)

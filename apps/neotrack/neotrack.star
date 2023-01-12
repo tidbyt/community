@@ -5,14 +5,14 @@ Description: Shows the closest object on approach to Earth today according to NA
 Author: brettohland
 """
 
-load("render.star", "render")
+load("cache.star", "cache")
 load("encoding/base64.star", "base64")
+load("encoding/json.star", "json")
+load("http.star", "http")
+load("humanize.star", "humanize")
+load("render.star", "render")
 load("secret.star", "secret")
 load("time.star", "time")
-load("humanize.star", "humanize")
-load("http.star", "http")
-load("cache.star", "cache")
-load("encoding/json.star", "json")
 
 ASTEROID = base64.decode("""
 R0lGODlhFAAUAPcGAEhJRzAxL3l7eAACADc5NwcJBgABAFlbWGBiXyUnJE1PTCIkIXN1coqM

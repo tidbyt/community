@@ -1,7 +1,14 @@
+"""
+Applet: Fuzzy Clock
+Author: Max Timkovich
+Summary: Human readable time
+Description: Display the time in a groovy, human-readable way.
+"""
+
+load("encoding/json.star", "json")
 load("render.star", "render")
 load("schema.star", "schema")
 load("time.star", "time")
-load("encoding/json.star", "json")
 
 DEFAULT_LOCATION = {
     "lat": 40.7,

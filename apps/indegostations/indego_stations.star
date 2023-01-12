@@ -5,9 +5,9 @@ Description: The user selects an Indego (Philadelphia bike share) station and Ti
 Author: RayPatt
 """
 
-load("render.star", "render")
-load("http.star", "http")
 load("encoding/base64.star", "base64")
+load("http.star", "http")
+load("render.star", "render")
 load("schema.star", "schema")
 
 url = "https://kiosks.bicycletransit.workers.dev/phl"

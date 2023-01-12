@@ -12,7 +12,6 @@ load("http.star", "http")
 load("render.star", "render")
 load("schema.star", "schema")
 load("time.star", "time")
-load("math.star", "math")
 
 CACHE_TTL_SECONDS = 60
 DEFAULT_LOCATION = """
@@ -840,7 +839,7 @@ def get_shortened_display(text):
     if len(text) > 8:
         text = text.replace("Final", "F").replace("Game ", "G")
     words = json.decode(SHORTENED_WORDS)
-    for i, s in enumerate(words):
+    for _, s in enumerate(words):
         text = text.replace(s, words[s])
     return text
 
@@ -876,6 +875,6 @@ def get_cachable_data(url, ttl_seconds = CACHE_TTL_SECONDS):
     if res.status_code != 200:
         fail("request to %s failed with status code: %d - %s" % (url, res.status_code, res.body()))
 
-    cache.set(key, base64.encode(res.body()), ttl_seconds = CACHE_TTL_SECONDS)
+    cache.set(key, base64.encode(res.body()), ttl_seconds = ttl_seconds)
 
     return res.body()

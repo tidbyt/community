@@ -5,14 +5,14 @@ Description: Gaze upon glorious marine life.
 Author: vlauffer
 """
 
-load("render.star", "render")
-load("time.star", "time")
-load("http.star", "http")
+load("cache.star", "cache")
 load("encoding/base64.star", "base64")
 load("encoding/json.star", "json")
-load("cache.star", "cache")
-load("schema.star", "schema")
+load("http.star", "http")
 load("re.star", "re")
+load("render.star", "render")
+load("schema.star", "schema")
+load("time.star", "time")
 
 CACHE_TTL_SECONDS = 3600 * 24 * 7
 FISH_WIDTH = 40

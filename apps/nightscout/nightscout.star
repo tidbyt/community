@@ -5,17 +5,14 @@ Description: Displays Continuous Glucose Monitoring (CGM) data from the Nightsco
 Authors: Jeremy Tavener, Paul Murphy
 """
 
-load("render.star", "render")
-load("http.star", "http")
-load("time.star", "time")
-load("encoding/base64.star", "base64")
-load("encoding/json.star", "json")
-load("encoding/csv.star", "csv")
 load("cache.star", "cache")
+load("encoding/csv.star", "csv")
+load("encoding/json.star", "json")
+load("http.star", "http")
+load("render.star", "render")
 load("schema.star", "schema")
-load("re.star", "re")
-load("humanize.star", "humanize")
 load("sunrise.star", "sunrise")
+load("time.star", "time")
 
 COLOR_RED = "#C00"
 COLOR_DARK_RED = "#911"
@@ -436,7 +433,7 @@ def main(config):
             if show_graph_hour_bars:
                 min_hour = time.from_timestamp(min_time, 0).hour
                 max_hour = time.from_timestamp(max_time, 0).hour
-                if min_hour < max_hour:
+                if min_hour != max_hour:
                     # Add hour marker at this point
                     graph_hour_bars.append(render.Padding(
                         pad = (point, 0, 0, 0),

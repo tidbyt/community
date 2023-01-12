@@ -5,13 +5,13 @@ Description: Displays a new cocktail every hour, on the hour. Cheers to my mom f
 Author: Nicole Brooks
 """
 
-load("render.star", "render")
-load("time.star", "time")
+load("cache.star", "cache")
 load("encoding/base64.star", "base64")
 load("encoding/json.star", "json")
 load("http.star", "http")
+load("render.star", "render")
 load("schema.star", "schema")
-load("cache.star", "cache")
+load("time.star", "time")
 
 ERROR_IMG = base64.decode("""
 iVBORw0KGgoAAAANSUhEUgAAACMAAAAjCAYAAAAe2bNZAAAAAXNSR0IArs4c6QAAAXJJREFUWEftlz1OAzEQhe1V

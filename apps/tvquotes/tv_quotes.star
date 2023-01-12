@@ -9,10 +9,10 @@ Author: rs7q5
 #Created 20220525 RIS
 #Last Modified 20220531 RIS
 
-load("render.star", "render")
-load("http.star", "http")
-load("encoding/json.star", "json")
 load("cache.star", "cache")
+load("encoding/json.star", "json")
+load("http.star", "http")
+load("render.star", "render")
 load("schema.star", "schema")
 
 font = "CG-pixel-3x5-mono"

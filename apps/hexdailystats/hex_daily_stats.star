@@ -6,12 +6,12 @@ Author: kmphua
 Thanks: aschober, bretep, codeakk
 """
 
-load("render.star", "render")
-load("http.star", "http")
+load("cache.star", "cache")
 load("encoding/base64.star", "base64")
 load("encoding/json.star", "json")
-load("cache.star", "cache")
+load("http.star", "http")
 load("math.star", "math")
+load("render.star", "render")
 
 COINGECKO_PRICE_URL = "https://api.coingecko.com/api/v3/coins/{}?localization=false&tickers=false&community_data=false&developer_data=false"
 

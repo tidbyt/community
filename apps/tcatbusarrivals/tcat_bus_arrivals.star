@@ -5,10 +5,10 @@ Description: Display Arrival Times for TCAT Ithaca Buses at a Specific Stop.
 Author: Harry Samuels
 """
 
-load("render.star", "render")
-load("http.star", "http")
-load("encoding/base64.star", "base64")
 load("cache.star", "cache")
+load("encoding/base64.star", "base64")
+load("http.star", "http")
+load("render.star", "render")
 load("schema.star", "schema")
 
 ROUTES_DETAILS = "https://transitime-api.goswift.ly/api/v1/key/81YENWXv/agency/tcat/command/routesDetails"

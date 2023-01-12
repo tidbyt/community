@@ -5,11 +5,11 @@ Description: Is it christmas: yes/no.
 Author: Austin Fonacier
 """
 
+load("encoding/base64.star", "base64")
+load("encoding/json.star", "json")
 load("render.star", "render")
 load("schema.star", "schema")
 load("time.star", "time")
-load("encoding/json.star", "json")
-load("encoding/base64.star", "base64")
 
 TREE_IMG_NO_LIGHTS = base64.decode("""
 iVBORw0KGgoAAAANSUhEUgAAAAsAAAALCAYAAACprHcmAAAAAXNSR0IArs4c6QAAAExJREFUKFNjZMACfNYH/N8SuIERXQpDAKQQpghdA/mKkU3FZjqKyUQrxqYQ3XS4yUQrxqcQ2XSwySQpRg/8ylCP/+2rdxCOFJBGXIoBe08sDMFoReYAAAAASUVORK5CYII=

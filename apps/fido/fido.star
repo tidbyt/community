@@ -5,17 +5,14 @@ Description: Fido is a pixel pal that will sit, walk, and feast inside your Tidb
 Author: yonodactyl
 """
 
+load("cache.star", "cache")
+
 # LOAD MODULES
 load("encoding/base64.star", "base64")
+load("http.star", "http")
 load("render.star", "render")
 load("schema.star", "schema")
-load("http.star", "http")
-load("cache.star", "cache")
-load("encoding/json.star", "json")
 load("time.star", "time")
-load("math.star", "math")
-load("random.star", "random")
-load("humanize.star", "humanize")
 
 # CONFIG
 TTL = 86400
@@ -98,6 +95,8 @@ def interacting_object(action_config):
     if action_config == FIDO_FETCH:
         action = get_cached(BALL_THROW)
         return render.Image(src = action)
+
+    return None
 
 # Returns the pet information like the name and age
 def pet_info(name, pet_age):

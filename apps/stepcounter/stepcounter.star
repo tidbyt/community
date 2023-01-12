@@ -1,10 +1,18 @@
-load("render.star", "render")
-load("http.star", "http")
+"""
+Applet: Step Counter
+Author: Matt-Pesce
+Summary: Tracks Daily Step Progress
+Description: Fetches your Step Data from Google Fit, Reports progress versus
+    daily goal.
+"""
+
 load("cache.star", "cache")
-load("time.star", "time")
+load("encoding/json.star", "json")
+load("http.star", "http")
+load("render.star", "render")
 load("schema.star", "schema")
 load("secret.star", "secret")
-load("encoding/json.star", "json")
+load("time.star", "time")
 
 # The daily step goal - this determines the coaching message you receive
 STEP_GOAL = 10000
