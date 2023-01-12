@@ -81,11 +81,10 @@ def get_schema():
         ],
     )
 
-"""
-Renders a given lists of arrivals
-"""
-
 def render_arrival_list(arrivals):
+    """
+    Renders a given lists of arrivals
+    """
     rendered = []
 
     if arrivals:
@@ -126,12 +125,11 @@ def render_arrival_list(arrivals):
         ],
     )
 
-"""
-Creates a Row and adds needed children objects
-for a single arrival
-"""
-
 def render_arrival_row(arrival):
+    """
+    Creates a Row and adds needed children objects
+    for a single arrival
+    """
     background_color = render.Box(width = 22, height = 11, color = arrival["color_hex"])
     destination_text = render.Marquee(
         width = 36,
@@ -160,12 +158,11 @@ def render_arrival_row(arrival):
         ],
     )
 
-"""
-Creates a Row and adds needed children objects
-for a single arrival.
-"""
-
 def get_selected_station_map_id(selected_station):
+    """
+    Creates a Row and adds needed children objects
+    for a single arrival.
+    """
     stations = get_stations()
     if not stations:
         return None
@@ -175,12 +172,12 @@ def get_selected_station_map_id(selected_station):
             return station["map_id"]
     fail("The stop selected was not matched to a formatted stop")
 
-"""
-Gets a list of "L" stations from API and
-eliminates duplicate stations
-"""
-
 def get_stations():
+    """
+    Gets a list of "L" stations from API and
+    eliminates duplicate stations
+    """
+
     cache_stations = cache.get(L_STOPS_CACHE_KEY)
     if cache_stations != None:
         return json.decode(cache_stations)
@@ -209,12 +206,11 @@ def get_stations():
     cache.set(L_STOPS_CACHE_KEY, json.encode(deduped_stations), ttl_seconds = 3600)
     return deduped_stations
 
-"""
-Formats list of "L" stations into options
-for dropdown
-"""
-
 def get_station_options(station_mapping):
+    """
+    Formats list of "L" stations into options
+    for dropdown
+    """
     if not station_mapping:
         return None
 
@@ -224,23 +220,21 @@ def get_station_options(station_mapping):
     ]
     return station_options
 
-"""
-Creates a dictionary for the passed in "L" station
-containing station name and id
-"""
-
 def build_station(station):
+    """
+    Creates a dictionary for the passed in "L" station
+    containing station name and id
+    """
     return {
         "station_descriptive_name": station["station_descriptive_name"],
         "map_id": station["map_id"],
     }
 
-"""
-Gets top 2 arrivals scheduled for the selected station
-from CTA Arrivals API
-"""
-
 def get_journeys(station_code):
+    """
+    Gets top 2 arrivals scheduled for the selected station
+    from CTA Arrivals API
+    """
     cache_arrivals = cache.get(ARRIVALS_CACHE_KEY)
     if cache_arrivals != None:
         return json.decode(cache_arrivals)
@@ -271,12 +265,11 @@ def get_journeys(station_code):
     cache.set(ARRIVALS_CACHE_KEY, json.encode(next_arrivals), ttl_seconds = 60)
     return next_arrivals
 
-"""
-Parses CTA Arrivals API response for fields that we
-are interested in
-"""
-
 def build_journey(prediction):
+    """
+    Parses CTA Arrivals API response for fields that we
+    are interested in
+    """
     destination_name = prediction["destNm"]
     line = prediction["rt"]
     color_hex = COLOR_MAP[line]
