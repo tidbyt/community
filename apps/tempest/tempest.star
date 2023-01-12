@@ -1,3 +1,10 @@
+"""
+Applet: Tempest Weather
+Author: Rohan Singh
+Summary: Tempest weather station
+Description: Show readings from your Tempest weather station.
+"""
+
 load("encoding/base64.star", "base64")
 load("encoding/json.star", "json")
 load("http.star", "http")

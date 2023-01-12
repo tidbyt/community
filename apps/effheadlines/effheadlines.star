@@ -1,3 +1,10 @@
+"""
+Applet: EFF Headlines
+Author: hainish
+Summary: EFF Headlines tidbyt
+Description: Get the latest headlines from the Electronic Frontier Foundation.
+"""
+
 load("cache.star", "cache")
 load("encoding/base64.star", "base64")
 load("encoding/json.star", "json")
