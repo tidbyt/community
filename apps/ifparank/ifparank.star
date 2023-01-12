@@ -1,3 +1,10 @@
+"""
+Applet: IFPARank
+Author: cubsaaron
+Summary: Display IFPA Ranking
+Description: Display an International Flipper Pinball Association (IFPA) World Ranking.
+"""
+
 load("cache.star", "cache")
 load("encoding/base64.star", "base64")
 load("encoding/json.star", "json")

@@ -1,3 +1,11 @@
+"""
+Applet: Step Counter
+Author: Matt-Pesce
+Summary: Tracks Daily Step Progress
+Description: Fetches your Step Data from Google Fit, Reports progress versus
+    daily goal.
+"""
+
 load("cache.star", "cache")
 load("encoding/json.star", "json")
 load("http.star", "http")

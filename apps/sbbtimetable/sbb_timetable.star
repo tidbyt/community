@@ -1,3 +1,11 @@
+"""
+Applet: SBB Timetable
+Author: LukiLeu
+Summary: SBB Timetable
+Description: Shows a timetable for a station in the Swiss Public Transport
+    network.
+"""
+
 load("cache.star", "cache")
 load("encoding/base64.star", "base64")
 load("encoding/json.star", "json")

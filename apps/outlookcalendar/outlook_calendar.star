@@ -1,3 +1,10 @@
+"""
+Applet: Outlook Calendar
+Author: Matt-Pesce
+Summary: Display Next Meeting
+Description: Shows the date, next meeting and time from your Outlook Calendar.
+"""
+
 load("cache.star", "cache")
 load("encoding/base64.star", "base64")
 load("encoding/json.star", "json")
