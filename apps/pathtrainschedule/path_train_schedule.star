@@ -239,20 +239,18 @@ def getAllStations():
     return stations
 
 # OPTIONS FOR USER
-"""
-def get_schema():
-    options = getAllStations()
-    return schema.Schema(
-        version = "1",
-        fields = [
-            schema.Dropdown(
-                id = "station",
-                name = "Station",
-                desc = "Station for arrival times.",
-                icon = "trainSubway",
-                default = options[0].value,
-                options = options,
-            ),
-        ],
-    )
-"""
+# def get_schema():
+#     options = getAllStations()
+#     return schema.Schema(
+#         version = "1",
+#         fields = [
+#             schema.Dropdown(
+#                 id = "station",
+#                 name = "Station",
+#                 desc = "Station for arrival times.",
+#                 icon = "trainSubway",
+#                 default = options[0].value,
+#                 options = options,
+#             ),
+#         ],
+#     )
