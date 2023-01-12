@@ -197,6 +197,8 @@ def solve(colors, grid, row, col, path, maze_frame, frames):
         if solve(colors, grid, cell[0], cell[1], new_path, maze_frame, frames):
             return True
 
+    return False
+
 COLORS = [
     schema.Option(display = "White", value = "#FFFFFF"),
     schema.Option(display = "Silver", value = "#c0c0c0"),
