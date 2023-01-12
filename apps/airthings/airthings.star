@@ -220,11 +220,9 @@ def client_credentials_grant_flow(config, access_token_cache_key):
         cache.set(access_token_cache_key, "")
         print("Error Fetching access_token: %s" % (res.body()))
         fail("token request failed with status code: %d - %s" % (res.status_code, res.body()))
-        return None
 
     token_params = res.json()
     access_token = token_params["access_token"]
-    token_type = token_params["token_type"]
     expires_in = token_params["expires_in"]
 
     cache.set(access_token_cache_key, access_token, ttl_seconds = int(expires_in) - 30)

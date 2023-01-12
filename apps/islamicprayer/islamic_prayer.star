@@ -5,12 +5,12 @@ Description: Shows the daily Islamic prayer times for a given location.
 Author: Austin Fonacier
 """
 
-load("render.star", "render")
-load("schema.star", "schema")
 load("cache.star", "cache")
 load("encoding/json.star", "json")
 load("http.star", "http")
 load("humanize.star", "humanize")
+load("render.star", "render")
+load("schema.star", "schema")
 load("time.star", "time")
 
 DEFAULT_LOCATION = {

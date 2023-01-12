@@ -1,3 +1,13 @@
+"""
+Applet: Zenhub
+Summary: Displays Zenhub issues,
+Description: Displays your last 3 Zenhub issues from the chosen pipeline,
+    and filter by labels and assignees. To generate your API Keys, visit
+    https://app.zenhub.com/settings/tokens. To retrieve your Workspace and
+    Repository IDs, see https://github.com/ZenHubIO/API#endpoint-reference.
+Author: thiagobrez
+"""
+
 load("cache.star", "cache")
 load("encoding/base64.star", "base64")
 load("encoding/json.star", "json")

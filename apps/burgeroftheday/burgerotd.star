@@ -56,7 +56,7 @@ def main(config):
                 pad = 1,
             )
         else:
-            return
+            return None
 
     LOCATION = config.get("location")
     LOCATION = json.decode(LOCATION) if LOCATION else {}

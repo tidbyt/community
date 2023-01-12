@@ -26,7 +26,7 @@ GBFS_LIST = "https://raw.githubusercontent.com/NABSA/gbfs/master/systems.csv"
 # User agent to identify this as a Tidbyt community app when making requests
 USER_AGENT = "Tidbyt - Bikeshare (https://github.com/tidbyt/community/tree/main/apps/bikeshare)"
 
-def fetch_status(config, station):
+def fetch_status(station):
     station_json = cache.get(station["url"])
     if station_json == None:
         station_status_resp = http.get(
@@ -54,8 +54,8 @@ def main(config):
 
     # Fetch status for start and stop stations
     # We fetch twice (cached anyway) to guarantee that the defaulted url and station ids match
-    start_status = fetch_status(config, start)
-    stop_status = fetch_status(config, stop)
+    start_status = fetch_status(start)
+    stop_status = fetch_status(stop)
     if (len(start_status) == 0 or len(stop_status) == 0):
         return render_error()
 

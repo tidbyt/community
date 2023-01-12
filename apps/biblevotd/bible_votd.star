@@ -61,7 +61,7 @@ def getFormattedVerseRef(ref):
 
     return ref
 
-def main(config):
+def main():
     print("~~~~~~~~~Starting App! ~~~~~~~~~~")
 
     bible_votd = None
