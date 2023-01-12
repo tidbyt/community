@@ -5,16 +5,16 @@ Description: Displays direction and degrees above the horizon for the selected p
 Author: Robert Ison
 """
 
-load("schema.star", "schema")
-load("http.star", "http")  #for calling to astronomyapi.com
-load("encoding/json.star", "json")  #Used to figure out timezone
-load("time.star", "time")  #Used to display time and calcuate lenght of TTL cache
-load("encoding/base64.star", "base64")  #to encode/decode json data going to and from cache
-load("render.star", "render")
 load("cache.star", "cache")
-load("math.star", "math")  #for calculating distance to planets
+load("encoding/base64.star", "base64")  #to encode/decode json data going to and from cache
+load("encoding/json.star", "json")  #Used to figure out timezone
+load("http.star", "http")  #for calling to astronomyapi.com
 load("humanize.star", "humanize")  #for easy reading numbers and times
+load("math.star", "math")  #for calculating distance to planets
+load("render.star", "render")
+load("schema.star", "schema")
 load("sunrise.star", "sunrise")  #to calcuate day/night and when planets will be visible
+load("time.star", "time")  #Used to display time and calcuate lenght of TTL cache
 
 app_hash = "M2IxYmY2OWUtZWIzMS00NTM0LTkyOWItMmRiMDlhMWVkYjI5OmZhN2YxOTM2M2I2N2QzZDNiYjEzNmNkMDhjMzM3YmUzZTQwMjE3ODg1MjIzY2QyYTNiNzFkZDlhYzU1YzBkODdkOWE0YjFiODkwMWUxN2JkZDU3YmZjOTBmZWI4NmE5MjdlMTBjNjZhYWFkYzFhMjE1NjdiOGYxNTUxOGNmMDU1ZGMwOTFhNzg5Nzc5M2FhNDE5OTUyMDAzNTUyY2U2ZWQ5NWUxNDZmMjkxZWQ0M2RhYzNjNGRmMjNmYTc5NTU2OTQ0MGVlNWY1N2NhOTJmYjNmYTg4OWYxOWFlNWQxMzU2"
 time_display_format = "3:04 PM"

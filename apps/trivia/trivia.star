@@ -5,13 +5,13 @@ Description: Displays a random trivia question with category and difficulty.
 Author: Jack Sherbal
 """
 
-load("render.star", "render")
-load("http.star", "http")
-load("encoding/json.star", "json")
 load("cache.star", "cache")
-load("re.star", "re")
-load("humanize.star", "humanize")
 load("encoding/base64.star", "base64")
+load("encoding/json.star", "json")
+load("http.star", "http")
+load("humanize.star", "humanize")
+load("re.star", "re")
+load("render.star", "render")
 load("schema.star", "schema")
 
 NUM_QUESTIONS = 100

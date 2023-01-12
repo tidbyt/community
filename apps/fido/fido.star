@@ -5,17 +5,14 @@ Description: Fido is a pixel pal that will sit, walk, and feast inside your Tidb
 Author: yonodactyl
 """
 
+load("cache.star", "cache")
+
 # LOAD MODULES
 load("encoding/base64.star", "base64")
+load("http.star", "http")
 load("render.star", "render")
 load("schema.star", "schema")
-load("http.star", "http")
-load("cache.star", "cache")
-load("encoding/json.star", "json")
 load("time.star", "time")
-load("math.star", "math")
-load("random.star", "random")
-load("humanize.star", "humanize")
 
 # CONFIG
 TTL = 86400
@@ -99,6 +96,8 @@ def interacting_object(action_config):
         action = get_cached(BALL_THROW)
         return render.Image(src = action)
 
+    return None
+
 # Returns the pet information like the name and age
 def pet_info(name, pet_age):
     return render.Column(
@@ -157,7 +156,7 @@ def return_pal_age(pet_age):
         return return_marquee_text(formatted_age_str, color = "#add8e6")
 
 # Returns left aligned, 32 pixel wide and high Wrapped Text with the passed in parameter.
-def return_wrapped_text(text, color = "#fff", align = "left", width = 32, height = 7):
+def return_wrapped_text(text, color = "#fff", align = "left", width = 32):
     return render.Padding(
         pad = (1, 1, 0, 0),
         child = render.WrappedText(
@@ -170,7 +169,7 @@ def return_wrapped_text(text, color = "#fff", align = "left", width = 32, height
     )
 
 # Returns 32 pixel wide, 7 pixel high (default) Marquee Text with the passed in parameter.
-def return_marquee_text(text, color = "#fff", width = 32, height = 7, direction = "horizontal"):
+def return_marquee_text(text, color = "#fff", width = 32, direction = "horizontal"):
     return render.Padding(
         pad = (1, 1, 0, 0),
         child = render.Marquee(

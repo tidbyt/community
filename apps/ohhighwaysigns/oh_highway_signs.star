@@ -5,12 +5,12 @@ Description: Displays messages from overhead signs on Ohio highways.
 Author: noahcolvin
 """
 
+load("cache.star", "cache")
+load("encoding/json.star", "json")
+load("http.star", "http")
 load("render.star", "render")
 load("schema.star", "schema")
-load("http.star", "http")
-load("encoding/json.star", "json")
 load("secret.star", "secret")
-load("cache.star", "cache")
 
 # get all data for entire state
 URL = "https://publicapi.ohgo.com/api/v1/digital-signs?sign-type=dms"

@@ -5,13 +5,13 @@ Description: Get your current weather from your Netatmo weather station.
 Author: danmcclain
 """
 
-load("render.star", "render")
-load("schema.star", "schema")
+load("cache.star", "cache")
+load("encoding/base64.star", "base64")
 load("encoding/json.star", "json")
 load("http.star", "http")
+load("render.star", "render")
+load("schema.star", "schema")
 load("secret.star", "secret")
-load("encoding/base64.star", "base64")
-load("cache.star", "cache")
 
 DOWN_DEG = base64.decode("iVBORw0KGgoAAAANSUhEUgAAAAgAAAAFCAYAAAB4ka1VAAAAAXNSR0IArs4c6QAAAC5JREFUGFdjZACBmcb/GdLPMoLZaAAhiKwIiY2qCyaBUwHMOhANtRLVCmT7oQoACOEVBpf67iYAAAAASUVORK5CYII=")
 UP_DEG = base64.decode("iVBORw0KGgoAAAANSUhEUgAAAAgAAAAFCAYAAAB4ka1VAAAAAXNSR0IArs4c6QAAAC5JREFUGFdjZICBmcb/4WwQI/0sI4gCEygAphCrApAkSAJGo5iAJIipAFkSzUYAQtIVBjuf38UAAAAASUVORK5CYII=")

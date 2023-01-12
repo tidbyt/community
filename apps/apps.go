@@ -16,6 +16,7 @@ import (
 	"tidbyt.dev/community/apps/ambientweather"
 	"tidbyt.dev/community/apps/analogclock"
 	"tidbyt.dev/community/apps/analogtime"
+	"tidbyt.dev/community/apps/anyprogressbar"
 	"tidbyt.dev/community/apps/arcadeclassics"
 	"tidbyt.dev/community/apps/astropicofday"
 	"tidbyt.dev/community/apps/baywheels"
@@ -42,8 +43,10 @@ import (
 	"tidbyt.dev/community/apps/countdownclock"
 	"tidbyt.dev/community/apps/countupclock"
 	"tidbyt.dev/community/apps/cryptotracker"
+	"tidbyt.dev/community/apps/ctaltracker"
 	"tidbyt.dev/community/apps/currencyconverter"
 	"tidbyt.dev/community/apps/dailykanji"
+	"tidbyt.dev/community/apps/dailyreminder"
 	"tidbyt.dev/community/apps/datadogmonitors"
 	"tidbyt.dev/community/apps/dateprogress"
 	"tidbyt.dev/community/apps/datetimeclock"
@@ -76,7 +79,9 @@ import (
 	"tidbyt.dev/community/apps/fuzzyclock"
 	"tidbyt.dev/community/apps/gapilotbuddy"
 	"tidbyt.dev/community/apps/githubbadge"
+	"tidbyt.dev/community/apps/githubrepo"
 	"tidbyt.dev/community/apps/githubstargazers"
+	"tidbyt.dev/community/apps/goldpriceticker"
 	"tidbyt.dev/community/apps/goodservice"
 	"tidbyt.dev/community/apps/happyhour"
 	"tidbyt.dev/community/apps/hexcolorclock"
@@ -102,6 +107,7 @@ import (
 	"tidbyt.dev/community/apps/londonbusstop"
 	"tidbyt.dev/community/apps/lordoftherings"
 	"tidbyt.dev/community/apps/manifest"
+	"tidbyt.dev/community/apps/martamap"
 	"tidbyt.dev/community/apps/marvelfacts"
 	"tidbyt.dev/community/apps/maze"
 	"tidbyt.dev/community/apps/mbta"
@@ -154,6 +160,7 @@ import (
 	"tidbyt.dev/community/apps/ordertrends"
 	"tidbyt.dev/community/apps/outlookcalendar"
 	"tidbyt.dev/community/apps/pagerduty"
+	"tidbyt.dev/community/apps/paraland"
 	"tidbyt.dev/community/apps/pathtrainschedule"
 	"tidbyt.dev/community/apps/petpikachu"
 	"tidbyt.dev/community/apps/phaseofmoon"
@@ -189,6 +196,8 @@ import (
 	"tidbyt.dev/community/apps/shuffleimages"
 	"tidbyt.dev/community/apps/snyk"
 	"tidbyt.dev/community/apps/soccermens"
+	"tidbyt.dev/community/apps/soccertables"
+	"tidbyt.dev/community/apps/soccerwomens"
 	"tidbyt.dev/community/apps/solarelevation"
 	"tidbyt.dev/community/apps/soundtransit"
 	"tidbyt.dev/community/apps/spinbyt"
@@ -196,6 +205,7 @@ import (
 	"tidbyt.dev/community/apps/sportsscores"
 	"tidbyt.dev/community/apps/sportsstandings"
 	"tidbyt.dev/community/apps/spotthestation"
+	"tidbyt.dev/community/apps/starfield"
 	"tidbyt.dev/community/apps/stateflags"
 	"tidbyt.dev/community/apps/statesvisited"
 	"tidbyt.dev/community/apps/steam"
@@ -266,6 +276,7 @@ func GetManifests() []manifest.Manifest {
 		ambientweather.New(),
 		analogclock.New(),
 		analogtime.New(),
+		anyprogressbar.New(),
 		arcadeclassics.New(),
 		astropicofday.New(),
 		baywheels.New(),
@@ -292,8 +303,10 @@ func GetManifests() []manifest.Manifest {
 		countdownclock.New(),
 		countupclock.New(),
 		cryptotracker.New(),
+		ctaltracker.New(),
 		currencyconverter.New(),
 		dailykanji.New(),
+		dailyreminder.New(),
 		datadogmonitors.New(),
 		dateprogress.New(),
 		datetimeclock.New(),
@@ -326,7 +339,9 @@ func GetManifests() []manifest.Manifest {
 		fuzzyclock.New(),
 		gapilotbuddy.New(),
 		githubbadge.New(),
+		githubrepo.New(),
 		githubstargazers.New(),
+		goldpriceticker.New(),
 		goodservice.New(),
 		happyhour.New(),
 		hexcolorclock.New(),
@@ -351,6 +366,7 @@ func GetManifests() []manifest.Manifest {
 		lirr.New(),
 		londonbusstop.New(),
 		lordoftherings.New(),
+		martamap.New(),
 		marvelfacts.New(),
 		maze.New(),
 		mbta.New(),
@@ -403,6 +419,7 @@ func GetManifests() []manifest.Manifest {
 		ordertrends.New(),
 		outlookcalendar.New(),
 		pagerduty.New(),
+		paraland.New(),
 		pathtrainschedule.New(),
 		petpikachu.New(),
 		phaseofmoon.New(),
@@ -438,6 +455,8 @@ func GetManifests() []manifest.Manifest {
 		shuffleimages.New(),
 		snyk.New(),
 		soccermens.New(),
+		soccertables.New(),
+		soccerwomens.New(),
 		solarelevation.New(),
 		soundtransit.New(),
 		spinbyt.New(),
@@ -445,6 +464,7 @@ func GetManifests() []manifest.Manifest {
 		sportsscores.New(),
 		sportsstandings.New(),
 		spotthestation.New(),
+		starfield.New(),
 		stateflags.New(),
 		statesvisited.New(),
 		steam.New(),

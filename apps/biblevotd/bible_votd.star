@@ -29,13 +29,13 @@ Author: github.com/danrods
 #
 #
 
-load("render.star", "render")
-load("schema.star", "schema")
-load("http.star", "http")
-load("re.star", "re")
 load("cache.star", "cache")
 load("encoding/base64.star", "base64")
 load("encoding/json.star", "json")
+load("http.star", "http")
+load("re.star", "re")
+load("render.star", "render")
+load("schema.star", "schema")
 
 # https://ourmanna.readme.io/reference/get-verse-of-the-day
 VOTD_URL = "https://beta.ourmanna.com/api/v1/get?format=json"
@@ -61,7 +61,7 @@ def getFormattedVerseRef(ref):
 
     return ref
 
-def main(config):
+def main():
     print("~~~~~~~~~Starting App! ~~~~~~~~~~")
 
     bible_votd = None

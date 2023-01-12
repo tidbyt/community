@@ -12,7 +12,6 @@ load("http.star", "http")
 load("render.star", "render")
 load("schema.star", "schema")
 load("time.star", "time")
-load("math.star", "math")
 
 CACHE_TTL_SECONDS = 300
 DEFAULT_LOCATION = """
@@ -68,14 +67,11 @@ def main(config):
         league = {LEAGUE: apiURL}
 
     standings = get_standings(league)
-    mainFont = "CG-pixel-3x5-mono"
-    renderFinal = []
     cycleOptions = int(config.get("cycleOptions", 1))
-    overallCycleCount = 0
 
     if (standings):
         cycleCount = 0
-        for i, s in enumerate(standings):
+        for _, s in enumerate(standings):
             entries = s["standings"]["entries"]
 
             if entries:
@@ -255,7 +251,7 @@ def get_schema():
 
 def get_standings(urls):
     allstandings = []
-    for i, s in urls.items():
+    for _, s in urls.items():
         data = get_cachable_data(s)
         decodedata = json.decode(data)
         allstandings.append(decodedata)
@@ -265,7 +261,7 @@ def get_team_color(teamid):
     data = get_cachable_data("https://site.api.espn.com/apis/site/v2/sports/" + SPORT + "/" + LEAGUE + "/teams/" + teamid)
     decodedata = json.decode(data)
     team = decodedata["team"]
-    teamcolor = get_background_color(team["abbreviation"], "color", team["color"], team["alternateColor"])
+    teamcolor = get_background_color(team["abbreviation"], team["color"])
     return teamcolor
 
 def get_team(x, s, entriesToDisplay, colHeight, now, timeColor, divisionName, showDateTime, topcolHeight):
@@ -311,7 +307,7 @@ def get_team(x, s, entriesToDisplay, colHeight, now, timeColor, divisionName, sh
             teamColor = get_team_color(teamID)
             teamLogo = get_logoType(teamName, s[i + x]["team"]["logos"][1]["href"])
             stats = s[i + x]["stats"]
-            for j, k in enumerate(stats):
+            for _, k in enumerate(stats):
                 if k["name"] == "wins":
                     teamWins = k["displayValue"]
                 if k["name"] == "losses":
@@ -336,7 +332,7 @@ def get_team(x, s, entriesToDisplay, colHeight, now, timeColor, divisionName, sh
 
     return output
 
-def get_background_color(team, displayType, color, altColor):
+def get_background_color(team, color):
     altcolors = json.decode(ALT_COLOR)
     usealt = altcolors.get(team, "NO")
     if usealt != "NO":
@@ -369,6 +365,6 @@ def get_cachable_data(url, ttl_seconds = CACHE_TTL_SECONDS):
     if res.status_code != 200:
         fail("request to %s failed with status code: %d - %s" % (url, res.status_code, res.body()))
 
-    cache.set(key, base64.encode(res.body()), ttl_seconds = CACHE_TTL_SECONDS)
+    cache.set(key, base64.encode(res.body()), ttl_seconds = ttl_seconds)
 
     return res.body()
