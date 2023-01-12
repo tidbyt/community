@@ -39,7 +39,7 @@ def main(config):
     train_plots.append(
         render.Marquee(
             width = 30,
-            child = render.Text("000000000000000000000000000000000000000000000000", color = "#000"),
+            child = render.Text("00000000000000000000000000000000000000000000000000000000000000000000000", color = "#000"),
         ),
     )
 
@@ -81,28 +81,28 @@ def get_schema():
                 id = "orientation",
                 name = "Vertical Orientation?",
                 desc = "Show map in vertical orientation?",
-                icon = "rectangle-vertical",
+                icon = "ellipsisVertical",
                 default = False,
             ),
             schema.Toggle(
                 id = "arrivals",
                 name = "Show Station arrivals?",
                 desc = "Show station arrival in the horrizontal orientation?",
-                icon = "toggle-on",
+                icon = "toggleOn",
                 default = True,
             ),
             schema.Toggle(
                 id = "scroll",
                 name = "Scroll Arrival Head sign",
                 desc = "Scroll the arrival head signs or static text?",
-                icon = "toggle-on",
+                icon = "toggleOn",
                 default = True,
             ),
             schema.Dropdown(
                 id = "station",
                 name = "Stations",
                 desc = "The color of text to be displayed.",
-                icon = "train-subway-tunnel",
+                icon = "trainSubway",
                 default = station_options[17].value,
                 options = station_options,
             ),
