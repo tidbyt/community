@@ -107,6 +107,7 @@ import (
 	"tidbyt.dev/community/apps/londonbusstop"
 	"tidbyt.dev/community/apps/lordoftherings"
 	"tidbyt.dev/community/apps/manifest"
+	"tidbyt.dev/community/apps/martamap"
 	"tidbyt.dev/community/apps/marvelfacts"
 	"tidbyt.dev/community/apps/maze"
 	"tidbyt.dev/community/apps/mbta"
@@ -364,6 +365,7 @@ func GetManifests() []manifest.Manifest {
 		lirr.New(),
 		londonbusstop.New(),
 		lordoftherings.New(),
+		martamap.New(),
 		marvelfacts.New(),
 		maze.New(),
 		mbta.New(),
