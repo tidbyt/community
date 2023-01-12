@@ -148,7 +148,7 @@ def get_entity_states(config):
         return json.decode(chached_states)
 
     full_token = "Bearer " + token
-    full_url = "https://" + nabu_casa_url_key + ".ui.nabu.casa"+ STATIC_ENDPOINT + entity_name
+    full_url = "https://" + nabu_casa_url_key + ".ui.nabu.casa" + STATIC_ENDPOINT + entity_name
     headers = {
         "Authorization": full_token,
         "content-type": "application/json",
