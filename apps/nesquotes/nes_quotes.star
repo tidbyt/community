@@ -23,16 +23,23 @@ CACHE_TTL = 604800
 
 # CREATE SLUG
 # -----------
+# def slug(str):
+#     result = ""
+#
+#     for c in str.lower().elems():
+#         if c.isalnum():
+#             result += c
+#         elif c == " ":
+#             result += "-"
+#
+#     return c
 def slug(str):
-    result = ""
-
-    for c in str.lower().elems():
-        if c.isalnum():
-            result += c
-        elif c == " ":
-            result += "-"
-
-    return c
+    # The original method was not correct, and the linter complained about
+    # result being unused. The issue is, this method is used to create an ID
+    # for schema fields. If we change the ID, it will break any existing
+    # installations. Therefore, the safest option is to mimic the behavior of
+    # the original function.
+    return str.lower().elems()[-1]
 
 # GET DATA
 # --------
