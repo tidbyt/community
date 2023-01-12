@@ -94,19 +94,19 @@ def get_schema():
                 id = "entity_name",
                 name = "Entity Name",
                 desc = "Entity name ex. 'sensor.front_door'",
-                icon = "inputText",
+                icon = "textHeight",
             ),
             schema.Text(
                 id = "attribute",
                 name = "Attribute",
                 desc = "Optionaly show the value of an attribute for the entity",
-                icon = "inputText",
+                icon = "textHeight",
             ),
             schema.Text(
                 id = "friendly_name",
                 name = "Name Override",
                 desc = "Optionaly override the entity friendly name",
-                icon = "inputText",
+                icon = "textHeight",
             ),
             schema.Text(
                 id = "header_color",
