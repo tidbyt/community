@@ -16,6 +16,7 @@ import (
 	"tidbyt.dev/community/apps/ambientweather"
 	"tidbyt.dev/community/apps/analogclock"
 	"tidbyt.dev/community/apps/analogtime"
+	"tidbyt.dev/community/apps/anyprogressbar"
 	"tidbyt.dev/community/apps/arcadeclassics"
 	"tidbyt.dev/community/apps/astropicofday"
 	"tidbyt.dev/community/apps/baywheels"
@@ -77,8 +78,8 @@ import (
 	"tidbyt.dev/community/apps/fullybinarytime"
 	"tidbyt.dev/community/apps/fuzzyclock"
 	"tidbyt.dev/community/apps/gapilotbuddy"
-	"tidbyt.dev/community/apps/githubrepo"
 	"tidbyt.dev/community/apps/githubbadge"
+	"tidbyt.dev/community/apps/githubrepo"
 	"tidbyt.dev/community/apps/githubstargazers"
 	"tidbyt.dev/community/apps/goldpriceticker"
 	"tidbyt.dev/community/apps/goodservice"
@@ -273,6 +274,7 @@ func GetManifests() []manifest.Manifest {
 		ambientweather.New(),
 		analogclock.New(),
 		analogtime.New(),
+		anyprogressbar.New(),
 		arcadeclassics.New(),
 		astropicofday.New(),
 		baywheels.New(),
@@ -334,8 +336,8 @@ func GetManifests() []manifest.Manifest {
 		fullybinarytime.New(),
 		fuzzyclock.New(),
 		gapilotbuddy.New(),
-		githubrepo.New(),
 		githubbadge.New(),
+		githubrepo.New(),
 		githubstargazers.New(),
 		goldpriceticker.New(),
 		goodservice.New(),
