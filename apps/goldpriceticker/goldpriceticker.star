@@ -52,6 +52,7 @@ def main(config):
 
     ClosingPrice = 0
     CurrentTime = time.now().in_location("America/New_York")
+    RealtimePrice = 0
 
     Yesterday = CurrentTime - time.parse_duration("24h")
 

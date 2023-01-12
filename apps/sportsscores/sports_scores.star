@@ -68,6 +68,7 @@ def main(config):
     font = "CG-pixel-3x5-mono"  #set font
 
     #check for cached data
+    stats = {}
     stats_cached = cache.get("stats_rate_games%s_%s" % (sport, league))
     if stats_cached != None:
         print("Hit! Displaying %s (%s) gameday data." % (sport, league))
