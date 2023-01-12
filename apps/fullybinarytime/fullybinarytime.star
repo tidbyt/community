@@ -110,7 +110,7 @@ def make_frame(elapsed):
     levels = []
     numerator = elapsed.nanoseconds
     divisor = HALF_DAY_NANOSECONDS
-    for level in range(0, CLOCK_BITS):
+    for _ in range(0, CLOCK_BITS):
         levels.append(numerator // divisor)
         numerator = math.mod(numerator, divisor)
         divisor /= 2

@@ -6,10 +6,10 @@ Author: jvivona
 borrowed Fade In and Out technique and the math calculations from @CubsAaron countdown_clock
 """
 
+load("math.star", "math")
 load("render.star", "render")
 load("schema.star", "schema")
 load("time.star", "time")
-load("math.star", "math")
 
 DEFAULT_TIMEZONE = "America/New_York"
 TITLE_FONT = "5x8"

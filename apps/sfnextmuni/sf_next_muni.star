@@ -204,7 +204,7 @@ def get_schema():
 def fetch_stops(api_key):
     stops = {}
 
-    (timestamp, raw_stops) = fetch_cached(STOPS_URL % api_key, 86400)
+    (_, raw_stops) = fetch_cached(STOPS_URL % api_key, 86400)
 
     if "Contents" in raw_stops:
         stops.update([(stop["id"], stop) for stop in raw_stops["Contents"]["dataObjects"]["ScheduledStopPoint"]])
@@ -236,7 +236,7 @@ def get_route_list():
             ),
         ]
 
-    (timestamp, routes) = fetch_cached(ROUTES_URL % API_KEY, 86400)
+    (_, routes) = fetch_cached(ROUTES_URL % API_KEY, 86400)
 
     route_list = [
         schema.Option(
@@ -271,7 +271,7 @@ def fetch_cached(url, ttl):
             return (time.now().unix, {})
 
         # Trim off the UTF-8 byte-order mark
-        body = res.body().lstrip("\ufeff")
+        body = res.body().lstrip("\\ufeff")
         data = json.decode(body)
         timestamp = time.now().unix
         cache.set(url, body, ttl_seconds = ttl)
@@ -304,7 +304,7 @@ def main(config):
 def getPredictions(api_key, config, stop):
     stopId = stop["value"]
     stopTitle = stop["display"]
-    (data_timestamp, data) = fetch_cached(PREDICTIONS_URL % api_key, 240)
+    (_, data) = fetch_cached(PREDICTIONS_URL % api_key, 240)
 
     route_filter = config.get("route_filter", DEFAULT_CONFIG["route_filter"])
 
@@ -315,8 +315,6 @@ def getPredictions(api_key, config, stop):
     stops = fetch_stops(api_key)
     if stopId in stops:
         stopTitle = stops[stopId]["Name"]
-
-    data_age_seconds = time.now().unix - data_timestamp
 
     entities = data.get("Entities", {})
     if not entities:
@@ -387,7 +385,7 @@ def getPredictions(api_key, config, stop):
     return (stopTitle, routes, output)
 
 def getMessages(api_key, config, routes, stopId):
-    (data_timestamp, data) = fetch_cached(ALERTS_URL % api_key, 240)
+    (_, data) = fetch_cached(ALERTS_URL % api_key, 240)
 
     # https://developers.google.com/transit/gtfs-realtime/reference#message-feedentity
     entities = data.get("Entities")
@@ -403,7 +401,6 @@ def getMessages(api_key, config, routes, stopId):
         if not alert:
             continue
 
-        languages = config.str("alert_languages", "en").split(",")
         translations = [translation["Text"] for translation in alert["HeaderText"]["Translations"] if translation["Language"] == "en"]
 
         if not translations:
@@ -453,7 +450,7 @@ def renderOutput(stopTitle, output, messages, config):
     predictionLines = []
 
     if "short" == config.get("prediction_format"):
-        predictionLines = shortPredictions(output, messages, lines, config)
+        predictionLines = shortPredictions(output, lines)
     else:
         predictionLines = longRows(output[:lines], config)
 
@@ -505,11 +502,11 @@ def calculateLength(predictions):
             4 * len(",".join(predictions[:2])) +
             4)  # trailing space
 
-def shortPredictions(output, messages, lines, config):
+def shortPredictions(output, lines):
     predictionLengths = [calculateLength(predictions) for (routeTag, predictions) in output]
 
     rows = []
-    for line in range(lines):
+    for _ in range(lines):
         row = []
         cumulativeLength = 0
         for length in predictionLengths:

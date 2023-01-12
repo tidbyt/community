@@ -27,11 +27,11 @@ Author: joshspicer
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-load("render.star", "render")
-load("schema.star", "schema")
+load("cache.star", "cache")
 load("encoding/json.star", "json")
 load("http.star", "http")
-load("cache.star", "cache")
+load("render.star", "render")
+load("schema.star", "schema")
 
 def main(config):
     # Require secrets
@@ -220,11 +220,9 @@ def client_credentials_grant_flow(config, access_token_cache_key):
         cache.set(access_token_cache_key, "")
         print("Error Fetching access_token: %s" % (res.body()))
         fail("token request failed with status code: %d - %s" % (res.status_code, res.body()))
-        return None
 
     token_params = res.json()
     access_token = token_params["access_token"]
-    token_type = token_params["token_type"]
     expires_in = token_params["expires_in"]
 
     cache.set(access_token_cache_key, access_token, ttl_seconds = int(expires_in) - 30)

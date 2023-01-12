@@ -5,8 +5,8 @@ Description: Generates random color and corresponding hex code.
 Author: M0ntyP
 """
 
-load("render.star", "render")
 load("random.star", "random")
+load("render.star", "render")
 
 def main():
     COLORS = ["0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "A", "B", "C", "D", "E", "F"]

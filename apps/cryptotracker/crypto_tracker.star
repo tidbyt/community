@@ -5,14 +5,14 @@ Description: Displays crypto prices in USD over the last 24 hours.
 Author: Ethan Fuerst (@ethanfuerst)
 """
 
-load("render.star", "render")
-load("schema.star", "schema")
-load("http.star", "http")
-load("humanize.star", "humanize")
 load("cache.star", "cache")
 load("encoding/json.star", "json")
-load("secret.star", "secret")
+load("http.star", "http")
+load("humanize.star", "humanize")
 load("math.star", "math")
+load("render.star", "render")
+load("schema.star", "schema")
+load("secret.star", "secret")
 
 DEFAULT_SYMBOL = "BTC"
 RED_RGB = "#FF0000"

@@ -5,14 +5,15 @@ Description: The Idle Gardener is an Idle tree growing tycoon that takes absolut
 Author: yonodactyl
 """
 
+load("cache.star", "cache")
+
 # LOAD MODULES
 load("encoding/base64.star", "base64")
+load("encoding/json.star", "json")
+load("random.star", "random")
 load("render.star", "render")
 load("schema.star", "schema")
-load("cache.star", "cache")
-load("encoding/json.star", "json")
 load("time.star", "time")
-load("random.star", "random")
 
 # CONSTANTS
 TREE_GROWN = "iVBORw0KGgoAAAANSUhEUgAAAAgAAAAICAYAAADED76LAAAAAXNSR0IArs4c6QAAAEFJREFUGJVjYCAAGGGM5GO+/5El5lptZmRgYGBgImQCC4xxfu0PrAqIN+H5qV8M0Uy/GBgYGBiW/mPDVIAuQTQAABWCDdre18jnAAAAAElFTkSuQmCC"
@@ -186,9 +187,9 @@ def generate_tree_list():
     """
     column_array = []
 
-    for column in range(0, 3):  # The number of columns to iterate over (3 being the standard)
+    for _ in range(0, 3):  # The number of columns to iterate over (3 being the standard)
         row_array = []
-        for row in range(0, 8):  # The number of rows to iterate over (8 being the standard)
+        for _ in range(0, 8):  # The number of rows to iterate over (8 being the standard)
             tree = dict(id = random.number(9999, 999999), state = GROWN_STATE, sprite = TREE_GROWN, planted = str(time.now().format("2006-01-02T15:04:05Z07:00")), grow_duration = random.number(5, 60))  # create our dictionary
             row_array.append(tree)
         column_array.append(row_array)
