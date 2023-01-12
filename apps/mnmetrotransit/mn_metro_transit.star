@@ -5,17 +5,16 @@ Description: Shows Transit Departure Times from Selected Stop.
 Author: Alex Miller & Jonathan Wescott
 """
 
-load("render.star", "render")
-load("http.star", "http")
-load("encoding/json.star", "json")
-load("schema.star", "schema")
 load("cache.star", "cache")
+load("encoding/json.star", "json")
+load("http.star", "http")
+load("render.star", "render")
+load("schema.star", "schema")
 
 #Assign Default Stop Code
 DEFAULT_STOP_CODE = "15264"
 
 def main(config):
-
     #Establish API URL
     stop_code = config.get("stop_code", DEFAULT_STOP_CODE)
     url = "https://svc.metrotransit.org/NexTripv2/" + stop_code + "?format=json"
@@ -30,9 +29,9 @@ def main(config):
     else:
         print("Miss! Calling Transit data.")
         MTT_data = MTT
-    
+
     MTT_TITLE = MTT
-    
+
     cache.set("MTT_rate", json.encode(MTT_data), ttl_seconds = 30)
     CB = "#333"
     CB2 = "#333"
@@ -52,7 +51,7 @@ def main(config):
         CT2 = "#FFF"
         depText1 = "Bad"
         depText2 = "Stop#"
-    
+
     else:
         MTT_DEPARTURE_LEN = MTT["departures"]
         MTT_data = dict(MTT_DEPARTURE_LEN = MTT_DEPARTURE_LEN)
