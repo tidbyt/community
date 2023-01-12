@@ -149,7 +149,6 @@ def main(config):
     color_graph_urgent_low = COLOR_RED
     color_graph_lines = COLOR_GREY
     color_clock = COLOR_ORANGE
-    font_color = COLOR_YELLOW
 
     if (reading_mins_ago > 5):
         # The information is stale (i.e. over 5 minutes old) - overrides everything.
@@ -703,7 +702,6 @@ def get_nightscout_data(nightscout_id, nightscout_host):
     #print (latest_reading)
     #print (previous_reading)
     latest_reading_date_string = latest_reading["dateString"]
-    latest_reading_dt = time.parse_time(latest_reading_date_string)
 
     # Current sgv value
     sgv_current = latest_reading["sgv"]

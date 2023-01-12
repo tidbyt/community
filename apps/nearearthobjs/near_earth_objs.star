@@ -215,7 +215,6 @@ def neo_relative_time(neo):
 
     diff = neo_time - now
 
-    int_seconds = int(diff.seconds)
     return diff
 
 def neo_unix_date(neo):

@@ -108,7 +108,7 @@ def get_launch_details(rocket_launch_data):
 
     return display_text
 
-def main(config):
+def main():
     rocket_launch_data = get_rocket_launch_json()
     rocket_launch_count = 0
     row1 = "Test"

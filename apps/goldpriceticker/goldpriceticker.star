@@ -114,8 +114,6 @@ def main(config):
     if (is_debug == True):
         print("Closing Price %f" % (ClosingPrice))
 
-    realtime_price = 0
-
     realtime_cache = cache.get(PRECIOUS_METAL)
 
     if (realtime_cache == None):

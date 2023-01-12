@@ -187,9 +187,9 @@ def generate_tree_list():
     """
     column_array = []
 
-    for column in range(0, 3):  # The number of columns to iterate over (3 being the standard)
+    for _ in range(0, 3):  # The number of columns to iterate over (3 being the standard)
         row_array = []
-        for row in range(0, 8):  # The number of rows to iterate over (8 being the standard)
+        for _ in range(0, 8):  # The number of rows to iterate over (8 being the standard)
             tree = dict(id = random.number(9999, 999999), state = GROWN_STATE, sprite = TREE_GROWN, planted = str(time.now().format("2006-01-02T15:04:05Z07:00")), grow_duration = random.number(5, 60))  # create our dictionary
             row_array.append(tree)
         column_array.append(row_array)

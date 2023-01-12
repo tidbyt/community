@@ -23,7 +23,7 @@ fO5PI9OqOcPICMhohiJzt1o+5JQ3VtjJtKTy+L7dvZIpognBcHV4MFxJbEoV1apx+8wZJiX9bkJCjmhC
 YOhHSGUgGreaxu4jnp/bZzyDMdcnBfMH+p/AM/kQywMAAAAASUVORK5CYII=
 """)
 
-def main(config):
+def main():
     # Check cache for current hour. UTC
     hourlyCocktail = checkCache()
 
@@ -179,7 +179,6 @@ def formatIngredients(cocktail):
 
 # Returns the desired height of the ingredient row.
 def rowHeight(str):
-    length = len(str)
     height = 7
     if len(str) > 8:
         height = 14

@@ -301,7 +301,7 @@ def renderDirection(direction, type, abbreviate):
     else:
         return text
 
-def renderDepartureTimes(departures, now, alternate_style):
+def renderDepartureTimes(departures, alternate_style):
     if alternate_style:
         actual = departures[0]["actual"]
         planned = departures[0]["planned"]
@@ -328,10 +328,10 @@ def renderDepartureTimes(departures, now, alternate_style):
         departures = "  ".join(departures[0:2])
         return render.Text(departures, offset = 0, color = ColorTimeNormal, font = Font)
 
-def renderLine(line, now, alternate_style, abbreviate):
+def renderLine(line, alternate_style, abbreviate):
     direction = renderDirection(line["direction"], line["type"], abbreviate)
     number = renderNumber(line["number"], line["type"])
-    time = renderDepartureTimes(line["departures"], now, alternate_style)
+    time = renderDepartureTimes(line["departures"], alternate_style)
     #spacer = render.Box(width=ColumnSpacerWidth, height=1)
 
     return render.Row(main_align = "space_evenly", children = [
@@ -365,7 +365,7 @@ def main(config):
                 filters.append((i.strip(), ""))
 
         lines = processDepartures(departures, now, filters)
-        children = [renderLine(l, now, alternate_style, abbreviate) for l in lines][0:2]
+        children = [renderLine(l, alternate_style, abbreviate) for l in lines][0:2]
 
     else:
         text = ["", "  -== MVV -==", "", "Set a station to ", "show departures."]

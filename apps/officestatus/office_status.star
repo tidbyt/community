@@ -443,7 +443,7 @@ def get_msft_events(msft_access_token, timezone):
         msft_events = []
 
         # Handling MSFT api paging
-        for x in range(NUMBER_OF_MSFT_FETCH_ITERATIONS):
+        for _ in range(NUMBER_OF_MSFT_FETCH_ITERATIONS):
             response = http.get(url = url, headers = headers, params = params)
             if response.status_code != 200:
                 fail("MSFT request failed with status:%d - %s" % (response.status_code, response.body()))

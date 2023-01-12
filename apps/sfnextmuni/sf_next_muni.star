@@ -304,7 +304,7 @@ def main(config):
 def getPredictions(api_key, config, stop):
     stopId = stop["value"]
     stopTitle = stop["display"]
-    (data_timestamp, data) = fetch_cached(PREDICTIONS_URL % api_key, 240)
+    (_, data) = fetch_cached(PREDICTIONS_URL % api_key, 240)
 
     route_filter = config.get("route_filter", DEFAULT_CONFIG["route_filter"])
 
@@ -401,7 +401,6 @@ def getMessages(api_key, config, routes, stopId):
         if not alert:
             continue
 
-        languages = config.str("alert_languages", "en").split(",")
         translations = [translation["Text"] for translation in alert["HeaderText"]["Translations"] if translation["Language"] == "en"]
 
         if not translations:
@@ -451,7 +450,7 @@ def renderOutput(stopTitle, output, messages, config):
     predictionLines = []
 
     if "short" == config.get("prediction_format"):
-        predictionLines = shortPredictions(output, messages, lines, config)
+        predictionLines = shortPredictions(output, lines)
     else:
         predictionLines = longRows(output[:lines], config)
 
@@ -503,11 +502,11 @@ def calculateLength(predictions):
             4 * len(",".join(predictions[:2])) +
             4)  # trailing space
 
-def shortPredictions(output, messages, lines, config):
+def shortPredictions(output, lines):
     predictionLengths = [calculateLength(predictions) for (routeTag, predictions) in output]
 
     rows = []
-    for line in range(lines):
+    for _ in range(lines):
         row = []
         cumulativeLength = 0
         for length in predictionLengths:
