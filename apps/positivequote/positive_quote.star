@@ -12,7 +12,7 @@ load("render.star", "render")
 
 TTL_SECONDS = 30
 
-def main(config):
+def main():
     affirmation = get_affirmation()
     image = base64.decode(get_affirmation_image())
 

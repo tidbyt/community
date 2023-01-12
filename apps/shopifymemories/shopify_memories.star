@@ -277,7 +277,6 @@ def main(config):
         return error_view()
 
     api_data = api_response["data"]
-    api_config = api_response["config"]
     text_color = config.get("textColor")
     background_color = config.get("backgroundColor")
     title = api_data["title"]

@@ -480,7 +480,7 @@ def get_orders(store_name, api_token, start_time, since_id):
 
     total_pages = int(order_count / 250) + 1
     since_id = None
-    for current_page in range(total_pages):
+    for _ in range(total_pages):
         chunk = get_chunk_of_orders(store_name, api_token, start_time, since_id)
         if is_response_error(chunk):
             return chunk

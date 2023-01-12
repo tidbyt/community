@@ -319,6 +319,6 @@ def reduce(list, acc, f):
 
 def fill_list(n, item):
     result = []
-    for i in range(n):
+    for _ in range(n):
         result.append(item)
     return result

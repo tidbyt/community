@@ -277,7 +277,6 @@ def main(config):
     if not api_response:
         return error_view()
 
-    api_config = api_response["config"]
     api_data = api_response["data"]
     daily = api_data["daily"]
     weekly = api_data["weekly"]

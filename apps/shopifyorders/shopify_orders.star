@@ -281,7 +281,6 @@ def main(config):
     if not api_response:
         return error_view()
 
-    api_config = api_response["config"]
     api_data = api_response["data"]
     value = api_data["orders"]
     start_date = api_data.get("startDate")

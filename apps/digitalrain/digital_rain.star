@@ -239,7 +239,6 @@ def generate_frame(seed, char_size, columns, f):
     for c in range(char_size["columns"]):
         for column in compute_column(seed, char_size, columns[c], f):
             chars = column["chars"]
-            size = column["size"]
             drop_size = column["drop_size"]
             colors = column["colors"]
             for i in range(char_size["rows"]):

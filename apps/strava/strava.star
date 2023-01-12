@@ -632,14 +632,12 @@ def last_activity(config, refresh_token, sport, units):
     map_info = display_activity.get("map", {})
     polyline = map_info.get("summary_polyline", map_info.get("polyline", None))
     title = []
-    title_width = 64
     if show_logo:
         sport_icon = {
             "run": RUN_ICON,
             "ride": RIDE_ICON,
             "swim": SWIM_ICON,
         }[sport]
-        title_width -= 10
         title.append(
             render.Image(src = sport_icon),
         )
@@ -950,7 +948,6 @@ def get_activities(config, refresh_token):
     timezone = config.get("timezone") or "America/New_York"
     now = time.now().in_location(timezone)
     beg_curr_month = time.time(year = now.year, month = now.month, day = 1)
-    _next_month = time.time(year = now.year, month = now.month, day = 32)
 
     end_prev_month = beg_curr_month - time.parse_duration("1ns")
     beg_prev_month = time.time(year = end_prev_month.year, month = end_prev_month.month, day = 1)

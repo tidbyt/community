@@ -16,7 +16,7 @@ load("render.star", "render")
 
 EFF_XML_URL = "https://www.eff.org/rss/updates.xml"
 
-def main(config):
+def main():
     clean_titles = []
     clean_guids = []
 
