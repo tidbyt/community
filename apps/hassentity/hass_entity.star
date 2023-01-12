@@ -79,15 +79,15 @@ def get_schema():
         version = "1",
         fields = [
             schema.Text(
-                id = "ha_ip",
-                name = "Home Assistant External Url",
-                desc = "External HA Url (and optional port). Ex. https://abc.ui.nabu.casa or https://hass.mydomain:8123",
+                id = "nabu_casa_url_key",
+                name = "Nabu Casa Url Key",
+                desc = "The random letters and numbers in your Nabu Casa URL. Ex. Input 'abc123' for this nabu casa url https://abc123.ui.nabu.casa",
                 icon = "link",
             ),
             schema.Text(
                 id = "token",
-                name = "Token",
-                desc = "Home Assistant Long-Lived Access Token",
+                name = "Long-Lived Token",
+                desc = "Home Assistant Long-Lived Access Token. Profile -> Long-Lived Access Tokens -> Create Token",
                 icon = "key",
             ),
             schema.Text(
@@ -134,11 +134,11 @@ def is_string_blank(string):
 
 # Retrieve entity state from Home Assistant, return json response
 def get_entity_states(config):
-    ha_ip = config.get("ha_ip", None)
+    nabu_casa_url_key = config.get("nabu_casa_url_key", None)
     token = config.get("token", None)
     entity_name = config.get("entity_name", None)
 
-    if is_string_blank(token) or is_string_blank(entity_name) or is_string_blank(ha_ip):
+    if is_string_blank(token) or is_string_blank(entity_name) or is_string_blank(nabu_casa_url_key):
         return []
 
     chached_states = cache.get(token)
@@ -148,7 +148,7 @@ def get_entity_states(config):
         return json.decode(chached_states)
 
     full_token = "Bearer " + token
-    full_url = ha_ip + STATIC_ENDPOINT + entity_name
+    full_url = "https://" + nabu_casa_url_key + ".ui.nabu.casa"+ STATIC_ENDPOINT + entity_name
     headers = {
         "Authorization": full_token,
         "content-type": "application/json",
