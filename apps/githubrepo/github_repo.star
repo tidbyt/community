@@ -7,7 +7,7 @@ Author: rs7q5
 
 #github_repo.star
 #Created 20221223 RIS
-#Last Modified 20221224 RIS
+#Last Modified 20230112 RIS
 
 load("cache.star", "cache")
 load("encoding/base64.star", "base64")
@@ -140,7 +140,7 @@ def main(config):
 def get_schema():
     return [
         schema.Text(
-            id = "owner",
+            id = "organization",
             name = "User/Organization",
             desc = "User/organization of the repository.",
             icon = "user",
