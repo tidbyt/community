@@ -238,7 +238,7 @@ def get_route_list():
 
     (_, routes) = fetch_cached(ROUTES_URL % API_KEY, 86400)
     if type(routes) == "string":
-      return []
+        return []
 
     route_list = [
         schema.Option(
@@ -308,7 +308,7 @@ def getPredictions(api_key, config, stop):
     stopTitle = stop["display"]
     (_, data) = fetch_cached(PREDICTIONS_URL % api_key, 240)
     if type(data) == "string":
-      return (data, [], [])
+        return (data, [], [])
 
     route_filter = config.get("route_filter", DEFAULT_CONFIG["route_filter"])
 
@@ -391,7 +391,7 @@ def getPredictions(api_key, config, stop):
 def getMessages(api_key, config, routes, stopId):
     (_, data) = fetch_cached(ALERTS_URL % api_key, 240)
     if type(data) == "string":
-      return [data]
+        return [data]
 
     # https://developers.google.com/transit/gtfs-realtime/reference#message-feedentity
     entities = data.get("Entities")
