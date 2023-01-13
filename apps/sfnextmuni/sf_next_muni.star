@@ -235,6 +235,8 @@ def get_route_list():
         ]
 
     (timestamp, routes) = fetch_cached(ROUTES_URL % API_KEY, 86400)
+    if type(routes) == "string":
+      routes = []
 
     route_list = [
         schema.Option(
@@ -266,7 +268,7 @@ def fetch_cached(url, ttl):
         res = http.get(url)
         if res.status_code != 200:
             print("511.org request to %s failed with status %d", (url, res.status_code))
-            return (time.now().unix, {})
+            return (time.now().unix, res.body().lstrip("\ufeff"))
 
         # Trim off the UTF-8 byte-order mark
         body = res.body().lstrip("\ufeff")
@@ -303,6 +305,8 @@ def getPredictions(api_key, config, stop):
     stopId = stop["value"]
     stopTitle = stop["display"]
     (data_timestamp, data) = fetch_cached(PREDICTIONS_URL % (api_key, stopId), 240)
+    if type(data) == "string":
+      return (data, [], [])
 
     service = data.get("ServiceDelivery", {})
     if not service or not service["Status"]:
@@ -372,6 +376,8 @@ def getPredictions(api_key, config, stop):
 
 def getMessages(api_key, config, routes, stopId):
     (data_timestamp, data) = fetch_cached(ALERTS_URL % api_key, 240)
+    if type(data) == "string":
+      return [data]
 
     # https://developers.google.com/transit/gtfs-realtime/reference#message-feedentity
     entities = data.get("Entities")
