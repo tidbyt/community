@@ -198,7 +198,7 @@ def get_station_options():
         station_options = [
             schema.Option(
                 display = station["station_descriptive_name"],
-                value = station["map_id"]
+                value = station["map_id"],
             )
             for station in stations
         ]
@@ -207,7 +207,7 @@ def get_station_options():
             schema.Option(
                 display = "No Stations Available",
                 value = "No Stations Available",
-            )
+            ),
         ]
     return station_options
 
