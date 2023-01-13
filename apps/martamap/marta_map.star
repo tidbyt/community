@@ -25,8 +25,8 @@ FONT = "CG-pixel-4x5-mono"
 def main(config):
     MARTA_API_URL = secret.decrypt("AV6+xWcEqpLr4r5xWHL+ENipBzxVuOwqPhBwALkpo2ySIP8LvhyYYjsLoSq484C+X+Q91GmnTkRZBVPcITGvJJRJxmomJAwy4ejsRATXKIMmJHQy29u3IXDATDXbDuMXDx2wLeQXtfpuwWf5qHNh5VLrnE3d3ZJTfP6mS9xBxo+CwffQNt3YGa3pkQTpI5ikAKotOr95vcBPQzw22E3yY7iMqjR72wsE8s730m9pLnFolxbNmyMKZ6DNh+XFqNiNNer02eodGjhvLRR74xk8A1Q72Q==")
     trains = get_trains(MARTA_API_URL)
-    arrivals = config.get("arrivals") or DEFAULT_ARRIVALS
-    orientation_bool = config.get("orientation") or DEFAULT_ORIENTATION_BOOL
+    arrivals = config.bool("arrivals") or DEFAULT_ARRIVALS
+    orientation_bool = config.bool("orientation") or DEFAULT_ORIENTATION_BOOL
 
     if orientation_bool:
         orientation = "vertical"
@@ -275,7 +275,7 @@ def arrival_template(config, color, time, head_sign):
     )
 
 def render_headsign_text(config, head_sign):
-    scroll = config.get("scroll") or DEFAULT_SCROLL
+    scroll = config.bool("scroll") or DEFAULT_SCROLL
     width = 29
     if scroll:
         return render.Marquee(
@@ -328,7 +328,7 @@ def get_arrivals(config):
         return json.decode(cached_arrivals)
 
     station = STATIONS_MAP[config.get("station") or DEFAULT_STATION]
-    direction = config.get("direction") or DEAFULT_DIRECTION
+    direction = config.bool("direction") or DEAFULT_DIRECTION
     if direction != None:
         direction = DIRECTION_MAP[direction]
 

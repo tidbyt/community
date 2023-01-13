@@ -232,6 +232,62 @@ def get_schema():
     )
 
 def main(config):
+    # Defined potentially undefined variables.
+    DUOLINGO_ICON = None
+    PROGRESSBAR_ANI = None
+    XP_ICON = None
+    dayofweek = None
+    display_error_msg = None
+    display_frozen_lastweek = None
+    display_frozen_thisweek = None
+    display_missed_lastweek = None
+    display_missed_thisweek = None
+    display_output = None
+    display_repaired_lastweek = None
+    display_repaired_thisweek = None
+    do_duolingo_main_query = None
+    duolingo_main_json = None
+    duolingo_main_query_url = None
+    duolingo_streak = None
+    duolingo_streak_daystart = None
+    duolingo_streak_now = None
+    duolingo_totalxp = None
+    duolingo_totalxp_daystart = None
+    duolingo_totalxp_now = None
+    duolingo_userid = None
+    duolingo_xpsummary_json = None
+    duolingo_xptoday = None
+    error_message_1 = None
+    error_message_2 = None
+    nickname_today_view = None
+    oneweek_bar = None
+    oneweek_todays_bar = None
+    progressbar_col = None
+    progressbar_perc = None
+    show_chartbar = None
+    streak_icon = None
+    twoweek_todays_bar = None
+    twoweeks_bar = None
+    twoweeks_bar_lastweek_frozen = None
+    twoweeks_bar_lastweek_missed = None
+    twoweeks_bar_lastweek_normal = None
+    twoweeks_bar_lastweek_repaired = None
+    twoweeks_bar_thisweek_frozen = None
+    twoweeks_bar_thisweek_missed = None
+    twoweeks_bar_thisweek_normal = None
+    twoweeks_bar_thisweek_repaired = None
+    upper_chart_value = None
+    vertbar_lastweek_col = None
+    vertbar_lastweek_col_frozen = None
+    vertbar_lastweek_col_header = None
+    vertbar_lastweek_col_missed = None
+    vertbar_lastweek_col_repaired = None
+    week_xp_scores = None
+    week_xp_scores_total = None
+    xp_day_score_lastweek = None
+    xp_query_time = None
+    xp_score = None
+
     # Get Schema variables
     duolingo_username = config.get("duolingo_username", DEFAULT_USERNAME)
     display_view = config.str("display_view", DEFAULT_DISPLAY_VIEW)

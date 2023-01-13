@@ -170,6 +170,8 @@ def hasData(json):
     return "data" in json
 
 def format_float_string(float_value):
+    currency_price = 0
+
     # Round price to nearest whole number (used to decide how many decimal places to leave)
     float_value_integer = str(int(math.round(float(float_value))))
 

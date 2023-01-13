@@ -57,20 +57,20 @@ def rgb_to_hsl(r, g, b):
 
     return int(math.round(h * 360)), s, l
 
-def hsl_to_rgb(h, s, l):
-    def hue_to_rgb(p, q, t):
-        if t < 0:
-            t += 1
-        if t > 1:
-            t -= 1
-        if t < 1 / 6:
-            return p + (q - p) * 6 * t
-        if t < 1 / 2:
-            return q
-        if t < 2 / 3:
-            return p + (q - p) * (2 / 3 - t) * 6
-        return p
+def hue_to_rgb(p, q, t):
+    if t < 0:
+        t += 1
+    if t > 1:
+        t -= 1
+    if t < 1 / 6:
+        return p + (q - p) * 6 * t
+    if t < 1 / 2:
+        return q
+    if t < 2 / 3:
+        return p + (q - p) * (2 / 3 - t) * 6
+    return p
 
+def hsl_to_rgb(h, s, l):
     h = h / 360
     if s == 0:
         r, g, b = (l,) * 3  # achromatic

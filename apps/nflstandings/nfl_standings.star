@@ -275,6 +275,11 @@ def get_team_color(teamid):
 
 def get_team(x, s, entriesToDisplay, colHeight, now, timeColor, divisionName, showDateTime, topcolHeight):
     output = []
+    teamTies = ""
+    teamWins = ""
+    teamLosses = ""
+    teamGB = ""
+
     if showDateTime:
         theTime = now.format("3:04")
         if len(str(theTime)) > 4:

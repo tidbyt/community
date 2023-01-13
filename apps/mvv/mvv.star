@@ -272,6 +272,8 @@ def renderNumber(number, type_):
 
     (fg, bg, style) = color
 
+    shape = None
+
     # Note: For both styles, we need to wrap the text into another sizing box
     # for some reason to get the alignment right.
     if style == "circle":

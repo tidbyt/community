@@ -58,7 +58,7 @@ def main(config):
     font = "CG-pixel-3x5-mono"  #set font
 
     #check for cached data
-    stats = None
+    stats = {}
     stats_cached = cache.get("stats_rate/%s_%s" % (sport, league))
     if stats_cached != None:  #if any are None then all(title_cached)==False
         print("Hit! Displaying %s (%s) standings data." % (sport, league))

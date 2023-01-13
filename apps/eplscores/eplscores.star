@@ -124,7 +124,7 @@ def main(config):
 
             awayLogoCheck = competition["competitors"][1]["team"].get("logo", "NO")
             if awayLogoCheck == "NO":
-                homeLogoURL = "https://a.espncdn.com/i/espn/misc_logos/500/ncaa_football.vresize.50.50.medium.1.png"
+                awayLogoURL = "https://a.espncdn.com/i/espn/misc_logos/500/ncaa_football.vresize.50.50.medium.1.png"
             else:
                 awayLogoURL = competition["competitors"][1]["team"]["logo"]
             homeLogo = get_logoType(home, homeLogoURL)
@@ -133,6 +133,7 @@ def main(config):
             awayLogoSize = get_logoSize(away)
             homeScore = ""
             awayScore = ""
+            gameTime = ""
             homeScoreColor = "#fff"
             awayScoreColor = "#fff"
             teamFont = "Dina_r400-6"
