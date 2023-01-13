@@ -5,15 +5,15 @@ Description: Display daily Shopify metrics and charts for revenue, orders, or un
 Author: kcharwood
 """
 
-load("render.star", "render")
 load("cache.star", "cache")
-load("http.star", "http")
-load("schema.star", "schema")
 load("encoding/base64.star", "base64")
-load("time.star", "time")
 load("encoding/json.star", "json")
-load("re.star", "re")
 load("hash.star", "hash")
+load("http.star", "http")
+load("re.star", "re")
+load("render.star", "render")
+load("schema.star", "schema")
+load("time.star", "time")
 
 SHOPIFY_ICON_DATA = """
 iVBORw0KGgoAAAANSUhEUgAAABgAAAAYCAMAAADXqc3KAAAABGdBTUEAALGPC/xhBQAAACBjSFJNAAB6JgAAgIQAAPoAAACA6AAAdTAAAOpgAAA6mAAAF3CculE8AAABI1BMVEUAAACWv0iWv0iWv0iWv0iWv0iWv0iWv0iWv0iWv0iWv0iWv0iWv0iWv0iWv0iWv0iWv0iWv0iWv0idw1TP4qzi7s3O4aqfxVjS5LGz0XvN4ajS5LDP4quix16tzW+81ovT5LK10n/q8tr2+vD+/v3D25epymmcw1PZ6L3f7Mj8/fr////9/vyZwU251YanyWXX57mvznSqy2rp8tm204Dd6sPX5rmkyGGgxVn6/PbG3Jvq8tuxz3emyWTV5bb4+/K304K+147l79Hy9+imyWPG3Jz0+Oyqy2v2+e/3+vHo8divznP///6bwlCcwlKkx2DF3Jqvz3TC2pWy0HjY57zs8979/vvJ3qGqy2zS47Dm79P5+/Tf7MfI3qCx0HibwlGXv0nUrRiRAAAAEnRSTlMAInq75vu8IKn9IVzzdv51/HlGNAFfAAAAAWJLR0QrJLnkCAAAAAFvck5UAc+id5oAAAEiSURBVCjPdVLnWgJBDMw17jiQsjZU7ChqBHsBC6BS7Nh7ef+n8JKscvh9zJ/cztwm2UkABIZp2Y5jR0wDwnC9qNKIen6Hj8VVCPHYL9+XUF1IJPX/wvcPDA4Na4Xv+DpPZmR0LDuus1EdT74nJqemZ2Zzc/N88oI+pZ/8wuISEpYLdEwZYDJfFJawwoQJEY5ZxNW19Q0SNpmwwOa4hdtqZ7dEQpkJGxyOe7h/gDlOdciEo4UKVlVN6hxpgVPlEY9PVJ2Fhk5lUWhi6/RMnbNwcSnFud0qZq6uVVv6bRKTlge2sVK+uS2JUCTzDbHk7v7h8e+FT2IJuGJi4bn28vrWev/4/ApMdEO2E77DtgMkewyq92iDYXmpzjK4XXvip/+tzw/wsDO/5t4LZQAAAABJRU5ErkJggg==
@@ -480,7 +480,7 @@ def get_orders(store_name, api_token, start_time, since_id):
 
     total_pages = int(order_count / 250) + 1
     since_id = None
-    for current_page in range(total_pages):
+    for _ in range(total_pages):
         chunk = get_chunk_of_orders(store_name, api_token, start_time, since_id)
         if is_response_error(chunk):
             return chunk

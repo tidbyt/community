@@ -5,13 +5,13 @@ Description: Displays the latest tagline from the top of popular tech news site 
 Author: joevgreathead
 """
 
-load("render.star", "render")
-load("http.star", "http")
-load("html.star", "html")
-load("encoding/json.star", "json")
-load("encoding/base64.star", "base64")
 load("cache.star", "cache")
+load("encoding/base64.star", "base64")
+load("encoding/json.star", "json")
+load("html.star", "html")
+load("http.star", "http")
 load("random.star", "random")
+load("render.star", "render")
 
 # 16x16
 VERGE_LOGO = base64.decode("""
@@ -91,7 +91,7 @@ def main():
     )
 
 def map_to_tagline():
-    return ["props", "pageProps", "hydration", "responses", 1, "data", "cellData", "prestoComponentData", "masthead_tagline"]
+    return ["props", "pageProps", "hydration", "responses", 0, "data", "cellData", "prestoComponentData", "masthead_tagline"]
 
 def get_tagline(html_body):
     json_blob = html_body.find(SELECTOR_TAGLINE).text()
@@ -99,9 +99,9 @@ def get_tagline(html_body):
 
     current_ref = json_object
     for key in map_to_tagline():
-        if key == 1:
+        if key == 0:
             if len(current_ref) >= 1:
-                current_ref = current_ref[1]
+                current_ref = current_ref[0]
         elif key in current_ref:
             current_ref = current_ref[key]
         else:

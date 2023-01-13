@@ -1,10 +1,18 @@
-load("render.star", "render")
-load("http.star", "http")
+"""
+Applet: Step Counter
+Author: Matt-Pesce
+Summary: Tracks Daily Step Progress
+Description: Fetches your Step Data from Google Fit, Reports progress versus
+    daily goal.
+"""
+
 load("cache.star", "cache")
-load("time.star", "time")
+load("encoding/json.star", "json")
+load("http.star", "http")
+load("render.star", "render")
 load("schema.star", "schema")
 load("secret.star", "secret")
-load("encoding/json.star", "json")
+load("time.star", "time")
 
 # The daily step goal - this determines the coaching message you receive
 STEP_GOAL = 10000
@@ -159,7 +167,6 @@ def main(config):
     #Also, we want to compare this week's progress against last week's progress, since the beginning of the week.
     beginning_of_the_week_epoch = midnight_epoch - (SECONDS_IN_A_DAY * day_oftheweek)
     beginning_of_last_week_epoch = beginning_of_the_week_epoch - SECONDS_IN_A_WEEK
-    end_of_last_week_epoch = beginning_of_the_week_epoch - 1
     last_week_today_epoch = beginning_of_last_week_epoch + (SECONDS_IN_A_DAY * day_oftheweek) + midnight_delta
 
     # Translate to milliseconds
@@ -172,7 +179,6 @@ def main(config):
     beginning_of_the_week_epoch_millis = beginning_of_the_week_epoch * 1000
     beginning_of_last_week_epoch_millis = beginning_of_last_week_epoch * 1000
 
-    end_of_last_week_epoch_millis = end_of_last_week_epoch * 1000
     last_week_today_epoch_millis = last_week_today_epoch * 1000
 
     # Now, Retrieve stoday's step count.   Also Yesterday's step count (24 hours ago), Sum total for this week so far and then Sum total

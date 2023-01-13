@@ -280,6 +280,9 @@ def main(config):
     elif display_mode == DISPLAY_SEQUENTIAL:
         rendered = render_sequential(lines)
         delay = 2000
+    else:
+        rendered = []
+        delay = 50
 
     return render.Root(
         delay = delay,

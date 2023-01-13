@@ -5,11 +5,10 @@ Description: Shows random pictures of cats/gifs of cats from Cats as a Service (
 Author: mrrobot245
 """
 
-load("encoding/json.star", "json")
+load("cache.star", "cache")
+load("http.star", "http")
 load("render.star", "render")
 load("schema.star", "schema")
-load("http.star", "http")
-load("cache.star", "cache")
 
 def main(config):
     if config.bool("gifs", True):
