@@ -9,8 +9,8 @@ load("encoding/json.star", "json")
 load("http.star", "http")
 load("render.star", "render")
 load("schema.star", "schema")
-load("time.star", "time")
 load("secret.star", "secret")
+load("time.star", "time")
 
 URL = "https://api-v3.mbta.com/predictions"
 

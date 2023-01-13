@@ -5,11 +5,11 @@ Description: Display AA Daily Refelection from the AA.org website
 Author: jvivona
 """
 
+load("cache.star", "cache")
+load("encoding/json.star", "json")
+load("http.star", "http")
 load("render.star", "render")
 load("time.star", "time")
-load("cache.star", "cache")
-load("http.star", "http")
-load("encoding/json.star", "json")
 
 APPTITLE_TEXT_COLOR = "#fff"
 APPTITLE_BKG_COLOR = "#0000ff"

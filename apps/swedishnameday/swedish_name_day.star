@@ -5,12 +5,11 @@ Description: The app shows today's nameday names in Sweden.
 Author: y34752
 """
 
+load("cache.star", "cache")
 load("encoding/json.star", "json")
+load("http.star", "http")
 load("render.star", "render")
 load("schema.star", "schema")
-load("re.star", "re")
-load("http.star", "http")
-load("cache.star", "cache")
 
 def getlistasstring(listin):
     ref = ""

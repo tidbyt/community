@@ -6,13 +6,13 @@ Author: Cavallando
 """
 # I'm new to starlark, sorry if this looks bad :)
 
-load("render.star", "render")
 load("animation.star", "animation")
-load("http.star", "http")
+load("cache.star", "cache")
 load("encoding/base64.star", "base64")
 load("encoding/json.star", "json")
+load("http.star", "http")
+load("render.star", "render")
 load("schema.star", "schema")
-load("cache.star", "cache")
 
 CHECK_ICON = base64.decode("""
 iVBORw0KGgoAAAANSUhEUgAAANwAAAC0CAYAAAD//UK2AAADoUlEQVR4nO3dQVIbMRCGUXMJ77hGzsApcyrOg7MgLCEtevKrZ3ivanYqypb0jTYqc7sBAAAAAAAAAAAAAAAAAAAAAMAVPG5P99+/3irP7o8K5/ce3KPwCA7aBAdBgoMgwUGQ4CBIcBAkOAgSHAQJDo5RDen59eVReN6ECV8QHAQJDoIEB0GCgyDBQZDgIEhwECQ4CBIcdC38Bsnz68uWp/r5dk8l/Fv97mPl1Hr8jeTQcU5CrkNwECQ4CBIcBAkOggQHQYKDIMFBkOD4cHfD4PtOcIPk6Md+afJma1j49aziSbPthHMShpjABsHZL6tMYIPg7JdVJrBBcPbLKhPYIDj7ZZUJbBCc/bLKBDYIzn5ZZQIbBGe/rDKBDYKzXz7cD74BUf17u7/3Idwg+Xx9H7en0vPTFN9E5Tdq9e/t/t6HOP7kGn/CObmaBNcgOMGtElyD4AS3SnANghPcKsE1CE5wqwTXIDjBrRJcg+AEt0pwDYIT3CrBNQhOcB/uw29AVD/flslzg2TWepzBwSfX0W/U0mfbHNyOk2vbCTd6Pc5AcA2Cm7UeZyC4BsHNWo8zEFyD4GatxxkIrkFws9bjDATXILhZ63EGgmsQ3Kz1OAPBNQhu1nqcgeAaBDdrPXa6uwHx/RsQbpD4DZJVm06uw0+46t+rft/S5M0/uXbN3887uaoEJzjBBQlOcIILEpzgBBckOMEJLkhwghNckOAEJ7ggwQlOcEGCE5zgkoo3Au5uVPi+QsrZdBIe/oaujr3IyXX49929D38MwQlOcEGCE5zgggQnOMEFCU5wggsSnOAEFyQ4wQkuSHCCE1yQ4AQnuIEODnNbcMMDKY+rrsfufcM3CW7WOMFdnOBmjRPcxQlu1jjBXZzgZo0T3MUJbtY4wV2c4GaNE9zFCW7WOMFdnOBmjRPcxQlu1jjBXZ3fSIk81fnbvR0YovjmdcL1Ti7B8U5wgiNIcIIjSHCCI0hwgiNIcIIjSHCCI0hwgiNIcIJjmvq/g7pMcEJiH8EJjiDBCY4gwQmOIMEJjiDBCY4gwQmOIMEJjiDBCY4gwQmOoOLvo5zhN1Kqn2/3lENJ9WTYdcI5ubgUwUGQ4CBIcBAkOAgSHAQJDoIEB0GCg2n+w1UxIcFnBAdBgoMgwUGQ4CBIcBAkOAgSHAQJDoIEBzMJCYIEB0GCgyDBQZDgIEhwECQ4CBIcBAkOggQHSdX/3AMAAAAAAAAAAAAAAAAAAAAA5/YHxKLaWfZG2RgAAAAASUVORK5CYII=

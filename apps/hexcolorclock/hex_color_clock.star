@@ -52,7 +52,7 @@ def main(config):
     frames = []
 
     # Generate frames for the next 30 seconds
-    for i in range(30):
+    for _ in range(30):
         bg_color, fg_color = get_color(now, brighten_colors)
 
         for format in formats:

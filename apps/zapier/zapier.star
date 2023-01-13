@@ -5,9 +5,9 @@ Description: The Zapier app allows you to trigger information on your Tidbyt fro
 Author: Tidbyt
 """
 
+load("encoding/base64.star", "base64")
 load("render.star", "render")
 load("schema.star", "schema")
-load("encoding/base64.star", "base64")
 
 def main(config):
     primary = config.str("primary", "")

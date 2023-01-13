@@ -5,13 +5,13 @@ Description: Displays the name, speed, distance, and arrival of the next near Ea
 Author: noahcolvin
 """
 
+load("cache.star", "cache")
+load("encoding/base64.star", "base64")
+load("encoding/json.star", "json")
+load("http.star", "http")
 load("render.star", "render")
 load("schema.star", "schema")
-load("http.star", "http")
-load("encoding/base64.star", "base64")
-load("cache.star", "cache")
 load("time.star", "time")
-load("encoding/json.star", "json")
 
 URL = "https://www.neowsapp.com/rest/v1/feed?detailed=false&start_date={}"
 CACHE_KEY = "neos"
@@ -215,7 +215,6 @@ def neo_relative_time(neo):
 
     diff = neo_time - now
 
-    int_seconds = int(diff.seconds)
     return diff
 
 def neo_unix_date(neo):
