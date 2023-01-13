@@ -21,10 +21,6 @@ L_STOPS_CACHE_KEY = "lstops"
 ENCRYPTED_L_STOPS_APP_TOKEN = "AV6+xWcElqoWzINC+4lBzeZuL6rIz1WGOqo0vKlZLAmNZ58lOUCXnBWaXKxD7thBgCYJ36jW5LTnRMkgavzgjYcaLzI1T4545Q54RkwzjCz+FTEgK5p6zVoMaEY10385T1Sycp9ZKer0b34Vig8XeDXUY+z1EKJ5mggHGoiQhQ=="
 ENCRYPTED_ARRIVALS_API_KEY = "AV6+xWcER6HjcvANXDhGJqhXg09FtzGZjmyft97YTwLYSLwd+gBAYSfDiTqjB2qhD14cjg9qpzRaYksr2S+0ectDcdVEUq2AyfdaVKzqn4sYoeGmtmsSHbweibhglsfdgKC1yN8OqrYZjv7k0Y15NPoDj78kFm/iV/g1IaeOYTx1p5QbKqE="
 
-# For testing only
-TEST_L_STOPS_APP_TOKEN = "zfAgcvAdwKl76ArMjkuPjQ73v"
-TEST_ARRIVALS_API_KEY = "72819e3881d942b5953c2af10fe2b232"
-
 # Gets Hex color code for a given train line
 COLOR_MAP = {
     # Train Lines
@@ -59,10 +55,7 @@ def get_schema():
     )
 
 def main(config):
-    selected_station = config.get("station")
-    print(selected_station)
-    if not selected_station:
-        selected_station = DEFAULT_STATION
+    selected_station = config.get("station", DEFAULT_STATION)
 
     arrivals = get_journeys(selected_station)
 
@@ -162,8 +155,7 @@ def get_stations():
 
     print("Miss! No L Stops info in cache, calling L Stops API.")
 
-    # app_token = secret.decrypt(ENCRYPTED_L_STOPS_APP_TOKEN)
-    app_token = TEST_L_STOPS_APP_TOKEN
+    app_token = secret.decrypt(ENCRYPTED_L_STOPS_APP_TOKEN)
     if not app_token:
         return None
 
@@ -224,8 +216,7 @@ def get_journeys(station_code):
     Gets top 2 arrivals scheduled for the selected station
     from CTA Arrivals API
     """
-    # api_key = secret.decrypt(ENCRYPTED_ARRIVALS_API_KEY)
-    api_key = TEST_ARRIVALS_API_KEY
+    api_key = secret.decrypt(ENCRYPTED_ARRIVALS_API_KEY)
     if api_key == None or station_code == None:
         return None
 
