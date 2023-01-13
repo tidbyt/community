@@ -5,13 +5,12 @@ Description: Displays a pollen count for your area. Enter your location for upda
 Author: Nicole Brooks
 """
 
-load("render.star", "render")
-load("schema.star", "schema")
 load("cache.star", "cache")
-load("secret.star", "secret")
 load("encoding/base64.star", "base64")
 load("encoding/json.star", "json")
 load("http.star", "http")
+load("render.star", "render")
+load("schema.star", "schema")
 
 DEFAULT_LOC = {
     "lat": 40.63,
@@ -30,7 +29,7 @@ SECRET_PROPERTY = "&apikey="
 
 def main(config):
     print("Initializing Pollen Count...")
-    secret = secret.decrypt("AV6+xWcEKqQk8lv8vqNkwdwM++h3fRDmbM3vyizZBmHOwUXUUC5WmiN+FbU8lSwyYnQacojyuFmWiovZ8VmRyq+qQ9oa8CQzBcwmQ9YVyaFAc9ij/sV2Yh4wmr3b/4KPyG28wjhGGDj2E4YlvbFxlGoWCegZlY0GlylbTNozom5PrURH6lM=") or ""
+    # secret = secret.decrypt("AV6+xWcEKqQk8lv8vqNkwdwM++h3fRDmbM3vyizZBmHOwUXUUC5WmiN+FbU8lSwyYnQacojyuFmWiovZ8VmRyq+qQ9oa8CQzBcwmQ9YVyaFAc9ij/sV2Yh4wmr3b/4KPyG28wjhGGDj2E4YlvbFxlGoWCegZlY0GlylbTNozom5PrURH6lM=") or ""
 
     #Get lat and long from schema.
     location = config.get("location")
@@ -50,7 +49,7 @@ def main(config):
         print("Cache miss, calling API")
 
         #If not, make API call and cache result
-        todaysCount = getTodaysCount(latLngStr, secret)
+        todaysCount = getTodaysCount(latLngStr)
 
     firstMixin = None
     secondMixin = None
@@ -182,12 +181,14 @@ def roundToHalf(floatNum):
         num = noDecimal
     elif decimal > .7:
         num = noDecimal + 1
+    else:
+        num = None
+
     return num
 
 # Make API call and process data.
-def getTodaysCount(latLng, secret):
+def getTodaysCount(latLng):
     print("Getting API for: " + latLng + " for " + str(3600 * 12) + " seconds")
-    url = API_URL_BASE + latLng + SECRET_PROPERTY + secret
     rep = http.get(API_URL_BASE + latLng)
     data = rep.json()
 
@@ -257,6 +258,8 @@ def getColor(index):
         return COLORS["yellow"]
     elif index >= 4:
         return COLORS["red"]
+    else:
+        return ""
 
 # Get display text for index.
 def getName(indexName):
@@ -266,6 +269,8 @@ def getName(indexName):
         return "GRASS"
     elif indexName == "treeIndex":
         return "TREE"
+    else:
+        return ""
 
 # Returns appropriate sky image to show.
 def getSky(average):
@@ -275,6 +280,8 @@ def getSky(average):
         return images["skyMedPollen"]
     elif average >= 3.5:
         return images["skyHighPollen"]
+    else:
+        return ""
 
 # Returns appropriate ground image to show.
 def getGround(topTwo):

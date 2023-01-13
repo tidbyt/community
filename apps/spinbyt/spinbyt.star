@@ -5,13 +5,13 @@ Description: App that shows the nearest Spin scooter, its battery level, and num
 Author: zachlucas
 """
 
-load("render.star", "render")
-load("http.star", "http")
+load("cache.star", "cache")
 load("encoding/base64.star", "base64")
 load("encoding/json.star", "json")
+load("http.star", "http")
 load("math.star", "math")
+load("render.star", "render")
 load("schema.star", "schema")
-load("cache.star", "cache")
 
 DEFAULT_URL = "https://gbfs.spin.pm/api/gbfs/v2_3/%s/free_bike_status"
 

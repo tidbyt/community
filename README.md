@@ -44,7 +44,7 @@ code of conduct, policies, and legal info.
 ## Thanks
 Thanks so much for your interest in contributing to Community Apps. We deeply value contributions of any size. It takes an army to support the deeply specialized use cases of the Tidbyt community and we can't thank you enough.
 
-Rohan, Mats, and Mark @ Tidbyt ❤️
+Rohan, Mats, Mark and Par @ Tidbyt ❤️
 
 [1]: https://tidbyt.com
 [2]: https://github.com/tidbyt/pixlet
