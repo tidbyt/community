@@ -19,14 +19,13 @@ LiveGames_URL = "https://hs-consumer-api.espncricinfo.com/v1/pages/matches/curre
 Standings_URL = "https://hs-consumer-api.espncricinfo.com/v1/pages/series/standings?lang=en&seriesId=1324623"
 
 DEFAULT_TEAM = "4848"
-DEFAULT_TIMEZONE = "Australia/Adelaide" 
+DEFAULT_TIMEZONE = "Australia/Adelaide"
 MATCH_CACHE = 60
-STANDINGS_CACHE = 6*3600 # 6 hours
+STANDINGS_CACHE = 6 * 3600  # 6 hours
 
 def main(config):
-
     timezone = config.get("$tz", DEFAULT_TIMEZONE)
-    
+
     SelectedTeam = config.get("TeamList", DEFAULT_TEAM)
     SelectedTeam = int(SelectedTeam)
 
@@ -49,7 +48,7 @@ def main(config):
         # cache specific match data for 1 minute
         MatchData = get_cachable_data(Match_URL, MATCH_CACHE)
         Match_JSON = json.decode(MatchData)
-       
+
         # If there is a live game on
         if Match_JSON["match"]["state"] == "LIVE":
             # What innings is it ?
@@ -158,12 +157,12 @@ def main(config):
             if len(RRR) == 1:
                 RRR = RRR + ".00"
             if len(RRR) == 3:
-                RRR = RRR + "0"  
+                RRR = RRR + "0"
             if len(CRR) == 1:
                 CRR = CRR + ".00"
             if len(CRR) == 3:
-                CRR = CRR + "0"        
-            
+                CRR = CRR + "0"
+
             ProjScore = str(Match_JSON["match"]["liveInningPredictions"]["score"])
 
             # ProjScore can be null at the very start of the match
@@ -189,8 +188,8 @@ def main(config):
                     T20_Status1 = MatchStatus
                 T20_Status2 = "Overs: " + Overs
                 T20_Status3 = "Run Rate: " + CRR
-                
-            # 2nd Innings underway
+
+                # 2nd Innings underway
             else:
                 T20_Status1 = BattingTeamAbbr + TrailBy
                 T20_Status2 = "Overs: " + Overs
@@ -206,7 +205,7 @@ def main(config):
                     T20_Status3 = "Overs: " + Overs
                     T20_Status4 = "Proj Score: " + ProjScore
 
-                # Team batting second, still want to show how far behind and req RR
+                    # Team batting second, still want to show how far behind and req RR
                 else:
                     T20_Status1 = "WICKET!"
                     T20_Status2 = BattingTeamAbbr + TrailBy
@@ -268,7 +267,7 @@ def main(config):
 
                 Team2_Wkts = Match_JSON["scorecardSummary"]["innings"][1]["wickets"]
                 Team2_Runs = Match_JSON["scorecardSummary"]["innings"][1]["runs"]
-                
+
                 Team1_Wkts_Str = str(Team1_Wkts)
                 Team1_Runs_Str = str(Team1_Runs)
                 Team2_Wkts_Str = str(Team2_Wkts)
@@ -528,10 +527,10 @@ def main(config):
 
             # Game is coming up
         elif Match_JSON["match"]["stage"] == "SCHEDULED" or "PRE":
-           
             # cache the standings data for 6hrs
             StandingsData = get_cachable_data(Standings_URL, 21600)
             Standings_JSON = json.decode(StandingsData)
+
             # Who is playing who
             Team1_Name = Match_JSON["match"]["teams"][0]["team"]["name"]
             Team2_Name = Match_JSON["match"]["teams"][1]["team"]["name"]
@@ -765,7 +764,6 @@ def getTeamDisplayName(teamID):
     return None
 
 def get_schema():
-
     return schema.Schema(
         version = "1",
         fields = [
@@ -782,12 +780,16 @@ def get_schema():
 
 def get_cachable_data(url, timeout):
     key = base64.encode(url)
+
     data = cache.get(key)
-    if data != None:    
+    if data != None:
         #print("CACHED")
         return base64.decode(data)
+
     res = http.get(url = url)
     if res.status_code != 200:
         fail("request to %s failed with status code: %d - %s" % (url, res.status_code, res.body()))
+
     cache.set(key, base64.encode(res.body()), ttl_seconds = timeout)
+
     return res.body()
