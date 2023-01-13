@@ -211,7 +211,7 @@ def get_stops(location):
 
     (timestamp, raw_stops) = fetch_cached(STOPS_URL % API_KEY, 86400)
 
-    if "Contents" not in raw_stops:
+    if type(raw_stops) == "string" or "Contents" not in raw_stops:
         return []
 
     stops.update([(stop["id"], stop) for stop in raw_stops["Contents"]["dataObjects"]["ScheduledStopPoint"]])
