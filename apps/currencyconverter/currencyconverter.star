@@ -5,18 +5,18 @@ Description: Displays current currency exchange rates.
 Author: Robert Ison
 """
 
-load("render.star", "render")
-load("math.star", "math")
-load("schema.star", "schema")
+load("cache.star", "cache")
 load("encoding/base64.star", "base64")
 load("encoding/json.star", "json")
-load("secret.star", "secret")
 load("http.star", "http")
-load("cache.star", "cache")
+load("math.star", "math")
+load("render.star", "render")
+load("schema.star", "schema")
+load("secret.star", "secret")
 load("time.star", "time")
 
-exchange_rate_api_key = "382c82c0e47531184b366111"
-exchange_rate_api_key_encrypted = "AV6+xWcEXP7etGoIWOhZZ4spSkJcCWWY9zg31IBiDre6tG5KRQPaD2yzU1SKrbJMsNeqjJW1rwt5iu+tEnP4qKecP8hSqdycpc/jrPcoqBFkHzM8Wr9CC2oQ5gnfF+KX8nxRx6IbX4FhVHwMAqOFKT/1Z23v50mqeatEWFVw"
+# Exchangerate-API.com
+exchange_rate_api_key_encrypted = "AV6+xWcE2EJ1am5cfNlWEh7R0E3NbcVBkpTEcQbuoSDokWbHW020B9OGl6dshXbNpl3oGGSEANUBz/M7B4LOQGCT/UnVOrcR1DHaijlxKN3UT+Y29y9ZgKs4XS2qk/OZQgFqvSWs/160vJCiM7DSktYV5kddXa7Iy4y42sVN"
 currencies = {
     "eur": {
         "name": "Euro",
@@ -622,17 +622,22 @@ def get_currency_information(currency_url):
     else:
         return None
 
-# buildifier: disable=function-docstring
 def main(config):
+    """ Main
+
+    Args:
+        config: The past in configuration which includes selected countries
+    Returns:
+        Display to Tidbyt
+    """
     local_currency = config.get("local") or "usd"
     foreign_currency = config.get("foreign") or "cad"
 
-    key = secret.decrypt(exchange_rate_api_key_encrypted) or exchange_rate_api_key
+    key = config.get("APIKEY", secret.decrypt(exchange_rate_api_key_encrypted))
     exchange_rate_url = "https://v6.exchangerate-api.com/v6/%s/latest/%s" % (key, local_currency.lower())
 
     exchange_data_encoded_json = cache.get(exchange_rate_url)
     if exchange_data_encoded_json == None:
-        # print("Refreshing Data From API")
         exchange_data_decoded_json = get_currency_information(exchange_rate_url)
 
         # calculate 5 minutes past the stated next update date to make sure it it'll be updated next time we call
@@ -688,6 +693,8 @@ def main(config):
 
 def get_schema():
     currency_options = [
+        schema.Option(value = "CAD", display = "Canada"),
+        schema.Option(value = "GBP", display = "United Kingdom"),
         schema.Option(value = "USD", display = "United States"),
         schema.Option(value = "ALL", display = "Albania"),
         schema.Option(value = "AOA", display = "Angola"),

@@ -5,17 +5,14 @@ Description: Displays Continuous Glucose Monitoring (CGM) data from the Nightsco
 Authors: Jeremy Tavener, Paul Murphy
 """
 
-load("render.star", "render")
-load("http.star", "http")
-load("time.star", "time")
-load("encoding/base64.star", "base64")
-load("encoding/json.star", "json")
-load("encoding/csv.star", "csv")
 load("cache.star", "cache")
+load("encoding/csv.star", "csv")
+load("encoding/json.star", "json")
+load("http.star", "http")
+load("render.star", "render")
 load("schema.star", "schema")
-load("re.star", "re")
-load("humanize.star", "humanize")
 load("sunrise.star", "sunrise")
+load("time.star", "time")
 
 COLOR_RED = "#C00"
 COLOR_DARK_RED = "#911"
@@ -25,6 +22,7 @@ COLOR_GREEN = "#2b3"
 COLOR_GREY = "#777"
 COLOR_WHITE = "#fff"
 COLOR_NIGHT = "#444"
+COLOR_HOURS = "#222"
 
 DEFAULT_NORMAL_HIGH = 180
 DEFAULT_NORMAL_LOW = 100
@@ -32,6 +30,7 @@ DEFAULT_URGENT_HIGH = 200
 DEFAULT_URGENT_LOW = 70
 
 DEFAULT_SHOW_GRAPH = "true"
+DEFAULT_SHOW_GRAPH_HOUR_BARS = True
 DEFAULT_SHOW_CLOCK = "true"
 DEFAULT_NIGHT_MODE = "false"
 GRAPH_WIDTH = 43
@@ -41,7 +40,8 @@ GRAPH_TOP = 275
 CACHE_TTL_SECONDS = 1800  #30 mins
 
 PROVIDER_CACHE_TTL = 7200  #2 hours
-NS_PROVIDERS = "https://raw.githubusercontent.com/IsThisPaul/TidBytCommunity/Nightscout-Provider-File/apps/nightscout/nightscout_providers.csv"
+
+NS_PROVIDERS = "https://raw.githubusercontent.com/tidbyt/community/main/apps/nightscout/nightscout_providers.csv"
 
 DEFAULT_LOCATION = """
 {
@@ -88,6 +88,7 @@ def main(config):
     urgent_high = int(config.get("urgent_high", DEFAULT_URGENT_HIGH))
     urgent_low = int(config.get("urgent_low", DEFAULT_URGENT_LOW))
     show_graph = config.get("show_graph", DEFAULT_SHOW_GRAPH)
+    show_graph_hour_bars = config.bool("show_graph_hour_bars", DEFAULT_SHOW_GRAPH_HOUR_BARS)
     show_clock = config.get("show_clock", DEFAULT_SHOW_CLOCK)
     night_mode = config.get("night_mode", DEFAULT_NIGHT_MODE)
 
@@ -106,7 +107,6 @@ def main(config):
     sgv_current = int(nightscout_data_json["sgv_current"])
     sgv_delta = int(nightscout_data_json["sgv_delta"])
     latest_reading_dt = time.parse_time(nightscout_data_json["latest_reading_date_string"])
-    trend = nightscout_data_json["trend"]
     direction = nightscout_data_json["direction"]
     history = nightscout_data_json["history"]
 
@@ -149,7 +149,6 @@ def main(config):
     color_graph_urgent_low = COLOR_RED
     color_graph_lines = COLOR_GREY
     color_clock = COLOR_ORANGE
-    font_color = COLOR_YELLOW
 
     if (reading_mins_ago > 5):
         # The information is stale (i.e. over 5 minutes old) - overrides everything.
@@ -398,6 +397,7 @@ def main(config):
     else:
         # high and low lines
         graph_plot = []
+        graph_hour_bars = []
         min_time = OLDEST_READING_TARGET.unix
 
         # the rest of the graph
@@ -428,6 +428,20 @@ def main(config):
 
             if this_point < urgent_low:
                 graph_point_color = color_graph_urgent_low
+
+            if show_graph_hour_bars:
+                min_hour = time.from_timestamp(min_time, 0).hour
+                max_hour = time.from_timestamp(max_time, 0).hour
+                if min_hour != max_hour:
+                    # Add hour marker at this point
+                    graph_hour_bars.append(render.Padding(
+                        pad = (point, 0, 0, 0),
+                        child = render.Box(
+                            width = 1,
+                            height = 32,
+                            color = COLOR_HOURS,
+                        ),
+                    ))
 
             graph_plot.append(
                 render.Plot(
@@ -519,6 +533,9 @@ def main(config):
                             children = [
                                 render.Stack(
                                     children = [
+                                        render.Stack(
+                                            children = graph_hour_bars,
+                                        ),
                                         render.Plot(
                                             data = [
                                                 (0, normal_low),
@@ -633,6 +650,13 @@ def get_schema():
                 default = True,
             ),
             schema.Toggle(
+                id = "show_graph_hour_bars",
+                name = "Show Graph Hours",
+                desc = "Show hour makings on the graph",
+                icon = "gear",
+                default = DEFAULT_SHOW_GRAPH_HOUR_BARS,
+            ),
+            schema.Toggle(
                 id = "show_clock",
                 name = "Show Clock",
                 desc = "Show clock along with reading",
@@ -678,7 +702,6 @@ def get_nightscout_data(nightscout_id, nightscout_host):
     #print (latest_reading)
     #print (previous_reading)
     latest_reading_date_string = latest_reading["dateString"]
-    latest_reading_dt = time.parse_time(latest_reading_date_string)
 
     # Current sgv value
     sgv_current = latest_reading["sgv"]
@@ -686,8 +709,7 @@ def get_nightscout_data(nightscout_id, nightscout_host):
     # Delta between the current and previous
     sgv_delta = int(sgv_current - previous_reading["sgv"])
 
-    # Get the trend
-    trend = latest_reading["trend"]
+    # Get the direction
     direction = latest_reading["direction"]
 
     print("%d %d %s" % (sgv_current, sgv_delta, ARROWS[direction]))
@@ -705,7 +727,6 @@ def get_nightscout_data(nightscout_id, nightscout_host):
         "sgv_current": str(int(sgv_current)),
         "sgv_delta": str(int(sgv_delta)),
         "latest_reading_date_string": latest_reading_date_string,
-        "trend": trend,
         "direction": direction,
         "history": history,
     }
@@ -742,7 +763,6 @@ EXAMPLE_DATA = {
     "sgv_current": "85",
     "sgv_delta": "-2",
     "latest_reading_date_string": time.now().format("2006-01-02T15:04:05.999999999Z07:00"),
-    "trend": "0",
     "direction": "Flat",
     "history": [(1658171112, 141), (1658170812, 133), (1658170512, 129), (1658170212, 125), (1658169912, 121), (1658169612, 116), (1658169312, 114), (1658169012, 109), (1658168712, 105), (1658168412, 103), (1658168112, 107), (1658167812, 114), (1658167512, 119), (1658167212, 123), (1658166912, 127), (1658166612, 126), (1658166312, 124), (1658166012, 108), (1658165712, 103), (1658165412, 100), (1658165112, 96), (1658164812, 93), (1658164512, 93), (1658164212, 95), (1658163911, 93), (1658163612, 92), (1658163311, 91), (1658163011, 87), (1658162712, 86), (1658162412, 87), (1658162112, 88), (1658161812, 87), (1658161512, 87), (1658161212, 85), (1658160912, 84), (1658160612, 83), (1658160312, 80), (1658160012, 83), (1658159712, 88), (1658159412, 90), (1658159111, 88), (1658158812, 87), (1658158512, 85)],
 }
