@@ -1,10 +1,12 @@
-load("render.star", "render")
+load("encoding/json.star", "json")
+load("encoding/base64.star", "base64")
 load("http.star", "http")
 load("humanize.star", "humanize")
-load("time.star", "time")
-load("encoding/json.star", "json")
-load("schema.star", "schema")
 load("math.star", "math")
+load("render.star", "render")
+load("schema.star", "schema")
+load("time.star", "time")
+load("cache.star", "cache")
 
 """
 Applet: BBL Cricket
@@ -15,31 +17,25 @@ Author: M0ntyP
 
 LiveGames_URL = "https://hs-consumer-api.espncricinfo.com/v1/pages/matches/current?lang=en&latest=true"
 Standings_URL = "https://hs-consumer-api.espncricinfo.com/v1/pages/series/standings?lang=en&seriesId=1324623"
-DEFAULT_TEAM = "4848"
 
-DEFAULT_LOCATION = """ 
-{
-    "description": "Adelaide, SA, Australia",
-    "locality": "Adelaide",
-    "timezone": "Australia/Adelaide"
-}
-"""
+DEFAULT_TEAM = "4848"
+DEFAULT_TIMEZONE = "Australia/Adelaide" 
+MATCH_CACHE = 60
+STANDINGS_CACHE = 6*3600 # 6 hours
 
 def main(config):
+
+    timezone = config.get("$tz", DEFAULT_TIMEZONE)
+    
     SelectedTeam = config.get("TeamList", DEFAULT_TEAM)
     SelectedTeam = int(SelectedTeam)
 
-    Standings_JSON = http.get(Standings_URL).json()
     LiveGames_JSON = http.get(LiveGames_URL).json()
     Matches = LiveGames_JSON["matches"]
 
     # scroll through the live & recent games to find if your team is listed
     for x in range(0, len(Matches), 1):
-        if Matches[x]["teams"][0]["team"]["id"] == SelectedTeam:
-            MatchID = Matches[x]["objectId"]
-            Playing = True
-            break
-        elif Matches[x]["teams"][1]["team"]["id"] == SelectedTeam:
+        if Matches[x]["teams"][0]["team"]["id"] == SelectedTeam or Matches[x]["teams"][1]["team"]["id"] == SelectedTeam:
             MatchID = Matches[x]["objectId"]
             Playing = True
             break
@@ -50,8 +46,10 @@ def main(config):
         MatchID = humanize.ftoa(MatchID)
         Match_URL = "https://hs-consumer-api.espncricinfo.com/v1/pages/match/details?lang=en&seriesId=" + MatchID + "&matchId=" + MatchID + "&latest=true"
 
-        Match_JSON = http.get(Match_URL).json()
-
+        # cache specific match data for 1 minute
+        MatchData = get_cachable_data(Match_URL, MATCH_CACHE)
+        Match_JSON = json.decode(MatchData)
+       
         # If there is a live game on
         if Match_JSON["match"]["state"] == "LIVE":
             # What innings is it ?
@@ -70,7 +68,8 @@ def main(config):
                 trail_bool = False
 
             Trail = math.fabs(Trail) + 1
-            Trail = humanize.ftoa(Trail)
+            Trail = humanize.float("#.", Trail)
+            Trail = str(Trail)
 
             TrailBy = " need " + Trail
 
@@ -90,7 +89,7 @@ def main(config):
             # On strike batsman
             Batsman1 = Match_JSON["livePerformance"]["batsmen"][0]["player"]["fieldingName"]
             Batsman1_Runs = Match_JSON["livePerformance"]["batsmen"][0]["runs"]
-            Batsman1_Runs_Str = humanize.ftoa(Batsman1_Runs)
+            Batsman1_Runs_Str = str(Batsman1_Runs)
 
             # Last out
             WicketsInt = int(Wickets)
@@ -104,7 +103,7 @@ def main(config):
             if Batsmen == 2:
                 Batsman2 = Match_JSON["livePerformance"]["batsmen"][1]["player"]["fieldingName"]
                 Batsman2_Runs = Match_JSON["livePerformance"]["batsmen"][1]["runs"]
-                Batsman2_Runs_Str = humanize.ftoa(Batsman2_Runs)
+                Batsman2_Runs_Str = str(Batsman2_Runs)
 
                 # little bit of formatting/spacing
                 if Batsman2_Runs < 100:
@@ -124,7 +123,7 @@ def main(config):
                 IsOut = True
 
                 Batsman2 = LastOut_Name
-                Batsman2_Runs_Str = humanize.ftoa(LastOut_Runs)
+                Batsman2_Runs_Str = str(LastOut_Runs)
 
                 # little bit of formatting/spacing
                 if LastOut_Runs < 100:
@@ -136,11 +135,11 @@ def main(config):
                 BatsmanColor = "#fff"
                 Batsman2Color = "#f00"
 
-            Wickets = humanize.ftoa(Wickets)
-            Runs = humanize.ftoa(Runs)
+            Wickets = str(Wickets)
+            Runs = str(Runs)
 
             if WicketsInt > 0:
-                LastOut_Runs = humanize.ftoa(LastOut_Runs)
+                LastOut_Runs = str(LastOut_Runs)
 
             # little bit of formatting/spacing
             if Batsman1_Runs < 100:
@@ -153,16 +152,26 @@ def main(config):
             BattingTeamAbbr = Match_JSON["scorecard"]["innings"][Innings]["team"]["abbreviation"]
             CRR = str(Match_JSON["supportInfo"]["liveInfo"]["currentRunRate"])
             RRR = str(Match_JSON["supportInfo"]["liveInfo"]["requiredRunrate"])
-            ProjScore = humanize.ftoa(Match_JSON["match"]["liveInningPredictions"]["score"])
+
+            # Formatting to include trailing zeros on the strings
+            # Doing it this way as value from API can be either float or int
+            if len(RRR) == 1:
+                RRR = RRR + ".00"
+            if len(RRR) == 3:
+                RRR = RRR + "0"  
+            if len(CRR) == 1:
+                CRR = CRR + ".00"
+            if len(CRR) == 3:
+                CRR = CRR + "0"        
+            
+            ProjScore = str(Match_JSON["match"]["liveInningPredictions"]["score"])
 
             # ProjScore can be null at the very start of the match
             if ProjScore == None:
                 ProjScore = 0
 
             T20_Innings = Match_JSON["match"]["liveInning"]
-
             MatchStatus = str(Match_JSON["match"]["status"])
-
             T20_StatusColor = "#fff"
 
             # what to show on the status bar, depending on state of game, team batting first or second & fall of wicket
@@ -180,24 +189,24 @@ def main(config):
                     T20_Status1 = MatchStatus
                 T20_Status2 = "Overs: " + Overs
                 T20_Status3 = "Run Rate: " + CRR
-                # 2nd Innings underway
-
+                
+            # 2nd Innings underway
             else:
                 T20_Status1 = BattingTeamAbbr + TrailBy
                 T20_Status2 = "Overs: " + Overs
                 T20_Status3 = "Run Rate: " + CRR
                 T20_Status4 = "Req Rate: " + RRR
 
-            # Wicket has fallen
-            if IsOut == True:
+            # Wicket has fallen but not the end of the inngs
+            if IsOut == True and Wickets != "10":
                 # Team batting first
                 if T20_Innings == 1:
                     T20_Status1 = "WICKET!"
                     T20_Status2 = "WICKET!"
                     T20_Status3 = "Overs: " + Overs
                     T20_Status4 = "Proj Score: " + ProjScore
-                    # Team batting second, still want to show how far behind and req RR
 
+                # Team batting second, still want to show how far behind and req RR
                 else:
                     T20_Status1 = "WICKET!"
                     T20_Status2 = BattingTeamAbbr + TrailBy
@@ -259,11 +268,11 @@ def main(config):
 
                 Team2_Wkts = Match_JSON["scorecardSummary"]["innings"][1]["wickets"]
                 Team2_Runs = Match_JSON["scorecardSummary"]["innings"][1]["runs"]
-
-                Team1_Wkts_Str = humanize.ftoa(Team1_Wkts)
-                Team1_Runs_Str = humanize.ftoa(Team1_Runs)
-                Team2_Wkts_Str = humanize.ftoa(Team2_Wkts)
-                Team2_Runs_Str = humanize.ftoa(Team2_Runs)
+                
+                Team1_Wkts_Str = str(Team1_Wkts)
+                Team1_Runs_Str = str(Team1_Runs)
+                Team2_Wkts_Str = str(Team2_Wkts)
+                Team2_Runs_Str = str(Team2_Runs)
 
                 if Team1_Wkts != 10:
                     Score1 = Team1_Wkts_Str + "/" + Team1_Runs_Str
@@ -299,8 +308,8 @@ def main(config):
 
                 Score2 = ""
 
-                Team1_Wkts_Str = humanize.ftoa(Team1_Wkts)
-                Team1_Runs_Str = humanize.ftoa(Team1_Runs)
+                Team1_Wkts_Str = str(Team1_Wkts)
+                Team1_Runs_Str = str(Team1_Runs)
 
                 if Team1_Wkts != 10:
                     Score1 = Team1_Wkts_Str + "/" + Team1_Runs_Str
@@ -383,10 +392,10 @@ def main(config):
             # On strike batsman
             Batsman1 = Match_JSON["livePerformance"]["batsmen"][0]["player"]["fieldingName"]
             Batsman1_Runs = Match_JSON["livePerformance"]["batsmen"][0]["runs"]
-            Batsman1_Runs_Str = humanize.ftoa(Batsman1_Runs)
+            Batsman1_Runs_Str = str(Batsman1_Runs)
 
-            Wickets = humanize.ftoa(Wickets)
-            Runs = humanize.ftoa(Runs)
+            Wickets = str(Wickets)
+            Runs = str(Runs)
 
             # Last out
             WicketsInt = int(Wickets)
@@ -400,7 +409,7 @@ def main(config):
             if Batsmen == 2:
                 Batsman2 = Match_JSON["livePerformance"]["batsmen"][1]["player"]["fieldingName"]
                 Batsman2_Runs = Match_JSON["livePerformance"]["batsmen"][1]["runs"]
-                Batsman2_Runs_Str = humanize.ftoa(Batsman2_Runs)
+                Batsman2_Runs_Str = str(Batsman2_Runs)
 
                 # little bit of formatting/spacing
                 if Batsman2_Runs < 100:
@@ -420,7 +429,7 @@ def main(config):
                 IsOut = True
 
                 Batsman2 = LastOut_Name
-                Batsman2_Runs_Str = humanize.ftoa(LastOut_Runs)
+                Batsman2_Runs_Str = str(LastOut_Runs)
 
                 # little bit of formatting/spacing
                 if LastOut_Runs < 100:
@@ -441,8 +450,8 @@ def main(config):
 
             BattingTeam = Match_JSON["scorecard"]["innings"][Innings]["team"]["name"]
 
+            # if Cricinfo has decided on the Match MVP show it, otherwise its TBA
             if (Match_JSON["supportInfo"]["mostValuedPlayerOfTheMatch"]):
-                #print("YES")
                 MVP = Match_JSON["supportInfo"]["mostValuedPlayerOfTheMatch"]["player"]["fieldingName"]
                 MVP_TeamID = Match_JSON["supportInfo"]["mostValuedPlayerOfTheMatch"]["team"]["id"]
                 MVP_TeamColor = getTeamFontColor(MVP_TeamID)
@@ -458,9 +467,9 @@ def main(config):
             BestBowlRuns = Match_JSON["bestPerformance"]["bowlers"][0]["conceded"]
             BestBowlWickets = Match_JSON["bestPerformance"]["bowlers"][0]["wickets"]
 
-            BestRuns = humanize.ftoa(BestRuns)
-            BestBowlRuns = humanize.ftoa(BestBowlRuns)
-            BestBowlWickets = humanize.ftoa(BestBowlWickets)
+            BestRuns = str(BestRuns)
+            BestBowlRuns = str(BestBowlRuns)
+            BestBowlWickets = str(BestBowlWickets)
 
             # if team batting 2nd is still behind then team batting first won, else the opposite
             if trail_bool == True:
@@ -519,6 +528,10 @@ def main(config):
 
             # Game is coming up
         elif Match_JSON["match"]["stage"] == "SCHEDULED" or "PRE":
+           
+            # cache the standings data for 6hrs
+            StandingsData = get_cachable_data(Standings_URL, 21600)
+            Standings_JSON = json.decode(StandingsData)
             # Who is playing who
             Team1_Name = Match_JSON["match"]["teams"][0]["team"]["name"]
             Team2_Name = Match_JSON["match"]["teams"][1]["team"]["name"]
@@ -532,10 +545,6 @@ def main(config):
             StartTime = Match_JSON["match"]["startTime"]
             ParseTime = time.parse_time(StartTime, format = "2006-01-02T15:04:00.000Z")
             MatchTimezone = Match_JSON["match"]["ground"]["town"]["timezone"]
-
-            location = DEFAULT_LOCATION
-            loc = json.decode(location)
-            timezone = loc["timezone"]
 
             MyTime = time.parse_time(StartTime, format = "2006-01-02T15:04:00.000Z").in_location(timezone)
             Time = MyTime.format("15:04")
@@ -642,14 +651,14 @@ def TeamScore(BattingTeam, BattingTeamColor, Wickets, Runs):
         children = [
             render.Row(
                 children = [
-                    render.Box(width = 42, height = 8, child = render.Padding(
+                    render.Box(width = 44, height = 8, child = render.Padding(
                         pad = (2, 1, 0, 0),
                         child = render.Marquee(
-                            width = 42,
+                            width = 44,
                             child = render.Text(content = BattingTeam, color = BattingTeamColor, font = "CG-pixel-3x5-mono", offset = 0),
                         ),
                     )),
-                    render.Box(width = 22, height = 8, child = render.Text(content = Wickets + "/" + Runs, color = BattingTeamColor, font = "CG-pixel-3x5-mono")),
+                    render.Box(width = 20, height = 8, child = render.Text(content = Wickets + "/" + Runs, color = BattingTeamColor, font = "CG-pixel-3x5-mono")),
                 ],
             ),
         ],
@@ -700,11 +709,11 @@ TeamOptions = [
         value = "4846",
     ),
     schema.Option(
-        display = "Melboure Renegades",
+        display = "Melbourne Renegades",
         value = "4847",
     ),
     schema.Option(
-        display = "Melboure Stars",
+        display = "Melbourne Stars",
         value = "4848",
     ),
     schema.Option(
@@ -756,6 +765,7 @@ def getTeamDisplayName(teamID):
     return None
 
 def get_schema():
+
     return schema.Schema(
         version = "1",
         fields = [
@@ -769,3 +779,20 @@ def get_schema():
             ),
         ],
     )
+
+def get_cachable_data(url, timeout):
+    
+    key = base64.encode(url)
+
+    data = cache.get(key)
+    if data != None:    
+        #print("CACHED")
+        return base64.decode(data)
+
+    res = http.get(url = url)
+    if res.status_code != 200:
+        fail("request to %s failed with status code: %d - %s" % (url, res.status_code, res.body()))
+
+    cache.set(key, base64.encode(res.body()), ttl_seconds = timeout)
+
+    return res.body()
