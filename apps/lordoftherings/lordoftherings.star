@@ -5,14 +5,14 @@ Description: Displays random quotes from LOTR trilogy.
 Author: Jake Manske
 """
 
-load("render.star", "render")
-load("schema.star", "schema")
 load("cache.star", "cache")
-load("http.star", "http")
 load("encoding/base64.star", "base64")
 load("encoding/json.star", "json")
-load("time.star", "time")
+load("http.star", "http")
+load("render.star", "render")
+load("schema.star", "schema")
 load("secret.star", "secret")
+load("time.star", "time")
 
 # using "lordoftherings"
 ENCRYPTED_API_KEY = "AV6+xWcE4VltFa9T2uqMvHJJvQmY+pl+upIgaFFPddIeaqFrJOg8lTPlzBnd4jN+EFw9k+ixYNjfzmJSCjYl4NLIw3NTUq96cWO0erM1BTMMh5SsurAc+4R2LZQ2iI+YHAlP5Go0Y5oe1WtMAfv3Zc47AaCh5Xl61QM="
