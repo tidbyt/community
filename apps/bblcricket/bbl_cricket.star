@@ -21,7 +21,7 @@ Standings_URL = "https://hs-consumer-api.espncricinfo.com/v1/pages/series/standi
 DEFAULT_TEAM = "4848"
 DEFAULT_TIMEZONE = "Australia/Adelaide"
 MATCH_CACHE = 60
-ALL_MATCH_CACHE = 2 * 3600 # 2 hours
+ALL_MATCH_CACHE = 1200  # 1 hour
 STANDINGS_CACHE = 6 * 3600  # 6 hours
 
 def main(config):
