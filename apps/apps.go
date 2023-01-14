@@ -256,6 +256,7 @@ import (
 	"tidbyt.dev/community/apps/wordoftheday"
 	"tidbyt.dev/community/apps/worldclock"
 	"tidbyt.dev/community/apps/wowtoken"
+	"tidbyt.dev/community/apps/xboxgamerscore"
 	"tidbyt.dev/community/apps/xtrabyt"
 	"tidbyt.dev/community/apps/yulelog"
 	"tidbyt.dev/community/apps/zapier"
@@ -514,6 +515,7 @@ func GetManifests() []manifest.Manifest {
 		wordoftheday.New(),
 		worldclock.New(),
 		wowtoken.New(),
+		xboxgamerscore.New(),
 		xtrabyt.New(),
 		yulelog.New(),
 		zapier.New(),
