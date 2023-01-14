@@ -21,6 +21,7 @@ Standings_URL = "https://hs-consumer-api.espncricinfo.com/v1/pages/series/standi
 DEFAULT_TEAM = "4848"
 DEFAULT_TIMEZONE = "Australia/Adelaide"
 MATCH_CACHE = 60
+ALL_MATCH_CACHE = 2 * 3600 # 2 hours
 STANDINGS_CACHE = 6 * 3600  # 6 hours
 
 def main(config):
@@ -29,7 +30,10 @@ def main(config):
     SelectedTeam = config.get("TeamList", DEFAULT_TEAM)
     SelectedTeam = int(SelectedTeam)
 
-    LiveGames_JSON = http.get(LiveGames_URL).json()
+    # Cache the Cricinfo list of "current" matches for 2 hours, could possibly be even longer
+    # We'll pull the specific match data from this call so its not important to keep it up to date
+    AllMatchData = get_cachable_data(LiveGames_URL, ALL_MATCH_CACHE)
+    LiveGames_JSON = json.decode(AllMatchData)
     Matches = LiveGames_JSON["matches"]
 
     # scroll through the live & recent games to find if your team is listed
@@ -42,7 +46,7 @@ def main(config):
             Playing = False
 
     if Playing == True:
-        MatchID = humanize.ftoa(MatchID)
+        MatchID = str(MatchID)
         Match_URL = "https://hs-consumer-api.espncricinfo.com/v1/pages/match/details?lang=en&seriesId=" + MatchID + "&matchId=" + MatchID + "&latest=true"
 
         # cache specific match data for 1 minute
