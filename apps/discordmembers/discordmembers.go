@@ -7,7 +7,7 @@ import (
 	"tidbyt.dev/community/apps/manifest"
 )
 
-//go:embed discord_members.star
+//go:embed discordmembers.star
 var source []byte
 
 // New creates a new instance of the Discord Members applet.
@@ -18,7 +18,7 @@ func New() manifest.Manifest {
 		Author:      "Dennis Zoma (https://zoma.dev)",
 		Summary:     "Discord Members Count",
 		Desc:        "Display the approximate member count for a given Discord server (via Invite ID).",
-		FileName:    "discord_members.star",
+		FileName:    "discordmembers.star",
 		PackageName: "discordmembers",
 		Source:  source,
 	}
