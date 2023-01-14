@@ -532,7 +532,7 @@ def main(config):
             # Game is coming up
         elif Match_JSON["match"]["stage"] == "SCHEDULED" or "PRE":
             # cache the standings data for 6hrs
-            StandingsData = get_cachable_data(Standings_URL, 21600)
+            StandingsData = get_cachable_data(Standings_URL, STANDINGS_CACHE)
             Standings_JSON = json.decode(StandingsData)
 
             # Who is playing who
