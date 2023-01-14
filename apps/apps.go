@@ -56,6 +56,7 @@ import (
 	"tidbyt.dev/community/apps/destiny2stats"
 	"tidbyt.dev/community/apps/digibyteprice"
 	"tidbyt.dev/community/apps/digitalrain"
+	"tidbyt.dev/community/apps/discordmembers"
 	"tidbyt.dev/community/apps/duolingo"
 	"tidbyt.dev/community/apps/dutchfuzzyclock"
 	"tidbyt.dev/community/apps/dvdlogo"
@@ -315,6 +316,7 @@ func GetManifests() []manifest.Manifest {
 		destiny2stats.New(),
 		digibyteprice.New(),
 		digitalrain.New(),
+		discordmembers.New(),
 		duolingo.New(),
 		dutchfuzzyclock.New(),
 		dvdlogo.New(),
