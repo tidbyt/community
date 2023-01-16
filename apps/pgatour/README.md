@@ -3,11 +3,11 @@ This app displays the leaderboard for the current PGA Tour event, taken from ESP
 The leaderboard will show the first 24 players. Players currently on course are shown in different shades of yellow - going from dark yellow for those players just starting to white for those who have completed their rounds. Players who have not started are shown in green.
 
 Before the tournament commences it will show the following screen
-[Pre Tournament](pga_tour_pre.gif)
+[Pre Tournament]![](pga_tour_pre.gif)
 
 During the tournament
-[In Progress](pga_tour_progress.gif)
+[In Progress]![](pga_tour_progress.gif)
 
 After the tournament has finished, the winner will be in blue
-[Final](pga_tour_final.gif)
+[Final]![](pga_tour_final.gif)
 
