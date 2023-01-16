@@ -162,6 +162,7 @@ import (
 	"tidbyt.dev/community/apps/paraland"
 	"tidbyt.dev/community/apps/pathtrainschedule"
 	"tidbyt.dev/community/apps/petpikachu"
+	"tidbyt.dev/community/apps/pgatour"
 	"tidbyt.dev/community/apps/phaseofmoon"
 	"tidbyt.dev/community/apps/plausibleanalytics"
 	"tidbyt.dev/community/apps/pleasestandby"
@@ -420,6 +421,7 @@ func GetManifests() []manifest.Manifest {
 		paraland.New(),
 		pathtrainschedule.New(),
 		petpikachu.New(),
+		pgatour.New(),
 		phaseofmoon.New(),
 		plausibleanalytics.New(),
 		pleasestandby.New(),
