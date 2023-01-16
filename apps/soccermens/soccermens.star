@@ -593,7 +593,6 @@ pregameOptions = [
 ]
 
 colorOptions = [
-colorOptions = [
     schema.Option(
         display = "White",
         value = "#FFF",
