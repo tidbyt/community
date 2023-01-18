@@ -180,10 +180,10 @@ def update_tree_states(cached_trees, garden_id):
 
 # Tree Generation Method
 def generate_tree_list():
-    """
-    The initial generation of the list of trees will spawn a dictionary with the default values.\
-    On inception, a dictionary will have all grown trees, but will have a short `grow_duration` since they are already matured.
-    This means that the chopping aspect will be quick for trees in this state.
+    """\r
+    The initial generation of the list of trees will spawn a dictionary with the default values.\\\r
+    On inception, a dictionary will have all grown trees, but will have a short `grow_duration` since they are already matured.\r
+    This means that the chopping aspect will be quick for trees in this state.\r
     """
     column_array = []
 
