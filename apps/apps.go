@@ -100,7 +100,6 @@ import (
 	"tidbyt.dev/community/apps/jokesjokeapi"
 	"tidbyt.dev/community/apps/kickstarter"
 	"tidbyt.dev/community/apps/kielferry"
-	"tidbyt.dev/community/apps/last.fm"
 	"tidbyt.dev/community/apps/launchcountdown"
 	"tidbyt.dev/community/apps/leetcodestats"
 	"tidbyt.dev/community/apps/life"
@@ -360,7 +359,6 @@ func GetManifests() []manifest.Manifest {
 		jokesjokeapi.New(),
 		kickstarter.New(),
 		kielferry.New(),
-		last.fm.New(),
 		launchcountdown.New(),
 		leetcodestats.New(),
 		life.New(),
