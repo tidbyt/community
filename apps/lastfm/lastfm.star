@@ -1,5 +1,5 @@
 """
-Applet: Last.fm
+Applet: Lastfm
 Summary: Show Last.fm's Now Playing
 Description: An app to display whatever song you're currently scrobbling to your Last.fm profile.
 Author: mattygroch
