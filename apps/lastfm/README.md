@@ -2,5 +2,5 @@
 
 Displays the "Now Scrobbling" track from a Last.fm profile.
 
-![Last.fm Now Playing for Tidbyt](lastfm.png)
+![Last.fm Now Playing for Tidbyt](lastfm.gif)
 
