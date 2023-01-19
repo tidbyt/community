@@ -17,7 +17,7 @@ func New() manifest.Manifest {
 		Name:        "Stock Value",
 		Author:      "gshipley",
 		Summary:     "Portfolio value",
-		Desc:        "This app will allow you track the value of your portfolio for a single stock.",
+		Desc:        "This app will allow you track the value of your portfolio for a single stock. Get your API key for Alpha Vantage at https://www.alphavantage.co.",
 		FileName:    "stock_value.star",
 		PackageName: "stockvalue",
 		Source:  source,
