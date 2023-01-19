@@ -425,6 +425,7 @@ def main(config):
     # some station names are very long like High Street Kensington or
     # King's Cross St. Pancras, so we need all the space for the name.
     return render.Root(
+        max_age = 120,
         delay = 25,
         child = render.Column(
             children = [
