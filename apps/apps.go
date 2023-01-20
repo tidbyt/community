@@ -138,6 +138,7 @@ import (
 	"tidbyt.dev/community/apps/neotrack"
 	"tidbyt.dev/community/apps/nesquotes"
 	"tidbyt.dev/community/apps/netatmo"
+	"tidbyt.dev/community/apps/newapps"
 	"tidbyt.dev/community/apps/nflscores"
 	"tidbyt.dev/community/apps/nflstandings"
 	"tidbyt.dev/community/apps/nft"
@@ -397,6 +398,7 @@ func GetManifests() []manifest.Manifest {
 		neotrack.New(),
 		nesquotes.New(),
 		netatmo.New(),
+		newapps.New(),
 		nflscores.New(),
 		nflstandings.New(),
 		nft.New(),
