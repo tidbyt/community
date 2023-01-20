@@ -10,7 +10,7 @@ require (
 require (
 	github.com/manifoldco/promptui v0.9.0
 	golang.org/x/text v0.6.0
-	tidbyt.dev/pixlet v0.23.2
+	tidbyt.dev/pixlet v0.24.0
 )
 
 require (
@@ -20,7 +20,7 @@ require (
 	github.com/antchfx/xpath v1.2.2 // indirect
 	github.com/chzyer/readline v1.5.1 // indirect
 	github.com/davecgh/go-spew v1.1.1 // indirect
-	github.com/dustin/go-humanize v1.0.0 // indirect
+	github.com/dustin/go-humanize v1.0.1 // indirect
 	github.com/go-playground/locales v0.14.0 // indirect
 	github.com/go-playground/universal-translator v0.18.0 // indirect
 	github.com/go-playground/validator/v10 v10.11.1 // indirect
@@ -42,7 +42,7 @@ require (
 	github.com/tidbyt/gg v0.0.0-20220808163829-95806fa1d427 // indirect
 	github.com/tidbyt/go-libwebp v0.0.0-20220802221933-1fabc3b46601 // indirect
 	github.com/zachomedia/go-bdf v0.0.0-20220611021443-a3af701111be // indirect
-	go.starlark.net v0.0.0-20230110155749-dcdc0f0598e3 // indirect
+	go.starlark.net v0.0.0-20230112144946-fae38c8a6d89 // indirect
 	golang.org/x/crypto v0.3.0 // indirect
 	golang.org/x/image v0.3.0 // indirect
 	golang.org/x/net v0.5.0 // indirect
