@@ -21,10 +21,11 @@ def main(config):
     #get old list of apps
     old_data = cache.get("old_apps")
     if old_data != None:
-        print("Hit! Using old list data.")
+        print("Hit! Using cached old app list data.")
         old_list = json.decode(old_data)
         force_current_list = False
     else:
+        print("Miss! Refreshing old app list data.")
         old_list = get_apps()
         if old_list != None:
             cache.set("old_apps", json.encode(old_list), ttl_seconds = 604800)  #refresh old list once a week
@@ -34,8 +35,10 @@ def main(config):
     current_data = cache.get("current_apps")
     if current_data != None and force_current_list == False:
         #use old data if one did not just refresh the old list or the other data has not expired
+        print("Hit! Using cached current app list data.")
         current_list = json.decode(current_data)
     else:
+        print("Miss! Refreshing current app list data.")
         current_list = get_apps()
         if current_list != None:
             cache.set("new_apps", json.encode(current_list), ttl_seconds = 1800)  #refresh current list every 30 minutes
