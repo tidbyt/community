@@ -5,14 +5,14 @@ Description: Displays the next rocket launch in the world.
 Author: Robert Ison
 """
 
-load("render.star", "render")
-load("schema.star", "schema")
 load("cache.star", "cache")
 load("encoding/base64.star", "base64")
 load("encoding/json.star", "json")
 load("http.star", "http")
-load("time.star", "time")
 load("math.star", "math")
+load("render.star", "render")
+load("schema.star", "schema")
+load("time.star", "time")
 
 #Constants
 ROCKET_LAUNCH_URL = "https://fdo.rocketlaunch.live/json/launches/next/5"
@@ -55,7 +55,6 @@ def get_rocket_launch_json():
 
         if rocket_launch_http.status_code != 200:
             fail("RocketLaunch.live feed failed: %d", rocket_launch_http.status_code)
-            return None
         else:
             rocket_launch_data = rocket_launch_http.json()
 
@@ -69,6 +68,7 @@ def get_rocket_launch_json():
 
                     #If the JSON feed updates to include the seconds, or it the fix above did it,
                     #we'll parse the time now
+                    window_open_time = None
                     if (len(window_open_text) == 20):
                         window_open_time = time.parse_time(window_open_text)
 
@@ -109,7 +109,7 @@ def get_launch_details(rocket_launch_data):
 
     return display_text
 
-def main(config):
+def main():
     rocket_launch_data = get_rocket_launch_json()
     rocket_launch_count = 0
     row1 = "Test"

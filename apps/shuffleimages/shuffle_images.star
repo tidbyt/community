@@ -9,10 +9,10 @@ Author: rs7q5
 #Created 20220704 RIS
 #Last Modified 20220824 RIS
 
-load("render.star", "render")
-load("schema.star", "schema")
 load("encoding/base64.star", "base64")
 load("random.star", "random")
+load("render.star", "render")
+load("schema.star", "schema")
 load("time.star", "time")
 
 maxImages = 6  #max images that can be selected

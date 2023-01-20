@@ -5,12 +5,12 @@ Description: Displays three upcoming ferry depature times for the Charlestown, M
 Author: jblaker
 """
 
-load("render.star", "render")
-load("http.star", "http")
 load("cache.star", "cache")
-load("time.star", "time")
 load("encoding/json.star", "json")
+load("http.star", "http")
 load("humanize.star", "humanize")
+load("render.star", "render")
+load("time.star", "time")
 
 FERRY_SCHEDULE_URL = "https://api-v3.mbta.com/schedules?filter[route]=Boat-F4"
 

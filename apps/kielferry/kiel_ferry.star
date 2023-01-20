@@ -9,14 +9,15 @@ Author: hloeding
 # ###### App module loading ######
 # ################################
 
+load("cache.star", "cache")
+load("encoding/base64.star", "base64")
+load("http.star", "http")
+load("math.star", "math")
+
 # Required modules
 load("render.star", "render")
 load("schema.star", "schema")
 load("time.star", "time")
-load("math.star", "math")
-load("http.star", "http")
-load("cache.star", "cache")
-load("encoding/base64.star", "base64")
 
 # ###########################
 # ###### App constants ######

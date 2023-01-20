@@ -5,14 +5,14 @@ Description: Shows the current surf conditions for a surf spot.
 Author: rcarton
 """
 
-load("render.star", "render")
-load("time.star", "time")
+load("cache.star", "cache")
 load("encoding/base64.star", "base64")
 load("encoding/json.star", "json")
-load("cache.star", "cache")
 load("http.star", "http")
 load("math.star", "math")
+load("render.star", "render")
 load("schema.star", "schema")
+load("time.star", "time")
 
 #### CONFIG THINGS
 
@@ -61,8 +61,6 @@ def main(config):
     conditions = get_conditions(spot_id)
 
     print("spot_name={} conditions={}".format(spot_name, json.encode(conditions)))
-
-    font = config.get("font", "5x8")
 
     if conditions != None:
         top_level = [
