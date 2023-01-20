@@ -16,7 +16,7 @@ func New() manifest.Manifest {
 		ID:          "github-unread",
 		Name:        "GitHub Unread",
 		Author:      "ElliottAYoung",
-		Summary:     "Unread GitHub notification count",
+		Summary:     "GitHub notification count",
 		Desc:        "Displays the count of unread GitHub notifications",
 		FileName:    "github_unread.star",
 		PackageName: "githubunread",
