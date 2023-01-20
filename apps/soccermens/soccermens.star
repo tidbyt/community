@@ -1,7 +1,7 @@
 """
 Applet: SoccerMens
 Summary: Displays men's soccer scores for various leages and tournaments
-Description: Displays live and upcoming soccer scores from a data feed.   Heavily taken from the other sports score apps.
+Description: Displays live and upcoming soccer scores from a data feed.   Heavily taken from the other sports score apps - @LunchBox8484 is the original.
 Author: jvivona
 """
 
@@ -15,6 +15,8 @@ load("time.star", "time")
 CACHE_TTL_SECONDS = 60
 DEFAULT_TIMEZONE = "America/New_York"
 SPORT = "soccer"
+
+MISSING_LOGO = "https://upload.wikimedia.org/wikipedia/commons/c/ca/1x1.png?src=soccermens"
 
 DEFAULT_LEAGUE = "ger.1"
 API = "https://site.api.espn.com/apis/site/v2/sports/" + SPORT + "/"
@@ -37,7 +39,19 @@ SHORTENED_WORDS = """
 def main(config):
     renderCategory = []
     selectedLeague = config.get("leagueOptions", DEFAULT_LEAGUE)
-    league = {API: API + selectedLeague + "/scoreboard"}
+
+    # we already need now value in multiple places - so just go ahead and get it and use it
+    timezone = config.get("$tz", DEFAULT_TIMEZONE)
+    now = time.now().in_location(timezone)
+
+    # calculate start and end date if we are set to use range of days
+    date_range_search = ""
+    if config.bool("day_range", False):
+        back_time = now - time.parse_duration("%dh" % (int(config.get("days_back", 1)) * 24))
+        fwd_time = now + time.parse_duration("%dh" % (int(config.get("days_forward", 1)) * 24))
+        date_range_search = "?dates=%s-%s" % (back_time.format("20060102"), (fwd_time.format("20060102")))
+
+    league = {API: API + selectedLeague + "/scoreboard" + date_range_search}
     instanceNumber = int(config.get("instanceNumber", 1))
     totalInstances = int(config.get("instancesCount", 1))
     scores = get_scores(league, instanceNumber, totalInstances)
@@ -48,14 +62,11 @@ def main(config):
         #logoType = config.get("logoType", "primary")
         timeColor = config.get("displayTimeColor", "#FFF")
         rotationSpeed = 15 // len(scores)
-        timezone = config.get("$tz", DEFAULT_TIMEZONE)
-        now = time.now().in_location(timezone)
 
-        for i, s in enumerate(scores):
+        for _, s in enumerate(scores):
             gameStatus = s["status"]["type"]["state"]
             competition = s["competitions"][0]
             homeCompetitor = competition["competitors"][0]
-            awayCompetitor = competition["competitors"][1]
             home = competition["competitors"][0]["team"]["abbreviation"]
             away = competition["competitors"][1]["team"]["abbreviation"]
             homeTeamName = competition["competitors"][0]["team"]["shortDisplayName"]
@@ -72,20 +83,8 @@ def main(config):
             else:
                 awayPrimaryColor = competition["competitors"][1]["team"]["color"]
 
-            homeAltColorCheck = competition["competitors"][0]["team"].get("alternateColor", "NO")
-            if homeAltColorCheck == "NO":
-                homeAltColor = "000000"
-            else:
-                homeAltColor = competition["competitors"][0]["team"]["alternateColor"]
-
-            awayAltColorCheck = competition["competitors"][1]["team"].get("alternateColor", "NO")
-            if awayAltColorCheck == "NO":
-                awayAltColor = "000000"
-            else:
-                awayAltColor = competition["competitors"][1]["team"]["alternateColor"]
-
-            homeColor = get_background_color(home, displayType, homePrimaryColor, homeAltColor)
-            awayColor = get_background_color(away, displayType, awayPrimaryColor, awayAltColor)
+            homeColor = get_background_color(displayType, homePrimaryColor)
+            awayColor = get_background_color(displayType, awayPrimaryColor)
 
             homeLogoCheck = competition["competitors"][0]["team"].get("logo", "NO")
             if homeLogoCheck == "NO":
@@ -95,22 +94,22 @@ def main(config):
 
             awayLogoCheck = competition["competitors"][1]["team"].get("logo", "NO")
             if awayLogoCheck == "NO":
-                homeLogoURL = "https://a.espncdn.com/i/espn/misc_logos/500/ncaa_football.vresize.50.50.medium.1.png"
+                awayLogoURL = "https://a.espncdn.com/i/espn/misc_logos/500/ncaa_football.vresize.50.50.medium.1.png"
             else:
                 awayLogoURL = competition["competitors"][1]["team"]["logo"]
-            homeLogo = get_logoType(home, homeLogoURL)
-            awayLogo = get_logoType(away, awayLogoURL)
-            homeLogoSize = get_logoSize(home)
-            awayLogoSize = get_logoSize(away)
+            homeLogo = get_logoType(homeLogoURL if homeLogoURL != "" else MISSING_LOGO)
+            awayLogo = get_logoType(awayLogoURL if awayLogoURL != "" else MISSING_LOGO)
+            homeLogoSize = get_logoSize()
+            awayLogoSize = get_logoSize()
             homeScore = ""
             awayScore = ""
+            gameTime = ""
             homeScoreColor = "#fff"
             awayScoreColor = "#fff"
             teamFont = "Dina_r400-6"
             scoreFont = "Dina_r400-6"
 
             if gameStatus == "pre":
-                gameDateTime = s["status"]["type"]["shortDetail"]
                 gameTime = s["date"]
                 scoreFont = "CG-pixel-3x5-mono"
                 convertedTime = time.parse_time(gameTime, format = "2006-01-02T15:04Z").in_location(timezone)
@@ -150,6 +149,15 @@ def main(config):
 
             if gameStatus == "post":
                 gameTime = s["status"]["type"]["shortDetail"]
+                gameDate = s["date"]
+                convertedTime = time.parse_time(gameDate, format = "2006-01-02T15:04Z").in_location(timezone)
+                if convertedTime.format("1/2") != now.format("1/2"):
+                    # check to see if the game is today or not.   If not today, show date
+                    # use settings to determine if INTL or US + time
+                    if config.bool("is_us_date_format", False):
+                        gameTime = convertedTime.format("1/2 ") + gameTime
+                    else:
+                        gameTime = convertedTime.format("2 Jan ") + gameTime
                 gameName = s["status"]["type"]["name"]
                 checkSeries = competition.get("series", "NO")
                 checkNotes = len(competition["notes"])
@@ -195,7 +203,7 @@ def main(config):
                                     expanded = True,
                                     main_align = "space_between",
                                     cross_align = "start",
-                                    children = get_date_column(False, now, retroTextColor, retroBackgroundColor, retroBorderColor, displayType, gameTime, timeColor),
+                                    children = get_date_column(False, now, retroTextColor, retroBorderColor, displayType, gameTime, timeColor),
                                 ),
                                 render.Column(
                                     children = [
@@ -233,7 +241,7 @@ def main(config):
                                     expanded = True,
                                     main_align = "space_between",
                                     cross_align = "start",
-                                    children = get_date_column(False, now, textColor, backgroundColor, borderColor, displayType, gameTime, timeColor),
+                                    children = get_date_column(False, now, textColor, borderColor, displayType, gameTime, timeColor),
                                 ),
                                 render.Row(
                                     expanded = True,
@@ -296,7 +304,7 @@ def main(config):
                                     expanded = True,
                                     main_align = "space_between",
                                     cross_align = "start",
-                                    children = get_date_column(False, now, textColor, backgroundColor, borderColor, displayType, gameTime, timeColor),
+                                    children = get_date_column(False, now, textColor, borderColor, displayType, gameTime, timeColor),
                                 ),
                                 render.Row(
                                     expanded = True,
@@ -345,7 +353,7 @@ def main(config):
                                     expanded = True,
                                     main_align = "space_between",
                                     cross_align = "start",
-                                    children = get_date_column(False, now, textColor, backgroundColor, borderColor, displayType, gameTime, timeColor),
+                                    children = get_date_column(False, now, textColor, borderColor, displayType, gameTime, timeColor),
                                 ),
                                 render.Row(
                                     expanded = True,
@@ -396,7 +404,7 @@ def main(config):
                                     expanded = True,
                                     main_align = "space_between",
                                     cross_align = "start",
-                                    children = get_date_column(False, now, textColor, backgroundColor, borderColor, displayType, gameTime, timeColor),
+                                    children = get_date_column(False, now, textColor, borderColor, displayType, gameTime, timeColor),
                                 ),
                                 render.Row(
                                     expanded = True,
@@ -451,6 +459,26 @@ leagueOptions = [
     schema.Option(
         display = "English Carabo Cup",
         value = "eng.league_cup",
+    ),
+    schema.Option(
+        display = "English FA Cup",
+        value = "eng.fa",
+    ),
+    schema.Option(
+        display = "English League Championship",
+        value = "eng.2",
+    ),
+    schema.Option(
+        display = "English League One",
+        value = "eng.3",
+    ),
+    schema.Option(
+        display = "English League Two",
+        value = "eng.4",
+    ),
+    schema.Option(
+        display = "English National League",
+        value = "eng.5",
     ),
     schema.Option(
         display = "English Premier League",
@@ -621,6 +649,25 @@ colorOptions = [
     ),
 ]
 
+daysOptions = [
+    schema.Option(
+        display = "0",
+        value = "0",
+    ),
+    schema.Option(
+        display = "1",
+        value = "1",
+    ),
+    schema.Option(
+        display = "2",
+        value = "2",
+    ),
+    schema.Option(
+        display = "3",
+        value = "3",
+    ),
+]
+
 def get_schema():
     return schema.Schema(
         version = "1",
@@ -645,7 +692,7 @@ def get_schema():
                 id = "displayTimeColor",
                 name = "Time Color",
                 desc = "Select which color you want the time to be.",
-                icon = "gear",
+                icon = "palette",
                 default = colorOptions[0].value,
                 options = colorOptions,
             ),
@@ -653,7 +700,7 @@ def get_schema():
                 id = "instancesCount",
                 name = "Total Instances of App",
                 desc = "Total Instance Count (# of times you have added this app to your Tidbyt).",
-                icon = "clock",
+                icon = "list",
                 default = instancesCounts[0].value,
                 options = instancesCounts,
             ),
@@ -661,7 +708,7 @@ def get_schema():
                 id = "instanceNumber",
                 name = "App Instance Number",
                 desc = "Select which instance of the app this is.",
-                icon = "clock",
+                icon = "hashtag",
                 default = instanceNumbers[0].value,
                 options = instanceNumbers,
             ),
@@ -679,20 +726,54 @@ def get_schema():
                 icon = "calendarDays",
                 default = False,
             ),
+            schema.Toggle(
+                id = "day_range",
+                name = "Enable range of days",
+                desc = "Enable showing scores in a range of days",
+                icon = "rightLeft",
+                default = False,
+            ),
+            schema.Generated(
+                id = "generated",
+                source = "day_range",
+                handler = show_day_range,
+            ),
         ],
     )
 
+def show_day_range(day_range):
+    # need to do the string comparison here to make it consistent instead of converting to bool - its a whole thing
+    if day_range == "true":
+        return [
+            schema.Dropdown(
+                id = "days_back",
+                name = "# of days back to show",
+                desc = "Get only data from Today +/- 1 Day",
+                icon = "arrowLeft",
+                default = "1",
+                options = daysOptions,
+            ),
+            schema.Dropdown(
+                id = "days_forward",
+                name = "# of days forward to show",
+                desc = "Number of days forward to search for scores",
+                icon = "arrowRight",
+                default = "1",
+                options = daysOptions,
+            ),
+        ]
+    else:
+        return []
+
 def get_scores(urls, instanceNumber, totalInstances):
     allscores = []
-    minPerBucket = 3
     for i, s in urls.items():
         data = get_cachable_data(s)
         decodedata = json.decode(data)
         allscores.extend(decodedata["events"])
         all([i, allscores])
-    allScoresLength = len(allscores)
 
-    #scoresLengthPerInstance = allScoresLength // totalInstances
+    #scoresLengthPerInstance = allScoresLength / totalInstances
     if instanceNumber > totalInstances:
         for i in range(0, int(len(allscores))):
             allscores.pop()
@@ -724,7 +805,7 @@ def get_record(record):
         theRecord = record
     return theRecord
 
-def get_background_color(team, displayType, color, altColor):
+def get_background_color(displayType, color):
     if displayType == "black" or displayType == "retro":
         color = "#222"
 
@@ -734,17 +815,17 @@ def get_background_color(team, displayType, color, altColor):
         color = "#222"
     return color
 
-def get_logoType(team, logo):
+def get_logoType(logo):
     logo = logo.replace("500/scoreboard", "500-dark/scoreboard")
     logo = logo.replace("https://a.espncdn.com/", "https://a.espncdn.com/combiner/i?img=", 36000)
     logo = get_cachable_data(logo + "&h=50&w=50")
     return logo
 
-def get_logoSize(team):
+def get_logoSize():
     logosize = int(16)
     return logosize
 
-def get_date_column(display, now, textColor, backgroundColor, borderColor, displayType, gameTime, timeColor):
+def get_date_column(display, now, textColor, borderColor, displayType, gameTime, timeColor):
     if display:
         theTime = now.format("3:04")
         if len(str(theTime)) > 4:
@@ -773,7 +854,7 @@ def get_shortened_display(text):
     if len(text) > 8:
         text = text.replace("Final", "F").replace("Game ", "G")
     words = json.decode(SHORTENED_WORDS)
-    for i, s in enumerate(words):
+    for _, s in enumerate(words):
         text = text.replace(s, words[s])
     return text
 

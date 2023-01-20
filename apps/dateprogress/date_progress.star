@@ -6,11 +6,11 @@ Author: possan
 """
 
 load("encoding/json.star", "json")
+load("math.star", "math")
+load("re.star", "re")
 load("render.star", "render")
 load("schema.star", "schema")
-load("math.star", "math")
 load("time.star", "time")
-load("re.star", "re")
 
 DEFAULT_TIMEZONE = "Europe/Stockholm"
 
@@ -57,20 +57,20 @@ def rgb_to_hsl(r, g, b):
 
     return int(math.round(h * 360)), s, l
 
-def hsl_to_rgb(h, s, l):
-    def hue_to_rgb(p, q, t):
-        if t < 0:
-            t += 1
-        if t > 1:
-            t -= 1
-        if t < 1 / 6:
-            return p + (q - p) * 6 * t
-        if t < 1 / 2:
-            return q
-        if t < 2 / 3:
-            return p + (q - p) * (2 / 3 - t) * 6
-        return p
+def hue_to_rgb(p, q, t):
+    if t < 0:
+        t += 1
+    if t > 1:
+        t -= 1
+    if t < 1 / 6:
+        return p + (q - p) * 6 * t
+    if t < 1 / 2:
+        return q
+    if t < 2 / 3:
+        return p + (q - p) * (2 / 3 - t) * 6
+    return p
 
+def hsl_to_rgb(h, s, l):
     h = h / 360
     if s == 0:
         r, g, b = (l,) * 3  # achromatic
@@ -324,10 +324,6 @@ def easeOut(t):
 
 def render_progress_bar(state, label, percent, col1, col2, col3, animprogress):
     animpercent = easeOut(animprogress / 100) * percent
-
-    col2orwhite = col2
-    if percent >= 100:
-        col2orwhite = col1
 
     label1color = lightness("#fff", animprogress / 100)
 

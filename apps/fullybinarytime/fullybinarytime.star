@@ -110,7 +110,7 @@ def make_frame(elapsed):
     levels = []
     numerator = elapsed.nanoseconds
     divisor = HALF_DAY_NANOSECONDS
-    for level in range(0, CLOCK_BITS):
+    for _ in range(0, CLOCK_BITS):
         levels.append(numerator // divisor)
         numerator = math.mod(numerator, divisor)
         divisor /= 2
@@ -144,6 +144,7 @@ def main(config):
     # The smallest bit shown corresponds to a period of ~1.3 seconds, so we should update
     # the screen while the app is showing.
     return render.Root(
+        max_age = 120,
         delay = REFRESH_MILLISECONDS,
         child = make_animation(timezone),
     )
