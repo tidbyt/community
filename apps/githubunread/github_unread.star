@@ -1,7 +1,7 @@
 """
 Applet: GitHub Unread
 Summary: GitHub notifications count
-Description: Displays the count of unread GitHub notifications
+Description: Displays the count of unread GitHub notifications.
 Author: ElliottAYoung
 """
 
