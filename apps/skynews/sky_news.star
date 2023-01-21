@@ -34,7 +34,7 @@ def main():
         cache.set("cached_blurb", finalblurb, ttl_seconds=900)
 
     return render.Root(
-        delay = 70,
+        delay = 60,
         child = render.Marquee(
             scroll_direction = "vertical",
             height= 32,
