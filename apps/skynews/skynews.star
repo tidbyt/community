@@ -55,7 +55,7 @@ def connectionError():
     errorHead = "Error: Couldn't get the top story"
     errorBlurb = "For the latest headlines, visit skynews.com"
     return render.Root(
-        delay = 70,
+        delay = 50,
         child = render.Marquee(
             scroll_direction = "vertical",
             height= 32,
