@@ -577,26 +577,26 @@ def main(config):
                     children = [
                         render.Row(
                             children = [
-                                render.Box(width = 44, height = 12, child = render.Padding(
+                                render.Box(width = 40, height = 12, child = render.Padding(
                                     pad = (2, 1, 0, 0),
                                     child = render.Marquee(
-                                        width = 44,
+                                        width = 40,
                                         child = render.Text(content = Team1_Name, color = Team1_Color, font = "CG-pixel-3x5-mono", offset = 0),
                                     ),
                                 )),
-                                render.Box(width = 20, height = 12, child = render.Text(content = Won1 + "-" + Lost1 + "-" + NR1, color = Team1_Color, font = "CG-pixel-3x5-mono")),
+                                render.Box(width = 24, height = 12, child = render.Text(content = Won1 + "-" + Lost1 + "-" + NR1, color = Team1_Color, font = "CG-pixel-3x5-mono")),
                             ],
                         ),
                         render.Row(
                             children = [
-                                render.Box(width = 44, height = 12, child = render.Padding(
+                                render.Box(width = 40, height = 12, child = render.Padding(
                                     pad = (2, 1, 0, 0),
                                     child = render.Marquee(
-                                        width = 44,
+                                        width = 40,
                                         child = render.Text(content = Team2_Name, color = Team2_Color, font = "CG-pixel-3x5-mono", offset = 0),
                                     ),
                                 )),
-                                render.Box(width = 20, height = 12, child = render.Text(content = Won2 + "-" + Lost2 + "-" + NR2, color = Team2_Color, font = "CG-pixel-3x5-mono")),
+                                render.Box(width = 24, height = 12, child = render.Text(content = Won2 + "-" + Lost2 + "-" + NR2, color = Team2_Color, font = "CG-pixel-3x5-mono")),
                             ],
                         ),
                         render.Row(
