@@ -7,7 +7,7 @@ import (
 	"tidbyt.dev/community/apps/manifest"
 )
 
-//go:embed sky_news.star
+//go:embed skynews.star
 var source []byte
 
 // New creates a new instance of the Sky News applet.
@@ -20,6 +20,6 @@ func New() manifest.Manifest {
 		Desc:        "The current top story (and a short blurb) from SkyNews.com.",
 		FileName:    "skynews.star",
 		PackageName: "skynews",
-		Source:  source,
+		Source:      source,
 	}
 }
