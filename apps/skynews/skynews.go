@@ -18,7 +18,7 @@ func New() manifest.Manifest {
 		Author:      "meejle",
 		Summary:     "Latest news",
 		Desc:        "The current top story (and a short blurb) from SkyNews.com.",
-		FileName:    "sky_news.star",
+		FileName:    "skynews.star",
 		PackageName: "skynews",
 		Source:  source,
 	}
