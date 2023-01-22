@@ -67,6 +67,7 @@ def connectionError():
                 children = [
                     render.Image(width = 64, height = 32, src = NEWS_ICON),
                     render.WrappedText(content = errorHead, width = 64, color = "#fde000", font = "tb-8", linespacing = 0, align = "left"),
+                    render.Box(width=64, height= 1),
                     render.WrappedText(content = errorBlurb, width = 64, color = "#fff", font = "tb-8", linespacing = 0, align = "left"),
                 ]
             ),
