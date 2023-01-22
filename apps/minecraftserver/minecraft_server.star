@@ -8,20 +8,28 @@ Author: Michael Blades
 load("render.star", "render")
 load("http.star", "http")
 load("encoding/base64.star", "base64")
+load("encoding/json.star", "json")
 load("schema.star", "schema")
+load("cache.star", "cache")
 
 def main(config):
-    minecraftURL = config.get("server", "mc.azitoth.com")
-    apiURL = "".join(["https://api.mcsrvstat.us/2/", minecraftURL])
-    rep = http.get(apiURL)
-    if rep.status_code != 200:
-        fail("Minecraft API request failed with status %d", rep.status_code)
-
-    onlinePlayers = rep.json()["players"]["online"]
-    maxPlayers = rep.json()["players"]["max"]
-    motd = rep.json()["motd"]["clean"][0]
-    motd2 = rep.json()["motd"]["clean"][1]
-    iconURL = rep.json()["icon"].split(",")[1]
+    result_cached = cache.get("api_result")
+    if result_cached != None:
+        resultData = base64.decode(result_cached)
+        result = json.decode(resultData)
+    else:
+        minecraftURL = config.get("server", "mc.azitoth.com")
+        apiURL = "".join(["https://api.mcsrvstat.us/2/", minecraftURL])
+        result = http.get(apiURL)
+        if result.status_code != 200:
+            fail("Minecraft API request failed with status %d", result.status_code)
+        cache.set("api_result", base64.encode(result.body()), ttl_seconds = 300)
+    
+    onlinePlayers = result.json()["players"]["online"]
+    maxPlayers = result.json()["players"]["max"]
+    motd = result.json()["motd"]["clean"][0]
+    motd2 = result.json()["motd"]["clean"][1]
+    iconURL = result.json()["icon"].split(",")[1]
     serverIcon = base64.decode("""%s""" % iconURL)
 
     return render.Root(
