@@ -24,7 +24,7 @@ def main(config):
         if result.status_code != 200:
             fail("Minecraft API request failed with status %d", result.status_code)
         cache.set("api_result", base64.encode(result.body()), ttl_seconds = 300)
-    
+
     onlinePlayers = result.json()["players"]["online"]
     maxPlayers = result.json()["players"]["max"]
     motd = result.json()["motd"]["clean"][0]
