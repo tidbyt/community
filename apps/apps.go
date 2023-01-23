@@ -201,6 +201,7 @@ import (
 	"tidbyt.dev/community/apps/shopifysales"
 	"tidbyt.dev/community/apps/shouldideploy"
 	"tidbyt.dev/community/apps/shuffleimages"
+	"tidbyt.dev/community/apps/skireport"
 	"tidbyt.dev/community/apps/snyk"
 	"tidbyt.dev/community/apps/soccermens"
 	"tidbyt.dev/community/apps/soccertables"
@@ -468,6 +469,7 @@ func GetManifests() []manifest.Manifest {
 		shopifysales.New(),
 		shouldideploy.New(),
 		shuffleimages.New(),
+		skireport.New(),
 		snyk.New(),
 		soccermens.New(),
 		soccertables.New(),
