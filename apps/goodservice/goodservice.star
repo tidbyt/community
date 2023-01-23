@@ -15,6 +15,7 @@ DEFAULT_STOP_ID = "M16"
 DEFAULT_DIRECTION = "both"
 GOOD_SERVICE_STOPS_URL_BASE = "https://goodservice.io/api/stops/"
 GOOD_SERVICE_ROUTES_URL = "https://goodservice.io/api/routes/"
+DEFAULT_SHORTNAME = False
 
 NAME_OVERRIDE = {
     "Grand Central-42 St": "Grand Cntrl",
@@ -74,6 +75,8 @@ def main(config):
     else:
         directions = [direction_config]
 
+    shortname = config.bool("shortname", DEFAULT_SHORTNAME)
+
     ts = time.now().unix
     blocks = []
 
@@ -115,10 +118,13 @@ def main(config):
                 text_color = selected_route["text_color"] if selected_route["text_color"] else "#fff"
                 destination = None
 
-                for s in stops_req.json()["stops"]:
-                    if s["id"] == r["destination_stop"]:
-                        destination = condense_name(s["name"])
-                        break
+                if shortname:
+                    destination = dir.capitalize()
+                else:
+                    for s in stops_req.json()["stops"]:
+                        if s["id"] == r["destination_stop"]:
+                            destination = condense_name(s["name"])
+                            break
 
                 first_eta = (int(r["times"][0]) - ts) / 60
                 first_train_is_delayed = r["is_delayed"][0]
@@ -210,6 +216,7 @@ def main(config):
                 children = blocks,
             ),
         ),
+        delay = 75,
     )
 
 def get_schema():
@@ -260,6 +267,13 @@ def get_schema():
                         value = "south",
                     ),
                 ],
+            ),
+            schema.Toggle(
+                id = "shortname",
+                name = "Short Name",
+                desc = "Display direction instead of last stop as line name.",
+                icon = "circleInfo",
+                default = False,
             ),
         ],
     )
