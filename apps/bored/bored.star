@@ -20,8 +20,8 @@ DEFAULT_FONT = "6x13"
 DEFAULT_DIRECTION = "vertical"
 
 def main(config):
-
-    # Create 'unique' cache key based on config values. The only one that really matters for now is the number of participants
+    # Create unique cache key based on config values. 
+    # The only one that really matters for now is the number of participants
     cache_key = "bored_app_" + config.get("friends", "1")
 
     activity = cache.get(cache_key)
