@@ -85,6 +85,7 @@ import (
 	"tidbyt.dev/community/apps/goldpriceticker"
 	"tidbyt.dev/community/apps/goodservice"
 	"tidbyt.dev/community/apps/happyhour"
+	"tidbyt.dev/community/apps/hassentity"
 	"tidbyt.dev/community/apps/hexcolorclock"
 	"tidbyt.dev/community/apps/hexdailystats"
 	"tidbyt.dev/community/apps/howoldami"
@@ -348,6 +349,7 @@ func GetManifests() []manifest.Manifest {
 		goldpriceticker.New(),
 		goodservice.New(),
 		happyhour.New(),
+		hassentity.New(),
 		hexcolorclock.New(),
 		hexdailystats.New(),
 		howoldami.New(),
