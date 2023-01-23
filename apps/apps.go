@@ -394,6 +394,7 @@ func GetManifests() []manifest.Manifest {
 		ncaafscores.New(),
 		ncaafstandings.New(),
 		ncaamscores.New(),
+		ncaamstandings.New(),
 		nearearthobjs.New(),
 		neotrack.New(),
 		nesquotes.New(),
