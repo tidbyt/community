@@ -162,6 +162,7 @@ import (
 	"tidbyt.dev/community/apps/officestatus"
 	"tidbyt.dev/community/apps/ogsgamesviewer"
 	"tidbyt.dev/community/apps/ohhighwaysigns"
+	"tidbyt.dev/community/apps/opmstatus"
 	"tidbyt.dev/community/apps/ordermoments"
 	"tidbyt.dev/community/apps/ordertrends"
 	"tidbyt.dev/community/apps/outlookcalendar"
@@ -430,6 +431,7 @@ func GetManifests() []manifest.Manifest {
 		officestatus.New(),
 		ogsgamesviewer.New(),
 		ohhighwaysigns.New(),
+		opmstatus.New(),
 		ordermoments.New(),
 		ordertrends.New(),
 		outlookcalendar.New(),
