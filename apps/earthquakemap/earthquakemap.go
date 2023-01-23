@@ -17,7 +17,7 @@ func New() manifest.Manifest {
 		Name:        "Earthquake Map",
 		Author:      "Brian McLaughlin (SpinStabilized)",
 		Summary:     "Map of global earthquakes",
-		Desc:        "Display a map of earthquakes based on USGS data.",
+		Desc:        "Display a map of earthquakes based on USGS data (v0.2.2).",
 		FileName:    "earthquake_map.star",
 		PackageName: "earthquakemap",
 		Source:  source,
