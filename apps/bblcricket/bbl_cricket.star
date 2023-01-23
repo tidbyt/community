@@ -553,7 +553,7 @@ def main(config):
             Time = MyTime.format("15:04")
             Date = MyTime.format("Jan 2")
 
-            Standings_JSON = http.get(Standings_URL).json()
+            # Standings_JSON = http.get(Standings_URL).json()
             Ladder = Standings_JSON["content"]["standings"]["groups"][0]["teamStats"]
 
             # Team1 Record
