@@ -17,7 +17,7 @@ func New() manifest.Manifest {
 		Name:        "Hubble Live",
 		Author:      "Brian McLaughlin (SpinStabilized)",
 		Summary:     "Current Hubble Observation",
-		Desc:        "Displays the currently scheduled observation status of the Hubble Space Telescope.",
+		Desc:        "Displays the currently scheduled observation status of the Hubble Space Telescope (v0.2.0).",
 		FileName:    "hubble_live.star",
 		PackageName: "hubblelive",
 		Source:  source,
