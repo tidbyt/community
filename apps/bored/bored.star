@@ -32,7 +32,8 @@ def main(config):
         print("Miss! Calling Bored API.")
         
         if friends == "random":
-            friends = random.number(1, 5)
+            r = random.number(1, 5)
+            friends = str(r)
 
         # this may not work
         params = {
