@@ -2880,6 +2880,7 @@ def main(config):
         rendered_trains = [render_train(trains[t], display_mode) for t in range(max_trains)]
 
     return render.Root(
+        max_age = 120,
         child = render.Column(
             cross_align = "center",
             children = [

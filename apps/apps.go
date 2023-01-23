@@ -210,6 +210,7 @@ import (
 	"tidbyt.dev/community/apps/steam"
 	"tidbyt.dev/community/apps/stepcounter"
 	"tidbyt.dev/community/apps/stockticker"
+	"tidbyt.dev/community/apps/stockvalue"
 	"tidbyt.dev/community/apps/strava"
 	"tidbyt.dev/community/apps/subreddit"
 	"tidbyt.dev/community/apps/sunrisesunset"
@@ -468,6 +469,7 @@ func GetManifests() []manifest.Manifest {
 		steam.New(),
 		stepcounter.New(),
 		stockticker.New(),
+		stockvalue.New(),
 		strava.New(),
 		subreddit.New(),
 		sunrisesunset.New(),
