@@ -72,6 +72,7 @@ def get_schema():
             schema.Dropdown(
                 id = "resort",
                 name = "Ski Resort",
+                icon = "mountain",
                 desc = "The resort you want to show. North American Epic Pass Resorts only right now",
                 default = options[0].value,
                 options = options,
