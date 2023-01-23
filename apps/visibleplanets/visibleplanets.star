@@ -87,7 +87,7 @@ def main(config):
     hide_quiet = config.get("hide_quiet")
     location = json.decode(config.get("location", default_location))
 
-    planet = config.get("planet", "all")  #default to mercury
+    planet = config.get("planet", "mercury")  #default to mercury
 
     #get locations sunrise/sunset
     now = time.now()
