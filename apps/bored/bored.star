@@ -20,9 +20,14 @@ DEFAULT_FONT = "6x13"
 DEFAULT_DIRECTION = "vertical"
 
 def main(config):
-    # Create unique cache key based on config values. 
+    # Create unique cache key based on config values.
     # The only one that really matters for now is the number of participants
     friends = config.get("friends", "1")
+
+    # if a random is selected, randomize
+    if friends == "random":
+        friends = str(random.number(1, 5))
+
     cache_key = "bored_app_" + friends
 
     activity = cache.get(cache_key)
@@ -30,19 +35,19 @@ def main(config):
         print("Hit! Displaying cached data.")
     else:
         print("Miss! Calling Bored API.")
-        
-        if friends == "random":
-            r = random.number(1, 5)
-            friends = str(r)
 
         # this may not work
         params = {
-            "participants": str(friends),
+            "participants": friends,
         }
+
         print("params", params)
         rep = http.get(BORED_URL, params = params)
         if rep.status_code != 200:
+            # if the APi fails, return [] to skip this app showing
             fail("Bored request failed with status %d", rep.status_code)
+            return []
+
         activity = rep.json()["activity"]
         cache.set(cache_key, activity, ttl_seconds = 600)
         print(activity)
