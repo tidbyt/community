@@ -110,6 +110,7 @@ import (
 	"tidbyt.dev/community/apps/manifest"
 	"tidbyt.dev/community/apps/martamap"
 	"tidbyt.dev/community/apps/marvelfacts"
+	"tidbyt.dev/community/apps/mastodonfollows"
 	"tidbyt.dev/community/apps/maze"
 	"tidbyt.dev/community/apps/mbta"
 	"tidbyt.dev/community/apps/mbtanewtrains"
@@ -371,6 +372,7 @@ func GetManifests() []manifest.Manifest {
 		lordoftherings.New(),
 		martamap.New(),
 		marvelfacts.New(),
+		mastodonfollows.New(),
 		maze.New(),
 		mbta.New(),
 		mbtanewtrains.New(),
