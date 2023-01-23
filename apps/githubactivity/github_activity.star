@@ -69,7 +69,7 @@ CLIENT_ID_DEFAULT = "123456"
 CLIENT_SECRET_DEFAULT = "78910"
 
 CLIENT_ID = "AV6+xWcENwf/yFjUUmeqkS0BmffhMyvfFwJsRhbP/wlPsmARatz0FbGQDmYQlwyNvsux72tus+/cvFjlMvgRhi5pKBcT/h3NrOn4RgeFSSrCC/oEJQ5J1xgQMfYZfaTJnAuByzYMKXIa4aDKqfio7don1OzlpIoGzwk="
-CLIENT_SECRET = "AV6+xWcEQSnpCRaplxzk6Gctkcib5W/u4Xe25wX3vsFfqUoQesQMKrUbL91vohfJQp6BagLZffHh0OWwik4/Pqupsf4MHQdiM1UpRw/ll6h2pVtTOptb4D6R3FlV4zD76aPdZN9XZwGEijcebliUJNMwZd53PThW5Zhm7vtDw7hyfejkSHRHdfvhzS5ksQ=="
+CLIENT_SECRET = "AV6+xWcEkGQcmCdoF4yLvssx1t8fdhuWfD24pFrPzWGJ8X9AVvgOkHUnD0JkNkp8BilBVRq5yIdvzPar5MYNz5qv321OIgoa6sobRuq8M2qIphLERlBuIXlH+fS8CtLgYQzjIqUpbdU/LD63hRlqF2iIoDLCM7CA9+FUcqkg7ecQ2f4X3lK87TImFw8c6g=="
 
 ############
 #debug stuff
