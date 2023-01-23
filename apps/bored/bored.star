@@ -20,7 +20,12 @@ DEFAULT_FONT = "6x13"
 DEFAULT_DIRECTION = "vertical"
 
 def main(config):
-    activity = cache.get("activity")
+
+    # Create 'unique' cache key based on config values. The only one that really matters for now is the number of participants
+    
+    cache_key = "bored_app_" + config.get("friends", "1")
+
+    activity = cache.get(cache_key)
     if activity != None:
         print("Hit! Displaying cached data.")
     else:
@@ -39,7 +44,7 @@ def main(config):
         if rep.status_code != 200:
             fail("Bored request failed with status %d", rep.status_code)
         activity = rep.json()["activity"]
-        cache.set("activity", activity, ttl_seconds = 600)
+        cache.set(cache_key, activity, ttl_seconds = 600)
         print(activity)
 
     color = config.get("color", DEFAULT_COLOR)
