@@ -22,15 +22,15 @@ DEFAULT_DIRECTION = "vertical"
 def main(config):
     # Create unique cache key based on config values. 
     # The only one that really matters for now is the number of participants
-    cache_key = "bored_app_" + config.get("friends", "1")
+    friends = config.get("friends", "1")
+    cache_key = "bored_app_" + friends
 
     activity = cache.get(cache_key)
     if activity != None:
         print("Hit! Displaying cached data.")
     else:
         print("Miss! Calling Bored API.")
-
-        friends = config.get("friends", "1")
+        
         if friends == "random":
             friends = random.number(1, 5)
 
