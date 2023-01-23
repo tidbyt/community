@@ -80,6 +80,7 @@ import (
 	"tidbyt.dev/community/apps/fullybinarytime"
 	"tidbyt.dev/community/apps/fuzzyclock"
 	"tidbyt.dev/community/apps/gapilotbuddy"
+	"tidbyt.dev/community/apps/githubactivity"
 	"tidbyt.dev/community/apps/githubbadge"
 	"tidbyt.dev/community/apps/githubrepo"
 	"tidbyt.dev/community/apps/githubstargazers"
@@ -347,6 +348,7 @@ func GetManifests() []manifest.Manifest {
 		fullybinarytime.New(),
 		fuzzyclock.New(),
 		gapilotbuddy.New(),
+		githubactivity.New(),
 		githubbadge.New(),
 		githubrepo.New(),
 		githubstargazers.New(),
