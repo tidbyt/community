@@ -57,6 +57,7 @@ import (
 	"tidbyt.dev/community/apps/destiny2stats"
 	"tidbyt.dev/community/apps/digibyteprice"
 	"tidbyt.dev/community/apps/digitalrain"
+	"tidbyt.dev/community/apps/discordmembers"
 	"tidbyt.dev/community/apps/duolingo"
 	"tidbyt.dev/community/apps/dutchfuzzyclock"
 	"tidbyt.dev/community/apps/dvdlogo"
@@ -85,6 +86,7 @@ import (
 	"tidbyt.dev/community/apps/goldpriceticker"
 	"tidbyt.dev/community/apps/goodservice"
 	"tidbyt.dev/community/apps/happyhour"
+	"tidbyt.dev/community/apps/hassentity"
 	"tidbyt.dev/community/apps/hexcolorclock"
 	"tidbyt.dev/community/apps/hexdailystats"
 	"tidbyt.dev/community/apps/howoldami"
@@ -110,6 +112,7 @@ import (
 	"tidbyt.dev/community/apps/manifest"
 	"tidbyt.dev/community/apps/martamap"
 	"tidbyt.dev/community/apps/marvelfacts"
+	"tidbyt.dev/community/apps/mastodonfollows"
 	"tidbyt.dev/community/apps/maze"
 	"tidbyt.dev/community/apps/mbta"
 	"tidbyt.dev/community/apps/mbtanewtrains"
@@ -135,10 +138,12 @@ import (
 	"tidbyt.dev/community/apps/ncaafscores"
 	"tidbyt.dev/community/apps/ncaafstandings"
 	"tidbyt.dev/community/apps/ncaamscores"
+	"tidbyt.dev/community/apps/ncaamstandings"
 	"tidbyt.dev/community/apps/nearearthobjs"
 	"tidbyt.dev/community/apps/neotrack"
 	"tidbyt.dev/community/apps/nesquotes"
 	"tidbyt.dev/community/apps/netatmo"
+	"tidbyt.dev/community/apps/newapps"
 	"tidbyt.dev/community/apps/nflscores"
 	"tidbyt.dev/community/apps/nflstandings"
 	"tidbyt.dev/community/apps/nft"
@@ -163,6 +168,7 @@ import (
 	"tidbyt.dev/community/apps/paraland"
 	"tidbyt.dev/community/apps/pathtrainschedule"
 	"tidbyt.dev/community/apps/petpikachu"
+	"tidbyt.dev/community/apps/pgatour"
 	"tidbyt.dev/community/apps/phaseofmoon"
 	"tidbyt.dev/community/apps/plausibleanalytics"
 	"tidbyt.dev/community/apps/pleasestandby"
@@ -318,6 +324,7 @@ func GetManifests() []manifest.Manifest {
 		destiny2stats.New(),
 		digibyteprice.New(),
 		digitalrain.New(),
+		discordmembers.New(),
 		duolingo.New(),
 		dutchfuzzyclock.New(),
 		dvdlogo.New(),
@@ -346,6 +353,7 @@ func GetManifests() []manifest.Manifest {
 		goldpriceticker.New(),
 		goodservice.New(),
 		happyhour.New(),
+		hassentity.New(),
 		hexcolorclock.New(),
 		hexdailystats.New(),
 		howoldami.New(),
@@ -370,6 +378,7 @@ func GetManifests() []manifest.Manifest {
 		lordoftherings.New(),
 		martamap.New(),
 		marvelfacts.New(),
+		mastodonfollows.New(),
 		maze.New(),
 		mbta.New(),
 		mbtanewtrains.New(),
@@ -395,10 +404,12 @@ func GetManifests() []manifest.Manifest {
 		ncaafscores.New(),
 		ncaafstandings.New(),
 		ncaamscores.New(),
+		ncaamstandings.New(),
 		nearearthobjs.New(),
 		neotrack.New(),
 		nesquotes.New(),
 		netatmo.New(),
+		newapps.New(),
 		nflscores.New(),
 		nflstandings.New(),
 		nft.New(),
@@ -423,6 +434,7 @@ func GetManifests() []manifest.Manifest {
 		paraland.New(),
 		pathtrainschedule.New(),
 		petpikachu.New(),
+		pgatour.New(),
 		phaseofmoon.New(),
 		plausibleanalytics.New(),
 		pleasestandby.New(),
