@@ -15,4 +15,7 @@ test:
 	pixlet check -r ./
 
 app:
-	pixlet create
+	@ pixlet create
+
+migrate:
+	go run tools/main.go migrate

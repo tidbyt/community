@@ -18,3 +18,7 @@ maintaining the Tidbyt community repo.`,
 func Execute() error {
 	return rootCmd.Execute()
 }
+
+func init() {
+	rootCmd.AddCommand(migrateCmd)
+}
