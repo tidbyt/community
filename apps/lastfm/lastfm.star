@@ -120,7 +120,7 @@ def not_playing(username):
 
 def main(config):
     user_name = config.get("user_name") or "mattygroch"
-    api_key = secret.decrypt("AV6+xWcExvwh78xt0TOTqj5VhxD1vPIEvRmhQ3w5ilgAJCeLstfj2nlXQ9E7XTIlyNP39NpEW2biH5hRZJZsJYLKdLujhTLPMhALjgSA463JP1HhDBme6vUOM9//MRb+GG/2Dp9TXaL/Lq3/dMvk1oCcHieorAxsGe4eURsp+Vxo5TzA1SE=") or config.get("dev_api_key")
+    api_key = secret.decrypt("AV6+xWcEUSOfiPuLejSURtQdGZgrvvN1xhwGJ1AlI1cqjf676zXy/zY0dgQgKbECM4gwMQovqdji1Lg0eiLT1NAuNllAEVkGxO/7izBwDjrrTWdLJD1ggZzgPY7bY4rSuTjmY5R+xtGv3O3WJY+1zsHrjlp7SIl10gzb68TR7G1j/ApvlBI=") or config.get("dev_api_key")
 
     cached_song_title = cache.get("name-%s" % user_name)
     cached_artist_name = cache.get("artist-%s" % user_name)
