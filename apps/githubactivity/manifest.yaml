@@ -1,0 +1,8 @@
+---
+id: github-activity
+name: GitHub Activity
+summary: See your GitHub activity
+desc: Display the last 13 weeks of your GitHub contribution graph in addition to other metrics on your GitHub profile.
+author: rs7q5
+fileName: github_activity.star
+packageName: githubactivity
