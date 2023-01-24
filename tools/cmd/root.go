@@ -18,9 +18,3 @@ maintaining the Tidbyt community repo.`,
 func Execute() error {
 	return rootCmd.Execute()
 }
-
-func init() {
-	rootCmd.AddCommand(createCmd)
-	rootCmd.AddCommand(removeCmd)
-	rootCmd.AddCommand(syncCmd)
-}
