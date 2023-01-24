@@ -4,7 +4,7 @@ package arcadeclassics
 import (
 	_ "embed"
 
-	"tidbyt.dev/community/apps/manifest"
+	"tidbyt.dev/pixlet/manifest"
 )
 
 //go:embed arcade_classics.star
@@ -20,6 +20,6 @@ func New() manifest.Manifest {
 		Desc:        "Animations from classic arcade video games.",
 		FileName:    "arcade_classics.star",
 		PackageName: "arcadeclassics",
-		Source:  source,
+		Source:      source,
 	}
 }

@@ -4,7 +4,7 @@ package stockticker
 import (
 	_ "embed"
 
-	"tidbyt.dev/community/apps/manifest"
+	"tidbyt.dev/pixlet/manifest"
 )
 
 //go:embed stock_ticker.star
@@ -20,6 +20,6 @@ func New() manifest.Manifest {
 		Desc:        "This is a simple stock ticker app, that will display a stock ticker for 3 stock symbols.  If you want more, spin up a second copy of the app to have more stocks tick. Requires a free API key from alphavantage.co.",
 		FileName:    "stock_ticker.star",
 		PackageName: "stockticker",
-		Source:  source,
+		Source:      source,
 	}
 }

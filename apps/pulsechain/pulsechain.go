@@ -4,7 +4,7 @@ package pulsechain
 import (
 	_ "embed"
 
-	"tidbyt.dev/community/apps/manifest"
+	"tidbyt.dev/pixlet/manifest"
 )
 
 //go:embed pulsechain.star
@@ -20,6 +20,6 @@ func New() manifest.Manifest {
 		Desc:        "Display the price of PLS and PLSX. Choose between testnet and mainnet prices. After PulseChain mainnet launch, an update will be pushed to this app to display the correct mainnet price.",
 		FileName:    "pulsechain.star",
 		PackageName: "pulsechain",
-		Source:  source,
+		Source:      source,
 	}
 }

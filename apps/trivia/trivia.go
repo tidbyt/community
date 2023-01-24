@@ -4,7 +4,7 @@ package trivia
 import (
 	_ "embed"
 
-	"tidbyt.dev/community/apps/manifest"
+	"tidbyt.dev/pixlet/manifest"
 )
 
 //go:embed trivia.star
@@ -20,6 +20,6 @@ func New() manifest.Manifest {
 		Desc:        "Displays a random trivia question with category and difficulty.",
 		FileName:    "trivia.star",
 		PackageName: "trivia",
-		Source:  source,
+		Source:      source,
 	}
 }

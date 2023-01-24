@@ -4,7 +4,7 @@ package jokesjokeapi
 import (
 	_ "embed"
 
-	"tidbyt.dev/community/apps/manifest"
+	"tidbyt.dev/pixlet/manifest"
 )
 
 //go:embed jokes_jokeapi.star
@@ -20,6 +20,6 @@ func New() manifest.Manifest {
 		Desc:        "Displays different jokes from JokeAPI.",
 		FileName:    "jokes_jokeapi.star",
 		PackageName: "jokesjokeapi",
-		Source:  source,
+		Source:      source,
 	}
 }

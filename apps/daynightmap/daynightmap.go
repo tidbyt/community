@@ -4,7 +4,7 @@ package daynightmap
 import (
 	_ "embed"
 
-	"tidbyt.dev/community/apps/manifest"
+	"tidbyt.dev/pixlet/manifest"
 )
 
 //go:embed day_night_map.star
@@ -20,6 +20,6 @@ func New() manifest.Manifest {
 		Desc:        "A map of the Earth showing the day and the night. The map is based on Equirectangular (0°) by Tobias Jung (CC BY-SA 4.0).",
 		FileName:    "day_night_map.star",
 		PackageName: "daynightmap",
-		Source:  source,
+		Source:      source,
 	}
 }

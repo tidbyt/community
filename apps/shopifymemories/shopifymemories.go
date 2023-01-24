@@ -4,7 +4,7 @@ package shopifymemories
 import (
 	_ "embed"
 
-	"tidbyt.dev/community/apps/manifest"
+	"tidbyt.dev/pixlet/manifest"
 )
 
 //go:embed shopify_memories.star
@@ -20,6 +20,6 @@ func New() manifest.Manifest {
 		Desc:        "Showcase some of your store’s most significant memories like your first sale, anniversaries, and more.",
 		FileName:    "shopify_memories.star",
 		PackageName: "shopifymemories",
-		Source:  source,
+		Source:      source,
 	}
 }

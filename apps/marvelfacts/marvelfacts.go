@@ -4,7 +4,7 @@ package marvelfacts
 import (
 	_ "embed"
 
-	"tidbyt.dev/community/apps/manifest"
+	"tidbyt.dev/pixlet/manifest"
 )
 
 //go:embed marvel_facts.star
@@ -20,6 +20,6 @@ func New() manifest.Manifest {
 		Desc:        "Gives you the description or number of comics a random character has been in.",
 		FileName:    "marvel_facts.star",
 		PackageName: "marvelfacts",
-		Source:  source,
+		Source:      source,
 	}
 }

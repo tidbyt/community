@@ -4,7 +4,7 @@ package moonphase
 import (
 	_ "embed"
 
-	"tidbyt.dev/community/apps/manifest"
+	"tidbyt.dev/pixlet/manifest"
 )
 
 //go:embed moon_phase.star
@@ -20,6 +20,6 @@ func New() manifest.Manifest {
 		Desc:        "Shows phase of moon based on location.",
 		FileName:    "moon_phase.star",
 		PackageName: "moonphase",
-		Source:  source,
+		Source:      source,
 	}
 }

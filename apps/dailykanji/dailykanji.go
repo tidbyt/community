@@ -4,7 +4,7 @@ package dailykanji
 import (
 	_ "embed"
 
-	"tidbyt.dev/community/apps/manifest"
+	"tidbyt.dev/pixlet/manifest"
 )
 
 //go:embed dailykanji.star
@@ -20,6 +20,6 @@ func New() manifest.Manifest {
 		Desc:        "Displays a random Kanji character with translation.",
 		FileName:    "dailykanji.star",
 		PackageName: "dailykanji",
-		Source:  source,
+		Source:      source,
 	}
 }

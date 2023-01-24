@@ -4,7 +4,7 @@ package sportsstandings
 import (
 	_ "embed"
 
-	"tidbyt.dev/community/apps/manifest"
+	"tidbyt.dev/pixlet/manifest"
 )
 
 //go:embed sports_standings.star
@@ -20,6 +20,6 @@ func New() manifest.Manifest {
 		Desc:        "Get various sports standings (data courtesy of ESPN).",
 		FileName:    "sports_standings.star",
 		PackageName: "sportsstandings",
-		Source:  source,
+		Source:      source,
 	}
 }

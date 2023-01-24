@@ -4,7 +4,7 @@ package islamicprayer
 import (
 	_ "embed"
 
-	"tidbyt.dev/community/apps/manifest"
+	"tidbyt.dev/pixlet/manifest"
 )
 
 //go:embed islamic_prayer.star
@@ -20,6 +20,6 @@ func New() manifest.Manifest {
 		Desc:        "Islamic prayer times for the day.",
 		FileName:    "islamic_prayer.star",
 		PackageName: "islamicprayer",
-		Source:  source,
+		Source:      source,
 	}
 }

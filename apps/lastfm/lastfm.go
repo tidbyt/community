@@ -4,7 +4,7 @@ package lastfm
 import (
 	_ "embed"
 
-	"tidbyt.dev/community/apps/manifest"
+	"tidbyt.dev/pixlet/manifest"
 )
 
 //go:embed last_fm.star
@@ -20,6 +20,6 @@ func New() manifest.Manifest {
 		Desc:        "Show title, artist and album art from most recently scrobbled song in your Last.fm history.",
 		FileName:    "last_fm.star",
 		PackageName: "lastfm",
-		Source:  source,
+		Source:      source,
 	}
 }

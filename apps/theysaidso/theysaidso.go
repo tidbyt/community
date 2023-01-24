@@ -4,7 +4,7 @@ package theysaidso
 import (
 	_ "embed"
 
-	"tidbyt.dev/community/apps/manifest"
+	"tidbyt.dev/pixlet/manifest"
 )
 
 //go:embed they_said_so.star
@@ -20,6 +20,6 @@ func New() manifest.Manifest {
 		Desc:        "Quote of the day powered by theysaidso.com.",
 		FileName:    "they_said_so.star",
 		PackageName: "theysaidso",
-		Source:  source,
+		Source:      source,
 	}
 }

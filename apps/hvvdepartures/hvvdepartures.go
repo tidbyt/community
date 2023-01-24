@@ -4,7 +4,7 @@ package hvvdepartures
 import (
 	_ "embed"
 
-	"tidbyt.dev/community/apps/manifest"
+	"tidbyt.dev/pixlet/manifest"
 )
 
 //go:embed hvv_departures.star
@@ -20,6 +20,6 @@ func New() manifest.Manifest {
 		Desc:        "Display real-time departure times for trains, buses and ferries in Hamburg (HVV).",
 		FileName:    "hvv_departures.star",
 		PackageName: "hvvdepartures",
-		Source:  source,
+		Source:      source,
 	}
 }

@@ -4,7 +4,7 @@ package coinprices
 import (
 	_ "embed"
 
-	"tidbyt.dev/community/apps/manifest"
+	"tidbyt.dev/pixlet/manifest"
 )
 
 //go:embed coin_prices.star
@@ -20,6 +20,6 @@ func New() manifest.Manifest {
 		Desc:        "Show Current exchange rate for multiple coins.",
 		FileName:    "coin_prices.star",
 		PackageName: "coinprices",
-		Source:  source,
+		Source:      source,
 	}
 }

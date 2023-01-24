@@ -4,7 +4,7 @@ package wantedposter
 import (
 	_ "embed"
 
-	"tidbyt.dev/community/apps/manifest"
+	"tidbyt.dev/pixlet/manifest"
 )
 
 //go:embed wantedposter.star
@@ -20,6 +20,6 @@ func New() manifest.Manifest {
 		Desc:        "Displays a custom wanted poster based on an image you upload.",
 		FileName:    "wantedposter.star",
 		PackageName: "wantedposter",
-		Source:  source,
+		Source:      source,
 	}
 }

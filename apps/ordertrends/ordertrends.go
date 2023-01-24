@@ -4,7 +4,7 @@ package ordertrends
 import (
 	_ "embed"
 
-	"tidbyt.dev/community/apps/manifest"
+	"tidbyt.dev/pixlet/manifest"
 )
 
 //go:embed order_trends.star
@@ -20,6 +20,6 @@ func New() manifest.Manifest {
 		Desc:        "Showcase your daily, weekly, monthly, or annual order totals.",
 		FileName:    "order_trends.star",
 		PackageName: "ordertrends",
-		Source:  source,
+		Source:      source,
 	}
 }

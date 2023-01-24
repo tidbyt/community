@@ -4,7 +4,7 @@ package discordmembers
 import (
 	_ "embed"
 
-	"tidbyt.dev/community/apps/manifest"
+	"tidbyt.dev/pixlet/manifest"
 )
 
 //go:embed discordmembers.star
@@ -20,6 +20,6 @@ func New() manifest.Manifest {
 		Desc:        "Display the approximate member count for a given Discord server (via Invite ID).",
 		FileName:    "discordmembers.star",
 		PackageName: "discordmembers",
-		Source:  source,
+		Source:      source,
 	}
 }

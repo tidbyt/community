@@ -4,7 +4,7 @@ package bgghotness
 import (
 	_ "embed"
 
-	"tidbyt.dev/community/apps/manifest"
+	"tidbyt.dev/pixlet/manifest"
 )
 
 //go:embed bgg_hotness.star
@@ -20,6 +20,6 @@ func New() manifest.Manifest {
 		Desc:        "Shows the top items from BoardGameGeek's Board Game Hotness list.",
 		FileName:    "bgg_hotness.star",
 		PackageName: "bgghotness",
-		Source:  source,
+		Source:      source,
 	}
 }

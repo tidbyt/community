@@ -4,7 +4,7 @@ package clockbyhenry
 import (
 	_ "embed"
 
-	"tidbyt.dev/community/apps/manifest"
+	"tidbyt.dev/pixlet/manifest"
 )
 
 //go:embed clock_by_henry.star
@@ -20,6 +20,6 @@ func New() manifest.Manifest {
 		Desc:        "Show the time with numbers you can see from across the room! Bonus date included.",
 		FileName:    "clock_by_henry.star",
 		PackageName: "clockbyhenry",
-		Source:  source,
+		Source:      source,
 	}
 }

@@ -4,7 +4,7 @@ package salestrends
 import (
 	_ "embed"
 
-	"tidbyt.dev/community/apps/manifest"
+	"tidbyt.dev/pixlet/manifest"
 )
 
 //go:embed sales_trends.star
@@ -20,6 +20,6 @@ func New() manifest.Manifest {
 		Desc:        "Showcase your daily, weekly, monthly, or annual sales totals.",
 		FileName:    "sales_trends.star",
 		PackageName: "salestrends",
-		Source:  source,
+		Source:      source,
 	}
 }

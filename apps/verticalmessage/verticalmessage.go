@@ -4,7 +4,7 @@ package verticalmessage
 import (
 	_ "embed"
 
-	"tidbyt.dev/community/apps/manifest"
+	"tidbyt.dev/pixlet/manifest"
 )
 
 //go:embed vertical_message.star
@@ -20,6 +20,6 @@ func New() manifest.Manifest {
 		Desc:        "Display a message vertically.",
 		FileName:    "vertical_message.star",
 		PackageName: "verticalmessage",
-		Source:  source,
+		Source:      source,
 	}
 }

@@ -4,7 +4,7 @@ package xtrabyt
 import (
 	_ "embed"
 
-	"tidbyt.dev/community/apps/manifest"
+	"tidbyt.dev/pixlet/manifest"
 )
 
 //go:embed xtrabyt.star
@@ -20,6 +20,6 @@ func New() manifest.Manifest {
 		Desc:        "Display a custom drawing or integration view from Xtrabyt.com.",
 		FileName:    "xtrabyt.star",
 		PackageName: "xtrabyt",
-		Source:  source,
+		Source:      source,
 	}
 }

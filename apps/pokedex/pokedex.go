@@ -4,7 +4,7 @@ package pokedex
 import (
 	_ "embed"
 
-	"tidbyt.dev/community/apps/manifest"
+	"tidbyt.dev/pixlet/manifest"
 )
 
 //go:embed pokedex.star
@@ -20,6 +20,6 @@ func New() manifest.Manifest {
 		Desc:        "Display a random Pokemon alongside its name, number, height, and weight.",
 		FileName:    "pokedex.star",
 		PackageName: "pokedex",
-		Source:  source,
+		Source:      source,
 	}
 }

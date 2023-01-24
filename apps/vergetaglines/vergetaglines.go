@@ -4,7 +4,7 @@ package vergetaglines
 import (
 	_ "embed"
 
-	"tidbyt.dev/community/apps/manifest"
+	"tidbyt.dev/pixlet/manifest"
 )
 
 //go:embed verge_taglines.star
@@ -20,6 +20,6 @@ func New() manifest.Manifest {
 		Desc:        "Displays the latest tagline from the top of popular tech news site The Verge (dot com).",
 		FileName:    "verge_taglines.star",
 		PackageName: "vergetaglines",
-		Source:  source,
+		Source:      source,
 	}
 }

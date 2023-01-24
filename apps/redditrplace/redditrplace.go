@@ -4,7 +4,7 @@ package redditrplace
 import (
 	_ "embed"
 
-	"tidbyt.dev/community/apps/manifest"
+	"tidbyt.dev/pixlet/manifest"
 )
 
 //go:embed reddit_r_place.star
@@ -20,6 +20,6 @@ func New() manifest.Manifest {
 		Desc:        "See tidbits of what Redditors created for r/place.",
 		FileName:    "reddit_r_place.star",
 		PackageName: "redditrplace",
-		Source:  source,
+		Source:      source,
 	}
 }

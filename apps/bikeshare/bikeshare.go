@@ -4,7 +4,7 @@ package bikeshare
 import (
 	_ "embed"
 
-	"tidbyt.dev/community/apps/manifest"
+	"tidbyt.dev/pixlet/manifest"
 )
 
 //go:embed bikeshare.star
@@ -20,6 +20,6 @@ func New() manifest.Manifest {
 		Desc:        "Shows bike and parking availability for user selected bikeshare locations.",
 		FileName:    "bikeshare.star",
 		PackageName: "bikeshare",
-		Source:  source,
+		Source:      source,
 	}
 }

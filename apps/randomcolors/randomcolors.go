@@ -4,7 +4,7 @@ package randomcolors
 import (
 	_ "embed"
 
-	"tidbyt.dev/community/apps/manifest"
+	"tidbyt.dev/pixlet/manifest"
 )
 
 //go:embed random_colors.star
@@ -20,6 +20,6 @@ func New() manifest.Manifest {
 		Desc:        "Generates random color and corresponding hex code.",
 		FileName:    "random_colors.star",
 		PackageName: "randomcolors",
-		Source:  source,
+		Source:      source,
 	}
 }

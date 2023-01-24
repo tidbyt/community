@@ -4,7 +4,7 @@ package fivesomewhere
 import (
 	_ "embed"
 
-	"tidbyt.dev/community/apps/manifest"
+	"tidbyt.dev/pixlet/manifest"
 )
 
 //go:embed five_somewhere.star
@@ -20,6 +20,6 @@ func New() manifest.Manifest {
 		Desc:        "Displays a random timezone where it's currently in the 5 o'clock hour.",
 		FileName:    "five_somewhere.star",
 		PackageName: "fivesomewhere",
-		Source:  source,
+		Source:      source,
 	}
 }

@@ -4,7 +4,7 @@ package digibyteprice
 import (
 	_ "embed"
 
-	"tidbyt.dev/community/apps/manifest"
+	"tidbyt.dev/pixlet/manifest"
 )
 
 //go:embed digibyte_price.star
@@ -20,6 +20,6 @@ func New() manifest.Manifest {
 		Desc:        "Displays the current DigiByte price in one or two fiat currencies and/or in Satoshis. Data provided by CoinGecko. Updated every 10 minutes. If you would like an additional currency supported, pease let me know in the Tidbyt community Discord.",
 		FileName:    "digibyte_price.star",
 		PackageName: "digibyteprice",
-		Source:  source,
+		Source:      source,
 	}
 }

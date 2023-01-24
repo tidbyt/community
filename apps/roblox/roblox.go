@@ -4,7 +4,7 @@ package roblox
 import (
 	_ "embed"
 
-	"tidbyt.dev/community/apps/manifest"
+	"tidbyt.dev/pixlet/manifest"
 )
 
 //go:embed roblox.star
@@ -20,6 +20,6 @@ func New() manifest.Manifest {
 		Desc:        "Real time views of your Roblox experiences.",
 		FileName:    "roblox.star",
 		PackageName: "roblox",
-		Source:  source,
+		Source:      source,
 	}
 }

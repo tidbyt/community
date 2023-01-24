@@ -4,7 +4,7 @@ package nflscores
 import (
 	_ "embed"
 
-	"tidbyt.dev/community/apps/manifest"
+	"tidbyt.dev/pixlet/manifest"
 )
 
 //go:embed nfl_scores.star
@@ -20,6 +20,6 @@ func New() manifest.Manifest {
 		Desc:        "For slower scrolling of scores, add the app to your Tidbyt multiple times. Then, within each app instance, set 'Total Instances of App' to the amount of times you have it installed, and set 'App Instance Number' unique to each app instance.",
 		FileName:    "nfl_scores.star",
 		PackageName: "nflscores",
-		Source:  source,
+		Source:      source,
 	}
 }

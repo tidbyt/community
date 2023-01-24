@@ -4,7 +4,7 @@ package spinbyt
 import (
 	_ "embed"
 
-	"tidbyt.dev/community/apps/manifest"
+	"tidbyt.dev/pixlet/manifest"
 )
 
 //go:embed spinbyt.star
@@ -20,6 +20,6 @@ func New() manifest.Manifest {
 		Desc:        "App that shows the nearest Spin scooter, its battery level, and number of other nearby scooters. Includes a scooter icon.",
 		FileName:    "spinbyt.star",
 		PackageName: "spinbyt",
-		Source:  source,
+		Source:      source,
 	}
 }

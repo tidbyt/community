@@ -4,7 +4,7 @@ package severewxalertsusa
 import (
 	_ "embed"
 
-	"tidbyt.dev/community/apps/manifest"
+	"tidbyt.dev/pixlet/manifest"
 )
 
 //go:embed severewxalertsusa.star
@@ -20,6 +20,6 @@ func New() manifest.Manifest {
 		Desc:        "Show Severe Weather Alerts in your location issued by the US National Weather Service.",
 		FileName:    "severewxalertsusa.star",
 		PackageName: "severewxalertsusa",
-		Source:  source,
+		Source:      source,
 	}
 }

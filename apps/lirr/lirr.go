@@ -4,7 +4,7 @@ package lirr
 import (
 	_ "embed"
 
-	"tidbyt.dev/community/apps/manifest"
+	"tidbyt.dev/pixlet/manifest"
 )
 
 //go:embed lirr.star
@@ -20,6 +20,6 @@ func New() manifest.Manifest {
 		Desc:        "Long Island Railroad Train Times.",
 		FileName:    "lirr.star",
 		PackageName: "lirr",
-		Source:  source,
+		Source:      source,
 	}
 }

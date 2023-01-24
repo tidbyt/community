@@ -4,7 +4,7 @@ package analogtime
 import (
 	_ "embed"
 
-	"tidbyt.dev/community/apps/manifest"
+	"tidbyt.dev/pixlet/manifest"
 )
 
 //go:embed analog_time.star
@@ -20,6 +20,6 @@ func New() manifest.Manifest {
 		Desc:        "Shows the time on an analog style clock. Enter custom colors in #rgb, #rrggbb, #rgba, or #rrggbbaa format.",
 		FileName:    "analog_time.star",
 		PackageName: "analogtime",
-		Source:  source,
+		Source:      source,
 	}
 }

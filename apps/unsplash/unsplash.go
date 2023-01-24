@@ -4,7 +4,7 @@ package unsplash
 import (
 	_ "embed"
 
-	"tidbyt.dev/community/apps/manifest"
+	"tidbyt.dev/pixlet/manifest"
 )
 
 //go:embed unsplash.star
@@ -20,6 +20,6 @@ func New() manifest.Manifest {
 		Desc:        "Displays a random image from Unsplash.",
 		FileName:    "unsplash.star",
 		PackageName: "unsplash",
-		Source:  source,
+		Source:      source,
 	}
 }

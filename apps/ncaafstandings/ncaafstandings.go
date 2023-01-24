@@ -4,7 +4,7 @@ package ncaafstandings
 import (
 	_ "embed"
 
-	"tidbyt.dev/community/apps/manifest"
+	"tidbyt.dev/pixlet/manifest"
 )
 
 //go:embed ncaaf_standings.star
@@ -20,6 +20,6 @@ func New() manifest.Manifest {
 		Desc:        "View NCAAF standings by conference.",
 		FileName:    "ncaaf_standings.star",
 		PackageName: "ncaafstandings",
-		Source:  source,
+		Source:      source,
 	}
 }

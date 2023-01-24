@@ -4,7 +4,7 @@ package emojilingo
 import (
 	_ "embed"
 
-	"tidbyt.dev/community/apps/manifest"
+	"tidbyt.dev/pixlet/manifest"
 )
 
 //go:embed emoji_lingo.star
@@ -20,6 +20,6 @@ func New() manifest.Manifest {
 		Desc:        "Displays a random emoji and its unique short text annotation from the Unicode Consortium in a given language.",
 		FileName:    "emoji_lingo.star",
 		PackageName: "emojilingo",
-		Source:  source,
+		Source:      source,
 	}
 }

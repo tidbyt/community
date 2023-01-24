@@ -4,7 +4,7 @@ package destiny2stats
 import (
 	_ "embed"
 
-	"tidbyt.dev/community/apps/manifest"
+	"tidbyt.dev/pixlet/manifest"
 )
 
 //go:embed destiny_2_stats.star
@@ -20,6 +20,6 @@ func New() manifest.Manifest {
 		Desc:        "Gets the emblem, race, class, and light level of your most recently played Destiny 2 character.",
 		FileName:    "destiny_2_stats.star",
 		PackageName: "destiny2stats",
-		Source:  source,
+		Source:      source,
 	}
 }

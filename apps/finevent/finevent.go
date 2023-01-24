@@ -4,7 +4,7 @@ package finevent
 import (
 	_ "embed"
 
-	"tidbyt.dev/community/apps/manifest"
+	"tidbyt.dev/pixlet/manifest"
 )
 
 //go:embed finevent.star
@@ -20,6 +20,6 @@ func New() manifest.Manifest {
 		Desc:        "Displays recent and upcoming economic releases.",
 		FileName:    "finevent.star",
 		PackageName: "finevent",
-		Source:  source,
+		Source:      source,
 	}
 }

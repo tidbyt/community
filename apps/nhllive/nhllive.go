@@ -4,7 +4,7 @@ package nhllive
 import (
 	_ "embed"
 
-	"tidbyt.dev/community/apps/manifest"
+	"tidbyt.dev/pixlet/manifest"
 )
 
 //go:embed nhl_live.star
@@ -20,6 +20,6 @@ func New() manifest.Manifest {
 		Desc:        "Displays live game stats or next scheduled NHL game information.",
 		FileName:    "nhl_live.star",
 		PackageName: "nhllive",
-		Source:  source,
+		Source:      source,
 	}
 }

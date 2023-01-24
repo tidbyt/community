@@ -4,7 +4,7 @@ package shopifychart
 import (
 	_ "embed"
 
-	"tidbyt.dev/community/apps/manifest"
+	"tidbyt.dev/pixlet/manifest"
 )
 
 //go:embed shopify_chart.star
@@ -20,6 +20,6 @@ func New() manifest.Manifest {
 		Desc:        "Display daily Shopify metrics and charts for revenue, orders, or units.",
 		FileName:    "shopify_chart.star",
 		PackageName: "shopifychart",
-		Source:  source,
+		Source:      source,
 	}
 }

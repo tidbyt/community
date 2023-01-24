@@ -4,7 +4,7 @@ package shopifyanimation
 import (
 	_ "embed"
 
-	"tidbyt.dev/community/apps/manifest"
+	"tidbyt.dev/pixlet/manifest"
 )
 
 //go:embed shopify_animation.star
@@ -20,6 +20,6 @@ func New() manifest.Manifest {
 		Desc:        "Enjoy a retro animated experience with Shoppy, the entrepreneurs mascot.",
 		FileName:    "shopify_animation.star",
 		PackageName: "shopifyanimation",
-		Source:  source,
+		Source:      source,
 	}
 }

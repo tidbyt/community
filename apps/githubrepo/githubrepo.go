@@ -4,7 +4,7 @@ package githubrepo
 import (
 	_ "embed"
 
-	"tidbyt.dev/community/apps/manifest"
+	"tidbyt.dev/pixlet/manifest"
 )
 
 //go:embed github_repo.star
@@ -20,6 +20,6 @@ func New() manifest.Manifest {
 		Desc:        "Display various statistics of a public GitHub repo.",
 		FileName:    "github_repo.star",
 		PackageName: "githubrepo",
-		Source:  source,
+		Source:      source,
 	}
 }

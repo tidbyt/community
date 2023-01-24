@@ -4,7 +4,7 @@ package fantasynamegen
 import (
 	_ "embed"
 
-	"tidbyt.dev/community/apps/manifest"
+	"tidbyt.dev/pixlet/manifest"
 )
 
 //go:embed fantasynamegen.star
@@ -20,6 +20,6 @@ func New() manifest.Manifest {
 		Desc:        "Randomly generate fantasy/RPG characters.",
 		FileName:    "fantasynamegen.star",
 		PackageName: "fantasynamegen",
-		Source:  source,
+		Source:      source,
 	}
 }

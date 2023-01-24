@@ -4,7 +4,7 @@ package gapilotbuddy
 import (
 	_ "embed"
 
-	"tidbyt.dev/community/apps/manifest"
+	"tidbyt.dev/pixlet/manifest"
 )
 
 //go:embed ga_pilot_buddy.star
@@ -20,6 +20,6 @@ func New() manifest.Manifest {
 		Desc:        "See local aerodrome flight rules and current abbreviated METAR information.",
 		FileName:    "ga_pilot_buddy.star",
 		PackageName: "gapilotbuddy",
-		Source:  source,
+		Source:      source,
 	}
 }

@@ -4,7 +4,7 @@ package coingeckoprice
 import (
 	_ "embed"
 
-	"tidbyt.dev/community/apps/manifest"
+	"tidbyt.dev/pixlet/manifest"
 )
 
 //go:embed coingecko_price.star
@@ -20,6 +20,6 @@ func New() manifest.Manifest {
 		Desc:        "Displays the current price of any coin supported by CoinGecko against one or two other currencies. Crypto price data updated every 10 minutes. Data provided by CoinGecko.",
 		FileName:    "coingecko_price.star",
 		PackageName: "coingeckoprice",
-		Source:  source,
+		Source:      source,
 	}
 }

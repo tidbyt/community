@@ -4,7 +4,7 @@ package tube
 import (
 	_ "embed"
 
-	"tidbyt.dev/community/apps/manifest"
+	"tidbyt.dev/pixlet/manifest"
 )
 
 //go:embed tube.star
@@ -20,6 +20,6 @@ func New() manifest.Manifest {
 		Desc:        "Upcoming arrivals for a particular Tube, Elizabeth Line, DLR or Overground station.",
 		FileName:    "tube.star",
 		PackageName: "tube",
-		Source:  source,
+		Source:      source,
 	}
 }

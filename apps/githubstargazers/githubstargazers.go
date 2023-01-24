@@ -4,7 +4,7 @@ package githubstargazers
 import (
 	_ "embed"
 
-	"tidbyt.dev/community/apps/manifest"
+	"tidbyt.dev/pixlet/manifest"
 )
 
 //go:embed github_stargazers.star
@@ -20,6 +20,6 @@ func New() manifest.Manifest {
 		Desc:        "Display the GitHub stargazer count for a repo.",
 		FileName:    "github_stargazers.star",
 		PackageName: "githubstargazers",
-		Source:  source,
+		Source:      source,
 	}
 }

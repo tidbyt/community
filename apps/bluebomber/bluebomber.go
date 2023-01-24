@@ -4,7 +4,7 @@ package bluebomber
 import (
 	_ "embed"
 
-	"tidbyt.dev/community/apps/manifest"
+	"tidbyt.dev/pixlet/manifest"
 )
 
 //go:embed bluebomber.star
@@ -20,6 +20,6 @@ func New() manifest.Manifest {
 		Desc:        "Randomly shows one of the 8-bit style Megaman bosses with a slick title card and subtle animation.",
 		FileName:    "bluebomber.star",
 		PackageName: "bluebomber",
-		Source:  source,
+		Source:      source,
 	}
 }

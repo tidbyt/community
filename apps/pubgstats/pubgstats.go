@@ -4,7 +4,7 @@ package pubgstats
 import (
 	_ "embed"
 
-	"tidbyt.dev/community/apps/manifest"
+	"tidbyt.dev/pixlet/manifest"
 )
 
 //go:embed pubg_stats.star
@@ -20,6 +20,6 @@ func New() manifest.Manifest {
 		Desc:        "Displays individual player's gaming stats from PlayerUnknown's Battlegrounds.",
 		FileName:    "pubg_stats.star",
 		PackageName: "pubgstats",
-		Source:  source,
+		Source:      source,
 	}
 }

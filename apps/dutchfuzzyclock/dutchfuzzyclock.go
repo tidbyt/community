@@ -4,7 +4,7 @@ package dutchfuzzyclock
 import (
 	_ "embed"
 
-	"tidbyt.dev/community/apps/manifest"
+	"tidbyt.dev/pixlet/manifest"
 )
 
 //go:embed dutch_fuzzy_clock.star
@@ -20,6 +20,6 @@ func New() manifest.Manifest {
 		Desc:        "Display the time in Dutch, human-readable way.",
 		FileName:    "dutch_fuzzy_clock.star",
 		PackageName: "dutchfuzzyclock",
-		Source:  source,
+		Source:      source,
 	}
 }

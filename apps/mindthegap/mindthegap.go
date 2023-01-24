@@ -4,7 +4,7 @@ package mindthegap
 import (
 	_ "embed"
 
-	"tidbyt.dev/community/apps/manifest"
+	"tidbyt.dev/pixlet/manifest"
 )
 
 //go:embed mind_the_gap.star
@@ -20,6 +20,6 @@ func New() manifest.Manifest {
 		Desc:        "Important advice for Londoners to remember at all times.",
 		FileName:    "mind_the_gap.star",
 		PackageName: "mindthegap",
-		Source:  source,
+		Source:      source,
 	}
 }

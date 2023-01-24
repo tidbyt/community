@@ -4,7 +4,7 @@ package preciousmetals
 import (
 	_ "embed"
 
-	"tidbyt.dev/community/apps/manifest"
+	"tidbyt.dev/pixlet/manifest"
 )
 
 //go:embed precious_metals.star
@@ -20,6 +20,6 @@ func New() manifest.Manifest {
 		Desc:        "Quotes for gold, platinum and silver.",
 		FileName:    "precious_metals.star",
 		PackageName: "preciousmetals",
-		Source:  source,
+		Source:      source,
 	}
 }

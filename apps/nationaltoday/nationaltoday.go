@@ -4,7 +4,7 @@ package nationaltoday
 import (
 	_ "embed"
 
-	"tidbyt.dev/community/apps/manifest"
+	"tidbyt.dev/pixlet/manifest"
 )
 
 //go:embed nationaltoday.star
@@ -20,6 +20,6 @@ func New() manifest.Manifest {
 		Desc:        "Displays today's holidays from NationalToday.",
 		FileName:    "nationaltoday.star",
 		PackageName: "nationaltoday",
-		Source:  source,
+		Source:      source,
 	}
 }

@@ -4,7 +4,7 @@ package chessviewer
 import (
 	_ "embed"
 
-	"tidbyt.dev/community/apps/manifest"
+	"tidbyt.dev/pixlet/manifest"
 )
 
 //go:embed chess_viewer.star
@@ -20,6 +20,6 @@ func New() manifest.Manifest {
 		Desc:        "This app shows a visual representation of currently active chess games for a given user on Chess.com.",
 		FileName:    "chess_viewer.star",
 		PackageName: "chessviewer",
-		Source:  source,
+		Source:      source,
 	}
 }

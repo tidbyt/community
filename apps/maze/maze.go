@@ -4,7 +4,7 @@ package maze
 import (
 	_ "embed"
 
-	"tidbyt.dev/community/apps/manifest"
+	"tidbyt.dev/pixlet/manifest"
 )
 
 //go:embed maze.star
@@ -20,6 +20,6 @@ func New() manifest.Manifest {
 		Desc:        "Draws a maze and then animates solving the maze.",
 		FileName:    "maze.star",
 		PackageName: "maze",
-		Source:  source,
+		Source:      source,
 	}
 }

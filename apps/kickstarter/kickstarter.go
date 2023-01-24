@@ -4,7 +4,7 @@ package kickstarter
 import (
 	_ "embed"
 
-	"tidbyt.dev/community/apps/manifest"
+	"tidbyt.dev/pixlet/manifest"
 )
 
 //go:embed kickstarter.star
@@ -20,6 +20,6 @@ func New() manifest.Manifest {
 		Desc:        "Display the total amount raised and the number of backers for a Kickstarter project. The project must be publicly visible.",
 		FileName:    "kickstarter.star",
 		PackageName: "kickstarter",
-		Source:  source,
+		Source:      source,
 	}
 }

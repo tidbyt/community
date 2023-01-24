@@ -4,7 +4,7 @@ package mlbleaders
 import (
 	_ "embed"
 
-	"tidbyt.dev/community/apps/manifest"
+	"tidbyt.dev/pixlet/manifest"
 )
 
 //go:embed mlb_leaders.star
@@ -20,6 +20,6 @@ func New() manifest.Manifest {
 		Desc:        "Get the top 2 (3 stats) or 3 (1 stat) league leaders in various MLB stats.",
 		FileName:    "mlb_leaders.star",
 		PackageName: "mlbleaders",
-		Source:  source,
+		Source:      source,
 	}
 }

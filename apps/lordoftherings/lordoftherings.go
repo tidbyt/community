@@ -4,7 +4,7 @@ package lordoftherings
 import (
 	_ "embed"
 
-	"tidbyt.dev/community/apps/manifest"
+	"tidbyt.dev/pixlet/manifest"
 )
 
 //go:embed lordoftherings.star
@@ -20,6 +20,6 @@ func New() manifest.Manifest {
 		Desc:        "Displays random quotes from LOTR trilogy.",
 		FileName:    "lordoftherings.star",
 		PackageName: "lordoftherings",
-		Source:  source,
+		Source:      source,
 	}
 }

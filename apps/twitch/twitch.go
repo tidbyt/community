@@ -4,7 +4,7 @@ package twitch
 import (
 	_ "embed"
 
-	"tidbyt.dev/community/apps/manifest"
+	"tidbyt.dev/pixlet/manifest"
 )
 
 //go:embed twitch.star
@@ -20,6 +20,6 @@ func New() manifest.Manifest {
 		Desc:        "Display info for a Twitch username.",
 		FileName:    "twitch.star",
 		PackageName: "twitch",
-		Source:  source,
+		Source:      source,
 	}
 }

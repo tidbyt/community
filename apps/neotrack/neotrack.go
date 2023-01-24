@@ -4,7 +4,7 @@ package neotrack
 import (
 	_ "embed"
 
-	"tidbyt.dev/community/apps/manifest"
+	"tidbyt.dev/pixlet/manifest"
 )
 
 //go:embed neotrack.star
@@ -20,6 +20,6 @@ func New() manifest.Manifest {
 		Desc:        "Shows the closest object on approach to Earth today according to NASA's NeoW API.",
 		FileName:    "neotrack.star",
 		PackageName: "neotrack",
-		Source:  source,
+		Source:      source,
 	}
 }

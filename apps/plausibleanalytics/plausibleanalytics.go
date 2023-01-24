@@ -4,7 +4,7 @@ package plausibleanalytics
 import (
 	_ "embed"
 
-	"tidbyt.dev/community/apps/manifest"
+	"tidbyt.dev/pixlet/manifest"
 )
 
 //go:embed plausibleanalytics.star
@@ -20,6 +20,6 @@ func New() manifest.Manifest {
 		Desc:        "Display your website's traffic stats using your Plausible Analytics account.",
 		FileName:    "plausibleanalytics.star",
 		PackageName: "plausibleanalytics",
-		Source:  source,
+		Source:      source,
 	}
 }

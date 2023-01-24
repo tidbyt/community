@@ -4,7 +4,7 @@ package warframecycles
 import (
 	_ "embed"
 
-	"tidbyt.dev/community/apps/manifest"
+	"tidbyt.dev/pixlet/manifest"
 )
 
 //go:embed warframe_cycles.star
@@ -20,6 +20,6 @@ func New() manifest.Manifest {
 		Desc:        "Tells you the cycle that's active in each of the Warframe open areas and in Earth missions.",
 		FileName:    "warframe_cycles.star",
 		PackageName: "warframecycles",
-		Source:  source,
+		Source:      source,
 	}
 }

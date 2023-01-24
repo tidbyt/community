@@ -4,7 +4,7 @@ package tartan
 import (
 	_ "embed"
 
-	"tidbyt.dev/community/apps/manifest"
+	"tidbyt.dev/pixlet/manifest"
 )
 
 //go:embed tartan.star
@@ -20,6 +20,6 @@ func New() manifest.Manifest {
 		Desc:        "Renders a tartan based on thread count instructions and displays it on screen.",
 		FileName:    "tartan.star",
 		PackageName: "tartan",
-		Source:  source,
+		Source:      source,
 	}
 }

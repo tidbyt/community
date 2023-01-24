@@ -4,7 +4,7 @@ package dwheadline
 import (
 	_ "embed"
 
-	"tidbyt.dev/community/apps/manifest"
+	"tidbyt.dev/pixlet/manifest"
 )
 
 //go:embed dw_headline.star
@@ -20,6 +20,6 @@ func New() manifest.Manifest {
 		Desc:        "Shows the latest published headline on DailyWire.com.",
 		FileName:    "dw_headline.star",
 		PackageName: "dwheadline",
-		Source:  source,
+		Source:      source,
 	}
 }

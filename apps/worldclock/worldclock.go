@@ -4,7 +4,7 @@ package worldclock
 import (
 	_ "embed"
 
-	"tidbyt.dev/community/apps/manifest"
+	"tidbyt.dev/pixlet/manifest"
 )
 
 //go:embed world_clock.star
@@ -20,6 +20,6 @@ func New() manifest.Manifest {
 		Desc:        "Displays the time in up to three different locations.",
 		FileName:    "world_clock.star",
 		PackageName: "worldclock",
-		Source:  source,
+		Source:      source,
 	}
 }

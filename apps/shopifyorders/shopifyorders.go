@@ -4,7 +4,7 @@ package shopifyorders
 import (
 	_ "embed"
 
-	"tidbyt.dev/community/apps/manifest"
+	"tidbyt.dev/pixlet/manifest"
 )
 
 //go:embed shopify_orders.star
@@ -20,6 +20,6 @@ func New() manifest.Manifest {
 		Desc:        "View orders you've received during a specific time period like Black Friday, seasonal sales, holiday season, and more.",
 		FileName:    "shopify_orders.star",
 		PackageName: "shopifyorders",
-		Source:  source,
+		Source:      source,
 	}
 }

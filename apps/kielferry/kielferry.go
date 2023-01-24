@@ -4,7 +4,7 @@ package kielferry
 import (
 	_ "embed"
 
-	"tidbyt.dev/community/apps/manifest"
+	"tidbyt.dev/pixlet/manifest"
 )
 
 //go:embed kiel_ferry.star
@@ -20,6 +20,6 @@ func New() manifest.Manifest {
 		Desc:        "Next scheduled ferry departure time for any stop and direction in the Kiel harbor ferry system.",
 		FileName:    "kiel_ferry.star",
 		PackageName: "kielferry",
-		Source:  source,
+		Source:      source,
 	}
 }

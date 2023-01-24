@@ -4,7 +4,7 @@ package whosthatpokemon
 import (
 	_ "embed"
 
-	"tidbyt.dev/community/apps/manifest"
+	"tidbyt.dev/pixlet/manifest"
 )
 
 //go:embed whosthatpokemon.star
@@ -20,6 +20,6 @@ func New() manifest.Manifest {
 		Desc:        "Test your Pokemon Master knowledge with this rendition of \"Who's That Pokemon?\". Turn off classic mode to crank up the difficulty. Set your Tidbyt speed to ensure the animation takes up exactly half the time is has displayed.",
 		FileName:    "whosthatpokemon.star",
 		PackageName: "whosthatpokemon",
-		Source:  source,
+		Source:      source,
 	}
 }

@@ -4,7 +4,7 @@ package ctaltracker
 import (
 	_ "embed"
 
-	"tidbyt.dev/community/apps/manifest"
+	"tidbyt.dev/pixlet/manifest"
 )
 
 //go:embed cta_l_tracker.star
@@ -20,6 +20,6 @@ func New() manifest.Manifest {
 		Desc:        "Shows the next two arriving CTA \"L\" Trains for a selected station.",
 		FileName:    "cta_l_tracker.star",
 		PackageName: "ctaltracker",
-		Source:  source,
+		Source:      source,
 	}
 }

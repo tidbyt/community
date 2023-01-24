@@ -4,7 +4,7 @@ package shopifysales
 import (
 	_ "embed"
 
-	"tidbyt.dev/community/apps/manifest"
+	"tidbyt.dev/pixlet/manifest"
 )
 
 //go:embed shopify_sales.star
@@ -20,6 +20,6 @@ func New() manifest.Manifest {
 		Desc:        "Show your sales from a specific time period like Black Friday, peak selling seasons, and more.",
 		FileName:    "shopify_sales.star",
 		PackageName: "shopifysales",
-		Source:  source,
+		Source:      source,
 	}
 }

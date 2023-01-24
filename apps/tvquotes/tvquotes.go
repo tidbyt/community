@@ -4,7 +4,7 @@ package tvquotes
 import (
 	_ "embed"
 
-	"tidbyt.dev/community/apps/manifest"
+	"tidbyt.dev/pixlet/manifest"
 )
 
 //go:embed tv_quotes.star
@@ -20,6 +20,6 @@ func New() manifest.Manifest {
 		Desc:        "Displays Television Quotes.",
 		FileName:    "tv_quotes.star",
 		PackageName: "tvquotes",
-		Source:  source,
+		Source:      source,
 	}
 }

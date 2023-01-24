@@ -4,7 +4,7 @@ package nesquotes
 import (
 	_ "embed"
 
-	"tidbyt.dev/community/apps/manifest"
+	"tidbyt.dev/pixlet/manifest"
 )
 
 //go:embed nes_quotes.star
@@ -20,6 +20,6 @@ func New() manifest.Manifest {
 		Desc:        "Displays random quotes from Nintendo Entertainment System games.",
 		FileName:    "nes_quotes.star",
 		PackageName: "nesquotes",
-		Source:  source,
+		Source:      source,
 	}
 }

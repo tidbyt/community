@@ -4,7 +4,7 @@ package astropicofday
 import (
 	_ "embed"
 
-	"tidbyt.dev/community/apps/manifest"
+	"tidbyt.dev/pixlet/manifest"
 )
 
 //go:embed astro_pic_of_day.star

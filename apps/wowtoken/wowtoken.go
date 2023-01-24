@@ -4,7 +4,7 @@ package wowtoken
 import (
 	_ "embed"
 
-	"tidbyt.dev/community/apps/manifest"
+	"tidbyt.dev/pixlet/manifest"
 )
 
 //go:embed wow_token.star
@@ -20,6 +20,6 @@ func New() manifest.Manifest {
 		Desc:        "Displays the current price of the World of Warcraft token in various regions. Data provided by wowtokenprices.com and updated every 10 minutes.",
 		FileName:    "wow_token.star",
 		PackageName: "wowtoken",
-		Source:  source,
+		Source:      source,
 	}
 }

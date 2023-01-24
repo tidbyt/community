@@ -4,7 +4,7 @@ package outlookcalendar
 import (
 	_ "embed"
 
-	"tidbyt.dev/community/apps/manifest"
+	"tidbyt.dev/pixlet/manifest"
 )
 
 //go:embed outlook_calendar.star
@@ -20,6 +20,6 @@ func New() manifest.Manifest {
 		Desc:        "Shows the date, next meeting and time from your Outlook Calendar.",
 		FileName:    "outlook_calendar.star",
 		PackageName: "outlookcalendar",
-		Source:  source,
+		Source:      source,
 	}
 }

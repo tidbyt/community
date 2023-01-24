@@ -4,7 +4,7 @@ package phaseofmoon
 import (
 	_ "embed"
 
-	"tidbyt.dev/community/apps/manifest"
+	"tidbyt.dev/pixlet/manifest"
 )
 
 //go:embed phase_of_moon.star
@@ -20,6 +20,6 @@ func New() manifest.Manifest {
 		Desc:        "Shows the current phase of the moon.",
 		FileName:    "phase_of_moon.star",
 		PackageName: "phaseofmoon",
-		Source:  source,
+		Source:      source,
 	}
 }

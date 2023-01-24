@@ -4,7 +4,7 @@ package datadogmonitors
 import (
 	_ "embed"
 
-	"tidbyt.dev/community/apps/manifest"
+	"tidbyt.dev/pixlet/manifest"
 )
 
 //go:embed datadog_monitors.star
@@ -20,6 +20,6 @@ func New() manifest.Manifest {
 		Desc:        "By default displays any monitors that are in the status alert but allows for customizing the query yourself based on DataDog's syntax.",
 		FileName:    "datadog_monitors.star",
 		PackageName: "datadogmonitors",
-		Source:  source,
+		Source:      source,
 	}
 }

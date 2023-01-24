@@ -4,7 +4,7 @@ package abstractclock
 import (
 	_ "embed"
 
-	"tidbyt.dev/community/apps/manifest"
+	"tidbyt.dev/pixlet/manifest"
 )
 
 //go:embed abstract_clock.star
@@ -20,6 +20,6 @@ func New() manifest.Manifest {
 		Desc:        "Uses 60 Pixels to display time across width of Tidbyt.",
 		FileName:    "abstract_clock.star",
 		PackageName: "abstractclock",
-		Source:  source,
+		Source:      source,
 	}
 }

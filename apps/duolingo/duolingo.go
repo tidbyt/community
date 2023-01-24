@@ -4,7 +4,7 @@ package duolingo
 import (
 	_ "embed"
 
-	"tidbyt.dev/community/apps/manifest"
+	"tidbyt.dev/pixlet/manifest"
 )
 
 //go:embed duolingo.star
@@ -20,6 +20,6 @@ func New() manifest.Manifest {
 		Desc:        "Track your Duolingo study progress. The app has multiple views: Today, Week, Two Weeks. You can add multiple instances to display more than one. Note: The app will be hidden from the rotation if no lessons have been completed in the last week.",
 		FileName:    "duolingo.star",
 		PackageName: "duolingo",
-		Source:  source,
+		Source:      source,
 	}
 }

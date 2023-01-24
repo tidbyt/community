@@ -4,7 +4,7 @@ package bored
 import (
 	_ "embed"
 
-	"tidbyt.dev/community/apps/manifest"
+	"tidbyt.dev/pixlet/manifest"
 )
 
 //go:embed bored.star
@@ -20,6 +20,6 @@ func New() manifest.Manifest {
 		Desc:        "This app will suggest things you can do alone or with your friends if you are bored.",
 		FileName:    "bored.star",
 		PackageName: "bored",
-		Source:  source,
+		Source:      source,
 	}
 }

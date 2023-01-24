@@ -4,7 +4,7 @@ package switchboard
 import (
 	_ "embed"
 
-	"tidbyt.dev/community/apps/manifest"
+	"tidbyt.dev/pixlet/manifest"
 )
 
 //go:embed switchboard.star
@@ -20,6 +20,6 @@ func New() manifest.Manifest {
 		Desc:        "Displays data from Switchboard on your Tidbyt.",
 		FileName:    "switchboard.star",
 		PackageName: "switchboard",
-		Source:  source,
+		Source:      source,
 	}
 }

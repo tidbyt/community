@@ -4,7 +4,7 @@ package hassentity
 import (
 	_ "embed"
 
-	"tidbyt.dev/community/apps/manifest"
+	"tidbyt.dev/pixlet/manifest"
 )
 
 //go:embed hass_entity.star
@@ -20,6 +20,6 @@ func New() manifest.Manifest {
 		Desc:        "Display an externally accessible Home Assistant entity state or attribute.",
 		FileName:    "hass_entity.star",
 		PackageName: "hassentity",
-		Source:  source,
+		Source:      source,
 	}
 }

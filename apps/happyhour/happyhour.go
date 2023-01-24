@@ -4,7 +4,7 @@ package happyhour
 import (
 	_ "embed"
 
-	"tidbyt.dev/community/apps/manifest"
+	"tidbyt.dev/pixlet/manifest"
 )
 
 //go:embed happy_hour.star
@@ -20,6 +20,6 @@ func New() manifest.Manifest {
 		Desc:        "Displays a new cocktail every hour, on the hour. Cheers to my mom for the color scheme, idea, AND name!",
 		FileName:    "happy_hour.star",
 		PackageName: "happyhour",
-		Source:  source,
+		Source:      source,
 	}
 }

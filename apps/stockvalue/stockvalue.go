@@ -4,7 +4,7 @@ package stockvalue
 import (
 	_ "embed"
 
-	"tidbyt.dev/community/apps/manifest"
+	"tidbyt.dev/pixlet/manifest"
 )
 
 //go:embed stock_value.star
@@ -20,6 +20,6 @@ func New() manifest.Manifest {
 		Desc:        "This app will allow you track the value of your portfolio for a single stock. Get your API key for Alpha Vantage at https://www.alphavantage.co.",
 		FileName:    "stock_value.star",
 		PackageName: "stockvalue",
-		Source:  source,
+		Source:      source,
 	}
 }

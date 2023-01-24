@@ -4,7 +4,7 @@ package colorfulclock
 import (
 	_ "embed"
 
-	"tidbyt.dev/community/apps/manifest"
+	"tidbyt.dev/pixlet/manifest"
 )
 
 //go:embed colorful_clock.star
@@ -20,6 +20,6 @@ func New() manifest.Manifest {
 		Desc:        "Shows the time like on an old wall clock.",
 		FileName:    "colorful_clock.star",
 		PackageName: "colorfulclock",
-		Source:  source,
+		Source:      source,
 	}
 }

@@ -4,7 +4,7 @@ package ethstaker
 import (
 	_ "embed"
 
-	"tidbyt.dev/community/apps/manifest"
+	"tidbyt.dev/pixlet/manifest"
 )
 
 //go:embed ethstaker.star
@@ -20,6 +20,6 @@ func New() manifest.Manifest {
 		Desc:        "Shows the recent status of provided validators on the Ethereum beacon chain.",
 		FileName:    "ethstaker.star",
 		PackageName: "ethstaker",
-		Source:  source,
+		Source:      source,
 	}
 }

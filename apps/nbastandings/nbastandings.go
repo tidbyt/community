@@ -4,7 +4,7 @@ package nbastandings
 import (
 	_ "embed"
 
-	"tidbyt.dev/community/apps/manifest"
+	"tidbyt.dev/pixlet/manifest"
 )
 
 //go:embed nba_standings.star
@@ -20,6 +20,6 @@ func New() manifest.Manifest {
 		Desc:        "View NBA standings by division.",
 		FileName:    "nba_standings.star",
 		PackageName: "nbastandings",
-		Source:  source,
+		Source:      source,
 	}
 }

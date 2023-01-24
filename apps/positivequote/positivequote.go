@@ -4,7 +4,7 @@ package positivequote
 import (
 	_ "embed"
 
-	"tidbyt.dev/community/apps/manifest"
+	"tidbyt.dev/pixlet/manifest"
 )
 
 //go:embed positive_quote.star
@@ -20,6 +20,6 @@ func New() manifest.Manifest {
 		Desc:        "Shows the user a random positive quote.",
 		FileName:    "positive_quote.star",
 		PackageName: "positivequote",
-		Source:  source,
+		Source:      source,
 	}
 }

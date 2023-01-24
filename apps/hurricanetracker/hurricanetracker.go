@@ -4,7 +4,7 @@ package hurricanetracker
 import (
 	_ "embed"
 
-	"tidbyt.dev/community/apps/manifest"
+	"tidbyt.dev/pixlet/manifest"
 )
 
 //go:embed hurricanetracker.star
@@ -20,6 +20,6 @@ func New() manifest.Manifest {
 		Desc:        "Display NHC Hurricane info.",
 		FileName:    "hurricanetracker.star",
 		PackageName: "hurricanetracker",
-		Source:  source,
+		Source:      source,
 	}
 }

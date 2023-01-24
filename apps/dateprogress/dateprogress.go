@@ -4,7 +4,7 @@ package dateprogress
 import (
 	_ "embed"
 
-	"tidbyt.dev/community/apps/manifest"
+	"tidbyt.dev/pixlet/manifest"
 )
 
 //go:embed date_progress.star
@@ -20,6 +20,6 @@ func New() manifest.Manifest {
 		Desc:        "Shows todays date as colorful progressbars, you can show the progress of the current day, month and year.",
 		FileName:    "date_progress.star",
 		PackageName: "dateprogress",
-		Source:  source,
+		Source:      source,
 	}
 }

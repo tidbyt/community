@@ -4,7 +4,7 @@ package ordermoments
 import (
 	_ "embed"
 
-	"tidbyt.dev/community/apps/manifest"
+	"tidbyt.dev/pixlet/manifest"
 )
 
 //go:embed order_moments.star
@@ -20,6 +20,6 @@ func New() manifest.Manifest {
 		Desc:        "Get celebratory notifications when you hit specific order milestones.",
 		FileName:    "order_moments.star",
 		PackageName: "ordermoments",
-		Source:  source,
+		Source:      source,
 	}
 }

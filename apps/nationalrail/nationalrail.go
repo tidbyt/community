@@ -4,7 +4,7 @@ package nationalrail
 import (
 	_ "embed"
 
-	"tidbyt.dev/community/apps/manifest"
+	"tidbyt.dev/pixlet/manifest"
 )
 
 //go:embed national_rail.star
@@ -20,6 +20,6 @@ func New() manifest.Manifest {
 		Desc:        "Realtime departure board information from National Rail Enquiries.",
 		FileName:    "national_rail.star",
 		PackageName: "nationalrail",
-		Source:  source,
+		Source:      source,
 	}
 }

@@ -4,7 +4,7 @@ package sfnextmuni
 import (
 	_ "embed"
 
-	"tidbyt.dev/community/apps/manifest"
+	"tidbyt.dev/pixlet/manifest"
 )
 
 //go:embed sf_next_muni.star
@@ -20,6 +20,6 @@ func New() manifest.Manifest {
 		Desc:        "Shows the predicted arrival times from NextBus for a given SF Muni stop.",
 		FileName:    "sf_next_muni.star",
 		PackageName: "sfnextmuni",
-		Source:  source,
+		Source:      source,
 	}
 }

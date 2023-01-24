@@ -4,7 +4,7 @@ package visibleplanets
 import (
 	_ "embed"
 
-	"tidbyt.dev/community/apps/manifest"
+	"tidbyt.dev/pixlet/manifest"
 )
 
 //go:embed visibleplanets.star
@@ -20,6 +20,6 @@ func New() manifest.Manifest {
 		Desc:        "Displays info on planet visibility.",
 		FileName:    "visibleplanets.star",
 		PackageName: "visibleplanets",
-		Source:  source,
+		Source:      source,
 	}
 }

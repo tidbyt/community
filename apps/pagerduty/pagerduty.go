@@ -4,7 +4,7 @@ package pagerduty
 import (
 	_ "embed"
 
-	"tidbyt.dev/community/apps/manifest"
+	"tidbyt.dev/pixlet/manifest"
 )
 
 //go:embed pagerduty.star
@@ -20,6 +20,6 @@ func New() manifest.Manifest {
 		Desc:        "Show PagerDuty incident stats and on-call status.",
 		FileName:    "pagerduty.star",
 		PackageName: "pagerduty",
-		Source:  source,
+		Source:      source,
 	}
 }

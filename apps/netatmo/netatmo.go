@@ -4,7 +4,7 @@ package netatmo
 import (
 	_ "embed"
 
-	"tidbyt.dev/community/apps/manifest"
+	"tidbyt.dev/pixlet/manifest"
 )
 
 //go:embed netatmo.star
@@ -20,6 +20,6 @@ func New() manifest.Manifest {
 		Desc:        "Get your current weather from your Netatmo weather station.",
 		FileName:    "netatmo.star",
 		PackageName: "netatmo",
-		Source:  source,
+		Source:      source,
 	}
 }

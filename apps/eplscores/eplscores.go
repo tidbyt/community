@@ -4,7 +4,7 @@ package eplscores
 import (
 	_ "embed"
 
-	"tidbyt.dev/community/apps/manifest"
+	"tidbyt.dev/pixlet/manifest"
 )
 
 //go:embed eplscores.star
@@ -20,6 +20,6 @@ func New() manifest.Manifest {
 		Desc:        "Displays live and upcoming EPL scores from a data feed.",
 		FileName:    "eplscores.star",
 		PackageName: "eplscores",
-		Source:  source,
+		Source:      source,
 	}
 }

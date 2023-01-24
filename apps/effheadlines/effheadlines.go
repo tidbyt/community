@@ -4,7 +4,7 @@ package effheadlines
 import (
 	_ "embed"
 
-	"tidbyt.dev/community/apps/manifest"
+	"tidbyt.dev/pixlet/manifest"
 )
 
 //go:embed effheadlines.star
@@ -20,6 +20,6 @@ func New() manifest.Manifest {
 		Desc:        "Get the latest headlines from the Electronic Frontier Foundation.",
 		FileName:    "effheadlines.star",
 		PackageName: "effheadlines",
-		Source:  source,
+		Source:      source,
 	}
 }
