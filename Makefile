@@ -5,20 +5,14 @@ build: clean
 	go build -v ./...
 	go build -o community-tools tidbyt.dev/community/tools
 
-install-buildifier:
-	go install github.com/bazelbuild/buildtools/buildifier@latest
-
 lint:
-	@ buildifier --version >/dev/null 2>&1 || $(MAKE) install-buildifier
-	buildifier -r ./
+	pixlet lint -r ./
 
-format: lint
+format:
+	pixlet format -r ./
 
 test:
-	go test -v -cover ./...
-
-sync:
-	go run tools/main.go sync
+	pixlet check -r ./
 
 app:
-	@ go run tools/main.go create
+	pixlet create
