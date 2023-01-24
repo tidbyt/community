@@ -257,7 +257,7 @@ def get_cached(url, ttl_seconds = TTL):
     # Return the data we got from the web
     return data
 
-def get_action(random):
+def get_action(random_logic):
     # Pal action to be performed
     pal_action = [
         schema.Option(
@@ -273,7 +273,7 @@ def get_action(random):
             value = FIDO_FETCH,
         ),
     ]
-    if random == "true":
+    if random_logic == "true":
         return []
     else:
         return [
