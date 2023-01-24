@@ -14,12 +14,12 @@ load("schema.star", "schema")
 # MAIN
 def main(config):
     # Grab the configuration information and adjust variables
-    if config.bool("random_image", False):
+    selected_img_id = config.get("image", DEFAULT_MORNING_ID)
+    if selected_img_id == "random":
         image_keys = IMAGES.keys()
         idx = random.number(0, len(image_keys) - 1)  #-1 because indices start at zero
-        selected_img = base64.decode(IMAGES[image_keys[idx]])
-    else:
-        selected_img = base64.decode(IMAGES[config.get("image", DEFAULT_MORNING_ID)])
+        selected_img_id = image_keys[idx]
+    selected_img = base64.decode(IMAGES[selected_img_id])
     selected_speed = int(config.get("scroll_delay", DEFAULT_DELAY))
 
     # Render an image with a slight delay
@@ -31,6 +31,10 @@ def main(config):
 def get_schema():
     # Landscape options
     options = [
+        schema.Option(
+            display = "Random",
+            value = "random",
+        ),
         schema.Option(
             display = "Default - Morning",
             value = DEFAULT_MORNING_ID,
@@ -68,19 +72,12 @@ def get_schema():
     return schema.Schema(
         version = "1",
         fields = [
-            schema.Toggle(
-                id = "random_image",
-                name = "Randomize Landscapes",
-                desc = "Should the landscapes be randomized?",
-                icon = "shuffle",
-                default = False,
-            ),
             schema.Dropdown(
                 id = "image",
                 name = "Landscape",
                 desc = "The Landscape GIF to be looped",
                 icon = "mountain",
-                default = options[0].value,
+                default = options[1].value,
                 options = options,
             ),
             schema.Dropdown(
