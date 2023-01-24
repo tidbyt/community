@@ -265,7 +265,7 @@ def get_destination_name(data):
     Function gets the destation froma  given depature
     """
     nodes = data.find(".media-body").first().find(".mb-0")
-    destination_name = nodes.eq(0).text().strip().replace("\\u2708", "EWR").upper()
+    destination_name = nodes.eq(0).text().strip().replace("\u2708", "EWR").upper()
     return destination_name
 
 def get_real_time_estimated_departure(data, scheduled_time):
