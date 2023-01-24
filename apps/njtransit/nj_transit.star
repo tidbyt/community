@@ -181,6 +181,7 @@ def get_departures_for_station(station):
     nj_dv_page_response = http.get(station_url)
 
     if nj_dv_page_response.status_code != 200:
+
         #print("Got code '%s' from page response" % nj_dv_page_response.status_code)
         return None
 
@@ -329,11 +330,13 @@ def fetch_stations_from_website():
 
     selector = html(nj_dv_page_response_body)
     stations = selector.find(".vbt-autocomplete-list.list-unstyled.position-absolute.pt-1.shadow.w-100").first().children()
+
     #print("Got response of '%s' stations" % stations.len())
 
     for index in range(0, stations.len()):
         station = stations.eq(index)
         station_name = station.find("a").first().text()
+
         #print("Found station '%s' from page response" % station_name)
         result.append(station_name)
 
