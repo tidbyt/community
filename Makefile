@@ -17,5 +17,8 @@ test:
 app:
 	@ pixlet create
 
+sanity:
+	go test tidbyt.dev/community/apps
+
 migrate:
 	go run tools/main.go migrate
