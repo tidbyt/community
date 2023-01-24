@@ -273,7 +273,7 @@ def fetch_cached(url, ttl):
             return (time.now().unix, res.body().lstrip("\ufeff"))
 
         # Trim off the UTF-8 byte-order mark
-        body = res.body().lstrip("\\ufeff")
+        body = res.body().lstrip("\ufeff")
         data = json.decode(body)
         timestamp = time.now().unix
         cache.set(url, body, ttl_seconds = ttl)
