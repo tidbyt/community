@@ -193,22 +193,6 @@ def return_marquee_text(text, color = "#fff", width = 32, direction = "horizonta
     )
 
 def get_schema():
-    # # Pal action to be performed
-    # pal_action = [
-    #     schema.Option(
-    #         display = "Sit",
-    #         value = FIDO_SIT,
-    #     ),
-    #     schema.Option(
-    #         display = "Walk",
-    #         value = FIDO_WALK,
-    #     ),
-    #     schema.Option(
-    #         display = "Fetch",
-    #         value = FIDO_FETCH,
-    #     ),
-    # ]
-
     return schema.Schema(
         version = "1",
         fields = [
@@ -237,14 +221,6 @@ def get_schema():
                 source = "random_action",
                 handler = get_action,
             ),
-            # schema.Dropdown(
-            #     id = "pet_action",
-            #     name = "Action",
-            #     desc = "What should your pet do?",
-            #     icon = "dog",
-            #     default = pal_action[0].value,
-            #     options = pal_action,
-            # ),
             schema.Toggle(
                 id = "showing_stats",
                 name = "Stats",
