@@ -12,7 +12,7 @@ load("cache.star", "cache")
 Applet: BBL Cricket
 Summary: Displays scores for the selected BBL team
 Description: This app takes the selected team and displays the current match situation - showing overall team score, batsmen scores, lead/deficit, overs bowled, run rate and required run rate for the team batting second. If a match for the selected team has just completed, it will show the match result or if there is an upcoming match it will show the teams win-loss record and the scheduled start time of the match, in the users timezone. If there is nothing coming up in the next day or so (as determined by the Cricinfo API), it will no show that there are no matches scheduled.
-Author: M0ntyP 
+Author: M0ntyP
 """
 
 LiveGames_URL = "https://hs-consumer-api.espncricinfo.com/v1/pages/matches/current?lang=en&latest=true"
@@ -559,16 +559,16 @@ def main(config):
             # Team1 Record
             for x in range(0, len(Ladder), 1):
                 if Ladder[x]["teamInfo"]["id"] == Team1_ID:
-                    Won1 = humanize.ftoa(Ladder[x]["matchesWon"])
-                    Lost1 = humanize.ftoa(Ladder[x]["matchesLost"])
-                    NR1 = humanize.ftoa(Ladder[x]["matchesNoResult"])
+                    Won1 = humanize.ftoa(float(Ladder[x]["matchesWon"]))
+                    Lost1 = humanize.ftoa(float(Ladder[x]["matchesLost"]))
+                    NR1 = humanize.ftoa(float(Ladder[x]["matchesNoResult"]))
 
             # Team2 Record
             for x in range(0, len(Ladder), 1):
                 if Ladder[x]["teamInfo"]["id"] == Team2_ID:
-                    Won2 = humanize.ftoa(Ladder[x]["matchesWon"])
-                    Lost2 = humanize.ftoa(Ladder[x]["matchesLost"])
-                    NR2 = humanize.ftoa(Ladder[x]["matchesNoResult"])
+                    Won2 = humanize.ftoa(float(Ladder[x]["matchesWon"]))
+                    Lost2 = humanize.ftoa(float(Ladder[x]["matchesLost"]))
+                    NR2 = humanize.ftoa(float(Ladder[x]["matchesNoResult"]))
 
             return render.Root(
                 child = render.Column(
