@@ -19,8 +19,12 @@ var (
 )
 
 func migrate(cmd *cobra.Command, args []string) error {
-	allApps := apps.GetManifests()
-	for _, app := range allApps {
+	manifests, err := apps.GetManifests()
+	if err != nil {
+		return fmt.Errorf("couldn't get app manifests: %w", err)
+	}
+
+	for _, app := range manifests {
 		p := path.Join("apps", app.PackageName, "manifest.yaml")
 
 		// Create the file
