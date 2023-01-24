@@ -61,7 +61,7 @@ planet_options = [
     schema.Option(value = "saturn", display = "Saturn"),
     schema.Option(value = "uranus", display = "Uranus"),
     schema.Option(value = "neptune", display = "Neptune"),
-    schema.Option(value = "all", display = "Summarize All"),
+    schema.Option(value = "all", display = "All Visible Planets"),
 ]
 
 measurement_options = [
