@@ -12,7 +12,6 @@ load("http.star", "http")
 load("render.star", "render")
 load("schema.star", "schema")
 load("time.star", "time")
-load("math.star", "math")
 
 CACHE_TTL_SECONDS = 300
 DEFAULT_LOCATION = """
@@ -138,20 +137,16 @@ def main(config):
     if conferenceType == "top25":
         entries = standings["rankings"][0]["ranks"]
         divisionName = standings["rankings"][0]["name"]
-        divisionShortName = standings["rankings"][0]["shortName"]
         displayType = "top25"
     elif conferenceType.find("&") > 0:
         conferenceTypeArray = conferenceType.split("&")
         entries = standings["children"][int(conferenceTypeArray[1])]["standings"]["entries"]
         divisionName = standings["children"][int(conferenceTypeArray[1])]["abbreviation"]
-        divisionShortName = standings["children"][int(conferenceTypeArray[1])]["shortName"]
         displayType = "standings"
     else:
         entries = standings["standings"]["entries"]
         divisionName = standings["abbreviation"]
-        divisionShortName = standings["shortName"]
         displayType = "standings"
-    mainFont = "CG-pixel-3x5-mono"
     if entries:
         cycleOptions = int(config.get("cycleOptions", 1))
         cycleCount = 0
@@ -160,7 +155,7 @@ def main(config):
         if conferenceType != "top25":
             sortOrder = {}
 
-            for j, k in enumerate(entries):
+            for j, _ in enumerate(entries):
                 stats = entries[j]["stats"]
                 for l, m in enumerate(stats):
                     if m["name"] == "gamesBehind":
@@ -438,10 +433,12 @@ def get_schema():
     )
 
 def get_standings(urls):
-    allstandings = []
-    for i, s in urls.items():
+    decodedata = []
+
+    for _, s in urls.items():
         data = get_cachable_data(s)
         decodedata = json.decode(data)
+
     return decodedata
 
 def get_team_color(teamid):
@@ -453,15 +450,12 @@ def get_team_color(teamid):
         color = "000000"
     else:
         color = team["color"]
-    altColorCheck = team.get("alternateColor", "NO")
-    if altColorCheck == "NO":
-        altColor = "000000"
-    else:
-        altColor = team["alternateColor"]
-    teamcolor = get_background_color(team["abbreviation"], "color", color, altColor)
+    teamcolor = get_background_color(team["abbreviation"], color)
     return teamcolor
 
 def get_team(x, s, entriesToDisplay, displayType, colHeight):
+    teamRecord = ""
+    teamGB = ""
     output = []
     containerHeight = int(colHeight / entriesToDisplay)
     for i in range(0, entriesToDisplay):
@@ -473,7 +467,7 @@ def get_team(x, s, entriesToDisplay, displayType, colHeight):
                 teamName = s[i + x]["team"]["abbreviation"]
                 teamColor = get_team_color(teamID)
                 teamLogo = get_logoType(teamName, s[i + x]["team"]["logos"][0]["href"])
-                for j, k in enumerate(stats):
+                for _, k in enumerate(stats):
                     if k["name"] == "overall":
                         teamRecord = k["displayValue"]
                     if k["name"] == "gamesBehind":
@@ -512,7 +506,7 @@ def get_team(x, s, entriesToDisplay, displayType, colHeight):
             output.extend([render.Column(children = [render.Box(width = 64, height = containerHeight, color = "#111")])])
     return output
 
-def get_background_color(team, displayType, color, altColor):
+def get_background_color(team, color):
     altcolors = json.decode(ALT_COLOR)
     usealt = altcolors.get(team, "NO")
     if usealt != "NO":
@@ -585,6 +579,6 @@ def get_cachable_data(url, ttl_seconds = CACHE_TTL_SECONDS):
     if res.status_code != 200:
         fail("request to %s failed with status code: %d - %s" % (url, res.status_code, res.body()))
 
-    cache.set(key, base64.encode(res.body()), ttl_seconds = CACHE_TTL_SECONDS)
+    cache.set(key, base64.encode(res.body()), ttl_seconds = ttl_seconds)
 
     return res.body()

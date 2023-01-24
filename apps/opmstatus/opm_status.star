@@ -8,12 +8,11 @@ Reference: https://www.opm.gov/policy-data-oversight/snow-dismissal-procedures/c
 
 # -------------------------
 
+load("cache.star", "cache")
+load("http.star", "http")
+
 # load some modules
 load("render.star", "render")
-load("http.star", "http")
-load("encoding/base64.star", "base64")
-load("schema.star", "schema")
-load("cache.star", "cache")
 
 # -------------------------
 
