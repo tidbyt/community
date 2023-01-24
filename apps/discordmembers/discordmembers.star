@@ -5,12 +5,12 @@ Description: Display the approximate member count for a given Discord server (vi
 Author: Dennis Zoma (https://zoma.dev)
 """
 
+load("cache.star", "cache")
+load("encoding/base64.star", "base64")
+load("http.star", "http")
+load("humanize.star", "humanize")
 load("render.star", "render")
 load("schema.star", "schema")
-load("http.star", "http")
-load("encoding/base64.star", "base64")
-load("cache.star", "cache")
-load("humanize.star", "humanize")
 
 DISCORD_API_URL = "https://discord.com/api/v9/invites/%s?with_counts=true"
 
