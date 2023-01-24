@@ -20,6 +20,7 @@ import (
 	"tidbyt.dev/community/apps/arcadeclassics"
 	"tidbyt.dev/community/apps/astropicofday"
 	"tidbyt.dev/community/apps/baywheels"
+	"tidbyt.dev/community/apps/bblcricket"
 	"tidbyt.dev/community/apps/bgghotness"
 	"tidbyt.dev/community/apps/biblevotd"
 	"tidbyt.dev/community/apps/bigclock"
@@ -27,6 +28,7 @@ import (
 	"tidbyt.dev/community/apps/binaryclock"
 	"tidbyt.dev/community/apps/blackout"
 	"tidbyt.dev/community/apps/bluebomber"
+	"tidbyt.dev/community/apps/bored"
 	"tidbyt.dev/community/apps/borisbikes"
 	"tidbyt.dev/community/apps/burgeroftheday"
 	"tidbyt.dev/community/apps/busytube"
@@ -56,6 +58,7 @@ import (
 	"tidbyt.dev/community/apps/destiny2stats"
 	"tidbyt.dev/community/apps/digibyteprice"
 	"tidbyt.dev/community/apps/digitalrain"
+	"tidbyt.dev/community/apps/discordmembers"
 	"tidbyt.dev/community/apps/duolingo"
 	"tidbyt.dev/community/apps/dutchfuzzyclock"
 	"tidbyt.dev/community/apps/dvdlogo"
@@ -78,6 +81,7 @@ import (
 	"tidbyt.dev/community/apps/fullybinarytime"
 	"tidbyt.dev/community/apps/fuzzyclock"
 	"tidbyt.dev/community/apps/gapilotbuddy"
+	"tidbyt.dev/community/apps/githubactivity"
 	"tidbyt.dev/community/apps/githubbadge"
 	"tidbyt.dev/community/apps/githubrepo"
 	"tidbyt.dev/community/apps/githubstargazers"
@@ -85,6 +89,7 @@ import (
 	"tidbyt.dev/community/apps/goldpriceticker"
 	"tidbyt.dev/community/apps/goodservice"
 	"tidbyt.dev/community/apps/happyhour"
+	"tidbyt.dev/community/apps/hassentity"
 	"tidbyt.dev/community/apps/hexcolorclock"
 	"tidbyt.dev/community/apps/hexdailystats"
 	"tidbyt.dev/community/apps/howoldami"
@@ -101,6 +106,7 @@ import (
 	"tidbyt.dev/community/apps/jokesjokeapi"
 	"tidbyt.dev/community/apps/kickstarter"
 	"tidbyt.dev/community/apps/kielferry"
+	"tidbyt.dev/community/apps/lastfm"
 	"tidbyt.dev/community/apps/launchcountdown"
 	"tidbyt.dev/community/apps/leetcodestats"
 	"tidbyt.dev/community/apps/life"
@@ -110,6 +116,7 @@ import (
 	"tidbyt.dev/community/apps/manifest"
 	"tidbyt.dev/community/apps/martamap"
 	"tidbyt.dev/community/apps/marvelfacts"
+	"tidbyt.dev/community/apps/mastodonfollows"
 	"tidbyt.dev/community/apps/maze"
 	"tidbyt.dev/community/apps/mbta"
 	"tidbyt.dev/community/apps/mbtanewtrains"
@@ -135,10 +142,12 @@ import (
 	"tidbyt.dev/community/apps/ncaafscores"
 	"tidbyt.dev/community/apps/ncaafstandings"
 	"tidbyt.dev/community/apps/ncaamscores"
+	"tidbyt.dev/community/apps/ncaamstandings"
 	"tidbyt.dev/community/apps/nearearthobjs"
 	"tidbyt.dev/community/apps/neotrack"
 	"tidbyt.dev/community/apps/nesquotes"
 	"tidbyt.dev/community/apps/netatmo"
+	"tidbyt.dev/community/apps/newapps"
 	"tidbyt.dev/community/apps/nflscores"
 	"tidbyt.dev/community/apps/nflstandings"
 	"tidbyt.dev/community/apps/nft"
@@ -156,6 +165,7 @@ import (
 	"tidbyt.dev/community/apps/officestatus"
 	"tidbyt.dev/community/apps/ogsgamesviewer"
 	"tidbyt.dev/community/apps/ohhighwaysigns"
+	"tidbyt.dev/community/apps/opmstatus"
 	"tidbyt.dev/community/apps/ordermoments"
 	"tidbyt.dev/community/apps/ordertrends"
 	"tidbyt.dev/community/apps/outlookcalendar"
@@ -163,6 +173,7 @@ import (
 	"tidbyt.dev/community/apps/paraland"
 	"tidbyt.dev/community/apps/pathtrainschedule"
 	"tidbyt.dev/community/apps/petpikachu"
+	"tidbyt.dev/community/apps/pgatour"
 	"tidbyt.dev/community/apps/phaseofmoon"
 	"tidbyt.dev/community/apps/plausibleanalytics"
 	"tidbyt.dev/community/apps/pleasestandby"
@@ -194,10 +205,12 @@ import (
 	"tidbyt.dev/community/apps/shopifysales"
 	"tidbyt.dev/community/apps/shouldideploy"
 	"tidbyt.dev/community/apps/shuffleimages"
+	"tidbyt.dev/community/apps/skireport"
 	"tidbyt.dev/community/apps/snyk"
 	"tidbyt.dev/community/apps/soccermens"
 	"tidbyt.dev/community/apps/soccertables"
 	"tidbyt.dev/community/apps/soccerwomens"
+	"tidbyt.dev/community/apps/solaredgemonitor"
 	"tidbyt.dev/community/apps/solarelevation"
 	"tidbyt.dev/community/apps/soundtransit"
 	"tidbyt.dev/community/apps/spinbyt"
@@ -213,6 +226,7 @@ import (
 	"tidbyt.dev/community/apps/stockticker"
 	"tidbyt.dev/community/apps/stockvalue"
 	"tidbyt.dev/community/apps/strava"
+	"tidbyt.dev/community/apps/stripesales"
 	"tidbyt.dev/community/apps/subreddit"
 	"tidbyt.dev/community/apps/sunrisesunset"
 	"tidbyt.dev/community/apps/supermariokart"
@@ -281,6 +295,7 @@ func GetManifests() []manifest.Manifest {
 		arcadeclassics.New(),
 		astropicofday.New(),
 		baywheels.New(),
+		bblcricket.New(),
 		bgghotness.New(),
 		biblevotd.New(),
 		bigclock.New(),
@@ -288,6 +303,7 @@ func GetManifests() []manifest.Manifest {
 		binaryclock.New(),
 		blackout.New(),
 		bluebomber.New(),
+		bored.New(),
 		borisbikes.New(),
 		burgeroftheday.New(),
 		busytube.New(),
@@ -317,6 +333,7 @@ func GetManifests() []manifest.Manifest {
 		destiny2stats.New(),
 		digibyteprice.New(),
 		digitalrain.New(),
+		discordmembers.New(),
 		duolingo.New(),
 		dutchfuzzyclock.New(),
 		dvdlogo.New(),
@@ -339,6 +356,7 @@ func GetManifests() []manifest.Manifest {
 		fullybinarytime.New(),
 		fuzzyclock.New(),
 		gapilotbuddy.New(),
+		githubactivity.New(),
 		githubbadge.New(),
 		githubrepo.New(),
 		githubstargazers.New(),
@@ -346,6 +364,7 @@ func GetManifests() []manifest.Manifest {
 		goldpriceticker.New(),
 		goodservice.New(),
 		happyhour.New(),
+		hassentity.New(),
 		hexcolorclock.New(),
 		hexdailystats.New(),
 		howoldami.New(),
@@ -362,6 +381,7 @@ func GetManifests() []manifest.Manifest {
 		jokesjokeapi.New(),
 		kickstarter.New(),
 		kielferry.New(),
+		lastfm.New(),
 		launchcountdown.New(),
 		leetcodestats.New(),
 		life.New(),
@@ -370,6 +390,7 @@ func GetManifests() []manifest.Manifest {
 		lordoftherings.New(),
 		martamap.New(),
 		marvelfacts.New(),
+		mastodonfollows.New(),
 		maze.New(),
 		mbta.New(),
 		mbtanewtrains.New(),
@@ -395,10 +416,12 @@ func GetManifests() []manifest.Manifest {
 		ncaafscores.New(),
 		ncaafstandings.New(),
 		ncaamscores.New(),
+		ncaamstandings.New(),
 		nearearthobjs.New(),
 		neotrack.New(),
 		nesquotes.New(),
 		netatmo.New(),
+		newapps.New(),
 		nflscores.New(),
 		nflstandings.New(),
 		nft.New(),
@@ -416,6 +439,7 @@ func GetManifests() []manifest.Manifest {
 		officestatus.New(),
 		ogsgamesviewer.New(),
 		ohhighwaysigns.New(),
+		opmstatus.New(),
 		ordermoments.New(),
 		ordertrends.New(),
 		outlookcalendar.New(),
@@ -423,6 +447,7 @@ func GetManifests() []manifest.Manifest {
 		paraland.New(),
 		pathtrainschedule.New(),
 		petpikachu.New(),
+		pgatour.New(),
 		phaseofmoon.New(),
 		plausibleanalytics.New(),
 		pleasestandby.New(),
@@ -454,10 +479,12 @@ func GetManifests() []manifest.Manifest {
 		shopifysales.New(),
 		shouldideploy.New(),
 		shuffleimages.New(),
+		skireport.New(),
 		snyk.New(),
 		soccermens.New(),
 		soccertables.New(),
 		soccerwomens.New(),
+		solaredgemonitor.New(),
 		solarelevation.New(),
 		soundtransit.New(),
 		spinbyt.New(),
@@ -473,6 +500,7 @@ func GetManifests() []manifest.Manifest {
 		stockticker.New(),
 		stockvalue.New(),
 		strava.New(),
+		stripesales.New(),
 		subreddit.New(),
 		sunrisesunset.New(),
 		supermariokart.New(),
