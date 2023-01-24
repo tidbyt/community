@@ -20,6 +20,20 @@ URL = "https://monitoringapi.solaredge.com/site/{}/currentPowerFlow"
 # one per 5 minutes
 CACHE_TTL = 300
 
+DUMMY_DATA = {
+    "siteCurrentPowerFlow": {
+        "updateRefreshRate": 3,
+        "unit": "kW",
+        "connections": [
+            {"from": "GRID", "to": "Load"},
+            {"from": "PV", "to": "Load"},
+        ],
+        "GRID": {"status": "Active", "currentPower": 1.57},
+        "LOAD": {"status": "Active", "currentPower": 4.71},
+        "PV": {"status": "Active", "currentPower": 3.14},
+    },
+}
+
 SOLAR_PANEL = base64.decode("""
 iVBORw0KGgoAAAANSUhEUgAAABUAAAAQCAYAAAD52jQlAAAArElEQVQ4ja2T2xGFIAxETxyrcOhM
 y7M0xzb2fjA4kYcPrvsFCSzhBExCZDLDAHwuxZ5ovEq+MfIaWkYSqt3ikdLmlkG38dcmx1U9v2h8
@@ -57,23 +71,23 @@ AgmMj5lgHO6UTAUAOw==
 """)
 
 def main(config):
-    api_key = config.get("api_key")
-    if not api_key:
-        fail("API key is required")
-    site_id = humanize.url_encode(config.get("site_id"))
-    if not site_id:
-        fail("Site ID is required")
+    api_key = config.str("api_key")
+    site_id = humanize.url_encode(config.str("site_id", ""))
 
-    url = URL.format(site_id)
-    data = cache.get(url)
-    if not data:
-        rep = http.get(url, params = {"api_key": api_key})
-        if rep.status_code != 200:
-            fail("SolarEdge API request failed with status {}".format(rep.status_code))
-        data = rep.body()
-        cache.set(url, data, ttl_seconds = CACHE_TTL)
+    if api_key and site_id:
+        url = URL.format(site_id)
+        data = cache.get(url)
+        if not data:
+            rep = http.get(url, params = {"api_key": api_key})
+            if rep.status_code != 200:
+                fail("SolarEdge API request failed with status {}".format(rep.status_code))
+            data = rep.body()
+            cache.set(url, data, ttl_seconds = CACHE_TTL)
+        o = json.decode(data)
+    else:
+        o = DUMMY_DATA
 
-    o = json.decode(data)["siteCurrentPowerFlow"]
+    o = o["siteCurrentPowerFlow"]
     unit = o["unit"]
     connections = o["connections"]
     points = []
