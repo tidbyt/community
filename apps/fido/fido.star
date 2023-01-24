@@ -51,7 +51,7 @@ def main(config):
     timezone = config.get("$tz", DEFAULT_TIMEZONE)
     pet_name = config.get("pet_name", DEFAULT_PAL_NAME)
     pet_birthday = config.str("pet_birthday", DEFAULT_BIRTHDAY)
-    if config.bool("random_action", True):
+    if config.bool("random_action", False):
         idx = random.number(0, len(PET_ACTIONS) - 1)  #-1 because indices start at zero
         action_config = PET_ACTIONS.values()[idx]
     else:
