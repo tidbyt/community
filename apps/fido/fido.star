@@ -10,6 +10,7 @@ load("cache.star", "cache")
 # LOAD MODULES
 load("encoding/base64.star", "base64")
 load("http.star", "http")
+load("random.star", "random")
 load("render.star", "render")
 load("schema.star", "schema")
 load("time.star", "time")
@@ -41,13 +42,18 @@ BALL_THROW = "https://raw.githubusercontent.com/Yonodactyl/TidbytGIFs/main/Fido/
 FIDO_WALK = "https://raw.githubusercontent.com/Yonodactyl/TidbytGIFs/main/Fido/fido_walk.gif"
 FIDO_SIT = "https://raw.githubusercontent.com/Yonodactyl/TidbytGIFs/main/Fido/fido_sit.gif"
 FIDO_FETCH = "https://raw.githubusercontent.com/Yonodactyl/TidbytGIFs/main/Fido/fido_fetch.gif"
+PET_ACTIONS = [FIDO_WALK, FIDO_SIT, FIDO_FETCH]
 
 def main(config):
     # Set configuration variables
     timezone = config.get("$tz", DEFAULT_TIMEZONE)
     pet_name = config.get("pet_name", DEFAULT_PAL_NAME)
     pet_birthday = config.str("pet_birthday", DEFAULT_BIRTHDAY)
-    action_config = config.get("pet_action", FIDO_SIT)
+    if config.bool("random_action", True):
+        idx = random.number(0, len(PET_ACTIONS) - 1)  #-1 because indices start at zero
+        action_config = PET_ACTIONS[idx]
+    else:
+        action_config = config.get("pet_action", FIDO_SIT)
     stats_config = config.bool("showing_stats", False)
 
     # Grab the pets age - returned in hours
@@ -187,21 +193,21 @@ def return_marquee_text(text, color = "#fff", width = 32, direction = "horizonta
     )
 
 def get_schema():
-    # Pal action to be performed
-    pal_action = [
-        schema.Option(
-            display = "Sit",
-            value = FIDO_SIT,
-        ),
-        schema.Option(
-            display = "Walk",
-            value = FIDO_WALK,
-        ),
-        schema.Option(
-            display = "Fetch",
-            value = FIDO_FETCH,
-        ),
-    ]
+    # # Pal action to be performed
+    # pal_action = [
+    #     schema.Option(
+    #         display = "Sit",
+    #         value = FIDO_SIT,
+    #     ),
+    #     schema.Option(
+    #         display = "Walk",
+    #         value = FIDO_WALK,
+    #     ),
+    #     schema.Option(
+    #         display = "Fetch",
+    #         value = FIDO_FETCH,
+    #     ),
+    # ]
 
     return schema.Schema(
         version = "1",
@@ -219,14 +225,26 @@ def get_schema():
                 desc = "When is your pet's birthday?",
                 icon = "calendarDay",
             ),
-            schema.Dropdown(
-                id = "pet_action",
-                name = "Action",
-                desc = "What should your pet do?",
-                icon = "dog",
-                default = pal_action[0].value,
-                options = pal_action,
+            schema.Toggle(
+                id = "random_action",
+                name = "Randomize Actions",
+                desc = "Should the pet actions be randomized?",
+                icon = "shuffle",
+                default = False,
             ),
+            schema.Generated(
+                id = "generated",
+                source = "random_action",
+                handler = get_action,
+            ),
+            # schema.Dropdown(
+            #     id = "pet_action",
+            #     name = "Action",
+            #     desc = "What should your pet do?",
+            #     icon = "dog",
+            #     default = pal_action[0].value,
+            #     options = pal_action,
+            # ),
             schema.Toggle(
                 id = "showing_stats",
                 name = "Stats",
@@ -262,3 +280,33 @@ def get_cached(url, ttl_seconds = TTL):
 
     # Return the data we got from the web
     return data
+
+def get_action(random):
+    # Pal action to be performed
+    pal_action = [
+        schema.Option(
+            display = "Sit",
+            value = FIDO_SIT,
+        ),
+        schema.Option(
+            display = "Walk",
+            value = FIDO_WALK,
+        ),
+        schema.Option(
+            display = "Fetch",
+            value = FIDO_FETCH,
+        ),
+    ]
+    if random == "true":
+        return []
+    else:
+        return [
+            schema.Dropdown(
+                id = "pet_action",
+                name = "Action",
+                desc = "What should your pet do?",
+                icon = "dog",
+                default = pal_action[0].value,
+                options = pal_action,
+            ),
+        ]
