@@ -319,6 +319,7 @@ def fetch_stations_from_website():
         nj_dv_page_response = http.get(NJ_TRANSIT_DV_URL)
 
         if nj_dv_page_response.status_code != 200:
+
             #print("Got code '%s' from page response" % nj_dv_page_response.status_code)
             return result
 
