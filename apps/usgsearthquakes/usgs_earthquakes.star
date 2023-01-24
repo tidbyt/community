@@ -31,13 +31,13 @@ Author: Chris Silverberg (csilv)
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
+load("animation.star", "animation")
 load("cache.star", "cache")
 load("encoding/base64.star", "base64")
 load("encoding/json.star", "json")
 load("http.star", "http")
 load("humanize.star", "humanize")
 load("render.star", "render")
-load("animation.star", "animation")
 load("schema.star", "schema")
 load("time.star", "time")
 

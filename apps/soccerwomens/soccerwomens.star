@@ -68,11 +68,10 @@ def main(config):
         timeColor = config.get("displayTimeColor", "#FFF")
         rotationSpeed = 15 // len(scores)
 
-        for i, s in enumerate(scores):
+        for _, s in enumerate(scores):
             gameStatus = s["status"]["type"]["state"]
             competition = s["competitions"][0]
             homeCompetitor = competition["competitors"][0]
-            awayCompetitor = competition["competitors"][1]
             home = competition["competitors"][0]["team"]["abbreviation"]
             away = competition["competitors"][1]["team"]["abbreviation"]
             homeTeamName = competition["competitors"][0]["team"]["shortDisplayName"]
@@ -89,20 +88,8 @@ def main(config):
             else:
                 awayPrimaryColor = competition["competitors"][1]["team"]["color"]
 
-            homeAltColorCheck = competition["competitors"][0]["team"].get("alternateColor", "NO")
-            if homeAltColorCheck == "NO":
-                homeAltColor = "000000"
-            else:
-                homeAltColor = competition["competitors"][0]["team"]["alternateColor"]
-
-            awayAltColorCheck = competition["competitors"][1]["team"].get("alternateColor", "NO")
-            if awayAltColorCheck == "NO":
-                awayAltColor = "000000"
-            else:
-                awayAltColor = competition["competitors"][1]["team"]["alternateColor"]
-
-            homeColor = get_background_color(home, displayType, homePrimaryColor, homeAltColor)
-            awayColor = get_background_color(away, displayType, awayPrimaryColor, awayAltColor)
+            homeColor = get_background_color(displayType, homePrimaryColor)
+            awayColor = get_background_color(displayType, awayPrimaryColor)
 
             homeLogoCheck = competition["competitors"][0]["team"].get("logo", "NO")
             if homeLogoCheck == "NO":
@@ -115,19 +102,19 @@ def main(config):
                 awayLogoURL = "https://a.espncdn.com/i/espn/misc_logos/500/ncaa_football.vresize.50.50.medium.1.png"
             else:
                 awayLogoURL = competition["competitors"][1]["team"]["logo"]
-            homeLogo = get_logoType(home, homeLogoURL if homeLogoURL != "" else MISSING_LOGO)
-            awayLogo = get_logoType(away, awayLogoURL if awayLogoURL != "" else MISSING_LOGO)
-            homeLogoSize = get_logoSize(home)
-            awayLogoSize = get_logoSize(away)
+            homeLogo = get_logoType(homeLogoURL if homeLogoURL != "" else MISSING_LOGO)
+            awayLogo = get_logoType(awayLogoURL if awayLogoURL != "" else MISSING_LOGO)
+            homeLogoSize = get_logoSize()
+            awayLogoSize = get_logoSize()
             homeScore = ""
             awayScore = ""
+            gameTime = ""
             homeScoreColor = "#fff"
             awayScoreColor = "#fff"
             teamFont = "Dina_r400-6"
             scoreFont = "Dina_r400-6"
 
             if gameStatus == "pre":
-                gameDateTime = s["status"]["type"]["shortDetail"]
                 gameTime = s["date"]
                 scoreFont = "CG-pixel-3x5-mono"
                 convertedTime = time.parse_time(gameTime, format = "2006-01-02T15:04Z").in_location(timezone)
@@ -217,12 +204,6 @@ def main(config):
                             main_align = "space_between",
                             cross_align = "start",
                             children = [
-                                render.Row(
-                                    expanded = True,
-                                    main_align = "space_between",
-                                    cross_align = "start",
-                                    children = get_date_column(False, now, retroTextColor, retroBackgroundColor, retroBorderColor, displayType, gameTime, timeColor),
-                                ),
                                 render.Column(
                                     children = [
                                         render.Box(width = 64, height = 12, color = awayColor, child = render.Row(expanded = True, main_align = "start", cross_align = "center", children = [
@@ -236,7 +217,7 @@ def main(config):
                                     ],
                                 ),
                                 render.Stack(
-                                    children = get_gametime_column(False, gameTime, retroTextColor, retroBackgroundColor, retroBorderColor),
+                                    children = get_gametime_column(False, gameTime, timeColor, retroBackgroundColor, retroBorderColor),
                                 ),
                             ],
                         ),
@@ -255,12 +236,6 @@ def main(config):
                             main_align = "space_between",
                             cross_align = "start",
                             children = [
-                                render.Row(
-                                    expanded = True,
-                                    main_align = "space_between",
-                                    cross_align = "start",
-                                    children = get_date_column(False, now, textColor, backgroundColor, borderColor, displayType, gameTime, timeColor),
-                                ),
                                 render.Row(
                                     expanded = True,
                                     main_align = "space_between",
@@ -298,7 +273,7 @@ def main(config):
                                     expanded = True,
                                     main_align = "space_between",
                                     cross_align = "start",
-                                    children = get_gametime_column(False, gameTime, textColor, backgroundColor, borderColor),
+                                    children = get_gametime_column(False, gameTime, timeColor, backgroundColor, borderColor),
                                 ),
                             ],
                         ),
@@ -322,12 +297,6 @@ def main(config):
                                     expanded = True,
                                     main_align = "space_between",
                                     cross_align = "start",
-                                    children = get_date_column(False, now, textColor, backgroundColor, borderColor, displayType, gameTime, timeColor),
-                                ),
-                                render.Row(
-                                    expanded = True,
-                                    main_align = "space_between",
-                                    cross_align = "start",
                                     children = [
                                         render.Column(
                                             children = [
@@ -347,7 +316,7 @@ def main(config):
                                     expanded = True,
                                     main_align = "space_between",
                                     cross_align = "start",
-                                    children = get_gametime_column(False, gameTime, textColor, backgroundColor, borderColor),
+                                    children = get_gametime_column(False, gameTime, timeColor, backgroundColor, borderColor),
                                 ),
                             ],
                         ),
@@ -371,12 +340,6 @@ def main(config):
                                     expanded = True,
                                     main_align = "space_between",
                                     cross_align = "start",
-                                    children = get_date_column(False, now, textColor, backgroundColor, borderColor, displayType, gameTime, timeColor),
-                                ),
-                                render.Row(
-                                    expanded = True,
-                                    main_align = "space_between",
-                                    cross_align = "start",
                                     children = [
                                         render.Column(
                                             children = [
@@ -398,7 +361,7 @@ def main(config):
                                     expanded = True,
                                     main_align = "space_between",
                                     cross_align = "start",
-                                    children = get_gametime_column(False, gameTime, textColor, backgroundColor, borderColor),
+                                    children = get_gametime_column(False, gameTime, timeColor, backgroundColor, borderColor),
                                 ),
                             ],
                         ),
@@ -418,12 +381,6 @@ def main(config):
                             main_align = "space_between",
                             cross_align = "start",
                             children = [
-                                render.Row(
-                                    expanded = True,
-                                    main_align = "space_between",
-                                    cross_align = "start",
-                                    children = get_date_column(False, now, textColor, backgroundColor, borderColor, displayType, gameTime, timeColor),
-                                ),
                                 render.Row(
                                     expanded = True,
                                     main_align = "space_between",
@@ -449,7 +406,7 @@ def main(config):
                                     expanded = True,
                                     main_align = "space_between",
                                     cross_align = "start",
-                                    children = get_gametime_column(False, gameTime, textColor, backgroundColor, borderColor),
+                                    children = get_gametime_column(False, gameTime, timeColor, backgroundColor, borderColor),
                                 ),
                             ],
                         ),
@@ -633,6 +590,18 @@ colorOptions = [
         display = "Orange",
         value = "#FFA500",
     ),
+    schema.Option(
+        display = "Indigo",
+        value = "#4B0082",
+    ),
+    schema.Option(
+        display = "Violet",
+        value = "#EE82EE",
+    ),
+    schema.Option(
+        display = "Pink",
+        value = "#FC46AA",
+    ),
 ]
 
 daysOptions = [
@@ -753,13 +722,11 @@ def show_day_range(day_range):
 
 def get_scores(urls, instanceNumber, totalInstances):
     allscores = []
-    minPerBucket = 3
     for i, s in urls.items():
         data = get_cachable_data(s)
         decodedata = json.decode(data)
         allscores.extend(decodedata["events"])
         all([i, allscores])
-    allScoresLength = len(allscores)
 
     #scoresLengthPerInstance = allScoresLength / totalInstances
     if instanceNumber > totalInstances:
@@ -793,7 +760,7 @@ def get_record(record):
         theRecord = record
     return theRecord
 
-def get_background_color(team, displayType, color, altColor):
+def get_background_color(displayType, color):
     if displayType == "black" or displayType == "retro":
         color = "#222"
 
@@ -803,17 +770,17 @@ def get_background_color(team, displayType, color, altColor):
         color = "#222"
     return color
 
-def get_logoType(team, logo):
+def get_logoType(logo):
     logo = logo.replace("500/scoreboard", "500-dark/scoreboard")
     logo = logo.replace("https://a.espncdn.com/", "https://a.espncdn.com/combiner/i?img=", 36000)
     logo = get_cachable_data(logo + "&h=50&w=50")
     return logo
 
-def get_logoSize(team):
+def get_logoSize():
     logosize = int(16)
     return logosize
 
-def get_date_column(display, now, textColor, backgroundColor, borderColor, displayType, gameTime, timeColor):
+def get_date_column(display, now, textColor, borderColor, displayType, gameTime, timeColor):
     if display:
         theTime = now.format("3:04")
         if len(str(theTime)) > 4:
@@ -842,7 +809,7 @@ def get_shortened_display(text):
     if len(text) > 8:
         text = text.replace("Final", "F").replace("Game ", "G")
     words = json.decode(SHORTENED_WORDS)
-    for i, s in enumerate(words):
+    for _, s in enumerate(words):
         text = text.replace(s, words[s])
     return text
 

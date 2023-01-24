@@ -5,17 +5,14 @@ Description: Displays Continuous Glucose Monitoring (CGM) data from the Nightsco
 Authors: Jeremy Tavener, Paul Murphy
 """
 
-load("render.star", "render")
-load("http.star", "http")
-load("time.star", "time")
-load("encoding/base64.star", "base64")
-load("encoding/json.star", "json")
-load("encoding/csv.star", "csv")
 load("cache.star", "cache")
+load("encoding/csv.star", "csv")
+load("encoding/json.star", "json")
+load("http.star", "http")
+load("render.star", "render")
 load("schema.star", "schema")
-load("re.star", "re")
-load("humanize.star", "humanize")
 load("sunrise.star", "sunrise")
+load("time.star", "time")
 
 COLOR_RED = "#C00"
 COLOR_DARK_RED = "#911"
@@ -152,7 +149,6 @@ def main(config):
     color_graph_urgent_low = COLOR_RED
     color_graph_lines = COLOR_GREY
     color_clock = COLOR_ORANGE
-    font_color = COLOR_YELLOW
 
     if (reading_mins_ago > 5):
         # The information is stale (i.e. over 5 minutes old) - overrides everything.
@@ -381,7 +377,8 @@ def main(config):
 
     if show_graph == "false":
         return render.Root(
-            render.Box(
+            max_age = 120,
+            child = render.Box(
                 render.Row(
                     main_align = "space_evenly",
                     cross_align = "center",
@@ -436,7 +433,7 @@ def main(config):
             if show_graph_hour_bars:
                 min_hour = time.from_timestamp(min_time, 0).hour
                 max_hour = time.from_timestamp(max_time, 0).hour
-                if min_hour < max_hour:
+                if min_hour != max_hour:
                     # Add hour marker at this point
                     graph_hour_bars.append(render.Padding(
                         pad = (point, 0, 0, 0),
@@ -466,7 +463,8 @@ def main(config):
             min_time = max_time + 1
 
         return render.Root(
-            render.Box(
+            max_age = 120,
+            child = render.Box(
                 render.Row(
                     main_align = "center",
                     cross_align = "start",
@@ -706,7 +704,6 @@ def get_nightscout_data(nightscout_id, nightscout_host):
     #print (latest_reading)
     #print (previous_reading)
     latest_reading_date_string = latest_reading["dateString"]
-    latest_reading_dt = time.parse_time(latest_reading_date_string)
 
     # Current sgv value
     sgv_current = latest_reading["sgv"]
@@ -742,6 +739,7 @@ def get_nightscout_data(nightscout_id, nightscout_host):
 
 def display_failure(msg):
     return render.Root(
+        max_age = 120,
         child = render.WrappedText(
             width = 64,
             content = msg,
