@@ -51,11 +51,11 @@ def main(config):
     timezone = config.get("$tz", DEFAULT_TIMEZONE)
     pet_name = config.get("pet_name", DEFAULT_PAL_NAME)
     pet_birthday = config.str("pet_birthday", DEFAULT_BIRTHDAY)
-    if config.bool("random_action", False):
+
+    action_config = config.get("pet_action", PET_ACTIONS["Sit"])
+    if action_config == "random":
         idx = random.number(0, len(PET_ACTIONS) - 1)  #-1 because indices start at zero
         action_config = PET_ACTIONS.values()[idx]
-    else:
-        action_config = config.get("pet_action", PET_ACTIONS["Sit"])
 
     stats_config = config.bool("showing_stats", False)
 
@@ -201,6 +201,8 @@ def get_schema():
         schema.Option(display = action, value = image)
         for action, image in PET_ACTIONS.items()
     ]
+    pal_action.insert(0, schema.Option(display = "Random", value = "random"))
+
     return schema.Schema(
         version = "1",
         fields = [
@@ -217,19 +219,12 @@ def get_schema():
                 desc = "When is your pet's birthday?",
                 icon = "calendarDay",
             ),
-            schema.Toggle(
-                id = "random_action",
-                name = "Randomize Actions",
-                desc = "Should the pet actions be randomized?",
-                icon = "shuffle",
-                default = False,
-            ),
             schema.Dropdown(
                 id = "pet_action",
                 name = "Action",
                 desc = "What should your pet do?",
                 icon = "dog",
-                default = pal_action[0].value,
+                default = pal_action[1].value,  #default is Sit
                 options = pal_action,
             ),
             schema.Toggle(
