@@ -12,7 +12,6 @@ load("http.star", "http")
 load("humanize.star", "humanize")
 load("render.star", "render")
 load("schema.star", "schema")
-load("time.star", "time")
 
 URL = "https://monitoringapi.solaredge.com/site/{}/currentPowerFlow"
 

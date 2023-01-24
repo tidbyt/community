@@ -5,11 +5,11 @@ Description: Display an externally accessible Home Assistant entity state or att
 Author: InTheDaylight14
 """
 
-load("render.star", "render")
-load("schema.star", "schema")
+load("cache.star", "cache")
 load("encoding/json.star", "json")
 load("http.star", "http")
-load("cache.star", "cache")
+load("render.star", "render")
+load("schema.star", "schema")
 
 STATIC_ENDPOINT = "/api/states/"
 DEFAULT_COLOR = "#aaaaaa"
@@ -35,10 +35,6 @@ def main(config):
 
     if "unit_of_measurement" in states["attributes"].keys():
         state = state + states["attributes"]["unit_of_measurement"]
-
-    icon = None
-    if "icon" in states["attributes"].keys():
-        icon = states["attributes"]["icon"]
 
     header_color = config.get("header_color", DEFAULT_COLOR)
     separator_color = config.get("separator_color", DEFAULT_COLOR)

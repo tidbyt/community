@@ -20,6 +20,7 @@ FONT = "tom-thumb"
 def main(config):
     #get old list of apps
     old_data = cache.get("old_apps")
+    force_current_list = False
     if old_data != None:
         print("Hit! Using cached old app list data.")
         old_list = json.decode(old_data)
