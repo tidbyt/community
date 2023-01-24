@@ -208,6 +208,7 @@ import (
 	"tidbyt.dev/community/apps/soccermens"
 	"tidbyt.dev/community/apps/soccertables"
 	"tidbyt.dev/community/apps/soccerwomens"
+	"tidbyt.dev/community/apps/solaredgemonitor"
 	"tidbyt.dev/community/apps/solarelevation"
 	"tidbyt.dev/community/apps/soundtransit"
 	"tidbyt.dev/community/apps/spinbyt"
@@ -479,6 +480,7 @@ func GetManifests() []manifest.Manifest {
 		soccermens.New(),
 		soccertables.New(),
 		soccerwomens.New(),
+		solaredgemonitor.New(),
 		solarelevation.New(),
 		soundtransit.New(),
 		spinbyt.New(),
