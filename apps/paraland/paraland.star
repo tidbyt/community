@@ -29,6 +29,26 @@ def main(config):
     )
 
 def get_schema():
+    # Landscape options
+    options = [
+        schema.Option(
+            display = "Default - Morning",
+            value = DEFAULT_MORNING_ID,
+        ),
+        schema.Option(
+            display = "North Carolina - Morning",
+            value = NORTH_CAROLINA_MORNING_ID,
+        ),
+        schema.Option(
+            display = "Seattle - Morning",
+            value = SEATTLE_MORNING_ID,
+        ),
+        schema.Option(
+            display = "Arizona - Day",
+            value = ARIZONA_DAY_ID,
+        ),
+    ]
+
     # Speed options for the parallax
     speed_options = [
         schema.Option(
@@ -55,10 +75,13 @@ def get_schema():
                 icon = "shuffle",
                 default = False,
             ),
-            schema.Generated(
-                id = "generated",
-                source = "random_image",
-                handler = get_landscape,
+            schema.Dropdown(
+                id = "image",
+                name = "Landscape",
+                desc = "The Landscape GIF to be looped",
+                icon = "mountain",
+                default = options[0].value,
+                options = options,
             ),
             schema.Dropdown(
                 id = "scroll_delay",
@@ -70,41 +93,6 @@ def get_schema():
             ),
         ],
     )
-
-def get_landscape(random_logic):
-    # Landscape options
-    options = [
-        schema.Option(
-            display = "Default - Morning",
-            value = DEFAULT_MORNING_ID,
-        ),
-        schema.Option(
-            display = "North Carolina - Morning",
-            value = NORTH_CAROLINA_MORNING_ID,
-        ),
-        schema.Option(
-            display = "Seattle - Morning",
-            value = SEATTLE_MORNING_ID,
-        ),
-        schema.Option(
-            display = "Arizona - Day",
-            value = ARIZONA_DAY_ID,
-        ),
-    ]
-
-    if random_logic == "true":
-        return []
-    else:
-        return [
-            schema.Dropdown(
-                id = "image",
-                name = "Landscape",
-                desc = "The Landscape GIF to be looped",
-                icon = "mountain",
-                default = options[0].value,
-                options = options,
-            ),
-        ]
 
 # CONFIG
 DEFAULT_DELAY = "150"
