@@ -5,13 +5,11 @@ Description: Show title, artist and album art from most recently scrobbled song 
 Author: Chuck
 """
 
+load("encoding/base64.star", "base64")
+load("http.star", "http")
 load("render.star", "render")
 load("schema.star", "schema")
-load("http.star", "http")
-load("encoding/base64.star", "base64")
-load("cache.star", "cache")
 load("time.star", "time")
-load("secret.star", "secret")
 
 def main(config):
     userName = config.get("lastFmUser") or "badUser"
@@ -131,10 +129,6 @@ def demoMode():
     track["artist"] = artist
 
     return renderIt(now, albumWidget, track)
-
-    return render.Root(
-        child = render.Text(content = "Demo"),
-    )
 
 def get_schema():
     return schema.Schema(

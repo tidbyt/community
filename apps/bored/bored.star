@@ -5,12 +5,11 @@ Description: This app will suggest things you can do alone or with your friends 
 Author: Anders Heie
 """
 
+load("cache.star", "cache")
+load("http.star", "http")
+load("random.star", "random")
 load("render.star", "render")
 load("schema.star", "schema")
-load("http.star", "http")
-load("encoding/base64.star", "base64")
-load("cache.star", "cache")
-load("random.star", "random")
 
 # Global defines
 BORED_URL = "https://www.boredapi.com/api/activity"
@@ -46,7 +45,6 @@ def main(config):
         if rep.status_code != 200:
             # if the APi fails, return [] to skip this app showing
             fail("Bored request failed with status %d", rep.status_code)
-            return []
 
         activity = rep.json()["activity"]
         cache.set(cache_key, activity, ttl_seconds = 600)

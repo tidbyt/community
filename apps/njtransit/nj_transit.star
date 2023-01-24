@@ -214,16 +214,16 @@ def extract_fields_from_departure(departure):
     track_number = get_track_number(data)
     departing_in = get_real_time_estimated_departure(data, departure_time)
 
-    '''print(
-        "{}\t{}\t{}\t{}\t{}\t{}\n".format(
-            departure_time,
-            destination_name,
-            service_line,
-            train_number,
-            track_number,
-            departing_in,
-        ),
-    )'''
+    #print(
+    #    "{}\t{}\t{}\t{}\t{}\t{}\n".format(
+    #        departure_time,
+    #        destination_name,
+    #        service_line,
+    #        train_number,
+    #        track_number,
+    #        departing_in,
+    #    ),
+    #)
 
     return struct(
         departing_at = departure_time,
@@ -265,7 +265,7 @@ def get_destination_name(data):
     Function gets the destation froma  given depature
     """
     nodes = data.find(".media-body").first().find(".mb-0")
-    destination_name = nodes.eq(0).text().strip().replace("\u2708", "EWR").upper()
+    destination_name = nodes.eq(0).text().strip().replace("\\u2708", "EWR").upper()
     return destination_name
 
 def get_real_time_estimated_departure(data, scheduled_time):
