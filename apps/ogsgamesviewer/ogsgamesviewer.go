@@ -4,7 +4,7 @@ package ogsgamesviewer
 import (
 	_ "embed"
 
-	"tidbyt.dev/community/apps/manifest"
+	"tidbyt.dev/pixlet/manifest"
 )
 
 //go:embed ogs_games_viewer.star
@@ -20,6 +20,6 @@ func New() manifest.Manifest {
 		Desc:        "Shows a visualization of currently active Go games on OGS (Online Go Server) for a given user.",
 		FileName:    "ogs_games_viewer.star",
 		PackageName: "ogsgamesviewer",
-		Source:  source,
+		Source:      source,
 	}
 }

@@ -4,7 +4,7 @@ package londonbusstop
 import (
 	_ "embed"
 
-	"tidbyt.dev/community/apps/manifest"
+	"tidbyt.dev/pixlet/manifest"
 )
 
 //go:embed london_bus_stop.star
@@ -20,6 +20,6 @@ func New() manifest.Manifest {
 		Desc:        "Shows upcoming arrivals at a specific bus stop in London.",
 		FileName:    "london_bus_stop.star",
 		PackageName: "londonbusstop",
-		Source:  source,
+		Source:      source,
 	}
 }

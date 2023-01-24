@@ -4,7 +4,7 @@ package solarelevation
 import (
 	_ "embed"
 
-	"tidbyt.dev/community/apps/manifest"
+	"tidbyt.dev/pixlet/manifest"
 )
 
 //go:embed solar_elevation.star
@@ -20,6 +20,6 @@ func New() manifest.Manifest {
 		Desc:        "A clock for when you cannot look out of the window or at an actual clock. How high is the sun above or below the horizon right now?",
 		FileName:    "solar_elevation.star",
 		PackageName: "solarelevation",
-		Source:  source,
+		Source:      source,
 	}
 }

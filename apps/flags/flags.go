@@ -4,7 +4,7 @@ package flags
 import (
 	_ "embed"
 
-	"tidbyt.dev/community/apps/manifest"
+	"tidbyt.dev/pixlet/manifest"
 )
 
 //go:embed flags.star
@@ -20,6 +20,6 @@ func New() manifest.Manifest {
 		Desc:        "Displays a random or specific country flag.",
 		FileName:    "flags.star",
 		PackageName: "flags",
-		Source:  source,
+		Source:      source,
 	}
 }

@@ -4,7 +4,7 @@ package topcryptoprices
 import (
 	_ "embed"
 
-	"tidbyt.dev/community/apps/manifest"
+	"tidbyt.dev/pixlet/manifest"
 )
 
 //go:embed top_crypto_prices.star
@@ -20,6 +20,6 @@ func New() manifest.Manifest {
 		Desc:        "This app shows price info for the top cryptocurrencies. Prices are provided once per minute through the free Coingecko API.",
 		FileName:    "top_crypto_prices.star",
 		PackageName: "topcryptoprices",
-		Source:  source,
+		Source:      source,
 	}
 }

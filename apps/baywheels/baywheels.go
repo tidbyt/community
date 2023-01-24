@@ -4,7 +4,7 @@ package baywheels
 import (
 	_ "embed"
 
-	"tidbyt.dev/community/apps/manifest"
+	"tidbyt.dev/pixlet/manifest"
 )
 
 //go:embed bay_wheels.star
@@ -20,6 +20,6 @@ func New() manifest.Manifest {
 		Desc:        "Shows the availability of bikes and e-bikes at a Bay Wheels station.",
 		FileName:    "bay_wheels.star",
 		PackageName: "baywheels",
-		Source:  source,
+		Source:      source,
 	}
 }

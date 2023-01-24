@@ -4,7 +4,7 @@ package yulelog
 import (
 	_ "embed"
 
-	"tidbyt.dev/community/apps/manifest"
+	"tidbyt.dev/pixlet/manifest"
 )
 
 //go:embed yule_log.star
@@ -20,6 +20,6 @@ func New() manifest.Manifest {
 		Desc:        "A pixel fireplace to add some warmth to your Tidbyt.",
 		FileName:    "yule_log.star",
 		PackageName: "yulelog",
-		Source:  source,
+		Source:      source,
 	}
 }

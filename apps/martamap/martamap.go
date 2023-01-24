@@ -4,7 +4,7 @@ package martamap
 import (
 	_ "embed"
 
-	"tidbyt.dev/community/apps/manifest"
+	"tidbyt.dev/pixlet/manifest"
 )
 
 //go:embed marta_map.star
@@ -20,6 +20,6 @@ func New() manifest.Manifest {
 		Desc:        "Display real-time MARTA train locations and optionaly show station arrivals.",
 		FileName:    "marta_map.star",
 		PackageName: "martamap",
-		Source:  source,
+		Source:      source,
 	}
 }

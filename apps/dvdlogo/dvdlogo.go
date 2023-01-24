@@ -4,7 +4,7 @@ package dvdlogo
 import (
 	_ "embed"
 
-	"tidbyt.dev/community/apps/manifest"
+	"tidbyt.dev/pixlet/manifest"
 )
 
 //go:embed dvd_logo.star
@@ -20,6 +20,6 @@ func New() manifest.Manifest {
 		Desc:        "A screensaver from before the streaming era. Will it hit the corner this time?",
 		FileName:    "dvd_logo.star",
 		PackageName: "dvdlogo",
-		Source:  source,
+		Source:      source,
 	}
 }

@@ -4,7 +4,7 @@ package formula1
 import (
 	_ "embed"
 
-	"tidbyt.dev/community/apps/manifest"
+	"tidbyt.dev/pixlet/manifest"
 )
 
 //go:embed formula_1.star
@@ -20,6 +20,6 @@ func New() manifest.Manifest {
 		Desc:        "Shows Time date and location of Next F1 race.",
 		FileName:    "formula_1.star",
 		PackageName: "formula1",
-		Source:  source,
+		Source:      source,
 	}
 }

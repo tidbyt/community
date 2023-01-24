@@ -4,7 +4,7 @@ package life
 import (
 	_ "embed"
 
-	"tidbyt.dev/community/apps/manifest"
+	"tidbyt.dev/pixlet/manifest"
 )
 
 //go:embed life.star
@@ -20,6 +20,6 @@ func New() manifest.Manifest {
 		Desc:        "Runs a famous cellular automaton and animates the state on screen.",
 		FileName:    "life.star",
 		PackageName: "life",
-		Source:  source,
+		Source:      source,
 	}
 }

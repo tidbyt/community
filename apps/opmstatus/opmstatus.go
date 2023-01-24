@@ -4,7 +4,7 @@ package opmstatus
 import (
 	_ "embed"
 
-	"tidbyt.dev/community/apps/manifest"
+	"tidbyt.dev/pixlet/manifest"
 )
 
 //go:embed opm_status.star
@@ -20,6 +20,6 @@ func New() manifest.Manifest {
 		Desc:        "Displays the current Office of Personnel Management status, which is used by federal employees to know if the normal working conditions have been changed by inclement weather, health hazards, or other alerts. Updates every 2 hours.",
 		FileName:    "opm_status.star",
 		PackageName: "opmstatus",
-		Source:  source,
+		Source:      source,
 	}
 }

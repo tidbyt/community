@@ -4,7 +4,7 @@ package borisbikes
 import (
 	_ "embed"
 
-	"tidbyt.dev/community/apps/manifest"
+	"tidbyt.dev/pixlet/manifest"
 )
 
 //go:embed boris_bikes.star
@@ -20,6 +20,6 @@ func New() manifest.Manifest {
 		Desc:        "Availability for a Santander bicycle dock in London.",
 		FileName:    "boris_bikes.star",
 		PackageName: "borisbikes",
-		Source:  source,
+		Source:      source,
 	}
 }

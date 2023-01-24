@@ -4,7 +4,7 @@ package biblevotd
 import (
 	_ "embed"
 
-	"tidbyt.dev/community/apps/manifest"
+	"tidbyt.dev/pixlet/manifest"
 )
 
 //go:embed bible_votd.star
@@ -20,6 +20,6 @@ func New() manifest.Manifest {
 		Desc:        "Shows a bible verse on a daily cadence.",
 		FileName:    "bible_votd.star",
 		PackageName: "biblevotd",
-		Source:  source,
+		Source:      source,
 	}
 }

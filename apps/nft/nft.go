@@ -4,7 +4,7 @@ package nft
 import (
 	_ "embed"
 
-	"tidbyt.dev/community/apps/manifest"
+	"tidbyt.dev/pixlet/manifest"
 )
 
 //go:embed nft.star
@@ -20,6 +20,6 @@ func New() manifest.Manifest {
 		Desc:        "Displays a random NFT associated with an Ethereum public address.",
 		FileName:    "nft.star",
 		PackageName: "nft",
-		Source:  source,
+		Source:      source,
 	}
 }

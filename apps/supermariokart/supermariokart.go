@@ -4,7 +4,7 @@ package supermariokart
 import (
 	_ "embed"
 
-	"tidbyt.dev/community/apps/manifest"
+	"tidbyt.dev/pixlet/manifest"
 )
 
 //go:embed super_mario_kart.star
@@ -20,6 +20,6 @@ func New() manifest.Manifest {
 		Desc:        "Animated characters & items from the 1992 Super Mario Kart game.",
 		FileName:    "super_mario_kart.star",
 		PackageName: "supermariokart",
-		Source:  source,
+		Source:      source,
 	}
 }

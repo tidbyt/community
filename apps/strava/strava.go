@@ -4,7 +4,7 @@ package strava
 import (
 	_ "embed"
 
-	"tidbyt.dev/community/apps/manifest"
+	"tidbyt.dev/pixlet/manifest"
 )
 
 //go:embed strava.star
@@ -20,6 +20,6 @@ func New() manifest.Manifest {
 		Desc:        "Displays your YTD or all-time athlete stats recorded on Strava.",
 		FileName:    "strava.star",
 		PackageName: "strava",
-		Source:  source,
+		Source:      source,
 	}
 }

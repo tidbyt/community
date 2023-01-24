@@ -4,7 +4,7 @@ package nixelclock
 import (
 	_ "embed"
 
-	"tidbyt.dev/community/apps/manifest"
+	"tidbyt.dev/pixlet/manifest"
 )
 
 //go:embed nixel_clock.star
@@ -20,6 +20,6 @@ func New() manifest.Manifest {
 		Desc:        "Nixie Tube Clock + Pixels = Nixel Clock!",
 		FileName:    "nixel_clock.star",
 		PackageName: "nixelclock",
-		Source:  source,
+		Source:      source,
 	}
 }

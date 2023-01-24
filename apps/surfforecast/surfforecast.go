@@ -4,7 +4,7 @@ package surfforecast
 import (
 	_ "embed"
 
-	"tidbyt.dev/community/apps/manifest"
+	"tidbyt.dev/pixlet/manifest"
 )
 
 //go:embed surf_forecast.star
@@ -20,6 +20,6 @@ func New() manifest.Manifest {
 		Desc:        "Daily surf forecast for any spot on Surfline.",
 		FileName:    "surf_forecast.star",
 		PackageName: "surfforecast",
-		Source:  source,
+		Source:      source,
 	}
 }

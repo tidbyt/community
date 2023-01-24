@@ -4,7 +4,7 @@ package leetcodestats
 import (
 	_ "embed"
 
-	"tidbyt.dev/community/apps/manifest"
+	"tidbyt.dev/pixlet/manifest"
 )
 
 //go:embed leetcodestats.star
@@ -20,6 +20,6 @@ func New() manifest.Manifest {
 		Desc:        "Displays your LeetCode stats in a nice way.",
 		FileName:    "leetcodestats.star",
 		PackageName: "leetcodestats",
-		Source:  source,
+		Source:      source,
 	}
 }

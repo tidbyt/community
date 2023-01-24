@@ -4,7 +4,7 @@ package sportsscores
 import (
 	_ "embed"
 
-	"tidbyt.dev/community/apps/manifest"
+	"tidbyt.dev/pixlet/manifest"
 )
 
 //go:embed sports_scores.star
@@ -20,6 +20,6 @@ func New() manifest.Manifest {
 		Desc:        "Get daily scores or live updates of sports. Scores for the previous day are shown until 11am ET.",
 		FileName:    "sports_scores.star",
 		PackageName: "sportsscores",
-		Source:  source,
+		Source:      source,
 	}
 }

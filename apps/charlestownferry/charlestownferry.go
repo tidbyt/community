@@ -4,7 +4,7 @@ package charlestownferry
 import (
 	_ "embed"
 
-	"tidbyt.dev/community/apps/manifest"
+	"tidbyt.dev/pixlet/manifest"
 )
 
 //go:embed charlestownferry.star
@@ -20,6 +20,6 @@ func New() manifest.Manifest {
 		Desc:        "Displays three upcoming ferry depature times for the Charlestown, MA Ferry.",
 		FileName:    "charlestownferry.star",
 		PackageName: "charlestownferry",
-		Source:  source,
+		Source:      source,
 	}
 }

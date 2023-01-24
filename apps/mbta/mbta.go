@@ -4,7 +4,7 @@ package mbta
 import (
 	_ "embed"
 
-	"tidbyt.dev/community/apps/manifest"
+	"tidbyt.dev/pixlet/manifest"
 )
 
 //go:embed mbta.star
@@ -20,6 +20,6 @@ func New() manifest.Manifest {
 		Desc:        "MBTA bus and rail departure times.",
 		FileName:    "mbta.star",
 		PackageName: "mbta",
-		Source:  source,
+		Source:      source,
 	}
 }

@@ -4,7 +4,7 @@ package ohhighwaysigns
 import (
 	_ "embed"
 
-	"tidbyt.dev/community/apps/manifest"
+	"tidbyt.dev/pixlet/manifest"
 )
 
 //go:embed oh_highway_signs.star

@@ -4,7 +4,7 @@ package usyieldcurve
 import (
 	_ "embed"
 
-	"tidbyt.dev/community/apps/manifest"
+	"tidbyt.dev/pixlet/manifest"
 )
 
 //go:embed us_yield_curve.star
@@ -20,6 +20,6 @@ func New() manifest.Manifest {
 		Desc:        "Track changes to the yield curve over different US Treasury maturities.",
 		FileName:    "us_yield_curve.star",
 		PackageName: "usyieldcurve",
-		Source:  source,
+		Source:      source,
 	}
 }

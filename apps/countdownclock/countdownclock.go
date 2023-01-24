@@ -4,7 +4,7 @@ package countdownclock
 import (
 	_ "embed"
 
-	"tidbyt.dev/community/apps/manifest"
+	"tidbyt.dev/pixlet/manifest"
 )
 
 //go:embed countdown_clock.star
@@ -20,6 +20,6 @@ func New() manifest.Manifest {
 		Desc:        "Display the days, hours, and minutes remaining to a specified event.",
 		FileName:    "countdown_clock.star",
 		PackageName: "countdownclock",
-		Source:  source,
+		Source:      source,
 	}
 }

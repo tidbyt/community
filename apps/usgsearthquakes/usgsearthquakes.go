@@ -4,7 +4,7 @@ package usgsearthquakes
 import (
 	_ "embed"
 
-	"tidbyt.dev/community/apps/manifest"
+	"tidbyt.dev/pixlet/manifest"
 )
 
 //go:embed usgs_earthquakes.star
@@ -20,6 +20,6 @@ func New() manifest.Manifest {
 		Desc:        "Displays the most recent earthquakes based on location.",
 		FileName:    "usgs_earthquakes.star",
 		PackageName: "usgsearthquakes",
-		Source:  source,
+		Source:      source,
 	}
 }

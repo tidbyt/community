@@ -4,7 +4,7 @@ package njtransit
 import (
 	_ "embed"
 
-	"tidbyt.dev/community/apps/manifest"
+	"tidbyt.dev/pixlet/manifest"
 )
 
 //go:embed nj_transit.star
@@ -20,6 +20,6 @@ func New() manifest.Manifest {
 		Desc:        "See the upcoming departures of a selected NJ Transit station.",
 		FileName:    "nj_transit.star",
 		PackageName: "njtransit",
-		Source:  source,
+		Source:      source,
 	}
 }

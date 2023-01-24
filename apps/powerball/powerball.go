@@ -4,7 +4,7 @@ package powerball
 import (
 	_ "embed"
 
-	"tidbyt.dev/community/apps/manifest"
+	"tidbyt.dev/pixlet/manifest"
 )
 
 //go:embed powerball.star
@@ -20,6 +20,6 @@ func New() manifest.Manifest {
 		Desc:        "Shows up to date powerball numbers and next drawing.",
 		FileName:    "powerball.star",
 		PackageName: "powerball",
-		Source:  source,
+		Source:      source,
 	}
 }

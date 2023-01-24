@@ -4,7 +4,7 @@ package sportsrankings
 import (
 	_ "embed"
 
-	"tidbyt.dev/community/apps/manifest"
+	"tidbyt.dev/pixlet/manifest"
 )
 
 //go:embed sports_rankings.star
@@ -20,6 +20,6 @@ func New() manifest.Manifest {
 		Desc:        "Shows the AP poll rankings for various sports. Currently supports college football and men's and women's college basketball.",
 		FileName:    "sports_rankings.star",
 		PackageName: "sportsrankings",
-		Source:  source,
+		Source:      source,
 	}
 }

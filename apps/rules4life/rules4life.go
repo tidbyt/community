@@ -4,7 +4,7 @@ package rules4life
 import (
 	_ "embed"
 
-	"tidbyt.dev/community/apps/manifest"
+	"tidbyt.dev/pixlet/manifest"
 )
 
 //go:embed rules4life.star
@@ -20,6 +20,6 @@ func New() manifest.Manifest {
 		Desc:        "Display Jordan B. Peterson's Rules for Life from his book.",
 		FileName:    "rules4life.star",
 		PackageName: "rules4life",
-		Source:  source,
+		Source:      source,
 	}
 }

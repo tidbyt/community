@@ -4,7 +4,7 @@ package randomslackmoji
 import (
 	_ "embed"
 
-	"tidbyt.dev/community/apps/manifest"
+	"tidbyt.dev/pixlet/manifest"
 )
 
 //go:embed random_slackmoji.star
@@ -20,6 +20,6 @@ func New() manifest.Manifest {
 		Desc:        "Displays a random image from slackmojis.com!",
 		FileName:    "random_slackmoji.star",
 		PackageName: "randomslackmoji",
-		Source:  source,
+		Source:      source,
 	}
 }

@@ -4,7 +4,7 @@ package datetimeclock
 import (
 	_ "embed"
 
-	"tidbyt.dev/community/apps/manifest"
+	"tidbyt.dev/pixlet/manifest"
 )
 
 //go:embed date_time_clock.star
@@ -20,6 +20,6 @@ func New() manifest.Manifest {
 		Desc:        "Displays the full date and current time for user.",
 		FileName:    "date_time_clock.star",
 		PackageName: "datetimeclock",
-		Source:  source,
+		Source:      source,
 	}
 }

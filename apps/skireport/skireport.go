@@ -4,7 +4,7 @@ package skireport
 import (
 	_ "embed"
 
-	"tidbyt.dev/community/apps/manifest"
+	"tidbyt.dev/pixlet/manifest"
 )
 
 //go:embed ski_report.star
@@ -20,6 +20,6 @@ func New() manifest.Manifest {
 		Desc:        "Weather and Trail status for Mountains that are part of the Epic Pass resort system.",
 		FileName:    "ski_report.star",
 		PackageName: "skireport",
-		Source:  source,
+		Source:      source,
 	}
 }

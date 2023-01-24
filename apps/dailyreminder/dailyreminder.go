@@ -4,7 +4,7 @@ package dailyreminder
 import (
 	_ "embed"
 
-	"tidbyt.dev/community/apps/manifest"
+	"tidbyt.dev/pixlet/manifest"
 )
 
 //go:embed daily_reminder.star
@@ -20,6 +20,6 @@ func New() manifest.Manifest {
 		Desc:        "Set a reminder for each day of week.",
 		FileName:    "daily_reminder.star",
 		PackageName: "dailyreminder",
-		Source:  source,
+		Source:      source,
 	}
 }

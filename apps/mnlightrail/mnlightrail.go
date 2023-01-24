@@ -4,7 +4,7 @@ package mnlightrail
 import (
 	_ "embed"
 
-	"tidbyt.dev/community/apps/manifest"
+	"tidbyt.dev/pixlet/manifest"
 )
 
 //go:embed mn_light_rail.star

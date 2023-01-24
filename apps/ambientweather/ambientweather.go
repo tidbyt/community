@@ -4,7 +4,7 @@ package ambientweather
 import (
 	_ "embed"
 
-	"tidbyt.dev/community/apps/manifest"
+	"tidbyt.dev/pixlet/manifest"
 )
 
 //go:embed ambient_weather.star
@@ -20,6 +20,6 @@ func New() manifest.Manifest {
 		Desc:        "Show readings from your Ambient weather station.",
 		FileName:    "ambient_weather.star",
 		PackageName: "ambientweather",
-		Source:  source,
+		Source:      source,
 	}
 }

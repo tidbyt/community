@@ -4,7 +4,7 @@ package fishbyt
 import (
 	_ "embed"
 
-	"tidbyt.dev/community/apps/manifest"
+	"tidbyt.dev/pixlet/manifest"
 )
 
 //go:embed fishbyt.star
@@ -20,6 +20,6 @@ func New() manifest.Manifest {
 		Desc:        "Gaze upon glorious marine life.",
 		FileName:    "fishbyt.star",
 		PackageName: "fishbyt",
-		Source:  source,
+		Source:      source,
 	}
 }

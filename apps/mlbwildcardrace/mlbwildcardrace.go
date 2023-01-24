@@ -4,7 +4,7 @@ package mlbwildcardrace
 import (
 	_ "embed"
 
-	"tidbyt.dev/community/apps/manifest"
+	"tidbyt.dev/pixlet/manifest"
 )
 
 //go:embed mlb_wildcard_race.star
@@ -20,6 +20,6 @@ func New() manifest.Manifest {
 		Desc:        "Displays the standings (in terms of games behind) for the MLB wild card in each league.",
 		FileName:    "mlb_wildcard_race.star",
 		PackageName: "mlbwildcardrace",
-		Source:  source,
+		Source:      source,
 	}
 }

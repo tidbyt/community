@@ -4,7 +4,7 @@ package solaredgemonitor
 import (
 	_ "embed"
 
-	"tidbyt.dev/community/apps/manifest"
+	"tidbyt.dev/pixlet/manifest"
 )
 
 //go:embed solaredge_monitor.star
@@ -20,6 +20,6 @@ func New() manifest.Manifest {
 		Desc:        "Energy production and consumption monitor for your SolarEdge solar panels.",
 		FileName:    "solaredge_monitor.star",
 		PackageName: "solaredgemonitor",
-		Source:  source,
+		Source:      source,
 	}
 }

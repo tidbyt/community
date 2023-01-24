@@ -4,7 +4,7 @@ package mastodonfollows
 import (
 	_ "embed"
 
-	"tidbyt.dev/community/apps/manifest"
+	"tidbyt.dev/pixlet/manifest"
 )
 
 //go:embed mastodon_follows.star
@@ -20,6 +20,6 @@ func New() manifest.Manifest {
 		Desc:        "Display your follower count from a Mastodon instance.",
 		FileName:    "mastodon_follows.star",
 		PackageName: "mastodonfollows",
-		Source:  source,
+		Source:      source,
 	}
 }

@@ -4,7 +4,7 @@ package tubestatus
 import (
 	_ "embed"
 
-	"tidbyt.dev/community/apps/manifest"
+	"tidbyt.dev/pixlet/manifest"
 )
 
 //go:embed tube_status.star
@@ -20,6 +20,6 @@ func New() manifest.Manifest {
 		Desc:        "Shows the current status of each line on London Underground and other TfL services.",
 		FileName:    "tube_status.star",
 		PackageName: "tubestatus",
-		Source:  source,
+		Source:      source,
 	}
 }

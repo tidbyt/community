@@ -6,8 +6,8 @@ import (
 
 	"github.com/manifoldco/promptui"
 	"github.com/spf13/cobra"
-	"tidbyt.dev/community/apps/manifest"
 	"tidbyt.dev/community/tools/generator"
+	"tidbyt.dev/pixlet/manifest"
 )
 
 // createCmd prompts the user for info and generates a new app.

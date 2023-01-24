@@ -4,7 +4,7 @@ package githubactivity
 import (
 	_ "embed"
 
-	"tidbyt.dev/community/apps/manifest"
+	"tidbyt.dev/pixlet/manifest"
 )
 
 //go:embed github_activity.star
@@ -20,6 +20,6 @@ func New() manifest.Manifest {
 		Desc:        "Display the last 13 weeks of your GitHub contribution graph in addition to other metrics on your GitHub profile.",
 		FileName:    "github_activity.star",
 		PackageName: "githubactivity",
-		Source:  source,
+		Source:      source,
 	}
 }

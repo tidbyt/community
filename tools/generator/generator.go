@@ -7,7 +7,7 @@ import (
 	"sort"
 	"text/template"
 
-	"tidbyt.dev/community/apps/manifest"
+	"tidbyt.dev/pixlet/manifest"
 )
 
 const (

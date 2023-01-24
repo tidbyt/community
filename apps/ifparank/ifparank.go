@@ -4,7 +4,7 @@ package ifparank
 import (
 	_ "embed"
 
-	"tidbyt.dev/community/apps/manifest"
+	"tidbyt.dev/pixlet/manifest"
 )
 
 //go:embed ifparank.star
@@ -20,6 +20,6 @@ func New() manifest.Manifest {
 		Desc:        "Display an International Flipper Pinball Association (IFPA) World Ranking.",
 		FileName:    "ifparank.star",
 		PackageName: "ifparank",
-		Source:  source,
+		Source:      source,
 	}
 }

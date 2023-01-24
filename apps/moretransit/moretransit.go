@@ -4,7 +4,7 @@ package moretransit
 import (
 	_ "embed"
 
-	"tidbyt.dev/community/apps/manifest"
+	"tidbyt.dev/pixlet/manifest"
 )
 
 //go:embed moretransit.star
@@ -20,6 +20,6 @@ func New() manifest.Manifest {
 		Desc:        "See next transit arrivals from TransSee. Optimized for NYC Subway and more customizable than the default apps.",
 		FileName:    "moretransit.star",
 		PackageName: "moretransit",
-		Source:  source,
+		Source:      source,
 	}
 }

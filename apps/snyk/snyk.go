@@ -4,7 +4,7 @@ package snyk
 import (
 	_ "embed"
 
-	"tidbyt.dev/community/apps/manifest"
+	"tidbyt.dev/pixlet/manifest"
 )
 
 //go:embed snyk.star
@@ -20,6 +20,6 @@ func New() manifest.Manifest {
 		Desc:        "Shows medium/high/critical issue counts for the configured Snyk project.",
 		FileName:    "snyk.star",
 		PackageName: "snyk",
-		Source:  source,
+		Source:      source,
 	}
 }

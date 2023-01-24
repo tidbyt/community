@@ -4,7 +4,7 @@ package fitbitweight
 import (
 	_ "embed"
 
-	"tidbyt.dev/community/apps/manifest"
+	"tidbyt.dev/pixlet/manifest"
 )
 
 //go:embed fitbitweight.star
@@ -20,6 +20,6 @@ func New() manifest.Manifest {
 		Desc:        "Displays your Fitbit recent weigh-ins.",
 		FileName:    "fitbitweight.star",
 		PackageName: "fitbitweight",
-		Source:  source,
+		Source:      source,
 	}
 }

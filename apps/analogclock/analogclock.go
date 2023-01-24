@@ -4,7 +4,7 @@ package analogclock
 import (
 	_ "embed"
 
-	"tidbyt.dev/community/apps/manifest"
+	"tidbyt.dev/pixlet/manifest"
 )
 
 //go:embed analog_clock.star
@@ -20,6 +20,6 @@ func New() manifest.Manifest {
 		Desc:        "Shows a simple analog clock with month and day.",
 		FileName:    "analog_clock.star",
 		PackageName: "analogclock",
-		Source:  source,
+		Source:      source,
 	}
 }

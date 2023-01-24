@@ -4,7 +4,7 @@ package todoistnext
 import (
 	_ "embed"
 
-	"tidbyt.dev/community/apps/manifest"
+	"tidbyt.dev/pixlet/manifest"
 )
 
 //go:embed todoist_next.star
@@ -20,6 +20,6 @@ func New() manifest.Manifest {
 		Desc:        "Displays the next due or overdue task from todoist.",
 		FileName:    "todoist_next.star",
 		PackageName: "todoistnext",
-		Source:  source,
+		Source:      source,
 	}
 }

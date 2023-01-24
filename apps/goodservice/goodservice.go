@@ -4,7 +4,7 @@ package goodservice
 import (
 	_ "embed"
 
-	"tidbyt.dev/community/apps/manifest"
+	"tidbyt.dev/pixlet/manifest"
 )
 
 //go:embed goodservice.star
@@ -20,6 +20,6 @@ func New() manifest.Manifest {
 		Desc:        "Projected New York City Subway departure times, powered by goodservice.io.",
 		FileName:    "goodservice.star",
 		PackageName: "goodservice",
-		Source:  source,
+		Source:      source,
 	}
 }

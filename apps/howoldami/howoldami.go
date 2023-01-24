@@ -4,7 +4,7 @@ package howoldami
 import (
 	_ "embed"
 
-	"tidbyt.dev/community/apps/manifest"
+	"tidbyt.dev/pixlet/manifest"
 )
 
 //go:embed howoldami.star
@@ -20,6 +20,6 @@ func New() manifest.Manifest {
 		Desc:        "Calculates age based on given date and time.",
 		FileName:    "howoldami.star",
 		PackageName: "howoldami",
-		Source:  source,
+		Source:      source,
 	}
 }

@@ -4,7 +4,7 @@ package hubblelive
 import (
 	_ "embed"
 
-	"tidbyt.dev/community/apps/manifest"
+	"tidbyt.dev/pixlet/manifest"
 )
 
 //go:embed hubble_live.star
@@ -20,6 +20,6 @@ func New() manifest.Manifest {
 		Desc:        "Displays the currently scheduled observation status of the Hubble Space Telescope (v0.2.0).",
 		FileName:    "hubble_live.star",
 		PackageName: "hubblelive",
-		Source:  source,
+		Source:      source,
 	}
 }

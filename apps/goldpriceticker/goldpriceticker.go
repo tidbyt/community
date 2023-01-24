@@ -4,7 +4,7 @@ package goldpriceticker
 import (
 	_ "embed"
 
-	"tidbyt.dev/community/apps/manifest"
+	"tidbyt.dev/pixlet/manifest"
 )
 
 //go:embed goldpriceticker.star
@@ -20,6 +20,6 @@ func New() manifest.Manifest {
 		Desc:        "Close to realtime precious metal prices and a graph comparing the price to the 5PM closing price from the day before.",
 		FileName:    "goldpriceticker.star",
 		PackageName: "goldpriceticker",
-		Source:  source,
+		Source:      source,
 	}
 }

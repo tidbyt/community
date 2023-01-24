@@ -4,7 +4,7 @@ package shopifyneworder
 import (
 	_ "embed"
 
-	"tidbyt.dev/community/apps/manifest"
+	"tidbyt.dev/pixlet/manifest"
 )
 
 //go:embed shopify_new_order.star
@@ -20,6 +20,6 @@ func New() manifest.Manifest {
 		Desc:        "Display how many items and the total dollar amount of every order, so you can easily see how your store’s performing.",
 		FileName:    "shopify_new_order.star",
 		PackageName: "shopifyneworder",
-		Source:  source,
+		Source:      source,
 	}
 }

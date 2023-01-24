@@ -4,7 +4,7 @@ package isstracker
 import (
 	_ "embed"
 
-	"tidbyt.dev/community/apps/manifest"
+	"tidbyt.dev/pixlet/manifest"
 )
 
 //go:embed iss_tracker.star
@@ -20,6 +20,6 @@ func New() manifest.Manifest {
 		Desc:        "Tracks the position of the International Space Station using LAT/LONG coordinates.",
 		FileName:    "iss_tracker.star",
 		PackageName: "isstracker",
-		Source:  source,
+		Source:      source,
 	}
 }

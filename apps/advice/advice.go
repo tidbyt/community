@@ -4,7 +4,7 @@ package advice
 import (
 	_ "embed"
 
-	"tidbyt.dev/community/apps/manifest"
+	"tidbyt.dev/pixlet/manifest"
 )
 
 //go:embed advice.star
@@ -20,6 +20,6 @@ func New() manifest.Manifest {
 		Desc:        "Shows random advice from AdviceSlip.com.",
 		FileName:    "advice.star",
 		PackageName: "advice",
-		Source:  source,
+		Source:      source,
 	}
 }

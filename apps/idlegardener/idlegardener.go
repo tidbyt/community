@@ -4,7 +4,7 @@ package idlegardener
 import (
 	_ "embed"
 
-	"tidbyt.dev/community/apps/manifest"
+	"tidbyt.dev/pixlet/manifest"
 )
 
 //go:embed idle_gardener.star
@@ -20,6 +20,6 @@ func New() manifest.Manifest {
 		Desc:        "The Idle Gardener is an Idle tree growing tycoon that takes absolutely no input from you!",
 		FileName:    "idle_gardener.star",
 		PackageName: "idlegardener",
-		Source:  source,
+		Source:      source,
 	}
 }

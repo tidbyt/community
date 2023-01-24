@@ -4,7 +4,7 @@ package sbbtimetable
 import (
 	_ "embed"
 
-	"tidbyt.dev/community/apps/manifest"
+	"tidbyt.dev/pixlet/manifest"
 )
 
 //go:embed sbb_timetable.star
@@ -20,6 +20,6 @@ func New() manifest.Manifest {
 		Desc:        "Shows a timetable for a station in the Swiss Public Transport network.",
 		FileName:    "sbb_timetable.star",
 		PackageName: "sbbtimetable",
-		Source:  source,
+		Source:      source,
 	}
 }

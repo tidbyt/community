@@ -4,7 +4,7 @@ package swedishnameday
 import (
 	_ "embed"
 
-	"tidbyt.dev/community/apps/manifest"
+	"tidbyt.dev/pixlet/manifest"
 )
 
 //go:embed swedish_name_day.star

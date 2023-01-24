@@ -4,7 +4,7 @@ package soccertables
 import (
 	_ "embed"
 
-	"tidbyt.dev/community/apps/manifest"
+	"tidbyt.dev/pixlet/manifest"
 )
 
 //go:embed soccer_tables.star
@@ -20,6 +20,6 @@ func New() manifest.Manifest {
 		Desc:        "Displays league tables from soccer leagues, showing team abbreviation, record in W-D-L format and points total. Choose your league and choose if you want to display the team color or just white text on black.",
 		FileName:    "soccer_tables.star",
 		PackageName: "soccertables",
-		Source:  source,
+		Source:      source,
 	}
 }

@@ -4,7 +4,7 @@ package espnnews
 import (
 	_ "embed"
 
-	"tidbyt.dev/community/apps/manifest"
+	"tidbyt.dev/pixlet/manifest"
 )
 
 //go:embed espn_news.star
@@ -20,6 +20,6 @@ func New() manifest.Manifest {
 		Desc:        "Displays the top three headlines from the Top Headlines section on ESPN or a specific user-selected sport.",
 		FileName:    "espn_news.star",
 		PackageName: "espnnews",
-		Source:  source,
+		Source:      source,
 	}
 }

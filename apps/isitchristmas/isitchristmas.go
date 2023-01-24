@@ -4,7 +4,7 @@ package isitchristmas
 import (
 	_ "embed"
 
-	"tidbyt.dev/community/apps/manifest"
+	"tidbyt.dev/pixlet/manifest"
 )
 
 //go:embed is_it_christmas.star
@@ -20,6 +20,6 @@ func New() manifest.Manifest {
 		Desc:        "Is it christmas: yes/no.",
 		FileName:    "is_it_christmas.star",
 		PackageName: "isitchristmas",
-		Source:  source,
+		Source:      source,
 	}
 }

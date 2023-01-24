@@ -4,7 +4,7 @@ package fido
 import (
 	_ "embed"
 
-	"tidbyt.dev/community/apps/manifest"
+	"tidbyt.dev/pixlet/manifest"
 )
 
 //go:embed fido.star
@@ -20,6 +20,6 @@ func New() manifest.Manifest {
 		Desc:        "Fido is a pixel pal that will sit, walk, and feast inside your Tidbyt.",
 		FileName:    "fido.star",
 		PackageName: "fido",
-		Source:  source,
+		Source:      source,
 	}
 }

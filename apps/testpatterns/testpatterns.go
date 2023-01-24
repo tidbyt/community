@@ -4,7 +4,7 @@ package testpatterns
 import (
 	_ "embed"
 
-	"tidbyt.dev/community/apps/manifest"
+	"tidbyt.dev/pixlet/manifest"
 )
 
 //go:embed test_patterns.star
@@ -20,6 +20,6 @@ func New() manifest.Manifest {
 		Desc:        "Test patterns are as old as TV broadcasts.",
 		FileName:    "test_patterns.star",
 		PackageName: "testpatterns",
-		Source:  source,
+		Source:      source,
 	}
 }

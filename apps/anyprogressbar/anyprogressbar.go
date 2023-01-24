@@ -4,7 +4,7 @@ package anyprogressbar
 import (
 	_ "embed"
 
-	"tidbyt.dev/community/apps/manifest"
+	"tidbyt.dev/pixlet/manifest"
 )
 
 //go:embed any_progressbar.star
@@ -20,6 +20,6 @@ func New() manifest.Manifest {
 		Desc:        "Show any progress bar using properties.",
 		FileName:    "any_progressbar.star",
 		PackageName: "anyprogressbar",
-		Source:  source,
+		Source:      source,
 	}
 }

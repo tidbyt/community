@@ -4,7 +4,7 @@ package daystoxmas
 import (
 	_ "embed"
 
-	"tidbyt.dev/community/apps/manifest"
+	"tidbyt.dev/pixlet/manifest"
 )
 
 //go:embed days_to_xmas.star
@@ -20,6 +20,6 @@ func New() manifest.Manifest {
 		Desc:        "Display a countdown of days left til Christmas Day.",
 		FileName:    "days_to_xmas.star",
 		PackageName: "daystoxmas",
-		Source:  source,
+		Source:      source,
 	}
 }

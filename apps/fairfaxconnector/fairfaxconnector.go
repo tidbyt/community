@@ -4,7 +4,7 @@ package fairfaxconnector
 import (
 	_ "embed"
 
-	"tidbyt.dev/community/apps/manifest"
+	"tidbyt.dev/pixlet/manifest"
 )
 
 //go:embed fairfax_connector.star

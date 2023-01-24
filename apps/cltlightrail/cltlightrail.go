@@ -4,7 +4,7 @@ package cltlightrail
 import (
 	_ "embed"
 
-	"tidbyt.dev/community/apps/manifest"
+	"tidbyt.dev/pixlet/manifest"
 )
 
 //go:embed clt_lightrail.star
@@ -20,6 +20,6 @@ func New() manifest.Manifest {
 		Desc:        "Displays in real-time when North & South lightrail trains will arrive in Charlotte's LYNX Lightrail System - All Stations available.",
 		FileName:    "clt_lightrail.star",
 		PackageName: "cltlightrail",
-		Source:  source,
+		Source:      source,
 	}
 }

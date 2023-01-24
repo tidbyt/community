@@ -4,7 +4,7 @@ package stateflags
 import (
 	_ "embed"
 
-	"tidbyt.dev/community/apps/manifest"
+	"tidbyt.dev/pixlet/manifest"
 )
 
 //go:embed state_flags.star
@@ -20,6 +20,6 @@ func New() manifest.Manifest {
 		Desc:        "Displays state flags.",
 		FileName:    "state_flags.star",
 		PackageName: "stateflags",
-		Source:  source,
+		Source:      source,
 	}
 }

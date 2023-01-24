@@ -4,7 +4,7 @@ package amazing
 import (
 	_ "embed"
 
-	"tidbyt.dev/community/apps/manifest"
+	"tidbyt.dev/pixlet/manifest"
 )
 
 //go:embed amazing.star
@@ -20,6 +20,6 @@ func New() manifest.Manifest {
 		Desc:        "Draws mazes on the screen and animates progress as it goes.",
 		FileName:    "amazing.star",
 		PackageName: "amazing",
-		Source:  source,
+		Source:      source,
 	}
 }

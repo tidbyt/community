@@ -4,7 +4,7 @@ package spotthestation
 import (
 	_ "embed"
 
-	"tidbyt.dev/community/apps/manifest"
+	"tidbyt.dev/pixlet/manifest"
 )
 
 //go:embed spotthestation.star

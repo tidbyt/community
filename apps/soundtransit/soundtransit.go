@@ -4,7 +4,7 @@ package soundtransit
 import (
 	_ "embed"
 
-	"tidbyt.dev/community/apps/manifest"
+	"tidbyt.dev/pixlet/manifest"
 )
 
 //go:embed sound_transit.star
@@ -20,6 +20,6 @@ func New() manifest.Manifest {
 		Desc:        "Shows upcoming arrivals at up to 2 different stations in Sound Transit's Link light rail system in Seattle.",
 		FileName:    "sound_transit.star",
 		PackageName: "soundtransit",
-		Source:  source,
+		Source:      source,
 	}
 }

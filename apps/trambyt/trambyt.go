@@ -4,7 +4,7 @@ package trambyt
 import (
 	_ "embed"
 
-	"tidbyt.dev/community/apps/manifest"
+	"tidbyt.dev/pixlet/manifest"
 )
 
 //go:embed trambyt.star
@@ -20,6 +20,6 @@ func New() manifest.Manifest {
 		Desc:        "Show departures for Västtrafik stops.",
 		FileName:    "trambyt.star",
 		PackageName: "trambyt",
-		Source:  source,
+		Source:      source,
 	}
 }

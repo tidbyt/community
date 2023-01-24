@@ -4,7 +4,7 @@ package earthquakemap
 import (
 	_ "embed"
 
-	"tidbyt.dev/community/apps/manifest"
+	"tidbyt.dev/pixlet/manifest"
 )
 
 //go:embed earthquake_map.star
@@ -20,6 +20,6 @@ func New() manifest.Manifest {
 		Desc:        "Display a map of earthquakes based on USGS data (v0.2.2).",
 		FileName:    "earthquake_map.star",
 		PackageName: "earthquakemap",
-		Source:  source,
+		Source:      source,
 	}
 }

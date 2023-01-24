@@ -4,7 +4,7 @@ package shouldideploy
 import (
 	_ "embed"
 
-	"tidbyt.dev/community/apps/manifest"
+	"tidbyt.dev/pixlet/manifest"
 )
 
 //go:embed should_i_deploy.star
@@ -20,6 +20,6 @@ func New() manifest.Manifest {
 		Desc:        "Display shouldideploy.today answer.",
 		FileName:    "should_i_deploy.star",
 		PackageName: "shouldideploy",
-		Source:  source,
+		Source:      source,
 	}
 }

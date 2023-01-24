@@ -4,7 +4,7 @@ package todoist
 import (
 	_ "embed"
 
-	"tidbyt.dev/community/apps/manifest"
+	"tidbyt.dev/pixlet/manifest"
 )
 
 //go:embed todoist.star
@@ -20,6 +20,6 @@ func New() manifest.Manifest {
 		Desc:        "Shows the number of tasks you have due today.",
 		FileName:    "todoist.star",
 		PackageName: "todoist",
-		Source:  source,
+		Source:      source,
 	}
 }

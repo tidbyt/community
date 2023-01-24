@@ -4,7 +4,7 @@ package nhlnextgame
 import (
 	_ "embed"
 
-	"tidbyt.dev/community/apps/manifest"
+	"tidbyt.dev/pixlet/manifest"
 )
 
 //go:embed nhl_next_game.star
@@ -20,6 +20,6 @@ func New() manifest.Manifest {
 		Desc:        "Gets info on preferred NHL teams next game.",
 		FileName:    "nhl_next_game.star",
 		PackageName: "nhlnextgame",
-		Source:  source,
+		Source:      source,
 	}
 }

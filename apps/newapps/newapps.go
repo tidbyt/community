@@ -4,7 +4,7 @@ package newapps
 import (
 	_ "embed"
 
-	"tidbyt.dev/community/apps/manifest"
+	"tidbyt.dev/pixlet/manifest"
 )
 
 //go:embed new_apps.star
@@ -20,6 +20,6 @@ func New() manifest.Manifest {
 		Desc:        "Lists new Tidbyt apps within the last week.",
 		FileName:    "new_apps.star",
 		PackageName: "newapps",
-		Source:  source,
+		Source:      source,
 	}
 }

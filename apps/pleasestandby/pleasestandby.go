@@ -4,7 +4,7 @@ package pleasestandby
 import (
 	_ "embed"
 
-	"tidbyt.dev/community/apps/manifest"
+	"tidbyt.dev/pixlet/manifest"
 )
 
 //go:embed please_stand_by.star
@@ -20,6 +20,6 @@ func New() manifest.Manifest {
 		Desc:        "Displays Please Stand By message.",
 		FileName:    "please_stand_by.star",
 		PackageName: "pleasestandby",
-		Source:  source,
+		Source:      source,
 	}
 }

@@ -4,7 +4,7 @@ package mvv
 import (
 	_ "embed"
 
-	"tidbyt.dev/community/apps/manifest"
+	"tidbyt.dev/pixlet/manifest"
 )
 
 //go:embed mvv.star
@@ -20,6 +20,6 @@ func New() manifest.Manifest {
 		Desc:        "Departure times for the Münchner Verkehrsverbund (MVV).",
 		FileName:    "mvv.star",
 		PackageName: "mvv",
-		Source:  source,
+		Source:      source,
 	}
 }

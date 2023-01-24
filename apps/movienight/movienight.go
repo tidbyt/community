@@ -4,7 +4,7 @@ package movienight
 import (
 	_ "embed"
 
-	"tidbyt.dev/community/apps/manifest"
+	"tidbyt.dev/pixlet/manifest"
 )
 
 //go:embed movie_night.star
@@ -20,6 +20,6 @@ func New() manifest.Manifest {
 		Desc:        "Displays a marquee for a movie title along with a countdown to the movie night.",
 		FileName:    "movie_night.star",
 		PackageName: "movienight",
-		Source:  source,
+		Source:      source,
 	}
 }

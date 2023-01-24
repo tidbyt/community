@@ -4,7 +4,7 @@ package paraland
 import (
 	_ "embed"
 
-	"tidbyt.dev/community/apps/manifest"
+	"tidbyt.dev/pixlet/manifest"
 )
 
 //go:embed paraland.star
@@ -20,6 +20,6 @@ func New() manifest.Manifest {
 		Desc:        "See cool hand drawn pixel art landscapes from your Tidbyt.",
 		FileName:    "paraland.star",
 		PackageName: "paraland",
-		Source:  source,
+		Source:      source,
 	}
 }
