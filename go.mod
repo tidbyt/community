@@ -2,16 +2,9 @@ module tidbyt.dev/community
 
 go 1.19
 
-require (
-	github.com/spf13/cobra v1.6.1
-	github.com/stretchr/testify v1.8.1
-)
+require github.com/stretchr/testify v1.8.1
 
-require (
-	github.com/manifoldco/promptui v0.9.0
-	golang.org/x/text v0.6.0
-	tidbyt.dev/pixlet v0.24.1
-)
+require tidbyt.dev/pixlet v0.24.2
 
 require (
 	github.com/Code-Hex/Neo-cowsay/v2 v2.0.4 // indirect
@@ -56,6 +49,7 @@ require (
 	github.com/kevinburke/ssh_config v1.2.0 // indirect
 	github.com/leodido/go-urn v1.2.1 // indirect
 	github.com/magiconair/properties v1.8.7 // indirect
+	github.com/manifoldco/promptui v0.9.0 // indirect
 	github.com/mattn/go-colorable v0.1.13 // indirect
 	github.com/mattn/go-isatty v0.0.17 // indirect
 	github.com/mattn/go-runewidth v0.0.14 // indirect
@@ -77,6 +71,7 @@ require (
 	github.com/skip2/go-qrcode v0.0.0-20200617195104-da1b6568686e // indirect
 	github.com/spf13/afero v1.9.3 // indirect
 	github.com/spf13/cast v1.5.0 // indirect
+	github.com/spf13/cobra v1.6.1 // indirect
 	github.com/spf13/jwalterweatherman v1.1.0 // indirect
 	github.com/spf13/pflag v1.0.5 // indirect
 	github.com/spf13/viper v1.15.0 // indirect
@@ -95,6 +90,7 @@ require (
 	golang.org/x/oauth2 v0.4.0 // indirect
 	golang.org/x/sync v0.1.0 // indirect
 	golang.org/x/sys v0.4.0 // indirect
+	golang.org/x/text v0.6.0 // indirect
 	golang.org/x/tools v0.5.0 // indirect
 	google.golang.org/appengine v1.6.7 // indirect
 	google.golang.org/protobuf v1.28.1 // indirect
