@@ -7,13 +7,19 @@ Author: yonodactyl
 
 # LOAD MODULES
 load("encoding/base64.star", "base64")
+load("random.star", "random")
 load("render.star", "render")
 load("schema.star", "schema")
 
 # MAIN
 def main(config):
     # Grab the configuration information and adjust variables
-    selected_img = base64.decode(IMAGES[config.get("image", DEFAULT_MORNING_ID)])
+    if config.bool("random_image", False):
+        image_keys = IMAGES.keys()
+        idx = random.number(0, len(image_keys) - 1)  #-1 because indices start at zero
+        selected_img = base64.decode(IMAGES[image_keys[idx]])
+    else:
+        selected_img = base64.decode(IMAGES[config.get("image", DEFAULT_MORNING_ID)])
     selected_speed = int(config.get("scroll_delay", DEFAULT_DELAY))
 
     # Render an image with a slight delay
@@ -39,6 +45,33 @@ def get_schema():
         ),
     ]
 
+    return schema.Schema(
+        version = "1",
+        fields = [
+            schema.Toggle(
+                id = "random_image",
+                name = "Randomize Landscapes",
+                desc = "Should the landscapes be randomized?",
+                icon = "shuffle",
+                default = False,
+            ),
+            schema.Generated(
+                id = "generated",
+                source = "random_image",
+                handler = get_landscape,
+            ),
+            schema.Dropdown(
+                id = "scroll_delay",
+                name = "Delay",
+                desc = "The speed to scroll the landscape at",
+                icon = "gauge",
+                default = speed_options[0].value,
+                options = speed_options,
+            ),
+        ],
+    )
+
+def get_landscape(random_logic):
     # Landscape options
     options = [
         schema.Option(
@@ -59,9 +92,10 @@ def get_schema():
         ),
     ]
 
-    return schema.Schema(
-        version = "1",
-        fields = [
+    if random_logic == "true":
+        return []
+    else:
+        return [
             schema.Dropdown(
                 id = "image",
                 name = "Landscape",
@@ -70,16 +104,7 @@ def get_schema():
                 default = options[0].value,
                 options = options,
             ),
-            schema.Dropdown(
-                id = "scroll_delay",
-                name = "Delay",
-                desc = "The speed to scroll the landscape at",
-                icon = "gauge",
-                default = speed_options[0].value,
-                options = speed_options,
-            ),
-        ],
-    )
+        ]
 
 # CONFIG
 DEFAULT_DELAY = "150"
