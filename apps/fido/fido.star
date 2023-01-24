@@ -44,6 +44,7 @@ PET_ACTIONS = {
     "Walk": "https://raw.githubusercontent.com/Yonodactyl/TidbytGIFs/main/Fido/fido_walk.gif",
     "Fetch": "https://raw.githubusercontent.com/Yonodactyl/TidbytGIFs/main/Fido/fido_fetch.gif",
 }
+FIDO_FETCH = PET_ACTIONS["Fetch"]
 
 def main(config):
     # Set configuration variables
@@ -54,7 +55,8 @@ def main(config):
         idx = random.number(0, len(PET_ACTIONS) - 1)  #-1 because indices start at zero
         action_config = PET_ACTIONS.values()[idx]
     else:
-        action_config = config.get("pet_action",PET_ACTIONS["Sit"])
+        action_config = config.get("pet_action", PET_ACTIONS["Sit"])
+
     stats_config = config.bool("showing_stats", False)
 
     # Grab the pets age - returned in hours
@@ -196,8 +198,8 @@ def return_marquee_text(text, color = "#fff", width = 32, direction = "horizonta
 def get_schema():
     # Pal action to be performed
     pal_action = [
-        schema.Option(display=action,value=image)
-        for action,image in PET_ACTIONS.items()
+        schema.Option(display = action, value = image)
+        for action, image in PET_ACTIONS.items()
     ]
     return schema.Schema(
         version = "1",
