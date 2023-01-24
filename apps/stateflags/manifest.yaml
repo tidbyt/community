@@ -1,0 +1,8 @@
+---
+id: state-flags
+name: State Flags
+summary: State Flags
+desc: Displays state flags.
+author: Robert Ison
+fileName: state_flags.star
+packageName: stateflags

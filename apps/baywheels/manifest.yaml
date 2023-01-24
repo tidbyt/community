@@ -1,0 +1,8 @@
+---
+id: bay-wheels
+name: Bay Wheels
+summary: Bay Wheels availability
+desc: Shows the availability of bikes and e-bikes at a Bay Wheels station.
+author: Martin Strauss
+fileName: bay_wheels.star
+packageName: baywheels

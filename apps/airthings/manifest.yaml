@@ -1,0 +1,8 @@
+---
+id: airthings
+name: AirThings
+summary: Environment sensor readings
+desc: Interact with the API by creating a client app at https://dashboard.airthings.com/integrations/api-integration.
+author: joshspicer
+fileName: airthings.star
+packageName: airthings

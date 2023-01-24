@@ -1,0 +1,8 @@
+---
+id: espn-news
+name: ESPN News
+summary: Get top headlines from ESPN
+desc: Displays the top three headlines from the Top Headlines section on ESPN or a specific user-selected sport.
+author: rs7q5
+fileName: espn_news.star
+packageName: espnnews

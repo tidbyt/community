@@ -1,0 +1,8 @@
+---
+id: noaa-tides
+name: NOAA Tides
+summary: Display NOAA Tides
+desc: Display daily tides from NOAA stations.
+author: tavdog
+fileName: noaa_tides.star
+packageName: noaatides
