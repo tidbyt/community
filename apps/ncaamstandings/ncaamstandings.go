@@ -16,7 +16,7 @@ func New() manifest.Manifest {
 		ID:          "ncaam-standings",
 		Name:        "NCAAM Standings",
 		Author:      "LunchBox8484",
-		Summary:     "NCAAM football standings",
+		Summary:     "NCAAM basketball standings",
 		Desc:        "View NCAAM standings by conference.",
 		FileName:    "ncaam_standings.star",
 		PackageName: "ncaamstandings",
