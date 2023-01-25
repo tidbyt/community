@@ -1,0 +1,8 @@
+---
+id: boris-bikes
+name: Boris Bikes
+summary: London street bikes
+desc: Availability for a Santander bicycle dock in London.
+author: dinosaursrarr
+fileName: boris_bikes.star
+packageName: borisbikes

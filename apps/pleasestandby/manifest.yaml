@@ -1,0 +1,8 @@
+---
+id: please-stand-by
+name: Please Stand By
+summary: Displays Please Stand By
+desc: Displays Please Stand By message.
+author: Ethan Fuerst (@ethanfuerst)
+fileName: please_stand_by.star
+packageName: pleasestandby
