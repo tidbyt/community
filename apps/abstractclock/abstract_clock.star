@@ -127,6 +127,7 @@ def main(config):
         Hand = 63
 
     return render.Root(
+        max_age = 120,
         child = render.Column(
             children = [
                 render.Image(Top),

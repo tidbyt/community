@@ -1,0 +1,8 @@
+---
+id: tempest
+name: Tempest Weather
+summary: Tempest weather station
+desc: Show readings from your Tempest weather station.
+author: Rohan Singh
+fileName: tempest.star
+packageName: tempest

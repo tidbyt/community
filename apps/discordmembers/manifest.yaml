@@ -1,0 +1,8 @@
+---
+id: discordmembers
+name: Discord Members
+summary: Discord Members Count
+desc: Display the approximate member count for a given Discord server (via Invite ID).
+author: Dennis Zoma (https://zoma.dev)
+fileName: discordmembers.star
+packageName: discordmembers

@@ -1,0 +1,8 @@
+---
+id: solar-elevation
+name: Solar Elevation
+summary: How high is the sun
+desc: A clock for when you cannot look out of the window or at an actual clock. How high is the sun above or below the horizon right now?
+author: dinosaursrarr
+fileName: solar_elevation.star
+packageName: solarelevation

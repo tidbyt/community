@@ -91,6 +91,7 @@ def main(config):
 
     return render.Root(
         #delay=100, #speed up scroll text
+        max_age = 120,
         child = render.Stack(children = plot_marks),
     )
 

@@ -1,0 +1,8 @@
+---
+id: soccermens
+name: Mens Soccer
+summary: Mens Soccer scores
+desc: Shows upcoming games, current score, date and time of game for selected league / tournament.
+author: jvivona
+fileName: soccermens.star
+packageName: soccermens
