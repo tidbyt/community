@@ -1,0 +1,8 @@
+---
+id: pollen-count
+name: Pollen Count
+summary: Pollen count for your area
+desc: Displays a pollen count for your area. Enter your location for updates every 12 hours on the current conditions in your town, as well as which types of pollen are in the air today.
+author: Nicole Brooks
+fileName: pollen_count.star
+packageName: pollencount

@@ -1,0 +1,8 @@
+---
+id: destiny-2-stats
+name: Destiny 2 Stats
+summary: Display Destiny stats
+desc: Gets the emblem, race, class, and light level of your most recently played Destiny 2 character.
+author: brandontod97
+fileName: destiny_2_stats.star
+packageName: destiny2stats

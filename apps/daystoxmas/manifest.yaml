@@ -1,0 +1,8 @@
+---
+id: days-to-xmas
+name: Days to Xmas
+summary: Displays Days to Xmas
+desc: Display a countdown of days left til Christmas Day.
+author: Godfrey Systems Web Development
+fileName: days_to_xmas.star
+packageName: daystoxmas
