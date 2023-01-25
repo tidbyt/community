@@ -1,0 +1,8 @@
+---
+id: warframe-cycles
+name: Warframe Cycles
+summary: Time in Warframe open areas
+desc: Tells you the cycle that's active in each of the Warframe open areas and in Earth missions.
+author: grantmatheny
+fileName: warframe_cycles.star
+packageName: warframecycles

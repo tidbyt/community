@@ -1,0 +1,8 @@
+---
+id: marvel-facts
+name: Marvel Facts
+summary: Character Info
+desc: Gives you the description or number of comics a random character has been in.
+author: Kaitlyn Musial
+fileName: marvel_facts.star
+packageName: marvelfacts
