@@ -17,6 +17,7 @@ CTA_STATIONS_URL = "https://data.cityofchicago.org/resource/8pix-ypme.json"
 CTA_ARRIVALS_URL = "https://lapi.transitchicago.com/api/1.0/ttarrivals.aspx"
 
 L_STOPS_CACHE_KEY = "lstops"
+ARRIVALS_CACHE_KEY_PREFIX = "arrivals"
 
 ENCRYPTED_L_STOPS_APP_TOKEN = "AV6+xWcElqoWzINC+4lBzeZuL6rIz1WGOqo0vKlZLAmNZ58lOUCXnBWaXKxD7thBgCYJ36jW5LTnRMkgavzgjYcaLzI1T4545Q54RkwzjCz+FTEgK5p6zVoMaEY10385T1Sycp9ZKer0b34Vig8XeDXUY+z1EKJ5mggHGoiQhQ=="
 ENCRYPTED_ARRIVALS_API_KEY = "AV6+xWcER6HjcvANXDhGJqhXg09FtzGZjmyft97YTwLYSLwd+gBAYSfDiTqjB2qhD14cjg9qpzRaYksr2S+0ectDcdVEUq2AyfdaVKzqn4sYoeGmtmsSHbweibhglsfdgKC1yN8OqrYZjv7k0Y15NPoDj78kFm/iV/g1IaeOYTx1p5QbKqE="
@@ -216,6 +217,11 @@ def get_journeys(station_code):
     Gets top 2 arrivals scheduled for the selected station
     from CTA Arrivals API
     """
+    station_cache_key = ARRIVALS_CACHE_KEY_PREFIX + "_" + station_code
+    cache_arrivals = cache.get(station_cache_key)
+    if cache_arrivals != None:
+        return json.decode(cache_arrivals)
+
     api_key = secret.decrypt(ENCRYPTED_ARRIVALS_API_KEY)
     if api_key == None or station_code == None:
         return None
@@ -239,6 +245,7 @@ def get_journeys(station_code):
         journeys = []
 
     next_arrivals = [build_journey(prediction) for prediction in journeys[:2]]
+    cache.set(station_cache_key, json.encode(next_arrivals), ttl_seconds = 30)
     return next_arrivals
 
 def build_journey(prediction):
