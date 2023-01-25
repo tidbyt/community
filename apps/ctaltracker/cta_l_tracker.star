@@ -245,7 +245,7 @@ def get_journeys(station_code):
         journeys = []
 
     next_arrivals = [build_journey(prediction) for prediction in journeys[:2]]
-    cache.set(station_cache_key, json.encode(next_arrivals), ttl_seconds = 30)
+    cache.set(station_cache_key, json.encode(next_arrivals), ttl_seconds = 60)
     return next_arrivals
 
 def build_journey(prediction):
