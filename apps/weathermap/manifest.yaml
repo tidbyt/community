@@ -1,0 +1,8 @@
+---
+id: weather-map
+name: Weather Map
+summary: Weather Map
+desc: Display real-time precipitation radar for a location. Powered by the RainViewer API.
+author: Felix Bruns
+fileName: weather_map.star
+packageName: weathermap
