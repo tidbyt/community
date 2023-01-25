@@ -46,9 +46,10 @@ def main(config):
     NEXTSCHED_JSON = json.decode(NextSchedCacheData)
 
     INFO_URL = STOPINFO_URL + STOP_ID
+    # not caching this call, as its just to check if the entered Stop ID is valid. I don't want to cache an invalid ID	
     INFO_JSON = http.get(INFO_URL).json()
 
-    # check its a valid stop, if not tell the user
+    # check its a valid stop, if not display message 
     if "error" in INFO_JSON:
         Display = InvalidStop()
 
