@@ -4,7 +4,7 @@ go 1.19
 
 require github.com/stretchr/testify v1.8.1
 
-require tidbyt.dev/pixlet v0.24.2
+require tidbyt.dev/pixlet v0.24.3
 
 require (
 	github.com/PuerkitoBio/goquery v1.5.1 // indirect
