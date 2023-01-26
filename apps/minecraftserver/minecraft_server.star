@@ -13,23 +13,32 @@ load("schema.star", "schema")
 load("cache.star", "cache")
 
 def main(config):
-    result_cached = cache.get("api_result")
+    minecraftURL = config.get("server", "mc.azitoth.com")
+    result_cached = cache.get("".join(["api_result_", minecraftURL]))
     if result_cached != None:
         resultData = base64.decode(result_cached)
         result = json.decode(resultData)
+        onlinePlayers = result["players"]["online"]
+        maxPlayers = result["players"]["max"]
+        motd = result["motd"]["clean"][0]
+        motd2 = result["motd"]["clean"][1]
+        iconURL = result["icon"].split(",")[1]
     else:
-        minecraftURL = config.get("server", "mc.azitoth.com")
         apiURL = "".join(["https://api.mcsrvstat.us/2/", minecraftURL])
         result = http.get(apiURL)
         if result.status_code != 200:
             fail("Minecraft API request failed with status %d", result.status_code)
-        cache.set("api_result", base64.encode(result.body()), ttl_seconds = 300)
+        cache.set(
+            "".join(["api_result_", minecraftURL]),
+            base64.encode(result.body()),
+            ttl_seconds = 300,
+        )
+        onlinePlayers = result.json()["players"]["online"]
+        maxPlayers = result.json()["players"]["max"]
+        motd = result.json()["motd"]["clean"][0]
+        motd2 = result.json()["motd"]["clean"][1]
+        iconURL = result.json()["icon"].split(",")[1]
 
-    onlinePlayers = result.json()["players"]["online"]
-    maxPlayers = result.json()["players"]["max"]
-    motd = result.json()["motd"]["clean"][0]
-    motd2 = result.json()["motd"]["clean"][1]
-    iconURL = result.json()["icon"].split(",")[1]
     serverIcon = base64.decode("""%s""" % iconURL)
 
     return render.Root(
@@ -42,7 +51,9 @@ def main(config):
                             children = [
                                 render.Marquee(
                                     width = 40,
-                                    child = render.Text("%d Online" % onlinePlayers),
+                                    child = render.Text(
+                                        "%d Online" % onlinePlayers,
+                                    ),
                                 ),
                                 render.Marquee(
                                     width = 40,
