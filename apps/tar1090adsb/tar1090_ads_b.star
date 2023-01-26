@@ -9,6 +9,7 @@ load("cache.star", "cache")
 load("encoding/base64.star", "base64")
 load("encoding/json.star", "json")
 load("http.star", "http")
+load("re.star", "re")
 load("render.star", "render")
 load("schema.star", "schema")
 
@@ -245,28 +246,36 @@ ICAO_Ranges = [
     {"start": 0xF00000, "end": 0xFFFFFF, "country": "Unassigned (reserved for future use)", "flag_image": "blank.png"},
 ]
 
+# Get the flag from the public ADSBExachnge servers
 def find_flag(icao):
     # convert hex string to actual number
     flag_icon_file = "blank.png"
+
+    # Determine country code based on ICAO ranges (listed above)
     hex_icao = int(icao, 16)
     for icao_range in ICAO_Ranges:
         if hex_icao >= icao_range["start"] and hex_icao <= icao_range["end"]:
             flag_icon_file = icao_range["flag_image"]
+
+    # Check if the flag is cached, if found decode it
     flag_cached = cache.get(flag_icon_file)
     if flag_cached != None:
         print("Flag Cache hit for flag " + flag_icon_file)
         return base64.decode(flag_cached)
+        # Otherwise grab the flag and cache it for a week (flags don't change often)
+
     else:
         print("Flag Cache miss for flag " + flag_icon_file)
         flag_response = http.get("%s/flags-tiny/%s" % ("https://globe.adsbexchange.com", flag_icon_file))
         if flag_response.status_code != 200:
             print("ADSB-EX request for flag icon failed with status %d" % (flag_response.status_code))
 
-            # If we can reach the server, return a copy of the blank flag
+            # If we can't reach the server, return a copy of the blank flag
             return base64.decode("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")
         cache.set(flag_icon_file, base64.encode(flag_response.body()), ttl_seconds = 604800)
         return flag_response.body()
 
+# Get our database version, cache it, if we get an error below (mismatched versions) use an uncached version call
 def get_db_version(tar_url, skipcache = False):
     databaseVersion = cache.get("databaseVersion")
     if databaseVersion != None and skipcache == False:
@@ -280,6 +289,8 @@ def get_db_version(tar_url, skipcache = False):
             cache.set("databaseVersion", response.json()["databaseVersion"], ttl_seconds = 1800)
         return response.json()["databaseVersion"]
 
+# Aircraft descriptions are in a single file caching for one day as new planes aren't created often
+# If a user is using an old version, added the db version in the cache key
 def lookup_aircraft_desc(tar_url, aircraft_data, db_version):
     aircraft_types = cache.get("db-%s/%s" % (db_version, "icao_aircraft_types"))
     if aircraft_types != None:
@@ -298,6 +309,8 @@ def lookup_aircraft_desc(tar_url, aircraft_data, db_version):
     else:
         return None
 
+# We grab the icao aircraft info via nested API calls
+# Caching all files as needed for 24 hours, again database keyed
 def lookup_db(tar_url, icao, level, db_version):
     icao = icao.upper()
     bkey = icao[0:level]
@@ -314,7 +327,7 @@ def lookup_db(tar_url, icao, level, db_version):
             print("Cannot get aircraft DB file " + bkey + " throwing error")
             return None
         aircraft_db = response.json()
-        cache.set("db-%s/%s" % (db_version, bkey), response.body(), ttl_seconds = 1800)
+        cache.set("db-%s/%s" % (db_version, bkey), response.body(), ttl_seconds = 86400)
 
     if dkey in aircraft_db:
         return aircraft_db[dkey]
@@ -323,22 +336,28 @@ def lookup_db(tar_url, icao, level, db_version):
     else:
         return None
 
+# Sort alg for aircraft by distance
 def aircraft_distance_sort(aircraft):
     if "r_dst" in aircraft:
         return aircraft["r_dst"]
     else:
-        # If we don't have dst return arbitrary high number 
+        # If we don't have dst return arbitrary high number
         return 10000
 
+# Return nearest aircraft to station
 def find_nearest_aircraft(aircrafts):
-    return sorted(aircrafts, key=aircraft_distance_sort)[0]
+    return sorted(aircrafts, key = aircraft_distance_sort)[0]
 
+# Handling some results not having callsigns
 def get_callsign(aircraft):
     if "flight" in aircraft:
         return aircraft["flight"]
     else:
         return "None"
 
+# Get the aircraft icon, this hits a public API that maps the aircraft info
+# to a PNG icon that the color is alt based, again caching for a day, this potentially could be longer
+# but currently matching it to the icao database cache time
 def get_aircraft_icon(category, designator, description, addrtype, color):
     aircraft_icon = cache.get("%s:%s:%s:%s" % (category, designator, description, color))
     if aircraft_icon != None:
@@ -351,6 +370,7 @@ def get_aircraft_icon(category, designator, description, addrtype, color):
         cache.set("%s:%s:%s:%s" % (category, designator, description, color), base64.encode(aircraft_icon), ttl_seconds = 86400)
         return aircraft_icon
 
+# Determine the color of the icon based on altitude of the aircraft
 def get_altitude_icon_color(altitude):
     if altitude == "ground":
         altitude = 0
@@ -376,6 +396,7 @@ def get_altitude_icon_color(altitude):
         color = "CC0DCE"
     return color
 
+# Conversion of our units to different types, everything starts in aeronautical units
 def convert_alt(unit, value):
     if unit == "a":
         return value
@@ -406,13 +427,30 @@ def convert_dst(unit, value):
     else:
         return None
 
+# Our error display routine, spiced it up to be a bit more fun
 def unable_to_reach_tar_error(tar_url):
     return render.Root(
-        child = render.WrappedText(
-            content = "!!! CAN'T REACH TAR1090 @ " + tar_url + " !!!",
-            width = 64,
+        child = render.Column(
+            children = [
+                render.Image(
+                    src = base64.decode("R0lGODlhQAAZAIABAP8BAf///yH/C05FVFNDQVBFMi4wAwEAAAAh/wtYTVAgRGF0YVhNUDw/eHBhY2tldCBiZWdpbj0i77u/IiBpZD0iVzVNME1wQ2VoaUh6cmVTek5UY3prYzlkIj8+IDx4OnhtcG1ldGEgeG1sbnM6eD0iYWRvYmU6bnM6bWV0YS8iIHg6eG1wdGs9IkFkb2JlIFhNUCBDb3JlIDkuMC1jMDAwIDc5LjE3MWMyN2ZhYiwgMjAyMi8wOC8xNi0yMjozNTo0MSAgICAgICAgIj4gPHJkZjpSREYgeG1sbnM6cmRmPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5LzAyLzIyLXJkZi1zeW50YXgtbnMjIj4gPHJkZjpEZXNjcmlwdGlvbiByZGY6YWJvdXQ9IiIgeG1sbnM6eG1wPSJodHRwOi8vbnMuYWRvYmUuY29tL3hhcC8xLjAvIiB4bWxuczp4bXBNTT0iaHR0cDovL25zLmFkb2JlLmNvbS94YXAvMS4wL21tLyIgeG1sbnM6c3RSZWY9Imh0dHA6Ly9ucy5hZG9iZS5jb20veGFwLzEuMC9zVHlwZS9SZXNvdXJjZVJlZiMiIHhtcDpDcmVhdG9yVG9vbD0iQWRvYmUgUGhvdG9zaG9wIDI0LjEgKFdpbmRvd3MpIiB4bXBNTTpJbnN0YW5jZUlEPSJ4bXAuaWlkOkQ0NUI3NjRBOURBRTExRUQ4MEEwQTk2MDdGOEJGRjgxIiB4bXBNTTpEb2N1bWVudElEPSJ4bXAuZGlkOkQ0NUI3NjRCOURBRTExRUQ4MEEwQTk2MDdGOEJGRjgxIj4gPHhtcE1NOkRlcml2ZWRGcm9tIHN0UmVmOmluc3RhbmNlSUQ9InhtcC5paWQ6RDQ1Qjc2NDg5REFFMTFFRDgwQTBBOTYwN0Y4QkZGODEiIHN0UmVmOmRvY3VtZW50SUQ9InhtcC5kaWQ6RDQ1Qjc2NDk5REFFMTFFRDgwQTBBOTYwN0Y4QkZGODEiLz4gPC9yZGY6RGVzY3JpcHRpb24+IDwvcmRmOlJERj4gPC94OnhtcG1ldGE+IDw/eHBhY2tldCBlbmQ9InIiPz4B//79/Pv6+fj39vX08/Lx8O/u7ezr6uno5+bl5OPi4eDf3t3c29rZ2NfW1dTT0tHQz87NzMvKycjHxsXEw8LBwL++vby7urm4t7a1tLOysbCvrq2sq6qpqKempaSjoqGgn56dnJuamZiXlpWUk5KRkI+OjYyLiomIh4aFhIOCgYB/fn18e3p5eHd2dXRzcnFwb25tbGtqaWhnZmVkY2JhYF9eXVxbWllYV1ZVVFNSUVBPTk1MS0pJSEdGRURDQkFAPz49PDs6OTg3NjU0MzIxMC8uLSwrKikoJyYlJCMiISAfHh0cGxoZGBcWFRQTEhEQDw4NDAsKCQgHBgUEAwIBAAAh+QQJFAABACwAAAAAQAAZAAACQoyPqcvtD6OctNqLs968+78B4JgAJomaIjqqbLcG7huuM42p+o1T+967nGTDoCXGMwqLymWseWRCK8+p9YrNarfaAgAh+QQJFAABACwAAAAAQAAZAAACQ4yPqcvtD6OctNqLs968+w8qQEgewFmS55iCa8uxwQtr6HzX18rTOtXr/Sw33xBoyh13ymXF6AQ2oxMZ9YrNardcUgEAIfkECRQAAQAsAAAAAEAAGQAAAkKMj6nL7Q+jnLTai7PevPsPVkBIHsBZkueYgmvLscELa+h819fK0zrV6/0sN98QaModd8qlqOmcGKNIqvWKzWq3mQIAIfkECRQAAQAsAAAAAEAAGQAAAkGMj6nL7Q+jnLTai7PevPsPhg0glgGAmiFKqh/rbu2ZxlkN2xfL5/rU6/0quNqQMvMdLcol0uh8zqJIqvWKzWqpBQAh+QQFFAABACwAAAAAQAAZAAACQoyPqcvtD6OctNqLs968+w+GDiCWAYCaIUqqH+tu7ZnGWQ3P9sT28E7x9YAWXI0YPPyQlyWz4nzyjtJk9YrNarfPAgA7"),
+                ),
+                render.Marquee(
+                    width = 64,
+                    child = render.Text("!!! CAN'T REACH TAR1090 @ " + tar_url + " !!!"),
+                    scroll_direction = "horizontal",
+                ),
+            ],
         ),
     )
+
+def validate_url(url):
+    url_regex = "http[s]?://(?:[a-zA-Z]|[0-9]|[$-_@.&+]|[!*(),]|(?:%[0-9a-fA-F][0-9a-fA-F]))+"
+    url_search = re.findall(url_regex, url)
+    if len(url_search) > 0:
+        return True
+    else:
+        return False
 
 def main(config):
     tar_url = config.str("tar1090url", TAR1090_URL_DEFAULT)
@@ -420,7 +458,8 @@ def main(config):
     if tar_url == TAR1090_URL_DEFAULT:
         return unable_to_reach_tar_error(tar_url)
 
-    retried_database_version = False
+    if validate_url(tar_url) == False:
+        return unable_to_reach_tar_error(tar_url)
 
     db_version = get_db_version(tar_url)
     if db_version == None:
@@ -438,6 +477,8 @@ def main(config):
 
     flag = find_flag(aircraft["hex"])
 
+    # This is the first "version dependant" call, we retry with an uncached DB version on failure
+    retried_database_version = False
     aircraft_data = lookup_db(tar_url, aircraft["hex"], 1, db_version)
     if aircraft_data == None and retried_database_version == False:
         retried_database_version = True
