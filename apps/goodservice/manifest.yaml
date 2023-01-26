@@ -1,0 +1,8 @@
+---
+id: goodservice
+name: Goodservice
+summary: Goodservice - NYC Subway
+desc: Projected New York City Subway departure times, powered by goodservice.io.
+author: Sunny Ng
+fileName: goodservice.star
+packageName: goodservice
