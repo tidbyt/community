@@ -7,13 +7,12 @@ Author: M0ntyP
 Inspired by all the other great transit apps out there, I made one for my home town. I'd be surprised if anyone actually uses it :)
 """
 
-load("render.star", "render")
-load("http.star", "http")
-load("humanize.star", "humanize")
-load("schema.star", "schema")
-load("encoding/json.star", "json")
-load("encoding/base64.star", "base64")
 load("cache.star", "cache")
+load("encoding/base64.star", "base64")
+load("encoding/json.star", "json")
+load("http.star", "http")
+load("render.star", "render")
+load("schema.star", "schema")
 
 NEXTSCHED1_URL = "https://api-cloudfront.adelaidemetro.com.au/stops/next-scheduled-services?stop="
 STOPINFO_URL = "https://api-cloudfront.adelaidemetro.com.au/stops/info?stop="
@@ -21,9 +20,9 @@ STOPINFO_URL = "https://api-cloudfront.adelaidemetro.com.au/stops/info?stop="
 CACHE_TTL_SECS = 60
 
 def main(config):
-	SelectedStation = config.get("StationList", "16490")
-	TrainToCity = config.bool("TrainToCity", True)
-	TrainOrTramOrBus = config.get("TrainOrTramOrBus", "Bus")
+    SelectedStation = config.get("StationList", "16490")
+    TrainToCity = config.bool("TrainToCity", True)
+    TrainOrTramOrBus = config.get("TrainOrTramOrBus", "Bus")
 
     if TrainOrTramOrBus == "Tram":
         SelectedStation = config.get("TramStationList", "17753")
@@ -46,10 +45,11 @@ def main(config):
     NEXTSCHED_JSON = json.decode(NextSchedCacheData)
 
     INFO_URL = STOPINFO_URL + STOP_ID
-    # not caching this call, as its just to check if the entered Stop ID is valid. I don't want to cache an invalid ID	
+
+    # not caching this call as its just to check if Stop ID entered is valid. We don't want to cache the result of an incorrect ID and have the user wait for the cache to clear
     INFO_JSON = http.get(INFO_URL).json()
 
-    # check its a valid stop, if not display message 
+    # check its a valid stop, if not tell the user
     if "error" in INFO_JSON:
         Display = InvalidStop()
 
@@ -83,7 +83,6 @@ def main(config):
 
     Routes = []
     RouteColors = []
-    TimeList = []
     Display1 = []
 
     # loop through each route and get the ID and color
@@ -126,6 +125,13 @@ def GetTimes(StopName, Routes, RouteColors, RouteLen, NEXTSCHED_JSON):
     MatchCount = 0
     TimeList = []
     Display = []
+    Trains = []
+
+    Comma1 = ""
+    Comma2 = ""
+    Time1 = ""
+    Time2 = ""
+    Time3 = ""
 
     Title = [render.Marquee(width = 64, height = 8, child = render.Text(content = StopName, color = "#FFF", font = "tom-thumb"))]
     Display.extend(Title)
@@ -138,6 +144,7 @@ def GetTimes(StopName, Routes, RouteColors, RouteLen, NEXTSCHED_JSON):
         RouteLen = 3
 
     # for each route
+    
     for s in range(0, RouteLen, 1):
         # if no more routes, break out!
         if len(Routes) == 0:
@@ -180,14 +187,8 @@ def GetTimes(StopName, Routes, RouteColors, RouteLen, NEXTSCHED_JSON):
                 Time1 = str(TimeList.pop(0))
                 Comma1 = ","
                 Time2 = str(TimeList.pop(0))
-                Comma2 = ""
-                Time3 = ""
             if len(TimeList) == 1:
                 Time1 = str(TimeList.pop(0))
-                Comma1 = ""
-                Time2 = ""
-                Comma2 = ""
-                Time3 = ""
 
             Trains = render.Row(
                 children = [
@@ -199,7 +200,7 @@ def GetTimes(StopName, Routes, RouteColors, RouteLen, NEXTSCHED_JSON):
             )
 
             # if we have no services < 120 mins away
-        else:
+        elif TimeList == []:
             Trains = render.Row(
                 children = [
                     render.Box(width = 64, height = 8, child = render.Row(children = [
@@ -854,7 +855,6 @@ def AwayStops(SelectedStation):
         return ("16552")
     if SelectedStation == "16494":  # Belair, as this is terminus so show same results
         return ("16494")
-
     if SelectedStation == "18104":
         return ("18583")
     if SelectedStation == "16491":
@@ -1033,6 +1033,7 @@ def AwayStops(SelectedStation):
         return ("18450")
     if SelectedStation == "16571":
         return ("18452")
+    return None
 
 def MoreOptions(TrainOrTramOrBus):
     if TrainOrTramOrBus == "Train":
@@ -1074,6 +1075,7 @@ def MoreOptions(TrainOrTramOrBus):
                 icon = "bus",
             ),
         ]
+    return None
 
 def get_schema():
     return schema.Schema(
