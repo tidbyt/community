@@ -377,7 +377,8 @@ def main(config):
 
     if show_graph == "false":
         return render.Root(
-            render.Box(
+            max_age = 120,
+            child = render.Box(
                 render.Row(
                     main_align = "space_evenly",
                     cross_align = "center",
@@ -462,7 +463,8 @@ def main(config):
             min_time = max_time + 1
 
         return render.Root(
-            render.Box(
+            max_age = 120,
+            child = render.Box(
                 render.Row(
                     main_align = "center",
                     cross_align = "start",
@@ -737,6 +739,7 @@ def get_nightscout_data(nightscout_id, nightscout_host):
 
 def display_failure(msg):
     return render.Root(
+        max_age = 120,
         child = render.WrappedText(
             width = 64,
             content = msg,
