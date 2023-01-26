@@ -9,12 +9,12 @@ Author: rs7q5
 #Created 20221117 RIS
 #Last Modified 20221224 RIS
 
-load("render.star", "render")
-load("http.star", "http")
-load("encoding/json.star", "json")
 load("cache.star", "cache")
-load("schema.star", "schema")
 load("encoding/base64.star", "base64")
+load("encoding/json.star", "json")
+load("http.star", "http")
+load("render.star", "render")
+load("schema.star", "schema")
 load("secret.star", "secret")
 
 ############

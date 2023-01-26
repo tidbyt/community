@@ -5,12 +5,11 @@ Description: This app will suggest things you can do alone or with your friends 
 Author: Anders Heie
 """
 
+load("cache.star", "cache")
+load("http.star", "http")
+load("random.star", "random")
 load("render.star", "render")
 load("schema.star", "schema")
-load("http.star", "http")
-load("encoding/base64.star", "base64")
-load("cache.star", "cache")
-load("random.star", "random")
 
 # Global defines
 BORED_URL = "https://www.boredapi.com/api/activity"
@@ -20,26 +19,35 @@ DEFAULT_FONT = "6x13"
 DEFAULT_DIRECTION = "vertical"
 
 def main(config):
-    activity = cache.get("activity")
+    # Create unique cache key based on config values.
+    # The only one that really matters for now is the number of participants
+    friends = config.get("friends", "1")
+
+    # if a random is selected, randomize
+    if friends == "random":
+        friends = str(random.number(1, 5))
+
+    cache_key = "bored_app_" + friends
+
+    activity = cache.get(cache_key)
     if activity != None:
         print("Hit! Displaying cached data.")
     else:
         print("Miss! Calling Bored API.")
 
-        friends = config.get("friends", "1")
-        if friends == "random":
-            friends = random.number(1, 5)
-
         # this may not work
         params = {
-            "participants": str(friends),
+            "participants": friends,
         }
+
         print("params", params)
         rep = http.get(BORED_URL, params = params)
         if rep.status_code != 200:
+            # if the APi fails, return [] to skip this app showing
             fail("Bored request failed with status %d", rep.status_code)
+
         activity = rep.json()["activity"]
-        cache.set("activity", activity, ttl_seconds = 600)
+        cache.set(cache_key, activity, ttl_seconds = 600)
         print(activity)
 
     color = config.get("color", DEFAULT_COLOR)

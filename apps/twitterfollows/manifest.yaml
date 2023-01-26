@@ -1,0 +1,8 @@
+---
+id: twitter-follows
+name: Twitter Follows
+summary: Twitter Follower Count
+desc: Display the follower count for a provided screen name.
+author: Nick Penree
+fileName: twitter_follows.star
+packageName: twitterfollows
