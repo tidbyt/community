@@ -34,11 +34,11 @@ def main():
         cache.set("cached_blurb", finalblurb, ttl_seconds=900)
 
     return render.Root(
-        delay = 50,
+        delay = 40,
         child = render.Marquee(
             scroll_direction = "vertical",
             height= 32,
-            offset_start = 32,
+            offset_start = 22,
             offset_end = 32,
             child = render.Column(
                 main_align = "start",
@@ -60,7 +60,7 @@ def connectionError():
         child = render.Marquee(
             scroll_direction = "vertical",
             height= 32,
-            offset_start = 32,
+            offset_start = 22,
             offset_end = 32,
             child = render.Column(
                 main_align = "start",
