@@ -5,12 +5,12 @@ Description: View Minecraft Server Activity and icon.
 Author: Michael Blades
 """
 
-load("render.star", "render")
-load("http.star", "http")
+load("cache.star", "cache")
 load("encoding/base64.star", "base64")
 load("encoding/json.star", "json")
+load("http.star", "http")
+load("render.star", "render")
 load("schema.star", "schema")
-load("cache.star", "cache")
 
 def main(config):
     minecraftURL = config.get("server", "mc.azitoth.com")
