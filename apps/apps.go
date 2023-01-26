@@ -75,6 +75,7 @@ import (
 	"tidbyt.dev/community/apps/gapilotbuddy"
 	"tidbyt.dev/community/apps/githubstargazers"
 	"tidbyt.dev/community/apps/goodservice"
+	"tidbyt.dev/community/apps/guardiannews"
 	"tidbyt.dev/community/apps/happyhour"
 	"tidbyt.dev/community/apps/hexdailystats"
 	"tidbyt.dev/community/apps/howoldami"
@@ -176,6 +177,7 @@ import (
 	"tidbyt.dev/community/apps/shopifysales"
 	"tidbyt.dev/community/apps/shouldideploy"
 	"tidbyt.dev/community/apps/shuffleimages"
+	"tidbyt.dev/community/apps/skynews"
 	"tidbyt.dev/community/apps/snyk"
 	"tidbyt.dev/community/apps/soccermens"
 	"tidbyt.dev/community/apps/solarelevation"
@@ -313,6 +315,7 @@ func GetManifests() []manifest.Manifest {
 		gapilotbuddy.New(),
 		githubstargazers.New(),
 		goodservice.New(),
+		guardiannews.New(),
 		happyhour.New(),
 		hexdailystats.New(),
 		howoldami.New(),
@@ -413,6 +416,7 @@ func GetManifests() []manifest.Manifest {
 		shopifysales.New(),
 		shouldideploy.New(),
 		shuffleimages.New(),
+		skynews.New(),
 		snyk.New(),
 		soccermens.New(),
 		solarelevation.New(),
