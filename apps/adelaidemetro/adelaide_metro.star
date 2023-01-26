@@ -84,6 +84,7 @@ def main(config):
     Routes = []
     RouteColors = []
     Display1 = []
+    #zdump = []
 
     # loop through each route and get the ID and color
     for x in range(0, StopRoutes, 1):
@@ -96,6 +97,7 @@ def main(config):
     if RouteLen > 3:
         # for the number of routes for the stop, skip 3
         for z in range(0, RouteLen, 3):
+            z = z
             Display1.extend([
                 render.Column(
                     children = [
@@ -126,6 +128,7 @@ def GetTimes(StopName, Routes, RouteColors, RouteLen, NEXTSCHED_JSON):
     TimeList = []
     Display = []
     Trains = []
+    sdump = []
 
     Comma1 = ""
     Comma2 = ""
@@ -146,6 +149,8 @@ def GetTimes(StopName, Routes, RouteColors, RouteLen, NEXTSCHED_JSON):
     # for each route
 
     for s in range(0, RouteLen, 1):
+        sdump.append(s)
+
         # if no more routes, break out!
         if len(Routes) == 0:
             break
