@@ -1,0 +1,8 @@
+---
+id: ambient-weather
+name: Ambient Weather
+summary: Your local weather
+desc: Show readings from your Ambient weather station.
+author: Jon Maddox
+fileName: ambient_weather.star
+packageName: ambientweather

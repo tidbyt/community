@@ -225,7 +225,6 @@ def main(config):
                 )
 
             elif displayType == "horizontal":
-                textColor = "#fff"
                 backgroundColor = "#000"
                 borderColor = "#000"
 
@@ -281,7 +280,6 @@ def main(config):
                 )
 
             elif displayType == "logos":
-                textColor = "#fff"
                 backgroundColor = "#000"
                 borderColor = "#000"
                 textFont = teamFont
@@ -324,7 +322,6 @@ def main(config):
                 )
 
             elif displayType == "black":
-                textColor = "#fff"
                 backgroundColor = "#000"
                 borderColor = "#000"
                 textFont = teamFont
@@ -369,7 +366,6 @@ def main(config):
                 )
 
             else:
-                textColor = "#fff"
                 backgroundColor = "#000"
                 borderColor = "#000"
                 textFont = teamFont

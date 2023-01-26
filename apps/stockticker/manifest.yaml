@@ -1,0 +1,8 @@
+---
+id: stock-ticker
+name: Stock Ticker
+summary: 3 stocks scrolling
+desc: This is a simple stock ticker app, that will display a stock ticker for 3 stock symbols.  If you want more, spin up a second copy of the app to have more stocks tick. Requires a free API key from alphavantage.co.
+author: Matt Holloway
+fileName: stock_ticker.star
+packageName: stockticker

@@ -44,7 +44,7 @@ I'd also like to thank The Academy for reaching out, but I am unable to host thi
 
 ## Donations
 
-No, please, I couldn't. I know you want to send me some mullah, but this is purely for the betterment of society. For the great good if you will. Keep your money and your cupcakes, and spend it with your other bored friends.
+No, please, I couldn't. I know you want to send me some mullah, but this is purely for the betterment of society. For the greater good if you will. Keep your money and your cupcakes, and spend it with your other bored friends.
 
 _Sincerely_
 

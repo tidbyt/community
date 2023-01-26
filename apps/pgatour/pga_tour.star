@@ -11,11 +11,10 @@ Big shoutout to LunchBox8484 for the NHL Standings app where this is heavily bor
 
 load("cache.star", "cache")
 load("encoding/base64.star", "base64")
+load("encoding/json.star", "json")
 load("http.star", "http")
 load("render.star", "render")
 load("time.star", "time")
-load("math.star", "math")
-load("encoding/json.star", "json")
 
 API = "https://site.web.api.espn.com/apis/v2/scoreboard/header?sport=golf&league=pga"
 CACHE_TTL_SECS = 60
@@ -32,7 +31,6 @@ def main():
     Location = leaderboard["sports"][0]["leagues"][0]["events"][0]["location"]
     StartDate = leaderboard["sports"][0]["leagues"][0]["events"][0]["date"]
     EndDate = leaderboard["sports"][0]["leagues"][0]["events"][0]["endDate"]
-    RoundNumber = leaderboard["sports"][0]["leagues"][0]["events"][0]["fullStatus"]["period"]
 
     StartDateFormat = time.parse_time(StartDate, format = "2006-01-02T15:04:00Z")
     EndDateFormat = time.parse_time(EndDate, format = "2006-01-02T15:04:00Z")
@@ -44,7 +42,7 @@ def main():
 
         # In progress or completed tournament
         if stage1 == "in" or stage1 == "post":
-            for i, s in enumerate(leaderboard["sports"][0]["leagues"][0]["events"]):
+            for _, s in enumerate(leaderboard["sports"][0]["leagues"][0]["events"]):
                 entries = s["competitors"]
                 stage = s["fullStatus"]["type"]["detail"]
                 state = s["fullStatus"]["type"]["state"]
@@ -72,7 +70,7 @@ def main():
                                 cross_align = "start",
                                 children = [
                                     render.Column(
-                                        children = get_player(x, entries, entriesToDisplay, 28, TournamentName, 5, stage, state),
+                                        children = get_player(x, entries, entriesToDisplay, TournamentName, 5, stage, state),
                                     ),
                                 ],
                             ),
@@ -84,8 +82,8 @@ def main():
                 child = render.Animation(children = renderCategory),
             )
 
-            # if there is no live tournament, show what event is coming up next
         elif stage1 == "pre":
+            # if there is no live tournament, show what event is coming up next
             return render.Root(
                 child = render.Column(
                     main_align = "start",
@@ -127,7 +125,9 @@ def main():
                 ),
             )
 
-def get_player(x, s, entriesToDisplay, colHeight, Title, topcolHeight, stage, state):
+    return []
+
+def get_player(x, s, entriesToDisplay, Title, topcolHeight, stage, state):
     # keep first 10 chars of the tournament name, then remove any extra " " at the end
     Title = Title[:10]
     Title = Title.rstrip()
@@ -139,7 +139,6 @@ def get_player(x, s, entriesToDisplay, colHeight, Title, topcolHeight, stage, st
     ]))]
 
     output.extend(topColumn)
-    containerHeight = int(colHeight / 4)
     for i in range(0, entriesToDisplay):
         if i + x < len(s):
             playerName = s[i + x]["lastName"]
@@ -224,6 +223,9 @@ def get_player_font_color(HolesCompleted):
         playerFontColor = "#f80"
     elif HolesCompleted == 0:
         playerFontColor = "#4ec9b0"
+    else:
+        playerFontColor = ""
+
     return playerFontColor
 
 def get_cachable_data(url, timeout):

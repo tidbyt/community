@@ -1,0 +1,8 @@
+---
+id: netatmo
+name: Netatmo
+summary: Weather from your Netatmo
+desc: Get your current weather from your Netatmo weather station.
+author: danmcclain
+fileName: netatmo.star
+packageName: netatmo
