@@ -323,17 +323,15 @@ def lookup_db(tar_url, icao, level, db_version):
     else:
         return None
 
+def aircraft_distance_sort(aircraft):
+    if "r_dst" in aircraft:
+        return aircraft["r_dst"]
+    else:
+        # If we don't have dst return arbitrary high number 
+        return 10000
+
 def find_nearest_aircraft(aircrafts):
-    distance = 1000.0
-    nearest_index = 0
-    i = 0
-    for aircraft in aircrafts:
-        if "r_dst" in aircraft and str(aircraft["r_dst"]) != "ground":
-            if aircraft["r_dst"] < distance:
-                distance = aircraft["r_dst"]
-                nearest_index = i
-        i = i + 1
-    return aircrafts[nearest_index]
+    return sorted(aircrafts, key=aircraft_distance_sort)[0]
 
 def get_callsign(aircraft):
     if "flight" in aircraft:
