@@ -1,0 +1,8 @@
+---
+id: astro-pic-of-day
+name: Astro Pic of Day
+summary: New pic from NASA each day
+desc: Displays the astronomy picture of the day from NASA.
+author: Brian Bell
+fileName: astro_pic_of_day.star
+packageName: astropicofday
