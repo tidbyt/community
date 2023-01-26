@@ -144,7 +144,7 @@ def GetTimes(StopName, Routes, RouteColors, RouteLen, NEXTSCHED_JSON):
         RouteLen = 3
 
     # for each route
-    
+
     for s in range(0, RouteLen, 1):
         # if no more routes, break out!
         if len(Routes) == 0:
