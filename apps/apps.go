@@ -114,7 +114,6 @@ import (
 	"tidbyt.dev/community/apps/mbtanewtrains"
 	"tidbyt.dev/community/apps/metar"
 	"tidbyt.dev/community/apps/mindthegap"
-	"tidbyt.dev/community/apps/minecraftserver"
 	"tidbyt.dev/community/apps/mlbleaders"
 	"tidbyt.dev/community/apps/mlbscores"
 	"tidbyt.dev/community/apps/mlbstandings"
@@ -374,7 +373,6 @@ func GetManifests() []manifest.Manifest {
 		mbtanewtrains.New(),
 		metar.New(),
 		mindthegap.New(),
-		minecraftserver.New(),
 		mlbleaders.New(),
 		mlbscores.New(),
 		mlbstandings.New(),
