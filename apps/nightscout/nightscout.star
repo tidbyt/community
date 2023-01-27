@@ -23,7 +23,7 @@ COLOR_GREEN = "#2b3"
 COLOR_GREY = "#777"
 COLOR_WHITE = "#fff"
 COLOR_NIGHT = "#444"
-COLOR_HOURS = "#222"
+COLOR_HOURS = "#111"
 
 DEFAULT_SHOW_MMOL = False
 DEFAULT_NORMAL_HIGH = 180
@@ -632,8 +632,8 @@ def get_schema():
             ),
             schema.Toggle(
                 id = "show_mmol",
-                name = "Display mmol",
-                desc = "Display readings and delta as mmol (Settings values should remain mg/dL)",
+                name = "Display mmol/L",
+                desc = "Display readings and delta as mmol/L (Settings values should remain mg/dL)",
                 icon = "gear",
                 default = False,
             ),
