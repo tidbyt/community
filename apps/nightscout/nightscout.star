@@ -25,7 +25,7 @@ COLOR_WHITE = "#fff"
 COLOR_NIGHT = "#444"
 COLOR_HOURS = "#111"
 
-DEFAULT_SHOW_MMOL = False
+DEFAULT_SHOW_MGDL = True
 DEFAULT_NORMAL_HIGH = 180
 DEFAULT_NORMAL_LOW = 100
 DEFAULT_URGENT_HIGH = 200
@@ -83,11 +83,8 @@ def main(config):
     sun_set = sunrise.sunset(lat, lng, now)
     nightscout_id = config.get("nightscout_id", DEFAULT_NSID)
     nightscout_host = config.get("nightscout_host", DEFAULT_NSHOST)
-    show_mmol = config.bool("show_mmol", DEFAULT_SHOW_MMOL)
-    normal_high = int(config.get("normal_high", DEFAULT_NORMAL_HIGH))
-    normal_low = int(config.get("normal_low", DEFAULT_NORMAL_LOW))
-    urgent_high = int(config.get("urgent_high", DEFAULT_URGENT_HIGH))
-    urgent_low = int(config.get("urgent_low", DEFAULT_URGENT_LOW))
+    show_mgdl = config.bool("show_mgdl", DEFAULT_SHOW_MGDL)
+
     show_graph = config.bool("show_graph", DEFAULT_SHOW_GRAPH)
     show_graph_hour_bars = config.bool("show_graph_hour_bars", DEFAULT_SHOW_GRAPH_HOUR_BARS)
     graph_height = int(config.get("graph_height", DEFAULT_GRAPH_HEIGHT))
@@ -95,7 +92,7 @@ def main(config):
     night_mode = config.bool("night_mode", DEFAULT_NIGHT_MODE)
 
     if nightscout_id != None:
-        nightscout_data_json, status_code = get_nightscout_data(nightscout_id, nightscout_host, show_mmol)
+        nightscout_data_json, status_code = get_nightscout_data(nightscout_id, nightscout_host, show_mgdl)
     else:
         nightscout_data_json, status_code = EXAMPLE_DATA, 0
 
@@ -114,8 +111,27 @@ def main(config):
 
     #sgv_delta_mgdl = 25
     #sgv_current_mgdl = 420
-    #print("show_mmol:" + show_mmol)
-    if show_mmol:
+    #print("show_mgdl:" + show_mgdl)
+    if show_mgdl:
+        normal_high = int(str(config.get("mgdl_normal_high")))
+        normal_low = int(str(config.get("mgdl_normal_low")))
+        urgent_high = int(str(config.get("mgdl_urgent_high")))
+        urgent_low = int(str(config.get("mgdl_urgent_low")))
+        str_current = str(int(sgv_current_mgdl))
+
+        # Delta
+        str_delta = str(sgv_delta)
+        if (sgv_delta >= 0):
+            str_delta = "+" + str_delta
+
+        left_col_width = 27
+        graph_width = 36
+    else:
+        normal_high = int(float(config.get("mmol_normal_high")) * 18)
+        normal_low = int(float(config.get("mmol_normal_low")) * 18)
+        urgent_high = int(float(config.get("mmol_urgent_high")) * 18)
+        urgent_low = int(float(config.get("mmol_urgent_low")) * 18)
+
         sgv_current = mgdl_to_mmol(sgv_current_mgdl)
         #sgv_delta = mgdl_to_mmol(sgv_delta_mgdl)
 
@@ -127,16 +143,6 @@ def main(config):
         elif (sgv_delta > 0):
             str_delta = "+" + str_delta
         print(str_delta)
-        left_col_width = 27
-        graph_width = 36
-    else:
-        str_current = str(int(sgv_current_mgdl))
-
-        # Delta
-        str_delta = str(sgv_delta)
-        if (sgv_delta >= 0):
-            str_delta = "+" + str_delta
-
         left_col_width = 27
         graph_width = 36
 
@@ -600,6 +606,53 @@ def main(config):
             delay = 500,
         )
 
+def mg_mgdl_options(show_mgdl):
+    if show_mgdl == "true":
+        normal_high = DEFAULT_NORMAL_HIGH
+        normal_low = DEFAULT_NORMAL_LOW
+        urgent_high = DEFAULT_URGENT_HIGH
+        urgent_low = DEFAULT_URGENT_LOW
+        unit = "mg/dL"
+        prefix = "mgdl"
+    else:
+        normal_high = mgdl_to_mmol(DEFAULT_NORMAL_HIGH)
+        normal_low = mgdl_to_mmol(DEFAULT_NORMAL_LOW)
+        urgent_high = mgdl_to_mmol(DEFAULT_URGENT_HIGH)
+        urgent_low = mgdl_to_mmol(DEFAULT_URGENT_LOW)
+        unit = "mmol/L"
+        prefix = "mmol"
+
+    return [
+        schema.Text(
+            id = prefix + "_normal_high",
+            name = "Normal High Threshold (in " + unit + ")",
+            desc = "Anything above this is displayed yellow unless it is above the Urgent High Threshold (default " + str(normal_high) + ")",
+            icon = "hashtag",
+            default = str(normal_high),
+        ),
+        schema.Text(
+            id = prefix + "_normal_low",
+            name = "Normal Low Threshold (in " + unit + ")",
+            desc = "Anything below this is displayed yellow unless it is below the Urgent Low Threshold (default " + str(normal_low) + ")",
+            icon = "hashtag",
+            default = str(normal_low),
+        ),
+        schema.Text(
+            id = prefix + "_urgent_high",
+            name = "Urgent High Threshold (in " + unit + ")",
+            desc = "Anything above this is displayed red (Default " + str(urgent_high) + ")",
+            icon = "hashtag",
+            default = str(urgent_high),
+        ),
+        schema.Text(
+            id = prefix + "_urgent_low",
+            name = "Urgent Low Threshold (in " + unit + ")",
+            desc = "Anything below this is displayed red (Default " + str(urgent_low) + ")",
+            icon = "hashtag",
+            default = str(urgent_low),
+        ),
+    ]
+
 def get_schema():
     providers = get_providers()
 
@@ -637,39 +690,16 @@ def get_schema():
                 icon = "gear",
             ),
             schema.Toggle(
-                id = "show_mmol",
-                name = "Display mmol/L",
-                desc = "Display readings and delta as mmol/L (Settings values should remain mg/dL)",
+                id = "show_mgdl",
+                name = "Display mg/dL",
+                desc = "Check to display readings and delta as mg/dL. Uncheck for mmol/L",
                 icon = "gear",
-                default = False,
+                default = True,
             ),
-            schema.Text(
-                id = "normal_high",
-                name = "Normal High Threshold (in mg/dL)",
-                desc = "Anything above this is displayed yellow unless it is above the Urgent High Threshold (default " + str(DEFAULT_NORMAL_HIGH) + ")",
-                icon = "hashtag",
-                default = str(DEFAULT_NORMAL_HIGH),
-            ),
-            schema.Text(
-                id = "normal_low",
-                name = "Normal Low Threshold (in mg/dL)",
-                desc = "Anything below this is displayed yellow unless it is below the Urgent Low Threshold (default " + str(DEFAULT_NORMAL_LOW) + ")",
-                icon = "hashtag",
-                default = str(DEFAULT_NORMAL_LOW),
-            ),
-            schema.Text(
-                id = "urgent_high",
-                name = "Urgent High Threshold (in mg/dL)",
-                desc = "Anything above this is displayed red (Default " + str(DEFAULT_URGENT_HIGH) + ")",
-                icon = "hashtag",
-                default = str(DEFAULT_URGENT_HIGH),
-            ),
-            schema.Text(
-                id = "urgent_low",
-                name = "Urgent Low Threshold (in mg/dL)",
-                desc = "Anything below this is displayed red (Default " + str(DEFAULT_URGENT_LOW) + ")",
-                icon = "hashtag",
-                default = str(DEFAULT_URGENT_LOW),
+            schema.Generated(
+                id = "generated",
+                source = "show_mgdl",
+                handler = mg_mgdl_options,
             ),
             schema.Toggle(
                 id = "show_graph",
@@ -711,7 +741,7 @@ def get_schema():
 
 # This method returns a tuple of a nightscout_data and a status_code. If it's
 # served from cache, we return a status_code of 0.
-def get_nightscout_data(nightscout_id, nightscout_host, show_mmol):
+def get_nightscout_data(nightscout_id, nightscout_host, show_mgdl):
     key = nightscout_id + "." + nightscout_host + "_nightscout_data"
 
     nightscout_url = "https://" + nightscout_id + "." + nightscout_host + "/api/v1/entries.json?count=100"
@@ -741,11 +771,11 @@ def get_nightscout_data(nightscout_id, nightscout_host, show_mmol):
     sgv_current = latest_reading["sgv"]
 
     # Delta between the current and previous
-    if show_mmol:
+    if show_mgdl:
+        sgv_delta = int(sgv_current - previous_reading["sgv"])
+    else:
         sgv_delta = math.round((mgdl_to_mmol(int(sgv_current)) - mgdl_to_mmol(int(previous_reading["sgv"]))) * 10) / 10
         print("sgv_delta:" + str(sgv_delta))
-    else:
-        sgv_delta = int(sgv_current - previous_reading["sgv"])
 
     # Get the direction
     direction = latest_reading["direction"]
