@@ -1,0 +1,8 @@
+---
+id: ha-display
+name: HA Display
+summary: Home Assistant Display
+desc: Displays values from a Home Assistant device.
+author: Etienne Michels
+fileName: ha_display.star
+packageName: hadisplay
