@@ -90,7 +90,8 @@ def main(config):
             RemOvers = str(RemOvers)
 
             # Batting details
-            BattingTeamID = Match_JSON["supportInfo"]["inning"]["team"]["id"]
+            #BattingTeamID = Match_JSON["supportInfo"]["inning"]["team"]["id"]
+            BattingTeamID = Match_JSON["scorecard"]["innings"][Innings]["team"]["id"]
             BattingTeamID = int(BattingTeamID)
             BattingTeamColor = getTeamFontColor(BattingTeamID)
 
