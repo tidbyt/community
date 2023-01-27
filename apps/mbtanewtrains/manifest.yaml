@@ -1,0 +1,8 @@
+---
+id: mbta-new-trains
+name: MBTA New Trains
+summary: Track new MBTA subway cars
+desc: Displays the real time location of the new MBTA subway cars.
+author: joshspicer
+fileName: mbta_new_trains.star
+packageName: mbtanewtrains

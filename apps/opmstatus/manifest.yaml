@@ -1,0 +1,8 @@
+---
+id: opm-status
+name: OPM Status
+summary: Displays current OPM status
+desc: Displays the current Office of Personnel Management status, which is used by federal employees to know if the normal working conditions have been changed by inclement weather, health hazards, or other alerts. Updates every 2 hours.
+author: AdamMoses-GitHub
+fileName: opm_status.star
+packageName: opmstatus
