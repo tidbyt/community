@@ -10,8 +10,6 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
-        with:
-          fetch-depth: "0"
 
       - name: Set up Go
         uses: actions/setup-go@v3
@@ -22,7 +20,7 @@ jobs:
         run: ./.github/scripts/setup.sh
 
       - name: Determine targets
-        run: ./.github/scripts/determine-targets.sh
+        run: pixlet community target-determinator --old ${{ vars.GITHUB_BASE_REF }} --new ${{ vars.GITHUB_HEAD_REF }}
 
       - name: Check all apps
         run: pixlet check -r ./
