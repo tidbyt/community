@@ -207,7 +207,7 @@ def main(config):
                 T20_Status4 = "Req Rate: " + RRR
                 if MatchStatus == "Match delayed by rain":
                     MatchStatus = "Rain Delay"
-                    T20_Status3 = MatchStatus 
+                    T20_Status3 = MatchStatus
 
             # Wicket has fallen but not the end of the inngs
             if IsOut == True and Wickets != "10":
