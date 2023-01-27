@@ -1,0 +1,8 @@
+---
+id: neotrack
+name: NEOTrack
+summary: Near Earth Object Tracker
+desc: Shows the closest object on approach to Earth today according to NASA's NeoW API.
+author: brettohland
+fileName: neotrack.star
+packageName: neotrack
