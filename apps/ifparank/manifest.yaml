@@ -1,0 +1,8 @@
+---
+id: ifparank
+name: IFPARank
+summary: Display IFPA Ranking
+desc: Display an International Flipper Pinball Association (IFPA) World Ranking.
+author: cubsaaron
+fileName: ifparank.star
+packageName: ifparank
