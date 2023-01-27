@@ -5,14 +5,14 @@ Description: See items currently featured in the Fortnite store.
 Author: naomi-nori
 """
 
-load("secret.star", "secret")
 load("cache.star", "cache")
-load("http.star", "http")
-load("encoding/json.star", "json")
 load("encoding/base64.star", "base64")
-load("render.star", "render")
+load("encoding/json.star", "json")
+load("http.star", "http")
 load("random.star", "random")
+load("render.star", "render")
 load("schema.star", "schema")
+load("secret.star", "secret")
 
 color_key = {
     "handmade": "#fff",
