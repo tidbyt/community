@@ -1,0 +1,8 @@
+---
+id: rules4life
+name: Rules4Life
+summary: Display Rules for Life
+desc: Display Jordan B. Peterson's Rules for Life from his book.
+author: Robert Ison
+fileName: rules4life.star
+packageName: rules4life

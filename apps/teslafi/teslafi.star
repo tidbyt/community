@@ -6,15 +6,14 @@ To grab the API key to go TeslaFi -> Settings -> Account -> Advanced -> TeslaFi 
 Author: mrrobot245
 """
 
+load("cache.star", "cache")
+load("encoding/base64.star", "base64")
 load("encoding/json.star", "json")
+load("http.star", "http")
+load("math.star", "math")
+load("re.star", "re")
 load("render.star", "render")
 load("schema.star", "schema")
-load("math.star", "math")
-load("time.star", "time")
-load("re.star", "re")
-load("http.star", "http")
-load("encoding/base64.star", "base64")
-load("cache.star", "cache")
 
 FRAME_WIDTH = 64
 
@@ -67,20 +66,20 @@ def rgb_to_hsl(r, g, b):
 
     return int(math.round(h * 360)), s, l
 
-def hsl_to_rgb(h, s, l):
-    def hue_to_rgb(p, q, t):
-        if t < 0:
-            t += 1
-        if t > 1:
-            t -= 1
-        if t < 1 / 6:
-            return p + (q - p) * 6 * t
-        if t < 1 / 2:
-            return q
-        if t < 2 / 3:
-            return p + (q - p) * (2 / 3 - t) * 6
-        return p
+def hue_to_rgb(p, q, t):
+    if t < 0:
+        t += 1
+    if t > 1:
+        t -= 1
+    if t < 1 / 6:
+        return p + (q - p) * 6 * t
+    if t < 1 / 2:
+        return q
+    if t < 2 / 3:
+        return p + (q - p) * (2 / 3 - t) * 6
+    return p
 
+def hsl_to_rgb(h, s, l):
     h = h / 360
     if s == 0:
         r, g, b = (l,) * 3  # achromatic
@@ -142,28 +141,15 @@ def main(config):
         rangemi = rep["est_battery_range"]
         if (config.bool("mi2km") == True):
             rangemi = math.round((float(rangemi) * 1.60934) * 100) / 100
-        chargelimit = rep["charge_limit_soc"]
         batterylevel = rep["usable_battery_level"]
         chargingstate = rep["charging_state"]
 
-        chargeColor = ""
-        barcolor = "#0f0"
         if chargingstate == "Charging":
             image = BOLT_ANIMATED
-            chargeColor = "#00FF00"
-            endcolor = "#00ff00"
         elif chargingstate == "Complete":
             image = BOLT_GREEN
-            endcolor = "#808080"
         else:
             image = BOLT_GREY
-            endcolor = "#808080"
-        if int(batterylevel) <= 10:
-            chargeColor = "#FF0000"
-            barcolor = "#FF0000"
-        if int(batterylevel) <= 20 and int(batterylevel) > 10:
-            chargeColor = "#FFFF00"
-            barcolor = "#FFFF00"
 
     state = {
         "batterylevel": batterylevel,
@@ -192,14 +178,9 @@ def easeOut(t):
 def render_progress_bar(state, label, percent, col1, col2, col3, animprogress):
     animpercent = easeOut(animprogress / 100) * percent
 
-    col2orwhite = col2
-    if percent >= 100:
-        col2orwhite = col1
-
     label1color = lightness("#fff", animprogress / 100)
     label2align = "start"
     label2color = lightness(col3, animprogress / 100)
-    label3color = lightness("#fff", animprogress / 100)
 
     labelcomponent = None
     widthmax = FRAME_WIDTH - 1

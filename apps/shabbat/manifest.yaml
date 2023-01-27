@@ -1,0 +1,8 @@
+---
+id: shabbat
+name: Shabbat
+summary: Weekly shabbat times
+desc: Displays weekly shabbat times.
+author: dinosaursrarr
+fileName: shabbat.star
+packageName: shabbat

@@ -1,0 +1,8 @@
+---
+id: pokedex
+name: Pokedex
+summary: Display a random Pokemon
+desc: Display a random Pokemon alongside its name, number, height, and weight.
+author: Mack Ward
+fileName: pokedex.star
+packageName: pokedex

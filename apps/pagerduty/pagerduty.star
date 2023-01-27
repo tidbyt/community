@@ -7,12 +7,12 @@ Author: drudge
 
 load("cache.star", "cache")
 load("encoding/json.star", "json")
-load("humanize.star", "humanize")
 load("http.star", "http")
-load("time.star", "time")
+load("humanize.star", "humanize")
+load("render.star", "render")
 load("schema.star", "schema")
 load("secret.star", "secret")
-load("render.star", "render")
+load("time.star", "time")
 
 DEFAULT_TIMEZONE = "US/Eastern"
 DEFAULT_ONLY_LEVEL_1 = False
@@ -286,6 +286,7 @@ def get_state(config):
 
     if is_preview:
         oncall = True
+        account_has_teams = False
         counts = dict(
             total = 42,
             triggered = 7,

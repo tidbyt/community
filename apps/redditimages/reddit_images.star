@@ -5,13 +5,13 @@ Description: Show a random image post from a custom list of subreddits (up to 10
 Author: Nicole Brooks
 """
 
-load("render.star", "render")
-load("time.star", "time")
+load("cache.star", "cache")
 load("encoding/base64.star", "base64")
 load("encoding/json.star", "json")
 load("http.star", "http")
+load("render.star", "render")
 load("schema.star", "schema")
-load("cache.star", "cache")
+load("time.star", "time")
 
 DEFAULT_SUBREDDITS = ["blackcats", "aww", "eyebleach", "itookapicture", "cats", "pic", "otters", "plants"]
 APPROVED_FILETYPES = [".png", ".jpg", ".jpeg", ".bmp"]

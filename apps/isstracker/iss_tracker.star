@@ -5,10 +5,10 @@ Description: Tracks the position of the International Space Station using LAT/LO
 Author: Chris Jones (@IPv6Freely)
 """
 
-load("render.star", "render")
-load("schema.star", "schema")
 load("encoding/base64.star", "base64")
 load("http.star", "http")
+load("render.star", "render")
+load("schema.star", "schema")
 load("time.star", "time")
 
 ISS_URL = "http://api.open-notify.org/iss-now.json"
@@ -29,7 +29,7 @@ g08jruBDBKCOvU3EtMVe57PPsr9j4FKiDtiihugQmOe1Jf83hs2RiWz+UrmSaVYcQkT0GpaRzb+NTFuW
 PUAu01zaw38Ao/D6Ej70wa4AAAAASUVORK5CYII=
 """)
 
-def get_ISS(config):
+def get_ISS():
     resp = http.get(ISS_URL)
 
     if resp.status_code != 200:
@@ -43,9 +43,8 @@ def get_ISS(config):
 
     return timestamp, lat, lon
 
-def main(config):
-    timestamp, lat, lon = get_ISS(config)
-    title = "ISSTRACKER"
+def main():
+    timestamp, lat, lon = get_ISS()
 
     return render.Root(
         child = render.Box(

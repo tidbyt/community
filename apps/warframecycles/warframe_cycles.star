@@ -5,10 +5,10 @@ Description: Tells you the cycle that's active in each of the Warframe open area
 Author: grantmatheny
 """
 
+load("cache.star", "cache")
+load("http.star", "http")
 load("render.star", "render")
 load("schema.star", "schema")
-load("http.star", "http")
-load("cache.star", "cache")
 
 def time_dict_conversion(timedict):
     if timedict.get("h") == None and (timedict.get("m") == None or int(timedict.get("m")) == 0):
@@ -29,7 +29,6 @@ def time_dict_conversion(timedict):
             timedict["h"] = str(int(timedict["h"]) - 1)
             timedict["m"] = str(60 + int(timedict["m"]))
         return "%s:%s" % (timedict["h"], timedict["m"])
-    return ""
 
 def main(config):
     platform = config.str("platform", "pc")
@@ -59,6 +58,22 @@ def main(config):
     vallis_remaining_cached = cache.get(vallis_remaining_cache_key)
     zariman_remaining_cache_key = "wf_%s_zariman_remaining_cached" % platform
     zariman_remaining_cached = cache.get(zariman_remaining_cache_key)
+
+    cetuscolor = ""
+    earthcolor = ""
+    cambioncolor = ""
+    valliscolor = ""
+    zarimancolor = ""
+    cetusremaining = None
+    cetusactive = None
+    earthremaining = None
+    earthactive = None
+    cambionremaining = None
+    cambionactive = None
+    vallisremaining = None
+    vallisactive = None
+    zarimanremaining = None
+    zarimanactive = None
 
     if cetus_active_cached != None and cetus_remaining_cached != None:
         print("Hit! Displaying cached data.")

@@ -24,7 +24,7 @@ FRAMES = [
     """iVBORw0KGgoAAAANSUhEUgAAAEAAAAAgCAYAAACinX6EAAABqElEQVRoge2ZvW3DMBSEWWaCGPEA6dV4Ae/iFbJFilRU5Y2yTmAI8KVIGNCnJz7+mjKi4gCJ4hm8j4+kZZv9cMJ/luk9gN7aAGgdAHQf5FYBG4ANQDsAl9dnsDST5Enx74cTjDHFagagtYwxmD5tsWpAuDsADo8PJKsmBHM57zCTFkTyRPp9AIsBD6N4LUFoA6ChHAAtoJNb70sQHIDcfaE7AC28tRbW2j8IN9XxC4D7JQH4wgtYWgjJE+vPBeBDYADcpxhALbnZ4bbY9c/hXEBf0vNVAOCyjAUQqoAYJQMY8ASWFk7ysJ8B+GIA0kaYEz4HggiglpZKVKuA6TDOvMAyFH62GgAOAg/OAQgdgdLmJrVJz5IAHN+vYGmhJI/mDy2BEIBp/FFM6bu+xQBaKgRAOgF8ADzLfP1QAEqWgaTsU+DNXMHSQkgeyQ9gFj71ZSjlNMj6KqyFyRGA2T1vWKmvva1+H2gCgJVSyinKnfUbAFKjFij0gTz7DMB/e4sp3RJvNoDakso0tnSX+pWWflMA/F8C369JTStgzcHvAuARtAHoPYDe+gY9+LYFcwpgwQAAAABJRU5ErkJggg==""",
 ]
 
-def main(config):
+def main():
     return render.Root(
         child = render.Animation(
             children = [render.Image(src = base64.decode(f)) for f in FRAMES],

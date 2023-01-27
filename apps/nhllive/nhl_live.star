@@ -5,14 +5,14 @@ Description: Displays live game stats or next scheduled NHL game information
 Author: Reed Arneson
 """
 
-load("render.star", "render")
-load("http.star", "http")
-load("encoding/base64.star", "base64")
-load("time.star", "time")
-load("encoding/json.star", "json")
-load("schema.star", "schema")
-load("random.star", "random")
 load("cache.star", "cache")
+load("encoding/base64.star", "base64")
+load("encoding/json.star", "json")
+load("http.star", "http")
+load("random.star", "random")
+load("render.star", "render")
+load("schema.star", "schema")
+load("time.star", "time")
 
 APP_VERSION = "1.3.0"
 
@@ -97,8 +97,6 @@ TEAMS_LIST = {
 
 # Main App
 def main(config):
-    game_data = None
-
     # Get timezone and set today date
     timezone = get_timezone(config)
     now = time.now().in_location(timezone)
@@ -125,7 +123,7 @@ def main(config):
 
     # Check our game info cache first
     print("Grabbing Game for team: %s" % team)
-    teamid_away, teamid_home, gamePk, game_state, gameDate, score_away, score_home, isGameToday = get_game(today, config_teamid)
+    teamid_away, teamid_home, gamePk, _, gameDate, _, _, isGameToday = get_game(today, config_teamid)
 
     # No Game URL found
     if gamePk != None:
@@ -133,7 +131,7 @@ def main(config):
 
         # This cane be bypassed to skip live updates
         if game_info["game_state"] == "Live" and config.bool("liveupdates", True):
-            game_update = get_live_game_update(gamePk, config, game_state, game_info["goals_away"], game_info["goals_home"])
+            game_update = get_live_game_update(gamePk, config, game_info["goals_away"], game_info["goals_home"])
         else:
             game_update = game_info
 
@@ -394,14 +392,9 @@ def get_linescore_game_data(gamePk, config):
 
     game = response.json()
 
-    teamid_away = int(game["dates"][0]["games"][0]["teams"]["away"]["team"]["id"])
-    teamid_home = int(game["dates"][0]["games"][0]["teams"]["home"]["team"]["id"])
     goals_away = int(game["dates"][0]["games"][0]["teams"]["away"]["score"])
     goals_home = int(game["dates"][0]["games"][0]["teams"]["home"]["score"])
     game_state = game["dates"][0]["games"][0]["status"]["abstractGameState"]
-    currentPeriod = game["dates"][0]["games"][0]["linescore"]["currentPeriod"]
-    sog_away = int(game["dates"][0]["games"][0]["linescore"]["teams"]["away"]["shotsOnGoal"])
-    sog_home = int(game["dates"][0]["games"][0]["linescore"]["teams"]["home"]["shotsOnGoal"])
     is_pp_away = game["dates"][0]["games"][0]["linescore"]["teams"]["away"]["powerPlay"]
     is_pp_home = game["dates"][0]["games"][0]["linescore"]["teams"]["home"]["powerPlay"]
     is_empty_away = game["dates"][0]["games"][0]["linescore"]["teams"]["away"]["goaliePulled"]
@@ -449,7 +442,7 @@ def get_live_game_data(gamePk):
     return response.json()
 
 # collection function to get current score, time, and other random updates
-def get_live_game_update(gamePk, config, game_state, goals_away, goals_home):
+def get_live_game_update(gamePk, config, goals_away, goals_home):
     update = ""
     play = ""
     sog = ""

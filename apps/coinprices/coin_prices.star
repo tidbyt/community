@@ -5,13 +5,13 @@ Description: Show Current exchange rate for multiple coins.
 Author: alan-oliv
 """
 
-load("render.star", "render")
-load("schema.star", "schema")
 load("animation.star", "animation")
-load("http.star", "http")
-load("humanize.star", "humanize")
 load("cache.star", "cache")
 load("encoding/json.star", "json")
+load("http.star", "http")
+load("humanize.star", "humanize")
+load("render.star", "render")
+load("schema.star", "schema")
 
 # Theme
 BACKGROUND_COLOR = "#000000"
@@ -108,7 +108,7 @@ def currency_info(prices, from_coin, to_coin, price_precision):
     yesterday_today_variation = latest_price - yesterday_price
 
     precision_format = "#."
-    for point in range(int(price_precision)):
+    for _ in range(int(price_precision)):
         precision_format = precision_format + "#"
 
     fomatted_latest_price = humanize.float(precision_format, latest_price)

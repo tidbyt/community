@@ -204,7 +204,7 @@ def render_due(index, line, due_in_seconds):
             # particularly busy stops.
             render.WrappedText(
                 content = str(index),
-                width = 8,
+                width = 12,
                 color = ORANGE,
                 font = FONT,
             ),
@@ -238,7 +238,7 @@ def render_destination(index, destination):
             # particularly busy stops.
             render.WrappedText(
                 content = str(index),
-                width = 8,
+                width = 12,
                 color = ORANGE,
                 font = FONT,
             ),
@@ -370,6 +370,7 @@ def main(config):
         stop_code = stop["code"]
 
     return render.Root(
+        max_age = 120,
         delay = 25,
         child = render.Column(
             expanded = True,
