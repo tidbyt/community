@@ -31,11 +31,11 @@ DEFAULT_NORMAL_LOW = 100
 DEFAULT_URGENT_HIGH = 200
 DEFAULT_URGENT_LOW = 70
 
-DEFAULT_SHOW_GRAPH = "true"
+DEFAULT_SHOW_GRAPH = True
 DEFAULT_SHOW_GRAPH_HOUR_BARS = True
 DEFAULT_GRAPH_HEIGHT = 300
-DEFAULT_SHOW_CLOCK = "true"
-DEFAULT_NIGHT_MODE = "false"
+DEFAULT_SHOW_CLOCK = True
+DEFAULT_NIGHT_MODE = False
 GRAPH_BOTTOM = 40
 
 CACHE_TTL_SECONDS = 1800  #30 mins
@@ -83,16 +83,16 @@ def main(config):
     sun_set = sunrise.sunset(lat, lng, now)
     nightscout_id = config.get("nightscout_id", DEFAULT_NSID)
     nightscout_host = config.get("nightscout_host", DEFAULT_NSHOST)
-    show_mmol = config.get("show_mmol", DEFAULT_SHOW_MMOL)
+    show_mmol = config.bool("show_mmol", DEFAULT_SHOW_MMOL)
     normal_high = int(config.get("normal_high", DEFAULT_NORMAL_HIGH))
     normal_low = int(config.get("normal_low", DEFAULT_NORMAL_LOW))
     urgent_high = int(config.get("urgent_high", DEFAULT_URGENT_HIGH))
     urgent_low = int(config.get("urgent_low", DEFAULT_URGENT_LOW))
-    show_graph = config.get("show_graph", DEFAULT_SHOW_GRAPH)
+    show_graph = config.bool("show_graph", DEFAULT_SHOW_GRAPH)
     show_graph_hour_bars = config.bool("show_graph_hour_bars", DEFAULT_SHOW_GRAPH_HOUR_BARS)
     graph_height = int(config.get("graph_height", DEFAULT_GRAPH_HEIGHT))
-    show_clock = config.get("show_clock", DEFAULT_SHOW_CLOCK)
-    night_mode = config.get("night_mode", DEFAULT_NIGHT_MODE)
+    show_clock = config.bool("show_clock", DEFAULT_SHOW_CLOCK)
+    night_mode = config.bool("night_mode", DEFAULT_NIGHT_MODE)
 
     if nightscout_id != None:
         nightscout_data_json, status_code = get_nightscout_data(nightscout_id, nightscout_host, show_mmol)
@@ -114,8 +114,8 @@ def main(config):
 
     #sgv_delta_mgdl = 25
     #sgv_current_mgdl = 420
-    print("show_mmol:" + show_mmol)
-    if show_mmol == "true":
+    #print("show_mmol:" + show_mmol)
+    if show_mmol:
         sgv_current = mgdl_to_mmol(sgv_current_mgdl)
         #sgv_delta = mgdl_to_mmol(sgv_delta_mgdl)
 
@@ -196,7 +196,7 @@ def main(config):
         color_delta = COLOR_RED
         color_arrow = COLOR_RED
     print(night_mode)
-    if (night_mode == "true" and (now > sun_set or now < sun_rise)):
+    if (night_mode and (now > sun_set or now < sun_rise)):
         print("Night Mode")
         color_reading = COLOR_NIGHT
         color_delta = COLOR_NIGHT
@@ -212,7 +212,7 @@ def main(config):
 
     print(ago_dashes)
 
-    if show_clock == "true":
+    if show_clock:
         lg_clock = [
             render.Stack(
                 children = [
@@ -396,7 +396,7 @@ def main(config):
             ),
         ]
 
-    if show_graph == "false":
+    if not show_graph:
         return render.Root(
             max_age = 120,
             child = render.Box(
@@ -741,7 +741,7 @@ def get_nightscout_data(nightscout_id, nightscout_host, show_mmol):
     sgv_current = latest_reading["sgv"]
 
     # Delta between the current and previous
-    if show_mmol == "true":
+    if show_mmol:
         sgv_delta = math.round((mgdl_to_mmol(int(sgv_current)) - mgdl_to_mmol(int(previous_reading["sgv"]))) * 10) / 10
         print("sgv_delta:" + str(sgv_delta))
     else:
