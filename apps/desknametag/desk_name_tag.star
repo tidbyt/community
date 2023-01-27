@@ -13,18 +13,26 @@ DEFAULT_NAME = "John Smith"
 DEFAULT_LINE_ONE = "Technology"
 DEFAULT_LINE_TWO = "Enterprise"
 DEFAULT_TEXT_COLOR = "#FFFFFF"
-DEFAULT_BACKGROUND_COLOR = "#00008B"
+DEFAULT_BACKGROUND_COLOR = "#0000FF"
 
 def main(config):
     name = config.str("name", DEFAULT_NAME)
     line_one = config.str("line_one", DEFAULT_LINE_ONE)
     line_two = config.str("line_two", DEFAULT_LINE_TWO)
-    text_color = config.str("custom_text_color")
-    if (text_color == None or not(re.findall("^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$", text_color))):
-        text_color = config.str("text_color")
-    background_color = config.str("custom_background_color")
-    if (background_color == None or not(re.findall("^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$", background_color))):
-        background_color = config.str("background_color")
+    text_color = config.str("text_color", DEFAULT_TEXT_COLOR)
+    custom_text_color = config.str("custom_text_color")
+    if (
+        custom_text_color != None
+        and re.findall("^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$", custom_text_color)
+    ):
+        text_color = custom_text_color
+    background_color = config.str("background_color", DEFAULT_BACKGROUND_COLOR)
+    custom_background_color = config.str("custom_background_color")
+    if (
+        custom_background_color != None
+        and re.findall("^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$", custom_background_color)
+    ):
+        background_color = custom_background_color
 
     return render.Root(
         delay = 150,
