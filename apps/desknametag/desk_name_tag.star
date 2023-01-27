@@ -86,13 +86,13 @@ def get_schema():
             ),
             schema.Text(
                 id = "line_one",
-                name = "Tag Line One",
+                name = "Line One",
                 desc = "Enter your message for line one.",
                 icon = "briefcase",
             ),
             schema.Text(
                 id = "line_two",
-                name = "Tag Line Two",
+                name = "Line Two",
                 desc = "Enter your message for line two.",
                 icon = "peopleArrowsLeftRight",
             ),
