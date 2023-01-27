@@ -9,11 +9,11 @@ load("cache.star", "cache")
 load("encoding/csv.star", "csv")
 load("encoding/json.star", "json")
 load("http.star", "http")
+load("math.star", "math")
 load("render.star", "render")
 load("schema.star", "schema")
 load("sunrise.star", "sunrise")
 load("time.star", "time")
-load("math.star", "math")
 
 COLOR_RED = "#C00"
 COLOR_DARK_RED = "#911"
@@ -93,7 +93,7 @@ def main(config):
     graph_height = int(config.get("graph_height", DEFAULT_GRAPH_HEIGHT))
     show_clock = config.get("show_clock", DEFAULT_SHOW_CLOCK)
     night_mode = config.get("night_mode", DEFAULT_NIGHT_MODE)
-    
+
     if nightscout_id != None:
         nightscout_data_json, status_code = get_nightscout_data(nightscout_id, nightscout_host, show_mmol)
     else:
@@ -111,14 +111,14 @@ def main(config):
     latest_reading_dt = time.parse_time(nightscout_data_json["latest_reading_date_string"])
     direction = nightscout_data_json["direction"]
     history = nightscout_data_json["history"]
-    
+
     #sgv_delta_mgdl = 25
     #sgv_current_mgdl = 420
-    print ("show_mmol:" + show_mmol)
-    if show_mmol=="true":
+    print("show_mmol:" + show_mmol)
+    if show_mmol == "true":
         sgv_current = mgdl_to_mmol(sgv_current_mgdl)
         #sgv_delta = mgdl_to_mmol(sgv_delta_mgdl)
-        
+
         #str_current = force_decimal_places(sgv_current, 1)
         str_current = str(sgv_current)
         str_delta = str(sgv_delta)
@@ -126,20 +126,22 @@ def main(config):
             str_delta = "+0"
         elif (sgv_delta > 0):
             str_delta = "+" + str_delta
-        print (str_delta)
+        print(str_delta)
         left_col_width = 27
         graph_width = 36
     else:
         str_current = str(int(sgv_current_mgdl))
+
         # Delta
         str_delta = str(sgv_delta)
         if (sgv_delta >= 0):
             str_delta = "+" + str_delta
-        
+
         left_col_width = 27
         graph_width = 36
 
     OLDEST_READING_TARGET = UTC_TIME_NOW - time.parse_duration(str(5 * graph_width) + "m")
+
     #for reading in history:
     #graph_data.append(tuple((reading[0], reading[1] - urgent_low)))
     reading_mins_ago = int((UTC_TIME_NOW - latest_reading_dt).minutes)
@@ -739,9 +741,9 @@ def get_nightscout_data(nightscout_id, nightscout_host, show_mmol):
     sgv_current = latest_reading["sgv"]
 
     # Delta between the current and previous
-    if show_mmol=="true":
-        sgv_delta = math.round((mgdl_to_mmol(int(sgv_current)) - mgdl_to_mmol(int(previous_reading["sgv"])))*10)/10
-        print ("sgv_delta:" + str(sgv_delta))
+    if show_mmol == "true":
+        sgv_delta = math.round((mgdl_to_mmol(int(sgv_current)) - mgdl_to_mmol(int(previous_reading["sgv"]))) * 10) / 10
+        print("sgv_delta:" + str(sgv_delta))
     else:
         sgv_delta = int(sgv_current - previous_reading["sgv"])
 
@@ -765,9 +767,9 @@ def get_nightscout_data(nightscout_id, nightscout_host, show_mmol):
     return nightscout_data, resp.status_code
 
 def mgdl_to_mmol(mgdl):
-    mmol = float(math.round((mgdl/18) * 10)/10)
+    mmol = float(math.round((mgdl / 18) * 10) / 10)
     return mmol
-    
+
 def display_failure(msg):
     return render.Root(
         max_age = 120,
