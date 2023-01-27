@@ -19,6 +19,9 @@ jobs:
       - name: Setup build agent
         run: ./.github/scripts/setup.sh
 
+      - name: Determine targets
+        run: ./.github/scripts/determine-targets.sh
+
       - name: Check all apps
         run: pixlet check -r ./
 
