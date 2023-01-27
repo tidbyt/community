@@ -8,4 +8,10 @@ You can have the app skip displaying information for planets that are below your
 
 If you want to track more than one planet, I'd suggest installing this app once per planet you want to track, have it skip when not visible because it is below the horizon. You could set the hours of the applciation to only run during evening hours, but there is logic to cache the data until it makes sense to check again, so there won't be too many unneccesary API calls.
 
-![VisiblePlanets for Tidbyt](visibleplanets.webp)
+There is now an option to display a summary ![Summary Display of VisiblePlanets](visibleplanets_summary.webp) It will present all visible planets by the first letter of the planet's name (or "2" in the case of mercury). The hight the letter is on the display, the higher in the sky it will appear. There are direction markers on the bottom row (S = South, W = West, N = North, E = East) to show you where in the sky to look.
+
+The idea behind the summar is to let you job down on a piece of paper the info you see. During daylight hours, this display will be the night sky at sunset, otherwise, it'll be within an hour of the current time depending on caching. As the earth spins on its axis, the stars appear to move, so this summary display is always changing, but we do cache and with the Tidbyt display, you're provided with a rough estimate of the night sky.
+
+My suggestion is to display the summary, but also display an instance of this application for each particular planet you are interested in, for more detailed information.
+
+![VisiblePlanets for Tidbyt](visibleplanets_detail.webp)

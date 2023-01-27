@@ -1,0 +1,8 @@
+---
+id: costco-gas
+name: Costco Gas
+summary: Costco Gas Display
+desc: Displays gas prices from a selected Costco warehouse in the US.
+author: Dan Adam
+fileName: costco_gas.star
+packageName: costcogas

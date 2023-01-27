@@ -1,0 +1,8 @@
+---
+id: soccer-tables
+name: Soccer Tables
+summary: Displays league tables
+desc: Displays league tables from soccer leagues, showing team abbreviation, record in W-D-L format and points total. Choose your league and choose if you want to display the team color or just white text on black.
+author: M0ntyP
+fileName: soccer_tables.star
+packageName: soccertables

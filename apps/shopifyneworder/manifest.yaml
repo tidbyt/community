@@ -1,0 +1,8 @@
+---
+id: shopify-new-order
+name: Shopify Items
+summary: See what’s selling
+desc: Display how many items and the total dollar amount of every order, so you can easily see how your store’s performing.
+author: Shopify
+fileName: shopify_new_order.star
+packageName: shopifyneworder

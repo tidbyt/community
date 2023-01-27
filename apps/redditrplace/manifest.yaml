@@ -1,0 +1,8 @@
+---
+id: reddit-r-place
+name: Reddit R-Place
+summary: Bits of r/place
+desc: See tidbits of what Redditors created for r/place.
+author: funkfinger
+fileName: reddit_r_place.star
+packageName: redditrplace
