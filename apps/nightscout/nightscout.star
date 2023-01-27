@@ -106,18 +106,18 @@ def main(config):
         return display_failure("Nightscout Error: " + str(status_code))
 
     # Pull the data from the cache
-    sgv_current = int(nightscout_data_json["sgv_current"])
-    sgv_delta = int(nightscout_data_json["sgv_delta"])
+    sgv_current_mgdl = int(nightscout_data_json["sgv_current"])
+    sgv_delta_mgdl = int(nightscout_data_json["sgv_delta"])
     latest_reading_dt = time.parse_time(nightscout_data_json["latest_reading_date_string"])
     direction = nightscout_data_json["direction"]
     history = nightscout_data_json["history"]
     
-    #sgv_delta = 40
-    #sgv_current = 420
+    #sgv_delta_mgdl = 10
+    #sgv_current_mgdl = 106
     print ("show_mmol:" + show_mmol)
     if show_mmol=="true":
-        sgv_current = mgdl_to_mmol(sgv_current)
-        sgv_delta = mgdl_to_mmol(sgv_delta)
+        sgv_current = mgdl_to_mmol(sgv_current_mgdl)
+        sgv_delta = mgdl_to_mmol(sgv_delta_mgdl)
         
         #str_current = force_decimal_places(sgv_current, 1)
         str_current = str(sgv_current)
@@ -130,10 +130,10 @@ def main(config):
         left_col_width = 26
         graph_width = 37
     else:
-        str_current = str(int(sgv_current))
+        str_current = str(int(sgv_current_mgdl))
         # Delta
-        str_delta = str(sgv_delta)
-        if (sgv_delta >= 0):
+        str_delta = str(sgv_delta_mgdl)
+        if (sgv_delta_mgdl >= 0):
             str_delta = "+" + str_delta
         
         left_col_width = 26
@@ -183,12 +183,12 @@ def main(config):
         str_delta = "old"
         ago_dashes = ">" + str(reading_mins_ago)
         full_ago_dashes = human_reading_ago
-    elif (sgv_current <= normal_high and sgv_current >= normal_low):
+    elif (sgv_current_mgdl <= normal_high and sgv_current_mgdl >= normal_low):
         # We're in the normal range, so use green.
         color_reading = COLOR_GREEN
         color_delta = COLOR_GREEN
         color_arrow = COLOR_GREEN
-    elif (sgv_current >= urgent_high or sgv_current <= urgent_low):
+    elif (sgv_current_mgdl >= urgent_high or sgv_current_mgdl <= urgent_low):
         # We're in the urgent range, so use red.
         color_reading = COLOR_RED
         color_delta = COLOR_RED
@@ -767,7 +767,7 @@ def get_nightscout_data(nightscout_id, nightscout_host):
     return nightscout_data, resp.status_code
 
 def mgdl_to_mmol(mgdl):
-    mmol = float(int((mgdl/18) * 10)/10)
+    mmol = float(math.round((mgdl/18) * 10)/10)
     return mmol
     
 def display_failure(msg):
