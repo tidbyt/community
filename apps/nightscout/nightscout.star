@@ -13,6 +13,7 @@ load("render.star", "render")
 load("schema.star", "schema")
 load("sunrise.star", "sunrise")
 load("time.star", "time")
+load("math.star", "math")
 
 COLOR_RED = "#C00"
 COLOR_DARK_RED = "#911"
@@ -24,6 +25,7 @@ COLOR_WHITE = "#fff"
 COLOR_NIGHT = "#444"
 COLOR_HOURS = "#222"
 
+DEFAULT_SHOW_MMOL = False
 DEFAULT_NORMAL_HIGH = 180
 DEFAULT_NORMAL_LOW = 100
 DEFAULT_URGENT_HIGH = 200
@@ -31,11 +33,10 @@ DEFAULT_URGENT_LOW = 70
 
 DEFAULT_SHOW_GRAPH = "true"
 DEFAULT_SHOW_GRAPH_HOUR_BARS = True
+DEFAULT_GRAPH_HEIGHT = 300
 DEFAULT_SHOW_CLOCK = "true"
 DEFAULT_NIGHT_MODE = "false"
-GRAPH_WIDTH = 43
-GRAPH_BOTTOM = 50
-GRAPH_TOP = 275
+GRAPH_BOTTOM = 40
 
 CACHE_TTL_SECONDS = 1800  #30 mins
 
@@ -74,7 +75,6 @@ def get_providers():
 
 def main(config):
     UTC_TIME_NOW = time.now().in_location("UTC")
-    OLDEST_READING_TARGET = UTC_TIME_NOW - time.parse_duration(str(5 * GRAPH_WIDTH) + "m")
     location = config.get("location", DEFAULT_LOCATION)
     loc = json.decode(location)
     now = time.now().in_location(loc["timezone"])
@@ -83,15 +83,17 @@ def main(config):
     sun_set = sunrise.sunset(lat, lng, now)
     nightscout_id = config.get("nightscout_id", DEFAULT_NSID)
     nightscout_host = config.get("nightscout_host", DEFAULT_NSHOST)
+    show_mmol = config.get("show_mmol", DEFAULT_SHOW_MMOL)
     normal_high = int(config.get("normal_high", DEFAULT_NORMAL_HIGH))
     normal_low = int(config.get("normal_low", DEFAULT_NORMAL_LOW))
     urgent_high = int(config.get("urgent_high", DEFAULT_URGENT_HIGH))
     urgent_low = int(config.get("urgent_low", DEFAULT_URGENT_LOW))
     show_graph = config.get("show_graph", DEFAULT_SHOW_GRAPH)
     show_graph_hour_bars = config.bool("show_graph_hour_bars", DEFAULT_SHOW_GRAPH_HOUR_BARS)
+    graph_height = int(config.get("graph_height", DEFAULT_GRAPH_HEIGHT))
     show_clock = config.get("show_clock", DEFAULT_SHOW_CLOCK)
     night_mode = config.get("night_mode", DEFAULT_NIGHT_MODE)
-
+    
     if nightscout_id != None:
         nightscout_data_json, status_code = get_nightscout_data(nightscout_id, nightscout_host)
     else:
@@ -109,14 +111,35 @@ def main(config):
     latest_reading_dt = time.parse_time(nightscout_data_json["latest_reading_date_string"])
     direction = nightscout_data_json["direction"]
     history = nightscout_data_json["history"]
-
-    # Delta
-    str_delta = str(sgv_delta)
-    if (sgv_delta < 0):
-        str_delta = str_delta
+    
+    #sgv_delta = 40
+    #sgv_current = 420
+    print ("show_mmol:" + show_mmol)
+    if show_mmol=="true":
+        sgv_current = mgdl_to_mmol(sgv_current)
+        sgv_delta = mgdl_to_mmol(sgv_delta)
+        
+        #str_current = force_decimal_places(sgv_current, 1)
+        str_current = str(sgv_current)
+        str_delta = str(sgv_delta)
+        if (str_delta == "0.0"):
+            str_delta = "+0"
+        elif (sgv_delta > 0):
+            str_delta = "+" + str_delta
+            
+        left_col_width = 26
+        graph_width = 37
     else:
-        str_delta = "+" + str_delta
+        str_current = str(int(sgv_current))
+        # Delta
+        str_delta = str(sgv_delta)
+        if (sgv_delta >= 0):
+            str_delta = "+" + str_delta
+        
+        left_col_width = 26
+        graph_width = 37
 
+    OLDEST_READING_TARGET = UTC_TIME_NOW - time.parse_duration(str(5 * graph_width) + "m")
     #for reading in history:
     #graph_data.append(tuple((reading[0], reading[1] - urgent_low)))
     reading_mins_ago = int((UTC_TIME_NOW - latest_reading_dt).minutes)
@@ -201,37 +224,6 @@ def main(config):
                                 main_align = "space_evenly",
                                 expanded = True,
                                 children = [
-                                    render.Text(
-                                        content = str(int(sgv_current)),
-                                        font = "6x13",
-                                        color = color_reading,
-                                    ),
-                                    render.Text(
-                                        content = str_delta,
-                                        font = "tom-thumb",
-                                        color = color_delta,
-                                        offset = -1,
-                                    ),
-                                    render.Text(
-                                        content = ARROWS[direction],
-                                        font = "6x13",
-                                        color = color_arrow,
-                                        offset = 1,
-                                    ),
-                                ],
-                            ),
-                        ],
-                    ),
-                    render.Column(
-                        main_align = "start",
-                        cross_align = "center",
-                        children = [
-                            render.Box(height = 13),
-                            render.Row(
-                                cross_align = "center",
-                                main_align = "space_evenly",
-                                expanded = True,
-                                children = [
                                     render.Animation(
                                         children = [
                                             render.Text(
@@ -245,6 +237,37 @@ def main(config):
                                                 color = color_clock,
                                             ),
                                         ],
+                                    ),
+                                ],
+                            ),
+                        ],
+                    ),
+                    render.Column(
+                        main_align = "start",
+                        cross_align = "center",
+                        children = [
+                            render.Box(height = 13),
+                            render.Row(
+                                cross_align = "center",
+                                main_align = "center",
+                                expanded = True,
+                                children = [
+                                    render.Text(
+                                        content = str_current,
+                                        font = "6x13",
+                                        color = color_reading,
+                                    ),
+                                    render.Text(
+                                        content = " " + str_delta,
+                                        font = "tb-8",
+                                        color = color_delta,
+                                        offset = -1,
+                                    ),
+                                    render.Text(
+                                        content = " " + ARROWS[direction],
+                                        font = "tb-8",
+                                        color = color_arrow,
+                                        offset = -1,
                                     ),
                                 ],
                             ),
@@ -273,8 +296,6 @@ def main(config):
                 ],
             ),
         ]
-
-        left_col_width = 20
 
         sm_clock = [
             render.WrappedText(
@@ -307,16 +328,10 @@ def main(config):
                                 expanded = True,
                                 children = [
                                     render.Text(
-                                        content = str(int(sgv_current)),
+                                        content = str_current,
                                         font = "10x20",
                                         color = color_reading,
                                         offset = 1,
-                                    ),
-                                    render.Text(
-                                        content = str_delta,
-                                        font = "6x13",
-                                        color = color_delta,
-                                        offset = 0,
                                     ),
                                 ],
                             ),
@@ -326,15 +341,21 @@ def main(config):
                         main_align = "start",
                         cross_align = "center",
                         children = [
-                            render.Box(height = 11),
+                            render.Box(height = 15),
                             render.Row(
                                 cross_align = "center",
-                                main_align = "space_evenly",
+                                main_align = "center",
                                 expanded = True,
                                 children = [
                                     render.Text(
-                                        content = ARROWS[direction],
-                                        font = "10x20",
+                                        content = str_delta,
+                                        font = "6x13",
+                                        color = color_delta,
+                                        offset = 0,
+                                    ),
+                                    render.Text(
+                                        content = " " + ARROWS[direction],
+                                        font = "tb-8",
                                         color = color_arrow,
                                         offset = 0,
                                     ),
@@ -365,8 +386,6 @@ def main(config):
                 ],
             ),
         ]
-
-        left_col_width = 20
 
         sm_clock = [
             render.Box(
@@ -402,7 +421,7 @@ def main(config):
         min_time = OLDEST_READING_TARGET.unix
 
         # the rest of the graph
-        for point in range(GRAPH_WIDTH):
+        for point in range(graph_width):
             max_time = min_time + 299
             this_point = 0
             for history_point in history:
@@ -413,8 +432,8 @@ def main(config):
             if this_point < GRAPH_BOTTOM and this_point > 0:
                 this_point = GRAPH_BOTTOM
 
-            if this_point > GRAPH_TOP:
-                this_point = GRAPH_TOP
+            if this_point > graph_height:
+                this_point = graph_height
 
             graph_point_color = color_graph_normal
 
@@ -456,7 +475,7 @@ def main(config):
                     color_inverted = graph_point_color,
                     fill = False,
                     x_lim = (0, 1),
-                    y_lim = (GRAPH_BOTTOM, GRAPH_TOP),
+                    y_lim = (GRAPH_BOTTOM, graph_height),
                 ),
             )
 
@@ -477,7 +496,7 @@ def main(config):
                                 render.Row(
                                     children = [
                                         render.WrappedText(
-                                            content = str(int(sgv_current)),
+                                            content = str_current,
                                             font = "6x13",
                                             color = color_reading,
                                             width = left_col_width,
@@ -489,14 +508,9 @@ def main(config):
                                     children = [
                                         render.Text(
                                             content = str_delta,
-                                            font = "tom-thumb",
+                                            font = "tb-8",
                                             color = color_delta,
-                                            offset = -1,
-                                        ),
-                                        render.Box(
-                                            height = 1,
-                                            width = 1,
-                                            color = "#000",
+                                            offset = 1,
                                         ),
                                         render.Text(
                                             content = ARROWS[direction],
@@ -543,26 +557,26 @@ def main(config):
                                                 (0, normal_low),
                                                 (1, normal_low),
                                             ],
-                                            width = GRAPH_WIDTH,
+                                            width = graph_width,
                                             height = 32,
                                             color = color_graph_lines,
                                             color_inverted = color_graph_lines,
                                             fill = False,
                                             x_lim = (0, 1),
-                                            y_lim = (GRAPH_BOTTOM, GRAPH_TOP),
+                                            y_lim = (GRAPH_BOTTOM, graph_height),
                                         ),
                                         render.Plot(
                                             data = [
                                                 (0, normal_high),
                                                 (1, normal_high),
                                             ],
-                                            width = GRAPH_WIDTH,
+                                            width = graph_width,
                                             height = 32,
                                             color = color_graph_lines,
                                             color_inverted = color_graph_lines,
                                             fill = False,
                                             x_lim = (0, 1),
-                                            y_lim = (GRAPH_BOTTOM, GRAPH_TOP),
+                                            y_lim = (GRAPH_BOTTOM, graph_height),
                                         ),
                                         render.Row(
                                             main_align = "start",
@@ -616,30 +630,37 @@ def get_schema():
                 desc = "Your Nightscout ID (i.e. [nightscoutID].heroku.com)",
                 icon = "gear",
             ),
+            schema.Toggle(
+                id = "show_mmol",
+                name = "Display mmol",
+                desc = "Display readings and delta as mmol (Settings values should remain mg/dL)",
+                icon = "gear",
+                default = False,
+            ),
             schema.Text(
                 id = "normal_high",
-                name = "Normal High Threshold",
+                name = "Normal High Threshold (in mg/dL)",
                 desc = "Anything above this is displayed yellow unless it is above the Urgent High Threshold (default " + str(DEFAULT_NORMAL_HIGH) + ")",
                 icon = "hashtag",
                 default = str(DEFAULT_NORMAL_HIGH),
             ),
             schema.Text(
                 id = "normal_low",
-                name = "Normal Low Threshold",
+                name = "Normal Low Threshold (in mg/dL)",
                 desc = "Anything below this is displayed yellow unless it is below the Urgent Low Threshold (default " + str(DEFAULT_NORMAL_LOW) + ")",
                 icon = "hashtag",
                 default = str(DEFAULT_NORMAL_LOW),
             ),
             schema.Text(
                 id = "urgent_high",
-                name = "Urgent High Threshold",
+                name = "Urgent High Threshold (in mg/dL)",
                 desc = "Anything above this is displayed red (Default " + str(DEFAULT_URGENT_HIGH) + ")",
                 icon = "hashtag",
                 default = str(DEFAULT_URGENT_HIGH),
             ),
             schema.Text(
                 id = "urgent_low",
-                name = "Urgent Low Threshold",
+                name = "Urgent Low Threshold (in mg/dL)",
                 desc = "Anything below this is displayed red (Default " + str(DEFAULT_URGENT_LOW) + ")",
                 icon = "hashtag",
                 default = str(DEFAULT_URGENT_LOW),
@@ -657,6 +678,13 @@ def get_schema():
                 desc = "Show hour makings on the graph",
                 icon = "gear",
                 default = DEFAULT_SHOW_GRAPH_HOUR_BARS,
+            ),
+            schema.Text(
+                id = "graph_height",
+                name = "Graph Height",
+                desc = "Height of Graph (in mg/dL) (Default " + str(DEFAULT_GRAPH_HEIGHT) + ")",
+                icon = "hashtag",
+                default = str(DEFAULT_GRAPH_HEIGHT),
             ),
             schema.Toggle(
                 id = "show_clock",
@@ -715,6 +743,7 @@ def get_nightscout_data(nightscout_id, nightscout_host):
     direction = latest_reading["direction"]
 
     print("%d %d %s" % (sgv_current, sgv_delta, ARROWS[direction]))
+    print("%s %s %s" % (mgdl_to_mmol(sgv_current), mgdl_to_mmol(sgv_delta), ARROWS[direction]))
 
     history = []
 
@@ -737,6 +766,10 @@ def get_nightscout_data(nightscout_id, nightscout_host):
 
     return nightscout_data, resp.status_code
 
+def mgdl_to_mmol(mgdl):
+    mmol = float(int((mgdl/18) * 10)/10)
+    return mmol
+    
 def display_failure(msg):
     return render.Root(
         max_age = 120,
