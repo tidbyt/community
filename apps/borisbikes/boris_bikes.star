@@ -150,6 +150,7 @@ def main(config):
     dock_name, acoustic_count, electric_count = get_dock(dock_id)
 
     return render.Root(
+        max_age = 120,
         child = render.Stack(
             children = [
                 render.Padding(
