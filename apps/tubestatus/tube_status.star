@@ -280,8 +280,12 @@ def main(config):
     elif display_mode == DISPLAY_SEQUENTIAL:
         rendered = render_sequential(lines)
         delay = 2000
+    else:
+        rendered = []
+        delay = 50
 
     return render.Root(
+        max_age = 120,
         delay = delay,
         child = rendered,
     )

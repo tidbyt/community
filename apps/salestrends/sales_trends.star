@@ -5,13 +5,13 @@ Description: Show daily, weekly, monthly and/or yearly sales numbers.
 Author: Shopify
 """
 
+load("animation.star", "animation")
+load("cache.star", "cache")
+load("encoding/base64.star", "base64")
+load("encoding/json.star", "json")
+load("http.star", "http")
 load("render.star", "render")
 load("schema.star", "schema")
-load("http.star", "http")
-load("animation.star", "animation")
-load("encoding/base64.star", "base64")
-load("cache.star", "cache")
-load("encoding/json.star", "json")
 
 # CONFIG
 SHOPIFY_COUNTER_API_HOST = "https://www.shopcounter.app"
@@ -276,7 +276,6 @@ def main(config):
     if not api_response:
         return error_view()
 
-    api_config = api_response["config"]
     api_data = api_response["data"]
     daily = api_data["daily"]
     weekly = api_data["weekly"]
