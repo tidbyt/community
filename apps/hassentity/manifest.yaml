@@ -1,0 +1,8 @@
+---
+id: hass-entity
+name: Hass Entity
+summary: Display Hass entity state
+desc: Display an externally accessible Home Assistant entity state or attribute.
+author: InTheDaylight14
+fileName: hass_entity.star
+packageName: hassentity

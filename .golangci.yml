@@ -1,8 +1,0 @@
-linters:
-  enable:
-    - misspell
-    - gocritic
-
-linters-settings:
-  misspell:
-    locale: US

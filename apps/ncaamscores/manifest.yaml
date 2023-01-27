@@ -1,0 +1,8 @@
+---
+id: ncaam-scores
+name: NCAA Basketball
+summary: NCAA Mens Basketball Scores
+desc: For slower scrolling of scores, add the app to your Tidbyt multiple times. Then, within each app instance, set 'Total Instances of App' to the amount of times you have it installed, and set 'App Instance Number' unique to each app instance.
+author: LunchBox8484
+fileName: ncaam_scores.star
+packageName: ncaamscores

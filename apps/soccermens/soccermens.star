@@ -199,12 +199,6 @@ def main(config):
                             main_align = "space_between",
                             cross_align = "start",
                             children = [
-                                render.Row(
-                                    expanded = True,
-                                    main_align = "space_between",
-                                    cross_align = "start",
-                                    children = get_date_column(False, now, retroTextColor, retroBorderColor, displayType, gameTime, timeColor),
-                                ),
                                 render.Column(
                                     children = [
                                         render.Box(width = 64, height = 12, color = awayColor, child = render.Row(expanded = True, main_align = "start", cross_align = "center", children = [
@@ -218,7 +212,7 @@ def main(config):
                                     ],
                                 ),
                                 render.Stack(
-                                    children = get_gametime_column(False, gameTime, retroTextColor, retroBackgroundColor, retroBorderColor),
+                                    children = get_gametime_column(False, gameTime, timeColor, retroBackgroundColor, retroBorderColor),
                                 ),
                             ],
                         ),
@@ -226,7 +220,6 @@ def main(config):
                 )
 
             elif displayType == "horizontal":
-                textColor = "#fff"
                 backgroundColor = "#000"
                 borderColor = "#000"
 
@@ -237,12 +230,6 @@ def main(config):
                             main_align = "space_between",
                             cross_align = "start",
                             children = [
-                                render.Row(
-                                    expanded = True,
-                                    main_align = "space_between",
-                                    cross_align = "start",
-                                    children = get_date_column(False, now, textColor, borderColor, displayType, gameTime, timeColor),
-                                ),
                                 render.Row(
                                     expanded = True,
                                     main_align = "space_between",
@@ -280,7 +267,7 @@ def main(config):
                                     expanded = True,
                                     main_align = "space_between",
                                     cross_align = "start",
-                                    children = get_gametime_column(False, gameTime, textColor, backgroundColor, borderColor),
+                                    children = get_gametime_column(False, gameTime, timeColor, backgroundColor, borderColor),
                                 ),
                             ],
                         ),
@@ -288,7 +275,6 @@ def main(config):
                 )
 
             elif displayType == "logos":
-                textColor = "#fff"
                 backgroundColor = "#000"
                 borderColor = "#000"
                 textFont = teamFont
@@ -300,12 +286,6 @@ def main(config):
                             main_align = "space_between",
                             cross_align = "start",
                             children = [
-                                render.Row(
-                                    expanded = True,
-                                    main_align = "space_between",
-                                    cross_align = "start",
-                                    children = get_date_column(False, now, textColor, borderColor, displayType, gameTime, timeColor),
-                                ),
                                 render.Row(
                                     expanded = True,
                                     main_align = "space_between",
@@ -329,7 +309,7 @@ def main(config):
                                     expanded = True,
                                     main_align = "space_between",
                                     cross_align = "start",
-                                    children = get_gametime_column(False, gameTime, textColor, backgroundColor, borderColor),
+                                    children = get_gametime_column(False, gameTime, timeColor, backgroundColor, borderColor),
                                 ),
                             ],
                         ),
@@ -337,7 +317,6 @@ def main(config):
                 )
 
             elif displayType == "black":
-                textColor = "#fff"
                 backgroundColor = "#000"
                 borderColor = "#000"
                 textFont = teamFont
@@ -349,12 +328,6 @@ def main(config):
                             main_align = "space_between",
                             cross_align = "start",
                             children = [
-                                render.Row(
-                                    expanded = True,
-                                    main_align = "space_between",
-                                    cross_align = "start",
-                                    children = get_date_column(False, now, textColor, borderColor, displayType, gameTime, timeColor),
-                                ),
                                 render.Row(
                                     expanded = True,
                                     main_align = "space_between",
@@ -380,7 +353,7 @@ def main(config):
                                     expanded = True,
                                     main_align = "space_between",
                                     cross_align = "start",
-                                    children = get_gametime_column(False, gameTime, textColor, backgroundColor, borderColor),
+                                    children = get_gametime_column(False, gameTime, timeColor, backgroundColor, borderColor),
                                 ),
                             ],
                         ),
@@ -388,7 +361,6 @@ def main(config):
                 )
 
             else:
-                textColor = "#fff"
                 backgroundColor = "#000"
                 borderColor = "#000"
                 textFont = teamFont
@@ -400,12 +372,6 @@ def main(config):
                             main_align = "space_between",
                             cross_align = "start",
                             children = [
-                                render.Row(
-                                    expanded = True,
-                                    main_align = "space_between",
-                                    cross_align = "start",
-                                    children = get_date_column(False, now, textColor, borderColor, displayType, gameTime, timeColor),
-                                ),
                                 render.Row(
                                     expanded = True,
                                     main_align = "space_between",
@@ -431,7 +397,7 @@ def main(config):
                                     expanded = True,
                                     main_align = "space_between",
                                     cross_align = "start",
-                                    children = get_gametime_column(False, gameTime, textColor, backgroundColor, borderColor),
+                                    children = get_gametime_column(False, gameTime, timeColor, backgroundColor, borderColor),
                                 ),
                             ],
                         ),
@@ -646,6 +612,18 @@ colorOptions = [
     schema.Option(
         display = "Orange",
         value = "#FFA500",
+    ),
+    schema.Option(
+        display = "Indigo",
+        value = "#4B0082",
+    ),
+    schema.Option(
+        display = "Violet",
+        value = "#EE82EE",
+    ),
+    schema.Option(
+        display = "Pink",
+        value = "#FC46AA",
     ),
 ]
 
