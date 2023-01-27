@@ -1,0 +1,8 @@
+---
+id: aadailyreflect
+name: AA Daily Reflect
+summary: Daily reflection from AA
+desc: Shows todays daily reflection title, summary and reference from aa.org/daily-reflections.
+author: jvivona
+fileName: aadailyreflect.star
+packageName: aadailyreflect

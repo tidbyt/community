@@ -3,10 +3,10 @@ name: Build and Test
 on:
   pull_request:
     branches:
-      - '*'
+      - "*"
 
 jobs:
-  lint:
+  check:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
@@ -16,33 +16,11 @@ jobs:
         with:
           go-version: 1.19
 
-      - name: Install Linux dependencies
-        run: sudo apt-get install -y libwebp-dev
+      - name: Setup build agent
+        run: ./.github/scripts/setup.sh
 
-      - name: Install buildifier
-        run: make install-buildifier
+      - name: Check all apps
+        run: pixlet check -r ./
 
-      - name: Run buildifier
-        run: buildifier -d -r ./
-
-      - name: golangci-lint
-        uses: golangci/golangci-lint-action@v3
-
-  build-and-test:
-    runs-on: ubuntu-latest
-    steps:
-    - uses: actions/checkout@v3
-
-    - name: Set up Go
-      uses: actions/setup-go@v3
-      with:
-        go-version: 1.19
-
-    - name: Install Linux dependencies
-      run: sudo apt-get install -y libwebp-dev
-
-    - name: Build
-      run: make build
-
-    - name: Test
-      run: make test
+      - name: Sanity check go embed
+        run: go test tidbyt.dev/community/apps

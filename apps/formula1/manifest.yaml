@@ -1,0 +1,8 @@
+---
+id: formula-1
+name: Formula 1
+summary: Next F1 Race Location
+desc: Shows Time date and location of Next F1 race.
+author: AmillionAir
+fileName: formula_1.star
+packageName: formula1

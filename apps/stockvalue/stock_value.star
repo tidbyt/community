@@ -5,13 +5,12 @@ Description: This app will allow you track the value of your portfolio for a sin
 Author: gshipley
 """
 
-load("render.star", "render")
-load("http.star", "http")
-load("math.star", "math")
-load("humanize.star", "humanize")
-load("encoding/base64.star", "base64")
-load("schema.star", "schema")
 load("cache.star", "cache")
+load("encoding/base64.star", "base64")
+load("http.star", "http")
+load("humanize.star", "humanize")
+load("render.star", "render")
+load("schema.star", "schema")
 load("secret.star", "secret")
 
 STOCK_PRICE_URL = "https://www.alphavantage.co/query?function=GLOBAL_QUOTE&symbol="
