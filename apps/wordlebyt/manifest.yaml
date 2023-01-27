@@ -1,0 +1,8 @@
+---
+id: wordlebyt
+name: Wordlebyt
+summary: Display daily Wordle score
+desc: After playing Wordle on your phone, click Share>Copy text. In the Tidbyt app, paste the result into Wordlebyt.
+author: skola28
+fileName: wordlebyt.star
+packageName: wordlebyt

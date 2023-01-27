@@ -27,12 +27,12 @@ Author: Chris Wyman
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-load("render.star", "render")
-load("schema.star", "schema")
-load("time.star", "time")
 load("encoding/base64.star", "base64")
 load("encoding/json.star", "json")
 load("math.star", "math")
+load("render.star", "render")
+load("schema.star", "schema")
+load("time.star", "time")
 
 #
 # Default location
