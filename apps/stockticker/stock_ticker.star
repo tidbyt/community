@@ -5,12 +5,10 @@ Description: This is a simple stock ticker app, that will display a stock ticker
 Author: hollowmatt
 """
 
-load("render.star", "render")
-load("http.star", "http")
-load("math.star", "math")
-load("encoding/base64.star", "base64")
-load("encoding/json.star", "json")
 load("cache.star", "cache")
+load("encoding/base64.star", "base64")
+load("http.star", "http")
+load("render.star", "render")
 load("schema.star", "schema")
 
 STOCK_QUOTE_URL = "https://www.alphavantage.co/query?function=GLOBAL_QUOTE&symbol="

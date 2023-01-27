@@ -5,10 +5,10 @@ Description: Display shouldideploy.today answer.
 Author: humbertogontijo
 """
 
+load("cache.star", "cache")
+load("http.star", "http")
 load("render.star", "render")
 load("schema.star", "schema")
-load("http.star", "http")
-load("cache.star", "cache")
 
 SHOULD_I_DEPLOY_URL = "https://shouldideploy.today/api?tz="
 DEFAULT_TIMEZONE = "UTC"

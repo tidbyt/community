@@ -9,9 +9,9 @@ Author: rs7q5
 #Created 20220221 RIS
 #Last Modified 20220515 RIS
 
+load("re.star", "re")
 load("render.star", "render")
 load("schema.star", "schema")
-load("re.star", "re")
 
 COLOR_LIST = {
     "White": "#fff",

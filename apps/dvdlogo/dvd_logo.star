@@ -39,7 +39,7 @@ def get_schema():
         fields = [],
     )
 
-def main(config):
+def main():
     delay = 100 * time.millisecond
     frames_per_second = time.second / delay
 

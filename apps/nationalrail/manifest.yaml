@@ -1,0 +1,8 @@
+---
+id: national-rail
+name: National Rail
+summary: Live UK train departures
+desc: Realtime departure board information from National Rail Enquiries.
+author: dinosaursrarr
+fileName: national_rail.star
+packageName: nationalrail

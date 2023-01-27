@@ -5,23 +5,21 @@ Description: Displays crypto prices in USD over the last 24 hours.
 Author: Ethan Fuerst (@ethanfuerst)
 """
 
-load("render.star", "render")
-load("schema.star", "schema")
-load("http.star", "http")
-load("humanize.star", "humanize")
 load("cache.star", "cache")
 load("encoding/json.star", "json")
-load("secret.star", "secret")
+load("http.star", "http")
+load("humanize.star", "humanize")
 load("math.star", "math")
+load("render.star", "render")
+load("schema.star", "schema")
+load("secret.star", "secret")
 
 DEFAULT_SYMBOL = "BTC"
 RED_RGB = "#FF0000"
 GREEN_RGB = "#00FF00"
 WHITE_RGB = "#FFFFFF"
 
-PIN = """
-AV6+xWcEVlhaDfM6KaOuPf7x+wdwWzDlL4cwQMAZArj+ut/DwShqRB1OtNksWWNdqkpQKUwF4Bolpyl+d5wrn1htZjlmEBb4ClZOEmKKS5Q5nkkCBJV4zk99f/5wCJviUDB8JvawxoEvuGpJBbvd0Co4xdefeg==
-"""
+PIN = """AV6+xWcEOd0lGviFmw+gUtFJ2kA3cYVXGBwOoi903QlfeNHQiMtnYEDpI4qB6SzMwHcuMxrBP08GK/5R3835Tmuzq+Hg8y6pIExIp/G5xLeAVBnpyYnjwdDhz1nw6+BAgnUEXIO9xW0q+99cZSeRPBw86W8s9w=="""
 
 def display_symbol(crypto_symbol):
     "returns crypto symbol render"
@@ -225,10 +223,8 @@ def main(config):
 
 def get_schema():
     crypto_options = [
-        # API allows for 500 calls/day and 5 per minute
-        # 96 calls needed per coin per day to get all 15 minute intervals
-        # 5 calls per minute also limits the number of refreshes
-        # 5 crypto options possible without going over limits
+        # API allows for 150 calls/minute so there is room to add more coins here
+        # Before adding coins like DOGE that are worth less than 10 cents, need to add decimals to track changes under a cent
         # These are top 5 non-stable coins by market cap as of creation
         schema.Option(
             display = "Bitcoin",
