@@ -507,7 +507,7 @@ def main(config):
                                 render.Row(
                                     children = [
                                         render.Text(
-                                            content = str_delta,
+                                            content = str_delta + " ",
                                             font = "tb-8",
                                             color = color_delta,
                                             offset = 1,
