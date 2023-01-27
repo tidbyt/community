@@ -1,0 +1,8 @@
+---
+id: outlook-calendar
+name: Outlook Calendar
+summary: Display Next Meeting
+desc: Shows the date, next meeting and time from your Outlook Calendar.
+author: Matt-Pesce
+fileName: outlook_calendar.star
+packageName: outlookcalendar

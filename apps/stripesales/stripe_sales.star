@@ -1,10 +1,10 @@
-load("render.star", "render")
+load("cache.star", "cache")
+load("encoding/json.star", "json")
 load("http.star", "http")
 load("humanize.star", "humanize")
-load("cache.star", "cache")
-load("time.star", "time")
+load("render.star", "render")
 load("schema.star", "schema")
-load("encoding/json.star", "json")
+load("time.star", "time")
 
 BACKGROUND_COLOR = "#638475"
 ERROR_BACKGROUND_COLOR = "#540B0E"

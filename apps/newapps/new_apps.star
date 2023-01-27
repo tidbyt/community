@@ -20,6 +20,7 @@ FONT = "tom-thumb"
 def main(config):
     #get old list of apps
     old_data = cache.get("old_apps")
+    force_current_list = False
     if old_data != None:
         print("Hit! Using cached old app list data.")
         old_list = json.decode(old_data)
@@ -41,7 +42,7 @@ def main(config):
         print("Miss! Refreshing current app list data.")
         current_list = get_apps()
         if current_list != None:
-            cache.set("new_apps", json.encode(current_list), ttl_seconds = 1800)  #refresh current list every 30 minutes
+            cache.set("current_apps", json.encode(current_list), ttl_seconds = 1800)  #refresh current list every 30 minutes
 
     #get final frame
     if old_list == None or current_list == None:

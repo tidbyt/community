@@ -1,0 +1,8 @@
+---
+id: order-moments
+name: Shopify Celebrate
+summary: Celebrate major moments
+desc: Get celebratory notifications when you hit specific order milestones.
+author: Shopify
+fileName: order_moments.star
+packageName: ordermoments
