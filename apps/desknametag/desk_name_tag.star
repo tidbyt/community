@@ -10,15 +10,15 @@ load("render.star", "render")
 load("schema.star", "schema")
 
 DEFAULT_NAME = "John Smith"
-DEFAULT_DEPARTMENT = "Technology"
-DEFAULT_PRONOUNS = ""
+DEFAULT_LINE_ONE = "Technology"
+DEFAULT_LINE_TWO = "Enterprise"
 DEFAULT_TEXT_COLOR = "#FFFFFF"
 DEFAULT_BACKGROUND_COLOR = "#00008B"
 
 def main(config):
     name = config.str("name", DEFAULT_NAME)
-    department = config.str("department", DEFAULT_DEPARTMENT)
-    pronouns = config.str("pronouns", DEFAULT_PRONOUNS)
+    line_one = config.str("line_one", DEFAULT_LINE_ONE)
+    line_two = config.str("line_two", DEFAULT_LINE_TWO)
     text_color = config.str("text_color", DEFAULT_TEXT_COLOR)
     if re.findall("^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$", text_color) == ():
         text_color = DEFAULT_TEXT_COLOR
@@ -52,7 +52,7 @@ def main(config):
                     child = render.Marquee(
                         align = "center",
                         width = 64,
-                        child = render.Text(content = department),
+                        child = render.Text(content = line_one),
                     ),
                 ),
                 render.Box(
@@ -65,7 +65,7 @@ def main(config):
                         align = "center",
                         width = 64,
                         child = render.Text(
-                            content = pronouns,
+                            content = line_two,
                             font = "tom-thumb",
                         ),
                     ),
@@ -85,15 +85,15 @@ def get_schema():
                 icon = "user",
             ),
             schema.Text(
-                id = "department",
-                name = "Department",
-                desc = "Enter your department.",
+                id = "line_one",
+                name = "Tag Line One",
+                desc = "Enter your message for line one.",
                 icon = "briefcase",
             ),
             schema.Text(
-                id = "pronouns",
-                name = "Pronouns",
-                desc = "Enter your pronouns.",
+                id = "line_two",
+                name = "Tag Line Two",
+                desc = "Enter your message for line two.",
                 icon = "peopleArrowsLeftRight",
             ),
             schema.Text(
