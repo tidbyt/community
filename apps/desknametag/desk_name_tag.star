@@ -202,13 +202,13 @@ def get_schema():
             ),
             schema.Text(
                 id = "custom_text_color",
-                name = "Custom Text Hex Color (with hashtag)",
+                name = "Custom Text Hex Color (w/hashtag)",
                 desc = "Enter a valid color hex code: #FFFFFF",
                 icon = "hashtag",
             ),
             schema.Text(
                 id = "custom_background_color",
-                name = "Custom Background Hex Color (with hashtag)",
+                name = "Custom Background Hex Color (w/hashtag)",
                 desc = "Enter a valid color hex code: #0000FF",
                 icon = "hashtag",
             ),
