@@ -1,0 +1,8 @@
+---
+id: on-this-day
+name: On This Day
+summary: Who was born on this day
+desc: Looks at wikipedia for births, deaths and events for the current day. Picks one and displays it.
+author: Alan Moore
+fileName: on_this_day.star
+packageName: onthisday
