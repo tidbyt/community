@@ -95,7 +95,7 @@ def main(config):
     night_mode = config.get("night_mode", DEFAULT_NIGHT_MODE)
     
     if nightscout_id != None:
-        nightscout_data_json, status_code = get_nightscout_data(nightscout_id, nightscout_host)
+        nightscout_data_json, status_code = get_nightscout_data(nightscout_id, nightscout_host, show_mmol)
     else:
         nightscout_data_json, status_code = EXAMPLE_DATA, 0
 
@@ -107,17 +107,17 @@ def main(config):
 
     # Pull the data from the cache
     sgv_current_mgdl = int(nightscout_data_json["sgv_current"])
-    sgv_delta_mgdl = int(nightscout_data_json["sgv_delta"])
+    sgv_delta = nightscout_data_json["sgv_delta"]
     latest_reading_dt = time.parse_time(nightscout_data_json["latest_reading_date_string"])
     direction = nightscout_data_json["direction"]
     history = nightscout_data_json["history"]
     
-    #sgv_delta_mgdl = 10
-    #sgv_current_mgdl = 106
+    #sgv_delta_mgdl = 25
+    #sgv_current_mgdl = 420
     print ("show_mmol:" + show_mmol)
     if show_mmol=="true":
         sgv_current = mgdl_to_mmol(sgv_current_mgdl)
-        sgv_delta = mgdl_to_mmol(sgv_delta_mgdl)
+        #sgv_delta = mgdl_to_mmol(sgv_delta_mgdl)
         
         #str_current = force_decimal_places(sgv_current, 1)
         str_current = str(sgv_current)
@@ -126,18 +126,18 @@ def main(config):
             str_delta = "+0"
         elif (sgv_delta > 0):
             str_delta = "+" + str_delta
-            
-        left_col_width = 26
-        graph_width = 37
+        print (str_delta)
+        left_col_width = 27
+        graph_width = 36
     else:
         str_current = str(int(sgv_current_mgdl))
         # Delta
-        str_delta = str(sgv_delta_mgdl)
-        if (sgv_delta_mgdl >= 0):
+        str_delta = str(sgv_delta)
+        if (sgv_delta >= 0):
             str_delta = "+" + str_delta
         
-        left_col_width = 26
-        graph_width = 37
+        left_col_width = 27
+        graph_width = 36
 
     OLDEST_READING_TARGET = UTC_TIME_NOW - time.parse_duration(str(5 * graph_width) + "m")
     #for reading in history:
@@ -258,7 +258,7 @@ def main(config):
                                         color = color_reading,
                                     ),
                                     render.Text(
-                                        content = " " + str_delta,
+                                        content = " " + str_delta.replace("0", "O"),
                                         font = "tb-8",
                                         color = color_delta,
                                         offset = -1,
@@ -348,7 +348,7 @@ def main(config):
                                 expanded = True,
                                 children = [
                                     render.Text(
-                                        content = str_delta,
+                                        content = str_delta.replace("0", "O"),
                                         font = "6x13",
                                         color = color_delta,
                                         offset = 0,
@@ -507,10 +507,14 @@ def main(config):
                                 render.Row(
                                     children = [
                                         render.Text(
-                                            content = str_delta + " ",
+                                            content = str_delta.replace("0", "O"),
                                             font = "tb-8",
                                             color = color_delta,
                                             offset = 1,
+                                        ),
+                                        render.Box(
+                                            height = 1,
+                                            width = 1,
                                         ),
                                         render.Text(
                                             content = ARROWS[direction],
@@ -705,7 +709,7 @@ def get_schema():
 
 # This method returns a tuple of a nightscout_data and a status_code. If it's
 # served from cache, we return a status_code of 0.
-def get_nightscout_data(nightscout_id, nightscout_host):
+def get_nightscout_data(nightscout_id, nightscout_host, show_mmol):
     key = nightscout_id + "." + nightscout_host + "_nightscout_data"
 
     nightscout_url = "https://" + nightscout_id + "." + nightscout_host + "/api/v1/entries.json?count=100"
@@ -729,34 +733,28 @@ def get_nightscout_data(nightscout_id, nightscout_host):
     latest_reading = resp.json()[0]
     previous_reading = resp.json()[1]
 
-    #print (latest_reading)
-    #print (previous_reading)
     latest_reading_date_string = latest_reading["dateString"]
 
     # Current sgv value
     sgv_current = latest_reading["sgv"]
 
     # Delta between the current and previous
-    sgv_delta = int(sgv_current - previous_reading["sgv"])
+    if show_mmol=="true":
+        sgv_delta = math.round((mgdl_to_mmol(int(sgv_current)) - mgdl_to_mmol(int(previous_reading["sgv"])))*10)/10
+        print ("sgv_delta:" + str(sgv_delta))
+    else:
+        sgv_delta = int(sgv_current - previous_reading["sgv"])
 
     # Get the direction
     direction = latest_reading["direction"]
-
-    print("%d %d %s" % (sgv_current, sgv_delta, ARROWS[direction]))
-    print("%s %s %s" % (mgdl_to_mmol(sgv_current), mgdl_to_mmol(sgv_delta), ARROWS[direction]))
-
     history = []
 
     for x in resp.json():
         history.append(tuple((int(int(x["date"]) / 1000), int(x["sgv"]))))
-        #print (x["dateString"])
-        #print (str(int(x["date"] / 1000)) + ":" + str(int(x["sgv"])))
-
-    #print (history)
 
     nightscout_data = {
         "sgv_current": str(int(sgv_current)),
-        "sgv_delta": str(int(sgv_delta)),
+        "sgv_delta": sgv_delta,
         "latest_reading_date_string": latest_reading_date_string,
         "direction": direction,
         "history": history,
