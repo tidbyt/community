@@ -25,14 +25,14 @@ def main(config):
     custom_background_color = config.str("custom_background_color")
 
     if (
-        custom_text_color != None
-        and re.findall("^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$", custom_text_color)
+        custom_text_color != None and
+        re.findall("^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$", custom_text_color)
     ):
         text_color = custom_text_color
-    
+
     if (
-        custom_background_color != None
-        and re.findall("^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$", custom_background_color)
+        custom_background_color != None and
+        re.findall("^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$", custom_background_color)
     ):
         background_color = custom_background_color
 
