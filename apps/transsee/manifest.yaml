@@ -1,0 +1,8 @@
+---
+id: transsee
+name: TransSee
+summary: Realtime transit prediction
+desc: Provides real-time transit predictions based on actual travel times for over 150 agencies. Requires paid premium. See transsee.ca/tidbyt for usage information.
+author: doconno@gmail.com
+fileName: transsee.star
+packageName: transsee

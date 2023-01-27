@@ -1,0 +1,8 @@
+---
+id: nightscout
+name: Nightscout
+summary: Shows Nightscout CGM Data
+desc: Displays Continuous Glucose Monitoring (CGM) data from the Nightscout Open Source project (https://nightscout.github.io/).
+author: Jeremy Tavener, Paul Murphy
+fileName: nightscout.star
+packageName: nightscout

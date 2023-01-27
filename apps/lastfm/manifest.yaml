@@ -1,0 +1,8 @@
+---
+id: last-fm
+name: Last FM
+summary: Show Last.fm history
+desc: Show title, artist and album art from most recently scrobbled song in your Last.fm history.
+author: Chuck
+fileName: last_fm.star
+packageName: lastfm
