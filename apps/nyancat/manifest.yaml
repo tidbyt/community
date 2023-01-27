@@ -1,0 +1,8 @@
+---
+id: nyan-cat
+name: Nyan Cat
+summary: Nyan Cat Animation
+desc: An animated cartoon cat with a Pop-Tart for a torso.
+author: Mack Ward
+fileName: nyan_cat.star
+packageName: nyancat

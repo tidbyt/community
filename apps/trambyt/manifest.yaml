@@ -1,0 +1,8 @@
+---
+id: trambyt
+name: Trambyt
+summary: Departures for Västtrafik
+desc: Show departures for Västtrafik stops.
+author: protocol7
+fileName: trambyt.star
+packageName: trambyt

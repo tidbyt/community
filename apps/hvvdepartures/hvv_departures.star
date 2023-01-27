@@ -5,14 +5,14 @@ Description: Display real-time departure times for trains, buses and ferries in 
 Author: fxb (Felix Bruns)
 """
 
-load("render.star", "render")
-load("schema.star", "schema")
-load("http.star", "http")
 load("cache.star", "cache")
-load("time.star", "time")
-load("math.star", "math")
 load("encoding/base64.star", "base64")
 load("encoding/json.star", "json")
+load("http.star", "http")
+load("math.star", "math")
+load("render.star", "render")
+load("schema.star", "schema")
+load("time.star", "time")
 
 # The API endpoints used to retrieve locations and departures.
 #
