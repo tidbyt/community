@@ -5,9 +5,8 @@ Description: Shows Transit Departure Times from Selected Stop.
 Author: Alex Miller & Jonathan Wescott
 """
 
-load("render.star", "render")
 load("http.star", "http")
-load("encoding/json.star", "json")
+load("render.star", "render")
 load("schema.star", "schema")
 
 #Assign Default Stop Code
