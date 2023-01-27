@@ -697,7 +697,7 @@ def get_schema():
                 default = True,
             ),
             schema.Generated(
-                id = "generated",
+                id = "unit_options",
                 source = "show_mgdl",
                 handler = mg_mgdl_options,
             ),
@@ -708,19 +708,19 @@ def get_schema():
                 icon = "gear",
                 default = True,
             ),
-            schema.Toggle(
-                id = "show_graph_hour_bars",
-                name = "Show Graph Hours",
-                desc = "Show hour makings on the graph",
-                icon = "gear",
-                default = DEFAULT_SHOW_GRAPH_HOUR_BARS,
-            ),
             schema.Text(
                 id = "graph_height",
                 name = "Graph Height",
                 desc = "Height of Graph (in mg/dL) (Default " + str(DEFAULT_GRAPH_HEIGHT) + ")",
                 icon = "hashtag",
                 default = str(DEFAULT_GRAPH_HEIGHT),
+            ),
+            schema.Toggle(
+                id = "show_graph_hour_bars",
+                name = "Show Graph Hours",
+                desc = "Show hour makings on the graph",
+                icon = "gear",
+                default = DEFAULT_SHOW_GRAPH_HOUR_BARS,
             ),
             schema.Toggle(
                 id = "show_clock",
