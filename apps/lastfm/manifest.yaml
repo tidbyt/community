@@ -6,3 +6,11 @@ desc: Show title, artist and album art from most recently scrobbled song in your
 author: Chuck
 fileName: last_fm.star
 packageName: lastfm
+---
+id: lastfm
+name: Lastfm
+summary: What are you scrobbling
+desc: This app will display whatever track is currently being scrobbled to your Last.fm profile.
+author: mattygroch
+fileName: lastfm.star
+packageName: lastfm
