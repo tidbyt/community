@@ -1,0 +1,8 @@
+---
+id: kiel-ferry
+name: Kiel Ferry
+summary: Kiel Ferry Departures
+desc: Next scheduled ferry departure time for any stop and direction in the Kiel harbor ferry system.
+author: hloeding
+fileName: kiel_ferry.star
+packageName: kielferry

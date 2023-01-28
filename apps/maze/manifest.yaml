@@ -1,0 +1,8 @@
+---
+id: maze
+name: Maze
+summary: Draws and solves mazes
+desc: Draws a maze and then animates solving the maze.
+author: gstark
+fileName: maze.star
+packageName: maze
