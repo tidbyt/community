@@ -87,7 +87,7 @@ def main(config):
 
     show_graph = config.bool("show_graph", DEFAULT_SHOW_GRAPH)
     show_graph_hour_bars = config.bool("show_graph_hour_bars", DEFAULT_SHOW_GRAPH_HOUR_BARS)
-    graph_height = int(config.get("graph_height", DEFAULT_GRAPH_HEIGHT))
+
     show_clock = config.bool("show_clock", DEFAULT_SHOW_CLOCK)
     night_mode = config.bool("night_mode", DEFAULT_NIGHT_MODE)
 
@@ -113,6 +113,7 @@ def main(config):
     #sgv_current_mgdl = 420
     #print("show_mgdl:" + show_mgdl)
     if show_mgdl:
+        graph_height = int(str(config.get("mgdl_graph_height")))
         normal_high = int(str(config.get("mgdl_normal_high")))
         normal_low = int(str(config.get("mgdl_normal_low")))
         urgent_high = int(str(config.get("mgdl_urgent_high")))
@@ -127,6 +128,7 @@ def main(config):
         left_col_width = 27
         graph_width = 36
     else:
+        graph_height = int(float(config.get("mmol_graph_height")) * 18)
         normal_high = int(float(config.get("mmol_normal_high")) * 18)
         normal_low = int(float(config.get("mmol_normal_low")) * 18)
         urgent_high = int(float(config.get("mmol_urgent_high")) * 18)
@@ -608,6 +610,7 @@ def main(config):
 
 def mg_mgdl_options(show_mgdl):
     if show_mgdl == "true":
+        graph_height = DEFAULT_GRAPH_HEIGHT
         normal_high = DEFAULT_NORMAL_HIGH
         normal_low = DEFAULT_NORMAL_LOW
         urgent_high = DEFAULT_URGENT_HIGH
@@ -615,6 +618,7 @@ def mg_mgdl_options(show_mgdl):
         unit = "mg/dL"
         prefix = "mgdl"
     else:
+        graph_height = mgdl_to_mmol(DEFAULT_GRAPH_HEIGHT)
         normal_high = mgdl_to_mmol(DEFAULT_NORMAL_HIGH)
         normal_low = mgdl_to_mmol(DEFAULT_NORMAL_LOW)
         urgent_high = mgdl_to_mmol(DEFAULT_URGENT_HIGH)
@@ -624,31 +628,38 @@ def mg_mgdl_options(show_mgdl):
 
     return [
         schema.Text(
+            id = prefix + "_graph_height",
+            name = "Graph Height",
+            desc = "Height of Graph (in " + unit + ") (Default " + str(graph_height) + ")",
+            icon = "rulerVertical",
+            default = str(graph_height),
+        ),
+        schema.Text(
             id = prefix + "_normal_high",
             name = "Normal High Threshold (in " + unit + ")",
             desc = "Anything above this is displayed yellow unless it is above the Urgent High Threshold (default " + str(normal_high) + ")",
-            icon = "gripLines",
+            icon = "droplet",
             default = str(normal_high),
         ),
         schema.Text(
             id = prefix + "_normal_low",
             name = "Normal Low Threshold (in " + unit + ")",
             desc = "Anything below this is displayed yellow unless it is below the Urgent Low Threshold (default " + str(normal_low) + ")",
-            icon = "gripLines",
+            icon = "droplet",
             default = str(normal_low),
         ),
         schema.Text(
             id = prefix + "_urgent_high",
             name = "Urgent High Threshold (in " + unit + ")",
             desc = "Anything above this is displayed red (Default " + str(urgent_high) + ")",
-            icon = "gripLines",
+            icon = "droplet",
             default = str(urgent_high),
         ),
         schema.Text(
             id = prefix + "_urgent_low",
             name = "Urgent Low Threshold (in " + unit + ")",
             desc = "Anything below this is displayed red (Default " + str(urgent_low) + ")",
-            icon = "gripLines",
+            icon = "droplet",
             default = str(urgent_low),
         ),
     ]
@@ -708,18 +719,11 @@ def get_schema():
                 icon = "chartLine",
                 default = True,
             ),
-            schema.Text(
-                id = "graph_height",
-                name = "Graph Height",
-                desc = "Height of Graph (in mg/dL) (Default " + str(DEFAULT_GRAPH_HEIGHT) + ")",
-                icon = "rulerVertical",
-                default = str(DEFAULT_GRAPH_HEIGHT),
-            ),
             schema.Toggle(
                 id = "show_graph_hour_bars",
                 name = "Show Graph Hours",
                 desc = "Show hour makings on the graph",
-                icon = "gripLinesVertical",
+                icon = "chartColumn",
                 default = DEFAULT_SHOW_GRAPH_HOUR_BARS,
             ),
             schema.Toggle(
