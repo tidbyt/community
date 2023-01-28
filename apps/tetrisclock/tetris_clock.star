@@ -5,6 +5,7 @@ Description: Shows the current time by animating falling blocks. Highly customiz
 Author: MarkGamed7794
 """
 
+load("encoding/json.star", "json")
 load("random.star", "random")
 load("render.star", "render")
 load("schema.star", "schema")
@@ -51,14 +52,16 @@ MONTHS = [
     "DEC",
 ]
 DEFAULT_TIMEZONE = "America/New_York"
-DEFAULT_LOCATION = {
+DEFAULT_LOCATION = """
+{
     "lat": "40.6781784",
     "lng": "-73.9441579",
     "description": "Brooklyn, NY, USA",
     "locality": "Brooklyn",
     "place_id": "ChIJCSF8lBZEwokRhngABHRcdoI",
-    "timezone": DEFAULT_TIMEZONE,
+    "timezone": "America/New_York"
 }
+"""
 
 # Piece definitions. Y+ goes down, X+ goes right.
 # Spawn orientations:
@@ -446,12 +449,7 @@ def pad(str):
     return str
 
 def rgb2hex(col):
-    mixedCol = (
-        pad("%x" % int(col[0])),
-        pad("%x" % int(col[1])),
-        pad("%x" % int(col[2])),
-    )
-    return "#%s%s%s" % mixedCol
+    return "#%x%x%x%x%x%x" % (col[0] // 16, col[0] % 16, col[1] // 16, col[1] % 16, col[2] // 16, col[2] % 16)
 
 def main(config):
     # config
@@ -466,7 +464,8 @@ def main(config):
     DIGIT_LENGTH = int(config.get("digitlength", 60))
     MOVEMENT_ODDS = int(config.get("movementrate", 2))
 
-    loc = config.get("location", DEFAULT_LOCATION)
+    location = config.get("location", DEFAULT_LOCATION)
+    loc = json.decode(location)
     timezone = loc.get("timezone", config.get("$tz", DEFAULT_TIMEZONE))  # Utilize special timezone variable
     now = time.now().in_location(timezone)
 
