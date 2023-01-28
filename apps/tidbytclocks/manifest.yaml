@@ -1,0 +1,8 @@
+---
+id: tidbyt-clocks
+name: Tidbyt Clocks
+summary: Lists the Tidbyt clock apps
+desc: Lists the clock apps available on the Tidbyt. An app is listed if "clock" is in the name or description. This app is not included in the list though.
+author: rs7q5
+fileName: tidbyt_clocks.star
+packageName: tidbytclocks
