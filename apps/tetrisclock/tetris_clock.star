@@ -470,7 +470,7 @@ def main(config):
     timezone = loc.get("timezone", config.get("$tz", DEFAULT_TIMEZONE))  # Utilize special timezone variable
     now = time.now().in_location(timezone)
 
-    adjusted_hours = TWENTY_FOUR_HOUR and now.hour or ((now.hour - 1) % 12 + 1)
+    adjusted_hours = now.hour if TWENTY_FOUR_HOUR else ((now.hour - 1) % 12 + 1)
 
     #digits = [time_string[0], time_string[1], time_string[3], time_string[4]]
     if ((not LEADING_ZERO) and adjusted_hours < 10):
