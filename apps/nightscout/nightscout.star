@@ -693,7 +693,7 @@ def get_schema():
                 id = "show_mgdl",
                 name = "Display mg/dL",
                 desc = "Check to display readings and delta as mg/dL. Uncheck for mmol/L",
-                icon = "tint",
+                icon = "droplet",
                 default = True,
             ),
             schema.Generated(
