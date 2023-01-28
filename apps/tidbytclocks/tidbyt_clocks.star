@@ -28,7 +28,7 @@ def main():
         #get the data
         rep = http.get(BASE_URL)
         if rep.status_code != 200:
-            data = None  #["Error getting list of apps!!!!"]
+            data = None
         else:
             data = [(x["id"], (x["name"], x["description"])) for x in rep.json()["apps"]]
             data = dict(data)
@@ -36,13 +36,12 @@ def main():
 
     #find the apps that have clock in the name or description
     if data == None:
-        clock_list = ["Error getting list of apps!!!!"]
+        clock_list = ["Error getting list of apps!!!!"]  #error in getting data
     else:
-        #find clock apps
         clock_list = []
         for app_id, app_val in data.items():
-            clock_logic = app_val[0].lower().rfind("clock") or app_val[1].lower().rfind("clock")
-            if clock_logic != -1 and app_id != "tidbyt-clocks":  #don't want to count tidbyt-clocks app
+            clock_logic = app_val[0].lower().rfind("clock") != -1 or app_val[1].lower().rfind("clock") != -1
+            if clock_logic and app_id != "tidbyt-clocks":  #don't want to count tidbyt-clocks app
                 clock_list.append(app_val[0])  #get app name
 
     #get total number of clocks
