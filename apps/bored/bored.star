@@ -43,7 +43,6 @@ def main(config):
         print("params", params)
         rep = http.get(BORED_URL, params = params)
         if rep.status_code != 200:
-            # if the APi fails, return [] to skip this app showing
             fail("Bored request failed with status %d", rep.status_code)
 
         activity = rep.json()["activity"]
@@ -68,24 +67,24 @@ def main(config):
         if font != "tom-thumb" or font != "tb-8":
             font = "tb-8"
 
-        child = render.Box(
-            render.Marquee(
-                height = 32,
-                child = render.WrappedText(
-                    content = activity,
-                    color = color,
-                    width = 64,
-                    font = font,
-                    align = "center",
-                ),
-                offset_start = 5,
-                offset_end = 5,
-                scroll_direction = "vertical",
+        child = render.Marquee(
+            height = 32,
+            child = render.WrappedText(
+                content = activity,
+                color = color,
+                width = 64,
+                font = font,
+                align = "center",
             ),
+            offset_start = 5,
+            offset_end = 5,
+            scroll_direction = "vertical",
         )
 
     return render.Root(
         child,
+        show_full_animation = bool(config.get("scroll", True)),
+        delay = int(config.get("speed", 45)),
     )
 
 def get_schema():
@@ -140,6 +139,21 @@ def get_schema():
         schema.Option(
             display = "Random",
             value = "random",
+        ),
+    ]
+
+    speed_options = [
+        schema.Option(
+            display = "Slow Scroll",
+            value = "60",
+        ),
+        schema.Option(
+            display = "Medium Scroll",
+            value = "45",
+        ),
+        schema.Option(
+            display = "Fast Scroll",
+            value = "30",
         ),
     ]
 
@@ -207,6 +221,21 @@ def get_schema():
                 icon = "brush",
                 default = direction_options[0].value,
                 options = direction_options,
+            ),
+            schema.Dropdown(
+                id = "speed",
+                name = "Scroll Speed",
+                desc = "Scrolling speed",
+                icon = "gear",
+                default = speed_options[1].value,
+                options = speed_options,
+            ),
+            schema.Toggle(
+                id = "scroll",
+                name = "Try to finish?",
+                desc = "Keep scrolling text even if it's longer than app-rotation time",
+                icon = "user",
+                default = True,
             ),
         ],
     )
