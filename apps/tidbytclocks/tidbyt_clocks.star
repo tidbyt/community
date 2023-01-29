@@ -1,7 +1,7 @@
 """
 Applet: Tidbyt Clocks
-Summary: Lists the Tidbyt clock apps
-Description: Lists the clock apps available on the Tidbyt. An app is listed if "clock" appears in the app name or description. This app is not included in the list though.
+Summary: Displays Tidbyt clock apps
+Description: Displays clock apps available on the Tidbyt. Apps that have "clock" in the app name or description are listed. This app is not included in the list though.
 Author: rs7q5
 """
 #tidbyt_clock.star
