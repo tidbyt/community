@@ -132,7 +132,7 @@ PIECE_COLOURS = {
 
 COLOUR_SCHEMES = {
     # [T, I, O, L, J, S, Z, background, bar]
-    "standard_dark": [[187, 68, 255], [68, 255, 255], [255, 255, 68], [255, 187, 68], [68, 136, 255], [68, 255, 68], [255, 68, 68], [34, 34, 34], [255, 255, 255]],
+    "standard_dark": [[187, 68, 255], [68, 255, 255], [255, 255, 68], [255, 187, 68], [68, 136, 255], [68, 255, 68], [255, 68, 68], [22, 22, 22], [255, 255, 255]],
     "standard_light": [[187, 68, 255], [68, 255, 255], [255, 255, 68], [255, 187, 68], [68, 136, 255], [68, 255, 68], [255, 68, 68], [200, 200, 200], [68, 68, 68]],
     "autumn": [[241, 235, 163], [240, 227, 152], [237, 211, 130], [241, 198, 118], [245, 185, 105], [249, 172, 92], [251, 165, 86], [176, 100, 38], [252, 143, 54]],
     "winter": [[214, 221, 255], [192, 201, 245], [173, 185, 237], [163, 173, 227], [156, 164, 219], [147, 152, 209], [139, 142, 201], [89, 104, 150], [54, 65, 89]],
@@ -449,12 +449,24 @@ def main(config):
     LEADING_ZERO = config.bool("leadzero", True)
     SHOW_DATE = config.bool("showdate", True)
     COLOUR_SCHEME_NAME = config.get("colourscheme", "standard_dark")
-    BACKGROUND_COLOUR = rgb2hex(COLOUR_SCHEMES[COLOUR_SCHEME_NAME][7])
     FADE_SPEED = int(config.get("fadespeed", 10))
     FADE_COLOUR = (FADE_SPEED < 1000000)
     FRAME_RATE = int(config.get("framerate", 10))
     DIGIT_LENGTH = int(config.get("digitlength", 60))
     MOVEMENT_ODDS = int(config.get("movementrate", 2))
+
+    # brightness
+    BRIGHTNESS_MULT = float(config.get("brightness", 1))
+    COLOUR_SCHEME = []
+    for i in range(len(COLOUR_SCHEMES[COLOUR_SCHEME_NAME])):
+        col = COLOUR_SCHEMES[COLOUR_SCHEME_NAME][i]
+        col = [
+            col[0] * BRIGHTNESS_MULT,
+            col[1] * BRIGHTNESS_MULT,
+            col[2] * BRIGHTNESS_MULT,
+        ]
+        COLOUR_SCHEME.append(col)
+    BACKGROUND_COLOUR = rgb2hex(COLOUR_SCHEME[7])
 
     location = config.get("location", DEFAULT_LOCATION)
     loc = json.decode(location)
@@ -517,8 +529,8 @@ def main(config):
                     if (cx >= 0 and cx < FINAL_GRID_WIDTH and cy >= 0 and cy < GRID_HEIGHT):
                         colourLerpAmt = piece[3] / FADE_SPEED if FADE_COLOUR else 0
                         colourGrid[cy][cx] = fade_colour(
-                            COLOUR_SCHEMES[COLOUR_SCHEME_NAME][PIECE_COLOURS[piece[0][0]]],
-                            COLOUR_SCHEMES[COLOUR_SCHEME_NAME][8],
+                            COLOUR_SCHEME[PIECE_COLOURS[piece[0][0]]],
+                            COLOUR_SCHEME[8],
                             colourLerpAmt,
                         )
             sequenceNo += 1
@@ -526,7 +538,7 @@ def main(config):
         # colon
         if (FRAME % FRAME_RATE < FRAME_RATE / 2):
             col = rgb2hex(
-                COLOUR_SCHEMES[COLOUR_SCHEME_NAME][8 if FADE_COLOUR else PIECE_COLOURS["O0"]],
+                COLOUR_SCHEME[8 if FADE_COLOUR else PIECE_COLOURS["O0"]],
             )
             colourGrid[GRID_HEIGHT - 2][COLON_OFFSET] = col
             colourGrid[GRID_HEIGHT - 2][COLON_OFFSET + 1] = col
@@ -568,7 +580,7 @@ def main(config):
             children = rows,
         ))
 
-    BAR_COLOUR = rgb2hex(COLOUR_SCHEMES[COLOUR_SCHEME_NAME][8])
+    BAR_COLOUR = rgb2hex(COLOUR_SCHEME[8])
     return render.Root(
         delay = 1000 // FRAME_RATE,
         child = render.Column(
@@ -594,7 +606,7 @@ def main(config):
                                     color = BACKGROUND_COLOUR,
                                 ),
                                 render.Text(
-                                    ("%s %d" % (MONTHS[now.month - 1], now.day)) if SHOW_DATE else "",
+                                    (now.format(config.get("dateformat", "Jan 02")).upper()) if SHOW_DATE else "",
                                     color = BACKGROUND_COLOUR,
                                 ),
                             ],
@@ -638,6 +650,46 @@ def get_schema():
         schema.Option(
             display = "Monochrome Light",
             value = "monochrome_light",
+        ),
+    ]
+    dateFormatOptions = [
+        schema.Option(
+            display = "Month, Day",
+            value = "Jan 02",
+        ),
+        schema.Option(
+            display = "Day, Month",
+            value = "02 Jan",
+        ),
+        schema.Option(
+            display = "Weekday, Day",
+            value = "Mon 02",
+        ),
+        schema.Option(
+            display = "Day, Weekday",
+            value = "02 Mon",
+        ),
+    ]
+    brightnessOptions = [
+        schema.Option(
+            display = "100%",
+            value = "1",
+        ),
+        schema.Option(
+            display = "80%",
+            value = "0.8",
+        ),
+        schema.Option(
+            display = "60%",
+            value = "0.6",
+        ),
+        schema.Option(
+            display = "40%",
+            value = "0.4",
+        ),
+        schema.Option(
+            display = "20%",
+            value = "0.2",
         ),
     ]
     fadeSpeedOptions = [
@@ -713,23 +765,27 @@ def get_schema():
     movementRateOptions = [
         schema.Option(
             display = "None",
-            value = "1000000",
+            value = "0",
         ),
         schema.Option(
             display = "Slow",
-            value = "16",
+            value = "10",
         ),
         schema.Option(
             display = "Medium",
-            value = "7",
+            value = "20",
         ),
         schema.Option(
             display = "Fast",
-            value = "2",
+            value = "40",
+        ),
+        schema.Option(
+            display = "Very Fast",
+            value = "60",
         ),
         schema.Option(
             display = "Extreme",
-            value = "1",
+            value = "100",
         ),
     ]
     return schema.Schema(
@@ -739,7 +795,7 @@ def get_schema():
                 id = "colourscheme",
                 name = "Colour Scheme",
                 desc = "The colour scheme of the app.",
-                icon = "brush",
+                icon = "palette",
                 default = themeOptions[0].value,
                 options = themeOptions,
             ),
@@ -769,6 +825,22 @@ def get_schema():
                 desc = "Whether or not to show the date on the lower-right.",
                 icon = "calendar",
                 default = True,
+            ),
+            schema.Dropdown(
+                id = "dateformat",
+                name = "Date Format",
+                desc = "The format of the date shown on the lower-right.",
+                icon = "calendarDays",
+                default = dateFormatOptions[0].value,
+                options = dateFormatOptions,
+            ),
+            schema.Dropdown(
+                id = "brightness",
+                name = "Brightness",
+                desc = "Overall brightness.",
+                icon = "paintRoller",
+                default = brightnessOptions[0].value,
+                options = brightnessOptions,
             ),
             schema.Dropdown(
                 id = "fadespeed",
