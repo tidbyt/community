@@ -74,15 +74,6 @@ def main():
 
 ######################################################
 #functions
-# def get_apps():
-#     #get the data
-#     rep = http.get(BASE_URL)
-#     if rep.status_code != 200:
-#         return None
-#     else:
-#         data = [(x["id"], x["name"]) for x in rep.json()["apps"]]
-#     return dict(data)
-
 def format_text(x, font):
     #formats color and font of text
     text_vec = []
