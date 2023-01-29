@@ -342,8 +342,8 @@ def generateFinalPieces(subshape, offset, temp_grid):
     return final_pieces
 
 def generatePieceSequence(subshape, dropOffset, length, moveOdds):
-    final_pieces = generateFinalPieces(SUBSHAPES[subshape], 2, new_grid([]))
-    temp_grid = new_grid([])
+    final_pieces = generateFinalPieces(SUBSHAPES[subshape], 2, new_grid())
+    temp_grid = new_grid()
     piece_sequences = []
     for piece in final_pieces:
         place(temp_grid, piece)
@@ -394,7 +394,7 @@ def unplace(grid, piece):
     for cell in PIECES[piece[0]]:
         cx, cy = cell[0] + piece[1], cell[1] + piece[2]
         if (cx >= 0 and cx < GRID_WIDTH and cy >= 0 and cy < GRID_HEIGHT):
-            grid["board"][cy][cx][0] = EMPTY_CELL
+            grid[cy][cx][0] = EMPTY_CELL
         elif (cy >= GRID_HEIGHT):
             return True
     return False
@@ -403,7 +403,7 @@ def place(grid, piece):
     for cell in PIECES[piece[0]]:
         cx, cy = cell[0] + piece[1], cell[1] + piece[2]
         if (cx >= 0 and cx < GRID_WIDTH and cy >= 0 and cy < GRID_HEIGHT):
-            grid["board"][cy][cx] = [True, "#fff", 1]
+            grid[cy][cx] = [True, "#fff", 1]
         elif (cy >= GRID_HEIGHT):
             return True
     return False
@@ -412,22 +412,19 @@ def collides(grid, piece):
     for cell in PIECES[piece[0]]:
         cx, cy = cell[0] + piece[1], cell[1] + piece[2]
         if (cx >= 0 and cx < GRID_WIDTH and cy >= 0 and cy < GRID_HEIGHT):
-            if (grid["board"][cy][cx][0]):
+            if (grid[cy][cx][0]):
                 return True
         elif (cy >= GRID_HEIGHT):
             return True
     return False
 
-def new_grid(pieces):
-    grid = {
-        "board": [],
-        "pieces": pieces,
-    }
+def new_grid():
+    grid = []
     for y in range(GRID_HEIGHT):
-        grid["board"].append([])
+        grid.append([])
         for x in range(GRID_WIDTH):
             # cells are [solid?, colour, age]
-            grid["board"][y].append(EMPTY_CELL)
+            grid[y].append(EMPTY_CELL)
             x = x  # Stop it
     return grid
 
@@ -435,18 +432,13 @@ def lerp(a, b, x):
     return a + (b - a) * x
 
 def fade_colour(colA, colB, x):
-    lerpAmt = max(0, min(x, 1))
+    lerpAmt = min(x, 1)
     mixedCol = (
-        int(lerp(colA[0], colB[0], lerpAmt)),
-        int(lerp(colA[1], colB[1], lerpAmt)),
-        int(lerp(colA[2], colB[2], lerpAmt)),
+        (lerp(colA[0], colB[0], lerpAmt)) // 1,
+        (lerp(colA[1], colB[1], lerpAmt)) // 1,
+        (lerp(colA[2], colB[2], lerpAmt)) // 1,
     )
     return rgb2hex(mixedCol)
-
-def pad(str):
-    if (len(str) == 1):
-        return "0" + str
-    return str
 
 def rgb2hex(col):
     return "#%x%x%x%x%x%x" % (col[0] // 16, col[0] % 16, col[1] // 16, col[1] % 16, col[2] // 16, col[2] % 16)
@@ -533,10 +525,8 @@ def main(config):
 
         # colon
         if (FRAME % FRAME_RATE < FRAME_RATE / 2):
-            col = fade_colour(
-                COLOUR_SCHEMES[COLOUR_SCHEME_NAME][PIECE_COLOURS["O0"]],
-                COLOUR_SCHEMES[COLOUR_SCHEME_NAME][8],
-                1 if FADE_COLOUR else 0,
+            col = rgb2hex(
+                COLOUR_SCHEMES[COLOUR_SCHEME_NAME][8 if FADE_COLOUR else PIECE_COLOURS["O0"]]
             )
             colourGrid[GRID_HEIGHT - 2][COLON_OFFSET] = col
             colourGrid[GRID_HEIGHT - 2][COLON_OFFSET + 1] = col
@@ -553,52 +543,66 @@ def main(config):
         for y in range(GRID_HEIGHT):
             colourGrid.append([])
             row = []
-            for x in range(FINAL_GRID_WIDTH):
-                row.append(render.Box(
-                    width = 2,
-                    height = 2,
-                    color = colourGrid[y][x],
-                ))
+            cumulativeColour = colourGrid[y][0]
+            cumulativeCount = 1
+            for x in range(1, FINAL_GRID_WIDTH):
+                col = colourGrid[y][x]
+                if(col != cumulativeColour):
+                    row.append(render.Box(
+                        width = 2 * cumulativeCount,
+                        height = 2,
+                        color = cumulativeColour,
+                    ))
+                    cumulativeCount = 0
+                cumulativeCount += 1
+                cumulativeColour = colourGrid[y][x]
+            row.append(render.Box(
+                width = 2 * cumulativeCount,
+                height = 2,
+                color = colourGrid[y][x],
+            ))
             rows.append(render.Row(
                 children = row,
             ))
-        BAR_COLOUR = rgb2hex(COLOUR_SCHEMES[COLOUR_SCHEME_NAME][8])
-        rows.extend(
-            [render.Box(
-                width = 64,
-                height = 8,
-                color = BAR_COLOUR,
-                child = render.Box(
-                    width = 63,
-                    height = 8,
-                    color = BAR_COLOUR,
-                    child = render.Row(
-                        expanded = True,
-                        main_align = "space_between",
-                        cross_align = "end",
-                        children = [
-                            render.Text(
-                                "" if TWENTY_FOUR_HOUR else (now.hour < 12 and "AM" or "PM"),
-                                color = BACKGROUND_COLOUR,
-                            ),
-                            render.Text(
-                                ("%s %d" % (MONTHS[now.month - 1], now.day)) if SHOW_DATE else "",
-                                color = BACKGROUND_COLOUR,
-                            ),
-                        ],
-                    ),
-                ),
-            )],
-        )
         frames.append(render.Column(
             children = rows,
         ))
 
+    BAR_COLOUR = rgb2hex(COLOUR_SCHEMES[COLOUR_SCHEME_NAME][8])
     return render.Root(
         delay = 1000 // FRAME_RATE,
-        child = render.Animation(
-            children = frames,
-        ),
+        child = render.Column(
+            children=[
+                render.Animation(
+                    children = frames,
+                ),
+                render.Box(
+                    width = 64,
+                    height = 8,
+                    color = BAR_COLOUR,
+                    child = render.Box(
+                        width = 63,
+                        height = 8,
+                        color = BAR_COLOUR,
+                        child = render.Row(
+                            expanded = True,
+                            main_align = "space_between",
+                            cross_align = "end",
+                            children = [
+                                render.Text(
+                                    "" if TWENTY_FOUR_HOUR else (now.hour < 12 and "AM" or "PM"),
+                                    color = BACKGROUND_COLOUR,
+                                ),
+                                render.Text(
+                                    ("%s %d" % (MONTHS[now.month - 1], now.day)) if SHOW_DATE else "",
+                                    color = BACKGROUND_COLOUR,
+                                ),
+                            ],
+                        ),
+                    ),
+                )
+            ]
+        )
     )
 
 def get_schema():
