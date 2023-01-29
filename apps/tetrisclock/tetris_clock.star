@@ -526,7 +526,7 @@ def main(config):
         # colon
         if (FRAME % FRAME_RATE < FRAME_RATE / 2):
             col = rgb2hex(
-                COLOUR_SCHEMES[COLOUR_SCHEME_NAME][8 if FADE_COLOUR else PIECE_COLOURS["O0"]]
+                COLOUR_SCHEMES[COLOUR_SCHEME_NAME][8 if FADE_COLOUR else PIECE_COLOURS["O0"]],
             )
             colourGrid[GRID_HEIGHT - 2][COLON_OFFSET] = col
             colourGrid[GRID_HEIGHT - 2][COLON_OFFSET + 1] = col
@@ -547,7 +547,7 @@ def main(config):
             cumulativeCount = 1
             for x in range(1, FINAL_GRID_WIDTH):
                 col = colourGrid[y][x]
-                if(col != cumulativeColour):
+                if (col != cumulativeColour):
                     row.append(render.Box(
                         width = 2 * cumulativeCount,
                         height = 2,
@@ -559,7 +559,7 @@ def main(config):
             row.append(render.Box(
                 width = 2 * cumulativeCount,
                 height = 2,
-                color = colourGrid[y][x],
+                color = colourGrid[y][FINAL_GRID_WIDTH - 1],
             ))
             rows.append(render.Row(
                 children = row,
@@ -572,7 +572,7 @@ def main(config):
     return render.Root(
         delay = 1000 // FRAME_RATE,
         child = render.Column(
-            children=[
+            children = [
                 render.Animation(
                     children = frames,
                 ),
@@ -600,9 +600,9 @@ def main(config):
                             ],
                         ),
                     ),
-                )
-            ]
-        )
+                ),
+            ],
+        ),
     )
 
 def get_schema():
