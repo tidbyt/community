@@ -50,6 +50,7 @@ def main(config):
     LastOut_Runs = 0
     LastOut_Name = ""
     T20_Status4 = ""
+
     if Playing == True:
         MatchID = str(MatchID)
         Match_URL = "https://hs-consumer-api.espncricinfo.com/v1/pages/match/details?lang=en&seriesId=" + MatchID + "&matchId=" + MatchID + "&latest=true"
@@ -67,30 +68,11 @@ def main(config):
             Wickets = Match_JSON["scorecard"]["innings"][Innings]["wickets"]
             Runs = Match_JSON["scorecard"]["innings"][Innings]["runs"]
 
-            # In front or behind? And how much?
-            Trail = Match_JSON["scorecard"]["innings"][Innings]["lead"]
-
-            if Trail < 0:
-                trail_bool = True
-            else:
-                trail_bool = False
-
-            Trail = math.fabs(Trail) + 1
-            Trail = humanize.float("#.", Trail)
-            Trail = str(Trail)
-
-            TrailBy = " need " + Trail
-
             # How many overs bowled
             Overs = Match_JSON["scorecard"]["innings"][Innings]["overs"]
             Overs = str(Overs)
 
-            # How many overs left
-            RemOvers = Match_JSON["match"]["liveOversPending"]
-            RemOvers = str(RemOvers)
-
             # Batting details
-            #BattingTeamID = Match_JSON["supportInfo"]["inning"]["team"]["id"]
             BattingTeamID = Match_JSON["scorecard"]["innings"][Innings]["team"]["id"]
             BattingTeamID = int(BattingTeamID)
             BattingTeamColor = getTeamFontColor(BattingTeamID)
@@ -160,24 +142,13 @@ def main(config):
             BattingTeam = Match_JSON["scorecard"]["innings"][Innings]["team"]["name"]
             BattingTeamAbbr = Match_JSON["scorecard"]["innings"][Innings]["team"]["abbreviation"]
             CRR = str(Match_JSON["supportInfo"]["liveInfo"]["currentRunRate"])
-            RRR = str(Match_JSON["supportInfo"]["liveInfo"]["requiredRunrate"])
 
             # Formatting to include trailing zeros on the strings
             # Doing it this way as value from API can be either float or int
-            if len(RRR) == 1:
-                RRR = RRR + ".00"
-            if len(RRR) == 3:
-                RRR = RRR + "0"
             if len(CRR) == 1:
                 CRR = CRR + ".00"
             if len(CRR) == 3:
                 CRR = CRR + "0"
-
-            ProjScore = str(Match_JSON["match"]["liveInningPredictions"]["score"])
-
-            # ProjScore can be null at the very start of the match
-            if ProjScore == None:
-                ProjScore = 0
 
             T20_Innings = Match_JSON["match"]["liveInning"]
             MatchStatus = str(Match_JSON["match"]["status"])
@@ -185,6 +156,16 @@ def main(config):
 
             # what to show on the status bar, depending on state of game, team batting first or second & fall of wicket
             if T20_Innings == 1:
+                # If Predictions aren't working
+                if Match_JSON["match"]["liveInningPredictions"] != None:
+                    ProjScore = str(Match_JSON["match"]["liveInningPredictions"]["score"])
+                else:
+                    ProjScore = "N/A"
+
+                # Also ProjScore can be null at the very start of the match
+                if ProjScore == None:
+                    ProjScore = "N/A"
+
                 if MatchStatus == "Live":
                     T20_Status1 = "1st Inns - " + MatchStatus
                     T20_Status4 = "Proj Score: " + ProjScore
@@ -196,18 +177,31 @@ def main(config):
                     T20_Status1 = MatchStatus
                 else:
                     T20_Status1 = MatchStatus
+
                 T20_Status2 = "Overs: " + Overs
                 T20_Status3 = "Run Rate: " + CRR
 
                 # 2nd Innings underway
             else:
+                # How far behind?
+                Target = Match_JSON["scorecard"]["innings"][Innings]["target"]
+                Target = Target - Match_JSON["scorecard"]["innings"][Innings]["runs"]
+                TrailBy = " need " + str(Target)
+
+                RRR = str(Match_JSON["supportInfo"]["liveInfo"]["requiredRunrate"])
+                if len(RRR) == 1:
+                    RRR = RRR + ".00"
+                if len(RRR) == 3:
+                    RRR = RRR + "0"
+
                 T20_Status1 = BattingTeamAbbr + TrailBy
                 T20_Status2 = "Overs: " + Overs
                 T20_Status3 = "Run Rate: " + CRR
                 T20_Status4 = "Req Rate: " + RRR
+
                 if MatchStatus == "Match delayed by rain":
                     MatchStatus = "Rain Delay"
-                    T20_Status1 = MatchStatus
+                    T20_Status3 = MatchStatus
 
             # Wicket has fallen but not the end of the inngs
             if IsOut == True and Wickets != "10":
@@ -224,6 +218,7 @@ def main(config):
                     T20_Status2 = BattingTeamAbbr + TrailBy
                     T20_Status3 = "Overs: " + Overs
                     T20_Status4 = "Req Rate: " + RRR
+
                 T20_StatusColor = "#f00"
 
             renderScreens = [
