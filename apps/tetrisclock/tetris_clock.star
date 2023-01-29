@@ -354,7 +354,7 @@ def generatePieceSequence(subshape, dropOffset, length, moveOdds):
         unplace(temp_grid, piece)
         for movementNum in range((i + 1) * (length // len(final_pieces)) + dropOffset + INITIAL_DELAY):
             movementNum = movementNum
-            if (random.number(0, moveOdds) <= 1 and moveOdds < 10000):
+            if (random.number(0, 99) < moveOdds):
                 # do a movement
                 # movements happen just after gravity, but since we're doing it backwards the gravity happens afterwards
                 movement = random.number(0, 4)
