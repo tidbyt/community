@@ -10,7 +10,6 @@ load("encoding/base64.star", "base64")
 load("encoding/json.star", "json")
 load("http.star", "http")
 load("humanize.star", "humanize")
-load("math.star", "math")
 load("render.star", "render")
 load("schema.star", "schema")
 load("time.star", "time")
@@ -50,6 +49,9 @@ def main(config):
     LastOut_Runs = 0
     LastOut_Name = ""
     T20_Status4 = ""
+    TrailBy = ""
+    RRR = ""
+    ProjScore = ""
 
     if Playing == True:
         MatchID = str(MatchID)
@@ -156,6 +158,8 @@ def main(config):
 
             # what to show on the status bar, depending on state of game, team batting first or second & fall of wicket
             if T20_Innings == 1:
+                ProjScore = ""
+
                 # If Predictions aren't working
                 if Match_JSON["match"]["liveInningPredictions"] != None:
                     ProjScore = str(Match_JSON["match"]["liveInningPredictions"]["score"])
