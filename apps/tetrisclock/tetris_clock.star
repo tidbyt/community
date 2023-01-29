@@ -769,15 +769,15 @@ def get_schema():
         ),
         schema.Option(
             display = "Slow",
-            value = "10",
+            value = "7",
         ),
         schema.Option(
             display = "Medium",
-            value = "20",
+            value = "16",
         ),
         schema.Option(
             display = "Fast",
-            value = "40",
+            value = "35",
         ),
         schema.Option(
             display = "Very Fast",
