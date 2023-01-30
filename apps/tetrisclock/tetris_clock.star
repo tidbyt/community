@@ -131,15 +131,15 @@ PIECE_COLOURS = {
 }
 
 COLOUR_SCHEMES = {
-    # [T, I, O, L, J, S, Z, background, bar]
-    "standard_dark": [[187, 68, 255], [68, 255, 255], [255, 255, 68], [255, 187, 68], [68, 136, 255], [68, 255, 68], [255, 68, 68], [22, 22, 22], [255, 255, 255]],
-    "standard_light": [[187, 68, 255], [68, 255, 255], [255, 255, 68], [255, 187, 68], [68, 136, 255], [68, 255, 68], [255, 68, 68], [200, 200, 200], [68, 68, 68]],
-    "autumn": [[241, 235, 163], [240, 227, 152], [237, 211, 130], [241, 198, 118], [245, 185, 105], [249, 172, 92], [251, 165, 86], [176, 100, 38], [252, 143, 54]],
-    "winter": [[214, 221, 255], [192, 201, 245], [173, 185, 237], [163, 173, 227], [156, 164, 219], [147, 152, 209], [139, 142, 201], [89, 104, 150], [54, 65, 89]],
-    "spring": [[161, 213, 151], [153, 196, 143], [150, 190, 140], [137, 180, 129], [124, 169, 118], [111, 159, 107], [98, 148, 98], [201, 242, 199], [69, 99, 61]],
-    "summer": [[255, 218, 185], [254, 213, 182], [253, 207, 178], [251, 196, 171], [250, 185, 164], [249, 179, 161], [248, 173, 157], [236, 91, 91], [165, 63, 63]],
-    "monochrome_dark": [[255, 255, 255], [255, 255, 255], [255, 255, 255], [255, 255, 255], [255, 255, 255], [255, 255, 255], [255, 255, 255], [0, 0, 0], [255, 255, 255]],
-    "monochrome_light": [[0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0], [255, 255, 255], [0, 0, 0]],
+    # (T, I, O, L, J, S, Z, background, bar)
+    "standard_dark": ((187, 68, 255), (68, 255, 255), (255, 255, 68), (255, 187, 68), (68, 136, 255), (68, 255, 68), (255, 68, 68), (22, 22, 22), (255, 255, 255), 0.4),
+    "standard_light": ((187, 68, 255), (68, 255, 255), (255, 255, 68), (255, 187, 68), (68, 136, 255), (68, 255, 68), (255, 68, 68), (200, 200, 200), (68, 68, 68), 0.6),
+    "autumn": ((241, 235, 163), (240, 227, 152), (237, 211, 130), (241, 198, 118), (245, 185, 105), (249, 172, 92), (251, 165, 86), (176, 100, 38), (252, 143, 54), 1),
+    "winter": ((214, 221, 255), (192, 201, 245), (173, 185, 237), (163, 173, 227), (156, 164, 219), (147, 152, 209), (139, 142, 201), (89, 104, 150), (54, 65, 89), 1),
+    "spring": ((161, 213, 151), (153, 196, 143), (150, 190, 140), (137, 180, 129), (124, 169, 118), (111, 159, 107), (98, 148, 98), (201, 242, 199), (69, 99, 61), 1),
+    "summer": ((255, 218, 185), (254, 213, 182), (253, 207, 178), (251, 196, 171), (250, 185, 164), (249, 179, 161), (248, 173, 157), (236, 91, 91), (165, 63, 63), 1),
+    "monochrome_dark": ((255, 255, 255), (255, 255, 255), (255, 255, 255), (255, 255, 255), (255, 255, 255), (255, 255, 255), (255, 255, 255), (0, 0, 0), (255, 255, 255), 0.4),
+    "monochrome_light": ((0, 0, 0), (0, 0, 0), (0, 0, 0), (0, 0, 0), (0, 0, 0), (0, 0, 0), (0, 0, 0), (255, 255, 255), (0, 0, 0), 0.6),
 }
 
 ROTATE_CW = {
@@ -228,11 +228,9 @@ SUBSHAPES = {
     ],
     "BOWL": [
         [["O0", 0], ["SL", -1], ["ZR", 2]],
-        [["SL", -1], ["ZR", 2], ["O0", 0]],
-        [["ZR", 2], ["O0", 0], ["SL", -1]],
         [["O0", 0], ["ZR", 2], ["SL", -1]],
-        [["SL", -1], ["O0", 0], ["ZR", 2]],
-        [["ZR", 2], ["SL", -1], ["O0", 0]],
+        [["I0", 0], ["L0", 2], ["J0", -1]],
+        [["I0", 0], ["J0", -1], ["L0", 2]],
     ],
     "SIX_MIDDLE": [
         [["T2", -1], ["T2", 2], ["I0", 0], ["TR", -2]],
@@ -354,7 +352,7 @@ def generatePieceSequence(subshape, dropOffset, length, moveOdds):
         unplace(temp_grid, piece)
         for movementNum in range((i + 1) * (length // len(final_pieces)) + dropOffset + INITIAL_DELAY):
             movementNum = movementNum
-            if (random.number(0, 99) < moveOdds):
+            if (random.number(0, moveOdds) <= 1 and moveOdds < 10000):
                 # do a movement
                 # movements happen just after gravity, but since we're doing it backwards the gravity happens afterwards
                 movement = random.number(0, 4)
@@ -386,8 +384,8 @@ def generatePieceSequence(subshape, dropOffset, length, moveOdds):
                 movements.insert(0, 0)
             piece[2] -= 1
 
-        # piece, movements, placed?
-        piece_sequences.insert(0, [piece, movements, False, 0])
+        # piece, movements, placed?, movement index, movement length
+        piece_sequences.insert(0, [piece, movements, False, 0, 0, len(movements)])
     return piece_sequences
 
 def unplace(grid, piece):
@@ -428,20 +426,8 @@ def new_grid():
             x = x  # Stop it
     return grid
 
-def lerp(a, b, x):
-    return a + (b - a) * x
-
-def fade_colour(colA, colB, x):
-    lerpAmt = min(x, 1)
-    mixedCol = (
-        (lerp(colA[0], colB[0], lerpAmt)) // 1,
-        (lerp(colA[1], colB[1], lerpAmt)) // 1,
-        (lerp(colA[2], colB[2], lerpAmt)) // 1,
-    )
-    return rgb2hex(mixedCol)
-
 def rgb2hex(col):
-    return "#%x%x%x%x%x%x" % (col[0] // 16, col[0] % 16, col[1] // 16, col[1] % 16, col[2] // 16, col[2] % 16)
+    return "#" + HEX_NUMBERS[col[0]] + HEX_NUMBERS[col[1]] + HEX_NUMBERS[col[2]]
 
 def main(config):
     # config
@@ -454,18 +440,21 @@ def main(config):
     FRAME_RATE = int(config.get("framerate", 10))
     DIGIT_LENGTH = int(config.get("digitlength", 60))
     MOVEMENT_ODDS = int(config.get("movementrate", 2))
+    TOP_BAR = config.bool("topbar")
+    GRID_HEIGHT = 15 if TOP_BAR else 12
 
     # brightness
     BRIGHTNESS_MULT = float(config.get("brightness", 1))
     COLOUR_SCHEME = []
-    for i in range(len(COLOUR_SCHEMES[COLOUR_SCHEME_NAME])):
+    for i in range(9):
         col = COLOUR_SCHEMES[COLOUR_SCHEME_NAME][i]
         col = [
-            col[0] * BRIGHTNESS_MULT,
-            col[1] * BRIGHTNESS_MULT,
-            col[2] * BRIGHTNESS_MULT,
+            int(col[0] * BRIGHTNESS_MULT),
+            int(col[1] * BRIGHTNESS_MULT),
+            int(col[2] * BRIGHTNESS_MULT),
         ]
         COLOUR_SCHEME.append(col)
+    COLOUR_SCHEME.append(COLOUR_SCHEMES[COLOUR_SCHEME_NAME][9])
     BACKGROUND_COLOUR = rgb2hex(COLOUR_SCHEME[7])
 
     location = config.get("location", DEFAULT_LOCATION)
@@ -479,19 +468,32 @@ def main(config):
     if ((not LEADING_ZERO) and adjusted_hours < 10):
         DIGIT_OFFSETS = [8, 18, 25]
         sequences = [
-            generatePieceSequence(DIGIT_SHAPES[adjusted_hours % 10], (DIGIT_LENGTH * 1 // 10), DIGIT_LENGTH, MOVEMENT_ODDS),
+            generatePieceSequence(DIGIT_SHAPES[adjusted_hours % 10], (DIGIT_LENGTH * 1 // 20), DIGIT_LENGTH, MOVEMENT_ODDS),
             generatePieceSequence(DIGIT_SHAPES[now.minute // 10], 0, DIGIT_LENGTH, MOVEMENT_ODDS),
-            generatePieceSequence(DIGIT_SHAPES[now.minute % 10], (DIGIT_LENGTH * 2 // 10), DIGIT_LENGTH, MOVEMENT_ODDS),
+            generatePieceSequence(DIGIT_SHAPES[now.minute % 10], (DIGIT_LENGTH * 2 // 20), DIGIT_LENGTH, MOVEMENT_ODDS),
         ]
     else:
         DIGIT_OFFSETS = [1, 8, 18, 25]
         sequences = [
-            generatePieceSequence(DIGIT_SHAPES[adjusted_hours // 10], (DIGIT_LENGTH * 3 // 10), DIGIT_LENGTH, MOVEMENT_ODDS),
-            generatePieceSequence(DIGIT_SHAPES[adjusted_hours % 10], (DIGIT_LENGTH * 1 // 10), DIGIT_LENGTH, MOVEMENT_ODDS),
+            generatePieceSequence(DIGIT_SHAPES[adjusted_hours // 10], (DIGIT_LENGTH * 3 // 20), DIGIT_LENGTH, MOVEMENT_ODDS),
+            generatePieceSequence(DIGIT_SHAPES[adjusted_hours % 10], (DIGIT_LENGTH * 1 // 20), DIGIT_LENGTH, MOVEMENT_ODDS),
             generatePieceSequence(DIGIT_SHAPES[now.minute // 10], 0, DIGIT_LENGTH, MOVEMENT_ODDS),
-            generatePieceSequence(DIGIT_SHAPES[now.minute % 10], (DIGIT_LENGTH * 2 // 10), DIGIT_LENGTH, MOVEMENT_ODDS),
+            generatePieceSequence(DIGIT_SHAPES[now.minute % 10], (DIGIT_LENGTH * 2 // 20), DIGIT_LENGTH, MOVEMENT_ODDS),
         ]
     frames = []
+
+    # prefade all colours
+    FADE_TABLE = [[], [], [], [], [], [], []]
+    for i in range(7):
+        for j in range(FADE_SPEED + 1):
+            lerpAmt = (j / FADE_SPEED) if FADE_COLOUR else 0
+            colA, colB = COLOUR_SCHEME[i], COLOUR_SCHEME[8]
+            mixedCol = (
+                int(colA[0] + (colB[0] - colA[0]) * lerpAmt),
+                int(colA[1] + (colB[1] - colA[1]) * lerpAmt),
+                int(colA[2] + (colB[2] - colA[2]) * lerpAmt),
+            )
+            FADE_TABLE[i].append(rgb2hex(mixedCol))
 
     for FRAME in range(FRAME_COUNT):
         # prepare a temporary grid for rendering
@@ -499,40 +501,37 @@ def main(config):
         for y in range(GRID_HEIGHT):
             colourGrid.append([])
             for x in range(FINAL_GRID_WIDTH):
-                colourGrid[y].append(BACKGROUND_COLOUR)
+                colourGrid[y].append("#0000")
 
         # update sequences
-
         sequenceNo = 0
         for sequence in sequences:
             # execute the first movement in each piece
             for piece in sequence:
-                if (len(piece[1]) == 0):
+                PIECE_NAME = piece[0][0]
+                if (piece[4] >= piece[5]):
                     if (not piece[2]):
                         # piece has no more movements :(
                         piece[2] = True
                     piece[3] += 1
                 else:
-                    movement = piece[1].pop(0)
+                    movement = piece[1][piece[4]]
+                    piece[4] += 1
                     piece[0][2] += 1
                     if (movement == 1):
                         piece[0][1] += 1
                     if (movement == -1):
                         piece[0][1] -= 1
                     if (movement == 2):
-                        piece[0][0] = ROTATE_CW[piece[0][0]]
+                        piece[0][0] = ROTATE_CW[PIECE_NAME]
                     if (movement == -2):
-                        piece[0][0] = ROTATE_CW[ROTATE_CW[ROTATE_CW[piece[0][0]]]]
+                        piece[0][0] = ROTATE_CW[ROTATE_CW[ROTATE_CW[PIECE_NAME]]]
 
-                for cell in PIECES[piece[0][0]]:
-                    cx, cy = cell[0] + piece[0][1] + DIGIT_OFFSETS[sequenceNo], cell[1] + piece[0][2]
+                PIECE_NAME = piece[0][0]
+                for cell in PIECES[PIECE_NAME]:
+                    cx, cy = cell[0] + piece[0][1] + DIGIT_OFFSETS[sequenceNo], cell[1] + piece[0][2] + (TOP_BAR and 3 or 0)
                     if (cx >= 0 and cx < FINAL_GRID_WIDTH and cy >= 0 and cy < GRID_HEIGHT):
-                        colourLerpAmt = piece[3] / FADE_SPEED if FADE_COLOUR else 0
-                        colourGrid[cy][cx] = fade_colour(
-                            COLOUR_SCHEME[PIECE_COLOURS[piece[0][0]]],
-                            COLOUR_SCHEME[8],
-                            colourLerpAmt,
-                        )
+                        colourGrid[cy][cx] = FADE_TABLE[PIECE_COLOURS[PIECE_NAME]][min(piece[3], FADE_SPEED)]
             sequenceNo += 1
 
         # colon
@@ -580,42 +579,83 @@ def main(config):
             children = rows,
         ))
 
-    BAR_COLOUR = rgb2hex(COLOUR_SCHEME[8])
-    return render.Root(
-        delay = 1000 // FRAME_RATE,
-        child = render.Column(
-            children = [
-                render.Animation(
-                    children = frames,
-                ),
-                render.Box(
-                    width = 64,
-                    height = 8,
-                    color = BAR_COLOUR,
-                    child = render.Box(
-                        width = 63,
-                        height = 8,
-                        color = BAR_COLOUR,
-                        child = render.Row(
-                            expanded = True,
-                            main_align = "space_between",
-                            cross_align = "end",
-                            children = [
-                                render.Text(
-                                    "" if TWENTY_FOUR_HOUR else (now.hour < 12 and "AM" or "PM"),
-                                    color = BACKGROUND_COLOUR,
-                                ),
-                                render.Text(
-                                    (now.format(config.get("dateformat", "Jan 02")).upper()) if SHOW_DATE else "",
-                                    color = BACKGROUND_COLOUR,
-                                ),
-                            ],
-                        ),
+    BAR_COLOUR = rgb2hex(COLOUR_SCHEME[7 if TOP_BAR else 8])
+
+    lerpAmt = COLOUR_SCHEME[9] if FADE_COLOUR else 0
+    colA, colB = COLOUR_SCHEME[7], COLOUR_SCHEME[8]
+    mixedCol = (
+        int(colA[0] + (colB[0] - colA[0]) * lerpAmt),
+        int(colA[1] + (colB[1] - colA[1]) * lerpAmt),
+        int(colA[2] + (colB[2] - colA[2]) * lerpAmt),
+    )
+    TEXT_COLOUR = rgb2hex(mixedCol)
+
+    BAR = render.Box(
+        width = 64,
+        height = 8,
+        color = BAR_COLOUR,
+        child = render.Box(
+            width = 63,
+            height = 8,
+            color = BAR_COLOUR,
+            child = render.Row(
+                expanded = True,
+                main_align = "space_between",
+                cross_align = "end",
+                children = [
+                    render.Text(
+                        "" if TWENTY_FOUR_HOUR else (now.hour < 12 and "AM" or "PM"),
+                        color = TEXT_COLOUR,
                     ),
-                ),
-            ],
+                    render.Text(
+                        (now.format(config.get("dateformat", "Jan 02")).upper()) if SHOW_DATE else "",
+                        color = TEXT_COLOUR,
+                    ),
+                ],
+            ),
         ),
     )
+
+    DELAY = 1000 // FRAME_RATE
+
+    if (TOP_BAR):
+        return render.Root(
+            delay = DELAY,
+            child = render.Stack(
+                children = [
+                    render.Box(
+                        color = BACKGROUND_COLOUR,
+                        height = 32,
+                    ),
+                    BAR,
+                    render.Column(
+                        children = [render.Animation(
+                            children = frames,
+                        )],
+                    ),
+                ],
+            ),
+        )
+    else:
+        return render.Root(
+            delay = DELAY,
+            child = render.Stack(
+                children = [
+                    render.Box(
+                        color = BACKGROUND_COLOUR,
+                        height = 24,
+                    ),
+                    render.Column(
+                        children = [
+                            render.Animation(
+                                children = frames,
+                            ),
+                            BAR,
+                        ],
+                    ),
+                ],
+            ),
+        )
 
 def get_schema():
     themeOptions = [
@@ -769,15 +809,15 @@ def get_schema():
         ),
         schema.Option(
             display = "Slow",
-            value = "7",
+            value = "10",
         ),
         schema.Option(
             display = "Medium",
-            value = "16",
+            value = "20",
         ),
         schema.Option(
             display = "Fast",
-            value = "35",
+            value = "40",
         ),
         schema.Option(
             display = "Very Fast",
@@ -820,16 +860,23 @@ def get_schema():
                 default = False,
             ),
             schema.Toggle(
+                id = "24hr",
+                name = "24-Hour Clock",
+                desc = "Whether or not to show a 24-hour clock (on) or 12-hour clock (off).",
+                icon = "clock",
+                default = False,
+            ),
+            schema.Toggle(
                 id = "showdate",
                 name = "Show Date",
-                desc = "Whether or not to show the date on the lower-right.",
+                desc = "Whether or not to show the date.",
                 icon = "calendar",
                 default = True,
             ),
             schema.Dropdown(
-                id = "dateformat",
-                name = "Date Format",
-                desc = "The format of the date shown on the lower-right.",
+                id = "topbar",
+                name = "Text In Background",
+                desc = "Whether the text is on a bar on the bottom or in the background.",
                 icon = "calendarDays",
                 default = dateFormatOptions[0].value,
                 options = dateFormatOptions,
@@ -876,3 +923,263 @@ def get_schema():
             ),
         ],
     )
+
+# can someone at tidbyt stop it from doing this
+HEX_NUMBERS = [
+    "00",
+    "01",
+    "02",
+    "03",
+    "04",
+    "05",
+    "06",
+    "07",
+    "08",
+    "09",
+    "0A",
+    "0B",
+    "0C",
+    "0D",
+    "0E",
+    "0F",
+    "10",
+    "11",
+    "12",
+    "13",
+    "14",
+    "15",
+    "16",
+    "17",
+    "18",
+    "19",
+    "1A",
+    "1B",
+    "1C",
+    "1D",
+    "1E",
+    "1F",
+    "20",
+    "21",
+    "22",
+    "23",
+    "24",
+    "25",
+    "26",
+    "27",
+    "28",
+    "29",
+    "2A",
+    "2B",
+    "2C",
+    "2D",
+    "2E",
+    "2F",
+    "30",
+    "31",
+    "32",
+    "33",
+    "34",
+    "35",
+    "36",
+    "37",
+    "38",
+    "39",
+    "3A",
+    "3B",
+    "3C",
+    "3D",
+    "3E",
+    "3F",
+    "40",
+    "41",
+    "42",
+    "43",
+    "44",
+    "45",
+    "46",
+    "47",
+    "48",
+    "49",
+    "4A",
+    "4B",
+    "4C",
+    "4D",
+    "4E",
+    "4F",
+    "50",
+    "51",
+    "52",
+    "53",
+    "54",
+    "55",
+    "56",
+    "57",
+    "58",
+    "59",
+    "5A",
+    "5B",
+    "5C",
+    "5D",
+    "5E",
+    "5F",
+    "60",
+    "61",
+    "62",
+    "63",
+    "64",
+    "65",
+    "66",
+    "67",
+    "68",
+    "69",
+    "6A",
+    "6B",
+    "6C",
+    "6D",
+    "6E",
+    "6F",
+    "70",
+    "71",
+    "72",
+    "73",
+    "74",
+    "75",
+    "76",
+    "77",
+    "78",
+    "79",
+    "7A",
+    "7B",
+    "7C",
+    "7D",
+    "7E",
+    "7F",
+    "80",
+    "81",
+    "82",
+    "83",
+    "84",
+    "85",
+    "86",
+    "87",
+    "88",
+    "89",
+    "8A",
+    "8B",
+    "8C",
+    "8D",
+    "8E",
+    "8F",
+    "90",
+    "91",
+    "92",
+    "93",
+    "94",
+    "95",
+    "96",
+    "97",
+    "98",
+    "99",
+    "9A",
+    "9B",
+    "9C",
+    "9D",
+    "9E",
+    "9F",
+    "A0",
+    "A1",
+    "A2",
+    "A3",
+    "A4",
+    "A5",
+    "A6",
+    "A7",
+    "A8",
+    "A9",
+    "AA",
+    "AB",
+    "AC",
+    "AD",
+    "AE",
+    "AF",
+    "B0",
+    "B1",
+    "B2",
+    "B3",
+    "B4",
+    "B5",
+    "B6",
+    "B7",
+    "B8",
+    "B9",
+    "BA",
+    "BB",
+    "BC",
+    "BD",
+    "BE",
+    "BF",
+    "C0",
+    "C1",
+    "C2",
+    "C3",
+    "C4",
+    "C5",
+    "C6",
+    "C7",
+    "C8",
+    "C9",
+    "CA",
+    "CB",
+    "CC",
+    "CD",
+    "CE",
+    "CF",
+    "D0",
+    "D1",
+    "D2",
+    "D3",
+    "D4",
+    "D5",
+    "D6",
+    "D7",
+    "D8",
+    "D9",
+    "DA",
+    "DB",
+    "DC",
+    "DD",
+    "DE",
+    "DF",
+    "E0",
+    "E1",
+    "E2",
+    "E3",
+    "E4",
+    "E5",
+    "E6",
+    "E7",
+    "E8",
+    "E9",
+    "EA",
+    "EB",
+    "EC",
+    "ED",
+    "EE",
+    "EF",
+    "F0",
+    "F1",
+    "F2",
+    "F3",
+    "F4",
+    "F5",
+    "F6",
+    "F7",
+    "F8",
+    "F9",
+    "FA",
+    "FB",
+    "FC",
+    "FD",
+    "FE",
+    "FF",
+]
