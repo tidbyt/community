@@ -867,6 +867,13 @@ def get_schema():
                 default = False,
             ),
             schema.Toggle(
+                id = "topbar",
+                name = "Text In Background",
+                desc = "Where the text is placed.",
+                icon = "bars",
+                default = False,
+            ),
+            schema.Toggle(
                 id = "showdate",
                 name = "Show Date",
                 desc = "Whether or not to show the date.",
@@ -874,9 +881,9 @@ def get_schema():
                 default = True,
             ),
             schema.Dropdown(
-                id = "topbar",
-                name = "Text In Background",
-                desc = "Whether the text is on a bar on the bottom or in the background.",
+                id = "dateformat",
+                name = "Date Format",
+                desc = "The format of the date shown.",
                 icon = "calendarDays",
                 default = dateFormatOptions[0].value,
                 options = dateFormatOptions,
