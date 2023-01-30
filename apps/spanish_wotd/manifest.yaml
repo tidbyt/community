@@ -1,0 +1,8 @@
+---
+id: spanish-word
+name: Spanish Word
+summary: Spanish Word of day
+desc: Displays the Spanish Translaction for the word of the day.
+author: logancornelius
+fileName: spanish_word.star
+packageName: spanishword
