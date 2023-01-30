@@ -2,6 +2,10 @@
 
 ## Releases
 
+
+### Version 2.0001
+WOOOOAAA now you can enter your OWN suggestions for things to do, thus greatly surprising your family with customized things like "Go clean your room young man", or "Sexy time with Bruno" to mention a few. The opportunities for never being bored has never been greater. Let the great Un-Boredom project commence.
+
 ### Version 2.0
 Oh My, the Goodness has been squared. Now with customizable scroll speed, and an option to always show the entire suggestion. Bored People, UNITE.
 
