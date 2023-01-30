@@ -24,17 +24,17 @@ def main(config):
     background_color = config.str("background_color", DEFAULT_BACKGROUND_COLOR)
     custom_background_color = config.str("custom_background_color")
 
-    if (
-        custom_text_color != None and
-        re.findall("^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$", custom_text_color)
-    ):
-        text_color = custom_text_color
+    if (custom_text_color != None):
+        if (re.findall("^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$", custom_text_color)):
+            text_color = custom_text_color
+        elif (re.findall("^([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$", custom_text_color)):
+            text_color = "#" + custom_text_color
 
-    if (
-        custom_background_color != None and
-        re.findall("^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$", custom_background_color)
-    ):
-        background_color = custom_background_color
+    if (custom_background_color != None):
+        if (re.findall("^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$", custom_background_color)):
+            background_color = custom_background_color
+        elif (re.findall("^([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$", custom_background_color)):
+            background_color = "#" + custom_background_color
 
     return render.Root(
         delay = 150,
@@ -202,14 +202,14 @@ def get_schema():
             ),
             schema.Text(
                 id = "custom_text_color",
-                name = "Custom Text Hex Color (w/hashtag)",
-                desc = "Enter a valid color hex code: #FFFFFF",
+                name = "Custom Text Hex Color",
+                desc = "Enter a valid color hex code: FFFFFF",
                 icon = "hashtag",
             ),
             schema.Text(
                 id = "custom_background_color",
-                name = "Custom Background Hex Color (w/hashtag)",
-                desc = "Enter a valid color hex code: #0000FF",
+                name = "Custom Background Hex Color",
+                desc = "Enter a valid color hex code: 0000FF",
                 icon = "hashtag",
             ),
         ],
