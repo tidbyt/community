@@ -697,7 +697,7 @@ def get_schema():
             schema.Text(
                 id = "nightscout_id",
                 name = "Nightscout ID",
-                desc = "Your Nightscout ID (i.e. [nightscoutID].heroku.com)",
+                desc = "Your Nightscout ID (use the prefix from your nightscout URL. i.e. [nightscoutID].heroku.com)",
                 icon = "idBadge",
             ),
             schema.Toggle(
