@@ -33,7 +33,7 @@ DEFAULT_CUSTOM_STATUS_START_TIME = "2006-01-02T15:04:05.000Z"
 DEFAULT_CUSTOM_STATUS_END_TIME = "2006-01-02T15:04:05.000Z"
 DEFAULT_CUSTOM_STATUS = "Focusing"
 DEFAULT_CUSTOM_STATUS_COLOR = "#FFFF00"
-DEFAULT_CUSTOM_STATUS_IMAGE = """
+DEFAULT_CUSTOM_STATUS_ICON = """
 iVBORw0KGgoAAAANSUhEUgAAAAoAAAAICAYAAADA+m62AAAACXBIWXMAAC4jAAAuIwF4
 pT92AAAAb0lEQVQYlYXOsQnCUBAG4C8khQMIGccJsoCNSFrLLCPWlklhJ7hDLDNIOovY
 XOAhD3PNcT8fP8f2XDFtoQ4LHv/QJdBtDWoUP6gNdE/DD8bkPgYaUlRixgn7aO7xRJP7
@@ -85,7 +85,7 @@ STATUS_MAP = {
         "color": "#FF00FF",
         "schedule_prefix": "For ",
         "status_label": "away",
-        "image": """
+        "icon": """
 iVBORw0KGgoAAAANSUhEUgAAAAoAAAALCAYAAABGbhwYAAAACXBIWXMAAC4jAAAuIwF4
 pT92AAAAvElEQVQYlWXQMUoDARCF4c/NWiaNKASRgI02WwRM2MLCYg/gAWz1FoqV18gB
 UlhYZo+QHEDcckUsE7CNFs7Csjsw8M+8x/AY+lXjs7scdOYXJPhGhrIR0o4xwyv2uG0L
@@ -98,7 +98,7 @@ AAAASUVORK5CYII=
         "color": "#FF0000",
         "schedule_prefix": "For ",
         "status_label": "busy",
-        "image": """
+        "icon": """
 iVBORw0KGgoAAAANSUhEUgAAAAoAAAAKCAYAAACNMs+9AAAACXBIWXMAAC4jAAAuIwF4
 pT92AAAAh0lEQVQYlX3QOw7CQAyE4S8SFyCUlHApaioINAn3oQJulJRQQBluwKPAUdCK
 MNLfjMdrr+m1Qo1LUGMt0QFP7DAPKjxw7EIFXpik3cijtoE2XhpSiXuGG6ZYYJmE9rHW
@@ -110,7 +110,7 @@ AElFTkSuQmCC
         "color": "#00FF00",
         "schedule_prefix": "For ",
         "status_label": "free",
-        "image": """
+        "icon": """
 iVBORw0KGgoAAAANSUhEUgAAAAoAAAAICAYAAADA+m62AAAACXBIWXMAAC4jAAAuIwF4
 pT92AAAAb0lEQVQYlYXOsQnCUBAG4C8khQMIGccJsoCNSFrLLCPWlklhJ7hDLDNIOovY
 XOAhD3PNcT8fP8f2XDFtoQ4LHv/QJdBtDWoUP6gNdE/DD8bkPgYaUlRixgn7aO7xRJP7
@@ -121,7 +121,7 @@ XOAhD3PNcT8fP8f2XDFtoQ4LHv/QJdBtDWoUP6gNdE/DD8bkPgYaUlRixgn7aO7xRJP7
         "color": "#808080",
         "schedule_prefix": "Until Later",
         "status_label": "offline",
-        "image": """
+        "icon": """
 iVBORw0KGgoAAAANSUhEUgAAAAoAAAAKCAYAAACNMs+9AAAACXBIWXMAAC4jAAAuIwF4
 pT92AAAAo0lEQVQYlW3QOQpCQRAE0Ic3cDmA4BX0AF7FTL5LoFfwJG6hNzAVTAyEL5gY
 aeYBDFwCe/DzsaGha6qmpqf4VR85DtE5MqVa4oUpOmhjgidWSZThjXrgORYx14IbwB3j
@@ -133,7 +133,7 @@ C03fXJ9Yl29nOOESfRKxwAds1CbJl+J/zQAAAABJRU5ErkJggg==
         "color": "#0000FF",
         "schedule_prefix": "For ",
         "status_label": "remote",
-        "image": """
+        "icon": """
 iVBORw0KGgoAAAANSUhEUgAAAAoAAAAICAYAAADA+m62AAAACXBIWXMAAC4jAAAuIwF4
 pT92AAAAkklEQVQYlV3PMQ4BURSF4W9iKjQkWtEpKel0YhESYwNKG7AOiU5FyT4UoqMT
 ap2guWTMS15e7n/OuSeP/9PBNW432LvgMQ6YYYIn5sEqX9MswCgXHAT7bdzG0C5WoBXa
@@ -145,7 +145,7 @@ eXwhnvIE4jgAAAAASUVORK5CYII=
         "color": "#0000FF",
         "schedule_prefix": "Busy for ",
         "status_label": "remote",
-        "image": """
+        "icon": """
 iVBORw0KGgoAAAANSUhEUgAAAAoAAAAICAYAAADA+m62AAAACXBIWXMAAC4jAAAuIwF4
 pT92AAAAkklEQVQYlV3PMQ4BURSF4W9iKjQkWtEpKel0YhESYwNKG7AOiU5FyT4UoqMT
 ap2guWTMS15e7n/OuSeP/9PBNW432LvgMQ6YYYIn5sEqX9MswCgXHAT7bdzG0C5WoBXa
@@ -157,7 +157,7 @@ eXwhnvIE4jgAAAAASUVORK5CYII=
         "color": "#0000FF",
         "schedule_prefix": "Free for ",
         "status_label": "remote",
-        "image": """
+        "icon": """
 iVBORw0KGgoAAAANSUhEUgAAAAoAAAAICAYAAADA+m62AAAACXBIWXMAAC4jAAAuIwF4
 pT92AAAAkklEQVQYlV3PMQ4BURSF4W9iKjQkWtEpKel0YhESYwNKG7AOiU5FyT4UoqMT
 ap2guWTMS15e7n/OuSeP/9PBNW432LvgMQ6YYYIn5sEqX9MswCgXHAT7bdzG0C5WoBXa
@@ -169,7 +169,7 @@ eXwhnvIE4jgAAAAASUVORK5CYII=
         "color": "#FFFF00",
         "schedule_prefix": None,
         "status_label": "unknown",
-        "image": """
+        "icon": """
 iVBORw0KGgoAAAANSUhEUgAAAAoAAAAKCAYAAACNMs+9AAAACXBIWXMAAC4jAAAuIwF4
 pT92AAAAt0lEQVQYlV3QP0pDYRAE8B9ptHiFghYBOw8gXsAD2EggRcADhPhio0fwBF4g
 jeRPn2skpIiaImCnlXYpI7GZh+EtLDvLzH7MN/xXD+/p18xSrYb4RRtNnKGFLSaV6A47
@@ -190,7 +190,7 @@ def main(config):
     custom_status_end_time = time.parse_time(config.get("custom_status_end_time"), DEFAULT_CUSTOM_STATUS_END_TIME)
     custom_status = config.get("custom_status", DEFAULT_CUSTOM_STATUS)
     custom_status_color = config.get("custom_status_color", DEFAULT_CUSTOM_STATUS_COLOR)
-    custom_status_image = config.get("custom_status_image", DEFAULT_CUSTOM_STATUS_IMAGE)
+    custom_status_icon = config.get("custom_status_icon", DEFAULT_CUSTOM_STATUS_ICON)
     custom_status_message = config.get("custom_status_message", DEFAULT_CUSTOM_STATUS_MESSAGE)
 
     if (
@@ -206,7 +206,7 @@ def main(config):
     ):
         status = custom_status
         color = custom_status_color
-        image = base64.decode(custom_status_image)
+        icon = base64.decode(custom_status_icon)
         schedule = custom_status_message
     else:
         # Retrieve MSFT API access token, returns None if user is not logged in
@@ -225,7 +225,7 @@ def main(config):
         availability = get_availability(calendar_app_status, messaging_app_status)
         status = STATUS_MAP[availability["status"]]["status_label"].upper()
         color = STATUS_MAP[availability["status"]]["color"]
-        image = base64.decode(STATUS_MAP[availability["status"]]["image"])
+        icon = base64.decode(STATUS_MAP[availability["status"]]["icon"])
         schedule = get_schedule(availability, timezone)     
 
     if not animations:
@@ -235,7 +235,7 @@ def main(config):
                     render.Box(
                         color = color,
                         width = 10,
-                        child = render.Image(src = image, width = 10),
+                        child = render.Image(src = icon, width = 10),
                     ),
                     render.Padding(
                         pad = (1, 2, 0, 1),
@@ -285,7 +285,7 @@ def main(config):
                         child = render.Box(
                             color = color,
                             width = 10,
-                            child = render.Image(src = image, width = 10),
+                            child = render.Image(src = icon, width = 10),
                         ),
                         duration = 282,
                         delay = 0,
@@ -960,7 +960,7 @@ def get_schema():
         ),
     ]
 
-    image_options = [
+    icon_options = [
         schema.Option(
             display = "Check",
             value = """
@@ -1183,12 +1183,12 @@ TkSuQmCC
                 options = color_options,
             ),
             schema.Dropdown(
-                id = "custom_status_image",
-                name = "Image",
-                desc = "Select a custom status image.",
+                id = "custom_status_icon",
+                name = "Icon",
+                desc = "Select a custom status icon.",
                 icon = "icons",
-                default = image_options[6].value,
-                options = image_options,
+                default = icon_options[6].value,
+                options = icon_options,
             ),
             schema.Text(
                 id = "custom_status_message",
