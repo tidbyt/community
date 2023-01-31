@@ -29,6 +29,8 @@ DEFAULT_LOCATION = """
 	"timezone": "America/Chicago"
 }
 """
+DEFAULT_CUSTOM_STATUS_START_TIME = "2006-01-02T15:04:05.000Z"
+DEFAULT_CUSTOM_STATUS_END_TIME = "2006-01-02T15:04:05.000Z"
 DEFAULT_CUSTOM_STATUS = "Focusing"
 DEFAULT_CUSTOM_STATUS_COLOR = "#FFFF00"
 DEFAULT_CUSTOM_STATUS_IMAGE = """
@@ -183,12 +185,30 @@ def main(config):
     timezone = json.decode(config.get("location", DEFAULT_LOCATION))["timezone"]
     animations = config.bool("animations", False)
     enable_custom_status = config.bool("enable_custom_status", False)
+    enable_custom_status_period = config.bool("enable_custom_status_period", False)
+    custom_status_start_time = time.parse_time(config.get("custom_status_start_time"), DEFAULT_CUSTOM_STATUS_START_TIME)
+    custom_status_end_time = time.parse_time(config.get("custom_status_end_time"), DEFAULT_CUSTOM_STATUS_END_TIME)
     custom_status = config.get("custom_status", DEFAULT_CUSTOM_STATUS)
     custom_status_color = config.get("custom_status_color", DEFAULT_CUSTOM_STATUS_COLOR)
     custom_status_image = config.get("custom_status_image", DEFAULT_CUSTOM_STATUS_IMAGE)
     custom_status_message = config.get("custom_status_message", DEFAULT_CUSTOM_STATUS_MESSAGE)
 
-    if (not enable_custom_status):
+    if (
+        enable_custom_status and 
+        (
+            not enable_custom_status_period or 
+            (
+                enable_custom_status_period and
+                (custom_status_start_time <= time.now()) and
+                (custom_status_end_time >= time.now())
+            )
+        )
+    ):
+        status = custom_status
+        color = custom_status_color
+        image = base64.decode(custom_status_image)
+        schedule = custom_status_message
+    else:
         # Retrieve MSFT API access token, returns None if user is not logged in
         msft_access_token = refresh_msft_access_token(config)
         if (msft_access_token != None):
@@ -206,12 +226,7 @@ def main(config):
         status = STATUS_MAP[availability["status"]]["status_label"].upper()
         color = STATUS_MAP[availability["status"]]["color"]
         image = base64.decode(STATUS_MAP[availability["status"]]["image"])
-        schedule = get_schedule(availability, timezone)
-    else:
-        status = custom_status
-        color = custom_status_color
-        image = base64.decode(custom_status_image)
-        schedule = custom_status_message
+        schedule = get_schedule(availability, timezone)     
 
     if not animations:
         return render.Root(
@@ -978,21 +993,9 @@ AElFTkSuQmCC
         schema.Option(
             display = "Exclamation",
             value = """
-iVBORw0KGgoAAAANSUhEUgAAAAoAAAAKCAYAAACNMs+9AAAAAXNSR0IArs4c6QAAAIRl
-WElmTU0AKgAAAAgABQESAAMAAAABAAEAAAEaAAUAAAABAAAASgEbAAUAAAABAAAAUgEo
-AAMAAAABAAIAAIdpAAQAAAABAAAAWgAAAAAAAABIAAAAAQAAAEgAAAABAAOgAQADAAAA
-AQABAACgAgAEAAAAAQAAAAqgAwAEAAAAAQAAAAoAAAAAyELV9gAAAAlwSFlzAAALEwAA
-CxMBAJqcGAAAAVlpVFh0WE1MOmNvbS5hZG9iZS54bXAAAAAAADx4OnhtcG1ldGEgeG1s
-bnM6eD0iYWRvYmU6bnM6bWV0YS8iIHg6eG1wdGs9IlhNUCBDb3JlIDYuMC4wIj4KICAg
-PHJkZjpSREYgeG1sbnM6cmRmPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5LzAyLzIyLXJk
-Zi1zeW50YXgtbnMjIj4KICAgICAgPHJkZjpEZXNjcmlwdGlvbiByZGY6YWJvdXQ9IiIK
-ICAgICAgICAgICAgeG1sbnM6dGlmZj0iaHR0cDovL25zLmFkb2JlLmNvbS90aWZmLzEu
-MC8iPgogICAgICAgICA8dGlmZjpPcmllbnRhdGlvbj4xPC90aWZmOk9yaWVudGF0aW9u
-PgogICAgICA8L3JkZjpEZXNjcmlwdGlvbj4KICAgPC9yZGY6UkRGPgo8L3g6eG1wbWV0
-YT4KGV7hBwAAAJxJREFUGBlNkLENwlAMRA0REj0LUDABM1DDIIzACIiOzShpGAGhdIDg
-3s8d5KSXs8+WE6Xqr87lWg4o2dDpOXU1l98NNcqsNbP2rDrKP4YaZfY7v1LI0tlQk6Fu
-fPY0ZHWRA0rW3v9WsBNbJtLCUJMxY6cm4irybbmYnhk7dfDSw76XA4vJ2KneYS681EN6
-vOfkRizFU6D8jnF/+wIJzis0LVzbBgAAAABJRU5ErkJggg==
+iVBORw0KGgoAAAANSUhEUgAAAAoAAAAKCAYAAACNMs+9AAAAAXNSR0IArs4c6QAAAC5J
+REFUKFNjZICA/1AaF8XIiKQQxkZXDDIEq0KY6SiGYDNxABVS3zMETcQX5owAts8XC1By
+gSIAAAAASUVORK5CYII=
 """,
         ),
         schema.Option(
@@ -1036,21 +1039,21 @@ eXwhnvIE4jgAAAAASUVORK5CYII=
         schema.Option(
             display = "Lightning",
             value = """
-iVBORw0KGgoAAAANSUhEUgAAAAgAAAAKCAYAAACJxx+AAAAAAXNSR0IArs4c6QAAAIRl
+iVBORw0KGgoAAAANSUhEUgAAAAoAAAAKCAYAAACNMs+9AAAAAXNSR0IArs4c6QAAAIRl
 WElmTU0AKgAAAAgABQESAAMAAAABAAEAAAEaAAUAAAABAAAASgEbAAUAAAABAAAAUgEo
-AAMAAAABAAIAAIdpAAQAAAABAAAAWgAAAAAAAABIAAAAAQAAAEgAAAABAAOgAQADAAAA
-AQABAACgAgAEAAAAAQAAAAigAwAEAAAAAQAAAAoAAAAAHH5FMQAAAAlwSFlzAAALEwAA
-CxMBAJqcGAAAAVlpVFh0WE1MOmNvbS5hZG9iZS54bXAAAAAAADx4OnhtcG1ldGEgeG1s
+AAMAAAABAAIAAIdpAAQAAAABAAAAWgAAAAAAAAAKAAAAAQAAAAoAAAABAAOgAQADAAAA
+AQABAACgAgAEAAAAAQAAAAqgAwAEAAAAAQAAAAoAAAAAN/DoBQAAAAlwSFlzAAABigAA
+AYoBM5cwWAAAAVlpVFh0WE1MOmNvbS5hZG9iZS54bXAAAAAAADx4OnhtcG1ldGEgeG1s
 bnM6eD0iYWRvYmU6bnM6bWV0YS8iIHg6eG1wdGs9IlhNUCBDb3JlIDYuMC4wIj4KICAg
 PHJkZjpSREYgeG1sbnM6cmRmPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5LzAyLzIyLXJk
 Zi1zeW50YXgtbnMjIj4KICAgICAgPHJkZjpEZXNjcmlwdGlvbiByZGY6YWJvdXQ9IiIK
 ICAgICAgICAgICAgeG1sbnM6dGlmZj0iaHR0cDovL25zLmFkb2JlLmNvbS90aWZmLzEu
 MC8iPgogICAgICAgICA8dGlmZjpPcmllbnRhdGlvbj4xPC90aWZmOk9yaWVudGF0aW9u
 PgogICAgICA8L3JkZjpEZXNjcmlwdGlvbj4KICAgPC9yZGY6UkRGPgo8L3g6eG1wbWV0
-YT4KGV7hBwAAAKFJREFUGBltzzEOgjAUxvGHgoMewMHI4iEcjIMh4QJ4Gkeu4iUYGdxc
-PYAJbCZuDEQM/L+mGAa/5Ne+19ICZmZn9Ojw9fWJWQlnDHtXmn2Y1b/x8GtuYesb3aJc
-8cICXciwwTQZTYIlnrAGOv1PMWdjhRo3tIihVDi4ajLk1ONNx3E9otC3KHfogYsaog81
-vUbZQZsllMD7nU5Z0O+tobiDA6/rIK5X3qlLAAAAAElFTkSuQmCC
+YT4KGV7hBwAAAKxJREFUGBlVkDsSAUEURdunkAsE1iGTWAKpJUjYg4XMSowdyAViVQQS
+gRJwTtebqZ5Xdeb9bk1335S6MYp2Qj5BHX0/crIYRrMg3+AHx5jl3SAa0w4UyBOmYJSa
+VDFQ8I18ILehcg5XWLbTlHrUb1jBFi6ePYYzvGAGa/DPGzDu8MlV8dlTl8dXxa69qBd/
+hFCxD2siP6axRSsUaI0WGe46HjqsQZM122jMz80fX+ggM6LWU28AAAAASUVORK5CYII=
 """,
         ),
         schema.Option(
@@ -1141,20 +1144,39 @@ TkSuQmCC
             schema.Toggle(
                 id = "enable_custom_status",
                 name = "Enable Custom Status",
-                desc = "Turn on a custom status override.",
+                desc = "Enable a custom status override.",
                 icon = "circleExclamation",
                 default = False,
             ),
+            schema.Toggle(
+                id = "enable_custom_status_period",
+                name = "Use Start/End Time",
+                desc = "Display a custom status only during a time period",
+                icon = "calendar",
+                default = False,
+            ),
+            schema.DateTime(
+                id = "custom_status_start_time",
+                name = "Start Time",
+                desc = "Select a time and date to start.",
+                icon = "calendar",
+            ),
+            schema.DateTime(
+                id = "custom_status_end_time",
+                name = "End Time",
+                desc = "Select a time and date to end.",
+                icon = "calendar",
+            ),
             schema.Text(
                 id = "custom_status",
-                name = "Custom Status",
+                name = "Status",
                 desc = "Enter a custom status.",
                 icon = "font",
                 default = "Focusing"
             ),
             schema.Dropdown(
                 id = "custom_status_color",
-                name = "Custom Status Color",
+                name = "Color",
                 desc = "Select a custom status color.",
                 icon = "palette",
                 default = color_options[1].value,
@@ -1162,15 +1184,15 @@ TkSuQmCC
             ),
             schema.Dropdown(
                 id = "custom_status_image",
-                name = "Custom Status Image",
+                name = "Image",
                 desc = "Select a custom status image.",
                 icon = "icons",
-                default = image_options[2].value,
+                default = image_options[6].value,
                 options = image_options,
             ),
             schema.Text(
                 id = "custom_status_message",
-                name = "Custom Status Message",
+                name = "Message",
                 desc = "Enter a custom status message.",
                 icon = "font",
                 default = "Until later"
