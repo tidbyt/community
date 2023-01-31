@@ -194,9 +194,9 @@ def main(config):
     custom_status_message = config.get("custom_status_message", DEFAULT_CUSTOM_STATUS_MESSAGE)
 
     if (
-        enable_custom_status and 
+        enable_custom_status and
         (
-            not enable_custom_status_period or 
+            not enable_custom_status_period or
             (
                 enable_custom_status_period and
                 (custom_status_start_time <= time.now()) and
@@ -215,6 +215,7 @@ def main(config):
             calendar_app_status = get_msft_status(msft_access_token, timezone)
         else:
             calendar_app_status = None
+
         # Retrieve Webex API access token, returns None if user is not logged in
         webex_access_token = refresh_webex_access_token(config)
         if (webex_access_token != None):
@@ -226,7 +227,7 @@ def main(config):
         status = STATUS_MAP[availability["status"]]["status_label"].upper()
         color = STATUS_MAP[availability["status"]]["color"]
         icon = base64.decode(STATUS_MAP[availability["status"]]["icon"])
-        schedule = get_schedule(availability, timezone)     
+        schedule = get_schedule(availability, timezone)
 
     if not animations:
         return render.Root(
@@ -1097,7 +1098,7 @@ HOMKH1jjAkW4Pnyjm6MFnvEUAdzgB75wUrPyEmGR/bMRsNsTDXCNc2xwCg0c4HZP2MQ0
 XqGDQ4mg+gws8RZ8FO6+emWUeB5xmX5IPOOafyVWmGMW3K/IP3NkKS2ii0XRAAAAAElF
 TkSuQmCC
 """,
-        ),      
+        ),
     ]
 
     return schema.Schema(
@@ -1171,7 +1172,7 @@ TkSuQmCC
                 name = "Status",
                 desc = "Enter a custom status.",
                 icon = "font",
-                default = "Focusing"
+                default = "Focusing",
             ),
             schema.Dropdown(
                 id = "custom_status_color",
@@ -1194,7 +1195,7 @@ TkSuQmCC
                 name = "Message",
                 desc = "Enter a custom status message.",
                 icon = "font",
-                default = "Until later"
+                default = "Until later",
             ),
             schema.Toggle(
                 id = "animations",
