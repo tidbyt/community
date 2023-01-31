@@ -142,12 +142,16 @@ def get_usgs_data(magnitude_filter = None, time_filter = None, type_filter = Non
                 ),
                 float(event["properties"]["mag"]),
                 time.from_timestamp(int(event["properties"]["time"] // 1000)),  # convert from ms to seconds
-                event["properties"]["type"],
+                event["properties"]["type"].lower(),
             ]
 
             if new_event[1] >= magnitude_filter and \
                current_time - new_event[2] <= time_filter and \
-               (type_filter == None or type_filter[new_event[3]]):
+               (
+                   type_filter == None or
+                   (type_filter["other"] and new_event[3] not in type_filter.keys()) or
+                   (new_event[3] in type_filter.keys() and type_filter[new_event[3]])
+               ):
                 events.append(new_event)
 
     events = sorted(events, key = lambda item: item[2])
@@ -265,7 +269,7 @@ def pixel_shift(x, center_longitude = 0):
     if new_x > 63:
         new_x = new_x - 64
     if new_x < 0:
-        new_x = 64 - new_x
+        new_x = 64 + new_x
     return new_x
 
 #-------------------------------------------------------------------------------
@@ -304,7 +308,7 @@ def pixel(x, y, color, alpha = 1.0):
         child = render.Box(width = 1, height = 1, color = color),
     )
 
-def blink_pixel(x, y, color_on, color_off = "#000000"):
+def blink_pixel(x, y, color_on, color_off = "#000000FF"):
     """Pixel by pixel drawing for Tidbyt, a blinking pixel
 
     Accepts a pixel coordinate as x and y integers on the Tidbyt display as well
@@ -363,7 +367,7 @@ def main(config):
         "ice quake": config.bool("include_icequake", DEFAULT_INCLUDE_ICEQUAKE),
         "quarry blast": config.bool("include_quarry", DEFAULT_INCLUDE_QUARRY),
         "explosion": config.bool("include_explosion", DEFAULT_INCLUDE_EXPLOSION),
-        "other event": config.bool("include_other", DEFAULT_INCLUDE_OTHER),
+        "other": config.bool("include_other", DEFAULT_INCLUDE_OTHER),
     }
     map_brightness = float(config.get("map_brightness", DEFAULT_MAP_BRIGHTNESS))
 
@@ -397,14 +401,10 @@ def main(config):
 
         last_event = earthquake_events[-1]
         x, y = map_projection(last_event[0][0], last_event[0][1])
-        if WORLD_MAP_ARRAY[y][x]:
-            blink_off = "#ffffff" + uint8_to_hex(int(map_brightness * 255))
-        else:
-            blink_off = "#000000"
         x = pixel_shift(x, map_center)
         blink_on = mag_to_color(last_event[1])
         render_stack.append(
-            blink_pixel(x, y, blink_on, blink_off),
+            blink_pixel(x, y, blink_on),
         )
 
         return render.Root(

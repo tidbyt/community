@@ -1,0 +1,8 @@
+---
+id: emoji-lingo
+name: Emoji Lingo
+summary: Random multilingual emojis
+desc: Displays a random emoji and its unique short text annotation from the Unicode Consortium in a given language.
+author: Cedric Sam
+fileName: emoji_lingo.star
+packageName: emojilingo

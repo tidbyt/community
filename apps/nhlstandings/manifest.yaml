@@ -1,0 +1,8 @@
+---
+id: nhl-standings
+name: NHL Standings
+summary: NHL hockey standings
+desc: View NHL standings by division.
+author: LunchBox8484
+fileName: nhl_standings.star
+packageName: nhlstandings

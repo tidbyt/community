@@ -1,0 +1,8 @@
+---
+id: yule-log
+name: Yule Log
+summary: A pixel fireplace
+desc: A pixel fireplace to add some warmth to your Tidbyt.
+author: Tidbyt
+fileName: yule_log.star
+packageName: yulelog
