@@ -131,7 +131,6 @@ PIECE_COLOURS = {
 }
 
 COLOUR_SCHEMES = {
-<<<<<<< HEAD
     # (T, I, O, L, J, S, Z, background, bar)
     "standard_dark": ((187, 68, 255), (68, 255, 255), (255, 255, 68), (255, 187, 68), (68, 136, 255), (68, 255, 68), (255, 68, 68), (22, 22, 22), (255, 255, 255), 0.4),
     "standard_light": ((187, 68, 255), (68, 255, 255), (255, 255, 68), (255, 187, 68), (68, 136, 255), (68, 255, 68), (255, 68, 68), (200, 200, 200), (68, 68, 68), 0.6),
@@ -141,17 +140,6 @@ COLOUR_SCHEMES = {
     "summer": ((255, 218, 185), (254, 213, 182), (253, 207, 178), (251, 196, 171), (250, 185, 164), (249, 179, 161), (248, 173, 157), (236, 91, 91), (165, 63, 63), 1),
     "monochrome_dark": ((255, 255, 255), (255, 255, 255), (255, 255, 255), (255, 255, 255), (255, 255, 255), (255, 255, 255), (255, 255, 255), (0, 0, 0), (255, 255, 255), 0.4),
     "monochrome_light": ((0, 0, 0), (0, 0, 0), (0, 0, 0), (0, 0, 0), (0, 0, 0), (0, 0, 0), (0, 0, 0), (255, 255, 255), (0, 0, 0), 0.6),
-=======
-    # [T, I, O, L, J, S, Z, background, bar]
-    "standard_dark": [[187, 68, 255], [68, 255, 255], [255, 255, 68], [255, 187, 68], [68, 136, 255], [68, 255, 68], [255, 68, 68], [34, 34, 34], [255, 255, 255]],
-    "standard_light": [[187, 68, 255], [68, 255, 255], [255, 255, 68], [255, 187, 68], [68, 136, 255], [68, 255, 68], [255, 68, 68], [200, 200, 200], [68, 68, 68]],
-    "autumn": [[241, 235, 163], [240, 227, 152], [237, 211, 130], [241, 198, 118], [245, 185, 105], [249, 172, 92], [251, 165, 86], [176, 100, 38], [252, 143, 54]],
-    "winter": [[214, 221, 255], [192, 201, 245], [173, 185, 237], [163, 173, 227], [156, 164, 219], [147, 152, 209], [139, 142, 201], [89, 104, 150], [54, 65, 89]],
-    "spring": [[161, 213, 151], [153, 196, 143], [150, 190, 140], [137, 180, 129], [124, 169, 118], [111, 159, 107], [98, 148, 98], [201, 242, 199], [69, 99, 61]],
-    "summer": [[255, 218, 185], [254, 213, 182], [253, 207, 178], [251, 196, 171], [250, 185, 164], [249, 179, 161], [248, 173, 157], [236, 91, 91], [165, 63, 63]],
-    "monochrome_dark": [[255, 255, 255], [255, 255, 255], [255, 255, 255], [255, 255, 255], [255, 255, 255], [255, 255, 255], [255, 255, 255], [0, 0, 0], [255, 255, 255]],
-    "monochrome_light": [[0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0], [255, 255, 255], [0, 0, 0]],
->>>>>>> 23d196ae9e9d7e448b0c9562b2c3a0d529510277
 }
 
 ROTATE_CW = {
@@ -240,17 +228,9 @@ SUBSHAPES = {
     ],
     "BOWL": [
         [["O0", 0], ["SL", -1], ["ZR", 2]],
-<<<<<<< HEAD
         [["O0", 0], ["ZR", 2], ["SL", -1]],
         [["I0", 0], ["L0", 2], ["J0", -1]],
         [["I0", 0], ["J0", -1], ["L0", 2]],
-=======
-        [["SL", -1], ["ZR", 2], ["O0", 0]],
-        [["ZR", 2], ["O0", 0], ["SL", -1]],
-        [["O0", 0], ["ZR", 2], ["SL", -1]],
-        [["SL", -1], ["O0", 0], ["ZR", 2]],
-        [["ZR", 2], ["SL", -1], ["O0", 0]],
->>>>>>> 23d196ae9e9d7e448b0c9562b2c3a0d529510277
     ],
     "SIX_MIDDLE": [
         [["T2", -1], ["T2", 2], ["I0", 0], ["TR", -2]],
@@ -360,13 +340,8 @@ def generateFinalPieces(subshape, offset, temp_grid):
     return final_pieces
 
 def generatePieceSequence(subshape, dropOffset, length, moveOdds):
-<<<<<<< HEAD
     final_pieces = generateFinalPieces(SUBSHAPES[subshape], 2, new_grid())
     temp_grid = new_grid()
-=======
-    final_pieces = generateFinalPieces(SUBSHAPES[subshape], 2, new_grid([]))
-    temp_grid = new_grid([])
->>>>>>> 23d196ae9e9d7e448b0c9562b2c3a0d529510277
     piece_sequences = []
     for piece in final_pieces:
         place(temp_grid, piece)
@@ -409,24 +384,15 @@ def generatePieceSequence(subshape, dropOffset, length, moveOdds):
                 movements.insert(0, 0)
             piece[2] -= 1
 
-<<<<<<< HEAD
         # piece, movements, placed?, movement index, movement length
         piece_sequences.insert(0, [piece, movements, False, 0, 0, len(movements)])
-=======
-        # piece, movements, placed?
-        piece_sequences.insert(0, [piece, movements, False, 0])
->>>>>>> 23d196ae9e9d7e448b0c9562b2c3a0d529510277
     return piece_sequences
 
 def unplace(grid, piece):
     for cell in PIECES[piece[0]]:
         cx, cy = cell[0] + piece[1], cell[1] + piece[2]
         if (cx >= 0 and cx < GRID_WIDTH and cy >= 0 and cy < GRID_HEIGHT):
-<<<<<<< HEAD
             grid[cy][cx][0] = EMPTY_CELL
-=======
-            grid["board"][cy][cx][0] = EMPTY_CELL
->>>>>>> 23d196ae9e9d7e448b0c9562b2c3a0d529510277
         elif (cy >= GRID_HEIGHT):
             return True
     return False
@@ -435,11 +401,7 @@ def place(grid, piece):
     for cell in PIECES[piece[0]]:
         cx, cy = cell[0] + piece[1], cell[1] + piece[2]
         if (cx >= 0 and cx < GRID_WIDTH and cy >= 0 and cy < GRID_HEIGHT):
-<<<<<<< HEAD
             grid[cy][cx] = [True, "#fff", 1]
-=======
-            grid["board"][cy][cx] = [True, "#fff", 1]
->>>>>>> 23d196ae9e9d7e448b0c9562b2c3a0d529510277
         elif (cy >= GRID_HEIGHT):
             return True
     return False
@@ -448,17 +410,12 @@ def collides(grid, piece):
     for cell in PIECES[piece[0]]:
         cx, cy = cell[0] + piece[1], cell[1] + piece[2]
         if (cx >= 0 and cx < GRID_WIDTH and cy >= 0 and cy < GRID_HEIGHT):
-<<<<<<< HEAD
             if (grid[cy][cx][0]):
-=======
-            if (grid["board"][cy][cx][0]):
->>>>>>> 23d196ae9e9d7e448b0c9562b2c3a0d529510277
                 return True
         elif (cy >= GRID_HEIGHT):
             return True
     return False
 
-<<<<<<< HEAD
 def new_grid():
     grid = []
     for y in range(GRID_HEIGHT):
@@ -471,45 +428,6 @@ def new_grid():
 
 def rgb2hex(col):
     return "#" + HEX_NUMBERS[col[0]] + HEX_NUMBERS[col[1]] + HEX_NUMBERS[col[2]]
-=======
-def new_grid(pieces):
-    grid = {
-        "board": [],
-        "pieces": pieces,
-    }
-    for y in range(GRID_HEIGHT):
-        grid["board"].append([])
-        for x in range(GRID_WIDTH):
-            # cells are [solid?, colour, age]
-            grid["board"][y].append(EMPTY_CELL)
-            x = x  # Stop it
-    return grid
-
-def lerp(a, b, x):
-    return a + (b - a) * x
-
-def fade_colour(colA, colB, x):
-    lerpAmt = max(0, min(x, 1))
-    mixedCol = (
-        int(lerp(colA[0], colB[0], lerpAmt)),
-        int(lerp(colA[1], colB[1], lerpAmt)),
-        int(lerp(colA[2], colB[2], lerpAmt)),
-    )
-    return rgb2hex(mixedCol)
-
-def pad(str):
-    if (len(str) == 1):
-        return "0" + str
-    return str
-
-def rgb2hex(col):
-    mixedCol = (
-        pad("%x" % int(col[0])),
-        pad("%x" % int(col[1])),
-        pad("%x" % int(col[2])),
-    )
-    return "#%s%s%s" % mixedCol
->>>>>>> 23d196ae9e9d7e448b0c9562b2c3a0d529510277
 
 def main(config):
     # config
@@ -517,16 +435,11 @@ def main(config):
     LEADING_ZERO = config.bool("leadzero", True)
     SHOW_DATE = config.bool("showdate", True)
     COLOUR_SCHEME_NAME = config.get("colourscheme", "standard_dark")
-<<<<<<< HEAD
-=======
-    BACKGROUND_COLOUR = rgb2hex(COLOUR_SCHEMES[COLOUR_SCHEME_NAME][7])
->>>>>>> 23d196ae9e9d7e448b0c9562b2c3a0d529510277
     FADE_SPEED = int(config.get("fadespeed", 10))
     FADE_COLOUR = (FADE_SPEED < 1000000)
     FRAME_RATE = int(config.get("framerate", 10))
     DIGIT_LENGTH = int(config.get("digitlength", 60))
     MOVEMENT_ODDS = int(config.get("movementrate", 2))
-<<<<<<< HEAD
     TOP_BAR = config.bool("topbar")
     GRID_HEIGHT = 15 if TOP_BAR else 12
 
@@ -543,8 +456,6 @@ def main(config):
         COLOUR_SCHEME.append(col)
     COLOUR_SCHEME.append(COLOUR_SCHEMES[COLOUR_SCHEME_NAME][9])
     BACKGROUND_COLOUR = rgb2hex(COLOUR_SCHEME[7])
-=======
->>>>>>> 23d196ae9e9d7e448b0c9562b2c3a0d529510277
 
     location = config.get("location", DEFAULT_LOCATION)
     loc = json.decode(location)
@@ -557,20 +468,13 @@ def main(config):
     if ((not LEADING_ZERO) and adjusted_hours < 10):
         DIGIT_OFFSETS = [8, 18, 25]
         sequences = [
-<<<<<<< HEAD
             generatePieceSequence(DIGIT_SHAPES[adjusted_hours % 10], (DIGIT_LENGTH * 1 // 20), DIGIT_LENGTH, MOVEMENT_ODDS),
             generatePieceSequence(DIGIT_SHAPES[now.minute // 10], 0, DIGIT_LENGTH, MOVEMENT_ODDS),
             generatePieceSequence(DIGIT_SHAPES[now.minute % 10], (DIGIT_LENGTH * 2 // 20), DIGIT_LENGTH, MOVEMENT_ODDS),
-=======
-            generatePieceSequence(DIGIT_SHAPES[adjusted_hours % 10], (DIGIT_LENGTH * 1 // 10), DIGIT_LENGTH, MOVEMENT_ODDS),
-            generatePieceSequence(DIGIT_SHAPES[now.minute // 10], 0, DIGIT_LENGTH, MOVEMENT_ODDS),
-            generatePieceSequence(DIGIT_SHAPES[now.minute % 10], (DIGIT_LENGTH * 2 // 10), DIGIT_LENGTH, MOVEMENT_ODDS),
->>>>>>> 23d196ae9e9d7e448b0c9562b2c3a0d529510277
         ]
     else:
         DIGIT_OFFSETS = [1, 8, 18, 25]
         sequences = [
-<<<<<<< HEAD
             generatePieceSequence(DIGIT_SHAPES[adjusted_hours // 10], (DIGIT_LENGTH * 3 // 20), DIGIT_LENGTH, MOVEMENT_ODDS),
             generatePieceSequence(DIGIT_SHAPES[adjusted_hours % 10], (DIGIT_LENGTH * 1 // 20), DIGIT_LENGTH, MOVEMENT_ODDS),
             generatePieceSequence(DIGIT_SHAPES[now.minute // 10], 0, DIGIT_LENGTH, MOVEMENT_ODDS),
@@ -591,59 +495,34 @@ def main(config):
             )
             FADE_TABLE[i].append(rgb2hex(mixedCol))
 
-=======
-            generatePieceSequence(DIGIT_SHAPES[adjusted_hours // 10], (DIGIT_LENGTH * 3 // 10), DIGIT_LENGTH, MOVEMENT_ODDS),
-            generatePieceSequence(DIGIT_SHAPES[adjusted_hours % 10], (DIGIT_LENGTH * 1 // 10), DIGIT_LENGTH, MOVEMENT_ODDS),
-            generatePieceSequence(DIGIT_SHAPES[now.minute // 10], 0, DIGIT_LENGTH, MOVEMENT_ODDS),
-            generatePieceSequence(DIGIT_SHAPES[now.minute % 10], (DIGIT_LENGTH * 2 // 10), DIGIT_LENGTH, MOVEMENT_ODDS),
-        ]
-    frames = []
-
->>>>>>> 23d196ae9e9d7e448b0c9562b2c3a0d529510277
     for FRAME in range(FRAME_COUNT):
         # prepare a temporary grid for rendering
         colourGrid = []
         for y in range(GRID_HEIGHT):
             colourGrid.append([])
             for x in range(FINAL_GRID_WIDTH):
-<<<<<<< HEAD
                 colourGrid[y].append("#0000")
 
         # update sequences
-=======
-                colourGrid[y].append(BACKGROUND_COLOUR)
-
-        # update sequences
-
->>>>>>> 23d196ae9e9d7e448b0c9562b2c3a0d529510277
         sequenceNo = 0
         for sequence in sequences:
             # execute the first movement in each piece
             for piece in sequence:
-<<<<<<< HEAD
                 PIECE_NAME = piece[0][0]
                 if (piece[4] >= piece[5]):
-=======
-                if (len(piece[1]) == 0):
->>>>>>> 23d196ae9e9d7e448b0c9562b2c3a0d529510277
                     if (not piece[2]):
                         # piece has no more movements :(
                         piece[2] = True
                     piece[3] += 1
                 else:
-<<<<<<< HEAD
                     movement = piece[1][piece[4]]
                     piece[4] += 1
-=======
-                    movement = piece[1].pop(0)
->>>>>>> 23d196ae9e9d7e448b0c9562b2c3a0d529510277
                     piece[0][2] += 1
                     if (movement == 1):
                         piece[0][1] += 1
                     if (movement == -1):
                         piece[0][1] -= 1
                     if (movement == 2):
-<<<<<<< HEAD
                         piece[0][0] = ROTATE_CW[PIECE_NAME]
                     if (movement == -2):
                         piece[0][0] = ROTATE_CW[ROTATE_CW[ROTATE_CW[PIECE_NAME]]]
@@ -653,34 +532,12 @@ def main(config):
                     cx, cy = cell[0] + piece[0][1] + DIGIT_OFFSETS[sequenceNo], cell[1] + piece[0][2] + (TOP_BAR and 3 or 0)
                     if (cx >= 0 and cx < FINAL_GRID_WIDTH and cy >= 0 and cy < GRID_HEIGHT):
                         colourGrid[cy][cx] = FADE_TABLE[PIECE_COLOURS[PIECE_NAME]][min(piece[3], FADE_SPEED)]
-=======
-                        piece[0][0] = ROTATE_CW[piece[0][0]]
-                    if (movement == -2):
-                        piece[0][0] = ROTATE_CW[ROTATE_CW[ROTATE_CW[piece[0][0]]]]
-
-                for cell in PIECES[piece[0][0]]:
-                    cx, cy = cell[0] + piece[0][1] + DIGIT_OFFSETS[sequenceNo], cell[1] + piece[0][2]
-                    if (cx >= 0 and cx < FINAL_GRID_WIDTH and cy >= 0 and cy < GRID_HEIGHT):
-                        colourLerpAmt = piece[3] / FADE_SPEED if FADE_COLOUR else 0
-                        colourGrid[cy][cx] = fade_colour(
-                            COLOUR_SCHEMES[COLOUR_SCHEME_NAME][PIECE_COLOURS[piece[0][0]]],
-                            COLOUR_SCHEMES[COLOUR_SCHEME_NAME][8],
-                            colourLerpAmt,
-                        )
->>>>>>> 23d196ae9e9d7e448b0c9562b2c3a0d529510277
             sequenceNo += 1
 
         # colon
         if (FRAME % FRAME_RATE < FRAME_RATE / 2):
-<<<<<<< HEAD
             col = rgb2hex(
                 COLOUR_SCHEME[8 if FADE_COLOUR else PIECE_COLOURS["O0"]],
-=======
-            col = fade_colour(
-                COLOUR_SCHEMES[COLOUR_SCHEME_NAME][PIECE_COLOURS["O0"]],
-                COLOUR_SCHEMES[COLOUR_SCHEME_NAME][8],
-                1 if FADE_COLOUR else 0,
->>>>>>> 23d196ae9e9d7e448b0c9562b2c3a0d529510277
             )
             colourGrid[GRID_HEIGHT - 2][COLON_OFFSET] = col
             colourGrid[GRID_HEIGHT - 2][COLON_OFFSET + 1] = col
@@ -697,7 +554,6 @@ def main(config):
         for y in range(GRID_HEIGHT):
             colourGrid.append([])
             row = []
-<<<<<<< HEAD
             cumulativeColour = colourGrid[y][0]
             cumulativeCount = 1
             for x in range(1, FINAL_GRID_WIDTH):
@@ -719,50 +575,10 @@ def main(config):
             rows.append(render.Row(
                 children = row,
             ))
-=======
-            for x in range(FINAL_GRID_WIDTH):
-                row.append(render.Box(
-                    width = 2,
-                    height = 2,
-                    color = colourGrid[y][x],
-                ))
-            rows.append(render.Row(
-                children = row,
-            ))
-        BAR_COLOUR = rgb2hex(COLOUR_SCHEMES[COLOUR_SCHEME_NAME][8])
-        rows.extend(
-            [render.Box(
-                width = 64,
-                height = 8,
-                color = BAR_COLOUR,
-                child = render.Box(
-                    width = 63,
-                    height = 8,
-                    color = BAR_COLOUR,
-                    child = render.Row(
-                        expanded = True,
-                        main_align = "space_between",
-                        cross_align = "end",
-                        children = [
-                            render.Text(
-                                "" if TWENTY_FOUR_HOUR else (now.hour < 12 and "AM" or "PM"),
-                                color = BACKGROUND_COLOUR,
-                            ),
-                            render.Text(
-                                ("%s %d" % (MONTHS[now.month - 1], now.day)) if SHOW_DATE else "",
-                                color = BACKGROUND_COLOUR,
-                            ),
-                        ],
-                    ),
-                ),
-            )],
-        )
->>>>>>> 23d196ae9e9d7e448b0c9562b2c3a0d529510277
         frames.append(render.Column(
             children = rows,
         ))
 
-<<<<<<< HEAD
     BAR_COLOUR = rgb2hex(COLOUR_SCHEME[7 if TOP_BAR else 8])
 
     lerpAmt = COLOUR_SCHEME[9] if FADE_COLOUR else 0
@@ -841,15 +657,6 @@ def main(config):
             ),
         )
 
-=======
-    return render.Root(
-        delay = 1000 // FRAME_RATE,
-        child = render.Animation(
-            children = frames,
-        ),
-    )
-
->>>>>>> 23d196ae9e9d7e448b0c9562b2c3a0d529510277
 def get_schema():
     themeOptions = [
         schema.Option(
@@ -885,7 +692,6 @@ def get_schema():
             value = "monochrome_light",
         ),
     ]
-<<<<<<< HEAD
     dateFormatOptions = [
         schema.Option(
             display = "Month, Day",
@@ -926,8 +732,6 @@ def get_schema():
             value = "0.2",
         ),
     ]
-=======
->>>>>>> 23d196ae9e9d7e448b0c9562b2c3a0d529510277
     fadeSpeedOptions = [
         schema.Option(
             display = "Disabled",
@@ -1001,7 +805,6 @@ def get_schema():
     movementRateOptions = [
         schema.Option(
             display = "None",
-<<<<<<< HEAD
             value = "0",
         ),
         schema.Option(
@@ -1023,25 +826,6 @@ def get_schema():
         schema.Option(
             display = "Extreme",
             value = "100",
-=======
-            value = "1000000",
-        ),
-        schema.Option(
-            display = "Slow",
-            value = "16",
-        ),
-        schema.Option(
-            display = "Medium",
-            value = "7",
-        ),
-        schema.Option(
-            display = "Fast",
-            value = "2",
-        ),
-        schema.Option(
-            display = "Extreme",
-            value = "1",
->>>>>>> 23d196ae9e9d7e448b0c9562b2c3a0d529510277
         ),
     ]
     return schema.Schema(
@@ -1051,11 +835,7 @@ def get_schema():
                 id = "colourscheme",
                 name = "Colour Scheme",
                 desc = "The colour scheme of the app.",
-<<<<<<< HEAD
                 icon = "palette",
-=======
-                icon = "brush",
->>>>>>> 23d196ae9e9d7e448b0c9562b2c3a0d529510277
                 default = themeOptions[0].value,
                 options = themeOptions,
             ),
@@ -1080,7 +860,6 @@ def get_schema():
                 default = False,
             ),
             schema.Toggle(
-<<<<<<< HEAD
                 id = "24hr",
                 name = "24-Hour Clock",
                 desc = "Whether or not to show a 24-hour clock (on) or 12-hour clock (off).",
@@ -1098,16 +877,10 @@ def get_schema():
                 id = "showdate",
                 name = "Show Date",
                 desc = "Whether or not to show the date.",
-=======
-                id = "showdate",
-                name = "Show Date",
-                desc = "Whether or not to show the date on the lower-right.",
->>>>>>> 23d196ae9e9d7e448b0c9562b2c3a0d529510277
                 icon = "calendar",
                 default = True,
             ),
             schema.Dropdown(
-<<<<<<< HEAD
                 id = "dateformat",
                 name = "Date Format",
                 desc = "The format of the date shown.",
@@ -1124,8 +897,6 @@ def get_schema():
                 options = brightnessOptions,
             ),
             schema.Dropdown(
-=======
->>>>>>> 23d196ae9e9d7e448b0c9562b2c3a0d529510277
                 id = "fadespeed",
                 name = "Fade Speed",
                 desc = "The speed at which the blocks fade out.",
@@ -1159,7 +930,6 @@ def get_schema():
             ),
         ],
     )
-<<<<<<< HEAD
 
 # can someone at tidbyt stop it from doing this
 HEX_NUMBERS = [
@@ -1420,5 +1190,3 @@ HEX_NUMBERS = [
     "FE",
     "FF",
 ]
-=======
->>>>>>> 23d196ae9e9d7e448b0c9562b2c3a0d529510277
