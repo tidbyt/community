@@ -1,5 +1,17 @@
 # Bored
 
+## Releases
+
+
+### Version 2.0001
+WOOOOAAA now you can enter your OWN suggestions for things to do, thus greatly surprising your family with customized things like "Go clean your room young man", or "Sexy time with Bruno" to mention a few. The opportunities for never being bored has never been greater. Let the great Un-Boredom project commence.
+
+### Version 2.0
+Oh My, the Goodness has been squared. Now with customizable scroll speed, and an option to always show the entire suggestion. Bored People, UNITE.
+
+### Version 1.0
+Fun, but rudimentary, yet excitingly uplifting, like eating hotdogs with chillies.
+
 ## The Problem
 
 There comes a time in a persons life when we are faced with some of the hardest choices humans can face. Choices so stark it shakes our very foundation, ripping the very fabric of reality. Choices that will forever change our lives going forward. Choices that can't be undone.
