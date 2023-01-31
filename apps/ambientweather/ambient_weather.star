@@ -34,6 +34,8 @@ def main(config):
 
     temp = "N/A"
     humidity = "N/A"
+    uv = None
+    windInfo = None
 
     if config.get("temp_sensor_index", None) == "tempSensor1":
         if "tempf" in conditions.keys():
@@ -73,6 +75,18 @@ def main(config):
     title = config.get("title", None)
     if is_string_blank(title):
         title = stationName
+    
+    uvChild = None
+    windInfoChild = None
+    if uv:
+        uvChild =   render.Text(
+                        content = uv,
+                        color = "#ff0",
+                    )
+    if windInfo:
+        windInfoChild = render.Text(
+                            content = windSpeed,
+                        )
 
     return render.Root(
         delay = 500,
@@ -105,10 +119,7 @@ def main(config):
                                 content = humidity,
                                 color = "#66f",
                             ),
-                            render.Text(
-                                content = uv,
-                                color = "#ff0",
-                            ),
+                            uvChild,
                         ],
                     ),
                     render.Row(
@@ -116,9 +127,7 @@ def main(config):
                         main_align = "center",
                         children = [
                             render.Box(width = 2, height = 1),
-                            render.Text(
-                                content = windSpeed,
-                            ),
+                            windInfoChild
                         ],
                     ),
                 ],
