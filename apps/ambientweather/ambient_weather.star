@@ -83,7 +83,7 @@ def main(config):
         )
     if windInfo:
         windInfoChild = render.Text(
-            content = windSpeed,
+            content = windInfo,
         )
 
     return render.Root(
