@@ -165,7 +165,7 @@ def get_schema():
             ),
             schema.Dropdown(
                 id = "temp_sensor_index",
-                name = "Temp Sensor",
+                name = "Temperature Sensor",
                 desc = "Choose which Temperature sensor to show.",
                 icon = "list",
                 default = "tempSensor1",
