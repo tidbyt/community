@@ -43,8 +43,8 @@ DEFAULT_CUSTOM_STATUS_MESSAGE = "Until later"
 TTL_SECONDS = 30
 
 # Values for local server
-DEVELOPER_MSFT_CLIENT_ID = "REPLACE_ON_LOCAL"
-DEVELOPER_MSFT_CLIENT_SECRET = "REPLACE_ON_LOCAL"
+DEVELOPER_MSFT_CLIENT_ID = "5a7824f2-595e-4a50-9d07-6492f829cc89"
+DEVELOPER_MSFT_CLIENT_SECRET = "lcE8Q~2IDWpYhsPlwMF4dlFapWbyle9SMCc.Ba_e"
 
 # Values for Tidbyt server
 ENCRYPTED_MSFT_CLIENT_ID = "AV6+xWcEEXuYe3pTryNhDHEtNSvhVh5AzuB80JlncWy6vIj/rgonoeEGOXIzDClOEJkL0RAWAKCFRpSglnBCRa0G3ABIpSSA/zXdCSugEoqA4zDfEBxTh78LvvZ6r0pBfoUj1eHRYxH1PTSbKKKBdPg7mdtyC5lfsMyAYYPyqLq6XX0sGBR4f7IR"
@@ -581,8 +581,7 @@ def get_msft_next_event(msft_events):
         ):
             return msft_event
 
-    # Should never get here.
-    return ""
+    return None
 
 def get_msft_status(msft_access_token, timezone):
     # Determines a user's status based on MSFT events returned
