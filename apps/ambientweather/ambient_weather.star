@@ -31,7 +31,6 @@ def main(config):
 
     conditions = station["lastData"]
 
-
     temp = "N/A"
     humidity = "N/A"
     uv = None
@@ -65,28 +64,27 @@ def main(config):
         windSpeed = "%dmph" % conditions["windspeedmph"]
         windDirection = wind_direction(conditions["winddir"])
         windInfo = "%s %s" % (windSpeed, windDirection)
-        
+
     if "uv" in conditions.keys():
         uv = "UV %d" % conditions["uv"]
-
 
     stationName = station["info"]["name"]
 
     title = config.get("title", None)
     if is_string_blank(title):
         title = stationName
-    
+
     uvChild = None
     windInfoChild = None
     if uv:
-        uvChild =   render.Text(
-                        content = uv,
-                        color = "#ff0",
-                    )
+        uvChild = render.Text(
+            content = uv,
+            color = "#ff0",
+        )
     if windInfo:
         windInfoChild = render.Text(
-                            content = windSpeed,
-                        )
+            content = windSpeed,
+        )
 
     return render.Root(
         delay = 500,
@@ -127,7 +125,7 @@ def main(config):
                         main_align = "center",
                         children = [
                             render.Box(width = 2, height = 1),
-                            windInfoChild
+                            windInfoChild,
                         ],
                     ),
                 ],
@@ -182,8 +180,7 @@ def get_schema():
                         display = "Sensor 2",
                         value = "tempSensor2",
                     ),
-                ]
-                
+                ],
             ),
             schema.Dropdown(
                 id = "humidity_sensor_index",
@@ -204,8 +201,7 @@ def get_schema():
                         display = "Sensor 2",
                         value = "humiditySensor2",
                     ),
-                ]
-                
+                ],
             ),
         ],
     )
