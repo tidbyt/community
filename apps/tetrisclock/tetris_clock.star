@@ -581,7 +581,7 @@ def main(config):
 
     BAR_COLOUR = rgb2hex(COLOUR_SCHEME[7 if TOP_BAR else 8])
 
-    lerpAmt = COLOUR_SCHEME[9] if FADE_COLOUR else 0
+    lerpAmt = COLOUR_SCHEME[9] if TOP_BAR else 0
     colA, colB = COLOUR_SCHEME[7], COLOUR_SCHEME[8]
     mixedCol = (
         int(colA[0] + (colB[0] - colA[0]) * lerpAmt),
@@ -860,20 +860,6 @@ def get_schema():
                 default = False,
             ),
             schema.Toggle(
-                id = "24hr",
-                name = "24-Hour Clock",
-                desc = "Whether or not to show a 24-hour clock (on) or 12-hour clock (off).",
-                icon = "clock",
-                default = False,
-            ),
-            schema.Toggle(
-                id = "topbar",
-                name = "Text In Background",
-                desc = "Where the text is placed.",
-                icon = "bars",
-                default = False,
-            ),
-            schema.Toggle(
                 id = "showdate",
                 name = "Show Date",
                 desc = "Whether or not to show the date.",
@@ -881,9 +867,9 @@ def get_schema():
                 default = True,
             ),
             schema.Dropdown(
-                id = "dateformat",
-                name = "Date Format",
-                desc = "The format of the date shown.",
+                id = "barposition",
+                name = "Text In Background",
+                desc = "Whether the text is on a bar on the bottom or in the background.",
                 icon = "calendarDays",
                 default = dateFormatOptions[0].value,
                 options = dateFormatOptions,
