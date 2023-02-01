@@ -164,7 +164,7 @@ def main(config):
                         cross_align = "start",
                         children = [
                             render.Column(
-                                children = get_team(x, entries, entriesToDisplay, displayType, displayTop),
+                                children = get_team(x, entries, entriesToDisplay, displayType),
                             ),
                         ],
                     ),
@@ -384,7 +384,7 @@ def get_team_color(teamid):
     teamcolor = get_background_color(team["abbreviation"], team["color"])
     return teamcolor
 
-def get_team(x, s, entriesToDisplay, displayType, displayTop):
+def get_team(x, s, entriesToDisplay, displayType):
     output = []
     containerHeight = int(24 / entriesToDisplay)
     for i in range(0, entriesToDisplay):
