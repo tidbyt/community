@@ -18,21 +18,25 @@ def main(config):
     #Establish API URL
     stop_code = config.get("stop_code", DEFAULT_STOP_CODE)
     url = "https://svc.metrotransit.org/NexTripv2/" + stop_code + "?format=json"
-    MTT = http.get(url).json()
+    cache_key = "MTT_rate_{0}".format(stop_code)
 
     #Cache Data
-    MTT_cached = cache.get("MTT_rate")
+    MTT_cached = cache.get(cache_key)
 
     if MTT_cached != None:
         print("Hit! Displaying cached data.")
-        MTT_data = json.decode(MTT_cached)
+        MTT = json.decode(MTT_cached)
+        MTT_data = MTT
     else:
         print("Miss! Calling Transit data.")
+        MTT = http.get(url).json()
+        cache.set(cache_key, json.encode(MTT), ttl_seconds = 30)
         MTT_data = MTT
 
-    MTT_TITLE = MTT
+    print(MTT_data)
 
-    cache.set("MTT_rate", json.encode(MTT_data), ttl_seconds = 30)
+    MTT_TITLE = MTT_data
+
     CB = "#333"
     CB2 = "#333"
     CT = "#fa0"
