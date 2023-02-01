@@ -866,10 +866,17 @@ def get_schema():
                 icon = "calendar",
                 default = True,
             ),
-            schema.Dropdown(
-                id = "barposition",
+            schema.Toggle(
+                id = "topbar",
                 name = "Text In Background",
                 desc = "Whether the text is on a bar on the bottom or in the background.",
+                icon = "bars",
+                default = False,
+            ),
+            schema.Dropdown(
+                id = "dateformat",
+                name = "Date Format",
+                desc = "The format of the date shown.",
                 icon = "calendarDays",
                 default = dateFormatOptions[0].value,
                 options = dateFormatOptions,
