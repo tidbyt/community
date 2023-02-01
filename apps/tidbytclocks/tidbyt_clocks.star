@@ -4,7 +4,7 @@ Summary: Displays Tidbyt clock apps
 Description: Displays clock apps available on the Tidbyt. Apps that have "clock" in the app name or description are listed.
 Author: rs7q5
 """
-#tidbyt_clock.star
+#tidbyt_clocks.star
 #Created 20230128 RIS
 #Last Modified 20230131 RIS
 
@@ -41,9 +41,9 @@ def main(config):
         clock_list = ["Error getting list of apps!!!!"]  #error in getting data
     else:
         clock_list = []
-        for app_id, app_val in data.items():
+        for app_val in data.values():
             clock_logic = app_val[0].lower().rfind("clock") != -1 or app_val[1].lower().rfind("clock") != -1
-            if clock_logic and app_id != "tidbyt-clocks":  #don't want to count tidbyt-clocks app
+            if clock_logic:
                 clock_list.append(app_val[0])  #get app name
 
     #get total number of clocks
