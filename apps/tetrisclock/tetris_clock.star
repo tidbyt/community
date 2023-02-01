@@ -436,7 +436,7 @@ def main(config):
     SHOW_DATE = config.bool("showdate", True)
     COLOUR_SCHEME_NAME = config.get("colourscheme", "standard_dark")
     FADE_SPEED = int(config.get("fadespeed", 10))
-    FADE_COLOUR = (FADE_SPEED < 1000000)
+    FADE_COLOUR = (FADE_SPEED > 0)
     FRAME_RATE = int(config.get("framerate", 10))
     DIGIT_LENGTH = int(config.get("digitlength", 60))
     MOVEMENT_ODDS = int(config.get("movementrate", 2))
@@ -735,7 +735,7 @@ def get_schema():
     fadeSpeedOptions = [
         schema.Option(
             display = "Disabled",
-            value = "1000000",
+            value = "0",
         ),
         schema.Option(
             display = "Very Slow",
