@@ -352,7 +352,7 @@ def generatePieceSequence(subshape, dropOffset, length, moveOdds):
         unplace(temp_grid, piece)
         for movementNum in range((i + 1) * (length // len(final_pieces)) + dropOffset + INITIAL_DELAY):
             movementNum = movementNum
-            if (random.number(0, moveOdds) <= 1 and moveOdds < 10000):
+            if (random.number(0, 99) == moveOdds):
                 # do a movement
                 # movements happen just after gravity, but since we're doing it backwards the gravity happens afterwards
                 movement = random.number(0, 4)
@@ -809,15 +809,15 @@ def get_schema():
         ),
         schema.Option(
             display = "Slow",
-            value = "10",
+            value = "7",
         ),
         schema.Option(
             display = "Medium",
-            value = "20",
+            value = "16",
         ),
         schema.Option(
             display = "Fast",
-            value = "40",
+            value = "35",
         ),
         schema.Option(
             display = "Very Fast",
