@@ -1,22 +1,24 @@
 """
 Applet: Tidbyt Clocks
 Summary: Displays Tidbyt clock apps
-Description: Displays clock apps available on the Tidbyt. Apps that have "clock" in the app name or description are listed. This app is not included in the list though.
+Description: Displays clock apps available on the Tidbyt. Apps that have "clock" in the app name or description are listed.
 Author: rs7q5
 """
 #tidbyt_clock.star
 #Created 20230128 RIS
-#Last Modified 20230128 RIS
+#Last Modified 20230131 RIS
 
 load("cache.star", "cache")
 load("encoding/json.star", "json")
 load("http.star", "http")
 load("render.star", "render")
+load("time.star", "time")
 
 BASE_URL = "https://api.tidbyt.com/v0/apps"
 FONT = "tom-thumb"
+DEFAULT_TIMEZONE = "America/New_York"
 
-def main():
+def main(config):
     #get list of apps
     cached_data = cache.get("app_list")
     if cached_data != None:
@@ -48,6 +50,20 @@ def main():
     clock_cnt = "" if data == None else len(clock_list)
     final_list = format_text(clock_list, FONT)
 
+    #get current time
+    timezone = config.get("$tz", DEFAULT_TIMEZONE)
+    now = time.now().in_location(timezone)
+
+    time_text = [render.Text(content = now.format("15:04"), font = "10x20")] * 5  #mulitply by 5 so the time animation is actually as if delay=500
+    time_text.extend([render.Text(content = now.format("15 04"), font = "10x20")] * 5)
+    time_frame = render.Box(
+        width = 64,
+        height = 26,
+        child = render.Animation(
+            children = time_text,
+        ),
+    )
+
     final_frame = render.Column(
         children = [
             render.Marquee(
@@ -55,15 +71,21 @@ def main():
                 child = render.Text("Clock Apps:" + str(clock_cnt), font = "CG-pixel-3x5-mono"),
             ),
             render.Box(width = 64, height = 1, color = "#c993d5"),
-            render.Marquee(
-                height = 26,
-                scroll_direction = "vertical",
-                offset_start = 32,
-                offset_end = 32,
-                child = render.Column(
-                    main_align = "space_between",
-                    children = final_list,
-                ),
+            render.Stack(
+                [
+                    time_frame,
+                    render.Box(width = 64, height = 64, color = "#000000bf"),  #this is to make the clock visible in the back
+                    render.Marquee(
+                        height = 26,
+                        scroll_direction = "vertical",
+                        offset_start = 32,
+                        offset_end = 32,
+                        child = render.Column(
+                            main_align = "space_between",
+                            children = final_list,
+                        ),
+                    ),
+                ],
             ),
         ],
     )
