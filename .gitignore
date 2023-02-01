@@ -22,3 +22,6 @@ BUILD.bazel
 # MacOS
 .DS_Store
 
+# Pixlet
+*.webp
+*.gif
