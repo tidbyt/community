@@ -59,6 +59,8 @@ ALT_COLOR = """
 """
 ALT_LOGO = """
 {
+	"AFC": "https://a.espncdn.com/i/teamlogos/nfl/500/scoreboard/afc.png",
+	"NFC": "https://a.espncdn.com/i/teamlogos/nfl/500/scoreboard/nfc.png"
 }
 """
 MAGNIFY_LOGO = """

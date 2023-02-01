@@ -7,13 +7,19 @@ Author: yonodactyl
 
 # LOAD MODULES
 load("encoding/base64.star", "base64")
+load("random.star", "random")
 load("render.star", "render")
 load("schema.star", "schema")
 
 # MAIN
 def main(config):
     # Grab the configuration information and adjust variables
-    selected_img = base64.decode(IMAGES[config.get("image", DEFAULT_MORNING_ID)])
+    selected_img_id = config.get("image", DEFAULT_MORNING_ID)
+    if selected_img_id == "random":
+        image_keys = IMAGES.keys()
+        idx = random.number(0, len(image_keys) - 1)  #-1 because indices start at zero
+        selected_img_id = image_keys[idx]
+    selected_img = base64.decode(IMAGES[selected_img_id])
     selected_speed = int(config.get("scroll_delay", DEFAULT_DELAY))
 
     # Render an image with a slight delay
@@ -23,24 +29,12 @@ def main(config):
     )
 
 def get_schema():
-    # Speed options for the parallax
-    speed_options = [
-        schema.Option(
-            display = "Default",
-            value = "150",
-        ),
-        schema.Option(
-            display = "Slow",
-            value = "400",
-        ),
-        schema.Option(
-            display = "Fast",
-            value = "10",
-        ),
-    ]
-
     # Landscape options
     options = [
+        schema.Option(
+            display = "Random",
+            value = "random",
+        ),
         schema.Option(
             display = "Default - Morning",
             value = DEFAULT_MORNING_ID,
@@ -59,6 +53,22 @@ def get_schema():
         ),
     ]
 
+    # Speed options for the parallax
+    speed_options = [
+        schema.Option(
+            display = "Default",
+            value = "150",
+        ),
+        schema.Option(
+            display = "Slow",
+            value = "400",
+        ),
+        schema.Option(
+            display = "Fast",
+            value = "10",
+        ),
+    ]
+
     return schema.Schema(
         version = "1",
         fields = [
@@ -67,7 +77,7 @@ def get_schema():
                 name = "Landscape",
                 desc = "The Landscape GIF to be looped",
                 icon = "mountain",
-                default = options[0].value,
+                default = options[1].value,
                 options = options,
             ),
             schema.Dropdown(
