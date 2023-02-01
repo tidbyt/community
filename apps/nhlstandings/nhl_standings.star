@@ -135,7 +135,7 @@ teamsOptions = [
 ]
 
 displayTopOptions = [
-	schema.Option(
+    schema.Option(
         display = "League Name",
         value = "league",
     ),
@@ -246,7 +246,7 @@ def get_team(x, s, entriesToDisplay, now, timeColor, divisionName, displayTop):
     teamLosses = ""
     teamOTL = ""
     teamPoints = ""
-    
+
     timeBox = 20
     statusBox = 44
     if displayTop == "league":

@@ -182,7 +182,7 @@ teamsOptions = [
 ]
 
 displayTopOptions = [
-	schema.Option(
+    schema.Option(
         display = "League Name",
         value = "league",
     ),

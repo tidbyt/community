@@ -614,7 +614,7 @@ pregameOptions = [
 ]
 
 displayTopOptions = [
-	schema.Option(
+    schema.Option(
         display = "League Name",
         value = "league",
     ),
@@ -819,7 +819,7 @@ def get_date_column(displayTop, now, textColor, borderColor, displayType, gameTi
         ])),
     ]
     return dateTimeColumn
-    
+
 def get_shortened_display(text):
     if len(text) > 8:
         text = text.replace("Final", "F").replace("Game ", "G")

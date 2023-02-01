@@ -174,7 +174,7 @@ teamsOptions = [
 ]
 
 displayTopOptions = [
-	schema.Option(
+    schema.Option(
         display = "League Name",
         value = "league",
     ),
@@ -315,7 +315,7 @@ def get_team(x, s, entriesToDisplay, now, timeColor, divisionName, displayTop):
             ],
         ),
     ]
-        
+
     output.extend(topColumn)
     containerHeight = int(24 / entriesToDisplay)
     for i in range(0, entriesToDisplay):

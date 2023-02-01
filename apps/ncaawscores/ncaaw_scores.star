@@ -641,135 +641,135 @@ conferenceOptions = [
         display = "Division I",
         value = "50",
     ),
-schema.Option(
+    schema.Option(
         display = "A 10",
         value = "3",
     ),
-schema.Option(
+    schema.Option(
         display = "ACC",
         value = "2",
     ),
-schema.Option(
+    schema.Option(
         display = "ASUN",
         value = "46",
     ),
-schema.Option(
+    schema.Option(
         display = "Am. East",
         value = "1",
     ),
-schema.Option(
+    schema.Option(
         display = "American",
         value = "62",
     ),
-schema.Option(
+    schema.Option(
         display = "Big 12",
         value = "8",
     ),
-schema.Option(
+    schema.Option(
         display = "Big East",
         value = "4",
     ),
-schema.Option(
+    schema.Option(
         display = "Big Sky",
         value = "5",
     ),
-schema.Option(
+    schema.Option(
         display = "Big South",
         value = "6",
     ),
-schema.Option(
+    schema.Option(
         display = "Big Ten",
         value = "7",
     ),
-schema.Option(
+    schema.Option(
         display = "Big West",
         value = "9",
     ),
-schema.Option(
+    schema.Option(
         display = "C-USA",
         value = "11",
     ),
-schema.Option(
+    schema.Option(
         display = "CAA",
         value = "10",
     ),
-schema.Option(
+    schema.Option(
         display = "Horizon",
         value = "45",
     ),
-schema.Option(
+    schema.Option(
         display = "Indep.",
         value = "43",
     ),
-schema.Option(
+    schema.Option(
         display = "Ivy",
         value = "12",
     ),
-schema.Option(
+    schema.Option(
         display = "MAAC",
         value = "13",
     ),
-schema.Option(
+    schema.Option(
         display = "MAC",
         value = "14",
     ),
-schema.Option(
+    schema.Option(
         display = "MEAC",
         value = "16",
     ),
-schema.Option(
+    schema.Option(
         display = "MVC",
         value = "18",
     ),
-schema.Option(
+    schema.Option(
         display = "Mountain West",
         value = "44",
     ),
-schema.Option(
+    schema.Option(
         display = "NEC",
         value = "19",
     ),
-schema.Option(
+    schema.Option(
         display = "OVC",
         value = "20",
     ),
-schema.Option(
+    schema.Option(
         display = "Pac-12",
         value = "21",
     ),
-schema.Option(
+    schema.Option(
         display = "Patriot",
         value = "22",
     ),
-schema.Option(
+    schema.Option(
         display = "SEC",
         value = "23",
     ),
-schema.Option(
+    schema.Option(
         display = "SWAC",
         value = "26",
     ),
-schema.Option(
+    schema.Option(
         display = "Southern",
         value = "24",
     ),
-schema.Option(
+    schema.Option(
         display = "Southland",
         value = "25",
     ),
-schema.Option(
+    schema.Option(
         display = "Summit",
         value = "47",
     ),
-schema.Option(
+    schema.Option(
         display = "Sun Belt",
         value = "27",
     ),
-schema.Option(
+    schema.Option(
         display = "WAC",
         value = "30",
     ),
-schema.Option(
+    schema.Option(
         display = "WCC",
         value = "29",
     ),
@@ -948,7 +948,7 @@ pregameOptions = [
 ]
 
 displayTopOptions = [
-	schema.Option(
+    schema.Option(
         display = "League Name",
         value = "league",
     ),
