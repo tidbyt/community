@@ -56,8 +56,7 @@ def main(config):
         color = "#fff"
 
     if "imageUrl" in picked_item:
-        image_resp = http.get(picked_item["imageUrl"])
-        image = image_resp.body()
+        image = get_cachable_data(picked_item["imageUrl"])
     else:
         image = picked_item["image"]
 
@@ -101,6 +100,21 @@ def main(config):
             ],
         ),
     )
+
+def get_cachable_data(url, ttl_seconds = 3600):
+    key = base64.encode(url)
+
+    data = cache.get(key)
+    if data != None:
+        return base64.decode(data)
+
+    res = http.get(url = url)
+    if res.status_code != 200:
+        fail("request to %s failed with status code: %d - %s" % (url, res.status_code, res.body()))
+
+    cache.set(key, base64.encode(res.body()), ttl_seconds = ttl_seconds)
+
+    return res.body()
 
 def get_schema():
     return schema.Schema(
