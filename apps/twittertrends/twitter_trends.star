@@ -5,15 +5,14 @@ Description: Displays the top N number of Trending Hashtags on Twitter. Colors o
 Author: Joseph Esposito
 """
 
-load("render.star", "render")
-load("schema.star", "schema")
-load("http.star", "http")
+load("cache.star", "cache")
 load("encoding/base64.star", "base64")
 load("encoding/json.star", "json")
-load("cache.star", "cache")
+load("http.star", "http")
+load("render.star", "render")
+load("schema.star", "schema")
 
 #SCHEMA is erroring on me saying invalid module.
-
 
 #In my implementation, this is how I connect to the Twitter API using my account Key:Secret Key
 #I don't know if this works with the OAuth2 Schema because I didn't have a way of testing it to my knowledge.
@@ -52,7 +51,7 @@ def main(config):
         #Commenting out Schema for tests
 
         #Check for API keys
-        
+
         if config.get("key", None) != None or config.get("secret", None) != None:
             api_parameters = {
                 "client_id": "{}:{}".format(config.get("key", None), config.get("secret", None)),
@@ -61,11 +60,11 @@ def main(config):
             return render.Root(
                 render.WrappedText("No API Keys!"),
             )
-        
+
         #Used for testing (replace the values with your keys but keep the colon)
-        test_api_parameters = {
-            "client_id": "key:secret_key",
-        }
+        #test_api_parameters = {
+        #    "client_id": "key:secret_key",
+        #}
 
         #Submit authentication request to Twitter
         token = oauth_handler(json.encode(api_parameters))
@@ -87,12 +86,12 @@ def main(config):
         cache.set("twitter_trends_rate", json.encode(top_trends), ttl_seconds = 120)
 
     #Get limit, default to 15
-    
+
     if config.get("key", None) != None:
         limit = int(config.get("key", None))
     else:
         limit = 15
-    
+
     top_trends_formatted = format_trends(top_trends, limit)
 
     #Render Screen
@@ -113,7 +112,7 @@ def main(config):
                     ),
                     render.Marquee(
                         height = 32,
-                        offset_start=15,
+                        offset_start = 15,
                         scroll_direction = "vertical",
                         child = render.Column(
                             main_align = "space_between",
@@ -236,7 +235,7 @@ def format_trends(trends_dict, limit):
             #Doubles the list up for continuous scrolling
             return text_list + text_list
 
-    return text_list 
+    return text_list
 
 def get_schema():
     return schema.Schema(
