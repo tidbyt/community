@@ -36,7 +36,7 @@ def main():
         print("Miss! Grabbing logo image from LOGO_URL")
         logo = http.get(LOGO_URL).body()
         cache.set("logo", logo, ttl_seconds = 300)
-        
+
     return render.Root(
         child = render.Row(
             expanded = True,
