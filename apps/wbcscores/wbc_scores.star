@@ -1,7 +1,7 @@
 """
-Applet: WNBA Scores
-Summary: Displays WNBA scores
-Description: Displays live and upcoming WNBA scores from a data feed.
+Applet: WBC Scores
+Summary: Displays WBC scores
+Description: Displays live and upcoming WBC scores from a data feed.
 Author: LunchBox8484
 """
 
@@ -24,32 +24,55 @@ DEFAULT_LOCATION = """
     "timezone": "America/New_York"
 }
 """
-LEAGUE_DISPLAY = "WNBA"
-LEAGUE_DISPLAY_OFFSET = 2
-SPORT = "basketball"
-LEAGUE = "wnba"
+LEAGUE_DISPLAY = "WBC"
+LEAGUE_DISPLAY_OFFSET = -3
+SPORT = "baseball"
+LEAGUE = "world-baseball-classic"
 API = "https://site.api.espn.com/apis/site/v2/sports/" + SPORT + "/" + LEAGUE + "/scoreboard"
 SHORTENED_WORDS = """
 {
     " PM": "P",
     " AM": "A",
     " Wins": "",
+    " wins": "",
+    " Win": "",
+    " win": "",
     " Leads": "",
+    " lead": "",
+    " Leads": "",
+    " lead": "",
     " Series": "",
+    " series": "",
+    " Tied": "",
+    " tied": "",
+    " of": "",
     " - ": " ",
     " / ": " ",
     "Postponed": "PPD",
-    "Overtime": "OT",
-    "1st Half": "1H",
-    "2nd Half": "2H",
-    "1st Quarter": "Q1",
-    "2nd Quarter": "Q2",
-    "3rd Quarter": "Q3",
-    "4th Quarter": "Q4"
+    "Bottom": "Bot",
+    "Middle": "Mid"
 }
 """
 ALT_COLOR = """
 {
+    "CUB": "#004B87",
+    "NED": "#003DA5",
+    "AUS": "#012169",
+    "CHN": "#000000",
+    "TPE": "#000095",
+    "COL": "#003087",
+    "CUB": "#DA291C",
+    "CZE": "#11457E",
+    "DOM": "#CE1126",
+    "GBR": "#012169",
+    "ISR": "#005EB8",
+    "ITA": "#008C45",
+    "JPN": "#000000",
+    "KOR": "#CD2E3A",
+    "NCA": "#0067c6",
+    "PAN": "#DA121A",
+    "USA": "#0A3161",
+    "VEN": "#003DA5"
 }
 """
 ALT_LOGO = """
@@ -69,8 +92,8 @@ def main(config):
     scores = get_scores(league, instanceNumber, totalInstances)
     if len(scores) > 0:
         displayType = config.get("displayType", "colors")
-        displayTop = config.get("displayTop", "time")
         pregameDisplay = config.get("pregameDisplay", "record")
+        displayTop = config.get("displayTop", "time")
         timeColor = config.get("displayTimeColor", "#FFF")
         rotationSpeed = 15 / len(scores)
         location = config.get("location", DEFAULT_LOCATION)
