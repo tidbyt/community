@@ -1,4 +1,4 @@
-# On this day
+# Today in history
 
 This applet looks at Wikipedia for events for the current date, and parses them
 into Births, Deaths and Events. It picks one of those events and displays it.
