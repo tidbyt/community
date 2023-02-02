@@ -1,0 +1,8 @@
+---
+id: mn-metro-transit
+name: MN Metro Trasnit
+summary: Metro Transit Departures
+desc: MN Metro Transit train, BRT, ABRT, and bus departure times.
+author: Jonathan Wescott & Alex Miller
+fileName: mn_metro_transit.star
+packageName: mnmetrotransit

@@ -1,0 +1,8 @@
+---
+id: tetris-clock
+name: Tetris Clock
+summary: Falling block clock
+desc: Shows the current time by animating falling blocks. Highly customizable.
+author: MarkGamed7794
+fileName: tetris_clock.star
+packageName: tetrisclock
