@@ -22,7 +22,7 @@ REFERENCE_DATE = time.parse_time("2023-01-01T00:00:00Z")
 
 # other conifg
 HTTP_OK = 200
-CACHE_TIMEOUT = 1  #3600 # 1 hour
+CACHE_TIMEOUT = 24 * 3600  #  24 hours
 
 def main(config):
     """ gets the country based on the current configuration
