@@ -24,10 +24,10 @@ DEFAULT_LOCATION = """
     "timezone": "America/New_York"
 }
 """
-LEAGUE_DISPLAY = "NCAAF"
+LEAGUE_DISPLAY = "NCAAB"
 LEAGUE_DISPLAY_OFFSET = 6
-SPORT = "football"
-LEAGUE = "college-football"
+SPORT = "baseball"
+LEAGUE = "college-baseball"
 API = "https://site.api.espn.com/apis/site/v2/sports/" + SPORT + "/" + LEAGUE + "/scoreboard"
 SHORTENED_WORDS = """
 {
@@ -52,7 +52,7 @@ ALT_COLOR = """
     "LSU" : "#461D7C",
     "WAKE" : "#000000",
     "UVA" : "#232D4B",
-    "WVU" : "#002855",
+    "WESTV" : "#002855",
     "CIN" : "#E00122",
     "WYO" : "#492F24",
     "SMU" : "#0033A0",
@@ -68,7 +68,8 @@ ALT_COLOR = """
     "UNC" : "#13294B",
     "COLO" : "#000000",
     "IOWA" : "#000000",
-    "RICE" : "#00205B"
+    "RICE" : "#00205B",
+    "RUTG" : "#CC0033"
 }
 """
 ALT_LOGO = """
@@ -81,7 +82,7 @@ ALT_LOGO = """
     "TEM" : "https://b.fssta.com/uploads/application/college/team-logos/Temple.vresize.50.50.medium.1.png",
     "CLEM" : "https://b.fssta.com/uploads/application/college/team-logos/Clemson-alternate.vresize.50.50.medium.1.png",
     "LSU" : "https://b.fssta.com/uploads/application/college/team-logos/LSU-alternate.vresize.50.50.medium.1.png",
-    "WVU" : "https://b.fssta.com/uploads/application/college/team-logos/WestVirginia-alternate.vresize.50.50.medium.1.png",
+    "WESTV" : "https://b.fssta.com/uploads/application/college/team-logos/WestVirginia-alternate.vresize.50.50.medium.1.png",
     "PITT" : "https://b.fssta.com/uploads/application/college/team-logos/Pittsburgh-alternate.vresize.50.50.medium.1.png",
     "UVA" : "https://b.fssta.com/uploads/application/college/team-logos/Virginia.vresize.50.50.medium.1.png",
     "RUTG" : "https://b.fssta.com/uploads/application/college/team-logos/Rutgers-alternate.vresize.50.50.medium.1.png",
@@ -92,11 +93,11 @@ ALT_LOGO = """
     "TCU" : "https://b.fssta.com/uploads/application/college/team-logos/TCU-alternate.vresize.50.50.medium.1.png",
     "OU" : "https://b.fssta.com/uploads/application/college/team-logos/Oklahoma-alternate.vresize.50.50.medium.1.png",
     "TEX" : "https://b.fssta.com/uploads/application/college/team-logos/Texas-alternate.vresize.50.50.medium.1.png",
-    "KSU" : "https://b.fssta.com/uploads/application/college/team-logos/KansasState-alternate.vresize.50.50.medium.1.png",
+    "KANSA" : "https://b.fssta.com/uploads/application/college/team-logos/KansasState-alternate.vresize.50.50.medium.1.png",
     "ILL" : "https://b.fssta.com/uploads/application/college/team-logos/Illinois-alternate.vresize.50.50.medium.1.png",
     "NEB" : "https://b.fssta.com/uploads/application/college/team-logos/Nebraska-alternate.vresize.50.50.medium.1.png",
     "NU" : "https://b.fssta.com/uploads/application/college/team-logos/Northwestern-alternate.vresize.50.50.medium.1.png",
-    "MSU" : "https://b.fssta.com/uploads/application/college/team-logos/MichiganState-alternate.vresize.50.50.medium.1.png",
+    "MICHI" : "https://b.fssta.com/uploads/application/college/team-logos/MichiganState-alternate.vresize.50.50.medium.1.png",
     "WISC" : "https://b.fssta.com/uploads/application/college/team-logos/Wisconsin-alternate.vresize.50.50.medium.1.png",
     "IU" : "https://b.fssta.com/uploads/application/college/team-logos/Indiana-alternate.vresize.50.50.medium.0.png",
     "MINN" : "https://b.fssta.com/uploads/application/college/team-logos/Minnesota-alternate.vresize.50.50.medium.0.png",
@@ -114,8 +115,8 @@ ALT_LOGO = """
     "EMU" : "https://b.fssta.com/uploads/application/college/team-logos/EasternMichigan-alternate.vresize.50.50.medium.0.png",
     "EKU" : "https://b.fssta.com/uploads/application/college/team-logos/EasternKentucky-alternate.vresize.50.50.medium.0.png",
     "UCLA" : "https://b.fssta.com/uploads/application/college/team-logos/UCLA-alternate.vresize.50.50.medium.0.png",
-    "UK" : "https://b.fssta.com/uploads/application/college/team-logos/Kentucky-alternate.vresize.50.50.medium.0.png",
-    "WASH" : "https://b.fssta.com/uploads/application/college/team-logos/Washington-alternate.vresize.50.50.medium.0.png",
+    "KENTU" : "https://b.fssta.com/uploads/application/college/team-logos/Kentucky-alternate.vresize.50.50.medium.0.png",
+    "WASHI" : "https://b.fssta.com/uploads/application/college/team-logos/Washington-alternate.vresize.50.50.medium.0.png",
     "UNLV" : "https://b.fssta.com/uploads/application/college/team-logos/UNLV-alternate.vresize.50.50.medium.0.png",
     "AFA" : "https://b.fssta.com/uploads/application/college/team-logos/AirForce-alternate.vresize.50.50.medium.1.png",
     "NAU" : "https://b.fssta.com/uploads/application/college/team-logos/NorthernArizona-alternate.vresize.50.50.medium.0.png",
@@ -131,19 +132,20 @@ ALT_LOGO = """
     "NORF" : "https://b.fssta.com/uploads/application/college/team-logos/NorfolkState.vresize.50.50.medium.0.png",
     "UNC" : "https://b.fssta.com/uploads/application/college/team-logos/NorthCarolina.vresize.50.50.medium.0.png",
     "BAY" : "https://b.fssta.com/uploads/application/college/team-logos/Baylor-alternate.vresize.50.50.medium.0.png",
-    "ALA" : "https://b.fssta.com/uploads/application/college/team-logos/Alabama-alternate.vresize.50.50.medium.0.png"
+    "ALA" : "https://b.fssta.com/uploads/application/college/team-logos/Alabama-alternate.vresize.50.50.medium.0.png",
+    "NORTH" : "https://b.fssta.com/uploads/application/college/team-logos/Northwestern-alternate.vresize.50.50.medium.0.png"
 }
 """
 MAGNIFY_LOGO = """
 {
-    "WVU" : 12,
+    "WESTV" : 12,
     "RUTG" : 12,
     "DUKE" : 12,
     "UNT" : 14,
     "HOU" : 14,
     "USF" : 14,
     "OU" : 14,
-    "KSU" : 14,
+    "KANSA" : 14,
     "NEB" : 12,
     "ILL" : 14,
     "ND" : 14,
@@ -182,11 +184,7 @@ ODDS_NAME = """
 
 def main(config):
     renderCategory = []
-    conferenceType = config.get("conferenceType", "0")
-    if conferenceType == "0":
-        apiURL = API + "?limit=100"
-    else:
-        apiURL = API + "?limit=100&groups=" + conferenceType
+    apiURL = API + "?limit=100"
     league = {LEAGUE: apiURL}
     instanceNumber = int(config.get("instanceNumber", 1))
     totalInstances = int(config.get("instancesCount", 1))
@@ -289,12 +287,16 @@ def main(config):
                     checkSeries = competition.get("series", "NO")
                     if checkSeries == "NO":
                         homeCompetitor = competition["competitors"][0]
-                        checkRecord = homeCompetitor.get("records", "NO")
-                        if checkRecord == "NO":
+                        homecheckRecord = homeCompetitor.get("records", "NO")
+                        awayCompetitor = competition["competitors"][1]
+                        awaycheckRecord = awayCompetitor.get("records", "NO")
+                        if homecheckRecord == "NO":
                             homeScore = "0-0"
-                            awayScore = "0-0"
                         else:
                             homeScore = competition["competitors"][0]["records"][0]["summary"]
+                        if awaycheckRecord == "NO":
+                            awayScore = "0-0"
+                        else:
                             awayScore = competition["competitors"][1]["records"][0]["summary"]
                     else:
                         homeScore = str(competition["series"]["competitors"][0]["wins"]) + "-" + str(competition["series"]["competitors"][1]["wins"])
@@ -624,129 +626,6 @@ def main(config):
     else:
         return []
 
-conferenceOptions = [
-    schema.Option(
-        display = "Top 25",
-        value = "0",
-    ),
-    schema.Option(
-        display = "FBS (I-A)",
-        value = "80",
-    ),
-    schema.Option(
-        display = "ACC",
-        value = "1",
-    ),
-    schema.Option(
-        display = "American",
-        value = "151",
-    ),
-    schema.Option(
-        display = "Big 12",
-        value = "4",
-    ),
-    schema.Option(
-        display = "Big Ten",
-        value = "5",
-    ),
-    schema.Option(
-        display = "C-USA",
-        value = "12",
-    ),
-    schema.Option(
-        display = "FBS Indep.",
-        value = "18",
-    ),
-    schema.Option(
-        display = "MAC",
-        value = "15",
-    ),
-    schema.Option(
-        display = "Mountain West",
-        value = "17",
-    ),
-    schema.Option(
-        display = "Pac-12",
-        value = "9",
-    ),
-    schema.Option(
-        display = "SEC",
-        value = "8",
-    ),
-    schema.Option(
-        display = "Sun Belt",
-        value = "37",
-    ),
-    schema.Option(
-        display = "FCS (I-AA)",
-        value = "81",
-    ),
-    schema.Option(
-        display = "ASUN",
-        value = "176",
-    ),
-    schema.Option(
-        display = "Big Sky",
-        value = "20",
-    ),
-    schema.Option(
-        display = "Big South",
-        value = "40",
-    ),
-    schema.Option(
-        display = "CAA",
-        value = "48",
-    ),
-    schema.Option(
-        display = "Ivy",
-        value = "22",
-    ),
-    schema.Option(
-        display = "MEAC",
-        value = "24",
-    ),
-    schema.Option(
-        display = "MVFC",
-        value = "21",
-    ),
-    schema.Option(
-        display = "NEC",
-        value = "25",
-    ),
-    schema.Option(
-        display = "OVC",
-        value = "26",
-    ),
-    schema.Option(
-        display = "Patriot",
-        value = "27",
-    ),
-    schema.Option(
-        display = "Pioneer",
-        value = "28",
-    ),
-    schema.Option(
-        display = "SWAC",
-        value = "31",
-    ),
-    schema.Option(
-        display = "Southern",
-        value = "29",
-    ),
-    schema.Option(
-        display = "Southland",
-        value = "30",
-    ),
-    schema.Option(
-        display = "WAC",
-        value = "16",
-    ),
-    schema.Option(
-        display = "Div II/III",
-        value = "35",
-    ),
-]
-
 displayOptions = [
     schema.Option(
         display = "Team Colors",
@@ -966,14 +845,6 @@ def get_schema():
                 name = "Location",
                 desc = "Location for which to display time.",
                 icon = "locationDot",
-            ),
-            schema.Dropdown(
-                id = "conferenceType",
-                name = "Conference",
-                desc = "Which conference to display.",
-                icon = "gear",
-                default = conferenceOptions[0].value,
-                options = conferenceOptions,
             ),
             schema.Toggle(
                 id = "displayRanking",
