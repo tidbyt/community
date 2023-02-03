@@ -209,11 +209,13 @@ def main(config):
                     gameTime = "Postponed"
                 else:
                     homeScore = competition["competitors"][0]["score"]
+                    homeWinner = competition["competitors"][0]["winner"]
                     awayScore = competition["competitors"][1]["score"]
-                    if (int(homeScore) > int(awayScore)):
+                    awayWinner = competition["competitors"][1]["winner"]
+                    if (int(homeScore) > int(awayScore) or homeWinner == True):
                         homeScoreColor = "#ff0"
                         awayScoreColor = "#fffc"
-                    elif (int(awayScore) > int(homeScore)):
+                    elif (int(awayScore) > int(homeScore) or awayWinner == True):
                         homeScoreColor = "#fffc"
                         awayScoreColor = "#ff0"
                     else:
