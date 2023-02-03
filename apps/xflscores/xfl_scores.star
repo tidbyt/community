@@ -1,7 +1,7 @@
 """
-Applet: WNBA Scores
-Summary: Displays WNBA scores
-Description: Displays live and upcoming WNBA scores from a data feed.
+Applet: XFL Scores
+Summary: Displays XFL scores
+Description: Displays live and upcoming NFL scores from a data feed.
 Author: LunchBox8484
 """
 
@@ -24,20 +24,18 @@ DEFAULT_LOCATION = """
     "timezone": "America/New_York"
 }
 """
-LEAGUE_DISPLAY = "WNBA"
-LEAGUE_DISPLAY_OFFSET = 2
-SPORT = "basketball"
-LEAGUE = "wnba"
+LEAGUE_DISPLAY = "XFL"
+LEAGUE_DISPLAY_OFFSET = -4
+SPORT = "football"
+LEAGUE = "xfl"
 API = "https://site.api.espn.com/apis/site/v2/sports/" + SPORT + "/" + LEAGUE + "/scoreboard"
 SHORTENED_WORDS = """
 {
     " PM": "P",
     " AM": "A",
-    " Wins": "",
-    " Leads": "",
-    " Series": "",
     " - ": " ",
     " / ": " ",
+    " of": "",
     "Postponed": "PPD",
     "Overtime": "OT",
     "1st Half": "1H",
@@ -50,6 +48,8 @@ SHORTENED_WORDS = """
 """
 ALT_COLOR = """
 {
+    "ARL": "#000000",
+    "LV": "#000000"
 }
 """
 ALT_LOGO = """
@@ -58,6 +58,8 @@ ALT_LOGO = """
 """
 MAGNIFY_LOGO = """
 {
+	"LV": 18,
+	"SA": 20
 }
 """
 

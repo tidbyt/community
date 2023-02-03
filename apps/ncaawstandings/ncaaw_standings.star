@@ -1,7 +1,7 @@
 """
-Applet: NCAAF Standings
-Summary: Displays NCAAF standings
-Description: Displays live and upcoming NCAAF standings from a data feed.
+Applet: NCAAW Standings
+Summary: Displays NCAAW standings
+Description: Displays live and upcoming NCAAW standings from a data feed.
 Author: LunchBox8484
 """
 
@@ -24,10 +24,10 @@ DEFAULT_LOCATION = """
     "timezone": "America/New_York"
 }
 """
-LEAGUE_DISPLAY = "NCAAF"
-LEAGUE_DISPLAY_OFFSET = 6
-SPORT = "football"
-LEAGUE = "college-football"
+LEAGUE_DISPLAY = "NCAAW"
+LEAGUE_DISPLAY_OFFSET = 7
+SPORT = "basketball"
+LEAGUE = "womens-college-basketball"
 API = "https://site.api.espn.com/apis/v2/sports/" + SPORT + "/" + LEAGUE + "/standings"
 ALT_COLOR = """
 {
@@ -129,7 +129,7 @@ def main(config):
     timezone = loc["timezone"]
     now = time.now().in_location(timezone)
     if conferenceType == "top25":
-        apiURL = "https://site.api.espn.com/apis/site/v2/sports/football/college-football/rankings"
+        apiURL = "https://site.api.espn.com/apis/site/v2/sports/basketball/womens-college-basketball/rankings"
     elif conferenceType == "0":
         apiURL = API
     else:
@@ -153,6 +153,18 @@ def main(config):
         cycleOptions = int(config.get("cycleOptions", 1))
         cycleCount = 0
         entriesToDisplay = teamsToShow
+
+        if conferenceType != "top25":
+            sortOrder = {}
+
+            for j, _ in enumerate(entries):
+                stats = entries[j]["stats"]
+                for l, m in enumerate(stats):
+                    if m["name"] == "gamesBehind":
+                        sortOrder[entries[j]["team"]["id"]] = stats[l]["value"]
+            sortOrder = {k: v for k, v in sorted(sortOrder.items(), key = lambda item: item[1])}
+            keysList = list(sortOrder.keys())
+            entries = sorted(entries, key = lambda e: keysList.index(e["team"]["id"]))
 
         for x in range(0, len(entries), entriesToDisplay):
             cycleCount = cycleCount + 1
@@ -186,72 +198,140 @@ conferenceOptions = [
         value = "top25",
     ),
     schema.Option(
-        display = "ACC - Atlantic",
-        value = "1&0",
+        display = "Division I",
+        value = "50",
     ),
     schema.Option(
-        display = "ACC - Costal",
-        value = "1&1",
+        display = "A 10",
+        value = "3",
+    ),
+    schema.Option(
+        display = "ACC",
+        value = "2",
+    ),
+    schema.Option(
+        display = "ASUN",
+        value = "46",
+    ),
+    schema.Option(
+        display = "Am. East",
+        value = "1",
     ),
     schema.Option(
         display = "American",
-        value = "151",
+        value = "62",
     ),
     schema.Option(
         display = "Big 12",
+        value = "8",
+    ),
+    schema.Option(
+        display = "Big East",
         value = "4",
     ),
     schema.Option(
-        display = "Big Ten - East",
-        value = "5&0",
+        display = "Big Sky",
+        value = "5",
     ),
     schema.Option(
-        display = "Big Ten - West",
-        value = "5&1",
+        display = "Big South",
+        value = "6",
     ),
     schema.Option(
-        display = "C-USA",
-        value = "12",
+        display = "Big Ten",
+        value = "7",
     ),
     schema.Option(
-        display = "FBS Indep.",
-        value = "18",
-    ),
-    schema.Option(
-        display = "MAC - East",
-        value = "15&0",
-    ),
-    schema.Option(
-        display = "MAC - West",
-        value = "15&1",
-    ),
-    schema.Option(
-        display = "Mountain West - Mountain",
-        value = "17&0",
-    ),
-    schema.Option(
-        display = "Mountain West - West",
-        value = "17&1",
-    ),
-    schema.Option(
-        display = "Pac-12",
+        display = "Big West",
         value = "9",
     ),
     schema.Option(
-        display = "SEC - East",
-        value = "8&0",
+        display = "C-USA",
+        value = "11",
     ),
     schema.Option(
-        display = "SEC - West",
-        value = "8&1",
+        display = "CAA",
+        value = "10",
     ),
     schema.Option(
-        display = "Sun Belt - East",
-        value = "37&0",
+        display = "Horizon",
+        value = "45",
     ),
     schema.Option(
-        display = "Sun Belt - West",
-        value = "37&1",
+        display = "Indep.",
+        value = "43",
+    ),
+    schema.Option(
+        display = "Ivy",
+        value = "12",
+    ),
+    schema.Option(
+        display = "MAAC",
+        value = "13",
+    ),
+    schema.Option(
+        display = "MAC",
+        value = "14",
+    ),
+    schema.Option(
+        display = "MEAC",
+        value = "16",
+    ),
+    schema.Option(
+        display = "MVC",
+        value = "18",
+    ),
+    schema.Option(
+        display = "Mountain West",
+        value = "44",
+    ),
+    schema.Option(
+        display = "NEC",
+        value = "19",
+    ),
+    schema.Option(
+        display = "OVC",
+        value = "20",
+    ),
+    schema.Option(
+        display = "Pac-12",
+        value = "21",
+    ),
+    schema.Option(
+        display = "Patriot",
+        value = "22",
+    ),
+    schema.Option(
+        display = "SEC",
+        value = "23",
+    ),
+    schema.Option(
+        display = "SWAC",
+        value = "26",
+    ),
+    schema.Option(
+        display = "Southern",
+        value = "24",
+    ),
+    schema.Option(
+        display = "Southland",
+        value = "25",
+    ),
+    schema.Option(
+        display = "Summit",
+        value = "47",
+    ),
+    schema.Option(
+        display = "Sun Belt",
+        value = "27",
+    ),
+    schema.Option(
+        display = "WAC",
+        value = "30",
+    ),
+    schema.Option(
+        display = "WCC",
+        value = "29",
     ),
 ]
 
@@ -371,20 +451,29 @@ def get_schema():
     )
 
 def get_standings(urls):
-    decodedata = {}
+    decodedata = []
+
     for _, s in urls.items():
         data = get_cachable_data(s)
         decodedata = json.decode(data)
+
     return decodedata
 
 def get_team_color(teamid):
     data = get_cachable_data("https://site.api.espn.com/apis/site/v2/sports/" + SPORT + "/" + LEAGUE + "/teams/" + teamid)
     decodedata = json.decode(data)
     team = decodedata["team"]
-    teamcolor = get_background_color(team["abbreviation"], team["color"])
+    colorCheck = team.get("color", "NO")
+    if colorCheck == "NO":
+        color = "000000"
+    else:
+        color = team["color"]
+    teamcolor = get_background_color(team["abbreviation"], color)
     return teamcolor
 
 def get_team(x, s, entriesToDisplay, displayType):
+    teamRecord = ""
+    teamGB = ""
     output = []
     containerHeight = int(24 / entriesToDisplay)
     for i in range(0, entriesToDisplay):
@@ -392,11 +481,15 @@ def get_team(x, s, entriesToDisplay, displayType):
             mainFont = "CG-pixel-3x5-mono"
             if displayType == "standings":
                 teamID = s[i + x]["team"]["id"]
+                stats = s[i + x]["stats"]
                 teamName = s[i + x]["team"]["abbreviation"]
                 teamColor = get_team_color(teamID)
                 teamLogo = get_logoType(teamName, s[i + x]["team"]["logos"][0]["href"])
-                teamRecord = s[i + x]["stats"][11]["displayValue"]
-                teamGB = s[i + x]["stats"][2]["displayValue"]
+                for _, k in enumerate(stats):
+                    if k["name"] == "vs. Conf.":
+                        teamRecord = k["displayValue"]
+                    if k["name"] == "gamesBehind":
+                        teamGB = k["displayValue"]
 
                 team = render.Column(
                     children = [
@@ -455,8 +548,7 @@ def get_logoType(team, logo):
 
 def get_top_column(displayTop, now, timeColor, divisionName, renderCategory):
     topColumn = []
-
-    divisionName = divisionName.replace("Playoff Committee Rankings", "CFP").replace("AP ", "")
+    divisionName = divisionName.replace("AP ", "")
     timeBox = 20
     statusBox = 44
     if displayTop == "league":
@@ -487,6 +579,7 @@ def get_top_column(displayTop, now, timeColor, divisionName, renderCategory):
         ),
         render.Animation(children = renderCategory),
     ]
+
     return topColumn
 
 def get_cachable_data(url, ttl_seconds = CACHE_TTL_SECONDS):

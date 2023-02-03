@@ -24,6 +24,8 @@ DEFAULT_LOCATION = """
     "timezone": "America/New_York"
 }
 """
+LEAGUE_DISPLAY = "NHL"
+LEAGUE_DISPLAY_OFFSET = -4
 SPORT = "hockey"
 LEAGUE = "nhl"
 API = "https://site.api.espn.com/apis/v2/sports/" + SPORT + "/" + LEAGUE + "/standings"
@@ -42,7 +44,7 @@ def main(config):
     renderCategory = []
     divisionType = config.get("divisionType", "0")
     teamsToShow = int(config.get("teamsOptions", "3"))
-    showDateTime = config.bool("displayDateTime")
+    displayTop = config.get("displayTop", "time")
     timeColor = config.get("displayTimeColor", "#FFF")
     location = config.get("location", DEFAULT_LOCATION)
     loc = json.decode(location)
@@ -81,7 +83,7 @@ def main(config):
                                 cross_align = "start",
                                 children = [
                                     render.Column(
-                                        children = get_team(x, entries, entriesToDisplay, showDateTime and 24 or 28, now, timeColor, divisionName, showDateTime, showDateTime and 8 or 5),
+                                        children = get_team(x, entries, entriesToDisplay, now, timeColor, divisionName, displayTop),
                                     ),
                                 ],
                             ),
@@ -129,6 +131,17 @@ teamsOptions = [
     schema.Option(
         display = "4",
         value = "4",
+    ),
+]
+
+displayTopOptions = [
+    schema.Option(
+        display = "League Name",
+        value = "league",
+    ),
+    schema.Option(
+        display = "Current Time",
+        value = "time",
     ),
 ]
 
@@ -193,19 +206,20 @@ def get_schema():
                 default = cycleOptions[0].value,
                 options = cycleOptions,
             ),
-            schema.Toggle(
-                id = "displayDateTime",
-                name = "Current Time",
-                desc = "A toggle to display the Current Time rather than game time/status.",
-                icon = "calendar",
-                default = False,
+            schema.Dropdown(
+                id = "displayTop",
+                name = "Top Display",
+                desc = "A toggle of what to display on the top shelf.",
+                icon = "gear",
+                default = displayTopOptions[0].value,
+                options = displayTopOptions,
             ),
             schema.Dropdown(
                 id = "displayTimeColor",
-                name = "Time Color",
-                desc = "Select which color you want the time to be.",
+                name = "Top Display Color",
+                desc = "Select which color you want the top display to be.",
                 icon = "gear",
-                default = colorOptions[0].value,
+                default = colorOptions[5].value,
                 options = colorOptions,
             ),
         ],
@@ -226,46 +240,45 @@ def get_team_color(teamid):
     teamcolor = get_background_color(team["abbreviation"], team["color"])
     return teamcolor
 
-def get_team(x, s, entriesToDisplay, colHeight, now, timeColor, divisionName, showDateTime, topcolHeight):
+def get_team(x, s, entriesToDisplay, now, timeColor, divisionName, displayTop):
     output = []
     teamWins = ""
     teamLosses = ""
     teamOTL = ""
     teamPoints = ""
 
-    if showDateTime:
+    timeBox = 20
+    statusBox = 44
+    if displayTop == "league":
+        theTime = LEAGUE_DISPLAY
+        timeBox += LEAGUE_DISPLAY_OFFSET
+        statusBox -= LEAGUE_DISPLAY_OFFSET
+    else:
         theTime = now.format("3:04")
         if len(str(theTime)) > 4:
-            timeBox = 24
-            statusBox = 40
-        else:
-            timeBox = 20
-            statusBox = 44
-        topColumn = [
-            render.Row(
-                expanded = True,
-                main_align = "space_between",
-                cross_align = "start",
-                children = [
-                    render.Box(width = timeBox, height = topcolHeight, color = "#000", child = render.Row(expanded = True, main_align = "center", cross_align = "center", children = [
-                        render.Box(width = 1, height = topcolHeight),
-                        render.Text(color = timeColor, content = theTime, font = "tb-8"),
+            timeBox += 4
+            statusBox -= 4
+    topColumn = [
+        render.Row(
+            expanded = True,
+            main_align = "space_between",
+            cross_align = "start",
+            children = [
+                render.Box(width = timeBox, height = 8, color = "#000", child = render.Row(expanded = True, main_align = "center", cross_align = "center", children = [
+                    render.Box(width = 1, height = 8),
+                    render.Text(color = timeColor, content = theTime, font = "tb-8"),
+                ])),
+                render.Box(width = statusBox, height = 8, color = "#111", child = render.Stack(children = [
+                    render.Box(width = statusBox, height = 8, child = render.Row(expanded = True, main_align = "end", cross_align = "center", children = [
+                        render.Text(color = "#FFF", content = divisionName.replace("Metropolitan", "Metro"), font = "CG-pixel-3x5-mono"),
                     ])),
-                    render.Box(width = statusBox, height = topcolHeight, color = "#111", child = render.Stack(children = [
-                        render.Box(width = statusBox, height = topcolHeight, child = render.Row(expanded = True, main_align = "end", cross_align = "center", children = [
-                            render.Text(color = "#FFF", content = divisionName.replace("Metropolitan", "Metro"), font = "CG-pixel-3x5-mono"),
-                        ])),
-                    ])),
-                ],
-            ),
-        ]
-    else:
-        topColumn = [render.Box(width = 64, height = topcolHeight, color = "#000", child = render.Row(expanded = True, main_align = "start", cross_align = "center", children = [
-            render.Box(width = 64, height = topcolHeight, child = render.Text(content = divisionName, color = "#ff0", font = "CG-pixel-3x5-mono")),
-        ]))]
+                ])),
+            ],
+        ),
+    ]
 
     output.extend(topColumn)
-    containerHeight = int(colHeight / entriesToDisplay)
+    containerHeight = int(24 / entriesToDisplay)
     for i in range(0, entriesToDisplay):
         if i + x < len(s):
             mainFont = "CG-pixel-3x5-mono"
