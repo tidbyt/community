@@ -1,0 +1,8 @@
+---
+id: adelaide-metro
+name: Adelaide Metro
+summary: Next arrivals in ADL
+desc: Displays upcoming services for train stations and bus & tram stops around Adelaide.
+author: M0ntyP
+fileName: adelaide_metro.star
+packageName: adelaidemetro
