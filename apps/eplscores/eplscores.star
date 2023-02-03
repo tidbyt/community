@@ -1,8 +1,8 @@
 """
-Applet: MLS Scores
-Summary: Displays MLS scores
-Description: Displays live and upcoming MLS scores from a data feed.
-Author: LunchBox8484
+Applet: EPLScores
+Summary: Displays EPL scores
+Description: Displays live and upcoming EPL scores from a data feed.
+Author: mabroadfo1027
 """
 
 load("cache.star", "cache")
