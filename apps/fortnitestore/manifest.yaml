@@ -1,0 +1,8 @@
+---
+id: fortnite-store
+name: Fortnite Store
+summary: See the Fortnite shop
+desc: See items currently featured in the Fortnite shop.
+author: naominori
+fileName: fortnite_store.star
+packageName: fortnitestore

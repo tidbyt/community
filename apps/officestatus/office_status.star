@@ -29,6 +29,17 @@ DEFAULT_LOCATION = """
 	"timezone": "America/Chicago"
 }
 """
+DEFAULT_CUSTOM_STATUS_START_TIME = "2006-01-02T15:04:05.000Z"
+DEFAULT_CUSTOM_STATUS_END_TIME = "2006-01-02T15:04:05.000Z"
+DEFAULT_CUSTOM_STATUS = "Focusing"
+DEFAULT_CUSTOM_STATUS_COLOR = "#FFFF00"
+DEFAULT_CUSTOM_STATUS_ICON = """
+iVBORw0KGgoAAAANSUhEUgAAAAoAAAAICAYAAADA+m62AAAACXBIWXMAAC4jAAAuIwF4
+pT92AAAAb0lEQVQYlYXOsQnCUBAG4C8khQMIGccJsoCNSFrLLCPWlklhJ7hDLDNIOovY
+XOAhD3PNcT8fP8f2XDFtoQ4LHv/QJdBtDWoUP6gNdE/DD8bkPgYaUlRixgn7aO7xRJP7
+5xwtC145UMZ+Y4cKhxz8Al5ZEuTs2wZwAAAAAElFTkSuQmCC
+"""
+DEFAULT_CUSTOM_STATUS_MESSAGE = "Until later"
 TTL_SECONDS = 30
 
 # Values for local server
@@ -74,7 +85,7 @@ STATUS_MAP = {
         "color": "#FF00FF",
         "schedule_prefix": "For ",
         "status_label": "away",
-        "image": """
+        "icon": """
 iVBORw0KGgoAAAANSUhEUgAAAAoAAAALCAYAAABGbhwYAAAACXBIWXMAAC4jAAAuIwF4
 pT92AAAAvElEQVQYlWXQMUoDARCF4c/NWiaNKASRgI02WwRM2MLCYg/gAWz1FoqV18gB
 UlhYZo+QHEDcckUsE7CNFs7Csjsw8M+8x/AY+lXjs7scdOYXJPhGhrIR0o4xwyv2uG0L
@@ -87,7 +98,7 @@ AAAASUVORK5CYII=
         "color": "#FF0000",
         "schedule_prefix": "For ",
         "status_label": "busy",
-        "image": """
+        "icon": """
 iVBORw0KGgoAAAANSUhEUgAAAAoAAAAKCAYAAACNMs+9AAAACXBIWXMAAC4jAAAuIwF4
 pT92AAAAh0lEQVQYlX3QOw7CQAyE4S8SFyCUlHApaioINAn3oQJulJRQQBluwKPAUdCK
 MNLfjMdrr+m1Qo1LUGMt0QFP7DAPKjxw7EIFXpik3cijtoE2XhpSiXuGG6ZYYJmE9rHW
@@ -99,7 +110,7 @@ AElFTkSuQmCC
         "color": "#00FF00",
         "schedule_prefix": "For ",
         "status_label": "free",
-        "image": """
+        "icon": """
 iVBORw0KGgoAAAANSUhEUgAAAAoAAAAICAYAAADA+m62AAAACXBIWXMAAC4jAAAuIwF4
 pT92AAAAb0lEQVQYlYXOsQnCUBAG4C8khQMIGccJsoCNSFrLLCPWlklhJ7hDLDNIOovY
 XOAhD3PNcT8fP8f2XDFtoQ4LHv/QJdBtDWoUP6gNdE/DD8bkPgYaUlRixgn7aO7xRJP7
@@ -110,7 +121,7 @@ XOAhD3PNcT8fP8f2XDFtoQ4LHv/QJdBtDWoUP6gNdE/DD8bkPgYaUlRixgn7aO7xRJP7
         "color": "#808080",
         "schedule_prefix": "Until Later",
         "status_label": "offline",
-        "image": """
+        "icon": """
 iVBORw0KGgoAAAANSUhEUgAAAAoAAAAKCAYAAACNMs+9AAAACXBIWXMAAC4jAAAuIwF4
 pT92AAAAo0lEQVQYlW3QOQpCQRAE0Ic3cDmA4BX0AF7FTL5LoFfwJG6hNzAVTAyEL5gY
 aeYBDFwCe/DzsaGha6qmpqf4VR85DtE5MqVa4oUpOmhjgidWSZThjXrgORYx14IbwB3j
@@ -122,7 +133,7 @@ C03fXJ9Yl29nOOESfRKxwAds1CbJl+J/zQAAAABJRU5ErkJggg==
         "color": "#0000FF",
         "schedule_prefix": "For ",
         "status_label": "remote",
-        "image": """
+        "icon": """
 iVBORw0KGgoAAAANSUhEUgAAAAoAAAAICAYAAADA+m62AAAACXBIWXMAAC4jAAAuIwF4
 pT92AAAAkklEQVQYlV3PMQ4BURSF4W9iKjQkWtEpKel0YhESYwNKG7AOiU5FyT4UoqMT
 ap2guWTMS15e7n/OuSeP/9PBNW432LvgMQ6YYYIn5sEqX9MswCgXHAT7bdzG0C5WoBXa
@@ -134,7 +145,7 @@ eXwhnvIE4jgAAAAASUVORK5CYII=
         "color": "#0000FF",
         "schedule_prefix": "Busy for ",
         "status_label": "remote",
-        "image": """
+        "icon": """
 iVBORw0KGgoAAAANSUhEUgAAAAoAAAAICAYAAADA+m62AAAACXBIWXMAAC4jAAAuIwF4
 pT92AAAAkklEQVQYlV3PMQ4BURSF4W9iKjQkWtEpKel0YhESYwNKG7AOiU5FyT4UoqMT
 ap2guWTMS15e7n/OuSeP/9PBNW432LvgMQ6YYYIn5sEqX9MswCgXHAT7bdzG0C5WoBXa
@@ -146,7 +157,7 @@ eXwhnvIE4jgAAAAASUVORK5CYII=
         "color": "#0000FF",
         "schedule_prefix": "Free for ",
         "status_label": "remote",
-        "image": """
+        "icon": """
 iVBORw0KGgoAAAANSUhEUgAAAAoAAAAICAYAAADA+m62AAAACXBIWXMAAC4jAAAuIwF4
 pT92AAAAkklEQVQYlV3PMQ4BURSF4W9iKjQkWtEpKel0YhESYwNKG7AOiU5FyT4UoqMT
 ap2guWTMS15e7n/OuSeP/9PBNW432LvgMQ6YYYIn5sEqX9MswCgXHAT7bdzG0C5WoBXa
@@ -158,7 +169,7 @@ eXwhnvIE4jgAAAAASUVORK5CYII=
         "color": "#FFFF00",
         "schedule_prefix": None,
         "status_label": "unknown",
-        "image": """
+        "icon": """
 iVBORw0KGgoAAAANSUhEUgAAAAoAAAAKCAYAAACNMs+9AAAACXBIWXMAAC4jAAAuIwF4
 pT92AAAAt0lEQVQYlV3QP0pDYRAE8B9ptHiFghYBOw8gXsAD2EggRcADhPhio0fwBF4g
 jeRPn2skpIiaImCnlXYpI7GZh+EtLDvLzH7MN/xXD+/p18xSrYb4RRtNnKGFLSaV6A47
@@ -173,26 +184,50 @@ def main(config):
     name = config.str("name", DEFAULT_NAME)
     timezone = json.decode(config.get("location", DEFAULT_LOCATION))["timezone"]
     animations = config.bool("animations", False)
+    enable_custom_status = config.bool("enable_custom_status", False)
+    enable_custom_status_period = config.bool("enable_custom_status_period", False)
+    custom_status_start_time = time.parse_time(config.get("custom_status_start_time", DEFAULT_CUSTOM_STATUS_START_TIME))
+    custom_status_end_time = time.parse_time(config.get("custom_status_end_time", DEFAULT_CUSTOM_STATUS_END_TIME))
+    custom_status = config.get("custom_status", DEFAULT_CUSTOM_STATUS)
+    custom_status_color = config.get("custom_status_color", DEFAULT_CUSTOM_STATUS_COLOR)
+    custom_status_icon = config.get("custom_status_icon", DEFAULT_CUSTOM_STATUS_ICON)
+    custom_status_message = config.get("custom_status_message", DEFAULT_CUSTOM_STATUS_MESSAGE)
 
-    # Retrieve MSFT API access token, returns None if user is not logged in
-    msft_access_token = refresh_msft_access_token(config)
-    if (msft_access_token != None):
-        calendar_app_status = get_msft_status(msft_access_token, timezone)
+    if (
+        enable_custom_status and
+        (
+            not enable_custom_status_period or
+            (
+                enable_custom_status_period and
+                (custom_status_start_time <= time.now()) and
+                (custom_status_end_time >= time.now())
+            )
+        )
+    ):
+        status = custom_status
+        color = custom_status_color
+        icon = base64.decode(custom_status_icon)
+        schedule = custom_status_message
     else:
-        calendar_app_status = None
+        # Retrieve MSFT API access token, returns None if user is not logged in
+        msft_access_token = refresh_msft_access_token(config)
+        if (msft_access_token != None):
+            calendar_app_status = get_msft_status(msft_access_token, timezone)
+        else:
+            calendar_app_status = None
 
-    # Retrieve Webex API access token, returns None if user is not logged in
-    webex_access_token = refresh_webex_access_token(config)
-    if (webex_access_token != None):
-        messaging_app_status = get_webex_status(webex_access_token)
-    else:
-        messaging_app_status = None
+        # Retrieve Webex API access token, returns None if user is not logged in
+        webex_access_token = refresh_webex_access_token(config)
+        if (webex_access_token != None):
+            messaging_app_status = get_webex_status(webex_access_token)
+        else:
+            messaging_app_status = None
 
-    availability = get_availability(calendar_app_status, messaging_app_status)
-    status = STATUS_MAP[availability["status"]]["status_label"].upper()
-    color = STATUS_MAP[availability["status"]]["color"]
-    image = base64.decode(STATUS_MAP[availability["status"]]["image"])
-    schedule = get_schedule(availability, timezone)
+        availability = get_availability(calendar_app_status, messaging_app_status)
+        status = STATUS_MAP[availability["status"]]["status_label"].upper()
+        color = STATUS_MAP[availability["status"]]["color"]
+        icon = base64.decode(STATUS_MAP[availability["status"]]["icon"])
+        schedule = get_schedule(availability, timezone)
 
     if not animations:
         return render.Root(
@@ -201,7 +236,7 @@ def main(config):
                     render.Box(
                         color = color,
                         width = 10,
-                        child = render.Image(src = image, width = 10),
+                        child = render.Image(src = icon, width = 10),
                     ),
                     render.Padding(
                         pad = (1, 2, 0, 1),
@@ -218,9 +253,14 @@ def main(config):
                                     offset_end = 0,
                                     width = 53,
                                 ),
-                                render.Text(
-                                    content = status.upper(),
-                                    font = "6x13",
+                                render.Marquee(
+                                    child = render.Text(
+                                        content = status.upper(),
+                                        font = "6x13",
+                                    ),
+                                    offset_start = 0,
+                                    offset_end = 0,
+                                    width = 53,
                                 ),
                                 render.Marquee(
                                     child = render.Text(
@@ -246,7 +286,7 @@ def main(config):
                         child = render.Box(
                             color = color,
                             width = 10,
-                            child = render.Image(src = image, width = 10),
+                            child = render.Image(src = icon, width = 10),
                         ),
                         duration = 282,
                         delay = 0,
@@ -309,9 +349,14 @@ def main(config):
                     ),
                     # Status row
                     animation.Transformation(
-                        child = render.Text(
-                            content = status.upper(),
-                            font = "6x13",
+                        child = render.Marquee(
+                            child = render.Text(
+                                content = status.upper(),
+                                font = "6x13",
+                            ),
+                            offset_start = 0,
+                            offset_end = 0,
+                            width = 53,
                         ),
                         duration = 250,
                         delay = 30,
@@ -537,8 +582,7 @@ def get_msft_next_event(msft_events):
         ):
             return msft_event
 
-    # Should never get here.
-    return ""
+    return None
 
 def get_msft_status(msft_access_token, timezone):
     # Determines a user's status based on MSFT events returned
@@ -845,6 +889,218 @@ def webex_oauth_handler(params):
     return response_json["refresh_token"]
 
 def get_schema():
+    color_options = [
+        schema.Option(
+            display = "Red",
+            value = "#FF0000",
+        ),
+        schema.Option(
+            display = "Cyan",
+            value = "#00FFFF",
+        ),
+        schema.Option(
+            display = "Blue",
+            value = "#0000FF",
+        ),
+        schema.Option(
+            display = "Light Blue",
+            value = "#ADD8E6",
+        ),
+        schema.Option(
+            display = "Dark Blue",
+            value = "#0000A0",
+        ),
+        schema.Option(
+            display = "Purple",
+            value = "#800080",
+        ),
+        schema.Option(
+            display = "Yellow",
+            value = "#FFFF00",
+        ),
+        schema.Option(
+            display = "Lime",
+            value = "#00FF00",
+        ),
+        schema.Option(
+            display = "Magenta",
+            value = "#FF00FF",
+        ),
+        schema.Option(
+            display = "White",
+            value = "#FFFFFF",
+        ),
+        schema.Option(
+            display = "Silver",
+            value = "#C0C0C0",
+        ),
+        schema.Option(
+            display = "Gray",
+            value = "#808080",
+        ),
+        schema.Option(
+            display = "Orange",
+            value = "#FFA500",
+        ),
+        schema.Option(
+            display = "Brown",
+            value = "#A52A2A",
+        ),
+        schema.Option(
+            display = "Maroon",
+            value = "#800000",
+        ),
+        schema.Option(
+            display = "Green",
+            value = "#008000",
+        ),
+        schema.Option(
+            display = "Olive",
+            value = "#808000",
+        ),
+    ]
+
+    icon_options = [
+        schema.Option(
+            display = "Check",
+            value = """
+iVBORw0KGgoAAAANSUhEUgAAAAoAAAAICAYAAADA+m62AAAACXBIWXMAAC4jAAAuIwF4
+pT92AAAAb0lEQVQYlYXOsQnCUBAG4C8khQMIGccJsoCNSFrLLCPWlklhJ7hDLDNIOovY
+XOAhD3PNcT8fP8f2XDFtoQ4LHv/QJdBtDWoUP6gNdE/DD8bkPgYaUlRixgn7aO7xRJP7
+5xwtC145UMZ+Y4cKhxz8Al5ZEuTs2wZwAAAAAElFTkSuQmCC
+""",
+        ),
+        schema.Option(
+            display = "Clock",
+            value = """
+iVBORw0KGgoAAAANSUhEUgAAAAoAAAAKCAYAAACNMs+9AAAACXBIWXMAAC4jAAAuIwF4
+pT92AAAAo0lEQVQYlW3QOQpCQRAE0Ic3cDmA4BX0AF7FTL5LoFfwJG6hNzAVTAyEL5gY
+aeYBDFwCe/DzsaGha6qmpqf4VR85DtE5MqVa4oUpOmhjgidWSZThjXrgORYx14IbwB3j
+gvseuwIehsat4AZHbAu4gWulvCw26MaO8EjEHaOSeIZzzL30dPpM7Y97NbhhOlj5RjFB
+C03fXJ9Yl29nOOESfRKxwAds1CbJl+J/zQAAAABJRU5ErkJggg==
+""",
+        ),
+        schema.Option(
+            display = "Do Not Enter",
+            value = """
+iVBORw0KGgoAAAANSUhEUgAAAAoAAAAKCAYAAACNMs+9AAAACXBIWXMAAC4jAAAuIwF4
+pT92AAAAh0lEQVQYlX3QOw7CQAyE4S8SFyCUlHApaioINAn3oQJulJRQQBluwKPAUdCK
+MNLfjMdrr+m1Qo1LUGMt0QFP7DAPKjxw7EIFXpik3cijtoE2XhpSiXuGG6ZYYJmE9rHW
+dfRlZsGg2lj83+iW/jP5j9A4atvOOPqcosIsKMM7pd0FGpyDRpwF3ljQIMhNRxrbAAAA
+AElFTkSuQmCC
+""",
+        ),
+        schema.Option(
+            display = "Exclamation",
+            value = """
+iVBORw0KGgoAAAANSUhEUgAAAAoAAAAKCAYAAACNMs+9AAAAAXNSR0IArs4c6QAAAC5J
+REFUKFNjZICA/1AaF8XIiKQQxkZXDDIEq0KY6SiGYDNxABVS3zMETcQX5owAts8XC1By
+gSIAAAAASUVORK5CYII=
+""",
+        ),
+        schema.Option(
+            display = "Heart",
+            value = """
+iVBORw0KGgoAAAANSUhEUgAAAAoAAAAKCAYAAACNMs+9AAAABGdBTUEAALGPC/xhBQAA
+ACBjSFJNAAB6JgAAgIQAAPoAAACA6AAAdTAAAOpgAAA6mAAAF3CculE8AAAAhGVYSWZN
+TQAqAAAACAAFARIAAwAAAAEAAQAAARoABQAAAAEAAABKARsABQAAAAEAAABSASgAAwAA
+AAEAAgAAh2kABAAAAAEAAABaAAAAAAAAAEgAAAABAAAASAAAAAEAA6ABAAMAAAABAAEA
+AKACAAQAAAABAAAACqADAAQAAAABAAAACgAAAADIQtX2AAAACXBIWXMAAAsTAAALEwEA
+mpwYAAACyGlUWHRYTUw6Y29tLmFkb2JlLnhtcAAAAAAAPHg6eG1wbWV0YSB4bWxuczp4
+PSJhZG9iZTpuczptZXRhLyIgeDp4bXB0az0iWE1QIENvcmUgNi4wLjAiPgogICA8cmRm
+OlJERiB4bWxuczpyZGY9Imh0dHA6Ly93d3cudzMub3JnLzE5OTkvMDIvMjItcmRmLXN5
+bnRheC1ucyMiPgogICAgICA8cmRmOkRlc2NyaXB0aW9uIHJkZjphYm91dD0iIgogICAg
+ICAgICAgICB4bWxuczp0aWZmPSJodHRwOi8vbnMuYWRvYmUuY29tL3RpZmYvMS4wLyIK
+ICAgICAgICAgICAgeG1sbnM6ZXhpZj0iaHR0cDovL25zLmFkb2JlLmNvbS9leGlmLzEu
+MC8iPgogICAgICAgICA8dGlmZjpZUmVzb2x1dGlvbj43MjwvdGlmZjpZUmVzb2x1dGlv
+bj4KICAgICAgICAgPHRpZmY6UmVzb2x1dGlvblVuaXQ+MjwvdGlmZjpSZXNvbHV0aW9u
+VW5pdD4KICAgICAgICAgPHRpZmY6WFJlc29sdXRpb24+NzI8L3RpZmY6WFJlc29sdXRp
+b24+CiAgICAgICAgIDx0aWZmOk9yaWVudGF0aW9uPjE8L3RpZmY6T3JpZW50YXRpb24+
+CiAgICAgICAgIDxleGlmOlBpeGVsWERpbWVuc2lvbj41MTwvZXhpZjpQaXhlbFhEaW1l
+bnNpb24+CiAgICAgICAgIDxleGlmOkNvbG9yU3BhY2U+MTwvZXhpZjpDb2xvclNwYWNl
+PgogICAgICAgICA8ZXhpZjpQaXhlbFlEaW1lbnNpb24+NTE8L2V4aWY6UGl4ZWxZRGlt
+ZW5zaW9uPgogICAgICA8L3JkZjpEZXNjcmlwdGlvbj4KICAgPC9yZGY6UkRGPgo8L3g6
+eG1wbWV0YT4KeEYU7AAAAJ9JREFUGBldjssRAVEURK8aNrJACBZSIAZlP4koSZEBUbCx
+svWnz3u3y5Su6uk75/X7NFHVU0zloXypKCbKsXyWP7CRfMifq3Ijr+Vbsr2STuwSvDLZ
+bT9z3nLlWwY0OcMQZa/3AaeE90yfRpodNceqU3j8zdzGBjpFrb4+iXJ3A2tFvA0tZZed
+MOROlMcKzGWXFjSkQY3f12AmhJFZfAG1+zmHXh4LcAAAAABJRU5ErkJggg==
+""",
+        ),
+        schema.Option(
+            display = "House",
+            value = """
+iVBORw0KGgoAAAANSUhEUgAAAAoAAAAICAYAAADA+m62AAAACXBIWXMAAC4jAAAuIwF4
+pT92AAAAkklEQVQYlV3PMQ4BURSF4W9iKjQkWtEpKel0YhESYwNKG7AOiU5FyT4UoqMT
+ap2guWTMS15e7n/OuSeP/9PBNW432LvgMQ6YYYIn5sEqX9MswCgXHAT7bdzG0C5WoBXa
+JsUNR5yQRnWCJc444P5N7uLNcAnDNK+lqKGJMvpY4IUe1qHVE5SwRxWN+PEbq6h8YPgB
+eXwhnvIE4jgAAAAASUVORK5CYII=
+""",
+        ),
+        schema.Option(
+            display = "Lightning",
+            value = """
+iVBORw0KGgoAAAANSUhEUgAAAAoAAAAKCAYAAACNMs+9AAAAAXNSR0IArs4c6QAAAIRl
+WElmTU0AKgAAAAgABQESAAMAAAABAAEAAAEaAAUAAAABAAAASgEbAAUAAAABAAAAUgEo
+AAMAAAABAAIAAIdpAAQAAAABAAAAWgAAAAAAAAAKAAAAAQAAAAoAAAABAAOgAQADAAAA
+AQABAACgAgAEAAAAAQAAAAqgAwAEAAAAAQAAAAoAAAAAN/DoBQAAAAlwSFlzAAABigAA
+AYoBM5cwWAAAAVlpVFh0WE1MOmNvbS5hZG9iZS54bXAAAAAAADx4OnhtcG1ldGEgeG1s
+bnM6eD0iYWRvYmU6bnM6bWV0YS8iIHg6eG1wdGs9IlhNUCBDb3JlIDYuMC4wIj4KICAg
+PHJkZjpSREYgeG1sbnM6cmRmPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5LzAyLzIyLXJk
+Zi1zeW50YXgtbnMjIj4KICAgICAgPHJkZjpEZXNjcmlwdGlvbiByZGY6YWJvdXQ9IiIK
+ICAgICAgICAgICAgeG1sbnM6dGlmZj0iaHR0cDovL25zLmFkb2JlLmNvbS90aWZmLzEu
+MC8iPgogICAgICAgICA8dGlmZjpPcmllbnRhdGlvbj4xPC90aWZmOk9yaWVudGF0aW9u
+PgogICAgICA8L3JkZjpEZXNjcmlwdGlvbj4KICAgPC9yZGY6UkRGPgo8L3g6eG1wbWV0
+YT4KGV7hBwAAAKxJREFUGBlVkDsSAUEURdunkAsE1iGTWAKpJUjYg4XMSowdyAViVQQS
+gRJwTtebqZ5Xdeb9bk1335S6MYp2Qj5BHX0/crIYRrMg3+AHx5jl3SAa0w4UyBOmYJSa
+VDFQ8I18ILehcg5XWLbTlHrUb1jBFi6ePYYzvGAGa/DPGzDu8MlV8dlTl8dXxa69qBd/
+hFCxD2siP6axRSsUaI0WGe46HjqsQZM122jMz80fX+ggM6LWU28AAAAASUVORK5CYII=
+""",
+        ),
+        schema.Option(
+            display = "Music",
+            value = """
+iVBORw0KGgoAAAANSUhEUgAAAAoAAAAKCAYAAACNMs+9AAAAAXNSR0IArs4c6QAAAIRl
+WElmTU0AKgAAAAgABQESAAMAAAABAAEAAAEaAAUAAAABAAAASgEbAAUAAAABAAAAUgEo
+AAMAAAABAAIAAIdpAAQAAAABAAAAWgAAAAAAAABIAAAAAQAAAEgAAAABAAOgAQADAAAA
+AQABAACgAgAEAAAAAQAAAAqgAwAEAAAAAQAAAAoAAAAAyELV9gAAAAlwSFlzAAALEwAA
+CxMBAJqcGAAAAVlpVFh0WE1MOmNvbS5hZG9iZS54bXAAAAAAADx4OnhtcG1ldGEgeG1s
+bnM6eD0iYWRvYmU6bnM6bWV0YS8iIHg6eG1wdGs9IlhNUCBDb3JlIDYuMC4wIj4KICAg
+PHJkZjpSREYgeG1sbnM6cmRmPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5LzAyLzIyLXJk
+Zi1zeW50YXgtbnMjIj4KICAgICAgPHJkZjpEZXNjcmlwdGlvbiByZGY6YWJvdXQ9IiIK
+ICAgICAgICAgICAgeG1sbnM6dGlmZj0iaHR0cDovL25zLmFkb2JlLmNvbS90aWZmLzEu
+MC8iPgogICAgICAgICA8dGlmZjpPcmllbnRhdGlvbj4xPC90aWZmOk9yaWVudGF0aW9u
+PgogICAgICA8L3JkZjpEZXNjcmlwdGlvbj4KICAgPC9yZGY6UkRGPgo8L3g6eG1wbWV0
+YT4KGV7hBwAAALVJREFUGBl1z60KAlEQhuFZUcRkFPEmxKyCoMHofZi8A6PJSzAJRpuw
+CHsFJoPJIggGMdiEFX0/ObOc4gfPzuycYX8S+582R0NM0NBaogupYIQljnjjE7EyN8oM
+8YH3d+a5lvyJdXrlhRMybNDE1p9Gb1Xc0MUZno4aLZbCRPUKLekt0scYRWp0KxyKidmc
+3r9T1RbIw3CvQciO6osPzfxGNdMgpEVdI0VPsymeuGAAJf7J3+ALKM4qUdgEl/cAAAAA
+SUVORK5CYII=
+""",
+        ),
+        schema.Option(
+            display = "Plane",
+            value = """
+iVBORw0KGgoAAAANSUhEUgAAAAoAAAALCAYAAABGbhwYAAAACXBIWXMAAC4jAAAuIwF4
+pT92AAAAvElEQVQYlWXQMUoDARCF4c/NWiaNKASRgI02WwRM2MLCYg/gAWz1FoqV18gB
+UlhYZo+QHEDcckUsE7CNFs7Csjsw8M+8x/AY+lXjs7scdOYXJPhGhrIR0o4xwyv2uG0L
+Scd4GKZ9cK9GWOEXpxgHl6FJcB/hP3AQ/BX8HvMDbPGEGywxjV7G7hHbFD+4wwQFFpGx
+wA7X4ZFHzhnWOMExNpiHlg/8PxiecYQhrnCOM7yhbr+niuuXuAiuGvEP/lMlte6HL6QA
+AAAASUVORK5CYII=
+""",
+        ),
+        schema.Option(
+            display = "Question",
+            value = """
+iVBORw0KGgoAAAANSUhEUgAAAAoAAAAKCAYAAACNMs+9AAAACXBIWXMAAC4jAAAuIwF4
+pT92AAAAt0lEQVQYlV3QP0pDYRAE8B9ptHiFghYBOw8gXsAD2EggRcADhPhio0fwBF4g
+jeRPn2skpIiaImCnlXYpI7GZh+EtLDvLzH7MN/xXD+/p18xSrYb4RRtNnKGFLSaV6A47
+HOMKH1jjAkW4Pnyjm6MFnvEUAdzgB75wUrPyEmGR/bMRsNsTDXCNc2xwCg0c4HZP2MQ0
+XqGDQ4mg+gws8RZ8FO6+emWUeB5xmX5IPOOafyVWmGMW3K/IP3NkKS2ii0XRAAAAAElF
+TkSuQmCC
+""",
+        ),
+    ]
+
     return schema.Schema(
         version = "1",
         fields = [
@@ -884,6 +1140,62 @@ def get_schema():
                 scopes = [
                     "spark:people_read",
                 ],
+            ),
+            schema.Toggle(
+                id = "enable_custom_status",
+                name = "Enable Custom Status",
+                desc = "Enable a custom status override.",
+                icon = "circleExclamation",
+                default = False,
+            ),
+            schema.Toggle(
+                id = "enable_custom_status_period",
+                name = "Use Start/End Time",
+                desc = "Display a custom status only during a time period",
+                icon = "calendar",
+                default = False,
+            ),
+            schema.DateTime(
+                id = "custom_status_start_time",
+                name = "Start Time",
+                desc = "Select a time and date to start.",
+                icon = "calendar",
+            ),
+            schema.DateTime(
+                id = "custom_status_end_time",
+                name = "End Time",
+                desc = "Select a time and date to end.",
+                icon = "calendar",
+            ),
+            schema.Text(
+                id = "custom_status",
+                name = "Status",
+                desc = "Enter a custom status.",
+                icon = "font",
+                default = "Focusing",
+            ),
+            schema.Dropdown(
+                id = "custom_status_color",
+                name = "Color",
+                desc = "Select a custom status color.",
+                icon = "palette",
+                default = color_options[1].value,
+                options = color_options,
+            ),
+            schema.Dropdown(
+                id = "custom_status_icon",
+                name = "Icon",
+                desc = "Select a custom status icon.",
+                icon = "icons",
+                default = icon_options[6].value,
+                options = icon_options,
+            ),
+            schema.Text(
+                id = "custom_status_message",
+                name = "Message",
+                desc = "Enter a custom status message.",
+                icon = "font",
+                default = "Until later",
             ),
             schema.Toggle(
                 id = "animations",

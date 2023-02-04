@@ -1,7 +1,7 @@
 """
 Applet: FullyBinaryTime
 Summary: A clock for nerds
-Description: Displays the current time using fully binary time. First divide the day into two 12 hour parts, then each of those into two 6 hour parts, then two 3 hour parts, and so on up to 16 bits of precision.
+Description: Clock using fully binary time. First divide the day into two 12 hour parts, then each of those into two 6 hour parts, then two 3 hour parts, and so on up to 16 bits of precision.
 Author: dinosaursrarr
 """
 
