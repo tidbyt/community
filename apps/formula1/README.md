@@ -5,16 +5,16 @@ Formula 1 displays current standings (driver & constructor) & next race info dep
 Displayed:
 
 - Next Race Info
- - Race Location
- - Visual of the track
- - Date & Time of the Race
- - Race Number
+  - Race Location
+  - Visual of the track
+  - Date & Time of the Race
+  - Race Number
 
 - Constructor Standings
- - Top 3 Constructors with Logo & Current Points
+  - Top 3 Constructors with Logo & Current Points
 
 - Driver Standings
- - Top 3 Driver names with Ponts
+  - Top 3 Driver names with Ponts
 
 ## Configuration
 - Display option (Next Race, Driver Standings, Constructor Standings)
