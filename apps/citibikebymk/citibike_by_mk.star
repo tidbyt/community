@@ -62,8 +62,6 @@ def get_stat_col(stat_name):
     l = get_col_children(stat_name)
     return render.Column(children = l)
 
-col_list = [get_stat_col(s) for s in station_ids]
-
 def main(config):
     default = station_ids.keys()[0]
     def_str = '{"display":"%s","value":"%s"}' % (default, default)
