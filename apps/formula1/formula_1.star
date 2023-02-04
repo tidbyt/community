@@ -5,6 +5,17 @@ Description: Shows Time date and location of Next F1 race.
 Author: AmillionAir
 """
 
+# ############################
+# Mods - jvivona - 2023-02-04
+# - temp override URLs to bypass blacklist on API (will go back to original API after they unblock us )
+# - remove location from schema - this was causing too many API hits - no need to use location anymore - use $tz now
+# - only hit API endpoint we need to each time, instead of all 3
+# - only execute render / vars needed for selected display option
+# - change f1 API endpoints to https
+# - added in US Date / Intl Date option - only triggered when showing Next Race
+# - added in 24 hour / 12 hour display option - only triggered when showing Next Race
+# ############################
+
 load("cache.star", "cache")
 load("encoding/base64.star", "base64")
 load("encoding/json.star", "json")
@@ -13,16 +24,12 @@ load("render.star", "render")
 load("schema.star", "schema")
 load("time.star", "time")
 
-DEFAULT_LOCATION = """
-{
-	"lat": "40.6781784",
-	"lng": "-73.9441579",
-	"description": "Brooklyn, NY, USA",
-	"locality": "Brooklyn",
-	"place_id": "ChIJCSF8lBZEwokRhngABHRcdoI",
-	"timezone": "America/New_York"
+DEFAULTS = {
+    "timezone": "America/New_York",
+    "display": "NRI",
+    "time_24": True,
+    "date_us": False,
 }
-"""
 
 #30x24 track maps
 F1_MAPS = dict(
@@ -64,96 +71,65 @@ F1_CONSTRUCTOR = dict(
     alfa = base64.decode("iVBORw0KGgoAAAANSUhEUgAAAA4AAAAHCAMAAAAPmYwrAAAABGdBTUEAAK/INwWK6QAAACBjSFJNAAB6JgAAgIQAAPoAAACA6AAAdTAAAOpgAAA6mAAAF3CculE8AAAAt1BMVEUAAADIx8epqKgNDA0ODQ4IBwjMy8zMy8uFg4S2tbW8u7usqquopqeKiIiVk5SzsrKrqqqhn5+lpKSIhoerqaq/vr6koqPCwcG4t7fGxcXm5eXEw8ORj5DY19jNzMzY2NjY19eQjo+Ni4vKycnX19fZ2NjIx8eMiorGxcaysLGLiYmpp6hyb3BXVVWura21s7RmY2SEgoNOS0yJh4jS0dGOjI3BwMFlYmOamZnp6Oja2trHxsf////yxuvBAAAAKHRSTlMAAAAAAAAAAByCw8OCHBq3/Py3G3T+dZ2edP51Grf8/LcbHILDw4IcXmehwgAAAAFiS0dEPKdqYc8AAAAHdElNRQfmAhcDGROmPzjmAAAAVElEQVQI12NgYGBg5ODk4ubhZWKAAD5+AQ1NQSFhZghXRFRLW0dXT4wFwhXXNzA0MjaRYIVwJaVMzcwtLKWhemVk5ays5RUUoVw2JWUVVTV1diATADtkBuuaie/6AAAAJXRFWHRkYXRlOmNyZWF0ZQAyMDIyLTAyLTIzVDAzOjI1OjE5KzAwOjAw8THWsAAAACV0RVh0ZGF0ZTptb2RpZnkAMjAyMi0wMi0yM1QwMzoyNToxOSswMDowMIBsbgwAAAAZdEVYdFNvZnR3YXJlAEFkb2JlIEltYWdlUmVhZHlxyWU8AAAAAElFTkSuQmCC"),
 )
 
+# we will go back to these at some point
+#F1_URLS = {
+#"NRI" : "https://ergast.com/api/f1/{}/next.json",
+#"CS" : "https://ergast.com/api/f1/{}/constructorStandings.json",
+#"DS" : "https://ergast.com/api/f1/{}/driverStandings.json",
+#}
+
+# temporary override
+F1_URLS = {
+    "NRI": "https://tidbyt.apis.ajcomputers.com/f1/api/next.json?year={}",
+    "CS": "https://tidbyt.apis.ajcomputers.com/f1/api/constructorStandings.json?year={}",
+    "DS": "https://tidbyt.apis.ajcomputers.com/f1/api/driverStandings.json?year={}",
+}
+
+F1_API_TTL = 1800
+
 def main(config):
     #TIme and date Information
-    location = config.get("location", DEFAULT_LOCATION)
-    loc = json.decode(location)
-    timezone = loc["timezone"]
-    now = time.now().in_location(timezone)
-    Year = now.format("2006")
+    timezone = config.get("$tz", DEFAULTS["timezone"])
 
-    #Cache Data
-    f1_cached = cache.get("f1_rate")
+    # get display option - default to Next Race
+    display = config.get("F1_Information", DEFAULTS["display"])
 
-    if f1_cached != None:
-        print("Hit! Displaying cached data.")
-        f1_data = json.decode(f1_cached)
-    else:
-        print("Miss! Calling F1 Track data.")
+    # Get Data
+    Year = time.now().in_location(timezone).format("2006")
+    f1_cached = get_f1_data(F1_URLS[display].format(Year))
 
-        # Blank screen if we've hit the rate limit
-        if cache.get("api_rate_limit"):
-            print("Rate limit in effect, backing off")
-            return []
+    # return data is already at MRData
 
-        F1_URL = http.get("http://ergast.com/api/f1/" + Year + "/next.json")
-        F1_URL2 = http.get("http://ergast.com/api/f1/" + Year + "/constructorStandings.json")
-        F1_URL3 = http.get("http://ergast.com/api/f1/" + Year + "/driverStandings.json")
+    if display == "NRI":
+        #Next Race
+        next_race = f1_cached["RaceTable"]["Races"][0]
 
-        for res in [F1_URL, F1_URL2, F1_URL3]:
-            if res.status_code != 200:
-                print("API returned status %d: %s" % (res.status_code, res.body()))
-                if res.status_code in [403, 429]:
-                    cache.set("api_rate_limit", "true", ttl_seconds = 25 * 3600)
-                return []
+        #code from @whyamihere to automatically adjust the date time sting from the API
+        date_and_time = next_race["date"] + "T" + next_race["time"]
+        date_and_time3 = time.parse_time(date_and_time, "2006-01-02T15:04:05Z", "UTC").in_location(timezone)
 
-        F1_COUNTRY = F1_URL.json()["MRData"]["RaceTable"]["Races"][0]["Circuit"]["Location"]["country"]
-        F1_LOC = F1_URL.json()["MRData"]["RaceTable"]["Races"][0]["Circuit"]["Location"]["locality"]
-        F1_DATE = F1_URL.json()["MRData"]["RaceTable"]["Races"][0]["date"]
-        F1_TIME = F1_URL.json()["MRData"]["RaceTable"]["Races"][0]["time"]
-        F1_ROUND = F1_URL.json()["MRData"]["RaceTable"]["Races"][0]["round"]
-        F1_CIRCUT_ID = F1_URL.json()["MRData"]["RaceTable"]["Races"][0]["Circuit"]["circuitId"]
+        # handle date & time display options here
+        date_str = date_and_time3.format("Jan 02" if config.bool("date_us", DEFAULTS["date_us"]) else "02 Jan").upper()  #current format of your current date str
+        time_str = date_and_time3.format("15:04" if config.bool("time_24", DEFAULTS["time_24"]) else "3:04pm")  #outputs military time but can change 15 to 3 to not do that. The Only thing missing from your current string though is the time zone, but if they're doing local time that's pretty irrelevant
 
-        Constructor1 = F1_URL2.json()["MRData"]["StandingsTable"]["StandingsLists"][0]["ConstructorStandings"][0]["Constructor"]["constructorId"]
-        Constructor2 = F1_URL2.json()["MRData"]["StandingsTable"]["StandingsLists"][0]["ConstructorStandings"][1]["Constructor"]["constructorId"]
-        Constructor3 = F1_URL2.json()["MRData"]["StandingsTable"]["StandingsLists"][0]["ConstructorStandings"][2]["Constructor"]["constructorId"]
-
-        Points1 = F1_URL2.json()["MRData"]["StandingsTable"]["StandingsLists"][0]["ConstructorStandings"][0]["points"]
-        Points2 = F1_URL2.json()["MRData"]["StandingsTable"]["StandingsLists"][0]["ConstructorStandings"][1]["points"]
-        Points3 = F1_URL2.json()["MRData"]["StandingsTable"]["StandingsLists"][0]["ConstructorStandings"][2]["points"]
-
-        F1_FNAME = F1_URL3.json()["MRData"]["StandingsTable"]["StandingsLists"][0]["DriverStandings"][0]["Driver"]["givenName"]
-        F1_LNAME = F1_URL3.json()["MRData"]["StandingsTable"]["StandingsLists"][0]["DriverStandings"][0]["Driver"]["familyName"]
-        F1_POINTS = F1_URL3.json()["MRData"]["StandingsTable"]["StandingsLists"][0]["DriverStandings"][0]["points"]
-
-        F1_FNAME2 = F1_URL3.json()["MRData"]["StandingsTable"]["StandingsLists"][0]["DriverStandings"][1]["Driver"]["givenName"]
-        F1_LNAME2 = F1_URL3.json()["MRData"]["StandingsTable"]["StandingsLists"][0]["DriverStandings"][1]["Driver"]["familyName"]
-        F1_POINTS2 = F1_URL3.json()["MRData"]["StandingsTable"]["StandingsLists"][0]["DriverStandings"][1]["points"]
-
-        F1_FNAME3 = F1_URL3.json()["MRData"]["StandingsTable"]["StandingsLists"][0]["DriverStandings"][2]["Driver"]["givenName"]
-        F1_LNAME3 = F1_URL3.json()["MRData"]["StandingsTable"]["StandingsLists"][0]["DriverStandings"][2]["Driver"]["familyName"]
-        F1_POINTS3 = F1_URL3.json()["MRData"]["StandingsTable"]["StandingsLists"][0]["DriverStandings"][2]["points"]
-
-        f1_data = dict(F1_COUNTRY = F1_COUNTRY, F1_LOC = F1_LOC, F1_DATE = F1_DATE, F1_TIME = F1_TIME, F1_ROUND = F1_ROUND, F1_CIRCUT_ID = F1_CIRCUT_ID, Constructor1 = Constructor1, Constructor2 = Constructor2, Constructor3 = Constructor3, Points1 = Points1, Points2 = Points2, Points3 = Points3, F1_FNAME = F1_FNAME, F1_LNAME = F1_LNAME, F1_POINTS = F1_POINTS, F1_FNAME2 = F1_FNAME2, F1_LNAME2 = F1_LNAME2, F1_POINTS2 = F1_POINTS2, F1_FNAME3 = F1_FNAME3, F1_LNAME3 = F1_LNAME3, F1_POINTS3 = F1_POINTS3)
-        cache.set("f1_rate", json.encode(f1_data), ttl_seconds = 3600 * 12)
-
-    #code from @whyamihere to automatically adjust the date time sting from the API
-    date_and_time = f1_data["F1_DATE"] + "T" + f1_data["F1_TIME"]
-
-    date_and_time3 = time.parse_time(date_and_time, "2006-01-02T15:04:05Z", "UTC").in_location(timezone)
-    date_str = date_and_time3.format("Jan 02").upper()  #current format of your current date str
-    time_str = date_and_time3.format("15:04")  #outputs military time but can change 15 to 3 to not do that. The Only thing missing from your current string though is the time zone, but if they're doing local time that's pretty irrelevant
-
-    if config.get("F1_Information") == "NRI":
-        #Next Track
         return render.Root(
             child = render.Column(
                 children = [
                     render.Marquee(
                         width = 64,
-                        child = render.Text("Next Race: " + f1_data["F1_COUNTRY"]),
+                        child = render.Text("Next Race: " + next_race["Circuit"]["Location"]["country"]),
                         offset_start = 5,
                         offset_end = 5,
                     ),
                     render.Box(width = 64, height = 1, color = "#a0a"),
                     render.Row(
                         children = [
-                            render.Image(src = F1_MAPS.get(f1_data["F1_CIRCUT_ID"].lower(), F1_MAPS["americas"])),
+                            render.Image(src = F1_MAPS.get(next_race["Circuit"]["circuitId"].lower(), F1_MAPS["americas"])),
                             render.Column(
                                 children = [
                                     render.Text(date_str, font = "5x8"),
                                     render.Text(time_str),
-                                    render.Text("Race " + f1_data["F1_ROUND"]),
+                                    render.Text("Race " + next_race["round"]),
                                 ],
                             ),
                         ],
@@ -162,8 +138,17 @@ def main(config):
             ),
         )
 
-    elif config.get("F1_Information") == "CS":
+    elif display == "CS":
         #Contructor
+        standings = f1_cached["StandingsTable"]["StandingsLists"][0]
+        Constructor1 = standings["ConstructorStandings"][0]["Constructor"]["constructorId"]
+        Constructor2 = standings["ConstructorStandings"][1]["Constructor"]["constructorId"]
+        Constructor3 = standings["ConstructorStandings"][2]["Constructor"]["constructorId"]
+
+        Points1 = standings["ConstructorStandings"][0]["points"]
+        Points2 = standings["ConstructorStandings"][1]["points"]
+        Points3 = standings["ConstructorStandings"][2]["points"]
+
         return render.Root(
             child = render.Column(
                 children = [
@@ -173,13 +158,13 @@ def main(config):
                         children = [
                             render.Stack(
                                 children = [
-                                    render.Image(src = F1_CONSTRUCTOR.get(f1_data["Constructor1"], "Red Bull")),
+                                    render.Image(src = F1_CONSTRUCTOR.get(Constructor1, "Red Bull")),
                                     render.Text("1"),
                                 ],
                             ),
                             render.Marquee(
                                 width = 50,
-                                child = render.Text(f1_data["Constructor1"] + " " + f1_data["Points1"] + " pts"),
+                                child = render.Text(Constructor1 + " " + Points1 + " pts"),
                                 offset_start = 64,
                                 offset_end = 64,
                             ),
@@ -189,13 +174,13 @@ def main(config):
                         children = [
                             render.Stack(
                                 children = [
-                                    render.Image(src = F1_CONSTRUCTOR.get(f1_data["Constructor2"], "Red Bull")),
+                                    render.Image(src = F1_CONSTRUCTOR.get(Constructor2, "Red Bull")),
                                     render.Text("2"),
                                 ],
                             ),
                             render.Marquee(
                                 width = 50,
-                                child = render.Text(f1_data["Constructor2"] + " " + f1_data["Points2"] + " pts"),
+                                child = render.Text(Constructor2 + " " + Points2 + " pts"),
                                 offset_start = 64,
                                 offset_end = 64,
                             ),
@@ -205,13 +190,13 @@ def main(config):
                         children = [
                             render.Stack(
                                 children = [
-                                    render.Image(src = F1_CONSTRUCTOR.get(f1_data["Constructor3"], "Red Bull")),
+                                    render.Image(src = F1_CONSTRUCTOR.get(Constructor3, "Red Bull")),
                                     render.Text("3", font = "5x8"),
                                 ],
                             ),
                             render.Marquee(
                                 width = 50,
-                                child = render.Text(f1_data["Constructor3"] + " " + f1_data["Points3"] + " pts"),
+                                child = render.Text(Constructor3 + " " + Points3 + " pts"),
                                 offset_start = 64,
                                 offset_end = 64,
                             ),
@@ -222,6 +207,19 @@ def main(config):
         )
     else:
         #Driver
+        standings = f1_cached["StandingsTable"]["StandingsLists"][0]
+        F1_FNAME = standings["DriverStandings"][0]["Driver"]["givenName"]
+        F1_LNAME = standings["DriverStandings"][0]["Driver"]["familyName"]
+        F1_POINTS = standings["DriverStandings"][0]["points"]
+
+        F1_FNAME2 = standings["DriverStandings"][1]["Driver"]["givenName"]
+        F1_LNAME2 = standings["DriverStandings"][1]["Driver"]["familyName"]
+        F1_POINTS2 = standings["DriverStandings"][1]["points"]
+
+        F1_FNAME3 = standings["DriverStandings"][2]["Driver"]["givenName"]
+        F1_LNAME3 = standings["DriverStandings"][2]["Driver"]["familyName"]
+        F1_POINTS3 = standings["DriverStandings"][2]["points"]
+
         return render.Root(
             child = render.Column(
                 children = [
@@ -232,12 +230,12 @@ def main(config):
                             render.Stack(
                                 children = [
                                     render.Box(width = 14, height = 7),
-                                    render.Text(f1_data["F1_POINTS"], font = "5x8"),
+                                    render.Text(F1_POINTS, font = "5x8"),
                                 ],
                             ),
                             render.Marquee(
                                 width = 50,
-                                child = render.Text(f1_data["F1_FNAME"] + " " + f1_data["F1_LNAME"]),
+                                child = render.Text(F1_FNAME + " " + F1_LNAME),
                                 offset_start = 1,
                                 offset_end = 1,
                             ),
@@ -248,12 +246,12 @@ def main(config):
                             render.Stack(
                                 children = [
                                     render.Box(width = 14, height = 7),
-                                    render.Text(f1_data["F1_POINTS2"], font = "5x8"),
+                                    render.Text(F1_POINTS2, font = "5x8"),
                                 ],
                             ),
                             render.Marquee(
                                 width = 50,
-                                child = render.Text(f1_data["F1_FNAME2"] + " " + f1_data["F1_LNAME2"]),
+                                child = render.Text(F1_FNAME2 + " " + F1_LNAME2),
                                 offset_start = 1,
                                 offset_end = 1,
                             ),
@@ -264,12 +262,12 @@ def main(config):
                             render.Stack(
                                 children = [
                                     render.Box(width = 14, height = 7),
-                                    render.Text(f1_data["F1_POINTS3"], font = "5x8"),
+                                    render.Text(F1_POINTS3, font = "5x8"),
                                 ],
                             ),
                             render.Marquee(
                                 width = 50,
-                                child = render.Text(f1_data["F1_FNAME3"] + " " + f1_data["F1_LNAME3"]),
+                                child = render.Text(F1_FNAME3 + " " + F1_LNAME3),
                                 offset_start = 1,
                                 offset_end = 1,
                             ),
@@ -283,18 +281,12 @@ def get_schema():
     return schema.Schema(
         version = "1",
         fields = [
-            schema.Location(
-                id = "location",
-                name = "Location",
-                desc = "Location for which to display time.",
-                icon = "locationDot",
-            ),
             schema.Dropdown(
                 id = "F1_Information",
                 name = "F1 Information",
                 desc = "Select which info you want",
                 icon = "flagCheckered",
-                default = "NRI",
+                default = DEFAULTS["display"],
                 options = [
                     schema.Option(
                         display = "Constructior Standings",
@@ -310,5 +302,44 @@ def get_schema():
                     ),
                 ],
             ),
+            schema.Generated(
+                id = "generated",
+                source = "F1_Information",
+                handler = nri_options,
+            ),
         ],
     )
+
+def nri_options(f1_option):
+    if f1_option == "NRI":
+        return [
+            schema.Toggle(
+                id = "time_24",
+                name = "24 hour format",
+                desc = "Display the time in 24 hour format.",
+                icon = "clock",
+                default = DEFAULTS["time_24"],
+            ),
+            schema.Toggle(
+                id = "date_us",
+                name = "US Date format",
+                desc = "Display the date in US format.",
+                icon = "calendarDays",
+                default = DEFAULTS["date_us"],
+            ),
+        ]
+    else:
+        return []
+
+def get_f1_data(url):
+    f1_details = cache.get(url)
+
+    if f1_details == None:
+        http_data = http.get(url)
+        if http_data.status_code != 200:
+            fail("HTTP request failed with status {} for URL {}".format(http_data.status_code, url))
+
+        f1_details = http_data.body()
+        cache.set(url, f1_details, ttl_seconds = F1_API_TTL)
+
+    return json.decode(f1_details)["MRData"]
