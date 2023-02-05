@@ -26,51 +26,52 @@ iuEJ0E9EVgRQCADNVQsMdRdaKAAAAAElFTkSuQmCC
 """)
 
 EXAMPLE_TRENDS = [
-                    {
-                        "trends": [
-                            {
-                                "name": "Hello World",
-                                "tweet_volume": 1521525
-                            },
-                            {
-                                "name": "Something Funny",
-                                "tweet_volume": 201321
-                            },
-                            {
-                                "name": "Cool Thing",
-                                "tweet_volume": 384002
-                            },
-                            {
-                                "name": "Can You Believe It!",
-                                "tweet_volume": 99025
-                            },
-                            {
-                                "name": "#TidbytRocks",
-                                "tweet_volume": 958164
-                            },
-                            {
-                                "name": "Coding is cool",
-                                "tweet_volume": 15000
-                            },
-                            {
-                                "name": "Famous-Person-Here",
-                                "tweet_volume": 250652
-                            },
-                            {
-                                "name": "Twilight",
-                                "tweet_volume": 169539
-                            },
-                            {
-                                "name": "Breaking News",
-                                "tweet_volume": 42000
-                            },
-                            {
-                                "name": "Top Twitter Trend",
-                                "tweet_volume": 201321
-                            },
-                        ]
-                    }
+    {
+        "trends": [
+            {
+                "name": "Hello World",
+                "tweet_volume": 1521525
+            },
+            {
+                "name": "Something Funny",
+                "tweet_volume": 201321
+            },
+            {
+                "name": "Cool Thing",
+                "tweet_volume": 384002
+            },
+            {
+                "name": "Can You Believe It!",
+                "tweet_volume": 99025
+            },
+            {
+                "name": "#TidbytRocks",
+                "tweet_volume": 958164
+            },
+            {
+                "name": "Coding is cool",
+                "tweet_volume": 15000
+            },
+            {
+                "name": "Famous-Person-Here",
+                "tweet_volume": 250652
+            },
+            {
+                "name": "Twilight",
+                "tweet_volume": 169539
+            },
+            {
+                "name": "Breaking News",
+                "tweet_volume": 42000
+            },
+            {
+                "name": "Top Twitter Trend",
+                "tweet_volume": 201321
+            },
+        ],
+    },
 ]
+
 
 def main(config):
     """_summary_
@@ -95,7 +96,7 @@ def main(config):
 
         #Check for API keys
 
-        if config.get("key", None) != None or config.get("secret", None) != None:
+        if config.get("key", None) != None and config.get("secret", None) != None:
             api_parameters = {
                 "client_id": "{}:{}".format(config.get("key", None), config.get("secret", None)),
             }
@@ -167,6 +168,7 @@ def main(config):
             ),
     )
 
+
 def oauth_handler(params):
     """Handles the authentication of the API keys from user.
 
@@ -204,6 +206,7 @@ def oauth_handler(params):
 
     return auth_resp.json()["access_token"]
 
+
 def get_data(access_token):
     """get_data will request the top trending hashtags from Twitter.
 
@@ -219,6 +222,7 @@ def get_data(access_token):
     trend_params = {"id": "23424977"}
 
     return http.get(TWITTER_TRENDS_URL, params = trend_params, headers = trend_headers)
+
 
 def format_trends(trends_dict, limit):
     """formats the data in the right way to display. Assigns color based on the volume of tweets for a given trend
