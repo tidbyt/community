@@ -504,12 +504,13 @@ def main(config):
         )
     else:
         return []
+
 teamOptions = [
     schema.Option(
         display = "All Teams",
         value = "all",
     ),
-        schema.Option(
+    schema.Option(
         display = "Australia",
         value = "AUS",
     ),
