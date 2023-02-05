@@ -229,6 +229,7 @@ def main(config):
                         main_align = "start",
                         cross_align = "center",
                         children = [
+                            render.Box(height = 1),
                             render.Row(
                                 cross_align = "center",
                                 main_align = "space_evenly",
