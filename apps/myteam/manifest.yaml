@@ -1,0 +1,8 @@
+---
+id: my-team
+name: MyTeam
+summary: Shows info about your team
+desc: Choose a sports team and it'll display current and upcoming information about your team!
+author: LunchBox8484
+fileName: myteam.star
+packageName: myteam
