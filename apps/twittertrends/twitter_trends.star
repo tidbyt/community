@@ -12,11 +12,9 @@ load("http.star", "http")
 load("render.star", "render")
 load("schema.star", "schema")
 
-#SCHEMA is erroring on me saying invalid module.
-
 #In my implementation, this is how I connect to the Twitter API using my account Key:Secret Key
-#I don't know if this works with the OAuth2 Schema because I didn't have a way of testing it to my knowledge.
-#In order to get the twitter API keys I applied for an elevated developer account, which was free and easy.
+#I don't know if this works with the OAuth2 Schema because I didn't have a way of testing it.
+#In order to get the twitter API keys I applied for an elevated developer account. This was easy and free at the time.
 
 TWITTER_TRENDS_URL = "https://api.twitter.com/1.1/trends/place.json"
 
@@ -26,6 +24,53 @@ QAAAGJJREFUKFNj5Dj+3OGHpeQBBiQAEmNiZNoPEvr3/58jSJ4RJvjNQpwRpp
 brxMv/yBpBbLAkTAKmGF0hSBxuIroJMD7canzWobgRxEF2PLLJMNPgbsRmKrI
 iuEJ0E9EVgRQCADNVQsMdRdaKAAAAAElFTkSuQmCC
 """)
+
+EXAMPLE_TRENDS = [
+                    {
+                        "trends": [
+                            {
+                                "name": "Hello World",
+                                "tweet_volume": 1521525
+                            },
+                            {
+                                "name": "Something Funny",
+                                "tweet_volume": 201321
+                            },
+                            {
+                                "name": "Cool Thing",
+                                "tweet_volume": 384002
+                            },
+                            {
+                                "name": "Can You Believe It!",
+                                "tweet_volume": 99025
+                            },
+                            {
+                                "name": "#TidbytRocks",
+                                "tweet_volume": 958164
+                            },
+                            {
+                                "name": "Coding is cool",
+                                "tweet_volume": 15000
+                            },
+                            {
+                                "name": "Famous-Person-Here",
+                                "tweet_volume": 250652
+                            },
+                            {
+                                "name": "Twilight",
+                                "tweet_volume": 169539
+                            },
+                            {
+                                "name": "Breaking News",
+                                "tweet_volume": 42000
+                            },
+                            {
+                                "name": "Top Twitter Trend",
+                                "tweet_volume": 201321
+                            },
+                        ]
+                    }
+]
 
 def main(config):
     """_summary_
@@ -48,42 +93,41 @@ def main(config):
     else:
         print("Miss! Calling Twitter data.")
 
-        #Commenting out Schema for tests
-
         #Check for API keys
 
         if config.get("key", None) != None or config.get("secret", None) != None:
             api_parameters = {
                 "client_id": "{}:{}".format(config.get("key", None), config.get("secret", None)),
             }
+
+            #Used for testing (replace the values with your keys but keep the colon)
+            #test_api_parameters = {
+            #    "client_id": "key:secret_key",
+            #}
+
+            #Submit authentication request to Twitter
+            token = oauth_handler(json.encode(api_parameters))
+
+            #Submit request to Twitter API v1.1
+            rep = get_data(token)
+
+            #Check result
+            if rep.status_code != 200:
+                return render.Root(
+                    render.WrappedText("Something went wrong getting twitter data!"),
+                )
+
+            #Parse data
+            for trend in rep.json()[0]["trends"]:
+                top_trends[trend["name"]] = trend["tweet_volume"]
+
+            #Save to cache for 1 Minute
+            cache.set("twitter_trends_rate", json.encode(top_trends), ttl_seconds = 60)
+
         else:
-            return render.Root(
-                render.WrappedText("No API Keys!"),
-            )
-
-        #Used for testing (replace the values with your keys but keep the colon)
-        #test_api_parameters = {
-        #    "client_id": "key:secret_key",
-        #}
-
-        #Submit authentication request to Twitter
-        token = oauth_handler(json.encode(api_parameters))
-
-        #Submit request to Twitter API v1.1
-        rep = get_data(token)
-
-        #Check result
-        if rep.status_code != 200:
-            return render.Root(
-                render.WrappedText("Something went wrong getting twitter data!"),
-            )
-
-        #Parse data
-        for trend in rep.json()[0]["trends"]:
-            top_trends[trend["name"]] = trend["tweet_volume"]
-
-        #Save to cache for 2 Minutes
-        cache.set("twitter_trends_rate", json.encode(top_trends), ttl_seconds = 120)
+            #Use EXAMPLE_TRENDS if API keys are blank
+            for trend in EXAMPLE_TRENDS[0]["trends"]:
+                top_trends[trend["name"]] = trend["tweet_volume"]
 
     #Get limit, default to 15
 
@@ -232,10 +276,11 @@ def format_trends(trends_dict, limit):
 
         #End if the list exceeds the limit
         if len(text_list) == (limit * 2):
-            #Doubles the list up for continuous scrolling
             return text_list + text_list
 
-    return text_list
+    #Doubles the list up for continuous scrolling
+
+    return text_list + text_list
 
 def get_schema():
     return schema.Schema(
@@ -250,13 +295,13 @@ def get_schema():
             schema.Text(
                 id = "key",
                 name = "Key",
-                desc = "The API Key from your Elevated Twitter Development Account. (Free to set up)",
+                desc = "The API Key from your Elevated Twitter Development Account.",
                 icon = "key",
             ),
             schema.Text(
                 id = "secret",
                 name = "Secret Key",
-                desc = "The API Secret Key from your Elevated Twitter Development Account. (Free to set up)",
+                desc = "The API Secret Key from your Elevated Twitter Development Account.",
                 icon = "key",
             ),
         ],
