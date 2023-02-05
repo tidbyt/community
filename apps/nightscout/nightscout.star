@@ -23,7 +23,7 @@ COLOR_GREEN = "#2b3"
 COLOR_GREY = "#777"
 COLOR_WHITE = "#fff"
 COLOR_NIGHT = "#444"
-COLOR_HOURS = "#111"
+COLOR_HOURS = "#222"
 
 DEFAULT_SHOW_MGDL = True
 DEFAULT_NORMAL_HIGH = 180
@@ -229,6 +229,7 @@ def main(config):
                         main_align = "start",
                         cross_align = "center",
                         children = [
+                            render.Box(height = 1),
                             render.Row(
                                 cross_align = "center",
                                 main_align = "space_evenly",
