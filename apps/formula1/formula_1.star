@@ -343,7 +343,7 @@ def get_f1_data(url):
             fail("HTTP request failed with status {} for URL {}".format(http_data.status_code, url))
 
         f1_details = http_data.body()
-        if f1_details.startswith("Unable")
+        if f1_details.startswith("Unable"):
             fail("API having database issues, check again later URL {}".format(url))
 
         cache.set(url, f1_details, ttl_seconds = F1_API_TTL)
