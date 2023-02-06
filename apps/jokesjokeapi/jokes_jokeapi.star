@@ -24,7 +24,6 @@ load("schema.star", "schema")
 
 base_URL = "https://v2.jokeapi.dev/joke/Any"
 
-
 def main(config):
     # get any flags
     full_URL = base_URL + "?safe-mode"
@@ -55,32 +54,33 @@ def main(config):
                 joke = [re.sub('"\"|"\n"', "", rep.json()["joke"])]
 
             # cache the data
-            cache.set("joke_rate", json.encode(joke),
-                      ttl_seconds=43200)  # grabs it twice a day
+            cache.set(
+                "joke_rate",
+                json.encode(joke),
+                ttl_seconds = 43200,
+            )  # grabs it twice a day
 
         joke_txt = format_text(joke, font)  # render the text
 
     return render.Root(
-        delay=int(config.get("speed", 200)),
-        show_full_animation=bool(config.get("scroll", True)),
-        child=render.Column(
-            children=[
-                render.Text("JokeAPI", color="#6600cc", font=font),
+        delay = int(config.get("speed", 200)),
+        show_full_animation = bool(config.get("scroll", True)),
+        child = render.Column(
+            children = [
+                render.Text("JokeAPI", color = "#6600cc", font = font),
                 render.Marquee(
-                    height=24,
-                    scroll_direction="vertical",
-                    child=render.Column(
-                        main_align="space_between",
-                        children=joke_txt,
+                    height = 24,
+                    scroll_direction = "vertical",
+                    child = render.Column(
+                        main_align = "space_between",
+                        children = joke_txt,
                     ),
-                    offset_start=10,
-                    offset_end=10,
-
+                    offset_start = 10,
+                    offset_end = 10,
                 ),
             ],
         ),
     )
-
 
 def format_text(x, font):
     # formats color and font of text
@@ -91,47 +91,49 @@ def format_text(x, font):
         else:
             ctmp = "#ff8c00"
         text_vec.append(render.WrappedText(
-            xtmp, font=font, color=ctmp, linespacing=-1))
+            xtmp,
+            font = font,
+            color = ctmp,
+            linespacing = -1,
+        ))
     return (text_vec)
 
 ######################################################
 # Schema configuration
 
-
 speed_options = [
     schema.Option(
-        display="Slow Scroll",
-        value="200",
+        display = "Slow Scroll",
+        value = "200",
     ),
     schema.Option(
-        display="Medium Scroll",
-        value="100",
+        display = "Medium Scroll",
+        value = "100",
     ),
     schema.Option(
-        display="Fast Scroll",
-        value="75",
+        display = "Fast Scroll",
+        value = "75",
     ),
 ]
 
-
 def get_schema():
     return schema.Schema(
-        version="1",
-        fields=[
+        version = "1",
+        fields = [
             schema.Toggle(
-                id="scroll",
-                name="Scroll until the end",
-                desc="Keep scrolling text even if it's longer than app-rotation time",
-                icon="user",
-                default=True,
+                id = "scroll",
+                name = "Scroll until the end",
+                desc = "Keep scrolling text even if it's longer than app-rotation time",
+                icon = "user",
+                default = True,
             ),
             schema.Dropdown(
-                id="speed",
-                name="Scroll Speed",
-                desc="Scrolling speed",
-                icon="gear",
-                default=speed_options[1].value,
-                options=speed_options,
+                id = "speed",
+                name = "Scroll Speed",
+                desc = "Scrolling speed",
+                icon = "gear",
+                default = speed_options[1].value,
+                options = speed_options,
             ),
         ],
     )
@@ -139,13 +141,11 @@ def get_schema():
 ######################################################
 # functions
 
-
 def http_check(URL):
     rep = http.get(URL)
     if rep.status_code != 200:
         fail("ESPN request failed with status %d", rep.status_code)
     return rep
-
 
 def pad_text(text):
     # format strings so they are all the same length (leads to better scrolling)
