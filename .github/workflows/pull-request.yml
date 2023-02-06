@@ -24,7 +24,7 @@ jobs:
       - name: Determine targets
         run: |
           echo ${GITHUB_BASE_REF}
-          OLD_COMMIT=`git rev-list ${GITHUB_BASE_REF}..${GITHUB_HEAD_REF} --reverse | head -n 1`
+          OLD_COMMIT=`git rev-list master..${GITHUB_HEAD_REF} --reverse | head -n 1`
           NEW_COMMIT=${GITHUB_SHA}
           echo ${OLD_COMMIT}
           echo ${NEW_COMMIT}
