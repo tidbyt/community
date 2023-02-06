@@ -24,9 +24,8 @@ jobs:
       - name: Determine targets
         run: |
           echo ${GITHUB_BASE_REF}
-          git rev-parse ${GITHUB_BASE_REF}
           echo ${GITHUB_HEAD_REF}
-          pixlet community target-determinator --old ${GITHUB_BASE_REF} --new ${GITHUB_HEAD_REF} 
+          pixlet community target-determinator --old ${GITHUB_BASE_REF} --new ${GITHUB_HEAD_REF}
 
       - name: Check all apps
         run: pixlet check -r ./
