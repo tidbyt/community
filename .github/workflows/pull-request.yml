@@ -24,7 +24,10 @@ jobs:
       - name: Determine targets
         run: |
           echo ${GITHUB_BASE_REF}
-          echo ${GITHUB_HEAD_REF}
+          OLD_COMMIT=`git rev-list ${GITHUB_BASE_REF}..${GITHUB_HEAD_REF} --reverse | head -n 1`
+          NEW_COMMIT=${GITHUB_SHA}
+          echo ${OLD_COMMIT}
+          echo ${NEW_COMMIT}
           pixlet community target-determinator --old ${GITHUB_BASE_REF} --new ${GITHUB_HEAD_REF}
 
       - name: Check all apps
