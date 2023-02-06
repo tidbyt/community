@@ -16,7 +16,7 @@ CACHE_TTL_SECONDS = 60
 DEFAULT_TIMEZONE = "America/New_York"
 SPORT = "soccer"
 
-MISSING_LOGO = "https://upload.wikimedia.org/wikipedia/commons/c/ca/1x1.png?src=soccermens"
+MISSING_LOGO = "https://upload.wikimedia.org/wikipedia/commons/c/ca/1x1.png?src=soccerwomens"
 
 DEFAULT_LEAGUE = "eng.w.1"
 API = "https://site.api.espn.com/apis/site/v2/sports/" + SPORT + "/"
@@ -180,8 +180,8 @@ def main(config):
                 checkSeries = competition.get("series", "NO")
                 checkNotes = len(competition["notes"])
                 if checkSeries != "NO":
-                    seriesSummary = competition["series"]["summary"]
-                    gameTime = seriesSummary.replace("series ", "")
+                    seriesNote = competition["notes"][0]["headline"].split(" - ")[0]
+                    gameTime = seriesNote
                 if checkNotes > 0 and checkSeries == "NO":
                     gameHeadline = competition["notes"][0]["headline"]
                     if gameHeadline.find(" - ") > 0:
