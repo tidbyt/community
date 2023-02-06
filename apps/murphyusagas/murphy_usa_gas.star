@@ -149,7 +149,7 @@ def get_stations(location):
         return [
             schema.Option(
                 display = station["address"] + " " + station["city"] + " " + station["state"],
-                value = str(int(station["storeNumber"])),
+                value = str(int(station["id"])),
             )
             for station in stations["stores"]
         ]
@@ -174,7 +174,11 @@ def get_station_details(url):
     return json.decode(station_details)["data"]
 
 def get_gas_data(config):
-    station_id = config.get("station_by_loc", DEFAULT_CONFIG["station"])
+    station_id = DEFAULT_CONFIG["station"]
+    station_config = config.get("station_by_loc")
+    if station_config:
+        station_id = int(json.decode(station_config)["value"])
+
     station_data = get_station_details(API_STATION_DETAILS.format(station_id))
 
     # determine what day today is in local time and get dayname in lowercase
