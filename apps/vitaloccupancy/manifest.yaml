@@ -1,0 +1,8 @@
+---
+id: vital-occupancy
+name: Vital Occupancy
+summary: Vital Gym Current Occupancy
+desc: The Current Occupancy of Vital Climbing's Brooklyn, NY location.
+author: flip_z
+fileName: vital_occupancy.star
+packageName: vitaloccupancy

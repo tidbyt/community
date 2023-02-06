@@ -24,6 +24,8 @@ DEFAULT_LOCATION = """
     "timezone": "America/New_York"
 }
 """
+LEAGUE_DISPLAY = "NCAAM"
+LEAGUE_DISPLAY_OFFSET = 7
 SPORT = "basketball"
 LEAGUE = "mens-college-basketball"
 API = "https://site.api.espn.com/apis/v2/sports/" + SPORT + "/" + LEAGUE + "/standings"
@@ -120,7 +122,7 @@ def main(config):
     renderCategory = []
     conferenceType = config.get("conferenceType", "0")
     teamsToShow = int(config.get("teamsOptions", "3"))
-    showDateTime = config.bool("displayDateTime")
+    displayTop = config.get("displayTop", "time")
     timeColor = config.get("displayTimeColor", "#FFF")
     location = config.get("location", DEFAULT_LOCATION)
     loc = json.decode(location)
@@ -174,7 +176,7 @@ def main(config):
                         cross_align = "start",
                         children = [
                             render.Column(
-                                children = get_team(x, entries, entriesToDisplay, displayType, showDateTime and 24 or 28),
+                                children = get_team(x, entries, entriesToDisplay, displayType),
                             ),
                         ],
                     ),
@@ -184,7 +186,7 @@ def main(config):
         return render.Root(
             delay = int(15000 / cycleOptions / cycleCount),
             child = render.Column(
-                children = get_top_column(showDateTime, now, timeColor, divisionName, renderCategory, showDateTime and 8 or 5),
+                children = get_top_column(displayTop, now, timeColor, divisionName, renderCategory),
             ),
         )
     else:
@@ -359,6 +361,17 @@ teamsOptions = [
     ),
 ]
 
+displayTopOptions = [
+    schema.Option(
+        display = "League Name",
+        value = "league",
+    ),
+    schema.Option(
+        display = "Current Time",
+        value = "time",
+    ),
+]
+
 colorOptions = [
     schema.Option(
         display = "White",
@@ -414,19 +427,20 @@ def get_schema():
                 default = cycleOptions[0].value,
                 options = cycleOptions,
             ),
-            schema.Toggle(
-                id = "displayDateTime",
-                name = "Current Time",
-                desc = "A toggle to display the Current Time rather than game time/status.",
-                icon = "calendar",
-                default = False,
+            schema.Dropdown(
+                id = "displayTop",
+                name = "Top Display",
+                desc = "A toggle of what to display on the top shelf.",
+                icon = "gear",
+                default = displayTopOptions[0].value,
+                options = displayTopOptions,
             ),
             schema.Dropdown(
                 id = "displayTimeColor",
-                name = "Time Color",
-                desc = "Select which color you want the time to be.",
+                name = "Top Display Color",
+                desc = "Select which color you want the top display to be.",
                 icon = "gear",
-                default = colorOptions[0].value,
+                default = colorOptions[5].value,
                 options = colorOptions,
             ),
         ],
@@ -453,11 +467,11 @@ def get_team_color(teamid):
     teamcolor = get_background_color(team["abbreviation"], color)
     return teamcolor
 
-def get_team(x, s, entriesToDisplay, displayType, colHeight):
+def get_team(x, s, entriesToDisplay, displayType):
     teamRecord = ""
     teamGB = ""
     output = []
-    containerHeight = int(colHeight / entriesToDisplay)
+    containerHeight = int(24 / entriesToDisplay)
     for i in range(0, entriesToDisplay):
         if i + x < len(s):
             mainFont = "CG-pixel-3x5-mono"
@@ -468,7 +482,7 @@ def get_team(x, s, entriesToDisplay, displayType, colHeight):
                 teamColor = get_team_color(teamID)
                 teamLogo = get_logoType(teamName, s[i + x]["team"]["logos"][0]["href"])
                 for _, k in enumerate(stats):
-                    if k["name"] == "overall":
+                    if k["name"] == "vs. Conf.":
                         teamRecord = k["displayValue"]
                     if k["name"] == "gamesBehind":
                         teamGB = k["displayValue"]
@@ -528,44 +542,40 @@ def get_logoType(team, logo):
         logo = get_cachable_data(logo + "&h=50&w=50")
     return logo
 
-def get_top_column(showDateTime, now, timeColor, divisionName, renderCategory, colHeight):
+def get_top_column(displayTop, now, timeColor, divisionName, renderCategory):
     topColumn = []
-    if showDateTime:
-        divisionName = divisionName.replace("Playoff Committee Rankings", "CFP")
+    divisionName = divisionName.replace("AP ", "")
+    timeBox = 20
+    statusBox = 44
+    if displayTop == "league":
+        theTime = LEAGUE_DISPLAY
+        timeBox += LEAGUE_DISPLAY_OFFSET
+        statusBox -= LEAGUE_DISPLAY_OFFSET
+    else:
         theTime = now.format("3:04")
         if len(str(theTime)) > 4:
-            timeBox = 24
-            statusBox = 40
-        else:
-            timeBox = 20
-            statusBox = 44
-        topColumn = [
-            render.Row(
-                expanded = True,
-                main_align = "space_between",
-                cross_align = "start",
-                children = [
-                    render.Box(width = timeBox, height = colHeight, color = "#000", child = render.Row(expanded = True, main_align = "center", cross_align = "center", children = [
-                        render.Box(width = 1, height = colHeight),
-                        render.Text(color = timeColor, content = theTime, font = "tb-8"),
+            timeBox += 4
+            statusBox -= 4
+    topColumn = [
+        render.Row(
+            expanded = True,
+            main_align = "space_between",
+            cross_align = "start",
+            children = [
+                render.Box(width = timeBox, height = 8, color = "#000", child = render.Row(expanded = True, main_align = "center", cross_align = "center", children = [
+                    render.Box(width = 1, height = 8),
+                    render.Text(color = timeColor, content = theTime, font = "tb-8"),
+                ])),
+                render.Box(width = statusBox, height = 8, color = "#111", child = render.Stack(children = [
+                    render.Box(width = statusBox, height = 8, child = render.Row(expanded = True, main_align = "end", cross_align = "center", children = [
+                        render.Text(color = "#FFF", content = divisionName, font = "CG-pixel-3x5-mono"),
                     ])),
-                    render.Box(width = statusBox, height = colHeight, color = "#111", child = render.Stack(children = [
-                        render.Box(width = statusBox, height = colHeight, child = render.Row(expanded = True, main_align = "end", cross_align = "center", children = [
-                            render.Text(color = "#FFF", content = divisionName, font = "CG-pixel-3x5-mono"),
-                        ])),
-                    ])),
-                ],
-            ),
-            render.Animation(children = renderCategory),
-        ]
-    else:
-        divisionName = divisionName.replace("Playoff Committee Rankings", "CFP Ranking")
-        topColumn = [
-            render.Box(width = 64, height = colHeight, color = "#000", child = render.Row(expanded = True, main_align = "start", cross_align = "center", children = [
-                render.Box(width = 64, height = colHeight, child = render.Text(content = divisionName, color = "#ff0", font = "CG-pixel-3x5-mono")),
-            ])),
-            render.Animation(children = renderCategory),
-        ]
+                ])),
+            ],
+        ),
+        render.Animation(children = renderCategory),
+    ]
+
     return topColumn
 
 def get_cachable_data(url, ttl_seconds = CACHE_TTL_SECONDS):
