@@ -5,11 +5,11 @@ Description: Shows the top 10 charts for movies or TV shows on Netflix.
 Author: Matt Broussard
 """
 
-load("render.star", "render")
-load("http.star", "http")
-load("schema.star", "schema")
 load("cache.star", "cache")
 load("encoding/json.star", "json")
+load("http.star", "http")
+load("render.star", "render")
+load("schema.star", "schema")
 
 def get_schema():
     return schema.Schema(
@@ -22,10 +22,10 @@ def get_schema():
                 icon = "arrowsUpDownLeftRight",
                 default = "vertical",
                 options = [
-                    schema.Option(display="Vertical", value="vertical"),
-                    schema.Option(display="Horizontal", value="horizontal"),
-                    schema.Option(display="Off", value="off"),
-                ]
+                    schema.Option(display = "Vertical", value = "vertical"),
+                    schema.Option(display = "Horizontal", value = "horizontal"),
+                    schema.Option(display = "Off", value = "off"),
+                ],
             ),
             schema.Dropdown(
                 id = "region",
@@ -33,12 +33,12 @@ def get_schema():
                 desc = "The region for which to show the Netflix chart.",
                 icon = "globe",
                 default = "global",
-                options = get_region_options()
+                options = get_region_options(),
             ),
             schema.Generated(
                 id = "category_gen",
                 source = "region",
-                handler = gen_category_dropdown
+                handler = gen_category_dropdown,
             ),
             schema.Dropdown(
                 id = "font",
@@ -47,11 +47,11 @@ def get_schema():
                 icon = "font",
                 default = "tb-8",
                 options = [
-                    schema.Option(display="Large", value="tb-8"),
-                    schema.Option(display="Small", value="tom-thumb")
-                ]
+                    schema.Option(display = "Large", value = "tb-8"),
+                    schema.Option(display = "Small", value = "tom-thumb"),
+                ],
             ),
-        ]
+        ],
     )
 
 def main(config):
@@ -71,17 +71,17 @@ def main(config):
     def h_marquee(child):
         if scroll_direction == "horizontal":
             left_col_width = 10
-            return render.Marquee(child=child, width=64 - left_col_width)
+            return render.Marquee(child = child, width = 64 - left_col_width)
         else:
             return child
 
     def v_marquee(child):
         if scroll_direction == "vertical":
-            return render.Marquee(child=child, scroll_direction="vertical", height=32)
+            return render.Marquee(child = child, scroll_direction = "vertical", height = 32)
         else:
             return child
 
-    col_spacer = render.Box(width=2, height=32) if scroll_direction != "vertical" else None
+    col_spacer = render.Box(width = 2, height = 32) if scroll_direction != "vertical" else None
 
     return render.Root(
         child = v_marquee(
@@ -90,24 +90,24 @@ def main(config):
                     render.Column(
                         children = [
                             render.Text(
-                                "%d:" % (i+1,),
-                                color="#f00",
-                                font=font
+                                "%d:" % (i + 1,),
+                                color = "#f00",
+                                font = font,
                             )
                             for i in range(len(rows))
-                        ]
+                        ],
                     ),
                     col_spacer,
                     render.Column(
                         children = [
-                            h_marquee(render.Text(get_title(row), font=font))
+                            h_marquee(render.Text(get_title(row), font = font))
                             for row in rows
-                        ]
-                    )
-                ]
-            )
+                        ],
+                    ),
+                ],
+            ),
         ),
-        delay = 100
+        delay = 100,
     )
 
 def get_regions():
@@ -118,19 +118,19 @@ def get_regions():
     table = load_countries_table()
     regions = {row["country_iso2"]: row["country_name"] for row in table}
 
-    cache.set("regions", json.encode(regions), ttl_seconds=60 * 60)
+    cache.set("regions", json.encode(regions), ttl_seconds = 60 * 60)
     return regions
 
 def get_region_options():
     regions = get_regions()
 
     return [
-        schema.Option(display="Global", value="global"),
+        schema.Option(display = "Global", value = "global"),
 
         # for convenience, list US at top of the list instead of bottom
-        schema.Option(display="United States", value="US"),
+        schema.Option(display = "United States", value = "US"),
     ] + [
-        schema.Option(display=region_name, value=region_iso)
+        schema.Option(display = region_name, value = region_iso)
         for region_iso, region_name in regions.items()
         if region_iso != "US"
     ]
@@ -152,9 +152,9 @@ def gen_category_dropdown(region):
         default = default_category_for_region(region),
         icon = "cameraMovie",
         options = [
-            schema.Option(display=category, value=category)
+            schema.Option(display = category, value = category)
             for category in categories
-        ]
+        ],
     )]
 
 def get_title(row):
@@ -192,14 +192,14 @@ def get_rows_for_display(region, category):
         return [{"show_title": "Error loading chart"}]
 
     latest_week = data[0]["week"]
+
     def matches(row):
-        return \
-            row["category"] == category and \
-            row["week"] == latest_week and \
-            (region == "global" or row["country_iso2"] == region)
+        return row["category"] == category and \
+               row["week"] == latest_week and \
+               (region == "global" or row["country_iso2"] == region)
 
     filtered = [row for row in data if matches(row)]
-    rows = sorted(filtered, key=lambda row: int(row["weekly_rank"]))
+    rows = sorted(filtered, key = lambda row: int(row["weekly_rank"]))
 
     return rows
 
