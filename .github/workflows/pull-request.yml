@@ -22,16 +22,14 @@ jobs:
         run: ./.github/scripts/setup.sh
 
       - name: Determine targets
+        id: targets
         run: |
           echo ${GITHUB_BASE_REF}
-          OLD_COMMIT=9ff13f79de921fba3bf9a10a0d47e978676d7ab9
-          NEW_COMMIT=${GITHUB_SHA}
-          echo ${OLD_COMMIT}
-          echo ${NEW_COMMIT}
-          pixlet community target-determinator --old ${OLD_COMMIT} --new ${NEW_COMMIT}
+          echo ${GITHUB_HEAD_REF}
+          echo "targets=$(pixlet community target-determinator --old ${GITHUB_BASE_REF} --new ${GITHUB_HEAD_REF})" >> $GITHUB_OUTPUT
 
       - name: Check all apps
-        run: pixlet check -r ./
+        run: pixlet check -r ${steps.targets.output.targets}
 
       - name: Sanity check go embed
         run: go test tidbyt.dev/community/apps
