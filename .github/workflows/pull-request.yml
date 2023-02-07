@@ -24,10 +24,7 @@ jobs:
       - name: Determine targets
         id: targets
         run: |
-          git show-ref
-          echo ${GITHUB_BASE_REF}
-          echo ${GITHUB_HEAD_REF}
-          echo ${GITHUB_SHA}
+          printenv
           pixlet community target-determinator --old refs/remotes/origin/${GITHUB_BASE_REF} --new ${GITHUB_SHA}
 
       - name: Check all apps
