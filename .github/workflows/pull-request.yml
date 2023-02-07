@@ -24,12 +24,13 @@ jobs:
       - name: Determine targets
         id: targets
         run: |
+          git show-ref
           echo ${GITHUB_BASE_REF}
           echo ${GITHUB_HEAD_REF}
           echo "targets=$(pixlet community target-determinator --old ${GITHUB_BASE_REF} --new ${GITHUB_HEAD_REF})" >> $GITHUB_OUTPUT
 
       - name: Check all apps
-        run: pixlet check -r ${steps.targets.output.targets}
+        run: pixlet check -r ${{steps.targets.output.targets}}
 
       - name: Sanity check go embed
         run: go test tidbyt.dev/community/apps
