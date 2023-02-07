@@ -10,6 +10,7 @@ load("cache.star", "cache")
 # LOAD MODULES
 load("encoding/base64.star", "base64")
 load("http.star", "http")
+load("random.star", "random")
 load("render.star", "render")
 load("schema.star", "schema")
 load("time.star", "time")
@@ -38,16 +39,24 @@ iVBORw0KGgoAAAANSUhEUgAAAEAAAAAgCAYAAACinX6EAAAAAXNSR0IArs4c6QAAAUdJREFUaIHtlTFL
 BALL_THROW = "https://raw.githubusercontent.com/Yonodactyl/TidbytGIFs/main/Fido/ball_throw.gif"
 
 # Pet Actions
-FIDO_WALK = "https://raw.githubusercontent.com/Yonodactyl/TidbytGIFs/main/Fido/fido_walk.gif"
-FIDO_SIT = "https://raw.githubusercontent.com/Yonodactyl/TidbytGIFs/main/Fido/fido_sit.gif"
-FIDO_FETCH = "https://raw.githubusercontent.com/Yonodactyl/TidbytGIFs/main/Fido/fido_fetch.gif"
+PET_ACTIONS = {
+    "Sit": "https://raw.githubusercontent.com/Yonodactyl/TidbytGIFs/main/Fido/fido_sit.gif",
+    "Walk": "https://raw.githubusercontent.com/Yonodactyl/TidbytGIFs/main/Fido/fido_walk.gif",
+    "Fetch": "https://raw.githubusercontent.com/Yonodactyl/TidbytGIFs/main/Fido/fido_fetch.gif",
+}
+FIDO_FETCH = PET_ACTIONS["Fetch"]
 
 def main(config):
     # Set configuration variables
     timezone = config.get("$tz", DEFAULT_TIMEZONE)
     pet_name = config.get("pet_name", DEFAULT_PAL_NAME)
     pet_birthday = config.str("pet_birthday", DEFAULT_BIRTHDAY)
-    action_config = config.get("pet_action", FIDO_SIT)
+
+    action_config = config.get("pet_action", PET_ACTIONS["Sit"])
+    if action_config == "random":
+        idx = random.number(0, len(PET_ACTIONS) - 1)  #-1 because indices start at zero
+        action_config = PET_ACTIONS.values()[idx]
+
     stats_config = config.bool("showing_stats", False)
 
     # Grab the pets age - returned in hours
@@ -189,19 +198,10 @@ def return_marquee_text(text, color = "#fff", width = 32, direction = "horizonta
 def get_schema():
     # Pal action to be performed
     pal_action = [
-        schema.Option(
-            display = "Sit",
-            value = FIDO_SIT,
-        ),
-        schema.Option(
-            display = "Walk",
-            value = FIDO_WALK,
-        ),
-        schema.Option(
-            display = "Fetch",
-            value = FIDO_FETCH,
-        ),
+        schema.Option(display = action, value = image)
+        for action, image in PET_ACTIONS.items()
     ]
+    pal_action.insert(0, schema.Option(display = "Random", value = "random"))
 
     return schema.Schema(
         version = "1",
@@ -224,7 +224,7 @@ def get_schema():
                 name = "Action",
                 desc = "What should your pet do?",
                 icon = "dog",
-                default = pal_action[0].value,
+                default = pal_action[1].value,  #default is Sit
                 options = pal_action,
             ),
             schema.Toggle(

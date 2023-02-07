@@ -10,6 +10,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
 
       - name: Set up Go
         uses: actions/setup-go@v3
@@ -18,6 +20,13 @@ jobs:
 
       - name: Setup build agent
         run: ./.github/scripts/setup.sh
+
+      - name: Determine targets
+        id: targets
+        run: |
+          git show-ref
+          echo ${GITHUB_BASE_REF}
+          echo ${GITHUB_HEAD_REF}
 
       - name: Check all apps
         run: pixlet check -r ./
