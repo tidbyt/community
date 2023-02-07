@@ -3,13 +3,15 @@ name: Build and Test
 on:
   pull_request:
     branches:
-      - "*"
+      - "**"
 
 jobs:
   check:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
 
       - name: Set up Go
         uses: actions/setup-go@v3
@@ -18,6 +20,13 @@ jobs:
 
       - name: Setup build agent
         run: ./.github/scripts/setup.sh
+
+      - name: Determine targets
+        id: targets
+        run: |
+          OLD_COMMIT=$(git rev-list --parents -n 1 ${GITHUB_SHA} | cut -d " " -f 2)
+          NEW_COMMIT=$(git rev-list --parents -n 1 ${GITHUB_SHA} | cut -d " " -f 3)
+          pixlet community target-determinator --old ${OLD_COMMIT} --new ${NEW_COMMIT}
 
       - name: Check all apps
         run: pixlet check -r ./
