@@ -16,7 +16,7 @@ load("schema.star", "schema")
 load("secret.star", "secret")
 load("time.star", "time")
 
-# Exchangerate-API.com
+# Exchangerate-API.com Info
 exchange_rate_api_key_encrypted = "AV6+xWcE2EJ1am5cfNlWEh7R0E3NbcVBkpTEcQbuoSDokWbHW020B9OGl6dshXbNpl3oGGSEANUBz/M7B4LOQGCT/UnVOrcR1DHaijlxKN3UT+Y29y9ZgKs4XS2qk/OZQgFqvSWs/160vJCiM7DSktYV5kddXa7Iy4y42sVN"
 currencies = {
     "eur": {
