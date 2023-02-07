@@ -1,0 +1,8 @@
+---
+id: ncaaw-standings
+name: NCAAW Standings
+summary: NCAAW basketball standings
+desc: View NCAAW standings by conference.
+author: LunchBox8484
+fileName: ncaaw_standings.star
+packageName: ncaawstandings
