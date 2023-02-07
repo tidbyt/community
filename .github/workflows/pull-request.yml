@@ -3,7 +3,7 @@ name: Build and Test
 on:
   pull_request:
     branches:
-      - "*"
+      - "**"
 
 jobs:
   check:
@@ -24,8 +24,9 @@ jobs:
       - name: Determine targets
         id: targets
         run: |
-          git show-ref
-          printenv
+          OLD_COMMIT=$(git rev-list --parents -n 1 ${GITHUB_SHA} | cut -d " " -f 2)
+          NEW_COMMIT=$(git rev-list --parents -n 1 ${GITHUB_SHA} | cut -d " " -f 3)
+          pixlet community target-determinator --old ${OLD_COMMIT} --new ${NEW_COMMIT}
 
       - name: Check all apps
         run: pixlet check -r ./
