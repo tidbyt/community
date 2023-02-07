@@ -26,6 +26,7 @@ jobs:
         run: |
           git show-ref
           printenv
+          git rev-list ${GITHUB_BASE_REF}..${GITHUB_HEAD_REF}
 
       - name: Check all apps
         run: pixlet check -r ./
