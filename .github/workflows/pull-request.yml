@@ -23,16 +23,12 @@ jobs:
 
       - name: Determine targets
         id: targets
-        run: |
-          OLD_COMMIT=$(git rev-list --parents -n 1 ${GITHUB_SHA} | cut -d " " -f 2)
-          NEW_COMMIT=$(git rev-list --parents -n 1 ${GITHUB_SHA} | cut -d " " -f 3)
-          TARGETS=$(pixlet community target-determinator --old ${OLD_COMMIT} --new ${NEW_COMMIT})
-          echo ${TARGETS}
-          echo "targets=${TARGETS}" >> ${GITHUB_OUTPUT}
+        run: ./.github/scripts/determine-targets.sh
 
       - name: Check modified apps
-        run: |
-          [ ! -z "${{ steps.targets.outputs.targets }}" ] && pixlet check -r ${{ steps.targets.outputs.targets }} || echo "✔️ No apps modified "
+        run: ./.github/scripts/check-apps.sh
+        env:
+          TARGETS: "${{ steps.targets.outputs.targets }}"
 
       - name: Sanity check go embed
         run: go test tidbyt.dev/community/apps
