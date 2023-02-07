@@ -21,7 +21,6 @@ jobs:
       - name: Setup build agent
         run: ./.github/scripts/setup.sh
 
-      # echo "targets=$(pixlet community target-determinator --old ${GITHUB_BASE_REF} --new ${GITHUB_HEAD_REF})" >> $GITHUB_OUTPUT
       - name: Determine targets
         id: targets
         run: |
