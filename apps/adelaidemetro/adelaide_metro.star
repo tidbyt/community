@@ -5,6 +5,9 @@ Description: Displays upcoming services for train stations and bus & tram stops 
 Author: M0ntyP
 
 Inspired by all the other great transit apps out there, I made one for my home town. I'd be surprised if anyone actually uses it :)
+
+v1.0 - First release to Tidbyt
+v1.1 - Fixed bug that showed same time for different services if over 120 mins away
 """
 
 load("cache.star", "cache")
