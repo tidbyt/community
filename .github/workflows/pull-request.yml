@@ -28,6 +28,7 @@ jobs:
           git show-ref
           echo ${GITHUB_BASE_REF}
           echo ${GITHUB_HEAD_REF}
+          echo ${GITHUB_SHA}
           pixlet community target-determinator --old refs/remotes/origin/${GITHUB_BASE_REF} --new ${GITHUB_SHA}
 
       - name: Check all apps
