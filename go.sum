@@ -297,3 +297,5 @@ honnef.co/go/tools v0.0.0-20190102054323-c2f93a96b099/go.mod h1:rf3lG4BRIbNafJWh
 honnef.co/go/tools v0.0.0-20190523083050-ea95bdfd59fc/go.mod h1:rf3lG4BRIbNafJWhAfAdb/ePZxsR/4RtNHQocxwk9r4=
 tidbyt.dev/pixlet v0.24.4 h1:CBmKX2iauUfu/ZUY5Yyq5+38X10rC2o4hrYxNzVVM+4=
 tidbyt.dev/pixlet v0.24.4/go.mod h1:qb+faqi+9rfZvU/ywob35quJeHWDphLJT7SvK7o1L1c=
+tidbyt.dev/pixlet v0.24.5 h1:J4LOKmmeZmv4hhgKg8CxmBxKDkqBXaesX9+Fo2WtaAs=
+tidbyt.dev/pixlet v0.24.5/go.mod h1:qb+faqi+9rfZvU/ywob35quJeHWDphLJT7SvK7o1L1c=
