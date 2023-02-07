@@ -26,6 +26,8 @@ jobs:
         run: |
           git show-ref
           printenv
+          pixlet community target-determinator --old refs/remotes/origin/${GITHUB_BASE_REF} --new ${GITHUB_SHA}
+          pixlet community target-determinator --old ${GITHUB_REF} --new ${GITHUB_SHA}
 
       - name: Check all apps
         run: pixlet check -r ./
