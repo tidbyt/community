@@ -10,9 +10,6 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
-        with:
-          fetch-depth: 0
-          ref: ${{ github.event.pull_request.head.sha }}
 
       - name: Set up Go
         uses: actions/setup-go@v3
@@ -25,9 +22,7 @@ jobs:
       - name: Determine targets
         id: targets
         run: |
-          git show-ref
-          printenv
-          git rev-list ${GITHUB_BASE_REF}..${GITHUB_HEAD_REF}
+          git rev-list --parents -n 1 ${GITHUB_SHA}
 
       - name: Check all apps
         run: pixlet check -r ./
