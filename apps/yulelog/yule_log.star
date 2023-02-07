@@ -16,6 +16,7 @@ load("render.star", "render")
 
 def main():
     # revert me.
+    # and me.
     return render.Root(
         child = render.Image(src = base64.decode(ANIMATION)),
     )
