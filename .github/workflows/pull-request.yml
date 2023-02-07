@@ -21,13 +21,14 @@ jobs:
       - name: Setup build agent
         run: ./.github/scripts/setup.sh
 
+      # echo "targets=$(pixlet community target-determinator --old ${GITHUB_BASE_REF} --new ${GITHUB_HEAD_REF})" >> $GITHUB_OUTPUT
       - name: Determine targets
         id: targets
         run: |
           git show-ref
           echo ${GITHUB_BASE_REF}
           echo ${GITHUB_HEAD_REF}
-          echo "targets=$(pixlet community target-determinator --old ${GITHUB_BASE_REF} --new ${GITHUB_HEAD_REF})" >> $GITHUB_OUTPUT
+          pixlet community target-determinator --old refs/remotes/origin/${GITHUB_BASE_REF} --new ${GITHUB_SHA}
 
       - name: Check all apps
         run: pixlet check -r ${{steps.targets.output.targets}}
