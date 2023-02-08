@@ -5,8 +5,8 @@ Description: Displays the predicted arrival times for next buses at specified DC
 Author: Steven Pressnall
 """
 
-load("encoding/json.star", "json")
 load("cache.star", "cache")
+load("encoding/json.star", "json")
 load("http.star", "http")
 load("render.star", "render")
 load("schema.star", "schema")
