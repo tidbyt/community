@@ -15,6 +15,7 @@ def main(config):
     alternate = config.str("alternate", "")
 
     # revert me.
+    # revert me.
 
     notification_type = config.str("type", DEFAULT_TYPE)
     icon = MESSAGE_TYPES[notification_type]["icon"]
