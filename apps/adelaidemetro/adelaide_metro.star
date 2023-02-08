@@ -5,6 +5,9 @@ Description: Displays upcoming services for train stations and bus & tram stops 
 Author: M0ntyP
 
 Inspired by all the other great transit apps out there, I made one for my home town. I'd be surprised if anyone actually uses it :)
+
+v1.0 - First release to Tidbyt
+v1.1 - Fixed bug that showed same time for different services if over 120 mins away
 """
 
 load("cache.star", "cache")
@@ -22,7 +25,7 @@ CACHE_TTL_SECS = 60
 def main(config):
     SelectedStation = config.get("StationList", "16490")
     TrainToCity = config.bool("TrainToCity", True)
-    TrainOrTramOrBus = config.get("TrainOrTramOrBus", "Bus")
+    TrainOrTramOrBus = config.get("TrainOrTramOrBus", "Train")
 
     if TrainOrTramOrBus == "Tram":
         SelectedStation = config.get("TramStationList", "17753")
@@ -192,8 +195,15 @@ def GetTimes(StopName, Routes, RouteColors, RouteLen, NEXTSCHED_JSON):
                 Time1 = str(TimeList.pop(0))
                 Comma1 = ","
                 Time2 = str(TimeList.pop(0))
+                Comma2 = ""
+                Time3 = ""
             if len(TimeList) == 1:
                 Time1 = str(TimeList.pop(0))
+                Comma1 = ""
+                Comma2 = ""
+                Time1 = ""
+                Time2 = ""
+                Time3 = ""
 
             Trains = render.Row(
                 children = [
