@@ -1,12 +1,12 @@
 """
 Applet: DC Bus Times
-Summary: WMATA Bus Arrival Times
+Summary: DC (WMATA) Bus Arrival Times
 Description: Displays the predicted arrival times for next buses at specified DC bus stop(s).
-Author: JetgirlDC
+Author: Steven Pressnall
 """
 
-load("cache.star", "cache")
 load("encoding/json.star", "json")
+load("cache.star", "cache")
 load("http.star", "http")
 load("render.star", "render")
 load("schema.star", "schema")
@@ -22,8 +22,7 @@ def main(config):
     numPredictions2 = 0
     iMinutes = [0, 0, 0, 0, 0, 0, 0, 0]
 
-    defaultKey = config.get("APIKey")
-    apiKey = secret.decrypt(ENCRYPTED_API_KEY) or defaultKey
+    apiKey = secret.decrypt(ENCRYPTED_API_KEY)
 
     Bus = [render.Row(
         children = [
@@ -60,7 +59,9 @@ def main(config):
     )]
 
     StopID1 = config.get("StopID_1", DEFAULT_STOPID1)
-
+    if len(StopID1) < 7:
+	    StopID1 = DEFAULT_STOPID1
+	
     objPredictions = GetTimes1(StopID1, apiKey)
 
     numPredictions = min(len(objPredictions["Predictions"]), 4)
@@ -88,7 +89,7 @@ def main(config):
 
     StopID2 = config.get("StopID_2", DEFAULT_STOPID2)
     if len(StopID2) == 7:
-        objPredictions2 = GetTimes2(StopID2, apiKey)
+        objPredictions2 = GetTimes1(StopID2, apiKey)
         numPredictions2 = min(len(objPredictions2["Predictions"]), 4)
 
         for i in range(0, numPredictions2):
@@ -208,7 +209,7 @@ def main(config):
         )
 
 def GetTimes1(stopID, apiKey):
-    cached = cache.get("arrTimes1")
+    cached = cache.get(stopID)
     if cached:
         return json.decode(cached)
 
@@ -216,19 +217,7 @@ def GetTimes1(stopID, apiKey):
     if rep.status_code != 200:
         fail("NextBus request failed with status ", rep.status_code)
 
-    cache.set("arrTimes1", rep.body(), ttl_seconds = 20)
-    return rep.json()
-
-def GetTimes2(stopID, apiKey):
-    cached = cache.get("arrTimes2")
-    if cached:
-        return json.decode(cached)
-
-    rep = http.get(NEXTBUS_URL, params = {"StopID": stopID}, headers = {"api_key": apiKey})
-    if rep.status_code != 200:
-        fail("NextBus request failed with status ", rep.status_code)
-
-    cache.set("arrTimes2", rep.body(), ttl_seconds = 20)
+    cache.set(stopID, rep.body(), ttl_seconds = 20)
     return rep.json()
 
 def get_schema():
@@ -237,21 +226,15 @@ def get_schema():
         fields = [
             schema.Text(
                 id = "StopID_1",
-                name = "Stop ID #1",
-                desc = "Bus Stop ID Number (7 digit number located on Bus Stop sign e.g. 1001155)",
+                name = "Stop ID #1 (e.g. 1001155)",
+                desc = "Bus Stop ID Number (7 digit number located on Bus Stop sign)",
                 icon = "busSimple",
             ),
             schema.Text(
                 id = "StopID_2",
-                name = "Stop ID #2",
-                desc = "Bus Stop ID Number (optional)",
+                name = "Stop ID #2 (optional)",
+                desc = "Bus Stop ID Number (leave blank if 2nd stop not desired)",
                 icon = "busSimple",
-            ),
-            schema.Text(
-                id = "APIKey",
-                name = "WMATA Key",
-                desc = "WMATA API Key (Admin only)",
-                icon = "key",
             ),
         ],
     )
