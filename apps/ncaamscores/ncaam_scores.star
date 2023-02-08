@@ -193,7 +193,8 @@ def main(config):
     league = {LEAGUE: apiURL}
     instanceNumber = int(config.get("instanceNumber", 1))
     totalInstances = int(config.get("instancesCount", 1))
-    scores = get_scores(league, instanceNumber, totalInstances)
+    selectedTeam = config.get("selectedTeam", "all")
+    scores = get_scores(league, instanceNumber, totalInstances, selectedTeam)
     if len(scores) > 0:
         displayType = config.get("displayType", "colors")
         displayTop = config.get("displayTop", "time")
@@ -773,6 +774,1452 @@ conferenceOptions = [
         value = "29",
     ),
 ]
+teamOptions = [
+    schema.Option(
+        display = "All Teams",
+        value = "all",
+    ),
+    schema.Option(
+        display = "Abilene Christian Wildcats",
+        value = "2000",
+    ),
+    schema.Option(
+        display = "Air Force Falcons",
+        value = "2005",
+    ),
+    schema.Option(
+        display = "Akron Zips",
+        value = "2006",
+    ),
+    schema.Option(
+        display = "Alabama A&M Bulldogs",
+        value = "2010",
+    ),
+    schema.Option(
+        display = "Alabama Crimson Tide",
+        value = "333",
+    ),
+    schema.Option(
+        display = "Alabama State Hornets",
+        value = "2011",
+    ),
+    schema.Option(
+        display = "Albany Great Danes",
+        value = "399",
+    ),
+    schema.Option(
+        display = "Alcorn State Braves",
+        value = "2016",
+    ),
+    schema.Option(
+        display = "American University Eagles",
+        value = "44",
+    ),
+    schema.Option(
+        display = "Appalachian State Mountaineers",
+        value = "2026",
+    ),
+    schema.Option(
+        display = "Arizona State Sun Devils",
+        value = "9",
+    ),
+    schema.Option(
+        display = "Arizona Wildcats",
+        value = "12",
+    ),
+    schema.Option(
+        display = "Arkansas Razorbacks",
+        value = "8",
+    ),
+    schema.Option(
+        display = "Arkansas State Red Wolves",
+        value = "2032",
+    ),
+    schema.Option(
+        display = "Arkansas-Pine Bluff Golden Lions",
+        value = "2029",
+    ),
+    schema.Option(
+        display = "Army Black Knights",
+        value = "349",
+    ),
+    schema.Option(
+        display = "Auburn Tigers",
+        value = "2",
+    ),
+    schema.Option(
+        display = "Austin Peay Governors",
+        value = "2046",
+    ),
+    schema.Option(
+        display = "BYU Cougars",
+        value = "252",
+    ),
+    schema.Option(
+        display = "Ball State Cardinals",
+        value = "2050",
+    ),
+    schema.Option(
+        display = "Baylor Bears",
+        value = "239",
+    ),
+    schema.Option(
+        display = "Bellarmine Knights",
+        value = "91",
+    ),
+    schema.Option(
+        display = "Belmont Bruins",
+        value = "2057",
+    ),
+    schema.Option(
+        display = "Bethune-Cookman Wildcats",
+        value = "2065",
+    ),
+    schema.Option(
+        display = "Binghamton Bearcats",
+        value = "2066",
+    ),
+    schema.Option(
+        display = "Boise State Broncos",
+        value = "68",
+    ),
+    schema.Option(
+        display = "Boston College Eagles",
+        value = "103",
+    ),
+    schema.Option(
+        display = "Boston University Terriers",
+        value = "104",
+    ),
+    schema.Option(
+        display = "Bowling Green Falcons",
+        value = "189",
+    ),
+    schema.Option(
+        display = "Bradley Braves",
+        value = "71",
+    ),
+    schema.Option(
+        display = "Brown Bears",
+        value = "225",
+    ),
+    schema.Option(
+        display = "Bryant Bulldogs",
+        value = "2803",
+    ),
+    schema.Option(
+        display = "Bucknell Bison",
+        value = "2083",
+    ),
+    schema.Option(
+        display = "Buffalo Bulls",
+        value = "2084",
+    ),
+    schema.Option(
+        display = "Butler Bulldogs",
+        value = "2086",
+    ),
+    schema.Option(
+        display = "Cal Poly Mustangs",
+        value = "13",
+    ),
+    schema.Option(
+        display = "Cal State Bakersfield Roadrunners",
+        value = "2934",
+    ),
+    schema.Option(
+        display = "Cal State Fullerton Titans",
+        value = "2239",
+    ),
+    schema.Option(
+        display = "Cal State Northridge Matadors",
+        value = "2463",
+    ),
+    schema.Option(
+        display = "California Baptist Lancers",
+        value = "2856",
+    ),
+    schema.Option(
+        display = "California Golden Bears",
+        value = "25",
+    ),
+    schema.Option(
+        display = "Campbell Fighting Camels",
+        value = "2097",
+    ),
+    schema.Option(
+        display = "Canisius Golden Griffins",
+        value = "2099",
+    ),
+    schema.Option(
+        display = "Central Arkansas Bears",
+        value = "2110",
+    ),
+    schema.Option(
+        display = "Central Connecticut Blue Devils",
+        value = "2115",
+    ),
+    schema.Option(
+        display = "Central Michigan Chippewas",
+        value = "2117",
+    ),
+    schema.Option(
+        display = "Charleston Cougars",
+        value = "232",
+    ),
+    schema.Option(
+        display = "Charleston Southern Buccaneers",
+        value = "2127",
+    ),
+    schema.Option(
+        display = "Charlotte 49ers",
+        value = "2429",
+    ),
+    schema.Option(
+        display = "Chattanooga Mocs",
+        value = "236",
+    ),
+    schema.Option(
+        display = "Chicago State Cougars",
+        value = "2130",
+    ),
+    schema.Option(
+        display = "Cincinnati Bearcats",
+        value = "2132",
+    ),
+    schema.Option(
+        display = "Clemson Tigers",
+        value = "228",
+    ),
+    schema.Option(
+        display = "Cleveland State Vikings",
+        value = "325",
+    ),
+    schema.Option(
+        display = "Coastal Carolina Chanticleers",
+        value = "324",
+    ),
+    schema.Option(
+        display = "Colgate Raiders",
+        value = "2142",
+    ),
+    schema.Option(
+        display = "Colorado Buffaloes",
+        value = "38",
+    ),
+    schema.Option(
+        display = "Colorado State Rams",
+        value = "36",
+    ),
+    schema.Option(
+        display = "Columbia Lions",
+        value = "171",
+    ),
+    schema.Option(
+        display = "Coppin State Eagles",
+        value = "2154",
+    ),
+    schema.Option(
+        display = "Cornell Big Red",
+        value = "172",
+    ),
+    schema.Option(
+        display = "Creighton Bluejays",
+        value = "156",
+    ),
+    schema.Option(
+        display = "Dartmouth Big Green",
+        value = "159",
+    ),
+    schema.Option(
+        display = "Davidson Wildcats",
+        value = "2166",
+    ),
+    schema.Option(
+        display = "Dayton Flyers",
+        value = "2168",
+    ),
+    schema.Option(
+        display = "DePaul Blue Demons",
+        value = "305",
+    ),
+    schema.Option(
+        display = "Delaware Blue Hens",
+        value = "48",
+    ),
+    schema.Option(
+        display = "Delaware State Hornets",
+        value = "2169",
+    ),
+    schema.Option(
+        display = "Denver Pioneers",
+        value = "2172",
+    ),
+    schema.Option(
+        display = "Detroit Mercy Titans",
+        value = "2174",
+    ),
+    schema.Option(
+        display = "Drake Bulldogs",
+        value = "2181",
+    ),
+    schema.Option(
+        display = "Drexel Dragons",
+        value = "2182",
+    ),
+    schema.Option(
+        display = "Duke Blue Devils",
+        value = "150",
+    ),
+    schema.Option(
+        display = "Duquesne Dukes",
+        value = "2184",
+    ),
+    schema.Option(
+        display = "East Carolina Pirates",
+        value = "151",
+    ),
+    schema.Option(
+        display = "East Tennessee State Buccaneers",
+        value = "2193",
+    ),
+    schema.Option(
+        display = "Eastern Illinois Panthers",
+        value = "2197",
+    ),
+    schema.Option(
+        display = "Eastern Kentucky Colonels",
+        value = "2198",
+    ),
+    schema.Option(
+        display = "Eastern Michigan Eagles",
+        value = "2199",
+    ),
+    schema.Option(
+        display = "Eastern Washington Eagles",
+        value = "331",
+    ),
+    schema.Option(
+        display = "Elon Phoenix",
+        value = "2210",
+    ),
+    schema.Option(
+        display = "Evansville Purple Aces",
+        value = "339",
+    ),
+    schema.Option(
+        display = "Fairfield Stags",
+        value = "2217",
+    ),
+    schema.Option(
+        display = "Fairleigh Dickinson Knights",
+        value = "161",
+    ),
+    schema.Option(
+        display = "Florida A&M Rattlers",
+        value = "50",
+    ),
+    schema.Option(
+        display = "Florida Atlantic Owls",
+        value = "2226",
+    ),
+    schema.Option(
+        display = "Florida Gators",
+        value = "57",
+    ),
+    schema.Option(
+        display = "Florida Gulf Coast Eagles",
+        value = "526",
+    ),
+    schema.Option(
+        display = "Florida International Panthers",
+        value = "2229",
+    ),
+    schema.Option(
+        display = "Florida State Seminoles",
+        value = "52",
+    ),
+    schema.Option(
+        display = "Fordham Rams",
+        value = "2230",
+    ),
+    schema.Option(
+        display = "Fresno State Bulldogs",
+        value = "278",
+    ),
+    schema.Option(
+        display = "Furman Paladins",
+        value = "231",
+    ),
+    schema.Option(
+        display = "Gardner-Webb Runnin' Bulldogs",
+        value = "2241",
+    ),
+    schema.Option(
+        display = "George Mason Patriots",
+        value = "2244",
+    ),
+    schema.Option(
+        display = "George Washington Colonials",
+        value = "45",
+    ),
+    schema.Option(
+        display = "Georgetown Hoyas",
+        value = "46",
+    ),
+    schema.Option(
+        display = "Georgia Bulldogs",
+        value = "61",
+    ),
+    schema.Option(
+        display = "Georgia Southern Eagles",
+        value = "290",
+    ),
+    schema.Option(
+        display = "Georgia State Panthers",
+        value = "2247",
+    ),
+    schema.Option(
+        display = "Georgia Tech Yellow Jackets",
+        value = "59",
+    ),
+    schema.Option(
+        display = "Gonzaga Bulldogs",
+        value = "2250",
+    ),
+    schema.Option(
+        display = "Grambling Tigers",
+        value = "2755",
+    ),
+    schema.Option(
+        display = "Grand Canyon Lopes",
+        value = "2253",
+    ),
+    schema.Option(
+        display = "Green Bay Phoenix",
+        value = "2739",
+    ),
+    schema.Option(
+        display = "Hampton Pirates",
+        value = "2261",
+    ),
+    schema.Option(
+        display = "Hartford Hawks",
+        value = "42",
+    ),
+    schema.Option(
+        display = "Harvard Crimson",
+        value = "108",
+    ),
+    schema.Option(
+        display = "Hawai'i Rainbow Warriors",
+        value = "62",
+    ),
+    schema.Option(
+        display = "High Point Panthers",
+        value = "2272",
+    ),
+    schema.Option(
+        display = "Hofstra Pride",
+        value = "2275",
+    ),
+    schema.Option(
+        display = "Holy Cross Crusaders",
+        value = "107",
+    ),
+    schema.Option(
+        display = "Houston Christian Huskies",
+        value = "2277",
+    ),
+    schema.Option(
+        display = "Houston Cougars",
+        value = "248",
+    ),
+    schema.Option(
+        display = "Howard Bison",
+        value = "47",
+    ),
+    schema.Option(
+        display = "IUPUI Jaguars",
+        value = "85",
+    ),
+    schema.Option(
+        display = "Idaho State Bengals",
+        value = "304",
+    ),
+    schema.Option(
+        display = "Idaho Vandals",
+        value = "70",
+    ),
+    schema.Option(
+        display = "Illinois Fighting Illini",
+        value = "356",
+    ),
+    schema.Option(
+        display = "Illinois State Redbirds",
+        value = "2287",
+    ),
+    schema.Option(
+        display = "Incarnate Word Cardinals",
+        value = "2916",
+    ),
+    schema.Option(
+        display = "Indiana Hoosiers",
+        value = "84",
+    ),
+    schema.Option(
+        display = "Indiana State Sycamores",
+        value = "282",
+    ),
+    schema.Option(
+        display = "Iona Gaels",
+        value = "314",
+    ),
+    schema.Option(
+        display = "Iowa Hawkeyes",
+        value = "2294",
+    ),
+    schema.Option(
+        display = "Iowa State Cyclones",
+        value = "66",
+    ),
+    schema.Option(
+        display = "Jackson State Tigers",
+        value = "2296",
+    ),
+    schema.Option(
+        display = "Jacksonville Dolphins",
+        value = "294",
+    ),
+    schema.Option(
+        display = "Jacksonville State Gamecocks",
+        value = "55",
+    ),
+    schema.Option(
+        display = "James Madison Dukes",
+        value = "256",
+    ),
+    schema.Option(
+        display = "Kansas City Roos",
+        value = "140",
+    ),
+    schema.Option(
+        display = "Kansas Jayhawks",
+        value = "2305",
+    ),
+    schema.Option(
+        display = "Kansas State Wildcats",
+        value = "2306",
+    ),
+    schema.Option(
+        display = "Kennesaw State Owls",
+        value = "338",
+    ),
+    schema.Option(
+        display = "Kent State Golden Flashes",
+        value = "2309",
+    ),
+    schema.Option(
+        display = "Kentucky Wildcats",
+        value = "96",
+    ),
+    schema.Option(
+        display = "LSU Tigers",
+        value = "99",
+    ),
+    schema.Option(
+        display = "La Salle Explorers",
+        value = "2325",
+    ),
+    schema.Option(
+        display = "Lafayette Leopards",
+        value = "322",
+    ),
+    schema.Option(
+        display = "Lamar Cardinals",
+        value = "2320",
+    ),
+    schema.Option(
+        display = "Lehigh Mountain Hawks",
+        value = "2329",
+    ),
+    schema.Option(
+        display = "Liberty Flames",
+        value = "2335",
+    ),
+    schema.Option(
+        display = "Lipscomb Bisons",
+        value = "288",
+    ),
+    schema.Option(
+        display = "Little Rock Trojans",
+        value = "2031",
+    ),
+    schema.Option(
+        display = "Long Beach State Beach",
+        value = "299",
+    ),
+    schema.Option(
+        display = "Long Island University Sharks",
+        value = "112358",
+    ),
+    schema.Option(
+        display = "Longwood Lancers",
+        value = "2344",
+    ),
+    schema.Option(
+        display = "Louisiana Ragin' Cajuns",
+        value = "309",
+    ),
+    schema.Option(
+        display = "Louisiana Tech Bulldogs",
+        value = "2348",
+    ),
+    schema.Option(
+        display = "Louisville Cardinals",
+        value = "97",
+    ),
+    schema.Option(
+        display = "Loyola Chicago Ramblers",
+        value = "2350",
+    ),
+    schema.Option(
+        display = "Loyola Maryland Greyhounds",
+        value = "2352",
+    ),
+    schema.Option(
+        display = "Loyola Marymount Lions",
+        value = "2351",
+    ),
+    schema.Option(
+        display = "Maine Black Bears",
+        value = "311",
+    ),
+    schema.Option(
+        display = "Manhattan Jaspers",
+        value = "2363",
+    ),
+    schema.Option(
+        display = "Marist Red Foxes",
+        value = "2368",
+    ),
+    schema.Option(
+        display = "Marquette Golden Eagles",
+        value = "269",
+    ),
+    schema.Option(
+        display = "Marshall Thundering Herd",
+        value = "276",
+    ),
+    schema.Option(
+        display = "Maryland Terrapins",
+        value = "120",
+    ),
+    schema.Option(
+        display = "Maryland-Eastern Shore Hawks",
+        value = "2379",
+    ),
+    schema.Option(
+        display = "McNeese Cowboys",
+        value = "2377",
+    ),
+    schema.Option(
+        display = "Memphis Tigers",
+        value = "235",
+    ),
+    schema.Option(
+        display = "Mercer Bears",
+        value = "2382",
+    ),
+    schema.Option(
+        display = "Merrimack Warriors",
+        value = "2771",
+    ),
+    schema.Option(
+        display = "Miami (OH) Redhawks",
+        value = "193",
+    ),
+    schema.Option(
+        display = "Miami Hurricanes",
+        value = "2390",
+    ),
+    schema.Option(
+        display = "Michigan State Spartans",
+        value = "127",
+    ),
+    schema.Option(
+        display = "Michigan Wolverines",
+        value = "130",
+    ),
+    schema.Option(
+        display = "Middle Tennessee Blue Raiders",
+        value = "2393",
+    ),
+    schema.Option(
+        display = "Milwaukee Panthers",
+        value = "270",
+    ),
+    schema.Option(
+        display = "Minnesota Golden Gophers",
+        value = "135",
+    ),
+    schema.Option(
+        display = "Mississippi State Bulldogs",
+        value = "344",
+    ),
+    schema.Option(
+        display = "Mississippi Valley State Delta Devils",
+        value = "2400",
+    ),
+    schema.Option(
+        display = "Missouri State Bears",
+        value = "2623",
+    ),
+    schema.Option(
+        display = "Missouri Tigers",
+        value = "142",
+    ),
+    schema.Option(
+        display = "Monmouth Hawks",
+        value = "2405",
+    ),
+    schema.Option(
+        display = "Montana Grizzlies",
+        value = "149",
+    ),
+    schema.Option(
+        display = "Montana State Bobcats",
+        value = "147",
+    ),
+    schema.Option(
+        display = "Morehead State Eagles",
+        value = "2413",
+    ),
+    schema.Option(
+        display = "Morgan State Bears",
+        value = "2415",
+    ),
+    schema.Option(
+        display = "Mount St. Mary's Mountaineers",
+        value = "116",
+    ),
+    schema.Option(
+        display = "Murray State Racers",
+        value = "93",
+    ),
+    schema.Option(
+        display = "NC State Wolfpack",
+        value = "152",
+    ),
+    schema.Option(
+        display = "NJIT Highlanders",
+        value = "2885",
+    ),
+    schema.Option(
+        display = "Navy Midshipmen",
+        value = "2426",
+    ),
+    schema.Option(
+        display = "Nebraska Cornhuskers",
+        value = "158",
+    ),
+    schema.Option(
+        display = "Nevada Wolf Pack",
+        value = "2440",
+    ),
+    schema.Option(
+        display = "New Hampshire Wildcats",
+        value = "160",
+    ),
+    schema.Option(
+        display = "New Mexico Lobos",
+        value = "167",
+    ),
+    schema.Option(
+        display = "New Mexico State Aggies",
+        value = "166",
+    ),
+    schema.Option(
+        display = "New Orleans Privateers",
+        value = "2443",
+    ),
+    schema.Option(
+        display = "Niagara Purple Eagles",
+        value = "315",
+    ),
+    schema.Option(
+        display = "Nicholls Colonels",
+        value = "2447",
+    ),
+    schema.Option(
+        display = "Norfolk State Spartans",
+        value = "2450",
+    ),
+    schema.Option(
+        display = "North Alabama Lions",
+        value = "2453",
+    ),
+    schema.Option(
+        display = "North Carolina A&T Aggies",
+        value = "2448",
+    ),
+    schema.Option(
+        display = "North Carolina Central Eagles",
+        value = "2428",
+    ),
+    schema.Option(
+        display = "North Carolina Tar Heels",
+        value = "153",
+    ),
+    schema.Option(
+        display = "North Dakota Fighting Hawks",
+        value = "155",
+    ),
+    schema.Option(
+        display = "North Dakota State Bison",
+        value = "2449",
+    ),
+    schema.Option(
+        display = "North Florida Ospreys",
+        value = "2454",
+    ),
+    schema.Option(
+        display = "North Texas Mean Green",
+        value = "249",
+    ),
+    schema.Option(
+        display = "Northeastern Huskies",
+        value = "111",
+    ),
+    schema.Option(
+        display = "Northern Arizona Lumberjacks",
+        value = "2464",
+    ),
+    schema.Option(
+        display = "Northern Colorado Bears",
+        value = "2458",
+    ),
+    schema.Option(
+        display = "Northern Illinois Huskies",
+        value = "2459",
+    ),
+    schema.Option(
+        display = "Northern Iowa Panthers",
+        value = "2460",
+    ),
+    schema.Option(
+        display = "Northern Kentucky Norse",
+        value = "94",
+    ),
+    schema.Option(
+        display = "Northwestern State Demons",
+        value = "2466",
+    ),
+    schema.Option(
+        display = "Northwestern Wildcats",
+        value = "77",
+    ),
+    schema.Option(
+        display = "Notre Dame Fighting Irish",
+        value = "87",
+    ),
+    schema.Option(
+        display = "Oakland Golden Grizzlies",
+        value = "2473",
+    ),
+    schema.Option(
+        display = "Ohio Bobcats",
+        value = "195",
+    ),
+    schema.Option(
+        display = "Ohio State Buckeyes",
+        value = "194",
+    ),
+    schema.Option(
+        display = "Oklahoma Sooners",
+        value = "201",
+    ),
+    schema.Option(
+        display = "Oklahoma State Cowboys",
+        value = "197",
+    ),
+    schema.Option(
+        display = "Old Dominion Monarchs",
+        value = "295",
+    ),
+    schema.Option(
+        display = "Ole Miss Rebels",
+        value = "145",
+    ),
+    schema.Option(
+        display = "Omaha Mavericks",
+        value = "2437",
+    ),
+    schema.Option(
+        display = "Oral Roberts Golden Eagles",
+        value = "198",
+    ),
+    schema.Option(
+        display = "Oregon Ducks",
+        value = "2483",
+    ),
+    schema.Option(
+        display = "Oregon State Beavers",
+        value = "204",
+    ),
+    schema.Option(
+        display = "Pacific Tigers",
+        value = "279",
+    ),
+    schema.Option(
+        display = "Penn State Nittany Lions",
+        value = "213",
+    ),
+    schema.Option(
+        display = "Pennsylvania Quakers",
+        value = "219",
+    ),
+    schema.Option(
+        display = "Pepperdine Waves",
+        value = "2492",
+    ),
+    schema.Option(
+        display = "Pittsburgh Panthers",
+        value = "221",
+    ),
+    schema.Option(
+        display = "Portland Pilots",
+        value = "2501",
+    ),
+    schema.Option(
+        display = "Portland State Vikings",
+        value = "2502",
+    ),
+    schema.Option(
+        display = "Prairie View A&M Panthers",
+        value = "2504",
+    ),
+    schema.Option(
+        display = "Presbyterian Blue Hose",
+        value = "2506",
+    ),
+    schema.Option(
+        display = "Princeton Tigers",
+        value = "163",
+    ),
+    schema.Option(
+        display = "Providence Friars",
+        value = "2507",
+    ),
+    schema.Option(
+        display = "Purdue Boilermakers",
+        value = "2509",
+    ),
+    schema.Option(
+        display = "Purdue Fort Wayne Mastodons",
+        value = "2870",
+    ),
+    schema.Option(
+        display = "Quinnipiac Bobcats",
+        value = "2514",
+    ),
+    schema.Option(
+        display = "Radford Highlanders",
+        value = "2515",
+    ),
+    schema.Option(
+        display = "Rhode Island Rams",
+        value = "227",
+    ),
+    schema.Option(
+        display = "Rice Owls",
+        value = "242",
+    ),
+    schema.Option(
+        display = "Richmond Spiders",
+        value = "257",
+    ),
+    schema.Option(
+        display = "Rider Broncs",
+        value = "2520",
+    ),
+    schema.Option(
+        display = "Robert Morris Colonials",
+        value = "2523",
+    ),
+    schema.Option(
+        display = "Rutgers Scarlet Knights",
+        value = "164",
+    ),
+    schema.Option(
+        display = "SE Louisiana Lions",
+        value = "2545",
+    ),
+    schema.Option(
+        display = "SIU Edwardsville Cougars",
+        value = "2565",
+    ),
+    schema.Option(
+        display = "SMU Mustangs",
+        value = "2567",
+    ),
+    schema.Option(
+        display = "Sacramento State Hornets",
+        value = "16",
+    ),
+    schema.Option(
+        display = "Sacred Heart Pioneers",
+        value = "2529",
+    ),
+    schema.Option(
+        display = "Saint Joseph's Hawks",
+        value = "2603",
+    ),
+    schema.Option(
+        display = "Saint Louis Billikens",
+        value = "139",
+    ),
+    schema.Option(
+        display = "Saint Mary's Gaels",
+        value = "2608",
+    ),
+    schema.Option(
+        display = "Saint Peter's Peacocks",
+        value = "2612",
+    ),
+    schema.Option(
+        display = "Sam Houston Bearkats",
+        value = "2534",
+    ),
+    schema.Option(
+        display = "Samford Bulldogs",
+        value = "2535",
+    ),
+    schema.Option(
+        display = "San Diego State Aztecs",
+        value = "21",
+    ),
+    schema.Option(
+        display = "San Diego Toreros",
+        value = "301",
+    ),
+    schema.Option(
+        display = "San Francisco Dons",
+        value = "2539",
+    ),
+    schema.Option(
+        display = "San José State Spartans",
+        value = "23",
+    ),
+    schema.Option(
+        display = "Santa Clara Broncos",
+        value = "2541",
+    ),
+    schema.Option(
+        display = "Seattle U Redhawks",
+        value = "2547",
+    ),
+    schema.Option(
+        display = "Seton Hall Pirates",
+        value = "2550",
+    ),
+    schema.Option(
+        display = "Siena Saints",
+        value = "2561",
+    ),
+    schema.Option(
+        display = "South Alabama Jaguars",
+        value = "6",
+    ),
+    schema.Option(
+        display = "South Carolina Gamecocks",
+        value = "2579",
+    ),
+    schema.Option(
+        display = "South Carolina State Bulldogs",
+        value = "2569",
+    ),
+    schema.Option(
+        display = "South Carolina Upstate Spartans",
+        value = "2908",
+    ),
+    schema.Option(
+        display = "South Dakota Coyotes",
+        value = "233",
+    ),
+    schema.Option(
+        display = "South Dakota State Jackrabbits",
+        value = "2571",
+    ),
+    schema.Option(
+        display = "South Florida Bulls",
+        value = "58",
+    ),
+    schema.Option(
+        display = "Southeast Missouri State Redhawks",
+        value = "2546",
+    ),
+    schema.Option(
+        display = "Southern Illinois Salukis",
+        value = "79",
+    ),
+    schema.Option(
+        display = "Southern Jaguars",
+        value = "2582",
+    ),
+    schema.Option(
+        display = "Southern Miss Golden Eagles",
+        value = "2572",
+    ),
+    schema.Option(
+        display = "Southern Utah Thunderbirds",
+        value = "253",
+    ),
+    schema.Option(
+        display = "St. Bonaventure Bonnies",
+        value = "179",
+    ),
+    schema.Option(
+        display = "St. Francis (PA) Red Flash",
+        value = "2598",
+    ),
+    schema.Option(
+        display = "St. Francis Brooklyn Terriers",
+        value = "2597",
+    ),
+    schema.Option(
+        display = "St. John's Red Storm",
+        value = "2599",
+    ),
+    schema.Option(
+        display = "St. Thomas - Minnesota Tommies",
+        value = "2900",
+    ),
+    schema.Option(
+        display = "Stanford Cardinal",
+        value = "24",
+    ),
+    schema.Option(
+        display = "Stephen F. Austin Lumberjacks",
+        value = "2617",
+    ),
+    schema.Option(
+        display = "Stetson Hatters",
+        value = "56",
+    ),
+    schema.Option(
+        display = "Stonehill Skyhawks",
+        value = "284",
+    ),
+    schema.Option(
+        display = "Stony Brook Seawolves",
+        value = "2619",
+    ),
+    schema.Option(
+        display = "Syracuse Orange",
+        value = "183",
+    ),
+    schema.Option(
+        display = "TCU Horned Frogs",
+        value = "2628",
+    ),
+    schema.Option(
+        display = "Tarleton Texans",
+        value = "2627",
+    ),
+    schema.Option(
+        display = "Temple Owls",
+        value = "218",
+    ),
+    schema.Option(
+        display = "Tennessee State Tigers",
+        value = "2634",
+    ),
+    schema.Option(
+        display = "Tennessee Tech Golden Eagles",
+        value = "2635",
+    ),
+    schema.Option(
+        display = "Tennessee Volunteers",
+        value = "2633",
+    ),
+    schema.Option(
+        display = "Texas A&M Aggies",
+        value = "245",
+    ),
+    schema.Option(
+        display = "Texas A&M-Commerce Lions",
+        value = "2837",
+    ),
+    schema.Option(
+        display = "Texas A&M-Corpus Christi Islanders",
+        value = "357",
+    ),
+    schema.Option(
+        display = "Texas Longhorns",
+        value = "251",
+    ),
+    schema.Option(
+        display = "Texas Southern Tigers",
+        value = "2640",
+    ),
+    schema.Option(
+        display = "Texas State Bobcats",
+        value = "326",
+    ),
+    schema.Option(
+        display = "Texas Tech Red Raiders",
+        value = "2641",
+    ),
+    schema.Option(
+        display = "The Citadel Bulldogs",
+        value = "2643",
+    ),
+    schema.Option(
+        display = "Toledo Rockets",
+        value = "2649",
+    ),
+    schema.Option(
+        display = "Towson Tigers",
+        value = "119",
+    ),
+    schema.Option(
+        display = "Troy Trojans",
+        value = "2653",
+    ),
+    schema.Option(
+        display = "Tulane Green Wave",
+        value = "2655",
+    ),
+    schema.Option(
+        display = "Tulsa Golden Hurricane",
+        value = "202",
+    ),
+    schema.Option(
+        display = "UAB Blazers",
+        value = "5",
+    ),
+    schema.Option(
+        display = "UC Davis Aggies",
+        value = "302",
+    ),
+    schema.Option(
+        display = "UC Irvine Anteaters",
+        value = "300",
+    ),
+    schema.Option(
+        display = "UC Riverside Highlanders",
+        value = "27",
+    ),
+    schema.Option(
+        display = "UC San Diego Tritons",
+        value = "28",
+    ),
+    schema.Option(
+        display = "UC Santa Barbara Gauchos",
+        value = "2540",
+    ),
+    schema.Option(
+        display = "UCF Knights",
+        value = "2116",
+    ),
+    schema.Option(
+        display = "UCLA Bruins",
+        value = "26",
+    ),
+    schema.Option(
+        display = "UConn Huskies",
+        value = "41",
+    ),
+    schema.Option(
+        display = "UIC Flames",
+        value = "82",
+    ),
+    schema.Option(
+        display = "UL Monroe Warhawks",
+        value = "2433",
+    ),
+    schema.Option(
+        display = "UMBC Retrievers",
+        value = "2378",
+    ),
+    schema.Option(
+        display = "UMass Lowell River Hawks",
+        value = "2349",
+    ),
+    schema.Option(
+        display = "UMass Minutemen",
+        value = "113",
+    ),
+    schema.Option(
+        display = "UNC Asheville Bulldogs",
+        value = "2427",
+    ),
+    schema.Option(
+        display = "UNC Greensboro Spartans",
+        value = "2430",
+    ),
+    schema.Option(
+        display = "UNC Wilmington Seahawks",
+        value = "350",
+    ),
+    schema.Option(
+        display = "UNLV Rebels",
+        value = "2439",
+    ),
+    schema.Option(
+        display = "USC Trojans",
+        value = "30",
+    ),
+    schema.Option(
+        display = "UT Arlington Mavericks",
+        value = "250",
+    ),
+    schema.Option(
+        display = "UT Martin Skyhawks",
+        value = "2630",
+    ),
+    schema.Option(
+        display = "UT Rio Grande Valley Vaqueros",
+        value = "292",
+    ),
+    schema.Option(
+        display = "UTEP Miners",
+        value = "2638",
+    ),
+    schema.Option(
+        display = "UTSA Roadrunners",
+        value = "2636",
+    ),
+    schema.Option(
+        display = "Utah State Aggies",
+        value = "328",
+    ),
+    schema.Option(
+        display = "Utah Tech Trailblazers",
+        value = "3101",
+    ),
+    schema.Option(
+        display = "Utah Utes",
+        value = "254",
+    ),
+    schema.Option(
+        display = "Utah Valley Wolverines",
+        value = "3084",
+    ),
+    schema.Option(
+        display = "VCU Rams",
+        value = "2670",
+    ),
+    schema.Option(
+        display = "VMI Keydets",
+        value = "2678",
+    ),
+    schema.Option(
+        display = "Valparaiso Beacons",
+        value = "2674",
+    ),
+    schema.Option(
+        display = "Vanderbilt Commodores",
+        value = "238",
+    ),
+    schema.Option(
+        display = "Vermont Catamounts",
+        value = "261",
+    ),
+    schema.Option(
+        display = "Villanova Wildcats",
+        value = "222",
+    ),
+    schema.Option(
+        display = "Virginia Cavaliers",
+        value = "258",
+    ),
+    schema.Option(
+        display = "Virginia Tech Hokies",
+        value = "259",
+    ),
+    schema.Option(
+        display = "Wagner Seahawks",
+        value = "2681",
+    ),
+    schema.Option(
+        display = "Wake Forest Demon Deacons",
+        value = "154",
+    ),
+    schema.Option(
+        display = "Washington Huskies",
+        value = "264",
+    ),
+    schema.Option(
+        display = "Washington State Cougars",
+        value = "265",
+    ),
+    schema.Option(
+        display = "Weber State Wildcats",
+        value = "2692",
+    ),
+    schema.Option(
+        display = "West Virginia Mountaineers",
+        value = "277",
+    ),
+    schema.Option(
+        display = "Western Carolina Catamounts",
+        value = "2717",
+    ),
+    schema.Option(
+        display = "Western Illinois Leathernecks",
+        value = "2710",
+    ),
+    schema.Option(
+        display = "Western Kentucky Hilltoppers",
+        value = "98",
+    ),
+    schema.Option(
+        display = "Western Michigan Broncos",
+        value = "2711",
+    ),
+    schema.Option(
+        display = "Wichita State Shockers",
+        value = "2724",
+    ),
+    schema.Option(
+        display = "William & Mary Tribe",
+        value = "2729",
+    ),
+    schema.Option(
+        display = "Winthrop Eagles",
+        value = "2737",
+    ),
+    schema.Option(
+        display = "Wisconsin Badgers",
+        value = "275",
+    ),
+    schema.Option(
+        display = "Wofford Terriers",
+        value = "2747",
+    ),
+    schema.Option(
+        display = "Wright State Raiders",
+        value = "2750",
+    ),
+    schema.Option(
+        display = "Wyoming Cowboys",
+        value = "2751",
+    ),
+    schema.Option(
+        display = "Xavier Musketeers",
+        value = "2752",
+    ),
+    schema.Option(
+        display = "Yale Bulldogs",
+        value = "43",
+    ),
+    schema.Option(
+        display = "Youngstown State Penguins",
+        value = "2754",
+    ),
+]
 
 displayOptions = [
     schema.Option(
@@ -995,6 +2442,14 @@ def get_schema():
                 icon = "locationDot",
             ),
             schema.Dropdown(
+                id = "selectedTeam",
+                name = "Team Focus",
+                desc = "Only show scores for selected team.",
+                icon = "desktop",
+                default = teamOptions[0].value,
+                options = teamOptions,
+            ),
+            schema.Dropdown(
                 id = "conferenceType",
                 name = "Conference",
                 desc = "Which conference to display.",
@@ -1060,12 +2515,20 @@ def get_schema():
         ],
     )
 
-def get_scores(urls, instanceNumber, totalInstances):
+def get_scores(urls, instanceNumber, totalInstances, team):
     allscores = []
     for i, s in urls.items():
         data = get_cachable_data(s)
         decodedata = json.decode(data)
         allscores.extend(decodedata["events"])
+        if team != "all" and team != "":
+            newScores = []
+            for _, s in enumerate(allscores):
+                home = s["competitions"][0]["competitors"][0]["team"]["id"]
+                away = s["competitions"][0]["competitors"][1]["team"]["id"]
+                if home == team or away == team:
+                    newScores.append(s)
+            allscores = newScores
         all([i, allscores])
     if instanceNumber > totalInstances:
         for i in range(0, int(len(allscores))):
