@@ -85,7 +85,8 @@ def main(config):
     league = {LEAGUE: API}
     instanceNumber = int(config.get("instanceNumber", 1))
     totalInstances = int(config.get("instancesCount", 1))
-    scores = get_scores(league, instanceNumber, totalInstances)
+    selectedTeam = config.get("selectedTeam", "all")
+    scores = get_scores(league, instanceNumber, totalInstances, selectedTeam)
     if len(scores) > 0:
         displayType = config.get("displayType", "colors")
         displayTop = config.get("displayTop", "time")
@@ -500,6 +501,141 @@ def main(config):
     else:
         return []
 
+teamOptions = [
+    schema.Option(
+        display = "All Teams",
+        value = "all",
+    ),
+    schema.Option(
+        display = "Anaheim Ducks",
+        value = "ANA",
+    ),
+    schema.Option(
+        display = "Arizona Coyotes",
+        value = "ARI",
+    ),
+    schema.Option(
+        display = "Boston Bruins",
+        value = "BOS",
+    ),
+    schema.Option(
+        display = "Buffalo Sabres",
+        value = "BUF",
+    ),
+    schema.Option(
+        display = "Calgary Flames",
+        value = "CGY",
+    ),
+    schema.Option(
+        display = "Carolina Hurricanes",
+        value = "CAR",
+    ),
+    schema.Option(
+        display = "Chicago Blackhawks",
+        value = "CHI",
+    ),
+    schema.Option(
+        display = "Colorado Avalanche",
+        value = "COL",
+    ),
+    schema.Option(
+        display = "Columbus Blue Jackets",
+        value = "CBJ",
+    ),
+    schema.Option(
+        display = "Dallas Stars",
+        value = "DAL",
+    ),
+    schema.Option(
+        display = "Detroit Red Wings",
+        value = "DET",
+    ),
+    schema.Option(
+        display = "Edmonton Oilers",
+        value = "EDM",
+    ),
+    schema.Option(
+        display = "Florida Panthers",
+        value = "FLA",
+    ),
+    schema.Option(
+        display = "Los Angeles Kings",
+        value = "LA",
+    ),
+    schema.Option(
+        display = "Minnesota Wild",
+        value = "MIN",
+    ),
+    schema.Option(
+        display = "Montreal Canadiens",
+        value = "MTL",
+    ),
+    schema.Option(
+        display = "Nashville Predators",
+        value = "NSH",
+    ),
+    schema.Option(
+        display = "New Jersey Devils",
+        value = "NJ",
+    ),
+    schema.Option(
+        display = "New York Islanders",
+        value = "NYI",
+    ),
+    schema.Option(
+        display = "New York Rangers",
+        value = "NYR",
+    ),
+    schema.Option(
+        display = "Ottawa Senators",
+        value = "OTT",
+    ),
+    schema.Option(
+        display = "Philadelphia Flyers",
+        value = "PHI",
+    ),
+    schema.Option(
+        display = "Pittsburgh Penguins",
+        value = "PIT",
+    ),
+    schema.Option(
+        display = "San Jose Sharks",
+        value = "SJ",
+    ),
+    schema.Option(
+        display = "Seattle Kraken",
+        value = "SEA",
+    ),
+    schema.Option(
+        display = "St. Louis Blues",
+        value = "STL",
+    ),
+    schema.Option(
+        display = "Tampa Bay Lightning",
+        value = "TB",
+    ),
+    schema.Option(
+        display = "Toronto Maple Leafs",
+        value = "TOR",
+    ),
+    schema.Option(
+        display = "Vancouver Canucks",
+        value = "VAN",
+    ),
+    schema.Option(
+        display = "Vegas Golden Knights",
+        value = "VGK",
+    ),
+    schema.Option(
+        display = "Washington Capitals",
+        value = "WSH",
+    ),
+    schema.Option(
+        display = "Winnipeg Jets",
+        value = "WPG",
+    ),
+]
+
 displayOptions = [
     schema.Option(
         display = "Team Colors",
@@ -661,6 +797,14 @@ def get_schema():
                 icon = "locationDot",
             ),
             schema.Dropdown(
+                id = "selectedTeam",
+                name = "Team Focus",
+                desc = "Only show scores for selected team.",
+                icon = "desktop",
+                default = teamOptions[0].value,
+                options = teamOptions,
+            ),
+            schema.Dropdown(
                 id = "displayType",
                 name = "Display Type",
                 desc = "Style of how the scores are displayed.",
@@ -711,12 +855,20 @@ def get_schema():
         ],
     )
 
-def get_scores(urls, instanceNumber, totalInstances):
+def get_scores(urls, instanceNumber, totalInstances, team):
     allscores = []
     for i, s in urls.items():
         data = get_cachable_data(s)
         decodedata = json.decode(data)
         allscores.extend(decodedata["events"])
+        if team != "all" and team != "":
+            newScores = []
+            for _, s in enumerate(allscores):
+                home = s["competitions"][0]["competitors"][0]["team"]["abbreviation"]
+                away = s["competitions"][0]["competitors"][1]["team"]["abbreviation"]
+                if home == team or away == team:
+                    newScores.append(s)
+            allscores = newScores
         all([i, allscores])
     if instanceNumber > totalInstances:
         for i in range(0, int(len(allscores))):

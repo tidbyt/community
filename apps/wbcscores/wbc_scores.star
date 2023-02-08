@@ -89,7 +89,8 @@ def main(config):
     league = {LEAGUE: API}
     instanceNumber = int(config.get("instanceNumber", 1))
     totalInstances = int(config.get("instancesCount", 1))
-    scores = get_scores(league, instanceNumber, totalInstances)
+    selectedTeam = config.get("selectedTeam", "all")
+    scores = get_scores(league, instanceNumber, totalInstances, selectedTeam)
     if len(scores) > 0:
         displayType = config.get("displayType", "colors")
         pregameDisplay = config.get("pregameDisplay", "record")
@@ -504,6 +505,109 @@ def main(config):
     else:
         return []
 
+teamOptions = [
+    schema.Option(
+        display = "All Teams",
+        value = "all",
+    ),
+    schema.Option(
+        display = "Australia",
+        value = "AUS",
+    ),
+    schema.Option(
+        display = "Canada",
+        value = "CAN",
+    ),
+    schema.Option(
+        display = "China",
+        value = "CHN",
+    ),
+    schema.Option(
+        display = "Chinese Taipei",
+        value = "TPE",
+    ),
+    schema.Option(
+        display = "Colombia",
+        value = "COL",
+    ),
+    schema.Option(
+        display = "Cuba",
+        value = "CUB",
+    ),
+    schema.Option(
+        display = "Czech Republic",
+        value = "CZE",
+    ),
+    schema.Option(
+        display = "Dominican Republic",
+        value = "DOM",
+    ),
+    schema.Option(
+        display = "Dominican Republic",
+        value = "DOM",
+    ),
+    schema.Option(
+        display = "Great Britain",
+        value = "GBR",
+    ),
+    schema.Option(
+        display = "Israel",
+        value = "ISR",
+    ),
+    schema.Option(
+        display = "Israel",
+        value = "ISR",
+    ),
+    schema.Option(
+        display = "Italy",
+        value = "ITA",
+    ),
+    schema.Option(
+        display = "Japan",
+        value = "JPN",
+    ),
+    schema.Option(
+        display = "Korea",
+        value = "KOR",
+    ),
+    schema.Option(
+        display = "Mexico",
+        value = "MEX",
+    ),
+    schema.Option(
+        display = "Netherlands",
+        value = "NED",
+    ),
+    schema.Option(
+        display = "Nicaragua",
+        value = "NCA",
+    ),
+    schema.Option(
+        display = "Panama",
+        value = "PAN",
+    ),
+    schema.Option(
+        display = "Puerto Rico",
+        value = "PUR",
+    ),
+    schema.Option(
+        display = "TBD",
+        value = "TBD",
+    ),
+    schema.Option(
+        display = "TBD",
+        value = "TBD",
+    ),
+    schema.Option(
+        display = "United States",
+        value = "USA",
+    ),
+    schema.Option(
+        display = "Venezuela",
+        value = "VEN",
+    ),
+]
+
 displayOptions = [
     schema.Option(
         display = "Team Colors",
@@ -665,6 +769,14 @@ def get_schema():
                 icon = "locationDot",
             ),
             schema.Dropdown(
+                id = "selectedTeam",
+                name = "Team Focus",
+                desc = "Only show scores for selected team.",
+                icon = "desktop",
+                default = teamOptions[0].value,
+                options = teamOptions,
+            ),
+            schema.Dropdown(
                 id = "displayType",
                 name = "Display Type",
                 desc = "Style of how the scores are displayed.",
@@ -715,12 +827,20 @@ def get_schema():
         ],
     )
 
-def get_scores(urls, instanceNumber, totalInstances):
+def get_scores(urls, instanceNumber, totalInstances, team):
     allscores = []
     for i, s in urls.items():
         data = get_cachable_data(s)
         decodedata = json.decode(data)
         allscores.extend(decodedata["events"])
+        if team != "all" and team != "":
+            newScores = []
+            for _, s in enumerate(allscores):
+                home = s["competitions"][0]["competitors"][0]["team"]["abbreviation"]
+                away = s["competitions"][0]["competitors"][1]["team"]["abbreviation"]
+                if home == team or away == team:
+                    newScores.append(s)
+            allscores = newScores
         all([i, allscores])
     if instanceNumber > totalInstances:
         for i in range(0, int(len(allscores))):
