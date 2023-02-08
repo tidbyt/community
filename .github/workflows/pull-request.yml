@@ -26,6 +26,7 @@ jobs:
         id: targets
         run: ./.github/scripts/determine-targets.sh
         env:
+          OLD_COMMIT: ${{ github.event.pull_request.base.sha }}
           NEW_COMMIT: ${{ github.event.pull_request.head.sha }}
 
       - name: Check modified apps

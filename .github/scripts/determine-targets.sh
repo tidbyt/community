@@ -5,7 +5,6 @@ set -e
 # Determine base commit.
 echo "GITHUB_BASE_REF=${GITHUB_BASE_REF}"
 echo "GITHUB_HEAD_REF=${GITHUB_HEAD_REF}"
-OLD_COMMIT=$(git merge-base remotes/origin/${GITHUB_HEAD_REF} remotes/origin/${GITHUB_BASE_REF})
 
 # Determine targets.
 echo "OLD_COMMIT=${OLD_COMMIT}"
