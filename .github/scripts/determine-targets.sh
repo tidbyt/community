@@ -2,6 +2,9 @@
 
 set -e
 
+echo "GITHUB_BASE_REF=${GITHUB_BASE_REF}"
+echo "GITHUB_HEAD_REF=${GITHUB_HEAD_REF}"
+
 # Determine targets.
 OLD_COMMIT=$(git merge-base --fork-point remotes/origin/${GITHUB_BASE_REF})
 echo "OLD_COMMIT=${OLD_COMMIT}"
