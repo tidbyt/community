@@ -1,0 +1,8 @@
+---
+id: sf-next-muni
+name: SF Bart Muni
+summary: Show Muni & Bart Estimates
+desc: Shows the predicted arrival times for both Muni and Bart at the same time.
+author: Chris Hasson
+fileName: sf_bart_muni.star
+packageName: sfbartmuni
