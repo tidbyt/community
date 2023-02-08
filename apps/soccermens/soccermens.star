@@ -41,6 +41,7 @@ SHORTENED_WORDS = """
 def main(config):
     renderCategory = []
     selectedLeague = config.get("leagueOptions", DEFAULT_LEAGUE)
+
     # obtain the selected display order
     selectedDisplayOrder = config.get("displayOrder", DEFAULT_DISPLAY_ORDER)
     if selectedDisplayOrder == "home":
@@ -82,7 +83,7 @@ def main(config):
             secondTeamCompetitor = competition["competitors"][secondTeamIndex]
             firstTeam = competition["competitors"][firstTeamIndex]["team"]["abbreviation"]
             secondTeam = competition["competitors"][secondTeamIndex]["team"]["abbreviation"]
-            
+
             firstTeamName = competition["competitors"][firstTeamIndex]["team"]["shortDisplayName"]
             secondTeamName = competition["competitors"][secondTeamIndex]["team"]["shortDisplayName"]
 
@@ -115,7 +116,7 @@ def main(config):
                 secondTeamLogoURL = "https://a.espncdn.com/i/espn/misc_logos/500/ncaa_football.vresize.50.50.medium.1.png"
             else:
                 secondTeamLogoURL = competition["competitors"][secondTeamIndex]["team"]["logo"]
-            
+
             firstTeamLogo = get_logoType(firstTeamLogoURL if firstTeamLogoURL != "" else MISSING_LOGO)
             secondTeamLogo = get_logoType(secondTeamLogoURL if secondTeamLogoURL != "" else MISSING_LOGO)
             firstTeamLogoSize = get_logoSize()
@@ -169,7 +170,7 @@ def main(config):
             if gameStatus == "post":
                 gameTime = s["status"]["type"]["shortDetail"]
                 gameDate = s["date"]
-                convertedTime = time.parse_time(gameDate, format = "2006-01-02T15:04Z")##.in_location(timezone)
+                convertedTime = time.parse_time(gameDate, format = "2006-01-02T15:04Z")
                 if convertedTime.format("1/2") != now.format("1/2"):
                     # check to see if the game is today or not.   If not today, show date
                     # use settings to determine if INTL or US + time
@@ -229,7 +230,7 @@ def main(config):
                                             render.Box(width = 26, height = 12, child = render.Text(content = get_record(secondTeamScore), color = retroTextColor, font = retroFont)),
                                         ])),
                                     ],
-                                ),                       
+                                ),
                                 render.Stack(
                                     children = get_gametime_column(False, gameTime, timeColor, retroBackgroundColor, retroBorderColor),
                                 ),
@@ -360,7 +361,7 @@ def main(config):
                                                     render.Box(width = 24, height = 12, child = render.Text(content = get_record(firstTeamScore), color = firstTeamScoreColor, font = scoreFont)),
                                                 ])),
                                                 render.Box(width = 64, height = 12, color = "#222", child = render.Row(expanded = True, main_align = "start", cross_align = "center", children = [
-                                                    render.Box(width = 16, height = 16, child = render.Image(secondTeamLogo, width =  secondTeamLogoSize, height = secondTeamLogoSize)),
+                                                    render.Box(width = 16, height = 16, child = render.Image(secondTeamLogo, width = secondTeamLogoSize, height = secondTeamLogoSize)),
                                                     render.Box(width = 24, height = 12, child = render.Text(content = secondTeam[:3], color = secondTeamScoreColor, font = textFont)),
                                                     render.Box(width = 24, height = 12, child = render.Text(content = get_record(secondTeamScore), color = secondTeamScoreColor, font = scoreFont)),
                                                 ])),
@@ -702,7 +703,7 @@ def get_schema():
                 desc = "Select which team you want to show first",
                 icon = "desktop",
                 default = displayTeamOrderOptions[0].value,
-                options = displayTeamOrderOptions
+                options = displayTeamOrderOptions,
             ),
             schema.Dropdown(
                 id = "displayTimeColor",
