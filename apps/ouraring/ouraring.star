@@ -90,68 +90,68 @@ def sleepView(readiness_scores, activity_scores, sleep_scores):
     )
 
 def errorView(message):
-    return render.WrappedText(
+    return render.Root(child=render.WrappedText(
         content = message,
         width = 64,
         color = "#fff",
-    )
+    ))
 
 def main(config):
-    if "apikey" not in config:
-        return render.Root(child = errorView("no API key"))
+    apikey = config.get("apikey", "notset")
 
-    if "days" not in config:
-        return render.Root(child = errorView("no days"))
+    sleep_scores = [78,86,67,92,65,82,85]
+    activity_scores = [76,95,71,80,66,91,83]
+    readiness_scores = [62,73,68,70,88,79,61]
 
-    now = time.now()
-    from_date = (now - time.parse_duration(str(int(config["days"]) * 24) + "h")).format("2006-01-02")
-    to_date = now.format("2006-01-02")
+    if apikey != "notset":
+        days = config.get("days", "7");
 
-    sleep_data = None
-    sleep_dto = cache.get("oura_sleep_data")
-    if sleep_dto != None:
-        sleep_data = json.decode(sleep_dto)
-    else:
-        rep = http.get("https://api.ouraring.com/v2/usercollection/daily_sleep?start_date=" + from_date + "&" + "end_date=" + to_date, headers = {"Authorization": "Bearer " + config["apikey"]})
-        if rep.status_code != 200:
-            fail("Sleep request failed with status:", rep.status_code)
-        sleep_data = rep.json()
-        cache.set("oura_sleep_data", json.encode(sleep_data), ttl_seconds = 1800)
+        now = time.now()
+        from_date = (now - time.parse_duration(str(int(days) * 24) + "h")).format("2006-01-02")
+        to_date = now.format("2006-01-02")
 
-    activity_data = None
-    activity_dto = cache.get("oura_activity_data")
-    if activity_dto != None:
-        activity_data = json.decode(activity_dto)
-    else:
-        rep = http.get("https://api.ouraring.com/v2/usercollection/daily_activity?start_date=" + from_date + "&" + "end_date=" + to_date, headers = {"Authorization": "Bearer " + config["apikey"]})
-        if rep.status_code != 200:
-            fail("activity request failed with status:", rep.status_code)
-        activity_data = rep.json()
-        cache.set("oura_activity_data", json.encode(activity_data), ttl_seconds = 1800)
+        sleep_data = None
+        sleep_dto = cache.get("oura_sleep_data_" + apikey)
+        if sleep_dto != None:
+            sleep_data = json.decode(sleep_dto)
+        else:
+            rep = http.get("https://api.ouraring.com/v2/usercollection/daily_sleep?start_date=" + from_date + "&" + "end_date=" + to_date, headers = {"Authorization": "Bearer " + apikey})
+            if rep.status_code != 200:
+                return errorView("API error")
+            sleep_data = rep.json()
+            cache.set("oura_sleep_data_" + apikey, json.encode(sleep_data), ttl_seconds = 1800)
 
-    readiness_data = None
-    readiness_dto = cache.get("oura_readiness_data")
-    if readiness_dto != None:
-        readiness_data = json.decode(readiness_dto)
-    else:
-        rep = http.get("https://api.ouraring.com/v2/usercollection/daily_readiness?start_date=" + from_date + "&" + "end_date=" + to_date, headers = {"Authorization": "Bearer " + config["apikey"]})
-        if rep.status_code != 200:
-            fail("readiness request failed with status:", rep.status_code)
-        readiness_data = rep.json()
-        cache.set("oura_readiness_data", json.encode(readiness_data), ttl_seconds = 1800)
+        activity_data = None
+        activity_dto = cache.get("oura_activity_data_" + apikey)
+        if activity_dto != None:
+            activity_data = json.decode(activity_dto)
+        else:
+            rep = http.get("https://api.ouraring.com/v2/usercollection/daily_activity?start_date=" + from_date + "&" + "end_date=" + to_date, headers = {"Authorization": "Bearer " + apikey})
+            if rep.status_code != 200:
+                return errorView("API error")
+            activity_data = rep.json()
+            cache.set("oura_activity_data_" + apikey, json.encode(activity_data), ttl_seconds = 1800)
 
-    #Populate array of last 7 scores.
-    sleep_scores = []
-    for day in sleep_data["data"]:
-        sleep_scores.append(int(day["score"]))
+        readiness_data = None
+        readiness_dto = cache.get("oura_readiness_data_" + apikey)
+        if readiness_dto != None:
+            readiness_data = json.decode(readiness_dto)
+        else:
+            rep = http.get("https://api.ouraring.com/v2/usercollection/daily_readiness?start_date=" + from_date + "&" + "end_date=" + to_date, headers = {"Authorization": "Bearer " + apikey})
+            if rep.status_code != 200:
+                return errorView("API error")
+            readiness_data = rep.json()
+            cache.set("oura_readiness_data_" + apikey, json.encode(readiness_data), ttl_seconds = 1800)
 
-    activity_scores = []
-    for day in activity_data["data"]:
-        activity_scores.append(int(day["score"]))
+        #Populate array of last 7 scores.
+        for day in sleep_data["data"]:
+            sleep_scores.append(int(day["score"]))
 
-    readiness_scores = []
-    for day in readiness_data["data"]:
-        readiness_scores.append(int(day["score"]))
+        for day in activity_data["data"]:
+            activity_scores.append(int(day["score"]))
+
+        for day in readiness_data["data"]:
+            readiness_scores.append(int(day["score"]))
 
     return render.Root(
         delay = 2000,
@@ -173,6 +173,7 @@ def get_schema():
                 name = "Oura PAT",
                 desc = "Oura API Key. Get yours at cloud.ouraring.com",
                 icon = "user",
+                default = ""
             ),
             schema.Text(
                 id = "days",
