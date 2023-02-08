@@ -2,7 +2,7 @@
 Applet: SoccerMens
 Summary: Displays men's soccer scores for various leages and tournaments
 Description: Displays live and upcoming soccer scores from a data feed.   Heavily taken from the other sports score apps - @LunchBox8484 is the original.
-Author: jvivona
+Author: jvivona. Modified by Jamie Kerwick
 """
 
 load("cache.star", "cache")
@@ -20,6 +20,8 @@ MISSING_LOGO = "https://upload.wikimedia.org/wikipedia/commons/c/ca/1x1.png?src=
 
 DEFAULT_LEAGUE = "ger.1"
 API = "https://site.api.espn.com/apis/site/v2/sports/" + SPORT + "/"
+
+DEFAULT_DISPLAY_ORDER = "home"
 
 SHORTENED_WORDS = """
 {
@@ -39,10 +41,19 @@ SHORTENED_WORDS = """
 def main(config):
     renderCategory = []
     selectedLeague = config.get("leagueOptions", DEFAULT_LEAGUE)
+    # obtain the selected display order
+    selectedDisplayOrder = config.get("displayOrder", DEFAULT_DISPLAY_ORDER)
+    if selectedDisplayOrder == "home":
+        firstTeamIndex = 0
+        secondTeamIndex = 1
+    else:
+        firstTeamIndex = 1
+        secondTeamIndex = 0
 
     # we already need now value in multiple places - so just go ahead and get it and use it
     timezone = config.get("$tz", DEFAULT_TIMEZONE)
     now = time.now().in_location(timezone)
+    now = time.now()
 
     # calculate start and end date if we are set to use range of days
     date_range_search = ""
@@ -66,46 +77,54 @@ def main(config):
         for _, s in enumerate(scores):
             gameStatus = s["status"]["type"]["state"]
             competition = s["competitions"][0]
-            homeCompetitor = competition["competitors"][0]
-            home = competition["competitors"][0]["team"]["abbreviation"]
-            away = competition["competitors"][1]["team"]["abbreviation"]
-            homeTeamName = competition["competitors"][0]["team"]["shortDisplayName"]
-            awayTeamName = competition["competitors"][1]["team"]["shortDisplayName"]
-            homeColorCheck = competition["competitors"][0]["team"].get("color", "NO")
-            if homeColorCheck == "NO":
-                homePrimaryColor = "000000"
-            else:
-                homePrimaryColor = competition["competitors"][0]["team"]["color"]
 
-            awayColorCheck = competition["competitors"][1]["team"].get("color", "NO")
-            if awayColorCheck == "NO":
-                awayPrimaryColor = "000000"
-            else:
-                awayPrimaryColor = competition["competitors"][1]["team"]["color"]
+            firstTeamCompetitor = competition["competitors"][firstTeamIndex]
+            secondTeamCompetitor = competition["competitors"][secondTeamIndex]
+            firstTeam = competition["competitors"][firstTeamIndex]["team"]["abbreviation"]
+            secondTeam = competition["competitors"][secondTeamIndex]["team"]["abbreviation"]
+            
+            firstTeamName = competition["competitors"][firstTeamIndex]["team"]["shortDisplayName"]
+            secondTeamName = competition["competitors"][secondTeamIndex]["team"]["shortDisplayName"]
 
-            homeColor = get_background_color(displayType, homePrimaryColor)
-            awayColor = get_background_color(displayType, awayPrimaryColor)
-
-            homeLogoCheck = competition["competitors"][0]["team"].get("logo", "NO")
-            if homeLogoCheck == "NO":
-                homeLogoURL = "https://a.espncdn.com/i/espn/misc_logos/500/ncaa_football.vresize.50.50.medium.1.png"
+            firstTeamColorCheck = competition["competitors"][firstTeamIndex]["team"].get("color", "NO")
+            if firstTeamColorCheck == "NO":
+                firstTeamPrimaryColor = "000000"
             else:
-                homeLogoURL = competition["competitors"][0]["team"]["logo"]
+                firstTeamPrimaryColor = competition["competitors"][firstTeamIndex]["team"]["color"]
 
-            awayLogoCheck = competition["competitors"][1]["team"].get("logo", "NO")
-            if awayLogoCheck == "NO":
-                awayLogoURL = "https://a.espncdn.com/i/espn/misc_logos/500/ncaa_football.vresize.50.50.medium.1.png"
+            secondTeamColorCheck = competition["competitors"][secondTeamIndex]["team"].get("color", "NO")
+
+            if secondTeamColorCheck == "NO":
+                secondTeamPrimaryColor = "000000"
             else:
-                awayLogoURL = competition["competitors"][1]["team"]["logo"]
-            homeLogo = get_logoType(homeLogoURL if homeLogoURL != "" else MISSING_LOGO)
-            awayLogo = get_logoType(awayLogoURL if awayLogoURL != "" else MISSING_LOGO)
-            homeLogoSize = get_logoSize()
-            awayLogoSize = get_logoSize()
-            homeScore = ""
-            awayScore = ""
+                secondTeamPrimaryColor = competition["competitors"][secondTeamIndex]["team"]["color"]
+
+            firstTeamColor = get_background_color(displayType, firstTeamPrimaryColor)
+            secondTeamColor = get_background_color(displayType, secondTeamPrimaryColor)
+
+            firstTeamLogoCheck = competition["competitors"][firstTeamIndex]["team"].get("logo", "NO")
+
+            if firstTeamLogoCheck == "NO":
+                firstTeamLogoURL = "https://a.espncdn.com/i/espn/misc_logos/500/ncaa_football.vresize.50.50.medium.1.png"
+            else:
+                firstTeamLogoURL = competition["competitors"][firstTeamIndex]["team"]["logo"]
+
+            secondTeamLogoCheck = competition["competitors"][secondTeamIndex]["team"].get("logo", "NO")
+
+            if secondTeamLogoCheck == "NO":
+                secondTeamLogoURL = "https://a.espncdn.com/i/espn/misc_logos/500/ncaa_football.vresize.50.50.medium.1.png"
+            else:
+                secondTeamLogoURL = competition["competitors"][secondTeamIndex]["team"]["logo"]
+            
+            firstTeamLogo = get_logoType(firstTeamLogoURL if firstTeamLogoURL != "" else MISSING_LOGO)
+            secondTeamLogo = get_logoType(secondTeamLogoURL if secondTeamLogoURL != "" else MISSING_LOGO)
+            firstTeamLogoSize = get_logoSize()
+            secondTeamLogoSize = get_logoSize()
+            firstTeamScore = ""
+            secondTeamScore = ""
             gameTime = ""
-            homeScoreColor = "#fff"
-            awayScoreColor = "#fff"
+            firstTeamScoreColor = "#fff"
+            secondTeamScoreColor = "#fff"
             teamFont = "Dina_r400-6"
             scoreFont = "Dina_r400-6"
 
@@ -132,25 +151,25 @@ def main(config):
                         gameTimeFmt = convertedTime.format("3:04 PM")
                     gameTime = gameTimeFmt
                 checkSeries = competition.get("series", "NO")
-                checkRecord = homeCompetitor.get("records", "NO")
+                checkRecord = firstTeamCompetitor.get("records", "NO")
                 if checkRecord == "NO":
-                    homeScore = "0-0-0"
-                    awayScore = "0-0-0"
+                    firstTeamScore = "0-0-0"
+                    secondTeamScore = "0-0-0"
                 else:
-                    homeScore = competition["competitors"][0]["records"][0]["summary"]
-                    awayScore = competition["competitors"][1]["records"][0]["summary"]
+                    firstTeamScore = competition["competitors"][firstTeamIndex]["records"][0]["summary"]
+                    secondTeamScore = competition["competitors"][secondTeamIndex]["records"][0]["summary"]
 
             if gameStatus == "in":
                 gameTime = s["status"]["type"]["shortDetail"]
-                homeScore = competition["competitors"][0]["score"]
-                homeScoreColor = "#fff"
-                awayScore = competition["competitors"][1]["score"]
-                awayScoreColor = "#fff"
+                firstTeamScore = competition["competitors"][firstTeamIndex]["score"]
+                firstTeamScoreColor = "#fff"
+                secondTeamScore = competition["competitors"][secondTeamIndex]["score"]
+                secondTeamScoreColor = "#fff"
 
             if gameStatus == "post":
                 gameTime = s["status"]["type"]["shortDetail"]
                 gameDate = s["date"]
-                convertedTime = time.parse_time(gameDate, format = "2006-01-02T15:04Z").in_location(timezone)
+                convertedTime = time.parse_time(gameDate, format = "2006-01-02T15:04Z")##.in_location(timezone)
                 if convertedTime.format("1/2") != now.format("1/2"):
                     # check to see if the game is today or not.   If not today, show date
                     # use settings to determine if INTL or US + time
@@ -170,21 +189,21 @@ def main(config):
                         gameNoteArray = gameHeadline.split(" - ")
                         gameTime = str(gameNoteArray[1]) + " / " + gameTime
                 if gameName == "STATUS_POSTPONED":
-                    homeScore = ""
-                    awayScore = ""
+                    firstTeamScore = ""
+                    secondTeamScore = ""
                     gameTime = "Postponed"
                 else:
-                    homeScore = competition["competitors"][0]["score"]
-                    awayScore = competition["competitors"][1]["score"]
-                    if (int(homeScore) > int(awayScore)):
-                        homeScoreColor = "#ff0"
-                        awayScoreColor = "#fffc"
-                    elif (int(awayScore) > int(homeScore)):
-                        homeScoreColor = "#fffc"
-                        awayScoreColor = "#ff0"
+                    firstTeamScore = competition["competitors"][firstTeamIndex]["score"]
+                    secondTeamScore = competition["competitors"][secondTeamIndex]["score"]
+                    if (int(firstTeamScore) > int(secondTeamScore)):
+                        firstTeamScoreColor = "#ff0"
+                        secondTeamScoreColor = "#fffc"
+                    elif (int(secondTeamScore) > int(firstTeamScore)):
+                        firstTeamScoreColor = "#fffc"
+                        secondTeamScoreColor = "#ff0"
                     else:
-                        homeScoreColor = "#fff"
-                        awayScoreColor = "#fff"
+                        firstTeamScoreColor = "#fff"
+                        secondTeamScoreColor = "#fff"
 
             if displayType == "retro":
                 retroTextColor = "#ffe065"
@@ -201,16 +220,16 @@ def main(config):
                             children = [
                                 render.Column(
                                     children = [
-                                        render.Box(width = 64, height = 12, color = awayColor, child = render.Row(expanded = True, main_align = "start", cross_align = "center", children = [
-                                            render.Box(width = 40, height = 12, child = render.Text(content = get_team_name(awayTeamName), color = retroTextColor, font = retroFont)),
-                                            render.Box(width = 26, height = 12, child = render.Text(content = get_record(awayScore), color = retroTextColor, font = retroFont)),
+                                        render.Box(width = 64, height = 12, color = firstTeamColor, child = render.Row(expanded = True, main_align = "start", cross_align = "center", children = [
+                                            render.Box(width = 40, height = 12, child = render.Text(content = get_team_name(firstTeamName), color = retroTextColor, font = retroFont)),
+                                            render.Box(width = 26, height = 12, child = render.Text(content = get_record(firstTeamScore), color = retroTextColor, font = retroFont)),
                                         ])),
-                                        render.Box(width = 64, height = 12, color = homeColor, child = render.Row(expanded = True, main_align = "start", cross_align = "center", children = [
-                                            render.Box(width = 40, height = 12, child = render.Text(content = get_team_name(homeTeamName), color = retroTextColor, font = retroFont)),
-                                            render.Box(width = 26, height = 12, child = render.Text(content = get_record(homeScore), color = retroTextColor, font = retroFont)),
+                                        render.Box(width = 64, height = 12, color = secondTeamColor, child = render.Row(expanded = True, main_align = "start", cross_align = "center", children = [
+                                            render.Box(width = 40, height = 12, child = render.Text(content = get_team_name(secondTeamName), color = retroTextColor, font = retroFont)),
+                                            render.Box(width = 26, height = 12, child = render.Text(content = get_record(secondTeamScore), color = retroTextColor, font = retroFont)),
                                         ])),
                                     ],
-                                ),
+                                ),                       
                                 render.Stack(
                                     children = get_gametime_column(False, gameTime, timeColor, retroBackgroundColor, retroBorderColor),
                                 ),
@@ -237,24 +256,24 @@ def main(config):
                                     children = [
                                         render.Row(
                                             children = [
-                                                render.Box(width = 32, height = 24, color = awayColor, child = render.Row(expanded = True, main_align = "start", cross_align = "center", children = [
+                                                render.Box(width = 32, height = 24, color = firstTeamColor, child = render.Row(expanded = True, main_align = "start", cross_align = "center", children = [
                                                     render.Column(expanded = True, main_align = "start", cross_align = "center", children = [
                                                         render.Stack(children = [
-                                                            render.Box(width = 32, height = 24, child = render.Image(awayLogo, width = 32, height = 32)),
+                                                            render.Box(width = 32, height = 24, child = render.Image(firstTeamLogo, width = 32, height = 32)),
                                                             render.Column(expanded = True, main_align = "start", cross_align = "center", children = [
                                                                 render.Box(width = 32, height = 16),
-                                                                render.Box(width = 32, height = 8, color = "#000a", child = render.Text(content = awayScore, color = awayScoreColor, font = scoreFont)),
+                                                                render.Box(width = 32, height = 8, color = "#000a", child = render.Text(content = firstTeamScore, color = firstTeamScoreColor, font = scoreFont)),
                                                             ]),
                                                         ]),
                                                     ]),
                                                 ])),
-                                                render.Box(width = 32, height = 24, color = homeColor, child = render.Row(expanded = True, main_align = "start", cross_align = "center", children = [
+                                                render.Box(width = 32, height = 24, color = secondTeamColor, child = render.Row(expanded = True, main_align = "start", cross_align = "center", children = [
                                                     render.Column(expanded = True, main_align = "start", cross_align = "center", children = [
                                                         render.Stack(children = [
-                                                            render.Box(width = 32, height = 24, child = render.Image(homeLogo, width = 32, height = 32)),
+                                                            render.Box(width = 32, height = 24, child = render.Image(secondTeamLogo, width = 32, height = 32)),
                                                             render.Column(expanded = True, main_align = "start", cross_align = "center", children = [
                                                                 render.Box(width = 32, height = 16),
-                                                                render.Box(width = 32, height = 8, color = "#000a", child = render.Text(content = homeScore, color = homeScoreColor, font = scoreFont)),
+                                                                render.Box(width = 32, height = 8, color = "#000a", child = render.Text(content = secondTeamScore, color = secondTeamScoreColor, font = scoreFont)),
                                                             ]),
                                                         ]),
                                                     ]),
@@ -293,13 +312,13 @@ def main(config):
                                     children = [
                                         render.Column(
                                             children = [
-                                                render.Box(width = 64, height = 12, color = awayColor, child = render.Row(expanded = True, main_align = "start", cross_align = "center", children = [
-                                                    render.Image(awayLogo, width = 30, height = 30),
-                                                    render.Box(width = 34, height = 12, child = render.Text(content = awayScore, color = awayScoreColor, font = scoreFont)),
+                                                render.Box(width = 64, height = 12, color = firstTeamColor, child = render.Row(expanded = True, main_align = "start", cross_align = "center", children = [
+                                                    render.Image(firstTeamLogo, width = 30, height = 30),
+                                                    render.Box(width = 34, height = 12, child = render.Text(content = firstTeamScore, color = firstTeamScoreColor, font = scoreFont)),
                                                 ])),
-                                                render.Box(width = 64, height = 12, color = homeColor, child = render.Row(expanded = True, main_align = "start", cross_align = "center", children = [
-                                                    render.Image(homeLogo, width = 30, height = 30),
-                                                    render.Box(width = 34, height = 12, child = render.Text(content = homeScore, color = homeScoreColor, font = scoreFont)),
+                                                render.Box(width = 64, height = 12, color = secondTeamColor, child = render.Row(expanded = True, main_align = "start", cross_align = "center", children = [
+                                                    render.Image(secondTeamLogo, width = 30, height = 30),
+                                                    render.Box(width = 34, height = 12, child = render.Text(content = secondTeamScore, color = secondTeamScoreColor, font = scoreFont)),
                                                 ])),
                                             ],
                                         ),
@@ -336,14 +355,14 @@ def main(config):
                                         render.Column(
                                             children = [
                                                 render.Box(width = 64, height = 12, color = "#222", child = render.Row(expanded = True, main_align = "start", cross_align = "center", children = [
-                                                    render.Box(width = 16, height = 16, child = render.Image(awayLogo, width = awayLogoSize, height = awayLogoSize)),
-                                                    render.Box(width = 24, height = 12, child = render.Text(content = away[:3], color = awayScoreColor, font = textFont)),
-                                                    render.Box(width = 24, height = 12, child = render.Text(content = get_record(awayScore), color = awayScoreColor, font = scoreFont)),
+                                                    render.Box(width = 16, height = 16, child = render.Image(firstTeamLogo, width = firstTeamLogoSize, height = firstTeamLogoSize)),
+                                                    render.Box(width = 24, height = 12, child = render.Text(content = firstTeam[:3], color = firstTeamScoreColor, font = textFont)),
+                                                    render.Box(width = 24, height = 12, child = render.Text(content = get_record(firstTeamScore), color = firstTeamScoreColor, font = scoreFont)),
                                                 ])),
                                                 render.Box(width = 64, height = 12, color = "#222", child = render.Row(expanded = True, main_align = "start", cross_align = "center", children = [
-                                                    render.Box(width = 16, height = 16, child = render.Image(homeLogo, width = homeLogoSize, height = homeLogoSize)),
-                                                    render.Box(width = 24, height = 12, child = render.Text(content = home[:3], color = homeScoreColor, font = textFont)),
-                                                    render.Box(width = 24, height = 12, child = render.Text(content = get_record(homeScore), color = homeScoreColor, font = scoreFont)),
+                                                    render.Box(width = 16, height = 16, child = render.Image(secondTeamLogo, width =  secondTeamLogoSize, height = secondTeamLogoSize)),
+                                                    render.Box(width = 24, height = 12, child = render.Text(content = secondTeam[:3], color = secondTeamScoreColor, font = textFont)),
+                                                    render.Box(width = 24, height = 12, child = render.Text(content = get_record(secondTeamScore), color = secondTeamScoreColor, font = scoreFont)),
                                                 ])),
                                             ],
                                         ),
@@ -379,15 +398,15 @@ def main(config):
                                     children = [
                                         render.Column(
                                             children = [
-                                                render.Box(width = 64, height = 12, color = awayColor, child = render.Row(expanded = True, main_align = "start", cross_align = "center", children = [
-                                                    render.Box(width = 16, height = 16, child = render.Image(awayLogo, width = awayLogoSize, height = awayLogoSize)),
-                                                    render.Box(width = 24, height = 12, child = render.Text(content = away[:3], color = awayScoreColor, font = textFont)),
-                                                    render.Box(width = 24, height = 12, child = render.Text(content = get_record(awayScore), color = awayScoreColor, font = scoreFont)),
+                                                render.Box(width = 64, height = 12, color = firstTeamColor, child = render.Row(expanded = True, main_align = "start", cross_align = "center", children = [
+                                                    render.Box(width = 16, height = 16, child = render.Image(firstTeamLogo, width = firstTeamLogoSize, height = firstTeamLogoSize)),
+                                                    render.Box(width = 24, height = 12, child = render.Text(content = firstTeam[:3], color = firstTeamScoreColor, font = textFont)),
+                                                    render.Box(width = 24, height = 12, child = render.Text(content = get_record(firstTeamScore), color = firstTeamScoreColor, font = scoreFont)),
                                                 ])),
-                                                render.Box(width = 64, height = 12, color = homeColor, child = render.Row(expanded = True, main_align = "start", cross_align = "center", children = [
-                                                    render.Box(width = 16, height = 16, child = render.Image(homeLogo, width = homeLogoSize, height = homeLogoSize)),
-                                                    render.Box(width = 24, height = 12, child = render.Text(content = home[:3], color = homeScoreColor, font = textFont)),
-                                                    render.Box(width = 24, height = 12, child = render.Text(content = get_record(homeScore), color = homeScoreColor, font = scoreFont)),
+                                                render.Box(width = 64, height = 12, color = secondTeamColor, child = render.Row(expanded = True, main_align = "start", cross_align = "center", children = [
+                                                    render.Box(width = 16, height = 16, child = render.Image(secondTeamLogo, width = secondTeamLogoSize, height = secondTeamLogoSize)),
+                                                    render.Box(width = 24, height = 12, child = render.Text(content = secondTeam[:3], color = secondTeamScoreColor, font = textFont)),
+                                                    render.Box(width = 24, height = 12, child = render.Text(content = get_record(secondTeamScore), color = secondTeamScoreColor, font = scoreFont)),
                                                 ])),
                                             ],
                                         ),
@@ -504,6 +523,17 @@ displayOptions = [
     schema.Option(
         display = "Retro",
         value = "retro",
+    ),
+]
+
+displayTeamOrderOptions = [
+    schema.Option(
+        display = "Home Team First",
+        value = "home",
+    ),
+    schema.Option(
+        display = "Away Team First",
+        value = "away",
     ),
 ]
 
@@ -665,6 +695,14 @@ def get_schema():
                 icon = "desktop",
                 default = displayOptions[0].value,
                 options = displayOptions,
+            ),
+            schema.Dropdown(
+                id = "displayOrder",
+                name = "Team Display Order",
+                desc = "Select which team you want to show first",
+                icon = "desktop",
+                default = displayTeamOrderOptions[0].value,
+                options = displayTeamOrderOptions
             ),
             schema.Dropdown(
                 id = "displayTimeColor",
