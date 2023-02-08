@@ -60,8 +60,8 @@ def main(config):
 
     StopID1 = config.get("StopID_1", DEFAULT_STOPID1)
     if len(StopID1) < 7:
-	    StopID1 = DEFAULT_STOPID1
-	
+        StopID1 = DEFAULT_STOPID1
+
     objPredictions = GetTimes1(StopID1, apiKey)
 
     numPredictions = min(len(objPredictions["Predictions"]), 4)
