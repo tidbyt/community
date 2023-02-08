@@ -3,7 +3,7 @@ name: Build and Test
 on:
   pull_request:
     branches:
-      - "*"
+      - "**"
 
 jobs:
   check:
@@ -23,13 +23,15 @@ jobs:
 
       - name: Determine targets
         id: targets
-        run: |
-          git show-ref
-          echo ${GITHUB_BASE_REF}
-          echo ${GITHUB_HEAD_REF}
+        run: ./.github/scripts/determine-targets.sh
+        env:
+          BASE_SHA: ${{ github.event.pull_request.base.sha }}
+          HEAD_SHA: ${{ github.event.pull_request.head.sha }}
 
-      - name: Check all apps
-        run: pixlet check -r ./
+      - name: Check modified apps
+        run: ./.github/scripts/check-apps.sh
+        env:
+          TARGETS: "${{ steps.targets.outputs.targets }}"
 
       - name: Sanity check go embed
         run: go test tidbyt.dev/community/apps
