@@ -209,7 +209,7 @@ def main(config):
             else:
                 date_diff = get_local_time(config) - get_local_time(config)  # time.parse_time(time_of_next_sighting) - get_local_time(config)
 
-        days = math.floor(date_diff.hours / 24)
+        days = math.floor(date_diff.hours // 24)
         hours = math.floor(date_diff.hours - days * 24)
         minutes = math.floor(date_diff.minutes - (days * 24 * 60 + hours * 60))
         seconds_xml_valid_for = minutes * 60 + hours * 60 * 60 + days * 24 * 60 * 60
@@ -240,12 +240,14 @@ def main(config):
                 row3 += item.replace("Duration: ", "For ").replace("Maximum Elevation:", "Max").replace("Approach:", "from").replace("Departure:", "to").replace("minute", "min")
 
     if (found_sighting_to_display):
-        return get_display(location, row1, row2, row3)
+        return get_display(location, row1, row2, row3, config)
     else:
         return []
 
-def get_display(location, row1, row2, row3):
+def get_display(location, row1, row2, row3, config):
     return render.Root(
+        show_full_animation = True,
+        delay = int(config.get("scroll", 45)),
         child = render.Column(
             children = [
                 render.Column(
@@ -322,6 +324,21 @@ def get_schema():
         schema.Option(value = "0", display = "Always Display Next Sighting if known"),
     ]
 
+    scroll_speed_options = [
+        schema.Option(
+            display = "Slow Scroll",
+            value = "60",
+        ),
+        schema.Option(
+            display = "Medium Scroll",
+            value = "45",
+        ),
+        schema.Option(
+            display = "Fast Scroll",
+            value = "30",
+        ),
+    ]
+
     return schema.Schema(
         version = "1",
         fields = [
@@ -344,6 +361,14 @@ def get_schema():
                 icon = "userClock",
                 options = period_options,
                 default = period_options[0].value,
+            ),
+            schema.Dropdown(
+                id = "scroll",
+                name = "Scroll",
+                desc = "Scroll Speed",
+                icon = "stopwatch",
+                options = scroll_speed_options,
+                default = scroll_speed_options[0].value,
             ),
         ],
     )
