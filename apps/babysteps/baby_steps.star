@@ -163,7 +163,7 @@ def get_schema():
                 id = "scroll",
                 name = "Scroll",
                 desc = "Scroll Speed",
-                icon = "speed",
+                icon = "stopwatch",
                 options = scroll_speed_options,
                 default = scroll_speed_options[0].value,
             ),
