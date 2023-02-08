@@ -9,8 +9,10 @@ echo "BASE_SHA=${BASE_SHA}"
 echo "GITHUB_SHA=${GITHUB_SHA}"
 
 # Determine targets.
-echo "OLD_COMMIT=${BASE_SHA}"
-echo "NEW_COMMIT=${GITHUB_SHA}"
+OLD_COMMIT=${BASE_SHA}
+NEW_COMMIT=${GITHUB_SHA}
+echo "OLD_COMMIT=${OLD_COMMIT}"
+echo "NEW_COMMIT=${NEW_COMMIT}"
 TARGETS="$(pixlet community target-determinator --old ${OLD_COMMIT} --new ${NEW_COMMIT})"
 
 # Convert new lines to spaces. Maybe Pixlet should do this?
