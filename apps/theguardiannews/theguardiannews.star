@@ -44,6 +44,7 @@ def main(config):
 
     return render.Root(
         delay = 70,
+        show_full_animation = True,
         child = render.Column(
             children = [
                 render.Box(

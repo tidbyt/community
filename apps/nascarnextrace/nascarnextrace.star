@@ -79,6 +79,7 @@ def main(config):
         data_child = fade_child(NASCAR_DATA["Race_Name"], NASCAR_DATA["Track_Name"], "%s %s\nTV: %s" % (date_str, time_str, tv_str), text_color)
 
     return render.Root(
+        show_full_animation = True,
         child = render.Column(
             children = [
                 render.Box(
