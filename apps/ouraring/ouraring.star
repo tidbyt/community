@@ -90,7 +90,7 @@ def sleepView(readiness_scores, activity_scores, sleep_scores):
     )
 
 def errorView(message):
-    return render.Root(child=render.WrappedText(
+    return render.Root(child = render.WrappedText(
         content = message,
         width = 64,
         color = "#fff",
@@ -99,12 +99,12 @@ def errorView(message):
 def main(config):
     apikey = config.get("apikey", "notset")
 
-    sleep_scores = [78,86,67,92,65,82,85]
-    activity_scores = [76,95,71,80,66,91,83]
-    readiness_scores = [62,73,68,70,88,79,61]
+    sleep_scores = [78, 86, 67, 92, 65, 82, 85]
+    activity_scores = [76, 95, 71, 80, 66, 91, 83]
+    readiness_scores = [62, 73, 68, 70, 88, 79, 61]
 
     if apikey != "notset":
-        days = config.get("days", "7");
+        days = config.get("days", "7")
 
         now = time.now()
         from_date = (now - time.parse_duration(str(int(days) * 24) + "h")).format("2006-01-02")
@@ -173,7 +173,7 @@ def get_schema():
                 name = "Oura PAT",
                 desc = "Oura API Key. Get yours at cloud.ouraring.com",
                 icon = "user",
-                default = ""
+                default = "",
             ),
             schema.Text(
                 id = "days",
