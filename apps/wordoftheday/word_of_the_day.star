@@ -60,6 +60,7 @@ def main():
         )
 
     return render.Root(
+        show_full_animation = True,
         child = render.Column(
             children = [
                 render.Marquee(

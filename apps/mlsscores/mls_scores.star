@@ -81,7 +81,8 @@ def main(config):
     league = {LEAGUE: API}
     instanceNumber = int(config.get("instanceNumber", 1))
     totalInstances = int(config.get("instancesCount", 1))
-    scores = get_scores(league, instanceNumber, totalInstances)
+    selectedTeam = config.get("selectedTeam", "all")
+    scores = get_scores(league, instanceNumber, totalInstances, selectedTeam)
     if len(scores) > 0:
         displayType = config.get("displayType", "colors")
         displayTop = config.get("displayTop", "time")
@@ -209,11 +210,13 @@ def main(config):
                     gameTime = "Postponed"
                 else:
                     homeScore = competition["competitors"][0]["score"]
+                    homeWinner = competition["competitors"][0]["winner"]
                     awayScore = competition["competitors"][1]["score"]
-                    if (int(homeScore) > int(awayScore)):
+                    awayWinner = competition["competitors"][1]["winner"]
+                    if (int(homeScore) > int(awayScore) or homeWinner == True):
                         homeScoreColor = "#ff0"
                         awayScoreColor = "#fffc"
-                    elif (int(awayScore) > int(homeScore)):
+                    elif (int(awayScore) > int(homeScore) or awayWinner == True):
                         homeScoreColor = "#fffc"
                         awayScoreColor = "#ff0"
                     else:
@@ -499,6 +502,129 @@ def main(config):
     else:
         return []
 
+teamOptions = [
+    schema.Option(
+        display = "All Teams",
+        value = "all",
+    ),
+    schema.Option(
+        display = "Atlanta United FC",
+        value = "ATL",
+    ),
+    schema.Option(
+        display = "Austin FC",
+        value = "ATX",
+    ),
+    schema.Option(
+        display = "CF Montréal",
+        value = "MTL",
+    ),
+    schema.Option(
+        display = "Charlotte FC",
+        value = "CLT",
+    ),
+    schema.Option(
+        display = "Chicago Fire FC",
+        value = "CHI",
+    ),
+    schema.Option(
+        display = "Colorado Rapids",
+        value = "COL",
+    ),
+    schema.Option(
+        display = "Columbus Crew",
+        value = "CLB",
+    ),
+    schema.Option(
+        display = "D.C. United",
+        value = "DC",
+    ),
+    schema.Option(
+        display = "FC Cincinnati",
+        value = "CIN",
+    ),
+    schema.Option(
+        display = "FC Dallas",
+        value = "DAL",
+    ),
+    schema.Option(
+        display = "Houston Dynamo FC",
+        value = "HOU",
+    ),
+    schema.Option(
+        display = "Inter Miami CF",
+        value = "MIA",
+    ),
+    schema.Option(
+        display = "LA Galaxy",
+        value = "LA",
+    ),
+    schema.Option(
+        display = "LAFC",
+        value = "LAFC",
+    ),
+    schema.Option(
+        display = "Minnesota United FC",
+        value = "MIN",
+    ),
+    schema.Option(
+        display = "Nashville SC",
+        value = "NSH",
+    ),
+    schema.Option(
+        display = "New England Revolution",
+        value = "NE",
+    ),
+    schema.Option(
+        display = "New York City FC",
+        value = "NYC",
+    ),
+    schema.Option(
+        display = "New York Red Bulls",
+        value = "NY",
+    ),
+    schema.Option(
+        display = "Orlando City SC",
+        value = "ORL",
+    ),
+    schema.Option(
+        display = "Philadelphia Union",
+        value = "PHI",
+    ),
+    schema.Option(
+        display = "Portland Timbers",
+        value = "POR",
+    ),
+    schema.Option(
+        display = "Real Salt Lake",
+        value = "RSL",
+    ),
+    schema.Option(
+        display = "San Jose Earthquakes",
+        value = "SJ",
+    ),
+    schema.Option(
+        display = "Seattle Sounders FC",
+        value = "SEA",
+    ),
+    schema.Option(
+        display = "Sporting Kansas City",
+        value = "SKC",
+    ),
+    schema.Option(
+        display = "St. Louis CITY SC",
+        value = "STL",
+    ),
+    schema.Option(
+        display = "Toronto FC",
+        value = "TOR",
+    ),
+    schema.Option(
+        display = "Vancouver Whitecaps",
+        value = "VAN",
+    ),
+]
+
 displayOptions = [
     schema.Option(
         display = "Team Colors",
@@ -664,6 +790,14 @@ def get_schema():
                 icon = "locationDot",
             ),
             schema.Dropdown(
+                id = "selectedTeam",
+                name = "Team Focus",
+                desc = "Only show scores for selected team.",
+                icon = "desktop",
+                default = teamOptions[0].value,
+                options = teamOptions,
+            ),
+            schema.Dropdown(
                 id = "displayType",
                 name = "Display Type",
                 desc = "Style of how the scores are displayed.",
@@ -714,12 +848,20 @@ def get_schema():
         ],
     )
 
-def get_scores(urls, instanceNumber, totalInstances):
+def get_scores(urls, instanceNumber, totalInstances, team):
     allscores = []
     for i, s in urls.items():
         data = get_cachable_data(s)
         decodedata = json.decode(data)
         allscores.extend(decodedata["events"])
+        if team != "all" and team != "":
+            newScores = []
+            for _, s in enumerate(allscores):
+                home = s["competitions"][0]["competitors"][0]["team"]["abbreviation"]
+                away = s["competitions"][0]["competitors"][1]["team"]["abbreviation"]
+                if home == team or away == team:
+                    newScores.append(s)
+            allscores = newScores
         all([i, allscores])
     if instanceNumber > totalInstances:
         for i in range(0, int(len(allscores))):
