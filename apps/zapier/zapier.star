@@ -14,6 +14,8 @@ def main(config):
     secondary = config.str("secondary", "")
     alternate = config.str("alternate", "")
 
+    # revert me.
+
     notification_type = config.str("type", DEFAULT_TYPE)
     icon = MESSAGE_TYPES[notification_type]["icon"]
     alt_color = MESSAGE_TYPES[notification_type]["color"]
