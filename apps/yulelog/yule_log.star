@@ -15,6 +15,7 @@ load("render.star", "render")
 # https://www.pexels.com/license/
 
 def main():
+    # Revert me
     return render.Root(
         child = render.Image(src = base64.decode(ANIMATION)),
     )
