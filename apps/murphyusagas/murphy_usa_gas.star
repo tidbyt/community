@@ -10,6 +10,7 @@ Author: jvivona
 load("cache.star", "cache")
 load("encoding/json.star", "json")
 load("http.star", "http")
+load("humanize.star", "humanize")
 load("render.star", "render")
 load("schema.star", "schema")
 load("time.star", "time")
@@ -128,8 +129,8 @@ def get_schema():
 
 def get_stations(location):
     loc = json.decode(location) if location else json.decode(str(DEFAULT_LOCATION))
-    lat = loc["lat"]
-    lng = loc["lng"]
+    lat = humanize.float("#.##", float(loc["lat"]))
+    lng = humanize.float("#.##", float(loc["lng"]))
     station_list_cache_key = API_STATION_CACHE_KEY.format(lat, lng)
 
     #we need to consider caching the station data...  fix this!
