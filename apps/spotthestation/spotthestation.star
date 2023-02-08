@@ -90,6 +90,13 @@ def get_local_time(config):
     return local_time
 
 def get_local_offset(config):
+    """ Get Local Offset
+
+    Args:
+        config: Configuration Items to control how the app is displayed
+    Returns:
+        The the local offset based on your location
+    """
     timezone = json.decode(config.get("location", DEFAULT_LOCATION))["timezone"]
     local_time = time.now().in_location(timezone)
     offset = str(local_time).split(" ")
@@ -105,6 +112,13 @@ def get_local_offset(config):
         return time.parse_duration("+0h")
 
 def get_timestamp_from_item(item):
+    """ Get Timestamp from item
+
+    Args:
+        item: The item from the XML that has a timestamp
+    Returns:
+        an actual timestamp
+    """
     description = item.replace("\n", "").replace("\t", "").split("<br/>")
     item_date = description[0].replace("Date: ", "").split(" ")
     item_time = description[1].replace("Time: ", "").split(" ")
@@ -119,6 +133,14 @@ def get_timestamp_time(time, meridiem):
     return str(time[0]) + ":" + time[1]
 
 def main(config):
+    """ Main
+
+    Args:
+        config: Configuration Items to control how the app is displayed
+    Returns:
+        The display inforamtion for the Tidbyt
+    """
+
     #Defaults
     current_local_time = get_local_time(config)
     found_sighting_to_display = False
@@ -141,9 +163,7 @@ def main(config):
         iss_xml = http.get(ISS_FLYBY_XML_URL)
 
         #print("Going to spotthestation.nasa.gov to get XML")
-        if iss_xml.status_code != 200:
-            print("Error Getting ISS Flyby Data")
-        else:
+        if iss_xml.status_code == 200:
             iss_xml_body = iss_xml.body()
 
             #This XML Feed can have many sightings listed, both past and future
@@ -226,9 +246,8 @@ def main(config):
         description = "None"
         row1 = "Error getting Data from spotTheStation.nasa.gov"
     else:
-        description = description.split("<br/>")
         i = 0
-        for item in description:
+        for item in description.split("<br/>"):
             i += 1
             item = item.replace("\n", "").replace("\t", "")
 
@@ -272,10 +291,13 @@ def get_display(location, row1, row2, row3, config):
                                         render.Image(src = ISS_ICON2),
                                         render.Image(src = ISS_ICON),
                                         render.Image(src = ISS_ICON),
+                                        render.Image(src = ISS_ICON2),
                                         render.Image(src = ISS_ICON),
                                         render.Image(src = ISS_ICON),
+                                        render.Image(src = ISS_ICON2),
                                         render.Image(src = ISS_ICON),
                                         render.Image(src = ISS_ICON),
+                                        render.Image(src = ISS_ICON2),
                                         render.Image(src = ISS_ICON),
                                         render.Image(src = ISS_ICON),
                                         render.Image(src = ISS_ICON),
