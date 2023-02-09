@@ -1,7 +1,7 @@
 """
 Applet: Nightscout
 Summary: Shows Nightscout CGM Data
-Description: Displays Continuous Glucose Monitoring (CGM) blood sugar data from the Nightscout Open Source project (https://nightscout.github.io/). Will display blood sugar as mg/dL or mmol/L. Optionally display historical readings on a graph. Also a clock.
+Description: Displays Continuous Glucose Monitoring (CGM) blood sugar data from the Nightscout Open Source project (https://nightscout.github.io/). Will display blood sugar as mg/dL or mmol/L. Optionally display historical readings on a graph. Also a clock. (v2.2.3)
 Authors: Jeremy Tavener, Paul Murphy
 """
 
@@ -91,10 +91,12 @@ def main(config):
     show_clock = config.bool("show_clock", DEFAULT_SHOW_CLOCK)
     night_mode = config.bool("night_mode", DEFAULT_NIGHT_MODE)
 
-    if nightscout_id != None:
+    if nightscout_id != "":
         nightscout_data_json, status_code = get_nightscout_data(nightscout_id, nightscout_host, show_mgdl)
+        sample_data = False
     else:
         nightscout_data_json, status_code = EXAMPLE_DATA, 0
+        sample_data = True
 
     if status_code == 503:
         print("Page not found for nightscout ID '" + nightscout_id + "' - is this ID correct?")
@@ -113,26 +115,26 @@ def main(config):
     #sgv_current_mgdl = 420
     #print("show_mgdl:" + show_mgdl)
     if show_mgdl:
-        graph_height = int(str(config.get("mgdl_graph_height")))
-        normal_high = int(str(config.get("mgdl_normal_high")))
-        normal_low = int(str(config.get("mgdl_normal_low")))
-        urgent_high = int(str(config.get("mgdl_urgent_high")))
-        urgent_low = int(str(config.get("mgdl_urgent_low")))
+        graph_height = int(str(config.get("mgdl_graph_height", DEFAULT_GRAPH_HEIGHT)))
+        normal_high = int(str(config.get("mgdl_normal_high", DEFAULT_NORMAL_HIGH)))
+        normal_low = int(str(config.get("mgdl_normal_low", DEFAULT_NORMAL_LOW)))
+        urgent_high = int(str(config.get("mgdl_urgent_high", DEFAULT_URGENT_HIGH)))
+        urgent_low = int(str(config.get("mgdl_urgent_low", DEFAULT_URGENT_LOW)))
         str_current = str(int(sgv_current_mgdl))
 
         # Delta
         str_delta = str(sgv_delta)
-        if (sgv_delta >= 0):
+        if (int(sgv_delta) >= 0):
             str_delta = "+" + str_delta
 
         left_col_width = 27
         graph_width = 36
     else:
-        graph_height = int(float(config.get("mmol_graph_height")) * 18)
-        normal_high = int(float(config.get("mmol_normal_high")) * 18)
-        normal_low = int(float(config.get("mmol_normal_low")) * 18)
-        urgent_high = int(float(config.get("mmol_urgent_high")) * 18)
-        urgent_low = int(float(config.get("mmol_urgent_low")) * 18)
+        graph_height = int(float(config.get("mmol_graph_height", mgdl_to_mmol(DEFAULT_GRAPH_HEIGHT))) * 18)
+        normal_high = int(float(config.get("mmol_normal_high", mgdl_to_mmol(DEFAULT_NORMAL_HIGH))) * 18)
+        normal_low = int(float(config.get("mmol_normal_low", mgdl_to_mmol(DEFAULT_NORMAL_LOW))) * 18)
+        urgent_high = int(float(config.get("mmol_urgent_high", mgdl_to_mmol(DEFAULT_URGENT_HIGH))) * 18)
+        urgent_low = int(float(config.get("mmol_urgent_low", mgdl_to_mmol(DEFAULT_URGENT_LOW))) * 18)
 
         sgv_current = mgdl_to_mmol(sgv_current_mgdl)
         #sgv_delta = mgdl_to_mmol(sgv_delta_mgdl)
@@ -142,7 +144,7 @@ def main(config):
         str_delta = str(sgv_delta)
         if (str_delta == "0.0"):
             str_delta = "+0"
-        elif (sgv_delta > 0):
+        elif (int(sgv_delta) > 0):
             str_delta = "+" + str_delta
         print(str_delta)
         left_col_width = 27
@@ -164,7 +166,7 @@ def main(config):
         human_reading_ago = "1 min ago"
     else:
         human_reading_ago = str(reading_mins_ago) + " mins ago"
-
+    
     print(human_reading_ago)
 
     ago_dashes = "-" * reading_mins_ago
@@ -217,9 +219,7 @@ def main(config):
         color_graph_urgent_low = COLOR_NIGHT
         color_graph_lines = COLOR_NIGHT
         color_clock = COLOR_NIGHT
-
-    print(ago_dashes)
-
+        
     if show_clock:
         lg_clock = [
             render.Stack(
@@ -406,9 +406,8 @@ def main(config):
         ]
 
     if not show_graph:
-        return render.Root(
-            max_age = 120,
-            child = render.Box(
+        output = [
+            render.Box(
                 render.Row(
                     main_align = "space_evenly",
                     cross_align = "center",
@@ -423,8 +422,7 @@ def main(config):
                     ],
                 ),
             ),
-            delay = 500,
-        )
+        ]
     else:
         # high and low lines
         graph_plot = []
@@ -492,9 +490,8 @@ def main(config):
 
             min_time = max_time + 1
 
-        return render.Root(
-            max_age = 120,
-            child = render.Box(
+        output = [
+            render.Box(
                 render.Row(
                     main_align = "center",
                     cross_align = "start",
@@ -606,9 +603,42 @@ def main(config):
                     ],
                 ),
             ),
-            delay = 500,
-        )
+         ]
+    
+    if sample_data == True :
+        output = [
+            render.Stack(
+                children = [
+                    render.Row(
+                        children = output,
+                    ),
+                    render.Animation(
+                        children = [
+                            render.WrappedText(
+                                width = 64,
+                                align= "center",
+                                font = "10x20",
+                                color = "#f00",
+                                linespacing = -6,
+                                content = "SAMPLE DATA",
+                            ),
+                            render.Box(),
+                        ]
+                    ),
+                ]
+            )
+        ]
 
+#    print (output)
+    
+    return render.Root(
+        max_age = 120,
+        child = render.Row(
+                children = output,
+            ),
+        delay = 500,
+    )
+            
 def mg_mgdl_options(show_mgdl):
     if show_mgdl == "true":
         graph_height = DEFAULT_GRAPH_HEIGHT
@@ -833,7 +863,50 @@ ARROWS = {
 EXAMPLE_DATA = {
     "sgv_current": "85",
     "sgv_delta": "-2",
-    "latest_reading_date_string": time.now().format("2006-01-02T15:04:05.999999999Z07:00"),
+    "latest_reading_date_string": (time.now() - time.parse_duration("3m")).format("2006-01-02T15:04:05.999999999Z07:00"),
     "direction": "Flat",
-    "history": [(1658171112, 141), (1658170812, 133), (1658170512, 129), (1658170212, 125), (1658169912, 121), (1658169612, 116), (1658169312, 114), (1658169012, 109), (1658168712, 105), (1658168412, 103), (1658168112, 107), (1658167812, 114), (1658167512, 119), (1658167212, 123), (1658166912, 127), (1658166612, 126), (1658166312, 124), (1658166012, 108), (1658165712, 103), (1658165412, 100), (1658165112, 96), (1658164812, 93), (1658164512, 93), (1658164212, 95), (1658163911, 93), (1658163612, 92), (1658163311, 91), (1658163011, 87), (1658162712, 86), (1658162412, 87), (1658162112, 88), (1658161812, 87), (1658161512, 87), (1658161212, 85), (1658160912, 84), (1658160612, 83), (1658160312, 80), (1658160012, 83), (1658159712, 88), (1658159412, 90), (1658159111, 88), (1658158812, 87), (1658158512, 85)],
+    "history": [
+        ((time.now() - time.parse_duration("213m")).unix, 141),
+        ((time.now() - time.parse_duration("208m")).unix, 133),
+        ((time.now() - time.parse_duration("203m")).unix, 129),
+        ((time.now() - time.parse_duration("198m")).unix, 125),
+        ((time.now() - time.parse_duration("193m")).unix, 131),
+        ((time.now() - time.parse_duration("188m")).unix, 137),
+        ((time.now() - time.parse_duration("183m")).unix, 142),
+        ((time.now() - time.parse_duration("178m")).unix, 147),
+        ((time.now() - time.parse_duration("173m")).unix, 155),
+        ((time.now() - time.parse_duration("168m")).unix, 160),
+        ((time.now() - time.parse_duration("163m")).unix, 172),
+        ((time.now() - time.parse_duration("158m")).unix, 184),
+        ((time.now() - time.parse_duration("153m")).unix, 175),
+        ((time.now() - time.parse_duration("148m")).unix, 170),
+        ((time.now() - time.parse_duration("143m")).unix, 167),
+        ((time.now() - time.parse_duration("138m")).unix, 156),
+        ((time.now() - time.parse_duration("133m")).unix, 152),
+        ((time.now() - time.parse_duration("128m")).unix, 140),
+        ((time.now() - time.parse_duration("123m")).unix, 137),
+        ((time.now() - time.parse_duration("118m")).unix, 129),
+        ((time.now() - time.parse_duration("113m")).unix, 121),
+        ((time.now() - time.parse_duration("108m")).unix, 118),
+        ((time.now() - time.parse_duration("103m")).unix, 113),
+        ((time.now() - time.parse_duration("98m")).unix, 108),
+        ((time.now() - time.parse_duration("93m")).unix, 106),
+        ((time.now() - time.parse_duration("88m")).unix, 104),
+        ((time.now() - time.parse_duration("83m")).unix, 101),
+        ((time.now() - time.parse_duration("78m")).unix, 97),
+        ((time.now() - time.parse_duration("73m")).unix, 95),
+        ((time.now() - time.parse_duration("68m")).unix, 93),
+        ((time.now() - time.parse_duration("63m")).unix, 91),
+        ((time.now() - time.parse_duration("58m")).unix, 87),
+        ((time.now() - time.parse_duration("53m")).unix, 87),
+        ((time.now() - time.parse_duration("48m")).unix, 85),
+        ((time.now() - time.parse_duration("43m")).unix, 84),
+        ((time.now() - time.parse_duration("38m")).unix, 83),
+        ((time.now() - time.parse_duration("33m")).unix, 80),
+        ((time.now() - time.parse_duration("28m")).unix, 83),
+        ((time.now() - time.parse_duration("23m")).unix, 88),
+        ((time.now() - time.parse_duration("18m")).unix, 90),
+        ((time.now() - time.parse_duration("13m")).unix, 88),
+        ((time.now() - time.parse_duration("8m")).unix, 87),
+        ((time.now() - time.parse_duration("3m")).unix, 85)],
 }
