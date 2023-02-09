@@ -5,20 +5,36 @@ load("http.star", "http")
 load("render.star", "render")
 load("schema.star", "schema")
 
+ttls = 60
+
 def get_resp_stations():
-    url = "https://gbfs.citibikenyc.com/gbfs/en/station_information.json"
-    resp = http.get(url)
-    data = resp.json()["data"]
-    print("Response Stations: ", resp.status_code)
-    cache.set("", str(data))
+    data = cache.get("data_stations")
+    if not data:
+        print("Stations data not cached")
+        url = "https://gbfs.citibikenyc.com/gbfs/en/station_information.json"
+        resp = http.get(url)
+        data = resp.json()["data"]
+        print("Response Stations: ", resp.status_code)
+        cache.set("data_stations", json.encode(data), ttl_seconds = ttls)
+    else:
+        print("Station data cached")
+        data = json.decode(data)
+    print("Stations Data returning as", type(data))
     return data
 
 def get_resp_bikes():
-    url_bikes = "https://gbfs.citibikenyc.com/gbfs/en/station_status.json"
-    resp = http.get(url_bikes)
-    data = resp.json()["data"]["stations"]
-    print("Response Availability: ", resp.status_code)
-    cache.set("", str(data))
+    data = cache.get("data_bikes")
+    if not data:
+        print("Bike Data not cached")
+        url_bikes = "https://gbfs.citibikenyc.com/gbfs/en/station_status.json"
+        resp = http.get(url_bikes)
+        data = resp.json()["data"]["stations"]
+        print("Response Availability: ", resp.status_code)
+        cache.set("data_bikes", json.encode(data), ttl_seconds = ttls)
+    else:
+        print("Bikes data cached")
+        data = json.decode(data)
+    print("Bikes Data returning as", type(data))
     return data
 
 w = 15
