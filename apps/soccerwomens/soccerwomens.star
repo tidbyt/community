@@ -5,6 +5,8 @@ Description: Displays live and upcoming soccer scores from a data feed.   Heavil
 Author: jvivona
 """
 
+# thanks to @jesushairdo for the new option to be able to show home or away team first.  Let's be more international :-)
+
 load("cache.star", "cache")
 load("encoding/json.star", "json")
 load("http.star", "http")
@@ -22,6 +24,7 @@ DEFAULT_LEAGUE = "eng.w.1"
 API = "https://site.api.espn.com/apis/site/v2/sports/" + SPORT + "/"
 
 DEFAULT_TEAM_DISPLAY = "visitor"  # default to Visitor first, then Home - US order
+DEFAULT_DISPLAY_SPEED = "2000"
 
 SHORTENED_WORDS = """
 {
@@ -72,16 +75,16 @@ def main(config):
         date_range_search = "?dates=%s-%s" % (back_time.format("20060102"), (fwd_time.format("20060102")))
 
     league = {API: API + selectedLeague + "/scoreboard" + date_range_search}
-    instanceNumber = int(config.get("instanceNumber", 1))
-    totalInstances = int(config.get("instancesCount", 1))
-    scores = get_scores(league, instanceNumber, totalInstances)
+
+    scores = get_scores(league)
 
     if len(scores) > 0:
         displayType = config.get("displayType", "colors")
 
         #logoType = config.get("logoType", "primary")
         timeColor = config.get("displayTimeColor", "#FFF")
-        rotationSpeed = 15 // len(scores)
+
+        rotationSpeed = int(config.get("displaySpeed", DEFAULT_DISPLAY_SPEED))
 
         for _, s in enumerate(scores):
             gameStatus = s["status"]["type"]["state"]
@@ -432,7 +435,7 @@ def main(config):
                 )
 
         return render.Root(
-            delay = 2200 if totalInstances == 1 else int(rotationSpeed * 1000),
+            delay = rotationSpeed,
             show_full_animation = True,
             child = render.Column(
                 children = [
@@ -500,76 +503,6 @@ displayOptions = [
     schema.Option(
         display = "Retro",
         value = "retro",
-    ),
-]
-
-instancesCounts = [
-    schema.Option(
-        display = "1",
-        value = "1",
-    ),
-    schema.Option(
-        display = "2",
-        value = "2",
-    ),
-    schema.Option(
-        display = "3",
-        value = "3",
-    ),
-    schema.Option(
-        display = "4",
-        value = "4",
-    ),
-    schema.Option(
-        display = "5",
-        value = "5",
-    ),
-    schema.Option(
-        display = "6",
-        value = "6",
-    ),
-    schema.Option(
-        display = "7",
-        value = "7",
-    ),
-    schema.Option(
-        display = "8",
-        value = "8",
-    ),
-]
-
-instanceNumbers = [
-    schema.Option(
-        display = "First",
-        value = "1",
-    ),
-    schema.Option(
-        display = "Second",
-        value = "2",
-    ),
-    schema.Option(
-        display = "Third",
-        value = "3",
-    ),
-    schema.Option(
-        display = "Fourth",
-        value = "4",
-    ),
-    schema.Option(
-        display = "Fifth",
-        value = "5",
-    ),
-    schema.Option(
-        display = "Sixth",
-        value = "6",
-    ),
-    schema.Option(
-        display = "Seventh",
-        value = "7",
-    ),
-    schema.Option(
-        display = "Eighth",
-        value = "8",
     ),
 ]
 
@@ -653,6 +586,29 @@ displayFirstOptions = [
     ),
 ]
 
+displaySpeeds = [
+    schema.Option(
+        display = "1 second (fast)",
+        value = "1000",
+    ),
+    schema.Option(
+        display = "1.5 seconds",
+        value = "1500",
+    ),
+    schema.Option(
+        display = "2 seconds (medium)",
+        value = "2000",
+    ),
+    schema.Option(
+        display = "2.5 seconds",
+        value = "2500",
+    ),
+    schema.Option(
+        display = "3 seconds (slow)",
+        value = "3000",
+    ),
+]
+
 def get_schema():
     return schema.Schema(
         version = "1",
@@ -690,20 +646,12 @@ def get_schema():
                 options = colorOptions,
             ),
             schema.Dropdown(
-                id = "instancesCount",
-                name = "Total Instances of App",
-                desc = "Total Instance Count (# of times you have added this app to your Tidbyt).",
-                icon = "list",
-                default = instancesCounts[0].value,
-                options = instancesCounts,
-            ),
-            schema.Dropdown(
-                id = "instanceNumber",
-                name = "App Instance Number",
-                desc = "Select which instance of the app this is.",
-                icon = "hashtag",
-                default = instanceNumbers[0].value,
-                options = instanceNumbers,
+                id = "displaySpeed",
+                name = "Time to display each score",
+                desc = "Display time for each score",
+                icon = "stopwatch",
+                default = "2000",
+                options = displaySpeeds,
             ),
             schema.Toggle(
                 id = "is_24_hour_format",
@@ -758,7 +706,7 @@ def show_day_range(day_range):
     else:
         return []
 
-def get_scores(urls, instanceNumber, totalInstances):
+def get_scores(urls):
     allscores = []
     for i, s in urls.items():
         data = get_cachable_data(s)
@@ -766,14 +714,7 @@ def get_scores(urls, instanceNumber, totalInstances):
         allscores.extend(decodedata["events"])
         all([i, allscores])
 
-    #scoresLengthPerInstance = allScoresLength / totalInstances
-    if instanceNumber > totalInstances:
-        for i in range(0, int(len(allscores))):
-            allscores.pop()
-        return allscores
-    else:
-        thescores = [allscores[(i * len(allscores)) // totalInstances:((i + 1) * len(allscores)) // totalInstances] for i in range(totalInstances)]
-        return thescores[instanceNumber - 1]
+    return allscores
 
 def get_detail(gamedate):
     finddash = gamedate.find("-")
