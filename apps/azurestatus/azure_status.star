@@ -5,6 +5,8 @@ Description: Simple app that looks at the Azure Status RSS feed and shows the la
 Author: M0ntyP
 """
 
+load("cache.star", "cache")
+load("encoding/base64.star", "base64")
 load("http.star", "http")
 load("render.star", "render")
 load("time.star", "time")
@@ -12,18 +14,11 @@ load("xpath.star", "xpath")
 
 RSS_URL = "https://rssfeed.azure.status.microsoft/en-au/status/feed/"
 DEFAULT_TIMEZONE = "Australia/Adelaide"
-
-def get_rss_feed():
-    feed = http.get(RSS_URL)
-    if feed.status_code != 200:
-        print("Could not fetch RSS feed")
-        return None
-    return feed.body()
+CACHE_TIMEOUT = 1800  # 30 mins
 
 def main(config):
     timezone = config.get("$tz", DEFAULT_TIMEZONE)
-
-    feed = get_rss_feed()
+    feed = get_cachable_data(RSS_URL, CACHE_TIMEOUT)
     rss = xpath.loads(feed)
     channel = rss.query_node("//rss/channel")
     title = channel.query("/title")
@@ -74,3 +69,18 @@ def main(config):
             ],
         ),
     )
+
+def get_cachable_data(url, timeout):
+    key = base64.encode(url)
+
+    data = cache.get(key)
+    if data != None:
+        return base64.decode(data)
+
+    res = http.get(url = url)
+    if res.status_code != 200:
+        fail("request to %s failed with status code: %d - %s" % (url, res.status_code, res.body()))
+
+    cache.set(key, base64.encode(res.body()), ttl_seconds = timeout)
+
+    return res.body()
