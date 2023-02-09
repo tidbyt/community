@@ -24,6 +24,9 @@ jobs:
       - name: Determine targets
         id: targets
         run: ./.github/scripts/determine-targets.sh
+        env:
+          BASE_SHA: ${{ github.event.pull_request.base.sha }}
+          HEAD_SHA: ${{ github.event.pull_request.head.sha }}
 
       - name: Check modified apps
         run: ./.github/scripts/check-apps.sh
