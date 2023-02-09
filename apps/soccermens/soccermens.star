@@ -22,6 +22,7 @@ DEFAULT_LEAGUE = "ger.1"
 API = "https://site.api.espn.com/apis/site/v2/sports/" + SPORT + "/"
 
 DEFAULT_TEAM_DISPLAY = "visitor"  # default to Visitor first, then Home - US order
+DEFAULT_DISPLAY_SPEED = "2000"
 
 SHORTENED_WORDS = """
 {
@@ -84,7 +85,11 @@ def main(config):
 
         #logoType = config.get("logoType", "primary")
         timeColor = config.get("displayTimeColor", "#FFF")
-        rotationSpeed = 15 // len(scores)
+
+        if totalInstances == 1:
+            rotationSpeed = int(config.get("displaySpeed", DEFAULT_DISPLAY_SPEED))
+        else:
+            rotationSpeed = int((15 // len(scores)) * 1000)
 
         for _, s in enumerate(scores):
             gameStatus = s["status"]["type"]["state"]
@@ -435,7 +440,7 @@ def main(config):
                 )
 
         return render.Root(
-            delay = 2200 if totalInstances == 1 else int(rotationSpeed * 1000),
+            delay = rotationSpeed,
             show_full_animation = True,
             child = render.Column(
                 children = [
@@ -688,6 +693,29 @@ displayFirstOptions = [
     ),
 ]
 
+displaySpeeds = [
+    schema.Option(
+        display = "1 second (fast)",
+        value = "1000",
+    ),
+    schema.Option(
+        display = "1.5 seconds",
+        value = "1500",
+    ),
+    schema.Option(
+        display = "2 seconds (medium)",
+        value = "2000",
+    ),
+    schema.Option(
+        display = "2.5 seconds",
+        value = "2500",
+    ),
+    schema.Option(
+        display = "3 seconds (slow)",
+        value = "3000",
+    ),
+]
+
 def get_schema():
     return schema.Schema(
         version = "1",
@@ -723,6 +751,14 @@ def get_schema():
                 icon = "palette",
                 default = colorOptions[0].value,
                 options = colorOptions,
+            ),
+            schema.Dropdown(
+                id = "displaySpeed",
+                name = "Time to display each score",
+                desc = "Display time for each score",
+                icon = "stopwatch",
+                default = "2000",
+                options = displaySpeeds,
             ),
             schema.Dropdown(
                 id = "instancesCount",
