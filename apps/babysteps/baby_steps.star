@@ -116,6 +116,8 @@ def main(config):
                 get_progress_bar(7),
             ],
         ),
+        show_full_animation = True,
+        delay = int(config.get("scroll", 45)),
     )
 
 def get_schema():
@@ -131,6 +133,21 @@ def get_schema():
         schema.Option(value = "8", display = "Just Display a Step at Random"),
     ]
 
+    scroll_speed_options = [
+        schema.Option(
+            display = "Slow Scroll",
+            value = "60",
+        ),
+        schema.Option(
+            display = "Medium Scroll",
+            value = "45",
+        ),
+        schema.Option(
+            display = "Fast Scroll",
+            value = "30",
+        ),
+    ]
+
     return schema.Schema(
         version = "1",
         fields = [
@@ -141,6 +158,14 @@ def get_schema():
                 icon = "stairs",
                 options = step_options,
                 default = step_options[3].value,
+            ),
+            schema.Dropdown(
+                id = "scroll",
+                name = "Scroll",
+                desc = "Scroll Speed",
+                icon = "stopwatch",
+                options = scroll_speed_options,
+                default = scroll_speed_options[0].value,
             ),
         ],
     )
