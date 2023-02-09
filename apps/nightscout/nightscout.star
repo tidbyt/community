@@ -1,7 +1,7 @@
 """
 Applet: Nightscout
 Summary: Shows Nightscout CGM Data
-Description: Displays Continuous Glucose Monitoring (CGM) blood sugar data from the Nightscout Open Source project (https://nightscout.github.io/). Will display blood sugar as mg/dL or mmol/L. Optionally display historical readings on a graph. Also a clock. (v2.2.3)
+Description: Displays Continuous Glucose Monitoring (CGM) blood sugar data from the Nightscout Open Source project (https://nightscout.github.io/). Will display blood sugar as mg/dL or mmol/L. Optionally display historical readings on a graph. Also a clock. (v2.2.3).
 Authors: Jeremy Tavener, Paul Murphy
 """
 
@@ -166,7 +166,7 @@ def main(config):
         human_reading_ago = "1 min ago"
     else:
         human_reading_ago = str(reading_mins_ago) + " mins ago"
-    
+
     print(human_reading_ago)
 
     ago_dashes = "-" * reading_mins_ago
@@ -219,7 +219,7 @@ def main(config):
         color_graph_urgent_low = COLOR_NIGHT
         color_graph_lines = COLOR_NIGHT
         color_clock = COLOR_NIGHT
-        
+
     if show_clock:
         lg_clock = [
             render.Stack(
@@ -603,9 +603,9 @@ def main(config):
                     ],
                 ),
             ),
-         ]
-    
-    if sample_data == True :
+        ]
+
+    if sample_data == True:
         output = [
             render.Stack(
                 children = [
@@ -616,29 +616,29 @@ def main(config):
                         children = [
                             render.WrappedText(
                                 width = 64,
-                                align= "center",
+                                align = "center",
                                 font = "10x20",
                                 color = "#f00",
                                 linespacing = -6,
                                 content = "SAMPLE DATA",
                             ),
                             render.Box(),
-                        ]
+                        ],
                     ),
-                ]
-            )
+                ],
+            ),
         ]
 
-#    print (output)
-    
+    #    print (output)
+
     return render.Root(
         max_age = 120,
         child = render.Row(
-                children = output,
-            ),
+            children = output,
+        ),
         delay = 500,
     )
-            
+
 def mg_mgdl_options(show_mgdl):
     if show_mgdl == "true":
         graph_height = DEFAULT_GRAPH_HEIGHT
@@ -908,5 +908,6 @@ EXAMPLE_DATA = {
         ((time.now() - time.parse_duration("18m")).unix, 90),
         ((time.now() - time.parse_duration("13m")).unix, 88),
         ((time.now() - time.parse_duration("8m")).unix, 87),
-        ((time.now() - time.parse_duration("3m")).unix, 85)],
+        ((time.now() - time.parse_duration("3m")).unix, 85),
+    ],
 }
