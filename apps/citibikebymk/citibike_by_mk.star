@@ -4,15 +4,22 @@ load("http.star", "http")
 load("render.star", "render")
 load("schema.star", "schema")
 
-url_stat = "https://gbfs.citibikenyc.com/gbfs/en/station_information.json"
-url_bikes = "https://gbfs.citibikenyc.com/gbfs/en/station_status.json"
-resp = http.get(url_bikes)
-resp_stat = http.get(url_stat)
-data = resp.json()["data"]["stations"]
-data_stat = resp_stat.json()["data"]
+def get_resp_stations():
+    url = "https://gbfs.citibikenyc.com/gbfs/en/station_information.json"
+    resp = http.get(url)
+    data = resp.json()["data"]
+    print("Response Stations: ", resp.status_code)
+    cache.set("", str(data))
+    return data
 
-print("Response Availability: ", resp.status_code)
-print("Response Stations: ", resp_stat.status_code)
+def get_resp_bikes():
+    url_bikes = "https://gbfs.citibikenyc.com/gbfs/en/station_status.json"
+    resp = http.get(url_bikes)
+    data = resp.json()["data"]["stations"]
+
+    print("Response Availability: ", resp.status_code)
+    cache.set("", str(data))
+    return data
 
 w = 15
 h = int(w * 0.75)
