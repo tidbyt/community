@@ -2,7 +2,7 @@
 id: nba-scores
 name: NBA Scores
 summary: NBA basketball scores
-desc: ***UPDATE*** Creating multiple app instances is no longer necessary! Just install once (remove any other instances), and you can set the rotation speed of scores in the settings. Also added support for showing a singular team.
+desc: UPDATE: Creating multiple app instances is no longer necessary! Just install once (remove any other instances), and you can set the rotation speed of scores in the settings. Also added support for showing a singular team.
 author: LunchBox8484
 fileName: nba_scores.star
 packageName: nbascores
