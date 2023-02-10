@@ -1,0 +1,8 @@
+---
+id: sky-news
+name: Sky News
+summary: Latest news
+desc: The current top story (and a short blurb) from SkyNews.com.
+author: meejle
+fileName: skynews.star
+packageName: skynews

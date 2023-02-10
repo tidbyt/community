@@ -248,6 +248,7 @@ def main(config):
             stages = rep.json()  # Will it just let me do this?
             cache.set("stages", json.encode(stages), 3600 * 2)
 
+
     if (failed):
         return generateErrorFrame("API error!\nError code %d" % (failed or -1))
 

@@ -1,0 +1,8 @@
+---
+id: onthisday
+name: On This Day
+summary: Events from today
+desc: Displays events that happened on today's date.
+author: Andrew Hefele
+fileName: onthisday.star
+packageName: onthisday
