@@ -2,7 +2,7 @@
 id: ncaab-scores
 name: NCAAB Scores
 summary: NCAAB Baseball scores
-desc: UPDATE: Creating multiple app instances is no longer necessary! Just install once (remove any other instances), and you can set the rotation speed of scores in the settings. Also added support for showing a singular team.
+desc: Creating multiple app instances is no longer necessary. Just install once and remove any other instances. You can set the rotation speed of scores in the settings.
 author: LunchBox8484
 fileName: ncaab_scores.star
 packageName: ncaabscores
