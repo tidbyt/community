@@ -14,8 +14,7 @@ load("time.star", "time")
 def main():
     # seed the RNG with a new value every 15 seconds
     random.seed(time.now().unix // 15)
-
-    owl_index = random.number(0, len(OWL_GIFS))
+    owl_index = random.number(0, len(OWL_GIFS) - 1)
     return render.Root(
         child = render.Box(
             width = 64,
