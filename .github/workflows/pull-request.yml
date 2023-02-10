@@ -3,13 +3,15 @@ name: Build and Test
 on:
   pull_request:
     branches:
-      - "*"
+      - "**"
 
 jobs:
   check:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
 
       - name: Set up Go
         uses: actions/setup-go@v3
@@ -19,8 +21,17 @@ jobs:
       - name: Setup build agent
         run: ./.github/scripts/setup.sh
 
-      - name: Check all apps
-        run: pixlet check -r ./
+      - name: Determine targets
+        id: targets
+        run: ./.github/scripts/determine-targets.sh
+        env:
+          BASE_SHA: ${{ github.event.pull_request.base.sha }}
+          HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+
+      - name: Check modified apps
+        run: ./.github/scripts/check-apps.sh
+        env:
+          TARGETS: "${{ steps.targets.outputs.targets }}"
 
       - name: Sanity check go embed
         run: go test tidbyt.dev/community/apps
