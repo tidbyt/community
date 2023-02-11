@@ -1,0 +1,8 @@
+---
+id: spanish-wotd
+name: Spanish WotD
+summary: Spanish Word Del Dia
+desc: Displays the spanish translation of the Merriam Websters word of the day.
+author: logancornelius
+fileName: spanish_wotd.star
+packageName: spanishwotd

@@ -31,17 +31,60 @@ def main(config):
 
     conditions = station["lastData"]
 
-    temp = "%d°" % conditions["tempf"]
-    humidity = "%d%%" % conditions["humidity"]
-    windSpeed = "%dmph" % conditions["windspeedmph"]
-    windDirection = wind_direction(conditions["winddir"])
-    windSpeed = "%s %s" % (windSpeed, windDirection)
-    uv = "UV %d" % conditions["uv"]
+    temp = "N/A"
+    humidity = "N/A"
+    uv = None
+    windInfo = None
+
+    if config.get("temp_sensor_index", None) == "tempSensor1":
+        if "tempf" in conditions.keys():
+            temp = "%d°" % conditions["tempf"]
+        elif "temp1f" in conditions.keys():
+            temp = "%d°" % conditions["temp1f"]
+    elif config.get("temp_sensor_index", None) == "tempSensor2":
+        if "temp2f" in conditions.keys():
+            temp = "%d°" % conditions["temp2f"]
+    elif config.get("temp_sensor_index", None) == "tempSensorInside":
+        if "tempinf" in conditions.keys():
+            temp = "%d°" % conditions["tempinf"]
+
+    if config.get("humidity_sensor_index", None) == "humiditySensor1":
+        if "humidity" in conditions.keys():
+            humidity = "%d%%" % conditions["humidity"]
+        elif "humidity1" in conditions.keys():
+            humidity = "%d%%" % conditions["humidity1"]
+    elif config.get("humidity_sensor_index", None) == "humiditySensor2":
+        if "humidity2" in conditions.keys():
+            humidity = "%d%%" % conditions["humidity2"]
+    elif config.get("humidity_sensor_index", None) == "humiditySensorInside":
+        if "humidityin" in conditions.keys():
+            humidity = "%d%%" % conditions["humidityin"]
+
+    if "windspeedmph" in conditions.keys():
+        windSpeed = "%dmph" % conditions["windspeedmph"]
+        windDirection = wind_direction(conditions["winddir"])
+        windInfo = "%s %s" % (windSpeed, windDirection)
+
+    if "uv" in conditions.keys():
+        uv = "UV %d" % conditions["uv"]
+
     stationName = station["info"]["name"]
 
     title = config.get("title", None)
     if is_string_blank(title):
         title = stationName
+
+    uvChild = None
+    windInfoChild = None
+    if uv:
+        uvChild = render.Text(
+            content = uv,
+            color = "#ff0",
+        )
+    if windInfo:
+        windInfoChild = render.Text(
+            content = windInfo,
+        )
 
     return render.Root(
         delay = 500,
@@ -74,10 +117,7 @@ def main(config):
                                 content = humidity,
                                 color = "#66f",
                             ),
-                            render.Text(
-                                content = uv,
-                                color = "#ff0",
-                            ),
+                            uvChild,
                         ],
                     ),
                     render.Row(
@@ -85,9 +125,7 @@ def main(config):
                         main_align = "center",
                         children = [
                             render.Box(width = 2, height = 1),
-                            render.Text(
-                                content = windSpeed,
-                            ),
+                            windInfoChild,
                         ],
                     ),
                 ],
@@ -122,6 +160,48 @@ def get_schema():
                 name = "Station ID",
                 desc = "Your Ambient Weather station MAC address.",
                 icon = "temperatureHalf",
+            ),
+            schema.Dropdown(
+                id = "temp_sensor_index",
+                name = "Temperature Sensor",
+                desc = "Choose which Temperature sensor to show.",
+                icon = "list",
+                default = "tempSensor1",
+                options = [
+                    schema.Option(
+                        display = "Inside",
+                        value = "tempSensorInside",
+                    ),
+                    schema.Option(
+                        display = "Sensor 1",
+                        value = "tempSensor1",
+                    ),
+                    schema.Option(
+                        display = "Sensor 2",
+                        value = "tempSensor2",
+                    ),
+                ],
+            ),
+            schema.Dropdown(
+                id = "humidity_sensor_index",
+                name = "Humidity Sensor",
+                desc = "Choose which Humidity sensor to show.",
+                icon = "list",
+                default = "humiditySensor1",
+                options = [
+                    schema.Option(
+                        display = "Inside",
+                        value = "humiditySensorInside",
+                    ),
+                    schema.Option(
+                        display = "Sensor 1",
+                        value = "humiditySensor1",
+                    ),
+                    schema.Option(
+                        display = "Sensor 2",
+                        value = "humiditySensor2",
+                    ),
+                ],
             ),
         ],
     )

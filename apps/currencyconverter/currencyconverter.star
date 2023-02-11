@@ -9,13 +9,14 @@ load("cache.star", "cache")
 load("encoding/base64.star", "base64")
 load("encoding/json.star", "json")
 load("http.star", "http")
+load("humanize.star", "humanize")
 load("math.star", "math")
 load("render.star", "render")
 load("schema.star", "schema")
 load("secret.star", "secret")
 load("time.star", "time")
 
-# Exchangerate-API.com
+# Exchangerate-API.com Info
 exchange_rate_api_key_encrypted = "AV6+xWcE2EJ1am5cfNlWEh7R0E3NbcVBkpTEcQbuoSDokWbHW020B9OGl6dshXbNpl3oGGSEANUBz/M7B4LOQGCT/UnVOrcR1DHaijlxKN3UT+Y29y9ZgKs4XS2qk/OZQgFqvSWs/160vJCiM7DSktYV5kddXa7Iy4y42sVN"
 currencies = {
     "eur": {
@@ -622,6 +623,31 @@ def get_currency_information(currency_url):
     else:
         return None
 
+def get_appropriate_humanize_display(number):
+    """ Gets the appropriate make with the right number of decimals
+
+        When two currencies are fairly close in value, 3 decimals makes sense
+        However, if one currency is 1,000 time the other, 2 decimals makes sense for the more valuable currency and 6 decimals are
+        needed, just to display enough significant digits.
+        This algorithm figures the most appropriate mask.
+
+    Args:
+        number: the number we need to figure how many decimals are needed
+    Returns:
+        Humanize mask for this particular number
+    """
+    if (number > 1000):
+        mask = "#.##"
+    elif (number > 10):
+        mask = "#.####"
+    elif (number > .1):
+        mask = "#.###"
+    elif (number > .0001):
+        mask = "#.####"
+    else:
+        mask = "#.######"
+    return mask
+
 def main(config):
     """ Main
 
@@ -646,10 +672,8 @@ def main(config):
     else:
         exchange_data_decoded_json = json.decode(exchange_data_encoded_json)
 
-    foreign_currency_cost_in_local = exchange_data_decoded_json["conversion_rates"][foreign_currency.upper()]
-
-    # buildifier: disable=integer-division
-    local_currency_cost_in_foreign = (math.round(10000 / (foreign_currency_cost_in_local)) / 10000)
+    foreign_currency_cost_in_local = float(exchange_data_decoded_json["conversion_rates"][foreign_currency.upper()])
+    local_currency_cost_in_foreign = float(math.pow(foreign_currency_cost_in_local, -1))
 
     return render.Root(
         render.Row(
@@ -673,17 +697,25 @@ def main(config):
                     cross_align = "left",
                     children = [
                         render.Box(
-                            #Current date
                             width = 48,
                             height = 15,
-                            child = render.Text(content = str(foreign_currency_cost_in_local), font = "tb-8"),
+                            child = render.WrappedText(
+                                content = humanize.float(get_appropriate_humanize_display(foreign_currency_cost_in_local), foreign_currency_cost_in_local),
+                                width = 48,
+                                align = "right",
+                                font = "tb-8",
+                            ),
                         ),
                         render.Box(width = 48, height = 2),
                         render.Box(
-                            #Current date
                             width = 48,
                             height = 15,
-                            child = render.Text(content = str(local_currency_cost_in_foreign), font = "tb-8"),
+                            child = render.WrappedText(
+                                content = humanize.float(get_appropriate_humanize_display(local_currency_cost_in_foreign), local_currency_cost_in_foreign),
+                                width = 48,
+                                align = "right",
+                                font = "tb-8",
+                            ),
                         ),
                     ],
                 ),
