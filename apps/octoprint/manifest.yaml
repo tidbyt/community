@@ -1,0 +1,8 @@
+---
+id: octoprint
+name: Octoprint
+summary: Octoprint Status Screen
+desc: Recreation of the traditional Marlin LCD screen output for a 3D printer from your locally hosted, publically available Octoprint server.
+author: Cameron Battagler
+fileName: octoprint.star
+packageName: octoprint
