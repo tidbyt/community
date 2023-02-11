@@ -47,51 +47,37 @@ EASE_IN = "ease_in"
 EASE_OUT = "ease_out"
 EASE_IN_OUT = "ease_in_out"
 
-CONST_VALUES = """
-{
-    "cup" : [ "cup", "#333333", "#fff", "NASCAR\nCup Series" ],
-    "xfinity" : [ "xfinity", "#4427ad", "#fff", "NASCAR\nXfinity Series" ],
-    "trucks" : [ "trucks", "#990000", "#fff", "Craftsman\nTruck Series" ],
-    "cupmfg" : ["cupmfg", "#333333", "#fff", "NASCAR Cup\nMFG Pts / Wins" ],
-    "cupowner" : ["cupowner", "#333333", "#fff", "Cup Series\nOwner Pts" ],
-    "cupdriver" : ["cupdriver", "#333333", "#fff", "Cup Series\nDriver Pts" ]
-}
-"""
-
 DISPLAY_VALUES = {
-    "cup" : [ "cup", "#333333", "#fff", "NASCAR\nCup Series" ],
-    "xfinity" : [ "xfinity", "#4427ad", "#fff", "NASCAR\nXfinity Series" ],
-    "trucks" : [ "trucks", "#990000", "#fff", "Craftsman\nTruck Series" ],
-    "cupmfg" : ["cupmfg", "#333333", "#fff", "Xfinity\nMFG Pts / Wins" ],
-    "cupowner" : ["cupowner", "#333333", "#fff", "Cup Series\nOwner Pts" ],
-    "cupdriver" : ["cupdriver", "#333333", "#fff", "Cup Series\nDriver Pts" ]
+    "cup" : [ "cup", "#333333", "#fff", "NASCAR Cup\nNext Race" ],
+    "xfinity" : [ "xfinity", "#4427ad", "#fff", "Xfinity Series\nNext Race" ],
+    "trucks" : [ "trucks", "#990000", "#fff", "Craftsman Trucks\nNext Race" ],
+    "cupmfg" : ["cupmfg", "#333333", "#fff", "NASCAR Cup\nMFG Pts / Wins" ],
+    "cupown" : ["cupowner", "#333333", "#fff", "NASCAR Cup\nOwnr Pts / Wins" ],
+    "cupdrv" : ["cupdriver", "#333333", "#fff", "NASCAR Cup\nDrvr Pts / Wins " ],
+    "cupply" : ["cupdriver", "#333333", "#fff", "NASCAR Cup\nDrvr Plyoff Pts" ],
 }
 
 
 def main(config):
-
     series = config.get("NASCAR_Series", DEFAULT_SERIES)
-    todisplay = "mfg"
     
     NASCAR_DATA = json.decode(get_cachable_data(NASCAR_API + series))
-
-    MFG_DATA = json.decode(http.get("https://cf.nascar.com/cacher/2023/3/final/3-drivers-points.json").body())
 
     data_display = config.get("data_display", "nri")
 
     if data_display == "nri":
         NASCAR_DATA = json.decode(get_cachable_data(NASCAR_API + series))
         text = nextrace(NASCAR_DATA, config)
+        data_display = ""
     else:
         NASCAR_DATA = json.decode(get_cachable_data(NASCAR_API + series + data_display))
-        print("data_display")
         text = standings(NASCAR_DATA, config, data_display)
 
     return render.Root(
         show_full_animation = True,
         child = render.Column(
             children = [
-                title_box("cup", "mfg"),
+                title_box(series, data_display),
             ] + text,
         ),
     )
@@ -234,7 +220,6 @@ def mfgtext(data):
     # layout is:   1 digit position, 9 char mfg name, 4 digit points, 2 digit wins  - with spaces or / between values
     # loop through mfgs and parse the data - there are only 3 MFGs in the series (as of 2023) - but the logic is here to support more
     positions = len(data) if len(data) <= 9 else 9
-    print(positions)
 
     for i in range(0, positions):
         text[int(math.mod(i,3))] = text[int(math.mod(i,3))] + "{} {} {} / {}   ".format(data[i]["position"], text_justify_trunc(9, data[i]["manufacturer"], "left"), text_justify_trunc(4, str(data[i]["points"]), "right"), text_justify_trunc(2, str(data[i]["wins"]), "right"))
@@ -246,7 +231,6 @@ def drvrtext(data):
     # layout is:   1 digit position, 1st 2 chars of driver first name + 10 char driver last name, 4 digit points, 2 digit wins  - with spaces or / between values
     # loop through owners and parse the data
     positions = len(data) if len(data) <= 9 else 9
-    print(positions)
 
     for i in range(0, positions):
         text[int(math.mod(i,3))] = text[int(math.mod(i,3))] + "{} {} {} {} / {}    ".format(data[i]["position"], data[i]["driver_first_name"][0:2], text_justify_trunc(10, data[i]["driver_last_name"], "left"), text_justify_trunc(4, str(data[i]["points"]), "right"), text_justify_trunc(2, str(data[i]["wins"]), "right"))
@@ -262,7 +246,6 @@ def owners(data):
     # layout is:   1 digit position, 2 digit car number, 10 char owner name, 4 digit points, 2 digit wins  - with spaces or / between values
     # loop through owners and parse the data
     positions = len(data) if len(data) <= 9 else 9
-    print(positions)
 
     for i in range(0, positions):
         text[int(math.mod(i,3))] = text[int(math.mod(i,3))] + "{}. {} {} {} / {}      ".format(data[i]["position"], text_justify_trunc(2, data[i]["vehicle_number"], "right"), text_justify_trunc(10, data[i]["owner_name"], "left"), text_justify_trunc(4, str(data[i]["points"]), "right"), text_justify_trunc(2, str(data[i]["wins"]), "right"))
