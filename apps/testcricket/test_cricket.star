@@ -631,7 +631,7 @@ def BatsmanScore(Batsman, Runs, BatsmanColor):
     )
 
 def StatusRow(StatusMsg, StatusColor):
-    print(StatusMsg)
+    #print(StatusMsg)
     return render.Row(
         children = [
             render.Box(width = 64, height = 8, child = render.Text(content = StatusMsg, color = StatusColor, font = "CG-pixel-3x5-mono")),
