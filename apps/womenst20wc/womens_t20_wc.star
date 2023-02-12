@@ -3,6 +3,10 @@ Applet: Womens T20 WC
 Summary: Cricket scores for WT20 WC
 Description: Shows live scores for the selected Women's T20 team. Also can show post game details or upcoming match information.
 Author: M0ntyP
+
+Version History
+v1.0 - First published 
+v1.1 - Fixed issue where recent results were not being shown and app had already moved onto the next match coming up. Made changes to keep the most recent result for 24hrs before moving to next match
 """
 
 load("cache.star", "cache")
@@ -50,7 +54,7 @@ def main(config):
             StartTime = RecentMatches[x]["startTime"]
             MatchTime = time.parse_time(StartTime, format = "2006-01-02T15:04:00.000Z").in_location(timezone)
             TimeDiff = MatchTime - now
-            print(TimeDiff)
+            
             if TimeDiff.hours < -24:
                 break
             else:
