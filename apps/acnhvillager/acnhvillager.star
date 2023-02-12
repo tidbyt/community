@@ -1,15 +1,15 @@
 """
-Applet: Animal Crossing Villager
+Applet: AC:NH Villager
 Summary: Random AC:NH villager
-Description: See your favorite villagers from Animal Crossing New Horizons
+Description: See your favorite villagers from Animal Crossing New Horizons.
 Author: colinscruggs
 """
 
 load("cache.star", "cache")
-load("random.star", "random")
 load("encoding/base64.star", "base64")
 load("encoding/json.star", "json")
 load("http.star", "http")
+load("random.star", "random")
 load("render.star", "render")
 load("schema.star", "schema")
 
@@ -33,7 +33,7 @@ def main(config):
     # Fetch and cache villager data; pick one at random
     villager_data = get_villager_data()
     random_index = random.number(0, len(villager_data) - 1)
-    villager_key, villager = list(villager_data.items())[random_index]
+    _, villager = list(villager_data.items())[random_index]
     if len(villager) == 0:
         fail("Unable to find villager :c")
 
@@ -46,10 +46,10 @@ def main(config):
 
     return render.Root(
         delay = 100,
-        child = 
+        child =
             render.Padding(
                 pad = (0, 2, 0, 0),
-                child = 
+                child =
                     render.Row(
                         expanded = True,
                         main_align = "space_around",
@@ -64,11 +64,11 @@ def main(config):
                                     render.Marquee(
                                         child =
                                             render.Text(
-                                                content = get_villager_name(villager['name'][name_key]),
+                                                content = get_villager_name(villager["name"][name_key]),
                                                 font = FONT_DEFAULT,
-                                                color = villager['bubble-color']
+                                                color = villager["bubble-color"],
                                             ),
-                                        width = 28
+                                        width = 28,
                                     ),
                                     render.Image(
                                         src = villager_icon,
@@ -84,15 +84,15 @@ def main(config):
                                 cross_align = "center",
                                 children = [
                                     render.WrappedText(
-                                        content = villager['personality'], # Shouldn't go over 6 characters
+                                        content = villager["personality"],  # Shouldn't go over 6 characters
                                         font = FONT_DEFAULT,
                                         width = 28,
                                         align = "right",
                                     ),
                                     render.Marquee(
-                                        child = 
+                                        child =
                                             render.Text(
-                                                content = get_villager_species(villager['species']),
+                                                content = get_villager_species(villager["species"]),
                                                 font = FONT_DEFAULT,
                                             ),
                                         width = 28,
@@ -101,19 +101,18 @@ def main(config):
                                     render.Marquee(
                                         child =
                                             render.Text(
-                                                content = get_villager_catch_phrase(villager['catch-translations'][catch_phrase_key]),
+                                                content = get_villager_catch_phrase(villager["catch-translations"][catch_phrase_key]),
                                                 font = FONT_DEFAULT,
-                                                color=villager['text-color'],
+                                                color = villager["text-color"],
                                             ),
                                         width = 28,
-                                        scroll_direction = "horizontal"
-                                    )
+                                        scroll_direction = "horizontal",
+                                    ),
                                 ],
-
-                            )
-                        ]
+                            ),
+                        ],
                     ),
-            )
+            ),
     )
 
 # Cache and encode villager data
@@ -153,17 +152,17 @@ def get_villager_name(str):
     if diff <= 0:
         return str
     elif diff == 1:
-        return str + ' '
+        return str + " "
     elif diff == 2:
-        return ' ' + str + ' '
+        return " " + str + " "
     elif diff == 3:
-        return ' ' + str + ' '
+        return " " + str + " "
     elif diff == 4:
-        return '  ' + str + '  '
+        return "  " + str + "  "
     elif diff == 5:
-        return '  ' + str +  '   '
+        return "  " + str + "   "
     elif diff == 6:
-        return '   ' + str + '   '
+        return "   " + str + "   "
     else:
         return str
 
@@ -171,7 +170,7 @@ def get_villager_name(str):
 def get_villager_catch_phrase(str):
     padding_right = 5 - len(str)
     if padding_right > 0:
-        return padding_right * ' ' + '"' + str + '"'
+        return padding_right * " " + '"' + str + '"'
     else:
         return '"' + str + '"'
 
@@ -179,7 +178,7 @@ def get_villager_catch_phrase(str):
 def get_villager_species(str):
     padding_right = 7 - len(str)
     if padding_right > 0:
-        return padding_right * ' ' +  str
+        return padding_right * " " + str
     else:
         return str
 
@@ -221,6 +220,6 @@ def get_schema():
                 desc = "Select language",
                 default = dialectOptions[0].value,
                 options = dialectOptions,
-            )
+            ),
         ],
     )
