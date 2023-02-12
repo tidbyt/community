@@ -44,10 +44,10 @@ def main(config):
         villager_icon = get_villager_icon(villager_icon)
 
     return render.Root(
-        delay = 250,
+        delay = 100,
         child = 
             render.Padding(
-                pad = (2, 2, 0, 2),
+                pad = (0, 2, 0, 0),
                 child = 
                     render.Row(
                         expanded = True,
@@ -105,7 +105,7 @@ def main(config):
                                                 color=villager['text-color'],
                                             ),
                                         width = 28,
-                                        scroll_direction = "horizontal",
+                                        scroll_direction = "horizontal"
                                     )
                                 ],
 
