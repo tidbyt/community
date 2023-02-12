@@ -418,11 +418,11 @@ def main(config):
         Team2_ID = Match_JSON["match"]["teams"][1]["team"]["id"]
         Title = Match_JSON["match"]["title"]
 
-        # if Title of match ends with "...Group A"
-        if Title.endswith("A"):
-            Group = "A"
+        # if Title of match ends with "...Group 1"
+        if Title.endswith("1"):
+            Group = "1"
         else:
-            Group = "B"
+            Group = "2"
 
         Team1_Color = getTeamColor(Team1_ID)
         Team2_Color = getTeamColor(Team2_ID)
@@ -434,9 +434,9 @@ def main(config):
         Time = MyTime.format("15:04")
         Date = MyTime.format("Jan 2")
 
-        if Group == "A":
+        if Group == "1":
             Ladder = Standings_JSON["content"]["standings"]["groups"][0]["teamStats"]
-        elif Group == "B":
+        elif Group == "2":
             Ladder = Standings_JSON["content"]["standings"]["groups"][1]["teamStats"]
 
         # Team1 Record
