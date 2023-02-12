@@ -1,7 +1,7 @@
 """
 Applet: NASCAR Next Race
-Summary: Next NASCAR Race Time and Location - select series
-Description: Shows Time date and location of Next NASCAR Race - Cup, Xfinity, Trucks - original version based heavily on F1 Next Race from AMillionAir
+Summary: Next NASCAR race or current standings
+Description: Shows NASCAR next race, standings, playoffs for Cup, Xfinity and Trucks - original version based heavily on F1 next race from AMillionAir
 Author: jvivona
 """
 
