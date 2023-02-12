@@ -21,6 +21,7 @@ FONTS = ["CG-pixel-3x5-mono", "tb-8", "tom-thumb", "Dina_r400-6", "5x8"]
 FONT_DEFAULT = FONTS[0]
 
 FAIL_IMAGE = "aHR0cHM6Ly91cGxvYWQud2lraW1lZGlhLm9yZy93aWtpcGVkaWEvY29tbW9ucy90aHVtYi81LzU4L0FuaW1hbF9Dcm9zc2luZ19MZWFmLnBuZy81MDBweC1BbmltYWxfQ3Jvc3NpbmdfTGVhZi5wbmc="
+FAIL_MESSAGE = "%s failed with status: %d"
 
 ACNH_API_URL = "https://acnhapi.com/v1/villagers/"
 
@@ -125,7 +126,7 @@ def get_villager_data():
     else:
         rep = http.get(ACNH_API_URL)
         if rep.status_code != 200:
-            fail("ACNH API request failed with status %d", rep.status_code)
+            fail(FAIL_MESSAGE % (ACNH_API_URL, rep.status_code))
         villager_data = rep.json()
         cache.set("villager_data", json.encode(villager_data), ttl_seconds = CACHE_TTL_SECONDS)
 
@@ -141,7 +142,7 @@ def get_villager_icon(url):
 
     res = http.get(url = url)
     if res.status_code != 200:
-        fail("Request to %s failed with status code: %d - %s" % (url, res.status_code, res.body()))
+        fail(FAIL_MESSAGE % (url, res.status_code))
 
     cache.set(key, base64.encode(res.body()), ttl_seconds = CACHE_TTL_SECONDS)
     return res.body()
