@@ -10,6 +10,7 @@ Team score formatting when total is < 10 and < 100 so it lines up with batsmen s
 Using "mobile" names for batsmen & bowlers with names longer than 10 chars
 Status message updates - removed last bowler bowling figures from the long breaks
 Combined "scheduled" and "pre" match states 
+Added Zimbabwe, Afghanistan and Ireland as teams you can select
 """
 
 load("cache.star", "cache")
@@ -671,6 +672,18 @@ TeamOptions = [
         display = "Sri Lanka",
         value = "8",
     ),
+    schema.Option(
+        display = "Zimbabwe",
+        value = "9",
+    ),
+    schema.Option(
+        display = "Ireland",
+        value = "29",
+    ),
+    schema.Option(
+        display = "Afghanistan",
+        value = "40",
+    ),
 ]
 
 def getTeamFontColor(teamID):
@@ -690,6 +703,12 @@ def getTeamFontColor(teamID):
         return ("#203d89")
     elif teamID == 4:  # West Indies
         return ("#790d1a")
+    elif teamID == 9:  # Zimbabwe
+        return ("#40575a")
+    elif teamID == 29:  # Ireland
+        return ("#59d657")
+    elif teamID == 40:  # Afghanistan
+        return ("#fff")
     else:  # For any other team
         return ("#fff")
 
@@ -710,6 +729,12 @@ def getTeamDisplayName(teamID):
         return ("Sri Lanka")
     elif teamID == 4:  # West Indies
         return ("West Indies")
+    elif teamID == 9:  # Zimbabwe
+        return ("Zimbabwe")
+    elif teamID == 29:  # Ireland
+        return ("Ireland")
+    elif teamID == 40:  # Afghanistan
+        return ("Afghanistan")
     else:
         return ("")
 
