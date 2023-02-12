@@ -27,6 +27,7 @@ STANDINGS_CACHE = 6 * 3600  # 6 hours
 
 def main(config):
     timezone = config.get("$tz", DEFAULT_TIMEZONE)
+    now = time.now().in_location(timezone)
 
     SelectedTeam = config.get("TeamList", DEFAULT_TEAM)
     SelectedTeam = int(SelectedTeam)
@@ -41,19 +42,25 @@ def main(config):
 
     MatchID = None
 
-    # loop through the "recentFixtures" to find your team
-    # the list of matches presented will be listed in reverse chronological order with the most recent at the top
-    # as soon as you match the team, break out of the loop otherwise you might find another match which is older
-    for x in range(0, len(Matches), 1):
-        if Matches[x]["teams"][0]["team"]["id"] == SelectedTeam or Matches[x]["teams"][1]["team"]["id"] == SelectedTeam:
-            MatchID = Matches[x]["objectId"]
-            break
+    # look through recently completed matches and if its less than 24 hrs since the last completed match, show the details
+    # else show the next match coming up
 
-    # if we cant find anything coming up then look for an old match
-    if MatchID == None:
-        for x in range(0, len(RecentMatches), 1):
-            if RecentMatches[x]["teams"][0]["team"]["id"] == SelectedTeam or RecentMatches[x]["teams"][1]["team"]["id"] == SelectedTeam:
+    for x in range(0, len(RecentMatches), 1):
+        if RecentMatches[x]["teams"][0]["team"]["id"] == SelectedTeam or RecentMatches[x]["teams"][1]["team"]["id"] == SelectedTeam:
+            StartTime = RecentMatches[x]["startTime"]
+            MatchTime = time.parse_time(StartTime, format = "2006-01-02T15:04:00.000Z").in_location(timezone)
+            TimeDiff = MatchTime - now
+            print(TimeDiff)
+            if TimeDiff.hours < -24:
+                break
+            else:
                 MatchID = RecentMatches[x]["objectId"]
+                break
+
+    if MatchID == None:
+        for x in range(0, len(Matches), 1):
+            if Matches[x]["teams"][0]["team"]["id"] == SelectedTeam or Matches[x]["teams"][1]["team"]["id"] == SelectedTeam:
+                MatchID = Matches[x]["objectId"]
                 break
 
     LastOut_Runs = 0
