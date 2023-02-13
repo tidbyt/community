@@ -35,6 +35,7 @@ DEFAULT_SHOW_GRAPH = True
 DEFAULT_SHOW_GRAPH_HOUR_BARS = True
 DEFAULT_GRAPH_HEIGHT = 300
 DEFAULT_SHOW_CLOCK = True
+DEFAULT_SHOW_24_HOUR_TIME = False
 DEFAULT_NIGHT_MODE = False
 GRAPH_BOTTOM = 40
 
@@ -89,6 +90,7 @@ def main(config):
     show_graph_hour_bars = config.bool("show_graph_hour_bars", DEFAULT_SHOW_GRAPH_HOUR_BARS)
 
     show_clock = config.bool("show_clock", DEFAULT_SHOW_CLOCK)
+    show_24_hour_time = config.bool("show_24_hour_time", DEFAULT_SHOW_24_HOUR_TIME)
     night_mode = config.bool("night_mode", DEFAULT_NIGHT_MODE)
 
     if nightscout_id != "":
@@ -238,12 +240,12 @@ def main(config):
                                     render.Animation(
                                         children = [
                                             render.Text(
-                                                content = now.format("3:04 PM"),
+                                                content = now.format("15:04" if show_24_hour_time else "3:04 PM"),
                                                 font = "6x13",
                                                 color = color_clock,
                                             ),
                                             render.Text(
-                                                content = now.format("3 04 PM"),
+                                                content = now.format("15 04" if show_24_hour_time else "3 04 PM"),
                                                 font = "6x13",
                                                 color = color_clock,
                                             ),
@@ -310,14 +312,14 @@ def main(config):
 
         sm_clock = [
             render.WrappedText(
-                content = now.format("3:04"),
+                content = now.format("15:04" if show_24_hour_time else "3:04"),
                 font = "tom-thumb",
                 color = color_clock,
                 width = left_col_width,
                 align = "center",
             ),
             render.WrappedText(
-                content = now.format("3 04"),
+                content = now.format("15 04" if show_24_hour_time else "3 04"),
                 font = "tom-thumb",
                 color = color_clock,
                 width = left_col_width,
@@ -763,6 +765,13 @@ def get_schema():
                 desc = "Show clock along with reading",
                 icon = "clock",
                 default = True,
+            ),
+            schema.Toggle(
+                id = "show_24_hour_time",
+                name = "Show 24 Hour Time",
+                desc = "Show 24 hour time format",
+                icon = "clock",
+                default = False,
             ),
             schema.Toggle(
                 id = "night_mode",
