@@ -1,8 +1,8 @@
 """
-Applet: Shopify Sales
-Summary: Show Shopify sales data
-Description: Show your Shopify store sales generated over a specific time period.
-Author: Shopify
+Applet: Shopify Partners
+Summary: Show Shopify app data
+Description: Show your Shopify app data.
+Author: Rishabh Tayal
 """
 
 load("animation.star", "animation")
