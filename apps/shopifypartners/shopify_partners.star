@@ -276,7 +276,7 @@ def main(config):
     partnermetricsCookie = config.get("partnermetricsCookie")
     timezone = config.get("timezone") or "America/New_York"
     now = time.now().in_location(timezone)
-    date = "{}-0{}-{}".format(now.year, now.month, now.day)
+    date = "{}-0{}-{}".format(now.year, now.month, now.day - 1)
     request_config = {
         "now": date,
     }
