@@ -34,6 +34,6 @@ Thanks a lot to @AMillionAir as a lot of the original version of this applet was
 
 ## Screenshot
 
-![](nextrace-2023-1.jpg)
-![](nextrace-2023-2.jpg)
-![](nextrace-2023-3.jpg)
+![](nascarnextrace-nri.gif) (nascarnextrace-ply.gif)
+![](nascarnextrace-drv.gif) (nascarnextrace-own.gif)
+![](nascarnextrace-mfg.gif)
