@@ -687,7 +687,7 @@ TramStationOptions = [
     ),
     schema.Option(
         display = "Glenelg East (to Glenelg)",
-        value = "18532",
+        value = "18533",
     ),
     schema.Option(
         display = "Glengowrie (to Festival, RAH/Ent Centre)",
