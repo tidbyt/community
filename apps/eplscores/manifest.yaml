@@ -2,7 +2,7 @@
 id: eplscores
 name: EPLScores
 summary: Displays EPL scores
-desc: Displays live and upcoming EPL scores from a data feed.
+desc: Creating multiple app instances is no longer necessary. Just install once and remove any other instances. You can set the rotation speed of scores in the settings.
 author: mabroadfo1027
 fileName: eplscores.star
 packageName: eplscores
