@@ -37,7 +37,7 @@ def main():
     else:
         print("Miss! Grabbing logo image from LOGO_URL")
         logo = http.get(LOGO_URL).body()
-        cache.set("logo", logo, ttl_seconds = 300)
+        cache.set("logo", logo, ttl_seconds = 3600)
 
     color = "#cd0800"  # red
     if int(currocc) < 120:
