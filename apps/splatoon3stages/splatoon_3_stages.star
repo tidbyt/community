@@ -9,6 +9,7 @@ load("cache.star", "cache")
 load("encoding/base64.star", "base64")
 load("encoding/json.star", "json")
 load("http.star", "http")
+load("humanize.star", "humanize")
 load("render.star", "render")
 load("schema.star", "schema")
 load("time.star", "time")
@@ -136,6 +137,101 @@ def generateFrame(title, colour, battle):
         ],
     )
 
+def rgb2hex(array):
+    return "#%x%x%x%x%x%x" % (int(array[0]) // 16, int(array[0]) % 16, int(array[1]) // 16, int(array[1]) % 16, int(array[2]) // 16, int(array[2]) % 16)
+
+def generateSplatfestFrame(tricolor, colours, battle, text):
+    header = render.Row(
+        children = [
+            render.Box(
+                width = 21,
+                height = 7,
+                color = colours[0],
+            ),
+            render.Box(
+                width = 22,
+                height = 7,
+                color = colours[1],
+            ),
+            render.Box(
+                width = 21,
+                height = 7,
+                color = colours[2],
+            ),
+        ],
+    )
+    if (tricolor):
+        return render.Column(
+            children = [
+                render.Stack(
+                    children = [
+                        header,
+                        render.Box(
+                            height = 6,
+                            color = "#00000000",
+                            child = render.Text("Tricolor Battle", font = "tom-thumb", color = "#fff", offset = -1),
+                        ),
+                    ],
+                ),
+                render.Box(height = 1, color = "#000"),
+                render.Row(
+                    children = [
+                        render.Image(STAGE_IMG[battle] or STAGE_IMG["no_stage"]),
+                        render.Box(width = 2, height = 1, color = "#000"),
+                        render.WrappedText(
+                            text,
+                            color = "#8080ff",
+                            font = "tom-thumb",
+                        ),
+                    ],
+                ),
+                render.Box(
+                    color = "#000",
+                    height = 6,
+                    child = render.Text(
+                        "Tricol. Turf War",
+                        font = "tom-thumb",
+                    ),
+                ),
+            ],
+        )
+    else:
+        return render.Column(
+            children = [
+                render.Stack(
+                    children = [
+                        header,
+                        render.Column(
+                            children = [
+                                render.Box(
+                                    height = 1,
+                                    color = "#00000000",
+                                ),
+                                render.Text("Splatfest Battle", font = "tom-thumb", color = "#fff", offset = 0),
+                            ],
+                        ),
+                    ],
+                ),
+                render.Box(height = 1, color = "#000"),
+                render.Row(
+                    children = [
+                        render.Image(STAGE_IMG[battle["stage_a"]] or STAGE_IMG["no_stage"]),
+                        render.Box(width = 2, height = 1, color = "#000"),
+                        render.Image(STAGE_IMG[battle["stage_b"]] or STAGE_IMG["no_stage"]),
+                    ],
+                ),
+                render.Box(height = 1, color = "#000"),
+                render.Box(
+                    color = "#000",
+                    height = 6,
+                    child = render.Text(
+                        "Turf War",
+                        font = "tom-thumb",
+                    ),
+                ),
+            ],
+        )
+
 def main(config):
     stage_cache = cache.get("stages")
     stages = None
@@ -147,10 +243,10 @@ def main(config):
         # Oh, we need new data
         rep = http.get(STAGE_URL)
         if (rep.status_code != 200):
-            failed = 404
+            failed = rep.status_code or -1
         else:
             stages = rep.json()  # Will it just let me do this?
-            cache.set("stages", json.encode(stages), 3600)
+            cache.set("stages", json.encode(stages), 3600 * 2)
 
     if (failed):
         return generateErrorFrame("API error!\nError code %d" % (failed or -1))
@@ -159,41 +255,80 @@ def main(config):
     regular_battle = []
     ranked_battle = []
     x_battle = []
+    splatfest_battle = []
+    splatfest_active = False
+    tricolor_stage = ""
+    splatfest_colours = ["#000000", "#000000", "#000000"]
+    splatfest_end = 0
+    tricolor_start = 0
+
     for battle in stages["data"]["regularSchedules"]["nodes"]:
-        regular_battle.append(
-            {
-                "start_time": battle["startTime"],
-                "end_time": battle["endTime"],
-                "mode": "Turf War",
-                "stage_a": battle["regularMatchSetting"]["vsStages"][0]["name"],
-                "stage_b": battle["regularMatchSetting"]["vsStages"][1]["name"],
-            },
-        )
+        if (battle["regularMatchSetting"]):
+            # double-checking because it returns null during a splatfest
+            regular_battle.append(
+                {
+                    "start_time": battle["startTime"],
+                    "end_time": battle["endTime"],
+                    "mode": "Turf War",
+                    "stage_a": battle["regularMatchSetting"]["vsStages"][0]["name"],
+                    "stage_b": battle["regularMatchSetting"]["vsStages"][1]["name"],
+                },
+            )
 
     for battle in stages["data"]["bankaraSchedules"]["nodes"]:
-        ranked_battle.append({
-            "start_time": battle["startTime"],
-            "end_time": battle["endTime"],
-            "series": {
-                "mode": battle["bankaraMatchSettings"][0]["vsRule"]["name"],
-                "stage_a": battle["bankaraMatchSettings"][0]["vsStages"][0]["name"],
-                "stage_b": battle["bankaraMatchSettings"][0]["vsStages"][1]["name"],
-            },
-            "open": {
-                "mode": battle["bankaraMatchSettings"][1]["vsRule"]["name"],
-                "stage_a": battle["bankaraMatchSettings"][1]["vsStages"][0]["name"],
-                "stage_b": battle["bankaraMatchSettings"][1]["vsStages"][1]["name"],
-            },
-        })
+        if (battle["bankaraMatchSettings"]):
+            # double-checking because it returns null during a splatfest
+            ranked_battle.append({
+                "start_time": battle["startTime"],
+                "end_time": battle["endTime"],
+                "series": {
+                    "mode": battle["bankaraMatchSettings"][0]["vsRule"]["name"],
+                    "stage_a": battle["bankaraMatchSettings"][0]["vsStages"][0]["name"],
+                    "stage_b": battle["bankaraMatchSettings"][0]["vsStages"][1]["name"],
+                },
+                "open": {
+                    "mode": battle["bankaraMatchSettings"][1]["vsRule"]["name"],
+                    "stage_a": battle["bankaraMatchSettings"][1]["vsStages"][0]["name"],
+                    "stage_b": battle["bankaraMatchSettings"][1]["vsStages"][1]["name"],
+                },
+            })
 
     for battle in stages["data"]["xSchedules"]["nodes"]:
-        x_battle.append({
-            "start_time": battle["startTime"],
-            "end_time": battle["endTime"],
-            "mode": battle["xMatchSetting"]["vsRule"]["name"],
-            "stage_a": battle["xMatchSetting"]["vsStages"][0]["name"],
-            "stage_b": battle["xMatchSetting"]["vsStages"][1]["name"],
-        })
+        if (battle["xMatchSetting"]):
+            # double-checking because it returns null during a splatfest
+            x_battle.append({
+                "start_time": battle["startTime"],
+                "end_time": battle["endTime"],
+                "mode": battle["xMatchSetting"]["vsRule"]["name"],
+                "stage_a": battle["xMatchSetting"]["vsStages"][0]["name"],
+                "stage_b": battle["xMatchSetting"]["vsStages"][1]["name"],
+            })
+
+    now = time.now()
+    now = time.parse_time("2023-02-11T12:00:00Z")
+    if (stages["data"]["festSchedules"]):
+        # splatfest!!
+        for battle in stages["data"]["festSchedules"]["nodes"]:
+            if (battle["festMatchSetting"]):
+                splatfest_battle.append({
+                    "start_time": battle["startTime"],
+                    "end_time": battle["endTime"],
+                    "mode": "Turf War",
+                    "stage_a": battle["festMatchSetting"]["vsStages"][0]["name"],
+                    "stage_b": battle["festMatchSetting"]["vsStages"][1]["name"],
+                })
+
+        if (now >= time.parse_time(stages["data"]["currentFest"]["startTime"]) and now <= time.parse_time(stages["data"]["currentFest"]["endTime"])):
+            splatfest_active = True
+            tricolor_stage = stages["data"]["currentFest"]["tricolorStage"]["name"]
+            splatfest_end = time.parse_time(stages["data"]["currentFest"]["endTime"])
+            tricolor_start = time.parse_time(stages["data"]["currentFest"]["midtermTime"])
+            teams = stages["data"]["currentFest"]["teams"]
+            splatfest_colours = [
+                rgb2hex([teams[0]["color"]["r"] * 150, teams[0]["color"]["g"] * 150, teams[0]["color"]["b"] * 150]),
+                rgb2hex([teams[1]["color"]["r"] * 150, teams[1]["color"]["g"] * 150, teams[1]["color"]["b"] * 150]),
+                rgb2hex([teams[2]["color"]["r"] * 150, teams[2]["color"]["g"] * 150, teams[1]["color"]["b"] * 150]),
+            ]
 
     # get current battle
     current_battles = {
@@ -201,9 +336,12 @@ def main(config):
         "series": None,
         "open": None,
         "x": None,
+        "splatfest": None,
     }
 
-    now = time.now()
+    for battle in splatfest_battle:
+        if (now >= time.parse_time(battle["start_time"]) and now < time.parse_time(battle["end_time"])):
+            current_battles["x"] = battle
     for battle in regular_battle:
         if (now >= time.parse_time(battle["start_time"]) and now < time.parse_time(battle["end_time"])):
             current_battles["regular"] = battle
@@ -214,6 +352,9 @@ def main(config):
     for battle in x_battle:
         if (now >= time.parse_time(battle["start_time"]) and now < time.parse_time(battle["end_time"])):
             current_battles["x"] = battle
+    for battle in splatfest_battle:
+        if (now >= time.parse_time(battle["start_time"]) and now < time.parse_time(battle["end_time"])):
+            current_battles["splatfest"] = battle
 
     frames = {
         "regular": generateFrame(
@@ -239,25 +380,50 @@ def main(config):
     }
 
     final_render = []
-    if (config.bool("show_regular")):
-        final_render.append(frames["regular"])
-    if (config.bool("show_series")):
-        final_render.append(frames["series"])
-    if (config.bool("show_open")):
-        final_render.append(frames["open"])
-    if (config.bool("show_x")):
-        final_render.append(frames["x"])
+    animLength = 0
+    if (not splatfest_active):
+        if (config.bool("show_regular")):
+            final_render.append(frames["regular"])
+        if (config.bool("show_series")):
+            final_render.append(frames["series"])
+        if (config.bool("show_open")):
+            final_render.append(frames["open"])
+        if (config.bool("show_x")):
+            final_render.append(frames["x"])
+        if (len(final_render) == 0):
+            final_render.append(frames["regular"])
+        animLength = len(final_render)
+        final_render = render.Animation(children = final_render)
+    else:
+        bottom_str = "?"
+        if (now < tricolor_start):
+            bottom_str = "Halftime in " + humanize.relative_time(now, tricolor_start, "", "")
+        elif (now < splatfest_end):
+            bottom_str = "Fest end in " + humanize.relative_time(now, splatfest_end, "", "")
+        else:
+            bottom_str = "Fest ends soon!"
 
-    if (len(final_render) == 0):
-        final_render.append(frames["regular"])
+        final_render.append(generateSplatfestFrame(
+            False,
+            splatfest_colours,
+            current_battles["splatfest"],
+            "",
+        ))
+        final_render.append(generateSplatfestFrame(
+            True,
+            splatfest_colours,
+            tricolor_stage,
+            bottom_str,
+        ))
+
+        final_render = render.Animation(children = final_render)
+        animLength = 2
 
     delay = int(config.str("speed") or 15000)
 
     return render.Root(
-        delay = int(delay / len(final_render)),  # <- replace with 1/4 of tidbyt delay
-        child = render.Animation(
-            children = final_render,
-        ),
+        delay = int(delay / animLength),  # <- replace with 1/4 of tidbyt delay
+        child = final_render,
     )
 
 def get_schema():
