@@ -2,7 +2,7 @@
 id: mlb-scores
 name: MLB Scores
 summary: MLB baseball scores
-desc: For slower scrolling of scores, add the app to your Tidbyt multiple times. Then, within each app instance, set 'Total Instances of App' to the amount of times you have it installed, and set 'App Instance Number' unique to each app instance.
+desc: Creating multiple app instances is no longer necessary. Just install once and remove any other instances. You can set the rotation speed of scores in the settings.
 author: LunchBox8484
 fileName: mlb_scores.star
 packageName: mlbscores

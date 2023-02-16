@@ -2,7 +2,7 @@
 id: hubble-live
 name: Hubble Live
 summary: Current Hubble Observation
-desc: Displays the currently scheduled observation status of the Hubble Space Telescope (v0.2.0).
+desc: Displays the currently scheduled observation status of the Hubble Space Telescope (v0.2.1).
 author: Brian McLaughlin (SpinStabilized)
 fileName: hubble_live.star
 packageName: hubblelive
