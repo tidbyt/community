@@ -15,7 +15,7 @@ load("secret.star", "secret")
 NEXTBUS_URL = "https://api.wmata.com/NextBusService.svc/json/jPredictions"
 DEFAULT_STOPID1 = "1001155"
 DEFAULT_STOPID2 = ""
-ENCRYPTED_API_KEY = "AV6+xWcEd0axGb4V9l3oSg/6rC84PkFXGwE3RMdhCsd3HYbmgqigkaNaks24APTvZ9KujTGybupJ0DYlAW8rE4IL7WVYkPhMHxcyXQ2QgrCrKYMYaVt+201YoMHI2ImivHlhrv2kPk2O2wdxRxpMu4vEH+QFfwg73zQgTl499VRVwj/msko="
+ENCRYPTED_API_KEY = "AV6+xWcEN/eoKQ8PCUXypIgPSO7IT4v5uu6/yNmDXvJjtwrYANFMNpXiU/ki/yEvf7u9wpNjLLsx2ab7y9SFBL15w/elg7AkgtJVueJbhGGOwnlGyvAnhUEEvcDQh57x5vQT186xKDDUo/RgMEjSIj0bGnigi2hJUET8ydOFsz1DGbwtP6c="
 
 def main(config):
     numPredictions = 0
