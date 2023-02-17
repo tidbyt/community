@@ -14,8 +14,8 @@ load("encoding/base64.star", "base64")
 load("encoding/json.star", "json")
 load("http.star", "http")
 load("render.star", "render")
-load("time.star", "time")
 load("schema.star", "schema")
+load("time.star", "time")
 
 API = "https://site.web.api.espn.com/apis/v2/scoreboard/header?sport=golf&league=pga"
 CACHE_TTL_SECS = 60
@@ -88,7 +88,7 @@ def main(config):
             # if there is no live tournament, show what event is coming up next
             return render.Root(
                 show_full_animation = True,
-                    child = render.Column(
+                child = render.Column(
                     main_align = "start",
                     cross_align = "start",
                     children = [
@@ -131,7 +131,6 @@ def main(config):
     return []
 
 def get_player(x, s, entriesToDisplay, Title, topcolHeight, stage, state):
-   
     # Remove "The" if its in the title, but not for "The Open", its a major so we treat it with respect...and it will fit anyway
     if Title.startswith("The"):
         if Title != "The Open":
