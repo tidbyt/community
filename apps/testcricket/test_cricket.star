@@ -3,6 +3,14 @@ Applet: Test Cricket
 Summary: Scoreboard for test match cricket
 Description: This app takes the selected team and displays the current match situation - showing overall team score, batsmen scores, the day & session, remaining overs left in the day, the lead or deficit, partnership & current bowler's figures. If a match for the selected team has just completed, it will show the match result or if there is an upcoming match it will show the scheduled start time of the match, in the users timezone. If there is nothing coming up in the next day or so, it will no show that there are no matches scheduled.
 Author: M0ntyP
+
+v1.0 - Original app published
+v1.1 - A few updates...
+Team score formatting when total is < 10 and < 100 so it lines up with batsmen scores properly
+Using "mobile" names for batsmen & bowlers with names longer than 10 chars
+Status message updates - removed last bowler bowling figures from the long breaks
+Combined "scheduled" and "pre" match states 
+Added Zimbabwe, Afghanistan and Ireland as teams you can select
 """
 
 load("cache.star", "cache")
@@ -71,9 +79,6 @@ def main(config):
         MatchData = get_cachable_data(Match_URL, MATCH_CACHE)
         Match_JSON = json.decode(MatchData)
 
-        # what kind of match is it - Test, T20 etc?
-        #Format = Match_JSON["match"]["format"]
-
         # If there is a live game
         if Match_JSON["match"]["state"] == "LIVE":
             # What innings of the match is it ?
@@ -121,6 +126,8 @@ def main(config):
 
             # On strike batsman details
             Batsman1 = Match_JSON["livePerformance"]["batsmen"][0]["player"]["fieldingName"]
+            if len(Batsman1) > 10:
+                Batsman1 = Match_JSON["livePerformance"]["batsmen"][0]["player"]["mobileName"]
             Batsman1_Runs = Match_JSON["livePerformance"]["batsmen"][0]["runs"]
 
             # Partnership details
@@ -142,6 +149,8 @@ def main(config):
 
             if Batsmen == 2:
                 Batsman2 = Match_JSON["livePerformance"]["batsmen"][1]["player"]["fieldingName"]
+                if len(Batsman2) > 10:
+                    Batsman2 = Match_JSON["livePerformance"]["batsmen"][1]["player"]["mobileName"]
                 Batsman2_Runs = Match_JSON["livePerformance"]["batsmen"][1]["runs"]
                 Batsman2_Runs_Str = str(Batsman2_Runs)
 
@@ -177,6 +186,8 @@ def main(config):
 
             # Bowler details
             CurrentBowler = Match_JSON["livePerformance"]["bowlers"][0]["player"]["fieldingName"]
+            if len(CurrentBowler) > 10:
+                CurrentBowler = Match_JSON["livePerformance"]["bowlers"][0]["player"]["mobileName"]
             CurrentBowler_Wkts = Match_JSON["livePerformance"]["bowlers"][0]["wickets"]
             CurrentBowler_Runs = Match_JSON["livePerformance"]["bowlers"][0]["conceded"]
 
@@ -215,11 +226,13 @@ def main(config):
 
                 # if there is play, show the session and day, otherwise show the break - eg lunch, tea, stumps or drinks
                 # added other options her as well
+                # Stumps, Lunch & tea - should be Stumps, Stumps, Trail, Partnership, Stumps
                 if Status == "Live":
                     TheSess = "Sess " + TheSess
                     TheDay = "Day " + TheDay
                     Status = TheSess + " - " + TheDay
-                elif Status == "Stumps" or "Lunch" or "Tea":
+                    Status5 = CurrentBowler + " " + CurrentBowler_Wkts + "/" + CurrentBowler_Runs
+                elif Status == "Stumps" or Status == "Lunch" or Status == "Tea" or Status == "Drinks":
                     Status = Status + " - Day " + TheDay
                     Status2 = Status
                     Status5 = Status
@@ -241,29 +254,51 @@ def main(config):
                     StatusColor = "#f00"
                     Status2 = "Rem Overs: " + RemOvers
                     Status5 = CurrentBowler + " " + CurrentBowler_Wkts + "/" + CurrentBowler_Runs
-                elif Status == "Stumps" or "Lunch" or "Tea":
+                    Status5Color = "#f00"
+                elif Status == "Stumps" or Status == "Lunch" or Status == "Tea" or Status == "Drinks":
                     Status = Status + " - Day " + TheDay
+                    Status2 = Status
+                    Status5 = Status
+                    StatusColor = "#fff"
+                    Status2Color = "#fff"
+                    Status5Color = "#fff"
                 elif Status == "Match delayed by rain":
                     Status = "Rain Delay"
+                    Status2 = "Rem Overs: " + RemOvers
+                    Status5 = Status
+                    Status5Color = "#fff"
                 elif Status == "Innings break":
                     Status = Status
+                    Status2 = Status
+                    Status5 = Status
+                    Status5Color = "#fff"
                 elif Status == "Match delayed by bad light":
                     Status = "Bad Light delay"
+                    Status2 = "Rem Overs: " + RemOvers
+                    Status5 = Status
+                    Status5Color = "#fff"
                 elif Status == "Match delayed - wet outfield":
                     Status = "Wet outfield"
+                    Status2 = "Rem Overs: " + RemOvers
+                    Status5 = Status
+                    Status5Color = "#fff"
 
-            Status2 = "Rem Overs: " + RemOvers
             Status3 = BattingTeam + Lead
             Status3Color = "#fff"
             Status4 = "Part'ship: " + CurrentPartnership
             Status4Color = BattingTeamColor
-            Status5 = CurrentBowler + " " + CurrentBowler_Wkts + "/" + CurrentBowler_Runs
+            #Status5 = CurrentBowler + " " + CurrentBowler_Wkts + "/" + CurrentBowler_Runs
 
-            if IsOut == True:
+            if IsOut == True and Wickets != "10":
+                StatusColor = "#f00"
                 Status2Color = "#f00"
                 Status3Color = "#f00"
                 Status4Color = "#f00"
                 Status5Color = "#f00"
+            if Wickets == "10":
+                StatusColor = "#fff"
+                Status2Color = "#fff"
+                Status3Color = "#fff"
 
             return render.Root(
                 delay = int(3000),
@@ -406,7 +441,7 @@ def main(config):
                 ),
             )
 
-        elif Match_JSON["match"]["state"] == "SCHEDULED":
+        elif Match_JSON["match"]["state"] == "SCHEDULED" or Match_JSON["match"]["state"] == "PRE":
             # Else game is coming up
             Team1_Name = Match_JSON["match"]["teams"][0]["team"]["name"]
             Team2_Name = Match_JSON["match"]["teams"][1]["team"]["name"]
@@ -418,67 +453,6 @@ def main(config):
 
             # Get the time of the game in the user's timezone
             StartTime = Match_JSON["match"]["startTime"]
-
-            MyTime = time.parse_time(StartTime, format = "2006-01-02T15:04:00.000Z").in_location(timezone)
-            Time = MyTime.format("15:04")
-            Date = MyTime.format("Jan 2")
-
-            return render.Root(
-                child = render.Column(
-                    main_align = "start",
-                    cross_align = "start",
-                    children = [
-                        render.Row(
-                            expanded = True,
-                            main_align = "space_between",
-                            cross_align = "end",
-                            children = [
-                                render.Box(width = 64, height = 8, child = render.Text(content = Team1_Name, color = Team1_Color, font = "CG-pixel-3x5-mono")),
-                            ],
-                        ),
-                        render.Row(
-                            expanded = True,
-                            main_align = "space_between",
-                            cross_align = "end",
-                            children = [
-                                render.Box(width = 64, height = 8, child = render.Text(content = "v", color = "#FFF", font = "CG-pixel-3x5-mono")),
-                            ],
-                        ),
-                        render.Row(
-                            expanded = True,
-                            main_align = "space_between",
-                            cross_align = "end",
-                            children = [
-                                render.Box(width = 64, height = 8, child = render.Text(content = Team2_Name, color = Team2_Color, font = "CG-pixel-3x5-mono")),
-                            ],
-                        ),
-                        render.Row(
-                            expanded = True,
-                            main_align = "space_between",
-                            cross_align = "end",
-                            children = [
-                                render.Box(width = 64, height = 8, child = render.Text(content = Date + " - " + Time, color = "#FFF", font = "CG-pixel-3x5-mono")),
-                            ],
-                        ),
-                    ],
-                ),
-            )
-
-        elif Match_JSON["match"]["state"] == "PRE":
-            # Else game is about to start
-            Team1_Name = Match_JSON["match"]["teams"][0]["team"]["name"]
-            Team2_Name = Match_JSON["match"]["teams"][1]["team"]["name"]
-
-            Team1_ID = Match_JSON["match"]["teams"][0]["team"]["id"]
-            Team2_ID = Match_JSON["match"]["teams"][1]["team"]["id"]
-            Team1_Color = getTeamFontColor(Team1_ID)
-            Team2_Color = getTeamFontColor(Team2_ID)
-
-            # Get the time of the game in the user's timezone
-            StartTime = Match_JSON["match"]["startTime"]
-
-            #ParseTime = time.parse_time(StartTime, format = "2006-01-02T15:04:00.000Z")
-            #MatchTimezone = Match_JSON["match"]["ground"]["town"]["timezone"]
 
             MyTime = time.parse_time(StartTime, format = "2006-01-02T15:04:00.000Z").in_location(timezone)
             Time = MyTime.format("15:04")
@@ -573,6 +547,12 @@ def TeamScore(BattingTeam, BattingTeamColor, Wickets, Runs):
     else:
         Wickets = "  "
 
+    # formatting for Runs
+    if len(Runs) == 1:
+        Wickets = "  " + Wickets
+    if len(Runs) == 2:
+        Wickets = " " + Wickets
+
     return render.Column(
         children = [
             render.Row(
@@ -624,11 +604,7 @@ def FinalTeamScore(BattingTeam, BattingTeamColor, Wickets1, Runs1, Wickets2, Run
                     )),
                     render.Box(width = 48, height = 8, child = render.Padding(
                         pad = (0, 0, 0, 0),
-                        child = render.Text(
-                            content = Output + Comma + Output2,
-                            color = BattingTeamColor,
-                            font = "CG-pixel-3x5-mono",
-                        ),
+                        child = render.Text(content = Output + Comma + Output2, color = BattingTeamColor, font = "CG-pixel-3x5-mono"),
                     )),
                 ],
             ),
@@ -656,6 +632,7 @@ def BatsmanScore(Batsman, Runs, BatsmanColor):
     )
 
 def StatusRow(StatusMsg, StatusColor):
+    #print(StatusMsg)
     return render.Row(
         children = [
             render.Box(width = 64, height = 8, child = render.Text(content = StatusMsg, color = StatusColor, font = "CG-pixel-3x5-mono")),
@@ -695,6 +672,18 @@ TeamOptions = [
         display = "Sri Lanka",
         value = "8",
     ),
+    schema.Option(
+        display = "Zimbabwe",
+        value = "9",
+    ),
+    schema.Option(
+        display = "Ireland",
+        value = "29",
+    ),
+    schema.Option(
+        display = "Afghanistan",
+        value = "40",
+    ),
 ]
 
 def getTeamFontColor(teamID):
@@ -714,6 +703,12 @@ def getTeamFontColor(teamID):
         return ("#203d89")
     elif teamID == 4:  # West Indies
         return ("#790d1a")
+    elif teamID == 9:  # Zimbabwe
+        return ("#40575a")
+    elif teamID == 29:  # Ireland
+        return ("#59d657")
+    elif teamID == 40:  # Afghanistan
+        return ("#fff")
     else:  # For any other team
         return ("#fff")
 
@@ -734,6 +729,12 @@ def getTeamDisplayName(teamID):
         return ("Sri Lanka")
     elif teamID == 4:  # West Indies
         return ("West Indies")
+    elif teamID == 9:  # Zimbabwe
+        return ("Zimbabwe")
+    elif teamID == 29:  # Ireland
+        return ("Ireland")
+    elif teamID == 40:  # Afghanistan
+        return ("Afghanistan")
     else:
         return ("")
 
