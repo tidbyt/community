@@ -61,6 +61,7 @@ def main(config):
         displayrow = standings(config, data)
 
     return render.Root(
+        show_full_animation = True,
         child = render.Column(
             children = [
                 render.Box(
