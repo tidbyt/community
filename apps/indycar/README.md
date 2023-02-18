@@ -24,7 +24,7 @@ Displayed:
 - For Next Race select date/time format
 
 ## Thanks
-Thanks a lot to @AMillionAir as the original makes of the [Forumla 1 applet](../formula1/).
+Thanks a lot to @AMillionAir as the original maker of the [Forumla 1 applet](../formula1/).
 
 ## Screenshot
 
