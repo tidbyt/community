@@ -163,7 +163,6 @@ def getPosts(subname):
     # In lieu of the cache, pull a new set of posts from the API.
     apiUrl = "https://oauth.reddit.com/r/" + subname + "/hot.json?limit=30"
     auth = "Bearer " + accessToken
-    print(auth)
     rep = http.get(
         apiUrl,
         headers = {
@@ -195,7 +194,7 @@ def getPosts(subname):
 def handleApiError(data = None):
     if data == None:
         message = "Unknown Error"
-    elif data["message"] != None:
+    elif "message" in data.keys():
         message = data["message"]
     else:
         message = data["error"]
