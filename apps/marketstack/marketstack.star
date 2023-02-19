@@ -265,16 +265,16 @@ def get_schema():
         version = "1",
         fields = [
             schema.Text(
-                id = "api_token",
-                name = "API Token",
-                desc = "The API Token for your MarketStack",
-                icon = "key",
-            ),
-            schema.Text(
                 id = "company_name",
                 name = "Company Name",
                 desc = "The company name to display",
                 icon = "sackDollar",
+            ),
+            schema.Text(
+                id = "api_token",
+                name = "API Token",
+                desc = "The API Token for your MarketStack",
+                icon = "key",
             ),
             schema.Dropdown(
                 id = "select_period",
