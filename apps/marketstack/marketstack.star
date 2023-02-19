@@ -129,7 +129,7 @@ def get_data_select_period(request, colors, select_period, company_name):
     pattern_company_name = r"[^.]*"
     company_name = re.findall(pattern_company_name, company_name)
     company_name = company_name[0]
-    
+
     return render.Root(
         render.Column(
             children = [
