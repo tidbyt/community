@@ -205,7 +205,7 @@ def standings(api_data, config, data_display):
     text_color = config.get("text_color", coloropt[0].value)
 
     return [
-        render.Marquee(offset_start = 48, child = render.Text(height = 7, content = text[0], font = REGULAR_FONT, color = text_color), scroll_direction = "horizontal", width = 64),
+        render.Marquee(offset_start = 48, child = render.Text(height = 6, content = text[0], font = REGULAR_FONT, color = text_color), scroll_direction = "horizontal", width = 64),
         render.Marquee(offset_start = 48, child = render.Text(height = 7, content = text[1], font = REGULAR_FONT, color = text_color), scroll_direction = "horizontal", width = 64),
         render.Marquee(offset_start = 48, child = render.Text(height = 7, content = text[2], font = REGULAR_FONT, color = text_color), scroll_direction = "horizontal", width = 64),
     ]
