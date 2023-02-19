@@ -156,7 +156,7 @@ def main(config):
         )
     elif len(canvas_data) == 0:
         if config.bool("no_assigment", False):
-            return
+            return None
         else:
             return makeError("No More Assignments")
     else:
