@@ -85,13 +85,9 @@ def error_view(message):
 
 def get_percentage_with_two_decimals(last_price, previus_last_price):
     minus = last_price - previus_last_price
-    print(minus)
     difference_percentage = (minus / previus_last_price) * 100
-    print(difference_percentage)
     v = str(int(math.round(difference_percentage * 100)))
-    print(v)
     v = v[0:-2] + "." + v[-2:]
-    print(v)
     return v
 
 def get_color_percentage_change(price):
@@ -133,8 +129,7 @@ def get_data_select_period(request, colors, select_period, company_name):
     pattern_company_name = r"[^.]*"
     company_name = re.findall(pattern_company_name, company_name)
     company_name = company_name[0]
-    print(company_name)
-
+    
     return render.Root(
         render.Column(
             children = [
