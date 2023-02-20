@@ -5,13 +5,13 @@ Description: Tracks flights via given Flight Number or airport code.
 Author: samuelsagarino
 """
 
-load("http.star", "http")
-load("render.star", "render")
-load("humanize.star", "humanize")
-load("schema.star", "schema")
-load("time.star", "time")
 load("cache.star", "cache")
 load("encoding/json.star", "json")
+load("http.star", "http")
+load("humanize.star", "humanize")
+load("render.star", "render")
+load("schema.star", "schema")
+load("time.star", "time")
 
 OUTPUT_FORMATS = {
     "departures": "departures",
