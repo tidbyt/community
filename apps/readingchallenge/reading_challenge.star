@@ -100,7 +100,7 @@ def main(config):
     CHALLENGE_ID = secret.decrypt("AV6+xWcE/k5WZk3zYbxM/fuI6z4DJ5oQUNrHWbIu8HBOyeubTAzYcB9DxEMAWRoxDcryQFohadBlZneiSq94urEiiG53bpXexcibIvOyKOSH3Vi3qEYaY1vVXUxHQOmyk5odoCU9UtLX850GqOI=")
 
     if CHALLENGE_ID == None:
-        CHALLENGE_ID = config.str("user_challenge_id", "40507891")
+        CHALLENGE_ID = config.str("user_challenge_id", "0")
 
     progress_cached = cache.get("progress")
     goal_cached = cache.get("goal")
