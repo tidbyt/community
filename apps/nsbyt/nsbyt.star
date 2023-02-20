@@ -27,7 +27,6 @@ NO_FRAMES_TOGGLE = 60
 DEFAULT_STATION = "ASD"
 
 def main(config):
-
     station_id = config.str("station")
     skiptime = config.get("skiptime", 0)
 
@@ -76,7 +75,6 @@ def main(config):
     ))
 
 def renderTrain(stop_info):
-
     destination = stop_info["direction"]
     departureTime = display_time(stop_info["plannedDateTime"])
     backgroundColor = CORE_BACKGROUND_COLOR
@@ -90,106 +88,103 @@ def renderTrain(stop_info):
 
     if stop_info["cancelled"] == True:
         backgroundColor = CANCELED_BACKGROUND_COLOR
-        departureTime = stop_info["messages"][0]["message"];
+        departureTime = stop_info["messages"][0]["message"]
 
     actualTime = parse_time(stop_info["actualDateTime"])
     scheduledTime = parse_time(stop_info["plannedDateTime"])
-    delay = actualTime-scheduledTime
-    trainDelay = format_duration(delay);
+    delay = actualTime - scheduledTime
+    trainDelay = format_duration(delay)
 
     departureTimeRender = render.Text(
-                              content = departureTime,
-                              color = NORMAL_TEXT_COLOR,
-                          )
+        content = departureTime,
+        color = NORMAL_TEXT_COLOR,
+    )
 
     if trainDelay != "":
-            renderTimeChild = []
-            renderTimeChild.extend([departureTimeRender] * NO_FRAMES_TOGGLE)
-            renderTimeChild.extend(
-                        [
-                            render.Text(
-                                content = "+" + trainDelay + " min",
-                                color = DELAYED_TEXT_COLOR,
-                            ),
-                        ] * NO_FRAMES_TOGGLE,
-                    )
+        renderTimeChild = []
+        renderTimeChild.extend([departureTimeRender] * NO_FRAMES_TOGGLE)
+        renderTimeChild.extend(
+            [
+                render.Text(
+                    content = "+" + trainDelay + " min",
+                    color = DELAYED_TEXT_COLOR,
+                ),
+            ] * NO_FRAMES_TOGGLE,
+        )
 
-            departureTimeRender = render.Animation(children = renderTimeChild)
+        departureTimeRender = render.Animation(children = renderTimeChild)
 
     else:
         renderTimeChild = []
         renderTimeChild.extend([departureTimeRender] * NO_FRAMES_TOGGLE)
         renderTimeChild.extend(
-                            [
-                                render.Text(
-                                    content = departureTimeText[:-5],
-                                    color = NORMAL_TEXT_COLOR,
-                                ),
-                            ] * NO_FRAMES_TOGGLE,
-                        )
+            [
+                render.Text(
+                    content = departureTimeText[:-5],
+                    color = NORMAL_TEXT_COLOR,
+                ),
+            ] * NO_FRAMES_TOGGLE,
+        )
 
         departureTimeRender = render.Animation(children = renderTimeChild)
 
     return render.Row(
-            expanded = True,
-            main_align = "space_between",
-            cross_align = "end",
-            children = [
-                render.Padding(
-                    pad = 2,
-                    child = render.Box(
-                        width = 10,
-                        height = 10,
-                        color = backgroundColor,
-                        child = render.Text(
-                            color = textColor,
-                            content = stop_info["actualTrack"],
-                        ),
+        expanded = True,
+        main_align = "space_between",
+        cross_align = "end",
+        children = [
+            render.Padding(
+                pad = 2,
+                child = render.Box(
+                    width = 10,
+                    height = 10,
+                    color = backgroundColor,
+                    child = render.Text(
+                        color = textColor,
+                        content = stop_info["actualTrack"],
                     ),
                 ),
-                render.Column(
-                    children = [
-                        render.Marquee(
-                            width = 64 - 13,
-                            child = render.Text(
-                                content = destination.upper(),
-                            ),
+            ),
+            render.Column(
+                children = [
+                    render.Marquee(
+                        width = 64 - 13,
+                        child = render.Text(
+                            content = destination.upper(),
                         ),
-                        departureTimeRender
-                    ],
-                )
-            ],
-        )
+                    ),
+                    departureTimeRender,
+                ],
+            ),
+        ],
+    )
 
 def format_duration(d):
     if d.hours > 1:
-        return str(int(d.hours + 0.5))*60
+        return str(int(d.hours + 0.5)) * 60
     elif d.minutes > 1:
         return str(int(d.minutes + 0.5))
     else:
         return ""
 
 def display_time(time_string):
-    tim = time.now().in_location("Europe/Amsterdam")
     time_obj = time.parse_time(time_string[0:19], format = "2006-01-02T15:04:05", location = "Europe/Amsterdam")
     return time_obj.format("15:04")
 
 def parse_time(time_string):
-    tim = time.now().in_location("Europe/Amsterdam")
     time_obj = time.parse_time(time_string[0:19], format = "2006-01-02T15:04:05", location = "Europe/Amsterdam")
     return time_obj
 
 def getTrains(station_id, skiptime):
-
-    departureRes = http.get("https://gateway.apiportal.ns.nl/reisinformatie-api/api/v2/departures", params={"station" : station_id}, headers={"Ocp-Apim-Subscription-Key":"20f49c5c5e43465cab9ac8812c84ab22"}).body()
+    departureRes = http.get("https://gateway.apiportal.ns.nl/reisinformatie-api/api/v2/departures", params = {"station": station_id}, headers = {"Ocp-Apim-Subscription-Key": "20f49c5c5e43465cab9ac8812c84ab22"}).body()
     departures = json.decode(departureRes)
     departuresTrains = departures["payload"]
     departuresTrains = departuresTrains["departures"]
 
     startID = 0
 
-    if skiptime > 0 :
-        timeStart = time.parse_duration("%im" % skiptime) + time.now();
+    if skiptime > 0:
+        timeStart = time.parse_duration("%im" % skiptime) + time.now()
 
         for i, train in enumerate(departuresTrains):
             timeDepart = time.parse_time(train["actualDateTime"][0:19], format = "2006-01-02T15:04:05", location = "Europe/Amsterdam")
@@ -201,7 +196,7 @@ def getTrains(station_id, skiptime):
 
 def search_station1(loc):
     location = json.decode(loc)
-    resp = http.get("https://gateway.apiportal.ns.nl/reisinformatie-api/api/v2/stations", params={"q" : location["locality"], "limit" : "10"}, headers={"Ocp-Apim-Subscription-Key":"20f49c5c5e43465cab9ac8812c84ab22"})
+    resp = http.get("https://gateway.apiportal.ns.nl/reisinformatie-api/api/v2/stations", params = {"q": location["locality"], "limit": "10"}, headers = {"Ocp-Apim-Subscription-Key": "20f49c5c5e43465cab9ac8812c84ab22"})
 
     if resp.status_code != 200:
         # Return an Error
@@ -229,11 +224,9 @@ def search_station1(loc):
         options.append(schema.Option(display = stop["namen"]["lang"], value = stop["code"]))
     return options
 
-
 def search_station(pattern):
-
-    ns_dict = {"q": pattern} # Provide the pattern with a dict, as this will be encoded
-    resp = http.get("https://gateway.apiportal.ns.nl/reisinformatie-api/api/v2/stations", params=ns_dict, headers={"Ocp-Apim-Subscription-Key":"20f49c5c5e43465cab9ac8812c84ab22"})
+    ns_dict = {"q": pattern}  # Provide the pattern with a dict, as this will be encoded
+    resp = http.get("https://gateway.apiportal.ns.nl/reisinformatie-api/api/v2/stations", params = ns_dict, headers = {"Ocp-Apim-Subscription-Key": "20f49c5c5e43465cab9ac8812c84ab22"})
 
     if resp.status_code != 200:
         # Return an Error
