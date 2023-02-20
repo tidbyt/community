@@ -125,6 +125,7 @@ def main(config):
 
     calendar_start_time = current_time.format(RFC3339_FORMAT)
     calendar_end_time = midnight_time
+    today_display_date = time.parse_time(calendar_start_time).in_location(timezone).format("Jan 2")
 
     if DEBUG_ON:
         print(calendar_start_time)
@@ -133,7 +134,7 @@ def main(config):
     # Show Default screen if the user is not authorized
     if not outlook_refresh_token:
         print("Not Auth")
-        return render_calendar("Aug 28", "No More Meetings for today!!!", "")
+        return render_calendar(today_display_date, "Please Authorize Your Outlook Account", "")
     else:
         OUTLOOK_ACCESS_TOKEN = cache.get(outlook_refresh_token)
 
@@ -154,7 +155,12 @@ def main(config):
         refresh = http.post(msft_token_endpoint, body = refresh_body)
 
         if refresh.status_code != 200:
-            fail("Refresh of Access Token failed with Status Code: %d - %s" % (refresh.status_code, refresh.body()))
+            auth_failure_code = str(refresh.status_code)
+            auth_failure_error_description = refresh.json()["error_description"]
+            if DEBUG_ON:
+                print("Refresh of Access Token Failed with Code %s - %s" % (auth_failure_code, auth_failure_error_description))
+            return render_calendar(today_display_date, "Auth Failure: " + auth_failure_code + "  **** " + auth_failure_error_description, "")
+            #fail("Refresh of Access Token failed with Status Code: %d - %s" % (refresh.status_code, refresh.body()))
 
         # Grab new Oauthtoken from the Google Token service, format for Data Aggregation API call.
         OUTLOOK_ACCESS_TOKEN = "Bearer {}".format(refresh.json()["access_token"])
@@ -168,7 +174,7 @@ def main(config):
     # Not that specifying a time in the past will likely return a meeting time in the past so for this app it's important to
     # call function get_outlook_event_list using the current or future time.
 
-    meeting_list, next_meeting_time = get_outlook_event_list(calendar_start_time, calendar_end_time, OUTLOOK_ACCESS_TOKEN)
+    meeting_list, next_meeting_time = get_outlook_event_list(calendar_start_time, calendar_end_time, OUTLOOK_ACCESS_TOKEN, today_display_date)
 
     # Filter out case where there is one meeting in the list and it's already in progress (next_meeting_time will be null)
 
@@ -198,7 +204,7 @@ def main(config):
             print(conflict_meeting_banner)
     else:
         conflict_meeting_banner = "No More Meetings for Today!"
-        display_calendar_date = time.parse_time(calendar_start_time).in_location("America/Detroit").format("Jan 2")
+        display_calendar_date = time.parse_time(calendar_start_time).in_location("America/Detroit").format("Jan 2")  # BUG HERE: Fix the Timezone (it's hardcoded)
         display_next_meeting_time = ""
 
         if DEBUG_ON:
@@ -278,7 +284,7 @@ def get_schema():
         ],
     )
 
-def get_outlook_event_list(start_window, end_window, auth_token):
+def get_outlook_event_list(start_window, end_window, auth_token, todays_date):
     # This function takes a start and end window and builds a Dict of meetings indexed on the meeting start time.
     # Each dict Has the meeting subject
     # Future enhancement is to add the meeting Organizer
@@ -317,7 +323,12 @@ def get_outlook_event_list(start_window, end_window, auth_token):
 
         CalendarQuery = http.get(next_graph_event_link, headers = OUTLOOK_EVENT_HEADERS)
         if CalendarQuery.status_code != 200:
-            fail("Outlook Calendar View Request failed with status:", CalendarQuery.json())
+            cal_failure_code = str(CalendarQuery.status_code)
+            cal_failure_error_description = CalendarQuery.json()["error_description"]
+            if DEBUG_ON:
+                print("Calendar Data Fetch Failed %s - %s" % (cal_failure_code, cal_failure_error_description))
+            return render_calendar(todays_date, "Calendar Fetch Failure:" + cal_failure_code + "  **** " + cal_failure_error_description, "")
+            #fail("Outlook Calendar View Request failed with status:", CalendarQuery.json())
 
         meeting_num = 0
 
