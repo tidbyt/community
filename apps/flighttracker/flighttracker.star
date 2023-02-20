@@ -76,6 +76,10 @@ def main(config):
     endDate = humanize.time_format("yyyy-MM-dd", tomorrow)
 
     # Determine which api to call upon based upon selected display mode.
+
+    # Defualt API url
+    apiURL = "https://aeroapi.flightaware.com/aeroapi/airports/" + airportCode + "/flights/departures?type=Airline"
+
     if displayMode == "departures":
         apiURL = "https://aeroapi.flightaware.com/aeroapi/airports/" + airportCode + "/flights/departures?type=Airline"
     if displayMode == "arrivals":
@@ -98,12 +102,15 @@ def main(config):
         print("No cached data; calling FA API")
         rep = http.get(apiURL, headers = {"x-apikey": faAPIKey})
 
-        #if rep.status_code != 200:
-        #    fail("FA API failed with status %d", rep.status_code)
+        if rep.status_code != 200:
+            fail("FA API failed with status %d", rep.status_code)
         flightawareData = rep.json()
         cache.set("flightawareData%s" % displayMode, json.encode(flightawareData), ttl_seconds = 60)
 
     # Determine how to read data based upon above selection.
+    # Default flights
+    flights = "null"
+
     if displayMode == "departures":
         flights = flightawareData["departures"]
     if displayMode == "arrivals":
@@ -116,7 +123,7 @@ def main(config):
     aircraftType = flights[0]["aircraft_type"]  # Aircraft Type
     status = flights[0]["status"]  # Flight Status
     operator = flights[0]["operator"]  # Flight Operator
-    operator_iata = flights[0]["operator_iata"]  # Operator IATA Code
+    #operator_iata = flights[0]["operator_iata"]  # Operator IATA Code
 
     origin = flights[0]["origin"]  # Set origin header for data collection within origin list.
     originICAO = origin["code"]  # Origin ICAO code
@@ -163,7 +170,7 @@ def main(config):
 
     scheduledArrival = time.time(year = scheduledArrival_year, month = scheduledArrival_month, day = scheduledArrival_day, hour = scheduledArrival_h, minute = scheduledArrival_m, second = scheduledArrival_s, location = "Europe/London")
 
-    scheduledArrival_humanized = humanize.time(scheduledArrival)
+    #scheduledArrival_humanized = humanize.time(scheduledArrival)
 
     scheduledArrival_time = humanize.time_format("HH:mm", scheduledArrival.in_location(destinationTimezone))
 
@@ -214,7 +221,7 @@ def main(config):
 
     actualDeparture = time.time(year = year, month = month, day = day, hour = hour, minute = minute, second = second, location = "Europe/London")
 
-    actualDeparture_humanized = humanize.time(actualDeparture)
+    #actualDeparture_humanized = humanize.time(actualDeparture)
 
     actualDeparture_time = humanize.time_format("HH:mm", actualDeparture.in_location(originTimezone))
 
@@ -242,6 +249,13 @@ def main(config):
     lowerMarquee = flight_number + " | " + registration + " | " + aircraftType  # Lower marquee layout.
 
     ## MARQUEE FORMATTING & DATA TO DISPLAY
+    time_color = "#ffffff"
+    departureSecondary = "deptSecondary"
+    arrivalSecondary = "arrvSecondary"
+    departureSecondaryColor = "#f5be00"
+    arrivalSecondaryColor = "#f5be00"
+    marquee = status
+
     if status == "Scheduled":
         time_color = "#19d172"
         marquee = "Scheduled to Depart " + scheduledDept_humanized
@@ -287,7 +301,6 @@ def main(config):
     if status == "Scheduled / Delayed":
         time_color = "#FFC857"
         marquee = "Delayed | Departing at " + estimatedDeparture_humanized
-        showTrack = "false"
         departureSecondary = estimatedDeparture_time
         arrivalSecondary = estimatedArrival_time
         departureSecondaryColor = "#C5283D"  # Red
@@ -295,7 +308,6 @@ def main(config):
     if status == "Taxiing / Delayed":
         time_color = "#FFC857"
         marquee = "Taxiing / Delayed | Departing at " + estimatedDeparture_humanized
-        showTrack = "false"
         departureSecondary = estimatedDeparture_time
         arrivalSecondary = estimatedArrival_time
         departureSecondaryColor = "#C5283D"  # Red
@@ -303,7 +315,6 @@ def main(config):
     if status == "Arrived":
         time_color = "#19d172"
         marquee = "Arrived " + actualArrival_humanized
-        showTrack = "false"
         departureSecondary = actualDeparture_time
         arrivalSecondary = actualArrival_time
         departureSecondaryColor = "#19d172"  # Green
@@ -311,7 +322,6 @@ def main(config):
     if status == "Landed / Taxiing":
         time_color = "#19d172"
         marquee = "Arrived " + actualArrival_humanized
-        showTrack = "false"
         departureSecondary = actualDeparture_time
         arrivalSecondary = actualArrival_time
         departureSecondaryColor = "#19d172"  # Green
