@@ -25,7 +25,7 @@ DELAYED_TEXT_COLOR = "#DB0029"
 
 NO_FRAMES_TOGGLE = 60
 
-DEFAULT_STATION = "ASD"
+DEFAULT_STATION = "ehv"
 
 def main(config):
     station_id = config.str("station")
@@ -118,18 +118,6 @@ def renderTrain(stop_info):
         departureTimeRender = render.Animation(children = renderTimeChild)
 
     else:
-        if departureTimeText[-8:15] == "minute ":
-            print("A")
-            departureTimeText = departureTimeText[:-4]
-
-        if departureTimeText[-8:15] == "minutes ":
-            departureTimeText = departureTimeText[:-5]
-
-        if departureTimeText[-8:15] == "seconds ":
-            departureTimeText = departureTimeText[:-4]
-
-        print(departureTimeText[-2:2])
-
         renderTimeChild = []
         renderTimeChild.extend([departureTimeRender] * NO_FRAMES_TOGGLE)
         renderTimeChild.extend(
