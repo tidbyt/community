@@ -8,10 +8,10 @@ Description: Shows a timetable for a station in the Dutch Railways.
 load("cache.star", "cache")
 load("encoding/json.star", "json")
 load("http.star", "http")
+load("humanize.star", "humanize")
 load("render.star", "render")
 load("schema.star", "schema")
 load("time.star", "time")
-load("humanize.star", "humanize")
 
 API_KEY = "20f49c5c5e43465cab9ac8812c84ab22"
 
