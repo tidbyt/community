@@ -176,7 +176,7 @@ def parse_time(time_string):
     return time_obj
 
 def getTrains(station_id, skiptime):
-    departureRes = http.get("https://gateway.apiportal.ns.nl/reisinformatie-api/api/v2/departures", params = {"station": station_id}, headers = {"Ocp-Apim-Subscription-Key": "20f49c5c5e43465cab9ac8812c84ab22"}).body()
+    departureRes = http.get("https://gateway.apiportal.ns.nl/reisinformatie-api/api/v2/departures", params = {"station": station_id}, headers = {"Ocp-Apim-Subscription-Key": API_KEY}).body()
     departures = json.decode(departureRes)
     departuresTrains = departures["payload"]
     departuresTrains = departuresTrains["departures"]
@@ -196,7 +196,7 @@ def getTrains(station_id, skiptime):
 
 def search_station1(loc):
     location = json.decode(loc)
-    resp = http.get("https://gateway.apiportal.ns.nl/reisinformatie-api/api/v2/stations", params = {"q": location["locality"], "limit": "10"}, headers = {"Ocp-Apim-Subscription-Key": "20f49c5c5e43465cab9ac8812c84ab22"})
+    resp = http.get("https://gateway.apiportal.ns.nl/reisinformatie-api/api/v2/stations", params = {"q": location["locality"], "limit": "10"}, headers = {"Ocp-Apim-Subscription-Key": API_KEY})
 
     if resp.status_code != 200:
         # Return an Error
