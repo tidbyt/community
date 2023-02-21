@@ -5,15 +5,15 @@ Description: Get celebratory notifications when you hit specific order milestone
 Author: Shopify
 """
 
-load("render.star", "render")
-load("schema.star", "schema")
-load("http.star", "http")
-load("time.star", "time")
+load("cache.star", "cache")
 load("encoding/base64.star", "base64")
 load("encoding/json.star", "json")
-load("humanize.star", "humanize")
-load("cache.star", "cache")
 load("hash.star", "hash")
+load("http.star", "http")
+load("humanize.star", "humanize")
+load("render.star", "render")
+load("schema.star", "schema")
+load("time.star", "time")
 
 # Messages
 ERROR_TEXT = "We hit a snag. Please check your app."
@@ -133,6 +133,9 @@ def get_milestone(order_count):
             continue
 
         return ((order_count - previous[0]) // previous[1]) * previous[1] + previous[0]
+
+    # Should never get here.
+    return 0
 
 # SHOULD CELEBRATE
 # Returns whether or not we should celebrate now, given the previous celebration milestone

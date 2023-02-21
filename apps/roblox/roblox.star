@@ -5,13 +5,13 @@ Description: Real time views of your Roblox experiences.
 Author: Chad Milburn / CODESTRONG
 """
 
-load("http.star", "http")
-load("time.star", "time")
 load("cache.star", "cache")
-load("schema.star", "schema")
-load("render.star", "render")
-load("encoding/json.star", "json")
 load("encoding/base64.star", "base64")
+load("encoding/json.star", "json")
+load("http.star", "http")
+load("render.star", "render")
+load("schema.star", "schema")
+load("time.star", "time")
 
 ### CONSTANTS
 TTL_SECONDS = 240
@@ -38,6 +38,9 @@ def main(config):
 
     ### SET USERNAME
     username = config.str("username") if config.str("username") != None and config.str("username") != "" else DEFAULT_USER_NAME
+
+    renderGame = []
+    renderFriend = []
 
     ### GET USER ID
     user_id_cached = cache.get("user_id_%s" % username)

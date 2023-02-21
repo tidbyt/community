@@ -5,9 +5,8 @@ Description: Displays basic employee information to coworkers.
 Author: Brian Bell
 """
 
-load("encoding/base64.star", "base64")
-load("render.star", "render")
 load("re.star", "re")
+load("render.star", "render")
 load("schema.star", "schema")
 
 DEFAULT_NAME = "John Smith"

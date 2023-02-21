@@ -5,12 +5,12 @@ Description: Displays the real time location of new subway cars in Boston's MBTA
 Author: joshspicer
 """
 
-load("render.star", "render")
-load("http.star", "http")
 load("cache.star", "cache")
-load("encoding/json.star", "json")
-load("schema.star", "schema")
 load("encoding/base64.star", "base64")
+load("encoding/json.star", "json")
+load("http.star", "http")
+load("render.star", "render")
+load("schema.star", "schema")
 
 # MBTA New Train Tracker
 #
@@ -118,7 +118,7 @@ def createTrain(loc, config):
 
     routeResult = mapRouteToColor(loc["route"], config)
     if routeResult == None:
-        return
+        return None
     (color, line) = routeResult
 
     stationName = mapStationIdToName(loc["stationId"])
@@ -205,7 +205,7 @@ def renderDigestRow(color, count, disabled):
             ),
         )
     else:
-        return
+        return None
 
 def displayDigest(apiResult, config):
     r = 0

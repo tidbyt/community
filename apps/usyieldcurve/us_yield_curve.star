@@ -5,14 +5,14 @@ Description: Track changes to the yield curve over different US Treasury maturit
 Author: Rob Kimball
 """
 
+load("cache.star", "cache")
+load("encoding/json.star", "json")
 load("http.star", "http")
 load("math.star", "math")
-load("time.star", "time")
-load("cache.star", "cache")
-load("xpath.star", "xpath")
 load("render.star", "render")
 load("schema.star", "schema")
-load("encoding/json.star", "json")
+load("time.star", "time")
+load("xpath.star", "xpath")
 
 DATEFMT = "2006-01-02T15:04:05"
 DATA_LOCS = {

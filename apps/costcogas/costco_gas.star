@@ -9,14 +9,14 @@ Author: Dan Adam
 # Attribution: Gas Icon from "https://www.iconfinder.com/icons/111078/gas_icon", Costco Icon from "https://play-lh.googleusercontent.com/gqOziTbVWioRJtHh7OvfOq07NCTcAHKWBYPQKJOZqNcczpOz5hdrnQNY7i2OatJxmuY=w240-h480-rw"
 
 load("cache.star", "cache")
-load("encoding/json.star", "json")
 load("encoding/base64.star", "base64")
+load("encoding/json.star", "json")
 load("http.star", "http")
+load("humanize.star", "humanize")
+load("re.star", "re")
 load("render.star", "render")
 load("schema.star", "schema")
-load("re.star", "re")
 load("time.star", "time")
-load("humanize.star", "humanize")
 
 DEFAULT_LOCATION = """
 {

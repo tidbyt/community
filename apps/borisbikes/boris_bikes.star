@@ -6,9 +6,9 @@ Author: dinosaursrarr
 """
 
 load("cache.star", "cache")
-load("http.star", "http")
 load("encoding/base64.star", "base64")
 load("encoding/json.star", "json")
+load("http.star", "http")
 load("math.star", "math")
 load("render.star", "render")
 load("schema.star", "schema")

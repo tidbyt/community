@@ -5,11 +5,11 @@ Description: Real time bus departures for your preferred stop.
 Author: samandmoore
 """
 
-load("re.star", "re")
 load("cache.star", "cache")
 load("encoding/base64.star", "base64")
 load("encoding/json.star", "json")
 load("http.star", "http")
+load("re.star", "re")
 load("render.star", "render")
 load("schema.star", "schema")
 load("secret.star", "secret")

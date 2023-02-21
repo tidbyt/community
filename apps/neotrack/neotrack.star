@@ -5,14 +5,14 @@ Description: Shows the closest object on approach to Earth today according to NA
 Author: brettohland
 """
 
-load("render.star", "render")
+load("cache.star", "cache")
 load("encoding/base64.star", "base64")
+load("encoding/json.star", "json")
+load("http.star", "http")
+load("humanize.star", "humanize")
+load("render.star", "render")
 load("secret.star", "secret")
 load("time.star", "time")
-load("humanize.star", "humanize")
-load("http.star", "http")
-load("cache.star", "cache")
-load("encoding/json.star", "json")
 
 ASTEROID = base64.decode("""
 R0lGODlhFAAUAPcGAEhJRzAxL3l7eAACADc5NwcJBgABAFlbWGBiXyUnJE1PTCIkIXN1coqM
@@ -435,7 +435,7 @@ def main():
     return render.Root(
         child = render.Row(
             children = [
-                render_image_and_scale(ASTEROID, border_color, diameter),
+                render_image_and_scale(border_color, diameter),
                 render.Padding(
                     pad = (2, 0, 0, 0),
                     child = render.Column(
@@ -483,7 +483,7 @@ def make_data_scroll(prefix, data_string):
     )
 
 # Builds out the righthand column with the image of the asteroid, and scale.
-def render_image_and_scale(image, highlight_color, size_string):
+def render_image_and_scale(highlight_color, size_string):
     return render.Column(
         expanded = True,
         # main_align = "end",
@@ -526,7 +526,7 @@ def render_image_and_scale(image, highlight_color, size_string):
 # eg. "8.00" becomes "8", "9.01" will remain "9.01".
 def strip_trailing_zeros(value):
     # Loop through and remove any and all trailing "0" characters
-    for i in range(len(value)):
+    for _ in range(len(value)):
         value = value.removesuffix("0")
 
     # Remove a trailing decimal separator if present

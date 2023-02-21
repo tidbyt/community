@@ -9,17 +9,17 @@ Author: rs7q5
 #Created 20220130 RIS
 #Last Modified 20220201 RIS
 
-load("render.star", "render")
-load("http.star", "http")
+load("cache.star", "cache")
 
 #load("encoding/base64.star", "base64")
 load("encoding/json.star", "json")
-load("cache.star", "cache")
+load("http.star", "http")
 
 #load("schema.star","schema")
 #load("math.star","math")
 #load("time.star","time")
 load("re.star", "re")
+load("render.star", "render")
 
 base_URL = "https://v2.jokeapi.dev/joke/Any"
 

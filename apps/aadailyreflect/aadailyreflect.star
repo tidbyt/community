@@ -5,11 +5,11 @@ Description: Display AA Daily Refelection from the AA.org website
 Author: jvivona
 """
 
+load("cache.star", "cache")
+load("encoding/json.star", "json")
+load("http.star", "http")
 load("render.star", "render")
 load("time.star", "time")
-load("cache.star", "cache")
-load("http.star", "http")
-load("encoding/json.star", "json")
 
 APPTITLE_TEXT_COLOR = "#fff"
 APPTITLE_BKG_COLOR = "#0000ff"
@@ -36,8 +36,8 @@ TITLE_FINDER_END = "</span>"
 TITLE_OFFSET = 2
 
 TEASER_FINDER = "field--name-field-teaser field--type-text-long field--label-hidden field__item"
-TEASER_FINDER_END = "</strong></p>"
-TEASER_OFFSET = 13
+TEASER_FINDER_END = "</p>"
+TEASER_OFFSET = 5
 
 REFERENCE_FINDER = "<strong>"
 REFERENCE_FINDER_END = "</strong>"
@@ -92,7 +92,7 @@ def get_cachable_data(url):
 
 def render_text(config):
     current_month_day = time.now().in_location(config.get("$tz", "America/Chicago")).format("01/02/06")[:5]
-    daily_reflection = json.decode(get_cachable_data(API_STUB + current_month_day))["data"]
+    daily_reflection = json.decode(get_cachable_data(API_STUB + current_month_day))["data"].replace("&quot;", "\"").replace("&nbsp;", " ")
 
     title = extract_text(daily_reflection, TITLE_FINDER, TITLE_FINDER_END, TITLE_OFFSET).title()
 
@@ -100,7 +100,7 @@ def render_text(config):
     teaser = extract_text(daily_reflection.split("<div")[2], TEASER_FINDER, TEASER_FINDER_END, TEASER_OFFSET)
 
     # same technique as above, but the reference is a <p> tag inside the div so use that to our advantage
-    reference = extract_text(daily_reflection.split("<div")[2].split("<p>")[2], REFERENCE_FINDER, REFERENCE_FINDER_END, REFERENCE_OFFSET).title().replace("P.", "p.")
+    reference = extract_text(daily_reflection.split("<div")[2].split("<p>")[-1], REFERENCE_FINDER, REFERENCE_FINDER_END, REFERENCE_OFFSET).title().replace("Pp.", "pp.").replace("P.", "p.")
 
     if len(title) == 0 or len(teaser) == 0 or len(reference) == 0:
         return error()
@@ -118,7 +118,7 @@ def extract_text(content, start_string, end_string, offset):
     text_end = content.find(end_string, text_start)
     if text_start == -1 or text_end == -1:
         return ""
-    return content[text_start + len(start_string) + offset:text_end].replace("&quot;", "\"")
+    return content[text_start + len(start_string) + offset:text_end].replace("<strong>", "").replace("</strong>", "")
 
 def error():
-    return render.WrappedText("An error has occurred getting the daily reflection.", width = 64)
+    return [render.WrappedText("An error has occurred getting the daily reflection.", width = 64)]

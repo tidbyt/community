@@ -5,13 +5,13 @@ Description: Shows Time date and location of Next NASCAR Race - Cup, Xfinity, Tr
 Author: jvivona
 """
 
-load("render.star", "render")
 load("animation.star", "animation")
-load("http.star", "http")
-load("encoding/json.star", "json")
-load("time.star", "time")
-load("schema.star", "schema")
 load("cache.star", "cache")
+load("encoding/json.star", "json")
+load("http.star", "http")
+load("render.star", "render")
+load("schema.star", "schema")
+load("time.star", "time")
 
 # cache data for 15 minutes - cycle through with cache on the API side
 CACHE_TTL_SECONDS = 900

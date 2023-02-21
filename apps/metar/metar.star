@@ -1,8 +1,15 @@
-load("render.star", "render")
-load("http.star", "http")
+"""
+Applet: METAR
+Author: Alexander Valys
+Summary: METAR aviation weather
+Description: Show METAR (aviation weather) text for one airport or flight
+    category (VFR/IFR/etc.) for up to 15 airports. Separate airport identifiers
+    by commas to display multiple airports.
+"""
+
 load("cache.star", "cache")
-load("encoding/json.star", "json")
-load("secret.star", "secret")
+load("http.star", "http")
+load("render.star", "render")
 load("schema.star", "schema")
 
 ADDS_URL = "https://www.aviationweather.gov/adds/dataserver_current/httpparam?dataSource=metars&requestType=retrieve&format=csv&stationString=%s&mostrecentforeachstation=constraint&hoursBeforeNow=2"
@@ -14,7 +21,7 @@ DEFAULT_AIRPORT = "KJFK, KLGA, KBOS, KDCA"
 
 MAX_AGE = 60 * 10
 
-def decoded_result_for_airport(config, airport):
+def decoded_result_for_airport(airport):
     cache_key = "metar_cache_" + airport
     cached_result = cache.get(cache_key)
     if (cached_result != None):
@@ -88,9 +95,8 @@ def color_for_state(result):
 def render_single_airport(config, airport):
     use_small_font = config.get("use_small_font") or False
 
-    result = decoded_result_for_airport(config, airport)
+    result = decoded_result_for_airport(airport)
     text = result["text"]
-    category = result["flight_category"].upper()
     color = result["color"]
 
     if use_small_font:
@@ -140,10 +146,10 @@ def render_single_airport(config, airport):
             max_age = MAX_AGE,
         )
 
-def render_four_airports(config, airports):
+def render_four_airports(airports):
     row_widgets = []
     for airport in airports:
-        result = decoded_result_for_airport(config, airport)
+        result = decoded_result_for_airport(airport)
         color = result["color"]
         row_widgets.append(
             render.Row(
@@ -172,10 +178,10 @@ def render_four_airports(config, airports):
         max_age = MAX_AGE,
     )
 
-def render_eight_airports(config, airports):
+def render_eight_airports(airports):
     left_widgets = []
     for airport in airports[:4]:
-        result = decoded_result_for_airport(config, airport)
+        result = decoded_result_for_airport(airport)
         color = result["color"]
         left_widgets.append(
             render.Row(
@@ -193,7 +199,7 @@ def render_eight_airports(config, airports):
         )
     right_widgets = []
     for airport in airports[4:]:
-        result = decoded_result_for_airport(config, airport)
+        result = decoded_result_for_airport(airport)
         color = result["color"]
         right_widgets.append(
             render.Row(
@@ -229,7 +235,7 @@ def render_eight_airports(config, airports):
         max_age = MAX_AGE,
     )
 
-def render_fifteen_airports(config, airports):
+def render_fifteen_airports(airports):
     font = "tom-thumb"
     code_height = 6
     code_width = 12
@@ -238,7 +244,7 @@ def render_fifteen_airports(config, airports):
 
     left_widgets = []
     for airport in airports[:5]:
-        result = decoded_result_for_airport(config, airport)
+        result = decoded_result_for_airport(airport)
         color = result["color"]
         left_widgets.append(
             render.Row(
@@ -256,7 +262,7 @@ def render_fifteen_airports(config, airports):
         )
     mid_widgets = []
     for airport in airports[5:10]:
-        result = decoded_result_for_airport(config, airport)
+        result = decoded_result_for_airport(airport)
         color = result["color"]
         mid_widgets.append(
             render.Row(
@@ -274,7 +280,7 @@ def render_fifteen_airports(config, airports):
         )
     right_widgets = []
     for airport in airports[10:15]:
-        result = decoded_result_for_airport(config, airport)
+        result = decoded_result_for_airport(airport)
         color = result["color"]
         right_widgets.append(
             render.Row(
@@ -335,8 +341,8 @@ def main(config):
     if len(airports) == 1:
         return render_single_airport(config, airports[0])
     elif len(airports) <= 4:
-        return render_four_airports(config, airports)
+        return render_four_airports(airports)
     elif len(airports) <= 8:
-        return render_eight_airports(config, airports)
+        return render_eight_airports(airports)
     else:
-        return render_fifteen_airports(config, airports)
+        return render_fifteen_airports(airports)

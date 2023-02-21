@@ -204,7 +204,7 @@ def render_due(index, line, due_in_seconds):
             # particularly busy stops.
             render.WrappedText(
                 content = str(index),
-                width = 8,
+                width = 12,
                 color = ORANGE,
                 font = FONT,
             ),
@@ -238,7 +238,7 @@ def render_destination(index, destination):
             # particularly busy stops.
             render.WrappedText(
                 content = str(index),
-                width = 8,
+                width = 12,
                 color = ORANGE,
                 font = FONT,
             ),

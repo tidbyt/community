@@ -5,11 +5,11 @@ Description: Shows when your next bus is arriving. Visit fairfaxconnector.com fo
 Author: Austin Pearce
 """
 
-load("render.star", "render")
 load("cache.star", "cache")
 load("encoding/base64.star", "base64")
 load("encoding/json.star", "json")
 load("http.star", "http")
+load("render.star", "render")
 load("schema.star", "schema")
 load("secret.star", "secret")
 

@@ -5,14 +5,14 @@ Description: Gaze upon glorious marine life.
 Author: vlauffer
 """
 
-load("render.star", "render")
-load("time.star", "time")
-load("http.star", "http")
+load("cache.star", "cache")
 load("encoding/base64.star", "base64")
 load("encoding/json.star", "json")
-load("cache.star", "cache")
-load("schema.star", "schema")
+load("http.star", "http")
 load("re.star", "re")
+load("render.star", "render")
+load("schema.star", "schema")
+load("time.star", "time")
 
 CACHE_TTL_SECONDS = 3600 * 24 * 7
 FISH_WIDTH = 40
@@ -29,7 +29,7 @@ CONTENT_TITLES = ["Species Name", "Biology", "Location", "Habitat", "Physical De
 
 FISH_WATCH_URL = "https://www.fishwatch.gov/api/species/"
 
-def main(config):
+def main():
     #get fish data and pick a random fish
     fish_barrel = get_fish_barrel()
     random_index = random(len(fish_barrel))
@@ -140,7 +140,7 @@ def get_fish_barrel():
 
 def get_fact(fish_info, content_titles_clone):
     #find a random fact
-    for i in (range(0, len(content_titles_clone))):
+    for _ in (range(0, len(content_titles_clone))):
         random_index = random(len(content_titles_clone))
         random_attribute = content_titles_clone.pop(random_index)
         fish_facts = fish_info[random_attribute]
@@ -176,7 +176,7 @@ def get_fact(fish_info, content_titles_clone):
 
 def pick_random_lines(facts):
     #find a random fact from the array of split lines and return it
-    for i in range(0, len(facts) - 1):
+    for _ in range(0, len(facts) - 1):
         random_fact_index = random(len(facts))
         random_fact = facts.pop(random_fact_index)
         random_fact = remove_chars(random_fact)

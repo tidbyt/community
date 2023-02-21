@@ -1,3 +1,10 @@
+"""
+Applet:
+Summary:
+Description:
+Author:
+"""
+
 load("render.star", "render")
 
 def main():

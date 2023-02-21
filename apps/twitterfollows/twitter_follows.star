@@ -5,11 +5,11 @@ Description: Display the follower count for a provided screen name.
 Author: Nick Penree
 """
 
+load("cache.star", "cache")
+load("encoding/base64.star", "base64")
+load("http.star", "http")
 load("render.star", "render")
 load("schema.star", "schema")
-load("http.star", "http")
-load("encoding/base64.star", "base64")
-load("cache.star", "cache")
 
 TWITTER_PROFILE_URL = "https://cdn.syndication.twimg.com/widgets/followbutton/info.json?screen_names="
 TWITTER_AT = "@"

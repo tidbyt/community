@@ -6,12 +6,12 @@ Author: kmphua
 Thanks: aschober, bretep, codeakk
 """
 
-load("render.star", "render")
-load("http.star", "http")
+load("cache.star", "cache")
 load("encoding/base64.star", "base64")
 load("encoding/json.star", "json")
-load("cache.star", "cache")
+load("http.star", "http")
 load("math.star", "math")
+load("render.star", "render")
 
 COINGECKO_PRICE_URL = "https://api.coingecko.com/api/v3/coins/{}?localization=false&tickers=false&community_data=false&developer_data=false"
 
@@ -35,7 +35,7 @@ POST_HEADERS = {
 DAILY_DATA_UPDATES_QUERY = "{\"query\": \"{ dailyDataUpdates(orderBy: timestamp orderDirection: desc first: 1) { payoutPerTShare } }\" }"
 GLOBAL_INFOS_QUERY = "{\"query\": \"{ globalInfos(orderBy: timestamp orderDirection: desc first: 1)  { hexDay, shareRate } }\" }"
 
-def main(config):
+def main():
     # Get coin data for selected coin from CoinGecko
     coin_data = get_json_from_cache_or_http(COINGECKO_PRICE_URL.format("hex"), ttl_seconds = 600)
 
@@ -170,6 +170,8 @@ def hasData(json):
     return "data" in json
 
 def format_float_string(float_value):
+    currency_price = 0
+
     # Round price to nearest whole number (used to decide how many decimal places to leave)
     float_value_integer = str(int(math.round(float(float_value))))
 

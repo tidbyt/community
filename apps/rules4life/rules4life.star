@@ -8,7 +8,6 @@ Author: Robert Ison
 load("render.star", "render")
 load("schema.star", "schema")
 load("time.star", "time")
-load("math.star", "math")
 
 DISPLAY_OPTIONS = [
     schema.Option(value = "random", display = "Display Random Rule every time"),

@@ -1,8 +1,16 @@
-load("render.star", "render")
-load("http.star", "http")
-load("encoding/json.star", "json")
-load("schema.star", "schema")
+"""
+Applet: The Guardian News
+Author: jvivona
+Summary: Guardian News Headlines
+Description: Gets latest new articles from The Guardian and displays up to 3 articles
+    for selected edition.
+"""
+
 load("cache.star", "cache")
+load("encoding/json.star", "json")
+load("http.star", "http")
+load("render.star", "render")
+load("schema.star", "schema")
 
 # cache data for 15 minutes - cycle through with cache on the API side
 CACHE_TTL_SECONDS = 900

@@ -6,8 +6,8 @@ Author: Robert Ison
 """
 
 load("encoding/base64.star", "base64")  #Used to read encoded image
-load("render.star", "render")
 load("random.star", "random")
+load("render.star", "render")
 load("schema.star", "schema")
 load("time.star", "time")
 
@@ -221,7 +221,7 @@ def get_animation_items(images, speed):
         speed = 10
 
     for image in images:
-        for i in range(1, speed):
+        for _ in range(1, speed):
             animation.append(render.Image(src = image))
 
     return render.Animation(

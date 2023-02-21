@@ -5,13 +5,13 @@ Description: Tindie is an online marketplace for maker-made products. This app d
 Author: Joey Castillo
 """
 
-load("render.star", "render")
-load("schema.star", "schema")
 load("cache.star", "cache")
-load("time.star", "time")
+load("encoding/json.star", "json")
 load("hash.star", "hash")
 load("http.star", "http")
-load("encoding/json.star", "json")
+load("render.star", "render")
+load("schema.star", "schema")
+load("time.star", "time")
 
 # These are the values from Tindie's API documentation page.
 # They are invalid, but at least they're canonically invalid.
