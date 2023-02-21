@@ -5,14 +5,16 @@ Description: Displays live and upcoming soccer scores from a data feed.   Heavil
 Author: jvivona
 """
 
-# thanks to @jesushairdo for the new option to be able to show home or away team first.  Let's be more international :-)
-
 load("cache.star", "cache")
 load("encoding/json.star", "json")
 load("http.star", "http")
 load("render.star", "render")
 load("schema.star", "schema")
 load("time.star", "time")
+
+VERSION = 23050
+
+# thanks to @jesushairdo for the new option to be able to show home or away team first.  Let's be more international :-)
 
 CACHE_TTL_SECONDS = 60
 DEFAULT_TIMEZONE = "America/New_York"
@@ -51,6 +53,7 @@ LEAGUE_ABBR = {
     "fifa.friendly.w": "INT W",
     "fifa.w.olympics": "OLY W",
     "fifa.wwc": " WWC",
+    "fifa.shebelieves": "SB Cup",
 }
 
 def main(config):
@@ -468,6 +471,10 @@ leagueOptions = [
     schema.Option(
         display = "English Women's Super League",
         value = "eng.w.1",
+    ),
+    schema.Option(
+        display = "She Belives Cup",
+        value = "fifa.shebelieves",
     ),
     schema.Option(
         display = "United States NWSL",
