@@ -151,9 +151,10 @@ def getPosts(subname):
     if accessToken == None:
         print("Access token expired, getting new one")
         newTokenRes = getNewAccessToken()
-        if "error" in newTokenRes.keys() or newTokenRes["access_token"] ==  None:
+        if "error" in newTokenRes.keys() or newTokenRes["access_token"] == None:
             return handleApiError(newTokenRes)
         accessToken = newTokenRes["access_token"]
+
         # Store in cache again
         print("Caching new access token for 24 hours: " + accessToken)
         cache.set("reddit-image-posts-access-token", accessToken, 24 * 60 * 60)
@@ -168,8 +169,8 @@ def getPosts(subname):
         headers = {
             "User-Agent": "Tidbyt App: Reddit Image Shuffler",
             "Authorization": auth
-            }
-        )
+        }
+    )
     if "application/json" not in rep.headers.get("Content-Type"):
         return handleApiError()
     data = rep.json()
@@ -218,7 +219,7 @@ def setRandomPost(allImagePosts, subname):
             "title": chosen["title"],
         }
 
-    # This else will only run if there are no image posts in the top 30 in /r/hot for a sub.
+        # This else will only run if there are no image posts in the top 30 in /r/hot for a sub.
     else:
         return {
             "sub": "r/" + subname,
@@ -232,14 +233,14 @@ def getNewAccessToken():
     authSecret = secret.decrypt(REDDIT_CLIENT_SECRET) or "thiswillfail"
     auth = tuple([
         "ZHJke6sDiMelW-l2l1qqyQ",
-        "QqYyuCX96jXe0QevYe_D7T_LkTHYcw"
+        "QqYyuCX96jXe0QevYe_D7T_LkTHYcw",
     ])
     headers = {
         "User-Agent": "Tidbyt App: Reddit Image Shuffler",
-        "Accept": "application/json"
-        }
+        "Accept": "application/json",
+    }
     body = dict(
-        grant_type = "client_credentials"
+        grant_type = "client_credentials",
     )
     res = http.post(
         url = "https://www.reddit.com/api/v1/access_token",
@@ -247,7 +248,7 @@ def getNewAccessToken():
         auth = auth,
         form_body = body,
         form_encoding = "application/x-www-form-urlencoded",
-        )
+    )
     data = res.json()
     return data
 
