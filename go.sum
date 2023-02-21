@@ -299,3 +299,5 @@ tidbyt.dev/pixlet v0.24.4 h1:CBmKX2iauUfu/ZUY5Yyq5+38X10rC2o4hrYxNzVVM+4=
 tidbyt.dev/pixlet v0.24.4/go.mod h1:qb+faqi+9rfZvU/ywob35quJeHWDphLJT7SvK7o1L1c=
 tidbyt.dev/pixlet v0.24.5 h1:J4LOKmmeZmv4hhgKg8CxmBxKDkqBXaesX9+Fo2WtaAs=
 tidbyt.dev/pixlet v0.24.5/go.mod h1:qb+faqi+9rfZvU/ywob35quJeHWDphLJT7SvK7o1L1c=
+tidbyt.dev/pixlet v0.24.7 h1:adRcwLD58sAkVrqt15Ur5aIaz8+Lkbr0LZAfcBcs37Q=
+tidbyt.dev/pixlet v0.24.7/go.mod h1:8RRw5LYtOwOuX5Ea3i6QVyVCojLcNkiaCMyulPqzBIY=
