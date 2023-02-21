@@ -16,6 +16,7 @@ Displayed:
     * English Women's Champions League
     * English Women's FA Cup
     * English Women's Super League
+    * She Believes Cup
     * United States NWSL
     * Women's International Friendly
     * Women's Olympics Tournament
