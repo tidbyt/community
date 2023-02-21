@@ -12,6 +12,7 @@ load("http.star", "http")
 load("render.star", "render")
 load("schema.star", "schema")
 load("secret.star", "secret")
+load("time.star", "time")
 
 DEFAULT_SUBREDDITS = ["blackcats", "aww", "eyebleach", "itookapicture", "cats", "pic", "otters", "plants"]
 APPROVED_FILETYPES = [".png", ".jpg", ".jpeg", ".bmp"]
