@@ -169,7 +169,7 @@ def getPosts(subname):
         headers = {
             "User-Agent": "Tidbyt App: Reddit Image Shuffler",
             "Authorization": auth,
-        }
+        },
     )
     if "application/json" not in rep.headers.get("Content-Type"):
         return handleApiError()
