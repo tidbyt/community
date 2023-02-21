@@ -305,8 +305,7 @@ def main(config):
             })
 
     now = time.now()
-    now = time.parse_time("2023-02-11T12:00:00Z")
-    if (stages["data"]["festSchedules"]):
+    if (stages["data"]["festSchedules"] and stages["data"]["currentFest"]):
         # splatfest!!
         for battle in stages["data"]["festSchedules"]["nodes"]:
             if (battle["festMatchSetting"]):
