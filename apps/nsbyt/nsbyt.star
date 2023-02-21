@@ -61,7 +61,7 @@ def main(config):
             cache.set("ns_%s" % station_id, json.encode(stops), ttl_seconds = 30)
 
     else:
-        #station_dest = json.decode(station_dest)["value"]
+        station_dest = json.decode(station_dest)["value"]
         resp_cached = cache.get("ns_%s" % station_id + station_dest)
 
         if resp_cached != None:
