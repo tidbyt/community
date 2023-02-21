@@ -34,9 +34,6 @@ def main(config):
     station_dest = config.str("dest_station")
     skiptime = config.get("skiptime", 0)
 
-    station_dest = "UT"
-    skiptime = 6
-
     if station_id == None:
         station_id = DEFAULT_STATION
     else:
