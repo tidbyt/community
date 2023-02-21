@@ -17,8 +17,10 @@ load("time.star", "time")
 API_KEY = "20f49c5c5e43465cab9ac8812c84ab22"
 
 CORE_BACKGROUND_COLOR = "#003082"
+MAINTENANCE_BACKGROUND_COLOR = "#FFB519"
 CANCELED_BACKGROUND_COLOR = "#DB0029"
 
+BLACK_TEXT_COLOR = "#000"
 CORE_TEXT_COLOR = "#FFFFFF"
 NORMAL_TEXT_COLOR = "#FFC917"
 DELAYED_TEXT_COLOR = "#DB0029"
@@ -29,7 +31,16 @@ DEFAULT_STATION = "ehv"
 
 def main(config):
     station_id = config.str("station")
+    station_dest = config.str("dest_station")
     skiptime = config.get("skiptime", 0)
+
+    station_dest = "UT"
+    skiptime = 6
+
+    if station_id == None:
+        station_id = DEFAULT_STATION
+    else:
+        station_id = json.decode(station_id)["value"]
 
     # Check if we need to convert the skiptime to Int
     if type(skiptime) == "string":
@@ -39,20 +50,31 @@ def main(config):
     if skiptime < 0:
         skiptime = 0
 
-    if station_id == None:
-        station_id = DEFAULT_STATION
-    else:
-        station_id = json.decode(station_id)["value"]
+    # If we don't have a Trip, list trains for station.
+    if station_dest == None:
+        # Normal Train Operations
+        resp_cached = cache.get("ns_%s" % station_id)
+        if resp_cached != None:
+            # Get the cached response
+            # print("Hit!")
+            stops = json.decode(resp_cached)
+        else:
+            # print("Miss!")
+            stops = getTrains(station_id, skiptime)
+            cache.set("ns_%s" % station_id, json.encode(stops), ttl_seconds = 30)
 
-    resp_cached = cache.get("ns_%s" % station_id)
-    if resp_cached != None:
-        # Get the cached response
-        # print("Hit!")
-        stops = json.decode(resp_cached)
     else:
-        # print("Miss!")
-        stops = getTrains(station_id, skiptime)
-        cache.set("ns_%s" % station_id, json.encode(stops), ttl_seconds = 60)
+        #station_dest = json.decode(station_dest)["value"]
+        resp_cached = cache.get("ns_%s" % station_id + station_dest)
+
+        if resp_cached != None:
+            # Get the cached response
+            # print("Hit!")
+            stops = json.decode(resp_cached)
+        else:
+            # print("Miss!")
+            stops = getTrip(station_id, station_dest, skiptime)
+            cache.set("ns_%s" % station_id + station_dest, json.encode(stops), ttl_seconds = 30)
 
     if stops == None or len(stops) == 0:
         return render.Root(child = render.Marquee(
@@ -61,8 +83,10 @@ def main(config):
             offset_start = 5,
             offset_end = 32,
         ))
+
     if len(stops) == 1:
         return render.Root(child = renderTrain(stops[0]))
+
     return render.Root(child = render.Column(
         children = [
             renderTrain(stops[0]),
@@ -76,40 +100,47 @@ def main(config):
     ))
 
 def renderTrain(stop_info):
-    destination = stop_info["direction"]
-    departureTime = display_time(stop_info["plannedDateTime"])
     backgroundColor = CORE_BACKGROUND_COLOR
     textColor = CORE_TEXT_COLOR
 
-    train = stop_info["trainCategory"]
+    destination = stop_info["direction"]
+    departureTime = display_time(stop_info["plannedDateTime"])
+    actualTime = display_time(stop_info["actualDateTime"])
 
+    # For later.
+    # train = stop_info["trainCategory"]
+
+    # Calculate minutes to departure.
     departureTimeText = humanize.relative_time(time.now(), parse_time(stop_info["actualDateTime"]))
     departureTimeText = re.sub("(minutes|minute)", "min", departureTimeText)
     departureTimeText = re.sub("(seconds|second)", "sec", departureTimeText)
 
-    destination = train + " " + destination
+    #destination = train + " " + destination
 
+    # If trains is cancelled, rewrite to message.
     if stop_info["cancelled"] == True:
         backgroundColor = CANCELED_BACKGROUND_COLOR
         departureTime = stop_info["messages"][0]["message"]
+        actualTime = stop_info["messages"][0]["message"]
 
-    actualTime = parse_time(stop_info["actualDateTime"])
-    scheduledTime = parse_time(stop_info["plannedDateTime"])
-    delay = actualTime - scheduledTime
+    # Calculate if there are delays.
+    delay = parse_time(stop_info["actualDateTime"]) - parse_time(stop_info["plannedDateTime"])
     trainDelay = format_duration(delay)
 
+    # Render Scheduled Time.
     departureTimeRender = render.Text(
         content = departureTime,
         color = NORMAL_TEXT_COLOR,
     )
 
+    # If there is a delay, change render.
     if trainDelay != "":
         renderTimeChild = []
         renderTimeChild.extend([departureTimeRender] * NO_FRAMES_TOGGLE)
         renderTimeChild.extend(
             [
                 render.Text(
-                    content = "+" + trainDelay + " min",
+                    content = actualTime + " +" + trainDelay,
                     color = DELAYED_TEXT_COLOR,
                 ),
             ] * NO_FRAMES_TOGGLE,
@@ -178,11 +209,55 @@ def parse_time(time_string):
     time_obj = time.parse_time(time_string[0:19], format = "2006-01-02T15:04:05", location = "Europe/Amsterdam")
     return time_obj
 
+def getTrip(station_id, station_dest, skiptime):
+    resp = http.get("https://gateway.apiportal.ns.nl/reisinformatie-api/api/v3/trips", params = {"fromStation": station_id, "toStation": station_dest}, headers = {"Ocp-Apim-Subscription-Key": API_KEY})
+
+    if resp.status_code != 200:
+        # Return an Empty list
+        return []
+
+    departures = json.decode(resp.body())
+
+    # Create return list
+    options = []
+
+    # Loop through all returned stations
+    for trip in departures["trips"][0:4]:
+        origin = trip["legs"][0]["origin"]
+        originTime = origin.get("actualDateTime", origin.get("plannedDateTime"))
+
+        # Skip departed trains.
+        timeDepart = time.parse_time(originTime[0:19], format = "2006-01-02T15:04:05", location = "Europe/Amsterdam")
+        if timeDepart <= time.now():
+            continue
+
+        # Skip trains that are not in allowed frame.
+        if skiptime > 0:
+            timeStart = time.parse_duration("%im" % skiptime) + time.now()
+            timeDepart = time.parse_time(originTime[0:19], format = "2006-01-02T15:04:05", location = "Europe/Amsterdam")
+            if timeDepart >= timeStart:
+                options.append(
+                    {
+                        "direction": trip["legs"][0]["direction"],
+                        "plannedDateTime": trip["legs"][0]["origin"]["plannedDateTime"],
+                        "actualDateTime": originTime,
+                        "actualTrack": trip["legs"][0]["origin"]["plannedTrack"],
+                        "trainCategory": trip["legs"][0]["product"]["categoryCode"],
+                        "cancelled": trip["legs"][0]["cancelled"],
+                    },
+                )
+
+    return options
+
 def getTrains(station_id, skiptime):
-    departureRes = http.get("https://gateway.apiportal.ns.nl/reisinformatie-api/api/v2/departures", params = {"station": station_id}, headers = {"Ocp-Apim-Subscription-Key": API_KEY}).body()
-    departures = json.decode(departureRes)
-    departuresTrains = departures["payload"]
-    departuresTrains = departuresTrains["departures"]
+    resp = http.get("https://gateway.apiportal.ns.nl/reisinformatie-api/api/v2/departures", params = {"station": station_id}, headers = {"Ocp-Apim-Subscription-Key": API_KEY})
+
+    if resp.status_code != 200:
+        # Return an Empty list
+        return []
+
+    departures = json.decode(resp.body())
+    departuresTrains = departures["payload"]["departures"]
 
     startID = 0
 
@@ -196,36 +271,6 @@ def getTrains(station_id, skiptime):
                 break
 
     return departuresTrains[startID:]
-
-def search_station1(loc):
-    location = json.decode(loc)
-    resp = http.get("https://gateway.apiportal.ns.nl/reisinformatie-api/api/v2/stations", params = {"q": location["locality"], "limit": "10"}, headers = {"Ocp-Apim-Subscription-Key": API_KEY})
-
-    if resp.status_code != 200:
-        # Return an Error
-        return [
-            schema.Option(
-                display = "No stations found",
-                value = "No stations found",
-            ),
-        ]
-
-    stations = json.decode(resp.body())
-
-    # Check if the response is empty
-    if len(stations["payload"]) == 0:
-        return [
-            schema.Option(
-                display = "No stations found",
-                value = "No stations found",
-            ),
-        ]
-
-    stationslist = stations["payload"]
-    options = []
-    for stop in stationslist:
-        options.append(schema.Option(display = stop["namen"]["lang"], value = stop["code"]))
-    return options
 
 def search_station(pattern):
     ns_dict = {"q": pattern}  # Provide the pattern with a dict, as this will be encoded
@@ -274,6 +319,13 @@ def get_schema():
                 id = "station",
                 name = "Station",
                 desc = "Station from which the timetable shall be shown.",
+                icon = "train",
+                handler = search_station,
+            ),
+            schema.Typeahead(
+                id = "dest_station",
+                name = "Destination Station",
+                desc = "Trains will be filtered by destination (optional).",
                 icon = "train",
                 handler = search_station,
             ),
