@@ -9,9 +9,9 @@ load("cache.star", "cache")
 load("encoding/base64.star", "base64")
 load("encoding/json.star", "json")
 load("http.star", "http")
+load("random.star", "random")
 load("render.star", "render")
 load("schema.star", "schema")
-load("time.star", "time")
 
 NUM_POKEMON = 386
 POKEAPI_URL = "https://pokeapi.co/api/v2/pokemon/{}"
@@ -32,7 +32,7 @@ def get_schema():
     )
 
 def main(config):
-    id_ = int(NUM_POKEMON * random()) + 1
+    id_ = random.number(1, NUM_POKEMON)
     pokemon = get_pokemon(id_)
     name = pokemon["name"].title()
     height = pokemon["height"] / 10
@@ -72,10 +72,6 @@ def round(num):
     """Rounds floats to a single decimal place."""
     return float(int(num * 10) / 10)
 
-def random():
-    """Return a pseudo-random number in [0, 1)"""
-    return time.now().nanosecond / (1000 * 1000 * 1000)
-
 def get_pokemon(id):
     url = POKEAPI_URL.format(id)
     data = get_cachable_data(url)
@@ -92,6 +88,6 @@ def get_cachable_data(url, ttl_seconds = CACHE_TTL_SECONDS):
     if res.status_code != 200:
         fail("request to %s failed with status code: %d - %s" % (url, res.status_code, res.body()))
 
-    cache.set(key, base64.encode(res.body()), ttl_seconds = CACHE_TTL_SECONDS)
+    cache.set(key, base64.encode(res.body()), ttl_seconds = ttl_seconds)
 
     return res.body()

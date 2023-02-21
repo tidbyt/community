@@ -7,17 +7,27 @@ Author: rs7q5
 
 #nationalToday.star
 #Created 20220130 RIS
-#Last Modified 20220423 RIS
+#Last Modified 20230210 RIS
 
-load("render.star", "render")
-load("http.star", "http")
-load("encoding/json.star", "json")
 load("cache.star", "cache")
+load("encoding/json.star", "json")
+load("http.star", "http")
+load("qrcode.star", "qrcode")
 load("re.star", "re")
+load("render.star", "render")
+load("schema.star", "schema")
 
-base_URL = "https://nationaltoday.com/what-is-today/"
+BASE_URL = "https://nationaltoday.com/what-is-today/"
 
-def main():
+QR_CODE = qrcode.generate(
+    url = BASE_URL,
+    size = "large",
+    color = "#fff",
+    background = "#000",
+)
+QR_IMAGE = render.Box(width = 32, height = 32, child = render.Image(src = QR_CODE))
+
+def main(config):
     font = "tb-8"  #set font
 
     #check for cached data
@@ -30,7 +40,7 @@ def main():
         print("Miss! Calling NationalToday data.")  #error code checked within each function!!!!
 
         #get the data
-        rep = http.get(base_URL)
+        rep = http.get(BASE_URL)
         if rep.status_code != 200:
             holiday_txt = ["Error", "Could not get holidays!!!!"]
         else:
@@ -42,7 +52,7 @@ def main():
 
             #parse through and set up text for each holiday
             holiday_txt = []
-            for i, holiday in enumerate(holidays_list):
+            for _, holiday in enumerate(holidays_list):
                 holiday_txt.append(re.sub('holiday-title">|<', "", holiday))
 
             if holiday_txt == []:
@@ -60,11 +70,23 @@ def main():
             #cache the data
             cache.set("holiday_rate", json.encode(holiday_txt), ttl_seconds = 1800)  #cache for 30 minutes
 
-    holiday_fmt = format_text(holiday_txt, font)
-
-    return render.Root(
-        delay = 100,  #speed up scroll text
-        child = render.Column(
+    if config.bool("qrcode", False):
+        date_fmt = render.WrappedText(holiday_txt[0], color = "#ff8c00", font = "tom-thumb", width = 32)
+        display_tmp = render.Row(
+            children = [
+                render.Column(
+                    children = [
+                        render.Text("National", color = "#0ac6e9", font = "tom-thumb"),
+                        render.Text("Today", color = "#c9232f", font = "tom-thumb"),
+                        date_fmt,
+                    ],
+                ),
+                QR_IMAGE,
+            ],
+        )
+    else:
+        holiday_fmt = format_text(holiday_txt, font)
+        display_tmp = render.Column(
             children = [
                 render.Row(
                     children = [
@@ -72,7 +94,7 @@ def main():
                         render.Text("Today", color = "#c9232f", font = "tb-8"),
                     ],
                 ),
-                holiday_fmt[0],  #display's the date
+                holiday_fmt[0],  #displays the date
                 render.Marquee(
                     height = 32,
                     scroll_direction = "vertical",
@@ -82,8 +104,24 @@ def main():
                     ),
                 ),
             ],
-        ),
+        )
+
+    return render.Root(
+        delay = 100,  #speed up scroll text
+        show_full_animation = True,
+        child = display_tmp,
     )
+
+def get_schema():
+    return [
+        schema.Toggle(
+            id = "qrcode",
+            name = "Display QR code?",
+            desc = "Enable to display a QR code to today's holidays.",
+            icon = "qrcode",
+            default = False,
+        ),
+    ]
 
 def format_text(x, font):
     #formats color and font of text

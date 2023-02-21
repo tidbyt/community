@@ -24,6 +24,7 @@ def main(config):
     nft = nfts[random(len(nfts))]
     (nft_name, nft_thumbnail) = fetch_nft_thumbnail(nft)
 
+    floor_price = None
     display_floor = config.bool("display_floor", False)
     if display_floor:
         collection_stats = fetch_collection_stats(nft)
@@ -126,7 +127,7 @@ def get_schema():
                 id = "display_floor",
                 name = "Display Floor",
                 desc = "A toggle to display the collection's floor price.",
-                icon = "chart-line",
+                icon = "chartLine",
                 default = False,
             ),
         ],

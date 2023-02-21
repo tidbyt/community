@@ -1,0 +1,8 @@
+---
+id: plausible-analytics
+name: Plausible Stats
+summary: Plausible Analytics Display
+desc: Display your website's traffic stats using your Plausible Analytics account.
+author: brettohland
+fileName: plausibleanalytics.star
+packageName: plausibleanalytics

@@ -6,6 +6,7 @@ Author: Chris Silverberg (csilv)
 """
 
 # USGS Earthquakes
+# Version: 1.0.1 (2022/05/07)
 #
 # This app uses the USGS GeoJSON Summary Feed:
 # https://earthquake.usgs.gov/earthquakes/feed/v1.0/geojson.php
@@ -30,6 +31,7 @@ Author: Chris Silverberg (csilv)
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
+load("animation.star", "animation")
 load("cache.star", "cache")
 load("encoding/base64.star", "base64")
 load("encoding/json.star", "json")
@@ -57,8 +59,8 @@ DEFAULT_LOCATION = """
     "timezone": "America/Los_Angeles"
 }
 """
-DEFAULT_MAGNITUDE = "1"
-DEFAULT_RADIUS = "100"
+DEFAULT_MAGNITUDE = "3"
+DEFAULT_RADIUS = "0"
 
 ICON = base64.decode("""
 iVBORw0KGgoAAAANSUhEUgAAAAoAAAAICAYAAADA+m62AAAAAXNSR0IArs4c6QAAAD1JREFUKFNjZM
@@ -167,7 +169,7 @@ def get_page_frame(mag_str, mag_color, place_str, place_x, time_str):
                     main_align = "center",
                 ),
                 render.Box(
-                    child = render.AnimatedPositioned(
+                    child = animation.AnimatedPositioned(
                         child = render.Text(place_str),
                         curve = "linear",
                         duration = 0,
@@ -277,7 +279,7 @@ def get_schema():
                 id = "location",
                 name = "Location",
                 desc = "Location for which to find nearby earthquakes.",
-                icon = "place",
+                icon = "locationDot",
             ),
             schema.Dropdown(
                 id = "radius",

@@ -5,11 +5,10 @@ Description: Display the days, hours, and minutes remaining to a specified event
 Author: CubsAaron
 """
 
+load("math.star", "math")
 load("render.star", "render")
 load("schema.star", "schema")
 load("time.star", "time")
-load("math.star", "math")
-load("encoding/json.star", "json")
 
 colorOpt = [
     schema.Option(
@@ -110,13 +109,13 @@ def get_schema():
                 id = "event",
                 name = "Event",
                 desc = "The event text to display.",
-                icon = "cog",
+                icon = "gear",
             ),
             schema.DateTime(
                 id = "event_time",
                 name = "Event Time",
                 desc = "The time of the event.",
-                icon = "cog",
+                icon = "gear",
             ),
             schema.Dropdown(
                 id = "eventColor",

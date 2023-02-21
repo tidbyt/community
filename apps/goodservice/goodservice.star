@@ -5,14 +5,17 @@ Description: Projected New York City subway departure times, powered by goodserv
 Author: blahblahblah-
 """
 
+load("encoding/base64.star", "base64")
+load("encoding/json.star", "json")
+load("http.star", "http")
+load("re.star", "re")
 load("render.star", "render")
 load("schema.star", "schema")
 load("time.star", "time")
-load("http.star", "http")
-load("encoding/base64.star", "base64")
 
 DEFAULT_STOP_ID = "M16"
 DEFAULT_DIRECTION = "both"
+DEFAULT_TRAVEL_TIME = '{"display": "0", "value": "0", "text": "0"}'
 GOOD_SERVICE_STOPS_URL_BASE = "https://goodservice.io/api/stops/"
 GOOD_SERVICE_ROUTES_URL = "https://goodservice.io/api/routes/"
 
@@ -20,6 +23,7 @@ NAME_OVERRIDE = {
     "Grand Central-42 St": "Grand Cntrl",
     "Times Sq-42 St": "Times Sq",
     "Coney Island-Stillwell Av": "Coney Is",
+    "South Ferry": "S Ferry",
 }
 
 STREET_ABBREVIATIONS = [
@@ -41,6 +45,10 @@ ABBREVIATIONS = {
     "Rockaway": "Rckwy",
     "Channel": "Chnl",
     "Green": "Grn",
+    "Broadway": "Bway",
+    "Queensboro": "Q Boro",
+    "Plaza": "Plz",
+    "Whitehall": "Whthall",
 }
 
 DIAMONDS = {
@@ -63,6 +71,11 @@ def main(config):
     if stops_req.status_code != 200:
         fail("goodservice stops request failed with status %d", stops_req.status_code)
 
+    travel_time_raw = json.decode(config.get("travel_time", DEFAULT_TRAVEL_TIME))["value"]
+    if not is_parsable_integer(travel_time_raw):
+        fail("non-integer value provided for travel_time: %s", travel_time_raw)
+    travel_time_min = int(travel_time_raw)
+
     direction_config = config.str("direction", DEFAULT_DIRECTION)
     if direction_config == "both":
         directions = ["north", "south"]
@@ -71,6 +84,7 @@ def main(config):
 
     ts = time.now().unix
     blocks = []
+    min_estimated_arrival_time = ts + (travel_time_min * 60)
 
     for dir in directions:
         upcoming_routes = {
@@ -83,6 +97,10 @@ def main(config):
 
         for trip in dir_data:
             matching_route = None
+
+            if trip["estimated_current_stop_arrival_time"] < min_estimated_arrival_time:
+                continue
+
             for r in upcoming_routes[dir]:
                 if r["route_id"] == trip["route_id"] and r["destination_stop"] == trip["destination_stop"]:
                     matching_route = r
@@ -131,7 +149,7 @@ def main(config):
                     second_eta = (int((r["times"][1]) - ts) / 60)
                     second_train_is_delayed = r["is_delayed"][1]
                     if second_train_is_delayed:
-                        if second_eta < 1:
+                        if first_eta < 1:
                             text = text + ", delay"
                         else:
                             text = text + " min, delay"
@@ -192,6 +210,9 @@ def main(config):
                     ),
                 ))
 
+    if len(blocks) == 0:
+        return []
+
     return render.Root(
         child = render.Marquee(
             height = 32,
@@ -204,6 +225,21 @@ def main(config):
         ),
     )
 
+def is_parsable_integer(maybe_number):
+    return not re.findall("[^0-9]", maybe_number)
+
+def travel_time_search(pattern):
+    create_option = lambda value: schema.Option(display = value, value = value)
+
+    if pattern == "0" or not is_parsable_integer(pattern):
+        return [create_option(str(i)) for i in range(10)]
+
+    int_pattern = int(pattern)
+    if int_pattern > 60:
+        return [create_option("60")]
+    else:
+        return [create_option(pattern)] + [create_option(pattern + str(i)) for i in range(10) if int_pattern * 10 + i < 60]
+
 def get_schema():
     stops_req = http.get(GOOD_SERVICE_STOPS_URL_BASE)
     if stops_req.status_code != 200:
@@ -212,11 +248,11 @@ def get_schema():
     stops_options = []
 
     for s in stops_req.json()["stops"]:
-        stop_name = s["name"] + s["secondary_name"] if s["secondary_name"] else s["name"]
+        stop_name = s["name"].replace(" - ", "-") + " - " + s["secondary_name"] if s["secondary_name"] else s["name"].replace(" - ", "-")
         routes = sorted(s["routes"].keys())
         stops_options.append(
             schema.Option(
-                display = stop_name + "(" + ", ".join(routes) + ")",
+                display = stop_name + " (" + ", ".join(routes) + ")",
                 value = s["id"],
             ),
         )
@@ -228,7 +264,7 @@ def get_schema():
                 id = "stop_id",
                 name = "Station",
                 desc = "Station to show subway departures",
-                icon = "subway",
+                icon = "trainSubway",
                 default = "M16",
                 options = stops_options,
             ),
@@ -253,12 +289,19 @@ def get_schema():
                     ),
                 ],
             ),
+            schema.Typeahead(
+                id = "travel_time",
+                name = "Travel Time to Station",
+                desc = "Amount of time it takes to reach this station (trains with earlier arrival times will be hidden).",
+                icon = "hourglass",
+                handler = travel_time_search,
+            ),
         ],
     )
 
 def condense_name(name):
     name = name.replace(" - ", "-")
-    if len(name) < 12:
+    if len(name) < 11:
         return name
 
     if NAME_OVERRIDE.get(name):
@@ -279,5 +322,9 @@ def condense_name(name):
         name = name.replace(key, ABBREVIATIONS[key])
     split_name = name.split("-")
     if len(split_name) > 1 and ("St" in split_name[1] or "Av" in split_name[1] or "Sq" in split_name[1] or "Bl" in split_name[1]) and (split_name[0] != "Far Rckwy"):
+        if "Sts" in split_name[1]:
+            return split_name[0] + " St"
+        if "Avs" in split_name[1]:
+            return split_name[0] + " Av"
         return split_name[1]
     return split_name[0]

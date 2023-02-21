@@ -1,8 +1,15 @@
-load("render.star", "render")
-load("http.star", "http")
+"""
+Applet: IFPARank
+Author: cubsaaron
+Summary: Display IFPA Ranking
+Description: Display an International Flipper Pinball Association (IFPA) World Ranking.
+"""
+
+load("cache.star", "cache")
 load("encoding/base64.star", "base64")
 load("encoding/json.star", "json")
-load("cache.star", "cache")
+load("http.star", "http")
+load("render.star", "render")
 load("schema.star", "schema")
 load("secret.star", "secret")
 
@@ -13,9 +20,7 @@ AV6+xWcEFHNh6PsqmJYMRNJeYkNiOx8tUBB6Wns7QgKLc8HI2AS6LRhNuDrTWvyddBtUM24wUEhuIG42
 
 def main(config):
     apiKey = secret.decrypt(API_KEY) or config.get("dev_api_key")
-    playerId = config.str("playerId", "1")  # Default to KME
-    if not playerId:
-        playerId = "1"  # If they enter nothing, API call will fail. This may only be a problem during dev
+    playerId = config.str("playerId", "1")  # Default to KME, also specified in schema
     IFPA_URL = "https://api.ifpapinball.com/v1/player/" + playerId + "?api_key=" + apiKey
 
     # Keep a cache of the JSON response from the IFPA servers. Key is the user ID, value is the response as a String
@@ -24,7 +29,7 @@ def main(config):
         #        print ("Calling IFPA API")
         res = http.get(IFPA_URL)
         if res.status_code != 200:
-            fail("IFPA request failed: %d", res.status_code)
+            fail("IFPA request failed: statusCode =", res.status_code)
         ifpaCache = json.encode(res.json())  #res.json() converts to dict, but store in cache as a string
         cache.set(playerId + "ifpaKey", str(ifpaCache), ttl_seconds = 43200)  # every 12 hours
 
@@ -65,6 +70,7 @@ def get_schema():
                 name = "Player ID",
                 desc = "IFPA Player ID",
                 icon = "user",
+                default = "1",
             ),
         ],
     )

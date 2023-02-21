@@ -1,15 +1,15 @@
 """
 Applet: World Clock
 Summary: Multi timezone clock
-Description: Displays the time in up to three different locations.
+Description: Displays the time in up to four different locations.
 Author: Elliot Bentley
 """
 
-load("render.star", "render")
-load("time.star", "time")
-load("schema.star", "schema")
 load("encoding/json.star", "json")
+load("render.star", "render")
+load("schema.star", "schema")
 load("sunrise.star", "sunrise")
+load("time.star", "time")
 
 number_font = "tom-thumb"
 font = "tom-thumb"
@@ -21,12 +21,38 @@ def main(config):
             json.decode(config.get("location_2")),
             json.decode(config.get("location_3")),
         ]
+        if "location_4" in config:
+            locations.append(json.decode(config.get("location_4")))
     else:
         locations = [
-            {"timezone": "America/New_York", "locality": "New York", "lat": 0, "lng": 0},
+            {
+                "timezone": "America/New_York",
+                "locality": "New York",
+                "lat": 0,
+                "lng": 0,
+            },
             {"timezone": "Europe/London", "locality": "London", "lat": 0, "lng": 0},
-            {"timezone": "Asia/Tokyo", "locality": "Tokyo", "lat": 35.703286, "lng": 139.748475},
+            {
+                "timezone": "Asia/Tokyo",
+                "locality": "Tokyo",
+                "lat": 35.703286,
+                "lng": 139.748475,
+            },
+            {
+                "timezone": "America/Sao_Paulo",
+                "locality": "São Paulo",
+                "lat": -23.55,
+                "lng": -46.633333,
+            },
         ]
+
+    location_count = int(config.get("location_count") or 3)
+
+    if location_count < 4 and len(locations) > 3:
+        locations.remove(locations[3])
+
+    if location_count < 3:
+        locations.remove(locations[2])
 
     horizonal_rule = render.Box(
         height = 1,
@@ -64,14 +90,14 @@ def main(config):
             height = 7,
             width = (43, 35)[useMeridianTime],
             child = render.Padding(
-                pad = (4, 0, 0, 0),
+                pad = (4, 1, 0, 0),
                 child = render.Marquee(
                     width = (43, 35)[useMeridianTime],
                     child = render.Text(
                         content = locality,
                         font = font,
                         color = time_color,
-                        offset = -1,
+                        offset = 0,
                     ),
                 ),
             ),
@@ -129,6 +155,7 @@ def main(config):
 
     return render.Root(
         delay = 500,
+        max_age = 120,
         child = render.Column(
             children = rows,
             main_align = "space_around",
@@ -140,11 +167,32 @@ def get_schema():
     return schema.Schema(
         version = "1",
         fields = [
+            schema.Dropdown(
+                id = "location_count",
+                name = "Number of clocks",
+                desc = "How many locations to display onscreen.",
+                icon = "list",
+                default = "3",
+                options = [
+                    schema.Option(
+                        display = "2",
+                        value = "2",
+                    ),
+                    schema.Option(
+                        display = "3",
+                        value = "3",
+                    ),
+                    schema.Option(
+                        display = "4",
+                        value = "4",
+                    ),
+                ],
+            ),
             schema.Location(
                 id = "location_1",
                 name = "Location 1",
                 desc = "Location for which to display time.",
-                icon = "place",
+                icon = "locationDot",
             ),
             schema.Text(
                 id = "location_1_label",
@@ -157,7 +205,7 @@ def get_schema():
                 id = "location_2",
                 name = "Location 2",
                 desc = "Location for which to display time.",
-                icon = "place",
+                icon = "locationDot",
             ),
             schema.Text(
                 id = "location_2_label",
@@ -170,7 +218,7 @@ def get_schema():
                 id = "location_3",
                 name = "Location 3",
                 desc = "Location for which to display time.",
-                icon = "place",
+                icon = "locationDot",
             ),
             schema.Text(
                 id = "location_3_label",
@@ -179,11 +227,24 @@ def get_schema():
                 icon = "tag",
                 default = "",
             ),
+            schema.Location(
+                id = "location_4",
+                name = "Location 4",
+                desc = "Location for which to display time.",
+                icon = "locationDot",
+            ),
+            schema.Text(
+                id = "location_4_label",
+                name = "Location 4 label",
+                desc = "Custom label (optional)",
+                icon = "tag",
+                default = "",
+            ),
             schema.Toggle(
                 id = "time_format",
                 name = "Time Format",
                 desc = "Format time as 12H clock instead of 24H",
-                icon = "access_time",
+                icon = "clock",
                 default = False,
             ),
             schema.Toggle(

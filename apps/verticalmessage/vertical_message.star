@@ -7,11 +7,11 @@ Author: rs7q5
 
 #vertical_message.star
 #Created 20220221 RIS
-#Last Modified 20220504 RIS
+#Last Modified 20230210 RIS
 
+load("re.star", "re")
 load("render.star", "render")
 load("schema.star", "schema")
-load("re.star", "re")
 
 COLOR_LIST = {
     "White": "#fff",
@@ -50,9 +50,19 @@ def main(config):
     scroll_opt = config.str("speed", "100")
     return render.Root(
         delay = int(scroll_opt),  #speed up scroll text
+        show_full_animation = True,
         child = render.Marquee(
             height = 32,
-            child = render.WrappedText(content = msg_txt, width = 60, color = color_opt, font = config.str("font", "tb-8"), linespacing = linespacing_final),
+            offset_start = 32,
+            offset_end = 32,
+            child = render.WrappedText(
+                content = msg_txt,
+                width = 64,
+                color = color_opt,
+                font = config.str("font", "tb-8"),
+                linespacing = linespacing_final,
+                align = config.str("text_align", "left"),
+            ),
             scroll_direction = "vertical",
         ),
     )
@@ -71,6 +81,11 @@ def get_schema():
         schema.Option(display = key, value = value)
         for key, value in render.fonts.items()
     ]
+    align_opt = [
+        schema.Option(display = "Left (Default)", value = "left"),
+        schema.Option(display = "Center", value = "center"),
+        schema.Option(display = "Right", value = "right"),
+    ]
     return schema.Schema(
         version = "1",
         fields = [
@@ -78,7 +93,7 @@ def get_schema():
                 id = "msg",
                 name = "Message",
                 desc = "A mesage to display.",
-                icon = "cog",
+                icon = "gear",
                 default = DEFAULT_MSG,
             ),
             schema.Dropdown(
@@ -89,18 +104,26 @@ def get_schema():
                 default = "tb-8",
                 options = fonts,
             ),
+            schema.Dropdown(
+                id = "text_align",
+                name = "Text alignment",
+                desc = "",
+                icon = "gear",
+                default = align_opt[0].value,
+                options = align_opt,
+            ),
             schema.Text(
                 id = "linespacing",
                 name = "Line Spacing",
                 desc = "Adjust line spacing of text (integers only).",
-                icon = "cog",
+                icon = "gear",
                 default = "0",
             ),
             schema.Toggle(
                 id = "negate_linespacing",
                 name = "Negate line spacing?",
                 desc = "",
-                icon = "cog",
+                icon = "gear",
                 default = False,
             ),
             schema.Dropdown(
@@ -129,7 +152,7 @@ def get_schema():
                 id = "speed",
                 name = "Scroll Speed",
                 desc = "Change speed that text scrolls.",
-                icon = "cog",
+                icon = "gear",
                 default = scroll_speed[1].value,
                 options = scroll_speed,
             ),
@@ -137,7 +160,7 @@ def get_schema():
                 id = "hide_app",
                 name = "Hide message?",
                 desc = "",
-                icon = "eye-slash",
+                icon = "eyeSlash",
                 default = False,
             ),
         ],

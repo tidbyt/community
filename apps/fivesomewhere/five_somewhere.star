@@ -5,14 +5,34 @@ Description: Displays a random timezone where it's currently in the 5 o'clock ho
 Author: grantmatheny
 """
 
-load("render.star", "render")
-load("cache.star", "cache")
-load("time.star", "time")
 load("encoding/base64.star", "base64")
 load("random.star", "random")
+load("render.star", "render")
+load("schema.star", "schema")
+load("time.star", "time")
 
 MARTINI_ICON = base64.decode("""
 iVBORw0KGgoAAAANSUhEUgAAABgAAAAYCAYAAADgdz34AAAACXBIWXMAIbEAACGxAAGFqWwEAAACRElEQVRIx+3U30tTYRwG8IVEEeVFBYIXQX+AN0V3EUQXEd0VQRhe5EVYQoEELQvBENqshGKQmpm/cnVUSqSmc0HBypluKz1Oc1s/NHOG0LLtOLXO0/PKKU6grdwZdNELn7Ed3vf5nr3f8x6TKcVxbOumHFpvSsdgcDbNUn66CtgoRGv/amF/IJxJO+ggHSczlVIZXaDi9mZ7EYPnbEUnS/g7yxsIJw3Noks0QirhdyoK8lF+NFd/bYLqKGfJAp7B0VLf8GtEv8QxOf0JofEIBoLv4OU1fXCDqx4XW87i1IFt6PO+RPh9ZHH+TFzh9yn0ykHXkgUsVc2ra9s6pWc+GTMxBaqqQgzxOb/wFYm5eSiJBKaiE4jNfsaP8Y3zYkoCcvAtJMcTr63p/uZlt4lFMuhmpb0DnoFXkMPjCI5N4s2HjxiLTMMX8qP2UTlsjhKUtRbC8bxr8R+2Ot2wVtvdXJuZtMGctIquXK1vw+N++Zft8cgjOGHdi7xrO3GuqQA9gwE0trvA+d207o+fIt6NKHT+cs1ddLq9Pws4H3bhuvk0+oaCYM9wQ3ogwjtozYqecy4sZDFVbIEoUFl8Br0vAnD7h8G9FuGS6F1Kh4kBubRQd8+Jp74hdPf4UXGrRYQ3iJ4ZcmIZtJ8UgqZK9MrQ1wIDj2jhoqHGv3cYulsr0JiWF9v/Av9EgX1aAclSfdvQ4I1kobjuHDhpe6rBgpmiumA9VTvNG1ZaIEO7U3WZAoKPthixRbvoEOXRYdpD2daaO0nXfwd97j9iHjgVlQAAAABJRU5ErkJggg==
+""")
+
+TROPICAL_DRINK_ICON1 = base64.decode("""
+iVBORw0KGgoAAAANSUhEUgAAABgAAAAYCAYAAADgdz34AAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAAOhSURBVEhLrZZLbBNXFIb/GU+cODGOExNjwHEBW0guaaQ+0kVBRa3arrrpgg0qrBAPISJBpTbtout2g9SqrdpNJERUsUHqSyKoEqA2VaM2VEDIAxEgyIHwmDgT24kfE9/pf8dTUcfjNEj9pH/OvSe+55w5d+ZOFPwPvHqiM0DzJvXTLydTRdvp8FQJPvhhz3GaZynhSGJNjE6+ZMwZPRy/xwQnK+4KqmPXysfUAeogddjRkc2dm3qC7a1IJOMtnFfxtAk+dWwVgWAAye4kQh2hj979fOcOx23j2qKR8VvraPZQr1BxqoOS1WnX0+ejE+mLHLoze3f2qmXh5dO9QyU599jef8HgTaqqjjdonv1lIV6gawsVpoJUIOxLINQUw1xhGqYo0PUEIQSyRi7Coe/aYOpn6au5g/6zg6Ge7qTelYhhqVBCbimPfNGEubwMwdIURUGDxwOvV8GthWH8evtHZArzdnBDN5BftJMKRt490PvbUM0ePNLT/nOXfsfI2BQyi0vwNXqxsSOIeDSC7bGNSHRGsDncDn8pj63TAu9s60PL/IswZswUg5tOGBUWdsqBZk+richq9PkFKGolv4YleKwCV5W5TuHVi+zZU1Ba16NxUxfWiQTiDbGvx6yvPrMsS26yYJsvV9bWEpOXNnMEycIofNYsFOufwioUMwJ/6Sp27NJRKp3BsBoH367o6WNDi/zzH5VfVXB7TJ+Rl7Ybp6DdOI/yzG2U9Ycoz89BLLDXRhql2bt47vlJ+NKX4R/5Av78HbnELmwlbgnsHwZLKZgPH6B4ZwqFyXEUxq4hP3oFuatXMPXndZiP76E0k0I5l4VfzMklUXlZiVuCiAcmWizDmVZjZE34mzU+RU+W+qwFaeTjWYNbgmaflXOGtXhUBeF2rzOr4OG2E789WYFbgnRRaeY9NDrTaoKBBmha9bIH6lZp5AbX4Jagn8HFoPcgFhX58tYno6zHoPcQE8jTBN/ZzhW4nkWffPPt2zRfqhCxsJhGyLrHPmfZimU2Q2PiVuhKDLoale+F7E8/1dt3aG/12UHqfg+YRL4jb1FvUN2ULFOeSxlqkrpJDVPfM3CK1pU1f3CY8DWaC9QAA+6znWvAbQ/q0eRY992vw3/eAStvp3mfOkY1Sx+RR/GHvBP7vFmNVRMweB+NVKvtqMaiBqijTJS1PS7UbRGDy4/R65T8j8ENWVwX1WbP6rDWFslAGyi5D/JofUxNsPL7tKsA/A0+fD1qhUelTQAAAABJRU5ErkJggg==
+""")
+
+TROPICAL_DRINK_ICON2 = base64.decode("""
+iVBORw0KGgoAAAANSUhEUgAAABgAAAAYCAYAAADgdz34AAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAAPISURBVEhLrZZLbBtVFIb/GU+cOHEd51HXBddQEiGFhkg8yoIiEAhYsWFRISpgB12gRgIkmm5YwAY2lUCAYEGkqlFhU4mXRCokiCCICFLUNs2jIm1TnJCWOs7EduLHxDP853pIYnuSthKf9M+599j3nHPvnXttDf8Dj76+K0TzFPXtT0cTBeV0uaUEh7/e/xrNPZTtSnAmx6YeNBfMvWy/wQRHy+4yt5TAScPpG9rv9tZJm2nM/TWH9h3tb/W/PPSO61borlVIALfpCYMfcZsVhMIhdPV04bPnht5+4YN9e1y3wnMGoxMXt9FIqQ9THdR2qokyzqdOxSZTP7LpzfyV+bOOg4eO9w4Xpe9T3g0weIOu6xN1hu+lkm3fT9edVIQKU6FIoBNtDXEs5Gdg2Xm61rFtGxkzG2UzcG4w8b34ambQf3KwbW9PV7K7M46VfBHZlRxyBQvW6ipslqZpGup8Pvj9Gi4ujeDnS98gnV9Uwc2kidyySmoz8mMDvb8MV+yB8E8yFfxu6FeMjk8jvbyCQL0fO7eH0RGL4u74TnTuiuL2SCuCxRx2z9h49q4+NC0+AHPWSjC45YbRuZv7pGGobiVRqSa5uARNL+c3sAKfk+eoEsdpfPqROXkMWnM76m/rxja7Ex118U/GnY/fdxxHNtnmMp8uj60lLo8WaxRd+TEEnHlozn+FlSmkbfyR1LHnkSSKxS8woneApyt2/NDwMj/+rfytMjVLRO6QR8uFYzAunEJp9hJKyWsoLS7AXuJamykU56/g3vumEEidRnD0QwRzl2WIKqyatQQbzoD6YriYgHXtKgqXp5GfmkB+/BxyY2eQPXsG07+fh3V9DsXZBErZDIL2ggyJyaP6LK0l0EJrb1TUBwtNjul2KzEzFoKNBt+i9ckHnCUx8npujKPwWqLGgJN1m7X4dA2RVr/bK+PjtpOg6lThlSBV0Bo5h3q3W0k4VAfDqBx2Vd8tRja4Bq8E/QxuD/pfwbImh3dz0lo7Bv0HmUBuE3ypnFV43kXvfnriGZqPdNjxiD2DNmeO65zhUqxyMQwmbkZSiyOpx+RcyPr0U719Bw9U3h3EM4HAJHJGnqaepHooKVPupTQ1Rf1JjVBfMXCC1pNNE1TDhI/T/EANMOCLynkTVOzBDX4PGlzrvfvEa/wNZ8DKW2nepA5RjeIjchUf4UzUfbMVWyZg8D4aUbP0Dz9/AO99fkKaglQ7QL3KRBnl8cDrNVUwuPwYPUHJPwbFhuCCFNdNtajeJtzsEkmgHZTsg1yt16lJVv437RYA/wIAtV1ZfohRZgAAAABJRU5ErkJggg==
+""")
+
+TROPICAL_DRINK_ICON3 = base64.decode("""
+iVBORw0KGgoAAAANSUhEUgAAABgAAAAYCAYAAADgdz34AAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAAPWSURBVEhLrZZdaFtlGMf/5+Q7TZP0wzhmF91ahLJu4HBe+InivPJOhjiYV7IpsiIK2t16pTcDQUVBh2NlejNQ9KJF0OE6KNrJtm5tt7XbQtZlc2mSJmnzcZJz/D8nZ11ycloV/MH/PO/7nPM+z/udKPgfePbdLWGaPdRPvx1JVkynxX9KYORhjJza+xWLuiXBmJ2eezy3lNvN8ntMcKThbqBa1mxsFf+JN6gD1JuW3npoy+bd0e4IBgb7O+xx1hIoYSi1/I4Nk7D3h61iC+FoGIM7B/H1q6c+3P/NU0OW28RxiqZmFjpp9lJPUv3UA1QH5b6YGe+bzfzKojOpROq8YeCJ48MTVam7TG8TVxO3/DXdmPG4Xa/XdX0XXY9QMSpKhWOBAfT441gq34Cml+m6j67rKOSKm1gMXBhL/iy+thGcHD/d8+i2eHpoII7VchXF1RJKFQ1arQadXVMUBR6XC16vgoXlSZy+9iPy5awZPJfOobRiJtUZ+bnR4TMTbSPY9cye2EJi8R2fzw+fz4Og34douAO9nOfeaCe6IyGEAn6o+SyC8yls2/oK5q9k8Vc6kSxVCkGGkJjS8SscxRm3BLWxSXqTzi5DURt7wI1VuIwyd0SdW0Th04vCyWNQIr3wbR5Cpz6Afk/8i0vG558YhrGdTXRVVc822rYTl0eXNoXB8jQCRgqKoZkv7lHJ6/gzrWL702lUq99hUu0HT1ff8UMTK3z9e+OrBmvbtImH5dF1+Rjcl8dRv3kN9fQd1LNL0Jc517kMqqkEdjw2h0DmLEJTnyJUui5NzI7ZMRPI4Wg6IOaH0WoS2p3bqFyfR3luBuVLF1CaPofi+XOY/+MitLuLqN5Mol4sIKQvSZM+edhiNRLIIROZHq6BCxo6jJxVbSVX0BAKurmL7g8+YCyLke1pj+U4RcGAUbSK7bhUBbFur1Vr4OKyk5BZseGUIFNRghyDz6q2Eg174Ha3NrutbhUjC9yGU4KjDK6PeQ9gRZHDuz55pRdj3oNMILcJvjedNhzvoo++PPEyzWcq9HhMv4EeY5HzXOBU1DgZbiaOIK3EkVb75FzI/BylhkcO7mu9O4hjAoFJ5Iy8RL1I7aSkm3Iv5ak56io1Sf3AwElaR9ZNYIcJn6f5hRplwP2m81/Qsgb2Hwsbfss6rz5xar82AnnZvH/vwZ5307xPHaLkMhPkKj7MkZj3TTP2OBtOEYOP0IgiUv/gtX34+NsTUhSkt6PU20xUMD0OOG1TEwaXa/cFSv4xOCGdk5/HLrO2DhuOQLCmSAI9SMk6yNV6l5plz2/RbgDwNxyxZYXfvFVkAAAAAElFTkSuQmCC
+""")
+
+TROPICAL_DRINK_ICON4 = base64.decode("""
+iVBORw0KGgoAAAANSUhEUgAAABgAAAAYCAYAAADgdz34AAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAAPbSURBVEhLlZZfaFtVHMe/9yZNmzZL03aL2ZZmzgQhrBb8Ux+cKIr65IsPQzaYT7Ipsj4oaPfqk74MBBUFLY6VKcJAUbBD0KIVi3ayreufYbd1pLObS9M0SZs/t7nX7+/ktsuf21I/8L3nnF/u7/c753fuOa2G/4GVgaX50eDz1JvdfjbPU9//cipRVEYb9fJmjvXIewMjhz5j17QlWNMTM4+lF9N97L/FBKeq4+nykIEYpb8NXqWOUa/Zen1v956+QGc7YvFoW/1kVQJhO0k4+5N2twZ/wI94bxyfvzzy7tEvDvbYZoVjWcanru1gc4h6gopSu6g2yn0ldT48nfqZXWcWbi5csiw8fqZ/tCRjl7JWweAtuq5PNbldr5RN8xGa7qeCVIDyB70xdLVEsFiYg2EWaLqHaZrIpnMhdr2XhxM/iq1hBYPnhrv6euPJnlgEq4UScqt55IsGjLU1mJyapmlocrng8Wi4tjyGX69/h0xhSQVPJ9PIr6ikJiM/PdT/2+jGHqzzbzLl+2Hkd4xPziKzsgpvswe7dwUQDYfwYGQ3Yt0h7A12wlfKY/+ciZceGEDb0qNIzxsJBjfsMDp386B03GpYS0hmk1xahqZX8ruxCpdVoFeZfhqfHmTPnYbWvhPNe3qww4wh2hT5ZNL6+APLsg7QxWSZL1R8G4nIo8MYR7wwAa+1wM9rfWIVihkTfyV1HHgyiVLpK4zpUfB0hc+cGF3hz39U3qrQUCKyTx4dV0/DffU8yvPXUU7eQXlpEeYya51OobRwEw89PANv6gJ84x/Cl78hLmpi9ejy7a/LtqkXA6UEjDu3Ubwxi8LMFAqTl5GfuIjcpYuY/fMKjLu3UJpPoJzLwmcuiktYHvXxdDlg6xIDCblgoM1K28Na0lkDvlY3v6J7i/day9LI56kObHU8pxK1eq2c3W3EpWsIdnrsUQUXt5341KAOpwSpotbKNTTbw1oC/ia43bVut/X90sgGN+CUYJDBzWHPMaxocng3J6PtxLDnOBPIbYJvlLEOx7vovU/PvsjmIx1mJGjOocu6xTpnWYo1FsPNxO1IahEk9bCcC6nPINU/cPxI7d1BHBMITCJn5AXqOaqXkmnKvZShZqi/qTHqWwZOsHVk0wT1MOEzbH6ihhjwqDJug5o9qDoLTrTYrfPuEyf/jRXIj1VnYQPOvJPN29QJqlVsRK7ik1yJum+qqY+jOlsEH2AjapfxO4eP4P0vz0pXkNkOUW8wUVZZbKrjqRJtElz+GD1LyX8MToiP/HnsUKMqGlawFXaJJNB9XMHXXMFh9u9S05z5P2y3APgPkgF++pYtmwwAAAAASUVORK5CYII=
+""")
+
+TROPICAL_DRINK_ICON5 = base64.decode("""
+iVBORw0KGgoAAAANSUhEUgAAABgAAAAYCAYAAADgdz34AAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAAPnSURBVEhLjZVfbFNVHMe/9/auo13pugGzQFfELpKGucTofBDjv4hPvvhADCS8EdAHZqIRxitPmBgSEzWa6CKyoNEQNRodIdFFR1xkIDi2FR0D0uGGu2u7bv1713v8/e49nW1vt+yTfO/vnF/P+f3O+Z2eexWRhlD8ULAOVhv79BvtfjJ7Sd//cjpesJwSa/B6k/C43sF9H1PTlGLExGjs8dR8qpvab1KC05XxVH5wx0jvFdxeB4dIh0mvSr22vX1bd6C1GR3RSFPtYq0ETIP/ojI5fmi9SarwB/yIdkXxySuDJw9+uqdTui0cZSmld4k/pn/gmu4jPUmKkLaQmkjajcSF0ETiZ2pWc+rZr0Dlw8zdmetC4ImzPUNF9jsSjIzf2qCqakxzqTuKxrL0VjOb/QtX575GxkhKj41pmpRglpvv9L9+6S1uOBL0nR/Y1N0V1Ts7wsjmi1jK5pArGDCWl2HS0hRFQYPLBbdbwa2FYfw69R3S+aQVPKWnkMvkOYxJkZ/p77k0tHIGZf7VE74fB3/DyNgk0pksPI1ubN0SQCQUxMPhrehoD2J7Wyt8xRx23jHx8kO9aEo+htS0EafghgyjQmAPNzSrW02QV6MnF6Codn4NWbhEnmaVaJ5CTzcWz5+B0rwZjds6sdHsQKQh/OGY+OBdIcRummJSma/Yc52E+dFijCCaH4VHzEAR5YXZFNImruoqdj+lo1j8AsNqBHS7QmePDmXo59/tUTaOEhE7+NFy8wy0mxdQmp5CSb+PUnIe5gLVOpVAceYuHnk0Bk/iCnwj78GXu81TrIXVovLFKEv6rIGBYhzG/VkUbk8iHxtHfuxP5EavYen6NUxevgFj7h6K03GUlhbhM+d5SqgyVlkq37qyeBQRdMFAk0jJbjWpRQM+r0b/ov837xELbIKVscqqVyKvRyzJphOXqqCt1S17Ni46dsJndWqolyBRULy0h0bZrSbgb4CmVU+bVXey4QN2UC9BHwU3B9yHkVEC0lWftLIZA+4jlIDfJvjGctbguMnMqY/OvUTmfRVmuM28g03iHtV5kUqxTMXQKHEzdCUMXQ3xveD69JF6eo8csK5xJXUTMJSE78iLpBdIXSRe5oOkNClG+ps0TPqWAsfJ1sWRgP9afPqyuwIlfI7MT6R+CnjQclaw2ryqM1htkGSDtHVPn+fxfNldYSXYGitvJXOMdPT4/gPetz8/x+6LpBO0E+t9U0ltHGsHawTvJTNFOk7ysk/CH/jL9PtnpI22y6Z2J9arYpXgLjLPk/jrVg+ew5/HFqtXQWUSR+BaZIk40ANUoi+pRPupPUeaoBL9Q3YNgP8AErGbazfFjrgAAAAASUVORK5CYII=
 """)
 
 TIMEZONES = [
@@ -508,7 +528,7 @@ TIMEZONES = [
     "UTC",
 ]
 
-def main():
+def main(config):
     drinking_timezones = []
 
     # construct list of timezones in which it is 5 o'clock
@@ -539,7 +559,70 @@ def main():
     location = location.replace("Navajo", "Navajo Nation")  # for Navajo
     location = location.replace("DumontDUrville", "Dumont-d'Urville")  # for Antarctica/DumontDUrville
     location = location.replace("EasterIsland", "Easter Island")  # for Chile/EasterIsland
-    print(location)
+
+    current_time_here = time.now().in_location(config.get("$tz", "America/Los_Angeles"))
+    threshold_minutes = int(config.get("past_the_hour", "15"))
+    if current_time_here.hour == 17 and current_time_here.minute < threshold_minutes:
+        if current_time_here.format("Monday") == "Friday":
+            completion_message = "PARTY LIKE IT'S FRIDAY"
+        else:
+            completion_message = "You made it! Nice job!"
+        return render.Root(
+            delay = 100,
+            child = render.Column(
+                children = [
+                    render.Column(
+                        children = [
+                            render.Row(
+                                main_align = "center",
+                                cross_align = "center",
+                                children = [
+                                    render.Column(
+                                        children = [
+                                            render.Text(
+                                                content = " It's five",
+                                                color = "#fA0",
+                                            ),
+                                            render.Text(
+                                                content = " o'clock",
+                                                color = "#fA0",
+                                            ),
+                                            render.Text(
+                                                content = " here!",
+                                                color = "#fA0",
+                                            ),
+                                        ],
+                                    ),
+                                    render.Animation(
+                                        children = [
+                                            render.Image(
+                                                src = TROPICAL_DRINK_ICON1,
+                                            ),
+                                            render.Image(
+                                                src = TROPICAL_DRINK_ICON2,
+                                            ),
+                                            render.Image(
+                                                src = TROPICAL_DRINK_ICON3,
+                                            ),
+                                            render.Image(
+                                                src = TROPICAL_DRINK_ICON4,
+                                            ),
+                                            render.Image(
+                                                src = TROPICAL_DRINK_ICON5,
+                                            ),
+                                        ],
+                                    ),
+                                ],
+                            ),
+                        ],
+                    ),
+                    render.Marquee(
+                        width = 64,
+                        child = render.Text(completion_message, color = "#09f"),
+                    ),
+                ],
+            ),
+        )
 
     return render.Root(
         delay = 50,
@@ -580,4 +663,46 @@ def main():
                 ),
             ],
         ),
+    )
+
+def get_schema():
+    options = [
+        schema.Option(
+            display = "5 Minutes",
+            value = "5",
+        ),
+        schema.Option(
+            display = "10 Minutes",
+            value = "10",
+        ),
+        schema.Option(
+            display = "15 Minutes",
+            value = "15",
+        ),
+        schema.Option(
+            display = "20 Minutes",
+            value = "20",
+        ),
+        schema.Option(
+            display = "The whole 5 o'clock hour!",
+            value = "60",
+        ),
+        schema.Option(
+            display = "Disabled",
+            value = "0",
+        ),
+    ]
+
+    return schema.Schema(
+        version = "1",
+        fields = [
+            schema.Dropdown(
+                id = "past_the_hour",
+                name = "5 o'clock celebration time",
+                desc = "How long after the 5 o'clock hour should your Tidbyt continue to celebrate that you got there?",
+                icon = "gear",
+                default = options[2].value,
+                options = options,
+            ),
+        ],
     )

@@ -5,9 +5,8 @@ Description: Shows Light Rail Departure Times from Selected Stop.
 Author: Alex Miller
 """
 
-load("render.star", "render")
 load("http.star", "http")
-load("encoding/json.star", "json")
+load("render.star", "render")
 load("schema.star", "schema")
 
 #Assign Default Stop Code
@@ -101,7 +100,7 @@ def get_schema():
                 id = "stop_code",
                 name = "Stop ID",
                 desc = "Light Rail Station's Stop ID from (https://www.metrotransit.org/stops-stations)",
-                icon = "subway",
+                icon = "trainSubway",
             ),
         ],
     )

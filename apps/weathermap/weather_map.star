@@ -5,13 +5,13 @@ Description: Display real-time precipitation radar for a location. Supports rain
 Author: Felix Bruns
 """
 
-load("render.star", "render")
-load("schema.star", "schema")
-load("http.star", "http")
-load("humanize.star", "humanize")
-load("time.star", "time")
 load("cache.star", "cache")
 load("encoding/json.star", "json")
+load("http.star", "http")
+load("humanize.star", "humanize")
+load("render.star", "render")
+load("schema.star", "schema")
+load("time.star", "time")
 
 # The RainViewer API endpoints used to retrieve rain radar images.
 #
@@ -392,7 +392,7 @@ def get_schema():
                 id = "location",
                 name = "Location",
                 desc = "Location for which to display weather radar.",
-                icon = "place",
+                icon = "locationDot",
             ),
             schema.Dropdown(
                 id = "zoom_level",

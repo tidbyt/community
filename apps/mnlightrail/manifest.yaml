@@ -1,0 +1,8 @@
+---
+id: mn-light-rail
+name: MN Light Rail
+summary: Train Departure Times
+desc: Shows Light Rail Departure Times from Selected Stop.
+author: Alex Miller
+fileName: mn_light_rail.star
+packageName: mnlightrail

@@ -30,38 +30,40 @@ Author: Alan Fleming
 # See comments in the code for further attribution
 #
 
-load("render.star", "render")
-load("schema.star", "schema")
-load("time.star", "time")
 load("encoding/base64.star", "base64")
 load("encoding/json.star", "json")
+load("render.star", "render")
+load("schema.star", "schema")
 load("sunrise.star", "sunrise")
+load("time.star", "time")
 
 # Defaults
-DEFAULT_LOCATION = {
+DEFAULT_LOCATION = """
+{
     "lat": 53.79444,
     "lng": -2.245278,
     "locality": "Manchester, UK",
-    "timezone": "GMT",
+    "timezone": "GMT"
 }
+"""
+
 DEFAULT_24_HOUR = False
 DEFAULT_ITEMS_TO_DISPLAY = "both"
 
 # Images
-sunriseImage = """iVBORw0KGgoAAAANSUhEUgAAAB4AAAAOCAYAAAA45qw5AAAAAXNSR0IArs4c6QAAAERlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAA6ABAAMAAAABAAEAAKACAAQAAAABAAAAHqADAAQAAAABAAAADgAAAACqoaCHAAAA9klEQVQ4EcVUvQoCMQzuieDkJK6Ck+DsIr6RD+TLODnILc6ugqvo4gNUvuoX0pLe9fCvS5rkS74kzZ1zXzr+svJNqfuRc+sDuJ7dIrOlLCejSttBVI33ka3J39PO0ntKijiQsku/G3h3PDjRjaKeFRZ2ahGmxQZSGOcLcVmTyI5GojpcLFKGp+Sd39jqmiPFeHOHGBYQE+eilL0+X8MC6gKYTDpWeF6JEZ2XT0khb33j12KBuOQzAk53C50H40RnmjzoxlYz5m3JN2SiNl22erq5N/5pmPC0HoaYUjzjKBlP/edSOk6ZdUesUttSPHQLR5uF/4vtARekdeCaFV5xAAAAAElFTkSuQmCC"""
-sunsetImage = """iVBORw0KGgoAAAANSUhEUgAAAB4AAAAOCAYAAAA45qw5AAAAAXNSR0IArs4c6QAAAERlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAA6ABAAMAAAABAAEAAKACAAQAAAABAAAAHqADAAQAAAABAAAADgAAAACqoaCHAAAAyElEQVQ4EWNgGCDASAt7582b9x/Z3KSkJAx7MASQNVDKRnYAuuVMlBqOTz+6Zchq8Vr8/7U1SpAhaySGjexjdPUsyAIgixhFj+IMfkLyMLPQLcTnc5geBpgvQTQMgyRh4nCFFDKw+g5uybUzDAxaJmAr8IUEOW7AsBjFUpiJNLAcbvH/g+z/Ga7/hFmFm9ZkZ2C0/wnXh1shfhmwAYrTPpOceu9n8eLVi0seJo7fWTSUxRlksFCAuRDGx+cWkFp0dTD9+PTRVQ4Ar1hU6EpgkiwAAAAASUVORK5CYII="""
+sunriseImage = """iVBORw0KGgoAAAANSUhEUgAAAB0AAAAOCAYAAADT0Rc6AAAAAXNSR0IArs4c6QAAAERlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAA6ABAAMAAAABAAEAAKACAAQAAAABAAAAHaADAAQAAAABAAAADgAAAAD5O/sDAAAA8klEQVQ4Eb1UMQoCMRDMiWBlJdcKVoK1jfgjH+RnrrKQa6xtBVvRxgdEJjrLZkmOHHqmSXYzs5PZ5M65gYa/bX2u9DjaaHwAtstHlE4Fm/ms0nmIVPUxyuX2R3qjdG0FwYMg3fnDxLvzyUlsDvQ+WaHDlJg9aBBEcrWWLduBbDuE0WOREiRdC/e+05RbthEtzQ1iIB6L5hgq317v4bFpcboQpwrPJTGIf9peFBThzjv9PCIQSj4V4LRLxBxoIRxp4RCb10v81zPvjIW6YmnvYv/M/kFYCPNlNw2cUrzmar7NDx6LU6uknZS6S+GYs/X/Hr8A8WR14FqWMJkAAAAASUVORK5CYII="""
+sunsetImage = """iVBORw0KGgoAAAANSUhEUgAAAB0AAAAOCAYAAADT0Rc6AAAAAXNSR0IArs4c6QAAAERlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAA6ABAAMAAAABAAEAAKACAAQAAAABAAAAHaADAAQAAAABAAAADgAAAAD5O/sDAAAAyElEQVQ4EWNgGADASAs7582b9x/Z3KSkJBR7UDjICqnBRrYc2WImahiOywxki5DV4LX0/2trlGBC1kgMG9mnyOpZkDkgSxhFj+IMckLyMLPQLcPlY5h6BpjvQDQMgyRh4nCFFDCw+gpuwbUzDAxaJmDj8YUAqfZjWIpiIcw0KlsMt/T/Qfb/DNd/wqzBTWuyMzDa/4Trw60QtwxYs+K0zySn0vtZvHj14pKHieN2Eo1kcAYTzPcwl8H4+NwBUouuDqYfnz66yAEAg+FU6JspIAwAAAAASUVORK5CYII="""
 
 def main(config):
     # Get longditude and latitude from location
-    location = config.get("location")
-    loc = json.decode(location) if location else DEFAULT_LOCATION
-    lat = float(loc.get("lat"))
-    lng = float(loc.get("lng"))
+    location = json.decode(config.get("location", DEFAULT_LOCATION))
+    lat = float(location["lat"])
+    lng = float(location["lng"])
 
     # Get sunset and sunrise times
     now = time.now()
-    sunriseTime = sunrise.sunrise(lat, lng, now)
-    sunsetTime = sunrise.sunset(lat, lng, now)
+    sunriseTime = sunrise.sunrise(lat, lng, now).in_location(location["timezone"])
+    sunsetTime = sunrise.sunset(lat, lng, now).in_location(location["timezone"])
 
     # Get whether to display in 24h format
     display24Hour = config.bool("24_hour", DEFAULT_24_HOUR)
@@ -70,16 +72,16 @@ def main(config):
     if sunriseTime == None:
         sunriseText = "  None"
     elif display24Hour:
-        sunriseText = "  %s" % sunriseTime.in_location(loc["timezone"]).format("15:04")
+        sunriseText = "  %s" % sunriseTime.format("15:04")
     else:
-        sunriseText = "%s" % sunriseTime.in_location(loc["timezone"]).format("3:04 PM")
+        sunriseText = "%s" % sunriseTime.format("3:04 PM")
 
     if sunsetTime == None:
         sunsetText = "  None"
     elif display24Hour:
-        sunsetText = "  %s" % sunsetTime.in_location(loc["timezone"]).format("15:04")
+        sunsetText = "  %s" % sunsetTime.format("15:04")
     else:
-        sunsetText = "%s" % sunsetTime.in_location(loc["timezone"]).format("3:04 PM")
+        sunsetText = "%s" % sunsetTime.format("3:04 PM")
 
     # Got what we need, render it.
 
@@ -92,10 +94,7 @@ def main(config):
                 cross_align = "center",
                 children = [
                     render.Image(src = base64.decode(sunriseImage)),
-                    render.Padding(
-                        pad = (0, -1, 0, 0),
-                        child = render.Text(sunriseText),
-                    ),
+                    render.Text(sunriseText),
                 ],
             ),
         )
@@ -120,6 +119,7 @@ def main(config):
             title = "Sunrise"
             text = sunriseText
             image = sunriseImage
+
         else:
             title = "Sunset"
             text = sunsetText
@@ -181,7 +181,7 @@ def get_schema():
                 id = "location",
                 name = "Location",
                 desc = "Location for which to display the sun rise and set times.",
-                icon = "place",
+                icon = "locationDot",
             ),
             schema.Dropdown(
                 id = "items_to_display",

@@ -1,7 +1,14 @@
+"""
+Applet: Fuzzy Clock
+Author: Max Timkovich
+Summary: Human readable time
+Description: Display the time in a groovy, human-readable way.
+"""
+
+load("encoding/json.star", "json")
 load("render.star", "render")
 load("schema.star", "schema")
 load("time.star", "time")
-load("encoding/json.star", "json")
 
 DEFAULT_LOCATION = {
     "lat": 40.7,
@@ -52,7 +59,7 @@ def fuzzy_time(config, hours, minutes):
     if up:
         hours += 1
 
-        glue = "TIL" if config.get("dialect") == "american" else "TO"
+        glue = "TILL" if config.get("dialect") == "american" else "TO"
 
     # Handle 24 hour time.
     if hours > 12:
@@ -63,7 +70,7 @@ def fuzzy_time(config, hours, minutes):
         hours = 12
 
     if rounded == 0:
-        return [words[hours], "O'CLOCK"]
+        return [words[hours], "O’CLOCK"]
 
     return [words[rounded], glue, words[hours]]
 
@@ -105,7 +112,7 @@ def get_schema():
             schema.Location(
                 id = "location",
                 name = "Location",
-                icon = "place",
+                icon = "locationDot",
                 desc = "Location for which to display time",
             ),
             schema.Dropdown(

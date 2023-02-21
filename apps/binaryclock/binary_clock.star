@@ -5,11 +5,11 @@ Description: This app show the current date and time in a binary format.
 Author: LukiLeu
 """
 
+load("encoding/json.star", "json")
+load("math.star", "math")
 load("render.star", "render")
 load("schema.star", "schema")
-load("encoding/json.star", "json")
 load("time.star", "time")
-load("math.star", "math")
 
 # Define some constants
 DEFAULT_LOCATION = {
@@ -69,7 +69,7 @@ DEFAULT_BARHEIGHT = {
 # Draw the color bar
 def render_bar(value, color_dots, color_dots_bg, width_bar, height_bar):
     children_bar = []
-    for i in range(0, int(math.log(MAX_VALUE, 2))):
+    for _ in range(0, int(math.log(MAX_VALUE, 2))):
         if int(math.mod(value, 2)) == 1:
             children_bar.append(
                 render.Box(width = width_bar, height = height_bar, color = color_dots),
@@ -162,7 +162,7 @@ def main(config):
     clock_frames = []
 
     # Render 30 seconds
-    for i in range(0, 30):
+    for _ in range(0, 30):
         clock_frames.append(
             render_image(current_time, color_text, color_dots, color_dots_bg, width_bar, heigth_bar, show_text),
         )
@@ -171,6 +171,7 @@ def main(config):
     # Return the clock
     return render.Root(
         delay = 1000,
+        max_age = 120,
         child = render.Box(
             child = render.Animation(
                 children = clock_frames,
@@ -186,7 +187,7 @@ def get_schema():
                 id = "location",
                 name = "Location",
                 desc = "Location defining the timezone.",
-                icon = "place",
+                icon = "locationDot",
             ),
             schema.Dropdown(
                 id = "color_text",
@@ -247,7 +248,7 @@ def get_schema():
                 id = "show_text",
                 name = "Show Text",
                 desc = "Show the text labels below the bars.",
-                icon = "text",
+                icon = "textSlash",
                 default = True,
             ),
         ],

@@ -6,16 +6,15 @@ Author: Olly Stedall @saltedlolly
 Thanks: @drudge @whyamIhere @AmillionAir
 """
 
-print(" ---------------------------------------------------------------------------------------------------------------------")
-
-load("render.star", "render")
-load("http.star", "http")
+load("cache.star", "cache")
 load("encoding/base64.star", "base64")
 load("encoding/json.star", "json")
-load("cache.star", "cache")
+load("http.star", "http")
+load("render.star", "render")
 load("schema.star", "schema")
-load("math.star", "math")
 load("time.star", "time")
+
+print(" ---------------------------------------------------------------------------------------------------------------------")
 
 # Set applet defaults
 DEFAULT_USERNAME = "saltedlolly"
@@ -210,7 +209,7 @@ def get_schema():
                 id = "display_view",
                 name = "Display",
                 desc = "Choose Today or Week view.",
-                icon = "rectangle-wide",
+                icon = "display",
                 default = displayoptions[0].value,
                 options = displayoptions,
             ),
@@ -218,7 +217,7 @@ def get_schema():
                 id = "extra_week_stats",
                 name = "Extra Chart Stats?",
                 desc = "Optionally display the user's Streak and Total XP, Today's XP, or the XP for the current chart duration.",
-                icon = "rectangle-wide",
+                icon = "eye",
                 default = headeroptions[0].value,
                 options = headeroptions,
             ),
@@ -233,6 +232,62 @@ def get_schema():
     )
 
 def main(config):
+    # Defined potentially undefined variables.
+    DUOLINGO_ICON = None
+    PROGRESSBAR_ANI = None
+    XP_ICON = None
+    dayofweek = None
+    display_error_msg = None
+    display_frozen_lastweek = None
+    display_frozen_thisweek = None
+    display_missed_lastweek = None
+    display_missed_thisweek = None
+    display_output = None
+    display_repaired_lastweek = None
+    display_repaired_thisweek = None
+    do_duolingo_main_query = None
+    duolingo_main_json = None
+    duolingo_main_query_url = None
+    duolingo_streak = None
+    duolingo_streak_daystart = None
+    duolingo_streak_now = None
+    duolingo_totalxp = None
+    duolingo_totalxp_daystart = None
+    duolingo_totalxp_now = None
+    duolingo_userid = None
+    duolingo_xpsummary_json = None
+    duolingo_xptoday = None
+    error_message_1 = None
+    error_message_2 = None
+    nickname_today_view = None
+    oneweek_bar = None
+    oneweek_todays_bar = None
+    progressbar_col = None
+    progressbar_perc = None
+    show_chartbar = None
+    streak_icon = None
+    twoweek_todays_bar = None
+    twoweeks_bar = None
+    twoweeks_bar_lastweek_frozen = None
+    twoweeks_bar_lastweek_missed = None
+    twoweeks_bar_lastweek_normal = None
+    twoweeks_bar_lastweek_repaired = None
+    twoweeks_bar_thisweek_frozen = None
+    twoweeks_bar_thisweek_missed = None
+    twoweeks_bar_thisweek_normal = None
+    twoweeks_bar_thisweek_repaired = None
+    upper_chart_value = None
+    vertbar_lastweek_col = None
+    vertbar_lastweek_col_frozen = None
+    vertbar_lastweek_col_header = None
+    vertbar_lastweek_col_missed = None
+    vertbar_lastweek_col_repaired = None
+    week_xp_scores = None
+    week_xp_scores_total = None
+    xp_day_score_lastweek = None
+    xp_query_time = None
+    xp_score = None
+
     # Get Schema variables
     duolingo_username = config.get("duolingo_username", DEFAULT_USERNAME)
     display_view = config.str("display_view", DEFAULT_DISPLAY_VIEW)
@@ -250,7 +305,6 @@ def main(config):
 
     duolingo_cache_key_userid = "%s_userid" % duolingo_cache_key_username
     duolingo_cache_key_xpsummary_json = "%s_xpsummary_json" % duolingo_cache_key_username
-    duolingo_cache_key_main_json = "%s_main_json" % duolingo_cache_key_username
     duolingo_cache_key_saveddate = "%s_saveddate" % duolingo_cache_key_username
     duolingo_cache_key_totalxp_daystart = "%s_totalxp_daystart" % duolingo_cache_key_username
     duolingo_cache_key_streak_daystart = "%s_streak_daystart" % duolingo_cache_key_username
@@ -260,7 +314,6 @@ def main(config):
     duolingo_userid_cached = cache.get(duolingo_cache_key_userid)
     duolingo_xpsummary_json_cached = cache.get(duolingo_cache_key_xpsummary_json)
     duolingo_xp_query_time_cached = cache.get(duolingo_cache_key_xp_query_time)
-    duolingo_main_json_cached = cache.get(duolingo_cache_key_main_json)
     duolingo_saveddate_cached = cache.get(duolingo_cache_key_saveddate)
     duolingo_totalxp_daystart_cached = cache.get(duolingo_cache_key_totalxp_daystart)
     duolingo_streak_daystart_cached = cache.get(duolingo_cache_key_streak_daystart)
@@ -510,7 +563,6 @@ def main(config):
                     if duolingo_main_query.status_code != 200:
                         print("Duolingo query failed with status %d", duolingo_main_query.status_code)
                         display_error_msg = True
-                        error_message = "Error: Duolingo query failed. Check internet connectivity."
                     else:
                         duolingo_main_json = duolingo_main_query.json()
                         duolingo_totalxp = int(duolingo_main_json["users"][0]["totalXp"])
@@ -1697,10 +1749,6 @@ def main(config):
                 expanded = False,
                 children = show_chartbar,
             )
-
-            # Setup which streak icon to display
-            streak_icon_day_frozen = bool(duolingo_xpsummary_json["summaries"][daynum]["frozen"])
-            streak_icon_day_extended = bool(duolingo_xpsummary_json["summaries"][daynum]["streakExtended"])
 
             # Get day of week, based on when the xp summary data was last updated:
             if daynum == 0:  # TODAY

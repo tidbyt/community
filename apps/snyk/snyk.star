@@ -5,9 +5,9 @@ Description: Shows medium/high/critical issue counts for the configured Snyk pro
 Author: Andrew Powell
 """
 
-load("render.star", "render")
-load("http.star", "http")
 load("encoding/base64.star", "base64")
+load("http.star", "http")
+load("render.star", "render")
 load("schema.star", "schema")
 
 SNYK_API_BASE = "https://api.snyk.io/v3/"
@@ -165,7 +165,7 @@ def get_schema():
                 id = "projectId",
                 name = "Project ID",
                 desc = "Project ID to monitor for issues",
-                icon = "diagram-project",
+                icon = "diagramProject",
             ),
         ],
     )

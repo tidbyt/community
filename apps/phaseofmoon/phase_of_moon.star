@@ -30,19 +30,22 @@ Author: Alan Fleming
 # See comments in the code for further attribution
 #
 
-load("time.star", "time")
-load("math.star", "math")
 load("encoding/base64.star", "base64")
 load("encoding/json.star", "json")
+load("math.star", "math")
 load("render.star", "render")
 load("schema.star", "schema")
+load("time.star", "time")
 
 # Defaults
-DEFAULT_LOCATION = {
+DEFAULT_LOCATION = """
+{
     "lat": 55.861111,
     "lng": -4.25,
     "locality": "Glasgow, UK",
+    "timezone": "GMT"
 }
+"""
 
 # Constants
 LUNARDAYS = 29.53058770576
@@ -72,9 +75,8 @@ PHASE_CHANGES = [0, 1, 6.38264692644, 8.38264692644, 13.76529385288, 15.76529385
 
 def main(config):
     # Get latitude from location
-    location = config.get("location")
-    loc = json.decode(location) if location else DEFAULT_LOCATION
-    lat = float(loc.get("lat"))
+    location = json.decode(config.get("location", DEFAULT_LOCATION))
+    lat = float(location["lat"])
 
     # use latitude to work out which hemisphere we're in
     hemisphere = 1 if lat >= 0 else 0
@@ -98,8 +100,9 @@ def main(config):
             if hemisphere == 0:
                 phaseImage = PHASE_IMAGES[NUM_PHASES - x]
 
-    return render.Root(
-        child = render.Box(
+    # Got what we need to render.
+    if config.bool("display_text"):
+        displaycomplete = render.Box(
             render.Row(
                 expanded = True,
                 main_align = "start",
@@ -115,7 +118,21 @@ def main(config):
                     ),
                 ],
             ),
-        ),
+        )
+
+    else:
+        displaycomplete = render.Box(
+            render.Row(
+                expanded = True,
+                main_align = "center",
+                children = [
+                    render.Image(src = base64.decode(phaseImage)),
+                ],
+            ),
+        )
+
+    return render.Root(
+        child = displaycomplete,
     )
 
 def get_schema():
@@ -126,7 +143,14 @@ def get_schema():
                 id = "location",
                 name = "Location",
                 desc = "Location for which to display the moon phase.",
-                icon = "place",
+                icon = "locationDot",
+            ),
+            schema.Toggle(
+                id = "display_text",
+                name = "Display Text",
+                desc = "Display the text description of the mooon phase.",
+                default = True,
+                icon = "font",
             ),
         ],
     )

@@ -5,10 +5,10 @@ Description: Shows up to date powerball numbers and next drawing.
 Author: AmillionAir
 """
 
-load("render.star", "render")
-load("http.star", "http")
-load("encoding/json.star", "json")
 load("cache.star", "cache")
+load("encoding/json.star", "json")
+load("http.star", "http")
+load("render.star", "render")
 
 NUMBERS_URL = "https://www.powerball.com/api/v1/numbers/powerball/recent10?_format=json"
 Next_Draw_URL = "https://powerball.com/api/v1/estimates/powerball?_format=json"
@@ -102,7 +102,7 @@ def main():
                             children = [
                                 render.Text(Won, font = "tom-thumb"),
                                 render.Box(width = 38, height = 1),
-                                render.Text("Upcomming", font = "tom-thumb"),
+                                render.Text("Upcoming", font = "tom-thumb"),
                             ],
                         ),
                     ],

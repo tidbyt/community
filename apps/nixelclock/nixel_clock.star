@@ -7,11 +7,10 @@ Thanks: Joey Hoer, whose "Big Number Clock" code this is based on.
 Notes: Numbers are 15 pixels wide. Seperator is 4 pixels wide. This is the widest you can effectively make a digital clock to fill all 64 pixels while maintaining numbers of equal width with space for a seperator.
 """
 
+load("encoding/base64.star", "base64")
 load("render.star", "render")
 load("schema.star", "schema")
 load("time.star", "time")
-load("encoding/base64.star", "base64")
-load("encoding/json.star", "json")
 
 DEFAULT_TIMEZONE = "Europe/London"
 DEFAULT_IS_24_HOUR_FORMAT = False
@@ -197,7 +196,7 @@ def get_schema():
             schema.Dropdown(
                 id = "clock_style",
                 name = "Clock style",
-                icon = "cog",
+                icon = "gear",
                 desc = "Change current clock style.",
                 default = styleoptions[0].value,
                 options = styleoptions,
@@ -219,7 +218,7 @@ def get_schema():
             schema.Toggle(
                 id = "has_flashing_seperator",
                 name = "Flashing separator",
-                icon = "cog",
+                icon = "gear",
                 desc = "Enable/disable flashing number seperator.",
                 default = DEFAULT_HAS_FLASHING_SEPERATOR,
             ),
@@ -242,6 +241,9 @@ def main(config):
     has_leading_zero = config.bool("has_leading_zero", DEFAULT_HAS_LEADING_ZERO)
     has_flashing_seperator = config.bool("has_flashing_seperator", DEFAULT_HAS_FLASHING_SEPERATOR)
     clock_style = config.get("clock_style", DEFAULT_CLOCK_STYLE)
+
+    NUMBER_IMGS = None
+    SEP = None
 
     # Set image variables for current Clock Style
     if clock_style == "round_darker":
@@ -270,7 +272,7 @@ def main(config):
     # Currently this does not work, becasue app rotation prevents the animation
     # from progressing past a few seconds.
     duration = 1  # in minutes; 1440 = 24 hours
-    for i in range(0, duration):
+    for _ in range(0, duration):
         frames.append(get_time_image(print_time, NUMBER_IMGS, SEP, is_24_hour_format = is_24_hour_format, has_leading_zero = has_leading_zero, has_seperator = True))
 
         if has_flashing_seperator:
@@ -289,6 +291,7 @@ def main(config):
 
     return render.Root(
         delay = 500,  # in milliseconds
+        max_age = 120,
         child = render.Box(
             child = render.Animation(
                 children = frames,
@@ -311,7 +314,6 @@ def get_time_image(t, NUMBER_IMGS, SEP, is_24_hour_format = True, has_leading_ze
     if is_24_hour_format == True:
         hh = t.format("15")  # Format for 24 hour time
     mm = t.format("04")
-    ss = t.format("05")
 
     seperator = render.Box(
         width = 4,

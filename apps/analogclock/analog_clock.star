@@ -5,11 +5,11 @@ Description: Shows a simple analog clock with month and day.
 Author: Chris Jones (@IPv6Freely)
 """
 
+load("encoding/base64.star", "base64")
+load("encoding/json.star", "json")
 load("render.star", "render")
 load("schema.star", "schema")
 load("time.star", "time")
-load("encoding/json.star", "json")
-load("encoding/base64.star", "base64")
 
 MINUTE_HANDS = {
     0: """
@@ -356,6 +356,7 @@ def main(config):
     month = now.format("Jan").upper()
 
     return render.Root(
+        max_age = 120,
         child = render.Row(
             main_align = "center",
             cross_align = "center",
@@ -404,7 +405,7 @@ def get_schema():
             schema.Location(
                 id = "location",
                 name = "Location",
-                icon = "place",
+                icon = "locationDot",
                 desc = "Location for which to display time",
             ),
         ],

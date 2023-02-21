@@ -111,6 +111,9 @@ def get_random_kanji(kanji_image_list):
             return item
         i = i + 1
 
+    # Should never get here.
+    return kanji_images[0]
+
 def random(min, max):
     now = time.now()
     rand = int(str(now.nanosecond)[-6:-3]) / 1000
@@ -125,11 +128,7 @@ def display_kanji_with_image_url(individual_kanji, kanji_alive_key):
         kanji_data = kanji_http.json()
         print(i)
         kanji_image_json = get_kanji_information(kanji_data["kanji"], kanji_alive_key)
-        if "kanji" in kanji_image_json:
-            x = i
-            #print("%s?character=%s&number=%s" % (kanji_image_json["kanji"]["strokes"]["images"][-1],kanjicharacter, i))
-
-        else:
+        if "kanji" not in kanji_image_json:
             print("%s %s" % (kanjicharacter, i))
 
 #unused for now, but if we want to refactor later and get the image

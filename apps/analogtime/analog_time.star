@@ -9,12 +9,12 @@ Author: rs7q5
 #Created 20220204 RIS
 #Last Modified 20220426 RIS
 
-load("render.star", "render")
-load("schema.star", "schema")
 load("encoding/json.star", "json")
 load("math.star", "math")
-load("time.star", "time")
 load("re.star", "re")
+load("render.star", "render")
+load("schema.star", "schema")
+load("time.star", "time")
 
 DEFAULT_LOCATION = """
 {
@@ -65,15 +65,6 @@ def main(config):
     hour_pt = (hour_len * math.sin(theta), hour_len * math.cos(theta))
     minute_pt = (minute_len * math.sin(theta2), minute_len * math.cos(theta2))
 
-    hand_pts = [
-        (hour_len * math.sin(theta), hour_len * math.cos(theta)),
-        (0.0, 0.0),
-        (minute_len * math.sin(theta2), minute_len * math.cos(theta2)),
-    ]
-
-    plot_hands = render.Plot(width = 32, height = 32, data = hand_pts, x_lim = ax_lims, y_lim = ax_lims, color = "#fff")
-    plot_hands2 = render.Padding(plot_hands, pad = (16, 0, 16, 0))
-
     #used this to see if coloring the hour hand was better
     plot_handsa = render.Plot(width = 32, height = 32, data = [(0.0, 0.0), hour_pt], x_lim = ax_lims, y_lim = ax_lims, color = hour_color)
     plot_handsb = render.Plot(width = 32, height = 32, data = [(0.0, 0.0), minute_pt], x_lim = ax_lims, y_lim = ax_lims, color = minute_color)
@@ -100,6 +91,7 @@ def main(config):
 
     return render.Root(
         #delay=100, #speed up scroll text
+        max_age = 120,
         child = render.Stack(children = plot_marks),
     )
 
@@ -111,13 +103,13 @@ def get_schema():
                 id = "location",
                 name = "Location",
                 desc = "Location for which to display time.",
-                icon = "place",
+                icon = "locationDot",
             ),
             schema.Toggle(
                 id = "display_date",
                 name = "Display Date",
                 desc = "Whether to display the date too.",
-                icon = "cog",
+                icon = "gear",
                 default = False,
             ),
             schema.Toggle(
