@@ -90,7 +90,8 @@ def main(config):
             RemOvers = str(RemOvers)
 
             # Batting details
-            BattingTeamID = Match_JSON["supportInfo"]["inning"]["team"]["id"]
+            #BattingTeamID = Match_JSON["supportInfo"]["inning"]["team"]["id"]
+            BattingTeamID = Match_JSON["scorecard"]["innings"][Innings]["team"]["id"]
             BattingTeamID = int(BattingTeamID)
             BattingTeamColor = getTeamFontColor(BattingTeamID)
 
@@ -172,11 +173,15 @@ def main(config):
             if len(CRR) == 3:
                 CRR = CRR + "0"
 
-            ProjScore = str(Match_JSON["match"]["liveInningPredictions"]["score"])
+            # If Predictions aren't working
+            if Match_JSON["match"]["liveInningPredictions"] != None:
+                ProjScore = str(Match_JSON["match"]["liveInningPredictions"]["score"])
+            else:
+                ProjScore = "N/A"
 
             # ProjScore can be null at the very start of the match
             if ProjScore == None:
-                ProjScore = 0
+                ProjScore = "N/A"
 
             T20_Innings = Match_JSON["match"]["liveInning"]
             MatchStatus = str(Match_JSON["match"]["status"])
@@ -204,6 +209,9 @@ def main(config):
                 T20_Status2 = "Overs: " + Overs
                 T20_Status3 = "Run Rate: " + CRR
                 T20_Status4 = "Req Rate: " + RRR
+                if MatchStatus == "Match delayed by rain":
+                    MatchStatus = "Rain Delay"
+                    T20_Status3 = MatchStatus
 
             # Wicket has fallen but not the end of the inngs
             if IsOut == True and Wickets != "10":
@@ -393,7 +401,9 @@ def main(config):
 
             # Batting #
             BattingTeam = Match_JSON["scorecard"]["innings"][Innings]["team"]["abbreviation"]
-            BattingTeamID = Match_JSON["supportInfo"]["inning"]["team"]["id"]
+
+            #BattingTeamID = Match_JSON["supportInfo"]["inning"]["team"]["id"]
+            BattingTeamID = Match_JSON["scorecard"]["innings"][Innings]["team"]["id"]
             BattingTeamID = int(BattingTeamID)
             BattingTeamColor = getTeamFontColor(BattingTeamID)
 

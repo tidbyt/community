@@ -28,6 +28,35 @@ def main(config):
         friends = str(random.number(1, 5))
 
     cache_key = "bored_app_" + friends
+    hasAPIData = True
+
+    # Pre-analyze custom settings. If anything is there, we can use those
+    # IF the API is not working, instead of throwing an error.
+
+    custom_bored = []
+    if config.get("personal1", "").strip() != "":
+        custom_bored.insert(0, config.get("personal1", "").strip())
+    if config.get("personal2", "").strip() != "":
+        custom_bored.insert(0, config.get("personal2", "").strip())
+    if config.get("personal3", "").strip() != "":
+        custom_bored.insert(0, config.get("personal3", "").strip())
+    if config.get("personal4", "").strip() != "":
+        custom_bored.insert(0, config.get("personal4", "").strip())
+    if config.get("personal5", "").strip() != "":
+        custom_bored.insert(0, config.get("personal5", "").strip())
+    if config.get("personal6", "").strip() != "":
+        custom_bored.insert(0, config.get("personal6", "").strip())
+    if config.get("personal7", "").strip() != "":
+        custom_bored.insert(0, config.get("personal7", "").strip())
+    if config.get("personal8", "").strip() != "":
+        custom_bored.insert(0, config.get("personal8", "").strip())
+    if config.get("personal9", "").strip() != "":
+        custom_bored.insert(0, config.get("personal9", "").strip())
+    if config.get("personal10", "").strip() != "":
+        custom_bored.insert(0, config.get("personal10", "").strip())
+
+    hasPersonalized = len(custom_bored) > 0
+    print("Found personalized: " + str(len(custom_bored)))
 
     activity = cache.get(cache_key)
     if activity != None:
@@ -43,17 +72,27 @@ def main(config):
         print("params", params)
         rep = http.get(BORED_URL, params = params)
         if rep.status_code != 200:
-            # if the APi fails, return [] to skip this app showing
-            fail("Bored request failed with status %d", rep.status_code)
-
-        activity = rep.json()["activity"]
-        cache.set(cache_key, activity, ttl_seconds = 600)
-        print(activity)
+            hasAPIData = False
+            if hasPersonalized == False:
+                fail("Bored request failed with status %d", rep.status_code)
+        else:
+            activity = rep.json()["activity"]
+            cache.set(cache_key, activity, ttl_seconds = 600)
+            print("API Activity suggestion: " + activity)
 
     color = config.get("color", DEFAULT_COLOR)
     font = config.get("font", DEFAULT_FONT)
 
-    # and then this does some stuff...
+    # Check personalized
+    if (hasPersonalized == True):
+        chance = int(config.get("personalized_chance", "5"))
+        print("Chance: ", str(chance))
+        print("Rando: " + str(random.number(1, 100)))
+        print("Has API Data", str(hasAPIData))
+        if hasAPIData == False or chance > random.number(0, 99):
+            activity = custom_bored[random.number(0, len(custom_bored) - 1)]
+
+            # and then this does some stuff...
     if config.get("direction", DEFAULT_DIRECTION) == "horizontal":
         child = render.Box(
             render.Marquee(
@@ -68,24 +107,24 @@ def main(config):
         if font != "tom-thumb" or font != "tb-8":
             font = "tb-8"
 
-        child = render.Box(
-            render.Marquee(
-                height = 32,
-                child = render.WrappedText(
-                    content = activity,
-                    color = color,
-                    width = 64,
-                    font = font,
-                    align = "center",
-                ),
-                offset_start = 5,
-                offset_end = 5,
-                scroll_direction = "vertical",
+        child = render.Marquee(
+            height = 32,
+            child = render.WrappedText(
+                content = activity,
+                color = color,
+                width = 64,
+                font = font,
+                align = "center",
             ),
+            offset_start = 5,
+            offset_end = 5,
+            scroll_direction = "vertical",
         )
 
     return render.Root(
         child,
+        show_full_animation = bool(config.get("scroll", True)),
+        delay = int(config.get("speed", 45)),
     )
 
 def get_schema():
@@ -140,6 +179,21 @@ def get_schema():
         schema.Option(
             display = "Random",
             value = "random",
+        ),
+    ]
+
+    speed_options = [
+        schema.Option(
+            display = "Slow Scroll",
+            value = "60",
+        ),
+        schema.Option(
+            display = "Medium Scroll",
+            value = "45",
+        ),
+        schema.Option(
+            display = "Fast Scroll",
+            value = "30",
         ),
     ]
 
@@ -207,6 +261,98 @@ def get_schema():
                 icon = "brush",
                 default = direction_options[0].value,
                 options = direction_options,
+            ),
+            schema.Dropdown(
+                id = "speed",
+                name = "Scroll Speed",
+                desc = "Scrolling speed",
+                icon = "gear",
+                default = speed_options[1].value,
+                options = speed_options,
+            ),
+            schema.Toggle(
+                id = "scroll",
+                name = "Try to finish?",
+                desc = "Keep scrolling text even if it's longer than app-rotation time",
+                icon = "user",
+                default = True,
+            ),
+            schema.Text(
+                id = "personalized_chance",
+                name = "% Chance of showing",
+                desc = "Number from 0-100 indicating the percentage chance that the custom things below are shown",
+                icon = "user",
+                default = "5",
+            ),
+            schema.Text(
+                id = "personal1",
+                name = "First thing to do",
+                desc = "Optional: Enter a thing to do",
+                icon = "user",
+                default = "",
+            ),
+            schema.Text(
+                id = "personal2",
+                name = "Second thing to do",
+                desc = "Optional: Enter a thing to do",
+                icon = "user",
+                default = "",
+            ),
+            schema.Text(
+                id = "personal3",
+                name = "Third thing to do",
+                desc = "Optional: Enter a thing to do",
+                icon = "user",
+                default = "",
+            ),
+            schema.Text(
+                id = "personal4",
+                name = "Fourth thing to do",
+                desc = "Optional: Enter a thing to do",
+                icon = "user",
+                default = "",
+            ),
+            schema.Text(
+                id = "personal5",
+                name = "Fifth thing to do",
+                desc = "Optional: Enter a thing to do",
+                icon = "user",
+                default = "",
+            ),
+            schema.Text(
+                id = "personal6",
+                name = "Sixth thing to do",
+                desc = "Optional: Enter a thing to do",
+                icon = "user",
+                default = "",
+            ),
+            schema.Text(
+                id = "personal7",
+                name = "Seventh thing to do",
+                desc = "Optional: Enter a thing to do",
+                icon = "user",
+                default = "",
+            ),
+            schema.Text(
+                id = "personal8",
+                name = "Eighth thing to do",
+                desc = "Optional: Enter a thing to do",
+                icon = "user",
+                default = "",
+            ),
+            schema.Text(
+                id = "personal9",
+                name = "Nineth thing to do",
+                desc = "Optional: Enter a thing to do",
+                icon = "user",
+                default = "",
+            ),
+            schema.Text(
+                id = "personal10",
+                name = "Tenth thing to do",
+                desc = "Optional: Enter a thing to do",
+                icon = "user",
+                default = "",
             ),
         ],
     )

@@ -116,6 +116,7 @@ def main(config):
         )
     return render.Root(
         delay = int(config.str("speed", "30")),  #speed up scroll text
+        show_full_animation = True,
         child = render.Row(
             expanded = True,
             children = [
