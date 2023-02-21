@@ -621,6 +621,7 @@ def main(config):
     if (TOP_BAR):
         return render.Root(
             delay = DELAY,
+            max_age = 120,
             child = render.Stack(
                 children = [
                     render.Box(
