@@ -74,8 +74,8 @@ def fetch_data(buoy_id, last_data):
         if len(last_data) != 0:  # try to return the last cached data if it exists to account for spurious api failures
             # add the stale counter so we know it's not new data and how many cycles the buoy has been down for.
             if "stale" not in last_data:
-                last_data["stale"] = 1 
-            else: 
+                last_data["stale"] = 1
+            else:
                 last_data["stale"] = last_data["stale"] + 1
             debug_print("stale counter to :" + str(last_data["stale"]))
             return last_data
@@ -205,7 +205,7 @@ def main(config):
                     main_align = "space_evenly",
                     children = [
                         render.Text(
-                            content = "Buoy:"+str(buoy_id),
+                            content = "Buoy:" + str(buoy_id),
                             font = "tb-8",
                             color = swell_color,
                         ),
