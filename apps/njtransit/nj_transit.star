@@ -171,23 +171,23 @@ def get_departures_for_station(station):
         track_number: string
         departing_in: string
     """
-    print("Getting departures for '%s'" % station)
+    #print("Getting departures for '%s'" % station)
 
     station_suffix = station.replace(" ", "%20")
     station_url = "{}/{}".format(NJ_TRANSIT_DV_URL, station_suffix)
 
-    print(station_url)
+    #print(station_url)
 
     nj_dv_page_response = http.get(station_url)
 
     if nj_dv_page_response.status_code != 200:
-        print("Got code '%s' from page response" % nj_dv_page_response.status_code)
+        #print("Got code '%s' from page response" % nj_dv_page_response.status_code)
         return None
 
     selector = html(nj_dv_page_response.body())
     departures = selector.find(".border.mb-3.rounded")
 
-    print("Found '%s' departures" % departures.len())
+    #print("Found '%s' departures" % departures.len())
 
     result = []
 
@@ -214,16 +214,16 @@ def extract_fields_from_departure(departure):
     track_number = get_track_number(data)
     departing_in = get_real_time_estimated_departure(data, departure_time)
 
-    print(
-        "{}\t{}\t{}\t{}\t{}\t{}\n".format(
-            departure_time,
-            destination_name,
-            service_line,
-            train_number,
-            track_number,
-            departing_in,
-        ),
-    )
+    #print(
+    #    "{}\t{}\t{}\t{}\t{}\t{}\n".format(
+    #        departure_time,
+    #        destination_name,
+    #        service_line,
+    #        train_number,
+    #        track_number,
+    #        departing_in,
+    #    ),
+    #)
 
     return struct(
         departing_at = departure_time,
@@ -319,7 +319,7 @@ def fetch_stations_from_website():
         nj_dv_page_response = http.get(NJ_TRANSIT_DV_URL)
 
         if nj_dv_page_response.status_code != 200:
-            print("Got code '%s' from page response" % nj_dv_page_response.status_code)
+            #print("Got code '%s' from page response" % nj_dv_page_response.status_code)
             return result
 
         nj_dv_page_response_body = nj_dv_page_response.body()
@@ -328,12 +328,14 @@ def fetch_stations_from_website():
 
     selector = html(nj_dv_page_response_body)
     stations = selector.find(".vbt-autocomplete-list.list-unstyled.position-absolute.pt-1.shadow.w-100").first().children()
-    print("Got response of '%s' stations" % stations.len())
+
+    #print("Got response of '%s' stations" % stations.len())
 
     for index in range(0, stations.len()):
         station = stations.eq(index)
         station_name = station.find("a").first().text()
-        print("Found station '%s' from page response" % station_name)
+
+        #print("Found station '%s' from page response" % station_name)
         result.append(station_name)
 
     return result

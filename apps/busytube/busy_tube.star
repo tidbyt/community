@@ -247,6 +247,7 @@ def main(config):
     typical_crowdedness = get_typical_crowdedness(naptan_id, now)
 
     return render.Root(
+        max_age = 300,  # Data updated every 5 mins
         child = render.Padding(
             pad = (1, 1, 1, 1),
             child = render.Box(

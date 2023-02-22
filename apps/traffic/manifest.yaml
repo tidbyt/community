@@ -1,0 +1,8 @@
+---
+id: traffic
+name: Traffic
+summary: Time to your destination
+desc: Shows your estimated travel duration using traffic information from Bing/MapQuest.
+author: Rob Kimball
+fileName: traffic.star
+packageName: traffic

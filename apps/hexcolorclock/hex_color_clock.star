@@ -84,6 +84,7 @@ def main(config):
 
     return render.Root(
         delay = delay,
+        max_age = 120,
         child = render.Animation(
             children = frames,
         ),

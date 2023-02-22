@@ -91,7 +91,7 @@ def renderSched(prediction, route):
         first_line = render.Row(
             children = [
                 render.Text(
-                    content = dest + " \\u00b7 ",
+                    content = dest + " \u00b7 ",
                     height = 8,
                     offset = -1,
                     font = "Dina_r400-6",

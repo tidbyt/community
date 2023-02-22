@@ -370,6 +370,7 @@ def main(config):
         stop_code = stop["code"]
 
     return render.Root(
+        max_age = 120,
         delay = 25,
         child = render.Column(
             expanded = True,

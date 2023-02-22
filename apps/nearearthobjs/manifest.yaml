@@ -1,0 +1,8 @@
+---
+id: near-earth-objs
+name: Near Earth Objs
+summary: Show next near earth object
+desc: Displays the name, speed, distance, and arrival of the next near Earth object from NeoWs.
+author: noahcolvin
+fileName: near_earth_objs.star
+packageName: nearearthobjs

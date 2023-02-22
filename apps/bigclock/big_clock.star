@@ -193,6 +193,7 @@ def main(config):
 
     return render.Root(
         delay = 500,  # in milliseconds
+        max_age = 120,
         child = render.Box(
             child = render.Animation(
                 children = frames,

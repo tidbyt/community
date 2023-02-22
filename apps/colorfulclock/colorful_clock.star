@@ -140,6 +140,7 @@ def main(config):
     # Return the clock
     return render.Root(
         delay = 1000,
+        max_age = 120,
         child = render.Box(
             child = render.Animation(
                 children = clock_frames,

@@ -6,7 +6,7 @@ Author: rs7q5
 """
 #mlb_leaders.star
 #Created 20220412 RIS
-#Last Modified 20220510 RIS
+#Last Modified 20230210 RIS
 
 load("cache.star", "cache")
 load("encoding/json.star", "json")
@@ -154,6 +154,7 @@ def main(config):
 
     return render.Root(
         delay = int(config.str("speed", "50")),  #speed up scroll text
+        show_full_animation = True,
         child = final_frame,
     )
 

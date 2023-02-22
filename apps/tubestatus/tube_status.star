@@ -285,6 +285,7 @@ def main(config):
         delay = 50
 
     return render.Root(
+        max_age = 120,
         delay = delay,
         child = rendered,
     )

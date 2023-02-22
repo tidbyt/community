@@ -356,6 +356,7 @@ def main(config):
     month = now.format("Jan").upper()
 
     return render.Root(
+        max_age = 120,
         child = render.Row(
             main_align = "center",
             cross_align = "center",

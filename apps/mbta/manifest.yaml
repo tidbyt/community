@@ -1,0 +1,8 @@
+---
+id: mbta
+name: MBTA
+summary: MBTA departures
+desc: MBTA bus and rail departure times.
+author: Marcus Better
+fileName: mbta.star
+packageName: mbta

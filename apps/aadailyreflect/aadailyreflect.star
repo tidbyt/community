@@ -46,6 +46,7 @@ REFERENCE_OFFSET = 0
 def main(config):
     return render.Root(
         delay = 75,
+        show_full_animation = True,
         child = render.Column(
             children = [
                 render.Marquee(

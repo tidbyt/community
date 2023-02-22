@@ -130,6 +130,7 @@ def main(config):
     # generate the widget for the app
     return render.Root(
         delay = 1000,
+        max_age = 120,
         child = render.Column(
             main_align = "center",
             expanded = True,

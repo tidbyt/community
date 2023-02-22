@@ -9,6 +9,7 @@ load("cache.star", "cache")
 load("encoding/base64.star", "base64")
 load("encoding/json.star", "json")
 load("http.star", "http")
+load("humanize.star", "humanize")
 load("re.star", "re")
 load("render.star", "render")
 load("schema.star", "schema")
@@ -17,6 +18,10 @@ load("time.star", "time")
 #-------------------------------------------------------------------------------
 # Constants
 #-------------------------------------------------------------------------------
+
+# Configuration Constants
+DEFAULT_DISPLAY_ON_SLEW = True
+DEFAULT_DISPLAY_ON_CAL = True
 
 # Cache, HTTP, and URL constants
 HTTP_STATUS_OK = 200
@@ -49,6 +54,26 @@ CACHE_OVERRIDE = False
 # CACHE_OVERRIDE = True
 
 #-------------------------------------------------------------------------------
+# Utilities
+#-------------------------------------------------------------------------------
+
+def pad_left(in_str, width):
+    """Add space padding to the left side of a string.
+
+    Args:
+        in_str: The input string to pad.
+        width: The desired width of the output string.
+
+    Returns:
+       A string padded out to `width` characters by adding spaces to the left.
+    """
+    out_str = in_str
+    if len(in_str) < width:
+        delta = width - len(in_str)
+        out_str = (" " * delta) + in_str
+    return out_str
+
+#-------------------------------------------------------------------------------
 # Data Retrival
 #-------------------------------------------------------------------------------
 
@@ -69,7 +94,6 @@ def get_hst_live():
     if data and not CACHE_OVERRIDE:
         obs = json.decode(data)
     else:
-        # print("Loading from APIs")
         api_reply = http.get(SPACE_TELESCOPE_LIVE_API)
         if api_reply.status_code == HTTP_STATUS_OK:
             obsjson_raw = api_reply.body()
@@ -93,10 +117,16 @@ def get_hst_live():
             obs["reference_image_base64"] = get_ref_image(obs["reference_image_url"])
         else:
             obs["reference_image_url"] = ""
-        if obs.get("ra", None) == None:
+
+        if obs.get("ra", None) == None or obs.get("ra") == "":
             obs["ra"] = ""
-        if obs.get("dec", None) == None:
+        else:
+            obs["ra"] = humanize.float("+#.##", float(obs["ra"]))
+
+        if obs.get("dec", None) == None or obs.get("dec") == "":
             obs["dec"] = ""
+        else:
+            obs["dec"] = humanize.float("+#.##", float(obs["dec"]))
 
         if obs.get("end_at", None) != None:
             cache_timeout = time.parse_time(obs["end_at"]) - time.now().in_location("UTC")
@@ -190,24 +220,23 @@ def marquee_text(text, width = SCREEN_WIDTH, font = SMALL_FONT, color = WHITE):
     )
 
 #-------------------------------------------------------------------------------
-# Main
+# Render Display
 #-------------------------------------------------------------------------------
 
-def main():
-    """Main function body.
+def render_display(obs, img_size = 20):
+    """Function that renders the display.
 
     Args:
-       config: A Tidbyt configuration object
+       obs: Hubble observation data
+       img_size: Size of side of square for display of starfield
 
     Returns:
         A `render.Root` object.
     """
-    obs = get_hst_live()
-    img_size = 20
     target_text = obs["target_name"]
-    if len(obs["category"]) > 0:
+    if obs["category"] and len(obs["category"]) > 0:
         target_text = "{} - {}".format(obs["category"], obs["target_name"])
-    render_obj = render.Root(
+    return render.Root(
         child = render.Column(
             children = [
                 render.Row(
@@ -236,14 +265,14 @@ def main():
                                 marquee_text(obs["science_instrument_acronym"], width = SCREEN_WIDTH - img_size),
                                 render.Row(
                                     children = [
-                                        render.Text("RA=", color = CYAN, font = SMALL_FONT),
-                                        render.Text(obs["ra"], color = WHITE, font = SMALL_FONT),
+                                        render.Text(pad_left("RA=", 4), color = CYAN, font = SMALL_FONT),
+                                        render.Text(pad_left(obs["ra"], 7), color = WHITE, font = SMALL_FONT),
                                     ],
                                 ),
                                 render.Row(
                                     children = [
-                                        render.Text("Dec=", color = CYAN, font = SMALL_FONT),
-                                        render.Text(obs["dec"], color = WHITE, font = SMALL_FONT),
+                                        render.Text(pad_left("Dec=", 4), color = CYAN, font = SMALL_FONT),
+                                        render.Text(pad_left(obs["dec"], 7), color = WHITE, font = SMALL_FONT),
                                     ],
                                 ),
                             ],
@@ -255,6 +284,29 @@ def main():
         ),
     )
 
+#-------------------------------------------------------------------------------
+# Main
+#-------------------------------------------------------------------------------
+
+def main(config):
+    """Main function body.
+
+    Args:
+       config: A Tidbyt configuration object
+
+    Returns:
+        A `render.Root` object or empty list `[]` if nothing to display.
+    """
+    display_on_slew = config.bool("display_on_slew", DEFAULT_DISPLAY_ON_SLEW)
+    display_on_cal = config.bool("display_on_cal", DEFAULT_DISPLAY_ON_CAL)
+    obs = get_hst_live()
+
+    render_obj = []
+    if (obs["state"] == "Acquiring New Target" and display_on_slew) or \
+       (obs["state"] == "Calibrating" and display_on_cal) or \
+       (obs["state"] != "Calibrating" and obs["state"] != "Acquiring New Target"):
+        render_obj = render_display(obs)
+
     return render_obj
 
 def get_schema():
@@ -265,5 +317,20 @@ def get_schema():
     """
     return schema.Schema(
         version = "1",
-        fields = [],
+        fields = [
+            schema.Toggle(
+                id = "display_on_slew",
+                name = "Display When Acquiring",
+                desc = "Toggle to display while acuiring or hide.",
+                icon = "crosshairs",
+                default = DEFAULT_DISPLAY_ON_SLEW,
+            ),
+            schema.Toggle(
+                id = "display_on_cal",
+                name = "Display When Calibrating",
+                desc = "Toggle to display while calibrating or hide.",
+                icon = "ruler",
+                default = DEFAULT_DISPLAY_ON_CAL,
+            ),
+        ],
     )

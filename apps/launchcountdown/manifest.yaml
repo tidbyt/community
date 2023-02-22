@@ -1,0 +1,8 @@
+---
+id: launchcountdown
+name: LaunchCountdown
+summary: Displays next world launch
+desc: Displays the next rocket launch in the world.
+author: Robert Ison
+fileName: launchcountdown.star
+packageName: launchcountdown
