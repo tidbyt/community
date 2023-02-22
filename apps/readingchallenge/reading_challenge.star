@@ -1,7 +1,7 @@
 """
 Applet: Reading Challenge
 Summary: Goodreads challenge tracker
-Description: Displays progress towards your Goodreads yearly goal.
+Description: Displays progress towards your Goodreads yearly goal, navigate to your goodreads.com/user_challenges/{id} to get your challenge id from the URL.
 Author: panderson54
 """
 
@@ -100,7 +100,7 @@ def main(config):
     CHALLENGE_ID = secret.decrypt("AV6+xWcE/k5WZk3zYbxM/fuI6z4DJ5oQUNrHWbIu8HBOyeubTAzYcB9DxEMAWRoxDcryQFohadBlZneiSq94urEiiG53bpXexcibIvOyKOSH3Vi3qEYaY1vVXUxHQOmyk5odoCU9UtLX850GqOI=")
 
     if CHALLENGE_ID == None:
-        CHALLENGE_ID = config.str("user_challenge_id", "40507891")
+        CHALLENGE_ID = config.str("user_challenge_id", "0")
 
     progress_cached = cache.get("progress")
     goal_cached = cache.get("goal")
@@ -123,8 +123,8 @@ def main(config):
         progress_nums = re.findall(r"\d+", progress_div[0])
         progress = progress_nums[0]
         goal = progress_nums[1]
-        cache.set("progress", str(progress), ttl_seconds = 86400)
-        cache.set("goal", str(goal), ttl_seconds = 86400)
+        cache.set("".join(["progress",CHALLENGE_ID]), str(progress), ttl_seconds = 86400)
+        cache.set("".join(["goal",CHALLENGE_ID]), str(goal), ttl_seconds = 86400)
 
     progress_text = " ".join(["Read:", str(progress), "books."])
     goal_text = " ".join(["Goal:", str(goal), "books."])
