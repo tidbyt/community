@@ -5,14 +5,14 @@ Description: Display count and contents of Severe Weather Alerts issued by the U
 Author: aschechter88
 """
 
+load("cache.star", "cache")
+load("encoding/base64.star", "base64")
+load("encoding/json.star", "json")
+load("http.star", "http")
+load("math.star", "math")
 load("render.star", "render")
 load("schema.star", "schema")
-load("http.star", "http")
-load("encoding/json.star", "json")
-load("encoding/base64.star", "base64")
 load("time.star", "time")
-load("cache.star", "cache")
-load("math.star", "math")
 
 DEFAULT_LOCATION = """
 {
@@ -47,13 +47,13 @@ def main(config):
         for alert in alerts:
             alertCounter += 1
             columnFrames.append(render_alert(alert, alertCounter, foundAlerts))
-
-        ## no alerts, show the green no alerts screen
-    else:
+    elif config.bool("alert_only", False):  ## no alerts, hide app
+        return []
+    else:  ## no alerts, show the green no alerts screen
         columnFrames.append(render_summary_card_zero_alerts(jsonLocation))
 
     return render.Root(
-        render.Sequence(columnFrames),
+        render.Animation(columnFrames),
         delay = 5000,
     )
 
@@ -66,6 +66,13 @@ def get_schema():
                 name = "Location",
                 desc = "Location for which to display alerts.",
                 icon = "locationDot",
+            ),
+            schema.Toggle(
+                id = "alert_only",
+                name = "Alerts only",
+                desc = "Enable to show app only when there are alerts.",
+                icon = "eyeSlash",
+                default = False,
             ),
         ],
     )

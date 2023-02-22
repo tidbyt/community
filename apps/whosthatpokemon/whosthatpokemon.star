@@ -5,16 +5,15 @@ Description: Test your Pokemon Master knowledge with this rendition of "Who's Th
 Author: Nicole Brooks
 """
 
-load("render.star", "render")
-load("time.star", "time")
+load("cache.star", "cache")
 load("encoding/base64.star", "base64")
 load("encoding/json.star", "json")
 load("http.star", "http")
-load("schema.star", "schema")
-load("cache.star", "cache")
 load("random.star", "random")
+load("render.star", "render")
+load("schema.star", "schema")
 
-ALL_POKEMON = 898
+ALL_POKEMON = 1008
 CLASSIC_POKEMON = 386
 POKEAPI_URL = "https://pokeapi.co/api/v2/pokemon/{}"
 IMGIX_URL = "https://pokesprites.imgix.net/{}.png?bri=-100"

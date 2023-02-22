@@ -1,0 +1,8 @@
+---
+id: hex-daily-stats
+name: HEX Daily Stats
+summary: HEX Daily Stats
+desc: Displays HEX price, Payout per T-Share and T-Share rate.
+author: kmphua
+fileName: hex_daily_stats.star
+packageName: hexdailystats

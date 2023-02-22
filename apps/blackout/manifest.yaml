@@ -1,0 +1,8 @@
+---
+id: blackout
+name: Blackout
+summary: Blackout tidbyt
+desc: Black out Tidbyt during evenings (or whenever).
+author: mabroadfo1027
+fileName: blackout.star
+packageName: blackout

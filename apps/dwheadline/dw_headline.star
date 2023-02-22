@@ -5,9 +5,9 @@ Description: Shows the latest published headline on DailyWire.com.
 Author: bmdelaune
 """
 
+load("http.star", "http")  #HTTP Client
 load("render.star", "render")
 load("schema.star", "schema")
-load("http.star", "http")  #HTTP Client
 load("xpath.star", "xpath")  #XPath Expressions to read XML RSS Feed
 
 def main():

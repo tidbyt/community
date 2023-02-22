@@ -10,7 +10,6 @@ Author: dinosaursrarr
 # - Allow users to enter their own pattern.
 # - Filter out similar patterns, as there are several minor variations on the same idea.
 
-load("animation.star", "animation")
 load("math.star", "math")
 load("random.star", "random")
 load("re.star", "re")

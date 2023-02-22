@@ -6,8 +6,6 @@ Author: mabroadfo1027
 """
 
 load("render.star", "render")
-load("schema.star", "schema")
-load("encoding/json.star", "json")
 
 def main():
     pulseList = []

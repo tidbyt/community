@@ -5,9 +5,9 @@ Description: Display a scrolling message sent in via text.
 Author: Josh Reed
 """
 
+load("http.star", "http")
 load("render.star", "render")
 load("schema.star", "schema")
-load("http.star", "http")
 
 TEXTBYT_API_URL = "https://us-central1-textbyt-rest-api.cloudfunctions.net/textbyt/v1/"
 
@@ -41,9 +41,9 @@ def main(config):
                     color = "#D2691E",
                 ),
                 render.Marquee(
-                    height = 32,
-                    offset_start = 32,
-                    offset_end = 32,
+                    height = 23,  # 32 - 8 (author line) - 1 (divider line)
+                    offset_start = 24,
+                    offset_end = 24,
                     child = render.WrappedText(
                         content = msg_txt,
                         width = 64,

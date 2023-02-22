@@ -19,20 +19,10 @@ STATUS_URL = "https://gbfs.baywheels.com/gbfs/fr/station_status.json"
 DEFAULT_STATION = '{ "display": "18th St at Noe St", "value": "cd7359fc-6798-48ed-af32-9d5f6cff9ffa"}'
 
 IMAGE_BICYCLE = base64.decode("""
-iVBORw0KGgoAAAANSUhEUgAAAGQAAABkCAYAAABw4pVUAAAAAXNSR0IArs4c6QAAA7VJREFUeF7tmmuS2zAMg5Oj9eR7tO1kdtK
-mHscE+JBRB/m7sQjiEyg57f3mj5QDdyk1FnMzELFNYCAGIuaAmBwnxEDEHBCT44QYiJgDYnKcEAMRc0BMjhNiIGIOiMlxQgxEzA
-ExOU6IgYg5ICbHCTEQMQfE5DghBiLmgJgcJ8RAeh34vn19Z1e8337JbUg5Qay5BsI6Nvz9CpCHNLWUfHRCDGQgLdWEqEH5+IQYS
-HNKnJBmQ6vLdQBRSsl/P7L2gGYgqdy2LgkkC0kBioG80DOQ6gFCPh+NMgMhDa1+PQKicLh7ZG0on52SywNBUrFN3plQLg0kA+Ps
-sXVJIFkQz6Q4IdXT+uX5KoyzoVwmIV0gLg8EMao6IpAajSH8s1RV956mkYRUDGKarNTpBsToPqrdCqTToKjBzlqdcCLdUa02IBM
-G7TVXrfO6ZnWtd+ZWoLQAmWps+05QqTMB93j05P6LURlIxaQovl1/Xw2jclMrAVGH8W50rNTNjq80kJVNZZKiACOTlBQQZRhHO/
-JM3WhSaCCZplaYFDWc0f2azO36mfUijT+XGPLDCEEEPMoza+6/3cY3mmqNd78CM+siflBAuotXYSANVmscpeT5t05fRoAgRjFNZ
-FORMSz7boH2E3nTDiQq2LVjkToMkMd6iKnV8zDSDQNBxL6bs4wxzJEWNcfAf64V9VkFEnnUCqRD7BlA2N+3qn0ePb8MCLNbUShd
-CWGvtJcB0g1lNZCpev/e5MDtGM3WaDai5wg6y7vqIe8XCAi0v0j30pF1JJodG1FjVYMeG5ABUa33fF4CyF7jqxKJggUHCfSrg8y
-h/tpUtAMNJNgCiEFdu62zVudaUUo6asEjC70hZebutlGkMaZO93rvwHTUaQdSTQnSFFtjYs3MJkJ0jwBBCu/tMtQ4dv2pdZmb1d
-9b1PE/FVBA0LGFFt8e8tGMzqw7Ydqk7lEgiIHM7kXWq8z37bPVn0iY9ej3kOyuQHc9+j3mMM/OeVQL8z1UN52QzAhghB99F23qa
-I1MIqv6Gd1pIOx5srKpqNZKKAyMn8tK8bOiObYppCVV3WUg00mZgLFi7GZ1twCZgpJtCknIJJSK7jYg3VAqTTFA1HS3AunYdStB
-dF6Lu3SPAGHfWbqaYZNRvR5P6B4H0mnSJ6xlIGKUDcRAxBwQk+OEGIiYA2JynBADEXNATI4TYiBiDojJcUIMRMwBMTlOiIGIOSA
-mxwkxEDEHxOQ4IQYi5oCYHCfEQMQcEJPjhBiImANicn4DdRKwdNqv/wYAAAAASUVORK5CYII=
+R0lGODlhNgAgAIABAP8A/////yH5BAEKAAEALAAAAAA2ACAAAAK5jI+pe+DAopz0OYqztLB1DWKP
+F5bTaFzmuqiBy8avCrMcWtFffNfRLUtYNMCg0PcbGj240wXJJBadkObR2urlOlimr6fbZXfTlNIM
+RnSjaI76DIZDZ5/4G3Wm4+f7/P3Z1GfGIEg3BihWiFVoqOBWE4joGPZ2mGe1d8XWduXmFQdK8tl5
+CWpaOfrnp2e6mIg5NMe2urkRKxspdidyywepu0sVpuvneWiL0zq51mbMqupskpYKvfSsWgAAOw==
 """)
 
 IMAGE_LIGHTNING = base64.decode("""
@@ -86,7 +76,7 @@ def main(config):
                     cross_align = "center",
                     expanded = True,
                     children = [
-                        render.Image(src = IMAGE_BICYCLE, width = 32, height = 32),
+                        render.Image(src = IMAGE_BICYCLE, width = 32, height = 18),
                         render.Column(
                             main_align = "space_evenly",
                             cross_align = "end",

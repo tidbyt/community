@@ -261,7 +261,7 @@ def draw_game_box(game_board, game_info):
 def draw_games_graphics(game_boxes):
     games_graphics = []
     for game_box in game_boxes:
-        for i in range(0, FRAMES):
+        for _ in range(0, FRAMES):
             games_graphics.append(render.Box(
                 child = render.Row(
                     main_align = "start",
@@ -280,7 +280,6 @@ def draw_game_boxes(games_info):
     # Get the board state for each game and draw the game graphics
     for game_info in games_info:
         # Sort moves in spacially instead of by move number
-        state = game_info["state"]
         coords = init_coords()
         for (y, row) in enumerate(game_info["state"], 1):
             for (x, column) in enumerate(row, 1):
@@ -342,7 +341,6 @@ def main(config):
         games_cache_key = "games_{}".format(username)
         games_info_cache_key = "games_info_{}".format(username)
         cached_user = cache.get(user_cache_key)
-        cached_player_id = cache.get(player_id_cache_key)
 
         # If a new Username has been set in the options, reset the games cache
         # and pull a new player_id

@@ -24,6 +24,7 @@ NO_DATA_IN_CACHE = ""
 RED = "#DA291C"  # Pantone 485 C - same as the buses
 ORANGE = "#FFA500"  # Like the countdown timers at bus stops
 COUNTDOWN_HEIGHT = 24
+FONT = "tom-thumb"
 
 def app_key():
     return secret.decrypt(ENCRYPTED_API_KEY) or ""  # fall back to anonymous quota
@@ -186,8 +187,8 @@ def get_arrivals(stop_id):
         arrivals[i]["index"] = i + 1
     return arrivals
 
-# Show a single row in the countdow  time
-def render_arrival(index, line, destination, due_in_seconds):
+# How long till a given bus comes?
+def render_due(index, line, due_in_seconds):
     # Not 100% confident this is what the countdown timers at stops do,
     # but they have both "due" and "1 min", so there must be a difference.
     if due_in_seconds < 30:
@@ -195,38 +196,62 @@ def render_arrival(index, line, destination, due_in_seconds):
     else:
         due = "%d min" % math.round(due_in_seconds / 60.0)
 
-    due_row = render.Row(
+    return render.Row(
         expanded = True,
         children = [
             # Include an index to a) mimic the countdown timers at bus stops
             # and b) if I can work out how to scroll to show more than 3 for
             # particularly busy stops.
-            render.WrappedText(str(index), width = 8, color = ORANGE),
-            render.WrappedText(line, width = 20, color = ORANGE),
+            render.WrappedText(
+                content = str(index),
+                width = 12,
+                color = ORANGE,
+                font = FONT,
+            ),
+            render.WrappedText(
+                content = line,
+                width = 20,
+                color = ORANGE,
+                font = FONT,
+            ),
             render.Row(
                 main_align = "end",
                 expanded = True,
-                children = [render.Text(due, color = ORANGE)],
+                children = [
+                    render.Text(
+                        content = due,
+                        color = ORANGE,
+                        font = FONT,
+                    ),
+                ],
             ),
         ],
     )
-    destination_row = render.Row(
+
+# Where is a given bus going?
+def render_destination(index, destination):
+    return render.Row(
         expanded = True,
         children = [
             # Include an index to a) mimic the countdown timers at bus stops
-            # and b) if I can work out how to scroll to show more than 3 for
+            # and b) if I can work out how to scroll to show more than 4 for
             # particularly busy stops.
-            render.WrappedText(str(index), width = 8, color = ORANGE),
-            render.WrappedText(destination, width = 54, height = 8, color = ORANGE),
+            render.WrappedText(
+                content = str(index),
+                width = 12,
+                color = ORANGE,
+                font = FONT,
+            ),
+            render.Text(
+                content = destination,
+                color = ORANGE,
+                font = FONT,
+            ),
         ],
     )
 
-    return render.Animation(
-        children = [due_row] * 100 + [destination_row] * 100,
-    )
-
-# Show rows in the countdown timer
-def render_arrivals(arrivals):
+# Renders two frames for a set of four arrivals.
+def render_arrivals_section(arrivals):
     if len(arrivals) == 0:
         return render.Box(
             height = COUNTDOWN_HEIGHT,
@@ -236,19 +261,49 @@ def render_arrivals(arrivals):
             ),
         )
 
-    return render.Padding(
-        pad = (1, 0, 1, 0),
-        child = render.Box(
-            height = COUNTDOWN_HEIGHT,
-            child = render.Column(
-                main_align = "start",
-                expanded = True,
-                children = [
-                    render_arrival(a["index"], a["line"], a["destination"], a["due_in_seconds"])
-                    for a in arrivals
-                ],
+    return [
+        # Show the number and how long to wait for each bus.
+        render.Padding(
+            pad = (1, 0, 1, 0),
+            child = render.Box(
+                height = COUNTDOWN_HEIGHT,
+                child = render.Column(
+                    main_align = "start",
+                    expanded = True,
+                    children = [
+                        render_due(a["index"], a["line"], a["due_in_seconds"])
+                        for a in arrivals
+                    ],
+                ),
             ),
         ),
+        # Show the destination for each bus.
+        render.Padding(
+            pad = (1, 0, 1, 0),
+            child = render.Box(
+                height = COUNTDOWN_HEIGHT,
+                child = render.Column(
+                    main_align = "start",
+                    expanded = True,
+                    children = [
+                        render_destination(a["index"], a["destination"])
+                        for a in arrivals
+                    ],
+                ),
+            ),
+        ),
+    ]
+
+# Show up to 4 on a screen for as many screens as needed
+def render_arrivals(arrivals):
+    sections = []
+    for i in range(0, len(arrivals), 4):
+        sections.extend(render_arrivals_section(arrivals[i:i + 4]))
+    frames = []
+    for s in sections:
+        frames.extend([s] * 100)
+    return render.Animation(
+        children = frames,
     )
 
 def render_stop_details(name, code):
@@ -258,20 +313,29 @@ def render_stop_details(name, code):
         children = [
             # There's no room to say where each bus is heading, so just give the
             # direction for the stop. That makes it long, so scroll it.
-            render.Marquee(
-                scroll_direction = "horizontal",
-                width = 50,
-                height = 8,
-                child = render.WrappedText("%s" % name),
+            render.Padding(
+                pad = (1, 1, 1, 0),
+                child = render.Marquee(
+                    scroll_direction = "horizontal",
+                    width = 50,
+                    height = 6,
+                    child = render.Text(
+                        content = name,
+                        font = FONT,
+                    ),
+                ),
             ),
             # There are often multiple nearby stops with the same name, so be precise.
             # Can be up to two letters long.
             render.Box(
                 width = 13,
-                height = 8,
+                height = 7,
                 child = render.Padding(
-                    pad = (1, 0, 0, 0),
-                    child = render.Text(code),
+                    pad = (1, 1, 0, 0),
+                    child = render.Text(
+                        content = code,
+                        font = FONT,
+                    ),
                 ),
                 color = RED,
             ),
@@ -306,6 +370,7 @@ def main(config):
         stop_code = stop["code"]
 
     return render.Root(
+        max_age = 120,
         delay = 25,
         child = render.Column(
             expanded = True,
@@ -317,7 +382,7 @@ def main(config):
                 render_stop_details(stop_name, stop_code),
                 render_separator(),
                 # Bottom part shows the countdown for the next few arrivals
-                render_arrivals(arrivals[0:3]),
+                render_arrivals(arrivals[:12]),  # Up to 3 screens
             ],
         ),
     )

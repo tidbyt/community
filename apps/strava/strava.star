@@ -5,16 +5,16 @@ Description: Displays your YTD or all-time athlete stats recorded on Strava.
 Author: Rob Kimball
 """
 
-load("http.star", "http")
-load("math.star", "math")
-load("time.star", "time")
 load("cache.star", "cache")
+load("encoding/base64.star", "base64")
+load("encoding/json.star", "json")
+load("http.star", "http")
+load("humanize.star", "humanize")
+load("math.star", "math")
 load("render.star", "render")
 load("schema.star", "schema")
 load("secret.star", "secret")
-load("humanize.star", "humanize")
-load("encoding/json.star", "json")
-load("encoding/base64.star", "base64")
+load("time.star", "time")
 
 STRAVA_BASE = "https://www.strava.com/api/v3"
 CLIENT_ID = "79662"
@@ -632,14 +632,12 @@ def last_activity(config, refresh_token, sport, units):
     map_info = display_activity.get("map", {})
     polyline = map_info.get("summary_polyline", map_info.get("polyline", None))
     title = []
-    title_width = 64
     if show_logo:
         sport_icon = {
             "run": RUN_ICON,
             "ride": RIDE_ICON,
             "swim": SWIM_ICON,
         }[sport]
-        title_width -= 10
         title.append(
             render.Image(src = sport_icon),
         )
@@ -950,7 +948,6 @@ def get_activities(config, refresh_token):
     timezone = config.get("timezone") or "America/New_York"
     now = time.now().in_location(timezone)
     beg_curr_month = time.time(year = now.year, month = now.month, day = 1)
-    _next_month = time.time(year = now.year, month = now.month, day = 32)
 
     end_prev_month = beg_curr_month - time.parse_duration("1ns")
     beg_prev_month = time.time(year = end_prev_month.year, month = end_prev_month.month, day = 1)
@@ -1086,6 +1083,10 @@ def format_duration(d, resolution = "minutes"):
         if len(m) == 1:
             m = "0" + m
         return "%s:%s" % (h, m)
+
+    else:
+        # Should never get here.
+        return ""
 
 def oauth_handler(params):
     params = json.decode(params)

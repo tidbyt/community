@@ -5,18 +5,16 @@ Description: Display daily tides from NOAA stations.
 Author: tavdog
 """
 
+load("cache.star", "cache")
+load("encoding/json.star", "json")
+load("http.star", "http")
+load("humanize.star", "humanize")
+load("render.star", "render")
+load("schema.star", "schema")
+
 production = True
 debug = False  #  debug mode will not hit network apis
 print_debug = False
-
-load("render.star", "render")
-load("schema.star", "schema")
-load("http.star", "http")
-load("encoding/json.star", "json")
-load("cache.star", "cache")
-load("xpath.star", "xpath")
-load("re.star", "re")
-load("humanize.star", "humanize")
 
 default_location = """
   {
@@ -117,9 +115,8 @@ def get_stations(location):  # assume we have a valid location json string
             ),
         )
 
-    return station_options
-
     # return decode json object of tide data
+    return station_options
 
 def get_tides_hilo(station_id):
     tides = {}
@@ -163,6 +160,8 @@ def main(config):
     color_label = config.get("label_color", "#0a0")  # green
     color_low = config.get("low_color", "#A00")  # red
     color_high = config.get("high_color", "#D2691E")  # nice orange
+    y_lim_min = config.get("y_lim_min", 0)
+    y_lim_max = config.get("y_lim_max", None)
 
     # get our station_id
     debug_print("station id from config.get: " + station_id)
@@ -197,6 +196,8 @@ def main(config):
     #load GRAPH cache
     cache_key_graph = "noaa_tides_graph_%s" % (station_id)
     cache_str_graph = cache.get(cache_key_graph)
+
+    tides_graph = {}
 
     if cache_str_hilo != None:
         debug_print("loading cached data")
@@ -241,15 +242,18 @@ def main(config):
             else:
                 v = int((float(pred["v"]) + 0.05) * 10) / 10.0  # round to 1 decimal
 
+            if v < y_lim_min:
+                y_lim_min = v  # set the lower level of graph to be the lowest negative
             t = pred["t"][11:]  # strip the date from the front = start to first occurence of a space
             if time_format == "AMPM":
                 m = "A"
                 hr = int(t[0:2])
                 debug_print(hr)
                 mn = t[3:5]
-                if hr > 12:
+                if hr > 11:
                     m = "P"
-                    hr = hr - 12
+                    if hr > 12:
+                        hr = hr - 12
                 if hr < 10:  # pad a space
                     if hr == 0:
                         hr = "12"
@@ -316,6 +320,10 @@ def main(config):
             children = lines,
         ),
     )
+    if y_lim_max == "":
+        y_lim_max = None
+    elif y_lim_max != None:
+        y_lim_max = float(y_lim_max)
     data_graph = render.Plot(
         data = points,
         width = 64,
@@ -323,10 +331,11 @@ def main(config):
         color = "#00c",  #00c
         color_inverted = "#505",
         fill = True,
+        y_lim = (y_lim_min, y_lim_max),
     )
     root_children = [main_text]
 
-    if config.get("display_graph", "true") == "true" and len(points) > 0:  # panic if we try to render an empty graph object
+    if config.bool("display_graph") and len(points) > 0:  # panic if we try to render an empty graph object
         root_children = [data_graph, main_text]
 
     return render.Root(
@@ -390,15 +399,6 @@ def get_schema():
         ),
     )
     fields.append(
-        schema.Toggle(
-            id = "display_graph",
-            name = "Display Graph",
-            desc = "A toggle to display the graph data in the background",
-            icon = "compress",
-            default = True,
-        ),
-    )
-    fields.append(
         schema.Dropdown(
             id = "label_color",
             name = "Label Color",
@@ -454,6 +454,25 @@ def get_schema():
             name = "Manual Station ID Input",
             icon = "monument",
             desc = "Optional manual station id",
+        ),
+    )
+
+    fields.append(
+        schema.Toggle(
+            id = "display_graph",
+            name = "Display Graph",
+            desc = "A toggle to display the graph data in the background",
+            icon = "compress",
+            default = True,
+        ),
+    )
+    fields.append(
+        schema.Text(
+            id = "y_lim_max",
+            name = "Graph maximum",
+            desc = "Scale the graph by setting a local tide maximum. Leave blank to disable",
+            icon = "compress",
+            default = "",
         ),
     )
 

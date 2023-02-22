@@ -15,7 +15,12 @@ This repo is for publishing apps to all Tidbyt users. Interested in developing a
 ## Quick Start
 You should really read our [contributions guide](docs/CONTRIBUTING.md), our guide on [Publishing Apps](https://tidbyt.dev/docs/integrate/pushing-apps), and the section below before diving in. But if you just want to go for it, run the following to generate all the code you need:
 ```
-make app
+pixlet create
+```
+
+Before submission, run the following to ensure your app is ready to publish:
+```
+pixlet check <your app>.star
 ```
 
 ## Frequently Asked Questions
@@ -44,7 +49,7 @@ code of conduct, policies, and legal info.
 ## Thanks
 Thanks so much for your interest in contributing to Community Apps. We deeply value contributions of any size. It takes an army to support the deeply specialized use cases of the Tidbyt community and we can't thank you enough.
 
-Rohan, Mats, and Mark @ Tidbyt ❤️
+Rohan, Mats, Mark and Par @ Tidbyt ❤️
 
 [1]: https://tidbyt.com
 [2]: https://github.com/tidbyt/pixlet

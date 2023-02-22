@@ -1,0 +1,8 @@
+---
+id: sunrise-sunset
+name: Sunrise Sunset
+summary: Shows sunrise and set times
+desc: Displays with icon sunrise and sunset times.
+author: Alan Fleming
+fileName: sunrise_sunset.star
+packageName: sunrisesunset

@@ -1,12 +1,18 @@
-load("render.star", "render")
-load("http.star", "http")
+"""
+Applet: Outlook Calendar
+Author: Matt-Pesce
+Summary: Display Next Meeting
+Description: Shows the date, next meeting and time from your Outlook Calendar.
+"""
+
 load("cache.star", "cache")
-load("time.star", "time")
+load("encoding/base64.star", "base64")
+load("encoding/json.star", "json")
+load("http.star", "http")
+load("render.star", "render")
 load("schema.star", "schema")
 load("secret.star", "secret")
-load("encoding/json.star", "json")
-load("encoding/base64.star", "base64")
-load("humanize.star", "humanize")
+load("time.star", "time")
 
 CAL_ICON = base64.decode("""iVBORw0KGgoAAAANSUhEUgAAAEAAAAAgCAYAAACinX6EAAAAAXNSR0IArs4c6QAAAOlJREFUaEPtl0EKg1AMRPUW3Xsv957i80/Rfe/VvbewKG1RERO+TzEwrj6SPxlnJgHr6sQnpTTknOuxBXWm6U7kkOfVD2uc9H5Wuemm19R50aN9HOZ/GOBPaBRgRYhyfY6z16/EyFMFKCHkvrMhuPvurFAClKi2eQdyxM0H6qcEuBW3CiFHrDZagj8FIME1Au7IWYWQI1YbjYBG4KsAlDjtAPfMWYWQI1abe+8AN3uo8FZ/g9A3XQ3D7YCrmUP9JAAkZFgYJSCsdRBxJQASMiyMEhDWOoi4EgAJGRZGCQhrHURcCYCEDAvzAXMPoSHYT20lAAAAAElFTkSuQmCC""")
 
@@ -58,8 +64,8 @@ OUTLOOK_CALENDAR_VIEW_URL = "https://graph.microsoft.com/v1.0/me/calendarview?$s
 # Hash Strings to encrypt/store secrets required by MSFT Graph API access.   These ultimately get replaced with Tidbyt Hash when the
 # App is placed into the production envirnment.   Application folder name is "outlookcalendar"   These (hashed) secrets are tied to
 # the common tenant version of the Web App (Tidbyt_Ocal)
-CLIENT_ID_HASH = "AV6+xWcE+pcd+ch+cEBdjVeT69wj0vJdiZ6RoozKOAV+WvLM99lnYfF+nEzwSoteLsH21UVbJ9BfC2XmZKa2oJFkyiNepyTQ4HbjlVOdUjdR8eBO44HIQXiHsM/HE4MeffhwVoVSaJSbWTVnAeN6knvtrDwdHocr80kN8bTfCJxRM7bq6WFiPKOs"
-CLIENT_SECRET_HASH = "AV6+xWcE4XQpvipk7XaUKPZKDbd1aOCH7OSfIXhD5WMOCG5SITbzv7SgYvs0An3Mg36XwO6ZhoJi39aI33AchzqvLHjeBYBZFv63YEbzyc4sAUKR2z5zcWSfLbRq8xGIN0+jjckRQsAah7ql7anmx1+1X6yL16fI+B+An9MzMWVmDaddDuddXjUvqB29UQ=="
+CLIENT_ID_HASH = "AV6+xWcE/js7NgNeEupVWQvDKGQLeO4ZpKw7M/ue5tO6YKHhwMRe2C7Gcsd885VHB+bZuLFpai/pGLsCrEm2uw+AuFbkBa+H5qXcXy1lRcwYLkQw/nBMqX6A7t7Ucijlo79QVLbgpqtk3srR55Z126aerT4pKBIARqdu3a65Yr9y23Znf5TYImSV"
+CLIENT_SECRET_HASH = "AV6+xWcEGY1Cp4+jtOxjvucCkqZsXt6i4A3fLH1ksuc0+BTabBY9g5t1SpKYYszRxFqr1GN0XQYJSkNoZp+6YAFoMTXMz6ypZ6vb53KCJiywBEW1sy6lEC7N8AAE5zlzqvzXN2Um5sSdnMWAM+bDgn/8AFyB0pae6iNXkSRTP8+Dbce3F9av7lCFu6EBOg=="
 
 # MSFT Graph uses 3 secrets to operate.  There is the usual Client Secret and Client ID, but Graph uses the Tenant ID as part of
 # The endpoint URL.  For public usage, the Tenant ID is set to "Common"
@@ -119,6 +125,7 @@ def main(config):
 
     calendar_start_time = current_time.format(RFC3339_FORMAT)
     calendar_end_time = midnight_time
+    today_display_date = time.parse_time(calendar_start_time).in_location(timezone).format("Jan 2")
 
     if DEBUG_ON:
         print(calendar_start_time)
@@ -127,7 +134,7 @@ def main(config):
     # Show Default screen if the user is not authorized
     if not outlook_refresh_token:
         print("Not Auth")
-        return render_calendar("Aug 28", "No More Meetings for today!!!", "")
+        return render_calendar(today_display_date, "Please Authorize Your Outlook Account", "")
     else:
         OUTLOOK_ACCESS_TOKEN = cache.get(outlook_refresh_token)
 
@@ -141,14 +148,19 @@ def main(config):
             curl_cmd = "curl -s --request POST --data \"" + refresh_body + "\" " + msft_token_endpoint
             print(curl_cmd)
 
-        MSFT_GRAPH_POST_HEADERS = {
-            "Content-Type": "application/x-www-form-urlencoded",
-        }
+        # MSFT_GRAPH_POST_HEADERS = {
+        #     "Content-Type": "application/x-www-form-urlencoded",
+        # }
 
         refresh = http.post(msft_token_endpoint, body = refresh_body)
 
         if refresh.status_code != 200:
-            fail("Refresh of Access Token failed with Status Code: %d - %s" % (refresh.status_code, refresh.body()))
+            auth_failure_code = str(refresh.status_code)
+            auth_failure_error_description = refresh.json()["error_description"]
+            if DEBUG_ON:
+                print("Refresh of Access Token Failed with Code %s - %s" % (auth_failure_code, auth_failure_error_description))
+            return render_calendar(today_display_date, "Auth Failure: " + auth_failure_code + "  **** " + auth_failure_error_description, "")
+            #fail("Refresh of Access Token failed with Status Code: %d - %s" % (refresh.status_code, refresh.body()))
 
         # Grab new Oauthtoken from the Google Token service, format for Data Aggregation API call.
         OUTLOOK_ACCESS_TOKEN = "Bearer {}".format(refresh.json()["access_token"])
@@ -162,7 +174,7 @@ def main(config):
     # Not that specifying a time in the past will likely return a meeting time in the past so for this app it's important to
     # call function get_outlook_event_list using the current or future time.
 
-    meeting_list, next_meeting_time = get_outlook_event_list(calendar_start_time, calendar_end_time, OUTLOOK_ACCESS_TOKEN)
+    meeting_list, next_meeting_time = get_outlook_event_list(calendar_start_time, calendar_end_time, OUTLOOK_ACCESS_TOKEN, today_display_date)
 
     # Filter out case where there is one meeting in the list and it's already in progress (next_meeting_time will be null)
 
@@ -192,7 +204,7 @@ def main(config):
             print(conflict_meeting_banner)
     else:
         conflict_meeting_banner = "No More Meetings for Today!"
-        display_calendar_date = time.parse_time(calendar_start_time).in_location("America/Detroit").format("Jan 2")
+        display_calendar_date = time.parse_time(calendar_start_time).in_location("America/Detroit").format("Jan 2")  # BUG HERE: Fix the Timezone (it's hardcoded)
         display_next_meeting_time = ""
 
         if DEBUG_ON:
@@ -230,9 +242,9 @@ def oauth_handler(params):
         print(curl_cmd)
 
     # Exchange parameters and client secret for an access token
-    MSFTAUTH_POST_HEADERS = {
-        "Content-type": "application/x-www-form-urlencoded",
-    }
+    # MSFTAUTH_POST_HEADERS = {
+    #     "Content-type": "application/x-www-form-urlencoded",
+    # }
     res = http.post(url = MSFT_EVENTFETCH_TOKEN_ENDPOINT, body = auth_body)
 
     if res.status_code != 200:
@@ -265,13 +277,14 @@ def get_schema():
                 client_id = (MSFT_CLIENT_ID or CLIENT_ID_DEFAULT),
                 authorization_endpoint = MSFT_EVENTFETCH_AUTH_ENDPOINT,
                 scopes = [
-                    "offline_access%20Calendars.read",
+                    "offline_access",
+                    "Calendars.read",
                 ],
             ),
         ],
     )
 
-def get_outlook_event_list(start_window, end_window, auth_token):
+def get_outlook_event_list(start_window, end_window, auth_token, todays_date):
     # This function takes a start and end window and builds a Dict of meetings indexed on the meeting start time.
     # Each dict Has the meeting subject
     # Future enhancement is to add the meeting Organizer
@@ -297,15 +310,12 @@ def get_outlook_event_list(start_window, end_window, auth_token):
 
     # Initialize meeting stats counts.  MSFT Graph returns Outlook events in buckets of 10 or less, need counters to track outside of each bucket scan loop
     total_event_num = 0
-    actual_meeting_count = 0
-    total_meeting_duration = 0
-    total_big_meeting_duration = 0
 
     # Iterate over the meeting buckets.   So far, my calendar fits into 3-4 buckets for a week.   Default is to allow 10 buckets max (for now)
     # It's hard to imagine that someone could have more than 100 events in a 24 hour period (for this application), however
     # This application can provide incorrect data in that case (simply raise the number of buckets if that happens often
 
-    for x in range(NUMBER_OF_FETCH_ITERATIONS):
+    for _ in range(NUMBER_OF_FETCH_ITERATIONS):
         # Get the first Batch of events
 
         # Also, MSFT generated "Focus Time" shows as 1 attendee, where as MF + Rachel entered morning prep, coding/training shows up as 0 attendees.   Hm.....may need to specifically filter on "Focus Time", dont count as a meeting.
@@ -313,11 +323,16 @@ def get_outlook_event_list(start_window, end_window, auth_token):
 
         CalendarQuery = http.get(next_graph_event_link, headers = OUTLOOK_EVENT_HEADERS)
         if CalendarQuery.status_code != 200:
-            fail("Outlook Calendar View Request failed with status:", CalendarQuery.json())
+            cal_failure_code = str(CalendarQuery.status_code)
+            cal_failure_error_description = CalendarQuery.json()["error_description"]
+            if DEBUG_ON:
+                print("Calendar Data Fetch Failed %s - %s" % (cal_failure_code, cal_failure_error_description))
+            return render_calendar(todays_date, "Calendar Fetch Failure:" + cal_failure_code + "  **** " + cal_failure_error_description, "")
+            #fail("Outlook Calendar View Request failed with status:", CalendarQuery.json())
 
         meeting_num = 0
 
-        for meeting_count in CalendarQuery.json()["value"]:
+        for _ in CalendarQuery.json()["value"]:
             meeting = CalendarQuery.json()["value"][meeting_num]["subject"]
             is_cancelled = CalendarQuery.json()["value"][meeting_num]["isCancelled"]
             start_time = CalendarQuery.json()["value"][meeting_num]["start"]["dateTime"] + "Z"

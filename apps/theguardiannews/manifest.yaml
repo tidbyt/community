@@ -1,0 +1,8 @@
+---
+id: theguardiannews
+name: The Guardian News
+summary: Guardian News Headlines
+desc: Gets latest new articles from The Guardian and displays up to 3 articles for selected edition.
+author: jvivona
+fileName: theguardiannews.star
+packageName: theguardiannews

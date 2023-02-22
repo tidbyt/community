@@ -37,7 +37,7 @@ HURRICANE_ANIMATION = "iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAABmJLR0QA/
 NHC_ICON = "iVBORw0KGgoAAAANSUhEUgAAABEAAAAQCAYAAADwMZRfAAAABmJLR0QA/wD/AP+gvaeTAAAACXBIWXMAABbtAAAW7QG3yuVvAAAAB3RJTUUH5gQZEzQr3a77dAAAAB1pVFh0Q29tbWVudAAAAAAAQ3JlYXRlZCB3aXRoIEdJTVBkLmUHAAADQ0lEQVQ4y3WSbUxTdxTGn/O/t1ygtNJWZqRh1dZNXoLEL0pYdGbJEDIliyOC2wyLiSUGtxjf2CSGLy6LL9lIZoDBFqZMRJ1ubHWLMSw0MjVmsjk7izKcEKCBonS0Bdre+//vAxWSiefrec7vnDznoaPNXajeuQEAsGFno2TkOqsvGP5gZDRUHJji2TFNRYoiT5sMUneOw9x6t/fJtw87D8wQk8X2/afQeqIChHg5D7VZbvw1un/EH/owOKOBQKB4l5MAOAHQkGFJ+SdzmXmvq774R9JZtcb2X2YhJZXNSz0PxxtHA9ESVQOICIDAQiUEIVlBLNdhqna37q4jIsFcVzoZ16KvBMKxkqgm4tsXBgAAYwKJCbLXrFeuEZEAABb09fF9VRu/W+WwVJr1uqh4/jwAQGZicseml8u+/8L52zH331tqr/Za2AW5wOCNRERXa1WT1ayvVnQ0vdAwkQZBhFyH+cuPD5T2vvGNp+K0J3ixa0RbxgaDuHHOG9kGAD0de+psi1PaGT0L0YQMYyIFfm17v2ZXR99q77h62DMeQ2qyvI71jGs5f/h5w+std94BANfnb+2zWvSXScw7IwQgE4fVKFWdGhhbfHUg1DAY1hyQJAw/iaQzQYRQjAy3/drJ4tPeKpvdNpHxOLg102ZsViSAc4IsEbIyDM1rnG+m11wacj8KirVqPB0GmRRmX0QxjQP/xii1czB8Mq/+95uFde+V91zas/ft11bkv2TVHc9fkbL13cqifkHS5mmV7CqPP1AAio76aF3LnxeuDcVK55IlABkCNiOQl5bYXZSVWnvm7uT64YnIR/0BNUFIbE5nUjg2Zpry5TwLnbgzitJJdd7E1CTw7LSk9jDkwSPusbPDIf6CNmvMnFGMAJNCl8d8/vtUeLafqdGpr7uHo9ujfP4aPA0MEfD/bwlgSTKm1qbLZT9sW+ViV8rt/NXlhhq7UfqZwGf1FF/FngWQABYlENZnJHzSUZ7701M5AKD9ni+t6Za//rpPLZ3Rnp9YaxKfKcvR7/60KOsrAEDF+VnIsesDOFhgAwDU3XxUft4Tcj6YiKx5HCG9gIAiQSxNloZeTOQtbufKz4j0gV2ue2jYlA0A+A+C/VhVky79jQAAAABJRU5ErkJggg=="
 NHC_COLOR_MAIN = "#003087"
 NHC_COLOR_ALT = "#0085ca"
-CACHE_TTL = 60 * 60 * 1  #1 Hours
+CACHE_TTL = 60 * 60 * 1  #1 Hour
 DEBUG_MODE = False  #Set to False before final commit
 BASIN_OPTIONS = [
     schema.Option(value = "atlantic", display = "Atlantic Basin"),
@@ -45,7 +45,30 @@ BASIN_OPTIONS = [
     schema.Option(value = "central_pacific", display = "Central Pacific Basin"),
 ]
 
+scroll_speed_options = [
+    schema.Option(
+        display = "Slow Scroll",
+        value = "60",
+    ),
+    schema.Option(
+        display = "Medium Scroll",
+        value = "45",
+    ),
+    schema.Option(
+        display = "Fast Scroll",
+        value = "30",
+    ),
+]
+
 def main(config):
+    """ Main routine to display hurricane tracking info.
+
+    Args:
+        config: A decimal integer
+    Returns:
+        main display
+    """
+
     #Get configuration Items
     basin = config.get("basin") or BASIN_OPTIONS[0].value
     hide_quiet = config.get("hide_quiet")
@@ -56,7 +79,7 @@ def main(config):
 
     #TEST DATA These lines should be commented out before release
     if DEBUG_MODE == True and rss_example != None:
-        print("Using Test Data")
+        #print("Using Test Data")
         basin_xml = rss_example
 
     #If nothing from cache, then we go to nhc and download new data
@@ -64,7 +87,7 @@ def main(config):
         rss_feed_for_selected_basin = BASIN_URLS[basin]
         res = http.get(url = rss_feed_for_selected_basin)
         if res.status_code == 200:
-            print("Received Data from NHC")
+            #print("Received Data from NHC")
             basin_xml = res.body()
             cache.set(basin, basin_xml, ttl_seconds = CACHE_TTL)
 
@@ -76,11 +99,25 @@ def main(config):
     queryresult = xml.query_all(querytext)
     active_cyclone_count = len(queryresult)
 
-    return getDisplay(active_cyclone_count, xml, hide_quiet, location)
+    return getDisplay(active_cyclone_count, xml, hide_quiet, location, config)
 
-def getDisplay(active_cyclone_count, xml, hide_quiet, location):
+def getDisplay(active_cyclone_count, xml, hide_quiet, location, config):
+    """ Gets the display based on the nearest storm
+
+    Args:
+        active_cyclone_count: number of active cyclones
+        xml: xml with cyclone data
+        hide_quiet: boolean, if true and no storms, return nothing to skip the app
+        location: location of the Tidbyt to calc direction and distance
+        config: Configuration to figure out scroll speed
+    Returns:
+        render.root: The display info for the Tidbyt device
+    """
+
     #default display
     querytext = "/rss/channel/title"
+
+    #remove the extraneous "NHC" from "NHC Atlantic" for example. Makes it easier to read your Tidbyt
     row1 = xml.query(querytext).replace("NHC ", "")
 
     row2 = ""
@@ -94,42 +131,41 @@ def getDisplay(active_cyclone_count, xml, hide_quiet, location):
     if active_cyclone_count == 0:
         if hide_quiet == True or hide_quiet == "true":
             return []
-
-            i = 1
-            for item in queryresult:
-                querytext = "/rss/channel/item[%s]/description" % i
-                row3 = xml.query(querytext)
-                break
     else:
-        i = 1
+        i = 0
         distance_to_nearest_hurricane = -1
 
+        # buildifier: disable=unused-variable
         for item in queryresult:
             querytext = "/rss/channel/item[%s]/nhc:Cyclone/nhc:name" % i
             result = xml.query(querytext)
             if result != None:
                 storm_name = result
                 storm_type = xml.query("/rss/channel/item[%s]/nhc:Cyclone/nhc:type" % i)
-                storm_datetime = xml.query("/rss/channel/item[%s]/nhc:Cyclone/nhc:datetime" % i)
+
+                #storm_datetime = xml.query("/rss/channel/item[%s]/nhc:Cyclone/nhc:datetime" % i)
                 storm_movement = xml.query("/rss/channel/item[%s]/nhc:Cyclone/nhc:movement" % i)
                 storm_pressure = xml.query("/rss/channel/item[%s]/nhc:Cyclone/nhc:pressure" % i)
                 storm_wind = xml.query("/rss/channel/item[%s]/nhc:Cyclone/nhc:wind" % i)
                 storm_headline = xml.query("/rss/channel/item[%s]/nhc:Cyclone/nhc:headline" % i)
                 storm_center = xml.query("/rss/channel/item[%s]/nhc:Cyclone/nhc:center" % i)
-
                 distance_in_miles = ""
+
                 if storm_center != None and location != None:
                     storm_coordinates = storm_center.replace(",", "").split(" ")
                     distance_in_miles = distance(location["lat"], location["lng"], storm_coordinates[0], storm_coordinates[1])
-                    distance_in_miles_display = "%s miles away " % distance_in_miles
-                    if distance_to_nearest_hurricane == -1 or distance_to_nearest_hurricane > distance_in_miles:
+                    distance_in_miles_display = "%s miles " % distance_in_miles
+
+                    if distance_to_nearest_hurricane == -1 or distance_in_miles < distance_to_nearest_hurricane:
                         distance_to_nearest_hurricane = distance_in_miles
 
-                        row2 = "%s %s: %s" % (storm_type, storm_name, storm_headline)
-                        info = "Distance %s%s heading %s @ %s" % (distance_in_miles_display, storm_wind, storm_movement, storm_pressure)
-                        row3 = "%s %s" % (info, info)
+                        # figure out the get_bearing -- in this case what direction the hurricane is from you:
+                        bearing = get_bearing(location["lat"], location["lng"], storm_coordinates[0], storm_coordinates[1])
 
-                        print(storm_type)
+                        row2 = "%s %s: %s" % (storm_type, storm_name, storm_headline)
+                        info = "%s %s is %s%s of you heading %s with winds of %s and barometric pressure of %s" % (storm_type, storm_name, distance_in_miles_display, bearing, storm_movement, storm_wind, storm_pressure)
+                        row3 = info
+
                         if storm_type.lower() == "hurricane":
                             images = [base64.decode(HURRICANE_ANIMATION)]
                         elif storm_type == "tropical storm":
@@ -169,6 +205,8 @@ def getDisplay(active_cyclone_count, xml, hide_quiet, location):
     )
 
     return render.Root(
+        show_full_animation = True,
+        delay = int(config.get("scroll", 45)),
         child = render.Column(
             children = [
                 display_children,
@@ -192,6 +230,45 @@ def get_animation_items(images):
         children = animation,
     )
 
+# buildifier: disable=function-docstring
+def get_bearing(lat_1, lng_1, lat_2, lng_2):
+    lat_1 = math.radians(float(lat_1))
+    lat_2 = math.radians(float(lat_2))
+    lng_1 = math.radians(float(lng_1))
+    lng_2 = math.radians(float(lng_2))
+
+    #Let ‘R’ be the radius of Earth,
+    #‘L’ be the longitude,
+    #‘θ’ be latitude,
+    #‘β‘ be get_Bearing.
+    #β = atan2(X,Y) where
+    #X = cos θb * sin ∆L
+    #Y = cos θa * sin θb – sin θa * cos θb * cos ∆L
+
+    # buildifier: disable=integer-division
+    x = math.cos(lat_2) * math.sin((lng_2 - lng_1))
+
+    # buildifier: disable=integer-division
+    y = math.cos(lat_1) * math.sin(lat_2) - math.sin(lat_1) * math.cos(lat_2) * math.cos((lng_2 - lng_1))
+
+    # buildifier: disable=integer-division
+    bearing = math.degrees(math.atan2(x, y))
+
+    # our compass brackets are broken up in 45 degree increments from 0 8
+    # to find the right bracket we need degrees from 0 to 360 then divide by 45 and round
+    # what we get though is degrees -180 to 0 to 180 so this will convert to 0 to 360
+    if bearing < 0:
+        bearing = 360 + bearing
+
+    # have bearning in degrees, not convert to cardinal point
+    compass_brackets = ["North", "Northeast", "East", "Southeast", "South", "Southwest", "West", "Northwest", "North"]
+
+    # buildifier: disable=integer-division
+    display_cardinal_point = compass_brackets[int(math.round(bearing / 45))]
+
+    return display_cardinal_point
+
+# buildifier: disable=function-docstring
 def distance(lat_1, lng_1, lat_2, lng_2):
     #Haversine Formula
     lat_1 = math.radians(float(lat_1))
@@ -202,6 +279,7 @@ def distance(lat_1, lng_1, lat_2, lng_2):
     d_lat = lat_2 - lat_1
     d_lng = lng_2 - lng_1
 
+    # buildifier: disable=integer-division
     temp = (math.pow(math.sin(d_lat / 2), 2) + math.cos(lat_1) * math.cos(lat_2) * math.pow(math.sin(d_lng / 2), 2))
     distance = 3959.9986576 * (2 * math.atan2(math.sqrt(temp), math.sqrt(1 - temp)))
     return math.floor(distance)
@@ -213,7 +291,7 @@ def get_schema():
             schema.Location(
                 id = "location",
                 name = "Location",
-                desc = "Location to calculate distance to storm.",
+                desc = "Location to calculate direction and distance to the nearest storm.",
                 icon = "locationDot",
             ),
             schema.Dropdown(
@@ -223,6 +301,14 @@ def get_schema():
                 icon = "globe",
                 options = BASIN_OPTIONS,
                 default = BASIN_OPTIONS[0].value,
+            ),
+            schema.Dropdown(
+                id = "scroll",
+                name = "Scroll",
+                desc = "Scroll Speed",
+                icon = "stopwatch",
+                options = scroll_speed_options,
+                default = scroll_speed_options[0].value,
             ),
             schema.Toggle(
                 id = "hide_quiet",

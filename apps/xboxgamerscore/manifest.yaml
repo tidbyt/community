@@ -1,0 +1,8 @@
+---
+id: xbox-gamerscore
+name: Xbox Gamerscore
+summary: Display XBL gamerscore
+desc: Display your Xbox Live Gamerscore on your Tidbyt.
+author: Nick Penree
+fileName: xbox_gamerscore.star
+packageName: xboxgamerscore

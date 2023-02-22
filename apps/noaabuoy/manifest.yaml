@@ -1,0 +1,8 @@
+---
+id: noaa-buoy
+name: NOAA Buoy
+summary: Show buoy swell info
+desc: 'Display swell data for user specified buoy. Find buoy_id''s here : https://www.ndbc.noaa.gov/obs.shtml Buoy must have height,period,direction to display correctly.'
+author: tavdog
+fileName: noaa_buoy.star
+packageName: noaabuoy

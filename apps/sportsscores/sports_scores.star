@@ -6,15 +6,15 @@ Author: rs7q5
 """
 #sports_scores.star
 #Created 20220220 RIS
-#Last Modified 20220908 RIS
+#Last Modified 20230210 RIS
 
-load("render.star", "render")
-load("http.star", "http")
-load("encoding/json.star", "json")
 load("cache.star", "cache")
+load("encoding/json.star", "json")
+load("http.star", "http")
+load("humanize.star", "humanize")
+load("render.star", "render")
 load("schema.star", "schema")
 load("time.star", "time")
-load("humanize.star", "humanize")
 
 #this list are the sports that can have their scores pulled
 #list for each league is [display text, url code added to base code, timezone to reset day stuff]
@@ -63,11 +63,12 @@ def main(config):
         sport = sport_tmp
         league = config.str("league_%s" % sport, SPORTS_LIST[sport][0])
 
-    league_txt, league_ext, timezone_reset = SPORTS_LIST[sport][1].get(league)
+    _, league_ext, timezone_reset = SPORTS_LIST[sport][1].get(league)
 
     font = "CG-pixel-3x5-mono"  #set font
 
     #check for cached data
+    stats = {}
     stats_cached = cache.get("stats_rate_games%s_%s" % (sport, league))
     if stats_cached != None:
         print("Hit! Displaying %s (%s) gameday data." % (sport, league))
@@ -101,6 +102,7 @@ def main(config):
 
     return render.Root(
         delay = int(config.str("speed", "1000")) // speed_factor,  #speed up scroll text
+        show_full_animation = True,
         child = frame_vec,
     )
 
@@ -186,7 +188,7 @@ def get_schema():
             ),
             schema.Toggle(
                 id = "hide_ordinal",
-                name = "Hide the ordinal endings to the game status?",
+                name = "Hide ordinal endings of the game status?",
                 desc = "Enable to hide ordinal endings (e.g. only show 1 instead of 1st).",
                 icon = "eyeSlash",
                 default = False,
@@ -303,21 +305,19 @@ def get_frames(stats, league_txt, font, config):
             ctmp = "#A8F0CB"
             ctmp_win = "#1EAE64"
             ctmp2 = "#08FF08"
-            ctmp3 = "#52BB52"
             if team["away"][1] == 1000 and force_two:
                 ctmp = "#CCFFE5"
         elif i % 2 == 0:
             ctmp = "#c8c8fa"
             ctmp_win = "#6969F1"
             ctmp2 = "#a00"
-            ctmp3 = "#228B22"  #dark green
         else:
             ctmp = "#fff"
             ctmp_win = "#786868"
             ctmp2 = "#D2691E"
-            ctmp3 = "#52BB52"  #light green
 
         status_tmp = team["status"].split("/")
+
         if status_tmp[0] == "time":  #reformat game time
             status_tmp = adjust_gametime(status_tmp[1], config).split("/")
         elif config.bool("hide_ordinal", False) and len(status_tmp) == 2:
@@ -384,7 +384,7 @@ def get_frames(stats, league_txt, font, config):
         if (i % line_max == line_max - 1 or i == len(stats) - 1):  #stores only a certain number of teams
             game_cnt = (i + 1) % line_max  #number of games on current frame
             if game_cnt != 0:  #add empty entries to space (only have to add to one array since other's must be in line)
-                for j in range(line_max - game_cnt):
+                for _ in range(line_max - game_cnt):
                     #away_team.append(render.Text("",font=font,color=ctmp))
                     status_txt.append(render.Text("", font = font, color = ctmp, height = txt_height))  #add to status txt since this is the one with multiple lines
 
@@ -537,7 +537,7 @@ def get_mlbgames(today_str):
     #iterate through games
     stats = []
 
-    for i, game in enumerate(data2):
+    for _, game in enumerate(data2):
         stats_tmp = dict()
         status = game["status"]["codedGameState"]  #Need to figure out what the possible values are here (may impact inning info)
 
@@ -597,9 +597,9 @@ def get_nhlgames(today_str):
 
     #iterate through games
     stats = []
-    for i, game in enumerate(data2):
+    for _, game in enumerate(data2):
         stats_tmp = dict()
-        status = game["status"]["codedGameState"]  #Need to figure out what the possible values are here (may impact inning info)
+        status = game["status"]["codedGameState"]  #Need to figure out what the possible values are here (may impact info)
 
         #get team info
         #team_info = dict()
@@ -666,14 +666,14 @@ def get_basketballgames(today_str, league):
 
     #iterate through games
     stats = []
-    for i, game in enumerate(data2):
+    for _, game in enumerate(data2):
         stats_tmp = dict()
         stats_tmp2 = dict()
-        status = game["status"]["type"]["id"]  #["codedGameState"] #Need to figure out what the possible values are here (may impact inning info)
+        status = game["status"]["type"]["id"]  #["codedGameState"] #Need to figure out what the possible values are here (may impact info)
 
         #get team info
         stats_tmp["highlight"] = None
-        for key, value in enumerate(game["competitions"][0]["competitors"]):  #game["teams"].items():
+        for _, value in enumerate(game["competitions"][0]["competitors"]):  #game["teams"].items():
             #team_info[key] = (value["team"]["abbreviation"],int(value.get("score",-1)))
             key2 = value["homeAway"]
             stats_tmp[key2] = (value["team"]["abbreviation"][:3], int(value.get("score", -1)))
@@ -682,12 +682,10 @@ def get_basketballgames(today_str, league):
                 stats_tmp["highlight"] = key2
                 stats_tmp2["highlight"] = key2
 
-        linescore = game.get("linescore", [])
-
         if status == "1":
             #status_txt = "Preview"
             game_time_tmp = game["date"].replace("Z", ":00Z")  #date does not include seconds so add here to parse time
-            status_txt = "time/" + game["gameDate"]  #adjust game time in get_frames so it works witch cached data
+            status_txt = "time/" + game_time_tmp  #adjust game time in get_frames so it works witch cached data
             stats_tmp["highlight"] = "scores"
             stats_tmp2["highlight"] = "scores"
         elif game["status"]["type"]["state"] == "in" or status in ["2", "3"]:  #linescore!=[]: #this should cover live and final states
@@ -734,14 +732,14 @@ def get_footballgames(today_str, league):
 
     #iterate through games
     stats = []
-    for i, game in enumerate(data2):
+    for _, game in enumerate(data2):
         stats_tmp = dict()
         stats_tmp2 = dict()
-        status = game["status"]["type"]["id"]  #["codedGameState"] #Need to figure out what the possible values are here (may impact inning info)
+        status = game["status"]["type"]["id"]  #["codedGameState"] #Need to figure out what the possible values are here (may impact info)
 
         #get team info
         stats_tmp["highlight"] = None
-        for key, value in enumerate(game["competitions"][0]["competitors"]):  #game["teams"].items():
+        for _, value in enumerate(game["competitions"][0]["competitors"]):  #game["teams"].items():
             #team_info[key] = (value["team"]["abbreviation"],int(value.get("score",-1)))
             key2 = value["homeAway"]
             stats_tmp[key2] = (value["team"]["abbreviation"][:3], int(value.get("score", -1)))
@@ -749,8 +747,6 @@ def get_footballgames(today_str, league):
             if value.get("winner", False):
                 stats_tmp["highlight"] = key2
                 stats_tmp2["highlight"] = key2
-
-        linescore = game.get("linescore", [])
 
         if status == "1":
             #status_txt = "Preview"
@@ -800,14 +796,14 @@ def get_soccergames(today_str, league):
 
     #iterate through games
     stats = []
-    for i, game in enumerate(data2):
+    for _, game in enumerate(data2):
         stats_tmp = dict()
         stats_tmp2 = dict()
-        status = game["status"]["type"]["id"]  #["codedGameState"] #Need to figure out what the possible values are here (may impact inning info)
+        status = game["status"]["type"]["id"]  #["codedGameState"] #Need to figure out what the possible values are here (may impact info)
 
         #get team info
         stats_tmp["highlight"] = None
-        for key, value in enumerate(game["competitions"][0]["competitors"]):  #game["teams"].items():
+        for _, value in enumerate(game["competitions"][0]["competitors"]):  #game["teams"].items():
             #team_info[key] = (value["team"]["abbreviation"],int(value.get("score",-1)))
             key2 = value["homeAway"]
             stats_tmp[key2] = (value["team"]["abbreviation"][:3], int(value.get("score", -1)))
@@ -815,8 +811,6 @@ def get_soccergames(today_str, league):
             if value.get("winner", False):
                 stats_tmp["highlight"] = key2
                 stats_tmp2["highlight"] = key2
-
-        linescore = game.get("linescore", [])
 
         if status == "1":
             game_time_tmp = game["date"].replace("Z", ":00Z")  #date does not include seconds so add here to parse time

@@ -1,0 +1,8 @@
+---
+id: baby-age
+name: Baby Age
+summary: Display's Baby Age
+desc: DIsplays your baby's age in days, weeks, and months!
+author: helmc2
+fileName: baby_age.star
+packageName: babyage

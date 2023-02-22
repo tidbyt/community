@@ -5,13 +5,11 @@ Description: Displays the next due or overdue task from todoist.
 Author: alisdair(https://discuss.tidbyt.com/t/todoist-integration/502/5), Updated by: akeslo
 """
 
-load("render.star", "render")
-load("http.star", "http")
 load("encoding/base64.star", "base64")
-load("cache.star", "cache")
-load("encoding/json.star", "json")
-load("time.star", "time")
+load("http.star", "http")
+load("render.star", "render")
 load("schema.star", "schema")
+load("time.star", "time")
 
 TODOIST_API_BASE_URL = "https://api.todoist.com/rest/v1"
 

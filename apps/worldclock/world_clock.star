@@ -5,11 +5,11 @@ Description: Displays the time in up to four different locations.
 Author: Elliot Bentley
 """
 
-load("render.star", "render")
-load("time.star", "time")
-load("schema.star", "schema")
 load("encoding/json.star", "json")
+load("render.star", "render")
+load("schema.star", "schema")
 load("sunrise.star", "sunrise")
+load("time.star", "time")
 
 number_font = "tom-thumb"
 font = "tom-thumb"
@@ -155,6 +155,7 @@ def main(config):
 
     return render.Root(
         delay = 500,
+        max_age = 120,
         child = render.Column(
             children = rows,
             main_align = "space_around",

@@ -1,0 +1,8 @@
+---
+id: date-progress
+name: Date Progress
+summary: Shows date as percentages
+desc: Shows todays date as colorful progressbars, you can show the progress of the current day, month and year.
+author: possan
+fileName: date_progress.star
+packageName: dateprogress
