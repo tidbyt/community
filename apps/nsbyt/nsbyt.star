@@ -17,6 +17,7 @@ load("time.star", "time")
 API_KEY = "20f49c5c5e43465cab9ac8812c84ab22"
 
 CORE_BACKGROUND_COLOR = "#003082"
+INFO_BACKGROUND_COLOR = "#FF7700"
 MAINTENANCE_BACKGROUND_COLOR = "#FFB519"
 CANCELED_BACKGROUND_COLOR = "#DB0029"
 
@@ -74,27 +75,32 @@ def main(config):
             cache.set("ns_%s" % station_id + station_dest, json.encode(stops), ttl_seconds = 30)
 
     if stops == None or len(stops) == 0:
-        return render.Root(child = render.Marquee(
-            width = 64,
-            child = render.Text("No trains running"),
-            offset_start = 5,
-            offset_end = 32,
-        ))
+        return render.Root(
+            child = render.Padding(
+                pad = (3, 8, 1, 1),
+                child = render.WrappedText(
+                    content = "No trains running",
+                ),
+            ),
+        )
 
     if len(stops) == 1:
         return render.Root(child = renderTrain(stops[0]))
 
-    return render.Root(child = render.Column(
-        children = [
-            renderTrain(stops[0]),
-            render.Box(
-                color = "#ffffff",
-                width = 64,
-                height = 1,
-            ),
-            renderTrain(stops[1]),
-        ],
-    ))
+    return render.Root(
+        show_full_animation = True,
+        child = render.Column(
+            children = [
+                renderTrain(stops[0]),
+                render.Box(
+                    color = "#ffffff",
+                    width = 64,
+                    height = 1,
+                ),
+                renderTrain(stops[1]),
+            ],
+        ),
+    )
 
 def renderTrain(stop_info):
     backgroundColor = CORE_BACKGROUND_COLOR
@@ -112,13 +118,20 @@ def renderTrain(stop_info):
     departureTimeText = re.sub("(minutes|minute)", "min", departureTimeText)
     departureTimeText = re.sub("(seconds|second)", "sec", departureTimeText)
 
-    #destination = train + " " + destination
+    # destination = train + " " + destination
 
     # If trains is cancelled, rewrite to message.
     if stop_info["cancelled"] == True:
         backgroundColor = CANCELED_BACKGROUND_COLOR
         departureTime = stop_info["messages"][0]["message"]
         actualTime = stop_info["messages"][0]["message"]
+
+    # Info messages.
+    message = None
+
+    if stop_info.get("messages") != None:
+        if len(stop_info.get("messages")) > 0:
+            message = stop_info["messages"][0]["message"]
 
     # Calculate if there are delays.
     delay = parse_time(stop_info["actualDateTime"]) - parse_time(stop_info["plannedDateTime"])
@@ -143,8 +156,6 @@ def renderTrain(stop_info):
             ] * NO_FRAMES_TOGGLE,
         )
 
-        departureTimeRender = render.Animation(children = renderTimeChild)
-
     else:
         renderTimeChild = []
         renderTimeChild.extend([departureTimeRender] * NO_FRAMES_TOGGLE)
@@ -157,7 +168,13 @@ def renderTrain(stop_info):
             ] * NO_FRAMES_TOGGLE,
         )
 
-        departureTimeRender = render.Animation(children = renderTimeChild)
+    # Render Messages.
+    if message != None:
+        backgroundColor = INFO_BACKGROUND_COLOR
+        destination = destination + " - " + message
+
+    # Departure Rendering.
+    departureTimeRender = render.Animation(children = renderTimeChild)
 
     return render.Row(
         expanded = True,
@@ -172,7 +189,7 @@ def renderTrain(stop_info):
                     color = backgroundColor,
                     child = render.Text(
                         color = textColor,
-                        content = stop_info["actualTrack"],
+                        content = stop_info.get("actualTrack", "-"),
                     ),
                 ),
             ),
