@@ -1,0 +1,8 @@
+---
+id: solar-manager-ch
+name: Solar Manager CH
+summary: Show solarmanager.ch stats
+desc: Show live and accumulated solar stats from solarmanager.ch.
+author: tavdog
+fileName: solar_manager_ch.star
+packageName: solarmanagerch
