@@ -34,7 +34,8 @@ STOPS_URL = "https://api.511.org/transit/stops?format=json&api_key=%s&operator_i
 ALERTS_URL = "https://api.511.org/transit/servicealerts?format=json&api_key=%s&agency=SF"
 
 API_KEY_SECRET = "AV6+xWcE6z4U+vmciPBh5GdNyXKcko8fcKl17jwemkRKegnos3/IkVg0pN1OICdKLqW6y/0vEK6mqBJKo791YHZo0Y4wYzb+3YufFeh5GG8F/dNuYVkiQWT1vJKq6njp43a6BJeTIgdqTKTNriMa6GKKL/lV6Ezkr7UFaOM0HVaiSnnx/Y6EhFWN"
-API_KEY = secret.decrypt(API_KEY_SECRET)
+# API_KEY = secret.decrypt(API_KEY_SECRET)
+API_KEY = "5abe8c24-3965-418e-a0b6-02f20a839ed6"
 
 # Colours for Muni Metro/Street Car lines
 MUNI_COLORS = {
@@ -129,6 +130,11 @@ def get_schema():
             value = "two_line_four_times",
         ),
     ]
+    scroll_speeds = [
+        schema.Option(display = "Slow", value = "70"),
+        schema.Option(display = "Normal (default)", value = "50"),
+        schema.Option(display = "Fast", value = "30"),
+    ]
 
     return schema.Schema(
         version = "1",
@@ -162,6 +168,14 @@ def get_schema():
                 icon = "borderAll",
                 default = "long",
                 options = formats,
+            ),
+            schema.Dropdown(
+                id = "speed",
+                name = "Scroll Speed",
+                desc = "Change the speed that text scrolls.",
+                icon = "gear",
+                default = "50",
+                options = scroll_speeds,
             ),
             schema.Toggle(
                 id = "agency_alerts",
@@ -494,6 +508,8 @@ def renderOutput(stopTitle, output, messages, config):
         )
 
     return render.Root(
+        delay = int(config.str("speed", "50")),  # Allow customization of scroll speed.
+        show_full_animation = True,
         child = render.Column(
             children = rows,
             expanded = True,
