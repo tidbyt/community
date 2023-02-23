@@ -70,6 +70,7 @@ def main(config):
                         ],
                     )
         return render.Root(
+            show_full_animation = True,
             delay = int(RotationSpeed) * 1000,
             child = render.Animation(children = renderCategory),
         )
