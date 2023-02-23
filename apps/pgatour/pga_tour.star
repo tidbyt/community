@@ -7,6 +7,8 @@ Author: M0ntyP
 Note - can easily make LPGA, European Tour or Korn Ferry versions if there is enough interest.
 
 Big shoutout to LunchBox8484 for the NHL Standings app where this is heavily borrowed/stolen from
+
+v1.1 - Added rotation speed options and slight formatting change to tournament title (removed "The")
 """
 
 load("cache.star", "cache")
@@ -79,7 +81,7 @@ def main(config):
                         ])
 
             return render.Root(
-                # seconds per cycle
+                show_full_animation = True,
                 delay = int(RotationSpeed) * 1000,
                 child = render.Animation(children = renderCategory),
             )
