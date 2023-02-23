@@ -95,9 +95,15 @@ def main(config):
 
     #flightawareData = flightaware.json()
 
-    flightawareData_cached = cache.get("flightawareData/%s" % displayMode)
+    if displayMode == "flight":
+        cacheName = "flight/" + flightNumber
+    else:
+        cacheName = displayMode + "/" + airportCode
+
+    flightawareData_cached = cache.get(cacheName)
     if flightawareData_cached != None:
         flightawareData = json.decode(flightawareData_cached)
+        print("Found cached data! Not calling FA API")
     else:
         print("No cached data; calling FA API")
         rep = http.get(apiURL, headers = {"x-apikey": faAPIKey})
@@ -105,7 +111,7 @@ def main(config):
         if rep.status_code != 200:
             fail("FA API failed with status %d", rep.status_code)
         flightawareData = rep.json()
-        cache.set("flightawareData%s" % displayMode, json.encode(flightawareData), ttl_seconds = 60)
+        cache.set(cacheName, json.encode(flightawareData), ttl_seconds = 60)
 
     # Determine how to read data based upon above selection.
     # Default flights
