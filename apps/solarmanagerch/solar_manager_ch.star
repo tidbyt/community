@@ -159,10 +159,10 @@ def render_fail(rep):
 
 def main(config):
     api_key = config.str("api_key")
-    site_id = humanize.url_encode(config.str("site_id", ""))
+    site_id = config.str("site_id")
 
     # verify api key doesn't have non key characters in there eg. "Basic"
-    if "Basic" in api_key:
+    if api_key and "Basic" in api_key:
         b_index = api_key.find("Basic")
         api_key = api_key[b_index + 6:]
         print("corrected api_key : " + api_key)
@@ -170,8 +170,6 @@ def main(config):
     if not DEBUG and api_key and site_id:
         url = URL_CUR.format(site_id)
         data = cache.get(site_id)
-
-        #print(url + " with [" + api_key + "]")
         if not data:
             data = dict()
             rep = http.get(
@@ -235,7 +233,6 @@ def main(config):
 
     # assuming negative chargerate means battery is discharging, and negative grid rate means pulling from grid.
     grid_rate = data["currentPvGeneration"] - (data["currentPowerConsumption"] + data["currentBatteryChargeDischarge"])
-    print(grid_rate)
     if data["currentPvGeneration"] < 1 and grid_rate > 0:  # not possible to send energy to grid if no solar production
         grid_rate = 0.0
     if grid_rate > 9:
@@ -523,7 +520,7 @@ def main(config):
         return render.Root(frames[0])
     else:
         return render.Root(
-            show_full_animation = True,
+            #show_full_animation = True,
             delay = int(config.get("frame_delay", "3")) * 1000,
             child = render.Animation(children = frames),
         )
@@ -541,19 +538,61 @@ def get_schema():
             schema.Text(
                 id = "api_key",
                 name = "API key",
-                desc = "API key for the SolarManager monitoring API.Authorize with your solarmanager user and password on: https://external-web.solar-manager.ch/swagger and copy the long string that follows after '-H authorization: Basic'",
+                desc = "API key for the SolarManager monitoring API. Authorize with your solarmanager username and password on: https://external-web.solar-manager.ch/swagger and copy the long string that follows after '-H authorization: Basic'",
                 icon = "key",
             ),
             schema.Text(
                 id = "site_id",
                 name = "Site ID",
-                desc = "The site ID, check the back of your solarmanager device for the SMID code.",
+                desc = "Your site ID. Check the back of your solarmanager device for the SMID code.",
+                icon = "hashtag",
+            ),
+            schema.Toggle(
+                id = "show_main",
+                name = "Show Main Stats",
+                desc = "Realtime solar production, home consumption and grid usage. Note : Multiple screen selections will disable animations. If you prefer animated screens, run separate instances of the app and select a screen per instance.",
                 icon = "solarPanel",
+                default = True,
+            ),
+            schema.Toggle(
+                id = "show_char",
+                name = "Show Battery",
+                desc = "State of charge of the battery and battery flow.",
+                icon = "carBattery",
+                default = False,
+            ),
+            schema.Toggle(
+                id = "show_prod",
+                name = "Show Current Production",
+                desc = "Realtime solar energy production.",
+                icon = "sun",
+                default = False,
+            ),
+            schema.Toggle(
+                id = "show_cons",
+                name = "Show Current Consumption",
+                desc = "Realtime energy consumption.",
+                icon = "plugCircleBolt",
+                default = False,
+            ),
+            schema.Toggle(
+                id = "show_summary",
+                name = "Show Daily Summary",
+                desc = "Accumulated daily energy production and consumption.",
+                icon = "chartLine",
+                default = True,
+            ),
+            schema.Toggle(
+                id = "show_logo",
+                name = "Show Logo Frame",
+                desc = "Solar Manager Logo",
+                icon = "compress",
+                default = False,
             ),
             schema.Dropdown(
                 id = "frame_delay",
                 name = "Seconds per frame",
-                desc = "Display each frame for this many seconds",
+                desc = "This option is only used if multiple screens are selected.  (Multiple screens will disable animations.)",
                 icon = "clock",
                 default = "3",
                 options = [
@@ -578,48 +617,6 @@ def get_schema():
                         value = "5",
                     ),
                 ],
-            ),
-            schema.Toggle(
-                id = "show_main",
-                name = "Show Main Stats",
-                desc = "Show realtime solar production, home consumption and grid usage.",
-                icon = "compress",
-                default = True,
-            ),
-            schema.Toggle(
-                id = "show_char",
-                name = "Show Battery",
-                desc = "Show state of charge of the battery",
-                icon = "compress",
-                default = False,
-            ),
-            schema.Toggle(
-                id = "show_prod",
-                name = "Show Current Production",
-                desc = "Show the realtime production of your system on a single frame",
-                icon = "compress",
-                default = False,
-            ),
-            schema.Toggle(
-                id = "show_cons",
-                name = "Show Current Consumption",
-                desc = "Show the realtime consumption of your system",
-                icon = "compress",
-                default = False,
-            ),
-            schema.Toggle(
-                id = "show_summary",
-                name = "Show Daily Summary",
-                desc = "Show the daily accumulated stats",
-                icon = "compress",
-                default = True,
-            ),
-            schema.Toggle(
-                id = "show_logo",
-                name = "Show Logo Frame",
-                desc = "Show Solar Manager Logo",
-                icon = "compress",
-                default = False,
             ),
         ],
     )
