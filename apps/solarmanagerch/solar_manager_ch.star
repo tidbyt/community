@@ -14,7 +14,7 @@ load("render.star", "render")
 load("schema.star", "schema")
 
 DEBUG = False
-#DEBUG = True  # set to True to skip api calls and use dummy data
+#DEBUG = True # set to True to skip api calls and use dummy data
 
 GRAY = "#777777"
 RED = "#AA0000"  # very bright at FF, dim a little to AA
@@ -51,6 +51,10 @@ BATTERY_DISCHARGE_ANIMATION_10x10 = base64.decode("""
 R0lGODdhCgAKAOYAAAAAAPMqHOoyLeA0L8Y1ReI4Ltg7Mys/UkBAQABBQQBBUShBUzdBTzlBT31DQchFOrBHPjRKWmdKWJBKSL9KQDlLWbFLRDtNTkNOTQBPUUtPSzhQXwBRYBZRX2xRSi9SYTdSYTpSTYVUUj5WYUBWVkFWYWpZWIpZVkRaWT9bWx1cXC5dXU5dXGJdXFBfXglgXQBhXRJhYRthYUZhXk5hXgBiYkNiYi9kYFNxRFZ8P1B9QS6ARECAQFyDVV6IWGCIWH+1M4G5MYC/AITEAIzGO5fHrYnJCI7LOKLPgq7Tz43UAKXUfZHYALrcwsTf3MTg3P///wAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAACH5BAkAAFEALAAAAAAKAAoAAAdHgFGCUU5Jg4NERkhIQ0CHR0xLS0pBhz0+Ojo9OIcjIBsHEQ2HMzYXISgYhzYoCQkkF4csMhMOKqqDKy0GJiu4gjYsKSqpgoEAIfkECQAAUQAsAgAAAAYACgAABzuAUVFOSYJERkhIQ0BHTEtLSkE9Pjo6PTgjIBsHEQ0zNhchKBg2KAkJJBcsMhMOKhgrLQYmK6QsKSqjgQAh+QQJAABRACwCAAAABgAKAAAHO4BRUU5JgkRGSEhDQEdMS0tKQT0+Ojo9OCMgGwcRDTM2FyEoGDYoCQkkFywyEw4qGCstBiYrpCwpKqOBACH5BAkAAFEALAIAAAAGAAoAAAc9gFFRTkmCREZISENAR0xLS0pBPT45Oj04JSAcCxUMNDcQHi8aNScBAiIZLDEWBSkXKy0GLCoYNi4oKygYgQAh+QQJAABRACwCAAAABgAKAAAHPYBRUU5JgkRGSEhDQEdMS0tKQT0+OTo9OCUgHAsVDDQ3EB4vGjUnAQIiGSwxFgUpFystBiwqGDYuKCsoGIEAIfkECQAAUQAsAgAAAAYACgAABz2AUVFOSYJERkhIQ0BHTEtLSkE9Pjk6PTglIBwLFQw0NxAeLxo1JwECIhksMRYFKRcrLQYsKhg2LigrKBiBACH5BAkAAFEALAIAAAAGAAoAAAc9gFFRT0mCREZISENAR0xLS0pBPT86Oz04JR8dBBIKNDUPFDAaNScBAyIZLDEWBSkXKy0GLCoYNi4oKygYgQAh+QQJAABRACwCAAAABgAKAAAHPYBRUU9JgkRGSEhDQEdMS0tKQT0/Ojs9OCUfHQQSCjQ1DxQwGjUnAQMiGSwxFgUpFystBiwqGDYuKCsoGIEAIfkECQAAUQAsAgAAAAYACgAABz2AUVFPSYJERkhIQ0BHTEtLSkE9Pzo7PTglHx0EEgo0NQ8UMBo1JwEDIhksMRYFKRcrLQYsKhg2LigrKBiBACH5BAkAAFEALAIAAAAGAAoAAAc9gFFRT0mCREZISENAR0xLS0pBPT86Oz04JR8dBBIKNDUPFDAaNScBAyIZLDEWBSkXKy0GLCoYNi4oKygYgQAh+QQJAABRACwCAAAABgAKAAAHPYBRUU9JgkRGSEhDQEdMS0tKQT0/Ojs9OCUfHQQSCjQ1DxQwGjUnAQMiGSwxFgUpFystBiwqGDYuKCsoGIEAIfkECQAAUQAsAgAAAAYACgAABz2AUVFPSYJERkhIQ0BHTEtLSkE9Pzo7PTglHx0EEgo0NQ8UMBo1JwEDIhksMRYFKRcrLQYsKhg2LigrKBiBACH5BAkAAFEALAIAAAAGAAoAAAc9gFFRT0mCREZISENAR0xLS0pBPT86Oz04JR8dBBIKNDUPFDAaNScBAyIZLDEWBSkXKy0GLCoYNi4oKygYgQAh+QQJAABRACwCAAAABgAKAAAHPYBRUU9JgkRGSEhDQEdMS0tKQT0/Ojs9OCUfHQQSCjQ1DxQwGjUnAQMiGSwxFgUpFystBiwqGDYuKCsoGIEAIfkECQAAUQAsAgAAAAYACgAABz2AUVFPSYJERkhIQ0BHTEtLSkE9Pzo7PTglHx0EEgo0NQ8UMBo1JwEDIhksMRYFKRcrLQYsKhg2LigrKBiBACH5BAkAAFEALAIAAAAGAAoAAAc9gFFRT0mCREZISENAR0xLS0pBPT86Oz04JR8dBBIKNDUPFDAaNScBAyIZLDEWBSkXKy0GLCoYNi4oKygYgQAh+QQJAABRACwCAAAABgAKAAAHPYBRUU9JgkRGSEhDQEdMS0tKQT0/Ojs9OCUfHQQSCjQ1DxQwGjUnAQMiGSwxFgUpFystBiwqGDYuKCsoGIEAIfkECQAAUQAsAgAAAAYACgAABz2AUVFPSYJERkhIQ0BHTEtLSkE9Pzo7PTglHx0EEgo0NQ8UMBo1JwEDIhksMRYFKRcrLQYsKhg2LigrKBiBACH5BAkAAFEALAIAAAAGAAoAAAc9gFFRT0mCREZISENAR0xLS0pBPT86Oz04JR8dBBIKNDUPFDAaNScBAyIZLDEWBSkXKy0GLCoYNi4oKygYgQAh+QQJAABRACwCAAAABgAKAAAHPYBRUU9JgkRGSEhDQEdMS0tKQT0/Ojs9OCUfHQQSCjQ1DxQwGjUnAQMiGSwxFgUpFystBiwqGDYuKCsoGIEAIfkECQAAUQAsAgAAAAYACgAABz2AUVFPSYJERkhIQ0BHTEtLSkE9Pzo7PTglHx0EEgo0NQ8UMBo1JwEDIhksMRYFKRcrLQYsKhg2LigrKBiBADs=
 """)
 
+BATTERY_NOFLOW_ANIMATION_10x10 = base64.decode("""
+R0lGODdhCgAKANUAAAAAADlAT0BAQD5MTDdOXUJPTTdQXzZSYUBWYT1aWkFfXkVgYEJiX0piYlNxRFB+QUCAQFyDVF6IWH+1M4G5MYC/AITEAIzGO5fHrYjJCI7LOKLPgq7Tz47UAKXUfpHYALrcwsTf3P///wAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAACH5BAkAACMALAAAAAAKAAoAAAY3wJFwFOIMh5fMZmOZHDUfj6dDOUYkj0fEcUQcCAZC4LhgJBKKAllxTgzW7fdQwT7LhY16Qj0KAgA7
+""")
+
 BATTERY_CHARGE_STATUS_0_25_10x10 = base64.decode("""
 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
 """)
@@ -85,8 +89,9 @@ R0lGODlhEAAQAOZ0AHmauV16mV3W/1TU/pXKTF7Y/8nr/22mzs/g7X6Rsdv1/yu181OFsWFykNju/5PK
 """)
 
 SUN = base64.decode("""
-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
+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
 """)
+
 SOLAR = base64.decode("""
 iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAACeklEQVQ4jY2TT0hUQRzHvzPz3u7bfe6umroQuKwmhCQbLNIfyDCIkoiog9XJolsdOglBVOKlgrqI9xAvhUJEEIKXwjpFqJERmbCRGKbRqrv73vO9+RPz8BCxoj+YP78fzGe+850ZKKV218YORPQoJnI3/82J7naMyYO24OQiq8Sfcds9ZpDylCQ1V2gpGNkdQMfEkaSEtwCgEQpLboV32r1zyzsD3rRY0qvtU0CRKDWmS0FZgTBy14irDdL//PO7mRXeEWyUTcKoMuIx7q2uWlZTkwfga9dy7ujAACRe5eoE6CJ3lA0JGVWsGZenf9JrHVYKQMpM1sR5qWSDkBSzrKhwXF0/NJX+1Bd6QNkZ5iNPDPo4apOMSMrTGO+I0CjD4uFGNS1cDzQSgf+nCGpG4BeL0DXpOQ87Z54YjMkXuDA7b8TwDWdnl5ihxtA751MAt861WXsguaCmCe44kEEAFovBX1uH4iKdiMt+nPpY0een1tpo6M1WHppYKBRGJr8HLePz3nG56YNXKojU18Fb/gUr3QSlUJJK5F/fyC/877FWoB/KvZMZYx/1PVcKDu664BUHNBqFt/JbK0mIsvey2iWFgNbW1h+Ukqc9zcYXCAkzkQg9IIxBeB4U55CB3949/L6rKkAHY+z++Vx9uqExsWImE+Hu+omYtbWQnINZFiAwui0gk8kUCVFDV9vNBV6uAIQiWNcmcqggCJUIx812P3p7vSogdJSQ4f0N0b3gQRDmjEH6PphtQ5TLW5+OPdgWkM1mPZOSwUv5hoKWbCaToQI9p5YVAsFoqnvow+2qgC3IaE9bbDMeYQ4ICRdq+caWijCkvHNiEAYA/AVIsU5KC49FbgAAAABJRU5ErkJggg==
 """)
@@ -126,10 +131,17 @@ URL_SUM = "https://cloud.solar-manager.ch/v1/consumption/gateway/{}?period=day"
 CACHE_TTL = 300
 
 # combined summary and current dummy data
-DUMMY_DATA = {"currentBatteryChargeDischarge": -3600, "currentPowerConsumption": 4345.14013671875, "currentPvGeneration": 0, "soc": 3, "consumption": 2147.96, "production": 0}
+DUMMY_DATA = {
+    "currentBatteryChargeDischarge": 100.0,
+    "currentPowerConsumption": 1950.0,
+    "currentPvGeneration": 500.0,
+    "soc": 25,
+    "consumption": 1000.96,
+    "production": 3000.11,
+}
 
 def w2kwstr(w, dec = None):  # rounds off decimal, removes completey if over 100kw
-    if w < 10000 and not dec:
+    if w < 10000 and dec == None:
         if w < 0:  # CURRENTLY DISABLED
             return str(int(w / 1000 * 100) / 100.0)  # show two decimal places
         else:
@@ -146,13 +158,14 @@ def render_fail(rep):
     return render.Root(render.Box(render.WrappedText(content["error"] + " " + str(rep.status_code) + " : " + content["message"], color = RED)))
 
 def main(config):
-    api_key = config.str("api_key", None)
+    api_key = config.str("api_key")
     site_id = humanize.url_encode(config.str("site_id", ""))
 
     if not DEBUG and api_key and site_id:
         url = URL_CUR.format(site_id)
         data = cache.get(site_id)
-        print(url + " with [" + api_key + "]")
+
+        #print(url + " with [" + api_key + "]")
         if not data:
             data = dict()
             rep = http.get(
@@ -166,10 +179,8 @@ def main(config):
                 print(rep.body())
                 return render_fail(rep)
 
-            #                fail("SolarManager API request failed with status {}".format(rep.status_code))
             cur_data = json.decode(rep.body())
 
-            #print(cur_data)
             data["currentBatteryChargeDischarge"] = cur_data["currentBatteryChargeDischarge"]
             data["currentPowerConsumption"] = cur_data["currentPowerConsumption"]
             data["currentPvGeneration"] = cur_data["currentPvGeneration"]
@@ -184,7 +195,6 @@ def main(config):
             )
             if rep.status_code != 200:
                 return render_fail(rep)
-                #fail("SolarManager API request failed with status {}".format(rep.status_code))
 
             sum_data = json.decode(rep.body())
             data["consumption"] = sum_data["data"][0]["consumption"]
@@ -219,6 +229,9 @@ def main(config):
 
     # assuming negative chargerate means battery is discharging, and negative grid rate means pulling from grid.
     grid_rate = data["currentPvGeneration"] - (data["currentPowerConsumption"] + data["currentBatteryChargeDischarge"])
+    print(grid_rate)
+    if data["currentPvGeneration"] < 1 and grid_rate > 0:  # not possible to send energy to grid if no solar production
+        grid_rate = 0.0
     if grid_rate > 9:
         grid_anim = GREEN_ANIM
         grid_color = GREEN
@@ -349,28 +362,33 @@ def main(config):
                         ],
                     ),
                     render.Row(
-                        expanded = True,
-                        main_align = "space_evenly",
-                        cross_align = "center",
+                        #expanded = True,
                         children = [
-                            render.Image(src = SUN_SUM),
-                            render.Text(
-                                content = w2kwstr(data["production"], dec = 2) + " kWh",
-                                font = "5x8",
-                                color = GREEN,
+                            render.Column(
+                                expanded = True,
+                                main_align = "space_around",
+                                cross_align = "center",
+                                children = [
+                                    render.Image(src = SUN_SUM),
+                                    render.Image(src = PLUG_SUM),
+                                ],
                             ),
-                        ],
-                    ),
-                    render.Row(
-                        expanded = True,
-                        main_align = "space_evenly",
-                        cross_align = "center",
-                        children = [
-                            render.Image(src = PLUG_SUM),
-                            render.Text(
-                                content = w2kwstr(data["consumption"], dec = 2) + " kWh",
-                                font = "5x8",
-                                color = RED,
+                            render.Column(
+                                expanded = True,
+                                main_align = "space_around",
+                                cross_align = "end",
+                                children = [
+                                    render.Text(
+                                        content = " " + w2kwstr(data["production"], dec = 0) + " kWh",
+                                        font = "5x8",
+                                        color = GREEN,
+                                    ),
+                                    render.Text(
+                                        content = " " + w2kwstr(data["consumption"], dec = 0) + " kWh",
+                                        font = "5x8",
+                                        color = RED,
+                                    ),
+                                ],
                             ),
                         ],
                     ),
@@ -381,50 +399,67 @@ def main(config):
 
     # CHARGE FRAME shows charge/discharge rate and state of charge percent
     #########################################################
-    charge_frame = render.Padding(
-        pad = (7, 0, 0, 0),
-        child = render.Row(
-            expanded = True,
-            main_align = "space_evenly",
-            children = [
-                render.Column(
-                    expanded = True,
-                    main_align = "space_evenly",
-                    cross_align = "center",
-                    children = [
-                        render.Row(
-                            cross_align = "center",
-                            #main_align="start",
-                            expanded = True,
-                            children = [
-                                render.Image(src = battery_level_icons[int(data["soc"] / 25)]),
-                                render.Text(
-                                    content = " " + str(data["soc"]) + " %",
-                                    font = "5x8",
-                                    #font = "6x13",
-                                    color = soc_color[int(data["soc"] / 25)],
-                                ),
-                            ],
-                        ),
-                        render.Row(
-                            cross_align = "center",
-                            #main_align = "start",
-                            expanded = True,
-                            children = [
-                                render.Image(src = BATTERY_DISCHARGE_ANIMATION_10x10 if data["currentBatteryChargeDischarge"] < 0 else BATTERY_CHARGE_ANIMATION_10x10),
-                                render.Text(
-                                    content = " " + humanize.float("#,###.", float(abs(data["currentBatteryChargeDischarge"]))) + " W",
-                                    font = "5x8",
-                                    #font = "6x13",
-                                    #min = a if a < b else b
-                                    color = RED if (data["currentBatteryChargeDischarge"] < 0) else GREEN,
-                                ),
-                            ],
-                        ),
-                    ],
-                ),
-            ],
-        ),
+    if data["currentBatteryChargeDischarge"] < 0:
+        BATTERY_FLOW_ICON = BATTERY_DISCHARGE_ANIMATION_10x10
+        flow_color = RED
+    elif data["currentBatteryChargeDischarge"] > 0:
+        BATTERY_FLOW_ICON = BATTERY_CHARGE_ANIMATION_10x10
+        flow_color = GREEN
+    else:
+        BATTERY_FLOW_ICON = BATTERY_NOFLOW_ANIMATION_10x10
+        flow_color = GRAY
+    charge_frame = render.Stack(
+        children = [
+            render.Column(
+                main_align = "space_evenly",  # this controls position of children, start = top
+                expanded = True,
+                cross_align = "center",
+                children = [
+                    render.Row(
+                        expanded = True,
+                        main_align = "space_evenly",
+                        cross_align = "center",
+                        children = [
+                            render.Text(" ", height = 1),
+                        ],
+                    ),
+                    render.Row(
+                        #expanded = True,
+                        children = [
+                            render.Column(
+                                expanded = True,
+                                main_align = "space_around",
+                                cross_align = "center",
+                                children = [
+                                    render.Image(src = battery_level_icons[int(data["soc"] / 25)]),
+                                    render.Image(src = BATTERY_FLOW_ICON),
+                                ],
+                            ),
+                            render.Column(
+                                expanded = True,
+                                main_align = "space_around",
+                                cross_align = "end",
+                                children = [
+                                    render.Text(
+                                        content = " " + str(data["soc"]) + " %",
+                                        font = "5x8",
+                                        #font = "6x13",
+                                        color = soc_color[int(data["soc"] / 25)],
+                                    ),
+                                    render.Text(
+                                        content = " " + humanize.float("#,###.", float(abs(data["currentBatteryChargeDischarge"]))) + " W",
+                                        font = "5x8",
+                                        #font = "6x13",
+                                        #min = a if a < b else b
+                                        color = flow_color,
+                                    ),
+                                ],
+                            ),
+                        ],
+                    ),
+                ],
+            ),
+        ],
     )
 
     # CONSUMPTION FRAME
@@ -469,13 +504,13 @@ def main(config):
         frames.append(logo_frame)
     if config.bool("show_main", True):
         frames.append(main_frame)
-    if config.bool("show_char", True):
+    if config.bool("show_char", False):
         frames.append(charge_frame)
     if config.bool("show_prod", False):
         frames.append(production_frame)
     if config.bool("show_cons", False):
         frames.append(verbrauch_frame)
-    if config.bool("show_summary", True):
+    if config.bool("show_summary", False):
         frames.append(summary_frame)
 
     if len(frames) == 1:
