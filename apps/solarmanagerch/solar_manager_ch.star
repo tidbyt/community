@@ -161,6 +161,12 @@ def main(config):
     api_key = config.str("api_key")
     site_id = humanize.url_encode(config.str("site_id", ""))
 
+    # verify api key doesn't have non key characters in there eg. "Basic"
+    if "Basic" in api_key:
+        b_index = api_key.find("Basic")
+        api_key = api_key[b_index + 6:]
+        print("corrected api_key : " + api_key)
+
     if not DEBUG and api_key and site_id:
         url = URL_CUR.format(site_id)
         data = cache.get(site_id)
