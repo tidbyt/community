@@ -288,7 +288,7 @@ def getTrains(station_id, skiptime):
 
 def search_station(pattern):
     ns_dict = {"q": pattern}  # Provide the pattern with a dict, as this will be encoded
-    resp = http.get("https://gateway.apiportal.ns.nl/reisinformatie-api/api/v2/stations", params = ns_dict, headers = {"Ocp-Apim-Subscription-Key": "20f49c5c5e43465cab9ac8812c84ab22"})
+    resp = http.get("https://gateway.apiportal.ns.nl/reisinformatie-api/api/v2/stations", params = ns_dict, headers = {"Ocp-Apim-Subscription-Key": API_KEY})
 
     if resp.status_code != 200:
         # Return an Error
