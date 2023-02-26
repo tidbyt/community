@@ -154,7 +154,7 @@ def main(config):
             continue
 
         if onlyDisplayNotNormal and not displayName in nonNormalValues:
-                continue
+            continue
 
         items.append(
             render.Row(
@@ -269,8 +269,7 @@ def get_schema():
                 name = "Only display non-normal readings",
                 desc = "Only displays readings that are not normal (green). NOTE: Ignores individual preferences below when enabled.",
                 icon = "arrowLeft",
-                default = False
-
+                default = False,
             ),
             schema.Toggle(
                 id = "hidePm25",
