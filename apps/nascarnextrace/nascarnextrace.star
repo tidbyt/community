@@ -455,6 +455,7 @@ def text_justify_trunc(length, text, direction):
             if textlist[i].isalpha() == False:
                 highorderchars += 1
 
+    # if we ever have 3 or 4 byte characters - we need to adapt here
     lentoremove = int(highorderchars / 2)
     if (len(text) - lentoremove) < length:
         for _ in range(0, length - (len(text) - lentoremove)):
