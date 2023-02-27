@@ -16,14 +16,17 @@ Displayed:
     * English Women's Champions League
     * English Women's FA Cup
     * English Women's Super League
+    * She Believes Cup
     * United States NWSL
     * Women's International Friendly
     * Women's Olympics Tournament
     * Women's World Cup
 
-- Select display type
+- Which team to display first (home or away)
+- Select display format type
 - Select color for time
-- Select instance count & instance number **  this slows down the cycle of scores - add multiple instances to spread out the timing of rotation
+- Select time to display each score (this eliminates the mult-instance thing we've traditionally done)
+- 12 hour vs 24 hour time & US vs Intl date format
 - Select if you want to show a range of days forward / back instead of just the default API results & specify how many days forward and back.
 
 ## Caveat
@@ -32,6 +35,7 @@ For some reason, if you select Australian Women's A-Legaue, the API returns no d
 ## Thanks
 
 Thanks a lot to a bunch of folks who have worked on these various sports apps.  @LunchBox8484 is the original author of many of them.
+Thanks to @jesushairdo for the new option to be able to show home or away team first.  Let's be more international :-)
 
 ## Screenshot
 

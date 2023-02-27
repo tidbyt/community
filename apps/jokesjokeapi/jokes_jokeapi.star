@@ -7,17 +7,11 @@ Author: rs7q5
 
 # jokeAPI.star
 # Created 20220130 RIS
-# Last Modified 20220201 RIS
+# Last Modified 20230210 RIS
 
 load("cache.star", "cache")
-
-# load("encoding/base64.star", "base64")
 load("encoding/json.star", "json")
 load("http.star", "http")
-
-# load("schema.star","schema")
-# load("math.star","math")
-# load("time.star","time")
 load("re.star", "re")
 load("render.star", "render")
 load("schema.star", "schema")
