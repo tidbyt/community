@@ -35,16 +35,16 @@ def main():
 
     return render.Root(
         delay = 100,
-        show_full_animation = bool('true'),
+        show_full_animation = bool("true"),
         child = render.Marquee(
             scroll_direction = "vertical",
             height = 35,
             child = render.Column(
                 children = [
                     render.WrappedText(content = l_one, font = "tom-thumb"),
-                    render.Text('-------'),
+                    render.Text("-------"),
                     render.WrappedText(content = l_two, font = "tom-thumb"),
-                    render.Text('-------'),
+                    render.Text("-------"),
                     render.WrappedText(content = l_three, font = "tom-thumb"),
                 ],
             ),
