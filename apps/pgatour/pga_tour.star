@@ -31,10 +31,15 @@ def main(config):
 
     mainFont = "CG-pixel-3x5-mono"
     Title = leaderboard["sports"][0]["leagues"][0]["name"]
-    TournamentName = leaderboard["sports"][0]["leagues"][0]["events"][0]["name"]
-    Location = leaderboard["sports"][0]["leagues"][0]["events"][0]["location"]
-    StartDate = leaderboard["sports"][0]["leagues"][0]["events"][0]["date"]
-    EndDate = leaderboard["sports"][0]["leagues"][0]["events"][0]["endDate"]
+
+    i = 0
+    if (leaderboard["sports"][0]["leagues"][0]["events"][0]["id"]) == "401465525":
+        i = i + 1
+
+    TournamentName = leaderboard["sports"][0]["leagues"][0]["events"][i]["name"]
+    Location = leaderboard["sports"][0]["leagues"][0]["events"][i]["location"]
+    StartDate = leaderboard["sports"][0]["leagues"][0]["events"][i]["date"]
+    EndDate = leaderboard["sports"][0]["leagues"][0]["events"][i]["endDate"]
 
     StartDateFormat = time.parse_time(StartDate, format = "2006-01-02T15:04:00Z")
     EndDateFormat = time.parse_time(EndDate, format = "2006-01-02T15:04:00Z")
@@ -42,7 +47,7 @@ def main(config):
     EndDate = EndDateFormat.format("Jan 2")
 
     if (leaderboard):
-        stage1 = leaderboard["sports"][0]["leagues"][0]["events"][0]["status"]
+        stage1 = leaderboard["sports"][0]["leagues"][0]["events"][i]["status"]
 
         # In progress or completed tournament
         if stage1 == "in" or stage1 == "post":
@@ -60,6 +65,8 @@ def main(config):
                 stage = stage.replace(" - In Progress", "")
                 stage = stage.replace(" - Suspended", "")
                 stage = stage.replace(" - Play Complete", "")
+                stage = stage.replace(" - Playoff", "PO")
+                stage = stage.replace("Playoff - Play Complete", "PO")
 
                 if entries:
                     # how many players per page?
