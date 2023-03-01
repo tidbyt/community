@@ -5,12 +5,22 @@ Description: This app takes the selected team and displays the current match sit
 Author: M0ntyP
 
 v1.0 - Original app published
-v1.1 - A few updates...
+
+v1.1
 Team score formatting when total is < 10 and < 100 so it lines up with batsmen scores properly
 Using "mobile" names for batsmen & bowlers with names longer than 10 chars
 Status message updates - removed last bowler bowling figures from the long breaks
 Combined "scheduled" and "pre" match states 
 Added Zimbabwe, Afghanistan and Ireland as teams you can select
+
+v1.2
+- Added Team Innings to scoreboard
+- Show 'need' not 'trail' in the 4th innings
+- Only use mobileName if it exists
+
+Future ideas
+- Remove "Rem Overs" if all out
+- Update Description?
 """
 
 load("cache.star", "cache")
@@ -74,6 +84,7 @@ def main(config):
     if Playing == True:
         MatchID = str(MatchID)
         Match_URL = "https://hs-consumer-api.espncricinfo.com/v1/pages/match/details?lang=en&seriesId=" + MatchID + "&matchId=" + MatchID + "&latest=true"
+        #print(Match_URL)
 
         # cache specific match data for 1 minute
         MatchData = get_cachable_data(Match_URL, MATCH_CACHE)
@@ -88,6 +99,12 @@ def main(config):
             Wickets = Match_JSON["scorecard"]["innings"][Innings]["wickets"]
             Runs = Match_JSON["scorecard"]["innings"][Innings]["runs"]
 
+            # What inning for the batting side
+            if Innings == 0 or Innings == 1:
+                TeamInn = "1st"
+            else:
+                TeamInn = "2nd"
+
             # In front or behind? And how much?
             Lead_or_Trail = Match_JSON["scorecard"]["innings"][Innings]["lead"]
 
@@ -95,6 +112,10 @@ def main(config):
                 trail = True
             else:
                 trail = False
+
+            # if 4th innings of the match, show what they need to win
+            if Innings == 3:
+                Lead_or_Trail = Lead_or_Trail + 1
 
             Lead_or_Trail = math.fabs(Lead_or_Trail)
             Lead_or_Trail = humanize.ftoa(Lead_or_Trail)
@@ -104,9 +125,13 @@ def main(config):
             else:
                 Lead = " trail " + Lead_or_Trail
 
+            # if 4th innings of the match, show what they need to win
+            if Innings == 3:
+                Lead = " need " + Lead_or_Trail
+
             # How many overs bowled in this innings
-            Overs = Match_JSON["scorecard"]["innings"][Innings]["overs"]
-            Overs = str(Overs)
+            #Overs = Match_JSON["scorecard"]["innings"][Innings]["overs"]
+            #Overs = str(Overs)
 
             # How many overs left in the day
             RemOvers = Match_JSON["match"]["liveOversPending"]
@@ -126,8 +151,9 @@ def main(config):
 
             # On strike batsman details
             Batsman1 = Match_JSON["livePerformance"]["batsmen"][0]["player"]["fieldingName"]
-            if len(Batsman1) > 10:
-                Batsman1 = Match_JSON["livePerformance"]["batsmen"][0]["player"]["mobileName"]
+            if len(Batsman1) > 11:
+                if len(Match_JSON["livePerformance"]["batsmen"][0]["player"]["mobileName"]) > 1:
+                    Batsman1 = Match_JSON["livePerformance"]["batsmen"][0]["player"]["mobileName"]
             Batsman1_Runs = Match_JSON["livePerformance"]["batsmen"][0]["runs"]
 
             # Partnership details
@@ -142,6 +168,10 @@ def main(config):
             WicketsInt = int(Wickets)
             if WicketsInt > 0:
                 LastOut_Name = Match_JSON["scorecard"]["innings"][Innings]["inningWickets"][WicketsInt - 1]["player"]["fieldingName"]
+                if len(LastOut_Name) > 11:
+                    if len(Match_JSON["scorecard"]["innings"][Innings]["inningWickets"][WicketsInt - 1]["player"]["mobileName"]) > 1:
+                        LastOut_Name = Match_JSON["scorecard"]["innings"][Innings]["inningWickets"][WicketsInt - 1]["player"]["mobileName"]
+
                 LastOut_Runs = Match_JSON["scorecard"]["innings"][Innings]["inningWickets"][WicketsInt - 1]["runs"]
 
             # check if there is a second batsmen out there, this applies at fall of wicket & end of innings
@@ -149,8 +179,9 @@ def main(config):
 
             if Batsmen == 2:
                 Batsman2 = Match_JSON["livePerformance"]["batsmen"][1]["player"]["fieldingName"]
-                if len(Batsman2) > 10:
-                    Batsman2 = Match_JSON["livePerformance"]["batsmen"][1]["player"]["mobileName"]
+                if len(Batsman2) > 11:
+                    if len(Match_JSON["livePerformance"]["batsmen"][1]["player"]["mobileName"]) > 1:
+                        Batsman2 = Match_JSON["livePerformance"]["batsmen"][1]["player"]["mobileName"]
                 Batsman2_Runs = Match_JSON["livePerformance"]["batsmen"][1]["runs"]
                 Batsman2_Runs_Str = str(Batsman2_Runs)
 
@@ -306,7 +337,7 @@ def main(config):
                     children = [
                         render.Column(
                             children = [
-                                TeamScore(BattingTeam, BattingTeamColor, Wickets, Runs),
+                                TeamScore(BattingTeam, BattingTeamColor, TeamInn, Wickets, Runs),
                                 BatsmanScore(Batsman1, Batsman1_Runs_Str, BatsmanColor),
                                 BatsmanScore(Batsman2, Batsman2_Runs_Str, Batsman2Color),
                                 StatusRow(Status, StatusColor),
@@ -314,7 +345,7 @@ def main(config):
                         ),
                         render.Column(
                             children = [
-                                TeamScore(BattingTeam, BattingTeamColor, Wickets, Runs),
+                                TeamScore(BattingTeam, BattingTeamColor, TeamInn, Wickets, Runs),
                                 BatsmanScore(Batsman1, Batsman1_Runs_Str, BatsmanColor),
                                 BatsmanScore(Batsman2, Batsman2_Runs_Str, Batsman2Color),
                                 StatusRow(Status2, Status2Color),
@@ -322,7 +353,7 @@ def main(config):
                         ),
                         render.Column(
                             children = [
-                                TeamScore(BattingTeam, BattingTeamColor, Wickets, Runs),
+                                TeamScore(BattingTeam, BattingTeamColor, TeamInn, Wickets, Runs),
                                 BatsmanScore(Batsman1, Batsman1_Runs_Str, BatsmanColor),
                                 BatsmanScore(Batsman2, Batsman2_Runs_Str, Batsman2Color),
                                 StatusRow(Status3, Status3Color),
@@ -330,7 +361,7 @@ def main(config):
                         ),
                         render.Column(
                             children = [
-                                TeamScore(BattingTeam, BattingTeamColor, Wickets, Runs),
+                                TeamScore(BattingTeam, BattingTeamColor, TeamInn, Wickets, Runs),
                                 BatsmanScore(Batsman1, Batsman1_Runs_Str, BatsmanColor),
                                 BatsmanScore(Batsman2, Batsman2_Runs_Str, Batsman2Color),
                                 StatusRow(Status4, Status4Color),
@@ -338,7 +369,7 @@ def main(config):
                         ),
                         render.Column(
                             children = [
-                                TeamScore(BattingTeam, BattingTeamColor, Wickets, Runs),
+                                TeamScore(BattingTeam, BattingTeamColor, TeamInn, Wickets, Runs),
                                 BatsmanScore(Batsman1, Batsman1_Runs_Str, BatsmanColor),
                                 BatsmanScore(Batsman2, Batsman2_Runs_Str, Batsman2Color),
                                 StatusRow(Status5, Status5Color),
@@ -540,7 +571,7 @@ def main(config):
     # should never get here but lint wanted it
     return None
 
-def TeamScore(BattingTeam, BattingTeamColor, Wickets, Runs):
+def TeamScore(BattingTeam, BattingTeamColor, TeamInn, Wickets, Runs):
     # if all out
     if Wickets != "10":
         Wickets = Wickets + "/"
@@ -561,7 +592,7 @@ def TeamScore(BattingTeam, BattingTeamColor, Wickets, Runs):
                         pad = (2, 1, 0, 0),
                         child = render.Marquee(
                             width = 40,
-                            child = render.Text(content = BattingTeam, color = BattingTeamColor, font = "CG-pixel-3x5-mono", offset = 0),
+                            child = render.Text(content = BattingTeam + " " + TeamInn, color = BattingTeamColor, font = "CG-pixel-4x5-mono", offset = 0),
                         ),
                     )),
                     render.Box(width = 24, height = 8, child = render.Text(content = Wickets + Runs, color = BattingTeamColor, font = "CG-pixel-3x5-mono")),
