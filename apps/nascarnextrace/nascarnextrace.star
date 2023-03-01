@@ -447,7 +447,9 @@ def get_cachable_data(url):
     return res.body()
 
 def text_justify_trunc(length, text, direction):
-    textlen = len(list(text.codepoints()))
+    #  thanks to @inxi and @whyamihere / @rs7q5 for the codepoints() and codepoints_ords() help
+    chars = list(text.codepoints())
+    textlen = len(chars)
 
     # if string is shorter than desired - we can just use the count of chars (not bytes) and add on spaces - we're good
     if textlen < length:
@@ -455,7 +457,6 @@ def text_justify_trunc(length, text, direction):
             text = " " + text if direction == "right" else text + " "
     else:
         # text is longer - need to trunc it get the list of characters & trunc at length
-        chars = list(text.codepoints())
         text = ""  # clear out text
         for i in range(0, length):
             text = text + chars[i]
