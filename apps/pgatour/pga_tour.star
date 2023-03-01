@@ -14,14 +14,16 @@ load("encoding/base64.star", "base64")
 load("encoding/json.star", "json")
 load("http.star", "http")
 load("render.star", "render")
+load("schema.star", "schema")
 load("time.star", "time")
 
 API = "https://site.web.api.espn.com/apis/v2/scoreboard/header?sport=golf&league=pga"
 CACHE_TTL_SECS = 60
 
-def main():
+def main(config):
     renderCategory = []
 
+    RotationSpeed = config.get("speed", "3")
     CacheData = get_cachable_data(API, CACHE_TTL_SECS)
     leaderboard = json.decode(CacheData)
 
@@ -78,13 +80,14 @@ def main():
 
             return render.Root(
                 # seconds per cycle
-                delay = int(2500),
+                delay = int(RotationSpeed) * 1000,
                 child = render.Animation(children = renderCategory),
             )
 
         elif stage1 == "pre":
             # if there is no live tournament, show what event is coming up next
             return render.Root(
+                show_full_animation = True,
                 child = render.Column(
                     main_align = "start",
                     cross_align = "start",
@@ -128,6 +131,11 @@ def main():
     return []
 
 def get_player(x, s, entriesToDisplay, Title, topcolHeight, stage, state):
+    # Remove "The" if its in the title, but not for "The Open", its a major so we treat it with respect...and it will fit anyway
+    if Title.startswith("The"):
+        if Title != "The Open":
+            Title = Title.replace("The ", "")
+
     # keep first 10 chars of the tournament name, then remove any extra " " at the end
     Title = Title[:10]
     Title = Title.rstrip()
@@ -227,6 +235,40 @@ def get_player_font_color(HolesCompleted):
         playerFontColor = ""
 
     return playerFontColor
+
+RotationOptions = [
+    schema.Option(
+        display = "2 seconds",
+        value = "2",
+    ),
+    schema.Option(
+        display = "3 seconds",
+        value = "3",
+    ),
+    schema.Option(
+        display = "4 seconds",
+        value = "4",
+    ),
+    schema.Option(
+        display = "5 seconds",
+        value = "5",
+    ),
+]
+
+def get_schema():
+    return schema.Schema(
+        version = "1",
+        fields = [
+            schema.Dropdown(
+                id = "speed",
+                name = "Rotation Speed",
+                desc = "How many seconds each page is displayed",
+                icon = "gear",
+                default = RotationOptions[1].value,
+                options = RotationOptions,
+            ),
+        ],
+    )
 
 def get_cachable_data(url, timeout):
     key = base64.encode(url)

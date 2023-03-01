@@ -7,7 +7,7 @@ Author: rs7q5
 
 #nationalToday.star
 #Created 20220130 RIS
-#Last Modified 20220807 RIS
+#Last Modified 20230210 RIS
 
 load("cache.star", "cache")
 load("encoding/json.star", "json")
@@ -108,6 +108,7 @@ def main(config):
 
     return render.Root(
         delay = 100,  #speed up scroll text
+        show_full_animation = True,
         child = display_tmp,
     )
 
