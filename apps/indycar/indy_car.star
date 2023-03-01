@@ -13,7 +13,7 @@ load("render.star", "render")
 load("schema.star", "schema")
 load("time.star", "time")
 
-VERSION = 23058
+VERSION = 23060
 
 IMAGES = {
     "oval": "iVBORw0KGgoAAAANSUhEUgAAABgAAAAeCAYAAAA2Lt7lAAAACXBIWXMAAC4jAAAuIwF4pT92AAABuElEQVRIibWWu06CQRCFD4rxgoWYqC/gpTA2lFRUhpZCSh8AKnwHQ2PD6ygmhgegQRJRn0CNgmIMiXAsOL+QZfn/XQKTTIbsnJlvgb3FSGKRtuSoOwVwDeBLXtVYtJEM8xjJCkc2kAdWkWZqjyjApRp1SV6Q3CCZ1OeucuVZARmSfZLfJNOWfFq5vrRegCWSTc2wGDKJojRN1TgDciq8n1Y4NpGGtDkfQFVF5xH/EaQhyRtbPsbJfbAF4AVAD8AugJ+Ihbgu/ar07fGkbR9kAaxorUc1hzRV1WTNpA2QUrxzaB5YoE2ZCRvgRLHhAWgataGAfcVHD0BL8cAFsKP44QF4N2r/zbaKCKAPIO4BAIBfAMsAYuODrqepq/XMARugo5kkPBonVNNxAbwpJj0A24qfLoAnxUMPwJHiswsgWP8TazrEjo3aUEBdMeMBCLR1MzGPw24NwCuGh90ejP1j+wZtADUAmwDOIpoDQF7amtkcwNT7ID/DhZP3uXDiJB9UWAgBFKRpqWYhl/6AZHZan6jrsKwZdkmWOHq2lDh6tlyF9YgCLPzhFXiWw0u9K78N+1nG3bYP5mp/F5vVkadWLcYAAAAASUVORK5CYII=",
@@ -301,21 +301,18 @@ def get_cachable_data(url):
     return res.body()
 
 def text_justify_trunc(length, text, direction):
-    highorderchars = 0
+    #  thanks to @inxi and @whyamihere / @rs7q5 for the codepoints() and codepoints_ords() help
+    textlen = len(list(text.codepoints()))
 
-    if text.isalpha():
-        textlist = list(text.elems())
-        for i in range(0, len(textlist)):
-            if textlist[i].isalpha() == False:
-                highorderchars += 1
-
-    # if we ever have 3 or 4 byte characters - we need to adapt here
-    lentoremove = int(highorderchars / 2)
-    if (len(text) - lentoremove) < length:
-        for _ in range(0, length - (len(text) - lentoremove)):
+    # if string is shorter than desired - we can just use the count of chars (not bytes) and add on spaces - we're good
+    if textlen < length:
+        for _ in range(0, length - textlen):
             text = " " + text if direction == "right" else text + " "
     else:
-        # text is longer - need to trunc it
-        text = text[0:length - lentoremove]
+        # text is longer - need to trunc it get the list of characters & trunc at length
+        chars = list(text.codepoints())
+        text = ""  # clear out text
+        for i in range(0, length):
+            text = text + chars[i]
 
     return text

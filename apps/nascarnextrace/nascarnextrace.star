@@ -14,7 +14,7 @@ load("render.star", "render")
 load("schema.star", "schema")
 load("time.star", "time")
 
-VERSION = 23058
+VERSION = 23060
 
 # cache data for 15 minutes - cycle through with cache on the API side
 CACHE_TTL_SECONDS = 900
@@ -447,21 +447,17 @@ def get_cachable_data(url):
     return res.body()
 
 def text_justify_trunc(length, text, direction):
-    highorderchars = 0
+    textlen = len(list(text.codepoints()))
 
-    if text.isalpha():
-        textlist = list(text.elems())
-        for i in range(0, len(textlist)):
-            if textlist[i].isalpha() == False:
-                highorderchars += 1
-
-    # if we ever have 3 or 4 byte characters - we need to adapt here
-    lentoremove = int(highorderchars / 2)
-    if (len(text) - lentoremove) < length:
-        for _ in range(0, length - (len(text) - lentoremove)):
+    # if string is shorter than desired - we can just use the count of chars (not bytes) and add on spaces - we're good
+    if textlen < length:
+        for _ in range(0, length - textlen):
             text = " " + text if direction == "right" else text + " "
     else:
-        # text is longer - need to trunc it
-        text = text[0:length - lentoremove]
+        # text is longer - need to trunc it get the list of characters & trunc at length
+        chars = list(text.codepoints())
+        text = ""  # clear out text
+        for i in range(0, length):
+            text = text + chars[i]
 
     return text
