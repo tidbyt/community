@@ -285,7 +285,7 @@ def main(config):
                 awayLogoURL = "https://i.ibb.co/5LMp8T1/transparent.png"
             else:
                 awayLogoURL = competition["competitors"][1]["team"]["logo"]
-            
+
             homeRankCheck = competition["competitors"][0].get("curatedRank", "NO")
             if homeRankCheck == "NO":
                 homeRank = 99
@@ -297,7 +297,7 @@ def main(config):
                 awayRank = 99
             else:
                 awayRank = competition["competitors"][1]["curatedRank"]["current"]
-                
+
             homeLogo = get_logoType(home, homeLogoURL)
             awayLogo = get_logoType(away, awayLogoURL)
             homeLogoSize = get_logoSize(home)
@@ -1232,31 +1232,31 @@ def get_team_bar(showAnimations, animationDuration, animationPercentage1, animat
                 curve = "ease_in_out",
             ),
         ]
-        
+
     if showRanking and teamRank > 0 and teamRank < 26:
         if teamRank < 10:
             rankSize = 4
         else:
             rankSize = 8
-    
+
     if showRanking and teamRank < 26:
         imageArea = render.Stack(children = [
-                render.Box(width = 16, height = 12, child = render.Image(teamLogo, width = teamLogoSize, height = teamLogoSize)),
-                render.Column(
-                    expanded = True,
-                    main_align = "end",
-                    cross_align = "start",
-                    children = [
-                        render.Row(children = [
-                            render.Box(width = 1, height = 5, color = "#000b"),
-                            render.Box(width = rankSize, height = 5, color = "#000b", child = render.Text(str(teamRank), color = teamScoreColor, font = "CG-pixel-3x5-mono")),
-                        ]),
-                    ],
-                ),
-            ])
+            render.Box(width = 16, height = 12, child = render.Image(teamLogo, width = teamLogoSize, height = teamLogoSize)),
+            render.Column(
+                expanded = True,
+                main_align = "end",
+                cross_align = "start",
+                children = [
+                    render.Row(children = [
+                        render.Box(width = 1, height = 5, color = "#000b"),
+                        render.Box(width = rankSize, height = 5, color = "#000b", child = render.Text(str(teamRank), color = teamScoreColor, font = "CG-pixel-3x5-mono")),
+                    ]),
+                ],
+            ),
+        ])
     else:
         imageArea = render.Box(width = 16, height = 12, child = render.Image(teamLogo, width = teamLogoSize, height = teamLogoSize))
-            
+
     teamBar = animation.Transformation(
         child =
             render.Box(width = 64, height = 12, color = teamColor, child = render.Row(expanded = True, main_align = "start", cross_align = "center", children = [
