@@ -102,8 +102,8 @@ def main(config):
     if CHALLENGE_ID == None:
         CHALLENGE_ID = config.str("user_challenge_id", "0")
 
-    progress_cached = cache.get("progress")
-    goal_cached = cache.get("goal")
+    progress_cached = cache.get("".join(["progress", CHALLENGE_ID]))
+    goal_cached = cache.get("".join(["goal", CHALLENGE_ID]))
 
     if progress_cached != None and goal_cached != None:
         progress = progress_cached
