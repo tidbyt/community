@@ -1,7 +1,7 @@
 """
 Applet: Solar Manager Ch
 Summary: Show solarmanager.ch status
-Description: Show solarmanager.ch stats.
+Description: Multiple screen selections will disable animations. If you prefer animated screens, run separate instances of the app and select 1 screen per instance.  For API Key : authorize with your solarmanager username and password on: https://external-web.solar-manager.ch/swagger and copy the long string that follows after '-H authorization: Basic'.  For Site ID : check the back of your solarmanager device for the SMID code..
 Author: tavdog, marcbaier
 """
 
