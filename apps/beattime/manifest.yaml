@@ -1,0 +1,8 @@
+---
+id: beat-time
+name: Beat Time
+summary: Display the time in beats
+desc: Display the current time in beats, a decimal time format where the 24-hour day is divided into 1000 '.beats'. Midnight is equal to midnight in UTC+1, and there are no timezones, because this is the Internet.
+author: Stephen Washington
+fileName: beat_time.star
+packageName: beattime

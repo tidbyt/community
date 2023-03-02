@@ -8,6 +8,7 @@ Inspired by all the other great transit apps out there, I made one for my home t
 
 v1.0 - First release to Tidbyt
 v1.1 - Fixed bug that showed same time for different services if over 120 mins away
+v1.2 - Fixed bug that showed no time when its the last service for the day/for a while
 """
 
 load("cache.star", "cache")
@@ -201,7 +202,6 @@ def GetTimes(StopName, Routes, RouteColors, RouteLen, NEXTSCHED_JSON):
                 Time1 = str(TimeList.pop(0))
                 Comma1 = ""
                 Comma2 = ""
-                Time1 = ""
                 Time2 = ""
                 Time3 = ""
 
@@ -687,7 +687,7 @@ TramStationOptions = [
     ),
     schema.Option(
         display = "Glenelg East (to Glenelg)",
-        value = "18532",
+        value = "18533",
     ),
     schema.Option(
         display = "Glengowrie (to Festival, RAH/Ent Centre)",
