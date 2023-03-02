@@ -1,7 +1,7 @@
 """
-Applet: NFL Scores
-Summary: Displays NFL scores
-Description: Displays live and upcoming NFL scores from a data feed.
+Applet: NCAA Softball Scores
+Summary: Displays NCAA Softball scores
+Description: Displays live and upcoming NCAA Softball scores from a data feed.
 Author: LunchBox8484
 """
 
@@ -25,59 +25,160 @@ DEFAULT_LOCATION = """
     "timezone": "America/New_York"
 }
 """
-LEAGUE_DISPLAY = "NFL"
-LEAGUE_DISPLAY_OFFSET = -4
-SPORT = "football"
-LEAGUE = "nfl"
+LEAGUE_DISPLAY = "CSOFT"
+LEAGUE_DISPLAY_OFFSET = 4
+SPORT = "baseball"
+LEAGUE = "college-softball"
 API = "https://site.api.espn.com/apis/site/v2/sports/" + SPORT + "/" + LEAGUE + "/scoreboard"
 SHORTENED_WORDS = """
 {
     " PM": "P",
     " AM": "A",
+    " Wins": "",
+    " wins": "",
+    " Win": "",
+    " win": "",
+    " Leads": "",
+    " lead": "",
+    " Leads": "",
+    " lead": "",
+    " Series": "",
+    " series": "",
+    " Tied": "",
+    " tied": "",
+    " of": "",
     " - ": " ",
     " / ": " ",
-    " of": "",
     "Postponed": "PPD",
-    "Overtime": "OT",
-    "1st Half": "1H",
-    "2nd Half": "2H",
-    "1st Quarter": "Q1",
-    "2nd Quarter": "Q2",
-    "3rd Quarter": "Q3",
-    "4th Quarter": "Q4"
+    "Bottom": "Bot",
+    "Middle": "Mid"
 }
 """
 ALT_COLOR = """
 {
-    "LAC": "#1281c4",
-    "LAR": "#003594",
-    "MIA": "#008E97",
-    "NO": "#000000",
-    "SEA": "#002244",
-    "TB": "#34302B",
-    "TEN": "#0C2340",
-    "AFC": "#CD1126",
-    "NFC": "#003B66"
+    "SYR" : "#000E54",
+    "LSU" : "#461D7C",
+    "WAKE" : "#000000",
+    "UVA" : "#232D4B",
+    "WESTV" : "#002855",
+    "CIN" : "#E00122",
+    "WYO" : "#492F24",
+    "SMU" : "#0033A0",
+    "IOWA" : "#FFCD00",
+    "PUR" : "#000000",
+    "USC" : "#990000",
+    "ARMY" : "#000000",
+    "USM" : "#000000",
+    "TOL" : "#15397F",
+    "EIU" : "#004B83",
+    "UNLV" : "#cf0a2c",
+    "MRSH" : "#000000",
+    "UNC" : "#13294B",
+    "COLO" : "#000000",
+    "IOWA" : "#000000",
+    "RICE" : "#00205B",
+    "RUTG" : "#CC0033"
 }
 """
 ALT_LOGO = """
 {
-    "AFC": "https://a.espncdn.com/i/teamlogos/nfl/500/scoreboard/afc.png",
-    "NFC": "https://a.espncdn.com/i/teamlogos/nfl/500/scoreboard/nfc.png"
+    "WYO" : "https://i.ibb.co/Czv9k7H/wyoming-cowboys.png",
+    "IOWA" : "https://storage.googleapis.com/hawkeyesports-com/2021/02/cf540990-logo.png",
+    "DUQ" : "https://b.fssta.com/uploads/application/college/team-logos/Duquesne-alternate.vresize.50.50.medium.1.png",
+    "UNC" : "https://b.fssta.com/uploads/application/college/team-logos/NorthCarolina-alternate.vresize.50.50.medium.1.png",
+    "DUKE" : "https://b.fssta.com/uploads/application/college/team-logos/Duke-alternate.vresize.50.50.medium.1.png",
+    "TEM" : "https://b.fssta.com/uploads/application/college/team-logos/Temple.vresize.50.50.medium.1.png",
+    "CLEM" : "https://b.fssta.com/uploads/application/college/team-logos/Clemson-alternate.vresize.50.50.medium.1.png",
+    "LSU" : "https://b.fssta.com/uploads/application/college/team-logos/LSU-alternate.vresize.50.50.medium.1.png",
+    "WESTV" : "https://b.fssta.com/uploads/application/college/team-logos/WestVirginia-alternate.vresize.50.50.medium.1.png",
+    "PITT" : "https://b.fssta.com/uploads/application/college/team-logos/Pittsburgh-alternate.vresize.50.50.medium.1.png",
+    "UVA" : "https://b.fssta.com/uploads/application/college/team-logos/Virginia.vresize.50.50.medium.1.png",
+    "RUTG" : "https://b.fssta.com/uploads/application/college/team-logos/Rutgers-alternate.vresize.50.50.medium.1.png",
+    "CIN" : "https://b.fssta.com/uploads/application/college/team-logos/Cincinnati-alternate.vresize.50.50.medium.1.png",
+    "ARK" : "https://b.fssta.com/uploads/application/college/team-logos/Arkansas-alternate.vresize.50.50.medium.1.png",
+    "HOU" : "https://b.fssta.com/uploads/application/college/team-logos/Houston-alternate.vresize.50.50.medium.1.png",
+    "UNT" : "https://b.fssta.com/uploads/application/college/team-logos/NorthTexas-alternate.vresize.50.50.medium.1.png",
+    "TCU" : "https://b.fssta.com/uploads/application/college/team-logos/TCU-alternate.vresize.50.50.medium.1.png",
+    "OU" : "https://b.fssta.com/uploads/application/college/team-logos/Oklahoma-alternate.vresize.50.50.medium.1.png",
+    "TEX" : "https://b.fssta.com/uploads/application/college/team-logos/Texas-alternate.vresize.50.50.medium.1.png",
+    "KANSA" : "https://b.fssta.com/uploads/application/college/team-logos/KansasState-alternate.vresize.50.50.medium.1.png",
+    "ILL" : "https://b.fssta.com/uploads/application/college/team-logos/Illinois-alternate.vresize.50.50.medium.1.png",
+    "NEB" : "https://b.fssta.com/uploads/application/college/team-logos/Nebraska-alternate.vresize.50.50.medium.1.png",
+    "NU" : "https://b.fssta.com/uploads/application/college/team-logos/Northwestern-alternate.vresize.50.50.medium.1.png",
+    "MICHI" : "https://b.fssta.com/uploads/application/college/team-logos/MichiganState-alternate.vresize.50.50.medium.1.png",
+    "MICH" : "https://b.fssta.com/uploads/application/college/team-logos/Michigan.vresize.50.50.medium.1.png",
+    "WISC" : "https://b.fssta.com/uploads/application/college/team-logos/Wisconsin-alternate.vresize.50.50.medium.1.png",
+    "IU" : "https://b.fssta.com/uploads/application/college/team-logos/Indiana-alternate.vresize.50.50.medium.0.png",
+    "MINN" : "https://b.fssta.com/uploads/application/college/team-logos/Minnesota-alternate.vresize.50.50.medium.0.png",
+    "MD" : "https://b.fssta.com/uploads/application/college/team-logos/Maryland-alternate.vresize.50.50.medium.0.png",
+    "ND" : "https://b.fssta.com/uploads/application/college/team-logos/NotreDame-alternate.vresize.50.50.medium.0.png",
+    "AAMU" : "https://b.fssta.com/uploads/application/college/team-logos/AlabamaA&M-alternate.vresize.50.50.medium.0.png",
+    "USC" : "https://b.fssta.com/uploads/application/college/team-logos/USC-alternate.vresize.50.50.medium.0.png",
+    "RICE" : "https://b.fssta.com/uploads/application/college/team-logos/Rice-alternate.vresize.50.50.medium.0.png",
+    "NEV" : "https://b.fssta.com/uploads/application/college/team-logos/Nevada-alternate.vresize.50.50.medium.0.png",
+    "USU" : "https://b.fssta.com/uploads/application/college/team-logos/UtahState-alternate.vresize.50.50.medium.0.png",
+    "ARMY" : "https://b.fssta.com/uploads/application/college/team-logos/Army.vresize.50.50.medium.0.png",
+    "TENN" : "https://b.fssta.com/uploads/application/college/team-logos/Tennessee-alternate.vresize.50.50.medium.0.png",
+    "CMU" : "https://b.fssta.com/uploads/application/college/team-logos/CentralMichigan-alternate.vresize.50.50.medium.0.png",
+    "TOL" : "https://b.fssta.com/uploads/application/college/team-logos/Toledo-alternate.vresize.50.50.medium.0.png",
+    "EMU" : "https://b.fssta.com/uploads/application/college/team-logos/EasternMichigan-alternate.vresize.50.50.medium.0.png",
+    "EKU" : "https://b.fssta.com/uploads/application/college/team-logos/EasternKentucky-alternate.vresize.50.50.medium.0.png",
+    "UCLA" : "https://b.fssta.com/uploads/application/college/team-logos/UCLA-alternate.vresize.50.50.medium.0.png",
+    "KENTU" : "https://b.fssta.com/uploads/application/college/team-logos/Kentucky-alternate.vresize.50.50.medium.0.png",
+    "WASH" : "https://b.fssta.com/uploads/application/college/team-logos/Washington-alternate.vresize.50.50.medium.0.png",
+    "UNLV" : "https://b.fssta.com/uploads/application/college/team-logos/UNLV-alternate.vresize.50.50.medium.0.png",
+    "AFA" : "https://b.fssta.com/uploads/application/college/team-logos/AirForce-alternate.vresize.50.50.medium.1.png",
+    "NAU" : "https://b.fssta.com/uploads/application/college/team-logos/NorthernArizona-alternate.vresize.50.50.medium.0.png",
+    "ORE" : "https://b.fssta.com/uploads/application/college/team-logos/Oregon-alternate.vresize.50.50.medium.0.png",
+    "UCD" : "https://b.fssta.com/uploads/application/college/team-logos/UCDavis-alternate.vresize.50.50.medium.0.png",
+    "CAL" : "https://b.fssta.com/uploads/application/college/team-logos/California-alternate.vresize.50.50.medium.0.png",
+    "COLG" : "https://b.fssta.com/uploads/application/college/team-logos/Colgate-alternate.vresize.50.50.medium.0.png",
+    "STAN" : "https://b.fssta.com/uploads/application/college/team-logos/Stanford.vresize.50.50.medium.0.png",
+    "WSU" : "https://b.fssta.com/uploads/application/college/team-logos/WashingtonState-alternate.vresize.50.50.medium.0.png",
+    "SDSU" : "https://b.fssta.com/uploads/application/college/team-logos/SanDiegoState.vresize.50.50.medium.0.png",
+    "SHSU" : "https://b.fssta.com/uploads/application/college/team-logos/SamHoustonState-alternate.vresize.50.50.medium.0.png",
+    "AUB" : "https://b.fssta.com/uploads/application/college/team-logos/Auburn-alternate.vresize.50.50.medium.0.png",
+    "NORF" : "https://b.fssta.com/uploads/application/college/team-logos/NorfolkState.vresize.50.50.medium.0.png",
+    "UNC" : "https://b.fssta.com/uploads/application/college/team-logos/NorthCarolina.vresize.50.50.medium.0.png",
+    "BAY" : "https://b.fssta.com/uploads/application/college/team-logos/Baylor-alternate.vresize.50.50.medium.0.png",
+    "ALA" : "https://b.fssta.com/uploads/application/college/team-logos/Alabama-alternate.vresize.50.50.medium.0.png",
+    "NU" : "https://b.fssta.com/uploads/application/college/team-logos/Northwestern-alternate.vresize.50.50.medium.0.png",
+    "LBSU" : "https://b.fssta.com/uploads/application/college/team-logos/LongBeachState.vresize.50.50.medium.0.png"
 }
 """
 MAGNIFY_LOGO = """
 {
-    "BAL": 18,
-    "CAR": 20,
-    "DAL": 18,
-    "DEN": 18,
-    "DET": 18,
-    "GB": 18,
-    "IND": 14,
-    "NYG": 14,
-    "SF": 18,
-    "TEN": 18
+    "WESTV" : 12,
+    "RUTG" : 12,
+    "DUKE" : 12,
+    "UNT" : 14,
+    "HOU" : 14,
+    "USF" : 14,
+    "OU" : 14,
+    "KANSA" : 14,
+    "NEB" : 12,
+    "ILL" : 14,
+    "ND" : 14,
+    "UTS" : 18,
+    "USU" : 14,
+    "TENN" : 14,
+    "EMU" : 14,
+    "ORE" : 14,
+    "ASU" : 24,
+    "COLG" : 14,
+    "AUB" : 14,
+    "SHSU" : 14,
+    "UTAH" : 14,
+    "UGA" : 18,
+    "M-OH" : 14,
+    "VT" : 18,
+    "NORF" : 14,
+    "WYO" : 12,
+    "BAY" : 12,
+    "PITT" : 14,
+    "COLO" : 14,
+    "IOWA" : 12,
+    "PSU" : 14
 }
 """
 STYLE_ATTRIBUTES = """
@@ -125,6 +226,7 @@ STYLE_ATTRIBUTES = """
 
 def main(config):
     renderCategory = []
+    showRanking = config.bool("displayRanking", True)
     selectedTeam = config.get("selectedTeam", "all")
     displayType = config.get("displayType", "colors")
     displayTop = config.get("displayTop", "league")
@@ -138,7 +240,7 @@ def main(config):
     now = time.now().in_location(timezone)
     datePast = now - time.parse_duration("%dh" % 1 * 24)
     dateFuture = now + time.parse_duration("%dh" % 6 * 24)
-    league = {LEAGUE: API + "?limit=100" + (selectedTeam == "all" and " " or "&dates=" + datePast.format("20060102") + "-" + dateFuture.format("20060102"))}
+    league = {LEAGUE: API + "?limit=300" + (selectedTeam == "all" and " " or "&dates=" + datePast.format("20060102") + "-" + dateFuture.format("20060102"))}
     scores = get_scores(league, selectedTeam)
 
     if len(scores) > 0:
@@ -187,6 +289,19 @@ def main(config):
                 awayLogoURL = "https://i.ibb.co/5LMp8T1/transparent.png"
             else:
                 awayLogoURL = competition["competitors"][1]["team"]["logo"]
+
+            homeRankCheck = competition["competitors"][0].get("curatedRank", "NO")
+            if homeRankCheck == "NO":
+                homeRank = 99
+            else:
+                homeRank = competition["competitors"][0]["curatedRank"]["current"]
+
+            awayRankCheck = competition["competitors"][1].get("curatedRank", "NO")
+            if awayRankCheck == "NO":
+                awayRank = 99
+            else:
+                awayRank = competition["competitors"][1]["curatedRank"]["current"]
+
             homeLogo = get_logoType(home, homeLogoURL)
             awayLogo = get_logoType(away, awayLogoURL)
             homeLogoSize = get_logoSize(home)
@@ -225,12 +340,16 @@ def main(config):
                     checkSeries = competition.get("series", "NO")
                     if checkSeries == "NO":
                         homeCompetitor = competition["competitors"][0]
-                        checkRecord = homeCompetitor.get("records", "NO")
-                        if checkRecord == "NO":
+                        homecheckRecord = homeCompetitor.get("records", "NO")
+                        awayCompetitor = competition["competitors"][1]
+                        awaycheckRecord = awayCompetitor.get("records", "NO")
+                        if homecheckRecord == "NO":
                             homeScore = "0-0"
-                            awayScore = "0-0"
                         else:
                             homeScore = competition["competitors"][0]["records"][0]["summary"]
+                        if awaycheckRecord == "NO":
+                            awayScore = "0-0"
+                        else:
                             awayScore = competition["competitors"][1]["records"][0]["summary"]
                     else:
                         homeScore = str(competition["series"]["competitors"][0]["wins"]) + "-" + str(competition["series"]["competitors"][1]["wins"])
@@ -251,11 +370,14 @@ def main(config):
                 gameTime = s["status"]["type"]["shortDetail"]
                 gameName = s["status"]["type"]["name"]
                 checkSeries = competition.get("series", "NO")
-                checkNotes = len(competition["notes"])
+                checkNotes = competition.get("notes", "NO")
+                checkNotesLength = 0
+                if checkNotes != "NO":
+                    checkNotesLength = len(competition["notes"])
                 if checkSeries != "NO":
                     seriesSummary = competition["series"]["summary"]
                     gameTime = seriesSummary.replace("series ", "")
-                if checkNotes > 0 and checkSeries == "NO":
+                if checkNotesLength > 0 and checkSeries == "NO":
                     gameHeadline = competition["notes"][0]["headline"]
                     if gameHeadline.find(" - ") > 0:
                         gameNoteArray = gameHeadline.split(" - ")
@@ -266,13 +388,11 @@ def main(config):
                     gameTime = "Postponed"
                 else:
                     homeScore = competition["competitors"][0]["score"]
-                    homeWinner = competition["competitors"][0]["winner"]
                     awayScore = competition["competitors"][1]["score"]
-                    awayWinner = competition["competitors"][1]["winner"]
-                    if (int(homeScore) > int(awayScore) or homeWinner == True):
+                    if (int(homeScore) > int(awayScore)):
                         homeScoreColor = "#ff0"
                         awayScoreColor = "#fffc"
-                    elif (int(awayScore) > int(homeScore) or awayWinner == True):
+                    elif (int(awayScore) > int(homeScore)):
                         homeScoreColor = "#fffc"
                         awayScoreColor = "#ff0"
                     else:
@@ -386,7 +506,7 @@ def main(config):
                                                             render.Row(expanded = True, main_align = "start", cross_align = "center", children = [
                                                                 render.Box(width = 2, height = 10, color = styleAttributes[displayType]["borderColor"]),
                                                                 animation.Transformation(
-                                                                    child = render.Box(width = 29, height = 10, child = render.Box(width = 29, height = 10, color = styleAttributes[displayType]["backgroundColor"], child = render.Text(content = away[:3].upper(), color = awayScoreColor, font = styleAttributes[displayType]["textFont"]))),
+                                                                    child = render.Box(width = 29, height = 10, child = render.Box(width = 29, height = 10, color = styleAttributes[displayType]["backgroundColor"], child = render.Text(content = away[:4].upper(), color = awayScoreColor, font = styleAttributes[displayType]["textFont"]))),
                                                                     duration = animationDuration - delayDuration,
                                                                     delay = delayDuration,
                                                                     width = 29,
@@ -408,7 +528,7 @@ def main(config):
                                                             render.Row(expanded = True, main_align = "start", cross_align = "center", children = [
                                                                 render.Box(width = 2, height = 10, color = styleAttributes[displayType]["borderColor"]),
                                                                 animation.Transformation(
-                                                                    child = render.Box(width = 29, height = 10, child = render.Box(width = 29, height = 10, color = styleAttributes[displayType]["backgroundColor"], child = render.Text(content = home[:3].upper(), color = homeScoreColor, font = styleAttributes[displayType]["textFont"]))),
+                                                                    child = render.Box(width = 29, height = 10, child = render.Box(width = 29, height = 10, color = styleAttributes[displayType]["backgroundColor"], child = render.Text(content = home[:4].upper(), color = homeScoreColor, font = styleAttributes[displayType]["textFont"]))),
                                                                     duration = animationDuration - delayDuration,
                                                                     delay = delayDuration,
                                                                     width = 29,
@@ -550,7 +670,7 @@ def main(config):
                                                                             render.Column(
                                                                                 main_align = "center",
                                                                                 cross_align = "center",
-                                                                                children = get_horizontal_logo_box(away, awayScore, awayScoreColor, scoreFont, animationDuration, delayDuration, nameKeyframes, scoreKeyframes),
+                                                                                children = get_horizontal_logo_box(away[:4], awayScore, awayScoreColor, scoreFont, animationDuration, delayDuration, nameKeyframes, scoreKeyframes),
                                                                             ),
                                                                         ]),
                                                                     ]),
@@ -599,7 +719,7 @@ def main(config):
                                                                             render.Column(
                                                                                 main_align = "center",
                                                                                 cross_align = "center",
-                                                                                children = get_horizontal_logo_box(home, homeScore, homeScoreColor, scoreFont, animationDuration, delayDuration, nameKeyframes, scoreKeyframes),
+                                                                                children = get_horizontal_logo_box(home[:4], homeScore, homeScoreColor, scoreFont, animationDuration, delayDuration, nameKeyframes, scoreKeyframes),
                                                                             ),
                                                                         ]),
                                                                     ]),
@@ -774,8 +894,8 @@ def main(config):
                                         children = [
                                             render.Column(
                                                 children = [
-                                                    get_team_bar(showAnimations, animationDuration, animationPercentage1, animationPercentage2, delayDuration, away, "away", awayLogo, "#222222", awayScoreColor, awayLogoSize, awayScore, styleAttributes[displayType]["textFont"], scoreFont),
-                                                    get_team_bar(showAnimations, animationDuration, animationPercentage1, animationPercentage2, delayDuration, home, "home", homeLogo, "#222222", homeScoreColor, homeLogoSize, homeScore, styleAttributes[displayType]["textFont"], scoreFont),
+                                                    get_team_bar(showAnimations, animationDuration, animationPercentage1, animationPercentage2, delayDuration, away, "away", awayLogo, "#222222", awayScoreColor, awayLogoSize, awayScore, showRanking, awayRank, styleAttributes[displayType]["textFont"], scoreFont),
+                                                    get_team_bar(showAnimations, animationDuration, animationPercentage1, animationPercentage2, delayDuration, home, "home", homeLogo, "#222222", homeScoreColor, homeLogoSize, homeScore, showRanking, homeRank, styleAttributes[displayType]["textFont"], scoreFont),
                                                 ],
                                             ),
                                         ],
@@ -812,8 +932,8 @@ def main(config):
                                         children = [
                                             render.Column(
                                                 children = [
-                                                    get_team_bar(showAnimations, animationDuration, animationPercentage1, animationPercentage2, delayDuration, away, "away", awayLogo, awayColor, awayScoreColor, awayLogoSize, awayScore, styleAttributes[displayType]["textFont"], scoreFont),
-                                                    get_team_bar(showAnimations, animationDuration, animationPercentage1, animationPercentage2, delayDuration, home, "home", homeLogo, homeColor, homeScoreColor, homeLogoSize, homeScore, styleAttributes[displayType]["textFont"], scoreFont),
+                                                    get_team_bar(showAnimations, animationDuration, animationPercentage1, animationPercentage2, delayDuration, away, "away", awayLogo, awayColor, awayScoreColor, awayLogoSize, awayScore, showRanking, awayRank, styleAttributes[displayType]["textFont"], scoreFont),
+                                                    get_team_bar(showAnimations, animationDuration, animationPercentage1, animationPercentage2, delayDuration, home, "home", homeLogo, homeColor, homeScoreColor, homeLogoSize, homeScore, showRanking, homeRank, styleAttributes[displayType]["textFont"], scoreFont),
                                                 ],
                                             ),
                                         ],
@@ -864,8 +984,8 @@ def get_scores(urls, team):
         if team != "all" and team != "":
             newScores = []
             for _, s in enumerate(allscores):
-                home = s["competitions"][0]["competitors"][0]["team"]["abbreviation"]
-                away = s["competitions"][0]["competitors"][1]["team"]["abbreviation"]
+                home = s["competitions"][0]["competitors"][0]["team"]["id"]
+                away = s["competitions"][0]["competitors"][1]["team"]["id"]
                 gameStatus = s["status"]["type"]["state"]
                 if (home == team or away == team) and gameStatus == "post":
                     newScores.append(s)
@@ -1066,7 +1186,8 @@ def get_date_column(displayTop, now, scoreNumber, showAnimations, animationDurat
         ]
     return dateTimeColumn
 
-def get_team_bar(showAnimations, animationDuration, animationPercentage1, animationPercentage2, delayDuration, team, teamHomeAway, teamLogo, teamColor, teamScoreColor, teamLogoSize, teamScore, textFont, scoreFont):
+def get_team_bar(showAnimations, animationDuration, animationPercentage1, animationPercentage2, delayDuration, team, teamHomeAway, teamLogo, teamColor, teamScoreColor, teamLogoSize, teamScore, showRanking, teamRank, textFont, scoreFont):
+    rankSize = 0
     barKeyframes = []
     logoKeyframes = []
     teamKeyframes = []
@@ -1121,19 +1242,43 @@ def get_team_bar(showAnimations, animationDuration, animationPercentage1, animat
             ),
         ]
 
+    if showRanking and teamRank > 0 and teamRank < 26:
+        if teamRank < 10:
+            rankSize = 4
+        else:
+            rankSize = 8
+
+    if showRanking and teamRank < 26:
+        imageArea = render.Stack(children = [
+            render.Box(width = 16, height = 12, child = render.Image(teamLogo, width = teamLogoSize, height = teamLogoSize)),
+            render.Column(
+                expanded = True,
+                main_align = "end",
+                cross_align = "start",
+                children = [
+                    render.Row(children = [
+                        render.Box(width = 1, height = 5, color = "#000b"),
+                        render.Box(width = rankSize, height = 5, color = "#000b", child = render.Text(str(teamRank), color = teamScoreColor, font = "CG-pixel-3x5-mono")),
+                    ]),
+                ],
+            ),
+        ])
+    else:
+        imageArea = render.Box(width = 16, height = 12, child = render.Image(teamLogo, width = teamLogoSize, height = teamLogoSize))
+
     teamBar = animation.Transformation(
         child =
             render.Box(width = 64, height = 12, color = teamColor, child = render.Row(expanded = True, main_align = "start", cross_align = "center", children = [
                 animation.Transformation(
-                    child = render.Box(width = 16, height = 16, child = render.Image(teamLogo, width = teamLogoSize, height = teamLogoSize)),
+                    child = imageArea,
                     duration = animationDuration - delayDuration,
                     delay = delayDuration,
                     width = 16,
-                    height = 16,
+                    height = 12,
                     keyframes = logoKeyframes,
                 ),
                 animation.Transformation(
-                    child = render.Box(width = 24, height = 12, child = render.Text(content = team[:3], color = teamScoreColor, font = textFont)),
+                    child = render.Box(width = 24, height = 12, child = render.Text(content = team[:4], color = teamScoreColor, font = textFont)),
                     duration = animationDuration - delayDuration,
                     delay = delayDuration,
                     width = 24,
@@ -1260,6 +1405,13 @@ def get_schema():
                 id = "showAnimations",
                 name = "Animations",
                 desc = "A toggle to show animations between games.",
+                icon = "gear",
+                default = True,
+            ),
+            schema.Toggle(
+                id = "displayRanking",
+                name = "Show Rank",
+                desc = "A toggle to display the top 25 ranking.",
                 icon = "gear",
                 default = True,
             ),
@@ -1453,131 +1605,1751 @@ teamOptions = [
         value = "all",
     ),
     schema.Option(
-        display = "Arizona Cardinals",
-        value = "ARI",
+        display = "Abilene Christian",
+        value = "669",
     ),
     schema.Option(
-        display = "Atlanta Falcons",
-        value = "ATL",
+        display = "Air Force",
+        value = "567",
     ),
     schema.Option(
-        display = "Baltimore Ravens",
-        value = "BAL",
+        display = "Akron",
+        value = "670",
     ),
     schema.Option(
-        display = "Buffalo Bills",
-        value = "BUF",
+        display = "Alabama",
+        value = "560",
     ),
     schema.Option(
-        display = "Carolina Panthers",
-        value = "CAR",
+        display = "Alabama A&M",
+        value = "671",
     ),
     schema.Option(
-        display = "Chicago Bears",
-        value = "CHI",
+        display = "Alabama State",
+        value = "672",
     ),
     schema.Option(
-        display = "Cincinnati Bengals",
-        value = "CIN",
+        display = "Alabama-Huntsville",
+        value = "860",
     ),
     schema.Option(
-        display = "Cleveland Browns",
-        value = "CLE",
+        display = "Albany",
+        value = "566",
     ),
     schema.Option(
-        display = "Dallas Cowboys",
-        value = "DAL",
+        display = "Albany State (GA)",
+        value = "861",
     ),
     schema.Option(
-        display = "Denver Broncos",
-        value = "DEN",
+        display = "Alcorn State",
+        value = "623",
     ),
     schema.Option(
-        display = "Detroit Lions",
-        value = "DET",
+        display = "American University",
+        value = "673",
     ),
     schema.Option(
-        display = "Green Bay Packers",
-        value = "GB",
+        display = "Appalachian State",
+        value = "634",
     ),
     schema.Option(
-        display = "Houston Texans",
-        value = "HOU",
+        display = "Arizona",
+        value = "472",
     ),
     schema.Option(
-        display = "Indianapolis Colts",
-        value = "IND",
+        display = "Arizona State",
+        value = "471",
     ),
     schema.Option(
-        display = "Jacksonville Jaguars",
-        value = "JAX",
+        display = "Arkansas",
+        value = "470",
     ),
     schema.Option(
-        display = "Kansas City Chiefs",
-        value = "KC",
+        display = "Arkansas State",
+        value = "674",
     ),
     schema.Option(
-        display = "Las Vegas Raiders",
-        value = "LV",
+        display = "Arkansas-Pine Bluff",
+        value = "675",
     ),
     schema.Option(
-        display = "Los Angeles Chargers",
-        value = "LAC",
+        display = "Army",
+        value = "563",
     ),
     schema.Option(
-        display = "Los Angeles Rams",
-        value = "LAR",
+        display = "Ashford",
+        value = "862",
     ),
     schema.Option(
-        display = "Miami Dolphins",
-        value = "MIA",
+        display = "Auburn",
+        value = "467",
     ),
     schema.Option(
-        display = "Minnesota Vikings",
-        value = "MIN",
+        display = "Austin Peay",
+        value = "568",
     ),
     schema.Option(
-        display = "New England Patriots",
-        value = "NE",
+        display = "Austin State",
+        value = "863",
     ),
     schema.Option(
-        display = "New Orleans Saints",
-        value = "NO",
+        display = "BYU",
+        value = "539",
     ),
     schema.Option(
-        display = "New York Giants",
-        value = "NYG",
+        display = "Bacone College",
+        value = "854",
     ),
     schema.Option(
-        display = "New York Jets",
-        value = "NYJ",
+        display = "Ball State",
+        value = "569",
     ),
     schema.Option(
-        display = "Philadelphia Eagles",
-        value = "PHI",
+        display = "Baylor",
+        value = "533",
     ),
     schema.Option(
-        display = "Pittsburgh Steelers",
-        value = "PIT",
+        display = "Belhaven University",
+        value = "864",
     ),
     schema.Option(
-        display = "San Francisco 49ers",
-        value = "SF",
+        display = "Bellarmine",
+        value = "1150",
     ),
     schema.Option(
-        display = "Seattle Seahawks",
-        value = "SEA",
+        display = "Belmont",
+        value = "625",
     ),
     schema.Option(
-        display = "Tampa Bay Buccaneers",
-        value = "TB",
+        display = "Benedict College",
+        value = "865",
     ),
     schema.Option(
-        display = "Tennessee Titans",
-        value = "TEN",
+        display = "Bethel (TN)",
+        value = "866",
     ),
     schema.Option(
-        display = "Washington Commanders",
-        value = "WSH",
+        display = "Bethune-Cookman",
+        value = "570",
+    ),
+    schema.Option(
+        display = "Binghamton",
+        value = "646",
+    ),
+    schema.Option(
+        display = "Birmingham Southern",
+        value = "468",
+    ),
+    schema.Option(
+        display = "Boise State",
+        value = "676",
+    ),
+    schema.Option(
+        display = "Boston College",
+        value = "498",
+    ),
+    schema.Option(
+        display = "Boston University",
+        value = "677",
+    ),
+    schema.Option(
+        display = "Bowling Green",
+        value = "518",
+    ),
+    schema.Option(
+        display = "Bradley",
+        value = "678",
+    ),
+    schema.Option(
+        display = "Brewton Parker College",
+        value = "867",
+    ),
+    schema.Option(
+        display = "Brown",
+        value = "528",
+    ),
+    schema.Option(
+        display = "Bryant",
+        value = "653",
+    ),
+    schema.Option(
+        display = "Bucknell",
+        value = "667",
+    ),
+    schema.Option(
+        display = "Buffalo",
+        value = "679",
+    ),
+    schema.Option(
+        display = "Butler",
+        value = "680",
+    ),
+    schema.Option(
+        display = "Cabrini College",
+        value = "868",
+    ),
+    schema.Option(
+        display = "Cal Poly",
+        value = "473",
+    ),
+    schema.Option(
+        display = "Cal State Bakersfield",
+        value = "681",
+    ),
+    schema.Option(
+        display = "Cal State Fullerton",
+        value = "577",
+    ),
+    schema.Option(
+        display = "Cal State Northridge",
+        value = "597",
+    ),
+    schema.Option(
+        display = "California",
+        value = "477",
+    ),
+    schema.Option(
+        display = "California Baptist",
+        value = "1104",
+    ),
+    schema.Option(
+        display = "Campbell",
+        value = "647",
+    ),
+    schema.Option(
+        display = "Campbellsville",
+        value = "869",
+    ),
+    schema.Option(
+        display = "Canisius",
+        value = "652",
+    ),
+    schema.Option(
+        display = "Case Western Reserve",
+        value = "870",
+    ),
+    schema.Option(
+        display = "Centenary",
+        value = "855",
+    ),
+    schema.Option(
+        display = "Central Arkansas",
+        value = "660",
+    ),
+    schema.Option(
+        display = "Central Baptist",
+        value = "871",
+    ),
+    schema.Option(
+        display = "Central Connecticut",
+        value = "571",
+    ),
+    schema.Option(
+        display = "Central Methodist",
+        value = "872",
+    ),
+    schema.Option(
+        display = "Central Michigan",
+        value = "682",
+    ),
+    schema.Option(
+        display = "Centre",
+        value = "873",
+    ),
+    schema.Option(
+        display = "Charleston",
+        value = "530",
+    ),
+    schema.Option(
+        display = "Charleston Southern",
+        value = "683",
+    ),
+    schema.Option(
+        display = "Charlotte",
+        value = "592",
+    ),
+    schema.Option(
+        display = "Chattanooga",
+        value = "684",
+    ),
+    schema.Option(
+        display = "Chicago State",
+        value = "685",
+    ),
+    schema.Option(
+        display = "Christian Brothers",
+        value = "874",
+    ),
+    schema.Option(
+        display = "Cincinnati",
+        value = "573",
+    ),
+    schema.Option(
+        display = "Claflin",
+        value = "875",
+    ),
+    schema.Option(
+        display = "Clark Atlanta",
+        value = "876",
+    ),
+    schema.Option(
+        display = "Clemson",
+        value = "529",
+    ),
+    schema.Option(
+        display = "Clemson",
+        value = "1140",
+    ),
+    schema.Option(
+        display = "Cleveland State",
+        value = "686",
+    ),
+    schema.Option(
+        display = "Coastal Carolina",
+        value = "558",
+    ),
+    schema.Option(
+        display = "Colgate",
+        value = "687",
+    ),
+    schema.Option(
+        display = "Colorado",
+        value = "688",
+    ),
+    schema.Option(
+        display = "Colorado School of Mines",
+        value = "1193",
+    ),
+    schema.Option(
+        display = "Colorado State",
+        value = "689",
+    ),
+    schema.Option(
+        display = "Colorado-Colorado Springs",
+        value = "877",
+    ),
+    schema.Option(
+        display = "Columbia",
+        value = "638",
+    ),
+    schema.Option(
+        display = "Columbia College",
+        value = "878",
+    ),
+    schema.Option(
+        display = "Copiah-Lincoln CC",
+        value = "879",
+    ),
+    schema.Option(
+        display = "Coppin State",
+        value = "574",
+    ),
+    schema.Option(
+        display = "Corban",
+        value = "1194",
+    ),
+    schema.Option(
+        display = "Cornell",
+        value = "690",
+    ),
+    schema.Option(
+        display = "Creighton",
+        value = "510",
+    ),
+    schema.Option(
+        display = "Dallas Baptist",
+        value = "626",
+    ),
+    schema.Option(
+        display = "Dartmouth",
+        value = "512",
+    ),
+    schema.Option(
+        display = "Davidson",
+        value = "691",
+    ),
+    schema.Option(
+        display = "Dayton",
+        value = "692",
+    ),
+    schema.Option(
+        display = "DePaul",
+        value = "696",
+    ),
+    schema.Option(
+        display = "Delaware",
+        value = "693",
+    ),
+    schema.Option(
+        display = "Delaware State",
+        value = "694",
+    ),
+    schema.Option(
+        display = "Delta State",
+        value = "880",
+    ),
+    schema.Option(
+        display = "Denver",
+        value = "695",
+    ),
+    schema.Option(
+        display = "Detroit Mercy",
+        value = "697",
+    ),
+    schema.Option(
+        display = "Drake",
+        value = "698",
+    ),
+    schema.Option(
+        display = "Drexel",
+        value = "699",
+    ),
+    schema.Option(
+        display = "Duke",
+        value = "505",
+    ),
+    schema.Option(
+        display = "Duquesne",
+        value = "700",
+    ),
+    schema.Option(
+        display = "East Carolina",
+        value = "506",
+    ),
+    schema.Option(
+        display = "East Tennessee State",
+        value = "658",
+    ),
+    schema.Option(
+        display = "Eastern Illinois",
+        value = "701",
+    ),
+    schema.Option(
+        display = "Eastern Kentucky",
+        value = "702",
+    ),
+    schema.Option(
+        display = "Eastern Michigan",
+        value = "703",
+    ),
+    schema.Option(
+        display = "Eastern Washington",
+        value = "704",
+    ),
+    schema.Option(
+        display = "Elizabeth City State",
+        value = "882",
+    ),
+    schema.Option(
+        display = "Elon",
+        value = "657",
+    ),
+    schema.Option(
+        display = "Evansville",
+        value = "561",
+    ),
+    schema.Option(
+        display = "Fairfield",
+        value = "705",
+    ),
+    schema.Option(
+        display = "Fairleigh Dickinson",
+        value = "706",
+    ),
+    schema.Option(
+        display = "Florida",
+        value = "487",
+    ),
+    schema.Option(
+        display = "Florida A&M",
+        value = "707",
+    ),
+    schema.Option(
+        display = "Florida Atlantic",
+        value = "575",
+    ),
+    schema.Option(
+        display = "Florida Gulf Coast",
+        value = "645",
+    ),
+    schema.Option(
+        display = "Florida International",
+        value = "576",
+    ),
+    schema.Option(
+        display = "Florida State",
+        value = "484",
+    ),
+    schema.Option(
+        display = "Fordham",
+        value = "708",
+    ),
+    schema.Option(
+        display = "Fresno State",
+        value = "549",
+    ),
+    schema.Option(
+        display = "Furman",
+        value = "709",
+    ),
+    schema.Option(
+        display = "Gardner-Webb",
+        value = "710",
+    ),
+    schema.Option(
+        display = "George Mason",
+        value = "578",
+    ),
+    schema.Option(
+        display = "George Washington",
+        value = "483",
+    ),
+    schema.Option(
+        display = "Georgetown",
+        value = "711",
+    ),
+    schema.Option(
+        display = "Georgia",
+        value = "490",
+    ),
+    schema.Option(
+        display = "Georgia Southern",
+        value = "550",
+    ),
+    schema.Option(
+        display = "Georgia State",
+        value = "712",
+    ),
+    schema.Option(
+        display = "Georgia Tech",
+        value = "489",
+    ),
+    schema.Option(
+        display = "Goldey-Beacom Colleg",
+        value = "883",
+    ),
+    schema.Option(
+        display = "Gonzaga",
+        value = "641",
+    ),
+    schema.Option(
+        display = "Grambling",
+        value = "713",
+    ),
+    schema.Option(
+        display = "Grand Canyon",
+        value = "714",
+    ),
+    schema.Option(
+        display = "Green Bay",
+        value = "715",
+    ),
+    schema.Option(
+        display = "Hampton",
+        value = "716",
+    ),
+    schema.Option(
+        display = "Hartford",
+        value = "482",
+    ),
+    schema.Option(
+        display = "Harvard",
+        value = "717",
+    ),
+    schema.Option(
+        display = "Hawai'i",
+        value = "491",
+    ),
+    schema.Option(
+        display = "High Point",
+        value = "718",
+    ),
+    schema.Option(
+        display = "Hofstra",
+        value = "719",
+    ),
+    schema.Option(
+        display = "Holy Cross",
+        value = "720",
+    ),
+    schema.Option(
+        display = "Houston",
+        value = "536",
+    ),
+    schema.Option(
+        display = "Houston Christian",
+        value = "721",
+    ),
+    schema.Option(
+        display = "Houston-Victoria",
+        value = "884",
+    ),
+    schema.Option(
+        display = "Howard",
+        value = "722",
+    ),
+    schema.Option(
+        display = "Huston-Tillotson",
+        value = "885",
+    ),
+    schema.Option(
+        display = "IUPUI",
+        value = "729",
+    ),
+    schema.Option(
+        display = "Idaho",
+        value = "723",
+    ),
+    schema.Option(
+        display = "Idaho State",
+        value = "724",
+    ),
+    schema.Option(
+        display = "Illinois",
+        value = "565",
+    ),
+    schema.Option(
+        display = "Illinois State",
+        value = "642",
+    ),
+    schema.Option(
+        display = "Incarnate Word",
+        value = "725",
+    ),
+    schema.Option(
+        display = "Indiana",
+        value = "648",
+    ),
+    schema.Option(
+        display = "Indiana State",
+        value = "662",
+    ),
+    schema.Option(
+        display = "Iona",
+        value = "726",
+    ),
+    schema.Option(
+        display = "Iowa",
+        value = "579",
+    ),
+    schema.Option(
+        display = "Iowa State",
+        value = "727",
+    ),
+    schema.Option(
+        display = "Ithaca",
+        value = "886",
+    ),
+    schema.Option(
+        display = "Jackson State",
+        value = "639",
+    ),
+    schema.Option(
+        display = "Jacksonville",
+        value = "551",
+    ),
+    schema.Option(
+        display = "Jacksonville State",
+        value = "485",
+    ),
+    schema.Option(
+        display = "James Madison",
+        value = "541",
+    ),
+    schema.Option(
+        display = "Kansas",
+        value = "580",
+    ),
+    schema.Option(
+        display = "Kansas City",
+        value = "805",
+    ),
+    schema.Option(
+        display = "Kansas State",
+        value = "627",
+    ),
+    schema.Option(
+        display = "Kennesaw State",
+        value = "661",
+    ),
+    schema.Option(
+        display = "Kent State",
+        value = "581",
+    ),
+    schema.Option(
+        display = "Kentucky",
+        value = "494",
+    ),
+    schema.Option(
+        display = "Kentucky State",
+        value = "887",
+    ),
+    schema.Option(
+        display = "LSU",
+        value = "497",
+    ),
+    schema.Option(
+        display = "LSU Alexandria",
+        value = "890",
+    ),
+    schema.Option(
+        display = "La Salle",
+        value = "730",
+    ),
+    schema.Option(
+        display = "Lafayette",
+        value = "557",
+    ),
+    schema.Option(
+        display = "Lamar",
+        value = "582",
+    ),
+    schema.Option(
+        display = "Lander",
+        value = "888",
+    ),
+    schema.Option(
+        display = "Langston",
+        value = "889",
+    ),
+    schema.Option(
+        display = "Le Moyne",
+        value = "583",
+    ),
+    schema.Option(
+        display = "Lehigh",
+        value = "731",
+    ),
+    schema.Option(
+        display = "Liberty",
+        value = "584",
+    ),
+    schema.Option(
+        display = "Lindenwood",
+        value = "1240",
+    ),
+    schema.Option(
+        display = "Lipscomb",
+        value = "732",
+    ),
+    schema.Option(
+        display = "Little Rock",
+        value = "624",
+    ),
+    schema.Option(
+        display = "Long Beach State",
+        value = "553",
+    ),
+    schema.Option(
+        display = "Long Island University",
+        value = "733",
+    ),
+    schema.Option(
+        display = "Longwood",
+        value = "734",
+    ),
+    schema.Option(
+        display = "Louisiana",
+        value = "556",
+    ),
+    schema.Option(
+        display = "Louisiana College",
+        value = "856",
+    ),
+    schema.Option(
+        display = "Louisiana Tech",
+        value = "585",
+    ),
+    schema.Option(
+        display = "Louisville",
+        value = "495",
+    ),
+    schema.Option(
+        display = "Loyola Chicago",
+        value = "735",
+    ),
+    schema.Option(
+        display = "Loyola Maryland",
+        value = "736",
+    ),
+    schema.Option(
+        display = "Loyola Marymount",
+        value = "586",
+    ),
+    schema.Option(
+        display = "Maine",
+        value = "622",
+    ),
+    schema.Option(
+        display = "Manhattan",
+        value = "628",
+    ),
+    schema.Option(
+        display = "Marist",
+        value = "587",
+    ),
+    schema.Option(
+        display = "Marquette",
+        value = "737",
+    ),
+    schema.Option(
+        display = "Marshall",
+        value = "738",
+    ),
+    schema.Option(
+        display = "Maryland",
+        value = "499",
+    ),
+    schema.Option(
+        display = "Maryland-Eastern Shore",
+        value = "739",
+    ),
+    schema.Option(
+        display = "Massachusetts College",
+        value = "891",
+    ),
+    schema.Option(
+        display = "McNeese",
+        value = "741",
+    ),
+    schema.Option(
+        display = "Memphis",
+        value = "531",
+    ),
+    schema.Option(
+        display = "Mercer",
+        value = "649",
+    ),
+    schema.Option(
+        display = "Merrimack",
+        value = "1141",
+    ),
+    schema.Option(
+        display = "Miami (FL)",
+        value = "588",
+    ),
+    schema.Option(
+        display = "Miami (OH)",
+        value = "519",
+    ),
+    schema.Option(
+        display = "Michigan",
+        value = "501",
+    ),
+    schema.Option(
+        display = "Michigan State",
+        value = "500",
+    ),
+    schema.Option(
+        display = "Middle Tennessee",
+        value = "589",
+    ),
+    schema.Option(
+        display = "Midwestern State",
+        value = "892",
+    ),
+    schema.Option(
+        display = "Miles",
+        value = "893",
+    ),
+    schema.Option(
+        display = "Milwaukee",
+        value = "547",
+    ),
+    schema.Option(
+        display = "Minnesota",
+        value = "502",
+    ),
+    schema.Option(
+        display = "Minnesota State-Mankato",
+        value = "894",
+    ),
+    schema.Option(
+        display = "Mississippi State",
+        value = "562",
+    ),
+    schema.Option(
+        display = "Mississippi Valley State",
+        value = "742",
+    ),
+    schema.Option(
+        display = "Missouri",
+        value = "503",
+    ),
+    schema.Option(
+        display = "Missouri S & T",
+        value = "895",
+    ),
+    schema.Option(
+        display = "Missouri State",
+        value = "609",
+    ),
+    schema.Option(
+        display = "Missouri Western",
+        value = "896",
+    ),
+    schema.Option(
+        display = "Monmouth",
+        value = "590",
+    ),
+    schema.Option(
+        display = "Montana",
+        value = "743",
+    ),
+    schema.Option(
+        display = "Montana State",
+        value = "744",
+    ),
+    schema.Option(
+        display = "Morehead State",
+        value = "745",
+    ),
+    schema.Option(
+        display = "Morgan State",
+        value = "746",
+    ),
+    schema.Option(
+        display = "Mount St. Mary's",
+        value = "747",
+    ),
+    schema.Option(
+        display = "Murray State",
+        value = "748",
+    ),
+    schema.Option(
+        display = "NC State",
+        value = "507",
+    ),
+    schema.Option(
+        display = "NJIT",
+        value = "749",
+    ),
+    schema.Option(
+        display = "Navy",
+        value = "591",
+    ),
+    schema.Option(
+        display = "Nebraska",
+        value = "511",
+    ),
+    schema.Option(
+        display = "Nebraska-Kearney",
+        value = "857",
+    ),
+    schema.Option(
+        display = "Nevada",
+        value = "595",
+    ),
+    schema.Option(
+        display = "New Hampshire",
+        value = "751",
+    ),
+    schema.Option(
+        display = "New Mexico",
+        value = "516",
+    ),
+    schema.Option(
+        display = "New Mexico State",
+        value = "515",
+    ),
+    schema.Option(
+        display = "New Orleans",
+        value = "596",
+    ),
+    schema.Option(
+        display = "Niagara",
+        value = "752",
+    ),
+    schema.Option(
+        display = "Nicholls",
+        value = "753",
+    ),
+    schema.Option(
+        display = "Norfolk State",
+        value = "754",
+    ),
+    schema.Option(
+        display = "North Alabama",
+        value = "1106",
+    ),
+    schema.Option(
+        display = "North Carolina",
+        value = "508",
+    ),
+    schema.Option(
+        display = "North Carolina A&T",
+        value = "755",
+    ),
+    schema.Option(
+        display = "North Carolina Central",
+        value = "756",
+    ),
+    schema.Option(
+        display = "North Dakota",
+        value = "757",
+    ),
+    schema.Option(
+        display = "North Dakota State",
+        value = "664",
+    ),
+    schema.Option(
+        display = "North Florida",
+        value = "650",
+    ),
+    schema.Option(
+        display = "North Texas",
+        value = "758",
+    ),
+    schema.Option(
+        display = "Northeastern",
+        value = "759",
+    ),
+    schema.Option(
+        display = "Northern Arizona",
+        value = "760",
+    ),
+    schema.Option(
+        display = "Northern Colorado",
+        value = "761",
+    ),
+    schema.Option(
+        display = "Northern Illinois",
+        value = "762",
+    ),
+    schema.Option(
+        display = "Northern Iowa",
+        value = "763",
+    ),
+    schema.Option(
+        display = "Northern Kentucky",
+        value = "764",
+    ),
+    schema.Option(
+        display = "Northwestern",
+        value = "765",
+    ),
+    schema.Option(
+        display = "Northwestern State",
+        value = "598",
+    ),
+    schema.Option(
+        display = "Notre Dame",
+        value = "493",
+    ),
+    schema.Option(
+        display = "Oakland",
+        value = "766",
+    ),
+    schema.Option(
+        display = "Ohio",
+        value = "521",
+    ),
+    schema.Option(
+        display = "Ohio State",
+        value = "520",
+    ),
+    schema.Option(
+        display = "Oklahoma",
+        value = "524",
+    ),
+    schema.Option(
+        display = "Oklahoma Baptist",
+        value = "898",
+    ),
+    schema.Option(
+        display = "Oklahoma Christian U",
+        value = "899",
+    ),
+    schema.Option(
+        display = "Oklahoma City",
+        value = "900",
+    ),
+    schema.Option(
+        display = "Oklahoma State",
+        value = "522",
+    ),
+    schema.Option(
+        display = "Old Dominion",
+        value = "552",
+    ),
+    schema.Option(
+        display = "Ole Miss",
+        value = "504",
+    ),
+    schema.Option(
+        display = "Omaha",
+        value = "750",
+    ),
+    schema.Option(
+        display = "Oral Roberts",
+        value = "523",
+    ),
+    schema.Option(
+        display = "Oregon",
+        value = "636",
+    ),
+    schema.Option(
+        display = "Oregon State",
+        value = "525",
+    ),
+    schema.Option(
+        display = "Ouachita Baptist",
+        value = "901",
+    ),
+    schema.Option(
+        display = "Our Lady of the Lake",
+        value = "902",
+    ),
+    schema.Option(
+        display = "Pacific",
+        value = "767",
+    ),
+    schema.Option(
+        display = "Penn State",
+        value = "768",
+    ),
+    schema.Option(
+        display = "Pennsylvania",
+        value = "769",
+    ),
+    schema.Option(
+        display = "Pepperdine",
+        value = "599",
+    ),
+    schema.Option(
+        display = "Peru State College",
+        value = "903",
+    ),
+    schema.Option(
+        display = "Pittsburgh",
+        value = "527",
+    ),
+    schema.Option(
+        display = "Portland",
+        value = "770",
+    ),
+    schema.Option(
+        display = "Portland State",
+        value = "771",
+    ),
+    schema.Option(
+        display = "Prairie View A&M",
+        value = "600",
+    ),
+    schema.Option(
+        display = "Presbyterian",
+        value = "772",
+    ),
+    schema.Option(
+        display = "Princeton",
+        value = "513",
+    ),
+    schema.Option(
+        display = "Providence",
+        value = "773",
+    ),
+    schema.Option(
+        display = "Purdue",
+        value = "601",
+    ),
+    schema.Option(
+        display = "Purdue Fort Wayne",
+        value = "728",
+    ),
+    schema.Option(
+        display = "Quinnipiac",
+        value = "774",
+    ),
+    schema.Option(
+        display = "Radford",
+        value = "775",
+    ),
+    schema.Option(
+        display = "Rhode Island",
+        value = "776",
+    ),
+    schema.Option(
+        display = "Rice",
+        value = "534",
+    ),
+    schema.Option(
+        display = "Richmond",
+        value = "542",
+    ),
+    schema.Option(
+        display = "Rider",
+        value = "777",
+    ),
+    schema.Option(
+        display = "Robert Morris",
+        value = "778",
+    ),
+    schema.Option(
+        display = "Rutgers",
+        value = "514",
+    ),
+    schema.Option(
+        display = "SE Louisiana",
+        value = "663",
+    ),
+    schema.Option(
+        display = "SIU Carbondale",
+        value = "908",
+    ),
+    schema.Option(
+        display = "SIU Edwardsville",
+        value = "783",
+    ),
+    schema.Option(
+        display = "SMU",
+        value = "787",
+    ),
+    schema.Option(
+        display = "Sacramento State",
+        value = "668",
+    ),
+    schema.Option(
+        display = "Sacred Heart",
+        value = "629",
+    ),
+    schema.Option(
+        display = "Saint Joseph's",
+        value = "779",
+    ),
+    schema.Option(
+        display = "Saint Louis",
+        value = "654",
+    ),
+    schema.Option(
+        display = "Saint Mary's",
+        value = "780",
+    ),
+    schema.Option(
+        display = "Saint Peter's",
+        value = "791",
+    ),
+    schema.Option(
+        display = "Salem State",
+        value = "904",
+    ),
+    schema.Option(
+        display = "Sam Houston",
+        value = "602",
+    ),
+    schema.Option(
+        display = "Samford",
+        value = "637",
+    ),
+    schema.Option(
+        display = "San Diego",
+        value = "555",
+    ),
+    schema.Option(
+        display = "San Diego State",
+        value = "474",
+    ),
+    schema.Option(
+        display = "San Francisco",
+        value = "630",
+    ),
+    schema.Option(
+        display = "San José State",
+        value = "475",
+    ),
+    schema.Option(
+        display = "Santa Clara",
+        value = "781",
+    ),
+    schema.Option(
+        display = "Savannah State",
+        value = "640",
+    ),
+    schema.Option(
+        display = "Seattle U",
+        value = "782",
+    ),
+    schema.Option(
+        display = "Seton Hall",
+        value = "631",
+    ),
+    schema.Option(
+        display = "Shawnee State",
+        value = "1192",
+    ),
+    schema.Option(
+        display = "Siena",
+        value = "665",
+    ),
+    schema.Option(
+        display = "Simon Fraser",
+        value = "905",
+    ),
+    schema.Option(
+        display = "Simpson University",
+        value = "906",
+    ),
+    schema.Option(
+        display = "Sioux Falls",
+        value = "907",
+    ),
+    schema.Option(
+        display = "South Alabama",
+        value = "469",
+    ),
+    schema.Option(
+        display = "South Carolina",
+        value = "605",
+    ),
+    schema.Option(
+        display = "South Carolina State",
+        value = "784",
+    ),
+    schema.Option(
+        display = "South Carolina Upstate",
+        value = "807",
+    ),
+    schema.Option(
+        display = "South Dakota",
+        value = "785",
+    ),
+    schema.Option(
+        display = "South Dakota State",
+        value = "655",
+    ),
+    schema.Option(
+        display = "South Florida",
+        value = "488",
+    ),
+    schema.Option(
+        display = "Southeast Missouri State",
+        value = "603",
+    ),
+    schema.Option(
+        display = "Southeastern",
+        value = "909",
+    ),
+    schema.Option(
+        display = "Southern",
+        value = "606",
+    ),
+    schema.Option(
+        display = "Southern Illinois",
+        value = "786",
+    ),
+    schema.Option(
+        display = "Southern Miss",
+        value = "604",
+    ),
+    schema.Option(
+        display = "Southern Utah",
+        value = "788",
+    ),
+    schema.Option(
+        display = "Spartanburg Methodist",
+        value = "910",
+    ),
+    schema.Option(
+        display = "Spring Hill",
+        value = "911",
+    ),
+    schema.Option(
+        display = "St. Bonaventure",
+        value = "517",
+    ),
+    schema.Option(
+        display = "St. Francis (PA)",
+        value = "790",
+    ),
+    schema.Option(
+        display = "St. Francis Brooklyn",
+        value = "789",
+    ),
+    schema.Option(
+        display = "St. Gregory",
+        value = "859",
+    ),
+    schema.Option(
+        display = "St. John's",
+        value = "607",
+    ),
+    schema.Option(
+        display = "St. Mary's (TX)",
+        value = "912",
+    ),
+    schema.Option(
+        display = "St. Thomas-Minnesota",
+        value = "1188",
+    ),
+    schema.Option(
+        display = "Stanford",
+        value = "476",
+    ),
+    schema.Option(
+        display = "Stephen F. Austin",
+        value = "792",
+    ),
+    schema.Option(
+        display = "Stetson",
+        value = "486",
+    ),
+    schema.Option(
+        display = "Stillman",
+        value = "913",
+    ),
+    schema.Option(
+        display = "Stonehill",
+        value = "1241",
+    ),
+    schema.Option(
+        display = "Stony Brook",
+        value = "608",
+    ),
+    schema.Option(
+        display = "Syracuse",
+        value = "793",
+    ),
+    schema.Option(
+        display = "TBD",
+        value = "1196",
+    ),
+    schema.Option(
+        display = "TCU",
+        value = "610",
+    ),
+    schema.Option(
+        display = "TX Woman's Univ",
+        value = "917",
+    ),
+    schema.Option(
+        display = "Tarleton",
+        value = "1149",
+    ),
+    schema.Option(
+        display = "Team USA",
+        value = "914",
+    ),
+    schema.Option(
+        display = "Temple",
+        value = "526",
+    ),
+    schema.Option(
+        display = "Tennessee",
+        value = "611",
+    ),
+    schema.Option(
+        display = "Tennessee State",
+        value = "794",
+    ),
+    schema.Option(
+        display = "Tennessee Tech",
+        value = "795",
+    ),
+    schema.Option(
+        display = "Texas",
+        value = "538",
+    ),
+    schema.Option(
+        display = "Texas A&M",
+        value = "535",
+    ),
+    schema.Option(
+        display = "Texas A&M-Commerce",
+        value = "1237",
+    ),
+    schema.Option(
+        display = "Texas A&M-Corpus Christi",
+        value = "797",
+    ),
+    schema.Option(
+        display = "Texas College",
+        value = "915",
+    ),
+    schema.Option(
+        display = "Texas Southern",
+        value = "612",
+    ),
+    schema.Option(
+        display = "Texas State",
+        value = "559",
+    ),
+    schema.Option(
+        display = "Texas Tech",
+        value = "613",
+    ),
+    schema.Option(
+        display = "Texas-Pan American",
+        value = "798",
+    ),
+    schema.Option(
+        display = "The Citadel",
+        value = "614",
+    ),
+    schema.Option(
+        display = "Toledo",
+        value = "799",
+    ),
+    schema.Option(
+        display = "Towson",
+        value = "659",
+    ),
+    schema.Option(
+        display = "Trevecca Nazarene",
+        value = "916",
+    ),
+    schema.Option(
+        display = "Troy",
+        value = "632",
+    ),
+    schema.Option(
+        display = "Tulane",
+        value = "615",
+    ),
+    schema.Option(
+        display = "Tulsa",
+        value = "800",
+    ),
+    schema.Option(
+        display = "UAB",
+        value = "801",
+    ),
+    schema.Option(
+        display = "UC Davis",
+        value = "802",
+    ),
+    schema.Option(
+        display = "UC Irvine",
+        value = "554",
+    ),
+    schema.Option(
+        display = "UC Riverside",
+        value = "479",
+    ),
+    schema.Option(
+        display = "UC San Diego",
+        value = "1155",
+    ),
+    schema.Option(
+        display = "UC Santa Barbara",
+        value = "644",
+    ),
+    schema.Option(
+        display = "UCF",
+        value = "572",
+    ),
+    schema.Option(
+        display = "UCLA",
+        value = "478",
+    ),
+    schema.Option(
+        display = "UConn",
+        value = "481",
+    ),
+    schema.Option(
+        display = "UIC",
+        value = "492",
+    ),
+    schema.Option(
+        display = "UL Monroe",
+        value = "635",
+    ),
+    schema.Option(
+        display = "UMBC",
+        value = "804",
+    ),
+    schema.Option(
+        display = "UMass",
+        value = "740",
+    ),
+    schema.Option(
+        display = "UMass Lowell",
+        value = "803",
+    ),
+    schema.Option(
+        display = "UNC Asheville",
+        value = "806",
+    ),
+    schema.Option(
+        display = "UNC Greensboro",
+        value = "593",
+    ),
+    schema.Option(
+        display = "UNC Wilmington",
+        value = "564",
+    ),
+    schema.Option(
+        display = "UNLV",
+        value = "594",
+    ),
+    schema.Option(
+        display = "USC",
+        value = "480",
+    ),
+    schema.Option(
+        display = "UT Arlington",
+        value = "537",
+    ),
+    schema.Option(
+        display = "UT Martin",
+        value = "796",
+    ),
+    schema.Option(
+        display = "UTEP",
+        value = "810",
+    ),
+    schema.Option(
+        display = "UTSA",
+        value = "651",
+    ),
+    schema.Option(
+        display = "University of Great Falls",
+        value = "918",
+    ),
+    schema.Option(
+        display = "Utah",
+        value = "540",
+    ),
+    schema.Option(
+        display = "Utah State",
+        value = "808",
+    ),
+    schema.Option(
+        display = "Utah Tech",
+        value = "881",
+    ),
+    schema.Option(
+        display = "Utah Valley",
+        value = "809",
+    ),
+    schema.Option(
+        display = "Valparaiso",
+        value = "656",
+    ),
+    schema.Option(
+        display = "Vanderbilt",
+        value = "532",
+    ),
+    schema.Option(
+        display = "Vermont",
+        value = "811",
+    ),
+    schema.Option(
+        display = "Villanova",
+        value = "812",
+    ),
+    schema.Option(
+        display = "Virginia",
+        value = "543",
+    ),
+    schema.Option(
+        display = "Virginia Commonwealth",
+        value = "616",
+    ),
+    schema.Option(
+        display = "Virginia Military",
+        value = "813",
+    ),
+    schema.Option(
+        display = "Virginia Tech",
+        value = "544",
+    ),
+    schema.Option(
+        display = "Virginia Union",
+        value = "919",
+    ),
+    schema.Option(
+        display = "Wagner",
+        value = "814",
+    ),
+    schema.Option(
+        display = "Wake Forest",
+        value = "509",
+    ),
+    schema.Option(
+        display = "Washington",
+        value = "545",
+    ),
+    schema.Option(
+        display = "Washington State",
+        value = "546",
+    ),
+    schema.Option(
+        display = "Weber State",
+        value = "815",
+    ),
+    schema.Option(
+        display = "West Virginia",
+        value = "548",
+    ),
+    schema.Option(
+        display = "Western Carolina",
+        value = "617",
+    ),
+    schema.Option(
+        display = "Western Illinois",
+        value = "816",
+    ),
+    schema.Option(
+        display = "Western Kentucky",
+        value = "496",
+    ),
+    schema.Option(
+        display = "Western Michigan",
+        value = "817",
+    ),
+    schema.Option(
+        display = "Wichita State",
+        value = "618",
+    ),
+    schema.Option(
+        display = "William & Mary",
+        value = "643",
+    ),
+    schema.Option(
+        display = "William Carey",
+        value = "920",
+    ),
+    schema.Option(
+        display = "William Penn",
+        value = "921",
+    ),
+    schema.Option(
+        display = "Winston-Salem",
+        value = "922",
+    ),
+    schema.Option(
+        display = "Winthrop",
+        value = "619",
+    ),
+    schema.Option(
+        display = "Wisc. River Falls",
+        value = "923",
+    ),
+    schema.Option(
+        display = "Wisconsin",
+        value = "818",
+    ),
+    schema.Option(
+        display = "Wofford",
+        value = "620",
+    ),
+    schema.Option(
+        display = "Wright State",
+        value = "633",
+    ),
+    schema.Option(
+        display = "Wyoming",
+        value = "819",
+    ),
+    schema.Option(
+        display = "Xavier",
+        value = "666",
+    ),
+    schema.Option(
+        display = "Yale",
+        value = "820",
+    ),
+    schema.Option(
+        display = "Youngstown State",
+        value = "621",
     ),
 ]
