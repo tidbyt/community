@@ -17,7 +17,7 @@ load("time.star", "time")
 # CONFIG
 SHOPIFY_COUNTER_API_HOST = "https://www.partnermetrics.io/chart_data?chart_type%5Bcalculation%5D=sum&chart_type%5Bcolumn%5D=revenue&chart_type%5Bdirection_good%5D=up&chart_type%5Bdisplay%5D=currency&chart_type%5Bmetric_type%5D=recurring_revenue&chart_type%5Btitle%5D=Revenue&chart_type%5Btype%5D=recurring_revenue&date="
 
-CACHE_TTL = 30
+CACHE_TTL = 3600 # 1 hour
 
 # COLORS
 COLOR_LIME = "#D0F224"
