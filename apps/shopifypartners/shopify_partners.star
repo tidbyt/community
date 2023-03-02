@@ -202,7 +202,7 @@ R0lGODlhQAAgALMAAAAAAEv9hUr+hUv+hEv+hXjf/3ne/3nf/nnf/+/VBPDVA/DUBPDVBAAAAAAAAAAA
 APP_ID = "shopify_sales"
 
 def api_fetch(partnermetricsCookie, request_config):
-    cache_key = "{}/{}/{}".format(APP_ID, partnerMetricsCookie, base64.encode(json.encode(request_config)))
+    cache_key = "{}/{}/{}".format(APP_ID, partnermetricsCookie, base64.encode(json.encode(request_config)))
     now = request_config["now"]
     cached_value = cache.get(cache_key)
     if cached_value != None:
