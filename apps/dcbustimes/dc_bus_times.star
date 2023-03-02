@@ -467,7 +467,7 @@ def get_schema():
                 id = "DetailMode",
                 name = "Show Details",
                 desc = "Enable display of detailed bus route information",
-                icon = "cog",
+                icon = "toggleOn",
                 default = False,
             ),
         ],
