@@ -12,6 +12,7 @@ load("http.star", "http")
 load("random.star", "random")
 load("render.star", "render")
 load("schema.star", "schema")
+load("time.star", "time")
 
 QUOTE_FILE_VERSION = 1
 
@@ -71,6 +72,7 @@ def get_random_quote(quote_data):
     return rand_quote
 
 def main(config):
+    random.seed(time.now().unix // 15)
     quote_data = load_quotes()
     anim_speed = 150
     if quote_data:
