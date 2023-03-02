@@ -24,7 +24,7 @@ def main(config):
     iMinutes = [0, 0, 0, 0, 0, 0, 0, 0]
 
     apiKey = secret.decrypt(ENCRYPTED_API_KEY)
-	
+
     Bus = [render.Row(
         children = [
             render.Text(""),
@@ -94,13 +94,13 @@ def main(config):
     )]
 
     Divider = render.Row(
-		children = [
-			render.Box(height=1,width=64,color = "#a0d"),
-		],
-	)
-	
-    ShowDetails  = config.bool("DetailMode", False);
-	
+        children = [
+            render.Box(height = 1, width = 64, color = "#a0d"),
+        ],
+    )
+
+    ShowDetails = config.bool("DetailMode", False)
+
     StopID1 = config.get("StopID_1", DEFAULT_STOPID1)
     if len(StopID1) < 7:
         StopID1 = DEFAULT_STOPID1
@@ -130,10 +130,10 @@ def main(config):
             ],
         )
         Details[i] = render.Row(
-			children = [
-				render.WrappedText("%s "  % objPredictions["Predictions"][i]["DirectionText"],font = "tom-thumb",color = "#0ff",linespacing=0),
-			],
-		)
+            children = [
+                render.WrappedText("%s " % objPredictions["Predictions"][i]["DirectionText"], font = "tom-thumb", color = "#0ff", linespacing = 0),
+            ],
+        )
 
     StopID2 = config.get("StopID_2", DEFAULT_STOPID2)
     if len(StopID2) == 7:
@@ -149,10 +149,10 @@ def main(config):
                 ],
             )
             Details[i + numPredictions] = render.Row(
-			    children = [
-				    render.WrappedText("%s "  % objPredictions2["Predictions"][i]["DirectionText"],font = "tom-thumb",color = "#0ff",linespacing=0),
-			    ],
-		    )
+                children = [
+                    render.WrappedText("%s " % objPredictions2["Predictions"][i]["DirectionText"], font = "tom-thumb", color = "#0ff", linespacing = 0),
+                ],
+            )
 
     numPredictions += numPredictions2
     if numPredictions <= 4:
@@ -167,19 +167,19 @@ def main(config):
                     offset_end = 32,
                     child = render.Column(
                         children = [
-						    Divider,
+                            Divider,
                             Bus[0],
-							Details[0],
-							Divider,
+                            Details[0],
+                            Divider,
                             Bus[1],
-							Details[1],
-							Divider,
+                            Details[1],
+                            Divider,
                             Bus[2],
-							Details[2],
-							Divider,
+                            Details[2],
+                            Divider,
                             Bus[3],
-							Details[3],
-							Divider,
+                            Details[3],
+                            Divider,
                         ],
                     ),
                 ),
@@ -215,22 +215,22 @@ def main(config):
                     offset_end = 32,
                     child = render.Column(
                         children = [
-						    Divider,
+                            Divider,
                             Bus[0],
-							Details[0],
-							Divider,
+                            Details[0],
+                            Divider,
                             Bus[1],
-							Details[1],
-							Divider,
+                            Details[1],
+                            Divider,
                             Bus[2],
-							Details[2],
-							Divider,
+                            Details[2],
+                            Divider,
                             Bus[3],
-							Details[3],
-							Divider,
+                            Details[3],
+                            Divider,
                             Bus[4],
-							Details[4],
-							Divider,
+                            Details[4],
+                            Divider,
                         ],
                     ),
                 ),
@@ -267,25 +267,25 @@ def main(config):
                     offset_end = 32,
                     child = render.Column(
                         children = [
-						    Divider,
+                            Divider,
                             Bus[0],
-							Details[0],
-							Divider,
+                            Details[0],
+                            Divider,
                             Bus[1],
-							Details[1],
-							Divider,
+                            Details[1],
+                            Divider,
                             Bus[2],
-							Details[2],
-							Divider,
+                            Details[2],
+                            Divider,
                             Bus[3],
-							Details[3],
-							Divider,
+                            Details[3],
+                            Divider,
                             Bus[4],
-							Details[4],
-							Divider,
+                            Details[4],
+                            Divider,
                             Bus[5],
-							Details[5],
-							Divider,
+                            Details[5],
+                            Divider,
                         ],
                     ),
                 ),
@@ -323,28 +323,28 @@ def main(config):
                     offset_end = 32,
                     child = render.Column(
                         children = [
-						    Divider,
+                            Divider,
                             Bus[0],
-							Details[0],
-							Divider,
+                            Details[0],
+                            Divider,
                             Bus[1],
-							Details[1],
-							Divider,
+                            Details[1],
+                            Divider,
                             Bus[2],
-							Details[2],
-							Divider,
+                            Details[2],
+                            Divider,
                             Bus[3],
-							Details[3],
-							Divider,
+                            Details[3],
+                            Divider,
                             Bus[4],
-							Details[4],
-							Divider,
+                            Details[4],
+                            Divider,
                             Bus[5],
-							Details[5],
-							Divider,
+                            Details[5],
+                            Divider,
                             Bus[6],
-							Details[6],
-							Divider,
+                            Details[6],
+                            Divider,
                         ],
                     ),
                 ),
@@ -371,70 +371,69 @@ def main(config):
                     ),
                 ),
             )
+    elif ShowDetails == True:
+        return render.Root(
+            delay = 300,
+            child = render.Marquee(
+                scroll_direction = "vertical",
+                height = 32,
+                align = "start",
+                offset_start = 2,
+                offset_end = 32,
+                child = render.Column(
+                    children = [
+                        Divider,
+                        Bus[0],
+                        Details[0],
+                        Divider,
+                        Bus[1],
+                        Details[1],
+                        Divider,
+                        Bus[2],
+                        Details[2],
+                        Divider,
+                        Bus[3],
+                        Details[3],
+                        Divider,
+                        Bus[4],
+                        Details[4],
+                        Divider,
+                        Bus[5],
+                        Details[5],
+                        Divider,
+                        Bus[6],
+                        Details[6],
+                        Divider,
+                        Bus[7],
+                        Details[7],
+                        Divider,
+                    ],
+                ),
+            ),
+        )
     else:
-        if ShowDetails == True:
-            return render.Root(
-                delay = 300,
-                child = render.Marquee(
-                    scroll_direction = "vertical",
-                    height = 32,
-                    align = "start",
-                    offset_start = 2,
-                    offset_end = 32,
-                    child = render.Column(
-                        children = [
-						    Divider,
-                            Bus[0],
-							Details[0],
-							Divider,
-                            Bus[1],
-							Details[1],
-							Divider,
-                            Bus[2],
-							Details[2],
-							Divider,
-                            Bus[3],
-							Details[3],
-							Divider,
-                            Bus[4],
-							Details[4],
-							Divider,
-                            Bus[5],
-							Details[5],
-							Divider,
-                            Bus[6],
-							Details[6],
-							Divider,
-                            Bus[7],
-							Details[7],
-							Divider,
-                        ],
-                    ),
+        return render.Root(
+            delay = 500,
+            child = render.Marquee(
+                scroll_direction = "vertical",
+                height = 32,
+                align = "start",
+                offset_start = 2,
+                offset_end = 32,
+                child = render.Column(
+                    children = [
+                        Bus[0],
+                        Bus[1],
+                        Bus[2],
+                        Bus[3],
+                        Bus[4],
+                        Bus[5],
+                        Bus[6],
+                        Bus[7],
+                    ],
                 ),
-            )
-        else:
-            return render.Root(
-                delay = 500,
-                child = render.Marquee(
-                    scroll_direction = "vertical",
-                    height = 32,
-                    align = "start",
-                    offset_start = 2,
-                    offset_end = 32,
-                    child = render.Column(
-                        children = [
-                            Bus[0],
-                            Bus[1],
-                            Bus[2],
-                            Bus[3],
-                            Bus[4],
-                            Bus[5],
-                            Bus[6],
-                            Bus[7],
-                        ],
-                    ),
-                ),
-            )
+            ),
+        )
 
 def GetTimes1(stopID, apiKey):
     cached = cache.get(stopID)
@@ -469,7 +468,7 @@ def get_schema():
                 name = "Show Details",
                 desc = "Enable display of detailed bus route information",
                 icon = "cog",
-				default = False,
+                default = False,
             ),
         ],
     )
