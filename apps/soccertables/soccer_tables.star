@@ -3,6 +3,8 @@ Applet: Soccer Tables
 Summary: Displays standings from various top leagues around Europe and the world.
 Description: Displays league tables from soccer leagues, showing team abbreviation, record in W-D-L format and points total. Choose your league and choose if you want to display the team color or just white text on black
 Author: MontyP, with huge thanks and shoutout to LunchBox8484 as this is largely inspired/borrowed from their NHL Standings app
+
+v1.1 - Added rotation speed option
 """
 
 load("cache.star", "cache")
@@ -27,6 +29,7 @@ def main(config):
     renderCategory = []
     teamsToShow = 4
 
+    RotationSpeed = config.get("speed", "3")
     selectedLeague = config.get("LeagueOptions", DEFAULT_LEAGUE)
     selectedDisplay = config.get("ColorOptions", "Black")
     league2 = {API: API + selectedLeague + "/standings"}
@@ -67,7 +70,8 @@ def main(config):
                         ],
                     )
         return render.Root(
-            delay = int(2500),
+            show_full_animation = True,
+            delay = int(RotationSpeed) * 1000,
             child = render.Animation(children = renderCategory),
         )
     else:
@@ -143,6 +147,25 @@ ColorOptions = [
     ),
 ]
 
+RotationOptions = [
+    schema.Option(
+        display = "2 seconds",
+        value = "2",
+    ),
+    schema.Option(
+        display = "3 seconds",
+        value = "3",
+    ),
+    schema.Option(
+        display = "4 seconds",
+        value = "4",
+    ),
+    schema.Option(
+        display = "5 seconds",
+        value = "5",
+    ),
+]
+
 def get_schema():
     return schema.Schema(
         version = "1",
@@ -162,6 +185,14 @@ def get_schema():
                 icon = "gear",
                 default = ColorOptions[0].value,
                 options = ColorOptions,
+            ),
+            schema.Dropdown(
+                id = "speed",
+                name = "Rotation Speed",
+                desc = "How many seconds each page is displayed",
+                icon = "gear",
+                default = RotationOptions[1].value,
+                options = RotationOptions,
             ),
         ],
     )
