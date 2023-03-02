@@ -274,9 +274,9 @@ def error_view():
 
 def main(config):
     partnermetricsCookie = config.get("partnermetricsCookie")
-    timezone = config.get("timezone") or "America/New_York"
+    timezone = config.get("$tz", "America/Chicago")
     now = time.now().in_location(timezone)
-    date = "{}-0{}-{}".format(now.year, now.month, now.day - 1)
+    date = "{}-0{}-0{}".format(now.year, now.month, now.day - 1)
     request_config = {
         "now": date,
     }
