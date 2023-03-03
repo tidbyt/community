@@ -12,12 +12,12 @@ load("render.star", "render")
 URL = "https://api.feedly.com/v3/mixes/contents?streamId=feed%2Fhttps%3A%2F%2Frantingly.com%2Ffeed%2F"
 
 def main():
-    cacheTest = cache.get("l_one")
+    cacheTest = cache.get("rantinglyNews_lineone")
     if cacheTest != None:
         print("Displaying Cached Data")
-        l_one = cache.set("l_one")
-        l_two = cache.set("l_two")
-        l_three = cache.set("l_three")
+        rantinglyNews_lineone = cache.set("rantinglyNews_lineone")
+        rantinglyNews_linetwo = cache.set("rantinglyNews_linetwo")
+        rantinglyNews_linethree = cache.set("rantinglyNews_linethree")
     else:
         print("Fetching Rantingly")
         rep = http.get(URL)
@@ -25,12 +25,12 @@ def main():
             fail("Rantingly request failed with status %d", rep.status_code)
 
         d = rep.json()
-        l_one = d["items"][0]["title"]
-        l_two = d["items"][1]["title"]
-        l_three = d["items"][2]["title"]
-        cache.set("l_one", str(300), ttl_seconds = 300)
-        cache.set("l_two", str(300), ttl_seconds = 300)
-        cache.set("l_three", str(300), ttl_seconds = 300)
+        rantinglyNews_lineone = d["items"][0]["title"]
+        rantinglyNews_linetwo = d["items"][1]["title"]
+        rantinglyNews_linethree = d["items"][2]["title"]
+        cache.set("rantinglyNews_lineone", str(300), ttl_seconds = 300)
+        cache.set("rantinglyNews_linetwo", str(300), ttl_seconds = 300)
+        cache.set("rantinglyNews_linethree", str(300), ttl_seconds = 300)
         print("Successful Fetch")
 
     return render.Root(
@@ -41,11 +41,11 @@ def main():
             height = 35,
             child = render.Column(
                 children = [
-                    render.WrappedText(content = l_one, font = "tom-thumb"),
+                    render.WrappedText(content = rantinglyNews_lineone, font = "tom-thumb"),
                     render.Text("-------"),
-                    render.WrappedText(content = l_two, font = "tom-thumb"),
+                    render.WrappedText(content = rantinglyNews_linetwo, font = "tom-thumb"),
                     render.Text("-------"),
-                    render.WrappedText(content = l_three, font = "tom-thumb"),
+                    render.WrappedText(content = rantinglyNews_linethree, font = "tom-thumb"),
                 ],
             ),
         ),
