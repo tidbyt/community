@@ -6,7 +6,6 @@ Author: Jed Schmidt
 """
 
 load("cache.star", "cache")
-load("encoding/json.star", "json")
 load("http.star", "http")
 load("humanize.star", "humanize")
 load("math.star", "math")
