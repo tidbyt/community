@@ -23,10 +23,10 @@ DEFAULT_CHECKOUT_HOUR = 11
 DEFAULT_HOURS_PER_PIXEL = 2
 
 COLORS = {
-    "PAST": "#333",
-    "FUTURE": "#aaa",
-    "PRESENT": "#ff5a5f",
-    "BLOCKED": "#333",
+    "PAST": ("#333", "#333"),
+    "FUTURE": ("#aaa", "#666"),
+    "PRESENT": ("#ff5a5f", "#ff5a5f"),
+    "BLOCKED": ("#666", "#000"),
 }
 
 LETTERS = {
@@ -84,7 +84,7 @@ def listing(url, height):
         offset = math.ceil((start - now).hours)
         duration = math.ceil((end - now).hours - offset)
 
-        status = "PAST" if now > end else "FUTURE" if now < start else "BLOCKED" if summary[1] == "Airbnb (Not available)" else "PRESENT"
+        status = "BLOCKED" if summary[1] == "Airbnb (Not available)" else "PAST" if now > end else "FUTURE" if now < start else "PRESENT"
 
         left = offset // DEFAULT_HOURS_PER_PIXEL
         if left > SCREEN_WIDTH:
@@ -94,24 +94,19 @@ def listing(url, height):
         if left + width < 0:
             continue
 
-        color = COLORS[status]
+        stroke, fill = COLORS[status]
 
-        children.append(
+        children.extend([
             render.Padding(
                 pad = (left, 0, 0, 0),
-                child = box(width, height - 1, color),
+                child = box(width, height - 1, stroke)
             ),
-        )
 
-        if status == "FUTURE":
-            children.append(
-                render.Padding(
-                    # pad = (left + 2, 2, 0, 0),
-                    # child = box(width - 4, height - 5, "#333")
-                    pad = (left + 1, 1, 0, 0),
-                    child = box(width - 2, height - 3, "#666"),
-                ),
+            render.Padding(
+                pad = (left + 1, 1, 0, 0),
+                child = box(width - 2, height - 3, fill)
             )
+        ])
 
     return render.Stack(children)
 
