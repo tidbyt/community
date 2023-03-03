@@ -26,7 +26,7 @@ COLORS = {
     "PAST": ("#333", "#333"),
     "FUTURE": ("#aaa", "#666"),
     "PRESENT": ("#ff5a5f", "#ff5a5f"),
-    "BLOCKED": ("#666", "#000"),
+    "BLOCKED": ("#666", "#111"),
 }
 
 LETTERS = {
