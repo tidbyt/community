@@ -226,6 +226,7 @@ STYLE_ATTRIBUTES = """
 
 def main(config):
     renderCategory = []
+
     showRanking = config.bool("displayRanking", True)
     selectedTeam = config.get("selectedTeam", "all")
     displayType = config.get("displayType", "colors")
@@ -235,7 +236,14 @@ def main(config):
     rotationSpeed = config.get("rotationSpeed", "10")
     location = config.get("location", DEFAULT_LOCATION)
     showAnimations = config.bool("showAnimations", True)
+
+    shortenedWords = json.decode(SHORTENED_WORDS)
+    altColors = json.decode(ALT_COLOR)
+    altLogos = json.decode(ALT_LOGO)
+    magnifyLogo = json.decode(MAGNIFY_LOGO)
+    styleAttributes = json.decode(STYLE_ATTRIBUTES)
     loc = json.decode(location)
+
     timezone = loc["timezone"]
     now = time.now().in_location(timezone)
     datePast = now - time.parse_duration("%dh" % 1 * 24)
@@ -245,16 +253,15 @@ def main(config):
 
     if len(scores) > 0:
         animationDuration = int(rotationSpeed) * 20
-        delayDuration = int(animationDuration * float(1 / (int(rotationSpeed) * 2)))
-        animationPercentage1 = float(1 / (int(rotationSpeed) * 2))
-        animationPercentage2 = float(1 - float(1 / (int(rotationSpeed) * 2)))
+        delayDuration = int(animationDuration * float(.75 / (int(rotationSpeed) * 2)))
+        animationPercentage1 = float(.75 / (int(rotationSpeed) * 2))
+        animationPercentage2 = float(1 - float(.75 / (int(rotationSpeed) * 2)))
         logoKeyframes = []
         homeBarKeyframes = []
         awayBarKeyframes = []
         scoreKeyframes = []
         teamKeyframes = []
         screenKeyframes = []
-        styleAttributes = json.decode(STYLE_ATTRIBUTES)
 
         for i, s in enumerate(scores):
             gameStatus = s["status"]["type"]["state"]
@@ -275,8 +282,8 @@ def main(config):
             else:
                 awayPrimaryColor = competition["competitors"][1]["team"]["color"]
 
-            homeColor = get_background_color(home, displayType, homePrimaryColor)
-            awayColor = get_background_color(away, displayType, awayPrimaryColor)
+            homeColor = get_background_color(altColors, home, displayType, homePrimaryColor)
+            awayColor = get_background_color(altColors, away, displayType, awayPrimaryColor)
 
             homeLogoCheck = competition["competitors"][0]["team"].get("logo", "NO")
             if homeLogoCheck == "NO":
@@ -302,10 +309,10 @@ def main(config):
             else:
                 awayRank = competition["competitors"][1]["curatedRank"]["current"]
 
-            homeLogo = get_logoType(home, homeLogoURL)
-            awayLogo = get_logoType(away, awayLogoURL)
-            homeLogoSize = get_logoSize(home)
-            awayLogoSize = get_logoSize(away)
+            homeLogo = get_logoType(altLogos, home, homeLogoURL)
+            awayLogo = get_logoType(altLogos, away, awayLogoURL)
+            homeLogoSize = get_logoSize(magnifyLogo, home)
+            awayLogoSize = get_logoSize(magnifyLogo, away)
             homeScore = ""
             awayScore = ""
             gameTime = ""
@@ -414,7 +421,7 @@ def main(config):
                                         expanded = True,
                                         main_align = "space_between",
                                         cross_align = "start",
-                                        children = get_date_column(displayTop, now, i, showAnimations, animationDuration, animationPercentage1, animationPercentage2, delayDuration, rotationSpeed, styleAttributes[displayType]["textColor"], styleAttributes[displayType]["borderColor"], displayType, gameTime, timeColor),
+                                        children = get_date_column(displayTop, shortenedWords, now, i, showAnimations, animationDuration, animationPercentage1, animationPercentage2, delayDuration, rotationSpeed, styleAttributes[displayType]["textColor"], styleAttributes[displayType]["borderColor"], displayType, gameTime, timeColor),
                                     ),
                                     render.Row(
                                         expanded = True,
@@ -492,7 +499,7 @@ def main(config):
                                         expanded = True,
                                         main_align = "space_between",
                                         cross_align = "start",
-                                        children = get_date_column(displayTop, now, i, showAnimations, animationDuration, animationPercentage1, animationPercentage2, delayDuration, rotationSpeed, styleAttributes[displayType]["textColor"], styleAttributes[displayType]["borderColor"], displayType, gameTime, timeColor),
+                                        children = get_date_column(displayTop, shortenedWords, now, i, showAnimations, animationDuration, animationPercentage1, animationPercentage2, delayDuration, rotationSpeed, styleAttributes[displayType]["textColor"], styleAttributes[displayType]["borderColor"], displayType, gameTime, timeColor),
                                     ),
                                     render.Row(
                                         expanded = True,
@@ -630,7 +637,7 @@ def main(config):
                                         expanded = True,
                                         main_align = "space_between",
                                         cross_align = "start",
-                                        children = get_date_column(displayTop, now, i, showAnimations, animationDuration, animationPercentage1, animationPercentage2, delayDuration, rotationSpeed, styleAttributes[displayType]["textColor"], styleAttributes[displayType]["borderColor"], displayType, gameTime, timeColor),
+                                        children = get_date_column(displayTop, shortenedWords, now, i, showAnimations, animationDuration, animationPercentage1, animationPercentage2, delayDuration, rotationSpeed, styleAttributes[displayType]["textColor"], styleAttributes[displayType]["borderColor"], displayType, gameTime, timeColor),
                                     ),
                                     render.Row(
                                         children = [
@@ -793,7 +800,7 @@ def main(config):
                                         expanded = True,
                                         main_align = "space_between",
                                         cross_align = "start",
-                                        children = get_date_column(displayTop, now, i, showAnimations, animationDuration, animationPercentage1, animationPercentage2, delayDuration, rotationSpeed, styleAttributes[displayType]["textColor"], styleAttributes[displayType]["borderColor"], displayType, gameTime, timeColor),
+                                        children = get_date_column(displayTop, shortenedWords, now, i, showAnimations, animationDuration, animationPercentage1, animationPercentage2, delayDuration, rotationSpeed, styleAttributes[displayType]["textColor"], styleAttributes[displayType]["borderColor"], displayType, gameTime, timeColor),
                                     ),
                                     render.Row(
                                         expanded = True,
@@ -885,7 +892,7 @@ def main(config):
                                         expanded = True,
                                         main_align = "space_between",
                                         cross_align = "start",
-                                        children = get_date_column(displayTop, now, i, showAnimations, animationDuration, animationPercentage1, animationPercentage2, delayDuration, rotationSpeed, styleAttributes[displayType]["textColor"], styleAttributes[displayType]["borderColor"], displayType, gameTime, timeColor),
+                                        children = get_date_column(displayTop, shortenedWords, now, i, showAnimations, animationDuration, animationPercentage1, animationPercentage2, delayDuration, rotationSpeed, styleAttributes[displayType]["textColor"], styleAttributes[displayType]["borderColor"], displayType, gameTime, timeColor),
                                     ),
                                     render.Row(
                                         expanded = True,
@@ -923,7 +930,7 @@ def main(config):
                                         expanded = True,
                                         main_align = "space_between",
                                         cross_align = "start",
-                                        children = get_date_column(displayTop, now, i, showAnimations, animationDuration, animationPercentage1, animationPercentage2, delayDuration, rotationSpeed, styleAttributes[displayType]["textColor"], styleAttributes[displayType]["borderColor"], displayType, gameTime, timeColor),
+                                        children = get_date_column(displayTop, shortenedWords, now, i, showAnimations, animationDuration, animationPercentage1, animationPercentage2, delayDuration, rotationSpeed, styleAttributes[displayType]["textColor"], styleAttributes[displayType]["borderColor"], displayType, gameTime, timeColor),
                                     ),
                                     render.Row(
                                         expanded = True,
@@ -1087,8 +1094,7 @@ def get_record_animation(teamScore, teamScoreColor, scoreFont, animationDuration
     )
     return record
 
-def get_background_color(team, displayType, color):
-    altcolors = json.decode(ALT_COLOR)
+def get_background_color(altcolors, team, displayType, color):
     usealt = altcolors.get(team, "NO")
     if displayType == "black" or displayType == "retro":
         color = "#222222"
@@ -1100,19 +1106,17 @@ def get_background_color(team, displayType, color):
         color = "#222222"
     return color
 
-def get_logoType(team, logo):
-    usealtlogo = json.decode(ALT_LOGO)
+def get_logoType(usealtlogo, team, logo):
     usealt = usealtlogo.get(team, "NO")
     if usealt != "NO":
-        logo = get_cachable_data(usealt, 36000)
+        logo = get_cachable_data(usealt, 604800)
     else:
         logo = logo.replace("500/scoreboard", "500-dark/scoreboard")
-        logo = logo.replace("https://a.espncdn.com/", "https://a.espncdn.com/combiner/i?img=", 36000)
-        logo = get_cachable_data(logo + "&h=50&w=50")
+        logo = logo.replace("https://a.espncdn.com/", "https://a.espncdn.com/combiner/i?img=")
+        logo = get_cachable_data(logo + "&h=50&w=50", 604800)
     return logo
 
-def get_logoSize(team):
-    usealtsize = json.decode(MAGNIFY_LOGO)
+def get_logoSize(usealtsize, team):
     usealt = usealtsize.get(team, "NO")
     if usealt != "NO":
         logosize = int(usealtsize[team])
@@ -1120,7 +1124,7 @@ def get_logoSize(team):
         logosize = int(16)
     return logosize
 
-def get_date_column(displayTop, now, scoreNumber, showAnimations, animationDuration, animationPercentage1, animationPercentage2, delayDuration, rotationSpeed, textColor, borderColor, displayType, gameTime, timeColor):
+def get_date_column(displayTop, shortenedWords, now, scoreNumber, showAnimations, animationDuration, animationPercentage1, animationPercentage2, delayDuration, rotationSpeed, textColor, borderColor, displayType, gameTime, timeColor):
     if displayTop == "gameinfo":
         dateTimeColumn = [
             animation.Transformation(
@@ -1173,7 +1177,7 @@ def get_date_column(displayTop, now, scoreNumber, showAnimations, animationDurat
                 child = render.Box(width = statusBox, height = 8, child = render.Stack(children = [
                     render.Box(width = statusBox, height = 8, color = borderColor),
                     render.Box(width = statusBox, height = 8, child = render.Row(expanded = True, main_align = "end", cross_align = "center", children = [
-                        render.Text(color = textColor, content = get_shortened_display(gameTime), font = "CG-pixel-3x5-mono"),
+                        render.Text(color = textColor, content = get_shortened_display(shortenedWords, gameTime), font = "CG-pixel-3x5-mono"),
                     ])),
                 ])),
                 duration = animationDuration - delayDuration * 2,
@@ -1332,10 +1336,9 @@ def get_horizontal_logo_box(team, teamScore, teamScoreColor, scoreFont, animatio
         ])
     return teamBar
 
-def get_shortened_display(text):
+def get_shortened_display(words, text):
     if len(text) > 8:
         text = text.replace("Final", "F").replace("Game ", "G")
-    words = json.decode(SHORTENED_WORDS)
     for _, s in enumerate(words):
         text = text.replace(s, words[s])
     return text
