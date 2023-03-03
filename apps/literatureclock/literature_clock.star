@@ -5,6 +5,7 @@ Description: Displays the time using a quote from a piece of literature. Based o
 Author: Alysha Kwok
 """
 
+load("cache.star", "cache")
 load("encoding/json.star", "json")
 load("http.star", "http")
 load("random.star", "random")
@@ -12,16 +13,7 @@ load("render.star", "render")
 load("schema.star", "schema")
 load("time.star", "time")
 
-DEFAULT_LOCATION = """
-{
-	"lat": "40.6781784",
-	"lng": "-73.9441579",
-	"description": "Brooklyn, NY, USA",
-	"locality": "Brooklyn",
-	"place_id": "ChIJCSF8lBZEwokRhngABHRcdoI",
-	"timezone": "America/New_York"
-}
-"""
+DEFAULT_TIMEZONE = "America/New_York"
 JSON_ENDPOINT = "https://raw.githubusercontent.com/alyshakwok/literature-clock/master/docs/times/"
 QUOTE_FIRST = "quote_first"
 QUOTE_TIME = "quote_time_case"
@@ -31,6 +23,8 @@ AUTHOR = "author"
 SFW = "sfw"
 DEFAULT_FONT = "tb-8"
 SMALL_FONT = "tom-thumb"
+EMPTY = ""
+CACHE_TIME = 86460
 
 def get_data(fileTime, config):
     file = JSON_ENDPOINT
@@ -42,16 +36,26 @@ def get_data(fileTime, config):
     file += str(fileTime.minute) + ".json"
 
     # check if quotes is not empty, else one min back
-    request = http.get(file)
-    if request.status_code != 200:
-        quotes = get_data(fileTime - time.minute, config)
-    else:
-        quotes = request.json()
+    cached_response = cache.get(file)
 
-        if config.bool("sfw"):
-            quotes = filter_sfw(quotes)
-            if len(quotes) == 0:
-                quotes = get_data(fileTime - time.minute, config)
+    if cached_response != None:
+        if cached_response == EMPTY:
+            quotes = get_data(fileTime - time.minute, config)
+        else:
+            quotes = json.decode(cached_response)
+    else:
+        request = http.get(file)
+        if request.status_code != 200:
+            cache.set(file, EMPTY, ttl_seconds = CACHE_TIME)
+            quotes = get_data(fileTime - time.minute, config)
+        else:
+            quotes = request.json()
+            cache.set(file, json.encode(request.json()), ttl_seconds = CACHE_TIME)
+
+    if config.bool("sfw"):
+        quotes = filter_sfw(quotes)
+        if len(quotes) == 0:
+            quotes = get_data(fileTime - time.minute, config)
 
     return quotes
 
@@ -66,9 +70,7 @@ def clean_string(text):
     return text.replace("<br>", "\n").replace("<br/>", "\n").lstrip(" ").rstrip(" ")
 
 def main(config):
-    location = config.get("location", DEFAULT_LOCATION)
-    loc = json.decode(location)
-    timezone = loc["timezone"]
+    timezone = config.get("$tz", DEFAULT_TIMEZONE)
 
     fileTime = time.now().in_location(timezone)
 
@@ -109,12 +111,6 @@ def get_schema():
     return schema.Schema(
         version = "1",
         fields = [
-            schema.Location(
-                id = "location",
-                name = "Location",
-                icon = "locationDot",
-                desc = "Location for which to display time",
-            ),
             schema.Dropdown(
                 id = "color",
                 name = "Color of time text",
@@ -126,7 +122,7 @@ def get_schema():
             schema.Toggle(
                 id = "sfw",
                 name = "Skip NSFW quotes",
-                desc = "Skip quotes with profanities",
+                desc = "Skip quotes with profanities or explicit content",
                 icon = "gear",
                 default = False,
             ),
