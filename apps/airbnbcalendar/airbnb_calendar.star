@@ -99,13 +99,12 @@ def listing(url, height):
         children.extend([
             render.Padding(
                 pad = (left, 0, 0, 0),
-                child = box(width, height - 1, stroke)
+                child = box(width, height - 1, stroke),
             ),
-
             render.Padding(
                 pad = (left + 1, 1, 0, 0),
-                child = box(width - 2, height - 3, fill)
-            )
+                child = box(width - 2, height - 3, fill),
+            ),
         ])
 
     return render.Stack(children)
