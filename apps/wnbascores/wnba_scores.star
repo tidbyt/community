@@ -239,15 +239,9 @@ def main(config):
                 gameTime = s["status"]["type"]["shortDetail"]
                 gameName = s["status"]["type"]["name"]
                 checkSeries = competition.get("series", "NO")
-                checkNotes = len(competition["notes"])
                 if checkSeries != "NO":
                     seriesSummary = competition["series"]["summary"]
                     gameTime = seriesSummary.replace("series ", "")
-                if checkNotes > 0 and checkSeries == "NO":
-                    gameHeadline = competition["notes"][0]["headline"]
-                    if gameHeadline.find(" - ") > 0:
-                        gameNoteArray = gameHeadline.split(" - ")
-                        gameTime = str(gameNoteArray[1]) + " / " + gameTime
                 if gameName == "STATUS_POSTPONED":
                     homeScore = ""
                     awayScore = ""
