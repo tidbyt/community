@@ -138,6 +138,7 @@ DUMMY_DATA = {
     "soc": 0,
     "consumption": 1000.96,
     "production": 3000.11,
+    "has_battery": True,
 }
 
 def w2kwstr(w, dec = None):  # rounds off decimal, removes completey if over 100kw
@@ -193,6 +194,7 @@ def main(config):
             if "currentBatteryChargeDischarge" in cur_data and "soc" in cur_data:
                 data["currentBatteryChargeDischarge"] = float(cur_data["currentBatteryChargeDischarge"])
                 data["soc"] = cur_data["soc"]
+                data["has_battery"] = True
                 has_battery = True
 
             url = URL_SUM.format(site_id)
@@ -213,6 +215,9 @@ def main(config):
         else:
             print("using cache")
             data = json.decode(data)  # data from cache is json so need to decode.
+            if "has_battery" in data and data["has_battery"] == True:
+                has_battery = True
+
     else:
         data = DUMMY_DATA
     print(data)
