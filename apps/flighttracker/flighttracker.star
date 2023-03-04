@@ -6,13 +6,13 @@ Author: samuelsagarino
 """
 
 load("cache.star", "cache")
+load("encoding/base64.star", "base64")
 load("encoding/json.star", "json")
 load("http.star", "http")
 load("humanize.star", "humanize")
 load("render.star", "render")
 load("schema.star", "schema")
 load("time.star", "time")
-load("encoding/base64.star", "base64")
 
 OUTPUT_FORMATS = {
     "departures": "departures",
@@ -98,7 +98,6 @@ def main(config):
     marquee = "marquee"
 
     if faAPIKey != "noKey":
-
         # Initial API call using above URL + API key
         if displayMode == "flight":
             cacheName = "flight/" + flightNumber
@@ -256,29 +255,98 @@ def main(config):
 
         #######
 
-
         logo_cacheName = operator + "-logo"
         logo_cached = cache.get(logo_cacheName)
 
         if logo_cached != None:
             logo = json.decode(logo_cached)
-            logoBase64 = base64.decode(logo,encoding="standard")
+            logoBase64 = base64.decode(logo, encoding = "standard")
             print("Found cached data! Not calling FA API for logo / " + logo_cacheName)
 
-            base64.encode(logo,encoding="standard")
+            base64.encode(logo, encoding = "standard")
         else:
             print("No cached data; calling FA API for logo / " + logo_cacheName)
-            logo = http.get("https://flightaware.com/images/airline_logos/90p/" + operator + ".png").body() 
+            logo = http.get("https://flightaware.com/images/airline_logos/90p/" + operator + ".png").body()
 
-            logoBase64Encoded = base64.encode(logo,encoding="standard")
-            logoBase64 = base64.decode(logoBase64Encoded,encoding="standard")
-
+            logoBase64Encoded = base64.encode(logo, encoding = "standard")
+            logoBase64 = base64.decode(logoBase64Encoded, encoding = "standard")
 
             cache.set(logo_cacheName, json.encode(logoBase64Encoded), ttl_seconds = 86400)
 
         #logo = http.get("https://flightaware.com/images/airline_logos/90p/" + operator + ".png").body()  # Get logo to display.
 
         lowerMarquee = flight_number + " | " + registration + " | " + aircraftType  # Lower marquee layout.
+
+        if status == "Scheduled":
+            time_color = "#19d172"
+            marquee = "Scheduled to Depart " + scheduledDept_humanized
+            departureSecondary = scheduledDept_time
+            arrivalSecondary = scheduledArrival_time
+            departureSecondaryColor = "#f5be00"  # Orange
+            arrivalSecondaryColor = "#f5be00"  # Orange
+        if status == "En Route / On Time":
+            time_color = "#19d172"
+            marquee = "Enroute | Arriving " + estimatedArrival_humanized
+            departureSecondary = actualDeparture_time
+            arrivalSecondary = estimatedArrival_time
+            departureSecondaryColor = "#19d172"  # Green
+            arrivalSecondaryColor = "#f5be00"  # Orange
+        if status == "Arrived / Gate Arrival":
+            time_color = "#19d172"
+            marquee = "At the Gate | Arrived " + actualArrival_humanized
+            departureSecondary = actualDeparture_time
+            arrivalSecondary = actualArrival_time
+            departureSecondaryColor = "#19d172"  # Green
+            arrivalSecondaryColor = "#19d172"  # Green
+        if status == "Cancelled":
+            time_color = "#C5283D"
+            marquee = "Cancelled"
+            departureSecondary = scheduledDept_time
+            arrivalSecondary = scheduledArrival_time
+            departureSecondaryColor = "#C5283D"  # Red
+            arrivalSecondaryColor = "#C5283D"  # Red
+        if status == "En Route":
+            time_color = "#FFC857"
+            marquee = "Enroute | Arriving " + estimatedArrival_humanized
+            departureSecondary = actualDeparture_time
+            arrivalSecondary = estimatedArrival_time
+            departureSecondaryColor = "#19d172"  # Green
+            arrivalSecondaryColor = "#f5be00"  # Orange
+        if status == "En Route / Delayed":
+            time_color = "#FFC857"
+            marquee = "En Route / Delayed | Arriving " + estimatedArrival_humanized
+            departureSecondary = actualDeparture_time
+            arrivalSecondary = estimatedArrival_time
+            departureSecondaryColor = "#C5283D"  # Red
+            arrivalSecondaryColor = "#f5be00"  # Orange
+        if status == "Scheduled / Delayed":
+            time_color = "#FFC857"
+            marquee = "Delayed | Departing at " + estimatedDeparture_humanized
+            departureSecondary = estimatedDeparture_time
+            arrivalSecondary = estimatedArrival_time
+            departureSecondaryColor = "#C5283D"  # Red
+            arrivalSecondaryColor = "#f5be00"  # Orange
+        if status == "Taxiing / Delayed":
+            time_color = "#FFC857"
+            marquee = "Taxiing / Delayed | Departing at " + estimatedDeparture_humanized
+            departureSecondary = estimatedDeparture_time
+            arrivalSecondary = estimatedArrival_time
+            departureSecondaryColor = "#C5283D"  # Red
+            arrivalSecondaryColor = "#f5be00"  # Orange
+        if status == "Arrived":
+            time_color = "#19d172"
+            marquee = "Arrived " + actualArrival_humanized
+            departureSecondary = actualDeparture_time
+            arrivalSecondary = actualArrival_time
+            departureSecondaryColor = "#19d172"  # Green
+            arrivalSecondaryColor = "#19d172"  # Green
+        if status == "Landed / Taxiing":
+            time_color = "#19d172"
+            marquee = "Arrived " + actualArrival_humanized
+            departureSecondary = actualDeparture_time
+            arrivalSecondary = actualArrival_time
+            departureSecondaryColor = "#19d172"  # Green
+            arrivalSecondaryColor = "#19d172"  # Green
 
     else:
         progressBarWidth = 64
@@ -289,80 +357,9 @@ def main(config):
         originICAO = "KMCO"
         destinationICAO = "KATL"
         logoBase64 = http.get("https://avatars.githubusercontent.com/u/57181397").body()
-        marquee = "Missing FlightAware API key!"
-        lowerMarquee = "Add a FlightAware API key to your config."
+        marquee = "Missing FlightAware API Key!"
+        lowerMarquee = "Please add your FlightAware API key to the app!"
         status = "noAPI"
-
-    if status == "Scheduled":
-        time_color = "#19d172"
-        marquee = "Scheduled to Depart " + scheduledDept_humanized
-        departureSecondary = scheduledDept_time
-        arrivalSecondary = scheduledArrival_time
-        departureSecondaryColor = "#f5be00"  # Orange
-        arrivalSecondaryColor = "#f5be00"  # Orange
-    if status == "En Route / On Time":
-        time_color = "#19d172"
-        marquee = "Enroute | Arriving " + estimatedArrival_humanized
-        departureSecondary = actualDeparture_time
-        arrivalSecondary = estimatedArrival_time
-        departureSecondaryColor = "#19d172"  # Green
-        arrivalSecondaryColor = "#f5be00"  # Orange
-    if status == "Arrived / Gate Arrival":
-        time_color = "#19d172"
-        marquee = "At the Gate | Arrived " + actualArrival_humanized
-        departureSecondary = actualDeparture_time
-        arrivalSecondary = actualArrival_time
-        departureSecondaryColor = "#19d172"  # Green
-        arrivalSecondaryColor = "#19d172"  # Green
-    if status == "Cancelled":
-        time_color = "#C5283D"
-        marquee = "Cancelled"
-        departureSecondary = scheduledDept_time
-        arrivalSecondary = scheduledArrival_time
-        departureSecondaryColor = "#C5283D"  # Red
-        arrivalSecondaryColor = "#C5283D"  # Red
-    if status == "En Route":
-        time_color = "#FFC857"
-        marquee = "Enroute | Arriving " + estimatedArrival_humanized
-        departureSecondary = actualDeparture_time
-        arrivalSecondary = estimatedArrival_time
-        departureSecondaryColor = "#19d172"  # Green
-        arrivalSecondaryColor = "#f5be00"  # Orange
-    if status == "En Route / Delayed":
-        time_color = "#FFC857"
-        marquee = "En Route / Delayed | Arriving " + estimatedArrival_humanized
-        departureSecondary = actualDeparture_time
-        arrivalSecondary = estimatedArrival_time
-        departureSecondaryColor = "#C5283D"  # Red
-        arrivalSecondaryColor = "#f5be00"  # Orange
-    if status == "Scheduled / Delayed":
-        time_color = "#FFC857"
-        marquee = "Delayed | Departing at " + estimatedDeparture_humanized
-        departureSecondary = estimatedDeparture_time
-        arrivalSecondary = estimatedArrival_time
-        departureSecondaryColor = "#C5283D"  # Red
-        arrivalSecondaryColor = "#f5be00"  # Orange
-    if status == "Taxiing / Delayed":
-        time_color = "#FFC857"
-        marquee = "Taxiing / Delayed | Departing at " + estimatedDeparture_humanized
-        departureSecondary = estimatedDeparture_time
-        arrivalSecondary = estimatedArrival_time
-        departureSecondaryColor = "#C5283D"  # Red
-        arrivalSecondaryColor = "#f5be00"  # Orange
-    if status == "Arrived":
-        time_color = "#19d172"
-        marquee = "Arrived " + actualArrival_humanized
-        departureSecondary = actualDeparture_time
-        arrivalSecondary = actualArrival_time
-        departureSecondaryColor = "#19d172"  # Green
-        arrivalSecondaryColor = "#19d172"  # Green
-    if status == "Landed / Taxiing":
-        time_color = "#19d172"
-        marquee = "Arrived " + actualArrival_humanized
-        departureSecondary = actualDeparture_time
-        arrivalSecondary = actualArrival_time
-        departureSecondaryColor = "#19d172"  # Green
-        arrivalSecondaryColor = "#19d172"  # Green
 
     return render.Root(
         child = render.Row(
