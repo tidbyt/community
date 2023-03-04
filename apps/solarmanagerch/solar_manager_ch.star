@@ -185,14 +185,13 @@ def main(config):
                 return render_fail(rep)
 
             cur_data = json.decode(rep.body())
-
-            data["currentPowerConsumption"] = cur_data["currentPowerConsumption"]
-            data["currentPvGeneration"] = cur_data["currentPvGeneration"]
+            data["currentPowerConsumption"] = float(cur_data["currentPowerConsumption"])
+            data["currentPvGeneration"] = float(cur_data["currentPvGeneration"])
             data["currentBatteryChargeDischarge"] = 0.0  # set to zero just to be safe
             data["soc"] = 0  # set to zero just to be safe
 
-            if "currentBatteryChargeDischarge" in data and "soc" in data:
-                data["currentBatteryChargeDischarge"] = cur_data["currentBatteryChargeDischarge"]
+            if "currentBatteryChargeDischarge" in cur_data and "soc" in cur_data:
+                data["currentBatteryChargeDischarge"] = float(cur_data["currentBatteryChargeDischarge"])
                 data["soc"] = cur_data["soc"]
                 has_battery = True
 
@@ -487,7 +486,7 @@ def main(config):
                 render.Image(src = PLUG),
                 render.Text(
                     #content = w2kwstr(data["currentPowerConsumption"], dec = 2) + " kW",
-                    content = humanize.float("#,###.", data["currentPowerConsumption"]) + " W",
+                    content = humanize.float("#,###.", float(data["currentPowerConsumption"])) + " W",
                     #font = "6x13",
                     font = "5x8",
                     color = RED,
