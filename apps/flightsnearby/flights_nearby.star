@@ -14,14 +14,14 @@ load("render.star", "render")
 load("schema.star", "schema")
 load("secret.star", "secret")
 
-DEFAULT_LOCATION = {
+DEFAULT_LOCATION = json.encode({
     "lat": "51.4395598",
     "lng": "-0.1013327",
     "description": "London Bridge, London, UK",
     "locality": "London",
     "place_id": "",
     "timezone": "",
-}
+})
 DEFAULT_DISTANCE = "10"
 DEFAULT_CACHE = 180
 FLIGHT_RADAR_URL = "https://flight-radar1.p.rapidapi.com/flights/list-in-boundary"
@@ -128,17 +128,29 @@ def is_key_present(k):
     else:
         return TAILS["Q4"]
 
+def reduce_accuracy(coord):
+    coord_list = coord.split(".")
+    coord_remainder = coord_list[1]
+    if len(coord_remainder) > 4:
+        coord_remainder = coord_remainder[0:4]
+    return ".".join([coord_list[0], coord_remainder])
+
 def main(config):
     api_key = secret.decrypt("AV6+xWcEFKIfCw67zTcYusGXoTGKrc1bOSIdg8X8UuTkEYMbEdcN67Lh1R8PxQUqFf3QxoXI39bIZz0LV8LgL11JY+/uSxEYPlrVMMEqzJMUJngnn9ZW31mmc5Hk9iNnwgfKAZ6YOadc86TTyR3Pyg78hbUfrE2brp3zYWRpsLrfJpxtIlX4UVlHtuC4qF87pQjyeLQ1wHw=")
-    location = config.get("location", DEFAULT_LOCATION)
+    location = json.decode(config.get("location", DEFAULT_LOCATION))
 
-    flight_cached = cache.get("flight")
+    lat = reduce_accuracy(location["lat"])
+    lng = reduce_accuracy(location["lng"])
+
+    cache_key = "_".join([lat, lng])
+
+    flight_cached = cache.get(cache_key)
     if flight_cached != None:
         print("Hit! Displaying cached data.")
         flight = json.decode(flight_cached)
     else:
         print("Miss! Contacting Flight Radar")
-        centrePoint = [float(location["lat"]), float(location["lng"])]
+        centrePoint = [float(lat), float(lng)]
         boundingBox = get_bounding_box(centrePoint, config.get("distance", DEFAULT_DISTANCE))
         rep = http.get(
             FLIGHT_RADAR_URL,
@@ -158,7 +170,7 @@ def main(config):
         else:
             flight = []
 
-        cache.set("flight", json.encode(flight), ttl_seconds = DEFAULT_CACHE)
+        cache.set(cache_key, json.encode(flight), ttl_seconds = DEFAULT_CACHE)
 
     if flight:
         origin = flight[12]
