@@ -5,6 +5,8 @@ Description: Displays departure times for SEPTA buses, trolleys, and MFL/BSL.
 Author: radiocolin
 """
 
+load("cache.star", "cache")
+load("encoding/json.star", "json")
 load("http.star", "http")
 load("render.star", "render")
 load("schema.star", "schema")
@@ -17,8 +19,15 @@ DEFAULT_ROUTE = "17"
 DEFAULT_STOP = "10264"
 
 def get_routes():
-    r = http.get(API_ROUTES)
-    routes = r.json()
+    cache_string = cache.get("routes_api_response")
+    routes = None
+    if cache_string != None:
+        routes = json.decode(cache_string)
+    if routes == None:
+        r = http.get(API_ROUTES)
+        routes = r.json()
+        cache.set("routes_api_response", json.encode(routes), ttl_seconds = 3600)
+
     list_of_routes = []
 
     for i in routes:
@@ -33,8 +42,14 @@ def get_routes():
     return list_of_routes
 
 def get_route_name(route):
-    r = http.get(API_ROUTES)
-    routes = r.json()
+    cache_string = cache.get("routes_api_response")
+    routes = None
+    if cache_string != None:
+        routes = json.decode(cache_string)
+    if routes == None:
+        r = http.get(API_ROUTES)
+        routes = r.json()
+        cache.set("routes_api_response", json.encode(routes), ttl_seconds = 3600)
 
     for i in routes:
         if i["route_id"] == route:
@@ -43,8 +58,14 @@ def get_route_name(route):
     return ""
 
 def get_route_bg_color(route):
-    r = http.get(API_ROUTES)
-    routes = r.json()
+    cache_string = cache.get("routes_api_response")
+    routes = None
+    if cache_string != None:
+        routes = json.decode(cache_string)
+    if routes == None:
+        r = http.get(API_ROUTES)
+        routes = r.json()
+        cache.set("routes_api_response", json.encode(routes), ttl_seconds = 3600)
 
     for i in routes:
         if i["route_id"] == route:
@@ -53,8 +74,14 @@ def get_route_bg_color(route):
     return "#000"
 
 def get_route_icon(route):
-    r = http.get(API_ROUTES)
-    routes = r.json()
+    cache_string = cache.get("routes_api_response")
+    routes = None
+    if cache_string != None:
+        routes = json.decode(cache_string)
+    if routes == None:
+        r = http.get(API_ROUTES)
+        routes = r.json()
+        cache.set("routes_api_response", json.encode(routes), ttl_seconds = 3600)
 
     for i in routes:
         if i["route_id"] == route:
@@ -68,8 +95,14 @@ def get_route_icon(route):
     return "question"
 
 def get_route_text_color(route):
-    r = http.get(API_ROUTES)
-    routes = r.json()
+    cache_string = cache.get("routes_api_response")
+    routes = None
+    if cache_string != None:
+        routes = json.decode(cache_string)
+    if routes == None:
+        r = http.get(API_ROUTES)
+        routes = r.json()
+        cache.set("routes_api_response", json.encode(routes), ttl_seconds = 3600)
 
     for i in routes:
         if i["route_id"] == route:
@@ -78,8 +111,14 @@ def get_route_text_color(route):
     return "#fff"
 
 def get_stops(route):
-    r = http.get(API_STOPS, params = {"req1": route})
-    stops = r.json()
+    cache_string = cache.get(route + "_" + "stops_api_response")
+    stops = None
+    if cache_string != None:
+        stops = json.decode(cache_string)
+    if stops == None:
+        r = http.get(API_STOPS, params = {"req1": route})
+        stops = r.json()
+        cache.set(route + "_" + "stops_api_response", json.encode(stops), ttl_seconds = 3600)
 
     list_of_stops = []
 
@@ -110,7 +149,6 @@ def pad_direction_desc(data):
 def get_schedule(route, stopid):
     r = http.get(API_SCHEDULE, params = {"req1": stopid, "req2": route})
     schedule = r.json()
-
     list_of_departures = []
 
     if schedule.get(route):
