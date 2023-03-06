@@ -52,7 +52,7 @@ def get_system_stats(api_key):
         msg = "No result returned."
         return status, msg
 
-def refresh_token(refresh_token_code, client_id, client_secret):
+def request_refresh_token(refresh_token_code, client_id, client_secret):
     encoded_client_secrets = base64.encode("{}:{}".format(client_id, client_secret))
     headers = {
         "Authorization": "Basic {}".format(encoded_client_secrets),
@@ -109,7 +109,7 @@ def main(config):
     # check access token if it needs to be refreshed
     access_token = cache.get("access_token")
     if access_token == None:
-        refresh_token(cache.get("refresh_token"), client_id, client_secret)
+        request_refresh_token(cache.get("refresh_token"), client_id, client_secret)
 
     # Get "energy_today"
     engery_cached = cache.get("energy_today")
@@ -118,7 +118,8 @@ def main(config):
         if status == 200:
             cache.set("energy_today", energy_today, ttl_seconds = 60)
         elif status == 401:
-            refresh_token(cache.get("refresh_token"), client_id, client_secret)
+            request_refresh_token(cache.get("refresh_token"), client_id, client_secret)
+            return render_msg("Token just refreshed wait for next call.")
         else:
             return render_msg("Unable to get system stats, status code: {}".format(status))
     else:
