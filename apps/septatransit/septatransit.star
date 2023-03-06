@@ -8,13 +8,14 @@ Author: radiocolin
 load("http.star", "http")
 load("render.star", "render")
 load("schema.star", "schema")
+load("cache.star", "cache")
 
 API_BASE = "http://www3.septa.org/api"
 API_ROUTES = API_BASE + "/Routes"
 API_STOPS = API_BASE + "/Stops"
 API_SCHEDULE = API_BASE + "/BusSchedules"
 DEFAULT_ROUTE = "17"
-DEFAULT_STOP = "10266"
+DEFAULT_STOP = "10264"
 
 def get_routes():
     r = http.get(API_ROUTES)
@@ -93,6 +94,20 @@ def get_stops(route):
 
     return list_of_stops
 
+def pad_direction_desc(data):
+    max_len = 0
+    for item in data:
+        desc_len = len(item["DirectionDesc"])
+        if desc_len > max_len:
+            max_len = desc_len
+
+    for item in data:
+        desc_len = len(item["DirectionDesc"])
+        if desc_len < max_len:
+            item["DirectionDesc"] += " " * (max_len - desc_len)
+
+    return data
+
 def get_schedule(route, stopid):
     r = http.get(API_SCHEDULE, params = {"req1": stopid, "req2": route})
     schedule = r.json()
@@ -100,7 +115,9 @@ def get_schedule(route, stopid):
     list_of_departures = []
 
     if schedule.get(route):
-        for i in schedule.get(route):
+        routes_with_padding = pad_direction_desc(schedule.get(route))
+        print(routes_with_padding)
+        for i in routes_with_padding:
             if len(list_of_departures) % 2 == 1:
                 background = "#222"
                 text = "#fff"
@@ -127,7 +144,7 @@ def get_schedule(route, stopid):
                             ),
                         ),
                         render.Marquee(
-                            child = render.WrappedText(
+                            child = render.Text(
                                 i["DirectionDesc"],
                                 font = "tom-thumb",
                                 color = text,
