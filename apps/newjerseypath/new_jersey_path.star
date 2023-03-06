@@ -183,6 +183,7 @@ def main(config):
 	return render.Root(
 		child=content,
 		max_age=60,
+        delay=100,
 	)
 
 def get_station_options():
