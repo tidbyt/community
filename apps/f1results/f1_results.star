@@ -23,9 +23,9 @@ def main(config):
     ShowGrid = config.bool("ShowGridToggle", False)
 
     renderCategory = []
+    mainFont = "CG-pixel-4x5-mono"
     Session = ""
     F1_JSON = ""
-    mainFont = "CG-pixel-4x5-mono"
     CurrentRound = ""
     CurrentRace = ""
     MyRaceDate = ""
