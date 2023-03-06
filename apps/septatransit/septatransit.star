@@ -113,9 +113,21 @@ def pad_direction_desc(data):
 
     return data
 
+def call_schedule_api(route, stopid):
+    cache_string = cache.get(route + "_" + stopid + "_" + "schedule_api_response")
+    schedule = None
+    if cache_string != None:
+        schedule = json.decode(cache_string)
+    if schedule == None:
+        r = http.get(API_SCHEDULE, params = {"req1": stopid, "req2": route})
+        schedule = r.json()
+        cache.set(route + "_" + stopid + "_" + "schedule_api_response", json.encode(schedule), ttl_seconds = 120)
+    
+    return schedule
+
+
 def get_schedule(route, stopid):
-    r = http.get(API_SCHEDULE, params = {"req1": stopid, "req2": route})
-    schedule = r.json()
+    schedule = call_schedule_api(route, stopid)
     list_of_departures = []
 
     if schedule.get(route):
