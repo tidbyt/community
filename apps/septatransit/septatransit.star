@@ -19,7 +19,6 @@ DEFAULT_STOP = "10266"
 def get_routes():
     r = http.get(API_ROUTES)
     routes = r.json()
-
     list_of_routes = []
 
     for i in routes:
@@ -95,7 +94,6 @@ def get_stops(route):
     return list_of_stops
 
 def get_schedule(route, stopid):
-    print(route, stopid)
     r = http.get(API_SCHEDULE, params = {"req1": stopid, "req2": route})
     schedule = r.json()
 
@@ -103,28 +101,33 @@ def get_schedule(route, stopid):
 
     if schedule.get(route):
         for i in schedule.get(route):
-            if len(list_of_departures) == 1 or len(list_of_departures) == 3:
+            if len(list_of_departures) % 2 == 1:
                 background = "#222"
                 text = "#fff"
             else:
                 background = "#000"
                 text = "#ffc72c"
+            if len(i["date"]) == 5:
+                time = " "+i["date"]
+            else:
+                time = i["date"]
             item = render.Box(
                 height = 6,
                 width = 64,
                 color = background,
                 child = render.Row(
+                    cross_align="right",
                     children = [
                         render.Box(
                             width = 25,
-                            child = render.WrappedText(
-                                i["date"],
+                            child = render.Text(
+                                time,
                                 font = "tom-thumb",
                                 color = text,
                             ),
                         ),
                         render.Marquee(
-                            child = render.Text(
+                            child = render.WrappedText(
                                 i["DirectionDesc"],
                                 font = "tom-thumb",
                                 color = text,
@@ -162,7 +165,6 @@ def main(config):
         render.Column(
             children = [
                 render.Column(
-                    cross_align = "start",
                     children = [
                         render.Stack(children = [
                             render.Box(height = 6, width = 64, color = route_bg_color),
