@@ -25,8 +25,6 @@ def check_response(response):
         return 200, response.json()
     elif response.status_code == 401 and EXPIRE_MSG in response.json().get("details"):
         print("Access token is expired and refresh token now. Call next time.")
-
-        # refresh_token(cache.get("refresh_token"))
         return 401, None
     else:
         print("Request is failed with status code {} {}".format(response.status_code, response.json()))
