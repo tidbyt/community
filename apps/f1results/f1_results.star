@@ -15,7 +15,10 @@ load("time.star", "time")
 
 DEFAULT_TIMEZONE = "Australia/Adelaide"
 
-F1_URL = "http://ergast.com/api/f1/"
+#F1_URL = "http://ergast.com/api/f1/"
+
+# Alternate URL thanks to @jvivona
+F1_URL = "https://tidbyt.apis.ajcomputers.com/f1/api/"
 
 def main(config):
     RotationSpeed = config.get("speed", "3")
@@ -51,7 +54,7 @@ def main(config):
         Session = "R"
         F1_JSON = F1_LAST_JSON
 
-        # else if more than 48 hrs past, lets go to the next round
+    # else if more than 48 hrs past, lets go to the next round
     else:
         F1_NEXT_URL = F1_URL + Year + "/next.json"
         GetNext = get_cachable_data(F1_NEXT_URL, 86400)
@@ -75,16 +78,17 @@ def main(config):
         MyRaceTime = FormatRTime.format("15:04")
         RTimeDiff = FormatRTime - now
 
-        # Has qualifying completed? Allow for 1hr session
-        if QTimeDiff.hours < 0:
+        # Has qualifying completed? Allow for 2hrs post session
+        if QTimeDiff.hours < -1:
             F1_QUALY_URL = F1_URL + Year + "/" + CurrentRound + "/" + "qualifying.json"
             GetQualy = get_cachable_data(F1_QUALY_URL, 60 * 60)
             F1_QUALY_JSON = json.decode(GetQualy)
             F1_JSON = F1_QUALY_JSON
             Session = "Q"
 
-        # Has race completed? Allow for 2hr race. This to take precedence over qualifying
-        if RTimeDiff.hours < -1:
+        # Has race completed? Allow for 3hrs post race. This to take precedence over qualifying
+        # Might not actually get here depending how quickly "CurrentRound" advances to the next but if they do advance quickly then race results should still get picked up earlier (L38)
+        if RTimeDiff.hours < -2:
             F1_RACE_URL = F1_URL + Year + "/" + CurrentRound + "/" + "results.json"
             GetRace = get_cachable_data(F1_RACE_URL, 60 * 60)
             F1_RACE_JSON = json.decode(GetRace)
