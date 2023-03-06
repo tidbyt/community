@@ -122,9 +122,7 @@ def call_schedule_api(route, stopid):
         r = http.get(API_SCHEDULE, params = {"req1": stopid, "req2": route})
         schedule = r.json()
         cache.set(route + "_" + stopid + "_" + "schedule_api_response", json.encode(schedule), ttl_seconds = 120)
-    
     return schedule
-
 
 def get_schedule(route, stopid):
     schedule = call_schedule_api(route, stopid)
