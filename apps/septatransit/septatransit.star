@@ -115,7 +115,6 @@ def get_schedule(route, stopid):
 
     if schedule.get(route):
         routes_with_padding = pad_direction_desc(schedule.get(route))
-        print(routes_with_padding)
         for i in routes_with_padding:
             if len(list_of_departures) % 2 == 1:
                 background = "#222"
