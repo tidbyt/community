@@ -8,7 +8,6 @@ Author: radiocolin
 load("http.star", "http")
 load("render.star", "render")
 load("schema.star", "schema")
-load("cache.star", "cache")
 
 API_BASE = "http://www3.septa.org/api"
 API_ROUTES = API_BASE + "/Routes"
