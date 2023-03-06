@@ -56,7 +56,7 @@ def main(config):
 
         # else if more than 48 hrs past, lets go to the next round
     else:
-        F1_NEXT_URL = F1_URL + Year + "/next.json"
+        F1_NEXT_URL = F1_URL + "/next.json"
         GetNext = get_cachable_data(F1_NEXT_URL, 86400)
         F1_NEXT_JSON = json.decode(GetNext)
         CurrentRound = F1_NEXT_JSON["MRData"]["RaceTable"]["Races"][0]["round"]
