@@ -3,14 +3,12 @@
 set -e
 
 # Determine base commit.
-echo "GITHUB_BASE_REF=${GITHUB_BASE_REF}"
-echo "GITHUB_HEAD_REF=${GITHUB_HEAD_REF}"
-
-# Determine targets.
 OLD_COMMIT=$(git merge-base ${BASE_SHA} ${HEAD_SHA})
 NEW_COMMIT=${HEAD_SHA}
 echo "OLD_COMMIT=${OLD_COMMIT}"
 echo "NEW_COMMIT=${NEW_COMMIT}"
+
+# Determine targets.
 TARGETS="$(pixlet community target-determinator --old ${OLD_COMMIT} --new ${NEW_COMMIT})"
 
 # Convert new lines to spaces. Maybe Pixlet should do this?

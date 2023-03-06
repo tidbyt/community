@@ -14,7 +14,9 @@ Added rotation speed options and slight formatting change to tournament title (r
 v1.2 
 Added ability to show opposite field events, for the 4 times a year this happens
 
-Dropdown for DPWT, LPGA, KFT ?
+v1.2b 
+Bug fix - when there are multiple events on (opposite field events) the app is showing both leaderboards under the 1 tournament heading
+This has been fixed
 """
 
 load("cache.star", "cache")
@@ -26,6 +28,7 @@ load("schema.star", "schema")
 load("time.star", "time")
 
 API = "https://site.web.api.espn.com/apis/v2/scoreboard/header?sport=golf&league=pga"
+
 CACHE_TTL_SECS = 60
 
 def main(config):
@@ -63,41 +66,40 @@ def main(config):
 
         # In progress or completed tournament
         if stage1 == "in" or stage1 == "post":
-            for _, s in enumerate(leaderboard["sports"][0]["leagues"][0]["events"]):
-                entries = s["competitors"]
-                stage = s["fullStatus"]["type"]["detail"]
-                state = s["fullStatus"]["type"]["state"]
+            entries = leaderboard["sports"][0]["leagues"][0]["events"][i]["competitors"]
+            stage = leaderboard["sports"][0]["leagues"][0]["events"][i]["fullStatus"]["type"]["detail"]
+            state = leaderboard["sports"][0]["leagues"][0]["events"][i]["fullStatus"]["type"]["state"]
 
-                # shortening status messages
-                stage = stage.replace("Final", "F")
-                stage = stage.replace("Round 1", "R1")
-                stage = stage.replace("Round 2", "R2")
-                stage = stage.replace("Round 3", "R3")
-                stage = stage.replace("Round 4", "R4")
-                stage = stage.replace(" - In Progress", "")
-                stage = stage.replace(" - Suspended", "")
-                stage = stage.replace(" - Play Complete", "")
-                stage = stage.replace(" - Playoff", "PO")
-                stage = stage.replace("Playoff - Play Complete", "PO")
+            # shortening status messages
+            stage = stage.replace("Final", "F")
+            stage = stage.replace("Round 1", "R1")
+            stage = stage.replace("Round 2", "R2")
+            stage = stage.replace("Round 3", "R3")
+            stage = stage.replace("Round 4", "R4")
+            stage = stage.replace(" - In Progress", "")
+            stage = stage.replace(" - Suspended", "")
+            stage = stage.replace(" - Play Complete", "")
+            stage = stage.replace(" - Playoff", "PO")
+            stage = stage.replace("Playoff - Play Complete", "PO")
 
-                if entries:
-                    # how many players per page?
-                    entriesToDisplay = 4
+            if entries:
+                # how many players per page?
+                entriesToDisplay = 4
 
-                    # len(entries)-1 = 24 and divides into 4 nicely
-                    for x in range(0, len(entries) - 1, entriesToDisplay):
-                        renderCategory.extend([
-                            render.Column(
-                                expanded = True,
-                                main_align = "start",
-                                cross_align = "start",
-                                children = [
-                                    render.Column(
-                                        children = get_player(x, entries, entriesToDisplay, TournamentName, 5, stage, state),
-                                    ),
-                                ],
-                            ),
-                        ])
+                # len(entries)-1 = 24 and divides into 4 nicely
+                for x in range(0, len(entries) - 1, entriesToDisplay):
+                    renderCategory.extend([
+                        render.Column(
+                            expanded = True,
+                            main_align = "start",
+                            cross_align = "start",
+                            children = [
+                                render.Column(
+                                    children = get_player(x, entries, entriesToDisplay, TournamentName, 5, stage, state),
+                                ),
+                            ],
+                        ),
+                    ])
 
             return render.Root(
                 show_full_animation = True,
