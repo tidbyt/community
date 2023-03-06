@@ -108,7 +108,7 @@ def get_schedule(route, stopid):
                 background = "#000"
                 text = "#ffc72c"
             if len(i["date"]) == 5:
-                time = " "+i["date"]
+                time = " " + i["date"]
             else:
                 time = i["date"]
             item = render.Box(
@@ -116,7 +116,7 @@ def get_schedule(route, stopid):
                 width = 64,
                 color = background,
                 child = render.Row(
-                    cross_align="right",
+                    cross_align = "right",
                     children = [
                         render.Box(
                             width = 25,
