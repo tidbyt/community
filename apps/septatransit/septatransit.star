@@ -10,6 +10,7 @@ load("encoding/json.star", "json")
 load("http.star", "http")
 load("render.star", "render")
 load("schema.star", "schema")
+load("time.star", "time")
 
 API_BASE = "http://www3.septa.org/api"
 API_ROUTES = API_BASE + "/Routes"
@@ -121,7 +122,10 @@ def call_schedule_api(route, stopid):
     if schedule == None:
         r = http.get(API_SCHEDULE, params = {"req1": stopid, "req2": route})
         schedule = r.json()
-        cache.set(route + "_" + stopid + "_" + "schedule_api_response", json.encode(schedule), ttl_seconds = 120)
+        parsed_time = time.parse_time(schedule.values()[0][0]["DateCalender"], "01/02/06 3:04 pm", "America/New_York")
+        expiry = int((parsed_time - time.now()).seconds)
+        cache.set(route + "_" + stopid + "_" + "schedule_api_response", json.encode(schedule), ttl_seconds = expiry)
+
     return schedule
 
 def get_schedule(route, stopid):
