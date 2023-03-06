@@ -136,9 +136,9 @@ def call_schedule_api(route, stopid):
     if schedule == None:
         r = http.get(API_SCHEDULE, params = {"req1": stopid, "req2": route})
         schedule = r.json()
-        parsed_time = time.parse_time(schedule.values()[0][0]["DateCalender"], "01/02/06 15:04 pm", "America/New_York")
+        parsed_time = time.parse_time(schedule.values()[0][0]["DateCalender"], "01/02/06 3:04 pm", "America/New_York")
         expiry = int((parsed_time - time.now()).seconds)
-        if expiry < 0: #this is because septa's API returns tomorrow's times with today's date if the last departure for the day has already happened
+        if expiry < 0:  #this is because septa's API returns tomorrow's times with today's date if the last departure for the day has already happened
             expiry = 30
         cache.set(route + "_" + stopid + "_" + "schedule_api_response", json.encode(schedule), ttl_seconds = expiry)
 
