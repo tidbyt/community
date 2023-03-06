@@ -20,4 +20,4 @@ Next race:
 
 ![](f1_results_next.gif)
 
-Credit to @AmillionAir and @jvivona for the idea and providing a very handy API
+Credit to @AmillionAir for the idea and a special shoutout to @jvivona for providing a hosting for an alternate API
