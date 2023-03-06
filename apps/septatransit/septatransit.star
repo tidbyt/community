@@ -186,7 +186,7 @@ def get_schedule(route, stopid):
                                 color = text,
                             ),
                             width = 39,
-                            offset_start=39
+                            offset_start = 39,
                         ),
                     ],
                 ),
