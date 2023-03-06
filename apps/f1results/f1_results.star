@@ -1,7 +1,7 @@
 """
 Applet: F1 Results
 Summary: Qualifying and race results
-Description: Shows F1 qualifying or race results for the latest race. Otherwise the app shows date & time of next race.
+Description: Shows F1 qualifying or race results for the latest race. Otherwise the app shows date & time of next race. This is not a live timing app
 Author: M0ntyP
 """
 
@@ -18,7 +18,6 @@ DEFAULT_TIMEZONE = "Australia/Adelaide"
 F1_URL = "http://ergast.com/api/f1/"
 
 def main(config):
-
     RotationSpeed = config.get("speed", "3")
     ShowGap = config.bool("ShowGapToggle", False)
     ShowGrid = config.bool("ShowGridToggle", False)
@@ -27,6 +26,10 @@ def main(config):
     Session = ""
     F1_JSON = ""
     mainFont = "CG-pixel-4x5-mono"
+    CurrentRound = ""
+    CurrentRace = ""
+    MyRaceDate = ""
+    MyRaceTime = ""
 
     timezone = config.get("$tz", DEFAULT_TIMEZONE)
     now = time.now().in_location(timezone)
@@ -34,21 +37,21 @@ def main(config):
 
     # When was the last race?
     F1_LAST_URL = F1_URL + "current/last/results.json"
-    GetLast = get_cachable_data(F1_LAST_URL, 60*60)
+    GetLast = get_cachable_data(F1_LAST_URL, 60 * 60)
     F1_LAST_JSON = json.decode(GetLast)
     LocalRaceDate = F1_LAST_JSON["MRData"]["RaceTable"]["Races"][0]["date"]
     LocalRaceTime = F1_LAST_JSON["MRData"]["RaceTable"]["Races"][0]["time"]
     RaceDate_Time = LocalRaceDate + " " + LocalRaceTime
     FormatRTime = time.parse_time(RaceDate_Time, format = "2006-01-02 15:04:00Z").in_location(timezone)
     RTimeDiff = FormatRTime - now
-    print(RTimeDiff)
-    
+    #print(RTimeDiff)
+
     # if less than 48 hrs since the last race start, show that
     if RTimeDiff.hours > -47:
         Session = "R"
         F1_JSON = F1_LAST_JSON
 
-    # else if more than 48 hrs past, lets go to the next round
+        # else if more than 48 hrs past, lets go to the next round
     else:
         F1_NEXT_URL = F1_URL + Year + "/next.json"
         GetNext = get_cachable_data(F1_NEXT_URL, 86400)
@@ -264,6 +267,7 @@ def getDriver(z, F1_JSON, Session):
 
     CurrentRace = F1_JSON["MRData"]["RaceTable"]["Races"][0]["raceName"]
     CurrentRace = CurrentRace.replace(" Grand Prix", "")
+    CurrentRace = CurrentRace[:10]
 
     TitleRow = [render.Box(width = 64, height = 5, color = "#000", child = render.Row(expanded = True, main_align = "start", cross_align = "center", children = [
         render.Box(width = 64, height = 5, child = render.Text(content = CurrentRace + " " + Session, color = "#fff", font = mainFont)),
@@ -334,6 +338,7 @@ def getDriverGaps(z, F1_JSON, Session):
 
     CurrentRace = F1_JSON["MRData"]["RaceTable"]["Races"][0]["raceName"]
     CurrentRace = CurrentRace.replace(" Grand Prix", "")
+    CurrentRace = CurrentRace[:10]
 
     TitleRow = [render.Box(width = 64, height = 5, color = "#000", child = render.Row(expanded = True, main_align = "start", cross_align = "center", children = [
         render.Box(width = 64, height = 5, child = render.Text(content = CurrentRace + " " + Session, color = "#fff", font = mainFont)),
@@ -349,17 +354,20 @@ def getDriverGaps(z, F1_JSON, Session):
 
             # if they retired show "DNF"
             if F1_JSON["MRData"]["RaceTable"]["Races"][0]["Results"][i + z]["status"] != "Finished":
-                if F1_JSON["MRData"]["RaceTable"]["Races"][0]["Results"][i + z]["positionText"] == "R":    
+                if F1_JSON["MRData"]["RaceTable"]["Races"][0]["Results"][i + z]["positionText"] == "R":
                     Time = "DNF"
-                # else they were lapped, trimmed to fit
+                    # else they were lapped, trimmed to fit
+
                 else:
                     Time = F1_JSON["MRData"]["RaceTable"]["Races"][0]["Results"][i + z]["status"]
                     Time = Time[:4]
-                    Time = Time.replace(" ","")
-            # show the gap, trimmed to fit only 1 decimal place
+                    Time = Time.replace(" ", "")
+
+                # show the gap, trimmed to fit only 1 decimal place
             else:
                 Time = F1_JSON["MRData"]["RaceTable"]["Races"][0]["Results"][i + z]["Time"]["time"]
                 Time = Time[:5]
+
             # dont show time for the winner
             if i + z == 0:
                 Time = ""
@@ -426,9 +434,11 @@ def getDriverGrid(z, F1_JSON, Session):
     mainFont = "CG-pixel-4x5-mono"
     PosFont = "CG-pixel-3x5-mono"
     DriverFont = "#fff"
+    PosDiffStr = ""
 
     CurrentRace = F1_JSON["MRData"]["RaceTable"]["Races"][0]["raceName"]
     CurrentRace = CurrentRace.replace(" Grand Prix", "")
+    CurrentRace = CurrentRace[:10]
 
     TitleRow = [render.Box(width = 64, height = 5, color = "#000", child = render.Row(expanded = True, main_align = "start", cross_align = "center", children = [
         render.Box(width = 64, height = 5, child = render.Text(content = CurrentRace + " " + Session, color = "#fff", font = mainFont)),
@@ -442,7 +452,7 @@ def getDriverGrid(z, F1_JSON, Session):
             Pos = F1_JSON["MRData"]["RaceTable"]["Races"][0]["Results"][i + z]["position"]
             DriverCode = F1_JSON["MRData"]["RaceTable"]["Races"][0]["Results"][i + z]["Driver"]["code"]
 
-            StartPos =  F1_JSON["MRData"]["RaceTable"]["Races"][0]["Results"][i + z]["grid"]
+            StartPos = F1_JSON["MRData"]["RaceTable"]["Races"][0]["Results"][i + z]["grid"]
             StartPos = int(StartPos)
             FinishPos = int(Pos)
             PosDiff = StartPos - FinishPos
@@ -509,8 +519,7 @@ def getDriverGrid(z, F1_JSON, Session):
             )
             output.extend([driver])
 
-    return output    
-
+    return output
 
 def Team_Color(ConstructorID):
     if ConstructorID == "red_bull":
@@ -561,7 +570,7 @@ def get_schema():
                 desc = "Show change in position, from grid to finish (race only)",
                 icon = "toggleOn",
                 default = False,
-            )
+            ),
         ],
     )
 
