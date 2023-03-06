@@ -54,7 +54,7 @@ def main(config):
         Session = "R"
         F1_JSON = F1_LAST_JSON
 
-    # else if more than 48 hrs past, lets go to the next round
+        # else if more than 48 hrs past, lets go to the next round
     else:
         F1_NEXT_URL = F1_URL + Year + "/next.json"
         GetNext = get_cachable_data(F1_NEXT_URL, 86400)
