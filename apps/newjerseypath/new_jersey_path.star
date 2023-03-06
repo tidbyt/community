@@ -5,10 +5,10 @@ Description: Displays real-time departures for a New Jersey PATH station.
 Author: karmeleon
 """
 
-load("render.star", "render")
 load("http.star", "http")
-load("time.star", "time")
+load("render.star", "render")
 load("schema.star", "schema")
+load("time.star", "time")
 
 PATH_URL = "https://path.api.razza.dev/v1/stations/{station}/realtime"
 
@@ -162,9 +162,10 @@ def main(config):
     num_routes_to_display = len(routes_ordered)
 
     if num_routes_to_display == 0:
+        extra_text = ""
         if desired_direction != "both":
             extra_text = " toward {}".format("NY" if desired_direction == "TO_NY" else "NJ")
-        text_content = "No scheduled PATH departures from {}{}.".format(STATIONS[station], extra_text or "")
+        text_content = "No scheduled PATH departures from {}{}.".format(STATIONS[station], extra_text)
 
         content = render.WrappedText(text_content, font = "tom-thumb")
     elif num_routes_to_display == 1:
@@ -208,7 +209,7 @@ def get_schema():
                 id = "station",
                 name = "Station",
                 desc = "The station to view arrivals for.",
-                icon = "trainSubwayTunnel",
+                icon = "trainSubway",
                 options = station_options,
                 default = station_options[0].value,
             ),
