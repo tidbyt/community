@@ -12,19 +12,19 @@ load("schema.star", "schema")
 PATH_URL = "https://path.api.razza.dev/v1/stations/{station}/realtime"
 
 STATIONS = {
-	'fourteenth_street': '14th Street',
-	'twenty_third_street': '23rd Street',
-	'thirty_third_street': '33rd Street',
-	'christopher_street': 'Christopher Street',
-	'exchange_place': 'Exchange Place',
-	'grove_street': 'Grove Street',
-	'harrison': 'Harrison',
-	'hoboken': 'Hoboken',
-	'journal_square': 'Journal Square',
-	'newark': 'Newark',
-	'newport': 'Newport',
-	'ninth_street': 'Ninth Street',
-	'world_trade_center': 'World Trade Center',
+	"fourteenth_street": "14th Street",
+	"twenty_third_street": "23rd Street",
+	"thirty_third_street": "33rd Street",
+	"christopher_street": "Christopher Street",
+	"exchange_place": "Exchange Place",
+	"grove_street": "Grove Street",
+	"harrison": "Harrison",
+	"hoboken": "Hoboken",
+	"journal_square": "Journal Square",
+	"newark": "Newark",
+	"newport": "Newport",
+	"ninth_street": "Ninth Street",
+	"world_trade_center": "World Trade Center",
 }
 
 def get_arrival_text(arrival_times):
@@ -33,7 +33,7 @@ def get_arrival_text(arrival_times):
 	for arrival_time in arrival_times:
 		offset_time_mins = int((arrival_time - time.now()).minutes)
 		if offset_time_mins == 0:
-			offsets.append('now')
+			offsets.append("now")
 		else:
 			offsets.append(str(offset_time_mins))
 			only_now = False
@@ -41,15 +41,15 @@ def get_arrival_text(arrival_times):
 	# we want to avoid displaying "now min"
 	if only_now:
 		# super unlikely, but technically possible to be "now, now"
-		return ', '.join(offsets)
+		return ", ".join(offsets)
 	else:
 		# "now, 5 min" is okay
-		return '{} min'.format(', '.join(offsets))
+		return "{} min".format(", ".join(offsets))
 
 def get_display_row(arrival):
-	wait_time_text = get_arrival_text(arrival['arrivalTimes'])
+	wait_time_text = get_arrival_text(arrival["arrivalTimes"])
 
-	is_multicolor = len(arrival['lineColors']) > 1
+	is_multicolor = len(arrival["lineColors"]) > 1
 
 	if is_multicolor:
 		circle_widget = render.Row(
@@ -59,7 +59,7 @@ def get_display_row(arrival):
 					height=11,
 					child=render.Padding(
 						child=render.Circle(
-							color=arrival['lineColors'][0],
+							color=arrival["lineColors"][0],
 							diameter=11,
 						),
 						pad=(6, 0, 0, 0),
@@ -73,14 +73,14 @@ def get_display_row(arrival):
 				render.Box(
 					width=1,
 					height=11,
-					color='#A6967E',
+					color="#A6967E",
 				),
 				render.Box(
 					width=5,
 					height=11,
 					child=render.Padding(
 						child=render.Circle(
-							color=arrival['lineColors'][1],
+							color=arrival["lineColors"][1],
 							diameter=11,
 						),
 						pad=(0, 0, 6, 0),
@@ -90,7 +90,7 @@ def get_display_row(arrival):
 		)
 	else:
 		circle_widget = render.Circle(
-			color=arrival['lineColors'][0],
+			color=arrival["lineColors"][0],
 			diameter=11,
 		)
 
@@ -103,12 +103,12 @@ def get_display_row(arrival):
 			render.Column(
 				children=[
 					render.Marquee(
-						child=render.Text(arrival['friendlyRouteName']),
+						child=render.Text(arrival["friendlyRouteName"]),
 						width=49,
 					),
 					render.Text(
 						content=wait_time_text,
-						color='#ffa500',
+						color="#ffa500",
 						offset=1,
 					),
 				]
@@ -119,33 +119,33 @@ def get_display_row(arrival):
 def get_routes(api_response):
 	routes = {}
 
-	for arrival in api_response['upcomingTrains']:
-		route_key = '{}|{}'.format(arrival['route'], arrival['direction'])
-		arrival_time = time.parse_time(arrival['projectedArrival'])
+	for arrival in api_response["upcomingTrains"]:
+		route_key = "{}|{}".format(arrival["route"], arrival["direction"])
+		arrival_time = time.parse_time(arrival["projectedArrival"])
 		if route_key in routes:
 			# we've already seen this route, just stick the arrival time into it
-			routes[route_key]['arrivalTimes'].append(arrival_time)
+			routes[route_key]["arrivalTimes"].append(arrival_time)
 		else:
 			# we haven't seen this route yet, make a new entry for it
 			routes[route_key] = {
-				'friendlyRouteName': arrival['routeDisplayName'],
-				'arrivalTimes': [arrival_time],
-				'lineColors': arrival['lineColors'],
-				'direction': arrival['direction'],
+				"friendlyRouteName": arrival["routeDisplayName"],
+				"arrivalTimes": [arrival_time],
+				"lineColors": arrival["lineColors"],
+				"direction": arrival["direction"],
 			}
 	
 	routes_ordered = list(routes.values())
 	# sort the arrivals in chronological order
 	for route in routes_ordered:
-		route['arrivalTimes'] = sorted(route['arrivalTimes'])
+		route["arrivalTimes"] = sorted(route["arrivalTimes"])
 	
 	# sort the routes so the one with the soonest arrival is first
-	routes_ordered = sorted(routes_ordered, key=lambda route: route['arrivalTimes'][0])
+	routes_ordered = sorted(routes_ordered, key=lambda route: route["arrivalTimes"][0])
 	return routes_ordered
 
 def main(config):
-	station = config.get('station') or 'grove_street'
-	desired_direction = config.get('direction') or 'both'
+	station = config.get("station") or "grove_street"
+	desired_direction = config.get("direction") or "both"
 	path_url_for_station = PATH_URL.format(station=station)
 	api_response = http.get(path_url_for_station)
 	if api_response.status_code != 200:
@@ -153,18 +153,18 @@ def main(config):
 	
 	routes_ordered = get_routes(api_response.json())
 
-	if desired_direction != 'both':
+	if desired_direction != "both":
 		# filter out the trains going the other way
-		routes_ordered = [route for route in routes_ordered if desired_direction == route['direction']]
+		routes_ordered = [route for route in routes_ordered if desired_direction == route["direction"]]
 
 	num_routes_to_display = len(routes_ordered)
 
 	if num_routes_to_display == 0:
-		if desired_direction != 'both':
-			extra_text = ' toward {}'.format('NY' if desired_direction == 'TO_NY' else 'NJ')
-		text_content = "No scheduled PATH departures from {}{}.".format(STATIONS[station], extra_text or '')
+		if desired_direction != "both":
+			extra_text = " toward {}".format("NY" if desired_direction == "TO_NY" else "NJ")
+		text_content = "No scheduled PATH departures from {}{}.".format(STATIONS[station], extra_text or "")
 
-		content = render.WrappedText(text_content, font='tom-thumb')
+		content = render.WrappedText(text_content, font="tom-thumb")
 	elif num_routes_to_display == 1:
 		content = get_display_row(routes_ordered[0])
 	else:
@@ -174,7 +174,7 @@ def main(config):
 				render.Box(
 					width=64,
 					height=1,
-					color='#666',
+					color="#666",
 				),
 				get_display_row(routes_ordered[1]),
 			]
@@ -216,19 +216,19 @@ def get_schema():
 				icon="arrowsTurnToDots",
 				options=[
 					schema.Option(
-						display='Both',
-						value='both',
+						display="Both",
+						value="both",
 					),
 					schema.Option(
-						display='NY',
-						value='TO_NY',
+						display="NY",
+						value="TO_NY",
 					),
 					schema.Option(
-						display='NJ',
-						value='TO_NJ',
+						display="NJ",
+						value="TO_NJ",
 					),
 				],
-				default='both',
+				default="both",
 			)
 		]
 	)
