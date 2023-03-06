@@ -140,7 +140,7 @@ def main(config):
 
     if (api_key == "") or (api_key == None):
         api_key = secret.decrypt("AV6+xWcEFKIfCw67zTcYusGXoTGKrc1bOSIdg8X8UuTkEYMbEdcN67Lh1R8PxQUqFf3QxoXI39bIZz0LV8LgL11JY+/uSxEYPlrVMMEqzJMUJngnn9ZW31mmc5Hk9iNnwgfKAZ6YOadc86TTyR3Pyg78hbUfrE2brp3zYWRpsLrfJpxtIlX4UVlHtuC4qF87pQjyeLQ1wHw=")
-    
+
     location = json.decode(config.get("location", DEFAULT_LOCATION))
 
     lat = reduce_accuracy(location["lat"])
