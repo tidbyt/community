@@ -12,7 +12,7 @@ Race result with timing gaps:
 
 ![](f1_results_gap.gif)
 
-Race result with position change compared to grid:
+Race result with position change, comparing grid to finish:
 
 ![](f1_results_grid.gif)
 
