@@ -136,7 +136,11 @@ def reduce_accuracy(coord):
     return ".".join([coord_list[0], coord_remainder])
 
 def main(config):
-    api_key = secret.decrypt("AV6+xWcEFKIfCw67zTcYusGXoTGKrc1bOSIdg8X8UuTkEYMbEdcN67Lh1R8PxQUqFf3QxoXI39bIZz0LV8LgL11JY+/uSxEYPlrVMMEqzJMUJngnn9ZW31mmc5Hk9iNnwgfKAZ6YOadc86TTyR3Pyg78hbUfrE2brp3zYWRpsLrfJpxtIlX4UVlHtuC4qF87pQjyeLQ1wHw=")
+    api_key = config.get("key")
+
+    if (api_key == "") or (api_key == None):
+        api_key = secret.decrypt("AV6+xWcEFKIfCw67zTcYusGXoTGKrc1bOSIdg8X8UuTkEYMbEdcN67Lh1R8PxQUqFf3QxoXI39bIZz0LV8LgL11JY+/uSxEYPlrVMMEqzJMUJngnn9ZW31mmc5Hk9iNnwgfKAZ6YOadc86TTyR3Pyg78hbUfrE2brp3zYWRpsLrfJpxtIlX4UVlHtuC4qF87pQjyeLQ1wHw=")
+    
     location = json.decode(config.get("location", DEFAULT_LOCATION))
 
     lat = reduce_accuracy(location["lat"])
@@ -155,7 +159,7 @@ def main(config):
         rep = http.get(
             FLIGHT_RADAR_URL,
             params = {"bl_lat": boundingBox[0], "bl_lng": boundingBox[1], "tr_lat": boundingBox[2], "tr_lng": boundingBox[3]},
-            headers = {"X-RapidAPI-Key": config.get("key", api_key), "X-RapidAPI-Host": "flight-radar1.p.rapidapi.com"},
+            headers = {"X-RapidAPI-Key": api_key, "X-RapidAPI-Host": "flight-radar1.p.rapidapi.com"},
         )
         if rep.status_code != 200:
             fail("Failed to fetch flights with status code:", rep.status_code)
