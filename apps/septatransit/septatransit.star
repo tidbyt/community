@@ -28,7 +28,21 @@ def call_routes_api():
         r = http.get(API_ROUTES)
         routes = r.json()
         cache.set("routes_api_response", json.encode(routes), ttl_seconds = 3600)
-    return routes
+    sorted_routes = sort_routes(routes)
+    return sorted_routes
+
+def sort_routes(routes):
+    numerical_routes = []
+    non_numerical_routes = []
+    
+    for route in routes:
+        if route['route_short_name'].isdigit():
+            numerical_routes.append(route)
+        else:
+            non_numerical_routes.append(route)
+            
+    numerical_routes = sorted(numerical_routes, key=lambda x: int(x['route_short_name']))
+    return numerical_routes + non_numerical_routes
 
 def get_routes():
     routes = call_routes_api()
