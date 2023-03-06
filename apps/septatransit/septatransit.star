@@ -193,7 +193,7 @@ def main(config):
                         ]),
                     ],
                 ),
-                render.Padding(pad = (0, 0, 0, 1), color = route_bg_color, child = render.Box(child = render.Column(children = schedule))),
+                render.Padding(pad = (0, 0, 0, 2), color = route_bg_color, child = render.Column(children = schedule)),
             ],
         ),
     )
