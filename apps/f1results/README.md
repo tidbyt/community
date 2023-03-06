@@ -8,7 +8,7 @@ Race Result:
 
 ![](f1_results_driver.gif)
 
-Race result with timing gaps:
+Race result with timing gaps to winner:
 
 ![](f1_results_gap.gif)
 
