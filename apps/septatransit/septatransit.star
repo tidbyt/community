@@ -18,7 +18,7 @@ API_SCHEDULE = API_BASE + "/BusSchedules"
 DEFAULT_ROUTE = "17"
 DEFAULT_STOP = "10264"
 
-def get_routes():
+def call_routes_api():
     cache_string = cache.get("routes_api_response")
     routes = None
     if cache_string != None:
@@ -27,7 +27,10 @@ def get_routes():
         r = http.get(API_ROUTES)
         routes = r.json()
         cache.set("routes_api_response", json.encode(routes), ttl_seconds = 3600)
+    return routes
 
+def get_routes():
+    routes = call_routes_api()
     list_of_routes = []
 
     for i in routes:
@@ -42,47 +45,21 @@ def get_routes():
     return list_of_routes
 
 def get_route_name(route):
-    cache_string = cache.get("routes_api_response")
-    routes = None
-    if cache_string != None:
-        routes = json.decode(cache_string)
-    if routes == None:
-        r = http.get(API_ROUTES)
-        routes = r.json()
-        cache.set("routes_api_response", json.encode(routes), ttl_seconds = 3600)
-
+    routes = call_routes_api()
     for i in routes:
         if i["route_id"] == route:
             return i["route_short_name"] + ": " + i["route_long_name"]
-
     return ""
 
 def get_route_bg_color(route):
-    cache_string = cache.get("routes_api_response")
-    routes = None
-    if cache_string != None:
-        routes = json.decode(cache_string)
-    if routes == None:
-        r = http.get(API_ROUTES)
-        routes = r.json()
-        cache.set("routes_api_response", json.encode(routes), ttl_seconds = 3600)
-
+    routes = call_routes_api()
     for i in routes:
         if i["route_id"] == route:
             return i["route_color"]
-
     return "#000"
 
 def get_route_icon(route):
-    cache_string = cache.get("routes_api_response")
-    routes = None
-    if cache_string != None:
-        routes = json.decode(cache_string)
-    if routes == None:
-        r = http.get(API_ROUTES)
-        routes = r.json()
-        cache.set("routes_api_response", json.encode(routes), ttl_seconds = 3600)
-
+    routes = call_routes_api()
     for i in routes:
         if i["route_id"] == route:
             if i["route_type"] == "0":
@@ -91,23 +68,13 @@ def get_route_icon(route):
                 return "trainSubway"
             if i["route_type"] == "3":
                 return "bus"
-
     return "question"
 
 def get_route_text_color(route):
-    cache_string = cache.get("routes_api_response")
-    routes = None
-    if cache_string != None:
-        routes = json.decode(cache_string)
-    if routes == None:
-        r = http.get(API_ROUTES)
-        routes = r.json()
-        cache.set("routes_api_response", json.encode(routes), ttl_seconds = 3600)
-
+    routes = call_routes_api()
     for i in routes:
         if i["route_id"] == route:
             return i["route_text_color"]
-
     return "#fff"
 
 def get_stops(route):
