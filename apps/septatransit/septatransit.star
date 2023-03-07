@@ -18,6 +18,7 @@ API_STOPS = API_BASE + "/Stops"
 API_SCHEDULE = API_BASE + "/BusSchedules"
 DEFAULT_ROUTE = "17"
 DEFAULT_STOP = "10264"
+DEFAULT_BANNER = ""
 
 def call_routes_api():
     cache_string = cache.get("routes_api_response")
@@ -207,10 +208,15 @@ def select_stop(route):
 def main(config):
     route = config.str("route", DEFAULT_ROUTE)
     stop = config.str("stop", DEFAULT_STOP)
-
+    user_text = config.str("banner", "")
     schedule = get_schedule(route, stop)
     route_bg_color = get_route_bg_color(route)
     route_text_color = get_route_text_color(route)
+
+    if user_text == "":
+        banner_text = route
+    else:
+        banner_text = user_text
 
     return render.Root(
         render.Column(
@@ -219,7 +225,7 @@ def main(config):
                     children = [
                         render.Stack(children = [
                             render.Box(height = 6, width = 64, color = route_bg_color),
-                            render.Padding(pad = (1, 0, 0, 0), child = render.Text(route, font = "tom-thumb", color = route_text_color)),
+                            render.Padding(pad = (1, 0, 0, 0), child = render.Text(banner_text, font = "tom-thumb", color = route_text_color)),
                         ]),
                     ],
                 ),
@@ -232,6 +238,13 @@ def get_schema():
     return schema.Schema(
         version = "1",
         fields = [
+            schema.Text(
+                id = "banner",
+                name = "Banner",
+                desc = "Custom text for the top bar. Leave blank to show the selected route.",
+                icon = "penNib",
+                default = "",
+            ),
             schema.Dropdown(
                 id = "route",
                 name = "Route",
