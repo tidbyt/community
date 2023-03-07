@@ -25,7 +25,7 @@ jobs:
 
       - name: Find last successful build
         id: lastsuccess
-        uses: SamhammerAG/last-successful-build-action@v2
+        uses: SamhammerAG/last-successful-build-action@v4
         with:
           branch: "main"
           workflow: "Build and Release"
