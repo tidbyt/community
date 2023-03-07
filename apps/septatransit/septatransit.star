@@ -197,7 +197,7 @@ def select_stop(route):
         schema.Dropdown(
             id = "stop",
             name = "Stop",
-            desc = "Select a stop",
+            desc = "Select a stop. If a single stop is served by two directions, the same name will be listed twice, with a different stop number for each direction.",
             icon = get_route_icon(route),
             default = DEFAULT_STOP,
             options = get_stops(route),
