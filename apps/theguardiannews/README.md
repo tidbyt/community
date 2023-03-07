@@ -5,7 +5,7 @@ The Guardian News Headlines, uses the theguardian.com web content to display cur
 Displayed:
 
 - Edition
-- Article Headline & 1 sentence of article
+- Article headline & 1st sentence of article
 
 ## Configuration
 - Set Edition to display (Australian, International, United Kingdom, United States)
