@@ -50,7 +50,7 @@ ANT_COLOR = "#ff0000" # Red
 
 # Each character in the rule string indicates which direction the ant should turn when encountering the state/color whose index matches the character
 # Ex: "RL" means the ant should turn right (char at index 0 of the rule string) when encountering a black square (color at index 0 of the colors list)
-DEFAULT_RULES = "RL"
+DEFAULT_RULES = "RANDOM"
 PREDEFINED_RULES = ["RL", "RLR", "LLRR", "LRRRRRLLR", "LLRRRLRLRLLR", "RRLLLRLLLRRR"]
 
 DEFAULT_FRAMES_PER_VIEW = 500
