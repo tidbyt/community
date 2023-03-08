@@ -5,6 +5,14 @@ Description: Shows Time date and location of Next F1 race.
 Author: AmillionAir
 """
 
+load("cache.star", "cache")
+load("encoding/base64.star", "base64")
+load("encoding/json.star", "json")
+load("http.star", "http")
+load("render.star", "render")
+load("schema.star", "schema")
+load("time.star", "time")
+
 VERSION = 23067
 
 # ############################
@@ -17,19 +25,11 @@ VERSION = 23067
 # - added in US Date / Intl Date option - only triggered when showing Next Race
 # - added in 24 hour / 12 hour display option - only triggered when showing Next Race
 #
-# jvivona - 2023-03-08 
+# jvivona - 2023-03-08
 # - update Aston Martin logo
 # - change WCC layout
 # - added proper case names for constructors
 # ############################
-
-load("cache.star", "cache")
-load("encoding/base64.star", "base64")
-load("encoding/json.star", "json")
-load("http.star", "http")
-load("render.star", "render")
-load("schema.star", "schema")
-load("time.star", "time")
 
 DEFAULTS = {
     "timezone": "America/New_York",
@@ -82,19 +82,17 @@ F1_CONSTRUCTOR = dict(
 )
 
 CONSTRUCTOR_NAMES = {
-    "mercedes" : "Mercedes", 
-    "red_bull" : "Red Bull",
-    "ferrari" : "Ferrari",
-    "williams" : "Williams",
-    "alpine" : "Alpine", 
-    "alphatauri" : "AlphaTauri",
-    "aston_martin" : "Aston Martin",
-    "haas" : "Haas", 
-    "mclaren" : "McLaren", 
-    "alfa" : "Alfa Romeo"
+    "mercedes": "Mercedes",
+    "red_bull": "Red Bull",
+    "ferrari": "Ferrari",
+    "williams": "Williams",
+    "alpine": "Alpine",
+    "alphatauri": "AlphaTauri",
+    "aston_martin": "Aston Martin",
+    "haas": "Haas",
+    "mclaren": "McLaren",
+    "alfa": "Alfa Romeo",
 }
-
-
 
 # we will go back to these at some point
 #F1_URLS = {
@@ -233,15 +231,16 @@ def main(config):
     else:
         #Driver
         standings = f1_cached["StandingsTable"]["StandingsLists"][0]
-        F1_FNAME = standings["DriverStandings"][0]["Driver"]["givenName"]
+
+        #F1_FNAME = standings["DriverStandings"][0]["Driver"]["givenName"]
         F1_LNAME = standings["DriverStandings"][0]["Driver"]["familyName"]
         F1_POINTS = standings["DriverStandings"][0]["points"]
 
-        F1_FNAME2 = standings["DriverStandings"][1]["Driver"]["givenName"]
+        #F1_FNAME2 = standings["DriverStandings"][1]["Driver"]["givenName"]
         F1_LNAME2 = standings["DriverStandings"][1]["Driver"]["familyName"]
         F1_POINTS2 = standings["DriverStandings"][1]["points"]
 
-        F1_FNAME3 = standings["DriverStandings"][2]["Driver"]["givenName"]
+        #F1_FNAME3 = standings["DriverStandings"][2]["Driver"]["givenName"]
         F1_LNAME3 = standings["DriverStandings"][2]["Driver"]["familyName"]
         F1_POINTS3 = standings["DriverStandings"][2]["points"]
 
@@ -280,7 +279,7 @@ def main(config):
                                     render.Text(F1_POINTS3, font = "5x8"),
                                 ],
                             ),
-                            render.Text(F1_LNAME3)
+                            render.Text(F1_LNAME3),
                         ],
                     ),
                 ],
