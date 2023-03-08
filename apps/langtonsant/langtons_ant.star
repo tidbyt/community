@@ -5,48 +5,45 @@ Description: Automata with simple rules but complex emergent behavior.
 Author: alewando
 """
 
+load("random.star", "random")
 load("render.star", "render")
 load("schema.star", "schema")
-load("random.star", "random")
 
-
-"""
-Constants.
-"""
+# Constants.
 EMPTY = 0
 BOARD_WIDTH = 64
 BOARD_HEIGHT = 32
 
 STATE_COLORS = [
-    "#000000", # Black/empty
-    "#ffffff", # White
-    "#800000", # Maroon
-    "#ffff00", # Yellow
-    "#808000", # Olive 
-    "#c0c0c0", # Silver
-    "#808080", # Gray  
-    "#00ff00", # Lime  
-    "#008000", # Green 
-    "#00ffff", # Aqua  
-    "#008080", # Teal  
-    "#0000ff", # Blue  
-    "#000080", # Navy  
-    "#ff00ff", # Fuchsia    
-    "#800080", # Purple    
-    "#ffffff", # White (Repeating list due to long ruleset and lack of vision)
-    "#800000", # Maroon
-    "#ffff00", # Yellow
-    "#808000", # Olive 
-    "#c0c0c0", # Silver
-    "#808080", # Gray  
-    "#00ff00", # Lime  
-    "#008000", # Green 
-    "#00ffff", # Aqua  
-    "#008080", # Teal  
-    "#0000ff", # Blue  
-    "#000080", # Navy  
+    "#000000",  # Black/empty
+    "#ffffff",  # White
+    "#800000",  # Maroon
+    "#ffff00",  # Yellow
+    "#808000",  # Olive
+    "#c0c0c0",  # Silver
+    "#808080",  # Gray
+    "#00ff00",  # Lime
+    "#008000",  # Green
+    "#00ffff",  # Aqua
+    "#008080",  # Teal
+    "#0000ff",  # Blue
+    "#000080",  # Navy
+    "#ff00ff",  # Fuchsia
+    "#800080",  # Purple
+    "#ffffff",  # White (Repeating list due to long ruleset and lack of vision)
+    "#800000",  # Maroon
+    "#ffff00",  # Yellow
+    "#808000",  # Olive
+    "#c0c0c0",  # Silver
+    "#808080",  # Gray
+    "#00ff00",  # Lime
+    "#008000",  # Green
+    "#00ffff",  # Aqua
+    "#008080",  # Teal
+    "#0000ff",  # Blue
+    "#000080",  # Navy
 ]
-ANT_COLOR = "#ff0000" # Red  
+ANT_COLOR = "#ff0000"  # Red
 
 # Each character in the rule string indicates which direction the ant should turn when encountering the state/color whose index matches the character
 # Ex: "RL" means the ant should turn right (char at index 0 of the rule string) when encountering a black square (color at index 0 of the colors list)
@@ -56,7 +53,6 @@ PREDEFINED_RULES = ["RL", "RLR", "LLRR", "LRRRRRLLR", "LLRRRLRLRLLR", "RRLLLRLLL
 DEFAULT_FRAMES_PER_VIEW = 500
 DEFAULT_NUM_ANTS = 10
 
-# Can only be set by including a 'debug=true' request parameter in 'serve' mode
 DEBUG_ENABLED = False
 
 def log(message):
@@ -64,7 +60,6 @@ def log(message):
         print(message)
 
 def main(config):
-    DEBUG_ENABLED = bool(config.get("debug", "false"))
     num_frames = int(config.get("num_frames", DEFAULT_FRAMES_PER_VIEW))
     num_ants = int(config.get("num_ants", DEFAULT_NUM_ANTS))
     selected_rules = config.str("rule_set", DEFAULT_RULES)
@@ -88,7 +83,7 @@ def main(config):
 
     # Render all of our frames as an animation
     return render.Root(
-        delay = 00,
+        delay = 0,
         child = render.Animation(
             children = frames,
         ),
@@ -103,14 +98,13 @@ def create_empty_board(width, height):
         for y in range(height)
     ]
 
-
 def random_ant(selected_rules):
     x = random.number(0, BOARD_WIDTH - 1)
     y = random.number(0, BOARD_HEIGHT - 1)
     direction = random.number(0, 3)
     ant_rules = selected_rules
-    if(selected_rules == "RANDOM"):
-        ant_rules = PREDEFINED_RULES[random.number(0, len(PREDEFINED_RULES)-1)]
+    if (selected_rules == "RANDOM"):
+        ant_rules = PREDEFINED_RULES[random.number(0, len(PREDEFINED_RULES) - 1)]
         log("Selected random rules: %s" % ant_rules)
     log("Creating ant with rules %s" % ant_rules)
     ant = (x, y, direction, ant_rules)
@@ -141,28 +135,28 @@ def next_generation(generation_num, ants, current_board):
         # Figure out what direction to turn
         direction = get_turn_direction_for_state(current_state, ant_rules)
 
-        if direction == 'R':
+        new_ant_state = ant
+        if direction == "R":
             # turn 90 degrees clockwise, flip the color of the square, move forward one unit
             new_direction = (ant_direction + 1) % 4
             new_ant_state = move_ant(ant, new_direction)
 
-        if direction == 'L':
+        if direction == "L":
             # turn 90 degrees counter-clockwise, flip the color of the square, move forward one unit
             new_direction = (4 + ant_direction - 1) % 4
             new_ant_state = move_ant(ant, new_direction)
-        
 
         log("generation: %d, ant %d: %d,%d; dir: %d; state: %d->%d  ==> %d, %d; dir: %d" % (generation_num, ant_idx, ant_x, ant_y, ant_direction, current_state, new_state, new_ant_state[0], new_ant_state[1], new_ant_state[2]))
         new_ant_states.append(new_ant_state)
 
     return (new_ant_states, new_board)
 
-
 def get_turn_direction_for_state(current_state, ant_rules):
     """
     Examines the rule string to determine which direction the ant should turn based on the color of the cell it is currently on
     """
-    # If another ant was already here, the state value may be too high for this ant's rule set. 
+
+    # If another ant was already here, the state value may be too high for this ant's rule set.
     # When this happens, use the right-most (last) rule for this ant
     return ant_rules[current_state % len(ant_rules)]
 
@@ -173,16 +167,15 @@ def move_ant(ant, ant_direction):
     """
     ant_x = ant[0]
     ant_y = ant[1]
-    if ant_direction == 0: # Up
+    if ant_direction == 0:  # Up
         ant_y = (BOARD_HEIGHT + ant_y - 1) % BOARD_HEIGHT
-    if ant_direction == 1: # Right
+    if ant_direction == 1:  # Right
         ant_x = (ant_x + 1) % BOARD_WIDTH
-    if ant_direction == 2: # Down
+    if ant_direction == 2:  # Down
         ant_y = (ant_y + 1) % BOARD_HEIGHT
-    if ant_direction == 3: # Left
+    if ant_direction == 3:  # Left
         ant_x = (BOARD_WIDTH + ant_x - 1) % BOARD_WIDTH
     return (ant_x, ant_y, ant_direction, ant[3])
-
 
 def render_frame(ants, board):
     """
@@ -207,7 +200,7 @@ def render_cell(cell_state, x, y, ants):
     Render a single cell
     """
     color = STATE_COLORS[cell_state]
-    
+
     # Render ant positions in separate color
     for ant in ants:
         if x == ant[0] and y == ant[1]:
@@ -216,8 +209,9 @@ def render_cell(cell_state, x, y, ants):
     return render.Box(width = 1, height = 1, color = color)
 
 def get_schema():
-    rule_options = [schema.Option(display = r ,value = r) for r in PREDEFINED_RULES]
-    rule_options.append(schema.Option(display = "Random (from list)" ,value = "RANDOM"))
+    rule_options = [schema.Option(display = r, value = r) for r in PREDEFINED_RULES]
+    rule_options.append(schema.Option(display = "Random (from list)", value = "RANDOM"))
+
     #rule_options.append(schema.Option(display = "Custom (supply below)" ,value = "CUSTOM"))
     return schema.Schema(
         version = "1",
@@ -240,13 +234,13 @@ def get_schema():
                 desc = "Rules controling how the ant moves",
                 icon = "turn-down-right",
                 default = "RL",
-                options = rule_options,            
+                options = rule_options,
             ),
             # schema.Generated(
             #     id = "generated",
             #     source = "rule_set",
             #     handler = custom_rule_set_schema,
-            # )            
+            # )
         ],
     )
 
