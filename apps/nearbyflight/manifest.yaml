@@ -1,0 +1,8 @@
+---
+id: nearby-flight
+name: Nearby Flight
+summary: Show a Nearby Flight
+desc: Shows a nearby flight by querying airframes.io.
+author: kevinelliott
+fileName: nearby_flight.star
+packageName: nearbyflight
