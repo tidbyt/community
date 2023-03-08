@@ -55,9 +55,12 @@ DEFAULT_NUM_ANTS = 10
 
 DEBUG_ENABLED = False
 
-def log(message):
+def log(message, vars=None):
     if DEBUG_ENABLED:
-        print(message)
+        if not vars:
+            print(message)
+        else:
+            print(message % vars)
 
 def main(config):
     num_frames = int(config.get("num_frames", DEFAULT_FRAMES_PER_VIEW))
@@ -105,8 +108,8 @@ def random_ant(selected_rules):
     ant_rules = selected_rules
     if (selected_rules == "RANDOM"):
         ant_rules = PREDEFINED_RULES[random.number(0, len(PREDEFINED_RULES) - 1)]
-        log("Selected random rules: %s" % ant_rules)
-    log("Creating ant with rules %s" % ant_rules)
+        log("Selected random rules: %s", ant_rules)
+    log("Creating ant with rules %s", ant_rules)
     ant = (x, y, direction, ant_rules)
     return ant
 
@@ -146,7 +149,7 @@ def next_generation(generation_num, ants, current_board):
             new_direction = (4 + ant_direction - 1) % 4
             new_ant_state = move_ant(ant, new_direction)
 
-        log("generation: %d, ant %d: %d,%d; dir: %d; state: %d->%d  ==> %d, %d; dir: %d" % (generation_num, ant_idx, ant_x, ant_y, ant_direction, current_state, new_state, new_ant_state[0], new_ant_state[1], new_ant_state[2]))
+        log("generation: %d, ant %d: %d,%d; dir: %d; state: %d->%d  ==> %d, %d; dir: %d", (generation_num, ant_idx, ant_x, ant_y, ant_direction, current_state, new_state, new_ant_state[0], new_ant_state[1], new_ant_state[2]))
         new_ant_states.append(new_ant_state)
 
     return (new_ant_states, new_board)
