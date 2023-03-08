@@ -55,7 +55,7 @@ DEFAULT_NUM_ANTS = 10
 
 DEBUG_ENABLED = False
 
-def log(message, vars=None):
+def log(message, vars = None):
     if DEBUG_ENABLED:
         if not vars:
             print(message)
@@ -220,12 +220,6 @@ def get_schema():
         version = "1",
         fields = [
             schema.Text(
-                id = "num_frames",
-                name = "Frames per cycle",
-                desc = "Number of frames to render each app cycle",
-                icon = "film",
-            ),
-            schema.Text(
                 id = "num_ants",
                 name = "Ant count",
                 desc = "Number of ants",
@@ -243,7 +237,13 @@ def get_schema():
             #     id = "generated",
             #     source = "rule_set",
             #     handler = custom_rule_set_schema,
-            # )
+            # ),
+            schema.Text(
+                id = "num_frames",
+                name = "Frames per cycle",
+                desc = "Number of frames to render each app cycle",
+                icon = "film",
+            ),
         ],
     )
 
