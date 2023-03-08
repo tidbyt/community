@@ -19,21 +19,33 @@ CACHE_TTL_SECONDS = 900
 DEFAULT_NEWS = "cnn_latest"
 DEFAULT_ARTICLE_COUNT = "3"
 TEXT_COLOR = "#fff"
-TITLE_TEXT_COLOR = "#fff1e5"
-TITLE_BKG_COLOR = "#fff1e533"
+TITLE_TEXT_COLOR = "#fff"
+TITLE_BKG_COLOR = "#ff0000aa"
 TITLE_FONT = "tom-thumb"
-TITLE_HEIGHT = 7
+TITLE_HEIGHT = 8
 TITLE_WIDTH = 64
 
 ARTICLE_SUB_TITLE_FONT = "tom-thumb"
-ARTICLE_SUB_TITLE_COLOR = "#FC46AAFF"
+ARTICLE_SUB_TITLE_COLOR = "#65d0e6"
 ARTICLE_FONT = "tb-8"
-ARTICLE_COLOR = "#00eeff"
+ARTICLE_COLOR = "#65d0e6"
 SPACER_COLOR = "#000"
 ARTICLE_LINESPACING = 0
 ARTICLE_AREA_HEIGHT = 24
 
 RSS_STUB = "http://rss.cnn.com/rss/{}.rss"
+
+SECTION_TITLE = {
+    "cnn_topstories": "Top",
+    "cnn_latest": "Latest",
+    "cnn_world": "World",
+    "cnn_allpolitics": "Pol",
+    "cnn_tech": "Tech",
+    "cnn_showbiz": "Ent",
+    "cnn_us": "US",
+    "cnn_travel": "Travel",
+    "cnn_health": "Health",
+}
 
 def main(config):
     edition = config.get("news_edition", DEFAULT_NEWS)
@@ -51,7 +63,7 @@ def main(config):
                     height = TITLE_HEIGHT,
                     padding = 0,
                     color = TITLE_BKG_COLOR,
-                    child = render.Text("Financial Times", color = TITLE_TEXT_COLOR, font = TITLE_FONT, offset = -1),
+                    child = render.Text("CNN (" + SECTION_TITLE[edition] + ")", color = TITLE_TEXT_COLOR, font = TITLE_FONT, offset = 0),
                 ),
                 render.Marquee(
                     height = ARTICLE_AREA_HEIGHT,
@@ -73,6 +85,7 @@ def render_article(news):
 
     for article in news:
         news_text.append(render.WrappedText(article[0], color = ARTICLE_SUB_TITLE_COLOR, font = ARTICLE_SUB_TITLE_FONT))
+
         #news_text.append(render.WrappedText(article[1], font = ARTICLE_SUB_TITLE_FONT, color = ARTICLE_COLOR, linespacing = ARTICLE_LINESPACING))
         news_text.append(render.Box(width = 64, height = 8, color = SPACER_COLOR))
 
@@ -98,10 +111,6 @@ def get_schema():
                         value = "cnn_latest",
                     ),
                     schema.Option(
-                        display = "Business (CNNMoney)",
-                        value = "money_latest",
-                    ),
-                    schema.Option(
                         display = "Entertainment",
                         value = "cnn_showbiz",
                     ),
@@ -111,7 +120,7 @@ def get_schema():
                     ),
                     schema.Option(
                         display = "Politics",
-                        value = "cnn_allpolitcs",
+                        value = "cnn_allpolitics",
                     ),
                     schema.Option(
                         display = "Technology",
