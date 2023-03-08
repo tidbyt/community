@@ -184,7 +184,7 @@ def get_schedule(route, stopid):
                                 color = text,
                             ),
                             width = 39,
-                            offset_start = 39,
+                            offset_start = 20,
                         ),
                     ],
                 ),
@@ -219,7 +219,9 @@ def main(config):
         banner_text = user_text
 
     return render.Root(
-        render.Column(
+        delay = 100,
+        show_full_animation = True,
+        child = render.Column(
             children = [
                 render.Column(
                     children = [
