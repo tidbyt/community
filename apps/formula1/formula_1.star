@@ -234,15 +234,15 @@ def main(config):
 
         #F1_FNAME = standings["DriverStandings"][0]["Driver"]["givenName"]
         F1_LNAME = standings["DriverStandings"][0]["Driver"]["familyName"]
-        F1_POINTS = standings["DriverStandings"][0]["points"]
+        F1_POINTS = text_justify_trunc(3, standings["DriverStandings"][0]["points"], "right")
 
         #F1_FNAME2 = standings["DriverStandings"][1]["Driver"]["givenName"]
         F1_LNAME2 = standings["DriverStandings"][1]["Driver"]["familyName"]
-        F1_POINTS2 = standings["DriverStandings"][1]["points"]
+        F1_POINTS2 = text_justify_trunc(3, standings["DriverStandings"][1]["points"], "right")
 
         #F1_FNAME3 = standings["DriverStandings"][2]["Driver"]["givenName"]
         F1_LNAME3 = standings["DriverStandings"][2]["Driver"]["familyName"]
-        F1_POINTS3 = standings["DriverStandings"][2]["points"]
+        F1_POINTS3 = text_justify_trunc(3, standings["DriverStandings"][2]["points"], "right")
 
         return render.Root(
             child = render.Column(
@@ -257,6 +257,7 @@ def main(config):
                                     render.Text(F1_POINTS, font = "5x8"),
                                 ],
                             ),
+                            render.Box(width = 2, height = 5),
                             render.Text(F1_LNAME),
                         ],
                     ),
@@ -268,6 +269,7 @@ def main(config):
                                     render.Text(F1_POINTS2, font = "5x8"),
                                 ],
                             ),
+                            render.Box(width = 2, height = 5),
                             render.Text(F1_LNAME2),
                         ],
                     ),
@@ -279,6 +281,7 @@ def main(config):
                                     render.Text(F1_POINTS3, font = "5x8"),
                                 ],
                             ),
+                            render.Box(width = 2, height = 5),
                             render.Text(F1_LNAME3),
                         ],
                     ),
