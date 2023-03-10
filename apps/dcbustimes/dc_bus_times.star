@@ -16,7 +16,7 @@ load("secret.star", "secret")
 NEXTBUS_URL = "https://api.wmata.com/NextBusService.svc/json/jPredictions"
 DEFAULT_STOPID1 = "1001155"
 DEFAULT_STOPID2 = ""
-ENCRYPTED_API_KEY = "AV6+xWcEd0axGb4V9l3oSg/6rC84PkFXGwE3RMdhCsd3HYbmgqigkaNaks24APTvZ9KujTGybupJ0DYlAW8rE4IL7WVYkPhMHxcyXQ2QgrCrKYMYaVt+201YoMHI2ImivHlhrv2kPk2O2wdxRxpMu4vEH+QFfwg73zQgTl499VRVwj/msko="
+ENCRYPTED_API_KEY = "AV6+xWcES/gMdrg972dJlYM7I3LF3UXYTSPv/+lz7A7gYqYlVouA0V1Hp1KEE8PaE2OcMYwNZVTjuvAMxxW2rs+BgcBsJMwzB7UV8qNaD6VXM3LRHpKzTSywYBHqcoSFGkU/91Z1a/Raxnh0zvygyxKAcNypjFs/+ZW1qarI7+Xm/aqwt4g="
 
 def main(config):
     numPredictions = 0
@@ -155,7 +155,51 @@ def main(config):
             )
 
     numPredictions += numPredictions2
-    if numPredictions <= 4:
+    if numPredictions <= 3:
+        if ShowDetails == True:
+            return render.Root(
+                delay = 300,
+                child = render.Marquee(
+                    scroll_direction = "vertical",
+                    height = 32,
+                    align = "start",
+                    offset_start = 2,
+                    offset_end = 32,
+                    child = render.Column(
+                        children = [
+                            Divider,
+                            Bus[0],
+                            Details[0],
+                            Divider,
+                            Bus[1],
+                            Details[1],
+                            Divider,
+                            Bus[2],
+                            Details[2],
+                            Divider,
+                        ],
+                    ),
+                ),
+            )
+        else:
+            return render.Root(
+                delay = 500,
+                child = render.Marquee(
+                    scroll_direction = "vertical",
+                    height = 32,
+                    align = "start",
+                    offset_start = 0,
+                    offset_end = 32,
+                    child = render.Column(
+                        children = [
+                            Bus[0],
+                            Bus[1],
+                            Bus[2],
+                        ],
+                    ),
+                ),
+            )
+    elif numPredictions == 4:
         if ShowDetails == True:
             return render.Root(
                 delay = 300,
