@@ -145,6 +145,8 @@ def main(config):
 			return show_error_fetching_data()
 		all_locations_movie_list = res.json()["hits"]
 		cache.set("showtimes_data", json.encode(all_locations_movie_list), ttl_seconds = HOUR_IN_SECONDS)
+	else:
+		all_locations_movie_list = json.decode(all_locations_movie_list)
 
 	unsorted_movie_list = [movie for movie in all_locations_movie_list if local_theater_code in movie["event_location"]]
 
