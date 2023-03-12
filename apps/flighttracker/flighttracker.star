@@ -321,14 +321,14 @@ def main(config):
             arrivalSecondaryColor = "#f5be00"  # Orange
         if status == "Scheduled / Delayed":
             time_color = "#FFC857"
-            marquee = "Delayed | Departing at " + estimatedDeparture_humanized
+            marquee = "Delayed | Departing " + estimatedDeparture_humanized
             departureSecondary = estimatedDeparture_time
             arrivalSecondary = estimatedArrival_time
             departureSecondaryColor = "#C5283D"  # Red
             arrivalSecondaryColor = "#f5be00"  # Orange
         if status == "Taxiing / Delayed":
             time_color = "#FFC857"
-            marquee = "Taxiing / Delayed | Departing at " + estimatedDeparture_humanized
+            marquee = "Taxiing / Delayed | Departing " + estimatedDeparture_humanized
             departureSecondary = estimatedDeparture_time
             arrivalSecondary = estimatedArrival_time
             departureSecondaryColor = "#C5283D"  # Red
