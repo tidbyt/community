@@ -24,7 +24,7 @@ CINEMATHEQUE_SHOWTIMES_URL = "https://www.americancinematheque.com/wp-json/wp/v2
 THEATER_CODES = {
     "los feliz 3": 102,
     "aero theatre": 54,
-    "other": 68
+    "other": 68,
 }
 
 # Showtimes will change color as they approach and gradually become more red.
@@ -97,7 +97,7 @@ def show_error_fetching_data():
                     children = [
                         render.Padding(
                             child = render.Image(src = CAMERA_ICON),
-                            pad = 1
+                            pad = 1,
                         ),
                         render.Column(
                             children = [
@@ -106,16 +106,16 @@ def show_error_fetching_data():
                                 render.Text("connect to", font = "tom-thumb", color = "#FF2222"),
                                 render.Text("American", font = "tom-thumb", color = "#FF2222"),
                             ],
-                            cross_align = "end"
-                        )
-                    ]
+                            cross_align = "end",
+                        ),
+                    ],
                 ),
                 render.Padding(
                     child = render.Text("Cinematheque :(", font = "tom-thumb", color = "#FF2222"),
-                    pad = (3, 0, 0, 0)
-                )
-            ]
-        )
+                    pad = (3, 0, 0, 0),
+                ),
+            ],
+        ),
     )
 
 # ---------------------------------------------------------------------------- #
@@ -133,7 +133,7 @@ def main(config):
 
     showtimes_url = CINEMATHEQUE_SHOWTIMES_URL.format(
         start_time = str(beginning_of_current_day_unix),
-        end_time = str(end_of_current_day_unix)
+        end_time = str(end_of_current_day_unix),
     )
 
     all_locations_movie_list = cache.get("showtimes_data")
@@ -152,7 +152,7 @@ def main(config):
     unsorted_movie_list = [movie for movie in single_location_movie_list if movie["title"] and movie["event_start_time"]]
 
     # Sort movie list by showtime and truncate (the device can only display four showtimes before running out of screen space)
-    movie_list = sorted(unsorted_movie_list, key=lambda x: x["event_start_time"])[:4]
+    movie_list = sorted(unsorted_movie_list, key = lambda x: x["event_start_time"])[:4]
 
     return render.Root(
         child = render.Stack(
@@ -169,11 +169,11 @@ def main(config):
                                     child = render.Text(movie["title"], font = "tom-thumb", color = "#89ACD4"),
                                     offset_start = 0,
                                     offset_end = 0,
-                                    align = "start"
-                                ) for movie in movie_list
-                            ]
+                                    align = "start",
+                                )
+                                for movie in movie_list
+                            ],
                         ),
-
                         render.Column(
                             main_align = "end",
                             cross_align = "end",
@@ -181,13 +181,13 @@ def main(config):
                                 render.Text(
                                     time.parse_time(movie["event_start_time"], "15:04:05").format("3:04"),
                                     font = "tom-thumb",
-                                    color = get_showtime_color(movie["event_start_time"], current_time)
-                                ) for movie in movie_list
-                            ]
-                        )
-                    ]
+                                    color = get_showtime_color(movie["event_start_time"], current_time),
+                                )
+                                for movie in movie_list
+                            ],
+                        ),
+                    ],
                 ),
-
                 render.Column(
                     main_align = "end",
                     expanded = True,
@@ -199,26 +199,26 @@ def main(config):
                                 render.Padding(
                                     child = render.Text(local_theater.upper(), font = "CG-pixel-4x5-mono", color = "#FFDD48"),
                                     pad = 1,
-                                    color = "#222"
-                                )
-                            ]
-                        )
-                    ]
+                                    color = "#222",
+                                ),
+                            ],
+                        ),
+                    ],
                 ),
-            ]
-        )
+            ],
+        ),
     )
 
 def get_schema():
     options = [
         schema.Option(
             display = "Los Feliz 3",
-            value = "Los Feliz 3"
+            value = "Los Feliz 3",
         ),
         schema.Option(
             display = "Aero Theatre",
-            value = "Aero Theatre"
-        )
+            value = "Aero Theatre",
+        ),
     ]
 
     return schema.Schema(
@@ -230,7 +230,7 @@ def get_schema():
                 desc = "Theater for which to display showtimes.",
                 icon = "film",
                 default = options[0].value,
-                options = options
-            )
-        ]
+                options = options,
+            ),
+        ],
     )
