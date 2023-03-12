@@ -147,7 +147,9 @@ def main(config):
 	else:
 		all_locations_movie_list = json.decode(all_locations_movie_list)
 
-	unsorted_movie_list = [movie for movie in all_locations_movie_list if local_theater_code in movie["event_location"]]
+	# Exclude showtimes from other AC theaters as well as those with incomplete data
+	single_location_movie_list = [movie for movie in all_locations_movie_list if local_theater_code in movie["event_location"]]
+	unsorted_movie_list = [movie for movie in single_location_movie_list if movie["title"] and movie["event_start_time"]]
 
 	# Sort movie list by showtime and truncate (the device can only display four showtimes before running out of screen space)
 	movie_list = sorted(unsorted_movie_list, key=lambda x: x["event_start_time"])[:4]
