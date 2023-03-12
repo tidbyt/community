@@ -1,0 +1,8 @@
+---
+id: azure-status
+name: Azure Status
+summary: Shows Azure Status messages
+desc: Simple app that looks at the Azure Status RSS feed and shows the latest incident and time of the last update. Visit https://status.azure.com/en-us/status/ for more info!
+author: M0ntyP
+fileName: azure_status.star
+packageName: azurestatus

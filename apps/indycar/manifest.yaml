@@ -1,0 +1,8 @@
+---
+id: indy-car
+name: Indy Car
+summary: Indy Car Race & Standings
+desc: Show Indy Car next race info and current driver standings.
+author: jvivona
+fileName: indy_car.star
+packageName: indycar

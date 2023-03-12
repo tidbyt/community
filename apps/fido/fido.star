@@ -157,12 +157,12 @@ def return_pal(name):
 # Returns the age of the Pal in a formatted string
 def return_pal_age(pet_age):
     converted_age = convert_hours_to_age(pet_age)
-    formatted_age_str = "Age: {age}".format(age = converted_age)
+    formatted_age_str = "Age:{age}".format(age = converted_age)
 
     if len(formatted_age_str) <= 7:
         return return_wrapped_text(formatted_age_str, color = "#add8e6", align = "center")
     else:
-        return return_marquee_text(formatted_age_str, color = "#add8e6")
+        return return_marquee_text(formatted_age_str, color = "#add8e6", width = 30)
 
 # Returns left aligned, 32 pixel wide and high Wrapped Text with the passed in parameter.
 def return_wrapped_text(text, color = "#fff", align = "left", width = 32):

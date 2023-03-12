@@ -170,8 +170,6 @@ def hasData(json):
     return "data" in json
 
 def format_float_string(float_value):
-    currency_price = 0
-
     # Round price to nearest whole number (used to decide how many decimal places to leave)
     float_value_integer = str(int(math.round(float(float_value))))
 
@@ -188,13 +186,13 @@ def format_float_string(float_value):
             float_value = "0" + float_value
         float_value = (float_value[0:-3] + "." + float_value[-3:])
     elif len(float_value_integer) == 2:
-        float_value = str(int(math.round(currency_price * 1000)))
+        float_value = str(int(math.round(float_value * 1000)))
         float_value = (float_value[0:-3] + "." + float_value[-3:])
     elif len(float_value_integer) == 3:
-        currency_price = str(int(math.round(currency_price * 100)))
-        currency_price = (float_value[0:-2] + "." + float_value[-2:])
+        float_value = str(int(math.round(float_value * 100)))
+        float_value = (float_value[0:-2] + "." + float_value[-2:])
     elif len(float_value_integer) == 4:
-        float_value = str(int(math.round(currency_price * 10)))
+        float_value = str(int(math.round(float_value * 10)))
         float_value = (float_value[0:-1] + "." + float_value[-1:])
     elif len(float_value_integer) == 5:
         float_value = str(int(math.round(float_value)))
