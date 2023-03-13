@@ -32,6 +32,15 @@ jobs:
         run: ./.github/scripts/check-apps.sh
         env:
           TARGETS: "${{ steps.targets.outputs.targets }}"
+<<<<<<< HEAD
+
+      - name: Deploy modified apps
+        run: ./.github/scripts/deploy-apps.sh
+        env:
+          VERSION: ${{ github.event.pull_request.head.sha }}
+          TARGETS: "${{ steps.targets.outputs.targets }}"
 
       - name: Sanity check go embed
         run: go test tidbyt.dev/community/apps
+=======
+>>>>>>> 459ebf7 (Swap deploy pipes)
