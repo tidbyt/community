@@ -15,13 +15,13 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Set up Go
-        uses: actions/setup-go@v3
-        with:
-          go-version: 1.19
-
       - name: Setup build agent
         run: ./.github/scripts/setup.sh
+
+      - name: Setup auth
+        run: ./.github/scripts/setup-auth.sh
+        env:
+          COMMUNITY_PIXLET_AUTH: "${{ secrets.COMMUNITY_PIXLET_AUTH }}"
 
       - name: Find last successful build
         id: lastsuccess
@@ -44,5 +44,8 @@ jobs:
         env:
           TARGETS: "${{ steps.targets.outputs.targets }}"
 
-      - name: Sanity check go embed
-        run: go test tidbyt.dev/community/apps
+      - name: Deploy modified apps
+        run: ./.github/scripts/deploy-apps.sh
+        env:
+          VERSION: ${{ github.event.pull_request.head.sha }}
+          TARGETS: "${{ steps.targets.outputs.targets }}"
