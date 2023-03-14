@@ -1,7 +1,7 @@
 """
 Applet: Earthquake Map
 Summary: Map of global earthquakes
-Description: Display a map of earthquakes based on USGS data. (v0.2.0)
+Description: Display a map of earthquakes based on USGS data.
 Author: Brian McLaughlin (SpinStabilized)
 """
 
@@ -213,6 +213,10 @@ def mag_to_color(magnitude):
     int_mag = len(color_map) - 1 if magnitude >= len(color_map) else int(magnitude)
     return color_map[int_mag]
 
+# The following disables a buggy lint check in the bazel starlark linter that
+# thinks some floating point division is integer division and is flagging it as
+# an error.
+# buildifier: disable=integer-division
 def map_projection(longitude, latitude, screen_width = 64, screen_height = 32, map_center = None):
     """Project's a map longitude/latitude to screen coordinates.
 
@@ -397,7 +401,7 @@ def main(config):
     )
 
     earthquake_events = sorted(earthquake_events, key = lambda item: item[2])
-    last_event = earthquake_events[-1]
+    last_event = earthquake_events[-1] if earthquake_events else None
     if magnitude_sorting:
         earthquake_events = sorted(earthquake_events, key = lambda item: item[1])
 
