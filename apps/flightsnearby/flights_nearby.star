@@ -131,7 +131,7 @@ def is_key_present(k):
 def reduce_accuracy(coord):
     coord_list = coord.split(".")
     coord_remainder = coord_list[1]
-    if len(coord_remainder) > 4:
+    if len(coord_remainder) > 3:
         coord_remainder = coord_remainder[0:4]
     return ".".join([coord_list[0], coord_remainder])
 
