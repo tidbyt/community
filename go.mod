@@ -4,7 +4,7 @@ go 1.19
 
 require github.com/stretchr/testify v1.8.1
 
-require tidbyt.dev/pixlet v0.24.7
+require tidbyt.dev/pixlet v0.25.1
 
 require (
 	github.com/Code-Hex/Neo-cowsay/v2 v2.0.4 // indirect
