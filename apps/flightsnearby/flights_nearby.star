@@ -132,7 +132,7 @@ def reduce_accuracy(coord):
     coord_list = coord.split(".")
     coord_remainder = coord_list[1]
     if len(coord_remainder) > 3:
-        coord_remainder = coord_remainder[0:4]
+        coord_remainder = coord_remainder[0:3]
     return ".".join([coord_list[0], coord_remainder])
 
 def main(config):
