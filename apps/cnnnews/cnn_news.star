@@ -1,51 +1,57 @@
 """
-Applet: The Guardian News
+Applet: CNN News
+Summary: CNN News Headlines
+Description: Display CNN News headslines for selected section.
 Author: jvivona
-Summary: Guardian News Headlines
-Description: Gets latest new articles from The Guardian and displays up to 3 articles
-    for selected edition.
 """
-
-# update - 2023-03-07 - back to the live website feed - now that their IT group has stablized everything.  add in 1st sentence of description
 
 load("cache.star", "cache")
 load("http.star", "http")
-load("re.star", "re")
 load("render.star", "render")
 load("schema.star", "schema")
 load("xpath.star", "xpath")
 
 VERSION = 23066
 
-# cache data for 15 minutes - cycle through with cache on the API side
+# cache data for 15 minutes
 CACHE_TTL_SECONDS = 900
 
-# we grab the current news from the open api and cache it at this api location to prevent getting rate limited website,
-# data is refreshed on a regular basis
-RSS_STUB = "https://www.theguardian.com/{}/rss"
-DEFAULT_NEWS = "Intl"
+DEFAULT_NEWS = "cnn_latest"
 DEFAULT_ARTICLE_COUNT = "3"
 TEXT_COLOR = "#fff"
 TITLE_TEXT_COLOR = "#fff"
-TITLE_BKG_COLOR = "#0000ff"
+TITLE_BKG_COLOR = "#ff0000aa"
 TITLE_FONT = "tom-thumb"
-TITLE_HEIGHT = 7
+TITLE_HEIGHT = 8
 TITLE_WIDTH = 64
 
 ARTICLE_SUB_TITLE_FONT = "tom-thumb"
-ARTICLE_SUB_TITLE_COLOR = "#ff8c00"
+ARTICLE_SUB_TITLE_COLOR = "#65d0e6"
 ARTICLE_FONT = "tb-8"
-ARTICLE_COLOR = "#00eeff"
+ARTICLE_COLOR = "#65d0e6"
 SPACER_COLOR = "#000"
 ARTICLE_LINESPACING = 0
 ARTICLE_AREA_HEIGHT = 24
 
+RSS_STUB = "http://rss.cnn.com/rss/{}.rss"
+
+SECTION_TITLE = {
+    "cnn_topstories": "Top",
+    "cnn_latest": "Latest",
+    "cnn_world": "World",
+    "cnn_allpolitics": "Pol",
+    "cnn_tech": "Tech",
+    "cnn_showbiz": "Ent",
+    "cnn_us": "US",
+    "cnn_travel": "Travel",
+    "cnn_health": "Health",
+}
+
 def main(config):
     edition = config.get("news_edition", DEFAULT_NEWS)
 
-    # api returns max 3 articles
     articlecount = int(config.get("articlecount", DEFAULT_ARTICLE_COUNT))
-    news = get_cacheable_data(edition.lower(), articlecount)
+    articles = get_cacheable_data(edition.lower(), articlecount)
 
     return render.Root(
         delay = 100,
@@ -57,7 +63,7 @@ def main(config):
                     height = TITLE_HEIGHT,
                     padding = 0,
                     color = TITLE_BKG_COLOR,
-                    child = render.Text("Guardian (%s)" % edition, color = TITLE_TEXT_COLOR, font = TITLE_FONT, offset = -1),
+                    child = render.Text("CNN (" + SECTION_TITLE[edition] + ")", color = TITLE_TEXT_COLOR, font = TITLE_FONT, offset = 0),
                 ),
                 render.Marquee(
                     height = ARTICLE_AREA_HEIGHT,
@@ -66,7 +72,7 @@ def main(config):
                     child =
                         render.Column(
                             main_align = "space_between",
-                            children = render_article(news),
+                            children = render_article(articles),
                         ),
                 ),
             ],
@@ -79,8 +85,9 @@ def render_article(news):
 
     for article in news:
         news_text.append(render.WrappedText(article[0], color = ARTICLE_SUB_TITLE_COLOR, font = ARTICLE_SUB_TITLE_FONT))
-        news_text.append(render.WrappedText(article[1], font = ARTICLE_SUB_TITLE_FONT, color = ARTICLE_COLOR))
-        news_text.append(render.Box(width = 64, height = 3, color = SPACER_COLOR))
+
+        #news_text.append(render.WrappedText(article[1], font = ARTICLE_SUB_TITLE_FONT, color = ARTICLE_COLOR, linespacing = ARTICLE_LINESPACING))
+        news_text.append(render.Box(width = 64, height = 8, color = SPACER_COLOR))
 
     return (news_text)
 
@@ -90,26 +97,46 @@ def get_schema():
         fields = [
             schema.Dropdown(
                 id = "news_edition",
-                name = "News Edition",
-                desc = "Select which news edition to display",
+                name = "News Section",
+                desc = "Select which section to display",
                 icon = "newspaper",
-                default = "Intl",
+                default = "cnn_latest",
                 options = [
                     schema.Option(
-                        display = "Australia",
-                        value = "AU",
+                        display = "Top Stories",
+                        value = "cnn_topstories",
                     ),
                     schema.Option(
-                        display = "International",
-                        value = "Intl",
+                        display = "Latest News",
+                        value = "cnn_latest",
                     ),
                     schema.Option(
-                        display = "United Kingdom",
-                        value = "UK",
+                        display = "Entertainment",
+                        value = "cnn_showbiz",
                     ),
                     schema.Option(
-                        display = "United States",
-                        value = "US",
+                        display = "Health",
+                        value = "cnn_health",
+                    ),
+                    schema.Option(
+                        display = "Politics",
+                        value = "cnn_allpolitics",
+                    ),
+                    schema.Option(
+                        display = "Technology",
+                        value = "cnn_tech",
+                    ),
+                    schema.Option(
+                        display = "Travel",
+                        value = "cnn_travel",
+                    ),
+                    schema.Option(
+                        display = "US",
+                        value = "cnn_us",
+                    ),
+                    schema.Option(
+                        display = "World",
+                        value = "cnn_world",
                     ),
                 ],
             ),
@@ -138,11 +165,10 @@ def get_schema():
     )
 
 def get_cacheable_data(url, articlecount):
-    if url == "intl":
-        url = "international"  # this was changed during the switch in dec 2022 from guardian - keep our text for display - but convert
     key = url
     data = cache.get(key)
     articles = []
+
     if data == None:
         res = http.get(RSS_STUB.format(url))
         if res.status_code != 200:
@@ -155,8 +181,6 @@ def get_cacheable_data(url, articlecount):
     for i in range(1, articlecount + 1):
         title_query = "//item[{}]/title".format(str(i))
         desc_query = "//item[{}]/description".format(str(i))
-        desc1stpara = re.match(r"<p>(.*?)<\/p>", str(data_xml.query(desc_query)).replace("None", ""))
-
-        articles.append((data_xml.query(title_query), desc1stpara[0][1]))
+        articles.append((data_xml.query(title_query), str(data_xml.query(desc_query)).replace("None", "")))
 
     return articles

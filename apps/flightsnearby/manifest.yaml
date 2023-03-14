@@ -1,0 +1,8 @@
+---
+id: flights-nearby
+name: Flights Nearby
+summary: Flights nearby
+desc: Find the closest flight to your location.
+author: eddichen
+fileName: flights_nearby.star
+packageName: flightsnearby
