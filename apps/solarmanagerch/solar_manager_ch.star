@@ -1,7 +1,7 @@
 """
 Applet: Solar Manager Ch
 Summary: Show solarmanager.ch status
-Description: Show solarmanager.ch stats.
+Description: Multiple screen selections will disable animations. If you prefer animated screens, run separate instances of the app and select 1 screen per instance.  For API Key : authorize with your solarmanager username and password on: https://external-web.solar-manager.ch/swagger and copy the long string that follows after '-H authorization: Basic'.  For Site ID : check the back of your solarmanager device for the SMID code..
 Author: tavdog, marcbaier
 """
 
@@ -132,12 +132,13 @@ CACHE_TTL = 300
 
 # combined summary and current dummy data
 DUMMY_DATA = {
-    "currentBatteryChargeDischarge": 100.0,
+    "currentBatteryChargeDischarge": 0.0,
     "currentPowerConsumption": 1950.0,
-    "currentPvGeneration": 500.0,
-    "soc": 25,
+    "currentPvGeneration": 0.0,
+    "soc": 0,
     "consumption": 1000.96,
     "production": 3000.11,
+    "has_battery": True,
 }
 
 def w2kwstr(w, dec = None):  # rounds off decimal, removes completey if over 100kw
@@ -160,6 +161,7 @@ def render_fail(rep):
 def main(config):
     api_key = config.str("api_key")
     site_id = config.str("site_id")
+    has_battery = False  #  assume no battery until we have data
 
     # verify api key doesn't have non key characters in there eg. "Basic"
     if api_key and "Basic" in api_key:
@@ -184,11 +186,17 @@ def main(config):
                 return render_fail(rep)
 
             cur_data = json.decode(rep.body())
+            data["currentPowerConsumption"] = float(cur_data["currentPowerConsumption"])
+            data["currentPvGeneration"] = float(cur_data["currentPvGeneration"])
+            data["currentBatteryChargeDischarge"] = 0.0  # set to zero just to be safe
+            data["soc"] = 0  # set to zero just to be safe
 
-            data["currentBatteryChargeDischarge"] = cur_data["currentBatteryChargeDischarge"]
-            data["currentPowerConsumption"] = cur_data["currentPowerConsumption"]
-            data["currentPvGeneration"] = cur_data["currentPvGeneration"]
-            data["soc"] = cur_data["soc"]
+            if "currentBatteryChargeDischarge" in cur_data and "soc" in cur_data:
+                data["currentBatteryChargeDischarge"] = float(cur_data["currentBatteryChargeDischarge"])
+                data["soc"] = cur_data["soc"]
+                data["has_battery"] = True
+                has_battery = True
+
             url = URL_SUM.format(site_id)
             rep = http.get(
                 url,
@@ -207,6 +215,9 @@ def main(config):
         else:
             print("using cache")
             data = json.decode(data)  # data from cache is json so need to decode.
+            if "has_battery" in data and data["has_battery"] == True:
+                has_battery = True
+
     else:
         data = DUMMY_DATA
     print(data)
@@ -217,7 +228,7 @@ def main(config):
         solar_icon = SOLAR
         solar_value = data["currentPvGeneration"]
         solar_color = GREEN
-    else:
+    elif has_battery:  # only do this if we have battery data
         # change to battery data even though it's still called solar
         solar_icon = battery_level_mains[int(data["soc"] / 25)]  # will be integer 0 - 3
         solar_value = data["currentBatteryChargeDischarge"]
@@ -230,6 +241,11 @@ def main(config):
         else:
             solar_anim = YELLOW_ANIM
             solar_color = WHITE
+    else:
+        solar_anim = EMPTY
+        solar_icon = SOLAR
+        solar_value = data["currentPvGeneration"]  # should be zero
+        solar_color = GRAY
 
     # assuming negative chargerate means battery is discharging, and negative grid rate means pulling from grid.
     grid_rate = data["currentPvGeneration"] - (data["currentPowerConsumption"] + data["currentBatteryChargeDischarge"])
@@ -475,7 +491,7 @@ def main(config):
                 render.Image(src = PLUG),
                 render.Text(
                     #content = w2kwstr(data["currentPowerConsumption"], dec = 2) + " kW",
-                    content = humanize.float("#,###.", data["currentPowerConsumption"]) + " W",
+                    content = humanize.float("#,###.", float(data["currentPowerConsumption"])) + " W",
                     #font = "6x13",
                     font = "5x8",
                     color = RED,
@@ -507,7 +523,7 @@ def main(config):
         frames.append(logo_frame)
     if config.bool("show_main", True):
         frames.append(main_frame)
-    if config.bool("show_char", False):
+    if config.bool("show_char", False) and has_battery:
         frames.append(charge_frame)
     if config.bool("show_prod", False):
         frames.append(production_frame)
@@ -518,6 +534,8 @@ def main(config):
 
     if len(frames) == 1:
         return render.Root(frames[0])
+    elif len(frames) == 0:
+        return render.Root(main_frame)
     else:
         return render.Root(
             #show_full_animation = True,

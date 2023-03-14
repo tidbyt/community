@@ -13,11 +13,6 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Set up Go
-        uses: actions/setup-go@v3
-        with:
-          go-version: 1.19
-
       - name: Setup build agent
         run: ./.github/scripts/setup.sh
 
@@ -32,6 +27,3 @@ jobs:
         run: ./.github/scripts/check-apps.sh
         env:
           TARGETS: "${{ steps.targets.outputs.targets }}"
-
-      - name: Sanity check go embed
-        run: go test tidbyt.dev/community/apps

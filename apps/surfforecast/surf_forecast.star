@@ -248,10 +248,13 @@ def get_wave_ft_to_pixel(state):
 def get_top_bar_height(wave, wave_ft_to_pixel):
     min_height = wave["surf"]["raw"]["min"]
     max_height = wave["surf"]["raw"]["max"]
-    return max(1, wave_ft_to_pixel * int(math.round(max_height - min_height)))
+    scaled_bar_height = int(math.round((wave_ft_to_pixel * (max_height - min_height))))
+    return max(1, scaled_bar_height)
 
 def get_bottom_bar_height(wave, wave_ft_to_pixel):
-    return max(1, wave_ft_to_pixel * int(math.round(wave["surf"]["raw"]["min"])))
+    min_height = wave["surf"]["raw"]["min"]
+    scaled_bar_height = int(math.round(min_height * wave_ft_to_pixel))
+    return max(1, scaled_bar_height)
 
 def get_rating_color(rating):
     return COLOR_BY_SURFLINE_RATING[rating["rating"]["key"]]
