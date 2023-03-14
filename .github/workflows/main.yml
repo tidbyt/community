@@ -47,5 +47,5 @@ jobs:
       - name: Deploy modified apps
         run: ./.github/scripts/deploy-apps.sh
         env:
-          VERSION: ${{ github.event.pull_request.head.sha }}
+          VERSION: ${{ github.sha }}
           TARGETS: "${{ steps.targets.outputs.targets }}"
