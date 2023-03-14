@@ -8,6 +8,7 @@ Author: alewando
 load("random.star", "random")
 load("render.star", "render")
 load("schema.star", "schema")
+load("time.star", "time")
 
 # Constants.
 EMPTY = 0
@@ -63,6 +64,9 @@ def log(message, vars = None):
             print(message % vars)
 
 def main(config):
+    # Seed the RNG based on time (to aid in server-side caching)
+    random.seed(time.now().unix // 15)
+
     num_frames = int(config.get("num_frames", DEFAULT_FRAMES_PER_VIEW))
     num_ants = int(config.get("num_ants", DEFAULT_NUM_ANTS))
     selected_rules = config.str("rule_set", DEFAULT_RULES)
