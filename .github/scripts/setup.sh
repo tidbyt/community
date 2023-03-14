@@ -2,9 +2,6 @@
 
 set -e
 
-# Install libwebp.
-sudo apt-get install -y libwebp-dev
-
 # Download and install pixlet.
 PIXLET_VERSION=`cat ./PIXLET_VERSION | sed 's/v//'`
 curl -LO "https://github.com/tidbyt/pixlet/releases/download/v${PIXLET_VERSION}/pixlet_${PIXLET_VERSION}_linux_amd64.tar.gz"

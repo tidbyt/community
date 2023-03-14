@@ -13,11 +13,6 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Set up Go
-        uses: actions/setup-go@v3
-        with:
-          go-version: 1.19
-
       - name: Setup build agent
         run: ./.github/scripts/setup.sh
 
@@ -39,8 +34,11 @@ jobs:
         env:
           VERSION: ${{ github.event.pull_request.head.sha }}
           TARGETS: "${{ steps.targets.outputs.targets }}"
+<<<<<<< HEAD
 
       - name: Sanity check go embed
         run: go test tidbyt.dev/community/apps
 =======
 >>>>>>> 459ebf7 (Swap deploy pipes)
+=======
+>>>>>>> f3eb016 (feat: Purge go from the repository.)
