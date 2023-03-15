@@ -53,8 +53,9 @@ def main(config):
         columnFrames.append(render_summary_card_zero_alerts(jsonLocation))
 
     return render.Root(
-        render.Animation(columnFrames),
         delay = 5000,
+        show_full_animation = True,
+        child = render.Animation(columnFrames),
     )
 
 def get_schema():
