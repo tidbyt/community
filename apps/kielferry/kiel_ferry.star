@@ -201,6 +201,7 @@ def getNextFerry(ferryStopID, ferryDirectionID):
         # (can't cache None).
         if queryStatusCode == 200:
             response = response.json()
+
             # Check if there is a next ferry
             # scheduled. If so, extract the
             # ferry departure time.
