@@ -82,7 +82,7 @@ FERRY_CACHE_TTL = 30
 
 # Cacke keys
 FERRY_CACHE_DATA_KEY = "next_ferry_data_%s_%s"
-FERRY_CACHE_ERROR_KEY = "next_ferry_query_error_%s_%s"
+FERRY_CACHE_STATUS_CODE = "next_ferry_query_status_code_%s_%s"
 
 # Clean REST wrapper around the Deutsche Bahn public API
 # See https://github.com/derhuerst/db-rest
@@ -132,33 +132,33 @@ def setCachedFerryData(
         FERRY_CACHE_TTL,
     )
 
-# Get cached API query error flag
+# Get cached API query status code
 # (avoid spamming API with bad requests)
-def getCachedFerryError(
+def getCachedFerryStatusCode(
         ferryStopID,
         ferryDirectionID):
     ret = cache.get(
-        FERRY_CACHE_ERROR_KEY % (
+        FERRY_CACHE_STATUS_CODE % (
             ferryStopID,
             ferryDirectionID,
         ),
     )
     if ret != None:
-        ret = bool(ret)
+        ret = int(ret)
     return ret
 
-# Cache API query error flag
+# Cache API query status code
 # (avoid spamming API with bad requests)
-def setCachedFerryError(
+def setCachedFerryStatusCode(
         ferryStopID,
         ferryDirectionID,
         value):
     cache.set(
-        FERRY_CACHE_ERROR_KEY % (
+        FERRY_CACHE_STATUS_CODE % (
             ferryStopID,
             ferryDirectionID,
         ),
-        "X" if value else "",
+        str(value),
         FERRY_CACHE_TTL,
     )
 
@@ -167,21 +167,23 @@ def setCachedFerryError(
 # ####################################################
 
 # Function to retrieve next ferry data.
-# Returns a tuple of
+# Returns a tripple of
 # - validity: Indicates if data is usable
 # - next ferry: Timestamp string or None
+# - status code: Status code of last query
+
 def getNextFerry(ferryStopID, ferryDirectionID):
     nextFerry = getCachedFerryData(
         ferryStopID,
         ferryDirectionID,
     )
-    queryError = getCachedFerryError(
+    queryStatusCode = getCachedFerryStatusCode(
         ferryStopID,
         ferryDirectionID,
     )
 
     # Check if cached data has expired
-    if nextFerry == None or queryError == None:
+    if nextFerry == None or queryStatusCode == None:
         query = FERRY_QUERY_URL % (
             ferryStopID,
             ferryDirectionID,
@@ -189,26 +191,26 @@ def getNextFerry(ferryStopID, ferryDirectionID):
         )
         response = http.get(query)
 
-        # If request failed, set query error flag.
-        # Set next ferry to empty string to denote
-        # no ferry departure data in cache.
-        # If request succeeded, unset query error.
-        if response.status_code != 200:
-            queryError = True
-            nextFerry = ""
-        else:
-            queryError = False
-            response = response.json()
+        # Set query status code.
+        queryStatusCode = response.status_code
 
+        # Set next ferry according to response,
+        # or to an empty string to denote
+        # no scheduled ferry departure in cache
+        # (can't cache None).
+        if queryStatusCode == 200:
+            response = response.json()
             # Check if there is a next ferry
             # scheduled. If so, extract the
             # ferry departure time.
             # If not, set empty string to denote
             # no ferry departure data in cache
-            if len(response) != 0:
+            if len(response) > 0:
                 nextFerry = response[0]["when"]
             else:
                 nextFerry = ""
+        else:
+            nextFerry = ""
 
         # Update cached ferry departure data
         setCachedFerryData(
@@ -217,27 +219,30 @@ def getNextFerry(ferryStopID, ferryDirectionID):
             nextFerry,
         )
 
-        # Update cached query error flag
-        setCachedFerryError(
+        # Update cached query status code
+        setCachedFerryStatusCode(
             ferryStopID,
             ferryDirectionID,
-            queryError,
+            queryStatusCode,
         )
 
-    # Return (a) validity of data (no error flag)
-    # and (b) next ferry departure data or None
+    # Return (a) validity of data (status code 200),
+    # (b) next ferry departure data or None,
+    # (c) status code
     return (
-        not queryError,
+        queryStatusCode == 200,
         nextFerry if len(nextFerry) > 0 else None,
+        queryStatusCode,
     )
 
 # ################################################
 # ###### Function to render an error screen ######
 # ################################################
 
-# Function to render an error screen, to be used
-# if no valid ferry departure data can be retrieved
-def renderError():
+# Function to render an error screen given a query
+# status code, to be used if no valid ferry departure
+# data can be retrieved from the API
+def renderError(statusCode):
     return render.Root(
         child = render.Row(
             children = [
@@ -249,13 +254,10 @@ def renderError():
                             font = "CG-pixel-4x5-mono",
                         ),
                         render.Image(src = FERRY_ICON),
-                        render.Marquee(
-                            child = render.Text(
-                                content = "Something went terribly wrong...",
-                                color = "#3399ff",
-                                font = "CG-pixel-4x5-mono",
-                            ),
-                            width = 60,
+                        render.Text(
+                            content = "HTTP %d" % statusCode,
+                            color = "#3399ff",
+                            font = "CG-pixel-4x5-mono",
                         ),
                     ],
                     expanded = True,
@@ -382,14 +384,14 @@ def main(config):
     ferryDirection = FERRY_STOP_IDS[int(ferryDirectionID)]
 
     # Retrieve data for next ferry departure
-    valid, nextFerry = getNextFerry(ferryStopID, ferryDirectionID)
+    valid, nextFerry, statusCode = getNextFerry(ferryStopID, ferryDirectionID)
 
     # If ferry departure data is valid, render it
     if valid:
         return renderFerryData(ferryStop, ferryDirection, nextFerry)
 
     # Otherwise, render an error
-    return renderError()
+    return renderError(statusCode)
 
 # ###############################################
 # ###### Functions to construct app schema ######
