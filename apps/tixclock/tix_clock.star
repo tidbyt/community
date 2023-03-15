@@ -292,6 +292,8 @@ def renderFrame(current_time, use24HourFormat, colorThemeName):
 # Main entry
 
 def main(config):
+    random.seed(time.now().unix // 15)
+
     # Get the current time in 24 hour format
 
     location = config.get("location")
