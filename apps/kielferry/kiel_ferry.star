@@ -69,6 +69,7 @@ DEFAULT_FERRY_STOP_ID = str(FERRY_STOP_IDS.keys()[0])
 FERRY_DIRECTION_IDS = [
     360910,  # Laboe
     360901,  # Bahnhof
+    703599,  # Reventloubrücke
 ]
 
 # Default ferry direction ID
@@ -87,12 +88,12 @@ FERRY_CACHE_STATUS_CODE = "next_ferry_query_status_code_%s_%s"
 # Clean REST wrapper around the Deutsche Bahn public API
 # See https://github.com/derhuerst/db-rest
 FERRY_QUERY_URL = \
-    "https://v5.db.transport.rest/stops/%s/departures" + \
+    "https://v6.db.transport.rest/stops/%s/departures" + \
     "?direction=%s" + \
     "&duration=%d" + \
     "&nationalExpress=false" + \
     "&national=false" + \
-    "&regionalExp=false" + \
+    "&regionalExpress=false" + \
     "&regional=false" + \
     "&suburban=false" + \
     "&bus=false" + \
@@ -205,8 +206,8 @@ def getNextFerry(ferryStopID, ferryDirectionID):
             # ferry departure time.
             # If not, set empty string to denote
             # no ferry departure data in cache
-            if len(response) > 0:
-                nextFerry = response[0]["when"]
+            if "departures" in response and len(response["departures"]) > 0:
+                nextFerry = response["departures"][0]["when"]
             else:
                 nextFerry = ""
         else:
