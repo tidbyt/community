@@ -1,6 +1,6 @@
 # Wall Street Journal News Headlines
 
-Wall Street Journal news headlines displays current headline articles (up to 3) for the selected section from asj.com
+Wall Street Journal news headlines displays current headline articles (up to 5) for the selected section from asj.com
 
 Displayed:
 
