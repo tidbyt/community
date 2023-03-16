@@ -11410,7 +11410,7 @@ def get_schema():
                 id = "line",
                 name = "Line",
                 desc = "Ex: 'U1', 'D' or '14B'. If the line doesn't stop in the station, no departures will be displayed.",
-                icon = "trainSubwayTunnel",
+                icon = "trainSubway",
                 default = "U1",
             ),
             schema.Text(
