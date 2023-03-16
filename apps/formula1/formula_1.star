@@ -5,6 +5,16 @@ Description: Shows Time date and location of Next F1 race.
 Author: AmillionAir
 """
 
+load("cache.star", "cache")
+load("encoding/base64.star", "base64")
+load("encoding/json.star", "json")
+load("http.star", "http")
+load("render.star", "render")
+load("schema.star", "schema")
+load("time.star", "time")
+
+VERSION = 23067
+
 # ############################
 # Mods - jvivona - 2023-02-04
 # - temp override URLs to bypass blacklist on API (will go back to original API after they unblock us )
@@ -14,15 +24,12 @@ Author: AmillionAir
 # - change f1 API endpoints to https
 # - added in US Date / Intl Date option - only triggered when showing Next Race
 # - added in 24 hour / 12 hour display option - only triggered when showing Next Race
+#
+# jvivona - 2023-03-08
+# - update Aston Martin logo
+# - change WCC layout
+# - added proper case names for constructors
 # ############################
-
-load("cache.star", "cache")
-load("encoding/base64.star", "base64")
-load("encoding/json.star", "json")
-load("http.star", "http")
-load("render.star", "render")
-load("schema.star", "schema")
-load("time.star", "time")
 
 DEFAULTS = {
     "timezone": "America/New_York",
@@ -68,11 +75,24 @@ F1_CONSTRUCTOR = dict(
     williams = base64.decode("iVBORw0KGgoAAAANSUhEUgAAAA4AAAAHCAMAAAAPmYwrAAAABGdBTUEAALGPC/xhBQAAACBjSFJNAAB6JgAAgIQAAPoAAACA6AAAdTAAAOpgAAA6mAAAF3CculE8AAAAflBMVEUAHz4AAAAAHj0AHDsAHj0AHj0AHj0AHj0AHj0AHj0AHj0AHj0AHj0AHj0AHj0AHj0AHj0AHj0AHj0AHj0AHj0AHj0AHj0AHj0AHj0AHj0AHj0AHj0AHj0AHj0AHj0AHj0AHj0AHj0AHj0AHj0AHj0AHj0AHj0AHj0AHz7///9gIEbQAAAAKHRSTlMAAAAACgwGAgdUvKEWBXgYoxSwiQlw9o0p2dN98KLvftVK7bK9IBAbf1SEUAAAAAFiS0dEKcq3hSQAAAAHdElNRQfmAhcCJQfO1P9TAAAAX0lEQVQI1w3MSQJAMBAF0e4vxhBiJuYQ7n9Cqd3bFIkwIkYcgykJBaWZzFEoVaCsspR0/TVt1/edGL5aE8ZpNsu6bvsxjSDQKS+rtb3k6cEIzP0Az20Cv2OGe+F7HZh/Fy4F0QjMFAkAAAAldEVYdGRhdGU6Y3JlYXRlADIwMjItMDItMjNUMDI6Mzc6MDcrMDA6MDB1SXsLAAAAJXRFWHRkYXRlOm1vZGlmeQAyMDIyLTAyLTIzVDAyOjM3OjA3KzAwOjAwBBTDtwAAAABJRU5ErkJggg=="),
     alpine = base64.decode("iVBORw0KGgoAAAANSUhEUgAAAA4AAAAHCAMAAAAPmYwrAAAABGdBTUEAALGPC/xhBQAAACBjSFJNAAB6JgAAgIQAAPoAAACA6AAAdTAAAOpgAAA6mAAAF3CculE8AAAAsVBMVEUAAAAAb7oAb7kAbrkAbroAb7oAb7oAb7oAb7oAb7oAb7oAb7oAb7oAb7kAb7kAb7oAb7oAb7oAb7oAb7oAb7oAb7oAb7oAb7oAb7oAb7oAb7oAb7oAb7oAb7oAb7oAb7oAb7oAb7oAb7oAb7oAb7oAb7oAb7oAb7oAb7oAb7oAb7oAb7oAb7oAb7oAb7oAb7oAb7oAb7oAb7oAb7oAb7oAb7oAb7oAb7oAb7oAb7r///84cqsHAAAAOnRSTlMAAAAAADDVxQwzv/qKCgs+wY/eSR55G0haY9AXO8h7iOXJxtd/Yg8JU3R2y+SCb4vtl3NEAthWTdojOksy3AAAAAFiS0dEOk4JxPoAAAAHdElNRQfmAhcCKzoIP57MAAAAYklEQVQI12NggABGRlY2dg5GKI+JkZOLm4eRESTOy8fIyC8gKCTMCBIXERVjFGeXkJSSZmZkYJKRZZOTV1CUU1JWUVVjUNfQ1NLW0dXTNzA0MjZhYGFilDA1Y2Q0t7AEagUA2hUG0AyU3BoAAAAldEVYdGRhdGU6Y3JlYXRlADIwMjItMDItMjNUMDI6NDM6NTgrMDA6MDDrMbB/AAAAJXRFWHRkYXRlOm1vZGlmeQAyMDIyLTAyLTIzVDAyOjQzOjU4KzAwOjAwmmwIwwAAAABJRU5ErkJggg=="),
     alphatauri = base64.decode("/9j/4AAQSkZJRgABAQAAAQABAAD/4QAuRXhpZgAATU0AKgAAAAgAAkAAAAMAAAABAFsAAEABAAEAAAABAAAAAAAAAAD/2wBDAAoHBwkHBgoJCAkLCwoMDxkQDw4ODx4WFxIZJCAmJSMgIyIoLTkwKCo2KyIjMkQyNjs9QEBAJjBGS0U+Sjk/QD3/wAALCAAHAA4BAREA/8QAFAABAAAAAAAAAAAAAAAAAAAABv/EACQQAAEDAwIHAQAAAAAAAAAAAAECAwUEESEGEwASFTJBUXGB/9oACAEBAAA/ADbjKkyVVQyrVb1Rp9bs3WJqAQ7Sg35UC/nGPn420dojTszNSsu1Rrcj1q2m2n1ElDoUdy2cjtsT7PH/2Q=="),
-    aston_martin = base64.decode("iVBORw0KGgoAAAANSUhEUgAAAA4AAAAHCAMAAAAPmYwrAAAABGdBTUEAALGPC/xhBQAAACBjSFJNAAB6JgAAgIQAAPoAAACA6AAAdTAAAOpgAAA6mAAAF3CculE8AAAAsVBMVEUAAAAAb7oAb7kAbrkAbroAb7oAb7oAb7oAb7oAb7oAb7oAb7oAb7oAb7kAb7kAb7oAb7oAb7oAb7oAb7oAb7oAb7oAb7oAb7oAb7oAb7oAb7oAb7oAb7oAb7oAb7oAb7oAb7oAb7oAb7oAb7oAb7oAb7oAb7oAb7oAb7oAb7oAb7oAb7oAb7oAb7oAb7oAb7oAb7oAb7oAb7oAb7oAb7oAb7oAb7oAb7oAb7oAb7r///84cqsHAAAAOnRSTlMAAAAAADDVxQwzv/qKCgs+wY/eSR55G0haY9AXO8h7iOXJxtd/Yg8JU3R2y+SCb4vtl3NEAthWTdojOksy3AAAAAFiS0dEOk4JxPoAAAAHdElNRQfmAhcCKzoIP57MAAAAYklEQVQI12NggABGRlY2dg5GKI+JkZOLm4eRESTOy8fIyC8gKCTMCBIXERVjFGeXkJSSZmZkYJKRZZOTV1CUU1JWUVVjUNfQ1NLW0dXTNzA0MjZhYGFilDA1Y2Q0t7AEagUA2hUG0AyU3BoAAAAldEVYdGRhdGU6Y3JlYXRlADIwMjItMDItMjNUMDI6NDM6NTgrMDA6MDDrMbB/AAAAJXRFWHRkYXRlOm1vZGlmeQAyMDIyLTAyLTIzVDAyOjQzOjU4KzAwOjAwmmwIwwAAAABJRU5ErkJggg=="),
+    aston_martin = base64.decode("iVBORw0KGgoAAAANSUhEUgAAAA4AAAAICAYAAADJEc7MAAAACXBIWXMAAAsTAAALEwEAmpwYAAAFu2lUWHRYTUw6Y29tLmFkb2JlLnhtcAAAAAAAPD94cGFja2V0IGJlZ2luPSLvu78iIGlkPSJXNU0wTXBDZWhpSHpyZVN6TlRjemtjOWQiPz4gPHg6eG1wbWV0YSB4bWxuczp4PSJhZG9iZTpuczptZXRhLyIgeDp4bXB0az0iQWRvYmUgWE1QIENvcmUgNy4yLWMwMDAgNzkuMWI2NWE3OSwgMjAyMi8wNi8xMy0xNzo0NjoxNCAgICAgICAgIj4gPHJkZjpSREYgeG1sbnM6cmRmPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5LzAyLzIyLXJkZi1zeW50YXgtbnMjIj4gPHJkZjpEZXNjcmlwdGlvbiByZGY6YWJvdXQ9IiIgeG1sbnM6eG1wPSJodHRwOi8vbnMuYWRvYmUuY29tL3hhcC8xLjAvIiB4bWxuczpkYz0iaHR0cDovL3B1cmwub3JnL2RjL2VsZW1lbnRzLzEuMS8iIHhtbG5zOnBob3Rvc2hvcD0iaHR0cDovL25zLmFkb2JlLmNvbS9waG90b3Nob3AvMS4wLyIgeG1sbnM6eG1wTU09Imh0dHA6Ly9ucy5hZG9iZS5jb20veGFwLzEuMC9tbS8iIHhtbG5zOnN0RXZ0PSJodHRwOi8vbnMuYWRvYmUuY29tL3hhcC8xLjAvc1R5cGUvUmVzb3VyY2VFdmVudCMiIHhtcDpDcmVhdG9yVG9vbD0iQWRvYmUgUGhvdG9zaG9wIDIzLjUgKFdpbmRvd3MpIiB4bXA6Q3JlYXRlRGF0ZT0iMjAyMy0wMy0wOFQwNjozNDozMS0wNTowMCIgeG1wOk1vZGlmeURhdGU9IjIwMjMtMDMtMDhUMDY6NTc6NDgtMDU6MDAiIHhtcDpNZXRhZGF0YURhdGU9IjIwMjMtMDMtMDhUMDY6NTc6NDgtMDU6MDAiIGRjOmZvcm1hdD0iaW1hZ2UvcG5nIiBwaG90b3Nob3A6Q29sb3JNb2RlPSIzIiB4bXBNTTpJbnN0YW5jZUlEPSJ4bXAuaWlkOjYxNWY2OTAzLTU1YmItNWU0MC04YTczLWJjMmFhMjRkZDZiYiIgeG1wTU06RG9jdW1lbnRJRD0ieG1wLmRpZDpjY2IwMWEyNC00YThlLWE1NDItOTYwNC1mZTEyOTcyZjRmNGIiIHhtcE1NOk9yaWdpbmFsRG9jdW1lbnRJRD0ieG1wLmRpZDpjY2IwMWEyNC00YThlLWE1NDItOTYwNC1mZTEyOTcyZjRmNGIiPiA8eG1wTU06SGlzdG9yeT4gPHJkZjpTZXE+IDxyZGY6bGkgc3RFdnQ6YWN0aW9uPSJjcmVhdGVkIiBzdEV2dDppbnN0YW5jZUlEPSJ4bXAuaWlkOmNjYjAxYTI0LTRhOGUtYTU0Mi05NjA0LWZlMTI5NzJmNGY0YiIgc3RFdnQ6d2hlbj0iMjAyMy0wMy0wOFQwNjozNDozMS0wNTowMCIgc3RFdnQ6c29mdHdhcmVBZ2VudD0iQWRvYmUgUGhvdG9zaG9wIDIzLjUgKFdpbmRvd3MpIi8+IDxyZGY6bGkgc3RFdnQ6YWN0aW9uPSJzYXZlZCIgc3RFdnQ6aW5zdGFuY2VJRD0ieG1wLmlpZDo2MTVmNjkwMy01NWJiLTVlNDAtOGE3My1iYzJhYTI0ZGQ2YmIiIHN0RXZ0OndoZW49IjIwMjMtMDMtMDhUMDY6NTc6NDgtMDU6MDAiIHN0RXZ0OnNvZnR3YXJlQWdlbnQ9IkFkb2JlIFBob3Rvc2hvcCAyMy41IChXaW5kb3dzKSIgc3RFdnQ6Y2hhbmdlZD0iLyIvPiA8L3JkZjpTZXE+IDwveG1wTU06SGlzdG9yeT4gPC9yZGY6RGVzY3JpcHRpb24+IDwvcmRmOlJERj4gPC94OnhtcG1ldGE+IDw/eHBhY2tldCBlbmQ9InIiPz5J6lChAAABKUlEQVQYlW3OvUrDcBQF8HOThjY2mBYUvwYHNxHE1UfwFbrVR5BWBGk72zngIl0MmVwcXHyG6KB0KyiIg4WamPKnIU2OU0siHrjDhd/hXiGJRQaDgWaapsySGJ+TMbN5ip21DTHLFSil2Gw2s4WVfFFE8PMdigCEiOiaDjKjQGTFtliw+cV13b1ypWwEkyAxjFIgIkiSec2u2UYcx0mj0RgtbAm5JOn8uGas3nyYmTGM3sazQGHf3l7fqmwm0XR6CmD070UA6HW6uwdHh1cET0ACxMPw5bXd7fXeC5DkcjzP0wDg/tqVy7Pzeqd9UX+8vRMA8DxPy9tCkSQcx9H95yc9JeWLqfi+rzuOo/91hVdbrZZUq1VGUSS2bQsAhGFIy7KolJJ+v7/Ev8qjr/Z7UtF/AAAAAElFTkSuQmCC"),
     haas = base64.decode("iVBORw0KGgoAAAANSUhEUgAAAA4AAAAHCAMAAAAPmYwrAAAABGdBTUEAALGPC/xhBQAAACBjSFJNAAB6JgAAgIQAAPoAAACA6AAAdTAAAOpgAAA6mAAAF3CculE8AAAA7VBMVEUAAADxCTLzCzP4DTH0DDPzCzL/chz0DDDtCTHzCzTsCTHxDTT1CzH0CzP1CzP2CzLyCjTzCjTzCjPzCjP0CjTzCzP0CzP0CzPzCzTzCzPzCzP0CzP0CzPzCzLzCzL0CzP1CzP0CzPzCzP0CzP0CjP0CzP0CzP0CzLyDC/zCzTzCzL0CzLzCzTzCzP0CzP0CzP0CzP1CzPzCzL0CzL0CzDqCTHyCzTzCzP0CzPzCzP0CzP0CzPzCzP0CzP0CzP0CzP0CzP1CzH0CzP0DDPzCzPzCzPzCzTzCzP1CzPzCzPyDDPzDDTzCzT1CjT///81BFTPAAAATnRSTlMAAAAAAAAAAAAAAAAAAAAACxgaEAErcX50fYN8TAhCs00RPZtHnNWEBy+5t1RwwZ+ajU/RHQEoYcq+wlOdiziWiAcqdoV0fHwIChgaEQIaa17CAAAAAWJLR0ROGWFx3wAAAAd0SU1FB+YCFwMAFKNbBF0AAABrSURBVAjXY2BgYGRiFhAUEhZhYWUAATZRMXEJSSlpGVl2BgYOTjl5BUUlZRVVNXUNIFdTS1tHV0/fwNDI2ISBwdTM3MLSytrG1s7ewZGBgYuT28nZxdXNXVrBgwdkFC8fv6eXt48vHx8DAwAB9gwkpTV3fgAAACV0RVh0ZGF0ZTpjcmVhdGUAMjAyMi0wMi0yM1QwMzowMDoyMCswMDowMFRj5gUAAAAldEVYdGRhdGU6bW9kaWZ5ADIwMjItMDItMjNUMDM6MDA6MjArMDA6MDAlPl65AAAAAElFTkSuQmCC"),
     mclaren = base64.decode("iVBORw0KGgoAAAANSUhEUgAAAA4AAAAHCAMAAAAPmYwrAAAABGdBTUEAALGPC/xhBQAAACBjSFJNAAB6JgAAgIQAAPoAAACA6AAAdTAAAOpgAAA6mAAAF3CculE8AAAAyVBMVEUAAAD/1QD/swD//wD/ugD/qQD/sQD/vAD/uwD+lwD/ygD6lQDKeAD/7gD/twDykAD6lQD8lgD9lgD9lwD8lgDujgDkhwD7lQD9lwD+lwD+lwD+lwD+lwD+lwD+lwD+lwD9lwDbggD7lQD9lwD+lwD+lwD+lwD+lwD8lgD8lgD9lwD9lwD8lgD9lwD+lwD+lwD+lwD+lwD9lgDwjwD6lQD+lwD+lwD+lwD7lgDxkAD9lwD+lwD9lwDoigD0kQD8lgD4lAD+lwD///825eDDAAAAQXRSTlMAAAAAAAAAAAAAAAAAAAAMIzxPUTYJBSRXj73c7vX26FwEH12k2PPXNTlbYUNEXK36xzoHJunvkB4CWK5FBA5BEc5qJCUAAAABYktHREIQ1z30AAAACXBIWXMAAA7DAAAOwwHHb6hkAAAAB3RJTUUH5gIXAxQ5yCqPfQAAAGFJREFUCNdjYAACRiZmfgFBIWERUQYGZhYxcQlJKWkZWTl5BQZFJWUVVTVHMFDXYNDU0hbW0dXTN3B0NDRiYDBmYGVj5+A0MTUzt+BiYODmARlmaWVtY8vLAAN29g58IBoAFEcKP1yC9RAAAAAldEVYdGRhdGU6Y3JlYXRlADIwMjItMDItMjNUMDM6MjA6NTcrMDA6MDDDbWhTAAAAJXRFWHRkYXRlOm1vZGlmeQAyMDIyLTAyLTIzVDAzOjIwOjU3KzAwOjAwsjDQ7wAAAABJRU5ErkJggg=="),
     alfa = base64.decode("iVBORw0KGgoAAAANSUhEUgAAAA4AAAAHCAMAAAAPmYwrAAAABGdBTUEAAK/INwWK6QAAACBjSFJNAAB6JgAAgIQAAPoAAACA6AAAdTAAAOpgAAA6mAAAF3CculE8AAAAt1BMVEUAAADIx8epqKgNDA0ODQ4IBwjMy8zMy8uFg4S2tbW8u7usqquopqeKiIiVk5SzsrKrqqqhn5+lpKSIhoerqaq/vr6koqPCwcG4t7fGxcXm5eXEw8ORj5DY19jNzMzY2NjY19eQjo+Ni4vKycnX19fZ2NjIx8eMiorGxcaysLGLiYmpp6hyb3BXVVWura21s7RmY2SEgoNOS0yJh4jS0dGOjI3BwMFlYmOamZnp6Oja2trHxsf////yxuvBAAAAKHRSTlMAAAAAAAAAAByCw8OCHBq3/Py3G3T+dZ2edP51Grf8/LcbHILDw4IcXmehwgAAAAFiS0dEPKdqYc8AAAAHdElNRQfmAhcDGROmPzjmAAAAVElEQVQI12NgYGBg5ODk4ubhZWKAAD5+AQ1NQSFhZghXRFRLW0dXT4wFwhXXNzA0MjaRYIVwJaVMzcwtLKWhemVk5ays5RUUoVw2JWUVVTV1diATADtkBuuaie/6AAAAJXRFWHRkYXRlOmNyZWF0ZQAyMDIyLTAyLTIzVDAzOjI1OjE5KzAwOjAw8THWsAAAACV0RVh0ZGF0ZTptb2RpZnkAMjAyMi0wMi0yM1QwMzoyNToxOSswMDowMIBsbgwAAAAZdEVYdFNvZnR3YXJlAEFkb2JlIEltYWdlUmVhZHlxyWU8AAAAAElFTkSuQmCC"),
 )
+
+CONSTRUCTOR_NAMES = {
+    "mercedes": "Mercedes",
+    "red_bull": "Red Bull",
+    "ferrari": "Ferrari",
+    "williams": "Williams",
+    "alpine": "Alpine",
+    "alphatauri": "AlphaTauri",
+    "aston_martin": "Aston Martin",
+    "haas": "Haas",
+    "mclaren": "McLaren",
+    "alfa": "Alfa Romeo",
+}
 
 # we will go back to these at some point
 #F1_URLS = {
@@ -148,9 +168,9 @@ def main(config):
         Constructor2 = standings["ConstructorStandings"][1]["Constructor"]["constructorId"]
         Constructor3 = standings["ConstructorStandings"][2]["Constructor"]["constructorId"]
 
-        Points1 = standings["ConstructorStandings"][0]["points"]
-        Points2 = standings["ConstructorStandings"][1]["points"]
-        Points3 = standings["ConstructorStandings"][2]["points"]
+        Points1 = text_justify_trunc(3, standings["ConstructorStandings"][0]["points"], "right")
+        Points2 = text_justify_trunc(3, standings["ConstructorStandings"][1]["points"], "right")
+        Points3 = text_justify_trunc(3, standings["ConstructorStandings"][2]["points"], "right")
 
         return render.Root(
             child = render.Column(
@@ -167,7 +187,7 @@ def main(config):
                             ),
                             render.Marquee(
                                 width = 50,
-                                child = render.Text(Constructor1 + " " + Points1 + " pts"),
+                                child = render.Text(Points1 + " pts - " + text_justify_trunc(12, CONSTRUCTOR_NAMES[Constructor1], "left")),
                                 offset_start = 64,
                                 offset_end = 64,
                             ),
@@ -183,7 +203,7 @@ def main(config):
                             ),
                             render.Marquee(
                                 width = 50,
-                                child = render.Text(Constructor2 + " " + Points2 + " pts"),
+                                child = render.Text(Points2 + " pts - " + text_justify_trunc(12, CONSTRUCTOR_NAMES[Constructor2], "left")),
                                 offset_start = 64,
                                 offset_end = 64,
                             ),
@@ -199,7 +219,7 @@ def main(config):
                             ),
                             render.Marquee(
                                 width = 50,
-                                child = render.Text(Constructor3 + " " + Points3 + " pts"),
+                                child = render.Text(Points3 + " pts - " + text_justify_trunc(12, CONSTRUCTOR_NAMES[Constructor3], "left")),
                                 offset_start = 64,
                                 offset_end = 64,
                             ),
@@ -211,17 +231,18 @@ def main(config):
     else:
         #Driver
         standings = f1_cached["StandingsTable"]["StandingsLists"][0]
-        F1_FNAME = standings["DriverStandings"][0]["Driver"]["givenName"]
+
+        #F1_FNAME = standings["DriverStandings"][0]["Driver"]["givenName"]
         F1_LNAME = standings["DriverStandings"][0]["Driver"]["familyName"]
-        F1_POINTS = standings["DriverStandings"][0]["points"]
+        F1_POINTS = text_justify_trunc(3, standings["DriverStandings"][0]["points"], "right")
 
-        F1_FNAME2 = standings["DriverStandings"][1]["Driver"]["givenName"]
+        #F1_FNAME2 = standings["DriverStandings"][1]["Driver"]["givenName"]
         F1_LNAME2 = standings["DriverStandings"][1]["Driver"]["familyName"]
-        F1_POINTS2 = standings["DriverStandings"][1]["points"]
+        F1_POINTS2 = text_justify_trunc(3, standings["DriverStandings"][1]["points"], "right")
 
-        F1_FNAME3 = standings["DriverStandings"][2]["Driver"]["givenName"]
+        #F1_FNAME3 = standings["DriverStandings"][2]["Driver"]["givenName"]
         F1_LNAME3 = standings["DriverStandings"][2]["Driver"]["familyName"]
-        F1_POINTS3 = standings["DriverStandings"][2]["points"]
+        F1_POINTS3 = text_justify_trunc(3, standings["DriverStandings"][2]["points"], "right")
 
         return render.Root(
             child = render.Column(
@@ -236,12 +257,8 @@ def main(config):
                                     render.Text(F1_POINTS, font = "5x8"),
                                 ],
                             ),
-                            render.Marquee(
-                                width = 50,
-                                child = render.Text(F1_FNAME + " " + F1_LNAME),
-                                offset_start = 1,
-                                offset_end = 1,
-                            ),
+                            render.Box(width = 2, height = 5),
+                            render.Text(F1_LNAME),
                         ],
                     ),
                     render.Row(
@@ -252,12 +269,8 @@ def main(config):
                                     render.Text(F1_POINTS2, font = "5x8"),
                                 ],
                             ),
-                            render.Marquee(
-                                width = 50,
-                                child = render.Text(F1_FNAME2 + " " + F1_LNAME2),
-                                offset_start = 1,
-                                offset_end = 1,
-                            ),
+                            render.Box(width = 2, height = 5),
+                            render.Text(F1_LNAME2),
                         ],
                     ),
                     render.Row(
@@ -268,12 +281,8 @@ def main(config):
                                     render.Text(F1_POINTS3, font = "5x8"),
                                 ],
                             ),
-                            render.Marquee(
-                                width = 50,
-                                child = render.Text(F1_FNAME3 + " " + F1_LNAME3),
-                                offset_start = 1,
-                                offset_end = 1,
-                            ),
+                            render.Box(width = 2, height = 5),
+                            render.Text(F1_LNAME3),
                         ],
                     ),
                 ],
@@ -349,3 +358,20 @@ def get_f1_data(url):
         cache.set(url, f1_details, ttl_seconds = F1_API_TTL)
 
     return json.decode(f1_details)["MRData"]
+
+def text_justify_trunc(length, text, direction):
+    #  thanks to @inxi and @whyamihere / @rs7q5 for the codepoints() and codepoints_ords() help
+    chars = list(text.codepoints())
+    textlen = len(chars)
+
+    # if string is shorter than desired - we can just use the count of chars (not bytes) and add on spaces - we're good
+    if textlen < length:
+        for _ in range(0, length - textlen):
+            text = " " + text if direction == "right" else text + " "
+    else:
+        # text is longer - need to trunc it get the list of characters & trunc at length
+        text = ""  # clear out text
+        for i in range(0, length):
+            text = text + chars[i]
+
+    return text
