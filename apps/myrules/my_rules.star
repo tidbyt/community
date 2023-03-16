@@ -148,5 +148,6 @@ def main(config):
             child = renderRule(url),
             padding = 1,
         ),
+        delay = 10,
         show_full_animation = True,
     )
