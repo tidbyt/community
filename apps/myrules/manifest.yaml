@@ -1,0 +1,8 @@
+---
+id: my-rules
+name: My Rules
+summary: Set rules for yourself
+desc: Display one of several rules you set for yourself.
+author: hloeding
+fileName: my_rules.star
+packageName: myrules
