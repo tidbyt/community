@@ -12,45 +12,102 @@ Author: hloeding
 # Required modules
 load("render.star", "render")
 load("random.star", "random")
+load("http.star", "http")
+load("encoding/csv.star", "csv")
+load("humanize.star", "humanize")
+load("cache.star", "cache")
+load("schema.star", "schema")
+
 # ###########################
 # ###### App constants ######
 # ###########################
 
-DEFAULT_RULES = [
-    "Be kind",
-    "Be the change you wish to see in the world",
-    "Live each day as if it were your last",
-    "The grass is green where you water it",
-    "Breathe in courage, breathe out fear",
-    "This too shall pass",
-    "I am what I think about",
-    "Tomorrow is another day",
-    "Progress, not perfection",
-    "Honesty is the best policy",
-    "We are all a work in progress",
-    "Be intentional in all that you do",
-    "Eyes on the prize",
-    "You miss 100 percent of the shots you don't take",
-    "Fake it 'till you make it",
-    "Remember your why",
-    "Life begins at the end of the comfort zone",
-    "There is always something to be grateful for",
-    "Vision without action is a daydream",
-    "There is no time like the present",
-    "Don't sweat the small stuff",
-    "It doesn't matter how slowly you go, just don't stop",
-    "Be a rainbow in someone else's cloud",
-    "Let go of who you think you should be",
-    "When life gives you lemons, make lemonade"
-]
+DEFAULT_RULES = """
+"Thou shall provide a valid URL"
+"Thou shall provide rules as valid CSV"
+"""
+
+DEFAULT_RULES_URL = \
+    "https://raw.githubusercontent.com/hloeding/" + \
+    "tidbyt_community_apps/myrules/apps/myrules/rules.csv"
+
+RULES_CACHE_KEY = "my_rules_%s"
+RULES_CACHE_TTL = 5 * 60
+
+# ###############################################
+# ###### Functions to construct app schema ######
+# ###############################################
+
+def get_schema():
+    return schema.Schema(
+        version = "1",
+        fields = [
+            schema.Text(
+                id = "url",
+                name = "URL",
+                desc = "URL of your rules file (in CSV format)",
+                icon = "database",
+                default = DEFAULT_RULES_URL,
+            ),
+        ],
+    )
+
+# #########################################
+# ###### Functions to retrieve rules ######
+# #########################################
+
+def getRules(url):
+    rulesData = getCachedRulesData(url)
+    if rulesData == None:
+        rulesData = getRawRulesData(url)
+        setCachedRulesData(url, rulesData)
+    # TODO: There seems to be no try/except in starlark.
+    # For now, the applet will just have to fail in case
+    # csv.read_all fails in its turn.
+    ret = []
+    for rule in csv.read_all(rulesData):
+        ret.append(rule[0])
+    return ret
+
+# ###############################
+# ###### Caching functions ######
+# ###############################
+
+def getCacheKey(url):
+    return RULES_CACHE_KEY % humanize.url_encode(url)
+
+def getCachedRulesData(url):
+    return cache.get(getCacheKey(url))
+
+def setCachedRulesData(url, data):
+    return cache.set(
+        getCacheKey(url),
+        data,
+        RULES_CACHE_TTL
+    )
+
+# ##################################################
+# ###### Functions to retrieve raw rules data ######
+# ##################################################
+
+def getRawRulesData(url):
+    # TODO: There seems to be no try/except in starlark. Nor does 
+    # there seem a way to check for the existence of URLs.
+    # I can see no way around letting the applet fail, if http.get()
+    # fails in its turn.
+    response = http.get(url)
+    if response != None and response.status_code == 200:
+        return response.body()
+    return DEFAULT_RULES
 
 # #######################################
 # ###### Functions to render rules ######
 # #######################################
 
-def renderRule():
-    ruleIdx = random.number(0, len(DEFAULT_RULES ) - 1)
-    rule = DEFAULT_RULES[ruleIdx]
+def renderRule(url):
+    rules = getRules(url)
+    ruleIdx = random.number(0, len(rules) - 1)
+    rule = rules[ruleIdx]
     return render.Column(
         children = [
             render.Marquee(
@@ -81,9 +138,13 @@ def renderRule():
 
 # Main entrypoint
 def main(config):
+    url = config.str(
+        "url",
+        DEFAULT_RULES_URL,
+    )
     return render.Root(
         render.Box(
-            child = renderRule(),
+            child = renderRule(url),
             padding = 1,
         ),
         show_full_animation = True,
