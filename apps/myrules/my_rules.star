@@ -28,8 +28,11 @@ DEFAULT_RULES = """
 """
 
 DEFAULT_RULES_URL = \
-    "https://raw.githubusercontent.com/hloeding/" + \
-    "tidbyt_community_apps/myrules/apps/myrules/rules.csv"
+    "https://raw.githubusercontent.com/tidbyt/" + \
+    "community/main/apps/myrules/rules.csv"
+# DEFAULT_RULES_URL = \
+#     "https://raw.githubusercontent.com/hloeding/" + \
+#     "tidbyt_community_apps/myrules/apps/myrules/rules.csv"
 
 RULES_CACHE_KEY = "my_rules_%s"
 RULES_CACHE_TTL = 5 * 60
