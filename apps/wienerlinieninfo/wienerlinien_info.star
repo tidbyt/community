@@ -5,11 +5,10 @@ Description: Real time information about your favorite transport line in Vienna.
 Author: David B.C.
 """
 
-load("render.star", "render")
-load("http.star", "http")
 load("cache.star", "cache")
 load("encoding/json.star", "json")
-load("encoding/csv.star", "csv")
+load("http.star", "http")
+load("render.star", "render")
 load("schema.star", "schema")
 
 RED_TRIGGER = 2
@@ -11018,6 +11017,11 @@ def drawLogo(code):
     elif len(code) in (2, 3) and code[0] == "N" and code[1:].isdigit():
         type = "NBUS"
 
+    # To avoid lint errors...  :(
+    rendering = []
+    emphasysColor = ""
+    textColor = ""
+
     if type in ("UBAHN", "UTRAM"):
         emphasysColor = LINECOLORS["UBAHN"][int(code[1]) - 1][0]
         textColor = LINECOLORS["UBAHN"][int(code[1]) - 1][1]
@@ -11293,7 +11297,6 @@ def getStationsNerarby(location):
     #DISTANCE = 0.008
     DISTANCE = 0.01
 
-    result = []
     candidates = []
     for item in DIVA_DB:
         if abs(float(lat) - item[3]) < DISTANCE and abs(float(lng) - item[2]) < DISTANCE:
@@ -11308,12 +11311,12 @@ def getStationsNerarby(location):
 
     if candidates == []:
         #print("Nothing found. Location not valid")
-        candidates += [
+        candidates.append(
             schema.Option(
                 display = "(Location not in Vienna)",
                 value = WELLKNOWN_DIVA,
             ),
-        ]
+        )
 
     return candidates
 
@@ -11341,10 +11344,8 @@ def main(config):
         stationName = " ······"
     minH1 = 999
     minH2 = 999
-    dirH = "(not found)"
     minR1 = 999
     minR2 = 999
-    dirR = "(not found)"
 
     countDowns = firstTwoDepartures(walkingTime, linesArray, DESIRED_LINE, "H", REMOVE_SU)
     minH1 = countDowns[0]
