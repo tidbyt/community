@@ -10,12 +10,12 @@ Author: hloeding
 # ################################
 
 # Required modules
-load("render.star", "render")
-load("random.star", "random")
-load("http.star", "http")
-load("encoding/csv.star", "csv")
-load("humanize.star", "humanize")
 load("cache.star", "cache")
+load("encoding/csv.star", "csv")
+load("http.star", "http")
+load("humanize.star", "humanize")
+load("random.star", "random")
+load("render.star", "render")
 load("schema.star", "schema")
 
 # ###########################
@@ -61,6 +61,7 @@ def getRules(url):
     if rulesData == None:
         rulesData = getRawRulesData(url)
         setCachedRulesData(url, rulesData)
+
     # TODO: There seems to be no try/except in starlark.
     # For now, the applet will just have to fail in case
     # csv.read_all fails in its turn.
@@ -83,7 +84,7 @@ def setCachedRulesData(url, data):
     return cache.set(
         getCacheKey(url),
         data,
-        RULES_CACHE_TTL
+        RULES_CACHE_TTL,
     )
 
 # ##################################################
@@ -91,7 +92,7 @@ def setCachedRulesData(url, data):
 # ##################################################
 
 def getRawRulesData(url):
-    # TODO: There seems to be no try/except in starlark. Nor does 
+    # TODO: There seems to be no try/except in starlark. Nor does
     # there seem a way to check for the existence of URLs.
     # I can see no way around letting the applet fail, if http.get()
     # fails in its turn.
@@ -122,14 +123,14 @@ def renderRule(url):
                 child = render.Text(
                     content = rule,
                     # font = "6x13",
-                    font = "10x20"
+                    font = "10x20",
                 ),
                 width = 62,
             ),
         ],
         expanded = True,
         main_align = "space_evenly",
-        cross_align = "center"
+        cross_align = "center",
     )
 
 # #############################
