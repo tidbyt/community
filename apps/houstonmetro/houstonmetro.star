@@ -1,9 +1,9 @@
-load("render.star", "render")
-load("http.star", "http")
 load("encoding/base64.star", "base64")
-load("secret.star", "secret")
-load("schema.star", "schema")
 load("encoding/json.star", "json")
+load("http.star", "http")
+load("render.star", "render")
+load("schema.star", "schema")
+load("secret.star", "secret")
 
 DEFAULT_STOP = "Ho414_4620_12308"
 SUBSCRIPTION_KEY = secret.decrypt("AV6+xWcEAT8EFKRWZcQqp3v/Vl4dIDmiVHqKDI9bXmDF7LrW9KONSxvItRWb11RLq4e2jcY0GZBhh+FLotzQS2V6S4BiUSKQytzBddyo+oiKBS3r/4i3w/feoUbD1d6RqAv0gq1b24Oq0SdcTFn9i7qlrPHMsQ3w+TssQuDnf+UHY4hx7aY=")
@@ -175,14 +175,15 @@ def get_stations(location):
 
     response = http.get(location_endpoint)
 
-    return
-    [
-        schema.Option(
-            display = station["Name"],
-            value = station["StopId"],
+    stops = []
+    for station in response["value"]:
+        stops.append(
+            schema.Option(
+                display = station["Name"],
+                value = station["StopId"],
+            ),
         )
-        for station in response["value"]
-    ]
+    return stops
 
 def get_schema():
     return schema.Schema(
