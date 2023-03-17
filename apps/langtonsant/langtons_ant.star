@@ -16,35 +16,35 @@ BOARD_WIDTH = 64
 BOARD_HEIGHT = 32
 
 STATE_COLORS = [
-    "#000000",  # Black/empty
-    "#ffffff",  # White
-    "#800000",  # Maroon
-    "#ffff00",  # Yellow
-    "#808000",  # Olive
-    "#c0c0c0",  # Silver
-    "#808080",  # Gray
-    "#00ff00",  # Lime
-    "#008000",  # Green
-    "#00ffff",  # Aqua
-    "#008080",  # Teal
-    "#0000ff",  # Blue
-    "#000080",  # Navy
-    "#ff00ff",  # Fuchsia
-    "#800080",  # Purple
-    "#ffffff",  # White (Repeating list due to long ruleset and lack of vision)
-    "#800000",  # Maroon
-    "#ffff00",  # Yellow
-    "#808000",  # Olive
-    "#c0c0c0",  # Silver
-    "#808080",  # Gray
-    "#00ff00",  # Lime
-    "#008000",  # Green
-    "#00ffff",  # Aqua
-    "#008080",  # Teal
-    "#0000ff",  # Blue
-    "#000080",  # Navy
+    render.Box(width = 1, height = 1, color = "#000000"),  # Black/empty
+    render.Box(width = 1, height = 1, color = "#ffffff"),  # White
+    render.Box(width = 1, height = 1, color = "#800000"),  # Maroon
+    render.Box(width = 1, height = 1, color = "#ffff00"),  # Yellow
+    render.Box(width = 1, height = 1, color = "#808000"),  # Olive
+    render.Box(width = 1, height = 1, color = "#c0c0c0"),  # Silver
+    render.Box(width = 1, height = 1, color = "#808080"),  # Gray
+    render.Box(width = 1, height = 1, color = "#00ff00"),  # Lime
+    render.Box(width = 1, height = 1, color = "#008000"),  # Green
+    render.Box(width = 1, height = 1, color = "#00ffff"),  # Aqua
+    render.Box(width = 1, height = 1, color = "#008080"),  # Teal
+    render.Box(width = 1, height = 1, color = "#0000ff"),  # Blue
+    render.Box(width = 1, height = 1, color = "#000080"),  # Navy
+    render.Box(width = 1, height = 1, color = "#ff00ff"),  # Fuchsia
+    render.Box(width = 1, height = 1, color = "#800080"),  # Purple
+    render.Box(width = 1, height = 1, color = "#ffffff"),  # White (Repeating list due to long ruleset and lack of vision)
+    render.Box(width = 1, height = 1, color = "#800000"),  # Maroon
+    render.Box(width = 1, height = 1, color = "#ffff00"),  # Yellow
+    render.Box(width = 1, height = 1, color = "#808000"),  # Olive
+    render.Box(width = 1, height = 1, color = "#c0c0c0"),  # Silver
+    render.Box(width = 1, height = 1, color = "#808080"),  # Gray
+    render.Box(width = 1, height = 1, color = "#00ff00"),  # Lime
+    render.Box(width = 1, height = 1, color = "#008000"),  # Green
+    render.Box(width = 1, height = 1, color = "#00ffff"),  # Aqua
+    render.Box(width = 1, height = 1, color = "#008080"),  # Teal
+    render.Box(width = 1, height = 1, color = "#0000ff"),  # Blue
+    render.Box(width = 1, height = 1, color = "#000080"),  # Navy
 ]
-ANT_COLOR = "#ff0000"  # Red
+ANT_COLOR = render.Box(width = 1, height = 1, color = "#ff0000")  # Red
 
 # Each character in the rule string indicates which direction the ant should turn when encountering the state/color whose index matches the character
 # Ex: "RL" means the ant should turn right (char at index 0 of the rule string) when encountering a black square (color at index 0 of the colors list)
@@ -204,16 +204,16 @@ def render_row(row, y, ants):
 
 def render_cell(cell_state, x, y, ants):
     """
-    Render a single cell
+    Render a single cell, using pre-defined Box elements for each color
     """
-    color = STATE_COLORS[cell_state]
+    cell = STATE_COLORS[cell_state]
 
     # Render ant positions in separate color
     for ant in ants:
         if x == ant[0] and y == ant[1]:
-            color = ANT_COLOR
+            cell = ANT_COLOR
 
-    return render.Box(width = 1, height = 1, color = color)
+    return cell
 
 def get_schema():
     rule_options = [schema.Option(display = r, value = r) for r in PREDEFINED_RULES]
@@ -234,7 +234,7 @@ def get_schema():
                 name = "Movement Rules",
                 desc = "Rules controling how the ant moves",
                 icon = "arrowTurnDown",
-                default = "RL",
+                default = "RANDOM",
                 options = rule_options,
             ),
             # schema.Generated(
