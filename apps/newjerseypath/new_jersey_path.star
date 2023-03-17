@@ -5,6 +5,8 @@ Description: Displays real-time departures for a New Jersey PATH station.
 Author: karmeleon
 """
 
+load("cache.star", "cache")
+load("encoding/json.star", "json")
 load("http.star", "http")
 load("render.star", "render")
 load("schema.star", "schema")
@@ -145,15 +147,27 @@ def get_routes(api_response):
     routes_ordered = sorted(routes_ordered, key = lambda route: route["arrivalTimes"][0])
     return routes_ordered
 
-def main(config):
-    station = config.get("station") or "grove_street"
-    desired_direction = config.get("direction") or "both"
+def query_api(station):
+    response = cache.get("station_{}".format(station))
+    if response != None:
+        return json.decode(response)
+
     path_url_for_station = PATH_URL.format(station = station)
     api_response = http.get(path_url_for_station)
     if api_response.status_code != 200:
         fail("Path api is sad :( url {} returned {}".format(path_url_for_station, api_response.status_code))
+    response_json = api_response.json()
+    cache.set("station_{}".format(station), json.encode(response_json), ttl_seconds = 30)
 
-    routes_ordered = get_routes(api_response.json())
+    return response_json
+
+def main(config):
+    station = config.get("station") or "grove_street"
+    desired_direction = config.get("direction") or "both"
+
+    api_response = query_api(station)
+
+    routes_ordered = get_routes(api_response)
 
     if desired_direction != "both":
         # filter out the trains going the other way
