@@ -35,47 +35,45 @@ def main(config):
             )
         )
     else:
-        i = 0
-        while i != 4 and i < len(stops):
-            route_number = stops[i]["RouteName"]
-            arrival_time = stops[i]["LocalArrivalTime"]
-            route_id = stops[i]["RouteId"]
-            arrival_time = time_string(arrival_time)
+        for i in range(0, 4):
+            if i < len(stops):
+                route_number = stops[i]["RouteName"]
+                arrival_time = stops[i]["LocalArrivalTime"]
+                route_id = stops[i]["RouteId"]
+                arrival_time = time_string(arrival_time)
 
-            route_info_endpoint = "https://api.ridemetro.org/data/FullRouteInfo?routeId="+route_id+"&subscription-key="+key
-            route_info_response = http.get(route_info_endpoint)
-            if route_info_response.json()['RouteColor']:
-                route_color = route_info_response.json()['RouteColor']
-            else: 
-                route_color = "#004080"
-            render_element = render.Row(children = [
-                        render.Stack(children = [
-                            render.Box(
-                                color = "#" + route_color,
-                                width = 22,
-                                height = 10,
-                            ),
-                            render.Box(
-                                color = "#0000",
-                                width = 22,
-                                height = 10,
-                                child = render.Text(route_number, color = "#000", font = "CG-pixel-4x5-mono"),
-                            ),
-                        ]),
-                        render.Column(
-                            children = [
-                                render.Text(" " + arrival_time, color = "#f3ab3f"),
-                            ],
-                        )
-                    ],
-                    main_align = "center",
-                    cross_align = "center"
-                )
-            render_elements.append(render_element)
-            i += 1
+                route_info_endpoint = "https://api.ridemetro.org/data/FullRouteInfo?routeId="+route_id+"&subscription-key="+key
+                route_info_response = http.get(route_info_endpoint)
+                if route_info_response.json()['RouteColor']:
+                    route_color = route_info_response.json()['RouteColor']
+                else: 
+                    route_color = "#004080"
+                render_element = render.Row(children = [
+                            render.Stack(children = [
+                                render.Box(
+                                    color = "#" + route_color,
+                                    width = 22,
+                                    height = 10,
+                                ),
+                                render.Box(
+                                    color = "#0000",
+                                    width = 22,
+                                    height = 10,
+                                    child = render.Text(route_number, color = "#000", font = "CG-pixel-4x5-mono"),
+                                ),
+                            ]),
+                            render.Column(
+                                children = [
+                                    render.Text(" " + arrival_time, color = "#f3ab3f"),
+                                ],
+                            )
+                        ],
+                        main_align = "center",
+                        cross_align = "center"
+                    )
+                render_elements.append(render_element)
 
     #Create animation frames of the stop info
-    i = 0
     animation_children = []
     if len(render_elements) == 1:
         frame_1 = render.Column(
@@ -83,9 +81,8 @@ def main(config):
                 render_elements[0]
             ]
         )
-        while i != 160:
+        for i in range(0, 160):
             animation_children.append(frame_1)
-            i+=1;
     if len(render_elements) == 2:
         frame_1 = render.Column(
             children = [
@@ -93,9 +90,8 @@ def main(config):
                 render_elements[1]
             ]
         )
-        while i != 160:
+        for i in range(0, 160):
             animation_children.append(frame_1)
-            i+=1;
     if len(render_elements) == 3:
         frame_1 = render.Column(
             children = [
@@ -108,12 +104,11 @@ def main(config):
                 render_elements[2]
             ]
         )
-        while i != 160:
+        for i in range(0, 160):
             if i <= 80:
                 animation_children.append(frame_1)
             else:
                 animation_children.append(frame_2)
-            i+=1
     if len(render_elements) == 4:
         frame_1 = render.Column(
             children = [
@@ -127,12 +122,11 @@ def main(config):
                 render_elements[3]
             ]
         )
-        while i != 160:
+        for i in range(0, 160):
             if i <= 80:
                 animation_children.append(frame_1)
             else:
                 animation_children.append(frame_2)
-            i+=1
 
     return render.Root(
         child = render.Column(
