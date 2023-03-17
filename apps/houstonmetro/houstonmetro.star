@@ -1,0 +1,201 @@
+load("render.star", "render")
+load("http.star", "http")
+load("encoding/base64.star", "base64")
+load("secret.star", "secret")
+load("schema.star", "schema")
+
+DEFAULT_STOP = "Ho414_4620_12308"
+SUBSCRIPTION_KEY = secret.decrypt("AV6+xWcEAT8EFKRWZcQqp3v/Vl4dIDmiVHqKDI9bXmDF7LrW9KONSxvItRWb11RLq4e2jcY0GZBhh+FLotzQS2V6S4BiUSKQytzBddyo+oiKBS3r/4i3w/feoUbD1d6RqAv0gq1b24Oq0SdcTFn9i7qlrPHMsQ3w+TssQuDnf+UHY4hx7aY=")
+METRO_ICON = base64.decode("""
+iVBORw0KGgoAAAANSUhEUgAAABUAAAAMCAYAAACNzvbFAAAAAXNSR0IArs4c6QAAAE5JREFUOE9jZKABYCRkpm/u5//Y1CxYb4hVq/CTO4x4DSXHQJBNOA0l10CchlJiIF6XEgprfPIY3qfUlRgupYaBtPc+tVwJdyk1DaSZ9wEBvjANhhbdqgAAAABJRU5ErkJggg==
+""")
+
+def main(config):
+    stop_id = config.get("station_id", None) or DEFAULT_STOP
+
+    key = SUBSCRIPTION_KEY or config.get("key", None)
+    endpoint = "https://api.ridemetro.org/data/Stops('"+stop_id+"')?subscription-key="+key
+    response = http.get(endpoint)
+    stops = response.json()["value"]
+    stop_name = response.json()["value"][0]["Name"]
+    render_elements = []
+    arrivals_endpoint = "https://api.ridemetro.org/data/Stops('"+stop_id+"')/Arrivals?subscription-key="+key
+    
+    # Make the initial GET request
+    response = http.get(arrivals_endpoint)
+    stops = response.json()["value"]
+    if not stops:
+        render_elements.append(render.Row(
+                children = [
+                    render.Box(
+                        color = "#0000",
+                        child = render.Text("No arrivals", color = "#f3ab3f")
+                    )
+                ]
+            )
+        )
+    else:
+        i = 0
+        while i != 4 and i < len(stops):
+            route_number = stops[i]["RouteName"]
+            arrival_time = stops[i]["LocalArrivalTime"]
+            route_id = stops[i]["RouteId"]
+            arrival_time = time_string(arrival_time)
+
+            route_info_endpoint = "https://api.ridemetro.org/data/FullRouteInfo?routeId="+route_id+"&subscription-key="+key
+            route_info_response = http.get(route_info_endpoint)
+            if route_info_response.json()['RouteColor']:
+                route_color = route_info_response.json()['RouteColor']
+            else: 
+                route_color = "#004080"
+            render_element = render.Row(children = [
+                        render.Stack(children = [
+                            render.Box(
+                                color = "#" + route_color,
+                                width = 22,
+                                height = 10,
+                            ),
+                            render.Box(
+                                color = "#0000",
+                                width = 22,
+                                height = 10,
+                                child = render.Text(route_number, color = "#000", font = "CG-pixel-4x5-mono"),
+                            ),
+                        ]),
+                        render.Column(
+                            children = [
+                                render.Text(" " + arrival_time, color = "#f3ab3f"),
+                            ],
+                        )
+                    ],
+                    main_align = "center",
+                    cross_align = "center"
+                )
+            render_elements.append(render_element)
+            i += 1
+
+    #Create animation frames of the stop info
+    i = 0
+    animation_children = []
+    if len(render_elements) == 1:
+        frame_1 = render.Column(
+            children = [
+                render_elements[0]
+            ]
+        )
+        while i != 160:
+            animation_children.append(frame_1)
+            i+=1;
+    if len(render_elements) == 2:
+        frame_1 = render.Column(
+            children = [
+                render_elements[0],
+                render_elements[1]
+            ]
+        )
+        while i != 160:
+            animation_children.append(frame_1)
+            i+=1;
+    if len(render_elements) == 3:
+        frame_1 = render.Column(
+            children = [
+                render_elements[0],
+                render_elements[1]
+            ]
+        )
+        frame_2 = render.Column(
+            children = [
+                render_elements[2]
+            ]
+        )
+        while i != 160:
+            if i <= 80:
+                animation_children.append(frame_1)
+            else:
+                animation_children.append(frame_2)
+            i+=1
+    if len(render_elements) == 4:
+        frame_1 = render.Column(
+            children = [
+                render_elements[0],
+                render_elements[1]
+            ]
+        )
+        frame_2 = render.Column(
+            children = [
+                render_elements[2],
+                render_elements[3]
+            ]
+        )
+        while i != 160:
+            if i <= 80:
+                animation_children.append(frame_1)
+            else:
+                animation_children.append(frame_2)
+            i+=1
+
+    return render.Root(
+        child = render.Column(
+            children = [
+                render.Row(
+                    children = [
+                        render.Image(
+                            src=METRO_ICON
+                        ),
+                        render.Marquee(
+                            child =
+                                render.Text(
+                                    stop_name,
+                                    font = "tb-8",
+                                    height = 12
+                                ),
+                            align = "center",
+                            width = 45,
+                            offset_start=5,
+                            offset_end=32,
+                        ),
+                    ]
+                ),
+                render.Sequence(
+                    children = [
+                        render.Animation(
+                            children = animation_children
+                        )
+                    ]
+                ),
+            ]
+        )
+    )
+
+def time_string(full_string):
+    time_index = full_string.find('T')
+    return full_string[time_index+1:len(full_string)-4]
+
+
+def get_stations(location):
+    location_endpoint = "https://houstonmetro.azure-api.net/data/GeoAreas('"+location["lat"]+"|"+location+["lng"]+"|.5')/Stops?subscription-key="+SUBSCRIPTION_KEY
+
+    response = http.get(location_endpoint)
+
+    return 
+    [
+        schema.Option(
+            display = station["Name"],
+            value = station["StopId"],
+        )
+        for station in response["value"]
+    ]
+
+def get_schema():
+    return schema.Schema(
+            version = "1",
+            fields = [
+                schema.LocationBased(
+                    id = "station_id",
+                    name = "Bus/Train Station",
+                    desc = "A list of bus or train stations based on a location.",
+                    icon = "train",
+                    handler = get_stations,
+                ),
+            ],
+        )

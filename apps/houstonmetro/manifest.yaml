@@ -1,0 +1,8 @@
+---
+id: houstonmetro
+name: Houston Metro
+summary: Arrivals for Houston Metro stops
+desc: Displays 1-4 upcoming Houston Metro arrivals
+author: DanielJRutledge
+fileName: houstonmetro.star
+packageName: houstonmetro
