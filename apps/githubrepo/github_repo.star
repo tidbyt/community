@@ -7,7 +7,7 @@ Author: rs7q5
 
 #github_repo.star
 #Created 20221223 RIS
-#Last Modified 20230112 RIS
+#Last Modified 20230308 RIS
 
 load("cache.star", "cache")
 load("encoding/base64.star", "base64")
@@ -134,6 +134,7 @@ def main(config):
 
     return render.Root(
         delay = 100,  #speed up scroll text
+        show_full_animation = True,
         child = frame_final,
     )
 
