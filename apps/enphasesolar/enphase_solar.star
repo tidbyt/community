@@ -7,14 +7,26 @@ Author: laodaochong
 
 load("cache.star", "cache")
 load("encoding/base64.star", "base64")
+load("hash.star", "hash")
 load("http.star", "http")
 load("humanize.star", "humanize")
 load("render.star", "render")
 load("schema.star", "schema")
 
+TITLE_TEXT_COLOR = "#fff"
+TITLE_BKG_COLOR = "#ff0000aa"
+TITLE_FONT = "tom-thumb"
+TITLE_HEIGHT = 8
+TITLE_WIDTH = 64
+AREA_HEIGHT = 24
+
 ENDPOINT = "https://api.enphaseenergy.com/api/v4/systems"
 AUTH_URL = "https://api.enphaseenergy.com/oauth/token"
 EXPIRE_MSG = "Access token has expired"
+ACCESS_TOKEN_KEY = "access_token_{}"
+REFRESH_TOKEN_KEY = "refresh_token_{}"
+ENERGY_TODAY_KEY = "energy_today_{}"
+INIT_KEY = "init_{}"
 
 # Due to limited number of API calls in free version of Enphase Application, here it only update
 # information every hour.
@@ -32,7 +44,7 @@ def check_response(response):
 
 def get_system_stats(api_key):
     headers = {
-        "Authorization": "Bearer " + cache.get("access_token"),
+        "Authorization": "Bearer " + cache.get(ACCESS_TOKEN_KEY.format(unique_suffix)),
         "Content-Type": "application/json",
     }
 
@@ -54,6 +66,8 @@ def get_system_stats(api_key):
 
 def request_refresh_token(refresh_token_code, client_id, client_secret):
     encoded_client_secrets = base64.encode("{}:{}".format(client_id, client_secret))
+    unique_suffix = hash.md5(client_id)
+
     headers = {
         "Authorization": "Basic {}".format(encoded_client_secrets),
         "Content-Type": "application/json",
@@ -66,8 +80,16 @@ def request_refresh_token(refresh_token_code, client_id, client_secret):
     response = http.post(AUTH_URL, params = params, headers = headers)
     if response.status_code == 200:
         print("Refresh token successfully.")
-        cache.set("access_token", response.json()["access_token"], ttl_seconds = int(response.json()["expires_in"]))
-        cache.set("refresh_token", response.json()["refresh_token"])
+        cache.set(
+            ACCESS_TOKEN_KEY.format(unique_suffix),
+            response.json()["access_token"],
+            ttl_seconds = int(response.json()["expires_in"])
+        )
+        cache.set(
+            REFRESH_TOKEN_KEY.format(unique_suffix),
+            response.json()["refresh_token"],
+            ttl_seconds = int(response.json()["expires_in"]) * 7
+        )
     else:
         msg = "Refresh token failed with status code {}, message {}".format(
             response.status_code,
@@ -75,13 +97,39 @@ def request_refresh_token(refresh_token_code, client_id, client_secret):
         )
         render_msg(msg)
 
+def format_msg(msg):
+    return render.WrappedText(
+        content=msg,
+        width=50,
+        color="#fa0"
+    )
+
 def render_msg(msg):
     """Render message to App"""
+
     return render.Root(
-        child = render.WrappedText(
-            content = msg,
-            width = 50,
-            color = "#fa0",
+        delay = 100,
+        show_full_animation = True,
+        child = render.Column(
+            children = [
+                render.Box(
+                    width = TITLE_WIDTH,
+                    height = TITLE_HEIGHT,
+                    padding = 0,
+                    color = TITLE_BKG_COLOR,
+                    child = render.Text("Solar Energy", color = TITLE_TEXT_COLOR, font = TITLE_FONT, offset = 0),
+                ),
+                render.Marquee(
+                    height = AREA_HEIGHT,
+                    scroll_direction = "vertical",
+                    offset_start = 24,
+                    child =
+                        render.Column(
+                            main_align = "space_between",
+                            children = ([format_msg(msg)]),
+                        ),
+                ),
+            ],
         ),
     )
 
@@ -95,30 +143,47 @@ def main(config):
     client_id = config.str("client_id")
     client_secret = config.str("client_secret")
     api_key = config.str("api_key")
+    unique_suffix = hash.md5(client_id)
 
     if not all([access_token, refresh_token, client_id, client_secret, api_key]):
-        return render_msg("Missing credential information.")
+        msg = "Missing credential information. In order to show number of kWh energy generated everyday, please provide Access Token, Refresh Token, Client ID, Client Secret and API Key in the App Configuration."
+        return render_msg(msg)
 
     # check if it is initial invocation by check "init" flag in the cache
-    init = cache.get("init")
+    init = cache.get(INIT_KEY.format(unique_suffix))
     if init == None:
-        cache.set("access_token", access_token, ttl_seconds = TTL_SECONDS)
-        cache.set("refresh_token", refresh_token)
-        cache.set("init", "1")
+        # Cache is scoped to the app, not individual user. So the cache keys need to be
+        # unique to the user/configuration
+
+        cache.set(
+            ACCESS_TOKEN_KEY.format(unique_suffix),
+            access_token,
+            ttl_seconds = TTL_SECONDS
+        )
+        cache.set(
+            REFRESH_TOKEN_KEY.format(unique_suffix),
+            refresh_token,
+            ttl_seconds = TTL_SECONDS * 7
+        )
+        cache.set(INIT_KEY.format(unique_suffix), "1")
 
     # check access token if it needs to be refreshed
-    access_token = cache.get("access_token")
+    access_token = cache.get(ACCESS_TOKEN_KEY.format(unique_suffix))
     if access_token == None:
-        request_refresh_token(cache.get("refresh_token"), client_id, client_secret)
+        request_refresh_token(cache.get(REFRESH_TOKEN_KEY.format(unique_suffix)), client_id, client_secret)
 
     # Get "energy_today"
-    engery_cached = cache.get("energy_today")
+    engery_cached = cache.get(ENERGY_TODAY_KEY.format(unique_suffix))
     if engery_cached == None:
         status, energy_today = get_system_stats(api_key)
         if status == 200:
-            cache.set("energy_today", energy_today, ttl_seconds = 60)
+            cache.set(
+                ENERGY_TODAY_KEY.format(unique_suffix),
+                energy_today,
+                ttl_seconds = TTL_SECONDS
+            )
         elif status == 401:
-            request_refresh_token(cache.get("refresh_token"), client_id, client_secret)
+            request_refresh_token(cache.get(REFRESH_TOKEN_KEY.format(unique_suffix)), client_id, client_secret)
             return render_msg("Token just refreshed wait for next call.")
         else:
             return render_msg("Unable to get system stats, status code: {}".format(status))
@@ -161,13 +226,13 @@ def get_schema():
             schema.Text(
                 id = "access_token",
                 name = "Access Token",
-                desc = "Follow the App README to generate the access_token",
+                desc = "Access token to allow App read information via Enphase API.",
                 icon = "key",
             ),
             schema.Text(
                 id = "refresh_token",
                 name = "Refresh Token",
-                desc = "Follow the App README to generate the refresh_token",
+                desc = "Refresh token used to refresh access token when it is expired.",
                 icon = "key",
             ),
         ],
