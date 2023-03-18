@@ -59,15 +59,17 @@ Most probably, you will have your Tidbyt far away from the station itself. Becau
 
 If you do not want to take this in place, just write a `0` in there. Default value is `5` minutes.
 
-## Reverse order
+## Aesthetical parameters
 
-Just an aesthetical parameter. If you specify so, the directions will be interchanged in the display. Default is `false`.
+### Reverse order
 
-## Destination uppercase
+If you specify so, the directions will be interchanged in the display. Default is `false`.
+
+### Destination uppercase
 
 The API used (see legal notice below) returns non U-Bahn directions (bus, trams, etc.) in lowercase. You can keep this or keep the default value `true` to make them uppercase.
 
-## Remove U from the station name
+### Remove U from the station name
 
 It can be a bit annoying to have a marquee in place only to scroll a trailing **U** or **S** at the end of the station name. So, by default, it is removed (`true`). Set it to `false` if you want to keep it.
 
@@ -78,9 +80,9 @@ It can be a bit annoying to have a marquee in place only to scroll a trailing **
 This application uses the Open Government Data of the City of Vienna with the only purpose to be helpful to Tidbyt users that live in Vienna in aim to make the world a better place. 
 Open Government Data of the City of Vienna is licensed under a "Creative Commons Attribution 4.0 License" (CC BY 4.0). Full terms [here](https://digitales.wien.gv.at/ogd-nutzungsbedingungen/) (text in German).
 
-Data source: City of Vienna - data.wien.gv.at
+Data source: City of Vienna – [data.wien.gv.at](https://data.wien.gv.at)
 
-Datenquelle: Stadt Wien – data.wien.gv.at
+Datenquelle: Stadt Wien – [data.wien.gv.at](https://data.wien.gv.at)
 
 ## Tidbyt Individual Contributor License Agreement
 
