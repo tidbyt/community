@@ -83,12 +83,12 @@ def request_refresh_token(refresh_token_code, client_id, client_secret):
         cache.set(
             ACCESS_TOKEN_KEY.format(unique_suffix),
             response.json()["access_token"],
-            ttl_seconds = int(response.json()["expires_in"])
+            ttl_seconds = int(response.json()["expires_in"]),
         )
         cache.set(
             REFRESH_TOKEN_KEY.format(unique_suffix),
             response.json()["refresh_token"],
-            ttl_seconds = int(response.json()["expires_in"]) * 7
+            ttl_seconds = int(response.json()["expires_in"]) * 7,
         )
     else:
         msg = "Refresh token failed with status code {}, message {}".format(
@@ -99,9 +99,9 @@ def request_refresh_token(refresh_token_code, client_id, client_secret):
 
 def format_msg(msg):
     return render.WrappedText(
-        content=msg,
-        width=50,
-        color="#fa0"
+        content = msg,
+        width = 50,
+        color = "#fa0",
     )
 
 def render_msg(msg):
@@ -158,12 +158,12 @@ def main(config):
         cache.set(
             ACCESS_TOKEN_KEY.format(unique_suffix),
             access_token,
-            ttl_seconds = TTL_SECONDS
+            ttl_seconds = TTL_SECONDS,
         )
         cache.set(
             REFRESH_TOKEN_KEY.format(unique_suffix),
             refresh_token,
-            ttl_seconds = TTL_SECONDS * 7
+            ttl_seconds = TTL_SECONDS * 7,
         )
         cache.set(INIT_KEY.format(unique_suffix), "1")
 
@@ -180,7 +180,7 @@ def main(config):
             cache.set(
                 ENERGY_TODAY_KEY.format(unique_suffix),
                 energy_today,
-                ttl_seconds = TTL_SECONDS
+                ttl_seconds = TTL_SECONDS,
             )
         elif status == 401:
             request_refresh_token(cache.get(REFRESH_TOKEN_KEY.format(unique_suffix)), client_id, client_secret)
