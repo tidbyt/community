@@ -1,3 +1,4 @@
+load("cache.star", "cache")
 load("encoding/base64.star", "base64")
 load("encoding/json.star", "json")
 load("http.star", "http")
@@ -11,19 +12,36 @@ METRO_ICON = base64.decode("""
 iVBORw0KGgoAAAANSUhEUgAAABUAAAAMCAYAAACNzvbFAAAAAXNSR0IArs4c6QAAAE5JREFUOE9jZKABYCRkpm/u5//Y1CxYb4hVq/CTO4x4DSXHQJBNOA0l10CchlJiIF6XEgprfPIY3qfUlRgupYaBtPc+tVwJdyk1DaSZ9wEBvjANhhbdqgAAAABJRU5ErkJggg==
 """)
 
+ROUTE_INFO_CACHE_KEY = "routeinfo"
+ROUTE_INFO_CACHE_TTL = 604800  #1 Week
+
+ARRIVALS_CACHE_KEY = "arrivals"
+ARRIVALS_CACHE_TTL = 60  # 1 minute
+
 def main(config):
     stop_id = config.get("station_id", None) or DEFAULT_STOP
 
     key = SUBSCRIPTION_KEY or config.get("key", None)
-    endpoint = "https://api.ridemetro.org/data/Stops('" + stop_id + "')?subscription-key=" + key
-    response = http.get(endpoint)
+
+    station_cache = cache.get(ROUTE_INFO_CACHE_KEY + stop_id)
+    if station_cache:
+        response = station_cache
+    else:
+        endpoint = "https://api.ridemetro.org/data/Stops('" + stop_id + "')?subscription-key=" + key
+        response = http.get(endpoint)
+        cache.set(ROUTE_INFO_CACHE_KEY + stop_id, response.body(), ROUTE_INFO_CACHE_TTL)
     stops = response.json()["value"]
     stop_name = response.json()["value"][0]["Name"]
     render_elements = []
-    arrivals_endpoint = "https://api.ridemetro.org/data/Stops('" + stop_id + "')/Arrivals?subscription-key=" + key
 
-    # Make the initial GET request
-    response = http.get(arrivals_endpoint)
+    arrivals_cache = cache.get(ARRIVALS_CACHE_KEY + stop_id)
+    if arrivals_cache:
+        response = arrivals_cache
+    else:
+        arrivals_endpoint = "https://api.ridemetro.org/data/Stops('" + stop_id + "')/Arrivals?subscription-key=" + key
+        response = http.get(arrivals_endpoint)
+        cache.set(ARRIVALS_CACHE_KEY + stop_id, response.body(), ARRIVALS_CACHE_TTL)
+
     stops = response.json()["value"]
     if not stops:
         render_elements.append(
@@ -44,8 +62,13 @@ def main(config):
                 route_id = stops[i]["RouteId"]
                 arrival_time = time_string(arrival_time)
 
-                route_info_endpoint = "https://api.ridemetro.org/data/FullRouteInfo?routeId=" + route_id + "&subscription-key=" + key
-                route_info_response = http.get(route_info_endpoint)
+                route_cache = cache.get(ROUTE_INFO_CACHE_KEY + route_id)
+                if route_cache:
+                    route_info_response = route_cache
+                else:
+                    route_info_endpoint = "https://api.ridemetro.org/data/FullRouteInfo?routeId=" + route_id + "&subscription-key=" + key
+                    route_info_response = http.get(route_info_endpoint)
+                    cache.set(ROUTE_INFO_CACHE_KEY + route_id, response.body(), ROUTE_INFO_CACHE_TTL)
                 if route_info_response.json()["RouteColor"]:
                     route_color = route_info_response.json()["RouteColor"]
                 else:
@@ -170,10 +193,15 @@ def time_string(full_string):
 
 def get_stations(location):
     loc = json.decode(location)
+    coordinates = str(loc["lat"]) + "|" + str(loc["lng"])
     key = SUBSCRIPTION_KEY or ""
-    location_endpoint = "https://houstonmetro.azure-api.net/data/GeoAreas('" + str(loc["lat"]) + "|" + str(loc["lng"]) + "|.5')/Stops?subscription-key=" + key
-
-    response = http.get(location_endpoint)
+    location_cache = cache.get(ROUTE_INFO_CACHE_KEY + coordinates)
+    if location_cache:
+        response = location_cache
+    else:
+        location_endpoint = "https://houstonmetro.azure-api.net/data/GeoAreas%28'" + coordinates + "|.5'%29/Stops?subscription-key=" + key
+        response = http.get(location_endpoint)
+        cache.set(ROUTE_INFO_CACHE_KEY + coordinates, response.body(), ROUTE_INFO_CACHE_TTL)
 
     stops = []
     for station in response["value"]:
