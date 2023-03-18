@@ -28,6 +28,8 @@ REFRESH_TOKEN_KEY = "refresh_token_{}"
 ENERGY_TODAY_KEY = "energy_today_{}"
 INIT_KEY = "init_{}"
 
+SCROLL_MSG_LEN = 36
+
 # Due to limited number of API calls in free version of Enphase Application, here it only update
 # information every hour.
 TTL_SECONDS = 3600
@@ -104,9 +106,23 @@ def format_msg(msg):
         color = "#fa0",
     )
 
+def render_information(msg, scroll = False):
+    if scroll:
+        return render.Marquee(
+            height = AREA_HEIGHT,
+            scroll_direction = "vertical",
+            offset_start = 24,
+            child =
+                render.Column(
+                    main_align = "space_between",
+                    children = ([format_msg(msg)]),
+                ),
+        )
+    return format_msg(msg)
+
 def render_msg(msg):
     """Render message to App"""
-
+    scroll = len(msg) > SCROLL_MSG_LEN
     return render.Root(
         delay = 100,
         show_full_animation = True,
@@ -119,16 +135,7 @@ def render_msg(msg):
                     color = TITLE_BKG_COLOR,
                     child = render.Text("Solar Energy", color = TITLE_TEXT_COLOR, font = TITLE_FONT, offset = 0),
                 ),
-                render.Marquee(
-                    height = AREA_HEIGHT,
-                    scroll_direction = "vertical",
-                    offset_start = 24,
-                    child =
-                        render.Column(
-                            main_align = "space_between",
-                            children = ([format_msg(msg)]),
-                        ),
-                ),
+                render_information(msg, scroll),
             ],
         ),
     )
