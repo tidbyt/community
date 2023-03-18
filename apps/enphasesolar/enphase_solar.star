@@ -42,7 +42,7 @@ def check_response(response):
         print("Request is failed with status code {} {}".format(response.status_code, response.json()))
         return response.status_code, None
 
-def get_system_stats(api_key):
+def get_system_stats(api_key, unique_suffix):
     headers = {
         "Authorization": "Bearer " + cache.get(ACCESS_TOKEN_KEY.format(unique_suffix)),
         "Content-Type": "application/json",
@@ -175,7 +175,7 @@ def main(config):
     # Get "energy_today"
     engery_cached = cache.get(ENERGY_TODAY_KEY.format(unique_suffix))
     if engery_cached == None:
-        status, energy_today = get_system_stats(api_key)
+        status, energy_today = get_system_stats(api_key, unique_suffix)
         if status == 200:
             cache.set(
                 ENERGY_TODAY_KEY.format(unique_suffix),
