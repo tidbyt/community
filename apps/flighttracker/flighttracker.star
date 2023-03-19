@@ -312,6 +312,13 @@ def main(config):
             arrivalSecondary = estimatedArrival_time
             departureSecondaryColor = "#19d172"  # Green
             arrivalSecondaryColor = "#f5be00"  # Orange
+        if status == "Taxiing / Left Gate":
+            time_color = "#FFC857"
+            marquee = "Taxiing | Departing " + estimatedDeparture_humanized
+            departureSecondary = actualDeparture_time
+            arrivalSecondary = estimatedArrival_time
+            departureSecondaryColor = "#19d172"  # Green
+            arrivalSecondaryColor = "#f5be00"  # Orange
         if status == "En Route / Delayed":
             time_color = "#FFC857"
             marquee = "En Route / Delayed | Arriving " + estimatedArrival_humanized
@@ -347,7 +354,6 @@ def main(config):
             arrivalSecondary = actualArrival_time
             departureSecondaryColor = "#19d172"  # Green
             arrivalSecondaryColor = "#19d172"  # Green
-
     else:
         progressBarWidth = 64
         deptCity = "Orlando"
