@@ -6,7 +6,7 @@ Author: rs7q5
 """
 #math_clock.star
 #Created 20230129 RIS
-#Last Modified 20230129 RIS
+#Last Modified 20230210 RIS
 
 load("animation.star", "animation")
 load("encoding/json.star", "json")
@@ -47,6 +47,7 @@ def main(config):
 
     return render.Root(
         delay = 500,
+        max_age = 120,
         child = render.Column(
             main_align = "space_between",
             expanded = True,

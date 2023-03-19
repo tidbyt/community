@@ -7,7 +7,7 @@ Author: rs7q5
 
 #github_activity.star
 #Created 20221117 RIS
-#Last Modified 20221224 RIS
+#Last Modified 20230308 RIS
 
 load("cache.star", "cache")
 load("encoding/base64.star", "base64")
@@ -68,8 +68,8 @@ iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAAXNSR0IArs4c6QAAAd5JREFUOE+tk79r
 CLIENT_ID_DEFAULT = "123456"
 CLIENT_SECRET_DEFAULT = "78910"
 
-CLIENT_ID = "AV6+xWcENwf/yFjUUmeqkS0BmffhMyvfFwJsRhbP/wlPsmARatz0FbGQDmYQlwyNvsux72tus+/cvFjlMvgRhi5pKBcT/h3NrOn4RgeFSSrCC/oEJQ5J1xgQMfYZfaTJnAuByzYMKXIa4aDKqfio7don1OzlpIoGzwk="
-CLIENT_SECRET = "AV6+xWcEkGQcmCdoF4yLvssx1t8fdhuWfD24pFrPzWGJ8X9AVvgOkHUnD0JkNkp8BilBVRq5yIdvzPar5MYNz5qv321OIgoa6sobRuq8M2qIphLERlBuIXlH+fS8CtLgYQzjIqUpbdU/LD63hRlqF2iIoDLCM7CA9+FUcqkg7ecQ2f4X3lK87TImFw8c6g=="
+CLIENT_ID = "AV6+xWcE/KQvC81B6WzgwzvD4ZoupLfN8TC/SJsH+HM9BJvI6pGrRJweJGMO34ZFLehdFzch8C8F/EJNbu6yMCVShWY85jU+m3OFI6mTNQ9WMFUvJtyazmNiGRkFhydP1nCm2SRMp5ih+NMu0j1CVy+R3GJ8LfMVmLc="
+CLIENT_SECRET = "AV6+xWcEctKRED4FFQz/BS/u5MlGScY7F3x1xZ5Tg+8spZX/+Y/dfMnd+6RPagWOYzh63Xea4bP8qnHf5kGuplixKHx3dfeQoxmsORFbMW2Da98T716B/8EcWuQhw2hb4gbQr0oKPwZr6RANKywUWBUt3/0LAhoG9EziqBUGJFAeLuDnFeGdAvjYz/w1lg=="
 
 ############
 #debug stuff
@@ -116,6 +116,7 @@ def main(config):
 
     return render.Root(
         delay = 100,  #speed up scroll text
+        show_full_animation = True,
         child = frame_final,
     )
 

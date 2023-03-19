@@ -23,7 +23,7 @@ DEFAULT_UNITS = "imperial"
 DEFAULT_SPORT = "ride"
 DEFAULT_SCREEN = "all"
 
-RATE_LIMIT_DEFAULT_BACKOFF = 10
+RATE_LIMIT_DEFAULT_BACKOFF_SECONDS = 15 * 60
 RATE_LIMIT_CACHE_KEY = "rate-limit-backoff"
 
 PREVIEW_DATA = {
@@ -1174,7 +1174,7 @@ def http_get(url, headers = None):
         # Retry-After header. but if they start doing so, we'll respect it.
         # in the absence of that header, we backoff for some reasonable
         # default number of seconds.
-        backoff = res.headers.get("Retry-After", RATE_LIMIT_DEFAULT_BACKOFF)
+        backoff = res.headers.get("Retry-After", RATE_LIMIT_DEFAULT_BACKOFF_SECONDS)
         cache.set(
             RATE_LIMIT_CACHE_KEY,
             "back off, buddy",

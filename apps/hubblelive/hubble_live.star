@@ -9,6 +9,7 @@ load("cache.star", "cache")
 load("encoding/base64.star", "base64")
 load("encoding/json.star", "json")
 load("http.star", "http")
+load("humanize.star", "humanize")
 load("re.star", "re")
 load("render.star", "render")
 load("schema.star", "schema")
@@ -53,6 +54,26 @@ CACHE_OVERRIDE = False
 # CACHE_OVERRIDE = True
 
 #-------------------------------------------------------------------------------
+# Utilities
+#-------------------------------------------------------------------------------
+
+def pad_left(in_str, width):
+    """Add space padding to the left side of a string.
+
+    Args:
+        in_str: The input string to pad.
+        width: The desired width of the output string.
+
+    Returns:
+       A string padded out to `width` characters by adding spaces to the left.
+    """
+    out_str = in_str
+    if len(in_str) < width:
+        delta = width - len(in_str)
+        out_str = (" " * delta) + in_str
+    return out_str
+
+#-------------------------------------------------------------------------------
 # Data Retrival
 #-------------------------------------------------------------------------------
 
@@ -73,7 +94,6 @@ def get_hst_live():
     if data and not CACHE_OVERRIDE:
         obs = json.decode(data)
     else:
-        # print("Loading from APIs")
         api_reply = http.get(SPACE_TELESCOPE_LIVE_API)
         if api_reply.status_code == HTTP_STATUS_OK:
             obsjson_raw = api_reply.body()
@@ -97,10 +117,16 @@ def get_hst_live():
             obs["reference_image_base64"] = get_ref_image(obs["reference_image_url"])
         else:
             obs["reference_image_url"] = ""
-        if obs.get("ra", None) == None:
+
+        if obs.get("ra", None) == None or obs.get("ra") == "":
             obs["ra"] = ""
-        if obs.get("dec", None) == None:
+        else:
+            obs["ra"] = humanize.float("+#.##", float(obs["ra"]))
+
+        if obs.get("dec", None) == None or obs.get("dec") == "":
             obs["dec"] = ""
+        else:
+            obs["dec"] = humanize.float("+#.##", float(obs["dec"]))
 
         if obs.get("end_at", None) != None:
             cache_timeout = time.parse_time(obs["end_at"]) - time.now().in_location("UTC")
@@ -239,14 +265,14 @@ def render_display(obs, img_size = 20):
                                 marquee_text(obs["science_instrument_acronym"], width = SCREEN_WIDTH - img_size),
                                 render.Row(
                                     children = [
-                                        render.Text("RA=", color = CYAN, font = SMALL_FONT),
-                                        render.Text(obs["ra"], color = WHITE, font = SMALL_FONT),
+                                        render.Text(pad_left("RA=", 4), color = CYAN, font = SMALL_FONT),
+                                        render.Text(pad_left(obs["ra"], 7), color = WHITE, font = SMALL_FONT),
                                     ],
                                 ),
                                 render.Row(
                                     children = [
-                                        render.Text("Dec=", color = CYAN, font = SMALL_FONT),
-                                        render.Text(obs["dec"], color = WHITE, font = SMALL_FONT),
+                                        render.Text(pad_left("Dec=", 4), color = CYAN, font = SMALL_FONT),
+                                        render.Text(pad_left(obs["dec"], 7), color = WHITE, font = SMALL_FONT),
                                     ],
                                 ),
                             ],
