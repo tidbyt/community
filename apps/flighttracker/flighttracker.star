@@ -273,7 +273,7 @@ def main(config):
 
             cache.set(logo_cacheName, json.encode(logoBase64Encoded), ttl_seconds = 86400)
 
-        #logo = http.get("https://flightaware.com/images/airline_logos/90p/" + operator + ".png").body()  # Get logo to display.
+        #logo = http.get("https://flightaware.com/images/airline_logos/90p/" + operator + ".png").body()  # Get logo to display
 
         lowerMarquee = flight_number + " | " + registration + " | " + aircraftType  # Lower marquee layout.
 
@@ -290,7 +290,7 @@ def main(config):
             departureSecondary = actualDeparture_time
             arrivalSecondary = estimatedArrival_time
             departureSecondaryColor = "#19d172"  # Green
-            arrivalSecondaryColor = "#f5be00"  # Orange
+            arrivalSecondaryColor = "#f5be00"  # Orange 
         if status == "Arrived / Gate Arrival":
             time_color = "#19d172"
             marquee = "At the Gate | Arrived " + actualArrival_humanized
@@ -309,6 +309,13 @@ def main(config):
             time_color = "#FFC857"
             marquee = "Enroute | Arriving " + estimatedArrival_humanized
             departureSecondary = actualDeparture_time
+            arrivalSecondary = estimatedArrival_time
+            departureSecondaryColor = "#19d172"  # Green
+            arrivalSecondaryColor = "#f5be00"  # Orange
+        if status == "Taxiing / Left Gate":
+            time_color = "#FFC857"
+            marquee = "Taxiing | Departing " + estimatedDeparture_humanized
+            departureSecondary = estimatedDeparture_time
             arrivalSecondary = estimatedArrival_time
             departureSecondaryColor = "#19d172"  # Green
             arrivalSecondaryColor = "#f5be00"  # Orange
@@ -347,7 +354,6 @@ def main(config):
             arrivalSecondary = actualArrival_time
             departureSecondaryColor = "#19d172"  # Green
             arrivalSecondaryColor = "#19d172"  # Green
-
     else:
         progressBarWidth = 64
         deptCity = "Orlando"
