@@ -27,8 +27,8 @@ fO5PI9OqOcPICMhohiJzt1o+5JQ3VtjJtKTy+L7dvZIpognBcHV4MFxJbEoV1apx+8wZJiX9bkJCjmhC
 YOhHSGUgGreaxu4jnp/bZzyDMdcnBfMH+p/AM/kQywMAAAAASUVORK5CYII=
 """)
 REDDIT_CLIENT_SECRET = """
-AV6+xWcEfrTgG3a7wMLoGfEymayDvr9Susu1R/5OnS49cOM9E7uh7XJG3+kfzjGpaBXRtoWsKDjaNaGA+ccUDK8t
-k/Bh6Ao4G5zzJCH5iZy/OSYl7ZYo1AyGisVkjEvHB18Uc+VtJ93ltO4Yf+O643JuyYk8JDOvLrN5I5bW1hBFcXMC
+AV6+xWcE5oCvVzEiwnC1sRhCNmYm3yI3ly1JHsJ3envLlTFg24l79fJqIMEG1MCqy9irWINFUhmbeZoitmB+AllR
+PpL3aVbaTuT5bxw6Z940l0Jno0foSu769oiGALWQ9g5ouWnegIHMlsXKzpqJ05x30hIbA4vQNdn4pZkDv+dHwLxU
 """
 
 def main(config):
@@ -219,8 +219,8 @@ def setRandomPost(allImagePosts, subname):
             "title": chosen["title"],
         }
 
-        # This else will only run if there are no image posts in the top 30 in /r/hot for a sub.
     else:
+        # This else will only run if there are no image posts in the top 30 in /r/hot for a sub.
         return {
             "sub": "r/" + subname,
             "title": "no results",
@@ -232,8 +232,8 @@ def setRandomPost(allImagePosts, subname):
 def getNewAccessToken():
     authSecret = secret.decrypt(REDDIT_CLIENT_SECRET) or "thiswillfail"
     auth = tuple([
-        "ZHJke6sDiMelW-l2l1qqyQ",
-        "QqYyuCX96jXe0QevYe_D7T_LkTHYcw",
+        "DxzJmjTSGHMt4Oj_8X7FkQ",
+        authSecret,
     ])
     headers = {
         "User-Agent": "Tidbyt App: Reddit Image Shuffler",
