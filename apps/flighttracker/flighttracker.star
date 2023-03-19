@@ -273,7 +273,7 @@ def main(config):
 
             cache.set(logo_cacheName, json.encode(logoBase64Encoded), ttl_seconds = 86400)
 
-        #logo = http.get("https://flightaware.com/images/airline_logos/90p/" + operator + ".png").body()  # Get logo to display.
+        #logo = http.get("https://flightaware.com/images/airline_logos/90p/" + operator + ".png").body()  # Get logo to display
 
         lowerMarquee = flight_number + " | " + registration + " | " + aircraftType  # Lower marquee layout.
 
