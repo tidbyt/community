@@ -28,7 +28,7 @@ def main(config):
     mintime = config.get("mintime", "0")
 
     params = {
-        "sort": "arrival_time",
+        "sort": "departure_time",
         "include": "route",
         "filter[stop]": stop["value"],
     }
