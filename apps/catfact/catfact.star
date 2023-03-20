@@ -47,7 +47,7 @@ def main():
                 render.Row(
                     expanded = True,
                     main_align = "space_evenly",
-                    cross_align= "center",
+                    cross_align = "center",
                     children = [
                         render.Image(
                             width = 8,
