@@ -61,7 +61,8 @@ LEAGUE_ABBR = {
     "esp.1": "LaLiga",
     "uefa.champions": "U Chp",
     "uefa.europa": "Euro",
-    "concacaf.nations.league": "CNCAF N",
+    "concacaf.nations.league": "ConcNL",
+    "concacaf.champions": "ConcCL",
 }
 
 def main(config):
@@ -455,6 +456,10 @@ def main(config):
         return []
 
 leagueOptions = [
+    schema.Option(
+        display = "CONCACAF Champions League",
+        value = "concacaf.champions",
+    ),
     schema.Option(
         display = "CONCACAF Nations League",
         value = "concacaf.nations.league",
