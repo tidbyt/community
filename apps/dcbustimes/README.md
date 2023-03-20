@@ -8,3 +8,6 @@ The desired bus stop(s) are specified using the 7-digit Bus ID Number displayed 
 
 https://gis.wmata.com/mbsi/default.htm#regID=1001011
 
+Optional "Show Details" toggle allows detailed bus route information to be displayed as well as arrival time(s).
+
+
