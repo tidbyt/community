@@ -6,4 +6,5 @@ This app cycles through 133 Oblique Strategies, novel advice for musical problem
 
 No configuration is required.
 
-All credit goes to Brian Eno and Peter Schmidt, as well as to Maksim Morozov who's [exceptional web version](https://www.oblique.pouruntemps.com) inspired this creation.
+All credit goes to Brian Eno and Peter Schmidt, as well as to Maksim Morozov who's [exceptional web version](https://www.oblique.pouruntemps.com) inspired this creation. 
+Oblique Strategies Copyright © 2023 Brian Eno & Peter Schmidt. All rights reserved.
