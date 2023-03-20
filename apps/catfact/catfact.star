@@ -5,10 +5,10 @@ Description: Calls an external API and retrieves a random cat fact and renders i
 Author: broepke
 """
 
-load("render.star", "render")
-load("http.star", "http")
-load("encoding/base64.star", "base64")
 load("cache.star", "cache")
+load("encoding/base64.star", "base64")
+load("http.star", "http")
+load("render.star", "render")
 
 CAT_URL = "https://catfact.ninja/fact"
 
