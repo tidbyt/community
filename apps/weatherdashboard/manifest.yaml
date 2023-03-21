@@ -1,0 +1,8 @@
+---
+id: weather-dashboard
+name: Weather Dashboard
+summary: Display's local weather
+desc: Displays weather information from a local weather station.
+author: ckelley-1992
+fileName: weather_dashboard.star
+packageName: weatherdashboard
