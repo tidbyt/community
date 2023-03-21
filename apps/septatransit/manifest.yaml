@@ -1,0 +1,8 @@
+---
+id: septatransit
+name: SEPTA Transit
+summary: SEPTA transit departures
+desc: Displays departure times for SEPTA buses, trolleys, MFL/BSL, and NHSL in and around Philadelphia.
+author: radiocolin
+fileName: septatransit.star
+packageName: septatransit
