@@ -40,9 +40,9 @@ COLOURS = [
 
 def neighbours_to_binary(left, middle, right):
     res = 0
-    res += (1 if left else 0) << 2
-    res += (1 if middle else 0) << 1
-    res += (1 if right else 0) << 0
+    res += int(left) << 2
+    res += int(middle) << 1
+    res += int(right)
     return res
 
 def next_row(current_row, rule):
@@ -52,10 +52,7 @@ def next_row(current_row, rule):
         middle = current_row[i]
         right = current_row[(i + 1) % len(current_row)]
         child = (rule >> neighbours_to_binary(left, middle, right)) & 1
-        if child == 1:
-            new_row.append(ALIVE)
-        else:
-            new_row.append(DEAD)
+        new_row.append(bool(child))
     return new_row
 
 def render_grid(grid, alive_cell, dead_cell):
