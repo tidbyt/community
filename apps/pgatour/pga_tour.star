@@ -7,6 +7,16 @@ Author: M0ntyP
 Note - can easily make LPGA, European Tour or Korn Ferry versions if there is enough interest.
 
 Big shoutout to LunchBox8484 for the NHL Standings app where this is heavily borrowed/stolen from
+
+v1.1 
+Added rotation speed options and slight formatting change to tournament title (removed "The")
+
+v1.2 
+Added ability to show opposite field events, for the 4 times a year this happens
+
+v1.2b 
+Bug fix - when there are multiple events on (opposite field events) the app is showing both leaderboards under the 1 tournament heading
+This has been fixed
 """
 
 load("cache.star", "cache")
@@ -18,21 +28,33 @@ load("schema.star", "schema")
 load("time.star", "time")
 
 API = "https://site.web.api.espn.com/apis/v2/scoreboard/header?sport=golf&league=pga"
+
 CACHE_TTL_SECS = 60
 
 def main(config):
     renderCategory = []
-
+    i = 0
     RotationSpeed = config.get("speed", "3")
+    OppField = config.bool("OppFieldToggle")
     CacheData = get_cachable_data(API, CACHE_TTL_SECS)
     leaderboard = json.decode(CacheData)
 
     mainFont = "CG-pixel-3x5-mono"
     Title = leaderboard["sports"][0]["leagues"][0]["name"]
-    TournamentName = leaderboard["sports"][0]["leagues"][0]["events"][0]["name"]
-    Location = leaderboard["sports"][0]["leagues"][0]["events"][0]["location"]
-    StartDate = leaderboard["sports"][0]["leagues"][0]["events"][0]["date"]
-    EndDate = leaderboard["sports"][0]["leagues"][0]["events"][0]["endDate"]
+
+    # Check if there is an opposite field event, happens 4 times a season
+    # Get the ID of the first event listed in the API
+    TournamentID = leaderboard["sports"][0]["leagues"][0]["events"][0]["id"]
+    i = OppositeFieldCheck(TournamentID)
+
+    # if user wants to see opposite event
+    if i == 1 and OppField == True:
+        i = 0
+
+    TournamentName = leaderboard["sports"][0]["leagues"][0]["events"][i]["name"]
+    Location = leaderboard["sports"][0]["leagues"][0]["events"][i]["location"]
+    StartDate = leaderboard["sports"][0]["leagues"][0]["events"][i]["date"]
+    EndDate = leaderboard["sports"][0]["leagues"][0]["events"][i]["endDate"]
 
     StartDateFormat = time.parse_time(StartDate, format = "2006-01-02T15:04:00Z")
     EndDateFormat = time.parse_time(EndDate, format = "2006-01-02T15:04:00Z")
@@ -40,46 +62,47 @@ def main(config):
     EndDate = EndDateFormat.format("Jan 2")
 
     if (leaderboard):
-        stage1 = leaderboard["sports"][0]["leagues"][0]["events"][0]["status"]
+        stage1 = leaderboard["sports"][0]["leagues"][0]["events"][i]["status"]
 
         # In progress or completed tournament
         if stage1 == "in" or stage1 == "post":
-            for _, s in enumerate(leaderboard["sports"][0]["leagues"][0]["events"]):
-                entries = s["competitors"]
-                stage = s["fullStatus"]["type"]["detail"]
-                state = s["fullStatus"]["type"]["state"]
+            entries = leaderboard["sports"][0]["leagues"][0]["events"][i]["competitors"]
+            stage = leaderboard["sports"][0]["leagues"][0]["events"][i]["fullStatus"]["type"]["detail"]
+            state = leaderboard["sports"][0]["leagues"][0]["events"][i]["fullStatus"]["type"]["state"]
 
-                # shortening status messages
-                stage = stage.replace("Final", "F")
-                stage = stage.replace("Round 1", "R1")
-                stage = stage.replace("Round 2", "R2")
-                stage = stage.replace("Round 3", "R3")
-                stage = stage.replace("Round 4", "R4")
-                stage = stage.replace(" - In Progress", "")
-                stage = stage.replace(" - Suspended", "")
-                stage = stage.replace(" - Play Complete", "")
+            # shortening status messages
+            stage = stage.replace("Final", "F")
+            stage = stage.replace("Round 1", "R1")
+            stage = stage.replace("Round 2", "R2")
+            stage = stage.replace("Round 3", "R3")
+            stage = stage.replace("Round 4", "R4")
+            stage = stage.replace(" - In Progress", "")
+            stage = stage.replace(" - Suspended", "")
+            stage = stage.replace(" - Play Complete", "")
+            stage = stage.replace(" - Playoff", "PO")
+            stage = stage.replace("Playoff - Play Complete", "PO")
 
-                if entries:
-                    # how many players per page?
-                    entriesToDisplay = 4
+            if entries:
+                # how many players per page?
+                entriesToDisplay = 4
 
-                    # len(entries)-1 = 24 and divides into 4 nicely
-                    for x in range(0, len(entries) - 1, entriesToDisplay):
-                        renderCategory.extend([
-                            render.Column(
-                                expanded = True,
-                                main_align = "start",
-                                cross_align = "start",
-                                children = [
-                                    render.Column(
-                                        children = get_player(x, entries, entriesToDisplay, TournamentName, 5, stage, state),
-                                    ),
-                                ],
-                            ),
-                        ])
+                # len(entries)-1 = 24 and divides into 4 nicely
+                for x in range(0, len(entries) - 1, entriesToDisplay):
+                    renderCategory.extend([
+                        render.Column(
+                            expanded = True,
+                            main_align = "start",
+                            cross_align = "start",
+                            children = [
+                                render.Column(
+                                    children = get_player(x, entries, entriesToDisplay, TournamentName, 5, stage, state),
+                                ),
+                            ],
+                        ),
+                    ])
 
             return render.Root(
-                # seconds per cycle
+                show_full_animation = True,
                 delay = int(RotationSpeed) * 1000,
                 child = render.Animation(children = renderCategory),
             )
@@ -236,6 +259,22 @@ def get_player_font_color(HolesCompleted):
 
     return playerFontColor
 
+def OppositeFieldCheck(id):
+    # check if the first tournament listed in the ESPN API is an opposite field event, one of the four below
+    # and if it is, go to the second event in the API
+    i = 0
+    if id == "401465525":  # Puerto Rico Open
+        i = 1
+    elif id == "401465529":  # Puntacana
+        i = 1
+    elif id == "401465538":  # Barbasol
+        i = 1
+    elif id == "401465540":  # Barracuda
+        i = 1
+    else:
+        i = 0
+    return i
+
 RotationOptions = [
     schema.Option(
         display = "2 seconds",
@@ -266,6 +305,13 @@ def get_schema():
                 icon = "gear",
                 default = RotationOptions[1].value,
                 options = RotationOptions,
+            ),
+            schema.Toggle(
+                id = "OppFieldToggle",
+                name = "Show Opposite Field event",
+                desc = "Show the opposite event",
+                icon = "toggleOn",
+                default = False,
             ),
         ],
     )

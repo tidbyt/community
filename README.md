@@ -1,6 +1,6 @@
 # Community Apps
 [![Docs](https://img.shields.io/badge/docs-tidbyt.dev-blue?style=flat-square)](https://tidbyt.dev)
-[![Build Status](https://img.shields.io/github/workflow/status/tidbyt/community/Build%20and%20Release?style=flat-square)](https://github.com/tidbyt/community/actions/workflows/main.yml)
+[![Build Status](https://img.shields.io/github/actions/workflow/status/tidbyt/community/main.yml?style=flat-square)](https://github.com/tidbyt/community/actions/workflows/main.yml)
 [![Discourse](https://img.shields.io/discourse/status?server=https%3A%2F%2Fdiscuss.tidbyt.com&style=flat-square)](https://discuss.tidbyt.com/)
 [![Discord Server](https://img.shields.io/discord/928484660785336380?style=flat-square)](https://discord.gg/r45MXG4kZc)
 
