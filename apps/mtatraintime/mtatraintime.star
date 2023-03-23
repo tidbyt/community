@@ -282,11 +282,26 @@ LINE_COLORS = {
 }
 
 API_ENDPOINT = "https://backend-unified.mylirr.org"
+
 DEFAULT_STATION_ID = "1CW"
 DEFAULT_END_STATION_ID = "0NY"
+DEFAULT_LOCATION = """ 
+{ 
+    "lat": "40.6781784", 
+    "lng": "-73.9441579", 
+    "description": "Brooklyn, NY, USA", 
+    "locality": "Brooklyn", 
+    "place_id": "ChIJCSF8lBZEwokRhngABHRcdoI", 
+    "timezone": "America/New_York" 
+} 
+"""
+
 CACHE_TIMEOUT = 60  # will display inaccurate on-time performance if not 60 seconds.
 
 def main(config):
+    config_location = config.get("location", DEFAULT_LOCATION)
+    location = json.decode(config_location)
+    timezone = location["timezone"]
     station_id = config.str("station_id", DEFAULT_STATION_ID)
     end_station_id = config.str("end_station_id", DEFAULT_END_STATION_ID)
     cached_station = cache.get("%s" % station_id + "_arrivals")
@@ -343,10 +358,9 @@ def main(config):
             if "otp" in arrival["status"] and arrival["status"]["otp"] < -60:
                 late = True
                 late_seconds = abs(arrival["status"]["otp"])
-
-            children.append(render.Text("%s" % time.from_timestamp(int(arrival["time"])).format("3:04pm") + " " + ((str(int(time.parse_duration(str(late_seconds) + "s").minutes)) + "m Late") if late else "On Time"), color = ("#dc143c" if late else "#ccc"), font = "tom-thumb"))
-            #children.append(render.Text("%s" % time.from_timestamp(int(arrival["time"])).format("3:04pm") + " " + arrival["train_num"], color = ("#dc143c" if late else "#ccc"), font = "tom-thumb"))
-
+            children.append(render.Text("%s" %
+                                        time.from_timestamp(int(arrival["time"])).in_location(timezone).format("3:04pm") + " " +
+                                        ((str(int(time.parse_duration(str(late_seconds) + "s").minutes)) + "m Late") if late else "On Time"), color = ("#dc143c" if late else "#ccc"), font = "tom-thumb"))
     else:
         children.append(render.Text("No trains", color = "#ccc", font = "6x13"))
         children.append(render.Text(" found.", color = "#ccc", font = "6x13"))
