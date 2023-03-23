@@ -4,5 +4,5 @@ name: Partnermetrics
 summary: Partnermetrics app chart
 desc: Show your Partnermetrics app stats. Data is fetched from Partnermetrics.io.
 author: Rishabh Tayal
-fileName: shopify_partners.star
-packageName: shopifypartners
+fileName: partnermetrics.star
+packageName: partnermetrics

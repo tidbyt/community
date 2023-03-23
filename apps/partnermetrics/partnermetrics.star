@@ -1,7 +1,7 @@
 """
-Applet: Shopify Partners
-Summary: Show Shopify app data
-Description: Show your Shopify app data.
+Applet: Partnermetrics
+Summary: Show Partnermetrics app data
+Description: Show your Partnermetrics app data.
 Author: Rishabh Tayal
 """
 
