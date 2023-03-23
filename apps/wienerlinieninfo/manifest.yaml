@@ -1,0 +1,8 @@
+---
+id: wienerlinien-info
+name: WienerLinien Info
+summary: Vienna public transit info
+desc: Real time information about your favorite transport line in Vienna.
+author: David B.C.
+fileName: wienerlinien_info.star
+packageName: wienerlinieninfo
