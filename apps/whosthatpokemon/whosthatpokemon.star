@@ -107,7 +107,7 @@ def getCachedImage(url):
 
     res = http.get(url)
     if res.status_code != 200:
-        print("Failed to pull pokemon image: " + res.status_code)
+        print("Failed to pull pokemon image: " + str(res.status_code))
         return None
     cache.set(cacheKey, base64.encode(res.body()), CACHE_TTL_SECONDS)
 
