@@ -13,7 +13,7 @@ load("random.star", "random")
 load("render.star", "render")
 load("schema.star", "schema")
 
-ALL_POKEMON = 1008
+ALL_POKEMON = 1000
 CLASSIC_POKEMON = 386
 POKEAPI_URL = "https://pokeapi.co/api/v2/pokemon/{}"
 IMGIX_URL = "https://pokesprites.imgix.net/{}.png?bri=-100"
