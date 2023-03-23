@@ -17,6 +17,8 @@ URL = "https://api-v3.mbta.com/predictions"
 API_KEY = secret.decrypt("AV6+xWcEFe8B+1zoMJpL7mvq/utSOtMw6qSGeCYZjUhKnv21BwCdrfQWjtr/mYvReXGmpd1Wf2SD+EjIZl+/Uh+VxTDZQhJpYqChzPvioRUmj2y6rnxTVuOl8llWXrShy9aXWkVFRsNRFuZ4XZre1Q4Mf6Qmd+DWNzVESSFONPh3Vv0Jieo=")
 
 T_ABBREV = {
+    "Blue": "BL",
+    "Mattapan Trolley": "M",
     "Orange": "OL",
     "Red": "RL",
     "Silver": "SL",
@@ -28,7 +30,7 @@ def main(config):
     mintime = config.get("mintime", "0")
 
     params = {
-        "sort": "arrival_time",
+        "sort": "departure_time",
         "include": "route",
         "filter[stop]": stop["value"],
     }
