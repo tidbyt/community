@@ -343,10 +343,9 @@ def main(config):
             if "otp" in arrival["status"] and arrival["status"]["otp"] < -60:
                 late = True
                 late_seconds = abs(arrival["status"]["otp"])
-
-            children.append(render.Text("%s" % time.from_timestamp(int(arrival["time"])).format("3:04pm") + " " + ((str(int(time.parse_duration(str(late_seconds) + "s").minutes)) + "m Late") if late else "On Time"), color = ("#dc143c" if late else "#ccc"), font = "tom-thumb"))
-            #children.append(render.Text("%s" % time.from_timestamp(int(arrival["time"])).format("3:04pm") + " " + arrival["train_num"], color = ("#dc143c" if late else "#ccc"), font = "tom-thumb"))
-
+            children.append(render.Text("%s" %
+                                        time.from_timestamp(int(arrival["time"])).in_location("America/New_York").format("3:04pm") + " " +
+                                        ((str(int(time.parse_duration(str(late_seconds) + "s").minutes)) + "m Late") if late else "On Time"), color = ("#dc143c" if late else "#ccc"), font = "tom-thumb"))
     else:
         children.append(render.Text("No trains", color = "#ccc", font = "6x13"))
         children.append(render.Text(" found.", color = "#ccc", font = "6x13"))
