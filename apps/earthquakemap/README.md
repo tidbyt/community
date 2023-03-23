@@ -6,7 +6,24 @@
 ## Description
 Displays global earthquake data for, up to, the last 30 days. Applet preferences allow the user to filter the display on a minimum earthquake magnitude and on different time scales. Additionally, the user can select the central meredian of the map to be on the Prime Merdian, International Date Line, or the user's home location.
 
-![Earthquake Map for Tidbyt](earthquake_map.gif)
+![Earthquake Map for Tidbyt][app-gif]
+
+## Event Legend
+
+| Color                                                    | Magnitude |
+|----------------------------------------------------------|-----------|
+| ![#00b5b8](https://placehold.co/15x15/00b5b8/00b5b8.png) | 0         |
+| ![#bf40bf](https://placehold.co/15x15/bf40bf/bf40bf.png) | 1         |
+| ![#08e8de](https://placehold.co/15x15/08e8de/08e8de.png) | 2         |
+| ![#0000ff](https://placehold.co/15x15/0000ff/0000ff.png) | 3         |
+| ![#00ff00](https://placehold.co/15x15/00ff00/00ff00.png) | 4         |
+| ![#fff000](https://placehold.co/15x15/fff000/fff000.png) | 5         |
+| ![#ffaa1d](https://placehold.co/15x15/ffaa1d/ffaa1d.png) | 6         |
+| ![#ff0000](https://placehold.co/15x15/ff0000/ff0000.png) | 7+        |
+
+<p align="right">(<a href="#readme-top">back to top</a>)</p>
+
+## About Tidbyt
 
 Check out the [Tidybt][tidbyt-url] for an awesome information display for your home. If you are intereasted in developing for the Tidbyt, check out the [Tidbyt Developers Page][tidbyt-dev-url].
 
@@ -64,3 +81,4 @@ Project Link: [https://github.com/SpinStabilized/tidbyt-earthquakemap_dev][repos
 [tidbyt-lic-url]: https://github.com/tidbyt/community/blob/main/docs/CLA.md
 [tidbyt-community-repo]:[https://github.com/tidbyt/community]
 [usgs-feed-url]: https://earthquake.usgs.gov/earthquakes/feed/v1.0/geojson.php
+[app-gif]: ./earthquake_map.gif

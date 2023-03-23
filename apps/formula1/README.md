@@ -14,7 +14,7 @@ Displayed:
   - Top 3 Constructors with Logo & Current Points
 
 - Driver Standings
-  - Top 3 Driver names with Ponts
+  - Top 3 Driver names with Points
 
 ## Configuration
 - Display option (Next Race, Driver Standings, Constructor Standings)
@@ -24,4 +24,4 @@ Displayed:
 
 ![](nextrace.jpg)
 ![](driver.jpg)
-![](constructor.jpg)
+![](constructor.gif)
