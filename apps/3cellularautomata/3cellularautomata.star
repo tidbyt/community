@@ -18,29 +18,10 @@ CHOOSE_RANDOM = "-"
 SINGLE_CELL = "+"
 STATES = 3
 
-COLOURS = [
-    schema.Option(display = "White", value = "#ffffff"),
-    schema.Option(display = "Silver", value = "#c0c0c0"),
-    schema.Option(display = "Gray", value = "#808080"),
-    schema.Option(display = "Black", value = "#000000"),
-    schema.Option(display = "Red", value = "#ff0000"),
-    schema.Option(display = "Maroon", value = "#800000"),
-    schema.Option(display = "Yellow", value = "#ffff00"),
-    schema.Option(display = "Olive", value = "#808000"),
-    schema.Option(display = "Lime", value = "#00ff00"),
-    schema.Option(display = "Green", value = "#008000"),
-    schema.Option(display = "Aqua", value = "#00ffff"),
-    schema.Option(display = "Teal", value = "#008080"),
-    schema.Option(display = "Blue", value = "#0000ff"),
-    schema.Option(display = "Navy", value = "#000080"),
-    schema.Option(display = "Fuchsia", value = "#ff00ff"),
-    schema.Option(display = "Purple", value = "#800080"),
-]
-
 DEFAULT_COLOURS = [
-    3,  # Black
-    0,  # White
-    12,  # Blue
+    "#000000",
+    "#ffffff",
+    "#0000ff",
 ]
 
 def neighbours_to_ternary(left, middle, right):
@@ -94,7 +75,7 @@ def main(config):
     for s in range(STATES):
         colour = config.get("state_{}_colour".format(s))
         if not colour:
-            colour = COLOURS[DEFAULT_COLOURS[s]].value
+            colour = DEFAULT_COLOURS[s]
         colours.append(colour)
 
     # Turns out to be significantly faster to re-use
@@ -128,13 +109,12 @@ def get_schema():
     return schema.Schema(
         version = "1",
         fields = [
-            schema.Dropdown(
+            schema.Color(
                 id = "state_{}_colour".format(s),
                 name = "State {} colour".format(s),
                 desc = "The colour to show for cells in state {}".format(s),
                 icon = "palette",
-                default = COLOURS[DEFAULT_COLOURS[s]].value,
-                options = COLOURS,
+                default = DEFAULT_COLOURS[s],
             )
             for s in range(STATES)
         ] + [

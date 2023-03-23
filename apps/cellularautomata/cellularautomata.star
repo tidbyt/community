@@ -19,24 +19,8 @@ REFRESH_MILLISECONDS = 200
 CHOOSE_RANDOM = "-"
 SINGLE_CELL = "+"
 
-COLOURS = [
-    schema.Option(display = "White", value = "#ffffff"),
-    schema.Option(display = "Silver", value = "#c0c0c0"),
-    schema.Option(display = "Gray", value = "#808080"),
-    schema.Option(display = "Black", value = "#000000"),
-    schema.Option(display = "Red", value = "#ff0000"),
-    schema.Option(display = "Maroon", value = "#800000"),
-    schema.Option(display = "Yellow", value = "#ffff00"),
-    schema.Option(display = "Olive", value = "#808000"),
-    schema.Option(display = "Lime", value = "#00ff00"),
-    schema.Option(display = "Green", value = "#008000"),
-    schema.Option(display = "Aqua", value = "#00ffff"),
-    schema.Option(display = "Teal", value = "#008080"),
-    schema.Option(display = "Blue", value = "#0000ff"),
-    schema.Option(display = "Navy", value = "#000080"),
-    schema.Option(display = "Fuchsia", value = "#ff00ff"),
-    schema.Option(display = "Purple", value = "#800080"),
-]
+WHITE = "#ffffff"
+BLACK = "#000000"
 
 def neighbours_to_binary(left, middle, right):
     res = 0
@@ -92,10 +76,10 @@ def animate(alive_cell, dead_cell, rule, starting_row):
 def main(config):
     alive_colour = config.get("alive_colour")
     if not alive_colour:
-        alive_colour = COLOURS[0].value  # White
+        alive_colour = WHITE
     dead_colour = config.get("dead_colour")
     if not dead_colour:
-        dead_colour = COLOURS[3].value  # Black
+        dead_colour = BLACK
     starting_row = config.get("starting_row")
     if not starting_row:
         starting_row = SINGLE_CELL
@@ -145,21 +129,19 @@ def get_schema():
     return schema.Schema(
         version = "1",
         fields = [
-            schema.Dropdown(
+            schema.Color(
                 id = "alive_colour",
                 name = "Alive colour",
                 desc = "The colour to show for living cells",
                 icon = "heartPulse",
-                default = COLOURS[0].value,
-                options = COLOURS,
+                default = WHITE,
             ),
-            schema.Dropdown(
+            schema.Color(
                 id = "dead_colour",
                 name = "Dead colour",
                 desc = "The colour to show for dead cells",
                 icon = "skullCrossbones",
-                default = COLOURS[3].value,
-                options = COLOURS,
+                default = BLACK,
             ),
             schema.Dropdown(
                 id = "rule",
