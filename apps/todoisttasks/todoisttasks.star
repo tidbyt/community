@@ -2,7 +2,7 @@
 Applet: Todoist Tasks
 Summary: Integrates with Todoist
 Description: Shows up to 3 tasks on your To-Do list, sorted by priority. Use the filter option to further sort your tasks by using parameters such as 'today', tomorrow', 'overdue' etc.
-Author: Based on zephyern's code, rewritten by ChatGTP4 with directions from Noste. I'm have no idea how code works.
+Author: Based on zephyern's code, rewritten by ChatGTP4 with directions from Noste. I have no idea how code works.
 """
 
 load("cache.star", "cache")
