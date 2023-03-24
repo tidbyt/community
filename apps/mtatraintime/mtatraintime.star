@@ -305,7 +305,7 @@ def main(config):
     station_id = config.str("station_id", DEFAULT_STATION_ID)
     end_station_id = config.str("end_station_id", DEFAULT_END_STATION_ID)
     cached_station = cache.get("%s" % station_id + "_arrivals")
-
+    
     if cached_station != None:
         print("Displaying cached data.")
         arrivals = json.decode(cached_station)
@@ -326,11 +326,20 @@ def main(config):
     count = 0
     display = []
 
+    #print(arrivals)
+
     for arrival in arrivals["arrivals"]:
+        #print(arrival["stops"])
         if count < 4:
-            if (station_id in arrival["stops"] and end_station_id in arrival["stops"]) and arrival["stops"].index(station_id) < arrival["stops"].index(end_station_id):
-                display.append(arrival)
-                count += 1
+            if(STATIONS[station_id]["railroad"] == "LIRR"):
+                # Long Island Rail Road uses a different format for their arrivals.
+                if(end_station_id in arrival["stops"] and station_id not in arrival["stops"]):
+                    display.append(arrival)
+                    count += 1
+            else:
+                if (station_id in arrival["stops"] and end_station_id in arrival["stops"]) and arrival["stops"].index(station_id) < arrival["stops"].index(end_station_id):
+                    display.append(arrival)
+                    count += 1
 
     children = [
         render.Box(
@@ -348,13 +357,12 @@ def main(config):
             color = LINE_COLORS[STATIONS[station_id]["branch"]],
         ),
     ]
-    print(count)
+    print("Trains: %d" % count)
     if count > 0:
         for arrival in display:
             late = False
             late_seconds = 0
 
-            #print(arrival)
             if "otp" in arrival["status"] and arrival["status"]["otp"] < -60:
                 late = True
                 late_seconds = abs(arrival["status"]["otp"])
