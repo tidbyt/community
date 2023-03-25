@@ -10,12 +10,15 @@ load("http.star", "http")
 load("random.star", "random")
 load("render.star", "render")
 load("schema.star", "schema")
+load("secret.star", "secret")
 
 TEST = False
+
 FONT_NAME = "CG-pixel-3x5-mono"
 FONT_ASCDES = 5 + 0
 FONT_WIDTH = 4
 GROUP_DEFAULT = "Default"
+SECRET_ENCRYPTED = "AV6+xWcErarteHoMW1Ra85ucHYVzivFmMkqs8z/bLpwnLVWK66mPAY0FWu5bhkuLDQEBu5DckTDKeYHXTBTdBHqHU+B5d/rxzg0ArIA1wpoQjRi6lBMXwHYwC6wxxuyBvxPY5g8n/WzxfYz+huMqMtbn+lmVbOPzFRQ5L4gP6PvwBVF58RcbirV54oPdr9khhAKCisB3q+vj/wrmRdF2SvsRGK0iug=="
 HACKS = [
     ["abstractile", "Abstractile", "Abstractile", "Mosaic patterns of interlocking tiles. Written by Steve Sundstrom; 2004.", True, ["Default", "Colorful", "All"]],
     ["anemone", "Anemone", "Anemone", "Wiggling tentacles.  Written by Gabriel Finch; 2002.", True, ["Default", "Jarring", "Weird", "All"]],
@@ -348,7 +351,10 @@ def main(config):
         print("Hack %s: %s" % (hack, hacks[hack]))
 
     # Pull the GIF from the remote source
-    response = http.get("http://xscreensaver.eod.com/" + config.get("hackfile", hacks[hack][0]) + ".gif")
+    response = http.get(
+        "https://xscreensaver.eod.com/" + config.get("hackfile", hacks[hack][0]) + ".gif",
+        headers = {"X-XScreenSaver-Token": secret.decrypt(SECRET_ENCRYPTED) or config.get("SECRET_LOCAL")},
+    )
 
     # If something went wrong, show an error
     if response.status_code != 200:
