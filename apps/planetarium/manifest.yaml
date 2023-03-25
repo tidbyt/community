@@ -1,0 +1,8 @@
+---
+id: planetarium
+name: Planetarium
+summary: Shows where the planets are
+desc: A simulated orrery showing the relative position of the planets around the sun at various points in time.
+author: dinosaursrarr
+fileName: planetarium.star
+packageName: planetarium
