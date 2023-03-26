@@ -5,6 +5,10 @@ Description: Show upcoming / current / future game for a single soccer team rega
 Author: jvivona
 """
 
+# Tons of thanks to @whyamihere/@rs7q5 for the API assistance - couldn't have gotten here without you
+# and thanks to @dinotash/@dinosaursrarr for making me think deep thoughts about connected schema fields
+# and of course - the original author of a bunch of this display code is @Lunchbox8484
+
 load("cache.star", "cache")
 load("encoding/json.star", "json")
 load("http.star", "http")
@@ -21,10 +25,9 @@ SPORT = "soccer"
 
 MISSING_LOGO = "https://upload.wikimedia.org/wikipedia/commons/c/ca/1x1.png?src=soccermens"
 
-DEFAULT_LEAGUE = "205"
+DEFAULT_TEAM = "205"
 
-#API = "https://site.api.espn.com/apis/site/v2/sports/" + SPORT + "/"
-API = "https://site.api.espn.com/apis/site/v2/sports/soccer/all/teams/{}"
+API = "https://site.api.espn.com/apis/site/v2/sports/soccer/%s/teams/%s"
 
 DEFAULT_TEAM_DISPLAY = "visitor"  # default to Visitor first, then Home - US order
 DEFAULT_DISPLAY_SPEED = "2000"
@@ -45,32 +48,8 @@ SHORTENED_WORDS = """
     "2nd Half": "2H"
 }
 """
-
-LEAGUE_ABBR = {
-    "ned.1": "Ered",
-    "eng.league_cup": "Carbo",
-    "eng.fa": "FACup",
-    "eng.2": "E Chp",
-    "eng.3": "E LG1",
-    "eng.4": "E LG2",
-    "eng.5": "E Nat",
-    "eng.1": "EPL",
-    "fra.1": "F Lg1",
-    "fifa.world": "WC",
-    "ger.1": "Bund",
-    "ita.1": "Ser A",
-    "mex.1": "LG MX",
-    "sco.1": "Sco P",
-    "esp.1": "LaLiga",
-    "uefa.champions": "U Chp",
-    "uefa.europa": "Euro",
-    "concacaf.nations.league": "ConcNL",
-    "concacaf.champions": "ConcCL",
-}
-
 def main(config):
     renderCategory = []
-    selectedLeague = config.get("leagueOptions", DEFAULT_LEAGUE)
 
     # we already need now value in multiple places - so just go ahead and get it and use it
     timezone = config.get("$tz", DEFAULT_TIMEZONE)
@@ -86,20 +65,16 @@ def main(config):
     if config.get("teamid"):
         teamid = json.decode(config.get("teamid"))["value"]
     else:
-        teamid = DEFAULT_LEAGUE
+        teamid = DEFAULT_TEAM
 
-    league = API.format(str(teamid))
-    #{API: API + selectedLeague + "/scoreboard" + date_range_search}
+    league = API % ( "all", str(teamid))
 
     teamdata = get_scores(league)
 
-    #print("***************************************************")
-    #print(teamdata)
-    #print("***************************************************")
     scores = teamdata["nextEvent"]
 
     if len(scores) > 0:
-        leagueAbbr = scores[0]["league"]["abbreviation"]
+        leagueAbbr = scores[0]["league"]["abbreviation"][0:6]
         leagueSlug = scores[0]["league"]["slug"]
         displayType = config.get("displayType", "colors")
 
@@ -117,7 +92,7 @@ def main(config):
             homeTeamName = competition["competitors"][0]["team"]["shortDisplayName"]
             awayTeamName = competition["competitors"][1]["team"]["shortDisplayName"]
 
-            homeColorCheck = json.decode(get_cachable_data("https://site.api.espn.com/apis/site/v2/sports/soccer/all/teams/%s" % str(competition["competitors"][0]["id"])))["team"]["color"]
+            homeColorCheck = json.decode(get_cachable_data(API % ("all", str(competition["competitors"][0]["id"]))))["team"]["color"]
             if homeColorCheck == "NO":
                 homePrimaryColor = "000000"
             else:
@@ -125,7 +100,7 @@ def main(config):
             print(homePrimaryColor)
 
             #print(str(competition["competitors"][1]["id"]))
-            awayColorCheck = json.decode(get_cachable_data("https://site.api.espn.com/apis/site/v2/sports/soccer/all/teams/%s" % str(competition["competitors"][1]["id"])))["team"]["color"]
+            awayColorCheck = json.decode(get_cachable_data(API % ("all", str(competition["competitors"][1]["id"]))))["team"]["color"]
             if awayColorCheck == "NO":
                 awayPrimaryColor = "000000"
             else:
@@ -185,8 +160,8 @@ def main(config):
                 # we're just going to get them both 
                 print(" league = %s  home team = %s" % (leagueSlug, str(competition["competitors"][0]["id"])))
                 print(" league = %s  away team = %s" % (leagueSlug, str(competition["competitors"][1]["id"])))
-                homeData = json.decode(get_cachable_data("https://site.api.espn.com/apis/site/v2/sports/soccer/%s/teams/%s" % (leagueSlug, str(competition["competitors"][0]["id"]))))
-                awayData = json.decode(get_cachable_data("https://site.api.espn.com/apis/site/v2/sports/soccer/%s/teams/%s" % (leagueSlug, str(competition["competitors"][1]["id"]))))
+                homeData = json.decode(get_cachable_data(API % (leagueSlug, str(competition["competitors"][0]["id"]))))
+                awayData = json.decode(get_cachable_data(API % (leagueSlug, str(competition["competitors"][1]["id"]))))
 
                 checkHomeTeamRecord = homeData["team"]["record"].get("items", "NO")
                 if checkHomeTeamRecord == "NO":
@@ -219,16 +194,7 @@ def main(config):
                     else:
                         gameTime = convertedTime.format("2 Jan ") + gameTime
                 gameName = competition["status"]["type"]["name"]
-                checkSeries = competition.get("series", "NO")
-                checkNotes = len(competition["notes"])
-                if checkSeries != "NO":
-                    seriesNote = competition["notes"][0]["headline"].split(" - ")[0]
-                    gameTime = seriesNote
-                if checkNotes > 0 and checkSeries == "NO":
-                    gameHeadline = competition["notes"][0]["headline"]
-                    if gameHeadline.find(" - ") > 0:
-                        gameNoteArray = gameHeadline.split(" - ")
-                        gameTime = str(gameNoteArray[1]) + " / " + gameTime
+
                 if gameName == "STATUS_POSTPONED":
                     homeScore = ""
                     awayScore = ""
@@ -485,84 +451,6 @@ def main(config):
     else:
         return []
 
-leagueOptions = [
-    schema.Option(
-        display = "CONCACAF Champions League",
-        value = "concacaf.champions",
-    ),
-    schema.Option(
-        display = "CONCACAF Nations League",
-        value = "concacaf.nations.league",
-    ),
-    schema.Option(
-        display = "Dutch Eredivisie",
-        value = "ned.1",
-    ),
-    schema.Option(
-        display = "English Carabo Cup",
-        value = "eng.league_cup",
-    ),
-    schema.Option(
-        display = "English FA Cup",
-        value = "eng.fa",
-    ),
-    schema.Option(
-        display = "English League Championship",
-        value = "eng.2",
-    ),
-    schema.Option(
-        display = "English League One",
-        value = "eng.3",
-    ),
-    schema.Option(
-        display = "English League Two",
-        value = "eng.4",
-    ),
-    schema.Option(
-        display = "English National League",
-        value = "eng.5",
-    ),
-    schema.Option(
-        display = "English Premier League",
-        value = "eng.1",
-    ),
-    schema.Option(
-        display = "French Ligue 1",
-        value = "fra.1",
-    ),
-    schema.Option(
-        display = "FIFA World Cup",
-        value = "fifa.world",
-    ),
-    schema.Option(
-        display = "German Bundesliga",
-        value = "ger.1",
-    ),
-    schema.Option(
-        display = "Italian Serie A",
-        value = "ita.1",
-    ),
-    schema.Option(
-        display = "Mexican Liga BBVA MX",
-        value = "mex.1",
-    ),
-    schema.Option(
-        display = "Scottish Premiership",
-        value = "sco.1",
-    ),
-    schema.Option(
-        display = "Spanish LaLiga",
-        value = "esp.1",
-    ),
-    schema.Option(
-        display = "UEFA Champions League",
-        value = "uefa.champions",
-    ),
-    schema.Option(
-        display = "UEFA Europa League",
-        value = "uefa.europa",
-    ),
-]
 
 displayOptions = [
     schema.Option(
@@ -591,25 +479,6 @@ pregameOptions = [
     schema.Option(
         display = "Nothing",
         value = "nothing",
-    ),
-]
-
-daysOptions = [
-    schema.Option(
-        display = "0",
-        value = "0",
-    ),
-    schema.Option(
-        display = "1",
-        value = "1",
-    ),
-    schema.Option(
-        display = "2",
-        value = "2",
-    ),
-    schema.Option(
-        display = "3",
-        value = "3",
     ),
 ]
 
@@ -663,12 +532,24 @@ def get_schema():
         version = "1",
         fields = [
             schema.Dropdown(
-                id = "leagueOptions",
-                name = "League / Tournament",
-                desc = "League or Tournament ",
-                icon = "futbol",
-                default = leagueOptions[0].value,
-                options = leagueOptions,
+                id = "gender",
+                name = "Mens or Womens Soccer",
+                desc = "Search for Men's teams of Women's teams",
+                icon = "search",
+                default = "select",
+                options = genderOptions,
+            ),
+            schema.Generated(
+                id = "set_gender",
+                source = "gender",
+                handler = setup_search,
+            ),
+            schema.Typeahead(
+                id = "teamid",
+                name = "Team Name to search for",
+                desc = "Team Name to search for",
+                icon = "search",
+                handler = search_teams,
             ),
             schema.Dropdown(
                 id = "team_sequence",
@@ -693,34 +574,15 @@ def get_schema():
                 icon = "palette",
                 default = "#FFF",
             ),
-            schema.Dropdown(
-                id = "gender",
-                name = "Mens or Womens Soccer",
-                desc = "Search for Men's teams of Women's teams",
-                icon = "search",
-                default = "select",
-                options = genderOptions,
-            ),
-            schema.Generated(
-                id = "set_gender",
-                source = "gender",
-                handler = setup_search,
-            ),
-            schema.Typeahead(
-                id = "teamid",
-                name = "Team Name to search for",
-                desc = "Team Name to search for",
-                icon = "search",
-                handler = search_teams,
-            ),
-            schema.Dropdown(
-                id = "displaySpeed",
-                name = "Time to display each score",
-                desc = "Display time for each score",
-                icon = "stopwatch",
-                default = "2000",
-                options = displaySpeeds,
-            ),
+
+            #schema.Dropdown(
+            #    id = "displaySpeed",
+            #    name = "Time to display each score",
+            #    desc = "Display time for each score",
+            #    icon = "stopwatch",
+            #    default = "2000",
+            #    options = displaySpeeds,
+            #),
             schema.Toggle(
                 id = "is_24_hour_format",
                 name = "24 hour format",
@@ -734,18 +596,6 @@ def get_schema():
                 desc = "Display the date in US format (default is Intl).",
                 icon = "calendarDays",
                 default = False,
-            ),
-            schema.Toggle(
-                id = "day_range",
-                name = "Enable range of days",
-                desc = "Enable showing scores in a range of days",
-                icon = "rightLeft",
-                default = False,
-            ),
-            schema.Generated(
-                id = "generated",
-                source = "day_range",
-                handler = show_day_range,
             ),
         ],
     )
@@ -767,30 +617,6 @@ def setup_search(gender):
     #cache gender for search in typeahead - long time, since we only use this when you are changing config and this will get overridden if you change your schema values
     cache.set("gender", gender, 300000)
     return []
-
-def show_day_range(day_range):
-    # need to do the string comparison here to make it consistent instead of converting to bool - its a whole thing
-    if day_range == "true":
-        return [
-            schema.Dropdown(
-                id = "days_back",
-                name = "# of days back to show",
-                desc = "Number of days back to search for scores",
-                icon = "arrowLeft",
-                default = "1",
-                options = daysOptions,
-            ),
-            schema.Dropdown(
-                id = "days_forward",
-                name = "# of days forward to show",
-                desc = "Number of days forward to search for scores",
-                icon = "arrowRight",
-                default = "1",
-                options = daysOptions,
-            ),
-        ]
-    else:
-        return []
 
 def get_scores(urls):
     allscores = []
@@ -830,7 +656,6 @@ def get_record(record):
 def get_background_color(displayType, color):
     if displayType == "black" or displayType == "retro":
         color = "#222"
-
     else:
         color = "#" + color
     if color == "#ffffff" or color == "#000000":
