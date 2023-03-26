@@ -97,15 +97,12 @@ def main(config):
                 homePrimaryColor = "000000"
             else:
                 homePrimaryColor = homeColorCheck
-            print(homePrimaryColor)
 
-            #print(str(competition["competitors"][1]["id"]))
             awayColorCheck = json.decode(get_cachable_data(API % ("all", str(competition["competitors"][1]["id"]))))["team"]["color"]
             if awayColorCheck == "NO":
                 awayPrimaryColor = "000000"
             else:
                 awayPrimaryColor = awayColorCheck
-            print(awayPrimaryColor)
             homeColor = get_background_color(displayType, homePrimaryColor)
             awayColor = get_background_color(displayType, awayPrimaryColor)
 
@@ -158,8 +155,6 @@ def main(config):
 
                 # need to get the legaue the game is being played in, then go query the "other" team's record can't use ALL here becuase they may have another game before this One
                 # we're just going to get them both 
-                print(" league = %s  home team = %s" % (leagueSlug, str(competition["competitors"][0]["id"])))
-                print(" league = %s  away team = %s" % (leagueSlug, str(competition["competitors"][1]["id"])))
                 homeData = json.decode(get_cachable_data(API % (leagueSlug, str(competition["competitors"][0]["id"]))))
                 awayData = json.decode(get_cachable_data(API % (leagueSlug, str(competition["competitors"][1]["id"]))))
 
@@ -536,7 +531,7 @@ def get_schema():
                 name = "Mens or Womens Soccer",
                 desc = "Search for Men's teams of Women's teams",
                 icon = "search",
-                default = "select",
+                default = "men",
                 options = genderOptions,
             ),
             schema.Generated(
@@ -604,12 +599,10 @@ def search_teams(team_text):
     data = cache.get("gender")
     if data == None:
         data = "men"
-    print(team_text)
-    print(data)
     if len(team_text) > 3:
         result = http.get("http://10.168.101.105:53257/api/%s/%s" % (data, team_text)).body()
         if len(result) > 0:
-            return [schema.Option(value = s["id"], display = s["displayName"]) for s in json.decode(result)]
+            return [schema.Option(value = s["id"], display = "%s (%s)" % (s["displayName"], data[0:1].upper())) for s in json.decode(result)]
 
     return []
 
@@ -719,10 +712,8 @@ def get_cachable_data(url):
 
     data = cache.get(key)
     if data != None:
-        print("cache hit")
         return data
 
-    print("cache miss")
     res = http.get(url = url)
     if res.status_code != 200:
         fail("request to %s failed with status code: %d - %s" % (url, res.status_code, res.body()))
