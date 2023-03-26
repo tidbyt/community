@@ -19,20 +19,17 @@ load("time.star", "time")
 VERSION = 23084
 
 CACHE_TTL_SECONDS = 60
-CACHE2_ADD_TTL_SECONDS = 86400
+
+# this is for when we are handling 2 stage cache - leave this here
+#CACHE2_ADD_TTL_SECONDS = 86400
+
 DEFAULT_TIMEZONE = "America/New_York"
-SPORT = "soccer"
-
 MISSING_LOGO = "https://upload.wikimedia.org/wikipedia/commons/c/ca/1x1.png?src=soccermens"
-
 DEFAULT_TEAM = "205"
-
 API = "https://site.api.espn.com/apis/site/v2/sports/soccer/%s/teams/%s"
-
+TEAM_SEARCH_API = "https://tidbyt.apis.ajcomputers.com/soccer/api/%s/%s"
 DEFAULT_TEAM_DISPLAY = "visitor"  # default to Visitor first, then Home - US order
 DEFAULT_DISPLAY_SPEED = "2000"
-
-GENDER_CONFIG = ""
 
 SHORTENED_WORDS = """
 {
@@ -48,6 +45,7 @@ SHORTENED_WORDS = """
     "2nd Half": "2H"
 }
 """
+
 def main(config):
     renderCategory = []
 
@@ -55,19 +53,12 @@ def main(config):
     timezone = config.get("$tz", DEFAULT_TIMEZONE)
     now = time.now().in_location(timezone)
 
-    # calculate start and end date if we are set to use range of days
-    date_range_search = ""
-    if config.bool("day_range", False):
-        back_time = now - time.parse_duration("%dh" % (int(config.get("days_back", 1)) * 24))
-        fwd_time = now + time.parse_duration("%dh" % (int(config.get("days_forward", 1)) * 24))
-        date_range_search = "?dates=%s-%s" % (back_time.format("20060102"), (fwd_time.format("20060102")))
-
     if config.get("teamid"):
         teamid = json.decode(config.get("teamid"))["value"]
     else:
         teamid = DEFAULT_TEAM
 
-    league = API % ( "all", str(teamid))
+    league = API % ("all", str(teamid))
 
     teamdata = get_scores(league)
 
@@ -86,7 +77,6 @@ def main(config):
         for _, s in enumerate(scores):
             gameStatus = s["competitions"][0]["status"]["type"]["state"]
             competition = s["competitions"][0]
-            homeCompetitor = competition["competitors"][0]
             home = competition["competitors"][0]["team"]["abbreviation"]
             away = competition["competitors"][1]["team"]["abbreviation"]
             homeTeamName = competition["competitors"][0]["team"]["shortDisplayName"]
@@ -151,10 +141,9 @@ def main(config):
                     else:
                         gameTimeFmt = convertedTime.format("3:04PM")[:-1]
                     gameTime = gameTimeFmt
-                checkSeries = competition.get("series", "NO")
 
                 # need to get the legaue the game is being played in, then go query the "other" team's record can't use ALL here becuase they may have another game before this One
-                # we're just going to get them both 
+                # we're just going to get them both
                 homeData = json.decode(get_cachable_data(API % (leagueSlug, str(competition["competitors"][0]["id"]))))
                 awayData = json.decode(get_cachable_data(API % (leagueSlug, str(competition["competitors"][1]["id"]))))
 
@@ -446,7 +435,6 @@ def main(config):
     else:
         return []
 
-
 displayOptions = [
     schema.Option(
         display = "Team Colors",
@@ -530,7 +518,7 @@ def get_schema():
                 id = "gender",
                 name = "Mens or Womens Soccer",
                 desc = "Search for Men's teams of Women's teams",
-                icon = "search",
+                icon = "magnifyingGlass",
                 default = "men",
                 options = genderOptions,
             ),
@@ -543,7 +531,7 @@ def get_schema():
                 id = "teamid",
                 name = "Team Name to search for",
                 desc = "Team Name to search for",
-                icon = "search",
+                icon = "futbol",
                 handler = search_teams,
             ),
             schema.Dropdown(
@@ -600,7 +588,7 @@ def search_teams(team_text):
     if data == None:
         data = "men"
     if len(team_text) > 3:
-        result = http.get("http://10.168.101.105:53257/api/%s/%s" % (data, team_text)).body()
+        result = http.get(TEAM_SEARCH_API % (data, team_text)).body()
         if len(result) > 0:
             return [schema.Option(value = s["id"], display = "%s (%s)" % (s["displayName"], data[0:1].upper())) for s in json.decode(result)]
 
