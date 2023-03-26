@@ -1,0 +1,8 @@
+---
+id: soccer-single
+name: Soccer Single
+summary: Soccer Single Team 
+desc: Show upcoming / current / future game for a single soccer team regadless of what leagues or tourments they are playing in.
+author: jvivona
+fileName: soccer_single.star
+packageName: soccersingle
