@@ -70,7 +70,7 @@ LEAGUE_ABBR = {
 def main(config):
     renderCategory = []
     selectedLeague = config.get("leagueOptions", DEFAULT_LEAGUE)
-    leagueAbbr = LEAGUE_ABBR[selectedLeague]
+    leagueAbbr = LEAGUE_ABBR[selectedLeague][0:6]
 
     # we already need now value in multiple places - so just go ahead and get it and use it
     timezone = config.get("$tz", DEFAULT_TIMEZONE)
@@ -171,8 +171,8 @@ def main(config):
                 checkSeries = competition.get("series", "NO")
                 checkRecord = homeCompetitor.get("records", "NO")
                 if checkRecord == "NO":
-                    homeScore = "0-0-0"
-                    awayScore = "0-0-0"
+                    homeScore = ""
+                    awayScore = ""
                 else:
                     homeScore = competition["competitors"][0]["records"][0]["summary"]
                     awayScore = competition["competitors"][1]["records"][0]["summary"]
