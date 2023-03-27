@@ -54,6 +54,17 @@ LEAGUE_ABBR = {
     "fifa.w.olympics": "OLY W",
     "fifa.wwc": " WWC",
     "fifa.shebelieves": "SB Cup",
+    "conmebol.america.femenina": "",
+    "esp.copa_de_la_reina": "ESP CR",
+    "esp.w.1": "ESP W",
+    "fifa.wworld.u17": "WWCU17",
+    "fifa.wworldq.uefa": "WWC Q",
+    "global.pinatar_cup": "Pinatar",
+    "ned.w.1": "NED W",
+    "ned.w.knvb_cup": "KNVB C",
+    "uefa.weuro": "W EURO",
+    "usa.ncaa.w.1": "NCAA W",
+    "usa.nwsl.cup": "NWSL C",
 }
 
 def main(config):
@@ -461,8 +472,16 @@ leagueOptions = [
         value = "concacaf.womens.championship",
     ),
     schema.Option(
-        display = "English Women's Champions League",
-        value = "uefa.wchampions",
+        display = "Copa América Femenina",
+        value = "conmebol.america.femenina",
+    ),
+    schema.Option(
+        display = "Dutch Vrouwen Eredivisie",
+        value = "ned.w.1",
+    ),
+    schema.Option(
+        display = "Dutch Vrouwen KNVB Beker",
+        value = "ned.w.knvb_cup",
     ),
     schema.Option(
         display = "English Women's FA Cup",
@@ -473,12 +492,40 @@ leagueOptions = [
         value = "eng.w.1",
     ),
     schema.Option(
+        display = "NCAA Women's Soccer",
+        value = "usa.ncaa.w.1",
+    ),
+    schema.Option(
+        display = "Pintar Cup",
+        value = "global.pinatar_cup",
+    ),
+    schema.Option(
         display = "She Belives Cup",
         value = "fifa.shebelieves",
     ),
     schema.Option(
+        display = "Spanish Copa de la Reina",
+        value = "esp.copa_de_la_reina",
+    ),
+    schema.Option(
+        display = "Spanish Primera División Femenina",
+        value = "esp.w.1",
+    ),
+    schema.Option(
+        display = "UEFA Women's Champions League",
+        value = "uefa.wchampions",
+    ),
+    schema.Option(
         display = "United States NWSL",
         value = "usa.nwsl",
+    ),
+    schema.Option(
+        display = "United States NWSL Cup",
+        value = "usa.nwsl.cup",
+    ),
+    schema.Option(
+        display = "Women's European Championship",
+        value = "uefa.weuro",
     ),
     schema.Option(
         display = "Women's International Friendly",
@@ -491,6 +538,14 @@ leagueOptions = [
     schema.Option(
         display = "Women's World Cup",
         value = "fifa.wwc",
+    ),
+    schema.Option(
+        display = "Women's World Cup U17",
+        value = "fifa.wworld.u17",
+    ),
+    schema.Option(
+        display = "Women's World Cup Qualifying - UEFA",
+        value = "fifa.wworldq.uefa",
     ),
 ]
 
@@ -521,45 +576,6 @@ pregameOptions = [
     schema.Option(
         display = "Nothing",
         value = "nothing",
-    ),
-]
-
-colorOptions = [
-    schema.Option(
-        display = "White",
-        value = "#FFF",
-    ),
-    schema.Option(
-        display = "Yellow",
-        value = "#FF0",
-    ),
-    schema.Option(
-        display = "Red",
-        value = "#F00",
-    ),
-    schema.Option(
-        display = "Blue",
-        value = "#00F",
-    ),
-    schema.Option(
-        display = "Green",
-        value = "#0F0",
-    ),
-    schema.Option(
-        display = "Orange",
-        value = "#FFA500",
-    ),
-    schema.Option(
-        display = "Indigo",
-        value = "#4B0082",
-    ),
-    schema.Option(
-        display = "Violet",
-        value = "#EE82EE",
-    ),
-    schema.Option(
-        display = "Pink",
-        value = "#FC46AA",
     ),
 ]
 
@@ -644,13 +660,12 @@ def get_schema():
                 default = displayOptions[0].value,
                 options = displayOptions,
             ),
-            schema.Dropdown(
+            schema.Color(
                 id = "displayTimeColor",
                 name = "Time Color",
                 desc = "Select which color you want the time to be.",
                 icon = "palette",
-                default = colorOptions[0].value,
-                options = colorOptions,
+                default = "#FFF",
             ),
             schema.Dropdown(
                 id = "displaySpeed",
