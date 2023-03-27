@@ -70,118 +70,153 @@ CIyPqQHWvKIqACH5BAkPAAEALAAAAAAKAAUAAAIIjI+pYByuYiwAIfkECQ8AAQAsAAAAAAoABQAA
 AgmMj5lgHO6UTAUAOw==
 """)
 
-def main(config):
-    site_id = humanize.url_encode(config.str("site_id", ""))
-    refresh_token = config.str("refresh_token")
+def get_access_token(refresh_token, site_id):
 
-    if refresh_token and site_id:
-        url = URL.format(site_id)
-
-        access_token_cached = cache.get("site_id")
-        if access_token_cached != None:
-            print("Hit! Using cached access token.")
-            access_token = access_token_cached
-        else:
-            print("Miss! Getting new access token from Tesla API.")
-
-            auth_rep = http.post(TESLA_AUTH_URL, json_body = {
+    #Try to load access token from cache
+    access_token_cached = cache.get(site_id)
+    
+    if access_token_cached != None:
+        print("Hit! Using cached access token " + access_token_cached)
+        return {'status_code': 'Cached', 'access_token': str(access_token_cached)}        
+    else:
+        print("Miss! Getting new access token from Tesla API.")
+      
+        auth_rep = http.post(TESLA_AUTH_URL, json_body = {
                 "grant_type": "refresh_token",
                 "client_id": "ownerapi",
                 "refresh_token": refresh_token,
                 "scope": "openid email offline_access",
-            })
-
+        })
+        
+        #Check the HTTP response code
+        if auth_rep.status_code != 200:
+            return {'status_code': str(auth_rep.status_code), 'access_token': 'None'}
+        else:
             access_token = auth_rep.json()["access_token"]
-            cache.set("site_id", access_token, ttl_seconds = CACHE_TTL)
+            cache.set(site_id, access_token, ttl_seconds = CACHE_TTL)
+            return {'status_code': str(auth_rep.status_code), 'access_token': str(access_token)}
 
-        rep = http.get(url, headers = {"Authorization": "Bearer " + access_token})
-        if rep.status_code != 200:
-            fail("Tesla API request failed with status {}".format(rep.status_code))
-        data = rep.body()
-        o = json.decode(data)
-        unit = "kW"
+def main(config):
+    print("-------Starting new update-------")
+
+    site_id = humanize.url_encode(config.str("site_id", ""))
+    refresh_token = config.str("refresh_token")
+    error_in_http_calls = False
+
+    if refresh_token and site_id:
+        url = URL.format(site_id)
+        print ("Refresh Token: " + refresh_token)
+        print("Site ID: " + site_id)
+        print("Tesla Auth URL: " + TESLA_AUTH_URL)
+        print("Tesla Data URL: " + url)
+
+        #Generate a new access token from the refresh token
+        access_token = get_access_token(refresh_token, site_id)
+
+        if access_token['access_token'] == 'None':
+            return render.Root(
+                child = render.Marquee(
+                width = 64,
+                child = render.Text("Verify your refresh token is correct. HTTP Error Code: " + access_token['status_code']),
+                ),
+            )
+            error_in_http_calls = True
+        else:
+            rep = http.get(url, headers = {"Authorization": "Bearer " + access_token['access_token']})
+            if rep.status_code != 200:
+                response_error = rep.json()
+                return render.Root(
+                    child = render.Marquee(
+                    width = 64,
+                    child = render.Text("Verify your Site ID. Error: " + response_error['error']),
+                    ),
+                )
+                error_in_http_calls = True
+            else:
+                unit = "kW"
+            data = rep.body()
+            o = json.decode(data)
     else:
         print("Using Dummy Data")
         o = DUMMY_DATA
         unit = "DEMO"
 
-    o = o["response"]
+    if error_in_http_calls == False:
+        o = o["response"]
 
-    points = []
-    flows = []
-    if o["solar_power"] > 0:
-        IMG = SOLAR_PANEL
-        dir = 1
-    else:
-        IMG = SOLAR_PANEL_OFF
-        dir = 0
-    points.append((IMG, o["solar_power"] / 1000))
-    flows.append(dir)
+        points = []
+        flows = []
+        if o["solar_power"] > 0:
+            IMG = SOLAR_PANEL
+            dir = 1
+        else:
+            IMG = SOLAR_PANEL_OFF
+            dir = 0
+        points.append((IMG, o["solar_power"] / 1000))
+        flows.append(dir)
 
-    if o["load_power"] > 0:
         points.append((HOUSE, o["load_power"] / 1000))
-
-    if o["grid_power"] < 0:
-        points.append((GRID, -o["grid_power"] / 1000))
-        dir = 1
-    elif o["grid_power"] > 0:
         points.append((GRID, o["grid_power"] / 1000))
-        dir = -1
-    else:
-        dir = 0
 
-    flows.append(dir)
+        if o["grid_power"] < 0:
+            dir = 1
+        elif o["grid_power"] > 0:
+            dir = -1
+        else:
+            dir = 0
 
-    columns = []
-    for p in points:
-        IMG, power = p
-        columns.append(
-            render.Column(
-                main_align = "space_between",
-                cross_align = "center",
+        flows.append(dir)
+
+        columns = []
+        for p in points:
+            IMG, power = p
+            columns.append(
+                render.Column(
+                    main_align = "space_between",
+                    cross_align = "center",
+                    children = [
+                        render.Image(src = IMG),
+                        render.Text(
+                            content = format_power(power),
+                            height = 8,
+                            font = "tb-8",
+                            color = "#ffd11a",
+                        ),
+                        render.Text(
+                            content = unit,
+                            height = 8,
+                            font = "tb-8",
+                            color = "#ffd11a",
+                        ),
+                    ],
+                ),
+            )
+        dots = [render.Box(width = 18)]
+        for dir in flows:
+            if dir:
+                el = render.Image(src = DOTS_LTR if dir == 1 else DOTS_RTL)
+            else:
+                el = render.Box(width = 10)
+            dots.append(
+                render.Stack(children = [render.Box(width = 21), el]),
+            )
+        return render.Root(
+            child = render.Stack(
                 children = [
-                    render.Image(src = IMG),
-                    render.Text(
-                        content = format_power(power),
-                        height = 8,
-                        font = "tb-8",
-                        color = "#ffd11a",
+                    render.Row(
+                        expanded = True,
+                        main_align = "space_between",
+                        children = columns,
                     ),
-                    render.Text(
-                        content = unit,
-                        height = 8,
-                        font = "tb-8",
-                        color = "#ffd11a",
+                    render.Column(
+                        children = [
+                            render.Box(height = 8),
+                            render.Row(expanded = True, children = dots),
+                        ],
                     ),
                 ],
             ),
         )
-    dots = [render.Box(width = 18)]
-    for dir in flows:
-        if dir:
-            el = render.Image(src = DOTS_LTR if dir == 1 else DOTS_RTL)
-        else:
-            el = render.Box(width = 10)
-        dots.append(
-            render.Stack(children = [render.Box(width = 21), el]),
-        )
-    return render.Root(
-        child = render.Stack(
-            children = [
-                render.Row(
-                    expanded = True,
-                    main_align = "space_between",
-                    children = columns,
-                ),
-                render.Column(
-                    children = [
-                        render.Box(height = 8),
-                        render.Row(expanded = True, children = dots),
-                    ],
-                ),
-            ],
-        ),
-    )
 
 def format_power(p):
     if p:
