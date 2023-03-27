@@ -71,30 +71,29 @@ AgmMj5lgHO6UTAUAOw==
 """)
 
 def get_access_token(refresh_token, site_id):
-
     #Try to load access token from cache
     access_token_cached = cache.get(site_id)
-    
+
     if access_token_cached != None:
         print("Hit! Using cached access token " + access_token_cached)
-        return {'status_code': 'Cached', 'access_token': str(access_token_cached)}        
+        return {"status_code": "Cached", "access_token": str(access_token_cached)}
     else:
         print("Miss! Getting new access token from Tesla API.")
-      
+
         auth_rep = http.post(TESLA_AUTH_URL, json_body = {
-                "grant_type": "refresh_token",
-                "client_id": "ownerapi",
-                "refresh_token": refresh_token,
-                "scope": "openid email offline_access",
+            "grant_type": "refresh_token",
+            "client_id": "ownerapi",
+            "refresh_token": refresh_token,
+            "scope": "openid email offline_access",
         })
-        
+
         #Check the HTTP response code
         if auth_rep.status_code != 200:
-            return {'status_code': str(auth_rep.status_code), 'access_token': 'None'}
+            return {"status_code": str(auth_rep.status_code), "access_token": "None"}
         else:
             access_token = auth_rep.json()["access_token"]
             cache.set(site_id, access_token, ttl_seconds = CACHE_TTL)
-            return {'status_code': str(auth_rep.status_code), 'access_token': str(access_token)}
+            return {"status_code": str(auth_rep.status_code), "access_token": str(access_token)}
 
 def main(config):
     print("-------Starting new update-------")
@@ -102,10 +101,13 @@ def main(config):
     site_id = humanize.url_encode(config.str("site_id", ""))
     refresh_token = config.str("refresh_token")
     error_in_http_calls = False
+    error_details = {}
+    o = ""
+    unit = ""
 
     if refresh_token and site_id:
         url = URL.format(site_id)
-        print ("Refresh Token: " + refresh_token)
+        print("Refresh Token: " + refresh_token)
         print("Site ID: " + site_id)
         print("Tesla Auth URL: " + TESLA_AUTH_URL)
         print("Tesla Data URL: " + url)
@@ -113,24 +115,14 @@ def main(config):
         #Generate a new access token from the refresh token
         access_token = get_access_token(refresh_token, site_id)
 
-        if access_token['access_token'] == 'None':
-            return render.Root(
-                child = render.Marquee(
-                width = 64,
-                child = render.Text("Verify your refresh token is correct. HTTP Error Code: " + access_token['status_code']),
-                ),
-            )
+        if access_token["access_token"] == "None":
+            error_details = {"error_section": "refresh_token", "error": "HTTP error " + str(access_token["status_code"])}
             error_in_http_calls = True
         else:
-            rep = http.get(url, headers = {"Authorization": "Bearer " + access_token['access_token']})
+            rep = http.get(url, headers = {"Authorization": "Bearer " + access_token["access_token"]})
             if rep.status_code != 200:
                 response_error = rep.json()
-                return render.Root(
-                    child = render.Marquee(
-                    width = 64,
-                    child = render.Text("Verify your Site ID. Error: " + response_error['error']),
-                    ),
-                )
+                error_details = {"error_section": "site_id", "error": "Error " + response_error["error"]}
                 error_in_http_calls = True
             else:
                 unit = "kW"
@@ -215,6 +207,14 @@ def main(config):
                         ],
                     ),
                 ],
+            ),
+        )
+    else:
+        error_message = "Check " + error_details["error_section"] + ". " + error_details["error"]
+        return render.Root(
+            child = render.Marquee(
+                width = 64,
+                child = render.Text(error_message),
             ),
         )
 
