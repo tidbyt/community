@@ -25,8 +25,8 @@ def main(config):
     weather_info.append(add_row("Temp", "{0}{1}".format(outside_temp, degree_sign)))
     weather_info.append(add_row("Wind", "{0} {1}".format(wind_dir, wind_spd_avg)))
     if config.bool("show_precip"):
-        weather_info.append(render.Box(width = 64, height = 1, color = "#1167B1"))
-        weather_info.append(show_rainfall(weekly_rain, event_rain))
+        weather_info.append(render.Box(width = 64, height = 1, color = config.get("divider_color", "#1167B1")))
+        weather_info.append(show_rainfall(weekly_rain, event_rain, config))
     else:
         weather_info.append(add_row("Feel", "{0}{1}".format(feels_like, degree_sign)))
         weather_info.append(add_row("Humidity", humidity))
@@ -62,6 +62,13 @@ def get_schema():
                 desc = "Show rainfall totals",
                 icon = "compress",
                 default = True,
+            ),
+            schema.Color(
+                id = "divider_color",
+                name = "Divider Color",
+                desc = "The color of the dividers",
+                icon = "brush",
+                default = "#1167B1",
             ),
         ],
     )
@@ -132,7 +139,7 @@ SAMPLE_STATION_RESPONSE = {
     "date": "2023-03-26T15:43:00.000Z",
 }
 
-def show_rainfall(week, event):
+def show_rainfall(week, event, config):
     return render.Row(
         expanded = True,
         main_align = "space_evenly",
@@ -143,16 +150,16 @@ def show_rainfall(week, event):
                 cross_align = "center",
                 children = [
                     render.Text("Event"),
-                    render.Text("{0}".format(event), font = "tom-thumb"),
+                    render.Text("{0}\"".format(event), font = "tom-thumb"),
                 ],
             ),
-            render.Box(width = 1, height = 12, color = "#1167B1"),
+            render.Box(width = 1, height = 12, color = config.get("divider_color", "#1167B1")),
             render.Column(
                 main_align = "space_between",
                 cross_align = "center",
                 children = [
                     render.Text("Weekly"),
-                    render.Text("{0}".format(week), font = "tom-thumb"),
+                    render.Text("{0}\"".format(week), font = "tom-thumb"),
                 ],
             ),
         ],
