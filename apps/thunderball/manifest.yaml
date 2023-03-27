@@ -1,0 +1,8 @@
+---
+id: thunderball
+name: Thunderball
+summary: Thunderball results
+desc: Results for the most recent draw of the UK national lottery's Thunderball game.
+author: dinosaursrarr
+fileName: thunderball.star
+packageName: thunderball
