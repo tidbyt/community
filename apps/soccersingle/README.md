@@ -5,7 +5,6 @@ Single Soccer Team displays upcoming / current / completed games for the single 
 Approx 3000 teams globally are in this app (2500 men's teams & 500 women's teams - including professional, international and college)
 
 Displayed:
-
 - Home / Away Teams & current record (if applicable for current league / tournament)
 - Game's League / Tournament abbreviation
 - If future game: Date & Time of upcoming game
@@ -21,11 +20,10 @@ Displayed:
 - 12 hour vs 24 hour time & US vs Intl date format
 
 ## Thanks
-
-Tons of thanks to @whyamihere/@rs7q5 for the API assistance - couldn't have gotten here without you
-Thanks to @dinotash/@dinosaursrarr for making me think deep thoughts about connected schema fields
-Of course - the original author of a bunch of this display code is @Lunchbox8484
-Thanks to @jesushairdo for the option to be able to show home or away team first.  Let's be more international :-)
+- Tons of thanks to @whyamihere/@rs7q5 for the API assistance - couldn't have gotten here without you
+- Thanks to @dinotash/@dinosaursrarr for making me think deep thoughts about connected schema fields
+- Of course - the original author of a bunch of this display code is @Lunchbox8484
+- Thanks to @jesushairdo for the option to be able to show home or away team first.  Let's be more international :-)
 
 ## Screenshot
 
