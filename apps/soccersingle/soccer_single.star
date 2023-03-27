@@ -16,7 +16,7 @@ load("render.star", "render")
 load("schema.star", "schema")
 load("time.star", "time")
 
-VERSION = 23084
+VERSION = 23086
 
 CACHE_TTL_SECONDS = 60
 
@@ -59,9 +59,7 @@ def main(config):
         teamid = DEFAULT_TEAM
 
     league = API % ("all", str(teamid))
-
     teamdata = get_scores(league)
-
     scores = teamdata["nextEvent"]
 
     if len(scores) > 0:
