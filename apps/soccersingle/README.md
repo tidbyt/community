@@ -1,6 +1,7 @@
 # Track single soccer team across all global tournaments / leagues they are playing in
 
-Single Soccer Team displays upcoming / current / completed games for the single team you have selected - regardless of the league / tournment.  Handles all ESPN API leagues / tournaments.
+Single Soccer Team displays upcoming / current / completed games for the single team you have selected - across all leagues / tournaments they are playing in.  Handles all current ESPN API soccer leagues / tournaments.
+
 Approx 3000 teams globally are in this app (2500 men's teams & 500 women's teams - including professional, international and college)
 
 Displayed:
