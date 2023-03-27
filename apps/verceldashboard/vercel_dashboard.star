@@ -27,7 +27,9 @@ def main(config):
 
     # Figure out how to show if no api key
     if apikey == None:
-        fail("No API Key provided")
+        return render.Root(
+            child = twoLine("No API", "Key Found"),
+        )
 
     cached_data = cache.get(CACHE_KEY)
 
@@ -44,7 +46,9 @@ def main(config):
 
         # Ensure valid response
         if rep.status_code != 200:
-            fail("Vercel request failed with status %d", rep.status_code)
+            return render.Root(
+                child = twoLine("Vercel Error", "Status: " + str(rep.status_code)),
+            )
 
         data = rep.json()
 
@@ -86,8 +90,6 @@ def main(config):
                         ),
                     ],
                 ),
-
-                # Commit msg
                 render.Row(
                     children = [
                         render.Box(
@@ -115,6 +117,18 @@ def main(config):
                         render.Box(width = 64, height = 8, color = "#243a5e", child = render.Text(content = createdAtDate + " " + createdAtTime, font = "CG-pixel-3x5-mono")),
                     ],
                 ),
+            ],
+        ),
+    )
+
+def twoLine(line1, line2):
+    return render.Box(
+        width = 64,
+        child = render.Column(
+            cross_align = "center",
+            children = [
+                render.Text(content = line1, font = "CG-pixel-4x5-mono"),
+                render.Text(content = line2, font = "CG-pixel-4x5-mono", height = 10),
             ],
         ),
     )
