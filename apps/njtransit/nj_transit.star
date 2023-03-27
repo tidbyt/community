@@ -1,5 +1,5 @@
 """
-Applet: NJ Transit Depature Vision
+Applet: NJ Transit Departure Vision
 Summary: Shows the next departing trains of a station
 Description: Shows the departing NJ Transit Trains of a selected station
 
