@@ -7,11 +7,11 @@ Author: Chase Roossin
 
 load("cache.star", "cache")
 load("encoding/json.star", "json")
+load("hash.star", "hash")
 load("http.star", "http")
 load("render.star", "render")
 load("schema.star", "schema")
 load("time.star", "time")
-load("hash.star", "hash")
 
 BASE_DEPLOYMENT_URL = "https://api.vercel.com/v6/deployments"
 CACHE_KEY = "vercel-cache-{}"
