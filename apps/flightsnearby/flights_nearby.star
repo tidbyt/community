@@ -12,7 +12,6 @@ load("http.star", "http")
 load("math.star", "math")
 load("render.star", "render")
 load("schema.star", "schema")
-load("secret.star", "secret")
 
 DEFAULT_LOCATION = json.encode({
     "lat": "51.4395598",
@@ -135,11 +134,34 @@ def reduce_accuracy(coord):
         coord_remainder = coord_remainder[0:3]
     return ".".join([coord_list[0], coord_remainder])
 
+def update_display(tail, text):
+    return render.Row(
+        children = [
+            render.Box(
+                width = 32,
+                child = render.Image(tail),
+            ),
+            render.Box(
+                child = render.Column(
+                    children = text,
+                ),
+            ),
+        ],
+    )
+
 def main(config):
     api_key = config.get("key")
 
     if (api_key == "") or (api_key == None):
-        api_key = secret.decrypt("AV6+xWcEFKIfCw67zTcYusGXoTGKrc1bOSIdg8X8UuTkEYMbEdcN67Lh1R8PxQUqFf3QxoXI39bIZz0LV8LgL11JY+/uSxEYPlrVMMEqzJMUJngnn9ZW31mmc5Hk9iNnwgfKAZ6YOadc86TTyR3Pyg78hbUfrE2brp3zYWRpsLrfJpxtIlX4UVlHtuC4qF87pQjyeLQ1wHw=")
+        tail = TAILS["Q4"]
+        text = [
+            render.Text("Add"),
+            render.Text("API"),
+            render.Text("Key"),
+        ]
+        return render.Root(
+            child = update_display(tail, text),
+        )
 
     location = json.decode(config.get("location", DEFAULT_LOCATION))
 
@@ -182,39 +204,23 @@ def main(config):
         flightNumber = flight[14]
         aircraftType = flight[9]
         airline = flightNumber[0:2]
-        airlineTail = is_key_present(airline)
-
-        print(destination, origin, flightNumber, aircraftType, airline)
-
-        display = render.Row(
-            children = [
-                render.Box(
-                    width = 32,
-                    child = render.Image(airlineTail),
-                ),
-                render.Box(
-                    child = render.Column(
-                        children = [
-                            render.Text("%s" % origin),
-                            render.Text("%s" % destination),
-                            render.Text("%s" % flightNumber),
-                            render.Text("%s" % aircraftType),
-                        ],
-                    ),
-                ),
-            ],
-        )
+        tail = is_key_present(airline)
+        text = [
+            render.Text("%s" % origin),
+            render.Text("%s" % destination),
+            render.Text("%s" % flightNumber),
+            render.Text("%s" % aircraftType),
+        ]
     else:
-        print("no flights")
-        display = render.Box(
-            child = render.Marquee(
-                width = 64,
-                child = render.Text("No flights found nearby"),
-            ),
-        )
+        tail = TAILS["Q4"]
+        text = [
+            render.Text("No"),
+            render.Text("Flights"),
+            render.Text("Nearby"),
+        ]
 
     return render.Root(
-        child = display,
+        child = update_display(tail, text),
     )
 
 def get_schema():
