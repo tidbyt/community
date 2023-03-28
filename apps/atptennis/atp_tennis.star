@@ -39,7 +39,6 @@ def main(config):
     ShowCompleted = config.get("CompletedOn", "true")
     Number_Events = len(ATP_JSON["events"])
     EventIndex = 0
-    #print(SelectedTourneyID)
 
     # Find the number of "In Progress" matches for the selected tournament
     for x in range(0, Number_Events, 1):
@@ -170,8 +169,6 @@ def getLiveScores(SelectedTourneyID, EventIndex, InProgressMatchList, JSON):
             # pop the index from the list and go straight to that match
             x = InProgressMatchList.pop()
 
-            #print(x)
-            #if (JSON["events"][EventIndex]["competitions"][x]["competitors"][0]["type"] == "athlete"):
             Player1_Name = JSON["events"][EventIndex]["competitions"][x]["competitors"][0]["athlete"]["shortName"]
             Player2_Name = JSON["events"][EventIndex]["competitions"][x]["competitors"][1]["athlete"]["shortName"]
 
