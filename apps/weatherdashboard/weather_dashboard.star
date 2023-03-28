@@ -76,20 +76,23 @@ def get_schema():
 # pragma mark Helper Methods
 
 def get_weather_data(config):
-    cached_data = cache.get("cached_data")
+    api_key = config.get("api_key", None)
+    application_key = config.get("application_key", None)
+    cached_data = cache.get("weather_data-{0}".format(api_key))
     if cached_data != None:
         print("Using existing weather data")
         cache_res = json.decode(cached_data)
         return cache_res
 
     else:
-        print("Getting new weather data")
-        application_key = config.get("application_key", None)
-        api_key = config.get("api_key", None)
-        if api_key == None or application_key == None:
-            print("Using sample data")
+        if api_key == None:
+            print("Missing api_key")
+            return SAMPLE_STATION_RESPONSE
+        if application_key == None:
+            print("Missing application_key")
             return SAMPLE_STATION_RESPONSE
 
+        print("Getting new weather data")
         res = http.get(
             url = AMBIENT_WEATHER_URL,
             params = {
@@ -103,7 +106,7 @@ def get_weather_data(config):
 
         current_data = res.json()[0]["lastData"]
         print("{0}".format(current_data))
-        cache.set("cached_data", json.encode(current_data), ttl_seconds = 60)
+        cache.set("weather_data-{0}".format(api_key), json.encode(current_data), ttl_seconds = 60)
         return current_data
 
 SAMPLE_STATION_RESPONSE = {
