@@ -71,7 +71,7 @@ def main(config):
     airportCode = config.get("airportCode") or DEFAULTAIRPORT
 
     # Date utilities for the API calls. These dates are not utilized in the render.
-    now = time.now().in_location("Europe/London")
+    now = time.now().in_location("Etc/UTC")
     deptDate = humanize.time_format("yyyy-MM-dd", now)
     duration = time.parse_duration("24h")
     tomorrow = now + duration
