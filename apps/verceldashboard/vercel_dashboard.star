@@ -11,9 +11,10 @@ load("http.star", "http")
 load("render.star", "render")
 load("schema.star", "schema")
 load("time.star", "time")
+load("hash.star", "hash")
 
 BASE_DEPLOYMENT_URL = "https://api.vercel.com/v6/deployments"
-CACHE_KEY = "vercel-cache"
+CACHE_KEY = "vercel-cache-{}"
 SPACE = "   "
 
 # Config
@@ -25,13 +26,13 @@ def main(config):
     apikey = config.str(CONFIG_API_KEY)
     showIn24hr = config.bool(CONFIG_CLOCK_FORMAT, True)
 
-    # Figure out how to show if no api key
     if apikey == None:
         return render.Root(
             child = twoLine("No API", "Key Found"),
         )
 
-    cached_data = cache.get(CACHE_KEY)
+    formattedCacheKey = CACHE_KEY.format(hash.sha1(apikey))
+    cached_data = cache.get(formattedCacheKey)
 
     # Check for cached data
     if cached_data != None:
@@ -53,7 +54,7 @@ def main(config):
         data = rep.json()
 
         # Update cache
-        cache.set(CACHE_KEY, json.encode(data), ttl_seconds = 240)
+        cache.set(formattedCacheKey, json.encode(data), ttl_seconds = 240)
 
     # Grab latest deployment
     deployment = data["deployments"][0]
