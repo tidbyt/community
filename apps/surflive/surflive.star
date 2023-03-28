@@ -76,11 +76,10 @@ def main(config):
 
     # skip render if waves are smaller than specified in config min_height
     if config.bool("use_wave_height"):
-        if conditions["wave"]["max"] < int(config.get("min_height","0")):
+        if conditions["wave"]["max"] < int(config.get("min_height", "0")):
             return []
-    else:
-        if conditions["wave"]["swell_height"] < int(config.get("min_height","0")):
-            return []
+    elif conditions["wave"]["swell_height"] < int(config.get("min_height", "0")):
+        return []
 
     return render.Root(
         child = render.Column(
@@ -354,8 +353,7 @@ def get_schema():
                 icon = "gear",
                 desc = "Minimum wave size to display",
                 options = min_height_options,
-                default = "0"
+                default = "0",
             ),
-
         ],
     )

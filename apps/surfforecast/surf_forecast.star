@@ -279,7 +279,7 @@ def main(config):
     state = get_state(config)
 
     # skip render if waves are smaller than specified in config min_height
-    if get_current_max_height(state) < int(config.get("min_height","0")):
+    if get_current_max_height(state) < int(config.get("min_height", "0")):
         return []
 
     return render.Root(
@@ -540,7 +540,7 @@ def get_schema():
                 icon = "pencil",
                 desc = "The minimum wave size to display",
                 options = min_height_options,
-                default = "0"
+                default = "0",
             ),
         ],
     )
