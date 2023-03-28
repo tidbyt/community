@@ -19,7 +19,7 @@ ARRIVALS_CACHE_KEY = "arrivals"
 ARRIVALS_CACHE_TTL = 60  # 1 minute
 
 def main(config):
-    stop_id = config.get("station_id", None) or DEFAULT_STOP
+    stop_id = config.get("station_id", DEFAULT_STOP)
 
     key = SUBSCRIPTION_KEY or config.get("key", None)
 
@@ -59,20 +59,8 @@ def main(config):
             if i < len(stops):
                 route_number = stops[i]["RouteName"]
                 arrival_time = stops[i]["LocalArrivalTime"]
-                route_id = stops[i]["RouteId"]
                 arrival_time = time_string(arrival_time)
-
-                route_cache = cache.get(ROUTE_INFO_CACHE_KEY + route_id)
-                if route_cache:
-                    route_info_response = route_cache
-                else:
-                    route_info_endpoint = "https://api.ridemetro.org/data/FullRouteInfo?routeId=" + route_id + "&subscription-key=" + key
-                    route_info_response = http.get(route_info_endpoint)
-                    cache.set(ROUTE_INFO_CACHE_KEY + route_id, response.body(), ROUTE_INFO_CACHE_TTL)
-                if route_info_response.json()["RouteColor"]:
-                    route_color = route_info_response.json()["RouteColor"]
-                else:
-                    route_color = "#004080"
+                route_color = "004080"
                 render_element = render.Row(
                     children = [
                         render.Stack(children = [
@@ -191,26 +179,30 @@ def time_string(full_string):
     time_index = full_string.find("T")
     return full_string[time_index + 1:len(full_string) - 4]
 
+def truncate_location(full_string):
+    decimal_index = full_string.find(".")
+    return full_string[0:decimal_index + 3]
+
 def get_stations(location):
     loc = json.decode(location)
-    coordinates = str(loc["lat"]) + "|" + str(loc["lng"])
+    coordinates = truncate_location(str(loc["lat"])) + "|" + truncate_location(str(loc["lng"]))
     key = SUBSCRIPTION_KEY or ""
     location_cache = cache.get(ROUTE_INFO_CACHE_KEY + coordinates)
     if location_cache:
         response = location_cache
     else:
-        location_endpoint = "https://houstonmetro.azure-api.net/data/GeoAreas%28'" + coordinates + "|.5'%29/Stops?subscription-key=" + key
+        location_endpoint = "https://houstonmetro.azure-api.net/data/GeoAreas('" + coordinates + "|.5')/Stops?subscription-key=" + key
         response = http.get(location_endpoint)
         cache.set(ROUTE_INFO_CACHE_KEY + coordinates, response.body(), ROUTE_INFO_CACHE_TTL)
-
     stops = []
-    for station in response["value"]:
-        stops.append(
-            schema.Option(
-                display = station["Name"],
-                value = station["StopId"],
-            ),
-        )
+    if response.json()["value"]:
+        for station in response.json()["value"]:
+            stops.append(
+                schema.Option(
+                    display = station["Name"],
+                    value = station["StopId"],
+                ),
+            )
     return stops
 
 def get_schema():
