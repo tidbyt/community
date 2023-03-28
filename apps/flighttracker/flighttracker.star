@@ -71,7 +71,7 @@ def main(config):
     airportCode = config.get("airportCode") or DEFAULTAIRPORT
 
     # Date utilities for the API calls. These dates are not utilized in the render.
-    now = time.now().in_location("America/New_York")
+    now = time.now().in_location("Europe/London")
     deptDate = humanize.time_format("yyyy-MM-dd", now)
     duration = time.parse_duration("24h")
     tomorrow = now + duration
@@ -347,6 +347,13 @@ def main(config):
             arrivalSecondary = actualArrival_time
             departureSecondaryColor = "#19d172"  # Green
             arrivalSecondaryColor = "#19d172"  # Green
+        if status == "Arrived / Delayed":
+            time_color = "#FFC857"
+            marquee = "Arrived " + actualArrival_humanized
+            departureSecondary = actualDeparture_time
+            arrivalSecondary = actualArrival_time
+            departureSecondaryColor = "#C5283D"  # Green
+            arrivalSecondaryColor = "#C5283D"  # Green
         if status == "Landed / Taxiing":
             time_color = "#19d172"
             marquee = "Arrived " + actualArrival_humanized
