@@ -290,7 +290,7 @@ def main(config):
             departureSecondary = actualDeparture_time
             arrivalSecondary = estimatedArrival_time
             departureSecondaryColor = "#19d172"  # Green
-            arrivalSecondaryColor = "#f5be00"  # Orange 
+            arrivalSecondaryColor = "#f5be00"  # Orange
         if status == "Arrived / Gate Arrival":
             time_color = "#19d172"
             marquee = "At the Gate | Arrived " + actualArrival_humanized
