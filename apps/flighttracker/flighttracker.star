@@ -71,7 +71,7 @@ def main(config):
     airportCode = config.get("airportCode") or DEFAULTAIRPORT
 
     # Date utilities for the API calls. These dates are not utilized in the render.
-    now = time.now().in_location("America/New_York")
+    now = time.now().in_location("Europe/London")
     deptDate = humanize.time_format("yyyy-MM-dd", now)
     duration = time.parse_duration("24h")
     tomorrow = now + duration
@@ -273,7 +273,7 @@ def main(config):
 
             cache.set(logo_cacheName, json.encode(logoBase64Encoded), ttl_seconds = 86400)
 
-        #logo = http.get("https://flightaware.com/images/airline_logos/90p/" + operator + ".png").body()  # Get logo to display.
+        #logo = http.get("https://flightaware.com/images/airline_logos/90p/" + operator + ".png").body()  # Get logo to display
 
         lowerMarquee = flight_number + " | " + registration + " | " + aircraftType  # Lower marquee layout.
 
@@ -312,6 +312,13 @@ def main(config):
             arrivalSecondary = estimatedArrival_time
             departureSecondaryColor = "#19d172"  # Green
             arrivalSecondaryColor = "#f5be00"  # Orange
+        if status == "Taxiing / Left Gate":
+            time_color = "#FFC857"
+            marquee = "Taxiing | Departing " + estimatedDeparture_humanized
+            departureSecondary = estimatedDeparture_time
+            arrivalSecondary = estimatedArrival_time
+            departureSecondaryColor = "#19d172"  # Green
+            arrivalSecondaryColor = "#f5be00"  # Orange
         if status == "En Route / Delayed":
             time_color = "#FFC857"
             marquee = "En Route / Delayed | Arriving " + estimatedArrival_humanized
@@ -340,6 +347,13 @@ def main(config):
             arrivalSecondary = actualArrival_time
             departureSecondaryColor = "#19d172"  # Green
             arrivalSecondaryColor = "#19d172"  # Green
+        if status == "Arrived / Delayed":
+            time_color = "#FFC857"
+            marquee = "Arrived " + actualArrival_humanized
+            departureSecondary = actualDeparture_time
+            arrivalSecondary = actualArrival_time
+            departureSecondaryColor = "#C5283D"  # Green
+            arrivalSecondaryColor = "#C5283D"  # Green
         if status == "Landed / Taxiing":
             time_color = "#19d172"
             marquee = "Arrived " + actualArrival_humanized
@@ -347,7 +361,6 @@ def main(config):
             arrivalSecondary = actualArrival_time
             departureSecondaryColor = "#19d172"  # Green
             arrivalSecondaryColor = "#19d172"  # Green
-
     else:
         progressBarWidth = 64
         deptCity = "Orlando"
