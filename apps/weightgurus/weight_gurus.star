@@ -47,10 +47,11 @@ def main(config):
     else:
         #get an access token
         access_token = cache.get("access_token")
-        print("Cached access token: %s" % access_token)
+        #print("Cached access token: %s" % access_token)
 
         if not access_token:
-            print("No access token found in cache, logging in with %s / %s" % (email, password))
+            #print("No access token found in cache, logging in with %s / %s" % (email, password))
+            print("No access token found in cache, logging in with email and password")
             access_token = get_access_token(email, password)
 
         #Now we have an access token, either from cache or using email and password
