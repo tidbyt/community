@@ -85,7 +85,7 @@ def main(config):
         if len(operations) > 0:
             #TODO: Skip operationType not "create"?
             current_weight = float(operations[-1]["weight"] / 10)
-            first_weight = float((get_starting_value(operations, period, "weight")))
+            first_weight = float(get_starting_value(operations, period, "weight") / 10)
             if first_weight < 0:
                 first_weight = 0
             first_weight_date = get_starting_value(operations, period, "entryTimestamp")
@@ -144,7 +144,7 @@ def main(config):
         if first_weight_date == -1:
             first_weight_display = ""
         else:
-            first_weight_display = "since %s " % first_weight_date
+            first_weight_display = "since %s " % get_timestamp_from_date(first_weight_date).format("Jan 2, 2006")
 
         numbers_row = render.Row(
             main_align = "left",
@@ -256,7 +256,7 @@ def get_plot_from_data(json_data, key, period):
                 continue
             
             current_date = get_timestamp_from_date(item["entryTimestamp"])
-            current_value = float(item[key])
+            current_value = float(item[key] / 10)
             date_diff = time.now() - current_date
             days = math.floor(date_diff.hours // 24)
 
@@ -300,7 +300,7 @@ def get_plot_from_data(json_data, key, period):
 
             item_count = item_count + 1
             current_date = get_timestamp_from_date(item["entryTimestamp"])
-            current_value = float(item[key])
+            current_value = float(item[key] / 10)
             days = get_days_between(time.now(), current_date)
 
             if number_of_days == 0 or days < number_of_days:
