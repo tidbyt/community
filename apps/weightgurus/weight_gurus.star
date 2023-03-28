@@ -250,7 +250,10 @@ def get_plot_from_data(json_data, key, period):
     if json_data != None:
         # loop through data, find the bounds needed to plot the points
         for item in json_data:
-            #TODO: Skip operationType not "create"?
+            #TODO: What to do with operationType=="delete"?
+            if not item["operationType"] == "create":
+                continue
+            
             current_date = get_timestamp_from_date(item["entryTimestamp"])
             current_value = float(item[key])
             date_diff = time.now() - current_date
@@ -290,7 +293,10 @@ def get_plot_from_data(json_data, key, period):
         # initialize graph
         plot = [(0, starting_value)]
         for item in json_data:
-            #TODO: Skip operationType not "create"?
+            #TODO: What to do with operationType=="delete"?
+            if not item["operationType"] == "create":
+                continue
+            
             item_count = item_count + 1
             current_date = get_timestamp_from_date(item["entryTimestamp"])
             current_value = float(item[key])
