@@ -24,7 +24,7 @@ WEIGHTGURUS_HISTORY = "https://api.weightgurus.com/v3/operation/?%s"
 #Weight Gurus Data Display
 DISPLAY_FONT = "CG-pixel-3x5-mono"
 FAT_COLOR = "#b9d9eb"
-KILOGRAMS_TO_POUNDS_MULTIPLIER = float(2.2)
+KILOGRAMS_TO_POUNDS_MULTIPLIER = float(2.205)
 WEIGHT_COLOR = "#00B0B9"
 WHITE_COLOR = "#FFF"
 
@@ -95,10 +95,10 @@ def main(config):
     #convert to imperial if need be
     if system == "metric":
         display_units = "KGs"
+        current_weight = float(current_weight) / KILOGRAMS_TO_POUNDS_MULTIPLIER
+        first_weight = float(first_weight) / KILOGRAMS_TO_POUNDS_MULTIPLIER
     else:
         display_units = "LBs"
-        current_weight = float(current_weight) * KILOGRAMS_TO_POUNDS_MULTIPLIER
-        first_weight = float(first_weight) * KILOGRAMS_TO_POUNDS_MULTIPLIER
 
     weight_change = current_weight - first_weight
 
@@ -296,7 +296,7 @@ def get_plot_from_data(json_data, key, period):
             #TODO: What to do with operationType=="delete"?
             if not item["operationType"] == "create":
                 continue
-            
+
             item_count = item_count + 1
             current_date = get_timestamp_from_date(item["entryTimestamp"])
             current_value = float(item[key])
