@@ -12,24 +12,16 @@ load("humanize.star", "humanize")
 load("math.star", "math")
 load("render.star", "render")
 load("schema.star", "schema")
-load("secret.star", "secret")
 load("time.star", "time")
 
 #App Settings
 CACHE_TTL = 60 * 60 * 24  # updates once daily
 
-#OAuth Information
-FITBIT_CLIENT_ID = "238FC5"
-OAUTH2_CLIENT_SECRET = secret.decrypt("AV6+xWcE74PvLnAK9o2UbKXs4mvqPOtEMJzu/AvYJQzd9Ngjvk/N5Ee2G3YD4+EF5TMJyWSs85/MoOk2VZWddwZh7+Zld7+ySKsF49sF+4tFGEQjOqVOebCiKpL1YpwFcBmC0em2bLFO890zJRjVUHDDLfXXkasbIftnKofwR49Kpga5oAY=")
-FITBIT_SECRET = "MjM4RkM1OjEzYzEwMzhjZGQ0MzRmZWJjODYzMThjZDQzMjJiNDg5"  # secret.decrypt("AV6+xWcEqLZ1+KzoRlbZYXgEWLJLeCrHXA6fcqjagRi/gRlH7Wmj8QWepc+JB5HCy40CzovjbZM1zV3VFuVvATRXmtLsalSRWwwwc6Wrh00dfUGD/xK7eZLyA3Oua2rvnzD1QguqODgWr57RguybEGXEfaPc6McM0L10raV3xJS8cGJgGlT3lR67z1EeyybGYMMlAwDnopGKBQ==")
-FITBIT_REDIRECT_URI = "https://appauth.tidbyt.com/fitbitweight"  #https://localhost:8080/ or https://appauth.tidbyt.com/fitbitweight
-FITBIT_BASE = "https://www.fitbit.com/oauth2/authorize?response_type=code&client_id=238FC5&redirect_uri=https%3A%2F%2Fappauth.tidbyt.com%2FFitbitWeight&scope=profile%20weight&expires_in=604800"
-FITBIT_SCOPES = "profile weight activity"
-FITBIT_TOKEN_URL = "https://api.fitbit.com/oauth2/token"
-FITBIT_DATA_URL = "https://api.fitbit.com/1/user/-/body/%s/date/today/max.json"
-FITBIT_DATA_KEYS = ("weight", "fat", "bmi")
+#API information from https://gist.github.com/MarkWalters-pw/08ea0e8737e3e4d11f70427ef8fdc7df and https://github.com/merval/weightgurus
+WEIGHTGURUS_LOGIN = "https://api.weightgurus.com/v3/account/login"
+WEIGHTGURUS_HISTORY = "https://api.weightgurus.com/v3/operation/?%s"
 
-#Fitbit Data Display
+#Weight Gurus Data Display
 DISPLAY_FONT = "CG-pixel-3x5-mono"
 FAT_COLOR = "#b9d9eb"
 KILOGRAMS_TO_POUNDS_MULTIPLIER = float(2.2)
@@ -39,59 +31,48 @@ WHITE_COLOR = "#FFF"
 # buildifier: disable=function-docstring
 def main(config):
     #get user settings
-    #authorization_code = config.get("code")
-
-    #As part of getting "Auth", this will also run oauth_handler
-    #which in turn sets some cached items, so this line
-    #is deceptive in that it does mo"re than just get the refresh token
-    refresh_token = config.get("auth")  # or "putvalidrefresh_tokenhere"
+    email = config.get("email")
+    password = config.get("password")
 
     period = config.get("period") or "0"
     system = config.get("system") or "imperial"
     secondary_display = config.get("second") or "none"
 
-    weight_json = None
-    fat_json = None
-    bmi_json = None
+    #setup our variables for holding the data we get back and display
+    operations = None
 
-    fitbit_json_items = [weight_json, fat_json, bmi_json]
-
-    if not refresh_token:
-        weight_json = json.decode(EXAMPLE_DATA)
-        fat_json = json.decode(EXAMPLE_DATA_FAT)
-        bmi_json = json.decode(EXAMPLE_DATA_BMI)
+    if not email or not password:
+        print("No email and password set, using example data")
+        operations = json.decode(EXAMPLE_DATA)
     else:
-        access_token = cache.get(refresh_token)
+        #get an access token
+        access_token = cache.get("access_token")
+        print("Cached access token: %s", access_token)
 
         if not access_token:
-            access_token = get_access_token(refresh_token)
+            print("No access token found in cache, logging in with %s/%s", email, password)
+            access_token = get_access_token(email, password)
 
-        #Now we have an access token, either from cache or using refresh_token
-        #so let's get  data from cache, then if it's not there
+        #Now we have an access token, either from cache or using email and password
+        #so let's get data from cache, then if it's not there
         #We'll go reload it with our access_token
         #We need data for weight, bmi and body fat %
-        i = 0
 
-        # For weight, fat % and bmi, let's get the data from cache, and if it doesn't exist, get it from fitbit
-        for item in FITBIT_DATA_KEYS:
-            cache_item_name = "%s_%s" % (refresh_token, item)
-            fitbit_json_items[i] = cache.get(cache_item_name)
+        # For weight, fat % and bmi, let's get the data from cache, and if it doesn't exist, get it from weight gurus
+        print("Checking cache for weight data")
+        cache_item_name = "%s_operations" % access_token
+        cached_operations = cache.get(cache_item_name)
+        if cached_operations == None:
+            print("No weight data in cache, fetching from weight gurus")
 
-            if fitbit_json_items[i] == None:
-                #nothing in cache, so we'll load it from Fitbit, then cache it
-                fitbit_json_items[i] = get_data_from_fitbit(access_token, (FITBIT_DATA_URL % (item)))
-                cache.set(cache_item_name, json.encode(fitbit_json_items[i]), ttl_seconds = CACHE_TTL)
-            else:
-                fitbit_json_items[i] = json.decode(fitbit_json_items[i])
+            #TODO: Filter this based on requested period to reduce data size
+            operations = get_data_from_weightgurus(access_token)
+            cache.set(cache_item_name, json.encode(operations), ttl_seconds = CACHE_TTL)
+        else:
+            print("Using cached weight data")
+            operations = json.decode(cached_operations)
 
-            i = i + 1
-
-        # Ugh, fix to actually put data into what I'm checking
-        weight_json = fitbit_json_items[0]
-        fat_json = fitbit_json_items[1]
-        bmi_json = fitbit_json_items[2]
-
-    #Defalt Values
+    #Default Values
     current_weight = 0
     first_weight = 0
     current_fat = 0
@@ -99,21 +80,17 @@ def main(config):
     first_weight_date = None
 
     #Process Data
-    if weight_json != None:
-        if len(weight_json["body-weight"]) > 0:
-            current_weight = float(weight_json["body-weight"][-1]["value"])
-            first_weight = float((get_starting_value(weight_json, period, "value")))
+    if operations != None:
+        if len(operations) > 0:
+            #TODO: Skip operationType not "create"?
+            current_weight = float(operations[-1]["weight"] / 10)
+            first_weight = float((get_starting_value(operations, period, "weight")))
             if first_weight < 0:
                 first_weight = 0
-            first_weight_date = get_starting_value(weight_json, period, "dateTime")
+            first_weight_date = get_starting_value(operations, period, "entryTimestamp")
 
-    if (fat_json != None):
-        if len(fat_json["body-fat"]) > 0:
-            current_fat = float(fat_json["body-fat"][-1]["value"])
-
-    if (bmi_json != None):
-        if len(bmi_json["body-bmi"]) > 0:
-            current_bmi = float(bmi_json["body-bmi"][-1]["value"])
+            current_fat = float(operations[-1]["bodyFat"] / 10)
+            current_bmi = float(operations[-1]["bmi"] / 10)
 
     #convert to imperial if need be
     if system == "metric":
@@ -130,11 +107,11 @@ def main(config):
     if weight_change > 0:
         sign = "+"
 
-    weight_plot = get_plot_from_data(weight_json, period)
-    fat_plot = get_plot_from_data(fat_json, period)
+    weight_plot = get_plot_from_data(operations, "weight", period)
+    fat_plot = get_plot_from_data(operations, "bodyFat", period)
     # Unless your height is changing, the weight_plot and bmi_plot is identical, and looks stupid
     # So let's just show the weight with current BMI info added, but not the second plot
-    #bmi_plot = get_plot_from_data(bmi_json, period)
+    #bmi_plot = get_plot_from_data(operations, "bmi", period)
 
     display_weight = "%s%s " % ((humanize.comma(int(current_weight * 100) // 100.0)), display_units)
     if secondary_display == "bodyfat" and current_fat > 0:
@@ -200,18 +177,17 @@ def main(config):
     )
 
 # buildifier: disable=function-docstring
-def get_starting_value(json_data, period, itemName = "value"):
-    for i in json_data:
-        for item in json_data[i]:
-            current_date = get_timestamp_from_date(item["dateTime"])
+def get_starting_value(operations, period, itemName):
+    for item in operations:
+        current_date = get_timestamp_from_date(item["entryTimestamp"])
 
-            date_diff = time.now() - current_date
-            days = math.floor(date_diff.hours // 24)
+        date_diff = time.now() - current_date
+        days = math.floor(date_diff.hours // 24)
 
-            number_of_days = int(period)
+        number_of_days = int(period)
 
-            if number_of_days == 0 or days < number_of_days:
-                return item[itemName]
+        if number_of_days == 0 or days < number_of_days:
+            return item[itemName]
     return -1
 
 def get_bmi_display(bmi):
@@ -248,11 +224,12 @@ def get_plot_display_from_plot(plot, color = WHITE_COLOR, height = 13):
         fill = True,
     )
 
-def get_plot_from_data(json_data, period):
-    """ Gets the plot from the json_data for the given period
+def get_plot_from_data(json_data, key, period):
+    """ Gets the plot from the json_data for the given key and period
 
     Args:
-        json_data: from FitBit
+        json_data: from weight gurus
+        key: the key to measure, like `weight`
         period: to determine what date range to display
     Returns:
         Plot
@@ -272,160 +249,120 @@ def get_plot_from_data(json_data, period):
 
     if json_data != None:
         # loop through data, find the bounds needed to plot the points
-        for i in json_data:
-            for item in json_data[i]:
-                current_date = get_timestamp_from_date(item["dateTime"])
-                current_value = float(item["value"])
-                date_diff = time.now() - current_date
-                days = math.floor(date_diff.hours // 24)
+        for item in json_data:
+            #TODO: Skip operationType not "create"?
+            current_date = get_timestamp_from_date(item["entryTimestamp"])
+            current_value = float(item[key])
+            date_diff = time.now() - current_date
+            days = math.floor(date_diff.hours // 24)
 
-                if number_of_days == 0 or days < number_of_days:
-                    item_count = item_count + 1
-
-                    #get starting value
-                    if starting_value == None:
-                        starting_value = current_value
-
-                    #get the oldest date
-                    if oldest_date == None:
-                        oldest_date = current_date
-                    elif current_date < oldest_date:
-                        oldest_date = current_date
-
-                    #get the newest date
-                    if newest_date == None:
-                        newest_date = current_date
-                    elif current_date > newest_date:
-                        newest_date = current_date
-
-                    #get smallest
-                    if smallest == None:
-                        smallest = current_value
-                    elif current_value < smallest:
-                        smallest = current_value
-
-                    #get largest
-                    if largest == None:
-                        largest = current_value
-                    elif current_value > largest:
-                        largest = current_value
-
-            # initialize graph
-            plot = [(0, starting_value)]
-            for item in json_data[i]:
+            if number_of_days == 0 or days < number_of_days:
                 item_count = item_count + 1
-                current_date = get_timestamp_from_date(item["dateTime"])
-                current_value = float(item["value"])
-                days = get_days_between(time.now(), current_date)
 
-                if number_of_days == 0 or days < number_of_days:
-                    y_val = current_value
-                    x_val = get_days_between(current_date, oldest_date)
-                    plot.append((x_val, y_val))
+                #get starting value
+                if starting_value == None:
+                    starting_value = current_value
+
+                #get the oldest date
+                if oldest_date == None:
+                    oldest_date = current_date
+                elif current_date < oldest_date:
+                    oldest_date = current_date
+
+                #get the newest date
+                if newest_date == None:
+                    newest_date = current_date
+                elif current_date > newest_date:
+                    newest_date = current_date
+
+                #get smallest
+                if smallest == None:
+                    smallest = current_value
+                elif current_value < smallest:
+                    smallest = current_value
+
+                #get largest
+                if largest == None:
+                    largest = current_value
+                elif current_value > largest:
+                    largest = current_value
+
+        # initialize graph
+        plot = [(0, starting_value)]
+        for item in json_data:
+            #TODO: Skip operationType not "create"?
+            item_count = item_count + 1
+            current_date = get_timestamp_from_date(item["entryTimestamp"])
+            current_value = float(item[key])
+            days = get_days_between(time.now(), current_date)
+
+            if number_of_days == 0 or days < number_of_days:
+                y_val = current_value
+                x_val = get_days_between(current_date, oldest_date)
+                plot.append((x_val, y_val))
 
     return plot
 
 def get_timestamp_from_date(date_string):
-    date_parts = str(date_string).split("-")
-    return time.time(year = int(date_parts[0]), month = int(date_parts[1]), day = int(date_parts[2]))
+    return time.parse_time(date_string)
 
 def get_days_between(day1, day2):
     date_diff = day1 - day2
     days = math.floor(date_diff.hours // 24)
     return days
 
-def oauth_handler(params):
-    params = json.decode(params)
-    authorization_code = params.get("code")
-    return get_refresh_token(authorization_code)
-
 # buildifier: disable=function-docstring
-def get_data_from_fitbit(access_token, data_url):
+def get_data_from_weightgurus(access_token):
     res = http.get(
-        url = data_url,
+        url = WEIGHTGURUS_HISTORY,
         headers = {
             "Authorization": "Bearer %s" % access_token,
         },
     )
 
     if res.status_code == 200:
-        return res.json()
+        return res.json()["operations"]
     else:
         return None
 
-# buildifier: disable=function-docstring
-def get_refresh_token(authorization_code):
-    form_body = dict(
-        clientId = FITBIT_CLIENT_ID,
-        grant_type = "authorization_code",
-        redirect_uri = FITBIT_REDIRECT_URI,
-        code = authorization_code,
-    )
-
-    headers = dict(
-        Authorization = "Basic %s" % FITBIT_SECRET,
-        ContentType = "application/x-www-form-urlencoded",
-    )
-
-    res = http.post(
-        url = FITBIT_TOKEN_URL,
-        headers = headers,
-        form_body = form_body,
-    )
-
-    if res.status_code != 200:
-        fail("token request failed with status code: %d - %s" %
-             (res.status_code, res.body()))
-
-    token_params = res.json()
-    refresh_token = token_params["refresh_token"]
-    access_token = token_params["access_token"]
-    user_id = token_params["user_id"]
-    expires_in = token_params["expires_in"]
-
-    cache.set(refresh_token, access_token, ttl_seconds = int(expires_in - 30))
-    cache.set(get_cache_user_identifier(refresh_token), str(user_id), ttl_seconds = CACHE_TTL)
-
-    return refresh_token
-
-def get_cache_user_identifier(refresh_token):
-    return "%s/user_id" % refresh_token
-
-def get_access_token(refresh_token):
+def get_access_token(email, password):
     """ Gets the access token
 
     Args:
-        refresh_token: refersh token that was saved off earlier
+        email: weight gurus account email address
+        password: weight gurus account password
 
     Returns:
         access token
     """
 
-    headers = dict(
-        Authorization = "Basic %s" % FITBIT_SECRET,
-        ContentType = "application/x-www-form-urlencoded",
+    login_data = dict(
+        email = email,
+        password = password,
+        web = True,
     )
 
-    form_body = dict(
-        grant_type = "refresh_token",
-        refresh_token = refresh_token,
+    headers = dict(
+        ContentType = "application/json",
     )
 
     res = http.post(
-        url = FITBIT_TOKEN_URL,
+        url = WEIGHTGURUS_LOGIN,
         headers = headers,
-        form_body = form_body,
+        json_body = login_data,
     )
 
     if res.status_code != 200:
-        #print("Error Calling Fitbit Token: %s" % (res.body()))
+        #print("Error Calling Weight Gurus Token: %s" % (res.body()))
         fail("token request failed with status code: %d - %s" %
              (res.status_code, res.body()))
 
     token_params = res.json()
-    access_token = token_params["access_token"]
+    access_token = token_params["accessToken"]
+    expires = get_timestamp_from_date(token_params["expiresAt"])
+    ttl = expires - time.now()
 
-    cache.set(refresh_token, access_token, ttl_seconds = int(token_params["expires_in"] - 30))
+    cache.set("access_token", access_token, ttl_seconds = int(ttl.seconds - 30))
 
     return access_token
 
@@ -456,17 +393,17 @@ def get_schema():
     return schema.Schema(
         version = "1",
         fields = [
-            schema.OAuth2(
-                id = "auth",
-                icon = "user",
-                name = "Fitbit",
-                desc = "Connect to your Fitbit account.",
-                handler = oauth_handler,
-                client_id = str(FITBIT_CLIENT_ID),
-                authorization_endpoint = "https://www.fitbit.com/oauth2/authorize",
-                scopes = [
-                    FITBIT_SCOPES,
-                ],
+            schema.Text(
+                id = "email",
+                name = "Email",
+                desc = "Your Weight Gurus email address.",
+                icon = "envelope",
+            ),
+            schema.Text(
+                id = "password",
+                name = "Password",
+                desc = "Your Weight Gurus password.",
+                icon = "lock",
             ),
             schema.Dropdown(
                 id = "period",
@@ -495,54 +432,51 @@ def get_schema():
         ],
     )
 
-EXAMPLE_DATA_FAT = """
-{
-    "body-fat": [{
-        "dateTime": "2022-09-02",
-        "value": "32.423999786376953"
-    }, {
-        "dateTime": "2022-09-04",
-        "value": "31.444000244140625"
-    }, {
-        "dateTime": "2022-09-06",
-        "value": "30.30500030517578"
-    }, {
-        "dateTime": "2022-09-08",
-        "value": "27.204999923706055"
-    }]
-}
-"""
-EXAMPLE_DATA_BMI = """
-{
-    "body-bmi": [{
-        "dateTime": "2022-09-02",
-        "value": "40.607765197753906"
-    }, {
-        "dateTime": "2022-09-04",
-        "value": "30.561622619628906"
-    }, {
-        "dateTime": "2022-09-06",
-        "value": "20.626222610473633"
-    }, {
-        "dateTime": "2022-09-08",
-        "value": "20.592384338378906"
-    }]
-}
-"""
 EXAMPLE_DATA = """
-{
-    "body-weight": [{
-        "dateTime": "2022-09-02",
-        "value": "150"
-    }, {
-        "dateTime": "2022-09-04",
-        "value": "110"
-    }, {
-        "dateTime": "2022-09-06",
-        "value": "100"
-    }, {
-        "dateTime": "2022-09-08",
-        "value": "90"
-    }]
-}
+[
+    {
+        "operationType": "create",
+        "entryTimestamp": "2023-03-24T14:27:18.000Z",
+        "serverTimestamp": "2023-03-24T14:28:32.008Z",
+        "weight": 2116,
+        "bodyFat": 238,
+        "muscleMass": 359,
+        "water": 586,
+        "source": "wifi scale",
+        "bmi": 304
+    },
+    {
+        "operationType": "create",
+        "entryTimestamp": "2023-03-25T16:33:44.000Z",
+        "serverTimestamp": "2023-03-25T16:35:18.181Z",
+        "weight": 2104,
+        "bodyFat": 236,
+        "muscleMass": 360,
+        "water": 588,
+        "source": "wifi scale",
+        "bmi": 302
+    },
+    {
+        "operationType": "create",
+        "entryTimestamp": "2023-03-26T15:53:37.000Z",
+        "serverTimestamp": "2023-03-26T15:54:52.553Z",
+        "weight": 2112,
+        "bodyFat": 236,
+        "muscleMass": 360,
+        "water": 587,
+        "source": "wifi scale",
+        "bmi": 303
+    },
+    {
+        "operationType": "create",
+        "entryTimestamp": "2023-03-27T14:27:49.000Z",
+        "serverTimestamp": "2023-03-27T14:28:59.178Z",
+        "weight": 2105,
+        "bodyFat": 235,
+        "muscleMass": 361,
+        "water": 588,
+        "source": "wifi scale",
+        "bmi": 302
+    }
+]
 """
