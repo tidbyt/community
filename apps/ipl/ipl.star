@@ -561,19 +561,21 @@ def TeamScore(BattingTeam, BattingTeamColor, Wickets, Runs):
             render.Row(
                 main_align = "start",
                 children = [
-                render.Padding(
-                    pad = (2, 2, 2, 1),
-                    child = render.Text(content = BattingTeam, color = BattingTeamColor, font = "CG-pixel-3x5-mono", offset = 0),
-                )],
-            ),        
+                    render.Padding(
+                        pad = (2, 2, 2, 1),
+                        child = render.Text(content = BattingTeam, color = BattingTeamColor, font = "CG-pixel-3x5-mono", offset = 0),
+                    ),
+                ],
+            ),
             render.Row(
                 main_align = "end",
                 children = [
                     render.Padding(
                         pad = (2, 2, 2, 1),
                         child = render.Text(content = Wickets + Runs, color = BattingTeamColor, font = "CG-pixel-3x5-mono", offset = 0),
-                )],
-            ), 
+                    ),
+                ],
+            ),
         ],
     )
 
@@ -589,21 +591,22 @@ def BatsmanScore(Batsman, Runs, BatsmanColor):
                     render.Padding(
                         pad = (2, 2, 2, 1),
                         child = render.Text(content = Batsman[:11], color = BatsmanColor, font = "CG-pixel-3x5-mono", offset = 0),
-                )],
-            ),        
+                    ),
+                ],
+            ),
             render.Row(
                 main_align = "end",
                 children = [
                     render.Padding(
                         pad = (2, 2, 2, 1),
                         child = render.Text(content = Runs, color = BatsmanColor, font = "CG-pixel-3x5-mono", offset = 0),
-                )],
-            ), 
+                    ),
+                ],
+            ),
         ],
     )
 
 def StatusRow(StatusMsg, StatusColor):
-    
     return render.Row(
         children = [
             render.Box(width = 64, height = 8, child = render.Text(content = StatusMsg, color = StatusColor, font = "CG-pixel-3x5-mono")),
