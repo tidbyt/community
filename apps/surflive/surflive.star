@@ -334,14 +334,6 @@ def get_schema():
                 icon = "compass",
                 handler = search_handler,
             ),
-            schema.Dropdown(
-                id = "min_height",
-                name = "Mininum Size",
-                icon = "pencil",
-                desc = "The minimum wave size to display",
-                options = min_height_options,
-                default = "0"
-            ),
             schema.Text(
                 id = "spot_name",
                 name = "Display Name",
@@ -356,5 +348,14 @@ def get_schema():
                 icon = "gear",
                 default = False,
             ),
+            schema.Dropdown(
+                id = "min_height",
+                name = "Mininum Size",
+                icon = "gear",
+                desc = "Minimum wave size to display",
+                options = min_height_options,
+                default = "0"
+            ),
+
         ],
     )
