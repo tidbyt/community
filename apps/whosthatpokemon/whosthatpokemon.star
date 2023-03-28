@@ -85,7 +85,7 @@ def pullFromApi(url, key):
 # Also capitalizes appropriately.
 def formatName(name):
     namesWithSpaces = ["mr-mime", "mime-jr", "porygon-z", "type-null", "tapu-koko", "tapu-lele", "tapu-bulu", "tapu-fini", "mr-rime", "great-tusk", "scream-tail", "brute-bonnet", "flutter-mane", "slither-wing", "sandy-shocks", "iron-treads", "iron-bundle", "iron-hands", "iron-jugulis", "iron-moth", "iron-thorns", "roaring-moon", "iron valiant", "walking-wake", "iron-leaves"]
-    namesWithHyphens = ["ho-oh", "porygon-z" "jangmo-o", "hakamo-o", "kommo-o", "wo-chien", "chien-pao", "chi-yu"]
+    namesWithHyphens = ["ho-oh", "porygon-z", "jangmo-o", "hakamo-o", "kommo-o", "wo-chien", "chien-pao", "chi-yu"]
     if name in namesWithHyphens:
         return name.capitalize()
     elif name in namesWithSpaces:
