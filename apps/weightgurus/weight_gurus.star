@@ -254,7 +254,7 @@ def get_plot_from_data(json_data, key, period):
             #TODO: What to do with operationType=="delete"?
             if not item["operationType"] == "create":
                 continue
-            
+
             current_date = get_timestamp_from_date(item["entryTimestamp"])
             current_value = float(item[key] / 10)
             date_diff = time.now() - current_date
