@@ -1,7 +1,7 @@
 """
 Applet: Earthquake Map
 Summary: Map of global earthquakes
-Description: Display a map of earthquakes based on USGS data. (v0.2.0)
+Description: Display a map of earthquakes based on USGS data.
 Author: Brian McLaughlin (SpinStabilized)
 """
 
@@ -213,6 +213,10 @@ def mag_to_color(magnitude):
     int_mag = len(color_map) - 1 if magnitude >= len(color_map) else int(magnitude)
     return color_map[int_mag]
 
+# The following disables a buggy lint check in the bazel starlark linter that
+# thinks some floating point division is integer division and is flagging it as
+# an error.
+# buildifier: disable=integer-division
 def map_projection(longitude, latitude, screen_width = 64, screen_height = 32, map_center = None):
     """Project's a map longitude/latitude to screen coordinates.
 
@@ -397,25 +401,25 @@ def main(config):
     )
 
     earthquake_events = sorted(earthquake_events, key = lambda item: item[2])
-    last_event = earthquake_events[-1]
+    last_event = earthquake_events[-1] if earthquake_events else None
+    earthquake_events = earthquake_events[:-1]
     if magnitude_sorting:
         earthquake_events = sorted(earthquake_events, key = lambda item: item[1])
 
-    if earthquake_events:
+    if earthquake_events or last_event:
         render_stack = [render_map(WORLD_MAP_ARRAY, map_center, map_brightness)]
-        if len(earthquake_events) > 1:
-            for event in earthquake_events[:-1]:
+        if earthquake_events:
+            for event in earthquake_events:
                 x, y = map_projection(event[0][0], event[0][1], map_center = map_center)
                 render_stack.append(
                     pixel(x, y, mag_to_color(event[1])),
                 )
 
-            # last_event = earthquake_events[-1]
-            x, y = map_projection(last_event[0][0], last_event[0][1], map_center = map_center)
-            blink_on = mag_to_color(last_event[1])
-            render_stack.append(
-                blink_pixel(x, y, blink_on),
-            )
+        x, y = map_projection(last_event[0][0], last_event[0][1], map_center = map_center)
+        blink_on = mag_to_color(last_event[1])
+        render_stack.append(
+            blink_pixel(x, y, blink_on),
+        )
 
         return render.Root(
             delay = 500,

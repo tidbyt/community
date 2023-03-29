@@ -7,7 +7,7 @@ Author: rs7q5
 
 # jokeAPI.star
 # Created 20220130 RIS
-# Last Modified 20230210 RIS
+# Last Modified 20230323 RIS
 
 load("cache.star", "cache")
 load("encoding/json.star", "json")
@@ -131,7 +131,7 @@ def get_schema():
 def http_check(URL):
     rep = http.get(URL)
     if rep.status_code != 200:
-        fail("ESPN request failed with status %d", rep.status_code)
+        fail("JokeAPI request failed with status %d", rep.status_code)
     return rep
 
 def pad_text(text):

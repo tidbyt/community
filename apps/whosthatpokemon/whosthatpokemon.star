@@ -13,7 +13,7 @@ load("random.star", "random")
 load("render.star", "render")
 load("schema.star", "schema")
 
-ALL_POKEMON = 1008
+ALL_POKEMON = 1000
 CLASSIC_POKEMON = 386
 POKEAPI_URL = "https://pokeapi.co/api/v2/pokemon/{}"
 IMGIX_URL = "https://pokesprites.imgix.net/{}.png?bri=-100"
@@ -107,7 +107,7 @@ def getCachedImage(url):
 
     res = http.get(url)
     if res.status_code != 200:
-        print("Failed to pull pokemon image: " + res.status_code)
+        print("Failed to pull pokemon image: " + str(res.status_code))
         return None
     cache.set(cacheKey, base64.encode(res.body()), CACHE_TTL_SECONDS)
 
