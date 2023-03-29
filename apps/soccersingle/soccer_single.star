@@ -25,9 +25,9 @@ CACHE_TTL_SECONDS = 60
 
 DEFAULT_TIMEZONE = "America/New_York"
 MISSING_LOGO = "https://upload.wikimedia.org/wikipedia/commons/c/ca/1x1.png?src=soccermens"
-DEFAULT_TEAM = "205"
+DEFAULT_TEAM = "203"
 API = "https://site.api.espn.com/apis/site/v2/sports/soccer/%s/teams/%s"
-TEAM_SEARCH_API = "https://tidbyt.apis.ajcomputers.com/soccer/api/%s/%s"
+TEAM_SEARCH_API = "https://tidbyt.apis.ajcomputers.com/soccer/api/search/%s"
 DEFAULT_TEAM_DISPLAY = "visitor"  # default to Visitor first, then Home - US order
 DEFAULT_DISPLAY_SPEED = "2000"
 
@@ -497,34 +497,10 @@ displaySpeeds = [
     ),
 ]
 
-genderOptions = [
-    schema.Option(
-        display = "Men's Teams",
-        value = "men",
-    ),
-    schema.Option(
-        display = "Women's Teams",
-        value = "women",
-    ),
-]
-
 def get_schema():
     return schema.Schema(
         version = "1",
         fields = [
-            schema.Dropdown(
-                id = "gender",
-                name = "Mens or Womens Soccer",
-                desc = "Search for Men's teams of Women's teams",
-                icon = "magnifyingGlass",
-                default = "men",
-                options = genderOptions,
-            ),
-            schema.Generated(
-                id = "set_gender",
-                source = "gender",
-                handler = setup_search,
-            ),
             schema.Typeahead(
                 id = "teamid",
                 name = "Team Name to search for",
@@ -582,19 +558,11 @@ def get_schema():
     )
 
 def search_teams(team_text):
-    data = cache.get("gender")
-    if data == None:
-        data = "men"
     if len(team_text) > 3:
-        result = http.get(TEAM_SEARCH_API % (data, team_text)).body()
+        result = http.get(TEAM_SEARCH_API % team_text).body()
         if len(result) > 0:
-            return [schema.Option(value = s["id"], display = "%s (%s)" % (s["displayName"], data[0:1].upper())) for s in json.decode(result)]
+            return [schema.Option(value = s["id"], display = "%s" % s["displayName"]) for s in json.decode(result)]
 
-    return []
-
-def setup_search(gender):
-    #cache gender for search in typeahead - long time, since we only use this when you are changing config and this will get overridden if you change your schema values
-    cache.set("gender", gender, 300000)
     return []
 
 def get_scores(urls):
