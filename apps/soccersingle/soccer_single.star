@@ -16,7 +16,7 @@ load("render.star", "render")
 load("schema.star", "schema")
 load("time.star", "time")
 
-VERSION = 23086
+VERSION = 23088
 
 CACHE_TTL_SECONDS = 60
 
