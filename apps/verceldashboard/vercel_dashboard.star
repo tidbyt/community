@@ -115,7 +115,7 @@ def main(config):
                 ),
                 render.Row(
                     children = [
-                        render.Box(width = 64, height = 8, color = "#243a5e", child = render.Text(content = createdAtDate + " " + createdAtTime, font = "CG-pixel-3x5-mono")),
+                        render.Box(width = 64, height = 7, color = "#243a5e", child = render.Text(content = createdAtDate + " " + createdAtTime, font = "CG-pixel-3x5-mono")),
                     ],
                 ),
             ],
