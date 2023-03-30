@@ -20,27 +20,12 @@ DEFAULT_LOCATION = {
 
 DEFAULT_COLORS = {
     "Black": "#000",
-    "White 100%": "#fff",
-    "White 50%": "#777",
-    "White 20%": "#222",
     "Red 100%": "#f00",
-    "Red 50%": "#700",
-    "Red 20%": "#200",
-    "Green 100%": "#0f0",
-    "Green 50%": "#070",
     "Green 20%": "#020",
     "Blue 100%": "#00f",
-    "Blue 50%": "#007",
-    "Blue 20%": "#002",
     "Yellow 100%": "#ff0",
-    "Yellow 50%": "#770",
-    "Yellow 20%": "#220",
     "Cyan 100%": "#0ff",
-    "Cyan 50%": "#077",
-    "Cyan 20%": "#022",
     "Magenta 100%": "#f0f",
-    "Magenta 50%": "#707",
-    "Magenta 20%": "#202",
 }
 
 DEFAULT_TIMEZONE = "Europe/Zurich"
@@ -158,81 +143,53 @@ def get_schema():
                 desc = "Location defining the timezone.",
                 icon = "locationDot",
             ),
-            schema.Dropdown(
+            schema.Color(
                 id = "color_background",
                 name = "Color Background",
                 icon = "brush",
                 desc = "Color of the background",
-                options = [
-                    schema.Option(display = color_name, value = color_value)
-                    for (color_name, color_value) in DEFAULT_COLORS.items()
-                ],
                 default = DEFAULT_COLORS.get("Black"),
             ),
-            schema.Dropdown(
+            schema.Color(
                 id = "color_border",
                 name = "Color Border",
                 icon = "brush",
                 desc = "Color of the border",
-                options = [
-                    schema.Option(display = color_name, value = color_value)
-                    for (color_name, color_value) in DEFAULT_COLORS.items()
-                ],
                 default = DEFAULT_COLORS.get("Red 100%"),
             ),
-            schema.Dropdown(
+            schema.Color(
                 id = "color_clock",
                 name = "Color Clock",
                 icon = "brush",
                 desc = "Color of the clock",
-                options = [
-                    schema.Option(display = color_name, value = color_value)
-                    for (color_name, color_value) in DEFAULT_COLORS.items()
-                ],
                 default = DEFAULT_COLORS.get("Green 20%"),
             ),
-            schema.Dropdown(
+            schema.Color(
                 id = "color_marks",
                 name = "Color Hour Markers",
                 icon = "brush",
                 desc = "Color of the hour markers",
-                options = [
-                    schema.Option(display = color_name, value = color_value)
-                    for (color_name, color_value) in DEFAULT_COLORS.items()
-                ],
                 default = DEFAULT_COLORS.get("Blue 100%"),
             ),
-            schema.Dropdown(
+            schema.Color(
                 id = "color_hour",
                 name = "Color Hour Finger",
                 icon = "brush",
                 desc = "Color of the hour finger",
-                options = [
-                    schema.Option(display = color_name, value = color_value)
-                    for (color_name, color_value) in DEFAULT_COLORS.items()
-                ],
                 default = DEFAULT_COLORS.get("Cyan 100%"),
             ),
-            schema.Dropdown(
+            schema.Color(
                 id = "color_minute",
                 name = "Color Minute Finger",
                 icon = "brush",
                 desc = "Color of the minute finger",
-                options = [
-                    schema.Option(display = color_name, value = color_value)
-                    for (color_name, color_value) in DEFAULT_COLORS.items()
-                ],
                 default = DEFAULT_COLORS.get("Yellow 100%"),
             ),
-            schema.Dropdown(
+            schema.Color(
                 id = "color_second",
                 name = "Color Second Finger",
                 icon = "brush",
                 desc = "Color of the second finger",
-                options = [
-                    schema.Option(display = color_name, value = color_value)
-                    for (color_name, color_value) in DEFAULT_COLORS.items()
-                ],
                 default = DEFAULT_COLORS.get("Magenta 100%"),
             ),
         ],

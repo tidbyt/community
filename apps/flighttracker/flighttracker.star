@@ -353,7 +353,7 @@ def main(config):
             departureSecondary = actualDeparture_time
             arrivalSecondary = actualArrival_time
             departureSecondaryColor = "#C5283D"  # Green
-            arrivalSecondaryColor = "#19d172"  # Green
+            arrivalSecondaryColor = "#C5283D"  # Green
         if status == "Landed / Taxiing":
             time_color = "#19d172"
             marquee = "Arrived " + actualArrival_humanized
