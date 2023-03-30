@@ -70,7 +70,7 @@ def main(config):
     faAPIKey = config.get("apiKey") or DEFAULTAPI
     airportCode = config.get("airportCode") or DEFAULTAIRPORT
 
-    # Date utilities for the API calls. These dates are not utilized in the render.
+    # Date utilities for the API calls. These dates are not utilized in the render
     now = time.now().in_location("Etc/UTC")
     deptDate = humanize.time_format("yyyy-MM-dd", now)
     duration = time.parse_duration("24h")
