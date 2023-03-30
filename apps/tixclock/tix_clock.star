@@ -153,6 +153,8 @@ def getArrayOfRowsOfPaddedBoxes(box):
 
 def renderArrayOfRowsOfPaddedBoxes(box):
     return render.Column(
+        expanded = True,
+        main_align = "center",
         children = getArrayOfRowsOfPaddedBoxes(box),
     )
 
@@ -203,11 +205,11 @@ def renderFrame(current_time, use24HourFormat, colorThemeName):
         hourFormat = "03"
 
     hours = int(current_time.format(hourFormat))
-    hoursTens = int(hours / 10)
+    hoursTens = int(hours // 10)
     hoursOnes = int(math.mod(hours, 10))
 
     minutes = int(current_time.format("04"))
-    minutesTens = int(minutes / 10)
+    minutesTens = int(minutes // 10)
     minutesOnes = int(math.mod(minutes, 10))
 
     # for fast testing
@@ -351,14 +353,8 @@ def main(config):
 
         # max_age seconds TTL
         max_age = NUMBER_OF_FRAMES * SECONDS_PER_FRAME,
-        child = render.Padding(
-            child = render.Animation(
-                children = clockFrames,
-            ),
-            # Would like if space_evenly did this, but it doesn't, so I have this cheat
-            # to get the display centered
-            # L T R B
-            pad = (0, 5, 0, 0),
+        child = render.Animation(
+            children = clockFrames,
         ),
     )
 
