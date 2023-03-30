@@ -56,7 +56,7 @@ def main(config):
 
         # For weight, fat % and bmi, let's get the data from cache, and if it doesn't exist, get it from weight gurus
         print("Checking cache for weight data")
-        cache_item_name = "%s_operations" % email
+        cache_item_name = "%s_operations" % access_token
         cached_operations = cache.get(cache_item_name)
         if cached_operations == None:
             print("No weight data in cache, fetching from weight gurus")
