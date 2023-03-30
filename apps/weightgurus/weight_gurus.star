@@ -7,6 +7,7 @@ Author: grantmd
 
 load("cache.star", "cache")
 load("encoding/json.star", "json")
+load("hash.star", "hash")
 load("http.star", "http")
 load("humanize.star", "humanize")
 load("math.star", "math")
@@ -46,13 +47,7 @@ def main(config):
         operations = json.decode(EXAMPLE_DATA)
     else:
         #get an access token
-        access_token = cache.get("access_token")
-        #print("Cached access token: %s" % access_token)
-
-        if not access_token:
-            #print("No access token found in cache, logging in with %s / %s" % (email, password))
-            print("No access token found in cache, logging in with email and password")
-            access_token = get_access_token(email, password)
+        access_token = get_access_token(email, password)
 
         #Now we have an access token, either from cache or using email and password
         #so let's get data from cache, then if it's not there
@@ -61,7 +56,7 @@ def main(config):
 
         # For weight, fat % and bmi, let's get the data from cache, and if it doesn't exist, get it from weight gurus
         print("Checking cache for weight data")
-        cache_item_name = "%s_operations" % access_token
+        cache_item_name = "%s_operations" % email
         cached_operations = cache.get(cache_item_name)
         if cached_operations == None:
             print("No weight data in cache, fetching from weight gurus")
@@ -343,33 +338,41 @@ def get_access_token(email, password):
         access token
     """
 
-    login_data = dict(
-        email = email,
-        password = password,
-        web = True,
-    )
+    cache_key = "access_token_%s" % hash.sha256(email + password)
+    access_token = cache.get(cache_key)
+    #print("Cached access token: %s" % access_token)
 
-    headers = dict(
-        ContentType = "application/json",
-    )
+    if not access_token:
+        #print("No access token found in cache, logging in with %s / %s" % (email, password))
+        print("No access token found in cache, logging in with email and password")
 
-    res = http.post(
-        url = WEIGHTGURUS_LOGIN,
-        headers = headers,
-        json_body = login_data,
-    )
+        login_data = dict(
+            email = email,
+            password = password,
+            web = True,
+        )
 
-    if res.status_code != 200:
-        #print("Error Calling Weight Gurus Token: %s" % (res.body()))
-        fail("token request failed with status code: %d - %s" %
-             (res.status_code, res.body()))
+        headers = dict(
+            ContentType = "application/json",
+        )
 
-    token_params = res.json()
-    access_token = token_params["accessToken"]
-    expires = get_timestamp_from_date(token_params["expiresAt"])
-    ttl = expires - time.now()
+        res = http.post(
+            url = WEIGHTGURUS_LOGIN,
+            headers = headers,
+            json_body = login_data,
+        )
 
-    cache.set("access_token", access_token, ttl_seconds = int(ttl.seconds - 30))
+        if res.status_code != 200:
+            #print("Error Calling Weight Gurus Token: %s" % (res.body()))
+            fail("token request failed with status code: %d - %s" %
+                 (res.status_code, res.body()))
+
+        token_params = res.json()
+        access_token = token_params["accessToken"]
+        expires = get_timestamp_from_date(token_params["expiresAt"])
+        ttl = expires - time.now()
+
+        cache.set(cache_key, access_token, ttl_seconds = int(ttl.seconds - 30))
 
     return access_token
 
