@@ -16,6 +16,16 @@ load("encoding/json.star", "json")
 DEFAULT_TIME_ZONE = "America/Phoenix"
 BG_COLOR = "#95a87e"
 
+#12 x 13
+CELCIUS_IMG = base64.decode("""
+iVBORw0KGgoAAAANSUhEUgAAAAwAAAANCAYAAACdKY9CAAAAAXNSR0IArs4c6QAAAE9JREFUKJGtkVEKACAIQ2d0/yvbRwaZxhJ6EEo4lymYqEWBR5GgJNftoGcdDpFz7XZxe1JgOdDCF9KBv5I6tKqICcoOAba4fUcAIOz/wwwDfZoPEer2YU8AAAAASUVORK5CYII=
+""")
+
+#12 x 12
+FAHRENHEIT_IMG = base64.decode("""
+iVBORw0KGgoAAAANSUhEUgAAAAwAAAAMCAYAAABWdVznAAAAAXNSR0IArs4c6QAAAEtJREFUKJGVkFEKACAIQ2d4/yvbRwZqhuxBKOG2UnAwr4KMocGG3sKBdg5FlFLVL35PergJ42AV/IjpACCTc7slanixoklAJ1C0f9jIHw8RR0OxxAAAAABJRU5ErkJggg==
+""")
+
 def main(config):
     FRAME_DELAY = 750
 
@@ -71,50 +81,66 @@ def main(config):
         # delay = setDelay(action()),
         child = render.Stack(
             children = [
-                render.Box(
+                render.Box( # border
                     width = 64,
                     height = 32,
-                    color = "#fff",
+                    color = "#ddd",
                 ),
                 render.Padding(
-                    render.Box(
+                    render.Box( # inner box
                         width = 58,
-                        height = 26,
-                        color = "#aaa",
+                        height = 30,
+                        color = "#bbb",
                     ),
-                    pad = (3, 3, 0, 0),
+                    pad = (5, 1, 0, 0),
                 ),
                 render.Padding(
-                    render.Box(
-                        width = 30,
-                        height = 11,
-                        color = "#222",
+                    render.Box( # black box F
+                        width = 27,
+                        height = 15,
+                        color = "#000",
                     ),
-                    pad = (10, 4, 0, 0),
+                    pad = (11, 1, 0, 0),
                 ),
                 render.Padding(
-                    render.Box(
-                        width = 20,
-                        height = 11,
-                        color = "#222",
+                    render.Box( # black box C
+                        width = 18,
+                        height = 15,
+                        color = "#000",
                     ),
-                    pad = (10, 17, 0, 0),
+                    pad = (11, 16, 0, 0),
                 ),
-                render.Box(
-                    render.Row(
-                        expanded = True,
-                        main_align = "space_evenly",
-                        children = [
-                            render.Text(
-                                content = "126",
-                                font = "tb-8",
-                                color = "#f5f24f",
-                            ),
-                        ],
+                render.Padding(
+                    render.Image(
+                        src = FAHRENHEIT_IMG,
+                        width = 12,
+                        height = 12,
                     ),
-                    width = 64,
-                    height = 22,
+                    pad = (40, 2, 0, 0),
                 ),
+                render.Padding(
+                    render.Image(
+                        src = CELCIUS_IMG,
+                        width = 12,
+                        height = 13,
+                    ),
+                    pad = (31, 17, 0, 0),
+                ),
+                #render.Box(
+                #    render.Row(
+                #        expanded = True,
+                #        main_align = "space_evenly",
+                #        children = [
+                #            render.Text(
+                #                content = "126",
+                #                font = "6x13",
+                #                color = "#f5f24f",
+                #            ),
+                #        ],
+                #    ),
+                #    width = 64,
+                #    height = 22,
+                #),
             ],
         ),
     )
