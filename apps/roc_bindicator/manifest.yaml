@@ -1,0 +1,8 @@
+---
+id: roc-bindicator
+name: Roc Bindicator
+summary: Show refuse in Rochester NY
+desc: Use address located in Rochester, NY to query the City website and then display what trash bins to but at the curb for collection.
+author: Nolan Lynch
+fileName: roc_bindicator.star
+packageName: rocbindicator
