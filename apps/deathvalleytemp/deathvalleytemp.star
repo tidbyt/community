@@ -5,13 +5,15 @@ Description: Based on the thermometers at Death Valley National Park
 Author: Kyle Stark @kaisle51
 Thanks: //Code usage: Steve Otteson. Sprite source: https://www.youtube.com/watch?v=RCL1iwIU57k
 """
-
+load("cache.star", "cache")
 load("encoding/base64.star", "base64")
+load("encoding/json.star", "json")
+load("http.star", "http")
 load("render.star", "render")
 load("schema.star", "schema")
 load("time.star", "time")
+load("secret.star", "secret")
 load("random.star", "random")
-load("encoding/json.star", "json")
 
 DEFAULT_TIME_ZONE = "America/Phoenix"
 BG_COLOR = "#95a87e"
@@ -26,37 +28,17 @@ FAHRENHEIT_IMG = base64.decode("""
 iVBORw0KGgoAAAANSUhEUgAAAAwAAAAMCAYAAABWdVznAAAAAXNSR0IArs4c6QAAAEtJREFUKJGVkFEKACAIQ2d4/yvbRwZqhuxBKOG2UnAwr4KMocGG3sKBdg5FlFLVL35PergJ42AV/IjpACCTc7slanixoklAJ1C0f9jIHw8RR0OxxAAAAABJRU5ErkJggg==
 """)
 
+#full url: https://api.weatherapi.com/v1/current.json?key=7d679e810fcf4099a98224250230104&q=Death%20Valley&aqi=no 
+
+WEATHER_URL = "https://api.weatherapi.com/v1/current.json?key=7d679e810fcf4099a98224250230104&q=Death%20Valley&aqi=no"
+WEATHER_API = "7d679e810fcf4099a98224250230104"
+WEATHER_QUERY = "&q=Death%20Valley&aqi=no"
+FULL_URL = WEATHER_URL + WEATHER_API + WEATHER_QUERY
+
 def main(config):
-    FRAME_DELAY = 750
-
-    def getFrames(animationName):
-        FRAMES = []
-        for i in range(0, len(animationName[0])):
-            FRAMES.extend([
-                render.Column(
-                    children = [
-                        render.Box(
-                            width = animationName[1],
-                            height = animationName[2],
-                            child = render.Image(base64.decode(animationName[0][i]), width = animationName[1], height = animationName[2]),
-                        ),
-                    ],
-                ),
-            ])
-        return FRAMES
-
-    # def getPikachu(animationName):
-    #  setDelay(animationName)
-    #  return render.Padding(
-        #     pad = (animationName[3], animationName[4], 0, 0),
-        #     child = render.Animation(
-            #         getFrames(animationName),
-            #    ),
-            #   )
-
-    def setDelay(animationName):
-        FRAME_DELAY = animationName[5]
-        return FRAME_DELAY
+    data = get_weather(WEATHER_API)
+    # weatherJSON = json.decode(data)
+    tempF = data["current"]["temp_f"]
 
     LOCATION = config.get("location")
     LOCATION = json.decode(LOCATION) if LOCATION else {}
@@ -90,7 +72,7 @@ def main(config):
                     render.Box( # inner box
                         width = 58,
                         height = 30,
-                        color = "#bbb",
+                        color = "#ababab",
                     ),
                     pad = (5, 1, 0, 0),
                 ),
@@ -126,24 +108,39 @@ def main(config):
                     ),
                     pad = (31, 17, 0, 0),
                 ),
-                #render.Box(
-                #    render.Row(
-                #        expanded = True,
-                #        main_align = "space_evenly",
-                #        children = [
-                #            render.Text(
-                #                content = "126",
-                #                font = "6x13",
-                #                color = "#f5f24f",
-                #            ),
-                #        ],
-                #    ),
-                #    width = 64,
-                #    height = 22,
+                #render.Padding(
+                    render.Box(
+                        render.Row(
+                            expanded = True,
+                            main_align = "space_evenly",
+                            children = [
+                                render.Text(
+                                    content = str(tempF),
+                                    font = "6x13",
+                                    color = "#f5f24f",
+                                ),
+                            ],
+                        ),
+                        width = 64,
+                        height = 22,
+                    ),
+                #    pad = (0, 0, 0, 0),
                 #),
             ],
         ),
     )
+
+def get_weather(api_key):
+    res = http.get(WEATHER_URL, params = {
+        "key": api_key,
+        "q": "Death%20Valley",
+        "aqi": "no"
+    })
+    #if res.status_code != 200:
+    #  fail("Predictions request failed with status ", res.status_code)
+    print(res.json())
+
+    return res.json()
 
 def get_schema():
     return schema.Schema(
@@ -157,19 +154,3 @@ def get_schema():
             ),
         ],
     )
-
-# Animation frames:
-# READ
-READ_1 = """iVBORw0KGgoAAAANSUhEUgAAACAAAAAPCAYAAACFgM0XAAAAAXNSR0IArs4c6QAAANtJREFUOI3FVbsRgzAMFbkMQc8elCxBzVSuvQQle7hnC6fIKfei83OkHHeoAUmW9KyfRW6moacc56V6nJzHHvKD512G2zrRMykXCgLt2blnD8A/hLdV4CkXmqUQAL0FOreBrbwVHEG6AaRcvpxbnpVpWydJslQFMc5Lxcw8vADUAL9MzwiDK4UAqLF1wuQseMrlAzYEQI2jels6kfc0nMc+uAHgKGn9kdf/XhZa+tAUtJz/CmgzYvnQFLSCWznrD8wQ2oR7oEW9JsTyKH/5Ko6UwS6lSx4jD7FV/AKZtJEg8ClOMQAAAABJRU5ErkJggg=="""
-READ_2 = """iVBORw0KGgoAAAANSUhEUgAAACAAAAAPCAYAAACFgM0XAAAAAXNSR0IArs4c6QAAANVJREFUOI3FlUESwyAIRWMnh+jee3TZS7j2VK49lmexm9D5EiDQyUzZZBCBF1Dctj9LsozP13t6gtSSzTitD74/BoAOWnAJ4rCJP0H7dwvgF2l9LAkJXgMNAWApeVUosbB+SoyQboDWxxKc61qbaskLeOtjYlUeXgBywK9mN/wnBw0BkDMPoq1ryVsfX9gQADlH7bx1x1qqJSc3APaS+o86BL6MgxK6BVLwq4S8IlwP3QIpuTXlUMcKoU/4DEhiHUJsD+k4E24ZxZE28El4y2PkEe3B+gDG6IZ1VyfnJQAAAABJRU5ErkJggg=="""
-READ_3 = """iVBORw0KGgoAAAANSUhEUgAAACAAAAAPCAYAAACFgM0XAAAAAXNSR0IArs4c6QAAAOlJREFUOI29VTEShDAIJDc+wt5/WOYT1r4qdT5h6T/S+4tYMcMgG/Bu5raKYQ0LAUL0J8xr7vOau95P1uYbXOeRPMcj7sSLfVteOy+1De3zmvu+LUPeBC1fQkYsg0KZggIs1aMssWPNKbU9nEuRpoBSm+kM7XOqLezbQoVyZxGSW2qjD4pIZ8C77wjHEgoFaCKKUB7qXZGMnMVCAYxI5B5fCmP7dR7pOo9k1oBuHV6jCKXda2d9NuyC6FzweF4twS6IOtRcVDsyS/IftwYiGBWhLDj+lnMhoQESgVcbmkf0nIg/P0ZRoFF8A1UgjdVWjc81AAAAAElFTkSuQmCC"""
-
-# Animations list: [[frames], width, height, xPosition, yPosition, frameMilliseconds]
-READ = [
-    [READ_1, READ_2, READ_1, READ_2, READ_1, READ_2, READ_1, READ_2, READ_1, READ_2, READ_3, READ_3, READ_3],
-    32,
-    15,
-    5,
-    12,
-    750,
-]
