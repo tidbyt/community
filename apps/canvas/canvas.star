@@ -1,12 +1,12 @@
-load("cache.star", "cache")
-load("encoding/base64.star", "base64")
-load("http.star", "http")
-load("random.star", "random")
-
 #Add in the needed code bases
 load("render.star", "render")
-load("schema.star", "schema")
 load("time.star", "time")
+load("http.star", "http")
+load("encoding/base64.star", "base64")
+load("schema.star", "schema")
+load("cache.star", "cache")
+load("humanize.star", "humanize")
+load("random.star", "random")
 
 #Code for the canvas logo
 CanvasLogo = base64.decode(
@@ -62,6 +62,7 @@ def getcourse(api_token):
     else:
         api_url = "https://canvas.instructure.com/api/v1/courses?per_page=30&access_token=" + api_token
         response = http.get(api_url)
+        print(api_url)
         if response.status_code != 200:
             return [], "Can not Connect to Canvas"
         classes = []
@@ -95,6 +96,7 @@ def get_remote_assignments(api_token, course_id):
     api_url = "https://canvas.instructure.com/api/v1/courses/" + str(
         course_id,
     ) + "/assignments?access_token=" + api_token
+    print(api_url)
     rep = http.get(api_url)
     if rep.status_code != 200:
         return [], "Can not Connect to Canvas"
