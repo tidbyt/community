@@ -1,12 +1,12 @@
+load("cache.star", "cache")
+load("encoding/base64.star", "base64")
+load("http.star", "http")
+load("random.star", "random")
+
 #Add in the needed code bases
 load("render.star", "render")
-load("time.star", "time")
-load("http.star", "http")
-load("encoding/base64.star", "base64")
 load("schema.star", "schema")
-load("cache.star", "cache")
-load("humanize.star", "humanize")
-load("random.star", "random")
+load("time.star", "time")
 
 #Code for the canvas logo
 CanvasLogo = base64.decode(
@@ -54,7 +54,8 @@ def makeError(type):
     )
 
 def getcourse(api_token):
-    class_cache = cache.get("class_data")
+    class_cache = cache.get("class_data-"+api_token)
+
     if class_cache != None:
         print("Using Cached Courses")
         classes = class_cache.split(",")
@@ -62,7 +63,6 @@ def getcourse(api_token):
     else:
         api_url = "https://canvas.instructure.com/api/v1/courses?per_page=30&access_token=" + api_token
         response = http.get(api_url)
-        print(api_url)
         if response.status_code != 200:
             return [], "Can not Connect to Canvas"
         classes = []
@@ -80,11 +80,11 @@ def getcourse(api_token):
 
         #cache for one day
         cache_data = ",".join(classes)
-        cache.set("class_data", cache_data, ttl_seconds = 3000)
+        cache.set("class_data-"+api_token, cache_data, ttl_seconds = 3000)
         return classes, 0
 
-def get_cached_assignments(course_id):
-    cache_string = cache.get(str(course_id))
+def get_cached_assignments(course_id,api_token):
+    cache_string = cache.get(str(course_id)+"-"+api_token)
     if cache_string != None:
         first_split = cache_string.split(";")
         if "" in first_split:
@@ -96,7 +96,6 @@ def get_remote_assignments(api_token, course_id):
     api_url = "https://canvas.instructure.com/api/v1/courses/" + str(
         course_id,
     ) + "/assignments?access_token=" + api_token
-    print(api_url)
     rep = http.get(api_url)
     if rep.status_code != 200:
         return [], "Can not Connect to Canvas"
@@ -109,20 +108,23 @@ def get_remote_assignments(api_token, course_id):
            (time.parse_time(assignment["due_at"]) - time.now()).hours < 200
     ]
 
-def cache_assignments(course_id, assignments):
+def cache_assignments(course_id, assignments,api_token):
     cache_string = ";".join([a[0] + "," + a[1] for a in assignments])
-    cache.set(str(course_id), cache_string, ttl_seconds = 300)
+    cache.set(str(course_id+"-"+api_token), cache_string, ttl_seconds = 300)
 
 def get_events(api_token, course_id):
-    assignment_data = get_cached_assignments(course_id)
+    assignment_data = get_cached_assignments(course_id,api_token)
     if assignment_data == None:
         print("Not Using Cached Classes for" + str(course_id))
         assignment_data = get_remote_assignments(api_token, course_id)
-        cache_assignments(course_id, assignment_data)
+        cache_assignments(course_id, assignment_data,api_token)
     return assignment_data, 0
 
 def main(config):
     api_token = config.get("msg", "")
+
+    if api_token == "":
+        return makeError("Please add your API Key")
 
     classes, error_code = getcourse(api_token)
 
