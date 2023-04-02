@@ -54,7 +54,7 @@ def makeError(type):
     )
 
 def getcourse(api_token):
-    class_cache = cache.get("class_data-"+api_token)
+    class_cache = cache.get("class_data-" + api_token)
 
     if class_cache != None:
         print("Using Cached Courses")
@@ -80,11 +80,11 @@ def getcourse(api_token):
 
         #cache for one day
         cache_data = ",".join(classes)
-        cache.set("class_data-"+api_token, cache_data, ttl_seconds = 3000)
+        cache.set("class_data-" + api_token, cache_data, ttl_seconds = 3000)
         return classes, 0
 
-def get_cached_assignments(course_id,api_token):
-    cache_string = cache.get(str(course_id)+"-"+api_token)
+def get_cached_assignments(course_id, api_token):
+    cache_string = cache.get(str(course_id) + "-" + api_token)
     if cache_string != None:
         first_split = cache_string.split(";")
         if "" in first_split:
@@ -108,16 +108,16 @@ def get_remote_assignments(api_token, course_id):
            (time.parse_time(assignment["due_at"]) - time.now()).hours < 200
     ]
 
-def cache_assignments(course_id, assignments,api_token):
+def cache_assignments(course_id, assignments, api_token):
     cache_string = ";".join([a[0] + "," + a[1] for a in assignments])
-    cache.set(str(course_id+"-"+api_token), cache_string, ttl_seconds = 300)
+    cache.set(str(course_id + "-" + api_token), cache_string, ttl_seconds = 300)
 
 def get_events(api_token, course_id):
-    assignment_data = get_cached_assignments(course_id,api_token)
+    assignment_data = get_cached_assignments(course_id, api_token)
     if assignment_data == None:
         print("Not Using Cached Classes for" + str(course_id))
         assignment_data = get_remote_assignments(api_token, course_id)
-        cache_assignments(course_id, assignment_data,api_token)
+        cache_assignments(course_id, assignment_data, api_token)
     return assignment_data, 0
 
 def main(config):
