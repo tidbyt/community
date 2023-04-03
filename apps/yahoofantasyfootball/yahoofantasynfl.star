@@ -411,7 +411,7 @@ def get_schema():
             schema.Text(
                 id = "leagueNumber",
                 name = "League Number",
-                desc = "Type in the league number for your league. Go to your league in a browser and look at the URL. It should end in /f1 or /b1 and then /#######. Input just those numbers here.",
+                desc = "Type in the league number for your league. Go to your league in a browser and look at the URL. It should end in /f1 then /#######. Input just those numbers here.",
                 icon = "hashtag",
                 default = "",
             ),
