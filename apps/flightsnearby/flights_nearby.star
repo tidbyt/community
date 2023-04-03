@@ -183,8 +183,8 @@ def get_cardinal_point(deg):
 
 def main(config):
     api_key = config.get("key")
-    hide_when_nothing_to_display = config.bool("hide", True) 
-    extend = config.bool("extend", True)  
+    hide_when_nothing_to_display = config.bool("hide", True)
+    extend = config.bool("extend", True)
 
     if (api_key == "") or (api_key == None):
         tail = TAILS["Q4"]
@@ -248,32 +248,31 @@ def main(config):
                 render.Text("%s" % origin),
                 render.Text("%s" % destination),
                 render.Text("%s" % flightNumber),
-                render.Marquee(                    
+                render.Marquee(
                     width = 32,
-                    child = render.Text("Look %s for %s flying at %s feet, heading %s at %s mph" % (get_bearing(orig_lat, orig_lng, flight[2], flight[3]), aircraftType, humanize.comma(flight[5]), get_cardinal_point(flight[4]), humanize.comma(flight[6])), color = "#fff"), 
-                )
+                    child = render.Text("Look %s for %s flying at %s feet, heading %s at %s mph" % (get_bearing(orig_lat, orig_lng, flight[2], flight[3]), aircraftType, humanize.comma(flight[5]), get_cardinal_point(flight[4]), humanize.comma(flight[6])), color = "#fff"),
+                ),
             ]
         else:
-           text = [
+            text = [
                 render.Text("%s" % origin),
                 render.Text("%s" % destination),
                 render.Text("%s" % flightNumber),
                 render.Text("%s" % aircraftType),
             ]
+    elif hide_when_nothing_to_display == True:
+        return []
     else:
-        if hide_when_nothing_to_display == True:
-            return []
-        else:
-            tail = TAILS["Q4"]
-            text = [
-                render.Text("No"),
-                render.Text("Flights"),
-                render.Text("Nearby"),
-            ]
+        tail = TAILS["Q4"]
+        text = [
+            render.Text("No"),
+            render.Text("Flights"),
+            render.Text("Nearby"),
+        ]
 
     return render.Root(
         child = update_display(tail, text),
-        show_full_animation = True,   
+        show_full_animation = True,
     )
 
 def get_schema():
@@ -289,7 +288,7 @@ def get_schema():
         schema.Option(
             display = "10km",
             value = "10",
-        ),      
+        ),
         schema.Option(
             display = "20km",
             value = "20",
@@ -312,7 +311,7 @@ def get_schema():
                 icon = "rulerHorizontal",
                 default = options[1].value,
                 options = options,
-            ),            
+            ),
             schema.Toggle(
                 id = "hide",
                 name = "Hide",
