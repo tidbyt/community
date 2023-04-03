@@ -9,6 +9,7 @@ load("cache.star", "cache")
 load("encoding/base64.star", "base64")
 load("encoding/json.star", "json")
 load("http.star", "http")
+load("humanize.star", "humanize")  #for easy reading numbers and times
 load("math.star", "math")
 load("render.star", "render")
 load("schema.star", "schema")
@@ -149,8 +150,41 @@ def update_display(tail, text):
         ],
     )
 
+def get_bearing(lat_1, lng_1, lat_2, lng_2):
+    lat_1 = math.radians(float(lat_1))
+    lat_2 = math.radians(float(lat_2))
+    lng_1 = math.radians(float(lng_1))
+    lng_2 = math.radians(float(lng_2))
+
+    #Let ‘R’ be the radius of Earth,
+    #‘L’ be the longitude,
+    #‘θ’ be latitude,
+    #‘β‘ be get_Bearing.
+    #β = atan2(X,Y) where
+    #X = cos θb * sin ∆L
+    #Y = cos θa * sin θb – sin θa * cos θb * cos ∆L
+
+    x = math.cos(lat_2) * math.sin((lng_2 - lng_1))
+    y = math.cos(lat_1) * math.sin(lat_2) - math.sin(lat_1) * math.cos(lat_2) * math.cos((lng_2 - lng_1))
+    bearing = math.degrees(math.atan2(x, y))
+
+    # our compass brackets are broken up in 45 degree increments from 0 8
+    # to find the right bracket we need degrees from 0 to 360 then divide by 45 and round
+    # what we get though is degrees -180 to 0 to 180 so this will convert to 0 to 360
+    if bearing < 0:
+        bearing = 360 + bearing
+
+    return get_cardinal_point(bearing)
+
+def get_cardinal_point(deg):
+    # have bearning in degrees, now convert to cardinal point
+    compass_brackets = ["North", "Northeast", "East", "Southeast", "South", "Southwest", "West", "Northwest", "North"]
+    return compass_brackets[int(math.round(deg / 45))]
+
 def main(config):
     api_key = config.get("key")
+    hide_when_nothing_to_display = config.bool("hide", True) 
+    extend = config.bool("extend", True)  
 
     if (api_key == "") or (api_key == None):
         tail = TAILS["Q4"]
@@ -165,8 +199,11 @@ def main(config):
 
     location = json.decode(config.get("location", DEFAULT_LOCATION))
 
-    lat = reduce_accuracy(location["lat"])
-    lng = reduce_accuracy(location["lng"])
+    orig_lat = location["lat"]
+    orig_lng = location["lng"]
+
+    lat = reduce_accuracy(orig_lat)
+    lng = reduce_accuracy(orig_lng)
 
     cache_key = "_".join([lat, lng])
 
@@ -180,7 +217,7 @@ def main(config):
         boundingBox = get_bounding_box(centrePoint, config.get("distance", DEFAULT_DISTANCE))
         rep = http.get(
             FLIGHT_RADAR_URL,
-            params = {"bl_lat": boundingBox[0], "bl_lng": boundingBox[1], "tr_lat": boundingBox[2], "tr_lng": boundingBox[3]},
+            params = {"bl_lat": boundingBox[0], "bl_lng": boundingBox[1], "tr_lat": boundingBox[2], "tr_lng": boundingBox[3], "altitude": "1000,60000"},
             headers = {"X-RapidAPI-Key": api_key, "X-RapidAPI-Host": "flight-radar1.p.rapidapi.com"},
         )
         if rep.status_code != 200:
@@ -205,22 +242,38 @@ def main(config):
         aircraftType = flight[9]
         airline = flightNumber[0:2]
         tail = is_key_present(airline)
-        text = [
-            render.Text("%s" % origin),
-            render.Text("%s" % destination),
-            render.Text("%s" % flightNumber),
-            render.Text("%s" % aircraftType),
-        ]
+
+        if extend:
+            text = [
+                render.Text("%s" % origin),
+                render.Text("%s" % destination),
+                render.Text("%s" % flightNumber),
+                render.Marquee(                    
+                    width = 32,
+                    child = render.Text("Look %s for %s flying at %s feet, heading %s at %s mph" % (get_bearing(orig_lat, orig_lng, flight[2], flight[3]), aircraftType, humanize.comma(flight[5]), get_cardinal_point(flight[4]), humanize.comma(flight[6])), color = "#fff"), 
+                )
+            ]
+        else:
+           text = [
+                render.Text("%s" % origin),
+                render.Text("%s" % destination),
+                render.Text("%s" % flightNumber),
+                render.Text("%s" % aircraftType),
+            ]
     else:
-        tail = TAILS["Q4"]
-        text = [
-            render.Text("No"),
-            render.Text("Flights"),
-            render.Text("Nearby"),
-        ]
+        if hide_when_nothing_to_display == True:
+            return []
+        else:
+            tail = TAILS["Q4"]
+            text = [
+                render.Text("No"),
+                render.Text("Flights"),
+                render.Text("Nearby"),
+            ]
 
     return render.Root(
         child = update_display(tail, text),
+        show_full_animation = True,   
     )
 
 def get_schema():
@@ -236,6 +289,10 @@ def get_schema():
         schema.Option(
             display = "10km",
             value = "10",
+        ),      
+        schema.Option(
+            display = "20km",
+            value = "20",
         ),
     ]
 
@@ -255,6 +312,20 @@ def get_schema():
                 icon = "rulerHorizontal",
                 default = options[1].value,
                 options = options,
+            ),            
+            schema.Toggle(
+                id = "hide",
+                name = "Hide",
+                desc = "Hide app when no flights nearby?",
+                icon = "gear",
+                default = False,
+            ),
+            schema.Toggle(
+                id = "extend",
+                name = "Extend",
+                desc = "Show extended data for nearest flight?",
+                icon = "gear",
+                default = False,
             ),
             schema.Text(
                 id = "key",
