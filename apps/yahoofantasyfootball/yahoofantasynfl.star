@@ -17,7 +17,6 @@ load("xpath.star", "xpath")
 TIDBYT_OAUTH_CALLBACK_URL = "https%3A%2F%2Fappauth.tidbyt.com%2Fyahoofantasynfl"
 
 YAHOO_CLIENT_ID = "dj0yJmk9RkJhYkJhWmFsaWREJmQ9WVdrOVNXRkhOVVI2YkVrbWNHbzlNQT09JnM9Y29uc3VtZXJzZWNyZXQmc3Y9MCZ4PWRl"
-
 YAHOO_CLIENT_SECRET = secret.decrypt("AV6+xWcEpOfd72G+TFyN/8p3P0jWeqUaG5JQaL8R0+aiipivAMaUNWyRS8NWrbO3JVRHPzNYygrUWkUfFfU4xyD6KhfeOYZY/uKvq3MQFBjrs/tGP7wvIzxMmyrdLZtfEa5qclyWEr+ciYWbbN+78GaE8cVlmCe42P2DX9saJatyn0n+us51SoDkq/P/Ag==")
 YAHOO_CLIENT_ID_AND_SECRET_BASE_64 = base64.encode(YAHOO_CLIENT_ID + ":" + YAHOO_CLIENT_SECRET)
 YAHOO_OAUTH_AUTHORIZATION_URL = "https://api.login.yahoo.com/oauth2/request_auth"
