@@ -5,6 +5,10 @@ Description: Show Indy Car next race info and current driver standings. - F1 Nex
 Author: jvivona
 """
 
+# 20230403  v23093
+#  changed to new color schema option
+#  samhi113 worked on the track images
+
 load("cache.star", "cache")
 load("encoding/base64.star", "base64")
 load("encoding/json.star", "json")
@@ -19,7 +23,7 @@ IMAGES = {
     "oval": "iVBORw0KGgoAAAANSUhEUgAAABgAAAAeCAYAAAA2Lt7lAAAACXBIWXMAAC4jAAAuIwF4pT92AAABuElEQVRIibWWu06CQRCFD4rxgoWYqC/gpTA2lFRUhpZCSh8AKnwHQ2PD6ygmhgegQRJRn0CNgmIMiXAsOL+QZfn/XQKTTIbsnJlvgb3FSGKRtuSoOwVwDeBLXtVYtJEM8xjJCkc2kAdWkWZqjyjApRp1SV6Q3CCZ1OeucuVZARmSfZLfJNOWfFq5vrRegCWSTc2wGDKJojRN1TgDciq8n1Y4NpGGtDkfQFVF5xH/EaQhyRtbPsbJfbAF4AVAD8AugJ+Ihbgu/ar07fGkbR9kAaxorUc1hzRV1WTNpA2QUrxzaB5YoE2ZCRvgRLHhAWgataGAfcVHD0BL8cAFsKP44QF4N2r/zbaKCKAPIO4BAIBfAMsAYuODrqepq/XMARugo5kkPBonVNNxAbwpJj0A24qfLoAnxUMPwJHiswsgWP8TazrEjo3aUEBdMeMBCLR1MzGPw24NwCuGh90ejP1j+wZtADUAmwDOIpoDQF7amtkcwNT7ID/DhZP3uXDiJB9UWAgBFKRpqWYhl/6AZHZan6jrsKwZdkmWOHq2lDh6tlyF9YgCLPzhFXiWw0u9K78N+1nG3bYP5mp/F5vVkadWLcYAAAAASUVORK5CYII=",
     "road": "iVBORw0KGgoAAAANSUhEUgAAAB4AAAAYCAYAAADtaU2/AAAACXBIWXMAAC4jAAAuIwF4pT92AAABnUlEQVRIieXWv2sUQRjG8c/pqWlSWBoEg42kCFrYWNmI2GmhsTIgtgEjaqU2CoIW/qqsAhYWkliksPAvsFMrEQSFU2yNkBAtdCzuVpa9d25vL8IVPrA7y/O+M999d2Z2t5VSMg5tGwsV7V57B0fwHRNION5wrJuYwi6s4wPuZbNTSlJKz1O/bvdidcdS0LfQu5TS1ahfUfHv4J5+DlHlWxwcEJ/BXcxivhzYyhy/qYGWdQ5P/gV4CYca9pnHwlbB5zP+Y9zAi0z8ZHHRziQM0q3A62BfxbuPxYp3rLgYpeLpwHuG3RXvEl4HuVdGBe8MvA6+Bf7nwJssg1tBQu5d+ivwJjK5UWEpFyi0mfF/BF5urWyvA0cvkD365w32B17uJrMqwF+D2Fn983YZR4Pch03BxSNaxMVKbAqf8BRfcBgXgjFeNYWWwbCC05X4NK7VjLEyCri8uM7oVthEqwZ9+oYEEy+cnF7i1CjQCEx3Ty/X9HuEE0OMH22n9t9ToLle+wB7sQMb+IjrQwALdXrte92CDmANWv/dz97YwH8ARhmjTPwdskgAAAAASUVORK5CYII=",
     "street": "iVBORw0KGgoAAAANSUhEUgAAAB4AAAAYCAYAAADtaU2/AAAACXBIWXMAAC4jAAAuIwF4pT92AAABY0lEQVRIie3WsUtWURjH8Y+lmYomWJYNQoqCQ9Qg0haE/4yOgkO7k9GQk0GTBQ4uDU4ObkFD0CLUECIvRTQ0aCmI0ONwz4Xr2/WVq+Tb8P7gcJ/zPOfcL+e595zztEWEZuhKU6ingJ8gsNRg3h3cxhSO0vi3VcDtJb6r6Xm9JHYPXVhP9iFqGEH3ecHdGMeD1B/CfXxPsEEsY1K2wo/4gBfYqgIFEZG3iSjXYkS8LvQ3I2IlIgbq5m0U3nVmK0v1V7zENB5jPvk38AXPsFN5hXUqA3/CAn4kcK5XWKsb24nZZI9iDn24iVW8qwKuoluYSfYInhditUbg/2oft8Dn1VNsy771LzwsBi/6czVSf2q5rhWDl5nqsWaB32CiGeATaoFb4H+mtlRlvpdVHMPYx2fcTb5c3/ATHakfyT6xP89QTVbRPMrBu7J7dFd2wnTJirgDWVb+oMffJ13gdwVwL/Zw4xji9Z/+bRF76AAAAABJRU5ErkJggg==",
-    "texasmotorspeedway" : "iVBORw0KGgoAAAANSUhEUgAAABYAAAASCAMAAABo+94fAAAABGdBTUEAALGPC/xhBQAAACBjSFJNAAB6JgAAgIQAAPoAAACA6AAAdTAAAOpgAAA6mAAAF3CculE8AAAArlBMVEUAAAAjHyAjHyAjHyAjHyAjHyAjHyAjHyAjHyAjHyAjHyAjHyAjHyAjHyAjHyAjHyAjHyAjHyAjHyAjHyAjHyAjHyAjHyAjHyAjHyAjHyAjHyAjHyAjHyAjHyAjHyAjHyAjHyAjHyAjHyAjHyAjHyAjHyAjHyAjHyAjHyAjHyAjHyAjHyAjHyAjHyAjHyAjHyAjHyAjHyAjHyAjHyAjHyAjHyAjHyAjHyAjHyD////vSGK2AAAAOXRSTlMAAAEDAhUdHBZPfGxja1J1BwVgd0xlS3QYcAZxEBEEV05VfTg2fgx2i2ZJYkhhjA4UWIGjahoeIiO4M3egAAAAAWJLR0Q51wCVQAAAAAd0SU1FB+cDEg07CTeToJEAAADWSURBVBjTdZDpcsIwDISzkUo5whEgBAoYaMt9n+X9n4y14w75ATuesfSNLa0UBO+EEGFOTC3lLepjJioEGYV+FD6dCkWB4/ZfqVyJvKrlmpIQox41WN23iZstmwjaCSQnJB0IcdqFbcme4KXopsTQXuPfR1bmq6cIFP2B9Y0MMhj2oYHBqI3YiIryiIkxnsDQd/z9441wCsXv1DjfmEXzxXK13my2q+WunuztIzfl4XhKz5fLOT0dD9mUdlE2uN7+7rerT+A3aJxzujbh061brVJhDr7SA80dDCQ7lyHuAAAAJXRFWHRkYXRlOmNyZWF0ZQAyMDIzLTAzLTE4VDEzOjU4OjM4KzAwOjAwnSIxnQAAACV0RVh0ZGF0ZTptb2RpZnkAMjAyMy0wMy0xOFQxMzo1ODozOCswMDowMOx/iSEAAAAZdEVYdFNvZnR3YXJlAEFkb2JlIEltYWdlUmVhZHlxyWU8AAAAAElFTkSuQmCC",
+    "texasmotorspeedway": "iVBORw0KGgoAAAANSUhEUgAAABYAAAASCAMAAABo+94fAAAABGdBTUEAALGPC/xhBQAAACBjSFJNAAB6JgAAgIQAAPoAAACA6AAAdTAAAOpgAAA6mAAAF3CculE8AAAArlBMVEUAAAAjHyAjHyAjHyAjHyAjHyAjHyAjHyAjHyAjHyAjHyAjHyAjHyAjHyAjHyAjHyAjHyAjHyAjHyAjHyAjHyAjHyAjHyAjHyAjHyAjHyAjHyAjHyAjHyAjHyAjHyAjHyAjHyAjHyAjHyAjHyAjHyAjHyAjHyAjHyAjHyAjHyAjHyAjHyAjHyAjHyAjHyAjHyAjHyAjHyAjHyAjHyAjHyAjHyAjHyAjHyAjHyD////vSGK2AAAAOXRSTlMAAAEDAhUdHBZPfGxja1J1BwVgd0xlS3QYcAZxEBEEV05VfTg2fgx2i2ZJYkhhjA4UWIGjahoeIiO4M3egAAAAAWJLR0Q51wCVQAAAAAd0SU1FB+cDEg07CTeToJEAAADWSURBVBjTdZDpcsIwDISzkUo5whEgBAoYaMt9n+X9n4y14w75ATuesfSNLa0UBO+EEGFOTC3lLepjJioEGYV+FD6dCkWB4/ZfqVyJvKrlmpIQox41WN23iZstmwjaCSQnJB0IcdqFbcme4KXopsTQXuPfR1bmq6cIFP2B9Y0MMhj2oYHBqI3YiIryiIkxnsDQd/z9441wCsXv1DjfmEXzxXK13my2q+WunuztIzfl4XhKz5fLOT0dD9mUdlE2uN7+7rerT+A3aJxzujbh061brVJhDr7SA80dDCQ7lyHuAAAAJXRFWHRkYXRlOmNyZWF0ZQAyMDIzLTAzLTE4VDEzOjU4OjM4KzAwOjAwnSIxnQAAACV0RVh0ZGF0ZTptb2RpZnkAMjAyMy0wMy0xOFQxMzo1ODozOCswMDowMOx/iSEAAAAZdEVYdFNvZnR3YXJlAEFkb2JlIEltYWdlUmVhZHlxyWU8AAAAAElFTkSuQmCC",
 }
 
 DEFAULTS = {
@@ -31,6 +35,7 @@ DEFAULTS = {
     "api": "https://tidbyt.apis.ajcomputers.com/indy/api/{}/{}.json",
     "ttl": 1800,
     "positions": 16,
+    "text_color": "#FFF",
 }
 
 SIZES = {
@@ -85,7 +90,7 @@ def nextrace(config, data):
     date_and_time3 = time.parse_time(date_and_time, "2006-01-02T15:04:05-0700").in_location(timezone)
     date_str = date_and_time3.format("Jan 02" if config.bool("is_us_date_format", DEFAULTS["date_us"]) else "02 Jan").title()  #current format of your current date str
     time_str = "TBD" if date_and_time.endswith("T00:00:00-0500") else date_and_time3.format("15:04 " if config.bool("is_24_hour_format", DEFAULTS["time_24"]) else "3:04pm")[:-1]
-    text_color = config.get("text_color", coloropt[0].value)
+    text_color = config.get("text_color", DEFAULTS["text_color"])
 
     return render.Row(expanded = True, children = [
         render.Box(width = 16, height = 26, child = render.Image(src = base64.decode(IMAGES[data["type"]]), height = 24, width = 14)),
@@ -115,7 +120,7 @@ def fade_child(race, track, date_time_tv, text_color):
 def standings(config, data):
     standingformat = "{}\n{}\n{}\n{}"
 
-    text_color = config.get("text_color", coloropt[0].value)
+    text_color = config.get("text_color", DEFAULTS["text_color"])
     text = drvrtext(data)
 
     return render.Animation(
@@ -167,44 +172,6 @@ def fadelistchildcolumn(text, font, color, data_box_width, text_align):
 # ##############################################
 #           Schema Funcitons
 # ##############################################
-coloropt = [
-    schema.Option(
-        display = "White",
-        value = "#FFFFFF",
-    ),
-    schema.Option(
-        display = "Red",
-        value = "#FF0000",
-    ),
-    schema.Option(
-        display = "Orange",
-        value = "#FFA500",
-    ),
-    schema.Option(
-        display = "Yellow",
-        value = "#FFFF00",
-    ),
-    schema.Option(
-        display = "Green",
-        value = "#008000",
-    ),
-    schema.Option(
-        display = "Blue",
-        value = "#0000FF",
-    ),
-    schema.Option(
-        display = "Indigo",
-        value = "#4B0082",
-    ),
-    schema.Option(
-        display = "Violet",
-        value = "#EE82EE",
-    ),
-    schema.Option(
-        display = "Pink",
-        value = "#FC46AA",
-    ),
-]
 
 dispopt = [
     schema.Option(
@@ -246,13 +213,12 @@ def get_schema():
                 default = "nri",
                 options = dispopt,
             ),
-            schema.Dropdown(
+            schema.Color(
                 id = "text_color",
                 name = "Text Color",
                 desc = "The color for Standings / Race / Track / Time text.",
                 icon = "palette",
-                default = coloropt[0].value,
-                options = coloropt,
+                default = DEFAULTS["text_color"],
             ),
             schema.Generated(
                 id = "nri_generated",
