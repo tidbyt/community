@@ -66,6 +66,7 @@ def getcourse(api_token):
         if response.status_code != 200:
             return [], "Can not Connect to Canvas"
         classes = []
+
         data = str(response.body()).split('"id"')
         if "Invalid access token." in data:
             return [], "Invalid access token."
@@ -77,7 +78,6 @@ def getcourse(api_token):
                     dur = time.now() - time.parse_time(time_stamp)
                     if 8760 > dur.hours:
                         classes.append(course[1:18])
-
         #cache for one day
         cache_data = ",".join(classes)
         cache.set("class_data-" + api_token, cache_data, ttl_seconds = 3000)
@@ -95,7 +95,8 @@ def get_cached_assignments(course_id, api_token):
 def get_remote_assignments(api_token, course_id):
     api_url = "https://canvas.instructure.com/api/v1/courses/" + str(
         course_id,
-    ) + "/assignments?access_token=" + api_token
+    ) + "/assignments?bucket=upcoming&access_token=" + api_token
+    print(api_url)
     rep = http.get(api_url)
     if rep.status_code != 200:
         return [], "Can not Connect to Canvas"
@@ -110,7 +111,7 @@ def get_remote_assignments(api_token, course_id):
 
 def cache_assignments(course_id, assignments, api_token):
     cache_string = ";".join([a[0] + "," + a[1] for a in assignments])
-    cache.set(str(course_id + "-" + api_token), cache_string, ttl_seconds = 300)
+    cache.set(str(course_id) + "-" + api_token, cache_string, ttl_seconds = 300)
 
 def get_events(api_token, course_id):
     assignment_data = get_cached_assignments(course_id, api_token)
