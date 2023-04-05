@@ -18,13 +18,21 @@ USER_URL = "https://api.craft.network/user/{}"
 
 TOKEN_URL = "https://utils.craft.network/metadata/{}/{}"
 
+DEFAULT_TTL = 10 #300
+
+MAX_IMAGES = 5 # set to 50 for production
+
 def main(config):
+    nft_ttl_seconds = int(config.get("nft_cycle_seconds",DEFAULT_TTL)) # default 5 minutes
+    print("ttl:"+str(nft_ttl_seconds))
     address = config.str("user_address", DEFAULT_USER_ADDRESS)
-    nft_image_src = cache.get(address)
+    nft_image_src = cache.get(address+"_random")
     #nft_image_src = http.get("http://wildc.net/tmp/2551.png").body()
     if nft_image_src == None:
         nft_image_url = fetch_random_nft(address)
-        nft_image_src = http.get(nft_image_url).body()
+        if nft_image_url != None:
+            nft_image_src = http.get(nft_image_url).body()
+            cache.set(address+"_random", nft_image_src, ttl_seconds = nft_ttl_seconds) # 1 hour
     else:
         print("Using Cache")
     
@@ -34,7 +42,7 @@ def main(config):
         )
     else:
         # set the cache since this is the image we are rendering
-        cache.set(address, nft_image_src, ttl_seconds = 3600) # 1 hour
+
         return render.Root(
             child = render.Row(
                 expanded = True,
@@ -51,24 +59,56 @@ def main(config):
             
 
 
+
 def fetch_random_nft(address):
-    user_page_body = http.get(USER_URL.format(address)).body()
-    user_json_obj = json.decode(user_page_body)
-    # the token_map holds the collections and ids of token a user owns
-    collections = user_json_obj["userData"]["tokenMap"]
-    image_list = []
-    for collection,token in collections.items():
-        #print(collection)
-        for token_id in token.keys():
-            token_page_body = http.get(TOKEN_URL.format(collection,token_id)).body()
-            token_json_obj = json.decode(token_page_body)
-            image_url = token_json_obj["preview"]["hash"]
-            if (image_url[-4:] in [".jpg",".png","peg",".gif"]):
+    print(USER_URL.format(address))
+    # pull the cache for the image list. this is expensive so we cache for longer (24 hours)
+    print(address+"_image_list")
+    user_dict = cache.get(address+"_image_list")
+    if user_dict == None:
+        user_dict = dict()
+        user_page_body = http.get(USER_URL.format(address)).body()
+        #print(user_page_body)
+        user_json_obj = json.decode(user_page_body)
+        # the token_map holds the collections and ids of token a user owns
+        if user_json_obj["code"] != "200":
+            return None
+
+        collections = user_json_obj["userData"]["tokenMap"]
+        user_dict["token_map"] = collections
+        image_list = []
+        counter = 0
+        for collection,token in collections.items():
+            if counter > MAX_IMAGES:
+                break
+            for token_id in token.keys():
+                token_page_body = http.get(TOKEN_URL.format(collection,token_id)).body()
+                token_json_obj = json.decode(token_page_body)
+                if "cloudinary" in token_json_obj and token_json_obj["cloudinary"][-4:] in [".jpg",".png","peg",".gif"]:
+                    user_dict["token_map"][collection][token_id] = True # set to True to indicate we've seen this and it does have a preview
+                    image_url = token_json_obj["cloudinary"]
+                else:
+                    print("no cloudinary image")
+                    user_dict["token_map"][collection][token_id] = False
+                    break
                 image_list.append(image_url)
-                print("added :" + image_url + " to image_list")
+                #print("added :" + image_url + " to image_list")
+                print(counter+1)
+                counter = counter + 1
+
+
+        user_dict["image_list"] = image_list
+        cache.set(address+"_image_list", json.encode(image_list), ttl_seconds = 86400) # 24 hours
+#        print(str(user_dict))
+    else:
+        image_list = json.decode(user_dict)
+
     if len(image_list) > 0:
         # pick a random image
-        random_image = image_list[random(len(image_list))]
+        num = random(len(image_list))
+        print("picking #" + str(num+1) + " of " + str(len(image_list)))
+        
+        random_image = image_list[num]
         #print("picked: " + random_image)
         return random_image
     return None
@@ -88,5 +128,11 @@ def get_schema():
                 desc = "The user address.",
                 icon = "user",
             ),
+            schema.Text(
+                id = "nft_cycle_seconds",
+                name = "Display Time",
+                desc = "How long to display each NFT",
+                icon = "clock"
+            )
         ],
     )
