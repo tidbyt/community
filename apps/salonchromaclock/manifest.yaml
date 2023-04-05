@@ -1,0 +1,8 @@
+---
+id: salonchromaclock
+name: SalonChromaClock
+summary: Custom Clock for Salon
+desc: Custom Clock with Date and Time for Salon Chroma.
+author: STATCowboy
+fileName: salonchromaclock.star
+packageName: salonchromaclock
