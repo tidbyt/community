@@ -20,7 +20,7 @@ TOKEN_URL = "https://utils.craft.network/metadata/{}/{}"
 
 DEFAULT_TTL = 10 #300
 
-MAX_IMAGES = 5 # set to 50 for production
+MAX_IMAGES = 10 # set to 50 for production
 
 def main(config):
     nft_ttl_seconds = int(config.get("nft_cycle_seconds",DEFAULT_TTL)) # default 5 minutes
@@ -38,7 +38,27 @@ def main(config):
     
     if nft_image_src == None:
         return render.Root(
-            child = render.Text("no nfts"),
+            render.Box(
+                child = render.Column(
+                    expanded = True,
+                    main_align = "center",
+                    cross_align = "center",
+                    children = [
+                        render.Row(
+                            expanded = True,
+                            main_align = "space_around",
+                            children = [
+                                render.WrappedText(
+                                    content = " No Displayable NFTs Found",
+                                    font = "tb-8",
+                                    color = "#FF0000",
+                                    align = "center",
+                                )
+                            ]
+                        )
+                    ],
+                ),
+            )
         )
     else:
         # set the cache since this is the image we are rendering
@@ -63,15 +83,14 @@ def main(config):
 def fetch_random_nft(address):
     print(USER_URL.format(address))
     # pull the cache for the image list. this is expensive so we cache for longer (24 hours)
-    print(address+"_image_list")
     user_dict = cache.get(address+"_image_list")
     if user_dict == None:
         user_dict = dict()
-        user_page_body = http.get(USER_URL.format(address)).body()
-        #print(user_page_body)
+        resp = http.get(USER_URL.format(address))
+        user_page_body = resp.body()
         user_json_obj = json.decode(user_page_body)
         # the token_map holds the collections and ids of token a user owns
-        if user_json_obj["code"] != "200":
+        if resp.status_code != 200:
             return None
 
         collections = user_json_obj["userData"]["tokenMap"]
@@ -79,9 +98,13 @@ def fetch_random_nft(address):
         image_list = []
         counter = 0
         for collection,token in collections.items():
+            print(token)
             if counter > MAX_IMAGES:
                 break
             for token_id in token.keys():
+                if counter > MAX_IMAGES:
+                    break
+                print(TOKEN_URL.format(collection,token_id))
                 token_page_body = http.get(TOKEN_URL.format(collection,token_id)).body()
                 token_json_obj = json.decode(token_page_body)
                 if "cloudinary" in token_json_obj and token_json_obj["cloudinary"][-4:] in [".jpg",".png","peg",".gif"]:
@@ -128,11 +151,11 @@ def get_schema():
                 desc = "The user address.",
                 icon = "user",
             ),
-            schema.Text(
-                id = "nft_cycle_seconds",
-                name = "Display Time",
-                desc = "How long to display each NFT",
-                icon = "clock"
-            )
+            # schema.Text(
+            #     id = "nft_cycle_seconds",
+            #     name = "Display Time",
+            #     desc = "How long to display each NFT",
+            #     icon = "clock"
+            # )
         ],
     )
