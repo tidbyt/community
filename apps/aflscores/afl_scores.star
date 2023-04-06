@@ -3,6 +3,8 @@ Applet: AFL Scores
 Summary: Shows AFL Scores
 Description: Shows AFL (Australian Football League) scores. Option to show all matches for the round or focus on one team
 Author: M0ntyP
+
+v1.1 - Moved game time for live game up 1 whole pixel
 """
 
 load("cache.star", "cache")
@@ -34,8 +36,6 @@ def main(config):
     AllMatchesBool = config.bool("AllMatches", True)
     TeamListSelection = config.get("TeamList", DEFAULT_TEAM)
 
-    #print(TeamListSelection)
-    #print(AllMatchesBool)
     timezone = config.get("$tz", DEFAULT_TIMEZONE)
     now = time.now().in_location(timezone)
 
@@ -64,8 +64,6 @@ def main(config):
         CURRENT_ROUND_URL = ROUND_URL + CurrentRound
     elif AllMatchesBool == False:
         CURRENT_ROUND_URL = ROUND_URL + CurrentRound + TEAM_SUFFIX + TeamListSelection
-
-    # print(CURRENT_ROUND_URL)
 
     # Cache match info for 1 min
     RoundData = get_cachable_data(CURRENT_ROUND_URL, ROUND_CACHE)
@@ -210,9 +208,6 @@ def main(config):
                     AwayGoals = str(LiveJSON["games"][y]["agoals"])
                     AwayBehinds = str(LiveJSON["games"][y]["abehinds"])
 
-                    # if len(AwayBehinds) == 1:
-                    #     AwayBehinds = " " + AwayBehinds
-
                     gametime = str(LiveJSON["games"][y]["timestr"])
 
                     # Render on the screen
@@ -232,20 +227,20 @@ def main(config):
                                                 #Home Team
                                                 #Draw the box and row, then
                                                 render.Box(width = 64, height = 12, color = home_team_bkg, child = render.Row(expanded = True, main_align = "start", cross_align = "right", children = [
-                                                    render.Box(width = 20, height = 10, child = render.Box(width = 16, height = 10, child = render.Text(content = home_team_abb, color = home_team_font))),
-                                                    render.Box(width = 12, height = 10, child = render.Box(width = 16, height = 10, child = render.Text(content = HomeGoals, color = home_team_font))),
-                                                    render.Box(width = 12, height = 10, child = render.Box(width = 16, height = 10, child = render.Text(content = HomeBehinds, color = home_team_font))),
-                                                    render.Box(width = 18, height = 10, child = render.Box(width = 16, height = 10, child = render.Text(content = HomeScore, color = home_team_font))),
+                                                    render.Box(width = 20, height = 12, child = render.Text(content = home_team_abb, color = home_team_font)),
+                                                    render.Box(width = 12, height = 12, child = render.Text(content = HomeGoals, color = home_team_font)),
+                                                    render.Box(width = 12, height = 12, child = render.Text(content = HomeBehinds, color = home_team_font)),
+                                                    render.Box(width = 20, height = 12, child = render.Text(content = HomeScore, color = home_team_font)),
                                                 ])),
                                                 #Away Team
                                                 render.Box(width = 64, height = 12, color = away_team_bkg, child = render.Row(expanded = True, main_align = "start", cross_align = "right", children = [
-                                                    render.Box(width = 20, height = 10, child = render.Box(width = 16, height = 10, child = render.Text(content = away_team_abb, color = away_team_font))),
-                                                    render.Box(width = 12, height = 10, child = render.Box(width = 16, height = 10, child = render.Text(content = AwayGoals, color = away_team_font))),
-                                                    render.Box(width = 12, height = 10, child = render.Box(width = 16, height = 10, child = render.Text(content = AwayBehinds, color = away_team_font))),
-                                                    render.Box(width = 18, height = 10, child = render.Box(width = 16, height = 10, child = render.Text(content = AwayScore, color = away_team_font))),
+                                                    render.Box(width = 20, height = 12, child = render.Text(content = away_team_abb, color = away_team_font)),
+                                                    render.Box(width = 12, height = 12, child = render.Text(content = AwayGoals, color = away_team_font)),
+                                                    render.Box(width = 12, height = 12, child = render.Text(content = AwayBehinds, color = away_team_font)),
+                                                    render.Box(width = 20, height = 12, child = render.Text(content = AwayScore, color = away_team_font)),
                                                 ])),
                                                 #Game time
-                                                render.Box(width = 64, height = 10, color = "#000", child = render.Text(gametime, font = "CG-pixel-3x5-mono")),
+                                                render.Box(width = 64, height = 8, color = "#000", child = render.Text(gametime, font = "CG-pixel-3x5-mono")),
                                             ],
                                         ),
                                     ],
@@ -284,20 +279,20 @@ def main(config):
                                         #Home Team
                                         #Draw the box and row, then
                                         render.Box(width = 64, height = 12, color = home_team_bkg, child = render.Row(expanded = True, main_align = "start", cross_align = "right", children = [
-                                            render.Box(width = 20, height = 10, child = render.Box(width = 16, height = 10, child = render.Text(content = home_team_abb, color = home_team_font))),
-                                            render.Box(width = 12, height = 10, child = render.Box(width = 16, height = 10, child = render.Text(content = HomeGoals, color = home_team_font))),
-                                            render.Box(width = 12, height = 10, child = render.Box(width = 16, height = 10, child = render.Text(content = HomeBehinds, color = home_team_font))),
-                                            render.Box(width = 18, height = 10, child = render.Box(width = 16, height = 10, child = render.Text(content = HomeScore, color = home_team_font))),
+                                            render.Box(width = 20, height = 10, child = render.Text(content = home_team_abb, color = home_team_font)),
+                                            render.Box(width = 12, height = 10, child = render.Text(content = HomeGoals, color = home_team_font)),
+                                            render.Box(width = 12, height = 10, child = render.Text(content = HomeBehinds, color = home_team_font)),
+                                            render.Box(width = 18, height = 10, child = render.Text(content = HomeScore, color = home_team_font)),
                                         ])),
                                         #Away Team
                                         render.Box(width = 64, height = 12, color = away_team_bkg, child = render.Row(expanded = True, main_align = "start", cross_align = "right", children = [
-                                            render.Box(width = 20, height = 10, child = render.Box(width = 16, height = 10, child = render.Text(content = away_team_abb, color = away_team_font))),
-                                            render.Box(width = 12, height = 10, child = render.Box(width = 16, height = 10, child = render.Text(content = AwayGoals, color = away_team_font))),
-                                            render.Box(width = 12, height = 10, child = render.Box(width = 16, height = 10, child = render.Text(content = AwayBehinds, color = away_team_font))),
-                                            render.Box(width = 18, height = 10, child = render.Box(width = 16, height = 10, child = render.Text(content = AwayScore, color = away_team_font))),
+                                            render.Box(width = 20, height = 10, child = render.Text(content = away_team_abb, color = away_team_font)),
+                                            render.Box(width = 12, height = 10, child = render.Text(content = AwayGoals, color = away_team_font)),
+                                            render.Box(width = 12, height = 10, child = render.Text(content = AwayBehinds, color = away_team_font)),
+                                            render.Box(width = 18, height = 10, child = render.Text(content = AwayScore, color = away_team_font)),
                                         ])),
                                         #Game time
-                                        render.Box(width = 64, height = 10, color = "#000", child = render.Text(gametime, font = "CG-pixel-3x5-mono")),
+                                        render.Box(width = 64, height = 8, color = "#000", child = render.Text(gametime, font = "CG-pixel-3x5-mono")),
                                     ],
                                 ),
                             ],
