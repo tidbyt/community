@@ -2,7 +2,9 @@
 Applet: AFL Ladder
 Summary: Shows the AFL Ladder
 Description: Shows the AFL (Australian Football League) Ladder.
-Author: M0ntyP
+Author: M0ntyP 
+
+v1.1 - Reduced cache from 1hr to 10mins, just so the ladder updates quicker after a match has finished
 """
 
 load("cache.star", "cache")
@@ -13,14 +15,14 @@ load("render.star", "render")
 load("schema.star", "schema")
 
 LADDER_URL = "https://aflapi.afl.com.au/afl/v2/compseasons/52/ladders"
-LADDER_CACHE = 3600
+LADDER_CACHE = 600
 
 def main(config):
     RotationSpeed = config.get("speed", "3")
     renderCategory = []
 
     # 6 pages of 3 teams
-    teamsToShow = 3
+    teamsToShow = 4
 
     LadderData = get_cachable_data(LADDER_URL, LADDER_CACHE)
     LadderJSON = json.decode(LadderData)
@@ -55,7 +57,7 @@ def get_screen(x, LadderJSON):
     heading = [
         render.Box(
             width = 64,
-            height = 7,
+            height = 5,
             color = "#000",
             child = render.Row(
                 expanded = True,
@@ -64,8 +66,8 @@ def get_screen(x, LadderJSON):
                 children = [
                     render.Box(
                         width = 64,
-                        height = 7,
-                        child = render.Text(content = "AFL", color = "#ff0", font = "tb-8"),
+                        height = 5,
+                        child = render.Text(content = "AFL", color = "#ff0", font = "CG-pixel-3x5-mono"),
                     ),
                 ],
             ),
@@ -73,14 +75,11 @@ def get_screen(x, LadderJSON):
     ]
     output.extend(heading)
 
-    for i in range(0, 3):
+    for i in range(0, 4):
         if i + x < len(s):
             TeamID = s[i + x]["team"]["id"]
             TeamAbbr = LadderJSON["ladders"][0]["entries"][i + x]["team"]["abbreviation"]
 
-            #TeamWins = str(LadderJSON["ladders"][0]["entries"][y]["thisSeasonRecord"]["winLossRecord"]["wins"])
-            #TeamDraws = str(LadderJSON["ladders"][0]["entries"][y]["thisSeasonRecord"]["winLossRecord"]["draws"])
-            #TeamLoss = str(LadderJSON["ladders"][0]["entries"][y]["thisSeasonRecord"]["winLossRecord"]["losses"])
             TeamPts = str(LadderJSON["ladders"][0]["entries"][i + x]["thisSeasonRecord"]["aggregatePoints"])
             TeamPct = str(LadderJSON["ladders"][0]["entries"][i + x]["thisSeasonRecord"]["percentage"]) + "%"
 
@@ -91,7 +90,7 @@ def get_screen(x, LadderJSON):
                 children = [
                     render.Box(
                         width = 64,
-                        height = 8,
+                        height = 7,
                         color = TeamBkg,
                         child =
                             render.Row(
@@ -101,17 +100,17 @@ def get_screen(x, LadderJSON):
                                 children = [
                                     render.Box(
                                         width = 20,
-                                        height = 8,
+                                        height = 5,
                                         child = render.Text(content = TeamAbbr, color = TeamFont, font = "CG-pixel-3x5-mono"),
                                     ),
                                     render.Box(
                                         width = 18,
-                                        height = 8,
+                                        height = 5,
                                         child = render.Text(content = TeamPts, color = TeamFont, font = "CG-pixel-3x5-mono"),
                                     ),
                                     render.Box(
                                         width = 30,
-                                        height = 8,
+                                        height = 5,
                                         child = render.Text(content = TeamPct, color = TeamFont, font = "CG-pixel-3x5-mono"),
                                     ),
                                 ],
@@ -153,6 +152,14 @@ def get_schema():
                 default = RotationOptions[1].value,
                 options = RotationOptions,
             ),
+            # schema.Dropdown(
+            #     id = "teams",
+            #     name = "Number of teams",
+            #     desc = "How many teams to display",
+            #     icon = "gear",
+            #     default = TeamOptions[0].value,
+            #     options = TeamOptions,
+            # ),
         ],
     )
 
@@ -291,3 +298,15 @@ RotationOptions = [
         value = "5",
     ),
 ]
+
+# TeamOptions = [
+#     schema.Option(
+#         display = "3",
+#         value = "3",
+#     ),
+#     schema.Option(
+#         display = "4",
+#         value = "4",
+#     ),
+    
+# ]
