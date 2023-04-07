@@ -1,7 +1,7 @@
 """
 Applet: Javelexi
 Summary: Javelexi Animation
-Description: An animated javelina girl who is happy to see you!
+Description: An animated javelina girl who is happy to see you.
 Author: Nicholas Mejia
 """
 
