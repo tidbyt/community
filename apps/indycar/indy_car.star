@@ -24,8 +24,6 @@ IMAGES = {
     "oval": "iVBORw0KGgoAAAANSUhEUgAAABgAAAAeCAYAAAA2Lt7lAAAACXBIWXMAAC4jAAAuIwF4pT92AAABuElEQVRIibWWu06CQRCFD4rxgoWYqC/gpTA2lFRUhpZCSh8AKnwHQ2PD6ygmhgegQRJRn0CNgmIMiXAsOL+QZfn/XQKTTIbsnJlvgb3FSGKRtuSoOwVwDeBLXtVYtJEM8xjJCkc2kAdWkWZqjyjApRp1SV6Q3CCZ1OeucuVZARmSfZLfJNOWfFq5vrRegCWSTc2wGDKJojRN1TgDciq8n1Y4NpGGtDkfQFVF5xH/EaQhyRtbPsbJfbAF4AVAD8AugJ+Ihbgu/ar07fGkbR9kAaxorUc1hzRV1WTNpA2QUrxzaB5YoE2ZCRvgRLHhAWgataGAfcVHD0BL8cAFsKP44QF4N2r/zbaKCKAPIO4BAIBfAMsAYuODrqepq/XMARugo5kkPBonVNNxAbwpJj0A24qfLoAnxUMPwJHiswsgWP8TazrEjo3aUEBdMeMBCLR1MzGPw24NwCuGh90ejP1j+wZtADUAmwDOIpoDQF7amtkcwNT7ID/DhZP3uXDiJB9UWAgBFKRpqWYhl/6AZHZan6jrsKwZdkmWOHq2lDh6tlyF9YgCLPzhFXiWw0u9K78N+1nG3bYP5mp/F5vVkadWLcYAAAAASUVORK5CYII=",
     "road": "iVBORw0KGgoAAAANSUhEUgAAAB4AAAAYCAYAAADtaU2/AAAACXBIWXMAAC4jAAAuIwF4pT92AAABnUlEQVRIieXWv2sUQRjG8c/pqWlSWBoEg42kCFrYWNmI2GmhsTIgtgEjaqU2CoIW/qqsAhYWkliksPAvsFMrEQSFU2yNkBAtdCzuVpa9d25vL8IVPrA7y/O+M999d2Z2t5VSMg5tGwsV7V57B0fwHRNION5wrJuYwi6s4wPuZbNTSlJKz1O/bvdidcdS0LfQu5TS1ahfUfHv4J5+DlHlWxwcEJ/BXcxivhzYyhy/qYGWdQ5P/gV4CYca9pnHwlbB5zP+Y9zAi0z8ZHHRziQM0q3A62BfxbuPxYp3rLgYpeLpwHuG3RXvEl4HuVdGBe8MvA6+Bf7nwJssg1tBQu5d+ivwJjK5UWEpFyi0mfF/BF5urWyvA0cvkD365w32B17uJrMqwF+D2Fn983YZR4Pch03BxSNaxMVKbAqf8BRfcBgXgjFeNYWWwbCC05X4NK7VjLEyCri8uM7oVthEqwZ9+oYEEy+cnF7i1CjQCEx3Ty/X9HuEE0OMH22n9t9ToLle+wB7sQMb+IjrQwALdXrte92CDmANWv/dz97YwH8ARhmjTPwdskgAAAAASUVORK5CYII=",
     "street": "iVBORw0KGgoAAAANSUhEUgAAAB4AAAAYCAYAAADtaU2/AAAACXBIWXMAAC4jAAAuIwF4pT92AAABY0lEQVRIie3WsUtWURjH8Y+lmYomWJYNQoqCQ9Qg0haE/4yOgkO7k9GQk0GTBQ4uDU4ObkFD0CLUECIvRTQ0aCmI0ONwz4Xr2/WVq+Tb8P7gcJ/zPOfcL+e595zztEWEZuhKU6ingJ8gsNRg3h3cxhSO0vi3VcDtJb6r6Xm9JHYPXVhP9iFqGEH3ecHdGMeD1B/CfXxPsEEsY1K2wo/4gBfYqgIFEZG3iSjXYkS8LvQ3I2IlIgbq5m0U3nVmK0v1V7zENB5jPvk38AXPsFN5hXUqA3/CAn4kcK5XWKsb24nZZI9iDn24iVW8qwKuoluYSfYInhditUbg/2oft8Dn1VNsy771LzwsBi/6czVSf2q5rhWDl5nqsWaB32CiGeATaoFb4H+mtlRlvpdVHMPYx2fcTb5c3/ATHakfyT6xP89QTVbRPMrBu7J7dFd2wnTJirgDWVb+oMffJ13gdwVwL/Zw4xji9Z/+bRF76AAAAABJRU5ErkJggg==",
-    
-    #actual tracks
     "stPete": "iVBORw0KGgoAAAANSUhEUgAAAA4AAAAYCAYAAADKx8xXAAAAAXNSR0IArs4c6QAAAHtJREFUOE/NlEEOACEIA+X/j2YDCUbZCgQvevLglEIqNJqHmtx4DGRmllaI6OfsaFUgA9a7zQSCGaQu0FSvQWQRWvXDKIH+UQRtPbZApF6q2AJPymnFKxDlMcrpnGpkywS8uEYu68fSsolUoTXTyqwq1TUi3+2x1RFZ/wCQUYARqK44sAAAAABJRU5ErkJgggAA",
     "texas": "iVBORw0KGgoAAAANSUhEUgAAAA4AAAAYCAYAAADKx8xXAAAAAXNSR0IArs4c6QAAAGFJREFUOE/tVNEKABAQs///6BN1WgshSeLNbMY5Q5BhZsYQACgnzQvoAiW28CxMi62d3U0568IRt5or7hZyIaeO+oW1jibM3/3VqnJfT91xj/B8AvDvzuklqdYNK26W0XiMkZa4GRzWnwkAAAAASUVORK5CYIIA",
     "longBeach": "iVBORw0KGgoAAAANSUhEUgAAAA4AAAAYCAYAAADKx8xXAAAAAXNSR0IArs4c6QAAAI5JREFUOE+9k1EOwCAIQ8f9D83CkhpEwLpk82tmPIq1ykUsVVUREV86bfDDCu3bigFFuAQBxQZovoDZWFa8VazACNOK34DdmN5xM24a9V+QUfMGjVFfgafQkybII1pd5r3A4mrVYBu5LJf0s/Jwdf72PXbnTkPOGEWbE91OA8Dc67jH08CnIK3o08MYYzU3+PC0GUkYj9wAAAAASUVORK5CYIIA",
@@ -52,7 +50,7 @@ DEFAULTS = {
     "api": "https://tidbyt.apis.ajcomputers.com/indy/api/{}/{}.json",
     "ttl": 1800,
     "positions": 16,
-    "text_color": "#FFF",
+    "text_color": "#FFFFFF",
 }
 
 SIZES = {
@@ -110,7 +108,8 @@ def nextrace(config, data):
     text_color = config.get("text_color", DEFAULTS["text_color"])
 
     return render.Row(expanded = True, children = [
-        render.Box(width = 16, height = 26, child = render.Image(src = base64.decode(IMAGES[data["type"]]), height = 24, width = 14)),
+        render.Box(width = 16, height = 26, child = render.Image(src = base64.decode(IMAGES[data["trackid"]]), height = 24, width = 14)),
+        #render.Box(width = 16, height = 26, child = render.Image(src = base64.decode(IMAGES[data["type"]]), height = 24, width = 14)),
         fade_child(data["name"], data["track"], "{}\n{}\nTV: {}".format(date_str, time_str, data["tv"].upper()), text_color),
     ])
 
