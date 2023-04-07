@@ -5,9 +5,10 @@ Description: Show Indy Car next race info and current driver standings. - F1 Nex
 Author: jvivona
 """
 
+
 # 20230403  v23093
 #  changed to new color schema option
-#  samhi113 worked on the track images
+#  samhi113 provided all the track images
 
 load("cache.star", "cache")
 load("encoding/base64.star", "base64")
