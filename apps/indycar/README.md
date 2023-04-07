@@ -12,7 +12,7 @@ Displayed:
   - Track Name
   - Date / Time (localized)
   - US TV channel showing the race
-  - Icon showing type of track (oval, street, road)
+  - Image of the track
 
 - Driver Standings
   - Series Title w/corresponding background
