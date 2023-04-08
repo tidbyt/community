@@ -11,6 +11,7 @@ load("encoding/json.star", "json")
 load("http.star", "http")
 load("render.star", "render")
 load("schema.star", "schema")
+load("secret.star", "secret")
 
 DEFAULT_LOC = {
     "lat": 40.63,
@@ -26,10 +27,11 @@ COLORS = {
 
 API_URL_BASE = "https://api.tomorrow.io/v4/timelines?&fields=treeIndex,weedIndex,grassIndex&timesteps=1d&location="
 SECRET_PROPERTY = "&apikey="
+SECRET_KEY = "AV6+xWcEKqQk8lv8vqNkwdwM++h3fRDmbM3vyizZBmHOwUXUUC5WmiN+FbU8lSwyYnQacojyuFmWiovZ8VmRyq+qQ9oa8CQzBcwmQ9YVyaFAc9ij/sV2Yh4wmr3b/4KPyG28wjhGGDj2E4YlvbFxlGoWCegZlY0GlylbTNozom5PrURH6lM="
+DEFAULT_KEY = "1234"
 
 def main(config):
     print("Initializing Pollen Count...")
-    # secret = secret.decrypt("AV6+xWcEKqQk8lv8vqNkwdwM++h3fRDmbM3vyizZBmHOwUXUUC5WmiN+FbU8lSwyYnQacojyuFmWiovZ8VmRyq+qQ9oa8CQzBcwmQ9YVyaFAc9ij/sV2Yh4wmr3b/4KPyG28wjhGGDj2E4YlvbFxlGoWCegZlY0GlylbTNozom5PrURH6lM=") or ""
 
     #Get lat and long from schema.
     location = config.get("location")
@@ -65,7 +67,7 @@ def main(config):
             textTwo = "LIMIT"
         else:
             textOne = "ERROR"
-            textTwo = str(int(todaysCount["type"]))
+            textTwo = todaysCount["type"]  #str(int(todaysCount["type"]))
         textColumn = [
             render.Text(
                 content = textOne,
@@ -79,14 +81,19 @@ def main(config):
                     color = "#fff",
                 ),
             ),
-            render.Text(
-                content = textTwo,
-                color = "#FFFFFF",
-                font = "tb-8",
+            render.Marquee(
+                width = 32,
+                child = render.Text(
+                    content = textTwo,
+                    color = "#FFFFFF",
+                    font = "tb-8",
+                ),
             ),
         ]
     else:
         indexes = getTopTwo(todaysCount)
+
+        #if indexes[0].get("index")!=None: #if all values aren't zero
         average = getAverage(indexes)
 
         # Graphics are three layers:
@@ -189,7 +196,9 @@ def roundToHalf(floatNum):
 # Make API call and process data.
 def getTodaysCount(latLng):
     print("Getting API for: " + latLng + " for " + str(3600 * 12) + " seconds")
-    rep = http.get(API_URL_BASE + latLng)
+    api_key = secret.decrypt(SECRET_KEY) or DEFAULT_KEY
+    FULL_URL = API_URL_BASE + latLng + "&apikey=" + api_key
+    rep = http.get(FULL_URL)
     data = rep.json()
 
     if "code" in data:
@@ -199,6 +208,7 @@ def getTodaysCount(latLng):
 
     # save in cache for 12 hours
     cache.set(latLng, json.encode(pollenData), 3600 * 12)
+
     return pollenData
 
 # Get total average of pollen indexes to two decimal points.
@@ -222,6 +232,7 @@ def getTopTwo(indexes):
     if len(aboveOnes) == 0:
         aboveOnes.append({
             "name": ":)",
+            "index": 0,
             "color": COLORS["green"],
         })
     return aboveOnes
