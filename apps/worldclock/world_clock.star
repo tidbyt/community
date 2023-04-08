@@ -126,7 +126,7 @@ def main(config):
                                     render.Text(
                                         content = " ",
                                         font = "CG-pixel-3x5-mono",
-                                    ),
+                                    ) if config.get("blink", "true") == "true" else None,
                                 ],
                             ),
                         ),
@@ -252,6 +252,13 @@ def get_schema():
                 name = "Color by daylight",
                 desc = "Adjust location name color based on time of day.",
                 icon = "sun",
+                default = True,
+            ),
+            schema.Toggle(
+                id = "blink",
+                name = "Blinking separator",
+                desc = "Blink the colon between hours and minutes.",
+                icon = "clock",
                 default = True,
             ),
         ],
