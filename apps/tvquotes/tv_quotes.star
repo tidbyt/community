@@ -7,7 +7,7 @@ Author: rs7q5
 
 #tv_quotes.star
 #Created 20220525 RIS
-#Last Modified 20220531 RIS
+#Last Modified 20230210 RIS
 
 load("cache.star", "cache")
 load("encoding/json.star", "json")
@@ -38,6 +38,7 @@ def main(config):
     scroll_opt = config.str("speed", "50")
     return render.Root(
         delay = int(scroll_opt),  #speed up scroll text
+        show_full_animation = True,
         child = render.Column(children = [header_txt, quote_format]),
     )
 

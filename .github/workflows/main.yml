@@ -12,17 +12,40 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
-
-      - name: Set up Go
-        uses: actions/setup-go@v3
         with:
-          go-version: 1.19
+          fetch-depth: 0
 
       - name: Setup build agent
         run: ./.github/scripts/setup.sh
 
-      - name: Check all apps
-        run: pixlet check -r ./
+      - name: Setup auth
+        run: ./.github/scripts/setup-auth.sh
+        env:
+          COMMUNITY_PIXLET_AUTH: "${{ secrets.COMMUNITY_PIXLET_AUTH }}"
 
-      - name: Sanity check go embed
-        run: go test tidbyt.dev/community/apps
+      - name: Find last successful build
+        id: lastsuccess
+        uses: SamhammerAG/last-successful-build-action@v4
+        with:
+          branch: "main"
+          workflow: "Build and Release"
+          verify: true
+          token: "${{ secrets.TIDBYT_GITHUB_TOKEN }}"
+
+      - name: Determine targets
+        id: targets
+        run: ./.github/scripts/determine-targets.sh
+        env:
+          BASE_SHA: ${{ steps.lastsuccess.outputs.sha }}
+          HEAD_SHA: ${{ github.sha }}
+
+      - name: Check modified apps
+        run: ./.github/scripts/check-apps.sh
+        env:
+          TARGETS: "${{ steps.targets.outputs.targets }}"
+
+      - name: Deploy modified apps
+        run: ./.github/scripts/deploy-apps.sh
+        env:
+          VERSION: ${{ github.sha }}
+          TARGETS: "${{ steps.targets.outputs.targets }}"

@@ -34,6 +34,21 @@ ICON_ROTATION_SPEED = [
     schema.Option(value = "50", display = "Extremely Slow"),
 ]
 
+scroll_speed_options = [
+    schema.Option(
+        display = "Slow Scroll",
+        value = "60",
+    ),
+    schema.Option(
+        display = "Medium Scroll",
+        value = "45",
+    ),
+    schema.Option(
+        display = "Fast Scroll",
+        value = "30",
+    ),
+]
+
 # NW: [0,5,12,14,17,21,27,33,36,39,51,53,55,56,57,59],[1,2,3,0,5,8,9,10,12,13,14,15,17,18,19,21,22,24,26,27,28,29,31,33,34,36,39,40,42,44,46,47,48,49,51,53,54,55,56,57,58,59,62,63,64,65],[1,3,0,8,11,12,13,14,16,17,21,22,24,26,27,29,31,33,34,36,39,42,44,46,48,51,52,53,56,57,58,62,63,65],[8,11,12,14,17,20,21,27,33,34,39,44,51,56,58,63]
 # SW: [0,2,5,6,10,12,14,15,16,17,21,22,24,26,28,29,30,32,33,34,35,36,39,40,42,43,45,47,51,53,57,58,59,62,63,65],[0,1,9,13,19,22,24,26,28,29,31,32,34,39,40,41,42,45,46,48,49,50,51,52,54,58,62,64,65],[0,1,6,10,11,14,15,17,21,22,25,28,32,33,34,36,37,39,44,48,50,51,52,53,54,57,58,60,62,63],[0,6,10,11,12,14,15,17,21,29,30,33,34,36,35,39,43,44,53,57,58,59,60,61,63]
 # MW: [0,5,8,14,36,39,44,48,53,55,56,57],[1,0,5,8,9,10,11,12,13,14,15,16,17,18,22,24,26,29,31,33,34,36,39,42,45,46,47,48,49,51,52,53,54,55,56,57,58,59,62,63,64,65],[1,8,10,11,12,14,15,16,17,24,26,29,33,34,36,39,42,44,46,52,53,56,57,58,62,63,65].[39]
@@ -134,7 +149,7 @@ def main(config):
                             width = 48,
                             child = render.Text(REGIONS[int(region)], color = SEASONS_COLORS[season_number], font = "5x8"),
                         ),
-                        get_animation_items(images, int(config.get("speed") or ICON_ROTATION_SPEED[2])),
+                        get_animation_items(images, int(config.get("speed") or ICON_ROTATION_SPEED[2].value)),
                     ],
                 ),
                 render.Row(
@@ -152,6 +167,8 @@ def main(config):
                 ),
             ],
         ),
+        show_full_animation = True,
+        delay = int(config.get("scroll", 45)),
     )
 
 def get_random_number(x):
@@ -299,6 +316,14 @@ def get_schema():
                 icon = "truckFast",
                 options = ICON_ROTATION_SPEED,
                 default = ICON_ROTATION_SPEED[3].value,
+            ),
+            schema.Dropdown(
+                id = "scroll",
+                name = "Scroll",
+                desc = "Scroll Speed",
+                icon = "stopwatch",
+                options = scroll_speed_options,
+                default = scroll_speed_options[0].value,
             ),
         ],
     )

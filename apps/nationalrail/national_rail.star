@@ -2868,7 +2868,7 @@ def main(config):
     else:
         fail("Invalid display mode %s" % display_mode)
 
-    resp = fetch_departures(origin_station["crs"], filter_crs)
+    resp = fetch_departures(origin_station["crs"], filter_crs["crs"])
     if not resp:
         return render_error("Train times not available")
     departures = xpath.loads(resp)

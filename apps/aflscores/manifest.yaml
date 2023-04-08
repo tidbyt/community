@@ -1,0 +1,8 @@
+---
+id: afl-scores
+name: AFL Scores
+summary: Shows AFL Scores
+desc: Shows AFL (Australian Football League) scores.
+author: M0ntyP
+fileName: afl_scores.star
+packageName: aflscores

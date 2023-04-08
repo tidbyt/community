@@ -7,19 +7,10 @@ Author: rs7q5
 
 #vertical_message.star
 #Created 20220221 RIS
-#Last Modified 20220515 RIS
+#Last Modified 20230323 RIS
 
-load("re.star", "re")
 load("render.star", "render")
 load("schema.star", "schema")
-
-COLOR_LIST = {
-    "White": "#fff",
-    "Red": "#a00",
-    "Green": "#0a0",
-    "Blue": "#00a",
-    "Orange": "#D2691E",
-}
 
 DEFAULT_MSG = "A really long message that just keeps on going and going and going and going and never stops"
 
@@ -28,17 +19,10 @@ def main(config):
         return []
 
     #get color
-    if config.bool("color_logic", False):
-        color_opt = config.str("color_select", "#fff")
-    else:
-        color_opt = config.str("color", "#fff")
+    color_opt = config.str("color", "#fff")
 
-    #validate color
-    if validate_color(color_opt):
-        msg_txt = config.str("msg", DEFAULT_MSG)
-    else:
-        msg_txt = "Invalid color specified!!!!"
-        color_opt = "#fff"
+    #get message
+    msg_txt = config.str("msg", DEFAULT_MSG)
 
     #set linespacing
     linespacing = config.str("linespacing", "0")
@@ -50,6 +34,7 @@ def main(config):
     scroll_opt = config.str("speed", "100")
     return render.Root(
         delay = int(scroll_opt),  #speed up scroll text
+        show_full_animation = True,
         child = render.Marquee(
             height = 32,
             offset_start = 32,
@@ -67,10 +52,6 @@ def main(config):
     )
 
 def get_schema():
-    colors = [
-        schema.Option(display = key, value = value)
-        for key, value in COLOR_LIST.items()
-    ]
     scroll_speed = [
         schema.Option(display = "Slow", value = "200"),
         schema.Option(display = "Normal (Default)", value = "100"),
@@ -125,27 +106,12 @@ def get_schema():
                 icon = "gear",
                 default = False,
             ),
-            schema.Dropdown(
+            schema.Color(
                 id = "color",
                 name = "Color",
                 desc = "Change color of text.",
                 icon = "brush",
-                default = colors[0].value,
-                options = colors,
-            ),
-            schema.Toggle(
-                id = "color_logic",
-                name = "Use Custom Color?",
-                desc = "",
-                icon = "brush",
-                default = False,
-            ),
-            schema.Text(
-                id = "color_select",
-                name = "Custom Color",
-                desc = "Enter a color in #rgb, #rrggbb, #rgba, or #rrggbbaa format.",
-                icon = "brush",
-                default = "#fff",
+                default = "fff",
             ),
             schema.Dropdown(
                 id = "speed",
@@ -175,13 +141,3 @@ def format_text(x, font):
             ctmp = "#ff8c00"
         text_vec.append(render.WrappedText(xtmp, font = font, color = ctmp, linespacing = -1))
     return (text_vec)
-
-def validate_color(x):
-    #validates hex color
-    #regex from https://stackoverflow.com/questions/1636350/how-to-identify-a-given-string-is-hex-color-format?noredirect=1&lq=1
-
-    match = re.findall("^#[0-9a-fA-F]{8}$|#[0-9a-fA-F]{6}$|#[0-9a-fA-F]{4}$|#[0-9a-fA-F]{3}$", x)
-    if len(match) == 1:
-        return True
-    else:
-        return False
