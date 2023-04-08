@@ -23,11 +23,11 @@ iVBORw0KGgoAAAANSUhEUgAAAAwAAAANCAYAAACdKY9CAAAAAXNSR0IArs4c6QAAAE9JREFUKJGtkVEK
 IMG_FAHRENHEIT = base64.decode("""
 iVBORw0KGgoAAAANSUhEUgAAAAwAAAAMCAYAAABWdVznAAAAAXNSR0IArs4c6QAAAEtJREFUKJGVkFEKACAIQ2d4/yvbRwZqhuxBKOG2UnAwr4KMocGG3sKBdg5FlFLVL35PergJ42AV/IjpACCTc7slanixoklAJ1C0f9jIHw8RR0OxxAAAAABJRU5ErkJggg==
 """)
+CACHE_TTL_SECONDS = 3599 #1 hour
 
 def main(config):
-    data = get_weather()
-    tempF = data["properties"]["periods"][0]["temperature"]
-    tempFstring = str(int(math.round(tempF)))
+    tempF = get_cachable_data(WEATHER_URL, CACHE_TTL_SECONDS)
+    tempFstring = str(int(math.round(float(tempF))))
     tempFarray = []
     
     if len(tempFstring) == 2:
@@ -174,13 +174,22 @@ def main(config):
         ),
     )
 
-def get_weather():
-    res = http.get(WEATHER_URL)
-    if res.status_code != 200:
-        fail("Temperature request failed with status ", res.status_code)
-    print(res.json())
+def get_cachable_data(url, timeout):
+    key = url
 
-    return res.json()
+    data = cache.get(key)
+    if data != None:
+        return data
+
+    res = http.get(url = url)
+    if res.status_code != 200:
+        fail("request to %s failed with status code: %d - %s" % (url, res.status_code, res.body()))
+    
+    temp_data = res.json()
+    temp_f = str(temp_data["properties"]["periods"][0]["temperature"])
+    cache.set(key, temp_f, ttl_seconds = CACHE_TTL_SECONDS)
+
+    return temp_f
 
 def get_schema():
     return schema.Schema(
