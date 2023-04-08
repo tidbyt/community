@@ -63,23 +63,14 @@ def main(config):
 
     else:
         station_dest = json.decode(station_dest)["value"]
-        resp_cached = cache.get("ns_%s" % station_id + station_dest)
-
-        if resp_cached != None:
-            # Get the cached response
-            # print("Hit!")
-            stops = json.decode(resp_cached)
-        else:
-            # print("Miss!")
-            stops = getTrip(station_id, station_dest, skiptime)
-            cache.set("ns_%s" % station_id + station_dest, json.encode(stops), ttl_seconds = 30)
+        stops = getTrip(station_id, station_dest, skiptime)
 
     if stops == None or len(stops) == 0:
         return render.Root(
             child = render.Padding(
                 pad = (3, 8, 1, 1),
                 child = render.WrappedText(
-                    content = "No trains running",
+                    content = "No trains scheduled",
                 ),
             ),
         )
@@ -123,8 +114,9 @@ def renderTrain(stop_info):
     # If trains is cancelled, rewrite to message.
     if stop_info["cancelled"] == True:
         backgroundColor = CANCELED_BACKGROUND_COLOR
-        departureTime = stop_info["messages"][0]["message"]
         actualTime = stop_info["messages"][0]["message"]
+        departureTime = "-"
+        actualTime = "-"
 
     # Info messages.
     message = None
@@ -224,16 +216,27 @@ def parse_time(time_string):
     return time_obj
 
 def getTrip(station_id, station_dest, skiptime):
-    resp = http.get("https://gateway.apiportal.ns.nl/reisinformatie-api/api/v3/trips", params = {"fromStation": station_id, "toStation": station_dest}, headers = {"Ocp-Apim-Subscription-Key": API_KEY})
+    # Check the cache for trip info
+    resp_cached = cache.get("ns_%s" % station_id + station_dest)
 
-    if resp.status_code != 200:
-        # Return an Empty list
-        return []
+    if resp_cached != None:
+        # Get the cached response
+        # print("Hit!")
+        departures = json.decode(resp_cached)
+    else:
+        # Fetch new schedule from API
+        # print("MISS!")
+        resp = http.get("https://gateway.apiportal.ns.nl/reisinformatie-api/api/v3/trips", params = {"fromStation": station_id, "toStation": station_dest}, headers = {"Ocp-Apim-Subscription-Key": API_KEY})
 
-    departures = json.decode(resp.body())
+        if resp.status_code != 200:
+            cache.set("ns_%s" % station_id + station_dest, json.encode([]), ttl_seconds = 30)
+            return []
+        else:
+            departures = json.decode(resp.body())
+            cache.set("ns_%s" % station_id + station_dest, resp.body(), ttl_seconds = 30)
 
     # Create return list
-    options = []
+    stops = []
 
     # Loop through all returned stations
     for trip in departures["trips"][0:4]:
@@ -250,7 +253,7 @@ def getTrip(station_id, station_dest, skiptime):
             timeStart = time.parse_duration("%im" % skiptime) + time.now()
             timeDepart = time.parse_time(originTime[0:19], format = "2006-01-02T15:04:05", location = "Europe/Amsterdam")
             if timeDepart >= timeStart:
-                options.append(
+                stops.append(
                     {
                         "direction": trip["legs"][0]["direction"],
                         "plannedDateTime": trip["legs"][0]["origin"]["plannedDateTime"],
@@ -260,8 +263,19 @@ def getTrip(station_id, station_dest, skiptime):
                         "cancelled": trip["legs"][0]["cancelled"],
                     },
                 )
+        else:
+            stops.append(
+                {
+                    "direction": trip["legs"][0]["direction"],
+                    "plannedDateTime": trip["legs"][0]["origin"]["plannedDateTime"],
+                    "actualDateTime": originTime,
+                    "actualTrack": trip["legs"][0]["origin"]["plannedTrack"],
+                    "trainCategory": trip["legs"][0]["product"]["categoryCode"],
+                    "cancelled": trip["legs"][0]["cancelled"],
+                },
+            )
 
-    return options
+    return stops
 
 def getTrains(station_id, skiptime):
     resp = http.get("https://gateway.apiportal.ns.nl/reisinformatie-api/api/v2/departures", params = {"station": station_id}, headers = {"Ocp-Apim-Subscription-Key": API_KEY})

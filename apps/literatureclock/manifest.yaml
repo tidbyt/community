@@ -1,0 +1,8 @@
+---
+id: literature-clock
+name: Literature Clock
+summary: Quotes containing the time
+desc: Displays the time using a quote from a piece of literature. Based on work and idea by Jaap Meijers and Jene Voldsen.
+author: Alysha Kwok
+fileName: literature_clock.star
+packageName: literatureclock
