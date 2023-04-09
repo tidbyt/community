@@ -29,7 +29,6 @@ def main(config):
     address = config.str("user_address", DEFAULT_USER_ADDRESS)
     nft_image_src = cache.get(address + "_random")
 
-    #nft_image_src = http.get("http://wildc.net/tmp/2551.png").body()
     if nft_image_src == None:
         nft_image_url = fetch_random_nft(address)
         if nft_image_url != None:
@@ -37,6 +36,7 @@ def main(config):
 
             # set the cache since this is the image we are rendering
             cache.set(address + "_random", nft_image_src, ttl_seconds = nft_ttl_seconds)  # 1 hour
+
     else:
         print("Using Cache")
 
@@ -82,64 +82,102 @@ def main(config):
         )
 
 def fetch_random_nft(address):
+    image_dict_orig = fetch_image_dict(address)
+    if image_dict_orig == None:
+        return None
+
+    # cull any Nones so we don't have to deal with them.
+    image_dict = dict()
+    for k, v in image_dict_orig.items():
+        if v != None:
+            image_dict[k] = v
+
+    random.seed(time.now().unix)  # // 15)
+    key_list = image_dict.keys()
+    cur_url = ""
+    for i in range(len(key_list) - 1):
+        print(str(i))
+        num = random.number(0, len(key_list) - 1)
+        print("picking #" + str(num + 1) + " of " + str(len(key_list)))
+        cur_url = image_dict[key_list[num]]
+        if cur_url == "":  # we haven't check this token page for an image url yet so lets check and buildup the cache
+            collection, token_id = key_list[num].split(":")
+            print(TOKEN_URL.format(collection, token_id))
+            token_page_body = http.get(TOKEN_URL.format(collection, token_id)).body()
+            token_json_obj = json.decode(token_page_body)
+            if "cloudinary" in token_json_obj and token_json_obj["cloudinary"][-4:] in [".jpg", ".png", "peg", ".gif"]:
+                #print("setting " + key_list[num] + " to " + token_json_obj["cloudinary"] )
+                image_dict_orig[key_list[num]] = token_json_obj["cloudinary"]  # set the preview url in our image_dict
+                cur_url = token_json_obj["cloudinary"]
+                #                title = token_json_obj["title"]
+
+                # re-store the cache with the updated info.
+                #cache.set(address + "_image_dict", json.encode(image_dict_orig), ttl_seconds = 86400)  # 1 day
+                break  # break out and display our newly discovered token image
+            else:
+                #print("Setting None")
+                image_dict_orig[key_list[num]] = None
+                #cache.set(address + "_image_dict", json.encode(image_dict_orig), ttl_seconds = 86400)  # 1 day
+
+                continue  # no displayable image so continue with the next random choice.
+        else:
+            # we must have an image url so lets just fetch it and return it, no need to update cache
+            cur_url = image_dict[key_list[num]]
+            break
+
+    cache.set(address + "_image_dict", json.encode(image_dict_orig), ttl_seconds = 86400)  # 1 day
+    if cur_url:
+        #print("picked: " + cur_url)
+        return cur_url
+    else:
+        return None
+
+def fetch_image_dict(address):
     print(USER_URL.format(address))
 
-    # pull the cache for the image list. this is expensive so we cache for a long time (24 hours)
-    image_list_json_str = cache.get(address + "_image_list")
-    if image_list_json_str == None:
-        user_dict = dict()
-        resp = http.get(USER_URL.format(address))
-        user_page_body = resp.body()
-        user_json_obj = json.decode(user_page_body)
+    # pull the cacheed image list and update if needed.
+    image_dict_json_str = cache.get(address + "_image_dict")
 
-        # the token_map holds the collections and ids of token a user owns
-        if resp.status_code != 200:
-            return None
+    # fetch current image list
+    resp = http.get(USER_URL.format(address))
+    if resp.status_code != 200 and image_dict_json_str == None:  # if we hav not cache and http.get fails return None
+        return None
 
-        collections = user_json_obj["userData"]["tokenMap"]
-        user_dict["token_map"] = collections
-        image_list = []
-        counter = 0
-        for collection, token in collections.items():
+    # the token_map holds the collections and ids of token a user owns
+    user_page_body = resp.body()
+    user_json_obj = json.decode(user_page_body)
+
+    if image_dict_json_str == None:
+        print("new image_dict")
+        image_dict = dict()
+
+        #print(user_json_obj["userData"]["tokenMap"])
+        for collection, token in user_json_obj["userData"]["tokenMap"].items():
             #print(token)
-            if counter > MAX_IMAGES:
-                break
             for token_id in token.keys():
-                if counter > MAX_IMAGES:
-                    break
-                print(TOKEN_URL.format(collection, token_id))
-                token_page_body = http.get(TOKEN_URL.format(collection, token_id)).body()
-                token_json_obj = json.decode(token_page_body)
-                if "cloudinary" in token_json_obj and token_json_obj["cloudinary"][-4:] in [".jpg", ".png", "peg", ".gif"]:
-                    user_dict["token_map"][collection][token_id] = True  # set to True to indicate we've seen this and it does have a preview
-                    image_url = token_json_obj["cloudinary"]
-                    title = token_json_obj["title"]
+                image_dict[collection + ":" + token_id] = ""
+        print(image_dict)
+
+        # cache the new image list
+        cache.set(address + "_image_dict", json.encode(image_dict), ttl_seconds = 86400)  # 1 day
+        return image_dict
+
+    else:  # update the cache if new tokens exist
+        image_dict_cache = json.decode(image_dict_json_str)
+        print(image_dict_cache)
+        for collection, token in user_json_obj["userData"]["tokenMap"].items():
+            #print(token)
+            for token_id in token.keys():
+                if collection + ":" + token_id not in image_dict_cache:
+                    print("updating")
+                    image_dict_cache[collection + ":" + token_id] = ""
                 else:
-                    print("no cloudinary image")
-                    user_dict["token_map"][collection][token_id] = False
-                    break
-                image_list.append({"url": image_url, "title": title})
-                counter = counter + 1
+                    print("no update")
 
-        user_dict["image_list"] = image_list
-        cache.set(address + "_image_list", json.encode(image_list), ttl_seconds = 86400)  # 24 hours
-        #print(image_list)
-
-    else:
-        image_list = json.decode(image_list_json_str)
-
-    if len(image_list) > 0:
-        # pick a random image
-
-        random.seed(time.now().unix // 15)
-        num = random.number(0, len(image_list) - 1)
-        print("picking #" + str(num + 1) + " of " + str(len(image_list)))
-
-        random_image = image_list[num]["url"]
-
-        #print("picked: " + random_image)
-        return random_image
-    return None
+        # cache the updated image_list
+        print(image_dict_cache)
+        cache.set(address + "_image_dict", json.encode(image_dict_cache), ttl_seconds = 86400)  # 1 day
+        return image_dict_cache
 
 def get_schema():
     return schema.Schema(
