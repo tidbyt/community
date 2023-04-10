@@ -107,6 +107,7 @@ def fetch_random_nft(address):
                 #print("setting " + key_list[num] + " to " + token_json_obj["cloudinary"] )
                 image_dict_orig[key_list[num]] = token_json_obj["cloudinary"]  # set the preview url in our image_dict
                 cur_url = token_json_obj["cloudinary"]
+
                 #title = token_json_obj["title"]
                 break  # break out and display our newly discovered token image
             else:
@@ -117,7 +118,7 @@ def fetch_random_nft(address):
             # we must have an image url so lets just fetch it and return it, no need to update cache
             cur_url = image_dict[key_list[num]]
             break
-                
+
     # re-store the cache with the updated info.
     cache.set(address + "_image_dict", json.encode(image_dict_orig), ttl_seconds = 86400)  # 1 day
     if cur_url:
@@ -164,7 +165,7 @@ def fetch_image_dict(address):
                 if collection + ":" + token_id not in image_dict_cache:
                     #print("updating")
                     image_dict_cache[collection + ":" + token_id] = ""
-        
+
         return image_dict_cache
 
 def get_schema():
