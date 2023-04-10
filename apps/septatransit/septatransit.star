@@ -1,6 +1,6 @@
 """
 Applet: SEPTA Transit
-Summary: SEPTA transit departures
+Summary: SEPTA Transit Departures
 Description: Displays departure times for SEPTA buses, trolleys, and MFL/BSL.
 Author: radiocolin
 """
@@ -191,7 +191,15 @@ def get_schedule(route, stopid):
             )
             list_of_departures.append(item)
 
-    return list_of_departures
+    if len(list_of_departures) < 1:
+        return [render.Box(
+            height = 6,
+            width = 64,
+            color = "#000",
+            child = render.Text("Select a stop"),
+        )]
+    else:
+        return list_of_departures
 
 def select_stop(route):
     return [
@@ -210,13 +218,26 @@ def main(config):
     stop = config.str("stop", DEFAULT_STOP)
     user_text = config.str("banner", "")
     schedule = get_schedule(route, stop)
-    route_bg_color = get_route_bg_color(route)
-    route_text_color = get_route_text_color(route)
+
+    if config.bool("use_custom_banner_color"):
+        route_bg_color = config.str("custom_banner_color")
+    else:
+        route_bg_color = get_route_bg_color(route)
+
+    if config.bool("use_custom_text_color"):
+        route_text_color = config.str("custom_text_color")
+    else:
+        route_text_color = get_route_text_color(route)
 
     if user_text == "":
         banner_text = route
     else:
         banner_text = user_text
+
+    if config.bool("show_time"):
+        timezone = config.get("timezone") or "America/New_York"
+        now = time.now().in_location(timezone)
+        banner_text = banner_text + " " + now.format("3:04 PM")
 
     return render.Root(
         delay = 100,
@@ -242,10 +263,45 @@ def get_schema():
         fields = [
             schema.Text(
                 id = "banner",
-                name = "Banner",
+                name = "Custom banner text",
                 desc = "Custom text for the top bar. Leave blank to show the selected route.",
                 icon = "penNib",
                 default = "",
+            ),
+            schema.Toggle(
+                id = "use_custom_banner_color",
+                name = "Use custom banner color",
+                desc = "Use a custom background color for the top banner.",
+                icon = "palette",
+                default = False,
+            ),
+            schema.Color(
+                id = "custom_banner_color",
+                name = "Custom banner color",
+                desc = "A custom background color for the top banner.",
+                icon = "brush",
+                default = "#7AB0FF",
+            ),
+            schema.Toggle(
+                id = "use_custom_text_color",
+                name = "Use custom text color",
+                desc = "Use a custom text color for the top banner.",
+                icon = "palette",
+                default = False,
+            ),
+            schema.Color(
+                id = "custom_text_color",
+                name = "Custom banner color",
+                desc = "A custom text color for the top banner.",
+                icon = "brush",
+                default = "#FFFFFF",
+            ),
+            schema.Toggle(
+                id = "show_time",
+                name = "Show time",
+                desc = "Show the current time in the top banner.",
+                icon = "clock",
+                default = False,
             ),
             schema.Dropdown(
                 id = "route",
