@@ -38,18 +38,41 @@ def main(config):
     LongAsFloat = str(LongAsString)
     cache_id = LatAsString+LongAsString
 
+ #Set conversion URL. The Location needs to change from reference type 4326 to 2262 (This is what the City GIS system needs the Location data formatted in.)
+    Conversion_URL = "https://epsg.io/trans?x="+LongAsFloat+"&y="+LatAsFloat+"&s_srs=4326&t_srs=2262"
+
 #Check if we have cache location data and if not, go get the data.
     response_data_cache = cache.get("Identifier")
     if response_data_cache != None:
-        print("Hit!")
         response_data = json.decode(response_data_cache)
-        TrashPickupIs = response_data["TrashPickupIs"]
-        RecyclingPickupIs = response_data["RecyclingPickupIs"]
-        PickUpDayName = response_data["PickUpDayName"]
+        response_data_identifier =  response_data["Identifier"]
+        if response_data_identifier == cache_id:
+            print("Found Cache for correct location!")
+            TrashPickupIs = response_data["TrashPickupIs"]
+            RecyclingPickupIs = response_data["RecyclingPickupIs"]
+            PickUpDayName = response_data["PickUpDayName"]
+        else:
+            print("Have cache for wrong location")
+            #Get Contents of Conversion URL and if failure, tell us what the code is. Also set lat & long variables for use in next step
+            GIS = http.get(Conversion_URL)
+            if GIS.status_code != 200:
+                fail("GIS Conversion request failed with status ", GIS.status_code)
+            Lat2262 = GIS.json()["y"]
+            Lng2262 = GIS.json()["x"]
+            #Set Refuse URL
+            Trash_Schedule_URL = "https://maps.cityofrochester.gov/arcgis/rest/services/App_CityServices/City_Services/MapServer/9/query?where=&text=&objectIds=&time=&geometry="+Lng2262+"%2C"+Lat2262+"&geometryType=esriGeometryPoint&inSR=2262&spatialRel=esriSpatialRelIntersects&distance=1&units=esriSRUnit_Foot&relationParam=&outFields=NEXTPICKUP%2CTRASHPICKUPIS%2CDOW&returnGeometry=false&returnTrueCurves=false&maxAllowableOffset=&geometryPrecision=&outSR=2262&havingClause=&returnIdsOnly=false&returnCountOnly=false&orderByFields=&groupByFieldsForStatistics=&outStatistics=&returnZ=false&returnM=false&gdbVersion=&historicMoment=&returnDistinctValues=false&resultOffset=&resultRecordCount=&returnExtentOnly=false&datumTransformation=&parameterValues=&rangeValues=&featureEncoding=esriDefault&f=pjson"
+            rep = http.get(Trash_Schedule_URL)
+            if rep.status_code != 200:
+                fail("Trash request failed with status ", rep.status_code)
+            #Define the JSON fields we want to use from Refuse URL call
+            TrashPickupIs = rep.json()["features"][0]["attributes"]["TRASHPICKUPIS"]
+            RecyclingPickupIs = rep.json()["features"][0]["attributes"]["NEXTPICKUP"]
+            PickUpDayName = rep.json()["features"][0]["attributes"]["DOW"]
+            response_data = {}
+            response_data.update({"Identifier":cache_id,"Lat2262":Lat2262,"Lng2262":Lng2262,"TrashPickupIs":TrashPickupIs,"RecyclingPickupIs":RecyclingPickupIs,"PickUpDayName":PickUpDayName})
+            cache.set("Identifier", json.encode(response_data), ttl_seconds = 3600)
     else:
-        print("Miss!")
-        #Set conversion URL. The Location needs to change from reference type 4326 to 2262 (This is what the City GIS system needs the Location data formatted in.)
-        Conversion_URL = "https://epsg.io/trans?x="+LongAsFloat+"&y="+LatAsFloat+"&s_srs=4326&t_srs=2262"
+        print("No Cache found at all.")
         #Get Contents of Conversion URL and if failure, tell us what the code is. Also set lat & long variables for use in next step
         GIS = http.get(Conversion_URL)
         if GIS.status_code != 200:
