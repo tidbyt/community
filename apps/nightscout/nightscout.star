@@ -6,7 +6,6 @@ Authors: Jeremy Tavener, Paul Murphy
 """
 
 load("cache.star", "cache")
-load("encoding/csv.star", "csv")
 load("encoding/json.star", "json")
 load("http.star", "http")
 load("math.star", "math")
@@ -75,12 +74,12 @@ def main(config):
     show_clock = config.bool("show_clock", DEFAULT_SHOW_CLOCK)
     show_24_hour_time = config.bool("show_24_hour_time", DEFAULT_SHOW_24_HOUR_TIME)
     night_mode = config.bool("night_mode", DEFAULT_NIGHT_MODE)
-    
+
     if nightscout_url == "" and nightscout_id != "" and nightscout_host != "":
         nightscout_url = nightscout_id + "." + nightscout_host
-    
-    print (nightscout_url)
-    
+
+    print(nightscout_url)
+
     if nightscout_url != "":
         nightscout_data_json, status_code = get_nightscout_data(nightscout_url, show_mgdl)
         sample_data = False
@@ -804,7 +803,6 @@ def get_schema():
 # This method returns a tuple of a nightscout_data and a status_code. If it's
 # served from cache, we return a status_code of 0.
 def get_nightscout_data(nightscout_url, show_mgdl):
-    
     nightscout_url = nightscout_url.replace("https:", "")
     nightscout_url = nightscout_url.replace("http:", "")
     nightscout_url = nightscout_url.replace("/", "")
@@ -812,9 +810,9 @@ def get_nightscout_data(nightscout_url, show_mgdl):
     json_url = "https://" + nightscout_url + "/api/v1/entries.json?count=1000&find[date][$gte]=" + oldest_reading
 
     print(json_url)
-    
+
     key = nightscout_url + "_nightscout_data"
-        
+
     # Request latest entries from the Nightscout URL
     resp = http.get(json_url)
     if resp.status_code != 200:
