@@ -70,13 +70,14 @@ def main(config):
     ) or config.get(
         "client_secret",
     )
-    character_name = config.get("character")
-    realm_name = config.get("realm")
+    character_name = config.get("character").lower()
+    realm_name = config.get("realm").replace(" ", "-").lower()
+    region = config.get("region")
 
     blizzard_auth_url = "https://oauth.battle.net/token?grant_type=client_credentials"
-    blizzard_profile_url = "https://us.api.blizzard.com/profile/wow/character/%s/%s?namespace=profile-us&locale=en_US&access_token=" % (realm_name, character_name)
-    blizzard_mythic_url = "https://us.api.blizzard.com/profile/wow/character/%s/%s/mythic-keystone-profile?namespace=profile-us&locale=en_US&access_token=" % (realm_name, character_name)
-    blizzard_raid_url = "https://us.api.blizzard.com/profile/wow/character/%s/%s/encounters/raids?namespace=profile-us&locale=en_US&access_token=" % (realm_name, character_name)
+    blizzard_profile_url = "https://%s.api.blizzard.com/profile/wow/character/%s/%s?namespace=profile-%s&locale=en_US&access_token=" % (region, realm_name, character_name, region)
+    blizzard_mythic_url = "https://%s.api.blizzard.com/profile/wow/character/%s/%s/mythic-keystone-profile?namespace=profile-%s&locale=en_US&access_token=" % (region, realm_name, character_name, region)
+    blizzard_raid_url = "https://%s.api.blizzard.com/profile/wow/character/%s/%s/encounters/raids?namespace=profile-%s&locale=en_US&access_token=" % (region, realm_name, character_name, region)
 
     access_token = get_auth_token(blizzard_auth_url, client_id, client_secret)
 
@@ -132,6 +133,24 @@ def main(config):
     )
 
 def get_schema():
+    options = [
+        schema.Option(
+            display = "North America",
+            value = "us",
+        ),
+        schema.Option(
+            display = "Europe",
+            value = "eu",
+        ),
+        schema.Option(
+            display = "Korea",
+            value = "kr",
+        ),
+        schema.Option(
+            display = "Taiwan",
+            value = "tw",
+        ),
+    ]
     return schema.Schema(
         version = "1",
         fields = [
@@ -145,7 +164,15 @@ def get_schema():
                 id = "realm",
                 name = "Realm Name",
                 desc = "The name of the realm where the character resides",
+                icon = "earthAmericas",
+            ),
+            schema.Dropdown(
+                id = "region",
+                name = "Region",
+                desc = "Region the realm is located in.",
                 icon = "globe",
+                default = options[0].value,
+                options = options,
             ),
         ],
     )

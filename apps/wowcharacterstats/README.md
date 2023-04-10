@@ -8,6 +8,4 @@ Stats shown include
 - Mythic+ rating
 - Raid progress
 
-*Currently only works for US and Oceanic realms
-
 ![WoW Character Stats for Tidbyt](screenshot.png)
