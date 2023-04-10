@@ -1,7 +1,7 @@
 """
 Applet: Pollen Count
 Summary: Pollen count for your area
-Description: Displays a pollen count for your area. Enter your location for updates every 12 hours on the current conditions in your town, as well as which types of pollen are in the air today.
+Description: Displays a pollen count for your area. Enter your location for updates every 12 hours on the current conditions in your town, as well as which types of pollen are in the air today. Get your Secret key by creating a developer account on tomorrow.io.
 Author: Nicole Brooks
 """
 
@@ -11,7 +11,6 @@ load("encoding/json.star", "json")
 load("http.star", "http")
 load("render.star", "render")
 load("schema.star", "schema")
-load("secret.star", "secret")
 
 DEFAULT_LOC = {
     "lat": 40.63,
@@ -26,9 +25,6 @@ COLORS = {
 }
 
 API_URL_BASE = "https://api.tomorrow.io/v4/timelines?&fields=treeIndex,weedIndex,grassIndex&timesteps=1d&location="
-SECRET_PROPERTY = "&apikey="
-SECRET_KEY = "AV6+xWcEKqQk8lv8vqNkwdwM++h3fRDmbM3vyizZBmHOwUXUUC5WmiN+FbU8lSwyYnQacojyuFmWiovZ8VmRyq+qQ9oa8CQzBcwmQ9YVyaFAc9ij/sV2Yh4wmr3b/4KPyG28wjhGGDj2E4YlvbFxlGoWCegZlY0GlylbTNozom5PrURH6lM="
-DEFAULT_KEY = "1234"
 
 def main(config):
     print("Initializing Pollen Count...")
@@ -41,9 +37,10 @@ def main(config):
     lat = roundToHalf(loc.get("lat"))
     lng = roundToHalf(loc.get("lng"))
     latLngStr = str(lat) + "," + str(lng)
+    dev_key = config.get("dev_key", "1234")
 
     #Check cache for pollen for this lat/long
-    cache = checkLatLngCache(latLngStr)
+    cache = checkLatLngCache(latLngStr, dev_key)
     if cache != None:
         print("Cache hit")
         todaysCount = cache
@@ -51,7 +48,7 @@ def main(config):
         print("Cache miss, calling API")
 
         #If not, make API call and cache result
-        todaysCount = getTodaysCount(latLngStr)
+        todaysCount = getTodaysCount(latLngStr, dev_key)
 
     firstMixin = None
     secondMixin = None
@@ -170,9 +167,9 @@ def main(config):
     )
 
 # Checking cache for data already stored.
-def checkLatLngCache(latLng):
+def checkLatLngCache(latLng, dev_key):
     print("checking cache for: " + latLng)
-    cachedPollen = cache.get(latLng)
+    cachedPollen = cache.get(dev_key)
     if cachedPollen == None:
         return None
     return json.decode(cachedPollen)
@@ -194,10 +191,9 @@ def roundToHalf(floatNum):
     return num
 
 # Make API call and process data.
-def getTodaysCount(latLng):
+def getTodaysCount(latLng, dev_key):
     print("Getting API for: " + latLng + " for " + str(3600 * 12) + " seconds")
-    api_key = secret.decrypt(SECRET_KEY) or DEFAULT_KEY
-    FULL_URL = API_URL_BASE + latLng + "&apikey=" + api_key
+    FULL_URL = API_URL_BASE + latLng + "&apikey=" + dev_key
     rep = http.get(FULL_URL)
     data = rep.json()
 
@@ -207,7 +203,7 @@ def getTodaysCount(latLng):
     pollenData = data["data"]["timelines"][0]["intervals"][0]["values"]
 
     # save in cache for 12 hours
-    cache.set(latLng, json.encode(pollenData), 3600 * 12)
+    cache.set(dev_key, json.encode(pollenData), 3600 * 12)
 
     return pollenData
 
@@ -325,6 +321,12 @@ def get_schema():
                 name = "Location",
                 desc = "Location required to find pollen count in your area.",
                 icon = "mapLocation",
+            ),
+            schema.Text(
+                id = "dev_key",
+                name = "Secret key",
+                desc = "Secret key from tomorrow.io.",
+                icon = "key",
             ),
         ],
     )
