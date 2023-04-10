@@ -179,7 +179,7 @@ def fetch_data(cache_token, url, token):
         if response.status_code != 200:
             fail("Blizzard request failed with status %d" % response.status_code)
         data = response.json()
-        cache.set(cache_token, response.body(), ttl_seconds = 15)
+        cache.set(cache_token, response.body(), ttl_seconds = 300)
 
     return data
 
