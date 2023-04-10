@@ -1,0 +1,8 @@
+---
+id: lifx-lights
+name: LIFX Lights
+summary: LIFX lights status
+desc: View the current status and color of your lights.
+author: Daniel Sitnik
+fileName: lifx_lights.star
+packageName: lifxlights
