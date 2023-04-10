@@ -67,7 +67,7 @@ def main(config):
     T20_Status4 = ""
 
     MatchID = str(MatchID)
-    Match_URL = "https://hs-consumer-api.espncricinfo.com/v1/pages/match/details?lang=en&seriesId=" + MatchID + "&matchId=" + MatchID + "&latest=true"
+    Match_URL = "https://hs-consumer-api.espncricinfo.com/v1/pages/match/details?lang=en&seriesId=1345038&matchId=" + MatchID + "&latest=true"
 
     #print(Match_URL)
     # cache specific match data for 1 minute
