@@ -13,8 +13,8 @@ load("render.star", "render")
 load("schema.star", "schema")
 
 DEFAULT_LOC = {
-    "lat": 40.63,
-    "lng": -74.02,
+    "lat": "40.63",
+    "lng": "-74.02",
     "locality": "",
 }
 
@@ -34,8 +34,8 @@ def main(config):
     loc = json.decode(location) if location else DEFAULT_LOC
 
     #Round to 1 decimal place (1.1km)
-    lat = roundToHalf(loc.get("lat"))
-    lng = roundToHalf(loc.get("lng"))
+    lat = roundToHalf(float(loc.get("lat")))
+    lng = roundToHalf(float(loc.get("lng")))
     latLngStr = str(lat) + "," + str(lng)
     dev_key = config.get("dev_key", "1234")
 
