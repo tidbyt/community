@@ -291,7 +291,7 @@ def get_schema():
             ),
             schema.Color(
                 id = "custom_text_color",
-                name = "Custom banner color",
+                name = "Custom text color",
                 desc = "A custom text color for the top banner.",
                 icon = "brush",
                 default = "#FFFFFF",
