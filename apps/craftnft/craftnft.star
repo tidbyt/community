@@ -21,8 +21,6 @@ TOKEN_URL = "https://utils.craft.network/metadata/{}/{}"
 
 DEFAULT_TTL = 300  #300
 
-MAX_IMAGES = 50  # set to 50 for production
-
 def main(config):
     nft_ttl_seconds = int(config.get("nft_cycle_seconds", DEFAULT_TTL))  # default 5 minutes
     print("ttl:" + str(nft_ttl_seconds))
@@ -35,7 +33,7 @@ def main(config):
             nft_image_src = http.get(nft_image_url).body()
 
             # set the cache since this is the image we are rendering
-            cache.set(address + "_random", nft_image_src, ttl_seconds = nft_ttl_seconds)  # 1 hour
+            cache.set(address + "_random", nft_image_src, ttl_seconds = nft_ttl_seconds)
 
     else:
         print("Using Cache")
@@ -109,22 +107,18 @@ def fetch_random_nft(address):
                 #print("setting " + key_list[num] + " to " + token_json_obj["cloudinary"] )
                 image_dict_orig[key_list[num]] = token_json_obj["cloudinary"]  # set the preview url in our image_dict
                 cur_url = token_json_obj["cloudinary"]
-                #                title = token_json_obj["title"]
-
-                # re-store the cache with the updated info.
-                #cache.set(address + "_image_dict", json.encode(image_dict_orig), ttl_seconds = 86400)  # 1 day
+                #title = token_json_obj["title"]
                 break  # break out and display our newly discovered token image
             else:
                 #print("Setting None")
                 image_dict_orig[key_list[num]] = None
-                #cache.set(address + "_image_dict", json.encode(image_dict_orig), ttl_seconds = 86400)  # 1 day
-
                 continue  # no displayable image so continue with the next random choice.
         else:
             # we must have an image url so lets just fetch it and return it, no need to update cache
             cur_url = image_dict[key_list[num]]
             break
-
+                
+    # re-store the cache with the updated info.
     cache.set(address + "_image_dict", json.encode(image_dict_orig), ttl_seconds = 86400)  # 1 day
     if cur_url:
         #print("picked: " + cur_url)
@@ -158,8 +152,7 @@ def fetch_image_dict(address):
                 image_dict[collection + ":" + token_id] = ""
         print(image_dict)
 
-        # cache the new image list
-        cache.set(address + "_image_dict", json.encode(image_dict), ttl_seconds = 86400)  # 1 day
+        # no need to cache here, the fetch_random_nft will do that.
         return image_dict
 
     else:  # update the cache if new tokens exist
@@ -169,14 +162,9 @@ def fetch_image_dict(address):
             #print(token)
             for token_id in token.keys():
                 if collection + ":" + token_id not in image_dict_cache:
-                    print("updating")
+                    #print("updating")
                     image_dict_cache[collection + ":" + token_id] = ""
-                else:
-                    print("no update")
-
-        # cache the updated image_list
-        print(image_dict_cache)
-        cache.set(address + "_image_dict", json.encode(image_dict_cache), ttl_seconds = 86400)  # 1 day
+        
         return image_dict_cache
 
 def get_schema():
