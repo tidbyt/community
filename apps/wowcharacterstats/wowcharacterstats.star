@@ -56,6 +56,9 @@ WOW_ICON = base64.decode("""
 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
 """)
 
+CURRENT_EXPANSION = "Dragonflight"
+CURRENT_INSTANCE = "Vault of the Incarnates"
+
 def main(config):
     client_id = secret.decrypt(
         "AV6+xWcEK3ttMwoBOdFBvpJ6mhRkE1fvDYW+JYmxMY1sTmyaTz1RuNYFkZN9IsfvyolFeknXQLmYkZOuSfCtLII7XHU7tSmT8pVrmS9Am025jZ4QUs25fSLknwMqwAecue4iBMUubsI4CbYrNVDJFrSABxXJljtSueQxsM+/QMtNO3pumZg=",
@@ -260,16 +263,19 @@ def pad_hex(i):
         return i
 
 def get_raid_progress(progress):
-    expansion = progress["expansions"][len(progress["expansions"]) - 1]
-    instance = expansion["instances"][len(expansion["instances"]) - 1]
     status = "N/A raid"
-    for x in instance["modes"]:
-        if x["status"]["name"] != "Complete":
-            status = "%d/%d %s" % (
-                x["progress"]["completed_count"],
-                x["progress"]["total_count"],
-                x["difficulty"]["type"][:1],
-            )
+
+    if "expansions" in progress:
+        for expansion in progress["expansions"]:
+            if expansion["expansion"]["name"] == CURRENT_EXPANSION:
+                for instance in expansion["instances"]:
+                    if instance["instance"]["name"] == CURRENT_INSTANCE:
+                        for mode in instance["modes"]:
+                            status = "%d/%d %s" % (
+                                mode["progress"]["completed_count"],
+                                mode["progress"]["total_count"],
+                                mode["difficulty"]["type"][:1],
+                            )
 
     return status
 
