@@ -5,16 +5,16 @@ Description: Based on the thermometers at Death Valley National Park, one of the
 Author: Kyle Stark @kaisle51
 Thanks: Dubhouze-Tāvis/tavdog for general help and FtoC, Chad Milburn for dark mode logic, wshue0 for API stuff
 """
+
 load("cache.star", "cache")
 load("encoding/base64.star", "base64")
-load("encoding/json.star", "json")
 load("http.star", "http")
+load("math.star", "math")
 load("render.star", "render")
 load("schema.star", "schema")
-load("math.star", "math")
 
 DEFAULT_DARK_MODE = False
-CACHE_TTL_SECONDS = 1799 #half hour
+CACHE_TTL_SECONDS = 1799  #half hour
 WEATHER_URL = "https://api.weather.gov/gridpoints/VEF/63,120/forecast/hourly"
 IMG_CELCIUS = base64.decode("""
 iVBORw0KGgoAAAANSUhEUgAAAAwAAAANCAYAAACdKY9CAAAAAXNSR0IArs4c6QAAAE9JREFUKJGtkVEKACAIQ2d0/yvbRwaZxhJ6EEo4lymYqEWBR5GgJNftoGcdDpFz7XZxe1JgOdDCF9KBv5I6tKqICcoOAba4fUcAIOz/wwwDfZoPEer2YU8AAAAASUVORK5CYII=
@@ -35,10 +35,10 @@ def main(config):
     tempF = get_cachable_data(WEATHER_URL, CACHE_TTL_SECONDS)
     tempFstring = str(int(math.round(float(tempF)))) if tempF != "Err" else "Err"
     tempFarray = []
-    
+
     if len(tempFstring) == 2:
         tempFarray = ["x", tempFstring[0], tempFstring[1]]
-    elif len(tempFstring) == 3 :
+    elif len(tempFstring) == 3:
         if tempFstring == "Err":
             tempFarray = ["E", "R", "R"]
         else:
@@ -48,7 +48,7 @@ def main(config):
         c = (float(F) - 32) * 0.55
         c = int(c * 10)
         return c / 10.0
-    
+
     tempC = FtoC(tempF) if tempFstring != "Err" else ""
     tempCstring = str(int(tempC)) if tempFstring != "Err" else ""
     tempCarray = []
@@ -87,7 +87,7 @@ def main(config):
             return IMG_R
         else:
             return IMG_DASH
-    
+
     def generateImageF(i):
         if tempFarray[i] == "x":
             return render.Box(
@@ -95,13 +95,13 @@ def main(config):
                 height = 15,
                 color = "#000",
             )
-        else: 
+        else:
             return render.Image(
                 src = base64.decode(getTempDigit(tempFarray[i])),
                 width = 9,
                 height = 15,
             )
-        
+
     def layoutF():
         return render.Padding(
             child = render.Box(
@@ -119,7 +119,7 @@ def main(config):
                             width = 1,
                             height = 15,
                             color = "#000",
-                        )
+                        ),
                     ],
                 ),
                 color = "#000",
@@ -128,7 +128,7 @@ def main(config):
             ),
             pad = (11, 1, 0, 0),
         )
-    
+
     def generateImageC(i):
         if tempCarray[i] == "x":
             return render.Box(
@@ -136,13 +136,13 @@ def main(config):
                 height = 15,
                 color = "#000",
             )
-        else: 
+        else:
             return render.Image(
                 src = base64.decode(getTempDigit(tempCarray[i])),
                 width = 9,
                 height = 15,
             )
-        
+
     def layoutC():
         return render.Padding(
             child = render.Box(
@@ -165,20 +165,22 @@ def main(config):
                 color = "#000",
                 width = 20,
                 height = 15,
-           ),
+            ),
             pad = (11, 16, 0, 0),
         )
-    
+
     return render.Root(
         child = render.Stack(
             children = [
-                render.Box( # border
+                render.Box(
+                    # border
                     width = 64,
                     height = 32,
                     color = "#fff" if dark_mode == False else "",
                 ),
                 render.Padding(
-                    render.Box( # inner box
+                    render.Box(
+                        # inner box
                         width = 58,
                         height = 30,
                         color = "#e5ffff" if dark_mode == False else "",
@@ -201,7 +203,7 @@ def main(config):
                     ),
                     pad = (33, 17, 0, 0),
                 ),
-                layoutF(),   
+                layoutF(),
                 layoutC(),
             ],
         ),
@@ -217,10 +219,10 @@ def get_cachable_data(url, timeout):
     res = http.get(url = url)
     if res.status_code != 200:
         return "Err"
-    
+
     temp_data = res.json()
     temp_f = str(temp_data["properties"]["periods"][0]["temperature"])
-    cache.set(key, temp_f, ttl_seconds = CACHE_TTL_SECONDS)
+    cache.set(key, temp_f, ttl_seconds = timeout)
 
     return temp_f
 
@@ -235,7 +237,7 @@ def get_schema():
                 icon = "lightbulb",
                 default = False,
             ),
-        ]
+        ],
     )
 
 # number images
