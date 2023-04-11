@@ -39,8 +39,8 @@ def main(config):
     )
 
 def get_pipeline_status(accesstoken, id, ref):
-    if accesstoken == "Not set":
-        if id == "Not set":
+    if accesstoken == "Not set" or accesstoken == None:
+        if id == "Not set" or id == None:
             return "Not set"
     # Set the GitLab API endpoint and access token
     api_endpoint = "https://gitlab.com/api/v4"
