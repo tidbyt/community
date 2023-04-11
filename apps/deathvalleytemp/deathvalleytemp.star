@@ -1,7 +1,7 @@
 """
 Applet: Death Valley Thermometer
 Summary: Death Valley temp in F and C
-Description: Based on the thermometers at Death Valley National Park
+Description: Based on the thermometers at Death Valley National Park, one of the hottest places on earth
 Author: Kyle Stark @kaisle51
 Thanks: Dubhouze-Tāvis/tavdog for general help and FtoC, Chad Milburn for dark mode logic, wshue0 for API stuff
 """

@@ -17,7 +17,7 @@ func New() manifest.Manifest {
 		Name:        "Death Valley Thermometer",
 		Author:      "Kyle Stark",
 		Summary:     "Death Valley thermometer",
-		Desc:        "Based on the thermometers at Death Valley National Park",
+		Desc:        "Based on the thermometers at Death Valley National Park, one of the hottest places on earth",
 		FileName:    "deathvalleytemp.star",
 		PackageName: "deathvalleytemp",
 		Source:      source,
