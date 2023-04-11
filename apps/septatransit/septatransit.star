@@ -1,7 +1,7 @@
 """
 Applet: SEPTA Transit
-Summary: SEPTA transit departures
-Description: Displays departure times for SEPTA buses, trolleys, and MFL/BSL.
+Summary: SEPTA Transit Departures
+Description: Displays departure times for SEPTA buses, trolleys, and MFL/BSL in and around Philadelphia.
 Author: radiocolin
 """
 
@@ -218,6 +218,9 @@ def main(config):
     stop = config.str("stop", DEFAULT_STOP)
     user_text = config.str("banner", "")
     schedule = get_schedule(route, stop)
+    timezone = config.get("timezone") or "America/New_York"
+    now = time.now().in_location(timezone)
+    left_pad = 1
 
     if config.bool("use_custom_banner_color"):
         route_bg_color = config.str("custom_banner_color")
@@ -235,9 +238,9 @@ def main(config):
         banner_text = user_text
 
     if config.bool("show_time"):
-        timezone = config.get("timezone") or "America/New_York"
-        now = time.now().in_location(timezone)
-        banner_text = banner_text + " " + now.format("3:04 PM")
+        banner_text = now.format("3:04p") + " " + banner_text
+        if now.format("3") not in ["10", "11", "12"]:
+            left_pad = 4
 
     return render.Root(
         delay = 100,
@@ -248,7 +251,7 @@ def main(config):
                     children = [
                         render.Stack(children = [
                             render.Box(height = 6, width = 64, color = route_bg_color),
-                            render.Padding(pad = (1, 0, 0, 0), child = render.Text(banner_text, font = "tom-thumb", color = route_text_color)),
+                            render.Padding(pad = (left_pad, 0, 0, 0), child = render.Text(banner_text, font = "tom-thumb", color = route_text_color)),
                         ]),
                     ],
                 ),
