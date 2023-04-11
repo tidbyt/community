@@ -83,17 +83,17 @@ def main(config):
 
     if access_token == None:
         return render.Root(
-            child=render.Row(
-                main_align="center",
-                cross_align="center",
-                expanded=True,
-                children=[
+            child = render.Row(
+                main_align = "center",
+                cross_align = "center",
+                expanded = True,
+                children = [
                     render.WrappedText(
-                        content="Auth failure!",
-                        align="center"
-                    )
-                ]
-            )
+                        content = "Auth failure!",
+                        align = "center",
+                    ),
+                ],
+            ),
         )
 
     player_profile = fetch_data("player_profile", blizzard_profile_url, access_token)
@@ -109,10 +109,10 @@ def main(config):
                 children = [
                     render.WrappedText(
                         content = "%s - %s (%s) not found." % (character_name, realm_name, region),
-                        align = "center"
-                    )
-                ]
-            )
+                        align = "center",
+                    ),
+                ],
+            ),
         )
 
     return render.Root(
