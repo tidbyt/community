@@ -81,9 +81,39 @@ def main(config):
 
     access_token = get_auth_token(blizzard_auth_url, client_id, client_secret)
 
+    if access_token == None:
+        return render.Root(
+            child=render.Row(
+                main_align="center",
+                cross_align="center",
+                expanded=True,
+                children=[
+                    render.WrappedText(
+                        content="Auth failure!",
+                        align="center"
+                    )
+                ]
+            )
+        )
+
     player_profile = fetch_data("player_profile", blizzard_profile_url, access_token)
     player_mythic = fetch_data("player_mythic", blizzard_mythic_url, access_token)
     player_raids = fetch_data("player_raids", blizzard_raid_url, access_token)
+
+    if player_profile == None:
+        return render.Root(
+            child = render.Row(
+                main_align = "center",
+                cross_align = "center",
+                expanded = True,
+                children = [
+                    render.WrappedText(
+                        content = "%s - %s (%s) not found." % (character_name, realm_name, region),
+                        align = "center"
+                    )
+                ]
+            )
+        )
 
     return render.Root(
         delay = 150,
@@ -120,10 +150,7 @@ def main(config):
                                     font = "tom-thumb",
                                 ),
                                 get_mythic_plus_io(player_mythic),
-                                render.Text(
-                                    content = get_raid_progress(player_raids),
-                                    font = "tom-thumb",
-                                ),
+                                get_raid_progress(player_raids),
                             ],
                         ),
                     ],
@@ -188,7 +215,8 @@ def get_auth_token(url, id, secret):
         }
         response = http.post(url, headers = headers)
         if response.status_code != 200:
-            fail("Blizzard request failed with status %d" % response.status_code)
+            print("Blizzard request failed with status %d" % response.status_code)
+            return None
         cache.set(
             "access_token",
             json.decode(response.body())["access_token"],
@@ -207,7 +235,8 @@ def fetch_data(cache_token, url, token):
         print("Miss! Calling Blizzard API: %s%s" % (url, "*****"))
         response = http.get("%s%s" % (url, token))
         if response.status_code != 200:
-            fail("Blizzard request failed with status %d" % response.status_code)
+            print("Blizzard request failed with status %d" % response.status_code)
+            return None
         data = response.json()
         cache.set(cache_token, response.body(), ttl_seconds = 300)
 
@@ -285,7 +314,7 @@ def rgb_to_hex(r, g, b):
 
 def pad_hex(i):
     if len(i) == 1:
-        return "%s0" % i
+        return "0%s" % i
     else:
         return i
 
@@ -304,7 +333,10 @@ def get_raid_progress(progress):
                                 mode["difficulty"]["type"][:1],
                             )
 
-    return status
+    return render.Text(
+        content = status,
+        font = "tom-thumb",
+    )
 
 def get_mythic_plus_io(mythic):
     if "current_mythic_rating" in mythic:
