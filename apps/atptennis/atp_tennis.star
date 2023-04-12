@@ -6,6 +6,9 @@ Author: M0ntyP
 
 Note:
 ESPN sometimes shows completed matches as stil being "In Progress" well after they have been completed so those matches will continue to appear as in progress matches. 
+
+v1.1
+Used "post" state for completed matches, this will capture both Final and Retired
 """
 
 load("cache.star", "cache")
@@ -97,8 +100,8 @@ def main(config):
                 EventIndex = x
                 if len(ATP_JSON["events"][x]) == 10:
                     for y in range(0, len(ATP_JSON["events"][x]["competitions"]), 1):
-                        # if the match is "Final" and its a singles match and the start time of the match was < 24 hrs ago, lets add it to the list of completed matches
-                        if ATP_JSON["events"][x]["competitions"][y]["status"]["type"]["description"] == "Final":
+                        # if the match is completed ("post") and its a singles match ("athlete") and the start time of the match was < 24 hrs ago, lets add it to the list of completed matches
+                        if ATP_JSON["events"][x]["competitions"][y]["status"]["type"]["state"] == "post":
                             if ATP_JSON["events"][x]["competitions"][y]["competitors"][0]["type"] == "athlete":
                                 MatchTime = ATP_JSON["events"][EventIndex]["competitions"][y]["date"]
                                 MatchTime = time.parse_time(MatchTime, format = "2006-01-02T15:04Z").in_location(timezone)
