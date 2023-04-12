@@ -1,0 +1,8 @@
+---
+id: tidestatus
+name: TideStatus
+summary: Shows current ocean tide
+desc: Shows the current tide height of the ocean based on the user location.
+author: k.wajdwoicz
+fileName: tidestatus.star
+packageName: tidestatus
