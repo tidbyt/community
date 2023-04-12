@@ -1,8 +1,8 @@
 # Tidbyt Wiener Linien Info app
 
-Hi!! Thanks for your interest. 
+Hi!! Thanks for your interest in this application. 
 
-This App is a simple TidByt app that will help you if you are living in Vienna (Austria) and you need to commute frequently.
+This App is a simple TidByt app that will help you if you are living in Vienna (Austria) and you need to commute frequently. 
 
 With this App you will get the current time that the especific line of your choice will take to arrive to the station of your choice. You can setup lots of parameters that are dicussed below.
 
@@ -13,13 +13,15 @@ The App will show:
 - Content (second and third lines). Each entry will show: 
   - The direction.
   - First departure time in minutes for the line. 
-    - Red: Hurry! You are almost going to miss it!
-    - Yellow: You should rush to take it.
-    - Green: Still you have time.
+    - **Red**: Hurry! You are almost going to miss it!
+    - **Yellow**: You should rush to take it.
+    - **Green**: You still have time.
   - Second departure time (next train, bus, tram, etc.) in minutes for the line. 
     - Same color coding, but slightly shadowed and smaller. 
 
-So basically the example shows that you are near Stephansplatz and you need to rush if you want to take the next train to Leopoldau as it is coming in 8 minutes. If not, you can wait to the next one that will come in 16 minutes. In this example, it is especified a distance of 5 minutes to the station. 
+  The color is calculated by the parameter *walking distance* described below.
+
+So basically the example in the image shows that you live near Stephansplatz and you need to rush if you want to take the next train to Leopoldau as it is coming in 8 minutes. If not, you can wait to the next one that will come in 16 minutes. In this example, it is especified a distance of 5 minutes to the station. 
 
 # Before starting
 
@@ -57,15 +59,31 @@ Most probably, you will have your Tidbyt far away from the station itself. Becau
 
 If you do not want to take this in place, just write a `0` in there. Default value is `5` minutes.
 
-## Reverse order
+## Aesthetical parameters
 
-Just an aesthetical parameter. If you specify so, the directions will be interchanged in the display. Default is `false`.
+### Reverse order
 
-## Destination uppercase
+If you specify so, the directions will be interchanged in the display. Default is `false`.
 
-The API from Wiener Linien returns non U-Bahn directions (bus, trams, etc.) in lowercase. You can keep this or keep the default value `true` to make them uppercase.
+### Destination uppercase
 
-## Remove U from the station name
+The API used (see legal notice below) returns non U-Bahn directions (bus, trams, etc.) in lowercase. You can keep this or keep the default value `true` to make them uppercase.
 
-It can be a bit annoying to have a marquee in place only to scroll a trailing **U** or **S** at the end of the station name. So by default it is removed (`true`). Set it to `false` to keep it.
+### Remove U from the station name
 
+It can be a bit annoying to have a marquee in place only to scroll a trailing **U** or **S** at the end of the station name. So, by default, it is removed (`true`). Set it to `false` if you want to keep it.
+
+# Legal notices
+
+## Open Goverment Data of the City of Vienna
+
+This application uses the Open Government Data of the City of Vienna with the only purpose to be helpful to Tidbyt users that live in Vienna in aim to make the world a better place. 
+Open Government Data of the City of Vienna is licensed under a "Creative Commons Attribution 4.0 License" (CC BY 4.0). Full terms [here](https://digitales.wien.gv.at/ogd-nutzungsbedingungen/) (text in German).
+
+Data source: City of Vienna – [data.wien.gv.at](https://data.wien.gv.at)
+
+Datenquelle: Stadt Wien – [data.wien.gv.at](https://data.wien.gv.at)
+
+## Tidbyt Individual Contributor License Agreement
+
+The terms in [this document](https://github.com/tidbyt/community/blob/main/docs/CLA.md) applied to the app when submitted to the Tidbyt Community Repository. 
