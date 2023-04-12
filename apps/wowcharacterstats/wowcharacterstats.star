@@ -73,6 +73,7 @@ def main(config):
     character_name = config.get("character").lower()
     realm_name = config.get("realm").replace(" ", "-").lower()
     region = config.get("region")
+    character_cache_key = "%s-%s-%s" % (character_name, realm_name, region)
 
     blizzard_auth_url = "https://oauth.battle.net/token?grant_type=client_credentials"
     blizzard_profile_url = "https://%s.api.blizzard.com/profile/wow/character/%s/%s?namespace=profile-%s&locale=en_US&access_token=" % (region, realm_name, character_name, region)
@@ -96,9 +97,9 @@ def main(config):
             ),
         )
 
-    player_profile = fetch_data("player_profile", blizzard_profile_url, access_token)
-    player_mythic = fetch_data("player_mythic", blizzard_mythic_url, access_token)
-    player_raids = fetch_data("player_raids", blizzard_raid_url, access_token)
+    player_profile = fetch_data(character_cache_key + "-profile", blizzard_profile_url, access_token)
+    player_mythic = fetch_data(character_cache_key + "-mythic", blizzard_mythic_url, access_token)
+    player_raids = fetch_data(character_cache_key + "-raids", blizzard_raid_url, access_token)
 
     if player_profile == None:
         return render.Root(
