@@ -22,9 +22,10 @@ def main(config):
     if station_offset == None:
         return station_not_found(stationId)
 
-    offset = int(station_offset) - (int(CURRENT_TIME.format("-0700")) / 100)
-    current_hours = calc_hours((CURRENT_TIME + time.parse_duration("%dh" % offset)).format("15:04"))
-    today_data = get_tide_data(stationId, get_date(offset), TIDE_DATA_INTERVAL)
+    offset = int(station_offset) - int(CURRENT_TIME.format("-07"))
+    current_offset_time = (CURRENT_TIME + time.parse_duration("%dh" % offset))
+    current_hours = calc_hours(current_offset_time.format("15:04"))
+    today_data = get_tide_data(stationId, get_date(current_offset_time), TIDE_DATA_INTERVAL)
 
     if today_data == None:
         return station_returned_nodata(stationId)
@@ -47,7 +48,18 @@ def main(config):
                 render.Marquee(
                     width = 64,
                     align = "center",
-                    child = render.Text(get_current_state(today_data)),
+                    child = render.Text(
+                        content = current_offset_time.format("01-02-06 15:04"),
+                        font = "tom-thumb"
+                    ),
+                ),
+                render.Marquee(
+                    width = 64,
+                    align = "center",
+                    child = render.Text(
+                        content = get_current_state(today_data, current_offset_time),
+                        font = "tom-thumb",
+                    ),
                 ),
                 render.Row(
                     children = [
@@ -56,7 +68,7 @@ def main(config):
                                 render.Plot(
                                     data = points,
                                     width = 64,
-                                    height = 26,
+                                    height = 23,
                                     color = "#368BC1",
                                     fill_color = "#123456",
                                     color_inverted = "#800080",
@@ -68,7 +80,7 @@ def main(config):
                                 render.Plot(
                                     data = [(current_hours, min), (current_hours, max)],
                                     width = 64,
-                                    height = 26,
+                                    height = 23,
                                     color = "#626567",
                                     color_inverted = "#626567",
                                     x_lim = (0, 24),
@@ -216,8 +228,8 @@ def get_tide_data(stationId, date, interval):
 
     return data
 
-def get_date(offset):
-    return (CURRENT_TIME + time.parse_duration("%dh" % offset)).format("20060102")
+def get_date(current_offset_time):
+    return current_offset_time.format("20060102")
 
 def get_data_points(today):
     data_points = []
@@ -229,19 +241,19 @@ def get_data_points(today):
 
     return data_points
 
-def get_current_state(data):
+def get_current_state(data, current_offset_time):
     current = None
     next = None
     for p in data["predictions"]:
-        if p["t"][11:] < CURRENT_TIME.format("2006-01-02T15:04")[11:]:
+        if p["t"][11:] < current_offset_time.format("15:04"):
             current = p["v"]
         elif next == None:
             next = p["v"]
 
     if current > next:
-        return "Receding"
+        return "%s Receding" % current
     else:
-        return "Rising"
+        return "%s Rising" % current
 
 def calc_hours(timestamp):
     time = timestamp.split(":")
@@ -249,10 +261,10 @@ def calc_hours(timestamp):
 
 def get_station_timezone_offset(id):
     url = "https://api.tidesandcurrents.noaa.gov/mdapi/prod/webapi/stations/%s.json" % id
-    name = cache.get(id)
-    if name != None:
+    offset = cache.get(id)
+    if offset != None:
         print("Hit! Displaying cached data.")
-        return float(name)
+        return float(offset)
     else:
         print("Miss! Calling station API: %s" % url)
         response = http.get(url)
@@ -268,16 +280,30 @@ def get_station_timezone_offset(id):
 
 def station_not_found(stationId):
     return render.Root(
-        child = render.WrappedText(
-            content = "Unknown station: %s" % stationId,
-            align = "center",
+        child = render.Row(
+            main_align = "center",
+            cross_align = "center",
+            expanded = True,
+            children = [
+                render.WrappedText(
+                    content = "Unknown station: %s" % stationId,
+                    align = "center",
+                ),
+            ],
         ),
     )
 
 def station_returned_nodata(stationId):
     return render.Root(
-        child = render.WrappedText(
-            content = "Station %s returned no tide data!" % stationId,
-            align = "center",
+        child = render.Row(
+            main_align = "center",
+            cross_align = "center",
+            expanded = True,
+            children = [
+                render.WrappedText(
+                    content = "Station %s returned no tide data!" % stationId,
+                    align = "center",
+                ),
+            ],
         ),
     )
