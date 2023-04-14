@@ -1,7 +1,7 @@
 """
-Applet: TideStatus
-Summary: Shows current ocean tide
-Description: Shows the current tide height of the ocean based on the user location.
+Applet: TidalGraph
+Summary: Shows height of ocean tide
+Description: Shows the tide height throughout the day of the ocean based on the selected NOAA tide station.
 Author: k.wajdowicz
 """
 
@@ -12,32 +12,35 @@ load("render.star", "render")
 load("schema.star", "schema")
 load("time.star", "time")
 
-CURRENT_TIME = time.now()
 TIDE_DATA_INTERVAL = "10"
+TIMEZONE_MAP = {
+    "HAST" : "Pacific/Honolulu",
+    "AKST" : "America/Anchorage",
+    "PST" : "America/Los_Angeles",
+    "CST" : "America/Chicago",
+    "EST" : "America/New_York",
+}
 
 def main(config):
-    stationId = config.get("stationid") or config.get("station")
-    station_offset = get_station_timezone_offset(stationId)
+    station_id = config.get("stationid") or config.get("station")
+    station_timezone = get_station_timezone(station_id)
 
-    if station_offset == None:
-        return station_not_found(stationId)
+    if station_timezone == None:
+        return station_not_found(station_id)
+    if station_timezone.startswith("unsupported_timezone:"):
+        return unsupported_timezone(station_id, station_timezone.split(":")[1])
 
-    offset = int(station_offset) - int(CURRENT_TIME.format("-07"))
-    current_offset_time = (CURRENT_TIME + time.parse_duration("%dh" % offset))
-    current_hours = calc_hours(current_offset_time.format("15:04"))
-    today_data = get_tide_data(stationId, get_date(current_offset_time), TIDE_DATA_INTERVAL)
+    current_time = time.now().in_location(station_timezone)
+    calculated_hours = calculate_hours(current_time.format("15:04"))
+    todays_data = get_tide_data(station_id, current_time.format("20060102"), TIDE_DATA_INTERVAL)
 
-    if today_data == None:
-        return station_returned_nodata(stationId)
+    if todays_data == None:
+        return station_returned_nodata(station_id)
 
-    points = get_data_points(today_data)
-    max = 0
-    min = 0
-    for p in points:
-        if p[1] > max:
-            max = p[1]
-        if p[1] < min:
-            min = p[1]
+    data = get_data_points(todays_data)
+    points = data["points"]
+    min = data["min_val"]
+    max = data["max_val"]
 
     return render.Root(
         delay = 100,
@@ -49,7 +52,7 @@ def main(config):
                     width = 64,
                     align = "center",
                     child = render.Text(
-                        content = current_offset_time.format("01-02-06 15:04"),
+                        content = current_time.format("01-02-06 15:04"),
                         font = "tom-thumb"
                     ),
                 ),
@@ -57,7 +60,7 @@ def main(config):
                     width = 64,
                     align = "center",
                     child = render.Text(
-                        content = get_current_state(today_data, current_offset_time),
+                        content = get_current_state(todays_data, current_time),
                         font = "tom-thumb",
                     ),
                 ),
@@ -68,7 +71,7 @@ def main(config):
                                 render.Plot(
                                     data = points,
                                     width = 64,
-                                    height = 23,
+                                    height = 22,
                                     color = "#368BC1",
                                     fill_color = "#123456",
                                     color_inverted = "#800080",
@@ -78,9 +81,9 @@ def main(config):
                                     fill = True,
                                 ),
                                 render.Plot(
-                                    data = [(current_hours, min), (current_hours, max)],
+                                    data = [(calculated_hours, min), (calculated_hours, max)],
                                     width = 64,
-                                    height = 23,
+                                    height = 22,
                                     color = "#626567",
                                     color_inverted = "#626567",
                                     x_lim = (0, 24),
@@ -144,6 +147,10 @@ def get_schema():
         schema.Option(
             display = "Miami, FL",
             value = "8723214",
+        ),
+        schema.Option(
+            display = "Honolulu, HI",
+            value = "1612340",
         ),
         schema.Option(
             display = "Boston, MA",
@@ -233,19 +240,26 @@ def get_date(current_offset_time):
 
 def get_data_points(today):
     data_points = []
+    max = 0
+    min = 0
 
     for p in today["predictions"]:
         time = p["t"][11:].split(":")
-        hours = int(time[0]) + int(time[1]) / 60
-        data_points.append((hours, float(p["v"])))
+        hours = int(time[0]) + (int(time[1]) / 60)
+        value = float(p["v"])
+        data_points.append((hours, value))
+        if value > max:
+            max = value
+        if value < min:
+            min = value
 
-    return data_points
+    return {"points":data_points, "max_val":max, "min_val": min}
 
-def get_current_state(data, current_offset_time):
+def get_current_state(data, current_time):
     current = None
     next = None
     for p in data["predictions"]:
-        if p["t"][11:] < current_offset_time.format("15:04"):
+        if p["t"][11:] < current_time.format("15:04"):
             current = p["v"]
         elif next == None:
             next = p["v"]
@@ -255,28 +269,30 @@ def get_current_state(data, current_offset_time):
     else:
         return "%s Rising" % current
 
-def calc_hours(timestamp):
+def calculate_hours(timestamp):
     time = timestamp.split(":")
     return int(time[0]) + (int(time[1]) / 60)
 
-def get_station_timezone_offset(id):
+def get_station_timezone(id):
     url = "https://api.tidesandcurrents.noaa.gov/mdapi/prod/webapi/stations/%s.json" % id
-    offset = cache.get(id)
-    if offset != None:
+    zone = cache.get(id)
+    if zone != None:
         print("Hit! Displaying cached data.")
-        return float(offset)
+        return zone
     else:
         print("Miss! Calling station API: %s" % url)
         response = http.get(url)
         if response.status_code != 200:
             print("station request failed with status %d" % response.status_code)
             return None
-        offset = int(response.json()["stations"][0]["timezonecorr"])
-        dst = bool(response.json()["stations"][0]["observedst"])
-        if dst:
-            offset = offset + 1
-        cache.set(id, str(offset), ttl_seconds = 86400)
-        return offset
+        zone = response.json()["stations"][0]["timezone"]
+        if zone in TIMEZONE_MAP:
+            tz = TIMEZONE_MAP[zone]
+            print(tz)
+            cache.set(id, str(tz), ttl_seconds = 86400)
+            return tz
+        else:
+            return "unsupported_timezone:%s" % zone
 
 def station_not_found(stationId):
     return render.Root(
@@ -302,6 +318,21 @@ def station_returned_nodata(stationId):
             children = [
                 render.WrappedText(
                     content = "Station %s returned no tide data!" % stationId,
+                    align = "center",
+                ),
+            ],
+        ),
+    )
+
+def unsupported_timezone(stationId, timezone):
+    return render.Root(
+        child = render.Row(
+            main_align = "center",
+            cross_align = "center",
+            expanded = True,
+            children = [
+                render.WrappedText(
+                    content = "Unsupported station timezone: %s (%s)" % (stationId, timezone),
                     align = "center",
                 ),
             ],
