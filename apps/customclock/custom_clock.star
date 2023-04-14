@@ -40,7 +40,6 @@ def main(config):
     offset_direction = int(config.str("clock_mode", "0"))
     offset = config.str("offset", "0")
 
-    # print(offset_direction)
     if offset.isdigit():
         #shows normal time if offset is not an integer
         offset_final = int(offset) * offset_direction
