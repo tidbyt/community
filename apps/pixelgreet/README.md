@@ -3,7 +3,7 @@
 PixelGreet is a Tydbit application designed for vacation rental hosts, enabling them to craft customized messages and images for their guests. Make your guests feel at home with a personal touch, creating memorable experiences. Elevate your hosting, nurture lasting connections, and boost guest satisfaction with this versatile tool.
 
 
-After registering an account on PixelGreet.com, users can access the calendar feature, enabling them to schedule multiple bookings. For each booking, users can include a personalized message and image to be displayed to their guests upon arrival. These custom messages and images can be scheduled well in advance and will be displayed on the Tydbit platform when the guest arrives.
+After registering an account on PixelGreet.com, users can access the calendar feature, enabling them to schedule multiple bookings. For each booking, users can include a personalized message and image to be displayed to their guests upon arrival. These custom messages and images can be scheduled well in advance and will be displayed on the Tydbit when the guest arrives.
 
 
 # Prerequisites
