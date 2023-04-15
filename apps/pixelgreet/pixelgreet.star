@@ -21,9 +21,9 @@ INVALID_KEY_ERROR_NUMBER = 60062
 def main(config):
     print("The application is starting...")
     api_key = config.get("key")
+
     #api_key = "TEST_API_KEY"
     image, message = get_image_and_message(api_key)
-
 
     # Setup the image and marquee
     image = render.Image(
@@ -56,6 +56,7 @@ def main(config):
             contents,
         ),
     )
+
 # This function retrieves the image and message based on the provided API key and its validity.
 # It checks the format of the provided API key and its presence in the cache.
 # If the API key format is invalid, default values for the image and message are used.
@@ -94,8 +95,8 @@ def get_image_and_message(api_key):
 #   tuple: A tuple containing the decoded image and message (both strings) if the API key is in the cache.
 def get_decoded_data_from_cache(api_key):
     decoded_data = json.decode(cache.get(api_key))
-    image = base64.decode(decoded_data['image'])
-    message = decoded_data['message']
+    image = base64.decode(decoded_data["image"])
+    message = decoded_data["message"]
     return image, message
 
 # This function retrieves the decoded data from the API using the provided API key.
@@ -111,7 +112,7 @@ def get_decoded_data_from_cache(api_key):
 # Returns:
 #   tuple: A tuple containing the decoded image and message (both strings).
 def get_decoded_data_from_api(api_key):
-    response = http.get(BASE_URL, headers={"x-api-key": api_key})
+    response = http.get(BASE_URL, headers = {"x-api-key": api_key})
 
     if response.status_code != 200:
         fail("Failed to get a success response from the Pixel Greet API.", response.status_code)
@@ -120,8 +121,8 @@ def get_decoded_data_from_api(api_key):
         print("The API call was successful.")
         image = base64.decode(response.json()["base64Image"])
         message = response.json()["message"]
-        data = {'image': response.json()["base64Image"], 'message': message}
-        cache.set(api_key, json.encode(data), ttl_seconds=DEFAULT_CACHE_DURATION)
+        data = {"image": response.json()["base64Image"], "message": message}
+        cache.set(api_key, json.encode(data), ttl_seconds = DEFAULT_CACHE_DURATION)
     else:
         error_message = handle_api_error(response)
         image = DEFAULT_PIXEL_GREET_IMAGE
@@ -169,7 +170,7 @@ def is_valid_api_key_format(api_key):
 
 # This function checks if the given API key is present in the cache.
 # It also ensures that the value from the cache is not an empty string or None.
-# 
+#
 # Args:
 #   api_key (string): The API key to be checked.
 #
@@ -191,4 +192,3 @@ def get_schema():
             ),
         ],
     )
-    
