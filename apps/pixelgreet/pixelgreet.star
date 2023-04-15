@@ -21,7 +21,7 @@ INVALID_KEY_ERROR_NUMBER = 60062
 def main(config):
     print("The application is starting...")
     api_key = config.get("key")
-    #api_key = "TESTING_API_KEY"
+    #api_key = "TEST_API_KEY"
     image, message = get_image_and_message(api_key)
 
 

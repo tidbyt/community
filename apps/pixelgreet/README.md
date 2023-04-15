@@ -1,5 +1,7 @@
 # PixelGreet
 
+![render](./pixelgreet.gif)
+
 PixelGreet is a Tydbit application designed for vacation rental hosts, enabling them to craft customized messages and images for their guests. Make your guests feel at home with a personal touch, creating memorable experiences. Elevate your hosting, nurture lasting connections, and boost guest satisfaction with this versatile tool.
 
 
