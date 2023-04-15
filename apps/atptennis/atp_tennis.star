@@ -9,6 +9,8 @@ ESPN sometimes shows completed matches as stil being "In Progress" well after th
 
 v1.1
 Used "post" state for completed matches, this will capture both Final and Retired
+Added handling for when no tournaments are on
+
 """
 
 load("cache.star", "cache")
@@ -525,15 +527,25 @@ def get_schema():
             EventsID.append(Event_ID)
             ActualEvents = ActualEvents + 1
 
-    for y in range(0, ActualEvents, 1):
-        # lint being a pain, so...
-        y = y
-        EventName = Events.pop(0)
-        EventID = EventsID.pop(0)
+    if ActualEvents != 0:
+        for y in range(0, ActualEvents, 1):
+            # lint being a pain, so...
+            y = y
+            EventName = Events.pop(0)
+            EventID = EventsID.pop(0)
 
+            Value = schema.Option(
+                display = EventName,
+                value = EventID,
+            )
+
+            TournamentOptions.append(Value)
+
+        # if there are no tournaments on then put that in the dropdown
+    else:
         Value = schema.Option(
-            display = EventName,
-            value = EventID,
+            display = "No active events",
+            value = "1",
         )
 
         TournamentOptions.append(Value)
