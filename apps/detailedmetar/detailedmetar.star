@@ -9,6 +9,8 @@ load("cache.star", "cache")
 load("http.star", "http")
 load("render.star", "render")
 load("schema.star", "schema")
+load("humanize.star", "humanize")
+load("time.star", "time")
 
 DEFAULT_AIRPORT = "KMCO"
 
@@ -66,16 +68,33 @@ def main(config):
 
         decodedMetar[label] = value
 
-    #print(sky_cover1)
+    decodedObservationMetar=decodedMetar["observation_time"]
+
+    year = int(decodedObservationMetar[0:4])
+    month = int(decodedObservationMetar[5:7])
+    day = int(decodedObservationMetar[8:10])
+    hour = int(decodedObservationMetar[11:13])
+    minute = int(decodedObservationMetar[14:16])
+    second = int(decodedObservationMetar[17:19])
+
+    observationDate = time.time(year = year, month = month, day = day, hour = hour, minute = minute, second = second, location = "Etc/UTC")
+
+    humanizedTime = humanize.time(observationDate)
+
 
     if decodedMetar["flight_category"] == "VFR":
         statusColor = "#62f55f"
+        textColor = "#87fa8b"
     if decodedMetar["flight_category"] == "MVFR":
         statusColor = "#73b8f5"
+        textColor = "#8d87fa"
     if decodedMetar["flight_category"] == "IFR":
         statusColor = "#db3d5d"
+        textColor = "#f5737c"
     if decodedMetar["flight_category"] == "LIFR":
         statusColor = "#f25ce3"
+        textColor = "#e88bf0"
+
 
     if decodedMetar["wind_speed_kt"] == "0":
         windSpeed = "Calm"
@@ -124,12 +143,12 @@ def main(config):
                                                 render.Text(decodedMetar["station_id"], color = statusColor, font = "CG-pixel-4x5-mono"),
                                                 render.Marquee(
                                                     width = 21,
-                                                    child = render.Text(decodedMetar["observation_time"][11:16] + "Z", color = "#8CADA7", font = "CG-pixel-3x5-mono"),
+                                                    child = render.Text(humanizedTime, color = "#8CADA7", font = "CG-pixel-3x5-mono"),
                                                 ),
                                             ],
                                         ),
                                         width = 22,
-                                        height = 16,
+                                        height = 14,
                                     ),
                                     render.Box(
                                         child = render.Column(
@@ -144,7 +163,7 @@ def main(config):
                                     ),
                                     render.Box(
                                         width = 16,
-                                        height = 16,
+                                        height = 14,
                                         child = render.Circle(
                                             color = statusColor,
                                             diameter = 12,
@@ -172,7 +191,7 @@ def main(config):
                                             ],
                                         ),
                                         width = 22,
-                                        height = 16,
+                                        height = 14,
                                     ),
                                 ],
                             ),
@@ -196,16 +215,17 @@ def main(config):
                                             cross_align = "center",
                                             children = [
                                                 render.Box(
-                                                    child = render.Text(windSpeed, color = "#8CADA7", font = "CG-pixel-3x5-mono"),
+                                                    child = render.Text(windSpeed, color = textColor, font = "CG-pixel-3x5-mono"),
                                                     height = 5,
                                                 ),
                                                 render.Box(
-                                                    child = render.Text(windDirection, color = "#8CADA7", font = "CG-pixel-3x5-mono"),
+                                                    child = render.Text(windDirection, color = textColor, font = "CG-pixel-3x5-mono"),
                                                     height = 5,
                                                 ),
                                             ],
                                         ),
                                         width = 31,
+                                        height = 17
                                     ),
                                     render.Box(
                                         child = render.Column(
@@ -214,17 +234,23 @@ def main(config):
                                             cross_align = "center",
                                             children = [
                                                 render.Box(
-                                                    child = render.Text(decodedMetar["sky_cover0"], color = "#8CADA7", font = "CG-pixel-3x5-mono"),
+                                                    child = render.Text(decodedMetar["sky_cover0"], color = textColor, font = "CG-pixel-3x5-mono"),
                                                     height = 5,
                                                 ),
                                                 render.Box(
-                                                    child = render.Text(cloud_base_ft_agl0, color = "#8CADA7", font = "CG-pixel-3x5-mono"),
+                                                    child = render.Text(cloud_base_ft_agl0, color = textColor, font = "CG-pixel-3x5-mono"),
                                                     height = 5,
                                                 ),
                                             ],
                                         ),
                                         width = 31,
+                                        height = 17
                                     ),
+                                ],
+                            ),
+                            render.Row(
+                                children = [
+                                    render.Box(height = 1, width = 64, color = textColor),
                                 ],
                             ),
                         ],
