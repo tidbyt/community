@@ -25,7 +25,7 @@ def showEvent(event, timezone):
     assignment_name = event[1]
 
     due_date = str(time.parse_time(event[0]).in_location(timezone))
-    
+
     # print("due_date: " + str(due_date))
     return render.Row(
         cross_align = "center",
@@ -86,7 +86,7 @@ def getcourse(api_token):
         if "Invalid access token." in data:
             return [], "Invalid access token."
 
-        # Find Most Recent Classes            
+        # Find Most Recent Classes
         for course in data:
             #if "name" in course:
             #   print("Parsing Course: " + course["name"])
@@ -98,7 +98,7 @@ def getcourse(api_token):
                 # print("Duration: " + str(dur))
 
                 # Only Save Classes from last 365 days
-                if 365*24 > dur.hours:
+                if 365 * 24 > dur.hours:
                     classes.append(course)
 
         # Cache Classes for 1 Day
@@ -123,14 +123,14 @@ def get_remote_assignments(api_token, course_id):
     if rep.status_code != 200:
         return [], "Cannot Connect to Canvas"
     data = rep.json()
-    
+
     # Show assignments due in next two weeks
     return [
         (assignment["due_at"], assignment["name"] + "")
         for assignment in data
         if assignment["due_at"] != None and
            (time.parse_time(assignment["due_at"]) - time.now()).hours > 0 and
-           (time.parse_time(assignment["due_at"]) - time.now()).hours < 24*14
+           (time.parse_time(assignment["due_at"]) - time.now()).hours < 24 * 14
     ], 0
 
 def cache_assignments(course_id, assignments, api_token):
