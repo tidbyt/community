@@ -17,21 +17,30 @@ CACHE_TTL_SECONDS = 1800
 #Show an error
 def makeError(type):
     return render.Root(
-        child = render.Column(
-            main_align = "center",
-            cross_align = "center",
-            expanded = True,
+        child = render.Stack(
             children = [
-                render.Marquee(
-                    width = 60,
-                    scroll_direction = "horizontal",
-                    offset_start = 10,
-                    offset_end = 10,
-                    child = render.Text(type),
+                render.Box(
+                    width = 64,
+                    height = 32,
+                    color = "#363536",
+                    child = render.Column(
+                        main_align = "center",
+                        cross_align = "center",
+                        expanded = True,
+                        children = [
+                            render.Marquee(
+                                width = 60,
+                                scroll_direction = "horizontal",
+                                offset_start = 10,
+                                offset_end = 10,
+                                child = render.Text(type),
+                            ),
+                            render.Text("IT TAKES", color = "#FF00FF"),
+                            render.Text("A FEW SECONDS", color = "#FF00FF"),
+                            render.Text("TO RENDER", color = "#FF00FF"),
+                        ],
+                    ),
                 ),
-                render.Text("It Takes", font = "CG-pixel-3x5-mono", color = "#FF0000"),
-                render.Text("A Few Seconds", font = "CG-pixel-3x5-mono", color = "#FF0000"),
-                render.Box(width = 64, height = 32, color = "#e0aaff"),
             ],
         ),
     )
