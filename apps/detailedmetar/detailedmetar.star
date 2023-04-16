@@ -7,9 +7,9 @@ Author: SamuelSagarino
 
 load("cache.star", "cache")
 load("http.star", "http")
+load("humanize.star", "humanize")
 load("render.star", "render")
 load("schema.star", "schema")
-load("humanize.star", "humanize")
 load("time.star", "time")
 
 DEFAULT_AIRPORT = "KMCO"
@@ -51,6 +51,7 @@ def main(config):
     skyCoverCount = "0"
     cloudBaseCount = "0"
     statusColor = ""
+    textColor = ""
 
     for label, value in zip(itemLine.split(","), infoLine.split(",")):
         if label == "sky_cover":
@@ -68,7 +69,7 @@ def main(config):
 
         decodedMetar[label] = value
 
-    decodedObservationMetar=decodedMetar["observation_time"]
+    decodedObservationMetar = decodedMetar["observation_time"]
 
     year = int(decodedObservationMetar[0:4])
     month = int(decodedObservationMetar[5:7])
@@ -80,7 +81,6 @@ def main(config):
     observationDate = time.time(year = year, month = month, day = day, hour = hour, minute = minute, second = second, location = "Etc/UTC")
 
     humanizedTime = humanize.time(observationDate)
-
 
     if decodedMetar["flight_category"] == "VFR":
         statusColor = "#62f55f"
@@ -94,7 +94,6 @@ def main(config):
     if decodedMetar["flight_category"] == "LIFR":
         statusColor = "#f25ce3"
         textColor = "#e88bf0"
-
 
     if decodedMetar["wind_speed_kt"] == "0":
         windSpeed = "Calm"
@@ -225,7 +224,7 @@ def main(config):
                                             ],
                                         ),
                                         width = 31,
-                                        height = 17
+                                        height = 17,
                                     ),
                                     render.Box(
                                         child = render.Column(
@@ -244,7 +243,7 @@ def main(config):
                                             ],
                                         ),
                                         width = 31,
-                                        height = 17
+                                        height = 17,
                                     ),
                                 ],
                             ),
