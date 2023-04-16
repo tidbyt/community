@@ -12,7 +12,6 @@ load("render.star", "render")
 load("schema.star", "schema")
 
 OPENAI_COMPLETION_URL = "https://api.openai.com/v1/chat/completions"
-CACHE_TTL_SECONDS = 1800
 
 #Show an error
 def makeError(type):
@@ -134,14 +133,14 @@ def request_art(OPENAI_API_KEY):
 
     return ",".join(valid_colors[:32])
 
-def get_art(OPENAI_API_KEY):
+def get_art(OPENAI_API_KEY, cache_ttl_seconds):
     response_art = cache.get("response_art-" + OPENAI_API_KEY)
 
     if response_art == None:
         response_art = request_art(OPENAI_API_KEY)
         if response_art == None:
             return None
-        cache.set("response_art-" + OPENAI_API_KEY, response_art, ttl_seconds = CACHE_TTL_SECONDS)
+        cache.set("response_art-" + OPENAI_API_KEY, response_art, ttl_seconds = cache_ttl_seconds)
 
     # print(response_art)
 
@@ -152,7 +151,9 @@ def main(config):
     if OPENAI_API_KEY == "":
         return makeError("Please add your OPENAI_API_KEY")
 
-    art = get_art(OPENAI_API_KEY)
+    cache_ttl_seconds = int(config.get("cache_ttl_min", "10")) * 60
+
+    art = get_art(OPENAI_API_KEY, cache_ttl_seconds)
 
     if (art == None):
         return makeError("OPENAI_API_KEY INVALID")
@@ -177,6 +178,45 @@ def get_schema():
                 desc = "Access token provided by OpenAI",
                 icon = "key",
                 default = "",
+            ),
+            schema.Dropdown(
+                id = "cache_ttl_min",
+                name = "Refresh Time",
+                desc = "Time Between Updates",
+                icon = "clock",
+                default = "10",
+                options = [
+                    schema.Option(display = "5 Mins", value = "5"),
+                    schema.Option(display = "10 Mins", value = "10"),
+                    schema.Option(display = "15 Mins", value = "15"),
+                    schema.Option(display = "30 Mins", value = "30"),
+                    schema.Option(display = "45 Mins", value = "45"),
+                    schema.Option(display = "1 Hour", value = "60"),
+                    schema.Option(display = "2 Hours", value = "120"),
+                    schema.Option(display = "3 Hours", value = "180"),
+                    schema.Option(display = "4 Hours", value = "240"),
+                    schema.Option(display = "5 Hours", value = "300"),
+                    schema.Option(display = "6 Hours", value = "360"),
+                    schema.Option(display = "7 Hours", value = "420"),
+                    schema.Option(display = "8 Hours", value = "480"),
+                    schema.Option(display = "9 Hours", value = "540"),
+                    schema.Option(display = "10 Hours", value = "600"),
+                    schema.Option(display = "11 Hours", value = "660"),
+                    schema.Option(display = "12 Hours", value = "720"),
+                    schema.Option(display = "13 Hours", value = "780"),
+                    schema.Option(display = "14 Hours", value = "840"),
+                    schema.Option(display = "15 Hours", value = "900"),
+                    schema.Option(display = "16 Hours", value = "960"),
+                    schema.Option(display = "17 Hours", value = "1020"),
+                    schema.Option(display = "18 Hours", value = "1080"),
+                    schema.Option(display = "19 Hours", value = "1140"),
+                    schema.Option(display = "20 Hours", value = "1200"),
+                    schema.Option(display = "21 Hours", value = "1260"),
+                    schema.Option(display = "22 Hours", value = "1320"),
+                    schema.Option(display = "23 Hours", value = "1380"),
+                    schema.Option(display = "Daily", value = "1440"),
+                    schema.Option(display = "Weekly", value = "10080"),
+                ],
             ),
         ],
     )
