@@ -1,7 +1,7 @@
 ---
 id: salonchromaappt
 name: SalonChromaAppt
-summary: Show 4, 6, & 8 Weeks Out Appointments App
+summary: Show Weeks Out App
 desc: Example of how to show appointment dates in future. Shows the 4, 6, & 8 week out dates for new appointments at a Salon.
 author: STATCowboy
 fileName: salonchromaappt.star

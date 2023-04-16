@@ -1,8 +1,9 @@
+load("encoding/base64.star", "base64")
+
 # v2
 #
 load("render.star", "render")
-load("encoding/base64.star", "base64")
-load('time.star', "time")
+load("time.star", "time")
 
 SALONICON = base64.decode("""
 iVBORw0KGgoAAAANSUhEUgAAABYAAAAfCAIAAABs2aqkAAAABGdBTUEAALGPC/xhBQAACklpQ0NQc1JHQiBJRUM2MTk2Ni0yLjEAAE
@@ -57,25 +58,23 @@ Uho5g/UpJCr5BFcRgXIXFhHRjMcKzpTrMiGV63LLJKUp8NEwgAh56Q0GRMoLkDMmikr/AuAYkPmUq72i
 """)
 
 def main(config):
-
     # font = config.get("font", "tb-small")
     timezone = config.get("timezone") or "America/Chicago"
-    
+
     now = time.now().in_location(timezone)
 
     w4 = time.parse_duration("672h")
     w6 = time.parse_duration("1008h")
     w8 = time.parse_duration("1344h")
-    
-    now4 = now + w4 # 4 weeks
-    now6 = now + w6 # 6 weeks
-    now8 = now + w8 # 8 weeks
 
-    #appts = "Book Next Appointment ... 
+    now4 = now + w4  # 4 weeks
+    now6 = now + w6  # 6 weeks
+    now8 = now + w8  # 8 weeks
+
+    #appts = "Book Next Appointment ...
     appt4 = "4 Wk - " + now4.format("Jan 2")
     appt6 = "6 Wk - " + now6.format("Jan 2")
     appt8 = "8 Wk - " + now8.format("Jan 2")
-    
 
     return render.Root(
         max_age = 120,
@@ -91,12 +90,12 @@ def main(config):
                         expanded = True,
                         main_align = "space_evenly",
                         children = [
-                            render.Text(content = appt4, color="#c01e30", font="CG-pixel-4x5-mono"),
-                            render.Text(content = appt6, color="#c01e30", font="CG-pixel-4x5-mono"),
-                            render.Text(content = appt8, color="#c01e30", font="CG-pixel-4x5-mono"),
-                            render.Marquee(width=64, scroll_direction="horizontal", child = render.Text("Book Next Appointment", color="#ffffff", font="tb-8"))
-                        ]
-                    )
+                            render.Text(content = appt4, color = "#c01e30", font = "CG-pixel-4x5-mono"),
+                            render.Text(content = appt6, color = "#c01e30", font = "CG-pixel-4x5-mono"),
+                            render.Text(content = appt8, color = "#c01e30", font = "CG-pixel-4x5-mono"),
+                            render.Marquee(width = 64, scroll_direction = "horizontal", child = render.Text("Book Next Appointment", color = "#ffffff", font = "tb-8")),
+                        ],
+                    ),
                 ],
             ),
         ),
