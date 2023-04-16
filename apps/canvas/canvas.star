@@ -1,5 +1,6 @@
 load("cache.star", "cache")
 load("encoding/base64.star", "base64")
+load("encoding/json.star", "json")
 load("http.star", "http")
 load("random.star", "random")
 
@@ -7,7 +8,6 @@ load("random.star", "random")
 load("render.star", "render")
 load("schema.star", "schema")
 load("time.star", "time")
-load("encoding/json.star", "json")
 
 #Code for the canvas logo
 CanvasLogo = base64.decode(
@@ -15,7 +15,6 @@ CanvasLogo = base64.decode(
 )
 
 DEFAULT_DOMAIN = "canvas.instructure.com"
-DOMAIN = DEFAULT_DOMAIN
 
 COURSES_URL = "/api/v1/courses?per_page=30&access_token=%s"
 ASSIGNMENT_URL = "/api/v1/courses/%s/assignments?access_token=%s"
@@ -65,7 +64,7 @@ def makeError(type):
         ),
     )
 
-def getcourse(api_token):
+def getcourse(domain, api_token):
     class_cache = cache.get("class_data-" + api_token)
 
     if class_cache != None:
@@ -73,7 +72,7 @@ def getcourse(api_token):
         classes = json.decode(class_cache)
         return classes, 0
     else:
-        api_url = "https://" + DOMAIN + COURSES_URL % api_token
+        api_url = "https://" + domain + COURSES_URL % api_token
         response = http.get(api_url)
 
         # If error return
@@ -117,8 +116,8 @@ def get_cached_assignments(course_id, api_token):
         return [a.split(",") for a in first_split]
     return None
 
-def get_remote_assignments(api_token, course_id):
-    api_url = "https://" + DOMAIN + ASSIGNMENT_URL % (str(course_id), api_token)
+def get_remote_assignments(domain, api_token, course_id):
+    api_url = "https://" + domain + ASSIGNMENT_URL % (str(course_id), api_token)
     rep = http.get(api_url)
     if rep.status_code != 200:
         return [], "Cannot Connect to Canvas"
@@ -137,12 +136,12 @@ def cache_assignments(course_id, assignments, api_token):
     cache_string = ";".join([a[0] + "," + a[1] for a in assignments])
     cache.set(str(course_id + "-" + api_token), cache_string, ttl_seconds = 300)
 
-def get_events(api_token, course_id):
+def get_events(domain, api_token, course_id):
     assignment_data = get_cached_assignments(course_id, api_token)
     if assignment_data == None:
         print("Not Using Cached Classes for " + str(course_id))
 
-        assignment_data, error_code = get_remote_assignments(api_token, course_id)
+        assignment_data, error_code = get_remote_assignments(domain, api_token, course_id)
         if error_code != 0:
             return [], error_code
 
@@ -152,20 +151,20 @@ def get_events(api_token, course_id):
 def main(config):
     api_token = config.get("api_token", "")
     timezone = config.get("timezone", "America/Los_Angeles")
-    DOMAIN = config.get("domain", DEFAULT_DOMAIN)
+    domain = config.get("domain", DEFAULT_DOMAIN)
 
     if api_token == "":
         return makeError("Please add your API Key")
 
     # Retreive Courses
-    classes, error_code = getcourse(api_token)
+    classes, error_code = getcourse(domain, api_token)
 
     if error_code != 0:
         return makeError(error_code)
 
     canvas_data = []
     for course in classes:
-        event, error_code = get_events(api_token, str(course["id"]))
+        event, error_code = get_events(domain, api_token, str(course["id"]))
         if error_code != 0:
             return makeError(error_code)
         canvas_data = canvas_data + event
