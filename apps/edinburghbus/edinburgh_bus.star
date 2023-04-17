@@ -62,21 +62,23 @@ def main(config):
             color = "#333",
         )
 
+    # Initialize an empty list for the children of the render.Column
+    column_children = [
+        render.Text(
+            content=stop_text,
+            color="#ae9962",
+            font="CG-pixel-3x5-mono",
+        ),
+    ]
+
+    # Loop through the first three elements of bus_text and add render_bus_row and render_divider for each element
+    for idx, bus_info in enumerate(bus_text[:3]):
+        column_children.append(render_divider())
+        column_children.append(render_bus_row(bus_info))
+
     return render.Root(
-        child = render.Column(
-            children = [
-                render.Text(
-                    content = stop_text,
-                    color = "#ae9962",
-                    font = "CG-pixel-3x5-mono",
-                ),
-                render_divider(),
-                render_bus_row(bus_text[0]),
-                render_divider(),
-                render_bus_row(bus_text[1]),
-                render_divider(),
-                render_bus_row(bus_text[2]),
-            ],
+        child=render.Column(
+            children=column_children,
         ),
     )
 
