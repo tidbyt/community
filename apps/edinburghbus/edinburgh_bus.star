@@ -5,6 +5,8 @@ Description: Give it an Edinburgh stop ID and it will show the next 3 arrivals f
 Author: dan0
 """
 
+# buildifier: disable=<category_name>
+
 load("cache.star", "cache")
 load("encoding/json.star", "json")
 load("http.star", "http")
@@ -26,7 +28,6 @@ def main(config):
     font = config.get("font", "tb-8")
 
     def render_bus_row(row_info):
-
         service_name = "" if not row_info[0] else str(row_info[0])
         next_times_text = "" if not row_info[1] else str(row_info[1])
 
@@ -65,20 +66,20 @@ def main(config):
     # Initialize an empty list for the children of the render.Column
     column_children = [
         render.Text(
-            content=stop_text,
-            color="#ae9962",
-            font="CG-pixel-3x5-mono",
+            content = stop_text,
+            color = "#ae9962",
+            font = "CG-pixel-3x5-mono",
         ),
     ]
 
     # Loop through the first three elements of bus_text and add render_bus_row and render_divider for each element
-    for idx, bus_info in enumerate(bus_text[:3]):
+    for bus_info in bus_text[:3]:
         column_children.append(render_divider())
         column_children.append(render_bus_row(bus_info))
 
     return render.Root(
-        child=render.Column(
-            children=column_children,
+        child = render.Column(
+            children = column_children,
         ),
     )
 
