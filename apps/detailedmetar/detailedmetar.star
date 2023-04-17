@@ -32,6 +32,7 @@ def main(config):
 
         if rep.status_code != 200:
             fail("FA API failed with status %d", rep.status_code)
+
         metarData = rep.body()
         cache.set(cacheName, metarData, ttl_seconds = 120)
 
@@ -41,6 +42,85 @@ def main(config):
     infoLine = None
 
     for line in lines:
+        if lines[4] != "1 results":
+            return render.Root(
+                child = render.Row(
+                    children = [
+                        render.Box(
+                            child = render.Column(
+                                expanded = True,
+                                children = [
+                                    render.Row(
+                                        children = [
+                                            render.Box(
+                                                child = render.Column(
+                                                    expanded = True,
+                                                    main_align = "space_evenly",
+                                                    cross_align = "center",
+                                                    children = [
+                                                    ],
+                                                ),
+                                                width = 1,
+                                                height = 1,
+                                            ),
+                                            render.Box(
+                                                child = render.Column(
+                                                    expanded = True,
+                                                    main_align = "space_evenly",
+                                                    cross_align = "center",
+                                                    children = [
+                                                        render.Text("Error", color = "#f5737c", font = "tb-8"),
+                                                    ],
+                                                ),
+                                                width = 32,
+                                                height = 14,
+                                            ),
+                                            render.Box(
+                                                child = render.Column(
+                                                    expanded = True,
+                                                    main_align = "space_evenly",
+                                                    cross_align = "center",
+                                                    children = [
+                                                    ],
+                                                ),
+                                                width = 1,
+                                                height = 1,
+                                            ),
+                                            render.Box(
+                                                width = 32,
+                                                height = 14,
+                                                child = render.Circle(
+                                                    color = "#db3d5d",
+                                                    diameter = 12,
+                                                ),
+                                            ),
+                                        ],
+                                    ),
+                                    render.Row(
+                                        children = [
+                                            render.Box(
+                                                child = render.Column(
+                                                    expanded = True,
+                                                    main_align = "space_evenly",
+                                                    cross_align = "center",
+                                                    children = [
+                                                        render.Box(
+                                                            child = render.WrappedText("Could not fetch METAR data.", color = "#f5737c", font = "tb-8"),
+                                                        ),
+                                                    ],
+                                                ),
+                                                width = 62,
+                                                height = 17,
+                                            ),
+                                        ],
+                                    ),
+                                ],
+                            ),
+                        ),
+                    ],
+                ),
+            )
+
         if line.startswith("raw_text"):
             itemLine = line
         elif line.startswith(airport + " "):
@@ -112,6 +192,8 @@ def main(config):
         cloud_base_ft_agl0 = ""
     else:
         cloud_base_ft_agl0 = decodedMetar["cloud_base_ft_agl0"] + "ft"
+
+    sky_cover = decodedMetar["sky_cover0"]
 
     return render.Root(
         child = render.Row(
@@ -233,7 +315,7 @@ def main(config):
                                             cross_align = "center",
                                             children = [
                                                 render.Box(
-                                                    child = render.Text(decodedMetar["sky_cover0"], color = textColor, font = "CG-pixel-3x5-mono"),
+                                                    child = render.Text(sky_cover, color = textColor, font = "CG-pixel-3x5-mono"),
                                                     height = 5,
                                                 ),
                                                 render.Box(
