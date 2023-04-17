@@ -21,7 +21,7 @@ def main(config):
 
     # Get stop text and bus text for display
     stop_text = get_stop_text(bus_info)
-    bus_text = next_three_buses(bus_info)
+    bus_text = next_buses(bus_info)
 
     font = config.get("font", "tb-8")
     print("Using font: '{}'".format(font))
@@ -97,17 +97,20 @@ def fetch_bus_info(stop_id):
     return bus_info
 
 def time_left(minutes):
-    # Convert the input to an integer
-    time_left = int(minutes)
-
     # Return "Due" if the time left is 0 or negative, otherwise return the time left in minutes
-    return "Due" if time_left <= 0 else str(time_left) + "m"
+    time_left_text = "Due" if minutes <= 0 else str(minutes) + "m"
+
+    # if there are over 60 minutes return it in the format eg. 1:15m
+    if minutes > 60:
+        time_left_text = str(minutes // 60) + ":" + str(minutes % 60) + "m"
+
+    return time_left_text
 
 def get_stop_text(data):
     # Format and return the stop name and direction as a string
     return data["stop"]["name"] + " " + data["stop"]["direction"]
 
-def next_three_buses(data):
+def next_buses(data):
     # Initialize an empty list to store the formatted bus information
     lines = []
 
@@ -115,11 +118,11 @@ def next_three_buses(data):
     for service in data["services"]:
         line = []
 
-        # Get the next three departures for each service
-        next_three_departures = service["departures"][:3]
+        # Get the departures for each service
+        next_three_departures = service["departures"]
 
         # Format the minutes until each departure
-        minutes_list = [time_left(departure["minutes"]) for departure in next_three_departures]
+        minutes_list = [time_left(int(departure["minutes"])) for departure in next_three_departures]
 
         line = [service["service_name"], " - ".join(minutes_list)]
 
