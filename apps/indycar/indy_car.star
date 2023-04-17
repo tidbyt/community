@@ -160,7 +160,7 @@ def drvrtext(data):
     return text
 
 # ##############################################
-#            Text Display Funcitons
+#            Text Display Functions
 # ##############################################
 
 def createfadelist(text, cycles, text_font, text_color, data_box_width, text_align):
