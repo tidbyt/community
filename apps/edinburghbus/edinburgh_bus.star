@@ -23,9 +23,6 @@ def main(config):
     stop_text = get_stop_text(bus_info)
     bus_text = next_buses(bus_info)
 
-    font = config.get("font", "tb-8")
-    print("Using font: '{}'".format(font))
-
     def render_bus_row(row_info):
         return render.Row(
             children = [
