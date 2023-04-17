@@ -26,6 +26,10 @@ def main(config):
     font = config.get("font", "tb-8")
 
     def render_bus_row(row_info):
+
+        service_name = "" if not row_info[0] else str(row_info[0])
+        next_times_text = "" if not row_info[1] else str(row_info[1])
+
         return render.Row(
             children = [
                 render.Box(
@@ -34,7 +38,7 @@ def main(config):
                     height = 8,
                     padding = 0,
                     color = "#8c1713",
-                    child = render.Text(row_info[0], font = font, color = "#fff"),
+                    child = render.Text(service_name, font = font, color = "#fff"),
                 ),
                 render.Box(
                     # Black dividing 1px row for padding
@@ -44,9 +48,9 @@ def main(config):
                     color = "#000",
                 ),
                 render.Marquee(
-                    # Marquee showing times of next 3 buses for given service
+                    # Marquee showing times of next buses for given service
                     width = 48,
-                    child = render.Text(row_info[1], font = font, color = "#FCFCFC"),
+                    child = render.Text(next_times_text, font = font, color = "#FCFCFC"),
                 ),
             ],
         )
@@ -99,9 +103,9 @@ def time_left(minutes):
     # Return "Due" if the time left is 0 or negative, otherwise return the time left in minutes
     time_left_text = "Due" if minutes <= 0 else str(minutes) + "m"
 
-    # if there are over 60 minutes return it in the format eg. 1:15m
+    # if there are over 60 minutes return it in the format eg. 1h 15m
     if minutes > 60:
-        time_left_text = str(minutes // 60) + ":" + str(minutes % 60) + "m"
+        time_left_text = str(minutes // 60) + "h " + str(minutes % 60) + "m"
 
     return time_left_text
 
@@ -123,7 +127,7 @@ def next_buses(data):
         # Format the minutes until each departure
         minutes_list = [time_left(int(departure["minutes"])) for departure in next_three_departures]
 
-        line = [service["service_name"], " - ".join(minutes_list)]
+        line = [service["service_name"], " · ".join(minutes_list)]
 
         # Join the formatted minutes and add the result to the list
         lines.append(line)
