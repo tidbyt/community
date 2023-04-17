@@ -78,6 +78,7 @@ def getcourse(api_token):
                     dur = time.now() - time.parse_time(time_stamp)
                     if 8760 > dur.hours:
                         classes.append(course[1:18])
+
         #cache for one day
         cache_data = ",".join(classes)
         cache.set("class_data-" + api_token, cache_data, ttl_seconds = 3000)
