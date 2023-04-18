@@ -6,6 +6,10 @@ Author: M0ntyP
 
 Note:
 ESPN sometimes shows completed matches as stil being "In Progress" well after they have been completed so those matches will continue to appear as in progress matches. 
+
+v1.1
+Used "post" state for completed matches, this will capture both Final and Retired
+Added handling for when no tournaments are on
 """
 
 load("cache.star", "cache")
@@ -98,8 +102,8 @@ def main(config):
                 EventIndex = x
                 if len(WTA_JSON["events"][x]) == 10:
                     for y in range(0, len(WTA_JSON["events"][x]["competitions"]), 1):
-                        # if the match is "Final" and its a singles match and the start time of the match was < 24 hrs ago, lets add it to the list of completed matches
-                        if WTA_JSON["events"][x]["competitions"][y]["status"]["type"]["description"] == "Final":
+                        # if the match is completed ("post") and its a singles match ("athlete") and the start time of the match was < 24 hrs ago, lets add it to the list of completed matches
+                        if WTA_JSON["events"][x]["competitions"][y]["status"]["type"]["state"] == "post":
                             if WTA_JSON["events"][x]["competitions"][y]["competitors"][0]["type"] == "athlete":
                                 MatchTime = WTA_JSON["events"][EventIndex]["competitions"][y]["date"]
                                 MatchTime = time.parse_time(MatchTime, format = "2006-01-02T15:04Z").in_location(timezone)
@@ -525,15 +529,25 @@ def get_schema():
             EventsID.append(Event_ID)
             ActualEvents = ActualEvents + 1
 
-    for y in range(0, ActualEvents, 1):
-        # lint being a pain, so...
-        y = y
-        EventName = Events.pop(0)
-        EventID = EventsID.pop(0)
+    if ActualEvents != 0:
+        for y in range(0, ActualEvents, 1):
+            # lint being a pain, so...
+            y = y
+            EventName = Events.pop(0)
+            EventID = EventsID.pop(0)
 
+            Value = schema.Option(
+                display = EventName,
+                value = EventID,
+            )
+
+            TournamentOptions.append(Value)
+
+        # if there are no tournaments on then put that in the dropdown
+    else:
         Value = schema.Option(
-            display = EventName,
-            value = EventID,
+            display = "No active events",
+            value = "1",
         )
 
         TournamentOptions.append(Value)
