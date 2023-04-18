@@ -126,7 +126,6 @@ def fake_events():
 
     first=["2024-04-21T03:59:59Z","Example Assigment #1"]
     second=["2024-11-23T03:59:59Z","Fake Homework #4"]
-
     return render.Root(
         child=render.Column(
             children=[
