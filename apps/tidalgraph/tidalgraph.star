@@ -204,7 +204,7 @@ def get_schema():
                 id = "station",
                 name = "Station",
                 desc = "NOAA Station",
-                icon = "globe",
+                icon = "water",
                 default = options[0].value,
                 options = options,
             ),
@@ -212,7 +212,7 @@ def get_schema():
                 id = "stationid",
                 name = "Station ID",
                 desc = "NOAA Station ID",
-                icon = "globe",
+                icon = "water",
             ),
         ],
     )
@@ -231,7 +231,7 @@ def get_tide_data(stationId, date, interval):
             print("tide request failed with status %d" % response.status_code)
             return None
         data = response.json()
-        cache.set("%s-%s" % (stationId, date), response.body(), ttl_seconds = 36000)
+        cache.set("%s-%s" % (stationId, date), response.body(), ttl_seconds = 86400)
 
     return data
 
