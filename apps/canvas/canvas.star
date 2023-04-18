@@ -124,19 +124,17 @@ def get_events(api_token, course_id):
     return assignment_data, 0
 
 def fake_events():
-
-    first=["2024-04-21T03:59:59Z","Example Assigment #1"]
-    second=["2024-11-23T03:59:59Z","Fake Homework #4"]
+    first = ["2024-04-21T03:59:59Z", "Example Assigment #1"]
+    second = ["2024-11-23T03:59:59Z", "Fake Homework #4"]
     return render.Root(
-        child=render.Column(
-            children=[
+        child = render.Column(
+            children = [
                 showEvent(first),
-                render.Box(width=100, height=1, color="#ffffff"),
+                render.Box(width = 100, height = 1, color = "#ffffff"),
                 showEvent(second),
             ],
         ),
     )
-
 
 def main(config):
     api_token = config.get("msg", "")
