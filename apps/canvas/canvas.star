@@ -15,6 +15,7 @@ CanvasLogo = base64.decode(
 
 #Method to make a
 def showEvent(event):
+    print(event[0])
     return render.Row(
         cross_align = "center",
         children = [
@@ -121,11 +122,27 @@ def get_events(api_token, course_id):
         cache_assignments(course_id, assignment_data, api_token)
     return assignment_data, 0
 
+def fake_events():
+
+    first=["2024-04-21T03:59:59Z","Example Assigment #1"]
+    second=["2024-11-23T03:59:59Z","Fake Homework #4"]
+
+    return render.Root(
+        child=render.Column(
+            children=[
+                showEvent(first),
+                render.Box(width=100, height=1, color="#ffffff"),
+                showEvent(second),
+            ],
+        ),
+    )
+
+
 def main(config):
     api_token = config.get("msg", "")
 
     if api_token == "":
-        return makeError("Please add your API Key")
+        return fake_events()
 
     classes, error_code = getcourse(api_token)
 
