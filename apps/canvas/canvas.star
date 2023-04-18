@@ -15,7 +15,6 @@ CanvasLogo = base64.decode(
 
 #Method to make an event
 def showEvent(event):
-    print(event[0])
     return render.Row(
         cross_align = "center",
         children = [
