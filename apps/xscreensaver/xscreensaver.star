@@ -6,6 +6,7 @@ Author: Greg Knauss and XScreenSaver
 """
 
 load("cache.star", "cache")
+load("encoding/base64.star", "base64")
 load("http.star", "http")
 load("random.star", "random")
 load("render.star", "render")
@@ -19,6 +20,7 @@ FONT_NAME = "CG-pixel-3x5-mono"
 FONT_ASCDES = 5 + 0
 FONT_WIDTH = 4
 GROUP_DEFAULT = "Default"
+CACHE_SECONDS = 60
 SECRET_ENCRYPTED = "AV6+xWcErarteHoMW1Ra85ucHYVzivFmMkqs8z/bLpwnLVWK66mPAY0FWu5bhkuLDQEBu5DckTDKeYHXTBTdBHqHU+B5d/rxzg0ArIA1wpoQjRi6lBMXwHYwC6wxxuyBvxPY5g8n/WzxfYz+huMqMtbn+lmVbOPzFRQ5L4gP6PvwBVF58RcbirV54oPdr9khhAKCisB3q+vj/wrmRdF2SvsRGK0iug=="
 HACKS = [
     ["abstractile", "Abstractile", "Abstractile", "Mosaic patterns of interlocking tiles. Written by Steve Sundstrom; 2004.", True, ["Default", "Colorful", "All"]],
@@ -327,119 +329,112 @@ def main(config):
                 ),
             )
 
-        else:
-            # If we're randomly picking a hack...
-            if config.bool("random", True):
-                # Pick one, but make sure it's not the same as the last one we ran
-                hack_last = int(cache.get("hack") or 0)
-                random.seed(time.now().unix // 15)
-                hack = random.number(0, len(hacks) - 1)
-                if hack == hack_last:
-                    hack += 1
-
-            else:
-                # Get the next one in line
-                hack = int(cache.get("hack") or -1) + 1
-
-            # In either case, if the hack we've picked is outside the range of what's avaialbe, reset to the start
-            if hack > len(hacks) - 1:
-                hack = 0
-
-            # And save the index of the current hack for a long time
-            cache.set("hack", str(hack), ttl_seconds = 60 * 60 * 24 * 365)
+        # Randomly pick a hack every X seconds
+        random.seed(time.now().unix // CACHE_SECONDS)
+        hack = random.number(0, len(hacks) - 1)
 
     # If we're running from the command line, give some feedback on what we're running
     if (config.get("hack") or config.get("hackname")):
         print("Hack %s: %s" % (hack, hacks[hack]))
 
-    # Pull the GIF from the remote source
-    response = http.get(
-        "https://xscreensaver.eod.com/" + config.get("hackfile", hacks[hack][0]) + ".gif",
-        headers = {"X-XScreenSaver-Token": secret.decrypt(SECRET_ENCRYPTED) or config.get("SECRET_LOCAL")},
-    )
+    # Check to see if the animation is cached (we cache by name because the number means something different depending on what's enabled)
+    gif = cache.get("gif_%s" % (hacks[hack][0]))
+    if gif != None:
+        # If so, decode and use it
+        gif = base64.decode(gif)
 
-    # If something went wrong, show an error
-    if response.status_code != 200:
-        return render.Root(
-            child = render.WrappedText(
-                content = "XScreenSaver: %d for %s. That's bad." % (response.status_code, hacks[hack][2]),
-                align = "left",
+    else:
+        # If not, pull the GIF from the remote source
+        response = http.get(
+            "https://xscreensaver.eod.com/" + config.get("hackfile", hacks[hack][0]) + ".gif",
+            headers = {"X-XScreenSaver-Token": secret.decrypt(SECRET_ENCRYPTED) or config.get("SECRET_LOCAL")},
+        )
+
+        # If something went wrong, show an error
+        if response.status_code != 200:
+            return render.Root(
+                child = render.WrappedText(
+                    content = "XScreenSaver: %d for %s. That's bad." % (response.status_code, hacks[hack][2]),
+                    align = "left",
+                ),
+            )
+
+        # Otherwise, cache the result
+        gif = response.body()
+        cache.set("gif_%s" % (hacks[hack][0]), base64.encode(gif), ttl_seconds = CACHE_SECONDS)
+
+    # Render the GIF
+    children = [
+        render.Image(
+            src = gif,
+        ),
+    ]
+
+    # If they want a name over it, add that
+    if config.bool("name", False):
+        # Decide if the name is too big and we need to scroll it
+        scroll = True if len(hacks[hack][2]) >= (64 / FONT_WIDTH) else False
+
+        # Render an outline in black and the name itself in white
+        name = []
+        for x in [0, 1, 2]:
+            for y in [0, 1, 2]:
+                name.append(
+                    render.Padding(
+                        pad = (64 + x, 32 - 3 - FONT_ASCDES + y, 0, 0) if scroll else (x, 32 - 3 - FONT_ASCDES + y, 0, 0),
+                        child = render.Text(
+                            content = hacks[hack][2],
+                            font = FONT_NAME,
+                            color = "#000",
+                        ),
+                    ),
+                )
+        name.append(
+            render.Padding(
+                pad = (64 + 1, 32 - 3 - FONT_ASCDES + 1, 0, 0) if scroll else (0 + 1, 32 - 3 - FONT_ASCDES + 1, 0, 0),
+                child = render.Text(
+                    content = hacks[hack][2],
+                    font = FONT_NAME,
+                    color = "#FFF",
+                ),
             ),
         )
 
-    else:
-        # Render the GIF
-        children = [
-            render.Image(
-                src = response.body(),
-            ),
-        ]
-
-        # If they want a name over it, add that
-        if config.bool("name", False):
-            # Decide if the name is too big and we need to scroll it
-            scroll = True if len(hacks[hack][2]) >= (64 / FONT_WIDTH) else False
-
-            # Render an outline in black and the name itself in white
-            name = []
-            for x in [0, 1, 2]:
-                for y in [0, 1, 2]:
-                    name.append(
-                        render.Padding(
-                            pad = (64 + x, 32 - 3 - FONT_ASCDES + y, 0, 0) if scroll else (x, 32 - 3 - FONT_ASCDES + y, 0, 0),
-                            child = render.Text(
-                                content = hacks[hack][2],
-                                font = FONT_NAME,
-                                color = "#000",
-                            ),
-                        ),
-                    )
-            name.append(
-                render.Padding(
-                    pad = (64 + 1, 32 - 3 - FONT_ASCDES + 1, 0, 0) if scroll else (0 + 1, 32 - 3 - FONT_ASCDES + 1, 0, 0),
-                    child = render.Text(
-                        content = hacks[hack][2],
-                        font = FONT_NAME,
-                        color = "#FFF",
+        # If we're scrolling the name...
+        if scroll:
+            # Do it
+            children.append(
+                render.Marquee(
+                    width = 64,
+                    child = render.Stack(
+                        children = name,
                     ),
                 ),
             )
 
-            # If we're scrolling the name...
-            if scroll:
-                # Do it
-                children.append(
-                    render.Marquee(
-                        width = 64,
-                        child = render.Stack(
+        else:
+            # Otherwise, show it in the right-lower corner
+            children.append(
+                render.Row(
+                    main_align = "end",
+                    expanded = True,
+                    children = [
+                        render.Stack(
                             children = name,
                         ),
-                    ),
-                )
+                    ],
+                ),
+            )
 
-            else:
-                # Otherwise, show it in the right-lower corner
-                children.append(
-                    render.Row(
-                        main_align = "end",
-                        expanded = True,
-                        children = [
-                            render.Stack(
-                                children = name,
-                            ),
-                        ],
-                    ),
-                )
-
-        # And render the full display, GIF with optional name on top
-        return render.Root(
-            # HACK: Set the animation speed from the GIF, otherwise it's hard-coded at 50ms per frame;
-            # this has the unhappy side effect of moving any scrolled names at different speeds, but...
-            delay = children[0].delay,
-            child = render.Stack(
-                children = children,
-            ),
-        )
+    # And render the full display, GIF with optional name on top
+    return render.Root(
+        # HACK: Set the animation speed from the GIF, otherwise it's hard-coded at 50ms per frame;
+        # this has the unhappy side effect of moving any scrolled names at different speeds, but...
+        delay = children[0].delay,
+        child = render.Stack(
+            children = children,
+        ),
+    )
 
 def group_test(group):
     # Build a dropdown for all the hacks in the current group
@@ -458,7 +453,7 @@ def group_test(group):
         schema.Dropdown(
             id = "show",
             name = "Animation",
-            desc = "Which animation to run?",
+            desc = "Select an animation to run.",
             icon = "ballotCheck",
             options = hacks,
             default = hacks[0].value,
@@ -498,7 +493,7 @@ def get_schema():
         schema.Toggle(
             id = "name",
             name = "Name",
-            desc = "Show the name of the animation while it runs?",
+            desc = "Show the name of the animation.",
             icon = "signature",
             default = False,
         ),
@@ -510,7 +505,7 @@ def get_schema():
             schema.Dropdown(
                 id = "group",
                 name = "Group",
-                desc = "Select the animations from a pre-defined group?",
+                desc = "Select the animations from a pre-defined group.",
                 icon = "layerGroup",
                 options = groups,
                 default = GROUP_DEFAULT,
@@ -524,17 +519,10 @@ def get_schema():
 
     else:
         fields += [
-            schema.Toggle(
-                id = "random",
-                name = "Random",
-                desc = "Show animations randomly, or in order?",
-                icon = "shuffle",
-                default = True,
-            ),
             schema.Dropdown(
                 id = "group",
                 name = "Group",
-                desc = "Select the animations from a pre-defined group?",
+                desc = "Select the animations from a pre-defined group.",
                 icon = "layerGroup",
                 options = groups,
                 default = GROUP_DEFAULT,
