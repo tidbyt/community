@@ -11,6 +11,7 @@ load("random.star", "random")
 load("render.star", "render")
 load("schema.star", "schema")
 load("secret.star", "secret")
+load("time.star", "time")
 
 TEST = False
 
