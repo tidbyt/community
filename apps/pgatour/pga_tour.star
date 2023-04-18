@@ -23,6 +23,9 @@ Added ability to show how many holes the player has completed or tee time if not
 Added different colors for title bar during majors
 Formatting changes
 Code re-arrange & clean up and hopefully more efficient!
+
+v2.1
+Fix - Colors for majors not working, fixed!
 """
 
 load("cache.star", "cache")
@@ -400,11 +403,11 @@ def getMajorColor(ID):
     TitleColor = "#0039A6"
     if ID == "401465508":  # Masters
         TitleColor = "#006747"
-    if ID == "401465523":  # US PGA
+    elif ID == "401465523":  # US PGA
         TitleColor = "#00205b"
-    if ID == "401465533":  # US Open
+    elif ID == "401465533":  # US Open
         TitleColor = "#003865"
-    if ID == "401465539":  # The Open
+    elif ID == "401465539":  # The Open
         TitleColor = "#1a1c3c"
     else:
         TitleColor = "#0039A6"
