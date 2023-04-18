@@ -331,6 +331,7 @@ def main(config):
             if config.bool("random", True):
                 # Pick one, but make sure it's not the same as the last one we ran
                 hack_last = int(cache.get("hack") or 0)
+                random.seed(time.now().unix // 15)
                 hack = random.number(0, len(hacks) - 1)
                 if hack == hack_last:
                     hack += 1
