@@ -14,11 +14,11 @@ load("time.star", "time")
 
 TIDE_DATA_INTERVAL = "10"
 TIMEZONE_MAP = {
-    "HAST" : "Pacific/Honolulu",
-    "AKST" : "America/Anchorage",
-    "PST" : "America/Los_Angeles",
-    "CST" : "America/Chicago",
-    "EST" : "America/New_York",
+    "HAST": "Pacific/Honolulu",
+    "AKST": "America/Anchorage",
+    "PST": "America/Los_Angeles",
+    "CST": "America/Chicago",
+    "EST": "America/New_York",
 }
 
 def main(config):
@@ -53,7 +53,7 @@ def main(config):
                     align = "center",
                     child = render.Text(
                         content = current_time.format("01-02-06 15:04"),
-                        font = "tom-thumb"
+                        font = "tom-thumb",
                     ),
                 ),
                 render.Marquee(
@@ -253,7 +253,7 @@ def get_data_points(today):
         if value < min:
             min = value
 
-    return {"points":data_points, "max_val":max, "min_val": min}
+    return {"points": data_points, "max_val": max, "min_val": min}
 
 def get_current_state(data, current_time):
     current = None

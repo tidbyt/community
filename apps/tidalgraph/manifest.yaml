@@ -1,5 +1,5 @@
 ---
-id: tidalGraph
+id: tidalgraph
 name: TidalGraph
 summary: Shows height of ocean tide
 desc: Shows the tide height throughout the day of the ocean based on the selected NOAA tide station.
