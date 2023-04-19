@@ -26,6 +26,7 @@ def showEvent(event, timezone):
     due_date = str(time.parse_time(event[0]).in_location(timezone))
 
     # print("due_date: " + str(due_date))
+
     return render.Row(
         cross_align = "center",
         children = [
@@ -82,6 +83,7 @@ def getcourse(domain, api_token):
 
         # Decode Response
         data = json.decode(response.body())
+
         if "Invalid access token." in data:
             return [], "Invalid access token."
 
@@ -116,8 +118,12 @@ def get_cached_assignments(course_id, api_token):
         return [a.split(",") for a in first_split]
     return None
 
-def get_remote_assignments(domain, api_token, course_id):
-    api_url = "https://" + domain + ASSIGNMENT_URL % (str(course_id), api_token)
+def get_remote_assignments(api_token, course_id):
+    api_url = "https://canvas.instructure.com/api/v1/courses/" + str(
+        course_id,
+    ) + "/assignments?bucket=upcoming&access_token=" + api_token
+    print(api_url)
+
     rep = http.get(api_url)
     if rep.status_code != 200:
         return [], "Cannot Connect to Canvas"
@@ -134,7 +140,7 @@ def get_remote_assignments(domain, api_token, course_id):
 
 def cache_assignments(course_id, assignments, api_token):
     cache_string = ";".join([a[0] + "," + a[1] for a in assignments])
-    cache.set(str(course_id + "-" + api_token), cache_string, ttl_seconds = 300)
+    cache.set(str(course_id) + "-" + api_token, cache_string, ttl_seconds = 300)
 
 def get_events(domain, api_token, course_id):
     assignment_data = get_cached_assignments(course_id, api_token)
@@ -148,13 +154,26 @@ def get_events(domain, api_token, course_id):
         cache_assignments(course_id, assignment_data, api_token)
     return assignment_data, 0
 
+def fake_events():
+    first = ["2024-04-21T03:59:59Z", "Example Assigment #1"]
+    second = ["2024-11-23T03:59:59Z", "Fake Homework #4"]
+    return render.Root(
+        child = render.Column(
+            children = [
+                showEvent(first),
+                render.Box(width = 100, height = 1, color = "#ffffff"),
+                showEvent(second),
+            ],
+        ),
+    )
+
 def main(config):
     api_token = config.get("api_token", "")
     timezone = config.get("timezone", "America/Los_Angeles")
     domain = config.get("domain", DEFAULT_DOMAIN)
 
     if api_token == "":
-        return makeError("Please add your API Key")
+        return fake_events()
 
     # Retreive Courses
     classes, error_code = getcourse(domain, api_token)

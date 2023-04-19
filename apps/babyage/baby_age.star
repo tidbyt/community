@@ -25,7 +25,7 @@ def main(config):
 
     difference = current_time - birth_time
 
-    # calculate the number of days
+    # calculate the number of days.
     days = math.floor(difference.hours / 24.0)
 
     # calculate the number of weeks
