@@ -1,12 +1,11 @@
 """
 Applet: Nightscout
 Summary: Shows Nightscout CGM Data
-Description: Displays Continuous Glucose Monitoring (CGM) blood sugar data from the Nightscout Open Source project (https://nightscout.github.io/). Will display blood sugar as mg/dL or mmol/L. Optionally display historical readings on a graph. Also a clock. (v2.2.3).
+Description: Displays Continuous Glucose Monitoring (CGM) blood sugar data from the Nightscout Open Source project (https://nightscout.github.io/). Will display blood sugar as mg/dL or mmol/L. Optionally display historical readings on a graph. Also a clock. (v2.3.0).
 Authors: Jeremy Tavener, Paul Murphy
 """
 
 load("cache.star", "cache")
-load("encoding/csv.star", "csv")
 load("encoding/json.star", "json")
 load("http.star", "http")
 load("math.star", "math")
@@ -41,10 +40,6 @@ GRAPH_BOTTOM = 40
 
 CACHE_TTL_SECONDS = 1800  #30 mins
 
-PROVIDER_CACHE_TTL = 7200  #2 hours
-
-NS_PROVIDERS = "https://raw.githubusercontent.com/tidbyt/community/main/apps/nightscout/nightscout_providers.csv"
-
 DEFAULT_LOCATION = """
 {
     "lat": "40.666250",
@@ -58,21 +53,7 @@ DEFAULT_LOCATION = """
 
 DEFAULT_NSID = ""
 DEFAULT_NSHOST = ""
-
-def get_providers():
-    # Check cache for providers
-    providers = cache.get("ns_providers")
-
-    # If no cached providers, fetch from server
-    if providers == None:
-        request = http.get(NS_PROVIDERS)
-        if request.status_code != 200:
-            print("Unexpected status code: " + request.status_code)
-            return ["Heroku", "herokuapp.com"]
-
-        providers = request.body()
-        cache.set("nightscout_providers", providers, ttl_seconds = PROVIDER_CACHE_TTL)
-    return csv.read_all(providers)
+DEFAULT_NSURL = ""
 
 def main(config):
     UTC_TIME_NOW = time.now().in_location("UTC")
@@ -84,6 +65,7 @@ def main(config):
     sun_set = sunrise.sunset(lat, lng, now)
     nightscout_id = config.get("nightscout_id", DEFAULT_NSID)
     nightscout_host = config.get("nightscout_host", DEFAULT_NSHOST)
+    nightscout_url = config.get("nightscout_url", DEFAULT_NSURL)
     show_mgdl = config.bool("show_mgdl", DEFAULT_SHOW_MGDL)
 
     show_graph = config.bool("show_graph", DEFAULT_SHOW_GRAPH)
@@ -93,11 +75,66 @@ def main(config):
     show_24_hour_time = config.bool("show_24_hour_time", DEFAULT_SHOW_24_HOUR_TIME)
     night_mode = config.bool("night_mode", DEFAULT_NIGHT_MODE)
 
-    if nightscout_id != "":
-        nightscout_data_json, status_code = get_nightscout_data(nightscout_id, nightscout_host, show_mgdl)
+    if nightscout_url == "" and nightscout_id != "" and nightscout_host != "":
+        nightscout_url = nightscout_id + "." + nightscout_host
+
+    print(nightscout_url)
+
+    if nightscout_url != "":
+        nightscout_data_json, status_code = get_nightscout_data(nightscout_url, show_mgdl)
         sample_data = False
     else:
-        nightscout_data_json, status_code = EXAMPLE_DATA, 0
+        nightscout_data_json, status_code = {
+            "sgv_current": "85",
+            "sgv_delta": "-2" if show_mgdl else float("-0.1"),
+            "latest_reading_date_string": (time.now() - time.parse_duration("3m")).format("2006-01-02T15:04:05.999999999Z07:00"),
+            "direction": "Flat",
+            "history": [
+                ((time.now() - time.parse_duration("213m")).unix, 125),
+                ((time.now() - time.parse_duration("208m")).unix, 130),
+                ((time.now() - time.parse_duration("203m")).unix, 135),
+                ((time.now() - time.parse_duration("198m")).unix, 132),
+                ((time.now() - time.parse_duration("193m")).unix, 131),
+                ((time.now() - time.parse_duration("188m")).unix, 137),
+                ((time.now() - time.parse_duration("183m")).unix, 142),
+                ((time.now() - time.parse_duration("178m")).unix, 147),
+                ((time.now() - time.parse_duration("173m")).unix, 155),
+                ((time.now() - time.parse_duration("168m")).unix, 160),
+                ((time.now() - time.parse_duration("163m")).unix, 172),
+                ((time.now() - time.parse_duration("158m")).unix, 184),
+                ((time.now() - time.parse_duration("153m")).unix, 175),
+                ((time.now() - time.parse_duration("148m")).unix, 170),
+                ((time.now() - time.parse_duration("143m")).unix, 167),
+                ((time.now() - time.parse_duration("138m")).unix, 156),
+                ((time.now() - time.parse_duration("133m")).unix, 152),
+                ((time.now() - time.parse_duration("128m")).unix, 140),
+                ((time.now() - time.parse_duration("123m")).unix, 137),
+                ((time.now() - time.parse_duration("118m")).unix, 129),
+                ((time.now() - time.parse_duration("113m")).unix, 121),
+                ((time.now() - time.parse_duration("108m")).unix, 118),
+                ((time.now() - time.parse_duration("103m")).unix, 113),
+                ((time.now() - time.parse_duration("98m")).unix, 108),
+                ((time.now() - time.parse_duration("93m")).unix, 106),
+                ((time.now() - time.parse_duration("88m")).unix, 104),
+                ((time.now() - time.parse_duration("83m")).unix, 101),
+                ((time.now() - time.parse_duration("78m")).unix, 97),
+                ((time.now() - time.parse_duration("73m")).unix, 95),
+                ((time.now() - time.parse_duration("68m")).unix, 93),
+                ((time.now() - time.parse_duration("63m")).unix, 91),
+                ((time.now() - time.parse_duration("58m")).unix, 87),
+                ((time.now() - time.parse_duration("53m")).unix, 87),
+                ((time.now() - time.parse_duration("48m")).unix, 85),
+                ((time.now() - time.parse_duration("43m")).unix, 84),
+                ((time.now() - time.parse_duration("38m")).unix, 83),
+                ((time.now() - time.parse_duration("33m")).unix, 80),
+                ((time.now() - time.parse_duration("28m")).unix, 83),
+                ((time.now() - time.parse_duration("23m")).unix, 88),
+                ((time.now() - time.parse_duration("18m")).unix, 90),
+                ((time.now() - time.parse_duration("13m")).unix, 88),
+                ((time.now() - time.parse_duration("8m")).unix, 87),
+                ((time.now() - time.parse_duration("3m")).unix, 85),
+            ],
+        }, 0
         sample_data = True
 
     if status_code == 503:
@@ -698,18 +735,6 @@ def mg_mgdl_options(show_mgdl):
     ]
 
 def get_schema():
-    providers = get_providers()
-
-    hostOptions = []
-
-    for index in range(0, len(providers)):
-        hostOptions.append(
-            schema.Option(
-                display = providers[index][0],
-                value = providers[index][1],
-            ),
-        )
-
     return schema.Schema(
         version = "1",
         fields = [
@@ -719,19 +744,11 @@ def get_schema():
                 desc = "Location for which to display time.",
                 icon = "locationDot",
             ),
-            schema.Dropdown(
-                id = "nightscout_host",
-                name = "Nightscout Provider",
-                desc = "Your Nightscout Provider",
-                icon = "server",
-                default = hostOptions[0].value,
-                options = hostOptions,
-            ),
             schema.Text(
-                id = "nightscout_id",
-                name = "Nightscout ID",
-                desc = "Your Nightscout ID (use the prefix from your nightscout URL. i.e. [nightscoutID].heroku.com)",
-                icon = "idBadge",
+                id = "nightscout_url",
+                name = "Nightscout URL",
+                desc = "Your Nightscout URL (i.e. https://yournightscoutID.heroku.com)",
+                icon = "link",
             ),
             schema.Toggle(
                 id = "show_mgdl",
@@ -785,15 +802,19 @@ def get_schema():
 
 # This method returns a tuple of a nightscout_data and a status_code. If it's
 # served from cache, we return a status_code of 0.
-def get_nightscout_data(nightscout_id, nightscout_host, show_mgdl):
-    key = nightscout_id + "." + nightscout_host + "_nightscout_data"
+def get_nightscout_data(nightscout_url, show_mgdl):
+    nightscout_url = nightscout_url.replace("https:", "")
+    nightscout_url = nightscout_url.replace("http:", "")
+    nightscout_url = nightscout_url.replace("/", "")
+    oldest_reading = str((time.now() - time.parse_duration("240m")).unix)
+    json_url = "https://" + nightscout_url + "/api/v1/entries.json?count=1000&find[date][$gte]=" + oldest_reading
 
-    nightscout_url = "https://" + nightscout_id + "." + nightscout_host + "/api/v1/entries.json?count=100"
+    print(json_url)
 
-    print(nightscout_url)
+    key = nightscout_url + "_nightscout_data"
 
     # Request latest entries from the Nightscout URL
-    resp = http.get(nightscout_url)
+    resp = http.get(json_url)
     if resp.status_code != 200:
         # If Error, Get the JSON object from the cache
         nightscout_data_cached = cache.get(key)
@@ -867,56 +888,4 @@ ARROWS = {
     "Error": "?",
     "Dash": "-",
     "NOT COMPUTABLE": "?",
-}
-
-EXAMPLE_DATA = {
-    "sgv_current": "85",
-    "sgv_delta": "-2",
-    "latest_reading_date_string": (time.now() - time.parse_duration("3m")).format("2006-01-02T15:04:05.999999999Z07:00"),
-    "direction": "Flat",
-    "history": [
-        ((time.now() - time.parse_duration("213m")).unix, 141),
-        ((time.now() - time.parse_duration("208m")).unix, 133),
-        ((time.now() - time.parse_duration("203m")).unix, 129),
-        ((time.now() - time.parse_duration("198m")).unix, 125),
-        ((time.now() - time.parse_duration("193m")).unix, 131),
-        ((time.now() - time.parse_duration("188m")).unix, 137),
-        ((time.now() - time.parse_duration("183m")).unix, 142),
-        ((time.now() - time.parse_duration("178m")).unix, 147),
-        ((time.now() - time.parse_duration("173m")).unix, 155),
-        ((time.now() - time.parse_duration("168m")).unix, 160),
-        ((time.now() - time.parse_duration("163m")).unix, 172),
-        ((time.now() - time.parse_duration("158m")).unix, 184),
-        ((time.now() - time.parse_duration("153m")).unix, 175),
-        ((time.now() - time.parse_duration("148m")).unix, 170),
-        ((time.now() - time.parse_duration("143m")).unix, 167),
-        ((time.now() - time.parse_duration("138m")).unix, 156),
-        ((time.now() - time.parse_duration("133m")).unix, 152),
-        ((time.now() - time.parse_duration("128m")).unix, 140),
-        ((time.now() - time.parse_duration("123m")).unix, 137),
-        ((time.now() - time.parse_duration("118m")).unix, 129),
-        ((time.now() - time.parse_duration("113m")).unix, 121),
-        ((time.now() - time.parse_duration("108m")).unix, 118),
-        ((time.now() - time.parse_duration("103m")).unix, 113),
-        ((time.now() - time.parse_duration("98m")).unix, 108),
-        ((time.now() - time.parse_duration("93m")).unix, 106),
-        ((time.now() - time.parse_duration("88m")).unix, 104),
-        ((time.now() - time.parse_duration("83m")).unix, 101),
-        ((time.now() - time.parse_duration("78m")).unix, 97),
-        ((time.now() - time.parse_duration("73m")).unix, 95),
-        ((time.now() - time.parse_duration("68m")).unix, 93),
-        ((time.now() - time.parse_duration("63m")).unix, 91),
-        ((time.now() - time.parse_duration("58m")).unix, 87),
-        ((time.now() - time.parse_duration("53m")).unix, 87),
-        ((time.now() - time.parse_duration("48m")).unix, 85),
-        ((time.now() - time.parse_duration("43m")).unix, 84),
-        ((time.now() - time.parse_duration("38m")).unix, 83),
-        ((time.now() - time.parse_duration("33m")).unix, 80),
-        ((time.now() - time.parse_duration("28m")).unix, 83),
-        ((time.now() - time.parse_duration("23m")).unix, 88),
-        ((time.now() - time.parse_duration("18m")).unix, 90),
-        ((time.now() - time.parse_duration("13m")).unix, 88),
-        ((time.now() - time.parse_duration("8m")).unix, 87),
-        ((time.now() - time.parse_duration("3m")).unix, 85),
-    ],
 }

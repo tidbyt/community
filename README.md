@@ -1,6 +1,6 @@
 # Community Apps
 [![Docs](https://img.shields.io/badge/docs-tidbyt.dev-blue?style=flat-square)](https://tidbyt.dev)
-[![Build Status](https://img.shields.io/github/workflow/status/tidbyt/community/Build%20and%20Release?style=flat-square)](https://github.com/tidbyt/community/actions/workflows/main.yml)
+[![Build Status](https://img.shields.io/github/actions/workflow/status/tidbyt/community/main.yml?style=flat-square)](https://github.com/tidbyt/community/actions/workflows/main.yml)
 [![Discourse](https://img.shields.io/discourse/status?server=https%3A%2F%2Fdiscuss.tidbyt.com&style=flat-square)](https://discuss.tidbyt.com/)
 [![Discord Server](https://img.shields.io/discord/928484660785336380?style=flat-square)](https://discord.gg/r45MXG4kZc)
 
@@ -13,7 +13,7 @@ This repo is for publishing apps to all Tidbyt users. Interested in developing a
 📸  [Fuzzy Clock](apps/fuzzyclock/fuzzy_clock.star) by [Max Timkovich][5], photographed  by [Tidbyt][1].
 
 ## Quick Start
-You should really read our [contributions guide](docs/CONTRIBUTING.md), our guide on [Publishing Apps](https://tidbyt.dev/docs/integrate/pushing-apps), and the section below before diving in. But if you just want to go for it, run the following to generate all the code you need:
+You should really read our [contributions guide](docs/CONTRIBUTING.md), our guide on [Publishing Apps][6], and the section below before diving in. But if you just want to go for it, run the following to generate all the code you need:
 ```
 pixlet create
 ```
@@ -33,7 +33,7 @@ For all contributions, please see our [contributions guide](docs/CONTRIBUTING.md
 code of conduct, policies, and legal info.
 
 **Do you want to publish an app?**
-- Wahoo! Check out our guide on [Publishing Apps](https://tidbyt.dev/docs/publish/publishing-apps)!
+- Wahoo! Check out our guide on [Publishing Apps][6]!
 
 **Did you find a bug?**
 - Do **not** open up a GitHub issue if the bug is a security vulnerability, and instead to refer to our [security policy](docs/SECURITY.md).
@@ -56,3 +56,4 @@ Rohan, Mats, Mark and Par @ Tidbyt ❤️
 [3]: https://discuss.tidbyt.com/
 [4]: https://github.com/tidbyt/pixlet#hello-world
 [5]: https://github.com/mtimkovich
+[6]: https://tidbyt.dev/docs/publish/publishing-apps
