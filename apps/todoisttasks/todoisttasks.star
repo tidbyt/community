@@ -21,7 +21,6 @@ NO_TASKS_CONTENT = "No Tasks :)"
 TODOIST_URL = "https://api.todoist.com/rest/v2/tasks"
 
 OAUTH2_CLIENT_ID = secret.decrypt("AV6+xWcEd8axMG8V5p1nr2sOHgGsoqY8fQsQH/JrlCCTG0glq+hBYkey9Wb86Z/Ihyzi9ynPMx5CymJSAsjU6gpSEuGr1+/H3FATzw19VeZ+sD9QFTV+sZWt8rDs00KKzGG18CLLsV9ek+u9L4qifun1Qfp7XP2S+NxX6B95C/qL0bgVP88=")
-
 OAUTH2_CLIENT_SECRET = secret.decrypt("AV6+xWcECKJKREuOP2zxW2vKM0jgROWMLwjR0Pyjsq7zIjb1gBqiMOHGArq8E9rxpjbJBeZpRoR5578LOhH1ITVjqR+3pXmsUpVrVIFBkGwWIVR7n9Bd1rh3gcbQZ5ULxq8otPD6k/TGjHbTY93urAYKyYfW67WSykppF2lwPxB9U3ade54=")
 
 def main(config):
