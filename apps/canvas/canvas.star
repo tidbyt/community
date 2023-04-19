@@ -26,7 +26,6 @@ def showEvent(event, timezone):
     due_date = str(time.parse_time(event[0]).in_location(timezone))
 
     # print("due_date: " + str(due_date))
-
     return render.Row(
         cross_align = "center",
         children = [
@@ -83,7 +82,6 @@ def getcourse(domain, api_token):
 
         # Decode Response
         data = json.decode(response.body())
-
         if "Invalid access token." in data:
             return [], "Invalid access token."
 
@@ -118,11 +116,8 @@ def get_cached_assignments(course_id, api_token):
         return [a.split(",") for a in first_split]
     return None
 
-def get_remote_assignments(api_token, course_id):
-    api_url = "https://canvas.instructure.com/api/v1/courses/" + str(
-        course_id,
-    ) + "/assignments?bucket=upcoming&access_token=" + api_token
-    print(api_url)
+def get_remote_assignments(domain, api_token, course_id):
+    api_url = "https://" + domain + ASSIGNMENT_URL % (str(course_id), api_token)
 
     rep = http.get(api_url)
     if rep.status_code != 200:
