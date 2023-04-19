@@ -11,8 +11,22 @@ load("cache.star", "cache")
 load("encoding/json.star", "json")
 load("http.star", "http")
 load("render.star", "render")
+load("schema.star", "schema")
 
-DEFAULT_STOP = 6200248020
+DEFAULT_STOP = 6200201940
+
+def get_schema():
+    return schema.Schema(
+        version = "1",
+        fields = [
+            schema.Text(
+                id = "stop_id",
+                name = "Stop ID",
+                desc = "Enter your preferred Stop ID.",
+                icon = "user",
+            ),
+        ],
+    )
 
 def main(config):
     # Get stop ID from config or use the default stop ID
