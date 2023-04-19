@@ -14,6 +14,7 @@ load("render.star", "render")
 load("schema.star", "schema")
 
 DEFAULT_STOP = 6200201940
+DEFAULT_DISPLAY_DESTINATIONS = False
 
 def get_schema():
     return schema.Schema(
@@ -23,7 +24,14 @@ def get_schema():
                 id = "stop_id",
                 name = "Stop ID",
                 desc = "Enter your preferred Stop ID.",
-                icon = "user",
+                icon = "bus-stop",
+            ),
+            schema.Toggle(
+                id = "display_destinations",
+                name = "Show Bus Destinations",
+                desc = "Show the final destination for each individual arrival for a service.",
+                icon = "flag-checkered",
+                default = False,
             ),
         ],
     )
@@ -31,13 +39,14 @@ def get_schema():
 def main(config):
     # Get stop ID from config or use the default stop ID
     stop_id = config.get("stop_id") or DEFAULT_STOP
+    display_destinations = config.bool("display_destinations") or DEFAULT_DISPLAY_DESTINATIONS
 
     # Fetch bus information using the stop ID
     bus_info = fetch_bus_info(stop_id)
 
     # Get stop text and bus text for display
     stop_text = get_stop_text(bus_info)
-    bus_text = next_buses(bus_info)
+    bus_text = next_buses(bus_info, display_destinations)
 
     font = config.get("font", "tb-8")
 
@@ -130,7 +139,7 @@ def get_stop_text(data):
     # Format and return the stop name and direction as a string
     return data["stop"]["name"] + " " + data["stop"]["direction"]
 
-def next_buses(data):
+def next_buses(data, display_destinations):
     # Initialize an empty list to store the formatted bus information
     lines = []
 
@@ -142,7 +151,15 @@ def next_buses(data):
         next_three_departures = service["departures"]
 
         # Format the minutes until each departure
-        minutes_list = [time_left(int(departure["minutes"])) for departure in next_three_departures]
+        minutes_list = []
+        for departure in next_three_departures:
+            readable_time = time_left(int(departure["minutes"]))
+            if display_destinations:
+                bus_text = "" + departure["destination"] + " " + readable_time
+            else:
+                bus_text = readable_time
+
+            minutes_list.append(bus_text)
 
         line = [service["service_name"], " · ".join(minutes_list)]
 
