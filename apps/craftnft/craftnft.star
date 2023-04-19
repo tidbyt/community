@@ -93,7 +93,7 @@ def fetch_random_nft(address):
     random.seed(time.now().unix)  # // 15)
     key_list = image_dict.keys()
     cur_url = ""
-    for i in range(len(key_list) - 1):
+    for i in range(len(key_list)):
         print(str(i))
         num = random.number(0, len(key_list) - 1)
         print("picking #" + str(num + 1) + " of " + str(len(key_list)))
