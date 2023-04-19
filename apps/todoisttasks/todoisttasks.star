@@ -12,6 +12,7 @@ load("render.star", "render")
 load("schema.star", "schema")
 load("secret.star", "secret")
 
+TTL = 60 * 4
 DEFAULT_FILTER = "today | overdue"
 DEFAULT_SHOW_IF_EMPTY = True
 
@@ -19,8 +20,9 @@ NO_TASKS_CONTENT = "No Tasks :)"
 
 TODOIST_URL = "https://api.todoist.com/rest/v2/tasks"
 
-OAUTH2_CLIENT_ID = secret.decrypt("AV6+xWcEG5BrXN3wI+n720VNsmNaDg0/5C1Kco7JsXnM/5nA42QoGlKlGB58oA0Oqry+aBLoqv+n2p6dtTRH3x3MtOqWPB3l6ZEcKJOdW+EEo9zgnsOvKkhh6Ai92ym4b0XJHNBL1XPftcfaf53EPD+Sy1oc5cHbww9jggQW4s5x8XExKK0=")
-OAUTH2_CLIENT_SECRET = secret.decrypt("AV6+xWcESn7YUvJNCg0lPDK1uOY/7ytU+GZachtfkk9sC4qYEwxJMbo3E2htAbLRLFspWrG4h91FTw9sy5+z6IiZQNkUJ88EpqmYdV+eWiUPTXTgT8GHYasy1mq03k5a245bqkN96NGMnrjVlwEWY4LvCQiKI6pfxdGc3eUWcvmK90QQDFA=")
+OAUTH2_CLIENT_ID = secret.decrypt("AV6+xWcEowjq/yqovtlqLfuvSHY5xCO057Na04ABY489Hi1MjcVQcxrV+455FEoeR6f3WI3DawRlHeJQl/f1NsgpWexiZ1CRrOCd1gqf1hvx/17RdOhZAzeNb2c2OVnqWLNrIfo+/liF/eImHEbiJQs1EocR2c/wFB1de3wD55QYLP8brgs=")
+
+OAUTH2_CLIENT_SECRET = secret.decrypt("AV6+xWcEQXLWUBuB42m8gs345Tj4YiDe0bjo2iodJN8nKMeb5/pKElqnVzPBNiZruPF8NnLKa0K/+D9WvcX8b018nD5JaqCv/TrPVZyyXENsjq9nwWh2ZYKzYc9Y0Dud+PCVUG/wgIwg5N4nwh7fATppNfHHo55TikeKX5vh9nSczeeVIYE=")
 
 def main(config):
     token = config.get("auth") or config.get("dev_api_key")
@@ -98,6 +100,8 @@ def main(config):
                         color = circle_colors[i],
                         child = render.Circle(color = "#332726", diameter = 2),
                     ))
+
+        cache.set(cache_key, content, TTL)
 
         if (content == NO_TASKS_CONTENT and not config.bool("show")):
             # Don't display the app in the user's rotation
