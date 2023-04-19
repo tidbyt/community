@@ -34,9 +34,7 @@ def main(config):
         cache_key = "%s/%s" % (token, filter)
         content = cache.get(cache_key)
         if not content:
-            print("Querying for tasks.")
             rep = http.get(TODOIST_URL, headers = {"Authorization": "Bearer %s" % token}, params = {"filter": filter})
-
             if rep.status_code == 200:
                 tasks = rep.json()
                 sorted_tasks = sorted(tasks, key = lambda task: task["priority"], reverse = True)
@@ -100,7 +98,10 @@ def main(config):
                         child = render.Circle(color = "#332726", diameter = 2),
                     ))
 
-        cache.set(cache_key, content, TTL)
+            cache.set(cache_key, json.encode(content), TTL)
+
+        else:
+            content = json.decode(content)
 
         if (content == NO_TASKS_CONTENT and not config.bool("show")):
             # Don't display the app in the user's rotation
