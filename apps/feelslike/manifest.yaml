@@ -1,0 +1,8 @@
+---
+id: feels-like
+name: Feels Like
+summary: Weather feels like
+desc: Temperature and "feels like" temperature for your current location.
+author: skalum
+fileName: feels_like.star
+packageName: feelslike
