@@ -291,7 +291,7 @@ def get_station_timezone(id):
             cache.set(id, str(tz), ttl_seconds = 86400)
             return tz
         else:
-            cache.set(id, str("unsupported_timezone:%s" % zone), ttl_seconds=86400)
+            cache.set(id, str("unsupported_timezone:%s" % zone), ttl_seconds = 86400)
             return "unsupported_timezone:%s" % zone
 
 def station_not_found(stationId):
