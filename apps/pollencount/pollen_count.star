@@ -12,32 +12,42 @@ load("http.star", "http")
 load("render.star", "render")
 load("schema.star", "schema")
 
-DEFAULT_LOC = {
-    "lat": "40.63",
-    "lng": "-74.02",
-    "locality": "",
+# DEFAULT_LOC = {
+#     "lat": "40.63",
+#     "lng": "-74.02",
+#     "locality": "",
+# }
+DEFAULT_LOCATION = """
+{
+	"lat": "40.6781784",
+	"lng": "-73.9441579",
+	"description": "Brooklyn, NY, USA",
+	"locality": "Brooklyn",
+	"place_id": "ChIJCSF8lBZEwokRhngABHRcdoI",
+	"timezone": "America/New_York"
 }
-
+"""
 COLORS = {
     "yellow": "#D19C21",
     "red": "#B31F0E",
     "green": "#338722",
 }
-
+DEFAULT_TIMEZONE = "America/New_York"
 API_URL_BASE = "https://api.tomorrow.io/v4/timelines?&fields=treeIndex,weedIndex,grassIndex&timesteps=1d&location="
 
 def main(config):
     print("Initializing Pollen Count...")
 
     #Get lat and long from schema.
-    location = config.get("location")
-    loc = json.decode(location) if location else DEFAULT_LOC
+    loc = json.decode(config.get("location", DEFAULT_LOCATION))
+    timezone = loc.get("timezone")  #use to make sure to get the correct day
 
     #Round to 1 decimal place (1.1km)
     lat = roundToHalf(float(loc.get("lat")))
     lng = roundToHalf(float(loc.get("lng")))
+
     latLngStr = str(lat) + "," + str(lng)
-    dev_key = config.get("dev_key", "1234")
+    dev_key = config.str("dev_key", "1234")
 
     #Check cache for pollen for this lat/long
     cache = checkLatLngCache(latLngStr, dev_key)
@@ -48,7 +58,7 @@ def main(config):
         print("Cache miss, calling API")
 
         #If not, make API call and cache result
-        todaysCount = getTodaysCount(latLngStr, dev_key)
+        todaysCount = getTodaysCount(latLngStr, dev_key, timezone)
 
     firstMixin = None
     secondMixin = None
@@ -191,9 +201,9 @@ def roundToHalf(floatNum):
     return num
 
 # Make API call and process data.
-def getTodaysCount(latLng, dev_key):
+def getTodaysCount(latLng, dev_key, timezone):
     print("Getting API for: " + latLng + " for " + str(3600 * 12) + " seconds")
-    FULL_URL = API_URL_BASE + latLng + "&apikey=" + dev_key
+    FULL_URL = API_URL_BASE + latLng + "&apikey=" + dev_key + "&timezone=" + timezone
     rep = http.get(FULL_URL)
     data = rep.json()
 
