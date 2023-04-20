@@ -1,7 +1,7 @@
 """
 Applet: Nightscout
 Summary: Shows Nightscout CGM Data
-Description: Displays Continuous Glucose Monitoring (CGM) blood sugar data from the Nightscout Open Source project (https://nightscout.github.io/). Will display blood sugar as mg/dL or mmol/L. Optionally display historical readings on a graph. Also a clock. (v2.3.0).
+Description: Displays Continuous Glucose Monitoring (CGM) blood sugar data from the Nightscout Open Source project (https://nightscout.github.io/). Will display blood sugar as mg/dL or mmol/L. Optionally display historical readings on a graph. Also a clock. (v2.3.1).
 Authors: Jeremy Tavener, Paul Murphy
 """
 
@@ -54,6 +54,7 @@ DEFAULT_LOCATION = """
 DEFAULT_NSID = ""
 DEFAULT_NSHOST = ""
 DEFAULT_NSURL = ""
+DEFAULT_NSTOKEN = ""
 
 def main(config):
     UTC_TIME_NOW = time.now().in_location("UTC")
@@ -66,6 +67,7 @@ def main(config):
     nightscout_id = config.get("nightscout_id", DEFAULT_NSID)
     nightscout_host = config.get("nightscout_host", DEFAULT_NSHOST)
     nightscout_url = config.get("nightscout_url", DEFAULT_NSURL)
+    nightscout_token = config.get("nightscout_token", DEFAULT_NSTOKEN)
     show_mgdl = config.bool("show_mgdl", DEFAULT_SHOW_MGDL)
 
     show_graph = config.bool("show_graph", DEFAULT_SHOW_GRAPH)
@@ -81,7 +83,7 @@ def main(config):
     print(nightscout_url)
 
     if nightscout_url != "":
-        nightscout_data_json, status_code = get_nightscout_data(nightscout_url, show_mgdl)
+        nightscout_data_json, status_code = get_nightscout_data(nightscout_url, nightscout_token, show_mgdl)
         sample_data = False
     else:
         nightscout_data_json, status_code = {
@@ -750,6 +752,12 @@ def get_schema():
                 desc = "Your Nightscout URL (i.e. https://yournightscoutID.heroku.com)",
                 icon = "link",
             ),
+            schema.Text(
+                id = "nightscout_token",
+                name = "Nightscout Token",
+                desc = "Token for Nightscout Subject with 'readable' Role (optional)",
+                icon = "key",
+            ),
             schema.Toggle(
                 id = "show_mgdl",
                 name = "Display mg/dL",
@@ -802,12 +810,14 @@ def get_schema():
 
 # This method returns a tuple of a nightscout_data and a status_code. If it's
 # served from cache, we return a status_code of 0.
-def get_nightscout_data(nightscout_url, show_mgdl):
-    nightscout_url = nightscout_url.replace("https:", "")
-    nightscout_url = nightscout_url.replace("http:", "")
-    nightscout_url = nightscout_url.replace("/", "")
+def get_nightscout_data(nightscout_url, nightscout_token, show_mgdl):
+    nightscout_url = nightscout_url.replace("https://", "")
+    nightscout_url = nightscout_url.replace("http://", "")
+    nightscout_url = nightscout_url.split("/")[0]
     oldest_reading = str((time.now() - time.parse_duration("240m")).unix)
     json_url = "https://" + nightscout_url + "/api/v1/entries.json?count=1000&find[date][$gte]=" + oldest_reading
+    if nightscout_token != "":
+        json_url = json_url + "&token=" + nightscout_token
 
     print(json_url)
 
