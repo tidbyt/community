@@ -10,6 +10,11 @@ ESPN sometimes shows completed matches as stil being "In Progress" well after th
 v1.1
 Used "post" state for completed matches, this will capture both Final and Retired
 Added handling for when no tournaments are on
+
+v1.2
+Show city name instead of official tournament title once the tournament starts, except for Slams
+Added handling for walkovers
+Extended player surname field by 2 chars
 """
 
 load("cache.star", "cache")
@@ -22,6 +27,7 @@ load("schema.star", "schema")
 load("time.star", "time")
 
 DEFAULT_TIMEZONE = "Australia/Adelaide"
+SLAM_LIST = ["154-2023", "188-2023", "172-2023", "189-2023"]
 
 def main(config):
     timezone = config.get("$tz", DEFAULT_TIMEZONE)
@@ -38,7 +44,7 @@ def main(config):
     CompletedMatchList = []
     InProgress = 0
 
-    TestID = "713-2023"
+    TestID = "254-2023"
     SelectedTourneyID = config.get("TournamentList", TestID)
     ShowCompleted = config.get("CompletedOn", "true")
     Number_Events = len(WTA_JSON["events"])
@@ -153,10 +159,23 @@ def getLiveScores(SelectedTourneyID, EventIndex, InProgressMatchList, JSON):
     displayfont = "CG-pixel-3x5-mono"
     LoopMax = 0
 
-    TourneyName = JSON["events"][EventIndex]["name"]
-    TitleBarColor = titleBar(SelectedTourneyID)
+    # If its not a slam...
+    # Get the city of the tournament, everything up to the comma (format is City, Country)
+    # This is usually how the tournaments are referred to, so use this in the title bar
+    # if tournament hasn't started yet (using our 10 field test), the city information cannot be gathered so we'll default to the official title
+    if SelectedTourneyID not in SLAM_LIST:
+        if len(JSON["events"][EventIndex]) == 10:
+            TourneyLocation = JSON["events"][EventIndex]["competitions"][0]["venue"]["address"]["summary"]
+            CommaIndex = TourneyLocation.index(",")
+            TourneyCity = TourneyLocation[:CommaIndex]
+        else:
+            TourneyCity = JSON["events"][EventIndex]["name"]
+    else:
+        # It is a slam so use the tournament name
+        TourneyCity = JSON["events"][EventIndex]["name"]
 
-    Title = [render.Box(width = 64, height = 5, color = TitleBarColor, child = render.Text(content = TourneyName[:16], color = "#FFF", font = "CG-pixel-3x5-mono"))]
+    TitleBarColor = titleBar(SelectedTourneyID)
+    Title = [render.Box(width = 64, height = 5, color = TitleBarColor, child = render.Text(content = TourneyCity, color = "#FFF", font = "CG-pixel-3x5-mono"))]
     Display.extend(Title)
 
     for y in range(0, len(InProgressMatchList), 1):
@@ -200,7 +219,7 @@ def getLiveScores(SelectedTourneyID, EventIndex, InProgressMatchList, JSON):
                                 render.Padding(
                                     pad = (1, 1, 0, 0),
                                     child = render.Text(
-                                        content = Player1_Name[3:13],
+                                        content = Player1_Name[3:15],
                                         color = Player1Color,
                                         font = displayfont,
                                     ),
@@ -233,7 +252,7 @@ def getLiveScores(SelectedTourneyID, EventIndex, InProgressMatchList, JSON):
                                 render.Padding(
                                     pad = (1, 1, 0, 0),
                                     child = render.Text(
-                                        content = Player2_Name[3:13],
+                                        content = Player2_Name[3:15],
                                         color = Player2Color,
                                         font = displayfont,
                                     ),
@@ -306,9 +325,23 @@ def getCompletedMatches(SelectedTourneyID, EventIndex, CompletedMatchList, JSON)
     LoopMax = 0
     Completed = len(CompletedMatchList)
 
-    TourneyName = JSON["events"][EventIndex]["name"]
+    # If its not a slam...
+    # Get the city of the tournament, everything up to the comma (format is City, Country)
+    # This is usually how the tournaments are referred to, so use this in the title bar
+    # if tournament hasn't started yet (using our 10 field test), the city information cannot be gathered so we'll default to the official title
+    if SelectedTourneyID not in SLAM_LIST:
+        if len(JSON["events"][EventIndex]) == 10:
+            TourneyLocation = JSON["events"][EventIndex]["competitions"][0]["venue"]["address"]["summary"]
+            CommaIndex = TourneyLocation.index(",")
+            TourneyCity = TourneyLocation[:CommaIndex]
+        else:
+            TourneyCity = JSON["events"][EventIndex]["name"]
+    else:
+        # Use proper event name for slam
+        TourneyCity = JSON["events"][EventIndex]["name"]
+
     TitleBarColor = titleBar(SelectedTourneyID)
-    Title = [render.Box(width = 64, height = 5, color = TitleBarColor, child = render.Text(content = TourneyName[:16], color = "#FFF", font = "CG-pixel-3x5-mono"))]
+    Title = [render.Box(width = 64, height = 5, color = TitleBarColor, child = render.Text(content = TourneyCity, color = "#FFF", font = "CG-pixel-3x5-mono"))]
     Display.extend(Title)
 
     # loop through the list of completed matches
@@ -332,17 +365,6 @@ def getCompletedMatches(SelectedTourneyID, EventIndex, CompletedMatchList, JSON)
             Player1_Name = JSON["events"][EventIndex]["competitions"][x]["competitors"][0]["athlete"]["shortName"]
             Player2_Name = JSON["events"][EventIndex]["competitions"][x]["competitors"][1]["athlete"]["shortName"]
 
-            Number_Sets = len(JSON["events"][EventIndex]["competitions"][x]["competitors"][0]["linescores"])
-            Player1_Sets = ""
-            Player2_Sets = ""
-
-            for z in range(0, Number_Sets, 1):
-                Player1SetScore = humanize.ftoa(JSON["events"][EventIndex]["competitions"][x]["competitors"][0]["linescores"][z]["value"])
-                Player2SetScore = humanize.ftoa(JSON["events"][EventIndex]["competitions"][x]["competitors"][1]["linescores"][z]["value"])
-
-                Player1_Sets = Player1_Sets + Player1SetScore
-                Player2_Sets = Player2_Sets + Player2SetScore
-
             # display the match winner in yellow, however sometimes both are false even when the match is completed
             Player1_Winner = JSON["events"][EventIndex]["competitions"][x]["competitors"][0]["winner"]
             Player2_Winner = JSON["events"][EventIndex]["competitions"][x]["competitors"][1]["winner"]
@@ -352,7 +374,28 @@ def getCompletedMatches(SelectedTourneyID, EventIndex, CompletedMatchList, JSON)
             elif (Player2_Winner):
                 Player2Color = "#ff0"
 
-            # else , compare scores
+            Player1_Sets = ""
+            Player2_Sets = ""
+
+            # if its not a walkover
+            if JSON["events"][EventIndex]["competitions"][x]["status"]["type"]["description"] != "Walkover":
+                Number_Sets = len(JSON["events"][EventIndex]["competitions"][x]["competitors"][0]["linescores"])
+
+                for z in range(0, Number_Sets, 1):
+                    Player1SetScore = humanize.ftoa(JSON["events"][EventIndex]["competitions"][x]["competitors"][0]["linescores"][z]["value"])
+                    Player2SetScore = humanize.ftoa(JSON["events"][EventIndex]["competitions"][x]["competitors"][1]["linescores"][z]["value"])
+
+                    Player1_Sets = Player1_Sets + Player1SetScore
+                    Player2_Sets = Player2_Sets + Player2SetScore
+
+            else:
+                # it is a walkover, indicate that in the set score field
+                if (Player1_Winner):
+                    Player1_Sets = "WO"
+                    Player2_Sets = ""
+                elif (Player2_Winner):
+                    Player1_Sets = ""
+                    Player2_Sets = "WO"
 
             # Render the names and set scores, with a spacer in between matches
             Scores = [
@@ -367,7 +410,7 @@ def getCompletedMatches(SelectedTourneyID, EventIndex, CompletedMatchList, JSON)
                                 render.Padding(
                                     pad = (1, 1, 0, 0),
                                     child = render.Text(
-                                        content = Player1_Name[3:13],
+                                        content = Player1_Name[3:15],
                                         color = Player1Color,
                                         font = displayfont,
                                     ),
@@ -400,7 +443,7 @@ def getCompletedMatches(SelectedTourneyID, EventIndex, CompletedMatchList, JSON)
                                 render.Padding(
                                     pad = (1, 1, 0, 0),
                                     child = render.Text(
-                                        content = Player2_Name[3:13],
+                                        content = Player2_Name[3:15],
                                         color = Player2Color,
                                         font = displayfont,
                                     ),
