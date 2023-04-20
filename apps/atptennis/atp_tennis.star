@@ -44,7 +44,7 @@ def main(config):
     CompletedMatchList = []
     InProgress = 0
 
-    TestID = "713-2023"
+    TestID = "338-2023"
     SelectedTourneyID = config.get("TournamentList", TestID)
     ShowCompleted = config.get("CompletedOn", "true")
     Number_Events = len(ATP_JSON["events"])
@@ -200,7 +200,7 @@ def getLiveScores(SelectedTourneyID, EventIndex, InProgressMatchList, JSON):
 
             Player1_Name = JSON["events"][EventIndex]["competitions"][x]["competitors"][0]["athlete"]["shortName"]
             Player2_Name = JSON["events"][EventIndex]["competitions"][x]["competitors"][1]["athlete"]["shortName"]
-
+            # print(Player1_Name)
             Number_Sets = len(JSON["events"][EventIndex]["competitions"][x]["competitors"][0]["linescores"])
             Player1_Sets = ""
             Player2_Sets = ""
