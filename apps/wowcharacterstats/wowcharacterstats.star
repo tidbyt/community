@@ -74,9 +74,9 @@ def main(config):
     ) or config.get(
         "client_secret",
     )
-    character_name = config.get("character").lower() or DEFAULT_CHARACTER
-    realm_name = config.get("realm").replace(" ", "-").lower() or DEFAULT_REALM
-    region = config.get("region") or DEFAULT_REGION
+    character_name = config.get("character", DEFAULT_CHARACTER).lower()
+    realm_name = config.get("realm", DEFAULT_REALM).replace(" ", "-").lower()
+    region = config.get("region", DEFAULT_REGION)
     character_cache_key = "%s-%s-%s" % (character_name, realm_name, region)
 
     blizzard_auth_url = "https://oauth.battle.net/token?grant_type=client_credentials"
