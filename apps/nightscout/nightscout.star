@@ -817,8 +817,8 @@ def get_nightscout_data(nightscout_url, nightscout_token, show_mgdl):
     oldest_reading = str((time.now() - time.parse_duration("240m")).unix)
     json_url = "https://" + nightscout_url + "/api/v1/entries.json?count=1000&find[date][$gte]=" + oldest_reading
     if nightscout_token != "":
-            json_url = json_url + "&token=" + nightscout_token
-            
+        json_url = json_url + "&token=" + nightscout_token
+
     print(json_url)
 
     key = nightscout_url + "_nightscout_data"
