@@ -17,8 +17,8 @@ load("xpath.star", "xpath")
 #TIDBYT_OAUTH_CALLBACK_URL = "https%3A%2F%2Flocalhost%2Foauth-callback"  # registered https://localhost/oauth-callback as redirect_uri at Yahoo
 TIDBYT_OAUTH_CALLBACK_URL = "https%3A%2F%2Fappauth.tidbyt.com%2Fyahoofantasynfl"
 
-YAHOO_CLIENT_ID = secret.decrypt("AV6+xWcEYFqiuL0ikmBqRskRbczq0U9oQlXXeeF5sQxNVAeVbkVgpV8dRGt2/idNEmnbcoSwSK5w/EeRf0tDpMH2//7c98Gwr4REc1P2wsdXLfmkxAu+2NujiMKrAc8uPq2DaxKKOg+up9XXEXJzFch2dSLXeCA0M4VPNnfiPQPljTXlLRkeP9u+IOalmw==")
-YAHOO_CLIENT_SECRET = secret.decrypt("AV6+xWcEImWJue0AdaZn2Vv6NpO6eDNO46/s99T+iff9gdGx4Jp7+BVTEaPgA4BD5oNd2qc1DVhrmL+X7ndO2YS18LnkEYDYQMKthvJMBT5Dln5zq8dG9j7XyV55pHV7ZGUdCM5odPNqXLAwjcM1MUn+GNN6sd3DBJPFtTIfwn7t9UFxTa4R8/WJc47DaHglR0Q9XZYiB0VQnlgo112HUkzLpquTFqpOc/cH62O/UZAeGNKRkAZc1XJ1fyhsGRoJG6fD5Uw8")
+YAHOO_CLIENT_ID = secret.decrypt("AV6+xWcEYFqiuL0ikmBqRskRbczq0U9oQlXXeeF5sQxNVAeVbkVgpV8dRGt2/idNEmnbcoSwSK5w/EeRf0tDpMH2//7c98Gwr4REc1P2wsdXLfmkxAu+2NujiMKrAc8uPq2DaxKKOg+up9XXEXJzFch2dSLXeCA0M4VPNnfiPQPljTXlLRkeP9u+IOalmw==") or ""
+YAHOO_CLIENT_SECRET = secret.decrypt("AV6+xWcEImWJue0AdaZn2Vv6NpO6eDNO46/s99T+iff9gdGx4Jp7+BVTEaPgA4BD5oNd2qc1DVhrmL+X7ndO2YS18LnkEYDYQMKthvJMBT5Dln5zq8dG9j7XyV55pHV7ZGUdCM5odPNqXLAwjcM1MUn+GNN6sd3DBJPFtTIfwn7t9UFxTa4R8/WJc47DaHglR0Q9XZYiB0VQnlgo112HUkzLpquTFqpOc/cH62O/UZAeGNKRkAZc1XJ1fyhsGRoJG6fD5Uw8") or ""
 YAHOO_CLIENT_ID_AND_SECRET_BASE_64 = base64.encode(YAHOO_CLIENT_ID + ":" + YAHOO_CLIENT_SECRET)
 YAHOO_OAUTH_AUTHORIZATION_URL = "https://api.login.yahoo.com/oauth2/request_auth"
 YAHOO_OAUTH_TOKEN_URL = "https://api.login.yahoo.com/oauth2/get_token"
