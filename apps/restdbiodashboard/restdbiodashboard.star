@@ -14,6 +14,9 @@ load("schema.star", "schema")
 
 TTL_ICONS = 216000
 
+DEMO_PAGE = '[{"text":"create","colortext":"#FFFFFF","subtext":"","colorsubtext":"#FFFFFF","icon":"new","order":0,"name":"create"},{"text":"restdb.io","colortext":"#777777","subtext":"","colorsubtext":"#000000","icon":"restdb","order":1,"name":"restdb"},{"text":"database","colortext":"#FFFFFF","subtext":"","colorsubtext":"#FFFFFF","icon":"new","order":2,"name":"database"}]'
+DEMO_ICONS = '[{"name":"new","data":"iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAABHNCSVQICAgIfAhkiAAAAAlwSFlzAAAAdgAAAHYBTnsmCAAAABl0RVh0U29mdHdhcmUAd3d3Lmlua3NjYXBlLm9yZ5vuPBoAAAFjSURBVDiNnVM9SEJhFD33+55PHQtxyASpIAqCoLChuaW1wam1qaW1HByEcHEwS4IgCApaKtzcoyFMs9B6GDRIQ0OLmf/P25BJ6nugnfF895x77r18QBuchAX/gAAAzkKFoCvOwzq0ASdhQY0uwbSKIsU5C3XoGJyHle8owTewD1Jf1A4d/SYGnVkLunq5ciYyXslFc1/Pe2MAQKapHnZHdFVPywYt0dzO+0+TgFqD44wJawCd28rKuqEBZwOjulQOAPhAdCFbtEEz2x8AwMxUe9oP22Y3twwTsBZ06YxrAJ4/dEEqWKYpf6G3XvQSNO1/k1J4QXTRZuJSaS4aiQfYQfNeNoT3dwdDg1+C7uEEhbC9+hiZNH03OHVnB/x6bKuU1BBLcfSZiTn7xGl4UBUnzN1jdwzq9ZKHGAsAJixqa75LnIETukgA8CElQqYjlLWYq5qLrhjGv4WbU+LUVDwIjL78N865hh+f5MFWAAAAAElFTkSuQmCC"},{"name":"restdb","data":"iVBORw0KGgoAAAANSUhEUgAAABAAAAAPCAYAAADtc08vAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAAC7SURBVDhP3ZMxCgIxEEVfwordFjZews4j6FVcbDyD11gs7GzsbLyEjeAFrG0srMSQcZTZYt2NWooPAjND+IH5P44EUtAR2CKMnKNxT4Sg0zIpEKcMXORgbSv6QPBWN3CBzMok+nqWFPiWfxYQT25lErXy9rRR5i9CR3LpslKfxrrqq03rVDmIBRtthjau6Gl41hKY+SUXm7Xi4oTYmjRP35ecrE2S3IGm8GzlW37Dxt3jZ9UO7Fnolj8Cd0fQOm4xx0POAAAAAElFTkSuQmCC"}]'
+
 def render_fail(rep):
     return render.Root(render.Box(render.WrappedText("%s" % rep.status_code), color = "#AA0000"))
 
@@ -49,54 +52,69 @@ def get_row(text, subtext, coltext, colsubtext, icon):
 def main(config):
     icons = dict()
 
-    db_name = config.get("db_name")
+    db_name = config.str("db_name")
+    vertical_layout = config.bool("vertical")
+    api_key = config.str("api_key")
+    offline_page = config.str("offline_page")
+    offline_icons = config.str("offline_icons")
+
+    use_offline_data = False
 
     if not db_name:
-        return []
+        use_offline_data = True
+        db_name = "offline"
+        vertical_layout = True
+        print("using offline data")
+        if not offline_page:
+            offline_page = DEMO_PAGE
+            offline_icons = DEMO_ICONS
 
-    db_name = "%s" % db_name
-    api_key = "%s" % config.get("api_key")
-
-    if config.bool("reset_icon_cache"):
+    if config.bool("reset_icon_cache") and not use_offline_data:
         return reset_icon_cache(db_name, api_key)
 
-    rep = http.get(
-        "https://{}.restdb.io/rest/home?max=3&q={{%22visible%22:true}}&sort=order".format(db_name),
-        headers = {
-            "Accept": "application/json",
-            "x-apikey": api_key,
-        },
-    )
+    if not use_offline_data:
+        rep = http.get(
+            "https://{}.restdb.io/rest/home?max=3&q={{%22visible%22:true}}&sort=order".format(db_name),
+            headers = {
+                "Accept": "application/json",
+                "x-apikey": api_key,
+            },
+        )
 
-    if rep.status_code != 200:
-        print(rep.body())
-        return render_fail(rep)
+        if rep.status_code != 200:
+            print(rep.body())
+            return render_fail(rep)
 
-    items = json.decode(rep.body())
+        items = json.decode(rep.body())
+    else:
+        items = json.decode(offline_page)
+        for icon in json.decode(offline_icons):
+            icons.update([(icon["name"], icon["data"])])
 
-    icons_to_load = list()
+    if not use_offline_data:
+        icons_to_load = list()
 
-    for item in items:
-        icon_cache_key = "{}-icon-{}".format(db_name, item["icon"])
-        icon = cache.get(icon_cache_key)
-        if not icon:
-            icons_to_load.insert(-1, item["icon"])
-        else:
-            icons.update([(item["icon"], icon)])
+        for item in items:
+            icon_cache_key = "{}-icon-{}".format(db_name, item["icon"])
+            icon = cache.get(icon_cache_key)
+            if not icon:
+                icons_to_load.insert(-1, item["icon"])
+            else:
+                icons.update([(item["icon"], icon)])
 
-    if len(icons_to_load) > 0:
-        fail = load_icons(icons_to_load, icons, db_name, api_key)
-        if fail:
-            return fail
+        if len(icons_to_load) > 0:
+            fail = load_icons(icons_to_load, icons, db_name, api_key)
+            if fail:
+                return fail
 
-    for name in icons:
-        icon_cache_key = "{}-icon-{}".format(db_name, name)
-        cache.set(icon_cache_key, icons[name], ttl_seconds = TTL_ICONS)
+        for name in icons:
+            icon_cache_key = "{}-icon-{}".format(db_name, name)
+            cache.set(icon_cache_key, icons[name], ttl_seconds = TTL_ICONS)
 
     if len(items) == 0:
         return []
 
-    if config.bool("vertical"):
+    if vertical_layout:
         rows = list()
         for item in items:
             rows.append(get_row(item["text"], item["subtext"], item["colortext"], item["colorsubtext"], base64.decode(icons.get(item["icon"]))))
@@ -195,6 +213,18 @@ def get_schema():
                 desc = "If the script fails due to a badly encoded icon or you change want to change an image, use this to clear the cache",
                 icon = "trash",
                 default = False,
+            ),
+            schema.Text(
+                id = "offline_page",
+                name = "JSON data offline",
+                desc = "JSON data for offline usage",
+                icon = "table",
+            ),
+            schema.Text(
+                id = "offline_icons",
+                name = "JSON icons offline",
+                desc = "JSON icons data for offline usage",
+                icon = "table",
             ),
         ],
     )
