@@ -16,7 +16,7 @@ load("render.star", "render")
 load("schema.star", "schema")
 load("time.star", "time")
 
-VERSION = 23088
+VERSION = 23111
 
 CACHE_TTL_SECONDS = 60
 
@@ -178,8 +178,11 @@ def main(config):
                 gameName = competition["status"]["type"]["name"]
 
                 if gameName == "STATUS_POSTPONED":
-                    homeScore = ""
-                    awayScore = ""
+                    scoreFont = "CG-pixel-3x5-mono"
+
+                    #if game is PPD - show records instead of blanks
+                    homeScore = competition["competitors"][0]["records"][0]["summary"]
+                    awayScore = competition["competitors"][1]["records"][0]["summary"]
                     gameTime = "Postponed"
                 else:
                     homeScore = competition["competitors"][0]["score"]["displayValue"]
