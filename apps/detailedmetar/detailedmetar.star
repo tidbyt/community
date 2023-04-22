@@ -12,37 +12,59 @@ load("render.star", "render")
 load("schema.star", "schema")
 load("time.star", "time")
 
-DEFAULT_AIRPORT = "KBOS"
+DEFAULT_AIRPORT = "KORL"
 
 def main(config):
+    # Define schema options from the user.
     airport = config.str("airport", DEFAULT_AIRPORT)
     f_selector = config.bool("fahrenheit_temperatures", False)
+    displayFailStatus = False
+    failReason = None
 
+    # API URL
     apiURL = "https://www.aviationweather.gov/adds/dataserver_current/httpparam?dataSource=metars&requestType=retrieve&format=csv&mostrecentforeachstation=constraint&hoursBeforeNow=2&stationString=%s"
 
+    # Store cahces by airport. That way if two users are pulling the same airport's METAR it is only fetched once.
     cacheName = "metar/" + airport
 
+    # Define cached data; if available.
     metarData_cached = cache.get(cacheName)
 
+    # Check if cache has data.
     if metarData_cached != None:
+        # If it does, set the "metarData" to be the cached data.
         metarData = metarData_cached
         print("Found cached data! Not calling NOAA API / " + cacheName)
+
     else:
+        # If it does not, pull new data.
         print("No cached data; calling NOAA API / " + cacheName)
         rep = http.get(apiURL % airport)
 
         if rep.status_code != 200:
-            fail("FA API failed with status %d", rep.status_code)
+            displayFailStatus = True
+            failReason = "API error"
 
+        # Set "metarData" to be body of response.
         metarData = rep.body()
+
+        # Set cache to be alive for 120 seconds.
         cache.set(cacheName, metarData, ttl_seconds = 120)
 
+    # Split into individual lines for parsing.
     lines = metarData.strip().split("\n")
 
     itemLine = None
     infoLine = None
 
+    # If line 4 of the result is not "1 results" display the error message.
     if lines[4] != "1 results":
+        displayFailStatus = True
+        failReason = "lines[4] != 1 results"
+
+    # If the result returns more than one result; display an error message.
+    if displayFailStatus == True:
+        print("Fail status detected: " + failReason)
         return render.Root(
             child = render.Row(
                 children = [
@@ -127,8 +149,10 @@ def main(config):
         elif line.startswith(airport + " "):
             infoLine = line
 
+    # Setup array
     decodedMetar = {}
 
+    # Create count for when parsing sky conditions on multiple levels.
     skyCoverCount = "0"
     cloudBaseCount = "0"
 
@@ -148,10 +172,13 @@ def main(config):
 
         decodedMetar[label] = value
 
-    decodedObservationMetar = decodedMetar["observation_time"]
-
+    # Add line to array with the number of cloud layers present.
     decodedMetar["layerCount"] = int(skyCoverCount) - 1
 
+    # Get observation time.
+    decodedObservationMetar = decodedMetar["observation_time"]
+
+    # Convert time to time object by parsing values from observation_time
     year = int(decodedObservationMetar[0:4])
     month = int(decodedObservationMetar[5:7])
     day = int(decodedObservationMetar[8:10])
@@ -161,8 +188,10 @@ def main(config):
 
     observationDate = time.time(year = year, month = month, day = day, hour = hour, minute = minute, second = second, location = "Etc/UTC")
 
+    # Create "humanized" readout. Ex; "5 minutes ago"
     humanizedTime = humanize.time(observationDate)
 
+    # Primary display
     return render.Root(
         child = render.Row(
             children = [
@@ -190,11 +219,6 @@ def main(config):
                                             cross_align = "center",
                                             children = [
                                                 render.Text(getStationID(decodedMetar), color = getTextColor(decodedMetar), font = "5x8"),
-                                                #render.Text(getFlightCategory(decodedMetar), color = getTextColor(decodedMetar), font = "CG-pixel-3x5-mono"),
-                                                #render.Marquee(
-                                                #    width = 21,
-                                                #    child = render.Text(humanizedTime, color = "#8CADA7", font = "CG-pixel-3x5-mono"),
-                                                #),
                                             ],
                                         ),
                                         width = 22,
@@ -218,15 +242,6 @@ def main(config):
                                             color = getTextColor(decodedMetar),
                                             diameter = 12,
                                         ),
-                                        #child = render.PieChart(
-                                        #    colors = getWindDiagram(decodedMetar),
-                                        #    weights = [10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, #10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10],
-                                        #    diameter = 13,
-                                        #),
-                                        #child = render.Image(
-                                        #    src=image(),
-                                        #    rotation=45
-                                        #)
                                     ),
                                     render.Box(
                                         child = render.Column(
@@ -245,7 +260,9 @@ def main(config):
                                             main_align = "space_evenly",
                                             cross_align = "center",
                                             children = [
-                                                render.Text(getTempDP(decodedMetar, f_selector), color = getTextColor(decodedMetar), font = "CG-pixel-3x5-mono"),
+                                                # Temperature / dew point readout
+                                                getTempDP(decodedMetar, f_selector),
+                                                # Time of observation readout.
                                                 render.Marquee(
                                                     width = 21,
                                                     child = render.Text(humanizedTime, color = "#8CADA7", font = "CG-pixel-3x5-mono"),
@@ -276,12 +293,14 @@ def main(config):
                                             main_align = "space_evenly",
                                             cross_align = "center",
                                             children = [
+                                                # Current wind speed.
                                                 render.Box(
-                                                    child = render.Text(getWindSpeed(decodedMetar), color = getSecondaryTextColor(decodedMetar), font = "CG-pixel-3x5-mono"),
+                                                    child = getWindSpeed(decodedMetar),
                                                     height = 5,
                                                 ),
+                                                # Current wind direction.
                                                 render.Box(
-                                                    child = render.Text(getWindDirection(decodedMetar), color = getSecondaryTextColor(decodedMetar), font = "CG-pixel-3x5-mono"),
+                                                    child = getWindDirection(decodedMetar),
                                                     height = 5,
                                                 ),
                                             ],
@@ -295,6 +314,7 @@ def main(config):
                                             main_align = "space_evenly",
                                             cross_align = "center",
                                             children = [
+                                                # Present cloud cover layer animation.
                                                 render.Box(
                                                     child =
                                                         render.Animation(
@@ -302,6 +322,7 @@ def main(config):
                                                         ),
                                                     height = 5,
                                                 ),
+                                                # Present ceiling animation.
                                                 render.Box(
                                                     child =
                                                         render.Animation(
@@ -316,6 +337,7 @@ def main(config):
                                     ),
                                 ],
                             ),
+                            # Bottom line changes color based upon status.
                             render.Row(
                                 children = [
                                     render.Box(height = 1, width = 64, color = getTextColor(decodedMetar)),
@@ -348,28 +370,40 @@ def get_schema():
         ],
     )
 
+# Station ID; returns "KMCO", "KBOS", etc
 def getStationID(decodedMetar):
     stationID = decodedMetar["station_id"]
     return stationID
 
+# Returns temperature in celsius.
 def getTemperature(decodedMetar):
     result = decodedMetar["temp_c"]
     return result
 
+# Returns dew point in celsius.
 def getDewpoint(decodedMetar):
     result = decodedMetar["dewpoint_c"]
     return result
 
+# Returns temperature / dewpoint display.
 def getTempDP(decodedMetar, f_selector):
     temperature = getTemperature(decodedMetar)
     dewPoint = getDewpoint(decodedMetar)
-
-    #temperature = temperature[0:2]
-    #dewPoint = dewPoint[0:2]
+    resultTextColor = getSecondaryTextColor(decodedMetar)
 
     temperature = int(float(temperature))
     dewPoint = int(float(dewPoint))
 
+    # Determine dew point spread.
+    temperature_h = temperature + 4
+    temperature_l = temperature - 4
+
+    # If dewpoint spread is +- 4 / display text orange.
+    if (dewPoint >= temperature_l):
+        if (temperature_h >= dewPoint):
+            resultTextColor = "#f0a13a"
+
+    # If the user wants readouts in fahrenheit.
     if (f_selector == True):
         temperature = (temperature * 9 / 5) + 32
         dewPoint = (dewPoint * 9 / 5) + 32
@@ -377,22 +411,11 @@ def getTempDP(decodedMetar, f_selector):
         temperature = int(float(temperature))
         dewPoint = int(float(dewPoint))
 
-    result = str(temperature) + "/" + str(dewPoint)
+    result = render.Text(str(temperature) + "/" + str(dewPoint), color = resultTextColor, font = "CG-pixel-3x5-mono")
 
     return result
 
-def getSkyCover(decodedMetar):
-    skyCover = decodedMetar["sky_cover0"]
-    return skyCover
-
-def getCloudBaseLevel(decodedMetar):
-    if (decodedMetar["cloud_base_ft_agl0"] == ""):
-        baseLevel = ""
-    else:
-        baseLevel = decodedMetar["cloud_base_ft_agl0"] + "ft"
-
-    return baseLevel
-
+# Returns the cloud cover animation for the type designated. "Cover" or "levels".
 def getCloudCover(decodedMetar, type):
     # This function returns the animation for the cloud layers.
 
@@ -432,19 +455,19 @@ def getCloudCover(decodedMetar, type):
             layerCount = layerCount + 1
 
     if (type == "cover"):
-        layerZero = render.Text(decodedMetar["sky_cover0"], color = getSecondaryTextColor(decodedMetar), font = "CG-pixel-3x5-mono")
-        layerOne = render.Text(decodedMetar["sky_cover1"], color = getSecondaryTextColor(decodedMetar), font = "CG-pixel-3x5-mono")
-        layerTwo = render.Text(decodedMetar["sky_cover2"], color = getSecondaryTextColor(decodedMetar), font = "CG-pixel-3x5-mono")
-        layerThr = render.Text(decodedMetar["sky_cover3"], color = getSecondaryTextColor(decodedMetar), font = "CG-pixel-3x5-mono")
+        layerZero = render.Text(decodedMetar["sky_cover0"], color = getCloudCeiling_textColor(decodedMetar["cloud_base_ft_agl0"]), font = "CG-pixel-3x5-mono")
+        layerOne = render.Text(decodedMetar["sky_cover1"], color = getCloudCeiling_textColor(decodedMetar["cloud_base_ft_agl1"]), font = "CG-pixel-3x5-mono")
+        layerTwo = render.Text(decodedMetar["sky_cover2"], color = getCloudCeiling_textColor(decodedMetar["cloud_base_ft_agl2"]), font = "CG-pixel-3x5-mono")
+        layerThr = render.Text(decodedMetar["sky_cover3"], color = getCloudCeiling_textColor(decodedMetar["cloud_base_ft_agl3"]), font = "CG-pixel-3x5-mono")
 
         if (decodedMetar["sky_cover0"] == "CLR"):
             layerZero = render.Text("Clear", color = getSecondaryTextColor(decodedMetar), font = "CG-pixel-3x5-mono")
 
     if (type == "levels"):
-        layerZero = render.Text(decodedMetar["cloud_base_ft_agl0"] + "'", color = getSecondaryTextColor(decodedMetar), font = "CG-pixel-3x5-mono")
-        layerOne = render.Text(decodedMetar["cloud_base_ft_agl1"] + "'", color = getSecondaryTextColor(decodedMetar), font = "CG-pixel-3x5-mono")
-        layerTwo = render.Text(decodedMetar["cloud_base_ft_agl2"] + "'", color = getSecondaryTextColor(decodedMetar), font = "CG-pixel-3x5-mono")
-        layerThr = render.Text(decodedMetar["cloud_base_ft_agl3"] + "'", color = getSecondaryTextColor(decodedMetar), font = "CG-pixel-3x5-mono")
+        layerZero = render.Text(decodedMetar["cloud_base_ft_agl0"] + "'", color = getCloudCeiling_textColor(decodedMetar["cloud_base_ft_agl0"]), font = "CG-pixel-3x5-mono")
+        layerOne = render.Text(decodedMetar["cloud_base_ft_agl1"] + "'", color = getCloudCeiling_textColor(decodedMetar["cloud_base_ft_agl1"]), font = "CG-pixel-3x5-mono")
+        layerTwo = render.Text(decodedMetar["cloud_base_ft_agl2"] + "'", color = getCloudCeiling_textColor(decodedMetar["cloud_base_ft_agl2"]), font = "CG-pixel-3x5-mono")
+        layerThr = render.Text(decodedMetar["cloud_base_ft_agl3"] + "'", color = getCloudCeiling_textColor(decodedMetar["cloud_base_ft_agl3"]), font = "CG-pixel-3x5-mono")
 
     if (layerCount >= 1):
         extendedOutput = [
@@ -575,15 +598,39 @@ def getCloudCover(decodedMetar, type):
 
     return output
 
+# Returns wind speed in knots
 def getWindSpeed(decodedMetar):
+    result = None
+    resultTextColor = getSecondaryTextColor(decodedMetar)
+
     if decodedMetar["wind_speed_kt"] == "0":
-        windSpeed = "Calm"
+        windSpeedText = "Calm"
     else:
-        windSpeed = decodedMetar["wind_speed_kt"] + "kts"
+        windSpeedText = decodedMetar["wind_speed_kt"] + "kts"
 
-    return windSpeed
+    windSpeed = int(decodedMetar["wind_speed_kt"])
 
+    if (windSpeed >= 20):
+        resultTextColor = "#f0a13a"
+        if (windSpeed >= 30):
+            resultTextColor = "#f5737c"
+
+    result = render.Text(windSpeedText, color = resultTextColor, font = "CG-pixel-3x5-mono")
+
+    return result
+
+# Returns wind direction in degrees
 def getWindDirection(decodedMetar):
+    resultTextColor = getSecondaryTextColor(decodedMetar)
+
+    #Determine if wind speed is high. Will apply wind speed color to direction to match.
+    windSpeed = int(decodedMetar["wind_speed_kt"])
+
+    if (windSpeed >= 20):
+        resultTextColor = "#f0a13a"
+        if (windSpeed >= 30):
+            resultTextColor = "#f5737c"
+
     if decodedMetar["wind_speed_kt"] == "0":
         windDirection = "Var"
 
@@ -594,13 +641,11 @@ def getWindDirection(decodedMetar):
     else:
         windDirection = "@ " + decodedMetar["wind_dir_degrees"]
 
-    return windDirection
+    result = render.Text(str(windDirection), color = resultTextColor, font = "CG-pixel-3x5-mono")
 
-def getAltimeterSetting(decodedMetar):
-    alt = decodedMetar["altim_in_hg"][0:5]
+    return result
 
-    return alt
-
+# Returns current flight category.
 def getFlightCategory(decodedMetar):
     if decodedMetar["flight_category"] == "VFR":
         return "VFR"
@@ -613,53 +658,67 @@ def getFlightCategory(decodedMetar):
     else:
         return "NA"
 
+# Returns primary text color based upon current flight category.
 def getTextColor(decodedMetar):
-    if decodedMetar["flight_category"] == "VFR":
+    if getFlightCategory(decodedMetar) == "VFR":
         return "#87fa8b"
-    elif decodedMetar["flight_category"] == "MVFR":
+    elif getFlightCategory(decodedMetar) == "MVFR":
         return "#8d87fa"
-    elif decodedMetar["flight_category"] == "IFR":
+    elif getFlightCategory(decodedMetar) == "IFR":
         return "#f5737c"
-    elif decodedMetar["flight_category"] == "LIFR":
+    elif getFlightCategory(decodedMetar) == "LIFR":
         return "#e88bf0"
     else:
         return "#f5737c"
 
+# Returns secondary text color based upon current flight category.
 def getSecondaryTextColor(decodedMetar):
-    if decodedMetar["flight_category"] == "VFR":
-        #return "#adffad"
+    if getFlightCategory(decodedMetar) == "VFR":
         return "#8CADA7"
-    elif decodedMetar["flight_category"] == "MVFR":
+    elif getFlightCategory(decodedMetar) == "MVFR":
         return "#8CADA7"
-    elif decodedMetar["flight_category"] == "IFR":
+    elif getFlightCategory(decodedMetar) == "IFR":
         return "#8CADA7"
-    elif decodedMetar["flight_category"] == "LIFR":
+    elif getFlightCategory(decodedMetar) == "LIFR":
         return "#8CADA7"
     else:
         return "#8CADA7"
 
+# Returns current background color (shapes & lines) for current flight category.
 def getBackgroundColor(decodedMetar):
-    if decodedMetar["flight_category"] == "VFR":
+    if getFlightCategory(decodedMetar) == "VFR":
         return "#62f55f"
-    elif decodedMetar["flight_category"] == "MVFR":
+    elif getFlightCategory(decodedMetar) == "MVFR":
         return "#73b8f5"
-    elif decodedMetar["flight_category"] == "IFR":
+    elif getFlightCategory(decodedMetar) == "IFR":
         return "#db3d5d"
-    elif decodedMetar["flight_category"] == "LIFR":
+    elif getFlightCategory(decodedMetar) == "LIFR":
         return "#f25ce3"
     else:
         return "#f5737c"
 
-def getCloudCover_textColor(cover):
-    color = None
+# Returns cloud cover text color.
+def getCloudCeiling_textColor(ceilingHeight):
+    ceilingColor = "#8cada7"
 
-    if (cover == "FEW"):
-        color = "#87fa8b"
-    if (cover == "SCT"):
-        color = "#87fa8b"
-    if (cover == "BKN"):
-        color = "#75d1bf"
-    if (cover == "OVC"):
-        color = "#73b8f5"
+    if ceilingHeight == "":
+        return "#8cada7"
 
-    return color
+    ceilingHeight = int(ceilingHeight)
+
+    # Ceiling is less than or equal to 500
+    if ceilingHeight <= 500:
+        ceilingColor = "#e88bf0"
+
+    # Ceiling is between 501 & 1000
+    if ceilingHeight > 500:
+        if ceilingHeight <= 999:
+            ceilingColor = "#f5737c"
+
+    # Ceiling is between 1000 & 3000
+    if ceilingHeight > 999:
+        if ceilingHeight <= 3001:
+            ceilingColor = "#8d87fa"
+
+    # Ceiling is above 3000
+    return ceilingColor
