@@ -16,7 +16,7 @@ DEFAULT_AIRPORT = "KBOS"
 
 def main(config):
     airport = config.str("airport", DEFAULT_AIRPORT)
-    f_selector=config.bool("fahrenheit_temperatures", False)
+    f_selector = config.bool("fahrenheit_temperatures", False)
 
     apiURL = "https://www.aviationweather.gov/adds/dataserver_current/httpparam?dataSource=metars&requestType=retrieve&format=csv&mostrecentforeachstation=constraint&hoursBeforeNow=2&stationString=%s"
 
@@ -344,7 +344,7 @@ def get_schema():
                 desc = "Display temperatures in fahrenheit",
                 icon = "thermometer",
                 default = False,
-            )
+            ),
         ],
     )
 
@@ -370,9 +370,9 @@ def getTempDP(decodedMetar, f_selector):
     temperature = int(float(temperature))
     dewPoint = int(float(dewPoint))
 
-    if(f_selector == True):
-        temperature = (temperature * 9/5) + 32
-        dewPoint = (dewPoint * 9/5) + 32
+    if (f_selector == True):
+        temperature = (temperature * 9 / 5) + 32
+        dewPoint = (dewPoint * 9 / 5) + 32
 
         temperature = int(float(temperature))
         dewPoint = int(float(dewPoint))
@@ -394,7 +394,6 @@ def getCloudBaseLevel(decodedMetar):
     return baseLevel
 
 def getCloudCover(decodedMetar, type):
-
     # This function returns the animation for the cloud layers.
 
     output = []
@@ -438,7 +437,7 @@ def getCloudCover(decodedMetar, type):
         layerTwo = render.Text(decodedMetar["sky_cover2"], color = getSecondaryTextColor(decodedMetar), font = "CG-pixel-3x5-mono")
         layerThr = render.Text(decodedMetar["sky_cover3"], color = getSecondaryTextColor(decodedMetar), font = "CG-pixel-3x5-mono")
 
-        if(decodedMetar["sky_cover0"] == "CLR"):
+        if (decodedMetar["sky_cover0"] == "CLR"):
             layerZero = render.Text("Clear", color = getSecondaryTextColor(decodedMetar), font = "CG-pixel-3x5-mono")
 
     if (type == "levels"):
@@ -448,7 +447,6 @@ def getCloudCover(decodedMetar, type):
         layerThr = render.Text(decodedMetar["cloud_base_ft_agl3"] + "'", color = getSecondaryTextColor(decodedMetar), font = "CG-pixel-3x5-mono")
 
     if (layerCount >= 1):
-
         extendedOutput = [
             layerZero,
             layerZero,
@@ -507,7 +505,7 @@ def getCloudCover(decodedMetar, type):
         ]
 
         # Fix for flicker issue that happens when you only have 2 values in the animation.
-        if(layerCount == 2):
+        if (layerCount == 2):
             rawOutput = output
             output.extend(extendedOutput)
             output.extend(output)
