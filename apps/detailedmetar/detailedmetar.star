@@ -630,13 +630,13 @@ def getSecondaryTextColor(decodedMetar):
         #return "#adffad"
         return "#8CADA7"
     elif decodedMetar["flight_category"] == "MVFR":
-        return "#afabf7"
+        return "#8CADA7"
     elif decodedMetar["flight_category"] == "IFR":
-        return "#f79ea4"
+        return "#8CADA7"
     elif decodedMetar["flight_category"] == "LIFR":
-        return "#e8abed"
+        return "#8CADA7"
     else:
-        return "#f5737c"
+        return "#8CADA7"
 
 def getBackgroundColor(decodedMetar):
     if decodedMetar["flight_category"] == "VFR":
