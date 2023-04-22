@@ -4,9 +4,10 @@ load("http.star", "http")
 load("render.star", "render")
 load("schema.star", "schema")
 load("time.star", "time")
+load("secret.star", "secret")
 
 # tidbyt-rtpi-rotter
-KEY = "AV6+xWcEnKHohs7tYhpQt02nhhKuO73lK+hhHqAG0VRDzV6JKtMXJTBoMB1XAq7Y6zluiweCwH5V7AoaEiiStE4t1LS/8T2yUczKacFMf406KL4MkJUPtvQkC1paMn4NRgWujJCYwJX2UmUaCm2vPOSbINn4jyTTOqMMwSshVg=="
+KEY = "AV6+xWcEh5NwKoBQWuqhebPskYm6mM1A8qkaTsfhZu0DC7eYQG4PgEfsiHq2H9a0Yl2U+6RQXjsLpXIRBLhQnFWiFf+j3/NtMbffxZMhyYRCSSlJb5l0+eVi5BtxZDesmkQLFYIRKUxZMbAacUTkt3TT4OSVnW4OErY7bXAOAA=="
 
 DEFAULT_LOCATION = """
 {"lat":45.6,"lng":"-122.64","locality":"Portland, OR","timezone":"America/Los_Angeles"}
@@ -16,6 +17,9 @@ URL = "https://developer.trimet.org/ws/V2/arrivals?locIDs={}&appID={}&json=true"
 # URL = "https://developer.trimet.org/ws/V2/arrivals?locIDs={}&appID=3EE99DA9677E312D637CED197&json=true"
 
 def main(config):
+    api_key = secret.decrypt(KEY) or "3EE99DA9677E312D637CED197"
+    # print("api_key: %s" % api_key)
+
     # font_sm = config.get("font-sm", "tom-thumb")
     font_sm = config.get("font-sm", "CG-pixel-3x5-mono")
     font_lg = config.get("font-lg", "6x13")
@@ -33,7 +37,7 @@ def main(config):
         rep = json.decode(stop_cached)
     else:
         print("Miss! Calling TriMet API with")
-        response = http.get(URL.format(stop, KEY))
+        response = http.get(URL.format(stop, api_key))
         if response.status_code != 200:
             fail("request failed with status %d", response.status_code)
         rep = response.json()
