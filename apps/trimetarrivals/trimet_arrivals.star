@@ -3,8 +3,8 @@ load("encoding/json.star", "json")
 load("http.star", "http")
 load("render.star", "render")
 load("schema.star", "schema")
-load("time.star", "time")
 load("secret.star", "secret")
+load("time.star", "time")
 
 # tidbyt-rtpi-rotter
 KEY = "AV6+xWcEh5NwKoBQWuqhebPskYm6mM1A8qkaTsfhZu0DC7eYQG4PgEfsiHq2H9a0Yl2U+6RQXjsLpXIRBLhQnFWiFf+j3/NtMbffxZMhyYRCSSlJb5l0+eVi5BtxZDesmkQLFYIRKUxZMbAacUTkt3TT4OSVnW4OErY7bXAOAA=="
