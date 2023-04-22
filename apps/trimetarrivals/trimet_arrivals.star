@@ -6,7 +6,7 @@ load("schema.star", "schema")
 load("time.star", "time")
 
 # tidbyt-rtpi-rotter
-KEY = "3EE99DA9677E312D637CED197"
+KEY = "AV6+xWcEnKHohs7tYhpQt02nhhKuO73lK+hhHqAG0VRDzV6JKtMXJTBoMB1XAq7Y6zluiweCwH5V7AoaEiiStE4t1LS/8T2yUczKacFMf406KL4MkJUPtvQkC1paMn4NRgWujJCYwJX2UmUaCm2vPOSbINn4jyTTOqMMwSshVg=="
 
 DEFAULT_LOCATION = """
 {"lat":45.6,"lng":"-122.64","locality":"Portland, OR","timezone":"America/Los_Angeles"}
