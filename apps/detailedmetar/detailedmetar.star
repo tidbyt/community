@@ -199,6 +199,12 @@ def main(config):
                     child = render.Column(
                         expanded = True,
                         children = [
+                            # Bottom line changes color based upon status.
+                            render.Row(
+                                children = [
+                                    render.Box(height = 2, width = 64, color = getBackgroundColor(decodedMetar)),
+                                ],
+                            ),
                             render.Row(
                                 children = [
                                     render.Box(
@@ -218,7 +224,7 @@ def main(config):
                                             main_align = "space_evenly",
                                             cross_align = "center",
                                             children = [
-                                                render.Text(getStationID(decodedMetar), color = getTextColor(decodedMetar), font = "5x8"),
+                                                render.Text(getStationID(decodedMetar), color = getTextColor(decodedMetar), font = "tb-8"),
                                             ],
                                         ),
                                         width = 22,
@@ -239,7 +245,7 @@ def main(config):
                                         width = 16,
                                         height = 14,
                                         child = render.Circle(
-                                            color = getTextColor(decodedMetar),
+                                            color = getBackgroundColor(decodedMetar),
                                             diameter = 12,
                                         ),
                                     ),
@@ -265,7 +271,7 @@ def main(config):
                                                 # Time of observation readout.
                                                 render.Marquee(
                                                     width = 21,
-                                                    child = render.Text(humanizedTime, color = "#8CADA7", font = "CG-pixel-3x5-mono"),
+                                                    child = render.Text(humanizedTime, color = "#8CADA7", font = "tom-thumb"),
                                                 ),
                                             ],
                                         ),
@@ -296,12 +302,12 @@ def main(config):
                                                 # Current wind speed.
                                                 render.Box(
                                                     child = getWindSpeed(decodedMetar),
-                                                    height = 5,
+                                                    height = 6,
                                                 ),
                                                 # Current wind direction.
                                                 render.Box(
                                                     child = getWindDirection(decodedMetar),
-                                                    height = 5,
+                                                    height = 6,
                                                 ),
                                             ],
                                         ),
@@ -320,7 +326,7 @@ def main(config):
                                                         render.Animation(
                                                             children = getCloudCover(decodedMetar, "cover"),
                                                         ),
-                                                    height = 5,
+                                                    height = 6,
                                                 ),
                                                 # Present ceiling animation.
                                                 render.Box(
@@ -328,19 +334,13 @@ def main(config):
                                                         render.Animation(
                                                             children = getCloudCover(decodedMetar, "levels"),
                                                         ),
-                                                    height = 5,
+                                                    height = 6,
                                                 ),
                                             ],
                                         ),
                                         width = 31,
                                         height = 17,
                                     ),
-                                ],
-                            ),
-                            # Bottom line changes color based upon status.
-                            render.Row(
-                                children = [
-                                    render.Box(height = 1, width = 64, color = getTextColor(decodedMetar)),
                                 ],
                             ),
                         ],
@@ -403,6 +403,9 @@ def getTempDP(decodedMetar, f_selector):
         if (temperature_h >= dewPoint):
             resultTextColor = "#f0a13a"
 
+    if (dewPoint == temperature):
+        resultTextColor = "#db3d5d"
+
     # If the user wants readouts in fahrenheit.
     if (f_selector == True):
         temperature = (temperature * 9 / 5) + 32
@@ -411,7 +414,7 @@ def getTempDP(decodedMetar, f_selector):
         temperature = int(float(temperature))
         dewPoint = int(float(dewPoint))
 
-    result = render.Text(str(temperature) + "/" + str(dewPoint), color = resultTextColor, font = "CG-pixel-3x5-mono")
+    result = render.Text(str(temperature) + "/" + str(dewPoint), color = resultTextColor, font = "tom-thumb")
 
     return result
 
@@ -455,19 +458,54 @@ def getCloudCover(decodedMetar, type):
             layerCount = layerCount + 1
 
     if (type == "cover"):
-        layerZero = render.Text(decodedMetar["sky_cover0"], color = getCloudCeiling_textColor(decodedMetar["cloud_base_ft_agl0"]), font = "CG-pixel-3x5-mono")
-        layerOne = render.Text(decodedMetar["sky_cover1"], color = getCloudCeiling_textColor(decodedMetar["cloud_base_ft_agl1"]), font = "CG-pixel-3x5-mono")
-        layerTwo = render.Text(decodedMetar["sky_cover2"], color = getCloudCeiling_textColor(decodedMetar["cloud_base_ft_agl2"]), font = "CG-pixel-3x5-mono")
-        layerThr = render.Text(decodedMetar["sky_cover3"], color = getCloudCeiling_textColor(decodedMetar["cloud_base_ft_agl3"]), font = "CG-pixel-3x5-mono")
+        layerZero = render.Text(decodedMetar["sky_cover0"], color = getCloudCeiling_textColor(decodedMetar["cloud_base_ft_agl0"]), font = "tom-thumb")
+        layerOne = render.Text(decodedMetar["sky_cover1"], color = getCloudCeiling_textColor(decodedMetar["cloud_base_ft_agl1"]), font = "tom-thumb")
+        layerTwo = render.Text(decodedMetar["sky_cover2"], color = getCloudCeiling_textColor(decodedMetar["cloud_base_ft_agl2"]), font = "tom-thumb")
+        layerThr = render.Text(decodedMetar["sky_cover3"], color = getCloudCeiling_textColor(decodedMetar["cloud_base_ft_agl3"]), font = "tom-thumb")
 
         if (decodedMetar["sky_cover0"] == "CLR"):
-            layerZero = render.Text("Clear", color = getSecondaryTextColor(decodedMetar), font = "CG-pixel-3x5-mono")
+            layerZero = render.Text("Clear", color = getSecondaryTextColor(decodedMetar), font = "tom-thumb")
 
     if (type == "levels"):
-        layerZero = render.Text(decodedMetar["cloud_base_ft_agl0"] + "'", color = getCloudCeiling_textColor(decodedMetar["cloud_base_ft_agl0"]), font = "CG-pixel-3x5-mono")
-        layerOne = render.Text(decodedMetar["cloud_base_ft_agl1"] + "'", color = getCloudCeiling_textColor(decodedMetar["cloud_base_ft_agl1"]), font = "CG-pixel-3x5-mono")
-        layerTwo = render.Text(decodedMetar["cloud_base_ft_agl2"] + "'", color = getCloudCeiling_textColor(decodedMetar["cloud_base_ft_agl2"]), font = "CG-pixel-3x5-mono")
-        layerThr = render.Text(decodedMetar["cloud_base_ft_agl3"] + "'", color = getCloudCeiling_textColor(decodedMetar["cloud_base_ft_agl3"]), font = "CG-pixel-3x5-mono")
+        if (decodedMetar["cloud_base_ft_agl0"] != ""):
+            layerZeroAGL = int(float(decodedMetar["cloud_base_ft_agl0"]))
+
+            if (layerZeroAGL > 9999):
+                layerZeroAGL = str(layerZeroAGL)[0:2] + "k"
+            else:
+                layerZeroAGL = str(layerZeroAGL) + "'"
+
+            layerZero = render.Text(str(layerZeroAGL), color = getCloudCeiling_textColor(decodedMetar["cloud_base_ft_agl0"]), font = "tom-thumb")
+
+        if (decodedMetar["cloud_base_ft_agl1"] != ""):
+            layerOneAGL = int(float(decodedMetar["cloud_base_ft_agl1"]))
+
+            if (layerOneAGL > 9999):
+                layerOneAGL = str(layerOneAGL)[0:2] + "k"
+            else:
+                layerOneAGL = str(layerOneAGL) + "'"
+
+            layerOne = render.Text(str(layerOneAGL), color = getCloudCeiling_textColor(decodedMetar["cloud_base_ft_agl1"]), font = "tom-thumb")
+
+        if (decodedMetar["cloud_base_ft_agl2"] != ""):
+            layerTwoAGL = int(float(decodedMetar["cloud_base_ft_agl2"]))
+
+            if (layerTwoAGL > 9999):
+                layerTwoAGL = str(layerTwoAGL)[0:2] + "k"
+            else:
+                layerTwoAGL = str(layerTwoAGL) + "'"
+
+            layerTwo = render.Text(str(layerTwoAGL), color = getCloudCeiling_textColor(decodedMetar["cloud_base_ft_agl2"]), font = "tom-thumb")
+
+        if (decodedMetar["cloud_base_ft_agl3"] != ""):
+            layerThrAGL = int(float(decodedMetar["cloud_base_ft_agl3"]))
+
+            if (layerThrAGL > 9999):
+                layerThrAGL = str(layerThrAGL)[0:2] + "k"
+            else:
+                layerThrAGL = str(layerThrAGL) + "'"
+
+            layerThr = render.Text(str(layerThrAGL), color = getCloudCeiling_textColor(decodedMetar["cloud_base_ft_agl3"]), font = "tom-thumb")
 
     if (layerCount >= 1):
         extendedOutput = [
@@ -615,7 +653,7 @@ def getWindSpeed(decodedMetar):
         if (windSpeed >= 30):
             resultTextColor = "#f5737c"
 
-    result = render.Text(windSpeedText, color = resultTextColor, font = "CG-pixel-3x5-mono")
+    result = render.Text(windSpeedText, color = resultTextColor, font = "tom-thumb")
 
     return result
 
@@ -641,7 +679,7 @@ def getWindDirection(decodedMetar):
     else:
         windDirection = "@ " + decodedMetar["wind_dir_degrees"]
 
-    result = render.Text(str(windDirection), color = resultTextColor, font = "CG-pixel-3x5-mono")
+    result = render.Text(str(windDirection), color = resultTextColor, font = "tom-thumb")
 
     return result
 
@@ -663,7 +701,7 @@ def getTextColor(decodedMetar):
     if getFlightCategory(decodedMetar) == "VFR":
         return "#87fa8b"
     elif getFlightCategory(decodedMetar) == "MVFR":
-        return "#8d87fa"
+        return "#73b8f5"
     elif getFlightCategory(decodedMetar) == "IFR":
         return "#f5737c"
     elif getFlightCategory(decodedMetar) == "LIFR":
@@ -689,7 +727,7 @@ def getBackgroundColor(decodedMetar):
     if getFlightCategory(decodedMetar) == "VFR":
         return "#62f55f"
     elif getFlightCategory(decodedMetar) == "MVFR":
-        return "#73b8f5"
+        return "#8d87fa"
     elif getFlightCategory(decodedMetar) == "IFR":
         return "#db3d5d"
     elif getFlightCategory(decodedMetar) == "LIFR":
@@ -718,7 +756,7 @@ def getCloudCeiling_textColor(ceilingHeight):
     # Ceiling is between 1000 & 3000
     if ceilingHeight > 999:
         if ceilingHeight <= 3001:
-            ceilingColor = "#8d87fa"
+            ceilingColor = "#73b8f5"
 
     # Ceiling is above 3000
     return ceilingColor
