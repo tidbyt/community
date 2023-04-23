@@ -6,14 +6,14 @@ Author: Olly Stedall @saltedlolly
 Thanks: drudge, inxi, whyamihere, Amillion Air
 """
 
-print("----------------------------------------------------------------------------------------")
-
-load("render.star", "render")
-load("http.star", "http")
-load("encoding/base64.star", "base64")
 load("cache.star", "cache")
-load("schema.star", "schema")
+load("encoding/base64.star", "base64")
+load("http.star", "http")
 load("math.star", "math")
+load("render.star", "render")
+load("schema.star", "schema")
+
+print("----------------------------------------------------------------------------------------")
 
 DGB_ICON = base64.decode("""
 iVBORw0KGgoAAAANSUhEUgAAABIAAAASCAYAAABWzo5XAAAAAXNSR0IArs4c6QAAAdVJREFUOE9dVFtSw0AMk4HhLNn0iyPRtB/ciBmSnomfNuUqDMSMLG+yIR+ZPNayJD8MvAwwB5wPee8Gd7gDZvA4wjswTw+2nVcsfxGiosRBAcQjMepj5mM2g5vjTsAmdn0prwvzZwoBrVdmDdpBgSzEf74QsDKCowwEMljIEZOIg+E2OvqT4ToCh1OghAGU2wAB3dFJOILnUdQpoTLfmKRtAPozSenM12R0wdANv/yE6ygq/LplTXY7HjKYYJR4vzyYlSMVRclUodTuFsXJq/ovmQ1h9IOKZfQmiqt7glGipzpDGTwrKHCChdVO7xhnsHJcZH/+YARNrW7zV8nDZBu9RAsCR0ABtRpNKVndK+lLflQpPY3327SXXIasPT1ilRRo+Hxf8PxkYB0Y2J8kt9p4m7JZ3VHOapfI31Ha2uk0k3Eyn72jGogq//EDGR6GzcMcEdDMVA/MH3Us1ISkSnPXLkUaHDOohFF+HoiudkfQroZoDmQkQ5xyBZ6jqBo5xyQaUhe9ksliQYPqNvj+WfDy9rh1Vc6PuQXIbtY69lP4Ki/YO2TYZ1UqwShCrhUmupPNukaaZRENGobWdmjCcmcxMvbSvwWxf2UruAa5XUytHy1AXWx/2vAhVoi8DZsAAAAASUVORK5CYII=
@@ -68,7 +68,7 @@ def get_schema():
                 id = "main_currency",
                 name = "Main Currency",
                 desc = "Choose the main currency to display the DigiByte price in.",
-                icon = "circle-dollar",
+                icon = "moneyBill",
                 default = DEFAULT_MAIN_CURRENCY,
                 options = main_currency_options,
             ),
@@ -76,7 +76,7 @@ def get_schema():
                 id = "second_currency",
                 name = "Second Currency",
                 desc = "Choose an additional currency to display the price in.",
-                icon = "circle-dollar",
+                icon = "moneyBill",
                 default = DEFAULT_SECOND_CURRENCY,
                 options = alt_currency_options,
             ),
@@ -84,7 +84,7 @@ def get_schema():
                 id = "third_currency",
                 name = "Third Currency",
                 desc = "Choose an additional currency to display the price in.",
-                icon = "circle-dollar",
+                icon = "moneyBill",
                 default = DEFAULT_THIRD_CURRENCY,
                 options = alt_currency_options,
             ),
@@ -92,7 +92,7 @@ def get_schema():
                 id = "country_toggle",
                 name = "Display Country",
                 desc = "Toggle displaying country code. Useful when displaying two dollar currencies together (e.g. USD and AUD).",
-                icon = "toggle-on",
+                icon = "toggleOn",
                 default = DEFAULT_SHOW_COUNTRY,
             ),
         ],
@@ -168,6 +168,10 @@ def main(config):
         print("Error: No price data available")
 
     # DISPLAY PRICES
+    currency = ""
+    currency_price = ""
+    currency_symbol = ""
+    currency_country = ""
 
     if data_available:
         # Setup each currency
@@ -203,7 +207,7 @@ def main(config):
             elif currency == "gbp":
                 currency_price = dgb_price_gbp
                 currency_symbol = "£"
-                first_currency_country = "UK"
+                currency_country = "UK"
                 print("GBP")
             elif currency == "usd":
                 currency_price = dgb_price_usd

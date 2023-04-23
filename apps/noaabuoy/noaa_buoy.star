@@ -1,17 +1,19 @@
 """
 Applet: NOAA Buoy
 Summary: Display buoy weather data
-Description: Display swell,wind,temperature data for user specified buoy. Find buoy_id's here : https://www.ndbc.noaa.gov/obs.shtml Buoy must have height,period,direction to display correctly
+Description: Display swell,wind,temperature,misc data for user specified buoy. Find buoy_id's here : https://www.ndbc.noaa.gov/obs.shtml
 Author: tavdog
 """
 
+load("cache.star", "cache")
+load("encoding/json.star", "json")
+load("http.star", "http")
+load("re.star", "re")
 load("render.star", "render")
 load("schema.star", "schema")
-load("http.star", "http")
-load("encoding/json.star", "json")
-load("cache.star", "cache")
 load("xpath.star", "xpath")
-load("re.star", "re")
+
+print_debug = False
 
 default_location = """
 {
@@ -23,6 +25,10 @@ default_location = """
 	"timezone": "America/Honolulu"
 }
 """
+
+def debug_print(arg):
+    if print_debug:
+        print(arg)
 
 def swell_over_threshold(thresh, units, data):  # assuming threshold is already in preferred units
     height = data["WVHT"]
@@ -57,17 +63,30 @@ def name_from_rss(xml):
     else:
         return name_match[0][1]
 
-def fetch_data(buoy_id):
+def fetch_data(buoy_id, last_data):
+    debug_print("fetching....")
     data = dict()
-
-    #url = "https://wildc.net/wind/noaa_buoy_api.pl?buoy_id=%s" % buoy_id
     url = "https://www.ndbc.noaa.gov/data/latest_obs/%s.rss" % buoy_id.lower()
+    debug_print("url: " + url)
     resp = http.get(url)
+    debug_print(resp)
     if resp.status_code != 200:
-        #fail("request failed with status %d", resp.status_code)
-        data["name"] = buoy_id
-        data["error"] = "ID not valid"
-        return data
+        if len(last_data) != 0:  # try to return the last cached data if it exists to account for spurious api failures
+            # add the stale counter so we know it's not new data and how many cycles the buoy has been down for.
+            if "stale" not in last_data:
+                last_data["stale"] = 1
+            else:
+                last_data["stale"] = last_data["stale"] + 1
+            debug_print("stale counter to :" + str(last_data["stale"]))
+            return last_data
+        elif resp.status_code == 404:
+            data["name"] = buoy_id
+            data["error"] = "No Data"
+            return data
+        else:
+            data["name"] = buoy_id
+            data["error"] = "Code: " + str(resp.status_code)
+            return data
     else:
         data["name"] = name_from_rss(xpath.loads(resp.body())) or buoy_id
 
@@ -101,33 +120,30 @@ def fetch_data(buoy_id):
         re_dict["TIDE"] = r"Tide:</strong> (-?\d+\.\d+?) ft"
 
         for field in re_dict.items():
-            #print(field[0],end='')
-            #print(field[1])
-
             field_data = re.match(field[1], data_string)
             if len(field_data) == 0:
-                #print(field[0] + "  : no match")
-                None
+                #debug_print(field[0] + "  : no match, using " + str(last_data.get(field[0])) )
+                data[field[0]] = last_data.get(field[0])  # use old cached data, None if non existant
             else:
-                #print(field[0] + " : " + field_data[0][1])
-
+                debug_print(field[0] + " : " + field_data[0][1])
                 data[field[0]] = field_data[0][1].replace("(", "")
 
-        #print(data)
+        #debug_print(data)
     return data
 
 def main(config):
+    debug_print("##########################")
     data = dict()
 
     buoy_id = config.get("buoy_id", "")
 
     if buoy_id == "none" or buoy_id == "":  # if manual input is empty load from local selection
-        local_selection = config.get("local_buoy_id", '{"display": "Station 51202 - Waimea Bay", "value": "51201"}')  # default is Waimea
+        local_selection = config.get("local_buoy_id", '{"display": "Station 51213 - South Lanai", "value": "51213"}')  # default is Waimea
         local_selection = json.decode(local_selection)
         if "value" in local_selection:
             buoy_id = local_selection["value"]
         else:
-            buoy_id = "51201"
+            buoy_id = "51213"
 
     buoy_name = config.get("buoy_name", "")
     h_unit_pref = config.get("h_units", "feet")
@@ -136,21 +152,34 @@ def main(config):
 
     # ensure we have a valid numer for min_size
     if len(re.findall("[0-9]+", min_size)) <= 0:
-        #print("setting min_size to zero")
         min_size = "0"
 
+    # CACHING FOR MAIN DATA OBJECT
     cache_key = "noaa_buoy_%s" % (buoy_id)
     cache_str = cache.get(cache_key)  #  not actually a json object yet, just a string
-    if cache_str != None:
+    if cache_str != None:  # and cache_str != "{}":
+        debug_print("cache :" + cache_str)
         data = json.decode(cache_str)
 
-    if len(data) == 0:
-        data = fetch_data(buoy_id)
+    # CACHING FOR USECACHE : use this cache item to control wether to fetch new data or not, and update the main data cache
+    usecache_key = "noaa_buoy_%s_usecache" % (buoy_id)
+    usecache = cache.get(usecache_key)  #  not actually a json object yet, just a string
+    if usecache and len(data) != 0:
+        debug_print("using cache since usecache_key is set")
+    else:
+        debug_print("no usecache so fetching data")
+        data = fetch_data(buoy_id, data)  # we pass in old data object so we can re-use data if missing from fetched data
         if data != None:
-            cache.set(cache_key, json.encode(data), ttl_seconds = 600)  # 10 minutes
+            if "stale" in data and data["stale"] > 2:
+                debug_print("expring stale cache")
+                cache.set(cache_key, json.encode(data), ttl_seconds = 1)  # 1 sec expire almost immediately
+            else:
+                debug_print("Setting cache with : " + str(data))
+                cache.set(cache_key, json.encode(data), ttl_seconds = 1800)  # 30 minutes, should never actually expire because always getting re set
+                cache.set(cache_key + "_usecache", '{"usecache":"true"}', ttl_seconds = 600)  # 10 minutes
 
     if buoy_name == "" and "name" in data:
-        #print("setting buoy_name to : " + data["name"])
+        debug_print("setting buoy_name to : " + data["name"])
         buoy_name = data["name"]
 
         # trim to max width of 14 chars or two words
@@ -167,15 +196,16 @@ def main(config):
 
     # ERROR #################################################
     if "error" in data:  # if we have error key, then we got no good swell data, display the error
-        #print("buoy_id: " + str(buoy_id))
+        #debug_print("buoy_id: " + str(buoy_id))
         return render.Root(
             child = render.Box(
                 render.Column(
+                    expanded = True,
                     cross_align = "center",
-                    main_align = "center",
+                    main_align = "space_evenly",
                     children = [
                         render.Text(
-                            content = buoy_id,
+                            content = "Buoy:" + str(buoy_id),
                             font = "tb-8",
                             color = swell_color,
                         ),
@@ -193,9 +223,8 @@ def main(config):
             ),
         )
 
+    elif (data.get("DPD") and config.get("display_swell", True) == "true" and swell_over_threshold(min_size, h_unit_pref, data)):
         #SWELL###########################################################
-
-    elif ("DPD" in data and "WVHT" in data) and config.get("display_swell", True) == "true" and swell_over_threshold(min_size, h_unit_pref, data):
         height = ""
         if "MWD" in data:
             mwd = data["MWD"]
@@ -221,7 +250,7 @@ def main(config):
 
         wtemp = ""
 
-        if "WTMP" in data and config.get("display_temps") == "true":  # we have some room at the bottom for wtmp if desired
+        if (data.get("WTMP") and config.get("display_temps") == "true"):  # we have some room at the bottom for wtmp if desired
             wt = data["WTMP"]
             if (t_unit_pref == "C"):
                 wt = FtoC(wt)
@@ -258,7 +287,7 @@ def main(config):
         )
         #WIND#################################################
 
-    elif "WSPD" in data and "WDIR" in data and config.get("display_wind", False) == "true":
+    elif (data.get("WSPD") and data.get("WDIR") and config.get("display_wind", False) == "true"):
         gust = ""
         avg = data["WSPD"]
         avg = str(int(float(avg) + 0.5))
@@ -301,13 +330,13 @@ def main(config):
         )
         #TEMPS#################################################
 
-    elif ("ATMP" in data or "WTMP" in data) and config.get("display_temps", False) == "true":
+    elif (config.get("display_temps", False) == "true"):
         air = "--"
-        if "ATMP" in data:
+        if data.get("ATMP"):
             air = data["ATMP"]
             air = int(float(air) + 0.5)
         water = "--"
-        if "WTMP" in data:
+        if data.get("WTMP"):
             water = data["WTMP"]
 
         if (t_unit_pref == "C"):
@@ -339,13 +368,12 @@ def main(config):
             ),
         )
 
+    elif (config.get("display_misc", False) == "true"):
         # MISC ################################################################
         # DEW with PRES with ATMP    or  TIDE with WTMP with SAL  or
-
-    elif (config.get("display_misc", False) == "true"):
         if "TIDE" in data:  # do some tide stuff, usually wtmp is included and somties SAL?
             water = "--"
-            if "WTMP" in data:
+            if data.get("WTMP"):
                 water = data["WTMP"]
 
             if (t_unit_pref == "C"):
@@ -363,7 +391,7 @@ def main(config):
                                 color = swell_color,
                             ),
                             render.Text(
-                                content = "Tide: %s %s" % (data["TIDE"], t_unit_pref),
+                                content = "Tide: %s %s" % (data["TIDE"], "ft"),
                                 #font = "6x13",
                                 color = swell_color,
                             ),
@@ -375,21 +403,21 @@ def main(config):
                     ),
                 ),
             )
-        if "DEW" in data or "VIS" in data:
+        if data.get("DEW") or data.get("VIS"):
             lines = list()  # start with at least one blank
-            if "DEW" in data:
+            if data.get("DEW"):
                 dew = data["DEW"]
                 if (t_unit_pref == "C"):
                     dew = FtoC(dew)
 
                 lines.append("DEW: " + data["DEW"] + t_unit_pref)
 
-            if "VIS" in data:
+            if data.get("VIS"):
                 vis = data["VIS"]
                 lines.append("VIS: " + vis)
-                #print("doing vis")
+                #debug_print("doing vis")
 
-            if "PRES" in data:
+            if data.get("PRES"):
                 lines.append("PRES: " + data["PRES"])
 
             if len(lines) < 2:
@@ -476,7 +504,7 @@ def get_stations(location):
     loc = json.decode(location)  # See example location above.
     url = "https://www.ndbc.noaa.gov/rss/ndbc_obs_search.php?lat=%s&lon=%s" % (loc["lat"], loc["lng"])
 
-    #print(url)
+    #debug_print(url)
     resp = http.get(url)
     if resp.status_code != 200:
         return []
@@ -486,13 +514,13 @@ def get_stations(location):
 
         rss_titles = xpath.loads(resp.body()).query_all("/rss/channel/item/title")
 
-        #print(rss_titles)
+        #debug_print(rss_titles)
         for rss_title in rss_titles:
             matches = re.match(r"Station\ (\w+) \-\s+(.+)$", rss_title)
 
-            #print(matches)
+            #debug_print(matches)
             if len(matches) > 0:
-                #print(matches[0][1] + " : " ,matches[0][0] )#+ matches[2])
+                #debug_print(matches[0][1] + " : " ,matches[0][0] )#+ matches[2])
                 station_options.append(
                     schema.Option(
                         display = matches[0][0],
@@ -532,20 +560,20 @@ def get_schema():
                 id = "display_swell",
                 name = "Display Swell",
                 desc = "if available",
-                icon = "cog",
+                icon = "gear",
                 default = True,
             ),
             schema.Toggle(
                 id = "display_wind",
                 name = "Display Wind",
                 desc = "if available",
-                icon = "cog",
+                icon = "gear",
                 default = True,
             ),
             schema.Toggle(
                 id = "display_temps",
                 name = "Display Temperatures",
-                icon = "cog",
+                icon = "gear",
                 desc = "if available",
                 default = True,
             ),
@@ -553,7 +581,7 @@ def get_schema():
                 id = "display_misc",
                 name = "Display Misc.",
                 desc = "if available",
-                icon = "cog",
+                icon = "gear",
                 default = True,
             ),
             schema.Dropdown(
@@ -575,7 +603,7 @@ def get_schema():
             schema.Text(
                 id = "min_size",
                 name = "Minimum Swell Size",
-                icon = "poll",
+                icon = "water",
                 desc = "Only display if swell is above minimum size",
                 default = "",
             ),

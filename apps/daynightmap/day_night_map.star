@@ -30,12 +30,12 @@ Author: Henry So, Jr.
 
 # See comments in the code for further attribution
 
-load("time.star", "time")
+load("encoding/base64.star", "base64")
+load("encoding/json.star", "json")
 load("math.star", "math")
 load("render.star", "render")
 load("schema.star", "schema")
-load("encoding/base64.star", "base64")
-load("encoding/json.star", "json")
+load("time.star", "time")
 
 WIDTH = 64
 HALF_W = WIDTH // 2
@@ -188,13 +188,13 @@ def get_schema():
                 id = "location",
                 name = "Location",
                 desc = "Location for the display of date/time.",
-                icon = "place",
+                icon = "locationDot",
             ),
             schema.Toggle(
                 id = "center_location",
                 name = "Center On Location",
                 desc = "Whether to center the map on the location.",
-                icon = "compressArrowsAlt",
+                icon = "compress",
                 default = False,
             ),
             schema.Dropdown(
@@ -222,7 +222,7 @@ def get_schema():
                 id = "show_date",
                 name = "Date Overlay",
                 desc = "Whether the date overlay should be shown.",
-                icon = "calendarAll",
+                icon = "calendarCheck",
                 default = False,
             ),
         ],

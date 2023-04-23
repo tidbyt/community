@@ -4,6 +4,6 @@ This app makes a request to the main page of popular tech news site, [The Verge]
 
 - No configuration is required.
 - Requests are cached for 15min.
-- Taglines 13 characters are shorter are centered while longer ones are scrolled using a marquee.
+- Taglines shorter than the display are auto-centered by the updated marquee widget.
 
 This app is inspired by the [Twitter bot](https://github.com/TylerCarberry/VergeTaglines) with the same purpose.

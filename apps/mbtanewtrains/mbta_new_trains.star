@@ -5,12 +5,12 @@ Description: Displays the real time location of new subway cars in Boston's MBTA
 Author: joshspicer
 """
 
-load("render.star", "render")
-load("http.star", "http")
 load("cache.star", "cache")
-load("encoding/json.star", "json")
-load("schema.star", "schema")
 load("encoding/base64.star", "base64")
+load("encoding/json.star", "json")
+load("http.star", "http")
+load("render.star", "render")
+load("schema.star", "schema")
 
 # MBTA New Train Tracker
 #
@@ -55,21 +55,25 @@ CACHE_TTL_SECONDS = 3600 * 24  # 1 day in seconds.
 #         "direction": 0,
 #         "stationId": "place-rugg",
 #         "route": "Orange"
+#         "isNewTrain": "true"
 #     },
 #     {
 #         "direction": 0,
 #         "stationId": "place-unsqu",
 #         "route": "Green-E"
+#         "isNewTrain": "true"
 #     },
 #     {
 #         "direction": 1,
 #         "stationId": "place-bbsta",
-#         "route": "Orange"
+#         "route": "Orange",
+#         "isNewTrain": "true"
 #     },
 #         {
 #         "direction": 1,
 #         "stationId": "place-davis",
-#         "route": "Red-A"
+#         "route": "Red-A",
+#         "isNewTrain": "true"
 #     },
 # ]
 
@@ -109,9 +113,12 @@ def mapRouteToColor(route, config):
     return None
 
 def createTrain(loc, config):
+    if loc["isNewTrain"] != True:
+        return None
+
     routeResult = mapRouteToColor(loc["route"], config)
     if routeResult == None:
-        return
+        return None
     (color, line) = routeResult
 
     stationName = mapStationIdToName(loc["stationId"])
@@ -198,13 +205,15 @@ def renderDigestRow(color, count, disabled):
             ),
         )
     else:
-        return
+        return None
 
 def displayDigest(apiResult, config):
     r = 0
     g = 0
     o = 0
     for loc in apiResult:
+        if loc["isNewTrain"] != True:
+            continue
         route = loc["route"]
         if "Red" in route:
             r += 1
@@ -255,28 +264,28 @@ def get_schema():
                 id = "showLiveLocations",
                 name = "Show Live Locations",
                 desc = "Shows live location of new trains in a scrolling marquee.  If disabled, only the count of new trains running will be displayed.",
-                icon = "cog",
+                icon = "gear",
                 default = False,
             ),
             schema.Toggle(
                 id = "disableRed",
                 name = "Hide Red Line Trains",
                 desc = "If enabled, new trains on the red line will be hidden.",
-                icon = "cog",
+                icon = "gear",
                 default = False,
             ),
             schema.Toggle(
                 id = "disableGreen",
                 name = "Hide Green Line Trains",
                 desc = "If enabled, new trains on the green line will be hidden.",
-                icon = "cog",
+                icon = "gear",
                 default = False,
             ),
             schema.Toggle(
                 id = "disableOrange",
                 name = "Hide Orange Line Trains",
                 desc = "If enabled, new trains on the orange line will be hidden.",
-                icon = "cog",
+                icon = "gear",
                 default = False,
             ),
         ],

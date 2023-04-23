@@ -1,0 +1,8 @@
+---
+id: spacex-launch
+name: SpaceX Launch
+summary: Displays next SpaceX launch
+desc: Displays information about an upcoming SpaceX rocket launch.
+author: rytrose
+fileName: spacex_launch.star
+packageName: spacexlaunch

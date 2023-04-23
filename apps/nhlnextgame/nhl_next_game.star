@@ -5,14 +5,14 @@ Description: Gets info on preferred NHL teams next game.
 Author: AKKanMan
 """
 
-load("render.star", "render")
-load("time.star", "time")
-load("humanize.star", "humanize")
-load("encoding/base64.star", "base64")
-load("http.star", "http")
-load("schema.star", "schema")
 load("cache.star", "cache")
+load("encoding/base64.star", "base64")
 load("encoding/json.star", "json")
+load("http.star", "http")
+load("humanize.star", "humanize")
+load("render.star", "render")
+load("schema.star", "schema")
+load("time.star", "time")
 
 def getTeamIconFromID(teamID):
     if teamID == 2:  #NYI
@@ -79,6 +79,8 @@ def getTeamIconFromID(teamID):
         return "iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAAAXNSR0IArs4c6QAAAERlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAA6ABAAMAAAABAAEAAKACAAQAAAABAAAAIKADAAQAAAABAAAAIAAAAACshmLzAAAB8UlEQVRYCcWWsU7DQBBEkyi0VNTwI1Tw3VDxI6GmogUJNEbvNDdZX5woIZbMrndnZ+bO54jV6srXenv/9CMP3++v6//0gu4GUQo8XzK61mTg7fPjknolN5pb7+LsUq8DftdsrwBHalZAHzolh1M6rjUZeLy9mzi9wcApYjlTcaG5ye0+t4lKHIPSbp+hiojjDqBiGvVelVfCFX/3FVTCkFeE9DKOsGhgpjyEScizEyvnpq/oGK8jqJrn3SFkwAHUqvi1e1nproxUeFavHnl3CCWsBs2KJFd48/A8mRA2e9W8L07nqr2CBDswey6kHZCJ0QUX0RfYDFAEJELPU0DCS64Rh+YnA/mJaagylIKsfM4M4nApkqPZdkDkNJUfa0IzfqU4Peo8dwZcFACmcpB+FcH6LHni2z8hOlg56OBR7xiceGRm+AoQc+K5FThGuXCJFR934tsOqOG7ADDJqC+NuRjxsXpxdGdAhRSccy7soasSz5nOAM7SRA7xLDwz1BQx7Tzkie8MaBgAA6rpytX8Vff/gtO850LC7VN7BhyICSKETlDlS8U12x3CJPPf/OzpmRVVOJnFOLiKo9wBgKNBMHNxibhmhzsAebXCNLcEA5/H4Q4ATDHqo3jKzIhv6mmV1UoZPNQH53HRDvjAufOrG/gFmFcsY0U3t40AAAAASUVORK5CYII="
     elif teamID == 52:  #WPG
         return "iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAAAXNSR0IArs4c6QAAAERlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAA6ABAAMAAAABAAEAAKACAAQAAAABAAAAIKADAAQAAAABAAAAIAAAAACshmLzAAACeklEQVRYCa2Wv0pdQRDGj5f4ACFFIAh2dgn4BAbsU0TQIo3gA2gsUoillYV/HiKFgo29hY1CGsHSzhACqfIAKRK+xd9h7tzZ2XMwCzKzOzPf9+3sXvfMdSPH0cnJ36xkd2dnLov72KBkT/rl6NLjlPnh7oep9SFiUgGWOCL983hVCOcXV6eINbFiMiGhgBYxbJkAclpCZgRAHu0YUOwQAeQixHdjQoLsGHJbN8RnQ3BQ8wIHSyJza9kxa8enp93tzbfOr0d3QjXCphNg9B3wykiQFYEnsXHvt/ItVxHAQrZ7SPaXV3BnbBYjGQ44+w6Q4G2084vX7zr9Mfyc9aiWGHaCEpQRkI0ADu6uu7s3L21a8bWmmB8RBlzirnYgKrS7/r631XOdvX/b+9ExRFgUFAEoYtFaAVpi69s8+ZZceXbuc+EMOxApzogt+PLP30WwP6YIU3WhAAuoc7XtVuzV5kebUvyHpYV+TeSaR3eiT3pyUgHaNTtHBNYDaS5Su3MdQXYMqkkFrP26nwLMyAWmIRG2G60upAIE2AJQTjTOz74Oqm0KEPjn7e3yFxE9d23mMRKgHpPo1kqI7oTO2V/EpYcfRUutY7UHqnTAv1C1XelCiVw/tdpoXTrq4Aw7QJK37E7PsB+6eDr3sWPiv1AAqLUsIqdmfeMT7pStYYm7fJKNfZBA5z7QGdatjchpvwSUO0AXCLQAbDzzW+Sq7X+GiIgABRSBRblaa+Vbrl4AYFEXiHlg/ae07fdx6rAR9rM+ywEeYiG3u1fdjAAtZpdS8bGjRi6cUIAC/0tERp4KsCLkM/iSYe4thHbdt93Gqh2wSfh0hXnNZoS+5h/N+xo/e4UpBgAAAABJRU5ErkJggg=="
+    else:
+        return ""
 
 def getTeamAbbFromID(teamID):
     if teamID == 2:  #NYI
@@ -145,6 +147,8 @@ def getTeamAbbFromID(teamID):
         return "WSH"
     elif teamID == 52:  #WPG
         return "WPG"
+    else:
+        return ""
 
 def main(config):
     # Get data out of config
@@ -166,7 +170,6 @@ def main(config):
         cache.set("nhl_data/%s" % main_team_id, json.encode(nhldata), ttl_seconds = 3600)
     homeTeamID = nhldata["teams"][0]["nextGameSchedule"]["dates"][0]["games"][0]["teams"]["home"]["team"]["id"]
     awayTeamID = nhldata["teams"][0]["nextGameSchedule"]["dates"][0]["games"][0]["teams"]["away"]["team"]["id"]
-    nextgamedate = nhldata["teams"][0]["nextGameSchedule"]["dates"][0]["date"]
     homeTeamRecord = str(int(nhldata["teams"][0]["nextGameSchedule"]["dates"][0]["games"][0]["teams"]["home"]["leagueRecord"]["wins"])) + "-" + str(int(nhldata["teams"][0]["nextGameSchedule"]["dates"][0]["games"][0]["teams"]["home"]["leagueRecord"]["losses"])) + "-" + str(int(nhldata["teams"][0]["nextGameSchedule"]["dates"][0]["games"][0]["teams"]["home"]["leagueRecord"]["ot"]))
     awayTeamRecord = str(int(nhldata["teams"][0]["nextGameSchedule"]["dates"][0]["games"][0]["teams"]["away"]["leagueRecord"]["wins"])) + "-" + str(int(nhldata["teams"][0]["nextGameSchedule"]["dates"][0]["games"][0]["teams"]["away"]["leagueRecord"]["losses"])) + "-" + str(int(nhldata["teams"][0]["nextGameSchedule"]["dates"][0]["games"][0]["teams"]["away"]["leagueRecord"]["ot"]))
     homeTeamIcon = base64.decode(getTeamIconFromID(homeTeamID))
@@ -374,7 +377,7 @@ def get_schema():
                 id = "main_team",
                 name = "Team",
                 desc = "Pick a team to follow",
-                icon = "nhl-logo",
+                icon = "hockeyPuck",
                 default = TEAM_LIST[0].value,
                 options = TEAM_LIST,
             ),
@@ -382,7 +385,7 @@ def get_schema():
                 id = "time_zone",
                 name = "Time Zone",
                 desc = "Pick a time zone.",
-                icon = "world-logo",
+                icon = "earthAmericas",
                 default = TIME_ZONES[0].value,
                 options = TIME_ZONES,
             ),

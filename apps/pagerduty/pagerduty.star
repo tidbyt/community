@@ -7,12 +7,12 @@ Author: drudge
 
 load("cache.star", "cache")
 load("encoding/json.star", "json")
-load("humanize.star", "humanize")
 load("http.star", "http")
-load("time.star", "time")
+load("humanize.star", "humanize")
+load("render.star", "render")
 load("schema.star", "schema")
 load("secret.star", "secret")
-load("render.star", "render")
+load("time.star", "time")
 
 DEFAULT_TIMEZONE = "US/Eastern"
 DEFAULT_ONLY_LEVEL_1 = False
@@ -21,6 +21,7 @@ DEFAULT_SHOW_ONCALL_BAR_ME_ONLY = False
 DEFAULT_SHOW_ICON = True
 DEFAULT_HIDE_WHEN_NOT_ONCALL = False
 DEFAULT_CACHE_TTL = 120
+DEFAULT_TEAM_ID = "all"
 
 PAGERDUTY_BASE_URL = "https://api.pagerduty.com"
 PAGERDUTY_CLIENT_ID = "85d49cda-f774-438e-9f13-12cf5b644dba"
@@ -85,12 +86,14 @@ def pagerduty_api_call(config, url, use_cache = True):
             },
         )
 
-        if res.status_code != 200:
+        if res.status_code < 200 or res.status_code >= 300:
             # buildifier: disable=print
             print("pagerduty_api_call failed: %s - %s " % (res.status_code, res.body()))
             return None
-
-        cached_res = res.body()
+        elif len(res.body()) > 0:
+            cached_res = res.body()
+        else:
+            cached_res = '{"status": %i}' % res.status_code
 
         if use_cache:
             cache.set(cache_key, cached_res, DEFAULT_CACHE_TTL)
@@ -98,21 +101,30 @@ def pagerduty_api_call(config, url, use_cache = True):
     return json.decode(cached_res)
 
 # buildifier: disable=function-docstring
-def get_pagerduty_counts(config):
+def get_pagerduty_counts(config, profile = None, teams_supported = True):
     received_data = False
     counts = dict(
         total = 0,
         triggered = 0,
         acknowledged = 0,
     )
+    team_param = ""
+    team_id = config.get("team_id", DEFAULT_TEAM_ID)
 
-    triggered = pagerduty_api_call(config, "%s/incidents?total=true&limit=1&statuses[]=triggered" % PAGERDUTY_BASE_URL)
+    if teams_supported and profile != None:
+        if team_id != "all":
+            team_param = "&team_ids[]=%s" % team_id
+        elif len(profile["teams"]) > 0:
+            for team in profile["teams"]:
+                team_param += "&team_ids[]=%s" % team["id"]
+
+    triggered = pagerduty_api_call(config, "%s/incidents?total=true&limit=1&statuses[]=triggered%s" % (PAGERDUTY_BASE_URL, team_param))
 
     if triggered:
         counts["triggered"] = int(triggered["total"])
         received_data = True
 
-    acknowledged = pagerduty_api_call(config, "%s/incidents?total=true&limit=1&statuses[]=acknowledged" % PAGERDUTY_BASE_URL)
+    acknowledged = pagerduty_api_call(config, "%s/incidents?total=true&limit=1&statuses[]=acknowledged%s" % (PAGERDUTY_BASE_URL, team_param))
 
     if acknowledged:
         counts["acknowledged"] = int(acknowledged["total"])
@@ -219,6 +231,14 @@ def is_user_oncall(config, shifts, user_id):
 
     return is_user_oncall
 
+def are_teams_supported(config):
+    result = pagerduty_api_call(config, "%s/abilities/teams" % PAGERDUTY_BASE_URL)
+
+    if result != None and result["status"] != None:
+        return result["status"] == 204
+    else:
+        return False
+
 # buildifier: disable=function-docstring
 def get_oncall_scroll_text(shifts, timezone = DEFAULT_TIMEZONE):
     scroll = ""
@@ -259,26 +279,29 @@ def get_state(config):
     hide_when_not_oncall = config.bool("hide_when_not_oncall", DEFAULT_HIDE_WHEN_NOT_ONCALL)
     level_one_only = config.bool("only_lvl_1_oncall", DEFAULT_ONLY_LEVEL_1)
     only_when_oncall = config.bool("only_when_oncall", DEFAULT_SHOW_ONCALL_BAR_ME_ONLY)
+    team_id = config.get("team_id", DEFAULT_TEAM_ID)
     counts = None
     shifts = []
     profile = None
 
     if is_preview:
         oncall = True
+        account_has_teams = False
         counts = dict(
             total = 42,
             triggered = 7,
             acknowledged = 0,
         )
     else:
-        counts = get_pagerduty_counts(config)
+        profile = get_current_user(config)
+
+        if profile == None:
+            return Error("Failed to get user profile")
+
+        account_has_teams = are_teams_supported(config)
+        counts = get_pagerduty_counts(config, profile, account_has_teams)
 
         if show_oncall_bar:
-            profile = get_current_user(config)
-
-            if profile == None:
-                return Error("Failed to get user profile")
-
             shifts = get_oncall_shifts(config, profile["id"] if only_when_oncall else None)
             oncall = is_user_oncall(config, shifts, profile["id"])
 
@@ -296,6 +319,8 @@ def get_state(config):
         hide_when_not_oncall = hide_when_not_oncall,
         level_one_only = level_one_only,
         only_when_oncall = only_when_oncall,
+        team_id = team_id,
+        teams_supported = account_has_teams,
     )
 
 # buildifier: disable=function-docstring
@@ -410,6 +435,41 @@ def main(config):
         ),
     )
 
+def build_teams(refresh_token):
+    config = dict(auth = refresh_token)
+    user = get_current_user(config)
+    teams_supported = are_teams_supported(config)
+
+    if not teams_supported:
+        return None
+
+    options = [
+        schema.Option(
+            display = "All",
+            value = "all",
+        ),
+    ]
+
+    if user != None and user["teams"] != None:
+        for team in user["teams"]:
+            options.append(
+                schema.Option(
+                    display = team["summary"],
+                    value = team["id"],
+                ),
+            )
+
+    return [
+        schema.Dropdown(
+            id = "team_id",
+            name = "Team",
+            desc = "Limit stats to a specific team",
+            icon = "peopleGroup",
+            options = options,
+            default = options[0].value,
+        ),
+    ]
+
 # buildifier: disable=function-docstring
 def oauth_handler(params):
     params = json.decode(params)
@@ -450,6 +510,11 @@ def get_schema():
                 scopes = [
                     "read",
                 ],
+            ),
+            schema.Generated(
+                id = "generated_teams",
+                source = "auth",
+                handler = build_teams,
             ),
             schema.Toggle(
                 id = "show_icon",

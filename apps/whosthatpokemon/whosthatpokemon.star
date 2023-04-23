@@ -5,16 +5,15 @@ Description: Test your Pokemon Master knowledge with this rendition of "Who's Th
 Author: Nicole Brooks
 """
 
-load("render.star", "render")
-load("time.star", "time")
+load("cache.star", "cache")
 load("encoding/base64.star", "base64")
 load("encoding/json.star", "json")
 load("http.star", "http")
-load("schema.star", "schema")
-load("cache.star", "cache")
 load("random.star", "random")
+load("render.star", "render")
+load("schema.star", "schema")
 
-ALL_POKEMON = 898
+ALL_POKEMON = 1000
 CLASSIC_POKEMON = 386
 POKEAPI_URL = "https://pokeapi.co/api/v2/pokemon/{}"
 IMGIX_URL = "https://pokesprites.imgix.net/{}.png?bri=-100"
@@ -85,8 +84,8 @@ def pullFromApi(url, key):
 # Formats all names. Removes all hyphens that don't belong for forms and spaces.
 # Also capitalizes appropriately.
 def formatName(name):
-    namesWithSpaces = ["mr-mime", "mime-jr", "porygon-z", "type-null", "tapu-koko", "tapu-lele", "tapu-bulu", "tapu-fini", "mr-rime"]
-    namesWithHyphens = ["ho-oh", "jangmo-o", "hakamo-o"]
+    namesWithSpaces = ["mr-mime", "mime-jr", "type-null", "tapu-koko", "tapu-lele", "tapu-bulu", "tapu-fini", "mr-rime", "great-tusk", "scream-tail", "brute-bonnet", "flutter-mane", "slither-wing", "sandy-shocks", "iron-treads", "iron-bundle", "iron-hands", "iron-jugulis", "iron-moth", "iron-thorns", "roaring-moon", "iron-valiant", "walking-wake", "iron-leaves"]
+    namesWithHyphens = ["ho-oh", "porygon-z", "jangmo-o", "hakamo-o", "kommo-o", "wo-chien", "chien-pao", "chi-yu"]
     if name in namesWithHyphens:
         return name.capitalize()
     elif name in namesWithSpaces:
@@ -108,7 +107,7 @@ def getCachedImage(url):
 
     res = http.get(url)
     if res.status_code != 200:
-        print("Failed to pull pokemon image: " + res.status_code)
+        print("Failed to pull pokemon image: " + str(res.status_code))
         return None
     cache.set(cacheKey, base64.encode(res.body()), CACHE_TTL_SECONDS)
 

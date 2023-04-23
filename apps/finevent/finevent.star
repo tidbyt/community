@@ -5,13 +5,13 @@ Description: Displays the daily economic or earnings calendar.
 Author: Rob Kimball
 """
 
-load("http.star", "http")
-load("time.star", "time")
 load("cache.star", "cache")
+load("encoding/base64.star", "base64")
+load("encoding/json.star", "json")
+load("http.star", "http")
 load("render.star", "render")
 load("schema.star", "schema")
-load("encoding/json.star", "json")
-load("encoding/base64.star", "base64")
+load("time.star", "time")
 
 BASE_URL = "https://api.tradingeconomics.com"
 AUTH = "guest:guest"
@@ -588,7 +588,7 @@ def get_schema():
                 id = "self-hide",
                 name = "Nearby events only?",
                 desc = "If turned on, the app will show a blank screen unless there is an event within 90 minutes.",
-                icon = "cog",
+                icon = "gear",
                 default = DEFAULT_HIDDEN,
             ),
         ],

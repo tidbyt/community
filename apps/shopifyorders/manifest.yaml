@@ -1,0 +1,8 @@
+---
+id: shopify-orders
+name: Shopify Select
+summary: Time period order tracker
+desc: View orders you've received during a specific time period like Black Friday, seasonal sales, holiday season, and more.
+author: Shopify
+fileName: shopify_orders.star
+packageName: shopifyorders

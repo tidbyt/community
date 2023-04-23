@@ -1,8 +1,8 @@
 """
 Applet: MLS Scores
 Summary: Displays MLS scores
-Description: Displays live and upcoming MLS scores from a data feed. For slower scrolling between scores, add the app to your Tidbyt twice, and under the 'Scores To Display' setting, select '1st Half' on the first app instance, and '2nd Half' on the second app instance.
-Author: cmarkham20
+Description: Displays live and upcoming MLS scores from a data feed.
+Author: LunchBox8484
 """
 
 load("cache.star", "cache")
@@ -12,7 +12,6 @@ load("http.star", "http")
 load("render.star", "render")
 load("schema.star", "schema")
 load("time.star", "time")
-load("math.star", "math")
 
 CACHE_TTL_SECONDS = 60
 DEFAULT_LOCATION = """
@@ -25,9 +24,25 @@ DEFAULT_LOCATION = """
     "timezone": "America/New_York"
 }
 """
+LEAGUE_DISPLAY = "MLS"
+LEAGUE_DISPLAY_OFFSET = -3
 SPORT = "soccer"
 LEAGUE = "usa.1"
 API = "https://site.api.espn.com/apis/site/v2/sports/" + SPORT + "/" + LEAGUE + "/scoreboard"
+SHORTENED_WORDS = """
+{
+    " PM": "P",
+    " AM": "A",
+    " Wins": "",
+    " Leads": "",
+    " Series": "",
+    " - ": " ",
+    " / ": " ",
+    "Postponed": "PPD",
+    "1st Half": "1H",
+    "2nd Half": "2H"
+}
+"""
 ALT_COLOR = """
 {
     "ATL": "#80000A",
@@ -63,20 +78,21 @@ MAGNIFY_LOGO = """
 
 def main(config):
     renderCategory = []
-    league = {LEAGUE: API}
-    slowMode = int(config.get("slowMode", 15))
-    scores = get_scores(league, slowMode)
+    selectedTeam = config.get("selectedTeam", "all")
+    displayType = config.get("displayType", "colors")
+    pregameDisplay = config.get("pregameDisplay", "record")
+    displayTop = config.get("displayTop", "league")
+    timeColor = config.get("displayTimeColor", "#FFA500")
+    rotationSpeed = config.get("rotationSpeed", "5")
+    location = config.get("location", DEFAULT_LOCATION)
+    loc = json.decode(location)
+    timezone = loc["timezone"]
+    now = time.now().in_location(timezone)
+    datePast = now - time.parse_duration("%dh" % 1 * 24)
+    dateFuture = now + time.parse_duration("%dh" % 6 * 24)
+    league = {LEAGUE: API + "?limit=100" + (selectedTeam == "all" and " " or "&dates=" + datePast.format("20060102") + "-" + dateFuture.format("20060102"))}
+    scores = get_scores(league, selectedTeam)
     if len(scores) > 0:
-        displayType = config.get("displayType", "colors")
-        logoType = config.get("logoType", "primary")
-        showDateTime = config.bool("displayDateTime")
-        pregameDisplay = config.get("pregameDisplay", "record")
-        rotationSpeed = 15 / len(scores)
-        location = config.get("location", DEFAULT_LOCATION)
-        loc = json.decode(location)
-        timezone = loc["timezone"]
-        now = time.now().in_location(timezone)
-
         for i, s in enumerate(scores):
             gameStatus = s["status"]["type"]["state"]
             competition = s["competitions"][0]
@@ -86,30 +102,50 @@ def main(config):
             away = competition["competitors"][1]["team"]["abbreviation"]
             homeTeamName = competition["competitors"][0]["team"]["shortDisplayName"]
             awayTeamName = competition["competitors"][1]["team"]["shortDisplayName"]
-            homePrimaryColor = competition["competitors"][0]["team"]["color"]
-            awayPrimaryColor = competition["competitors"][1]["team"]["color"]
-            homeAltColor = competition["competitors"][0]["team"]["alternateColor"]
-            awayAltColor = competition["competitors"][1]["team"]["alternateColor"]
-            homeColor = get_background_color(home, displayType, homePrimaryColor, homeAltColor)
-            awayColor = get_background_color(away, displayType, awayPrimaryColor, awayAltColor)
-            homeLogoURL = competition["competitors"][0]["team"]["logo"]
-            awayLogoURL = competition["competitors"][1]["team"]["logo"]
+            homeColorCheck = competition["competitors"][0]["team"].get("color", "NO")
+            if homeColorCheck == "NO":
+                homePrimaryColor = "000000"
+            else:
+                homePrimaryColor = competition["competitors"][0]["team"]["color"]
+
+            awayColorCheck = competition["competitors"][1]["team"].get("color", "NO")
+            if awayColorCheck == "NO":
+                awayPrimaryColor = "000000"
+            else:
+                awayPrimaryColor = competition["competitors"][1]["team"]["color"]
+
+            homeColor = get_background_color(home, displayType, homePrimaryColor)
+            awayColor = get_background_color(away, displayType, awayPrimaryColor)
+
+            homeLogoCheck = competition["competitors"][0]["team"].get("logo", "NO")
+            if homeLogoCheck == "NO":
+                homeLogoURL = "https://i.ibb.co/5LMp8T1/transparent.png"
+            else:
+                homeLogoURL = competition["competitors"][0]["team"]["logo"]
+
+            awayLogoCheck = competition["competitors"][1]["team"].get("logo", "NO")
+            if awayLogoCheck == "NO":
+                awayLogoURL = "https://i.ibb.co/5LMp8T1/transparent.png"
+            else:
+                awayLogoURL = competition["competitors"][1]["team"]["logo"]
             homeLogo = get_logoType(home, homeLogoURL)
             awayLogo = get_logoType(away, awayLogoURL)
             homeLogoSize = get_logoSize(home)
             awayLogoSize = get_logoSize(away)
+            homeScore = ""
+            awayScore = ""
+            gameTime = ""
             homeScoreColor = "#fff"
             awayScoreColor = "#fff"
             teamFont = "Dina_r400-6"
             scoreFont = "Dina_r400-6"
 
             if gameStatus == "pre":
-                gameDateTime = s["status"]["type"]["shortDetail"]
                 gameTime = s["date"]
                 scoreFont = "CG-pixel-3x5-mono"
                 convertedTime = time.parse_time(gameTime, format = "2006-01-02T15:04Z").in_location(timezone)
                 if convertedTime.format("1/2") != now.format("1/2"):
-                    gameTime = convertedTime.format("1/2 - 3:04 PM")
+                    gameTime = convertedTime.format("Jan 2")
                 else:
                     gameTime = convertedTime.format("3:04 PM")
                 if pregameDisplay == "odds":
@@ -122,8 +158,8 @@ def main(config):
                             homeScore = get_odds(float(competition["odds"][1]["homeTeamOdds"]["moneyLine"]))
                             awayScore = get_odds(float(competition["odds"][1]["awayTeamOdds"]["moneyLine"]))
                         else:
-                            homeScore = "1"
-                            awayScore = "1"
+                            homeScore = ""
+                            awayScore = ""
                 elif pregameDisplay == "record":
                     checkSeries = competition.get("series", "NO")
                     checkRecord = homeCompetitor.get("records", "NO")
@@ -173,12 +209,14 @@ def main(config):
                     gameTime = "Postponed"
                 else:
                     homeScore = competition["competitors"][0]["score"]
+                    homeWinner = competition["competitors"][0]["winner"]
                     awayScore = competition["competitors"][1]["score"]
-                    if (int(homeScore) > int(awayScore)):
+                    awayWinner = competition["competitors"][1]["winner"]
+                    if (int(homeScore) > int(awayScore) or homeWinner == True):
                         homeScoreColor = "#ff0"
-                        awayScoreColor = "#fff"
-                    elif (int(awayScore) > int(homeScore)):
-                        homeScoreColor = "#fff"
+                        awayScoreColor = "#fffc"
+                    elif (int(awayScore) > int(homeScore) or awayWinner == True):
+                        homeScoreColor = "#fffc"
                         awayScoreColor = "#ff0"
                     else:
                         homeScoreColor = "#fff"
@@ -186,7 +224,6 @@ def main(config):
 
             if displayType == "retro":
                 retroTextColor = "#ffe065"
-                retroBackgroundColor = "#000"
                 retroBorderColor = "#000"
                 retroFont = "CG-pixel-3x5-mono"
 
@@ -201,7 +238,7 @@ def main(config):
                                     expanded = True,
                                     main_align = "space_between",
                                     cross_align = "start",
-                                    children = get_date_column(showDateTime, now, retroTextColor, retroBackgroundColor, retroBorderColor),
+                                    children = get_date_column(displayTop, now, i, rotationSpeed, retroTextColor, retroBorderColor, displayType, gameTime, timeColor),
                                 ),
                                 render.Column(
                                     children = [
@@ -214,9 +251,6 @@ def main(config):
                                             render.Box(width = 26, height = 12, child = render.Text(content = get_record(homeScore), color = retroTextColor, font = retroFont)),
                                         ])),
                                     ],
-                                ),
-                                render.Stack(
-                                    children = get_gametime_column(showDateTime, gameTime, retroTextColor, retroBackgroundColor, retroBorderColor),
                                 ),
                             ],
                         ),
@@ -240,7 +274,7 @@ def main(config):
                                     expanded = True,
                                     main_align = "space_between",
                                     cross_align = "start",
-                                    children = get_date_column(showDateTime, now, textColor, backgroundColor, borderColor),
+                                    children = get_date_column(displayTop, now, i, rotationSpeed, textColor, borderColor, displayType, gameTime, timeColor),
                                 ),
                                 render.Column(
                                     children = [
@@ -260,9 +294,6 @@ def main(config):
                                     ],
                                 ),
                                 render.Box(width = 64, height = 1, color = borderColor),
-                                render.Stack(
-                                    children = get_gametime_column(showDateTime, gameTime, textColor, backgroundColor, borderColor),
-                                ),
                             ],
                         ),
                     ],
@@ -284,7 +315,7 @@ def main(config):
                                     expanded = True,
                                     main_align = "space_between",
                                     cross_align = "start",
-                                    children = get_date_column(showDateTime, now, textColor, backgroundColor, borderColor),
+                                    children = get_date_column(displayTop, now, i, rotationSpeed, textColor, borderColor, displayType, gameTime, timeColor),
                                 ),
                                 render.Row(
                                     expanded = True,
@@ -319,12 +350,6 @@ def main(config):
                                         ),
                                     ],
                                 ),
-                                render.Row(
-                                    expanded = True,
-                                    main_align = "space_between",
-                                    cross_align = "start",
-                                    children = get_gametime_column(showDateTime, gameTime, textColor, backgroundColor, borderColor),
-                                ),
                             ],
                         ),
                     ],
@@ -347,7 +372,7 @@ def main(config):
                                     expanded = True,
                                     main_align = "space_between",
                                     cross_align = "start",
-                                    children = get_date_column(showDateTime, now, textColor, backgroundColor, borderColor),
+                                    children = get_date_column(displayTop, now, i, rotationSpeed, textColor, borderColor, displayType, gameTime, timeColor),
                                 ),
                                 render.Row(
                                     expanded = True,
@@ -367,12 +392,6 @@ def main(config):
                                             ],
                                         ),
                                     ],
-                                ),
-                                render.Row(
-                                    expanded = True,
-                                    main_align = "space_between",
-                                    cross_align = "start",
-                                    children = get_gametime_column(showDateTime, gameTime, textColor, backgroundColor, borderColor),
                                 ),
                             ],
                         ),
@@ -396,7 +415,7 @@ def main(config):
                                     expanded = True,
                                     main_align = "space_between",
                                     cross_align = "start",
-                                    children = get_date_column(showDateTime, now, textColor, backgroundColor, borderColor),
+                                    children = get_date_column(displayTop, now, i, rotationSpeed, textColor, borderColor, displayType, gameTime, timeColor),
                                 ),
                                 render.Row(
                                     expanded = True,
@@ -418,12 +437,6 @@ def main(config):
                                             ],
                                         ),
                                     ],
-                                ),
-                                render.Row(
-                                    expanded = True,
-                                    main_align = "space_between",
-                                    cross_align = "start",
-                                    children = get_gametime_column(showDateTime, gameTime, textColor, backgroundColor, borderColor),
                                 ),
                             ],
                         ),
@@ -447,7 +460,7 @@ def main(config):
                                     expanded = True,
                                     main_align = "space_between",
                                     cross_align = "start",
-                                    children = get_date_column(showDateTime, now, textColor, backgroundColor, borderColor),
+                                    children = get_date_column(displayTop, now, i, rotationSpeed, textColor, borderColor, displayType, gameTime, timeColor),
                                 ),
                                 render.Row(
                                     expanded = True,
@@ -470,19 +483,14 @@ def main(config):
                                         ),
                                     ],
                                 ),
-                                render.Row(
-                                    expanded = True,
-                                    main_align = "space_between",
-                                    cross_align = "start",
-                                    children = get_gametime_column(showDateTime, gameTime, textColor, backgroundColor, borderColor),
-                                ),
                             ],
                         ),
                     ],
                 )
 
         return render.Root(
-            delay = int(rotationSpeed * 1000),
+            delay = int(rotationSpeed) * 1000,
+            show_full_animation = True,
             child = render.Column(
                 children = [
                     render.Animation(
@@ -493,6 +501,184 @@ def main(config):
         )
     else:
         return []
+
+teamOptions = [
+    schema.Option(
+        display = "All Teams",
+        value = "all",
+    ),
+    schema.Option(
+        display = "Atlanta United FC",
+        value = "ATL",
+    ),
+    schema.Option(
+        display = "Austin FC",
+        value = "ATX",
+    ),
+    schema.Option(
+        display = "CF Montréal",
+        value = "MTL",
+    ),
+    schema.Option(
+        display = "Charlotte FC",
+        value = "CLT",
+    ),
+    schema.Option(
+        display = "Chicago Fire FC",
+        value = "CHI",
+    ),
+    schema.Option(
+        display = "Colorado Rapids",
+        value = "COL",
+    ),
+    schema.Option(
+        display = "Columbus Crew",
+        value = "CLB",
+    ),
+    schema.Option(
+        display = "D.C. United",
+        value = "DC",
+    ),
+    schema.Option(
+        display = "FC Cincinnati",
+        value = "CIN",
+    ),
+    schema.Option(
+        display = "FC Dallas",
+        value = "DAL",
+    ),
+    schema.Option(
+        display = "Houston Dynamo FC",
+        value = "HOU",
+    ),
+    schema.Option(
+        display = "Inter Miami CF",
+        value = "MIA",
+    ),
+    schema.Option(
+        display = "LA Galaxy",
+        value = "LA",
+    ),
+    schema.Option(
+        display = "LAFC",
+        value = "LAFC",
+    ),
+    schema.Option(
+        display = "Minnesota United FC",
+        value = "MIN",
+    ),
+    schema.Option(
+        display = "Nashville SC",
+        value = "NSH",
+    ),
+    schema.Option(
+        display = "New England Revolution",
+        value = "NE",
+    ),
+    schema.Option(
+        display = "New York City FC",
+        value = "NYC",
+    ),
+    schema.Option(
+        display = "New York Red Bulls",
+        value = "NY",
+    ),
+    schema.Option(
+        display = "Orlando City SC",
+        value = "ORL",
+    ),
+    schema.Option(
+        display = "Philadelphia Union",
+        value = "PHI",
+    ),
+    schema.Option(
+        display = "Portland Timbers",
+        value = "POR",
+    ),
+    schema.Option(
+        display = "Real Salt Lake",
+        value = "RSL",
+    ),
+    schema.Option(
+        display = "San Jose Earthquakes",
+        value = "SJ",
+    ),
+    schema.Option(
+        display = "Seattle Sounders FC",
+        value = "SEA",
+    ),
+    schema.Option(
+        display = "Sporting Kansas City",
+        value = "SKC",
+    ),
+    schema.Option(
+        display = "St. Louis CITY SC",
+        value = "STL",
+    ),
+    schema.Option(
+        display = "Toronto FC",
+        value = "TOR",
+    ),
+    schema.Option(
+        display = "Vancouver Whitecaps",
+        value = "VAN",
+    ),
+]
+
+rotationOptions = [
+    schema.Option(
+        display = "3 seconds",
+        value = "3",
+    ),
+    schema.Option(
+        display = "4 seconds",
+        value = "4",
+    ),
+    schema.Option(
+        display = "5 seconds",
+        value = "5",
+    ),
+    schema.Option(
+        display = "6 seconds",
+        value = "6",
+    ),
+    schema.Option(
+        display = "7 seconds",
+        value = "7",
+    ),
+    schema.Option(
+        display = "8 seconds",
+        value = "8",
+    ),
+    schema.Option(
+        display = "9 seconds",
+        value = "9",
+    ),
+    schema.Option(
+        display = "10 seconds",
+        value = "10",
+    ),
+    schema.Option(
+        display = "11 seconds",
+        value = "11",
+    ),
+    schema.Option(
+        display = "12 seconds",
+        value = "12",
+    ),
+    schema.Option(
+        display = "13 seconds",
+        value = "13",
+    ),
+    schema.Option(
+        display = "14 seconds",
+        value = "14",
+    ),
+    schema.Option(
+        display = "15 seconds",
+        value = "15",
+    ),
+]
 
 displayOptions = [
     schema.Option(
@@ -521,21 +707,6 @@ displayOptions = [
     ),
 ]
 
-slowModes = [
-    schema.Option(
-        display = "Show All",
-        value = "0",
-    ),
-    schema.Option(
-        display = "1st Half",
-        value = "1",
-    ),
-    schema.Option(
-        display = "2nd Half",
-        value = "2",
-    ),
-]
-
 pregameOptions = [
     schema.Option(
         display = "Team Record",
@@ -555,6 +726,48 @@ pregameOptions = [
     ),
 ]
 
+displayTopOptions = [
+    schema.Option(
+        display = "League Name",
+        value = "league",
+    ),
+    schema.Option(
+        display = "Current Time",
+        value = "time",
+    ),
+    schema.Option(
+        display = "Game Info Only",
+        value = "gameinfo",
+    ),
+]
+
+colorOptions = [
+    schema.Option(
+        display = "White",
+        value = "#FFF",
+    ),
+    schema.Option(
+        display = "Yellow",
+        value = "#FF0",
+    ),
+    schema.Option(
+        display = "Red",
+        value = "#F00",
+    ),
+    schema.Option(
+        display = "Blue",
+        value = "#00F",
+    ),
+    schema.Option(
+        display = "Green",
+        value = "#0F0",
+    ),
+    schema.Option(
+        display = "Orange",
+        value = "#FFA500",
+    ),
+]
+
 def get_schema():
     return schema.Schema(
         version = "1",
@@ -563,13 +776,29 @@ def get_schema():
                 id = "location",
                 name = "Location",
                 desc = "Location for which to display time.",
-                icon = "place",
+                icon = "locationDot",
+            ),
+            schema.Dropdown(
+                id = "selectedTeam",
+                name = "Team Focus",
+                desc = "Only show scores for selected team.",
+                icon = "gear",
+                default = teamOptions[0].value,
+                options = teamOptions,
+            ),
+            schema.Dropdown(
+                id = "rotationSpeed",
+                name = "Rotation Speed",
+                desc = "Amount of seconds each score is displayed.",
+                icon = "gear",
+                default = rotationOptions[2].value,
+                options = rotationOptions,
             ),
             schema.Dropdown(
                 id = "displayType",
                 name = "Display Type",
                 desc = "Style of how the scores are displayed.",
-                icon = "desktop",
+                icon = "gear",
                 default = displayOptions[0].value,
                 options = displayOptions,
             ),
@@ -577,46 +806,51 @@ def get_schema():
                 id = "pregameDisplay",
                 name = "Pre-Game",
                 desc = "What to display in the score area if the game hasn't started.",
-                icon = "cog",
+                icon = "gear",
                 default = pregameOptions[0].value,
                 options = pregameOptions,
             ),
-            schema.Toggle(
-                id = "displayDateTime",
-                name = "Current Date/Time",
-                desc = "A toggle to display the current date/time rather than game time/status.",
-                icon = "calendar",
-                default = False,
+            schema.Dropdown(
+                id = "displayTop",
+                name = "Top Display",
+                desc = "A toggle of what to display on the top shelf.",
+                icon = "gear",
+                default = displayTopOptions[0].value,
+                options = displayTopOptions,
             ),
             schema.Dropdown(
-                id = "slowMode",
-                name = "Scores To Display",
-                desc = "Select '1st Half' to only show the first half of scores, then add the app to your Tidbyt again and select '2nd Half' to show the rest.",
-                icon = "clock",
-                default = slowModes[0].value,
-                options = slowModes,
+                id = "displayTimeColor",
+                name = "Top Display Color",
+                desc = "Select which color you want the top display to be.",
+                icon = "gear",
+                default = colorOptions[5].value,
+                options = colorOptions,
             ),
         ],
     )
 
-def get_scores(urls, slowMode):
+def get_scores(urls, team):
     allscores = []
+    gameCount = 0
     for i, s in urls.items():
         data = get_cachable_data(s)
         decodedata = json.decode(data)
         allscores.extend(decodedata["events"])
+        if team != "all" and team != "":
+            newScores = []
+            for _, s in enumerate(allscores):
+                home = s["competitions"][0]["competitors"][0]["team"]["abbreviation"]
+                away = s["competitions"][0]["competitors"][1]["team"]["abbreviation"]
+                gameStatus = s["status"]["type"]["state"]
+                if (home == team or away == team) and gameStatus == "post":
+                    newScores.append(s)
+                elif (home == team or away == team) and gameCount == 0:
+                    if gameStatus == "in":
+                        newScores.clear()
+                    newScores.append(s)
+                    gameCount = gameCount + 1
+            allscores = newScores
         all([i, allscores])
-    scoresLength = len(allscores) / 2
-    if slowMode == 1 and len(allscores) > 8:
-        for i in range(0, int(scoresLength)):
-            allscores.pop()
-    if slowMode == 2:
-        if len(allscores) < 9:
-            for i in range(0, int(len(allscores))):
-                allscores.pop(0)
-        else:
-            for i in range(0, int(math.ceil(scoresLength))):
-                allscores.pop(0)
     return allscores
 
 def get_odds(theOdds):
@@ -649,7 +883,7 @@ def get_record(record):
         theRecord = record
     return theRecord
 
-def get_background_color(team, displayType, color, altColor):
+def get_background_color(team, displayType, color):
     altcolors = json.decode(ALT_COLOR)
     usealt = altcolors.get(team, "NO")
     if displayType == "black" or displayType == "retro":
@@ -682,41 +916,50 @@ def get_logoSize(team):
         logosize = int(16)
     return logosize
 
-def get_date_column(display, now, textColor, backgroundColor, borderColor):
-    if display:
+def get_date_column(displayTop, now, scoreNumber, rotationSpeed, textColor, borderColor, displayType, gameTime, timeColor):
+    if displayTop == "gameinfo":
         dateTimeColumn = [
-            render.Box(width = 32, height = 8, color = borderColor, child = render.Row(expanded = True, main_align = "start", cross_align = "center", children = [
-                render.Box(width = 1, height = 8),
-                render.Text(color = textColor, content = now.format("3:04"), font = "tb-8"),
-            ])),
-            render.Box(width = 32, height = 8, color = borderColor, child = render.Row(expanded = True, main_align = "end", cross_align = "center", children = [
-                render.Text(color = textColor, content = now.format("Jan").upper() + now.format(" 2"), font = "tb-8"),
+            render.Box(width = 64, height = 8, child = render.Stack(children = [
+                render.Box(width = 64, height = 8, color = displayType == "stadium" and borderColor or "#000"),
+                render.Box(width = 64, height = 8, child = render.Row(expanded = True, main_align = "center", cross_align = "center", children = [
+                    render.Text(color = displayType == "retro" and textColor or timeColor, content = gameTime, font = "CG-pixel-3x5-mono"),
+                ])),
             ])),
         ]
     else:
-        dateTimeColumn = []
+        timeBox = 20
+        statusBox = 44
+        if displayTop == "league":
+            theTime = LEAGUE_DISPLAY
+            timeBox += LEAGUE_DISPLAY_OFFSET
+            statusBox -= LEAGUE_DISPLAY_OFFSET
+        else:
+            now = now + time.parse_duration("%ds" % int(scoreNumber) * int(rotationSpeed))
+            theTime = now.format("3:04")
+            if len(str(theTime)) > 4:
+                timeBox += 4
+                statusBox -= 4
+        dateTimeColumn = [
+            render.Box(width = timeBox, height = 8, color = borderColor, child = render.Row(expanded = True, main_align = "center", cross_align = "center", children = [
+                render.Box(width = 1, height = 8),
+                render.Text(color = displayType == "retro" and textColor or timeColor, content = theTime, font = "tb-8"),
+            ])),
+            render.Box(width = statusBox, height = 8, child = render.Stack(children = [
+                render.Box(width = statusBox, height = 8, color = displayType == "stadium" and borderColor or "#000"),
+                render.Box(width = statusBox, height = 8, child = render.Row(expanded = True, main_align = "end", cross_align = "center", children = [
+                    render.Text(color = textColor, content = get_shortened_display(gameTime), font = "CG-pixel-3x5-mono"),
+                ])),
+            ])),
+        ]
     return dateTimeColumn
 
-def get_gametime_column(display, gameTime, textColor, backgroundColor, borderColor):
-    if display:
-        gameTimeColumn = []
-    else:
-        gameTimeColumn = [
-            render.Stack(
-                children = [
-                    render.Column(
-                        children = [
-                            render.Box(width = 64, height = 8, color = borderColor, child = render.Row(expanded = True, main_align = "start", cross_align = "center", children = [
-                                render.Box(width = 1, height = 8, color = borderColor),
-                                render.Box(width = 62, height = 8, child = render.Box(width = 60, height = 7, color = backgroundColor, child = render.Text(content = gameTime, color = textColor, font = "CG-pixel-3x5-mono"))),
-                                render.Box(width = 1, height = 8, color = borderColor),
-                            ])),
-                        ],
-                    ),
-                ],
-            ),
-        ]
-    return gameTimeColumn
+def get_shortened_display(text):
+    if len(text) > 8:
+        text = text.replace("Final", "F").replace("Game ", "G")
+    words = json.decode(SHORTENED_WORDS)
+    for _, s in enumerate(words):
+        text = text.replace(s, words[s])
+    return text
 
 def get_cachable_data(url, ttl_seconds = CACHE_TTL_SECONDS):
     key = base64.encode(url)
@@ -729,6 +972,6 @@ def get_cachable_data(url, ttl_seconds = CACHE_TTL_SECONDS):
     if res.status_code != 200:
         fail("request to %s failed with status code: %d - %s" % (url, res.status_code, res.body()))
 
-    cache.set(key, base64.encode(res.body()), ttl_seconds = CACHE_TTL_SECONDS)
+    cache.set(key, base64.encode(res.body()), ttl_seconds = ttl_seconds)
 
     return res.body()

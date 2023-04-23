@@ -1,0 +1,8 @@
+---
+id: colorblocks
+name: ColorBlocks
+summary: Displays color blocks
+desc: Display your Insight profile color blocks.
+author: Andrew Hefele
+fileName: colorblocks.star
+packageName: colorblocks

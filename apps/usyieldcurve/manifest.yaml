@@ -1,0 +1,8 @@
+---
+id: us-yield-curve
+name: US Yield Curve
+summary: Plots the US yield curve
+desc: Track changes to the yield curve over different US Treasury maturities.
+author: Rob Kimball
+fileName: us_yield_curve.star
+packageName: usyieldcurve

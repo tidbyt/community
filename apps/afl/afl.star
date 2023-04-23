@@ -7,13 +7,13 @@ Author: andymcrae
 
 #some code borrowed or inspired by nhlnextgame by AKKanman
 
-load("render.star", "render")
-load("http.star", "http")
+load("cache.star", "cache")
 load("encoding/base64.star", "base64")
 load("encoding/json.star", "json")
-load("cache.star", "cache")
-load("schema.star", "schema")
+load("http.star", "http")
 load("humanize.star", "humanize")
+load("render.star", "render")
+load("schema.star", "schema")
 load("time.star", "time")
 
 #URLs for AFL API data
@@ -131,7 +131,7 @@ def main(config):
 
     #build the output message
     message = " "
-    for i, x in enumerate(standings):
+    for i, _ in enumerate(standings):
         message = message + str(i + 1) + ": " + getTeamAbbFromID(standings[i]) + "  "
 
     games_cached = cache.get("afl_games")
@@ -176,7 +176,6 @@ def main(config):
     awayteam_id = ""
     nextgamedate = ""
     round_number = ""
-    venue = ""
 
     #get the data for the next game
     for i in range(len(game_data["games"])):
@@ -185,7 +184,6 @@ def main(config):
             awayteam_id = game_data["games"][i]["ateamid"]
             nextgamedate = game_data["games"][i]["date"]
             round_number = int(game_data["games"][i]["round"])
-            venue = game_data["games"][i]["venue"]
 
     display_date = ""
     date_key = nextgamedate[0:10]
@@ -285,7 +283,7 @@ def get_schema():
                 id = "main_team",
                 name = "Team",
                 desc = "Pick a team to follow",
-                icon = "",
+                icon = "peopleGroup",
                 default = TEAM_LIST[0].value,
                 options = TEAM_LIST,
             ),

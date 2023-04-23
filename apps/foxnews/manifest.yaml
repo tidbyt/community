@@ -1,0 +1,8 @@
+---
+id: fox-news
+name: Fox News
+summary: Fox News display
+desc: Display Fox News headlines.
+author: jvivona
+fileName: fox_news.star
+packageName: foxnews

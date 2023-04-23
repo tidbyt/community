@@ -5,11 +5,11 @@ Description: Uses 60 Pixels to display time across width of Tidbyt.
 Author: AmillionAir
 """
 
-load("render.star", "render")
-load("time.star", "time")
-load("encoding/json.star", "json")
 load("encoding/base64.star", "base64")
+load("encoding/json.star", "json")
+load("render.star", "render")
 load("schema.star", "schema")
+load("time.star", "time")
 
 DEFAULT_LOCATION = """
 {
@@ -127,6 +127,7 @@ def main(config):
         Hand = 63
 
     return render.Root(
+        max_age = 120,
         child = render.Column(
             children = [
                 render.Image(Top),
@@ -190,7 +191,7 @@ def get_schema():
                 id = "Month_Icon",
                 name = "Display Month",
                 desc = "A toggle to display a line for the current month.",
-                icon = "calandar",
+                icon = "calendar",
                 default = False,
             ),
             schema.Dropdown(
@@ -221,7 +222,7 @@ def get_schema():
                 id = "location",
                 name = "Location",
                 desc = "Location for which to display time.",
-                icon = "place",
+                icon = "locationDot",
             ),
         ],
     )

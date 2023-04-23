@@ -19,6 +19,10 @@ STATUS_URL = "https://api.tfl.gov.uk/Line/Mode/%s/Status"
 WHITE = "#FFF"
 BLACK = "#000"
 
+DISPLAY_SCROLL = "DISPLAY_SCROLL"
+DISPLAY_SEQUENTIAL = "DISPLAY_SEQUENTIAL"
+NO_DATA_IN_CACHE = ""
+
 LINES = {
     "bakerloo": {
         "display": "Bakerloo",
@@ -143,6 +147,8 @@ SEVERITIES = {
 def fetch_response():
     cache_key = "api_response"  # it's always the same input
     cached = cache.get(cache_key)
+    if cached == NO_DATA_IN_CACHE:
+        return None
     if cached:
         return json.decode(cached)
     app_key = secret.decrypt(ENCRYPTED_APP_KEY) or ""  # fall back to anonymous quota
@@ -153,29 +159,40 @@ def fetch_response():
         },
     )
     if resp.status_code != 200:
-        fail("TFL status request failed with status code ", resp.status_code)
+        print("TFL status request failed with status code ", resp.status_code)
+        cache.set(cache_key, NO_DATA_IN_CACHE, ttl_seconds = 30)
+        return None
     cache.set(cache_key, resp.body(), ttl_seconds = 60)
     return resp.json()
 
 def fetch_lines():
     lines = []
-    for line in fetch_response():
+    resp = fetch_response()
+    if not resp:
+        return None
+    for line in resp:
         if "id" not in line:
-            fail("TFL status request did not contain line id")
+            print("TFL status request did not contain line id")
+            continue
         id = line["id"]
 
         if "lineStatuses" not in line:
-            fail("TFL status request did not contain status")
+            print("TFL status request did not contain status")
+            continue
         if len(line["lineStatuses"]) == 0:
-            fail("TFL status request did not contain any status")
+            print("TFL status request did not contain any status")
+            continue
         if "statusSeverity" not in line["lineStatuses"][0]:
-            fail("TFL status request did not contain severity for line")
+            print("TFL status request did not contain severity for line")
+            continue
         severity = line["lineStatuses"][0]["statusSeverity"]
 
         if id not in LINES:
-            fail("Unknown line ID ", id)
+            print("Unknown line ID ", id)
+            continue
         if severity not in SEVERITIES:
-            fail("Unknown severity level ", severity)
+            print("Unknown severity level ", severity)
+            continue
 
         lines.append({
             "display": LINES[id]["display"],
@@ -212,26 +229,89 @@ def render_status(status):
         ),
     )
 
-def main(config):
-    lines = fetch_lines()
-
-    return render.Root(
-        delay = 49,
-        child = render.Marquee(
-            scroll_direction = "vertical",
-            height = 32,
-            offset_start = 32,
-            offset_end = 0,
-            child = render.Column(
-                main_align = "start",
-                cross_align = "start",
-                children = [render_status(line) for line in lines],
-            ),
+def render_marquee(lines):
+    return render.Marquee(
+        scroll_direction = "vertical",
+        height = 32,
+        offset_start = 32,
+        offset_end = 0,
+        child = render.Column(
+            main_align = "start",
+            cross_align = "start",
+            children = [render_status(line) for line in lines],
         ),
     )
 
+def render_sequential(lines):
+    frames = []
+    for i in range(0, len(lines), 2):
+        panes = [render_status(lines[i])]
+        if i + 1 < len(lines):
+            panes.append(render_status(lines[i + 1]))
+
+        frame = render.Column(
+            children = panes,
+        )
+        frames.append(frame)
+
+    return render.Animation(
+        children = frames,
+    )
+
+def render_error(message):
+    return render.Root(
+        child = render.WrappedText(
+            content = message,
+            width = 64,
+            height = 32,
+            align = "center",
+        ),
+    )
+
+def main(config):
+    lines = fetch_lines()
+    if not lines or len(lines) == 0:
+        return render_error("Could not load tube status")
+
+    display_mode = config.get("display_mode", DISPLAY_SEQUENTIAL)
+    if display_mode == DISPLAY_SCROLL:
+        rendered = render_marquee(lines)
+        delay = 49
+    elif display_mode == DISPLAY_SEQUENTIAL:
+        rendered = render_sequential(lines)
+        delay = 2000
+    else:
+        rendered = []
+        delay = 50
+
+    return render.Root(
+        max_age = 120,
+        delay = delay,
+        child = rendered,
+    )
+
 def get_schema():
+    display_modes = [
+        schema.Option(
+            display = "Scrolling",
+            value = DISPLAY_SCROLL,
+        ),
+        schema.Option(
+            display = "Sequential",
+            value = DISPLAY_SEQUENTIAL,
+        ),
+    ]
+
     return schema.Schema(
         version = "1",
-        fields = [],
+        fields = [
+            schema.Dropdown(
+                id = "display_mode",
+                name = "Display mode",
+                desc = "How to animate the status for different lines",
+                icon = "display",
+                default = DISPLAY_SEQUENTIAL,
+                options = display_modes,
+            ),
+        ],
     )

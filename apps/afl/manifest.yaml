@@ -1,0 +1,8 @@
+---
+id: afl
+name: AFL
+summary: AFL standings
+desc: Display the current Australian Football League standings and the next game time/date for a selected team.
+author: andymcrae
+fileName: afl.star
+packageName: afl

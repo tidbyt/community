@@ -1,0 +1,8 @@
+---
+id: steam
+name: Steam
+summary: Steam Now Playing
+desc: Displays current game or previous games. Use https://steamid.xyz/ to find your 17 digit Steam ID.
+author: Jeremy Tavener
+fileName: steam.star
+packageName: steam
