@@ -352,12 +352,9 @@ def check_cache(url, type = "body", lid = "", timeout = 300):
         key = "%s%s" % (lid, "json")
         data = cache.get(key)
         if data != None:
-            print("Using cached data")
             return json.decode(data)
 
         res = http.get(url = url)
-
-        print("Getting new data")
         if res.status_code != 200:
             fail("request to %s failed with status code: %d - %s" % (url, res.status_code, res.body()))
 
@@ -367,12 +364,9 @@ def check_cache(url, type = "body", lid = "", timeout = 300):
     key = base64.encode(url)
     data = cache.get(key)
     if data != None:
-        print("Using cached data")
         return base64.decode(data)
 
     res = http.get(url = url)
-
-    print("Getting new data")
     if res.status_code != 200:
         fail("request to %s failed with status code: %d - %s" % (url, res.status_code, res.body()))
 
