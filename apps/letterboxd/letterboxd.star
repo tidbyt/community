@@ -1,10 +1,11 @@
 load("animation.star", "animation")
+load("cache.star", "cache")
 load("encoding/base64.star", "base64")
+load("encoding/json.star", "json")
 load("hmac.star", "hmac")
 load("http.star", "http")
 load("render.star", "render")
 load("schema.star", "schema")
-load("secret.star", "secret")
 load("time.star", "time")
 
 DEFAULT_USERNAME = "danny"
@@ -19,7 +20,6 @@ HASHED_KEY = "AV6+xWcEQPFSKBUqIIUkoH0KxhqlfuyTNthY2/3woucrvDTy5Wdr5w9L1fbRmPALAL
 HASHED_SECRET = "AV6+xWcEx8i5d2dh86K8Yk1O1bRGP6teMMCEUZiuC1My6wXH14eZFI4t4/43X8uw2i2pUPw6Pr/jvMofoFkRsiaA4zEA++6M+7WHUAEXQqQnTSXlx1DAH6Cxth5yeMaQQErM0IIvFQfcAjjJ3EQeYiQtTJNp7hnO7s1GIVOBBiFNNqN/K3IA4aFLVN+GKFwaueETS0ogY6abcZ+GQ97On8j1jLt/xg=="
 api_key = secret.decrypt(HASHED_KEY)
 api_secret = secret.decrypt(HASHED_SECRET)
-
 UUID_URL = "https://www.uuidtools.com/api/generate/v4"
 LB_ICON = base64.decode(LB_IMAGE)
 STAR_ICON = base64.decode(STAR_IMAGE)
@@ -38,30 +38,25 @@ REVIEW_COUNT = 3
 
 def main(config):
     username = config.str("username", DEFAULT_USERNAME)
-    lid = getLID(username)
-    activityUrl = "/member/%s/activity" % (lid)
-    memberActivity = getMemberActivity(activityUrl)
+    Lid = getLID(username)
+    activityUrl = "/member/%s/activity" % (Lid)
+    memberActivity = getMemberActivity(Lid, activityUrl)
     recentActivity = memberActivity["items"]
     entryList = recentActivity[ACTIVITY_START_INDEX:ACTIVITY_END_INDEX]
-    entryList = [getEntry(entryList[i]) for i in range(REVIEW_COUNT)]
+    entryList = [getEntry(Lid, entryList[i]) for i in range(REVIEW_COUNT)]
     return render.Root(
         child = renderReviews(entryList),
     )
 
 # functions
-def get(route, params = ""):
+def get(Lid, route, params = ""):
     method = "GET"
     toSalt = constructUrl(route, api_key, params)
     signature = getSignature(method, toSalt)
-
     url = "%s&signature=%s" % (toSalt, signature)
-    res = http.get(url = url, headers = {"Content-Type": "application/json"})
 
-    if res.status_code != 200:
-        fail("station request failed with status code: %d - %s" %
-             (res.status_code, res.body()))
-
-    jsonresults = res.json()
+    # CACHE CHECK
+    jsonresults = check_cache(url, "json", Lid)
     return jsonresults
 
 def getSignature(method, toSalt):
@@ -81,36 +76,39 @@ def constructUrl(authRoute, apiKey = api_key, params = ""):
 
 def getLID(target):
     url = "%s%s" % (LB_URL, target)
-    res = http.get(url = url)
-    headers = res.headers
-    lid = headers["X-Letterboxd-Identifier"]
+
+    # CACHE CHECK
+    lid = check_cache(url, "identifier")
     return lid
 
-def getMemberActivity(query):
-    activity = get(query, {"where": "NotOwnActivity", "include": "DiaryEntryActivity"})
+def getMemberActivity(Lid, query):
+    activity = get(Lid, query, {"where": "NotOwnActivity", "include": "DiaryEntryActivity"})
     return activity
 
-def getEntry(item):
+def getEntry(Lid, item):
     film = item["diaryEntry"]["film"]
     diaryEntry = item["diaryEntry"]
     id = diaryEntry["id"]
     logEntryUrl = ("/log-entry/%s") % (id)
-    logEntry = get(logEntryUrl)
-
+    logEntry = get(Lid, logEntryUrl)
     review = logEntry.get("review", "")
     reviewText = review.get("lbml", "") if review != "" else ""
     movieName = film.get("name", "")
     releaseYear = film.get("releaseYear", "")
     releaseYear = int(releaseYear)
     releaseYear = "%d" % releaseYear
-    diaryDetails = logEntry["diaryDetails"]
+    diaryDetails = logEntry.get("diaryDetails", {})
     rewatch = diaryDetails.get("rewatch", False)
     posterUrl = film["poster"]["sizes"][0]["url"]
-    poster = http.get(posterUrl).body()
+
+    # CACHE CHECK
+    poster = check_cache(posterUrl, "body")
     owner = item["diaryEntry"]["owner"]
     ownerName = owner["displayName"]
     avatarUrl = owner["avatar"]["sizes"][0]["url"]
-    avatar = http.get(avatarUrl).body()
+
+    # CACHE CHECK
+    avatar = check_cache(avatarUrl, "body")
     rating = diaryEntry.get("rating", "")
     like = diaryEntry.get("like", 0)
     entryDict = {
@@ -346,6 +344,42 @@ def getUsername(entryObject, marqueeOffsetStart):
             ],
         ),
     )
+
+def check_cache(url, type = "body", lid = "", timeout = 300):
+    if type == "json":
+        # the URL can't be used as a key here because each request has a UUID
+        key = "%s%s" % (lid, "json")
+        data = cache.get(key)
+        if data != None:
+            print("Using cached data")
+            return json.decode(data)
+
+        res = http.get(url = url)
+
+        print("Getting new data")
+        if res.status_code != 200:
+            fail("request to %s failed with status code: %d - %s" % (url, res.status_code, res.body()))
+
+        cache.set(key, json.encode(res.json()), ttl_seconds = timeout)
+        return res.json()
+
+    key = base64.encode(url)
+    data = cache.get(key)
+    if data != None:
+        print("Using cached data")
+        return base64.decode(data)
+
+    res = http.get(url = url)
+
+    print("Getting new data")
+    if res.status_code != 200:
+        fail("request to %s failed with status code: %d - %s" % (url, res.status_code, res.body()))
+
+    if type == "identifier":
+        cache.set(key, base64.encode(res.headers["X-Letterboxd-Identifier"]), ttl_seconds = timeout)
+        return res.headers["X-Letterboxd-Identifier"]
+    cache.set(key, base64.encode(res.body()), ttl_seconds = timeout)
+    return res.body()
 
 def get_schema():
     return schema.Schema(
