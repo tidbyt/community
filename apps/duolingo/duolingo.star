@@ -373,11 +373,7 @@ def main(config):
             'user-agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/111.0.0.0 Safari/537.36',
         }
 
-        params = {
-            'username': 'saltedlolly',
-        }
-
-        duolingo_main_query = http.get(duolingo_main_query_url, params=params, headers=headers)
+        duolingo_main_query = http.get(duolingo_main_query_url, headers=headers)
 
         if duolingo_main_query.status_code != 200:
             if duolingo_main_query.status_code == 422:
