@@ -277,7 +277,7 @@ def get_data(location):
 
     # call openweather api
     res = http.get(OW_API_URL + "/data/2.5/air_pollution/forecast", params = {
-        "appid": secret.decrypt(OW_API_KEY) or OW_DEV_API_KEY,
+        "appid": apikey,
         "lat": str(lat),
         "lon": str(lon),
     })
