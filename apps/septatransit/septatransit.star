@@ -220,7 +220,7 @@ def main(config):
     schedule = get_schedule(route, stop)
     timezone = config.get("timezone") or "America/New_York"
     now = time.now().in_location(timezone)
-    left_pad = 1
+    left_pad = 4
 
     if config.bool("use_custom_banner_color"):
         route_bg_color = config.str("custom_banner_color")
@@ -239,8 +239,8 @@ def main(config):
 
     if config.bool("show_time"):
         banner_text = now.format("3:04p") + " " + banner_text
-        if now.format("3") not in ["10", "11", "12"]:
-            left_pad = 4
+        if now.format("3") in ["10", "11", "12"]:
+            left_pad = 0
 
     return render.Root(
         delay = 100,
