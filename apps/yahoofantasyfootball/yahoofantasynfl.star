@@ -402,7 +402,7 @@ def get_schema():
                 desc = "Connect your Yahoo account.",
                 icon = "football",
                 handler = oauth_handler,
-                client_id = "dj0yJmk9RkJhYkJhWmFsaWREJmQ9WVdrOVNXRkhOVVI2YkVrbWNHbzlNQT09JnM9Y29uc3VtZXJzZWNyZXQmc3Y9MCZ4PWRl",
+                client_id = YAHOO_CLIENT_ID,
                 authorization_endpoint = "https://api.login.yahoo.com/oauth2/request_auth",
                 scopes = [
                     "fspt-r",
