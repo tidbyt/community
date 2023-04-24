@@ -11,7 +11,7 @@ load("render.star", "render")
 load("schema.star", "schema")
 load("time.star", "time")
 
-TODOIST_API_BASE_URL = "https://api.todoist.com/rest/v1"
+TODOIST_API_BASE_URL = "https://api.todoist.com/rest/v2"
 
 TODOIST_API_TASKS_URL = TODOIST_API_BASE_URL + "/tasks?filter=(overdue|today)"
 
