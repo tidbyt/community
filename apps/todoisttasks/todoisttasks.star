@@ -12,7 +12,6 @@ load("render.star", "render")
 load("schema.star", "schema")
 load("secret.star", "secret")
 
-TTL = 60 * 4
 DEFAULT_FILTER = "today | overdue"
 DEFAULT_SHOW_IF_EMPTY = True
 
@@ -26,6 +25,9 @@ OAUTH2_CLIENT_SECRET = secret.decrypt("AV6+xWcECKJKREuOP2zxW2vKM0jgROWMLwjR0Pyjs
 def main(config):
     token = config.get("auth") or config.get("dev_api_key")
     children = []
+    task_priority = []
+    content = ""
+    cache_key = ""
     circle_children = []  # Initialize circle_children here
 
     if token:
@@ -97,13 +99,42 @@ def main(config):
                         color = circle_colors[i],
                         child = render.Circle(color = "#332726", diameter = 2),
                     ))
-
-            cache.set(cache_key, json.encode(content), TTL)
+            cache.set(cache_key, json.encode(content), ttl_seconds = 60)
+            cache.set(cache_key + "_priority", json.encode(task_priority), ttl_seconds = 60)
 
         else:
             content = json.decode(content)
 
-        if (content == NO_TASKS_CONTENT and not config.bool("show")):
+    if content != NO_TASKS_CONTENT:
+        colors = ["#9b9b9b", "#48a9e6", "#f8b43a", "#ed786c"]
+
+        children = []
+        for i, task_desc in enumerate(content):
+            children.append(render.Marquee(
+                child = render.Text(content = task_desc),
+                offset_start = 2,
+                width = 46,
+            ))
+
+        # Retrieve task priorities from the cache
+        task_priority = cache.get(cache_key + "_priority")
+
+        if task_priority:
+            task_priority = json.decode(task_priority)
+
+            # Update circle colors based on the priority of the tasks
+            circle_colors = [colors[int(priority) - 1] for priority in task_priority]
+
+            # Generate circle children based on the number of tasks
+            circle_children = []
+            for i in range(len(content)):
+                circle_children.append(render.Circle(
+                    diameter = 6,
+                    color = circle_colors[i],
+                    child = render.Circle(color = "#332726", diameter = 2),
+                ))
+
+        if content == NO_TASKS_CONTENT and not config.bool("show"):
             # Don't display the app in the user's rotation
             return []
 
