@@ -59,6 +59,7 @@ def main(config):
                 "units_temp": units["units_temp"],
                 "units_wind": units["units_wind"],
                 "units_distance": units["units_distance"],
+                "units_pressure": units["units_pressure"],
                 "units_precip": units["units_precip"],
             },
         )
