@@ -1,8 +1,8 @@
 """
-Applet: Tempest Weather
-Author: Rohan Singh
-Summary: Tempest weather station
-Description: Show readings from your Tempest weather station.
+Applet: Tempest
+Summary: Display your Tempest Weather data
+Description: Overview of your Tempest Weather Station, including current temperature, wind chill, pressure, inches of rain, and wind.
+Author: epifinygirl
 """
 
 load("encoding/base64.star", "base64")
@@ -58,9 +58,10 @@ def main(config):
                 "station_id": station_id,
                 "units_temp": units["units_temp"],
                 "units_wind": units["units_wind"],
-                "units_pressure": units["units_pressure"],
+                "feels_like": units["feels_like"],
                 "units_distance": units["units_distance"],
                 "units_precip": units["units_precip"],
+                "precip_accum_local_day": units["precip_accum_local_day"],
             },
         )
         if res.status_code != 200:
@@ -83,32 +84,19 @@ def main(config):
         units["units_wind"],
     )
     pressure = "%g" % conditions["sea_level_pressure"]
-
+    rain = "%d" % conditions["precip_accum_local_day"]
+    feels = "%d" % conditions["feels_like"]
+    pressure_trend = conditions["pressure_trend"]
     icon = base64.decode(ICON_MAP.get(conditions["icon"], ICON_MAP["cloudy"]))
 
-    pressure_trend = conditions["pressure_trend"]
     if pressure_trend == "falling":
-        pressure_icon = render.Row(
-            children = [
-                render.Image(base64.decode(ARROW_DOWN)),
-                render.Box(width = 1, height = 1),
-                render.Image(base64.decode(ARROW_DOWN)),
-                render.Box(width = 1, height = 1),
-                render.Image(base64.decode(ARROW_DOWN)),
-            ],
-        )
+        pressure_icon = ("↓")
+
     elif pressure_trend == "rising":
-        pressure_icon = render.Row(
-            children = [
-                render.Image(base64.decode(ARROW_UP)),
-                render.Box(width = 1, height = 1),
-                render.Image(base64.decode(ARROW_UP)),
-                render.Box(width = 1, height = 1),
-                render.Image(base64.decode(ARROW_UP)),
-            ],
-        )
+        pressure_icon = ("↑")
+
     else:
-        pressure_icon = render.Text("- - -")
+        pressure_icon = ("-")
 
     return render.Root(
         delay = 500,
@@ -130,19 +118,31 @@ def main(config):
                                         color = "#2a2",
                                     ),
                                     render.Text(
-                                        content = humidity,
-                                        color = "#66f",
+                                        content = feels + "°",
+                                        color = "#FFFF00",
                                     ),
                                 ],
                             ),
                             render.Column(
-                                cross_align = "center",
+                                cross_align = "left",
                                 children = [
                                     render.Text(
-                                        content = pressure,
+                                        content = humidity,
+                                        color = "#66f",
                                     ),
-                                    pressure_icon,
+                                    render.Text(
+                                        content = rain + " in",
+                                        color = "#808080",
+                                    ),
                                 ],
+                            ),
+                        ],
+                    ),
+                    render.Row(
+                        cross_align = "center",
+                        children = [
+                            render.Text(
+                                content = pressure + " " + pressure_icon,
                             ),
                         ],
                     ),
