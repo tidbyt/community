@@ -11,50 +11,54 @@ load("encoding/json.star", "json")
 load("http.star", "http")
 load("render.star", "render")
 load("schema.star", "schema")
-load("secret.star", "secret")
 load("xpath.star", "xpath")
 
-#TIDBYT_OAUTH_CALLBACK_URL = "https%3A%2F%2Flocalhost%2Foauth-callback"  # registered https://localhost/oauth-callback as redirect_uri at Yahoo
-TIDBYT_OAUTH_CALLBACK_URL = "https%3A%2F%2Fappauth.tidbyt.com%2Fyahoofantasynfl"
+# Constants for local development
+TIDBYT_OAUTH_CALLBACK_URL = "https%3A%2F%2Flocalhost%2Foauth-callback"  # registered https://localhost/oauth-callback as redirect_uri at Yahoo
+YAHOO_CLIENT_ID = "dj0yJmk9RkJhYkJhWmFsaWREJmQ9WVdrOVNXRkhOVVI2YkVrbWNHbzlNQT09JnM9Y29uc3VtZXJzZWNyZXQmc3Y9MCZ4PWRl"
+YAHOO_CLIENT_SECRET = "25c5d6135307c689fda5c7ed3a42adaf4ab29e24"
 
-YAHOO_CLIENT_ID = secret.decrypt("AV6+xWcESOzU0+vxd/pD9p6eJsSh+fkgPTLUMzJbnS00CHWXmoKWQbvmTpVIUUE3Y/J2LeplFDCPh3zEwpX0XEyHZubCkNlgu2CrTnGcGYRv4H7xOtS+BTwiEQUu40mgSarmMkxR/uo2BetzoVEctK3SkbEdVW5mZBJTPjoHZwfwPFhzXMyYKqO8EejDPYOg48beUv3MnNRx+nrtbtWf8Ip8Vj0riv9lceqgbGT5KiM5AgBNLSPHKyFwDLnj2R/3dhqyVBTR") or ""
-YAHOO_CLIENT_SECRET = secret.decrypt("AV6+xWcEUbzKOHZ63pL4mNLO8MGfmkVomrRiBERdm2WxRiPjMdymwN9lROH88N5pCfo5ZSUiNlOt9J3WeM9dUe1kGTPT6AykhXEXOXPjjqhVjKBGy3UOBDeYll33K6XxYiS06WP5Au6EBK6bc3gQd6+Y1h+zZyYL4NTzh2R4U/y1Xkj7sx/0wWQEmfhBww==") or ""
+# Constants for production repo
+#TIDBYT_OAUTH_CALLBACK_URL = "https%3A%2F%2Fappauth.tidbyt.com%2Fyahoofantasynfl" # registered https://appauth.tidbyt.com/yahoofantasynfl as redirect_uri at Yahoo
+#YAHOO_CLIENT_ID = secret.decrypt("AV6+xWcESOzU0+vxd/pD9p6eJsSh+fkgPTLUMzJbnS00CHWXmoKWQbvmTpVIUUE3Y/J2LeplFDCPh3zEwpX0XEyHZubCkNlgu2CrTnGcGYRv4H7xOtS+BTwiEQUu40mgSarmMkxR/uo2BetzoVEctK3SkbEdVW5mZBJTPjoHZwfwPFhzXMyYKqO8EejDPYOg48beUv3MnNRx+nrtbtWf8Ip8Vj0riv9lceqgbGT5KiM5AgBNLSPHKyFwDLnj2R/3dhqyVBTR") or ""
+#YAHOO_CLIENT_SECRET = secret.decrypt("AV6+xWcEUbzKOHZ63pL4mNLO8MGfmkVomrRiBERdm2WxRiPjMdymwN9lROH88N5pCfo5ZSUiNlOt9J3WeM9dUe1kGTPT6AykhXEXOXPjjqhVjKBGy3UOBDeYll33K6XxYiS06WP5Au6EBK6bc3gQd6+Y1h+zZyYL4NTzh2R4U/y1Xkj7sx/0wWQEmfhBww==") or ""
+
+# Common Constants
 YAHOO_CLIENT_ID_AND_SECRET_BASE_64 = base64.encode(YAHOO_CLIENT_ID + ":" + YAHOO_CLIENT_SECRET)
 YAHOO_OAUTH_AUTHORIZATION_URL = "https://api.login.yahoo.com/oauth2/request_auth"
 YAHOO_OAUTH_TOKEN_URL = "https://api.login.yahoo.com/oauth2/get_token"
-
 ACCESS_TOKEN_CACHE_TTL = 3000  # 50 minutes as Yahoo access tokens only last 60 minutes
 STANDINGS_CACHE_TTL = 14400  # 4 days
 LEAGUE_NAME_CACHE_TTL = 28800  # 8 days
-
-gameKey = "414"
+GAME_KEY = "414"
 
 def main(config):
-    renderCategory = []
-    refresh_token = config.get("auth")
-    leagueNumber = config.get("leagueNumber", "")
+    render_category = []
     league_name = ""
-    rotationSpeed = config.get("rotationSpeed", "5")
-    teamsToShow = int(config.get("teamsOptions", "4"))
-    topColor = config.get("topFontColor", "#FFA500")
-    colorScheme = config.get("colorScheme", '["0A2647", "144272", "205295", "2C74B3", "FFFFFF"]')
-    colorScheme = json.decode(colorScheme)
-    displayScores = config.bool("displayScores", False)
-    displayTies = config.bool("displayTies", False)
+    refresh_token = config.get("auth")
+    league_number = config.get("league_number", "")
+    rotation_speed = config.get("rotation_speed", "5")
+    teams_per_view = int(config.get("teams_per_view", "4"))
+    heading_font_color = config.get("heading_font_color", "#FFA500")
+    color_scheme = config.get("color_scheme", '["0A2647", "144272", "205295", "2C74B3", "FFFFFF"]')
+    color_scheme = json.decode(color_scheme)
+    show_scores = config.bool("show_scores", False)
+    show_ties = config.bool("show_ties", False)
+
     if refresh_token:
         print("Calling Get Access Token")
         access_token = get_access_token(refresh_token)
 
         if (access_token):
             print("League Name: " + league_name)
-            league_name = get_league_name(access_token, gameKey, leagueNumber)
+            league_name = get_league_name(access_token, GAME_KEY, league_number)
 
             if (league_name):
-                if displayScores:
-                    entriesToDisplay = 2
-                    current_matchup = get_current_matchup(access_token, gameKey, leagueNumber)
+                if show_scores:
+                    entries_to_display = 2
+                    current_matchup = get_current_matchup(access_token, GAME_KEY, league_number)
 
-                    renderCategory.extend(
+                    render_category.extend(
                         [
                             render.Column(
                                 expanded = True,
@@ -62,19 +66,18 @@ def main(config):
                                 cross_align = "start",
                                 children = [
                                     render.Column(
-                                        children = render_matchup(current_matchup, entriesToDisplay, topColor, colorScheme, league_name),
+                                        children = render_current_matchup(current_matchup, entries_to_display, heading_font_color, color_scheme, league_name),
                                     ),
                                 ],
                             ),
                         ],
                     )
                 else:
-                    entriesToDisplay = teamsToShow
-                    standings = get_standings_and_records(access_token, gameKey, leagueNumber)
+                    entries_to_display = teams_per_view
+                    standings = get_standings_and_records(access_token, GAME_KEY, league_number)
 
-                    #sampleStandings = [{"Name": "Dumpster Fire", "Standings": "1", "Wins": "10", "Losses": "4", "Ties": "0"}, {"Name": "Who is Mac Jones?", "Standings": "2", "Wins": "7", "Losses": "6", "Ties": "1"}, {"Name": "Campin my style", "Standings": "3", "Wins": "12", "Losses": "2", "Ties": "0"}, {"Name": "Mixon It Up", "Standings": "4", "Wins": "8", "Losses": "5", "Ties": "1"}, {"Name": "Lamar Ja’Marr & Dally G", "Standings": "5", "Wins": "7", "Losses": "7", "Ties": "0"}, {"Name": "I BEAT STEVE IN THE MARATHON", "Standings": "6", "Wins": "8", "Losses": "6", "Ties": "0"}, {"Name": "WelcomeToTheZappeParade", "Standings": "7", "Wins": "5", "Losses": "9", "Ties": "0"}, {"Name": "Amon-Ra-Ah-Ah-Ah", "Standings": "8", "Wins": "3", "Losses": "11", "Ties": "0"}, {"Name": "Mar-a-Lago Raiders", "Standings": "9", "Wins": "7", "Losses": "7", "Ties": "0"}, {"Name": "Everyday I'm Russell'n", "Standings": "10", "Wins": "6", "Losses": "8", "Ties": "0"}, {"Name": "Jeudy's Pontiac Bandits", "Standings": "11", "Wins": "4", "Losses": "10", "Ties": "0"}, {"Name": "Poppy's Belle and Dude Perfect", "Standings": "12", "Wins": "6", "Losses": "8", "Ties": "0"}]
-                    for x in range(0, len(standings), entriesToDisplay):
-                        renderCategory.extend(
+                    for x in range(0, len(standings), entries_to_display):
+                        render_category.extend(
                             [
                                 render.Column(
                                     expanded = True,
@@ -82,7 +85,7 @@ def main(config):
                                     cross_align = "start",
                                     children = [
                                         render.Column(
-                                            children = render_standings(x, standings, entriesToDisplay, topColor, colorScheme, league_name, displayTies),
+                                            children = render_standings_and_records(x, standings, entries_to_display, heading_font_color, color_scheme, league_name, show_ties),
                                         ),
                                     ],
                                 ),
@@ -90,9 +93,9 @@ def main(config):
                         )
 
                 return render.Root(
-                    delay = int(rotationSpeed) * 1000,
+                    delay = int(rotation_speed) * 1000,
                     show_full_animation = True,
-                    child = render.Animation(children = renderCategory),
+                    child = render.Animation(children = render_category),
                 )
             else:
                 error_message = "Please check your league number."
@@ -111,15 +114,33 @@ def main(config):
                 ),
             )
     else:
-        error_message = "Please connect your Yahoo account."
+        entries_to_display = teams_per_view
+        league_name = "Yahoo Fantasy"
+
+        standings = [{"Name": "Dumpster Fire", "Standings": "1", "Wins": "10", "Losses": "4", "Ties": "0"}, {"Name": "Who is Mac Jones?", "Standings": "2", "Wins": "7", "Losses": "6", "Ties": "1"}, {"Name": "Campin my style", "Standings": "3", "Wins": "12", "Losses": "2", "Ties": "0"}, {"Name": "Mixon It Up", "Standings": "4", "Wins": "8", "Losses": "5", "Ties": "1"}, {"Name": "Lamar Ja’Marr & Dally G", "Standings": "5", "Wins": "7", "Losses": "7", "Ties": "0"}, {"Name": "I BEAT STEVE IN THE MARATHON", "Standings": "6", "Wins": "8", "Losses": "6", "Ties": "0"}, {"Name": "WelcomeToTheZappeParade", "Standings": "7", "Wins": "5", "Losses": "9", "Ties": "0"}, {"Name": "Amon-Ra-Ah-Ah-Ah", "Standings": "8", "Wins": "3", "Losses": "11", "Ties": "0"}, {"Name": "Mar-a-Lago Raiders", "Standings": "9", "Wins": "7", "Losses": "7", "Ties": "0"}, {"Name": "Everyday I'm Russell'n", "Standings": "10", "Wins": "6", "Losses": "8", "Ties": "0"}, {"Name": "Jeudy's Pontiac Bandits", "Standings": "11", "Wins": "4", "Losses": "10", "Ties": "0"}, {"Name": "Poppy's Belle and Dude Perfect", "Standings": "12", "Wins": "6", "Losses": "8", "Ties": "0"}]
+        for x in range(0, len(standings), entries_to_display):
+            render_category.extend(
+                [
+                    render.Column(
+                        expanded = True,
+                        main_align = "start",
+                        cross_align = "start",
+                        children = [
+                            render.Column(
+                                children = render_standings_and_records(x, standings, entries_to_display, heading_font_color, color_scheme, league_name, show_ties),
+                            ),
+                        ],
+                    ),
+                ],
+            )
+
         return render.Root(
-            child = render.Marquee(
-                width = 64,
-                child = render.Text(error_message),
-            ),
+            delay = int(rotation_speed) * 1000,
+            show_full_animation = True,
+            child = render.Animation(children = render_category),
         )
 
-rotationOptions = [
+rotation_options = [
     schema.Option(
         display = "3 seconds",
         value = "3",
@@ -174,7 +195,7 @@ rotationOptions = [
     ),
 ]
 
-teamsOptions = [
+teams_per_view_options = [
     schema.Option(
         display = "2",
         value = "2",
@@ -189,7 +210,7 @@ teamsOptions = [
     ),
 ]
 
-colorSchemeColorOptions = [
+color_scheme_options = [
     schema.Option(
         display = "Blue",
         value = json.encode(["0A2647", "144272", "205295", "2C74B3", "FFFFFF"]),
@@ -324,36 +345,6 @@ colorSchemeColorOptions = [
     ),
 ]
 
-def get_access_token(refresh_token):
-    #Try to load access token from cache
-    access_token_cached = cache.get(refresh_token + "_access_token")
-
-    if access_token_cached != None:
-        print("Hit! Using cached access token " + access_token_cached)
-        return access_token_cached
-    else:
-        print("Miss! Getting new access token from Yahoo API.")
-
-        url = "https://api.login.yahoo.com/oauth2/get_token"
-        body = (
-            "grant_type=refresh_token" +
-            "&redirect_uri=" + TIDBYT_OAUTH_CALLBACK_URL +
-            "&refresh_token=" + refresh_token
-        )
-        headers = {
-            "Authorization": "Basic " + YAHOO_CLIENT_ID_AND_SECRET_BASE_64,
-            "Content-Type": "application/x-www-form-urlencoded",
-        }
-        print("Making Call")
-        r = http.post(url, body = body, headers = headers)
-        body = r.json()
-        access_token = body["access_token"]
-        cache.set(refresh_token + "_access_token", access_token, ttl_seconds = ACCESS_TOKEN_CACHE_TTL)
-        print("Printing access token:")
-        print(access_token)
-
-        return access_token
-
 def oauth_handler(params):
     headers = {
         "Content-type": "application/x-www-form-urlencoded",
@@ -409,54 +400,46 @@ def get_schema():
                 ],
             ),
             schema.Text(
-                id = "leagueNumber",
+                id = "league_number",
                 name = "League Number",
                 desc = "Type in the league number for your league. Go to your league in a browser and look at the URL. It should end in /f1 then /#######. Input just those numbers here.",
                 icon = "hashtag",
                 default = "",
             ),
             schema.Toggle(
-                id = "displayScores",
-                name = "Display Scores",
-                desc = "Should scores be shown instead of standings?",
+                id = "show_scores",
+                name = "Show Scores",
+                desc = "Show scores instead of standings",
                 icon = "gear",
                 default = False,
             ),
             schema.Toggle(
-                id = "displayTies",
-                name = "Display Ties",
-                desc = "Should ties be shown in the standings?",
+                id = "show_ties",
+                name = "Show Ties",
+                desc = "Show ties in team record",
                 icon = "gear",
                 default = False,
             ),
             schema.Dropdown(
-                id = "rotationSpeed",
+                id = "rotation_speed",
                 name = "Rotation Speed",
-                desc = "Amount of seconds each score is displayed.",
+                desc = "Seconds per rotation",
                 icon = "gear",
-                default = rotationOptions[1].value,
-                options = rotationOptions,
+                default = rotation_options[1].value,
+                options = rotation_options,
             ),
             schema.Dropdown(
-                id = "teamsOptions",
+                id = "teams_per_view",
                 name = "Teams Per View",
-                desc = "How many teams it should show at once. Only applies to standings.",
+                desc = "Number of teams to show at once (standings only)",
                 icon = "gear",
-                default = teamsOptions[1].value,
-                options = teamsOptions,
-            ),
-            schema.Dropdown(
-                id = "colorScheme",
-                name = "Primary Color Scheme",
-                desc = "Select the primary color screen",
-                icon = "gear",
-                default = colorSchemeColorOptions[0].value,
-                options = colorSchemeColorOptions,
+                default = teams_per_view_options[1].value,
+                options = teams_per_view_options,
             ),
             schema.Color(
-                id = "topFontColor",
-                name = "Top Font Color",
-                desc = "Customize the color of the font at the top.",
+                id = "heading_font_color",
+                name = "Font Color",
+                desc = "Heading font color",
                 icon = "brush",
                 default = "#FFA500",
                 palette = [
@@ -468,10 +451,76 @@ def get_schema():
                     "#FFA500",
                 ],
             ),
+            schema.Dropdown(
+                id = "color_scheme",
+                name = "Color Scheme",
+                desc = "Select the color scheme",
+                icon = "gear",
+                default = color_scheme_options[0].value,
+                options = color_scheme_options,
+            ),
         ],
     )
 
-def get_standings_and_records(access_token, gameKey, leagueNumber):
+def get_access_token(refresh_token):
+    #Try to load access token from cache
+    access_token_cached = cache.get(refresh_token + "_access_token")
+
+    if access_token_cached != None:
+        print("Hit! Using cached access token " + access_token_cached)
+        return access_token_cached
+    else:
+        print("Miss! Getting new access token from Yahoo API.")
+
+        url = "https://api.login.yahoo.com/oauth2/get_token"
+        body = (
+            "grant_type=refresh_token" +
+            "&redirect_uri=" + TIDBYT_OAUTH_CALLBACK_URL +
+            "&refresh_token=" + refresh_token
+        )
+        headers = {
+            "Authorization": "Basic " + YAHOO_CLIENT_ID_AND_SECRET_BASE_64,
+            "Content-Type": "application/x-www-form-urlencoded",
+        }
+        print("Making Call")
+        r = http.post(url, body = body, headers = headers)
+        body = r.json()
+        access_token = body["access_token"]
+        cache.set(refresh_token + "_access_token", access_token, ttl_seconds = ACCESS_TOKEN_CACHE_TTL)
+        print("Printing access token:")
+        print(access_token)
+
+        return access_token
+
+def get_league_name(access_token, GAME_KEY, league_number):
+    league_name = ""
+
+    #Try to load league name from cache
+    league_name_cached = cache.get(access_token + "_league_name")
+
+    if league_name_cached != None:
+        print("Hit! Using cached league name!")
+        league_name = league_name_cached
+    else:
+        print("Miss! Getting new league name from Yahoo API.")
+        url = "https://fantasysports.yahooapis.com/fantasy/v2/league/" + GAME_KEY + ".l." + league_number
+        headers = {
+            "Authorization": "Bearer " + access_token,
+            "Accept": "application/json",
+            "Content-Type": "application/json",
+        }
+        print("Making Call for League Name")
+        league_name_response = http.get(url, headers = headers)
+
+        league_name = xpath.loads(league_name_response.body()).query("/fantasy_content/league/name")
+        if league_name != None:
+            print("Caching league name")
+            cache.set(access_token + "_league_name", league_name, ttl_seconds = LEAGUE_NAME_CACHE_TTL)
+
+    print(league_name)
+    return league_name
+
+def get_standings_and_records(access_token, GAME_KEY, league_number):
     allstandings = []
 
     #Try to load standings from cache
@@ -482,7 +531,7 @@ def get_standings_and_records(access_token, gameKey, leagueNumber):
         allstandings = json.decode(standings_cached)
     else:
         print("Miss! Getting new standings from Yahoo API.")
-        url = "https://fantasysports.yahooapis.com/fantasy/v2/league/" + gameKey + ".l." + leagueNumber + "/standings"
+        url = "https://fantasysports.yahooapis.com/fantasy/v2/league/" + GAME_KEY + ".l." + league_number + "/standings"
         headers = {
             "Authorization": "Bearer " + access_token,
             "Accept": "application/json",
@@ -506,35 +555,7 @@ def get_standings_and_records(access_token, gameKey, leagueNumber):
     print(allstandings)
     return allstandings
 
-def get_league_name(access_token, gameKey, leagueNumber):
-    league_name = ""
-
-    #Try to load league name from cache
-    league_name_cached = cache.get(access_token + "_league_name")
-
-    if league_name_cached != None:
-        print("Hit! Using cached league name!")
-        league_name = league_name_cached
-    else:
-        print("Miss! Getting new league name from Yahoo API.")
-        url = "https://fantasysports.yahooapis.com/fantasy/v2/league/" + gameKey + ".l." + leagueNumber
-        headers = {
-            "Authorization": "Bearer " + access_token,
-            "Accept": "application/json",
-            "Content-Type": "application/json",
-        }
-        print("Making Call for League Name")
-        league_name_response = http.get(url, headers = headers)
-
-        league_name = xpath.loads(league_name_response.body()).query("/fantasy_content/league/name")
-        if league_name != None:
-            print("Caching league name")
-            cache.set(access_token + "_league_name", league_name, ttl_seconds = LEAGUE_NAME_CACHE_TTL)
-
-    print(league_name)
-    return league_name
-
-def render_standings(x, standings, entriesToDisplay, topColor, colorScheme, leagueName, displayTies):
+def render_standings_and_records(x, standings, entries_to_display, heading_font_color, color_scheme, leagueName, show_ties):
     output = []
     teamTies = ""
     teamWins = ""
@@ -544,21 +565,21 @@ def render_standings(x, standings, entriesToDisplay, topColor, colorScheme, leag
         render.Box(width = 64, height = 8, child = render.Stack(children = [
             render.Box(width = 64, height = 8, color = "#000"),
             render.Box(width = 64, height = 8, child = render.Row(expanded = True, main_align = "center", cross_align = "center", children = [
-                render.Text(color = topColor, content = leagueName, font = "CG-pixel-3x5-mono"),
+                render.Text(color = heading_font_color, content = leagueName, font = "CG-pixel-3x5-mono"),
             ])),
         ])),
     ]
 
     output.extend(topColumn)
-    containerHeight = int(24 / entriesToDisplay)
-    for i in range(entriesToDisplay):
+    containerHeight = int(24 / entries_to_display)
+    for i in range(entries_to_display):
         if i + x < len(standings):
             mainFont = "CG-pixel-3x5-mono"
             teamName = standings[i + x]["Name"]
             teamWins = standings[i + x]["Wins"]
             teamLosses = standings[i + x]["Losses"]
             teamTies = standings[i + x]["Ties"]
-            if displayTies:
+            if show_ties:
                 teamRecord = teamWins + "-" + teamLosses + "-" + teamTies
                 teamNameBoxSize = 36
                 recordBoxSize = 24
@@ -570,14 +591,14 @@ def render_standings(x, standings, entriesToDisplay, topColor, colorScheme, leag
                 teamName = teamName[:10]
 
             if i == 0:
-                teamColor = "#" + colorScheme[0]
+                teamColor = "#" + color_scheme[0]
             elif i == 1:
-                teamColor = "#" + colorScheme[1]
+                teamColor = "#" + color_scheme[1]
             elif i == 2:
-                teamColor = "#" + colorScheme[2]
+                teamColor = "#" + color_scheme[2]
             else:
-                teamColor = "#" + colorScheme[3]
-            textColor = "#" + colorScheme[4]
+                teamColor = "#" + color_scheme[3]
+            textColor = "#" + color_scheme[4]
 
             team = render.Column(
                 children = [
@@ -594,55 +615,10 @@ def render_standings(x, standings, entriesToDisplay, topColor, colorScheme, leag
 
     return output
 
-def render_matchup(current_matchup, entriesToDisplay, topColor, colorScheme, leagueName):
-    output = []
-
-    topColumn = [
-        render.Box(width = 64, height = 8, child = render.Stack(children = [
-            render.Box(width = 64, height = 8, color = "#000"),
-            render.Box(width = 64, height = 8, child = render.Row(expanded = True, main_align = "center", cross_align = "center", children = [
-                render.Text(color = topColor, content = leagueName, font = "CG-pixel-3x5-mono"),
-            ])),
-        ])),
-    ]
-
-    output.extend(topColumn)
-    containerHeight = int(24 / entriesToDisplay)
-    for i in range(2):
-        if i < len(current_matchup):
-            mainFont = "CG-pixel-3x5-mono"
-            teamName = current_matchup[i]["Name"]
-            teamName = teamName[:11]
-            teamColor = ""
-            print(teamName)
-            teamScore = current_matchup[i]["Score"]
-            teamNameBoxSize = 46
-            scoreBoxSize = 18
-            if i == 0:
-                teamColor = "#" + colorScheme[0]
-            elif i == 1:
-                teamColor = "#" + colorScheme[1]
-            textColor = "#" + colorScheme[4]
-
-            team = render.Column(
-                children = [
-                    render.Box(width = 64, height = containerHeight, color = teamColor, child = render.Row(expanded = True, main_align = "start", cross_align = "center", children = [
-                        render.Box(width = teamNameBoxSize, height = containerHeight, child = render.Text(content = teamName, color = textColor, font = mainFont)),
-                        render.Box(width = 4, height = containerHeight, child = render.Text(content = "", color = textColor, font = mainFont)),
-                        render.Box(width = scoreBoxSize, height = containerHeight, child = render.Text(content = teamScore, color = textColor, font = mainFont)),
-                    ])),
-                ],
-            )
-            output.extend([team])
-        else:
-            output.extend([render.Column(children = [render.Box(width = 64, height = containerHeight, color = "#111")])])
-
-    return output
-
-def get_current_matchup(access_token, gameKey, leagueNumber):
+def get_current_matchup(access_token, GAME_KEY, league_number):
     current_matchup = []
 
-    url = "https://fantasysports.yahooapis.com/fantasy/v2/league/" + gameKey + ".l." + leagueNumber + "/scoreboard"
+    url = "https://fantasysports.yahooapis.com/fantasy/v2/league/" + GAME_KEY + ".l." + league_number + "/scoreboard"
     headers = {
         "Authorization": "Bearer " + access_token,
         "Accept": "application/json",
@@ -662,3 +638,48 @@ def get_current_matchup(access_token, gameKey, leagueNumber):
 
     print("CURRENT MATCHUP: " + str(current_matchup))
     return current_matchup
+
+def render_current_matchup(current_matchup, entries_to_display, heading_font_color, color_scheme, leagueName):
+    output = []
+
+    topColumn = [
+        render.Box(width = 64, height = 8, child = render.Stack(children = [
+            render.Box(width = 64, height = 8, color = "#000"),
+            render.Box(width = 64, height = 8, child = render.Row(expanded = True, main_align = "center", cross_align = "center", children = [
+                render.Text(color = heading_font_color, content = leagueName, font = "CG-pixel-3x5-mono"),
+            ])),
+        ])),
+    ]
+
+    output.extend(topColumn)
+    containerHeight = int(24 / entries_to_display)
+    for i in range(2):
+        if i < len(current_matchup):
+            mainFont = "CG-pixel-3x5-mono"
+            teamName = current_matchup[i]["Name"]
+            teamName = teamName[:11]
+            teamColor = ""
+            print(teamName)
+            teamScore = current_matchup[i]["Score"]
+            teamNameBoxSize = 46
+            scoreBoxSize = 18
+            if i == 0:
+                teamColor = "#" + color_scheme[0]
+            elif i == 1:
+                teamColor = "#" + color_scheme[1]
+            textColor = "#" + color_scheme[4]
+
+            team = render.Column(
+                children = [
+                    render.Box(width = 64, height = containerHeight, color = teamColor, child = render.Row(expanded = True, main_align = "start", cross_align = "center", children = [
+                        render.Box(width = teamNameBoxSize, height = containerHeight, child = render.Text(content = teamName, color = textColor, font = mainFont)),
+                        render.Box(width = 4, height = containerHeight, child = render.Text(content = "", color = textColor, font = mainFont)),
+                        render.Box(width = scoreBoxSize, height = containerHeight, child = render.Text(content = teamScore, color = textColor, font = mainFont)),
+                    ])),
+                ],
+            )
+            output.extend([team])
+        else:
+            output.extend([render.Column(children = [render.Box(width = 64, height = containerHeight, color = "#111")])])
+
+    return output
