@@ -58,7 +58,6 @@ def main(config):
                 "station_id": station_id,
                 "units_temp": units["units_temp"],
                 "units_wind": units["units_wind"],
-                "feels_like": units["feels_like"],
                 "units_distance": units["units_distance"],
                 "units_precip": units["units_precip"],
                 "precip_accum_local_day": units["precip_accum_local_day"],
