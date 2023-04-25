@@ -158,12 +158,13 @@ def main(config):
     if numPredictions <= 3:
         if ShowDetails == True:
             return render.Root(
-                delay = 300,
+                delay = 200,
+                show_full_animation = True,
                 child = render.Marquee(
                     scroll_direction = "vertical",
                     height = 32,
                     align = "start",
-                    offset_start = 2,
+                    offset_start = 3,
                     offset_end = 32,
                     child = render.Column(
                         children = [
@@ -202,12 +203,13 @@ def main(config):
     elif numPredictions == 4:
         if ShowDetails == True:
             return render.Root(
-                delay = 300,
+                delay = 200,
+                show_full_animation = True,
                 child = render.Marquee(
                     scroll_direction = "vertical",
                     height = 32,
                     align = "start",
-                    offset_start = 2,
+                    offset_start = 3,
                     offset_end = 32,
                     child = render.Column(
                         children = [
@@ -250,12 +252,13 @@ def main(config):
     elif numPredictions == 5:
         if ShowDetails == True:
             return render.Root(
-                delay = 300,
+                delay = 200,
+                show_full_animation = True,
                 child = render.Marquee(
                     scroll_direction = "vertical",
                     height = 32,
                     align = "start",
-                    offset_start = 2,
+                    offset_start = 3,
                     offset_end = 32,
                     child = render.Column(
                         children = [
@@ -302,12 +305,13 @@ def main(config):
     elif numPredictions == 6:
         if ShowDetails == True:
             return render.Root(
-                delay = 300,
+                delay = 200,
+                show_full_animation = True,
                 child = render.Marquee(
                     scroll_direction = "vertical",
                     height = 32,
                     align = "start",
-                    offset_start = 2,
+                    offset_start = 3,
                     offset_end = 32,
                     child = render.Column(
                         children = [
@@ -358,12 +362,13 @@ def main(config):
     elif numPredictions == 7:
         if ShowDetails == True:
             return render.Root(
-                delay = 300,
+                delay = 200,
+                show_full_animation = True,
                 child = render.Marquee(
                     scroll_direction = "vertical",
                     height = 32,
                     align = "start",
-                    offset_start = 2,
+                    offset_start = 3,
                     offset_end = 32,
                     child = render.Column(
                         children = [
@@ -417,12 +422,13 @@ def main(config):
             )
     elif ShowDetails == True:
         return render.Root(
-            delay = 300,
+            delay = 200,
+            show_full_animation = True,
             child = render.Marquee(
                 scroll_direction = "vertical",
                 height = 32,
                 align = "start",
-                offset_start = 2,
+                offset_start = 3,
                 offset_end = 32,
                 child = render.Column(
                     children = [

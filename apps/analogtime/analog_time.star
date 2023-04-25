@@ -7,11 +7,10 @@ Author: rs7q5
 
 #analog_time.star
 #Created 20220204 RIS
-#Last Modified 20220426 RIS
+#Last Modified 20230323 RIS
 
 load("encoding/json.star", "json")
 load("math.star", "math")
-load("re.star", "re")
 load("render.star", "render")
 load("schema.star", "schema")
 load("time.star", "time")
@@ -36,16 +35,11 @@ def main(config):
     hour, minute = [int(x) for x in now_txt.split(":")]  #get integer values of the time
 
     #get colors
-    tick_color = config.str("tick_color", "#fff")
-    center_color = config.str("center_color", "#c8c8fa")
-    hour_color = config.str("hour_color", "#a00")
-    minute_color = config.str("minute_color", "#fff")
-
     if config.bool("color_logic", False):
-        tick_color = tick_color if validate_color(tick_color) else "#fff"
-        center_color = center_color if validate_color(center_color) else "#c8c8fa"
-        hour_color = hour_color if validate_color(hour_color) else "#a00"
-        minute_color = minute_color if validate_color(minute_color) else "#fff"
+        tick_color = config.str("tick_color", "#fff")
+        center_color = config.str("center_color", "#c8c8fa")
+        hour_color = config.str("hour_color", "#a00")
+        minute_color = config.str("minute_color", "#fff")
     else:
         tick_color = "#fff"
         center_color = "#c8c8fa"
@@ -119,28 +113,28 @@ def get_schema():
                 icon = "brush",
                 default = False,
             ),
-            schema.Text(
+            schema.Color(
                 id = "tick_color",
                 name = "Tick marks",
                 desc = "Default color is #fff.",
                 icon = "brush",
                 default = "#fff",
             ),
-            schema.Text(
+            schema.Color(
                 id = "center_color",
                 name = "Center mark",
                 desc = "Default color is #c8c8fa.",
                 icon = "brush",
                 default = "#c8c8fa",
             ),
-            schema.Text(
+            schema.Color(
                 id = "hour_color",
                 name = "Hour hand",
                 desc = "Default color is #a00.",
                 icon = "brush",
                 default = "#a00",
             ),
-            schema.Text(
+            schema.Color(
                 id = "minute_color",
                 name = "Minute hand",
                 desc = "Default color is #fff.",
@@ -168,15 +162,3 @@ def pad_text(text):
         for i, x in enumerate(text):
             text[i] = x + " " * (max_len - len(x))
     return text
-
-def validate_color(x):
-    #validates hex color
-    #regex from https://stackoverflow.com/questions/1636350/how-to-identify-a-given-string-is-hex-color-format?noredirect=1&lq=1
-
-    match = re.findall("^#[0-9a-fA-F]{8}$|#[0-9a-fA-F]{6}$|#[0-9a-fA-F]{4}$|#[0-9a-fA-F]{3}$", x)
-    if len(match) == 1:
-        return True
-    else:
-        return False
-
-######################################################
