@@ -1,0 +1,8 @@
+---
+id: wordlebyt
+name: Wordlebyt
+summary: Wordle Score on your Tidbyt
+desc: Displays the current Wordle Score that you've pasted into Wordlebyt from the Wordle App/Webpage.  Score will remain until you update it.
+author: skola28
+fileName: wordlebyt.star
+packageName: wordlebyt
