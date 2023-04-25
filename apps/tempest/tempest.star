@@ -60,7 +60,6 @@ def main(config):
                 "units_wind": units["units_wind"],
                 "units_distance": units["units_distance"],
                 "units_precip": units["units_precip"],
-                "precip_accum_local_day": units["precip_accum_local_day"],
             },
         )
         if res.status_code != 200:
