@@ -200,7 +200,7 @@ def get_schema():
                 name = "Table name",
                 desc = "The name of the table on restdb.io",
                 icon = "table",
-                default = "home"
+                default = "home",
             ),
             schema.Text(
                 id = "api_key",
