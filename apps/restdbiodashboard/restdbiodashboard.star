@@ -53,6 +53,7 @@ def main(config):
     icons = dict()
 
     db_name = config.str("db_name")
+    table_name = config.str("table_name")
     vertical_layout = config.bool("vertical")
     api_key = config.str("api_key")
     offline_page = config.str("offline_page")
@@ -74,7 +75,7 @@ def main(config):
 
     if not use_offline_data:
         rep = http.get(
-            "https://{}.restdb.io/rest/home?max=3&q={{%22visible%22:true}}&sort=order".format(db_name),
+            "https://{}.restdb.io/rest/{}?max=3&q={{%22visible%22:true}}&sort=order".format(db_name, table_name),
             headers = {
                 "Accept": "application/json",
                 "x-apikey": api_key,
@@ -193,6 +194,13 @@ def get_schema():
                 name = "Database name",
                 desc = "The name of the database on restdb.io",
                 icon = "database",
+            ),
+            schema.Text(
+                id = "table_name",
+                name = "Table name",
+                desc = "The name of the table on restdb.io",
+                icon = "table",
+                default = "home"
             ),
             schema.Text(
                 id = "api_key",
