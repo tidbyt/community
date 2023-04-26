@@ -9,8 +9,8 @@ load("encoding/base64.star", "base64")
 load("encoding/json.star", "json")
 load("http.star", "http")
 load("render.star", "render")
-load("secret.star", "secret")
 load("schema.star", "schema")
+load("secret.star", "secret")
 
 TEMPEST_AUTH_URL = "https://tempestwx.com/authorize.html"
 
@@ -73,10 +73,9 @@ def main(config):
     # If we can't get an observation, we should just skip it in the rotation.
     if len(station_res["obs"]) == 0:
         return []
-    feel_dew_choice = config.get("Feels_Dew","1")
+    feel_dew_choice = config.get("Feels_Dew", "1")
     conditions = forecast_res["current_conditions"]
 
-    
     temp = "%d°" % conditions["air_temperature"]
     humidity = "%d%%" % conditions["relative_humidity"]
     wind = "%s %d %s" % (
@@ -91,8 +90,9 @@ def main(config):
     pressure_trend = conditions["pressure_trend"]
     icon = base64.decode(ICON_MAP.get(conditions["icon"], ICON_MAP["cloudy"]))
     if feel_dew_choice == "1":
-     updated_temp = (feels)
-    else: updated_temp = (dew_pt)
+        updated_temp = (feels)
+    else:
+        updated_temp = (dew_pt)
     if pressure_trend == "falling":
         pressure_icon = ("↓")
 
@@ -167,15 +167,15 @@ def main(config):
 
 def get_schema():
     options = [
-    schema.Option(
-        display = "Feels Like",
-        value = "1",
-    ),
-    schema.Option(
-        display = "Dew Point",
-        value = "2",
-    ),
-]
+        schema.Option(
+            display = "Feels Like",
+            value = "1",
+        ),
+        schema.Option(
+            display = "Dew Point",
+            value = "2",
+        ),
+    ]
     return [
         {
             "id": "auth",
