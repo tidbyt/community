@@ -63,11 +63,11 @@ def main(config):
     if not db_name:
         use_offline_data = True
         db_name = "offline"
-        vertical_layout = True
         print("using offline data")
         if not offline_page:
             offline_page = DEMO_PAGE
             offline_icons = DEMO_ICONS
+            vertical_layout = True
 
     if config.bool("reset_icon_cache") and not use_offline_data:
         return reset_icon_cache(db_name, api_key)
