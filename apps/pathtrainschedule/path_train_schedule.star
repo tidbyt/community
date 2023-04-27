@@ -15,19 +15,20 @@ TO_NJ = "TO_NJ"
 STATION_NAME_KEY = "station_name_key"
 TRAIN_TIME_KEY = "train_time_key"
 
-def main(config):
-    station = config.get("station") or "JOURNAL_SQUARE"
-    all_trains = getTrainDataFromApi(station)
+def main():
+    # station = config.get("station") or "JOURNAL_SQUARE"
+    # all_trains = getTrainDataFromApi(station)
 
-    return render.Root(
-        render.Column(
-            children = [
-                renderTrainMarquee(all_trains[TO_NJ], TO_NJ),
-                renderDivider(),
-                renderTrainMarquee(all_trains[TO_NY], TO_NY),
-            ],
-        ),
-    )
+    # return render.Root(
+    #     render.Column(
+    #         children = [
+    #             renderTrainMarquee(all_trains[TO_NJ], TO_NJ),
+    #             renderDivider(),
+    #             renderTrainMarquee(all_trains[TO_NY], TO_NY),
+    #         ],
+    #     ),
+    # )
+    return []
 
 # FUNCTIONS FOR MAIN APP
 def getUrlForStation(station_name):
@@ -238,18 +239,18 @@ def getAllStations():
     return stations
 
 # OPTIONS FOR USER
-def get_schema():
-    options = getAllStations()
-    return schema.Schema(
-        version = "1",
-        fields = [
-            schema.Dropdown(
-                id = "station",
-                name = "Station",
-                desc = "Station for arrival times.",
-                icon = "train-subway",
-                default = options[0].value,
-                options = options,
-            ),
-        ],
-    )
+# def get_schema():
+#     options = getAllStations()
+#     return schema.Schema(
+#         version = "1",
+#         fields = [
+#             schema.Dropdown(
+#                 id = "station",
+#                 name = "Station",
+#                 desc = "Station for arrival times.",
+#                 icon = "trainSubway",
+#                 default = options[0].value,
+#                 options = options,
+#             ),
+#         ],
+#     )

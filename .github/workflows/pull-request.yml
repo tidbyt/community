@@ -3,46 +3,27 @@ name: Build and Test
 on:
   pull_request:
     branches:
-      - '*'
+      - "**"
 
 jobs:
-  lint:
+  check:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
-
-      - name: Set up Go
-        uses: actions/setup-go@v3
         with:
-          go-version: 1.17
+          fetch-depth: 0
 
-      - name: Install Linux dependencies
-        run: sudo apt-get install -y libwebp-dev
+      - name: Setup build agent
+        run: ./.github/scripts/setup.sh
 
-      - name: Install buildifier
-        run: make install-buildifier
+      - name: Determine targets
+        id: targets
+        run: ./.github/scripts/determine-targets.sh
+        env:
+          BASE_SHA: ${{ github.event.pull_request.base.sha }}
+          HEAD_SHA: ${{ github.event.pull_request.head.sha }}
 
-      - name: Run buildifier
-        run: buildifier -d -r ./
-
-      - name: golangci-lint
-        uses: golangci/golangci-lint-action@v3
-
-  build-and-test:
-    runs-on: ubuntu-latest
-    steps:
-    - uses: actions/checkout@v3
-
-    - name: Set up Go
-      uses: actions/setup-go@v3
-      with:
-        go-version: 1.17
-
-    - name: Install Linux dependencies
-      run: sudo apt-get install -y libwebp-dev
-
-    - name: Build
-      run: make build
-
-    - name: Test
-      run: make test
+      - name: Check modified apps
+        run: ./.github/scripts/check-apps.sh
+        env:
+          TARGETS: "${{ steps.targets.outputs.targets }}"

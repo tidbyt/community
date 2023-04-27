@@ -5,13 +5,13 @@ Description: Shows upcoming arrivals at up to 2 different stations in Sound Tran
 Author: Jon Janzen
 """
 
-load("render.star", "render")
-load("http.star", "http")
-load("time.star", "time")
-load("schema.star", "schema")
 load("cache.star", "cache")
 load("encoding/json.star", "json")
+load("http.star", "http")
+load("render.star", "render")
+load("schema.star", "schema")
 load("secret.star", "secret")
+load("time.star", "time")
 
 # Some TidByt APIs require strings, but we want to use `None` values.
 # ref `none_str_to_none_val`
@@ -146,8 +146,6 @@ def show_stops(stop_id1, stop_id2, scroll_names):
         sequence_children[1],
     ])
 
-    return render.Sequence(children = sequence_children)
-
 def main(config):
     scroll_names = config.bool("scroll_names", SHOULD_SCROLL_DEFAULT)
     station1 = none_str_to_none_val(config.get("station1", STATION1_DEFAULT))
@@ -229,7 +227,7 @@ def get_schema():
                 id = "scroll_names",
                 name = "Scroll names",
                 desc = "Scroll the stop names if they're too long to fit on screen",
-                icon = "cut",
+                icon = "scissors",
                 default = SHOULD_SCROLL_DEFAULT,
             ),
         ],

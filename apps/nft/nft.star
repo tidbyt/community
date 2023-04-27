@@ -24,6 +24,7 @@ def main(config):
     nft = nfts[random(len(nfts))]
     (nft_name, nft_thumbnail) = fetch_nft_thumbnail(nft)
 
+    floor_price = None
     display_floor = config.bool("display_floor", False)
     if display_floor:
         collection_stats = fetch_collection_stats(nft)
@@ -78,6 +79,9 @@ def fetch_nft_thumbnail(nft):
     if not thumbnail_url:
         fail("NFT has no image to display")
 
+    # request a much smaller thumbnail than the default
+    thumbnail_url = thumbnail_url.replace("?w=500", "?w=64")
+
     cached_thumbnail = cache.get("thumbnail=%s" % thumbnail_url)
     if cached_thumbnail != None:
         print("Hit! Using cached thumbnail for", nft_name)
@@ -126,7 +130,7 @@ def get_schema():
                 id = "display_floor",
                 name = "Display Floor",
                 desc = "A toggle to display the collection's floor price.",
-                icon = "chart-line",
+                icon = "chartLine",
                 default = False,
             ),
         ],

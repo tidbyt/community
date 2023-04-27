@@ -5,11 +5,11 @@ Description: Displays the time in up to four different locations.
 Author: Elliot Bentley
 """
 
-load("render.star", "render")
-load("time.star", "time")
-load("schema.star", "schema")
 load("encoding/json.star", "json")
+load("render.star", "render")
+load("schema.star", "schema")
 load("sunrise.star", "sunrise")
+load("time.star", "time")
 
 number_font = "tom-thumb"
 font = "tom-thumb"
@@ -47,12 +47,7 @@ def main(config):
         ]
 
     location_count = int(config.get("location_count") or 3)
-
-    if location_count < 4 and len(locations) > 3:
-        locations.remove(locations[3])
-
-    if location_count < 3:
-        locations.remove(locations[2])
+    locations = locations[:location_count]
 
     horizonal_rule = render.Box(
         height = 1,
@@ -126,7 +121,7 @@ def main(config):
                                     render.Text(
                                         content = " ",
                                         font = "CG-pixel-3x5-mono",
-                                    ),
+                                    ) if config.get("blink", "true") == "true" else None,
                                 ],
                             ),
                         ),
@@ -155,6 +150,7 @@ def main(config):
 
     return render.Root(
         delay = 500,
+        max_age = 120,
         child = render.Column(
             children = rows,
             main_align = "space_around",
@@ -191,7 +187,7 @@ def get_schema():
                 id = "location_1",
                 name = "Location 1",
                 desc = "Location for which to display time.",
-                icon = "place",
+                icon = "locationDot",
             ),
             schema.Text(
                 id = "location_1_label",
@@ -204,7 +200,7 @@ def get_schema():
                 id = "location_2",
                 name = "Location 2",
                 desc = "Location for which to display time.",
-                icon = "place",
+                icon = "locationDot",
             ),
             schema.Text(
                 id = "location_2_label",
@@ -217,7 +213,7 @@ def get_schema():
                 id = "location_3",
                 name = "Location 3",
                 desc = "Location for which to display time.",
-                icon = "place",
+                icon = "locationDot",
             ),
             schema.Text(
                 id = "location_3_label",
@@ -230,7 +226,7 @@ def get_schema():
                 id = "location_4",
                 name = "Location 4",
                 desc = "Location for which to display time.",
-                icon = "place",
+                icon = "locationDot",
             ),
             schema.Text(
                 id = "location_4_label",
@@ -243,7 +239,7 @@ def get_schema():
                 id = "time_format",
                 name = "Time Format",
                 desc = "Format time as 12H clock instead of 24H",
-                icon = "access_time",
+                icon = "clock",
                 default = False,
             ),
             schema.Toggle(
@@ -251,6 +247,13 @@ def get_schema():
                 name = "Color by daylight",
                 desc = "Adjust location name color based on time of day.",
                 icon = "sun",
+                default = True,
+            ),
+            schema.Toggle(
+                id = "blink",
+                name = "Blinking separator",
+                desc = "Blink the colon between hours and minutes.",
+                icon = "clock",
                 default = True,
             ),
         ],

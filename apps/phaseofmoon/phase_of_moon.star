@@ -30,12 +30,12 @@ Author: Alan Fleming
 # See comments in the code for further attribution
 #
 
-load("time.star", "time")
-load("math.star", "math")
 load("encoding/base64.star", "base64")
 load("encoding/json.star", "json")
+load("math.star", "math")
 load("render.star", "render")
 load("schema.star", "schema")
+load("time.star", "time")
 
 # Defaults
 DEFAULT_LOCATION = """
@@ -143,7 +143,7 @@ def get_schema():
                 id = "location",
                 name = "Location",
                 desc = "Location for which to display the moon phase.",
-                icon = "place",
+                icon = "locationDot",
             ),
             schema.Toggle(
                 id = "display_text",

@@ -1,7 +1,7 @@
 """
 Applet: FullyBinaryTime
 Summary: A clock for nerds
-Description: Displays the current time using fully binary time. First divide the day into two 12 hour parts, then each of those into two 6 hour parts, then two 3 hour parts, and so on up to 16 bits of precision.
+Description: Clock using fully binary time. First divide the day into two 12 hour parts, then each of those into two 6 hour parts, then two 3 hour parts, and so on up to 16 bits of precision.
 Author: dinosaursrarr
 """
 
@@ -110,7 +110,7 @@ def make_frame(elapsed):
     levels = []
     numerator = elapsed.nanoseconds
     divisor = HALF_DAY_NANOSECONDS
-    for level in range(0, CLOCK_BITS):
+    for _ in range(0, CLOCK_BITS):
         levels.append(numerator // divisor)
         numerator = math.mod(numerator, divisor)
         divisor /= 2
@@ -126,7 +126,7 @@ def make_frame(elapsed):
 def make_animation(timezone):
     # Key input is how long has passed since the start of the day.
     now = time.now().in_location(timezone)
-    midnight = time.time(year = now.year, month = now.month, day = now.day).in_location(timezone)
+    midnight = time.time(year = now.year, month = now.month, day = now.day, location = timezone)
     elapsed = now - midnight
 
     frames = []
@@ -144,6 +144,7 @@ def main(config):
     # The smallest bit shown corresponds to a period of ~1.3 seconds, so we should update
     # the screen while the app is showing.
     return render.Root(
+        max_age = 120,
         delay = REFRESH_MILLISECONDS,
         child = make_animation(timezone),
     )
@@ -156,7 +157,7 @@ def get_schema():
                 id = "location",
                 name = "Location",
                 desc = "Location for which to show the time",
-                icon = "place",
+                icon = "locationDot",
             ),
         ],
     )

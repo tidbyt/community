@@ -6,60 +6,84 @@ Author: rs7q5
 """
 #sports_standings.star
 #Created 20220119 RIS
-#Last Modified 20220507 RIS
+#Last Modified 20230210 RIS
 
-load("render.star", "render")
-load("http.star", "http")
-load("encoding/base64.star", "base64")
-load("encoding/json.star", "json")
 load("cache.star", "cache")
+load("encoding/json.star", "json")
+load("http.star", "http")
+load("re.star", "re")
+load("render.star", "render")
 load("schema.star", "schema")
 load("time.star", "time")
-load("re.star", "re")
 
 #this list are the sports that can have their standings pulled
-ESPN_SPORTS_LIST = {
-    "MLB": ["MLB", "mlb", "(1 = AL, 2 = NL)"],
-    "NHL": ["NHL", "nhl", "(1 = East, 2 = West)"],
-    "NBA": ["NBA", "nba", "(1 = East, 2 = West)"],
-    "NFL": ["NFL", "nfl", "(1 = AFC, 2 = NFC)"],
-    #"WNBA": ["WNBA","wnba"],
+SPORTS_LIST = {
+    "Baseball": ("MLB", {
+        "MLB": ["MLB", "mlb", "(1 = AL, 2 = NL)"],
+    }),
+    "Hockey": ("NHL", {
+        "NHL": ["NHL", "nhl", "(1 = East, 2 = West)"],
+    }),
+    "Basketball": ("NBA", {
+        "NBA": ["NBA", "nba", "(1 = East, 2 = West)"],
+        "WNBA": ["WNBA", "wnba", "(1 = East, 2 = West)"],
+    }),
+    "Football": ("NFL", {
+        "NFL": ["NFL", "nfl", "(1 = AFC, 2 = NFC)"],
+    }),
 }
+
+def sport_from_league(league):
+    for sport in SPORTS_LIST:
+        for l in SPORTS_LIST[sport][1]:
+            if l == league:
+                return sport
+    return None
 
 def main(config):
     if config.bool("hide_app", False):
         return []
 
-    sport = config.get("sport") or "MLB"
-    sport_txt, sport_ext, sport_conf_code = ESPN_SPORTS_LIST.get(sport)
+    sport_tmp = config.str("sport", "Baseball")
+    if sport_tmp not in SPORTS_LIST:
+        # older installations may hold league in the "sport" field
+        sport = sport_from_league(sport_tmp)
+        league = sport_tmp
+    else:
+        sport = sport_tmp
+        league = config.str("league_%s" % sport, SPORTS_LIST[sport][0])
+
+    _, league_ext, sport_conf_code = SPORTS_LIST[sport][1].get(league)
 
     font = "CG-pixel-3x5-mono"  #set font
 
     #check for cached data
-    stats_cached = cache.get("stats_rate/%s" % sport)
+    stats = {}
+    stats_cached = cache.get("stats_rate/%s_%s" % (sport, league))
     if stats_cached != None:  #if any are None then all(title_cached)==False
-        print("Hit! Displaying cached data.")
+        print("Hit! Displaying %s (%s) standings data." % (sport, league))
         stats = json.decode(stats_cached)
     else:
-        print("Miss! Calling ESPN data.")  #error code checked within each function!!!!
+        print("Miss! Calling %s (%s) standings data." % (sport, league))  #error code checked within each function!!!!
+        #print("Miss! Calling ESPN data.")  #error code checked within each function!!!!
 
         #get the data
-        if sport == "MLB":
-            stats = get_mlbstats()
-        elif sport == "NHL":
-            stats = get_nhlstats()
-        elif sport == "NBA":
-            stats = get_nbastats()
-        elif sport == "NFL":
-            stats = get_nflstats()
+        if sport == "Baseball":
+            stats = get_mlbstandings()
+        elif sport == "Hockey":
+            stats = get_nhlstandings()
+        elif sport == "Basketball":
+            stats = get_basketballstandings(league_ext)
+        elif sport == "Football":
+            stats = get_footballstandings()
 
         #cache the data
         if stats != None:
-            cache.set("stats_rate/%s" % sport, json.encode(stats), ttl_seconds = 28800)  #grabs it three times a day
+            cache.set("stats_rate/%s_%s" % (sport, league), json.encode(stats), ttl_seconds = 28800)  #grabs it three times a day
 
     #get frames before display
     if stats == None:
-        frame_vec = [render.WrappedText(width = 64, content = "Error getting %s standings!!!!" % sport, font = font, linespacing = 1)]
+        frame_vec = [render.WrappedText(width = 64, content = "Error getting %s (%s) standings!!!!" % (sport, league), font = font, linespacing = 1)]
     else:
         #filter stats
         sport_conf_code_split = [re.split("[() ,]", sport_conf_code)[x] for x in [3, 7]]  #sport_conf_code.split(" ")
@@ -74,17 +98,18 @@ def main(config):
         else:
             stats2 = stats
 
-        frame_vec = get_frames(stats2, sport, font, config)
+        frame_vec = get_frames(stats2, league, font, config)
 
     return render.Root(
         delay = int(config.str("speed", "1000")),  #speed up scroll text
+        show_full_animation = True,
         child = render.Animation(children = frame_vec),
     )
 
 def get_schema():
     sports = [
-        schema.Option(display = sport + " " + val[2], value = sport)
-        for sport, val in ESPN_SPORTS_LIST.items()
+        schema.Option(display = sport, value = sport)
+        for sport in SPORTS_LIST
     ]
     frame_speed = [
         schema.Option(display = "Slower", value = "5000"),
@@ -107,7 +132,12 @@ def get_schema():
                 desc = "The sport of the standings that should be displayed.",
                 icon = "medal",
                 options = sports,
-                default = "MLB",
+                default = "Baseball",
+            ),
+            schema.Generated(
+                id = "generated",  #other options are all in here because the generated fields go at the end always
+                source = "sport",
+                handler = more_options,
             ),
             schema.Dropdown(
                 id = "standings_filter",
@@ -121,7 +151,7 @@ def get_schema():
                 id = "speed",
                 name = "Animation Speed",
                 desc = "Change the speed that the standings change.",
-                icon = "cog",
+                icon = "gear",
                 default = frame_speed[-1].value,
                 options = frame_speed,
             ),
@@ -143,24 +173,43 @@ def get_schema():
                 id = "hide_app",
                 name = "Hide standings?",
                 desc = "",
-                icon = "eye-slash",
+                icon = "eyeSlash",
                 default = False,
             ),
         ],
     )
 
-def get_frames(stats, sport_txt, font, config):
+def more_options(sport):
+    if sport not in SPORTS_LIST:
+        # older installations may hold league in the "sport" field
+        sport = sport_from_league(sport)
+
+    leagues = [
+        schema.Option(display = league[1][0] + " " + league[1][2], value = league[0])
+        for league in SPORTS_LIST[sport][1].items()
+    ]
+
+    return [
+        schema.Dropdown(
+            id = "league_%s" % sport,  #id must be unique to get different default values
+            name = "League",
+            desc = "Select which league standings should be displayed.",
+            icon = "medal",
+            options = leagues,
+            default = SPORTS_LIST[sport][0],
+        ),
+    ]
+
+def get_frames(stats, league_txt, font, config):
     frame_vec = []
+    ctmp = "#fff"
     for x in stats:
         name_split = re.split("[()/]", x["name"])
         team_name = []
         team_record = []
         team_rank = []
         for i, team in enumerate(x["data"]):
-            team_tmp = render.Text(team[0], font = font)
             team_split = team[1].split("/")
-            record_tmp = render.Text(team_split[0], font = font)
-            rank_tmp = render.Text(team_split[1], font = font)
             if config.bool("highlight_team", False) and team[0] == config.str("team_select", "None").upper():
                 ctmp = "#D2691E"
             elif i % 2 == 0:
@@ -177,11 +226,22 @@ def get_frames(stats, sport_txt, font, config):
             main_align = "space_between",
             cross_align = "end",
             children = [
-                render.Text(sport_txt + " " + name_split[0].rstrip(), color = "#a00", font = font),
+                render.Text(league_txt + " " + name_split[0].rstrip(), color = "#a00", font = font),
                 render.Text(name_split[len(name_split) - 2], font = font),
             ],
         )
 
+        ###
+        #pad text for WNBA cases particularly
+        line_max = 5
+        txt_height = 5
+        team_cnt = len(team_name)
+        if team_cnt - line_max != 0:  #add empty entries to space (only have to add to one array since other's must be in line)
+            for _ in range(line_max - team_cnt):
+                #away_team.append(render.Text("",font=font,color=ctmp))
+                team_name.append(render.Text("", font = font, color = ctmp, height = txt_height))
+
+        #create final frame
         frame_vec_tmp = render.Column(
             expanded = True,
             main_align = "space_between",
@@ -240,7 +300,7 @@ def pad_text(text):
 
 ######################################################
 #functions to get data for different sports
-def get_mlbstats():
+def get_mlbstandings():
     yearcheck = time.now().in_location("America/New_York").year  #MLB based in New York, year is used to make sure records exist otherwise retrieves previous years data
     base_URL = "https://site.api.espn.com/apis/v2/sports/baseball/mlb/standings"
 
@@ -261,12 +321,11 @@ def get_mlbstats():
         standings_data = standings_rep.json()["standings"]["entries"]
 
         stats_tmp = []
-        cnt = 0
-        for (j, team) in enumerate(standings_data):  #iterate through each team in each division
+        for (_, team) in enumerate(standings_data):  #iterate through each team in each division
             #get index of abbreviations (when playoff stuff gets added variables get shifted, WILL FAIL IF NONE OF THESE EXIST, WHICH SHOULDN'T HAPPEN)
-            stat_name = [x["abbreviation"] for x in team["stats"]]
-            total_idx = stat_name.index("Total")
-            GB_idx = stat_name.index("GB")
+            stat_name = [x["name"] for x in team["stats"]]  #not all stats have abbreviation so used name
+            total_idx = stat_name.index("overall")
+            GB_idx = stat_name.index("gamesBehind")
 
             name = team["team"]["abbreviation"]
             record = team["stats"][total_idx]["displayValue"]  #W-L
@@ -280,7 +339,7 @@ def get_mlbstats():
     #set up data for frames to work
     return (stats2)
 
-def get_nhlstats():
+def get_nhlstandings():
     base_URL = "https://site.api.espn.com/apis/v2/sports/hockey/nhl/standings"
     stats = []
     for i in range(2):  #iterate through each division
@@ -290,18 +349,18 @@ def get_nhlstats():
             return None
         conf_name = standings_rep.json()["abbreviation"]
         standings_data = standings_rep.json()["children"]
-        for (j, div) in enumerate(standings_data):  #iterate through each team in each division
+        for (_, div) in enumerate(standings_data):  #iterate through each team in each division
             div_name = div["abbreviation"]
             div_data = div["standings"]["entries"]
             stats_tmp = []
-            for (k, team) in enumerate(div_data):
+            for (_, team) in enumerate(div_data):
                 name = team["team"]["abbreviation"]
 
                 #get index of abbreviations (when playoff stuff gets added variables get shifted, WILL FAIL IF NONE OF THESE EXIST, WHICH SHOULDN'T HAPPEN)
-                stat_name = [x["abbreviation"] for x in team["stats"]]
-                total_idx = stat_name.index("TOTAL")
-                pt_idx = stat_name.index("PTS")
-                GP_idx = stat_name.index("GP")
+                stat_name = [x["name"] for x in team["stats"]]  #not all stats have abbreviation so used name
+                total_idx = stat_name.index("overall")
+                pt_idx = stat_name.index("points")
+                GP_idx = stat_name.index("gamesPlayed")
 
                 record = team["stats"][total_idx]["displayValue"]  #W-L-OTL, pts
                 pts = team["stats"][pt_idx]["value"]  #points
@@ -320,9 +379,9 @@ def get_nhlstats():
             stats.append(dict(name = frame_name, data = team_sort[4:]))
     return (stats)
 
-def get_nbastats():
+def get_basketballstandings(league_ext):
     #NBA stats are only sorted by conference because divisions don't matter for playoffs!!
-    base_URL = "https://site.api.espn.com/apis/v2/sports/basketball/nba/standings"
+    base_URL = "https://site.api.espn.com/apis/v2/sports/basketball/%s/standings" % league_ext
     standings_URL = base_URL + "?sort=winpercent"
     standings_rep = http_check(standings_URL)
     if standings_rep == None:
@@ -331,31 +390,35 @@ def get_nbastats():
 
     stats = dict()
     stats2 = []
-    for i, conf_data in enumerate(standings_data):  #iterate through each division
-        div_name = conf_data["abbreviation"]
+    for _, conf_data in enumerate(standings_data):  #iterate through each division
+        #div_name = conf_data["abbreviation"]
+        div_name = conf_data["name"][0:4]  #abbreviation for WNBA is only E or W
         div_data = reversed(conf_data["standings"]["entries"])
         stats_tmp = []
-        cnt = 0
         for (j, team) in enumerate(div_data):  #iterate through each team in each division
             name = team["team"]["abbreviation"]
-            stat_name = [x["shortDisplayName"] for x in team["stats"]]
-            total_idx = stat_name.index("OVER")
-            pct_idx = stat_name.index("PCT")
-            GB_idx = stat_name.index("GB")
+
+            #get index of abbreviations (when playoff stuff gets added variables get shifted, WILL FAIL IF NONE OF THESE EXIST, WHICH SHOULDN'T HAPPEN)
+            stat_name = [x["name"] for x in team["stats"]]  #not all stats have abbreviation so used name
+            total_idx = stat_name.index("overall")
+            pct_idx = stat_name.index("winPercent")
+            GB_idx = stat_name.index("gamesBehind")
             record = team["stats"][total_idx]["displayValue"]  #W-L
             GB = team["stats"][GB_idx]["displayValue"]  #games behind
             pct = team["stats"][pct_idx]["value"]  #win percent
 
             record_full = record + "/" + str(GB)
             stats_tmp.append((name, record_full, record, str(GB), pct))
-            if j % 5 == 4:  #store it in every fifth frame
+            conf_logic = True if (j == 5 and league_ext == "wnba") else False
+
+            if j % 5 == 4 or conf_logic:  #store it so they are split across
                 stats[div_name] = stats_tmp
                 stats2.append(dict(name = div_name + " (W-L/GB)", data = stats_tmp))
                 stats_tmp = []
 
     return (stats2)
 
-def get_nflstats():
+def get_footballstandings():
     base_URL = "https://site.api.espn.com/apis/v2/sports/football/nfl/standings"
     stats = []
     for i in range(2):  #iterate through each division
@@ -365,19 +428,17 @@ def get_nflstats():
             return None
         conf_name = standings_rep.json()["abbreviation"]
         standings_data = standings_rep.json()["children"]
-        for (j, div) in enumerate(standings_data):  #iterate through each team in each division
+        for (_, div) in enumerate(standings_data):  #iterate through each team in each division
             div_name = div["abbreviation"]
             div_data = div["standings"]["entries"]
             stats_tmp = []
-            for (k, team) in enumerate(div_data):
+            for (_, team) in enumerate(div_data):
                 name = team["team"]["abbreviation"]
 
                 #get index of abbreviations (when playoff stuff gets added variables get shifted, WILL FAIL IF NONE OF THESE EXIST, WHICH SHOULDN'T HAPPEN)
-                #stat_name = [x["abbreviation"] for x in team["stats"]]
                 stat_name = [x["name"] for x in team["stats"]]  #not all stats have abbreviation so used name
-                total_idx = stat_name.index("All Splits")
+                total_idx = stat_name.index("overall")  #stat used to be "All Splits"
                 pct_idx = stat_name.index("winPercent")
-
                 record = team["stats"][total_idx]["displayValue"]  #W-L-T
                 pct = team["stats"][pct_idx]["value"]  #win percent
                 pct_str = team["stats"][pct_idx]["displayValue"]

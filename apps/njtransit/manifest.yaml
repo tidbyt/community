@@ -1,0 +1,8 @@
+---
+id: nj-transit
+name: NJ Transit
+summary: NJ Transit Departures
+desc: See the upcoming departures of a selected NJ Transit station.
+author: Jason-J-Hunt
+fileName: nj_transit.star
+packageName: njtransit

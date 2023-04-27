@@ -5,11 +5,11 @@ Description: Is it christmas: yes/no.
 Author: Austin Fonacier
 """
 
+load("encoding/base64.star", "base64")
+load("encoding/json.star", "json")
 load("render.star", "render")
 load("schema.star", "schema")
 load("time.star", "time")
-load("encoding/json.star", "json")
-load("encoding/base64.star", "base64")
 
 TREE_IMG_NO_LIGHTS = base64.decode("""
 iVBORw0KGgoAAAANSUhEUgAAAAsAAAALCAYAAACprHcmAAAAAXNSR0IArs4c6QAAAExJREFUKFNjZMACfNYH/N8SuIERXQpDAKQQpghdA/mKkU3FZjqKyUQrxqYQ3XS4yUQrxqcQ2XSwySQpRg/8ylCP/+2rdxCOFJBGXIoBe08sDMFoReYAAAAASUVORK5CYII=
@@ -50,11 +50,20 @@ def main(config):
     day = now.day
     month = now.month
 
-    if day == 25 and month == 12:
+    christmas_date = config.get("christmas_date", "12-25")
+    christmas_month = int(christmas_date[:2])
+    christmas_day = int(christmas_date[3:])
+
+    if config.bool("december_only", False) and not is_christmas_runup(month, christmas_month):
+        return []
+    elif day == christmas_day and month == christmas_month:
         is_christmas = CHRISTMAS_YES
+    elif config.bool("days_left", False):  #if not christmas and get days left
+        is_christmas = get_daysleft(time.time(year = now.year, month = month, day = day, location = timezone), timezone, christmas_month, christmas_day)
     else:
         is_christmas = CHRISTMAS_NO
-    print(is_christmas)
+
+    #print(is_christmas)
 
     return render.Root(
         delay = 500,
@@ -81,7 +90,7 @@ def main(config):
                         ),
                         render.Box(
                             height = 15,
-                            width = 20,
+                            width = 42,
                             child = is_christmas_text(is_christmas),
                         ),
                         render.Animation(
@@ -92,6 +101,21 @@ def main(config):
             ],
         ),
     )
+
+def get_daysleft(today, timezone, christmas_month, christmas_day):
+    if today.month == christmas_month and today.day > christmas_day:
+        year = today.year + 1
+    elif today.month > christmas_month:
+        year = today.year + 1
+    else:
+        year = today.year
+
+    christmas = time.time(year = year, month = christmas_month, day = christmas_day, location = timezone)
+
+    days_left = (christmas - today).hours // 24
+
+    days_left_text = "%d days" % days_left
+    return days_left_text
 
 def is_christmas_text(is_christmas):
     color = CHRISTMAS_RED
@@ -132,7 +156,40 @@ def get_tree_frames(is_christmas):
             ),
         ]
 
+def is_christmas_runup(month, christmas_month):
+    if christmas_month == 12:
+        return month == 12
+
+    # For January Christmases, also show in January.
+    # Another thought would be to use the 4 weeks of advent, prior to whatever date was chosen.
+    return month == 12 or month == 1
+
 def get_schema():
+    # Christmas is only 25 December in certain branches of Christianity.
+    # https://en.wikipedia.org/wiki/Christmas#Date_according_to_Julian_calendar
+    date_options = [
+        schema.Option(
+            display = "24 December",
+            value = "12-24",
+        ),
+        schema.Option(
+            display = "25 December",
+            value = "12-25",
+        ),
+        schema.Option(
+            display = "6 January",
+            value = "01-06",
+        ),
+        schema.Option(
+            display = "7 January",
+            value = "01-07",
+        ),
+        schema.Option(
+            display = "19 January",
+            value = "01-19",
+        ),
+    ]
+
     return schema.Schema(
         version = "1",
         fields = [
@@ -140,7 +197,29 @@ def get_schema():
                 id = "location",
                 name = "Location",
                 desc = "Location for which to display time.",
-                icon = "place",
+                icon = "locationDot",
+            ),
+            schema.Toggle(
+                id = "december_only",
+                name = "December only?",
+                desc = "Enable to only display in the month of December.",
+                icon = "gear",
+                default = False,
+            ),
+            schema.Toggle(
+                id = "days_left",
+                name = "Display days left until Christmas?",
+                desc = "Enable to display the number of days left until Christmas.",
+                icon = "gear",
+                default = False,
+            ),
+            schema.Dropdown(
+                id = "christmas_date",
+                name = "Christmas date",
+                desc = "When do you celebrate Christmas?",
+                icon = "calendar",
+                default = date_options[1].value,
+                options = date_options,
             ),
         ],
     )

@@ -7,12 +7,13 @@ Author: rs7q5
 
 #shuffle_images.star
 #Created 20220704 RIS
-#Last Modified 20220719 RIS
+#Last Modified 20220824 RIS
 
-load("render.star", "render")
-load("schema.star", "schema")
 load("encoding/base64.star", "base64")
 load("random.star", "random")
+load("render.star", "render")
+load("schema.star", "schema")
+load("time.star", "time")
 
 maxImages = 6  #max images that can be selected
 
@@ -32,18 +33,22 @@ def main(config):
             align = "center",
             content = "No images selected!!!!",
         ))
-    elif config.bool("shuffle", True) and img_cnt >= 1:  #should only be greater than 1 once non-shuffling is implemented
+    elif config.bool("shuffle", True) and img_cnt > 1:  #should only be greater than 1 once non-shuffling is implemented
         idx = random.number(0, img_cnt - 1)  #-1 becuase indices start at zero
         img = render.Image(base64.decode(img_vec[idx]))
     else:
-        img = render.Box(render.WrappedText(
-            width = 64,
-            align = "center",
-            content = "No shuffling not yet implemented!!!!",
-        ))
+        idx = (int(time.now().unix) // 60) % img_cnt  #new iamge every 60 seconds
+        img = render.Image(base64.decode(img_vec[idx]))
+        #print("Displaying Image %d!!!!" % (idx+1))
+
+    #get image delay
+    delay = 80  #default
+    if type(img) == "Image":
+        if img.delay > 0:
+            delay = img.delay
 
     return render.Root(
-        #delay=100, #speed up scroll text
+        delay = delay,
         child = img,
     )
 
@@ -53,7 +58,7 @@ def get_schema():
             id = "hide_app",
             name = "Hide app?",
             desc = "",
-            icon = "eye-slash",
+            icon = "eyeSlash",
             default = False,
         ),
         schema.Toggle(

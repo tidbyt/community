@@ -7,12 +7,12 @@ Author: rs7q5
 
 #tv_quotes.star
 #Created 20220525 RIS
-#Last Modified 20220531 RIS
+#Last Modified 20230210 RIS
 
-load("render.star", "render")
-load("http.star", "http")
-load("encoding/json.star", "json")
 load("cache.star", "cache")
+load("encoding/json.star", "json")
+load("http.star", "http")
+load("render.star", "render")
 load("schema.star", "schema")
 
 font = "CG-pixel-3x5-mono"
@@ -38,6 +38,7 @@ def main(config):
     scroll_opt = config.str("speed", "50")
     return render.Root(
         delay = int(scroll_opt),  #speed up scroll text
+        show_full_animation = True,
         child = render.Column(children = [header_txt, quote_format]),
     )
 
@@ -77,7 +78,7 @@ def get_schema():
                 id = "short_quote",
                 name = "Short quote",
                 desc = "Enable to display quotes from a single character.",
-                icon = "cog",
+                icon = "gear",
                 default = False,
             ),
             schema.Toggle(
@@ -91,7 +92,7 @@ def get_schema():
                 id = "speed",
                 name = "Scroll speed",
                 desc = "Change the speed that the text scrolls.",
-                icon = "cog",
+                icon = "gear",
                 default = scroll_speed[3].value,
                 options = scroll_speed,
             ),
@@ -99,7 +100,7 @@ def get_schema():
                 id = "hide_app",
                 name = "Hide app?",
                 desc = "",
-                icon = "eye-slash",
+                icon = "eyeSlash",
                 default = False,
             ),
         ],
@@ -226,7 +227,6 @@ def get_quote(config):
 
 def format_quote(quote):
     #formats quote text
-    quote_split = quote.splitlines()
     frame_data = []
     for (idx, line) in enumerate(quote.splitlines()):
         if idx % 2 == 0:

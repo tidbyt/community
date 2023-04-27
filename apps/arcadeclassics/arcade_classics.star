@@ -6,10 +6,10 @@ Author: Steve Otteson
 """
 
 load("encoding/base64.star", "base64")
+load("math.star", "math")
 load("render.star", "render")
 load("schema.star", "schema")
 load("time.star", "time")
-load("math.star", "math")
 
 FRAME_WIDTH = 64
 FRAME_HEIGHT = 32
@@ -49,7 +49,7 @@ def main(config):
     num_frames = math.ceil(app_cycle_speed / delay)
 
     allFrames = []
-    for i in range(1, 1000):
+    for _ in range(1, 1000):
         if animation == PACMAN_ANIMATION:
             frames = pacman_get_frames(seed)
         elif animation == SPACE_INVADERS_ANIMATION:
@@ -84,7 +84,6 @@ SPEED_LIST = {
 DEFAULT_ANIMATION = PACMAN_ANIMATION
 
 ANIMATION_LIST = {
-    "Centipede": CENTIPEDE_ANIMATION,
     "Pac-Man": PACMAN_ANIMATION,
     "Space Invaders": SPACE_INVADERS_ANIMATION,
     "Random": RANDOM_ANIMATION,
@@ -108,7 +107,7 @@ def get_schema():
                 id = "animation",
                 name = "Animation",
                 desc = "Which game animation to show.",
-                icon = "cog",
+                icon = "gear",
                 default = DEFAULT_ANIMATION,
                 options = animation_options,
             ),
@@ -116,16 +115,14 @@ def get_schema():
                 id = "speed",
                 name = "Speed",
                 desc = "Change the speed of the animation.",
-                icon = "cog",
+                icon = "gear",
                 default = DEFAULT_SPEED,
                 options = speed_options,
             ),
         ],
     )
 
-"""
-Pac-Man
-"""
+# Pac-Man
 
 Red_R1 = """iVBORw0KGgoAAAANSUhEUgAAAA4AAAAOCAIAAACQKrqGAAAAZ0lEQVR42mJkQAX/kdiMqFKMWBVhVcGIXx2yIhZkdffvgZiKSgirICL/lRiBQkxoongYLGh2OTuDyHsYIkDAhN+VyJ5mRFaKy60QEUYiTWVA9tbAKmVEjRtGbBHLBOcw4o5SCAkQYAClNyHYKAGFjAAAAABJRU5ErkJggg=="""
 Red_R2 = """iVBORw0KGgoAAAANSUhEUgAAAA4AAAAOCAIAAACQKrqGAAAAYUlEQVR42mJkQAX/kdiMqFKMWBVhVcGIXx2yIhZkdffvgZiKSgirICL/lRiBQkxoongYLGh2OTuDyHsYIkDAhN+VyJ5mRFaKy60QEUYiTWVA9tZgUIoz0pED4j8RXIAAAwAqjCfKmzaHIQAAAABJRU5ErkJggg=="""
@@ -173,15 +170,13 @@ GHOSTS = [
     [[Blue_1, Blue_2], [Blue_1, Blue_2]],
 ]
 
-"""
-Not yet using a blinking ghost
-GHOST_CHASED_BLINKING = [
-    Blue_1,
-    Blue_2,
-    White_1,
-    White_2,
-]
-"""
+# Not yet using a blinking ghost
+# GHOST_CHASED_BLINKING = [
+#     Blue_1,
+#     Blue_2,
+#     White_1,
+#     White_2,
+# ]
 
 SPRITE_WIDTH = 15
 
@@ -260,9 +255,7 @@ def pacman_get_frame(xPos, yPos, mspacman, reverse, whichGhost):
             ),
     )
 
-"""
-Space Invaders
-"""
+# Space Invaders
 
 BIG_ALIEN_WIDTH = 12
 ALIENS_PER_ROW = 3
@@ -350,9 +343,7 @@ def spaceinvaders_get_frame(state):
             ),
     )
 
-"""
-Centipede
-"""
+# Centipede
 
 CENT_SPRITE_WIDTH = 8
 CENT_SPRITE_HEIGHT = 8
@@ -514,6 +505,7 @@ def process_head_move(segment, state, mushroomMap, history):
     yDirIndex = 1 if yDir > 0 else 0
 
     diagIndex = -1
+    horzVertIndex = -1
     if turnFrame == -1 or turnFrame == 3:
         horzVertIndex = CENT_HORZ_INDEX
     elif turnFrame == 0:
@@ -691,7 +683,7 @@ def get_color_scheme(seed):
 def create_mushroom_map(seed, mushroomSprite):
     mushroomCount = rand(seed, CENT_MAX_MUSHROOMS - CENT_MIN_MUSHROOMS + 1) + CENT_MIN_MUSHROOMS
     mushroomMap = {}
-    for i in range(mushroomCount):
+    for _ in range(mushroomCount):
         add_mushroom(seed, mushroomMap, mushroomSprite)
 
     return mushroomMap
@@ -833,6 +825,7 @@ def create_all_cent_sprites(colorScheme):
 
 def createCentSprites(headHorzLeftPixels, headVertDownPixels, headDiagDownLeftPixels, colorScheme, eyes = True):
     # If we're not creating sprites for the eyes, we need to replace the eye color with the body color
+    origRedReplacement = ""
     if not eyes:
         origRedReplacement = colorScheme[CENT_ORIG_EYE_COLOR]
         colorScheme[CENT_ORIG_EYE_COLOR] = colorScheme[CENT_ORIG_BODY_COLOR]

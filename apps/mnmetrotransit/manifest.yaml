@@ -1,0 +1,8 @@
+---
+id: mn-metro-transit
+name: MN Metro Transit
+summary: Transit Departure Times
+desc: Shows train, BRT, ABRT, and bus departure times from the selected stop.
+author: Jonathan Wescott and Alex Miller
+fileName: mn_metro_transit.star
+packageName: mnmetrotransit

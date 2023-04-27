@@ -1,0 +1,8 @@
+---
+id: solar-manager-ch
+name: Solar Manager CH
+summary: Show solarmanager.ch stats
+desc: 'Multiple screen selections will disable animations. If you prefer animated screens, run separate instances of the app and select 1 screen per instance.  For API Key : authorize with your solarmanager username and password on: https://external-web.solar-manager.ch/swagger and copy the long string that follows after ''-H authorization: Basic''.  For Site ID : check the back of your solarmanager device for the SMID code.'
+author: tavdog
+fileName: solar_manager_ch.star
+packageName: solarmanagerch

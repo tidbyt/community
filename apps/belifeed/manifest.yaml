@@ -1,0 +1,8 @@
+---
+id: beli-feed
+name: Beli Feed
+summary: Displays activity from Beli
+desc: Displays activity from you and your friends on Beli (beliapp.com).
+author: leoadberg
+fileName: beli_feed.star
+packageName: belifeed

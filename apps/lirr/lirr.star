@@ -5,12 +5,12 @@ Description: Long Island Railroad Train Times.
 Author: bralax
 """
 
-load("render.star", "render")
-load("http.star", "http")
-load("encoding/json.star", "json")
 load("cache.star", "cache")
-load("schema.star", "schema")
+load("encoding/json.star", "json")
+load("http.star", "http")
 load("math.star", "math")
+load("render.star", "render")
+load("schema.star", "schema")
 load("time.star", "time")
 
 DELTA = .1
@@ -151,6 +151,8 @@ def getId(gtfs, station_id, time_now, startingIndex = 0):
             cur_date = prevDay(time_now)["date"]
         if stop_time["timestamp"] > tim and str(cur_date) in gtfs["calendar"] and gtfs["trips"][stop_time["trip_id"]]["service_id"] in gtfs["calendar"][str(cur_date)]:
             return i
+
+    return None
 
 def get_stations(loc):
     location = json.decode(loc)

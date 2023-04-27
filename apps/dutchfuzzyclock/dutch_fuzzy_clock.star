@@ -6,10 +6,10 @@ Author: Remy Blok
 """
 # Special thanks to Max Timkovich for the original English Fuzzy Clock
 
+load("encoding/json.star", "json")
 load("render.star", "render")
 load("schema.star", "schema")
 load("time.star", "time")
-load("encoding/json.star", "json")
 
 DEFAULT_LOCATION = {
     "lat": 52.4,
@@ -42,7 +42,7 @@ numbersPerLang = {
         5: "FIVE",
         6: "SIX",
         7: "SEVEN",
-        8: "EIGTH",
+        8: "EIGHT",
         9: "NINE",
         10: "TEN",
         11: "ELEVEN",
@@ -51,6 +51,7 @@ numbersPerLang = {
     },
 }
 numbersPerLang["en-GB"] = numbersPerLang["en-US"]
+numbersPerLang["nl-BE"] = numbersPerLang["nl-NL"]
 
 wordsPerLang = {
     "nl-NL": {
@@ -58,6 +59,12 @@ wordsPerLang = {
         "half": "HALF",
         "to": "VOOR",
         "past": "OVER",
+    },
+    "nl-BE": {
+        "hour": "UUR",
+        "half": "HALF",
+        "to": "VOOR",
+        "past": "NA",
     },
     "en-US": {
         "hour": "O'CLOCK",
@@ -143,6 +150,10 @@ def get_schema():
             value = "nl-NL",
         ),
         schema.Option(
+            display = "Dutch (Belgium)",
+            value = "nl-BE",
+        ),
+        schema.Option(
             display = "American English",
             value = "en-US",
         ),
@@ -158,7 +169,7 @@ def get_schema():
             schema.Location(
                 id = "location",
                 name = "Location",
-                icon = "place",
+                icon = "locationDot",
                 desc = "Location for which to display time",
             ),
             schema.Dropdown(

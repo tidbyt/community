@@ -1,0 +1,8 @@
+---
+id: indego-stations
+name: Indego Stations
+summary: Indego station availability
+desc: The user selects an Indego (Philadelphia bike share) station and Tidbyt will regularly display the number of regular and electric bikes available.
+author: RayPatt
+fileName: indego_stations.star
+packageName: indegostations

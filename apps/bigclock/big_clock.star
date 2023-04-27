@@ -7,12 +7,12 @@ Description: Display a large retro-style clock; the clock can change color
 Author: Joey Hoer
 """
 
-load("render.star", "render")
-load("schema.star", "schema")
-load("time.star", "time")
-load("sunrise.star", "sunrise")
 load("encoding/base64.star", "base64")
 load("encoding/json.star", "json")
+load("render.star", "render")
+load("schema.star", "schema")
+load("sunrise.star", "sunrise")
+load("time.star", "time")
 
 # Default configuration values
 DEFAULT_LOCATION = {
@@ -95,7 +95,6 @@ def get_time_image(t, color, is_24_hour_format = True, has_leading_zero = False,
     if is_24_hour_format == True:
         hh = t.format("15")  # Format for 24 hour time
     mm = t.format("04")
-    ss = t.format("05")
 
     seperator = render.Box(
         width = 4,
@@ -163,7 +162,7 @@ def main(config):
     # Currently this does not work, becasue app rotation prevents the animation
     # from progressing past a few seconds.
     duration = 1  # in minutes; 1440 = 24 hours
-    for i in range(0, duration):
+    for _ in range(0, duration):
         # Set different color during day and night
         color = color_nighttime
         if rise == None or set == None:
@@ -194,6 +193,7 @@ def main(config):
 
     return render.Root(
         delay = 500,  # in milliseconds
+        max_age = 120,
         child = render.Box(
             child = render.Animation(
                 children = frames,
@@ -220,7 +220,7 @@ def get_schema():
                 id = "location",
                 name = "Location",
                 desc = "Location defining time to display and daytime/nighttime colors",
-                icon = "place",
+                icon = "locationDot",
             ),
             schema.Toggle(
                 id = "is_24_hour_format",
@@ -239,7 +239,7 @@ def get_schema():
             schema.Toggle(
                 id = "has_flashing_seperator",
                 name = "Enable flashing separator",
-                icon = "cog",
+                icon = "gear",
                 desc = "Ensure the clock always displays with a leading zero.",
                 default = DEFAULT_HAS_FLASHING_SEPERATOR,
             ),

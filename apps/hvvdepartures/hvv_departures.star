@@ -5,14 +5,14 @@ Description: Display real-time departure times for trains, buses and ferries in 
 Author: fxb (Felix Bruns)
 """
 
-load("render.star", "render")
-load("schema.star", "schema")
-load("http.star", "http")
 load("cache.star", "cache")
-load("time.star", "time")
-load("math.star", "math")
 load("encoding/base64.star", "base64")
 load("encoding/json.star", "json")
+load("http.star", "http")
+load("math.star", "math")
+load("render.star", "render")
+load("schema.star", "schema")
+load("time.star", "time")
 
 # The API endpoints used to retrieve locations and departures.
 #
@@ -574,14 +574,14 @@ def get_schema():
                 id = "station_id",
                 name = "Station",
                 desc = "Pick a station",
-                icon = "map-pin",
+                icon = "mapPin",
                 handler = find_stations,
             ),
             schema.Typeahead(
                 id = "direction_id",
                 name = "Direction",
                 desc = "Pick a direction (optional)",
-                icon = "location-arrow",
+                icon = "locationArrow",
                 handler = find_stations,
             ),
             schema.Dropdown(
@@ -604,7 +604,7 @@ def get_schema():
                 id = "include_subway",
                 name = "U-Bahn",
                 desc = "Include subways",
-                icon = "train-subway",
+                icon = "trainSubway",
                 default = True,
             ),
             schema.Toggle(

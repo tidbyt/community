@@ -31,6 +31,7 @@ Author: Chris Silverberg (csilv)
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
+load("animation.star", "animation")
 load("cache.star", "cache")
 load("encoding/base64.star", "base64")
 load("encoding/json.star", "json")
@@ -168,7 +169,7 @@ def get_page_frame(mag_str, mag_color, place_str, place_x, time_str):
                     main_align = "center",
                 ),
                 render.Box(
-                    child = render.AnimatedPositioned(
+                    child = animation.AnimatedPositioned(
                         child = render.Text(place_str),
                         curve = "linear",
                         duration = 0,
@@ -278,7 +279,7 @@ def get_schema():
                 id = "location",
                 name = "Location",
                 desc = "Location for which to find nearby earthquakes.",
-                icon = "place",
+                icon = "locationDot",
             ),
             schema.Dropdown(
                 id = "radius",

@@ -2,17 +2,19 @@
 Applet: NHL Live
 Summary: Live updates of NHL games
 Description: Displays live game stats or next scheduled NHL game information
-Author: Reed Arnesonx
+Author: Reed Arneson
 """
 
-load("render.star", "render")
-load("http.star", "http")
-load("encoding/base64.star", "base64")
-load("time.star", "time")
-load("encoding/json.star", "json")
-load("schema.star", "schema")
-load("random.star", "random")
 load("cache.star", "cache")
+load("encoding/base64.star", "base64")
+load("encoding/json.star", "json")
+load("http.star", "http")
+load("random.star", "random")
+load("render.star", "render")
+load("schema.star", "schema")
+load("time.star", "time")
+
+APP_VERSION = "1.3.0"
 
 # Constants
 DEFAULT_LOCATION = """
@@ -95,16 +97,15 @@ TEAMS_LIST = {
 
 # Main App
 def main(config):
-    game_data = None
-
     # Get timezone and set today date
     timezone = get_timezone(config)
     now = time.now().in_location(timezone)
     today = now.format("2006-1-2").upper()
 
     # Grab teamid from our schema
-    config_teamid = config.get("teamid") or 0
-    config_teamid = int(config_teamid)
+    orig_config_teamid = config.get("teamid") or 0
+    orig_config_teamid = int(orig_config_teamid)
+    config_teamid = orig_config_teamid
 
     if config_teamid == 0:
         config_teamid = get_random_team()
@@ -122,7 +123,7 @@ def main(config):
 
     # Check our game info cache first
     print("Grabbing Game for team: %s" % team)
-    teamid_away, teamid_home, gamePk, game_state, gameDate, score_away, score_home = get_game(today, config_teamid)
+    teamid_away, teamid_home, gamePk, _, gameDate, _, _, isGameToday = get_game(today, config_teamid)
 
     # No Game URL found
     if gamePk != None:
@@ -130,9 +131,19 @@ def main(config):
 
         # This cane be bypassed to skip live updates
         if game_info["game_state"] == "Live" and config.bool("liveupdates", True):
-            game_update = get_live_game_update(gamePk, config, game_state, game_info["goals_away"], game_info["goals_home"])
+            game_update = get_live_game_update(gamePk, config, game_info["goals_away"], game_info["goals_home"])
         else:
             game_update = game_info
+
+        # This isn't ideal but the quickest way to avoid some bigger rewrites. We cache the game_update, which is
+        #  a problem for Preview games + timezones. So, if we're in preview, let's just update this before displaying.
+        if game_info["game_state"] == "Preview":
+            print("  - PREVIEW: Updating GameTime")
+            game_schedule = time.parse_time(gameDate)
+            game_schedule = game_schedule.in_location(get_timezone(config))
+            game_schedule = game_schedule.format("Mon, Jan 2 @ 3:04PM")
+            game_update["game_update"] = "Next Game: " + game_schedule
+
     else:
         print("  - ERROR: No GamePk Found. Displaying NHL Logo.")
         return render.Root(
@@ -164,6 +175,11 @@ def main(config):
     # PowerPlay/EmptyNet Color Change
     score_color_away = get_score_color(game_info["is_pp_away"], game_info["is_empty_away"])
     score_color_home = get_score_color(game_info["is_pp_home"], game_info["is_empty_home"])
+
+    # Game Day Only
+    if config.bool("gameday", False) and (isGameToday == False or isGameToday == "False"):
+        print("  - No %s games today, returning nothing." % str(team))
+        return []
 
     return render.Root(
         child = render.Column(
@@ -281,6 +297,8 @@ def get_game(date, teamId):
         game_state = cache.get("game_" + gamePk + "_gamestate") or None
         score_away = cache.get("game_" + gamePk + "_scoreaway") or None
         score_home = cache.get("game_" + gamePk + "_scorehome") or None
+        isGameToday = cache.get("game_" + gamePk + "_isGameToday") or None
+
     else:
         print("  - CACHE: No GamePk Found")
         teamid_away = None
@@ -289,8 +307,9 @@ def get_game(date, teamId):
         game_state = None
         score_away = None
         score_home = None
+        isGameToday = None
 
-    if teamid_away == None or teamid_home == None or gamePk == None or gameDate == None or game_state == None:
+    if teamid_away == None or teamid_home == None or gamePk == None or gameDate == None or game_state == None or isGameToday == None:
         print("  - CACHE: No Game Info Found")
         url = BASE_URL + "/api/v1/schedule?startDate=" + date + "&teamId=" + str(teamId)
         print("  - HTTP.GET: %s" % url)
@@ -302,6 +321,9 @@ def get_game(date, teamId):
             # Check next scheduled
             if response["totalGames"] == 0:
                 response = get_next_game(teamId)
+                isGameToday = False
+            else:
+                isGameToday = True
 
             if response["totalGames"] > 0:
                 gamePk = str(int(response["dates"][0]["games"][0]["gamePk"]))
@@ -322,14 +344,14 @@ def get_game(date, teamId):
                 cache.set("game_" + gamePk + "_gamestate", str(game_state), ttl_seconds = CACHE_GAME_SECONDS)
                 cache.set("game_" + gamePk + "_scoreaway", str(score_away), ttl_seconds = CACHE_GAME_SECONDS)
                 cache.set("game_" + gamePk + "_scorehome", str(score_home), ttl_seconds = CACHE_GAME_SECONDS)
+                cache.set("game_" + gamePk + "_isGameToday", str(isGameToday), ttl_seconds = CACHE_GAME_SECONDS)
 
                 # Associate team with game in cache
-                cache.set("teamid_" + str(teamid_away) + "_gamepk", str(gamePk), ttl_seconds = CACHE_GAME_SECONDS)
-                cache.set("teamid_" + str(teamid_home) + "_gamepk", str(gamePk), ttl_seconds = CACHE_GAME_SECONDS)
+                cache.set("teamid_" + str(teamId) + "_gamepk", str(gamePk), ttl_seconds = CACHE_GAME_SECONDS)
     else:
         print("  - CACHE: Game Info Found for GamePk %s" % gamePk)
 
-    return teamid_away, teamid_home, gamePk, game_state, gameDate, score_away, score_home
+    return teamid_away, teamid_home, gamePk, game_state, gameDate, score_away, score_home, isGameToday
 
 # looks up the next game for a team
 def get_next_game(teamId):
@@ -370,14 +392,9 @@ def get_linescore_game_data(gamePk, config):
 
     game = response.json()
 
-    teamid_away = int(game["dates"][0]["games"][0]["teams"]["away"]["team"]["id"])
-    teamid_home = int(game["dates"][0]["games"][0]["teams"]["home"]["team"]["id"])
     goals_away = int(game["dates"][0]["games"][0]["teams"]["away"]["score"])
     goals_home = int(game["dates"][0]["games"][0]["teams"]["home"]["score"])
     game_state = game["dates"][0]["games"][0]["status"]["abstractGameState"]
-    currentPeriod = game["dates"][0]["games"][0]["linescore"]["currentPeriod"]
-    sog_away = int(game["dates"][0]["games"][0]["linescore"]["teams"]["away"]["shotsOnGoal"])
-    sog_home = int(game["dates"][0]["games"][0]["linescore"]["teams"]["home"]["shotsOnGoal"])
     is_pp_away = game["dates"][0]["games"][0]["linescore"]["teams"]["away"]["powerPlay"]
     is_pp_home = game["dates"][0]["games"][0]["linescore"]["teams"]["home"]["powerPlay"]
     is_empty_away = game["dates"][0]["games"][0]["linescore"]["teams"]["away"]["goaliePulled"]
@@ -425,7 +442,7 @@ def get_live_game_data(gamePk):
     return response.json()
 
 # collection function to get current score, time, and other random updates
-def get_live_game_update(gamePk, config, game_state, goals_away, goals_home):
+def get_live_game_update(gamePk, config, goals_away, goals_home):
     update = ""
     play = ""
     sog = ""
@@ -713,6 +730,13 @@ def get_schema():
     ]
     team_schema_list.insert(0, schema.Option(display = "Shuffle All Teams", value = "0"))
 
+    version = [
+        schema.Option(
+            display = APP_VERSION,
+            value = APP_VERSION,
+        ),
+    ]
+
     return schema.Schema(
         version = "1",
         fields = [
@@ -728,91 +752,106 @@ def get_schema():
                 id = "location",
                 name = "Location",
                 desc = "Location for which to display time.",
-                icon = "place",
+                icon = "locationDot",
+            ),
+            schema.Toggle(
+                id = "gameday",
+                name = "Game Day Only",
+                desc = "",
+                icon = "calendar",
+                default = False,
             ),
             schema.Toggle(
                 id = "liveupdates",
                 name = "Live Updates",
                 desc = "Pull Live Game Updates",
-                icon = "hockey-puck",
+                icon = "hockeyPuck",
                 default = True,
             ),
             schema.Toggle(
                 id = "play",
                 name = "Last Play",
                 desc = "Toggle Last Play Info",
-                icon = "hockey-puck",
+                icon = "hockeyPuck",
                 default = True,
             ),
             schema.Toggle(
                 id = "lg",
                 name = "Last Goal",
                 desc = "Toggle Last Goal Info",
-                icon = "hockey-puck",
+                icon = "hockeyPuck",
                 default = True,
             ),
             schema.Toggle(
                 id = "sog",
                 name = "SOG",
                 desc = "Toggle Shots on Goal Stats",
-                icon = "hockey-puck",
+                icon = "hockeyPuck",
                 default = True,
             ),
             schema.Toggle(
                 id = "pen",
                 name = "Penalties",
                 desc = "Toggle Penalty Stats",
-                icon = "hockey-puck",
+                icon = "hockeyPuck",
                 default = True,
             ),
             schema.Toggle(
                 id = "pim",
                 name = "PIM",
                 desc = "Toggle Penalty Minutes Stats",
-                icon = "hockey-puck",
+                icon = "hockeyPuck",
                 default = True,
             ),
             schema.Toggle(
                 id = "ppg",
                 name = "PPG",
                 desc = "Toggle Power Play Goal Stats",
-                icon = "hockey-puck",
+                icon = "hockeyPuck",
                 default = True,
             ),
             schema.Toggle(
                 id = "fo",
                 name = "Face Offs",
                 desc = "Toggle Face Off Stats",
-                icon = "hockey-puck",
+                icon = "hockeyPuck",
                 default = True,
             ),
             schema.Toggle(
                 id = "hit",
                 name = "Hit",
                 desc = "Toggle Hits Stats",
-                icon = "hockey-puck",
+                icon = "hockeyPuck",
                 default = True,
             ),
             schema.Toggle(
                 id = "blk",
                 name = "Blocks",
                 desc = "Toggle Block Stats",
-                icon = "hockey-puck",
+                icon = "hockeyPuck",
                 default = True,
             ),
             schema.Toggle(
                 id = "take",
                 name = "Takeaways",
                 desc = "Toggle Takeaway Stats",
-                icon = "hockey-puck",
+                icon = "hockeyPuck",
                 default = True,
             ),
             schema.Toggle(
                 id = "give",
                 name = "Giveaways",
                 desc = "Toggle Giveaway Stats",
-                icon = "hockey-puck",
+                icon = "hockeyPuck",
                 default = True,
+            ),
+            schema.Dropdown(
+                id = "version",
+                name = "Version",
+                desc = "NHL Live App Version",
+                icon = "codeCompare",
+                options = version,
+                default = version[0].value,
             ),
         ],
     )

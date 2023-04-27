@@ -1,0 +1,8 @@
+---
+id: nyc-bus
+name: NYC Bus
+summary: NYC Bus departures
+desc: Real time bus departures for your preferred stop.
+author: samandmoore
+fileName: nyc_bus.star
+packageName: nycbus

@@ -5,14 +5,13 @@ Description: Shows the daily Islamic prayer times for a given location.
 Author: Austin Fonacier
 """
 
+load("cache.star", "cache")
+load("encoding/json.star", "json")
+load("http.star", "http")
+load("humanize.star", "humanize")
 load("render.star", "render")
 load("schema.star", "schema")
-load("animation.star", "animation")
 load("time.star", "time")
-load("cache.star", "cache")
-load("humanize.star", "humanize")
-load("http.star", "http")
-load("encoding/json.star", "json")
 
 DEFAULT_LOCATION = {
     "lat": 34.0522,
@@ -84,7 +83,6 @@ def get_table_of_prayer_times(prayer_timings, non_color_mode):
 
 def get_render_frames(prayer_timings, show_sunrise, non_color_mode):
     children = []
-    counter = 0
 
     # 60 frames of it at the top so people can read before scrolling
     for offset in range(35):
@@ -148,7 +146,7 @@ def get_prayer_for_the_day(latitude, longitude, day, month, year, show_sunrise, 
     # by not leaking their exact location to a third-party API.
     lat_truncate = humanize.float("#.##", float(latitude))
     lng_truncate = humanize.float("#.##", float(longitude))
-    prayer_month_parsed = fetch_prayer_times(lat_truncate, lng_truncate, day, month, year, prayer_calc_option)
+    prayer_month_parsed = fetch_prayer_times(lat_truncate, lng_truncate, month, year, prayer_calc_option)
 
     # TODO error handling?
     day_str = day_to_str(day)
@@ -179,7 +177,7 @@ def prayer_timings_filter(pre_filtered_timings, show_sunrise):
 
     return filtered_prayer_times
 
-def fetch_prayer_times(latitude, longitude, day, month, year, prayer_calc_option):
+def fetch_prayer_times(latitude, longitude, month, year, prayer_calc_option):
     cache_key = "prayer_{}/{}".format(month, year)
 
     cached_data = cache.get(cache_key)
@@ -276,13 +274,13 @@ def get_schema():
                 id = "location",
                 name = "Location",
                 desc = "Location for which to display times",
-                icon = "place",
+                icon = "locationDot",
             ),
             schema.Dropdown(
                 id = "scroll_speed",
                 name = "Scroll Speed",
                 desc = "How fast do you want to scroll?",
-                icon = "cog",
+                icon = "gear",
                 default = scroll_speed[1].value,
                 options = scroll_speed,
             ),

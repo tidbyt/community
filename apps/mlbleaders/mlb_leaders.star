@@ -6,15 +6,15 @@ Author: rs7q5
 """
 #mlb_leaders.star
 #Created 20220412 RIS
-#Last Modified 20220510 RIS
+#Last Modified 20230210 RIS
 
-load("render.star", "render")
-load("http.star", "http")
-load("encoding/json.star", "json")
 load("cache.star", "cache")
+load("encoding/json.star", "json")
+load("http.star", "http")
+load("random.star", "random")
+load("render.star", "render")
 load("schema.star", "schema")
 load("time.star", "time")
-load("random.star", "random")
 
 #this list are the sports that can have their standings pulled
 #leaderType_URL = "https://statsapi.mlb.com/api/v1/leagueLeaderTypes"
@@ -119,7 +119,7 @@ def main(config):
 
     frames_all = []
     frames_all2 = []
-    for idx, x in enumerate(statName_vec):
+    for _, x in enumerate(statName_vec):
         #get data
 
         stat_tmp = get_leaders(x)
@@ -154,6 +154,7 @@ def main(config):
 
     return render.Root(
         delay = int(config.str("speed", "50")),  #speed up scroll text
+        show_full_animation = True,
         child = final_frame,
     )
 
@@ -177,7 +178,7 @@ def get_schema():
                 id = "statName1",
                 name = "Statistic 1",
                 desc = "Choose a statistic.",
-                icon = "baseball-bat-ball",
+                icon = "baseballBatBall",
                 options = stats,
                 default = "homeRuns",
             ),
@@ -185,7 +186,7 @@ def get_schema():
                 id = "statName2",
                 name = "Statistic 2",
                 desc = "Choose a statistic.",
-                icon = "baseball-bat-ball",
+                icon = "baseballBatBall",
                 options = stats,
                 default = "hits",
             ),
@@ -193,7 +194,7 @@ def get_schema():
                 id = "statName3",
                 name = "Statistic 3",
                 desc = "Choose a statistic.",
-                icon = "baseball-bat-ball",
+                icon = "baseballBatBall",
                 options = stats,
                 default = "battingAverage",
             ),
@@ -215,7 +216,7 @@ def get_schema():
                 id = "speed",
                 name = "Frame Speed",
                 desc = "Change the speed that the text scrolls.",
-                icon = "cog",
+                icon = "gear",
                 default = frame_speed[2].value,
                 options = frame_speed,
             ),
@@ -223,14 +224,14 @@ def get_schema():
                 id = "title_bkgd",
                 name = "Title Background",
                 desc = "Make the title background blue instead?",
-                icon = "fill-drip",
+                icon = "fillDrip",
                 default = False,
             ),
             schema.Toggle(
                 id = "hide_app",
                 name = "Hide app?",
                 desc = "",
-                icon = "eye-slash",
+                icon = "eyeSlash",
                 default = False,
             ),
         ],
@@ -305,6 +306,7 @@ def get_leaders(statName):
     today = time.now().in_location("America/New_York")  #get year (season)
 
     #check for cached data
+    stats = {}
     stat_cached = cache.get("mlb_leagueleaders_%s" % statName)
     if stat_cached != None:
         print("Hit! Displaying MLB league leaders in %s data." % statName)
@@ -326,7 +328,7 @@ def get_leaders(statName):
             stats = dict()
 
             #print(data["statGroup"])
-            for idx, x in enumerate(data):
+            for _, x in enumerate(data):
                 stats_tmp = []
                 statGroup = x["statGroup"]
                 if x.get("leaders") != None:
@@ -359,8 +361,6 @@ def get_frame_single(stat):
 
                 #format rank and name
                 name_tmp = split_sentence(y[1], 8, join_word = True)
-                name_row = len(name_tmp) // 8 + 1
-                row_ht = name_row * 5  #was used to set row height of text for name_final
                 name_final = render.WrappedText(content = name_tmp, width = 32, font = font4, color = ctmp)
                 rank_name = render.Row(
                     children = [

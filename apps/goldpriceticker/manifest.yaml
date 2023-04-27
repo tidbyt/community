@@ -1,0 +1,8 @@
+---
+id: goldpriceticker
+name: GoldpriceTicker
+summary: Precious Metal Quotes
+desc: Close to realtime precious metal prices and a graph comparing the price to the 5PM closing price from the day before.
+author: Aaron Brace
+fileName: goldpriceticker.star
+packageName: goldpriceticker

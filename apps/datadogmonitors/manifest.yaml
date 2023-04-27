@@ -1,0 +1,8 @@
+---
+id: datadog-monitors
+name: DataDog Monitors
+summary: View your DataDog Monitors
+desc: By default displays any monitors that are in the status alert but allows for customizing the query yourself based on DataDog's syntax.
+author: Cavallando
+fileName: datadog_monitors.star
+packageName: datadogmonitors
