@@ -288,30 +288,19 @@ def main(config):
                                             main_align = "space_evenly",
                                             cross_align = "center",
                                             children = [
-                                            ],
-                                        ),
-                                        width = 1,
-                                        height = 1,
-                                    ),
-                                    render.Box(
-                                        child = render.Column(
-                                            expanded = True,
-                                            main_align = "space_evenly",
-                                            cross_align = "center",
-                                            children = [
                                                 # Current wind speed.
-                                                render.Box(
-                                                    child = getWindSpeed(decodedMetar),
-                                                    height = 6,
-                                                ),
-                                                # Current wind direction.
                                                 render.Box(
                                                     child = getWindDirection(decodedMetar),
                                                     height = 6,
                                                 ),
+                                                # Current wind direction.
+                                                render.Box(
+                                                    child = getWindSpeed(decodedMetar),
+                                                    height = 6,
+                                                ),
                                             ],
                                         ),
-                                        width = 31,
+                                        width = 32,
                                         height = 17,
                                     ),
                                     render.Box(
@@ -338,7 +327,7 @@ def main(config):
                                                 ),
                                             ],
                                         ),
-                                        width = 31,
+                                        width = 32,
                                         height = 17,
                                     ),
                                 ],
@@ -646,6 +635,11 @@ def getWindSpeed(decodedMetar):
     else:
         windSpeedText = decodedMetar["wind_speed_kt"] + "kts"
 
+    windGust = decodedMetar["wind_gust_kt"]
+
+    if windGust != "":
+        windSpeedText = decodedMetar["wind_speed_kt"] + "-" + windGust + "kts"
+
     windSpeed = int(decodedMetar["wind_speed_kt"])
 
     if (windSpeed >= 20):
@@ -669,15 +663,10 @@ def getWindDirection(decodedMetar):
         if (windSpeed >= 30):
             resultTextColor = "#f5737c"
 
-    if decodedMetar["wind_speed_kt"] == "0":
-        windDirection = "Var"
-
-        if decodedMetar["wind_dir_degrees"] == "0":
-            windDirection = ""
-        else:
-            windDirection = decodedMetar["wind_dir_degrees"]
+    if decodedMetar["wind_dir_degrees"] == "0":
+        windDirection = "Var @"
     else:
-        windDirection = "@ " + decodedMetar["wind_dir_degrees"]
+        windDirection = decodedMetar["wind_dir_degrees"] + " @"
 
     result = render.Text(str(windDirection), color = resultTextColor, font = "tom-thumb")
 
