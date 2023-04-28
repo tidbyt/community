@@ -28,9 +28,14 @@ def main(config):
 
     shared_text = config.get("wordle_score", "Paste Your Wordle⬛⬛🟩⬛⬛⬛⬛⬛🟩⬛🟩🟩🟩🟩🟩⬛⬛⬛🟩⬛⬛⬛🟩⬛⬛")
 
-    if len(shared_text.rstrip("⬛🟩🟨").split()) > 3:
-        score_text = shared_text.rstrip("⬛🟩🟨").split()
+    #Take shared text (that the user pasted into the Wordlebyt Schema field) and remove all the boxes)
+    score_text=re.sub(r"[⬛🟩🟨]", "", shared_text)
 
+    #Check that "score_text" has 3 elements: The Wordle Title, The Game Number, and the Number of Guesses
+    if len(score_text.split()) >= 3:
+        score_text = score_text.split()
+
+    #If it doesn't, prefil the score_text with canned text to make the app happy
     else:
         score_text = ["Paste", "Your", "Wordle"]
 
