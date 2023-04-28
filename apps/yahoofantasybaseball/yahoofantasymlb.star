@@ -568,8 +568,10 @@ def render_standings_and_records(x, standings, entries_to_display, heading_font_
             if totalGames > 0:
                 teamRecord = ((2 * int(teamWins) + int(teamTies)) / (2 * int(totalGames)))
                 if teamRecord != 1:
-                    teamRecord = humanize.ftoa(teamRecord, 3)
-                    teamRecord = teamRecord[1:]
+                    # Multiply by 1000 and then truncate because there is no format library and we want a constant 3 digits after decimal.
+                    teamRecord *= 1000
+                    teamRecord = humanize.ftoa(teamRecord)
+                    teamRecord = "." + teamRecord[-3:]
                 else:
                     teamRecord = "1.00"
             else:
