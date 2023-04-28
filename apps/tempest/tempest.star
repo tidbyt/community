@@ -9,6 +9,7 @@ load("encoding/base64.star", "base64")
 load("encoding/json.star", "json")
 load("http.star", "http")
 load("render.star", "render")
+load("schema.star", "schema")
 load("secret.star", "secret")
 
 TEMPEST_AUTH_URL = "https://tempestwx.com/authorize.html"
@@ -72,7 +73,7 @@ def main(config):
     # If we can't get an observation, we should just skip it in the rotation.
     if len(station_res["obs"]) == 0:
         return []
-
+    feel_dew_choice = config.get("Feels_Dew", "1")
     conditions = forecast_res["current_conditions"]
 
     temp = "%d°" % conditions["air_temperature"]
@@ -83,10 +84,17 @@ def main(config):
         units["units_wind"],
     )
     pressure = "%g" % conditions["sea_level_pressure"]
-    rain = "%d" % conditions["precip_accum_local_day"]
-    feels = "%d" % conditions["feels_like"]
+    rain = "%g" % conditions["precip_accum_local_day"]
+    feels = "%d°" % conditions["feels_like"]
+    dew_pt = "%d°" % conditions["dew_point"]
     pressure_trend = conditions["pressure_trend"]
     icon = base64.decode(ICON_MAP.get(conditions["icon"], ICON_MAP["cloudy"]))
+    if feel_dew_choice == "1":
+        updated_temp = (feels)
+    elif feel_dew_choice == "2":
+        updated_temp = (dew_pt)
+    else:
+        updated_temp = (" ")
 
     if pressure_trend == "falling":
         pressure_icon = ("↓")
@@ -95,7 +103,8 @@ def main(config):
         pressure_icon = ("↑")
 
     else:
-        pressure_icon = ("-")
+        pressure_icon = ("→")
+    rain_units = units["units_precip"]
 
     return render.Root(
         delay = 500,
@@ -117,7 +126,7 @@ def main(config):
                                         color = "#2a2",
                                     ),
                                     render.Text(
-                                        content = feels + "°",
+                                        content = updated_temp,
                                         color = "#FFFF00",
                                     ),
                                 ],
@@ -130,7 +139,7 @@ def main(config):
                                         color = "#66f",
                                     ),
                                     render.Text(
-                                        content = rain + " in",
+                                        content = rain + " " + rain_units,
                                         color = "#808080",
                                     ),
                                 ],
@@ -161,6 +170,20 @@ def main(config):
     )
 
 def get_schema():
+    options = [
+        schema.Option(
+            display = "Feels Like",
+            value = "1",
+        ),
+        schema.Option(
+            display = "Dew Point",
+            value = "2",
+        ),
+        schema.Option(
+            display = "None",
+            value = "3",
+        ),
+    ]
     return [
         {
             "id": "auth",
@@ -184,6 +207,13 @@ def get_schema():
                 "variable": "auth",
                 "value": "",
             },
+        },
+        {
+            "id": "Feels_Dew",
+            "name": "Feels Like or Dew Point Temperature",
+            "type": "dropdown",
+            "options": options,
+            "default": "1",
         },
     ]
 
@@ -360,6 +390,7 @@ SAMPLE_FORECAST_RESPONSE = """{
     "uv": 1,
     "brightness": 18230,
     "feels_like": 12,
+    "dew_point": 9,
     "lightning_strike_count_last_1hr": 0,
     "lightning_strike_count_last_3hr": 0,
     "precip_accum_local_day": 7.42,
