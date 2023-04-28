@@ -84,15 +84,18 @@ def main(config):
         units["units_wind"],
     )
     pressure = "%g" % conditions["sea_level_pressure"]
-    rain = "%d" % conditions["precip_accum_local_day"]
-    feels = "%d" % conditions["feels_like"]
-    dew_pt = "%d" % conditions["dew_point"]
+    rain = "%g" % conditions["precip_accum_local_day"]
+    feels = "%d°" % conditions["feels_like"]
+    dew_pt = "%d°" % conditions["dew_point"]
     pressure_trend = conditions["pressure_trend"]
     icon = base64.decode(ICON_MAP.get(conditions["icon"], ICON_MAP["cloudy"]))
     if feel_dew_choice == "1":
         updated_temp = (feels)
-    else:
+    elif feel_dew_choice == "2":
         updated_temp = (dew_pt)
+    else:
+        updated_temp = (" ")
+
     if pressure_trend == "falling":
         pressure_icon = ("↓")
 
@@ -101,6 +104,7 @@ def main(config):
 
     else:
         pressure_icon = ("→")
+    rain_units = units["units_precip"]
 
     return render.Root(
         delay = 500,
@@ -122,7 +126,7 @@ def main(config):
                                         color = "#2a2",
                                     ),
                                     render.Text(
-                                        content = updated_temp + "°",
+                                        content = updated_temp,
                                         color = "#FFFF00",
                                     ),
                                 ],
@@ -135,7 +139,7 @@ def main(config):
                                         color = "#66f",
                                     ),
                                     render.Text(
-                                        content = rain + " in",
+                                        content = rain + " " + rain_units,
                                         color = "#808080",
                                     ),
                                 ],
@@ -174,6 +178,10 @@ def get_schema():
         schema.Option(
             display = "Dew Point",
             value = "2",
+        ),
+        schema.Option(
+            display = "None",
+            value = "3",
         ),
     ]
     return [
