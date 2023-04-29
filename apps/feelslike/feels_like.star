@@ -11,33 +11,46 @@ load("math.star", "math")
 load("random.star", "random")
 load("render.star", "render")
 load("schema.star", "schema")
+load("encoding/json.star", "json")
 
-DEFAULT_SIZE = "s"
-DEFAULT_API = None
-DEFAULT_LAT = "40.730610"  # New York City
-DEFAULT_LON = "-73.935242"  # New York City
-DEFAULT_SPEED = 3
 MAX_COLOR_VALUE = 255
 MAX_ROWS_S = 32
 MAX_ROWS_L = 16
 MAX_COLUMNS_S = 32
 MAX_COLUMNS_L = 16
+DEFAULT_ORIENTATION = "horizontal"
+DEFAULT_SIZE = "s"
+DEFAULT_API = None
+DEFAULT_LAT = "40.730610"  # New York City
+DEFAULT_LON = "-73.935242"  # New York City
+DEFAULT_SPEED = 3
+DEFAULT_LOCATION = """
+{
+	"lat": "40.6781784",
+	"lng": "-73.9441579",
+	"description": "Brooklyn, NY, USA",
+	"locality": "Brooklyn",
+	"place_id": "ChIJCSF8lBZEwokRhngABHRcdoI",
+	"timezone": "America/New_York"
+}
+"""
 
 def main(config):
     API_KEY = config.get("api_key", DEFAULT_API)
-    LAT = config.get("latitude", DEFAULT_LAT)
-    LON = config.get("longitude", DEFAULT_LON)
+    speed = DEFAULT_SPEED
+    orientation = config.get("orientation", DEFAULT_ORIENTATION)
     size = config.get("size", DEFAULT_SIZE)
     shape = config.get("shape", "square")
-    speed = DEFAULT_SPEED
+    location = config.get('location', DEFAULT_LOCATION)
+    loc = json.decode(location)
 
     # Safely render without API key or location
-    if API_KEY == None or LAT == None or LON == None:
+    if API_KEY == None:
         return render.Root(
-            child = render_rows([10, 200, 0], size, shape, DEFAULT_SPEED, 0),
+            child = render_rows([MAX_COLOR_VALUE, MAX_COLOR_VALUE, MAX_COLOR_VALUE], size, shape, DEFAULT_SPEED, 0, orientation),
         )
 
-    url = "https://api.openweathermap.org/data/2.5/weather?lat={LAT}&lon={LON}&units=imperial&appid={API_KEY}".format(LAT = LAT, LON = LON, API_KEY = API_KEY)
+    url = "https://api.openweathermap.org/data/2.5/weather?lat={LAT}&lon={LON}&units=imperial&appid={API_KEY}".format(LAT = loc['lat'], LON = loc['lng'], API_KEY = API_KEY)
 
     weather_cached = cache.get("feels_like_weather_cache_{}".format(API_KEY))
     if weather_cached != None:
@@ -46,7 +59,7 @@ def main(config):
         weather = http.get(url)
         if weather.status_code != 200:
             return render.Root(
-                child = render_rows([MAX_COLOR_VALUE, MAX_COLOR_VALUE, MAX_COLOR_VALUE], size, shape, speed, 0),
+                child = render_rows([MAX_COLOR_VALUE, MAX_COLOR_VALUE, MAX_COLOR_VALUE], size, shape, speed, 0, orientation),
             )
         weather_json = weather.json()
         temp = weather_json["main"]["feels_like"]
@@ -59,7 +72,7 @@ def main(config):
         cache.set("feels_like_weather_cache_{}".format(API_KEY), "{},{},{}".format(int(temp), int(precipitation), int(wind)), ttl_seconds = 3600)
 
     return render.Root(
-        child = render_rows(set_colors(math.floor(temp)), size, shape, speed, precipitation),
+        child = render_rows(set_colors(math.floor(temp)), size, shape, speed, precipitation, orientation),
     )
 
 def set_colors(temp):
@@ -93,22 +106,22 @@ def decimal_to_hex_single_digit(decimal):
         return str(decimal)
     return chr(ord("a") + decimal - 10)
 
-hex_digits = create_hex_digits()
+hex_digits=create_hex_digits()
 
 def decimal_to_hex(decimal):
     return hex_digits[min(decimal, MAX_COLOR_VALUE)]
 
-def render_rows(colors, size, shape, speed, precipitation):
+def render_rows(colors, size, shape, speed, precipitation, orientation):
     number_of_rows = MAX_ROWS_S if size == "s" else MAX_ROWS_L
     rows = [render.Row(children = render_columns(colors, size, shape, speed, precipitation)) for _ in range(number_of_rows)]
     return render.Column(children = rows)
 
-def render_columns(colors, size, shape, speed, precipitation):
+def render_columns(colors, size, shape, speed, precipitation, orientation):
     number_of_columns = MAX_COLUMNS_S if size == "s" else MAX_COLUMNS_L
     columns = [
         render.Row(
             children = [
-                render.Animation(render_node(random.number(0, colors[0]), random.number(0, colors[1]), random.number(0, colors[2]), size, shape, speed, precipitation)),
+                render.Animation(render_node(random.number(0, colors[0]), random.number(0, colors[1]), random.number(0, colors[2]), size, shape, speed, precipitation, orientation)),
             ],
         )
         for _ in range(number_of_columns)
@@ -118,7 +131,7 @@ def render_columns(colors, size, shape, speed, precipitation):
 def random_color(x, threshold):
     return math.floor((random.number(threshold, 10) / 10) * x)
 
-def render_node(red, green, blue, size, shape, speed, precipitation):
+def render_node(red, green, blue, size, shape, speed, precipitation, orientation):
     # Setting purple probability based on precipitation
     if precipitation == 0:  # No rain
         purple_probability = 0
@@ -144,7 +157,7 @@ def render_node(red, green, blue, size, shape, speed, precipitation):
     first_half = unsorted_list[:-random_starting_point]
     sorted_list = last_half + list(reversed(last_half)) + list(reversed(first_half)) + first_half
     is_purple = random.number(0, 100) / 100.0 < purple_probability
-    purple_shade = random.number(100, MAX_COLOR_VALUE)  # generate a random shade for the purple color
+    purple_shade = random.number(100, MAX_COLOR_VALUE)
     for x in sorted_list:
         if is_purple:
             purple_color = decimal_to_hex(purple_shade - x if purple_shade - x > 0 else 0)
@@ -163,7 +176,7 @@ def render_node(red, green, blue, size, shape, speed, precipitation):
 
         node = render.Circle(diameter = diameter, color = color)
         if shape == "square":
-            node = render.Box(height = diameter, width = diameter, color = color)
+            node = render.Box(height = diameter * 2, width = diameter, color = color)
         frames.append(node)
     return frames
 
@@ -176,6 +189,10 @@ def get_schema():
         schema.Option(
             display = "Circle",
             value = "circle",
+        ),
+        schema.Option(
+            display = "Rectangle",
+            value = "rectangle",
         ),
     ]
     size_options = [
@@ -192,20 +209,44 @@ def get_schema():
             value = "s",
         ),
     ]
+    orientation_options = [
+        schema.Option(
+            display = "Horizontal",
+            value = "horizontal",
+        ),
+        schema.Option(
+            display = "Vertical",
+            value = "vertical",
+        ),
+    ]
+
+    def orientation_select(shape):
+        if shape == "rectangle":
+            return [
+                schema.Dropdown(
+                    id = "orientation",
+                    name = "Orientation",
+                    desc = "Orienation setting for rectangle shaped nodes.",
+                    icon = "arrows-rotate",
+                    default = orientation_options[1].value,
+                    options = orientation_options,
+                )
+            ]
+        elif shape == "square":
+            return []
+        elif shape == "circle":
+            return []
+        else:
+            return []
+
     return schema.Schema(
         version = "1",
         fields = [
-            schema.Text(
-                id = "latitude",
-                name = "Latitude",
-                desc = "Your location's latitude",
-                icon = "map",
-            ),
-            schema.Text(
-                id = "longitude",
-                name = "Longitude",
-                desc = "Your location's longitude",
-                icon = "map",
+            schema.Location(
+                id = "location",
+                name = "Location",
+                desc = "Location of where you want to feel the weather.",
+                icon = "locationDot",
             ),
             schema.Text(
                 id = "api_key",
@@ -217,7 +258,7 @@ def get_schema():
                 id = "size",
                 name = "Size",
                 desc = "Size of the nodes.",
-                icon = "brush",
+                icon = "down-left-and-up-right-to-center",
                 default = size_options[0].value,
                 options = size_options,
             ),
@@ -225,9 +266,14 @@ def get_schema():
                 id = "shape",
                 name = "Shape",
                 desc = "Shape of the nodes.",
-                icon = "brush",
+                icon = "shapes",
                 default = shape_options[1].value,
                 options = shape_options,
+            ),
+            schema.Generated(
+                id = "generated",
+                source = "shape",
+                handler = orientation_select,
             ),
         ],
     )
