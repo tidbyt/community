@@ -285,7 +285,8 @@ def format_price_string(currency_price, currency_symbol, currency_symbol_setting
         #print("displaying in sci notation")
         currency_price = str(currency_price)
 
-    elif len(currency_price_integer) <= 1:        currency_price = str(int(math.round(currency_price * 1000)))
+    elif len(currency_price_integer) <= 1:
+        currency_price = str(int(math.round(currency_price * 1000)))
         if len(currency_price) < 4:
             currency_price = "0" + currency_price
         if len(currency_price) < 4:
