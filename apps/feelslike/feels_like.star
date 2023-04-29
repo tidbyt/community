@@ -1,0 +1,233 @@
+"""
+Applet: Feels Like
+Summary: A weather display
+Description: An abstract weather display that communicates feeling in a natural way.
+Author: eanplatter
+"""
+
+load("cache.star", "cache")
+load("http.star", "http")
+load("math.star", "math")
+load("random.star", "random")
+load("render.star", "render")
+load("schema.star", "schema")
+
+DEFAULT_SIZE = "s"
+DEFAULT_API = None
+DEFAULT_LAT = "40.730610" # New York City
+DEFAULT_LON = "-73.935242" # New York City
+DEFAULT_SPEED = 3
+MAX_COLOR_VALUE = 255
+MAX_ROWS_S = 32
+MAX_ROWS_L = 16
+MAX_COLUMNS_S = 32
+MAX_COLUMNS_L = 16
+
+def main(config):
+    API_KEY = config.get("api_key", DEFAULT_API)
+    LAT = config.get("latitude", DEFAULT_LAT)
+    LON = config.get("longitude", DEFAULT_LON)
+    size = config.get("size", DEFAULT_SIZE)
+    shape = config.get("shape", "square")
+    speed = DEFAULT_SPEED
+
+    # Safely render without API key or location
+    if API_KEY == None or LAT == None or LON == None:
+        return render.Root(
+            child = render_rows([10, 200, 0], size, shape, DEFAULT_SPEED, 0),
+        )
+
+    url = "https://api.openweathermap.org/data/2.5/weather?lat={LAT}&lon={LON}&units=imperial&appid={API_KEY}".format(LAT = LAT, LON = LON, API_KEY = API_KEY)
+
+    weather_cached = cache.get("weather_cache")
+    if weather_cached != None:
+        temp, precipitation, wind = [int(i) for i in weather_cached.split(",")]
+    else:
+        weather = http.get(url)
+        if weather.status_code != 200:
+            return render.Root(
+                child = render_rows([MAX_COLOR_VALUE, MAX_COLOR_VALUE, MAX_COLOR_VALUE], size, shape, speed, 0),
+            )
+        weather_json = weather.json()
+        temp = weather_json["main"]["feels_like"]
+        wind = math.floor(weather_json["wind"]["speed"])
+        precipitation = weather_json["rain"]["1h"] if "rain" in weather_json and "1h" in weather_json["rain"] else 0
+        if wind < 3:
+            speed = 3
+        else:
+           speed = wind 
+        cache.set("weather_cache", "{},{},{}".format(int(temp), int(precipitation), int(wind)), ttl_seconds = 3600)
+
+    return render.Root(
+        child = render_rows(set_colors(math.floor(temp)), size, shape, speed, precipitation),
+    )
+
+def set_colors(temp):
+    r = [i * 5 for i in range(50)]
+    g = [i * 10 for i in range(30)]
+    g = g + g[::-1]
+    b = [MAX_COLOR_VALUE - (i * 4) for i in range(65)]
+
+    color_map = []
+    for i in range(120):
+        red = r[i - 70] if i > 70 else 0
+        green = g[i - 40] if i > 40 and i < 100 else 0
+        blue = b[i] if i < 65 else 0
+        color_map.append([red, green, blue])
+
+    if temp < 0:
+        return [0, 0, MAX_COLOR_VALUE]
+    if temp > 99:
+        return [MAX_COLOR_VALUE, 0, 0]
+    return color_map[temp]
+
+def create_hex_digits():
+    hex_digit_pairs = []
+    for i in range(MAX_ROWS_L):
+        for j in range(MAX_ROWS_L):
+            hex_digit_pairs.append(decimal_to_hex_single_digit(i) + decimal_to_hex_single_digit(j))
+    return hex_digit_pairs
+
+def decimal_to_hex_single_digit(decimal):
+    if decimal < 10:
+        return str(decimal)
+    return chr(ord("a") + decimal - 10)
+
+hex_digits = create_hex_digits()
+
+def decimal_to_hex(decimal):
+    return hex_digits[min(decimal, MAX_COLOR_VALUE)]
+
+def render_rows(colors, size, shape, speed, precipitation):
+    number_of_rows = MAX_ROWS_S if size == "s" else MAX_ROWS_L
+    rows = [render.Row(children = render_columns(colors, size, shape, speed, precipitation)) for _ in range(number_of_rows)]
+    return render.Column(children = rows)
+
+def render_columns(colors, size, shape, speed, precipitation):
+    number_of_columns = MAX_COLUMNS_S if size == "s" else MAX_COLUMNS_L
+    columns = [
+        render.Row(
+            children = [
+                render.Animation(render_node(random.number(0, colors[0]), random.number(0, colors[1]), random.number(0, colors[2]), size, shape, speed, precipitation)),
+            ],
+        )
+        for _ in range(number_of_columns)
+    ]
+    return columns
+
+def random_color(x, threshold):
+    return math.floor((random.number(threshold, 10) / 10) * x)
+
+def render_node(red, green, blue, size, shape, speed, precipitation):
+    # Setting purple probability based on precipitation
+    if precipitation == 0:  # No rain
+        purple_probability = 0
+    elif precipitation < 2.5:  # Light rain
+        purple_probability = 0.1
+    elif 2.5 <= precipitation and precipitation < 7.6:  # Moderate rain
+        purple_probability = 0.2
+    else:  # Heavy rain
+        purple_probability = 0.3
+    diameter = 4
+    if size == "l":
+        diameter = 8
+    elif size == "s":
+        diameter = 2
+    unsorted_list = []
+    frames = []
+    for i in range(MAX_COLOR_VALUE):
+        if i % speed == 0:
+            unsorted_list.append(i + 1)
+
+    random_starting_point = random.number(1, len(unsorted_list))
+    last_half = unsorted_list[-random_starting_point:]
+    first_half = unsorted_list[:-random_starting_point]
+    sorted_list = last_half + list(reversed(last_half)) + list(reversed(first_half)) + first_half
+    is_purple = random.number(0, 100) / 100.0 < purple_probability
+    purple_shade = random.number(100, MAX_COLOR_VALUE)  # generate a random shade for the purple color
+    for x in sorted_list:
+        if is_purple:
+            purple_color = decimal_to_hex(purple_shade - x if purple_shade - x > 0 else 0)
+            color = "#" + purple_color + "00" + purple_color
+        else:
+            r = abs(red - x)
+            g = abs(green - x)
+            b = abs(blue - x)
+            if r > red:
+                r = red
+            if g > green:
+                g = green
+            if b > blue:
+                b = blue
+            color = "#" + decimal_to_hex(abs(r)) + decimal_to_hex(abs(g)) + decimal_to_hex(abs(b))
+
+        node = render.Circle(diameter = diameter, color = color)
+        if shape == "square":
+            node = render.Box(height = diameter, width = diameter, color = color)
+        frames.append(node)
+    return frames
+
+def get_schema():
+    shape_options = [
+        schema.Option(
+            display = "Square",
+            value = "square",
+        ),
+        schema.Option(
+            display = "Circle",
+            value = "circle",
+        ),
+    ]
+    size_options = [
+        schema.Option(
+            display = "Large",
+            value = "l",
+        ),
+        schema.Option(
+            display = "Medium",
+            value = "m",
+        ),
+        schema.Option(
+            display = "Small",
+            value = "s",
+        ),
+    ]
+    return schema.Schema(
+        version = "1",
+        fields = [
+            schema.Text(
+                id = "latitude",
+                name = "Latitude",
+                desc = "Your location's latitude",
+                icon = "map",
+            ),
+            schema.Text(
+                id = "longitude",
+                name = "Longitude",
+                desc = "Your location's longitude",
+                icon = "map",
+            ),
+            schema.Text(
+                id = "api_key",
+                name = "Open Weathermap API Key",
+                desc = "Api key from your personal Open Weathermap account",
+                icon = "key",
+            ),
+            schema.Dropdown(
+                id = "size",
+                name = "Size",
+                desc = "Size of the nodes.",
+                icon = "brush",
+                default = size_options[0].value,
+                options = size_options,
+            ),
+            schema.Dropdown(
+                id = "shape",
+                name = "Shape",
+                desc = "Shape of the nodes.",
+                icon = "brush",
+                default = shape_options[1].value,
+                options = shape_options,
+            ),
+        ],
+    )
