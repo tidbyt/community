@@ -22,7 +22,7 @@ DEFAULT_LOCATION = """
 }
 """
 
-DEFAULT_API_KEY = "1c3faece70ffabe8dd92e21709ac85fc"
+DEFAULT_API_KEY = "noKey"
 
 DEFAULT_TTL_SECONDS = "7200"
 
