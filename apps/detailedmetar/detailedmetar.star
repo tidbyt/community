@@ -6,6 +6,8 @@ Author: SamuelSagarino
 """
 
 load("cache.star", "cache")
+load("encoding/base64.star", "base64")
+load("encoding/json.star", "json")
 load("http.star", "http")
 load("humanize.star", "humanize")
 load("render.star", "render")
@@ -191,6 +193,23 @@ def main(config):
     # Create "humanized" readout. Ex; "5 minutes ago"
     humanizedTime = humanize.time(observationDate)
 
+    #Icon
+    cacheName = decodedMetar["flight_category"] + "/" + decodedMetar["wind_dir_degrees"]
+    cached = cache.get(cacheName)
+
+    if cached != None:
+        logo = json.decode(cached)
+        logoBase64 = base64.decode(logo, encoding = "standard")
+        print("Found cached image! " + cacheName)
+    else:
+        image = http.get("http://samuelsagarino.me/images/metar/" + getFlightCategory(decodedMetar) + "/" + decodedMetar["wind_dir_degrees"] + ".png").body()
+        print("No cached image! " + cacheName)
+
+        logoBase64Encoded = base64.encode(image, encoding = "standard")
+        logoBase64 = base64.decode(logoBase64Encoded, encoding = "standard")
+
+        cache.set(cacheName, json.encode(logoBase64Encoded), ttl_seconds = 86400)
+
     # Primary display
     return render.Root(
         child = render.Row(
@@ -244,10 +263,11 @@ def main(config):
                                     render.Box(
                                         width = 16,
                                         height = 14,
-                                        child = render.Circle(
-                                            color = getBackgroundColor(decodedMetar),
-                                            diameter = 12,
-                                        ),
+                                        #child = render.Circle(
+                                        #    color = getBackgroundColor(decodedMetar),
+                                        #    diameter = 12,
+                                        #),
+                                        child = render.Image(src = logoBase64, width = 14, height = 14),
                                     ),
                                     render.Box(
                                         child = render.Column(
@@ -556,10 +576,8 @@ def getCloudCover(decodedMetar, type):
 
         # Fix for flicker issue that happens when you only have 2 values in the animation.
         if (layerCount == 2):
-            rawOutput = output
             output.extend(extendedOutput)
             output.extend(output)
-            output.extend(rawOutput)
         else:
             output.extend(extendedOutput)
 
@@ -630,18 +648,23 @@ def getWindSpeed(decodedMetar):
     result = None
     resultTextColor = getSecondaryTextColor(decodedMetar)
 
+    # If wind speed is 0 return "Calm" otherwise - respond xx kts
     if decodedMetar["wind_speed_kt"] == "0":
         windSpeedText = "Calm"
     else:
         windSpeedText = decodedMetar["wind_speed_kt"] + "kts"
 
+    # Set wind gust variable
     windGust = decodedMetar["wind_gust_kt"]
 
+    # If wind gust is not non existent - show wind gust with wind speed
     if windGust != "":
         windSpeedText = decodedMetar["wind_speed_kt"] + "-" + windGust + "kts"
 
+    # Convert wind speed to int
     windSpeed = int(decodedMetar["wind_speed_kt"])
 
+    # Wind speed color determinations
     if (windSpeed >= 20):
         resultTextColor = "#f0a13a"
         if (windSpeed >= 30):
