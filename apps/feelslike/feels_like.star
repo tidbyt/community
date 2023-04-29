@@ -6,12 +6,12 @@ Author: eanplatter
 """
 
 load("cache.star", "cache")
+load("encoding/json.star", "json")
 load("http.star", "http")
 load("math.star", "math")
 load("random.star", "random")
 load("render.star", "render")
 load("schema.star", "schema")
-load("encoding/json.star", "json")
 
 MAX_COLOR_VALUE = 255
 MAX_ROWS_S = 32
@@ -41,7 +41,7 @@ def main(config):
     orientation = config.get("orientation", DEFAULT_ORIENTATION)
     size = config.get("size", DEFAULT_SIZE)
     shape = config.get("shape", "square")
-    location = config.get('location', DEFAULT_LOCATION)
+    location = config.get("location", DEFAULT_LOCATION)
     loc = json.decode(location)
 
     # Safely render without API key or location
@@ -50,7 +50,7 @@ def main(config):
             child = render_rows([MAX_COLOR_VALUE, MAX_COLOR_VALUE, MAX_COLOR_VALUE], size, shape, DEFAULT_SPEED, 0, orientation),
         )
 
-    url = "https://api.openweathermap.org/data/2.5/weather?lat={LAT}&lon={LON}&units=imperial&appid={API_KEY}".format(LAT = loc['lat'], LON = loc['lng'], API_KEY = API_KEY)
+    url = "https://api.openweathermap.org/data/2.5/weather?lat={LAT}&lon={LON}&units=imperial&appid={API_KEY}".format(LAT = loc["lat"], LON = loc["lng"], API_KEY = API_KEY)
 
     weather_cached = cache.get("feels_like_weather_cache_{}".format(API_KEY))
     if weather_cached != None:
@@ -106,14 +106,14 @@ def decimal_to_hex_single_digit(decimal):
         return str(decimal)
     return chr(ord("a") + decimal - 10)
 
-hex_digits=create_hex_digits()
+hex_digits = create_hex_digits()
 
 def decimal_to_hex(decimal):
     return hex_digits[min(decimal, MAX_COLOR_VALUE)]
 
 def render_rows(colors, size, shape, speed, precipitation, orientation):
     number_of_rows = MAX_ROWS_S if size == "s" else MAX_ROWS_L
-    rows = [render.Row(children = render_columns(colors, size, shape, speed, precipitation)) for _ in range(number_of_rows)]
+    rows = [render.Row(children = render_columns(colors, size, shape, speed, precipitation, orientation)) for _ in range(number_of_rows)]
     return render.Column(children = rows)
 
 def render_columns(colors, size, shape, speed, precipitation, orientation):
@@ -176,9 +176,43 @@ def render_node(red, green, blue, size, shape, speed, precipitation, orientation
 
         node = render.Circle(diameter = diameter, color = color)
         if shape == "square":
-            node = render.Box(height = diameter * 2, width = diameter, color = color)
+            node = render.Box(height = diameter, width = diameter, color = color)
+        elif shape == "rectangle":
+            height_mod = 2
+            width_mod = 2
+            if orientation == "horizontal":
+                height_mod = 1
+            elif orientation == "vertical":
+                width_mod = 1
+            node = render.Box(height = diameter * height_mod, width = diameter * width_mod, color = color)
         frames.append(node)
     return frames
+
+def more_options(shape):
+    if shape == "rectangle":
+        return [
+            schema.Dropdown(
+                id = "orientation",
+                name = "Orientation",
+                desc = "Orienation setting for rectangle shaped nodes.",
+                icon = "arrows-rotate",
+                default = orientation_options[1].value,
+                options = orientation_options,
+            ),
+        ]
+    else:
+        return []
+
+orientation_options = [
+    schema.Option(
+        display = "Horizontal",
+        value = "horizontal",
+    ),
+    schema.Option(
+        display = "Vertical",
+        value = "vertical",
+    ),
+]
 
 def get_schema():
     shape_options = [
@@ -195,6 +229,7 @@ def get_schema():
             value = "rectangle",
         ),
     ]
+
     size_options = [
         schema.Option(
             display = "Large",
@@ -209,35 +244,6 @@ def get_schema():
             value = "s",
         ),
     ]
-    orientation_options = [
-        schema.Option(
-            display = "Horizontal",
-            value = "horizontal",
-        ),
-        schema.Option(
-            display = "Vertical",
-            value = "vertical",
-        ),
-    ]
-
-    def orientation_select(shape):
-        if shape == "rectangle":
-            return [
-                schema.Dropdown(
-                    id = "orientation",
-                    name = "Orientation",
-                    desc = "Orienation setting for rectangle shaped nodes.",
-                    icon = "arrows-rotate",
-                    default = orientation_options[1].value,
-                    options = orientation_options,
-                )
-            ]
-        elif shape == "square":
-            return []
-        elif shape == "circle":
-            return []
-        else:
-            return []
 
     return schema.Schema(
         version = "1",
@@ -258,7 +264,7 @@ def get_schema():
                 id = "size",
                 name = "Size",
                 desc = "Size of the nodes.",
-                icon = "down-left-and-up-right-to-center",
+                icon = "downLeftAndUpRightToCenter",
                 default = size_options[0].value,
                 options = size_options,
             ),
@@ -273,7 +279,7 @@ def get_schema():
             schema.Generated(
                 id = "generated",
                 source = "shape",
-                handler = orientation_select,
+                handler = more_options,
             ),
         ],
     )
