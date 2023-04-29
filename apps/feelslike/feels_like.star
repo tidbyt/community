@@ -85,8 +85,8 @@ def main(config):
         logo = http.get("https://openweathermap.org/img/wn/{}@2x.png".format(currentWeatherIcon)).body()
 
         ttl_seconds = int(config.get("updateInterval", DEFAULT_TTL_SECONDS))
-        cache.set("currentWeather", json.encode(currentWeather), ttl_seconds)
-        cache.set("logo", logo, ttl_seconds)
+        cache.set("currentWeather", json.encode(currentWeather), ttl_seconds = ttl_seconds)
+        cache.set("logo", logo, ttl_seconds = ttl_seconds)
     else:
         currentWeather = json.decode(currentWeather)
 
