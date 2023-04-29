@@ -189,12 +189,12 @@ def main(config):
         CT2 = "#222"
 
     elif route2 == "Gold":
-        CB = "#FB0"
-        CT = "#222"
+        CB2 = "#FB0"
+        CT2 = "#222"
 
     elif route2 == "Purple":
-        CB = "#A0C"
-        CT = "#222"
+        CB2 = "#A0C"
+        CT2 = "#222"
 
     if route2[2:7] == "Line":
         CB2 = "#FFF"

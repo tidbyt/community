@@ -11,34 +11,101 @@ load("random.star", "random")
 load("render.star", "render")
 load("schema.star", "schema")
 
+# URL used for chat completions
 OPENAI_COMPLETION_URL = "https://api.openai.com/v1/chat/completions"
 
-#Show an error
-def makeError(type):
+# URL used to check for models and validate OPENAI_API_KEY
+OPENAI_MODELS_URL = "https://api.openai.com/v1/models"
+
+# Open AI model used
+OPENAI_COMPLETION_MODEL = "gpt-3.5-turbo"
+
+# Wait 15 minutes before checking if key is valid again
+INVALID_KEY_COOLOFF_TTL_SECONDS = 15 * 60
+
+# Validates OPENAI_API_KEY
+def validate_key(OPENAI_API_KEY):
+    response_art = cache.get("response_art-" + OPENAI_API_KEY)
+
+    if response_art != None:
+        # We've seen this and generated an art, return True
+        return True, "Valid Key Found"
+
+    # The key has not been seen or not been seen since last generation
+    # Check if it was previously checked
+    previously_invalid = cache.get("invalid_key-" + OPENAI_API_KEY)
+
+    if previously_invalid != None:
+        # We've seen this and it was invalid previously
+        return False, previously_invalid
+
+    # The key has not been seen or validated in a while
+    print("Calling API to validate OPENAI_API_KEY")
+
+    # Example Models Call
+    ### curl https://api.openai.com/v1/models/ \
+    ###   -H "Authorization: Bearer $OPENAI_API_KEY"
+
+    rep = http.get(
+        OPENAI_MODELS_URL,
+        headers = {"Authorization": "Bearer " + OPENAI_API_KEY},
+    )
+
+    #print(rep.json())
+    response = rep.json()
+
+    if rep.status_code == 200:
+        # Check if API has access to OPENAI_COMPLETION_MODEL
+        if "data" in response:
+            models = response["data"]
+            for model in models:
+                if "id" in model and OPENAI_COMPLETION_MODEL in model["id"]:
+                    # User has valid API Key and access to model
+                    return True, "Valid Key Found"
+
+        error_code = "OpenAI: Key provided does not have access to " + OPENAI_COMPLETION_MODEL
+        cache.set("invalid_key-" + OPENAI_API_KEY, error_code, ttl_seconds = INVALID_KEY_COOLOFF_TTL_SECONDS)
+        return False, error_code
+
+    # Got a negative response from OpenAI
+    error_code = None
+    if "error" in response and "code" in response["error"]:
+        error_code = "Open AI: " + response["error"]["code"]
+    else:
+        error_code = "Open AI: Response " + str(rep.status_code)
+
+    cache.set("invalid_key-" + OPENAI_API_KEY, error_code, ttl_seconds = INVALID_KEY_COOLOFF_TTL_SECONDS)
+    return False, error_code
+
+# Show an canned graphic
+def defaultGraphic(type):
+    art = "#f2c4d1,#9c4f8d,#f4a460,#c0c0c0,#8b008b,#008b8b,#f5deb3,#ff8c00,#00ff7f,#d2691e,#ff7f50,#ff1493,#00ffff,#87cefa,#7fffd4,#dda0dd,#7b68ee,#ff4500,#fa8072,#00fa9a,#1e90ff,#ff69b4,#ff00ff,#ff0000,#00ff00,#0000ff,#8a2be2,#a0522d,#b22222,#dc143c,#ff69b4,#00bfff"
+    children = []
+    for c in art.split(","):
+        children.append(render.Box(width = 2, height = 24, color = c))
+
     return render.Root(
         child = render.Stack(
             children = [
-                render.Box(
-                    width = 64,
-                    height = 32,
-                    color = "#363536",
-                    child = render.Column(
-                        main_align = "center",
-                        cross_align = "center",
-                        expanded = True,
-                        children = [
-                            render.Marquee(
-                                width = 60,
-                                scroll_direction = "horizontal",
-                                offset_start = 10,
-                                offset_end = 10,
-                                child = render.Text(type),
-                            ),
-                            render.Text("IT TAKES", color = "#FF00FF"),
-                            render.Text("A FEW SECONDS", color = "#FF00FF"),
-                            render.Text("TO RENDER", color = "#FF00FF"),
-                        ],
-                    ),
+                render.Row(
+                    children = children,
+                ),
+                render.Column(
+                    main_align = "center",
+                    cross_align = "center",
+                    expanded = True,
+                    children = [
+                        render.Text("", color = "#FFFFFF"),
+                        render.Text("", color = "#FFFFFF"),
+                        render.Text("", color = "#FFFFFF"),
+                        render.Marquee(
+                            width = 60,
+                            scroll_direction = "horizontal",
+                            offset_start = 10,
+                            offset_end = 10,
+                            child = render.Text(type),
+                        ),
+                    ],
                 ),
             ],
         ),
@@ -80,7 +147,7 @@ def is_valid_hex(hex_str):
     return True
 
 def request_art(OPENAI_API_KEY):
-    print("Calling API")
+    print("Calling Completion API")
 
     # Example Completion Call
     ### curl https://api.openai.com/v1/chat/completions \
@@ -97,14 +164,17 @@ def request_art(OPENAI_API_KEY):
     rep = http.post(
         OPENAI_COMPLETION_URL,
         headers = {"Authorization": "Bearer " + OPENAI_API_KEY},
-        json_body = {"model": "gpt-3.5-turbo", "messages": prompt, "temperature": 0.3},
+        json_body = {"model": OPENAI_COMPLETION_MODEL, "messages": prompt, "temperature": 0.3},
     )
 
-    # print(rep.json())
-    if rep.status_code != 200:
-        return None
-
+    #print(rep.json())
     response = rep.json()
+    if rep.status_code != 200:
+        if "error" in response and "code" in response["error"]:
+            error_code = "Open AI: " + response["error"]["code"]
+        else:
+            error_code = "Open AI: Response " + str(rep.status_code)
+        return None, error_code
 
     valid_colors = []
 
@@ -131,32 +201,37 @@ def request_art(OPENAI_API_KEY):
         for _ in range(colors_needed):
             valid_colors.append(generate_random_hex())
 
-    return ",".join(valid_colors[:32])
+    return ",".join(valid_colors[:32]), "Success"
 
 def get_art(OPENAI_API_KEY, cache_ttl_seconds):
     response_art = cache.get("response_art-" + OPENAI_API_KEY)
 
     if response_art == None:
-        response_art = request_art(OPENAI_API_KEY)
+        response_art, error_code = request_art(OPENAI_API_KEY)
         if response_art == None:
-            return None
+            return response_art, error_code
         cache.set("response_art-" + OPENAI_API_KEY, response_art, ttl_seconds = cache_ttl_seconds)
 
     # print(response_art)
 
-    return response_art
+    return response_art, "Success"
 
 def main(config):
     OPENAI_API_KEY = config.get("OPENAI_API_KEY", "")
     if OPENAI_API_KEY == "":
-        return makeError("Please add your OPENAI_API_KEY")
+        return defaultGraphic("Please add your OPENAI_API_KEY")
+
+    key_valid, error_code = validate_key(OPENAI_API_KEY)
+
+    if (key_valid == False):
+        return defaultGraphic(error_code)
 
     cache_ttl_seconds = int(config.get("cache_ttl_min", "10")) * 60
 
-    art = get_art(OPENAI_API_KEY, cache_ttl_seconds)
+    art, error_code = get_art(OPENAI_API_KEY, cache_ttl_seconds)
 
     if (art == None):
-        return makeError("OPENAI_API_KEY INVALID")
+        return defaultGraphic(error_code)
 
     children = []
     for c in art.split(","):

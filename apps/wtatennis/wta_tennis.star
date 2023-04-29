@@ -15,6 +15,9 @@ v1.2
 Show city name instead of official tournament title once the tournament starts, except for Slams
 Added handling for walkovers
 Extended player surname field by 2 chars
+
+v1.2b
+Update title bar color to distinguish between WTA & ATP apps
 """
 
 load("cache.star", "cache")
@@ -634,7 +637,7 @@ def titleBar(SelectedTourneyID):
     elif SelectedTourneyID == "189-2023":  # US Open
         titleColor = "#022686"
     else:
-        titleColor = "#203764"
+        titleColor = "#7915ff"
     return titleColor
 
 RotationOptions = [
