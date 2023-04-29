@@ -14,8 +14,8 @@ load("schema.star", "schema")
 
 DEFAULT_SIZE = "s"
 DEFAULT_API = None
-DEFAULT_LAT = "40.730610" # New York City
-DEFAULT_LON = "-73.935242" # New York City
+DEFAULT_LAT = "40.730610"  # New York City
+DEFAULT_LON = "-73.935242"  # New York City
 DEFAULT_SPEED = 3
 MAX_COLOR_VALUE = 255
 MAX_ROWS_S = 32
@@ -55,7 +55,7 @@ def main(config):
         if wind < 3:
             speed = 3
         else:
-           speed = wind 
+            speed = wind
         cache.set("weather_cache", "{},{},{}".format(int(temp), int(precipitation), int(wind)), ttl_seconds = 3600)
 
     return render.Root(
