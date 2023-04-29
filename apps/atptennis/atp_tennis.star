@@ -6,6 +6,15 @@ Author: M0ntyP
 
 Note:
 ESPN sometimes shows completed matches as stil being "In Progress" well after they have been completed so those matches will continue to appear as in progress matches. 
+
+v1.1
+Used "post" state for completed matches, this will capture both Final and Retired
+Added handling for when no tournaments are on
+
+v1.2
+Show city name instead of official tournament title once the tournament starts, except for Slams
+Added handling for walkovers
+Extended player surname field by 2 chars for Best of 3 sets tournaments
 """
 
 load("cache.star", "cache")
@@ -18,6 +27,7 @@ load("schema.star", "schema")
 load("time.star", "time")
 
 DEFAULT_TIMEZONE = "Australia/Adelaide"
+SLAM_LIST = ["154-2023", "188-2023", "172-2023", "189-2023"]
 
 def main(config):
     timezone = config.get("$tz", DEFAULT_TIMEZONE)
@@ -97,8 +107,8 @@ def main(config):
                 EventIndex = x
                 if len(ATP_JSON["events"][x]) == 10:
                     for y in range(0, len(ATP_JSON["events"][x]["competitions"]), 1):
-                        # if the match is "Final" and its a singles match and the start time of the match was < 24 hrs ago, lets add it to the list of completed matches
-                        if ATP_JSON["events"][x]["competitions"][y]["status"]["type"]["description"] == "Final":
+                        # if the match is completed ("post") and its a singles match ("athlete") and the start time of the match was < 24 hrs ago, lets add it to the list of completed matches
+                        if ATP_JSON["events"][x]["competitions"][y]["status"]["type"]["state"] == "post":
                             if ATP_JSON["events"][x]["competitions"][y]["competitors"][0]["type"] == "athlete":
                                 MatchTime = ATP_JSON["events"][EventIndex]["competitions"][y]["date"]
                                 MatchTime = time.parse_time(MatchTime, format = "2006-01-02T15:04Z").in_location(timezone)
@@ -148,10 +158,29 @@ def getLiveScores(SelectedTourneyID, EventIndex, InProgressMatchList, JSON):
     displayfont = "CG-pixel-3x5-mono"
     LoopMax = 0
 
-    TourneyName = JSON["events"][EventIndex]["name"]
-    TitleBarColor = titleBar(SelectedTourneyID)
+    # If its not a slam...
+    # Get the city of the tournament, everything up to the comma (format is City, Country)
+    # This is usually how the tournaments are referred to, so use this in the title bar
+    # if tournament hasn't started yet (using our 10 field test), the city information cannot be gathered so we'll default to the official title
+    if SelectedTourneyID not in SLAM_LIST:
+        if len(JSON["events"][EventIndex]) == 10:
+            TourneyLocation = JSON["events"][EventIndex]["competitions"][0]["venue"]["address"]["summary"]
+            CommaIndex = TourneyLocation.index(",")
+            TourneyCity = TourneyLocation[:CommaIndex]
+        else:
+            TourneyCity = JSON["events"][EventIndex]["name"]
 
-    Title = [render.Box(width = 64, height = 5, color = TitleBarColor, child = render.Text(content = TourneyName[:16], color = "#FFF", font = "CG-pixel-3x5-mono"))]
+        # Due to Best of 3 format in non-slams we can allow for 15 chars in a player's surname
+        SurnameLen = 15
+    else:
+        # It is a slam so use the tournament name
+        TourneyCity = JSON["events"][EventIndex]["name"]
+
+        # Due to Best of 5 format in non-slams we can allow for 13 chars in a player's surname
+        SurnameLen = 13
+
+    TitleBarColor = titleBar(SelectedTourneyID)
+    Title = [render.Box(width = 64, height = 5, color = TitleBarColor, child = render.Text(content = TourneyCity, color = "#FFF", font = "CG-pixel-3x5-mono"))]
     Display.extend(Title)
 
     for y in range(0, len(InProgressMatchList), 1):
@@ -195,7 +224,7 @@ def getLiveScores(SelectedTourneyID, EventIndex, InProgressMatchList, JSON):
                                 render.Padding(
                                     pad = (1, 1, 0, 0),
                                     child = render.Text(
-                                        content = Player1_Name[3:13],
+                                        content = Player1_Name[3:SurnameLen],
                                         color = Player1Color,
                                         font = displayfont,
                                     ),
@@ -228,7 +257,7 @@ def getLiveScores(SelectedTourneyID, EventIndex, InProgressMatchList, JSON):
                                 render.Padding(
                                     pad = (1, 1, 0, 0),
                                     child = render.Text(
-                                        content = Player2_Name[3:13],
+                                        content = Player2_Name[3:SurnameLen],
                                         color = Player2Color,
                                         font = displayfont,
                                     ),
@@ -301,9 +330,29 @@ def getCompletedMatches(SelectedTourneyID, EventIndex, CompletedMatchList, JSON)
     LoopMax = 0
     Completed = len(CompletedMatchList)
 
-    TourneyName = JSON["events"][EventIndex]["name"]
+    # If its not a slam...
+    # Get the city of the tournament, everything up to the comma (format is City, Country)
+    # This is usually how the tournaments are referred to, so use this in the title bar
+    # if tournament hasn't started yet (using our 10 field test), the city information cannot be gathered so we'll default to the official title
+    if SelectedTourneyID not in SLAM_LIST:
+        if len(JSON["events"][EventIndex]) == 10:
+            TourneyLocation = JSON["events"][EventIndex]["competitions"][0]["venue"]["address"]["summary"]
+            CommaIndex = TourneyLocation.index(",")
+            TourneyCity = TourneyLocation[:CommaIndex]
+        else:
+            TourneyCity = JSON["events"][EventIndex]["name"]
+
+        # 15 chars in surname when not a slam
+        SurnameLen = 15
+    else:
+        # Use proper event name for slam
+        TourneyCity = JSON["events"][EventIndex]["name"]
+
+        # 13 chars in surname when it is a slam
+        SurnameLen = 13
+
     TitleBarColor = titleBar(SelectedTourneyID)
-    Title = [render.Box(width = 64, height = 5, color = TitleBarColor, child = render.Text(content = TourneyName[:16], color = "#FFF", font = "CG-pixel-3x5-mono"))]
+    Title = [render.Box(width = 64, height = 5, color = TitleBarColor, child = render.Text(content = TourneyCity, color = "#FFF", font = "CG-pixel-3x5-mono"))]
     Display.extend(Title)
 
     # loop through the list of completed matches
@@ -336,16 +385,27 @@ def getCompletedMatches(SelectedTourneyID, EventIndex, CompletedMatchList, JSON)
             elif (Player2_Winner):
                 Player2Color = "#ff0"
 
-            Number_Sets = len(JSON["events"][EventIndex]["competitions"][x]["competitors"][0]["linescores"])
             Player1_Sets = ""
             Player2_Sets = ""
 
-            for z in range(0, Number_Sets, 1):
-                Player1SetScore = humanize.ftoa(JSON["events"][EventIndex]["competitions"][x]["competitors"][0]["linescores"][z]["value"])
-                Player2SetScore = humanize.ftoa(JSON["events"][EventIndex]["competitions"][x]["competitors"][1]["linescores"][z]["value"])
+            # if its not a walkover
+            if JSON["events"][EventIndex]["competitions"][x]["status"]["type"]["description"] != "Walkover":
+                Number_Sets = len(JSON["events"][EventIndex]["competitions"][x]["competitors"][0]["linescores"])
 
-                Player1_Sets = Player1_Sets + Player1SetScore
-                Player2_Sets = Player2_Sets + Player2SetScore
+                for z in range(0, Number_Sets, 1):
+                    Player1SetScore = humanize.ftoa(JSON["events"][EventIndex]["competitions"][x]["competitors"][0]["linescores"][z]["value"])
+                    Player2SetScore = humanize.ftoa(JSON["events"][EventIndex]["competitions"][x]["competitors"][1]["linescores"][z]["value"])
+
+                    Player1_Sets = Player1_Sets + Player1SetScore
+                    Player2_Sets = Player2_Sets + Player2SetScore
+            else:
+                # it is a walkover, indicate that in the set score field
+                if (Player1_Winner):
+                    Player1_Sets = "WO"
+                    Player2_Sets = ""
+                elif (Player2_Winner):
+                    Player1_Sets = ""
+                    Player2_Sets = "WO"
 
             # Render the names and set scores, with a spacer in between matches
             Scores = [
@@ -360,7 +420,7 @@ def getCompletedMatches(SelectedTourneyID, EventIndex, CompletedMatchList, JSON)
                                 render.Padding(
                                     pad = (1, 1, 0, 0),
                                     child = render.Text(
-                                        content = Player1_Name[3:13],
+                                        content = Player1_Name[3:SurnameLen],
                                         color = Player1Color,
                                         font = displayfont,
                                     ),
@@ -393,7 +453,7 @@ def getCompletedMatches(SelectedTourneyID, EventIndex, CompletedMatchList, JSON)
                                 render.Padding(
                                     pad = (1, 1, 0, 0),
                                     child = render.Text(
-                                        content = Player2_Name[3:13],
+                                        content = Player2_Name[3:SurnameLen],
                                         color = Player2Color,
                                         font = displayfont,
                                     ),
@@ -522,15 +582,25 @@ def get_schema():
             EventsID.append(Event_ID)
             ActualEvents = ActualEvents + 1
 
-    for y in range(0, ActualEvents, 1):
-        # lint being a pain, so...
-        y = y
-        EventName = Events.pop(0)
-        EventID = EventsID.pop(0)
+    if ActualEvents != 0:
+        for y in range(0, ActualEvents, 1):
+            # lint being a pain, so...
+            y = y
+            EventName = Events.pop(0)
+            EventID = EventsID.pop(0)
 
+            Value = schema.Option(
+                display = EventName,
+                value = EventID,
+            )
+
+            TournamentOptions.append(Value)
+
+        # if there are no tournaments on then put that in the dropdown
+    else:
         Value = schema.Option(
-            display = EventName,
-            value = EventID,
+            display = "No active events",
+            value = "1",
         )
 
         TournamentOptions.append(Value)

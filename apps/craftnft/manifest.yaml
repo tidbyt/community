@@ -1,0 +1,8 @@
+---
+id: craftnft
+name: CraftNFT
+summary: Craft NFT Display
+desc: Display random Craft NFT owned by a user.
+author: tavdog
+fileName: craftnft.star
+packageName: craftnft

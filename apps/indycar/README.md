@@ -2,6 +2,8 @@
 
 Indycar displays next race details and current standings details for NTT Indycar or Indy NXT Series
 
+Track images are by @samhi113
+
 Displayed:
 
 - Next Race
@@ -10,7 +12,7 @@ Displayed:
   - Track Name
   - Date / Time (localized)
   - US TV channel showing the race
-  - Icon showing type of track (oval, street, road)
+  - Image of the track
 
 - Driver Standings
   - Series Title w/corresponding background
@@ -24,7 +26,8 @@ Displayed:
 - For Next Race select date/time format
 
 ## Thanks
-Thanks a lot to @AMillionAir as the original maker of the [Forumla 1 applet](../formula1/).
+- Thanks a lot to @AMillionAir as the original maker of the [Forumla 1 applet](../formula1/).
+- Track images are provided by @samhi113
 
 ## Screenshot
 

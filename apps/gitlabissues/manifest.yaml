@@ -1,0 +1,8 @@
+---
+id: gitlab-issues
+name: Gitlab Issues
+summary: Show open Issues on Gitlab
+desc: Shows the amount of currently open issues on Gitlab for a user.
+author: Sven Ringger
+fileName: gitlab_issues.star
+packageName: gitlabissues
