@@ -5,6 +5,7 @@ Description: Displays the "feels like" temperature for the set location.
 Author: skalum
 """
 
+load("cache.star", "cache")
 load("encoding/json.star", "json")
 load("http.star", "http")
 load("render.star", "render")
@@ -21,7 +22,9 @@ DEFAULT_LOCATION = """
 }
 """
 
-DEFAULT_API_KEY = "noKey"
+DEFAULT_API_KEY = "1c3faece70ffabe8dd92e21709ac85fc"
+
+DEFAULT_TTL_SECONDS = "7200"
 
 def get_schema():
     return schema.Schema(
@@ -33,6 +36,27 @@ def get_schema():
                 desc = "OpenWeather API key",
                 icon = "key",
             ),
+            schema.Dropdown(
+                id = "updateInterval",
+                name = "Update interval",
+                desc = "Interval at which to update weather information",
+                icon = "clock",
+                default = "7200",
+                options = [
+                    schema.Option(
+                        display = "Two hours",
+                        value = "7200",
+                    ),
+                    schema.Option(
+                        display = "One hour",
+                        value = "3600",
+                    ),
+                    schema.Option(
+                        display = "Ten minutes",
+                        value = "600",
+                    ),
+                ],
+            ),
             schema.Location(
                 id = "location",
                 name = "Location",
@@ -43,18 +67,28 @@ def get_schema():
     )
 
 def main(config):
-    apiKey = config.get("apiKey", DEFAULT_API_KEY)
+    currentWeather = cache.get("currentWeather")
+    logo = cache.get("logo")
 
-    location = json.decode(DEFAULT_LOCATION)
-    lat, lng = float(location["lat"]), float(location["lng"])
+    if currentWeather == None or logo == None:
+        apiKey = config.get("apiKey", DEFAULT_API_KEY)
 
-    url = "https://api.openweathermap.org/data/3.0/onecall?lat={}&lon={}&appid={}&units=imperial".format(lat, lng, apiKey)
-    weather = http.get(url).json()
+        location = json.decode(DEFAULT_LOCATION)
+        lat, lng = float(location["lat"]), float(location["lng"])
 
-    currentWeather = weather["current"]
-    currentWeatherIcon = currentWeather["weather"][0]["icon"]
+        url = "https://api.openweathermap.org/data/3.0/onecall?lat={}&lon={}&appid={}&units=imperial".format(lat, lng, apiKey)
+        weather = http.get(url).json()
 
-    logo = http.get("https://openweathermap.org/img/wn/%s@2x.png" % (currentWeatherIcon)).body()
+        currentWeather = weather["current"]
+        currentWeatherIcon = currentWeather["weather"][0]["icon"]
+
+        logo = http.get("https://openweathermap.org/img/wn/{}@2x.png".format(currentWeatherIcon)).body()
+
+        ttl_seconds = int(config.get("updateInterval", DEFAULT_TTL_SECONDS))
+        cache.set("currentWeather", json.encode(currentWeather), ttl_seconds)
+        cache.set("logo", logo, ttl_seconds)
+    else:
+        currentWeather = json.decode(currentWeather)
 
     return render.Root(
         child = render.Row(
