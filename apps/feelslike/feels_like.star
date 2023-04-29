@@ -39,7 +39,7 @@ def main(config):
 
     url = "https://api.openweathermap.org/data/2.5/weather?lat={LAT}&lon={LON}&units=imperial&appid={API_KEY}".format(LAT = LAT, LON = LON, API_KEY = API_KEY)
 
-    weather_cached = cache.get("weather_cache")
+    weather_cached = cache.get("feels_like_weather_cache_{}".format(API_KEY))
     if weather_cached != None:
         temp, precipitation, wind = [int(i) for i in weather_cached.split(",")]
     else:
@@ -56,7 +56,7 @@ def main(config):
             speed = 3
         else:
             speed = wind
-        cache.set("weather_cache", "{},{},{}".format(int(temp), int(precipitation), int(wind)), ttl_seconds = 3600)
+        cache.set("feels_like_weather_cache_{}".format(API_KEY), "{},{},{}".format(int(temp), int(precipitation), int(wind)), ttl_seconds = 3600)
 
     return render.Root(
         child = render_rows(set_colors(math.floor(temp)), size, shape, speed, precipitation),
