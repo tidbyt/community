@@ -1,0 +1,8 @@
+---
+id: mta-bus
+name: MTA Bus
+summary: MTA bus stop tracker
+desc: Track the arrival time for MTA buses. Requires an MTA Bus Time API key.
+author: Kevin Eder
+fileName: mta_bus.star
+packageName: mtabus
