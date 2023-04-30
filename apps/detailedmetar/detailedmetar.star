@@ -117,6 +117,8 @@ def main(config):
                                             cross_align = "center",
                                             children = [
                                                 render.Text(getStationID(decodedMetar), color = getTextColor(decodedMetar), font = "tb-8"),
+                                                render.Box(height = 1, color = "#1a1a1a"),
+                                                wxDisplay(decodedMetar),
                                             ],
                                         ),
                                         width = 22,
@@ -161,6 +163,7 @@ def main(config):
                                             children = [
                                                 # Temperature / dew point readout
                                                 getTempDP(decodedMetar, f_selector),
+                                                #getPresentWeather(decodedMetar),
                                                 # Time of observation readout.
                                                 render.Marquee(
                                                     width = 21,
@@ -182,19 +185,13 @@ def main(config):
                                             cross_align = "center",
                                             children = [
                                                 # Current wind speed.
-                                                render.Box(
-                                                    child = getWindDirection(decodedMetar),
-                                                    height = 6,
-                                                ),
+                                                getWindDirection(decodedMetar),
                                                 # Current wind direction.
-                                                render.Box(
-                                                    child = getWindSpeed(decodedMetar),
-                                                    height = 6,
-                                                ),
+                                                getWindSpeed(decodedMetar),
                                             ],
                                         ),
                                         width = 32,
-                                        height = 17,
+                                        height = 16,
                                     ),
                                     render.Box(
                                         child = render.Column(
@@ -221,7 +218,7 @@ def main(config):
                                             ],
                                         ),
                                         width = 32,
-                                        height = 17,
+                                        height = 16,
                                     ),
                                 ],
                             ),
@@ -553,7 +550,7 @@ def getFlightCategory(decodedMetar):
     if baseClouds <= 1000 or visibility <= 3:
         flightCategory = "IFR"
 
-    if baseClouds <= 500 or visibility <= 1:
+    if baseClouds < 500 or visibility < 1:
         flightCategory = "LIFR"
 
     return flightCategory
@@ -622,3 +619,70 @@ def getCloudCeiling_textColor(ceilingHeight):
 
     # Ceiling is above 3000
     return ceilingColor
+
+def wxDisplay(decodedMetar):
+    presentWeather = decodedMetar["wxString"]
+
+    result = "empty"
+    color = getTextColor(decodedMetar)
+
+    if presentWeather != None:
+        if "BR" in presentWeather:
+            result = "Mist"
+
+        if "DU" in presentWeather:
+            result = "Dust"
+
+        if "FG" in presentWeather:
+            result = "Fog"
+
+        if "FU" in presentWeather:
+            result = "Smoke"
+
+        if "HZ" in presentWeather:
+            result = "Haze"
+
+        if "SA" in presentWeather:
+            result = "Sand"
+
+        if "VA" in presentWeather:
+            result = "Volcanic Ash"
+
+        if "DZ" in presentWeather:
+            result = "Drizzle"
+
+        if "GR" in presentWeather:
+            result = "Hail"
+
+        if "GS" in presentWeather:
+            result = "Snow Pellets"
+
+        if "IC" in presentWeather:
+            result = "Ice Crystals"
+
+        if "PL" in presentWeather:
+            result = "Ice Pellets"
+
+        if "RA" in presentWeather:
+            result = "Rain"
+
+        if "SG" in presentWeather:
+            result = "Snow Grains"
+
+        if "SN" in presentWeather:
+            result = "Snow"
+
+        if "UP" in presentWeather:
+            result = "Unknown Precipitation"
+
+        if "SH" in presentWeather:
+            result = "Showers in Vicinity"
+
+        if "TS" in presentWeather:
+            result = "Thunderstorm in Vicinity"
+
+        result = render.Marquee(width = 20, child = render.Text(result, color = color, font = "tom-thumb"))
+    else:
+        result = None
+
+    return result
