@@ -1,8 +1,0 @@
----
-id: calendar
-name: Calendar
-summary: Simple date calendar
-desc: Shows the current date in the style of a wall calendar.
-author: MarkGamed7794
-fileName: calendar.star
-packageName: calendar
