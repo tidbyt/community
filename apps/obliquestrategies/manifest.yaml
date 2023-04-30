@@ -1,0 +1,8 @@
+---
+id: obliquestrategies
+name: ObliqueStrategies
+summary: 100+ Worthwhile Dilemmas
+desc: Picks an Oblique Strategy at random and displays it.
+author: '@parsnbl'
+fileName: obliquestrategies.star
+packageName: obliquestrategies

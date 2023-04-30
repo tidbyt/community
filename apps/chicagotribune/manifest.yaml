@@ -1,0 +1,8 @@
+---
+id: chicago-tribune
+name: Chicago Tribune
+summary: Chicago News
+desc: Latest headlines from the Chicago Tribune.
+author: sgomez72
+fileName: chicago_tribune.star
+packageName: chicagotribune

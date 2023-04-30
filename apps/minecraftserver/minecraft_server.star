@@ -39,7 +39,7 @@ def main(config):
         motd2 = result.json()["motd"]["clean"][1]
         iconURL = result.json()["icon"].split(",")[1]
 
-    serverIcon = base64.decode("""%s""" % iconURL)
+    serverIcon = base64.decode(iconURL)
 
     return render.Root(
         child = render.Column(
