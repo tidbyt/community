@@ -307,7 +307,6 @@ def main(config):
             })
 
     now = time.now()
-
     if (stages["data"]["festSchedules"] and stages["data"]["currentFest"]):
         # splatfest!!
         for battle in stages["data"]["festSchedules"]["nodes"]:
@@ -319,6 +318,7 @@ def main(config):
                     "stage_a": battle["festMatchSetting"]["vsStages"][0]["name"],
                     "stage_b": battle["festMatchSetting"]["vsStages"][1]["name"],
                 })
+
         if (now >= time.parse_time(stages["data"]["currentFest"]["startTime"]) and now <= time.parse_time(stages["data"]["currentFest"]["endTime"])):
             splatfest_active = True
             tricolor_stage = stages["data"]["currentFest"]["tricolorStage"]["name"]
@@ -339,6 +339,7 @@ def main(config):
         "x": None,
         "splatfest": None,
     }
+
     for battle in splatfest_battle:
         if (now >= time.parse_time(battle["start_time"]) and now < time.parse_time(battle["end_time"])):
             current_battles["x"] = battle
