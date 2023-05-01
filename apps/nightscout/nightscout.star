@@ -1,12 +1,11 @@
 """
 Applet: Nightscout
 Summary: Shows Nightscout CGM Data
-Description: Displays Continuous Glucose Monitoring (CGM) blood sugar data from the Nightscout Open Source project (https://nightscout.github.io/). Will display blood sugar as mg/dL or mmol/L. Optionally display historical readings on a graph. Also a clock. (v2.2.5).
+Description: Displays Continuous Glucose Monitoring (CGM) blood sugar data from the Nightscout Open Source project (https://nightscout.github.io/). Will display blood sugar as mg/dL or mmol/L. Optionally display historical readings on a graph. Also a clock. (v2.3.1).
 Authors: Jeremy Tavener, Paul Murphy
 """
 
 load("cache.star", "cache")
-load("encoding/csv.star", "csv")
 load("encoding/json.star", "json")
 load("http.star", "http")
 load("math.star", "math")
@@ -41,10 +40,6 @@ GRAPH_BOTTOM = 40
 
 CACHE_TTL_SECONDS = 1800  #30 mins
 
-PROVIDER_CACHE_TTL = 7200  #2 hours
-
-NS_PROVIDERS = "https://raw.githubusercontent.com/tidbyt/community/main/apps/nightscout/nightscout_providers.csv"
-
 DEFAULT_LOCATION = """
 {
     "lat": "40.666250",
@@ -58,21 +53,8 @@ DEFAULT_LOCATION = """
 
 DEFAULT_NSID = ""
 DEFAULT_NSHOST = ""
-
-def get_providers():
-    # Check cache for providers
-    providers = cache.get("ns_providers")
-
-    # If no cached providers, fetch from server
-    if providers == None:
-        request = http.get(NS_PROVIDERS)
-        if request.status_code != 200:
-            print("Unexpected status code: " + request.status_code)
-            return ["Heroku", "herokuapp.com"]
-
-        providers = request.body()
-        cache.set("nightscout_providers", providers, ttl_seconds = PROVIDER_CACHE_TTL)
-    return csv.read_all(providers)
+DEFAULT_NSURL = ""
+DEFAULT_NSTOKEN = ""
 
 def main(config):
     UTC_TIME_NOW = time.now().in_location("UTC")
@@ -84,6 +66,8 @@ def main(config):
     sun_set = sunrise.sunset(lat, lng, now)
     nightscout_id = config.get("nightscout_id", DEFAULT_NSID)
     nightscout_host = config.get("nightscout_host", DEFAULT_NSHOST)
+    nightscout_url = config.get("nightscout_url", DEFAULT_NSURL)
+    nightscout_token = config.get("nightscout_token", DEFAULT_NSTOKEN)
     show_mgdl = config.bool("show_mgdl", DEFAULT_SHOW_MGDL)
 
     show_graph = config.bool("show_graph", DEFAULT_SHOW_GRAPH)
@@ -93,8 +77,13 @@ def main(config):
     show_24_hour_time = config.bool("show_24_hour_time", DEFAULT_SHOW_24_HOUR_TIME)
     night_mode = config.bool("night_mode", DEFAULT_NIGHT_MODE)
 
-    if nightscout_id != "":
-        nightscout_data_json, status_code = get_nightscout_data(nightscout_id, nightscout_host, show_mgdl)
+    if nightscout_url == "" and nightscout_id != "" and nightscout_host != "":
+        nightscout_url = nightscout_id + "." + nightscout_host
+
+    print(nightscout_url)
+
+    if nightscout_url != "":
+        nightscout_data_json, status_code = get_nightscout_data(nightscout_url, nightscout_token, show_mgdl)
         sample_data = False
     else:
         nightscout_data_json, status_code = {
@@ -748,18 +737,6 @@ def mg_mgdl_options(show_mgdl):
     ]
 
 def get_schema():
-    providers = get_providers()
-
-    hostOptions = []
-
-    for index in range(0, len(providers)):
-        hostOptions.append(
-            schema.Option(
-                display = providers[index][0],
-                value = providers[index][1],
-            ),
-        )
-
     return schema.Schema(
         version = "1",
         fields = [
@@ -769,19 +746,17 @@ def get_schema():
                 desc = "Location for which to display time.",
                 icon = "locationDot",
             ),
-            schema.Dropdown(
-                id = "nightscout_host",
-                name = "Nightscout Provider",
-                desc = "Your Nightscout Provider",
-                icon = "server",
-                default = hostOptions[0].value,
-                options = hostOptions,
+            schema.Text(
+                id = "nightscout_url",
+                name = "Nightscout URL",
+                desc = "Your Nightscout URL (i.e. https://yournightscoutID.heroku.com)",
+                icon = "link",
             ),
             schema.Text(
-                id = "nightscout_id",
-                name = "Nightscout ID",
-                desc = "Your Nightscout ID (use the prefix from your nightscout URL. i.e. [nightscoutID].heroku.com)",
-                icon = "idBadge",
+                id = "nightscout_token",
+                name = "Nightscout Token",
+                desc = "Token for Nightscout Subject with 'readable' Role (optional)",
+                icon = "key",
             ),
             schema.Toggle(
                 id = "show_mgdl",
@@ -835,15 +810,21 @@ def get_schema():
 
 # This method returns a tuple of a nightscout_data and a status_code. If it's
 # served from cache, we return a status_code of 0.
-def get_nightscout_data(nightscout_id, nightscout_host, show_mgdl):
-    key = nightscout_id + "." + nightscout_host + "_nightscout_data"
+def get_nightscout_data(nightscout_url, nightscout_token, show_mgdl):
+    nightscout_url = nightscout_url.replace("https://", "")
+    nightscout_url = nightscout_url.replace("http://", "")
+    nightscout_url = nightscout_url.split("/")[0]
+    oldest_reading = str((time.now() - time.parse_duration("240m")).unix)
+    json_url = "https://" + nightscout_url + "/api/v1/entries.json?count=1000&find[date][$gte]=" + oldest_reading
+    if nightscout_token != "":
+        json_url = json_url + "&token=" + nightscout_token
 
-    nightscout_url = "https://" + nightscout_id + "." + nightscout_host + "/api/v1/entries.json?count=100"
+    print(json_url)
 
-    print(nightscout_url)
+    key = nightscout_url + "_nightscout_data"
 
     # Request latest entries from the Nightscout URL
-    resp = http.get(nightscout_url)
+    resp = http.get(json_url)
     if resp.status_code != 200:
         # If Error, Get the JSON object from the cache
         nightscout_data_cached = cache.get(key)

@@ -31,7 +31,7 @@ def main(config):
     if is_string_blank(attribute):
         state = states["state"]
     else:
-        state = states["attributes"][attribute]
+        state = "{}".format(states["attributes"][attribute])
 
     if "unit_of_measurement" in states["attributes"].keys():
         state = state + states["attributes"]["unit_of_measurement"]
