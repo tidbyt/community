@@ -38,7 +38,7 @@ def main(config):
     delivery = response.json()["Siri"]["ServiceDelivery"]["StopMonitoringDelivery"][0]
 
     visits = []
-    
+
     if "MonitoredStopVisit" in delivery:
         visits = delivery["MonitoredStopVisit"]
 
