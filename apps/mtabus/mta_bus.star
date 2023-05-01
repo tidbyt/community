@@ -37,12 +37,10 @@ def main(config):
 
     delivery = response.json()["Siri"]["ServiceDelivery"]["StopMonitoringDelivery"][0]
 
-    if not "MonitoredStopVisit" in delivery:
-        return render.Root(
-            child=render.Text("No stop info returned from the API."),
-        )
-
-    visits = delivery["MonitoredStopVisit"]
+    visits = []
+    
+    if "MonitoredStopVisit" in delivery:
+        visits = delivery["MonitoredStopVisit"]
 
     return render.Root(
         child = render.Column(
