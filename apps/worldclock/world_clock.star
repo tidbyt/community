@@ -47,12 +47,7 @@ def main(config):
         ]
 
     location_count = int(config.get("location_count") or 3)
-
-    if location_count < 4 and len(locations) > 3:
-        locations.remove(locations[3])
-
-    if location_count < 3:
-        locations.remove(locations[2])
+    locations = locations[:location_count]
 
     horizonal_rule = render.Box(
         height = 1,
@@ -126,7 +121,7 @@ def main(config):
                                     render.Text(
                                         content = " ",
                                         font = "CG-pixel-3x5-mono",
-                                    ),
+                                    ) if config.get("blink", "true") == "true" else None,
                                 ],
                             ),
                         ),
@@ -252,6 +247,13 @@ def get_schema():
                 name = "Color by daylight",
                 desc = "Adjust location name color based on time of day.",
                 icon = "sun",
+                default = True,
+            ),
+            schema.Toggle(
+                id = "blink",
+                name = "Blinking separator",
+                desc = "Blink the colon between hours and minutes.",
+                icon = "clock",
                 default = True,
             ),
         ],

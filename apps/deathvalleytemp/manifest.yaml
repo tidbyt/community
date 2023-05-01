@@ -1,0 +1,8 @@
+---
+id: death-valley-temp
+name: Death Valley Temp
+summary: Current Death Valley temp
+desc: Shows the current temperature in Death Valley, one of the hottest places on Earth.
+author: kstardesigns
+fileName: deathvalleytemp.star
+packageName: deathvalleytemp
