@@ -106,9 +106,7 @@ def fuzzy_time(hours, minutes, language):
         return [numbers[rounded], words["past"], numbers[hours]]
 
     # next 45 mins we already talk about the next hour
-    hours += 1
-    if hours == 13:
-        hours = 1
+    hours = (hours + 1) % 12
 
     if rounded < 30:
         return [numbers[30 - rounded], words["to"] + " " + words["half"], numbers[hours]]
