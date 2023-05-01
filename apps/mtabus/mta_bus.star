@@ -35,7 +35,14 @@ def main(config):
     if response.status_code != 200:
         fail("MTA API request failed with status", response.status_code)
 
-    visits = response.json()["Siri"]["ServiceDelivery"]["StopMonitoringDelivery"][0]["MonitoredStopVisit"]
+    delivery = response.json()["Siri"]["ServiceDelivery"]["StopMonitoringDelivery"][0]
+
+    if not "MonitoredStopVisit" in delivery:
+        return render.Root(
+            child=render.Text("No stop info returned from the API."),
+        )
+
+    visits = delivery["MonitoredStopVisit"]
 
     return render.Root(
         child = render.Column(
