@@ -12,16 +12,18 @@ load("http.star", "http")
 load("random.star", "random")
 load("render.star", "render")
 load("schema.star", "schema")
+load("time.star", "time")
 
 CACHE_TTL = 604800
 CSV_ENDPOINT = "https://gist.githubusercontent.com/xl0lli/bc6755ee77e52a9dcd481e75c95c74b6/raw/ac2c83cc874b2dbbe8f9449a8cef1df4ff8bedb4/league_champ_data"
 ANITMATION_SPEED = 200
 
 def main(config):
+    random.seed(time.now().unix // 15)
     sprite_position = config.str("sprite_position", "random")
 
     #open csv file
-    league_champs = get_data()
+    league_champs = filter_data(config, get_data())
 
     #choose random line for number of champions
     index = random.number(0, len(league_champs) - 1)
