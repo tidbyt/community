@@ -69,7 +69,7 @@ def main(config):
     MatchID = str(MatchID)
     Match_URL = "https://hs-consumer-api.espncricinfo.com/v1/pages/match/details?lang=en&seriesId=1345038&matchId=" + MatchID + "&latest=true"
 
-    #print(Match_URL)
+    print(Match_URL)
     # cache specific match data for 1 minute
     MatchData = get_cachable_data(Match_URL, MATCH_CACHE)
     Match_JSON = json.decode(MatchData)
@@ -345,8 +345,8 @@ def main(config):
 
             # only 1 innings got started, eg washout
         else:
-            Team1_Abbr = Match_JSON["scorecardSummary"]["innings"][0]["team"]["name"]
-            Team2_Abbr = Match_JSON["match"]["teams"][1]["team"]["name"]
+            Team1_Abbr = Match_JSON["scorecardSummary"]["innings"][0]["team"]["abbreviation"]
+            Team2_Abbr = Match_JSON["match"]["teams"][1]["team"]["abbreviation"]
             Team1_ID = Match_JSON["match"]["teams"][0]["team"]["id"]
             Team2_ID = Match_JSON["match"]["teams"][1]["team"]["id"]
 
