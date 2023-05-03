@@ -35,7 +35,7 @@ def main():
         rep = http.get(GITHUB_INCIDENTS_JSON)
         if rep.status_code != 200:
             fail("GitHub Status failed with status %d", rep.status_code)
-        cache.set("status_body", rep.body(), ttl_seconds = 60)
+        cache.set("status_body", rep.body(), ttl_seconds = 240)
         body = rep.body()
 
     statusJson = json.decode(body)
