@@ -8,13 +8,27 @@ Author: Robert Ison
 load("render.star", "render")
 load("schema.star", "schema")
 load("time.star", "time")
-load("math.star", "math")
 
 DISPLAY_OPTIONS = [
     schema.Option(value = "random", display = "Display Random Rule every time"),
     schema.Option(value = "hourly", display = "Display new rule each Hour"),
     schema.Option(value = "daily", display = "Display new rule each Day"),
     schema.Option(value = "monthly", display = "Display new rule each Month"),
+]
+
+scroll_speed_options = [
+    schema.Option(
+        display = "Slow Scroll",
+        value = "60",
+    ),
+    schema.Option(
+        display = "Medium Scroll",
+        value = "45",
+    ),
+    schema.Option(
+        display = "Fast Scroll",
+        value = "30",
+    ),
 ]
 
 RULES = {
@@ -69,8 +83,14 @@ RULES = {
 }
 
 def main(config):
+    """ Main
+
+    Args:
+        config: Configuration Items to control how the app is displayed
+    Returns:
+        The Tidbyt display
+    """
     display = config.get("display") or DISPLAY_OPTIONS[0].value
-    print(display)
 
     if (display == "daily"):
         seed = time.now().year + time.now().month + time.now().day
@@ -100,6 +120,8 @@ def main(config):
                 ),
             ],
         ),
+        show_full_animation = True,
+        delay = int(config.get("scroll", 45)),
     )
 
 def random_based_on_seed(seed, min, max):
@@ -117,6 +139,14 @@ def get_schema():
                 icon = "clock",
                 options = DISPLAY_OPTIONS,
                 default = DISPLAY_OPTIONS[0].value,
+            ),
+            schema.Dropdown(
+                id = "scroll",
+                name = "Scroll",
+                desc = "Scroll Speed",
+                icon = "stopwatch",
+                options = scroll_speed_options,
+                default = scroll_speed_options[0].value,
             ),
         ],
     )

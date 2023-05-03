@@ -10,6 +10,15 @@ Comments: Written to display the price info of top cryptocurrencies on a Tidbyt 
 Copyright: © 2022 Jeroen Houttuin, Playak - jeroen@playak.com - https://playak.com
 """
 
+load("cache.star", "cache")
+load("encoding/json.star", "json")
+load("http.star", "http")
+load("math.star", "math")
+
+# LOAD MODULES
+load("render.star", "render")
+load("schema.star", "schema")
+
 # CONFIG
 TTL = 60  # time to live for the API cache. Be nice to the free Coingecko API provider!
 PEGGEDCOINS = " USDT USDC BUSD STETH DAI FRAX WBTC USDP GUSD TUSD CUSDC USDD CUSDT USDD PAXG XAUT "  # ignore pegged tokens
@@ -19,15 +28,6 @@ DEFAULTEXCLUDES = "SHIB BSV"  # SHIB because it messes up formatting and I canno
 DEFAULTCURRENCY = "USD"
 DEFAULTEXCLUDEPEGGED = True
 DEFAULTSHOWCREDITS = False
-
-# LOAD MODULES
-load("render.star", "render")
-load("http.star", "http")
-load("encoding/base64.star", "base64")
-load("encoding/json.star", "json")
-load("cache.star", "cache")
-load("math.star", "math")
-load("schema.star", "schema")
 
 # INIT
 credits = ["Data:Coingecko", "Code:Playak"]  # Credits required for using free Coingecko API
@@ -142,7 +142,6 @@ def renderpercentage(p):
     return render.Text(str(p) + "%", color = color)
 
 def renderprice(p):
-    decimals = -1
     if p >= 1000:
         p = int(p)
     else:

@@ -6,8 +6,8 @@ Author: Robert Ison
 """
 
 load("encoding/base64.star", "base64")  #Used to read encoded image
-load("render.star", "render")
 load("random.star", "random")
+load("render.star", "render")
 load("schema.star", "schema")
 load("time.star", "time")
 
@@ -32,6 +32,21 @@ ICON_ROTATION_SPEED = [
     schema.Option(value = "10", display = "Medium"),
     schema.Option(value = "20", display = "Slow"),
     schema.Option(value = "50", display = "Extremely Slow"),
+]
+
+scroll_speed_options = [
+    schema.Option(
+        display = "Slow Scroll",
+        value = "60",
+    ),
+    schema.Option(
+        display = "Medium Scroll",
+        value = "45",
+    ),
+    schema.Option(
+        display = "Fast Scroll",
+        value = "30",
+    ),
 ]
 
 # NW: [0,5,12,14,17,21,27,33,36,39,51,53,55,56,57,59],[1,2,3,0,5,8,9,10,12,13,14,15,17,18,19,21,22,24,26,27,28,29,31,33,34,36,39,40,42,44,46,47,48,49,51,53,54,55,56,57,58,59,62,63,64,65],[1,3,0,8,11,12,13,14,16,17,21,22,24,26,27,29,31,33,34,36,39,42,44,46,48,51,52,53,56,57,58,62,63,65],[8,11,12,14,17,20,21,27,33,34,39,44,51,56,58,63]
@@ -134,7 +149,7 @@ def main(config):
                             width = 48,
                             child = render.Text(REGIONS[int(region)], color = SEASONS_COLORS[season_number], font = "5x8"),
                         ),
-                        get_animation_items(images, int(config.get("speed") or ICON_ROTATION_SPEED[2])),
+                        get_animation_items(images, int(config.get("speed") or ICON_ROTATION_SPEED[2].value)),
                     ],
                 ),
                 render.Row(
@@ -152,6 +167,8 @@ def main(config):
                 ),
             ],
         ),
+        show_full_animation = True,
+        delay = int(config.get("scroll", 45)),
     )
 
 def get_random_number(x):
@@ -221,7 +238,7 @@ def get_animation_items(images, speed):
         speed = 10
 
     for image in images:
-        for i in range(1, speed):
+        for _ in range(1, speed):
             animation.append(render.Image(src = image))
 
     return render.Animation(
@@ -299,6 +316,14 @@ def get_schema():
                 icon = "truckFast",
                 options = ICON_ROTATION_SPEED,
                 default = ICON_ROTATION_SPEED[3].value,
+            ),
+            schema.Dropdown(
+                id = "scroll",
+                name = "Scroll",
+                desc = "Scroll Speed",
+                icon = "stopwatch",
+                options = scroll_speed_options,
+                default = scroll_speed_options[0].value,
             ),
         ],
     )

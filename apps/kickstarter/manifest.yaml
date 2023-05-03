@@ -1,0 +1,8 @@
+---
+id: kickstarter
+name: Kickstarter
+summary: Kickstarter project status
+desc: Display the total amount raised and the number of backers for a Kickstarter project. The project must be publicly visible.
+author: sethvargo
+fileName: kickstarter.star
+packageName: kickstarter

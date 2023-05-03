@@ -5,13 +5,13 @@ Description: Shows Time date and location of Next NASCAR Race - Cup, Xfinity, Tr
 Author: jvivona
 """
 
-load("render.star", "render")
 load("animation.star", "animation")
-load("http.star", "http")
-load("encoding/json.star", "json")
-load("time.star", "time")
-load("schema.star", "schema")
 load("cache.star", "cache")
+load("encoding/json.star", "json")
+load("http.star", "http")
+load("render.star", "render")
+load("schema.star", "schema")
+load("time.star", "time")
 
 # cache data for 15 minutes - cycle through with cache on the API side
 CACHE_TTL_SECONDS = 900
@@ -71,12 +71,15 @@ def main(config):
     time_str = "TBD" if date_and_time.endswith("T00:00:00-0500") else date_and_time3.format("15:04 " if config.bool("is_24_hour_format", DEFAULT_TIME_24) else "3:04pm")[:-1]
     tv_str = NASCAR_DATA["Race_TV_Display"] if NASCAR_DATA["Race_TV_Display"] != "" else "TBD"
 
+    text_color = config.get("text_color", coloropt[0].value)
+
     if config.get("fade_slide", DEFAULT_ANIMATION) == "slide":
-        data_child = slideinout_child(NASCAR_DATA["Race_Name"], NASCAR_DATA["Track_Name"], "%s %s\nTV: %s" % (date_str, time_str, tv_str))
+        data_child = slideinout_child(NASCAR_DATA["Race_Name"], NASCAR_DATA["Track_Name"], "%s %s\nTV: %s" % (date_str, time_str, tv_str), text_color)
     else:
-        data_child = fade_child(NASCAR_DATA["Race_Name"], NASCAR_DATA["Track_Name"], "%s %s\nTV: %s" % (date_str, time_str, tv_str))
+        data_child = fade_child(NASCAR_DATA["Race_Name"], NASCAR_DATA["Track_Name"], "%s %s\nTV: %s" % (date_str, time_str, tv_str), text_color)
 
     return render.Root(
+        show_full_animation = True,
         child = render.Column(
             children = [
                 render.Box(
@@ -93,18 +96,18 @@ def main(config):
         ),
     )
 
-def slideinout_child(race, track, time):
+def slideinout_child(race, track, time, text_color):
     return render.Sequence(
         children = [
-            slidetransform(race, REGULAR_FONT),
-            slidetransform(track, REGULAR_FONT),
-            slidetransform(time, DATETIME_FONT),
+            slidetransform(race, REGULAR_FONT, text_color),
+            slidetransform(track, REGULAR_FONT, text_color),
+            slidetransform(time, DATETIME_FONT, text_color),
         ],
     )
 
-def slidetransform(text, font):
+def slidetransform(text, font, text_color):
     return animation.Transformation(
-        child = render.Box(width = DATA_BOX_WIDTH, height = DATA_BOX_HEIGHT, color = DATA_BOX_BKG, child = render.Column(main_align = "center", cross_align = "center", expanded = True, children = [render.WrappedText(text, font = font, color = "#fff", align = "center", width = DATA_BOX_WIDTH)])),
+        child = render.Box(width = DATA_BOX_WIDTH, height = DATA_BOX_HEIGHT, color = DATA_BOX_BKG, child = render.Column(main_align = "center", cross_align = "center", expanded = True, children = [render.WrappedText(text, font = font, color = text_color, align = "center", width = DATA_BOX_WIDTH)])),
         duration = SLIDE_DURATION,
         delay = 0,
         origin = animation.Origin(0, 0),
@@ -147,28 +150,74 @@ def slidetransform(text, font):
 #        fill_mode = "backwards",
 #    )
 
-def fade_child(race, track, date_time_tv):
+def fade_child(race, track, date_time_tv, text_color):
     return render.Animation(
         children =
-            createfadelist(race, ANIMATION_HOLD_FRAMES, REGULAR_FONT) +
-            createfadelist(track, ANIMATION_HOLD_FRAMES, REGULAR_FONT) +
-            createfadelist(date_time_tv, ANIMATION_HOLD_FRAMES, DATETIME_FONT),
+            createfadelist(race, ANIMATION_HOLD_FRAMES, REGULAR_FONT, text_color) +
+            createfadelist(track, ANIMATION_HOLD_FRAMES, REGULAR_FONT, text_color) +
+            createfadelist(date_time_tv, ANIMATION_HOLD_FRAMES, DATETIME_FONT, text_color),
     )
 
-def createfadelist(text, cycles, text_font):
+def createfadelist(text, cycles, text_font, text_color):
+    alpha_values = ["00", "33", "66", "99", "CC", "FF"]
     cycle_list = []
 
     # this is a pure genius technique and is borrowed from @CubsAaron countdown_clock
     # need to ponder if there is a different way to do it if we want something other than grey
-    for x in range(0, 10, 2):
-        c = "#" + str(x) + str(x) + str(x) + str(x) + str(x) + str(x)
-        cycle_list.append(render.Column(main_align = "center", cross_align = "center", expanded = True, children = [render.WrappedText(text, font = text_font, color = c, align = "center", width = DATA_BOX_WIDTH)]))
+    # use alpha channel to fade in and out
+
+    # go from none to full color
+    for x in alpha_values:
+        cycle_list.append(fadelistchildcolumn(text, text_font, text_color + x))
     for x in range(cycles):
-        cycle_list.append(render.Column(main_align = "center", cross_align = "center", expanded = True, children = [render.WrappedText(text, font = text_font, color = "#fff", align = "center", width = DATA_BOX_WIDTH)]))
-    for x in range(8, 0, -2):
-        c = "#" + str(x) + str(x) + str(x) + str(x) + str(x) + str(x)
-        cycle_list.append(render.Column(main_align = "center", cross_align = "center", expanded = True, children = [render.WrappedText(text, font = text_font, color = c, align = "center", width = DATA_BOX_WIDTH)]))
+        cycle_list.append(fadelistchildcolumn(text, text_font, text_color))
+
+    # go from full color back to none
+    for x in alpha_values[5:0]:
+        cycle_list.append(fadelistchildcolumn(text, text_font, text_color + x))
     return cycle_list
+
+def fadelistchildcolumn(text, font, color):
+    return render.Column(main_align = "center", cross_align = "center", expanded = True, children = [render.WrappedText(content = text, font = font, color = color, align = "center", width = DATA_BOX_WIDTH)])
+
+coloropt = [
+    schema.Option(
+        display = "White",
+        value = "#FFFFFF",
+    ),
+    schema.Option(
+        display = "Red",
+        value = "#FF0000",
+    ),
+    schema.Option(
+        display = "Orange",
+        value = "#FFA500",
+    ),
+    schema.Option(
+        display = "Yellow",
+        value = "#FFFF00",
+    ),
+    schema.Option(
+        display = "Green",
+        value = "#008000",
+    ),
+    schema.Option(
+        display = "Blue",
+        value = "#0000FF",
+    ),
+    schema.Option(
+        display = "Indigo",
+        value = "#4B0082",
+    ),
+    schema.Option(
+        display = "Violet",
+        value = "#EE82EE",
+    ),
+    schema.Option(
+        display = "Pink",
+        value = "#FC46AA",
+    ),
+]
 
 def get_schema():
     return schema.Schema(
@@ -194,6 +243,14 @@ def get_schema():
                         value = "trucks",
                     ),
                 ],
+            ),
+            schema.Dropdown(
+                id = "text_color",
+                name = "Text Color",
+                desc = "The color for Race / Track / Time text.",
+                icon = "palette",
+                default = coloropt[0].value,
+                options = coloropt,
             ),
             schema.Dropdown(
                 id = "fade_slide",

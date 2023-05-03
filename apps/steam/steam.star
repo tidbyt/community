@@ -10,8 +10,8 @@ load("encoding/base64.star", "base64")
 load("encoding/json.star", "json")
 load("http.star", "http")
 load("render.star", "render")
-load("secret.star", "secret")
 load("schema.star", "schema")
+load("secret.star", "secret")
 
 CACHE_TTL_SECONDS = 300
 API_BASE_URL = "http://api.steampowered.com/"

@@ -1,0 +1,8 @@
+---
+id: pagerduty
+name: PagerDuty
+summary: Show PagerDuty stats
+desc: Show PagerDuty incident stats and on-call status.
+author: Nick Penree
+fileName: pagerduty.star
+packageName: pagerduty

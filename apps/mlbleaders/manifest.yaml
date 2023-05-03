@@ -1,0 +1,8 @@
+---
+id: mlb-leaders
+name: MLB Leaders
+summary: Get MLB league leaders
+desc: Get the top 2 (3 stats) or 3 (1 stat) league leaders in various MLB stats.
+author: rs7q5
+fileName: mlb_leaders.star
+packageName: mlbleaders

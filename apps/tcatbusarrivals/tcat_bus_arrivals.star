@@ -5,10 +5,10 @@ Description: Display Arrival Times for TCAT Ithaca Buses at a Specific Stop.
 Author: Harry Samuels
 """
 
-load("render.star", "render")
-load("http.star", "http")
-load("encoding/base64.star", "base64")
 load("cache.star", "cache")
+load("encoding/base64.star", "base64")
+load("http.star", "http")
+load("render.star", "render")
 load("schema.star", "schema")
 
 ROUTES_DETAILS = "https://transitime-api.goswift.ly/api/v1/key/81YENWXv/agency/tcat/command/routesDetails"
@@ -68,7 +68,7 @@ def main(config):
         stopName = cached_info[0:cached_info.index("&")]
         cached_info = cached_info[(cached_info.index("&") + 1):]
         dataSets = cached_info.count("&")
-        for i in range(0, dataSets):
+        for _ in range(0, dataSets):
             cached_info = cached_info[(cached_info.find("$COLOR") + 6):]
             cacheColor = cached_info[:cached_info.find("$ROUTE")]
             cached_info = cached_info[(cached_info.find("$ROUTE") + 6):]
@@ -217,9 +217,8 @@ def timeSort(kid_list, time_list):
         iterations = len(kid_list)
         for x in range(1, iterations):
             y = 0
-            bubbleIncomplete = True
             eta = int(time_list[x])
-            for i in range(0, iterations):
+            for _ in range(0, iterations):
                 if y < len(sorted_list) and eta >= int(sorted_times[y]):
                     y = y + 1
             if y < len(sorted_list):

@@ -1,0 +1,8 @@
+---
+id: pga-tour
+name: PGA Tour
+summary: Shows PGA Leaderboard
+desc: This app displays the leaderboard for the current PGA Tour event, taken from ESPN data feed. The leaderboard will show the first 24 players. Players currently on course are shown in different shades of yellow - going from dark yellow for those players just starting to white for those who have completed their rounds. Players who have not started are shown in green.
+author: M0ntyP
+fileName: pga_tour.star
+packageName: pgatour

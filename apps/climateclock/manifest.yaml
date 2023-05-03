@@ -1,0 +1,8 @@
+---
+id: climate-clock
+name: Climate Clock
+summary: Climate Clock
+desc: The most important number in the world.
+author: Rob Kimball
+fileName: climate_clock.star
+packageName: climateclock

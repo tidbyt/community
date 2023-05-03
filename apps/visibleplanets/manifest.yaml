@@ -1,0 +1,8 @@
+---
+id: visibleplanets
+name: VisiblePlanets
+summary: Displays Info on Planets
+desc: Displays info on planet visibility.
+author: Robert Ison
+fileName: visibleplanets.star
+packageName: visibleplanets

@@ -30,12 +30,12 @@ Author: Alan Fleming
 # See comments in the code for further attribution
 #
 
-load("render.star", "render")
-load("schema.star", "schema")
-load("time.star", "time")
 load("encoding/base64.star", "base64")
 load("encoding/json.star", "json")
+load("render.star", "render")
+load("schema.star", "schema")
 load("sunrise.star", "sunrise")
+load("time.star", "time")
 
 # Defaults
 DEFAULT_LOCATION = """

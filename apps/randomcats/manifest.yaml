@@ -1,0 +1,8 @@
+---
+id: random-cats
+name: Random Cats
+summary: Shows pictures of cats
+desc: Shows random pictures/gifs of cats. Powered by Cat as a Service (cataas.com).
+author: mrrobot245
+fileName: random_cats.star
+packageName: randomcats

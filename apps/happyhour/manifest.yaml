@@ -1,0 +1,8 @@
+---
+id: happy-hour
+name: Happy Hour
+summary: Hourly Cocktail Generator
+desc: Displays a new cocktail every hour, on the hour. Cheers to my mom for the color scheme, idea, AND name!
+author: Nicole Brooks
+fileName: happy_hour.star
+packageName: happyhour

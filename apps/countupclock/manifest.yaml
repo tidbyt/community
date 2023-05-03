@@ -1,0 +1,8 @@
+---
+id: countupclock
+name: Count Up Clock
+summary: Clock time since an event
+desc: Shows elapsed time in days, hours and minutes since an event with custom title.
+author: jvivona
+fileName: countupclock.star
+packageName: countupclock

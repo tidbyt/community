@@ -5,9 +5,9 @@ Description: Select the states you have been to and show them off on your Tidbyt
 Author: sloanesturz
 """
 
+load("encoding/base64.star", "base64")
 load("render.star", "render")
 load("schema.star", "schema")
-load("encoding/base64.star", "base64")
 
 STATES = {
     "AL": "iVBORw0KGgoAAAANSUhEUgAAAHgAAABACAYAAADRTbMSAAAABmJLR0QA/wD/AP+gvaeTAAABVklEQVR4nO3Xv0pCYRzG8edoWGQGJklgEbgmhdXWVgQtNXUNDQ3t3kDQTbR0DW4tTUeIcKhNwcFKaojM8FSeP62hbb75Snw/42/6wgPv4UgAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAADAn4jbDjDFsR0wDsrnOycLmWQhOR3PylHW8/y549Nq0XXvPdttw5qwHTAOlnOp3fzizMbP2+F2bs117yu2mkyJ2Q4YB44U9N+KK+l1Gy2mMbAkRZHff5pPT+7pH3zCGFiSnCjsP+WXUpsXZ1v7NnJMYmBJYTQ4sONIq4XMgY0ekxhYksLYwBMtSe12727UKaYxsCQ/iLq/3RNTsdlRt5jGb5IkPwieJanZ6j70en6t0w0ar29ftXrz/cZ227AYWJL3ET55n0Fwdf1YOipVLm33mMTAkuqNTvm2/lJNJvyW7RYAAAAAAAAAAAAAAAB9A4/ZVBK/xUnRAAAAAElFTkSuQmCC",

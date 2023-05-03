@@ -29,13 +29,13 @@ Author: Henry So, Jr.
 
 # Note: this app uses theysaidso.com's public RSS feed (via feedburner)
 
+load("cache.star", "cache")
+load("encoding/base64.star", "base64")
+load("encoding/json.star", "json")
 load("http.star", "http")
 load("render.star", "render")
 load("schema.star", "schema")
-load("cache.star", "cache")
 load("xpath.star", "xpath")
-load("encoding/base64.star", "base64")
-load("encoding/json.star", "json")
 
 URL = "http://feeds.feedburner.com/theysaidso/qod"
 

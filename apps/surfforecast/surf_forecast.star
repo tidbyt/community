@@ -5,15 +5,15 @@ Description: Daily surf forecast for any spot on Surfline.
 Author: smith-kyle
 """
 
-load("render.star", "render")
-load("math.star", "math")
-load("http.star", "http")
-load("time.star", "time")
+load("cache.star", "cache")
 load("encoding/base64.star", "base64")
 load("encoding/json.star", "json")
-load("cache.star", "cache")
-load("sunrise.star", "sunrise")
+load("http.star", "http")
+load("math.star", "math")
+load("render.star", "render")
 load("schema.star", "schema")
+load("sunrise.star", "sunrise")
+load("time.star", "time")
 
 SURFLINE_RATING_URL = "https://services.surfline.com/kbyg/spots/forecasts/rating?spotId={spot_id}&days=1&intervalHours=1&correctedWind=False"
 SURFLINE_WAVE_URL = "https://services.surfline.com/kbyg/spots/forecasts/wave?spotId={spot_id}&days=1&intervalHours=1"

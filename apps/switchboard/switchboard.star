@@ -5,12 +5,12 @@ Description: Displays data from Switchboard on your Tidbyt.
 Author: bguggs
 """
 
-load("render.star", "render")
-load("encoding/base64.star", "base64")
-load("http.star", "http")
 load("cache.star", "cache")
-load("schema.star", "schema")
+load("encoding/base64.star", "base64")
 load("encoding/json.star", "json")
+load("http.star", "http")
+load("render.star", "render")
+load("schema.star", "schema")
 load("time.star", "time")
 
 BASE_API_URL = "https://secure.oneswitchboard.com/api/handle_tidbyt/"

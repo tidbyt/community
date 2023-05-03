@@ -5,14 +5,14 @@ Description: Displays individual player's gaming stats from PlayerUnknown's Batt
 Author: joes-io
 """
 
-load("render.star", "render")
 load("animation.star", "animation")
+load("cache.star", "cache")
 load("encoding/base64.star", "base64")
+load("encoding/json.star", "json")
 load("http.star", "http")
 load("humanize.star", "humanize")
+load("render.star", "render")
 load("schema.star", "schema")
-load("cache.star", "cache")
-load("encoding/json.star", "json")
 load("secret.star", "secret")
 
 # Encrypted API Key for "pubgstats"

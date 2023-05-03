@@ -6,16 +6,15 @@ Author: rs7q5
 """
 #sports_standings.star
 #Created 20220119 RIS
-#Last Modified 20221022 RIS
+#Last Modified 20230210 RIS
 
-load("render.star", "render")
-load("http.star", "http")
-load("encoding/base64.star", "base64")
-load("encoding/json.star", "json")
 load("cache.star", "cache")
+load("encoding/json.star", "json")
+load("http.star", "http")
+load("re.star", "re")
+load("render.star", "render")
 load("schema.star", "schema")
 load("time.star", "time")
-load("re.star", "re")
 
 #this list are the sports that can have their standings pulled
 SPORTS_LIST = {
@@ -54,11 +53,12 @@ def main(config):
         sport = sport_tmp
         league = config.str("league_%s" % sport, SPORTS_LIST[sport][0])
 
-    league_txt, league_ext, sport_conf_code = SPORTS_LIST[sport][1].get(league)
+    _, league_ext, sport_conf_code = SPORTS_LIST[sport][1].get(league)
 
     font = "CG-pixel-3x5-mono"  #set font
 
     #check for cached data
+    stats = {}
     stats_cached = cache.get("stats_rate/%s_%s" % (sport, league))
     if stats_cached != None:  #if any are None then all(title_cached)==False
         print("Hit! Displaying %s (%s) standings data." % (sport, league))
@@ -102,6 +102,7 @@ def main(config):
 
     return render.Root(
         delay = int(config.str("speed", "1000")),  #speed up scroll text
+        show_full_animation = True,
         child = render.Animation(children = frame_vec),
     )
 
@@ -201,16 +202,14 @@ def more_options(sport):
 
 def get_frames(stats, league_txt, font, config):
     frame_vec = []
+    ctmp = "#fff"
     for x in stats:
         name_split = re.split("[()/]", x["name"])
         team_name = []
         team_record = []
         team_rank = []
         for i, team in enumerate(x["data"]):
-            team_tmp = render.Text(team[0], font = font)
             team_split = team[1].split("/")
-            record_tmp = render.Text(team_split[0], font = font)
-            rank_tmp = render.Text(team_split[1], font = font)
             if config.bool("highlight_team", False) and team[0] == config.str("team_select", "None").upper():
                 ctmp = "#D2691E"
             elif i % 2 == 0:
@@ -238,7 +237,7 @@ def get_frames(stats, league_txt, font, config):
         txt_height = 5
         team_cnt = len(team_name)
         if team_cnt - line_max != 0:  #add empty entries to space (only have to add to one array since other's must be in line)
-            for j in range(line_max - team_cnt):
+            for _ in range(line_max - team_cnt):
                 #away_team.append(render.Text("",font=font,color=ctmp))
                 team_name.append(render.Text("", font = font, color = ctmp, height = txt_height))
 
@@ -322,12 +321,11 @@ def get_mlbstandings():
         standings_data = standings_rep.json()["standings"]["entries"]
 
         stats_tmp = []
-        cnt = 0
-        for (j, team) in enumerate(standings_data):  #iterate through each team in each division
+        for (_, team) in enumerate(standings_data):  #iterate through each team in each division
             #get index of abbreviations (when playoff stuff gets added variables get shifted, WILL FAIL IF NONE OF THESE EXIST, WHICH SHOULDN'T HAPPEN)
-            stat_name = [x["abbreviation"] for x in team["stats"]]
-            total_idx = stat_name.index("Total")
-            GB_idx = stat_name.index("GB")
+            stat_name = [x["name"] for x in team["stats"]]  #not all stats have abbreviation so used name
+            total_idx = stat_name.index("overall")
+            GB_idx = stat_name.index("gamesBehind")
 
             name = team["team"]["abbreviation"]
             record = team["stats"][total_idx]["displayValue"]  #W-L
@@ -351,18 +349,18 @@ def get_nhlstandings():
             return None
         conf_name = standings_rep.json()["abbreviation"]
         standings_data = standings_rep.json()["children"]
-        for (j, div) in enumerate(standings_data):  #iterate through each team in each division
+        for (_, div) in enumerate(standings_data):  #iterate through each team in each division
             div_name = div["abbreviation"]
             div_data = div["standings"]["entries"]
             stats_tmp = []
-            for (k, team) in enumerate(div_data):
+            for (_, team) in enumerate(div_data):
                 name = team["team"]["abbreviation"]
 
                 #get index of abbreviations (when playoff stuff gets added variables get shifted, WILL FAIL IF NONE OF THESE EXIST, WHICH SHOULDN'T HAPPEN)
-                stat_name = [x["abbreviation"] for x in team["stats"]]
-                total_idx = stat_name.index("TOTAL")
-                pt_idx = stat_name.index("PTS")
-                GP_idx = stat_name.index("GP")
+                stat_name = [x["name"] for x in team["stats"]]  #not all stats have abbreviation so used name
+                total_idx = stat_name.index("overall")
+                pt_idx = stat_name.index("points")
+                GP_idx = stat_name.index("gamesPlayed")
 
                 record = team["stats"][total_idx]["displayValue"]  #W-L-OTL, pts
                 pts = team["stats"][pt_idx]["value"]  #points
@@ -392,18 +390,19 @@ def get_basketballstandings(league_ext):
 
     stats = dict()
     stats2 = []
-    for i, conf_data in enumerate(standings_data):  #iterate through each division
+    for _, conf_data in enumerate(standings_data):  #iterate through each division
         #div_name = conf_data["abbreviation"]
         div_name = conf_data["name"][0:4]  #abbreviation for WNBA is only E or W
         div_data = reversed(conf_data["standings"]["entries"])
         stats_tmp = []
-        cnt = 0
         for (j, team) in enumerate(div_data):  #iterate through each team in each division
             name = team["team"]["abbreviation"]
-            stat_name = [x["shortDisplayName"] for x in team["stats"]]
-            total_idx = stat_name.index("OVER")
-            pct_idx = stat_name.index("PCT")
-            GB_idx = stat_name.index("GB")
+
+            #get index of abbreviations (when playoff stuff gets added variables get shifted, WILL FAIL IF NONE OF THESE EXIST, WHICH SHOULDN'T HAPPEN)
+            stat_name = [x["name"] for x in team["stats"]]  #not all stats have abbreviation so used name
+            total_idx = stat_name.index("overall")
+            pct_idx = stat_name.index("winPercent")
+            GB_idx = stat_name.index("gamesBehind")
             record = team["stats"][total_idx]["displayValue"]  #W-L
             GB = team["stats"][GB_idx]["displayValue"]  #games behind
             pct = team["stats"][pct_idx]["value"]  #win percent
@@ -429,19 +428,17 @@ def get_footballstandings():
             return None
         conf_name = standings_rep.json()["abbreviation"]
         standings_data = standings_rep.json()["children"]
-        for (j, div) in enumerate(standings_data):  #iterate through each team in each division
+        for (_, div) in enumerate(standings_data):  #iterate through each team in each division
             div_name = div["abbreviation"]
             div_data = div["standings"]["entries"]
             stats_tmp = []
-            for (k, team) in enumerate(div_data):
+            for (_, team) in enumerate(div_data):
                 name = team["team"]["abbreviation"]
 
                 #get index of abbreviations (when playoff stuff gets added variables get shifted, WILL FAIL IF NONE OF THESE EXIST, WHICH SHOULDN'T HAPPEN)
-                #stat_name = [x["abbreviation"] for x in team["stats"]]
                 stat_name = [x["name"] for x in team["stats"]]  #not all stats have abbreviation so used name
-                total_idx = stat_name.index("All Splits")
+                total_idx = stat_name.index("overall")  #stat used to be "All Splits"
                 pct_idx = stat_name.index("winPercent")
-
                 record = team["stats"][total_idx]["displayValue"]  #W-L-T
                 pct = team["stats"][pct_idx]["value"]  #win percent
                 pct_str = team["stats"][pct_idx]["displayValue"]

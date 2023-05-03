@@ -1,0 +1,8 @@
+---
+id: spinbyt
+name: Spinbyt
+summary: Shows Spin scooters info
+desc: App that shows the nearest Spin scooter, its battery level, and number of other nearby scooters. Includes a scooter icon.
+author: zachlucas
+fileName: spinbyt.star
+packageName: spinbyt

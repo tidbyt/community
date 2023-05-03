@@ -1,0 +1,8 @@
+---
+id: github-repo
+name: GitHub Repo
+summary: Display GitHub repo stats
+desc: Display various statistics of a public GitHub repo.
+author: rs7q5
+fileName: github_repo.star
+packageName: githubrepo

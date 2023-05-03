@@ -1,0 +1,8 @@
+---
+id: bikeshare
+name: Bikeshare
+summary: Bikeshare availability
+desc: Shows bike and parking availability for user selected bikeshare locations.
+author: snorremd
+fileName: bikeshare.star
+packageName: bikeshare

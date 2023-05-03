@@ -5,10 +5,10 @@ Description: Display the price of PLS, PLSX, and HEX. Choose between testnet and
 Author: bretep
 """
 
-load("render.star", "render")
-load("http.star", "http")
-load("encoding/base64.star", "base64")
 load("cache.star", "cache")
+load("encoding/base64.star", "base64")
+load("http.star", "http")
+load("render.star", "render")
 load("schema.star", "schema")
 load("secret.star", "secret")
 
