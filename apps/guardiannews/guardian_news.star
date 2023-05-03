@@ -152,7 +152,8 @@ def main(config):
                 main_align = "start",
                 children = [
                     render.Image(width = 64, height = 32, src = NEWS_ICON),
-                    render.WrappedText(content = finalsection, width = 64, color = "#fff", font = "CG-pixel-3x5-mono", linespacing = 1, align = "left"),
+                    render.WrappedText(content = finalsection, width = 64, color = "#fff", font = "CG-pixel-3x5-mono", linespacing = 0, align = "left"),
+                    render.Box(width = 64, height = 1),
                     render.Box(width = 64, height = 1, color = pillarcol),
                     render.Box(width = 64, height = 2),
                     render.WrappedText(content = finalheadline, width = 64, color = pillarcol, font = "tb-8", linespacing = 0, align = "left"),
