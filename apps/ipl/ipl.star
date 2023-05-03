@@ -69,7 +69,7 @@ def main(config):
     MatchID = str(MatchID)
     Match_URL = "https://hs-consumer-api.espncricinfo.com/v1/pages/match/details?lang=en&seriesId=1345038&matchId=" + MatchID + "&latest=true"
 
-    print(Match_URL)
+    #print(Match_URL)
     # cache specific match data for 1 minute
     MatchData = get_cachable_data(Match_URL, MATCH_CACHE)
     Match_JSON = json.decode(MatchData)
