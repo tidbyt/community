@@ -129,6 +129,11 @@ def get_schema():
             value = "two_line_four_times",
         ),
     ]
+    scroll_speeds = [
+        schema.Option(display = "Slow", value = "70"),
+        schema.Option(display = "Normal (default)", value = "50"),
+        schema.Option(display = "Fast", value = "30"),
+    ]
 
     return schema.Schema(
         version = "1",
@@ -162,6 +167,14 @@ def get_schema():
                 icon = "borderAll",
                 default = "long",
                 options = formats,
+            ),
+            schema.Dropdown(
+                id = "speed",
+                name = "Scroll Speed",
+                desc = "Change the speed that text scrolls.",
+                icon = "gear",
+                default = "50",
+                options = scroll_speeds,
             ),
             schema.Toggle(
                 id = "agency_alerts",
@@ -494,6 +507,8 @@ def renderOutput(stopTitle, output, messages, config):
         )
 
     return render.Root(
+        delay = int(config.str("speed", "50")),  # Allow customization of scroll speed.
+        show_full_animation = True,
         child = render.Column(
             children = rows,
             expanded = True,

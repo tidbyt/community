@@ -5,14 +5,16 @@ Description: Displays live and upcoming soccer scores from a data feed.   Heavil
 Author: jvivona
 """
 
-# thanks to @jesushairdo for the new option to be able to show home or away team first.  Let's be more international :-)
-
 load("cache.star", "cache")
 load("encoding/json.star", "json")
 load("http.star", "http")
 load("render.star", "render")
 load("schema.star", "schema")
 load("time.star", "time")
+
+VERSION = 23111
+
+# thanks to @jesushairdo for the new option to be able to show home or away team first.  Let's be more international :-)
 
 CACHE_TTL_SECONDS = 60
 DEFAULT_TIMEZONE = "America/New_York"
@@ -59,6 +61,8 @@ LEAGUE_ABBR = {
     "esp.1": "LaLiga",
     "uefa.champions": "U Chp",
     "uefa.europa": "Euro",
+    "concacaf.nations.league": "ConcNL",
+    "concacaf.champions": "ConcCL",
 }
 
 def main(config):
@@ -160,8 +164,8 @@ def main(config):
                 checkSeries = competition.get("series", "NO")
                 checkRecord = homeCompetitor.get("records", "NO")
                 if checkRecord == "NO":
-                    homeScore = "0-0-0"
-                    awayScore = "0-0-0"
+                    homeScore = ""
+                    awayScore = ""
                 else:
                     homeScore = competition["competitors"][0]["records"][0]["summary"]
                     awayScore = competition["competitors"][1]["records"][0]["summary"]
@@ -196,8 +200,11 @@ def main(config):
                         gameNoteArray = gameHeadline.split(" - ")
                         gameTime = str(gameNoteArray[1]) + " / " + gameTime
                 if gameName == "STATUS_POSTPONED":
-                    homeScore = ""
-                    awayScore = ""
+                    scoreFont = "CG-pixel-3x5-mono"
+
+                    #if game is PPD - show records instead of blanks
+                    homeScore = competition["competitors"][0]["records"][0]["summary"]
+                    awayScore = competition["competitors"][1]["records"][0]["summary"]
                     gameTime = "Postponed"
                 else:
                     homeScore = competition["competitors"][0]["score"]
@@ -453,6 +460,14 @@ def main(config):
 
 leagueOptions = [
     schema.Option(
+        display = "CONCACAF Champions League",
+        value = "concacaf.champions",
+    ),
+    schema.Option(
+        display = "CONCACAF Nations League",
+        value = "concacaf.nations.league",
+    ),
+    schema.Option(
         display = "Dutch Eredivisie",
         value = "ned.1",
     ),
@@ -552,45 +567,6 @@ pregameOptions = [
     ),
 ]
 
-colorOptions = [
-    schema.Option(
-        display = "White",
-        value = "#FFF",
-    ),
-    schema.Option(
-        display = "Yellow",
-        value = "#FF0",
-    ),
-    schema.Option(
-        display = "Red",
-        value = "#F00",
-    ),
-    schema.Option(
-        display = "Blue",
-        value = "#00F",
-    ),
-    schema.Option(
-        display = "Green",
-        value = "#0F0",
-    ),
-    schema.Option(
-        display = "Orange",
-        value = "#FFA500",
-    ),
-    schema.Option(
-        display = "Indigo",
-        value = "#4B0082",
-    ),
-    schema.Option(
-        display = "Violet",
-        value = "#EE82EE",
-    ),
-    schema.Option(
-        display = "Pink",
-        value = "#FC46AA",
-    ),
-]
-
 daysOptions = [
     schema.Option(
         display = "0",
@@ -672,13 +648,12 @@ def get_schema():
                 default = displayOptions[0].value,
                 options = displayOptions,
             ),
-            schema.Dropdown(
+            schema.Color(
                 id = "displayTimeColor",
                 name = "Time Color",
                 desc = "Select which color you want the time to be.",
                 icon = "palette",
-                default = colorOptions[0].value,
-                options = colorOptions,
+                default = "#FFF",
             ),
             schema.Dropdown(
                 id = "displaySpeed",

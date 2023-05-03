@@ -6,4 +6,6 @@ There are a lot of improvements coming to the Minnesota Metro area over the next
 
 A big thanks to @AmillionAirs for laying the foundation with the original app, and for all of the guidance along the way (as this was my first Tidbyt app/modification) with linting and formatting. Hope it is up to snuff for all to enjoy!
 
+Ver 1.1: Custom stop naming fuctionality was added, as well as support for the upcoming Purple and Gold BRT lines.
+
 ![](https://github.com/GE-Ninety/community/blob/main/apps/mnmetrotransit/mn_metro_transit.gif)
