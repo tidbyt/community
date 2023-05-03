@@ -1,0 +1,8 @@
+---
+id: date-time-clock
+name: Date Time Clock
+summary: Shows full time and date
+desc: Displays the full date and current time for user.
+author: Alex Miller/AmillionAir
+fileName: date_time_clock.star
+packageName: datetimeclock

@@ -1,0 +1,8 @@
+---
+id: path-train-schedule
+name: Path Schedule
+summary: Schedule for path train
+desc: Shows train arrivals for upcoming inbound and outbound trains at path train stations.
+author: Todd Greenberg
+fileName: path_train_schedule.star
+packageName: pathtrainschedule

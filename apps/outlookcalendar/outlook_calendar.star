@@ -1,12 +1,18 @@
-load("render.star", "render")
-load("http.star", "http")
+"""
+Applet: Outlook Calendar
+Author: Matt-Pesce
+Summary: Display Next Meeting
+Description: Shows the date, next meeting and time from your Outlook Calendar.
+"""
+
 load("cache.star", "cache")
-load("time.star", "time")
+load("encoding/base64.star", "base64")
+load("encoding/json.star", "json")
+load("http.star", "http")
+load("render.star", "render")
 load("schema.star", "schema")
 load("secret.star", "secret")
-load("encoding/json.star", "json")
-load("encoding/base64.star", "base64")
-load("humanize.star", "humanize")
+load("time.star", "time")
 
 CAL_ICON = base64.decode("""iVBORw0KGgoAAAANSUhEUgAAAEAAAAAgCAYAAACinX6EAAAAAXNSR0IArs4c6QAAAOlJREFUaEPtl0EKg1AMRPUW3Xsv957i80/Rfe/VvbewKG1RERO+TzEwrj6SPxlnJgHr6sQnpTTknOuxBXWm6U7kkOfVD2uc9H5Wuemm19R50aN9HOZ/GOBPaBRgRYhyfY6z16/EyFMFKCHkvrMhuPvurFAClKi2eQdyxM0H6qcEuBW3CiFHrDZagj8FIME1Au7IWYWQI1YbjYBG4KsAlDjtAPfMWYWQI1abe+8AN3uo8FZ/g9A3XQ3D7YCrmUP9JAAkZFgYJSCsdRBxJQASMiyMEhDWOoi4EgAJGRZGCQhrHURcCYCEDAvzAXMPoSHYT20lAAAAAElFTkSuQmCC""")
 
@@ -141,9 +147,9 @@ def main(config):
             curl_cmd = "curl -s --request POST --data \"" + refresh_body + "\" " + msft_token_endpoint
             print(curl_cmd)
 
-        MSFT_GRAPH_POST_HEADERS = {
-            "Content-Type": "application/x-www-form-urlencoded",
-        }
+        # MSFT_GRAPH_POST_HEADERS = {
+        #     "Content-Type": "application/x-www-form-urlencoded",
+        # }
 
         refresh = http.post(msft_token_endpoint, body = refresh_body)
 
@@ -230,9 +236,9 @@ def oauth_handler(params):
         print(curl_cmd)
 
     # Exchange parameters and client secret for an access token
-    MSFTAUTH_POST_HEADERS = {
-        "Content-type": "application/x-www-form-urlencoded",
-    }
+    # MSFTAUTH_POST_HEADERS = {
+    #     "Content-type": "application/x-www-form-urlencoded",
+    # }
     res = http.post(url = MSFT_EVENTFETCH_TOKEN_ENDPOINT, body = auth_body)
 
     if res.status_code != 200:
@@ -298,15 +304,12 @@ def get_outlook_event_list(start_window, end_window, auth_token):
 
     # Initialize meeting stats counts.  MSFT Graph returns Outlook events in buckets of 10 or less, need counters to track outside of each bucket scan loop
     total_event_num = 0
-    actual_meeting_count = 0
-    total_meeting_duration = 0
-    total_big_meeting_duration = 0
 
     # Iterate over the meeting buckets.   So far, my calendar fits into 3-4 buckets for a week.   Default is to allow 10 buckets max (for now)
     # It's hard to imagine that someone could have more than 100 events in a 24 hour period (for this application), however
     # This application can provide incorrect data in that case (simply raise the number of buckets if that happens often
 
-    for x in range(NUMBER_OF_FETCH_ITERATIONS):
+    for _ in range(NUMBER_OF_FETCH_ITERATIONS):
         # Get the first Batch of events
 
         # Also, MSFT generated "Focus Time" shows as 1 attendee, where as MF + Rachel entered morning prep, coding/training shows up as 0 attendees.   Hm.....may need to specifically filter on "Focus Time", dont count as a meeting.
@@ -318,7 +321,7 @@ def get_outlook_event_list(start_window, end_window, auth_token):
 
         meeting_num = 0
 
-        for meeting_count in CalendarQuery.json()["value"]:
+        for _ in CalendarQuery.json()["value"]:
             meeting = CalendarQuery.json()["value"][meeting_num]["subject"]
             is_cancelled = CalendarQuery.json()["value"][meeting_num]["isCancelled"]
             start_time = CalendarQuery.json()["value"][meeting_num]["start"]["dateTime"] + "Z"

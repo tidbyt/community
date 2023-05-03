@@ -1,0 +1,8 @@
+---
+id: stripe-sales
+name: Stripe Sales
+summary: Shows your Stripe sales
+desc: Shows the order count and total sum of sales you've made today on Stripe.
+author: Jon Bilous
+fileName: stripe_sales.star
+packageName: stripesales

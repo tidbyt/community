@@ -5,14 +5,17 @@ Description: Projected New York City subway departure times, powered by goodserv
 Author: blahblahblah-
 """
 
+load("encoding/base64.star", "base64")
+load("encoding/json.star", "json")
+load("http.star", "http")
+load("re.star", "re")
 load("render.star", "render")
 load("schema.star", "schema")
 load("time.star", "time")
-load("http.star", "http")
-load("encoding/base64.star", "base64")
 
 DEFAULT_STOP_ID = "M16"
 DEFAULT_DIRECTION = "both"
+DEFAULT_TRAVEL_TIME = '{"display": "0", "value": "0", "text": "0"}'
 GOOD_SERVICE_STOPS_URL_BASE = "https://goodservice.io/api/stops/"
 GOOD_SERVICE_ROUTES_URL = "https://goodservice.io/api/routes/"
 
@@ -68,6 +71,11 @@ def main(config):
     if stops_req.status_code != 200:
         fail("goodservice stops request failed with status %d", stops_req.status_code)
 
+    travel_time_raw = json.decode(config.get("travel_time", DEFAULT_TRAVEL_TIME))["value"]
+    if not is_parsable_integer(travel_time_raw):
+        fail("non-integer value provided for travel_time: %s", travel_time_raw)
+    travel_time_min = int(travel_time_raw)
+
     direction_config = config.str("direction", DEFAULT_DIRECTION)
     if direction_config == "both":
         directions = ["north", "south"]
@@ -76,6 +84,7 @@ def main(config):
 
     ts = time.now().unix
     blocks = []
+    min_estimated_arrival_time = ts + (travel_time_min * 60)
 
     for dir in directions:
         upcoming_routes = {
@@ -88,6 +97,10 @@ def main(config):
 
         for trip in dir_data:
             matching_route = None
+
+            if trip["estimated_current_stop_arrival_time"] < min_estimated_arrival_time:
+                continue
+
             for r in upcoming_routes[dir]:
                 if r["route_id"] == trip["route_id"] and r["destination_stop"] == trip["destination_stop"]:
                     matching_route = r
@@ -212,6 +225,21 @@ def main(config):
         ),
     )
 
+def is_parsable_integer(maybe_number):
+    return not re.findall("[^0-9]", maybe_number)
+
+def travel_time_search(pattern):
+    create_option = lambda value: schema.Option(display = value, value = value)
+
+    if pattern == "0" or not is_parsable_integer(pattern):
+        return [create_option(str(i)) for i in range(10)]
+
+    int_pattern = int(pattern)
+    if int_pattern > 60:
+        return [create_option("60")]
+    else:
+        return [create_option(pattern)] + [create_option(pattern + str(i)) for i in range(10) if int_pattern * 10 + i < 60]
+
 def get_schema():
     stops_req = http.get(GOOD_SERVICE_STOPS_URL_BASE)
     if stops_req.status_code != 200:
@@ -260,6 +288,13 @@ def get_schema():
                         value = "south",
                     ),
                 ],
+            ),
+            schema.Typeahead(
+                id = "travel_time",
+                name = "Travel Time to Station",
+                desc = "Amount of time it takes to reach this station (trains with earlier arrival times will be hidden).",
+                icon = "hourglass",
+                handler = travel_time_search,
             ),
         ],
     )

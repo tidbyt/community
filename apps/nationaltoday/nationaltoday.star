@@ -7,14 +7,14 @@ Author: rs7q5
 
 #nationalToday.star
 #Created 20220130 RIS
-#Last Modified 20220807 RIS
+#Last Modified 20230210 RIS
 
-load("render.star", "render")
-load("http.star", "http")
-load("encoding/json.star", "json")
 load("cache.star", "cache")
-load("re.star", "re")
+load("encoding/json.star", "json")
+load("http.star", "http")
 load("qrcode.star", "qrcode")
+load("re.star", "re")
+load("render.star", "render")
 load("schema.star", "schema")
 
 BASE_URL = "https://nationaltoday.com/what-is-today/"
@@ -52,7 +52,7 @@ def main(config):
 
             #parse through and set up text for each holiday
             holiday_txt = []
-            for i, holiday in enumerate(holidays_list):
+            for _, holiday in enumerate(holidays_list):
                 holiday_txt.append(re.sub('holiday-title">|<', "", holiday))
 
             if holiday_txt == []:
@@ -108,6 +108,7 @@ def main(config):
 
     return render.Root(
         delay = 100,  #speed up scroll text
+        show_full_animation = True,
         child = display_tmp,
     )
 

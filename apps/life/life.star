@@ -168,7 +168,7 @@ def animate(alive_cell, dead_cell):
     frame_cache = {}
 
     # Generate enough frames to last for the maximum time the app can be on screen.
-    for delay in range(0, APP_DURATION_MILLISECONDS, REFRESH_MILLISECONDS):
+    for _ in range(0, APP_DURATION_MILLISECONDS, REFRESH_MILLISECONDS):
         frames.append(render_frame(tuple(living.keys()), alive_cell, dead_cell, frame_cache))
         living, neighbours, changed = next_generation(living, neighbours, changed, generation_cache)  # evolve to next step
     return render.Animation(children = frames)

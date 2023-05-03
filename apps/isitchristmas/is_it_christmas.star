@@ -5,11 +5,11 @@ Description: Is it christmas: yes/no.
 Author: Austin Fonacier
 """
 
+load("encoding/base64.star", "base64")
+load("encoding/json.star", "json")
 load("render.star", "render")
 load("schema.star", "schema")
 load("time.star", "time")
-load("encoding/json.star", "json")
-load("encoding/base64.star", "base64")
 
 TREE_IMG_NO_LIGHTS = base64.decode("""
 iVBORw0KGgoAAAANSUhEUgAAAAsAAAALCAYAAACprHcmAAAAAXNSR0IArs4c6QAAAExJREFUKFNjZMACfNYH/N8SuIERXQpDAKQQpghdA/mKkU3FZjqKyUQrxqYQ3XS4yUQrxqcQ2XSwySQpRg/8ylCP/+2rdxCOFJBGXIoBe08sDMFoReYAAAAASUVORK5CYII=
@@ -50,7 +50,7 @@ def main(config):
     day = now.day
     month = now.month
 
-    christmas_date = config.get("christmas_date")
+    christmas_date = config.get("christmas_date", "12-25")
     christmas_month = int(christmas_date[:2])
     christmas_day = int(christmas_date[3:])
 
@@ -105,7 +105,7 @@ def main(config):
 def get_daysleft(today, timezone, christmas_month, christmas_day):
     if today.month == christmas_month and today.day > christmas_day:
         year = today.year + 1
-    if today.month > christmas_month:
+    elif today.month > christmas_month:
         year = today.year + 1
     else:
         year = today.year
@@ -169,6 +169,10 @@ def get_schema():
     # https://en.wikipedia.org/wiki/Christmas#Date_according_to_Julian_calendar
     date_options = [
         schema.Option(
+            display = "24 December",
+            value = "12-24",
+        ),
+        schema.Option(
             display = "25 December",
             value = "12-25",
         ),
@@ -214,7 +218,7 @@ def get_schema():
                 name = "Christmas date",
                 desc = "When do you celebrate Christmas?",
                 icon = "calendar",
-                default = date_options[0].value,
+                default = date_options[1].value,
                 options = date_options,
             ),
         ],

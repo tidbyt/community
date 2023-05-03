@@ -8,9 +8,9 @@ Author: rs7q5
 #Created 20211231 RIS
 #Last Modified 20220501 RIS
 
-load("render.star", "render")
-load("http.star", "http")
 load("cache.star", "cache")
+load("http.star", "http")
+load("render.star", "render")
 load("schema.star", "schema")
 
 #this list are any of the sports that have a "Top headlines" section and can be done with the following base ESPN_URL
@@ -83,7 +83,6 @@ def main(config):
     title_format = []
     if config.bool("scroll_vertical", False):  #scroll text vertically if true
         #redo titles to make sure words don't get cut off
-        title_max_line = 12  #max of 12 lines in a headline
         for title_tmp in title:
             title_tmp2 = split_sentence(title_tmp.rstrip(), 9, join_word = True).rstrip()
 
@@ -117,6 +116,7 @@ def main(config):
         )
     return render.Root(
         delay = int(config.str("speed", "30")),  #speed up scroll text
+        show_full_animation = True,
         child = render.Row(
             expanded = True,
             children = [

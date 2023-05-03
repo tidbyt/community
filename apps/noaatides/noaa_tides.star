@@ -5,18 +5,16 @@ Description: Display daily tides from NOAA stations.
 Author: tavdog
 """
 
+load("cache.star", "cache")
+load("encoding/json.star", "json")
+load("http.star", "http")
+load("humanize.star", "humanize")
+load("render.star", "render")
+load("schema.star", "schema")
+
 production = True
 debug = False  #  debug mode will not hit network apis
 print_debug = False
-
-load("render.star", "render")
-load("schema.star", "schema")
-load("http.star", "http")
-load("encoding/json.star", "json")
-load("cache.star", "cache")
-load("xpath.star", "xpath")
-load("re.star", "re")
-load("humanize.star", "humanize")
 
 default_location = """
   {
@@ -117,9 +115,8 @@ def get_stations(location):  # assume we have a valid location json string
             ),
         )
 
-    return station_options
-
     # return decode json object of tide data
+    return station_options
 
 def get_tides_hilo(station_id):
     tides = {}
@@ -199,6 +196,8 @@ def main(config):
     #load GRAPH cache
     cache_key_graph = "noaa_tides_graph_%s" % (station_id)
     cache_str_graph = cache.get(cache_key_graph)
+
+    tides_graph = {}
 
     if cache_str_hilo != None:
         debug_print("loading cached data")

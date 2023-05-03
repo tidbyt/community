@@ -1,6 +1,9 @@
-#
-# MVV departure times for Tidbyt.
-#
+"""
+Applet: MVV
+Author: Robin Sommer
+Summary: MVV departures (Munich)
+Description: Departure times for the Münchner Verkehrsverbund (MVV).
+"""
 
 load("cache.star", "cache")
 load("encoding/base64.star", "base64")
@@ -60,12 +63,12 @@ def searchStop(pattern):
     options1 = []
     for [id, name] in Stops.items():
         if name.lower().startswith(pattern.lower()):
-            options1 += [schema.Option(value = id, display = name)]
+            options1.append(schema.Option(value = id, display = name))
 
     options2 = []
     for [id, name] in Stops.items():
         if pattern.lower() in name.lower():
-            options2 += [schema.Option(value = id, display = name)]
+            options2.append(schema.Option(value = id, display = name))
 
     return (sorted(options1, key = key) + sorted(options2, key = key))[:25]
 
@@ -251,7 +254,7 @@ def processDepartures(departures, now, filters):
                     known = True
 
             if not known and wait >= 0:
-                lines[idx]["departures"] += [{"planned": planned, "actual": actual, "wait": wait}]
+                lines[idx]["departures"].append({"planned": planned, "actual": actual, "wait": wait})
 
     # Remove entries with no departures
     lines = [x for x in lines.values() if x["departures"] != []]
@@ -268,6 +271,8 @@ def renderNumber(number, type_):
         color = color.get(number, ColorLineDefault)
 
     (fg, bg, style) = color
+
+    shape = None
 
     # Note: For both styles, we need to wrap the text into another sizing box
     # for some reason to get the alignment right.
@@ -298,7 +303,7 @@ def renderDirection(direction, type, abbreviate):
     else:
         return text
 
-def renderDepartureTimes(departures, now, alternate_style):
+def renderDepartureTimes(departures, alternate_style):
     if alternate_style:
         actual = departures[0]["actual"]
         planned = departures[0]["planned"]
@@ -325,10 +330,10 @@ def renderDepartureTimes(departures, now, alternate_style):
         departures = "  ".join(departures[0:2])
         return render.Text(departures, offset = 0, color = ColorTimeNormal, font = Font)
 
-def renderLine(line, now, alternate_style, abbreviate):
+def renderLine(line, alternate_style, abbreviate):
     direction = renderDirection(line["direction"], line["type"], abbreviate)
     number = renderNumber(line["number"], line["type"])
-    time = renderDepartureTimes(line["departures"], now, alternate_style)
+    time = renderDepartureTimes(line["departures"], alternate_style)
     #spacer = render.Box(width=ColumnSpacerWidth, height=1)
 
     return render.Row(main_align = "space_evenly", children = [
@@ -357,12 +362,12 @@ def main(config):
         for i in line.split():
             if "#" in i:
                 (i, platform) = i.split("#")
-                filters += [(i.strip(), platform.strip())]
+                filters.append((i.strip(), platform.strip()))
             else:
-                filters += [(i.strip(), "")]
+                filters.append((i.strip(), ""))
 
         lines = processDepartures(departures, now, filters)
-        children = [renderLine(l, now, alternate_style, abbreviate) for l in lines][0:2]
+        children = [renderLine(l, alternate_style, abbreviate) for l in lines][0:2]
 
     else:
         text = ["", "  -== MVV -==", "", "Set a station to ", "show departures."]

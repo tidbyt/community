@@ -1,0 +1,8 @@
+---
+id: mls-scores
+name: MLS Scores
+summary: MLS soccer scores
+desc: Creating multiple app instances is no longer necessary. Just install once and remove any other instances. You can set the rotation speed of scores in the settings.
+author: LunchBox8484
+fileName: mls_scores.star
+packageName: mlsscores

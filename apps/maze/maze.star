@@ -90,16 +90,14 @@ def same_cell(a, b):
     return a["row"] == b["row"] and a["col"] == b["col"]
 
 # Render the current grid and the current solution path
-def render_frame(colors, grid, full_path, pixel, blank):
-    path = full_path  # full_path[-26:-1]
-
+def render_frame(grid, pixel, blank):
     frame = []
     frame_row = []
 
     # Draw a solid line of pixels
     # along the top of the maze
     frame_row.append(pixel)
-    for count in range(GRID_COLS):
+    for _ in range(GRID_COLS):
         frame_row.append(pixel)
         frame_row.append(pixel)
 
@@ -186,7 +184,7 @@ def solve(colors, grid, row, col, path, maze_frame, frames):
     frames.append(copy_frame(colors, maze_frame, path))
 
     if row == GRID_ROWS - 1 and col == GRID_COLS - 1:
-        for index in range(0, 50):
+        for _ in range(0, 50):
             frames.append(copy_frame(colors, maze_frame, path))
         return True
 
@@ -196,6 +194,8 @@ def solve(colors, grid, row, col, path, maze_frame, frames):
 
         if solve(colors, grid, cell[0], cell[1], new_path, maze_frame, frames):
             return True
+
+    return False
 
 COLORS = [
     schema.Option(display = "White", value = "#FFFFFF"),
@@ -263,7 +263,7 @@ def main(config):
     active = []
     active.append(grid[random.number(0, GRID_ROWS - 1)][random.number(0, GRID_COLS - 1)])
 
-    for index in range(GRID_COLS * GRID_ROWS * 3):
+    for _ in range(GRID_COLS * GRID_ROWS * 3):
         if len(active) > 0:
             cell_index = random.number(0, len(active) - 1)
             cell = active[cell_index]
@@ -291,7 +291,7 @@ def main(config):
         color = "#000000",
     )
 
-    maze_frame = render_frame(colors, grid, [], pixel, blank)
+    maze_frame = render_frame(grid, pixel, blank)
 
     path = [[0, 0]]
     frames = []

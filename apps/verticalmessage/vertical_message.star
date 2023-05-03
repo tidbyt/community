@@ -7,11 +7,11 @@ Author: rs7q5
 
 #vertical_message.star
 #Created 20220221 RIS
-#Last Modified 20220515 RIS
+#Last Modified 20230210 RIS
 
+load("re.star", "re")
 load("render.star", "render")
 load("schema.star", "schema")
-load("re.star", "re")
 
 COLOR_LIST = {
     "White": "#fff",
@@ -50,6 +50,7 @@ def main(config):
     scroll_opt = config.str("speed", "100")
     return render.Root(
         delay = int(scroll_opt),  #speed up scroll text
+        show_full_animation = True,
         child = render.Marquee(
             height = 32,
             offset_start = 32,

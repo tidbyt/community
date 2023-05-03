@@ -1,0 +1,8 @@
+---
+id: wnba-scores
+name: WNBA Scores
+summary: WNBA basketball scores
+desc: Creating multiple app instances is no longer necessary. Just install once and remove any other instances. You can set the rotation speed of scores in the settings.
+author: LunchBox8484
+fileName: wnba_scores.star
+packageName: wnbascores

@@ -5,12 +5,11 @@ Description: Shows random advice from AdviceSlip.com.
 Author: mrrobot245
 """
 
+load("cache.star", "cache")
 load("encoding/json.star", "json")
+load("http.star", "http")
 load("render.star", "render")
 load("schema.star", "schema")
-load("re.star", "re")
-load("http.star", "http")
-load("cache.star", "cache")
 
 def main(config):
     SCROLL_SPEED = config.str("scroll_speed", "60")

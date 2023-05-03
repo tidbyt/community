@@ -9,8 +9,8 @@ load("encoding/json.star", "json")
 load("http.star", "http")
 load("render.star", "render")
 load("schema.star", "schema")
-load("time.star", "time")
 load("secret.star", "secret")
+load("time.star", "time")
 
 URL = "https://api-v3.mbta.com/predictions"
 
@@ -91,7 +91,7 @@ def renderSched(prediction, route):
         first_line = render.Row(
             children = [
                 render.Text(
-                    content = dest + " \\u00b7 ",
+                    content = dest + " \u00b7 ",
                     height = 8,
                     offset = -1,
                     font = "Dina_r400-6",

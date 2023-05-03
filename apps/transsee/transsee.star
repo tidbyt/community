@@ -5,13 +5,13 @@ Description: Provides real-time transit predictions based on actual travel times
 Author: doconno@gmail.com
 """
 
+load("http.star", "http")
 load("render.star", "render")
 load("schema.star", "schema")
-load("http.star", "http")
 
 def main(config):
     if config.str("id") == None:
-        """ Show example image by default when no TransSee Premium Id entered """
+        # Show example image by default when no TransSee Premium Id entered
         return render.Root(render.Column(children = [
             render.Row(children = [
                 render.Box(width = 17, height = 8, color = "#6CBE45", child = render.Text(content = "B54", color = "#FFFFFF")),
@@ -39,7 +39,7 @@ def main(config):
 
             return render.Root(render.Column(children = col))
         else:
-            """ Return [] to remove from cycle when no stops activated """
+            # Return [] to remove from cycle when no stops activated
             return []
 
 def get_schema():

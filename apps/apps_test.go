@@ -6,12 +6,14 @@ import (
 
 	"github.com/stretchr/testify/assert"
 	"tidbyt.dev/community/apps"
-	"tidbyt.dev/community/apps/fuzzyclock"
 	"tidbyt.dev/pixlet/runtime"
 )
 
-func TestAllApps(t *testing.T) {
-	for _, m := range apps.GetManifests() {
+func TestAllAppsLoad(t *testing.T) {
+	manifests, err := apps.GetManifests()
+	assert.NoError(t, err)
+
+	for _, m := range manifests {
 		applet := runtime.Applet{}
 
 		runtime.InitCache(runtime.NewInMemoryCache())
@@ -21,20 +23,11 @@ func TestAllApps(t *testing.T) {
 	}
 }
 
-func TestManifestsValidate(t *testing.T) {
-	applets := apps.GetManifests()
-	for _, app := range applets {
-		err := app.Validate()
-		assert.NoErrorf(t, err, app.ID)
-	}
-}
-
 func TestFindManifest(t *testing.T) {
 	// App that should exist.
-	expected := fuzzyclock.New()
-	found, err := apps.FindManifest(expected.ID)
+	found, err := apps.FindManifest("fuzzy-clock")
 	assert.NoError(t, err)
-	assert.Equal(t, found, &expected)
+	assert.Equal(t, found.Name, "Fuzzy Clock")
 
 	// App that should not exist.
 	_, err = apps.FindManifest("foo-bar-123")
@@ -47,12 +40,21 @@ func TestAllAppsRegistered(t *testing.T) {
 		"manifest",
 	}
 
-	manifests := apps.GetManifests()
+	manifests, err := apps.GetManifests()
+	assert.NoError(t, err)
+
+	// The number 100 is arbitrary here. We need to ensure that the apps did in
+	// fact make it into the manifests and there isn't a bug somewhere. If we
+	// for some reason have less then 100 apps in this repo in the future, we
+	// can reduce this check.
+	assert.True(t, len(manifests) > 100)
+
 	registered := make(map[string]bool, len(manifests))
 	for _, app := range manifests {
 		registered[app.PackageName] = true
 	}
 
+	// Make sure each directory shows up using go embedding.
 	dirs, err := os.ReadDir(".")
 	if err != nil {
 		assert.NoError(t, err)

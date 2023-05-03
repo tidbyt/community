@@ -5,11 +5,11 @@ Description: Displays a random timezone where it's currently in the 5 o'clock ho
 Author: grantmatheny
 """
 
+load("encoding/base64.star", "base64")
+load("random.star", "random")
 load("render.star", "render")
 load("schema.star", "schema")
 load("time.star", "time")
-load("encoding/base64.star", "base64")
-load("random.star", "random")
 
 MARTINI_ICON = base64.decode("""
 iVBORw0KGgoAAAANSUhEUgAAABgAAAAYCAYAAADgdz34AAAACXBIWXMAIbEAACGxAAGFqWwEAAACRElEQVRIx+3U30tTYRwG8IVEEeVFBYIXQX+AN0V3EUQXEd0VQRhe5EVYQoEELQvBENqshGKQmpm/cnVUSqSmc0HBypluKz1Oc1s/NHOG0LLtOLXO0/PKKU6grdwZdNELn7Ed3vf5nr3f8x6TKcVxbOumHFpvSsdgcDbNUn66CtgoRGv/amF/IJxJO+ggHSczlVIZXaDi9mZ7EYPnbEUnS/g7yxsIJw3Noks0QirhdyoK8lF+NFd/bYLqKGfJAp7B0VLf8GtEv8QxOf0JofEIBoLv4OU1fXCDqx4XW87i1IFt6PO+RPh9ZHH+TFzh9yn0ykHXkgUsVc2ra9s6pWc+GTMxBaqqQgzxOb/wFYm5eSiJBKaiE4jNfsaP8Y3zYkoCcvAtJMcTr63p/uZlt4lFMuhmpb0DnoFXkMPjCI5N4s2HjxiLTMMX8qP2UTlsjhKUtRbC8bxr8R+2Ot2wVtvdXJuZtMGctIquXK1vw+N++Zft8cgjOGHdi7xrO3GuqQA9gwE0trvA+d207o+fIt6NKHT+cs1ddLq9Pws4H3bhuvk0+oaCYM9wQ3ogwjtozYqecy4sZDFVbIEoUFl8Br0vAnD7h8G9FuGS6F1Kh4kBubRQd8+Jp74hdPf4UXGrRYQ3iJ4ZcmIZtJ8UgqZK9MrQ1wIDj2jhoqHGv3cYulsr0JiWF9v/Av9EgX1aAclSfdvQ4I1kobjuHDhpe6rBgpmiumA9VTvNG1ZaIEO7U3WZAoKPthixRbvoEOXRYdpD2daaO0nXfwd97j9iHjgVlQAAAABJRU5ErkJggg==

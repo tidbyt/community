@@ -244,6 +244,8 @@ def main(config):
     #Removes times that don't exist / re-arranges times to have first train be in [i][0]
     rearrangeUNCCtimes(unccTime)
 
+    convertTimeBack = ""
+
     #---North First Lightrail time---
     if " AM" in unccTime[iN][0]:  #AM Times
         changeFormat = unccTime[iN][0].replace(" AM", "")
@@ -262,6 +264,7 @@ def main(config):
     nMinTotalTime = (nFirstHours * 60) + nFirstMinutes
 
     nFirstTrainMin = nMinTotalTime
+    nText = ""
 
     #Goes through each North (UNCC) Train Time to find which is closest to the current time
     for i in range(0, len(unccTime[iN])):
@@ -339,6 +342,7 @@ def main(config):
     sMinTotalTime = (sFirstHours * 60) + sFirstMinutes
 
     sFirstTrainMin = sMinTotalTime
+    sText = ""
 
     #Goes through each South (I-485) Train Time to find which is closest to the current time
     for i in range(0, len(i485Time[iS])):
@@ -539,7 +543,7 @@ def get_cachable_data(url, ttl_seconds = CACHE_TTL_SECONDS):
     if res.status_code != 200:
         fail("request to %s failed with status code: %d - %s" % (url, res.status_code, res.body()))
 
-    cache.set(key, base64.encode(res.body()), ttl_seconds = CACHE_TTL_SECONDS)
+    cache.set(key, base64.encode(res.body()), ttl_seconds = ttl_seconds)
 
     return res.body()
 

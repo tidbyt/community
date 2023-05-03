@@ -1,0 +1,8 @@
+---
+id: verge-taglines
+name: Verge Taglines
+summary: The Verge's latest tagline
+desc: Displays the latest tagline from the top of popular tech news site The Verge (dot com).
+author: '@joevgreathead'
+fileName: verge_taglines.star
+packageName: vergetaglines

@@ -5,11 +5,11 @@ Description: Random movie quote from AFI top 100 movie quotes.
 Author: Austin Fonacier
 """
 
-load("render.star", "render")
-load("encoding/csv.star", "csv")
-load("random.star", "random")
-load("http.star", "http")
 load("cache.star", "cache")
+load("encoding/csv.star", "csv")
+load("http.star", "http")
+load("random.star", "random")
+load("render.star", "render")
 load("schema.star", "schema")
 
 def main():
