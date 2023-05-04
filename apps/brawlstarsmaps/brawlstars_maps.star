@@ -9,8 +9,10 @@ load("http.star", "http")
 load("random.star", "random")
 load("render.star", "render")
 load("schema.star", "schema")
+load("time.star", "time")
 
 def main(ctx):
+    random.seed(time.now().unix // 15)
     resp = http.get("https://api.brawlapi.com/v1/events")
     if resp.status_code != 200:
         return render.Text("Error fetching maps", ctx)
