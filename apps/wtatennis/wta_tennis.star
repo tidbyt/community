@@ -15,6 +15,12 @@ v1.2
 Show city name instead of official tournament title once the tournament starts, except for Slams
 Added handling for walkovers
 Extended player surname field by 2 chars
+
+v1.2b
+Update title bar color to distinguish between WTA & ATP apps
+
+v1.3
+Sometimes the data feed will still show matches as "In Progress" after they have completed. Have added a 24hr limit so that if the start date is > 24 hrs ago then don't list the match
 """
 
 load("cache.star", "cache")
@@ -62,10 +68,16 @@ def main(config):
             if len(WTA_JSON["events"][x]) == 10:
                 for y in range(0, len(WTA_JSON["events"][x]["competitions"]), 1):
                     # if the match is "In Progress" and its a singles match, lets add it to the list of in progress matches
+                    # And the "In Progress" match started < 24 hrs ago , sometimes the data feed will still show matches as "In Progress" after they have completed
+                    # Adding a 24hr limit will remove them out of the list
                     if WTA_JSON["events"][x]["competitions"][y]["status"]["type"]["description"] == "In Progress":
                         if WTA_JSON["events"][x]["competitions"][y]["competitors"][0]["type"] == "athlete":
-                            InProgressMatchList.append(y)
-                            InProgress = InProgress + 1
+                            MatchTime = WTA_JSON["events"][EventIndex]["competitions"][y]["date"]
+                            MatchTime = time.parse_time(MatchTime, format = "2006-01-02T15:04Z").in_location(timezone)
+                            diff = MatchTime - now
+                            if diff.hours > -24:
+                                InProgressMatchList.append(y)
+                                InProgress = InProgress + 1
             else:
                 Display1.extend([
                     render.Column(
@@ -634,7 +646,7 @@ def titleBar(SelectedTourneyID):
     elif SelectedTourneyID == "189-2023":  # US Open
         titleColor = "#022686"
     else:
-        titleColor = "#203764"
+        titleColor = "#7915ff"
     return titleColor
 
 RotationOptions = [
