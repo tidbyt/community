@@ -211,10 +211,7 @@ def createNoTrainDisplayRow(direction_text):
                         color = BLUE,
                         font = FONT,
                     ),
-                    render.Text(
-                        width = 64,
-                        child = render.Text("No train info.", color = RED),
-                    ),
+                    render.Text("No Trains", color = RED)
                 ],
             ),
             renderDivider(),
