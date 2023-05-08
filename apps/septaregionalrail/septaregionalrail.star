@@ -118,7 +118,7 @@ def regional_rail_station_options():
         "Overbrook",
         "Paoli",
         "Penllyn",
-        "Penn Medicine",
+        "Penn Medicine Station",
         "Pennbrook",
         "Philmont",
         "Primos",
@@ -183,8 +183,8 @@ def regional_rail_station_options():
 API_BASE = "http://www3.septa.org/api"
 API_ROUTES = API_BASE + "/Routes"
 API_SCHEDULE = API_BASE + "/Arrivals"
-DEFAULT_STATION = "30th Street Station"
-DEFAULT_DIRECTION = "N"
+DEFAULT_STATION = "Wayne Junction"
+DEFAULT_DIRECTION = "S"
 
 def call_schedule_api(direction, station):
     cache_string = cache.get(direction + "_" + station + "_" + "schedule_api_response")
@@ -207,7 +207,11 @@ def get_schedule(direction, station):
     list_of_departures = []
 
     for i in schedule:
-        parsed_departure = time.parse_time(i["sched_time"], "2006-01-02 15:04:05.000", "America/New_York").format("3:04p")
+        parsed_departure = time.parse_time(i["sched_time"], "2006-01-02 15:04:05.000", "America/New_York").format("3:04")
+        if int(time.parse_time(i["sched_time"], "2006-01-02 15:04:05.000", "America/New_York").format("15")) < 12:
+            parsed_departure = parsed_departure + "a"
+        else:
+            parsed_departure = parsed_departure + "p"
 
         if len(list_of_departures) % 2 == 1:
             background = "#222"
