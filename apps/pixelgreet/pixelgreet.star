@@ -53,6 +53,7 @@ def main(config):
         ],
     )
     return render.Root(
+        show_full_animation = True,
         child = render.Box(
             contents,
         ),
