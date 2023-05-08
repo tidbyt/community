@@ -21,7 +21,6 @@ iVBORw0KGgoAAAANSUhEUgAAAgAAAAIACAYAAAD0eNT6AAAABHNCSVQICAgIfAhkiAAAAAlwSFlzAAAN
 """
 BUS_ANIMATION_DURATION = 200
 
-
 def main(config):
     is_key_set = "key" in config
     is_stop_set = "stop" in config
@@ -39,32 +38,33 @@ def main(config):
         visits = delivery["MonitoredStopVisit"]
 
     return render.Root(
-        child=render.Column(
-            children=[
+        child = render.Column(
+            children = [
                 render.Box(
-                    width=64,
-                    height=11,
-                    child=render.Text("Next B69", font="6x13"),
+                    width = 64,
+                    height = 11,
+                    child = render.Text("Next B69", font = "6x13"),
                 ),
                 render.Box(
-                    width=64,
-                    height=24,
-                    child=render.Stack(
-                        children=[
+                    width = 64,
+                    height = 24,
+                    child = render.Stack(
+                        children = [
                             render.Column(
-                                children=get_wait_time_rows(visits, is_key_set, is_stop_set, response_was_error)),
+                                children = get_wait_time_rows(visits, is_key_set, is_stop_set, response_was_error),
+                            ),
                             animation.Transformation(
-                                child=render.Image(src=base64.decode(BUS_IMAGE_BASE_64), width=26),
-                                duration=BUS_ANIMATION_DURATION,
-                                delay=60,
-                                keyframes=[
+                                child = render.Image(src = base64.decode(BUS_IMAGE_BASE_64), width = 26),
+                                duration = BUS_ANIMATION_DURATION,
+                                delay = 60,
+                                keyframes = [
                                     animation.Keyframe(
-                                        percentage=0.0,
-                                        transforms=[animation.Translate(-64, 0)],
+                                        percentage = 0.0,
+                                        transforms = [animation.Translate(-64, 0)],
                                     ),
                                     animation.Keyframe(
-                                        percentage=1.0,
-                                        transforms=[animation.Translate(64, 0)],
+                                        percentage = 1.0,
+                                        transforms = [animation.Translate(64, 0)],
                                     ),
                                 ],
                             ),
@@ -75,13 +75,11 @@ def main(config):
         ),
     )
 
-
 def get_url(config):
     key = config.get("key")
     stop = config.str("stop")
 
-    return BUSTIME_URL.format(key=key, stop=stop)
-
+    return BUSTIME_URL.format(key = key, stop = stop)
 
 def get_wait_time_rows(visits, is_key_set, is_stop_set, response_was_error):
     result = list()
@@ -111,100 +109,94 @@ def get_wait_time_rows(visits, is_key_set, is_stop_set, response_was_error):
 
     return result
 
-
 def get_minutes_row(arrival):
     diff = arrival - time.now()
     s = str(int(math.round(diff.minutes)))
 
     return render.Row(
-        children=[render.Text("{} minutes".format(s), height=9, color="#ff9900")],
-        main_align="center",
-        expanded=True,
+        children = [render.Text("{} minutes".format(s), height = 9, color = "#ff9900")],
+        main_align = "center",
+        expanded = True,
     )
-
 
 def get_no_key_set_row():
     return render.Column(
-        children=[
+        children = [
             get_unknown_time_row(),
-            get_error_text_row("No API key set.")
+            get_error_text_row("No API key set."),
         ],
-        main_align="center",
-        cross_align="center",
+        main_align = "center",
+        cross_align = "center",
     )
-
 
 def get_no_stop_set_row():
     return render.Column(
-        children=[
+        children = [
             get_unknown_time_row(),
-            get_error_text_row("No stop set.")
+            get_error_text_row("No stop set."),
         ],
-        main_align="center",
-        cross_align="center",
+        main_align = "center",
+        cross_align = "center",
     )
-
 
 def get_api_error_row():
     return render.Column(
-        children=[
+        children = [
             get_unknown_time_row(),
-            get_error_text_row("API error.")
+            get_error_text_row("API error."),
         ],
-        main_align="center",
-        cross_align="center",
+        main_align = "center",
+        cross_align = "center",
     )
-
 
 def get_no_visits_returned():
     return render.Column(
-        children=[
+        children = [
             get_unknown_time_row(),
             get_error_text_row("No ETA :("),
         ],
-        main_align="center",
+        main_align = "center",
     )
-
 
 def get_error_text_row(text):
     return render.Row(
-        children=[
+        children = [
             render.Text(
                 text,
-                height=9,
-                color="#ff9900"
-            )
+                height = 9,
+                color = "#ff9900",
+            ),
         ],
-        expanded=True,
-        main_align="center",
-        cross_align="center",
+        expanded = True,
+        main_align = "center",
+        cross_align = "center",
     )
 
-
 def get_unknown_time_row():
-    return render.Row(children=[render.Text("?? minutes", height=9, color="#ff9900")], main_align="center",
-                      expanded=True)
-
+    return render.Row(
+        children = [render.Text("?? minutes", height = 9, color = "#ff9900")],
+        main_align = "center",
+        expanded = True,
+    )
 
 def get_expected_arrival(visit):
     return visit["MonitoredVehicleJourney"]["MonitoredCall"].get("ExpectedArrivalTime", None)
 
-
 def get_schema():
     return schema.Schema(
-        version="1",
-        fields=[
+        version = "1",
+        fields = [
             schema.Text(
-                id="key",
-                name="MTA BusTime API Key",
-                desc="MTA BusTime Developer API Key. Request at: https://register.developer.obanyc.com/",
-                icon="key",
+                id = "key",
+                name = "MTA BusTime API Key",
+                desc = "MTA BusTime Developer API Key. Request at: https://register.developer.obanyc.com/",
+                icon = "key",
             ),
             schema.Text(
-                id="stop",
-                name="MTA Bus Time Stop ID",
-                desc="Used to identify which bus stop to display. Look it up at: https://bustime.mta.info/m/routes/",
-                icon="bus",
+                id = "stop",
+                name = "MTA Bus Time Stop ID",
+                desc = "Used to identify which bus stop to display. Look it up at: https://bustime.mta.info/m/routes/",
+                icon = "bus",
             ),
         ],
     )
