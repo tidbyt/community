@@ -1,7 +1,9 @@
 """
 Applet: MTA Bus
 Summary: MTA bus stop tracker
-Description: Track the arrival time for MTA buses. Requires an MTA Bus Time API key.
+Description: Track the arrival time for MTA buses.
+* Requires an MTA Bus Time API key and MTA bus stop ID. You can request an API key at this URL: https://register.developer.obanyc.com/",
+* You also need to set a bus stop ID. It should be a 6-digit number. Look it up at: https://bustime.mta.info/m/routes/",
 Author: Kevin Eder
 """
 
