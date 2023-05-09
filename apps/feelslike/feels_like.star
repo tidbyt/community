@@ -45,6 +45,7 @@ def main(config):
     shape = config.get("shape", "square")
     location = config.get("location", DEFAULT_LOCATION)
     loc = json.decode(location)
+    print("foo{}{}{}".format(loc["lat"], loc["lng"], API_KEY))
 
     # Safely render without API key or location
     if API_KEY == None:
@@ -53,8 +54,7 @@ def main(config):
         )
 
     url = "https://api.openweathermap.org/data/2.5/weather?lat={LAT}&lon={LON}&units=imperial&appid={API_KEY}".format(LAT = loc["lat"], LON = loc["lng"], API_KEY = API_KEY)
-
-    weather_cached = cache.get("feels_like_weather_cache_{}".format(API_KEY))
+    weather_cached = cache.get("feels_like_weather_cache_{}_{}_{}".format(API_KEY, loc["lat"], loc["lng"]))
     if weather_cached != None:
         temp, precipitation, wind = [int(i) for i in weather_cached.split(",")]
     else:
@@ -71,7 +71,7 @@ def main(config):
             speed = 3
         else:
             speed = wind
-        cache.set("feels_like_weather_cache_{}".format(API_KEY), "{},{},{}".format(int(temp), int(precipitation), int(wind)), ttl_seconds = 3600)
+        cache.set("feels_like_weather_cache_{}_{}_{}".format(API_KEY, loc["lat"], loc["lng"]), "{},{},{}".format(int(temp), int(precipitation), int(wind)), ttl_seconds = 3600)
 
     return render.Root(
         child = render_rows(set_colors(math.floor(temp)), size, shape, speed, precipitation, orientation),
