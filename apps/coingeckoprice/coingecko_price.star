@@ -280,7 +280,12 @@ def format_price_string(currency_price, currency_symbol, currency_symbol_setting
     currency_price_integer = str(int(math.round(float(currency_price))))
 
     # Trim and format price
-    if len(currency_price_integer) <= 1:
+    if currency_price < 0.001:
+        # values is a small decimal, display in sci notation
+        #print("displaying in sci notation")
+        currency_price = str(currency_price)
+
+    elif len(currency_price_integer) <= 1:
         currency_price = str(int(math.round(currency_price * 1000)))
         if len(currency_price) < 4:
             currency_price = "0" + currency_price
