@@ -210,3 +210,4 @@ def main(config):
             cache.set(librenms_url + '_alerting_devices', alerting_devices, ttl_seconds = CACHE_TTL_SECONDS)
 
         return render_output(len(alerts), alerting_devices)
+
