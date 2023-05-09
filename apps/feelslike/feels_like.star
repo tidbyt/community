@@ -12,6 +12,7 @@ load("math.star", "math")
 load("random.star", "random")
 load("render.star", "render")
 load("schema.star", "schema")
+load("time.star", "time")
 
 MAX_COLOR_VALUE = 255
 MAX_ROWS_S = 32
@@ -36,6 +37,7 @@ DEFAULT_LOCATION = """
 """
 
 def main(config):
+    random.seed(time.now().unix // 30)
     API_KEY = config.get("api_key", DEFAULT_API)
     speed = DEFAULT_SPEED
     orientation = config.get("orientation", DEFAULT_ORIENTATION)
