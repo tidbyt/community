@@ -189,8 +189,8 @@ def main(config):
         return render_output(0)
 
     else:  # Number of alerts is > 1
-        alert_hash_cached = cache.get(librenms_url + '_alert_hash')
-        alerting_devices_cached = cache.get(librenms_url + '_alerting_devices')
+        alert_hash_cached = cache.get(librenms_url + "_alert_hash")
+        alerting_devices_cached = cache.get(librenms_url + "_alerting_devices")
 
         # See if the alert data has already been cached before fetching device info
         if (alert_hash_cached != None) and (alerting_devices_cached != None):
@@ -201,13 +201,12 @@ def main(config):
             else:
                 # Hash of cached data does not match HTTP response hash. Calling LibreNMS API.
                 alerting_devices = get_alerting_devices(librenms_url, headers, alerts)
-                cache.set(librenms_url + '_alert_hash', hash.sha1(r_alerts.body()), ttl_seconds = CACHE_TTL_SECONDS)
-                cache.set(librenms_url + '_alerting_devices', alerting_devices, ttl_seconds = CACHE_TTL_SECONDS)
+                cache.set(librenms_url + "_alert_hash", hash.sha1(r_alerts.body()), ttl_seconds = CACHE_TTL_SECONDS)
+                cache.set(librenms_url + "_alerting_devices", alerting_devices, ttl_seconds = CACHE_TTL_SECONDS)
         else:
             # Cache miss. Calling LibreNMS API.
             alerting_devices = get_alerting_devices(librenms_url, headers, alerts)
-            cache.set(librenms_url + '_alert_hash', hash.sha1(r_alerts.body()), ttl_seconds = CACHE_TTL_SECONDS)
-            cache.set(librenms_url + '_alerting_devices', alerting_devices, ttl_seconds = CACHE_TTL_SECONDS)
+            cache.set(librenms_url + "_alert_hash", hash.sha1(r_alerts.body()), ttl_seconds = CACHE_TTL_SECONDS)
+            cache.set(librenms_url + "_alerting_devices", alerting_devices, ttl_seconds = CACHE_TTL_SECONDS)
 
         return render_output(len(alerts), alerting_devices)
-
