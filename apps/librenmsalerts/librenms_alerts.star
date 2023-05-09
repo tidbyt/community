@@ -54,7 +54,7 @@ def get_schema():
         ],
     )
 
-# Print the logo centered on a row by iteself
+# Print the logo centered on a row by itself
 def render_logo():
     return render.Row(
         main_align = "center",
