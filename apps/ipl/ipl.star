@@ -345,8 +345,8 @@ def main(config):
 
             # only 1 innings got started, eg washout
         else:
-            Team1_Abbr = Match_JSON["scorecardSummary"]["innings"][0]["team"]["name"]
-            Team2_Abbr = Match_JSON["match"]["teams"][1]["team"]["name"]
+            Team1_Abbr = Match_JSON["scorecardSummary"]["innings"][0]["team"]["abbreviation"]
+            Team2_Abbr = Match_JSON["match"]["teams"][1]["team"]["abbreviation"]
             Team1_ID = Match_JSON["match"]["teams"][0]["team"]["id"]
             Team2_ID = Match_JSON["match"]["teams"][1]["team"]["id"]
 
