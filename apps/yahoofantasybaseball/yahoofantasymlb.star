@@ -17,8 +17,8 @@ load("xpath.star", "xpath")
 
 # Constants for production repo
 TIDBYT_OAUTH_CALLBACK_URL = "https%3A%2F%2Fappauth.tidbyt.com%2Fyahoofantasymlb"  # registered https://appauth.tidbyt.com/yahoofantasymlb as redirect_uri at Yahoo
-YAHOO_CLIENT_ID = secret.decrypt("AV6+xWcESOzU0+vxd/pD9p6eJsSh+fkgPTLUMzJbnS00CHWXmoKWQbvmTpVIUUE3Y/J2LeplFDCPh3zEwpX0XEyHZubCkNlgu2CrTnGcGYRv4H7xOtS+BTwiEQUu40mgSarmMkxR/uo2BetzoVEctK3SkbEdVW5mZBJTPjoHZwfwPFhzXMyYKqO8EejDPYOg48beUv3MnNRx+nrtbtWf8Ip8Vj0riv9lceqgbGT5KiM5AgBNLSPHKyFwDLnj2R/3dhqyVBTR") or ""
-YAHOO_CLIENT_SECRET = secret.decrypt("AV6+xWcEUbzKOHZ63pL4mNLO8MGfmkVomrRiBERdm2WxRiPjMdymwN9lROH88N5pCfo5ZSUiNlOt9J3WeM9dUe1kGTPT6AykhXEXOXPjjqhVjKBGy3UOBDeYll33K6XxYiS06WP5Au6EBK6bc3gQd6+Y1h+zZyYL4NTzh2R4U/y1Xkj7sx/0wWQEmfhBww==") or ""
+YAHOO_CLIENT_ID = secret.decrypt("AV6+xWcEWMDT2jcxrD35wOfTQxWvAHKAxFxzai1GSmDkB/h8jchP1n+cCcESoBAHJUl1JBye3kuoEn6UwKzBFMBOohXSO8NvwASENm03L0Kj+wY88Nj4a4WEU+2qEIbMgw89CAGElNxcKNS4n4uKs3nYtqSnQj7X0NdtLYmX21ICNuaPpAzbO53vpnYFM3YypK0ZkEa2QN5jButjapgz3znET09eUF0/F+XhtbXDFCCmTtSlpojga86zPut3dwj1mzEdRycg") or ""
+YAHOO_CLIENT_SECRET = secret.decrypt("AV6+xWcEJ6YJpwBZ4iTBKHweMQHJENU/9ZnBsKHYMeCFoo3vjq0NwB0nOnFqFSSZNKJfxo+KUIPxIcqO23MpxhIcp5Zb/XYHqz1YCa/a1Q9uke9iZgm7IT/R1RBSo0LZdJDQZtC+5WCklkCMNFMTAnk9frRstdIzCA13+CF+n89sPOYMwGFEJJW1qMqbOg==") or ""
 
 # Common Constants
 YAHOO_CLIENT_ID_AND_SECRET_BASE_64 = base64.encode(YAHOO_CLIENT_ID + ":" + YAHOO_CLIENT_SECRET)
