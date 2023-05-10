@@ -1,7 +1,7 @@
 id: fortnite-br-news
 name: Fortnite BR News
 summary: Display Fortnite BR News
-desc: See items currently featured in the Fortnite shop.
+desc: See latest Fortnite BR News
 author: Brian989-Source
 fileName: fortnite_br_news.star
 packageName: fortnitebrnews
