@@ -3,6 +3,6 @@ id: slippistats
 name: SlippiStats
 summary: Displays stats from SSBM
 desc: Takes stats from SSBM replays uploaded to chartslp.com and shows you stats about your play.
-author: trbarron
+author: Tyler Barron
 fileName: slippistats.star
 packageName: slippistats
