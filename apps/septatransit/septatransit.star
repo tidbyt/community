@@ -238,7 +238,11 @@ def main(config):
         banner_text = user_text
 
     if config.bool("show_time"):
-        banner_text = now.format("3:04p") + " " + banner_text
+        if int(now.format("15")) < 12:
+            meridian = "a"
+        else:
+            meridian = "p"
+        banner_text = now.format("3:04") + meridian + " " + banner_text
         if now.format("3") in ["10", "11", "12"]:
             left_pad = 0
 
