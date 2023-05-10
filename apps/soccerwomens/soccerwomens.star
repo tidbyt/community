@@ -12,7 +12,7 @@ load("render.star", "render")
 load("schema.star", "schema")
 load("time.star", "time")
 
-VERSION = 23050
+VERSION = 23111
 
 # thanks to @jesushairdo for the new option to be able to show home or away team first.  Let's be more international :-)
 
@@ -207,8 +207,11 @@ def main(config):
                         gameNoteArray = gameHeadline.split(" - ")
                         gameTime = str(gameNoteArray[1]) + " / " + gameTime
                 if gameName == "STATUS_POSTPONED":
-                    homeScore = ""
-                    awayScore = ""
+                    scoreFont = "CG-pixel-3x5-mono"
+
+                    #if game is PPD - show records instead of blanks
+                    homeScore = competition["competitors"][0]["records"][0]["summary"]
+                    awayScore = competition["competitors"][1]["records"][0]["summary"]
                     gameTime = "Postponed"
                 else:
                     homeScore = competition["competitors"][0]["score"]

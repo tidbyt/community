@@ -18,9 +18,8 @@ v1.2
 - Show 'need' not 'trail' in the 4th innings
 - Only use mobileName if it exists
 
-Future ideas
-- Remove "Rem Overs" if all out
-- Update Description?
+v1.3
+- Fixed bug regarding API URL which now requires Series ID also
 """
 
 load("cache.star", "cache")
@@ -54,6 +53,7 @@ def main(config):
     # Initialising variables to satisfy lint
     Playing = False
     MatchID = 0
+    SeriesID = 0
     LastOut_Name = ""
     LastOut_Runs = 0
     Status2 = ""
@@ -71,11 +71,13 @@ def main(config):
         if Matches[x]["teams"][0]["team"]["id"] == SelectedTeam:
             if Matches[x]["format"] == "TEST":
                 MatchID = Matches[x]["objectId"]
+                SeriesID = Matches[x]["series"]["objectId"]
                 Playing = True
                 break
         elif Matches[x]["teams"][1]["team"]["id"] == SelectedTeam:
             if Matches[x]["format"] == "TEST":
                 MatchID = Matches[x]["objectId"]
+                SeriesID = Matches[x]["series"]["objectId"]
                 Playing = True
                 break
         else:
@@ -83,7 +85,8 @@ def main(config):
 
     if Playing == True:
         MatchID = str(MatchID)
-        Match_URL = "https://hs-consumer-api.espncricinfo.com/v1/pages/match/details?lang=en&seriesId=" + MatchID + "&matchId=" + MatchID + "&latest=true"
+        SeriesID = str(SeriesID)
+        Match_URL = "https://hs-consumer-api.espncricinfo.com/v1/pages/match/details?lang=en&seriesId=" + SeriesID + "&matchId=" + MatchID + "&latest=true"
         #print(Match_URL)
 
         # cache specific match data for 1 minute
@@ -128,10 +131,6 @@ def main(config):
             # if 4th innings of the match, show what they need to win
             if Innings == 3:
                 Lead = " need " + Lead_or_Trail
-
-            # How many overs bowled in this innings
-            #Overs = Match_JSON["scorecard"]["innings"][Innings]["overs"]
-            #Overs = str(Overs)
 
             # How many overs left in the day
             RemOvers = Match_JSON["match"]["liveOversPending"]
