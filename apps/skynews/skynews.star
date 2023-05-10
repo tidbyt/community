@@ -22,7 +22,7 @@ def main():
         finalheadline = str(headline_cached)
         finalblurb = str(blurb_cached)
     else:
-        GET_SKYNEWS = http.get("https://api.factmaven.com/xml-to-json/?xml=https://feeds.skynews.com/feeds/rss/home.xml")
+        GET_SKYNEWS = http.get("http://www.mikelee.me.uk/stuff/xml-to-json/?xml=https://feeds.skynews.com/feeds/rss/home.xml")
         if GET_SKYNEWS.status_code != 200:
             return connectionError()
         GET_HEADLINE = GET_SKYNEWS.json()["rss"]["channel"]["item"][0]["title"]
