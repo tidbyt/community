@@ -6,7 +6,7 @@ Author: rs7q5
 """
 #cost_calculator.star
 #Created 20230403 RIS
-#Last Modified 20230509 RIS
+#Last Modified 20230510 RIS
 
 load("humanize.star", "humanize")
 load("math.star", "math")
@@ -34,7 +34,7 @@ def main(config):
     if multiplier != 1:
         rate_str += " (x%s)" % humanize.float("#.##", multiplier)  #add multiplier to text
 
-    cost = duration["value"] * rate
+    cost = duration["value"] * rate * multiplier
     cost_str = "$" + humanize.float("#.##", cost)
 
     #create frame
