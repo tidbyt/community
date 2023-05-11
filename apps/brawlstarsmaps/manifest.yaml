@@ -1,0 +1,8 @@
+---
+id: brawlstars-maps
+name: BrawlStars Maps
+summary: Current Brawl Stars maps
+desc: Shows a random map from the current maps available in the game Brawl Stars Powered by Brawlify.
+author: Lucas Farah
+fileName: brawlstars_maps.star
+packageName: brawlstarsmaps

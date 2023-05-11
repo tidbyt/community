@@ -61,7 +61,7 @@ DEFAULT_REALM = "firetree"
 DEFAULT_REGION = "us"
 
 CURRENT_EXPANSION = "Dragonflight"
-CURRENT_INSTANCE = "Vault of the Incarnates"
+CURRENT_INSTANCE = "Aberrus, the Shadowed Crucible"
 
 def main(config):
     client_id = secret.decrypt(

@@ -29,13 +29,13 @@ Inbound (towards NYC) trains on the MOBO line listed, since they only go in that
 Author: jason-j-hunt
 """
 
-# Fixed a bug where trains (amtrack) with > 4 letter names would not display their train number.
+# Fixed a bug where trains (amtrak) with > 4 letter names would not display their train number.
 # Fixed a bug (which I made worse) where if there were less than 2 trains to display the app would crash.
 
 # Refrences on train numbering
 #https://docs.google.com/spreadsheets/d/1p_uvF6KlDS0QpfI-3pmvhCOOfE5y6rtm0TyBfauuDAs/edit#gid=0
 #https://www.quora.com/How-can-you-use-Amtrak-train-numbers-to-decipher-the-direction-or-route-that-a-train-is-taking
-#Even numbered trains are inbound direction(towards NYC, or Atlantic City, or northbound/eastbound AMTRACK)
+#Even numbered trains are inbound direction(towards NYC, or Atlantic City, or northbound/eastbound AMTRAK)
 #odd numbered trans are outbound
 
 load("cache.star", "cache")
@@ -61,7 +61,7 @@ TIMEZONE = "America/New_York"
 #DISPLAYS FIRST 3 Departures by default
 DISPLAY_COUNT = 2
 
-#If a line doesnt have a mapping - we use "AMTK" (amtrack)
+#If a line doesnt have a mapping - we use "AMTK" (amtrak)
 
 # Extended the COLOR dictionary to include information needed by the Schema.
 # The icon's were chosen from the limited icon set to be what I saw in most cases
@@ -82,7 +82,7 @@ LINE_DICT = {
     ),
     "AMTK": struct(
         color = "#ffca18",
-        name = "Amtrack",
+        name = "Amtrak",
         icon = "rocket",
         default = "all",
         desc = "AMTK",
@@ -199,7 +199,7 @@ def render_departure_list(departures, lineoptions, station):
     #print(" departures length = {}".format(len(departures)))
 
     for d in departures:
-        # clean up train number to only be digits - needed for amtrack
+        # clean up train number to only be digits - needed for amtrak
         train_number_s = d.train_number
         train_number_t = re.sub("\\D", "", train_number_s)
         train_number = int(train_number_t)
@@ -281,7 +281,7 @@ def render_departure_row(departure):
     for a single departure.
     """
 
-    #If we cant find the line - we will use Amtrack's settings and options instead
+    #If we cant find the line - we will use Amtrak's settings and options instead
     default_entry = LINE_DICT.get("AMTK")
     line_entry = LINE_DICT.get(departure.service_line, default_entry)
     use_color = line_entry.color

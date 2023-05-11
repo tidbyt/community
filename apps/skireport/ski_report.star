@@ -211,7 +211,7 @@ def titleRow(resort):
     return render.Row(
         children = [
             render.Image(src = MOUNTAIN_ICON),
-            render.Marquee(render.Text(resort, font = "6x13", color = "#85c1e9"), width = 48),
+            render.Marquee(render.Text(resort, font = "6x13", color = "#85c1e9"), width = 48, align = "center"),
         ],
     )
 

@@ -6,7 +6,7 @@ Author: rs7q5
 """
 #cost_calculator.star
 #Created 20230403 RIS
-#Last Modified 20230403 RIS
+#Last Modified 20230509 RIS
 
 load("humanize.star", "humanize")
 load("math.star", "math")
@@ -17,21 +17,28 @@ load("time.star", "time")
 DEFAULT_TIMEZONE = "America/New_York"
 DEFAULT_TITLE = "Title"
 DEFAULT_RATE = "0.00"
+DEFAULT_MULTIPLIER = "1.00"
+
 DEFAULT_FONT = "CG-pixel-3x5-mono"
-DEFAULT_COLOR = "#008000"
+DEFAULT_TITLE_COLOR = "#008000"
 
 def main(config):
     duration = get_duration(config)
 
     #calcuate cost
     rate = float(config.str("rate", DEFAULT_RATE))  #duration is per hour
-    rate_str = "$" + humanize.float("#.##", rate)
+    multiplier = float(config.str("multiplier", DEFAULT_MULTIPLIER))
+
+    rate_str = "$" + humanize.float("#.##", rate * multiplier)
+
+    if multiplier != 1:
+        rate_str += " (x%s)" % humanize.float("#.##", multiplier)  #add multiplier to text
 
     cost = duration["value"] * rate
     cost_str = "$" + humanize.float("#.##", cost)
 
     #create frame
-    title_txt = render.Text(config.str("title", DEFAULT_TITLE), font = "tb-8", color = config.get("title_color", DEFAULT_COLOR))
+    title_txt = render.Text(config.str("title", DEFAULT_TITLE), font = "tb-8", color = config.get("title_color", DEFAULT_TITLE_COLOR))
 
     #create labels and values
     label_vec = []
@@ -40,7 +47,7 @@ def main(config):
 
     value_vec = []
     for value in [duration["text"], rate_str, cost_str]:
-        value_vec.append(render.Text(value, font = DEFAULT_FONT))
+        value_vec.append(render.Marquee(width = 40, align = "end", child = render.Text(value, font = DEFAULT_FONT)))
 
     final_frame = render.Column(
         main_align = "space_between",
@@ -79,7 +86,14 @@ def get_schema():
                 name = "Hourly rate",
                 desc = "The rate to use for calculating the cost.",
                 icon = "dollarSign",
-                default = "0.00",
+                default = DEFAULT_RATE,
+            ),
+            schema.Text(
+                id = "multiplier",
+                name = "Rate multiplier",
+                desc = "Add a multiplier to the rate.",
+                icon = "xmark",
+                default = DEFAULT_MULTIPLIER,
             ),
             schema.Text(
                 id = "title",
@@ -93,7 +107,7 @@ def get_schema():
                 name = "Title Color",
                 desc = "The color of the title text.",
                 icon = "brush",
-                default = "#008000",
+                default = DEFAULT_TITLE_COLOR,
             ),
         ],
     )

@@ -1,0 +1,8 @@
+---
+id: github-status
+name: GitHub Status
+summary: Monitor GitHub status
+desc: Periodically call the GitHub status page and display any outages that occur.
+author: hross
+fileName: github_status.star
+packageName: githubstatus

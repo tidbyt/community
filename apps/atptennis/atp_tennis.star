@@ -15,6 +15,9 @@ v1.2
 Show city name instead of official tournament title once the tournament starts, except for Slams
 Added handling for walkovers
 Extended player surname field by 2 chars for Best of 3 sets tournaments
+
+v1.3
+Idea - in progress match > 36 hrs, dont display
 """
 
 load("cache.star", "cache")
@@ -44,7 +47,7 @@ def main(config):
     CompletedMatchList = []
     InProgress = 0
 
-    TestID = "713-2023"
+    TestID = "338-2023"
     SelectedTourneyID = config.get("TournamentList", TestID)
     ShowCompleted = config.get("CompletedOn", "true")
     Number_Events = len(ATP_JSON["events"])
@@ -61,10 +64,16 @@ def main(config):
             if len(ATP_JSON["events"][x]) == 10:
                 for y in range(0, len(ATP_JSON["events"][x]["competitions"]), 1):
                     # if the match is "In Progress" and its a singles match, lets add it to the list of in progress matches
+                    # And the "In Progress" match started < 24 hrs ago , sometimes the data feed will still show matches as "In Progress" after they have completed
+                    # Adding a 24hr limit will remove them out of the list
                     if ATP_JSON["events"][x]["competitions"][y]["status"]["type"]["description"] == "In Progress":
                         if ATP_JSON["events"][x]["competitions"][y]["competitors"][0]["type"] == "athlete":
-                            InProgressMatchList.append(y)
-                            InProgress = InProgress + 1
+                            MatchTime = ATP_JSON["events"][EventIndex]["competitions"][y]["date"]
+                            MatchTime = time.parse_time(MatchTime, format = "2006-01-02T15:04Z").in_location(timezone)
+                            diff = MatchTime - now
+                            if diff.hours > -24:
+                                InProgressMatchList.append(y)
+                                InProgress = InProgress + 1
             else:
                 Display1.extend([
                     render.Column(
@@ -201,6 +210,7 @@ def getLiveScores(SelectedTourneyID, EventIndex, InProgressMatchList, JSON):
             Player1_Name = JSON["events"][EventIndex]["competitions"][x]["competitors"][0]["athlete"]["shortName"]
             Player2_Name = JSON["events"][EventIndex]["competitions"][x]["competitors"][1]["athlete"]["shortName"]
 
+            # print(Player1_Name)
             Number_Sets = len(JSON["events"][EventIndex]["competitions"][x]["competitors"][0]["linescores"])
             Player1_Sets = ""
             Player2_Sets = ""
