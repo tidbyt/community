@@ -5,7 +5,6 @@ Description: Display real-time precipitation radar for a location. Supports rain
 Author: Felix Bruns
 """
 
-load("cache.star", "cache")
 load("encoding/json.star", "json")
 load("http.star", "http")
 load("humanize.star", "humanize")
@@ -310,22 +309,14 @@ def fetch_image(frame, opts, is_from_past):
         A string of binary image data.
     """
     url = create_image_url(frame, opts)
+    ttl_seconds = IMAGE_CACHE_PAST_TTL_SECONDS if is_from_past else IMAGE_CACHE_FORECAST_TTL_SECONDS
 
-    data = cache.get(url)
-    if data != None:
-        return data
-
-    response = http.get(url = url)
+    response = http.get(url = url, ttl_seconds = ttl_seconds)
     if response.status_code != 200:
         print("Image request failed with status %d" % response.status_code)
         return None
 
-    data = response.body()
-
-    ttl_seconds = IMAGE_CACHE_PAST_TTL_SECONDS if is_from_past else IMAGE_CACHE_FORECAST_TTL_SECONDS
-    cache.set(url, data, ttl_seconds = ttl_seconds)
-
-    return data
+    return response.body()
 
 def fetch_images(radar, opts):
     images_past = [(frame, fetch_image(frame, opts, True)) for frame in radar["past"]]
@@ -351,7 +342,7 @@ def main(config):
     Returns:
         A definition of what to render.
     """
-    response = http.get(url = WEATHER_MAPS_URL)
+    response = http.get(url = WEATHER_MAPS_URL, ttl_seconds = 30)
 
     if response.status_code != 200:
         print("API request failed with status %d" % response.status_code)
