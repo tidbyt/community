@@ -45,7 +45,6 @@ def main(config):
     shape = config.get("shape", "square")
     location = config.get("location", DEFAULT_LOCATION)
     loc = json.decode(location)
-    print("foo{}{}{}".format(loc["lat"], loc["lng"], API_KEY))
 
     # Safely render without API key or location
     if API_KEY == None:
@@ -184,7 +183,9 @@ def render_node(red, green, blue, size, shape, speed, precipitation, orientation
             width_mod = 2
             if orientation == "horizontal":
                 height_mod = 1
+                width_mod = 2
             elif orientation == "vertical":
+                height_mod = 2
                 width_mod = 1
             node = render.Box(height = diameter * height_mod, width = diameter * width_mod, color = color)
         frames.append(node)
