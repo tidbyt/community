@@ -11,7 +11,7 @@ load("render.star", "render")
 FORTNITE_NEWS_URL = "https://fortnite-api.com/v2/news/br"
 
 def main():
-    rep = http.get(FORTNITE_NEWS_URL)
+    rep = http.get(FORTNITE_NEWS_URL, ttl_seconds=1200)
     if rep.status_code != 200:
         fail("Fortnite API request failed with status %d", rep.status_code)
 
