@@ -20,7 +20,7 @@ def main():
         "https://photosskiloveland.com/basin/single/Basin00001.jpg",
     ]
 
-    #pulling images from here w/ a time stamp appended https://skiloveland.com/webcams/
+    #pulling images from here with a time stamp appended https://skiloveland.com/webcams/
 
     rand = random.number(0, 4)
     cache_key = str(rand)
