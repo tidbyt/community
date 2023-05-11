@@ -482,7 +482,7 @@ TkSuQmCC
                 icon = "arrowsRotate",
                 default = False,
             ),
-             schema.Toggle(
+            schema.Toggle(
                 id = "hide_app",
                 name = "Hide App",
                 desc = "Hide this app so that the custom status is not shown.",
