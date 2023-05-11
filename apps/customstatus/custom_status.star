@@ -29,6 +29,9 @@ def main(config):
     message = config.get("message", DEFAULT_MESSAGE)
     animations = config.bool("animation", False)
 
+    if config.bool("hide_app", False):  ## hide app
+        return []
+
     if not animations:
         return render.Root(
             child = render.Row(
@@ -477,6 +480,13 @@ TkSuQmCC
                 name = "Show Animations",
                 desc = "Turn on entry and exit animations.",
                 icon = "arrowsRotate",
+                default = False,
+            ),
+             schema.Toggle(
+                id = "hide_app",
+                name = "Hide App",
+                desc = "Hide this app so that the custom status is not shown.",
+                icon = "eyeSlash",
                 default = False,
             ),
         ],
