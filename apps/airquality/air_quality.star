@@ -53,6 +53,7 @@ def main(config):
     location_name = config.str("location_name", DEFAULT_LOCATION_NAME)
     location_cfg = config.str("location", DEFAULT_LOCATION)
     location = json.decode(location_cfg)
+    timezone = location["timezone"]
 
     # try to load from cache
     cache_key = "%s#%s" % (location["lat"], location["lng"])
@@ -95,11 +96,11 @@ def main(config):
     # retrieve forecasts for 6 and 12 hours
     aqi6 = data["list"][6]["main"]["aqi"] or 6
     aqi6_color = get_color_for_aqi(aqi6, config)
-    aqi6_hour = get_formatted_hour(use24h, data["list"][6]["dt"] or (time.now().unix + 21600))
+    aqi6_hour = get_formatted_hour(use24h, data["list"][6]["dt"] or (time.now().unix + 21600), timezone)
 
     aqi12 = data["list"][12]["main"]["aqi"] or 6
     aqi12_color = get_color_for_aqi(aqi12, config)
-    aqi12_hour = get_formatted_hour(use24h, data["list"][12]["dt"] or (time.now().unix + 43200))
+    aqi12_hour = get_formatted_hour(use24h, data["list"][12]["dt"] or (time.now().unix + 43200), timezone)
 
     return render.Root(
         child = render.Column(
@@ -355,7 +356,7 @@ def get_text_for_aqi(aqi, config):
         {"short": "F", "long": "Fair"},
         {"short": "M", "long": "Moderate"},
         {"short": "P", "long": "Poor"},
-        {"short": "VP", " long": "Very Poor"},
+        {"short": "V", "long": "Very Poor"},
         {"short": "U", "long": "Unknown"},
     ]
 
@@ -367,7 +368,7 @@ def get_text_for_aqi(aqi, config):
     else:
         return descs[safe_aqi]["short"]
 
-def get_formatted_hour(use24h, timestamp):
+def get_formatted_hour(use24h, timestamp, timezone):
     # formats hours based on 12 or 24 format
 
     # default is 12h format
@@ -379,8 +380,11 @@ def get_formatted_hour(use24h, timestamp):
     # create a time object from the timestamp
     time_object = time.from_timestamp(int(timestamp))
 
+    # convert timezone
+    time_in_timezone = time_object.in_location(timezone)
+
     # humanize it using the specified format
-    hour = humanize.time_format(format, time_object)
+    hour = humanize.time_format(format, time_in_timezone)
 
     # if using 24h, append an "h" at the end
     if use24h:

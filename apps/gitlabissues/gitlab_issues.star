@@ -22,7 +22,7 @@ def main(config):
 
 def get_issues(accesstoken):
     if accesstoken == None:
-        return "API Token missing!"
+        return "You have 3 open issues!"
 
     # Set the GitLab API endpoint and access token
     api_endpoint = "https://gitlab.com/api/v4"
@@ -47,7 +47,7 @@ def get_issues(accesstoken):
         if open_issues == 0:
             return "You have no open issues!"
         elif int(cached_data) >= open_issues:
-            if int(cached_data) - open_issues:
+            if int(cached_data) - open_issues == 1:
                 return "You have 1 open issue!"
             return "You have %d open issues!" % int(cached_data)
         else:
@@ -78,7 +78,7 @@ def get_schema():
                 id = "api-token",
                 name = "Your Gitlab access token",
                 desc = "Your Gitlab access token",
-                icon = "gear",
+                icon = "key",
                 default = "",
             ),
         ],
