@@ -8,6 +8,7 @@ Author: Kevin Eder
 """
 
 load("animation.star", "animation")
+load("cache.star", "cache")
 load("encoding/base64.star", "base64")
 load("encoding/json.star", "json")
 load("http.star", "http")
@@ -15,7 +16,6 @@ load("math.star", "math")
 load("render.star", "render")
 load("schema.star", "schema")
 load("time.star", "time")
-load("cache.star", "cache")
 
 VISITS_KEY_PREFIX = "mta_bus_visits_"
 CACHE_TTL_SECONDS = 60
