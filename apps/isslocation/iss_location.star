@@ -12,7 +12,7 @@ load("render.star", "render")
 load("schema.star", "schema")
 load("secret.star", "secret")
 
-API_KEY = "AV6+xWcEQO/K6MiaSgDJhs5rjJnf+PxfBmjn3Fi4PQwnTQys79+cc8xv1Uq/KyLas5eD4WF2QMhirF4xyXl1YYxyKohrcCJCMODXXsX/IUYoC7l4uizvXxqTD4qHAtDSz0mK2DYaKpyRHJDsMFOnMYeB"
+API_KEY = "AV6+xWcExfrFmdSZgVcPLFqUBQK2otOHwKfCq8HR+adWDLOSBURQ6bNwe8tz1BAXs4isHR2VdM+TskXyx4VnkHGr0PoJ9M2TKqJ0s/IGNmDqaPht2Y7ad8by+ITHffuusA6xJ+Y9ZiHrW9EUNiFFq86S"
 API_URL = "http://api.open-notify.org/iss-now.json"
 GEO_URL = "http://api.geonames.org/findNearbyPlaceNameJSON?username="
 OCEAN_URL = "http://api.geonames.org/oceanJSON?username="
