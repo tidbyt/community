@@ -86,7 +86,6 @@ def main(config):
         ),
     )
 
-
 def get_visits_from_api(api_key, stop, cache_key):
     response = http.get(get_url(api_key, stop))
     response_was_error = response.status_code != 200
@@ -98,10 +97,9 @@ def get_visits_from_api(api_key, stop, cache_key):
     visits = delivery["MonitoredStopVisit"] if "MonitoredStopVisit" in delivery else []
 
     encoded_visits = json.encode(visits)
-    cache.set(cache_key, encoded_visits, ttl_seconds=CACHE_TTL_SECONDS)
+    cache.set(cache_key, encoded_visits, ttl_seconds = CACHE_TTL_SECONDS)
 
     return visits, response_was_error
-
 
 def get_visits_from_cache(cache_key):
     cached_val = cache.get(cache_key)
@@ -110,7 +108,6 @@ def get_visits_from_cache(cache_key):
         return json.decode(cached_val)
 
     return None
-
 
 def get_url(key, stop):
     return BUSTIME_URL.format(key = key, stop = stop)
