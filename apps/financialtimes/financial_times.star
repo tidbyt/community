@@ -6,13 +6,12 @@ Description: Gets latest new articles from Financial Time and displays up to 3 a
     for selected edition.
 """
 
-load("cache.star", "cache")
 load("http.star", "http")
 load("render.star", "render")
 load("schema.star", "schema")
 load("xpath.star", "xpath")
 
-VERSION = 23066
+VERSION = 23132
 
 # cache data for 15 minutes
 CACHE_TTL_SECONDS = 900
@@ -145,16 +144,12 @@ def get_schema():
     )
 
 def get_cacheable_data(url, articlecount):
-    key = url
-    data = cache.get(key)
     articles = []
 
-    if data == None:
-        res = http.get(RSS_STUB.format(url))
-        if res.status_code != 200:
-            fail("request to %s failed with status code: %d - %s" % (url, res.status_code, res.body()))
-        data = res.body()
-        cache.set(key, data, ttl_seconds = CACHE_TTL_SECONDS)
+    res = http.get(RSS_STUB.format(url), ttl_seconds = CACHE_TTL_SECONDS)
+    if res.status_code != 200:
+        fail("request to %s failed with status code: %d - %s" % (url, res.status_code, res.body()))
+    data = res.body()
 
     data_xml = xpath.loads(data)
 
