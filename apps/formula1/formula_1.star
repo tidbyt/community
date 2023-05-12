@@ -5,7 +5,6 @@ Description: Shows Time date and location of Next F1 race.
 Author: AmillionAir
 """
 
-load("cache.star", "cache")
 load("encoding/base64.star", "base64")
 load("encoding/json.star", "json")
 load("http.star", "http")
@@ -13,7 +12,7 @@ load("render.star", "render")
 load("schema.star", "schema")
 load("time.star", "time")
 
-VERSION = 23067
+VERSION = 23132
 
 # ############################
 # Mods - jvivona - 2023-02-04
@@ -29,6 +28,8 @@ VERSION = 23067
 # - update Aston Martin logo
 # - change WCC layout
 # - added proper case names for constructors
+# jvivona - 2023-05-12
+# - new cache method
 # ############################
 
 DEFAULTS = {
@@ -344,18 +345,13 @@ def nri_options(f1_option):
         return []
 
 def get_f1_data(url):
-    f1_details = cache.get(url)
+    http_data = http.get(url, ttl_seconds = F1_API_TTL)
+    if http_data.status_code != 200:
+        fail("HTTP request failed with status {} for URL {}".format(http_data.status_code, url))
 
-    if f1_details == None:
-        http_data = http.get(url)
-        if http_data.status_code != 200:
-            fail("HTTP request failed with status {} for URL {}".format(http_data.status_code, url))
-
-        f1_details = http_data.body()
-        if f1_details.startswith("Unable"):
-            fail("API having database issues, check again later URL {}".format(url))
-
-        cache.set(url, f1_details, ttl_seconds = F1_API_TTL)
+    f1_details = http_data.body()
+    if f1_details.startswith("Unable"):
+        fail("API having database issues, check again later URL {}".format(url))
 
     return json.decode(f1_details)["MRData"]
 
