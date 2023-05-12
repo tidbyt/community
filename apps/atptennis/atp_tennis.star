@@ -17,11 +17,12 @@ Added handling for walkovers
 Extended player surname field by 2 chars for Best of 3 sets tournaments
 
 v1.3
-Idea - in progress match > 36 hrs, dont display
+Sometimes the data feed will still show matches as "In Progress" after they have completed. Have added a 24hr limit so that if the start date is > 24 hrs ago then don't list the match
+
+v1.3a
+Updated caching function
 """
 
-load("cache.star", "cache")
-load("encoding/base64.star", "base64")
 load("encoding/json.star", "json")
 load("http.star", "http")
 load("humanize.star", "humanize")
@@ -677,17 +678,9 @@ RotationOptions = [
 ]
 
 def get_cachable_data(url, timeout):
-    key = base64.encode(url)
-    data = cache.get(key)
-    if data != None:
-        # print("Using cached data")
-        return base64.decode(data)
+    res = http.get(url = url, ttl_seconds = timeout)
 
-    res = http.get(url = url)
-
-    #print("Getting new data")
     if res.status_code != 200:
         fail("request to %s failed with status code: %d - %s" % (url, res.status_code, res.body()))
 
-    cache.set(key, base64.encode(res.body()), ttl_seconds = timeout)
     return res.body()

@@ -3,10 +3,11 @@ Applet: F1 Results
 Summary: Qualifying and race results
 Description: Shows F1 qualifying or race results for the latest race. Otherwise the app shows date & time of next race. This is not a live timing app
 Author: M0ntyP
+
+v1.0a
+Updated caching function
 """
 
-load("cache.star", "cache")
-load("encoding/base64.star", "base64")
 load("encoding/json.star", "json")
 load("http.star", "http")
 load("render.star", "render")
@@ -17,7 +18,7 @@ DEFAULT_TIMEZONE = "Australia/Adelaide"
 
 #F1_URL = "http://ergast.com/api/f1/"
 
-# Alternate URL thanks to @jvivona
+# Alternate URL thanks to @jvivona for the hosting :)
 F1_URL = "https://tidbyt.apis.ajcomputers.com/f1/api/"
 
 def main(config):
@@ -47,7 +48,6 @@ def main(config):
     RaceDate_Time = LocalRaceDate + " " + LocalRaceTime
     FormatRTime = time.parse_time(RaceDate_Time, format = "2006-01-02 15:04:00Z").in_location(timezone)
     RTimeDiff = FormatRTime - now
-    #print(RTimeDiff)
 
     # if less than 48 hrs since the last race start, show that
     if RTimeDiff.hours > -47:
@@ -579,16 +579,9 @@ def get_schema():
     )
 
 def get_cachable_data(url, timeout):
-    key = base64.encode(url)
+    res = http.get(url = url, ttl_seconds = timeout)
 
-    data = cache.get(key)
-    if data != None:
-        return base64.decode(data)
-
-    res = http.get(url = url)
     if res.status_code != 200:
         fail("request to %s failed with status code: %d - %s" % (url, res.status_code, res.body()))
-
-    cache.set(key, base64.encode(res.body()), ttl_seconds = timeout)
 
     return res.body()
