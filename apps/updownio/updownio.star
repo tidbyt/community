@@ -25,9 +25,15 @@ def main(config):
     check_token = config.str("check_token")
 
     if not api_key or not check_token:
-        return render.Root(
-            child = render.WrappedText("Please set both API Key and Check Token in settings", font = "5x8"),
-        )
+        mock_data = {
+            "alias": "demo.example.com",
+            "metrics": {
+                "timings": {
+                    "total": 123,
+                },
+            },
+        }
+        return render_up_screen(mock_data)
 
     # Some notes about cache_key:
     # 1. We combine api_key and check_token to prevent people from fetching other people's checks.
