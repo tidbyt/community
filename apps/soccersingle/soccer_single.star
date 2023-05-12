@@ -9,14 +9,13 @@ Author: jvivona
 # and thanks to @dinotash/@dinosaursrarr for making me think deep thoughts about connected schema fields
 # and of course - the original author of a bunch of this display code is @Lunchbox8484
 
-load("cache.star", "cache")
 load("encoding/json.star", "json")
 load("http.star", "http")
 load("render.star", "render")
 load("schema.star", "schema")
 load("time.star", "time")
 
-VERSION = 23111
+VERSION = 23132
 
 CACHE_TTL_SECONDS = 60
 
@@ -665,16 +664,8 @@ def get_gametime_column(gameTime, textColor, leagueAbbr):
     return gameTimeColumn
 
 def get_cachable_data(url):
-    key = url
-
-    data = cache.get(key)
-    if data != None:
-        return data
-
-    res = http.get(url = url)
+    res = http.get(url = url, ttl_seconds = CACHE_TTL_SECONDS)
     if res.status_code != 200:
         fail("request to %s failed with status code: %d - %s" % (url, res.status_code, res.body()))
-
-    cache.set(key, res.body(), CACHE_TTL_SECONDS)
 
     return res.body()
