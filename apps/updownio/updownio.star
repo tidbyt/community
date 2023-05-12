@@ -30,8 +30,8 @@ def main(config):
             "metrics": {
                 "timings": {
                     "total": 123,
-                }
-            }
+                },
+            },
         }
         return render_up_screen(mock_data)
 
