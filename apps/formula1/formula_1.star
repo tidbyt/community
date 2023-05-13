@@ -12,7 +12,7 @@ load("render.star", "render")
 load("schema.star", "schema")
 load("time.star", "time")
 
-VERSION = 23132
+VERSION = 23133
 
 # ############################
 # Mods - jvivona - 2023-02-04
@@ -30,6 +30,9 @@ VERSION = 23132
 # - added proper case names for constructors
 # jvivona - 2023-05-12
 # - new cache method
+# jvivona - 2023-05-13
+# - change scoll to show race name + locality
+# - fix WCC standings alignment issue
 # ############################
 
 DEFAULTS = {
