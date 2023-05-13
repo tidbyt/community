@@ -9,7 +9,6 @@ Author: jvivona
 #  changed to new color schema option
 #  samhi113 provided all the track images
 
-load("cache.star", "cache")
 load("encoding/base64.star", "base64")
 load("encoding/json.star", "json")
 load("http.star", "http")
@@ -17,7 +16,7 @@ load("render.star", "render")
 load("schema.star", "schema")
 load("time.star", "time")
 
-VERSION = 23097
+VERSION = 23132
 
 IMAGES = {
     #Indycar track type logos
@@ -269,17 +268,9 @@ def show_nri_options(datadisplay):
 #           General Funcitons
 # ##############################################
 def get_cachable_data(url):
-    key = url
-
-    data = cache.get(key)
-    if data != None:
-        return data
-
-    res = http.get(url = url)
+    res = http.get(url = url, ttl_seconds = DEFAULTS["ttl"])
     if res.status_code != 200:
         fail("request to %s failed with status code: %d - %s" % (url, res.status_code, res.body()))
-
-    cache.set(key, res.body(), ttl_seconds = DEFAULTS["ttl"])
 
     return res.body()
 
