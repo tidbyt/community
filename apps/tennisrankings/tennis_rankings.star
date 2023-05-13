@@ -280,7 +280,7 @@ def get_screenPoints(x, RankingJSON, Selection):
     return output
 
 def get_screenTrend(x, RankingJSON, Selection):
-    print(Selection)
+    #print(Selection)
     output = []
     if Selection == "wta":
         TitleBarColor = "#7915ff"
