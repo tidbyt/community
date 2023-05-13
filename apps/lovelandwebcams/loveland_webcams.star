@@ -23,7 +23,7 @@ def main():
     #pulling images from here with a time stamp appended https://skiloveland.com/webcams/
 
     rand = random.number(0, 4)
-    cache_key = str(rand)
+    cache_key = addresses[rand]
 
     current_time_x = time.now().unix * 1000
 
