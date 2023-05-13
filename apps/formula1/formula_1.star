@@ -133,15 +133,15 @@ def main(config):
         date_and_time3 = time.parse_time(date_and_time, "2006-01-02T15:04:05Z", "UTC").in_location(timezone)
 
         # handle date & time display options here
-        date_str = date_and_time3.format("Jan 02" if config.bool("date_us", DEFAULTS["date_us"]) else "02 Jan").upper()  #current format of your current date str
-        time_str = date_and_time3.format("15:04" if config.bool("time_24", DEFAULTS["time_24"]) else "3:04pm")  #outputs military time but can change 15 to 3 to not do that. The Only thing missing from your current string though is the time zone, but if they're doing local time that's pretty irrelevant
+        date_str = date_and_time3.format("Jan 02" if config.bool("date_us", DEFAULTS["date_us"]) else "02 Jan")  #current format of your current date str
+        time_str = date_and_time3.format("15:04" if config.bool("time_24", DEFAULTS["time_24"]) else "3:04pm")[:-1]  #outputs military time but can change 15 to 3 to not do that. The Only thing missing from your current string though is the time zone, but if they're doing local time that's pretty irrelevant
 
         return render.Root(
             child = render.Column(
                 children = [
                     render.Marquee(
                         width = 64,
-                        child = render.Text("Next Race: " + next_race["Circuit"]["Location"]["country"]),
+                        child = render.Text(" " + next_race["raceName"] + " - " + next_race["Circuit"]["Location"]["locality"] + " " + next_race["Circuit"]["Location"]["country"]),
                         offset_start = 5,
                         offset_end = 5,
                     ),
@@ -183,12 +183,12 @@ def main(config):
                             render.Stack(
                                 children = [
                                     render.Image(src = F1_CONSTRUCTOR.get(Constructor1, "Red Bull")),
-                                    render.Text("1"),
+                                    render.Text("1", font = "5x8"),
                                 ],
                             ),
                             render.Marquee(
                                 width = 50,
-                                child = render.Text(Points1 + " pts - " + text_justify_trunc(12, CONSTRUCTOR_NAMES[Constructor1], "left")),
+                                child = render.Text(Points1 + " pts - " + text_justify_trunc(12, CONSTRUCTOR_NAMES[Constructor1], "left"), font = "5x8"),
                                 offset_start = 64,
                                 offset_end = 64,
                             ),
@@ -199,12 +199,12 @@ def main(config):
                             render.Stack(
                                 children = [
                                     render.Image(src = F1_CONSTRUCTOR.get(Constructor2, "Red Bull")),
-                                    render.Text("2"),
+                                    render.Text("2", font = "5x8"),
                                 ],
                             ),
                             render.Marquee(
                                 width = 50,
-                                child = render.Text(Points2 + " pts - " + text_justify_trunc(12, CONSTRUCTOR_NAMES[Constructor2], "left")),
+                                child = render.Text(Points2 + " pts - " + text_justify_trunc(12, CONSTRUCTOR_NAMES[Constructor2], "left"), font = "5x8"),
                                 offset_start = 64,
                                 offset_end = 64,
                             ),
@@ -220,7 +220,7 @@ def main(config):
                             ),
                             render.Marquee(
                                 width = 50,
-                                child = render.Text(Points3 + " pts - " + text_justify_trunc(12, CONSTRUCTOR_NAMES[Constructor3], "left")),
+                                child = render.Text(Points3 + " pts - " + text_justify_trunc(12, CONSTRUCTOR_NAMES[Constructor3], "left"), font = "5x8"),
                                 offset_start = 64,
                                 offset_end = 64,
                             ),
