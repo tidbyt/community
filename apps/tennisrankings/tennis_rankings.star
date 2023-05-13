@@ -3,10 +3,11 @@ Applet: Tennis Rankings
 Summary: Shows ATP/WTA Top 20
 Description: Displays either ATP or WTA Top 20 with options for position change and total points.
 Author: M0ntyP
+
+v1.1
+Updated caching function and changed title bar color for WTA
 """
 
-load("cache.star", "cache")
-load("encoding/base64.star", "base64")
 load("encoding/json.star", "json")
 load("http.star", "http")
 load("humanize.star", "humanize")
@@ -145,11 +146,16 @@ def main(config):
 def get_screen(x, RankingJSON, Selection):
     output = []
 
+    if Selection == "wta":
+        TitleBarColor = "#7915ff"
+    else:
+        TitleBarColor = "#203764"
+
     heading = [
         render.Box(
             width = 64,
             height = 5,
-            color = "#203764",
+            color = TitleBarColor,
             child = render.Row(
                 expanded = True,
                 main_align = "start",
@@ -201,11 +207,16 @@ def get_screen(x, RankingJSON, Selection):
 def get_screenPoints(x, RankingJSON, Selection):
     output = []
 
+    if Selection == "wta":
+        TitleBarColor = "#7915ff"
+    else:
+        TitleBarColor = "#203764"
+
     heading = [
         render.Box(
             width = 64,
             height = 5,
-            color = "#203764",
+            color = TitleBarColor,
             child = render.Row(
                 expanded = True,
                 main_align = "start",
@@ -269,14 +280,20 @@ def get_screenPoints(x, RankingJSON, Selection):
     return output
 
 def get_screenTrend(x, RankingJSON, Selection):
+    print(Selection)
     output = []
+    if Selection == "wta":
+        TitleBarColor = "#7915ff"
+    else:
+        TitleBarColor = "#203764"
+
     TrendColor = "#fff"
 
     heading = [
         render.Box(
             width = 64,
             height = 5,
-            color = "#203764",
+            color = TitleBarColor,
             child = render.Row(
                 expanded = True,
                 main_align = "start",
@@ -348,18 +365,10 @@ def get_screenTrend(x, RankingJSON, Selection):
     return output
 
 def get_cachable_data(url, timeout):
-    key = base64.encode(url)
+    res = http.get(url = url, ttl_seconds = timeout)
 
-    data = cache.get(key)
-    if data != None:
-        #print("CACHED")
-        return base64.decode(data)
-
-    res = http.get(url = url)
     if res.status_code != 200:
         fail("request to %s failed with status code: %d - %s" % (url, res.status_code, res.body()))
-
-    cache.set(key, base64.encode(res.body()), ttl_seconds = timeout)
 
     return res.body()
 
