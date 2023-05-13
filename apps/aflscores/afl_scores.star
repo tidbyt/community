@@ -4,11 +4,15 @@ Summary: Shows AFL Scores
 Description: Shows AFL (Australian Football League) scores. Option to show all matches for the round or focus on one team
 Author: M0ntyP
 
-v1.1 - Moved game time for live game up 1 whole pixel
+v1.1
+Moved game time for live game up 1 whole pixel
+
+v1.2
+Updated caching function 
+Handling for no data from API before or during live games, which can occur at times
+Slight appearance changes for live and post match displays
 """
 
-load("cache.star", "cache")
-load("encoding/base64.star", "base64")
 load("encoding/json.star", "json")
 load("http.star", "http")
 load("render.star", "render")
@@ -69,7 +73,7 @@ def main(config):
     RoundData = get_cachable_data(CURRENT_ROUND_URL, ROUND_CACHE)
     CurrentRoundJSON = json.decode(RoundData)
 
-    # Use the Squiggle API for live games, cache  data for 30 secs
+    # Use the Squiggle API for live games, cache data for 30 secs
     SQUIGGLE_URL = "https://api.squiggle.com.au/?q=games;round=" + CurrentRound + ";complete=!100"
     LiveData = get_cachable_data(SQUIGGLE_URL, LIVE_CACHE)
     LiveJSON = json.decode(LiveData)
@@ -79,7 +83,8 @@ def main(config):
 
     for x in range(0, GamesThisRound, 1):
         status = CurrentRoundJSON["matches"][x]["status"]
-        gametime = CurrentRoundJSON["matches"][x]["utcStartTime"]
+        starttime = CurrentRoundJSON["matches"][x]["utcStartTime"]
+        convertedTime = time.parse_time(starttime, format = "2006-01-02T15:04:00.000+0000").in_location(timezone)
 
         HomeTeam = CurrentRoundJSON["matches"][x]["home"]["team"]["id"]
         HomeTeamName = CurrentRoundJSON["matches"][x]["home"]["team"]["name"]
@@ -97,12 +102,10 @@ def main(config):
 
         # if the game hasnt started yet, show the time of first bounce corrected for local time. API provides UTC time
         if status == "SCHEDULED" or status == "UNCONFIRMED_TEAMS" or status == "CONFIRMED_TEAMS":
-            convertedTime = time.parse_time(gametime, format = "2006-01-02T15:04:00.000+0000").in_location(timezone)
-
             if convertedTime.format("2/1") != now.format("2/1"):
-                gametime = convertedTime.format("2/1 3:04PM")
+                starttime = convertedTime.format("2/1 3:04PM")
             else:
-                gametime = convertedTime.format("3:04 PM")
+                starttime = convertedTime.format("3:04 PM")
 
             # show the win-draw-loss record for teams
             for y in range(0, 18, 1):
@@ -183,7 +186,7 @@ def main(config):
                                                 ]),
                                         ),
                                         #Game time
-                                        render.Box(width = 64, height = 6, color = "#000", child = render.Text(gametime, font = "CG-pixel-4x5-mono")),
+                                        render.Box(width = 64, height = 6, color = "#000", child = render.Text(starttime, font = "CG-pixel-4x5-mono")),
                                     ],
                                 ),
                             ],
@@ -210,6 +213,24 @@ def main(config):
 
                     gametime = str(LiveJSON["games"][y]["timestr"])
 
+                    # if the Squiggle API isn't showing data yet, usually just before game start
+                    if HomeGoals == "None":
+                        HomeGoals = "0"
+                    if AwayGoals == "None":
+                        AwayGoals = "0"
+                    if AwayBehinds == "None":
+                        AwayBehinds = "0"
+                    if HomeBehinds == "None":
+                        HomeBehinds = "0"
+                    if gametime == "None":
+                        # if its 5 mins past starting time and we have no data then there's a problem
+                        # otherwise the game is just about to start
+                        timediff = time.now() - convertedTime
+                        if timediff.minutes > 5:
+                            gametime = "DATA ERROR"
+                        else:
+                            gametime = "GAME STARTING"
+
                     # Render on the screen
                     renderCategory.extend([
                         render.Column(
@@ -226,21 +247,21 @@ def main(config):
                                             children = [
                                                 #Home Team
                                                 #Draw the box and row, then
-                                                render.Box(width = 64, height = 12, color = home_team_bkg, child = render.Row(expanded = True, main_align = "start", cross_align = "right", children = [
-                                                    render.Box(width = 20, height = 12, child = render.Text(content = home_team_abb, color = home_team_font)),
+                                                render.Box(width = 64, height = 13, color = home_team_bkg, child = render.Row(expanded = True, main_align = "start", cross_align = "right", children = [
+                                                    render.Box(width = 20, height = 12, child = render.Text(content = home_team_abb, color = home_team_font, font = "Dina_r400-6")),
                                                     render.Box(width = 12, height = 12, child = render.Text(content = HomeGoals, color = home_team_font)),
                                                     render.Box(width = 12, height = 12, child = render.Text(content = HomeBehinds, color = home_team_font)),
                                                     render.Box(width = 20, height = 12, child = render.Text(content = HomeScore, color = home_team_font)),
                                                 ])),
                                                 #Away Team
-                                                render.Box(width = 64, height = 12, color = away_team_bkg, child = render.Row(expanded = True, main_align = "start", cross_align = "right", children = [
-                                                    render.Box(width = 20, height = 12, child = render.Text(content = away_team_abb, color = away_team_font)),
+                                                render.Box(width = 64, height = 13, color = away_team_bkg, child = render.Row(expanded = True, main_align = "start", cross_align = "right", children = [
+                                                    render.Box(width = 20, height = 12, child = render.Text(content = away_team_abb, color = away_team_font, font = "Dina_r400-6")),
                                                     render.Box(width = 12, height = 12, child = render.Text(content = AwayGoals, color = away_team_font)),
                                                     render.Box(width = 12, height = 12, child = render.Text(content = AwayBehinds, color = away_team_font)),
                                                     render.Box(width = 20, height = 12, child = render.Text(content = AwayScore, color = away_team_font)),
                                                 ])),
                                                 #Game time
-                                                render.Box(width = 64, height = 8, color = "#000", child = render.Text(gametime, font = "CG-pixel-3x5-mono")),
+                                                render.Box(width = 64, height = 6, color = "#000", child = render.Text(gametime, font = "CG-pixel-4x5-mono")),
                                             ],
                                         ),
                                     ],
@@ -278,21 +299,21 @@ def main(config):
                                     children = [
                                         #Home Team
                                         #Draw the box and row, then
-                                        render.Box(width = 64, height = 12, color = home_team_bkg, child = render.Row(expanded = True, main_align = "start", cross_align = "right", children = [
-                                            render.Box(width = 20, height = 10, child = render.Text(content = home_team_abb, color = home_team_font)),
+                                        render.Box(width = 64, height = 13, color = home_team_bkg, child = render.Row(expanded = True, main_align = "start", cross_align = "right", children = [
+                                            render.Box(width = 20, height = 10, child = render.Text(content = home_team_abb, color = home_team_font, font = "Dina_r400-6")),
                                             render.Box(width = 12, height = 10, child = render.Text(content = HomeGoals, color = home_team_font)),
                                             render.Box(width = 12, height = 10, child = render.Text(content = HomeBehinds, color = home_team_font)),
                                             render.Box(width = 18, height = 10, child = render.Text(content = HomeScore, color = home_team_font)),
                                         ])),
                                         #Away Team
-                                        render.Box(width = 64, height = 12, color = away_team_bkg, child = render.Row(expanded = True, main_align = "start", cross_align = "right", children = [
-                                            render.Box(width = 20, height = 10, child = render.Text(content = away_team_abb, color = away_team_font)),
+                                        render.Box(width = 64, height = 13, color = away_team_bkg, child = render.Row(expanded = True, main_align = "start", cross_align = "right", children = [
+                                            render.Box(width = 20, height = 10, child = render.Text(content = away_team_abb, color = away_team_font, font = "Dina_r400-6")),
                                             render.Box(width = 12, height = 10, child = render.Text(content = AwayGoals, color = away_team_font)),
                                             render.Box(width = 12, height = 10, child = render.Text(content = AwayBehinds, color = away_team_font)),
                                             render.Box(width = 18, height = 10, child = render.Text(content = AwayScore, color = away_team_font)),
                                         ])),
                                         #Game time
-                                        render.Box(width = 64, height = 8, color = "#000", child = render.Text(gametime, font = "CG-pixel-3x5-mono")),
+                                        render.Box(width = 64, height = 6, color = "#000", child = render.Text(gametime, font = "CG-pixel-4x5-mono")),
                                     ],
                                 ),
                             ],
@@ -465,7 +486,7 @@ def MoreOptions(AllMatches):
                 name = "Teams",
                 desc = "Choose your team",
                 icon = "football",
-                default = TeamOptions[0].value,
+                default = TeamOptions[6].value,
                 options = TeamOptions,
             ),
         ]
@@ -475,18 +496,10 @@ def MoreOptions(AllMatches):
         return None
 
 def get_cachable_data(url, timeout):
-    key = base64.encode(url)
+    res = http.get(url = url, ttl_seconds = timeout)
 
-    data = cache.get(key)
-    if data != None:
-        #print("CACHED")
-        return base64.decode(data)
-
-    res = http.get(url = url)
     if res.status_code != 200:
         fail("request to %s failed with status code: %d - %s" % (url, res.status_code, res.body()))
-
-    cache.set(key, base64.encode(res.body()), ttl_seconds = timeout)
 
     return res.body()
 
