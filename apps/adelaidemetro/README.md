@@ -5,11 +5,15 @@ You can choose from train, tram or bus services and select the station for train
 You have a choice of showing the next arrivals at the stop/station over a certain time period (default option), or showing services for all routes for the selected stop/station for the next 120 mins.
 
 Examples
+
 Train 
+
 ![](adelaide_metro_train.gif)
 
 Tram
+
 ![](adelaide_metro_tram.gif)
 
 Bus
+
 ![](adelaide_metro_bus.gif)
