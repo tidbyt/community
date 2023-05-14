@@ -12,7 +12,7 @@ load("render.star", "render")
 load("schema.star", "schema")
 load("time.star", "time")
 
-VERSION = 23133
+VERSION = 23134
 
 # ############################
 # Mods - jvivona - 2023-02-04
@@ -33,6 +33,8 @@ VERSION = 23133
 # jvivona - 2023-05-13
 # - change scoll to show race name + locality
 # - fix WCC standings alignment issue
+# jvivona - 2023-05-14
+# - fix trunc of am/pm - to not trunc when we're in 24 hour format
 # ############################
 
 DEFAULTS = {
@@ -137,7 +139,7 @@ def main(config):
 
         # handle date & time display options here
         date_str = date_and_time3.format("Jan 02" if config.bool("date_us", DEFAULTS["date_us"]) else "02 Jan")  #current format of your current date str
-        time_str = date_and_time3.format("15:04" if config.bool("time_24", DEFAULTS["time_24"]) else "3:04pm")[:-1]  #outputs military time but can change 15 to 3 to not do that. The Only thing missing from your current string though is the time zone, but if they're doing local time that's pretty irrelevant
+        time_str = date_and_time3.format("15:04" if config.bool("time_24", DEFAULTS["time_24"]) else "3:04pm").replace("m", "")  #outputs military time but can change 15 to 3 to not do that. The Only thing missing from your current string though is the time zone, but if they're doing local time that's pretty irrelevant
 
         return render.Root(
             child = render.Column(
