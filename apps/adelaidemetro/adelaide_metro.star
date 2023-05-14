@@ -20,9 +20,6 @@ Trains into the city will display as CITY rather than the route name (only in ne
 Trams will also show the destination rather than route name (only in next arrival mode)
 Updated Tram Stop List
 Updated caching function
-
-TO DO:
-CREATE NEW README.MD
 """
 
 load("encoding/json.star", "json")
@@ -39,7 +36,7 @@ def main(config):
     SelectedStation = config.get("StationList", "16572")
     TrainToCity = config.bool("TrainToCity", True)
     TrainOrTramOrBus = config.get("TrainOrTramOrBus", "Train")
-    TimeOrRoute = config.get("TimeOrRoute", "Route")
+    TimeOrRoute = config.get("TimeOrRoute", "Time")
     ServiceTime = config.get("TimeLength", "60")
     Display1 = []
 
