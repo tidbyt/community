@@ -11,6 +11,7 @@ load("http.star", "http")
 load("math.star", "math")
 load("render.star", "render")
 load("schema.star", "schema")
+load("humanize.star", "humanize")
 
 CHART_SLP_SERVER_URL = "https://chart-slp-server.herokuapp.com/api/matches?code="
 DEFAULT_CODE = "TRB-328"
@@ -201,16 +202,6 @@ icons = {
     "26_4": "UklGRlQBAABXRUJQVlA4TEgBAAAvF8AFEH9gpo2UG1/Cvw10sqIPCSDHaMAkvEEk+pJHW4mLvmGmto1X4W9mUUQgn2oy2BjnPxBYYqDhuDgEc6wHe685aqmBmqaNF0D5/3+NuqRvZBGHuD+elxa3F+5aSe7u9hT+O/SHS7sX1bXfkXjRbAl3l5Nf2BHR/wmAk4gIoaUqRIQVKk0kisQIxSHDzfREU1gOEkZ5RrqIUACkmemGWVEeZTlE+qavIv3DBSBeZAR2mZ9dgIxXK+zDU35aBCheLfcF2M3zkDWjEeWfdmDNXoC86k00Ln3sfl6AvJ1Mz67YtflxEqAWEVO6bv/wBCBb1NbjSt9P6xRArdbByX5V664CSUXpG41fz4MbivztL0y/PfI9NT0ptFjP6R1fvS1DNWH6IhHRL3MTQX9nZl4sqvIr0DVN83h8OdULcKx6vTuLrQRI+hcA",
 }
 
-def formatThousands(num):
-    num = str(num)
-    commasNeeded = math.floor((len(num) - 1) / 3)
-    newString = []
-    for _ in range(commasNeeded):
-        newString.insert(0, "," + num[-3:])
-        num = num[:-3]
-    newString = num + "".join(newString)
-    return newString
-
 def get_schema():
     return schema.Schema(
         version = "1",
@@ -246,8 +237,8 @@ def main(config):
             fail("Chart SLP Request Failed with code")
         totalTime = rep.json()["totalTime"]
         totalTime = totalTime.split(":")
-        totalTime = formatThousands(totalTime[0]) + " hrs"
-        totalGames = str(formatThousands(int(rep.json()["totalMatches"]))) + "gs"
+        totalTime = humanize.comma(totalTime[0]) + " hrs"
+        totalGames = str(humanize.comma(int(rep.json()["totalMatches"]))) + "gs"
         winrate = str(int(rep.json()["winrate"])) + "% wr"
         iconName = str(int(rep.json()["main"])) + "_" + str(int(rep.json()["mainColor"]))
 
