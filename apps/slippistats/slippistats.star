@@ -8,10 +8,9 @@ Author: trbarron
 load("cache.star", "cache")
 load("encoding/base64.star", "base64")
 load("http.star", "http")
-load("math.star", "math")
+load("humanize.star", "humanize")
 load("render.star", "render")
 load("schema.star", "schema")
-load("humanize.star", "humanize")
 
 CHART_SLP_SERVER_URL = "https://chart-slp-server.herokuapp.com/api/matches?code="
 DEFAULT_CODE = "TRB-328"
