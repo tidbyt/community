@@ -223,7 +223,7 @@ def main(config):
 
     if dataCached != None:
         print("Hit! Displaying cached data.")
-        data = dataCached
+        data = json.decode(dataCached)
 
         totalTime = dataCached
 
