@@ -7,6 +7,7 @@ Author: trbarron
 
 load("cache.star", "cache")
 load("encoding/base64.star", "base64")
+load("encoding/json.star", "json")
 load("http.star", "http")
 load("humanize.star", "humanize")
 load("render.star", "render")
@@ -15,7 +16,7 @@ load("schema.star", "schema")
 CHART_SLP_SERVER_URL = "https://chart-slp-server.herokuapp.com/api/matches?code="
 DEFAULT_CODE = "TRB-328"
 
-# Load Bitcoin icon from base64 encoded data
+# Load icon from base64 encoded data
 # https://www.base64encoder.io/image-to-base64-converter/
 icons = {
     #c. falcon
@@ -215,20 +216,19 @@ def get_schema():
     )
 
 def main(config):
-    totalTimeCached = cache.get("cache_totalTime")
+    code = config.str("code", DEFAULT_CODE)
+    code = code.replace("#", "-")
+    dataCached = cache.get(code)
+    data = None
 
-    if totalTimeCached != None:
+    if dataCached != None:
         print("Hit! Displaying cached data.")
-        totalGames = cache.get("cache_totalGames")
-        winrate = cache.get("cache_winrate")
-        iconName = cache.get("cache_iconName")
+        data = dataCached
 
-        totalTime = totalTimeCached
+        totalTime = dataCached
 
     else:
         print("Miss! Calling SLP API.")
-        code = config.str("code", DEFAULT_CODE)
-        code = code.replace("#", "-")
         GET_URL = CHART_SLP_SERVER_URL + code
 
         rep = http.get(GET_URL)
@@ -236,17 +236,21 @@ def main(config):
             fail("Chart SLP Request Failed with code")
         totalTime = rep.json()["totalTime"]
         totalTime = totalTime.split(":")
-        totalTime = humanize.comma(totalTime[0]) + " hrs"
+        totalTime = humanize.comma(int(totalTime[0])) + " hrs"
         totalGames = str(humanize.comma(int(rep.json()["totalMatches"]))) + "gs"
         winrate = str(int(rep.json()["winrate"])) + "% wr"
         iconName = str(int(rep.json()["main"])) + "_" + str(int(rep.json()["mainColor"]))
 
-        cache.set("cache_iconName", str(iconName), ttl_seconds = 43200)
-        cache.set("cache_totalGames", str(totalGames), ttl_seconds = 43200)
-        cache.set("cache_winrate", str(winrate), ttl_seconds = 43200)
-        cache.set("cache_totalTime", str(totalTime), ttl_seconds = 43200)  # this is like 12 hours
+        data = {
+            "totalTime": totalTime,
+            "totalGames": totalGames,
+            "winrate": winrate,
+            "iconName": iconName,
+        }
 
-    charIcon = base64.decode(icons[iconName])
+        cache.set(code, json.encode(data), ttl_seconds = 43200)
+    localIconName = data["iconName"]
+    charIcon = base64.decode(icons[localIconName])
 
     return render.Root(
         child = render.Box(
@@ -259,15 +263,15 @@ def main(config):
                     render.Padding(child = render.Image(src = charIcon), pad = (1, 1, 1, 1)),
                     render.Column(children = [
                         render.Text(
-                            totalGames,
+                            data["totalGames"],
                             font = "tb-8",
                         ),
                         render.Text(
-                            content = winrate,
+                            content = data["winrate"],
                             font = "tb-8",
                         ),
                         render.Text(
-                            content = totalTime,
+                            content = data["totalTime"],
                             font = "tb-8",
                         ),
                     ]),
