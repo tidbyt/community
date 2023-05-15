@@ -4,8 +4,6 @@ Summary: Shows PGA Leaderboard
 Description: This app displays the leaderboard for the current PGA Tour event. You can show the opposite field event if there is one. 
 Author: M0ntyP
 
-Note - can easily make LPGA, European Tour or Korn Ferry versions if there is enough interest.
-
 Big shoutout to LunchBox8484 for the NHL Standings app where this is heavily borrowed/stolen from
 
 v1.1 
@@ -26,10 +24,11 @@ Code re-arrange & clean up and hopefully more efficient!
 
 v2.1
 Fix - Colors for majors not working, fixed!
+
+v2.1a
+Updated caching function
 """
 
-load("cache.star", "cache")
-load("encoding/base64.star", "base64")
 load("encoding/json.star", "json")
 load("http.star", "http")
 load("render.star", "render")
@@ -471,19 +470,9 @@ def get_schema():
     )
 
 def get_cachable_data(url, timeout):
-    key = base64.encode(url)
+    res = http.get(url = url, ttl_seconds = timeout)
 
-    data = cache.get(key)
-    if data != None:
-        #print("Using cached data")
-        return base64.decode(data)
-
-    res = http.get(url = url)
-
-    #print("Getting new data")
     if res.status_code != 200:
         fail("request to %s failed with status code: %d - %s" % (url, res.status_code, res.body()))
-
-    cache.set(key, base64.encode(res.body()), ttl_seconds = timeout)
 
     return res.body()

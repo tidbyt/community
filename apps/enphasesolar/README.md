@@ -15,11 +15,11 @@ import requests
 
 ENDPOINT = 'https://api.enphaseenergy.com'
 REDIRECT_URI = 'https://api.enphaseenergy.com/oauth/redirect_uri'
-AUTH_URL = 'https://api.enphaseenergy.com/oauth/authorize'
+TOKEN_URL = 'https://api.enphaseenergy.com/oauth/token'
 
 # Manually generate a code
 # https://api.enphaseenergy.com/oauth/authorize?response_type=code&
-# client_id=<YOUR_CLIENT_ID>e&redirect_uri=https://api.enphaseenergy.com/oauth/redirect_uri
+# client_id=<YOUR_CLIENT_ID>&redirect_uri=https://api.enphaseenergy.com/oauth/redirect_uri
 CODE = 'CODE_YOU_GET'
 CLIENT_ID = 'YOUR_CLIENT_ID'
 CLIENT_SECRET = 'YOUR_CLIENT_SECRET'
@@ -36,13 +36,13 @@ def get_token() -> dict:
     """Get the access token based on a new authorization code. The authorization code will be
     invalid once it used.
     """
-    # full auth url: https://api.enphaseenergy.com/oauth/authorize?grant_type=authorization_code&redirect_uri={REDIRECT_URI}&code={CODE}
+    # full url: https://api.enphaseenergy.com/oauth/token?grant_type=authorization_code&redirect_uri={REDIRECT_URI}&code={CODE}
     params = {
         'grant_type': 'authorization_code',
         'redirect_uri': REDIRECT_URI,
         'code': CODE
     }
-    response = requests.post(AUTH_URL, params=params, headers=generate_basic_headers())
+    response = requests.post(TOKEN_URL, params=params, headers=generate_basic_headers())
     if response.status_code == 200:
         return response.json()
     else:
