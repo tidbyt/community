@@ -1,0 +1,8 @@
+---
+id: airpollution
+name: AirPollution
+summary: PM2.5 and PM10 pollution
+desc: The application displays PM2.5 and PM10 air pollution from the Airly.org website.
+author: Tomasz Prysak
+fileName: airpollution.star
+packageName: airpollution
