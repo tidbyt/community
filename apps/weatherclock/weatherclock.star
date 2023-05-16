@@ -354,7 +354,7 @@ def get_icon(wID, dn):
         icon_str = get_rain_snow() if dn else get_night_rain_snow()
     elif wID == 701:  # MIST
         icon_str = get_drizzle() if dn else get_night_drizzle()
-    elif wID == 711: # SMOKE
+    elif wID == 711:  # SMOKE
         icon_str = get_smoke() if dn else get_night_smoke()
     elif wID == 721:  # HAZE
         icon_str = get_haze() if dn else get_unknown()
