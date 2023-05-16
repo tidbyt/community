@@ -45,9 +45,9 @@ The schema consists of the following data:
 The weather condition icons are 16 x 16 pixels so they are best viewed on the Tidbyt from a distance to permit the eyes to blend the dots of the images.  The icons for the various weather conditions is shown in the following table:
 <table>
   <tr>
-    <td> </td>
+    <td><b><span style="color:purple">Weather Conditions</span></b></td>
     <td><b><span style="color:orange">Day</span></b></td>
-    <td><b><span style="color:Blue">Night</span></b></td>
+    <td><b><span style="color:blue">Night</span></b></td>
   </tr>
   </tr>
   </tr>
