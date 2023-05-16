@@ -46,7 +46,6 @@ def main(config):
     app_cycle_speed = 30 * time.second
     num_frames = math.ceil(app_cycle_speed / delay)
 
-
     frames = [
         get_frame(get_state(i, image), image)
         for i in range(index, index + num_frames)
