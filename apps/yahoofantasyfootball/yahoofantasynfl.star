@@ -26,7 +26,7 @@ YAHOO_OAUTH_TOKEN_URL = "https://api.login.yahoo.com/oauth2/get_token"
 ACCESS_TOKEN_CACHE_TTL = 3000  # 50 minutes as Yahoo access tokens only last 60 minutes
 STANDINGS_CACHE_TTL = 14400  # 4 days
 LEAGUE_NAME_CACHE_TTL = 28800  # 8 days
-GAME_KEY = "414"
+GAME_KEY = "423" #2023 Season
 
 def main(config):
     render_category = []
