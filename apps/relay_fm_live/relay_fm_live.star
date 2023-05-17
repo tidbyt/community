@@ -77,9 +77,6 @@ def get_next_recording(api_key, live, timezone):
         color = "#333F48",
     )
 
-def get_live_show():
-    pass
-
 def main(config):
     api_key = secret.decrypt("AV6+xWcE1+vVlYsC8ctRY3w3gUNEEkB3OUcob0kBvK0+1KGcve4gnEaq0WTcR9PmCrpsetzOOhdl7VkU/vW4Gek88eNzgOdvlD1pYWGo3eIAod5BmPq+DDP0YC0HRNYD9Zcjb2As2tXeXUiXcsERnKqMHQdMMlJoDO9pWGrsD0q4tKZHOhzG2Be0jJmC") or config.get("dev_api_key")
     timezone = config.get("timezone") or "America/New_York"
@@ -115,7 +112,7 @@ def main(config):
         ),
     )
 
-qr_code_options = [
+show_art_options = [
     schema.Option(
         display = "Show art when live",
         value = "show_art",
@@ -151,8 +148,8 @@ def get_schema():
                 name = "Show art/QR code settings",
                 desc = "Settings for how to display show art.",
                 icon = "qrcode",
-                default = qr_code_options[0].value,
-                options = qr_code_options,
+                default = show_art_options[0].value,
+                options = show_art_options,
             ),
             schema.Toggle(
                 id = "live_only",
