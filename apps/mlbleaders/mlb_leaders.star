@@ -344,6 +344,7 @@ def get_leaders(statName):
                 #print(stats_tmp)
 
             #cache the data
+            # TODO: Determine if this cache call can be converted to the new HTTP cache.
             cache.set("mlb_leagueleaders_%s" % statName, json.encode(stats), ttl_seconds = 43200)  #grab twice a day
 
     return stats

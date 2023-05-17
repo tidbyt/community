@@ -156,6 +156,7 @@ def get_trains(MARTA_API_URL):
         if arrival["TRAIN_ID"] not in trains.keys():
             trains[arrival["TRAIN_ID"]] = arrival
 
+    # TODO: Determine if this cache call can be converted to the new HTTP cache.
     cache.set("cached_trains", json.encode(trains), ttl_seconds = 20)
 
     return trains
@@ -351,6 +352,7 @@ def get_arrivals(config):
     #Sort arrivals by shortest time to arrival
     arrivals = (sorted(arrivals, key = lambda d: int(d["WAITING_SECONDS"])))
 
+    # TODO: Determine if this cache call can be converted to the new HTTP cache.
     cache.set("cached_arrivals", json.encode(arrivals), ttl_seconds = 10)
 
     return arrivals

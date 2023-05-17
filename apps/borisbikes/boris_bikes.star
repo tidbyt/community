@@ -45,8 +45,12 @@ def fetch_docks():
     )
     if resp.status_code != 200:
         print("TFL BikePoint query failed with status ", resp.status_code)
+
+        # TODO: Determine if this cache call can be converted to the new HTTP cache.
         cache.set(LIST_DOCKS_URL, NO_DATA_IN_CACHE, ttl_seconds = 30)
         return None
+
+    # TODO: Determine if this cache call can be converted to the new HTTP cache.
     cache.set(LIST_DOCKS_URL, resp.body(), ttl_seconds = 86400)  # Bike docks don't move often
     return resp.json()
 
@@ -101,8 +105,12 @@ def fetch_dock(dock_id):
     )
     if resp.status_code != 200:
         print("TFL BikePoint request failed with status ", resp.status_code)
+
+        # TODO: Determine if this cache call can be converted to the new HTTP cache.
         cache.set(dock_id, NO_DATA_IN_CACHE, ttl_seconds = 30)
         return None
+
+    # TODO: Determine if this cache call can be converted to the new HTTP cache.
     cache.set(dock_id, resp.body(), ttl_seconds = 30)
     return resp.json()
 

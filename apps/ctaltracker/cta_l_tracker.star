@@ -175,6 +175,8 @@ def get_stations():
 
     stations = [build_station(station) for station in data]
     deduped_stations = [i for n, i in enumerate(stations) if i not in stations[n + 1:]]
+
+    # TODO: Determine if this cache call can be converted to the new HTTP cache.
     cache.set(L_STOPS_CACHE_KEY, json.encode(deduped_stations), ttl_seconds = 3600)
     return deduped_stations
 
@@ -245,6 +247,8 @@ def get_journeys(station_code):
         journeys = []
 
     next_arrivals = [build_journey(prediction) for prediction in journeys[:2]]
+
+    # TODO: Determine if this cache call can be converted to the new HTTP cache.
     cache.set(station_cache_key, json.encode(next_arrivals), ttl_seconds = 60)
     return next_arrivals
 

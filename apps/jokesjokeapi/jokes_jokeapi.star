@@ -48,6 +48,7 @@ def main(config):
                 joke = [re.sub('"\"|"\n"', "", rep.json()["joke"])]
 
             # cache the data
+            # TODO: Determine if this cache call can be converted to the new HTTP cache.
             cache.set(
                 "joke_rate",
                 json.encode(joke),

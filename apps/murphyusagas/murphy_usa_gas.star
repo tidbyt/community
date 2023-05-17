@@ -146,6 +146,7 @@ def get_stations(location):
 
     if stations["totalCount"] > 0:
         # stations rarely change - so cache for a day - but only if we have valid data
+        # TODO: Determine if this cache call can be converted to the new HTTP cache.
         cache.set(station_list_cache_key, json.encode(stations), 86400)
         return [
             schema.Option(
@@ -170,6 +171,8 @@ def get_station_details(url):
         if http_data.status_code != 200:
             fail("HTTP request failed with status {} for URL {}".format(http_data.status_code, url))
         station_details = http_data.body()
+
+        # TODO: Determine if this cache call can be converted to the new HTTP cache.
         cache.set(url, station_details, ttl_seconds = API_STATION_DETAILS_TTL)
 
     return json.decode(station_details)["data"]

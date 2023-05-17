@@ -211,6 +211,8 @@ def main(config):
             sum_data = json.decode(rep.body())
             data["consumption"] = sum_data["data"][0]["consumption"]
             data["production"] = sum_data["data"][0]["production"]
+
+            # TODO: Determine if this cache call can be converted to the new HTTP cache.
             cache.set(site_id, json.encode(data), ttl_seconds = CACHE_TTL)
         else:
             print("using cache")

@@ -157,6 +157,8 @@ def query_api(station):
     if api_response.status_code != 200:
         fail("Path api is sad :( url {} returned {}".format(path_url_for_station, api_response.status_code))
     response_json = api_response.json()
+
+    # TODO: Determine if this cache call can be converted to the new HTTP cache.
     cache.set("station_{}".format(station), json.encode(response_json), ttl_seconds = 30)
 
     return response_json

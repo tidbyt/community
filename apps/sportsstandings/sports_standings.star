@@ -79,6 +79,7 @@ def main(config):
 
         #cache the data
         if stats != None:
+            # TODO: Determine if this cache call can be converted to the new HTTP cache.
             cache.set("stats_rate/%s_%s" % (sport, league), json.encode(stats), ttl_seconds = 28800)  #grabs it three times a day
 
     #get frames before display

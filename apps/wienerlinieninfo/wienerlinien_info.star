@@ -10902,6 +10902,8 @@ def getInfo(externalDiva):
             info = jsonreceived.json()["data"]["monitors"]
             infoSerialized = json.encode(info)
             info = json.decode(infoSerialized)  #it fixes weird rendering problems
+
+            # TODO: Determine if this cache call can be converted to the new HTTP cache.
             cache.set("WLDIVAINFO%s" % diva, infoSerialized, ttl_seconds = 40)
         else:
             print("Problem with DIVA station. Using default station. %s" % jsonreceived.json()["message"]["value"])

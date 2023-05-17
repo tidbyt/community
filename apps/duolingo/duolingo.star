@@ -350,6 +350,7 @@ def main(config):
             print("Cached userId for username " + duolingo_username + ": " + duolingo_userid)
 
             # update userid cache timer
+            # TODO: Determine if this cache call can be converted to the new HTTP cache.
             cache.set(duolingo_cache_key_userid, duolingo_userid, ttl_seconds = 604800)
             display_error_msg = False
 
@@ -401,6 +402,8 @@ def main(config):
                 duolingo_userid = int(duolingo_main_json["users"][0]["id"])
                 if duolingo_userid != None:
                     print("Success! userId for username \"" + str(duolingo_username) + "\": " + str(duolingo_userid))
+
+                    # TODO: Determine if this cache call can be converted to the new HTTP cache.
                     cache.set(duolingo_cache_key_userid, str(duolingo_userid), ttl_seconds = 604800)
                     display_error_msg = False
                 else:
@@ -467,11 +470,15 @@ def main(config):
 
                 # Show error if username was not recognised
                 print("XP summary data retrieved from duolingo.com")
+
+                # TODO: Determine if this cache call can be converted to the new HTTP cache.
                 cache.set(duolingo_cache_key_xpsummary_json, json.encode(duolingo_xpsummary_json), ttl_seconds = 900)
 
                 # Format current time into string
                 time_now_formatted = now.format("Mon, 02 Jan 2006 15:04:05 -0700")
                 print("Time Now (Formatted for cache): " + str(time_now_formatted))
+
+                # TODO: Determine if this cache call can be converted to the new HTTP cache.
                 cache.set(duolingo_cache_key_xp_query_time, str(time_now_formatted), ttl_seconds = 900)
 
         # Setup dummy data for use on days with no data available
@@ -624,6 +631,7 @@ def main(config):
                 print("XP Count at Start of Day: " + str(duolingo_totalxp_daystart))
 
                 # Store start-of-day XP count in cache (for 24hrs)
+                # TODO: Determine if this cache call can be converted to the new HTTP cache.
                 cache.set(duolingo_cache_key_totalxp_daystart, str(duolingo_totalxp_daystart), ttl_seconds = 86400)
 
                 # Now we cache the Streak at the start of the day, and store it in the cache
@@ -635,9 +643,11 @@ def main(config):
                 print("Streak at Start of Day: " + str(duolingo_streak_daystart))
 
                 # Store start-of-day XP count in cache (for 24hrs)
+                # TODO: Determine if this cache call can be converted to the new HTTP cache.
                 cache.set(duolingo_cache_key_streak_daystart, str(duolingo_streak_daystart), ttl_seconds = 86400)
 
                 # Finally update the cache with the new date so this won't run again until tomorrow (stored for 24 hours)
+                # TODO: Determine if this cache call can be converted to the new HTTP cache.
                 cache.set(duolingo_cache_key_saveddate, str(date_now), ttl_seconds = 86400)
 
             # Set variables for current state

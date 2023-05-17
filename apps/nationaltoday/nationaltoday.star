@@ -68,6 +68,7 @@ def main(config):
             holiday_txt.insert(0, " ".join(date_split))
 
             #cache the data
+            # TODO: Determine if this cache call can be converted to the new HTTP cache.
             cache.set("holiday_rate", json.encode(holiday_txt), ttl_seconds = 1800)  #cache for 30 minutes
 
     if config.bool("qrcode", False):

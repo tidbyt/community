@@ -73,6 +73,8 @@ def get(path, ttl):
         return json.decode(data)
 
     data = http.get(API + path).body()
+
+    # TODO: Determine if this cache call can be converted to the new HTTP cache.
     cache.set(path, data, ttl_seconds = ttl)
     return json.decode(data)
 
@@ -177,6 +179,8 @@ def main(config):
 
     indexkey = user + mode + order + cutoff_str
     index = int(cache.get(indexkey) or 0)
+
+    # TODO: Determine if this cache call can be converted to the new HTTP cache.
     cache.set(indexkey, str(index + 1), 600)  # Keep position in list for 10m
 
     if order == "random":

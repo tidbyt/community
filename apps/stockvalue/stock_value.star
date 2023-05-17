@@ -46,6 +46,8 @@ def main(config):
         if rep.status_code != 200:
             fail("Request failed with status %d", rep.status_code)
         price = rep.json()["Global Quote"]["05. price"]
+
+        # TODO: Determine if this cache call can be converted to the new HTTP cache.
         cache.set("price", str(float(price)), ttl_seconds = 43200)
 
     value = (float(price) * int(config.str("shares", DEFAULT_SHARES)))

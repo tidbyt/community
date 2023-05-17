@@ -77,6 +77,8 @@ def main(config):
             #cache headlines
             for (i, x) in enumerate(title):
                 cache_name = "title_rate" + str(i + 1) + cached_sport_txt  #i+1 just to be consistent when retrieving cached names
+
+                # TODO: Determine if this cache call can be converted to the new HTTP cache.
                 cache.set(cache_name, x, ttl_seconds = 14400)
 
     #format output

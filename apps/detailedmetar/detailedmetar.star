@@ -45,6 +45,7 @@ def main(config):
         metarData = rep.json()
 
         # Set cache to be alive for 120 seconds.
+        # TODO: Determine if this cache call can be converted to the new HTTP cache.
         cache.set(cacheName, json.encode(metarData), ttl_seconds = 120)
 
     # Setup array
@@ -81,6 +82,7 @@ def main(config):
         logoBase64Encoded = base64.encode(image, encoding = "standard")
         logoBase64 = base64.decode(logoBase64Encoded, encoding = "standard")
 
+        # TODO: Determine if this cache call can be converted to the new HTTP cache.
         cache.set(cacheName, json.encode(logoBase64Encoded), ttl_seconds = 86400)
 
     # Primary display

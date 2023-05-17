@@ -29,6 +29,7 @@ def main(config):
         print("Miss! Refreshing old app list data.")
         old_list = get_apps()
         if old_list != None:
+            # TODO: Determine if this cache call can be converted to the new HTTP cache.
             cache.set("old_apps", json.encode(old_list), ttl_seconds = 604800)  #refresh old list once a week
             force_current_list = True
 
@@ -42,6 +43,7 @@ def main(config):
         print("Miss! Refreshing current app list data.")
         current_list = get_apps()
         if current_list != None:
+            # TODO: Determine if this cache call can be converted to the new HTTP cache.
             cache.set("current_apps", json.encode(current_list), ttl_seconds = 1800)  #refresh current list every 30 minutes
 
     #get final frame

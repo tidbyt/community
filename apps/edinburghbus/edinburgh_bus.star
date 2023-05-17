@@ -121,6 +121,8 @@ def fetch_bus_info(stop_id):
             # We need to fail, we have no cached data and no API response
             fail("API request failed with status %d", response.status_code)
         bus_info = response.json()
+
+        # TODO: Determine if this cache call can be converted to the new HTTP cache.
         cache.set("bus_stop_response", json.encode(bus_info), ttl_seconds = 30)
 
     return bus_info

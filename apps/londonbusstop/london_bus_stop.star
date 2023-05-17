@@ -75,12 +75,18 @@ def fetch_stops(loc):
     )
     if resp.status_code != 200:
         print("TFL StopPoint search failed with status ", resp.status_code)
+
+        # TODO: Determine if this cache call can be converted to the new HTTP cache.
         cache.set(cache_key, NO_DATA_IN_CACHE, ttl_seconds = 30)
         return None
     if not resp.json().get("stopPoints"):
         print("TFL StopPoint search does not contain stops")
+
+        # TODO: Determine if this cache call can be converted to the new HTTP cache.
         cache.set(cache_key, NO_DATA_IN_CACHE, ttl_seconds = 30)
         return None
+
+    # TODO: Determine if this cache call can be converted to the new HTTP cache.
     cache.set(cache_key, resp.body(), ttl_seconds = 86400)  # Bus stops don't move often
     return resp.json()
 
@@ -122,8 +128,12 @@ def fetch_stop(stop_id):
     )
     if resp.status_code != 200:
         print("TFL StopPoint request failed with status ", resp.status_code)
+
+        # TODO: Determine if this cache call can be converted to the new HTTP cache.
         cache.set(stop_id, NO_DATA_IN_CACHE, ttl_seconds = 30)
         return None
+
+    # TODO: Determine if this cache call can be converted to the new HTTP cache.
     cache.set(stop_id, resp.body(), ttl_seconds = 30)
     return resp.json()
 

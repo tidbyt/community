@@ -172,6 +172,7 @@ def get_conditions(spot_id):
         "wind": get_wind_forecast(spot_id),
     }
 
+    # TODO: Determine if this cache call can be converted to the new HTTP cache.
     cache.set(cache_key, json.encode(conditions), ttl_seconds = CACHE_TTL_SECONDS)
     return conditions
 

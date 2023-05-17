@@ -99,7 +99,11 @@ def main(config):
                         color = circle_colors[i],
                         child = render.Circle(color = "#332726", diameter = 2),
                     ))
+
+            # TODO: Determine if this cache call can be converted to the new HTTP cache.
             cache.set(cache_key, json.encode(content), ttl_seconds = 60)
+
+            # TODO: Determine if this cache call can be converted to the new HTTP cache.
             cache.set(cache_key + "_priority", json.encode(task_priority), ttl_seconds = 60)
 
         else:

@@ -248,6 +248,8 @@ def main(config):
             failed = rep.status_code or -1
         else:
             stages = rep.json()  # Will it just let me do this?
+
+            # TODO: Determine if this cache call can be converted to the new HTTP cache.
             cache.set("stages", json.encode(stages), 3600 * 2)
 
     if (failed):

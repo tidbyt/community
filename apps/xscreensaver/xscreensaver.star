@@ -361,6 +361,8 @@ def main(config):
 
         # Otherwise, cache the result
         gif = response.body()
+
+        # TODO: Determine if this cache call can be converted to the new HTTP cache.
         cache.set("gif_%s" % (hacks[hack][0]), base64.encode(gif), ttl_seconds = CACHE_SECONDS)
 
     # Render the GIF

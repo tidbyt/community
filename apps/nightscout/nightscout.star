@@ -868,6 +868,7 @@ def get_nightscout_data(nightscout_url, nightscout_token, show_mgdl):
         "history": history,
     }
 
+    # TODO: Determine if this cache call can be converted to the new HTTP cache.
     cache.set(key, json.encode(nightscout_data), ttl_seconds = CACHE_TTL_SECONDS)
 
     return nightscout_data, resp.status_code

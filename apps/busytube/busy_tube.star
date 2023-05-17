@@ -69,12 +69,18 @@ def fetch_stations(loc):
     )
     if resp.status_code != 200:
         print("TFL station search failed with status ", resp.status_code)
+
+        # TODO: Determine if this cache call can be converted to the new HTTP cache.
         cache.set(cache_key, NO_DATA_IN_CACHE, ttl_seconds = 30)
         return None
     if not resp.json().get("stopPoints"):
         print("TFL station search does not contain stops")
+
+        # TODO: Determine if this cache call can be converted to the new HTTP cache.
         cache.set(cache_key, NO_DATA_IN_CACHE, ttl_seconds = 30)
         return None
+
+    # TODO: Determine if this cache call can be converted to the new HTTP cache.
     cache.set(cache_key, resp.body(), ttl_seconds = 86400)  # Tube stations don't move often
     return resp.json()
 
@@ -137,12 +143,18 @@ def fetch_live_crowdedness(naptan_id):
     )
     if resp.status_code != 200:
         print("TFL live crowding query failed with status ", resp.status_code)
+
+        # TODO: Determine if this cache call can be converted to the new HTTP cache.
         cache.set(live_url, NO_DATA_IN_CACHE, ttl_seconds = 30)
         return None
     if not resp.json().get("dataAvailable"):
         print("TFL live crowdedness data not available")
+
+        # TODO: Determine if this cache call can be converted to the new HTTP cache.
         cache.set(live_url, NO_DATA_IN_CACHE, ttl_seconds = 30)
         return None
+
+    # TODO: Determine if this cache call can be converted to the new HTTP cache.
     cache.set(live_url, resp.body(), ttl_seconds = 300)  # Data is updated every 5 mins
     return resp.json()
 
@@ -190,6 +202,8 @@ def fetch_typical_crowdedness(naptan_id, now):
     if not resp.json().get("isFound"):
         print("TFL live crowdedness data not available")
         return None
+
+    # TODO: Determine if this cache call can be converted to the new HTTP cache.
     cache.set(typical_url, resp.body(), ttl_seconds = 604800)  # Data only needed once a week
     return resp.json()
 
