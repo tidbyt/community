@@ -34,7 +34,7 @@ PREVIEW_DATA = {
     "elevation_gain": 125800,
 }
 
-CACHE_TTL = 60 * 60 * 24  # updates once daily
+CACHE_TTL = 60 * 60 * 24 * 1.5  # updates once every 1.5 days
 
 RUN_ICON = base64.decode("""
 iVBORw0KGgoAAAANSUhEUgAAAAoAAAAGCAYAAAD68A/GAAAAAXNSR0IArs4c6QAAAGpJREFUGFdj
