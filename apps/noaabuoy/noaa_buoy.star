@@ -68,7 +68,7 @@ def fetch_data(buoy_id, last_data):
     data = dict()
     url = "https://www.ndbc.noaa.gov/data/latest_obs/%s.rss" % buoy_id.lower()
     debug_print("url: " + url)
-    resp = http.get(url)
+    resp = http.get(url, ttl_seconds = 600) # 10 minutes http cache time
     debug_print(resp)
     if resp.status_code != 200:
         if len(last_data) != 0:  # try to return the last cached data if it exists to account for spurious api failures
@@ -173,15 +173,15 @@ def main(config):
             if "stale" in data and data["stale"] > 2:
                 debug_print("expring stale cache")
 
-                # TODO: Determine if this cache call can be converted to the new HTTP cache.
+                # Custom cacheing determines if we have very stale data. Can't use http cache
                 cache.set(cache_key, json.encode(data), ttl_seconds = 1)  # 1 sec expire almost immediately
             else:
                 debug_print("Setting cache with : " + str(data))
 
-                # TODO: Determine if this cache call can be converted to the new HTTP cache.
+                # Custom cacheing determines if we have very stale data. Can't use http cache
                 cache.set(cache_key, json.encode(data), ttl_seconds = 1800)  # 30 minutes, should never actually expire because always getting re set
 
-                # TODO: Determine if this cache call can be converted to the new HTTP cache.
+                # Custom cacheing determines if we have very stale data. Can't use http cache
                 cache.set(cache_key + "_usecache", '{"usecache":"true"}', ttl_seconds = 600)  # 10 minutes
 
     if buoy_name == "" and "name" in data:
