@@ -23,9 +23,6 @@ DEFAULT_UNITS = "imperial"
 DEFAULT_SPORT = "ride"
 DEFAULT_SCREEN = "all"
 
-RATE_LIMIT_DEFAULT_BACKOFF_SECONDS = 15 * 60
-RATE_LIMIT_CACHE_KEY = "rate-limit-backoff"
-
 PREVIEW_DATA = {
     "count": 1408,
     "distance": 56159815,
@@ -34,7 +31,8 @@ PREVIEW_DATA = {
     "elevation_gain": 125800,
 }
 
-CACHE_TTL = 60 * 60 * 24  # updates once daily
+CACHE_TTL = 60 * 60 * 36  # updates once every 36 hours.
+ATHLETE_ID_TTL = 60 * 60 * 24 * 7  # updates once weekly
 
 RUN_ICON = base64.decode("""
 iVBORw0KGgoAAAANSUhEUgAAAAoAAAAGCAYAAAD68A/GAAAAAXNSR0IArs4c6QAAAGpJREFUGFdj
@@ -138,11 +136,6 @@ def main(config):
     units = config.get("units", DEFAULT_UNITS)
     display_type = config.get("display_type", DEFAULT_SCREEN)
 
-    if refresh_token and is_rate_limited():
-        # logged-in user but we have been rate-limited by Strava. can't render anything
-        # until the backoff expires.
-        return []
-
     if display_type in ("ytd", "all"):
         return athlete_stats(config, refresh_token, display_type, sport, units)
     elif display_type == "progress_chart":
@@ -192,7 +185,6 @@ def progress_chart(config, refresh_token, sport, units):
                 for k in stat_keys
             })
             included_current_activities.append(activity_stats)
-            print(activity_stats)
         else:
             print("Found non-%s activity (%s), skipping" % (sport, item["type"]))
 
@@ -211,7 +203,6 @@ def progress_chart(config, refresh_token, sport, units):
                 for k in stat_keys
             })
             included_previous_activities.append(activity_stats)
-            print(activity_stats)
         else:
             print("Found non-%s activity (%s), skipping" % (sport, item["type"]))
 
@@ -414,14 +405,20 @@ def athlete_stats(config, refresh_token, period, sport, units):
             "Authorization": "Bearer %s" % access_token,
         }
 
-        cache_prefix = "%s/%s/%s/" % (refresh_token, sport, period)
-
         # Get logged in athlete
         athlete = cache.get("%s/athlete_id" % refresh_token)
         if not athlete:
-            print("Getting athlete ID from API, access_token was cached.")
             url = "%s/athlete" % STRAVA_BASE
-            response = http_get(url, headers = headers)
+
+            # Note - we're double caching the athlete ID here since it should
+            # never really change. In practice, we should never need to actually
+            # make this HTTP request given the app stores the athlete ID as part
+            # of getting a new access token.
+            response = http.get(url, headers = headers, ttl_seconds = ATHLETE_ID_TTL)
+
+            # Remove the screen from the rotation if we're hitting API rate limits.
+            if response.status_code == 429:
+                return []
 
             if response.status_code != 200:
                 text = "code %d, %s" % (response.status_code, json.decode(response.body()).get("message", ""))
@@ -430,38 +427,28 @@ def athlete_stats(config, refresh_token, period, sport, units):
             data = response.json()
             athlete = int(float(data["id"]))
 
-            # TODO: Determine if this cache call can be converted to the new HTTP cache.
             cache.set("%s/athlete_id" % refresh_token, str(athlete), ttl_seconds = CACHE_TTL)
 
         stats = ["count", "distance", "moving_time", "elapsed_time", "elevation_gain"]
-        stats = {k: cache.get(cache_prefix + k) for k in stats}
+        stats = {k: None for k in stats}
 
-        if None not in stats.values():
-            print("Displaying cached data.")
-        else:
-            url = "%s/athletes/%s/stats" % (STRAVA_BASE, athlete)
-            print("Calling Strava API: " + url)
-            response = http_get(url, headers = headers)
+        url = "%s/athletes/%s/stats" % (STRAVA_BASE, athlete)
+        response = http.get(url, headers = headers, ttl_seconds = CACHE_TTL)
 
-            if response.status_code != 200:
-                text = "code %d, %s" % (response.status_code, json.decode(response.body()).get("message", ""))
-                return display_failure("Strava API failed, %s" % text)
+        # Remove the screen from the rotation if we're hitting API rate limits.
+        if response.status_code == 429:
+            return []
 
-            data = response.json()
+        if response.status_code != 200:
+            text = "code %d, %s" % (response.status_code, json.decode(response.body()).get("message", ""))
+            return display_failure("Strava API failed, %s" % text)
 
-            for per in ("ytd", "all"):
-                for sport_code in ("ride", "run", "swim"):
-                    this_cache_prefix = "%s/%s/%s/" % (refresh_token, sport_code, per)
-                    for item in stats.keys():
-                        if sport_code == sport:
-                            stats[item] = data["%s_%s_totals" % (per, sport_code)][item]
+        data = response.json()
 
-                        # TODO: Determine if this cache call can be converted to the new HTTP cache.
-                        cache.set(
-                            this_cache_prefix + item,
-                            str(data["%s_%s_totals" % (per, sport_code)][item]),
-                            ttl_seconds = CACHE_TTL,
-                        )
+        for sport_code in ("ride", "run", "swim"):
+            for item in stats.keys():
+                if sport_code == sport:
+                    stats[item] = data["%s_%s_totals" % (period, sport_code)][item]
 
     # Configure the display to the user's preferences
     elevu = "m"
@@ -952,35 +939,21 @@ def get_activities(config, refresh_token):
             "Authorization": "Bearer %s" % access_token,
         }
 
-        # To help reduce the number of API calls we need, I'm querying both months together (current/prev commented)
-        # The consequence here is if the athlete completed more than 200 activities in the last 2 months we'll miss some
-        urls = {
-            "last-2": "%s/athlete/activities?after=%s&per_page=%s" % (STRAVA_BASE, beg_prev_month.unix, max_activities),
-            # "current": "%s/athlete/activities?after=%s&per_page=%s" % (STRAVA_BASE, beg_curr_month.unix, max_activities),
-            # "previous": "%s/athlete/activities?after=%s&before=%s&per_page=%s" % (STRAVA_BASE, beg_prev_month.unix, end_prev_month.unix, max_activities),
-        }
-
+        url = "%s/athlete/activities?after=%s&per_page=%s" % (STRAVA_BASE, beg_prev_month.unix, max_activities)
         activities = {}
 
-        for query, url in urls.items():
-            cache_id = "%s/xactivity/%s/%s-%s" % (refresh_token, query, now.year, now.month)
-            data = cache.get(cache_id)
+        response = http.get(url, headers = headers, ttl_seconds = CACHE_TTL)
 
-            if not data:
-                print("Getting %s month activities. %s" % (query, url))
-                response = http_get(url, headers = headers)
-                if response.status_code != 200:
-                    text = "code %d, %s" % (response.status_code, json.decode(response.body()).get("message", ""))
-                    return display_failure("Strava API failed, %s" % text)
-                data = response.json()
+        # Remove the screen from the rotation if we're hitting API rate limits.
+        if response.status_code == 429:
+            return []
 
-                # TODO: Determine if this cache call can be converted to the new HTTP cache.
-                cache.set(cache_id, json.encode(data), ttl_seconds = CACHE_TTL)
-            else:
-                print("Returning cached %s month activities." % query)
-                data = json.decode(data)
+        if response.status_code != 200:
+            text = "code %d, %s" % (response.status_code, json.decode(response.body()).get("message", ""))
+            return display_failure("Strava API failed, %s" % text)
+        data = response.json()
 
-            activities[query] = data
+        activities["last-2"] = data
 
     # Sort each list chronologically
     for query in activities.keys():
@@ -1105,11 +1078,8 @@ def get_refresh_token(auth_code):
     access_token = token_params["access_token"]
     athlete = int(float(token_params["athlete"]["id"]))
 
-    # TODO: Determine if this cache call can be converted to the new HTTP cache.
     cache.set(refresh_token, access_token, ttl_seconds = int(token_params["expires_in"] - 30))
-
-    # TODO: Determine if this cache call can be converted to the new HTTP cache.
-    cache.set("%s/athlete_id" % refresh_token, str(athlete), ttl_seconds = CACHE_TTL)
+    cache.set("%s/athlete_id" % refresh_token, str(athlete), ttl_seconds = ATHLETE_ID_TTL)
 
     return refresh_token
 
@@ -1136,7 +1106,6 @@ def get_access_token(refresh_token):
     token_params = res.json()
     access_token = token_params["access_token"]
 
-    # TODO: Determine if this cache call can be converted to the new HTTP cache.
     cache.set(refresh_token, access_token, ttl_seconds = int(token_params["expires_in"] - 30))
 
     return access_token
@@ -1152,28 +1121,6 @@ def display_failure(msg):
             ],
         ),
     )
-
-def is_rate_limited():
-    return cache.get(RATE_LIMIT_CACHE_KEY)
-
-def http_get(url, headers = None):
-    res = http.get(url, headers = headers)
-
-    if res.status_code == 429:
-        # rate-limit exceeded. as of this writing, Strava doesn't return a
-        # Retry-After header. but if they start doing so, we'll respect it.
-        # in the absence of that header, we backoff for some reasonable
-        # default number of seconds.
-        backoff = res.headers.get("Retry-After", RATE_LIMIT_DEFAULT_BACKOFF_SECONDS)
-
-        # TODO: Determine if this cache call can be converted to the new HTTP cache.
-        cache.set(
-            RATE_LIMIT_CACHE_KEY,
-            "back off, buddy",
-            ttl_seconds = int(backoff),
-        )
-
-    return res
 
 def get_schema():
     units_options = [
