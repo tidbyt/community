@@ -50,7 +50,7 @@ def get_next_recording(api_key, live, timezone):
         next = r.json()["items"][0]
         title = render.Text(next["summary"])
         start = time.parse_time(next.get("start").get("dateTime"), "2006-01-02T15:04:05-07:00", next.get("start").get("timeZone"))
-        start_text = render.Text(start.in_location(timezone).format("3:04pm"), font = "tom-thumb")
+        start_text = render.Text(start.in_location(timezone).format("Jan 2 3:04pm"), font = "tom-thumb")
 
     return render.Box(
         child = render.Padding(
@@ -60,14 +60,14 @@ def get_next_recording(api_key, live, timezone):
                     render.Marquee(
                         width = 35,
                         child = title,
-                        offset_start = 5,
-                        offset_end = 5,
+                        offset_start = 35,
+                        offset_end = 35,
                     ),
                     render.Marquee(
                         width = 35,
                         child = start_text,
-                        offset_start = 5,
-                        offset_end = 5,
+                        offset_start = 35,
+                        offset_end = 35,
                     ),
                 ],
             ),
@@ -83,6 +83,7 @@ def get_live_show():
 def main(config):
     api_key = secret.decrypt("AV6+xWcE1+vVlYsC8ctRY3w3gUNEEkB3OUcob0kBvK0+1KGcve4gnEaq0WTcR9PmCrpsetzOOhdl7VkU/vW4Gek88eNzgOdvlD1pYWGo3eIAod5BmPq+DDP0YC0HRNYD9Zcjb2As2tXeXUiXcsERnKqMHQdMMlJoDO9pWGrsD0q4tKZHOhzG2Be0jJmC") or config.get("dev_api_key")
     timezone = config.get("timezone") or "America/New_York"
+    img = render.Image(src = relay_logo)
     live = check_live()
     if not live and config.bool("live_only"):
         return []
@@ -96,8 +97,6 @@ def main(config):
         img = render.Image(src = relay_logo)
     elif live:
         img = generate_qrcode(art)
-    if not live:
-        img = render.Image(src = relay_logo)
     show = get_next_recording(api_key, live, timezone)
     main_content = render.Row(
         children = [
