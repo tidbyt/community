@@ -1,0 +1,8 @@
+---
+id: fronius-monitor
+name: Fronius Monitor
+summary: Fronius PV Inverter monitor
+desc: Energy production and consumption monitor for your Fronius inverter.
+author: nchieng (ported from SolarEdge monitor by marcusb)
+fileName: fronius_monitor.star
+packageName: froniusmonitor
