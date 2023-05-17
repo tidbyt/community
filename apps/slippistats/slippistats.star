@@ -248,6 +248,7 @@ def main(config):
             "iconName": iconName,
         }
 
+        # TODO: Determine if this cache call can be converted to the new HTTP cache.
         cache.set(code, json.encode(data), ttl_seconds = 43200)
     localIconName = data["iconName"]
     charIcon = base64.decode(icons[localIconName])
