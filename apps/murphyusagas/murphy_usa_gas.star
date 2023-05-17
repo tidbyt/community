@@ -133,7 +133,7 @@ def get_stations(location):
     lat = humanize.float("#.##", float(loc["lat"]))
     lng = humanize.float("#.##", float(loc["lng"]))
 
-    http_response = http.post(url = API_STATION_SEARCH + "?" + API_STATION_CACHE_KEY.format(lat, lng), json_body = {"pagesize": API_STATION_SEARCH_PAGESIZE, "range": API_STATION_SEARCH_RANGE, "latitude": lat, "longitude": lng}, ttl_seconds = API_STATION_CACHE_KEY)
+    http_response = http.post(url = API_STATION_SEARCH, json_body = {"pagesize": API_STATION_SEARCH_PAGESIZE, "range": API_STATION_SEARCH_RANGE, "latitude": lat, "longitude": lng}, ttl_seconds = API_STATION_CACHE_KEY)
     if http_response.status_code != 200:
         fail("Station list request failed with status {} and result {}".format(http_response.status_code, http_response.body()))
     stations = http_response.json()["data"]
