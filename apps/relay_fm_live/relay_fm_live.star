@@ -94,7 +94,7 @@ def main(config):
         img = render.Image(src = img_data, width = 29, height = 29)
     elif live and art == "relay_logo":
         img = render.Image(src = relay_logo)
-    else:
+    elif live:
         img = generate_qrcode(art)
     if not live:
         img = render.Image(src = relay_logo)
