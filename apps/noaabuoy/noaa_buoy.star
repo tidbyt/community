@@ -68,7 +68,7 @@ def fetch_data(buoy_id, last_data):
     data = dict()
     url = "https://www.ndbc.noaa.gov/data/latest_obs/%s.rss" % buoy_id.lower()
     debug_print("url: " + url)
-    resp = http.get(url, ttl_seconds = 600) # 10 minutes http cache time
+    resp = http.get(url, ttl_seconds = 600)  # 10 minutes http cache time
     debug_print(resp)
     if resp.status_code != 200:
         if len(last_data) != 0:  # try to return the last cached data if it exists to account for spurious api failures

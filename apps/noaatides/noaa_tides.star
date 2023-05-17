@@ -5,7 +5,6 @@ Description: Display daily tides from NOAA stations.
 Author: tavdog
 """
 
-load("cache.star", "cache")
 load("encoding/json.star", "json")
 load("http.star", "http")
 load("humanize.star", "humanize")
@@ -123,7 +122,7 @@ def get_tides_hilo(station_id):
     url = NOAA_API_URL_HILO % (station_id)
     if not debug:
         debug_print("HILO Url : " + url)
-        resp = http.get(url,ttl_seconds = 14400) # cache for 4 hours (tides don't change much)
+        resp = http.get(url, ttl_seconds = 14400)  # cache for 4 hours (tides don't change much)
         if resp.status_code != 200:
             tides = None
         else:
@@ -139,7 +138,7 @@ def get_tides_graph(station_id):
     url = NOAA_API_URL_GRAPH % (station_id)
     if not debug:
         debug_print("Graph Url : " + url)
-        resp = http.get(url, ttl_seconds = 14400) # cache for 4 hours (tides don't change much)
+        resp = http.get(url, ttl_seconds = 14400)  # cache for 4 hours (tides don't change much)
         print(resp.headers.get("Tidbyt-Cache-Status"))
         if resp.status_code != 200:
             tides = None
@@ -211,12 +210,12 @@ def main(config):
     #     debug_print("pulling fresh tide data")
     tides_hilo = get_tides_hilo(station_id)
     tides_graph = get_tides_graph(station_id)
-        # if tides_hilo != None:
-        #     # TODO: Determine if this cache call can be converted to the new HTTP cache.
-        #     cache.set(cache_key_hilo, json.encode(tides_hilo), ttl_seconds = 14400)  # 4 hours
+    # if tides_hilo != None:
+    #     # TODO: Determine if this cache call can be converted to the new HTTP cache.
+    #     cache.set(cache_key_hilo, json.encode(tides_hilo), ttl_seconds = 14400)  # 4 hours
 
-        #     # TODO: Determine if this cache call can be converted to the new HTTP cache.
-        #     cache.set(cache_key_graph, json.encode(tides_graph), ttl_seconds = 14400)  # 4 hours
+    #     # TODO: Determine if this cache call can be converted to the new HTTP cache.
+    #     cache.set(cache_key_graph, json.encode(tides_graph), ttl_seconds = 14400)  # 4 hours
 
     debug_print("Tides HILO : " + str(tides_hilo))
     debug_print("Tides GRAPH: " + str(tides_graph))
