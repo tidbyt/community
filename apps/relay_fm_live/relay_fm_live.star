@@ -43,13 +43,11 @@ def get_next_recording(api_key, live, timezone):
         start_text = render.Text("Relay.fm", font = "tom-thumb")
     else:
         header = render.Text("Up next:")
-        calendar_minimum_time = time.now().format("2006-01-02T15:04:05.000Z")
+        calendar_minimum_time = time.now().in_location("UTC").format("2006-01-02T15:04:05.000Z")
         calendar_url = "https://www.googleapis.com/calendar/v3/calendars/relay.fm_t9pnsv6j91a3ra7o8l13cb9q3o%40group.calendar.google.com/events?key=" + api_key + "&orderBy=startTime&singleEvents=true&timeMin=" + calendar_minimum_time
+        print(calendar_url)
         r = http.get(calendar_url, ttl_seconds = 60)
         next = r.json()["items"][0]
-        end = time.parse_time(next.get("end").get("dateTime"), "2006-01-02T15:04:05-07:00", next.get("end").get("timeZone"))
-        if end < time.now():
-            next = r.json()["items"][1]
         title = render.Text(next["summary"])
         start = time.parse_time(next.get("start").get("dateTime"), "2006-01-02T15:04:05-07:00", next.get("start").get("timeZone"))
         start_text = render.Text(start.in_location(timezone).format("3:04pm"), font = "tom-thumb")
@@ -88,16 +86,18 @@ def main(config):
     live = check_live()
     if not live and config.bool("live_only"):
         return []
-    url = config.get("qrcode") or live_page_url
-    if not live:
-        img = render.Image(src = relay_logo)
-    elif live and url == "none":
+    art = config.get("show_art") or live_page_url
+    if live and art == "show_art":
         r = http.get(live_status_url, ttl_seconds = 60)
         img_url = r.json()["broadcast"]["show_art"]
         img_data = http.get(img_url, ttl_seconds = 60).body()
         img = render.Image(src = img_data, width = 29, height = 29)
+    elif live and art == "relay_logo":
+        img = render.Image(src = relay_logo)
     else:
-        img = generate_qrcode(url)
+        img = generate_qrcode(art)
+    if not live:
+        img = render.Image(src = relay_logo)
     show = get_next_recording(api_key, live, timezone)
     main_content = render.Row(
         children = [
@@ -118,24 +118,28 @@ def main(config):
 
 qr_code_options = [
     schema.Option(
-        display = "No QR code, display show art",
-        value = "none",
+        display = "Show art when live",
+        value = "show_art",
     ),
     schema.Option(
-        display = "Relay.fm website",
+        display = "QR when live: Relay.fm website",
         value = live_page_url,
     ),
     schema.Option(
-        display = "Broadcasts app",
+        display = "QR when live: Broadcasts app",
         value = live_broadcasts_url,
     ),
     schema.Option(
-        display = "Members' Discord",
+        display = "QR when live: Members' Discord",
         value = live_discord_url,
     ),
     schema.Option(
-        display = "m3u",
+        display = "QR when live: m3u",
         value = live_m3u_url,
+    ),
+    schema.Option(
+        display = "Always show Relay logo",
+        value = "relay_logo",
     ),
 ]
 
@@ -144,9 +148,9 @@ def get_schema():
         version = "1",
         fields = [
             schema.Dropdown(
-                id = "qrcode",
-                name = "Live QR Code Settings",
-                desc = "What to launch when the QR code is scanned.",
+                id = "show_art",
+                name = "Show art/QR code settings",
+                desc = "Settings for how to display show art.",
                 icon = "qrcode",
                 default = qr_code_options[0].value,
                 options = qr_code_options,
