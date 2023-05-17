@@ -130,7 +130,7 @@ qr_code_options = [
         value = live_broadcasts_url,
     ),
     schema.Option(
-        display = "Discord",
+        display = "Members' Discord",
         value = live_discord_url,
     ),
     schema.Option(
