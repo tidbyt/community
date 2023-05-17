@@ -49,7 +49,7 @@ def main(config):
     font = "CG-pixel-4x5-mono"  #set font
 
     #get data
-    rep = http.get(url = ESPN_API_URL, ttl_seconds = 14400) #update every 4 hours
+    rep = http.get(url = ESPN_API_URL, ttl_seconds = 14400)  #update every 4 hours
     if rep.status_code != 200:
         title = ["Error getting data!!!!", "", ""]
     else:
