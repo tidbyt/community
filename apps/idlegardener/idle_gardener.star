@@ -121,9 +121,7 @@ def increment_chopped_count(garden_id):
     chopped_count = cache.get("{id}-chopped_count".format(id = garden_id))
 
     if chopped_count == None:
-        chopped_count =
-        # TODO: Determine if this cache call can be converted to the new HTTP cache.
-        cache.set("{id}-chopped_count".format(id = garden_id), "0", ttl_seconds = 86400)
+        chopped_count = cache.get("{id}-chopped_count".format(id = garden_id), "0", ttl_seconds = 86400)
     else:
         temp_count = int(chopped_count)
         temp_count += 1
