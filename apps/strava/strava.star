@@ -36,22 +36,6 @@ PREVIEW_DATA = {
 
 CACHE_TTL = 60 * 60 * 24  # updates once daily
 
-STRAVA_ICON = base64.decode("""
-iVBORw0KGgoAAAANSUhEUgAAACgAAAAICAYAAACLUr1bAAAAAXNSR0IArs4c6QAAAJ1JREFUOE+
-lVEEOgCAMg9/6JH+LwVhTm3Us4gUZk3VtZ2/PM8428D7XfrQ+V40jZ55HZ/hO79X8aI96fMcvEG
-ggAx8B5IYZoJJhAWr3zCjAcI7G3D5iPQPICloGM6kq7ET2iGzjrIT4DXDlQ5XG5TNTuwDB4ofBz
-AuZxDvD5YYtBMiF2AcrBldFlE3kZ5P8qlGRtwLQ/ZKc76YiFYAXQTytNejult0AAAAASUVORK5C
-YII=
-""")
-
-STRAVA_ICON_GREY = base64.decode("""
-iVBORw0KGgoAAAANSUhEUgAAACgAAAAICAYAAACLUr1bAAAAAXNSR0IArs4c6QAAAKZJREFUOE+l
-lNERgCAMQ2UqR/DTWf10BKfSwzNe7CVFxR8ECn2kgTJc3zjNO/5ru61LqW0cR0ydV3NYF/eN8aqP
-fLzHLwgcIINXgHxgBoxiWMB4elYUMBwTx1xfqZ4BcgWtglmp3qij7KFs46yE8ROw5cNYGhfPSvUC
-QsWHgpkXshL3XC532SQgJ2IftBRsJYlqIj67yWC5S+yeGec3BZ09Ozz3BfAA4+Djoeo+ZzsAAAAA
-SUVORK5CYII=
-""")
-
 RUN_ICON = base64.decode("""
 iVBORw0KGgoAAAANSUhEUgAAAAoAAAAGCAYAAAD68A/GAAAAAXNSR0IArs4c6QAAAGpJREFUGFdj
 ZMACKkM9/oOE21fvYIRJwxkwAZCithoLMJdRvwG7wv9dDf+Pz1vB8PHLF7BCzydPGEFijGUNjBgm
@@ -413,7 +397,6 @@ def progress_chart(config, refresh_token, sport, units):
     )
 
 def athlete_stats(config, refresh_token, period, sport, units):
-    show_logo = config.get("show_logo", True)
     no_anim = config.bool("no_anim", False)
     timezone = config.get("timezone") or "America/New_York"
     year = time.now().in_location(timezone).year
@@ -508,8 +491,6 @@ def athlete_stats(config, refresh_token, period, sport, units):
             actu += "s"
 
     display_header = []
-    if show_logo == "true":
-        display_header.append(render.Image(src = STRAVA_ICON))
 
     sport_verb = {
         "run": "running",
@@ -1164,7 +1145,6 @@ def display_failure(msg):
     return render.Root(
         child = render.Column(
             children = [
-                render.Image(src = STRAVA_ICON),
                 render.Marquee(
                     width = 64,
                     child = render.Text(msg),
@@ -1255,8 +1235,8 @@ def get_schema():
             ),
             schema.Toggle(
                 id = "show_logo",
-                name = "Logo/Icon",
-                desc = "Whether to display the Strava logo, or the sport icon on progress charts.",
+                name = "Icon",
+                desc = "Whether to display the sport icon on progress charts.",
                 icon = "gear",
                 default = True,
             ),
