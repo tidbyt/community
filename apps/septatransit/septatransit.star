@@ -21,16 +21,8 @@ DEFAULT_STOP = "10264"
 DEFAULT_BANNER = ""
 
 def call_routes_api():
-    cache_string = cache.get("routes_api_response")
-    routes = None
-    if cache_string != None:
-        routes = json.decode(cache_string)
-    if routes == None:
-        r = http.get(API_ROUTES)
-        routes = r.json()
-
-        # TODO: Determine if this cache call can be converted to the new HTTP cache.
-        cache.set("routes_api_response", json.encode(routes), ttl_seconds = 3600)
+    r = http.get(API_ROUTES, ttl_seconds = 604800)
+    routes = r.json()
     sorted_routes = sort_routes(routes)
     return sorted_routes
 
@@ -96,19 +88,9 @@ def get_route_text_color(route):
     return "#fff"
 
 def get_stops(route):
-    cache_string = cache.get(route + "_" + "stops_api_response")
-    stops = None
-    if cache_string != None:
-        stops = json.decode(cache_string)
-    if stops == None:
-        r = http.get(API_STOPS, params = {"req1": route})
-        stops = r.json()
-
-        # TODO: Determine if this cache call can be converted to the new HTTP cache.
-        cache.set(route + "_" + "stops_api_response", json.encode(stops), ttl_seconds = 3600)
-
+    r = http.get(API_STOPS, params = {"req1": route}, ttl_seconds = 604800)
+    stops = r.json()
     list_of_stops = []
-
     for i in stops:
         list_of_stops.append(
             schema.Option(
@@ -116,7 +98,6 @@ def get_stops(route):
                 value = i["stopid"],
             ),
         )
-
     return list_of_stops
 
 def pad_direction_desc(data):
@@ -145,10 +126,7 @@ def call_schedule_api(route, stopid):
         expiry = int((parsed_time - time.now()).seconds)
         if expiry < 0:  #this is because septa's API returns tomorrow's times with today's date if the last departure for the day has already happened
             expiry = 30
-
-        # TODO: Determine if this cache call can be converted to the new HTTP cache.
         cache.set(route + "_" + stopid + "_" + "schedule_api_response", json.encode(schedule), ttl_seconds = expiry)
-
     return schedule
 
 def get_schedule(route, stopid):
