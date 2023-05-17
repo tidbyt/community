@@ -172,10 +172,16 @@ def main(config):
         if data != None:
             if "stale" in data and data["stale"] > 2:
                 debug_print("expring stale cache")
+
+                # TODO: Determine if this cache call can be converted to the new HTTP cache.
                 cache.set(cache_key, json.encode(data), ttl_seconds = 1)  # 1 sec expire almost immediately
             else:
                 debug_print("Setting cache with : " + str(data))
+
+                # TODO: Determine if this cache call can be converted to the new HTTP cache.
                 cache.set(cache_key, json.encode(data), ttl_seconds = 1800)  # 30 minutes, should never actually expire because always getting re set
+
+                # TODO: Determine if this cache call can be converted to the new HTTP cache.
                 cache.set(cache_key + "_usecache", '{"usecache":"true"}', ttl_seconds = 600)  # 10 minutes
 
     if buoy_name == "" and "name" in data:

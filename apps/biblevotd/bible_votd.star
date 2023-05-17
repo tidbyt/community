@@ -84,6 +84,7 @@ def main():
 
         bible_votd = {"ref": ref, "verse": verse}
 
+        # TODO: Determine if this cache call can be converted to the new HTTP cache.
         cache.set("bible_votd", json.encode(bible_votd), ttl_seconds = 86400)
 
     verse_text = bible_votd["verse"]

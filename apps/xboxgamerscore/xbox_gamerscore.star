@@ -173,6 +173,7 @@ def get_access_token(refresh_token):
     access_token = token_params["access_token"]
     ttl = int(token_params["expires_in"]) - 30
 
+    # TODO: Determine if this cache call can be converted to the new HTTP cache.
     cache.set(refresh_token, access_token, ttl_seconds = ttl)
     return access_token
 
@@ -209,6 +210,7 @@ def get_profile(config):
     profile = get_xbox_live_profile(xsts)
 
     if profile:
+        # TODO: Determine if this cache call can be converted to the new HTTP cache.
         cache.set("%s|profile" % access_token, json.encode(profile), ttl_seconds = 300)
 
     return profile
@@ -336,6 +338,7 @@ def oauth_handler(params):
 
     # Caching this here to use in the refresh token request
     if params["redirect_uri"]:
+        # TODO: Determine if this cache call can be converted to the new HTTP cache.
         cache.set("redirect_uri", params["redirect_uri"])
 
     if res.status_code != 200:
@@ -347,6 +350,7 @@ def oauth_handler(params):
     refresh_token = token_params["refresh_token"]
     ttl = int(token_params["expires_in"]) - 30
 
+    # TODO: Determine if this cache call can be converted to the new HTTP cache.
     cache.set(refresh_token, access_token, ttl)
     return refresh_token
 

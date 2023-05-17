@@ -243,6 +243,8 @@ def get_repository(config):
             return rep.json()["errors"][0]["message"]  #gets only the first error
         else:
             data = rep.json()["data"]["repository"]
+
+            # TODO: Determine if this cache call can be converted to the new HTTP cache.
             cache.set(nameWithOwner + "_" + branch, json.encode(data), ttl_seconds = 1800)  #cache for 30 minutes
 
     return data

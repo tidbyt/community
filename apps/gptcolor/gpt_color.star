@@ -64,6 +64,8 @@ def validate_key(OPENAI_API_KEY):
                     return True, "Valid Key Found"
 
         error_code = "OpenAI: Key provided does not have access to " + OPENAI_COMPLETION_MODEL
+
+        # TODO: Determine if this cache call can be converted to the new HTTP cache.
         cache.set("invalid_key-" + OPENAI_API_KEY, error_code, ttl_seconds = INVALID_KEY_COOLOFF_TTL_SECONDS)
         return False, error_code
 
@@ -74,6 +76,7 @@ def validate_key(OPENAI_API_KEY):
     else:
         error_code = "Open AI: Response " + str(rep.status_code)
 
+    # TODO: Determine if this cache call can be converted to the new HTTP cache.
     cache.set("invalid_key-" + OPENAI_API_KEY, error_code, ttl_seconds = INVALID_KEY_COOLOFF_TTL_SECONDS)
     return False, error_code
 
@@ -210,6 +213,8 @@ def get_art(OPENAI_API_KEY, cache_ttl_seconds):
         response_art, error_code = request_art(OPENAI_API_KEY)
         if response_art == None:
             return response_art, error_code
+
+        # TODO: Determine if this cache call can be converted to the new HTTP cache.
         cache.set("response_art-" + OPENAI_API_KEY, response_art, ttl_seconds = cache_ttl_seconds)
 
     # print(response_art)

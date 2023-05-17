@@ -28,8 +28,12 @@ def main():
         GET_HEADLINE = GET_SKYNEWS.json()["rss"]["channel"]["item"][0]["title"]
         GET_BLURB = GET_SKYNEWS.json()["rss"]["channel"]["item"][0]["description"][1]
         finalheadline = str(GET_HEADLINE)
+
+        # TODO: Determine if this cache call can be converted to the new HTTP cache.
         cache.set("cached_headline", finalheadline, ttl_seconds = 900)
         finalblurb = str(GET_BLURB)
+
+        # TODO: Determine if this cache call can be converted to the new HTTP cache.
         cache.set("cached_blurb", finalblurb, ttl_seconds = 900)
 
     return render.Root(

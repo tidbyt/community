@@ -54,6 +54,7 @@ def main(config):
         data = rep.json()
 
         # Update cache
+        # TODO: Determine if this cache call can be converted to the new HTTP cache.
         cache.set(formattedCacheKey, json.encode(data), ttl_seconds = 240)
 
     # Grab latest deployment

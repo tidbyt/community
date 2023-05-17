@@ -74,6 +74,7 @@ def main(config):
         # cache the quote if we successfully got it from endpoint
         # if we didn't, we will want to just try again
         if (status_code == HTTP_OK):
+            # TODO: Determine if this cache call can be converted to the new HTTP cache.
             cache.set(char_id, json.encode(quote_info), ttl_seconds = CACHE_TIMEOUT)
 
         print("cache miss, remaining: " + str(resp.headers.get("X-Ratelimit-Remaining")))

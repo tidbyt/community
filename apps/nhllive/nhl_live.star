@@ -279,6 +279,8 @@ def get_team_logo(teamId):
             logo = NHL_LOGO
         else:
             logo = response.body()
+
+            # TODO: Determine if this cache call can be converted to the new HTTP cache.
             cache.set(cache_key, logo, ttl_seconds = CACHE_LOGO_SECONDS)
     else:
         print("  - CACHE: Logo found for teamid %s" % str(int(teamId)))
@@ -337,16 +339,32 @@ def get_game(date, teamId):
                 score_home = int(response["dates"][0]["games"][0]["teams"]["home"]["score"])
 
                 # Get Preview
+                # TODO: Determine if this cache call can be converted to the new HTTP cache.
                 cache.set("game_" + gamePk + "_away", str(teamid_away), ttl_seconds = CACHE_GAME_SECONDS)
+
+                # TODO: Determine if this cache call can be converted to the new HTTP cache.
                 cache.set("game_" + gamePk + "_home", str(teamid_home), ttl_seconds = CACHE_GAME_SECONDS)
+
+                # TODO: Determine if this cache call can be converted to the new HTTP cache.
                 cache.set("game_" + gamePk + "_gamePk", str(gamePk), ttl_seconds = CACHE_GAME_SECONDS)
+
+                # TODO: Determine if this cache call can be converted to the new HTTP cache.
                 cache.set("game_" + gamePk + "_gamedate", str(gameDate), ttl_seconds = CACHE_GAME_SECONDS)
+
+                # TODO: Determine if this cache call can be converted to the new HTTP cache.
                 cache.set("game_" + gamePk + "_gamestate", str(game_state), ttl_seconds = CACHE_GAME_SECONDS)
+
+                # TODO: Determine if this cache call can be converted to the new HTTP cache.
                 cache.set("game_" + gamePk + "_scoreaway", str(score_away), ttl_seconds = CACHE_GAME_SECONDS)
+
+                # TODO: Determine if this cache call can be converted to the new HTTP cache.
                 cache.set("game_" + gamePk + "_scorehome", str(score_home), ttl_seconds = CACHE_GAME_SECONDS)
+
+                # TODO: Determine if this cache call can be converted to the new HTTP cache.
                 cache.set("game_" + gamePk + "_isGameToday", str(isGameToday), ttl_seconds = CACHE_GAME_SECONDS)
 
                 # Associate team with game in cache
+                # TODO: Determine if this cache call can be converted to the new HTTP cache.
                 cache.set("teamid_" + str(teamId) + "_gamepk", str(gamePk), ttl_seconds = CACHE_GAME_SECONDS)
     else:
         print("  - CACHE: Game Info Found for GamePk %s" % gamePk)
@@ -427,6 +445,7 @@ def get_linescore_game_data(gamePk, config):
 
     game_info_enc = json.encode(game_info)
 
+    # TODO: Determine if this cache call can be converted to the new HTTP cache.
     cache.set("game_" + str(gamePk) + "_info", game_info_enc, ttl_seconds = CACHE_UPDATE_SECONDS)
     game_info["game_update"] = game_info["INFO"]
 
@@ -495,6 +514,8 @@ def get_live_game_update(gamePk, config, goals_away, goals_home):
         }
 
         game_updates_enc = json.encode(game_updates)
+
+        # TODO: Determine if this cache call can be converted to the new HTTP cache.
         cache.set("game_" + str(gamePk) + "_updates", game_updates_enc, ttl_seconds = CACHE_UPDATE_SECONDS)
 
     if config.bool("sog", True):
@@ -707,6 +728,8 @@ def get_random_team():
                     scheduled_teams[str(int(r["id"]))] = True
 
         scheduled_teams_enc = json.encode(scheduled_teams)
+
+        # TODO: Determine if this cache call can be converted to the new HTTP cache.
         cache.set("scheduled_teams", scheduled_teams_enc, ttl_seconds = CACHE_SHUFFLETEAMS_SECONDS)
 
     else:

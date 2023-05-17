@@ -92,6 +92,8 @@ def get_access_token(refresh_token, site_id):
             return {"status_code": str(auth_rep.status_code), "access_token": "None"}
         else:
             access_token = auth_rep.json()["access_token"]
+
+            # TODO: Determine if this cache call can be converted to the new HTTP cache.
             cache.set(site_id, access_token, ttl_seconds = CACHE_TTL)
             return {"status_code": str(auth_rep.status_code), "access_token": str(access_token)}
 

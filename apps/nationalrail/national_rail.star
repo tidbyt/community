@@ -2689,8 +2689,11 @@ def fetch_departures(station, via):
         },
     )
     if resp.status_code != 200:
+        # TODO: Determine if this cache call can be converted to the new HTTP cache.
         cache.set(request, EMPTY_DATA_IN_CACHE, ttl_seconds = 30)
         return None
+
+    # TODO: Determine if this cache call can be converted to the new HTTP cache.
     cache.set(request, resp.body(), ttl_seconds = 60)
     return resp.body()
 

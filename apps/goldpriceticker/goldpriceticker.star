@@ -107,6 +107,7 @@ def main(config):
             ClosingPrice = float(json_entry["price"])
             last_matched_time_delta = abs(int(json_entry["timestamp"]) - ClosingTimeMili)
 
+        # TODO: Determine if this cache call can be converted to the new HTTP cache.
         cache.set(closing_cache_key, "%f" % (ClosingPrice), ttl_seconds = (60 * 60))  #We will stretch this one since its really graphstart that handles state of cache
 
     else:
@@ -131,6 +132,8 @@ def main(config):
             if (json_entry.get(PRECIOUS_METAL) == None):
                 continue
             RealtimePrice = float(json_entry[PRECIOUS_METAL])
+
+            # TODO: Determine if this cache call can be converted to the new HTTP cache.
             cache.set(PRECIOUS_METAL, json_entry[PRECIOUS_METAL], ttl_seconds = 180)
             if (is_debug == True):
                 print("Fetching realtime price completed")
@@ -169,6 +172,8 @@ def main(config):
                     plot_array.append((x, last_timekey_value))
                     if (is_debug == True):
                         print("%d %f" % (x, last_timekey_value))
+
+                    # TODO: Determine if this cache call can be converted to the new HTTP cache.
                     cache.set(PRECIOUS_METAL + ":" + "%d" % (x), "%f" % (last_timekey_value), 172800)
 
             PercentageChange_hist = (float(HistoricalPrices[timekey]) / ClosingPrice - 1) * 100
@@ -179,12 +184,16 @@ def main(config):
             if (is_debug == True):
                 print("%d %f" % (int(timekey), float(PercentageChange_hist)))
 
+            # TODO: Determine if this cache call can be converted to the new HTTP cache.
             cache.set(PRECIOUS_METAL + ":" + "%d" % (timekey), "%f" % (PercentageChange_hist), 172800)
             if (mingraph == 0):
                 mingraph = int(timekey)
                 maxgraph = mingraph + (30 * 3)  # 20 minute intervals means 3 per hour, a total of 30 hours between 6PM and Midnight the next night
 
+        # TODO: Determine if this cache call can be converted to the new HTTP cache.
         cache.set(PRECIOUS_METAL + ":GRAPHSTART", "%d" % (mingraph), (20 * 60))
+
+        # TODO: Determine if this cache call can be converted to the new HTTP cache.
         cache.set(PRECIOUS_METAL + ":GRAPHEND", "%d" % (last_timekey), (20 * 60))
         if (is_debug == True):
             print(PRECIOUS_METAL + ":GRAPHSTART=" + "%d" % (mingraph))
@@ -199,7 +208,10 @@ def main(config):
             percent_cache = cache.get(PRECIOUS_METAL + ":" + "%d" % (timekey))
 
             if (percent_cache == None):
+                # TODO: Determine if this cache call can be converted to the new HTTP cache.
                 cache.set(PRECIOUS_METAL + ":GRAPHSTART", "")
+
+                # TODO: Determine if this cache call can be converted to the new HTTP cache.
                 cache.set(PRECIOUS_METAL + ":GRAPHEND", "")
                 fail("Tried to fetch cache key " + PRECIOUS_METAL + ":" + "%d" % (timekey) + "but failed, invalidating cache")
 

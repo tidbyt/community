@@ -157,6 +157,8 @@ def getPosts(subname):
 
         # Store in cache again
         print("Caching new access token for 24 hours: " + accessToken)
+
+        # TODO: Determine if this cache call can be converted to the new HTTP cache.
         cache.set("reddit-image-posts-access-token", accessToken, 24 * 60 * 60)
     else:
         print("Access token still good!")
@@ -188,6 +190,8 @@ def getPosts(subname):
 
         # Cache the posts for 2 hours
         print("Caching " + subname + " posts")
+
+        # TODO: Determine if this cache call can be converted to the new HTTP cache.
         cache.set(cacheName, json.encode(allImagePosts), 2 * 60 * 60)
         return setRandomPost(allImagePosts, subname)
 

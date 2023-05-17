@@ -135,6 +135,7 @@ def get_country(region, country_index):
             country = sorted_countries[country_index % num_countries]
 
             # cache today's country
+            # TODO: Determine if this cache call can be converted to the new HTTP cache.
             cache.set(cache_key, json.encode(country), ttl_seconds = CACHE_TIMEOUT)
     else:
         # otherwise send back what we got from cache

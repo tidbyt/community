@@ -98,6 +98,8 @@ def get_followercount(username, api_key):
         if rep.status_code != 200:
             fail("warpcaster request failed with status %d", rep.status_code)
         count = int(rep.json()["result"]["user"]["followerCount"])
+
+        # TODO: Determine if this cache call can be converted to the new HTTP cache.
         cache.set(key, str(int(count)), ttl_seconds = 240)
 
     return count

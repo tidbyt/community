@@ -76,6 +76,8 @@ def get_data():
             return []
 
         league_champs = request.body()
+
+        # TODO: Determine if this cache call can be converted to the new HTTP cache.
         cache.set("league_champs", league_champs, ttl_seconds = CACHE_TTL)
 
     # Return our quotes, except for the header line

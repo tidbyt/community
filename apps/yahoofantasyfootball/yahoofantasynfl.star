@@ -482,6 +482,8 @@ def get_access_token(refresh_token):
         r = http.post(url, body = body, headers = headers)
         body = r.json()
         access_token = body["access_token"]
+
+        # TODO: Determine if this cache call can be converted to the new HTTP cache.
         cache.set(refresh_token + "_access_token", access_token, ttl_seconds = ACCESS_TOKEN_CACHE_TTL)
         print("Printing access token:")
         print(access_token)
@@ -511,6 +513,8 @@ def get_league_name(access_token, GAME_KEY, league_number):
         league_name = xpath.loads(league_name_response.body()).query("/fantasy_content/league/name")
         if league_name != None:
             print("Caching league name")
+
+            # TODO: Determine if this cache call can be converted to the new HTTP cache.
             cache.set(access_token + "_league_name", league_name, ttl_seconds = LEAGUE_NAME_CACHE_TTL)
 
     print(league_name)
@@ -547,6 +551,7 @@ def get_standings_and_records(access_token, GAME_KEY, league_number):
         for team_number in range(total_teams):
             allstandings.append({"Name": team_names[team_number], "Standings": team_standings[team_number], "Wins": team_wins[team_number], "Losses": team_losses[team_number], "Ties": team_ties[team_number]})
 
+        # TODO: Determine if this cache call can be converted to the new HTTP cache.
         cache.set(access_token + "_standings", json.encode(allstandings), ttl_seconds = STANDINGS_CACHE_TTL)
     print(allstandings)
     return allstandings

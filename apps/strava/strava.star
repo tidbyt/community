@@ -446,6 +446,8 @@ def athlete_stats(config, refresh_token, period, sport, units):
 
             data = response.json()
             athlete = int(float(data["id"]))
+
+            # TODO: Determine if this cache call can be converted to the new HTTP cache.
             cache.set("%s/athlete_id" % refresh_token, str(athlete), ttl_seconds = CACHE_TTL)
 
         stats = ["count", "distance", "moving_time", "elapsed_time", "elevation_gain"]
@@ -470,6 +472,8 @@ def athlete_stats(config, refresh_token, period, sport, units):
                     for item in stats.keys():
                         if sport_code == sport:
                             stats[item] = data["%s_%s_totals" % (per, sport_code)][item]
+
+                        # TODO: Determine if this cache call can be converted to the new HTTP cache.
                         cache.set(
                             this_cache_prefix + item,
                             str(data["%s_%s_totals" % (per, sport_code)][item]),
@@ -988,6 +992,8 @@ def get_activities(config, refresh_token):
                     text = "code %d, %s" % (response.status_code, json.decode(response.body()).get("message", ""))
                     return display_failure("Strava API failed, %s" % text)
                 data = response.json()
+
+                # TODO: Determine if this cache call can be converted to the new HTTP cache.
                 cache.set(cache_id, json.encode(data), ttl_seconds = CACHE_TTL)
             else:
                 print("Returning cached %s month activities." % query)
@@ -1118,7 +1124,10 @@ def get_refresh_token(auth_code):
     access_token = token_params["access_token"]
     athlete = int(float(token_params["athlete"]["id"]))
 
+    # TODO: Determine if this cache call can be converted to the new HTTP cache.
     cache.set(refresh_token, access_token, ttl_seconds = int(token_params["expires_in"] - 30))
+
+    # TODO: Determine if this cache call can be converted to the new HTTP cache.
     cache.set("%s/athlete_id" % refresh_token, str(athlete), ttl_seconds = CACHE_TTL)
 
     return refresh_token
@@ -1146,6 +1155,7 @@ def get_access_token(refresh_token):
     token_params = res.json()
     access_token = token_params["access_token"]
 
+    # TODO: Determine if this cache call can be converted to the new HTTP cache.
     cache.set(refresh_token, access_token, ttl_seconds = int(token_params["expires_in"] - 30))
 
     return access_token
@@ -1175,6 +1185,8 @@ def http_get(url, headers = None):
         # in the absence of that header, we backoff for some reasonable
         # default number of seconds.
         backoff = res.headers.get("Retry-After", RATE_LIMIT_DEFAULT_BACKOFF_SECONDS)
+
+        # TODO: Determine if this cache call can be converted to the new HTTP cache.
         cache.set(
             RATE_LIMIT_CACHE_KEY,
             "back off, buddy",
