@@ -106,6 +106,8 @@ def get_weather_data(config):
 
         current_data = res.json()[0]["lastData"]
         print("{0}".format(current_data))
+
+        # TODO: Determine if this cache call can be converted to the new HTTP cache.
         cache.set("weather_data-{0}".format(api_key), json.encode(current_data), ttl_seconds = 60)
         return current_data
 

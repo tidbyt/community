@@ -5,7 +5,6 @@ Description: Display your follower count from a Mastodon instance.
 Author: Nick Penree
 """
 
-load("cache.star", "cache")
 load("encoding/base64.star", "base64")
 load("encoding/json.star", "json")
 load("http.star", "http")
@@ -54,23 +53,15 @@ def main(config):
         username = username[len("@"):]
 
     instance = json.decode(config.get("instance", "{\"display\":\"mstdn.social\",\"value\":\"mstdn.social\"}"))
-
     instance_name = instance["value"]
-
-    cache_key = "mastodown_follows_%s_%s" % (instance_name, username)
-
-    formatted_followers_count = cache.get(cache_key)
     message = "@%s@%s" % (username, instance_name)
+    followers_count = get_followers_count(instance_name, username)
 
-    if formatted_followers_count == None:
-        followers_count = get_followers_count(instance_name, username)
-
-        if followers_count == None:
-            formatted_followers_count = "Not Found"
-            message = "Check your username. (%s)" % message
-        else:
-            formatted_followers_count = "%s %s" % (humanize.comma(followers_count), humanize.plural_word(followers_count, "follower"))
-            cache.set(cache_key, formatted_followers_count, ttl_seconds = 240)
+    if followers_count == None:
+        formatted_followers_count = "Not Found"
+        message = "Check your username. (%s)" % message
+    else:
+        formatted_followers_count = "%s %s" % (humanize.comma(followers_count), humanize.plural_word(followers_count, "follower"))
 
     username_child = render.Text(
         color = "#3c3c3c",
@@ -112,6 +103,7 @@ def get_followers_count(instance, username):
             "Content-Type": "application/json",
             "Accept": "application/activity+json",
         },
+        ttl_seconds = 240,
     )
 
     if response.status_code == 200:

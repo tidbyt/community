@@ -126,6 +126,8 @@ def Getweather_data(resort):
 
     results = dict(temperature = temperature, snowfall = snowfall, description = weather_description)
     url = RESORT_URLS[resort] + WEATHER_URL_STUB
+
+    # TODO: Determine if this cache call can be converted to the new HTTP cache.
     cache.set(url, json.encode(results), 600)
     return results
 
@@ -204,6 +206,8 @@ def getTerrain(resort):
         for y in summary[x].keys():
             summary[x][y] = repr(summary[x][y])
     url = RESORT_URLS[resort] + TERRAIN_URL_STUB
+
+    # TODO: Determine if this cache call can be converted to the new HTTP cache.
     cache.set(url, json.encode(summary), 600)
     return summary
 
@@ -211,7 +215,7 @@ def titleRow(resort):
     return render.Row(
         children = [
             render.Image(src = MOUNTAIN_ICON),
-            render.Marquee(render.Text(resort, font = "6x13", color = "#85c1e9"), width = 48),
+            render.Marquee(render.Text(resort, font = "6x13", color = "#85c1e9"), width = 48, align = "center"),
         ],
     )
 

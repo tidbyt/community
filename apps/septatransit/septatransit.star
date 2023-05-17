@@ -28,6 +28,8 @@ def call_routes_api():
     if routes == None:
         r = http.get(API_ROUTES)
         routes = r.json()
+
+        # TODO: Determine if this cache call can be converted to the new HTTP cache.
         cache.set("routes_api_response", json.encode(routes), ttl_seconds = 3600)
     sorted_routes = sort_routes(routes)
     return sorted_routes
@@ -101,6 +103,8 @@ def get_stops(route):
     if stops == None:
         r = http.get(API_STOPS, params = {"req1": route})
         stops = r.json()
+
+        # TODO: Determine if this cache call can be converted to the new HTTP cache.
         cache.set(route + "_" + "stops_api_response", json.encode(stops), ttl_seconds = 3600)
 
     list_of_stops = []
@@ -141,6 +145,8 @@ def call_schedule_api(route, stopid):
         expiry = int((parsed_time - time.now()).seconds)
         if expiry < 0:  #this is because septa's API returns tomorrow's times with today's date if the last departure for the day has already happened
             expiry = 30
+
+        # TODO: Determine if this cache call can be converted to the new HTTP cache.
         cache.set(route + "_" + stopid + "_" + "schedule_api_response", json.encode(schedule), ttl_seconds = expiry)
 
     return schedule
@@ -238,7 +244,11 @@ def main(config):
         banner_text = user_text
 
     if config.bool("show_time"):
-        banner_text = now.format("3:04p") + " " + banner_text
+        if int(now.format("15")) < 12:
+            meridian = "a"
+        else:
+            meridian = "p"
+        banner_text = now.format("3:04") + meridian + " " + banner_text
         if now.format("3") in ["10", "11", "12"]:
             left_pad = 0
 

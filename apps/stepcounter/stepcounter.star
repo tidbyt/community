@@ -131,6 +131,8 @@ def main(config):
 
         # Grab new Oauthtoken from the Google Token service, format for Data Aggregation API call.
         GOOGLEFIT_OAUTH_TOKEN = "Bearer {}".format(refresh.json()["access_token"])
+
+        # TODO: Determine if this cache call can be converted to the new HTTP cache.
         cache.set(GOOGLEFIT_REFRESH_TOKEN, GOOGLEFIT_OAUTH_TOKEN, ttl_seconds = int(refresh.json()["expires_in"] - 30))
 
     else:
@@ -382,6 +384,7 @@ def oauth_handler(params):
 
     print(token_params["expires_in"])
 
+    # TODO: Determine if this cache call can be converted to the new HTTP cache.
     cache.set(refresh_token, "Bearer " + token_params["access_token"], ttl_seconds = int(token_params["expires_in"] - 30))
 
     return refresh_token

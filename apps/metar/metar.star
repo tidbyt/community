@@ -37,6 +37,7 @@ def decoded_result_for_airport(airport):
 
         result = rep.body()
 
+        # TODO: Determine if this cache call can be converted to the new HTTP cache.
         cache.set(cache_key, result, ttl_seconds = 60)
         print("fetched for %s" % airport)
 

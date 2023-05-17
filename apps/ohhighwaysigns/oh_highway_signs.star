@@ -91,6 +91,8 @@ def get_signs(location):
         print("schema locations not cached")
         places = http.get(url, headers = headers(API_KEY))
         signs = places.json()
+
+        # TODO: Determine if this cache call can be converted to the new HTTP cache.
         cache.set(url, json.encode(signs), ttl_seconds = 300)
     else:
         print("using schema cache")
@@ -258,6 +260,7 @@ def load_signs(api_key):
     print("http success")
     data = resp.json()
 
+    # TODO: Determine if this cache call can be converted to the new HTTP cache.
     cache.set(CACHE_KEY, json.encode(data["results"]), ttl_seconds = 300)
 
     return data["results"]

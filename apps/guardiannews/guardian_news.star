@@ -43,12 +43,20 @@ def main(config):
             GET_UKPILLAR = GET_GUARDIAN.json()["response"]["editorsPicks"][0]["pillarName"]
             GET_UKSECTION = GET_GUARDIAN.json()["response"]["editorsPicks"][0]["sectionName"]
             finalheadline = str(GET_UKHEADLINE)
+
+            # TODO: Determine if this cache call can be converted to the new HTTP cache.
             cache.set("cached_ukHeadline", finalheadline, ttl_seconds = 900)
             finalblurb = str(GET_UKBLURB)
+
+            # TODO: Determine if this cache call can be converted to the new HTTP cache.
             cache.set("cached_ukBlurb", finalblurb, ttl_seconds = 900)
             finalpillar = str(GET_UKPILLAR)
+
+            # TODO: Determine if this cache call can be converted to the new HTTP cache.
             cache.set("cached_ukPillar", finalpillar, ttl_seconds = 900)
             finalsection = str(GET_UKSECTION)
+
+            # TODO: Determine if this cache call can be converted to the new HTTP cache.
             cache.set("cached_ukSection", finalsection, ttl_seconds = 900)
     if edition == "us":
         usHeadline_cached = cache.get("cached_usHeadline")
@@ -69,12 +77,20 @@ def main(config):
             GET_USPILLAR = GET_GUARDIAN.json()["response"]["editorsPicks"][0]["pillarName"]
             GET_USSECTION = GET_GUARDIAN.json()["response"]["editorsPicks"][0]["sectionName"]
             finalheadline = str(GET_USHEADLINE)
+
+            # TODO: Determine if this cache call can be converted to the new HTTP cache.
             cache.set("cached_usHeadline", finalheadline, ttl_seconds = 900)
             finalblurb = str(GET_USBLURB)
+
+            # TODO: Determine if this cache call can be converted to the new HTTP cache.
             cache.set("cached_usBlurb", finalblurb, ttl_seconds = 900)
             finalpillar = str(GET_USPILLAR)
+
+            # TODO: Determine if this cache call can be converted to the new HTTP cache.
             cache.set("cached_usPillar", finalpillar, ttl_seconds = 900)
             finalsection = str(GET_USSECTION)
+
+            # TODO: Determine if this cache call can be converted to the new HTTP cache.
             cache.set("cached_usSection", finalsection, ttl_seconds = 900)
     if edition == "au":
         auHeadline_cached = cache.get("cached_auHeadline")
@@ -95,12 +111,20 @@ def main(config):
             GET_AUPILLAR = GET_GUARDIAN.json()["response"]["editorsPicks"][0]["pillarName"]
             GET_AUSECTION = GET_GUARDIAN.json()["response"]["editorsPicks"][0]["sectionName"]
             finalheadline = str(GET_AUHEADLINE)
+
+            # TODO: Determine if this cache call can be converted to the new HTTP cache.
             cache.set("cached_auHeadline", finalheadline, ttl_seconds = 900)
             finalblurb = str(GET_AUBLURB)
+
+            # TODO: Determine if this cache call can be converted to the new HTTP cache.
             cache.set("cached_auBlurb", finalblurb, ttl_seconds = 900)
             finalpillar = str(GET_AUPILLAR)
+
+            # TODO: Determine if this cache call can be converted to the new HTTP cache.
             cache.set("cached_auPillar", finalpillar, ttl_seconds = 900)
             finalsection = str(GET_AUSECTION)
+
+            # TODO: Determine if this cache call can be converted to the new HTTP cache.
             cache.set("cached_auSection", finalsection, ttl_seconds = 900)
     if edition == "international":
         intlHeadline_cached = cache.get("cached_intlHeadline")
@@ -121,12 +145,20 @@ def main(config):
             GET_INTLPILLAR = GET_GUARDIAN.json()["response"]["editorsPicks"][0]["pillarName"]
             GET_INTLSECTION = GET_GUARDIAN.json()["response"]["editorsPicks"][0]["sectionName"]
             finalheadline = str(GET_INTLHEADLINE)
+
+            # TODO: Determine if this cache call can be converted to the new HTTP cache.
             cache.set("cached_intlHeadline", finalheadline, ttl_seconds = 900)
             finalblurb = str(GET_INTLBLURB)
+
+            # TODO: Determine if this cache call can be converted to the new HTTP cache.
             cache.set("cached_intlBlurb", finalblurb, ttl_seconds = 900)
             finalpillar = str(GET_INTLPILLAR)
+
+            # TODO: Determine if this cache call can be converted to the new HTTP cache.
             cache.set("cached_intlPillar", finalpillar, ttl_seconds = 900)
             finalsection = str(GET_INTLSECTION)
+
+            # TODO: Determine if this cache call can be converted to the new HTTP cache.
             cache.set("cached_intlSection", finalsection, ttl_seconds = 900)
 
     #fallback

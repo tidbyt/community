@@ -89,6 +89,8 @@ def main(config):
         if res.status_code == 200:
             #print("Received Data from NHC")
             basin_xml = res.body()
+
+            # TODO: Determine if this cache call can be converted to the new HTTP cache.
             cache.set(basin, basin_xml, ttl_seconds = CACHE_TTL)
 
     #load up the xml

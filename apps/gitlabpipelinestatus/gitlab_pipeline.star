@@ -16,11 +16,12 @@ running = base64.decode("""iVBORw0KGgoAAAANSUhEUgAAACEAAAAgCAYAAACcuBHKAAABBElEQ
 createdPendingSkipped = base64.decode("""iVBORw0KGgoAAAANSUhEUgAAACEAAAAgCAYAAACcuBHKAAABBElEQVRYR+2X4Q2EIAyFZSC2uLiPcQ5z+xi3YCAvktQUU+CVXD1y0b9W/Xh9r6AbOrhcBwxDhAgh7DUY770ZsEMACNAK5IRYtzUrxvga4z1ziNIHSC1ziJonblHipxA8HYcv5mk+U2DdBlp4EtEHgmTXKCHNl9b0NLVjeS87zQ5u6NKsoTruOZUnSsk5Vq+ZutL0LSqB7CutEHzuVCEkFXg7OATqiWv0IwS99GrMXBtMILjsyGrMIZDxzWsQT9SinxxUWl2OPMcVFj2hXX1uTkitlPafr0Dkons7BKqeqRIPhFYBpN7sXwKJbbKLIrTaGuRoSDX/rQRyDKDt3EwJTfu6gPgAs7cWEH3DHkAAAAAASUVORK5CYII=""")
 canceled = base64.decode("""iVBORw0KGgoAAAANSUhEUgAAACEAAAAgCAYAAACcuBHKAAABEUlEQVRYR+2XwRnCIAyFYRmH8OLRNZzDAZzDNTx6cQiXoYoFk34BXvhM5dBem7Y/Ly8P6t0Alx+AwUWIcD2HFow/XcyAPQKQAK1AvhD7Q1mMxz3eM4eofSCpZQ7R8sQqSvwVgk3Hyxd+d8xTYN2GbPgNYpaCh5WiHVK+9E5PF0R43oKbs4MZupY1adXEcypP1CbnvXpN6krpW1UC2Vd6IWjuNCEkFWg7KATqieXofyBSjxfGLLXBBILKjqzGHAKJb1oDeaIx+uyg0uty5DmqsOgJ7epLOSG1Utp/fgJRGt3VIVD1TJXYILQKIPVm/xLI2LJdFKHV1iBHw1yjfTlaP4QSyDEgbedmnkAViyCaYqvaCbHH/oEngJdpAAAAAElFTkSuQmCC""")
 manual = base64.decode("""iVBORw0KGgoAAAANSUhEUgAAACEAAAAgCAYAAACcuBHKAAABBUlEQVRYR+2X4RGDIAyFYY2O1jkco3N0tK6BVkSDF+CF6+txnv416peXlwS9G+DyAzC4FSK8XGjB+CnGMi6PAKQPs0AOiEclx0+8R4eofSCpRYdAan1tiKw7Fl/459EF7DLshr8hNinyYWUohzZfeo3bBRHey4TdZkfWVbVZk7IWnjN5ota+3+wtU1ebvlUlkL3SCyEncBNCU0GWQ0Kgnji3foRINT4Zs1QGCoSUHcmGDoHsEBkDeaLR+tlBpdflyHNSYdUT1uxLc0IrpbZ/fgJRat2/Q6DqUZW4IawKIPG0fwmkbbMtitBaY5Cj4R5jfTkaP4QSyDEgrXOaJ1DFVhBLMCt2BhiwvEkYq+zVAAAAAElFTkSuQmCC""")
-pipeline_dict = dict([("Not set", [success, "ENTER YOUR DATA!"]), ("invalid", [failed, "API CALL FAILED!"]), ("failed", [failed, "BUILD FAILED!"]), ("success", [success, "Success"]), ("running", [running, "Running"]), ("created", [createdPendingSkipped, "Created"]), ("pending", [createdPendingSkipped, "Pending"]), ("skipped", [createdPendingSkipped, "Skipped"]), ("canceled", [canceled, "Canc eled"]), ("manual", [manual, "Set to manual"])])
+pipeline_dict = dict([("invalid", [failed, "API CALL FAILED!"]), ("failed", [failed, "BUILD FAILED!"]), ("success", [success, "Success"]), ("running", [running, "Running"]), ("created", [createdPendingSkipped, "Created"]), ("pending", [createdPendingSkipped, "Pending"]), ("skipped", [createdPendingSkipped, "Skipped"]), ("canceled", [canceled, "Canc eled"]), ("manual", [manual, "Set to manual"])])
 
 def main(config):
-    token = config.get("api-token")
-    projectId = config.get("project-id")
+    token = config.get("api-token") or "example"
+    projectId = config.get("project-id") or "example"
+    print(token, projectId)
     branch = config.get("branch")
     status = get_pipeline_status(token, projectId, branch)
     ICON = render.Image(src = pipeline_dict.get(status)[0])
@@ -39,9 +40,10 @@ def main(config):
     )
 
 def get_pipeline_status(accesstoken, id, ref):
-    if accesstoken == "Not set" or accesstoken == None:
-        if id == "Not set" or id == None:
-            return "Not set"
+    #simply as an example for preview in store, i know its really not elegant, might change it in the future
+    if accesstoken == "example":
+        if id == "example":
+            return "success"
 
     # Set the GitLab API endpoint and access token
     api_endpoint = "https://gitlab.com/api/v4"
@@ -65,21 +67,21 @@ def get_schema():
                 id = "api-token",
                 name = "Your Gitlab access token",
                 desc = "Your Gitlab access token",
-                icon = "gear",
-                default = "Not set",
+                icon = "gitlab",
+                default = "",
             ),
             schema.Text(
                 id = "project-id",
                 name = "Project-Id",
-                desc = "The Project-Id of the project you want to track.",
-                icon = "gear",
-                default = "Not set",
+                desc = "The id of the project you want to track.",
+                icon = "hashtag",
+                default = "",
             ),
             schema.Text(
                 id = "branch",
                 name = "Branch",
                 desc = "The branch you want to track.",
-                icon = "gear",
+                icon = "codeBranch",
                 default = "main",
             ),
         ],

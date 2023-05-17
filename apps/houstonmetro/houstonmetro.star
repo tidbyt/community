@@ -29,6 +29,8 @@ def main(config):
     else:
         endpoint = "https://api.ridemetro.org/data/Stops('" + stop_id + "')?subscription-key=" + key
         response = http.get(endpoint)
+
+        # TODO: Determine if this cache call can be converted to the new HTTP cache.
         cache.set(ROUTE_INFO_CACHE_KEY + stop_id, response.body(), ROUTE_INFO_CACHE_TTL)
     stops = response.json()["value"]
     stop_name = response.json()["value"][0]["Name"]
@@ -40,6 +42,8 @@ def main(config):
     else:
         arrivals_endpoint = "https://api.ridemetro.org/data/Stops('" + stop_id + "')/Arrivals?subscription-key=" + key
         response = http.get(arrivals_endpoint)
+
+        # TODO: Determine if this cache call can be converted to the new HTTP cache.
         cache.set(ARRIVALS_CACHE_KEY + stop_id, response.body(), ARRIVALS_CACHE_TTL)
 
     stops = response.json()["value"]
@@ -193,6 +197,8 @@ def get_stations(location):
     else:
         location_endpoint = "https://houstonmetro.azure-api.net/data/GeoAreas('" + coordinates + "|.5')/Stops?subscription-key=" + key
         response = http.get(location_endpoint)
+
+        # TODO: Determine if this cache call can be converted to the new HTTP cache.
         cache.set(ROUTE_INFO_CACHE_KEY + coordinates, response.body(), ROUTE_INFO_CACHE_TTL)
     stops = []
     if response.json()["value"]:

@@ -1,7 +1,7 @@
 """
 Applet: Nightscout
 Summary: Shows Nightscout CGM Data
-Description: Displays Continuous Glucose Monitoring (CGM) blood sugar data from the Nightscout Open Source project (https://nightscout.github.io/). Will display blood sugar as mg/dL or mmol/L. Optionally display historical readings on a graph. Also a clock. (v2.3.1).
+Description: Displays Continuous Glucose Monitoring (CGM) blood sugar data from the Nightscout Open Source project (https://nightscout.github.io/). Will display blood sugar as mg/dL or mmol/L. Optionally display historical readings on a graph. Also a clock. (v2.3.2).
 Authors: Jeremy Tavener, Paul Murphy
 """
 
@@ -857,7 +857,8 @@ def get_nightscout_data(nightscout_url, nightscout_token, show_mgdl):
     history = []
 
     for x in resp.json():
-        history.append(tuple((int(int(x["date"]) / 1000), int(x["sgv"]))))
+        if "sgv" in x:
+            history.append(tuple((int(int(x["date"]) / 1000), int(x["sgv"]))))
 
     nightscout_data = {
         "sgv_current": str(int(sgv_current)),
@@ -867,6 +868,7 @@ def get_nightscout_data(nightscout_url, nightscout_token, show_mgdl):
         "history": history,
     }
 
+    # TODO: Determine if this cache call can be converted to the new HTTP cache.
     cache.set(key, json.encode(nightscout_data), ttl_seconds = CACHE_TTL_SECONDS)
 
     return nightscout_data, resp.status_code

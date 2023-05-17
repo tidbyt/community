@@ -59,6 +59,8 @@ def main(config):
         else:
             # print("Miss!")
             stops = getTrains(station_id, skiptime)
+
+            # TODO: Determine if this cache call can be converted to the new HTTP cache.
             cache.set("ns_%s" % station_id, json.encode(stops), ttl_seconds = 30)
 
     else:
@@ -229,10 +231,13 @@ def getTrip(station_id, station_dest, skiptime):
         resp = http.get("https://gateway.apiportal.ns.nl/reisinformatie-api/api/v3/trips", params = {"fromStation": station_id, "toStation": station_dest}, headers = {"Ocp-Apim-Subscription-Key": API_KEY})
 
         if resp.status_code != 200:
+            # TODO: Determine if this cache call can be converted to the new HTTP cache.
             cache.set("ns_%s" % station_id + station_dest, json.encode([]), ttl_seconds = 30)
             return []
         else:
             departures = json.decode(resp.body())
+
+            # TODO: Determine if this cache call can be converted to the new HTTP cache.
             cache.set("ns_%s" % station_id + station_dest, resp.body(), ttl_seconds = 30)
 
     # Create return list

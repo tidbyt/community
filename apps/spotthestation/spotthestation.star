@@ -240,6 +240,7 @@ def main(config):
         elif seconds_xml_valid_for > MAXIMUM_CACHE_TIME_IN_SECONDS:
             seconds_xml_valid_for = MAXIMUM_CACHE_TIME_IN_SECONDS
 
+        # TODO: Determine if this cache call can be converted to the new HTTP cache.
         cache.set(ISS_FLYBY_XML_URL, iss_xml_body, ttl_seconds = seconds_xml_valid_for)
 
     if description == None:

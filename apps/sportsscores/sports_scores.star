@@ -90,6 +90,7 @@ def main(config):
             stats = get_soccergames(today_str, league_ext)
 
         #cache the data
+        # TODO: Determine if this cache call can be converted to the new HTTP cache.
         cache.set("stats_rate_games%s_%s" % (sport, league), json.encode(stats), ttl_seconds = 60)
 
     #get frames before display

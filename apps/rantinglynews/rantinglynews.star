@@ -15,9 +15,12 @@ def main():
     cacheTest = cache.get("rantinglyNews_lineone")
     if cacheTest != None:
         print("Displaying Cached Data")
-        rantinglyNews_lineone = cache.set("rantinglyNews_lineone")
-        rantinglyNews_linetwo = cache.set("rantinglyNews_linetwo")
-        rantinglyNews_linethree = cache.set("rantinglyNews_linethree")
+
+        rantinglyNews_lineone = cache.get("rantinglyNews_lineone")
+
+        rantinglyNews_linetwo = cache.get("rantinglyNews_linetwo")
+
+        rantinglyNews_linethree = cache.get("rantinglyNews_linethree")
     else:
         print("Fetching Rantingly")
         rep = http.get(URL)
@@ -28,8 +31,14 @@ def main():
         rantinglyNews_lineone = d["items"][0]["title"]
         rantinglyNews_linetwo = d["items"][1]["title"]
         rantinglyNews_linethree = d["items"][2]["title"]
+
+        # TODO: Determine if this cache call can be converted to the new HTTP cache.
         cache.set("rantinglyNews_lineone", str(300), ttl_seconds = 300)
+
+        # TODO: Determine if this cache call can be converted to the new HTTP cache.
         cache.set("rantinglyNews_linetwo", str(300), ttl_seconds = 300)
+
+        # TODO: Determine if this cache call can be converted to the new HTTP cache.
         cache.set("rantinglyNews_linethree", str(300), ttl_seconds = 300)
         print("Successful Fetch")
 

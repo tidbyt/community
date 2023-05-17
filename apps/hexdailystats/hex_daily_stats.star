@@ -141,6 +141,7 @@ def get_json_from_cache_or_http(url, ttl_seconds):
             fail("HTTP Request failed with status: {}".format(http_response.status_code))
 
         # Store http response in cache keyed off URL
+        # TODO: Determine if this cache call can be converted to the new HTTP cache.
         cache.set(url, json.encode(http_response.json()), ttl_seconds = ttl_seconds)
         data = http_response.json()
 
@@ -161,6 +162,7 @@ def post_json_from_cache_or_http(url, body, headers, cache_name, ttl_seconds):
             fail("HTTP Request failed with status: {}".format(http_response.status_code))
 
         # Store http response in cache keyed off URL
+        # TODO: Determine if this cache call can be converted to the new HTTP cache.
         cache.set(cache_name, json.encode(http_response.json()), ttl_seconds = ttl_seconds)
         data = http_response.json()
 

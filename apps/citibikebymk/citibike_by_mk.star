@@ -15,6 +15,8 @@ def get_resp_stations():
         resp = http.get(url)
         data = resp.json()["data"]
         print("Response Stations: ", resp.status_code)
+
+        # TODO: Determine if this cache call can be converted to the new HTTP cache.
         cache.set("data_stations", json.encode(data), ttl_seconds = ttls)
     else:
         print("Station data cached")
@@ -30,6 +32,8 @@ def get_resp_bikes():
         resp = http.get(url_bikes)
         data = resp.json()["data"]["stations"]
         print("Response Availability: ", resp.status_code)
+
+        # TODO: Determine if this cache call can be converted to the new HTTP cache.
         cache.set("data_bikes", json.encode(data), ttl_seconds = ttls)
     else:
         print("Bikes data cached")

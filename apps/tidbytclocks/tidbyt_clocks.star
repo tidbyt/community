@@ -34,6 +34,8 @@ def main(config):
         else:
             data = [(x["id"], (x["name"], x["description"])) for x in rep.json()["apps"]]
             data = dict(data)
+
+            # TODO: Determine if this cache call can be converted to the new HTTP cache.
             cache.set("app_list", json.encode(data), ttl_seconds = 3600)  #refresh app list every hour
 
     #find the apps that have clock in the name or description

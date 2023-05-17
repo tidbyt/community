@@ -245,6 +245,8 @@ def get_planet_information(planet, location, check_offset, cache_ttl):
 
     if cache_contents == None:
         position_json = get_body_position(planet, location, check_time)
+
+        # TODO: Determine if this cache call can be converted to the new HTTP cache.
         cache.set(cache_name, json.encode(position_json), ttl_seconds = cache_ttl)
     else:
         position_json = json.decode(cache_contents)
