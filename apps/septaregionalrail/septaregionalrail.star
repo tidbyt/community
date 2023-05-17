@@ -246,7 +246,7 @@ def get_schedule(direction, station):
                         ),
                         width = 39,
                         offset_start = 40,
-                        offset_end = 40
+                        offset_end = 40,
                     ),
                 ],
             ),
