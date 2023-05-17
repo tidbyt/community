@@ -106,6 +106,7 @@ def get_rocket_launch_json():
                 if (cache_time_seconds < MINIMUM_CACHE_TIME_IN_SECONDS):
                     cache_time_seconds = MINIMUM_CACHE_TIME_IN_SECONDS
 
+                # TODO: Determine if this cache call can be converted to the new HTTP cache.
                 cache.set(ROCKET_LAUNCH_CACHE_NAME, json.encode(rocket_launch_data), ttl_seconds = cache_time_seconds)
 
     return (rocket_launch_data)

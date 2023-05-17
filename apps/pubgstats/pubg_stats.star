@@ -126,6 +126,7 @@ def main(config):
         player_id = resp.json()["data"][0]["id"]
 
         # Set player id in cache
+        # TODO: Determine if this cache call can be converted to the new HTTP cache.
         cache.set(player_cache_key, str(player_id), ttl_seconds = ttl_player_id)
 
     # Get lifetime stats for that player id
@@ -160,6 +161,7 @@ def main(config):
         lifetime_stats = json.encode(resp.json())
 
         # Set cache with JSON object from lifetime_stats serialized to string
+        # TODO: Determine if this cache call can be converted to the new HTTP cache.
         cache.set(lifetime_stats_cache_key, str(lifetime_stats), ttl_seconds = ttl_lifetime_stats)
 
     # Decode string back to JSON object to be read

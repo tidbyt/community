@@ -124,6 +124,8 @@ def get_decoded_data_from_api(api_key):
         image = base64.decode(response.json()["base64Image"])
         message = response.json()["message"]
         data = {"image": response.json()["base64Image"], "message": message}
+
+        # TODO: Determine if this cache call can be converted to the new HTTP cache.
         cache.set(api_key, json.encode(data), ttl_seconds = DEFAULT_CACHE_DURATION)
     else:
         error_message = handle_api_error(response)

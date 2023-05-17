@@ -82,11 +82,15 @@ def request_refresh_token(refresh_token_code, client_id, client_secret):
     response = http.post(AUTH_URL, params = params, headers = headers)
     if response.status_code == 200:
         print("Refresh token successfully.")
+
+        # TODO: Determine if this cache call can be converted to the new HTTP cache.
         cache.set(
             ACCESS_TOKEN_KEY.format(unique_suffix),
             response.json()["access_token"],
             ttl_seconds = int(response.json()["expires_in"]),
         )
+
+        # TODO: Determine if this cache call can be converted to the new HTTP cache.
         cache.set(
             REFRESH_TOKEN_KEY.format(unique_suffix),
             response.json()["refresh_token"],
@@ -162,16 +166,21 @@ def main(config):
         # Cache is scoped to the app, not individual user. So the cache keys need to be
         # unique to the user/configuration
 
+        # TODO: Determine if this cache call can be converted to the new HTTP cache.
         cache.set(
             ACCESS_TOKEN_KEY.format(unique_suffix),
             access_token,
             ttl_seconds = TTL_SECONDS,
         )
+
+        # TODO: Determine if this cache call can be converted to the new HTTP cache.
         cache.set(
             REFRESH_TOKEN_KEY.format(unique_suffix),
             refresh_token,
             ttl_seconds = TTL_SECONDS * 7,
         )
+
+        # TODO: Determine if this cache call can be converted to the new HTTP cache.
         cache.set(INIT_KEY.format(unique_suffix), "1")
 
     # check access token if it needs to be refreshed
@@ -184,6 +193,7 @@ def main(config):
     if engery_cached == None:
         status, energy_today = get_system_stats(api_key, unique_suffix)
         if status == 200:
+            # TODO: Determine if this cache call can be converted to the new HTTP cache.
             cache.set(
                 ENERGY_TODAY_KEY.format(unique_suffix),
                 energy_today,

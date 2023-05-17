@@ -302,6 +302,8 @@ def get_stations(config):
                  (res.status_code, res.body()))
 
         stations = res.json()
+
+        # TODO: Determine if this cache call can be converted to the new HTTP cache.
         cache.set("ambient-weather-%s" % applicationKey, json.encode(stations), ttl_seconds = 30)
 
     return stations

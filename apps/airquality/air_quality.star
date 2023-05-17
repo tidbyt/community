@@ -316,6 +316,8 @@ def get_data(location):
 
     # cache results using lat#lon as the key
     cache_key = "%s#%s" % (location["lat"], location["lng"])
+
+    # TODO: Determine if this cache call can be converted to the new HTTP cache.
     cache.set(cache_key, json.encode(data), ttl_seconds = DEFAULT_CACHE)
     print("Data cached for %d seconds" % DEFAULT_CACHE)
 

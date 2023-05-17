@@ -44,7 +44,10 @@ def main(config):
         kanji_image_src = http.get(kanji_image_url).body()
 
         #lets cache this so there is only one call per TTL across all tidbyt's
+        # TODO: Determine if this cache call can be converted to the new HTTP cache.
         cache.set(CACHED_KANJI_NAME, json.encode(kanji_data), ttl_seconds = KANJI_TTL)
+
+        # TODO: Determine if this cache call can be converted to the new HTTP cache.
         cache.set(CACHED_KANJI_CHARACTER, kanji_image_src, ttl_seconds = KANJI_TTL)
     else:
         #We have the data in cache, let's use it

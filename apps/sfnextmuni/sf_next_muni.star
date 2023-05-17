@@ -289,7 +289,11 @@ def fetch_cached(url, ttl):
         body = res.body().lstrip("\ufeff")
         data = json.decode(body)
         timestamp = time.now().unix
+
+        # TODO: Determine if this cache call can be converted to the new HTTP cache.
         cache.set(url, body, ttl_seconds = ttl)
+
+        # TODO: Determine if this cache call can be converted to the new HTTP cache.
         cache.set(("timestamp::%s" % url), str(timestamp), ttl_seconds = ttl)
         return (timestamp, data)
 

@@ -518,6 +518,8 @@ def cache_value(key, value, ttl):
         print("Cache disabled, won't set")
         return
     print("Cacheing: %s" % key)
+
+    # TODO: Determine if this cache call can be converted to the new HTTP cache.
     cache.set(key, value, ttl_seconds = ttl)
 
 def cached_value(key):

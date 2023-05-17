@@ -33,6 +33,7 @@ def main(config):
             nft_image_src = http.get(nft_image_url).body()
 
             # set the cache since this is the image we are rendering
+            # TODO: Determine if this cache call can be converted to the new HTTP cache.
             cache.set(address + "_random", nft_image_src, ttl_seconds = nft_ttl_seconds)
 
     else:
@@ -120,6 +121,7 @@ def fetch_random_nft(address):
             break
 
     # re-store the cache with the updated info.
+    # TODO: Determine if this cache call can be converted to the new HTTP cache.
     cache.set(address + "_image_dict", json.encode(image_dict_orig), ttl_seconds = 86400)  # 1 day
     if cur_url:
         #print("picked: " + cur_url)

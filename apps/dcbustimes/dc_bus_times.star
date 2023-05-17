@@ -494,6 +494,7 @@ def GetTimes1(stopID, apiKey):
     if rep.status_code != 200:
         fail("NextBus request failed with status ", rep.status_code)
 
+    # TODO: Determine if this cache call can be converted to the new HTTP cache.
     cache.set(stopID, rep.body(), ttl_seconds = 20)
     return rep.json()
 

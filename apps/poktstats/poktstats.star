@@ -24,6 +24,7 @@ def main():
         price = rep.json()["coin"]["price"]
 
         # 2 hour cache for the price
+        # TODO: Determine if this cache call can be converted to the new HTTP cache.
         cache.set("pokt_price", str(float(price)), ttl_seconds = 7200)
 
     if cached_height != None:
@@ -37,6 +38,7 @@ def main():
         height = rep.body()
 
         # 10 minute cache for the height (15 minute block time)
+        # TODO: Determine if this cache call can be converted to the new HTTP cache.
         cache.set("pokt_height", str(int(height)), ttl_seconds = 600)
 
     return render.Root(

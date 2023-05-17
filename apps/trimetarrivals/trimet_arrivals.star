@@ -41,6 +41,8 @@ def main(config):
         if response.status_code != 200:
             fail("request failed with status %d", response.status_code)
         rep = response.json()
+
+        # TODO: Determine if this cache call can be converted to the new HTTP cache.
         cache.set("stop", json.encode(rep), ttl_seconds = 30)
 
     # print(rep["resultSet"])

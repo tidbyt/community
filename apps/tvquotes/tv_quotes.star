@@ -183,6 +183,8 @@ def get_shows():
             ]
         else:
             shows_list = rep.json()["shows"]
+
+            # TODO: Determine if this cache call can be converted to the new HTTP cache.
             cache.set("tvquotes_shows", json.encode(shows_list), ttl_seconds = 1209600)  #cache list for 2 weeks
 
     return shows_list
@@ -221,6 +223,8 @@ def get_quote(config):
             }
         else:
             quote = rep.json()
+
+            # TODO: Determine if this cache call can be converted to the new HTTP cache.
             cache.set(cache_key, json.encode(quote), ttl_seconds = 300)  #cache the quote for 5 minutes
 
     return quote

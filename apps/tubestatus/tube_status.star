@@ -160,8 +160,12 @@ def fetch_response():
     )
     if resp.status_code != 200:
         print("TFL status request failed with status code ", resp.status_code)
+
+        # TODO: Determine if this cache call can be converted to the new HTTP cache.
         cache.set(cache_key, NO_DATA_IN_CACHE, ttl_seconds = 30)
         return None
+
+    # TODO: Determine if this cache call can be converted to the new HTTP cache.
     cache.set(cache_key, resp.body(), ttl_seconds = 60)
     return resp.json()
 
