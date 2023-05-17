@@ -15,9 +15,9 @@ load("secret.star", "secret")
 load("xpath.star", "xpath")
 
 # Constants for production repo
-TIDBYT_OAUTH_CALLBACK_URL = "https%3A%2F%2Fappauth.tidbyt.com%2Fyahoofantasynfl"  # registered https://appauth.tidbyt.com/yahoofantasynfl as redirect_uri at Yahoo
-YAHOO_CLIENT_ID = secret.decrypt("AV6+xWcESOzU0+vxd/pD9p6eJsSh+fkgPTLUMzJbnS00CHWXmoKWQbvmTpVIUUE3Y/J2LeplFDCPh3zEwpX0XEyHZubCkNlgu2CrTnGcGYRv4H7xOtS+BTwiEQUu40mgSarmMkxR/uo2BetzoVEctK3SkbEdVW5mZBJTPjoHZwfwPFhzXMyYKqO8EejDPYOg48beUv3MnNRx+nrtbtWf8Ip8Vj0riv9lceqgbGT5KiM5AgBNLSPHKyFwDLnj2R/3dhqyVBTR") or ""
-YAHOO_CLIENT_SECRET = secret.decrypt("AV6+xWcEUbzKOHZ63pL4mNLO8MGfmkVomrRiBERdm2WxRiPjMdymwN9lROH88N5pCfo5ZSUiNlOt9J3WeM9dUe1kGTPT6AykhXEXOXPjjqhVjKBGy3UOBDeYll33K6XxYiS06WP5Au6EBK6bc3gQd6+Y1h+zZyYL4NTzh2R4U/y1Xkj7sx/0wWQEmfhBww==") or ""
+# TIDBYT_OAUTH_CALLBACK_URL = "https%3A%2F%2Fappauth.tidbyt.com%2Fyahoofantasynfl"  # registered https://appauth.tidbyt.com/yahoofantasynfl as redirect_uri at Yahoo
+# YAHOO_CLIENT_ID = secret.decrypt("AV6+xWcESOzU0+vxd/pD9p6eJsSh+fkgPTLUMzJbnS00CHWXmoKWQbvmTpVIUUE3Y/J2LeplFDCPh3zEwpX0XEyHZubCkNlgu2CrTnGcGYRv4H7xOtS+BTwiEQUu40mgSarmMkxR/uo2BetzoVEctK3SkbEdVW5mZBJTPjoHZwfwPFhzXMyYKqO8EejDPYOg48beUv3MnNRx+nrtbtWf8Ip8Vj0riv9lceqgbGT5KiM5AgBNLSPHKyFwDLnj2R/3dhqyVBTR") or ""
+# YAHOO_CLIENT_SECRET = secret.decrypt("AV6+xWcEUbzKOHZ63pL4mNLO8MGfmkVomrRiBERdm2WxRiPjMdymwN9lROH88N5pCfo5ZSUiNlOt9J3WeM9dUe1kGTPT6AykhXEXOXPjjqhVjKBGy3UOBDeYll33K6XxYiS06WP5Au6EBK6bc3gQd6+Y1h+zZyYL4NTzh2R4U/y1Xkj7sx/0wWQEmfhBww==") or ""
 
 # Common Constants
 YAHOO_CLIENT_ID_AND_SECRET_BASE_64 = base64.encode(YAHOO_CLIENT_ID + ":" + YAHOO_CLIENT_SECRET)
@@ -32,7 +32,7 @@ def main(config):
     render_category = []
     league_name = ""
     refresh_token = config.get("auth")
-    league_number = config.get("league_number", "")
+    league_id = config.get("league_id", "")
     rotation_speed = config.get("rotation_speed", "5")
     teams_per_view = int(config.get("teams_per_view", "4"))
     heading_font_color = config.get("heading_font_color", "#FFA500")
@@ -47,12 +47,12 @@ def main(config):
 
         if (access_token):
             print("League Name: " + league_name)
-            league_name = get_league_name(access_token, GAME_KEY, league_number)
+            league_name = get_league_name(access_token, GAME_KEY, league_id)
 
             if (league_name):
                 if show_scores:
                     entries_to_display = 2
-                    current_matchup = get_current_matchup(access_token, GAME_KEY, league_number)
+                    current_matchup = get_current_matchup(access_token, GAME_KEY, league_id)
 
                     render_category.extend(
                         [
@@ -70,7 +70,7 @@ def main(config):
                     )
                 else:
                     entries_to_display = teams_per_view
-                    standings = get_standings_and_records(access_token, GAME_KEY, league_number)
+                    standings = get_standings_and_records(access_token, GAME_KEY, league_id)
 
                     for x in range(0, len(standings), entries_to_display):
                         render_category.extend(
@@ -396,9 +396,9 @@ def get_schema():
                 ],
             ),
             schema.Text(
-                id = "league_number",
-                name = "League Number",
-                desc = "Type in the league number for your league. Go to your league in a browser and look at the URL. It should end in /f1 then /#######. Input just those numbers here.",
+                id = "league_id",
+                name = "League ID",
+                desc = "Type in the league ID for your league. The League ID can be found under your League Settings.",
                 icon = "hashtag",
                 default = "",
             ),
@@ -490,7 +490,7 @@ def get_access_token(refresh_token):
 
         return access_token
 
-def get_league_name(access_token, GAME_KEY, league_number):
+def get_league_name(access_token, GAME_KEY, league_id):
     league_name = ""
 
     #Try to load league name from cache
@@ -501,7 +501,7 @@ def get_league_name(access_token, GAME_KEY, league_number):
         league_name = league_name_cached
     else:
         print("Miss! Getting new league name from Yahoo API.")
-        url = "https://fantasysports.yahooapis.com/fantasy/v2/league/" + GAME_KEY + ".l." + league_number
+        url = "https://fantasysports.yahooapis.com/fantasy/v2/league/" + GAME_KEY + ".l." + league_id
         headers = {
             "Authorization": "Bearer " + access_token,
             "Accept": "application/json",
@@ -520,7 +520,7 @@ def get_league_name(access_token, GAME_KEY, league_number):
     print(league_name)
     return league_name
 
-def get_standings_and_records(access_token, GAME_KEY, league_number):
+def get_standings_and_records(access_token, GAME_KEY, league_id):
     allstandings = []
 
     #Try to load standings from cache
@@ -531,7 +531,7 @@ def get_standings_and_records(access_token, GAME_KEY, league_number):
         allstandings = json.decode(standings_cached)
     else:
         print("Miss! Getting new standings from Yahoo API.")
-        url = "https://fantasysports.yahooapis.com/fantasy/v2/league/" + GAME_KEY + ".l." + league_number + "/standings"
+        url = "https://fantasysports.yahooapis.com/fantasy/v2/league/" + GAME_KEY + ".l." + league_id + "/standings"
         headers = {
             "Authorization": "Bearer " + access_token,
             "Accept": "application/json",
@@ -616,10 +616,10 @@ def render_standings_and_records(x, standings, entries_to_display, heading_font_
 
     return output
 
-def get_current_matchup(access_token, GAME_KEY, league_number):
+def get_current_matchup(access_token, GAME_KEY, league_id):
     current_matchup = []
 
-    url = "https://fantasysports.yahooapis.com/fantasy/v2/league/" + GAME_KEY + ".l." + league_number + "/scoreboard"
+    url = "https://fantasysports.yahooapis.com/fantasy/v2/league/" + GAME_KEY + ".l." + league_id + "/scoreboard"
     headers = {
         "Authorization": "Bearer " + access_token,
         "Accept": "application/json",
