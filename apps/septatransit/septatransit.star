@@ -100,20 +100,6 @@ def get_stops(route):
         )
     return list_of_stops
 
-def pad_direction_desc(data):
-    max_len = 0
-    for item in data:
-        desc_len = len(item["DirectionDesc"])
-        if desc_len > max_len:
-            max_len = desc_len
-
-    for item in data:
-        desc_len = len(item["DirectionDesc"])
-        if desc_len < max_len:
-            item["DirectionDesc"] += " " * (max_len - desc_len)
-
-    return data
-
 def call_schedule_api(route, stopid):
     cache_string = cache.get(route + "_" + stopid + "_" + "schedule_api_response")
     schedule = None
@@ -129,23 +115,29 @@ def call_schedule_api(route, stopid):
         cache.set(route + "_" + stopid + "_" + "schedule_api_response", json.encode(schedule), ttl_seconds = expiry)
     return schedule
 
-def get_schedule(route, stopid):
+def get_schedule(route, stopid, show_relative_times):
     schedule = call_schedule_api(route, stopid)
     list_of_departures = []
-
     if schedule.get(route):
-        routes_with_padding = pad_direction_desc(schedule.get(route))
-        for i in routes_with_padding:
+        for i in schedule.get(route):
+            departure_time = None
             if len(list_of_departures) % 2 == 1:
                 background = "#222"
                 text = "#fff"
             else:
                 background = "#000"
                 text = "#ffc72c"
-            if len(i["date"]) == 5:
-                time = " " + i["date"]
-            else:
-                time = i["date"]
+
+            if show_relative_times:
+                departure = time.parse_time(i["DateCalender"], "01/02/06 03:04 pm", "America/New_York")
+                departure_time = str(int((departure - time.now()).seconds / 60)) + "m"
+                if len(departure_time) == 2:
+                    departure_time = "0" + departure_time
+            if not show_relative_times:
+                if len(i["date"]) == 5:
+                    departure_time = " " + i["date"]
+                else:
+                    departure_time = i["date"]
             item = render.Box(
                 height = 6,
                 width = 64,
@@ -156,7 +148,7 @@ def get_schedule(route, stopid):
                         render.Box(
                             width = 25,
                             child = render.Text(
-                                time,
+                                departure_time,
                                 font = "tom-thumb",
                                 color = text,
                             ),
@@ -168,7 +160,8 @@ def get_schedule(route, stopid):
                                 color = text,
                             ),
                             width = 39,
-                            offset_start = 20,
+                            offset_start = 40,
+                            offset_end = 40,
                         ),
                     ],
                 ),
@@ -200,8 +193,9 @@ def select_stop(route):
 def main(config):
     route = config.str("route", DEFAULT_ROUTE)
     stop = config.str("stop", DEFAULT_STOP)
+    show_relative_times = config.bool("show_relative_times", False)
     user_text = config.str("banner", "")
-    schedule = get_schedule(route, stop)
+    schedule = get_schedule(route, stop, show_relative_times)
     timezone = config.get("timezone") or "America/New_York"
     now = time.now().in_location(timezone)
     left_pad = 4
@@ -291,6 +285,13 @@ def get_schema():
                 id = "show_time",
                 name = "Show time",
                 desc = "Show the current time in the top banner.",
+                icon = "clock",
+                default = False,
+            ),
+            schema.Toggle(
+                id = "show_relative_times",
+                name = "Show relative departure times",
+                desc = "Show relative departure times.",
                 icon = "clock",
                 default = False,
             ),
