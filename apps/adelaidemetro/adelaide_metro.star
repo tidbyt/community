@@ -20,6 +20,9 @@ Trains into the city will display as CITY rather than the route name (only in ne
 Trams will also show the destination rather than route name (only in next arrival mode)
 Updated Tram Stop List
 Updated caching function
+
+v2.0a
+Bug fix for Adelaide Showground station, not showing correct headsign on City bound services
 """
 
 load("encoding/json.star", "json")
@@ -343,8 +346,9 @@ def GetTimes_Time(StopName, Services, z, NEXTSCHED_JSON, INFO_JSON):
                     break
 
             # if its a train route & its to the city, then change the route name but only if its not the Adelaide station
+            # Added condition for Adelaide Showground (18104) as well
             StopCode = INFO_JSON["stop_data"]["stop_code"]
-            ToCity = StopCode.startswith("16")
+            ToCity = StopCode.startswith("16") or StopCode == "18104"
             if StopCode != "16490":
                 if RouteType == 2 and ToCity:
                     TheRoute = "CITY"
