@@ -87,19 +87,15 @@ def main(config):
     points = []
     flows = []
 
-    img = SOLAR_PANEL_OFF if pv == None or pv == 0 else SOLAR_PANEL
+    img = SOLAR_PANEL if pv else SOLAR_PANEL_OFF
     points.append((img, pv))
-
-    if pv and pv > 0:
-        dir = 1
-    else:
-        dir = 0
+    dir = 1 if pv else 0
     flows.append(dir)
 
-    if power_load:
+    if power_load != None:
         points.append((HOUSE, abs(power_load)))
 
-    if grid:
+    if grid != None:
         points.append((GRID, abs(grid)))
         if grid > 0:
             dir = -1
