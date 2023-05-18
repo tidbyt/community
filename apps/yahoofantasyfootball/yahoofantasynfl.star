@@ -26,13 +26,13 @@ YAHOO_OAUTH_TOKEN_URL = "https://api.login.yahoo.com/oauth2/get_token"
 ACCESS_TOKEN_CACHE_TTL = 3000  # 50 minutes as Yahoo access tokens only last 60 minutes
 STANDINGS_CACHE_TTL = 14400  # 4 days
 LEAGUE_NAME_CACHE_TTL = 28800  # 8 days
-GAME_KEY = "414"
+GAME_KEY = "423"  #2023 Season
 
 def main(config):
     render_category = []
     league_name = ""
     refresh_token = config.get("auth")
-    league_number = config.get("league_number", "")
+    league_id = config.get("league_id", "")
     rotation_speed = config.get("rotation_speed", "5")
     teams_per_view = int(config.get("teams_per_view", "4"))
     heading_font_color = config.get("heading_font_color", "#FFA500")
@@ -47,12 +47,12 @@ def main(config):
 
         if (access_token):
             print("League Name: " + league_name)
-            league_name = get_league_name(access_token, GAME_KEY, league_number)
+            league_name = get_league_name(access_token, GAME_KEY, league_id)
 
             if (league_name):
                 if show_scores:
                     entries_to_display = 2
-                    current_matchup = get_current_matchup(access_token, GAME_KEY, league_number)
+                    current_matchup = get_current_matchup(access_token, GAME_KEY, league_id)
 
                     render_category.extend(
                         [
@@ -70,7 +70,7 @@ def main(config):
                     )
                 else:
                     entries_to_display = teams_per_view
-                    standings = get_standings_and_records(access_token, GAME_KEY, league_number)
+                    standings = get_standings_and_records(access_token, GAME_KEY, league_id)
 
                     for x in range(0, len(standings), entries_to_display):
                         render_category.extend(
@@ -396,9 +396,9 @@ def get_schema():
                 ],
             ),
             schema.Text(
-                id = "league_number",
-                name = "League Number",
-                desc = "Type in the league number for your league. Go to your league in a browser and look at the URL. It should end in /f1 then /#######. Input just those numbers here.",
+                id = "league_id",
+                name = "League ID",
+                desc = "Type in the league ID for your league. The League ID can be found under your League Settings.",
                 icon = "hashtag",
                 default = "",
             ),
@@ -490,7 +490,7 @@ def get_access_token(refresh_token):
 
         return access_token
 
-def get_league_name(access_token, GAME_KEY, league_number):
+def get_league_name(access_token, GAME_KEY, league_id):
     league_name = ""
 
     #Try to load league name from cache
@@ -501,7 +501,7 @@ def get_league_name(access_token, GAME_KEY, league_number):
         league_name = league_name_cached
     else:
         print("Miss! Getting new league name from Yahoo API.")
-        url = "https://fantasysports.yahooapis.com/fantasy/v2/league/" + GAME_KEY + ".l." + league_number
+        url = "https://fantasysports.yahooapis.com/fantasy/v2/league/" + GAME_KEY + ".l." + league_id
         headers = {
             "Authorization": "Bearer " + access_token,
             "Accept": "application/json",
@@ -520,7 +520,7 @@ def get_league_name(access_token, GAME_KEY, league_number):
     print(league_name)
     return league_name
 
-def get_standings_and_records(access_token, GAME_KEY, league_number):
+def get_standings_and_records(access_token, GAME_KEY, league_id):
     allstandings = []
 
     #Try to load standings from cache
@@ -531,7 +531,7 @@ def get_standings_and_records(access_token, GAME_KEY, league_number):
         allstandings = json.decode(standings_cached)
     else:
         print("Miss! Getting new standings from Yahoo API.")
-        url = "https://fantasysports.yahooapis.com/fantasy/v2/league/" + GAME_KEY + ".l." + league_number + "/standings"
+        url = "https://fantasysports.yahooapis.com/fantasy/v2/league/" + GAME_KEY + ".l." + league_id + "/standings"
         headers = {
             "Authorization": "Bearer " + access_token,
             "Accept": "application/json",
@@ -616,10 +616,10 @@ def render_standings_and_records(x, standings, entries_to_display, heading_font_
 
     return output
 
-def get_current_matchup(access_token, GAME_KEY, league_number):
+def get_current_matchup(access_token, GAME_KEY, league_id):
     current_matchup = []
 
-    url = "https://fantasysports.yahooapis.com/fantasy/v2/league/" + GAME_KEY + ".l." + league_number + "/scoreboard"
+    url = "https://fantasysports.yahooapis.com/fantasy/v2/league/" + GAME_KEY + ".l." + league_id + "/scoreboard"
     headers = {
         "Authorization": "Bearer " + access_token,
         "Accept": "application/json",
