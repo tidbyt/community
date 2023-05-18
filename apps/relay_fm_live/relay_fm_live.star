@@ -45,7 +45,6 @@ def get_next_recording(api_key, live, timezone):
         header = render.Text("Up next:")
         calendar_minimum_time = time.now().in_location("UTC").format("2006-01-02T15:04:05.000Z")
         calendar_url = "https://www.googleapis.com/calendar/v3/calendars/relay.fm_t9pnsv6j91a3ra7o8l13cb9q3o%40group.calendar.google.com/events?key=" + api_key + "&orderBy=startTime&singleEvents=true&timeMin=" + calendar_minimum_time
-        print(calendar_url)
         r = http.get(calendar_url, ttl_seconds = 60)
         next = r.json()["items"][0]
         title = render.Text(next["summary"])
