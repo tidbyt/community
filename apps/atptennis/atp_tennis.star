@@ -21,6 +21,9 @@ Sometimes the data feed will still show matches as "In Progress" after they have
 
 v1.3a
 Updated caching function
+
+v1.4
+Current server now indicated in green
 """
 
 load("encoding/json.star", "json")
@@ -48,7 +51,7 @@ def main(config):
     CompletedMatchList = []
     InProgress = 0
 
-    TestID = "338-2023"
+    TestID = "414-2023"
     SelectedTourneyID = config.get("TournamentList", TestID)
     ShowCompleted = config.get("CompletedOn", "true")
     Number_Events = len(ATP_JSON["events"])
@@ -209,9 +212,18 @@ def getLiveScores(SelectedTourneyID, EventIndex, InProgressMatchList, JSON):
             x = InProgressMatchList.pop()
 
             Player1_Name = JSON["events"][EventIndex]["competitions"][x]["competitors"][0]["athlete"]["shortName"]
+            Player1_ID = JSON["events"][EventIndex]["competitions"][x]["competitors"][0]["id"]
             Player2_Name = JSON["events"][EventIndex]["competitions"][x]["competitors"][1]["athlete"]["shortName"]
+            Player2_ID = JSON["events"][EventIndex]["competitions"][x]["competitors"][1]["id"]
+            Server = JSON["events"][EventIndex]["competitions"][x]["situation"]["server"]["$ref"]
+            Server = Server[70:]
+            Server = Server.removesuffix("?lang=en&region=us")
 
-            # print(Player1_Name)
+            if Server == Player1_ID:
+                Player1Color = "#01AF50"
+            elif Server == Player2_ID:
+                Player2Color = "#01AF50"
+
             Number_Sets = len(JSON["events"][EventIndex]["competitions"][x]["competitors"][0]["linescores"])
             Player1_Sets = ""
             Player2_Sets = ""
