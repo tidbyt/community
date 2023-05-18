@@ -108,6 +108,7 @@ def main(config):
     columns = []
     for p in points:
         img, power = p
+        (formatted, unit) = format_power(power)
         columns.append(
             render.Column(
                 main_align = "space_between",
@@ -115,13 +116,13 @@ def main(config):
                 children = [
                     render.Image(src = img),
                     render.Text(
-                        content = format_power(power),
+                        content = formatted,
                         height = 8,
                         font = "tb-8",
                         color = "#ffd11a",
                     ),
                     render.Text(
-                        content = "kW",
+                        content = unit,
                         height = 8,
                         font = "tb-8",
                         color = "#ffd11a",
@@ -158,10 +159,12 @@ def main(config):
 
 def format_power(p):
     if p:
-        # Converts W to kW
-        return humanize.float("#,###.##", p / 1000)
+        if p < 1000:
+            return (humanize.float("###.", p), "W")
+        else:
+            return (humanize.float("#,###.##", p / 1000), "kW")
     else:
-        return "0"
+        return "0", "W"
 
 def get_schema():
     return schema.Schema(
