@@ -1,0 +1,8 @@
+---
+id: ios-messages
+name: IOS Messages
+summary: Notification iOS Messages
+desc: Notifications for iOS Messages by using MacOS Shortcuts.
+author: aluu92
+fileName: iosmessages.star
+packageName: iosmessages
