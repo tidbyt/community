@@ -77,7 +77,7 @@ def get_next_recording(api_key, live, timezone):
     )
 
 def main(config):
-    api_key = secret.decrypt("AV6+xWcE1+vVlYsC8ctRY3w3gUNEEkB3OUcob0kBvK0+1KGcve4gnEaq0WTcR9PmCrpsetzOOhdl7VkU/vW4Gek88eNzgOdvlD1pYWGo3eIAod5BmPq+DDP0YC0HRNYD9Zcjb2As2tXeXUiXcsERnKqMHQdMMlJoDO9pWGrsD0q4tKZHOhzG2Be0jJmC") or config.get("dev_api_key")
+    api_key = secret.decrypt("AV6+xWcEoKjG8mFe0dFr2eQI1xB5D/XCOCSfZjtFDGVbkundM4GZvhRqSFK1yhMOF9WMZBRstFbpJPAfQIk6fVHTwSz00thU0a+VPQb6fuofS+VFq1g/G9zsU4B78n9T3oQ7KerEBimdJzQmZHBX8Cnf5khhBnv4uktupaoF5ElvnkGDx0OO17t4eYI0") or config.get("dev_api_key")
     timezone = config.get("timezone") or "America/New_York"
     img = render.Image(src = relay_logo)
     live = check_live()
