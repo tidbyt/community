@@ -200,7 +200,7 @@ def get_schema():
                 # All replays by default.
                 default = options[0].value,
                 options = options,
-                icon = "gamepad-modern",
+                icon = "gamepad",
             ),
             schema.DateTime(
                 id = "since",
