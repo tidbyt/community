@@ -55,6 +55,7 @@ def main(config):
             response_dict = get_next_departures(config, response_dict)
 
         #If cache time is set to 900s, 100 free API calls per day are not exceeded
+        # TODO: Determine if this cache call can be converted to the new HTTP cache.
         cache.set("response_dict", str(response_dict), 1)
 
     response_dict = calculate_time_until(response_dict)

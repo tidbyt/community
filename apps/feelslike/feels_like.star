@@ -70,6 +70,8 @@ def main(config):
             speed = 3
         else:
             speed = wind
+
+        # TODO: Determine if this cache call can be converted to the new HTTP cache.
         cache.set("feels_like_weather_cache_{}_{}_{}".format(API_KEY, loc["lat"], loc["lng"]), "{},{},{}".format(int(temp), int(precipitation), int(wind)), ttl_seconds = 3600)
 
     return render.Root(

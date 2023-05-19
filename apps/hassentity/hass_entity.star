@@ -161,6 +161,7 @@ def get_entity_states(config):
 
     states = res.json()
 
+    # TODO: Determine if this cache call can be converted to the new HTTP cache.
     cache.set(token, json.encode(states), ttl_seconds = 6)
 
     return states

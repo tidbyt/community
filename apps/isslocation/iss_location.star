@@ -99,6 +99,8 @@ def get_iss_dict(api_key):
         color = "#E29315"
 
     iss_dict = {"lat": lat, "lon": lon, "city": city, "country": country, "color": color}
+
+    # TODO: Determine if this cache call can be converted to the new HTTP cache.
     cache.set("iss_dict", str(iss_dict), ttl_seconds = 180)
     return iss_dict
 

@@ -46,6 +46,8 @@ def main(config):
                     fail("API request failed with status %d", rep.status_code)
                 rate = rep.json()["Global Quote"]["05. price"]
                 msg = msg + a + ": $" + str(rate[:-2]) + " ... "
+
+            # TODO: Determine if this cache call can be converted to the new HTTP cache.
             cache.set("sym_rate", msg, ttl_seconds = 240)
     else:
         # output error

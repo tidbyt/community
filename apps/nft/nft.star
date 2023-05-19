@@ -69,6 +69,8 @@ def fetch_opensea_assets(public_address, api_key):
             fail("OpenSea request failed with status", assets_resp.status_code)
 
         nfts = assets_resp.json()["assets"]
+
+        # TODO: Determine if this cache call can be converted to the new HTTP cache.
         cache.set("public_address=%s" % public_address, json.encode(nfts), ttl_seconds = 3600)
 
     return nfts
@@ -91,6 +93,8 @@ def fetch_nft_thumbnail(nft):
         thumbnail_resp = http.get(thumbnail_url)
         if (thumbnail_resp.status_code != 200):
             fail("Failed to fetch thumbnail with status", thumbnail_resp.status_code)
+
+        # TODO: Determine if this cache call can be converted to the new HTTP cache.
         cache.set("thumbnail=%s" % thumbnail_url, base64.encode(thumbnail_resp.body()), ttl_seconds = 3600)
         return (nft_name, thumbnail_resp.body())
 
@@ -108,6 +112,8 @@ def fetch_collection_stats(nft):
             fail("OpenSea request failed with status", collection_resp.status_code)
 
         collection_stats = collection_resp.json()["collection"]["stats"]
+
+        # TODO: Determine if this cache call can be converted to the new HTTP cache.
         cache.set("collection=%s" % collection_slug, json.encode(collection_stats), ttl_seconds = 3600)
         return collection_stats
 

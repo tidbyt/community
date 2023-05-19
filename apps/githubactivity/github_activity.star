@@ -266,6 +266,7 @@ def get_contributions(auth_token):
             data = rep.json()["data"]["viewer"]
 
             # user = data["login"]
+            # TODO: Determine if this cache call can be converted to the new HTTP cache.
             cache.set(auth_token, json.encode(data), ttl_seconds = 600)  #store data every 10 minutes
             #print(data["contributionsCollection"]["restrictedContributionsCount"])
 

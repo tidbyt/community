@@ -23,6 +23,8 @@ def main(config):
         if resp.status_code != 200:
             fail("Request failed with status %d", resp.status_code)
         msg_txt = resp.json()["message"]
+
+        # TODO: Determine if this cache call can be converted to the new HTTP cache.
         cache.set("api_message", msg_txt, ttl_seconds = 120)
 
     return render.Root(

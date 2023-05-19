@@ -44,6 +44,8 @@ def main(config):
         else:
             # cache for 15 minutes
             rates = res.json()["data"]["rates"]
+
+            # TODO: Determine if this cache call can be converted to the new HTTP cache.
             cache.set("coinbase.price.cache.%s" % hash.md5(AUTH_TOKEN), json.encode(rates), ttl_seconds = 900)
 
     accounts = cache.get("coinbase.accounts.cache.%s" % hash.md5(AUTH_TOKEN))
@@ -64,6 +66,8 @@ def main(config):
         else:
             # cache for 15 minutes
             accounts = res.json()["accounts"]
+
+            # TODO: Determine if this cache call can be converted to the new HTTP cache.
             cache.set("coinbase.accounts.cache.%s" % hash.md5(AUTH_TOKEN), json.encode(accounts), ttl_seconds = 900)
 
     if accounts == None:

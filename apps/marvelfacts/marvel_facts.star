@@ -35,6 +35,8 @@ def main():
         char_desc = char[1]
         char_comics = char[2]
         char_series = char[3]
+
+        # TODO: Determine if this cache call can be converted to the new HTTP cache.
         cache.set("new-char", "got", ttl_seconds = 1800)
 
     if char_desc == "":
@@ -109,9 +111,16 @@ def getNew():
     char_comics = CHARACTER["comics"]["available"]
     char_series = CHARACTER["series"]["available"]
 
+    # TODO: Determine if this cache call can be converted to the new HTTP cache.
     cache.set("char_name", char_name)
+
+    # TODO: Determine if this cache call can be converted to the new HTTP cache.
     cache.set("char_desc", char_desc)
+
+    # TODO: Determine if this cache call can be converted to the new HTTP cache.
     cache.set("char_comics", str(char_comics))
+
+    # TODO: Determine if this cache call can be converted to the new HTTP cache.
     cache.set("char_series", str(char_series))
 
     if char_name == "None":

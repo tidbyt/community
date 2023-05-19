@@ -46,10 +46,13 @@ def get_data(fileTime, config):
     else:
         request = http.get(file)
         if request.status_code != 200:
+            # TODO: Determine if this cache call can be converted to the new HTTP cache.
             cache.set(file, EMPTY, ttl_seconds = CACHE_TIME)
             quotes = get_data(fileTime - time.minute, config)
         else:
             quotes = request.json()
+
+            # TODO: Determine if this cache call can be converted to the new HTTP cache.
             cache.set(file, json.encode(request.json()), ttl_seconds = CACHE_TIME)
 
     if config.bool("sfw"):

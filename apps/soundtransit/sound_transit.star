@@ -44,6 +44,8 @@ def get_stop_data(stop_id):
         if rep.status_code != 200:
             fail("Could not access OBA")
         rep = rep.body()
+
+        # TODO: Determine if this cache call can be converted to the new HTTP cache.
         cache.set(cache_key, rep)
     data = json.decode(rep)["data"]
 
@@ -164,6 +166,8 @@ def stop_options_for_route(route_id):
         if rep.status_code != 200:
             fail("Could not access OBA")
         rep = rep.body()
+
+        # TODO: Determine if this cache call can be converted to the new HTTP cache.
         cache.set(cache_key, rep)
     data = json.decode(rep)["data"]
 
@@ -186,6 +190,8 @@ def light_rail_routes():
         if rep.status_code != 200:
             fail("Could not access OBA")
         rep = rep.body()
+
+        # TODO: Determine if this cache call can be converted to the new HTTP cache.
         cache.set(cache_key, rep)
     data = json.decode(rep)["data"]
 

@@ -143,5 +143,7 @@ def fetch_cached(url, ttl):
         if res.status_code != 200:
             fail("GBFS request to %s failed with status %d", (url, res.status_code))
         data = res.json()
+
+        # TODO: Determine if this cache call can be converted to the new HTTP cache.
         cache.set(url, json.encode(data), ttl_seconds = ttl)
         return data

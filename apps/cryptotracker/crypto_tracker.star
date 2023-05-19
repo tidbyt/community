@@ -154,6 +154,7 @@ def main(config):
             r = json.decode(cached_data)
             print("Alphavantage API request failed with error message %d, using cached data", r["Error Message"])
 
+        # TODO: Determine if this cache call can be converted to the new HTTP cache.
         cache.set(cache_name, json.encode(r), ttl_seconds = 60 * 15)
 
     timeseries = r["Time Series Crypto (15min)"]

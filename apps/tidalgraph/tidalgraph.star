@@ -231,6 +231,8 @@ def get_tide_data(stationId, date, interval):
             print("tide request failed with status %d" % response.status_code)
             return None
         data = response.json()
+
+        # TODO: Determine if this cache call can be converted to the new HTTP cache.
         cache.set("%s-%s" % (stationId, date), response.body(), ttl_seconds = 86400)
 
     return data
@@ -288,9 +290,12 @@ def get_station_timezone(id):
         zone = response.json()["stations"][0]["timezone"]
         if zone in TIMEZONE_MAP:
             tz = TIMEZONE_MAP[zone]
+
+            # TODO: Determine if this cache call can be converted to the new HTTP cache.
             cache.set(id, str(tz), ttl_seconds = 86400)
             return tz
         else:
+            # TODO: Determine if this cache call can be converted to the new HTTP cache.
             cache.set(id, str("unsupported_timezone:%s" % zone), ttl_seconds = 86400)
             return "unsupported_timezone:%s" % zone
 

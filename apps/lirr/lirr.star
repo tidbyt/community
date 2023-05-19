@@ -178,6 +178,8 @@ def get_gtfs():
     if cached == None:
         resText = http.get("http://web.mta.info/developers/data/lirr/lirr_gtfs.json").body()
         res = parse_gtfs(json.decode(resText)["gtfs"])
+
+        # TODO: Determine if this cache call can be converted to the new HTTP cache.
         cache.set(STATIC_GTFS_FILE, json.encode(res), ttl_seconds = 3600)
         return res
     else:

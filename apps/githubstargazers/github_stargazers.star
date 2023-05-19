@@ -58,6 +58,8 @@ def main(config):
 
     if stargazers_count == None:
         stargazers_count = get_stargazers_count(org_name, repo_name, config)
+
+        # TODO: Determine if this cache call can be converted to the new HTTP cache.
         cache.set(cache_key, str(stargazers_count), ttl_seconds = 300)
 
     image_size = 16

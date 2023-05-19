@@ -49,6 +49,8 @@ def main(config):
         headers = {"X-API-KEY": api_key}
         resp = http.get("https://updown.io/api/checks/" + check_token + "?metrics=1", headers = headers)
         data = resp.json()
+
+        # TODO: Determine if this cache call can be converted to the new HTTP cache.
         cache.set(cache_key, json.encode(data), 60 * 5)
 
     if data["down"]:
