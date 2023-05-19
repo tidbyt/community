@@ -32,6 +32,7 @@ def which_team(replay, name):
         for p in players:
             if p["name"] == name:
                 return team
+    return None
 
 def win_percentage(replays, name):
     wins = 0
@@ -39,6 +40,8 @@ def win_percentage(replays, name):
     for replay in replays["list"]:
         winner = winning_team(replay)
         color = which_team(replay, name)
+        if color == None:
+            continue
         total += 1
 
         if winner == color:
