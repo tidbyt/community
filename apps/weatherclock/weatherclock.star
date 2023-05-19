@@ -5,7 +5,6 @@ Description: Display current time and weather.
 Author: J. Keybl
 """
 
-load("cache.star", "cache")
 load("encoding/base64.star", "base64")
 load("encoding/json.star", "json")
 load("http.star", "http")
@@ -23,8 +22,8 @@ TIME_FORMAT_SEPARATOR = "3:04 PM"
 TIME_FORMAT_NO_SEPARATOR = "3 04 PM"
 TTL_SECONDS = 60
 DEFAULT_LOCATION = {
-    "lat": 38.9586,
-    "lng": -77.3560,
+    "lat": 38.9072,
+    "lng": -77.0369,
     "locality": "Washington, D.C.",
     "timezone": "America/New_York",
 }
@@ -85,90 +84,63 @@ def main(config):
         print(now.format(TIME_FORMAT_SEPARATOR))
 
     if ss >= dayModeSec and ss < nightModeSec:
-        sunrise_cached = cache.get("sunrise")
-        if sunrise_cached != None:
-            # Use cached weather data
-            if DEBUG:
-                print("CACHED DATA")
+        # Get new weather data and cache it
+        if DEBUG:
+            print("Getting DATA")
 
-            wID = int(cache.get("wID"))
-            dt = int(cache.get("dt"))
-            sunrise = int(cache.get("sunrise"))
-            sunset = int(cache.get("sunset"))
-            temp = float(cache.get("temp"))
-            feels_like = float(cache.get("feels_like"))
-            humidity = int(cache.get("humidity"))
+        weather = None
+        if weatherAPI != "":
+            weather = http.get(openWeatherURL, ttl_seconds = TTL_SECONDS)  # Using the new HTTP Caching Client
+
+        if weatherAPI == "" or weather.status_code != 200 or "error" in weather.json():
+            wID = 0
+            sTemps = "--- * ---"
+            sHumidity = "---%"
+            dn = True
+        else:
+            wID = int(weather.json()["weather"][0]["id"])
+            if DEBUG:
+                print("ID: ", wID)
+
+            dt = int(weather.json()["dt"])
+            if DEBUG:
+                print("Date: ", dt)
+
+            sunrise = int(weather.json()["sys"]["sunrise"])
+            if DEBUG:
+                print("Sunrise: ", sunrise)
+
+            sunset = int(weather.json()["sys"]["sunset"])
+            if DEBUG:
+                print("Sunset: ", sunset)
+
+            temp = int(weather.json()["main"]["temp"])
+            if DEBUG:
+                print("Temp: ", temp)
+
+            feels_like = int(weather.json()["main"]["feels_like"])
+            if DEBUG:
+                print("Feels like: ", feels_like)
+
+            humidity = int(weather.json()["main"]["humidity"])
+            if DEBUG:
+                print("Humidity: ", humidity)
 
             sTemps = "%d" % temp + " * %d" % feels_like
             sHumidity = "%d" % humidity + "%"
             if DEBUG:
                 print(sTemps)
                 print(sHumidity)
-        else:
-            # Get new weather data and cache it
-            if DEBUG:
-                print("NEW DATA")
 
-            weather = None
-            if weatherAPI != "":
-                weather = http.get(openWeatherURL)
-
-            if weatherAPI == "" or weather.status_code != 200 or "error" in weather.json():
-                wID = 0
-                sTemps = "--- * ---"
-                sHumidity = "---%"
-                dn = True
-            else:
-                wID = int(weather.json()["weather"][0]["id"])
-                cache.set("wID", str(wID), ttl_seconds = TTL_SECONDS)
-                if DEBUG:
-                    print("ID: ", wID)
-
-                dt = int(weather.json()["dt"])
-                cache.set("dt", str(dt), ttl_seconds = TTL_SECONDS)
-                if DEBUG:
-                    print("Date: ", dt)
-
-                sunrise = int(weather.json()["sys"]["sunrise"])
-                cache.set("sunrise", str(sunrise), ttl_seconds = TTL_SECONDS)
-                if DEBUG:
-                    print("Sunrise: ", sunrise)
-
-                sunset = int(weather.json()["sys"]["sunset"])
-                cache.set("sunset", str(sunset), ttl_seconds = TTL_SECONDS)
-                if DEBUG:
-                    print("Sunset: ", sunset)
-
-                temp = int(weather.json()["main"]["temp"])
-                cache.set("temp", str(temp), ttl_seconds = TTL_SECONDS)
-                if DEBUG:
-                    print("Temp: ", temp)
-
-                feels_like = int(weather.json()["main"]["feels_like"])
-                cache.set("feels_like", str(feels_like), ttl_seconds = TTL_SECONDS)
-                if DEBUG:
-                    print("Feels like: ", feels_like)
-
-                humidity = int(weather.json()["main"]["humidity"])
-                cache.set("humidity", str(humidity), ttl_seconds = TTL_SECONDS)
-                if DEBUG:
-                    print("Humidity: ", humidity)
-
-                sTemps = "%d" % temp + " * %d" % feels_like
-                sHumidity = "%d" % humidity + "%"
-                if DEBUG:
-                    print(sTemps)
-                    print(sHumidity)
-
-                if wID != 0:
-                    if dt >= sunrise and dt < sunset:
-                        dn = True
-                        if DEBUG:
-                            print("Day")
-                    else:
-                        dn = False
-                        if DEBUG:
-                            print("Night")
+            if wID != 0:
+                if dt >= sunrise and dt < sunset:
+                    dn = True
+                    if DEBUG:
+                        print("Day")
+                else:
+                    dn = False
+                    if DEBUG:
+                        print("Night")
 
         icon_str = get_icon(wID, dn)
         icon = base64.decode(icon_str)
@@ -205,7 +177,7 @@ def get_schema():
                 default = False,
             ),
             schema.Generated(
-                id = "generated",
+                id = "night_mode_schema",
                 source = "night_mode",
                 handler = nightModeTimesSchema,
             ),
