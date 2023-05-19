@@ -47,7 +47,7 @@ def win_percentage(replays, name):
         if winner == color:
             wins += 1
     if total == 0:
-        return 0
+        return 0, 0
 
     return total, wins / total
 
@@ -83,8 +83,6 @@ def get_data(tag, token, playlist, since):
         fail("Error calling Ballchasing API")
 
     replays = res.json()
-    if not replays["list"]:
-        return EMPTY_DATA
 
     total_games, win_percent = win_percentage(replays, tag)
     total_time = total_duration(replays)
