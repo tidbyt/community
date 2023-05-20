@@ -1,0 +1,8 @@
+---
+id: givenergy-solar
+name: GivEnergy Solar
+summary: GivEnergy Solar Monitor
+desc: Energy production and consumption monitor for your GivEnergy system.
+author: pelowj
+fileName: givenergy_solar.star
+packageName: givenergysolar
