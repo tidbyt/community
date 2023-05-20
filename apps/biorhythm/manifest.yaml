@@ -1,0 +1,8 @@
+---
+id: biorhythm
+name: Biorhythm
+summary: Display biorhythm plots
+desc: Display biorhythm plots based on your birthday.
+author: J. Keybl
+fileName: biorhythm.star
+packageName: biorhythm
