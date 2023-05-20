@@ -332,8 +332,8 @@ def calc_milliseconds(hour, minute, second, nanosecond):
 
 def calc_frame_income(start_state, frame_num, millisecond_salary):
     incrementing = False
-    start_frame = 0
-    stop_frame = 0
+    start_frame = 1  #first frame that should show an incremented salary
+    stop_frame = 0  #first frame that should be static
 
     if (start_state["display_type"] == INCR):
         incrementing = True
