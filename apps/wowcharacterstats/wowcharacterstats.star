@@ -61,7 +61,7 @@ DEFAULT_REALM = "firetree"
 DEFAULT_REGION = "us"
 
 CURRENT_EXPANSION = "Dragonflight"
-CURRENT_INSTANCE = "Vault of the Incarnates"
+CURRENT_INSTANCE = "Aberrus, the Shadowed Crucible"
 
 def main(config):
     client_id = secret.decrypt(
@@ -222,6 +222,8 @@ def get_auth_token(url, id, secret):
         if response.status_code != 200:
             print("Blizzard request failed with status %d" % response.status_code)
             return None
+
+        # TODO: Determine if this cache call can be converted to the new HTTP cache.
         cache.set(
             "access_token",
             json.decode(response.body())["access_token"],
@@ -243,6 +245,8 @@ def fetch_data(cache_token, url, token):
             print("Blizzard request failed with status %d" % response.status_code)
             return None
         data = response.json()
+
+        # TODO: Determine if this cache call can be converted to the new HTTP cache.
         cache.set(cache_token, response.body(), ttl_seconds = 300)
 
     return data

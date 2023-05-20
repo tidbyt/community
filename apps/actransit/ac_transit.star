@@ -318,6 +318,7 @@ def get_times(stop_id, api_key):
     if rep.status_code != 200:
         fail("Predictions request failed with status ", rep.status_code)
 
+    # TODO: Determine if this cache call can be converted to the new HTTP cache.
     cache.set(stop_id, rep.body(), ttl_seconds = 20)
 
     return rep.json()

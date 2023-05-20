@@ -34,6 +34,8 @@ def main(config):
         if gartner_xml.status_code == 200:
             xml_body = gartner_xml.body()
             number_of_items = xml_body.count("<item>")
+
+            # TODO: Determine if this cache call can be converted to the new HTTP cache.
             cache.set(GARTNER_RSS_URL, xml_body, ttl_seconds = seconds_xml_valid_for)
         else:
             number_of_items = 0

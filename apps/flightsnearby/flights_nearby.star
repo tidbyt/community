@@ -233,6 +233,7 @@ def main(config):
         else:
             flight = []
 
+        # TODO: Determine if this cache call can be converted to the new HTTP cache.
         cache.set(cache_key, json.encode(flight), ttl_seconds = DEFAULT_CACHE)
 
     if flight:

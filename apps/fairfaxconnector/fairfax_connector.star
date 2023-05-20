@@ -29,6 +29,8 @@ def getAllRoutes():
     if routes == None:
         routesUrl = BASE_URL + "/getroutes?key=" + apiKey + "&format=json"
         routes = http.get(routesUrl).body()
+
+        # TODO: Determine if this cache call can be converted to the new HTTP cache.
         cache.set("ROUTES", routes, ONE_DAY)
 
     routes = json.decode(routes).get("bustime-response").get("routes")
@@ -40,6 +42,8 @@ def getRouteDirections(route):
     if directions == None:
         dirUrl = BASE_URL + "/getdirections?key=" + apiKey + "&rt=" + route.get("rt") + "&format=json"
         directions = http.get(dirUrl).body()
+
+        # TODO: Determine if this cache call can be converted to the new HTTP cache.
         cache.set(cacheKey, directions, ONE_DAY)
 
     directions = json.decode(directions).get("bustime-response").get("directions")
@@ -55,6 +59,8 @@ def getStops(route, direction):
         # for URL encoding, so I'm doing this one-off here where it's needed.
         stopsUrl = stopsUrl.replace(" ", "%20")
         stops = http.get(stopsUrl).body()
+
+        # TODO: Determine if this cache call can be converted to the new HTTP cache.
         cache.set(cacheKey, stops, ONE_DAY)
 
     stops = json.decode(stops).get("bustime-response").get("stops")
@@ -85,6 +91,8 @@ def getRouteColor(routeId):
         for route in routes:
             if route["rt"] == routeId:
                 routeColor = route["rtclr"]
+
+                # TODO: Determine if this cache call can be converted to the new HTTP cache.
                 cache.set("COLOR-" + routeId, routeColor, ONE_WEEK)
                 break
     return routeColor or "#ffffff"
@@ -95,6 +103,8 @@ def getPredictions(stopId):
     if stopPredictions == None:
         predictionUrl = BASE_URL + "/getpredictions?key=" + apiKey + "&stpid=" + stopId + "&format=json"
         stopPredictions = http.get(predictionUrl).body()
+
+        # TODO: Determine if this cache call can be converted to the new HTTP cache.
         cache.set(stopId, stopPredictions, ONE_MINUTE)
 
     stopPredictions = json.decode(stopPredictions).get("bustime-response")

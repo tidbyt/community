@@ -70,6 +70,7 @@ def getData(config):
 
     # cache it 💰
     if resp.status_code == 200:
+        # TODO: Determine if this cache call can be converted to the new HTTP cache.
         cache.set(cacheKey, json.encode(resp.json()), ttl_seconds = 60)  # 10 minute cache
 
     return struct(status_code = resp.status_code, data = resp.json())

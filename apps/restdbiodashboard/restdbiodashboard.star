@@ -58,6 +58,7 @@ def main(config):
     api_key = config.str("api_key")
     offline_page = config.str("offline_page")
     offline_icons = config.str("offline_icons")
+    data_cache_time = int(config.get("cache_time", "5"))
 
     use_offline_data = False
 
@@ -74,19 +75,26 @@ def main(config):
         return reset_icon_cache(db_name, api_key)
 
     if not use_offline_data:
-        rep = http.get(
-            "https://{}.restdb.io/rest/{}?max=3&q={{%22visible%22:true}}&sort=order".format(db_name, table_name),
-            headers = {
-                "Accept": "application/json",
-                "x-apikey": api_key,
-            },
-        )
+        data_cache_key = "{}-data".format(db_name)
+        body = cache.get(data_cache_key)
+        if not body:
+            rep = http.get(
+                "https://{}.restdb.io/rest/{}?max=3&q={{%22visible%22:true}}&sort=order".format(db_name, table_name),
+                headers = {
+                    "Accept": "application/json",
+                    "x-apikey": api_key,
+                },
+            )
 
-        if rep.status_code != 200:
-            print(rep.body())
-            return render_fail(rep)
+            if rep.status_code != 200:
+                print(rep.body())
+                return render_fail(rep)
+            body = rep.body()
 
-        items = json.decode(rep.body())
+            # TODO: Determine if this cache call can be converted to the new HTTP cache.
+            cache.set(data_cache_key, body, ttl_seconds = data_cache_time)
+
+        items = json.decode(body)
     else:
         items = json.decode(offline_page)
         for icon in json.decode(offline_icons):
@@ -110,6 +118,8 @@ def main(config):
 
         for name in icons:
             icon_cache_key = "{}-icon-{}".format(db_name, name)
+
+            # TODO: Determine if this cache call can be converted to the new HTTP cache.
             cache.set(icon_cache_key, icons[name], ttl_seconds = TTL_ICONS)
 
     if len(items) == 0:
@@ -158,6 +168,8 @@ def reset_icon_cache(db_name, api_key):
 
     for icon in json.decode(rep.body()):
         icon_cache_key = "{}-icon-{}".format(db_name, icon["name"])
+
+        # TODO: Determine if this cache call can be converted to the new HTTP cache.
         cache.set(icon_cache_key, "", ttl_seconds = TTL_ICONS)
 
     return render.Root(render.Box(render.WrappedText("icon cache reset"), color = "#FFA500"))
@@ -207,6 +219,13 @@ def get_schema():
                 name = "API key",
                 desc = "The API key to access restdb.io (read only is enough)",
                 icon = "user",
+            ),
+            schema.Text(
+                id = "cache_time",
+                name = "Cache time",
+                desc = "How long to cache data from the database (api rate limit)",
+                icon = "clock",
+                default = "5",
             ),
             schema.Toggle(
                 id = "vertical",

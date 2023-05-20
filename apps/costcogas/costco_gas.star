@@ -201,6 +201,8 @@ def get_cached_data(url, ttl):
         if http_data.status_code != 200:
             fail("HTTP request failed with status {} for URL {}".format(http_data.status_code, url))
         response_data = [x for x in http_data.json() if type(x) == "dict"]
+
+        # TODO: Determine if this cache call can be converted to the new HTTP cache.
         cache.set(url, json.encode(response_data), ttl_seconds = ttl)
 
     return response_data

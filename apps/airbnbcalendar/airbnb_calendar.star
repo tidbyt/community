@@ -68,6 +68,8 @@ def listing(url, height):
             return render.Text(content = "HTTP error %d" % res.status_code, font = "tom-thumb")
 
         ical = res.body()
+
+        # TODO: Determine if this cache call can be converted to the new HTTP cache.
         cache.set(url, ical, ttl_seconds = 300)
 
     dtstart_list = re.match(r"DTSTART;VALUE=DATE:(.{4})(.{2})(.{2})", ical)

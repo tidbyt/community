@@ -15,10 +15,17 @@ v1.2
 Show city name instead of official tournament title once the tournament starts, except for Slams
 Added handling for walkovers
 Extended player surname field by 2 chars for Best of 3 sets tournaments
+
+v1.3
+Sometimes the data feed will still show matches as "In Progress" after they have completed. Have added a 24hr limit so that if the start date is > 24 hrs ago then don't list the match
+
+v1.3a
+Updated caching function
+
+v1.4
+Current server now indicated in green
 """
 
-load("cache.star", "cache")
-load("encoding/base64.star", "base64")
 load("encoding/json.star", "json")
 load("http.star", "http")
 load("humanize.star", "humanize")
@@ -44,7 +51,7 @@ def main(config):
     CompletedMatchList = []
     InProgress = 0
 
-    TestID = "713-2023"
+    TestID = "414-2023"
     SelectedTourneyID = config.get("TournamentList", TestID)
     ShowCompleted = config.get("CompletedOn", "true")
     Number_Events = len(ATP_JSON["events"])
@@ -61,10 +68,16 @@ def main(config):
             if len(ATP_JSON["events"][x]) == 10:
                 for y in range(0, len(ATP_JSON["events"][x]["competitions"]), 1):
                     # if the match is "In Progress" and its a singles match, lets add it to the list of in progress matches
+                    # And the "In Progress" match started < 24 hrs ago , sometimes the data feed will still show matches as "In Progress" after they have completed
+                    # Adding a 24hr limit will remove them out of the list
                     if ATP_JSON["events"][x]["competitions"][y]["status"]["type"]["description"] == "In Progress":
                         if ATP_JSON["events"][x]["competitions"][y]["competitors"][0]["type"] == "athlete":
-                            InProgressMatchList.append(y)
-                            InProgress = InProgress + 1
+                            MatchTime = ATP_JSON["events"][EventIndex]["competitions"][y]["date"]
+                            MatchTime = time.parse_time(MatchTime, format = "2006-01-02T15:04Z").in_location(timezone)
+                            diff = MatchTime - now
+                            if diff.hours > -24:
+                                InProgressMatchList.append(y)
+                                InProgress = InProgress + 1
             else:
                 Display1.extend([
                     render.Column(
@@ -199,7 +212,17 @@ def getLiveScores(SelectedTourneyID, EventIndex, InProgressMatchList, JSON):
             x = InProgressMatchList.pop()
 
             Player1_Name = JSON["events"][EventIndex]["competitions"][x]["competitors"][0]["athlete"]["shortName"]
+            Player1_ID = JSON["events"][EventIndex]["competitions"][x]["competitors"][0]["id"]
             Player2_Name = JSON["events"][EventIndex]["competitions"][x]["competitors"][1]["athlete"]["shortName"]
+            Player2_ID = JSON["events"][EventIndex]["competitions"][x]["competitors"][1]["id"]
+            Server = JSON["events"][EventIndex]["competitions"][x]["situation"]["server"]["$ref"]
+            Server = Server[70:]
+            Server = Server.removesuffix("?lang=en&region=us")
+
+            if Server == Player1_ID:
+                Player1Color = "#01AF50"
+            elif Server == Player2_ID:
+                Player2Color = "#01AF50"
 
             Number_Sets = len(JSON["events"][EventIndex]["competitions"][x]["competitors"][0]["linescores"])
             Player1_Sets = ""
@@ -667,17 +690,9 @@ RotationOptions = [
 ]
 
 def get_cachable_data(url, timeout):
-    key = base64.encode(url)
-    data = cache.get(key)
-    if data != None:
-        # print("Using cached data")
-        return base64.decode(data)
+    res = http.get(url = url, ttl_seconds = timeout)
 
-    res = http.get(url = url)
-
-    #print("Getting new data")
     if res.status_code != 200:
         fail("request to %s failed with status code: %d - %s" % (url, res.status_code, res.body()))
 
-    cache.set(key, base64.encode(res.body()), ttl_seconds = timeout)
     return res.body()

@@ -333,6 +333,8 @@ def fetch_sensor_data(api_key, url, params, cache_key):
                 }
 
                 air_cached = json.encode(air_dict)
+
+                # TODO: Determine if this cache call can be converted to the new HTTP cache.
                 cache.set(cache_key, air_cached, ttl_seconds = 600)  # 10 minutes
 
             return (air_dict, False)
@@ -359,6 +361,8 @@ def fetch_sensor_list(api_key, url, params, cache_key):
             return None
         else:
             sensors = rep.json()
+
+            # TODO: Determine if this cache call can be converted to the new HTTP cache.
             cache.set(cache_key, json.encode(sensors), ttl_seconds = 14400)  # 4 hours
             return (rep.json(), False)
 

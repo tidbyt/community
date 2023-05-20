@@ -5,13 +5,12 @@ Description: Display AA Daily Refelection from the AA.org website
 Author: jvivona
 """
 
-load("cache.star", "cache")
 load("encoding/json.star", "json")
 load("http.star", "http")
 load("render.star", "render")
 load("time.star", "time")
 
-VERSION = 23082
+VERSION = 23132
 
 APPTITLE_TEXT_COLOR = "#fff"
 APPTITLE_BKG_COLOR = "#0000ff"
@@ -79,17 +78,9 @@ def main(config):
     )
 
 def get_cachable_data(url):
-    key = url
-
-    data = cache.get(key)
-    if data != None:
-        return data
-
-    res = http.get(url = url)
+    res = http.get(url = url, ttl_seconds = CACHE_TTL_SECONDS)
     if res.status_code != 200:
         fail("request to %s failed with status code: %d - %s" % (url, res.status_code, res.body()))
-
-    cache.set(key, res.body(), ttl_seconds = CACHE_TTL_SECONDS)
 
     return res.body()
 

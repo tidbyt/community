@@ -6,9 +6,8 @@ Author: rs7q5
 """
 #espn_news.star
 #Created 20211231 RIS
-#Last Modified 20220501 RIS
+#Last Modified 20230516 RIS
 
-load("cache.star", "cache")
 load("http.star", "http")
 load("render.star", "render")
 load("schema.star", "schema")
@@ -49,35 +48,22 @@ def main(config):
 
     font = "CG-pixel-4x5-mono"  #set font
 
-    #check for cached data
-    cached_sport_txt = "_" + sport
-    title_cached = cache.get("title_rate1" + cached_sport_txt), cache.get("title_rate2" + cached_sport_txt), cache.get("title_rate3" + cached_sport_txt)
-    if all(title_cached) != False:  #if any are None then all(title_cached)==False
-        print("Hit! Displaying cached data.")
-        title = title_cached
+    #get data
+    rep = http.get(url = ESPN_API_URL, ttl_seconds = 14400)  #update every 4 hours
+    if rep.status_code != 200:
+        title = ["Error getting data!!!!", "", ""]
     else:
-        print("Miss! Calling ESPN data.")
-        rep = http.get(ESPN_API_URL)
-        if rep.status_code != 200:
-            #fail("ESPN request failed with status %d", rep.status_code)
-            title = ["Error getting data!!!!", "", ""]
-        else:
-            #get top 3 newest headlines
-            title = []
-            for i in range(3):
-                title.append(rep.json()["headlines"][i]["headline"])
+        #get top 3 newest headlines
+        title = []
+        for i in range(3):
+            title.append(rep.json()["headlines"][i]["headline"])
 
-            #format strings so they are all the same length (leads to better scrolling)
-            max_len = max([len(x) for x in title])  #length of each string
+        #format strings so they are all the same length (leads to better scrolling)
+        max_len = max([len(x) for x in title])  #length of each string
 
-            #add padding to shorter titles
-            for i, x in enumerate(title):
-                title[i] = x + " " * (max_len - len(x))
-
-            #cache headlines
-            for (i, x) in enumerate(title):
-                cache_name = "title_rate" + str(i + 1) + cached_sport_txt  #i+1 just to be consistent when retrieving cached names
-                cache.set(cache_name, x, ttl_seconds = 14400)
+        #add padding to shorter titles
+        for i, x in enumerate(title):
+            title[i] = x + " " * (max_len - len(x))
 
     #format output
     title_format = []

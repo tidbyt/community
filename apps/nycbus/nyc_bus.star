@@ -251,6 +251,7 @@ def get_line_info(stop_id, line_ref, api_key):
         "color": route["color"],
     }
 
+    # TODO: Determine if this cache call can be converted to the new HTTP cache.
     cache.set(cache_key, base64.encode(json.encode(result)), ttl_seconds = 3600)
 
     return result
