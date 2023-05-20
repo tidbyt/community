@@ -56,14 +56,14 @@ AgmMj5lgHO6UTAUAOw==
 
 def main(config):
     print("-------Starting new update-------")
-    
+
     inverter_sn = config.str("inverter_sn")
     api_key = config.str("api_key")
     error_in_http_calls = False
     error_details = {}
     o = ""
     unit = ""
-    
+
     if api_key and inverter_sn:
         url = URL.format(inverter_sn)
         print("API Key: " + api_key)
@@ -71,18 +71,18 @@ def main(config):
         print("GivEnergy API URL: " + url)
 
         rep = http.get(url, headers = {"Authorization": "Bearer " + api_key, "Content-Type": "application/json", "Accept": "application/json"})
-    
+
         if rep.status_code != 200:
             data = rep.body()
             o = json.decode(data)
             error_details = {"error_section": inverter_sn, "error": "Error: " + o["message"]}
             error_in_http_calls = True
-            print (rep.status_code)
+            print(rep.status_code)
         else:
             unit = "kW"
             data = rep.body()
             o = json.decode(data)
-    
+
     else:
         print("Using Dummy Data")
         o = json.decode(DUMMY_DATA)
@@ -105,9 +105,9 @@ def main(config):
         points.append((HOUSE, o["consumption"] / 1000))
         points.append((GRID, o["grid"]["power"] / 1000))
 
-        if     o["grid"]["power"] < -10:
+        if o["grid"]["power"] < -10:
             dir = 1
-        elif     o["grid"]["power"] > 10:
+        elif o["grid"]["power"] > 10:
             dir = -1
         else:
             dir = 0
