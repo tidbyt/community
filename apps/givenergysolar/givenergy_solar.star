@@ -102,6 +102,8 @@ def main(config):
         points.append((IMG, o["solar"]["power"] / 1000))
         flows.append(dir)
 
+        o["grid"]["power"] = o["grid"]["power"] * -1
+
         points.append((HOUSE, o["consumption"] / 1000))
         points.append((GRID, o["grid"]["power"] / 1000))
 
