@@ -8,6 +8,7 @@ Author: Ken Winke
 load("encoding/base64.star", "base64")
 load("http.star", "http")
 load("render.star", "render")
+load("schema.star", "schema")
 
 KEXP_PLAY = "https://api.kexp.org/v2/plays.json?limit=2"
 KEXP_SHOW = "https://api.kexp.org/v1/show.json?limit=1"
@@ -84,7 +85,7 @@ def now_playing(song, artist, album):
         ),
     )
 
-def main():
+def main(config):
     jplay = http.get(url = KEXP_PLAY, ttl_seconds = 120)
     jshow = http.get(url = KEXP_SHOW, ttl_seconds = 120)
 
@@ -118,3 +119,11 @@ def main():
         album = KEXP_VINYL
 
     return now_playing(song, artist, album)
+
+def get_schema():
+    return schema.Schema(
+        version = "1",
+        fields = [
+        ],
+    )
+
