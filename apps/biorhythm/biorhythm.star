@@ -79,7 +79,6 @@ def draw_plot(config):
     bdy = int(dt[8:10])
 
     dD = dateDiff(bdy, bmo, byr, now.day, now.month, now.year)
-    print(dD)
 
     return render.Stack(
         children = [
