@@ -1,9 +1,9 @@
+load("humanize.star", "humanize")
 load("math.star", "math")
 load("render.star", "render")
 load("schema.star", "schema")
 load("time.star", "time")
 
-DEFAULT_DATE = "2023-01-01"
 PHYSICAL_PERIOD = 23
 EMOTIONAL_PERIOD = 28
 INTELECTUAL_PERIOD = 33
@@ -69,15 +69,17 @@ def draw_plot(config):
     if DEBUG:
         print("DRAWING PLOT")
 
-    dt = config.str("BDay", DEFAULT_DATE)
+    timezone = config.get("timezone") or "America/New_York"
+    now = time.now().in_location(timezone)
+
+    default_date = humanize.time_format("yyyy-MM-dd", now)
+    dt = config.str("BDay", default_date)
     byr = int(dt[:4])
     bmo = int(dt[5:7])
     bdy = int(dt[8:10])
 
-    timezone = config.get("timezone") or "America/New_York"
-    now = time.now().in_location(timezone)
-
     dD = dateDiff(bdy, bmo, byr, now.day, now.month, now.year)
+    print(dD)
 
     return render.Stack(
         children = [

@@ -14,7 +14,7 @@ In each of the displayed curves, the darker first point is for today.
 
 <p>
 
-The schema data is your birthday.
+The schema data is your birthday.  If no date is entered, then today is used as the default birthday.
 </p>
 
 <img width="500" alt="image" src="./biorhythm_schema.png">
