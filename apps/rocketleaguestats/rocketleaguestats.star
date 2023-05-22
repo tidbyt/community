@@ -14,7 +14,7 @@ TWELVE_HOURS = 43200
 # This is used whenever an error or invalid data appears.
 EMPTY_DATA = {
     "total_games": "0 gs",
-    "win_percent": "0%",
+    "win_percent": "0% wr",
     "total_time": "0 hrs",
 }
 
@@ -89,7 +89,7 @@ def get_data(tag, token, playlist, since):
 
     data = {
         "total_games": str(total_games) + " gs",
-        "win_percent": humanize.float("#,###.#", win_percent * 100) + "%",
+        "win_percent": humanize.float("###.", win_percent * 100) + "% wr",
         "total_time": humanize.float("#,###.#", total_time) + " hrs",
     }
 
