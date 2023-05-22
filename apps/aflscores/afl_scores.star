@@ -11,6 +11,9 @@ v1.2
 Updated caching function 
 Handling for no data from API before or during live games, which can occur at times
 Slight appearance changes for live and post match displays
+
+v1.2.1
+Bug fix - live games for GWS not working due to mismatch in team name for 2 different data APIs
 """
 
 load("encoding/json.star", "json")
@@ -202,6 +205,10 @@ def main(config):
             for y in range(0, IncompleteMatches, 1):
                 SquiggleHome = LiveJSON["games"][y]["hteam"]
 
+                # GWS needs some fixing to work for the next condition
+                if SquiggleHome == "Greater Western Sydney":
+                    SquiggleHome = "GWS Giants"
+
                 if HomeTeamName[:5] == SquiggleHome[:5] or AwayTeamName[:5] == SquiggleHome[:5]:
                     HomeScore = str(LiveJSON["games"][y]["hscore"])
                     HomeGoals = str(LiveJSON["games"][y]["hgoals"])
@@ -227,7 +234,7 @@ def main(config):
                         # otherwise the game is just about to start
                         timediff = time.now() - convertedTime
                         if timediff.minutes > 5:
-                            gametime = "DATA ERROR"
+                            gametime = "NO DATA"
                         else:
                             gametime = "GAME STARTING"
 
