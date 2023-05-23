@@ -41,6 +41,7 @@ def api_error():
 
 def now_playing(song, artist, album):
     return render.Root(
+    	delay = 28,
         child = render.Column(
             children = [
                 render.Stack(
