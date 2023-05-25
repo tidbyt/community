@@ -13,15 +13,12 @@ load("render.star", "render")
 load("schema.star", "schema")
 
 REFRESH_TIME = 1800  # every half hour
-APP_DURATION_MILLISECONDS = 15000
-REFRESH_MILLISECONDS = 75
 
 WHITE = "#ffffff"
 BLACK = "#000000"
 RED = "#ff0000"
 GREEN = "#00ff00"
 ORANGE = "#db8f00"
-LOGO_GREEN = "#64A70B"
 
 rIcon = "iVBORw0KGgoAAAANSUhEUgAAAAoAAAAKCAIAAAACUFjqAAAACXBIWXMAAAsTAAALEwEAmpwYAAAE82lUWHRYTUw6Y29tLmFkb2JlLnhtcAAAAAAAPD94cGFja2V0IGJlZ2luPSLvu78iIGlkPSJXNU0wTXBDZWhpSHpyZVN6TlRjemtjOWQiPz4gPHg6eG1wbWV0YSB4bWxuczp4PSJhZG9iZTpuczptZXRhLyIgeDp4bXB0az0iQWRvYmUgWE1QIENvcmUgNS42LWMxNDUgNzkuMTYzNDk5LCAyMDE4LzA4LzEzLTE2OjQwOjIyICAgICAgICAiPiA8cmRmOlJERiB4bWxuczpyZGY9Imh0dHA6Ly93d3cudzMub3JnLzE5OTkvMDIvMjItcmRmLXN5bnRheC1ucyMiPiA8cmRmOkRlc2NyaXB0aW9uIHJkZjphYm91dD0iIiB4bWxuczp4bXA9Imh0dHA6Ly9ucy5hZG9iZS5jb20veGFwLzEuMC8iIHhtbG5zOmRjPSJodHRwOi8vcHVybC5vcmcvZGMvZWxlbWVudHMvMS4xLyIgeG1sbnM6eG1wTU09Imh0dHA6Ly9ucy5hZG9iZS5jb20veGFwLzEuMC9tbS8iIHhtbG5zOnN0RXZ0PSJodHRwOi8vbnMuYWRvYmUuY29tL3hhcC8xLjAvc1R5cGUvUmVzb3VyY2VFdmVudCMiIHhtbG5zOnBob3Rvc2hvcD0iaHR0cDovL25zLmFkb2JlLmNvbS9waG90b3Nob3AvMS4wLyIgeG1wOkNyZWF0b3JUb29sPSJBZG9iZSBQaG90b3Nob3AgQ0MgMjAxOSAoV2luZG93cykiIHhtcDpDcmVhdGVEYXRlPSIyMDIzLTA1LTI0VDE1OjIyOjU4LTA0OjAwIiB4bXA6TWV0YWRhdGFEYXRlPSIyMDIzLTA1LTI0VDE1OjIyOjU4LTA0OjAwIiB4bXA6TW9kaWZ5RGF0ZT0iMjAyMy0wNS0yNFQxNToyMjo1OC0wNDowMCIgZGM6Zm9ybWF0PSJpbWFnZS9wbmciIHhtcE1NOkluc3RhbmNlSUQ9InhtcC5paWQ6NTE0NGM3OTEtOGNiZi0yNDRlLTk4OGUtOTRlOTU0NTE4ZWExIiB4bXBNTTpEb2N1bWVudElEPSJ4bXAuZGlkOjUxNDRjNzkxLThjYmYtMjQ0ZS05ODhlLTk0ZTk1NDUxOGVhMSIgeG1wTU06T3JpZ2luYWxEb2N1bWVudElEPSJ4bXAuZGlkOjUxNDRjNzkxLThjYmYtMjQ0ZS05ODhlLTk0ZTk1NDUxOGVhMSIgcGhvdG9zaG9wOkNvbG9yTW9kZT0iMyI+IDx4bXBNTTpIaXN0b3J5PiA8cmRmOlNlcT4gPHJkZjpsaSBzdEV2dDphY3Rpb249ImNyZWF0ZWQiIHN0RXZ0Omluc3RhbmNlSUQ9InhtcC5paWQ6NTE0NGM3OTEtOGNiZi0yNDRlLTk4OGUtOTRlOTU0NTE4ZWExIiBzdEV2dDp3aGVuPSIyMDIzLTA1LTI0VDE1OjIyOjU4LTA0OjAwIiBzdEV2dDpzb2Z0d2FyZUFnZW50PSJBZG9iZSBQaG90b3Nob3AgQ0MgMjAxOSAoV2luZG93cykiLz4gPC9yZGY6U2VxPiA8L3htcE1NOkhpc3Rvcnk+IDwvcmRmOkRlc2NyaXB0aW9uPiA8L3JkZjpSREY+IDwveDp4bXBtZXRhPiA8P3hwYWNrZXQgZW5kPSJyIj8+PTWgagAAAE1JREFUGJVjTFnOzYAbsDAwMMyO+MLAwJC6ggfCgIDUFTwMDAxMuPRBlDJiNRxuHk7dCLvhypEBwm64HEQImcGEphzNMHS74YrwuRwOAFB5G1gX+2oKAAAAAElFTkSuQmCC"
 
@@ -123,7 +120,7 @@ def main(config):
         color = BLACK,
     )
 
-    serverIP = config.str("serverIP")
+    serverIP = config.str("serverIP", "localhost")
     serverPort = config.str("serverPort", 6565)
     roombaIP = config.str("roombaIP")
 
@@ -138,11 +135,6 @@ def main(config):
     if data != None:
         print("Cached - Displaying cached data.")
         data = json.decode(data)
-
-        # print(data)
-        # if not data["batPct"]: #invalid cached data, call again
-        #     data = requestStatus(serverIP, serverPort, roombaIP)
-        #     cache.set("data", json.encode(data), ttl_seconds = REFRESH_TIME)
 
     else:
         print("No data available - Calling Roomba API server")
@@ -159,42 +151,37 @@ def main(config):
     else:
         fail("Server did not respond correctly")
 
-    # name = "MyRoomba"
-    # phase = "charge"
-    # batPct = 100
-    # print(batPct, name, phase, addr)
-
-    batFriendly = ""
-    phaseFriendly = ""
-    friendlyColor = WHITE
+    batLabel = ""
+    phaseLabel = ""
+    phaseLabelColor = WHITE
     statusOffset = 7
     if phase == "charge":
-        batFriendly = "%d%%" % batPct
-        phaseFriendly = "charging"
-        friendlyColor = GREEN
+        batLabel = "%d%%" % batPct
+        phaseLabel = "charging"
+        phaseLabelColor = GREEN
         if batPct == 100:
-            batFriendly = "%d%%" % batPct
-            phaseFriendly = "ready"
+            batLabel = "%d%%" % batPct
+            phaseLabel = "ready"
     elif phase == "chargeerror":
-        phaseFriendly = "error charging"
+        phaseLabel = "error charging"
         statusOffset = 0
-        friendlyColor = RED
+        phaseLabelColor = RED
     elif phase == "run":
-        batFriendly = "%d%%" % batPct
-        phaseFriendly = "cleaning"
-        friendlyColor = GREEN
+        batLabel = "%d%%" % batPct
+        phaseLabel = "cleaning"
+        phaseLabelColor = GREEN
     elif phase == "error":
-        batFriendly = "%d%%" % batPct
-        phaseFriendly = "error"
-        friendlyColor = RED
+        batLabel = "%d%%" % batPct
+        phaseLabel = "error"
+        phaseLabelColor = RED
     elif phase != "charge" and batPct <= 5:
-        phaseFriendly = "please charge"
+        phaseLabel = "please charge"
         statusOffset = 0
-        friendlyColor = RED
+        phaseLabelColor = RED
     elif phase == "stop":
-        batFriendly = "%d%%" % batPct
-        phaseFriendly = "stopped"
-        friendlyColor = RED
+        batLabel = "%d%%" % batPct
+        phaseLabel = "stopped"
+        phaseLabelColor = RED
 
     #render battery icon
     # why not just use separate images for batteries? - it's NOT AS FUN
@@ -298,14 +285,14 @@ def main(config):
                                             ),
                                             render.Padding(
                                                 pad = (9, 0, 0, 0),
-                                                child = render.WrappedText(batFriendly, font = "5x8"),
+                                                child = render.WrappedText(batLabel, font = "5x8"),
                                             ),
                                             render.Padding(
                                                 pad = (13, statusOffset, 1, 1),
                                                 child = render.Column(
                                                     expanded = True,
                                                     children = [
-                                                        render.WrappedText(phaseFriendly, font = "5x8", color = friendlyColor),
+                                                        render.WrappedText(phaseLabel, font = "5x8", color = phaseLabelColor),
                                                     ],
                                                 ),
                                             ),
