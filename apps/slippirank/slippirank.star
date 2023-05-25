@@ -170,8 +170,8 @@ DEFAULT_USER_CODE = "hbox-305"
 
 def main(config):
     userCode = config.str("userCode")
-    showRankName = config.bool("showRankName", True)
-    showElo = config.bool("showElo", True)
+    showRankName = config.bool("showRankName")
+    showElo = config.bool("showElo")
     if userCode == None or userCode == "":
         userCode = DEFAULT_USER_CODE
         # fail("No user code configured")
@@ -208,10 +208,11 @@ def main(config):
         fail("Ranked data did not respond correctly")
 
     msg = "%s \n%s \n%d" % (name, rank, elo)
-    if not showRankName:
+    print(showRankName)
+    if showRankName == False:
         rank = ""
         msg = "%s \n%d" % (name, elo)
-    if not showElo:
+    if showElo == False:
         msg = "%s \n%s" % (name, rank)
 
     return render.Root(
@@ -247,12 +248,14 @@ def get_schema():
                 name = "Show Rank Name",
                 desc = "",
                 icon = "question",
+                default = True,
             ),
             schema.Toggle(
                 id = "showElo",
                 name = "Show Elo",
                 desc = "",
                 icon = "question",
+                default = True,
             ),
         ],
     )
