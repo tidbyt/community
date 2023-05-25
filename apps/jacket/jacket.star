@@ -1,9 +1,9 @@
 load("cache.star", "cache")
 load("encoding/json.star", "json")
 load("http.star", "http")
+load("math.star", "math")
 load("render.star", "render")
 load("schema.star", "schema")
-load("math.star", "math")
 
 AMBIENT_WEATHER_URL = "https://rt.ambientweather.net/v1/devices"
 ADVERBS = [
@@ -55,22 +55,27 @@ def clamp(value, min, max):
 def percentOfRange(value, min, max):
     # normalize
     value, min, max = normalize(value, min, max)
+
     # maths
     percent = value / max - min
+
     # clamping
     return clamp(percent, 0, 1)
 
-def getTempWord(temp, unit='f'):
+def getTempWord(temp, unit = "f"):
     # convert our range bounds to c if necessary
-    tmin = unit == 'f' and RANGE_MIN or f2c(RANGE_MIN)
-    tmax = unit == 'f' and RANGE_MAX or f2c(RANGE_MAX)
+    tmin = unit == "f" and RANGE_MIN or f2c(RANGE_MIN)
+    tmax = unit == "f" and RANGE_MAX or f2c(RANGE_MAX)
+
     # % of our temp range
     tempPer = percentOfRange(temp, tmin, tmax)
+
     # index in array of desc, based on that percentage
     index = math.floor(tempPer * len(ADVERBS))
+
     # ensure temp is not outside of our range
     index = max(0, index)
-    index = min(len(ADVERBS)-1, index)
+    index = min(len(ADVERBS) - 1, index)
 
     # return that word
     return ADVERBS[index]
@@ -80,7 +85,7 @@ def getMainString(temp, jacketLimit, coatLimit):
     outerwear = (temp < coatLimit) and "coat" or "jacket"
     return "You%s need a %s" % (negation, outerwear)
 
-def getSubString(temp, unit='f'):
+def getSubString(temp, unit = "f"):
     return "It's %s outside" % getTempWord(temp, unit)
 
 def main(config):
@@ -90,36 +95,37 @@ def main(config):
     mainString = getMainString(feels_like, DEFAULT_JACKET_LIMIT, DEFAULT_COAT_LIMIT)
     show_description = config.get("show_description")
     subString = ""
-    degree_sign = "°"
 
     weather_info = []
+
     # weather_info.append(add_row("Temp", "{0}{1}".format(outside_temp, degree_sign)))
     # weather_info.append(add_row("Feel", "{0}{1}".format(feels_like, degree_sign)))
     weather_info.append(
         render.Row(
-        expanded = True,
-        main_align = "center",
-        cross_align = "center",
-        children = [
-                render.WrappedText("%s" % mainString, 'tb-8', align="center")
-        ],
-    ))
+            expanded = True,
+            main_align = "center",
+            cross_align = "center",
+            children = [
+                render.WrappedText("%s" % mainString, "tb-8", align = "center"),
+            ],
+        ),
+    )
     if show_description != "false":
         subString = getSubString(feels_like)
         weather_info.append(render.Box(width = 64, height = 1, color = config.get("divider_color", "#1167B1")))
         weather_info.append(
             render.Row(
-            # expanded = True,
-            main_align = "center",
-            cross_align = "center",
-            children = [
-                render.Marquee(
-                    width=64,
-                    child=render.Text("%s" % subString, 'CG-pixel-3x5-mono')
-                    )
-            ],
+                # expanded = True,
+                main_align = "center",
+                cross_align = "center",
+                children = [
+                    render.Marquee(
+                        width = 64,
+                        child = render.Text("%s" % subString, "CG-pixel-3x5-mono"),
+                    ),
+                ],
+            ),
         )
-    )
 
     return render.Root(
         child = render.Column(
@@ -239,8 +245,8 @@ def add_row(title, font):
         cross_align = "center",
         children = [
             render.Marquee(
-                width=64,
-                child=render.Text("%s" % title, font)
-                )
+                width = 64,
+                child = render.Text("%s" % title, font),
+            ),
         ],
     )
