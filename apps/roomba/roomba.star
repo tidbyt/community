@@ -99,29 +99,29 @@ def requestStatus(serverIP, serverPort, roombaIP):
 
 def main(config):
     white_pixel = render.Box(
-        width=1,
-        height=1,
-        color=WHITE,
+        width = 1,
+        height = 1,
+        color = WHITE,
     )
     green_pixel = render.Box(
-        width=1,
-        height=1,
-        color=GREEN
+        width = 1,
+        height = 1,
+        color = GREEN,
     )
     red_pixel = render.Box(
-        width=1,
-        height=1,
-        color=RED
+        width = 1,
+        height = 1,
+        color = RED,
     )
     orange_pixel = render.Box(
-        width=1,
-        height=1,
-        color=ORANGE
+        width = 1,
+        height = 1,
+        color = ORANGE,
     )
     black_pixel = render.Box(
-        width=1,
-        height=1,
-        color=BLACK
+        width = 1,
+        height = 1,
+        color = BLACK,
     )
 
     serverIP = config.str("serverIP")
@@ -134,7 +134,7 @@ def main(config):
     if type(int(serverPort)) != "int":
         fail("Server Port must be an integer")
     serverPort = int(serverPort)
-    
+
     data = cache.get("data")
     if data != None:
         print("Cached - Displaying cached data.")
@@ -144,6 +144,7 @@ def main(config):
         # if not data["batPct"]: #invalid cached data, call again
         #     data = requestStatus(serverIP, serverPort, roombaIP)
         #     cache.set("data", json.encode(data), ttl_seconds = REFRESH_TIME)
+
     else:
         print("No data available - Calling Roomba API server")
         data = requestStatus(serverIP, serverPort, roombaIP)
@@ -155,6 +156,7 @@ def main(config):
         name = data["name"]
         phase = data["cleanMissionStatus"]["phase"]
         # addr = data["netinfo"]["addr"]
+
     else:
         fail("Server did not respond correctly")
 
@@ -194,7 +196,6 @@ def main(config):
         batFriendly = "%d%%" % batPct
         phaseFriendly = "stopped"
         friendlyColor = RED
-    
 
     #render battery icon
     # why not just use separate images for batteries? - it's NOT AS FUN
@@ -221,25 +222,29 @@ def main(config):
         for y in range(HEIGHT):
             row = []
             for x in range(WIDTH):
-                if x != 0 and x < WIDTH-1 and y > 2 and y < HEIGHT-1:
+                if x != 0 and x < WIDTH - 1 and y > 2 and y < HEIGHT - 1:
                     #draw filled up battery depending on batPct
                     #green
-                    if batPct >= 70 and y-HEIGHT_ADJ >= ((HEIGHT-HEIGHT_ADJ)*(1-batPct/100)):
+                    if batPct >= 70 and y - HEIGHT_ADJ >= ((HEIGHT - HEIGHT_ADJ) * (1 - batPct / 100)):
                         row.append(green_pixel)
-                    #orange
-                    elif batPct >= 35 and y-HEIGHT_ADJ >= ((HEIGHT-HEIGHT_ADJ)*(1-batPct/100)):
+                        #orange
+
+                    elif batPct >= 35 and y - HEIGHT_ADJ >= ((HEIGHT - HEIGHT_ADJ) * (1 - batPct / 100)):
                         row.append(orange_pixel)
-                    #red
-                    elif batPct >= 15 and y-HEIGHT_ADJ >= ((HEIGHT-HEIGHT_ADJ)*(1-batPct/100)):
+                        #red
+
+                    elif batPct >= 15 and y - HEIGHT_ADJ >= ((HEIGHT - HEIGHT_ADJ) * (1 - batPct / 100)):
                         row.append(red_pixel)
-                    #bottom line on almost empty
+                        #bottom line on almost empty
+
                     elif batPct >= 5 and y >= 14:
                         row.append(red_pixel)
-                    #all empty
+                        #all empty
+
                     else:
                         row.append(black_pixel)
 
-                #draw battery outline
+                    #draw battery outline
                 elif BATTERY_OUTLINE[y][x] == 1:
                     row.append(white_pixel)
                 else:
@@ -259,56 +264,58 @@ def main(config):
                         render.Stack(
                             children = [
                                 render.Padding(
-                                    pad=1, child = render.Row(
-                                        expanded=True,
-                                        main_align="space_around",
+                                    pad = 1,
+                                    child = render.Row(
+                                        expanded = True,
+                                        main_align = "space_around",
                                         children = [
                                             render.Stack(children = [
-                                                render.Image(src=base64.decode(rIcon)),
+                                                render.Image(src = base64.decode(rIcon)),
                                             ]),
-                                            render.Text(name)
-                                        ]
+                                            render.Text(name),
+                                        ],
                                     ),
                                 ),
-                            ]
+                            ],
                         ),
                         render.Padding(
-                            pad=1,
+                            pad = 1,
                             child = render.Row(
-                            main_align="space_around",
-                            cross_align="center",
-                            expanded=True,
-                            children = [
-                                render.Stack(
-                                    children = [
-                                        render.Padding(
-                                            pad = (0, 0, 50, 0),
-                                            child = render.Column(
-                                            expanded=True,
-                                            children = [
-                                                render.Row(children = row) for row in batteryIconRows
-                                            ]
-                                        ),
-                                        ),
-                                        render.Padding(
-                                            pad = (9, 0, 0, 0),
-                                            child = render.WrappedText(batFriendly, font='5x8'),
-                                        ),
-                                        render.Padding(
-                                            pad = (13, statusOffset, 1, 1),
-                                            child = render.Column(
-                                            expanded=True,
-                                            children = [
-                                                render.WrappedText(phaseFriendly, font='5x8', color=friendlyColor)
-                                            ]
-                                        ),
-                                        )
-                                    ]
-                                ),
-                            ]
+                                main_align = "space_around",
+                                cross_align = "center",
+                                expanded = True,
+                                children = [
+                                    render.Stack(
+                                        children = [
+                                            render.Padding(
+                                                pad = (0, 0, 50, 0),
+                                                child = render.Column(
+                                                    expanded = True,
+                                                    children = [
+                                                        render.Row(children = row)
+                                                        for row in batteryIconRows
+                                                    ],
+                                                ),
+                                            ),
+                                            render.Padding(
+                                                pad = (9, 0, 0, 0),
+                                                child = render.WrappedText(batFriendly, font = "5x8"),
+                                            ),
+                                            render.Padding(
+                                                pad = (13, statusOffset, 1, 1),
+                                                child = render.Column(
+                                                    expanded = True,
+                                                    children = [
+                                                        render.WrappedText(phaseFriendly, font = "5x8", color = friendlyColor),
+                                                    ],
+                                                ),
+                                            ),
+                                        ],
+                                    ),
+                                ],
+                            ),
                         ),
-                        )
-                    ]
+                    ],
                 ),
             ],
         ),
