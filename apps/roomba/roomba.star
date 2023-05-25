@@ -12,8 +12,7 @@ load("http.star", "http")
 load("render.star", "render")
 load("schema.star", "schema")
 
-# REFRESH_TIME = 1800  # every half hour
-REFRESH_TIME = 60  # every half hour
+REFRESH_TIME = 1800  # every half hour
 APP_DURATION_MILLISECONDS = 15000
 REFRESH_MILLISECONDS = 75
 
