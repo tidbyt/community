@@ -1,0 +1,8 @@
+---
+id: roomba
+name: Roomba
+summary: Shows status of Roomba
+desc: Shows status of Roomba and Braava (i7/i7+, 980, 960, 900, e5, 690, 675, m6, etc).
+author: noahpodgurski
+fileName: roomba.star
+packageName: roomba
