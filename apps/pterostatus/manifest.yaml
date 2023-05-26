@@ -1,0 +1,8 @@
+---
+id: ptero-status
+name: Ptero Status
+summary: Gets server status
+desc: Gets a single Pterodactyl server's status.
+author: NineZulu
+fileName: ptero_status.star
+packageName: pterostatus
