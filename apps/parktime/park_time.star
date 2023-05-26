@@ -26,7 +26,7 @@ DEFAULT_COLOR_DANGER = "#dc3545"
 DEFAULT_COLOR_WARNING = "#ffc107"
 DEFAULT_TTL = int(60 * 60 * 6)  # 4 hours
 DEFAULT_TTL_LIVE = int(60 * 5)  # 5 minutes
-DEFAULT_ENTITY = "ff52cb64-c1d5-4feb-9d43-5dbd429bac81"  #"75ea578a-adc8-4116-a54d-dccb60765ef9"
+DEFAULT_ENTITY = "75ea578a-adc8-4116-a54d-dccb60765ef9" #"ff52cb64-c1d5-4feb-9d43-5dbd429bac81"  #
 TIDY_NAMES = ["Universal's ", " Theme Park", " Water Park", " Park", "Disney's ", " Florida", "™", "©", "®", " – New!"]
 MAIN_ENTITIES = [
     {"name": "Disneyland Resort", "id": "bfc89fd6-314d-44b4-b89e-df1a89cf991e", "entityType": "DESTINATION", "color": "#FFFFFF"},
@@ -75,11 +75,10 @@ def get_destination_options():
     return [entity_to_option(destination) for destination in MAIN_ENTITIES if destination["entityType"] == "DESTINATION"]
 
 # Get the Schema Options for Entities
-def get_entity_options(park):
-    res = http.get(THEME_PARKS_WIKI_URL + park)
-    if res.status_code != 200:
-        fail("request to %s failed with status code: %d" % (res, res.status_code))
+def get_entity_options(park):    
     entity_children = http.get(THEME_PARKS_WIKI_URL + park + "/children", ttl_seconds = DEFAULT_TTL).json()["children"]
+    if entity_children.status_code != 200:
+        fail("request to %s failed with status code: %d" % (entity_children, entity_children.status_code))
 
     # Get Parks
     destination_children = [x for x in entity_children if (x["entityType"] == "PARK" or x["entityType"] == "SHOW" or x["entityType"] == "ATTRACTION")]
@@ -279,11 +278,11 @@ def main(config):
         entity = config.get("entity")
 
     #Get the entity info
-    res = http.get(THEME_PARKS_WIKI_URL + entity)
-    if res.status_code != 200:
-        fail("request to %s failed with status code: %d" % (res, res.status_code))
     entity_schedule = http.get(THEME_PARKS_WIKI_URL + entity + "/schedule", ttl_seconds = DEFAULT_TTL).json()
     entity_live = http.get(THEME_PARKS_WIKI_URL + entity + "/live", ttl_seconds = DEFAULT_TTL_LIVE).json()["liveData"]
+    if entity_live.status_code != 200:
+        fail("request to %s failed with status code: %d" % (entity_live, entity_live.status_code))
+
     display_name = tidy_name(entity_schedule["name"])
 
     # Check for liveData
