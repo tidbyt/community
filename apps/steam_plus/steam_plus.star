@@ -14,6 +14,8 @@ STEAM_LOGO_PATH = "https://images-wixmp-ed30a86b8c4ca887773594c2.wixmp.com/f/7a4
 STATUS = ["Offline", "Online", "Busy", "Away"]
 STATUS_COLOR = ["#59707B", "#0a0", "#F67407", "#FFD100"]
 
+STEAM_LOGO = http.get(STEAM_LOGO_PATH).body()
+
 def main(config):
     api_key = secret.decrypt("AV6+xWcEwaY3vnJsrpZ955musUx4antJ6gbwX3x2owwWA3+5Op9iKbtJOOwUi5IEtAyFUoBZ2m/9udqMTty57El86cAySE44VGeMQY7/7gkzdTxISb1jxZy+bI+TM0sOdoYgA/Fs1kVAnT/JFrG0RESwBcHDaP09o77VlvVv0ujLqnz6x20=")
 
@@ -28,8 +30,8 @@ def main(config):
     players = resp.json()["response"]["players"]
 
     username = "Cannot find the specified user"
-    avatar = http.get(STEAM_LOGO_PATH).body()
-    currently_playing_logo = http.get(STEAM_LOGO_PATH).body()
+    avatar = STEAM_LOGO
+    currently_playing_logo = STEAM_LOGO
     currently_playing = ""
     status = ""
     persona_state = 0
