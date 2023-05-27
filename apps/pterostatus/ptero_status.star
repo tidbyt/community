@@ -136,6 +136,11 @@ def build_display(url, server, key):
                             ),
                         ],
                     ),
+                    render.Box(
+                        height = 1, 
+                        width = 54,
+                        color = "#333"
+                    ),                    
                     render.Sequence(
                         children = [
                             build_anim(k, v)
