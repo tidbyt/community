@@ -24,6 +24,9 @@ Updated caching function
 
 v1.4
 Current server now indicated in green
+
+v1.4.1
+Fixed bug which appears when player who is serving is not being provided by data feed. Code now checks if that data is present before showing it, or not 
 """
 
 load("encoding/json.star", "json")
@@ -215,14 +218,17 @@ def getLiveScores(SelectedTourneyID, EventIndex, InProgressMatchList, JSON):
             Player1_ID = JSON["events"][EventIndex]["competitions"][x]["competitors"][0]["id"]
             Player2_Name = JSON["events"][EventIndex]["competitions"][x]["competitors"][1]["athlete"]["shortName"]
             Player2_ID = JSON["events"][EventIndex]["competitions"][x]["competitors"][1]["id"]
-            Server = JSON["events"][EventIndex]["competitions"][x]["situation"]["server"]["$ref"]
-            Server = Server[70:]
-            Server = Server.removesuffix("?lang=en&region=us")
 
-            if Server == Player1_ID:
-                Player1Color = "#01AF50"
-            elif Server == Player2_ID:
-                Player2Color = "#01AF50"
+            # 17 fields in a live game if the serving data is being shown
+            if len(JSON["events"][EventIndex]["competitions"][x]) == 17:
+                Server = JSON["events"][EventIndex]["competitions"][x]["situation"]["server"]["$ref"]
+                Server = Server[70:]
+                Server = Server.removesuffix("?lang=en&region=us")
+
+                if Server == Player1_ID:
+                    Player1Color = "#01AF50"
+                elif Server == Player2_ID:
+                    Player2Color = "#01AF50"
 
             Number_Sets = len(JSON["events"][EventIndex]["competitions"][x]["competitors"][0]["linescores"])
             Player1_Sets = ""
@@ -585,8 +591,9 @@ def notStarted(EventIndex, JSON):
     return Display
 
 def get_schema():
+    TOURNEY_CACHE = 10800  # 3hrs
     ATP_SCORES_URL = "https://site.api.espn.com/apis/site/v2/sports/tennis/atp/scoreboard"
-    CacheData = get_cachable_data(ATP_SCORES_URL, 120)
+    CacheData = get_cachable_data(ATP_SCORES_URL, TOURNEY_CACHE)
     ATP_JSON = json.decode(CacheData)
 
     Number_Events = len(ATP_JSON["events"])
