@@ -60,7 +60,7 @@ def get_schema():
                 id = "BDay",
                 name = "Birthdate",
                 desc = "Enter your birthdate",
-                icon = "calendar",                
+                icon = "calendar",
             ),
         ],
     )
