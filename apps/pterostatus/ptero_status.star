@@ -166,25 +166,25 @@ def main(config):
 
 def get_schema():
     return schema.Schema(
-        version = "2",
+        version = "1",
         fields = [
             schema.Text(
                 id = "api_key",
                 name = "API Key",
                 desc = "The client API key for your server.",
-                icon = "gear",
+                icon = "key",
             ),
             schema.Text(
                 id = "url",
                 name = "Pterodactyl FQDN",
                 desc = "The URL for your Pterodactyl implementation. ex. https://www.example.com",
-                icon = "gear",
+                icon = "link",
             ),
             schema.Text(
                 id = "server",
                 name = "Server ID",
                 desc = "The ID of your server. ex. be6a9hy7",
-                icon = "gear",
+                icon = "idCard",
             ),
         ],
     )
