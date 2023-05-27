@@ -166,7 +166,7 @@ def main(config):
 
 def get_schema():
     return schema.Schema(
-        version = "1",
+        version = "2",
         fields = [
             schema.Text(
                 id = "api_key",
