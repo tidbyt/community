@@ -5,7 +5,6 @@ Description: Displays NextDNS account total query & total blocked query counts +
 Author: ndhotsky
 """
 
-load("cache.star", "cache")
 load("encoding/base64.star", "base64")
 load("http.star", "http")
 load("humanize.star", "humanize")
@@ -17,6 +16,10 @@ load("schema.star", "schema")
 BASE_URL = "https://api.nextdns.io"
 TIME_SERIES_URL = ";series?"
 ANALYTICS_STATUS_ENDPOINT = "/profiles/{}/analytics/status"
+
+# STYLING
+GREEN = "#00cc00"
+RED = "#ff4136"
 
 def build_get_request(endpoint, api_key, **kwargs):
     """
@@ -60,17 +63,11 @@ def query_nextdns(api_key, profile_id, endpoint, **kwargs):
     endpoint = endpoint.format(profile_id)
     url, headers = build_get_request(endpoint, api_key, since = kwargs.get("since", None), interval = kwargs.get("interval", None), limit = kwargs.get("limit", None))
 
-    cached_data = cache.get(url)
-    if cached_data == None:
-        resp = http.get(url, headers = headers)
-        if resp.status_code != 200:
-            fail("NextDNS %s request failed with status %d", endpoint, resp.status_code)
+    resp = http.get(url, headers = headers, ttl_seconds = 240)
+    if resp.status_code != 200:
+        fail("NextDNS %s request failed with status %d", endpoint, resp.status_code)
 
-        cache.set(url, str(resp.json()), ttl_seconds = 240)
-        return resp.json()
-
-    else:
-        return cached_data
+    return resp.json()
 
 def create_plot(datapoints):
     """
@@ -142,7 +139,7 @@ def main(config):
             main_align = "space_between",
             children = [
                 render.Padding(
-                    pad = (2, 1, 2, 0),
+                    pad = (2, 1, 1, 0),
                     child = render.Row(
                         expanded = True,
                         main_align = "space_between",
@@ -162,7 +159,7 @@ def main(config):
                                 cross_align = "end",
                                 children = [
                                     render.Text(str(total_queries)),
-                                    render.Text(str(total_blocked), color = "#ff4136"),
+                                    render.Text(str(total_blocked), color = RED),
                                 ],
                             ),
                         ],
@@ -177,7 +174,7 @@ def main(config):
                                     data = total_queries_plot[1:],
                                     width = 64,
                                     height = 14,
-                                    color = "#00cc00",
+                                    color = GREEN,
                                     fill = True,
                                     y_lim = (0, max(graph["data"][0]["queries"])),
                                 ),
@@ -185,7 +182,9 @@ def main(config):
                                     data = blocked_queries_plot[1:],
                                     width = 64,
                                     height = 14,
-                                    color = "#ff4136",
+                                    color = RED,
+                                    fill = True,
+                                    fill_color = "#660500",
                                     y_lim = (0, max(graph["data"][1]["queries"]) * 3),
                                 ),
                             ],
