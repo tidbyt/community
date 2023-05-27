@@ -76,7 +76,7 @@ def main(config):
                     render.Marquee(
                         width = 64,
                         child = render.Text(msg, font = "6x13", color = "#fa0"),
-                        offset_start = 0,
+                        offset_start = 10,
                         offset_end = 32,
                     ),
                 ],
