@@ -532,7 +532,6 @@ def getFlightCategory(decodedMetar):
     cloudLayers = decodedMetar["clouds"]
     visibility = None
     cloudLayerCount = len(cloudLayers)
-    cloudLayerArrayObject = cloudLayerCount - 1
 
     if (decodedMetar["visib"] == "10+"):
         visibility = 10
@@ -542,27 +541,27 @@ def getFlightCategory(decodedMetar):
     baseClouds = int(12000)
     print(cloudLayers)
 
-    if(cloudLayerCount == 1):
+    if (cloudLayerCount == 1):
         if cloudLayers[0]["cover"] == "BKN":
             baseClouds = cloudLayers[0]["base"]
 
         if cloudLayers[0]["cover"] == "OVC":
             baseClouds = cloudLayers[0]["base"]
 
-    if(cloudLayerCount == 2):
+    if (cloudLayerCount == 2):
         if cloudLayers[0]["cover"] == "BKN":
             baseClouds = cloudLayers[0]["base"]
 
         if cloudLayers[0]["cover"] == "OVC":
             baseClouds = cloudLayers[0]["base"]
-            
+
         if cloudLayers[1]["cover"] == "BKN":
             baseClouds = cloudLayers[1]["base"]
 
         if cloudLayers[1]["cover"] == "OVC":
             baseClouds = cloudLayers[1]["base"]
 
-    if(cloudLayerCount == 3):
+    if (cloudLayerCount == 3):
         if cloudLayers[0]["cover"] == "BKN":
             baseClouds = cloudLayers[0]["base"]
 
