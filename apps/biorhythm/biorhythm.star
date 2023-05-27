@@ -56,11 +56,11 @@ def get_schema():
     return schema.Schema(
         version = "1",
         fields = [
-            schema.Text(
+            schema.DateTime(
                 id = "BDay",
-                name = "Your birth date",
-                desc = "Date of birth format: YYYY-MM-DD",
-                icon = "calendar",
+                name = "Birthdate",
+                desc = "Enter your birthdate",
+                icon = "calendar",                
             ),
         ],
     )
@@ -72,8 +72,8 @@ def draw_plot(config):
     timezone = config.get("timezone") or "America/New_York"
     now = time.now().in_location(timezone)
 
-    default_date = humanize.time_format("yyyy-MM-dd", now)
-    dt = config.str("BDay", default_date)
+    default_date = humanize.time_format("yyyy-MM-ddT00:00:00Z", now)
+    dt = config.get("BDay", default_date)
     byr = int(dt[:4])
     bmo = int(dt[5:7])
     bdy = int(dt[8:10])
