@@ -1,6 +1,12 @@
+load("animation.star", "animation")
 load("http.star", "http")
+load("math.star", "math")
 load("render.star", "render")
 load("schema.star", "schema")
+
+DEV_SERVER_ID = ""
+DEV_PTERO_URL = "https://www.example.com"
+DEV_API_KEY = ""
 
 def get_details(url, server, key):
     res = http.get(
@@ -13,11 +19,25 @@ def get_details(url, server, key):
     )
 
     if res.status_code != 200:
-        return render.Text("ERROR: %d" % res.status_code)
+        return "ERROR: %d" % res.status_code
     name = res.json()["attributes"]["name"]
-    return render.Text(name)
+    return name
 
 def get_status(url, server, key):
+    state = ""
+    disk = 0
+    cpu = 0
+    mem = 0
+    uptime = 0
+
+    stats = {
+        "uptime": uptime,
+        "cpu": cpu,
+        "mem": mem,
+        "disk": disk,
+        "state": state,
+    }
+
     res = http.get(
         url + "/api/client/servers/" + server + "/resources",
         headers = {
@@ -27,40 +47,120 @@ def get_status(url, server, key):
         },
     )
     if res.status_code != 200:
-        return render.Circle(color = "#B10", diameter = 6)
-    status = res.json()["attributes"]["current_state"]
+        return stats
+    stats["state"] = res.json()["attributes"]["current_state"]
+    stats["disk"] = convert_bytes(res.json()["attributes"]["resources"]["disk_bytes"])
+    stats["cpu"] = math.ceil(res.json()["attributes"]["resources"]["cpu_absolute"] * 100) / 100
+    stats["mem"] = convert_bytes(res.json()["attributes"]["resources"]["memory_bytes"])
+    stats["uptime"] = convert_ms(res.json()["attributes"]["resources"]["uptime"])
 
-    if status != "running":
-        return render.Circle(color = "#B10", diameter = 6)
+    return stats
+
+def convert_bytes(bytes):
+    gb = math.ceil((bytes / math.pow(1024, 3)) * 100) / 100
+    return gb
+
+def convert_ms(millis):
+    seconds = millis // 1000
+    minutes = seconds // 60
+    hours = minutes // 60
+    minutes %= 60
+    return str("%dh %dm") % (int(hours), int(minutes))
+
+def render_stat(stat, v):
+    if stat == "uptime":
+        return render.Text("Up: %s" % v)
+    if stat == "cpu":
+        return render.Text("CPU: " + str(v) + " %")
+    if stat == "mem":
+        return render.Text("Mem: %sGB" % v)
+    if stat == "disk":
+        return render.Text("Disk: %sGB" % v)
     else:
-        return render.Circle(color = "#0E3", diameter = 6)
+        return render.Text("No info..")
+
+def build_anim(k, v):
+    return animation.Transformation(
+        height = 32,
+        width = 54,
+        duration = 120,
+        origin = animation.Origin(0.5, 0.5),
+        wait_for_child = True,
+        child = render_stat(k, v),
+        keyframes = [
+            animation.Keyframe(
+                percentage = 0.0,
+                transforms = [animation.Translate(0, 32)],
+                curve = "ease_in_out",
+            ),
+            animation.Keyframe(
+                percentage = 0.2,
+                transforms = [animation.Translate(0, 0)],
+                curve = "ease_in_out",
+            ),
+            animation.Keyframe(
+                percentage = 0.8,
+                transforms = [animation.Translate(0, 0)],
+                curve = "ease_in_out",
+            ),
+            animation.Keyframe(
+                percentage = 1.0,
+                transforms = [animation.Translate(0, 32)],
+                curve = "ease_in_out",
+            ),
+        ],
+    )
 
 def build_display(url, server, key):
     name = get_details(url, server, key)
-    status = get_status(url, server, key)
+    stats = get_status(url, server, key)
+
+    if stats["state"] != "running":
+        status = render.Box(width = 8, height = 32, color = "#b10")
+    else:
+        status = render.Box(width = 8, height = 32, color = "#0f0")
 
     return render.Row(
-        expanded = True,
-        main_align = "space_evenly",
+        main_align = "space_between",
         cross_align = "center",
+        expanded = True,
         children = [
-            name,
-            status,
+            render.Column(
+                main_align = "center",
+                children = [
+                    render.Row(
+                        children = [
+                            render.Marquee(
+                                width = 54,
+                                child = render.Text("%s" % name),
+                            ),
+                        ],
+                    ),
+                    render.Sequence(
+                        children = [
+                            build_anim(k, v)
+                            for k, v in stats.items()[:-1]
+                        ],
+                    ),
+                ],
+            ),
+            render.Column(
+                children = [
+                    status,
+                ],
+            ),
         ],
     )
 
 def main(config):
-    server = config.str("server", "")
-    url = config.str("url", "https://www.example.com")
-    key = config.str("api_key", "")
+    server = config.str("server", DEV_SERVER_ID)
+    url = config.str("url", DEV_PTERO_URL)
+    key = config.str("api_key", DEV_API_KEY)
 
     return render.Root(
+        show_full_animation = True,
         child = render.Box(
-            render.Column(
-                children = [
-                    build_display(url, server, key),
-                ],
-            ),
+            child = build_display(url, server, key),
         ),
     )
 
@@ -71,7 +171,7 @@ def get_schema():
             schema.Text(
                 id = "api_key",
                 name = "API Key",
-                desc = "The client API key for your server. ex. ptlc_***",
+                desc = "The client API key for your server.",
                 icon = "gear",
             ),
             schema.Text(
