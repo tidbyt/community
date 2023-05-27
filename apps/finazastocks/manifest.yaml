@@ -1,0 +1,8 @@
+---
+id: finaza-stocks
+name: Finaza Stocks
+summary: Display Stock/ETF ticker
+desc: Display Stock Ticker. No API Key Reuquired. COnfigur upto 5 Symbols.
+author: suniltaneja
+fileName: finaza_stocks.star
+packageName: finazastocks
