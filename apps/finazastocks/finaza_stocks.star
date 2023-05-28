@@ -11,8 +11,7 @@ load("http.star", "http")
 load("render.star", "render")
 load("schema.star", "schema")
 
-#STOCK_QUOTE_URL = "https://www.alphavantage.co/query?function=GLOBAL_QUOTE&symbol="
-STOCK_QUOTE_URL = "https://www.finaza.io/api/v1/multiquote?symbols=AAPL,MSFT,GOOG,TSLA,NVDA,AMZN&key=tidbyt"
+STOCK_QUOTE_URL = "https://www.finaza.io/api/v1/multiquote?symbols=<symbols>&key=tidbyt"
 SYMBOL_B64 = base64.decode("""
 iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAAXNSR0IArs4c6QAAAIxJREFUOE
 9jZGBg+M+ABl6UMqMLgfkS3X8xxBmRDYBpxKYQpBObPNwAkCQujdhcCFMLNgCf5u8f9jBwCrhg
@@ -21,10 +20,8 @@ igXjqA5QVcqRFbSkRWS73MhBxwpGRnAGAwmUGS9KHUAAAAAElFTkSuQmCC
 """)
 
 def main(config):
-    APIKEY = config.get("FINAZA_API_KEY", None)
-    if APIKEY:
-        ALPHA_KEY = "&apikey=" + APIKEY
-        print("%s %s" % ("Hello", "World"))
+    if True:
+        print("%s %s" % ("Program", "Started.."))
 
         # get working symbols
         if (config.get("stock_1")):
@@ -36,35 +33,39 @@ def main(config):
                 config.get("stock_5", None),
             ]
         else:
-            SYMBOLS = ["GOOG", "AMZN", "MSFT", "TSLA", "NVDA", "AAPL"]
+            SYMBOLS = ["GOOG", "AMZN", "MSFT", "TSLA", "NVDA", "AAPL"] # default symbols
 
         rate_cached = cache.get("sym_rate")
-        print(SYMBOLS)
-        print(ALPHA_KEY)
+        # remove any empty symbols
+        SYMBOLS = [x for x in SYMBOLS if x != None]
+        # convert python string list to comma separated string and remove last comma from string
+        SYMBOLS = ",".join(SYMBOLS).rstrip(",")
+        # replace <symbols> in URL with comma separated string
+        STOCK_QUOTE_URL_FINAL = STOCK_QUOTE_URL.replace("<symbols>", SYMBOLS)
 
-        full_url = ""
+        print(SYMBOLS)
+
         if rate_cached != None:
             print("rate_cached")
             msg = rate_cached
         else:
             msg = ""
-            full_url = STOCK_QUOTE_URL
-            print(full_url)
-            rep = http.get(full_url)
+            rep = http.get(STOCK_QUOTE_URL_FINAL)
 
             #print(rep.json())
             if rep.status_code != 200:
+                msg = "Please configure symbols in the applet settings."
                 fail("API request failed with status %d", rep.status_code)
             else:
-                print(rep.json()["quotes"][0]["symbol"])
-                for a in rep.json()["quotes"]:
-                    msg = msg + a["symbol"] + ": $" + str(a["latestPrice"]) + " | "
+                for stock in rep.json()["quotes"]:    
+                    msg = msg + stock["symbol"] + ": $" + str(stock["latestPrice"]) + " | "
+                    #msg = msg + ""
+                msg = msg.rstrip(" | ")
                 print(msg)
-            cache.set("sym_rate", msg, ttl_seconds = 500)
+                cache.set("sym_rate", msg, ttl_seconds = 500)
     else:
-        # output error
-        msg = "%s API key is required"
-        msg = "FINAZA"
+        msg = "Please configure symbols in the applet settings."
+
     return render.Root(
         child = render.Box(
             render.Row(
@@ -72,13 +73,14 @@ def main(config):
                 main_align = "space_evenly",
                 cross_align = "center",
                 children = [
-                    render.Image(src = SYMBOL_B64),
-                    render.Marquee(
-                        width = 64,
-                        child = render.Text(msg, font = "6x13", color = "#fa0"),
-                        offset_start = 10,
-                        offset_end = 32,
-                    ),
+                            render.Padding( child=render.Image(src = SYMBOL_B64),  pad = (1, 0, 2, 0)),
+                            render.Marquee(
+                                width = 64,
+                                child = render.Text(msg, font = "6x13", color = "#fa0"),
+                                offset_start = 10,
+                                offset_end = 32,
+                                ),
+                          
                 ],
             ),
         ),
@@ -122,13 +124,6 @@ def get_schema():
                 desc = "Symbol for first stock",
                 icon = "tag",
                 default = "BRK.B",
-            ),
-            schema.Text(
-                id = "FINAZA_API_KEY",
-                name = "FINAZA API Key",
-                desc = "API key for Finaza (https://www.finaza.io/)",
-                icon = "userGear",
-                default = "0GVN233FU035E1JR",
-            ),
+            )
         ],
     )
