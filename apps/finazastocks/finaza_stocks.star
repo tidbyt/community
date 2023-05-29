@@ -33,13 +33,16 @@ def main(config):
                 config.get("stock_5", None),
             ]
         else:
-            SYMBOLS = ["GOOG", "AMZN", "MSFT", "TSLA", "NVDA", "AAPL"] # default symbols
+            SYMBOLS = ["GOOG", "AMZN", "MSFT", "TSLA", "NVDA", "AAPL"]  # default symbols
 
         rate_cached = cache.get("sym_rate")
+
         # remove any empty symbols
         SYMBOLS = [x for x in SYMBOLS if x != None]
+
         # convert python string list to comma separated string and remove last comma from string
         SYMBOLS = ",".join(SYMBOLS).rstrip(",")
+
         # replace <symbols> in URL with comma separated string
         STOCK_QUOTE_URL_FINAL = STOCK_QUOTE_URL.replace("<symbols>", SYMBOLS)
 
@@ -57,10 +60,9 @@ def main(config):
                 msg = "Please configure symbols in the applet settings."
                 fail("API request failed with status %d", rep.status_code)
             else:
-                for stock in rep.json()["quotes"]:    
-                    msg = msg + stock["symbol"] + ": $" + str(stock["latestPrice"]) + " | "
-                    #msg = msg + ""
-                msg = msg.rstrip(" | ")
+                for stock in rep.json()["quotes"]:
+                    msg = msg + stock["symbol"] + ":$" + str(stock["latestPrice"]) + " "
+                msg = msg.rstrip(" ")
                 print(msg)
                 cache.set("sym_rate", msg, ttl_seconds = 500)
     else:
@@ -68,19 +70,38 @@ def main(config):
 
     return render.Root(
         child = render.Box(
-            render.Row(
-                expanded = True,
-                main_align = "space_evenly",
-                cross_align = "center",
+            render.Column(
                 children = [
-                            render.Padding( child=render.Image(src = SYMBOL_B64),  pad = (1, 0, 2, 0)),
+
+                                        render.Row(
+                        expanded = True,
+                        main_align = "space_evenly",
+                        cross_align = "center",
+                        children = [
+                            #render.Padding( child=render.Image(src = SYMBOL_B64),  pad = (1, 0, 2, 0)),
+                            render.Padding(child = render.Circle(
+                                color = "#666",
+                                diameter = 12,
+                                child = render.Circle(color = "#0ff", diameter = 8, child = render.Text("F")),
+                            ), pad = (1, 0, 2, 0)),
+                        ],
+                    ),
+                    render.Row(
+                        expanded = True,
+                        main_align = "space_evenly",
+                        cross_align = "center",
+                        children = [
+                           
                             render.Marquee(
                                 width = 64,
+                                height = 64,
                                 child = render.Text(msg, font = "6x13", color = "#fa0"),
                                 offset_start = 10,
                                 offset_end = 32,
-                                ),
-                          
+                            ),
+                        ],
+                    ),
+
                 ],
             ),
         ),
@@ -124,6 +145,6 @@ def get_schema():
                 desc = "Symbol for first stock",
                 icon = "tag",
                 default = "BRK.B",
-            )
+            ),
         ],
     )
