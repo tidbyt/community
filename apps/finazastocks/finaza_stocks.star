@@ -6,10 +6,13 @@ Author: suniltaneja
 """
 
 load("cache.star", "cache")
+load("encoding/json.star", "json")
+load("re.star", "re")
 load("encoding/base64.star", "base64")
 load("http.star", "http")
 load("render.star", "render")
 load("schema.star", "schema")
+load("time.star", "time")
 
 STOCK_QUOTE_URL = "https://www.finaza.io/api/v1/multiquote?symbols=<symbols>&key=tidbyt"
 SYMBOL_B64 = base64.decode("""
@@ -19,7 +22,22 @@ OB2mB6cBII3oANkguAEvSpn/ozsd2VZcbFiYMJJiALawoI0BIJsIhQFeLyA7lawwIMkAbOmAmF
 igXjqA5QVcqRFbSkRWS73MhBxwpGRnAGAwmUGS9KHUAAAAAElFTkSuQmCC
 """)
 
+P_LOCATION = "location"
+DEFAULT_TIMEZONE = "America/New_York"
+
 def main(config):
+    location = config.get(P_LOCATION)
+    location = json.decode(location) if location else {}
+
+    timezone = location.get(
+        "timezone",
+        config.get("$tz", DEFAULT_TIMEZONE),
+    )
+    now = config.get("time")
+    now = (time.parse_time(now) if now else time.now()).in_location(timezone)
+    #now_date = now.format("Mon 2 Jan 2006")
+    now_date = now.format("2 Jan 2006")
+
     if True:
         print("%s %s" % ("Program", "Started.."))
 
@@ -73,17 +91,28 @@ def main(config):
             render.Column(
                 children = [
 
-                                        render.Row(
+                    render.Row(
                         expanded = True,
                         main_align = "space_evenly",
                         cross_align = "center",
                         children = [
                             #render.Padding( child=render.Image(src = SYMBOL_B64),  pad = (1, 0, 2, 0)),
-                            render.Padding(child = render.Circle(
-                                color = "#666",
-                                diameter = 12,
-                                child = render.Circle(color = "#0ff", diameter = 8, child = render.Text("F")),
-                            ), pad = (1, 0, 2, 0)),
+
+                             render.Padding(child = render.Circle(
+                                color = "#0ff",
+                                diameter = 14,
+                                child = render.Circle(color = "#666", diameter = 10, child = render.Text("F")),
+                            ), pad = (0, 0, 0, 0)),
+
+                            render.Padding(
+                            pad = (0, 0, 0, 0),
+                            child = render.Text(
+                                content = now_date,
+                                font = "tom-thumb",
+                                color =  "#0ff",
+                            ),
+                        ),
+                           
                         ],
                     ),
                     render.Row(
@@ -91,7 +120,6 @@ def main(config):
                         main_align = "space_evenly",
                         cross_align = "center",
                         children = [
-                           
                             render.Marquee(
                                 width = 64,
                                 height = 64,
@@ -107,10 +135,18 @@ def main(config):
         ),
     )
 
+
+
 def get_schema():
     return schema.Schema(
         version = "1",
         fields = [
+            schema.Location(
+                id = P_LOCATION,
+                name = "Location",
+                desc = "Location for the display of date and time.",
+                icon = "locationDot",
+            ),
             schema.Text(
                 id = "stock_1",
                 name = "Stock Symbol 1",
