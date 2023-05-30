@@ -5,7 +5,7 @@ load("math.star", "math")
 load("render.star", "render")
 load("schema.star", "schema")
 
-REFRESH_RATE = 43200 #twice a day
+REFRESH_RATE = 43200  #twice a day
 OPEN_WEATHER_URL = "https://api.openweathermap.org/data/2.5/onecall"
 ADVERBS = [
     "damn cold",
@@ -36,7 +36,7 @@ DEFAULT_JACKET_LIMIT = 60
 DEFAULT_COAT_LIMIT = 35
 
 def ktof(k):
-    return c2f(k-273.15)
+    return c2f(k - 273.15)
 
 def f2c(f):
     return (((f - 32) * 5) / 9)
@@ -159,7 +159,7 @@ def get_schema():
                 id = "show_description",
                 name = "Show Description",
                 desc = "Show description of weather",
-                icon = "T",
+                icon = "gear",
                 default = True,
             ),
             schema.Color(
@@ -193,7 +193,7 @@ def get_weather_data(config):
         location = json.decode(location)
         query = "%s?exclude=minutely,hourly,daily,alerts&lat=%s&lon=%s&appid=%s" % (OPEN_WEATHER_URL, location["lat"], location["lng"], api_key)
         res = http.get(
-            url = query
+            url = query,
         )
         if res.status_code != 200:
             print("Open Weather request failed with status %d", res.status_code)
@@ -228,10 +228,10 @@ SAMPLE_STATION_RESPONSE = {
                 "id": 711,
                 "main": "Smoke",
                 "description": "smoke",
-                "icon": "50d"
-            }
-        ]
-    }
+                "icon": "50d",
+            },
+        ],
+    },
 }
 
 def add_row(title, font):
