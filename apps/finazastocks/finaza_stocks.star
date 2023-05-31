@@ -6,9 +6,8 @@ Author: Sunil Taneja
 """
 
 load("cache.star", "cache")
-load("encoding/json.star", "json")
-load("re.star", "re")
 load("encoding/base64.star", "base64")
+load("encoding/json.star", "json")
 load("http.star", "http")
 load("render.star", "render")
 load("schema.star", "schema")
