@@ -154,7 +154,6 @@ def get_schema():
                 id = "api_key",
                 name = "API Key",
                 desc = "OpenWeather API Key.",
-
                 icon = "key",
             ),
             schema.Toggle(
@@ -234,7 +233,6 @@ SAMPLE_STATION_RESPONSE = {
             },
         ],
     },
-
 }
 
 def add_row(title, font):
