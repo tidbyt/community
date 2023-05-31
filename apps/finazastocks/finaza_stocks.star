@@ -1,8 +1,8 @@
 """
 Applet: Finaza Stocks
-Summary: Display Stock/ETF ticker
+Summary: Display Stocks and ETFs ticker on Tidbyt.
 Description: Display Stock Ticker. No API Key Required. Configure upto 5 Symbols.
-Author: suniltaneja
+Author: Sunil Taneja
 """
 
 load("cache.star", "cache")
