@@ -95,6 +95,7 @@ def getSubString(temp, unit = "f"):
 def main(config):
     current_data = get_weather_data(config)
     feels_like = ktof(current_data["feels_like"])
+
     mainString = getMainString(feels_like, DEFAULT_JACKET_LIMIT, DEFAULT_COAT_LIMIT)
     show_description = config.get("show_description")
     subString = ""
@@ -153,6 +154,7 @@ def get_schema():
                 id = "api_key",
                 name = "API Key",
                 desc = "OpenWeather API Key.",
+
                 icon = "key",
             ),
             schema.Toggle(
@@ -232,6 +234,7 @@ SAMPLE_STATION_RESPONSE = {
             },
         ],
     },
+
 }
 
 def add_row(title, font):

@@ -537,10 +537,28 @@ def getFlightCategory(decodedMetar):
     else:
         visibility = int(decodedMetar["visib"])
 
-    if cloudLayers[0]["base"] != None:
+    baseClouds = int(12000)
+    print(baseClouds)
+
+    print(decodedMetar)
+
+    if cloudLayers[2]["cover"] == "BKN":
+        baseClouds = cloudLayers[2]["base"]
+
+    if cloudLayers[2]["cover"] == "OVC":
+        baseClouds = cloudLayers[2]["base"]
+
+    if cloudLayers[1]["cover"] == "BKN":
+        baseClouds = cloudLayers[1]["base"]
+
+    if cloudLayers[1]["cover"] == "OVC":
+        baseClouds = cloudLayers[1]["base"]
+
+    if cloudLayers[0]["cover"] == "BKN":
         baseClouds = cloudLayers[0]["base"]
-    else:
-        baseClouds = int(12000)
+
+    if cloudLayers[0]["cover"] == "OVC":
+        baseClouds = cloudLayers[0]["base"]
 
     #IFR
     if baseClouds > 3000 and visibility >= 5:
