@@ -1,4 +1,5 @@
 {
+	"feed_url": "https://tidbyt-json-display.s3.eu-west-1.amazonaws.com/example.json",
 	"title_image": "https://tidbyt-json-display.s3.eu-west-1.amazonaws.com/heart.png",
 	"title_text": "Sales",
 	"data": [
