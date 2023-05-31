@@ -5,26 +5,35 @@ Description: Takes values from a simple json file and outputs them.
 Author: thickey256
 """
 
+load("cache.star", "cache")
+load("encoding/json.star", "json")
 load("http.star", "http")
 load("render.star", "render")
 load("schema.star", "schema")
 
 def main(config):
-    #Load the json file
-    json_url = config.get("json_url")
+    feed_url_cached = cache.get("feed_url_cached")
+    if feed_url_cached != None:
+        #Turn the cache string into nice json
+        json_contents = json.decode(cache.get("json_contents_cached"))
+    else:
+        feed_url = config.get("feed_url")
 
-    rep = http.get(json_url)
-    if rep.status_code != 200:
-        fail("Json URL didn't load %d", rep.status_code)
+        #Load the json file
+        rep = http.get(feed_url)
+
+        #Turn the body into json
+        json_contents = json.decode(rep.body())
+
+        #Set the cache variables
+        cache.set("json_contents_cached", str(rep.body()), ttl_seconds = 10)
+        cache.set("feed_url_cached", json_contents["feed_url"], ttl_seconds = 10)
+
+        if rep.status_code != 200:
+            fail("Json URL didn't load %d", rep.status_code)
 
     #Set the font
-    font = config.get("font", "tom-thumb")
-
-    #get the json file
-    json_contents = rep.json()
-
-    #Put the data somewhere nice and easy
-    data = json_contents["data"]
+    font = "tom-thumb"
 
     #Sort out the icon (10x10 png works well)
     icon_image = http.get(json_contents["title_image"])
@@ -47,7 +56,7 @@ def main(config):
     ]
 
     #Loop through each line of data (no more than 3 will fit)
-    for item in data:
+    for item in json_contents["data"]:
         children_array.append(render.Marquee(width = 64, child = render.Text("%s:%s" % (item["title"], item["value"]), font = font, color = item["color"])))
         children_array.append(render.Box(width = 64, height = 1, color = "#111111"))
 
@@ -61,7 +70,7 @@ def get_schema():
         version = "1",
         fields = [
             schema.Text(
-                id = "json_url",
+                id = "feed_url",
                 name = "JSON URL",
                 desc = "Url for your json data",
                 icon = "link",
