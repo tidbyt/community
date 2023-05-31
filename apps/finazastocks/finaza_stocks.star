@@ -35,6 +35,7 @@ def main(config):
     )
     now = config.get("time")
     now = (time.parse_time(now) if now else time.now()).in_location(timezone)
+
     #now_date = now.format("Mon 2 Jan 2006")
     now_date = now.format("2 Jan 2006")
 
@@ -90,29 +91,25 @@ def main(config):
         child = render.Box(
             render.Column(
                 children = [
-
                     render.Row(
                         expanded = True,
                         main_align = "space_evenly",
                         cross_align = "center",
                         children = [
                             #render.Padding( child=render.Image(src = SYMBOL_B64),  pad = (1, 0, 2, 0)),
-
-                             render.Padding(child = render.Circle(
+                            render.Padding(child = render.Circle(
                                 color = "#0ff",
                                 diameter = 14,
                                 child = render.Circle(color = "#666", diameter = 10, child = render.Text("F")),
                             ), pad = (0, 0, 0, 0)),
-
                             render.Padding(
-                            pad = (0, 0, 0, 0),
-                            child = render.Text(
-                                content = now_date,
-                                font = "tom-thumb",
-                                color =  "#0ff",
+                                pad = (0, 0, 0, 0),
+                                child = render.Text(
+                                    content = now_date,
+                                    font = "tom-thumb",
+                                    color = "#0ff",
+                                ),
                             ),
-                        ),
-                           
                         ],
                     ),
                     render.Row(
@@ -129,13 +126,10 @@ def main(config):
                             ),
                         ],
                     ),
-
                 ],
             ),
         ),
     )
-
-
 
 def get_schema():
     return schema.Schema(
