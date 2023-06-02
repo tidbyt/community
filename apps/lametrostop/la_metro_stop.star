@@ -5,8 +5,6 @@ Description: Get departure times for LA metro train stop.
 Author: connorwashere
 """
 
-load("cache.star", "cache")
-load("encoding/json.star", "json")
 load("http.star", "http")
 load("render.star", "render")
 load("schema.star", "schema")
@@ -91,10 +89,6 @@ def render_stop_info(route_info, stop_name, transit_line):
     )
 
 def get_times(stop_id, api_key):
-    # Hits AC Transit's prediction api if there are no cache hits
-    cached = cache.get(stop_id)
-    if cached:
-        return json.decode(cached)
     rep = http.get(
         "https://external.transitapp.com/v3/public/stop_departures",
         params = {
@@ -103,10 +97,10 @@ def get_times(stop_id, api_key):
         headers = {
             "apiKey": api_key,
         },
+        ttl_seconds = 60,
     )
     if rep.status_code != 200:
         fail("Predictions request failed with status ", rep.status_code)
-    cache.set(stop_id, rep.body(), ttl_seconds = 100)
     return rep.json()
 
 def parse_api_response(depts):
