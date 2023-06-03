@@ -32,6 +32,7 @@ Fixed bug which appears when player who is serving is not being provided by data
 v1.5
 Added handling for "scheduled" matches which are actually in progress
 Updated logic that finds player who is serving
+Certain API fields of ESPN data feed showing that the French Open is over? Changed the way an "in progress" tournament is determined using start and end dates
 """
 
 load("encoding/json.star", "json")
@@ -58,13 +59,14 @@ def main(config):
     InProgressMatchList = []
     CompletedMatchList = []
     InProgress = 0
+    diffTournEnd = 0
+    diffTournStart = 0
 
     TestID = "254-2023"
     SelectedTourneyID = config.get("TournamentList", TestID)
     ShowCompleted = config.get("CompletedOn", "true")
     Number_Events = len(WTA_JSON["events"])
     EventIndex = 0
-    #print(SelectedTourneyID)
 
     # Find the number of "In Progress" matches for the selected tournament
     for x in range(0, Number_Events, 1):
@@ -72,9 +74,16 @@ def main(config):
             # Capture the index of the particular event, we'll need this later on
             EventIndex = x
 
-            # if there are 10 items, this means we have matches
-            # if != 10 then call function that says tournament has not started yet
-            if len(WTA_JSON["events"][x]) == 10:
+            # Get start & end date/time of the tournament
+            EndDate = WTA_JSON["events"][x]["endDate"]
+            StartDate = WTA_JSON["events"][x]["date"]
+            EndDate = time.parse_time(EndDate, format = "2006-01-02T15:04Z")
+            StartDate = time.parse_time(StartDate, format = "2006-01-02T15:04Z")
+            diffTournEnd = EndDate - now
+            diffTournStart = StartDate - now
+
+            # check if we are between the start & end date of the tournament
+            if diffTournStart.hours < 0 and diffTournEnd.hours > 0:
                 for y in range(0, len(WTA_JSON["events"][x]["competitions"]), 1):
                     # if the match is "In Progress" and its a singles match, lets add it to the list of in progress matches
                     # And the "In Progress" match started < 24 hrs ago , sometimes the data feed will still show matches as "In Progress" after they have completed
@@ -140,7 +149,9 @@ def main(config):
         for x in range(0, Number_Events, 1):
             if SelectedTourneyID == WTA_JSON["events"][x]["id"]:
                 EventIndex = x
-                if len(WTA_JSON["events"][x]) == 10:
+
+                # check if we are between the start & end date of the tournament
+                if diffTournStart.hours < 0 and diffTournEnd.hours > 0:
                     for y in range(0, len(WTA_JSON["events"][x]["competitions"]), 1):
                         # if the match is completed ("post") and its a singles match ("athlete") and the start time of the match was < 24 hrs ago, lets add it to the list of completed matches
                         if WTA_JSON["events"][x]["competitions"][y]["status"]["type"]["state"] == "post":
@@ -610,9 +621,18 @@ def get_schema():
     TournamentOptions = []
     ActualEvents = 0
 
+    now = time.now()
+
     # Only show "In Progress" tournaments
     for x in range(0, Number_Events, 1):
-        if WTA_JSON["events"][x]["status"]["type"]["state"] == "in":
+        EndDate = WTA_JSON["events"][x]["endDate"]
+        StartDate = WTA_JSON["events"][x]["date"]
+        EndDate = time.parse_time(EndDate, format = "2006-01-02T15:04Z")
+        StartDate = time.parse_time(StartDate, format = "2006-01-02T15:04Z")
+        diffTournEnd = EndDate - now
+        diffTournStart = StartDate - now
+
+        if diffTournStart.hours < 0 and diffTournEnd.hours > 0:
             Event_Name = WTA_JSON["events"][x]["name"]
             Event_ID = WTA_JSON["events"][x]["id"]
             Events.append(Event_Name)
