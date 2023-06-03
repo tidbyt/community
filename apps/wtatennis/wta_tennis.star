@@ -28,6 +28,10 @@ Current server now indicated in green
 
 v1.4.1
 Fixed bug which appears when player who is serving is not being provided by data feed. Code now checks if that data is present before showing it, or not 
+
+v1.5
+Added handling for "scheduled" matches which are actually in progress
+Updated logic that finds player who is serving
 """
 
 load("encoding/json.star", "json")
@@ -83,6 +87,19 @@ def main(config):
                             if diff.hours > -24:
                                 InProgressMatchList.append(y)
                                 InProgress = InProgress + 1
+
+                    # Another gotcha with the ESPN data feed, some in progress matches are still listed as "Scheduled"
+                    # So check if there is a score listed and if so, add it to the list
+                    if WTA_JSON["events"][x]["competitions"][y]["status"]["type"]["description"] == "Scheduled":
+                        if "linescores" in WTA_JSON["events"][x]["competitions"][y]["competitors"][0]:
+                            if WTA_JSON["events"][x]["competitions"][y]["competitors"][0]["type"] == "athlete":
+                                MatchTime = WTA_JSON["events"][EventIndex]["competitions"][y]["date"]
+                                MatchTime = time.parse_time(MatchTime, format = "2006-01-02T15:04Z").in_location(timezone)
+                                diff = MatchTime - now
+                                if diff.hours > -24:
+                                    InProgressMatchList.append(y)
+                                    InProgress = InProgress + 1
+
             else:
                 Display1.extend([
                     render.Column(
@@ -215,8 +232,8 @@ def getLiveScores(SelectedTourneyID, EventIndex, InProgressMatchList, JSON):
             Player2_Name = JSON["events"][EventIndex]["competitions"][x]["competitors"][1]["athlete"]["shortName"]
             Player2_ID = JSON["events"][EventIndex]["competitions"][x]["competitors"][1]["id"]
 
-            # 17 fields in a live game if the serving data is being shown
-            if len(JSON["events"][EventIndex]["competitions"][x]) == 17:
+            # See if the server details are been captured and then display them if they are there
+            if "situation" in JSON["events"][EventIndex]["competitions"][x]:
                 Server = JSON["events"][EventIndex]["competitions"][x]["situation"]["server"]["$ref"]
                 Server = Server[70:]
                 Server = Server.removesuffix("?lang=en&region=us")
