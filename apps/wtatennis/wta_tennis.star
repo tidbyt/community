@@ -4,9 +4,6 @@ Summary: Shows WTA scores
 Description: Display tennis scores from a tournament chosen in the dropdown. Shows live matches and if selected, any match completed in the past 24 hours.
 Author: M0ntyP
 
-Note:
-ESPN sometimes shows completed matches as stil being "In Progress" well after they have been completed so those matches will continue to appear as in progress matches. 
-
 v1.1
 Used "post" state for completed matches, this will capture both Final and Retired
 Added handling for when no tournaments are on
@@ -33,6 +30,9 @@ v1.5
 Added handling for "scheduled" matches which are actually in progress
 Updated logic that finds player who is serving
 Certain API fields of ESPN data feed showing that the French Open is over? Changed the way an "in progress" tournament is determined using start and end dates
+
+v1.5.1 - In progress version
+Removed timezone - not required
 """
 
 load("encoding/json.star", "json")
@@ -42,12 +42,10 @@ load("render.star", "render")
 load("schema.star", "schema")
 load("time.star", "time")
 
-DEFAULT_TIMEZONE = "Australia/Adelaide"
 SLAM_LIST = ["154-2023", "188-2023", "172-2023", "189-2023"]
 
 def main(config):
-    timezone = config.get("$tz", DEFAULT_TIMEZONE)
-    now = time.now().in_location(timezone)
+    now = time.now()
     RotationSpeed = config.get("speed", "3")
 
     # hold 1 min cache for live scores
@@ -91,7 +89,7 @@ def main(config):
                     if WTA_JSON["events"][x]["competitions"][y]["status"]["type"]["description"] == "In Progress":
                         if WTA_JSON["events"][x]["competitions"][y]["competitors"][0]["type"] == "athlete":
                             MatchTime = WTA_JSON["events"][EventIndex]["competitions"][y]["date"]
-                            MatchTime = time.parse_time(MatchTime, format = "2006-01-02T15:04Z").in_location(timezone)
+                            MatchTime = time.parse_time(MatchTime, format = "2006-01-02T15:04Z")
                             diff = MatchTime - now
                             if diff.hours > -24:
                                 InProgressMatchList.append(y)
@@ -103,7 +101,7 @@ def main(config):
                         if "linescores" in WTA_JSON["events"][x]["competitions"][y]["competitors"][0]:
                             if WTA_JSON["events"][x]["competitions"][y]["competitors"][0]["type"] == "athlete":
                                 MatchTime = WTA_JSON["events"][EventIndex]["competitions"][y]["date"]
-                                MatchTime = time.parse_time(MatchTime, format = "2006-01-02T15:04Z").in_location(timezone)
+                                MatchTime = time.parse_time(MatchTime, format = "2006-01-02T15:04Z")
                                 diff = MatchTime - now
                                 if diff.hours > -24:
                                     InProgressMatchList.append(y)
@@ -157,7 +155,7 @@ def main(config):
                         if WTA_JSON["events"][x]["competitions"][y]["status"]["type"]["state"] == "post":
                             if WTA_JSON["events"][x]["competitions"][y]["competitors"][0]["type"] == "athlete":
                                 MatchTime = WTA_JSON["events"][EventIndex]["competitions"][y]["date"]
-                                MatchTime = time.parse_time(MatchTime, format = "2006-01-02T15:04Z").in_location(timezone)
+                                MatchTime = time.parse_time(MatchTime, format = "2006-01-02T15:04Z")
                                 diff = MatchTime - now
                                 if diff.hours > -24:
                                     CompletedMatchList.append(y)
@@ -245,14 +243,15 @@ def getLiveScores(SelectedTourneyID, EventIndex, InProgressMatchList, JSON):
 
             # See if the server details are been captured and then display them if they are there
             if "situation" in JSON["events"][EventIndex]["competitions"][x]:
-                Server = JSON["events"][EventIndex]["competitions"][x]["situation"]["server"]["$ref"]
-                Server = Server[70:]
-                Server = Server.removesuffix("?lang=en&region=us")
+                if "server" in JSON["events"][EventIndex]["competitions"][x]["situation"]:
+                    Server = JSON["events"][EventIndex]["competitions"][x]["situation"]["server"]["$ref"]
+                    Server = Server[70:]
+                    Server = Server.removesuffix("?lang=en&region=us")
 
-                if Server == Player1_ID:
-                    Player1Color = "#01AF50"
-                elif Server == Player2_ID:
-                    Player2Color = "#01AF50"
+                    if Server == Player1_ID:
+                        Player1Color = "#01AF50"
+                    elif Server == Player2_ID:
+                        Player2Color = "#01AF50"
 
             Number_Sets = len(JSON["events"][EventIndex]["competitions"][x]["competitors"][0]["linescores"])
             Player1_Sets = ""
