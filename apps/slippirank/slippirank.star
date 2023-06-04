@@ -12,6 +12,9 @@ load("http.star", "http")
 load("render.star", "render")
 load("schema.star", "schema")
 
+REFRESH_TIME = 43200  # twice a day
+DEFAULT_USER_CODE = "hbox-305"
+
 RANKS = [
     {
         "name": "GM",
@@ -159,14 +162,12 @@ def requestRank(userCode):
         headers = {
             "Content-Type": "application/json",
         },
+        ttl_seconds=REFRESH_TIME
     )
     if res.status_code != 200:
         fail("request failed with status %d", res.status_code)
     res = res.json()
     return res
-
-REFRESH_TIME = 43200  # twice a day
-DEFAULT_USER_CODE = "hbox-305"
 
 def main(config):
     userCode = config.str("userCode")
