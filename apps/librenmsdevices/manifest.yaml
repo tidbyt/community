@@ -1,0 +1,8 @@
+---
+id: librenms-devices
+name: LibreNMS Devices
+summary: LibreNMS Device Summary
+desc: Displays a LibreNMS device availability map.
+author: '@jtinel'
+fileName: librenms_devices.star
+packageName: librenmsdevices
