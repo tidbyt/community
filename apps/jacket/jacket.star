@@ -195,6 +195,7 @@ def get_weather_data(config):
         query = "%s?exclude=minutely,hourly,daily,alerts&lat=%s&lon=%s&appid=%s" % (OPEN_WEATHER_URL, location["lat"], location["lng"], api_key)
         res = http.get(
             url = query,
+            ttl_seconds = REFRESH_RATE
         )
         if res.status_code != 200:
             print("Open Weather request failed with status %d", res.status_code)
