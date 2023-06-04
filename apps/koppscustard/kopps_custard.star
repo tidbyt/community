@@ -110,7 +110,7 @@ def get_flavors():
     # Request Kopp's flavor preview page
     rep = http.get(KOPPS_FLAVOR_URL)
     if rep.status_code != 200:
-        None
+        return None
 
     body = html(rep.body())
 
