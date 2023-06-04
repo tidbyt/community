@@ -162,7 +162,7 @@ def requestRank(userCode):
         headers = {
             "Content-Type": "application/json",
         },
-        ttl_seconds=REFRESH_TIME
+        ttl_seconds = REFRESH_TIME,
     )
     if res.status_code != 200:
         fail("request failed with status %d", res.status_code)
