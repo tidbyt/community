@@ -110,7 +110,7 @@ def get_flavors():
     # Request Kopp's flavor preview page
     rep = http.get(KOPPS_FLAVOR_URL)
     if rep.status_code != 200:
-        return None
+        None
 
     body = html(rep.body())
 
@@ -222,8 +222,6 @@ def main(config):
     if flavors != None:
         print("Cache hit; using cached flavors.")
         flavors = json.decode(flavors)
-        # If flavors have not been cached
-
     else:
         print("Cache miss; retrieving flavors.")
         flavors = get_flavors()
@@ -246,7 +244,7 @@ def main(config):
 
     # "TODAY AT KOPP'S"
     frames.extend(render_static_screen_frames(
-        duration = 15,
+        duration = 18,
         child = render.Column(
             cross_align = "center",
             children = [
@@ -276,7 +274,7 @@ def main(config):
         if i < len(todays_flavors) - 1:
             # "AND"
             frames.extend(render_static_screen_frames(
-                duration = 8,
+                duration = 9,
                 child = render.Box(get_best_wrapped_text("AND")),
             ))
 
@@ -288,7 +286,7 @@ def main(config):
 
     # "THE ___ SHAKE OF THE MONTH"
     frames.extend(render_static_screen_frames(
-        duration = 15,
+        duration = 18,
         child = render.Box(
             get_best_wrapped_text(
                 "THE {} SHAKE OF THE MONTH".format(current_month_name).upper(),
@@ -302,16 +300,14 @@ def main(config):
 
     frames.extend(blank_screen)
 
-    # "THE ___ SUNDAE OF THE MONTH"
+    # "THE ___ SUNDAE"
     frames.extend(render_static_screen_frames(
-        duration = 15,
+        duration = 18,
         child = render.Box(
-            get_best_wrapped_text("THE {}".format(current_month_name).upper()),
+            get_best_wrapped_text(
+                "THE {} SUNDAE".format(current_month_name).upper(),
+            ),
         ),
-    ))
-    frames.extend(render_static_screen_frames(
-        duration = 15,
-        child = render.Box(get_best_wrapped_text("SUNDAE OF THE MONTH")),
     ))
     frames.extend(render_static_screen_frames(
         duration = 18,
@@ -319,6 +315,8 @@ def main(config):
             get_best_wrapped_text(flavors["monthly"]["sundae"]),
         ),
     ))
+
+    frames.extend(blank_screen)
 
     return render.Root(
         delay = DELAY,
