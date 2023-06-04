@@ -30,6 +30,9 @@ Updated caching function
 
 v2.2
 Added better playoff handling
+
+v2.3 
+IDEA - better tournament naming especially for elevated events?
 """
 
 load("encoding/json.star", "json")
@@ -316,7 +319,7 @@ def getPlayerProgress(x, s, Title, TitleColor, stage, state, timezone):
                 HolesCompleted = 18
 
             # if the player hasn't started their round, show their tee time in your local time
-            # check its not a playoff
+            # also check its not a playoff
             if playerState == "pre":
                 if s[i + x]["status"]["playoff"] != True:
                     TeeTime = s[i + x]["status"]["teeTime"]
@@ -327,8 +330,12 @@ def getPlayerProgress(x, s, Title, TitleColor, stage, state, timezone):
                     ProgressStr = "PO"
 
             # if the player's round is underway, show how many completed holes
+            # also check its not a playoff
             if playerState == "in" or playerState == "post":
-                ProgressStr = str(HolesCompleted)
+                if s[i + x]["status"]["playoff"] != True:
+                    ProgressStr = str(HolesCompleted)
+                else:
+                    ProgressStr = "PO"
 
             # if the player's round is completed, show "F"
             if playerState == "post":
