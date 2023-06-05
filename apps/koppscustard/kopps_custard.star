@@ -8,7 +8,6 @@ Author: Josiah Winslow
 load("cache.star", "cache")
 load("encoding/base64.star", "base64")
 load("encoding/json.star", "json")
-load("html.star", "html")
 load("http.star", "http")
 load("re.star", "re")
 load("render.star", "render")
@@ -136,7 +135,7 @@ def render_failure(text):
         ),
     )
 
-def main(config):
+def main():
     # Get the current date
     current_time = time.now().in_location(TIMEZONE)
     current_date = current_time.format("2006/01/02")
