@@ -194,7 +194,7 @@ def main(config):
     frames.extend(render_static_screen_frames(
         duration = 18,
         child = render.Box(get_best_wrapped_text(
-            normalize_flavor_name(flavors["flavor_1"]["name"])
+            normalize_flavor_name(flavors["flavor_1"]["name"]),
         )),
     ))
     frames.extend(render_static_screen_frames(
@@ -204,7 +204,7 @@ def main(config):
     frames.extend(render_static_screen_frames(
         duration = 18,
         child = render.Box(get_best_wrapped_text(
-            normalize_flavor_name(flavors["flavor_2"]["name"])
+            normalize_flavor_name(flavors["flavor_2"]["name"]),
         )),
     ))
 
@@ -226,7 +226,7 @@ def main(config):
     frames.extend(render_static_screen_frames(
         duration = 18,
         child = render.Box(get_best_wrapped_text(
-            normalize_flavor_name(flavors["featured_shake"]["name"])
+            normalize_flavor_name(flavors["featured_shake"]["name"]),
         )),
     ))
 
@@ -242,7 +242,7 @@ def main(config):
     frames.extend(render_static_screen_frames(
         duration = 18,
         child = render.Box(get_best_wrapped_text(
-            normalize_flavor_name(flavors["featured_sundae"]["name"])
+            normalize_flavor_name(flavors["featured_sundae"]["name"]),
         )),
     ))
 
