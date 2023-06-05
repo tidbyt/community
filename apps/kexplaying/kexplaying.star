@@ -8,6 +8,7 @@ Author: Ken Winke
 load("encoding/base64.star", "base64")
 load("http.star", "http")
 load("render.star", "render")
+load("schema.star", "schema")
 
 KEXP_PLAY = "https://api.kexp.org/v2/plays.json?limit=2"
 KEXP_SHOW = "https://api.kexp.org/v1/show.json?limit=1"
@@ -41,7 +42,8 @@ def api_error():
 
 def now_playing(song, artist, album):
     return render.Root(
-    	delay = 28,
+        delay = 28,
+        max_age = 600,
         child = render.Column(
             children = [
                 render.Stack(
@@ -85,7 +87,6 @@ def now_playing(song, artist, album):
         ),
     )
 
-def main():
     jplay = http.get(url = KEXP_PLAY, ttl_seconds = 120)
     jshow = http.get(url = KEXP_SHOW, ttl_seconds = 120)
 
