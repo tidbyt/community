@@ -12,19 +12,15 @@ load("html.star", "html")
 load("http.star", "http")
 load("re.star", "re")
 load("render.star", "render")
-load("schema.star", "schema")
 load("time.star", "time")
 
 WIDTH = 64
 HEIGHT = 32
 
-DEFAULT_TIMEZONE = "America/Chicago"
-DEFAULT_LOCATION = {
-    "timezone": DEFAULT_TIMEZONE,
-}
+TIMEZONE = "America/Chicago"  # Kopp's is a local chain in Wisconsin
 DELAY = 100
 ERROR_DELAY = 45
-TTL_SECONDS = 60 * 60 * 24 * 7  # 1 week (the maximum time possible)
+TTL_SECONDS = 60 * 60 * 24  # 1 day
 
 KOPPS_ICON_WIDTH = 62
 KOPPS_ICON_HEIGHT = 21
@@ -45,7 +41,7 @@ hjjwkxPztgbTLncDJvxs+hJMn5V4vebExKxci6NNJ9NMSnlZQ8ozvXzf9aWmf2OZMDPtUoip310uzcb
 ndmiY6a8OZsaKxFzjhiz2J63aOnrb6cnrhoz1H6suFdk6OEFTtozP1W/hlGYaawZW2pc/ObGrmb00uZ
 GZuSy3AABWUDggHgAAAJABAJ0BKj4AFQAAAAAlpAADyWiYeAD+/97c8AAAAA==
 """)
-KOPPS_FLAVOR_URL = "https://kopps.com/flavor-preview"
+KOPPS_FLAVOR_URL = "https://kopps.com/wp-json/kopps/todays-flavors"
 TEXT_COLOR = "#fff"
 
 def normalize_flavor_name(name):
@@ -105,63 +101,12 @@ def get_best_wrapped_text(text):
     )
 
 def get_flavors():
-    flavors = {}
-
-    # Request Kopp's flavor preview page
+    # Request Kopp's flavor JSON
     rep = http.get(KOPPS_FLAVOR_URL)
     if rep.status_code != 200:
         return None
 
-    body = html(rep.body())
-
-    # Everything should be in two columns in the main section
-    columns = body.find(
-        "main > div:first-of-type > div.row > div[class^=col-]",
-    )
-    if columns.len() != 2:
-        return None
-
-    # There should be two monthly items: the shake, and the sundae
-    monthly_items = columns.eq(0).find("div.row h3")
-    if monthly_items.len() != 2:
-        return None
-
-    monthly_item_names = [
-        normalize_flavor_name(monthly_items.eq(i).text())
-        for i in range(monthly_items.len())
-    ]
-    flavors["monthly"] = {
-        "shake": monthly_item_names[0],
-        "sundae": monthly_item_names[1],
-    }
-
-    # There should be at least one pair of daily flavors
-    daily_pairs = columns.eq(1).children().eq(0).children()
-    if daily_pairs.len() == 0:
-        return None
-
-    flavors["daily"] = {}
-    for pair_num in range(daily_pairs.len()):
-        pair = daily_pairs.eq(pair_num)
-
-        # The ID should be the corresponding day number
-        day = pair.attr("id")
-        if day == None or not day.isdigit():
-            return None
-
-        # There should be two flavors per day
-        # (but we'll go with "at least one", just in case)
-        daily_items = pair.find("h3")
-        if daily_items.len() == 0:
-            return None
-
-        daily_item_names = [
-            normalize_flavor_name(daily_items.eq(i).text())
-            for i in range(daily_items.len())
-        ]
-        flavors["daily"][day] = daily_item_names
-
-    return flavors
+    return rep.json()
 
 # HACK This function wouldn't exist if list unpacking worked like Python
 def render_static_screen_frames(child, duration):
@@ -192,28 +137,14 @@ def render_failure(text):
     )
 
 def main(config):
-    # Get the user's timezone
-    location = config.get("location")
-    loc = json.decode(location) if location else DEFAULT_LOCATION
-    timezone = loc.get("timezone", DEFAULT_TIMEZONE)
+    # Get the current date
+    current_time = time.now().in_location(TIMEZONE)
+    current_date = current_time.format("2006/01/02")
+    current_month_name = current_time.format("January").upper()
 
-    # Get the user's current date
-    current_time = time.now().in_location(timezone)
-    current_month = current_time.month
-    current_day = current_time.day
-    current_year = current_time.year
-    current_month_name = current_time.format("January")
-
-    # Get the cached month and year
-    cached_month = int(cache.get("month") or "0")
-    cached_year = int(cache.get("year") or "0")
-
-    cache_invalid = False
-
-    # Cache is invalid if current month/year doesn't match cached
-    # REVIEW: Maybe I should hardcode the timezone
-    if cached_month != current_month or cached_year != current_year:
-        cache_invalid = True
+    # Cache is invalid if current date doesn't match cached date
+    cached_date = cache.get("date")
+    cache_invalid = cached_date != current_date
 
     # Get this month's flavors of the day
     flavors = None if cache_invalid else cache.get("flavors")
@@ -236,8 +167,7 @@ def main(config):
         # Cache everything
         print("Success!")
         cache.set("flavors", json.encode(flavors), ttl_seconds = TTL_SECONDS)
-        cache.set("month", str(current_month), ttl_seconds = TTL_SECONDS)
-        cache.set("year", str(current_year), ttl_seconds = TTL_SECONDS)
+        cache.set("date", str(current_date), ttl_seconds = TTL_SECONDS)
 
     # Output will be rendered as a series of frames
     frames = []
@@ -261,22 +191,22 @@ def main(config):
     ))
 
     # Flavors of the day
-    todays_flavors = flavors["daily"].get(str(current_day), None)
-    if todays_flavors == None:
-        return render_failure("Can't find today's flavor")
-    for i, flavor in enumerate(todays_flavors):
-        # Flavor name
-        frames.extend(render_static_screen_frames(
-            duration = 18,
-            child = render.Box(get_best_wrapped_text(flavor)),
-        ))
-
-        if i < len(todays_flavors) - 1:
-            # "AND"
-            frames.extend(render_static_screen_frames(
-                duration = 9,
-                child = render.Box(get_best_wrapped_text("AND")),
-            ))
+    frames.extend(render_static_screen_frames(
+        duration = 18,
+        child = render.Box(get_best_wrapped_text(
+            normalize_flavor_name(flavors["flavor_1"]["name"])
+        )),
+    ))
+    frames.extend(render_static_screen_frames(
+        duration = 9,
+        child = render.Box(get_best_wrapped_text("AND")),
+    ))
+    frames.extend(render_static_screen_frames(
+        duration = 18,
+        child = render.Box(get_best_wrapped_text(
+            normalize_flavor_name(flavors["flavor_2"]["name"])
+        )),
+    ))
 
     blank_screen = render_static_screen_frames(
         duration = 5,
@@ -289,13 +219,15 @@ def main(config):
         duration = 18,
         child = render.Box(
             get_best_wrapped_text(
-                "THE {} SHAKE OF THE MONTH".format(current_month_name).upper(),
+                "THE {} SHAKE OF THE MONTH".format(current_month_name),
             ),
         ),
     ))
     frames.extend(render_static_screen_frames(
         duration = 18,
-        child = render.Box(get_best_wrapped_text(flavors["monthly"]["shake"])),
+        child = render.Box(get_best_wrapped_text(
+            normalize_flavor_name(flavors["featured_shake"]["name"])
+        )),
     ))
 
     frames.extend(blank_screen)
@@ -304,16 +236,14 @@ def main(config):
     frames.extend(render_static_screen_frames(
         duration = 18,
         child = render.Box(
-            get_best_wrapped_text(
-                "THE {} SUNDAE".format(current_month_name).upper(),
-            ),
+            get_best_wrapped_text("THE {} SUNDAE".format(current_month_name)),
         ),
     ))
     frames.extend(render_static_screen_frames(
         duration = 18,
-        child = render.Box(
-            get_best_wrapped_text(flavors["monthly"]["sundae"]),
-        ),
+        child = render.Box(get_best_wrapped_text(
+            normalize_flavor_name(flavors["featured_sundae"]["name"])
+        )),
     ))
 
     frames.extend(blank_screen)
@@ -321,17 +251,4 @@ def main(config):
     return render.Root(
         delay = DELAY,
         child = render.Animation(children = frames),
-    )
-
-def get_schema():
-    return schema.Schema(
-        version = "1",
-        fields = [
-            schema.Location(
-                id = "location",
-                name = "Location",
-                desc = "Location for which to get the day.",
-                icon = "locationDot",
-            ),
-        ],
     )
