@@ -25,7 +25,7 @@ def main(config):
     render_elements = []
     if key:
         station_cache = cache.get(ROUTE_INFO_CACHE_KEY + stop_id)
-        
+
         if station_cache:
             response = station_cache
         else:
@@ -34,7 +34,7 @@ def main(config):
 
             # TODO: Determine if this cache call can be converted to the new HTTP cache.
             cache.set(ROUTE_INFO_CACHE_KEY + stop_id, response.body(), ROUTE_INFO_CACHE_TTL)
-        
+
         stops = response.json()["value"]
         stop_name = response.json()["value"][0]["Name"]
 
@@ -95,15 +95,15 @@ def main(config):
     else:
         stop_name = "Houston Metro"
         render_elements.append(
-                render.Row(
-                    children = [
-                        render.Box(
-                            color = "#0000",
-                            child = render.Text("Missing API Key", color = "#f3ab3f"),
-                        ),
-                    ],
-                ),
-            )
+            render.Row(
+                children = [
+                    render.Box(
+                        color = "#0000",
+                        child = render.Text("Missing API Key", color = "#f3ab3f"),
+                    ),
+                ],
+            ),
+        )
 
     #Create animation frames of the stop info
     animation_children = []
@@ -216,7 +216,7 @@ def get_stations(location):
 
             # TODO: Determine if this cache call can be converted to the new HTTP cache.
             cache.set(ROUTE_INFO_CACHE_KEY + coordinates, response.body(), ROUTE_INFO_CACHE_TTL)
-        
+
         if response.json()["value"]:
             for station in response.json()["value"]:
                 stops.append(
