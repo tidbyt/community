@@ -111,15 +111,13 @@ def main(config):
         child = render.Box(
             padding = 1,
             child = render.Column(
-                expanded = True,
-                main_align = "space_around",
-                cross_align = "center",
                 children = [
                     render.Row(
                         expanded = True,
-                        main_align = "space_around",
+                        main_align = "space_evenly",
                         children = [
                             render.Column(
+                                cross_align = "start",
                                 children = [
                                     render.Text(
                                         content = temp,
@@ -129,10 +127,14 @@ def main(config):
                                         content = updated_temp,
                                         color = "#FFFF00",
                                     ),
+                                    render.Image(icon),
+                                    render.Box(width = 2, height = 1),
                                 ],
                             ),
                             render.Column(
-                                cross_align = "left",
+                                expanded = True,
+                                main_align = "space_evenly",
+                                cross_align = "end",
                                 children = [
                                     render.Text(
                                         content = humidity,
@@ -142,25 +144,14 @@ def main(config):
                                         content = rain + " " + rain_units,
                                         color = "#808080",
                                     ),
+                                    render.Text(
+                                        content = pressure + " " + pressure_icon,
+                                    ),
+                                    render.Text(
+                                        content = wind,
+                                        font = "CG-pixel-3x5-mono",
+                                    ),
                                 ],
-                            ),
-                        ],
-                    ),
-                    render.Row(
-                        cross_align = "center",
-                        children = [
-                            render.Text(
-                                content = pressure + " " + pressure_icon,
-                            ),
-                        ],
-                    ),
-                    render.Row(
-                        cross_align = "center",
-                        children = [
-                            render.Image(icon),
-                            render.Box(width = 2, height = 1),
-                            render.Text(
-                                content = wind,
                             ),
                         ],
                     ),
@@ -346,9 +337,9 @@ SAMPLE_STATION_RESPONSE = """{
       "precip_minutes_local_yesterday": 10,
       "precip_minutes_local_yesterday_final": 0,
       "precip_analysis_type_yesterday": 1,
-      "wind_avg": 1.9,
-      "wind_direction": 119,
-      "wind_gust": 3.9,
+      "wind_avg": 2,
+      "wind_direction": 218,
+      "wind_gust": 4,
       "wind_lull": 0.8,
       "solar_radiation": 44,
       "uv": 0.35,
@@ -375,16 +366,16 @@ SAMPLE_FORECAST_RESPONSE = """{
   "timezone_offset_minutes": -240,
   "current_conditions": {
     "time": 1616953518,
-    "conditions": "Cloudy",
-    "icon": "cloudy",
+    "conditions": "Clear",
+    "icon": "clear-day",
     "air_temperature": 12,
     "sea_level_pressure": 29.763,
     "station_pressure": 29.515,
     "pressure_trend": "falling",
     "relative_humidity": 97,
-    "wind_avg": 3,
+    "wind_avg": 2,
     "wind_direction": 134,
-    "wind_direction_cardinal": "SE",
+    "wind_direction_cardinal": "SSW",
     "wind_gust": 6,
     "solar_radiation": 152,
     "uv": 1,
