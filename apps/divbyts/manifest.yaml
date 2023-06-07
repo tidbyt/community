@@ -1,8 +1,8 @@
 ---
-id: mrdiv-gifs
-name: MrDiv Gifs
+id: divbyts
+name: Divbyts
 summary: "Displays gifs from mrdiv"
 desc: Randomly displays a retrofuture motion graphics animation created by artist mrdiv.
 author: imnotdannorton
 fileName: mrdiv_gifs.star
-packageName: mrdivgifs
+packageName: divbyts

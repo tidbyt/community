@@ -1,5 +1,5 @@
 """
-Applet: Mr.Div Gifs
+Applet: Divbyts
 Summary: Displays gifs from mrdiv 
 Description: Randomly displays a retrofuture motion graphics animation created by artist mrdiv.
 Author: imnotdannorton
