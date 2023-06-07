@@ -2,7 +2,7 @@
 id: givenergy-solar
 name: GivEnergy Solar
 summary: GivEnergy Solar Monitor
-desc: Energy production and consumption monitor for your GivEnergy system.
+desc: Energy production and consumption monitor for your GivEnergy system. Your inverter serial number is available from https://givenergy.cloud/inverter/ . GivEnergy API Key is available from https://givenergy.cloud/account-settings/security . 
 author: pelowj
 fileName: givenergy_solar.star
 packageName: givenergysolar

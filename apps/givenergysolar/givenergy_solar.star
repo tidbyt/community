@@ -1,10 +1,11 @@
 """
 Applet: GivEnergy Solar
 Summary: GivEnergy Solar Monitor
-Description: Energy production and consumption monitor for your GivEnergy system.
+Description: Energy production and consumption monitor for your GivEnergy system. Your inverter serial number is available from https://givenergy.cloud/inverter/ . GivEnergy API Key is available from https://givenergy.cloud/account-settings/security . 
 Author: pelowj (based on the work of jweier & marcusb in Tesla Solar)
 """
 
+load("cache.star", "cache")
 load("encoding/base64.star", "base64")
 load("encoding/json.star", "json")
 load("http.star", "http")
@@ -15,6 +16,8 @@ load("schema.star", "schema")
 URL = "https://api.givenergy.cloud/v1/inverter/{}/system-data/latest"
 
 IMG = ""
+
+CACHE_TTL = 300
 
 DUMMY_DATA = "{\"data\":{\"time\":\"2023-05-20T16:32:41Z\",\"solar\":{\"power\":1174,\"arrays\":[{\"array\":1,\"voltage\":361.6,\"current\":3.2,\"power\":1174},{\"array\":2,\"voltage\":21.6,\"current\":0,\"power\":0}]},\"grid\":{\"voltage\":232.1,\"current\":4.8,\"power\":381,\"frequency\":49.98},\"battery\":{\"percent\":100,\"power\":44,\"temperature\":30},\"inverter\":{\"temperature\":39.5,\"power\":1083,\"output_voltage\":229.3,\"output_frequency\":49.99,\"eps_power\":0},\"consumption\":702}}"
 
@@ -70,18 +73,26 @@ def main(config):
         print("Inverter SN: " + inverter_sn)
         print("GivEnergy API URL: " + url)
 
-        rep = http.get(url, headers = {"Authorization": "Bearer " + api_key, "Content-Type": "application/json", "Accept": "application/json"})
+        cached_data = cache.get(inverter_sn)
 
-        if rep.status_code != 200:
-            data = rep.body()
-            o = json.decode(data)
-            error_details = {"error_section": inverter_sn, "error": "Error: " + o["message"]}
-            error_in_http_calls = True
-            print(rep.status_code)
+        if cached_data != None:
+            print("Cache hit! Using cached data for " + inverter_sn)
+            o = json.decode(cached_data)
         else:
-            unit = "kW"
-            data = rep.body()
-            o = json.decode(data)
+            print("Cache miss! Getting new data from API.")
+            rep = http.get(url, headers = {"Authorization": "Bearer " + api_key, "Content-Type": "application/json", "Accept": "application/json"})
+
+            if rep.status_code != 200:
+                data = rep.body()
+                o = json.decode(data)
+                error_details = {"error_section": inverter_sn, "error": "Error: " + o["message"]}
+                error_in_http_calls = True
+                print(rep.status_code)
+            else:
+                unit = "kW"
+                data = rep.body()
+                o = json.decode(data)
+                cache.set(inverter_sn, data, ttl_seconds = CACHE_TTL)
 
     else:
         print("Using Dummy Data")
