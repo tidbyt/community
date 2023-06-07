@@ -1,7 +1,7 @@
 """
-Applet: Divbyts
+Applet: Divbyt
 Summary: Displays gifs from mrdiv 
-Description: Randomly displays a retrofuture motion graphics animation created by artist mrdiv.
+Description: Looping geometric animations from animated GIF artist Mr. Div, designed specifically for Tidbyt. A random animation will play each time from a (possibly) expanding pool of GIFs.
 Author: imnotdannorton
 """
 
