@@ -218,7 +218,7 @@ def get_listing_schema(count):
     return [schema.Text(
         id = "ical_%s" % i,
         name = "%s listing" % humanize.ordinal(i + 1),
-        desc = "The calendar url for your %s Airbnb listing" % humanize.ordinal(i + 1),
+        desc = "The calendar url for your %s Airbnb listing, from the Export Calendar link in the Pricing and Availability tab" % humanize.ordinal(i + 1),
         icon = "calendar-days",
     ) for i in range(0, int(count))]
 
