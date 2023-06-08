@@ -1,7 +1,7 @@
 """
 Applet: KEXPlaying
 Summary: KEXP Now Playing
-Description: Displays song, artist, and info currently streaming on kexp.org.
+Description: Displays song and artist information currently streaming on kexp.org
 Author: Ken Winke
 """
 
@@ -42,7 +42,7 @@ def api_error():
 
 def now_playing(song, artist, album):
     return render.Root(
-        delay = 28,
+        delay = 29,
         max_age = 600,
         child = render.Column(
             children = [
@@ -87,6 +87,7 @@ def now_playing(song, artist, album):
         ),
     )
 
+def main():
     jplay = http.get(url = KEXP_PLAY, ttl_seconds = 120)
     jshow = http.get(url = KEXP_SHOW, ttl_seconds = 120)
 
@@ -120,3 +121,10 @@ def now_playing(song, artist, album):
         album = KEXP_VINYL
 
     return now_playing(song, artist, album)
+
+def get_schema():
+    return schema.Schema(
+        version = "1",
+        fields = [
+        ],
+    )
