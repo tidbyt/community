@@ -159,8 +159,8 @@ DUMMY_DATA = {
     "autarky_month": 50,
     "autarky_year": 25,
     "aux_sensor_day": 10000,
-    "aux_sensor_week": 70000,
-    "aux_sensor_month": 140000,
+    "aux_sensor_week": 10000,
+    "aux_sensor_month": 10000,
 }
 
 def w2kwstr(w, dec = None):  # rounds off decimal, removes completey if over 100kw
@@ -297,9 +297,9 @@ def main(config):
             data["autarky_month"] = get_autarky_percent(site_id, api_key, tz, "month")
             data["autarky_year"] = get_autarky_percent(site_id, api_key, tz, "year")
 
-            data["aux_sensor_day"] = 0
-            data["aux_sensor_week"] = 0
-            data["aux_sensor_month"] = 0
+            data["aux_sensor_day"] = None
+            data["aux_sensor_week"] = None
+            data["aux_sensor_month"] = None
 
             if config.get("aux_sensor_id", "") != "":
                 data["aux_sensor_day"] = get_aux_sensor_data(config.get("aux_sensor_id"), api_key, "day")
@@ -313,6 +313,11 @@ def main(config):
             data = json.decode(data)  # data from cache is json so need to decode.
             if "has_battery" in data and data["has_battery"] == True:
                 has_battery = True
+            if config.get("aux_sensor_id", "") != "" and data.get("aux_sensor_day", "") == "":
+                print("fetching aux_sensor data outside of cache")
+                data["aux_sensor_day"] = get_aux_sensor_data(config.get("aux_sensor_id"), api_key, "day")
+                data["aux_sensor_week"] = get_aux_sensor_data(config.get("aux_sensor_id"), api_key, "week")
+                data["aux_sensor_month"] = get_aux_sensor_data(config.get("aux_sensor_id"), api_key, "month")
 
     else:
         print("using dummy data")
