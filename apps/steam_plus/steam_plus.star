@@ -17,7 +17,7 @@ STATUS_COLOR = ["#59707B", "#0a0", "#F67407", "#FFD100"]
 STEAM_LOGO = http.get(STEAM_LOGO_PATH).body()
 
 def main(config):
-    api_key = secret.decrypt("AV6+xWcEwaY3vnJsrpZ955musUx4antJ6gbwX3x2owwWA3+5Op9iKbtJOOwUi5IEtAyFUoBZ2m/9udqMTty57El86cAySE44VGeMQY7/7gkzdTxISb1jxZy+bI+TM0sOdoYgA/Fs1kVAnT/JFrG0RESwBcHDaP09o77VlvVv0ujLqnz6x20=")
+    api_key = secret.decrypt("AV6+xWcEPd0Yg0gbOJ0GPG4ANJVs8lddkRyk99MOYzKd8sxvPtRKPvFII1YM5x/G99qpHQ+UBGUgAtUcfRMD9mAHYul1sKyx3ErTKXS5TVdliLyGCErOWafRz5wN6v1RQ7S6dEMiwF3Ic7LoGrMAa5urZ6eHibj9Rl4Su5UM7yS2np8LW48=") or config.get("dev_api_key")
 
     STEAM_API_ENDPOINT = "http://api.steampowered.com/ISteamUser/GetPlayerSummaries/v0002/?key=" + api_key + "&steamids="
     STEAM_GAMES_ENDPOINT = "http://api.steampowered.com/IPlayerService/GetOwnedGames/v0001/?key=" + api_key + "&steamid="
@@ -25,7 +25,7 @@ def main(config):
     resp = http.get(STEAM_API_ENDPOINT + config.str("id", ""), ttl_seconds = 180)
 
     if resp.status_code != 200:
-        fail("Cannot load the specified user")
+        fail("There was an error with the provided Steam user id")
 
     players = resp.json()["response"]["players"]
 
