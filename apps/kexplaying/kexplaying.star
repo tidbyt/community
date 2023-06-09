@@ -99,6 +99,8 @@ def main():
     host = jshow.json()["results"][0]["hosts"][0].get("name", "")
     if host == "":
         host = "KEXP DJ"
+    if len(jshow.json()["results"][0]["hosts"]) > 1:
+    	host = host + ", " + jshow.json()["results"][0]["hosts"][1].get("name")
 
     song = jplay.json()["results"][0].get("song", host)
     artist = jplay.json()["results"][0].get("artist", "Airbreak")
