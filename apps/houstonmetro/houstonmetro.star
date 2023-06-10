@@ -20,6 +20,7 @@ ARRIVALS_CACHE_TTL = 60  # 1 minute
 
 def main(config):
     stop_id = config.get("station_id", DEFAULT_STOP)
+    time_toggle = config.get("time", DEFAULT_STOP)
 
     key = SUBSCRIPTION_KEY or config.get("key", None)
     render_elements = []
@@ -30,26 +31,26 @@ def main(config):
             response = station_cache
         else:
             endpoint = "https://api.ridemetro.org/data/Stops('" + stop_id + "')?subscription-key=" + key
-            response = http.get(endpoint)
-
+            response = http.get(endpoint).body()
+            
             # TODO: Determine if this cache call can be converted to the new HTTP cache.
-            cache.set(ROUTE_INFO_CACHE_KEY + stop_id, response.body(), ROUTE_INFO_CACHE_TTL)
+            cache.set(ROUTE_INFO_CACHE_KEY + stop_id, response, ROUTE_INFO_CACHE_TTL)
 
-        stops = response.json()["value"]
-        stop_name = response.json()["value"][0]["Name"]
+        stops = json.decode(response)["value"]
+        stop_name = json.decode(response)["value"][0]["Name"]
 
         arrivals_cache = cache.get(ARRIVALS_CACHE_KEY + stop_id)
         if arrivals_cache:
             response = arrivals_cache
         else:
             arrivals_endpoint = "https://api.ridemetro.org/data/Stops('" + stop_id + "')/Arrivals?subscription-key=" + key
-            response = http.get(arrivals_endpoint)
+            response = http.get(arrivals_endpoint).body()
 
             # TODO: Determine if this cache call can be converted to the new HTTP cache.
-            cache.set(ARRIVALS_CACHE_KEY + stop_id, response.body(), ARRIVALS_CACHE_TTL)
+            cache.set(ARRIVALS_CACHE_KEY + stop_id, response, ARRIVALS_CACHE_TTL)
 
-        stops = response.json()["value"]
-        if not stops:
+        arrivals = json.decode(response)["value"]
+        if not arrivals:
             render_elements.append(
                 render.Row(
                     children = [
@@ -62,10 +63,10 @@ def main(config):
             )
         else:
             for i in range(0, 4):
-                if i < len(stops):
-                    route_number = stops[i]["RouteName"]
-                    arrival_time = stops[i]["LocalArrivalTime"]
-                    arrival_time = time_string(arrival_time)
+                if i < len(arrivals):
+                    route_number = arrivals[i]["RouteName"]
+                    arrival_time = arrivals[i]["LocalArrivalTime"]
+                    arrival_time = time_string(arrival_time, time_toggle)
                     route_color = "004080"
                     render_element = render.Row(
                         children = [
@@ -193,9 +194,13 @@ def main(config):
         ),
     )
 
-def time_string(full_string):
+def time_string(full_string, time_toggle):
     time_index = full_string.find("T")
-    return full_string[time_index + 1:len(full_string) - 4]
+    hours = full_string[time_index + 1:len(full_string) - 7]
+    minutes = full_string[len(full_string) - 6:len(full_string) - 4]
+    if time_toggle.lower() == "false" and int(hours) > 12:
+        hours = int(hours) - 12
+    return str(hours) + ":" + minutes
 
 def truncate_location(full_string):
     decimal_index = full_string.find(".")
@@ -237,6 +242,13 @@ def get_schema():
                 desc = "A list of bus or train stations based on a location.",
                 icon = "train",
                 handler = get_stations,
+            ),
+            schema.Toggle(
+                id = "time",
+                name = "24-hour time",
+                desc = "A toggle to display 24-hour time.",
+                icon = "clock",
+                default = False,
             ),
         ],
     )
