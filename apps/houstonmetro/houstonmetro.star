@@ -1,4 +1,3 @@
-load("cache.star", "cache")
 load("encoding/base64.star", "base64")
 load("encoding/json.star", "json")
 load("http.star", "http")
@@ -25,29 +24,13 @@ def main(config):
     key = SUBSCRIPTION_KEY or config.get("key", None)
     render_elements = []
     if key:
-        station_cache = cache.get(ROUTE_INFO_CACHE_KEY + stop_id)
+        endpoint = "https://api.ridemetro.org/data/Stops('" + stop_id + "')?subscription-key=" + key
+        response = http.get(endpoint, ttl_seconds = ROUTE_INFO_CACHE_TTL).body()
 
-        if station_cache:
-            response = station_cache
-        else:
-            endpoint = "https://api.ridemetro.org/data/Stops('" + stop_id + "')?subscription-key=" + key
-            response = http.get(endpoint).body()
-            
-            # TODO: Determine if this cache call can be converted to the new HTTP cache.
-            cache.set(ROUTE_INFO_CACHE_KEY + stop_id, response, ROUTE_INFO_CACHE_TTL)
-
-        stops = json.decode(response)["value"]
         stop_name = json.decode(response)["value"][0]["Name"]
 
-        arrivals_cache = cache.get(ARRIVALS_CACHE_KEY + stop_id)
-        if arrivals_cache:
-            response = arrivals_cache
-        else:
-            arrivals_endpoint = "https://api.ridemetro.org/data/Stops('" + stop_id + "')/Arrivals?subscription-key=" + key
-            response = http.get(arrivals_endpoint).body()
-
-            # TODO: Determine if this cache call can be converted to the new HTTP cache.
-            cache.set(ARRIVALS_CACHE_KEY + stop_id, response, ARRIVALS_CACHE_TTL)
+        arrivals_endpoint = "https://api.ridemetro.org/data/Stops('" + stop_id + "')/Arrivals?subscription-key=" + key
+        response = http.get(arrivals_endpoint, ttl_seconds = ARRIVALS_CACHE_TTL).body()
 
         arrivals = json.decode(response)["value"]
         if not arrivals:
@@ -66,6 +49,7 @@ def main(config):
                 if i < len(arrivals):
                     route_number = arrivals[i]["RouteName"]
                     arrival_time = arrivals[i]["LocalArrivalTime"]
+                    direction = arrivals[i]["DestinationName"]
                     arrival_time = time_string(arrival_time, time_toggle)
                     route_color = "004080"
                     render_element = render.Row(
@@ -73,14 +57,14 @@ def main(config):
                             render.Stack(children = [
                                 render.Box(
                                     color = "#" + route_color,
-                                    width = 22,
+                                    width = 30,
                                     height = 10,
                                 ),
                                 render.Box(
                                     color = "#0000",
-                                    width = 22,
+                                    width = 30,
                                     height = 10,
-                                    child = render.Text(route_number, color = "#000", font = "CG-pixel-4x5-mono"),
+                                    child = render.Text(route_number + " " + direction[0], color = "#000", font = "CG-pixel-4x5-mono"),
                                 ),
                             ]),
                             render.Column(
@@ -212,15 +196,8 @@ def get_stations(location):
     key = SUBSCRIPTION_KEY
     stops = []
     if key:
-        location_cache = cache.get(ROUTE_INFO_CACHE_KEY + coordinates)
-        if location_cache:
-            response = location_cache
-        else:
-            location_endpoint = "https://houstonmetro.azure-api.net/data/GeoAreas('" + coordinates + "|.5')/Stops?subscription-key=" + key
-            response = http.get(location_endpoint)
-
-            # TODO: Determine if this cache call can be converted to the new HTTP cache.
-            cache.set(ROUTE_INFO_CACHE_KEY + coordinates, response.body(), ROUTE_INFO_CACHE_TTL)
+        location_endpoint = "https://houstonmetro.azure-api.net/data/GeoAreas('" + coordinates + "|.5')/Stops?subscription-key=" + key
+        response = http.get(location_endpoint, ttl_seconds = ROUTE_INFO_CACHE_TTL)
 
         if response.json()["value"]:
             for station in response.json()["value"]:
