@@ -85,9 +85,9 @@ HEIGHT_ADJ = 2
 
 def requestStatus(serverIP, serverPort, roombaIP):
     if roombaIP:
-        res = http.get("http://%s:%d/status?ip=%s" % (serverIP, serverPort, roombaIP))
+        res = http.get("http://%s:%d/status?ip=%s" % (serverIP, serverPort, roombaIP), ttl_seconds=REFRESH_TIME)
     else:
-        res = http.get("http://%s:%d/status" % (serverIP, serverPort))
+        res = http.get("http://%s:%d/status" % (serverIP, serverPort), ttl_seconds=REFRESH_TIME)
     if res.status_code != 200:
         fail("request failed with status %d", res.status_code)
     res = res.json()
