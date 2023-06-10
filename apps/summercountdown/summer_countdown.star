@@ -6,6 +6,7 @@ Author: Andrew Knotts
 """
 
 load("encoding/base64.star", "base64")
+load("encoding/json.star", "json")
 load("random.star", "random")
 load("render.star", "render")
 load("schema.star", "schema")
@@ -55,8 +56,17 @@ FLOWER_STAGES_PNG = [
 STEM_BOX = render.Box(width = 2, height = 1, color = COLOR_STEMS)
 LEAF_BOX = render.Box(width = 1, height = 1, color = COLOR_STEMS)
 
-DEFAULT_TIMEZONE = "America/Chicago"
-DEFAULT_HEMISPHERE = "northern"
+DEFAULT_TIMEZONE = "America/New_York"
+DEFAULT_LOCATION = """
+{
+	"lat": "40.6781784",
+	"lng": "-73.9441579",
+	"description": "Brooklyn, NY, USA",
+	"locality": "Brooklyn",
+	"place_id": "ChIJCSF8lBZEwokRhngABHRcdoI",
+	"timezone": "America/New_York"
+}
+"""
 
 SEASONS = {
     "northern": {
@@ -321,8 +331,17 @@ def ripen_random_seeds(width, seeds_widget_list, ripen_percent):
 def render_all_frames(frame_count, config):
     frames = []
 
-    hemisphere = config.get("hemisphere", DEFAULT_HEMISPHERE)
-    timezone = config.get("$tz", DEFAULT_TIMEZONE)  # Utilize special timezone variable
+    hemisphere = config.get("hemisphere", None)
+    if hemisphere != None:
+        # Handle legacy config option
+        timezone = config.get("$tz", DEFAULT_TIMEZONE)
+    else:
+        location = json.decode(config.get("location", DEFAULT_LOCATION))
+        timezone = location["timezone"]
+        if float(location["lat"]) < 0:
+            hemisphere = "southern"
+        else:
+            hemisphere = "northern"
     time_now = time.now().in_location(timezone)
 
     # Calculate days until summer and autumn
@@ -456,27 +475,14 @@ def main(config):
     )
 
 def get_schema():
-    hemispheres = [
-        schema.Option(
-            display = "Northern Hemisphere",
-            value = "northern",
-        ),
-        schema.Option(
-            display = "Southern Hemisphere",
-            value = "southern",
-        ),
-    ]
-
     return schema.Schema(
         version = "1",
         fields = [
-            schema.Dropdown(
-                id = "hemisphere",
-                name = "Hemisphere",
-                desc = "Your hemisphere to use for the seasonal calendar",
-                icon = "globe",
-                default = hemispheres[0].value,
-                options = hemispheres,
+            schema.Location(
+                id = "location",
+                name = "Location",
+                desc = "Your location to use for the seasonal calendar.",
+                icon = "locationDot",
             ),
         ],
     )

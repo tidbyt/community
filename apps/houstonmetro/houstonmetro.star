@@ -84,7 +84,7 @@ def main(config):
                 children = [
                     render.Box(
                         color = "#0000",
-                        child = render.Text("Missing API Key", color = "#f3ab3f"),
+                        child = render.Text("No API Key", color = "#f3ab3f"),
                     ),
                 ],
             ),

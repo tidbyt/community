@@ -20,17 +20,24 @@ Trains into the city will display as CITY rather than the route name (only in ne
 Trams will also show the destination rather than route name (only in next arrival mode)
 Updated Tram Stop List
 Updated caching function
+
+v2.1
+Bug fix for some train stations not showing "CITY" headsign on city bound services
+Updated wording for Bus Stop and Tram Stop in schema dropdown
+Fixed issue for last service/services after midnight showing incorrect times. This is an issue with the data from API but added a workaround to make it accurate
 """
 
 load("encoding/json.star", "json")
 load("http.star", "http")
 load("render.star", "render")
 load("schema.star", "schema")
+load("time.star", "time")
 
 NEXTSCHED1_URL = "https://api-cloudfront.adelaidemetro.com.au/stops/next-scheduled-services?stop="
 STOPINFO_URL = "https://api-cloudfront.adelaidemetro.com.au/stops/info?stop="
 
 CACHE_TTL_SECS = 60
+CITYBOUND_STATION_LIST = ["18683", "18680", "18678", "18719", "17533", "18934", "18104"]
 
 def main(config):
     SelectedStation = config.get("StationList", "16572")
@@ -52,10 +59,10 @@ def main(config):
     if TrainToCity == False:
         SelectedStation = AwayStops(SelectedStation)
 
-    # print(SelectedStation)
     STOP_ID = str(SelectedStation)
 
     NEXTSCHED_URL = NEXTSCHED1_URL + STOP_ID
+    #print(NEXTSCHED_URL)
 
     # Cache the next service times for 1 min
     NextSchedCacheData = get_cachable_data(NEXTSCHED_URL, 60)
@@ -190,25 +197,27 @@ def GetTimes_Route(StopName, Routes, RouteColors, RouteLen, NEXTSCHED_JSON):
     Time2 = ""
     Time3 = ""
 
-    Title = [render.Row(
-        expanded = True,
-        main_align = "space_between",
-        children = [
-            render.Row(
-                main_align = "start",
-                children = [
-                    render.Padding(
-                        pad = (1, 1, 0, 1),
-                        child = render.Text(
-                            content = StopName,
-                            color = "#FFF",
-                            font = "tom-thumb",
+    Title = [
+        render.Row(
+            expanded = True,
+            main_align = "space_between",
+            children = [
+                render.Row(
+                    main_align = "start",
+                    children = [
+                        render.Padding(
+                            pad = (1, 1, 0, 0),
+                            child = render.Text(
+                                content = StopName,
+                                color = "#fff",
+                                font = "tom-thumb",
+                            ),
                         ),
-                    ),
-                ],
-            ),
-        ],
-    )]
+                    ],
+                ),
+            ],
+        ),
+    ]
 
     Display.extend(Title)
 
@@ -335,6 +344,18 @@ def GetTimes_Time(StopName, Services, z, NEXTSCHED_JSON, INFO_JSON):
             TheRoute = NEXTSCHED_JSON[2][s + z]["route_id"]
             MinsAway = NEXTSCHED_JSON[2][s + z]["min"]
 
+            # Things can get weird around midnight/last service
+            # The API says that the next service is 2500+ mins away, but its not
+            # So lets do some manual calculating to work out when its due
+            if MinsAway > 1440:
+                Now = NEXTSCHED_JSON[0][0]["now_time"]
+                Now = Now[:16]
+                convertedNow = time.parse_time(Now, format = "2006-01-02 15:04")
+                Arrival_Time = NEXTSCHED_JSON[2][s + z]["arrival_time"]
+                convertedArrival = time.parse_time(Arrival_Time, format = "2006-01-02 15:04:00")
+                diff = convertedArrival - convertedNow
+                MinsAway = int(diff.minutes)
+
             # get details about the route
             for i in range(0, StopRoutes, 1):
                 if TheRoute == INFO_JSON["routes"][i]["route_id"]:
@@ -342,12 +363,15 @@ def GetTimes_Time(StopName, Services, z, NEXTSCHED_JSON, INFO_JSON):
                     RouteType = INFO_JSON["routes"][i]["route_type"]
                     break
 
-            # if its a train route & its to the city, then change the route name but only if its not the Adelaide station
-            StopCode = INFO_JSON["stop_data"]["stop_code"]
-            ToCity = StopCode.startswith("16")
-            if StopCode != "16490":
-                if RouteType == 2 and ToCity:
-                    TheRoute = "CITY"
+            # if its a train route (2), then check the stop code
+            # Codes for train stations to the city start with '16' with some exceptions (CITYBOUND_STATION_LIST)
+            # lastly, check we're not at City already
+            if RouteType == 2:
+                StopCode = INFO_JSON["stop_data"]["stop_code"]
+                ToCity = StopCode.startswith("16") or StopCode in CITYBOUND_STATION_LIST
+                if ToCity:
+                    if StopCode != "16490":
+                        TheRoute = "CITY"
 
             # if its a tram route, look up the headsign and display
             if RouteType == 0:
@@ -1265,7 +1289,7 @@ def MoreOptions(TrainOrTramOrBus):
         return [
             schema.Dropdown(
                 id = "TramStationList",
-                name = "Tram Station",
+                name = "Tram Stop",
                 desc = "Choose your station",
                 icon = "trainTram",
                 default = TramStationOptions[0].value,
@@ -1276,7 +1300,7 @@ def MoreOptions(TrainOrTramOrBus):
         return [
             schema.Text(
                 id = "BusStop",
-                name = "Bus Stop",
+                name = "Bus Stop ID",
                 desc = "Enter the Stop ID",
                 icon = "bus",
             ),
