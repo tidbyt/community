@@ -5,9 +5,7 @@ Description: Get today's flavors at Kopp's Frozen Custard.
 Author: Josiah Winslow
 """
 
-load("cache.star", "cache")
 load("encoding/base64.star", "base64")
-load("encoding/json.star", "json")
 load("http.star", "http")
 load("re.star", "re")
 load("render.star", "render")
@@ -19,7 +17,7 @@ HEIGHT = 32
 TIMEZONE = "America/Chicago"  # Kopp's is a local chain in Wisconsin
 DELAY = 100
 ERROR_DELAY = 45
-TTL_SECONDS = 60 * 60 * 24  # 1 day
+TTL_SECONDS = 60 * 30  # 30 minutes
 
 KOPPS_ICON_WIDTH = 62
 KOPPS_ICON_HEIGHT = 21
@@ -101,7 +99,7 @@ def get_best_wrapped_text(text):
 
 def get_flavors():
     # Request Kopp's flavor JSON
-    rep = http.get(KOPPS_FLAVOR_URL)
+    rep = http.get(KOPPS_FLAVOR_URL, ttl_seconds = TTL_SECONDS)
     if rep.status_code != 200:
         return None
 
@@ -136,37 +134,17 @@ def render_failure(text):
     )
 
 def main():
-    # Get the current date
+    # Get the current month name
     current_time = time.now().in_location(TIMEZONE)
-    current_date = current_time.format("2006/01/02")
     current_month_name = current_time.format("January").upper()
 
-    # Cache is invalid if current date doesn't match cached date
-    cached_date = cache.get("date")
-    cache_invalid = cached_date != current_date
-
     # Get this month's flavors of the day
-    flavors = None if cache_invalid else cache.get("flavors")
+    flavors = get_flavors()
 
-    # If flavors have been cached
-    if flavors != None:
-        print("Cache hit; using cached flavors.")
-        flavors = json.decode(flavors)
-    else:
-        print("Cache miss; retrieving flavors.")
-        flavors = get_flavors()
-
-        # If failed to retrieve flavors
-        if flavors == None:
-            print("Failure.")
-            failure_reason = "Could not get flavors"
-            return render_failure(failure_reason)
-
-        # We have successfully gotten the flavors
-        # Cache everything
-        print("Success!")
-        cache.set("flavors", json.encode(flavors), ttl_seconds = TTL_SECONDS)
-        cache.set("date", str(current_date), ttl_seconds = TTL_SECONDS)
+    # If failed to retrieve flavors
+    if flavors == None:
+        failure_reason = "Could not get flavors"
+        return render_failure(failure_reason)
 
     # Output will be rendered as a series of frames
     frames = []
