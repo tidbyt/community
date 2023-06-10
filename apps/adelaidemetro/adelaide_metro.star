@@ -62,7 +62,7 @@ def main(config):
     STOP_ID = str(SelectedStation)
 
     NEXTSCHED_URL = NEXTSCHED1_URL + STOP_ID
-    print(NEXTSCHED_URL)
+    #print(NEXTSCHED_URL)
 
     # Cache the next service times for 1 min
     NextSchedCacheData = get_cachable_data(NEXTSCHED_URL, 60)
