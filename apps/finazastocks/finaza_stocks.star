@@ -66,23 +66,18 @@ def main(config):
 
         print(SYMBOLS)
 
-        if rate_cached != None:
-            print("rate_cached")
-            msg = rate_cached
-        else:
-            msg = ""
-            rep = http.get(STOCK_QUOTE_URL_FINAL)
+        msg = ""
+        rep = http.get(STOCK_QUOTE_URL_FINAL, ttl_seconds = 500)
 
-            #print(rep.json())
-            if rep.status_code != 200:
-                msg = "Please configure symbols in the applet settings."
-                fail("API request failed with status %d", rep.status_code)
-            else:
-                for stock in rep.json()["quotes"]:
-                    msg = msg + stock["symbol"] + ":$" + str(stock["latestPrice"]) + " "
-                msg = msg.rstrip(" ")
-                print(msg)
-                cache.set("sym_rate", msg, ttl_seconds = 500)
+        #print(rep.json())
+        if rep.status_code != 200:
+            msg = "Please configure symbols in the applet settings."
+            fail("API request failed with status %d", rep.status_code)
+        else:
+            for stock in rep.json()["quotes"]:
+                msg = msg + stock["symbol"] + ":$" + str(stock["latestPrice"]) + " "
+            msg = msg.rstrip(" ")
+            print(msg)
     else:
         msg = "Please configure symbols in the applet settings."
 
@@ -143,35 +138,35 @@ def get_schema():
             schema.Text(
                 id = "stock_1",
                 name = "Stock Symbol 1",
-                desc = "Symbol for first stock",
+                desc = "Symbol for stock",
                 icon = "tag",
                 default = "MSFT",
             ),
             schema.Text(
                 id = "stock_2",
-                name = "Stock Symbol 1",
-                desc = "Symbol for first stock",
+                name = "Stock Symbol 2",
+                desc = "Symbol for stock",
                 icon = "tag",
                 default = "AAPL",
             ),
             schema.Text(
                 id = "stock_3",
-                name = "Stock Symbol 1",
-                desc = "Symbol for first stock",
+                name = "Stock Symbol 3",
+                desc = "Symbol for stock",
                 icon = "tag",
                 default = "NVDA",
             ),
             schema.Text(
                 id = "stock_4",
                 name = "Stock Symbol 4",
-                desc = "Symbol for first stock",
+                desc = "Symbol for stock",
                 icon = "tag",
                 default = "PTON",
             ),
             schema.Text(
                 id = "stock_5",
                 name = "Stock Symbol 5",
-                desc = "Symbol for first stock",
+                desc = "Symbol for stock",
                 icon = "tag",
                 default = "BRK.B",
             ),
