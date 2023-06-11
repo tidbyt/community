@@ -24,8 +24,11 @@ Fixed bug regarding API URL which now requires Series ID also
 v1.3a
 Updated caching function
 
-v1.4
+v1.4 - Published 9/6/23
 Future fixtures are now shown for selected team rather than immediate fixtures
+
+v1.4.1
+Fixed bug for "need to win" amount in 4th innings
 """
 
 load("encoding/json.star", "json")
@@ -124,7 +127,7 @@ def main(config):
 
             # if 4th innings of the match, show what they need to win
             if Innings == 3:
-                Lead_or_Trail = Lead_or_Trail + 1
+                Lead_or_Trail = Lead_or_Trail - 1
 
             Lead_or_Trail = math.fabs(Lead_or_Trail)
             Lead_or_Trail = humanize.ftoa(Lead_or_Trail)
