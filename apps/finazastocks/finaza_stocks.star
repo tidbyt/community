@@ -5,7 +5,6 @@ Description: Display Stock Ticker. No API Key Required. Configure upto 5 Symbols
 Author: Sunil Taneja
 """
 
-load("cache.star", "cache")
 load("encoding/base64.star", "base64")
 load("encoding/json.star", "json")
 load("http.star", "http")
@@ -53,7 +52,7 @@ def main(config):
         else:
             SYMBOLS = ["GOOG", "AMZN", "MSFT", "TSLA", "NVDA", "AAPL"]  # default symbols
 
-        rate_cached = cache.get("sym_rate")
+        #rate_cached = cache.get("sym_rate")
 
         # remove any empty symbols
         SYMBOLS = [x for x in SYMBOLS if x != None]
