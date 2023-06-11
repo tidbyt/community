@@ -1,0 +1,8 @@
+---
+id: la-metro-stop
+name: LA Metro Stop
+summary: LA metro times for stop
+desc: Get departure times for LA metro train stop.
+author: connorwashere
+fileName: la_metro_stop.star
+packageName: lametrostop
