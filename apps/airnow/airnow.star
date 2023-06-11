@@ -69,6 +69,10 @@ def get_current_observation(lat, lng):
 
 def render_alert_circle(aqi, alert_colors):
     bg_color, txt_color = alert_colors
+    font = "10x20"
+
+    if aqi > 99:
+        font = "6x13"
 
     return render.Box(
         width = 26,
@@ -77,15 +81,15 @@ def render_alert_circle(aqi, alert_colors):
         child = render.Circle(
             color = bg_color,
             diameter = 24,
-            child = render.Padding(
-                pad = (0, 2, 0, 0),
-                child = render.Text("%d" % (aqi), font = "10x20", color = txt_color),
-            ),
+            child = render.Text("%d" % (aqi), font = font, color = txt_color),
         ),
     )
 
 def render_category_text(category_name, reporting_area, alert_colors):
     bg_color, _ = alert_colors
+
+    if category_name == "Unhealthy for Sensitive Groups":
+        category_name = "Unhealthy for Sensitive"
 
     return render.Box(
         width = 38,
@@ -95,11 +99,19 @@ def render_category_text(category_name, reporting_area, alert_colors):
             main_align = "space_around",
             cross_align = "center",
             children = [
-                render.Text(category_name, color = bg_color, font = "tom-thumb"),
                 render.WrappedText(
-                    reporting_area,
-                    color = "#DDD",
+                    category_name,
+                    align = "center",
+                    color = bg_color,
                     font = "tom-thumb",
+                ),
+                render.Marquee(
+                    width = 30,
+                    child = render.Text(
+                        reporting_area,
+                        color = "#DDD",
+                        font = "tom-thumb",
+                    ),
                 ),
             ],
         ),
