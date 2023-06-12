@@ -28,7 +28,7 @@ def main(config):
     font = "tom-thumb"
 
     #Sort out the icon (10x10 png works well)
-    icon_image = http.get(json_contents["title_image"])
+    icon_image = http.get(json_contents["title_image"], ttl_seconds = 7200)
 
     #This constructs the header, an image and a title
     children_array = [
