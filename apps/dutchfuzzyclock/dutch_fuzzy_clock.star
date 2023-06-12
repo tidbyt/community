@@ -43,7 +43,7 @@ numbersPerLang = {
         6: "SECHS",
         7: "SIEBEN",
         8: "ACHT",
-        9: "NEIN",
+        9: "NEUN",
         10: "ZEHN",
         11: "ELF",
         12: "ZWÖLF",
