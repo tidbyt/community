@@ -1,0 +1,8 @@
+---
+id: ynab
+name: YNAB (You Need a Budget)
+summary: Display information from your budget in YNAB
+desc: Display your negative and partially spent categories from your monthly budget in YNAB
+author: DanielJRutledge
+fileName: ynab.star
+packageName: ynab
