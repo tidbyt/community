@@ -8,8 +8,12 @@ def main(config):
     access_token = config.get("access_token", None)
     displayed_categories = []
     if access_token:
-        endpoint = "https://api.ynab.com/v1/budgets/last-used/months/current"
-        response = http.get(endpoint, headers = {"Authorization": "Bearer " + access_token}, ttl_seconds = 60).body()
+        budget_endpoint = "https://api.ynab.com/v1/budgets/last-used/settings"
+        response = http.get(budget_endpoint, headers = {"Authorization": "Bearer " + access_token}, ttl_seconds = 60000).body()
+        currency_format = json.decode(response)["data"]["settings"]["currency_format"]
+
+        month_endpoint = "https://api.ynab.com/v1/budgets/last-used/months/current"
+        response = http.get(month_endpoint, headers = {"Authorization": "Bearer " + access_token}, ttl_seconds = 60).body()
         categories = json.decode(response)["data"]["month"]["categories"]
         displayed_categories = []
         for category in categories:
@@ -22,10 +26,9 @@ def main(config):
                     main_align = "center",
                     cross_align = "center",
                 )
-
                 render_element_balance = render.Row(
                     children = [
-                        render.Text("   " + currency_string(str(category["balance"])), color = "#FF0000" if balance < 0 else "#FBCEB1", font = "tom-thumb"),
+                        render.Text("  " + currency_string(category["balance"], currency_format) + ":" + currency_string(category["budgeted"], currency_format), color = "#FF0000" if balance < 0 else "#FBCEB1", font = "tom-thumb"),
                     ],
                     main_align = "center",
                     cross_align = "center",
@@ -122,8 +125,15 @@ def main(config):
         ),
     )
 
-def currency_string(full_string):
-    return full_string[0:len(full_string) - 3] + "." + full_string[len(full_string) - 3:len(full_string) - 1]
+def currency_string(full_number, currency_format):
+    currency_symbol = currency_format["currency_symbol"]
+    decimal_digits = currency_format["decimal_digits"]
+    decimal_separator = currency_format["decimal_separator"]
+
+    # YNAB pads the number with an extra decimal place
+    full_number = full_number / 10
+    decimal_number = full_number / (math.pow(10, decimal_digits))
+    return currency_symbol + str(decimal_number).replace(".", decimal_separator) + ("0" if full_number % 10 == 0 else "")
 
 def get_schema():
     return schema.Schema(
