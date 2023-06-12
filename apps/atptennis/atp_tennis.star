@@ -107,7 +107,7 @@ def main(config):
                     if ATP_JSON["events"][x]["groupings"][0]["competitions"][y]["status"]["type"]["description"] == "Scheduled":
                         if "linescores" in ATP_JSON["events"][x]["groupings"][0]["competitions"][y]["competitors"][0]:
                             MatchTime = ATP_JSON["events"][EventIndex]["groupings"][0][EventIndex]["competitions"][y]["date"]
-                            print(MatchTime)
+                            #print(MatchTime)
                             MatchTime = time.parse_time(MatchTime, format = "2006-01-02T15:04Z")
                             diffMatch = MatchTime - now
 
