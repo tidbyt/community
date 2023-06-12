@@ -139,7 +139,7 @@ def get_schema():
                 id = "categories",
                 name = "Show partially spent categories",
                 desc = "Toggle partially spent categories",
-                icon = "dollar",
+                icon = "dollarSign",
                 default = True,
             ),
         ],
