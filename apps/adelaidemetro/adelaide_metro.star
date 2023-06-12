@@ -21,10 +21,14 @@ Trams will also show the destination rather than route name (only in next arriva
 Updated Tram Stop List
 Updated caching function
 
-v2.1
+v2.1 - Published 11/6
 Bug fix for some train stations not showing "CITY" headsign on city bound services
 Updated wording for Bus Stop and Tram Stop in schema dropdown
 Fixed issue for last service/services after midnight showing incorrect times. This is an issue with the data from API but added a workaround to make it accurate
+
+v2.2 - Unpublished
+Added handling for service disruption, or situations where there are no services in next 24hrs
+Extended display time to 3 seconds
 """
 
 load("encoding/json.star", "json")
@@ -180,7 +184,7 @@ def main(config):
 
     return render.Root(
         show_full_animation = True,
-        delay = int(2500),
+        delay = int(3000),
         child = render.Animation(children = Display1),
     )
 
@@ -334,67 +338,102 @@ def GetTimes_Time(StopName, Services, z, NEXTSCHED_JSON, INFO_JSON):
     ]
     Display.extend(Title)
 
-    StopRoutes = len(INFO_JSON["routes"])
-    Trips = len(INFO_JSON["trips"])
-    RouteColor = "#000"
-    RouteType = 0
+    # if there is a disruption to services
+    if len(NEXTSCHED_JSON[2]) == 0:
+        Trains = render.Column(
+            main_align = "start",
+            cross_align = "start",
+            children = [
+                render.Row(
+                    expanded = True,
+                    main_align = "space_between",
+                    cross_align = "end",
+                    children = [
+                        render.Box(width = 64, height = 3, child = render.Text(content = "", color = "#FFF", font = "CG-pixel-3x5-mono")),
+                    ],
+                ),
+                render.Row(
+                    expanded = True,
+                    main_align = "space_between",
+                    cross_align = "end",
+                    children = [
+                        render.Box(width = 64, height = 8, child = render.Text(content = "No scheduled", color = "#FFF", font = "CG-pixel-3x5-mono")),
+                    ],
+                ),
+                render.Row(
+                    expanded = True,
+                    main_align = "space_between",
+                    cross_align = "end",
+                    children = [
+                        render.Box(width = 64, height = 6, child = render.Text(content = "services", color = "#FFF", font = "CG-pixel-3x5-mono")),
+                    ],
+                ),
+            ],
+        )
+        Display.extend([Trains])
 
-    for s in range(0, 3):
-        if s + z < Services:
-            TheRoute = NEXTSCHED_JSON[2][s + z]["route_id"]
-            MinsAway = NEXTSCHED_JSON[2][s + z]["min"]
+    else:
+        StopRoutes = len(INFO_JSON["routes"])
+        Trips = len(INFO_JSON["trips"])
+        RouteColor = "#000"
+        RouteType = 0
 
-            # Things can get weird around midnight/last service
-            # The API says that the next service is 2500+ mins away, but its not
-            # So lets do some manual calculating to work out when its due
-            if MinsAway > 1440:
-                Now = NEXTSCHED_JSON[0][0]["now_time"]
-                Now = Now[:16]
-                convertedNow = time.parse_time(Now, format = "2006-01-02 15:04")
-                Arrival_Time = NEXTSCHED_JSON[2][s + z]["arrival_time"]
-                convertedArrival = time.parse_time(Arrival_Time, format = "2006-01-02 15:04:00")
-                diff = convertedArrival - convertedNow
-                MinsAway = int(diff.minutes)
+        for s in range(0, 3):
+            if s + z < Services:
+                TheRoute = NEXTSCHED_JSON[2][s + z]["route_id"]
+                MinsAway = NEXTSCHED_JSON[2][s + z]["min"]
 
-            # get details about the route
-            for i in range(0, StopRoutes, 1):
-                if TheRoute == INFO_JSON["routes"][i]["route_id"]:
-                    RouteColor = INFO_JSON["routes"][i]["route_color"]
-                    RouteType = INFO_JSON["routes"][i]["route_type"]
-                    break
+                # Things can get weird around midnight/last service
+                # The API says that the next service is 2500+ mins away, but its not
+                # So lets do some manual calculating to work out when its due
+                if MinsAway > 1440:
+                    Now = NEXTSCHED_JSON[0][0]["now_time"]
+                    Now = Now[:16]
+                    convertedNow = time.parse_time(Now, format = "2006-01-02 15:04")
+                    Arrival_Time = NEXTSCHED_JSON[2][s + z]["arrival_time"]
+                    convertedArrival = time.parse_time(Arrival_Time, format = "2006-01-02 15:04:00")
+                    diff = convertedArrival - convertedNow
+                    MinsAway = int(diff.minutes)
 
-            # if its a train route (2), then check the stop code
-            # Codes for train stations to the city start with '16' with some exceptions (CITYBOUND_STATION_LIST)
-            # lastly, check we're not at City already
-            if RouteType == 2:
-                StopCode = INFO_JSON["stop_data"]["stop_code"]
-                ToCity = StopCode.startswith("16") or StopCode in CITYBOUND_STATION_LIST
-                if ToCity:
-                    if StopCode != "16490":
-                        TheRoute = "CITY"
+                # get details about the route
+                for i in range(0, StopRoutes, 1):
+                    if TheRoute == INFO_JSON["routes"][i]["route_id"]:
+                        RouteColor = INFO_JSON["routes"][i]["route_color"]
+                        RouteType = INFO_JSON["routes"][i]["route_type"]
+                        break
 
-            # if its a tram route, look up the headsign and display
-            if RouteType == 0:
-                TripID = NEXTSCHED_JSON[2][s + z]["trip_id"]
-                for i in range(0, Trips, 1):
-                    if TripID == INFO_JSON["trips"][i]["trip_id"]:
-                        Headsign = INFO_JSON["trips"][i]["trip_headsign"]
-                        TheRoute = getHeadsign(Headsign)
+                # if its a train route (2), then check the stop code
+                # Codes for train stations to the city start with '16' with some exceptions (CITYBOUND_STATION_LIST)
+                # lastly, check we're not at City already
+                if RouteType == 2:
+                    StopCode = INFO_JSON["stop_data"]["stop_code"]
+                    ToCity = StopCode.startswith("16") or StopCode in CITYBOUND_STATION_LIST
+                    if ToCity:
+                        if StopCode != "16490":
+                            TheRoute = "CITY"
 
-                        # if we can't find a headsign, use the default
-                        if TheRoute == None:
-                            TheRoute = NEXTSCHED_JSON[2][s + z]["route_id"]
+                # if its a tram route, look up the headsign and display
+                if RouteType == 0:
+                    TripID = NEXTSCHED_JSON[2][s + z]["trip_id"]
+                    for i in range(0, Trips, 1):
+                        if TripID == INFO_JSON["trips"][i]["trip_id"]:
+                            Headsign = INFO_JSON["trips"][i]["trip_headsign"]
+                            TheRoute = getHeadsign(Headsign)
 
-            Trains = render.Row(
-                children = [
-                    render.Box(width = 64, height = 8, child = render.Row(children = [
-                        render.Box(width = 26, height = 7, color = RouteColor, child = render.Text(content = TheRoute, font = "CG-pixel-3x5-mono")),
-                        render.Box(width = 40, height = 7, child = render.Text(content = str(MinsAway) + " mins", color = "#fff", font = "CG-pixel-3x5-mono")),
-                    ])),
-                ],
-            )
+                            # if we can't find a headsign, use the default
+                            if TheRoute == None:
+                                TheRoute = NEXTSCHED_JSON[2][s + z]["route_id"]
 
-            Display.extend([Trains])
+                Trains = render.Row(
+                    children = [
+                        render.Box(width = 64, height = 8, child = render.Row(children = [
+                            render.Box(width = 26, height = 7, color = RouteColor, child = render.Text(content = TheRoute, font = "CG-pixel-3x5-mono")),
+                            render.Box(width = 40, height = 7, child = render.Text(content = str(MinsAway) + " mins", color = "#fff", font = "CG-pixel-3x5-mono")),
+                        ])),
+                    ],
+                )
+
+                Display.extend([Trains])
 
     return Display
 
