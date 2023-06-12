@@ -284,6 +284,7 @@ def main(config):
                 "Accept": "application/json",
                 "Authorization": "Basic " + api_key,
             },
+            ttl_seconds = 300,  # 5 minutes
         )
         if rep.status_code != 200:
             return render_fail(rep)
