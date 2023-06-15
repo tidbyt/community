@@ -182,7 +182,7 @@ def main(config):
       rendered WebP image for Tidbyt display
     """
     random.seed(time.now().unix // 10)
-    ebird_key = secret.decrypt(EBIRD_API_KEY) or config.get("ebird_api_key")
+    ebird_key = secret.decrypt(EBIRD_API_KEY) or config.get("ebird_api_key", "BIRDERROR-NO-API-KEY")
     params = get_params(config)
     timezone = params.pop("tz")
     response = get_recent_birds(params, ebird_key)
