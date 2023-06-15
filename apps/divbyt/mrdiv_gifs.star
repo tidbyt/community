@@ -10,8 +10,11 @@ load("encoding/json.star", "json")
 load("http.star", "http")
 load("random.star", "random")
 load("render.star", "render")
+load("time.star", "time")
 
 def main():
+    random.seed(time.now().unix // 10)
+
     # now = time.now()
 
     # timestring = str(now.unix)
