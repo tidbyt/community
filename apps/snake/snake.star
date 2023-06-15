@@ -51,13 +51,9 @@ black_pixel = render.Box(
 def render_frame(snake, egg):
     rows = [[black_pixel for c in range(WIDTH)] for r in range(HEIGHT)]
 
-    for y in range(HEIGHT):
-        for x in range(WIDTH):
-            for s in snake:
-                if x == s[0] and y == s[1]:
-                    rows[y][x] = white_pixel
-            if x == egg[0] and y == egg[1]:
-                rows[y][x] = green_pixel
+    for s in snake:
+        rows[s[1]][s[0]] = white_pixel
+    rows[egg[1]][egg[0]] = green_pixel
 
     frame = render.Column(children = [render.Row(children = row) for row in rows])
     return frame
