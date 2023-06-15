@@ -1,0 +1,8 @@
+---
+id: mlc-t20
+name: MLC T20
+summary: Major League Cricket
+desc: Shows scores for the Major League Cricket tournament.
+author: M0ntyP
+fileName: mlc_t20.star
+packageName: mlct20
