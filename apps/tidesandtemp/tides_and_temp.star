@@ -41,7 +41,7 @@ def main(config):
     now = time.now().in_location(TIMEZONE_GMT)
     prevdate = (now - time.parse_duration("12h")).format(DATE_FORMAT)
 
-    resp = http.get(NOAA_TIDES_URL.format(begin_date = prevdate, station_id = noaaTidesStationID))
+    resp = http.get(NOAA_TIDES_URL.format(begin_date = prevdate, station_id = noaaTidesStationID), ttl_seconds = 3600)
     if resp.status_code != 200:
         fail("NOAA tides request failed with status", resp.status_code)
 
