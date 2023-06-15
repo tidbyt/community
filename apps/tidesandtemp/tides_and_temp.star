@@ -93,7 +93,7 @@ def main(config):
         disp_predictions.append(render.Text(str(data_prediction["hours"]) + " hr " + str(data_prediction["minutes"]) + " min", font = "tom-thumb", color = "#ffffff"))
         disp_predictions.append(render.Box(height = 1, width = 1))
 
-    resp = http.get(NDBC_BUOY_URL.format(station_id = ndbcBuoyStationID))
+    resp = http.get(NDBC_BUOY_URL.format(station_id = ndbcBuoyStationID), ttl_seconds = 600)
     if resp.status_code != 200:
         fail("NDBC buoy request failed with status", resp.status_code)
 
