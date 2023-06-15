@@ -35,6 +35,8 @@ def main():
         rep = http.get(GITHUB_INCIDENTS_JSON)
         if rep.status_code != 200:
             fail("GitHub Status failed with status %d", rep.status_code)
+
+        # TODO: Determine if this cache call can be converted to the new HTTP cache.
         cache.set("status_body", rep.body(), ttl_seconds = 240)
         body = rep.body()
 

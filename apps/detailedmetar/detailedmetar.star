@@ -45,6 +45,7 @@ def main(config):
         metarData = rep.json()
 
         # Set cache to be alive for 120 seconds.
+        # TODO: Determine if this cache call can be converted to the new HTTP cache.
         cache.set(cacheName, json.encode(metarData), ttl_seconds = 120)
 
     # Setup array
@@ -81,6 +82,7 @@ def main(config):
         logoBase64Encoded = base64.encode(image, encoding = "standard")
         logoBase64 = base64.decode(logoBase64Encoded, encoding = "standard")
 
+        # TODO: Determine if this cache call can be converted to the new HTTP cache.
         cache.set(cacheName, json.encode(logoBase64Encoded), ttl_seconds = 86400)
 
     # Primary display
@@ -529,16 +531,53 @@ def getFlightCategory(decodedMetar):
     flightCategory = None
     cloudLayers = decodedMetar["clouds"]
     visibility = None
+    cloudLayerCount = len(cloudLayers)
 
     if (decodedMetar["visib"] == "10+"):
         visibility = 10
     else:
         visibility = int(decodedMetar["visib"])
 
-    if cloudLayers[0]["base"] != None:
-        baseClouds = cloudLayers[0]["base"]
-    else:
-        baseClouds = int(12000)
+    baseClouds = int(12000)
+
+    if (cloudLayerCount == 1):
+        if cloudLayers[0]["cover"] == "BKN":
+            baseClouds = cloudLayers[0]["base"]
+
+        if cloudLayers[0]["cover"] == "OVC":
+            baseClouds = cloudLayers[0]["base"]
+
+    if (cloudLayerCount == 2):
+        if cloudLayers[0]["cover"] == "BKN":
+            baseClouds = cloudLayers[0]["base"]
+
+        if cloudLayers[0]["cover"] == "OVC":
+            baseClouds = cloudLayers[0]["base"]
+
+        if cloudLayers[1]["cover"] == "BKN":
+            baseClouds = cloudLayers[1]["base"]
+
+        if cloudLayers[1]["cover"] == "OVC":
+            baseClouds = cloudLayers[1]["base"]
+
+    if (cloudLayerCount == 3):
+        if cloudLayers[0]["cover"] == "BKN":
+            baseClouds = cloudLayers[0]["base"]
+
+        if cloudLayers[0]["cover"] == "OVC":
+            baseClouds = cloudLayers[0]["base"]
+
+        if cloudLayers[1]["cover"] == "BKN":
+            baseClouds = cloudLayers[1]["base"]
+
+        if cloudLayers[1]["cover"] == "OVC":
+            baseClouds = cloudLayers[1]["base"]
+
+        if cloudLayers[2]["cover"] == "BKN":
+            baseClouds = cloudLayers[2]["base"]
+
+        if cloudLayers[2]["cover"] == "OVC":
+            baseClouds = cloudLayers[2]["base"]
 
     #IFR
     if baseClouds > 3000 and visibility >= 5:

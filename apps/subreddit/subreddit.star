@@ -152,6 +152,8 @@ def _fetch_post_title(subreddit):
             print("Reddit request failed with status {}.".format(rep.status_code))
             return "Could not retrieve Reddit data"
         post_title = _parse_post_title(rep.json())
+
+        # TODO: Determine if this cache call can be converted to the new HTTP cache.
         cache.set(subreddit, post_title, ttl_seconds = CACHE_TTL_SECONDS)
         return post_title
 

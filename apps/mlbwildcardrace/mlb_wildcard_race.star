@@ -149,6 +149,7 @@ def get_StandingsHttp(league_id, year):
     # if the http request failed above, return empty standings object
     if standings_data.status_code != HTTP_SUCCESS_CODE:
         # cache empty standings so we do not spam http endpoint
+        # TODO: Determine if this cache call can be converted to the new HTTP cache.
         cache.set(league_id, json.encode(standings), ttl_seconds = CACHE_TIMEOUT)
         return standings
 
@@ -160,6 +161,7 @@ def get_StandingsHttp(league_id, year):
     # we will consume this later and render a different screen
     if len(records) == 0:
         # cache empty standings so we do not spam http endpoint
+        # TODO: Determine if this cache call can be converted to the new HTTP cache.
         cache.set(league_id, json.encode(standings), ttl_seconds = CACHE_TIMEOUT)
         return standings
 
@@ -178,6 +180,7 @@ def get_StandingsHttp(league_id, year):
         limiter += 1
 
     # cache standings by league id
+    # TODO: Determine if this cache call can be converted to the new HTTP cache.
     cache.set(league_id, json.encode(standings), ttl_seconds = CACHE_TIMEOUT)
 
     return standings

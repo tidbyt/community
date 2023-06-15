@@ -57,6 +57,8 @@ def get_raw_data():
         if rep.status_code != 200:
             fail("Request failed with status %d", rep.status_code)
         data = rep.body()
+
+        # TODO: Determine if this cache call can be converted to the new HTTP cache.
         cache.set(CACHE_KEY, data, ttl_seconds = 60 * 5)
 
     return data

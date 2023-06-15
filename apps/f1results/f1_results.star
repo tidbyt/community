@@ -6,6 +6,9 @@ Author: M0ntyP
 
 v1.0a
 Updated caching function
+
+v1.1
+The API is a round behind with the cancellation of Round 6. Monaco should be Round 7 but its appearing as Round 6. Added 1 to the round number for the race preview
 """
 
 load("encoding/json.star", "json")
@@ -96,6 +99,9 @@ def main(config):
             Session = "R"
 
     if Session == "":
+        # API feed is one round behind, so bumping by 1 to match the official F1 round number
+        CurrentRound = str(int(CurrentRound) + 1)
+
         # nothing has happened yet
         return render.Root(
             child = render.Column(

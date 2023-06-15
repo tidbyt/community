@@ -131,6 +131,7 @@ def fetch(stop, now):
     if res.status_code != 200:
         fail("request to %s failed with status code: %d - %s" % (res.url, res.status_code, res.body()))
 
+    # TODO: Determine if this cache call can be converted to the new HTTP cache.
     cache.set(cache_url, res.body(), ttl_seconds = 60)
     return res.body()
 

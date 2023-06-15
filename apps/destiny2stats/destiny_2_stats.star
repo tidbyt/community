@@ -99,6 +99,8 @@ def main(config):
             )
 
             displayed_character = apiMembershipInfo.json()["Response"]["characters"]["data"][get_last_played_character(apiMembershipInfo.json()["Response"]["characters"]["data"])]
+
+            # TODO: Determine if this cache call can be converted to the new HTTP cache.
             cache.set("character" + display_name + display_name_code, json.encode(displayed_character), ttl_seconds = 300)
 
     image = get_image("https://www.bungie.net" + displayed_character["emblemPath"])

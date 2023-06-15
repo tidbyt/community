@@ -5,8 +5,6 @@ Description: Shows the current status of each line on London Underground and oth
 Author: dinosaursrarr
 """
 
-load("cache.star", "cache")
-load("encoding/json.star", "json")
 load("http.star", "http")
 load("render.star", "render")
 load("schema.star", "schema")
@@ -15,13 +13,13 @@ load("secret.star", "secret")
 # Allows 500 queries per minute
 ENCRYPTED_APP_KEY = "AV6+xWcE2sENYC+/SYTqo/7oaIT8Q+BjV27Q/Bm9b1C19OEsiEuWKQQ3KKx6ymZQk2DOkiaPMjvoYmBlYZl/yr6AqusGweRYyA/gZ26zZBYX6krBCckHACEZQIS0mtAkwZmiLoGxhH2XpUkBBQdmBBwjODAqrcthPYPCm7u597BdzWyhljQ="
 STATUS_URL = "https://api.tfl.gov.uk/Line/Mode/%s/Status"
+USER_AGENT = "Tidbyt tube_status"
 
 WHITE = "#FFF"
 BLACK = "#000"
 
 DISPLAY_SCROLL = "DISPLAY_SCROLL"
 DISPLAY_SEQUENTIAL = "DISPLAY_SEQUENTIAL"
-NO_DATA_IN_CACHE = ""
 
 LINES = {
     "bakerloo": {
@@ -145,24 +143,20 @@ SEVERITIES = {
 # Cache response for all users. It's always the same info with the same inputs so
 # no need to fetch repeatedly.
 def fetch_response():
-    cache_key = "api_response"  # it's always the same input
-    cached = cache.get(cache_key)
-    if cached == NO_DATA_IN_CACHE:
-        return None
-    if cached:
-        return json.decode(cached)
     app_key = secret.decrypt(ENCRYPTED_APP_KEY) or ""  # fall back to anonymous quota
     resp = http.get(
         url = STATUS_URL % ",".join(["tube", "elizabeth-line", "overground", "dlr", "tram"]),
         params = {
             "app_key": app_key,
         },
+        headers = {
+            "User-Agent": USER_AGENT,
+        },
+        ttl_seconds = 60,
     )
     if resp.status_code != 200:
         print("TFL status request failed with status code ", resp.status_code)
-        cache.set(cache_key, NO_DATA_IN_CACHE, ttl_seconds = 30)
         return None
-    cache.set(cache_key, resp.body(), ttl_seconds = 60)
     return resp.json()
 
 def fetch_lines():

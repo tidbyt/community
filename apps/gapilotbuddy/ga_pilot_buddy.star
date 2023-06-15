@@ -73,6 +73,7 @@ def get_nearby_aerodromes(location, config):
     # Caches the response for a week -- aerodromes *really* do not change often
     # This may even be too generous
     # Sets the cache before filtering in case the config changes
+    # TODO: Determine if this cache call can be converted to the new HTTP cache.
     cache.set(str_geo, json.encode(aerodromes), ttl_seconds = 86400)
 
     show_all_aerodromes = config.bool("show_all_aerodromes")
@@ -99,6 +100,8 @@ def get_aerodrome_metar(aerodrome, config):
         ttl = int(3600 - time_ago.seconds)
         if ttl < 0:
             ttl = 180
+
+        # TODO: Determine if this cache call can be converted to the new HTTP cache.
         cache.set(aerodrome_id, resp.body(), ttl_seconds = ttl)
     else:
         metar = json.decode(metar)

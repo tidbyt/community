@@ -51,6 +51,8 @@ def get_cached(url, ttl_seconds = 20):
         fail("status %d from %s: %s" % (res.status_code, url, res.body()))
 
     data = res.body()
+
+    # TODO: Determine if this cache call can be converted to the new HTTP cache.
     cache.set(url, data, ttl_seconds = ttl_seconds)
 
     return data

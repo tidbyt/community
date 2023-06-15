@@ -90,6 +90,8 @@ def main(config):
                 print(rep.body())
                 return render_fail(rep)
             body = rep.body()
+
+            # TODO: Determine if this cache call can be converted to the new HTTP cache.
             cache.set(data_cache_key, body, ttl_seconds = data_cache_time)
 
         items = json.decode(body)
@@ -116,6 +118,8 @@ def main(config):
 
         for name in icons:
             icon_cache_key = "{}-icon-{}".format(db_name, name)
+
+            # TODO: Determine if this cache call can be converted to the new HTTP cache.
             cache.set(icon_cache_key, icons[name], ttl_seconds = TTL_ICONS)
 
     if len(items) == 0:
@@ -164,6 +168,8 @@ def reset_icon_cache(db_name, api_key):
 
     for icon in json.decode(rep.body()):
         icon_cache_key = "{}-icon-{}".format(db_name, icon["name"])
+
+        # TODO: Determine if this cache call can be converted to the new HTTP cache.
         cache.set(icon_cache_key, "", ttl_seconds = TTL_ICONS)
 
     return render.Root(render.Box(render.WrappedText("icon cache reset"), color = "#FFA500"))

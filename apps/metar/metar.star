@@ -37,6 +37,7 @@ def decoded_result_for_airport(airport):
 
         result = rep.body()
 
+        # TODO: Determine if this cache call can be converted to the new HTTP cache.
         cache.set(cache_key, result, ttl_seconds = 60)
         print("fetched for %s" % airport)
 
@@ -83,7 +84,7 @@ def color_for_state(result):
     elif category == "IFR":
         return "#FF0000"
     elif category == "MVFR":
-        return "#0000FF"
+        return "#0088FF"
     elif category == "LIFR":
         return "#FF00FF"
     elif category == "ERR" or category == "UNK":

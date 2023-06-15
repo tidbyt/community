@@ -49,6 +49,8 @@ def get_affirmation():
         if response.status_code != 200:
             fail("Failed to retrieve affirmation: %d - %s" % (response.status_code, response.body()))
         affirmation = response.json()["affirmation"]
+
+        # TODO: Determine if this cache call can be converted to the new HTTP cache.
         cache.set("affirmation", affirmation, ttl_seconds = TTL_SECONDS)
     return affirmation
 
@@ -59,5 +61,7 @@ def get_affirmation_image():
         if response.status_code != 200:
             fail("Failed to retrieve image: %d - %s" % (response.status_code, response.body()))
         image = base64.encode(response.body())
+
+        # TODO: Determine if this cache call can be converted to the new HTTP cache.
         cache.set("affirmation_image", image, ttl_seconds = TTL_SECONDS)
     return image

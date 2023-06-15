@@ -5,7 +5,6 @@ Description: Shows upcoming arrivals at a specific bus stop in London.
 Author: dinosaursrarr
 """
 
-load("cache.star", "cache")
 load("encoding/json.star", "json")
 load("http.star", "http")
 load("math.star", "math")
@@ -16,10 +15,10 @@ load("secret.star", "secret")
 DEFAULT_STOP_ID = "490020255S"
 STOP_URL = "https://api.tfl.gov.uk/StopPoint"
 ARRIVALS_URL = "https://api.tfl.gov.uk/StopPoint/%s/Arrivals"
+USER_AGENT = "Tidbyt london_bus_stop"
 
 # Allows 500 queries per minute
 ENCRYPTED_API_KEY = "AV6+xWcELQeKmsYDiEPA6VUWk2IZKw+uc9dkaM5cXT/xirUKWgWKfsRAQz2pOxq0eKTNhb/aShsRjavxA84Ay12p6NaZDnDOgVeVxoMCCOnWxJsxmURHogJHpVQpuqBTNttfvafOj0PC1zUXkEpcN7EYhveycs6qxmouIwpDzY5I93wpTy4="
-NO_DATA_IN_CACHE = ""
 
 RED = "#DA291C"  # Pantone 485 C - same as the buses
 ORANGE = "#FFA500"  # Like the countdown timers at bus stops
@@ -53,13 +52,6 @@ def extract_stop(stop):
 def fetch_stops(loc):
     truncated_lat = math.round(1000.0 * float(loc["lat"])) / 1000.0  # Truncate to 3dp for better caching
     truncated_lng = math.round(1000.0 * float(loc["lng"])) / 1000.0  # Means to the nearest ~110 metres.
-    cache_key = "{},{}".format(truncated_lat, truncated_lng)
-
-    cached = cache.get(cache_key)
-    if cached == NO_DATA_IN_CACHE:
-        return None
-    if cached:
-        return json.decode(cached)
     resp = http.get(
         STOP_URL,
         params = {
@@ -72,16 +64,17 @@ def fetch_stops(loc):
             "returnLines": "false",
             "categories": "Direction",
         },
+        headers = {
+            "User-Agent": USER_AGENT,
+        },
+        ttl_seconds = 86400,  # Bus stops don't move often
     )
     if resp.status_code != 200:
         print("TFL StopPoint search failed with status ", resp.status_code)
-        cache.set(cache_key, NO_DATA_IN_CACHE, ttl_seconds = 30)
         return None
     if not resp.json().get("stopPoints"):
         print("TFL StopPoint search does not contain stops")
-        cache.set(cache_key, NO_DATA_IN_CACHE, ttl_seconds = 30)
         return None
-    cache.set(cache_key, resp.body(), ttl_seconds = 86400)  # Bus stops don't move often
     return resp.json()
 
 # API gives errors when searching for locations outside the United Kingdom.
@@ -109,22 +102,19 @@ def get_stops(location):
 
 # Perform the actual fetch for a stop, but use cache if available.
 def fetch_stop(stop_id):
-    cached = cache.get(stop_id)
-    if cached == NO_DATA_IN_CACHE:
-        return None
-    if cached:
-        return json.decode(cached)
     resp = http.get(
         url = STOP_URL + "/" + stop_id,
         params = {
             "app_key": app_key(),
         },
+        headers = {
+            "User-Agent": USER_AGENT,
+        },
+        ttl_seconds = 30,
     )
     if resp.status_code != 200:
         print("TFL StopPoint request failed with status ", resp.status_code)
-        cache.set(stop_id, NO_DATA_IN_CACHE, ttl_seconds = 30)
         return None
-    cache.set(stop_id, resp.body(), ttl_seconds = 30)
     return resp.json()
 
 # Look up a particular stop by its Naptan ID. There can be a hierarchy of
@@ -163,6 +153,9 @@ def get_arrivals(stop_id):
         params = {
             "serviceTypes": "bus,night",
             "app_key": app_key(),
+        },
+        headers = {
+            "User-Agent": USER_AGENT,
         },
     )
     if resp.status_code != 200:

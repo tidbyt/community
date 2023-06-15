@@ -231,6 +231,8 @@ def get_StatsHttp(user_name):
 
 def cache_StatsObj(user_name, statsObj):
     stats_as_json = json.encode(statsObj)
+
+    # TODO: Determine if this cache call can be converted to the new HTTP cache.
     cache.set(user_name, str(stats_as_json), ttl_seconds = CACHE_LIFE_LENGTH_SECONDS)
 
 def get_query(user_name):

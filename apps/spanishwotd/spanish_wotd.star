@@ -63,6 +63,7 @@ def main():
             fail("Websters request failed with status %d", word_info.status_code)
         definicion = word_info.json()[0]["shortdef"][0]
 
+        # TODO: Determine if this cache call can be converted to the new HTTP cache.
         cache.set(
             CACHE_KEY,
             json.encode({"word": word, "definition": definition, "definicion": definicion}),
