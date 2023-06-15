@@ -274,6 +274,7 @@ def animate(arr, randomSortIndex):
     return render.Animation(children = frames)
 
 def main():
+    random.seed(time.now().unix // 15)
     arr = [x for x in range(WIDTH // 2)]
     random_shuffle(arr)
 
