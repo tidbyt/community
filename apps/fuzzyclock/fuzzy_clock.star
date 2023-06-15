@@ -98,13 +98,13 @@ wordsPerLang = {
         "past": "AB",
     },
     "en-US": {
-        "hour": "O'CLOCK",
+        "hour": "O’CLOCK",
         "half": "HALF",
         "to": "TILL",
         "past": "PAST",
     },
     "en-GB": {
-        "hour": "O'CLOCK",
+        "hour": "O’CLOCK",
         "half": "HALF",
         "to": "TO",
         "past": "PAST",
