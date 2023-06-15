@@ -248,6 +248,7 @@ def get_json_from_cache_or_http(url, ttl_seconds):
             fail("HTTP Request failed with status: {}".format(http_response.status_code))
 
         # Store http response in cache keyed off URL
+        # TODO: Determine if this cache call can be converted to the new HTTP cache.
         cache.set(url, json.encode(http_response.json()), ttl_seconds = ttl_seconds)
         data = http_response.json()
 
@@ -266,6 +267,7 @@ def get_body_from_cache_or_http(url, ttl_seconds):
             fail("HTTP Request failed with status: {}".format(http_response.status_code))
 
         # Store http response in cache keyed off URL
+        # TODO: Determine if this cache call can be converted to the new HTTP cache.
         cache.set(url, http_response.body(), ttl_seconds = ttl_seconds)
         data = http_response.body()
 
@@ -280,7 +282,12 @@ def format_price_string(currency_price, currency_symbol, currency_symbol_setting
     currency_price_integer = str(int(math.round(float(currency_price))))
 
     # Trim and format price
-    if len(currency_price_integer) <= 1:
+    if currency_price < 0.001:
+        # values is a small decimal, display in sci notation
+        #print("displaying in sci notation")
+        currency_price = str(currency_price)
+
+    elif len(currency_price_integer) <= 1:
         currency_price = str(int(math.round(currency_price * 1000)))
         if len(currency_price) < 4:
             currency_price = "0" + currency_price

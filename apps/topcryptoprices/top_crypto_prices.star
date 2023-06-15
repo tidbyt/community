@@ -95,6 +95,8 @@ def main(config):
         if resp.status_code != 200:
             fail("API request failed with status %d", resp.status_code)
         cachedjson = json.encode(resp.json())
+
+        # TODO: Determine if this cache call can be converted to the new HTTP cache.
         cache.set(cachename, cachedjson, ttl_seconds = TTL)
     COINS = []
     counter = 0

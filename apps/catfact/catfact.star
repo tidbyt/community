@@ -38,6 +38,8 @@ def main():
 
         print(fact_cached)
         response = rep.json()["fact"]
+
+        # TODO: Determine if this cache call can be converted to the new HTTP cache.
         cache.set("cat_fact_cached", response, ttl_seconds = 240)
 
     return render.Root(

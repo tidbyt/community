@@ -78,6 +78,7 @@ def pullFromApi(url, key):
         print("ERROR: " + str(res.status_code))
         return None
 
+    # TODO: Determine if this cache call can be converted to the new HTTP cache.
     cache.set(key, base64.encode(res.body()), CACHE_TTL_SECONDS)
     return res.body()
 
@@ -109,6 +110,8 @@ def getCachedImage(url):
     if res.status_code != 200:
         print("Failed to pull pokemon image: " + str(res.status_code))
         return None
+
+    # TODO: Determine if this cache call can be converted to the new HTTP cache.
     cache.set(cacheKey, base64.encode(res.body()), CACHE_TTL_SECONDS)
 
     return res.body()

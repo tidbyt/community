@@ -28,6 +28,8 @@ def main(config):
         result = http.get(apiURL)
         if result.status_code != 200:
             fail("Minecraft API request failed with status %d", result.status_code)
+
+        # TODO: Determine if this cache call can be converted to the new HTTP cache.
         cache.set(
             "".join(["api_result_", minecraftURL]),
             base64.encode(result.body()),

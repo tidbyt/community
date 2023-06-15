@@ -110,6 +110,7 @@ def get_alerts(lat, long):
                 alerts.append(item)
 
         # set cache. cast object to jsonstring
+        # TODO: Determine if this cache call can be converted to the new HTTP cache.
         cache.set(
             key = cachekey,
             value = json.encode(alerts),

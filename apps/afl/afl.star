@@ -121,6 +121,8 @@ def main(config):
         if rep.status_code != 200:
             fail("Squiggle request failed with status %d", rep.status_code)
         stand_data = rep.json()
+
+        # TODO: Determine if this cache call can be converted to the new HTTP cache.
         cache.set("afl_standings", json.encode(stand_data), ttl_seconds = 3600)
 
     standings = []
@@ -144,6 +146,8 @@ def main(config):
         if rep2.status_code != 200:
             fail("Squiggle request failed with status %d", rep2.status_code)
         game_data = rep2.json()
+
+        # TODO: Determine if this cache call can be converted to the new HTTP cache.
         cache.set("afl_games", json.encode(game_data), ttl_seconds = 3600)
 
     hgames = []

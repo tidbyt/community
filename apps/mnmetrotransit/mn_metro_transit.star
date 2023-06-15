@@ -32,6 +32,8 @@ def main(config):
     else:
         print("Miss! Calling Transit data.")
         MTT = http.get(url).json()
+
+        # TODO: Determine if this cache call can be converted to the new HTTP cache.
         cache.set(cache_key, json.encode(MTT), ttl_seconds = 30)
         MTT_data = MTT
 
@@ -189,12 +191,12 @@ def main(config):
         CT2 = "#222"
 
     elif route2 == "Gold":
-        CB = "#FB0"
-        CT = "#222"
+        CB2 = "#FB0"
+        CT2 = "#222"
 
     elif route2 == "Purple":
-        CB = "#A0C"
-        CT = "#222"
+        CB2 = "#A0C"
+        CT2 = "#222"
 
     if route2[2:7] == "Line":
         CB2 = "#FFF"

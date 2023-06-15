@@ -4,8 +4,6 @@ Summary: Shows PGA Leaderboard
 Description: This app displays the leaderboard for the current PGA Tour event. You can show the opposite field event if there is one. 
 Author: M0ntyP
 
-Note - can easily make LPGA, European Tour or Korn Ferry versions if there is enough interest.
-
 Big shoutout to LunchBox8484 for the NHL Standings app where this is heavily borrowed/stolen from
 
 v1.1 
@@ -26,10 +24,17 @@ Code re-arrange & clean up and hopefully more efficient!
 
 v2.1
 Fix - Colors for majors not working, fixed!
+
+v2.1a
+Updated caching function
+
+v2.2
+Added better playoff handling
+
+v2.3 
+IDEA - better tournament naming especially for elevated events?
 """
 
-load("cache.star", "cache")
-load("encoding/base64.star", "base64")
 load("encoding/json.star", "json")
 load("http.star", "http")
 load("render.star", "render")
@@ -66,6 +71,7 @@ def main(config):
 
     # Check if its a major and show a different color in the title bar
     TitleColor = getMajorColor(TournamentID)
+    #print(TitleColor)
 
     TournamentName = leaderboard["sports"][0]["leagues"][0]["events"][i]["name"]
 
@@ -85,11 +91,11 @@ def main(config):
             stage = stage.replace("Round 2", "R2")
             stage = stage.replace("Round 3", "R3")
             stage = stage.replace("Round 4", "R4")
+            stage = stage.replace("Playoff - Play Complete", "PO")
             stage = stage.replace(" - In Progress", "")
             stage = stage.replace(" - Suspended", "")
             stage = stage.replace(" - Play Complete", "")
             stage = stage.replace(" - Playoff", "PO")
-            stage = stage.replace("Playoff - Play Complete", "PO")
 
             if entries:
                 if stage != "F":
@@ -313,15 +319,23 @@ def getPlayerProgress(x, s, Title, TitleColor, stage, state, timezone):
                 HolesCompleted = 18
 
             # if the player hasn't started their round, show their tee time in your local time
+            # also check its not a playoff
             if playerState == "pre":
-                TeeTime = s[i + x]["status"]["teeTime"]
-                TeeTimeFormat = time.parse_time(TeeTime, format = "2006-01-02T15:04Z").in_location(timezone)
-                TeeTime = TeeTimeFormat.format("15:04")
-                ProgressStr = TeeTime
+                if s[i + x]["status"]["playoff"] != True:
+                    TeeTime = s[i + x]["status"]["teeTime"]
+                    TeeTimeFormat = time.parse_time(TeeTime, format = "2006-01-02T15:04Z").in_location(timezone)
+                    TeeTime = TeeTimeFormat.format("15:04")
+                    ProgressStr = TeeTime
+                else:
+                    ProgressStr = "PO"
 
             # if the player's round is underway, show how many completed holes
+            # also check its not a playoff
             if playerState == "in" or playerState == "post":
-                ProgressStr = str(HolesCompleted)
+                if s[i + x]["status"]["playoff"] != True:
+                    ProgressStr = str(HolesCompleted)
+                else:
+                    ProgressStr = "PO"
 
             # if the player's round is completed, show "F"
             if playerState == "post":
@@ -471,19 +485,9 @@ def get_schema():
     )
 
 def get_cachable_data(url, timeout):
-    key = base64.encode(url)
+    res = http.get(url = url, ttl_seconds = timeout)
 
-    data = cache.get(key)
-    if data != None:
-        #print("Using cached data")
-        return base64.decode(data)
-
-    res = http.get(url = url)
-
-    #print("Getting new data")
     if res.status_code != 200:
         fail("request to %s failed with status code: %d - %s" % (url, res.status_code, res.body()))
-
-    cache.set(key, base64.encode(res.body()), ttl_seconds = timeout)
 
     return res.body()

@@ -1,4 +1,3 @@
-load("cache.star", "cache")
 load("encoding/base64.star", "base64")
 load("encoding/json.star", "json")
 load("http.star", "http")
@@ -7,7 +6,7 @@ load("schema.star", "schema")
 load("secret.star", "secret")
 
 DEFAULT_STOP = "Ho414_4620_12308"
-SUBSCRIPTION_KEY = secret.decrypt("AV6+xWcEAT8EFKRWZcQqp3v/Vl4dIDmiVHqKDI9bXmDF7LrW9KONSxvItRWb11RLq4e2jcY0GZBhh+FLotzQS2V6S4BiUSKQytzBddyo+oiKBS3r/4i3w/feoUbD1d6RqAv0gq1b24Oq0SdcTFn9i7qlrPHMsQ3w+TssQuDnf+UHY4hx7aY=")
+SUBSCRIPTION_KEY = secret.decrypt("AV6+xWcExgLTtX7FCideN8OoeuqFuIVR+iB0aozuj87VWZE8B699w246xpsogg1j4jAo9qAvxQZl0rXN1HRx89QUEvvWGZop47bWfx1vk1SmWjZ8c6+wqZBgMBzNpM5BNpdyuAnmvuFSOxvBnrW16Il4Cw1Fes6A7WujDYq/fauQQ6ctuKw=")
 METRO_ICON = base64.decode("""
 iVBORw0KGgoAAAANSUhEUgAAABUAAAAMCAYAAACNzvbFAAAAAXNSR0IArs4c6QAAAE5JREFUOE9jZKABYCRkpm/u5//Y1CxYb4hVq/CTO4x4DSXHQJBNOA0l10CchlJiIF6XEgprfPIY3qfUlRgupYaBtPc+tVwJdyk1DaSZ9wEBvjANhhbdqgAAAABJRU5ErkJggg==
 """)
@@ -20,72 +19,76 @@ ARRIVALS_CACHE_TTL = 60  # 1 minute
 
 def main(config):
     stop_id = config.get("station_id", DEFAULT_STOP)
+    time_toggle = config.get("time", DEFAULT_STOP)
 
     key = SUBSCRIPTION_KEY or config.get("key", None)
-
-    station_cache = cache.get(ROUTE_INFO_CACHE_KEY + stop_id)
-    if station_cache:
-        response = station_cache
-    else:
-        endpoint = "https://api.ridemetro.org/data/Stops('" + stop_id + "')?subscription-key=" + key
-        response = http.get(endpoint)
-        cache.set(ROUTE_INFO_CACHE_KEY + stop_id, response.body(), ROUTE_INFO_CACHE_TTL)
-    stops = response.json()["value"]
-    stop_name = response.json()["value"][0]["Name"]
     render_elements = []
+    if key:
+        endpoint = "https://api.ridemetro.org/data/Stops('" + stop_id + "')?subscription-key=" + key
+        response = http.get(endpoint, ttl_seconds = ROUTE_INFO_CACHE_TTL).body()
 
-    arrivals_cache = cache.get(ARRIVALS_CACHE_KEY + stop_id)
-    if arrivals_cache:
-        response = arrivals_cache
-    else:
+        stop_name = json.decode(response)["value"][0]["Name"]
+
         arrivals_endpoint = "https://api.ridemetro.org/data/Stops('" + stop_id + "')/Arrivals?subscription-key=" + key
-        response = http.get(arrivals_endpoint)
-        cache.set(ARRIVALS_CACHE_KEY + stop_id, response.body(), ARRIVALS_CACHE_TTL)
+        response = http.get(arrivals_endpoint, ttl_seconds = ARRIVALS_CACHE_TTL).body()
 
-    stops = response.json()["value"]
-    if not stops:
+        arrivals = json.decode(response)["value"]
+        if not arrivals:
+            render_elements.append(
+                render.Row(
+                    children = [
+                        render.Box(
+                            color = "#0000",
+                            child = render.Text("No arrivals", color = "#f3ab3f"),
+                        ),
+                    ],
+                ),
+            )
+        else:
+            for i in range(0, 4):
+                if i < len(arrivals):
+                    route_number = arrivals[i]["RouteName"]
+                    arrival_time = arrivals[i]["LocalArrivalTime"]
+                    direction = arrivals[i]["DestinationName"]
+                    arrival_time = time_string(arrival_time, time_toggle)
+                    route_color = "004080"
+                    render_element = render.Row(
+                        children = [
+                            render.Stack(children = [
+                                render.Box(
+                                    color = "#" + route_color,
+                                    width = 30,
+                                    height = 10,
+                                ),
+                                render.Box(
+                                    color = "#0000",
+                                    width = 30,
+                                    height = 10,
+                                    child = render.Text(route_number + " " + direction[0], color = "#000", font = "CG-pixel-4x5-mono"),
+                                ),
+                            ]),
+                            render.Column(
+                                children = [
+                                    render.Text(" " + arrival_time, color = "#f3ab3f"),
+                                ],
+                            ),
+                        ],
+                        main_align = "center",
+                        cross_align = "center",
+                    )
+                    render_elements.append(render_element)
+    else:
+        stop_name = "Houston Metro"
         render_elements.append(
             render.Row(
                 children = [
                     render.Box(
                         color = "#0000",
-                        child = render.Text("No arrivals", color = "#f3ab3f"),
+                        child = render.Text("No API Key", color = "#f3ab3f"),
                     ),
                 ],
             ),
         )
-    else:
-        for i in range(0, 4):
-            if i < len(stops):
-                route_number = stops[i]["RouteName"]
-                arrival_time = stops[i]["LocalArrivalTime"]
-                arrival_time = time_string(arrival_time)
-                route_color = "004080"
-                render_element = render.Row(
-                    children = [
-                        render.Stack(children = [
-                            render.Box(
-                                color = "#" + route_color,
-                                width = 22,
-                                height = 10,
-                            ),
-                            render.Box(
-                                color = "#0000",
-                                width = 22,
-                                height = 10,
-                                child = render.Text(route_number, color = "#000", font = "CG-pixel-4x5-mono"),
-                            ),
-                        ]),
-                        render.Column(
-                            children = [
-                                render.Text(" " + arrival_time, color = "#f3ab3f"),
-                            ],
-                        ),
-                    ],
-                    main_align = "center",
-                    cross_align = "center",
-                )
-                render_elements.append(render_element)
 
     #Create animation frames of the stop info
     animation_children = []
@@ -175,9 +178,13 @@ def main(config):
         ),
     )
 
-def time_string(full_string):
+def time_string(full_string, time_toggle):
     time_index = full_string.find("T")
-    return full_string[time_index + 1:len(full_string) - 4]
+    hours = full_string[time_index + 1:len(full_string) - 7]
+    minutes = full_string[len(full_string) - 6:len(full_string) - 4]
+    if time_toggle.lower() == "false" and int(hours) > 12:
+        hours = int(hours) - 12
+    return str(hours) + ":" + minutes
 
 def truncate_location(full_string):
     decimal_index = full_string.find(".")
@@ -186,23 +193,20 @@ def truncate_location(full_string):
 def get_stations(location):
     loc = json.decode(location)
     coordinates = truncate_location(str(loc["lat"])) + "|" + truncate_location(str(loc["lng"]))
-    key = SUBSCRIPTION_KEY or ""
-    location_cache = cache.get(ROUTE_INFO_CACHE_KEY + coordinates)
-    if location_cache:
-        response = location_cache
-    else:
-        location_endpoint = "https://houstonmetro.azure-api.net/data/GeoAreas('" + coordinates + "|.5')/Stops?subscription-key=" + key
-        response = http.get(location_endpoint)
-        cache.set(ROUTE_INFO_CACHE_KEY + coordinates, response.body(), ROUTE_INFO_CACHE_TTL)
+    key = SUBSCRIPTION_KEY
     stops = []
-    if response.json()["value"]:
-        for station in response.json()["value"]:
-            stops.append(
-                schema.Option(
-                    display = station["Name"],
-                    value = station["StopId"],
-                ),
-            )
+    if key:
+        location_endpoint = "https://houstonmetro.azure-api.net/data/GeoAreas('" + coordinates + "|.5')/Stops?subscription-key=" + key
+        response = http.get(location_endpoint, ttl_seconds = ROUTE_INFO_CACHE_TTL)
+
+        if response.json()["value"]:
+            for station in response.json()["value"]:
+                stops.append(
+                    schema.Option(
+                        display = station["Name"],
+                        value = station["StopId"],
+                    ),
+                )
     return stops
 
 def get_schema():
@@ -215,6 +219,13 @@ def get_schema():
                 desc = "A list of bus or train stations based on a location.",
                 icon = "train",
                 handler = get_stations,
+            ),
+            schema.Toggle(
+                id = "time",
+                name = "24-hour time",
+                desc = "A toggle to display 24-hour time.",
+                icon = "clock",
+                default = False,
             ),
         ],
     )

@@ -321,6 +321,8 @@ def main(config):
             },
         )
         arrivals = rep.json()
+
+        # TODO: Determine if this cache call can be converted to the new HTTP cache.
         cache.set("%s" % station_id + "_arrivals", rep.body(), ttl_seconds = CACHE_TIMEOUT)
 
     count = 0

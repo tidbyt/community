@@ -321,6 +321,10 @@ def main(config):
     # Get time and location variables
     timezone = config.get("timezone", DEFAULT_TIMEZONE)
 
+    # DEBUG
+    # print("DEBUG WARNING: Duolingo Username is set to saltedlolly manually.")
+    # duolingo_username = "saltedlolly"
+
     #Setup main query url
     duolingo_main_query_url_prefix = "https://www.duolingo.com/2017-06-30/users?username="
     if duolingo_username != None:
@@ -346,13 +350,32 @@ def main(config):
             print("Cached userId for username " + duolingo_username + ": " + duolingo_userid)
 
             # update userid cache timer
+            # TODO: Determine if this cache call can be converted to the new HTTP cache.
             cache.set(duolingo_cache_key_userid, duolingo_userid, ttl_seconds = 604800)
             display_error_msg = False
 
     # Lookup userId from supplied username (if not already found in cache)
     if do_duolingo_main_query == True:
         print("Querying duolingo.com for userId...")
-        duolingo_main_query = http.get(duolingo_main_query_url)
+
+        headers = {
+            "authority": "www.duolingo.com",
+            "accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7",
+            "accept-language": "en-US,en;q=0.9",
+            "dnt": "1",
+            "sec-ch-ua": '"Google Chrome";v="111", "Not(A:Brand";v="8", "Chromium";v="111"',
+            "sec-ch-ua-mobile": "?0",
+            "sec-ch-ua-platform": '"macOS"',
+            "sec-fetch-dest": "document",
+            "sec-fetch-mode": "navigate",
+            "sec-fetch-site": "none",
+            "sec-fetch-user": "?1",
+            "upgrade-insecure-requests": "1",
+            "user-agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/111.0.0.0 Safari/537.36",
+        }
+
+        duolingo_main_query = http.get(duolingo_main_query_url, headers = headers)
+
         if duolingo_main_query.status_code != 200:
             if duolingo_main_query.status_code == 422:
                 print("Error! No Duolingo username provided.")
@@ -379,6 +402,8 @@ def main(config):
                 duolingo_userid = int(duolingo_main_json["users"][0]["id"])
                 if duolingo_userid != None:
                     print("Success! userId for username \"" + str(duolingo_username) + "\": " + str(duolingo_userid))
+
+                    # TODO: Determine if this cache call can be converted to the new HTTP cache.
                     cache.set(duolingo_cache_key_userid, str(duolingo_userid), ttl_seconds = 604800)
                     display_error_msg = False
                 else:
@@ -396,7 +421,7 @@ def main(config):
         # LOOKUP DUOLINGO XP SUMMARY JSON DATA
         # The XP summary is updated every 15 minutes
 
-        # Example Query: https://www.duolingo.com/2017-06-30/users/xp_summaries?startDate=2022-02-24&endDate=2022-02-24&Europe/London
+        # Example Query: https://www.duolingo.com/2017-06-30/users/6364229/xp_summaries?startDate=2022-02-24&endDate=2022-02-24&Europe/London
 
         # Setup xp summary query URL
         duolingo_xpsummary_query_1 = "https://www.duolingo.com/2017-06-30/users/"
@@ -445,11 +470,15 @@ def main(config):
 
                 # Show error if username was not recognised
                 print("XP summary data retrieved from duolingo.com")
+
+                # TODO: Determine if this cache call can be converted to the new HTTP cache.
                 cache.set(duolingo_cache_key_xpsummary_json, json.encode(duolingo_xpsummary_json), ttl_seconds = 900)
 
                 # Format current time into string
                 time_now_formatted = now.format("Mon, 02 Jan 2006 15:04:05 -0700")
                 print("Time Now (Formatted for cache): " + str(time_now_formatted))
+
+                # TODO: Determine if this cache call can be converted to the new HTTP cache.
                 cache.set(duolingo_cache_key_xp_query_time, str(time_now_formatted), ttl_seconds = 900)
 
         # Setup dummy data for use on days with no data available
@@ -602,6 +631,7 @@ def main(config):
                 print("XP Count at Start of Day: " + str(duolingo_totalxp_daystart))
 
                 # Store start-of-day XP count in cache (for 24hrs)
+                # TODO: Determine if this cache call can be converted to the new HTTP cache.
                 cache.set(duolingo_cache_key_totalxp_daystart, str(duolingo_totalxp_daystart), ttl_seconds = 86400)
 
                 # Now we cache the Streak at the start of the day, and store it in the cache
@@ -613,9 +643,11 @@ def main(config):
                 print("Streak at Start of Day: " + str(duolingo_streak_daystart))
 
                 # Store start-of-day XP count in cache (for 24hrs)
+                # TODO: Determine if this cache call can be converted to the new HTTP cache.
                 cache.set(duolingo_cache_key_streak_daystart, str(duolingo_streak_daystart), ttl_seconds = 86400)
 
                 # Finally update the cache with the new date so this won't run again until tomorrow (stored for 24 hours)
+                # TODO: Determine if this cache call can be converted to the new HTTP cache.
                 cache.set(duolingo_cache_key_saveddate, str(date_now), ttl_seconds = 86400)
 
             # Set variables for current state

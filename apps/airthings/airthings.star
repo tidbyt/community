@@ -197,6 +197,7 @@ def get_samples(config, access_token, SAMPLES_CACHE_KEY):
     status = res.json()
 
     # Cache samples for 5 minutes
+    # TODO: Determine if this cache call can be converted to the new HTTP cache.
     cache.set(SAMPLES_CACHE_KEY, res.body(), 60 * 5)
 
     return status
@@ -224,6 +225,7 @@ def client_credentials_grant_flow(config, access_token_cache_key):
     if res.status_code == 200:
         print("Success")
     else:
+        # TODO: Determine if this cache call can be converted to the new HTTP cache.
         cache.set(access_token_cache_key, "")
         print("Error Fetching access_token: %s" % (res.body()))
         fail("token request failed with status code: %d - %s" % (res.status_code, res.body()))
@@ -232,6 +234,7 @@ def client_credentials_grant_flow(config, access_token_cache_key):
     access_token = token_params["access_token"]
     expires_in = token_params["expires_in"]
 
+    # TODO: Determine if this cache call can be converted to the new HTTP cache.
     cache.set(access_token_cache_key, access_token, ttl_seconds = int(expires_in) - 30)
     return access_token
 

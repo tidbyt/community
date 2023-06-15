@@ -5,14 +5,13 @@ Description: Displays live and upcoming soccer scores from a data feed.   Heavil
 Author: jvivona
 """
 
-load("cache.star", "cache")
 load("encoding/json.star", "json")
 load("http.star", "http")
 load("render.star", "render")
 load("schema.star", "schema")
 load("time.star", "time")
 
-VERSION = 23079
+VERSION = 23156
 
 # thanks to @jesushairdo for the new option to be able to show home or away team first.  Let's be more international :-)
 
@@ -54,6 +53,8 @@ LEAGUE_ABBR = {
     "eng.1": "EPL",
     "fra.1": "F Lg1",
     "fifa.world": "WC",
+    "fifa.world.u20": "U20 WC",
+    "fifa.world.u17": "U17 WC",
     "ger.1": "Bund",
     "ita.1": "Ser A",
     "mex.1": "LG MX",
@@ -164,8 +165,8 @@ def main(config):
                 checkSeries = competition.get("series", "NO")
                 checkRecord = homeCompetitor.get("records", "NO")
                 if checkRecord == "NO":
-                    homeScore = "0-0-0"
-                    awayScore = "0-0-0"
+                    homeScore = ""
+                    awayScore = ""
                 else:
                     homeScore = competition["competitors"][0]["records"][0]["summary"]
                     awayScore = competition["competitors"][1]["records"][0]["summary"]
@@ -200,8 +201,11 @@ def main(config):
                         gameNoteArray = gameHeadline.split(" - ")
                         gameTime = str(gameNoteArray[1]) + " / " + gameTime
                 if gameName == "STATUS_POSTPONED":
-                    homeScore = ""
-                    awayScore = ""
+                    scoreFont = "CG-pixel-3x5-mono"
+
+                    #if game is PPD - show records instead of blanks
+                    homeScore = competition["competitors"][0]["records"][0]["summary"]
+                    awayScore = competition["competitors"][1]["records"][0]["summary"]
                     gameTime = "Postponed"
                 else:
                     homeScore = competition["competitors"][0]["score"]
@@ -501,6 +505,14 @@ leagueOptions = [
         value = "fra.1",
     ),
     schema.Option(
+        display = "FIFA U17 World Cup",
+        value = "fifa.world.u17",
+    ),
+    schema.Option(
+        display = "FIFA U20 World Cup",
+        value = "fifa.world.u20",
+    ),
+    schema.Option(
         display = "FIFA World Cup",
         value = "fifa.world",
     ),
@@ -561,45 +573,6 @@ pregameOptions = [
     schema.Option(
         display = "Nothing",
         value = "nothing",
-    ),
-]
-
-colorOptions = [
-    schema.Option(
-        display = "White",
-        value = "#FFF",
-    ),
-    schema.Option(
-        display = "Yellow",
-        value = "#FF0",
-    ),
-    schema.Option(
-        display = "Red",
-        value = "#F00",
-    ),
-    schema.Option(
-        display = "Blue",
-        value = "#00F",
-    ),
-    schema.Option(
-        display = "Green",
-        value = "#0F0",
-    ),
-    schema.Option(
-        display = "Orange",
-        value = "#FFA500",
-    ),
-    schema.Option(
-        display = "Indigo",
-        value = "#4B0082",
-    ),
-    schema.Option(
-        display = "Violet",
-        value = "#EE82EE",
-    ),
-    schema.Option(
-        display = "Pink",
-        value = "#FC46AA",
     ),
 ]
 
@@ -684,13 +657,12 @@ def get_schema():
                 default = displayOptions[0].value,
                 options = displayOptions,
             ),
-            schema.Dropdown(
+            schema.Color(
                 id = "displayTimeColor",
                 name = "Time Color",
                 desc = "Select which color you want the time to be.",
                 icon = "palette",
-                default = colorOptions[0].value,
-                options = colorOptions,
+                default = "#FFF",
             ),
             schema.Dropdown(
                 id = "displaySpeed",
@@ -849,16 +821,8 @@ def get_gametime_column(gameTime, textColor, leagueAbbr):
     return gameTimeColumn
 
 def get_cachable_data(url):
-    key = url
-
-    data = cache.get(key)
-    if data != None:
-        return data
-
-    res = http.get(url = url)
+    res = http.get(url = url, ttl_seconds = CACHE_TTL_SECONDS)
     if res.status_code != 200:
         fail("request to %s failed with status code: %d - %s" % (url, res.status_code, res.body()))
-
-    cache.set(key, res.body(), CACHE_TTL_SECONDS)
 
     return res.body()

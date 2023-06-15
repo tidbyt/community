@@ -247,6 +247,7 @@ def main(config):
         else:
             return render_error("Pipeline not found")
 
+        # TODO: Determine if this cache call can be converted to the new HTTP cache.
         cache.set("zenhubapp_pipeline_%s" % hash.md5(zenhub_gql_api_key), str(pipeline_id), ttl_seconds = 120)
 
     if issues_cache != None:
@@ -289,6 +290,8 @@ def main(config):
             return render_error("Invalid Zenhub config")
 
         issues = issues_res.json()["data"]["searchIssuesByPipeline"]["nodes"]
+
+        # TODO: Determine if this cache call can be converted to the new HTTP cache.
         cache.set("zenhubapp_issues_%s" % hash.md5(zenhub_gql_api_key), str(issues), ttl_seconds = 120)
 
     issue_rows = []

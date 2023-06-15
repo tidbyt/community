@@ -119,6 +119,8 @@ def main(config):
             if rep.status_code != 200:
                 return errorView("API error")
             sleep_data = rep.json()
+
+            # TODO: Determine if this cache call can be converted to the new HTTP cache.
             cache.set("oura_sleep_data_" + apikey, json.encode(sleep_data), ttl_seconds = 1800)
 
         activity_data = None
@@ -130,6 +132,8 @@ def main(config):
             if rep.status_code != 200:
                 return errorView("API error")
             activity_data = rep.json()
+
+            # TODO: Determine if this cache call can be converted to the new HTTP cache.
             cache.set("oura_activity_data_" + apikey, json.encode(activity_data), ttl_seconds = 1800)
 
         readiness_data = None
@@ -141,6 +145,8 @@ def main(config):
             if rep.status_code != 200:
                 return errorView("API error")
             readiness_data = rep.json()
+
+            # TODO: Determine if this cache call can be converted to the new HTTP cache.
             cache.set("oura_readiness_data_" + apikey, json.encode(readiness_data), ttl_seconds = 1800)
 
         #Populate array of last 7 scores.

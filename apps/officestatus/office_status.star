@@ -47,8 +47,8 @@ DEVELOPER_MSFT_CLIENT_ID = "REPLACE_ON_LOCAL"
 DEVELOPER_MSFT_CLIENT_SECRET = "REPLACE_ON_LOCAL"
 
 # Values for Tidbyt server
-ENCRYPTED_MSFT_CLIENT_ID = "AV6+xWcEEXuYe3pTryNhDHEtNSvhVh5AzuB80JlncWy6vIj/rgonoeEGOXIzDClOEJkL0RAWAKCFRpSglnBCRa0G3ABIpSSA/zXdCSugEoqA4zDfEBxTh78LvvZ6r0pBfoUj1eHRYxH1PTSbKKKBdPg7mdtyC5lfsMyAYYPyqLq6XX0sGBR4f7IR"
-ENCRYPTED_MSFT_CLIENT_SECRET = "AV6+xWcESGhLr279hd21f9Zt1YQ4CUEeNMJ+obZE+PENXR6PbXAeO0ZMrz3QQ422C1ZFUBpmOqspjwfRf1WBzqL5BbDxOSPLWpVuakjDnRTdxZCJfQYNR5tpZj3QYvdZeImhrHLpPgWRIPxkjFezKXTHglX/Jdvry401sMaFgNmhc+N4racVgDIC7NU8fQ=="
+ENCRYPTED_MSFT_CLIENT_ID = "AV6+xWcElKh1NVYkuMJ2PpI1rmbL7S7VDRTEaNPpHwLTlvkwBkE/9V1u3GzcqM/pakSJLkl8RWIkgegQrQubgI44g7+UR/G2rJd9FIVssv3PdA3p/++N3sJhYb1UVnLdKIG7LuGYL4yg+AJpmJ1hPYzjg8W1bRYygoGEHRm9aGNoIkqTooik966F"
+ENCRYPTED_MSFT_CLIENT_SECRET = "AV6+xWcE2uhNPR5oL5UZyEPWCVZT3EUiOhkeC/k5YHmQCTl/X9I/p6nydNwy9A4ltD7Ipm2d8mgMhIDuftZh6wvBwkZC2bhNegnq0zQIHc/SUZ4HjPYUS5dD4F71FByGYps+Nk1vXhIzmwEMNrCKN98ARMBXE2y12zodpHEEj56T6C9KbARX3M6MBPlNlQ=="
 
 # Set globals for MSFT authentication
 MSFT_TENANT_ID = "common"
@@ -450,6 +450,8 @@ def refresh_msft_access_token(config):
             fail("Refresh of Access Token failed with Status Code: %d - %s" % (response.status_code, response.body()))
 
         response_json = response.json()
+
+        # TODO: Determine if this cache call can be converted to the new HTTP cache.
         cache.set(
             response_json["refresh_token"],
             response_json["access_token"],
@@ -498,6 +500,8 @@ def get_msft_events(msft_access_token, timezone):
             url = response.json().get("@odata.nextLink")
             if not url:
                 break
+
+        # TODO: Determine if this cache call can be converted to the new HTTP cache.
         cache.set(
             msft_access_token + "_msft_events_cached",
             json.encode(msft_events),
@@ -662,6 +666,8 @@ def refresh_webex_access_token(config):
             fail("Refresh of Access Token failed with Status Code: %d - %s" % (response.status_code, response.body()))
 
         response_json = response.json()
+
+        # TODO: Determine if this cache call can be converted to the new HTTP cache.
         cache.set(
             response_json["refresh_token"],
             response_json["access_token"],
@@ -687,6 +693,7 @@ def get_webex_details(webex_access_token):
 
         # Set a cache key if API response that there have been too many requests
         if response.status_code == 429:
+            # TODO: Determine if this cache call can be converted to the new HTTP cache.
             cache.set(
                 webex_access_token + "_webex_too_many_requests",
                 True,
@@ -697,6 +704,8 @@ def get_webex_details(webex_access_token):
             fail("Webex request failed with status:%d - %s" % (response.status_code, response.body()))
 
         response_json = response.json()
+
+        # TODO: Determine if this cache call can be converted to the new HTTP cache.
         cache.set(
             webex_access_token + "_webex_details_cached",
             json.encode(response_json),
@@ -853,6 +862,8 @@ def msft_oauth_handler(params):
              (response.status_code, response.body()))
 
     response_json = response.json()
+
+    # TODO: Determine if this cache call can be converted to the new HTTP cache.
     cache.set(
         response_json["refresh_token"],
         response_json["access_token"],
@@ -881,6 +892,8 @@ def webex_oauth_handler(params):
              (response.status_code, response.body()))
 
     response_json = response.json()
+
+    # TODO: Determine if this cache call can be converted to the new HTTP cache.
     cache.set(
         response_json["refresh_token"],
         response_json["access_token"],

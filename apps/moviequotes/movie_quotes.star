@@ -82,6 +82,8 @@ def get_all_quotes():
     if movie_csv_str == None:
         movie_csv_raw = http.get("https://raw.githubusercontent.com/wcmbishop/time-travel-movie-club/master/data-raw/afi-top-100-quotes.csv")
         movie_csv_str = movie_csv_raw.body()
+
+        # TODO: Determine if this cache call can be converted to the new HTTP cache.
         cache.set("movie_csv_str", movie_csv_str, ttl_seconds = 604800)
     quotes = csv.read_all(movie_csv_str, skip = 1)
     return quotes

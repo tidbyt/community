@@ -122,6 +122,8 @@ def call_otd_api(url):
         fail("status %d from %s: %s" % (response.status_code, url, response.body()))
 
     eventJson = response.json()
+
+    # TODO: Determine if this cache call can be converted to the new HTTP cache.
     cache.set("on_this_day_events", json.encode(eventJson), ttl_seconds = CACHE_TIMEOUT)
 
     return eventJson

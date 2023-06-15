@@ -1,0 +1,8 @@
+---
+id: detailedmetar
+name: DetailedMETAR
+summary: Display detailed METAR
+desc: Display detailed, decoded METAR information.
+author: SamuelSagarino
+fileName: detailedmetar.star
+packageName: detailedmetar

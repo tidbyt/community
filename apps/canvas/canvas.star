@@ -81,6 +81,8 @@ def getcourse(api_token):
 
         #cache for one day
         cache_data = ",".join(classes)
+
+        # TODO: Determine if this cache call can be converted to the new HTTP cache.
         cache.set("class_data-" + api_token, cache_data, ttl_seconds = 3000)
         return classes, 0
 
@@ -112,6 +114,8 @@ def get_remote_assignments(api_token, course_id):
 
 def cache_assignments(course_id, assignments, api_token):
     cache_string = ";".join([a[0] + "," + a[1] for a in assignments])
+
+    # TODO: Determine if this cache call can be converted to the new HTTP cache.
     cache.set(str(course_id) + "-" + api_token, cache_string, ttl_seconds = 300)
 
 def get_events(api_token, course_id):
@@ -122,11 +126,24 @@ def get_events(api_token, course_id):
         cache_assignments(course_id, assignment_data, api_token)
     return assignment_data, 0
 
+def fake_events():
+    first = ["2024-04-21T03:59:59Z", "Example Assigment #1"]
+    second = ["2024-11-23T03:59:59Z", "Fake Homework #4"]
+    return render.Root(
+        child = render.Column(
+            children = [
+                showEvent(first),
+                render.Box(width = 100, height = 1, color = "#ffffff"),
+                showEvent(second),
+            ],
+        ),
+    )
+
 def main(config):
     api_token = config.get("msg", "")
 
     if api_token == "":
-        return makeError("Please add your API Key")
+        return fake_events()
 
     classes, error_code = getcourse(api_token)
 

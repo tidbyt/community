@@ -211,6 +211,7 @@ def get_schema():
         schema.Option(display = "Yellow", value = "#ff0"),
         schema.Option(display = "Cyan", value = "#0ff"),
         schema.Option(display = "Magenta", value = "#f0f"),
+        schema.Option(display = "Amber", value = "#ffcb08"),  # added amber color
     ]
 
     return schema.Schema(

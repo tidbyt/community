@@ -77,6 +77,7 @@ def get_from_twitch_api(path, params, access_token, use_cache = True):
             return None
 
         if use_cache:
+            # TODO: Determine if this cache call can be converted to the new HTTP cache.
             cache.set(cache_key, cached_res, DEFAULT_CACHE_TTL)
 
     # else:
@@ -273,6 +274,7 @@ def get_token(params = None, refresh_token = None):
         refresh_token = token_params["refresh_token"]
 
     # cache the access token so it can be reteived using the refresh token
+    # TODO: Determine if this cache call can be converted to the new HTTP cache.
     cache.set(refresh_token, access_token, ttl_seconds = int(token_params["expires_in"] - 30))
 
     return access_token if has_refresh_token else refresh_token

@@ -22,14 +22,18 @@ def main():
         finalheadline = str(headline_cached)
         finalblurb = str(blurb_cached)
     else:
-        GET_SKYNEWS = http.get("https://api.factmaven.com/xml-to-json/?xml=https://feeds.skynews.com/feeds/rss/home.xml")
+        GET_SKYNEWS = http.get("http://www.mikelee.me.uk/stuff/xml-to-json/?xml=https://feeds.skynews.com/feeds/rss/home.xml")
         if GET_SKYNEWS.status_code != 200:
             return connectionError()
         GET_HEADLINE = GET_SKYNEWS.json()["rss"]["channel"]["item"][0]["title"]
         GET_BLURB = GET_SKYNEWS.json()["rss"]["channel"]["item"][0]["description"][1]
         finalheadline = str(GET_HEADLINE)
+
+        # TODO: Determine if this cache call can be converted to the new HTTP cache.
         cache.set("cached_headline", finalheadline, ttl_seconds = 900)
         finalblurb = str(GET_BLURB)
+
+        # TODO: Determine if this cache call can be converted to the new HTTP cache.
         cache.set("cached_blurb", finalblurb, ttl_seconds = 900)
 
     return render.Root(

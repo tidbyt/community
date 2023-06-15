@@ -63,6 +63,8 @@ def main(config):
 
             #TODO: Filter this based on requested period to reduce data size
             operations = get_data_from_weightgurus(access_token)
+
+            # TODO: Determine if this cache call can be converted to the new HTTP cache.
             cache.set(cache_item_name, json.encode(operations), ttl_seconds = CACHE_TTL)
         else:
             print("Using cached weight data")
@@ -372,6 +374,7 @@ def get_access_token(email, password):
         expires = get_timestamp_from_date(token_params["expiresAt"])
         ttl = expires - time.now()
 
+        # TODO: Determine if this cache call can be converted to the new HTTP cache.
         cache.set(cache_key, access_token, ttl_seconds = int(ttl.seconds - 30))
 
     return access_token

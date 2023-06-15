@@ -5,7 +5,6 @@ Description: Shows Time date and location of Next F1 race.
 Author: AmillionAir
 """
 
-load("cache.star", "cache")
 load("encoding/base64.star", "base64")
 load("encoding/json.star", "json")
 load("http.star", "http")
@@ -13,7 +12,7 @@ load("render.star", "render")
 load("schema.star", "schema")
 load("time.star", "time")
 
-VERSION = 23067
+VERSION = 23134
 
 # ############################
 # Mods - jvivona - 2023-02-04
@@ -29,6 +28,13 @@ VERSION = 23067
 # - update Aston Martin logo
 # - change WCC layout
 # - added proper case names for constructors
+# jvivona - 2023-05-12
+# - new cache method
+# jvivona - 2023-05-13
+# - change scoll to show race name + locality
+# - fix WCC standings alignment issue
+# jvivona - 2023-05-14
+# - fix trunc of am/pm - to not trunc when we're in 24 hour format
 # ############################
 
 DEFAULTS = {
@@ -132,15 +138,15 @@ def main(config):
         date_and_time3 = time.parse_time(date_and_time, "2006-01-02T15:04:05Z", "UTC").in_location(timezone)
 
         # handle date & time display options here
-        date_str = date_and_time3.format("Jan 02" if config.bool("date_us", DEFAULTS["date_us"]) else "02 Jan").upper()  #current format of your current date str
-        time_str = date_and_time3.format("15:04" if config.bool("time_24", DEFAULTS["time_24"]) else "3:04pm")  #outputs military time but can change 15 to 3 to not do that. The Only thing missing from your current string though is the time zone, but if they're doing local time that's pretty irrelevant
+        date_str = date_and_time3.format("Jan 02" if config.bool("date_us", DEFAULTS["date_us"]) else "02 Jan")  #current format of your current date str
+        time_str = date_and_time3.format("15:04" if config.bool("time_24", DEFAULTS["time_24"]) else "3:04pm").replace("m", "")  #outputs military time but can change 15 to 3 to not do that. The Only thing missing from your current string though is the time zone, but if they're doing local time that's pretty irrelevant
 
         return render.Root(
             child = render.Column(
                 children = [
                     render.Marquee(
                         width = 64,
-                        child = render.Text("Next Race: " + next_race["Circuit"]["Location"]["country"]),
+                        child = render.Text(" " + next_race["raceName"] + " - " + next_race["Circuit"]["Location"]["locality"] + " " + next_race["Circuit"]["Location"]["country"]),
                         offset_start = 5,
                         offset_end = 5,
                     ),
@@ -182,12 +188,12 @@ def main(config):
                             render.Stack(
                                 children = [
                                     render.Image(src = F1_CONSTRUCTOR.get(Constructor1, "Red Bull")),
-                                    render.Text("1"),
+                                    render.Text("1", font = "5x8"),
                                 ],
                             ),
                             render.Marquee(
                                 width = 50,
-                                child = render.Text(Points1 + " pts - " + text_justify_trunc(12, CONSTRUCTOR_NAMES[Constructor1], "left")),
+                                child = render.Text(Points1 + " pts - " + text_justify_trunc(12, CONSTRUCTOR_NAMES[Constructor1], "left"), font = "5x8"),
                                 offset_start = 64,
                                 offset_end = 64,
                             ),
@@ -198,12 +204,12 @@ def main(config):
                             render.Stack(
                                 children = [
                                     render.Image(src = F1_CONSTRUCTOR.get(Constructor2, "Red Bull")),
-                                    render.Text("2"),
+                                    render.Text("2", font = "5x8"),
                                 ],
                             ),
                             render.Marquee(
                                 width = 50,
-                                child = render.Text(Points2 + " pts - " + text_justify_trunc(12, CONSTRUCTOR_NAMES[Constructor2], "left")),
+                                child = render.Text(Points2 + " pts - " + text_justify_trunc(12, CONSTRUCTOR_NAMES[Constructor2], "left"), font = "5x8"),
                                 offset_start = 64,
                                 offset_end = 64,
                             ),
@@ -219,7 +225,7 @@ def main(config):
                             ),
                             render.Marquee(
                                 width = 50,
-                                child = render.Text(Points3 + " pts - " + text_justify_trunc(12, CONSTRUCTOR_NAMES[Constructor3], "left")),
+                                child = render.Text(Points3 + " pts - " + text_justify_trunc(12, CONSTRUCTOR_NAMES[Constructor3], "left"), font = "5x8"),
                                 offset_start = 64,
                                 offset_end = 64,
                             ),
@@ -344,18 +350,13 @@ def nri_options(f1_option):
         return []
 
 def get_f1_data(url):
-    f1_details = cache.get(url)
+    http_data = http.get(url, ttl_seconds = F1_API_TTL)
+    if http_data.status_code != 200:
+        fail("HTTP request failed with status {} for URL {}".format(http_data.status_code, url))
 
-    if f1_details == None:
-        http_data = http.get(url)
-        if http_data.status_code != 200:
-            fail("HTTP request failed with status {} for URL {}".format(http_data.status_code, url))
-
-        f1_details = http_data.body()
-        if f1_details.startswith("Unable"):
-            fail("API having database issues, check again later URL {}".format(url))
-
-        cache.set(url, f1_details, ttl_seconds = F1_API_TTL)
+    f1_details = http_data.body()
+    if f1_details.startswith("Unable"):
+        fail("API having database issues, check again later URL {}".format(url))
 
     return json.decode(f1_details)["MRData"]
 
