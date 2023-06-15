@@ -7,6 +7,7 @@ Author: noahpodgurski
 
 load("random.star", "random")
 load("render.star", "render")
+load("time.star", "time")
 
 DEFAULT_WHO = "world"
 
