@@ -25,10 +25,9 @@ def main(config):
 
     resp = http.get(STEAM_API_ENDPOINT + config.str("id", ""), ttl_seconds = 180)
 
-    if resp.status_code != 200:
-        resp = {}
-
-    players = resp.json()["response"]["players"]
+    players = {}
+    if resp.status_code == 200:
+        players = resp.json()["response"]["players"]
 
     username = "Cannot find the specified user"
     avatar = STEAM_LOGO
