@@ -70,7 +70,9 @@ numbersPerLang = {
 }
 numbersPerLang["en-GB"] = numbersPerLang["en-US"]
 numbersPerLang["nl-BE"] = numbersPerLang["nl-NL"]
+numbersPerLang["de-DE-alt"] = numbersPerLang["de-DE"]
 numbersPerLang["de-CH"] = numbersPerLang["de-DE"]
+numbersPerLang["de-CH-alt"] = numbersPerLang["de-DE"]
 
 wordsPerLang = {
     "nl-NL": {
@@ -111,6 +113,9 @@ wordsPerLang = {
     },
 }
 
+wordsPerLang["de-DE-alt"] = wordsPerLang["de-DE"]
+wordsPerLang["de-CH-alt"] = wordsPerLang["de-CH"]
+
 # At which point a dialect switches from one hour to the next
 # Example: 6:20
 # en-US: TWENTY PAST SIX
@@ -118,6 +123,8 @@ wordsPerLang = {
 roundUpFrom = {
     "de-DE": 15,
     "de-CH": 15,
+    "de-DE-alt": 20,
+    "de-CH-alt": 20,
     "en-GB": 30,
     "en-US": 30,
     "nl-NL": 15,
@@ -170,7 +177,7 @@ def fuzzy_time(hours, minutes, language):
             if rounded == 30:
                 return [words["half"], numbers[hours]]
 
-            if rounded < 45:
+            if rounded < 60 - roundUpFrom[language]:
                 return [numbers[rounded - 30], words["past"] + " " + words["half"], numbers[hours]]
 
         rounded = 60 - rounded
@@ -222,8 +229,16 @@ def get_schema():
             value = "de-DE",
         ),
         schema.Option(
+            display = "Deutsch (alternativ)",
+            value = "de-DE-alt",
+        ),
+        schema.Option(
             display = "Deutsch (Schweiz)",
             value = "de-CH",
+        ),
+        schema.Option(
+            display = "Deutsch (Schweiz, alternativ)",
+            value = "de-CH-alt",
         ),
         schema.Option(
             display = "Dutch",
