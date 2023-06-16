@@ -17,6 +17,7 @@ STATUS_COLOR = ["#59707B", "#0a0", "#F67407", "#FFD100"]
 STEAM_LOGO = http.get(STEAM_LOGO_PATH).body()
 
 def main(config):
+    # update apikey secret to be encrypted with package name
     api_key = secret.decrypt("AV6+xWcEAV/C6DlDSXC/ctB9uOeRv75Auw1qriizLmpOld+gcYzQCus3oieQdfGJZwd5tkDOzUm4VWf/dEm5ln82fhQxFkMVPJK4WrDqoiPcfsOGJrjE3k3KIjdYIrc4QenNcj4+nttHUE15SA6rp0U/LBzvLSSY2RvJpItmHuAY8rRyit4=") or config.get("dev_api_key")
 
     STEAM_API_ENDPOINT = "http://api.steampowered.com/ISteamUser/GetPlayerSummaries/v0002/?key=" + api_key + "&steamids="
