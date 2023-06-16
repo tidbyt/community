@@ -185,10 +185,10 @@ def get_weather_data(config):
     else:
         if api_key == None:
             print("Missing api_key")
-            return SAMPLE_STATION_RESPONSE
+            return SAMPLE_STATION_RESPONSE["current"]
         if location == None:
             print("Missing location")
-            return SAMPLE_STATION_RESPONSE
+            return SAMPLE_STATION_RESPONSE["current"]
 
         print("Getting new weather data")
         location = json.decode(location)
@@ -199,7 +199,7 @@ def get_weather_data(config):
         )
         if res.status_code != 200:
             print("Open Weather request failed with status %d", res.status_code)
-            return SAMPLE_STATION_RESPONSE
+            return SAMPLE_STATION_RESPONSE["current"]
 
         current_data = res.json()["current"]
 
