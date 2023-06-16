@@ -42,7 +42,6 @@ def main(config):
 
         username = user["personaname"]
 
-        # currently_playing_label = "Now playing:" if "gameextrainfo" in user else ""
         currently_playing = user["gameextrainfo"] if "gameextrainfo" in user else "Just Chilling"
         avatar = http.get(user["avatarfull"], ttl_seconds = 600).body()
         status = STATUS[int(user["personastate"])]
@@ -91,15 +90,6 @@ def main(config):
                             ),
                         ],
                     ),
-                    # render.Row(
-                    #     expanded=True, # Use as much horizontal space as possible
-                    #     main_align="space_evenly", # Controls horizontal alignment
-                    #     cross_align="center", # Controls vertical alignment
-                    #     children = [
-                    #         # render.Text(content=currently_playing_label, font="tb-8")
-                    #         render.Text(content=" ")
-                    #     ]
-                    # ),
                     render.Row(
                         expanded = True,  # Use as much horizontal space as possible
                         main_align = "space_evenly",  # Controls horizontal alignment
@@ -134,12 +124,5 @@ def get_schema():
                 desc = "17 digit Steam ID",
                 icon = "user",
             ),
-            # schema.Toggle(
-            #     id = "small",
-            #     name = "Display small text",
-            #     desc = "A toggle to display smaller text.",
-            #     icon = "compress",
-            #     default = False,
-            # ),
         ],
     )
