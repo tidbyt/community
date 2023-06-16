@@ -126,7 +126,6 @@ def main(config):
 
     if not serverIP:
         return []
-        fail("Server IP must be configured")
 
     if type(int(serverPort)) != "int":
         fail("Server Port must be an integer")
