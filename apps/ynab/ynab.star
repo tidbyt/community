@@ -99,7 +99,7 @@ def main(config):
                 )
             else:
                 frames.append(
-                    render.Stack(
+                    render.Column(
                         children = [
                             ynab_row,
                             displayed_categories[i],
