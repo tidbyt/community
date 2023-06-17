@@ -24,8 +24,12 @@ Fixed bug regarding API URL which now requires Series ID also
 v1.3a
 Updated caching function
 
-v1.4
+v1.4 - Published 9/6/23
 Future fixtures are now shown for selected team rather than immediate fixtures
+
+v1.5
+Updated final score display, using '&' instead of comma
+Fixed bug for "need to win" amount in 4th innings
 """
 
 load("encoding/json.star", "json")
@@ -124,7 +128,7 @@ def main(config):
 
             # if 4th innings of the match, show what they need to win
             if Innings == 3:
-                Lead_or_Trail = Lead_or_Trail + 1
+                Lead_or_Trail = Lead_or_Trail - 1
 
             Lead_or_Trail = math.fabs(Lead_or_Trail)
             Lead_or_Trail = humanize.ftoa(Lead_or_Trail)
@@ -800,25 +804,38 @@ def FinalTeamScore(BattingTeam, BattingTeamColor, Wickets1, Runs1, Wickets2, Run
         Output2 = str(Wickets2) + "/" + str(Runs2)
 
     if CommaOn == True:
-        Comma = ","
+        Comma = " & "
     else:
         Comma = ""
 
-    return render.Column(
+    return render.Row(
+        expanded = True,
+        main_align = "space_between",
         children = [
             render.Row(
+                main_align = "start",
                 children = [
-                    render.Box(width = 16, height = 8, child = render.Padding(
-                        pad = (5, 0, 0, 0),
-                        child = render.Marquee(
-                            width = 20,
-                            child = render.Text(content = BattingTeam, color = BattingTeamColor, font = "CG-pixel-3x5-mono", offset = 0),
+                    render.Padding(
+                        pad = (1, 2, 0, 1),
+                        child = render.Text(
+                            content = BattingTeam,
+                            color = BattingTeamColor,
+                            font = "CG-pixel-3x5-mono",
                         ),
-                    )),
-                    render.Box(width = 48, height = 8, child = render.Padding(
-                        pad = (0, 0, 0, 0),
-                        child = render.Text(content = Output + Comma + Output2, color = BattingTeamColor, font = "CG-pixel-3x5-mono"),
-                    )),
+                    ),
+                ],
+            ),
+            render.Row(
+                main_align = "end",
+                children = [
+                    render.Padding(
+                        pad = (0, 2, 0, 1),
+                        child = render.Text(
+                            content = Output + Comma + Output2,
+                            color = BattingTeamColor,
+                            font = "CG-pixel-3x5-mono",
+                        ),
+                    ),
                 ],
             ),
         ],
