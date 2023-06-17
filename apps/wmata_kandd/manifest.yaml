@@ -1,0 +1,8 @@
+---
+id: wmata-kandd
+name: WMATA KandD
+summary: Buses at Kansas and Decatur
+desc: This app tells you the next buses to arrive at Kansas and Decatur in Washington, DC.
+author: abrahamrowe
+fileName: wmata_kandd.star
+packageName: wmatakandd
