@@ -833,7 +833,7 @@ def getScheduledMatches(SelectedTourneyID, EventIndex, ScheduledMatchList, JSON,
                 main_align = "space_between",
                 cross_align = "end",
                 children = [
-                    render.Box(width = 64, height = 6, child = render.Text(content = "No recent", color = "#fff", font = displayfont)),
+                    render.Box(width = 64, height = 6, child = render.Text(content = "No upcoming", color = "#fff", font = displayfont)),
                 ],
             ),
             render.Row(
