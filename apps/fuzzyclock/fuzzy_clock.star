@@ -31,7 +31,6 @@ numbersPerLang = {
         10: "TIEN",
         11: "ELF",
         12: "TWAALF",
-        15: "KWART",
     },
     "de-DE": {
         1: "EINS",
@@ -46,8 +45,6 @@ numbersPerLang = {
         10: "ZEHN",
         11: "ELF",
         12: "ZWÖLF",
-        15: "VIERTEL",
-        20: "ZWANZIG",
     },
     "en-US": {
         1: "ONE",
@@ -62,127 +59,172 @@ numbersPerLang = {
         10: "TEN",
         11: "ELEVEN",
         12: "TWELVE",
-        15: "QUARTER",
-        20: "TWENTY",
-        25: "TWENTY-FIVE",
-        30: "HALF",
     },
 }
 numbersPerLang["en-GB"] = numbersPerLang["en-US"]
 numbersPerLang["nl-BE"] = numbersPerLang["nl-NL"]
 numbersPerLang["de-DE-alt"] = numbersPerLang["de-DE"]
+numbersPerLang["de-DE-alt2"] = numbersPerLang["de-DE"]
 numbersPerLang["de-CH"] = numbersPerLang["de-DE"]
 numbersPerLang["de-CH-alt"] = numbersPerLang["de-DE"]
 
-wordsPerLang = {
-    "nl-NL": {
-        "hour": "UUR",
-        "half": "HALF",
-        "to": "VOOR",
-        "past": "OVER",
+patternsPerLang = {
+    "de-CH": {
+        0: "{hour}\nUHR",
+        5: "FÜNF\nAB\n{hour}",
+        10: "ZEHN\nAB\n{hour}",
+        15: "VIERTEL\nAB\n{hour}",
+        20: "ZEHN\nVOR HALB\n{next_hour}",
+        25: "FÜNF\nVOR HALB\n{next_hour}",
+        30: "HALB\n{next_hour}",
+        35: "FÜNF\nNACH HALB\n{next_hour}",
+        40: "ZEHN\nNACH HALB\n{next_hour}",
+        45: "VIERTEL\nVOR\n{next_hour}",
+        50: "ZEHN\nVOR\n{next_hour}",
+        55: "FÜNF\nVOR\n{next_hour}",
     },
-    "nl-BE": {
-        "hour": "UUR",
-        "half": "HALF",
-        "to": "VOOR",
-        "past": "NA",
+    "de-CH-alt": {
+        0: "{hour}\nUHR",
+        5: "FÜNF\nAB\n{hour}",
+        10: "ZEHN\nAB\n{hour}",
+        15: "VIERTEL\nAB\n{hour}",
+        20: "ZWANZIG\nAB\n{hour}",
+        25: "FÜNF\nVOR HALB\n{next_hour}",
+        30: "HALB\n{next_hour}",
+        35: "FÜNF\nNACH HALB\n{next_hour}",
+        40: "ZWANZIG\nVOR {next_hour}",
+        45: "VIERTEL\nVOR {next_hour}",
+        50: "ZEHN\nVOR\n{next_hour}",
+        55: "FÜNF\nVOR\n{next_hour}",
     },
     "de-DE": {
-        "hour": "UHR",
-        "half": "HALB",
-        "to": "VOR",
-        "past": "NACH",
+        0: "{hour}\nUHR",
+        5: "FÜNF\nNACH {hour}",
+        10: "ZEHN\nNACH {hour}",
+        15: "VIERTEL\nNACH\n{hour}",
+        20: "ZEHN\nVOR HALB\n{next_hour}",
+        25: "FÜNF\nVOR HALB\n{next_hour}",
+        30: "HALB\n{next_hour}",
+        35: "FÜNF\nNACH HALB\n{next_hour}",
+        40: "ZEHN\nNACH HALB\n{next_hour}",
+        45: "VIERTEL\nVOR\n{next_hour}",
+        50: "ZEHN\nVOR\n{next_hour}",
+        55: "FÜNF\nVOR\n{next_hour}",
     },
-    "de-CH": {
-        "hour": "UHR",
-        "half": "HALB",
-        "to": "VOR",
-        "past": "AB",
+    "de-DE-alt": {
+        0: "{hour}\nUHR",
+        5: "FÜNF\nNACH\n{hour}",
+        10: "ZEHN\nNACH\n{hour}",
+        15: "VIERTEL\nNACH\n{hour}",
+        20: "ZWANZIG\nNACH\n{hour}",
+        25: "FÜNF\nVOR HALB\n{next_hour}",
+        30: "HALB\n{next_hour}",
+        35: "FÜNF\nNACH HALB\n{next_hour}",
+        40: "ZWANZIG\nVOR\n{next_hour}",
+        45: "VIERTEL\nVOR\n{next_hour}",
+        50: "ZEHN\nVOR\n{next_hour}",
+        55: "FÜNF\nVOR\n{next_hour}",
     },
-    "en-US": {
-        "hour": "O’CLOCK",
-        "half": "HALF",
-        "to": "TILL",
-        "past": "PAST",
+    "de-DE-alt2": {
+        0: "{hour}\nUHR",
+        5: "FÜNF\nNACH\n{hour}",
+        10: "ZEHN\nNACH\n{hour}",
+        15: "VIERTEL\n{next_hour}",
+        20: "ZEHN\nVOR HALB\n{next_hour}",
+        25: "FÜNF\nVOR HALB\n{next_hour}",
+        30: "HALB\n{next_hour}",
+        35: "FÜNF\nNACH HALB\n{next_hour}",
+        40: "FÜNF VOR\nDREIVIERTEL\n{next_hour}",
+        45: "DREI\nVIERTEL\n{next_hour}",
+        50: "ZEHN\nVOR\n{next_hour}",
+        55: "FÜNF\nVOR\n{next_hour}",
     },
     "en-GB": {
-        "hour": "O’CLOCK",
-        "half": "HALF",
-        "to": "TO",
-        "past": "PAST",
+        0: "{hour}\nO’CLOCK",
+        5: "FIVE\nPAST\n{hour}",
+        10: "TEN\nPAST\n{hour}",
+        15: "QUARTER\nPAST\n{hour}",
+        20: "TWENTY\nPAST\n{hour}",
+        25: "TWENTY-FIVE\nPAST\n{hour}",
+        30: "HALF\nPAST\n{hour}",
+        35: "TWENTY-FIVE\nTILL\n{next_hour}",
+        40: "TWENTY\nTILL\n{next_hour}",
+        45: "QUARTER\nTILL\n{next_hour}",
+        50: "TEN\nTILL\n{next_hour}",
+        55: "FIVE\nTILL\n{next_hour}",
+    },
+    "en-US": {
+        0: "{hour}\nO’CLOCK",
+        5: "FIVE\nPAST\n{hour}",
+        10: "TEN\nPAST\n{hour}",
+        15: "QUARTER\nPAST\n{hour}",
+        20: "TWENTY\nPAST\n{hour}",
+        25: "TWENTY-FIVE\nPAST\n{hour}",
+        30: "HALF\nPAST\n{hour}",
+        35: "TWENTY-FIVE\nTO\n{next_hour}",
+        40: "TWENTY\nTO\n{next_hour}",
+        45: "QUARTER\nTO\n{next_hour}",
+        50: "TEN\nTO\n{next_hour}",
+        55: "FIVE\nTO\n{next_hour}",
+    },
+    "nl-BE": {
+        0: "{hour} UUR",
+        5: "VIJF\nNA\n{hour}",
+        10: "TIEN\nNA\n{hour}",
+        15: "KWART\nNA\n{hour}",
+        20: "TIEN VOOR HALF\n{next_hour}",
+        25: "VIJF VOOR HALF\n{next_hour}",
+        30: "HALF\n{next_hour}",
+        35: "VIJF\nNA HALF\n{next_hour}",
+        40: "TIEN\nNA HALF\n{next_hour}",
+        45: "KWART\nVOOR\n{next_hour}",
+        50: "TIEN\nVOOR\n{next_hour}",
+        55: "VIJF\nVOOR\n{next_hour}",
+    },
+    "nl-NL": {
+        0: "{hour}\nUUR",
+        5: "VIJF\nOVER\n{hour}",
+        10: "TIEN\nOVER\n{hour}",
+        15: "KWART\nOVER\n{hour}",
+        20: "TIEN\nVOOR HALF\n{next_hour}",
+        25: "VIJF\nVOOR HALF\n{next_hour}",
+        30: "HALF\n{next_hour}",
+        35: "VIJF\nOVER HALF\n{next_hour}",
+        40: "TIEN\nOVER HALF\n{next_hour}",
+        45: "KWART\nVOOR\n{next_hour}",
+        50: "TIEN\nVOOR\n{next_hour}",
+        55: "VIJF\nVOOR\n{next_hour}",
     },
 }
 
-wordsPerLang["de-DE-alt"] = wordsPerLang["de-DE"]
-wordsPerLang["de-CH-alt"] = wordsPerLang["de-CH"]
-
-# At which point a dialect switches from one hour to the next
-# Example: 6:20
-# en-US: TWENTY PAST SIX
-# nl-NL: TEN TO HALF SEVEN
-roundUpFrom = {
-    "de-DE": 15,
-    "de-CH": 15,
-    "de-DE-alt": 20,
-    "de-CH-alt": 20,
-    "en-GB": 30,
-    "en-US": 30,
-    "nl-NL": 15,
-    "nl-BE": 15,
-}
-
-def round(minutes, up_threshold):
+def display_hour(hour):
     """Returns:
-        minutes: rounded to the nearest 5.
-        up: if we rounded up or down.
+        hour to display (in 12h format with 12 instead of 0)
     """
-    rounded = (minutes + 2) % 60 // 5 * 5
-    up = False
 
-    if rounded > up_threshold:
-        up = True
-    elif minutes > 30 and rounded == 0:
-        up = True
+    # Handle 24 hour time.
+    if hour > 12:
+        hour -= 12
 
-    return rounded, up
+    # Handle midnight.
+    if hour == 0:
+        hour = 12
+
+    return hour
 
 def fuzzy_time(hours, minutes, language):
     numbers = numbersPerLang[language]
-    words = wordsPerLang[language]
+    patterns = patternsPerLang[language]
 
-    glue = words["past"]
-    rounded, up = round(minutes, roundUpFrom[language])
-
-    if up:
+    # Round up to the next 5 minutes
+    rounded = (minutes + 2) % 60 // 5 * 5
+    if minutes > 55 and rounded == 0:
         hours += 1
-        glue = words["to"]
 
-    # Handle 24 hour time.
-    if hours > 12:
-        hours -= 12
-
-    # Handle midnight.
-    if hours == 0:
-        hours = 12
-
-    # Handle the whole hours
-    if rounded == 0:
-        return [numbers[hours], words["hour"]]
-
-    if up:
-        if roundUpFrom[language] < 30:
-            if rounded < 30:
-                return [numbers[30 - rounded], words["to"] + " " + words["half"], numbers[hours]]
-
-            if rounded == 30:
-                return [words["half"], numbers[hours]]
-
-            if rounded < 60 - roundUpFrom[language]:
-                return [numbers[rounded - 30], words["past"] + " " + words["half"], numbers[hours]]
-
-        rounded = 60 - rounded
-
-    return [numbers[rounded], glue, numbers[hours]]
+    pattern = patterns[rounded]
+    cur_hour = numbers[display_hour(hours)]
+    next_hour = numbers[display_hour(hours + 1)]
+    return pattern.format(hour = cur_hour, next_hour = next_hour).splitlines()
 
 def main(config):
     location = config.get("location")
@@ -229,15 +271,19 @@ def get_schema():
             value = "de-DE",
         ),
         schema.Option(
-            display = "Deutsch (alternativ)",
+            display = "Deutsch (Alternative)",
             value = "de-DE-alt",
+        ),
+        schema.Option(
+            display = "Deutsch (Alternative 2)",
+            value = "de-DE-alt2",
         ),
         schema.Option(
             display = "Deutsch (Schweiz)",
             value = "de-CH",
         ),
         schema.Option(
-            display = "Deutsch (Schweiz, alternativ)",
+            display = "Deutsch (Schweiz, Alternative)",
             value = "de-CH-alt",
         ),
         schema.Option(
