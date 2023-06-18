@@ -1,8 +1,12 @@
 load("encoding/json.star", "json")
 load("http.star", "http")
 load("math.star", "math")
+load("re.star", "re")
 load("render.star", "render")
 load("schema.star", "schema")
+load("time.star", "time")
+
+DAYS_IN_MONTH = [31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31]
 
 def main(config):
     access_token = config.get("access_token", None)
@@ -17,8 +21,10 @@ def main(config):
         categories = json.decode(response)["data"]["month"]["categories"]
         displayed_categories = []
         for category in categories:
+            activity = category["activity"]
             balance = category["balance"]
-            if category["balance"] < 0 or (category["activity"] < 0 and category["balance"] > 0):
+            budgeted = category["budgeted"]
+            if balance < 0 or (activity < 0 and balance > 0):
                 render_element = render.Row(
                     children = [
                         render.Text(str(category["name"]).strip(), color = "#ADD8E6", font = "tom-thumb"),
@@ -26,13 +32,29 @@ def main(config):
                     main_align = "center",
                     cross_align = "center",
                 )
-                render_element_balance = render.Row(
-                    children = [
-                        render.Text("  " + currency_string(category["balance"], currency_format) + ":" + currency_string(category["budgeted"], currency_format), color = "#FF0000" if balance < 0 else "#FBCEB1", font = "tom-thumb"),
-                    ],
-                    main_align = "center",
-                    cross_align = "center",
-                )
+                if balance < 0:
+                    render_element_balance = render.Row(
+                        children = [
+                            render.Text("  " + currency_string(balance, currency_format) + ":" + currency_string(budgeted, currency_format), color = "#FBCEB1", font = "tom-thumb"),
+                        ],
+                        main_align = "center",
+                        cross_align = "center",
+                    )
+                else:
+                    current_time = time.now()
+                    current_date = current_time.format("2006-01-02T")
+                    date_string = re.split("-", current_date)
+
+                    # Take the ratio of the amount of time remaining in the month versus the amount of money spent
+                    time_ratio = int(date_string[2][0:1]) / DAYS_IN_MONTH[int(date_string[1]) - 1]
+                    money_ratio = balance / budgeted if budgeted > 0 else 100
+                    render_element_balance = render.Row(
+                        children = [
+                            render.Text("  " + currency_string(balance, currency_format) + ":" + currency_string(budgeted, currency_format), color = "#FFD700" if money_ratio < time_ratio else "#90EE90", font = "tom-thumb"),
+                        ],
+                        main_align = "center",
+                        cross_align = "center",
+                    )
                 displayed_categories.append(
                     render.Column(
                         children = [
