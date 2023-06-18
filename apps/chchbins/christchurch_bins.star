@@ -64,11 +64,12 @@ def render_error(message):
 
 def main(config):
     addr_code = config.str("address_code")
-    resp = http.get(CCC_BIN_URL % addr_code, ttl_seconds = 43200)  # cache for 12 hours
 
     if not addr_code:
         print("Address Code not provided")
         return render_error("Address not provided ...")
+
+    resp = http.get(CCC_BIN_URL % addr_code, ttl_seconds = 43200)  # cache for 12 hours
 
     if resp.status_code != 200:
         print("API call failed")
