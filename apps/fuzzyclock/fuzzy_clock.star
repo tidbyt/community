@@ -63,12 +63,27 @@ numbersPerLang = {
 }
 numbersPerLang["en-GB"] = numbersPerLang["en-US"]
 numbersPerLang["nl-BE"] = numbersPerLang["nl-NL"]
+numbersPerLang["de-AT"] = numbersPerLang["de-DE"]
 numbersPerLang["de-DE-alt"] = numbersPerLang["de-DE"]
 numbersPerLang["de-DE-alt2"] = numbersPerLang["de-DE"]
 numbersPerLang["de-CH"] = numbersPerLang["de-DE"]
 numbersPerLang["de-CH-alt"] = numbersPerLang["de-DE"]
 
 patternsPerLang = {
+    "de-AT": {
+        0: "{hour}\nUHR",
+        5: "FÜNF\nÜBER\n{hour}",
+        10: "ZEHN\nÜBER\n{hour}",
+        15: "VIERTEL\nÜBER\n{hour}",
+        20: "ZEHN\nVOR HALB\n{next_hour}",
+        25: "FÜNF\nVOR HALB\n{next_hour}",
+        30: "HALB\n{next_hour}",
+        35: "FÜNF\nNACH HALB\n{next_hour}",
+        40: "ZEHN\nNACH HALB\n{next_hour}",
+        45: "VIERTEL\nVOR\n{next_hour}",
+        50: "ZEHN\nVOR\n{next_hour}",
+        55: "FÜNF\nVOR\n{next_hour}",
+    },
     "de-CH": {
         0: "{hour}\nUHR",
         5: "FÜNF\nAB\n{hour}",
@@ -269,6 +284,10 @@ def get_schema():
         schema.Option(
             display = "Deutsch",
             value = "de-DE",
+        ),
+        schema.Option(
+            display = "Deutsch (Österreich)",
+            value = "de-AT",
         ),
         schema.Option(
             display = "Deutsch (Alternative)",
