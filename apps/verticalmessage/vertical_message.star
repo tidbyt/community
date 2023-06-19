@@ -9,6 +9,7 @@ Author: rs7q5
 #Created 20220221 RIS
 #Last Modified 20230323 RIS
 
+load("http.star", "http")
 load("render.star", "render")
 load("schema.star", "schema")
 
@@ -22,7 +23,7 @@ def main(config):
     color_opt = config.str("color", "#fff")
 
     #get message
-    msg_txt = config.str("msg", DEFAULT_MSG)
+    msg_txt = get_message(config)
 
     #set linespacing
     linespacing = config.str("linespacing", "0")
@@ -51,6 +52,16 @@ def main(config):
         ),
     )
 
+def get_message(config):
+    url = config.str("url", "")
+    if url != "":
+        rep = http.get(url)
+        if rep.status_code == 200:
+            return rep.body()
+        else:
+            fail("couldn't get remote url, status code: %d", rep.status_code)
+    return config.str("msg", DEFAULT_MSG)
+
 def get_schema():
     scroll_speed = [
         schema.Option(display = "Slow", value = "200"),
@@ -75,6 +86,13 @@ def get_schema():
                 desc = "A mesage to display.",
                 icon = "gear",
                 default = DEFAULT_MSG,
+            ),
+            schema.Text(
+                id = "url",
+                name = "URL",
+                desc = "A url to GET to fetch the message to display (optional).",
+                icon = "gear",
+                default = "",
             ),
             schema.Dropdown(
                 id = "font",
