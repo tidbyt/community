@@ -23,29 +23,44 @@ DEFAULTS = {
     "ttl": 1800,
     "positions": 16,
     "text_color": "#FFFFFF",
+    "regular_font" : "tom-thumb"
 }
 
 
-DEFAULT_WHO = "world"
-
 def main(config):
-    who = config.str("who", DEFAULT_WHO)
-    message = "Hello, {}!".format(who)
-    return render.Root(
-        child = render.Text(message),
-    )
+    timezone = config.get("$tz", DEFAULTS["timezone"])  # Utilize special timezone variable to get TZ - otherwise assume US Eastern w/DST
+    
+    date_and_time_first = "2023-07-22T16:00-07:00"
+    date_and_time_second = "2023-07-23T17:30-07:00"
+    date_and_time_first_dt = time.parse_time(date_and_time_first, "2006-01-02T15:04-07:00").in_location(timezone)
+    date_and_time_second_dt = time.parse_time(date_and_time_second, "2006-01-02T15:04-07:00").in_location(timezone)
 
-def get_schema():
-    return schema.Schema(
-        version = "1",
-        fields = [
-            schema.Text(
-                id = "who",
-                name = "Who?",
-                desc = "Who to say hello to.",
-                icon = "user",
-            ),
-        ],
+    date_time_format = date_and_time_first_dt.format("Jan 02-") + date_and_time_second_dt.format("02 2006") if config.bool("is_us_date_format", DEFAULTS["date_us"]) else date_and_time_first_dt.format("02-") + date_and_time_second_dt.format("02 Jan 2006")
+
+    #series = config.get("series", DEFAULTS["series"])
+    #displaytype = config.get("datadisplay", DEFAULTS["display"])
+    #data = json.decode(get_cachable_data(DEFAULTS["api"].format(series, displaytype)))
+    #if displaytype == "nri":
+    #    displayrow = nextrace(config, data)
+    #else:
+    #    displayrow = standings(config, data)
+
+    return render.Root(
+        show_full_animation = True,
+        child = render.Column(
+            children = [
+                render.Box(
+                    width = 64,
+                    height = 6,
+                    child = render.Text("Sail GP", font = "tom-thumb"),
+                    color = "#0a2627",
+                ),
+                render.WrappedText("Mubadala New York SailGP", font = DEFAULTS["regular_font"], color = DEFAULTS["text_color"]),
+                render.Text(date_time_format, font = DEFAULTS["regular_font"], color = DEFAULTS["text_color"]),
+                render.Marquee(offset_start = 48, child = render.Text(height = 6, content = "1. AUS (10)   2. NZL (9)   3. CAN (8)   4. USA (6)   5. GBR (5)   6. NED (4)   7. GER (3)", font = DEFAULTS["regular_font"], color = DEFAULTS["text_color"]), scroll_direction = "horizontal", width = 64),
+                #displayrow,
+            ],
+        ),
     )
 
 
