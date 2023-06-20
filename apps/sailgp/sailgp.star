@@ -28,7 +28,7 @@ DEFAULTS = {
     "ease_in_out": "ease_in_out",
     "animation_frames": 30,
     "animation_hold_frames": 75,
-    "title_bkg_color" : "#0a2627"
+    "title_bkg_color": "#0a2627",
 }
 
 def main(config):
