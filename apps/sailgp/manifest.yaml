@@ -1,8 +1,8 @@
 ---
 id: sailgp
 name: SailGP
-summary: Sail GP Race and Leaders
-desc: Sail GP Next Race Info and Current Leaderboard.
+summary: SailGP Race and Leaders
+desc: SailGP Next Race Info and Current Leaderboard.
 author: jvivona
 fileName: sailgp.star
 packageName: sailgp
