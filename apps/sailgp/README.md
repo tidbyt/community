@@ -1,4 +1,4 @@
-# Sail GP Next Race and Standings
+# SailGP Next Race and Standings
 
 SailGP displays next race details and current standings details.
 
