@@ -11,7 +11,7 @@ load("render.star", "render")
 load("schema.star", "schema")
 load("time.star", "time")
 
-VERSION = 23170
+VERSION = 23171
 
 DEFAULTS = {
     "display": "nri",
