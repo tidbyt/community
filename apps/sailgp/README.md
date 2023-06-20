@@ -22,4 +22,4 @@ Displayed:
 
 ## Screenshot
 
-![](sailgp.webp)
+![](sailgp.gif)
