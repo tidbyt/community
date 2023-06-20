@@ -5,7 +5,6 @@ Description: Sail GP Next Race Info and Current Leaderboard.
 Author: jvivona
 """
 
-load("encoding/base64.star", "base64")
 load("encoding/json.star", "json")
 load("http.star", "http")
 load("render.star", "render")
@@ -17,31 +16,34 @@ VERSION = 23170
 DEFAULTS = {
     "display": "nri",
     "timezone": "America/New_York",
-    "time_24": False,
     "date_us": True,
-    "api": "https://tidbyt.apis.ajcomputers.com/indy/api/{}/{}.json",
+    "api": "https://tidbyt.apis.ajcomputers.com/sailgp/api/{}.json",
     "ttl": 1800,
-    "positions": 16,
     "text_color": "#FFFFFF",
-    "regular_font" : "tom-thumb"
+    "standings_text_color": "#FFFFFF",
+    "regular_font": "tom-thumb",
+    "data_box_width": 64,
+    "data_box_height": 16,
+    "data_box_bkg": "#000",
+    "ease_in_out": "ease_in_out",
+    "animation_frames": 30,
+    "animation_hold_frames": 75,
+    "title_bkg_color" : "#0a2627"
 }
 
-
 def main(config):
-    timezone = config.get("$tz", DEFAULTS["timezone"])  # Utilize special timezone variable to get TZ - otherwise assume US Eastern w/DST
-    
-    date_and_time_first = "2023-07-22T16:00-07:00"
-    date_and_time_second = "2023-07-23T17:30-07:00"
-    date_and_time_first_dt = time.parse_time(date_and_time_first, "2006-01-02T15:04-07:00").in_location(timezone)
-    date_and_time_second_dt = time.parse_time(date_and_time_second, "2006-01-02T15:04-07:00").in_location(timezone)
+    displaytype = config.get("datadisplay", DEFAULTS["display"])
 
-    date_time_format = date_and_time_first_dt.format("Jan 02-") + date_and_time_second_dt.format("02 2006") if config.bool("is_us_date_format", DEFAULTS["date_us"]) else date_and_time_first_dt.format("02-") + date_and_time_second_dt.format("02 Jan 2006")
+    # we always need standings - so just go get it
+    standings = json.decode(get_cachable_data(DEFAULTS["api"].format("standings")))
 
-    #series = config.get("series", DEFAULTS["series"])
-    #displaytype = config.get("datadisplay", DEFAULTS["display"])
-    #data = json.decode(get_cachable_data(DEFAULTS["api"].format(series, displaytype)))
-    #if displaytype == "nri":
-    #    displayrow = nextrace(config, data)
+    displayrow = []
+
+    # if we're showing NRI go and get that data
+    if displaytype == "nri":
+        data = json.decode(get_cachable_data(DEFAULTS["api"].format(displaytype)))
+        displayrow = nri(data, standings, config)
+
     #else:
     #    displayrow = standings(config, data)
 
@@ -53,16 +55,59 @@ def main(config):
                     width = 64,
                     height = 6,
                     child = render.Text("Sail GP", font = "tom-thumb"),
-                    color = "#0a2627",
+                    color = DEFAULTS["title_bkg_color"],
                 ),
-                render.WrappedText("Mubadala New York SailGP", font = DEFAULTS["regular_font"], color = DEFAULTS["text_color"]),
-                render.Text(date_time_format, font = DEFAULTS["regular_font"], color = DEFAULTS["text_color"]),
-                render.Marquee(offset_start = 48, child = render.Text(height = 6, content = "1. AUS (10)   2. NZL (9)   3. CAN (8)   4. USA (6)   5. GBR (5)   6. NED (4)   7. GER (3)", font = DEFAULTS["regular_font"], color = DEFAULTS["text_color"]), scroll_direction = "horizontal", width = 64),
-                #displayrow,
-            ],
+            ] + displayrow,
         ),
     )
 
+def nri(nri, standings, config):
+    text_color = config.get("text_color", DEFAULTS["text_color"])
+    standings_text_color = config.get("standings_text_color", DEFAULTS["standings_text_color"])
+    timezone = config.get("$tz", DEFAULTS["timezone"])  # Utilize special timezone variable to get TZ - otherwise assume US Eastern w/DST
+
+    date_and_time_first = nri["startDateTime"]
+    date_and_time_second = nri["endDateTime"]
+    date_and_time_first_dt = time.parse_time(date_and_time_first, "2006-01-02T15:04-07:00").in_location(timezone)
+    date_and_time_second_dt = time.parse_time(date_and_time_second, "2006-01-02T15:04-07:00").in_location(timezone)
+    date_time_format = date_and_time_first_dt.format("Jan 02-") + date_and_time_second_dt.format("02 2006") if config.bool("is_us_date_format", DEFAULTS["date_us"]) else date_and_time_first_dt.format("02-") + date_and_time_second_dt.format("02 Jan 2006")
+
+    standing_text = ""
+    for i in standings:
+        standing_text = standing_text + "{}. {} ({})  ".format(str(i["position"]), i["teamAbbreviation"], str(i["points"]))
+
+    return [
+        render.Box(width = 64, height = 1),
+        fade_child(nri["name"].replace("Sail Grand Prix", "GP"), nri["locationName"], text_color),
+        render.WrappedText(content = date_time_format, font = DEFAULTS["regular_font"], color = text_color, align = "center", width = DEFAULTS["data_box_width"], height = 5),
+        render.Box(width = 64, height = 1),
+        render.Marquee(offset_start = 48, child = render.Text(height = 6, content = standing_text, font = DEFAULTS["regular_font"], color = standings_text_color), scroll_direction = "horizontal", width = 64),
+    ]
+
+def fade_child(race, location, text_color):
+    return render.Animation(
+        children =
+            createfadelist(race, DEFAULTS["animation_hold_frames"], DEFAULTS["regular_font"], text_color) +
+            createfadelist(location, DEFAULTS["animation_hold_frames"], DEFAULTS["regular_font"], text_color),
+    )
+
+def createfadelist(text, cycles, text_font, text_color):
+    alpha_values = ["00", "33", "66", "99", "CC", "FF"]
+    cycle_list = []
+
+    # go from none to full color
+    for x in alpha_values:
+        cycle_list.append(fadelistchildcolumn(text, text_font, text_color + x))
+    for x in range(cycles):
+        cycle_list.append(fadelistchildcolumn(text, text_font, text_color))
+
+    # go from full color back to none
+    for x in alpha_values[5:0]:
+        cycle_list.append(fadelistchildcolumn(text, text_font, text_color + x))
+    return cycle_list
+
+def fadelistchildcolumn(text, font, color):
+    return render.Column(main_align = "center", cross_align = "center", expanded = False, children = [render.WrappedText(content = text, font = font, color = color, align = "center", width = DEFAULTS["data_box_width"], height = 14)])
 
 # ##############################################
 #           Schema Funcitons
@@ -74,7 +119,7 @@ dispopt = [
         value = "nri",
     ),
     schema.Option(
-        display = "Standings with Flags",
+        display = "** Coming Soon ** Standings with Flags",
         value = "standings",
     ),
 ]
@@ -93,10 +138,17 @@ def get_schema():
             ),
             schema.Color(
                 id = "text_color",
-                name = "Text Color",
-                desc = "The color for Standings / Race / Track / Time text.",
+                name = "Race Info Color",
+                desc = "The color for Race Info and Date.",
                 icon = "palette",
                 default = DEFAULTS["text_color"],
+            ),
+            schema.Color(
+                id = "standings_text_color",
+                name = "Standings Color",
+                desc = "The color for Standings.",
+                icon = "palette",
+                default = DEFAULTS["standings_text_color"],
             ),
             schema.Generated(
                 id = "nri_generated",
@@ -110,13 +162,6 @@ def show_nri_options(datadisplay):
     if datadisplay == "nri":
         return [
             schema.Toggle(
-                id = "is_24_hour_format",
-                name = "24 hour format",
-                desc = "Display the time in 24 hour format.",
-                icon = "clock",
-                default = DEFAULTS["time_24"],
-            ),
-            schema.Toggle(
                 id = "is_us_date_format",
                 name = "US Date format",
                 desc = "Display the date in US format.",
@@ -126,9 +171,6 @@ def show_nri_options(datadisplay):
         ]
     else:
         return []
-
-
-
 
 # ##############################################
 #           General Funcitons
