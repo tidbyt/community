@@ -5,10 +5,10 @@ Description: View real-time air quality readings from the NYS DEC.
 Author: theterg
 """
 
-load("render.star", "render")
-load("http.star", "http")
-load("encoding/csv.star", "csv")
 load("encoding/base64.star", "base64")
+load("encoding/csv.star", "csv")
+load("http.star", "http")
+load("render.star", "render")
 load("schema.star", "schema")
 
 HAPPY_ICON = base64.decode("""
