@@ -39,28 +39,30 @@ NYC_DATA_URL = "https://azdohv2staticweb.blob.core.windows.net/$web/nyccas_realt
 def hex_2B(val):
     nibble = (val & 0xF0) >> 4
     if nibble < 10:
-        ret = chr(ord('0')+nibble)
+        ret = chr(ord("0") + nibble)
     else:
-        ret = chr(ord('a')+(nibble-10))
+        ret = chr(ord("a") + (nibble - 10))
     nibble = (val & 0x0F)
     if nibble < 10:
-        ret += chr(ord('0')+nibble)
+        ret += chr(ord("0") + nibble)
     else:
-        ret += chr(ord('a')+(nibble-10))
+        ret += chr(ord("a") + (nibble - 10))
     return ret
 
 def rgb(r, g, b):
-    return '#'+hex_2B(r)+hex_2B(g)+hex_2B(b)
+    return "#" + hex_2B(r) + hex_2B(g) + hex_2B(b)
 
 def main(config):
-    rep = http.get(NYC_DATA_URL, ttl_seconds = 60*30) # cache for 30 minutes
+    rep = http.get(NYC_DATA_URL, ttl_seconds = 60 * 30)  # cache for 30 minutes
     if rep.status_code != 200:
         fail("Data request failed with status %d", rep.status_code)
     data = csv.read_all(rep.body())
+
     # The first row is a CSV header: SiteName, Operator, starttime, timeofday, Value
     # We'll use the first entry as the default location
     default_loc = data[1][0]
     loc = config.str("location", "")
+
     # While debugging it's possible to supply a blank string
     # So let's reject it and use the default if so:
     if len(loc) == 0:
@@ -73,7 +75,7 @@ def main(config):
         if row[0] == loc:
             # NOTE: subtracting 35 to place 35um at the y axis crossing
             # This will format the plot such that values over the limit are colored red
-            vals.append((idx, float(row[4])-35.0))
+            vals.append((idx, float(row[4]) - 35.0))
             idx = idx + 1
 
     # for development purposes: check if result was served from cache or not
@@ -86,11 +88,12 @@ def main(config):
     # It looks nicer to be zoomed out, but gives less resolution
     # default of 64 should be one pixel per datapoint - perfect!
     window_str = config.get("window", "63")
+
     # Also gracefully handle invalid window values
     if len(window_str) == 0 or not window_str.isdigit():
         window_str = "63"
     window = int(window_str)
-    start = len(vals)-window
+    start = len(vals) - window
     end = len(vals)
     if start < 0:
         start = 0
@@ -98,67 +101,66 @@ def main(config):
     # If we retrieved good data...
     if len(vals) > 0:
         # Render the background accordfing to the most recent value
-        val = float(vals[-1][1])+35.0 # Adding 35 back to compensate for shift applied above
+        val = float(vals[-1][1]) + 35.0  # Adding 35 back to compensate for shift applied above
         if val < 35.0:
             # Below 35 is all good
-            icon = render.Image(src=HAPPY_ICON)
-            color = '#00FF00'
-            cloudcolor = rgb(0,0,70)
+            icon = render.Image(src = HAPPY_ICON)
+            color = "#00FF00"
+            cloudcolor = rgb(0, 0, 70)
         elif val < 70.0:
             # fade to white background
-            icon = render.Image(src=SAD_ICON)
-            color = '#FFFF00'
-            cloudcolor = rgb(int(val-35)*2,int(val-35)*2,70)
+            icon = render.Image(src = SAD_ICON)
+            color = "#FFFF00"
+            cloudcolor = rgb(int(val - 35) * 2, int(val - 35) * 2, 70)
         elif val < 105.0:
             # fade to red background
-            icon = render.Image(src=ANGRY_ICON)
-            color = '#FF6F00'
-            cloudcolor = rgb(70 + int(val-70)*2,70,70)
+            icon = render.Image(src = ANGRY_ICON)
+            color = "#FF6F00"
+            cloudcolor = rgb(70 + int(val - 70) * 2, 70, 70)
         else:
             # red background, angry, bad
-            icon = render.Image(src=FIRE_ICON)
-            color = '#FF0000'
-            cloudcolor = rgb(110,35,35)
+            icon = render.Image(src = FIRE_ICON)
+            color = "#FF0000"
+            cloudcolor = rgb(110, 35, 35)
         plot = render.Plot(
             data = vals,
             width = 64,
             height = 24,
-            color = '#f00',
-            color_inverted = '#0f0',
+            color = "#f00",
+            color_inverted = "#0f0",
             x_lim = (start, end),
         )
 
         # Overlay plot on top of clouds and colored background
         plot = render.Stack(
-            children=[
-                render.Box(color=cloudcolor, width=64, height=24),
-                render.Image(src=CLOUDS),
+            children = [
+                render.Box(color = cloudcolor, width = 64, height = 24),
+                render.Image(src = CLOUDS),
                 plot,
             ],
         )
-        value_text = render.Text('{}'.format(int(val)), color=color)
+        value_text = render.Text("{}".format(int(val)), color = color)
     else:
         # If no data is available, we cannot draw the plot
         # Display error text
-        plot = render.Text('No Data')
-        value_text = render.Text('??')
-        icon = render.Image(src=SAD_ICON)
-
+        plot = render.Text("No Data")
+        value_text = render.Text("??")
+        icon = render.Image(src = SAD_ICON)
 
     return render.Root(
         child = render.Box(
             render.Column(
-                expanded=True,
-                main_align="space_evenly",
-                cross_align="center",
+                expanded = True,
+                main_align = "space_evenly",
+                cross_align = "center",
                 children = [
                     plot,
                     render.Row(
-                        expanded=True,
-                        main_align="space_evenly",
-                        cross_align="center",
+                        expanded = True,
+                        main_align = "space_evenly",
+                        cross_align = "center",
                         children = [
-                            render.Text('PM2.5:'),
+                            render.Text("PM2.5:"),
                             value_text,
                             icon,
                         ],
@@ -170,18 +172,19 @@ def main(config):
 
 def get_schema():
     # Pull the data so we can populate the list of lcoations
-    rep = http.get(NYC_DATA_URL, ttl_seconds = 60*30) # cache for 30 minutes
+    rep = http.get(NYC_DATA_URL, ttl_seconds = 60 * 30)  # cache for 30 minutes
     if rep.status_code != 200:
         fail("Data request failed with status %d", rep.status_code)
     data = csv.read_all(rep.body())
+
     # Iterate over all rows, extract each unique SiteName
     locs = {}
     for row in data[1:]:
         locs[row[0]] = schema.Option(
-            display=row[0].replace('_', ' '),
-            value=row[0],
+            display = row[0].replace("_", " "),
+            value = row[0],
         )
-        
+
     return schema.Schema(
         version = "1",
         fields = [
