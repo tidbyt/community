@@ -29,7 +29,7 @@ SURVIVAL_RULE = [2, 3]
 # Dead cells with 3 living neighbors come alive
 BIRTH_RULE = [3]
 
-# 180 frames in the animation seems a happy medium between a long
+# 240 frames in the animation seems a happy medium between a long
 # enough game and short enough rendering time.
 FRAMES = 240
 
@@ -62,10 +62,10 @@ def render_pixel(x, y, pixel):
     return render.Padding(pad = (x, y, 0, 0), child = pixel)
 
 # Creates the initial state with given alive cells. For a point x,y, state[y][x] is a dictionary with:
-# "alive" value 0/1 depending on whether (x,y) is alive,
+# "alive" value -1/0/1 depending on whether (x,y) is dead / original state / alive,
 # "nbrs" a list of the neighbors of (x,y) (this list never changes),
 # "nbr_count" a count of how many neighbors of (x,y) are alive
-# Also renders the first frame of the animation
+# Also renders the first frame of the animation by stacking pixels in game_display
 def initial_state(alive, background_color, overlap_pixel):
     state = [[{"alive": 0} for x in X_RANGE] for y in Y_RANGE]
     game_display = [render.Box(color = background_color)]
@@ -89,7 +89,7 @@ def initial_state(alive, background_color, overlap_pixel):
 def update_state(state, frame, clock_array, live_pixel, dead_pixel, clock_pixel, overlap_pixel):
     # Compute which cells will die and live
     died = [(x, y) for x in X_RANGE for y in Y_RANGE if state[y][x]["alive"] == 1 and state[y][x]["nbr_count"] not in SURVIVAL_RULE]
-    born = [(x, y) for x in X_RANGE for y in Y_RANGE if state[y][x]["alive"] == 0 and state[y][x]["nbr_count"] in BIRTH_RULE]
+    born = [(x, y) for x in X_RANGE for y in Y_RANGE if state[y][x]["alive"] in [-1, 0] and state[y][x]["nbr_count"] in BIRTH_RULE]
 
     game_display = [frame]
 
