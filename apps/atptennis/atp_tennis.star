@@ -34,6 +34,7 @@ Removed timezone - not required
 v1.6
 ESPN changed the structure of the API so had to reflect those changes in the app
 Added feature to show scheduled matches, enable with toggle switch. Will show date & time of scheduled match in Tidbyt's timezone
+
 """
 
 load("encoding/json.star", "json")
