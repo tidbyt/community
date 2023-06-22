@@ -3,10 +3,11 @@ Applet: Azure Status
 Summary: Shows Azure Status messages
 Description: Simple app that looks at the Azure Status RSS feed and shows the latest incident and time of the last update. Visit https://status.azure.com/en-us/status/ for more info!
 Author: M0ntyP
+
+v1.1
+Updated cache function
 """
 
-load("cache.star", "cache")
-load("encoding/base64.star", "base64")
 load("http.star", "http")
 load("render.star", "render")
 load("time.star", "time")
@@ -43,12 +44,7 @@ def main(config):
             children = [
                 render.Row(
                     children = [
-                        render.Box(
-                            width = 64,
-                            height = 9,
-                            color = "#243a5e",
-                            child = render.Text(content = title, font = "CG-pixel-4x5-mono"),
-                        ),
+                        render.Box(width = 64, height = 9, color = "#243a5e", child = render.Text(content = title, font = "CG-pixel-4x5-mono")),
                     ],
                 ),
                 render.Row(
@@ -71,17 +67,9 @@ def main(config):
     )
 
 def get_cachable_data(url, timeout):
-    key = base64.encode(url)
+    res = http.get(url = url, ttl_seconds = timeout)
 
-    data = cache.get(key)
-    if data != None:
-        return base64.decode(data)
-
-    res = http.get(url = url)
     if res.status_code != 200:
         fail("request to %s failed with status code: %d - %s" % (url, res.status_code, res.body()))
-
-    # TODO: Determine if this cache call can be converted to the new HTTP cache.
-    cache.set(key, base64.encode(res.body()), ttl_seconds = timeout)
 
     return res.body()

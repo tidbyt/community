@@ -5,7 +5,7 @@ Description: Multiple screen selections will disable animations. If you prefer a
 Author: tavdog, marcbaier
 """
 
-load("cache.star", "cache")
+#load("cache.star", "cache")
 load("encoding/base64.star", "base64")
 load("encoding/json.star", "json")
 load("http.star", "http")
@@ -164,6 +164,8 @@ DUMMY_DATA = {
 }
 
 def w2kwstr(w, dec = None):  # rounds off decimal, removes completey if over 100kw
+    if w == None:
+        return 0
     if w < 10000 and dec == None:
         if w < 0:  # CURRENTLY DISABLED
             return str(int(w / 1000 * 100) / 100.0)  # show two decimal places
@@ -204,7 +206,7 @@ def get_autarky_percent(site_id, api_key, tz, interval):
     now_string = humanize.time_format("yyyy-MM-ddTHH:00", now)
     if interval == "day":  # from the start of today to now, just set time to 00:00
         start_string = humanize.time_format("yyyy-MM-ddT00:00", now)
-        now_string = humanize.time_format("2006-01-02T15:04:05", now)
+        now_string = humanize.time_format("2006-01-02T15:04", now)
     elif interval == "24h":  # the last 24hr from now, use a now-duration
         duration = time.parse_duration("24h")
         start_time = now - duration
@@ -249,75 +251,73 @@ def main(config):
         print("corrected api_key : " + api_key)
 
     if not DEBUG and api_key and site_id:
-        data = cache.get(site_id)
+        url = URL_CUR.format(site_id)
+        data = dict()
+        rep = http.get(
+            url,
+            headers = {
+                "Accept": "application/json",
+                "Authorization": "Basic " + api_key,
+            },
+            ttl_seconds = 300,  # 5 minutes
+        )
+        if rep.status_code != 200:
+            print(rep.body())
+            return render_fail(rep)
 
-        if not data:
-            url = URL_CUR.format(site_id)
-            data = dict()
-            rep = http.get(
-                url,
-                headers = {
-                    "Accept": "application/json",
-                    "Authorization": "Basic " + api_key,
-                },
-            )
-            if rep.status_code != 200:
-                print(rep.body())
-                return render_fail(rep)
+        cur_data = json.decode(rep.body())
+        data["currentPowerConsumption"] = float(cur_data["currentPowerConsumption"])
+        data["currentPvGeneration"] = float(cur_data["currentPvGeneration"])
+        data["currentBatteryChargeDischarge"] = 0.0  # set to zero just to be safe
+        data["soc"] = 0  # set to zero just to be safe
 
-            cur_data = json.decode(rep.body())
-            data["currentPowerConsumption"] = float(cur_data["currentPowerConsumption"])
-            data["currentPvGeneration"] = float(cur_data["currentPvGeneration"])
-            data["currentBatteryChargeDischarge"] = 0.0  # set to zero just to be safe
-            data["soc"] = 0  # set to zero just to be safe
+        if "currentBatteryChargeDischarge" in cur_data and "soc" in cur_data:
+            data["currentBatteryChargeDischarge"] = float(cur_data["currentBatteryChargeDischarge"])
+            data["soc"] = cur_data["soc"]
+            data["has_battery"] = True
+            has_battery = True
 
-            if "currentBatteryChargeDischarge" in cur_data and "soc" in cur_data:
-                data["currentBatteryChargeDischarge"] = float(cur_data["currentBatteryChargeDischarge"])
-                data["soc"] = cur_data["soc"]
-                data["has_battery"] = True
-                has_battery = True
+        url = URL_SUM.format(site_id)
+        rep = http.get(
+            url,
+            headers = {
+                "Accept": "application/json",
+                "Authorization": "Basic " + api_key,
+            },
+            ttl_seconds = 300,  # 5 minutes
+        )
+        if rep.status_code != 200:
+            return render_fail(rep)
 
-            url = URL_SUM.format(site_id)
-            rep = http.get(
-                url,
-                headers = {
-                    "Accept": "application/json",
-                    "Authorization": "Basic " + api_key,
-                },
-            )
-            if rep.status_code != 200:
-                return render_fail(rep)
+        sum_data = json.decode(rep.body())
+        data["consumption"] = sum_data["data"][0]["consumption"]
+        data["production"] = sum_data["data"][0]["production"]
 
-            sum_data = json.decode(rep.body())
-            data["consumption"] = sum_data["data"][0]["consumption"]
-            data["production"] = sum_data["data"][0]["production"]
+        data["autarky_day"] = get_autarky_percent(site_id, api_key, tz, "day")
+        data["autarky_24h"] = get_autarky_percent(site_id, api_key, tz, "24h")
+        data["autarky_month"] = get_autarky_percent(site_id, api_key, tz, "month")
+        data["autarky_year"] = get_autarky_percent(site_id, api_key, tz, "year")
 
-            data["autarky_day"] = get_autarky_percent(site_id, api_key, tz, "day")
-            data["autarky_24h"] = get_autarky_percent(site_id, api_key, tz, "24h")
-            data["autarky_month"] = get_autarky_percent(site_id, api_key, tz, "month")
-            data["autarky_year"] = get_autarky_percent(site_id, api_key, tz, "year")
+        data["aux_sensor_day"] = -1
+        data["aux_sensor_week"] = -1
+        data["aux_sensor_month"] = -1
 
-            data["aux_sensor_day"] = None
-            data["aux_sensor_week"] = None
-            data["aux_sensor_month"] = None
+        if config.get("aux_sensor_id", "") != "":
+            data["aux_sensor_day"] = get_aux_sensor_data(config.get("aux_sensor_id"), api_key, "day")
+            data["aux_sensor_week"] = get_aux_sensor_data(config.get("aux_sensor_id"), api_key, "week")
+            data["aux_sensor_month"] = get_aux_sensor_data(config.get("aux_sensor_id"), api_key, "month")
 
-            if config.get("aux_sensor_id", "") != "":
-                data["aux_sensor_day"] = get_aux_sensor_data(config.get("aux_sensor_id"), api_key, "day")
-                data["aux_sensor_week"] = get_aux_sensor_data(config.get("aux_sensor_id"), api_key, "week")
-                data["aux_sensor_month"] = get_aux_sensor_data(config.get("aux_sensor_id"), api_key, "month")
-
-            # We store custom data and data from multiple http calls so http cache won't suffice here.
-            cache.set(site_id, json.encode(data), ttl_seconds = CACHE_TTL)
-        else:
-            print("using cache")
-            data = json.decode(data)  # data from cache is json so need to decode.
-            if "has_battery" in data and data["has_battery"] == True:
-                has_battery = True
-            if config.get("aux_sensor_id", "") != "" and data.get("aux_sensor_day", "") == "":
-                print("fetching aux_sensor data outside of cache")
-                data["aux_sensor_day"] = get_aux_sensor_data(config.get("aux_sensor_id"), api_key, "day")
-                data["aux_sensor_week"] = get_aux_sensor_data(config.get("aux_sensor_id"), api_key, "week")
-                data["aux_sensor_month"] = get_aux_sensor_data(config.get("aux_sensor_id"), api_key, "month")
+        #        cache.set(site_id, json.encode(data), ttl_seconds = CACHE_TTL)
+        #        else:
+        # print("using cache")
+        # data = json.decode(data)  # data from cache is json so need to decode.
+        # if "has_battery" in data and data["has_battery"] == True:
+        #     has_battery = True
+        # if config.get("aux_sensor_id", "") != "" and data.get("aux_sensor_day", "") == "":
+        #     print("fetching aux_sensor data outside of cache")
+        #     data["aux_sensor_day"] = get_aux_sensor_data(config.get("aux_sensor_id"), api_key, "day")
+        #     data["aux_sensor_week"] = get_aux_sensor_data(config.get("aux_sensor_id"), api_key, "week")
+        #     data["aux_sensor_month"] = get_aux_sensor_data(config.get("aux_sensor_id"), api_key, "month")
 
     else:
         print("using dummy data")
