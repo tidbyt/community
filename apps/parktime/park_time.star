@@ -6,12 +6,12 @@ Author: beyondutility
 
 Powered by data from The ThemePark Live Database (https://ThemeParks.wiki).
 
+v1.1 - Removed redundant API calls; layout improvements
 v1.0 - Initial Tidbyt release
 """
 
 load("http.star", "http")
 load("humanize.star", "humanize")
-load("math.star", "math")
 load("render.star", "render")
 load("schema.star", "schema")
 load("time.star", "time")
@@ -26,7 +26,7 @@ DEFAULT_COLOR_DANGER = "#dc3545"
 DEFAULT_COLOR_WARNING = "#ffc107"
 DEFAULT_TTL = int(60 * 60 * 6)  # 4 hours
 DEFAULT_TTL_LIVE = int(60 * 5)  # 5 minutes
-DEFAULT_ENTITY = "ff52cb64-c1d5-4feb-9d43-5dbd429bac81"  #"75ea578a-adc8-4116-a54d-dccb60765ef9"
+DEFAULT_ENTITY = "75ea578a-adc8-4116-a54d-dccb60765ef9"  #"ff52cb64-c1d5-4feb-9d43-5dbd429bac81"  #
 TIDY_NAMES = ["Universal's ", " Theme Park", " Water Park", " Park", "Disney's ", " Florida", "™", "©", "®", " – New!"]
 MAIN_ENTITIES = [
     {"name": "Disneyland Resort", "id": "bfc89fd6-314d-44b4-b89e-df1a89cf991e", "entityType": "DESTINATION", "color": "#FFFFFF"},
@@ -76,10 +76,10 @@ def get_destination_options():
 
 # Get the Schema Options for Entities
 def get_entity_options(park):
-    res = http.get(THEME_PARKS_WIKI_URL + park)
-    if res.status_code != 200:
-        fail("request to %s failed with status code: %d" % (res, res.status_code))
-    entity_children = http.get(THEME_PARKS_WIKI_URL + park + "/children", ttl_seconds = DEFAULT_TTL).json()["children"]
+    entity_children = http.get(THEME_PARKS_WIKI_URL + park + "/children", ttl_seconds = DEFAULT_TTL)
+    if entity_children.status_code != 200:
+        fail("request to %s failed with status code: %d" % (entity_children, entity_children.status_code))
+    entity_children = entity_children.json()["children"]
 
     # Get Parks
     destination_children = [x for x in entity_children if (x["entityType"] == "PARK" or x["entityType"] == "SHOW" or x["entityType"] == "ATTRACTION")]
@@ -187,36 +187,36 @@ def park_hours(timezone, entity_schedule, display_name, color, today, tomorrow):
 def show_times(showtimes_today, display_name, color):
     if showtimes_today:
         show_times = [tidy_time(time.parse_time(x["startTime"])) for x in showtimes_today]
-        show_times_height = math.ceil(len(show_times) / 2) * 6
-        show_times = "  ".join([show_times[n] if n % 3 != 2 else show_times[n] + " " for n in range(len(show_times))])
+        show_times_height = 12
+        show_times = " ".join([show_times[n] if n % 3 != 2 else show_times[n] + " " for n in range(len(show_times))])
         show_times_color = DEFAULT_COLOR_WHITE
     else:
-        show_times_height = 6
+        show_times_height = 12
         show_times = "CLOSED"
         show_times_color = DEFAULT_COLOR_DANGER
     return [
         render.Marquee(
-            child = render.WrappedText(content = display_name, align = "center", font = "5x8", color = color),
+            child = render.WrappedText(content = display_name, align = "center", font = "Dina_r400-6", color = color),
             width = 64,
             align = "center",
         ),
+        render.Box(width = 64, height = 4),
+        render.Text(content = "SHOW TIMES", font = "CG-pixel-4x5-mono", color = DEFAULT_COLOR_LIGHT_GRAY),
         render.Box(width = 64, height = 1),
-        render.Text(content = "SHOW TIMES", font = "CG-pixel-3x5-mono", color = DEFAULT_COLOR_LIGHT_GRAY),
-        render.Box(width = 64, height = 1),
-        render.Marquee(height = 18, scroll_direction = "vertical", align = "center", offset_start = 0, offset_end = 0, child = render.WrappedText(content = show_times, height = show_times_height, linespacing = 1, align = "center", font = "CG-pixel-3x5-mono", color = show_times_color)),
+        render.Marquee(height = 12, scroll_direction = "vertical", align = "center", offset_start = 0, offset_end = 0, child = render.WrappedText(content = show_times, height = show_times_height, linespacing = 1, align = "center", font = "CG-pixel-3x5-mono", color = show_times_color)),
     ]
 
 def boarding_groups(entity_live, display_name, color):
     group_start = str(int(entity_live["queue"]["BOARDING_GROUP"]["currentGroupStart"]))
     group_end = str(int(entity_live["queue"]["BOARDING_GROUP"]["currentGroupEnd"]))
-    wait_time = group_start + " - " + group_end
+    wait_time = group_start + "-" + group_end
     return [
-        render.Marquee(width = 64, child = render.Text(content = display_name, font = "5x8", color = color)),
-        render.Text(content = "NOW BOARDING", font = "CG-pixel-3x5-mono", height = 6, color = DEFAULT_COLOR_LIGHT_GRAY),
-        render.Text(content = "GROUPS", font = "CG-pixel-3x5-mono", height = 6, color = DEFAULT_COLOR_LIGHT_GRAY),
+        render.Marquee(width = 64, child = render.Text(content = display_name, font = "Dina_r400-6", color = color)),
+        render.Text(content = "NOW BOARDING", font = "CG-pixel-4x5-mono", height = 6, color = DEFAULT_COLOR_LIGHT_GRAY),
+        render.Text(content = "GROUPS", font = "CG-pixel-4x5-mono", height = 6, color = DEFAULT_COLOR_LIGHT_GRAY),
         render.Box(width = 64, height = 1),
-        render.Text(content = wait_time, font = "5x8", height = 9, color = "#FFFFFF"),
-        render.Box(width = 64, height = 2),
+        render.Text(content = wait_time, font = "CG-pixel-3x5-mono", height = 6, color = "#FFFFFF"),
+        render.Box(width = 64, height = 3),
     ]
 
 def wait_times(entity_live, display_name, color):
@@ -240,29 +240,28 @@ def wait_times(entity_live, display_name, color):
         wait_time_units = "CLOSED"
         wait_time_units_color = DEFAULT_COLOR_DANGER
     return [
-        render.Marquee(width = 64, align = "center", child = render.Text(content = display_name, font = "5x8", color = color)),
-        render.Text(content = wait_time_label, font = "CG-pixel-3x5-mono", height = 6, color = DEFAULT_COLOR_LIGHT_GRAY),
+        render.Marquee(width = 64, align = "center", child = render.Text(content = display_name, font = "Dina_r400-6", color = color)),
+        render.Text(content = wait_time_label, font = "CG-pixel-4x5-mono", height = 6, color = DEFAULT_COLOR_LIGHT_GRAY),
         render.Box(width = 64, height = 1),
         render.Box(
-            width = 17,
+            width = 21,
             height = 9,
             color = DEFAULT_COLOR_DARK_GRAY,
             padding = 1,
             child = render.Box(
-                width = 15,
+                width = 19,
                 color = DEFAULT_COLOR_BLACK,
-                child = render.Padding(child = render.Text(content = wait_time, font = "CG-pixel-4x5-mono", color = "#FFFFFF"), pad = (2, 1, 1, 1)),
+                child = render.Padding(child = render.Text(content = wait_time, font = "CG-pixel-3x5-mono", color = "#FFFFFF"), pad = (2, 1, 1, 1)),
             ),
         ),
-        render.Text(content = wait_time_units, font = "CG-pixel-3x5-mono", height = 6, color = wait_time_units_color),
-        render.Box(width = 64, height = 2),
+        render.Text(content = wait_time_units, font = "CG-pixel-4x5-mono", height = 6, color = wait_time_units_color),
     ]
 
 def no_data(display_name, color):
     return [
-        render.Marquee(width = 64, align = "center", child = render.Text(content = display_name, font = "5x8", color = color)),
-        render.Box(width = 64, height = 8),
-        render.Text(content = "NO DATA", font = "5x8", color = "#FF0000"),
+        render.Marquee(width = 64, align = "center", child = render.Text(content = display_name, font = "Dina_r400-6", color = color)),
+        render.Box(width = 64, height = 6),
+        render.Text(content = "NO DATA", font = "CG-pixel-4x5-mono", color = "#FF0000"),
         render.Box(width = 64, height = 8),
     ]
 
@@ -279,11 +278,11 @@ def main(config):
         entity = config.get("entity")
 
     #Get the entity info
-    res = http.get(THEME_PARKS_WIKI_URL + entity)
-    if res.status_code != 200:
-        fail("request to %s failed with status code: %d" % (res, res.status_code))
+    entity_live = http.get(THEME_PARKS_WIKI_URL + entity + "/live", ttl_seconds = DEFAULT_TTL_LIVE)
+    if entity_live.status_code != 200:
+        fail("request to %s failed with status code: %d" % (entity_live, entity_live.status_code))
+    entity_live = entity_live.json()["liveData"]
     entity_schedule = http.get(THEME_PARKS_WIKI_URL + entity + "/schedule", ttl_seconds = DEFAULT_TTL).json()
-    entity_live = http.get(THEME_PARKS_WIKI_URL + entity + "/live", ttl_seconds = DEFAULT_TTL_LIVE).json()["liveData"]
     display_name = tidy_name(entity_schedule["name"])
 
     # Check for liveData
