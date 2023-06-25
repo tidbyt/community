@@ -64,7 +64,7 @@ LEAGUE_ABBR = {
     "uefa.europa": "Euro",
     "concacaf.nations.league": "ConcNL",
     "concacaf.champions": "ConcCC",
-    "concacaf.gold" : "Gold C"
+    "concacaf.gold": "Gold C",
 }
 
 def main(config):
