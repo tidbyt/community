@@ -11,7 +11,7 @@ load("render.star", "render")
 load("schema.star", "schema")
 load("time.star", "time")
 
-VERSION = 23156
+VERSION = 23176
 
 # thanks to @jesushairdo for the new option to be able to show home or away team first.  Let's be more international :-)
 
@@ -63,7 +63,8 @@ LEAGUE_ABBR = {
     "uefa.champions": "U Chp",
     "uefa.europa": "Euro",
     "concacaf.nations.league": "ConcNL",
-    "concacaf.champions": "ConcCL",
+    "concacaf.champions": "ConcCC",
+    "concacaf.gold" : "Gold C"
 }
 
 def main(config):
@@ -461,8 +462,12 @@ def main(config):
 
 leagueOptions = [
     schema.Option(
-        display = "CONCACAF Champions League",
+        display = "CONCACAF Champions Cup",
         value = "concacaf.champions",
+    ),
+    schema.Option(
+        display = "CONCACAF Gold Cup",
+        value = "concacaf.gold",
     ),
     schema.Option(
         display = "CONCACAF Nations League",
