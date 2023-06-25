@@ -180,6 +180,7 @@ def get_schema():
                 name = "Thingspeak Channel Id",
                 desc = "The id of the thingspeak channel.",
                 icon = "rss",
+                default = "2203073"
             ),
             schema.Text(
                 id = "apiKey",
@@ -199,7 +200,7 @@ def get_schema():
                 name = "Render as a plot view",
                 desc = "Should the app render as a plot view",
                 icon = "chartLine",
-                default = False,
+                default = True,
             ),
             schema.Text(
                 id = "prepend",
