@@ -139,7 +139,7 @@ def main(config):
         OUTLOOK_ACCESS_TOKEN = cache.get(outlook_refresh_token)
 
     if not OUTLOOK_ACCESS_TOKEN:
-        refresh_body = "refresh_token=" + outlook_refresh_token + "&redirect_uri=http://127.0.0.1:8080/oauth-callback" + "&client_id=" + client_id + "&client_secret=" + client_secret + "&grant_type=refresh_token" + "&scope=Calendars.read"
+        refresh_body = "refresh_token=" + outlook_refresh_token + "&client_id=" + client_id + "&client_secret=" +client_secret + "&grant_type=refresh_token" + "&scope=Calendars.read"
 
         # CURL can be handy for debug ops from the Linux command line
 
