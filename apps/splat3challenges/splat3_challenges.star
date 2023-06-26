@@ -228,11 +228,11 @@ def main(config):
             render.Row(
                 children = [
                     render.Padding(
-                        pad = (0, 0, 1, 1),
+                        pad = (0, 1, 1, 0),
                         child = render.Image(STAGE_IMG[closest_challenge["leagueMatchSetting"]["vsStages"][0]["name"]]),
                     ),
                     render.Padding(
-                        pad = (1, 0, 0, 1),
+                        pad = (1, 1, 0, 0),
                         child = render.Image(STAGE_IMG[closest_challenge["leagueMatchSetting"]["vsStages"][1]["name"]]),
                     ),
                 ],
@@ -242,7 +242,7 @@ def main(config):
         body_stack.append(
             render.Box(
                 height = 18,
-                color = "#0006",
+                color = config.get("imgbrightness", "#0006"),
             ),
         )
     if (BG_INFO & 1):
@@ -250,13 +250,14 @@ def main(config):
             render.Marquee(
                 height = 18,
                 offset_start = 18,  # start off screen
+                offset_end = 17, # end just as the text goes offscreen (instead of when it hits the header)
                 scroll_direction = "vertical",
                 child = render.Column(desc_elements),
             ),
         )
 
     return render.Root(
-        delay = 1000 // 8,  # 8px/sec
+        delay = int(1000 / (7 * float(config.get("scrollspeed", "1")))),  # (7 px * scroll speed) / sec
         show_full_animation = True,
         child = render.Column(
             children = [
@@ -307,12 +308,9 @@ def main(config):
                                 ),
                                 render.Padding(
                                     pad = 1,
-                                    child = render.Marquee(
-                                        width = 57,
-                                        child = render.Text(
-                                            format_time_range(time.parse_time(closest_period["period"]["startTime"]).in_location(timezone), time.parse_time(closest_period["period"]["endTime"]).in_location(timezone)),
-                                            font = "tom-thumb",
-                                        ),
+                                    child = render.Text(
+                                        format_time_range(time.parse_time(closest_period["period"]["startTime"]).in_location(timezone), time.parse_time(closest_period["period"]["endTime"]).in_location(timezone)),
+                                        font = "tom-thumb",
                                     ),
                                 ),
                             ],
@@ -322,6 +320,40 @@ def main(config):
             ],
         ),
     )
+
+def brightness_schema(val):
+    brightnessOptions = [
+        schema.Option(
+            display = "1 (darkest)",
+            value = "#000d"
+        ),
+        schema.Option(
+            display = "2",
+            value = "#000b"
+        ),
+        schema.Option(
+            display = "3",
+            value = "#0009"
+        ),
+        schema.Option(
+            display = "4",
+            value = "#0007"
+        ),
+        schema.Option(
+            display = "5 (brightest)",
+            value = "#0005"
+        ),
+    ]
+    if(val != "3"):
+        return []
+    return [schema.Dropdown(
+        id = "imgbrightness",
+        name = "Image Opacity",
+        desc = "The opacity of the background stage images.",
+        icon = "paintRoller",
+        default = brightnessOptions[0].value,
+        options = brightnessOptions
+    )]
 
 def get_schema():
     bgOptions = [
@@ -336,6 +368,28 @@ def get_schema():
         schema.Option(
             display = "Description Only",
             value = "1",
+        ),
+    ]
+    scrollSpeedOptions = [
+        schema.Option(
+            display = "Slowest",
+            value = "0.5",
+        ),
+        schema.Option(
+            display = "Slow",
+            value = "0.75",
+        ),
+        schema.Option(
+            display = "Medium",
+            value = "1",
+        ),
+        schema.Option(
+            display = "Fast",
+            value = "1.3",
+        ),
+        schema.Option(
+            display = "Fastest",
+            value = "1.75",
         ),
     ]
     return schema.Schema(
@@ -355,5 +409,18 @@ def get_schema():
                 default = bgOptions[0].value,
                 options = bgOptions,
             ),
+            schema.Dropdown(
+                id = "scrollspeed",
+                name = "Scroll Speed",
+                desc = "The speed information scrolls at.",
+                icon = "bars",
+                default = scrollSpeedOptions[2].value,
+                options = scrollSpeedOptions,
+            ),
+            schema.Generated(
+                id = "genbright",
+                source = "bginfo",
+                handler = brightness_schema
+            )
         ],
     )
