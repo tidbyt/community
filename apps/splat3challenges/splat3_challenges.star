@@ -242,7 +242,7 @@ def main(config):
         body_stack.append(
             render.Box(
                 height = 18,
-                color = "#0005",
+                color = "#0006",
             ),
         )
     if (BG_INFO & 1):
