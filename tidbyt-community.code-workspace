@@ -3,5 +3,11 @@
 		{
 			"path": "."
 		}
-	]
+	],
+	"settings": {
+		"[yaml]": {
+			"editor.tabSize": 4
+		},
+		"editor.detectIndentation": false
+	}
 }
