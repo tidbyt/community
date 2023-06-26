@@ -250,7 +250,7 @@ def main(config):
             render.Marquee(
                 height = 18,
                 offset_start = 18,  # start off screen
-                offset_end = 17, # end just as the text goes offscreen (instead of when it hits the header)
+                offset_end = 17,  # end just as the text goes offscreen (instead of when it hits the header)
                 scroll_direction = "vertical",
                 child = render.Column(desc_elements),
             ),
@@ -325,26 +325,26 @@ def brightness_schema(val):
     brightnessOptions = [
         schema.Option(
             display = "1 (darkest)",
-            value = "#000d"
+            value = "#000d",
         ),
         schema.Option(
             display = "2",
-            value = "#000b"
+            value = "#000b",
         ),
         schema.Option(
             display = "3",
-            value = "#0009"
+            value = "#0009",
         ),
         schema.Option(
             display = "4",
-            value = "#0007"
+            value = "#0007",
         ),
         schema.Option(
             display = "5 (brightest)",
-            value = "#0005"
+            value = "#0005",
         ),
     ]
-    if(val != "3"):
+    if (val != "3"):
         return []
     return [schema.Dropdown(
         id = "imgbrightness",
@@ -352,7 +352,7 @@ def brightness_schema(val):
         desc = "The opacity of the background stage images.",
         icon = "paintRoller",
         default = brightnessOptions[0].value,
-        options = brightnessOptions
+        options = brightnessOptions,
     )]
 
 def get_schema():
@@ -420,7 +420,7 @@ def get_schema():
             schema.Generated(
                 id = "genbright",
                 source = "bginfo",
-                handler = brightness_schema
-            )
+                handler = brightness_schema,
+            ),
         ],
     )
