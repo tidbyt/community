@@ -5,10 +5,10 @@ Description: Stats on your recent orders from your WooCommerce store.
 Author: Jeremy Launder
 """
 
-load("animation.star", "animation")
-load("cache.star", "cache")
+# load("animation.star", "animation")
+# load("cache.star", "cache")
 load("encoding/base64.star", "base64")
-load("encoding/json.star", "json")
+# load("encoding/json.star", "json")
 load("http.star", "http")
 load("render.star", "render")
 load("schema.star", "schema")
@@ -29,8 +29,8 @@ COLOR_WHITE = "#FFF"
 
 # FONTS
 FONT_TB8 = "tb-8"
-FONT_6x13 = "6x13"
-FONT_10x20 = "10x20"
+FONT_6X13 = "6x13"
+FONT_10X20 = "10x20"
 
 # IMAGES
 IMAGE_WOO_SQUARE_16X16 = """
@@ -109,6 +109,14 @@ def error_view(message):
     )
 
 def main(config):
+    """Main function that renders the Tidbyt display
+
+    Args:
+        config: object
+    Returns:
+        Render object
+    """
+
     shop_url = config.get("shopUrl", "https://courses.moderndirectseller.com")
     consumer_key = config.get("consumerKey", "ck_4b44d5747da4c0dfef509a1e9890f67d9042594a")
     consumer_secret = config.get("consumerSecret", "cs_cf5d00d2ea31a8ebec10cf28d6d149869d6ca0d1")
