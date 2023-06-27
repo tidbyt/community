@@ -22,7 +22,7 @@ load("schema.star", "schema")
 load("time.star", "time")
 
 BASE_RANKING_URL = "https://site.api.espn.com/apis/site/v2/sports/tennis/"
-RANKING_CACHE = 3600  # 1hrs
+RANKING_CACHE = 14400  # 4hrs
 
 def main(config):
     RotationSpeed = config.get("speed", "3")
