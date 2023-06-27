@@ -25,7 +25,7 @@ def main():
     # if its Sunday or Monday on the East Coast of US then we check for updates every hour, otherwise check once a day
     if Day == "Sunday" or Day == "Monday":
         STANDINGS_CACHE = 3600
-   
+
     FedExData = get_cachable_data(STANDINGS_URL, STANDINGS_CACHE)
     FedExJSON = json.decode(FedExData)
     player_list = FedExJSON["pageProps"]["tourCupDetails"]["officialPlayers"]
