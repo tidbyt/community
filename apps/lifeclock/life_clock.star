@@ -29,9 +29,9 @@ SURVIVAL_RULE = [2, 3]
 # Dead cells with 3 living neighbors come alive
 BIRTH_RULE = [3]
 
-# 240 frames in the animation seems a happy medium between a long
-# enough game and short enough rendering time.
-FRAMES = 240
+# 180 frames in the animation seems to be the max to render fast enough on tidbyt servers.
+# More like 300 frames seems ideal.
+FRAMES = 180
 
 # Placement of clock display elements
 PADDING_TOP = 9
