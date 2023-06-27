@@ -9,6 +9,9 @@ Updated caching function and changed title bar color for WTA
 
 v1.2 
 Added date to title bar so you can see when the rankings were last updated
+
+v1.2.1
+Reduced cache TTL from 6hrs to 1hr as it was taking too long to update
 """
 
 load("encoding/json.star", "json")
@@ -19,7 +22,7 @@ load("schema.star", "schema")
 load("time.star", "time")
 
 BASE_RANKING_URL = "https://site.api.espn.com/apis/site/v2/sports/tennis/"
-RANKING_CACHE = 86400  # 24hrs
+RANKING_CACHE = 14400  # 4hrs
 
 def main(config):
     RotationSpeed = config.get("speed", "3")
