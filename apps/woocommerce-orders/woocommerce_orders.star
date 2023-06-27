@@ -12,12 +12,18 @@ load("encoding/base64.star", "base64")
 load("http.star", "http")
 load("render.star", "render")
 load("schema.star", "schema")
+load("secret.star", "secret")
 
 # CONFIG
-WC_SHOP_URL = ""
-WC_CONSUMER_KEY = ""
-WC_CONSUMER_SECRET = ""
-CACHE_TTL = 900 # 15 minutes
+CACHE_TTL_DEFAULT = 900 # 15 minutes
+
+# Local server keys
+DEV_WC_CONSUMER_KEY = "ck_4b44d5747da4c0dfef509a1e9890f67d9042594a"
+DEV_WC_CONSUMER_SECRET_KEY = "cs_cf5d00d2ea31a8ebec10cf28d6d149869d6ca0d1"
+
+# Tidbyt server keys - TODO Need to run pixlet encrypt command to get these
+ENC_WC_CONSUMER_KEY = "NEED_ENCRYPTED_VALUE"
+ENC_WC_CONSUMER_SECRET_KEY = "NEED_ENCRYPTED_VALUE"
 
 # COLORS
 COLOR_WC_PURPLE_50 = "#7F54B3"
@@ -28,9 +34,10 @@ COLOR_BLACK = "#000"
 COLOR_WHITE = "#FFF"
 
 # FONTS
-FONT_TB8 = "tb-8"
+FONT_TB8 = "tb-8" # Default font, 5x8
 FONT_6X13 = "6x13"
 FONT_10X20 = "10x20"
+FONT_TOM_THUMB = "tom-thumb" # Small 4x6 font
 
 # IMAGES
 IMAGE_WOO_SQUARE_16X16 = """
@@ -116,10 +123,16 @@ def main(config):
     Returns:
         Render object
     """
+    
+    # Get the config values
+    shop_url = config.str("shopUrl")
+    cache_ttl = config.get("cacheTtl") or CACHE_TTL_DEFAULT
+    consumer_key = secret.decrypt(ENC_WC_CONSUMER_KEY) or DEV_WC_CONSUMER_KEY
+    consumer_secret_key = secret.decrypt(ENC_WC_CONSUMER_SECRET_KEY) or DEV_WC_CONSUMER_SECRET_KEY
 
-    shop_url = config.get("shopUrl", "https://courses.moderndirectseller.com")
-    consumer_key = config.get("consumerKey", "ck_4b44d5747da4c0dfef509a1e9890f67d9042594a")
-    consumer_secret = config.get("consumerSecret", "cs_cf5d00d2ea31a8ebec10cf28d6d149869d6ca0d1")
+    print( "shop_url: " + str(shop_url) )
+    print( "cache_ttl: " + str(cache_ttl) )
+
     # relative_date = config.get("relativeDate")
     # request_config = {
     #     "relativeDate": relative_date,
@@ -127,13 +140,17 @@ def main(config):
     #     "endDate": config.get("endDate"),
     # }
     # resp = http.get(shop_url.strip("/ ") + "/wp-json/wc/v3/orders", ttl_seconds = CACHE_TTL )
+
+    if shop_url == None:
+        return error_view( 'Shop URL not provided. Enter shop URL in configuration settings.' )
+    
     url = shop_url.strip("/ ") + "/wp-json/wc/v3/orders"
     params = { 'status': "processing,completed", 'after': '2023-06-24T23:59:59-07:00' }
     resp = http.get(
         url,
         params = params,
-        auth = (consumer_key, consumer_secret),
-        ttl_seconds = CACHE_TTL 
+        auth = (consumer_key, consumer_secret_key),
+        ttl_seconds = int(cache_ttl) 
     )
 
     if resp.status_code != 200:
@@ -177,40 +194,56 @@ def main(config):
             expanded = True,
             main_align = "start",
             children = [
+                render.Row(
+                    main_align = "start",
+                    cross_align = "start",
+                    expanded = True,
+                    children = [
+                        render.Image(base64.decode(IMAGE_WOO_SQUARE_16X16)),
+                        render.Marquee(
+                            width = 48,
+                            height = 16,
+                            align = "center",
+                            child = render.Column(
+                                main_align = "start",
+                                cross_align = "center",
+                                children = [
+                                    render.Text(
+                                        content = "# Orders",
+                                        font = FONT_TB8, 
+                                        color = COLOR_WC_PURPLE_50
+                                    ),
+                                    render.Text(
+                                        content = "Past 24hrs",
+                                        font = FONT_TB8, 
+                                        color = COLOR_WC_PURPLE_50
+                                    )
+                                ]
+                            )
+                        )                                                   
+                    ]
+                ),
                 render.Padding(
-                    pad = (0, 0, 0, 2),
+                    pad = (0, 4, 0, 0),
                     child = render.Row(
-                        main_align = "space_evenly",
+                        main_align = "center",
                         cross_align = "center",
                         expanded = True,
                         children = [
-                            render.Image(base64.decode(IMAGE_WOO_SQUARE_16X16)),
                             render.Marquee(
-                                width = 48,
+                                width = 64,
                                 align = "center",
                                 child = render.Text(
-                                    content = "# Orders", 
+                                    content = str(num_orders),
+                                    font = FONT_TB8, 
                                     color = COLOR_WC_PURPLE_50
-                                ),
-                            ),
+                                )
+                            )
                         ]
                     )
-                ),    
-                render.Row(
-                    main_align = "space_evenly",
-                    children = [
-                        render.Marquee(
-                            width = 64,
-                            align = "center",
-                            child = render.Text(
-                                content = str(num_orders), 
-                                color = COLOR_WC_PURPLE_50
-                            ),
-                        )
-                    ]
                 )
-            ],
-        ),
+            ]    
+        )    
     )
 
 def render_single_label(label):
@@ -265,26 +298,65 @@ def render_double_label(label):
     )
 
 def get_schema():
+    cache_options = [
+        schema.Option(
+            display = "5 minutes",
+            value = "300",
+        ),
+        schema.Option(
+            display = "10 minutes",
+            value = "600",
+        ),
+        schema.Option(
+            display = "15 minutes",
+            value = "900",
+        ),
+        schema.Option(
+            display = "30 minutes",
+            value = "1800",
+        ),
+        schema.Option(
+            display = "1 hour",
+            value = "3600",
+        ),
+        schema.Option(
+            display = "4 hours",
+            value = "14400",
+        ),
+        schema.Option(
+            display = "24 hours",
+            value = "86400",
+        ),        
+    ]
+    
     return schema.Schema(
         version = "1",
         fields = [
             schema.Text(
                 id = "shopUrl",
                 name = "Shop URL",
-                desc = "The URL of your WooCommerce website home page",
-                icon = "link",
+                desc = "The fully qualified URL of your WooCommerce website home page (i.e. https://www.example.com)",
+                icon = "link"
             ),
             schema.Text(
                 id = "consumerKey",
                 name = "Consumer Key",
                 desc = "The consumer key for your WooCommerce API",
-                icon = "key",
+                icon = "key"
             ),
             schema.Text(
                 id = "consumerSecret",
                 name = "Consumer Secret",
-                desc = "The consumer secret for your WooCommerce API",
-                icon = "key",
-            )
+                desc = "The consumer secret key for your WooCommerce API",
+                icon = "key"
+            ),
+            schema.Dropdown(
+                id = "cacheTtl",
+                name = "Refresh Interval",
+                desc = "How often to pull new data from your site",
+                icon = "clock",
+                default = cache_options[2].value,
+                options = cache_options
+            ),
         ],
     )
