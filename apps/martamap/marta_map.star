@@ -12,7 +12,7 @@ load("render.star", "render")
 load("schema.star", "schema")
 # load("secret.star", "secret")
 
-TEXT_COLOR = "#aaaaaa"
+DEFAULT_TEXT_COLOR = "#aaaaaa"
 DEFAULT_ORIENTATION_BOOL = False  #Default to horizontal
 DEFAULT_ARRIVALS = True
 DEFAULT_STATION = "Five Points"
@@ -114,6 +114,17 @@ def get_schema():
                 icon = "compass",
                 default = direction_options[0].value,
                 options = direction_options,
+            ),
+            schema.Color(
+                id = "text_color",
+                name = "Text Color",
+                desc = "Color of the text.",
+                icon = "brush",
+                default = "#aaaaaa",
+                palette = [
+                    "#aaaaaa",
+                    "#ffffff",
+                ],
             ),
         ],
     )
@@ -242,6 +253,7 @@ def get_direction_list_options():
     return options
 
 def arrival_template(config, color, time, head_sign):
+    text_color = config.str("text_color", DEFAULT_TEXT_COLOR)
     if len(time) < 2:
         time = "0" + time
 
@@ -265,7 +277,7 @@ def arrival_template(config, color, time, head_sign):
             render.Column(
                 children = [
                     render.Box(width = 2, height = 1, color = "#000"),
-                    render.Text(time + "", font = FONT, color = TEXT_COLOR),
+                    render.Text(time + "", font = FONT, color = text_color),
                 ],
             ),
             render.Column(
@@ -291,14 +303,15 @@ def arrival_template(config, color, time, head_sign):
 
 def render_headsign_text(config, head_sign):
     scroll = config.bool("scroll") or DEFAULT_SCROLL
+    text_color = config.str("text_color", DEFAULT_TEXT_COLOR)
     width = 29
     if scroll:
         return render.Marquee(
             width = width,
-            child = render.Text(head_sign, font = FONT, color = TEXT_COLOR),
+            child = render.Text(head_sign, font = FONT, color = text_color),
         )
     else:
-        return render.Text(head_sign, font = FONT, color = TEXT_COLOR)
+        return render.Text(head_sign, font = FONT, color = text_color)
 
 def render_arrivals(config):
     rendered_arrivals = []
