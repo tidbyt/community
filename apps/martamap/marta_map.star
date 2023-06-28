@@ -10,7 +10,7 @@ load("encoding/json.star", "json")
 load("http.star", "http")
 load("render.star", "render")
 load("schema.star", "schema")
-load("secret.star", "secret")
+# load("secret.star", "secret")
 
 TEXT_COLOR = "#aaaaaa"
 DEFAULT_ORIENTATION_BOOL = False  #Default to horizontal
@@ -23,7 +23,8 @@ DEAFULT_DIRECTION = None
 FONT = "CG-pixel-4x5-mono"
 
 def main(config):
-    MARTA_API_URL = secret.decrypt("AV6+xWcEqpLr4r5xWHL+ENipBzxVuOwqPhBwALkpo2ySIP8LvhyYYjsLoSq484C+X+Q91GmnTkRZBVPcITGvJJRJxmomJAwy4ejsRATXKIMmJHQy29u3IXDATDXbDuMXDx2wLeQXtfpuwWf5qHNh5VLrnE3d3ZJTfP6mS9xBxo+CwffQNt3YGa3pkQTpI5ikAKotOr95vcBPQzw22E3yY7iMqjR72wsE8s730m9pLnFolxbNmyMKZ6DNh+XFqNiNNer02eodGjhvLRR74xk8A1Q72Q==")
+    # MARTA_API_URL = secret.decrypt("AV6+xWcEqpLr4r5xWHL+ENipBzxVuOwqPhBwALkpo2ySIP8LvhyYYjsLoSq484C+X+Q91GmnTkRZBVPcITGvJJRJxmomJAwy4ejsRATXKIMmJHQy29u3IXDATDXbDuMXDx2wLeQXtfpuwWf5qHNh5VLrnE3d3ZJTfP6mS9xBxo+CwffQNt3YGa3pkQTpI5ikAKotOr95vcBPQzw22E3yY7iMqjR72wsE8s730m9pLnFolxbNmyMKZ6DNh+XFqNiNNer02eodGjhvLRR74xk8A1Q72Q==") #Original API no longer working
+    MARTA_API_URL = "http://labs.itsmarta.com/signpost/trains"  #New data source due to old one failing
     trains = get_trains(MARTA_API_URL)
     arrivals = config.bool("arrivals") or DEFAULT_ARRIVALS
     orientation_bool = config.bool("orientation") or DEFAULT_ORIENTATION_BOOL
@@ -119,18 +120,25 @@ def get_schema():
 
 #return the coordinates based on the line
 def get_location(train, orientation):
-    line = train["LINE"]
+    if "LINE" in train.keys():  #Original API
+        line = train["LINE"]
+        long = train["VEHICLELONGITUDE"]
+        lat = train["VEHICLELATITUDE"]
+    else:  #New API
+        line = LINE_CODE_MAP[train["lineCode"]]
+        lat = train["lastPosition"][1]
+        long = train["lastPosition"][0]
 
     plot_point = None
 
     if line == "RED":
-        plot_point = decode_coordinates(train["VEHICLELONGITUDE"], RED_LINE_MAP[orientation])
+        plot_point = decode_coordinates(long, RED_LINE_MAP[orientation])
     elif line == "GOLD":
-        plot_point = decode_coordinates(train["VEHICLELONGITUDE"], GOLD_LINE_MAP[orientation])
+        plot_point = decode_coordinates(long, GOLD_LINE_MAP[orientation])
     elif line == "GREEN":
-        plot_point = decode_coordinates(train["VEHICLELATITUDE"], GREEN_LINE_MAP[orientation])
+        plot_point = decode_coordinates(lat, GREEN_LINE_MAP[orientation])
     elif line == "BLUE":
-        plot_point = decode_coordinates(train["VEHICLELATITUDE"], BLUE_LINE_MAP[orientation])
+        plot_point = decode_coordinates(lat, BLUE_LINE_MAP[orientation])
 
     return [plot_point, plot_point]
 
@@ -149,12 +157,18 @@ def get_trains(MARTA_API_URL):
     if response.status_code != 200:
         print("MARTA Train API request failed with status %d", response.status_code)
     all_trains = response.json()
-    all_train_arrivals = all_trains["RailArrivals"]
-
     trains = {}
-    for arrival in all_train_arrivals:
-        if arrival["TRAIN_ID"] not in trains.keys():
-            trains[arrival["TRAIN_ID"]] = arrival
+
+    if "RailArrivals" in all_trains:  #Original API
+        all_train_arrivals = all_trains["RailArrivals"]
+
+        for arrival in all_train_arrivals:
+            if arrival["TRAIN_ID"] not in trains.keys():
+                trains[arrival["TRAIN_ID"]] = arrival
+    else:  #New API
+        for train in all_trains:
+            if train["trainId"] not in trains.keys():
+                trains[train["trainId"]] = train
 
     # TODO: Determine if this cache call can be converted to the new HTTP cache.
     cache.set("cached_trains", json.encode(trains), ttl_seconds = 20)
@@ -801,4 +815,11 @@ DIRECTION_MAP = {
     "Eastbound": "E",
     "Southbound": "S",
     "Westbounr": "W",
+}
+
+LINE_CODE_MAP = {
+    "1": "BLUE",
+    "2": "GREEN",
+    "3": "GOLD",
+    "4": "RED",
 }
