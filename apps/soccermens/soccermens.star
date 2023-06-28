@@ -11,7 +11,7 @@ load("render.star", "render")
 load("schema.star", "schema")
 load("time.star", "time")
 
-VERSION = 23132
+VERSION = 23176
 
 # thanks to @jesushairdo for the new option to be able to show home or away team first.  Let's be more international :-)
 
@@ -53,6 +53,8 @@ LEAGUE_ABBR = {
     "eng.1": "EPL",
     "fra.1": "F Lg1",
     "fifa.world": "WC",
+    "fifa.world.u20": "U20 WC",
+    "fifa.world.u17": "U17 WC",
     "ger.1": "Bund",
     "ita.1": "Ser A",
     "mex.1": "LG MX",
@@ -61,7 +63,8 @@ LEAGUE_ABBR = {
     "uefa.champions": "U Chp",
     "uefa.europa": "Euro",
     "concacaf.nations.league": "ConcNL",
-    "concacaf.champions": "ConcCL",
+    "concacaf.champions": "ConcCC",
+    "concacaf.gold": "Gold C",
 }
 
 def main(config):
@@ -459,8 +462,12 @@ def main(config):
 
 leagueOptions = [
     schema.Option(
-        display = "CONCACAF Champions League",
+        display = "CONCACAF Champions Cup",
         value = "concacaf.champions",
+    ),
+    schema.Option(
+        display = "CONCACAF Gold Cup",
+        value = "concacaf.gold",
     ),
     schema.Option(
         display = "CONCACAF Nations League",
@@ -501,6 +508,14 @@ leagueOptions = [
     schema.Option(
         display = "French Ligue 1",
         value = "fra.1",
+    ),
+    schema.Option(
+        display = "FIFA U17 World Cup",
+        value = "fifa.world.u17",
+    ),
+    schema.Option(
+        display = "FIFA U20 World Cup",
+        value = "fifa.world.u20",
     ),
     schema.Option(
         display = "FIFA World Cup",

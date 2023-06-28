@@ -17,17 +17,17 @@ STATUS_COLOR = ["#59707B", "#0a0", "#F67407", "#FFD100"]
 STEAM_LOGO = http.get(STEAM_LOGO_PATH).body()
 
 def main(config):
-    api_key = secret.decrypt("AV6+xWcEwaY3vnJsrpZ955musUx4antJ6gbwX3x2owwWA3+5Op9iKbtJOOwUi5IEtAyFUoBZ2m/9udqMTty57El86cAySE44VGeMQY7/7gkzdTxISb1jxZy+bI+TM0sOdoYgA/Fs1kVAnT/JFrG0RESwBcHDaP09o77VlvVv0ujLqnz6x20=")
+    #
+    api_key = secret.decrypt("AV6+xWcEAV/C6DlDSXC/ctB9uOeRv75Auw1qriizLmpOld+gcYzQCus3oieQdfGJZwd5tkDOzUm4VWf/dEm5ln82fhQxFkMVPJK4WrDqoiPcfsOGJrjE3k3KIjdYIrc4QenNcj4+nttHUE15SA6rp0U/LBzvLSSY2RvJpItmHuAY8rRyit4=") or config.get("dev_api_key") or ""
 
     STEAM_API_ENDPOINT = "http://api.steampowered.com/ISteamUser/GetPlayerSummaries/v0002/?key=" + api_key + "&steamids="
     STEAM_GAMES_ENDPOINT = "http://api.steampowered.com/IPlayerService/GetOwnedGames/v0001/?key=" + api_key + "&steamid="
 
     resp = http.get(STEAM_API_ENDPOINT + config.str("id", ""), ttl_seconds = 180)
 
-    if resp.status_code != 200:
-        fail("Cannot load the specified user")
-
-    players = resp.json()["response"]["players"]
+    players = {}
+    if resp.status_code == 200:
+        players = resp.json()["response"]["players"]
 
     username = "Cannot find the specified user"
     avatar = STEAM_LOGO
@@ -42,7 +42,6 @@ def main(config):
 
         username = user["personaname"]
 
-        # currently_playing_label = "Now playing:" if "gameextrainfo" in user else ""
         currently_playing = user["gameextrainfo"] if "gameextrainfo" in user else "Just Chilling"
         avatar = http.get(user["avatarfull"], ttl_seconds = 600).body()
         status = STATUS[int(user["personastate"])]
@@ -91,15 +90,6 @@ def main(config):
                             ),
                         ],
                     ),
-                    # render.Row(
-                    #     expanded=True, # Use as much horizontal space as possible
-                    #     main_align="space_evenly", # Controls horizontal alignment
-                    #     cross_align="center", # Controls vertical alignment
-                    #     children = [
-                    #         # render.Text(content=currently_playing_label, font="tb-8")
-                    #         render.Text(content=" ")
-                    #     ]
-                    # ),
                     render.Row(
                         expanded = True,  # Use as much horizontal space as possible
                         main_align = "space_evenly",  # Controls horizontal alignment
@@ -134,12 +124,5 @@ def get_schema():
                 desc = "17 digit Steam ID",
                 icon = "user",
             ),
-            # schema.Toggle(
-            #     id = "small",
-            #     name = "Display small text",
-            #     desc = "A toggle to display smaller text.",
-            #     icon = "compress",
-            #     default = False,
-            # ),
         ],
     )
