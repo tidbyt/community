@@ -1,8 +1,0 @@
----
-id: woocommerce-orders
-name: WooCommerce Orders
-summary: Recent orders from your WooCommerce store
-desc: Stats on your recent orders from your WooCommerce store
-author: Jeremy Launder
-fileName: woocommerce_orders.star
-packageName: woocommerceorders
