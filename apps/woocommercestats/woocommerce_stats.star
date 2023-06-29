@@ -16,7 +16,7 @@ load("math.star", "math")
 load("humanize.star", "humanize")
 load("time.star", "time")
 
-APP_ID = "woocommerce-stats"
+APP_ID = "woocommercestats"
 
 # DEFAULT CONFIG OPTIONS
 DEFAULT_CACHE_TTL = 900 # 15 minutes
@@ -61,8 +61,7 @@ def main(config):
         Pixlet Root element
     """
     
-    # Get the config values
-    shop_url = config.str("shopUrl") or None
+    # Get the cache config value.
     cache_ttl = config.get("cacheTtl") or DEFAULT_CACHE_TTL
 
     # API key config options
@@ -84,6 +83,8 @@ def main(config):
     location = config.get("shopLocation")
     reporting_period = config.get("reportingPeriod") or DEFUALT_REPORTING_PERIOD
     
+    # Get shop url config setting
+    shop_url = config.str("shopUrl") or None
     if shop_url == None:
         return error_view('Shop URL not provided. Check config.')
     
@@ -119,7 +120,6 @@ def main(config):
 
     # Returned as a list with one item
     report = resp.json()
-
     if report == []:
         return error_view('No orders found.')
 
@@ -306,11 +306,11 @@ def keyframes_slide_left_to_right():
             transforms = [animation.Translate(x = -64, y = 0)]
         ),
         animation.Keyframe(
-            percentage = 0.1,
+            percentage = 0.05,
             transforms = [animation.Translate(x = 0, y = 0)]
         ),
         animation.Keyframe(
-            percentage = 0.9,
+            percentage = 0.95,
             transforms = [animation.Translate(x = 0, y = 0)]
         ),                                             
         animation.Keyframe(
