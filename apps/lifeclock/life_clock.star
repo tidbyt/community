@@ -88,34 +88,30 @@ def initial_state(alive, background_color, overlap_pixel):
 # and renders the next frame.
 def update_state(state, frame, clock_array, live_pixel, dead_pixel, clock_pixel, overlap_pixel):
     # Compute which cells will die and live
-    died = [(x, y) for x in X_RANGE for y in Y_RANGE if state[y][x]["alive"] == 1 and state[y][x]["nbr_count"] not in SURVIVAL_RULE]
-    born = [(x, y) for x in X_RANGE for y in Y_RANGE if state[y][x]["alive"] in [-1, 0] and state[y][x]["nbr_count"] in BIRTH_RULE]
+    changed = [(x, y, state[y][x]["alive"]) for x in X_RANGE for y in Y_RANGE if ((state[y][x]["alive"] == 1 and state[y][x]["nbr_count"] not in SURVIVAL_RULE) or (state[y][x]["alive"] == 0 and state[y][x]["nbr_count"] in BIRTH_RULE))]
 
     game_display = [frame]
 
     # For the cells that die, change their status, and also
     # their neighbors will now have one fewer living neighbor.
     # Change color, based on whether it overlaps the clock.
-    for x, y in died:
-        state[y][x]["alive"] = 0
-        for nx, ny in state[y][x]["nbrs"]:
-            state[ny][nx]["nbr_count"] -= 1
-        if clock_array[y][x] == 1:
-            game_display.append(render_pixel(x, y, clock_pixel))
+    for x, y, a in changed:
+        if a == 1:
+            state[y][x]["alive"] = 0
+            for nx, ny in state[y][x]["nbrs"]:
+                state[ny][nx]["nbr_count"] -= 1
+            if clock_array[y][x] == 1:
+                game_display.append(render_pixel(x, y, clock_pixel))
+            else:
+                game_display.append(render_pixel(x, y, dead_pixel))
         else:
-            game_display.append(render_pixel(x, y, dead_pixel))
-
-    # for the cells that are born, change their status, and
-    # also their neighbors will now have one more living neighbor.
-    # Change color, based on whether it overlaps the clock
-    for x, y in born:
-        state[y][x]["alive"] = 1
-        for nx, ny in state[y][x]["nbrs"]:
-            state[ny][nx]["nbr_count"] += 1
-        if clock_array[y][x] == 1:
-            game_display.append(render_pixel(x, y, overlap_pixel))
-        else:
-            game_display.append(render_pixel(x, y, live_pixel))
+            state[y][x]["alive"] = 1
+            for nx, ny in state[y][x]["nbrs"]:
+                state[ny][nx]["nbr_count"] += 1
+            if clock_array[y][x] == 1:
+                game_display.append(render_pixel(x, y, overlap_pixel))
+            else:
+                game_display.append(render_pixel(x, y, live_pixel))
 
     return state, render.Stack(children = game_display)
 
