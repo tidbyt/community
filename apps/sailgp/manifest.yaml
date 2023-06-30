@@ -1,0 +1,8 @@
+---
+id: sailgp
+name: SailGP
+summary: SailGP Race and Leaders
+desc: SailGP Next Race Info and Current Leaderboard.
+author: jvivona
+fileName: sailgp.star
+packageName: sailgp

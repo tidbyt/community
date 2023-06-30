@@ -120,12 +120,12 @@ def main(config):
         color = BLACK,
     )
 
-    serverIP = config.str("serverIP", "localhost")
+    serverIP = config.str("serverIP")
     serverPort = config.str("serverPort", 6565)
     roombaIP = config.str("roombaIP")
 
     if not serverIP:
-        fail("Server IP must be configured")
+        return []
 
     if type(int(serverPort)) != "int":
         fail("Server Port must be an integer")
