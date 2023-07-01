@@ -5,7 +5,6 @@ Description: This app tells you the next buses to arrive at 1-2 bus stops in in 
 Author: abrahamrowe
 """
 
-
 load("http.star", "http")
 load("render.star", "render")
 load("schema.star", "schema")
