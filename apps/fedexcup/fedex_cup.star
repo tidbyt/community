@@ -6,6 +6,9 @@ Author: M0ntyP
 
 v1.0
 First release
+
+v1.1
+Revised API URL
 """
 
 load("encoding/json.star", "json")
@@ -13,7 +16,7 @@ load("http.star", "http")
 load("render.star", "render")
 load("time.star", "time")
 
-STANDINGS_URL = "https://www.pgatour.com/_next/data/pgatour-prod-1.19.5/en/fedexcup.json?tab=official-standings.html"
+STANDINGS_URL = "https://www.pgatour.com/_next/data/pgatour-prod-1.20.11/en/fedexcup.json"
 DEFAULT_TIMEZONE = "America/New_York"
 
 def main():
