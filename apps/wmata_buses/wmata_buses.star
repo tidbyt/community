@@ -8,8 +8,11 @@ Author: abrahamrowe
 load("http.star", "http")
 load("render.star", "render")
 load("schema.star", "schema")
+load("secret.star", "secret")
+load("cache.star", "cache")
+load("encoding/json.star", "json")
 
-ENCRYPTED_API_KEY = "AV6+xWcE4DdObqoafasfZInPpR1p1rhGSq/n0aCN+A+QxCTZ7g9tVvdia3klwC3YHFLBFU0gdII3w07HesLquo41+T0248+NIbpZfLEr3uCE25gZ8iYdfe4CKMLfCFNE8eiyvRoEGfAtu64UDCIkCLI7DVrVNlDqSUrEuWiMI5WN+GfyrpE="
+ENCRYPTED_API_KEY = "AV6+xWcE75Qa4NBGR95T5BIhomjKNElCwHLb9X8tv2vi5URUnTpF2AKtS/mygsyUdYR0H1LzPfrFpuhxJg/vvBsMKSPekTv55SverXn2D3iUszPO0h4N+WDtIpDOCib/Z4jURaZhT0YHuCP/JMb+rlN0/F8eL+Bp5BsbpZM5RDKz6MQgiJE="
 
 def main(config):
     api_key = secret.decrypt(ENCRYPTED_API_KEY)
