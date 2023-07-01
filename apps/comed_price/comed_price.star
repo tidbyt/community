@@ -40,7 +40,7 @@ def main():
                     main_align = "space_evenly",
                     cross_align = "end",
                     children = [
-                        render.Text(content = "ComEd Price", offset = -1, font = "tb-8"),  #color="#cf2c4c"
+                        render.Text(content = "ComEd Price", offset = -1, font = "tb-8"),
                     ],
                 ),
             ],
