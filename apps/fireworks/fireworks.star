@@ -32,11 +32,11 @@ FADE_CELLS = [
     render.Box(width = 1, height = 1, color = "#000F"),
 ]
 
-FRAME_DELAY = 75
-DURATION = 15075
-ROCKET_SPEED = 18  # px/sec
+FRAME_DELAY = 100
+DURATION = 15100
+ROCKET_SPEED = 8  # px/sec
 ROCKET_COUNT = 14
-ROCKET_FLARE_SPEED = 12  # px/sec
+ROCKET_FLARE_SPEED = 8  # px/sec
 ROCKET_FLARES_COUNT = 120
 ROCKET_FLARES_RADIUS = 8
 ROCKET_FLARES_DECAY = 500  # ms to fully fade out
