@@ -24,7 +24,7 @@ def main(config):
             cross_align = "start",  # Controls vertical alignment
             children = [
                 render.Box(width = 1, height = 9, color = "#000"),
-                render.WrappedText(align = "center", content = config.str("title"), font = "tom-thumb"),
+                render.WrappedText(align = "center", content = config.str("title") or "Main Title", font = "tom-thumb"),
                 render.Box(width = 1, height = 9, color = "#000"),
             ],
         ),
@@ -34,7 +34,7 @@ def main(config):
             cross_align = "center",  # Controls vertical alignment
             children = [
                 render.Box(width = 1, height = 9, color = "#000"),
-                render.WrappedText(align = "center", content = config.str("segment" + getHighestActiveSegment(active)) or "", font = "tom-thumb"),
+                render.WrappedText(align = "center", content = config.str("segment" + getHighestActiveSegment(active)) or "Subtitle", font = "tom-thumb"),
                 render.Box(width = 1, height = 9, color = "#000"),
             ],
         ),
