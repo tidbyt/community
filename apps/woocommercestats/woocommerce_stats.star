@@ -78,13 +78,13 @@ def main(config):
 
     # Get shop url config setting
     shop_url = config.str("shopUrl") or None
-    
+
     # Demo mode flag set true when url and keys are not set (for Tidbyt App Store demo)
     if (shop_url == None) and (consumer_key == None) and (consumer_secret_key == None):
         demo_mode = True
     else:
         demo_mode = False
-    
+
     # Shop URL not set but one or more API keys is set so show error
     if (demo_mode == False) and (shop_url == None):
         return error_view("Shop URL not provided.")
@@ -181,7 +181,7 @@ def main(config):
 
 def error_view(message):
     """Output an error message
-    
+
     Args:
         message: The error message to display
     Returns:
@@ -204,7 +204,7 @@ def error_view(message):
                 render_data_row(message, data_color, data_bgnd_color),
             ],
         ),
-    )    
+    )
 
 def render_header_row(logo, heading, heading_color, subheading, subheading_color, bgnd_color):
     """Render a header row
@@ -356,9 +356,9 @@ def get_reporting_period_start_date(reporting_period_config, end_date, timezone)
 
     Args:
         reporting_period_config: (str) The reporting period config
-        end_date: (time.Time) End date of the reporting period 
+        end_date: (time.Time) End date of the reporting period
             YYYY-MM-DD format
-        timezone: (str) The timezone to use for the start date    
+        timezone: (str) The timezone to use for the start date
 
     Returns:
         (Time) The Start Date for the reporting period in YYYY-MM-DD format
@@ -387,7 +387,7 @@ def get_reporting_period_start_date(reporting_period_config, end_date, timezone)
 def get_schema():
     """Get the schema for the app options
 
-    Args: 
+    Args:
         None
     Returns:
         (schema.Schema) The schema for the app options
