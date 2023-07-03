@@ -9,24 +9,18 @@ load("animation.star", "animation")
 load("encoding/base64.star", "base64")
 load("encoding/json.star", "json")
 load("http.star", "http")
+load("humanize.star", "humanize")
+load("math.star", "math")
 load("render.star", "render")
 load("schema.star", "schema")
-load("secret.star", "secret")
-load("math.star", "math")
-load("humanize.star", "humanize")
 load("time.star", "time")
 
 APP_ID = "woocommercestats"
 
 # DEFAULT CONFIG OPTIONS
-DEFAULT_CACHE_TTL = 900 # 15 minutes
+DEFAULT_CACHE_TTL = 900  # 15 minutes
 DEFAULT_TIMEZONE = "America/New_York"
 DEFUALT_REPORTING_PERIOD = "last_7_days"
-
-# Tidbyt server keys - TODO Need to run pixlet encrypt command to get these
-# Can set keys via command line for test devWcConsumerKey, devWcConsumerSecretKey
-ENC_WC_CONSUMER_KEY = "NEED_ENCRYPTED_VALUE"
-ENC_WC_CONSUMER_SECRET_KEY = "NEED_ENCRYPTED_VALUE"
 
 # COLORS
 COLOR_WC_PURPLE_50 = "#7F54B3"
@@ -39,10 +33,10 @@ COLOR_LIGHT_GRAY = "#EEEAE8"
 COLOR_GREEN = "#00FF00"
 
 # FONTS
-FONT_TB8 = "tb-8" # Default font, 5x8
+FONT_TB8 = "tb-8"  # Default font, 5x8
 FONT_6X13 = "6x13"
 FONT_10X20 = "10x20"
-FONT_TOM_THUMB = "tom-thumb" # Small 4x6 font
+FONT_TOM_THUMB = "tom-thumb"  # Small 4x6 font
 HEADING_FONT = FONT_TB8
 SUBHEADING_FONT = FONT_TB8
 DATA_FONT = FONT_6X13
@@ -60,14 +54,13 @@ def main(config):
     Returns:
         Pixlet Root element
     """
-    
+
     # Get the cache config value.
     cache_ttl = config.get("cacheTtl") or DEFAULT_CACHE_TTL
 
     # API key config options
-    # Dev api key config key string is unique so can only be set by command line or url parameter
-    consumer_key = secret.decrypt(ENC_WC_CONSUMER_KEY) or config.str("devWcConsumerKey") or ""
-    consumer_secret_key = secret.decrypt(ENC_WC_CONSUMER_SECRET_KEY) or config.str("devWcConsumerSecretKey") or ""
+    consumer_key = config.str("consumerKey") or None
+    consumer_secret_key = config.str("consumerSecretKey") or None
 
     # Color options - TODO make them settable by user schema
     heading_color = config.str("headerColor") or COLOR_WC_PURPLE_50
@@ -82,57 +75,75 @@ def main(config):
     # Reporting related config options
     location = config.get("shopLocation")
     reporting_period = config.get("reportingPeriod") or DEFUALT_REPORTING_PERIOD
-    
+
     # Get shop url config setting
     shop_url = config.str("shopUrl") or None
-    if shop_url == None:
-        return error_view('Shop URL not provided. Check config.')
     
-    # Get today's date based on shop location for the reporting end date
-    location = json.decode(location) if location else {}
-    timezone = location.get("timezone", config.get("$tz", DEFAULT_TIMEZONE))
-    end_date = time.now().in_location(timezone)
-    end_date_str = end_date.format("2006-01-02") # YYYY-MM-DD
+    # Demo mode flag set true when url and keys are not set (for Tidbyt App Store demo)
+    if (shop_url == None) and (consumer_key == None) and (consumer_secret_key == None):
+        demo_mode = True
+    else:
+        demo_mode = False
+    
+    # Shop URL not set but one or more API keys is set so show error
+    if (demo_mode == False) and (shop_url == None):
+        return error_view("Shop URL not provided.")
 
-    # Get the start date based on the reporting period
-    start_date = get_reporting_period_start_date(reporting_period, end_date, timezone)
-    if start_date == None:
-        return error_view('Invalid reporting period. Check config.')
+    # Shop URL set but one or more API keys is not set so show error
+    if (demo_mode == False) and ((consumer_key != None) or (consumer_secret_key != None)):
+        return error_view("API keys not provided.")
 
-    start_date_str = start_date.format("2006-01-02") # YYYY-MM-DD
+    # Set data for demo mode for Tidbyt App Store or get data from WooCommerce API
+    if demo_mode:
+        subheading = "demo"
+        num_orders = 123
+        sales = 123456
+    else:
+        # Get today's date based on shop location for the reporting end date
+        location = json.decode(location) if location else {}
+        timezone = location.get("timezone", config.get("$tz", DEFAULT_TIMEZONE))
+        end_date = time.now().in_location(timezone)
+        end_date_str = end_date.format("2006-01-02")  # YYYY-MM-DD
 
-    subheading = get_reporting_period_subheading(reporting_period)
-    if subheading == None:
-        return error_view('Invalid reporting period. Check config.')
+        # Get the start date based on the reporting period
+        start_date = get_reporting_period_start_date(reporting_period, end_date, timezone)
+        if start_date == None:
+            return error_view("Invalid reporting period.")
 
-    url = shop_url.strip("/ ") + "/wp-json/wc/v3/reports/sales"
-    params = { 'date_min': start_date_str, 'date_max': end_date_str }
+        start_date_str = start_date.format("2006-01-02")  # YYYY-MM-DD
 
-    resp = http.get(
-        url,
-        params = params,
-        auth = (consumer_key, consumer_secret_key),
-        ttl_seconds = int(cache_ttl) 
-    )
+        subheading = get_reporting_period_subheading(reporting_period)
+        if subheading == None:
+            return error_view("Invalid reporting period.")
 
-    if resp.status_code != 200:
-        return error_view('Error connecting to your site. Check config.')
+        url = shop_url.strip("/ ") + "/wp-json/wc/v3/reports/sales"
+        params = {"date_min": start_date_str, "date_max": end_date_str}
 
-    # Returned as a list with one item
-    report = resp.json()
-    if report == []:
-        return error_view('No orders found.')
+        resp = http.get(
+            url,
+            params = params,
+            auth = (consumer_key, consumer_secret_key),
+            ttl_seconds = int(cache_ttl),
+        )
 
-    report = report[0]
+        if resp.status_code != 200:
+            return error_view("Error connecting to your site.")
 
-    num_orders = int(report.get('total_orders'))
-    if (num_orders < 0) or (num_orders == None):
-        return error_view('Error retrieving orders.')
+        # Returned as a list with one item
+        report = resp.json()
+        if report == []:
+            return error_view("No orders found.")
 
-    # Convert float to int and round up
-    sales = math.ceil(float(report.get('total_sales')))
-    if (sales < 0) or (sales == None):
-        return error_view('Error retrieving sales.')
+        report = report[0]
+
+        num_orders = int(report.get("total_orders"))
+        if (num_orders < 0) or (num_orders == None):
+            return error_view("Error retrieving orders.")
+
+        # Convert float to int and round up
+        sales = math.ceil(float(report.get("total_sales")))
+        if (sales < 0) or (sales == None):
+            return error_view("Error retrieving sales.")
 
     # ~20fps rate - 300 frame duration total resulted in about 15 seconds of total time
     return render.Root(
@@ -147,32 +158,27 @@ def main(config):
                         main_align = "start",
                         children = [
                             render_header_row(logo, "# Orders", heading_color, subheading, subheading_color, header_bgnd_color),
-                            render_data_row(humanize.comma(num_orders), data_color, data_bgnd_color)
-                        ]
-                    )   
+                            render_data_row(humanize.comma(num_orders), data_color, data_bgnd_color),
+                        ],
+                    ),
                 ),
                 animation.Transformation(
                     duration = 150,
                     delay = 0,
-                    keyframes = keyframes_slide_left_to_right(),              
+                    keyframes = keyframes_slide_left_to_right(),
                     child = render.Column(
                         expanded = True,
                         main_align = "start",
                         children = [
                             render_header_row(logo, "Sales", heading_color, subheading, subheading_color, header_bgnd_color),
-                            render_data_row("$" + str(humanize.comma(sales)), data_color, data_bgnd_color)
-                        ]    
-                    )
-                )                
-            ]
-        )
+                            render_data_row("$" + str(humanize.comma(sales)), data_color, data_bgnd_color),
+                        ],
+                    ),
+                ),
+            ],
+        ),
     )
 
-# Error View
-# Renders an error message
-# ---------------------------------------------------------------------
-# message: A message to display as a rendered error
-# Returns: A Pixlet render.Root element
 def error_view(message):
     """Output an error message
     
@@ -181,13 +187,13 @@ def error_view(message):
     Returns:
         Pixlet Root element
     """
-    
+
     heading_color = COLOR_ERROR
     subheading_color = COLOR_ERROR
     data_color = COLOR_ERROR
     header_bgnd_color = COLOR_BLACK
     data_bgnd_color = COLOR_BLACK
-    logo = IMAGE_WOO_SQUARE_16X16 # Use default for error
+    logo = IMAGE_WOO_SQUARE_16X16  # Use default for error
 
     return render.Root(
         child = render.Column(
@@ -195,10 +201,10 @@ def error_view(message):
             main_align = "start",
             children = [
                 render_header_row(logo, "ERROR", heading_color, "", subheading_color, header_bgnd_color),
-                render_data_row(message, data_color, data_bgnd_color)
+                render_data_row(message, data_color, data_bgnd_color),
             ],
         ),
-    )
+    )    
 
 def render_header_row(logo, heading, heading_color, subheading, subheading_color, bgnd_color):
     """Render a header row
@@ -237,19 +243,19 @@ def render_header_row(logo, heading, heading_color, subheading, subheading_color
                         children = [
                             render.Text(
                                 content = str(heading),
-                                font = HEADING_FONT, 
-                                color = heading_color
+                                font = HEADING_FONT,
+                                color = heading_color,
                             ),
                             render.Text(
                                 content = str(subheading),
-                                font = SUBHEADING_FONT, 
-                                color = subheading_color
-                            )
-                        ]
-                    )
-                )
-            )    
-        ]
+                                font = SUBHEADING_FONT,
+                                color = subheading_color,
+                            ),
+                        ],
+                    ),
+                ),
+            ),
+        ],
     )
 
 def render_data_row(content, data_color, bgnd_color):
@@ -282,14 +288,14 @@ def render_data_row(content, data_color, bgnd_color):
                         children = [
                             render.Text(
                                 content = str(content),
-                                font = DATA_FONT, 
-                                color = data_color
-                            )
-                        ]
-                    )
-                )
-            )    
-        ]
+                                font = DATA_FONT,
+                                color = data_color,
+                            ),
+                        ],
+                    ),
+                ),
+            ),
+        ],
     )
 
 def keyframes_slide_left_to_right():
@@ -303,20 +309,20 @@ def keyframes_slide_left_to_right():
     return [
         animation.Keyframe(
             percentage = 0.0,
-            transforms = [animation.Translate(x = -64, y = 0)]
+            transforms = [animation.Translate(x = -64, y = 0)],
         ),
         animation.Keyframe(
             percentage = 0.05,
-            transforms = [animation.Translate(x = 0, y = 0)]
+            transforms = [animation.Translate(x = 0, y = 0)],
         ),
         animation.Keyframe(
             percentage = 0.95,
-            transforms = [animation.Translate(x = 0, y = 0)]
-        ),                                             
+            transforms = [animation.Translate(x = 0, y = 0)],
+        ),
         animation.Keyframe(
             percentage = 1.0,
-            transforms = [animation.Translate(x = 64, y = 0)]
-        )
+            transforms = [animation.Translate(x = 64, y = 0)],
+        ),
     ]
 
 def get_reporting_period_subheading(reporting_period_config):
@@ -336,14 +342,14 @@ def get_reporting_period_subheading(reporting_period_config):
         "last_90_days": "90 Days",
         "this_month": "This Month",
         "this_year": "This Year",
-    }    
+    }
 
     subheading = switch_subheading.get(reporting_period_config, "Invalid Reporting Period")
-    
+
     if subheading == None:
         return None
     else:
-        return subheading    
+        return subheading
 
 def get_reporting_period_start_date(reporting_period_config, end_date, timezone):
     """Get hours to start date based on reporting period config
@@ -415,7 +421,7 @@ def get_schema():
         schema.Option(
             display = "24 hours",
             value = "86400",
-        ),        
+        ),
     ]
 
     reporting_options = [
@@ -442,9 +448,9 @@ def get_schema():
         schema.Option(
             display = "This Year",
             value = "this_year",
-        )        
-    ]    
-    
+        ),
+    ]
+
     return schema.Schema(
         version = "1",
         fields = [
@@ -452,25 +458,25 @@ def get_schema():
                 id = "shopUrl",
                 name = "Shop URL",
                 desc = "The fully qualified URL of your WooCommerce website home page (i.e. https://www.example.com)",
-                icon = "link"
+                icon = "link",
             ),
             schema.Location(
                 id = "shopLocation",
                 name = "Shop Location",
-                desc = "Used as timezone for reporting period",
+                desc = "Used for the timezone when calculating the reporting period",
                 icon = "locationDot",
-            ),           
+            ),
             schema.Text(
                 id = "consumerKey",
                 name = "Consumer Key",
                 desc = "The consumer key for your WooCommerce API",
-                icon = "key"
+                icon = "key",
             ),
             schema.Text(
                 id = "consumerSecretKey",
                 name = "Consumer Secret Key",
                 desc = "The consumer secret key for your WooCommerce API",
-                icon = "key"
+                icon = "key",
             ),
             schema.Dropdown(
                 id = "reportingPeriod",
@@ -478,15 +484,15 @@ def get_schema():
                 desc = "The time period for which to display stats",
                 icon = "clock",
                 default = reporting_options[1].value,
-                options = reporting_options
-            ),            
+                options = reporting_options,
+            ),
             schema.Dropdown(
                 id = "cacheTtl",
                 name = "Refresh Interval",
                 desc = "How often to pull new data from your site",
                 icon = "database",
                 default = cache_options[2].value,
-                options = cache_options
+                options = cache_options,
             ),
         ],
     )
