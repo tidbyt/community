@@ -180,7 +180,7 @@ def get_schema():
                 name = "Thingspeak Channel Id",
                 desc = "The id of the thingspeak channel.",
                 icon = "rss",
-                default = "2203073"
+                default = "2203073",
             ),
             schema.Text(
                 id = "apiKey",
