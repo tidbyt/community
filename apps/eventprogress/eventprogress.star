@@ -24,7 +24,7 @@ def main(config):
             cross_align = "start",  # Controls vertical alignment
             children = [
                 render.Box(width = 1, height = 9, color = "#000"),
-                render.WrappedText(align = "center", content = config.str("title") or "", font = "tom-thumb"),
+                render.Text(content = config.str("title") or "", font = "tom-thumb"),
                 render.Box(width = 1, height = 9, color = "#000"),
             ],
         ),
@@ -34,7 +34,7 @@ def main(config):
             cross_align = "center",  # Controls vertical alignment
             children = [
                 render.Box(width = 1, height = 9, color = "#000"),
-                render.WrappedText(align = "center", content = config.str("segment" + getHighestActiveSegment(active)) or "", font = "tom-thumb"),
+                render.Text(content = config.str("segment" + getHighestActiveSegment(active)) or "", font = "tom-thumb",  color = "B0B0B1"),
                 render.Box(width = 1, height = 9, color = "#000"),
             ],
         ),
@@ -159,7 +159,7 @@ def more_options(numSegments):
                 name = "Segment " + str(i + 1),
                 desc = "Name of segment #" + str(i + 1),
                 icon = "gear",
-                default = "Segment " + str(i + 1),
+                default = "Edit settings",
             ),
         )
 
@@ -170,7 +170,7 @@ def more_options(numSegments):
                 name = "Active " + str(i + 1),
                 desc = "Toggle segment " + str(i + 1) + " active",
                 icon = "check",
-                default = False,
+                default = False if i > 0 else True,
             ),
         )
 
@@ -208,7 +208,7 @@ def get_schema():
                 name = "Title",
                 desc = "Title of the event",
                 icon = "addressCard",
-                default = "Event title",
+                default = "How to start:",
             ),
             schema.Color(
                 id = "color",
@@ -222,7 +222,7 @@ def get_schema():
                 name = "Active Color",
                 desc = "Color of the active segments",
                 icon = "brush",
-                default = "#7AB0FF",
+                default = "#FBFF7A",
             ),
             schema.Color(
                 id = "progressColor",
@@ -243,7 +243,7 @@ def get_schema():
                 name = "Segments",
                 desc = "Number of segments to display",
                 icon = "gear",
-                default = options[0].value,
+                default = options[3].value,
                 options = options,
             ),
             schema.Generated(
