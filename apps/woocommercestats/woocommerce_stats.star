@@ -132,7 +132,7 @@ def main(config):
         # Returned as a list with one item
         report = resp.json()
         if report == []:
-            return error_view("No orders found.")
+            return error_view("No data from site.")
 
         report = report[0]
 
