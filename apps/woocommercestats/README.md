@@ -2,7 +2,7 @@
 
 Displays stats for your WooCommerce store including number of orders and amount of sales over configurable time periods.
 
-![WooCommerce Stats for Tidbyt](woocommerce_stats.webp)
+![WooCommerce Stats for Tidbyt](woocommercestats.png)
 
 ## Requirements
 

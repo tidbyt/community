@@ -90,7 +90,7 @@ def main(config):
         return error_view("Shop URL not provided.")
 
     # Shop URL set but one or more API keys is not set so show error
-    if (demo_mode == False) and ((consumer_key != None) or (consumer_secret_key != None)):
+    if (demo_mode == False) and ((consumer_key == None) or (consumer_secret_key == None)):
         return error_view("API keys not provided.")
 
     # Set data for demo mode for Tidbyt App Store or get data from WooCommerce API
