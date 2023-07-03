@@ -460,24 +460,24 @@ def get_schema():
                 desc = "The fully qualified URL of your WooCommerce website home page (i.e. https://www.example.com)",
                 icon = "link",
             ),
-            schema.Location(
-                id = "shopLocation",
-                name = "Shop Location",
-                desc = "Used for the timezone when calculating the reporting period",
-                icon = "locationDot",
-            ),
             schema.Text(
                 id = "consumerKey",
                 name = "Consumer Key",
-                desc = "The consumer key for your WooCommerce API",
+                desc = "The consumer key for your WooCommerce API. Generate read only keys under WooCommerce > Settings > Advanced > Rest API.",
                 icon = "key",
             ),
             schema.Text(
                 id = "consumerSecretKey",
                 name = "Consumer Secret Key",
-                desc = "The consumer secret key for your WooCommerce API",
+                desc = "The consumer secret key for your WooCommerce API. Generate read only keys under WooCommerce > Settings > Advanced > Rest API.",
                 icon = "key",
             ),
+            schema.Location(
+                id = "shopLocation",
+                name = "Shop Location",
+                desc = "Used for the timezone when calculating the reporting period",
+                icon = "locationDot",
+            ),            
             schema.Dropdown(
                 id = "reportingPeriod",
                 name = "Reporting Period",
