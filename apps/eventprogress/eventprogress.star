@@ -34,7 +34,7 @@ def main(config):
             cross_align = "center",  # Controls vertical alignment
             children = [
                 render.Box(width = 1, height = 9, color = "#000"),
-                render.Text(content = config.str("segment" + getHighestActiveSegment(active)) or "", font = "tom-thumb",  color = "B0B0B1"),
+                render.Text(content = config.str("segment" + getHighestActiveSegment(active)) or "", font = "tom-thumb", color = "B0B0B1"),
                 render.Box(width = 1, height = 9, color = "#000"),
             ],
         ),
