@@ -477,7 +477,7 @@ def get_schema():
                 name = "Shop Location",
                 desc = "Used for the timezone when calculating the reporting period",
                 icon = "locationDot",
-            ),            
+            ),
             schema.Dropdown(
                 id = "reportingPeriod",
                 name = "Reporting Period",
