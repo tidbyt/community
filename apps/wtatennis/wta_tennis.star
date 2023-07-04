@@ -39,6 +39,7 @@ Added GroupingsID variable, as sometimes mens & womens results are listed in the
 v1.7
 Updated determination for completed match, using "description" and not "state"
 Now adding suspended matches in the In Progress list
+Scheduled matches now in order of play - earliest to latest
 """
 
 load("encoding/json.star", "json")
@@ -229,7 +230,7 @@ def main(config):
                             MatchTime = time.parse_time(MatchTime, format = "2006-01-02T15:04Z")
                             diff = MatchTime - now
                             if diff.hours < 12:
-                                ScheduledMatchList.append(y)
+                                ScheduledMatchList.insert(0,y)
 
         # if there are more than 2 matches completed in past 24hrs, then we'll need to show them across multiple screens
         if len(ScheduledMatchList) > 0:
