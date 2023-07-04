@@ -38,10 +38,10 @@ Added feature to show scheduled matches, enable with toggle switch. Will show da
 v1.6.1
 Bug fix - the API lookup for a "scheduled" match which is actually in progress was incorrect
 
-v1.6.2
-Found scenario where a match status was "post" which usually means its over, but it was just suspended
+v1.7
 Updated determination for completed match, using "description" and not "state"
 Now adding suspended matches in the In Progress list
+Scheduled matches now in order of play - earliest to latest
 """
 
 load("encoding/json.star", "json")
@@ -224,7 +224,7 @@ def main(config):
                             MatchTime = time.parse_time(MatchTime, format = "2006-01-02T15:04Z")
                             diff = MatchTime - now
                             if diff.hours < 12:
-                                ScheduledMatchList.append(y)
+                                ScheduledMatchList.insert(0,y)
 
         # if there are more than 2 matches completed in past 24hrs, then we'll need to show them across multiple screens
         if len(ScheduledMatchList) > 0:
