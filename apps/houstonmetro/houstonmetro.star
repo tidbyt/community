@@ -3,10 +3,9 @@ load("encoding/json.star", "json")
 load("http.star", "http")
 load("render.star", "render")
 load("schema.star", "schema")
-load("secret.star", "secret")
 
 DEFAULT_STOP = "Ho414_4620_12308"
-SUBSCRIPTION_KEY = secret.decrypt("AV6+xWcExgLTtX7FCideN8OoeuqFuIVR+iB0aozuj87VWZE8B699w246xpsogg1j4jAo9qAvxQZl0rXN1HRx89QUEvvWGZop47bWfx1vk1SmWjZ8c6+wqZBgMBzNpM5BNpdyuAnmvuFSOxvBnrW16Il4Cw1Fes6A7WujDYq/fauQQ6ctuKw=")
+SUBSCRIPTION_KEY = "da271ffa89c74196b9c9e64efae57100"
 METRO_ICON = base64.decode("""
 iVBORw0KGgoAAAANSUhEUgAAABUAAAAMCAYAAACNzvbFAAAAAXNSR0IArs4c6QAAAE5JREFUOE9jZKABYCRkpm/u5//Y1CxYb4hVq/CTO4x4DSXHQJBNOA0l10CchlJiIF6XEgprfPIY3qfUlRgupYaBtPc+tVwJdyk1DaSZ9wEBvjANhhbdqgAAAABJRU5ErkJggg==
 """)
@@ -21,15 +20,14 @@ def main(config):
     stop_id = config.get("station_id", DEFAULT_STOP)
     time_toggle = config.get("time", DEFAULT_STOP)
 
-    key = SUBSCRIPTION_KEY or config.get("key", None)
     render_elements = []
     if key:
-        endpoint = "https://api.ridemetro.org/data/Stops('" + stop_id + "')?subscription-key=" + key
+        endpoint = "https://api.ridemetro.org/data/Stops('" + stop_id + "')?subscription-key=" + SUBSCRIPTION_KEY
         response = http.get(endpoint, ttl_seconds = ROUTE_INFO_CACHE_TTL).body()
 
         stop_name = json.decode(response)["value"][0]["Name"]
 
-        arrivals_endpoint = "https://api.ridemetro.org/data/Stops('" + stop_id + "')/Arrivals?subscription-key=" + key
+        arrivals_endpoint = "https://api.ridemetro.org/data/Stops('" + stop_id + "')/Arrivals?subscription-key=" + SUBSCRIPTION_KEY
         response = http.get(arrivals_endpoint, ttl_seconds = ARRIVALS_CACHE_TTL).body()
 
         arrivals = json.decode(response)["value"]
@@ -196,7 +194,7 @@ def get_stations(location):
     key = SUBSCRIPTION_KEY
     stops = []
     if key:
-        location_endpoint = "https://houstonmetro.azure-api.net/data/GeoAreas('" + coordinates + "|.5')/Stops?subscription-key=" + key
+        location_endpoint = "https://houstonmetro.azure-api.net/data/GeoAreas('" + coordinates + "|.5')/Stops?subscription-key=" + SUBSCRIPTION_KEY
         response = http.get(location_endpoint, ttl_seconds = ROUTE_INFO_CACHE_TTL)
 
         if response.json()["value"]:
