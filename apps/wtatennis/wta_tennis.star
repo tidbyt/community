@@ -930,7 +930,7 @@ def get_schema():
         fields = [
             schema.Dropdown(
                 id = "TournamentList",
-                name = "Tourney",
+                name = "Tournament",
                 desc = "Choose the tournament",
                 icon = "gear",
                 default = TournamentOptions[0].value,
