@@ -24,7 +24,7 @@ def main(config):
 
             # Save last eight transactions
             transactions = transactions[len(transactions) - 8:len(transactions)]
-            
+
             for transaction in transactions:
                 transaction_date = transaction["date"]
                 date_array = re.split("-", transaction_date)
