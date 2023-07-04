@@ -31,7 +31,7 @@ BIRTH_RULE = [3]
 
 # 180 frames in the animation seems to be the max to render fast enough on tidbyt servers.
 # More like 300 frames seems ideal.
-FRAMES = 180
+FRAMES = 120
 
 # Placement of clock display elements
 PADDING_TOP = 9
@@ -46,7 +46,7 @@ DEFAULT_TWENTY_FOUR_HOUR = False
 # background, live, dead, clock, overlap colors
 DEFAULT_COLORS = ["#559", "#f60", "#000", "#fff", "#fb8"]
 
-# Given a string of characters (the numbers to display on the clock), returns a 0/1 array of pixels.
+# Given a list of characters (the numbers to display on the clock), returns a 0/1 array of pixels.
 def create_clock_array(chars):
     state = [[0 for _ in X_RANGE] for _ in Y_RANGE]
     for i, char in enumerate(chars):
@@ -62,7 +62,7 @@ def render_pixel(x, y, pixel):
     return render.Padding(pad = (x, y, 0, 0), child = pixel)
 
 # Creates the initial state with given alive cells. For a point x,y, state[y][x] is a dictionary with:
-# "alive" value -1/0/1 depending on whether (x,y) is dead / original state / alive,
+# "alive" value -1/0/1 depending on whether (x,y) is dead / original background state / alive,
 # "nbrs" a list of the neighbors of (x,y) (this list never changes),
 # "nbr_count" a count of how many neighbors of (x,y) are alive
 # Also renders the first frame of the animation by stacking pixels in game_display
@@ -84,20 +84,18 @@ def initial_state(alive, background_color, overlap_pixel):
                 state[y][x]["nbr_count"] += state[ny][nx]["alive"]
     return state, render.Stack(children = game_display)
 
-# Updates the state of the game by one time step,
-# and renders the next frame.
+# Updates the state of the game by one time step, and renders the next frame.
 def update_state(state, frame, clock_array, live_pixel, dead_pixel, clock_pixel, overlap_pixel):
     # Compute which cells will die and live
-    changed = [(x, y, state[y][x]["alive"]) for x in X_RANGE for y in Y_RANGE if ((state[y][x]["alive"] == 1 and state[y][x]["nbr_count"] not in SURVIVAL_RULE) or (state[y][x]["alive"] == 0 and state[y][x]["nbr_count"] in BIRTH_RULE))]
+    changed = [(x, y, state[y][x]["alive"]) for x in X_RANGE for y in Y_RANGE if ((state[y][x]["alive"] == 1 and state[y][x]["nbr_count"] not in SURVIVAL_RULE) or (state[y][x]["alive"] in [-1, 0] and state[y][x]["nbr_count"] in BIRTH_RULE))]
 
     game_display = [frame]
 
-    # For the cells that die, change their status, and also
-    # their neighbors will now have one fewer living neighbor.
-    # Change color, based on whether it overlaps the clock.
+    # For the cells that die, change their status, and also their neighbors will now have one fewer living neighbor.
+    # Same for cells that are born. Change color, based on whether it overlaps the clock.
     for x, y, a in changed:
         if a == 1:
-            state[y][x]["alive"] = 0
+            state[y][x]["alive"] = -1
             for nx, ny in state[y][x]["nbrs"]:
                 state[ny][nx]["nbr_count"] -= 1
             if clock_array[y][x] == 1:
@@ -135,10 +133,16 @@ def main(config):
     hour = now.hour
     if not twenty_four_hour and hour > 12:
         hour = hour - 12
+    if not twenty_four_hour and hour == 0:
+        hour = 12
     minute = now.minute
 
     # Creates 0/1 array for the clock (passing 10 corresponds to colon in FONT_ARRAY)
     clock_array = create_clock_array([hour // 10, hour % 10, 10, minute // 10, minute % 10])
+
+    # Creates list of pixels in colon, for use in blinking (passing 11 corresponds to blank space)
+    colon_array = create_clock_array([11, 11, 10, 11, 11])
+    colon_pixels = [(x, y) for x in X_RANGE for y in Y_RANGE if colon_array[y][x] == 1]
 
     # Creates initial state and rendered frame for the
     # game of life based on the pixels in the clock array.
@@ -152,11 +156,21 @@ def main(config):
         frames_per_sec = FRAMES // 60
     delay = 1000 // frames_per_sec
 
-    # Now we build the frames of the animation.
+    # Now we build the frames of the animation, blinking colon if slow animation
     # After each frame, we will update the state of the game
     frames = []
-    for _ in range(FRAMES):
-        frames.append(frame)
+    for i in range(FRAMES):
+        # for the slow animation, the pixels in the colon will blink on/off every frame (every half second)
+        if not fast and i % 2 == 1:
+            frame_colon = [frame]
+            for x, y in colon_pixels:
+                if state[y][x]["alive"] == 1:
+                    frame_colon.append(render_pixel(x, y, live_pixel))
+                else:
+                    frame_colon.append(render_pixel(x, y, dead_pixel))
+            frames.append(render.Stack(children = frame_colon))
+        else:
+            frames.append(frame)
         state, frame = update_state(state, frame, clock_array, live_pixel, dead_pixel, clock_pixel, overlap_pixel)
 
     return render.Root(
