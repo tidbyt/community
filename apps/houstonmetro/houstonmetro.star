@@ -21,7 +21,7 @@ def main(config):
     time_toggle = config.get("time", DEFAULT_STOP)
 
     render_elements = []
-    if key:
+    if SUBSCRIPTION_KEY:
         endpoint = "https://api.ridemetro.org/data/Stops('" + stop_id + "')?subscription-key=" + SUBSCRIPTION_KEY
         response = http.get(endpoint, ttl_seconds = ROUTE_INFO_CACHE_TTL).body()
 
