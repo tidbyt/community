@@ -10,62 +10,98 @@ DAYS_IN_MONTH = [31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31]
 
 def main(config):
     access_token = config.get("access_token", None)
-    displayed_categories = []
+    transactions_mode = config.get("transactions", None)
+    displayed_items = []
     if access_token:
         budget_endpoint = "https://api.ynab.com/v1/budgets/last-used/settings"
         response = http.get(budget_endpoint, headers = {"Authorization": "Bearer " + access_token}, ttl_seconds = 60000).body()
         currency_format = json.decode(response)["data"]["settings"]["currency_format"]
+        if transactions_mode:
+            month_first_date_format = config.get("transaction_date_format", True)
+            transaction_endpoint = "https://api.ynab.com/v1/budgets/last-used/transactions"
+            response = http.get(transaction_endpoint, headers = {"Authorization": "Bearer " + access_token}, ttl_seconds = 60).body()
+            transactions = json.decode(response)["data"]["transactions"]
 
-        month_endpoint = "https://api.ynab.com/v1/budgets/last-used/months/current"
-        response = http.get(month_endpoint, headers = {"Authorization": "Bearer " + access_token}, ttl_seconds = 60).body()
-        categories = json.decode(response)["data"]["month"]["categories"]
-        displayed_categories = []
-        for category in categories:
-            activity = category["activity"]
-            balance = category["balance"]
-            budgeted = category["budgeted"]
-            if balance < 0 or (activity < 0 and balance > 0):
-                render_element = render.Row(
+            # Save last eight transactions
+            transactions = transactions[len(transactions) - 8:len(transactions)]
+            
+            for transaction in transactions:
+                transaction_date = transaction["date"]
+                date_array = re.split("-", transaction_date)
+                date_string = date_array[1] + "-" + date_array[2] if month_first_date_format else date_array[2] + "-" + date_array[1]
+                render_element_payee = render.Row(
                     children = [
-                        render.Text(str(category["name"]).strip(), color = "#ADD8E6", font = "tom-thumb"),
+                        render.Text(date_string + " ", color = "#ADD8E6", font = "tom-thumb"),
+                        render.Text("No Payee" if not transaction["payee_name"] else transaction["payee_name"], color = "FFBF00" if not transaction["payee_name"] else "#ADD8E6", font = "tom-thumb"),
                     ],
                     main_align = "center",
                     cross_align = "center",
                 )
-                if balance < 0:
-                    render_element_balance = render.Row(
-                        children = [
-                            render.Text("  " + currency_string(balance, currency_format) + ":" + currency_string(budgeted, currency_format), color = "#FBCEB1", font = "tom-thumb"),
-                        ],
-                        main_align = "center",
-                        cross_align = "center",
-                    )
-                else:
-                    current_time = time.now()
-                    current_date = current_time.format("2006-01-02T")
-                    date_string = re.split("-", current_date)
-
-                    # Take the ratio of the amount of time remaining in the month versus the amount of money spent
-                    time_ratio = int(date_string[2][0:1]) / DAYS_IN_MONTH[int(date_string[1]) - 1]
-                    money_ratio = balance / budgeted if budgeted > 0 else 100
-                    render_element_balance = render.Row(
-                        children = [
-                            render.Text("  " + currency_string(balance, currency_format) + ":" + currency_string(budgeted, currency_format), color = "#FFD700" if money_ratio < time_ratio else "#90EE90", font = "tom-thumb"),
-                        ],
-                        main_align = "center",
-                        cross_align = "center",
-                    )
-                displayed_categories.append(
+                render_element_amount = render.Row(
+                    children = [
+                        render.Text(" " + currency_string(transaction["amount"], currency_format) + (" C" if transaction["cleared"] else ""), color = "#ffffe0" if transaction["approved"] else "#ff8080", font = "tom-thumb"),
+                    ],
+                    main_align = "center",
+                    cross_align = "center",
+                )
+                displayed_items.append(
                     render.Column(
                         children = [
-                            render_element,
-                            render_element_balance,
+                            render_element_payee,
+                            render_element_amount,
                         ],
                     ),
                 )
+        else:
+            month_endpoint = "https://api.ynab.com/v1/budgets/last-used/months/current"
+            response = http.get(month_endpoint, headers = {"Authorization": "Bearer " + access_token}, ttl_seconds = 60).body()
+            categories = json.decode(response)["data"]["month"]["categories"]
+            for category in categories:
+                activity = category["activity"]
+                balance = category["balance"]
+                budgeted = category["budgeted"]
+                if balance < 0 or (activity < 0 and balance > 0):
+                    render_element = render.Row(
+                        children = [
+                            render.Text(str(category["name"]).strip(), color = "#ADD8E6", font = "tom-thumb"),
+                        ],
+                        main_align = "center",
+                        cross_align = "center",
+                    )
+                    if balance < 0:
+                        render_element_balance = render.Row(
+                            children = [
+                                render.Text("  " + currency_string(balance, currency_format) + ":" + currency_string(budgeted, currency_format), color = "#FF2E2E", font = "tom-thumb"),
+                            ],
+                            main_align = "center",
+                            cross_align = "center",
+                        )
+                    else:
+                        current_time = time.now()
+                        current_date = current_time.format("2006-01-02T")
+                        date_string = re.split("-", current_date)
+
+                        # Take the ratio of the amount of time remaining in the month versus the amount of money spent
+                        time_ratio = int(date_string[2][0:1]) / DAYS_IN_MONTH[int(date_string[1]) - 1]
+                        money_ratio = balance / budgeted if budgeted > 0 else 100
+                        render_element_balance = render.Row(
+                            children = [
+                                render.Text("  " + currency_string(balance, currency_format) + ":" + currency_string(budgeted, currency_format), color = "#ffffe0" if money_ratio < time_ratio else "#90EE90", font = "tom-thumb"),
+                            ],
+                            main_align = "center",
+                            cross_align = "center",
+                        )
+                    displayed_items.append(
+                        render.Column(
+                            children = [
+                                render_element,
+                                render_element_balance,
+                            ],
+                        ),
+                    )
 
     else:
-        displayed_categories.append(
+        displayed_items.append(
             render.Row(
                 children = [
                     render.Box(
@@ -80,7 +116,7 @@ def main(config):
     ynab_row = render.Padding(
         child = render.Row(
             children = [
-                render.Text("YNAB Categories", color = "#ADD8E6", font = "tom-thumb"),
+                render.Text("Transactions" if transactions_mode else "YNAB Categories", color = "#ADD8E6", font = "tom-thumb"),
             ],
             main_align = "center",
             cross_align = "center",
@@ -91,7 +127,7 @@ def main(config):
     # Create animation frames of the category balances
     animation_children = []
     frames = []
-    if len(displayed_categories) == 0:
+    if len(displayed_items) == 0:
         frames.append(
             render.Stack(
                 children = [
@@ -100,7 +136,7 @@ def main(config):
                         children = [
                             render.Box(
                                 color = "#0000",
-                                child = render.Text("No Categories to display", color = "#f3ab3f"),
+                                child = render.Text("No Categories", color = "#f3ab3f"),
                             ),
                         ],
                     ),
@@ -108,14 +144,14 @@ def main(config):
             ),
         )
     else:
-        for i in range(0, len(displayed_categories), 2):
-            if len(displayed_categories) > i + 1:
+        for i in range(0, len(displayed_items), 2):
+            if len(displayed_items) > i + 1:
                 frames.append(
                     render.Column(
                         children = [
                             ynab_row,
-                            displayed_categories[i],
-                            displayed_categories[i + 1],
+                            displayed_items[i],
+                            displayed_items[i + 1],
                         ],
                     ),
                 )
@@ -124,7 +160,7 @@ def main(config):
                     render.Column(
                         children = [
                             ynab_row,
-                            displayed_categories[i],
+                            displayed_items[i],
                         ],
                     ),
                 )
@@ -166,6 +202,20 @@ def get_schema():
                 name = "Auth Key",
                 desc = "Auth Key supplied from YNAB",
                 icon = "key",
+            ),
+            schema.Toggle(
+                id = "transactions",
+                name = "Transaction Mode",
+                desc = "Show recent transactions",
+                icon = "creditCard",
+                default = True,
+            ),
+            schema.Toggle(
+                id = "transaction_date_format",
+                name = "Transaction Date Format",
+                desc = "Show month first in date format",
+                icon = "calendar",
+                default = True,
             ),
             schema.Toggle(
                 id = "categories",
