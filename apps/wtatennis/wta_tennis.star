@@ -39,6 +39,7 @@ Added GroupingsID variable, as sometimes mens & womens results are listed in the
 v1.7
 Updated determination for completed match, using "description" and not "state"
 Now adding suspended matches in the In Progress list
+Suspended matches shown in blue
 Scheduled matches now in order of play - earliest to latest
 """
 
@@ -322,6 +323,11 @@ def getLiveScores(SelectedTourneyID, EventIndex, InProgressMatchList, JSON):
                     Player1Color = "#01AF50"
                 elif JSON["events"][EventIndex]["groupings"][GroupingsID]["competitions"][x]["competitors"][0]["possession"] == False:
                     Player2Color = "#01AF50"
+
+            # if a match is suspended show players in blue
+            if JSON["events"][EventIndex]["groupings"][GroupingsID]["competitions"][x]["status"]["type"]["description"] == "Suspended":
+                Player1Color = "#6aaeeb"
+                Player2Color = "#6aaeeb"
 
             Number_Sets = len(JSON["events"][EventIndex]["groupings"][GroupingsID]["competitions"][x]["competitors"][0]["linescores"])
             Player1_Sets = ""
