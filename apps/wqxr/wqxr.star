@@ -33,7 +33,24 @@ SCROLL_DIRECTION_OPTIONS = [
     ),
 ]
 
+SCROLL_SPEED_OPTIONS = [
+    schema.Option(
+        display = "Fast",
+        value = "0",
+    ),
+    schema.Option(
+        display = "Slower",
+        value = "100",
+    ),
+    schema.Option(
+        display = "Slowest",
+        value = "200"
+    )
+]
+
+
 DEFAULT_SCROLL_DIRECTION = SCROLL_DIRECTION_OPTIONS[0].value
+DEFAULT_SCROLL_SPEED = SCROLL_SPEED_OPTIONS[0].value
 DEFAULT_SHOW_ENSEMBLE = False
 DEFAULT_SHOW_PEOPLE = True
 DEFAULT_USE_CUSTOM_COLORS = False
@@ -60,6 +77,7 @@ ERROR_CONTENT = render.Column(
 def main(config):
     # Get settings values
     scroll_direction = config.str("scroll_direction", DEFAULT_SCROLL_DIRECTION)
+    scroll_speed = int(config.str("scroll_speed", DEFAULT_SCROLL_SPEED))
     should_show_ensemble = config.bool("show_ensemble", DEFAULT_SHOW_ENSEMBLE)
     should_show_people = config.bool("show_people", DEFAULT_SHOW_PEOPLE)
     use_custom_colors = config.bool("use_custom_colors", DEFAULT_USE_CUSTOM_COLORS)
@@ -167,6 +185,7 @@ def main(config):
 
     return render.Root(
         max_age = 60,
+        delay = scroll_speed,
         child = render.Column(
             children = [
                 BLUE_HEADER_BAR,
@@ -200,6 +219,14 @@ def get_schema():
                 icon = "alignJustify",
                 options = SCROLL_DIRECTION_OPTIONS,
                 default = DEFAULT_SCROLL_DIRECTION,
+            ),
+            schema.Dropdown(
+                id = "scroll_speed",
+                name = "Scroll speed",
+                desc = "Slow down the scroll speed of the text",
+                icon = "gauge",
+                options = SCROLL_SPEED_OPTIONS,
+                default = DEFAULT_SCROLL_SPEED,
             ),
             schema.Toggle(
                 id = "show_ensemble",
