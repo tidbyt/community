@@ -44,10 +44,9 @@ SCROLL_SPEED_OPTIONS = [
     ),
     schema.Option(
         display = "Slowest",
-        value = "200"
-    )
+        value = "200",
+    ),
 ]
-
 
 DEFAULT_SCROLL_DIRECTION = SCROLL_DIRECTION_OPTIONS[0].value
 DEFAULT_SCROLL_SPEED = SCROLL_SPEED_OPTIONS[0].value
