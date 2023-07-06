@@ -114,14 +114,14 @@ def main(config):
 def build_people(conductor, soloists):
     output = []
 
-    if conductor:
-        output.append("%s, conductor" % (conductor))
-
     if soloists:
         soloist_parts = []
         for soloist in soloists:
             soloist_parts.append("%s, %s" % (soloist["musician"]["name"], soloist["instruments"][0]))
         output.append(", ".join(soloist_parts))
+
+    if conductor:
+        output.append("%s, conductor" % (conductor))
 
     return ", ".join(output)
 
