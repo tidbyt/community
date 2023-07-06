@@ -22,6 +22,18 @@ COLORS = {
     "red": "#FF0000",
 }
 
+SCROLL_DIRECTION_OPTIONS = [
+    schema.Option(
+        display = "Horizontal",
+        value = "horizontal",
+    ),
+    schema.Option(
+        display = "Vertical",
+        value = "vertical",
+    ),
+]
+
+DEFAULT_SCROLL_DIRECTION = SCROLL_DIRECTION_OPTIONS[0].value
 DEFAULT_SHOW_ENSEMBLE = False
 DEFAULT_SHOW_PEOPLE = True
 DEFAULT_USE_CUSTOM_COLORS = False
@@ -46,6 +58,13 @@ ERROR_CONTENT = render.Column(
 )
 
 def main(config):
+    # Get settings values
+    scroll_direction = config.str("scroll_direction", DEFAULT_SCROLL_DIRECTION)
+    should_show_ensemble = config.bool("show_ensemble", DEFAULT_SHOW_ENSEMBLE)
+    should_show_people = config.bool("show_people", DEFAULT_SHOW_PEOPLE)
+    use_custom_colors = config.bool("use_custom_colors", DEFAULT_USE_CUSTOM_COLORS)
+
+    # Get data
     whats_on = http.get(url = WHATS_ON, ttl_seconds = 30)
 
     if (whats_on.status_code) != 200:
@@ -58,6 +77,7 @@ def main(config):
             ),
         )
 
+    # Parse data
     has_current_show = whats_on.json()["current_show"]
     has_playlist_item = whats_on.json()["current_playlist_item"]
     has_catalog_entry = has_playlist_item and whats_on.json()["current_playlist_item"]["catalog_entry"]
@@ -88,8 +108,7 @@ def main(config):
 
         people = build_people(conductor, soloists)
 
-    use_custom_colors = config.bool("use_custom_colors", DEFAULT_USE_CUSTOM_COLORS)
-
+    # Handle colors
     if use_custom_colors:
         color_title = config.str("color_title", DEFAULT_COLOR_TITLE)
         color_composer = config.str("color_composer", DEFAULT_COLOR_COMPOSER)
@@ -101,29 +120,57 @@ def main(config):
         color_ensemble = DEFAULT_COLOR_ENSEMBLE
         color_people = DEFAULT_COLOR_PEOPLE
 
-    children = []
-    should_show_ensemble = config.bool("show_ensemble", DEFAULT_SHOW_ENSEMBLE)
-    should_show_people = config.bool("show_people", DEFAULT_SHOW_PEOPLE)
+    # These are just for putting the content into
+    root_contents = None
+    data_parts = []
 
-    if title:
-        children.append(render.Marquee(width = 64, child = render.Text(content = title, font = "tb-8", color = color_title)))
-    if composer:
-        children.append(render.Marquee(width = 64, child = render.Text(content = composer, font = "tom-thumb", color = color_composer)))
-    if should_show_ensemble and ensemble:
-        children.append(render.Marquee(width = 64, child = render.Text(content = ensemble, font = "tom-thumb", color = color_ensemble)))
-    if should_show_people and people:
-        children.append(render.Marquee(width = 64, child = render.Text(content = people, font = "tom-thumb", color = color_people)))
+    # Vertical scrolling
+    if scroll_direction == "vertical":
+        # For vertical mode, each child needs to be a WrappedText widget, so the text will wrap to the next line
+
+        # (I also wrap each child in a Padding widget with appropriate spacing, so things can breathe a little bit)
+        pad = (0, 4, 0, 0)  # (left, top, right, bottom)
+
+        if title:
+            # Don't pad the top one because it doesn't need it
+            data_parts.append(render.Padding(pad = 0, child = render.WrappedText(align = "center", width = 64, content = title, font = "tb-8", color = color_title)))
+        if composer:
+            data_parts.append(render.Padding(pad = pad, child = render.WrappedText(align = "center", width = 64, content = composer, font = "tom-thumb", color = color_composer)))
+        if should_show_ensemble and ensemble:
+            data_parts.append(render.Padding(pad = pad, child = render.WrappedText(align = "center", width = 64, content = ensemble, font = "tom-thumb", color = color_ensemble)))
+        if should_show_people and people:
+            data_parts.append(render.Padding(pad = pad, child = render.WrappedText(align = "center", width = 64, content = people, font = "tom-thumb", color = color_people)))
+
+        root_contents = render.Marquee(
+            scroll_direction = "vertical",
+            height = 27,
+            child = render.Column(children = data_parts),
+        )
+
+    # Horizontal scrolling
+    if scroll_direction == "horizontal":
+        # For horizontal mode, each child needs to be its own Marquee widget, so each line will scroll individually when too long
+        if title:
+            data_parts.append(render.Marquee(width = 64, child = render.Text(content = title, font = "tb-8", color = color_title)))
+        if composer:
+            data_parts.append(render.Marquee(width = 64, child = render.Text(content = composer, font = "tom-thumb", color = color_composer)))
+        if should_show_ensemble and ensemble:
+            data_parts.append(render.Marquee(width = 64, child = render.Text(content = ensemble, font = "tom-thumb", color = color_ensemble)))
+        if should_show_people and people:
+            data_parts.append(render.Marquee(width = 64, child = render.Text(content = people, font = "tom-thumb", color = color_people)))
+
+        root_contents = render.Column(
+            expanded = True,
+            main_align = "space_evenly",
+            children = data_parts,
+        )
 
     return render.Root(
         max_age = 60,
         child = render.Column(
             children = [
                 BLUE_HEADER_BAR,
-                render.Column(
-                    expanded = True,
-                    main_align = "space_evenly",
-                    children = children,
-                ),
+                root_contents,
             ],
         ),
     )
@@ -146,6 +193,14 @@ def get_schema():
     return schema.Schema(
         version = "1",
         fields = [
+            schema.Dropdown(
+                id = "scroll_direction",
+                name = "Scroll direction",
+                desc = "Choose whether to scroll text horizontally or vertically",
+                icon = "alignJustify",
+                options = SCROLL_DIRECTION_OPTIONS,
+                default = DEFAULT_SCROLL_DIRECTION,
+            ),
             schema.Toggle(
                 id = "show_ensemble",
                 name = "Show ensemble",
