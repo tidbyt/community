@@ -22,6 +22,8 @@ COLORS = {
     "red": "#FF0000",
 }
 
+DEFAULT_SHOW_ENSEMBLE = False
+DEFAULT_SHOW_PEOPLE = True
 DEFAULT_COLOR_TITLE = COLORS["light_blue"]
 DEFAULT_COLOR_COMPOSER = COLORS["white"]
 DEFAULT_COLOR_ENSEMBLE_AND_PEOPLE = COLORS["medium_gray"]
@@ -85,8 +87,8 @@ def main(config):
         people = build_people(conductor, soloists)
 
     children = []
-    should_show_ensemble = config.bool("show_ensemble")
-    should_show_people = config.bool("show_people")
+    should_show_ensemble = config.bool("show_ensemble", DEFAULT_SHOW_ENSEMBLE)
+    should_show_people = config.bool("show_people", DEFAULT_SHOW_PEOPLE)
 
     if title:
         children.append(render.Marquee(width = 64, child = render.Text(content = title, font = "tb-8", color = config.str("color_title", DEFAULT_COLOR_TITLE))))
@@ -134,14 +136,14 @@ def get_schema():
                 name = "Show ensemble",
                 desc = "Show the ensemble, if applicable",
                 icon = "peopleGroup",
-                default = False,
+                default = DEFAULT_SHOW_ENSEMBLE,
             ),
             schema.Toggle(
                 id = "show_people",
                 name = "Show conductor and soloists",
                 desc = "Show the conductor and/or soloist(s), if applicable",
                 icon = "wandMagicSparkles",
-                default = True,
+                default = DEFAULT_SHOW_PEOPLE,
             ),
             schema.Color(
                 id = "color_title",
