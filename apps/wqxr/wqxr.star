@@ -98,6 +98,7 @@ def main(config):
         children.append(render.Marquee(width = 64, child = render.Text(content = people, font = "tom-thumb", color = config.str("color_ensemble_and_people", DEFAULT_COLOR_ENSEMBLE_AND_PEOPLE))))
 
     return render.Root(
+        max_age = 60,
         child = render.Column(
             children = [
                 BLUE_HEADER_BAR,
