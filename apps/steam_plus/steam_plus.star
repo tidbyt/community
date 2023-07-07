@@ -154,6 +154,7 @@ def get_schema():
                 name = "Steam ID",
                 desc = "17 digit Steam ID",
                 icon = "user",
+                default = "76561197998958802" # Mike's account ID
             ),
             schema.Text(
                 id = "offlineStatus",
