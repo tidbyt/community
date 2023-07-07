@@ -23,7 +23,7 @@ def main(config):
     STEAM_API_ENDPOINT = "http://api.steampowered.com/ISteamUser/GetPlayerSummaries/v0002/?key=" + api_key + "&steamids="
     STEAM_GAMES_ENDPOINT = "http://api.steampowered.com/IPlayerService/GetOwnedGames/v0001/?key=" + api_key + "&steamid="
 
-    resp = http.get(STEAM_API_ENDPOINT + config.str("id", ""), ttl_seconds = 180)
+    resp = http.get(STEAM_API_ENDPOINT + config.str("id", "") or "76561197998958802", ttl_seconds = 180)
 
     players = {}
     if resp.status_code == 200:
@@ -154,7 +154,7 @@ def get_schema():
                 name = "Steam ID",
                 desc = "17 digit Steam ID",
                 icon = "user",
-                default = "76561197998958802" # Mike's account ID
+                default = "76561197998958802",  # Mike's account ID
             ),
             schema.Text(
                 id = "offlineStatus",
