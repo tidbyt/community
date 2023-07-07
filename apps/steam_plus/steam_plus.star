@@ -42,7 +42,7 @@ def main(config):
 
         username = user["personaname"]
 
-        currently_playing = user["gameextrainfo"] if "gameextrainfo" in user else "Just Chilling"
+        currently_playing = user["gameextrainfo"] if "gameextrainfo" in user else config.str("offlineStatus", "Just Chilling") or "Just Chilling"
         avatar = http.get(user["avatarfull"], ttl_seconds = 600).body()
         status = STATUS[int(user["personastate"])]
         currently_playing_game_id = user["gameid"] if "gameid" in user else ""
@@ -70,49 +70,80 @@ def main(config):
                         expanded = True,  # Use as much horizontal space as possible
                         main_align = "space_evenly",  # Controls horizontal alignment
                         cross_align = "center",  # Controls vertical alignment
-                        children = [
-                            render.Image(
-                                src = avatar,
-                                width = 16,
-                                height = 16,
-                            ),
-                            render.Column(
-                                children = [
-                                    render.Marquee(
-                                        width = 48,
-                                        height = 8,
-                                        child = render.Text(content = username, font = "tb-8"),
-                                        offset_start = 0,
-                                        offset_end = 0,
-                                    ),
-                                    render.Text(content = status, font = "tb-8", color = STATUS_COLOR[persona_state], height = 8),
-                                ],
-                            ),
-                        ],
+                        children = player_icon_row(config.bool("playerIconRight", False), avatar, username, status, persona_state)
                     ),
                     render.Row(
                         expanded = True,  # Use as much horizontal space as possible
                         main_align = "space_evenly",  # Controls horizontal alignment
                         cross_align = "end",  # Controls vertical alignment
-                        children = [
-                            render.Image(
-                                src = currently_playing_logo,
-                                width = 16,
-                                height = 15,
-                            ),
-                            # render.Text(content=currently_playing, font="tb-8", height=16, offset=4),
-                            render.Marquee(
-                                width = 56,
-                                child = render.Text(content = " " + currently_playing, font = "tb-8", height = 16, offset = 4),
-                                offset_start = 0,
-                                offset_end = 0,
-                            ),
-                        ],
+                        children = game_icon_row(config.bool("gameIconRight", False), currently_playing_logo, currently_playing)
                     ),
                 ],
             ),
         ),
     )
+
+def game_icon_row(image_right, currently_playing_logo, currently_playing):
+    iconView = render.Image(
+        src = currently_playing_logo,
+        width = 16,
+        height = 15,
+    )
+
+    views = [
+        # render.Text(content=currently_playing, font="tb-8", height=16, offset=4),
+        render.Marquee(
+            width = 48,
+            child = render.Text(content = " " + currently_playing, font = "tb-8", height = 16, offset = 4),
+            offset_start = 0,
+            offset_end = 0,
+            align = 'end' if image_right else 'start'
+        ),
+    ]
+
+    if image_right:
+        views.append(iconView)
+    else:
+        views.insert(0, iconView)
+
+    return views
+
+def player_icon_row(image_right, avatar, username, status, persona_state):
+    iconView = render.Image(
+        src = avatar,
+        width = 16,
+        height = 16,
+    )
+
+    views = [
+        render.Column(
+            children = [
+                render.Marquee(
+                    width = 48,
+                    height = 8,
+                    child = render.Text(content = username, font = "tb-8"),
+                    offset_start = 0,
+                    offset_end = 0,
+                    align = 'end' if image_right else 'start'
+                ),
+                render.Marquee(
+                    child = render.Text(content = status, font = "tb-8", color = STATUS_COLOR[persona_state]), 
+                    offset_start = 0,
+                    offset_end = 0,
+                    width = 48, 
+                    height = 8, 
+                    align = 'end' if image_right else 'start'
+                ),
+            ],
+        ),
+    ]
+
+    if image_right:
+        views.append(iconView)
+    else:
+        views.insert(0, iconView)
+
+    return views
 
 def get_schema():
     return schema.Schema(
@@ -123,6 +154,24 @@ def get_schema():
                 name = "Steam ID",
                 desc = "17 digit Steam ID",
                 icon = "user",
+            ),
+            schema.Text(
+                id = "offlineStatus",
+                name = "Offline Status",
+                desc = "Message displayed when you are offline",
+                icon = "comment",
+            ),
+            schema.Toggle(
+                id = "playerIconRight",
+                name = "Player icon right",
+                desc = "Show the player icon on the right side",
+                icon = "rightToBracket",
+            ),
+            schema.Toggle(
+                id = "gameIconRight",
+                name = "Game icon right",
+                desc = "Show the game icon on the right side",
+                icon = "rightToBracket",
             ),
         ],
     )
