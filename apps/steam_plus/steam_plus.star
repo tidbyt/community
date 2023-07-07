@@ -70,13 +70,13 @@ def main(config):
                         expanded = True,  # Use as much horizontal space as possible
                         main_align = "space_evenly",  # Controls horizontal alignment
                         cross_align = "center",  # Controls vertical alignment
-                        children = player_icon_row(config.bool("playerIconRight", False), avatar, username, status, persona_state)
+                        children = player_icon_row(config.bool("playerIconRight", False), avatar, username, status, persona_state),
                     ),
                     render.Row(
                         expanded = True,  # Use as much horizontal space as possible
                         main_align = "space_evenly",  # Controls horizontal alignment
                         cross_align = "end",  # Controls vertical alignment
-                        children = game_icon_row(config.bool("gameIconRight", False), currently_playing_logo, currently_playing)
+                        children = game_icon_row(config.bool("gameIconRight", False), currently_playing_logo, currently_playing),
                     ),
                 ],
             ),
@@ -97,7 +97,7 @@ def game_icon_row(image_right, currently_playing_logo, currently_playing):
             child = render.Text(content = " " + currently_playing, font = "tb-8", height = 16, offset = 4),
             offset_start = 0,
             offset_end = 0,
-            align = 'end' if image_right else 'start'
+            align = "end" if image_right else "start",
         ),
     ]
 
@@ -124,15 +124,15 @@ def player_icon_row(image_right, avatar, username, status, persona_state):
                     child = render.Text(content = username, font = "tb-8"),
                     offset_start = 0,
                     offset_end = 0,
-                    align = 'end' if image_right else 'start'
+                    align = "end" if image_right else "start",
                 ),
                 render.Marquee(
-                    child = render.Text(content = status, font = "tb-8", color = STATUS_COLOR[persona_state]), 
+                    child = render.Text(content = status, font = "tb-8", color = STATUS_COLOR[persona_state]),
                     offset_start = 0,
                     offset_end = 0,
-                    width = 48, 
-                    height = 8, 
-                    align = 'end' if image_right else 'start'
+                    width = 48,
+                    height = 8,
+                    align = "end" if image_right else "start",
                 ),
             ],
         ),
