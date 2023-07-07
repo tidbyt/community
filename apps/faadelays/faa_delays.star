@@ -293,6 +293,10 @@ def parse_reason(reason):
         reason = "Weather"
     if "VOLUME" in reason:
         return "Volume"
+    if "STAFF" in reason:
+        return "Staffing"
+    if "CONSTRUCTION" in reason:
+        return "Construction"
     return reason
 
 def midpoint(a, b):
