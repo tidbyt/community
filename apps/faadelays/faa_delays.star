@@ -49,7 +49,7 @@ def get_schema():
                 name = "Favorites Mode",
                 desc = "How the favorite airports list should be handled",
                 icon = "gear",
-                default = "demo",
+                default = "favorites_first",
                 options = [
                     schema.Option(display = "Favorites Only", value = "favorites_only"),
                     schema.Option(display = "Favorites First", value = "favorites_first"),
