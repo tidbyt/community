@@ -22,17 +22,40 @@ def main(config):
             response = http.get(transaction_endpoint, headers = {"Authorization": "Bearer " + access_token}, ttl_seconds = 60).body()
             transactions = json.decode(response)["data"]["transactions"]
 
-            # Save last eight transactions
-            transactions = transactions[len(transactions) - 8:len(transactions)]
+            # Save last four transactions
+            transactions = transactions[len(transactions) - 6:len(transactions)]
 
             for transaction in transactions:
                 transaction_date = transaction["date"]
                 date_array = re.split("-", transaction_date)
                 date_string = date_array[1] + "-" + date_array[2] if month_first_date_format else date_array[2] + "-" + date_array[1]
+                render_element_title = render.Padding(
+                    render.Row(
+                        children = [
+                            render.Text(("YNAB " + date_string) if transactions_mode else "YNAB Categories", color = "#ADD8E6", font = "tom-thumb"),
+                        ],
+                        main_align = "center",
+                        cross_align = "center",
+                    ),
+                    pad = 1,
+                )
+                render_element_account = render.Row(
+                    children = [
+                        render.Text(transaction["account_name"], color = "#7393B3", font = "tom-thumb"),
+                    ],
+                    main_align = "center",
+                    cross_align = "center",
+                )
                 render_element_payee = render.Row(
                     children = [
-                        render.Text(date_string + " ", color = "#ADD8E6", font = "tom-thumb"),
-                        render.Text("No Payee" if not transaction["payee_name"] else transaction["payee_name"], color = "FFBF00" if not transaction["payee_name"] else "#ADD8E6", font = "tom-thumb"),
+                        render.Text("No Payee" if not transaction["payee_name"] else transaction["payee_name"], color = "FFBF00" if not transaction["payee_name"] else "#7393B3", font = "tom-thumb"),
+                    ],
+                    main_align = "center",
+                    cross_align = "center",
+                )
+                render_element_category = render.Row(
+                    children = [
+                        render.Text("No Category" if not transaction["category_name"] else transaction["category_name"], color = "FFBF00" if not transaction["category_name"] else "#7393B3", font = "tom-thumb"),
                     ],
                     main_align = "center",
                     cross_align = "center",
@@ -47,7 +70,16 @@ def main(config):
                 displayed_items.append(
                     render.Column(
                         children = [
+                            render_element_title,
+                            render_element_account,
                             render_element_payee,
+                        ],
+                    ),
+                )
+                displayed_items.append(
+                    render.Column(
+                        children = [
+                            render_element_category,
                             render_element_amount,
                         ],
                     ),
@@ -106,23 +138,11 @@ def main(config):
                 children = [
                     render.Box(
                         color = "#0000",
-                        child = render.Text("No API Key", color = "#f3ab3f"),
+                        child = render.WrappedText("No YNAB API Key"),
                     ),
                 ],
             ),
         )
-
-    # YNAB Title Row
-    ynab_row = render.Padding(
-        child = render.Row(
-            children = [
-                render.Text("Transactions" if transactions_mode else "YNAB Categories", color = "#ADD8E6", font = "tom-thumb"),
-            ],
-            main_align = "center",
-            cross_align = "center",
-        ),
-        pad = 1,
-    )
 
     # Create animation frames of the category balances
     animation_children = []
@@ -131,12 +151,11 @@ def main(config):
         frames.append(
             render.Stack(
                 children = [
-                    ynab_row,
                     render.Row(
                         children = [
                             render.Box(
                                 color = "#0000",
-                                child = render.Text("No Categories", color = "#f3ab3f"),
+                                child = render.WrappedText("No YNAB Transactions" if transactions_mode else "No YNAB Categories"),
                             ),
                         ],
                     ),
@@ -149,7 +168,6 @@ def main(config):
                 frames.append(
                     render.Column(
                         children = [
-                            ynab_row,
                             displayed_items[i],
                             displayed_items[i + 1],
                         ],
@@ -159,7 +177,6 @@ def main(config):
                 frames.append(
                     render.Column(
                         children = [
-                            ynab_row,
                             displayed_items[i],
                         ],
                     ),
