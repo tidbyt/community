@@ -154,7 +154,7 @@ patternsPerLang = {
         50: "ZEHN,VOR,{next_hour}",
         55: "FÜNF,VOR,{next_hour}",
     },
-    "en-GB": {
+    "en-US": {
         0: "{hour},O’CLOCK",
         5: "FIVE,PAST,{hour}",
         10: "TEN,PAST,{hour}",
@@ -168,7 +168,7 @@ patternsPerLang = {
         50: "TEN,TILL,{next_hour}",
         55: "FIVE,TILL,{next_hour}",
     },
-    "en-US": {
+    "en-GB": {
         0: "{hour},O’CLOCK",
         5: "FIVE,PAST,{hour}",
         10: "TEN,PAST,{hour}",
