@@ -3,21 +3,24 @@ Applet: Marvel Facts
 Summary: Character Info
 Description: Gives you the description or number of comics a random character has been in.
 Author: Kaitlyn Musial
+
+Last updated: 7/10/2023
+Last update: Fixed API call error due to incorrect BASE_URL
 """
 
-load("cache.star", "cache")
-load("encoding/json.star", "json")
-load("hash.star", "hash")
-load("http.star", "http")
-load("random.star", "random")
 load("render.star", "render")
-load("schema.star", "schema")
-load("secret.star", "secret")
+load("http.star", "http")
+load("encoding/json.star", "json")
+load("cache.star", "cache")
 load("time.star", "time")
+load("hash.star", "hash")
+load("random.star", "random")
+load("secret.star", "secret")
+load("schema.star", "schema")
 
 PUB_KEY = secret.decrypt("AV6+xWcE0v4YH9lODOCdmDnspLyu06WQZeQcmaZtFxVySRVeC1izFlH9+gFHQSrvNGzTg9Y012GqV7wI0v2Exo6vys6Qqxvtt6cGLUhz6WX82Oymia7zlrrr5VoSICD27SFLBOZ0YhxlmUj7nskxekYezPXMS7gHpA8pkE1MiuxWNKZOb+w=")
 PRIV_KEY = secret.decrypt("AV6+xWcEU31fHtInxsumnOP76pedrmT/hciDjVkoMogu8XxcoUmI3ATBHYmsPafR6Bhi1UzARytoR5eIEz2LKdgSLwR0LaMbYC/St+F4EF/0QXgsraPfNzzDfvMAobYEE/YEagahrdKuGuQji6zN7lo2kxd75Rc0U5Gt+cEFi9lhpcZAZ6758tA2JaQgQA==")
-BASE_URL = "https://gateway.marvel.com:443/v1/public/characters?apikey=422c32a7c4c3f9adfe3f4aef0db1a1e8"
+BASE_URL = "https://gateway.marvel.com:443/v1/public/characters?"
 LIMIT = "50"
 
 def main():
@@ -35,8 +38,6 @@ def main():
         char_desc = char[1]
         char_comics = char[2]
         char_series = char[3]
-
-        # TODO: Determine if this cache call can be converted to the new HTTP cache.
         cache.set("new-char", "got", ttl_seconds = 1800)
 
     if char_desc == "":
@@ -88,8 +89,9 @@ def main():
         ),
     )
 
-# Gets new character from the database
+
 def getNew():
+    # Gets a new character from the database.
     now = str(time.now()).split(" ")[1]
     digest = str(now) + PRIV_KEY + PUB_KEY
     FULL_KEY = hash.md5(digest)
@@ -111,16 +113,9 @@ def getNew():
     char_comics = CHARACTER["comics"]["available"]
     char_series = CHARACTER["series"]["available"]
 
-    # TODO: Determine if this cache call can be converted to the new HTTP cache.
     cache.set("char_name", char_name)
-
-    # TODO: Determine if this cache call can be converted to the new HTTP cache.
     cache.set("char_desc", char_desc)
-
-    # TODO: Determine if this cache call can be converted to the new HTTP cache.
     cache.set("char_comics", str(char_comics))
-
-    # TODO: Determine if this cache call can be converted to the new HTTP cache.
     cache.set("char_series", str(char_series))
 
     if char_name == "None":
