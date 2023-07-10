@@ -1,0 +1,8 @@
+---
+id: octoprint
+name: Octoprint
+summary: View Octoprint status
+desc: Display current print's status and time remaining.
+author: noahpodgurski
+fileName: octoprint.star
+packageName: octoprint
