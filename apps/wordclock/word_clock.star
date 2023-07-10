@@ -236,6 +236,7 @@ hoursObj = {
 
 gameOfThronesObj = {
     "en-US": {
+        "stem": "hour of the ",
         "0": "owl",
         "1": "owl",
         "2": "wolf",
@@ -326,7 +327,8 @@ def display_time(hour, min, hours, minutes, special, config):
     else:
         # account for noon/midnight
         if hour % 12 == 0 and min == 0:
-            timeText = "noon" if hour == 12 else "midnight"
+            specialKey = (":").join([str(hour), str(min)])
+            timeText = special[specialKey][0]
             returnTime.append(timeText)
 
         else:
@@ -344,7 +346,7 @@ def game_of_thrones(hour, gameOfThrones, config):
     returnTime = []
     if len(gameOfThrones[str(hour)]) > 0:
         if config.get("dialect") == "en-US":
-            returnTime = ["hour of the ", gameOfThrones[str(hour)]]
+            returnTime = [gameOfThrones["stem"], gameOfThrones[str(hour)]]
     return returnTime
 
 def time_of_day(hour, timeOfDay, config):
@@ -353,6 +355,7 @@ def time_of_day(hour, timeOfDay, config):
     if config.bool("military", False):  # don't show anything
         return returnTime
     elif config.get("display", False) == "basic":  # just show AM/PM
+        # if dialect uses AM/PM
         if config.get("dialect") == "en-US":
             returnTime = ["am".upper()] if hour < 12 else ["pm".upper()]
         return returnTime
@@ -399,11 +402,10 @@ def main(config):
         showTime = display_time(hour, min, hours, minutes, special, config)
 
     # add GoT description or add time of day
-    if config.bool("time_of_day") or config.bool("game_of_thrones"):
-        if config.bool("game_of_thrones"):
-            subTime = game_of_thrones(hour, gameOfThrones, config)
-        else:
-            subTime = time_of_day(hour, timeOfDay, config)
+    if config.bool("game_of_thrones"):
+        subTime = game_of_thrones(hour, gameOfThrones, config)
+    if config.bool("time_of_day") and subTime == []:
+        subTime = time_of_day(hour, timeOfDay, config)
 
     # apply lettercase styling
     if config.get("caps", "caps") == "caps":
