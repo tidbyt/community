@@ -110,35 +110,39 @@ def getNew():
         list: Character details
     """
     now = str(time.now()).split(" ")[1]
-    digest = str(now) + PRIV_KEY + PUB_KEY
-    FULL_KEY = hash.md5(digest)
 
-    MAX_OFFSET = 1562 - int(LIMIT) - 1
-    OFFSET = random.number(0, MAX_OFFSET)
+    if PRIV_KEY != None and PUB_KEY != None:
+        digest = str(now) + PRIV_KEY + PUB_KEY
+        FULL_KEY = hash.md5(digest)
 
-    FINAL_URL = BASE_URL + "&limit=" + LIMIT + "&offset=" + str(OFFSET) + "&ts=" + str(now) + "&hash=" + FULL_KEY + "&apikey=" + PUB_KEY
+        MAX_OFFSET = 1562 - int(LIMIT) - 1
+        OFFSET = random.number(0, MAX_OFFSET)
 
-    full_list = http.get(FINAL_URL).body()
-    full_json = json.decode(full_list)
+        FINAL_URL = BASE_URL + "&limit=" + LIMIT + "&offset=" + str(OFFSET) + "&ts=" + str(now) + "&hash=" + FULL_KEY + "&apikey=" + PUB_KEY
 
-    CHOICE = random.number(0, int(LIMIT) - 1)
+        full_list = http.get(FINAL_URL).body()
+        full_json = json.decode(full_list)
 
-    CHARACTER = full_json["data"]["results"][CHOICE]
+        CHOICE = random.number(0, int(LIMIT) - 1)
 
-    char_name = CHARACTER["name"]
-    char_desc = CHARACTER["description"]
-    char_comics = CHARACTER["comics"]["available"]
-    char_series = CHARACTER["series"]["available"]
+        CHARACTER = full_json["data"]["results"][CHOICE]
 
-    cache.set("char_name", char_name)
-    cache.set("char_desc", char_desc)
-    cache.set("char_comics", str(char_comics))
-    cache.set("char_series", str(char_series))
+        char_name = CHARACTER["name"]
+        char_desc = CHARACTER["description"]
+        char_comics = CHARACTER["comics"]["available"]
+        char_series = CHARACTER["series"]["available"]
 
-    if char_name == "None":
-        return getNew()
+        cache.set("char_name", char_name)
+        cache.set("char_desc", char_desc)
+        cache.set("char_comics", str(char_comics))
+        cache.set("char_series", str(char_series))
+
+        if char_name == "None":
+            return getNew()
+        else:
+            return [char_name, char_desc, char_comics, char_series]
     else:
-        return [char_name, char_desc, char_comics, char_series]
+        return ["Not working :(", "Please contact the developer", None, None]
 
 def get_schema():
     return schema.Schema(
