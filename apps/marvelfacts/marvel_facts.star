@@ -24,6 +24,11 @@ BASE_URL = "https://gateway.marvel.com/v1/public/characters?"
 LIMIT = "50"
 
 def main():
+    """Main Function
+
+    Returns:
+        Root: Character info and display
+    """
     rate_cached = cache.get("new-char")
     if rate_cached != None:
         if cache.get("charName") != None:
@@ -99,7 +104,11 @@ def main():
     )
 
 def getNew():
-    # Gets a new character from the database.
+    """Gets a new character from the API
+
+    Returns:
+        list: Character details
+    """
     now = str(time.now()).split(" ")[1]
     digest = str(now) + PRIV_KEY + PUB_KEY
     FULL_KEY = hash.md5(digest)
