@@ -149,7 +149,7 @@ def main(config):
                                 cross_align = "start",
                                 children = [
                                     render.Column(
-                                        children = getPlayerScore(x, entries, TournamentName, TitleColor, stage, state),
+                                        children = getPlayerScore(x, entries, TournamentName, TitleColor, ColorGradient, stage, state),
                                     ),
                                 ],
                             ),
