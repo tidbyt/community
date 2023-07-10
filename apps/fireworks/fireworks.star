@@ -2,6 +2,7 @@ load("math.star", "math")
 load("random.star", "random")
 load("render.star", "render")
 load("schema.star", "schema")
+load("time.star", "time")
 
 FRAME_DELAYS = {"Normal": "100", "Fast": "60"}
 DURATION = 15100
@@ -146,6 +147,8 @@ def render_rocket(timestamp_ms, frame_delay, rocket):
     return render.Stack(children = cells)
 
 def main(config):
+    random.seed(time.now().unix // 10)
+
     if config.bool("show_message", True):
         msg = config.get("message", DEFAULT_MESSAGE)
     else:
