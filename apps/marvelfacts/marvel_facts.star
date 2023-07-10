@@ -20,17 +20,26 @@ load("time.star", "time")
 
 PUB_KEY = secret.decrypt("AV6+xWcE0v4YH9lODOCdmDnspLyu06WQZeQcmaZtFxVySRVeC1izFlH9+gFHQSrvNGzTg9Y012GqV7wI0v2Exo6vys6Qqxvtt6cGLUhz6WX82Oymia7zlrrr5VoSICD27SFLBOZ0YhxlmUj7nskxekYezPXMS7gHpA8pkE1MiuxWNKZOb+w=")
 PRIV_KEY = secret.decrypt("AV6+xWcEU31fHtInxsumnOP76pedrmT/hciDjVkoMogu8XxcoUmI3ATBHYmsPafR6Bhi1UzARytoR5eIEz2LKdgSLwR0LaMbYC/St+F4EF/0QXgsraPfNzzDfvMAobYEE/YEagahrdKuGuQji6zN7lo2kxd75Rc0U5Gt+cEFi9lhpcZAZ6758tA2JaQgQA==")
-BASE_URL = "https://gateway.marvel.com:443/v1/public/characters?"
+BASE_URL = "https://gateway.marvel.com/v1/public/characters?"
 LIMIT = "50"
 
 def main():
     rate_cached = cache.get("new-char")
     if rate_cached != None:
-        print("Hit! Displaying cached data.")
-        char_name = cache.get("char_name")
-        char_desc = cache.get("char_desc")
-        char_comics = cache.get("char_comics")
-        char_series = cache.get("char_series")
+        if cache.get("charName") != None:
+            print("Hit! Displaying cached data.")
+            char_name = cache.get("char_name")
+            char_desc = cache.get("char_desc")
+            char_comics = cache.get("char_comics")
+            char_series = cache.get("char_series")
+        else:
+            print("Miss! Calling Marvel API.")
+            char = getNew()
+            char_name = char[0]
+            char_desc = char[1]
+            char_comics = char[2]
+            char_series = char[3]
+            cache.set("new-char", "got", ttl_seconds = 1800)
     else:
         print("Miss! Calling Marvel API.")
         char = getNew()
@@ -98,7 +107,7 @@ def getNew():
     MAX_OFFSET = 1562 - int(LIMIT) - 1
     OFFSET = random.number(0, MAX_OFFSET)
 
-    FINAL_URL = BASE_URL + "&limit=" + LIMIT + "&offset=" + str(OFFSET) + "&ts=" + str(now) + "&hash=" + FULL_KEY
+    FINAL_URL = BASE_URL + "&limit=" + LIMIT + "&offset=" + str(OFFSET) + "&ts=" + str(now) + "&hash=" + FULL_KEY + "&apikey=" + PUB_KEY
 
     full_list = http.get(FINAL_URL).body()
     full_json = json.decode(full_list)
