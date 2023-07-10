@@ -289,7 +289,7 @@ def get_schema():
             ),
             schema.Text(
                 id = "apiKey",
-                name = "API Key",
+                name = "Octoprint API Key",
                 desc = "Ex: ABC...",
                 icon = "gear",
             ),
