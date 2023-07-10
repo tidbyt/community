@@ -153,9 +153,7 @@ def main(config):
 
     else:
         job = request("/api/job", serverIP, serverPort, apiKey)
-        print(job)
         printer = request("/api/printer?exclude=temperature", serverIP, serverPort, apiKey)
-        print(printer)
 
     completion = math.round(job["progress"]["completion"])
     name = job["job"]["file"]["display"].removesuffix(".gcode")
