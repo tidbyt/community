@@ -3,8 +3,8 @@ Applet: Maya Calendar
 Summary: Displays Maya calendar
 Description: Displays Maya Long Count, Tzolk’in, and Haab’ calendars.
 Author: Doug Ewell
-Version: 1.0.0
-Date: 2023-06-26 (13.0.10.11.19 8 Kawak 7 Sek)
+Version: 1.0.1
+Date: 2023-06-30 (13.0.10.12.3 12 Ak’b’al 11 Sek)
 """
 
 load("encoding/base64.star", "base64")
@@ -110,11 +110,11 @@ def show_calendars(long_count, tzolkin, haab):
     return render.Root(
         max_age = 60,
         child = render.Box(
-            padding = 1,
+            padding = 0,
             child = render.Column(
                 children = [
                     render.Padding(
-                        pad = (1, 2, 0, 2),
+                        pad = (1, 3, 0, 2),
                         child = render.Text(
                             content = long_count,
                             color = "#fff",
