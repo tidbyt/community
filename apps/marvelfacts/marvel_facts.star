@@ -89,7 +89,6 @@ def main():
         ),
     )
 
-
 def getNew():
     # Gets a new character from the database.
     now = str(time.now()).split(" ")[1]
