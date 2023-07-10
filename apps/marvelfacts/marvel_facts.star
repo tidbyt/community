@@ -142,7 +142,7 @@ def getNew():
         else:
             return [char_name, char_desc, char_comics, char_series]
     else:
-        return ["Not working :(", "Please contact the developer", None, None]
+        return ["Character Name", "Character Info", None, None]
 
 def get_schema():
     return schema.Schema(
