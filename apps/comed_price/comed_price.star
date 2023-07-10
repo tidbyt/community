@@ -17,7 +17,7 @@ iVBORw0KGgoAAAANSUhEUgAAABkAAAAZCAYAAADE6YVjAAAACXBIWXMAAAsTAAALEwEAmpwYAAAF0WlU
 CURRENT_HOUR_AVG = "https://hourlypricing.comed.com/api?type=currenthouraverage&format=text"
 
 def main():
-    rep = http.get(CURRENT_HOUR_AVG)
+    rep = http.get(CURRENT_HOUR_AVG, ttl_seconds = 360)
     if rep.status_code != 200:
         fail("ComEd request failed with status %d", rep.status_code)
 
