@@ -139,7 +139,6 @@ def renderProgress(label, progress_value, padding):
         ],
     )
 
-# http://192.168.1.111:5000/plugin/octolapse/loadSettingsAndState
 def main(config):
     serverIP = config.str("serverIP")
     serverPort = config.str("serverPort", "5000")
