@@ -3,36 +3,7 @@ load("random.star", "random")
 load("render.star", "render")
 load("schema.star", "schema")
 
-FIREWORK_CELLS = [
-    render.Box(width = 1, height = 1, color = "#F00"),  # r
-    render.Box(width = 1, height = 1, color = "#0F0"),  # g
-    render.Box(width = 1, height = 1, color = "#00F"),  # b
-    render.Box(width = 1, height = 1, color = "#FF0"),  # y
-    render.Box(width = 1, height = 1, color = "#F80"),  # o
-    render.Box(width = 1, height = 1, color = "#A0F"),  # p
-    render.Box(width = 1, height = 1, color = "#FFF"),  # w
-]
-
-FADE_CELLS = [
-    render.Box(width = 1, height = 1, color = "#0000"),
-    render.Box(width = 1, height = 1, color = "#0001"),
-    render.Box(width = 1, height = 1, color = "#0002"),
-    render.Box(width = 1, height = 1, color = "#0003"),
-    render.Box(width = 1, height = 1, color = "#0004"),
-    render.Box(width = 1, height = 1, color = "#0005"),
-    render.Box(width = 1, height = 1, color = "#0006"),
-    render.Box(width = 1, height = 1, color = "#0007"),
-    render.Box(width = 1, height = 1, color = "#0008"),
-    render.Box(width = 1, height = 1, color = "#0009"),
-    render.Box(width = 1, height = 1, color = "#000A"),
-    render.Box(width = 1, height = 1, color = "#000B"),
-    render.Box(width = 1, height = 1, color = "#000C"),
-    render.Box(width = 1, height = 1, color = "#000D"),
-    render.Box(width = 1, height = 1, color = "#000E"),
-    render.Box(width = 1, height = 1, color = "#000F"),
-]
-
-FRAME_DELAY = 100
+FRAME_DELAYS = {"Normal": "100", "Fast": "60"}
 DURATION = 15100
 ROCKET_SPEED = 8  # px/sec
 ROCKET_COUNT = 14
@@ -44,6 +15,20 @@ ROCKET_FUSE_SPACING = 750  # ms between rockets
 DEFAULT_MESSAGE = "CUSTOM MESSAGE HERE"
 DEFAULT_FONT = "tb-8"
 DEFAULT_MSG_COLOR = "#CCC"
+DEFAULT_FRAME_DELAY = FRAME_DELAYS["Normal"]
+
+def compile_cells():
+    # Create transparency levels for each color:
+    cells = []
+    firework_colors = ("#F00", "#0F0", "#00F", "#FF0", "#F80", "#A0F", "#FFF")
+    for c in firework_colors:
+        color_group = []
+        for i in range(16):
+            color_group.append(render.Box(width = 1, height = 1, color = c + "%X" % i))
+        cells.append(color_group)
+    return cells
+
+FIREWORK_CELLS = compile_cells()
 
 def summon_fireworks():
     rockets = []
@@ -51,7 +36,7 @@ def summon_fireworks():
     min_altitude = max_altitude - 3
     for rocket_i in range(ROCKET_COUNT):
         rockets.append({
-            "cell": FIREWORK_CELLS[random.number(0, len(FIREWORK_CELLS) - 1)],
+            "cells": FIREWORK_CELLS[random.number(0, len(FIREWORK_CELLS) - 1)],
             "fuse": ROCKET_FUSE_SPACING * rocket_i,
             "position_x": random.number(ROCKET_FLARES_RADIUS, 64 - ROCKET_FLARES_RADIUS),
             "altitude": -1,
@@ -102,15 +87,15 @@ def summon_fireworks():
 
     return rockets
 
-def render_rocket(timestamp_ms, rocket):
+def render_rocket(timestamp_ms, frame_delay, rocket):
     cells = []
     if rocket["fuse"] > 0:
-        rocket["fuse"] = max(0, rocket["fuse"] - FRAME_DELAY)
+        rocket["fuse"] = max(0, rocket["fuse"] - frame_delay)
     elif rocket["fades_done"]:
         pass
     elif rocket["altitude"] < rocket["max_altitude"]:
         # Draw the rocket
-        rocket["altitude"] += FRAME_DELAY / 1000 * ROCKET_SPEED
+        rocket["altitude"] += frame_delay / 1000 * ROCKET_SPEED
         rocket["altitude"] = min(rocket["altitude"], rocket["max_altitude"])
         r_pad = (
             rocket["position_x"],
@@ -118,13 +103,14 @@ def render_rocket(timestamp_ms, rocket):
             0,
             0,
         )
-        cells.append(render.Padding(child = rocket["cell"], pad = r_pad))
+        cells.append(render.Padding(child = rocket["cells"][15], pad = r_pad))
     else:
         # Draw the explosion
         rocket["altitude"] = rocket["max_altitude"]
         burst_length_ms = ROCKET_FLARES_RADIUS / ROCKET_FLARE_SPEED * 1000
         if rocket["burst_frame_ms"] == -1:
             rocket["burst_frame_ms"] = timestamp_ms
+
         if rocket["burst_frame_ms"] > -1:
             burst_percent = min(1, (timestamp_ms - rocket["burst_frame_ms"]) / burst_length_ms)
         else:
@@ -135,6 +121,17 @@ def render_rocket(timestamp_ms, rocket):
             rocket["flares_done"] = True
 
         for flare in rocket["flares"]:
+            if rocket["flares_done"]:
+                # Start/continue fading:
+                fade_idx = 1 - min(1, (timestamp_ms - rocket["flares_done_frame_ms"]) / ROCKET_FLARES_DECAY)
+                fade_idx = fade_idx * 15
+                fade_idx = int(fade_idx)
+                rocket["fades_done"] = fade_idx == 0
+                cell = rocket["cells"][fade_idx]
+
+            else:
+                cell = rocket["cells"][15]
+
             flare_distance = burst_percent * flare["max_dist"]
             flare_pad = (
                 int(rocket["position_x"] + flare["cos"] * flare_distance),
@@ -143,21 +140,8 @@ def render_rocket(timestamp_ms, rocket):
                 0,
             )
 
-            if rocket["flares_done"]:
-                fade_idx = min(1, (timestamp_ms - rocket["flares_done_frame_ms"]) / ROCKET_FLARES_DECAY)
-                fade_idx = fade_idx * (len(FADE_CELLS) - 1)
-                fade_idx = int(fade_idx)
-                rocket["fades_done"] = fade_idx == len(FADE_CELLS) - 1
-                fade_cell = FADE_CELLS[fade_idx]
-
-            else:
-                fade_cell = FADE_CELLS[0]
-
             if not rocket["fades_done"]:
-                cells.append(render.Stack(children = [
-                    render.Padding(child = rocket["cell"], pad = flare_pad),
-                    render.Padding(child = fade_cell, pad = flare_pad),
-                ]))
+                cells.append(render.Padding(child = cell, pad = flare_pad))
 
     return render.Stack(children = cells)
 
@@ -184,20 +168,21 @@ def main(config):
         ],
     )
 
+    frame_delay = int(config.get("frame_delay", DEFAULT_FRAME_DELAY))
     timestamp_ms = 0
-    frame_count = int(DURATION / FRAME_DELAY)
+    frame_count = int(DURATION / frame_delay)
     frames = []
     rockets = summon_fireworks()
     for _ in range(frame_count):
         frame_stack = []
         frame_stack.append(widget_message)
         for r in rockets:
-            frame_stack.append(render_rocket(timestamp_ms, r))
+            frame_stack.append(render_rocket(timestamp_ms, frame_delay, r))
         frames.append(render.Stack(children = frame_stack))
-        timestamp_ms += FRAME_DELAY
+        timestamp_ms += frame_delay
 
     return render.Root(
-        delay = FRAME_DELAY,
+        delay = frame_delay,
         child = render.Animation(frames),
     )
 
@@ -205,6 +190,11 @@ def get_schema():
     fonts = [
         schema.Option(display = display_name, value = font)
         for display_name, font in render.fonts.items()
+    ]
+
+    speeds = [
+        schema.Option(display = display_name, value = speed)
+        for display_name, speed in FRAME_DELAYS.items()
     ]
 
     return schema.Schema(
@@ -230,6 +220,14 @@ def get_schema():
                 desc = "The color of the message",
                 icon = "brush",
                 default = DEFAULT_MSG_COLOR,
+            ),
+            schema.Dropdown(
+                id = "frame_delay",
+                name = "Message Speed",
+                desc = "The speed to scroll long messages",
+                icon = "backward",
+                default = DEFAULT_FRAME_DELAY,
+                options = speeds,
             ),
             schema.Toggle(
                 id = "show_message",
