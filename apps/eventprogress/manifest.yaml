@@ -1,0 +1,8 @@
+---
+id: event-progress
+name: Event Progress
+summary: Track event progress
+desc: Track the progress of an event and its segments using sgement nodes and a progress bar.
+author: Mike Toscano
+fileName: eventprogress.star
+packageName: eventprogress
