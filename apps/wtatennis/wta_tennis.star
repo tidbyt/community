@@ -35,6 +35,12 @@ v1.6
 ESPN changed the structure of the API so had to reflect those changes in the app
 Added feature to show scheduled matches, enable with toggle switch. Will show date & time of scheduled match in Tidbyt's timezone
 Added GroupingsID variable, as sometimes mens & womens results are listed in the API
+
+v1.7
+Updated determination for completed match, using "description" and not "state"
+Now adding suspended matches in the In Progress list
+Suspended matches shown in blue
+Scheduled matches now in order of play - earliest to latest
 """
 
 load("encoding/json.star", "json")
@@ -108,6 +114,15 @@ def main(config):
                             InProgressMatchList.append(y)
                             InProgress = InProgress + 1
 
+                    if WTA_JSON["events"][x]["groupings"][GroupingsID]["competitions"][y]["status"]["type"]["description"] == "Suspended":
+                        MatchTime = WTA_JSON["events"][EventIndex]["groupings"][GroupingsID]["competitions"][y]["date"]
+                        MatchTime = time.parse_time(MatchTime, format = "2006-01-02T15:04Z")
+                        diffMatch = MatchTime - now
+
+                        if diffMatch.hours > -24:
+                            InProgressMatchList.append(y)
+                            InProgress = InProgress + 1
+
                     # Another gotcha with the ESPN data feed, some in progress matches are still listed as "Scheduled"
                     # So check if there is a score listed and if so, add it to the list
                     if WTA_JSON["events"][x]["groupings"][GroupingsID]["competitions"][y]["status"]["type"]["description"] == "Scheduled":
@@ -167,7 +182,7 @@ def main(config):
                         GroupingsID = 1
                     for y in range(0, len(WTA_JSON["events"][x]["groupings"][GroupingsID]["competitions"]), 1):
                         # if the match is completed ("post") and its a singles match ("athlete") and the start time of the match was < 24 hrs ago, lets add it to the list of completed matches
-                        if WTA_JSON["events"][x]["groupings"][GroupingsID]["competitions"][y]["status"]["type"]["state"] == "post":
+                        if WTA_JSON["events"][x]["groupings"][GroupingsID]["competitions"][y]["status"]["type"]["description"] == "Final":
                             MatchTime = WTA_JSON["events"][EventIndex]["groupings"][GroupingsID]["competitions"][y]["date"]
                             MatchTime = time.parse_time(MatchTime, format = "2006-01-02T15:04Z")
                             diff = MatchTime - now
@@ -216,7 +231,7 @@ def main(config):
                             MatchTime = time.parse_time(MatchTime, format = "2006-01-02T15:04Z")
                             diff = MatchTime - now
                             if diff.hours < 12:
-                                ScheduledMatchList.append(y)
+                                ScheduledMatchList.insert(0, y)
 
         # if there are more than 2 matches completed in past 24hrs, then we'll need to show them across multiple screens
         if len(ScheduledMatchList) > 0:
@@ -308,6 +323,11 @@ def getLiveScores(SelectedTourneyID, EventIndex, InProgressMatchList, JSON):
                     Player1Color = "#01AF50"
                 elif JSON["events"][EventIndex]["groupings"][GroupingsID]["competitions"][x]["competitors"][0]["possession"] == False:
                     Player2Color = "#01AF50"
+
+            # if a match is suspended show players in blue
+            if JSON["events"][EventIndex]["groupings"][GroupingsID]["competitions"][x]["status"]["type"]["description"] == "Suspended":
+                Player1Color = "#6aaeeb"
+                Player2Color = "#6aaeeb"
 
             Number_Sets = len(JSON["events"][EventIndex]["groupings"][GroupingsID]["competitions"][x]["competitors"][0]["linescores"])
             Player1_Sets = ""
@@ -916,7 +936,7 @@ def get_schema():
         fields = [
             schema.Dropdown(
                 id = "TournamentList",
-                name = "Tourney",
+                name = "Tournament",
                 desc = "Choose the tournament",
                 icon = "gear",
                 default = TournamentOptions[0].value,
