@@ -42,6 +42,8 @@ ROCKET_FLARES_RADIUS = 8
 ROCKET_FLARES_DECAY = 500  # ms to fully fade out
 ROCKET_FUSE_SPACING = 750  # ms between rockets
 DEFAULT_MESSAGE = "CUSTOM MESSAGE HERE"
+DEFAULT_FONT = "tb-8"
+DEFAULT_MSG_COLOR = "#CCC"
 
 def summon_fireworks():
     rockets = []
@@ -159,28 +161,33 @@ def render_rocket(timestamp_ms, rocket):
 
     return render.Stack(children = cells)
 
-def render_all(message_content):
-    frame_count = int(DURATION / FRAME_DELAY)
-    rockets = summon_fireworks()
-    frames = []
-    timestamp_ms = 0
-    widget_text = render.Text(content = message_content, color = "#CCC", font = "5x8")
-    message_length = len(message_content) * 5
-    if message_length > 64:
-        widget_message = render.Padding(
-            pad = (0, 24, 0, 0),
-            child = render.Marquee(
-                width = 64,
-                child = widget_text,
-                offset_start = 64,
-            ),
-        )
+def main(config):
+    if config.bool("show_message", True):
+        msg = config.get("message", DEFAULT_MESSAGE)
     else:
-        widget_message = render.Padding(
-            pad = (int((64 - message_length) / 2), 24, 0, 0),
-            child = widget_text,
-        )
+        msg = ""
 
+    widget_message = render.Column(
+        expanded = True,
+        main_align = "end",
+        children = [
+            render.Marquee(
+                width = 64,
+                offset_start = 64,
+                align = "center",
+                child = render.Text(
+                    content = msg,
+                    color = config.get("message_color", DEFAULT_MSG_COLOR),
+                    font = config.get("font", DEFAULT_FONT),
+                ),
+            ),
+        ],
+    )
+
+    timestamp_ms = 0
+    frame_count = int(DURATION / FRAME_DELAY)
+    frames = []
+    rockets = summon_fireworks()
     for _ in range(frame_count):
         frame_stack = []
         frame_stack.append(widget_message)
@@ -188,16 +195,18 @@ def render_all(message_content):
             frame_stack.append(render_rocket(timestamp_ms, r))
         frames.append(render.Stack(children = frame_stack))
         timestamp_ms += FRAME_DELAY
-    return frames
 
-def main(config):
-    if config.bool("show_message", True):
-        msg = config.get("message", DEFAULT_MESSAGE)
-    else:
-        msg = " "
-    return render.Root(delay = FRAME_DELAY, child = render.Animation(render_all(msg)))
+    return render.Root(
+        delay = FRAME_DELAY,
+        child = render.Animation(frames),
+    )
 
 def get_schema():
+    fonts = [
+        schema.Option(display = display_name, value = font)
+        for display_name, font in render.fonts.items()
+    ]
+
     return schema.Schema(
         version = "1",
         fields = [
@@ -205,7 +214,22 @@ def get_schema():
                 id = "message",
                 name = "Message",
                 desc = "Message to show under the fireworks",
+                icon = "pen",
+            ),
+            schema.Dropdown(
+                id = "font",
+                name = "Font",
+                desc = "The font to use for the message",
                 icon = "font",
+                default = DEFAULT_FONT,
+                options = fonts,
+            ),
+            schema.Color(
+                id = "message_color",
+                name = "Color",
+                desc = "The color of the message",
+                icon = "brush",
+                default = DEFAULT_MSG_COLOR,
             ),
             schema.Toggle(
                 id = "show_message",
