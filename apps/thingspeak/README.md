@@ -1,9 +1,7 @@
-![Thingspeak-gif!](/thingspeak.gif)
-
 # What is Thingspeak?
 [ThingSpeak](https://thingspeak.com/) is an IoT analytics platform service that allows you to aggregate, visualize, and analyze live data streams in the cloud. You can send data to ThingSpeak from your devices, create instant visualization of live data, and send alerts.
 
-![Thingspeak-SxS!](/assets/ThingSpeakDemo.png)
+![Thingspeak-SxS!](ThingSpeakDemo.png)
 
 # How does this work
 1. Creat a Thingspeak account

@@ -93,7 +93,7 @@ def get_schema():
                 name = "Synths",
                 desc = "Select what synths you want to see.",
                 icon = "gaugeHigh",
-                default = "Classic and Fantasy",
+                default = "all",
                 options = synthoptions,
             ),
         ],
