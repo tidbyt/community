@@ -70,7 +70,7 @@ def main(config):
     stops_req = http.get(GOOD_SERVICE_STOPS_URL_BASE)
     if stops_req.status_code != 200:
         fail("goodservice stops request failed with status %d", stops_req.status_code)
-    
+
     travel_time_raw = json.decode(config.get("travel_time", DEFAULT_TRAVEL_TIME))["value"]
     if not is_parsable_integer(travel_time_raw):
         fail("non-integer value provided for travel_time: %s", travel_time_raw)
@@ -80,27 +80,27 @@ def main(config):
     if direction_config == "both":
         directions = ["north", "south"]
     else:
-        directions = [direction_config]     
+        directions = [direction_config]
 
     ts = time.now().unix
     blocks = []
     min_estimated_arrival_time = ts + (travel_time_min * 60)
-    
+
     for dir in directions:
         upcoming_routes = {
             "north": [],
             "south": [],
         }
-        dir_data = stop_req.json()["upcoming_trips"].get(dir)            
+        dir_data = stop_req.json()["upcoming_trips"].get(dir)
         if not dir_data:
             continue
 
         for trip in dir_data:
             matching_route = None
-            
+
             if trip["estimated_current_stop_arrival_time"] < min_estimated_arrival_time:
                 continue
-                
+
             for r in upcoming_routes[dir]:
                 if r["route_id"] == trip["route_id"] and r["destination_stop"] == trip["destination_stop"]:
                     matching_route = r
@@ -142,7 +142,7 @@ def main(config):
                     text = "due"
                 else:
                     text = str(int(first_eta))
-                      
+
                 if len(r["times"]) == 1 and text != "due" and text != "delay":
                     text = text + " min"
                 elif text != "delay":
@@ -157,13 +157,13 @@ def main(config):
                         text = text + ", due"
                     else:
                         third_time_delta = config.str("third_time")
-                        if  (third_time_delta != None) and second_eta - first_eta < int(third_time_delta):
-                            third_eta = (int((r["times"][2]) - ts) /60)
+                        if (third_time_delta != None) and second_eta - first_eta < int(third_time_delta):
+                            third_eta = (int((r["times"][2]) - ts) / 60)
                             third_train_is_delayed = r["is_delayed"][2]
-                            text = text +", " + str(int(second_eta)) + ", " + str(int(third_eta)) + " min"
-                        else: 
+                            text = text + ", " + str(int(second_eta)) + ", " + str(int(third_eta)) + " min"
+                        else:
                             text = text + ", " + str(int(second_eta)) + " min"
-                            
+
                 if len(selected_route["name"]) > 1 and selected_route["name"][1] == "X":
                     bullet = render.Stack(
                         children = [
@@ -229,7 +229,7 @@ def main(config):
             ),
         ),
     )
-    
+
 def is_parsable_integer(maybe_number):
     return not re.findall("[^0-9]", maybe_number)
 
@@ -304,7 +304,7 @@ def get_schema():
             schema.Dropdown(
                 id = "third_time",
                 name = "Third Time",
-                desc = "Show 3rd upcoming time if first two times are within X mins",
+                desc = "3rd arrival time delta",
                 icon = "hourglass",
                 default = "3",
                 options = [
@@ -328,7 +328,6 @@ def get_schema():
                         display = "10 mins",
                         value = "10",
                     ),
-                    
                     schema.Option(
                         display = "Always Show",
                         value = "1000",
