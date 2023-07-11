@@ -142,7 +142,6 @@ def main(config):
                     text = "due"
                 else:
                     text = str(int(first_eta))
-
                 if len(r["times"]) == 1 and text != "due" and text != "delay":
                     text = text + " min"
                 elif text != "delay":
@@ -157,10 +156,17 @@ def main(config):
                         text = text + ", due"
                     else:
                         third_time_delta = config.str("third_time")
-                        if (third_time_delta != None) and second_eta - first_eta < int(third_time_delta):
+                        if len(r["times"]) > 2 and (third_time_delta != None) and second_eta - first_eta < int(third_time_delta):
                             third_eta = (int((r["times"][2]) - ts) / 60)
                             third_train_is_delayed = r["is_delayed"][2]
-                            text = text + ", " + str(int(second_eta)) + ", " + str(int(third_eta)) + " min"
+                            if third_train_is_delayed != 1:
+                                text = text + ", " + str(int(second_eta)) + ", " + str(int(third_eta))
+                                if len(text) > 9:
+                                    text = text + " m"
+                                else:
+                                    text = text + " min"
+                            else:
+                                text = text + ", " + str(int(second_eta)) + ", delay"
                         else:
                             text = text + ", " + str(int(second_eta)) + " min"
 
