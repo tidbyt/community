@@ -43,6 +43,9 @@ Updated determination for completed match, using "description" and not "state"
 Now adding suspended matches in the In Progress list
 Suspended matches shown in blue
 Scheduled matches now in order of play - earliest to latest
+
+v1.7.1
+Bug fix - Retired matches were not being captured after changing completed match determination to description
 """
 
 load("encoding/json.star", "json")
@@ -177,8 +180,10 @@ def main(config):
                 # check if we are between the start & end date of the tournament
                 if diffTournStart.hours < 0 and diffTournEnd.hours > 0:
                     for y in range(0, len(ATP_JSON["events"][x]["groupings"][0]["competitions"]), 1):
-                        # if the match is completed ("post") and the start time of the match was < 24 hrs ago, lets add it to the list of completed matches
-                        if ATP_JSON["events"][x]["groupings"][0]["competitions"][y]["status"]["type"]["description"] == "Final":
+                        MatchState = ATP_JSON["events"][x]["groupings"][0]["competitions"][y]["status"]["type"]["description"]
+
+                        # if the match is completed and the start time of the match was < 24 hrs ago, lets add it to the list of completed matches
+                        if MatchState == "Final" or MatchState == "Retired":
                             MatchTime = ATP_JSON["events"][EventIndex]["groupings"][0]["competitions"][y]["date"]
                             MatchTime = time.parse_time(MatchTime, format = "2006-01-02T15:04Z")
                             diff = MatchTime - now
@@ -488,11 +493,12 @@ def getCompletedMatches(SelectedTourneyID, EventIndex, CompletedMatchList, JSON)
             # pop the index from the list and go straight to that match
             x = CompletedMatchList.pop()
 
+            # print(x)
             Player1_Name = JSON["events"][EventIndex]["groupings"][0]["competitions"][x]["competitors"][0]["athlete"]["shortName"]
             Player2_Name = JSON["events"][EventIndex]["groupings"][0]["competitions"][x]["competitors"][1]["athlete"]["shortName"]
 
             #print(Player1_Name)
-            #print(x)
+
             # display the match winner in yellow, however sometimes both are false even when the match is completed
             Player1_Winner = JSON["events"][EventIndex]["groupings"][0]["competitions"][x]["competitors"][0]["winner"]
             Player2_Winner = JSON["events"][EventIndex]["groupings"][0]["competitions"][x]["competitors"][1]["winner"]
