@@ -25,7 +25,7 @@ WHITE = "#FFFFFF"
 GREEN = "00FF00"
 
 SAMPLE_JOB = {"job": {"averagePrintTime": None, "estimatedPrintTime": 22088.326056899437, "filament": {"tool0": {"length": 10523.5380859375, "volume": 25.312075423236383}}, "file": {"date": "1.689012611e + 0o9", "display": "benchy.gcode", "name": "benchy.gcode", "origin": "local", "path": "myfiles/gcode/benchy.gcode", "size": "1.5659901e + 0o7"}, "lastPrintTime": None, "user": "admin"}, "progress": {"filepos": "3.824944e + 0o6", "printTime": 6523.0, "printTimeLeft": 16016.0, "printTimeLeftOrigin": "genius", "completion": 24.42508416879519}, "state": "Printing"}
-SAMPLE_PRINTER = {"sd": {"ready": False}, "state": {"error": "", "flags": {"cancelling": False, "error": False, "paused": False, "pausing": False, "printing": True, "resuming": False, "closedOrError": False, "finishing": False, "operational": True, "ready": False, "sdReady": False}, "text": "Printing"}}
+SAMPLE_PRINTER = {"sd": {"ready": False}, "state": {"error": "", "flags": {"printing": True, "ready": False, "sdReady": False, "resuming": False, "cancelling": False, "closedOrError": False, "error": False, "finishing": False, "operational": True, "paused": False, "pausing": False}, "text": "Printing"}, "temperature": {"W": {"actual": 0.0, "offset": 0.0, "target": None}, "bed": {"actual": 60.02, "offset": 0.0, "target": 60.0}, "tool0": {"actual": 199.81, "offset": 0.0, "target": 200.0}}}
 
 def request(endpoint, serverIP, serverPort, apiKey):
     res = http.get("http://%s:%s%s" % (serverIP, serverPort, endpoint), headers = {"X-API-Key": apiKey}, ttl_seconds = REFRESH_TIME)
@@ -86,7 +86,7 @@ def renderProgress(label, progress_value, padding):
         render.Box(width = C_DISPLAY_WIDTH, height = C_HEIGHT + padding, color = to_rgb(C_BACKGROUND)),
     ]
 
-    color = "#3333FF"
+    color = "#64BFE5"
 
     if progress_value != None:
         progress = progress_value / 100.0
@@ -101,10 +101,10 @@ def renderProgress(label, progress_value, padding):
             render.Box(
                 width = progress_width,
                 padding = 1,
-                color = to_rgb(color, combine = C_BACKGROUND, combine_level = 0.6),
+                color = to_rgb(color, combine = C_BACKGROUND, combine_level = 0.1),
                 height = C_HEIGHT,
                 child = render.Box(
-                    color = to_rgb(color, combine = C_BACKGROUND, combine_level = 0.8),
+                    color = to_rgb(color, combine = C_BACKGROUND, combine_level = 0.5),
                 ),
             ),
         )
@@ -152,7 +152,7 @@ def main(config):
 
     else:
         job = request("/api/job", serverIP, serverPort, apiKey)
-        printer = request("/api/printer?exclude=temperature", serverIP, serverPort, apiKey)
+        printer = request("/api/printer", serverIP, serverPort, apiKey)
 
     completion = math.round(job["progress"]["completion"])
     name = job["job"]["file"]["display"].removesuffix(".gcode")
@@ -161,6 +161,8 @@ def main(config):
     printTimeLeft = str(math.round(job["progress"]["printTimeLeft"] / 360) / 10)
 
     state = printer["state"]["text"]
+    bed = int(printer["temperature"]["bed"]["actual"])
+    tool = int(printer["temperature"]["tool0"]["actual"])
     stateColor = WHITE
     if printer["state"]["flags"]["closedOrError"] or printer["state"]["flags"]["error"] or printer["state"]["flags"]["cancelling"]:
         stateColor = RED
@@ -218,11 +220,38 @@ def main(config):
                         ],
                     ),
                     animation.Transformation(
-                        child = render.Box(
-                            width = 64,
-                            height = 32,
-                            color = "#000000",
-                            child = render.Image(src = snapshot, width = 64, height = 32),
+                        child = render.Stack(
+                            children = [
+                                render.Image(src = snapshot, width = 64, height = 32),
+                                render.Box(
+                                    width = 64,
+                                    height = 32,
+                                    child = render.Row(
+                                        expanded = True,
+                                        main_align = "start",
+                                        children = [render.Stack(
+                                            children = [
+                                                render.Column(
+                                                    main_align = "start",
+                                                    cross_align = "start",
+                                                    expanded = True,
+                                                    children = [
+                                                        render.Text("tool %s°" % tool, color=WHITE, font="tom-thumb"),
+                                                    ],
+                                                ),
+                                                render.Column(
+                                                    main_align = "end",
+                                                    cross_align = "start",
+                                                    expanded = True,
+                                                    children = [
+                                                        render.Text("bed %s°" % bed, color=WHITE, font="tom-thumb"),
+                                                    ],
+                                                ),
+                                            ]
+                                        )]
+                                    )
+                                ),
+                            ]
                         ),
                         duration = 200,
                         delay = 180,
