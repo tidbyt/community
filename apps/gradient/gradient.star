@@ -95,8 +95,9 @@ def two_color_gradient(topL, botR):
     return four_color_gradient(topL, medianRGB, medianRGB, botR)
 
 def main(config):
-    gradientArray = four_color_gradient("#FF0000", "#FFFF00", "#0000FF", "#FFFFFF")
-    labels = ["#FF0000", "#FFFF00", "#0000FF", "#FFFFFF"]
+    # define gradientArray and labels
+    gradientArray = four_color_gradient("#000000", "#000000", "#000000", "#000000")
+    labels = ["#000000", "#000000", "#000000", "#000000"]
 
     if config.get("gradient_type") == "default":
         gradientArray = four_color_gradient("#FF0000", "#FFFF00", "#0000FF", "#FFFFFF")
