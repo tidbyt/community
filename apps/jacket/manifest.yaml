@@ -1,0 +1,8 @@
+---
+id: jacket
+name: Jacket
+summary: Do I need a jacket
+desc: Shows if you need a jacket. Uses OpenWeather API.
+author: noahpodgurski
+fileName: jacket.star
+packageName: jacket
