@@ -41,6 +41,9 @@ Updated determination for completed match, using "description" and not "state"
 Now adding suspended matches in the In Progress list
 Suspended matches shown in blue
 Scheduled matches now in order of play - earliest to latest
+
+v1.7.1
+Bug fix - Retired matches were not being captured after changing completed match determination to description
 """
 
 load("encoding/json.star", "json")
@@ -181,8 +184,10 @@ def main(config):
                     if WTA_JSON["events"][x]["groupings"][0]["grouping"]["slug"] == "mens-singles":
                         GroupingsID = 1
                     for y in range(0, len(WTA_JSON["events"][x]["groupings"][GroupingsID]["competitions"]), 1):
-                        # if the match is completed ("post") and its a singles match ("athlete") and the start time of the match was < 24 hrs ago, lets add it to the list of completed matches
-                        if WTA_JSON["events"][x]["groupings"][GroupingsID]["competitions"][y]["status"]["type"]["description"] == "Final":
+                        MatchState = WTA_JSON["events"][x]["groupings"][GroupingsID]["competitions"][y]["status"]["type"]["description"]
+
+                        # if the match is completed and the start time of the match was < 24 hrs ago, lets add it to the list of completed matches
+                        if MatchState == "Final" or MatchState == "Retired":
                             MatchTime = WTA_JSON["events"][EventIndex]["groupings"][GroupingsID]["competitions"][y]["date"]
                             MatchTime = time.parse_time(MatchTime, format = "2006-01-02T15:04Z")
                             diff = MatchTime - now
