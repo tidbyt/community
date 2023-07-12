@@ -122,8 +122,8 @@ def main(config):
     overlap_pixel = render.Box(width = 1, height = 1, color = config.get("overlap", DEFAULT_COLORS[4]))
 
     # Other configs from get_schema
-    fast = config.get("fast", DEFAULT_FAST)
-    twenty_four_hour = config.get("24hour", DEFAULT_TWENTY_FOUR_HOUR)
+    fast = config.bool("fast")
+    twenty_four_hour = config.bool("24hour")
 
     # Gets time zone and gets hour and minutes
     location = config.get("location")
