@@ -6,8 +6,6 @@ Author: Matt Broussard
 """
 
 load("animation.star", "animation")
-load("cache.star", "cache")
-load("encoding/json.star", "json")
 load("http.star", "http")
 load("math.star", "math")
 load("render.star", "render")
@@ -198,12 +196,7 @@ def format_float(n):
     return "%d.%d" % (whole, first_dec)
 
 def load_raw():
-    cache_key = API_URL
-    val = cache.get(cache_key)
-    if val != None:
-        return json.decode(val)
-
-    resp = http.get(API_URL)
+    resp = http.get(API_URL, ttl_seconds = 60)
     if resp.status_code != 200:
         return []
 
@@ -220,7 +213,6 @@ def load_raw():
     general_delays = xp.query_all_nodes("/AIRPORT_STATUS_INFORMATION/Delay_type/Arrival_Departure_Delay_List/Delay")
     result += [parse_general_delay(d) for d in general_delays]
 
-    cache.set(cache_key, json.encode(result), ttl_seconds = 60)
     return result
 
 def parse_general_delay(xp):
