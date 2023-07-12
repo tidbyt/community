@@ -307,19 +307,19 @@ def get_schema():
             schema.Text(
                 id = "serverIP",
                 name = "Server IP",
-                desc = "Ex: (192.168.1.123)",
+                desc = "Make sure to use the public IP",
                 icon = "gear",
             ),
             schema.Text(
                 id = "serverPort",
                 name = "Server Port",
-                desc = "Ex: 6565",
+                desc = "Make sure to port forward your octoprint port",
                 icon = "gear",
             ),
             schema.Text(
                 id = "apiKey",
                 name = "Octoprint API Key",
-                desc = "Ex: ABC...",
+                desc = "Found in Octoprint API settings",
                 icon = "gear",
             ),
             schema.Toggle(
