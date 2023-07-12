@@ -2,14 +2,25 @@ var dorita980 = require('dorita980');
 var http = require('http');
 var url = require('url');
 
+/*** how to get below BLID and PASSWORD
+1. $ npm install -g dorita980
+2. $ get-roomba-password-cloud <iRobot Username> <iRobot Password> [Optional API-Key]
+***/
+
 const BLID = '_BLID_HERE_';
 const PASSWORD = '_PASSWORD_HERE_';
+const API_KEY = 'ADD_YOUR_OWN_API_KEY_HERE';
 
 const HOST = '0.0.0.0';
 const PORT = '6565';
 
 const server = http.createServer((req, res) => {
     if (req.method === "GET") {
+        if (req.headers['x-api-key'] != API_KEY) {
+            res.writeHead(401);
+            res.end();
+            return;
+        }
         var _req = url.parse(req.url, true);
         switch (_req.pathname) {
             case '/status':
