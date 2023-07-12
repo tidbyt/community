@@ -36,6 +36,9 @@ Give user a choice of single color for the in progress rounds or use the color g
 Now showing scores for completed rounds rather than "F" 
 Removed tournament name formatting from both player/score related functions - should add efficiency?
 Added function to revise some tournament names to make them more readable and/or fit the width of the Tidbyt better
+
+v2.3.1
+Fixed bug regarding opposite field events
 """
 
 load("encoding/json.star", "json")
@@ -70,19 +73,22 @@ def main(config):
 
     # Check if there is an opposite field event, happens 4 times a season
     # Get the ID of the first event listed in the API
-    TournamentID = leaderboard["sports"][0]["leagues"][0]["events"][0]["id"]
-    i = OppositeFieldCheck(TournamentID)
+    FirstTournamentID = leaderboard["sports"][0]["leagues"][0]["events"][0]["id"]
+    i = OppositeFieldCheck(FirstTournamentID)
 
     # if user wants to see opposite event
     if i == 1 and OppField == True:
         i = 0
 
+    # Get Tournament Name and ID
+    TournamentName = leaderboard["sports"][0]["leagues"][0]["events"][i]["name"]
+    PreTournamentName = TournamentName
+    TournamentID = leaderboard["sports"][0]["leagues"][0]["events"][i]["id"]
+
     # Check if its a major and show a different color in the title bar
     TitleColor = getMajorColor(TournamentID)
 
-    # Get Tournament Name and make it more readable for the Tidbyt
-    TournamentName = leaderboard["sports"][0]["leagues"][0]["events"][i]["name"]
-
+    # Make it more readable
     if TournamentID not in THE_EXCEPTIONS:
         TournamentName = TournamentName.replace("The ", "")
         TournamentName = TournamentName.replace("THE ", "")
@@ -200,7 +206,7 @@ def main(config):
                             main_align = "space_between",
                             cross_align = "end",
                             children = [
-                                render.Marquee(width = 64, height = 12, child = render.Text(content = TournamentName + " - " + Location, color = "#FFF", font = mainFont)),
+                                render.Marquee(width = 64, height = 12, child = render.Text(content = PreTournamentName + " - " + Location, color = "#FFF", font = mainFont)),
                             ],
                         ),
                         render.Row(
