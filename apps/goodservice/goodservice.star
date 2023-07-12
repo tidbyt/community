@@ -107,7 +107,7 @@ def main(config):
                     break
 
             if matching_route:
-                if len(matching_route["times"]) == 1:
+                if len(matching_route["times"]) < 3:
                     matching_route["times"].append(trip["estimated_current_stop_arrival_time"])
                     matching_route["is_delayed"].append(trip["is_delayed"])
                 else:
@@ -142,7 +142,6 @@ def main(config):
                     text = "due"
                 else:
                     text = str(int(first_eta))
-
                 if len(r["times"]) == 1 and text != "due" and text != "delay":
                     text = text + " min"
                 elif text != "delay":
@@ -156,7 +155,20 @@ def main(config):
                     elif second_eta < 1:
                         text = text + ", due"
                     else:
-                        text = text + ", " + str(int(second_eta)) + " min"
+                        third_time_delta = config.str("third_time")
+                        if len(r["times"]) > 2 and (third_time_delta != None) and second_eta - first_eta < int(third_time_delta):
+                            third_eta = (int((r["times"][2]) - ts) / 60)
+                            third_train_is_delayed = r["is_delayed"][2]
+                            if third_train_is_delayed != 1:
+                                text = text + ", " + str(int(second_eta)) + ", " + str(int(third_eta))
+                                if len(text) > 9:
+                                    text = text + " m"
+                                else:
+                                    text = text + " min"
+                            else:
+                                text = text + ", " + str(int(second_eta)) + ", delay"
+                        else:
+                            text = text + ", " + str(int(second_eta)) + " min"
 
                 if len(selected_route["name"]) > 1 and selected_route["name"][1] == "X":
                     bullet = render.Stack(
@@ -189,7 +201,6 @@ def main(config):
                             ),
                         ),
                     )
-
                 blocks.append(render.Padding(
                     pad = (0, 0, 0, 1),
                     child = render.Row(
@@ -295,6 +306,39 @@ def get_schema():
                 desc = "Amount of time it takes to reach this station (trains with earlier arrival times will be hidden).",
                 icon = "hourglass",
                 handler = travel_time_search,
+            ),
+            schema.Dropdown(
+                id = "third_time",
+                name = "Third Time",
+                desc = "3rd arrival time delta",
+                icon = "hourglass",
+                default = "3",
+                options = [
+                    schema.Option(
+                        display = "OFF",
+                        value = "0",
+                    ),
+                    schema.Option(
+                        display = "3 mins",
+                        value = "3",
+                    ),
+                    schema.Option(
+                        display = "5 mins",
+                        value = "5",
+                    ),
+                    schema.Option(
+                        display = "7 mins",
+                        value = "7",
+                    ),
+                    schema.Option(
+                        display = "10 mins",
+                        value = "10",
+                    ),
+                    schema.Option(
+                        display = "Always Show",
+                        value = "1000",
+                    ),
+                ],
             ),
         ],
     )

@@ -7,9 +7,8 @@ Author: rs7q5
 
 #github_activity.star
 #Created 20221117 RIS
-#Last Modified 20230308 RIS
+#Last Modified 20230607 RIS
 
-load("cache.star", "cache")
 load("encoding/base64.star", "base64")
 load("encoding/json.star", "json")
 load("http.star", "http")
@@ -244,31 +243,25 @@ def get_contributions(auth_token):
     }
 
     #get data
-    data_cached = cache.get(auth_token)
-    if data_cached != None:
-        data = json.decode(data_cached)
+    rep = http.post(
+        BASE_URL,
+        headers = {
+            "Authorization": "Bearer " + auth_token,
+        },
+        json_body = dataQuery,
+        ttl_seconds = 600,  #store data for 10 minutes
+    )
+    if DEBUG_OAUTH:
+        for key in ["X-Oauth-Scopes", "X-Accepted-Oauth-Scopes"]:
+            print("%s: %s" % (key, rep.headers[key]))
+
+    if rep.status_code != 200:
+        print("%s Error, could not get authorization token!!!!" % rep.status_code)
+        return None
     else:
-        rep = http.post(
-            BASE_URL,
-            headers = {
-                "Authorization": "Bearer " + auth_token,
-            },
-            json_body = dataQuery,
-        )
-        if DEBUG_OAUTH:
-            for key in ["X-Oauth-Scopes", "X-Accepted-Oauth-Scopes"]:
-                print("%s: %s" % (key, rep.headers[key]))
-
-        if rep.status_code != 200:
-            print("%s Error, could not get authorization token!!!!" % rep.status_code)
-            return None
-        else:
-            data = rep.json()["data"]["viewer"]
-
-            # user = data["login"]
-            # TODO: Determine if this cache call can be converted to the new HTTP cache.
-            cache.set(auth_token, json.encode(data), ttl_seconds = 600)  #store data every 10 minutes
-            #print(data["contributionsCollection"]["restrictedContributionsCount"])
+        data = rep.json()["data"]["viewer"]
+        # user = data["login"]
+        # print(data["contributionsCollection"]["restrictedContributionsCount"])
 
     return data
 
