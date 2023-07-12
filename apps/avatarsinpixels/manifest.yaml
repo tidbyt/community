@@ -1,0 +1,8 @@
+---
+id: avatars-in-pixels
+name: Avatars In Pixels
+summary: A pixel character generator
+desc: A random pixel art character generator.
+author: Daniel Sitnik
+fileName: avatars_in_pixels.star
+packageName: avatarsinpixels
