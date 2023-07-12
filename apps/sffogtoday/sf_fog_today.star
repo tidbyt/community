@@ -5,7 +5,6 @@ Description: Displays GOES-16 satellite fog image for San Francisco, from fog.to
 Author: Matt Broussard
 """
 
-load("cache.star", "cache")
 load("http.star", "http")
 load("render.star", "render")
 
@@ -38,15 +37,8 @@ def main():
     )
 
 def load_image():
-    image_src = cache.get(IMAGE_URL)
-    if image_src != None:
-        return image_src
-
-    resp = http.get(IMAGE_URL)
+    resp = http.get(IMAGE_URL, ttl_seconds = 60)
     if resp.status_code != 200:
         return None
 
-    image_src = resp.body()
-
-    cache.set(IMAGE_URL, image_src, ttl_seconds = 60)
-    return image_src
+    return resp.body()
