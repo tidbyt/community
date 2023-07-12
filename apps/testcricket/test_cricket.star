@@ -27,9 +27,13 @@ Updated caching function
 v1.4 - Published 9/6/23
 Future fixtures are now shown for selected team rather than immediate fixtures
 
-v1.5
+v1.5 - Published 
 Updated final score display, using '&' instead of comma
 Fixed bug for "need to win" amount in 4th innings
+
+v1.6
+For a test that's about to start, cycle between the start time and the title of the match, eg 1st Test, 2nd Test etc
+Added handling for when details of the venue/ground are not yet available
 """
 
 load("encoding/json.star", "json")
@@ -45,7 +49,7 @@ FutureGames = "https://hs-consumer-api.espncricinfo.com/v1/pages/team/schedule?l
 
 DEFAULT_TIMEZONE = "Australia/Adelaide"
 DEFAULT_TEAM = "2"  # Australia
-MATCH_CACHE = 60
+MATCH_CACHE = 60  # 1 minute
 ALL_MATCH_CACHE = 2 * 3600  # 2 hours
 FUTURE_FIXTURE_CACHE = 6 * 3600  # 6 hours
 
@@ -491,6 +495,8 @@ def main(config):
             Team1_Color = getTeamFontColor(Team1_ID)
             Team2_Color = getTeamFontColor(Team2_ID)
 
+            Title = Match_JSON["match"]["title"]
+
             # Get the time of the game in the user's timezone
             StartTime = Match_JSON["match"]["startTime"]
 
@@ -499,40 +505,83 @@ def main(config):
             Date = MyTime.format("Jan 2")
 
             return render.Root(
-                child = render.Column(
-                    main_align = "start",
-                    cross_align = "start",
+                delay = int(3000),
+                child = render.Animation(
                     children = [
-                        render.Row(
-                            expanded = True,
-                            main_align = "space_between",
-                            cross_align = "end",
+                        render.Column(
+                            main_align = "start",
+                            cross_align = "start",
                             children = [
-                                render.Box(width = 64, height = 8, child = render.Text(content = Team1_Name, color = Team1_Color, font = "CG-pixel-3x5-mono")),
+                                render.Row(
+                                    expanded = True,
+                                    main_align = "space_between",
+                                    cross_align = "end",
+                                    children = [
+                                        render.Box(width = 64, height = 8, child = render.Text(content = Team1_Name, color = Team1_Color, font = "CG-pixel-3x5-mono")),
+                                    ],
+                                ),
+                                render.Row(
+                                    expanded = True,
+                                    main_align = "space_between",
+                                    cross_align = "end",
+                                    children = [
+                                        render.Box(width = 64, height = 8, child = render.Text(content = "v", color = "#FFF", font = "CG-pixel-3x5-mono")),
+                                    ],
+                                ),
+                                render.Row(
+                                    expanded = True,
+                                    main_align = "space_between",
+                                    cross_align = "end",
+                                    children = [
+                                        render.Box(width = 64, height = 8, child = render.Text(content = Team2_Name, color = Team2_Color, font = "CG-pixel-3x5-mono")),
+                                    ],
+                                ),
+                                render.Row(
+                                    expanded = True,
+                                    main_align = "space_between",
+                                    cross_align = "end",
+                                    children = [
+                                        render.Box(width = 64, height = 8, child = render.Text(content = Title, color = "#FFF", font = "CG-pixel-3x5-mono")),
+                                    ],
+                                ),
                             ],
                         ),
-                        render.Row(
-                            expanded = True,
-                            main_align = "space_between",
-                            cross_align = "end",
+                        render.Column(
+                            main_align = "start",
+                            cross_align = "start",
                             children = [
-                                render.Box(width = 64, height = 8, child = render.Text(content = "v", color = "#FFF", font = "CG-pixel-3x5-mono")),
-                            ],
-                        ),
-                        render.Row(
-                            expanded = True,
-                            main_align = "space_between",
-                            cross_align = "end",
-                            children = [
-                                render.Box(width = 64, height = 8, child = render.Text(content = Team2_Name, color = Team2_Color, font = "CG-pixel-3x5-mono")),
-                            ],
-                        ),
-                        render.Row(
-                            expanded = True,
-                            main_align = "space_between",
-                            cross_align = "end",
-                            children = [
-                                render.Box(width = 64, height = 8, child = render.Text(content = Date + " - " + Time, color = "#FFF", font = "CG-pixel-3x5-mono")),
+                                render.Row(
+                                    expanded = True,
+                                    main_align = "space_between",
+                                    cross_align = "end",
+                                    children = [
+                                        render.Box(width = 64, height = 8, child = render.Text(content = Team1_Name, color = Team1_Color, font = "CG-pixel-3x5-mono")),
+                                    ],
+                                ),
+                                render.Row(
+                                    expanded = True,
+                                    main_align = "space_between",
+                                    cross_align = "end",
+                                    children = [
+                                        render.Box(width = 64, height = 8, child = render.Text(content = "v", color = "#FFF", font = "CG-pixel-3x5-mono")),
+                                    ],
+                                ),
+                                render.Row(
+                                    expanded = True,
+                                    main_align = "space_between",
+                                    cross_align = "end",
+                                    children = [
+                                        render.Box(width = 64, height = 8, child = render.Text(content = Team2_Name, color = Team2_Color, font = "CG-pixel-3x5-mono")),
+                                    ],
+                                ),
+                                render.Row(
+                                    expanded = True,
+                                    main_align = "space_between",
+                                    cross_align = "end",
+                                    children = [
+                                        render.Box(width = 64, height = 8, child = render.Text(content = Date + " " + Time, color = "#FFF", font = "CG-pixel-3x5-mono")),
+                                    ],
+                                ),
                             ],
                         ),
                     ],
@@ -570,6 +619,7 @@ def main(config):
         if SeriesID != 0:
             Match_URL = "https://hs-consumer-api.espncricinfo.com/v1/pages/match/details?lang=en&seriesId=" + str(SeriesID) + "&matchId=" + str(MatchID) + "&latest=true"
 
+            # print(Match_URL)
             # get data, hold cache for 6 hrs
             MatchData = get_cachable_data(Match_URL, FUTURE_FIXTURE_CACHE)
             Match_JSON = json.decode(MatchData)
@@ -592,7 +642,12 @@ def main(config):
             sDate = sDate.format("Jan 2")
             eDate = eDate.format("Jan 2")
             schedDate = sDate + " - " + eDate
-            Venue = Match_JSON["match"]["ground"]["smallName"]
+
+            # check we have info on the venue
+            if Match_JSON["match"]["ground"] != None:
+                Venue = Match_JSON["match"]["ground"]["smallName"]
+            else:
+                Venue = ""
 
             # display with rotation between match title, dates & venue
             return render.Root(

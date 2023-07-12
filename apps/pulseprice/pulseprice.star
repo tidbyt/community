@@ -43,9 +43,9 @@ LH/N4KtJCt4hATkYNxTS7kHSWcX53aJSuOI2eeb1u8R8bKCog+z3xnmqRZABqH95
 
 NO_DATA = "---------- "
 
-DEXSCREENER_PLS_URL = "https://api.dexscreener.com/latest/dex/tokens/0xA1077a294dDE1B09bB078844df40758a5D0f9a27"
-DEXSCREENER_PLSX_URL = "https://api.dexscreener.com/latest/dex/tokens/0x95B303987A60C71504D99Aa1b13B4DA07b0790ab"
-DEXSCREENER_INC_URL = "https://api.dexscreener.com/latest/dex/tokens/0x2fa878Ab3F87CC1C9737Fc071108F904c0B0C95d"
+DEXSCREENER_PLS_URL = "https://api.dexscreener.com/latest/dex/pairs/pulsechain/0x6753560538ECa67617A9Ce605178F788bE7E524E"
+DEXSCREENER_PLSX_URL = "https://api.dexscreener.com/latest/dex/pairs/pulsechain/0x1b45b9148791d3a104184Cd5DFE5CE57193a3ee9"
+DEXSCREENER_INC_URL = "https://api.dexscreener.com/latest/dex/pairs/pulsechain/0xf808Bb6265e9Ca27002c0A04562Bf50d4FE37EAA"
 
 def main():
     # Get PLS price
