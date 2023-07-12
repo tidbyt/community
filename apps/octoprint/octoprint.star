@@ -239,7 +239,7 @@ def main(config):
                                                     cross_align = "start",
                                                     expanded = True,
                                                     children = [
-                                                        render.Text("tool %s°" % tool, color=WHITE, font="tom-thumb"),
+                                                        render.Text("tool %s°" % tool, color = WHITE, font = "tom-thumb"),
                                                     ],
                                                 ),
                                                 render.Column(
@@ -247,14 +247,14 @@ def main(config):
                                                     cross_align = "start",
                                                     expanded = True,
                                                     children = [
-                                                        render.Text("bed %s°" % bed, color=WHITE, font="tom-thumb"),
+                                                        render.Text("bed %s°" % bed, color = WHITE, font = "tom-thumb"),
                                                     ],
                                                 ),
-                                            ]
-                                        )]
-                                    )
+                                            ],
+                                        )],
+                                    ),
                                 ),
-                            ]
+                            ],
                         ),
                         duration = 200,
                         delay = 180,
