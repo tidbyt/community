@@ -67,7 +67,7 @@ def main(config):
         render_uv_circle_column("UV", current_uv),
     ]
 
-    if current_uv != max_uv:
+    if math.round(current_uv) != math.round(max_uv):
         columns.append(render_uv_circle_column("Later", max_uv))
 
     return render.Root(
