@@ -1,7 +1,7 @@
 """
 Applet: Octoprint
 Summary: View Octoprint status
-Description: Display current print's status and time remaining.
+Description: Display current print's status and time remaining. Requires setting up port forwarding on octoprint server. API Key comes from Octoprint API settings.
 Author: noahpodgurski
 """
 
@@ -191,9 +191,12 @@ def main(config):
                                     expanded = True,
                                     children = [
                                         render.Text("%s" % name, font = "tom-thumb"),
-                                        render.WrappedText(state, color = GREEN),
+                                        render.WrappedText(state, color = stateColor),
                                         render.Text("%s hrs left" % printTimeLeft),
                                         renderProgress("Completion", completion, 1),
+                                    ] if job["job"]["file"]["path"] else [
+                                        render.Text("Octoprint"),
+                                        render.WrappedText(state, color = stateColor),
                                     ],
                                 ),
                             ),
@@ -291,9 +294,12 @@ def main(config):
                         expanded = True,
                         children = [
                             render.Text("%s" % name, font = "tom-thumb"),
-                            render.Text(state, color = stateColor),
+                            render.WrappedText(state, color = stateColor),
                             render.Text("%s hrs left" % printTimeLeft),
                             renderProgress("Completion", completion, 1),
+                        ] if job["job"]["file"]["path"] else [
+                            render.Text("Octoprint"),
+                            render.WrappedText(state, color = stateColor),
                         ],
                     ),
                 ),
