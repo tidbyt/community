@@ -117,10 +117,12 @@ def get_openuv_uv(config):
     max_dt = time.parse_time(openuv_result["uv_max_time"]).in_location(timezone)
 
     # interpolate between last result and max
-    if max_dt > current_dt:
-        current_uv = current_uv + (max_uv - current_uv) * (now - current_dt).seconds / (max_dt - current_dt).seconds
+    current_uv = current_uv + (max_uv - current_uv) * (now - current_dt).seconds / (max_dt - current_dt).seconds
 
-    return current_uv, max_uv
+    if max_dt > now:
+        return current_uv, max_uv
+    else:
+        return current_uv, current_uv
 
 def get_openuv_data(config):
     api_key = config.get("api_key", None)
@@ -156,7 +158,7 @@ def get_openweather_uv(config):
     current_uv = weather_data["current"]["uvi"]
     current_dt = time.from_timestamp(math.floor(weather_data["current"]["dt"])).in_location(timezone)
 
-    max_uv = current_uv
+    max_uv = 0
 
     next_hour_uv = None
     next_hour_dt = None
@@ -176,6 +178,9 @@ def get_openweather_uv(config):
     # interpolate between last result and next hour
     if next_hour_uv != None and next_hour_dt != None:
         current_uv = current_uv + (next_hour_uv - current_uv) * (now - current_dt).seconds / (next_hour_dt - current_dt).seconds
+
+    if current_uv > max_uv:
+        max_uv = current_uv
 
     return current_uv, max_uv
 
