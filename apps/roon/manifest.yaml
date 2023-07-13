@@ -1,0 +1,8 @@
+---
+id: roon
+name: Roon
+summary: Roon now playing info
+desc: Connects to the http api extension for roon and serves info about the currently playing zone's song, album and artist.  See https://hub.docker.com/repository/docker/jboulter11/roon-http-api/general for info about http api.
+author: jboulter11
+fileName: roon.star
+packageName: roon
