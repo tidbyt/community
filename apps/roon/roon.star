@@ -17,22 +17,11 @@ def main(config):
 
     activeZone = getActiveZone(hostname)
     if activeZone == None:
-        return render.Root(
-            child = render.Column(
-                children = [
-                    render.Text("Nothing"),
-                    render.Text("Playing"),
-                ],
-            ),
-        )
+        return []
 
     now_playing = parseNowPlaying(activeZone)
     if now_playing == None:
-        return render.Root(
-            child = render.Marquee(
-                child = render.Text("Can't parse now playing"),
-            ),
-        )
+        return []
 
     time_remaining = parseTimeRemaining(activeZone)
 
