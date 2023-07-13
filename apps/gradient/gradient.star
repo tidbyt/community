@@ -96,13 +96,10 @@ def two_color_gradient(topL, botR):
 
 def main(config):
     # define gradientArray and labels
-    gradientArray = four_color_gradient("#000000", "#000000", "#000000", "#000000")
-    labels = ["#000000", "#000000", "#000000", "#000000"]
+    gradientArray = []
+    labels = []
 
-    if config.get("gradient_type") == "default":
-        gradientArray = four_color_gradient("#FF0000", "#FFFF00", "#0000FF", "#FFFFFF")
-        labels = ["#FF0000", "#FFFF00", "#0000FF", "#FFFFFF"]
-    elif config.get("gradient_type") == "random":
+    if config.get("gradient_type") == "random":
         color1 = randomColor()
         color2 = randomColor()
         color3 = randomColor()
@@ -121,22 +118,26 @@ def main(config):
         color2 = config.get("color2")
         gradientArray = two_color_gradient(color1, color2)
         labels = [color1, color2]
+    else:
+        gradientArray = four_color_gradient("#FF0000", "#FFFF00", "#0000FF", "#FFFFFF")
+        labels = ["#FF0000", "#FFFF00", "#0000FF", "#FFFFFF"]
 
     # show rangeArray
     columnChildren = []
-    for j in range(0, PIXLET_H):
-        # build the column
-        rowChildren = []
-        for i in range(0, PIXLET_W):
-            # build the row
-            rowChildren.append(
-                render.Box(width = 1, height = 1, color = gradientArray[j][i]),
+    if len(gradientArray) > 0:
+        for j in range(0, PIXLET_H):
+            # build the column
+            rowChildren = []
+            for i in range(0, PIXLET_W):
+                # build the row
+                rowChildren.append(
+                    render.Box(width = 1, height = 1, color = gradientArray[j][i]),
+                )
+            columnChildren.append(
+                render.Row(
+                    children = rowChildren,
+                ),
             )
-        columnChildren.append(
-            render.Row(
-                children = rowChildren,
-            ),
-        )
 
     stackChildren = [render.Column(children = columnChildren)]
 
