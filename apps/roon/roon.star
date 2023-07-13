@@ -51,9 +51,6 @@ def getActiveZone(hostname):
     response = http.get(hostname + "/listZones")
     for zone in response.json()["zones"]:
         if zone["state"] == "playing":
-            print("===Zone===")
-            print(zone)
-            print("==========")
             return zone
     return None
 
