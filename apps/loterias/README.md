@@ -2,7 +2,7 @@
 
 ## Overview
 
-The [Loteria](https://loterias.caixa.gov.br/) is the official Brazilian lottery. This app displays the estimated prize value and how much time you have left until to bet until the next draw, for the various modalities of the loteria.
+The [Loteria](https://loterias.caixa.gov.br/) is the official Brazilian lottery. This app displays the estimated prize value and how much time you have left to bet until the next draw, for the various modalities of the loteria.
 
 Example:
 
