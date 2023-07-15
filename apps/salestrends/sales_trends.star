@@ -8,7 +8,6 @@ Author: Shopify
 ######################
 # Mods - jvivona 20230715
 # - updated to use new cache system
-# - fixed addition of new html span tags in amounts, remove with replace
 # - remove need for cache module
 ######################
 
@@ -212,6 +211,7 @@ def api_fetch(counter_id, request_config):
         print("Counter API request failed with status {}".format(rep.status_code))
         return None
     api_response = rep.json()
+    print(api_response)
     return api_response
 
 # Error View
@@ -274,10 +274,10 @@ def main(config):
         return error_view()
 
     api_data = api_response["data"]
-    daily = api_data["daily"].replace("<span class=money>", "").replace("</span>", "")
-    weekly = api_data["weekly"].replace("<span class=money>", "").replace("</span>", "")
-    monthly = api_data["monthly"].replace("<span class=money>", "").replace("</span>", "")
-    yearly = api_data["yearly"].replace("<span class=money>", "").replace("</span>", "")
+    daily = api_data["daily"]
+    weekly = api_data["weekly"]
+    monthly = api_data["monthly"]
+    yearly = api_data["yearly"]
 
     return render.Root(
         child = render.Stack(
