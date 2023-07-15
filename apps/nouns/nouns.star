@@ -53,8 +53,11 @@ def render_screen():
 
     time_text = humanize.relative_time(time.now(), time.from_timestamp(int(auction["endTime"])))
     time_text = time_text.replace(" hours", "h")
+    time_text = time_text.replace(" hour", "h")
     time_text = time_text.replace(" minutes", "m")
-    time_text = time_text.strip()
+    time_text = time_text.replace(" minute", "m")
+    time_text = time_text.replace(" seconds", "s")
+    time_text = time_text.replace(" second", "s")
 
     # render two columns
     return render.Row(
