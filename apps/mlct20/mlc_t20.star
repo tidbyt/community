@@ -7,6 +7,11 @@ Author: M0ntyP
 v1.0 - Initial Release
 
 MLC starts 13 July
+
+v1.1
+Updated Texas, LA & SF team colors
+Added better handling for timeouts
+Changed what is displayed in status bar for different match scenarios
 """
 
 load("encoding/json.star", "json")
@@ -81,11 +86,14 @@ def main(config):
 
     LastOut_Runs = 0
     LastOut_Name = ""
+    T20_Status2 = ""
+    T20_Status3 = ""
     T20_Status4 = ""
 
     MatchID = str(MatchID)
     Match_URL = "https://hs-consumer-api.espncricinfo.com/v1/pages/match/details?lang=en&seriesId=" + SeriesID + "&matchId=" + MatchID + "&latest=true"
 
+    #print(Match_URL)
     # cache specific match data for 1 minute
     MatchData = get_cachable_data(Match_URL, MATCH_CACHE)
     Match_JSON = json.decode(MatchData)
@@ -234,28 +242,50 @@ def main(config):
         if T20_Innings == 1:
             if MatchStatus == "Live":
                 T20_Status1 = "Overs: " + Overs
+                T20_Status2 = Last12Balls
+                T20_Status3 = "Run Rate: " + CRR
                 T20_Status4 = "Proj Score: " + ProjScore
             elif MatchStatus == "Innings break":
                 T20_Status1 = MatchStatus
+                T20_Status2 = MatchStatus
+                T20_Status3 = MatchStatus
                 T20_Status4 = MatchStatus
             elif MatchStatus == "Match delayed by rain":
                 MatchStatus = "Rain Delay"
                 T20_Status1 = MatchStatus
+                T20_Status2 = "Overs: " + Overs
+                T20_Status3 = "Run Rate: " + CRR
+                T20_Status4 = MatchStatus
+            elif MatchStatus == "Strategic Timeout":
+                MatchStatus = "Timeout"
+                T20_Status1 = MatchStatus
+                T20_Status2 = "Overs: " + Overs
+                T20_Status3 = "Run Rate: " + CRR
+                T20_Status4 = "Proj Score: " + ProjScore
             else:
                 T20_Status1 = MatchStatus
 
-            T20_Status2 = Last12Balls
-            T20_Status3 = "Run Rate: " + CRR
-
             # 2nd Innings underway
         else:
-            T20_Status1 = BattingTeamAbbr + ":" + Trail + " off " + BallsRem
+            T20_Status1 = "REQ " + Trail + " off " + BallsRem
+
+            #T20_Status1 = BattingTeamAbbr + ":" + Trail + " off " + BallsRem
+            #T20_Status1 = Trail + " off " + BallsRem
             T20_Status2 = Last12Balls
             T20_Status3 = "Run Rate: " + CRR
             T20_Status4 = "Req Rate: " + RRR
             if MatchStatus == "Match delayed by rain":
                 MatchStatus = "Rain Delay"
-                T20_Status3 = MatchStatus
+                T20_Status1 = MatchStatus
+                T20_Status2 = "Overs: " + Overs
+                T20_Status3 = "Run Rate: " + CRR
+                T20_Status4 = "Req Rate: " + RRR
+            if MatchStatus == "Strategic Timeout":
+                MatchStatus = "Timeout"
+                T20_Status1 = MatchStatus
+                T20_Status2 = "Overs: " + Overs
+                T20_Status3 = "Run Rate: " + CRR
+                T20_Status4 = "Req Rate: " + RRR
 
         # Wicket has fallen but not the end of the inngs
         if IsOut == True and Wickets != "10":
@@ -269,7 +299,9 @@ def main(config):
                 # Team batting second, still want to show how far behind and req RR
             else:
                 T20_Status1 = "WICKET!"
-                T20_Status2 = BattingTeamAbbr + ":" + Trail + " off " + BallsRem
+                T20_Status2 = "REQ " + Trail + " off " + BallsRem
+
+                #T20_Status2 = Trail + " off " + BallsRem
                 T20_Status3 = "Run Rate: " + CRR
                 T20_Status4 = "Req Rate: " + RRR
 
@@ -660,13 +692,13 @@ TeamOptions = [
 ### EDIT
 def getTeamColor(teamID):
     if teamID == 7079:  # TSK
-        return ("#f37021")
+        return ("#fae15c")
     elif teamID == 7082:  # SFU
-        return ("#1ab6e9")
+        return ("#f66237")
     elif teamID == 7083:  # SEAO
         return ("#94c83d")
     elif teamID == 7080:  # LAKR
-        return ("#39225d")
+        return ("#7253a3")
     elif teamID == 7081:  # MINY
         return ("#075aa0")
     elif teamID == 7084:  # WASHF
