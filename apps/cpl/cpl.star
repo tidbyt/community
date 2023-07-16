@@ -261,7 +261,7 @@ def main(config):
 
             # 2nd Innings underway
         else:
-            T20_Status1 = BattingTeamAbbr + ":" + Trail + " off " + BallsRem
+            T20_Status1 = "REQ " + Trail + " off " + BallsRem
 
             #T20_Status1 = Trail + " off " + BallsRem
             T20_Status2 = Last12Balls
@@ -292,7 +292,7 @@ def main(config):
                 # Team batting second, still want to show how far behind and req RR
             else:
                 T20_Status1 = "WICKET!"
-                T20_Status2 = BattingTeamAbbr + ":" + Trail + " off " + BallsRem
+                T20_Status2 = "REQ " + Trail + " off " + BallsRem
                 T20_Status3 = "Run Rate: " + CRR
                 T20_Status4 = "Req Rate: " + RRR
 
