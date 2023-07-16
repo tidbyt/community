@@ -1,7 +1,7 @@
 """
 Applet: Avatars In Pixels
-Summary: A pixel character generator
-Description: Generates random pixel art characters from https://www.avatarsinpixels.com/.
+Summary: Show a pixel art character
+Description: Displays a random pixel art character from https://www.avatarsinpixels.com/.
 Author: Daniel Sitnik
 """
 
