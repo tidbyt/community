@@ -125,10 +125,6 @@ show_art_options = [
         value = live_broadcasts_url,
     ),
     schema.Option(
-        display = "QR when live: Members' Discord",
-        value = live_discord_url,
-    ),
-    schema.Option(
         display = "QR when live: m3u",
         value = live_m3u_url,
     ),

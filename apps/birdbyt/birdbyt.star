@@ -5,7 +5,6 @@ Description: Displays a random bird sighting near a specific location.
 Author: Becky Sweger
 """
 
-load("cache.star", "cache")
 load("encoding/base64.star", "base64")
 load("encoding/json.star", "json")
 load("http.star", "http")
@@ -18,7 +17,7 @@ load("time.star", "time")
 
 EBIRD_API_KEY = "AV6+xWcECVOVS+y/jlkVqyE0oxKa9Ql7M/h05Xh+ilG7K+8ELfdgmPX6FPFcDdDuEz5PSbWO1sNs+XjhuS8Bm4qbT00tO0A3DIG5mDo78bAg2dhYVIhPyp/AyiCDzVadqN2KKGduX2NKdihnCyn4NWHW"
 EBIRD_URL = "https://api.ebird.org/v2"
-MAX_API_RESULTS = "100"
+MAX_API_RESULTS = "300"
 
 # Config defaults
 DEFAULT_LOCATION = {
@@ -75,20 +74,12 @@ def get_notable_sightings(params, ebird_key):
     notable_params = params
     notable_params.pop("maxResults", None)
 
-    # Do we already have cached data for this set of API params?
-    cache_key = "notable" + "-".join(params.values())
-    notable_list = cache.get(cache_key)
-    if notable_list != None:
-        print("Cache hit:", cache_key)  # buildifier: disable=print
-        return json.decode(notable_list)
-
-    # Nothing cached, so call the API
-    ebird_recent_obs_route = "/data/obs/geo/recent/notable"
-    print("Cache miss:", cache_key, "\nCalling ", ebird_recent_obs_route)  # buildifier: disable=print
-    url = EBIRD_URL + ebird_recent_obs_route
+    ebird_recent_notable_route = "/data/obs/geo/recent/notable"
+    url = EBIRD_URL + ebird_recent_notable_route
     headers = {"X-eBirdApiToken": ebird_key}
 
-    response = http.get(url, params = params, headers = headers)
+    response = http.get(url, params = params, headers = headers, ttl_seconds = 10800)
+    log(ebird_recent_notable_route + " cache status " + response.headers.get("Tidbyt-Cache-Status"))
 
     # e-bird API request failed
     if response.status_code != 200:
@@ -96,9 +87,7 @@ def get_notable_sightings(params, ebird_key):
 
     notable_sightings = response.json()
     notable_list = [s.get("speciesCode") for s in notable_sightings]
-    print("number of notable sightings: ", len(notable_list))  # buildifier: disable=print
-
-    cache.set(cache_key, json.encode(notable_list), ttl_seconds = 1800)
+    log("number of notable sightings: " + str(len(notable_list)))
 
     return notable_list
 
@@ -113,20 +102,13 @@ def get_recent_birds(params, ebird_key):
       ebird sightings data
     """
 
-    # Do we already have cached data for this set of API params?
-    cache_key = "-".join(params.values())
-    sightings = cache.get(cache_key)
-    if sightings != None:
-        print("Cache hit:", cache_key)  # buildifier: disable=print
-        return json.decode(sightings)
-
-    # Nothing cached, so call the API
     ebird_recent_obs_route = "/data/obs/geo/recent"
-    print("Cache miss:", cache_key, "\nCalling ", ebird_recent_obs_route)  # buildifier: disable=print
     url = EBIRD_URL + ebird_recent_obs_route
     headers = {"X-eBirdApiToken": ebird_key}
 
-    response = http.get(url, params = params, headers = headers)
+    log(ebird_recent_obs_route + " params: " + str(params))
+    response = http.get(url, params = params, headers = headers, ttl_seconds = 10800)
+    log(ebird_recent_obs_route + " cache status " + response.headers.get("Tidbyt-Cache-Status"))
 
     # e-bird API request failed
     if response.status_code != 200:
@@ -136,7 +118,6 @@ def get_recent_birds(params, ebird_key):
         }]
 
     sightings = response.json()
-    cache.set(cache_key, json.encode(sightings), ttl_seconds = 3600)
     return sightings
 
 def parse_birds(sightings, tz):
@@ -153,7 +134,7 @@ def parse_birds(sightings, tz):
     sighting = {}
 
     number_of_sightings = len(sightings)
-    print("number of sightings: ", number_of_sightings)  # buildifier: disable=print
+    log("number of sightings: " + str(number_of_sightings))
 
     # request succeeded, but no birds found
     if number_of_sightings == 0:
@@ -182,7 +163,12 @@ def main(config):
       rendered WebP image for Tidbyt display
     """
     random.seed(time.now().unix // 10)
-    ebird_key = secret.decrypt(EBIRD_API_KEY) or config.get("ebird_api_key", "BIRDERROR-NO-API-KEY")
+
+    ebird_key = secret.decrypt(EBIRD_API_KEY) or config.get("ebird_api_key")
+    if not ebird_key:
+        ebird_key = "BIRDERROR-NO-API-KEY"
+        log("unable to decrypt API key or retrieve from local config")
+
     params = get_params(config)
     timezone = params.pop("tz")
     response = get_recent_birds(params, ebird_key)
@@ -193,6 +179,7 @@ def main(config):
     notable_list = get_notable_sightings(params, ebird_key)
     if sighting.get("species") in notable_list:
         bird_image = PURPLE_BIRD_JUMP
+        sighting["notable"] = True
     else:
         bird_image = PURPLE_BIRD_IDLE
 
@@ -246,6 +233,7 @@ def main(config):
                 ),
             ],
         ),
+        show_full_animation = True,
     )
 
 def get_schema():
@@ -278,7 +266,7 @@ def get_schema():
             ),
             schema.Dropdown(
                 id = "distance",
-                name = "Distance",
+                name = "Search radius (km)",
                 desc = "Search radius from location (km)",
                 icon = "feather",
                 default = DEFAULT_DISTANCE,
@@ -286,7 +274,7 @@ def get_schema():
             ),
             schema.Dropdown(
                 id = "back",
-                name = "Back",
+                name = "Days back",
                 desc = "Number of days back to fetch bird sightings.",
                 icon = "calendarDays",
                 default = DEFAULT_BACK,
@@ -294,7 +282,7 @@ def get_schema():
             ),
             schema.Toggle(
                 id = "provisional",
-                name = "Provisional",
+                name = "Include unverified",
                 desc = "Include sightings not yet reviewed.",
                 icon = "clipboardCheck",
                 default = DEFAULT_PROVISIONAL,
@@ -337,6 +325,9 @@ def get_scroll_text(sighting):
     else:
         scroll_text = sighting.get("loc")
 
+    if sighting.get("notable"):
+        scroll_text = "!Notable sighting! " + scroll_text
+
     return scroll_text
 
 def format_bird_name(bird):
@@ -352,7 +343,7 @@ def format_bird_name(bird):
 
     # Hard code hyphens into bird names that exceed a single
     # line on the Tidbyt display. This is an incomplete list.
-    print("bird name: ", bird)  # buildifier: disable=print
+    log("bird name: " + bird)
     bird = bird.replace("Apostlebird", "Apostle-bird")
     bird = bird.replace("Australasian", "Austra-lasian")
     bird = bird.replace("Australian", "Austra-lian")
@@ -382,6 +373,15 @@ def format_bird_name(bird):
     font = "tb-8"
 
     return bird, font
+
+def log(message):
+    """Format "log" messages for debugging.
+
+    Args:
+      message: base message to print
+    """
+
+    print(time.now(), " - ", message)  # buildifier: disable=print
 
 #------------------------------------------------------------------------
 # Assets
