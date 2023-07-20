@@ -6,6 +6,12 @@ Author: M0ntyP
 
 v1.1
 Updated caching function and changed title bar color for WTA
+
+v1.2 
+Added date to title bar so you can see when the rankings were last updated
+
+v1.2.1
+Reduced cache TTL from 6hrs to 1hr as it was taking too long to update
 """
 
 load("encoding/json.star", "json")
@@ -13,9 +19,10 @@ load("http.star", "http")
 load("humanize.star", "humanize")
 load("render.star", "render")
 load("schema.star", "schema")
+load("time.star", "time")
 
 BASE_RANKING_URL = "https://site.api.espn.com/apis/site/v2/sports/tennis/"
-RANKING_CACHE = 86400  # 24hrs
+RANKING_CACHE = 14400  # 4hrs
 
 def main(config):
     RotationSpeed = config.get("speed", "3")
@@ -151,6 +158,10 @@ def get_screen(x, RankingJSON, Selection):
     else:
         TitleBarColor = "#203764"
 
+    UpdateDate = RankingJSON["rankings"][0]["update"]
+    FormatDate = time.parse_time(UpdateDate, format = "2006-01-02T15:04Z")
+    FormatDate = FormatDate.format("02/01")
+
     heading = [
         render.Box(
             width = 64,
@@ -164,7 +175,7 @@ def get_screen(x, RankingJSON, Selection):
                     render.Box(
                         width = 64,
                         height = 5,
-                        child = render.Text(content = Selection + " TOP 20", color = "#fff", font = "CG-pixel-3x5-mono"),
+                        child = render.Text(content = Selection + " TOP 20 " + FormatDate, color = "#fff", font = "CG-pixel-3x5-mono"),
                     ),
                 ],
             ),
@@ -212,6 +223,10 @@ def get_screenPoints(x, RankingJSON, Selection):
     else:
         TitleBarColor = "#203764"
 
+    UpdateDate = RankingJSON["rankings"][0]["update"]
+    FormatDate = time.parse_time(UpdateDate, format = "2006-01-02T15:04Z")
+    FormatDate = FormatDate.format("02/01")
+
     heading = [
         render.Box(
             width = 64,
@@ -225,7 +240,7 @@ def get_screenPoints(x, RankingJSON, Selection):
                     render.Box(
                         width = 64,
                         height = 5,
-                        child = render.Text(content = Selection + " TOP 20", color = "#fff", font = "CG-pixel-3x5-mono"),
+                        child = render.Text(content = Selection + " TOP 20 " + FormatDate, color = "#fff", font = "CG-pixel-3x5-mono"),
                     ),
                 ],
             ),
@@ -289,6 +304,10 @@ def get_screenTrend(x, RankingJSON, Selection):
 
     TrendColor = "#fff"
 
+    UpdateDate = RankingJSON["rankings"][0]["update"]
+    FormatDate = time.parse_time(UpdateDate, format = "2006-01-02T15:04Z")
+    FormatDate = FormatDate.format("02/01")
+
     heading = [
         render.Box(
             width = 64,
@@ -302,7 +321,7 @@ def get_screenTrend(x, RankingJSON, Selection):
                     render.Box(
                         width = 64,
                         height = 5,
-                        child = render.Text(content = Selection + " TOP 20", color = "#fff", font = "CG-pixel-3x5-mono"),
+                        child = render.Text(content = Selection + " TOP 20 " + FormatDate, color = "#fff", font = "CG-pixel-3x5-mono"),
                     ),
                 ],
             ),

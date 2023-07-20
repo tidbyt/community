@@ -17,62 +17,234 @@ DEFAULT_LOCATION = {
 }
 DEFAULT_TIMEZONE = "US/Eastern"
 
-words = {
-    1: "ONE",
-    2: "TWO",
-    3: "THREE",
-    4: "FOUR",
-    5: "FIVE",
-    6: "SIX",
-    7: "SEVEN",
-    8: "EIGHT",
-    9: "NINE",
-    10: "TEN",
-    11: "ELEVEN",
-    12: "TWELVE",
-    15: "QUARTER",
-    20: "TWENTY",
-    25: "TWENTY-FIVE",
-    30: "HALF",
+numbersPerLang = {
+    "nl-NL": {
+        1: "ÉÉN",
+        2: "TWEE",
+        3: "DRIE",
+        4: "VIER",
+        5: "VIJF",
+        6: "ZES",
+        7: "ZEVEN",
+        8: "ACHT",
+        9: "NEGEN",
+        10: "TIEN",
+        11: "ELF",
+        12: "TWAALF",
+    },
+    "de-DE": {
+        1: "EINS",
+        2: "ZWEI",
+        3: "DREI",
+        4: "VIER",
+        5: "FÜNF",
+        6: "SECHS",
+        7: "SIEBEN",
+        8: "ACHT",
+        9: "NEUN",
+        10: "ZEHN",
+        11: "ELF",
+        12: "ZWÖLF",
+    },
+    "en-US": {
+        1: "ONE",
+        2: "TWO",
+        3: "THREE",
+        4: "FOUR",
+        5: "FIVE",
+        6: "SIX",
+        7: "SEVEN",
+        8: "EIGHT",
+        9: "NINE",
+        10: "TEN",
+        11: "ELEVEN",
+        12: "TWELVE",
+    },
+}
+numbersPerLang["en-GB"] = numbersPerLang["en-US"]
+numbersPerLang["nl-BE"] = numbersPerLang["nl-NL"]
+numbersPerLang["de-AT"] = numbersPerLang["de-DE"]
+numbersPerLang["de-DE-alt"] = numbersPerLang["de-DE"]
+numbersPerLang["de-DE-alt2"] = numbersPerLang["de-DE"]
+numbersPerLang["de-CH"] = numbersPerLang["de-DE"]
+numbersPerLang["de-CH-alt"] = numbersPerLang["de-DE"]
+
+patternsPerLang = {
+    "de-AT": {
+        0: "{hour},UHR",
+        5: "FÜNF,ÜBER,{hour}",
+        10: "ZEHN,ÜBER,{hour}",
+        15: "VIERTEL,ÜBER,{hour}",
+        20: "ZEHN,VOR HALB,{next_hour}",
+        25: "FÜNF,VOR HALB,{next_hour}",
+        30: "HALB,{next_hour}",
+        35: "FÜNF,NACH HALB,{next_hour}",
+        40: "ZEHN,NACH HALB,{next_hour}",
+        45: "VIERTEL,VOR,{next_hour}",
+        50: "ZEHN,VOR,{next_hour}",
+        55: "FÜNF,VOR,{next_hour}",
+    },
+    "de-CH": {
+        0: "{hour},UHR",
+        5: "FÜNF,AB,{hour}",
+        10: "ZEHN,AB,{hour}",
+        15: "VIERTEL,AB,{hour}",
+        20: "ZEHN,VOR HALB,{next_hour}",
+        25: "FÜNF,VOR HALB,{next_hour}",
+        30: "HALB,{next_hour}",
+        35: "FÜNF,NACH HALB,{next_hour}",
+        40: "ZEHN,NACH HALB,{next_hour}",
+        45: "VIERTEL,VOR,{next_hour}",
+        50: "ZEHN,VOR,{next_hour}",
+        55: "FÜNF,VOR,{next_hour}",
+    },
+    "de-CH-alt": {
+        0: "{hour},UHR",
+        5: "FÜNF,AB,{hour}",
+        10: "ZEHN,AB,{hour}",
+        15: "VIERTEL,AB,{hour}",
+        20: "ZWANZIG,AB,{hour}",
+        25: "FÜNF,VOR HALB,{next_hour}",
+        30: "HALB,{next_hour}",
+        35: "FÜNF,NACH HALB,{next_hour}",
+        40: "ZWANZIG,VOR {next_hour}",
+        45: "VIERTEL,VOR {next_hour}",
+        50: "ZEHN,VOR,{next_hour}",
+        55: "FÜNF,VOR,{next_hour}",
+    },
+    "de-DE": {
+        0: "{hour},UHR",
+        5: "FÜNF,NACH {hour}",
+        10: "ZEHN,NACH {hour}",
+        15: "VIERTEL,NACH,{hour}",
+        20: "ZEHN,VOR HALB,{next_hour}",
+        25: "FÜNF,VOR HALB,{next_hour}",
+        30: "HALB,{next_hour}",
+        35: "FÜNF,NACH HALB,{next_hour}",
+        40: "ZEHN,NACH HALB,{next_hour}",
+        45: "VIERTEL,VOR,{next_hour}",
+        50: "ZEHN,VOR,{next_hour}",
+        55: "FÜNF,VOR,{next_hour}",
+    },
+    "de-DE-alt": {
+        0: "{hour},UHR",
+        5: "FÜNF,NACH,{hour}",
+        10: "ZEHN,NACH,{hour}",
+        15: "VIERTEL,NACH,{hour}",
+        20: "ZWANZIG,NACH,{hour}",
+        25: "FÜNF,VOR HALB,{next_hour}",
+        30: "HALB,{next_hour}",
+        35: "FÜNF,NACH HALB,{next_hour}",
+        40: "ZWANZIG,VOR,{next_hour}",
+        45: "VIERTEL,VOR,{next_hour}",
+        50: "ZEHN,VOR,{next_hour}",
+        55: "FÜNF,VOR,{next_hour}",
+    },
+    "de-DE-alt2": {
+        0: "{hour},UHR",
+        5: "FÜNF,NACH,{hour}",
+        10: "ZEHN,NACH,{hour}",
+        15: "VIERTEL,{next_hour}",
+        20: "ZEHN,VOR HALB,{next_hour}",
+        25: "FÜNF,VOR HALB,{next_hour}",
+        30: "HALB,{next_hour}",
+        35: "FÜNF,NACH HALB,{next_hour}",
+        40: "FÜNF VOR,DREIVIERTEL,{next_hour}",
+        45: "DREI,VIERTEL,{next_hour}",
+        50: "ZEHN,VOR,{next_hour}",
+        55: "FÜNF,VOR,{next_hour}",
+    },
+    "en-US": {
+        0: "{hour},O’CLOCK",
+        5: "FIVE,PAST,{hour}",
+        10: "TEN,PAST,{hour}",
+        15: "QUARTER,PAST,{hour}",
+        20: "TWENTY,PAST,{hour}",
+        25: "TWENTY-FIVE,PAST,{hour}",
+        30: "HALF,PAST,{hour}",
+        35: "TWENTY-FIVE,TILL,{next_hour}",
+        40: "TWENTY,TILL,{next_hour}",
+        45: "QUARTER,TILL,{next_hour}",
+        50: "TEN,TILL,{next_hour}",
+        55: "FIVE,TILL,{next_hour}",
+    },
+    "en-GB": {
+        0: "{hour},O’CLOCK",
+        5: "FIVE,PAST,{hour}",
+        10: "TEN,PAST,{hour}",
+        15: "QUARTER,PAST,{hour}",
+        20: "TWENTY,PAST,{hour}",
+        25: "TWENTY-FIVE,PAST,{hour}",
+        30: "HALF,PAST,{hour}",
+        35: "TWENTY-FIVE,TO,{next_hour}",
+        40: "TWENTY,TO,{next_hour}",
+        45: "QUARTER,TO,{next_hour}",
+        50: "TEN,TO,{next_hour}",
+        55: "FIVE,TO,{next_hour}",
+    },
+    "nl-BE": {
+        0: "{hour} UUR",
+        5: "VIJF,NA,{hour}",
+        10: "TIEN,NA,{hour}",
+        15: "KWART,NA,{hour}",
+        20: "TIEN,VOOR HALF,{next_hour}",
+        25: "VIJF,VOOR HALF,{next_hour}",
+        30: "HALF,{next_hour}",
+        35: "VIJF,NA HALF,{next_hour}",
+        40: "TIEN,NA HALF,{next_hour}",
+        45: "KWART,VOOR,{next_hour}",
+        50: "TIEN,VOOR,{next_hour}",
+        55: "VIJF,VOOR,{next_hour}",
+    },
+    "nl-NL": {
+        0: "{hour},UUR",
+        5: "VIJF,OVER,{hour}",
+        10: "TIEN,OVER,{hour}",
+        15: "KWART,OVER,{hour}",
+        20: "TIEN,VOOR HALF,{next_hour}",
+        25: "VIJF,VOOR HALF,{next_hour}",
+        30: "HALF,{next_hour}",
+        35: "VIJF,OVER HALF,{next_hour}",
+        40: "TIEN,OVER HALF,{next_hour}",
+        45: "KWART,VOOR,{next_hour}",
+        50: "TIEN,VOOR,{next_hour}",
+        55: "VIJF,VOOR,{next_hour}",
+    },
 }
 
-def round(minutes):
+def display_hour(hour):
     """Returns:
-        minutes: rounded to the nearest 5.
-        up: if we rounded up or down.
+        hour to display (in 12h format with 12 instead of 0)
     """
-    rounded = (minutes + 2) % 60 // 5 * 5
-    up = False
-
-    if rounded > 30:
-        rounded = 60 - rounded
-        up = True
-    elif minutes > 30 and rounded == 0:
-        up = True
-
-    return rounded, up
-
-def fuzzy_time(config, hours, minutes):
-    glue = "PAST"
-    rounded, up = round(minutes)
-
-    if up:
-        hours += 1
-
-        glue = "TILL" if config.get("dialect") == "american" else "TO"
 
     # Handle 24 hour time.
-    if hours > 12:
-        hours -= 12
+    if hour > 12:
+        hour -= 12
 
     # Handle midnight.
-    if hours == 0:
-        hours = 12
+    if hour == 0:
+        hour = 12
 
-    if rounded == 0:
-        return [words[hours], "O’CLOCK"]
+    return hour
 
-    return [words[rounded], glue, words[hours]]
+def fuzzy_time(hours, minutes, language):
+    numbers = numbersPerLang[language]
+    patterns = patternsPerLang[language]
+
+    # Round up to the next 5 minutes
+    rounded = (minutes + 2) % 60 // 5 * 5
+    if minutes > 55 and rounded == 0:
+        hours += 1
+
+    pattern = patterns[rounded]
+    cur_hour = numbers[display_hour(hours)]
+    next_hour = numbers[display_hour(hours + 1)]
+
+    # Special case
+    if language.startswith("de") and cur_hour == "EINS" and rounded == 0:
+        cur_hour = "EIN"  # "EIN UHR" instead of "EINS UHR"
+
+    return pattern.format(hour = cur_hour, next_hour = next_hour).split(",")
 
 def main(config):
     location = config.get("location")
@@ -80,7 +252,17 @@ def main(config):
     timezone = loc.get("timezone", DEFAULT_TIMEZONE)
     now = time.now().in_location(timezone)
 
-    fuzzed = fuzzy_time(config, now.hour, now.minute)
+    hours = now.hour
+    minutes = now.minute
+    language = config.get("dialect") or "en-US"
+
+    # backwards compatibility
+    if language == "american":
+        language = "en-US"
+    elif language == "british":
+        language = "en-GB"
+
+    fuzzed = fuzzy_time(hours, minutes, language)
 
     # Add some left padding for ~style~.
     texts = [render.Text(" " * i + s) for i, s in enumerate(fuzzed)]
@@ -98,11 +280,43 @@ def get_schema():
     dialectOptions = [
         schema.Option(
             display = "American English",
-            value = "american",
+            value = "en-US",
         ),
         schema.Option(
             display = "British English",
-            value = "british",
+            value = "en-GB",
+        ),
+        schema.Option(
+            display = "Deutsch",
+            value = "de-DE",
+        ),
+        schema.Option(
+            display = "Deutsch (Österreich)",
+            value = "de-AT",
+        ),
+        schema.Option(
+            display = "Deutsch (Alternative)",
+            value = "de-DE-alt",
+        ),
+        schema.Option(
+            display = "Deutsch (Alternative 2)",
+            value = "de-DE-alt2",
+        ),
+        schema.Option(
+            display = "Deutsch (Schweiz)",
+            value = "de-CH",
+        ),
+        schema.Option(
+            display = "Deutsch (Schweiz, Alternative)",
+            value = "de-CH-alt",
+        ),
+        schema.Option(
+            display = "Dutch",
+            value = "nl-NL",
+        ),
+        schema.Option(
+            display = "Dutch (Belgium)",
+            value = "nl-BE",
         ),
     ]
 
@@ -117,9 +331,9 @@ def get_schema():
             ),
             schema.Dropdown(
                 id = "dialect",
-                name = "Dialect",
+                name = "Language",
                 icon = "language",
-                desc = "British or American English",
+                desc = "Language in which to display time",
                 default = dialectOptions[0].value,
                 options = dialectOptions,
             ),

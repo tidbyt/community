@@ -7,7 +7,7 @@ DEFAULT_SHOW_CENTIBEATS = True
 
 def time_in_beats(now):
     # The time zone to use is Biel Mean Time (BMT) - UTC+1, ignore daylight savings
-    time_in_milliseconds = (math.round(now.nanosecond / 1000000)) + ((now.second + (now.minute * 60 + (now.hour + 1) * 3600)) * 1000)
+    time_in_milliseconds = (math.round(now.nanosecond / 1000000)) + ((now.second + (now.minute * 60 + ((now.hour + 1) % 24) * 3600)) * 1000)
     time_in_beats = math.round(time_in_milliseconds / 86400 * 100000) / 100000
     time_in_beats_integral, time_in_beats_fractional = str("%f" % time_in_beats).split(".")
 

@@ -1,17 +1,18 @@
 """
 Applet: Solar Manager Ch
 Summary: Show solarmanager.ch status
-Description: Multiple screen selections will disable animations. If you prefer animated screens, run separate instances of the app and select 1 screen per instance.  For API Key : authorize with your solarmanager username and password on: https://external-web.solar-manager.ch/swagger and copy the long string that follows after '-H authorization: Basic'.  For Site ID : check the back of your solarmanager device for the SMID code..
+Description: Multiple screen selections will disable animations. If you prefer animated screens, run separate instances of the app and select 1 screen per instance.  For API Key : authorize with your solarmanager username and password on: https://external-web.solar-manager.ch/swagger and copy the long string that follows after '-H authorization: Basic'.  For Site ID : check the back of your solarmanager device for the SMID code.  If you have an aux sensor the ID can be found be executing the 'GET/v1/info/senors/(smid)' command on the solarmanager API page at https://external-web.solar-manager.ch/swagger"
 Author: tavdog, marcbaier
 """
 
-load("cache.star", "cache")
+#load("cache.star", "cache")
 load("encoding/base64.star", "base64")
 load("encoding/json.star", "json")
 load("http.star", "http")
 load("humanize.star", "humanize")
 load("render.star", "render")
 load("schema.star", "schema")
+load("time.star", "time")
 
 DEBUG = False
 #DEBUG = True # set to True to skip api calls and use dummy data
@@ -75,6 +76,18 @@ BATTERY_CHARGE_TEST_10x10 = base64.decode("""
 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
 """)
 
+AUTARKY_16x16 = base64.decode("""
+iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAABHNCSVQICAgIfAhkiAAAAAlwSFlzAAAAbwAAAG8B8aLcQwAAABl0RVh0U29mdHdhcmUAd3d3Lmlua3NjYXBlLm9yZ5vuPBoAAAKGSURBVDiNfZJtaM1hGMZ/9/P/73TOzFvIZuMYJ8uStywjhSQhSxvLywdbJNl88V1a2VfJbKVEjVJn+TRqQlvxQfJW7GSRaENsM+Ts5f/y3L44pzPk+Xjd1+/qeu5uUVVy377+usWhyA6E9Sjrbg5OLylw7FDU2FS+obmv/MK9XL8BaKLJANT219cFIrcRiYvV6xHrrUrMoHi6GzQbw1j/hNu1oLfhhiAmEyC7Ph7Nj4bePUVfAittGFbdiF/9NKlWh8RI4Zftb0yMjMsdC5Hh5S1FilrjTHgRhUpBKsTRmr/gTqnUCX6wjIN9S1pefVl+fr4Bb37v8Q4AkzeaHhWkWyGt1tk+Ce6Rhfqd+yJ41NCekWdGdeuQl1dVlmrcIn8uMRe20GPeEWcaZ6jWU7njeKrxlrXEzP9gII6Lzw+a/7TkYbvGrSk3NR/qKydN7sucLAwQkIchTVJ66ZTSjC0WiyR/hma2MaodtYMNBdkAIQC6gKGsZjF4JPCxGelF6bnPJVHvmBGVZ+F4enXWvEFHzCY9ZqAI4e3vvh4FrKVa3+eWfb207ZJB9LERJn8DCJWdKIvUxSdKJbv1+b/WJXv7DyeU8K64UpEsvDz4WxbbwzNgivnGPnbrkwywMNV47bvvVIkQzHODBSZZcumNomc10NZsbA9rgajx2ZgLA+RH7IVQxR3xnZlWZJaoKoLInoG6TmBUXGlIXrwyDMBptbnwktTRlV/82IOYCQfGrFM8NzZemj0kQaRm4NAJQU6CtlnloROd8rTvqzcnHUYOj1mz7VvgrJgb8dvflrce2UyT283p4K9LrB04koDgACprVHTVrcEZhVNd+zHm2EdRR9telbV25/p/AZhtE/ThSw0TAAAAAElFTkSuQmCC
+""")
+
+EV_CHARGING_16x16 = base64.decode("""
+iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAACXBIWXMAAAB2AAAAdgFOeyYIAAAAGXRFWHRTb2Z0d2FyZQB3d3cuaW5rc2NhcGUub3Jnm+48GgAAArtJREFUOI11k0to1GcUxX/3+08SMxNFrNpYE9+C8RGliBupJmpiEIKBOMUHFhQXYoVSiKGiJt+oCx0GuhAR6mtVtZlIDBYSkhhEEBcWIRpHRR2Mxlh8YZsZJzaZ73ZjZRzt2V04nHPuS8hCmbW+L5JUApUGZqugCvckLV0vR2vnZWtHMvmSWQTrQxWqehQYVqEFx10DTmG+CjUCBpHvm8ONlz4RqK2320U5iLKzOWJ/AzQrnATr7AYVjoiwOxq2v3wQCNbZFSo0iTHl0cMNt7LbykRtnS0VoVuUb6MR2y3BYJPnpsdixhGKRuwZgAs337QhVH1kL7StnT92zXvDjc7QuMBPiY+pd6pEGYlG7Nmfu/pmeM4UI3yT7azK8iOdT8pGxD3+cdXUs7W77N7eQVntc6IVCC2ASpqZKW9wR0/iYeAz6f2jZOIPuQSOAnGgFaMVPgMzQKIAxn9q2cuhZ9UP/xpDIL+IcTkFALweTpBM9TPT+7u6eNSkXqDLwD2FGp+CoioAJXJj63f5f3iRd8uY++UKKguXAtDx51ViT69Rl3fFu87ircA+T+gYdvLKhxDHMQegXSv7Tw4VfZXSXHqfdPD7wBUA3qaHUC1ke6qGyXlz++Ei58J2ABjwiZMuFY0Ae3IfFbfmxf9ZMmnihAcFCwu2ZQ4g0ZM48fr5i1l5s4sufLSdMmt945PEEAktmvf15TfJ5LH8/MC5A1uqz2QS952+uDGVSq4vyMnZcft+b/k8v/5qrXUCsK4+tBLVaNqY8pbDDT3/d0T7r3csfTeY2Hu//VY4bbTv/CEbNwDN4cZLIvzkOde9rj60iawf+S8tpA/mjvFXTVk+Z7NxUks28X2SY4ADWhG5K6qqUAKsLSwt7ptQMrkUON64uKrhEwGAYLDJc9NiqwVWAdMADyGuSueCAO3WWpfJ/xczZBKg/h8O2gAAAABJRU5ErkJggg==
+""")
+
+CUSTOM_SENSOR_16_16 = base64.decode("""
+iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAACXBIWXMAAAPvAAAD7wHnP/QUAAAAGXRFWHRTb2Z0d2FyZQB3d3cuaW5rc2NhcGUub3Jnm+48GgAAAohJREFUOI1tUl9I02EUPeeba9Bm/kuzQvPfQpTa1rQCDYR806iQoPAlQoKITKJe1ERKJEIpeqqE6qGXHhxEgVQKFQVK4ZYoUpugZoogKjibP92+24NO1+q83e+ce889l4/YwOeh0fNC+VV+oOhd9O2W31GsqI4ryOSqZe1ja9bIPOJAABgYHU0Lr0pAk5VKowKi+8pcxb62MXc5RF8kkQfATbBbU5qa87wTWwMEbB0ofZtjrprPTjjdYoH5iwlrRUcdjqlYp3a/K10UmwCp1VrO3LT73gMAr73Jz6JJ+yxWM7apxIXChLrXZ92XGuJXjaJtzFVDoCui9bEW+7cRFQlHrocNnbo8b6QGfy/uGIrcexXbsDS458ry1527o3VzvreblA6T4kMAUCCHQawAwFoofL/98I++qHjZm1lKyA1rydxM7FBbJNgJMKc94CxTGYVJ42m5SeMCXkgJ2jqiosWh7BQBX4AYjo9Rbw8YJDyarE4A1H6Thd8fVI0/jQpEwKBv9RnAXAgWgoOZd8QkzxMds5vDRHNEEZUKWhRElmIdQoO7jpDcC2AWxCGQp1YskYlYDaENEbEoAacA5saS292z/TbnTAmJTyBWSJ5LL5z7y0STeaD8VGGL8QGAuzVwMCM+qxa4CF62Oqe98RzIExT0qo3v6TEzoTGWX/DmJBPotzqnn8T3tvmdJymSapNgjwIAIRoBqW0bc9VERcmhsGENmerim2/73flU7KJIQ709YHCLcFYoRQ8pHbZIsLPeHjD+56wUH0PY2VgweHf9mDG45XcUm5R6BGAfCQ8gw6JpCJG/nllSRcvVZrvv5eYp/jkOgPaAs0yT1QQKAFgAmaSg1ybBnvjN/gABgQjIrnX3XQAAAABJRU5ErkJggg==
+""")
+
 # need 5 items because 100% is index 4
 battery_level_icons = [BATTERY_CHARGE_STATUS_0_25_10x10, BATTERY_CHARGE_STATUS_25_50_10x10, BATTERY_CHARGE_STATUS_50_75_10x10, BATTERY_CHARGE_STATUS_75_100_10x10, BATTERY_CHARGE_STATUS_75_100_10x10]
 battery_level_mains = [BATTERY_0_TO_25_MAIN_SCREEN, BATTERY_25_TO_50_MAIN_SCREEN, BATTERY_50_TO_75_MAIN_SCREEN, BATTERY_75_TO_100_MAIN_SCREEN, BATTERY_75_TO_100_MAIN_SCREEN]
@@ -126,6 +139,8 @@ iVBORw0KGgoAAAANSUhEUgAAAAcAAAAQCAYAAADagWXwAAAACXBIWXMAAAsTAAALEwEAmpwYAAAKn2lU
 
 URL_CUR = "https://cloud.solar-manager.ch/v1/stream/gateway/{}"
 URL_SUM = "https://cloud.solar-manager.ch/v1/consumption/gateway/{}?period=day"
+URL_AUT = "https://cloud.solar-manager.ch/v1/statistics/gateways/{}?accuracy=low&from={}&to={}"
+URL_AUX = "https://cloud.solar-manager.ch/v1/consumption/sensor/{}?period={}"
 
 # 5 minutes cache time
 CACHE_TTL = 300
@@ -139,9 +154,18 @@ DUMMY_DATA = {
     "consumption": 1000.96,
     "production": 3000.11,
     "has_battery": True,
+    "autarky_day": 100,
+    "autarky_24h": 75,
+    "autarky_month": 50,
+    "autarky_year": 25,
+    "aux_sensor_day": 10000,
+    "aux_sensor_week": 10000,
+    "aux_sensor_month": 10000,
 }
 
 def w2kwstr(w, dec = None):  # rounds off decimal, removes completey if over 100kw
+    if w == None:
+        return 0
     if w < 10000 and dec == None:
         if w < 0:  # CURRENTLY DISABLED
             return str(int(w / 1000 * 100) / 100.0)  # show two decimal places
@@ -158,9 +182,66 @@ def render_fail(rep):
     content = json.decode(rep.body())
     return render.Root(render.Box(render.WrappedText(content["error"] + " " + str(rep.status_code) + " : " + content["message"], color = RED)))
 
+def get_aux_sensor_data(sensor_id, api_key, period):
+    # 'https://cloud.solar-manager.ch/v1/consumption/sensor/62a7324c7ffb2aabdaf96b8d?period=day'
+    # user 1 hour for http cache TTL
+    print(URL_AUX.format(sensor_id, period))
+    res = http.get(
+        URL_AUX.format(sensor_id, period),
+        headers = {
+            "Accept": "application/json",
+            "Authorization": "Basic " + api_key,
+        },
+        ttl_seconds = 60 * 60,
+    )  # 1 hour http cache ttl
+    if res.status_code != 200:
+        print(res.body())
+        return 0
+    print(res.headers.get("Tidbyt-Cache-Status"))
+    return res.json().get("totalConsumption")
+
+def get_autarky_percent(site_id, api_key, tz, interval):
+    now = time.now().in_location(tz)
+    start_string = ""
+    now_string = humanize.time_format("yyyy-MM-ddTHH:00", now)
+    if interval == "day":  # from the start of today to now, just set time to 00:00
+        start_string = humanize.time_format("yyyy-MM-ddT00:00", now)
+        now_string = humanize.time_format("2006-01-02T15:04", now)
+    elif interval == "24h":  # the last 24hr from now, use a now-duration
+        duration = time.parse_duration("24h")
+        start_time = now - duration
+        start_string = humanize.time_format("yyyy-MM-ddTHH:00", start_time)
+    elif interval == "month":  # from the start of the month to now, just set day to 01 and time to 00:00
+        month = now.month
+        if now.month < 10:  # pad a zero if less then 10
+            month = "0" + str(month)
+        start_string = "{}-{}-01T00:00".format(now.year, month)
+    elif interval == "year":  # from the start of the year to now, set month/day to 01/01 and time to 00:00
+        start_string = "{}-01-01T00:00".format(now.year)
+    url = URL_AUT.format(site_id, start_string, now_string)
+    print(url)
+    rep = http.get(
+        url,
+        headers = {
+            "Accept": "application/json",
+            "Authorization": "Basic " + api_key,
+        },
+        ttl_seconds = 60 * 60,  # 1 hour cache
+    )
+
+    if rep.status_code != 200:
+        print(rep.body())
+        return 0
+    print(rep.headers.get("Tidbyt-Cache-Status"))
+    autarky = rep.json().get("autarchyDegree", 0)
+    return int(autarky)
+
+#######################################
+
 def main(config):
     api_key = config.str("api_key")
     site_id = config.str("site_id")
+    tz = config.get("$tz", "Europe/Zurich")
     has_battery = False  #  assume no battery until we have data
 
     # verify api key doesn't have non key characters in there eg. "Basic"
@@ -171,56 +252,75 @@ def main(config):
 
     if not DEBUG and api_key and site_id:
         url = URL_CUR.format(site_id)
-        data = cache.get(site_id)
-        if not data:
-            data = dict()
-            rep = http.get(
-                url,
-                headers = {
-                    "Accept": "application/json",
-                    "Authorization": "Basic " + api_key,
-                },
-            )
-            if rep.status_code != 200:
-                print(rep.body())
-                return render_fail(rep)
+        data = dict()
+        rep = http.get(
+            url,
+            headers = {
+                "Accept": "application/json",
+                "Authorization": "Basic " + api_key,
+            },
+            ttl_seconds = 300,  # 5 minutes
+        )
+        if rep.status_code != 200:
+            print(rep.body())
+            return render_fail(rep)
 
-            cur_data = json.decode(rep.body())
-            data["currentPowerConsumption"] = float(cur_data["currentPowerConsumption"])
-            data["currentPvGeneration"] = float(cur_data["currentPvGeneration"])
-            data["currentBatteryChargeDischarge"] = 0.0  # set to zero just to be safe
-            data["soc"] = 0  # set to zero just to be safe
+        cur_data = json.decode(rep.body())
+        data["currentPowerConsumption"] = float(cur_data["currentPowerConsumption"])
+        data["currentPvGeneration"] = float(cur_data["currentPvGeneration"])
+        data["currentBatteryChargeDischarge"] = 0.0  # set to zero just to be safe
+        data["soc"] = 0  # set to zero just to be safe
 
-            if "currentBatteryChargeDischarge" in cur_data and "soc" in cur_data:
-                data["currentBatteryChargeDischarge"] = float(cur_data["currentBatteryChargeDischarge"])
-                data["soc"] = cur_data["soc"]
-                data["has_battery"] = True
-                has_battery = True
+        if "currentBatteryChargeDischarge" in cur_data and "soc" in cur_data:
+            data["currentBatteryChargeDischarge"] = float(cur_data["currentBatteryChargeDischarge"])
+            data["soc"] = cur_data["soc"]
+            data["has_battery"] = True
+            has_battery = True
 
-            url = URL_SUM.format(site_id)
-            rep = http.get(
-                url,
-                headers = {
-                    "Accept": "application/json",
-                    "Authorization": "Basic " + api_key,
-                },
-            )
-            if rep.status_code != 200:
-                return render_fail(rep)
+        url = URL_SUM.format(site_id)
+        rep = http.get(
+            url,
+            headers = {
+                "Accept": "application/json",
+                "Authorization": "Basic " + api_key,
+            },
+            ttl_seconds = 300,  # 5 minutes
+        )
+        if rep.status_code != 200:
+            return render_fail(rep)
 
-            sum_data = json.decode(rep.body())
-            data["consumption"] = sum_data["data"][0]["consumption"]
-            data["production"] = sum_data["data"][0]["production"]
+        sum_data = json.decode(rep.body())
+        data["consumption"] = sum_data["data"][0]["consumption"]
+        data["production"] = sum_data["data"][0]["production"]
 
-            # TODO: Determine if this cache call can be converted to the new HTTP cache.
-            cache.set(site_id, json.encode(data), ttl_seconds = CACHE_TTL)
-        else:
-            print("using cache")
-            data = json.decode(data)  # data from cache is json so need to decode.
-            if "has_battery" in data and data["has_battery"] == True:
-                has_battery = True
+        data["autarky_day"] = get_autarky_percent(site_id, api_key, tz, "day")
+        data["autarky_24h"] = get_autarky_percent(site_id, api_key, tz, "24h")
+        data["autarky_month"] = get_autarky_percent(site_id, api_key, tz, "month")
+        data["autarky_year"] = get_autarky_percent(site_id, api_key, tz, "year")
+
+        data["aux_sensor_day"] = -1
+        data["aux_sensor_week"] = -1
+        data["aux_sensor_month"] = -1
+
+        if config.get("aux_sensor_id", "") != "":
+            data["aux_sensor_day"] = get_aux_sensor_data(config.get("aux_sensor_id"), api_key, "day")
+            data["aux_sensor_week"] = get_aux_sensor_data(config.get("aux_sensor_id"), api_key, "week")
+            data["aux_sensor_month"] = get_aux_sensor_data(config.get("aux_sensor_id"), api_key, "month")
+
+        #        cache.set(site_id, json.encode(data), ttl_seconds = CACHE_TTL)
+        #        else:
+        # print("using cache")
+        # data = json.decode(data)  # data from cache is json so need to decode.
+        # if "has_battery" in data and data["has_battery"] == True:
+        #     has_battery = True
+        # if config.get("aux_sensor_id", "") != "" and data.get("aux_sensor_day", "") == "":
+        #     print("fetching aux_sensor data outside of cache")
+        #     data["aux_sensor_day"] = get_aux_sensor_data(config.get("aux_sensor_id"), api_key, "day")
+        #     data["aux_sensor_week"] = get_aux_sensor_data(config.get("aux_sensor_id"), api_key, "week")
+        #     data["aux_sensor_month"] = get_aux_sensor_data(config.get("aux_sensor_id"), api_key, "month")
 
     else:
+        print("using dummy data")
         data = DUMMY_DATA
     print(data)
     frames = []
@@ -521,6 +621,167 @@ def main(config):
         ),
     )
 
+    # AUTARKY FRAME
+    autarky_frame = render.Stack(
+        children = [
+            render.Box(
+                height = 32,
+                width = 64,
+                child = render.Image(src = AUTARKY_16x16),
+            ),
+            render.Column(
+                # column for the top
+                main_align = "start",
+                expanded = True,
+                children = [
+                    # top row
+                    render.Row(
+                        expanded = True,
+                        main_align = "space_between",
+                        children = [
+                            render.Row([render.Text("24hr:", font = "tom-thumb", color = GRAY)]),
+                            render.Row([render.Text("Month:", font = "tom-thumb", color = GRAY)]),
+                        ],
+                    ),
+
+                    # second row
+                    render.Row(
+                        expanded = True,
+                        main_align = "space_between",
+                        cross_align = "end",
+                        children = [
+                            render.Row([render.Text(" {}%".format(data["autarky_24h"]), color = GREEN)]),
+                            render.Row([render.Text("{}%".format(data["autarky_month"]), color = GREEN)]),
+                        ],
+                    ),
+                ],
+            ),
+            render.Column(
+                main_align = "end",
+                expanded = True,
+                children = [
+                    # third row
+                    render.Row(
+                        expanded = True,
+                        main_align = "space_between",
+                        children = [
+                            render.Row([render.Text("Today:", font = "tom-thumb", color = GRAY)]),
+                            render.Row([render.Text("Year:", font = "tom-thumb", color = GRAY)]),
+                        ],
+                    ),
+
+                    # fourth row
+                    render.Row(
+                        expanded = True,
+                        main_align = "space_between",
+                        cross_align = "end",
+                        children = [
+                            render.Row([render.Text(" {}%".format(data["autarky_day"]), color = GREEN)]),
+                            render.Row([render.Text("{}%".format(data["autarky_year"]), color = GREEN)]),
+                        ],
+                    ),
+                ],
+            ),
+        ],
+    )
+
+    # AUX SENSOR FRAME
+    aux_icon = CUSTOM_SENSOR_16_16
+    if config.get("aux_icon") == "EV":
+        aux_icon = EV_CHARGING_16x16
+    sensor_frame = render.Stack(
+        children = [
+            render.Column(
+                main_align = "space_evenly",  # this controls position of children, start = top
+                expanded = True,
+                cross_align = "center",
+                children = [
+                    render.Text(config.get("aux_sensor_label", "Aux Load"), font = "tom-thumb"),
+                    render.Row(
+                        expanded = True,
+                        main_align = "space_between",
+                        children = [
+                            render.Column(
+                                expanded = True,
+                                main_align = "center",
+                                #cross_align = "center",
+                                children = [
+                                    render.Image(src = aux_icon),
+                                ],
+                            ),
+                            render.Column(
+                                expanded = True,
+                                main_align = "space_around",
+                                cross_align = "start",
+                                children = [
+                                    render.Text(
+                                        content = "D",
+                                        font = "5x8",
+                                        color = GRAY,
+                                    ),
+                                    render.Text(
+                                        content = "W",
+                                        font = "5x8",
+                                        color = GRAY,
+                                    ),
+                                    render.Text(
+                                        content = "M",
+                                        font = "5x8",
+                                        color = GRAY,
+                                    ),
+                                ],
+                            ),
+                            render.Column(
+                                expanded = True,
+                                main_align = "space_around",
+                                cross_align = "end",
+                                children = [
+                                    render.Text(
+                                        content = w2kwstr(data["aux_sensor_day"], dec = 0),
+                                        font = "5x8",
+                                        color = GREEN,
+                                    ),
+                                    render.Text(
+                                        content = w2kwstr(data["aux_sensor_week"], dec = 0),
+                                        font = "5x8",
+                                        color = GREEN,
+                                    ),
+                                    render.Text(
+                                        content = w2kwstr(data["aux_sensor_month"], dec = 0),
+                                        font = "5x8",
+                                        color = GREEN,
+                                    ),
+                                ],
+                            ),
+                            render.Column(
+                                expanded = True,
+                                main_align = "space_around",
+                                cross_align = "start",
+                                children = [
+                                    render.Text(
+                                        content = " kWh",
+                                        font = "5x8",
+                                        color = GRAY,
+                                    ),
+                                    render.Text(
+                                        content = " kWh",
+                                        font = "5x8",
+                                        color = GRAY,
+                                    ),
+                                    render.Text(
+                                        content = " kWh",
+                                        font = "5x8",
+                                        color = GRAY,
+                                    ),
+                                ],
+                            ),
+                        ],
+                    ),
+                ],
+            ),
+        ],
+    )
+
     if config.bool("show_logo", False):
         frames.append(logo_frame)
     if config.bool("show_main", True):
@@ -533,6 +794,10 @@ def main(config):
         frames.append(verbrauch_frame)
     if config.bool("show_summary", False):
         frames.append(summary_frame)
+    if config.bool("show_autarky", False):
+        frames.append(autarky_frame)
+    if config.get("aux_sensor_id", "") != "":
+        frames.append(sensor_frame)
 
     if len(frames) == 1:
         return render.Root(frames[0])
@@ -608,6 +873,44 @@ def get_schema():
                 desc = "Solar Manager Logo",
                 icon = "compress",
                 default = False,
+            ),
+            schema.Toggle(
+                id = "show_autarky",
+                name = "Show Autarky Frame",
+                desc = "Display the 4 Autarky values for day,week,month,year",
+                icon = "compress",
+                default = False,
+            ),
+            schema.Text(
+                id = "aux_sensor_id",
+                name = "Aux Sensor ID",
+                desc = "Aux Senso ID",
+                icon = "hashtag",
+                default = "",
+            ),
+            schema.Text(
+                id = "aux_sensor_label",
+                name = "Aux Sensor Label",
+                desc = "Aux Senso Label",
+                icon = "hashtag",
+                default = "",
+            ),
+            schema.Dropdown(
+                id = "aux_icon",
+                name = "Aux Icon",
+                desc = "Icon Selection",
+                icon = "hashtag",
+                default = "EV",
+                options = [
+                    schema.Option(
+                        display = "EV",
+                        value = "EV",
+                    ),
+                    schema.Option(
+                        display = "Generic",
+                        value = "Generic",
+                    ),
+                ],
             ),
             schema.Dropdown(
                 id = "frame_delay",
