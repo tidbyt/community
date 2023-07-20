@@ -183,7 +183,8 @@ def build_people(conductor, soloists):
     if soloists:
         soloist_parts = []
         for soloist in soloists:
-            soloist_parts.append("%s, %s" % (soloist["musician"]["name"], soloist["instruments"][0]))
+            soloist_instrument = (len(soloist["instruments"]) and soloist["instruments"][0]) or soloist["role"]
+            soloist_parts.append("%s, %s" % (soloist["musician"]["name"], soloist_instrument))
         output.append(", ".join(soloist_parts))
 
     if conductor:
