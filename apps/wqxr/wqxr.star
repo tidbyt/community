@@ -74,14 +74,12 @@ ERROR_CONTENT = render.Column(
 )
 
 def main(config):
-    # Get settings values
     scroll_direction = config.str("scroll_direction", DEFAULT_SCROLL_DIRECTION)
     scroll_speed = int(config.str("scroll_speed", DEFAULT_SCROLL_SPEED))
     should_show_ensemble = config.bool("show_ensemble", DEFAULT_SHOW_ENSEMBLE)
     should_show_people = config.bool("show_people", DEFAULT_SHOW_PEOPLE)
     use_custom_colors = config.bool("use_custom_colors", DEFAULT_USE_CUSTOM_COLORS)
 
-    # Get data
     whats_on = http.get(url = WHATS_ON, ttl_seconds = 30)
 
     if (whats_on.status_code) != 200:
@@ -94,7 +92,6 @@ def main(config):
             ),
         )
 
-    # Parse data
     has_current_show = whats_on.json()["current_show"]
     has_playlist_item = whats_on.json()["current_playlist_item"]
     has_catalog_entry = has_playlist_item and whats_on.json()["current_playlist_item"]["catalog_entry"]
@@ -111,21 +108,17 @@ def main(config):
         title = has_catalog_entry and whats_on.json()["current_playlist_item"]["catalog_entry"]["title"]
         composer = has_catalog_entry and whats_on.json()["current_playlist_item"]["catalog_entry"]["composer"]["name"]
 
-        # Ensemble
         has_ensemble = has_catalog_entry and whats_on.json()["current_playlist_item"]["catalog_entry"]["ensemble"]
         ensemble = has_ensemble and whats_on.json()["current_playlist_item"]["catalog_entry"]["ensemble"]["name"]
 
-        # Conductor
         has_conductor = has_catalog_entry and whats_on.json()["current_playlist_item"]["catalog_entry"]["conductor"]
         conductor = has_conductor and whats_on.json()["current_playlist_item"]["catalog_entry"]["conductor"]["name"]
 
-        # Soloists
         has_soloists = has_catalog_entry and len(whats_on.json()["current_playlist_item"]["catalog_entry"]["soloists"]) > 0
         soloists = has_soloists and whats_on.json()["current_playlist_item"]["catalog_entry"]["soloists"]
 
         people = build_people(conductor, soloists)
 
-    # Handle colors
     if use_custom_colors:
         color_title = config.str("color_title", DEFAULT_COLOR_TITLE)
         color_composer = config.str("color_composer", DEFAULT_COLOR_COMPOSER)
@@ -137,19 +130,13 @@ def main(config):
         color_ensemble = DEFAULT_COLOR_ENSEMBLE
         color_people = DEFAULT_COLOR_PEOPLE
 
-    # These are just for putting the content into
     root_contents = None
     data_parts = []
 
-    # Vertical scrolling
     if scroll_direction == "vertical":
-        # For vertical mode, each child needs to be a WrappedText widget, so the text will wrap to the next line
-
-        # (I also wrap each child in a Padding widget with appropriate spacing, so things can breathe a little bit)
         pad = (0, 4, 0, 0)  # (left, top, right, bottom)
 
         if title:
-            # Don't pad the top one because it doesn't need it
             data_parts.append(render.Padding(pad = 0, child = render.WrappedText(align = "center", width = 64, content = title, font = "tb-8", color = color_title)))
         if composer:
             data_parts.append(render.Padding(pad = pad, child = render.WrappedText(align = "center", width = 64, content = composer, font = "tom-thumb", color = color_composer)))
@@ -164,9 +151,7 @@ def main(config):
             child = render.Column(children = data_parts),
         )
 
-    # Horizontal scrolling
     if scroll_direction == "horizontal":
-        # For horizontal mode, each child needs to be its own Marquee widget, so each line will scroll individually when too long
         if title:
             data_parts.append(render.Marquee(width = 64, child = render.Text(content = title, font = "tb-8", color = color_title)))
         if composer:
