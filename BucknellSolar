@@ -1,0 +1,59 @@
+"""
+Applet: BucknellSolar
+Summary: Live Bucknell solar input
+Description: Displays the current input from the Bucknell University solar farm in kW.
+Author: RyanKoes
+"""
+
+load("encoding/base64.star", "base64")
+load("http.star", "http")
+load("render.star", "render")
+load("schema.star", "schema")
+
+BUCKNELL_SOLAR_URL = "https://hmi.alsoenergy.com/api/view/sourcedata/C18794?lastChanged=1900-01-01T00:00:00.000Z"
+DATE = "http://worldtimeapi.org/api/timezone/America/New_York"
+
+BUCKNELL_ICON = base64.decode("""iVBORw0KGgoAAAANSUhEUgAAABAAAAAVCAYAAABPPm7SAAAAAXNSR0IArs4c6QAAALdJREFUOE+llMsRgCAMRElH3mzBSrQmrcQWvNkRThjDLAEhGTni8tx8KcYYg+MQEaGcGDDNhxlxX2tASAbcy2aCTOceEFI4QAgL9ZHvCKlC0CKBcJifgJFI8tQEyGNMJgvF5gieS9ICmHLQcsB3vaoUSfQCqjJ+AeRel7ZqpBFAh+N2gIk0lzHbv9b83txIxR/fwek2Um8aOWHDRnKPM3Qpj7V/H/wFpLLCUkkOTJsERMVG8j7W+geM8N8WxqjV7QAAAABJRU5ErkJggg==""")
+
+def main():
+    LATEST_DATA = 0
+    Date_Rep = http.get(DATE, ttl_seconds = 600)
+    cur_date = Date_Rep.json()["datetime"]
+    final_date = cur_date[:10]
+
+    my_dict = "{'type':0,'parameters':[{'name':'Context','type':3,'value':'site'},{'name':'Source','type':1,'value':'62556'},{'name':'Start','type':7,'value':'" + final_date + "'},{'name':'End','type':7,'value':'" + final_date + "'}],'props':null,'series':[],'id':15,'pollInterval':5}"
+
+    rep = http.post(BUCKNELL_SOLAR_URL, {"lastChanged": "1900-01-01T00:00:00.000Z"}, {"content-type": "application/json", "accept": "application/json", "referer": "https://hmi.alsoenergy.com/powerhmi/publicdisplay/db163635-8d51-4692-bc73-c53b732c16e4/main?arg=NjI1NTY%3d&lang=en-US"}, my_dict, {}, "", (), (), ttl_seconds = 600)
+
+    if rep.status_code != 200:
+        fail("Also Energy request failed with status %d", rep.status_code)
+    if Date_Rep.status_code != 200:
+        fail("WolrdTimeAPI request failed with status %d", Date_Rep.status_code)
+
+    ALL = rep.json()["data"]
+    ALL_DATA = ALL[1]
+    DATA_LIST = ALL_DATA.get("data")
+
+    for i in range(1, len(DATA_LIST)):
+        if DATA_LIST[i][1] != None:
+            LATEST_DATA = DATA_LIST[i][1]
+
+    power_of_10 = 100
+    rounded_number = float(int(LATEST_DATA * power_of_10 + 0.5)) / power_of_10
+
+    return render.Root(
+        child = render.Box(
+            # This Box exists to provide vertical centering
+            render.Row(
+                expanded = True,
+                main_align = "space_evenly",
+                children = [
+                    render.Image(src = BUCKNELL_ICON),
+                    render.WrappedText("Solar Farm: " + str(rounded_number) + " kW"),
+                ],
+            ),
+        ),
+    )
+
+def get_schema():
+    return schema.Schema(version = "1", fields = [])
