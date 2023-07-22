@@ -1,7 +1,7 @@
 """
 Applet: Loterias
 Summary: Loterias do Brasil
-Description: Veja os premios das principais modalidades da loteria..
+Description: Veja os premios das principais modalidades da loteria.
 Author: Daniel Sitnik
 """
 
