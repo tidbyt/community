@@ -307,12 +307,19 @@ def getPlayerProgress(x, s, t, Title, TitleColor, ColorGradient, stage, state, t
 
     mainFont = "CG-pixel-3x5-mono"
     output = []
+    ShowTeeTimes = False
 
     topColumn = [render.Box(width = 64, height = 5, color = TitleColor, child = render.Row(expanded = True, main_align = "start", cross_align = "center", children = [
         render.Box(width = 64, height = 5, child = render.Text(content = Title + " - " + stage, color = "#fff", font = mainFont)),
     ]))]
 
     output.extend(topColumn)
+
+    LeaderTeeTime = s[0]["status"]["teeTime"]
+    LeaderTeeTimeFormat = time.parse_time(LeaderTeeTime, format = "2006-01-02T15:04Z").in_location(timezone)
+    TimeDiff = LeaderTeeTimeFormat - time.now()
+    if TimeDiff.hours < 12:
+        ShowTeeTimes = True
 
     for i in range(0, 4):
         ProgressStr = ""
@@ -337,10 +344,7 @@ def getPlayerProgress(x, s, t, Title, TitleColor, ColorGradient, stage, state, t
             # Only show tee times if its less than 12hrs until the leader tees off
             if playerState == "pre":
                 if s[i + x]["status"]["playoff"] != True:
-                    LeaderTeeTime = s[0]["status"]["teeTime"]
-                    LeaderTeeTimeFormat = time.parse_time(LeaderTeeTime, format = "2006-01-02T15:04Z").in_location(timezone)
-                    TimeDiff = LeaderTeeTimeFormat - time.now()
-                    if TimeDiff.hours < 12:
+                    if ShowTeeTimes == True:
                         TeeTime = s[i + x]["status"]["teeTime"]
                         TeeTimeFormat = time.parse_time(TeeTime, format = "2006-01-02T15:04Z").in_location(timezone)
                         TeeTime = TeeTimeFormat.format("15:04")
