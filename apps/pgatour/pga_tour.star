@@ -39,6 +39,9 @@ Added function to revise some tournament names to make them more readable and/or
 
 v2.3.1
 Fixed bug regarding opposite field events
+
+v2.4
+Changed tee times feature to only display them when the leader's time is less than 12hrs away, and then show everyone's tee time. Previously it was showing a mix of round scores and tee times, which didnt look right
 """
 
 load("encoding/json.star", "json")
@@ -76,15 +79,18 @@ def main(config):
     FirstTournamentID = leaderboard["sports"][0]["leagues"][0]["events"][0]["id"]
     i = OppositeFieldCheck(FirstTournamentID)
 
+    # print(i)
     # if user wants to see opposite event
     if i == 1 and OppField == True:
         i = 0
 
+    # print(FirstTournamentID)
     # Get Tournament Name and ID
     TournamentName = leaderboard["sports"][0]["leagues"][0]["events"][i]["name"]
     PreTournamentName = TournamentName
     TournamentID = leaderboard["sports"][0]["leagues"][0]["events"][i]["id"]
 
+    # print(TournamentName)
     # Check if its a major and show a different color in the title bar
     TitleColor = getMajorColor(TournamentID)
 
@@ -328,13 +334,15 @@ def getPlayerProgress(x, s, t, Title, TitleColor, ColorGradient, stage, state, t
 
             # if the player hasn't started their round, show their tee time in your local time
             # also check its not a playoff
-            # Now added to show score for the round if less than 12 hrs until tee time
+            # Only show tee times if its less than 12hrs until the leader tees off
             if playerState == "pre":
                 if s[i + x]["status"]["playoff"] != True:
-                    TeeTime = s[i + x]["status"]["teeTime"]
-                    TeeTimeFormat = time.parse_time(TeeTime, format = "2006-01-02T15:04Z").in_location(timezone)
-                    TimeDiff = TeeTimeFormat - time.now()
+                    LeaderTeeTime = s[0]["status"]["teeTime"]
+                    LeaderTeeTimeFormat = time.parse_time(LeaderTeeTime, format = "2006-01-02T15:04Z").in_location(timezone)
+                    TimeDiff = LeaderTeeTimeFormat - time.now()
                     if TimeDiff.hours < 12:
+                        TeeTime = s[i + x]["status"]["teeTime"]
+                        TeeTimeFormat = time.parse_time(TeeTime, format = "2006-01-02T15:04Z").in_location(timezone)
                         TeeTime = TeeTimeFormat.format("15:04")
                         ProgressStr = TeeTime
                     else:
