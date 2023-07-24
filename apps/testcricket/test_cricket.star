@@ -107,6 +107,7 @@ def main(config):
         MatchID = str(MatchID)
         SeriesID = str(SeriesID)
         Match_URL = "https://hs-consumer-api.espncricinfo.com/v1/pages/match/details?lang=en&seriesId=" + SeriesID + "&matchId=" + MatchID + "&latest=true"
+
         #print(Match_URL)
         # cache specific match data for 1 minute
         MatchData = get_cachable_data(Match_URL, MATCH_CACHE)
@@ -238,7 +239,7 @@ def main(config):
             if len(CurrentBowler) > 10:
                 if Match_JSON["livePerformance"]["bowlers"][0]["player"]["mobileName"] != "":
                     CurrentBowler = Match_JSON["livePerformance"]["bowlers"][0]["player"]["mobileName"]
-            
+
             CurrentBowler_Wkts = Match_JSON["livePerformance"]["bowlers"][0]["wickets"]
             CurrentBowler_Runs = Match_JSON["livePerformance"]["bowlers"][0]["conceded"]
 
@@ -346,7 +347,7 @@ def main(config):
             Status3Color = "#fff"
             Status4 = "Part'ship: " + CurrentPartnership
             Status4Color = BattingTeamColor
-            
+
             if IsOut == True and Wickets != "10" and Break == False:
                 StatusColor = "#f00"
                 Status2Color = "#f00"
@@ -910,7 +911,7 @@ def FinalTeamScore(BattingTeam, BattingTeamColor, Wickets1, Runs1, Wickets2, Run
     )
 
 def BatsmanScore(Batsman, Runs, BatsmanColor):
-     # Display the batsman & their score, with name cropped to 11 characters
+    # Display the batsman & their score, with name cropped to 11 characters
     return render.Row(
         expanded = True,
         main_align = "space_between",
