@@ -82,7 +82,7 @@ def main(config):
     print(samples)
 
     co2 = samples["data"]["co2"]
-    if 'pm25' in samples['data']:
+    if "pm25" in samples["data"]:
         pm25 = samples["data"]["pm25"]
     else:
         pm25 = -1
@@ -146,7 +146,8 @@ def main(config):
         return []
 
     items = []
-    if pm25 == -1: pm25 = 'n/a'
+    if pm25 == -1:
+        pm25 = "n/a"
     for (hide, reading, color, displayName) in [
         (hideCo2, co2, co2_color, "Co2"),
         (hidePm25, pm25, pm25_color, "Pm2.5"),
