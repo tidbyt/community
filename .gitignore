@@ -26,3 +26,4 @@ BUILD.bazel
 *.webp
 *.gif
 *.tar.gz
+apps.json
