@@ -19,73 +19,29 @@ iVBORw0KGgoAAAANSUhEUgAABLAAAATgAQMAAADdYSl7AAAABlBMVEX////VAADegCSlAAADQElEQVR4
 """)
 
 def main(config):
+    display_name= "Error"
+    battery_level = "Add Key"
+    battery_range = "And Vin"
     api_key = "Bearer: "
     api_key += config.str("api_key", API_KEY)
     vin = config.str("vin", VIN)
     url = "{}/{}/state".format(TESSIE_URL, vin)
 
-    rep = http.get(url, headers = {"Authorization": api_key}, ttl_seconds = 240)
+    if config.str("vin", API_KEY) == "" or config.str("vin", VIN) == "":        
+        display_name= "Error"
+        battery_level = "Add Key"
+        battery_range = "And Vin"
+    else:
+        rep = http.get(url, headers = {"Authorization": api_key}, ttl_seconds = 240)
+        if rep.status_code == 200:
+            display_name = str(rep.json()["display_name"])
+            battery_level = str(int(math.round(rep.json()["charge_state"]["battery_level"]))) + "%"
+            battery_range = str(int(math.round(rep.json()["charge_state"]["battery_range"]))) + "mi"
+        else:
+            battery_level = "Code {}".format(rep.status_code)
+            battery_range = ""
 
-    if rep.status_code != 200:
-        return render.Root(
-            child = render.Text("Error {}!".format(rep.status_code)),
-        )
-
-    display_name = str(rep.json()["display_name"])
-    battery_level = str(int(math.round(rep.json()["charge_state"]["battery_level"]))) + "%"
-    battery_range = str(int(math.round(rep.json()["charge_state"]["battery_range"]))) + "mi"
-
-    battery_component = render.Row(
-        children = [
-            render.Text(
-                content = battery_level,
-                font = "tom-thumb",
-            ),
-        ],
-    )
-
-    range_component = render.Row(
-        children = [
-            render.Text(
-                content = battery_range,
-                font = "tom-thumb",
-            ),
-        ],
-    )
-
-    stax = render.Column(
-        children = [
-            render.Text(
-                content = display_name,
-                color = "#ff0000",
-                font = "tom-thumb",
-            ),
-            battery_component,
-            range_component,
-        ],
-    )
-
-    labelcomponent = None
-    labelcomponent = render.Row(
-        main_align = "space_evenly",
-        cross_align = "center",
-        expanded = True,
-        children = [
-            render.Image(src = TESLA_ICON, height = 17),
-            stax,
-        ],
-    )
-
-    return render.Root(
-        child = render.Column(
-            expanded = True,
-            main_align = "space_evenly",
-            cross_align = "left",
-            children = [
-                labelcomponent,
-            ],
-        ),
-    )
+    return render_view(display_name, battery_level, battery_range)
 
 def get_schema():
     return schema.Schema(
@@ -104,4 +60,60 @@ def get_schema():
                 icon = "key",
             ),
         ],
+    )
+
+def render_battery(battery_level):
+    return render.Row(
+        children = [
+            render.Text(
+                content = battery_level,
+                font = "tom-thumb",
+            ),
+        ],
+    )
+
+def render_range(battery_range):
+    return render.Row(
+        children = [
+            render.Text(
+                content = battery_range,
+                font = "tom-thumb",
+            ),
+        ],
+    )
+
+def render_label(stack_component):
+    return render.Row(
+        main_align = "space_evenly",
+        cross_align = "center",
+        expanded = True,
+        children = [
+            render.Image(src = TESLA_ICON, height = 17),
+            stack_component,
+        ],
+    )
+
+def render_stack(display_name, battery_level, battery_range):
+    return render.Column(
+        children = [
+            render.Text(
+                content = display_name,
+                color = "#ff0000",
+                font = "tom-thumb",
+            ),
+            render_battery(battery_level),
+            render_range(battery_range),
+        ],
+    )
+
+def render_view(display_name, battery_level, battery_range):
+    return render.Root(
+        child = render.Column(
+            expanded = True,
+            main_align = "space_evenly",
+            cross_align = "left",
+            children = [
+                render_label(render_stack(display_name, battery_level, battery_range)),
+            ],
+        ),
     )
