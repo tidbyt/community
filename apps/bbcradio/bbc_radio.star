@@ -89,6 +89,7 @@ def load_stations():
         headers = {
             "User-Agent": "USER_AGENT",
         },
+        ttl_seconds = 60,
     )
     page = html(resp.body())
     raw = json.decode(page.find("div#main > script").text()[len(JSON_PREFIX):-2])
