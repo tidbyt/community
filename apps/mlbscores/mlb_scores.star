@@ -68,8 +68,7 @@ ALT_LOGO = """
     "PHI": "https://b.fssta.com/uploads/application/mlb/team-logos/Phillies-alternate.png",
     "DET": "https://b.fssta.com/uploads/application/mlb/team-logos/Tigers-alternate.png",
     "CIN": "https://b.fssta.com/uploads/application/mlb/team-logos/Reds-alternate.png",
-    "STL": "https://b.fssta.com/uploads/application/mlb/team-logos/Cardinals-alternate.png",
-    "MIL": "https://b.fssta.com/uploads/application/mlb/team-logos/Brewers.png"
+    "STL": "https://b.fssta.com/uploads/application/mlb/team-logos/Cardinals-alternate.png"
 }
 """
 MAGNIFY_LOGO = """
