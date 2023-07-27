@@ -1,0 +1,8 @@
+---
+id: bbc-radio
+name: BBC Radio
+summary: What's live now on the BBC
+desc: Shows what program is currently being broadcast on each of the BBC's radio stations.
+author: dinosaursrarr
+fileName: bbc_radio.star
+packageName: bbcradio
