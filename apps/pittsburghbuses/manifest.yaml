@@ -1,0 +1,8 @@
+---
+id: pittsburgh-buses
+name: Pittsburgh Buses
+summary: Show times for any PRT stop
+desc: Display time of the next buses for any Pittsburgh PRT bus stop.
+author: ckingsford
+fileName: pittsburgh_buses.star
+packageName: pittsburghbuses

@@ -18,6 +18,8 @@ OPENUV_URL = "https://api.openuv.io/api/v1/uv"
 OPENWEATHER_REFRESH_RATE = 60 * 60  # 60 minutes in seconds
 OPENWEATHERMAP_URL = "https://api.openweathermap.org/data/3.0/onecall"
 
+DEMO_DATA = 3, 11  # what to render when the app isn't configured
+
 uv_colors = [
     "#299501",
     "#299501",
@@ -34,26 +36,31 @@ uv_colors = [
 ]
 
 def main(config):
-    if config.get("api_key") == None:
-        return render.Root(render.WrappedText("Fix config:\nMissing\nAPI key"))
-    if config.get("location") == None:
-        return render.Root(render.WrappedText("Fix config:\nMissing\nlocation"))
-
-    service = config.get("service", "openweather")
-
     current_uv, max_uv = None, None
 
-    if service == "openweather":
-        current_uv, max_uv = get_openweather_uv(config)
+    if config.get("api_key") == None and config.get("location") == None:
+        # demo mode
+        current_uv, max_uv = DEMO_DATA
 
-        if current_uv == None and max_uv == None:
-            return render.Root(render.WrappedText("OpenWeather needs OneCall subscription"))
+    else:
+        if config.get("api_key") == None or config.get("api_key") == "":
+            return render.Root(render.WrappedText("Fix config:\nMissing\nAPI key"))
+        if config.get("location") == None:
+            return render.Root(render.WrappedText("Fix config:\nMissing\nlocation"))
 
-    elif service == "openuv":
-        current_uv, max_uv = get_openuv_uv(config)
+        service = config.get("service", "openweather")
 
-    if current_uv == None or max_uv == None:
-        return []
+        if service == "openweather":
+            current_uv, max_uv = get_openweather_uv(config)
+
+            if current_uv == None and max_uv == None:
+                return render.Root(render.WrappedText("OpenWeather needs OneCall subscription"))
+
+        elif service == "openuv":
+            current_uv, max_uv = get_openuv_uv(config)
+
+        if current_uv == None or max_uv == None:
+            return []
 
     columns = [
         render_uv_circle_column("UV", current_uv),
