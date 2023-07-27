@@ -57,7 +57,7 @@ def get_schema():
                 id = "vin",
                 name = "VIN Number",
                 desc = "Tesla VIN Number",
-                icon = "key",
+                icon = "car",
             ),
         ],
     )
