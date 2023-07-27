@@ -19,7 +19,7 @@ iVBORw0KGgoAAAANSUhEUgAABLAAAATgAQMAAADdYSl7AAAABlBMVEX////VAADegCSlAAADQElEQVR4
 """)
 
 def main(config):
-    display_name= "Error"
+    display_name = "Error"
     battery_level = "Add Key"
     battery_range = "And Vin"
     api_key = "Bearer: "
@@ -27,8 +27,8 @@ def main(config):
     vin = config.str("vin", VIN)
     url = "{}/{}/state".format(TESSIE_URL, vin)
 
-    if config.str("vin", API_KEY) == "" or config.str("vin", VIN) == "":        
-        display_name= "Error"
+    if config.str("vin", API_KEY) == "" or config.str("vin", VIN) == "":
+        display_name = "Error"
         battery_level = "Add Key"
         battery_range = "And Vin"
     else:
