@@ -9,6 +9,7 @@ load("math.star", "math")
 load("random.star", "random")
 load("render.star", "render")
 load("schema.star", "schema")
+load("time.star", "time")
 
 PIXLET_W = 64
 PIXLET_H = 32
@@ -95,6 +96,8 @@ def two_color_gradient(topL, botR):
     return four_color_gradient(topL, medianRGB, medianRGB, botR)
 
 def main(config):
+    random.seed(time.now().unix // 15)
+
     # define gradientArray and labels
     gradientArray = []
     labels = []
