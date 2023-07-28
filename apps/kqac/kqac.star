@@ -1,7 +1,7 @@
 """
-Applet: WQXR
-Summary: WQXR What's On
-Description: Shows what's currently playing on WQXR, New York's Classical Music Radio Station.
+Applet: KQAC
+Summary: All Classical Portland
+Description: Shows what's currently playing on All Classical Portland (KQAC).
 Author: Andrew Westling
 """
 
@@ -9,12 +9,12 @@ load("http.star", "http")
 load("render.star", "render")
 load("schema.star", "schema")
 
-WHATS_ON = "https://api.wnyc.org/api/v1/whats_on/wqxr"
+NOW_PLAYING = "https://daisy.allclassical.org/json/now_play3.json"
 
 COLORS = {
-    "dark_blue": "#12518A",
+    "dark_blue": "#263741",
     "medium_blue": "#0162AB",
-    "light_blue": "#00AEFF",
+    "light_blue": "#98F6EF",
     "white": "#FFFFFF",
     "light_gray": "#AAAAAA",
     "medium_gray": "#888888",
@@ -50,18 +50,16 @@ SCROLL_SPEED_OPTIONS = [
 
 DEFAULT_SCROLL_DIRECTION = SCROLL_DIRECTION_OPTIONS[0].value
 DEFAULT_SCROLL_SPEED = SCROLL_SPEED_OPTIONS[0].value
-DEFAULT_SHOW_ENSEMBLE = False
-DEFAULT_SHOW_PEOPLE = True
+DEFAULT_SHOW_ENSEMBLE_INFO = False
 DEFAULT_USE_CUSTOM_COLORS = False
 DEFAULT_COLOR_TITLE = COLORS["light_blue"]
 DEFAULT_COLOR_COMPOSER = COLORS["white"]
-DEFAULT_COLOR_ENSEMBLE = COLORS["medium_gray"]
-DEFAULT_COLOR_PEOPLE = COLORS["medium_gray"]
+DEFAULT_COLOR_ENSEMBLE_INFO = COLORS["medium_gray"]
 
-BLUE_HEADER_BAR = render.Stack(
+HEADER_BAR = render.Stack(
     children = [
         render.Box(width = 64, height = 5, color = COLORS["dark_blue"]),
-        render.Text(content = "WQXR", height = 6, font = "tom-thumb"),
+        render.Text(content = "All Classical", height = 6, font = "tom-thumb"),
     ],
 )
 
@@ -69,32 +67,30 @@ ERROR_CONTENT = render.Column(
     expanded = True,
     main_align = "space_around",
     children = [
-        render.Marquee(width = 64, child = render.Text(content = "Can't connect to WQXR :(", color = COLORS["red"])),
+        render.Marquee(width = 64, child = render.Text(content = "Can't connect to All Classical", color = COLORS["red"])),
     ],
 )
 
 def main(config):
     scroll_direction = config.str("scroll_direction", DEFAULT_SCROLL_DIRECTION)
     scroll_speed = int(config.str("scroll_speed", DEFAULT_SCROLL_SPEED))
-    should_show_ensemble = config.bool("show_ensemble", DEFAULT_SHOW_ENSEMBLE)
-    should_show_people = config.bool("show_people", DEFAULT_SHOW_PEOPLE)
+    should_show_ensemble_info = config.bool("show_ensemble_info", DEFAULT_SHOW_ENSEMBLE_INFO)
     use_custom_colors = config.bool("use_custom_colors", DEFAULT_USE_CUSTOM_COLORS)
 
-    whats_on = http.get(url = WHATS_ON, ttl_seconds = 30)
+    now_playing = http.get(url = NOW_PLAYING, ttl_seconds = 30)
 
-    if (whats_on.status_code) != 200:
+    if (now_playing.status_code) != 200:
         return render.Root(
             child = render.Column(
                 children = [
-                    BLUE_HEADER_BAR,
+                    HEADER_BAR,
                     ERROR_CONTENT,
                 ],
             ),
         )
 
-    has_current_show = whats_on.json()["current_show"]
-    has_playlist_item = whats_on.json()["current_playlist_item"]
-    has_catalog_entry = has_playlist_item and whats_on.json()["current_playlist_item"]["catalog_entry"]
+    has_current_show = now_playing.json()["title"]
+    has_song = now_playing.json()["song"]["displaySong"] == True
 
     title = ""
     composer = ""
@@ -102,33 +98,31 @@ def main(config):
     people = ""
 
     if has_current_show:
-        title = whats_on.json()["current_show"]["title"]
+        title = now_playing.json()["title"]
 
-    if has_catalog_entry:
-        title = has_catalog_entry and whats_on.json()["current_playlist_item"]["catalog_entry"]["title"]
-        composer = has_catalog_entry and whats_on.json()["current_playlist_item"]["catalog_entry"]["composer"]["name"]
+    if has_song:
+        title = has_song and now_playing.json()["song"]["title"]
+        composer = has_song and now_playing.json()["song"]["composer"]
 
-        has_ensemble = has_catalog_entry and whats_on.json()["current_playlist_item"]["catalog_entry"]["ensemble"]
-        ensemble = has_ensemble and whats_on.json()["current_playlist_item"]["catalog_entry"]["ensemble"]["name"]
+        has_ensemble = has_song and now_playing.json()["song"]["ensemble"]
+        ensemble = has_ensemble and now_playing.json()["song"]["ensemble"]
 
-        has_conductor = has_catalog_entry and whats_on.json()["current_playlist_item"]["catalog_entry"]["conductor"]
-        conductor = has_conductor and whats_on.json()["current_playlist_item"]["catalog_entry"]["conductor"]["name"]
+        has_conductor = has_song and now_playing.json()["song"]["conductor"]
+        conductor = has_conductor and now_playing.json()["song"]["conductor"]
 
-        has_soloists = has_catalog_entry and len(whats_on.json()["current_playlist_item"]["catalog_entry"]["soloists"]) > 0
-        soloists = has_soloists and whats_on.json()["current_playlist_item"]["catalog_entry"]["soloists"]
+        has_soloists = has_song and now_playing.json()["song"]["soloist"]
+        soloists = has_soloists and now_playing.json()["song"]["soloist"]
 
         people = build_people(conductor, soloists)
 
     if use_custom_colors:
         color_title = config.str("color_title", DEFAULT_COLOR_TITLE)
         color_composer = config.str("color_composer", DEFAULT_COLOR_COMPOSER)
-        color_ensemble = config.str("color_ensemble", DEFAULT_COLOR_ENSEMBLE)
-        color_people = config.str("color_people", DEFAULT_COLOR_PEOPLE)
+        color_ensemble_info = config.str("color_ensemble_info", DEFAULT_COLOR_ENSEMBLE_INFO)
     else:
         color_title = DEFAULT_COLOR_TITLE
         color_composer = DEFAULT_COLOR_COMPOSER
-        color_ensemble = DEFAULT_COLOR_ENSEMBLE
-        color_people = DEFAULT_COLOR_PEOPLE
+        color_ensemble_info = DEFAULT_COLOR_ENSEMBLE_INFO
 
     root_contents = None
     data_parts = []
@@ -140,10 +134,11 @@ def main(config):
             data_parts.append(render.Padding(pad = 0, child = render.WrappedText(align = "center", width = 64, content = title, font = "tb-8", color = color_title)))
         if composer:
             data_parts.append(render.Padding(pad = pad, child = render.WrappedText(align = "center", width = 64, content = composer, font = "tom-thumb", color = color_composer)))
-        if should_show_ensemble and ensemble:
-            data_parts.append(render.Padding(pad = pad, child = render.WrappedText(align = "center", width = 64, content = ensemble, font = "tom-thumb", color = color_ensemble)))
-        if should_show_people and people:
-            data_parts.append(render.Padding(pad = pad, child = render.WrappedText(align = "center", width = 64, content = people, font = "tom-thumb", color = color_people)))
+        if should_show_ensemble_info:
+            if ensemble:
+                data_parts.append(render.Padding(pad = pad, child = render.WrappedText(align = "center", width = 64, content = ensemble, font = "tom-thumb", color = color_ensemble_info)))
+            if people:
+                data_parts.append(render.Padding(pad = pad, child = render.WrappedText(align = "center", width = 64, content = people, font = "tom-thumb", color = color_ensemble_info)))
 
         root_contents = render.Marquee(
             scroll_direction = "vertical",
@@ -156,10 +151,11 @@ def main(config):
             data_parts.append(render.Marquee(width = 64, child = render.Text(content = title, font = "tb-8", color = color_title)))
         if composer:
             data_parts.append(render.Marquee(width = 64, child = render.Text(content = composer, font = "tom-thumb", color = color_composer)))
-        if should_show_ensemble and ensemble:
-            data_parts.append(render.Marquee(width = 64, child = render.Text(content = ensemble, font = "tom-thumb", color = color_ensemble)))
-        if should_show_people and people:
-            data_parts.append(render.Marquee(width = 64, child = render.Text(content = people, font = "tom-thumb", color = color_people)))
+        if should_show_ensemble_info:
+            if ensemble:
+                data_parts.append(render.Marquee(width = 64, child = render.Text(content = ensemble, font = "tom-thumb", color = color_ensemble_info)))
+            if people:
+                data_parts.append(render.Marquee(width = 64, child = render.Text(content = people, font = "tom-thumb", color = color_ensemble_info)))
 
         root_contents = render.Column(
             expanded = True,
@@ -171,7 +167,7 @@ def main(config):
         delay = scroll_speed,
         child = render.Column(
             children = [
-                BLUE_HEADER_BAR,
+                HEADER_BAR,
                 root_contents,
             ],
         ),
@@ -181,11 +177,7 @@ def build_people(conductor, soloists):
     output = []
 
     if soloists:
-        soloist_parts = []
-        for soloist in soloists:
-            soloist_instrument = (len(soloist["instruments"]) and soloist["instruments"][0]) or soloist["role"]
-            soloist_parts.append("%s, %s" % (soloist["musician"]["name"], soloist_instrument))
-        output.append(", ".join(soloist_parts))
+        output.append(soloists)
 
     if conductor:
         output.append("%s, conductor" % (conductor))
@@ -213,18 +205,11 @@ def get_schema():
                 default = DEFAULT_SCROLL_SPEED,
             ),
             schema.Toggle(
-                id = "show_ensemble",
-                name = "Show ensemble",
-                desc = "Show the ensemble, if applicable",
+                id = "show_ensemble_info",
+                name = "Show ensemble info",
+                desc = "Show the ensemble name, conductor, and/or soloist(s), if applicable",
                 icon = "peopleGroup",
-                default = DEFAULT_SHOW_ENSEMBLE,
-            ),
-            schema.Toggle(
-                id = "show_people",
-                name = "Show conductor and soloists",
-                desc = "Show the conductor and/or soloist(s), if applicable",
-                icon = "wandMagicSparkles",
-                default = DEFAULT_SHOW_PEOPLE,
+                default = DEFAULT_SHOW_ENSEMBLE_INFO,
             ),
             schema.Toggle(
                 id = "use_custom_colors",
@@ -270,24 +255,11 @@ def custom_colors(use_custom_colors):
                 ],
             ),
             schema.Color(
-                id = "color_ensemble",
-                name = "Color: Ensemble",
-                desc = "Choose your own color for the ensemble",
+                id = "color_ensemble_info",
+                name = "Color: Ensemble Info",
+                desc = "Choose your own color for the ensemble information (ensemble name, conductor, and/or soloists)",
                 icon = "palette",
-                default = DEFAULT_COLOR_ENSEMBLE,
-                palette = [
-                    COLORS["white"],
-                    COLORS["light_gray"],
-                    COLORS["medium_gray"],
-                    COLORS["dark_gray"],
-                ],
-            ),
-            schema.Color(
-                id = "color_people",
-                name = "Color: Conductor/Soloists",
-                desc = "Choose your own color for the conductor/soloists",
-                icon = "palette",
-                default = DEFAULT_COLOR_PEOPLE,
+                default = DEFAULT_COLOR_ENSEMBLE_INFO,
                 palette = [
                     COLORS["white"],
                     COLORS["light_gray"],

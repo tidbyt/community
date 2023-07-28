@@ -11,15 +11,16 @@ Displayed:
   - Dates of races (2 days of racing)
   - Scrolling list of standings w/Points
 
-- ** Coming Soon ** Large Format Standings w/Flags
-  - Scroll through standings showing country flag & current points
+- Large Format Standings w/Flags
+  - Scroll through standings showing country flag, position & current points
 
 ## Configuration
 - Select Display Type (next race or standings)
+- Select Standings Color
 - Select Next Race Color (if next race display)
-- Select Scrolling Standings Color (if next race display)
 - Select date/time format (if next race display)
 
 ## Screenshot
 
-![](sailgp.gif)
+![](sailgp-nri.gif)
+![](sailgp-standings-with-flags.gif)
