@@ -23,14 +23,13 @@ def main(config):
     current_time = time.now()
 
     # For creating screenshots
-    mock_time = time.time(hour = 17, minute = 1, second = 1, year = current_time.year, month = current_time.month, day = current_time.day, location = timezone)
+    # mock_time = time.time(hour = 17, minute = 1, second = 1, year = current_time.year, month = current_time.month, day = current_time.day, location = timezone)
 
     # Create a new time object representing the start of the day
     start_of_day = time.time(hour = 0, minute = 0, second = 0, year = current_time.year, month = current_time.month, day = current_time.day, location = timezone)
 
     # Calculate the duration between the current time and the start of the day
-    # duration = current_time - start_of_day
-    duration = mock_time - start_of_day
+    duration = current_time - start_of_day
 
     # Extract the total number of seconds from the duration
     elapsed_seconds = duration.seconds
@@ -63,7 +62,7 @@ def main(config):
                             expanded = True,
                             children = [
                                 render.Text(
-                                    content = mock_time.format("3:04 PM"),
+                                    content = now.format("3:04 PM"),
                                     font = "tb-8",
                                 ),
                             ],
