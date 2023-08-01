@@ -120,7 +120,12 @@ def four_color_gradient(topL, topR, botL, botR, config):
                 gradientArray[n] += mirrorRow
 
         # add to animatedArray
-        for i in gradientArray:
+        if config.get("direction") == "left" or config.get("direction") == "right":
+            numFrames = len(gradientArray[0])
+        else:
+            numFrames = len(gradientArray)
+        
+        for i in range(0, numFrames):
             animatedArray.append(gradientArray)
             # shift
             if config.get("direction") == "up":
@@ -263,13 +268,19 @@ def main(config):
     # move everything into this function - show animatedArray with labels
     animationChildren = displayArray(animatedArray, labelCount, config)
 
+    # get the delay preference
+    if config.get("speed") == "fast":
+        animation_delay = 10
+    else:
+        animation_delay = 100
+
     # show the animation
     return render.Root(
         child = render.Animation(
             children = animationChildren
         ),
-        show_full_animation = True,
-        delay = 100
+        # show_full_animation = True,
+        delay = animation_delay
     )
 
 def more_gradient_options(gradient_type):
