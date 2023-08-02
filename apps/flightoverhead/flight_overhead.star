@@ -13,7 +13,7 @@ load("time.star", "time")
 URL = "https://airlabs.co/api/v9/flights"
 
 def main(config):
-    debug = config.get("debug")
+    debug = config.bool("debug", False)
     api_key = config.get("api_key")
     bbox = config.get("bbox")
     timezone = config.get("timezone", "America/Chicago")
@@ -34,9 +34,8 @@ def main(config):
         if request.headers.get("Tidbyt-Cache-Status") == "HIT":
             if (debug):
                 print("Displaying cached data for %s seconds." % ttl_seconds)
-        else:
-            if (debug):
-                print("Calling API.")
+        elif (debug):
+            print("Calling API.")
 
         if request.status_code != 200:
             fail("Request failed with status %d" % request.status_code)
@@ -193,7 +192,7 @@ def get_schema():
                 name = "Debug",
                 desc = "Print statements to help debug",
                 icon = "bug",
-                default = False
-            )
+                default = False,
+            ),
         ],
     )
