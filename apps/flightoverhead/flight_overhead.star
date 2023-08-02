@@ -19,16 +19,22 @@ def main(config):
     disable_start_hour = config.get("disable_start_hour") or "0"
     disable_duration = config.get("disable_duration") or "0"
     now = time.now().in_location(timezone).hour
+    ttl_seconds = int(config.get("ttl_seconds"))
 
     if int(disable_duration) > 0 and now >= int(disable_start_hour) and now <= (int(disable_start_hour) + int(disable_duration)):
-        print('Disabled')
+        print("Disabled")
 
         return []
 
-    request = http.get("%s?api_key=%s&bbox=%s" % (URL, api_key, bbox), ttl_seconds = 60)  # cache for 1 minute
+    request = http.get("%s?api_key=%s&bbox=%s" % (URL, api_key, bbox), ttl_seconds = ttl_seconds)
+
+    if request.headers.get("Tidbyt-Cache-Status") == "HIT":
+        print("Displaying cached data for %s seconds." % ttl_seconds)
+    else:
+        print("Calling API.")
 
     if request.status_code != 200:
-        fail("Request failed with status %d", request.status_code)
+        fail("Request failed with status %d" % request.status_code)
 
     json = request.json()
 
@@ -151,6 +157,13 @@ def get_schema():
                 icon = "clock",
                 default = "0",
                 options = hours,
+            ),
+            schema.Text(
+                id = "ttl_seconds",
+                name = "TTL Seconds",
+                desc = "Amount of time to cache results",
+                icon = "clock",
+                default = "60",
             ),
         ],
     )
