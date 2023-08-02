@@ -64,8 +64,11 @@ def main(config):
             return []
 
     elif json.get("error"):
+        message = json["error"]["message"]
+        print(message)
+
         return render.Root(
-            child = render.WrappedText(json["error"]["message"]),
+            child = render.WrappedText(message),
         )
 
     else:
