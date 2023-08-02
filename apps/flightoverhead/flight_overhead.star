@@ -17,81 +17,96 @@ def main(config):
     api_key = config.get("api_key")
     bbox = config.get("bbox")
     timezone = config.get("timezone", "America/Chicago")
-    disable_start_hour = int(config.get("disable_start_hour", 0))
-    disable_duration = int(config.get("disable_duration", 0))
+    disable_start_hour = config.get("disable_start_hour", "None")
+    disable_end_hour = config.get("disable_end_hour", "None")
     now = time.now().in_location(timezone).hour
     ttl_seconds = int(config.get("ttl_seconds", 0))
 
-    if disable_duration > 0 and now >= disable_start_hour and now <= (disable_start_hour + disable_duration):
+    if disable_start_hour != "None" and disable_end_hour != "None":
+        disable_start_hour = int(disable_start_hour)
+        disable_end_hour = int(disable_end_hour)
+
         if (debug):
-            print("Disabled at %d:00 for %d hours" % (disable_start_hour, disable_duration))
+            print("Disabling between %d:00 and %d:00" % (disable_start_hour, disable_end_hour))
 
-        return []
+        if disable_end_hour >= disable_start_hour:
+            duration = disable_end_hour - disable_start_hour
 
-    else:
-        request = http.get("%s?api_key=%s&bbox=%s" % (URL, api_key, bbox), ttl_seconds = ttl_seconds)
+        else:
+            duration = (24 - disable_start_hour) + disable_end_hour
 
-        if request.headers.get("Tidbyt-Cache-Status") == "HIT":
+        if now >= disable_start_hour and now < disable_start_hour + duration:
             if (debug):
-                print("Displaying cached data for %s seconds." % ttl_seconds)
-        elif (debug):
-            print("Calling API.")
+                print("Disabled")
 
-        if request.status_code != 200:
-            fail("Request failed with status %d" % request.status_code)
+            return []
 
-        json = request.json()
+    request = http.get("%s?api_key=%s&bbox=%s" % (URL, api_key, bbox), ttl_seconds = ttl_seconds)
 
-        if json.get("response"):
-            response = json["response"]
+    if request.headers.get("Tidbyt-Cache-Status") == "HIT":
+        if (debug):
+            print("Displaying cached data for %s seconds." % ttl_seconds)
 
-            if response:
-                response = response[0]
-                if (debug):
-                    print(response)
+    elif (debug):
+        print("Calling API.")
 
-                plane = "%s" % response.get("reg_number")
-                flight_plan = "No flight plan"
-                location = "%dkts %dft" % (response.get("speed") * 0.53995680345572, response.get("alt") * 3.28)
+    if request.status_code != 200:
+        fail("Request failed with status %d" % request.status_code)
 
-                if response.get("flight_number"):
-                    plane = "%s %s" % (response.get("airline_iata"), response.get("flight_number"))
+    json = request.json()
 
-                if response.get("aircraft_icao"):
-                    plane += " (%s)" % response.get("aircraft_icao")
+    if json.get("response"):
+        response = json["response"]
 
-                if response.get("dep_iata") and response.get("arr_iata"):
-                    flight_plan = "%s - %s" % (response.get("dep_iata"), response.get("arr_iata"))
+        if response:
+            response = response[0]
 
-                return render.Root(
-                    child = render.Box(
-                        render.Column(
-                            expanded = True,
-                            main_align = "space_evenly",
-                            cross_align = "center",
-                            children = [
-                                render.Text(plane),
-                                render.Text(flight_plan),
-                                render.Text(location),
-                            ],
-                        ),
-                    ),
-                )
-
-            else:
-                return []
-
-        elif json.get("error"):
-            message = json["error"]["message"]
             if (debug):
-                print("Error: %s" % message)
+                print(response)
+
+            plane = "%s" % response.get("reg_number")
+            flight_plan = "No flight plan"
+            location = "%dkts %dft" % (response.get("speed") * 0.53995680345572, response.get("alt") * 3.28)
+
+            if response.get("flight_number"):
+                plane = "%s %s" % (response.get("airline_iata"), response.get("flight_number"))
+
+            if response.get("aircraft_icao"):
+                plane += " (%s)" % response.get("aircraft_icao")
+
+            if response.get("dep_iata") and response.get("arr_iata"):
+                flight_plan = "%s - %s" % (response.get("dep_iata"), response.get("arr_iata"))
 
             return render.Root(
-                child = render.WrappedText(message),
+                child = render.Box(
+                    render.Column(
+                        expanded = True,
+                        main_align = "space_evenly",
+                        cross_align = "center",
+                        children = [
+                            render.Text(plane),
+                            render.Text(flight_plan),
+                            render.Text(location),
+                        ],
+                    ),
+                ),
             )
 
         else:
             return []
+
+    elif json.get("error"):
+        message = json["error"]["message"]
+
+        if (debug):
+            print("Error: %s" % message)
+
+        return render.Root(
+            child = render.WrappedText(message),
+        )
+
+    else:
+        return []
 
 def get_schema():
     timezones = [
@@ -115,30 +130,31 @@ def get_schema():
     ]
 
     hours = [
-        schema.Option(display = "0", value = "0"),
-        schema.Option(display = "1", value = "1"),
-        schema.Option(display = "2", value = "2"),
-        schema.Option(display = "3", value = "3"),
-        schema.Option(display = "4", value = "4"),
-        schema.Option(display = "5", value = "5"),
-        schema.Option(display = "6", value = "6"),
-        schema.Option(display = "7", value = "7"),
-        schema.Option(display = "8", value = "8"),
-        schema.Option(display = "9", value = "9"),
-        schema.Option(display = "10", value = "10"),
-        schema.Option(display = "11", value = "11"),
-        schema.Option(display = "12", value = "12"),
-        schema.Option(display = "13", value = "13"),
-        schema.Option(display = "14", value = "14"),
-        schema.Option(display = "15", value = "15"),
-        schema.Option(display = "16", value = "16"),
-        schema.Option(display = "17", value = "17"),
-        schema.Option(display = "18", value = "18"),
-        schema.Option(display = "19", value = "19"),
-        schema.Option(display = "20", value = "20"),
-        schema.Option(display = "21", value = "21"),
-        schema.Option(display = "22", value = "22"),
-        schema.Option(display = "23", value = "23"),
+        schema.Option(display = "None", value = "None"),
+        schema.Option(display = "1 AM", value = "1"),
+        schema.Option(display = "2 AM", value = "2"),
+        schema.Option(display = "3 AM", value = "3"),
+        schema.Option(display = "4 AM", value = "4"),
+        schema.Option(display = "5 AM", value = "5"),
+        schema.Option(display = "6 AM", value = "6"),
+        schema.Option(display = "7 AM", value = "7"),
+        schema.Option(display = "8 AM", value = "8"),
+        schema.Option(display = "9 AM", value = "9"),
+        schema.Option(display = "10 AM", value = "10"),
+        schema.Option(display = "11 AM", value = "11"),
+        schema.Option(display = "Noon", value = "12"),
+        schema.Option(display = "1 PM", value = "13"),
+        schema.Option(display = "2 PM", value = "14"),
+        schema.Option(display = "3 PM", value = "15"),
+        schema.Option(display = "4 PM", value = "16"),
+        schema.Option(display = "5 PM", value = "17"),
+        schema.Option(display = "6 PM", value = "18"),
+        schema.Option(display = "7 PM", value = "19"),
+        schema.Option(display = "8 PM", value = "20"),
+        schema.Option(display = "9 PM", value = "21"),
+        schema.Option(display = "10 PM", value = "22"),
+        schema.Option(display = "11 PM", value = "23"),
+        schema.Option(display = "Midnight", value = "0"),
     ]
 
     return schema.Schema(
@@ -173,8 +189,8 @@ def get_schema():
                 options = hours,
             ),
             schema.Dropdown(
-                id = "disable_duration",
-                name = "Disable Duration",
+                id = "disable_end_hour",
+                name = "Disable End Hour",
                 desc = "Disable during certain timeframe",
                 icon = "clock",
                 default = "None",
@@ -183,7 +199,7 @@ def get_schema():
             schema.Text(
                 id = "ttl_seconds",
                 name = "TTL Seconds",
-                desc = "Amount of time to cache results",
+                desc = "Number of seconds to cache results",
                 icon = "clock",
                 default = "None",
             ),
