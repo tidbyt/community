@@ -13,6 +13,7 @@ load("time.star", "time")
 URL = "https://airlabs.co/api/v9/flights"
 
 def main(config):
+    debug = config.get("debug")
     api_key = config.get("api_key")
     bbox = config.get("bbox")
     timezone = config.get("timezone", "America/Chicago")
@@ -22,7 +23,8 @@ def main(config):
     ttl_seconds = int(config.get("ttl_seconds", 0))
 
     if disable_duration > 0 and now >= disable_start_hour and now <= (disable_start_hour + disable_duration):
-        print("Disabled at %d:00 for %d hours" % (disable_start_hour, disable_duration))
+        if (debug):
+            print("Disabled at %d:00 for %d hours" % (disable_start_hour, disable_duration))
 
         return []
 
@@ -30,9 +32,11 @@ def main(config):
         request = http.get("%s?api_key=%s&bbox=%s" % (URL, api_key, bbox), ttl_seconds = ttl_seconds)
 
         if request.headers.get("Tidbyt-Cache-Status") == "HIT":
-            print("Displaying cached data for %s seconds." % ttl_seconds)
+            if (debug):
+                print("Displaying cached data for %s seconds." % ttl_seconds)
         else:
-            print("Calling API.")
+            if (debug):
+                print("Calling API.")
 
         if request.status_code != 200:
             fail("Request failed with status %d" % request.status_code)
@@ -44,7 +48,8 @@ def main(config):
 
             if response:
                 response = response[0]
-                print(response)
+                if (debug):
+                    print(response)
 
                 plane = "%s" % response.get("reg_number")
                 flight_plan = "No flight plan"
@@ -79,7 +84,8 @@ def main(config):
 
         elif json.get("error"):
             message = json["error"]["message"]
-            print("Error: %s" % message)
+            if (debug):
+                print("Error: %s" % message)
 
             return render.Root(
                 child = render.WrappedText(message),
@@ -182,5 +188,12 @@ def get_schema():
                 icon = "clock",
                 default = "None",
             ),
+            schema.Toggle(
+                id = "debug",
+                name = "Debug",
+                desc = "Print statements to help debug",
+                icon = "bug",
+                default = False
+            )
         ],
     )
