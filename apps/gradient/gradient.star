@@ -64,13 +64,13 @@ def randomColor():
 
 def shiftLeft(thisArray):
     newThisArray = []
-    for n, i in enumerate(thisArray):
+    for i in thisArray:
         newThisArray.append(i[1:] + i[:1])
     return newThisArray
 
 def shiftRight(thisArray):
     newThisArray = []
-    for n, i in enumerate(thisArray):
+    for i in thisArray:
         newThisArray.append(i[-1:] + i[:-1])
     return newThisArray
 
@@ -154,12 +154,12 @@ def two_color_gradient(topL, botR, config):
 
 def displayArray(array, labelCount, config):
     animationChildren = []
-    for i, n in enumerate(array):  # frames
+    for n in array:  # frames
         columnChildren = []
         stackChildren = []
-        for j, m in enumerate(n):  # column of rows
+        for m in n:  # column of rows
             rowChildren = []
-            for k, p in enumerate(m):  # cells in row
+            for p in m:  # cells in row
                 rowChildren.append(
                     render.Box(width = 1, height = 1, color = p),
                 )
