@@ -57,8 +57,8 @@ def main(config):
                 if response.get("flight_number"):
                     plane = "%s %s" % (response.get("airline_iata"), response.get("flight_number"))
 
-                if response.get("aircaft_icao"):
-                    plane += " (%s)" % response.get("aircaft_icao")
+                if response.get("aircraft_icao"):
+                    plane += " (%s)" % response.get("aircraft_icao")
 
                 if response.get("dep_iata") and response.get("arr_iata"):
                     flight_plan = "%s - %s" % (response.get("dep_iata"), response.get("arr_iata"))
