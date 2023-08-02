@@ -45,8 +45,6 @@ def hex_to_rgb(hex):
     return tuple(rgb)
 
 def rgb_to_hex(r, g, b):
-    if type(r) == "string":
-        return r
     rgbArr = ["0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "A", "B", "C", "D", "E", "F"]
     hex = "#"
     r = math.floor(r)
@@ -115,15 +113,16 @@ def four_color_gradient(topL, topR, botL, botR, config):
             mirrorArray = gradientArray[::-1]
             gradientArray += mirrorArray
         elif config.get("direction") == "left" or config.get("direction") == "right":
+            # append the mirror image (adds more pixels across)
             for n, i in enumerate(gradientArray):
                 mirrorRow = i[::-1]
                 gradientArray[n] += mirrorRow
 
         # add to animatedArray
         if config.get("direction") == "left" or config.get("direction") == "right":
-            numFrames = len(gradientArray[0])
+            numFrames = len(gradientArray[0]) # PIXLET_W * 2
         else:
-            numFrames = len(gradientArray)
+            numFrames = len(gradientArray) # PIXLET_H * 2
         
         for i in range(0, numFrames):
             animatedArray.append(gradientArray)
@@ -154,11 +153,6 @@ def two_color_gradient(topL, botR, config):
 
 def displayArray(array, labelCount, config):
     animationChildren = []
-    if config.get("direction") == "left" or config.get("direction") == "right":
-        numFrames = len(array[0][0])
-    else:
-        numFrames = len(array[0])
-    
     for i, n in enumerate(array): # frames
         columnChildren = []
         stackChildren = []
@@ -265,21 +259,20 @@ def main(config):
     else:
         animatedArray = four_color_gradient("#FF0000", "#FFFF00", "#0000FF", "#FFFFFF", config)
 
-    # move everything into this function - show animatedArray with labels
+    # show animatedArray with labels
     animationChildren = displayArray(animatedArray, labelCount, config)
 
     # get the delay preference
     if config.get("speed") == "fast":
         animation_delay = 10
     else:
-        animation_delay = 100
+        animation_delay = 500
 
     # show the animation
     return render.Root(
         child = render.Animation(
             children = animationChildren
         ),
-        # show_full_animation = True,
         delay = animation_delay
     )
 
