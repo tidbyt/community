@@ -19,14 +19,14 @@ def main(config):
     disable_start_hour = config.get("disable_start_hour") or "0"
     disable_duration = config.get("disable_duration") or "0"
     now = time.now().in_location(timezone).hour
-    ttl_seconds = int(config.get("ttl_seconds"))
+    ttl_seconds = config.get("ttl_seconds") or 0
 
     if int(disable_duration) > 0 and now >= int(disable_start_hour) and now <= (int(disable_start_hour) + int(disable_duration)):
         print("Disabled")
 
         return []
 
-    request = http.get("%s?api_key=%s&bbox=%s" % (URL, api_key, bbox), ttl_seconds = ttl_seconds)
+    request = http.get("%s?api_key=%s&bbox=%s" % (URL, api_key, bbox), ttl_seconds = int(ttl_seconds))
 
     if request.headers.get("Tidbyt-Cache-Status") == "HIT":
         print("Displaying cached data for %s seconds." % ttl_seconds)
@@ -93,30 +93,30 @@ def get_schema():
     ]
 
     hours = [
-      schema.Option(display = "0", value = "0"),
-      schema.Option(display = "1", value = "1"),
-      schema.Option(display = "2", value = "2"),
-      schema.Option(display = "3", value = "3"),
-      schema.Option(display = "4", value = "4"),
-      schema.Option(display = "5", value = "5"),
-      schema.Option(display = "6", value = "6"),
-      schema.Option(display = "7", value = "7"),
-      schema.Option(display = "8", value = "8"),
-      schema.Option(display = "9", value = "9"),
-      schema.Option(display = "10", value = "10"),
-      schema.Option(display = "11", value = "11"),
-      schema.Option(display = "12", value = "12"),
-      schema.Option(display = "13", value = "13"),
-      schema.Option(display = "14", value = "14"),
-      schema.Option(display = "15", value = "15"),
-      schema.Option(display = "16", value = "16"),
-      schema.Option(display = "17", value = "17"),
-      schema.Option(display = "18", value = "18"),
-      schema.Option(display = "19", value = "19"),
-      schema.Option(display = "20", value = "20"),
-      schema.Option(display = "21", value = "21"),
-      schema.Option(display = "22", value = "22"),
-      schema.Option(display = "23", value = "23"),
+        schema.Option(display = "0", value = "0"),
+        schema.Option(display = "1", value = "1"),
+        schema.Option(display = "2", value = "2"),
+        schema.Option(display = "3", value = "3"),
+        schema.Option(display = "4", value = "4"),
+        schema.Option(display = "5", value = "5"),
+        schema.Option(display = "6", value = "6"),
+        schema.Option(display = "7", value = "7"),
+        schema.Option(display = "8", value = "8"),
+        schema.Option(display = "9", value = "9"),
+        schema.Option(display = "10", value = "10"),
+        schema.Option(display = "11", value = "11"),
+        schema.Option(display = "12", value = "12"),
+        schema.Option(display = "13", value = "13"),
+        schema.Option(display = "14", value = "14"),
+        schema.Option(display = "15", value = "15"),
+        schema.Option(display = "16", value = "16"),
+        schema.Option(display = "17", value = "17"),
+        schema.Option(display = "18", value = "18"),
+        schema.Option(display = "19", value = "19"),
+        schema.Option(display = "20", value = "20"),
+        schema.Option(display = "21", value = "21"),
+        schema.Option(display = "22", value = "22"),
+        schema.Option(display = "23", value = "23"),
     ]
 
     return schema.Schema(
@@ -163,7 +163,7 @@ def get_schema():
                 name = "TTL Seconds",
                 desc = "Amount of time to cache results",
                 icon = "clock",
-                default = "60",
+                default = "0",
             ),
         ],
     )
