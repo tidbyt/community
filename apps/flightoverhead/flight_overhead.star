@@ -46,6 +46,19 @@ def main(config):
                 response = response[0]
                 print(response)
 
+                plane = "%s" % response.get("reg_number")
+                flight_plan = "No flight plan"
+                location = "%dkts %dft" % (response.get("speed") * 0.53995680345572, response.get("alt") * 3.28)
+
+                if response.get("flight_number"):
+                    plane = "%s %s" % (response.get("airline_iata"), response.get("flight_number"))
+
+                if response.get("aircaft_icao"):
+                    plane += " (%s)" % response.get("aircaft_icao")
+
+                if response.get("dep_iata") and response.get("arr_iata"):
+                    flight_plan = "%s - %s" % (response.get("dep_iata"), response.get("arr_iata"))
+
                 return render.Root(
                     child = render.Box(
                         render.Column(
@@ -53,9 +66,9 @@ def main(config):
                             main_align = "space_evenly",
                             cross_align = "center",
                             children = [
-                                render.Text("%s %s" % (response.get("airline_iata"), response.get("flight_number"))),
-                                render.Text("%s - %s" % (response.get("dep_iata"), response.get("arr_iata"))),
-                                render.Text("%dkts %dft" % (response.get("speed") * 0.53995680345572, response.get("alt") * 3.28)),
+                                render.Text(plane),
+                                render.Text(flight_plan),
+                                render.Text(location),
                             ],
                         ),
                     ),
