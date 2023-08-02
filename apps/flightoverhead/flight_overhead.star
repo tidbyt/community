@@ -13,7 +13,6 @@ load("time.star", "time")
 URL = "https://airlabs.co/api/v9/flights"
 
 def main(config):
-    debug = config.bool("debug", False)
     api_key = config.get("api_key")
     bbox = config.get("bbox")
     timezone = config.get("timezone", "America/Chicago")
@@ -22,12 +21,17 @@ def main(config):
     now = time.now().in_location(timezone).hour
     ttl_seconds = int(config.get("ttl_seconds", 0))
 
+    def print_log(statement):
+        if config.bool("print_log", False):
+            print(statement)
+
+    print_log(time.now())
+
     if disable_start_hour != "None" and disable_end_hour != "None":
         disable_start_hour = int(disable_start_hour)
         disable_end_hour = int(disable_end_hour)
 
-        if (debug):
-            print("Disabling between %d:00 and %d:00" % (disable_start_hour, disable_end_hour))
+        print_log("Disabling between %d:00 and %d:00" % (disable_start_hour, disable_end_hour))
 
         if disable_end_hour >= disable_start_hour:
             duration = disable_end_hour - disable_start_hour
@@ -36,19 +40,17 @@ def main(config):
             duration = (24 - disable_start_hour) + disable_end_hour
 
         if now >= disable_start_hour and now < disable_start_hour + duration:
-            if (debug):
-                print("Disabled")
+            print_log("Disabled")
 
             return []
 
     request = http.get("%s?api_key=%s&bbox=%s" % (URL, api_key, bbox), ttl_seconds = ttl_seconds)
 
     if request.headers.get("Tidbyt-Cache-Status") == "HIT":
-        if (debug):
-            print("Displaying cached data for %s seconds." % ttl_seconds)
+        print_log("Displaying cached data for %s seconds" % ttl_seconds)
 
-    elif (debug):
-        print("Calling API.")
+    else:
+        print_log("Calling API")
 
     if request.status_code != 200:
         fail("Request failed with status %d" % request.status_code)
@@ -61,8 +63,7 @@ def main(config):
         if response:
             response = response[0]
 
-            if (debug):
-                print(response)
+            print_log(response)
 
             plane = "%s" % response.get("reg_number")
             flight_plan = "No flight plan"
@@ -98,8 +99,7 @@ def main(config):
     elif json.get("error"):
         message = json["error"]["message"]
 
-        if (debug):
-            print("Error: %s" % message)
+        print_log("Error: %s" % message)
 
         return render.Root(
             child = render.WrappedText(message),
@@ -204,9 +204,9 @@ def get_schema():
                 default = "None",
             ),
             schema.Toggle(
-                id = "debug",
-                name = "Debug",
-                desc = "Print statements to help debug",
+                id = "print_log",
+                name = "Print Log",
+                desc = "Print log statements to help debug",
                 icon = "bug",
                 default = False,
             ),
