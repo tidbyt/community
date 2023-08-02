@@ -402,7 +402,7 @@ def get_schema():
                 id = "animation",
                 name = "Animation",
                 desc = "Animate the gradient?",
-                icon = "playCircle",
+                icon = "play",
                 default = False,
             ),
             schema.Generated(
@@ -418,7 +418,7 @@ def get_schema():
             schema.Dropdown(
                 id = "speed",
                 name = "Animation Speed",
-                icon = "tachometer",
+                icon = "forward",
                 desc = "How fast to scroll",
                 default = "slow",
                 options = animationSpeedOptions,
@@ -426,7 +426,7 @@ def get_schema():
             schema.Dropdown(
                 id = "direction",
                 name = "Direction",
-                icon = "compass",
+                icon = "arrowsUpDownLeftRight",
                 desc = "Which way to scroll",
                 default = animationDirectionOptions[0].value,
                 options = animationDirectionOptions,
