@@ -95,7 +95,7 @@ def four_color_gradient(topL, topR, botL, botR, config):
     # for each row, determine range: PIXLET_W
     gradientArray = []
     animatedArray = []
-    
+
     # make basic gradient array
     for n in range(0, PIXLET_H):
         rowGradient = rgbRange(leftCol[n], rightCol[n], PIXLET_W)
@@ -120,12 +120,13 @@ def four_color_gradient(topL, topR, botL, botR, config):
 
         # add to animatedArray
         if config.get("direction") == "left" or config.get("direction") == "right":
-            numFrames = len(gradientArray[0]) # PIXLET_W * 2
+            numFrames = len(gradientArray[0])  # PIXLET_W * 2
         else:
-            numFrames = len(gradientArray) # PIXLET_H * 2
-        
+            numFrames = len(gradientArray)  # PIXLET_H * 2
+
         for i in range(0, numFrames):
             animatedArray.append(gradientArray)
+
             # shift
             if config.get("direction") == "up":
                 gradientArray = shiftUp(gradientArray)
@@ -136,8 +137,8 @@ def four_color_gradient(topL, topR, botL, botR, config):
             elif config.get("direction") == "right":
                 gradientArray = shiftRight(gradientArray)
     else:
-        animatedArray = [gradientArray] 
-    
+        animatedArray = [gradientArray]
+
     return animatedArray
 
 def two_color_gradient(topL, botR, config):
@@ -153,32 +154,33 @@ def two_color_gradient(topL, botR, config):
 
 def displayArray(array, labelCount, config):
     animationChildren = []
-    for i, n in enumerate(array): # frames
+    for i, n in enumerate(array):  # frames
         columnChildren = []
         stackChildren = []
-        for j, m in enumerate(n): # column of rows
+        for j, m in enumerate(n):  # column of rows
             rowChildren = []
-            for k, p in enumerate(m): # cells in row
+            for k, p in enumerate(m):  # cells in row
                 rowChildren.append(
-                    render.Box(width = 1, height = 1, color = p)
+                    render.Box(width = 1, height = 1, color = p),
                 )
             columnChildren.append(
                 render.Row(
-                    children = rowChildren
-                )
+                    children = rowChildren,
+                ),
             )
+
         # add the gradient to the stack
         stackChildren.append(
-            render.Column(children = columnChildren)
+            render.Column(children = columnChildren),
         )
 
         # add labels to the stack
         if config.bool("labels"):
             if labelCount == 4:
                 topL = n[0][0]
-                topR = n[0][PIXLET_W-1]
-                botL = n[PIXLET_H-1][0]
-                botR = n[PIXLET_H-1][PIXLET_W-1]
+                topR = n[0][PIXLET_W - 1]
+                botL = n[PIXLET_H - 1][0]
+                botR = n[PIXLET_H - 1][PIXLET_W - 1]
                 if config.bool("animation") == False:
                     if config.get("gradient_type") == "4color":
                         topL = config.get("color1")
@@ -210,7 +212,7 @@ def displayArray(array, labelCount, config):
                 ])
             elif labelCount == 2:
                 topL = n[0][0]
-                botR = n[PIXLET_H-1][PIXLET_W-1]
+                botR = n[PIXLET_H - 1][PIXLET_W - 1]
                 if config.bool("animation") == False:
                     topL = config.get("color1")
                     botR = config.get("color2")
@@ -227,11 +229,10 @@ def displayArray(array, labelCount, config):
 
         # add the stack (frame) to the animation
         animationChildren.append(
-            render.Stack(children = stackChildren)
+            render.Stack(children = stackChildren),
         )
 
     return animationChildren
-
 
 def main(config):
     random.seed(time.now().unix // 15)
@@ -271,9 +272,9 @@ def main(config):
     # show the animation
     return render.Root(
         child = render.Animation(
-            children = animationChildren
+            children = animationChildren,
         ),
-        delay = animation_delay
+        delay = animation_delay,
     )
 
 def more_gradient_options(gradient_type):
@@ -351,30 +352,30 @@ def get_schema():
     animationSpeedOptions = [
         schema.Option(
             display = "Fast",
-            value = "fast"
+            value = "fast",
         ),
         schema.Option(
             display = "Slow",
-            value = "slow"
+            value = "slow",
         ),
     ]
 
     animationDirectionOptions = [
         schema.Option(
             display = "Scroll up",
-            value = "up"
+            value = "up",
         ),
         schema.Option(
             display = "Scroll down",
-            value = "down"
+            value = "down",
         ),
         schema.Option(
             display = "Scroll left",
-            value = "left"
+            value = "left",
         ),
         schema.Option(
             display = "Scroll right",
-            value = "right"
+            value = "right",
         ),
     ]
 
@@ -429,6 +430,6 @@ def get_schema():
                 desc = "Which way to scroll",
                 default = animationDirectionOptions[0].value,
                 options = animationDirectionOptions,
-            ), 
+            ),
         ],
     )
