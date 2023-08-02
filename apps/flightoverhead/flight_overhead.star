@@ -16,8 +16,8 @@ def main(config):
     api_key = config.get("api_key")
     bbox = config.get("bbox")
     timezone = config.get("timezone") or "America/Chicago"
-    disable_start_hour = config.get("disable_start_hour") or "0"
-    disable_duration = config.get("disable_duration") or "0"
+    disable_start_hour = config.get("disable_start_hour") or 0
+    disable_duration = config.get("disable_duration") or 0
     now = time.now().in_location(timezone).hour
     ttl_seconds = config.get("ttl_seconds") or 0
 
