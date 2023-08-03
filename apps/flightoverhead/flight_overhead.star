@@ -97,6 +97,8 @@ def main(config):
             )
 
         else:
+            print_log("No flights found")
+
             return []
 
     elif json.get("error"):
@@ -109,6 +111,8 @@ def main(config):
         )
 
     else:
+        print_log("No flights found")
+
         return []
 
 def get_schema():
