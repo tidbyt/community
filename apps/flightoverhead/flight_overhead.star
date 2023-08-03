@@ -67,7 +67,7 @@ def main(config):
 
             plane = "%s" % response.get("reg_number")
             flight_plan = "No flight plan"
-            location = "%dkts %dft" % (response.get("speed") * 0.53995680345572, response.get("alt") * 3.28)
+            location = "%dkt %dft" % (response.get("speed") * 0.53995680345572, response.get("alt") * 3.28)
 
             if response.get("flight_number"):
                 plane = "%s %s" % (response.get("airline_iata"), response.get("flight_number"))
