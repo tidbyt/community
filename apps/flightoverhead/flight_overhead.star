@@ -78,6 +78,9 @@ def main(config):
             if response.get("dep_iata") and response.get("arr_iata"):
                 flight_plan = "%s - %s" % (response.get("dep_iata"), response.get("arr_iata"))
 
+            elif response.get("dep_iata"):
+                flight_plan = "Departed from %s" % (response.get("dep_iata"))
+
             return render.Root(
                 child = render.Box(
                     render.Column(
