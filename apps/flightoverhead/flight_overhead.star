@@ -6,6 +6,7 @@ Author: Kyle Bolstad
 """
 
 load("http.star", "http")
+load("re.star", "re")
 load("render.star", "render")
 load("schema.star", "schema")
 load("time.star", "time")
@@ -15,7 +16,8 @@ AIRLABS_URL = "https://airlabs.co/api/v9/flights"
 def main(config):
     airlabs_api_key = config.get("airlabs_api_key")
     airlabs_bbox = config.get("airlabs_bbox")
-    airlabs_ttl_seconds = int(config.get("airlabs_ttl_seconds", 0))
+    airlabs_ttl_seconds = re.sub("\\D", "", config.get("airlabs_ttl_seconds")) or 0
+    airlabs_ttl_seconds = int(airlabs_ttl_seconds)
     timezone = config.get("timezone", "America/Chicago")
     disable_start_hour = config.get("disable_start_hour", "None")
     disable_end_hour = config.get("disable_end_hour", "None")
