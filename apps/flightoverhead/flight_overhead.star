@@ -13,27 +13,32 @@ load("time.star", "time")
 
 AIRLABS_URL = "https://airlabs.co/api/v9/flights"
 
+DEFAULT_AIRLABS_TTL_SECONDS = 0
+DEFAULT_DISABLE_START_HOUR = "None"
+DEFAULT_DISABLE_END_HOUR = "None"
+DEFAULT_PRINT_LOG = False
+
 def main(config):
     airlabs_api_key = config.get("airlabs_api_key")
     airlabs_bbox = config.get("airlabs_bbox")
 
-    airlabs_ttl_seconds = 0
+    airlabs_ttl_seconds = DEFAULT_AIRLABS_TTL_SECONDS
     if config.get("airlabs_ttl_seconds"):
-        airlabs_ttl_seconds = re.sub("\\D", "", config.get("airlabs_ttl_seconds")) or 0
+        airlabs_ttl_seconds = re.sub("\\D", "", config.get("airlabs_ttl_seconds")) or DEFAULT_AIRLABS_TTL_SECONDS
     airlabs_ttl_seconds = int(airlabs_ttl_seconds)
 
     timezone = config.get("timezone", "America/Chicago")
-    disable_start_hour = config.get("disable_start_hour", "None")
-    disable_end_hour = config.get("disable_end_hour", "None")
+    disable_start_hour = config.get("disable_start_hour", DEFAULT_DISABLE_START_HOUR)
+    disable_end_hour = config.get("disable_end_hour", DEFAULT_DISABLE_END_HOUR)
     now = time.now().in_location(timezone).hour
 
     def print_log(statement):
-        if config.bool("print_log", False):
+        if config.bool("print_log", DEFAULT_PRINT_LOG):
             print(statement)
 
     print_log(time.now())
 
-    if disable_start_hour != "None" and disable_end_hour != "None":
+    if disable_start_hour != DEFAULT_DISABLE_START_HOUR and disable_end_hour != DEFAULT_DISABLE_END_HOUR:
         disable_start_hour = int(disable_start_hour)
         disable_end_hour = int(disable_end_hour)
 
