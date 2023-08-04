@@ -10,6 +10,9 @@ Added rotation speed option
 v1.2
 Added MLS to selection of leagues to choose from
 Updated cache function
+
+v1.3
+Added NWSL to selection of leagues to choose from
 """
 
 load("encoding/json.star", "json")
@@ -142,6 +145,10 @@ LeagueOptions = [
     schema.Option(
         display = "Australian A-League",
         value = "aus.1",
+    ),
+    schema.Option(
+        display = "National Womens Soccer League",
+        value = "usa.nwsl",
     ),
 ]
 
@@ -306,6 +313,8 @@ def getLeagueName(selectedLeague):
         return ("Liga MX")
     elif selectedLeague == "aus.1":
         return ("A-League")
+    elif selectedLeague == "usa.nwsl":
+        return ("NWSL")
     return None
 
 def get_background_color(team, color):
