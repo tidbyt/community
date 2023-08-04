@@ -15,9 +15,10 @@ load("time.star", "time")
 AIRLABS_URL = "https://airlabs.co/api/v9/flights"
 
 DEFAULT_AIRLABS_TTL_SECONDS = 0
-DEFAULT_DISABLE_START_HOUR = "None"
 DEFAULT_DISABLE_END_HOUR = "None"
+DEFAULT_DISABLE_START_HOUR = "None"
 DEFAULT_PRINT_LOG = False
+DEFAULT_TIMEZONE = "America/Chicago"
 
 def main(config):
     airlabs_api_key = config.get("airlabs_api_key")
@@ -28,7 +29,7 @@ def main(config):
         airlabs_ttl_seconds = re.sub("\\D", "", config.get("airlabs_ttl_seconds")) or DEFAULT_AIRLABS_TTL_SECONDS
     airlabs_ttl_seconds = int(airlabs_ttl_seconds)
 
-    timezone = config.get("timezone", "America/Chicago")
+    timezone = config.get("timezone", DEFAULT_TIMEZONE)
     disable_start_hour = config.get("disable_start_hour", DEFAULT_DISABLE_START_HOUR)
     disable_end_hour = config.get("disable_end_hour", DEFAULT_DISABLE_END_HOUR)
     now = time.now().in_location(timezone).hour
