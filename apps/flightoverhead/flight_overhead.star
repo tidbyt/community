@@ -197,14 +197,14 @@ def get_schema():
                 name = "AirLabs TTL Seconds",
                 desc = "Number of seconds to cache results",
                 icon = "clock",
-                default = "0",
+                default = "%s" % DEFAULT_AIRLABS_TTL_SECONDS,
             ),
             schema.Dropdown(
                 id = "timezone",
                 name = "Timezone",
                 desc = "Timezone",
                 icon = "clock",
-                default = "America/Chicago",
+                default = DEFAULT_TIMEZONE,
                 options = timezones,
             ),
             schema.Dropdown(
@@ -212,7 +212,7 @@ def get_schema():
                 name = "Disable Start Hour",
                 desc = "Disable during certain timeframe",
                 icon = "clock",
-                default = "None",
+                default = DEFAULT_DISABLE_START_HOUR,
                 options = hours,
             ),
             schema.Dropdown(
@@ -220,7 +220,7 @@ def get_schema():
                 name = "Disable End Hour",
                 desc = "Disable during certain timeframe",
                 icon = "clock",
-                default = "None",
+                default = DEFAULT_DISABLE_END_HOUR,
                 options = hours,
             ),
             schema.Toggle(
@@ -228,7 +228,7 @@ def get_schema():
                 name = "Print Log",
                 desc = "Print log statements to help debug",
                 icon = "bug",
-                default = False,
+                default = DEFAULT_PRINT_LOG,
             ),
         ],
     )
