@@ -6,6 +6,7 @@ Author: Kyle Bolstad
 """
 
 load("http.star", "http")
+load("humanize.star", "humanize")
 load("re.star", "re")
 load("render.star", "render")
 load("schema.star", "schema")
@@ -58,7 +59,7 @@ def main(config):
     airlabs_request = http.get("%s?api_key=%s&bbox=%s" % (AIRLABS_URL, airlabs_api_key, airlabs_bbox), ttl_seconds = airlabs_ttl_seconds)
 
     if airlabs_request.headers.get("Tidbyt-Cache-Status") == "HIT":
-        print_log("Displaying cached data for %s seconds" % airlabs_ttl_seconds)
+        print_log("Displaying cached data for %s" % humanize.plural(airlabs_ttl_seconds, "second"))
 
     else:
         print_log("Calling API")
