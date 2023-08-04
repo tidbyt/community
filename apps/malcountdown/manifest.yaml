@@ -1,0 +1,8 @@
+---
+id: mal-countdown
+name: MAL Countdown
+summary: Countdown to anime
+desc: Shows a countdown of the time until next anime episode on MyAnimeList.
+author: mikelikescode
+fileName: mal_countdown.star
+packageName: malcountdown
