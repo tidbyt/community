@@ -76,7 +76,7 @@ def main(config):
             location = "%dkt %dft" % (airlabs_response.get("speed") * 0.53995680345572, airlabs_response.get("alt") * 3.28)
 
             if airlabs_response.get("flight_number"):
-                plane = "%s %s" % (airlabs_response.get("airline_iata"), airlabs_response.get("flight_number"))
+                plane = "%s %s" % (airlabs_response.get("airline_iata") or airlabs_response.get("airline_icao"), airlabs_response.get("flight_number"))
 
             if airlabs_response.get("aircraft_icao"):
                 plane += " (%s)" % airlabs_response.get("aircraft_icao")
