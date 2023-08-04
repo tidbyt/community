@@ -1,0 +1,8 @@
+---
+id: mal-seasonal
+name: MAL Seasonal
+summary: Shows seasonal anime
+desc: Shows seasonal anime for year and season set in the configuration.
+author: mikelikescode
+fileName: mal_seasonal.star
+packageName: malseasonal
