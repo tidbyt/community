@@ -68,13 +68,7 @@ def main(config):
 
         print_log("Disabling between %d:00 and %d:00" % (disable_start_hour, disable_end_hour))
 
-        if disable_end_hour >= disable_start_hour:
-            duration = disable_end_hour - disable_start_hour
-
-        else:
-            duration = (24 - disable_start_hour) + disable_end_hour
-
-        if now >= disable_start_hour and now < disable_start_hour + duration:
+        if (disable_end_hour >= disable_start_hour and now >= disable_start_hour and now < disable_end_hour) or (disable_end_hour < disable_start_hour and now >= disable_start_hour or now < disable_end_hour):
             print_log("Disabled")
 
             return empty_message()
