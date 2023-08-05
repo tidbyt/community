@@ -5,13 +5,20 @@ Description: Sail GP Next Race Info and Current Leaderboard.
 Author: jvivona
 """
 
+# ############################
+# Mods - jvivona - 2023-07-13
+# - added in standings display with country flags (** I learned a bunch about flag sizes in this exercise)
+# - convert next race info color to generated schema field
+
+load("animation.star", "animation")
+load("encoding/base64.star", "base64")
 load("encoding/json.star", "json")
 load("http.star", "http")
 load("render.star", "render")
 load("schema.star", "schema")
 load("time.star", "time")
 
-VERSION = 23171
+VERSION = 23194
 
 DEFAULTS = {
     "display": "nri",
@@ -29,6 +36,20 @@ DEFAULTS = {
     "animation_frames": 30,
     "animation_hold_frames": 75,
     "title_bkg_color": "#0a2627",
+    "slide_duration": 75,
+}
+
+FLAGS = {
+    "ESP": "iVBORw0KGgoAAAANSUhEUgAAACgAAAAbCAMAAAA5zj1cAAAAjVBMVEX/xADWsQvknRS4ZEq1RxL5tQD8wgXGCx7VORftug6rTgixPxXrrwq7rUjOvZbUiArNrou4eQSkYhCUmFLIrCvyvwfvqAbamA/YegrHiB3PbQiiUxbhkA3PusTASw/rtwW+elrOnkjTlUjFpYX2vQDCmhzRpbK5XRKzXEDImHGLPSqyWkF3TFrgkbVSZWU/pl0VAAAAiklEQVQ4y+XTRw7CQAxA0amB6SUhPQRI6OX+x+MG8Qh28NdPsmTZaJUY+im4Tgx9lkhSmdDHcZMA9VadWQsy7jIXQqg4gQbjnqmrtzOG4FTH6J8D8QCsd23sHqfB0XIZEtp0t9ed9pQvw9I2UiqmhAUgNpWUF8awAVZZ5ILszUEXuUDflXw9f/lcb4nLFkvy34BaAAAAAElFTkSuQmCC",
+    "SUI": "iVBORw0KGgoAAAANSUhEUgAAACgAAAAoBAMAAAB+0KVeAAAAElBMVEX/AAD/////wMD/gID/YGD/8PBDRn5nAAAANklEQVQoz2NgGLzA2djYBENQUVBQaJALsigBQaCgoCiIdoAKMgsiAQN6C2J10lAJT9yJYfAAAHGvEL146aHXAAAAAElFTkSuQmCC",
+    "GER": "iVBORw0KGgoAAAANSUhEUgAAACgAAAAYAgMAAAD16ldTAAAACVBMVEUAAADdAAD/zgDGIigcAAAAFUlEQVQY02NgoBEIhQPqMlfBAVWZANYST7G6bxb2AAAAAElFTkSuQmCC",
+    "USA": "iVBORw0KGgoAAAANSUhEUgAAACgAAAAVCAMAAAADxFwsAAAAM1BMVEXGWmdWVoJGRXV/fqDsyM1BQHE8O27YkZr///+yIjS1nLBKSXheXYdzcpdmZY2JiKfrx8sZZnA7AAAAjUlEQVQoz62Q2wrDQAhE1e1Mkrq5/P/Xdi8plFLBhx7E8yLKKHTCWutGa1uAoHhVL2bTWAKEKGhVdZprgODkUXnibYkg+ybWOs1w8GNoODxN261V1WmGYbCb3kPdCN9DPdwObQzHqekKU3c0Q52P31wjjN5husPTzy/CjWsS2ZLIkiR/+v+kT6fDZN/zArG+FImrLSObAAAAAElFTkSuQmCC",
+    "GBR": "iVBORw0KGgoAAAANSUhEUgAAACgAAAAUCAMAAADImI+JAAAANlBMVEX////w8vfyxcx8jbJCWpAOLHFVa5sBIWnIEC7WTGLnv8qAkLTheYpecqHx0digrMfz3+T21dqBS5WQAAAApUlEQVQoz8WTyxpFMAyEpyqOuhTv/7IntImmurAzC59kfsIIhA5wnn6iASMLgzbIT2Fk6joUaAUKBsiJm+kJ0iyuR1mQBam8Cex1dINkZ6EesSZwrR8JfdYWl7AcbCRw5ypytYmPpy6w3X6jL8HXL6PxOODgTPYEcnXmFe94cuBsdJzwpIFrRwK3WPkJLQqL2aUoUVisXjOvLizWWNyMVljrV0gz/wdhEi0lRIbcAAAAAElFTkSuQmCC",
+    "FRA": "iVBORw0KGgoAAAANSUhEUgAAACgAAAAbBAMAAAD8PtBdAAAAD1BMVEXtKTkAI5X///+qtdz5uL22UrpzAAAAGElEQVQoz2MQBANhJTBwYICAUcFRQbyCAK7MKQicBg83AAAAAElFTkSuQmCC",
+    "DEN": "iVBORw0KGgoAAAANSUhEUgAAACgAAAAeBAMAAACs80HuAAAAElBMVEXIEC7////WTGPYV2zJFjPigZEAQ1emAAAAJ0lEQVQoz2NgAANHQWEGDDDsBZXAQFFQVAkBGASxAEoFsVo0gkMeAIyVE9snzfM0AAAAAElFTkSuQmCC",
+    "AUS": "iVBORw0KGgoAAAANSUhEUgAAACgAAAAUCAMAAADImI+JAAAAdVBMVEUBIWn+/v8LKm8rRoLsS2lZa5sCI2rkACvAyNojP317jLGrtc2qtc3FzN1fc6FBWY/5w83ecIr+8vQRL3P5x9DY3ejU2OVeZpZLVIn709oYNndNZJacqcWLmrra3unVZ4Xy9Pj22uFEXJHIz94VM3XUZYPb3+rlcwqvAAAAz0lEQVQoz7WQyRKDIBBEB2STRHHfTdQs//+JQVxiSlNFDunLAPOomW4gycVnAHDi/KwLoyEJ4EjFgyQpXcBcY54C+IpmdAQNNmxavv8+C62sLyPEeVRGXTbelx72BF5BfqC16bpgB25lRnd6KucoKvuP0UaOdObT4CUkzEczNA3ItZheq2oxhKYUlMHmeNiK4ps3+7jXzFSN0W3g/jMgY5WSwS+i1BLcBrS4c6x+xrJpZGxDtgi1NpwSCAlls44rxG5vfEnxHozjvUFaw//0ApepC3HnUeodAAAAAElFTkSuQmCC",
+    "NZL": "iVBORw0KGgoAAAANSUhEUgAAACgAAAAUCAMAAADImI+JAAAAclBMVEUBIWn68/artc2qtc0OLXHYVmtbbZzIEC7AyNrPd4z0zdPPZXskQX1dZpT12N3yxs0CImpGV4w+T4bGboXFzN3U2OXVUWja3uk6R4DLRl4wSINtapYjO3nX3Of8/P1EXJFYWovJaYDMJkKkdJGceZnYV2wLvzvsAAAAuElEQVQoz9WQWxOCIBCFlxIIBMRral6yy///iwmK5WQNLz10XnZhvzlndqHgR6IBYEfpfiyasILDluIU85Y4UDIcZTHARzQnBrRY/zIKgmd/GJUrhTpKkUIoN283E8MgFpBuaBkyBn7gWzQaUyntkFKraKtz7bo+45hJswxpI5y6nU+zaRFOtnHG70zO59EWTcz/7SInsiynOrqtD36MsDW8CvgqDX+mpvHjkqpK/Mgw9IwW9Q/3egATpQmIac+/QgAAAABJRU5ErkJggg==",
+    "CAN": "iVBORw0KGgoAAAANSUhEUgAAACgAAAAUCAMAAADImI+JAAAASFBMVEX/////ubn/oqL/Z2f/Jib/09P/7e3/AAD/+/v/Gxv/W1v/rq7/eXn/nZ3/DAz/OTn/AwP/Pj7//Pz/QED/PT3/g4P/xsb/xcWY5npoAAAAkUlEQVQoz43TyQ7DIAxFUQbDNZCx4///aTdt00ohsXdPHIFsGce33E79nO5AvRjhGCxQVYs41fMbpUIVw9MzwHwKk4sA0aUj6IdW7iNAGEobfBfmBbgC3IAld6HKllhEuzDwV6HfjJ+2OPmjrlP5pJKOx5PfsuSTOWZZY61xlWxYiufDuD3eG2FrRpiSEe5+hRcblQ+AegtNbgAAAABJRU5ErkJggg==",
 }
 
 def main(config):
@@ -43,9 +64,8 @@ def main(config):
     if displaytype == "nri":
         data = json.decode(get_cachable_data(DEFAULTS["api"].format(displaytype)))
         displayrow = nri(data, standings, config)
-
-    #else:
-    #    displayrow = standings(config, data)
+    else:
+        displayrow = current_standings(standings, config)
 
     return render.Root(
         show_full_animation = True,
@@ -84,6 +104,66 @@ def nri(nri, standings, config):
         render.Marquee(offset_start = 48, child = render.Text(height = 6, content = standing_text, font = DEFAULTS["regular_font"], color = standings_text_color), scroll_direction = "horizontal", width = 64),
     ]
 
+def current_standings(standings, config):
+    standings_text_color = config.get("standings_text_color", DEFAULTS["standings_text_color"])
+    return [render.Sequence(
+        children = [
+            current_standings_slide(standings[0], standings[1], standings_text_color),
+            current_standings_slide(standings[2], standings[3], standings_text_color),
+            current_standings_slide(standings[4], standings[5], standings_text_color),
+            current_standings_slide(standings[6], standings[7], standings_text_color),
+            current_standings_slide(standings[8], standings[9], standings_text_color),
+        ],
+    )]
+
+def current_standings_slide(standingsLeft, standingsRight, standings_text_color):
+    return animation.Transformation(
+        child =
+            render.Row(expanded = True, children = [
+                render.Column(
+                    cross_align = "center",
+                    children = [
+                        render.Box(width = 32, height = 14, child = render.Image(base64.decode(FLAGS[standingsLeft["teamAbbreviation"]]), height = 14)),
+                        render.Text("{} {}".format(str(standingsLeft["position"]), standingsLeft["teamAbbreviation"]), font = DEFAULTS["regular_font"], color = standings_text_color),
+                        render.Text("{} pts".format(str(standingsLeft["points"])), font = DEFAULTS["regular_font"], color = standings_text_color),
+                    ],
+                ),
+                render.Column(
+                    cross_align = "center",
+                    children = [
+                        render.Box(width = 32, height = 14, child = render.Image(base64.decode(FLAGS[standingsRight["teamAbbreviation"]]), height = 14)),
+                        render.Text("{} {}".format(str(standingsRight["position"]), standingsRight["teamAbbreviation"]), font = DEFAULTS["regular_font"], color = standings_text_color),
+                        render.Text("{} pts".format(str(standingsRight["points"])), font = DEFAULTS["regular_font"], color = standings_text_color),
+                    ],
+                ),
+            ]),
+        duration = DEFAULTS["slide_duration"],
+        delay = 0,
+        origin = animation.Origin(0, 0),
+        keyframes = [
+            animation.Keyframe(
+                percentage = 0.0,
+                transforms = [animation.Translate(DEFAULTS["data_box_width"], 0)],
+                curve = DEFAULTS["ease_in_out"],
+            ),
+            animation.Keyframe(
+                percentage = 0.1,
+                transforms = [animation.Translate(-0, 0)],
+                curve = DEFAULTS["ease_in_out"],
+            ),
+            animation.Keyframe(
+                percentage = 0.9,
+                transforms = [animation.Translate(-0, 0)],
+                curve = DEFAULTS["ease_in_out"],
+            ),
+            animation.Keyframe(
+                percentage = 1.0,
+                transforms = [animation.Translate(-DEFAULTS["data_box_width"], 0)],
+                curve = DEFAULTS["ease_in_out"],
+            ),
+        ],
+    )
+
 def fade_child(race, location, text_color):
     return render.Animation(
         children =
@@ -119,7 +199,7 @@ dispopt = [
         value = "nri",
     ),
     schema.Option(
-        display = "** Coming Soon ** Standings with Flags",
+        display = "Standings Display with Flags",
         value = "standings",
     ),
 ]
@@ -135,13 +215,6 @@ def get_schema():
                 icon = "eye",
                 default = "nri",
                 options = dispopt,
-            ),
-            schema.Color(
-                id = "text_color",
-                name = "Race Info Color",
-                desc = "The color for Race Info and Date.",
-                icon = "palette",
-                default = DEFAULTS["text_color"],
             ),
             schema.Color(
                 id = "standings_text_color",
@@ -161,6 +234,13 @@ def get_schema():
 def show_nri_options(datadisplay):
     if datadisplay == "nri":
         return [
+            schema.Color(
+                id = "text_color",
+                name = "Race Info Color",
+                desc = "The color for Race Info and Date.",
+                icon = "palette",
+                default = DEFAULTS["text_color"],
+            ),
             schema.Toggle(
                 id = "is_us_date_format",
                 name = "US Date format",

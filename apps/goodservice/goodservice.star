@@ -19,6 +19,9 @@ DEFAULT_TRAVEL_TIME = '{"display": "0", "value": "0", "text": "0"}'
 GOOD_SERVICE_STOPS_URL_BASE = "https://goodservice.io/api/stops/"
 GOOD_SERVICE_ROUTES_URL = "https://goodservice.io/api/routes/"
 
+DISPLAY_ORDER_ETA = "eta"
+DISPLAY_ORDER_ALPHABETICAL = "alphabetical"
+
 NAME_OVERRIDE = {
     "Grand Central-42 St": "Grand Cntrl",
     "Times Sq-42 St": "Times Sq",
@@ -82,6 +85,8 @@ def main(config):
     else:
         directions = [direction_config]
 
+    ordering = config.str("order_by", DISPLAY_ORDER_ETA)
+
     ts = time.now().unix
     blocks = []
     min_estimated_arrival_time = ts + (travel_time_min * 60)
@@ -116,9 +121,18 @@ def main(config):
                 upcoming_routes[dir].append({"route_id": trip["route_id"], "destination_stop": trip["destination_stop"], "times": [trip["estimated_current_stop_arrival_time"]], "is_delayed": [trip["is_delayed"]]})
 
         for dir in directions:
-            for r in upcoming_routes[dir]:
+            routes_by_dir = upcoming_routes[dir]
+
+            if ordering == DISPLAY_ORDER_ALPHABETICAL:
+                def order_by_alpha(e):
+                    selected_route = routes_req.json()["routes"][e["route_id"]]
+                    return selected_route["name"]
+
+                routes_by_dir = sorted(routes_by_dir, order_by_alpha)
+
+            for r in routes_by_dir:
                 if len(blocks) > 0:
-                    if dir == "south" and r == upcoming_routes[dir][0]:
+                    if dir == "south" and r == routes_by_dir[0]:
                         blocks.append(render.Box(width = 64, height = 1, color = "#aaa"))
                     else:
                         blocks.append(render.Box(width = 64, height = 1, color = "#333"))
@@ -337,6 +351,23 @@ def get_schema():
                     schema.Option(
                         display = "Always Show",
                         value = "1000",
+                    ),
+                ],
+            ),
+            schema.Dropdown(
+                id = "order_by",
+                name = "Order By",
+                desc = "The display order of train routes",
+                icon = "sort",
+                default = DISPLAY_ORDER_ETA,
+                options = [
+                    schema.Option(
+                        display = "Next Train ETA",
+                        value = DISPLAY_ORDER_ETA,
+                    ),
+                    schema.Option(
+                        display = "Alphabetical Order",
+                        value = DISPLAY_ORDER_ALPHABETICAL,
                     ),
                 ],
             ),
