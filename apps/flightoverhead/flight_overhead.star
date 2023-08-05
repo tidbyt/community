@@ -18,6 +18,7 @@ DEFAULT_AIRLABS_TTL_SECONDS = 0
 DEFAULT_DISABLE_END_HOUR = "None"
 DEFAULT_DISABLE_START_HOUR = "None"
 DEFAULT_PRINT_LOG = False
+DEFAULT_RETURN_EMPTY_MESSAGE = ""
 DEFAULT_TIMEZONE = "America/Chicago"
 
 def main(config):
@@ -33,6 +34,27 @@ def main(config):
     disable_start_hour = config.get("disable_start_hour", DEFAULT_DISABLE_START_HOUR)
     disable_end_hour = config.get("disable_end_hour", DEFAULT_DISABLE_END_HOUR)
     now = time.now().in_location(timezone).hour
+
+    return_empty_message = config.get("return_empty_message", DEFAULT_RETURN_EMPTY_MESSAGE)
+
+    def empty_message():
+        if return_empty_message:
+            print_log("Returning empty message: %s" % return_empty_message)
+
+            return render.Root(
+                child = render.Box(
+                    render.Column(
+                        expanded = True,
+                        main_align = "space_evenly",
+                        cross_align = "center",
+                        children = [
+                            render.WrappedText("%s" % return_empty_message),
+                        ],
+                    ),
+                ),
+            )
+
+        return []
 
     def print_log(statement):
         if config.bool("print_log", DEFAULT_PRINT_LOG):
@@ -55,7 +77,7 @@ def main(config):
         if now >= disable_start_hour and now < disable_start_hour + duration:
             print_log("Disabled")
 
-            return []
+            return empty_message()
 
     airlabs_request = http.get("%s?api_key=%s&bbox=%s" % (AIRLABS_URL, airlabs_api_key, airlabs_bbox), ttl_seconds = airlabs_ttl_seconds)
 
@@ -112,7 +134,7 @@ def main(config):
         else:
             print_log("No flights found")
 
-            return []
+            return empty_message()
 
     elif airlabs_json.get("error"):
         message = airlabs_json["error"]["message"]
@@ -126,7 +148,7 @@ def main(config):
     else:
         print_log("No flights found")
 
-        return []
+        return empty_message()
 
 def get_schema():
     timezones = [
@@ -222,6 +244,13 @@ def get_schema():
                 icon = "clock",
                 default = DEFAULT_DISABLE_END_HOUR,
                 options = hours,
+            ),
+            schema.Text(
+                id = "return_empty_message",
+                name = "Return Empty Message",
+                desc = "Message to return if no flights found",
+                icon = "message",
+                default = DEFAULT_RETURN_EMPTY_MESSAGE,
             ),
             schema.Toggle(
                 id = "print_log",
