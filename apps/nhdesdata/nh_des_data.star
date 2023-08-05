@@ -82,7 +82,7 @@ def get_schema():
                 id = "station",
                 name = "Station Code",
                 desc = "The station code to use (see https://nhdes.rtiamanzi.org/stations).",
-                icon = "radar",
+                icon = "cloud",
                 default = "WEIN3",
             ),
         ],
