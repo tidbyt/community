@@ -19,7 +19,7 @@ const BACKGROUND = (String(process.env.TIDBYT_BACKGROUND).toLowerCase() === 'tru
 const DISABLE_END_HOUR = process.env.DISABLE_END_HOUR
 const DISABLE_START_HOUR = process.env.DISABLE_START_HOUR
 const PRINT_LOG = (String(process.env.PRINT_LOG).toLowerCase() === 'true')
-const RETURN_EMPTY_MESSAGE = process.env.RETURN_EMPTY_MESSAGE
+const RETURN_MESSAGE_ON_EMPTY = process.env.RETURN_MESSAGE_ON_EMPTY
 const TIDBYT_APP_NAME = process.env.TIDBYT_APP_NAME
 const TIDBYT_DEVICE_ID = process.env.TIDBYT_DEVICE_ID
 const TIDBYT_INSTALLATION_ID = process.env.TIDBYT_INSTALLATION_ID
@@ -29,7 +29,7 @@ let previous_hash = ''
 
 const push = () => {
 
-	let render_pixlet = child.spawn('pixlet', ['render', `${TIDBYT_APP_NAME}.star`, `airlabs_api_key=${AIRLABS_API_KEY}`, `airlabs_bbox=${AIRLABS_BBOX}`, `airlabs_ttl_seconds=${AIRLABS_TTL_SECONDS}`, `timezone=${TIMEZONE}`, `disable_start_hour=${DISABLE_START_HOUR}`, `disable_end_hour=${DISABLE_END_HOUR}`, `return_empty_message=${RETURN_EMPTY_MESSAGE}`, `print_log=${PRINT_LOG}`])
+	let render_pixlet = child.spawn('pixlet', ['render', `${TIDBYT_APP_NAME}.star`, `airlabs_api_key=${AIRLABS_API_KEY}`, `airlabs_bbox=${AIRLABS_BBOX}`, `airlabs_ttl_seconds=${AIRLABS_TTL_SECONDS}`, `timezone=${TIMEZONE}`, `disable_start_hour=${DISABLE_START_HOUR}`, `disable_end_hour=${DISABLE_END_HOUR}`, `return_message_on_empty=${RETURN_MESSAGE_ON_EMPTY}`, `print_log=${PRINT_LOG}`])
 
 	render_pixlet.stdout.setEncoding('utf8')
 	render_pixlet.stdout.on('data', (data) => {

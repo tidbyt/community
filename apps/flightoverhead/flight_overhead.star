@@ -18,7 +18,7 @@ DEFAULT_AIRLABS_TTL_SECONDS = 0
 DEFAULT_DISABLE_END_HOUR = "None"
 DEFAULT_DISABLE_START_HOUR = "None"
 DEFAULT_PRINT_LOG = False
-DEFAULT_RETURN_EMPTY_MESSAGE = ""
+DEFAULT_RETURN_MESSAGE_ON_EMPTY = ""
 DEFAULT_TIMEZONE = "America/Chicago"
 
 def main(config):
@@ -35,11 +35,11 @@ def main(config):
     disable_end_hour = config.get("disable_end_hour", DEFAULT_DISABLE_END_HOUR)
     now = time.now().in_location(timezone).hour
 
-    return_empty_message = config.get("return_empty_message", DEFAULT_RETURN_EMPTY_MESSAGE)
+    return_message_on_empty = config.get("return_message_on_empty", DEFAULT_RETURN_MESSAGE_ON_EMPTY)
 
     def empty_message():
-        if return_empty_message:
-            print_log("Returning empty message: %s" % return_empty_message)
+        if return_message_on_empty:
+            print_log("Returning empty message: %s" % return_message_on_empty)
 
             return render.Root(
                 child = render.Box(
@@ -48,7 +48,7 @@ def main(config):
                         main_align = "space_evenly",
                         cross_align = "center",
                         children = [
-                            render.WrappedText("%s" % return_empty_message),
+                            render.WrappedText("%s" % return_message_on_empty),
                         ],
                     ),
                 ),
@@ -240,11 +240,11 @@ def get_schema():
                 options = hours,
             ),
             schema.Text(
-                id = "return_empty_message",
-                name = "Return Empty Message",
+                id = "return_message_on_empty",
+                name = "Return Message on Empty",
                 desc = "Message to return if no flights found",
                 icon = "message",
-                default = DEFAULT_RETURN_EMPTY_MESSAGE,
+                default = DEFAULT_RETURN_MESSAGE_ON_EMPTY,
             ),
             schema.Toggle(
                 id = "print_log",
