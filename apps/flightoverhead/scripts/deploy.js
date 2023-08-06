@@ -26,6 +26,7 @@ const TIDBYT_INSTALLATION_ID = process.env.TIDBYT_INSTALLATION_ID
 const TIMEZONE = process.env.TIMEZONE
 
 let previous_hash = ''
+let installation_exists = false;
 
 const push = () => {
 
@@ -72,22 +73,43 @@ const push = () => {
 							console.error(error)
 						})
 				}
-				else {
+
+			}
+
+			if (!file_size) {
+				axios
+					.get(
+						`https://api.tidbyt.com/v0/devices/${TIDBYT_DEVICE_ID}/installations`,
+						axios_config
+					)
+					.then((response) => {
+						if (response.status == '200') {
+							installation_exists = response.data.installations.some((installation => installation.id === TIDBYT_INSTALLATION_ID))
+						}
+					})
+					.catch((error) => {
+						console.error(error)
+					})
+
+				if (installation_exists) {
 					axios
 						.delete(
 							`https://api.tidbyt.com/v0/devices/${TIDBYT_DEVICE_ID}/installations/${TIDBYT_INSTALLATION_ID}`,
 							axios_config
 						)
 						.then((response) => {
-							fs.unlink(webp, (error) => {
-								if (error) console.error(error)
-							})
+							if (response.status == '200') {
+								fs.unlink(webp, (error) => {
+									if (error) console.error(error)
+								})
+								installation_exists = false;
+							}
 						})
 						.catch((error) => {
 							console.error(error)
 						})
 				}
-			} else {}
+			}
 
 		})
 
