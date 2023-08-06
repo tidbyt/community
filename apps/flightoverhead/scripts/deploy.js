@@ -47,23 +47,46 @@ const push = () => {
 				return
 			}
 
+			const file_size = fs.statSync(webp)?.size
+
 			if (data !== previous_hash) {
 				previous_hash = data
 
-				axios
-					.post(
-						`https://api.tidbyt.com/v0/devices/${TIDBYT_DEVICE_ID}/push`,
-						{
-							"image": data,
-							"installationID": TIDBYT_INSTALLATION_ID,
-							"background": BACKGROUND
-						},
-						axios_config
-					)
-					.then((response) => {})
-					.catch((error) => {
-						console.error(error)
-					})
+				if (file_size) {
+					axios
+						.post(
+							`https://api.tidbyt.com/v0/devices/${TIDBYT_DEVICE_ID}/push`,
+							{
+								"image": data,
+								"installationID": TIDBYT_INSTALLATION_ID,
+								"background": BACKGROUND
+							},
+							axios_config
+						)
+						.then((response) => {
+							fs.unlink(webp, (error) => {
+								if (error) console.error(error)
+							})
+						})
+						.catch((error) => {
+							console.error(error)
+						})
+				}
+				else {
+					axios
+						.delete(
+							`https://api.tidbyt.com/v0/devices/${TIDBYT_DEVICE_ID}/installations/${TIDBYT_INSTALLATION_ID}`,
+							axios_config
+						)
+						.then((response) => {
+							fs.unlink(webp, (error) => {
+								if (error) console.error(error)
+							})
+						})
+						.catch((error) => {
+							console.error(error)
+						})
+				}
 			} else {}
 
 		})
