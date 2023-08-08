@@ -5,9 +5,7 @@ Description: Displays your LeetCode stats in a nice way.
 Author: Jake Manske
 """
 
-load("cache.star", "cache")
 load("encoding/base64.star", "base64")
-load("encoding/json.star", "json")
 load("http.star", "http")
 load("math.star", "math")
 load("render.star", "render")
@@ -148,22 +146,6 @@ def render_Header(msg):
     )
 
 def get_Stats(user_name):
-    my_stats_cached = cache.get(user_name)
-
-    # if we didn't find stats in the cache, get them from http endpoint
-    if my_stats_cached == None:
-        my_stats = get_StatsHttp(user_name)
-
-        # cache them if the response code was successful
-        if my_stats.ResponseCode == HTTP_SUCCESS_CODE:
-            cache_StatsObj(user_name, my_stats)
-    else:
-        decoded = json.decode(my_stats_cached)
-        my_stats = get_statsStruct(decoded)
-
-    return my_stats
-
-def get_StatsHttp(user_name):
     headers = {
         "Content-Type": "application/json",
         "referer": LEETCODE_BASE_URL.format(user_name),
@@ -173,7 +155,7 @@ def get_StatsHttp(user_name):
     json_body = get_query(user_name)
 
     # use POST to get data
-    response = http.post(url = LEETCODE_BASE_URL.format("graphql"), headers = headers, json_body = json_body)
+    response = http.post(url = LEETCODE_BASE_URL.format("graphql"), headers = headers, json_body = json_body, ttl_seconds = CACHE_LIFE_LENGTH_SECONDS)
 
     # check status_code to see if we were successful
     code = response.status_code
@@ -228,12 +210,6 @@ def get_StatsHttp(user_name):
     hist_max_length = TOTAL_HIST_LENGTH - 5 * most_digits
 
     return struct(Header = user_name, TotalSolved = total_solved, EasySolved = easy_solved, MediumSolved = medium_solved, HardSolved = hard_solved, EasyPercent = easy_pct, MediumPercent = medium_pct, HardPercent = hard_pct, HistogramMaxLength = hist_max_length, ResponseCode = code)
-
-def cache_StatsObj(user_name, statsObj):
-    stats_as_json = json.encode(statsObj)
-
-    # TODO: Determine if this cache call can be converted to the new HTTP cache.
-    cache.set(user_name, str(stats_as_json), ttl_seconds = CACHE_LIFE_LENGTH_SECONDS)
 
 def get_query(user_name):
     return {
