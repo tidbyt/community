@@ -157,7 +157,7 @@ def get_Stats(user_name):
 
     # use POST to get data
     response = http.post(url = LEETCODE_BASE_URL.format("graphql"), headers = headers, json_body = json_body, ttl_seconds = CACHE_LIFE_LENGTH_SECONDS)
-    
+
     # check status_code to see if we were successful
     code = response.status_code
 
