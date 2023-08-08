@@ -229,8 +229,8 @@ def get_query(user_name):
     return {
         "query": query,
         "variables": {
-            "username": user_name
-        }
+            "username": user_name,
+        },
     }
 
 def get_statsStruct(stats_as_json):
