@@ -6,6 +6,7 @@ Author: Jake Manske
 """
 
 load("encoding/base64.star", "base64")
+load("encoding/json.star", "json")
 load("http.star", "http")
 load("math.star", "math")
 load("render.star", "render")
@@ -156,7 +157,7 @@ def get_Stats(user_name):
 
     # use POST to get data
     response = http.post(url = LEETCODE_BASE_URL.format("graphql"), headers = headers, json_body = json_body, ttl_seconds = CACHE_LIFE_LENGTH_SECONDS)
-
+    
     # check status_code to see if we were successful
     code = response.status_code
 
@@ -213,7 +214,7 @@ def get_Stats(user_name):
 
 def get_query(user_name):
     return {
-        "query": "query getUserProfile($username: String!) { allQuestionsCount { difficulty count } matchedUser(username: $username) { contributions { points } profile { reputation ranking } submissionCalendar submitStats { acSubmissionNum { difficulty count submissions } totalSubmissionNum { difficulty count submissions } } } }",
+        "query": "query getUserProfile($username: String!) { allQuestionsCount { difficulty count } matchedUser(username: $username) { submitStats { acSubmissionNum { difficulty count submissions } } } }",
         "variables": {
             "username": user_name,
         },
