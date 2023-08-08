@@ -853,7 +853,7 @@ def get_nightscout_data(nightscout_url, nightscout_token, show_mgdl):
         print("sgv_delta:" + str(sgv_delta))
 
     # Get the direction
-    direction = latest_reading["direction"]
+    direction = latest_reading["direction"] if 'direction' in latest_reading else "None"
     history = []
 
     for x in resp.json():
