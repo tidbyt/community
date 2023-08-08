@@ -12,7 +12,8 @@ load("render.star", "render")
 load("schema.star", "schema")
 load("time.star", "time")
 
-AIRLABS_URL = "https://airlabs.co/api/v9/flights"
+AIRLABS_URL = "https://airlabs.co/api/v9"
+OPENSKY_URL = "https://opensky-network.org/api"
 
 DEFAULT_DISABLE_END_HOUR = "None"
 DEFAULT_DISABLE_START_HOUR = "None"
@@ -22,10 +23,16 @@ DEFAULT_PROVIDER_TTL_SECONDS = 0
 DEFAULT_RETURN_MESSAGE_ON_EMPTY = ""
 DEFAULT_TIMEZONE = "America/Chicago"
 
+KN_RATIO = 1.94
+KM_RATIO = 0.54
+M_RATIO = 3.28
+
 def main(config):
     provider = config.get("provider")
 
     airlabs_api_key = config.get("airlabs_api_key")
+    opensky_api_key = config.get("opensky_api_key")
+
     provider_bbox = config.get("provider_bbox")
 
     provider_ttl_seconds = DEFAULT_PROVIDER_TTL_SECONDS
@@ -63,6 +70,49 @@ def main(config):
         if config.bool("print_log", DEFAULT_PRINT_LOG):
             print(statement)
 
+    def _render(provider, response):
+        plane = ""
+        flight_plan = "No flight plan"
+        location = ""
+
+        if provider and response:
+            print_log(response)
+
+            if provider == "airlabs":
+                plane = "%s" % response.get("reg_number")
+                location = "%dkt %dft" % (response.get("speed") * KM_RATIO, response.get("alt") * M_RATIO)
+
+                if response.get("flight_number"):
+                    plane = "%s %s" % (response.get("airline_iata") or response.get("airline_icao"), response.get("flight_number"))
+
+                if response.get("aircraft_icao"):
+                    plane += " (%s)" % response.get("aircraft_icao")
+
+                if response.get("dep_iata"):
+                    flight_plan = "%s" % response.get("dep_iata")
+
+                if response.get("arr_iata"):
+                    flight_plan += " - %s" % (response.get("arr_iata"))
+
+            if provider == "opensky":
+                plane = "%s" % response[1]
+                location = "%dkt %dft" % (response[9] * KN_RATIO, response[7] * M_RATIO)
+
+        return render.Root(
+            child = render.Box(
+                render.Column(
+                    expanded = True,
+                    main_align = "space_evenly",
+                    cross_align = "center",
+                    children = [
+                        render.Text(plane),
+                        render.Text(flight_plan),
+                        render.Text(location),
+                    ],
+                ),
+            ),
+        )
+
     print_log(time.now())
 
     if disable_start_hour != DEFAULT_DISABLE_START_HOUR and disable_end_hour != DEFAULT_DISABLE_END_HOUR:
@@ -78,13 +128,35 @@ def main(config):
 
     if provider:
         provider_request = ""
+        url = ""
 
         if provider == "airlabs":
-            provider_request = http.get("%s?api_key=%s&bbox=%s" % (AIRLABS_URL, airlabs_api_key, provider_bbox), ttl_seconds = provider_ttl_seconds)
+            url = "%s/flights?bbox=%s" % (AIRLABS_URL, provider_bbox)
+            if airlabs_api_key:
+                url += "&api_key=%s" % airlabs_api_key
+            provider_request = http.get(url, ttl_seconds = provider_ttl_seconds)
 
-            print_log(provider_request.url)
+        if provider == "opensky":
+            lamin = ""
+            lomin = ""
+            lamax = ""
+            lomax = ""
+
+            if provider_bbox:
+                lamin = provider_bbox.split(",")[0]
+                lomin = provider_bbox.split(",")[1]
+                lamax = provider_bbox.split(",")[2]
+                lomax = provider_bbox.split(",")[3]
+
+            url = "%s/states/all?lamin=%s&lomin=%s&lamax=%s&lomax=%s" % (OPENSKY_URL, lamin, lomin, lamax, lomax)
+            if opensky_api_key:
+                url += "&api_key=%s" % opensky_api_key
+
+            provider_request = http.get(url, ttl_seconds = provider_ttl_seconds)
 
         if provider_request:
+            print_log(provider_request.url)
+
             if provider_request.headers.get("Tidbyt-Cache-Status") == "HIT":
                 print_log("Displaying cached data for %s" % humanize.plural(provider_ttl_seconds, "second"))
 
@@ -97,53 +169,10 @@ def main(config):
             provider_json = provider_request.json()
 
             if provider_json.get("response"):
-                if provider == "airlabs":
-                    airlabs_response = provider_json["response"]
+                return _render(provider, provider_json.get("response")[0])
 
-                    plane = ""
-                    flight_plan = ""
-                    location = ""
-
-                    if airlabs_response:
-                        airlabs_response = airlabs_response[0]
-
-                        print_log(airlabs_response)
-
-                        plane = "%s" % airlabs_response.get("reg_number")
-                        flight_plan = "No flight plan"
-                        location = "%dkt %dft" % (airlabs_response.get("speed") * 0.53995680345572, airlabs_response.get("alt") * 3.28)
-
-                        if airlabs_response.get("flight_number"):
-                            plane = "%s %s" % (airlabs_response.get("airline_iata") or airlabs_response.get("airline_icao"), airlabs_response.get("flight_number"))
-
-                        if airlabs_response.get("aircraft_icao"):
-                            plane += " (%s)" % airlabs_response.get("aircraft_icao")
-
-                        if airlabs_response.get("dep_iata"):
-                            flight_plan = "%s" % airlabs_response.get("dep_iata")
-
-                        if airlabs_response.get("arr_iata"):
-                            flight_plan += " - %s" % (airlabs_response.get("arr_iata"))
-
-                    return render.Root(
-                        child = render.Box(
-                            render.Column(
-                                expanded = True,
-                                main_align = "space_evenly",
-                                cross_align = "center",
-                                children = [
-                                    render.Text(plane),
-                                    render.Text(flight_plan),
-                                    render.Text(location),
-                                ],
-                            ),
-                        ),
-                    )
-
-                else:
-                    print_log("No flights found")
-
-                    return empty_message()
+            elif provider_json.get("states"):
+                return _render(provider, provider_json.get("states")[0])
 
             elif provider_json.get("error"):
                 message = provider_json["error"]["message"]
