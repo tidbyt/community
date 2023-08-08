@@ -392,10 +392,30 @@ def epa_AQI(pm25A, pm25B, humidity, particle_sensor, confidence, confidenceAuto)
     elif particle_sensor == PARTICLE_SENSOR_B:
         pmValue = pm25B
 
-    # EPA adjustment for wood smoke and PurpleAir from https://cfpub.epa.gov/si/si_public_record_report.cfm?dirEntryId=349513
-    # PM 2.5 corrected = 0.534*[PA_cf1(avgAB)] - 0.0844*RH +5.604 (Slide 25) - I'm using this one
-    # PM 2.5 corrected = 0.52*[PA_cf1(avgAB)] - 0.085*RH +5.71 (Slide 8)
-    pm25_corrected = 0.534 * pmValue - 0.0844 * humidity + 5.604
+    # [OLD] EPA adjustment for wood smoke and PurpleAir from https://cfpub.epa.gov/si/si_public_record_report.cfm?dirEntryId=349513
+    # [OLD] PM 2.5 corrected = 0.534*[PA_cf1(avgAB)] - 0.0844*RH +5.604 (Slide 25)
+    # [OLD] PM 2.5 corrected = 0.52*[PA_cf1(avgAB)] - 0.085*RH +5.71 (Slide 8)
+	# [August 2022] An updated 5 step algorithm for correcting sensor data was developed by the EPA based on new wildfire data. This updated algorithm is the one currently used by PurpleAir. The 5 equations are found on Slide 26 at https://cfpub.epa.gov/si/si_public_record_report.cfm?dirEntryId=353088&Lab=CEMM
+    if 0 <= pmValue < 30:
+        pm25_corrected = 0.524 * pmValue - 0.0862 * humidity + 5.75
+    elif 30 <= pmValue < 50:
+        pm25_corrected = (
+            (0.786 * (pmValue / 20 - 3 / 2) + 0.524 * (1 - (pmValue / 20 - 3 / 2)))
+            * pmValue
+            - 0.0862 * humidity
+            + 5.75
+        )
+    elif 50 <= pmValue < 210:
+        pm25_corrected = 0.786 * pmValue - 0.0862 * humidity + 5.75
+    elif 210 <= pmValue < 260:
+        term1 = 0.69 * (pmValue / 50 - 21 / 5) + 0.786 * (1 - (pmValue / 50 - 21 / 5))
+        term2 = -0.0862 * humidity * (1 - (pmValue / 50 - 21 / 5))
+        term3 = 2.966 * (pmValue / 50 - 21 / 5)
+        term4 = 5.75 * (1 - (pmValue / 50 - 21 / 5))
+        term5 = 8.84 * (10**-4) * (pmValue**2) * (pmValue / 50 - 21 / 5)
+        pm25_corrected = term1 * pmValue + term2 + term3 + term4 + term5
+    elif 260 <= pmValue:
+        pm25_corrected = 2.966 + 0.69 * pmValue + 8.84 * (10**-4) * (pmValue**2)
 
     return aqi_from_PM(pm25_corrected)
 
