@@ -14,21 +14,24 @@ load("time.star", "time")
 
 AIRLABS_URL = "https://airlabs.co/api/v9/flights"
 
-DEFAULT_AIRLABS_TTL_SECONDS = 0
 DEFAULT_DISABLE_END_HOUR = "None"
 DEFAULT_DISABLE_START_HOUR = "None"
 DEFAULT_PRINT_LOG = False
+DEFAULT_PROVIDER = "None"
+DEFAULT_PROVIDER_TTL_SECONDS = 0
 DEFAULT_RETURN_MESSAGE_ON_EMPTY = ""
 DEFAULT_TIMEZONE = "America/Chicago"
 
 def main(config):
-    airlabs_api_key = config.get("airlabs_api_key")
-    airlabs_bbox = config.get("airlabs_bbox")
+    provider = config.get("provider")
 
-    airlabs_ttl_seconds = DEFAULT_AIRLABS_TTL_SECONDS
-    if config.get("airlabs_ttl_seconds"):
-        airlabs_ttl_seconds = re.sub("\\D", "", config.get("airlabs_ttl_seconds")) or DEFAULT_AIRLABS_TTL_SECONDS
-    airlabs_ttl_seconds = int(airlabs_ttl_seconds)
+    airlabs_api_key = config.get("airlabs_api_key")
+    provider_bbox = config.get("provider_bbox")
+
+    provider_ttl_seconds = DEFAULT_PROVIDER_TTL_SECONDS
+    if config.get("provider_ttl_seconds"):
+        provider_ttl_seconds = re.sub("\\D", "", config.get("provider_ttl_seconds")) or DEFAULT_PROVIDER_TTL_SECONDS
+    provider_ttl_seconds = int(provider_ttl_seconds)
 
     timezone = config.get("timezone", DEFAULT_TIMEZONE)
     disable_start_hour = config.get("disable_start_hour", DEFAULT_DISABLE_START_HOUR)
@@ -73,75 +76,92 @@ def main(config):
 
             return empty_message()
 
-    airlabs_request = http.get("%s?api_key=%s&bbox=%s" % (AIRLABS_URL, airlabs_api_key, airlabs_bbox), ttl_seconds = airlabs_ttl_seconds)
+    if provider:
+        provider_request = ""
 
-    if airlabs_request.headers.get("Tidbyt-Cache-Status") == "HIT":
-        print_log("Displaying cached data for %s" % humanize.plural(airlabs_ttl_seconds, "second"))
+        if provider == "airlabs":
+            provider_request = http.get("%s?api_key=%s&bbox=%s" % (AIRLABS_URL, airlabs_api_key, provider_bbox), ttl_seconds = provider_ttl_seconds)
 
-    else:
-        print_log("Calling API")
+            print_log(provider_request.url)
 
-    if airlabs_request.status_code != 200:
-        fail("Request failed with status %d" % airlabs_request.status_code)
+        if provider_request:
+            if provider_request.headers.get("Tidbyt-Cache-Status") == "HIT":
+                print_log("Displaying cached data for %s" % humanize.plural(provider_ttl_seconds, "second"))
 
-    airlabs_json = airlabs_request.json()
+            else:
+                print_log("Calling API")
 
-    if airlabs_json.get("response"):
-        airlabs_response = airlabs_json["response"]
+            if provider_request.status_code != 200:
+                fail("Request failed with status %d" % provider_request.status_code)
 
-        if airlabs_response:
-            airlabs_response = airlabs_response[0]
+            provider_json = provider_request.json()
 
-            print_log(airlabs_response)
+            if provider_json.get("response"):
+                if provider == "airlabs":
+                    airlabs_response = provider_json["response"]
 
-            plane = "%s" % airlabs_response.get("reg_number")
-            flight_plan = "No flight plan"
-            location = "%dkt %dft" % (airlabs_response.get("speed") * 0.53995680345572, airlabs_response.get("alt") * 3.28)
+                    plane = ""
+                    flight_plan = ""
+                    location = ""
 
-            if airlabs_response.get("flight_number"):
-                plane = "%s %s" % (airlabs_response.get("airline_iata") or airlabs_response.get("airline_icao"), airlabs_response.get("flight_number"))
+                    if airlabs_response:
+                        airlabs_response = airlabs_response[0]
 
-            if airlabs_response.get("aircraft_icao"):
-                plane += " (%s)" % airlabs_response.get("aircraft_icao")
+                        print_log(airlabs_response)
 
-            if airlabs_response.get("dep_iata"):
-                flight_plan = "%s" % airlabs_response.get("dep_iata")
+                        plane = "%s" % airlabs_response.get("reg_number")
+                        flight_plan = "No flight plan"
+                        location = "%dkt %dft" % (airlabs_response.get("speed") * 0.53995680345572, airlabs_response.get("alt") * 3.28)
 
-            if airlabs_response.get("arr_iata"):
-                flight_plan += " - %s" % (airlabs_response.get("arr_iata"))
+                        if airlabs_response.get("flight_number"):
+                            plane = "%s %s" % (airlabs_response.get("airline_iata") or airlabs_response.get("airline_icao"), airlabs_response.get("flight_number"))
 
-            return render.Root(
-                child = render.Box(
-                    render.Column(
-                        expanded = True,
-                        main_align = "space_evenly",
-                        cross_align = "center",
-                        children = [
-                            render.Text(plane),
-                            render.Text(flight_plan),
-                            render.Text(location),
-                        ],
-                    ),
-                ),
-            )
+                        if airlabs_response.get("aircraft_icao"):
+                            plane += " (%s)" % airlabs_response.get("aircraft_icao")
+
+                        if airlabs_response.get("dep_iata"):
+                            flight_plan = "%s" % airlabs_response.get("dep_iata")
+
+                        if airlabs_response.get("arr_iata"):
+                            flight_plan += " - %s" % (airlabs_response.get("arr_iata"))
+
+                    return render.Root(
+                        child = render.Box(
+                            render.Column(
+                                expanded = True,
+                                main_align = "space_evenly",
+                                cross_align = "center",
+                                children = [
+                                    render.Text(plane),
+                                    render.Text(flight_plan),
+                                    render.Text(location),
+                                ],
+                            ),
+                        ),
+                    )
+
+                else:
+                    print_log("No flights found")
+
+                    return empty_message()
+
+            elif provider_json.get("error"):
+                message = provider_json["error"]["message"]
+
+                print_log("Error: %s" % message)
+
+                return render.Root(
+                    child = render.WrappedText(message),
+                )
+
+            else:
+                print_log("No flights found")
+
+                return empty_message()
 
         else:
-            print_log("No flights found")
-
             return empty_message()
-
-    elif airlabs_json.get("error"):
-        message = airlabs_json["error"]["message"]
-
-        print_log("Error: %s" % message)
-
-        return render.Root(
-            child = render.WrappedText(message),
-        )
-
     else:
-        print_log("No flights found")
-
         return empty_message()
 
 def get_schema():
@@ -196,6 +216,17 @@ def get_schema():
     return schema.Schema(
         version = "1",
         fields = [
+            schema.Dropdown(
+                id = "provider",
+                name = "Provider",
+                desc = "Provider",
+                icon = "",
+                default = DEFAULT_PROVIDER,
+                options = [
+                    schema.Option(display = "AirLabs", value = "airlabs"),
+                    schema.Option(display = "OpenSky", value = "opensky"),
+                ],
+            ),
             schema.Text(
                 id = "airlabs_api_key",
                 name = "AirLabs API Key",
@@ -203,17 +234,17 @@ def get_schema():
                 icon = "key",
             ),
             schema.Text(
-                id = "airlabs_bbox",
-                name = "AirLabs BBox",
-                desc = "AirLabs Bounding box",
+                id = "provider_bbox",
+                name = "Provider BBox",
+                desc = "Provider Bounding box",
                 icon = "locationArrow",
             ),
             schema.Text(
-                id = "airlabs_ttl_seconds",
-                name = "AirLabs TTL Seconds",
+                id = "provider_ttl_seconds",
+                name = "Provider TTL Seconds",
                 desc = "Number of seconds to cache results",
                 icon = "clock",
-                default = "%s" % DEFAULT_AIRLABS_TTL_SECONDS,
+                default = "%s" % DEFAULT_PROVIDER_TTL_SECONDS,
             ),
             schema.Dropdown(
                 id = "timezone",

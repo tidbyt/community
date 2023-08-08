@@ -10,15 +10,16 @@ const axios_config = {
 	headers: { Authorization: `Bearer ${process.env.TIDBYT_API_TOKEN}` }
 }
 
-axios_throttle.use(axios, { requestsPerSecond: process.env.AIRLABS_TTL_SECONDS })
+axios_throttle.use(axios, { requestsPerSecond: process.env.PROVIDER_TTL_SECONDS })
 
 const AIRLABS_API_KEY = process.env.AIRLABS_API_KEY
-const AIRLABS_BBOX = process.env.AIRLABS_BBOX
-const AIRLABS_TTL_SECONDS = process.env.AIRLABS_TTL_SECONDS
 const BACKGROUND = (String(process.env.TIDBYT_BACKGROUND).toLowerCase() === 'true')
 const DISABLE_END_HOUR = process.env.DISABLE_END_HOUR
 const DISABLE_START_HOUR = process.env.DISABLE_START_HOUR
 const PRINT_LOG = (String(process.env.PRINT_LOG).toLowerCase() === 'true')
+const PROVIDER = process.env.PROVIDER
+const PROVIDER_BBOX = process.env.PROVIDER_BBOX
+const PROVIDER_TTL_SECONDS = process.env.PROVIDER_TTL_SECONDS
 const RETURN_MESSAGE_ON_EMPTY = process.env.RETURN_MESSAGE_ON_EMPTY
 const TIDBYT_APP_NAME = process.env.TIDBYT_APP_NAME
 const TIDBYT_DEVICE_ID = process.env.TIDBYT_DEVICE_ID
@@ -30,7 +31,7 @@ let installation_exists = false;
 
 const push = () => {
 
-	let render_pixlet = child.spawn('pixlet', ['render', `${TIDBYT_APP_NAME}.star`, `airlabs_api_key=${AIRLABS_API_KEY}`, `airlabs_bbox=${AIRLABS_BBOX}`, `airlabs_ttl_seconds=${AIRLABS_TTL_SECONDS}`, `timezone=${TIMEZONE}`, `disable_start_hour=${DISABLE_START_HOUR}`, `disable_end_hour=${DISABLE_END_HOUR}`, `return_message_on_empty=${RETURN_MESSAGE_ON_EMPTY}`, `print_log=${PRINT_LOG}`])
+	let render_pixlet = child.spawn('pixlet', ['render', `${TIDBYT_APP_NAME}.star`, `provider=${PROVIDER}`,`airlabs_api_key=${AIRLABS_API_KEY}`, `provider_bbox=${PROVIDER_BBOX}`, `provider_ttl_seconds=${PROVIDER_TTL_SECONDS}`, `timezone=${TIMEZONE}`, `disable_start_hour=${DISABLE_START_HOUR}`, `disable_end_hour=${DISABLE_END_HOUR}`, `return_message_on_empty=${RETURN_MESSAGE_ON_EMPTY}`, `print_log=${PRINT_LOG}`])
 
 	render_pixlet.stdout.setEncoding('utf8')
 	render_pixlet.stdout.on('data', (data) => {
@@ -119,6 +120,6 @@ const push = () => {
 
 const push_interval = setInterval(() => {
 	push()
-}, AIRLABS_TTL_SECONDS * 1000)
+}, PROVIDER_TTL_SECONDS * 1000)
 
 push()
