@@ -1,7 +1,7 @@
 """
 Applet: Flight Overhead
 Summary: Finds flight overhead
-Description: Uses AirLabs Real-Time Flight Data API to find the flight overhead your location.
+Description: Uses AirLabs or OpenSky to find the flight overhead a location.
 Author: Kyle Bolstad
 """
 
