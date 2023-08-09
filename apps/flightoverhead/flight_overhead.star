@@ -142,8 +142,10 @@ def main(config):
                     else:
                         owners = _owners.split(" ") and _owners.split(" ")[0]
 
-                if ignore.count(plane):
-                    return empty_message()
+            if ignore.count(plane):
+                print_log("ignoring %s", plane)
+
+                return empty_message()
 
         return render.Root(
             child = render.Box(
