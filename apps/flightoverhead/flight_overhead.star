@@ -34,7 +34,8 @@ def main(config):
     provider = config.get("provider")
 
     airlabs_api_key = config.get("airlabs_api_key")
-    opensky_api_key = config.get("opensky_api_key")
+    opensky_username = config.get("opensky_username")
+    opensky_password = config.get("opensky_password")
 
     provider_bbox = config.get("provider_bbox")
 
@@ -195,10 +196,7 @@ def main(config):
                 lomax = provider_bbox.split(",")[3]
 
             provider_request_url = "%s/states/all?lamin=%s&lomin=%s&lamax=%s&lomax=%s" % (OPENSKY_URL, lamin, lomin, lamax, lomax)
-            if opensky_api_key:
-                provider_request_url += "&api_key=%s" % opensky_api_key
-
-            provider_request = http.get(provider_request_url, ttl_seconds = provider_ttl_seconds)
+            provider_request = http.get(provider_request_url, auth = (opensky_username, opensky_password), ttl_seconds = provider_ttl_seconds)
 
         if provider_request:
             check_request_headers(provider, provider_request, provider_ttl_seconds)
@@ -300,6 +298,18 @@ def get_schema():
                 id = "airlabs_api_key",
                 name = "AirLabs API Key",
                 desc = "AirLabs API Key",
+                icon = "key",
+            ),
+            schema.Text(
+                id = "opensky_username",
+                name = "OpenSky Username",
+                desc = "OpenSky Username",
+                icon = "user",
+            ),
+            schema.Text(
+                id = "opensky_password",
+                name = "OpenSky Password",
+                desc = "OpenSky Password",
                 icon = "key",
             ),
             schema.Text(
