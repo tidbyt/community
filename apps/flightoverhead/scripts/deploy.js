@@ -24,6 +24,7 @@ const PROVIDER = process.env.PROVIDER
 const PROVIDER_BBOX = process.env.PROVIDER_BBOX
 const PROVIDER_TTL_SECONDS = process.env.PROVIDER_TTL_SECONDS
 const RETURN_MESSAGE_ON_EMPTY = process.env.RETURN_MESSAGE_ON_EMPTY
+const SHOW_OPENSKY_ROUTE = process.env.SHOW_OPENSKY_ROUTE
 const TIDBYT_APP_NAME = process.env.TIDBYT_APP_NAME
 const TIDBYT_DEVICE_ID = process.env.TIDBYT_DEVICE_ID
 const TIDBYT_INSTALLATION_ID = process.env.TIDBYT_INSTALLATION_ID
@@ -34,7 +35,7 @@ let installation_exists = false;
 
 const push = () => {
 
-	let render_pixlet = child.spawn('pixlet', ['render', `${TIDBYT_APP_NAME}.star`, `provider=${PROVIDER}`,`airlabs_api_key=${AIRLABS_API_KEY}`, `opensky_username=${OPENSKY_USERNAME}`, `opensky_password=${OPENSKY_PASSWORD}`, `provider_bbox=${PROVIDER_BBOX}`, `provider_ttl_seconds=${PROVIDER_TTL_SECONDS}`, `timezone=${TIMEZONE}`, `disable_start_hour=${DISABLE_START_HOUR}`, `disable_end_hour=${DISABLE_END_HOUR}`, `return_message_on_empty=${RETURN_MESSAGE_ON_EMPTY}`, `ignore=${IGNORE}`, `print_log=${PRINT_LOG}`])
+	let render_pixlet = child.spawn('pixlet', ['render', `${TIDBYT_APP_NAME}.star`, `provider=${PROVIDER}`,`airlabs_api_key=${AIRLABS_API_KEY}`, `opensky_username=${OPENSKY_USERNAME}`, `opensky_password=${OPENSKY_PASSWORD}`, `provider_bbox=${PROVIDER_BBOX}`, `provider_ttl_seconds=${PROVIDER_TTL_SECONDS}`, `timezone=${TIMEZONE}`, `disable_start_hour=${DISABLE_START_HOUR}`, `disable_end_hour=${DISABLE_END_HOUR}`, `return_message_on_empty=${RETURN_MESSAGE_ON_EMPTY}`, `ignore=${IGNORE}`, `show_opensky_route=${SHOW_OPENSKY_ROUTE}`, `print_log=${PRINT_LOG}`])
 
 	render_pixlet.stdout.setEncoding('utf8')
 	render_pixlet.stdout.on('data', (data) => {

@@ -24,6 +24,7 @@ DEFAULT_PRINT_LOG = False
 DEFAULT_PROVIDER = "None"
 DEFAULT_PROVIDER_TTL_SECONDS = 0
 DEFAULT_RETURN_MESSAGE_ON_EMPTY = ""
+DEFAULT_SHOW_OPENSKY_ROUTE = True
 DEFAULT_TIMEZONE = "America/Chicago"
 
 KN_RATIO = 1.94
@@ -52,6 +53,8 @@ def main(config):
     return_message_on_empty = config.get("return_message_on_empty", DEFAULT_RETURN_MESSAGE_ON_EMPTY)
 
     ignore = config.get("ignore", DEFAULT_IGNORE)
+
+    show_opensky_route = config.bool("show_opensky_route", DEFAULT_SHOW_OPENSKY_ROUTE)
 
     def check_request_headers(provider, request, ttl_seconds):
         if request.headers.get("Tidbyt-Cache-Status") == "HIT":
@@ -131,7 +134,7 @@ def main(config):
 
                 route_json = route_request.json()
 
-                if route_json.get("route"):
+                if show_opensky_route and route_json.get("route"):
                     route = route_json.get("route")
 
                 _owners = aircraft_json.get("RegisteredOwners")
