@@ -197,7 +197,7 @@ def main(config):
             check_request_headers(provider, provider_request, provider_ttl_seconds)
 
             if provider_request.status_code != 200:
-                fail("request failed with status %d" % provider_request.status_code)
+                fail("%s" % provider_request)
 
             provider_json = provider_request.json()
 
