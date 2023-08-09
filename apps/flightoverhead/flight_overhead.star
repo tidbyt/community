@@ -7,12 +7,14 @@ Author: Kyle Bolstad
 
 load("http.star", "http")
 load("humanize.star", "humanize")
+load("random.star", "random")
 load("re.star", "re")
 load("render.star", "render")
 load("schema.star", "schema")
 load("time.star", "time")
 
 AIRLABS_URL = "https://airlabs.co/api/v9"
+HEXDB_URL = "https://hexdb.io/api/v1"
 OPENSKY_URL = "https://opensky-network.org/api"
 
 DEFAULT_DISABLE_END_HOUR = "None"
@@ -47,6 +49,15 @@ def main(config):
 
     return_message_on_empty = config.get("return_message_on_empty", DEFAULT_RETURN_MESSAGE_ON_EMPTY)
 
+    def check_request_headers(provider, request, ttl_seconds):
+        if request.headers.get("Tidbyt-Cache-Status") == "HIT":
+            print_log("displaying cached data for %s" % humanize.plural(ttl_seconds, "second"))
+
+        else:
+            print_log("calling %s api" % provider)
+
+        print_log(request.url)
+
     def empty_message():
         if return_message_on_empty:
             print_log("Returning empty message: %s" % return_message_on_empty)
@@ -66,18 +77,21 @@ def main(config):
 
         return []
 
+    def pick_flight(response):
+        index = random.number(0, len(response) - 1)
+        return response[index]
+
     def print_log(statement):
         if config.bool("print_log", DEFAULT_PRINT_LOG):
             print(statement)
 
     def _render(provider, response):
         plane = ""
-        flight_plan = "No flight plan"
+        route = ""
+        owners = ""
         location = ""
 
         if provider and response:
-            print_log(response)
-
             if provider == "airlabs":
                 plane = "%s" % response.get("reg_number")
                 location = "%dkt %dft" % (response.get("speed") * KM_RATIO, response.get("alt") * M_RATIO)
@@ -89,14 +103,40 @@ def main(config):
                     plane += " (%s)" % response.get("aircraft_icao")
 
                 if response.get("dep_iata"):
-                    flight_plan = "%s" % response.get("dep_iata")
+                    route = "%s" % response.get("dep_iata")
 
                 if response.get("arr_iata"):
-                    flight_plan += " - %s" % (response.get("arr_iata"))
+                    route += " - %s" % (response.get("arr_iata"))
 
             if provider == "opensky":
-                plane = "%s" % response[1]
+                plane = "%s" % re.sub("\\s", "", response[1])
                 location = "%dkt %dft" % (response[9] * KN_RATIO, response[7] * M_RATIO)
+
+                aircraft_request_url = "%s/aircraft/%s" % (HEXDB_URL, response[0])
+                aircraft_request = http.get(aircraft_request_url, ttl_seconds = provider_ttl_seconds)
+                check_request_headers("hexdb", aircraft_request, provider_ttl_seconds)
+
+                route_request_url = "%s/route/iata/%s" % (HEXDB_URL, plane)
+                route_request = http.get(route_request_url, ttl_seconds = provider_ttl_seconds)
+                check_request_headers("hexdb", route_request, provider_ttl_seconds)
+
+                aircraft_json = aircraft_request.json()
+
+                if aircraft_json.get("ICAOTypeCode"):
+                    plane += " (%s)" % aircraft_json.get("ICAOTypeCode")
+
+                route_json = route_request.json()
+
+                if route_json.get("route"):
+                    route = route_json.get("route")
+
+                _owners = aircraft_json.get("RegisteredOwners")
+
+                if _owners:
+                    if len(_owners) < 15:
+                        owners = _owners
+                    else:
+                        owners = _owners.split(" ") and _owners.split(" ")[0]
 
         return render.Root(
             child = render.Box(
@@ -106,7 +146,7 @@ def main(config):
                     cross_align = "center",
                     children = [
                         render.Text(plane),
-                        render.Text(flight_plan),
+                        render.Text(route or owners),
                         render.Text(location),
                     ],
                 ),
@@ -128,13 +168,12 @@ def main(config):
 
     if provider:
         provider_request = ""
-        url = ""
 
         if provider == "airlabs":
-            url = "%s/flights?bbox=%s" % (AIRLABS_URL, provider_bbox)
+            provider_request_url = "%s/flights?bbox=%s" % (AIRLABS_URL, provider_bbox)
             if airlabs_api_key:
-                url += "&api_key=%s" % airlabs_api_key
-            provider_request = http.get(url, ttl_seconds = provider_ttl_seconds)
+                provider_request_url += "&api_key=%s" % airlabs_api_key
+            provider_request = http.get(provider_request_url, ttl_seconds = provider_ttl_seconds)
 
         if provider == "opensky":
             lamin = ""
@@ -148,31 +187,25 @@ def main(config):
                 lamax = provider_bbox.split(",")[2]
                 lomax = provider_bbox.split(",")[3]
 
-            url = "%s/states/all?lamin=%s&lomin=%s&lamax=%s&lomax=%s" % (OPENSKY_URL, lamin, lomin, lamax, lomax)
+            provider_request_url = "%s/states/all?lamin=%s&lomin=%s&lamax=%s&lomax=%s" % (OPENSKY_URL, lamin, lomin, lamax, lomax)
             if opensky_api_key:
-                url += "&api_key=%s" % opensky_api_key
+                provider_request_url += "&api_key=%s" % opensky_api_key
 
-            provider_request = http.get(url, ttl_seconds = provider_ttl_seconds)
+            provider_request = http.get(provider_request_url, ttl_seconds = provider_ttl_seconds)
 
         if provider_request:
-            print_log(provider_request.url)
-
-            if provider_request.headers.get("Tidbyt-Cache-Status") == "HIT":
-                print_log("Displaying cached data for %s" % humanize.plural(provider_ttl_seconds, "second"))
-
-            else:
-                print_log("Calling API")
+            check_request_headers(provider, provider_request, provider_ttl_seconds)
 
             if provider_request.status_code != 200:
-                fail("Request failed with status %d" % provider_request.status_code)
+                fail("request failed with status %d" % provider_request.status_code)
 
             provider_json = provider_request.json()
 
             if provider_json.get("response"):
-                return _render(provider, provider_json.get("response")[0])
+                return _render(provider, pick_flight(provider_json.get("response")))
 
             elif provider_json.get("states"):
-                return _render(provider, provider_json.get("states")[0])
+                return _render(provider, pick_flight(provider_json.get("states")))
 
             elif provider_json.get("error"):
                 message = provider_json["error"]["message"]
@@ -184,7 +217,7 @@ def main(config):
                 )
 
             else:
-                print_log("No flights found")
+                print_log("no flights found")
 
                 return empty_message()
 
