@@ -19,6 +19,7 @@ OPENSKY_URL = "https://opensky-network.org/api"
 
 DEFAULT_DISABLE_END_HOUR = "None"
 DEFAULT_DISABLE_START_HOUR = "None"
+DEFAULT_IGNORE = "None"
 DEFAULT_PRINT_LOG = False
 DEFAULT_PROVIDER = "None"
 DEFAULT_PROVIDER_TTL_SECONDS = 0
@@ -48,6 +49,8 @@ def main(config):
     now = time.now().in_location(timezone).hour
 
     return_message_on_empty = config.get("return_message_on_empty", DEFAULT_RETURN_MESSAGE_ON_EMPTY)
+
+    ignore = config.get("ignore", DEFAULT_IGNORE)
 
     def check_request_headers(provider, request, ttl_seconds):
         if request.headers.get("Tidbyt-Cache-Status") == "HIT":
@@ -95,6 +98,10 @@ def main(config):
             if provider == "airlabs":
                 plane = "%s" % response.get("reg_number")
                 location = "%dkt %dft" % (response.get("speed") * KM_RATIO, response.get("alt") * M_RATIO)
+
+                ignore_list = ignore.split(",")
+                if ignore_list and ignore_list.index(plane):
+                    return empty_message()
 
                 if response.get("flight_number"):
                     plane = "%s %s" % (response.get("airline_iata") or response.get("airline_icao"), response.get("flight_number"))
