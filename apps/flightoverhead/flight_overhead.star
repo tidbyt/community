@@ -100,10 +100,6 @@ def main(config):
                 plane = "%s" % response.get("reg_number")
                 location = "%dkt %dft" % (response.get("speed") * KM_RATIO, response.get("alt") * M_RATIO)
 
-                ignore_list = ignore.split(",")
-                if ignore_list and ignore_list.index(plane):
-                    return empty_message()
-
                 if response.get("flight_number"):
                     plane = "%s %s" % (response.get("airline_iata") or response.get("airline_icao"), response.get("flight_number"))
 
@@ -145,6 +141,9 @@ def main(config):
                         owners = _owners
                     else:
                         owners = _owners.split(" ") and _owners.split(" ")[0]
+
+                if ignore.count(plane):
+                    return empty_message()
 
         return render.Root(
             child = render.Box(
