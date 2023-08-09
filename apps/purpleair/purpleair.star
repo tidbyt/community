@@ -412,10 +412,10 @@ def epa_AQI(pm25A, pm25B, humidity, particle_sensor, confidence, confidenceAuto)
         term2 = -0.0862 * humidity * (1 - (pmValue / 50 - 21 / 5))
         term3 = 2.966 * (pmValue / 50 - 21 / 5)
         term4 = 5.75 * (1 - (pmValue / 50 - 21 / 5))
-        term5 = 8.84 * (10**-4) * (pmValue**2) * (pmValue / 50 - 21 / 5)
+        term5 = 8.84 * 0.0001 * math.pow(pmValue,2) * (pmValue / 50 - 21 / 5)
         pm25_corrected = term1 * pmValue + term2 + term3 + term4 + term5
     elif 260 <= pmValue:
-        pm25_corrected = 2.966 + 0.69 * pmValue + 8.84 * (10**-4) * (pmValue**2)
+        pm25_corrected = 2.966 + 0.69 * pmValue + 8.84 * 0.0001 * math.pow(pmValue,2)
 
     return aqi_from_PM(pm25_corrected)
 
