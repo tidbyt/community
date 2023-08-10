@@ -291,7 +291,7 @@ def get_schema():
                 id = "provider",
                 name = "Provider",
                 desc = "Provider",
-                icon = "",
+                icon = "ioxhost",
                 default = DEFAULT_PROVIDER,
                 options = [
                     schema.Option(display = "AirLabs", value = "airlabs"),
