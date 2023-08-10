@@ -27,7 +27,8 @@ def main(config):
                 render.Marquee(
                     height = 32,
                     scroll_direction = "vertical",
-                    offset_start = 24,
+                    offset_start = 26,
+                    offset_end = 32,
                     child =
                         render.Column(
                             main_align = "space_between",
@@ -44,11 +45,11 @@ def render_article(news):
 
     for article in news:
         news_text.append(render.Image(width = 64, height = 32, src = NEWS_ICON))
-        news_text.append(render.WrappedText("%s" % article[0], color = "#e48a47", font = "tb-8"))
-        news_text.append(render.Box(width = 64, height = 1))
-        news_text.append(render.WrappedText("%s" % article[1], font = "tb-8", color = "#ffffff", linespacing = 0))
-        news_text.append(render.Box(width = 64, height = 1))
-        news_text.append(render.WrappedText("More at bbspy.co.uk", font = "tb-8", color = "#964c98"))
+        news_text.append(render.WrappedText("%s" % article[0], color = "#e48a47", font = "tb-8", linespacing = 1, width = 64, align = "left"))
+        news_text.append(render.Box(width = 64, height = 2))
+        news_text.append(render.WrappedText("%s" % article[1], font = "tb-8", color = "#ffffff", linespacing = 1, width = 64, align = "left"))
+        news_text.append(render.Box(width = 64, height = 2))
+        news_text.append(render.WrappedText("More at bbspy.co.uk", font = "tb-8", color = "#964c98", linespacing = 1, width = 64, align = "left"))
 
     return (news_text)
 
@@ -66,15 +67,15 @@ def connectionError():
         child = render.Marquee(
             scroll_direction = "vertical",
             height = 32,
-            offset_start = 24,
+            offset_start = 26,
             offset_end = 32,
             child = render.Column(
                 main_align = "start",
                 children = [
                     render.Image(width = 64, height = 32, src = NEWS_ICON),
-                    render.WrappedText(content = errorHead, width = 64, color = "#e48a47", font = "tb-8", linespacing = 0, align = "left"),
-                    render.Box(width = 64, height = 1),
-                    render.WrappedText(content = errorBlurb, width = 64, color = "#fff", font = "tb-8", linespacing = 0, align = "left"),
+                    render.WrappedText(content = errorHead, width = 64, color = "#e48a47", font = "tb-8", linespacing = 1, align = "left"),
+                    render.Box(width = 64, height = 2),
+                    render.WrappedText(content = errorBlurb, width = 64, color = "#fff", font = "tb-8", linespacing = 1, align = "left"),
                 ],
             ),
         ),

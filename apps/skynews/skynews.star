@@ -5,7 +5,6 @@ Description: The current top story (and a short blurb) from SkyNews.com.
 Author: meejle
 """
 
-load("cache.star", "cache")
 load("encoding/base64.star", "base64")
 load("http.star", "http")
 load("render.star", "render")
@@ -16,28 +15,16 @@ R0lGODlhQAAgANUAAMsFBlFRUfvV1XR0dJmZme5BQ+EMDvaam9TU1Lq6uuwpKzg4OPerrLOzs/709cPD
 """)
 
 def main():
-    headline_cached = cache.get("cached_headline")
-    blurb_cached = cache.get("cached_blurb")
-    if headline_cached != None and blurb_cached != None:
-        finalheadline = str(headline_cached)
-        finalblurb = str(blurb_cached)
-    else:
-        GET_SKYNEWS = http.get("http://www.mikelee.me.uk/stuff/xml-to-json/?xml=https://feeds.skynews.com/feeds/rss/home.xml")
-        if GET_SKYNEWS.status_code != 200:
-            return connectionError()
-        GET_HEADLINE = GET_SKYNEWS.json()["rss"]["channel"]["item"][0]["title"]
-        GET_BLURB = GET_SKYNEWS.json()["rss"]["channel"]["item"][0]["description"][1]
-        finalheadline = str(GET_HEADLINE)
-
-        # TODO: Determine if this cache call can be converted to the new HTTP cache.
-        cache.set("cached_headline", finalheadline, ttl_seconds = 900)
-        finalblurb = str(GET_BLURB)
-
-        # TODO: Determine if this cache call can be converted to the new HTTP cache.
-        cache.set("cached_blurb", finalblurb, ttl_seconds = 900)
+    GET_SKYNEWS = http.get("http://www.mikelee.me.uk/stuff/xml-to-json/?xml=https://feeds.skynews.com/feeds/rss/home.xml", ttl_seconds = 900)
+    if GET_SKYNEWS.status_code != 200:
+        return connectionError()
+    GET_HEADLINE = GET_SKYNEWS.json()["rss"]["channel"]["item"][0]["title"]
+    GET_BLURB = GET_SKYNEWS.json()["rss"]["channel"]["item"][0]["description"][1]
+    finalheadline = str(GET_HEADLINE)
+    finalblurb = str(GET_BLURB)
 
     return render.Root(
-        delay = 40,
+        delay = 50,
         child = render.Marquee(
             scroll_direction = "vertical",
             height = 32,
@@ -47,9 +34,9 @@ def main():
                 main_align = "start",
                 children = [
                     render.Image(width = 64, height = 32, src = NEWS_ICON),
-                    render.WrappedText(content = finalheadline, width = 64, color = "#fde000", font = "tb-8", linespacing = 0, align = "left"),
-                    render.Box(width = 64, height = 1),
-                    render.WrappedText(content = finalblurb, width = 64, color = "#fff", font = "tb-8", linespacing = 0, align = "left"),
+                    render.WrappedText(content = finalheadline, width = 64, color = "#fde000", font = "tb-8", linespacing = 1, align = "left"),
+                    render.Box(width = 64, height = 2),
+                    render.WrappedText(content = finalblurb, width = 64, color = "#fff", font = "tb-8", linespacing = 1, align = "left"),
                 ],
             ),
         ),
@@ -69,9 +56,9 @@ def connectionError():
                 main_align = "start",
                 children = [
                     render.Image(width = 64, height = 32, src = NEWS_ICON),
-                    render.WrappedText(content = errorHead, width = 64, color = "#fde000", font = "tb-8", linespacing = 0, align = "left"),
-                    render.Box(width = 64, height = 1),
-                    render.WrappedText(content = errorBlurb, width = 64, color = "#fff", font = "tb-8", linespacing = 0, align = "left"),
+                    render.WrappedText(content = errorHead, width = 64, color = "#fde000", font = "tb-8", linespacing = 1, align = "left"),
+                    render.Box(width = 64, height = 2),
+                    render.WrappedText(content = errorBlurb, width = 64, color = "#fff", font = "tb-8", linespacing = 1, align = "left"),
                 ],
             ),
         ),

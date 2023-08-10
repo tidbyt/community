@@ -5,7 +5,6 @@ Description: Show the latest Guardian top story from your preferred Edition.
 Author: meejle
 """
 
-load("cache.star", "cache")
 load("encoding/base64.star", "base64")
 load("http.star", "http")
 load("render.star", "render")
@@ -25,141 +24,53 @@ def main(config):
     finalsection = ""
 
     if edition == "uk":
-        ukHeadline_cached = cache.get("cached_ukHeadline")
-        ukBlurb_cached = cache.get("cached_ukBlurb")
-        ukPillar_cached = cache.get("cached_ukPillar")
-        ukSection_cached = cache.get("cached_ukSection")
-        if ukHeadline_cached != None and ukBlurb_cached != None and ukPillar_cached != None and ukSection_cached != None:
-            finalheadline = str(ukHeadline_cached)
-            finalblurb = str(ukBlurb_cached)
-            finalpillar = str(ukPillar_cached)
-            finalsection = str(ukSection_cached)
-        else:
-            GET_GUARDIAN = http.get("http://content.guardianapis.com/" + edition + "?show-editors-picks=true&api-key=a13d8fc0-0142-4078-ace2-b88d89457a8b&show-fields=trailText")
-            if GET_GUARDIAN.status_code != 200:
-                return connectionError()
-            GET_UKHEADLINE = GET_GUARDIAN.json()["response"]["editorsPicks"][0]["webTitle"]
-            GET_UKBLURB = GET_GUARDIAN.json()["response"]["editorsPicks"][0]["fields"]["trailText"]
-            GET_UKPILLAR = GET_GUARDIAN.json()["response"]["editorsPicks"][0]["pillarName"]
-            GET_UKSECTION = GET_GUARDIAN.json()["response"]["editorsPicks"][0]["sectionName"]
-            finalheadline = str(GET_UKHEADLINE)
-
-            # TODO: Determine if this cache call can be converted to the new HTTP cache.
-            cache.set("cached_ukHeadline", finalheadline, ttl_seconds = 900)
-            finalblurb = str(GET_UKBLURB)
-
-            # TODO: Determine if this cache call can be converted to the new HTTP cache.
-            cache.set("cached_ukBlurb", finalblurb, ttl_seconds = 900)
-            finalpillar = str(GET_UKPILLAR)
-
-            # TODO: Determine if this cache call can be converted to the new HTTP cache.
-            cache.set("cached_ukPillar", finalpillar, ttl_seconds = 900)
-            finalsection = str(GET_UKSECTION)
-
-            # TODO: Determine if this cache call can be converted to the new HTTP cache.
-            cache.set("cached_ukSection", finalsection, ttl_seconds = 900)
+        GET_GUARDIAN = http.get("http://content.guardianapis.com/" + edition + "?show-editors-picks=true&api-key=a13d8fc0-0142-4078-ace2-b88d89457a8b&show-fields=trailText", ttl_seconds = 900)
+        if GET_GUARDIAN.status_code != 200:
+            return connectionError()
+        GET_UKHEADLINE = GET_GUARDIAN.json()["response"]["editorsPicks"][0]["webTitle"]
+        GET_UKBLURB = GET_GUARDIAN.json()["response"]["editorsPicks"][0]["fields"]["trailText"]
+        GET_UKPILLAR = GET_GUARDIAN.json()["response"]["editorsPicks"][0]["pillarName"]
+        GET_UKSECTION = GET_GUARDIAN.json()["response"]["editorsPicks"][0]["sectionName"]
+        finalheadline = str(GET_UKHEADLINE)
+        finalblurb = str(GET_UKBLURB)
+        finalpillar = str(GET_UKPILLAR)
+        finalsection = str(GET_UKSECTION)
     if edition == "us":
-        usHeadline_cached = cache.get("cached_usHeadline")
-        usBlurb_cached = cache.get("cached_usBlurb")
-        usPillar_cached = cache.get("cached_usPillar")
-        usSection_cached = cache.get("cached_usSection")
-        if usHeadline_cached != None and usBlurb_cached != None and usPillar_cached != None and usSection_cached != None:
-            finalheadline = str(usHeadline_cached)
-            finalblurb = str(usBlurb_cached)
-            finalpillar = str(usPillar_cached)
-            finalsection = str(usSection_cached)
-        else:
-            GET_GUARDIAN = http.get("http://content.guardianapis.com/" + edition + "?show-editors-picks=true&api-key=a13d8fc0-0142-4078-ace2-b88d89457a8b&show-fields=trailText")
-            if GET_GUARDIAN.status_code != 200:
-                return connectionError()
-            GET_USHEADLINE = GET_GUARDIAN.json()["response"]["editorsPicks"][0]["webTitle"]
-            GET_USBLURB = GET_GUARDIAN.json()["response"]["editorsPicks"][0]["fields"]["trailText"]
-            GET_USPILLAR = GET_GUARDIAN.json()["response"]["editorsPicks"][0]["pillarName"]
-            GET_USSECTION = GET_GUARDIAN.json()["response"]["editorsPicks"][0]["sectionName"]
-            finalheadline = str(GET_USHEADLINE)
-
-            # TODO: Determine if this cache call can be converted to the new HTTP cache.
-            cache.set("cached_usHeadline", finalheadline, ttl_seconds = 900)
-            finalblurb = str(GET_USBLURB)
-
-            # TODO: Determine if this cache call can be converted to the new HTTP cache.
-            cache.set("cached_usBlurb", finalblurb, ttl_seconds = 900)
-            finalpillar = str(GET_USPILLAR)
-
-            # TODO: Determine if this cache call can be converted to the new HTTP cache.
-            cache.set("cached_usPillar", finalpillar, ttl_seconds = 900)
-            finalsection = str(GET_USSECTION)
-
-            # TODO: Determine if this cache call can be converted to the new HTTP cache.
-            cache.set("cached_usSection", finalsection, ttl_seconds = 900)
+        GET_GUARDIAN = http.get("http://content.guardianapis.com/" + edition + "?show-editors-picks=true&api-key=a13d8fc0-0142-4078-ace2-b88d89457a8b&show-fields=trailText", ttl_seconds = 900)
+        if GET_GUARDIAN.status_code != 200:
+            return connectionError()
+        GET_USHEADLINE = GET_GUARDIAN.json()["response"]["editorsPicks"][0]["webTitle"]
+        GET_USBLURB = GET_GUARDIAN.json()["response"]["editorsPicks"][0]["fields"]["trailText"]
+        GET_USPILLAR = GET_GUARDIAN.json()["response"]["editorsPicks"][0]["pillarName"]
+        GET_USSECTION = GET_GUARDIAN.json()["response"]["editorsPicks"][0]["sectionName"]
+        finalheadline = str(GET_USHEADLINE)
+        finalblurb = str(GET_USBLURB)
+        finalpillar = str(GET_USPILLAR)
+        finalsection = str(GET_USSECTION)
     if edition == "au":
-        auHeadline_cached = cache.get("cached_auHeadline")
-        auBlurb_cached = cache.get("cached_auBlurb")
-        auPillar_cached = cache.get("cached_auPillar")
-        auSection_cached = cache.get("cached_auSection")
-        if auHeadline_cached != None and auBlurb_cached != None and auPillar_cached != None and auSection_cached != None:
-            finalheadline = str(auHeadline_cached)
-            finalblurb = str(auBlurb_cached)
-            finalpillar = str(auPillar_cached)
-            finalsection = str(auSection_cached)
-        else:
-            GET_GUARDIAN = http.get("http://content.guardianapis.com/" + edition + "?show-editors-picks=true&api-key=a13d8fc0-0142-4078-ace2-b88d89457a8b&show-fields=trailText")
-            if GET_GUARDIAN.status_code != 200:
-                return connectionError()
-            GET_AUHEADLINE = GET_GUARDIAN.json()["response"]["editorsPicks"][0]["webTitle"]
-            GET_AUBLURB = GET_GUARDIAN.json()["response"]["editorsPicks"][0]["fields"]["trailText"]
-            GET_AUPILLAR = GET_GUARDIAN.json()["response"]["editorsPicks"][0]["pillarName"]
-            GET_AUSECTION = GET_GUARDIAN.json()["response"]["editorsPicks"][0]["sectionName"]
-            finalheadline = str(GET_AUHEADLINE)
-
-            # TODO: Determine if this cache call can be converted to the new HTTP cache.
-            cache.set("cached_auHeadline", finalheadline, ttl_seconds = 900)
-            finalblurb = str(GET_AUBLURB)
-
-            # TODO: Determine if this cache call can be converted to the new HTTP cache.
-            cache.set("cached_auBlurb", finalblurb, ttl_seconds = 900)
-            finalpillar = str(GET_AUPILLAR)
-
-            # TODO: Determine if this cache call can be converted to the new HTTP cache.
-            cache.set("cached_auPillar", finalpillar, ttl_seconds = 900)
-            finalsection = str(GET_AUSECTION)
-
-            # TODO: Determine if this cache call can be converted to the new HTTP cache.
-            cache.set("cached_auSection", finalsection, ttl_seconds = 900)
+        GET_GUARDIAN = http.get("http://content.guardianapis.com/" + edition + "?show-editors-picks=true&api-key=a13d8fc0-0142-4078-ace2-b88d89457a8b&show-fields=trailText", ttl_seconds = 900)
+        if GET_GUARDIAN.status_code != 200:
+            return connectionError()
+        GET_AUHEADLINE = GET_GUARDIAN.json()["response"]["editorsPicks"][0]["webTitle"]
+        GET_AUBLURB = GET_GUARDIAN.json()["response"]["editorsPicks"][0]["fields"]["trailText"]
+        GET_AUPILLAR = GET_GUARDIAN.json()["response"]["editorsPicks"][0]["pillarName"]
+        GET_AUSECTION = GET_GUARDIAN.json()["response"]["editorsPicks"][0]["sectionName"]
+        finalheadline = str(GET_AUHEADLINE)
+        finalblurb = str(GET_AUBLURB)
+        finalpillar = str(GET_AUPILLAR)
+        finalsection = str(GET_AUSECTION)
     if edition == "international":
-        intlHeadline_cached = cache.get("cached_intlHeadline")
-        intlBlurb_cached = cache.get("cached_intlBlurb")
-        intlPillar_cached = cache.get("cached_intlPillar")
-        intlSection_cached = cache.get("cached_intlSection")
-        if intlHeadline_cached != None and intlBlurb_cached != None and intlPillar_cached != None and intlSection_cached != None:
-            finalheadline = str(intlHeadline_cached)
-            finalblurb = str(intlBlurb_cached)
-            finalpillar = str(intlPillar_cached)
-            finalsection = str(intlSection_cached)
-        else:
-            GET_GUARDIAN = http.get("http://content.guardianapis.com/" + edition + "?show-editors-picks=true&api-key=a13d8fc0-0142-4078-ace2-b88d89457a8b&show-fields=trailText")
-            if GET_GUARDIAN.status_code != 200:
-                return connectionError()
-            GET_INTLHEADLINE = GET_GUARDIAN.json()["response"]["editorsPicks"][0]["webTitle"]
-            GET_INTLBLURB = GET_GUARDIAN.json()["response"]["editorsPicks"][0]["fields"]["trailText"]
-            GET_INTLPILLAR = GET_GUARDIAN.json()["response"]["editorsPicks"][0]["pillarName"]
-            GET_INTLSECTION = GET_GUARDIAN.json()["response"]["editorsPicks"][0]["sectionName"]
-            finalheadline = str(GET_INTLHEADLINE)
-
-            # TODO: Determine if this cache call can be converted to the new HTTP cache.
-            cache.set("cached_intlHeadline", finalheadline, ttl_seconds = 900)
-            finalblurb = str(GET_INTLBLURB)
-
-            # TODO: Determine if this cache call can be converted to the new HTTP cache.
-            cache.set("cached_intlBlurb", finalblurb, ttl_seconds = 900)
-            finalpillar = str(GET_INTLPILLAR)
-
-            # TODO: Determine if this cache call can be converted to the new HTTP cache.
-            cache.set("cached_intlPillar", finalpillar, ttl_seconds = 900)
-            finalsection = str(GET_INTLSECTION)
-
-            # TODO: Determine if this cache call can be converted to the new HTTP cache.
-            cache.set("cached_intlSection", finalsection, ttl_seconds = 900)
+        GET_GUARDIAN = http.get("http://content.guardianapis.com/" + edition + "?show-editors-picks=true&api-key=a13d8fc0-0142-4078-ace2-b88d89457a8b&show-fields=trailText", ttl_seconds = 900)
+        if GET_GUARDIAN.status_code != 200:
+            return connectionError()
+        GET_INTLHEADLINE = GET_GUARDIAN.json()["response"]["editorsPicks"][0]["webTitle"]
+        GET_INTLBLURB = GET_GUARDIAN.json()["response"]["editorsPicks"][0]["fields"]["trailText"]
+        GET_INTLPILLAR = GET_GUARDIAN.json()["response"]["editorsPicks"][0]["pillarName"]
+        GET_INTLSECTION = GET_GUARDIAN.json()["response"]["editorsPicks"][0]["sectionName"]
+        finalheadline = str(GET_INTLHEADLINE)
+        finalblurb = str(GET_INTLBLURB)
+        finalpillar = str(GET_INTLPILLAR)
+        finalsection = str(GET_INTLSECTION)
 
     #fallback
     pillarcol = "#ff5944"
@@ -178,7 +89,7 @@ def main(config):
         child = render.Marquee(
             scroll_direction = "vertical",
             height = 32,
-            offset_start = 24,
+            offset_start = 27,
             offset_end = 32,
             child = render.Column(
                 main_align = "start",
@@ -187,9 +98,9 @@ def main(config):
                     render.WrappedText(content = finalsection, width = 64, color = "#fff", font = "CG-pixel-3x5-mono", linespacing = 1, align = "left"),
                     render.Box(width = 64, height = 1, color = pillarcol),
                     render.Box(width = 64, height = 2),
-                    render.WrappedText(content = finalheadline, width = 64, color = pillarcol, font = "tb-8", linespacing = 0, align = "left"),
+                    render.WrappedText(content = finalheadline, width = 64, color = pillarcol, font = "tb-8", linespacing = 1, align = "left"),
                     render.Box(width = 64, height = 2),
-                    render.WrappedText(content = finalblurb, width = 64, color = "#fff", font = "tb-8", linespacing = 0, align = "left"),
+                    render.WrappedText(content = finalblurb, width = 64, color = "#fff", font = "tb-8", linespacing = 1, align = "left"),
                 ],
             ),
         ),
@@ -201,7 +112,7 @@ def connectionError():
         child = render.Marquee(
             scroll_direction = "vertical",
             height = 32,
-            offset_start = 24,
+            offset_start = 27,
             offset_end = 32,
             child = render.Column(
                 main_align = "start",
@@ -211,9 +122,9 @@ def connectionError():
                     render.Box(width = 64, height = 1),
                     render.Box(width = 64, height = 1, color = "#ff5944"),
                     render.Box(width = 64, height = 2),
-                    render.WrappedText(content = "Couldn’t get the top story", width = 64, color = "#ff5944", font = "tb-8", linespacing = 0, align = "left"),
+                    render.WrappedText(content = "Couldn’t get the top story", width = 64, color = "#ff5944", font = "tb-8", linespacing = 1, align = "left"),
                     render.Box(width = 64, height = 2),
-                    render.WrappedText(content = "For the latest headlines, visit theguardian .com", width = 64, color = "#fff", font = "tb-8", linespacing = 0, align = "left"),
+                    render.WrappedText(content = "For the latest headlines, visit theguardian .com", width = 64, color = "#fff", font = "tb-8", linespacing = 1, align = "left"),
                 ],
             ),
         ),

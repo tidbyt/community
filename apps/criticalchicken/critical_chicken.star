@@ -5,7 +5,6 @@ Description: Shows the latest post from CriticalChicken.com.
 Author: Critical Chicken
 """
 
-load("cache.star", "cache")
 load("encoding/base64.star", "base64")
 load("http.star", "http")
 load("render.star", "render")
@@ -198,21 +197,13 @@ iVBORw0KGgoAAAANSUhEUgAAAEAAAAAHCAIAAAA3VtxdAAAACXBIWXMAAAsTAAALEwEAmpwYAAAAZklE
 # MAIN
 
 def main():
-    headline_cached = cache.get("cached_headline")
-    category_cached = cache.get("cached_category")
-    if headline_cached != None and category_cached != None:
-        finalheadline = str(headline_cached)
-        finalcategory = str(category_cached)
-    else:
-        get_feeds = http.get("https://www.criticalchicken.com/wp-json/wp/v2/posts?_fields=title,categories&per_page=1")
-        if get_feeds.status_code != 200:
-            return connectionError()
-        get_headline = get_feeds.json()[0]["title"]["rendered"]
-        get_category = get_feeds.json()[0]["categories"]
-        finalheadline = str(get_headline)
-        cache.set("cached_headline", finalheadline, ttl_seconds = 900)
-        finalcategory = str(get_category)
-        cache.set("cached_category", finalcategory, ttl_seconds = 900)
+    get_feeds = http.get("https://www.criticalchicken.com/wp-json/wp/v2/posts?_fields=title,categories&per_page=1", ttl_seconds = 900)
+    if get_feeds.status_code != 200:
+        return connectionError()
+    get_headline = get_feeds.json()[0]["title"]["rendered"]
+    get_category = get_feeds.json()[0]["categories"]
+    finalheadline = str(get_headline)
+    finalcategory = str(get_category)
 
     # DECIDE WHICH TITLETAG TO SHOW
     colour = "#ffffff"
@@ -307,11 +298,13 @@ def main():
                                         align = "left",
                                         width = 64,
                                         color = colour,
+                                        linespacing = 1,
                                     ),
                                 ],
                             ),
                             height = 16,
-                            offset_start = 32,
+                            offset_start = 16,
+                            offset_end = 16,
                             scroll_direction = "vertical",
                         ),
                     ),
@@ -346,11 +339,13 @@ def connectionError():
                                         align = "left",
                                         width = 64,
                                         color = "#717070",
+                                        linespacing = 1,
                                     ),
                                 ],
                             ),
                             height = 16,
                             offset_start = 16,
+                            offset_end = 16,
                             scroll_direction = "vertical",
                         ),
                     ),
