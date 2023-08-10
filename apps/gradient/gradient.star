@@ -13,6 +13,7 @@ load("time.star", "time")
 
 PIXLET_W = 64
 PIXLET_H = 32
+GLOBAL_FONT = "tom-thumb"  # or "CG-pixel-3x5-mono"
 
 def median(val1, val2):
     return math.floor((val1 + val2) / 2)
@@ -61,7 +62,26 @@ def randomColor():
     randomBlue = random.number(0, 255)
     return rgb_to_hex(randomRed, randomGreen, randomBlue)
 
-def four_color_gradient(topL, topR, botL, botR):
+def shiftLeft(thisArray):
+    newThisArray = []
+    for i in thisArray:
+        newThisArray.append(i[1:] + i[:1])
+    return newThisArray
+
+def shiftRight(thisArray):
+    newThisArray = []
+    for i in thisArray:
+        newThisArray.append(i[-1:] + i[:-1])
+    return newThisArray
+
+# from: https://stackoverflow.com/questions/2150108/efficient-way-to-rotate-a-list-in-python
+def shiftUp(thisArray):
+    return thisArray[1:] + thisArray[:1]
+
+def shiftDown(thisArray):
+    return thisArray[-1:] + thisArray[:-1]
+
+def four_color_gradient(topL, topR, botL, botR, config):
     # convert inputs to rgb
     topLrgb = hex_to_rgb(topL)
     topRrgb = hex_to_rgb(topR)
@@ -74,17 +94,54 @@ def four_color_gradient(topL, topR, botL, botR):
 
     # for each row, determine range: PIXLET_W
     gradientArray = []
+    animatedArray = []
+
+    # make basic gradient array
     for n in range(0, PIXLET_H):
         rowGradient = rgbRange(leftCol[n], rightCol[n], PIXLET_W)
-
-        # convert row to hex values
-        for n, i in enumerate(rowGradient):
-            rowGradient[n] = rgb_to_hex(i[0], i[1], i[2])
         gradientArray.append(rowGradient)
 
-    return gradientArray
+    # convert each value in gradientArray from RGB to hex
+    for n, i in enumerate(gradientArray):
+        for m, j in enumerate(i):
+            gradientArray[n][m] = rgb_to_hex(j[0], j[1], j[2])
 
-def two_color_gradient(topL, botR):
+    # if animated, expand gradientArray in animatedArray
+    if config.bool("animation", False) == True:
+        if config.get("direction") == "up" or config.get("direction") == "down":
+            # append the mirror image (adds more rows down)
+            mirrorArray = gradientArray[::-1]
+            gradientArray += mirrorArray
+        elif config.get("direction") == "left" or config.get("direction") == "right":
+            # append the mirror image (adds more pixels across)
+            for n, i in enumerate(gradientArray):
+                mirrorRow = i[::-1]
+                gradientArray[n] += mirrorRow
+
+        # add to animatedArray
+        if config.get("direction") == "left" or config.get("direction") == "right":
+            numFrames = len(gradientArray[0])  # PIXLET_W * 2
+        else:
+            numFrames = len(gradientArray)  # PIXLET_H * 2
+
+        for i in range(0, numFrames):
+            animatedArray.append(gradientArray)
+
+            # shift
+            if config.get("direction") == "up":
+                gradientArray = shiftUp(gradientArray)
+            elif config.get("direction") == "down":
+                gradientArray = shiftDown(gradientArray)
+            elif config.get("direction") == "left":
+                gradientArray = shiftLeft(gradientArray)
+            elif config.get("direction") == "right":
+                gradientArray = shiftRight(gradientArray)
+    else:
+        animatedArray = [gradientArray]
+
+    return animatedArray
+
+def two_color_gradient(topL, botR, config):
     topLrgb = hex_to_rgb(topL)
     botRrgb = hex_to_rgb(botR)
     medianR = median(topLrgb[0], botRrgb[0])
@@ -93,48 +150,18 @@ def two_color_gradient(topL, botR):
 
     # average r, g, b for other two corners
     medianRGB = rgb_to_hex(medianR, medianG, medianB)
-    return four_color_gradient(topL, medianRGB, medianRGB, botR)
+    return four_color_gradient(topL, medianRGB, medianRGB, botR, config)
 
-def main(config):
-    random.seed(time.now().unix // 15)
-
-    # define gradientArray and labels
-    gradientArray = []
-    labels = []
-
-    if config.get("gradient_type") == "random":
-        color1 = randomColor()
-        color2 = randomColor()
-        color3 = randomColor()
-        color4 = randomColor()
-        gradientArray = four_color_gradient(color1, color2, color3, color4)
-        labels = [color1, color2, color3, color4]
-    elif config.get("gradient_type") == "4color":
-        color1 = config.get("color1")
-        color2 = config.get("color2")
-        color3 = config.get("color3")
-        color4 = config.get("color4")
-        gradientArray = four_color_gradient(color1, color2, color3, color4)
-        labels = [color1, color2, color3, color4]
-    elif config.get("gradient_type") == "2color":
-        color1 = config.get("color1")
-        color2 = config.get("color2")
-        gradientArray = two_color_gradient(color1, color2)
-        labels = [color1, color2]
-    else:
-        gradientArray = four_color_gradient("#FF0000", "#FFFF00", "#0000FF", "#FFFFFF")
-        labels = ["#FF0000", "#FFFF00", "#0000FF", "#FFFFFF"]
-
-    # show rangeArray
-    columnChildren = []
-    if len(gradientArray) > 0:
-        for j in range(0, PIXLET_H):
-            # build the column
+def displayArray(array, labelCount, config):
+    animationChildren = []
+    for n in array:  # frames
+        columnChildren = []
+        stackChildren = []
+        for m in n:  # column of rows
             rowChildren = []
-            for i in range(0, PIXLET_W):
-                # build the row
+            for p in m:  # cells in row
                 rowChildren.append(
-                    render.Box(width = 1, height = 1, color = gradientArray[j][i]),
+                    render.Box(width = 1, height = 1, color = p),
                 )
             columnChildren.append(
                 render.Row(
@@ -142,46 +169,112 @@ def main(config):
                 ),
             )
 
-    stackChildren = [render.Column(children = columnChildren)]
+        # add the gradient to the stack
+        stackChildren.append(
+            render.Column(children = columnChildren),
+        )
 
-    GLOBAL_FONT = "tom-thumb"  # or "CG-pixel-3x5-mono"
+        # add labels to the stack
+        if config.bool("labels"):
+            if labelCount == 4:
+                topL = n[0][0]
+                topR = n[0][PIXLET_W - 1]
+                botL = n[PIXLET_H - 1][0]
+                botR = n[PIXLET_H - 1][PIXLET_W - 1]
+                if config.bool("animation") == False:
+                    if config.get("gradient_type") == "4color":
+                        topL = config.get("color1")
+                        topR = config.get("color2")
+                        botL = config.get("color3")
+                        botR = config.get("color4")
+                    elif config.get("gradient_type") == "default":
+                        topL = "#FF0000"
+                        topR = "#FFFF00"
+                        botL = "#0000FF"
+                        botR = "#FFFFFF"
+                stackChildren.extend([
+                    render.Padding(
+                        child = render.Text(content = topL.upper().replace("#", ""), color = "#000", font = GLOBAL_FONT),
+                        pad = (1, 1, 1, 1),
+                    ),
+                    render.Padding(
+                        child = render.Text(content = topR.upper().replace("#", ""), color = "#000", font = GLOBAL_FONT),
+                        pad = (40, 1, 1, 1),
+                    ),
+                    render.Padding(
+                        child = render.Text(content = botL.upper().replace("#", ""), color = "#000", font = GLOBAL_FONT),
+                        pad = (1, 26, 1, 1),
+                    ),
+                    render.Padding(
+                        child = render.Text(content = botR.upper().replace("#", ""), color = "#000", font = GLOBAL_FONT),
+                        pad = (40, 26, 1, 1),
+                    ),
+                ])
+            elif labelCount == 2:
+                topL = n[0][0]
+                botR = n[PIXLET_H - 1][PIXLET_W - 1]
+                if config.bool("animation") == False:
+                    topL = config.get("color1")
+                    botR = config.get("color2")
+                stackChildren.extend([
+                    render.Padding(
+                        child = render.Text(content = topL.upper().replace("#", ""), color = "#000", font = GLOBAL_FONT),
+                        pad = (1, 1, 1, 1),
+                    ),
+                    render.Padding(
+                        child = render.Text(content = botR.upper().replace("#", ""), color = "#000", font = GLOBAL_FONT),
+                        pad = (40, 26, 1, 1),
+                    ),
+                ])
 
-    if config.bool("labels", False):
-        if len(labels) == 4:
-            stackChildren.extend([
-                render.Padding(
-                    child = render.Text(content = labels[0].replace("#", ""), color = "#000", font = GLOBAL_FONT),
-                    pad = (1, 1, 1, 1),
-                ),
-                render.Padding(
-                    child = render.Text(content = labels[1].replace("#", ""), color = "#000", font = GLOBAL_FONT),
-                    pad = (40, 1, 1, 1),
-                ),
-                render.Padding(
-                    child = render.Text(content = labels[2].replace("#", ""), color = "#000", font = GLOBAL_FONT),
-                    pad = (1, 26, 1, 1),
-                ),
-                render.Padding(
-                    child = render.Text(content = labels[3].replace("#", ""), color = "#000", font = GLOBAL_FONT),
-                    pad = (40, 26, 1, 1),
-                ),
-            ])
-        elif len(labels) == 2:
-            stackChildren.extend([
-                render.Padding(
-                    child = render.Text(content = labels[0].replace("#", ""), color = "#000", font = GLOBAL_FONT),
-                    pad = (1, 1, 1, 1),
-                ),
-                render.Padding(
-                    child = render.Text(content = labels[1].replace("#", ""), color = "#000", font = GLOBAL_FONT),
-                    pad = (40, 26, 1, 1),
-                ),
-            ])
+        # add the stack (frame) to the animation
+        animationChildren.append(
+            render.Stack(children = stackChildren),
+        )
 
+    return animationChildren
+
+def main(config):
+    random.seed(time.now().unix // 15)
+
+    # define gradientArray and labels
+    animatedArray = []
+    labelCount = 4
+    if config.get("gradient_type") == "random":
+        color1 = randomColor()
+        color2 = randomColor()
+        color3 = randomColor()
+        color4 = randomColor()
+        animatedArray = four_color_gradient(color1, color2, color3, color4, config)
+    elif config.get("gradient_type") == "4color":
+        color1 = config.get("color1")
+        color2 = config.get("color2")
+        color3 = config.get("color3")
+        color4 = config.get("color4")
+        animatedArray = four_color_gradient(color1, color2, color3, color4, config)
+    elif config.get("gradient_type") == "2color":
+        color1 = config.get("color1")
+        color2 = config.get("color2")
+        animatedArray = two_color_gradient(color1, color2, config)
+        labelCount = 2
+    else:
+        animatedArray = four_color_gradient("#FF0000", "#FFFF00", "#0000FF", "#FFFFFF", config)
+
+    # show animatedArray with labels
+    animationChildren = displayArray(animatedArray, labelCount, config)
+
+    # get the delay preference
+    if config.get("speed") == "fast":
+        animation_delay = 10
+    else:
+        animation_delay = 500
+
+    # show the animation
     return render.Root(
-        child = render.Stack(
-            children = stackChildren,
+        child = render.Animation(
+            children = animationChildren,
         ),
+        delay = animation_delay,
     )
 
 def more_gradient_options(gradient_type):
@@ -256,6 +349,36 @@ def get_schema():
         ),
     ]
 
+    animationSpeedOptions = [
+        schema.Option(
+            display = "Fast",
+            value = "fast",
+        ),
+        schema.Option(
+            display = "Slow",
+            value = "slow",
+        ),
+    ]
+
+    animationDirectionOptions = [
+        schema.Option(
+            display = "Scroll up",
+            value = "up",
+        ),
+        schema.Option(
+            display = "Scroll down",
+            value = "down",
+        ),
+        schema.Option(
+            display = "Scroll left",
+            value = "left",
+        ),
+        schema.Option(
+            display = "Scroll right",
+            value = "right",
+        ),
+    ]
+
     # icons from: https://fontawesome.com/
     return schema.Schema(
         version = "1",
@@ -275,24 +398,38 @@ def get_schema():
                 icon = "font",
                 default = False,
             ),
-            #schema.Toggle(
-            #    id = "animation",
-            #    name = "Animation",
-            #    desc = "Animate the gradient?",
-            #    icon = "arrows",
-            #    default = False,
-            #),
-            #schema.Toggle(
-            #    id = "rotation",
-            #    name = "Rotation",
-            #    desc = "Rotate the gradient?",
-            #    icon = "syncAlt",
-            #    default = False,
-            #),
+            schema.Toggle(
+                id = "animation",
+                name = "Animation",
+                desc = "Animate the gradient?",
+                icon = "play",
+                default = False,
+            ),
             schema.Generated(
-                id = "generated",
+                id = "gradient_generated",
                 source = "gradient_type",
                 handler = more_gradient_options,
+            ),
+            # schema.Generated(
+            #     id = "animation_generated",
+            #     source = "animation",
+            #     handler = more_animation_options,
+            # ),
+            schema.Dropdown(
+                id = "speed",
+                name = "Animation Speed",
+                icon = "forward",
+                desc = "How fast to scroll",
+                default = "slow",
+                options = animationSpeedOptions,
+            ),
+            schema.Dropdown(
+                id = "direction",
+                name = "Direction",
+                icon = "arrowsUpDownLeftRight",
+                desc = "Which way to scroll",
+                default = animationDirectionOptions[0].value,
+                options = animationDirectionOptions,
             ),
         ],
     )

@@ -5,9 +5,7 @@ Description: Displays the standings (in terms of games behind) for the MLB wild 
 Author: Jake Manske
 """
 
-load("cache.star", "cache")
 load("encoding/base64.star", "base64")
-load("encoding/json.star", "json")
 load("http.star", "http")
 load("render.star", "render")
 load("schema.star", "schema")
@@ -124,33 +122,13 @@ def get_schema():
     )
 
 def get_Standings(league_id, year):
-    # try the cache first
-    standings = get_StandingsCache(league_id)
-
-    # get from API if not in cache
-    if standings == None:
-        standings = get_StandingsHttp(league_id, year)
-    return standings
-
-def get_StandingsCache(league_id):
-    standings = cache.get(league_id)
-    if standings == None:
-        return None
-
-    # return standings as json object from cache instead of string
-    return json.decode(standings)
-
-def get_StandingsHttp(league_id, year):
     query_params = {"standingsTypes": "wildCard", "leagueId": league_id, "season": year}
-    standings_data = http.get(MLB_STANDINGS_URL, params = query_params)
+    standings_data = http.get(MLB_STANDINGS_URL, params = query_params, ttl_seconds = CACHE_TIMEOUT)
 
     standings = []
 
     # if the http request failed above, return empty standings object
     if standings_data.status_code != HTTP_SUCCESS_CODE:
-        # cache empty standings so we do not spam http endpoint
-        # TODO: Determine if this cache call can be converted to the new HTTP cache.
-        cache.set(league_id, json.encode(standings), ttl_seconds = CACHE_TIMEOUT)
         return standings
 
     records = standings_data.json()["records"]
@@ -160,9 +138,6 @@ def get_StandingsHttp(league_id, year):
     # either way we need to not fail, return empty standings list
     # we will consume this later and render a different screen
     if len(records) == 0:
-        # cache empty standings so we do not spam http endpoint
-        # TODO: Determine if this cache call can be converted to the new HTTP cache.
-        cache.set(league_id, json.encode(standings), ttl_seconds = CACHE_TIMEOUT)
         return standings
 
     limiter = 0
@@ -178,10 +153,6 @@ def get_StandingsHttp(league_id, year):
         # add to list
         standings.append({"TeamId": team_id, "GamesBack": games_back})
         limiter += 1
-
-    # cache standings by league id
-    # TODO: Determine if this cache call can be converted to the new HTTP cache.
-    cache.set(league_id, json.encode(standings), ttl_seconds = CACHE_TIMEOUT)
 
     return standings
 
