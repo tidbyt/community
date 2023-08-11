@@ -33,6 +33,7 @@ KM_RATIO = 0.54
 M_RATIO = 3.28
 
 MAX_LIMIT = 5
+MAX_AGE = 300
 
 def main(config):
     provider = config.get("provider")
@@ -104,6 +105,9 @@ def main(config):
         print_log(response)
 
         child = ""
+        children = []
+
+        index = 0
 
         for flight in response:
             plane = ""
@@ -111,112 +115,128 @@ def main(config):
             owners = ""
             location = ""
 
-            if provider == "airlabs":
-                plane = "%s" % flight.get("reg_number")
-                location = "%dkt %dft" % (flight.get("speed") * KM_RATIO, flight.get("alt") * M_RATIO)
+            if index < limit:
 
-                if flight.get("flight_number"):
-                    plane = "%s %s" % (flight.get("airline_iata") or flight.get("airline_icao"), flight.get("flight_number"))
+                if provider == "airlabs":
+                    plane = "%s" % flight.get("reg_number")
+                    location = "%dkt %dft" % (flight.get("speed") * KM_RATIO, flight.get("alt") * M_RATIO)
 
-                if flight.get("aircraft_icao"):
-                    plane += " (%s)" % flight.get("aircraft_icao")
+                    if flight.get("flight_number"):
+                        plane = "%s %s" % (flight.get("airline_iata") or flight.get("airline_icao"), flight.get("flight_number"))
 
-                if flight.get("dep_iata"):
-                    route = "%s" % flight.get("dep_iata")
+                    if flight.get("aircraft_icao"):
+                        plane += " (%s)" % flight.get("aircraft_icao")
 
-                if flight.get("arr_iata"):
-                    route += " - %s" % (flight.get("arr_iata"))
+                    if flight.get("dep_iata"):
+                        route = "%s" % flight.get("dep_iata")
 
-            if provider == "opensky":
-                plane = "%s" % re.sub("\\s", "", flight[1])
-                location = "%dkt %dft" % (flight[9] * KN_RATIO, flight[7] * M_RATIO)
+                    if flight.get("arr_iata"):
+                        route += " - %s" % (flight.get("arr_iata"))
 
-                aircraft_request_url = "%s/aircraft/%s" % (HEXDB_URL, flight[0])
-                aircraft_request = http.get(aircraft_request_url, ttl_seconds = provider_ttl_seconds)
-                check_request_headers("hexdb", aircraft_request, provider_ttl_seconds)
-                print_log(aircraft_request.json())
+                if provider == "opensky":
+                    plane = "%s" % re.sub("\\s", "", flight[1])
+                    location = "%dkt %dft" % ((flight[9] or 0) * KN_RATIO, (flight[7] or 0) * M_RATIO)
 
-                route_request_url = "%s/route/iata/%s" % (HEXDB_URL, plane)
-                route_request = http.get(route_request_url, ttl_seconds = provider_ttl_seconds)
-                check_request_headers("hexdb", route_request, provider_ttl_seconds)
-                print_log(route_request.json())
+                    aircraft = flight[0]
+                    _owners = ""
 
-                aircraft_json = aircraft_request.json()
+                    if plane:
+                        route_request_url = "%s/route/iata/%s" % (HEXDB_URL, plane)
+                        route_request = http.get(route_request_url, ttl_seconds = provider_ttl_seconds)
+                        check_request_headers("hexdb", route_request, provider_ttl_seconds)
+                        print_log(route_request.json())
 
-                if aircraft_json.get("ICAOTypeCode"):
-                    plane += " (%s)" % aircraft_json.get("ICAOTypeCode")
+                        route_json = route_request.json()
 
-                route_json = route_request.json()
+                        if show_opensky_route and route_json.get("route"):
+                            route = route_json.get("route")
 
-                if show_opensky_route and route_json.get("route"):
-                    route = route_json.get("route")
+                    if aircraft:
+                        aircraft_request_url = "%s/aircraft/%s" % (HEXDB_URL, aircraft)
+                        aircraft_request = http.get(aircraft_request_url, ttl_seconds = provider_ttl_seconds)
+                        check_request_headers("hexdb", aircraft_request, provider_ttl_seconds)
+                        print_log(aircraft_request.json())
 
-                _owners = aircraft_json.get("RegisteredOwners")
+                        aircraft_json = aircraft_request.json()
 
-                if _owners:
-                    if len(_owners) < 15:
-                        owners = _owners
-                    else:
-                        owners = _owners.split(" ") and _owners.split(" ")[0]
+                        if aircraft_json.get("ICAOTypeCode"):
+                            plane += " (%s)" % aircraft_json.get("ICAOTypeCode")
 
-            if ignore.count(plane):
-                print_log("ignoring %s" % plane)
+                            _owners = aircraft_json.get("RegisteredOwners")
 
-                return empty_message()
+                        if _owners:
+                            if len(_owners) < 15:
+                                owners = _owners
+                            else:
+                                owners = _owners.split(" ") and _owners.split(" ")[0]
 
-            child = render.Box(
-                render.Column(
-                    expanded = True,
-                    main_align = "space_evenly",
-                    cross_align = "center",
-                    children = [
-                        render.Text(plane),
-                        render.Text(route or owners),
-                        render.Text(location),
-                    ],
-                ),
-            )
+                if ignore.count(plane):
+                    print_log("ignoring %s" % plane)
 
-            if len(response) > 1:
-                if (limit == 0 or limit > 1) and len(flights) < limit:
+                else:
                     flights.append(
-                        animation.Transformation(
-                            direction = "reverse",
-                            duration = 150,
-                            child = child,
-                            keyframes = [
-                                animation.Keyframe(
-                                    percentage = 0.0,
-                                    transforms = [animation.Translate(0, -32)],
-                                    curve = "ease_in_out",
-                                ),
-                                animation.Keyframe(
-                                    percentage = 0.1,
-                                    transforms = [animation.Translate(0, -0)],
-                                    curve = "ease_in_out",
-                                ),
-                                animation.Keyframe(
-                                    percentage = 0.9,
-                                    transforms = [animation.Translate(0, -0)],
-                                    curve = "ease_in_out",
-                                ),
-                                animation.Keyframe(
-                                    percentage = 1.0,
-                                    transforms = [animation.Translate(0, -32)],
-                                    curve = "ease_in_out",
-                                ),
-                            ],
+                        render.Box(
+                            render.Column(
+                                expanded = True,
+                                main_align = "space_evenly",
+                                cross_align = "center",
+                                children = [
+                                    render.Text(plane),
+                                    render.Text(route or owners),
+                                    render.Text(location),
+                                ],
+                            ),
                         ),
                     )
+                    index += 1
 
-        if len(flights) > 0:
+        if len(flights) > 1:
+            for flight in flights:
+                children.append(
+                    animation.Transformation(
+                        direction = "reverse",
+                        duration = 150,
+                        child = flight,
+                        keyframes = [
+                            animation.Keyframe(
+                                percentage = 0.0,
+                                transforms = [animation.Translate(0, -32)],
+                                curve = "ease_in_out",
+                            ),
+                            animation.Keyframe(
+                                percentage = 0.1,
+                                transforms = [animation.Translate(0, -0)],
+                                curve = "ease_in_out",
+                            ),
+                            animation.Keyframe(
+                                percentage = 0.9,
+                                transforms = [animation.Translate(0, -0)],
+                                curve = "ease_in_out",
+                            ),
+                            animation.Keyframe(
+                                percentage = 1.0,
+                                transforms = [animation.Translate(0, -32)],
+                                curve = "ease_in_out",
+                            ),
+                        ],
+                    ),
+                )
+
             child = render.Sequence(
-                children = flights,
+                children = children,
+            )
+        else:
+            child = flights[0]
+
+        if child:
+            return render.Root(
+                max_age = MAX_AGE,
+                show_full_animation = True,
+                child = child,
             )
 
-        return render.Root(
-            child = child,
-        )
+        else:
+            return empty_message()
 
     print_log(time.now())
 
