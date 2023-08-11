@@ -387,6 +387,13 @@ def get_schema():
                 icon = "clock",
                 default = "%s" % DEFAULT_PROVIDER_TTL_SECONDS,
             ),
+            schema.Toggle(
+                id = "show_opensky_route",
+                name = "Show OpenSky Route",
+                desc = "OpenSky (with HexDB) can often display incorrect routes",
+                icon = "route",
+                default = DEFAULT_SHOW_OPENSKY_ROUTE,
+            ),
             schema.Dropdown(
                 id = "limit",
                 name = "Limit",
