@@ -107,7 +107,9 @@ def main(config):
         child = ""
         children = []
 
-        index = 0
+        flights_index = 0
+
+        print_log("found %s" % (humanize.plural(len(response), "flight")))
 
         for flight in response:
             plane = ""
@@ -115,7 +117,7 @@ def main(config):
             owners = ""
             location = ""
 
-            if index < limit:
+            if flights_index < limit:
                 if provider == "airlabs":
                     plane = "%s" % flight.get("reg_number")
                     location = "%dkt %dft" % (flight.get("speed") * KM_RATIO, flight.get("alt") * M_RATIO)
@@ -187,7 +189,9 @@ def main(config):
                             ),
                         ),
                     )
-                    index += 1
+                    flights_index += 1
+
+        print_log("showing %s" % (humanize.plural(flights_index, "flight")))
 
         if len(flights) > 1:
             for flight in flights:
