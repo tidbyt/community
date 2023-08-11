@@ -1,0 +1,8 @@
+---
+id: nh-des-data
+name: NH DES Data
+summary: Show select NH DES API data
+desc: Gathers and displays select data from the public NH DES API.
+author: dmarcucci
+fileName: nh_des_data.star
+packageName: nhdesdata
