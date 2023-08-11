@@ -8,8 +8,6 @@ Author: abrahamrowe
 load("http.star", "http")
 load("render.star", "render")
 load("schema.star", "schema")
-load("secret.star", "secret")
-
 
 def main(config):
     api_key = "42585dc3f14741fa999f64f6458727fa"
