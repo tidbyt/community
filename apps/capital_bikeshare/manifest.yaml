@@ -1,0 +1,8 @@
+---
+id: capital-bikeshare
+name: Capital Bikeshare
+summary: Bikeshare status in DC
+desc: Reports the number of eBikes and normal bikes available at a given dock in DC.
+author: abrahamrowe
+fileName: capital_bikeshare.star
+packageName: capitalbikeshare
