@@ -116,7 +116,6 @@ def main(config):
             location = ""
 
             if index < limit:
-
                 if provider == "airlabs":
                     plane = "%s" % flight.get("reg_number")
                     location = "%dkt %dft" % (flight.get("speed") * KM_RATIO, flight.get("alt") * M_RATIO)
