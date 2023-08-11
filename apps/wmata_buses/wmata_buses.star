@@ -10,10 +10,9 @@ load("render.star", "render")
 load("schema.star", "schema")
 load("secret.star", "secret")
 
-ENCRYPTED_API_KEY = "AV6+xWcE75Qa4NBGR95T5BIhomjKNElCwHLb9X8tv2vi5URUnTpF2AKtS/mygsyUdYR0H1LzPfrFpuhxJg/vvBsMKSPekTv55SverXn2D3iUszPO0h4N+WDtIpDOCib/Z4jURaZhT0YHuCP/JMb+rlN0/F8eL+Bp5BsbpZM5RDKz6MQgiJE="
 
 def main(config):
-    api_key = secret.decrypt(ENCRYPTED_API_KEY)
+    api_key = "42585dc3f14741fa999f64f6458727fa"
     defaultN = 1002491
     defaultS = 1002493
     oneStop = False
