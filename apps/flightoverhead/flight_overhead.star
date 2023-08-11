@@ -5,9 +5,9 @@ Description: Uses AirLabs or OpenSky to find the flight overhead a location.
 Author: Kyle Bolstad
 """
 
+load("animation.star", "animation")
 load("http.star", "http")
 load("humanize.star", "humanize")
-load("random.star", "random")
 load("re.star", "re")
 load("render.star", "render")
 load("schema.star", "schema")
@@ -20,6 +20,7 @@ OPENSKY_URL = "https://opensky-network.org/api"
 DEFAULT_DISABLE_END_HOUR = "None"
 DEFAULT_DISABLE_START_HOUR = "None"
 DEFAULT_IGNORE = "None"
+DEFAULT_LIMIT = 1
 DEFAULT_PRINT_LOG = False
 DEFAULT_PROVIDER = "None"
 DEFAULT_PROVIDER_TTL_SECONDS = 0
@@ -30,6 +31,8 @@ DEFAULT_TIMEZONE = "America/Chicago"
 KN_RATIO = 1.94
 KM_RATIO = 0.54
 M_RATIO = 3.28
+
+MAX_LIMIT = 5
 
 def main(config):
     provider = config.get("provider")
@@ -55,6 +58,15 @@ def main(config):
     ignore = config.get("ignore", DEFAULT_IGNORE)
 
     show_opensky_route = config.bool("show_opensky_route", DEFAULT_SHOW_OPENSKY_ROUTE)
+
+    limit = DEFAULT_LIMIT
+    if config.get("limit"):
+        limit = re.sub("\\D", "", config.get("limit")) or DEFAULT_LIMIT
+    limit = int(limit)
+    if limit > MAX_LIMIT:
+        limit = MAX_LIMIT
+
+    flights = []
 
     def check_request_headers(provider, request, ttl_seconds):
         if request.headers.get("Tidbyt-Cache-Status") == "HIT":
@@ -84,48 +96,50 @@ def main(config):
 
         return []
 
-    def pick_flight(response):
-        index = random.number(0, len(response) - 1)
-        return response[index]
-
     def print_log(statement):
         if config.bool("print_log", DEFAULT_PRINT_LOG):
             print(statement)
 
     def _render(provider, response):
-        plane = ""
-        route = ""
-        owners = ""
-        location = ""
+        print_log(response)
 
-        if provider and response:
+        child = ""
+
+        for flight in response:
+            plane = ""
+            route = ""
+            owners = ""
+            location = ""
+
             if provider == "airlabs":
-                plane = "%s" % response.get("reg_number")
-                location = "%dkt %dft" % (response.get("speed") * KM_RATIO, response.get("alt") * M_RATIO)
+                plane = "%s" % flight.get("reg_number")
+                location = "%dkt %dft" % (flight.get("speed") * KM_RATIO, flight.get("alt") * M_RATIO)
 
-                if response.get("flight_number"):
-                    plane = "%s %s" % (response.get("airline_iata") or response.get("airline_icao"), response.get("flight_number"))
+                if flight.get("flight_number"):
+                    plane = "%s %s" % (flight.get("airline_iata") or flight.get("airline_icao"), flight.get("flight_number"))
 
-                if response.get("aircraft_icao"):
-                    plane += " (%s)" % response.get("aircraft_icao")
+                if flight.get("aircraft_icao"):
+                    plane += " (%s)" % flight.get("aircraft_icao")
 
-                if response.get("dep_iata"):
-                    route = "%s" % response.get("dep_iata")
+                if flight.get("dep_iata"):
+                    route = "%s" % flight.get("dep_iata")
 
-                if response.get("arr_iata"):
-                    route += " - %s" % (response.get("arr_iata"))
+                if flight.get("arr_iata"):
+                    route += " - %s" % (flight.get("arr_iata"))
 
             if provider == "opensky":
-                plane = "%s" % re.sub("\\s", "", response[1])
-                location = "%dkt %dft" % (response[9] * KN_RATIO, response[7] * M_RATIO)
+                plane = "%s" % re.sub("\\s", "", flight[1])
+                location = "%dkt %dft" % (flight[9] * KN_RATIO, flight[7] * M_RATIO)
 
-                aircraft_request_url = "%s/aircraft/%s" % (HEXDB_URL, response[0])
+                aircraft_request_url = "%s/aircraft/%s" % (HEXDB_URL, flight[0])
                 aircraft_request = http.get(aircraft_request_url, ttl_seconds = provider_ttl_seconds)
                 check_request_headers("hexdb", aircraft_request, provider_ttl_seconds)
+                print_log(aircraft_request.json())
 
                 route_request_url = "%s/route/iata/%s" % (HEXDB_URL, plane)
                 route_request = http.get(route_request_url, ttl_seconds = provider_ttl_seconds)
                 check_request_headers("hexdb", route_request, provider_ttl_seconds)
+                print_log(route_request.json())
 
                 aircraft_json = aircraft_request.json()
 
@@ -150,7 +164,6 @@ def main(config):
 
                 return empty_message()
 
-        return render.Root(
             child = render.Box(
                 render.Column(
                     expanded = True,
@@ -162,7 +175,47 @@ def main(config):
                         render.Text(location),
                     ],
                 ),
-            ),
+            )
+
+            if len(response) > 1:
+                if (limit == 0 or limit > 1) and len(flights) < limit:
+                    flights.append(
+                        animation.Transformation(
+                            direction = "reverse",
+                            duration = 150,
+                            child = child,
+                            keyframes = [
+                                animation.Keyframe(
+                                    percentage = 0.0,
+                                    transforms = [animation.Translate(0, -32)],
+                                    curve = "ease_in_out",
+                                ),
+                                animation.Keyframe(
+                                    percentage = 0.1,
+                                    transforms = [animation.Translate(0, -0)],
+                                    curve = "ease_in_out",
+                                ),
+                                animation.Keyframe(
+                                    percentage = 0.9,
+                                    transforms = [animation.Translate(0, -0)],
+                                    curve = "ease_in_out",
+                                ),
+                                animation.Keyframe(
+                                    percentage = 1.0,
+                                    transforms = [animation.Translate(0, -32)],
+                                    curve = "ease_in_out",
+                                ),
+                            ],
+                        ),
+                    )
+
+        if len(flights) > 0:
+            child = render.Sequence(
+                children = flights,
+            )
+
+        return render.Root(
+            child = child,
         )
 
     print_log(time.now())
@@ -211,10 +264,10 @@ def main(config):
             provider_json = provider_request.json()
 
             if provider_json.get("response"):
-                return _render(provider, pick_flight(provider_json.get("response")))
+                return _render(provider, provider_json.get("response"))
 
             elif provider_json.get("states"):
-                return _render(provider, pick_flight(provider_json.get("states")))
+                return _render(provider, provider_json.get("states"))
 
             elif provider_json.get("error"):
                 message = provider_json["error"]["message"]
@@ -284,6 +337,11 @@ def get_schema():
         schema.Option(display = "Midnight", value = "0"),
     ]
 
+    limits = []
+
+    for i in range(MAX_LIMIT):
+        limits.append(schema.Option(display = "%d" % (i + 1), value = "%d" % (i + 1)))
+
     return schema.Schema(
         version = "1",
         fields = [
@@ -328,6 +386,14 @@ def get_schema():
                 desc = "Number of seconds to cache results",
                 icon = "clock",
                 default = "%s" % DEFAULT_PROVIDER_TTL_SECONDS,
+            ),
+            schema.Dropdown(
+                id = "limit",
+                name = "Limit",
+                desc = "Limit number of results",
+                icon = "list",
+                default = "%s" % DEFAULT_LIMIT,
+                options = limits,
             ),
             schema.Dropdown(
                 id = "timezone",
