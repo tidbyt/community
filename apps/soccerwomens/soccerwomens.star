@@ -4,6 +4,9 @@ Summary: Displays women's soccer scores for various leages and tournaments
 Description: Displays live and upcoming soccer scores from a data feed.   Heavily taken from the other sports score apps - @LunchBox8484 is the original.
 Author: jvivona
 """
+# thanks to @jesushairdo for the new option to be able to show home or away team first.  Let's be more international :-)
+# 20230812 added display of penalty kick score if applicable
+#          toned down colors when display team colors - you couldn't see winner score if team color was also yellow
 
 load("encoding/json.star", "json")
 load("http.star", "http")
@@ -11,9 +14,7 @@ load("render.star", "render")
 load("schema.star", "schema")
 load("time.star", "time")
 
-VERSION = 23132
-
-# thanks to @jesushairdo for the new option to be able to show home or away team first.  Let's be more international :-)
+VERSION = 23224
 
 CACHE_TTL_SECONDS = 60
 DEFAULT_TIMEZONE = "America/New_York"
@@ -225,6 +226,23 @@ def main(config):
                         homeScoreColor = "#fff"
                         awayScoreColor = "#fff"
 
+                # if FT-Pens - get penalty shootout score & append to score
+                if gameName == "STATUS_FINAL_PEN":
+                    scoreFont = "CG-pixel-3x5-mono"
+                    homeShootoutScore = competition["competitors"][0]["shootoutScore"]
+                    awayShootoutScore = competition["competitors"][1]["shootoutScore"]
+                    homeScore = "%s (%s)" % (homeScore, homeShootoutScore)
+                    awayScore = "%s (%s)" % (awayScore, awayShootoutScore)
+                    if (int(homeShootoutScore) > int(awayShootoutScore)):
+                        homeScoreColor = "#ff0"
+                        awayScoreColor = "#fffc"
+                    elif (int(awayShootoutScore) > int(homeShootoutScore)):
+                        homeScoreColor = "#fffc"
+                        awayScoreColor = "#ff0"
+                    else:
+                        homeScoreColor = "#fff"
+                        awayScoreColor = "#fff"
+
             # settle needed values into dict
             homeInfo = dict(abbreviation = home[:3], color = homeColor, teamname = homeTeamName, score = homeScore, logo = homeLogo, logosize = homeLogoSize, scorecolor = homeScoreColor)
             awayInfo = dict(abbreviation = away[:3], color = awayColor, teamname = awayTeamName, score = awayScore, logo = awayLogo, logosize = awayLogoSize, scorecolor = awayScoreColor)
@@ -424,12 +442,12 @@ def main(config):
                                     children = [
                                         render.Column(
                                             children = [
-                                                render.Box(width = 64, height = 13, color = matchInfo[0]["color"], child = render.Row(expanded = True, main_align = "start", cross_align = "center", children = [
+                                                render.Box(width = 64, height = 13, color = matchInfo[0]["color"] + "77", child = render.Row(expanded = True, main_align = "start", cross_align = "center", children = [
                                                     render.Box(width = 16, height = 17, child = render.Image(matchInfo[0]["logo"], width = awayLogoSize, height = awayLogoSize)),
                                                     render.Box(width = 24, height = 13, child = render.Text(content = matchInfo[0]["abbreviation"], color = matchInfo[0]["scorecolor"], font = textFont)),
                                                     render.Box(width = 24, height = 13, child = render.Text(content = get_record(matchInfo[0]["score"]), color = matchInfo[0]["scorecolor"], font = scoreFont)),
                                                 ])),
-                                                render.Box(width = 64, height = 13, color = matchInfo[1]["color"], child = render.Row(expanded = True, main_align = "start", cross_align = "center", children = [
+                                                render.Box(width = 64, height = 13, color = matchInfo[1]["color"] + "77", child = render.Row(expanded = True, main_align = "start", cross_align = "center", children = [
                                                     render.Box(width = 16, height = 17, child = render.Image(matchInfo[1]["logo"], width = homeLogoSize, height = homeLogoSize)),
                                                     render.Box(width = 24, height = 13, child = render.Text(content = matchInfo[1]["abbreviation"], color = matchInfo[1]["scorecolor"], font = textFont)),
                                                     render.Box(width = 24, height = 13, child = render.Text(content = get_record(matchInfo[1]["score"]), color = matchInfo[1]["scorecolor"], font = scoreFont)),
@@ -770,7 +788,7 @@ def get_background_color(displayType, color):
     else:
         color = "#" + color
     if color == "#ffffff" or color == "#000000":
-        color = "#222"
+        color = "#222222"
     return color
 
 def get_logoType(logo):
