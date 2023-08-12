@@ -29,7 +29,7 @@ DEFAULT_PROVIDER = "None"
 DEFAULT_PROVIDER_BBOX = ""
 DEFAULT_PROVIDER_TTL_SECONDS = 0
 DEFAULT_RETURN_MESSAGE_ON_EMPTY = ""
-DEFAULT_SHOW_OPENSKY_ROUTE = True
+DEFAULT_SHOW_ROUTE = True
 DEFAULT_TIMEZONE = "America/Chicago"
 
 KN_RATIO = 1.94
@@ -62,7 +62,7 @@ def main(config):
 
     ignore = config.get("ignore", DEFAULT_IGNORE)
 
-    show_opensky_route = config.bool("show_opensky_route", DEFAULT_SHOW_OPENSKY_ROUTE)
+    show_route = config.bool("show_route", DEFAULT_SHOW_ROUTE)
 
     limit = DEFAULT_LIMIT
     if config.get("limit"):
@@ -101,6 +101,31 @@ def main(config):
 
         return []
 
+    def get_aircraft_info(aircraft):
+        type = ""
+        _owners = ""
+        owners = ""
+
+        if aircraft:
+            aircraft_request_url = "%s/aircraft/%s" % (HEXDB_URL, aircraft)
+            aircraft_request = http.get(aircraft_request_url, ttl_seconds = provider_ttl_seconds)
+            check_request_headers("hexdb", aircraft_request, provider_ttl_seconds)
+            print_log(aircraft_request.json())
+
+            aircraft_json = aircraft_request.json()
+
+            if aircraft_json.get("ICAOTypeCode"):
+                type = aircraft_json.get("ICAOTypeCode")
+                _owners = aircraft_json.get("RegisteredOwners")
+
+            if _owners:
+                if len(_owners) < 15:
+                    owners = _owners
+                else:
+                    owners = _owners.split(" ") and _owners.split(" ")[0]
+
+        return {"owners": owners, "type": type}
+
     def print_log(statement):
         if config.bool("print_log", DEFAULT_PRINT_LOG):
             print(statement)
@@ -116,6 +141,7 @@ def main(config):
         print_log("found %s" % (humanize.plural(len(response), "flight")))
 
         for flight in response:
+            callsign = ""
             plane = ""
             route = ""
             owners = ""
@@ -123,8 +149,12 @@ def main(config):
 
             if flights_index < limit:
                 if provider == "airlabs":
-                    plane = "%s" % flight.get("reg_number")
+                    hex = "%s" % flight.get("hex")
+                    callsign = "%s" % flight.get("reg_number")
+                    plane = callsign
                     location = "%dkt %dft" % (flight.get("speed") * KM_RATIO, flight.get("alt") * M_RATIO)
+                    aircraft_info = get_aircraft_info(hex)
+                    owners = aircraft_info.get("owners")
 
                     if flight.get("flight_number"):
                         plane = "%s %s" % (flight.get("airline_iata") or flight.get("airline_icao"), flight.get("flight_number"))
@@ -132,18 +162,21 @@ def main(config):
                     if flight.get("aircraft_icao"):
                         plane += " (%s)" % flight.get("aircraft_icao")
 
-                    if flight.get("dep_iata"):
-                        route = "%s" % flight.get("dep_iata")
+                    if show_route:
+                        if flight.get("dep_iata"):
+                            route = "%s" % flight.get("dep_iata")
 
-                    if flight.get("arr_iata"):
-                        route += " - %s" % (flight.get("arr_iata"))
+                        if flight.get("arr_iata"):
+                            route += " - %s" % (flight.get("arr_iata"))
 
                 if provider == "opensky":
-                    plane = "%s" % re.sub("\\s", "", flight[1])
+                    callsign = "%s" % re.sub("\\s", "", flight[1])
+                    plane = callsign
                     location = "%dkt %dft" % ((flight[9] or 0) * KN_RATIO, (flight[7] or 0) * M_RATIO)
-
-                    aircraft = flight[0]
-                    _owners = ""
+                    icao24 = flight[0]
+                    aircraft_info = get_aircraft_info(icao24)
+                    owners = aircraft_info.get("owners")
+                    type = aircraft_info.get("type")
 
                     if plane:
                         route_request_url = "%s/route/iata/%s" % (HEXDB_URL, plane)
@@ -153,30 +186,14 @@ def main(config):
 
                         route_json = route_request.json()
 
-                        if show_opensky_route and route_json.get("route"):
+                        if show_route and route_json.get("route"):
                             route = route_json.get("route")
 
-                    if aircraft:
-                        aircraft_request_url = "%s/aircraft/%s" % (HEXDB_URL, aircraft)
-                        aircraft_request = http.get(aircraft_request_url, ttl_seconds = provider_ttl_seconds)
-                        check_request_headers("hexdb", aircraft_request, provider_ttl_seconds)
-                        print_log(aircraft_request.json())
+                    if type:
+                        plane += " (%s)" % type
 
-                        aircraft_json = aircraft_request.json()
-
-                        if aircraft_json.get("ICAOTypeCode"):
-                            plane += " (%s)" % aircraft_json.get("ICAOTypeCode")
-
-                            _owners = aircraft_json.get("RegisteredOwners")
-
-                        if _owners:
-                            if len(_owners) < 15:
-                                owners = _owners
-                            else:
-                                owners = _owners.split(" ") and _owners.split(" ")[0]
-
-                if ignore and plane and ignore.count(plane):
-                    print_log("ignoring %s" % plane)
+                if ignore and callsign and ignore.count(callsign):
+                    print_log("ignoring %s" % callsign)
 
                 else:
                     flights.append(
@@ -416,11 +433,11 @@ def get_schema():
                 default = "%s" % DEFAULT_PROVIDER_TTL_SECONDS,
             ),
             schema.Toggle(
-                id = "show_opensky_route",
-                name = "Show OpenSky Route",
+                id = "show_route",
+                name = "Show Route",
                 desc = "OpenSky (with HexDB) can often display incorrect routes",
                 icon = "route",
-                default = DEFAULT_SHOW_OPENSKY_ROUTE,
+                default = DEFAULT_SHOW_ROUTE,
             ),
             schema.Dropdown(
                 id = "limit",
