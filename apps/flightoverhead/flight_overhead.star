@@ -17,12 +17,16 @@ AIRLABS_URL = "https://airlabs.co/api/v9"
 HEXDB_URL = "https://hexdb.io/api/v1"
 OPENSKY_URL = "https://opensky-network.org/api"
 
+DEFAULT_AIRLABS_API_KEY = ""
 DEFAULT_DISABLE_END_HOUR = "None"
 DEFAULT_DISABLE_START_HOUR = "None"
-DEFAULT_IGNORE = "None"
+DEFAULT_IGNORE = ""
 DEFAULT_LIMIT = 1
+DEFAULT_OPENSKY_USERNAME = ""
+DEFAULT_OPENSKY_PASSWORD = ""
 DEFAULT_PRINT_LOG = False
 DEFAULT_PROVIDER = "None"
+DEFAULT_PROVIDER_BBOX = ""
 DEFAULT_PROVIDER_TTL_SECONDS = 0
 DEFAULT_RETURN_MESSAGE_ON_EMPTY = ""
 DEFAULT_SHOW_OPENSKY_ROUTE = True
@@ -38,11 +42,11 @@ MAX_AGE = 300
 def main(config):
     provider = config.get("provider")
 
-    airlabs_api_key = config.get("airlabs_api_key")
-    opensky_username = config.get("opensky_username")
-    opensky_password = config.get("opensky_password")
+    airlabs_api_key = config.get("airlabs_api_key", DEFAULT_AIRLABS_API_KEY)
+    opensky_username = config.get("opensky_username", DEFAULT_OPENSKY_USERNAME)
+    opensky_password = config.get("opensky_password", DEFAULT_OPENSKY_PASSWORD)
 
-    provider_bbox = config.get("provider_bbox")
+    provider_bbox = config.get("provider_bbox", DEFAULT_PROVIDER_BBOX)
 
     provider_ttl_seconds = DEFAULT_PROVIDER_TTL_SECONDS
     if config.get("provider_ttl_seconds"):
@@ -171,7 +175,7 @@ def main(config):
                             else:
                                 owners = _owners.split(" ") and _owners.split(" ")[0]
 
-                if ignore.count(plane):
+                if ignore and plane and ignore.count(plane):
                     print_log("ignoring %s" % plane)
 
                 else:
@@ -276,7 +280,8 @@ def main(config):
                 lomax = provider_bbox.split(",")[3]
 
             provider_request_url = "%s/states/all?lamin=%s&lomin=%s&lamax=%s&lomax=%s" % (OPENSKY_URL, lamin, lomin, lamax, lomax)
-            provider_request = http.get(provider_request_url, auth = (opensky_username, opensky_password), ttl_seconds = provider_ttl_seconds)
+            auth = (opensky_username and opensky_password and (opensky_username, opensky_password)) or ()
+            provider_request = http.get(provider_request_url, auth = auth, ttl_seconds = provider_ttl_seconds)
 
         if provider_request:
             check_request_headers(provider, provider_request, provider_ttl_seconds)
@@ -286,10 +291,10 @@ def main(config):
 
             provider_json = provider_request.json()
 
-            if provider_json.get("response"):
+            if provider == "airlabs" and provider_json.get("response"):
                 return _render(provider, provider_json.get("response"))
 
-            elif provider_json.get("states"):
+            elif provider == "opensky" and provider_json.get("states"):
                 return _render(provider, provider_json.get("states"))
 
             elif provider_json.get("error"):
