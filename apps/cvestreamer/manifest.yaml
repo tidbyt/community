@@ -1,8 +1,8 @@
 ---
 id: cve-streamer
 name: CVE Streamer
-summary: Display the latest CVEs
-desc: This app displays CVEs from the National Vulnerability Database (https://nvd.nist.gov/vuln) published within the last 30 days.  Keyword search optional, multiple keywords funtion like an 'AND'.
+summary: Display recent CVEs
+desc: This app displays CVEs from the National Vulnerability Database (https://nvd.nist.gov/vuln) published within the last 30 days.  KKeyword search optional, multiple keywords function like an 'AND'.  CVE ID color coded for base severity - red/critical, orange/high, yellow/medium, green/low.
 author: Anthony Rocchio
 fileName: cve_streamer.star
 packageName: cvestreamer
