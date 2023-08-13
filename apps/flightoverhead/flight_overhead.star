@@ -8,6 +8,7 @@ Author: Kyle Bolstad
 load("animation.star", "animation")
 load("http.star", "http")
 load("humanize.star", "humanize")
+load("math.star", "math")
 load("re.star", "re")
 load("render.star", "render")
 load("schema.star", "schema")
@@ -22,12 +23,14 @@ DEFAULT_DISABLE_END_HOUR = "None"
 DEFAULT_DISABLE_START_HOUR = "None"
 DEFAULT_IGNORE = ""
 DEFAULT_LIMIT = 1
+DEFAULT_LOCATION = ""
 DEFAULT_OPENSKY_USERNAME = ""
 DEFAULT_OPENSKY_PASSWORD = ""
 DEFAULT_PRINT_LOG = False
 DEFAULT_PROVIDER = "None"
 DEFAULT_PROVIDER_BBOX = ""
 DEFAULT_PROVIDER_TTL_SECONDS = 0
+DEFAULT_RADIUS = 1
 DEFAULT_RETURN_MESSAGE_ON_EMPTY = ""
 DEFAULT_SHOW_ROUTE = True
 DEFAULT_TIMEZONE = "America/Chicago"
@@ -36,8 +39,9 @@ KN_RATIO = 1.94
 KM_RATIO = 0.54
 M_RATIO = 3.28
 
-MAX_LIMIT = 5
 MAX_AGE = 300
+MAX_LIMIT = 5
+MAX_RADIUS = 10
 
 def main(config):
     provider = config.get("provider")
@@ -46,7 +50,16 @@ def main(config):
     opensky_username = config.get("opensky_username", DEFAULT_OPENSKY_USERNAME)
     opensky_password = config.get("opensky_password", DEFAULT_OPENSKY_PASSWORD)
 
-    provider_bbox = config.get("provider_bbox", DEFAULT_PROVIDER_BBOX)
+    location = DEFAULT_LOCATION
+    if config.get("location"):
+        location = re.sub("[^\\d-,\\.]", "", config.get("location")) or DEFAULT_LOCATION
+
+    radius = DEFAULT_RADIUS
+    if config.get("radius"):
+        radius = re.sub("[^\\d\\.]", "", config.get("radius")) or DEFAULT_RADIUS
+    radius = float(radius)
+    if radius > MAX_RADIUS:
+        radius = MAX_RADIUS
 
     provider_ttl_seconds = DEFAULT_PROVIDER_TTL_SECONDS
     if config.get("provider_ttl_seconds"):
@@ -141,45 +154,43 @@ def main(config):
         print_log("found %s" % (humanize.plural(len(response), "flight")))
 
         for flight in response:
-            callsign = ""
-            plane = ""
-            route = ""
-            owners = ""
-            location = ""
+            flight_info = {}
 
             if flights_index < limit:
                 if provider == "airlabs":
-                    hex = "%s" % flight.get("hex")
-                    callsign = "%s" % flight.get("reg_number")
-                    plane = callsign
-                    location = "%dkt %dft" % (flight.get("speed") * KM_RATIO, flight.get("alt") * M_RATIO)
-                    aircraft_info = get_aircraft_info(hex)
-                    owners = aircraft_info.get("owners")
+                    flight_info["hex"] = "%s" % flight.get("hex")
+                    flight_info["callsign"] = "%s" % flight.get("reg_number")
+                    flight_info["plane"] = flight_info.get("callsign")
+                    flight_info["altitude"] = flight.get("alt") * M_RATIO
+                    flight_info["location"] = "%dkt %dft" % (flight.get("speed") * KM_RATIO, flight_info.get("altitude"))
+                    flight_info["aircraft_info"] = get_aircraft_info(flight_info.get("hex"))
+                    flight_info["owners"] = flight_info.get("aircraft_info").get("owners")
 
                     if flight.get("flight_number"):
-                        plane = "%s %s" % (flight.get("airline_iata") or flight.get("airline_icao"), flight.get("flight_number"))
+                        flight_info["plane"] = "%s %s" % (flight.get("airline_iata") or flight.get("airline_icao"), flight.get("flight_number"))
 
                     if flight.get("aircraft_icao"):
-                        plane += " (%s)" % flight.get("aircraft_icao")
+                        flight_info["plane"] += " (%s)" % flight.get("aircraft_icao")
 
                     if show_route:
                         if flight.get("dep_iata"):
-                            route = "%s" % flight.get("dep_iata")
+                            flight_info["route"] = "%s" % flight.get("dep_iata")
 
                         if flight.get("arr_iata"):
-                            route += " - %s" % (flight.get("arr_iata"))
+                            flight_info["route"] += " - %s" % (flight.get("arr_iata"))
 
                 if provider == "opensky":
-                    callsign = "%s" % re.sub("\\s", "", flight[1])
-                    plane = callsign
-                    location = "%dkt %dft" % ((flight[9] or 0) * KN_RATIO, (flight[7] or 0) * M_RATIO)
-                    icao24 = flight[0]
-                    aircraft_info = get_aircraft_info(icao24)
-                    owners = aircraft_info.get("owners")
-                    type = aircraft_info.get("type")
+                    flight_info["callsign"] = "%s" % re.sub("\\s", "", flight[1])
+                    flight_info["plane"] = flight_info.get("callsign")
+                    flight_info["altitude"] = (flight[7] or 0) * M_RATIO
+                    flight_info["location"] = "%dkt %dft" % ((flight[9] or 0) * KN_RATIO, flight_info.get("altitude"))
+                    flight_info["icao24"] = flight[0]
+                    flight_info["aircraft_info"] = get_aircraft_info(flight_info.get("icao24"))
+                    flight_info["owners"] = flight_info.get("aircraft_info").get("owners")
+                    flight_info["type"] = flight_info.get("aircraft_info").get("type")
 
-                    if plane:
-                        route_request_url = "%s/route/iata/%s" % (HEXDB_URL, plane)
+                    if flight_info["plane"]:
+                        route_request_url = "%s/route/iata/%s" % (HEXDB_URL, flight_info.get("plane"))
                         route_request = http.get(route_request_url, ttl_seconds = provider_ttl_seconds)
                         check_request_headers("hexdb", route_request, provider_ttl_seconds)
                         print_log(route_request.json())
@@ -187,15 +198,15 @@ def main(config):
                         route_json = route_request.json()
 
                         if show_route and route_json.get("route"):
-                            route = route_json.get("route")
+                            flight_info["route"] = route_json.get("route")
 
-                    if type:
-                        plane += " (%s)" % type
+                    if flight_info["type"]:
+                        flight_info["plane"] += " (%s)" % flight_info.get("type")
 
-                if ignore and callsign and ignore.count(callsign):
-                    print_log("ignoring %s" % callsign)
+                if ignore and flight_info.get("callsign") and ignore.count(flight_info.get("callsign")):
+                    print_log("ignoring %s" % flight_info.get("callsign"))
 
-                else:
+                elif flight_info.get("altitude") > 0:
                     flights.append(
                         render.Box(
                             render.Column(
@@ -203,16 +214,16 @@ def main(config):
                                 main_align = "space_evenly",
                                 cross_align = "center",
                                 children = [
-                                    render.Text(plane),
-                                    render.Text(route or owners),
-                                    render.Text(location),
+                                    render.Text(flight_info.get("plane")),
+                                    render.Text(flight_info.get("route", flight_info.get("owners"))),
+                                    render.Text(flight_info.get("location")),
                                 ],
                             ),
                         ),
                     )
                     flights_index += 1
 
-        print_log("showing %s" % (humanize.plural(flights_index, "flight")))
+        print_log("showing %s within %dnm of %s" % (humanize.plural(flights_index, "flight"), radius, location))
 
         if len(flights) > 1:
             for flight in flights:
@@ -277,26 +288,40 @@ def main(config):
 
     if provider:
         provider_request = ""
+        lat = 0
+        long = 0
+        la_min = 0
+        lo_min = 0
+        la_max = 0
+        lo_max = 0
+        bbox = ""
+
+        lat_lng = location.split(",")
+        if len(lat_lng) == 2:
+            lat = lat_lng[0]
+            long = lat_lng[1]
+
+        if lat and long:
+            lat = float(lat)
+            long = float(long)
+            miles_per_deg_lat = 69.1
+            miles_per_deg_long = 69.1 * math.cos(lat / 180 * math.pi)
+            lat_pm = radius / miles_per_deg_lat
+            long_pm = radius / miles_per_deg_long
+            la_min = lat - lat_pm
+            lo_min = long - long_pm
+            la_max = lat + lat_pm
+            lo_max = long + long_pm
+            bbox = "%s,%s,%s,%s" % (la_min, lo_min, la_max, lo_max)
 
         if provider == "airlabs":
-            provider_request_url = "%s/flights?bbox=%s" % (AIRLABS_URL, provider_bbox)
+            provider_request_url = "%s/flights?bbox=%s" % (AIRLABS_URL, bbox)
             if airlabs_api_key:
                 provider_request_url += "&api_key=%s" % airlabs_api_key
             provider_request = http.get(provider_request_url, ttl_seconds = provider_ttl_seconds)
 
         if provider == "opensky":
-            lamin = ""
-            lomin = ""
-            lamax = ""
-            lomax = ""
-
-            if provider_bbox:
-                lamin = provider_bbox.split(",")[0]
-                lomin = provider_bbox.split(",")[1]
-                lamax = provider_bbox.split(",")[2]
-                lomax = provider_bbox.split(",")[3]
-
-            provider_request_url = "%s/states/all?lamin=%s&lomin=%s&lamax=%s&lomax=%s" % (OPENSKY_URL, lamin, lomin, lamax, lomax)
+            provider_request_url = "%s/states/all?lamin=%s&lomin=%s&lamax=%s&lomax=%s" % (OPENSKY_URL, la_min, lo_min, la_max, lo_max)
             auth = (opensky_username and opensky_password and (opensky_username, opensky_password)) or ()
             provider_request = http.get(provider_request_url, auth = auth, ttl_seconds = provider_ttl_seconds)
 
@@ -420,10 +445,16 @@ def get_schema():
                 icon = "key",
             ),
             schema.Text(
-                id = "provider_bbox",
-                name = "Provider BBox",
-                desc = "Provider Bounding box",
-                icon = "locationArrow",
+                id = "location",
+                name = "Location",
+                desc = "Latitude, Longitude",
+                icon = "mapLocationDot",
+            ),
+            schema.Text(
+                id = "radius",
+                name = "Radius",
+                desc = "Radius in Nautical Miles",
+                icon = "circleDot",
             ),
             schema.Text(
                 id = "provider_ttl_seconds",
