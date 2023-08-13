@@ -1,0 +1,8 @@
+---
+id: cve-streamer
+name: CVE Streamer
+summary: Display the latest CVEs
+desc: This app displays CVEs from the National Vulnerability Database (https://nvd.nist.gov/vuln) published within the last 30 days.  Keyword search optional, multiple keywords funtion like an 'AND'.
+author: Anthony Rocchio
+fileName: cve_streamer.star
+packageName: cvestreamer
