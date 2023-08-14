@@ -59,7 +59,7 @@ KM_RATIO = 0.54
 M_RATIO = 3.28
 
 MAX_AGE = 300
-MAX_WIDTH_CHARACTERS = 15
+MAX_WIDTH_CHARACTERS = 16
 MAX_LIMIT = 5
 MAX_RADIUS = 10
 
@@ -258,7 +258,7 @@ def main(config):
                 elif is_flying(flight_info):
                     second_line_content = flight_info.get("route", flight_info.get("owners"))
                     second_line_font = ""
-                    if len(second_line_content) >= MAX_WIDTH_CHARACTERS:
+                    if len(second_line_content) > MAX_WIDTH_CHARACTERS * 0.75:
                         second_line_font = "CG-pixel-3x5-mono"
 
                     flights.append(
