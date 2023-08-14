@@ -271,7 +271,7 @@ def main(config):
                                     render.Text(flight_info.get("plane")),
                                     render.Text(
                                         content = second_line_content,
-                                        font = second_line_font
+                                        font = second_line_font,
                                     ),
                                     render.Text(flight_info.get("location")),
                                 ],
