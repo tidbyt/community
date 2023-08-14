@@ -59,6 +59,7 @@ KM_RATIO = 0.54
 M_RATIO = 3.28
 
 MAX_AGE = 300
+MAX_WIDTH_CHARACTERS = 15
 MAX_LIMIT = 5
 MAX_RADIUS = 10
 
@@ -151,10 +152,10 @@ def main(config):
                 _owners = aircraft_json.get("RegisteredOwners")
 
             if _owners:
-                if len(_owners) < 15:
+                if len(_owners) < MAX_WIDTH_CHARACTERS:
                     owners = _owners
                 else:
-                    owners = _owners.split(" ") and _owners.split(" ")[0]
+                    owners = _owners[0:MAX_WIDTH_CHARACTERS]
 
         return {"owners": owners, "type": type}
 
@@ -255,6 +256,11 @@ def main(config):
                     print_log("ignoring %s" % flight_info.get("callsign"))
 
                 elif is_flying(flight_info):
+                    second_line_content = flight_info.get("route", flight_info.get("owners"))
+                    second_line_font = ""
+                    if len(second_line_content) >= MAX_WIDTH_CHARACTERS:
+                        second_line_font = "CG-pixel-3x5-mono"
+
                     flights.append(
                         render.Box(
                             render.Column(
@@ -263,7 +269,10 @@ def main(config):
                                 cross_align = "center",
                                 children = [
                                     render.Text(flight_info.get("plane")),
-                                    render.Text(flight_info.get("route", flight_info.get("owners"))),
+                                    render.Text(
+                                        content = second_line_content,
+                                        font = second_line_font
+                                    ),
                                     render.Text(flight_info.get("location")),
                                 ],
                             ),
