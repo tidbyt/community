@@ -15,6 +15,11 @@ load("schema.star", "schema")
 load("time.star", "time")
 
 PROVIDERS = {
+    "adsblol": {
+        "name": "ADSB.lol",
+        "url": "https://api.adsb.lol/api/0",
+        "display": False,
+    },
     "airlabs": {
         "name": "AirLabs",
         "url": "https://airlabs.co/api/v9",
@@ -153,6 +158,12 @@ def main(config):
 
         return {"owners": owners, "type": type}
 
+    def is_flying(flight_info):
+        return flight_info.get("altitude", 0) > 0
+
+    def should_ignore(flight_info):
+        return ignore and flight_info.get("callsign") and ignore.count(flight_info.get("callsign"))
+
     def print_log(statement):
         if config.bool("print_log", DEFAULT_PRINT_LOG):
             print(statement)
@@ -173,54 +184,77 @@ def main(config):
             if flights_index < limit:
                 if provider == "airlabs":
                     flight_info["hex"] = flight.get("hex")
-                    flight_info["callsign"] = flight.get("reg_number")
-                    flight_info["plane"] = flight_info.get("callsign")
                     flight_info["altitude"] = flight.get("alt") * M_RATIO
-                    flight_info["location"] = "%dkt %dft" % (flight.get("speed") * KM_RATIO, flight_info.get("altitude"))
-                    flight_info["aircraft_info"] = get_aircraft_info(flight_info.get("hex"))
-                    flight_info["owners"] = flight_info.get("aircraft_info").get("owners")
+                    flight_info["callsign"] = flight.get("reg_number")
 
-                    if flight.get("flight_number"):
-                        flight_info["plane"] = "%s %s" % (flight.get("airline_iata") or flight.get("airline_icao"), flight.get("flight_number"))
+                    if is_flying(flight_info) and not should_ignore(flight_info):
+                        flight_info["plane"] = flight_info.get("callsign")
+                        flight_info["location"] = "%dkt %dft" % (flight.get("speed") * KM_RATIO, flight_info.get("altitude"))
+                        flight_info["aircraft_info"] = get_aircraft_info(flight_info.get("hex"))
+                        flight_info["owners"] = flight_info.get("aircraft_info").get("owners")
 
-                    if flight.get("aircraft_icao"):
-                        flight_info["plane"] += " (%s)" % flight.get("aircraft_icao")
+                        if flight.get("flight_number"):
+                            flight_info["plane"] = "%s %s" % (flight.get("airline_iata") or flight.get("airline_icao"), flight.get("flight_number"))
 
-                    if show_route:
-                        if flight.get("dep_iata"):
-                            flight_info["route"] = "%s" % flight.get("dep_iata")
+                        if flight.get("aircraft_icao"):
+                            flight_info["plane"] += " (%s)" % flight.get("aircraft_icao")
 
-                        if flight.get("arr_iata"):
-                            flight_info["route"] += " - %s" % (flight.get("arr_iata"))
+                        if show_route:
+                            if flight.get("dep_iata"):
+                                flight_info["route"] = "%s" % flight.get("dep_iata")
+
+                            if flight.get("arr_iata"):
+                                flight_info["route"] += " - %s" % (flight.get("arr_iata"))
 
                 if provider == "opensky":
-                    flight_info["callsign"] = "%s" % re.sub("\\s", "", flight[1])
-                    flight_info["plane"] = flight_info.get("callsign")
-                    flight_info["altitude"] = (flight[7] or 0) * M_RATIO
-                    flight_info["location"] = "%dkt %dft" % ((flight[9] or 0) * KN_RATIO, flight_info.get("altitude"))
                     flight_info["icao24"] = flight[0]
-                    flight_info["aircraft_info"] = get_aircraft_info(flight_info.get("icao24"))
-                    flight_info["owners"] = flight_info.get("aircraft_info").get("owners")
-                    flight_info["type"] = flight_info.get("aircraft_info").get("type")
+                    flight_info["altitude"] = (flight[7] or 0) * M_RATIO
+                    flight_info["callsign"] = "%s" % re.sub("\\s", "", flight[1])
 
-                    if flight_info["plane"]:
-                        route_request_url = "%s/route/iata/%s" % (PROVIDERS["hexdb"]["url"], flight_info.get("plane"))
-                        route_request = http.get(route_request_url, ttl_seconds = provider_ttl_seconds)
-                        check_request_headers("hexdb", route_request, provider_ttl_seconds)
-                        print_log(route_request.json())
+                    if is_flying(flight_info) and not should_ignore(flight_info):
+                        flight_info["plane"] = flight_info.get("callsign")
+                        flight_info["location"] = "%dkt %dft" % ((flight[9] or 0) * KN_RATIO, flight_info.get("altitude"))
+                        flight_info["aircraft_info"] = get_aircraft_info(flight_info.get("icao24"))
+                        flight_info["owners"] = flight_info.get("aircraft_info").get("owners")
+                        flight_info["type"] = flight_info.get("aircraft_info").get("type")
 
-                        route_json = route_request.json()
+                        if show_route and flight_info.get("plane"):
+                            route_request_url = "%s/route/%s" % (PROVIDERS["adsblol"]["url"], flight_info.get("callsign"))
+                            route_request = http.get(route_request_url, ttl_seconds = provider_ttl_seconds)
+                            check_request_headers("adsblol", route_request, provider_ttl_seconds)
 
-                        if show_route and route_json.get("route"):
-                            flight_info["route"] = route_json.get("route")
+                            if route_request.status_code == 200:
+                                print_log(route_request.json())
+                                route_json = route_request.json()
 
-                    if flight_info["type"]:
-                        flight_info["plane"] += " (%s)" % flight_info.get("type")
+                                route = route_json.get("airport_codes")
+                                if route and route != route_json.get("_airport_codes_iata") and route != "unknown":
+                                    flight_info["route"] = route
+                                    airport_codes = route.split("-")
+                                    airport_codes_iata = []
 
-                if ignore and flight_info.get("callsign") and ignore.count(flight_info.get("callsign")):
+                                    for airport_code in airport_codes:
+                                        airport_codes_request_url = "%s/airport/%s" % (PROVIDERS["adsblol"]["url"], airport_code)
+                                        airport_codes_request = http.get(airport_codes_request_url, ttl_seconds = provider_ttl_seconds)
+                                        check_request_headers("adsblol", airport_codes_request, provider_ttl_seconds)
+                                        if airport_codes_request.status_code == 200:
+                                            print_log(airport_codes_request.json())
+
+                                        if airport_codes_request.status_code == 200 and airport_codes_request.json() and airport_codes_request.json().get("iata"):
+                                            airport_codes_iata.append(airport_codes_request.json().get("iata"))
+                                        else:
+                                            airport_codes_iata.append(airport_code)
+
+                                    if len(airport_codes_iata) > 0:
+                                        flight_info["route"] = "-".join(airport_codes_iata)
+
+                        if flight_info["type"]:
+                            flight_info["plane"] += " (%s)" % flight_info.get("type")
+
+                if should_ignore(flight_info):
                     print_log("ignoring %s" % flight_info.get("callsign"))
 
-                elif flight_info.get("altitude", 0) > 0:
+                elif is_flying(flight_info):
                     flights.append(
                         render.Box(
                             render.Column(
@@ -499,7 +533,7 @@ def get_schema():
             schema.Toggle(
                 id = "show_route",
                 name = "Show Route",
-                desc = "OpenSky (with HexDB) can often display incorrect routes",
+                desc = "Some providers can often display incorrect routes",
                 icon = "route",
                 default = DEFAULT_SHOW_ROUTE,
             ),
