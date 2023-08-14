@@ -14,9 +14,23 @@ load("render.star", "render")
 load("schema.star", "schema")
 load("time.star", "time")
 
-AIRLABS_URL = "https://airlabs.co/api/v9"
-HEXDB_URL = "https://hexdb.io/api/v1"
-OPENSKY_URL = "https://opensky-network.org/api"
+PROVIDERS = {
+    "airlabs": {
+        "name": "AirLabs",
+        "url": "https://airlabs.co/api/v9",
+        "display": True,
+    },
+    "hexdb": {
+        "name": "HexDB",
+        "url": "https://hexdb.io/api/v1",
+        "display": False,
+    },
+    "opensky": {
+        "name": "OpenSky",
+        "url": "https://opensky-network.org/api",
+        "display": True,
+    },
+}
 
 DEFAULT_AIRLABS_API_KEY = ""
 DEFAULT_DISABLE_END_HOUR = "None"
@@ -57,7 +71,7 @@ def main(config):
     radius = DEFAULT_RADIUS
     if config.get("radius"):
         radius = re.sub("[^\\d\\.]", "", config.get("radius")) or DEFAULT_RADIUS
-    radius = float(radius)
+    radius = int(radius)
     if radius > MAX_RADIUS:
         radius = MAX_RADIUS
 
@@ -120,7 +134,7 @@ def main(config):
         owners = ""
 
         if aircraft:
-            aircraft_request_url = "%s/aircraft/%s" % (HEXDB_URL, aircraft)
+            aircraft_request_url = "%s/aircraft/%s" % (PROVIDERS["hexdb"]["url"], aircraft)
             aircraft_request = http.get(aircraft_request_url, ttl_seconds = provider_ttl_seconds)
             check_request_headers("hexdb", aircraft_request, provider_ttl_seconds)
             print_log(aircraft_request.json())
@@ -158,8 +172,8 @@ def main(config):
 
             if flights_index < limit:
                 if provider == "airlabs":
-                    flight_info["hex"] = "%s" % flight.get("hex")
-                    flight_info["callsign"] = "%s" % flight.get("reg_number")
+                    flight_info["hex"] = flight.get("hex")
+                    flight_info["callsign"] = flight.get("reg_number")
                     flight_info["plane"] = flight_info.get("callsign")
                     flight_info["altitude"] = flight.get("alt") * M_RATIO
                     flight_info["location"] = "%dkt %dft" % (flight.get("speed") * KM_RATIO, flight_info.get("altitude"))
@@ -190,7 +204,7 @@ def main(config):
                     flight_info["type"] = flight_info.get("aircraft_info").get("type")
 
                     if flight_info["plane"]:
-                        route_request_url = "%s/route/iata/%s" % (HEXDB_URL, flight_info.get("plane"))
+                        route_request_url = "%s/route/iata/%s" % (PROVIDERS["hexdb"]["url"], flight_info.get("plane"))
                         route_request = http.get(route_request_url, ttl_seconds = provider_ttl_seconds)
                         check_request_headers("hexdb", route_request, provider_ttl_seconds)
                         print_log(route_request.json())
@@ -206,7 +220,7 @@ def main(config):
                 if ignore and flight_info.get("callsign") and ignore.count(flight_info.get("callsign")):
                     print_log("ignoring %s" % flight_info.get("callsign"))
 
-                elif flight_info.get("altitude") > 0:
+                elif flight_info.get("altitude", 0) > 0:
                     flights.append(
                         render.Box(
                             render.Column(
@@ -261,7 +275,7 @@ def main(config):
                 children = children,
             )
         else:
-            child = flights[0]
+            child = flights and flights[0]
 
         if child:
             return render.Root(
@@ -287,7 +301,9 @@ def main(config):
             return empty_message()
 
     if provider:
+        auth = ()
         provider_request = ""
+        provider_request_url = ""
         lat = 0
         long = 0
         la_min = 0
@@ -315,14 +331,16 @@ def main(config):
             bbox = "%s,%s,%s,%s" % (la_min, lo_min, la_max, lo_max)
 
         if provider == "airlabs":
-            provider_request_url = "%s/flights?bbox=%s" % (AIRLABS_URL, bbox)
+            provider_request_url = "%s/flights?bbox=%s" % (PROVIDERS["airlabs"]["url"], bbox)
             if airlabs_api_key:
                 provider_request_url += "&api_key=%s" % airlabs_api_key
-            provider_request = http.get(provider_request_url, ttl_seconds = provider_ttl_seconds)
 
         if provider == "opensky":
-            provider_request_url = "%s/states/all?lamin=%s&lomin=%s&lamax=%s&lomax=%s" % (OPENSKY_URL, la_min, lo_min, la_max, lo_max)
-            auth = (opensky_username and opensky_password and (opensky_username, opensky_password)) or ()
+            provider_request_url = "%s/states/all?lamin=%s&lomin=%s&lamax=%s&lomax=%s" % (PROVIDERS["opensky"]["url"], la_min, lo_min, la_max, lo_max)
+            if opensky_username and opensky_password:
+                auth = (opensky_username, opensky_password)
+
+        if provider_request_url:
             provider_request = http.get(provider_request_url, auth = auth, ttl_seconds = provider_ttl_seconds)
 
         if provider_request:
@@ -359,6 +377,17 @@ def main(config):
         return empty_message()
 
 def get_schema():
+    providers = []
+
+    for provider in PROVIDERS:
+        if PROVIDERS[provider]["display"]:
+            providers.append(
+                schema.Option(
+                    display = PROVIDERS[provider]["name"],
+                    value = provider,
+                ),
+            )
+
     timezones = [
         schema.Option(display = "Hawaii (-10)", value = "Pacific/Honolulu"),
         schema.Option(display = "Alaska (-9)", value = "America/Anchorage"),
@@ -412,6 +441,11 @@ def get_schema():
     for i in range(MAX_LIMIT):
         limits.append(schema.Option(display = "%d" % (i + 1), value = "%d" % (i + 1)))
 
+    radii = []
+
+    for i in range(MAX_RADIUS):
+        radii.append(schema.Option(display = "%d" % (i + 1), value = "%d" % (i + 1)))
+
     return schema.Schema(
         version = "1",
         fields = [
@@ -421,10 +455,7 @@ def get_schema():
                 desc = "Provider",
                 icon = "ioxhost",
                 default = DEFAULT_PROVIDER,
-                options = [
-                    schema.Option(display = "AirLabs", value = "airlabs"),
-                    schema.Option(display = "OpenSky", value = "opensky"),
-                ],
+                options = providers,
             ),
             schema.Text(
                 id = "airlabs_api_key",
@@ -450,11 +481,13 @@ def get_schema():
                 desc = "Latitude, Longitude",
                 icon = "mapLocationDot",
             ),
-            schema.Text(
+            schema.Dropdown(
                 id = "radius",
                 name = "Radius",
                 desc = "Radius in Nautical Miles",
                 icon = "circleDot",
+                default = "%s" % DEFAULT_RADIUS,
+                options = radii,
             ),
             schema.Text(
                 id = "provider_ttl_seconds",
