@@ -6,6 +6,9 @@ Author: M0ntyP
 
 v1.0 
 First release
+
+v1.1
+Updated abbreviations
 """
 
 load("encoding/json.star", "json")
@@ -151,11 +154,11 @@ def getTeamAbbr(team_name):
     elif team_name == "Bulldogs":  #Bulldogs
         return ("CBY")
     elif team_name == "Cowboys":  #Cowboys
-        return ("NQ")
+        return ("NQL")
     elif team_name == "Dolphins":  #Dolphins
-        return ("RED")
+        return ("DOL")
     elif team_name == "Dragons":  #Dragons
-        return ("STG")
+        return ("SGI")
     elif team_name == "Eels":  #Eels
         return ("PAR")
     elif team_name == "Knights":  #Knights
@@ -165,7 +168,7 @@ def getTeamAbbr(team_name):
     elif team_name == "Rabbitohs":  #Rabbitohs
         return ("SOU")
     elif team_name == "Raiders":  #Raiders
-        return ("CNB")
+        return ("CAN")
     elif team_name == "Roosters":  #Roosters
         return ("SYD")
     elif team_name == "Sea Eagles":  #Sea Eagles
@@ -175,11 +178,11 @@ def getTeamAbbr(team_name):
     elif team_name == "Storm":  #Storm
         return ("MEL")
     elif team_name == "Titans":  #Titans
-        return ("GC")
+        return ("GLD")
     elif team_name == "Warriors":  #Warriors
-        return ("NZ")
+        return ("WAR")
     elif team_name == "Wests Tigers":  #Tigers
-        return ("WES")
+        return ("WST")
     return None
 
 def getTeamBkgColour(team_name):
