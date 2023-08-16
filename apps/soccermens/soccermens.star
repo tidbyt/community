@@ -7,6 +7,7 @@ Author: jvivona
 
 # 20230812 added display of penalty kick score if applicable
 #          toned down colors when display team colors - you couldn't see winner score if team color was also yellow
+# 20230816 changed list of tournaments to get dynamically instead of having to do a PR each time I add one
 
 load("encoding/json.star", "json")
 load("http.star", "http")
@@ -14,7 +15,7 @@ load("render.star", "render")
 load("schema.star", "schema")
 load("time.star", "time")
 
-VERSION = 23224
+VERSION = 23228
 
 # thanks to @jesushairdo for the new option to be able to show home or away team first.  Let's be more international :-)
 
