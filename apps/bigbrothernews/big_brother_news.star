@@ -16,30 +16,52 @@ iVBORw0KGgoAAAANSUhEUgAAAEAAAAAgCAMAAACVQ462AAACN1BMVEUAAAD///93d3e7u7s7OzuYmJji
 """)
 
 def main(config):
-    articlecount = int(config.get("articlecount", 1))
-    articles = get_cacheable_data("https://www.bbspy.co.uk/feed", articlecount)
+    fontsize = config.get("fontsize", "tb-8")
+    articles = get_cacheable_data("https://www.bbspy.co.uk/feed", 1)
 
-    return render.Root(
-        delay = 50,
-        show_full_animation = True,
-        child = render.Column(
-            children = [
-                render.Marquee(
-                    height = 32,
-                    scroll_direction = "vertical",
-                    offset_start = 26,
-                    offset_end = 32,
-                    child =
-                        render.Column(
-                            main_align = "space_between",
-                            children = render_article(articles),
-                        ),
-                ),
-            ],
-        ),
-    )
+    if fontsize == "tb-8":
+        return render.Root(
+            delay = 50,
+            show_full_animation = True,
+            child = render.Column(
+                children = [
+                    render.Marquee(
+                        height = 32,
+                        scroll_direction = "vertical",
+                        offset_start = 26,
+                        offset_end = 32,
+                        child =
+                            render.Column(
+                                main_align = "space_between",
+                                children = render_article_larger(articles),
+                            ),
+                    ),
+                ],
+            ),
+        )
 
-def render_article(news):
+    else:
+        return render.Root(
+            delay = 50,
+            show_full_animation = True,
+            child = render.Column(
+                children = [
+                    render.Marquee(
+                        height = 32,
+                        scroll_direction = "vertical",
+                        offset_start = 26,
+                        offset_end = 32,
+                        child =
+                            render.Column(
+                                main_align = "space_between",
+                                children = render_article_smaller(articles),
+                            ),
+                    ),
+                ],
+            ),
+        )
+
+def render_article_larger(news):
     #formats color and font of text
     news_text = []
 
@@ -53,13 +75,22 @@ def render_article(news):
 
     return (news_text)
 
-def get_schema():
-    return schema.Schema(
-        version = "1",
-        fields = [],
-    )
+def render_article_smaller(news):
+    #formats color and font of text
+    news_text = []
 
-def connectionError():
+    for article in news:
+        news_text.append(render.Image(width = 64, height = 32, src = NEWS_ICON))
+        news_text.append(render.WrappedText("%s" % article[0], color = "#e48a47", font = "tom-thumb", linespacing = 1, width = 64, align = "left"))
+        news_text.append(render.Box(width = 64, height = 2))
+        news_text.append(render.WrappedText("%s" % article[1], font = "tom-thumb", color = "#ffffff", linespacing = 1, width = 64, align = "left"))
+        news_text.append(render.Box(width = 64, height = 2))
+        news_text.append(render.WrappedText("More at bbspy.co.uk", font = "tom-thumb", color = "#964c98", linespacing = 1, width = 64, align = "left"))
+
+    return (news_text)
+
+def connectionError(config):
+    fontsize = config.get("fontsize", "tb-8")
     errorHead = "Error: Couldn't get the top story"
     errorBlurb = "For the latest headlines, visit bbspy.co.uk"
     return render.Root(
@@ -73,9 +104,9 @@ def connectionError():
                 main_align = "start",
                 children = [
                     render.Image(width = 64, height = 32, src = NEWS_ICON),
-                    render.WrappedText(content = errorHead, width = 64, color = "#e48a47", font = "tb-8", linespacing = 1, align = "left"),
+                    render.WrappedText(content = errorHead, width = 64, color = "#e48a47", font = fontsize, linespacing = 1, align = "left"),
                     render.Box(width = 64, height = 2),
-                    render.WrappedText(content = errorBlurb, width = 64, color = "#fff", font = "tb-8", linespacing = 1, align = "left"),
+                    render.WrappedText(content = errorBlurb, width = 64, color = "#fff", font = fontsize, linespacing = 1, align = "left"),
                 ],
             ),
         ),
@@ -97,3 +128,29 @@ def get_cacheable_data(url, articlecount):
         articles.append((data_xml.query(title_query), str(data_xml.query(desc_query)).replace("None", "")))
 
     return articles
+
+def get_schema():
+    fsoptions = [
+        schema.Option(
+            display = "Larger",
+            value = "tb-8",
+        ),
+        schema.Option(
+            display = "Smaller",
+            value = "tom-thumb",
+        ),
+    ]
+
+    return schema.Schema(
+        version = "1",
+        fields = [
+            schema.Dropdown(
+                id = "fontsize",
+                name = "Change the text size",
+                desc = "To prevent long words falling off the edge.",
+                icon = "textHeight",
+                default = fsoptions[0].value,
+                options = fsoptions,
+            ),
+        ],
+    )
