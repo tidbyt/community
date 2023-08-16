@@ -45,7 +45,7 @@ def main(config):
         )
     else:
         return render.Root(
-            child = render.Text("No API Key"),
+            child = render.Text("$12K USD"),
         )
 
 def get_schema():
