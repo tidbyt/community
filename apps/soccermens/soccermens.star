@@ -27,6 +27,10 @@ MISSING_LOGO = "https://upload.wikimedia.org/wikipedia/commons/c/ca/1x1.png?src=
 DEFAULT_LEAGUE = "ger.1"
 API = "https://site.api.espn.com/apis/site/v2/sports/" + SPORT + "/"
 
+ABBR_URL = "https://raw.githubusercontent.com/jvivona/tidbyt-data/main/soccermens/league_abbr.json"
+COMPS_URL = "https://raw.githubusercontent.com/jvivona/tidbyt-data/main/soccermens/comps.json"
+COMPS_TTL = 86400  # increase this to 24 hours after dev - we're not making changes that often
+
 DEFAULT_TEAM_DISPLAY = "visitor"  # default to Visitor first, then Home - US order
 DEFAULT_DISPLAY_SPEED = "2000"
 
@@ -45,32 +49,8 @@ SHORTENED_WORDS = """
 }
 """
 
-LEAGUE_ABBR = {
-    "ned.1": "Ered",
-    "eng.league_cup": "Carbo",
-    "eng.fa": "FACup",
-    "eng.2": "E Chp",
-    "eng.3": "E LG1",
-    "eng.4": "E LG2",
-    "eng.5": "E Nat",
-    "eng.1": "EPL",
-    "fra.1": "F Lg1",
-    "fifa.world": "WC",
-    "fifa.world.u20": "U20 WC",
-    "fifa.world.u17": "U17 WC",
-    "ger.1": "Bund",
-    "ita.1": "Ser A",
-    "mex.1": "LG MX",
-    "sco.1": "Sco P",
-    "esp.1": "LaLiga",
-    "uefa.champions": "U Chp",
-    "uefa.europa": "Euro",
-    "concacaf.nations.league": "ConcNL",
-    "concacaf.champions": "ConcCC",
-    "concacaf.gold": "Gold C",
-}
-
 def main(config):
+    LEAGUE_ABBR = json.decode(http.get(url = ABBR_URL, ttl_seconds = COMPS_TTL).body())
     renderCategory = []
     selectedLeague = config.get("leagueOptions", DEFAULT_LEAGUE)
     leagueAbbr = LEAGUE_ABBR[selectedLeague]
@@ -480,97 +460,6 @@ def main(config):
     else:
         return []
 
-leagueOptions = [
-    schema.Option(
-        display = "CONCACAF Champions Cup",
-        value = "concacaf.champions",
-    ),
-    schema.Option(
-        display = "CONCACAF Gold Cup",
-        value = "concacaf.gold",
-    ),
-    schema.Option(
-        display = "CONCACAF Nations League",
-        value = "concacaf.nations.league",
-    ),
-    schema.Option(
-        display = "Dutch Eredivisie",
-        value = "ned.1",
-    ),
-    schema.Option(
-        display = "English Carabo Cup",
-        value = "eng.league_cup",
-    ),
-    schema.Option(
-        display = "English FA Cup",
-        value = "eng.fa",
-    ),
-    schema.Option(
-        display = "English League Championship",
-        value = "eng.2",
-    ),
-    schema.Option(
-        display = "English League One",
-        value = "eng.3",
-    ),
-    schema.Option(
-        display = "English League Two",
-        value = "eng.4",
-    ),
-    schema.Option(
-        display = "English National League",
-        value = "eng.5",
-    ),
-    schema.Option(
-        display = "English Premier League",
-        value = "eng.1",
-    ),
-    schema.Option(
-        display = "French Ligue 1",
-        value = "fra.1",
-    ),
-    schema.Option(
-        display = "FIFA U17 World Cup",
-        value = "fifa.world.u17",
-    ),
-    schema.Option(
-        display = "FIFA U20 World Cup",
-        value = "fifa.world.u20",
-    ),
-    schema.Option(
-        display = "FIFA World Cup",
-        value = "fifa.world",
-    ),
-    schema.Option(
-        display = "German Bundesliga",
-        value = "ger.1",
-    ),
-    schema.Option(
-        display = "Italian Serie A",
-        value = "ita.1",
-    ),
-    schema.Option(
-        display = "Mexican Liga BBVA MX",
-        value = "mex.1",
-    ),
-    schema.Option(
-        display = "Scottish Premiership",
-        value = "sco.1",
-    ),
-    schema.Option(
-        display = "Spanish LaLiga",
-        value = "esp.1",
-    ),
-    schema.Option(
-        display = "UEFA Champions League",
-        value = "uefa.champions",
-    ),
-    schema.Option(
-        display = "UEFA Europa League",
-        value = "uefa.europa",
-    ),
-]
-
 displayOptions = [
     schema.Option(
         display = "Team Colors",
@@ -655,6 +544,21 @@ displaySpeeds = [
 ]
 
 def get_schema():
+    http_response = http.get(url = COMPS_URL, ttl_seconds = COMPS_TTL)
+    if http_response.status_code != 200:
+        fail("Comp list request failed with status {} and result {}".format(http_response.status_code, http_response.body()))
+    comps = json.decode(http_response.body())
+    comp_options = []
+
+    if len(comps) > 0:
+        for comp in comps:
+            comp_options.append(
+                schema.Option(
+                    display = comp["display"],
+                    value = comp["value"],
+                ),
+            )
+
     return schema.Schema(
         version = "1",
         fields = [
@@ -663,8 +567,8 @@ def get_schema():
                 name = "League / Tournament",
                 desc = "League or Tournament ",
                 icon = "futbol",
-                default = leagueOptions[0].value,
-                options = leagueOptions,
+                default = comp_options[0].value,
+                options = comp_options,
             ),
             schema.Dropdown(
                 id = "team_sequence",
