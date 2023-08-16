@@ -196,7 +196,8 @@ iVBORw0KGgoAAAANSUhEUgAAAEAAAAAHCAIAAAA3VtxdAAAACXBIWXMAAAsTAAALEwEAmpwYAAAAZklE
 
 # MAIN
 
-def main():
+def main(config):
+    fontsize = config.get("fontsize", "tb-8")
     get_feeds = http.get("https://www.criticalchicken.com/wp-json/wp/v2/posts?_fields=title,categories&per_page=1", ttl_seconds = 900)
     if get_feeds.status_code != 200:
         return connectionError()
@@ -294,7 +295,7 @@ def main():
                                 children = [
                                     render.WrappedText(
                                         content = finalheadline,
-                                        font = "tb-8",
+                                        font = fontsize,
                                         align = "left",
                                         width = 64,
                                         color = colour,
@@ -316,7 +317,8 @@ def main():
 
 # ERROR MESSAGE
 
-def connectionError():
+def connectionError(config):
+    fontsize = config.get("fontsize", "tb-8")
     return render.Root(
         child = render.Box(
             child = render.Column(
@@ -335,7 +337,7 @@ def connectionError():
                                 children = [
                                     render.WrappedText(
                                         content = "We couldn't get the latest post. Visit www.critical chicken.com for updates.",
-                                        font = "tb-8",
+                                        font = fontsize,
                                         align = "left",
                                         width = 64,
                                         color = "#717070",
@@ -358,7 +360,27 @@ def connectionError():
 # SCHEMA
 
 def get_schema():
+    fsoptions = [
+        schema.Option(
+            display = "Larger",
+            value = "tb-8",
+        ),
+        schema.Option(
+            display = "Smaller",
+            value = "tom-thumb",
+        ),
+    ]
+
     return schema.Schema(
         version = "1",
-        fields = [],
+        fields = [
+            schema.Dropdown(
+                id = "fontsize",
+                name = "Change the text size",
+                desc = "To prevent long words falling off the edge.",
+                icon = "textHeight",
+                default = fsoptions[0].value,
+                options = fsoptions,
+            ),
+        ],
     )
