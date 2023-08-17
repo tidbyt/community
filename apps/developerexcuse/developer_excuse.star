@@ -11,7 +11,7 @@ load("schema.star", "schema")
 
 EXCUSE_URL = "https://excuser-three.vercel.app/v1/excuse/developers/"
 
-def main(config):
+def main():
     rep = http.get(EXCUSE_URL)
     if rep.status_code != 200:
         fail("Excuse request failed with status %d", rep.status_code)
