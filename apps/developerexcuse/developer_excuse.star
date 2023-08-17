@@ -5,8 +5,8 @@ Description: Developer Excuse app generates playful and imaginative excuses to b
 Author: masonwongcs
 """
 
-load("render.star", "render")
 load("http.star", "http")
+load("render.star", "render")
 load("schema.star", "schema")
 
 EXCUSE_URL = "https://excuser-three.vercel.app/v1/excuse/developers/"
