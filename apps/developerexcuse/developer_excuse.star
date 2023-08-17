@@ -11,7 +11,6 @@ load("schema.star", "schema")
 
 EXCUSE_URL = "https://excuser-three.vercel.app/v1/excuse/developers/"
 
-
 def main(config):
     rep = http.get(EXCUSE_URL)
     if rep.status_code != 200:
@@ -20,24 +19,23 @@ def main(config):
     excuse = rep.json()[0]["excuse"]
 
     return render.Root(
-        child=render.Box(
+        child = render.Box(
             render.Row(
-                expanded=True,
-                main_align="space_evenly",
-                cross_align="cebter",
-                children=[
+                expanded = True,
+                main_align = "space_evenly",
+                cross_align = "cebter",
+                children = [
                     render.Marquee(
-                        width=64,
-                        child=render.Text(excuse),
-                    )
+                        width = 64,
+                        child = render.Text(excuse),
+                    ),
                 ],
-            )
-        )
+            ),
+        ),
     )
-
 
 def get_schema():
     return schema.Schema(
-        version="1",
-        fields=[],
+        version = "1",
+        fields = [],
     )
