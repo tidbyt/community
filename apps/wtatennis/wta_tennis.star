@@ -44,6 +44,10 @@ Scheduled matches now in order of play - earliest to latest
 
 v1.7.1
 Bug fix - Retired matches were not being captured after changing completed match determination to description
+
+v1.8
+Changed purple background color on the title bar, made it darker purple
+WTA 1000 events will have gold color font for the tournament title/city
 """
 
 load("encoding/json.star", "json")
@@ -54,6 +58,7 @@ load("schema.star", "schema")
 load("time.star", "time")
 
 SLAM_LIST = ["154-2023", "188-2023", "172-2023", "189-2023"]
+WTA1000_LIST = ["718-2023", "887-2023", "382-2023", "418-2023"]
 DEFAULT_TIMEZONE = "Australia/Adelaide"
 WTA_SCORES_URL = "https://site.api.espn.com/apis/site/v2/sports/tennis/wta/scoreboard"
 
@@ -75,12 +80,13 @@ def main(config):
     diffTournStart = 0
     GroupingsID = 0
 
-    TestID = "254-2023"
+    TestID = "718-2023"
     SelectedTourneyID = config.get("TournamentList", TestID)
     ShowCompleted = config.get("CompletedOn", "true")
     ShowScheduled = config.get("ScheduledOn", "false")
     Number_Events = len(WTA_JSON["events"])
     EventIndex = 0
+    print(SelectedTourneyID)
 
     # Find the number of "In Progress" matches for the selected tournament
     for x in range(0, Number_Events, 1):
@@ -298,7 +304,8 @@ def getLiveScores(SelectedTourneyID, EventIndex, InProgressMatchList, JSON):
         TourneyCity = JSON["events"][EventIndex]["name"]
 
     TitleBarColor = titleBar(SelectedTourneyID)
-    Title = [render.Box(width = 64, height = 5, color = TitleBarColor, child = render.Text(content = TourneyCity, color = "#FFF", font = "CG-pixel-3x5-mono"))]
+    TitleFontColor = titleFont(SelectedTourneyID)
+    Title = [render.Box(width = 64, height = 5, color = TitleBarColor, child = render.Text(content = TourneyCity, color = TitleFontColor, font = "CG-pixel-3x5-mono"))]
     Display.extend(Title)
 
     for y in range(0, len(InProgressMatchList), 1):
@@ -482,7 +489,8 @@ def getCompletedMatches(SelectedTourneyID, EventIndex, CompletedMatchList, JSON)
         TourneyCity = JSON["events"][EventIndex]["name"]
 
     TitleBarColor = titleBar(SelectedTourneyID)
-    Title = [render.Box(width = 64, height = 5, color = TitleBarColor, child = render.Text(content = TourneyCity, color = "#FFF", font = "CG-pixel-3x5-mono"))]
+    TitleFontColor = titleFont(SelectedTourneyID)
+    Title = [render.Box(width = 64, height = 5, color = TitleBarColor, child = render.Text(content = TourneyCity, color = TitleFontColor, font = "CG-pixel-3x5-mono"))]
     Display.extend(Title)
 
     # loop through the list of completed matches
@@ -718,7 +726,8 @@ def getScheduledMatches(SelectedTourneyID, EventIndex, ScheduledMatchList, JSON,
         TourneyCity = JSON["events"][EventIndex]["name"]
 
     TitleBarColor = titleBar(SelectedTourneyID)
-    Title = [render.Box(width = 64, height = 5, color = TitleBarColor, child = render.Text(content = TourneyCity, color = "#FFF", font = "CG-pixel-3x5-mono"))]
+    TitleFontColor = titleFont(SelectedTourneyID)
+    Title = [render.Box(width = 64, height = 5, color = TitleBarColor, child = render.Text(content = TourneyCity, color = TitleFontColor, font = "CG-pixel-3x5-mono"))]
     Display.extend(Title)
 
     # loop through the list of completed matches
@@ -982,8 +991,15 @@ def titleBar(SelectedTourneyID):
     elif SelectedTourneyID == "189-2023":  # US Open
         titleColor = "#022686"
     else:
-        titleColor = "#7915ff"
+        titleColor = "#430166"
     return titleColor
+
+def titleFont(SelectedTourneyID):
+    if SelectedTourneyID in WTA1000_LIST:
+        titleFontColor = "#d1b358"
+    else:
+        titleFontColor = "#FFF"
+    return titleFontColor
 
 RotationOptions = [
     schema.Option(
