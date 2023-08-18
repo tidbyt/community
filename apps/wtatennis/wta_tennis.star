@@ -86,7 +86,7 @@ def main(config):
     ShowScheduled = config.get("ScheduledOn", "false")
     Number_Events = len(WTA_JSON["events"])
     EventIndex = 0
-    print(SelectedTourneyID)
+    #print(SelectedTourneyID)
 
     # Find the number of "In Progress" matches for the selected tournament
     for x in range(0, Number_Events, 1):
