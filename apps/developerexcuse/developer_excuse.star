@@ -81,7 +81,7 @@ def get_schema():
             ),
             schema.Dropdown(
                 id = "direction",
-                icon = "cogs",
+                icon = "gear",
                 name = "Direction",
                 desc = "To control the direction of the marquee.",
                 options = directions,
