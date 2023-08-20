@@ -1,0 +1,8 @@
+---
+id: rotmg-fame
+name: ROTMG Fame
+summary: Display your account fame
+desc: Displays your account fame and rank from realmeye.
+author: d3or
+fileName: rotmg_fame.star
+packageName: rotmgfame
