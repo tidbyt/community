@@ -5,10 +5,10 @@ Description: Display next departure times for SF Bay Ferry routes.
 Author: nyergler
 """
 
+load("encoding/base64.star", "base64")
+load("encoding/csv.star", "csv")
 load("render.star", "render")
 load("schema.star", "schema")
-load("encoding/csv.star", "csv")
-load("encoding/base64.star", "base64")
 load("time.star", "time")
 
 def main(config):
