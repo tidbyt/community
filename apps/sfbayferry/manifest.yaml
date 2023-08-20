@@ -5,4 +5,4 @@ summary: SFBF departures times
 desc: Display next departure times for SF Bay Ferry routes.
 author: nyergler
 fileName: sfbf.star
-packageName: sf-bay-ferry
+packageName: sfbayferry
