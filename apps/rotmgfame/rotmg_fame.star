@@ -19,7 +19,6 @@ WIZARD_ICON = base64.decode("""iVBORw0KGgoAAAANSUhEUgAAADIAAAAyCAYAAAAeP4ixAAAAB
 DEFAULT_USERNAME = "zz"
 REALMEYE_API_URL = "https://realmeye-api.glitch.me/player/"
 
-
 def main(config):
     username = config.str("username", DEFAULT_USERNAME)
     rep = http.get(REALMEYE_API_URL + username)
