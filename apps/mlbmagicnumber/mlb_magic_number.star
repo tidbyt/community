@@ -14,7 +14,8 @@ load("time.star", "time")
 MLB_STANDINGS_URL = "https://statsapi.mlb.com/api/v1/standings"
 
 DEFAULT_TEAM = "158" # Milwaukee Brewers
-FONT = "CG-pixel-3x5-mono"
+COMMON_FONT = "CG-pixel-3x5-mono"
+BIG_NUMBER_FONT = "10x20"
 HTTP_OK = 200
 
 def main(config):
@@ -22,14 +23,25 @@ def main(config):
 
     info = http_get_number(team_id)
 
+    if info.Clinched or info.Magic or info.Eliminated or not info.HasData:
+        background_color = TEAM_INFO[team_id].BackgroundColor
+        if info.Clinched or info.Magic:
+            delay = 100
+        else:
+            delay = 0
+    else: # if you are in danger of being eliminated, get black background
+        background_color = "#000000"
+        delay = 100
+
     return render.Root(
+        delay = delay,
         child = render.Row(
             children = [
                 render_logo(team_id, 32),
                 render.Box(
                     height = 32,
                     width = 32,
-                    color = TEAM_INFO[team_id].BackgroundColor,
+                    color = background_color,
                     child = render_number_info(team_id, info)
                 )
             ]
@@ -37,36 +49,128 @@ def main(config):
     )
 
 def render_number_info(team_id, info):
-    color = TEAM_INFO[team_id].ForegroundColor
+    children = []
+    center = False
+    if not info.Success:
+        children = render_failure(info.ResponseCode)
+        center = True
+    elif info.Clinched:
+        children = render_clinched()
+        center = True
+    elif info.Magic:
+        children = render_magic(info.Number)
+        center = True
+    elif info.Eliminated:
+        children = render_record(team_id, info.Wins, info.Losses, info.DivisionRank)
+        center = False
+    elif not info.HasData:
+        children = render_no_data(team_id)
+        center = True
+    else:
+        children = render_elim(info.Number)
+        center = True
     return render.Column(
-        cross_align = "center",
+        cross_align = "center" if center else "start",
         main_align = "space_between",
-        children = [
-            render.Text(
-                content = "magic" if info.Magic else "elim",
-                font = FONT,
-                color = color
-            ),
-            render.Box(
-                height = 1,
-                width = 1
-            ),
-            render.Text(
-                content = "#",
-                color = color
-            ),
-            render.Text(
-                content = info.Number,
-                font = "10x20",
-                color = color
-            )
-        ]
+        children = children
     )
 
+def render_no_data(team_id):
+    color = TEAM_INFO[team_id].ForegroundColor
+    return [
+        render.Text(
+            content = "good",
+            font = COMMON_FONT,
+            color = color
+        ),
+        render.Box(
+            height = 1
+        ),
+        render.Text(
+            content = "luck",
+            font = COMMON_FONT,
+            color = color
+        ),
+        render.Box(
+            height = 1
+        ),
+        render.Text(
+            content = "in",
+            font = COMMON_FONT,
+            color = color
+        ),
+        render.Box(
+            height = 1
+        ),
+        render.Text(
+            content = str(time.now().year),
+            font = COMMON_FONT,
+            color = color
+        )
+    ]
+
+def render_failure(error_code):
+    dark_red = "#8B0000"
+    return [
+        render.Image(
+            src = MLB_LEAGUE_IMAGE,
+            width = 32
+        ),
+        render.Text(
+            content = "HTTP",
+            font = COMMON_FONT,
+            color = dark_red
+        ),
+        render.Text(
+            content = "error",
+            font = COMMON_FONT,
+            color = dark_red
+        ),
+        render.Box(
+            height = 1
+        ),
+        render.Text(
+            content = str(error_code),
+            font = COMMON_FONT,
+            color = dark_red
+        )
+    ]
+
+def render_magic(number):
+    widgets = [
+        render.Animation(
+            children = render_rainbow_word("magic", COMMON_FONT)
+        ),
+        render.Box(
+            height = 1,
+            width = 1
+        ),
+        render.Animation(
+            children = render_rainbow_word("#", "tb-8")
+        ),
+        render.Animation(
+            children = render_rainbow_word(str(number), BIG_NUMBER_FONT)
+        )
+    ]
+    return widgets
+
+def render_clinched():
+    widgets = [
+        render.Animation(
+            children = render_rainbow_word("clinched", COMMON_FONT)
+        ),
+        render.Box(
+            height = 1,
+            width = 1
+        ),
+        render.Image(
+            src = CHECKMARK
+        )
+    ]
+    return widgets   
 
 def get_team_to_follow(config):
     return int(config.str("team", DEFAULT_TEAM))
-
 
 def is_response_OK(request):
     return request.status_code == HTTP_OK
@@ -77,30 +181,207 @@ def render_logo(team_id, size):
         width = size
     )
 
-def get_fill_color(team_id):
-    if team_id == 146: # Miami Marlins override
-        return "#41748D"
-    elif team_id == 110: # Baltimore Orioles override
-        return "#FE8B57"
-    elif team_id == 115: # Colorado Rockies override
-        return "#333366"
-    else:
-        return TEAM_INFO[team_id].BackgroundColor
+def render_rainbow_word(word, font):
+    colors = ["#e81416", "#ffa500", "#faeb36", "#79c314", "#487de7", "#4b369d", "#70369d"]
+    widgets = []
+    for j in range(7):
+        rainbow_word = []
+        for i in range(len(word)):
+            letter = render.Text(
+                    content = word[i],
+                    font = font,
+                    color = colors[(j+i)%7] 
+                )
+            rainbow_word.append(letter)
+        widgets.append(
+            render.Row(
+                children = rainbow_word
+            )
+        )
+    return widgets
 
+def render_record(team_id, wins, losses, division_rank):
+    win_counter = []
+    loss_counter = []
+    div_rank_array = []
+    text_color = TEAM_INFO[team_id].ForegroundColor
+    bg_color = TEAM_INFO[team_id].BackgroundColor
+
+    for j in range(wins+1):
+        win_counter.append(render.Text(
+            content = str(j),
+            font = COMMON_FONT,
+            color = text_color
+            )
+        )
+        loss_counter.append(render.Text(
+            content = "0",
+            font = COMMON_FONT,
+            color = text_color
+            )
+        )
+        div_rank_array.append(render.Text(
+            content = str(division_rank),
+            color = bg_color,
+            font = BIG_NUMBER_FONT,
+            )
+        )
+    for j in range(losses+1):
+        win_counter.append(render.Text(
+            content = str(wins),
+            font = COMMON_FONT,
+            color = text_color
+            )
+        )
+        loss_counter.append(render.Text(
+            content = str(j),
+            font = COMMON_FONT,
+            color = text_color
+            )
+        )
+        div_rank_array.append(render.Text(
+            content = str(division_rank),
+            color = bg_color,
+            font = BIG_NUMBER_FONT,
+            )
+        )
+    for j in range(100):
+        win_counter.append(render.Text(
+            content = str(wins),
+            font = COMMON_FONT,
+            color = text_color
+            )
+        )
+        loss_counter.append(render.Text(
+            content = str(losses),
+            font = COMMON_FONT,
+            color = text_color
+            )
+        )
+        div_rank_array.append(render.Text(
+            content = str(division_rank),
+            color = text_color if j % 30 < 15 else bg_color,
+            font = BIG_NUMBER_FONT,
+            )
+        )  
+    widgets = [
+        render.Row(
+            children = [
+                render.Text(
+                    content = "W: ",
+                    font = COMMON_FONT,
+                    color = text_color
+                ),
+                render.Animation(
+                    children = win_counter
+                )
+            ]
+        ),
+        render.Box(
+            height = 1
+        ),
+        render.Row(
+            children = [
+                render.Text(
+                    content = "L: ",
+                    font = COMMON_FONT,
+                    color = text_color
+                ),
+                render.Animation(
+                    children = loss_counter
+                )
+            ]
+        ),
+        render.Box(
+            height = 1
+        ),
+        render.Stack(
+            children = [
+                render.Text(
+                    content = "div rank",
+                    font = COMMON_FONT,
+                    color = text_color
+                ),
+                render.Column(
+                    cross_align = "center",
+                    children = [
+                        render.Box(
+                            height = 3
+                        ),
+                        render.Animation(
+                            children = div_rank_array
+                        )
+                    ]
+                )
+            ]
+        )
+    ]
+    return widgets
+
+
+def render_elim(number):
+    bright_red = "#FF0000"
+    dark_red = "#8B0000"
+
+    bright = render_elim_with_hue(number, bright_red, dark_red)
+    dark = render_elim_with_hue(number, dark_red, bright_red)
+
+    widgets = []
+    for _ in range(10):
+        widgets.append(bright)
+    for _ in range(10):
+        widgets.append(dark)
+    return [render.Animation(
+        children = widgets
+        )
+    ]
+
+def render_elim_with_hue(number, on_hue, off_hue):
+    return render.Column(
+        cross_align = "center",
+        main_align = "space_between",
+        children = [
+            render.Text(
+            content = "elim",
+            font = COMMON_FONT,
+            color = on_hue
+            ),
+            render.Box(
+                height = 1,
+                width = 1
+            ),
+            render.Text(
+                content = "#",
+                color = off_hue
+            ),
+            render.Text(
+                content = number,
+                font = BIG_NUMBER_FONT,
+                color = on_hue
+            )
+        ]
+    )
 
 ######################
 ## HTTP REQUEST API ##
 ######################
 def http_get_number(team_id):
     query_params = {
-        "fields": "records,division,id,teamRecords,team,magicNumber,eliminationNumber,clinched",
+        "fields": "records,division,id,teamRecords,team,magicNumber,eliminationNumberDivision,clinched,divisionRank,wins,losses",
         "leagueId": str(TEAM_INFO[team_id].LeagueId),
+        "season": str(time.now().year)
     }
-    # cache for 60 seconds
-    response = http.get(MLB_STANDINGS_URL, params = query_params, ttl_seconds = 60)
+    # cache response for 5 minutes
+    response = http.get(MLB_STANDINGS_URL, params = query_params, ttl_seconds = 300)
 
-    number = 0
+    number = "0"
     magic = False
+    clinched = False
+    division_rank = "0"
+    eliminated = False
+    wins = 0
+    losses = 0
+    has_data = True
 
     if is_response_OK(response):
         for record in response.json().get("records"):
@@ -108,14 +389,36 @@ def http_get_number(team_id):
             if int(record.get("division").get("id")) == TEAM_INFO[team_id].DivisionId:
                 for team_record in record.get("teamRecords"):
                     if int(team_record.get("team").get("id")) == team_id:
-                        # see if we have a magic number
-                        number = team_record.get("magicNumber")
-                        if number == None:
-                            number = team_record.get("eliminationNumber")
-                        else:
-                            magic = True
-    return struct(Number = number, Magic = magic)
+                        wins = int(team_record.get("wins"))
+                        losses = int(team_record.get("losses"))
+                        division_rank = int(team_record.get("divisionRank"))
+                        # see if we have clinched and are division leader
+                        clinched = team_record.get("clinched")
+                        if clinched:
+                            clinched = True if division_rank == 1 else False
+                        # if team did not yet clinch division, see if it has a magic number
+                        if not clinched:
+                            number = team_record.get("magicNumber")
+                            # if we do not have a magic number, we will have elimination number 
+                            # or be actually eliminated from division contention
+                            if number == None:
+                                number = team_record.get("eliminationNumberDivision")
+                                eliminated = True if number == "E" else False
+                            else:
+                                magic = True
+                        break # we found our team
+                break # we found our division
+    else:
+        return struct(Number = number, Magic = magic, Clinched = clinched, DivisionRank = division_rank, Eliminated = eliminated, Wins = wins, Losses = losses, Success = False, ResponseCode = response.status_code, HasData = False)
+    # if we got nothing, it is probably because the season has not yet started
+    # use this to render the "good luck" image
+    if wins == 0 and losses == 0:
+        has_data = False
+    return struct(Number = number, Magic = magic, Clinched = clinched, DivisionRank = division_rank, Eliminated = eliminated, Wins = wins, Losses = losses, Success = True, ResponseCode = response.status_code, HasData = has_data)
 
+CHECKMARK = base64.decode(
+"""iVBORw0KGgoAAAANSUhEUgAAACAAAAAZCAYAAABQDyyRAAAAAXNSR0IArs4c6QAAAO5JREFUSEvNl90NwjAMhNsR6BYwA0xfZoAtYARQKgUZ1z/n2kX0pS9J7sv14rjjEHwOt/NLm/I8XcfgcgM0wRLNwrgAW8Q7FOKICpAR5q5YICJApbjnxgpgD3EL4r8A9tj94zgvBkz3y/LmefhyoBqgi0MAvxCXsvBxoBJA2jk9mvQzlAN44jwHpQCIOAzA0+tdMqh4GIAmWIOIiMMAbSCyMDLGuhvcOmAJZMUbmAugObFF3K2EbYBWD6ggtbSXWC+kkvjKAQuAO4GEE+kLwv1A9HiG+4E+obI0hzsial0GJNUTZiEQcTGEXpqr/wveV96dGgbVDdkAAAAASUVORK5CYII="""
+)
 #################
 ## TEAM CONFIG ##
 #################
