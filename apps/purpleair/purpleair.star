@@ -282,7 +282,7 @@ def get_sensor_id(config):
 def fetch_sensor_data(api_key, url, params):
     air_dict = {}
     headers = {"X-API-Key": api_key}
-    rep = http.get(url, params = params, headers = headers)
+    rep = http.get(url, params = params, headers = headers, ttl_seconds = 600)
     if rep.status_code != 200:
         print("Request failed with status %d" % rep.status_code)
         return None
@@ -323,7 +323,7 @@ def fetch_sensor_list(api_key, url, params):
     # Check cache first
 
     headers = {"X-API-Key": api_key}
-    rep = http.get(url, params = params, headers = headers)
+    rep = http.get(url, params = params, headers = headers, ttl_seconds = 14400)
     if rep.status_code != 200:
         print("Request failed with status %d" % rep.status_code)
         return None
