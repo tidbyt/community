@@ -10,6 +10,8 @@ load("render.star", "render")
 load("schema.star", "schema")
 load("time.star", "time")
 
+DEFAULT_START_DATETIME = "2023-08-14T8:30:00.000Z"
+DEFAULT_END_DATETIME = "2023-08-14T18:00:00.000Z"
 DEFAULT_BAR_COLOR = "#B92A0C"
 DEFAULT_BAR_TEXT_COLOR = "#FFF"
 DEFAULT_PAYCHECK_WITHOUT_BONUS = "1000"
@@ -20,6 +22,18 @@ def get_schema():
     return schema.Schema(
         version = "1",
         fields = [
+            schema.DateTime(
+                id = "StartTime",
+                name = "Start Time",
+                desc = "When your workday starts.",
+                icon = "gear",
+            ),
+            schema.DateTime(
+                id = "EndTime",
+                name = "End Time",
+                desc = "When your workday ends.",
+                icon = "gear",
+            ),
             schema.Color(
                 id = "BarColor",
                 name = "BarColor",
@@ -66,10 +80,16 @@ def main(config):
     totalWithBonus = float(config.str("PaycheckWithBonus", DEFAULT_PAYCHECK_WITH_BONUS))
     daysToCalc = float(config.str("DaysToCalculate", DEFAULT_DAYS_TO_CALC))
 
-    now = time.now().in_location(timezone)
-    start = time.time(year = now.year, month = now.month, day = now.day, hour = 8, minute = 30, location = timezone)
+    startTimeString = config.str("StartTime", DEFAULT_START_DATETIME)
+    endTimeString = config.str("EndTime", DEFAULT_END_DATETIME)
+    startTime = time.parse_time(startTimeString).in_location(timezone)
+    endTime = time.parse_time(endTimeString).in_location(timezone)
 
-    timeTilEnd = 36000
+    now = time.now().in_location(timezone)
+    start = time.time(year = now.year, month = now.month, day = now.day, hour = startTime.hour, minute = startTime.minute, location = timezone)
+    end = time.time(year = now.year, month = now.month, day = now.day, hour = endTime.hour, minute = endTime.minute, location = timezone)
+
+    timeTilEnd = (end - start).seconds
     timePassed = now - start
     ratio = timePassed.seconds / timeTilEnd
     if ratio > 1:
