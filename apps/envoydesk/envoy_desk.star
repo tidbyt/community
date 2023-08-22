@@ -253,13 +253,13 @@ def get_schema():
                 id = "desk_id",
                 name = "Desk ID",
                 desc = "At what desk is the Tidbyt located?",
-                icon = "location-dot",
+                icon = "locationDot",
             ),
             schema.Text(
                 id = "floor_ids",
                 name = "Floor ID",
                 desc = "On what floor is the Tidbyt located?",
-                icon = "location-dot",
+                icon = "locationDot",
             ),
         ],
     )
