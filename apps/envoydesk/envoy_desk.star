@@ -5,10 +5,10 @@ Description: Can be placed on an Envoy Desk to display its current status.
 Author: Sam Kalum <skalum@envoy.com>
 """
 
-load("render.star", "render")
-load("schema.star", "schema")
 load("encoding/json.star", "json")
 load("http.star", "http")
+load("render.star", "render")
+load("schema.star", "schema")
 load("secret.star", "secret")
 
 OAUTH_AUTH_URL = "https://app.envoy.com/a/auth/v0/authorize"
