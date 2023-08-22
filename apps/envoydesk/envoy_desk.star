@@ -7,7 +7,6 @@ Author: Sam Kalum <skalum@envoy.com>
 
 load("render.star", "render")
 load("schema.star", "schema")
-load("encoding/base64.star", "base64")
 load("encoding/json.star", "json")
 load("http.star", "http")
 load("secret.star", "secret")
