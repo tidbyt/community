@@ -7,7 +7,6 @@ Author: PalmettoBling
 
 load("http.star", "http")
 load("render.star", "render")
-load("schema.star", "schema")
 
 DEFAULT_WHO = "world"
 QUOTEURL = "https://www.xboxplaydates.us/playdatesQuotes/randomquote"
@@ -49,17 +48,4 @@ def main():
                 ),
             ],
         ),
-    )
-
-def get_schema():
-    return schema.Schema(
-        version = "1",
-        fields = [
-            schema.Text(
-                id = "who",
-                name = "Who?",
-                desc = "Who to say hello to.",
-                icon = "user",
-            ),
-        ],
     )
