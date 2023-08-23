@@ -76,6 +76,12 @@ def render_number_info(team_id, info):
     )
 
 def render_no_data(team_id):
+    img = http.get("https://media0.giphy.com/media/v1.Y2lkPTc5MGI3NjExd2Y1MG5rcDl2cWMxaWp2Z2dkbXZ2enU1dGliaTNzODh2ODFsbGxtdiZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/l0ExbcOSoFGQMssF2/200.gif")
+    print(img)
+    return [render.Image(
+        src = img.body(),
+        width = 32
+    )]
     color = TEAM_INFO[team_id].ForegroundColor
     return [
         render.Text(
@@ -207,44 +213,9 @@ def render_record(team_id, wins, losses, division_rank):
     text_color = TEAM_INFO[team_id].ForegroundColor
     bg_color = TEAM_INFO[team_id].BackgroundColor
 
-    for j in range(wins+1):
-        win_counter.append(render.Text(
-            content = str(j),
-            font = COMMON_FONT,
-            color = text_color
-            )
-        )
-        loss_counter.append(render.Text(
-            content = "0",
-            font = COMMON_FONT,
-            color = text_color
-            )
-        )
-        div_rank_array.append(render.Text(
-            content = str(division_rank),
-            color = bg_color,
-            font = BIG_NUMBER_FONT,
-            )
-        )
-    for j in range(losses+1):
-        win_counter.append(render.Text(
-            content = str(wins),
-            font = COMMON_FONT,
-            color = text_color
-            )
-        )
-        loss_counter.append(render.Text(
-            content = str(j),
-            font = COMMON_FONT,
-            color = text_color
-            )
-        )
-        div_rank_array.append(render.Text(
-            content = str(division_rank),
-            color = bg_color,
-            font = BIG_NUMBER_FONT,
-            )
-        )
+    build_record_arrays(team_id, wins, 0, win_counter, loss_counter, div_rank_array)
+    build_record_arrays(team_id, losses, wins, loss_counter, win_counter, div_rank_array)
+
     for j in range(100):
         win_counter.append(render.Text(
             content = str(wins),
@@ -318,6 +289,29 @@ def render_record(team_id, wins, losses, division_rank):
     ]
     return widgets
 
+def build_record_arrays(team_id, total, static_number, incr_array, static_array, rank_array):
+    text_color = TEAM_INFO[team_id].ForegroundColor
+    bg_color = TEAM_INFO[team_id].BackgroundColor
+
+    for j in range(total+1):
+        incr_array.append(render.Text(
+            content = str(j),
+            font = COMMON_FONT,
+            color = text_color
+            )
+        )
+        static_array.append(render.Text(
+            content = str(static_number),
+            font = COMMON_FONT,
+            color = text_color
+            )
+        )
+        rank_array.append(render.Text(
+            content = "0",
+            color = bg_color,
+            font = BIG_NUMBER_FONT,
+            )
+        )
 
 def render_elim(number):
     bright_red = "#FF0000"
@@ -371,6 +365,7 @@ def http_get_number(team_id):
         "leagueId": str(TEAM_INFO[team_id].LeagueId),
         "season": str(time.now().year)
     }
+
     # cache response for 5 minutes
     response = http.get(MLB_STANDINGS_URL, params = query_params, ttl_seconds = 300)
 
