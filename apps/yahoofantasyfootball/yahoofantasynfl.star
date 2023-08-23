@@ -29,6 +29,7 @@ ACCESS_TOKEN_CACHE_TTL = 3000  # 50 minutes as Yahoo access tokens only last 60 
 STANDINGS_CACHE_TTL = 14400  # 4 days
 LEAGUE_NAME_CACHE_TTL = 28800  # 8 days
 GAME_KEY = "423"  #2023 Season
+FONT = "CG-pixel-3x5-mono"
 
 print("Top of File - End")
 
@@ -71,7 +72,9 @@ def main(config):
     color_scheme = config.get("color_scheme", '["0A2647", "144272", "205295", "2C74B3", "FFFFFF"]')
     color_scheme = json.decode(color_scheme)
     show_scores = config.bool("show_scores", False)
+    show_projections = config.bool("show_projections", True)
     show_ties = config.bool("show_ties", False)
+    num_of_loops = 1
 
     if refresh_token:
         access_token = get_access_token(refresh_token)
@@ -83,21 +86,17 @@ def main(config):
                 if show_scores:
                     entries_to_display = 2
                     current_matchup = get_current_matchup(access_token, GAME_KEY, league_id)
-
-                    render_category.extend(
-                        [
-                            render.Column(
-                                expanded = True,
-                                main_align = "start",
-                                cross_align = "start",
-                                children = [
-                                    render.Column(
-                                        children = render_current_matchup(current_matchup, entries_to_display, heading_font_color, color_scheme, league_name),
-                                    ),
-                                ],
-                            ),
-                        ],
-                    )
+                    if show_projections:
+                        # Set to two loops so it renders 2 frames for the animation
+                        num_of_loops = 2
+                    for x in range(0, num_of_loops):
+                        render_category.extend(
+                            [
+                                render.Column(
+                                    children = render_current_matchup(x, current_matchup, entries_to_display, heading_font_color, color_scheme),
+                                ),
+                            ],
+                        )
                 else:
                     entries_to_display = teams_per_view
                     standings = get_standings_and_records(access_token, GAME_KEY, league_id)
@@ -489,6 +488,13 @@ def get_current_leagues(refresh_token):
             default = False,
         ),
         schema.Toggle(
+            id = "show_projections",
+            name = "Show Live Projections",
+            desc = "Show live scoring and win pct projections (scores only)",
+            icon = "gear",
+            default = False,
+        ),
+        schema.Toggle(
             id = "show_ties",
             name = "Show Ties",
             desc = "Show ties in team record",
@@ -627,49 +633,51 @@ def get_current_matchup(access_token, GAME_KEY, league_id):
 
     teams_in_matchup_xml = xpath.loads(current_matchup_response.body()).query_all("/fantasy_content/league/scoreboard/matchups/matchup/teams/team/is_owned_by_current_login//ancestor::matchup/teams/team/name")
     scores_in_matchup_xml = xpath.loads(current_matchup_response.body()).query_all("/fantasy_content/league/scoreboard/matchups/matchup/teams/team/is_owned_by_current_login//ancestor::matchup/teams/team/team_points/total")
+    projected_scores_in_matchup_xml = xpath.loads(current_matchup_response.body()).query_all("/fantasy_content/league/scoreboard/matchups/matchup/teams/team/is_owned_by_current_login//ancestor::matchup/teams/team/team_projected_points/total")
+    win_probability_in_matchup = xpath.loads(current_matchup_response.body()).query_all("/fantasy_content/league/scoreboard/matchups/matchup/teams/team/is_owned_by_current_login//ancestor::matchup/teams/team/win_probability")
 
     for i in range(2):
-        current_matchup.append({"Name": teams_in_matchup_xml[i], "Score": scores_in_matchup_xml[i]})
+        current_matchup.append({"Name": teams_in_matchup_xml[i], "Score": scores_in_matchup_xml[i], "Projected": projected_scores_in_matchup_xml[i], "Win_Probability": str(100 * float(win_probability_in_matchup[i]))[:2] + "%"})
 
     print("    Current Matchup: " + str(current_matchup))
     print("get_current_matchup - End")
     return current_matchup
 
-def render_standings_and_records(x, standings, entries_to_display, heading_font_color, color_scheme, leagueName, show_ties):
+def render_standings_and_records(x, standings, entries_to_display, heading_font_color, color_scheme, league_name, show_ties):
     print("render_standings_and_records - Start")
     output = []
     teamTies = ""
     teamWins = ""
     teamLosses = ""
 
-    topColumn = [
-        render.Box(width = 64, height = 8, child = render.Stack(children = [
-            render.Box(width = 64, height = 8, color = "#000"),
-            render.Box(width = 64, height = 8, child = render.Row(expanded = True, main_align = "center", cross_align = "center", children = [
-                render.Text(color = heading_font_color, content = leagueName, font = "CG-pixel-3x5-mono"),
-            ])),
-        ])),
-    ]
+    title_bar = render.Column(
+        children = [
+            render.Box(
+                width = 64,
+                height = 8,
+                child = render.Row(
+                    children = [
+                        render.Text(content = league_name, color = heading_font_color, font = FONT),
+                    ],
+                ),
+            ),
+        ],
+    )
+    output.extend([title_bar])
 
-    output.extend(topColumn)
     containerHeight = int(24 / entries_to_display)
     for i in range(entries_to_display):
         if i + x < len(standings):
-            mainFont = "CG-pixel-3x5-mono"
             teamName = standings[i + x]["Name"]
             teamWins = standings[i + x]["Wins"]
             teamLosses = standings[i + x]["Losses"]
             teamTies = standings[i + x]["Ties"]
             if show_ties:
-                teamRecord = teamWins + "-" + teamLosses + "-" + teamTies
-                teamNameBoxSize = 36
-                recordBoxSize = 24
                 teamName = teamName[:9]
+                teamRecord = teamWins + "-" + teamLosses + "-" + teamTies
             else:
-                teamRecord = teamWins + "-" + teamLosses
-                teamNameBoxSize = 40
-                recordBoxSize = 20
                 teamName = teamName[:10]
+                teamRecord = teamWins + "-" + teamLosses
 
             if i == 0:
                 teamColor = "#" + color_scheme[0]
@@ -683,61 +691,132 @@ def render_standings_and_records(x, standings, entries_to_display, heading_font_
 
             team = render.Column(
                 children = [
-                    render.Box(width = 64, height = containerHeight, color = teamColor, child = render.Row(expanded = True, main_align = "start", cross_align = "center", children = [
-                        render.Box(width = teamNameBoxSize, height = containerHeight, child = render.Text(content = teamName, color = textColor, font = mainFont)),
-                        render.Box(width = 4, height = containerHeight, child = render.Text(content = "", color = textColor, font = mainFont)),
-                        render.Box(width = recordBoxSize, height = containerHeight, child = render.Text(content = str(teamRecord), color = textColor, font = mainFont)),
-                    ])),
+                    render.Box(
+                        width = 64,
+                        height = containerHeight,
+                        color = teamColor,
+                        child = render.Row(
+                            children = [
+                                render.Text(content = teamName, color = textColor, font = FONT),
+                                render.Text(content = teamRecord, color = textColor, font = FONT),
+                            ],
+                            expanded = True,
+                            main_align = "space_between",
+                        ),
+                    ),
                 ],
             )
             output.extend([team])
+
         else:
             output.extend([render.Column(children = [render.Box(width = 64, height = containerHeight, color = "#111")])])
     print("render_standings_and_records - End")
     return output
 
-def render_current_matchup(current_matchup, entries_to_display, heading_font_color, color_scheme, leagueName):
+def render_current_matchup(x, current_matchup, entries_to_display, heading_font_color, color_scheme):
     print("render_current_matchup - Start")
     output = []
-
-    topColumn = [
-        render.Box(width = 64, height = 8, child = render.Stack(children = [
-            render.Box(width = 64, height = 8, color = "#000"),
-            render.Box(width = 64, height = 8, child = render.Row(expanded = True, main_align = "center", cross_align = "center", children = [
-                render.Text(color = heading_font_color, content = leagueName, font = "CG-pixel-3x5-mono"),
-            ])),
-        ])),
-    ]
-
-    output.extend(topColumn)
     containerHeight = int(24 / entries_to_display)
-    for i in range(2):
-        if i < len(current_matchup):
-            mainFont = "CG-pixel-3x5-mono"
-            teamName = current_matchup[i]["Name"]
-            teamName = teamName[:11]
-            teamColor = ""
-            print(teamName)
-            teamScore = current_matchup[i]["Score"]
-            teamNameBoxSize = 46
-            scoreBoxSize = 18
+    teamColor = ""
+
+    if x == 0:
+        title_bar = render.Column(
+            children = [
+                render.Box(
+                    width = 64,
+                    height = 8,
+                    child = render.Row(
+                        children = [
+                            render.Text(content = "Live Score", color = heading_font_color, font = FONT),
+                        ],
+                    ),
+                ),
+            ],
+        )
+        output.extend([title_bar])
+
+        i = 0
+        for roster in current_matchup:
             if i == 0:
                 teamColor = "#" + color_scheme[0]
             elif i == 1:
                 teamColor = "#" + color_scheme[1]
             textColor = "#" + color_scheme[4]
-
+            if len(str(roster["Projected"])[:3]) == 1:
+                projected = "  " + str(roster["Projected"])
+            elif len(str(roster["Projected"])[:3]) == 2:
+                projected = " " + str(roster["Projected"])
+            else:
+                projected = str(roster["Projected"])[:3]
             team = render.Column(
                 children = [
-                    render.Box(width = 64, height = containerHeight, color = teamColor, child = render.Row(expanded = True, main_align = "start", cross_align = "center", children = [
-                        render.Box(width = teamNameBoxSize, height = containerHeight, child = render.Text(content = teamName, color = textColor, font = mainFont)),
-                        render.Box(width = 4, height = containerHeight, child = render.Text(content = "", color = textColor, font = mainFont)),
-                        render.Box(width = scoreBoxSize, height = containerHeight, child = render.Text(content = teamScore, color = textColor, font = mainFont)),
-                    ])),
+                    render.Box(
+                        width = 64,
+                        height = containerHeight,
+                        color = teamColor,
+                        child = render.Row(
+                            children = [
+                                render.Text(content = roster["Name"][:11], color = textColor, font = FONT),
+                                render.Text(content = roster["Score"][:3], color = textColor, font = FONT),
+                            ],
+                            expanded = True,
+                            main_align = "space_between",
+                        ),
+                    ),
                 ],
             )
             output.extend([team])
-        else:
-            output.extend([render.Column(children = [render.Box(width = 64, height = containerHeight, color = "#111")])])
+            i = i + 1
+
+    elif x == 1:
+        title_bar = render.Column(
+            children = [
+                render.Box(
+                    width = 64,
+                    height = 8,
+                    child = render.Row(
+                        children = [
+                            render.Text(content = "Proj    Pct  Pts", color = heading_font_color, font = FONT),
+                        ],
+                    ),
+                ),
+            ],
+        )
+        output.extend([title_bar])
+
+        i = 0
+        for roster in current_matchup:
+            if i == 0:
+                teamColor = "#" + color_scheme[0]
+            elif i == 1:
+                teamColor = "#" + color_scheme[1]
+            textColor = "#" + color_scheme[4]
+            if len(str(roster["Projected"])[:3]) == 1:
+                projected = "  " + str(roster["Projected"])
+            elif len(str(roster["Projected"])[:3]) == 2:
+                projected = " " + str(roster["Projected"])
+            else:
+                projected = str(roster["Projected"])[:3]
+            team = render.Column(
+                children = [
+                    render.Box(
+                        width = 64,
+                        height = 12,
+                        color = teamColor,
+                        child = render.Row(
+                            children = [
+                                render.Text(content = roster["Name"][:7], color = textColor, font = FONT),
+                                render.Text(content = roster["Win_Probability"], color = textColor, font = FONT),
+                                render.Text(content = projected, color = textColor, font = FONT),
+                            ],
+                            expanded = True,
+                            main_align = "space_between",
+                        ),
+                    ),
+                ],
+            )
+            output.extend([team])
+            i = i + 1
+
     print("render_current_matchup - End")
     return output

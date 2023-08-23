@@ -5,7 +5,9 @@ Description: Displays the local air quality index from a nearby PurpleAir sensor
 Author: posburn
 """
 
-load("cache.star", "cache")
+# jvivona 20230821 - helped out @frame-shift to fix syntax error in code
+#                    while I was in there - removed the cache.star module dependency
+
 load("encoding/base64.star", "base64")
 load("encoding/json.star", "json")
 load("http.star", "http")
@@ -29,7 +31,7 @@ PARTICLE_SENSOR_B = "Sensor B"
 # MAIN APP
 
 def main(config):
-    api_key = secret.decrypt(API_READ_KEY) or config.get("api_key")
+    api_key = secret.decrypt(API_READ_KEY) or DEV_KEY
     sensor_id = get_sensor_id(config)
     show_title = get_cfg_value(config, "show_title", True)
     show_temp = get_cfg_value(config, "show_temp", True)
@@ -51,7 +53,7 @@ def main(config):
     # Fetch the air info
     data = None
     if api_key != None:
-        data = fetch_sensor_data(api_key, PUBLIC_SENSOR + sensor_id, {}, CACHE_KEY_DATA + "-" + sensor_id)  # [0] = data, [1] = was_cached
+        data = fetch_sensor_data(api_key, PUBLIC_SENSOR + sensor_id, {})  # [0] = data, [1] = was_cached
 
     if data == None:
         print("No data returned for sensor %s" % sensor_id)
@@ -179,7 +181,7 @@ def get_sensors(location):
     if location == None or location == "":
         return sensors
 
-    api_key = secret.decrypt(API_READ_KEY) or None
+    api_key = secret.decrypt(API_READ_KEY) or DEV_KEY
     if api_key == None:
         return sensors
 
@@ -188,7 +190,7 @@ def get_sensors(location):
         return sensors
 
     # Get latitude and longitude of location to use in the api call
-    desc = location_data.get("description", None)
+    #desc = location_data.get("description", None)
     latitude = float(location_data.get("lat", 0))
     longitude = float(location_data.get("lng", 0))
 
@@ -205,11 +207,7 @@ def get_sensors(location):
         "selat": str(latitude - delta),
     }
 
-    cache_key = None
-    if desc != None:
-        cache_key = CACHE_KEY_DATA + "-" + desc
-        cache_key = cache_key.replace(" ", "")
-    sensor_list = fetch_sensor_list(api_key, LIST_SENSORS, params, cache_key)
+    sensor_list = fetch_sensor_list(api_key, LIST_SENSORS, params)
 
     if sensor_list == None:
         print("No data returned for sensor list")
@@ -281,90 +279,56 @@ def get_sensor_id(config):
 # DATA
 
 # Returns a tuple: (data, was_cached)
-def fetch_sensor_data(api_key, url, params, cache_key):
-    # Check cache first
-    cached_data = None
-    if cache_key != None:
-        cached_data = cache.get(cache_key)
-
+def fetch_sensor_data(api_key, url, params):
     air_dict = {}
-
-    if cached_data != None:
-        # Use what's in the cache
-        print("Found cached data")
-        air_dict = json.decode(cached_data)
-        return (air_dict, True)
-
+    headers = {"X-API-Key": api_key}
+    rep = http.get(url, params = params, headers = headers, ttl_seconds = 600)
+    if rep.status_code != 200:
+        print("Request failed with status %d" % rep.status_code)
+        return None
     else:
-        print("Cache miss")
-        headers = {"X-API-Key": api_key}
-        rep = http.get(url, params = params, headers = headers)
-        if rep.status_code != 200:
-            print("Request failed with status %d" % rep.status_code)
-            return None
-        else:
-            data = rep.json()
-            sensor = data.get("sensor", None)
+        data = rep.json()
+        sensor = data.get("sensor", None)
 
-            if sensor != None:
-                name = sensor.get("name", "")
+        if sensor != None:
+            name = sensor.get("name", "")
 
-                temp = sensor.get("temperature", 0)
-                temp = max(temp - 8, 0)  # Temp reported 8F higher so adjust
+            temp = sensor.get("temperature", 0)
+            temp = max(temp - 8, 0)  # Temp reported 8F higher so adjust
 
-                humidity = sensor.get("humidity", 0)
-                humidity = max(humidity + 4, 0)  # Humidity reported 4F lower so adjust
+            humidity = sensor.get("humidity", 0)
+            humidity = max(humidity + 4, 0)  # Humidity reported 4F lower so adjust
 
-                pm_a = sensor.get("pm2.5_cf_1_a", 0)
-                pm_b = sensor.get("pm2.5_cf_1_b", 0)
-                confidence = sensor.get("confidence", 0)
-                confidenceAuto = sensor.get("confidence_auto", -1)
-                locationType = sensor.get("location_type", 0)
+            pm_a = sensor.get("pm2.5_cf_1_a", 0)
+            pm_b = sensor.get("pm2.5_cf_1_b", 0)
+            confidence = sensor.get("confidence", 0)
+            confidenceAuto = sensor.get("confidence_auto", -1)
+            locationType = sensor.get("location_type", 0)
 
-                air_dict = {
-                    "name": name,
-                    "temperature": temp,
-                    "humidity": humidity,
-                    "pm_a": pm_a,
-                    "pm_b": pm_b,
-                    "confidence": confidence,
-                    "confidenceAuto": confidenceAuto,
-                    "locationType": locationType,
-                }
+            air_dict = {
+                "name": name,
+                "temperature": temp,
+                "humidity": humidity,
+                "pm_a": pm_a,
+                "pm_b": pm_b,
+                "confidence": confidence,
+                "confidenceAuto": confidenceAuto,
+                "locationType": locationType,
+            }
 
-                air_cached = json.encode(air_dict)
-
-                # TODO: Determine if this cache call can be converted to the new HTTP cache.
-                cache.set(cache_key, air_cached, ttl_seconds = 600)  # 10 minutes
-
-            return (air_dict, False)
+        return (air_dict, False)
 
 # Returns a tuple: (data, was_cached)
-def fetch_sensor_list(api_key, url, params, cache_key):
+def fetch_sensor_list(api_key, url, params):
     # Check cache first
-    cached_data = None
-    if cache_key != None:
-        cached_data = cache.get(cache_key)
 
-    if cached_data != None:
-        # Use what's in the cache
-        print("Found cached data")
-        sensor_list = json.decode(cached_data)
-        return (sensor_list, True)
-
+    headers = {"X-API-Key": api_key}
+    rep = http.get(url, params = params, headers = headers, ttl_seconds = 14400)
+    if rep.status_code != 200:
+        print("Request failed with status %d" % rep.status_code)
+        return None
     else:
-        print("Cache miss")
-        headers = {"X-API-Key": api_key}
-        rep = http.get(url, params = params, headers = headers)
-        if rep.status_code != 200:
-            print("Request failed with status %d" % rep.status_code)
-            return None
-        else:
-            sensors = rep.json()
-
-            # TODO: Determine if this cache call can be converted to the new HTTP cache.
-            cache.set(cache_key, json.encode(sensors), ttl_seconds = 14400)  # 4 hours
-            return (rep.json(), False)
+        return (rep.json(), False)
 
 # AQI & CALCULATIONS
 
@@ -392,10 +356,27 @@ def epa_AQI(pm25A, pm25B, humidity, particle_sensor, confidence, confidenceAuto)
     elif particle_sensor == PARTICLE_SENSOR_B:
         pmValue = pm25B
 
-    # EPA adjustment for wood smoke and PurpleAir from https://cfpub.epa.gov/si/si_public_record_report.cfm?dirEntryId=349513
-    # PM 2.5 corrected = 0.534*[PA_cf1(avgAB)] - 0.0844*RH +5.604 (Slide 25) - I'm using this one
-    # PM 2.5 corrected = 0.52*[PA_cf1(avgAB)] - 0.085*RH +5.71 (Slide 8)
-    pm25_corrected = 0.534 * pmValue - 0.0844 * humidity + 5.604
+    pm25_corrected = 0
+
+    # [OLD] EPA adjustment for wood smoke and PurpleAir from https://cfpub.epa.gov/si/si_public_record_report.cfm?dirEntryId=349513
+    # [OLD] PM 2.5 corrected = 0.534*[PA_cf1(avgAB)] - 0.0844*RH +5.604 (Slide 25)
+    # [OLD] PM 2.5 corrected = 0.52*[PA_cf1(avgAB)] - 0.085*RH +5.71 (Slide 8)
+    # [August 2022] An updated 5 step algorithm for correcting sensor data was developed by the EPA based on new wildfire data. This updated algorithm is the one currently used by PurpleAir. The 5 equations are found on Slide 26 at https://cfpub.epa.gov/si/si_public_record_report.cfm?dirEntryId=353088&Lab=CEMM
+    if 0 <= pmValue and pmValue < 30:
+        pm25_corrected = 0.524 * pmValue - 0.0862 * humidity + 5.75
+    elif 30 <= pmValue and pmValue < 50:
+        pm25_corrected = (0.786 * (pmValue / 20 - 3 / 2) + 0.524 * (1 - (pmValue / 20 - 3 / 2))) * pmValue - 0.0862 * humidity + 5.75
+    elif 50 <= pmValue and pmValue < 210:
+        pm25_corrected = 0.786 * pmValue - 0.0862 * humidity + 5.75
+    elif 210 <= pmValue and pmValue < 260:
+        term1 = 0.69 * (pmValue / 50 - 21 / 5) + 0.786 * (1 - (pmValue / 50 - 21 / 5))
+        term2 = -0.0862 * humidity * (1 - (pmValue / 50 - 21 / 5))
+        term3 = 2.966 * (pmValue / 50 - 21 / 5)
+        term4 = 5.75 * (1 - (pmValue / 50 - 21 / 5))
+        term5 = 8.84 * 0.0001 * math.pow(pmValue, 2) * (pmValue / 50 - 21 / 5)
+        pm25_corrected = term1 * pmValue + term2 + term3 + term4 + term5
+    elif 260 <= pmValue:
+        pm25_corrected = 2.966 + 0.69 * pmValue + 8.84 * 0.0001 * math.pow(pmValue, 2)
 
     return aqi_from_PM(pm25_corrected)
 
@@ -672,6 +653,9 @@ def render_animation(aqi, temp, humidity, name, show_title = True, show_temp = T
 # CONSTANTS
 
 API_READ_KEY = "AV6+xWcE7hO0GOSye3S6fLtTsKex797gyaIfLQKc3t1oXawbQBTEVHciWK3ITe3um3dBzxDNau5bI3iNhYicAm3FFRWAj0hVL/nKmGrvphhvjzxbjynWIy2+g6IkGZw43GMf2wjIEnHcmuGVMicd779uABXs56OhMof9LFfiq7iuJ9e2PhN+h8x2"
+
+# unencrypted DEV key - set this to None before you PR
+DEV_KEY = None
 PUBLIC_SENSOR = "https://api.purpleair.com/v1/sensors/"
 LIST_SENSORS = "https://api.purpleair.com/v1/sensors?fields=name,location_type,latitude,longitude"
 CACHE_KEY_DATA = "purpleAirData"
