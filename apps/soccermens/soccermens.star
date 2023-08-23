@@ -5,13 +5,17 @@ Description: Displays live and upcoming soccer scores from a data feed.   Heavil
 Author: jvivona
 """
 
+# 20230812 added display of penalty kick score if applicable
+#          toned down colors when display team colors - you couldn't see winner score if team color was also yellow
+# 20230816 changed list of tournaments to get dynamically instead of having to do a PR each time I add one
+
 load("encoding/json.star", "json")
 load("http.star", "http")
 load("render.star", "render")
 load("schema.star", "schema")
 load("time.star", "time")
 
-VERSION = 23176
+VERSION = 23228
 
 # thanks to @jesushairdo for the new option to be able to show home or away team first.  Let's be more international :-)
 
@@ -23,6 +27,10 @@ MISSING_LOGO = "https://upload.wikimedia.org/wikipedia/commons/c/ca/1x1.png?src=
 
 DEFAULT_LEAGUE = "ger.1"
 API = "https://site.api.espn.com/apis/site/v2/sports/" + SPORT + "/"
+
+ABBR_URL = "https://raw.githubusercontent.com/jvivona/tidbyt-data/main/soccermens/league_abbr.json"
+COMPS_URL = "https://raw.githubusercontent.com/jvivona/tidbyt-data/main/soccermens/comps.json"
+COMPS_TTL = 86400  # increase this to 24 hours after dev - we're not making changes that often
 
 DEFAULT_TEAM_DISPLAY = "visitor"  # default to Visitor first, then Home - US order
 DEFAULT_DISPLAY_SPEED = "2000"
@@ -42,32 +50,8 @@ SHORTENED_WORDS = """
 }
 """
 
-LEAGUE_ABBR = {
-    "ned.1": "Ered",
-    "eng.league_cup": "Carbo",
-    "eng.fa": "FACup",
-    "eng.2": "E Chp",
-    "eng.3": "E LG1",
-    "eng.4": "E LG2",
-    "eng.5": "E Nat",
-    "eng.1": "EPL",
-    "fra.1": "F Lg1",
-    "fifa.world": "WC",
-    "fifa.world.u20": "U20 WC",
-    "fifa.world.u17": "U17 WC",
-    "ger.1": "Bund",
-    "ita.1": "Ser A",
-    "mex.1": "LG MX",
-    "sco.1": "Sco P",
-    "esp.1": "LaLiga",
-    "uefa.champions": "U Chp",
-    "uefa.europa": "Euro",
-    "concacaf.nations.league": "ConcNL",
-    "concacaf.champions": "ConcCC",
-    "concacaf.gold": "Gold C",
-}
-
 def main(config):
+    LEAGUE_ABBR = json.decode(http.get(url = ABBR_URL, ttl_seconds = COMPS_TTL).body())
     renderCategory = []
     selectedLeague = config.get("leagueOptions", DEFAULT_LEAGUE)
     leagueAbbr = LEAGUE_ABBR[selectedLeague]
@@ -215,6 +199,23 @@ def main(config):
                         homeScoreColor = "#ff0"
                         awayScoreColor = "#fffc"
                     elif (int(awayScore) > int(homeScore)):
+                        homeScoreColor = "#fffc"
+                        awayScoreColor = "#ff0"
+                    else:
+                        homeScoreColor = "#fff"
+                        awayScoreColor = "#fff"
+
+                # if FT-Pens - get penalty shootout score & append to score
+                if gameName == "STATUS_FINAL_PEN":
+                    scoreFont = "CG-pixel-3x5-mono"
+                    homeShootoutScore = competition["competitors"][0]["shootoutScore"]
+                    awayShootoutScore = competition["competitors"][1]["shootoutScore"]
+                    homeScore = "%s (%s)" % (homeScore, homeShootoutScore)
+                    awayScore = "%s (%s)" % (awayScore, awayShootoutScore)
+                    if (int(homeShootoutScore) > int(awayShootoutScore)):
+                        homeScoreColor = "#ff0"
+                        awayScoreColor = "#fffc"
+                    elif (int(awayShootoutScore) > int(homeShootoutScore)):
                         homeScoreColor = "#fffc"
                         awayScoreColor = "#ff0"
                     else:
@@ -420,12 +421,12 @@ def main(config):
                                     children = [
                                         render.Column(
                                             children = [
-                                                render.Box(width = 64, height = 13, color = matchInfo[0]["color"], child = render.Row(expanded = True, main_align = "start", cross_align = "center", children = [
+                                                render.Box(width = 64, height = 13, color = matchInfo[0]["color"] + "77", child = render.Row(expanded = True, main_align = "start", cross_align = "center", children = [
                                                     render.Box(width = 16, height = 17, child = render.Image(matchInfo[0]["logo"], width = awayLogoSize, height = awayLogoSize)),
                                                     render.Box(width = 24, height = 13, child = render.Text(content = matchInfo[0]["abbreviation"], color = matchInfo[0]["scorecolor"], font = textFont)),
                                                     render.Box(width = 24, height = 13, child = render.Text(content = get_record(matchInfo[0]["score"]), color = matchInfo[0]["scorecolor"], font = scoreFont)),
                                                 ])),
-                                                render.Box(width = 64, height = 13, color = matchInfo[1]["color"], child = render.Row(expanded = True, main_align = "start", cross_align = "center", children = [
+                                                render.Box(width = 64, height = 13, color = matchInfo[1]["color"] + "77", child = render.Row(expanded = True, main_align = "start", cross_align = "center", children = [
                                                     render.Box(width = 16, height = 17, child = render.Image(matchInfo[1]["logo"], width = homeLogoSize, height = homeLogoSize)),
                                                     render.Box(width = 24, height = 13, child = render.Text(content = matchInfo[1]["abbreviation"], color = matchInfo[1]["scorecolor"], font = textFont)),
                                                     render.Box(width = 24, height = 13, child = render.Text(content = get_record(matchInfo[1]["score"]), color = matchInfo[1]["scorecolor"], font = scoreFont)),
@@ -459,97 +460,6 @@ def main(config):
         )
     else:
         return []
-
-leagueOptions = [
-    schema.Option(
-        display = "CONCACAF Champions Cup",
-        value = "concacaf.champions",
-    ),
-    schema.Option(
-        display = "CONCACAF Gold Cup",
-        value = "concacaf.gold",
-    ),
-    schema.Option(
-        display = "CONCACAF Nations League",
-        value = "concacaf.nations.league",
-    ),
-    schema.Option(
-        display = "Dutch Eredivisie",
-        value = "ned.1",
-    ),
-    schema.Option(
-        display = "English Carabo Cup",
-        value = "eng.league_cup",
-    ),
-    schema.Option(
-        display = "English FA Cup",
-        value = "eng.fa",
-    ),
-    schema.Option(
-        display = "English League Championship",
-        value = "eng.2",
-    ),
-    schema.Option(
-        display = "English League One",
-        value = "eng.3",
-    ),
-    schema.Option(
-        display = "English League Two",
-        value = "eng.4",
-    ),
-    schema.Option(
-        display = "English National League",
-        value = "eng.5",
-    ),
-    schema.Option(
-        display = "English Premier League",
-        value = "eng.1",
-    ),
-    schema.Option(
-        display = "French Ligue 1",
-        value = "fra.1",
-    ),
-    schema.Option(
-        display = "FIFA U17 World Cup",
-        value = "fifa.world.u17",
-    ),
-    schema.Option(
-        display = "FIFA U20 World Cup",
-        value = "fifa.world.u20",
-    ),
-    schema.Option(
-        display = "FIFA World Cup",
-        value = "fifa.world",
-    ),
-    schema.Option(
-        display = "German Bundesliga",
-        value = "ger.1",
-    ),
-    schema.Option(
-        display = "Italian Serie A",
-        value = "ita.1",
-    ),
-    schema.Option(
-        display = "Mexican Liga BBVA MX",
-        value = "mex.1",
-    ),
-    schema.Option(
-        display = "Scottish Premiership",
-        value = "sco.1",
-    ),
-    schema.Option(
-        display = "Spanish LaLiga",
-        value = "esp.1",
-    ),
-    schema.Option(
-        display = "UEFA Champions League",
-        value = "uefa.champions",
-    ),
-    schema.Option(
-        display = "UEFA Europa League",
-        value = "uefa.europa",
-    ),
-]
 
 displayOptions = [
     schema.Option(
@@ -635,6 +545,21 @@ displaySpeeds = [
 ]
 
 def get_schema():
+    http_response = http.get(url = COMPS_URL, ttl_seconds = COMPS_TTL)
+    if http_response.status_code != 200:
+        fail("Comp list request failed with status {} and result {}".format(http_response.status_code, http_response.body()))
+    comps = json.decode(http_response.body())
+    comp_options = []
+
+    if len(comps) > 0:
+        for comp in comps:
+            comp_options.append(
+                schema.Option(
+                    display = comp["display"],
+                    value = comp["value"],
+                ),
+            )
+
     return schema.Schema(
         version = "1",
         fields = [
@@ -643,8 +568,8 @@ def get_schema():
                 name = "League / Tournament",
                 desc = "League or Tournament ",
                 icon = "futbol",
-                default = leagueOptions[0].value,
-                options = leagueOptions,
+                default = comp_options[0].value,
+                options = comp_options,
             ),
             schema.Dropdown(
                 id = "team_sequence",
@@ -770,7 +695,7 @@ def get_background_color(displayType, color):
     else:
         color = "#" + color
     if color == "#ffffff" or color == "#000000":
-        color = "#222"
+        color = "#222222"
     return color
 
 def get_logoType(logo):

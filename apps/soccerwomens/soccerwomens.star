@@ -4,6 +4,10 @@ Summary: Displays women's soccer scores for various leages and tournaments
 Description: Displays live and upcoming soccer scores from a data feed.   Heavily taken from the other sports score apps - @LunchBox8484 is the original.
 Author: jvivona
 """
+# thanks to @jesushairdo for the new option to be able to show home or away team first.  Let's be more international :-)
+# 20230812 added display of penalty kick score if applicable
+#          toned down colors when display team colors - you couldn't see winner score if team color was also yellow
+# 20230816 changed list of tournaments to get dynamically instead of having to do a PR each time I add one
 
 load("encoding/json.star", "json")
 load("http.star", "http")
@@ -11,9 +15,7 @@ load("render.star", "render")
 load("schema.star", "schema")
 load("time.star", "time")
 
-VERSION = 23132
-
-# thanks to @jesushairdo for the new option to be able to show home or away team first.  Let's be more international :-)
+VERSION = 23228
 
 CACHE_TTL_SECONDS = 60
 DEFAULT_TIMEZONE = "America/New_York"
@@ -23,6 +25,10 @@ MISSING_LOGO = "https://upload.wikimedia.org/wikipedia/commons/c/ca/1x1.png?src=
 
 DEFAULT_LEAGUE = "eng.w.1"
 API = "https://site.api.espn.com/apis/site/v2/sports/" + SPORT + "/"
+
+ABBR_URL = "https://raw.githubusercontent.com/jvivona/tidbyt-data/main/soccerwomens/league_abbr.json"
+COMPS_URL = "https://raw.githubusercontent.com/jvivona/tidbyt-data/main/soccerwomens/comps.json"
+COMPS_TTL = 86400  # increase this to 24 hours after dev - we're not making changes that often
 
 DEFAULT_TEAM_DISPLAY = "visitor"  # default to Visitor first, then Home - US order
 DEFAULT_DISPLAY_SPEED = "2000"
@@ -42,31 +48,8 @@ SHORTENED_WORDS = """
 }
 """
 
-LEAGUE_ABBR = {
-    "eng.w.1": "E WSL",
-    "aus.w.1": "AUS A",
-    "uefa.wchampions": "UEFA C",
-    "eng.w.fa": "FA W",
-    "concacaf.womens.championship": "C CAF",
-    "usa.nwsl": "NWSL",
-    "fifa.friendly.w": "INT W",
-    "fifa.w.olympics": "OLY W",
-    "fifa.wwc": " WWC",
-    "fifa.shebelieves": "SB Cup",
-    "conmebol.america.femenina": "Copa AM",
-    "esp.copa_de_la_reina": "ESP CR",
-    "esp.w.1": "ESP W",
-    "fifa.wworld.u17": "WWCU17",
-    "fifa.wworldq.uefa": "WWC Q",
-    "global.pinatar_cup": "Pin C",
-    "ned.w.1": "NED W",
-    "ned.w.knvb_cup": "KNVB C",
-    "uefa.weuro": "W EURO",
-    "usa.ncaa.w.1": "NCAA W",
-    "usa.nwsl.cup": "NWSL C",
-}
-
 def main(config):
+    LEAGUE_ABBR = json.decode(http.get(url = ABBR_URL, ttl_seconds = COMPS_TTL).body())
     renderCategory = []
     selectedLeague = config.get("leagueOptions", DEFAULT_LEAGUE)
     leagueAbbr = LEAGUE_ABBR[selectedLeague][0:6]
@@ -219,6 +202,23 @@ def main(config):
                         homeScoreColor = "#ff0"
                         awayScoreColor = "#fffc"
                     elif (int(awayScore) > int(homeScore)):
+                        homeScoreColor = "#fffc"
+                        awayScoreColor = "#ff0"
+                    else:
+                        homeScoreColor = "#fff"
+                        awayScoreColor = "#fff"
+
+                # if FT-Pens - get penalty shootout score & append to score
+                if gameName == "STATUS_FINAL_PEN":
+                    scoreFont = "CG-pixel-3x5-mono"
+                    homeShootoutScore = competition["competitors"][0]["shootoutScore"]
+                    awayShootoutScore = competition["competitors"][1]["shootoutScore"]
+                    homeScore = "%s (%s)" % (homeScore, homeShootoutScore)
+                    awayScore = "%s (%s)" % (awayScore, awayShootoutScore)
+                    if (int(homeShootoutScore) > int(awayShootoutScore)):
+                        homeScoreColor = "#ff0"
+                        awayScoreColor = "#fffc"
+                    elif (int(awayShootoutScore) > int(homeShootoutScore)):
                         homeScoreColor = "#fffc"
                         awayScoreColor = "#ff0"
                     else:
@@ -424,12 +424,12 @@ def main(config):
                                     children = [
                                         render.Column(
                                             children = [
-                                                render.Box(width = 64, height = 13, color = matchInfo[0]["color"], child = render.Row(expanded = True, main_align = "start", cross_align = "center", children = [
+                                                render.Box(width = 64, height = 13, color = matchInfo[0]["color"] + "77", child = render.Row(expanded = True, main_align = "start", cross_align = "center", children = [
                                                     render.Box(width = 16, height = 17, child = render.Image(matchInfo[0]["logo"], width = awayLogoSize, height = awayLogoSize)),
                                                     render.Box(width = 24, height = 13, child = render.Text(content = matchInfo[0]["abbreviation"], color = matchInfo[0]["scorecolor"], font = textFont)),
                                                     render.Box(width = 24, height = 13, child = render.Text(content = get_record(matchInfo[0]["score"]), color = matchInfo[0]["scorecolor"], font = scoreFont)),
                                                 ])),
-                                                render.Box(width = 64, height = 13, color = matchInfo[1]["color"], child = render.Row(expanded = True, main_align = "start", cross_align = "center", children = [
+                                                render.Box(width = 64, height = 13, color = matchInfo[1]["color"] + "77", child = render.Row(expanded = True, main_align = "start", cross_align = "center", children = [
                                                     render.Box(width = 16, height = 17, child = render.Image(matchInfo[1]["logo"], width = homeLogoSize, height = homeLogoSize)),
                                                     render.Box(width = 24, height = 13, child = render.Text(content = matchInfo[1]["abbreviation"], color = matchInfo[1]["scorecolor"], font = textFont)),
                                                     render.Box(width = 24, height = 13, child = render.Text(content = get_record(matchInfo[1]["score"]), color = matchInfo[1]["scorecolor"], font = scoreFont)),
@@ -463,93 +463,6 @@ def main(config):
         )
     else:
         return []
-
-leagueOptions = [
-    schema.Option(
-        display = "Australian A-League Women",
-        value = "aus.w.1",
-    ),
-    schema.Option(
-        display = "CONCACAF W Championship",
-        value = "concacaf.womens.championship",
-    ),
-    schema.Option(
-        display = "Copa América Femenina",
-        value = "conmebol.america.femenina",
-    ),
-    schema.Option(
-        display = "Dutch Vrouwen Eredivisie",
-        value = "ned.w.1",
-    ),
-    schema.Option(
-        display = "Dutch Vrouwen KNVB Beker",
-        value = "ned.w.knvb_cup",
-    ),
-    schema.Option(
-        display = "English Women's FA Cup",
-        value = "eng.w.fa",
-    ),
-    schema.Option(
-        display = "English Women's Super League",
-        value = "eng.w.1",
-    ),
-    schema.Option(
-        display = "NCAA Women's Soccer",
-        value = "usa.ncaa.w.1",
-    ),
-    schema.Option(
-        display = "Pintar Cup",
-        value = "global.pinatar_cup",
-    ),
-    schema.Option(
-        display = "She Belives Cup",
-        value = "fifa.shebelieves",
-    ),
-    schema.Option(
-        display = "Spanish Copa de la Reina",
-        value = "esp.copa_de_la_reina",
-    ),
-    schema.Option(
-        display = "Spanish Primera División Femenina",
-        value = "esp.w.1",
-    ),
-    schema.Option(
-        display = "UEFA Women's Champions League",
-        value = "uefa.wchampions",
-    ),
-    schema.Option(
-        display = "United States NWSL",
-        value = "usa.nwsl",
-    ),
-    schema.Option(
-        display = "United States NWSL Cup",
-        value = "usa.nwsl.cup",
-    ),
-    schema.Option(
-        display = "Women's European Championship",
-        value = "uefa.weuro",
-    ),
-    schema.Option(
-        display = "Women's International Friendly",
-        value = "fifa.friendly.w",
-    ),
-    schema.Option(
-        display = "Women's Olympics Tournament",
-        value = "fifa.w.olympics",
-    ),
-    schema.Option(
-        display = "Women's World Cup",
-        value = "fifa.wwc",
-    ),
-    schema.Option(
-        display = "Women's World Cup U17",
-        value = "fifa.wworld.u17",
-    ),
-    schema.Option(
-        display = "Women's World Cup Qualifying - UEFA",
-        value = "fifa.wworldq.uefa",
-    ),
-]
 
 displayOptions = [
     schema.Option(
@@ -635,6 +548,21 @@ displaySpeeds = [
 ]
 
 def get_schema():
+    http_response = http.get(url = COMPS_URL, ttl_seconds = COMPS_TTL)
+    if http_response.status_code != 200:
+        fail("Comp list request failed with status {} and result {}".format(http_response.status_code, http_response.body()))
+    comps = json.decode(http_response.body())
+    comp_options = []
+
+    if len(comps) > 0:
+        for comp in comps:
+            comp_options.append(
+                schema.Option(
+                    display = comp["display"],
+                    value = comp["value"],
+                ),
+            )
+
     return schema.Schema(
         version = "1",
         fields = [
@@ -643,8 +571,8 @@ def get_schema():
                 name = "League / Tournament",
                 desc = "League or Tournament ",
                 icon = "futbol",
-                default = leagueOptions[0].value,
-                options = leagueOptions,
+                default = comp_options[0].value,
+                options = comp_options,
             ),
             schema.Dropdown(
                 id = "team_sequence",
@@ -770,7 +698,7 @@ def get_background_color(displayType, color):
     else:
         color = "#" + color
     if color == "#ffffff" or color == "#000000":
-        color = "#222"
+        color = "#222222"
     return color
 
 def get_logoType(logo):
