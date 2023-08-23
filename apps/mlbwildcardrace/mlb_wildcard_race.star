@@ -9,6 +9,7 @@ load("encoding/base64.star", "base64")
 load("http.star", "http")
 load("render.star", "render")
 load("schema.star", "schema")
+load("animation.star", "animation")
 load("time.star", "time")
 
 MLB_STANDINGS_URL = "https://statsapi.mlb.com/api/v1/standings"
@@ -23,7 +24,7 @@ AL_LEAGUE_ID = "103"
 BOTH_MODE_LIST = [NL_LEAGUE_ID, AL_LEAGUE_ID]
 
 # limited to 4 teams, in a future version we can have more scrolling
-DISPLAY_LIMIT = 4
+DISPLAY_LIMIT = 8
 
 CACHE_TIMEOUT = 300  # five minutes
 
@@ -38,39 +39,50 @@ def main(config):
 
     widgets = []
 
-    # if we are displaying both leagues, then split the animation into two
-    if mode == BOTH_MODE:
-        delay = 7500
-        for league in BOTH_MODE_LIST:
-            standings = get_Standings(league, year)
+    DISPLAY_LIMIT = 8
 
-            # we are supposed to get exactly the number of teams we are expecting
-            # if we didn't, something went wrong, so do not call into method to render standings
-            if len(standings) == DISPLAY_LIMIT:
-                widgets.append(render_WildCardStandings(standings))
-    else:
-        delay = 15000
-
-        # write this as if-else so we are always getting some league (NL default)
-        if mode == AL_MODE:
-            league_id = AL_LEAGUE_ID
-        else:
-            league_id = NL_LEAGUE_ID
-        standings = get_Standings(league_id, year)
-
-        # we are supposed to get exactly the number of teams we are expecting
-        # if we didn't, something went wrong, so do not call into method to render standings
-        if len(standings) == DISPLAY_LIMIT:
-            widgets.append(render_WildCardStandings(standings))
-
+    standings = get_Standings(NL_LEAGUE_ID, year)
+    
     # if we have some widgets, we can display them now
-    if len(widgets) > 0:
-        return render.Root(
-            delay = delay,
-            child = render.Animation(
-                children = widgets,
-            ),
+    return render.Root(
+        child = animation.Transformation(
+            duration = 150,
+            height = 64,
+            keyframes = [
+                animation.Keyframe(
+                    percentage = 0.0,
+                    transforms = [],
+                    curve = "ease_in_out"
+                ),
+                animation.Keyframe(
+                    percentage = 0.25,
+                    transforms = [],
+                    curve = "ease_in_out"
+                ),
+                animation.Keyframe(
+                    percentage = 0.40,
+                    transforms = [animation.Translate(0, -16)],
+                    curve = "ease_in_out"
+                ),
+                animation.Keyframe(
+                    percentage = 0.60,
+                    transforms = [animation.Translate(0, -16)],
+                    curve = "ease_in_out"
+                ),
+                animation.Keyframe(
+                    percentage = 0.75,
+                    transforms = [animation.Translate(0,-32)],
+                    curve = "ease_in_out"
+                ),
+                animation.Keyframe(
+                    percentage = 1.0,
+                    transforms = [animation.Translate(0,-32)],
+                    curve = "ease_in_out"
+                ),
+            ],
+            child = render_WildCardStandings(standings),
         )
+    )
 
     # otherwise it means something went wrong
     # display zero-state image
@@ -121,6 +133,9 @@ def get_schema():
         ],
     )
 
+def render_header(league_id):
+    
+
 def get_Standings(league_id, year):
     query_params = {"standingsTypes": "wildCard", "leagueId": league_id, "season": year}
     standings_data = http.get(MLB_STANDINGS_URL, params = query_params, ttl_seconds = CACHE_TIMEOUT)
@@ -142,13 +157,13 @@ def get_Standings(league_id, year):
 
     limiter = 0
 
-    for team in standings_data.json()["records"][0]["teamRecords"]:
+    for team in standings_data.json().get("records")[0].get("teamRecords"):
         if limiter >= DISPLAY_LIMIT:
             break
 
         # get the team and how many games back they are
-        team_id = int(team["team"]["id"])
-        games_back = team["wildCardGamesBack"]
+        team_id = int(team.get("team").get("id"))
+        games_back = team.get("wildCardGamesBack")
 
         # add to list
         standings.append({"TeamId": team_id, "GamesBack": games_back})
@@ -164,12 +179,14 @@ def render_WildCardStandings(standings):
     for info in standings:
         team_id = info.get("TeamId")
         games_back = info.get("GamesBack")
+        # handle alignment of "games back"
         if len(games_back) > max_games_back_length:
             max_games_back_length = len(games_back)
         widgets.append(render_Team(team_id))
         games_back_widgets.append(render_GamesBack(team_id, games_back))
 
     box_width = get_BoxWidth(max_games_back_length)
+
     return render.Stack(
         children = [
             render.Column(
