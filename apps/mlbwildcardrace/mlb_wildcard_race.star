@@ -36,16 +36,15 @@ ERROR_FONT = "CG-pixel-3x5-mono"
 ERROR_FONT_COLOR = "#FFA700"
 
 def main(config):
-    mode = config.get("standingsMode") or BOTH_MODE
+    league_id = config.get("standingsMode") or NL_LEAGUE_ID
     year = str(time.now().year)  #use current year
 
-    widgets = []
-
-    league_id = NL_LEAGUE_ID if mode == NL_MODE else NL_LEAGUE_ID
     standings = get_Standings(league_id, year)
     
     # if we have some widgets, we can display them now
     return render.Root(
+        delay = 80,
+        show_full_animation = True,
         child = render.Stack(
             children = [
                 animation.Transformation(
@@ -73,7 +72,7 @@ def main(config):
                             curve = "ease_in_out"
                         ),
                         animation.Keyframe(
-                            percentage = 0.75,
+                            percentage = 0.70,
                             transforms = [animation.Translate(0,-40)],
                             curve = "ease_in_out"
                         ),
@@ -115,16 +114,12 @@ def get_schema():
     options = [
         schema.Option(
             display = "National League",
-            value = NL_MODE,
+            value = NL_LEAGUE_ID,
         ),
         schema.Option(
             display = "American League",
-            value = AL_MODE,
-        ),
-        schema.Option(
-            display = "Both",
-            value = BOTH_MODE,
-        ),
+            value = AL_LEAGUE_ID,
+        )
     ]
     return schema.Schema(
         version = "1",
@@ -134,7 +129,7 @@ def get_schema():
                 name = "League",
                 desc = "Which league to display the wild card race for.",
                 icon = "baseballBatBall",
-                default = BOTH_MODE,
+                default = NL_LEAGUE_ID,
                 options = options,
             ),
         ],
@@ -144,15 +139,12 @@ def render_header(league_id):
     print(league_id)
     text = "NL" if league_id == NL_LEAGUE_ID else "AL"
     text += " WILD CARD"
-    print(text)
     return render.Box(
         height = 8,
         width = 64,
         color = "#000000",
-        child = render.Text(
-            content = text,
-            font = GAMES_BACK_FONT,
-            color = HIGHLIGHT_COLOR
+        child = render.Animation(
+            children = render_rainbow_word(text, GAMES_BACK_FONT)
         )
     )
 
@@ -232,6 +224,25 @@ def render_WildCardStandings(standings):
             ),
         ],
     )
+
+def render_rainbow_word(word, font):
+    colors = ["#e81416", "#ffa500", "#faeb36", "#79c314", "#487de7", "#4b369d", "#70369d"]
+    widgets = []
+    for j in range(7):
+        rainbow_word = []
+        for i in range(len(word)):
+            letter = render.Text(
+                    content = word[i],
+                    font = font,
+                    color = colors[(j+i)%7] 
+                )
+            rainbow_word.append(letter)
+        widgets.append(
+            render.Row(
+                children = rainbow_word
+            )
+        )
+    return widgets
 
 def render_Team(team_id, pos):
     team = TEAM_INFO[team_id]
