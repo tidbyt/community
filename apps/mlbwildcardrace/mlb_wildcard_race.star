@@ -23,8 +23,10 @@ AL_LEAGUE_ID = "103"
 
 BOTH_MODE_LIST = [NL_LEAGUE_ID, AL_LEAGUE_ID]
 
-# limited to 4 teams, in a future version we can have more scrolling
-DISPLAY_LIMIT = 8
+HIGHLIGHT_COLOR = "#65FE08"
+
+# get top 9 teams (almost everyone)
+DISPLAY_LIMIT = 9
 
 CACHE_TIMEOUT = 300  # five minutes
 
@@ -39,48 +41,53 @@ def main(config):
 
     widgets = []
 
-    DISPLAY_LIMIT = 8
-
-    standings = get_Standings(NL_LEAGUE_ID, year)
+    league_id = NL_LEAGUE_ID if mode == NL_MODE else NL_LEAGUE_ID
+    standings = get_Standings(league_id, year)
     
     # if we have some widgets, we can display them now
     return render.Root(
-        child = animation.Transformation(
-            duration = 150,
-            height = 64,
-            keyframes = [
-                animation.Keyframe(
-                    percentage = 0.0,
-                    transforms = [],
-                    curve = "ease_in_out"
+        child = render.Stack(
+            children = [
+                animation.Transformation(
+                    duration = 200,
+                    height = 72,
+                    keyframes = [
+                        animation.Keyframe(
+                            percentage = 0.0,
+                            transforms = [animation.Translate(0,8)],
+                            curve = "ease_in_out"
+                        ),
+                        animation.Keyframe(
+                            percentage = 0.25,
+                            transforms = [animation.Translate(0,8)],
+                            curve = "ease_in_out"
+                        ),
+                        animation.Keyframe(
+                            percentage = 0.40,
+                            transforms = [animation.Translate(0, -16)],
+                            curve = "ease_in_out"
+                        ),
+                        animation.Keyframe(
+                            percentage = 0.60,
+                            transforms = [animation.Translate(0, -16)],
+                            curve = "ease_in_out"
+                        ),
+                        animation.Keyframe(
+                            percentage = 0.75,
+                            transforms = [animation.Translate(0,-40)],
+                            curve = "ease_in_out"
+                        ),
+                        animation.Keyframe(
+                            percentage = 1.0,
+                            transforms = [animation.Translate(0,-40)],
+                            curve = "ease_in_out"
+                        ),
+                    ],
+                    child = render_WildCardStandings(standings),
+                    wait_for_child = True,
                 ),
-                animation.Keyframe(
-                    percentage = 0.25,
-                    transforms = [],
-                    curve = "ease_in_out"
-                ),
-                animation.Keyframe(
-                    percentage = 0.40,
-                    transforms = [animation.Translate(0, -16)],
-                    curve = "ease_in_out"
-                ),
-                animation.Keyframe(
-                    percentage = 0.60,
-                    transforms = [animation.Translate(0, -16)],
-                    curve = "ease_in_out"
-                ),
-                animation.Keyframe(
-                    percentage = 0.75,
-                    transforms = [animation.Translate(0,-32)],
-                    curve = "ease_in_out"
-                ),
-                animation.Keyframe(
-                    percentage = 1.0,
-                    transforms = [animation.Translate(0,-32)],
-                    curve = "ease_in_out"
-                ),
-            ],
-            child = render_WildCardStandings(standings),
+                render_header(league_id),
+            ]
         )
     )
 
@@ -134,10 +141,27 @@ def get_schema():
     )
 
 def render_header(league_id):
-    
+    print(league_id)
+    text = "NL" if league_id == NL_LEAGUE_ID else "AL"
+    text += " WILD CARD"
+    print(text)
+    return render.Box(
+        height = 8,
+        width = 64,
+        color = "#000000",
+        child = render.Text(
+            content = text,
+            font = GAMES_BACK_FONT,
+            color = HIGHLIGHT_COLOR
+        )
+    )
 
 def get_Standings(league_id, year):
-    query_params = {"standingsTypes": "wildCard", "leagueId": league_id, "season": year}
+    query_params = {
+        "standingsTypes": "wildCard", 
+        "leagueId": league_id, 
+        "season": year
+    }
     standings_data = http.get(MLB_STANDINGS_URL, params = query_params, ttl_seconds = CACHE_TIMEOUT)
 
     standings = []
@@ -146,7 +170,7 @@ def get_Standings(league_id, year):
     if standings_data.status_code != HTTP_SUCCESS_CODE:
         return standings
 
-    records = standings_data.json()["records"]
+    records = standings_data.json().get("records")
 
     # if we did not get anything back because there is no data
     # could be too early in the year for data to be displayed
@@ -176,14 +200,16 @@ def render_WildCardStandings(standings):
     games_back_widgets = []
     max_games_back_length = 0
 
+    i = 1
     for info in standings:
         team_id = info.get("TeamId")
         games_back = info.get("GamesBack")
         # handle alignment of "games back"
         if len(games_back) > max_games_back_length:
             max_games_back_length = len(games_back)
-        widgets.append(render_Team(team_id))
+        widgets.append(render_Team(team_id, i))
         games_back_widgets.append(render_GamesBack(team_id, games_back))
+        i += 1
 
     box_width = get_BoxWidth(max_games_back_length)
 
@@ -207,7 +233,7 @@ def render_WildCardStandings(standings):
         ],
     )
 
-def render_Team(team_id):
+def render_Team(team_id, pos):
     team = TEAM_INFO[team_id]
     return render.Box(
         height = 8,
@@ -217,6 +243,11 @@ def render_Team(team_id):
             main_align = "start",
             expanded = True,
             children = [
+                render.Text(
+                    content = str(pos),
+                    font = ERROR_FONT,
+                    color = ERROR_FONT_COLOR
+                ),
                 render.Padding(
                     pad = (0, -2, 0, 0),
                     child = render.Image(
