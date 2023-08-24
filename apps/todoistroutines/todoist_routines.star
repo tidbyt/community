@@ -118,7 +118,7 @@ def get_task_dots(config):
             render.Box(width = 1, height = 1, color = "#0000"),
         ]
 
-        for subtask in task["subtasks"]:
+        for _subtask in task["subtasks"]:
             subtask_dots.append(render.Box(width = 1, height = 1, color = config.str("subtask_color")))
 
         task_dots.append(render_subtasks(children = subtask_dots))
