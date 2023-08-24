@@ -132,14 +132,14 @@ def get_task_dots(config):
                 expanded = True,
                 main_align = "center",
                 children = task_dots,
-            )
+            ),
         ],
     )
 
 def get_tasks(token, params):
     response = http.get(
         "https://api.todoist.com/rest/v2/tasks?" + params,
-        headers = { "Authorization": "Bearer " + token }
+        headers = {"Authorization": "Bearer " + token},
     )
 
     if response.status_code != 200:
@@ -165,5 +165,5 @@ def render_message(message):
         children = [
             render.Box(width = 64, height = 32, color = "#000"),
             render.WrappedText(message, color = "#FFF"),
-        ]
+        ],
     )
