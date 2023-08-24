@@ -48,14 +48,14 @@ def get_schema():
                 id = "subtask_color",
                 name = "Subtask color",
                 desc = "The color of the subtask dots.",
-                icon = "check-double",
+                icon = "checkDouble",
                 default = "#FF0000",
             ),
             schema.Color(
                 id = "background_color",
                 name = "Background color",
                 desc = "The color of the background.",
-                icon = "check-double",
+                icon = "fillDrip",
                 default = "#000000",
             ),
             schema.PhotoSelect(
