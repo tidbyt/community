@@ -17,7 +17,7 @@ def get_schema():
             schema.Text(
                 id = "token",
                 name = "Todoist API token",
-                desc = "Settings > Integrations > Developer > API token",
+                desc = "Todoist > Settings > Integrations > Developer > API token",
                 icon = "key",
             ),
             schema.Dropdown(
