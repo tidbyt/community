@@ -22,7 +22,7 @@ HTTP_OK = 200
 
 def main(config):
     team_id = get_team_to_follow(config)
-    
+
     info = http_get_number(team_id)
 
     if info.Clinched or info.Magic or info.Eliminated or not info.HasData:
