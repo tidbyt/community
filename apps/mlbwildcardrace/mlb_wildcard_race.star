@@ -14,14 +14,9 @@ load("time.star", "time")
 
 MLB_STANDINGS_URL = "https://statsapi.mlb.com/api/v1/standings"
 GAMES_BACK_FONT = "tb-8"
-NL_MODE = "NL"
-AL_MODE = "AL"
-BOTH_MODE = "BOTH"
 
 NL_LEAGUE_ID = "104"
 AL_LEAGUE_ID = "103"
-
-BOTH_MODE_LIST = [NL_LEAGUE_ID, AL_LEAGUE_ID]
 
 HIGHLIGHT_COLOR = "#65FE08"
 
@@ -32,83 +27,67 @@ CACHE_TIMEOUT = 300  # five minutes
 
 HTTP_SUCCESS_CODE = 200
 
-ERROR_FONT = "CG-pixel-3x5-mono"
-ERROR_FONT_COLOR = "#FFA700"
+SMALL_FONT = "CG-pixel-3x5-mono"
+SMALL_FONT_COLOR = "#FFA700"
 
 def main(config):
-    league_id = config.get("standingsMode") or NL_LEAGUE_ID
+    league_id = config.get("league") or NL_LEAGUE_ID
     year = str(time.now().year)  #use current year
 
     standings = get_Standings(league_id, year)
     
     # if we have some widgets, we can display them now
-    return render.Root(
-        delay = 80,
-        show_full_animation = True,
-        child = render.Stack(
-            children = [
-                animation.Transformation(
-                    duration = 200,
-                    height = 72,
-                    keyframes = [
-                        animation.Keyframe(
-                            percentage = 0.0,
-                            transforms = [animation.Translate(0,8)],
-                            curve = "ease_in_out"
-                        ),
-                        animation.Keyframe(
-                            percentage = 0.25,
-                            transforms = [animation.Translate(0,8)],
-                            curve = "ease_in_out"
-                        ),
-                        animation.Keyframe(
-                            percentage = 0.40,
-                            transforms = [animation.Translate(0, -16)],
-                            curve = "ease_in_out"
-                        ),
-                        animation.Keyframe(
-                            percentage = 0.60,
-                            transforms = [animation.Translate(0, -16)],
-                            curve = "ease_in_out"
-                        ),
-                        animation.Keyframe(
-                            percentage = 0.70,
-                            transforms = [animation.Translate(0,-40)],
-                            curve = "ease_in_out"
-                        ),
-                        animation.Keyframe(
-                            percentage = 1.0,
-                            transforms = [animation.Translate(0,-40)],
-                            curve = "ease_in_out"
-                        ),
-                    ],
-                    child = render_WildCardStandings(standings),
-                    wait_for_child = True,
-                ),
-                render_header(league_id),
-            ]
-        )
-    )
-
-    # otherwise it means something went wrong
-    # display zero-state image
-    return render.Root(
-        child = render.Stack(
-            children = [
-                render.Image(
-                    src = MLB_LEAGUE_IMAGE,
-                ),
-                render.Marquee(
-                    width = 64,
-                    child = render.Text(
-                        content = "No wild card race to display for league year " + year,
-                        color = ERROR_FONT_COLOR,
-                        font = ERROR_FONT,
+    if len(standings) > 0:
+        return render.Root(
+            delay = 80,
+            show_full_animation = True,
+            child = render.Stack(
+                children = [
+                    animation.Transformation(
+                        duration = 200,
+                        height = 81,
+                        keyframes = [
+                            build_keyframe(5, 0.0),
+                            build_keyframe(5, 0.25),
+                            build_keyframe(-22, 0.40),
+                            build_keyframe(-22, 0.60),
+                            build_keyframe(-49, 0.70),
+                            build_keyframe(-49, 1.0),
+                        ],
+                        child = render_WildCardStandings(standings),
+                        wait_for_child = True,
                     ),
-                ),
-            ],
-        ),
-    )
+                    render_header(league_id),
+                ]
+            )
+        )
+    else:
+        # otherwise it means something went wrong or we are not yet in wild card standings time
+        # display zero-state image
+        return render.Root(
+            child = render.Stack(
+                children = [
+                    render.Image(
+                        src = MLB_LEAGUE_IMAGE,
+                    ),
+                    render.Marquee(
+                        width = 64,
+                        child = render.Text(
+                            content = "No wild card race to display for league year " + year,
+                            color = SMALL_FONT_COLOR,
+                            font = SMALL_FONT,
+                        ),
+                    ),
+                ],
+            ),
+        )
+
+def build_keyframe(offset, pct):
+    return animation.Keyframe(
+            percentage = pct,
+            transforms = [animation.Translate(0, offset)],
+            curve = "ease_in_out"
+        )
 
 def get_schema():
     options = [
@@ -125,7 +104,7 @@ def get_schema():
         version = "1",
         fields = [
             schema.Dropdown(
-                id = "standingsMode",
+                id = "league",
                 name = "League",
                 desc = "Which league to display the wild card race for.",
                 icon = "baseballBatBall",
@@ -136,20 +115,18 @@ def get_schema():
     )
 
 def render_header(league_id):
-    print(league_id)
     text = "NL" if league_id == NL_LEAGUE_ID else "AL"
     text += " WILD CARD"
     return render.Box(
-        height = 8,
+        height = 5,
         width = 64,
         color = "#000000",
-        child = render.Animation(
-            children = render_rainbow_word(text, GAMES_BACK_FONT)
-        )
+        child = render_rainbow_word(text, "CG-pixel-4x5-mono")
     )
 
 def get_Standings(league_id, year):
     query_params = {
+        "fields": "records,teamRecords,team,id,wildCardGamesBack,clinched,clinchIndicator",
         "standingsTypes": "wildCard", 
         "leagueId": league_id, 
         "season": year
@@ -173,56 +150,58 @@ def get_Standings(league_id, year):
 
     limiter = 0
 
-    for team in standings_data.json().get("records")[0].get("teamRecords"):
+    for team in records[0].get("teamRecords"):
         if limiter >= DISPLAY_LIMIT:
             break
 
         # get the team and how many games back they are
+        # and whether they have clinched
         team_id = int(team.get("team").get("id"))
         games_back = team.get("wildCardGamesBack")
+        clinched = team.get("clinched") or False
 
         # add to list
-        standings.append({"TeamId": team_id, "GamesBack": games_back})
+        standings.append(
+            {
+                "TeamId": team_id, 
+                "GamesBack": games_back,
+                "Clinched": clinched
+            }
+        )
         limiter += 1
 
     return standings
 
 def render_WildCardStandings(standings):
-    widgets = []
+    team_widgets = []
     games_back_widgets = []
+    pos = 1
     max_games_back_length = 0
 
-    i = 1
     for info in standings:
         team_id = info.get("TeamId")
-        games_back = info.get("GamesBack")
-        # handle alignment of "games back"
+        clinched = info.get("Clinched")
+        
+        # strip ".0", we don't need it
+        games_back = info.get("GamesBack").removesuffix(".0")
+        
+        # keep track of games_back length so we can align everything
         if len(games_back) > max_games_back_length:
             max_games_back_length = len(games_back)
-        widgets.append(render_Team(team_id, i))
-        games_back_widgets.append(render_GamesBack(team_id, games_back))
-        i += 1
-
-    box_width = get_BoxWidth(max_games_back_length)
+        team_widgets.append(render_Team(team_id, pos, clinched))
+        games_back_widgets.append(render_GamesBack(team_id, games_back, clinched))
+        pos += 1
 
     return render.Stack(
         children = [
             render.Column(
-                children = widgets,
+                children = team_widgets
             ),
-            render.Row(
-                children = [
-                    render.Box(
-                        height = 1,
-                        width = box_width,
-                    ),
-                    render.Column(
-                        cross_align = "end",
-                        children = games_back_widgets,
-                    ),
-                ],
-            ),
-        ],
+            render.Column(
+                cross_align = "end",
+                children = games_back_widgets
+            )
+        ]
     )
 
 def render_rainbow_word(word, font):
@@ -242,52 +221,86 @@ def render_rainbow_word(word, font):
                 children = rainbow_word
             )
         )
-    return widgets
+    return render.Animation(
+        children = widgets
+    )
 
-def render_Team(team_id, pos):
+def render_Team(team_id, pos, clinched):
     team = TEAM_INFO[team_id]
+    logo_width = 20
+    if clinched:
+        abbrev = render_rainbow_word(TEAM_INFO[team_id].Abbreviation, GAMES_BACK_FONT)
+        pos_widget = render_rainbow_word(str(pos), SMALL_FONT)
+    else:
+        abbrev = render.Text(
+            content = team.Abbreviation,
+            font = GAMES_BACK_FONT,
+            color = team.ForegroundColor,
+        )
+        pos_widget = render.Text(
+            content = str(pos),
+            font = SMALL_FONT,
+            color = HIGHLIGHT_COLOR
+        )
     return render.Box(
-        height = 8,
+        height = 9,
         width = 64,
         color = team.BackgroundColor,
         child = render.Row(
             main_align = "start",
             expanded = True,
             children = [
-                render.Text(
-                    content = str(pos),
-                    font = ERROR_FONT,
-                    color = ERROR_FONT_COLOR
-                ),
+                pos_widget,
                 render.Padding(
-                    pad = (0, -2, 0, 0),
+                    pad = (0, -3, 0, 0),
                     child = render.Image(
                         src = team.Logo,
-                        width = 15,
+                        width = logo_width,
                     ),
                 ),
-                render.Text(
-                    content = team.Abbreviation,
-                    font = GAMES_BACK_FONT,
-                    color = team.ForegroundColor,
+                render.Box(
+                    height = 1,
+                    width = 1
                 ),
+                render.Padding(
+                    pad = (0, 1, 0, 0),
+                    child = abbrev
+                )
             ],
         ),
     )
 
-def render_GamesBack(team_id, games_back):
-    team = TEAM_INFO[team_id]
-    return render.Text(
-        content = games_back,
-        font = GAMES_BACK_FONT,
-        color = team.ForegroundColor,
+def render_GamesBack(team_id, games_back, clinched):
+    # "+1" is weird and has an extra space we should contend with
+    offset = 64 - 4 * len(games_back) - (2 if games_back.startswith("+1") else 1)
+    if clinched:
+        gb_widget = render_rainbow_word(games_back, GAMES_BACK_FONT)
+    else:
+        gb_widget = render.Text(
+            content = games_back,
+            font = GAMES_BACK_FONT,
+            color = TEAM_INFO[team_id].ForegroundColor,
+        )
+    return render.Row(
+        children = [
+            render.Box(
+                height = 1,
+                width = offset
+            ),
+            render.Padding(
+                pad = (0, 1, 0, 0),
+                child = gb_widget
+            )
+        ]
     )
 
 def get_BoxWidth(max_games_back_length):
+    width = 0
     if max_games_back_length == 5:
-        return 64 - 4 * max_games_back_length - 1
+        width = 64 - 4 * max_games_back_length - 1
     else:
-        return 64 - 4 * max_games_back_length
+        width = 64 - 4 * max_games_back_length
+    return width
 
 #################
 ## TEAM CONFIG ##
