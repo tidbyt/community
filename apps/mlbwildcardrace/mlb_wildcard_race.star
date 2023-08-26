@@ -5,11 +5,11 @@ Description: Displays the standings (in terms of games behind) for the MLB wild 
 Author: Jake Manske
 """
 
+load("animation.star", "animation")
 load("encoding/base64.star", "base64")
 load("http.star", "http")
 load("render.star", "render")
 load("schema.star", "schema")
-load("animation.star", "animation")
 load("time.star", "time")
 
 MLB_STANDINGS_URL = "https://statsapi.mlb.com/api/v1/standings"
@@ -35,7 +35,7 @@ def main(config):
     year = str(time.now().year)  #use current year
 
     standings = get_Standings(league_id, year)
-    
+
     # if we have some widgets, we can display them now
     if len(standings) > 0:
         return render.Root(
@@ -58,8 +58,8 @@ def main(config):
                         wait_for_child = True,
                     ),
                     render_header(league_id),
-                ]
-            )
+                ],
+            ),
         )
     else:
         # otherwise it means something went wrong or we are not yet in wild card standings time
@@ -84,10 +84,10 @@ def main(config):
 
 def build_keyframe(offset, pct):
     return animation.Keyframe(
-            percentage = pct,
-            transforms = [animation.Translate(0, offset)],
-            curve = "ease_in_out"
-        )
+        percentage = pct,
+        transforms = [animation.Translate(0, offset)],
+        curve = "ease_in_out",
+    )
 
 def get_schema():
     options = [
@@ -98,7 +98,7 @@ def get_schema():
         schema.Option(
             display = "American League",
             value = AL_LEAGUE_ID,
-        )
+        ),
     ]
     return schema.Schema(
         version = "1",
@@ -121,15 +121,15 @@ def render_header(league_id):
         height = 5,
         width = 64,
         color = "#000000",
-        child = render_rainbow_word(text, "CG-pixel-4x5-mono")
+        child = render_rainbow_word(text, "CG-pixel-4x5-mono"),
     )
 
 def get_Standings(league_id, year):
     query_params = {
         "fields": "records,teamRecords,team,id,wildCardGamesBack,clinched,clinchIndicator",
-        "standingsTypes": "wildCard", 
-        "leagueId": league_id, 
-        "season": year
+        "standingsTypes": "wildCard",
+        "leagueId": league_id,
+        "season": year,
     }
     standings_data = http.get(MLB_STANDINGS_URL, params = query_params, ttl_seconds = CACHE_TIMEOUT)
 
@@ -163,10 +163,10 @@ def get_Standings(league_id, year):
         # add to list
         standings.append(
             {
-                "TeamId": team_id, 
+                "TeamId": team_id,
                 "GamesBack": games_back,
-                "Clinched": clinched
-            }
+                "Clinched": clinched,
+            },
         )
         limiter += 1
 
@@ -181,10 +181,10 @@ def render_WildCardStandings(standings):
     for info in standings:
         team_id = info.get("TeamId")
         clinched = info.get("Clinched")
-        
+
         # strip ".0", we don't need it
         games_back = info.get("GamesBack").removesuffix(".0")
-        
+
         # keep track of games_back length so we can align everything
         if len(games_back) > max_games_back_length:
             max_games_back_length = len(games_back)
@@ -195,13 +195,13 @@ def render_WildCardStandings(standings):
     return render.Stack(
         children = [
             render.Column(
-                children = team_widgets
+                children = team_widgets,
             ),
             render.Column(
                 cross_align = "end",
-                children = games_back_widgets
-            )
-        ]
+                children = games_back_widgets,
+            ),
+        ],
     )
 
 def render_rainbow_word(word, font):
@@ -211,18 +211,18 @@ def render_rainbow_word(word, font):
         rainbow_word = []
         for i in range(len(word)):
             letter = render.Text(
-                    content = word[i],
-                    font = font,
-                    color = colors[(j+i)%7] 
-                )
+                content = word[i],
+                font = font,
+                color = colors[(j + i) % 7],
+            )
             rainbow_word.append(letter)
         widgets.append(
             render.Row(
-                children = rainbow_word
-            )
+                children = rainbow_word,
+            ),
         )
     return render.Animation(
-        children = widgets
+        children = widgets,
     )
 
 def render_Team(team_id, pos, clinched):
@@ -240,7 +240,7 @@ def render_Team(team_id, pos, clinched):
         pos_widget = render.Text(
             content = str(pos),
             font = SMALL_FONT,
-            color = HIGHLIGHT_COLOR
+            color = HIGHLIGHT_COLOR,
         )
     return render.Box(
         height = 9,
@@ -260,12 +260,12 @@ def render_Team(team_id, pos, clinched):
                 ),
                 render.Box(
                     height = 1,
-                    width = 1
+                    width = 1,
                 ),
                 render.Padding(
                     pad = (0, 1, 0, 0),
-                    child = abbrev
-                )
+                    child = abbrev,
+                ),
             ],
         ),
     )
@@ -285,13 +285,13 @@ def render_GamesBack(team_id, games_back, clinched):
         children = [
             render.Box(
                 height = 1,
-                width = offset
+                width = offset,
             ),
             render.Padding(
                 pad = (0, 1, 0, 0),
-                child = gb_widget
-            )
-        ]
+                child = gb_widget,
+            ),
+        ],
     )
 
 def get_BoxWidth(max_games_back_length):
