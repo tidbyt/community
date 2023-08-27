@@ -5,10 +5,10 @@ Description: Displays GOES-16 satellite fog image for San Francisco, from fog.to
 Author: Matt Broussard
 """
 
-load("schema.star", "schema")
 load("http.star", "http")
 load("re.star", "re")
 load("render.star", "render")
+load("schema.star", "schema")
 
 BASE_URL = "https://fog.today/"
 
