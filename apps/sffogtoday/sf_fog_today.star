@@ -11,12 +11,15 @@ load("re.star", "re")
 load("render.star", "render")
 
 BASE_URL = "https://fog.today/"
-NATIVE_RES = (1600, 2048)
-NATIVE_ORIGIN = (628, 675)
-DISPLAY_SCALE = 0.5  # scale by half so that effective area is 128x64 in the original image
 
 def main(config):
     mode = config.get("mode", "current")
+    zoom_out = config.get("zoom_out", "false")
+    if zoom_out == "true":
+        params = {"img_native_res": (1600, 2048), "img_native_origin": (600, 675), "img_display_scale": 0.35}
+    else:
+        params = {"img_native_res": (1600, 2048), "img_native_origin": (628, 675), "img_display_scale": 0.5}
+
     if mode == 'current':
         image_src = load_image(image_url=BASE_URL+'current.jpg')
         if not image_src:
@@ -25,7 +28,7 @@ def main(config):
             )
 
         return render.Root(
-                child = render_image(image_src)
+                child = render_image(image_src, **params)
             )
 
     else:
@@ -38,7 +41,7 @@ def main(config):
         
         return render.Root(
                 child = render.Animation(
-                    children = [render_image(image_src) for image_src in image_src_list],
+                    children = [render_image(image_src, **params) for image_src in image_src_list],
                 ),
                 delay = 300,
                 show_full_animation = True  # account for fog.today not having a fixed count of images in the cycle
@@ -64,16 +67,16 @@ def load_image(image_url):
     return resp.body()
 
 
-def render_image(image_src):
+def render_image(image_src, img_native_res, img_native_origin, img_display_scale):
     return render.Padding(
                 child = render.Image(
                     src = image_src,
-                    width = int(NATIVE_RES[0] * DISPLAY_SCALE),
-                    height = int(NATIVE_RES[1] * DISPLAY_SCALE),
+                    width = int(img_native_res[0] * img_display_scale),
+                    height = int(img_native_res[1] * img_display_scale),
                 ),
                 pad = (
-                    -int(NATIVE_ORIGIN[0] * DISPLAY_SCALE),
-                    -int(NATIVE_ORIGIN[1] * DISPLAY_SCALE),
+                    -int(img_native_origin[0] * img_display_scale),
+                    -int(img_native_origin[1] * img_display_scale),
                     0,
                     0,
                 ),
@@ -105,5 +108,13 @@ def get_schema():
                 default = options[0].value,
                 options = options,
             ),
+             schema.Toggle(
+                id = "zoom_out",
+                name = "Zoom out",
+                desc = "Display a zoomed out view of the map",
+                icon = "magnifyingGlass",
+                default = False,
+            ),
+
         ],
     )
