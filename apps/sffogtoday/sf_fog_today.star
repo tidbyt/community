@@ -20,16 +20,16 @@ def main(config):
     else:
         params = {"img_native_res": (1600, 2048), "img_native_origin": (628, 675), "img_display_scale": 0.5}
 
-    if mode == 'current':
-        image_src = load_image(image_url=BASE_URL+'current.jpg')
+    if mode == "current":
+        image_src = load_image(image_url = BASE_URL + "current.jpg")
         if not image_src:
             return render.Root(
                 child = render.WrappedText("Error loading fog.today :("),
             )
 
         return render.Root(
-                child = render_image(image_src, **params)
-            )
+            child = render_image(image_src, **params),
+        )
 
     else:
         image_urls = get_image_urls(mode)
@@ -38,18 +38,17 @@ def main(config):
             return render.Root(
                 child = render.WrappedText("Error loading fog.today :("),
             )
-        
-        return render.Root(
-                child = render.Animation(
-                    children = [render_image(image_src, **params) for image_src in image_src_list],
-                ),
-                delay = 300,
-                show_full_animation = True  # account for fog.today not having a fixed count of images in the cycle
-            )
 
+        return render.Root(
+            child = render.Animation(
+                children = [render_image(image_src, **params) for image_src in image_src_list],
+            ),
+            delay = 300,
+            show_full_animation = True,  # account for fog.today not having a fixed count of images in the cycle
+        )
 
 def get_image_urls(mode):
-    resp = http.get(BASE_URL, ttl_seconds=60)
+    resp = http.get(BASE_URL, ttl_seconds = 60)
     if resp.status_code != 200:
         return None
 
@@ -58,29 +57,27 @@ def get_image_urls(mode):
     image_urls = [BASE_URL + image_path for image_path in image_paths]
     return image_urls
 
-
 def load_image(image_url):
-    resp = http.get(image_url, ttl_seconds=60)
+    resp = http.get(image_url, ttl_seconds = 60)
     if resp.status_code != 200:
         return None
 
     return resp.body()
 
-
 def render_image(image_src, img_native_res, img_native_origin, img_display_scale):
     return render.Padding(
-                child = render.Image(
-                    src = image_src,
-                    width = int(img_native_res[0] * img_display_scale),
-                    height = int(img_native_res[1] * img_display_scale),
-                ),
-                pad = (
-                    -int(img_native_origin[0] * img_display_scale),
-                    -int(img_native_origin[1] * img_display_scale),
-                    0,
-                    0,
-                ),
-            )
+        child = render.Image(
+            src = image_src,
+            width = int(img_native_res[0] * img_display_scale),
+            height = int(img_native_res[1] * img_display_scale),
+        ),
+        pad = (
+            -int(img_native_origin[0] * img_display_scale),
+            -int(img_native_origin[1] * img_display_scale),
+            0,
+            0,
+        ),
+    )
 
 def get_schema():
     options = [
@@ -108,13 +105,12 @@ def get_schema():
                 default = options[0].value,
                 options = options,
             ),
-             schema.Toggle(
+            schema.Toggle(
                 id = "zoom_out",
                 name = "Zoom out",
                 desc = "Display a zoomed out view of the map",
                 icon = "magnifyingGlass",
                 default = False,
             ),
-
         ],
     )
