@@ -1,7 +1,7 @@
+load("cache.star", "cache")
 load("encoding/base64.star", "base64")
 load("http.star", "http")
 load("render.star", "render")
-load("cache.star", "cache")
 
 CORPORATE_BS = "https://corporatebs-generator.sameerkumar.website/"
 CORP_ICON = base64.decode("""
@@ -18,28 +18,28 @@ def main():
         if rep.status_code != 200:
             fail("Corporate BS request failed with status %d", rep.status_code)
         phrase = rep.json()["phrase"]
-        cache.set("corporate_bs", phrase, ttl_seconds=43200)
+        cache.set("corporate_bs", phrase, ttl_seconds = 43200)
 
     return render.Root(
-        child=render.Stack(
-            children=[
+        child = render.Stack(
+            children = [
                 render.Column(
-                    children=[
+                    children = [
                         render.Box(
-                            height=12,
-                            color="000",
-                            child=render.Image(src=CORP_ICON, width=14),
+                            height = 12,
+                            color = "000",
+                            child = render.Image(src = CORP_ICON, width = 14),
                         ),
                         render.Box(
-                            height=10,
-                            color="000",
-                            child=render.Text("CORPORATE BS", height=10, color="B74830"),
+                            height = 10,
+                            color = "000",
+                            child = render.Text("CORPORATE BS", height = 10, color = "B74830"),
                         ),
                         render.Marquee(
-                            child=render.Text("%s" % phrase, color="DAF7A6"),
-                            width=64,
-                            offset_start=5,
-                            offset_end=32,
+                            child = render.Text("%s" % phrase, color = "DAF7A6"),
+                            width = 64,
+                            offset_start = 5,
+                            offset_end = 32,
                         ),
                     ],
                 ),
