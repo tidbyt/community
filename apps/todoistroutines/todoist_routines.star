@@ -1,7 +1,7 @@
 """
 Applet: Todoist Routines
 Summary: Today's remaining tasks
-Description: Shows today's remaining tasks and subtasks as rows or columns of dots. Great for people with recurring routines of tasks with subtasks to see what's left to do today and whether they've forgotten something. Helps me manage my ADHD symptoms.
+Description: Shows today's remaining tasks and subtasks as rows or columns of dots. Great for people with recurring routines of tasks with subtasks to see what's left to do today and whether they've forgotten something. Helps me manage my ADHD symptoms. Can you make the screen go blank?
 Author: shannonmoeller
 """
 
