@@ -72,7 +72,7 @@ def main(config):
 
     background_color = config.str("background_color")
     if background_color:
-        stack.append(render.Box(width = 64, height = 32, color = background_color))
+        stack.append(render.Box(color = background_color))
 
     background_photo = config.str("background_photo")
     if background_photo:
@@ -86,10 +86,13 @@ def get_task_dots(config):
     token = config.str("token")
 
     if not token:
-        return render_message("Todoist API token required")
+        return render_message("Todoist\nAPI token required")
 
     tasks = get_tasks(token, "filter=today")
+    task_color = config.str("task_color")
     subtasks = get_tasks(token, "filter=subtask")
+    subtask_color = config.str("subtask_color")
+    transparent = "#0000"
 
     nested_tasks = []
     grouped_subtasks = to_grouped_index(subtasks, lambda task: task["parent_id"])
@@ -109,32 +112,22 @@ def get_task_dots(config):
         render_subtasks = render.Column
 
     task_dots = [
-        render.Box(width = 1, height = 1, color = "#0000"),
+        render.Box(width = 1, height = 1, color = transparent),
     ]
 
     for task in nested_tasks:
         subtask_dots = [
-            render.Box(width = 1, height = 1, color = config.str("task_color")),
-            render.Box(width = 1, height = 1, color = "#0000"),
+            render.Box(width = 1, height = 1, color = task_color),
+            render.Box(width = 1, height = 1, color = transparent),
         ]
 
         for _subtask in task["subtasks"]:
-            subtask_dots.append(render.Box(width = 1, height = 1, color = config.str("subtask_color")))
+            subtask_dots.append(render.Box(width = 1, height = 1, color = subtask_color))
 
         task_dots.append(render_subtasks(children = subtask_dots))
-        task_dots.append(render.Box(width = 1, height = 1, color = "#0000"))
+        task_dots.append(render.Box(width = 1, height = 1, color = transparent))
 
-    return render_subtasks(
-        expanded = True,
-        main_align = "center",
-        children = [
-            render_tasks(
-                expanded = True,
-                main_align = "center",
-                children = task_dots,
-            ),
-        ],
-    )
+    return render.Box(child = render_tasks(children = task_dots))
 
 def get_tasks(token, params):
     response = http.get(
@@ -161,9 +154,4 @@ def to_grouped_index(items, get_key):
     return index
 
 def render_message(message):
-    return render.Stack(
-        children = [
-            render.Box(width = 64, height = 32, color = "#000"),
-            render.WrappedText(message, color = "#FFF"),
-        ],
-    )
+    return render.Box(color = "#000", child = render.WrappedText(message, color = "#FFF"))
