@@ -7,6 +7,8 @@ Author: M0ntyP
 v1.0 - Initial Release
 
 CPL starts 16 August
+
+v1.1 - Added handling for abandoned matches with no play at all
 """
 
 load("encoding/json.star", "json")
@@ -87,6 +89,7 @@ def main(config):
 
     MatchID = str(MatchID)
     Match_URL = "https://hs-consumer-api.espncricinfo.com/v1/pages/match/details?lang=en&seriesId=" + SeriesID + "&matchId=" + MatchID + "&latest=true"
+    #print(Match_URL)
 
     # cache specific match data for 1 minute
     MatchData = get_cachable_data(Match_URL, MATCH_CACHE)
@@ -343,64 +346,81 @@ def main(config):
         # Game has completed
         # check if 2 innings were started
 
-        if len(Match_JSON["scorecardSummary"]["innings"]) == 2:
-            Team1_Abbr = Match_JSON["scorecardSummary"]["innings"][0]["team"]["abbreviation"]
-            Team2_Abbr = Match_JSON["scorecardSummary"]["innings"][1]["team"]["abbreviation"]
-            Team1_ID = Match_JSON["match"]["teams"][0]["team"]["id"]
-            Team2_ID = Match_JSON["match"]["teams"][1]["team"]["id"]
+        if Match_JSON["scorecardSummary"] != None:
+            if len(Match_JSON["scorecardSummary"]["innings"]) == 2:
+                Team1_Abbr = Match_JSON["scorecardSummary"]["innings"][0]["team"]["abbreviation"]
+                Team2_Abbr = Match_JSON["scorecardSummary"]["innings"][1]["team"]["abbreviation"]
+                Team1_ID = Match_JSON["match"]["teams"][0]["team"]["id"]
+                Team2_ID = Match_JSON["match"]["teams"][1]["team"]["id"]
 
-            Team1_Wkts = Match_JSON["scorecardSummary"]["innings"][0]["wickets"]
-            Team1_Runs = Match_JSON["scorecardSummary"]["innings"][0]["runs"]
+                Team1_Wkts = Match_JSON["scorecardSummary"]["innings"][0]["wickets"]
+                Team1_Runs = Match_JSON["scorecardSummary"]["innings"][0]["runs"]
 
-            Team2_Wkts = Match_JSON["scorecardSummary"]["innings"][1]["wickets"]
-            Team2_Runs = Match_JSON["scorecardSummary"]["innings"][1]["runs"]
+                Team2_Wkts = Match_JSON["scorecardSummary"]["innings"][1]["wickets"]
+                Team2_Runs = Match_JSON["scorecardSummary"]["innings"][1]["runs"]
 
-            Team1_Wkts_Str = str(Team1_Wkts)
-            Team1_Runs_Str = str(Team1_Runs)
-            Team2_Wkts_Str = str(Team2_Wkts)
-            Team2_Runs_Str = str(Team2_Runs)
+                Team1_Wkts_Str = str(Team1_Wkts)
+                Team1_Runs_Str = str(Team1_Runs)
+                Team2_Wkts_Str = str(Team2_Wkts)
+                Team2_Runs_Str = str(Team2_Runs)
 
-            if Team1_Wkts != 10:
-                Score1 = Team1_Wkts_Str + "/" + Team1_Runs_Str
+                if Team1_Wkts != 10:
+                    Score1 = Team1_Wkts_Str + "/" + Team1_Runs_Str
+                else:
+                    Score1 = Team1_Runs_Str
+
+                if Team2_Wkts != 10:
+                    Score2 = Team2_Wkts_Str + "/" + Team2_Runs_Str
+                else:
+                    Score2 = Team2_Runs_Str
+
+                Team1_Color = getTeamColor(Team1_ID)
+                Team2_Color = getTeamColor(Team2_ID)
+
+                WinnerID = Match_JSON["match"]["winnerTeamId"]
+
+                if WinnerID == Team1_ID:
+                    WinnerColor = Team1_Color
+                else:
+                    WinnerColor = Team2_Color
+
+                Result = Match_JSON["match"]["statusText"]
+
+                # only 1 innings got started, eg washout
             else:
-                Score1 = Team1_Runs_Str
+                Team1_Abbr = Match_JSON["scorecardSummary"]["innings"][0]["team"]["abbreviation"]
+                Team2_Abbr = Match_JSON["match"]["teams"][1]["team"]["abbreviation"]
+                Team1_ID = Match_JSON["match"]["teams"][0]["team"]["id"]
+                Team2_ID = Match_JSON["match"]["teams"][1]["team"]["id"]
 
-            if Team2_Wkts != 10:
-                Score2 = Team2_Wkts_Str + "/" + Team2_Runs_Str
-            else:
-                Score2 = Team2_Runs_Str
+                Team1_Wkts = Match_JSON["scorecardSummary"]["innings"][0]["wickets"]
+                Team1_Runs = Match_JSON["scorecardSummary"]["innings"][0]["runs"]
 
-            Team1_Color = getTeamColor(Team1_ID)
-            Team2_Color = getTeamColor(Team2_ID)
+                Score2 = ""
 
-            WinnerID = Match_JSON["match"]["winnerTeamId"]
+                Team1_Wkts_Str = str(Team1_Wkts)
+                Team1_Runs_Str = str(Team1_Runs)
 
-            if WinnerID == Team1_ID:
-                WinnerColor = Team1_Color
-            else:
-                WinnerColor = Team2_Color
+                if Team1_Wkts != 10:
+                    Score1 = Team1_Wkts_Str + "/" + Team1_Runs_Str
+                else:
+                    Score1 = Team1_Runs_Str
 
-            Result = Match_JSON["match"]["statusText"]
+                Team1_Color = getTeamColor(Team1_ID)
+                Team2_Color = getTeamColor(Team2_ID)
 
-            # only 1 innings got started, eg washout
+                Result = Match_JSON["match"]["statusText"]
+                WinnerColor = "#fff"
+
+            # No play at all
         else:
-            Team1_Abbr = Match_JSON["scorecardSummary"]["innings"][0]["team"]["abbreviation"]
+            Team1_Abbr = Match_JSON["match"]["teams"][0]["team"]["abbreviation"]
             Team2_Abbr = Match_JSON["match"]["teams"][1]["team"]["abbreviation"]
             Team1_ID = Match_JSON["match"]["teams"][0]["team"]["id"]
             Team2_ID = Match_JSON["match"]["teams"][1]["team"]["id"]
 
-            Team1_Wkts = Match_JSON["scorecardSummary"]["innings"][0]["wickets"]
-            Team1_Runs = Match_JSON["scorecardSummary"]["innings"][0]["runs"]
-
+            Score1 = ""
             Score2 = ""
-
-            Team1_Wkts_Str = str(Team1_Wkts)
-            Team1_Runs_Str = str(Team1_Runs)
-
-            if Team1_Wkts != 10:
-                Score1 = Team1_Wkts_Str + "/" + Team1_Runs_Str
-            else:
-                Score1 = Team1_Runs_Str
 
             Team1_Color = getTeamColor(Team1_ID)
             Team2_Color = getTeamColor(Team2_ID)
