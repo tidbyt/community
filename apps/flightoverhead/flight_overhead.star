@@ -42,7 +42,7 @@ DEFAULT_DISABLE_END_HOUR = "None"
 DEFAULT_DISABLE_START_HOUR = "None"
 DEFAULT_IGNORE = ""
 DEFAULT_LIMIT = 1
-DEFAULT_LOCATION = ""
+DEFAULT_LOCATION = "00.000000, -00.000000"
 DEFAULT_OPENSKY_USERNAME = ""
 DEFAULT_OPENSKY_PASSWORD = ""
 DEFAULT_PRINT_LOG = False
@@ -431,54 +431,6 @@ def get_schema():
                 ),
             )
 
-    timezones = [
-        schema.Option(display = "Hawaii (-10)", value = "Pacific/Honolulu"),
-        schema.Option(display = "Alaska (-9)", value = "America/Anchorage"),
-        schema.Option(display = "Pacific (-8)", value = "America/Los_Angeles"),
-        schema.Option(display = "Mountain (-7)", value = "America/Denver"),
-        schema.Option(display = "Central (-6)", value = "America/Chicago"),
-        schema.Option(display = "Eastern (-5)", value = "America/New_York"),
-        schema.Option(display = "Atlantic (-4)", value = "America/Halifax"),
-        schema.Option(display = "Newfoundland (-3.5)", value = "America/St_Johns"),
-        schema.Option(display = "Brazil (-3)", value = "America/Sao_Paulo"),
-        schema.Option(display = "UTC (0)", value = "UTC"),
-        schema.Option(display = "Central Europe (+1)", value = "Europe/Berlin"),
-        schema.Option(display = "Eastern Europe (+2)", value = "Europe/Moscow"),
-        schema.Option(display = "India (+5.5)", value = "Asia/Kolkata"),
-        schema.Option(display = "China (+8)", value = "Asia/Shanghai"),
-        schema.Option(display = "Japan (+9)", value = "Asia/Tokyo"),
-        schema.Option(display = "Australia Eastern (+10)", value = "Australia/Sydney"),
-        schema.Option(display = "New Zealand (+12)", value = "Pacific/Auckland"),
-    ]
-
-    hours = [
-        schema.Option(display = "None", value = "None"),
-        schema.Option(display = "1 AM", value = "1"),
-        schema.Option(display = "2 AM", value = "2"),
-        schema.Option(display = "3 AM", value = "3"),
-        schema.Option(display = "4 AM", value = "4"),
-        schema.Option(display = "5 AM", value = "5"),
-        schema.Option(display = "6 AM", value = "6"),
-        schema.Option(display = "7 AM", value = "7"),
-        schema.Option(display = "8 AM", value = "8"),
-        schema.Option(display = "9 AM", value = "9"),
-        schema.Option(display = "10 AM", value = "10"),
-        schema.Option(display = "11 AM", value = "11"),
-        schema.Option(display = "Noon", value = "12"),
-        schema.Option(display = "1 PM", value = "13"),
-        schema.Option(display = "2 PM", value = "14"),
-        schema.Option(display = "3 PM", value = "15"),
-        schema.Option(display = "4 PM", value = "16"),
-        schema.Option(display = "5 PM", value = "17"),
-        schema.Option(display = "6 PM", value = "18"),
-        schema.Option(display = "7 PM", value = "19"),
-        schema.Option(display = "8 PM", value = "20"),
-        schema.Option(display = "9 PM", value = "21"),
-        schema.Option(display = "10 PM", value = "22"),
-        schema.Option(display = "11 PM", value = "23"),
-        schema.Option(display = "Midnight", value = "0"),
-    ]
-
     limits = []
 
     for i in range(MAX_LIMIT):
@@ -494,48 +446,52 @@ def get_schema():
         fields = [
             schema.Dropdown(
                 id = "provider",
-                name = "Provider",
-                desc = "Provider",
+                name = "Provider (Required)",
+                desc = "The provider for the data",
                 icon = "ioxhost",
                 default = DEFAULT_PROVIDER,
                 options = providers,
             ),
             schema.Text(
-                id = "airlabs_api_key",
-                name = "AirLabs API Key",
-                desc = "AirLabs API Key",
-                icon = "key",
-            ),
-            schema.Text(
-                id = "opensky_username",
-                name = "OpenSky Username",
-                desc = "OpenSky Username",
-                icon = "user",
-            ),
-            schema.Text(
-                id = "opensky_password",
-                name = "OpenSky Password",
-                desc = "OpenSky Password",
-                icon = "key",
-            ),
-            schema.Text(
                 id = "location",
-                name = "Location",
-                desc = "Latitude, Longitude",
+                name = "Location (Required)",
+                desc = "A comma-separated value of the decimalized latitude and longitude to search",
                 icon = "mapLocationDot",
+                default = DEFAULT_LOCATION,
             ),
             schema.Dropdown(
                 id = "radius",
                 name = "Radius",
-                desc = "Radius in Nautical Miles",
+                desc = "The radius (in nautical miles) to search",
                 icon = "circleDot",
                 default = "%s" % DEFAULT_RADIUS,
                 options = radii,
             ),
             schema.Text(
+                id = "airlabs_api_key",
+                name = "AirLabs API Key",
+                desc = "An AirLabs API Key is required to use AirLabs as the provider",
+                icon = "key",
+                default = DEFAULT_AIRLABS_API_KEY,
+            ),
+            schema.Text(
+                id = "opensky_username",
+                name = "OpenSky Username",
+                desc = "An OpenSky account can be used to extend the request quota",
+                icon = "user",
+                default = DEFAULT_OPENSKY_USERNAME,
+            ),
+            schema.Text(
+                id = "opensky_password",
+                name = "OpenSky Password",
+                desc = "An OpenSky account can be used to extend the request quota",
+                icon = "key",
+                default = DEFAULT_OPENSKY_PASSWORD,
+            ),
+            schema.Text(
                 id = "provider_ttl_seconds",
                 name = "Provider TTL Seconds",
-                desc = "Number of seconds to cache results",
+                desc = "The number of seconds to cache results from the provider",
                 icon = "clock",
                 default = "%s" % DEFAULT_PROVIDER_TTL_SECONDS,
             ),
@@ -549,48 +505,17 @@ def get_schema():
             schema.Dropdown(
                 id = "limit",
                 name = "Limit",
-                desc = "Limit number of results",
+                desc = "Limit the number of results to display",
                 icon = "list",
                 default = "%s" % DEFAULT_LIMIT,
                 options = limits,
             ),
-            schema.Dropdown(
-                id = "timezone",
-                name = "Timezone",
-                desc = "Timezone",
-                icon = "clock",
-                default = DEFAULT_TIMEZONE,
-                options = timezones,
-            ),
-            schema.Dropdown(
-                id = "disable_start_hour",
-                name = "Disable Start Hour",
-                desc = "Disable during certain timeframe",
-                icon = "clock",
-                default = DEFAULT_DISABLE_START_HOUR,
-                options = hours,
-            ),
-            schema.Dropdown(
-                id = "disable_end_hour",
-                name = "Disable End Hour",
-                desc = "Disable during certain timeframe",
-                icon = "clock",
-                default = DEFAULT_DISABLE_END_HOUR,
-                options = hours,
-            ),
             schema.Text(
                 id = "return_message_on_empty",
                 name = "Return Message on Empty",
-                desc = "Message to return if no flights found",
+                desc = "The message to return if no flights are found",
                 icon = "message",
                 default = DEFAULT_RETURN_MESSAGE_ON_EMPTY,
-            ),
-            schema.Toggle(
-                id = "print_log",
-                name = "Print Log",
-                desc = "Print log statements to help debug",
-                icon = "bug",
-                default = DEFAULT_PRINT_LOG,
             ),
         ],
     )
