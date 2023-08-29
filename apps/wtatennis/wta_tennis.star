@@ -48,6 +48,9 @@ Bug fix - Retired matches were not being captured after changing completed match
 v1.8
 Changed purple background color on the title bar, made it darker purple
 WTA 1000 events will have gold color font for the tournament title/city
+
+v1.9
+Updated scheduled matches to only show if both players are listed, prevents blanks
 """
 
 load("encoding/json.star", "json")
@@ -237,12 +240,15 @@ def main(config):
                         GroupingsID = 1
                     for y in range(0, len(WTA_JSON["events"][x]["groupings"][GroupingsID]["competitions"]), 1):
                         # if the match is scheduled ("pre") and the start time of the match is scheduled for next 12 hrs, add it to the list of scheduled matches
-                        if WTA_JSON["events"][x]["groupings"][GroupingsID]["competitions"][y]["status"]["type"]["state"] == "pre":
-                            MatchTime = WTA_JSON["events"][EventIndex]["groupings"][GroupingsID]["competitions"][y]["date"]
-                            MatchTime = time.parse_time(MatchTime, format = "2006-01-02T15:04Z")
-                            diff = MatchTime - now
-                            if diff.hours < 12:
-                                ScheduledMatchList.insert(0, y)
+                        # But only if both players are listed for the scheduled match, this prevents blank scheduled matches
+                        if WTA_JSON["events"][EventIndex]["groupings"][GroupingsID]["competitions"][y]["status"]["type"]["state"] == "pre":
+                            if "athlete" in WTA_JSON["events"][EventIndex]["groupings"][GroupingsID]["competitions"][y]["competitors"][0]:
+                                if "athlete" in WTA_JSON["events"][EventIndex]["groupings"][GroupingsID]["competitions"][y]["competitors"][1]:
+                                    MatchTime = WTA_JSON["events"][EventIndex]["groupings"][GroupingsID]["competitions"][y]["date"]
+                                    MatchTime = time.parse_time(MatchTime, format = "2006-01-02T15:04Z")
+                                    diff = MatchTime - now
+                                    if diff.hours < 12:
+                                        ScheduledMatchList.insert(0, y)
 
         # if there are more than 2 matches completed in past 24hrs, then we'll need to show them across multiple screens
         if len(ScheduledMatchList) > 0:
@@ -749,17 +755,10 @@ def getScheduledMatches(SelectedTourneyID, EventIndex, ScheduledMatchList, JSON,
 
             if JSON["events"][EventIndex]["groupings"][0]["grouping"]["slug"] == "mens-singles":
                 GroupingsID = 1
-
-            # check that we have players before displaying them or display blank line
-            if "athlete" in JSON["events"][EventIndex]["groupings"][GroupingsID]["competitions"][x]["competitors"][0]:
-                Player1_Name = JSON["events"][EventIndex]["groupings"][GroupingsID]["competitions"][x]["competitors"][0]["athlete"]["shortName"]
-            else:
-                Player1_Name = ""
-            if "athlete" in JSON["events"][EventIndex]["groupings"][GroupingsID]["competitions"][x]["competitors"][1]:
-                Player2_Name = JSON["events"][EventIndex]["groupings"][GroupingsID]["competitions"][x]["competitors"][1]["athlete"]["shortName"]
-            else:
-                Player2_Name = ""
-
+            
+            Player1_Name = JSON["events"][EventIndex]["groupings"][GroupingsID]["competitions"][x]["competitors"][0]["athlete"]["shortName"]
+            Player2_Name = JSON["events"][EventIndex]["groupings"][GroupingsID]["competitions"][x]["competitors"][1]["athlete"]["shortName"]
+           
             # get date & time of match
             APIDate = JSON["events"][EventIndex]["groupings"][GroupingsID]["competitions"][x]["date"]
             ParsedDate = time.parse_time(APIDate, format = "2006-01-02T15:04Z").in_location(timezone)
