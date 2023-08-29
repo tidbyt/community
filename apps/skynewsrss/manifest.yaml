@@ -1,0 +1,8 @@
+---
+id: sky-news-rss
+name: Sky News RSS
+summary: Display Sky News RSS
+desc: Sky News RSS feed display all 9 sources.
+author: jvivona
+fileName: sky_news_rss.star
+packageName: skynewsrss
