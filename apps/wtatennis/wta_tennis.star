@@ -755,10 +755,10 @@ def getScheduledMatches(SelectedTourneyID, EventIndex, ScheduledMatchList, JSON,
 
             if JSON["events"][EventIndex]["groupings"][0]["grouping"]["slug"] == "mens-singles":
                 GroupingsID = 1
-            
+
             Player1_Name = JSON["events"][EventIndex]["groupings"][GroupingsID]["competitions"][x]["competitors"][0]["athlete"]["shortName"]
             Player2_Name = JSON["events"][EventIndex]["groupings"][GroupingsID]["competitions"][x]["competitors"][1]["athlete"]["shortName"]
-           
+
             # get date & time of match
             APIDate = JSON["events"][EventIndex]["groupings"][GroupingsID]["competitions"][x]["date"]
             ParsedDate = time.parse_time(APIDate, format = "2006-01-02T15:04Z").in_location(timezone)
