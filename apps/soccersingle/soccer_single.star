@@ -201,10 +201,10 @@ def main(config):
                 # if FT-Pens - get penalty shootout score & append to score
                 if gameName == "STATUS_FINAL_PEN":
                     scoreFont = "CG-pixel-3x5-mono"
-                    homeShootoutScore = competition["competitors"][0]["shootoutScore"]
-                    awayShootoutScore = competition["competitors"][1]["shootoutScore"]
-                    homeScore = "%s (%s)" % (homeScore, homeShootoutScore)
-                    awayScore = "%s (%s)" % (awayScore, awayShootoutScore)
+                    homeShootoutScore = competition["competitors"][0]["score"]["shootoutScore"]
+                    awayShootoutScore = competition["competitors"][1]["score"]["shootoutScore"]
+                    homeScore = "%s (%s)" % (homeScore, str(int(homeShootoutScore)))
+                    awayScore = "%s (%s)" % (awayScore, str(int(awayShootoutScore)))
                     if (int(homeShootoutScore) > int(awayShootoutScore)):
                         homeScoreColor = "#ff0"
                         awayScoreColor = "#fffc"
