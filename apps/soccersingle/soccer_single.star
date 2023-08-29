@@ -6,6 +6,7 @@ Author: jvivona
 """
 # 20230812 added display of penalty kick score if applicable
 #          toned down colors when display team colors - you couldn't see winner score if team color was also yellow
+# 20230829 fixed PK score - in a different place for single match results..   Not enough testing :-)
 
 # Tons of thanks to @whyamihere/@rs7q5 for the API assistance - couldn't have gotten here without you
 # and thanks to @dinotash/@dinosaursrarr for making me think deep thoughts about connected schema fields
@@ -17,7 +18,7 @@ load("render.star", "render")
 load("schema.star", "schema")
 load("time.star", "time")
 
-VERSION = 23224
+VERSION = 23241
 
 CACHE_TTL_SECONDS = 60
 
