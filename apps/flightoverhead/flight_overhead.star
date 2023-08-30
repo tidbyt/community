@@ -6,6 +6,7 @@ Author: Kyle Bolstad
 """
 
 load("animation.star", "animation")
+load("encoding/json.star", "json")
 load("http.star", "http")
 load("humanize.star", "humanize")
 load("math.star", "math")
@@ -42,7 +43,14 @@ DEFAULT_DISABLE_END_HOUR = "None"
 DEFAULT_DISABLE_START_HOUR = "None"
 DEFAULT_IGNORE = ""
 DEFAULT_LIMIT = 1
-DEFAULT_LOCATION = "00.000000, -00.000000"
+DEFAULT_LOCATION = json.encode({
+    "lat": "40.6969512",
+    "lng": "-73.9538453",
+    "description": "Brooklyn, NY, USA",
+    "locality": "Tidbyt",
+    "place_id": "ChIJr3Hjqu5bwokRmeukysQhFCU",
+    "timezone": "America/New_York",
+})
 DEFAULT_OPENSKY_USERNAME = ""
 DEFAULT_OPENSKY_PASSWORD = ""
 DEFAULT_PRINT_LOG = False
@@ -70,9 +78,7 @@ def main(config):
     opensky_username = config.get("opensky_username", DEFAULT_OPENSKY_USERNAME)
     opensky_password = config.get("opensky_password", DEFAULT_OPENSKY_PASSWORD)
 
-    location = DEFAULT_LOCATION
-    if config.get("location"):
-        location = re.sub("[^\\d-,\\.]", "", config.get("location")) or DEFAULT_LOCATION
+    location = json.decode(config.get("location", DEFAULT_LOCATION))
 
     radius = DEFAULT_RADIUS
     if config.get("radius"):
@@ -347,30 +353,26 @@ def main(config):
         auth = ()
         provider_request = ""
         provider_request_url = ""
-        lat = 0
-        long = 0
         la_min = 0
         lo_min = 0
         la_max = 0
         lo_max = 0
         bbox = ""
 
-        lat_lng = location.split(",")
-        if len(lat_lng) == 2:
-            lat = lat_lng[0]
-            long = lat_lng[1]
+        lat = location["lat"]
+        lng = location["lng"]
 
-        if lat and long:
+        if lat and lng:
             lat = float(lat)
-            long = float(long)
+            lng = float(lng)
             miles_per_deg_lat = 69.1
-            miles_per_deg_long = 69.1 * math.cos(lat / 180 * math.pi)
+            miles_per_deg_lng = 69.1 * math.cos(lat / 180 * math.pi)
             lat_pm = radius / miles_per_deg_lat
-            long_pm = radius / miles_per_deg_long
+            lng_pm = radius / miles_per_deg_lng
             la_min = lat - lat_pm
-            lo_min = long - long_pm
+            lo_min = lng - lng_pm
             la_max = lat + lat_pm
-            lo_max = long + long_pm
+            lo_max = lng + lng_pm
             bbox = "%s,%s,%s,%s" % (la_min, lo_min, la_max, lo_max)
 
         if provider == "airlabs":
@@ -452,12 +454,11 @@ def get_schema():
                 default = DEFAULT_PROVIDER,
                 options = providers,
             ),
-            schema.Text(
+            schema.Location(
                 id = "location",
                 name = "Location (Required)",
-                desc = "A comma-separated value of the decimalized latitude and longitude to search",
+                desc = "The decimalized latitude and longitude to search",
                 icon = "mapLocationDot",
-                default = DEFAULT_LOCATION,
             ),
             schema.Dropdown(
                 id = "radius",
