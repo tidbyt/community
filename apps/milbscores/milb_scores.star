@@ -4,7 +4,12 @@ Summary: Minor League scores
 Description: Shows baseball scores for the Minor Leagues.
 Author: M0ntyP
 
+v1.0 - submitted
 
+v1.1
+Changed date logic from Eastern Time to Pacific Time as games were still being played when its the following day on the east coast
+Added Double A leagues & team colors
+Added team logos for both Triple-A and Double-A teams
 """
 
 load("encoding/json.star", "json")
@@ -13,10 +18,17 @@ load("render.star", "render")
 load("schema.star", "schema")
 load("time.star", "time")
 
-API_PREFIX = "https://bdfed.stitch.mlbinfra.com/bdfed/transform-milb-scoreboard?stitch_env=prod&sortTemplate=4&sportId=11&"
+API_PREFIX = "https://bdfed.stitch.mlbinfra.com/bdfed/transform-milb-scoreboard?stitch_env=prod&sortTemplate=4&sportId="
 API_SUFFIX = "&gameType=R&&gameType=F&&gameType=D&&gameType=L&&gameType=W&&gameType=A&&gameType=C&season=2023&language=en&leagueId="
 API_SUFFIX2 = "&contextTeamId=milb&teamId="
-ET_TIMEZONE = "America/New_York"
+
+#LOGO_PREFIX = "https://www.mlbstatic.com/team-logos/"
+#LOGO_SUFFIX = ".svg"
+
+LOGO_PREFIX = "https://milbpng.blob.core.windows.net/milb/"
+LOGO_SUFFIX = ".png"
+
+PT_TIMEZONE = "America/Los_Angeles"
 DEFAULT_TIMEZONE = "Australia/Adelaide"
 
 COLORS = """
@@ -41,43 +53,90 @@ COLORS = """
     "SYR": "#f47d30",
     "TOL": "#d50032",
     "WOR": "#bd3039",
-    "ABQ": "#fa742a",
+    "ABQ": "#494949",
     "ELP": "#d31245",
     "LV": "#ff4d00",
     "OKC": "#005596",
     "RNO": "#002a5c",
     "RR": "#9d2235",
-    "SAC": "#95002a",
-    "SL": "#fcb817",
-    "SUG": "#41c4dd",
-    "TAC": "#e51837"
+    "SAC": "#000000",
+    "SL": "#000",
+    "SUG": "#002b5c",
+    "TAC": "#002144",
+    "AKR": "#1f7cc3",
+    "ALT": "#a93338",
+    "AMA": "#024b85",
+    "ARK": "#d31245",
+    "BLX": "#d95b73",
+    "BNG": "#a3194a",
+    "BIR": "#b3002a",
+    "BOW": "#e15c33",
+    "CHA": "#ee3d42",
+    "CC": "#5091cd",
+    "ERI": "#d31145",
+    "FRI": "#005295",
+    "HBG": "#d31245",
+    "HFD": "#004b8d",
+    "MID": "#f3901d",
+    "MIS": "#d31145",
+    "MTG": "#d06f1a",
+    "NH": "#e31837",
+    "NWA": "#a40234",
+    "PNS": "#002660",
+    "POR": "#0d2b56",
+    "REA": "#d31245",
+    "RIC": "#d31245",
+    "RCT": "#007dc3",
+    "SA": "#002d62",
+    "SOM": "#0d2240",
+    "SPR": "#d31245",
+    "TNS": "#005696",
+    "TUL": "#005596",
+    "WCH": "#f5002f"
 }
 """
 
 def main(config):
     Display = []
     Title = ""
+    SportID = ""
     localtimezone = config.get("$tz", DEFAULT_TIMEZONE)
     SelectedLeague = config.get("League", "1")
     RotationSpeed = config.get("speed", "3")
 
     if SelectedLeague == "1":
         SelectedLeague = ""
-        Title = "MiLB"
+        Title = "AAA"
+        SportID = "11"
+    if SelectedLeague == "2":
+        SelectedLeague = ""
+        Title = "AA"
+        SportID = "12"
     elif SelectedLeague == "112":
         Title = "PCL"
+        SportID = "11"
     elif SelectedLeague == "117":
         Title = "IL"
+        SportID = "11"
+    elif SelectedLeague == "113":
+        Title = "EAST"
+        SportID = "12"
+    elif SelectedLeague == "111":
+        Title = "SOUTH"
+        SportID = "12"
+    elif SelectedLeague == "109":
+        Title = "TEXAS"
+        SportID = "12"
 
-    # Get the date on the East Coast of US, as all game times are listed as ET
-    now = time.now().in_location(ET_TIMEZONE)
+    # Get the date on the West Coast of US
+    now = time.now().in_location(PT_TIMEZONE)
     strnow = str(now)
     date = strnow[:10]
 
-    # date = "2023-08-06"
-    API_DATE = "startDate=" + date + "&endDate=" + date
-    API = API_PREFIX + API_DATE + API_SUFFIX + SelectedLeague + API_SUFFIX2
-    # print(API)
+    #date = "2023-08-27"
+    APIDate = "startDate=" + date + "&endDate=" + date
+    API = API_PREFIX + SportID + "&" + APIDate + API_SUFFIX + SelectedLeague + API_SUFFIX2
+    #print(API)
 
     teamFont = "Dina_r400-6"
     scoreFont = "Dina_r400-6"
@@ -97,7 +156,15 @@ def main(config):
     if TotalGames > 0:
         for x in range(0, TotalGames, 1):
             HomeAbbr = GameList[x]["teams"]["home"]["team"]["abbreviation"]
+            HomeID = GameList[x]["teams"]["home"]["team"]["id"]
+            HomeLogoURL = LOGO_PREFIX + str(HomeID) + LOGO_SUFFIX
             AwayAbbr = GameList[x]["teams"]["away"]["team"]["abbreviation"]
+            AwayID = GameList[x]["teams"]["away"]["team"]["id"]
+            AwayLogoURL = LOGO_PREFIX + str(AwayID) + LOGO_SUFFIX
+
+            DisplayHomeLogo = get_teamlogo(HomeLogoURL)
+            DisplayAwayLogo = get_teamlogo(AwayLogoURL)
+
             Status = GameList[x]["status"]["statusCode"]
 
             if Status == "I":
@@ -117,7 +184,13 @@ def main(config):
                 HomeScore = str(GameList[x]["teams"]["home"]["score"])
                 AwayScore = str(GameList[x]["teams"]["away"]["score"])
                 scoreFont = "Dina_r400-6"
-            elif Status == "S" or Status == "P":
+            elif Status == "PW":
+                # Warmup
+                GameSituation = "WARMUP"
+                HomeScore = str(GameList[x]["teams"]["home"]["score"])
+                AwayScore = str(GameList[x]["teams"]["away"]["score"])
+                scoreFont = "Dina_r400-6"
+            elif Status == "S" or Status.startswith("P"):
                 # Game is scheduled or preview
                 # Display the start time of the game in your local time in the top right
                 GameTime = GameList[x]["gameDate"]
@@ -127,12 +200,6 @@ def main(config):
                 HomeScore = str(GameList[x]["teams"]["home"]["leagueRecord"]["wins"]) + "-" + str(GameList[x]["teams"]["home"]["leagueRecord"]["losses"])
                 AwayScore = str(GameList[x]["teams"]["away"]["leagueRecord"]["wins"]) + "-" + str(GameList[x]["teams"]["away"]["leagueRecord"]["losses"])
                 scoreFont = "CG-pixel-3x5-mono"
-            elif Status == "PW":
-                # Warmup
-                GameSituation = "WARMUP"
-                HomeScore = str(GameList[x]["teams"]["home"]["score"])
-                AwayScore = str(GameList[x]["teams"]["away"]["score"])
-                scoreFont = "Dina_r400-6"
             elif Status == "IR":
                 # Delayed - Rain
                 InningState = GameList[x]["linescore"]["inningState"]
@@ -141,12 +208,12 @@ def main(config):
                 HomeScore = str(GameList[x]["teams"]["home"]["score"])
                 AwayScore = str(GameList[x]["teams"]["away"]["score"])
                 scoreFont = "Dina_r400-6"
-            elif Status == "DR" or Status == "DD" or Status == "DI":
+            elif Status.startswith("D"):
                 # Postponed
                 GameSituation = "PPD"
                 HomeScore = ""
                 AwayScore = ""
-            elif Status == "CO" or Status == "CR":
+            elif Status.startswith("C"):
                 # Cancelled
                 GameSituation = "CNCLD"
                 HomeScore = ""
@@ -167,10 +234,11 @@ def main(config):
                                 main_align = "space_between",
                                 cross_align = "start",
                                 children = [
-                                    render.Box(width = 20, height = 8, color = "#000", child = render.Row(expanded = True, main_align = "start", children = [
-                                        render.Text(color = "#fff", content = Title, font = "tb-8"),
+                                    render.Box(width = 24, height = 8, color = "#000", child = render.Row(expanded = True, main_align = "start", children = [
+                                        render.Padding(pad = (1, 0, 0, 0), child =
+                                                                               render.Text(color = "#fff", content = Title, font = "tb-8")),
                                     ])),
-                                    render.Box(width = 44, height = 8, color = "#000", child = render.Row(expanded = True, main_align = "end", children = [
+                                    render.Box(width = 40, height = 8, color = "#000", child = render.Row(expanded = True, main_align = "end", children = [
                                         render.Text(color = "#fff", content = GameSituation, font = "CG-pixel-3x5-mono"),
                                     ])),
                                 ],
@@ -183,12 +251,14 @@ def main(config):
                                     render.Column(
                                         children = [
                                             render.Box(width = 64, height = 12, color = awayColor, child = render.Row(expanded = True, main_align = "start", cross_align = "center", children = [
-                                                render.Box(width = 32, height = 12, child = render.Text(content = AwayAbbr, color = "#fff", font = textFont)),
-                                                render.Box(width = 32, height = 12, child = render.Text(content = AwayScore, color = "#fff", font = scoreFont)),
+                                                render.Box(width = 16, height = 16, child = render.Image(src = DisplayAwayLogo, width = 16, height = 16)),
+                                                render.Box(width = 24, height = 12, child = render.Text(content = AwayAbbr, color = "#fff", font = textFont)),
+                                                render.Box(width = 24, height = 12, child = render.Text(content = AwayScore, color = "#fff", font = scoreFont)),
                                             ])),
                                             render.Box(width = 64, height = 12, color = homeColor, child = render.Row(expanded = True, main_align = "start", cross_align = "center", children = [
-                                                render.Box(width = 32, height = 12, child = render.Text(content = HomeAbbr, color = "#fff", font = textFont)),
-                                                render.Box(width = 32, height = 12, child = render.Text(content = HomeScore, color = "#fff", font = scoreFont)),
+                                                render.Box(width = 16, height = 16, child = render.Image(src = DisplayHomeLogo, width = 16, height = 16)),
+                                                render.Box(width = 24, height = 12, child = render.Text(content = HomeAbbr, color = "#fff", font = textFont)),
+                                                render.Box(width = 24, height = 12, child = render.Text(content = HomeScore, color = "#fff", font = scoreFont)),
                                             ])),
                                         ],
                                     ),
@@ -214,7 +284,8 @@ def main(config):
                             cross_align = "start",
                             children = [
                                 render.Box(width = 20, height = 8, color = "#000", child = render.Row(expanded = True, main_align = "start", children = [
-                                    render.Text(color = "#fff", content = Title, font = "tb-8"),
+                                    render.Padding(pad = (1, 0, 0, 0), child =
+                                                                           render.Text(color = "#fff", content = Title, font = "tb-8")),
                                 ])),
                             ],
                         ),
@@ -254,7 +325,7 @@ def main(config):
 
 LeagueOptions = [
     schema.Option(
-        display = "Both",
+        display = "Triple A",
         value = "1",
     ),
     schema.Option(
@@ -264,6 +335,22 @@ LeagueOptions = [
     schema.Option(
         display = "Pacific Coast League",
         value = "112",
+    ),
+    schema.Option(
+        display = "Double A",
+        value = "2",
+    ),
+    schema.Option(
+        display = "Eastern League",
+        value = "113",
+    ),
+    schema.Option(
+        display = "Southern League",
+        value = "111",
+    ),
+    schema.Option(
+        display = "Texas League",
+        value = "109",
     ),
 ]
 
@@ -288,8 +375,16 @@ RotationOptions = [
 
 def get_teamcolor(TeamAbbr):
     colors = json.decode(COLORS)
-    color = colors[TeamAbbr]
+    usecol = colors.get(TeamAbbr, "False")
+    if usecol != "False":
+        color = colors[TeamAbbr]
+    else:
+        color = "#000"
     return color
+
+def get_teamlogo(LogoURL):
+    DisplayLogo = get_cachable_data(LogoURL, 86400)
+    return DisplayLogo
 
 def get_schema():
     return schema.Schema(
