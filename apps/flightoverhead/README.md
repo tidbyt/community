@@ -1,6 +1,6 @@
 # Flight Overhead for Tidbyt
 
-Uses AirLabs or OpenSky to find the flight overhead a location.
+Use AirLabs or OpenSky to find the flight overhead a location. By default, OpenSky is the provider. An optional OpenSky account can be used to extend the request quota. An AirLabs API Key is required to use AirLabs as the provider.
 
 >>>
 name = "Provider (Required)",
@@ -36,3 +36,7 @@ desc = "The message to return if no flights are found"
 ## Screenshot
 
 ![Flight Overhead for Tidbyt](screenshot.png)
+
+## Credit
+
+Thank you to [The OpenSky Network](https://opensky-network.org), [HexDB](https://hexdb.io), and [ADSB.lol](https://www.adsb.lol) for providing free access to their data.
