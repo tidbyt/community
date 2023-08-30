@@ -39,8 +39,6 @@ PROVIDERS = {
 }
 
 DEFAULT_AIRLABS_API_KEY = ""
-DEFAULT_DISABLE_END_HOUR = "None"
-DEFAULT_DISABLE_START_HOUR = "None"
 DEFAULT_IGNORE = ""
 DEFAULT_LIMIT = 1
 DEFAULT_LOCATION = json.encode({
@@ -60,7 +58,6 @@ DEFAULT_PROVIDER_TTL_SECONDS = 0
 DEFAULT_RADIUS = 1
 DEFAULT_RETURN_MESSAGE_ON_EMPTY = ""
 DEFAULT_SHOW_ROUTE = True
-DEFAULT_TIMEZONE = "America/Chicago"
 
 KN_RATIO = 1.94
 KM_RATIO = 0.54
@@ -91,11 +88,6 @@ def main(config):
     if config.get("provider_ttl_seconds"):
         provider_ttl_seconds = re.sub("\\D", "", config.get("provider_ttl_seconds")) or DEFAULT_PROVIDER_TTL_SECONDS
     provider_ttl_seconds = int(provider_ttl_seconds)
-
-    timezone = config.get("timezone", DEFAULT_TIMEZONE)
-    disable_start_hour = config.get("disable_start_hour", DEFAULT_DISABLE_START_HOUR)
-    disable_end_hour = config.get("disable_end_hour", DEFAULT_DISABLE_END_HOUR)
-    now = time.now().in_location(timezone).hour
 
     return_message_on_empty = config.get("return_message_on_empty", DEFAULT_RETURN_MESSAGE_ON_EMPTY)
 
@@ -337,17 +329,6 @@ def main(config):
             return empty_message()
 
     print_log(time.now())
-
-    if disable_start_hour != DEFAULT_DISABLE_START_HOUR and disable_end_hour != DEFAULT_DISABLE_END_HOUR:
-        disable_start_hour = int(disable_start_hour)
-        disable_end_hour = int(disable_end_hour)
-
-        print_log("Disabling between %d:00 and %d:00" % (disable_start_hour, disable_end_hour))
-
-        if (disable_end_hour >= disable_start_hour and now >= disable_start_hour and now < disable_end_hour) or (disable_end_hour < disable_start_hour and now >= disable_start_hour or now < disable_end_hour):
-            print_log("Disabled")
-
-            return empty_message()
 
     if provider:
         auth = ()
