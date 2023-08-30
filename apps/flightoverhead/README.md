@@ -7,7 +7,7 @@ name = "Provider (Required)",
 desc = "The provider for the data"
 
 name = "Location (Required)",
-desc = "A comma-separated value of the decimalized latitude and longitude to search"
+desc = "The decimalized latitude and longitude to search"
 
 name = "Radius",
 desc = "The radius (in nautical miles) to search"
