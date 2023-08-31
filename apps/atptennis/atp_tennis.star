@@ -52,6 +52,7 @@ Masters 1000 events will have gold color font for the tournament title/city
 
 v1.9
 Updated scheduled matches to only show if both players are listed, prevents blanks
+Updated checking for walkovers
 """
 
 load("encoding/json.star", "json")
@@ -193,7 +194,7 @@ def main(config):
                         MatchState = ATP_JSON["events"][x]["groupings"][0]["competitions"][y]["status"]["type"]["description"]
 
                         # if the match is completed and the start time of the match was < 24 hrs ago, lets add it to the list of completed matches
-                        if MatchState == "Final" or MatchState == "Retired":
+                        if MatchState == "Final" or MatchState == "Retired" or MatchState == "Walkover":
                             MatchTime = ATP_JSON["events"][EventIndex]["groupings"][0]["competitions"][y]["date"]
                             MatchTime = time.parse_time(MatchTime, format = "2006-01-02T15:04Z")
                             diff = MatchTime - now

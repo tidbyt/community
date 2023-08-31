@@ -51,6 +51,7 @@ WTA 1000 events will have gold color font for the tournament title/city
 
 v1.9
 Updated scheduled matches to only show if both players are listed, prevents blanks
+Updated walkover checking
 """
 
 load("encoding/json.star", "json")
@@ -196,7 +197,7 @@ def main(config):
                         MatchState = WTA_JSON["events"][x]["groupings"][GroupingsID]["competitions"][y]["status"]["type"]["description"]
 
                         # if the match is completed and the start time of the match was < 24 hrs ago, lets add it to the list of completed matches
-                        if MatchState == "Final" or MatchState == "Retired":
+                        if MatchState == "Final" or MatchState == "Retired" or MatchState == "Walkover":
                             MatchTime = WTA_JSON["events"][EventIndex]["groupings"][GroupingsID]["competitions"][y]["date"]
                             MatchTime = time.parse_time(MatchTime, format = "2006-01-02T15:04Z")
                             diff = MatchTime - now
