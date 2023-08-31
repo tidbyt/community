@@ -5,9 +5,7 @@ Description: Displays a world capital each day for a specific country.
 Author: Jake Manske
 """
 
-load("cache.star", "cache")
 load("encoding/base64.star", "base64")
-load("encoding/json.star", "json")
 load("http.star", "http")
 load("render.star", "render")
 load("schema.star", "schema")
@@ -98,6 +96,7 @@ def get_country(region, country_index):
     Returns:
         a dict "country" object
     """
+
     # get the URL based on region selected
     url = get_url(region)
 
