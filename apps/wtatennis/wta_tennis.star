@@ -48,6 +48,11 @@ Bug fix - Retired matches were not being captured after changing completed match
 v1.8
 Changed purple background color on the title bar, made it darker purple
 WTA 1000 events will have gold color font for the tournament title/city
+
+v1.9
+Added new feature to show who won each set (for completed & in progress matches) rather than having all of the match winner's sets in yellow. Makes it easier to see the flow of the match
+Updated scheduled matches to only show if both players are listed, prevents blanks
+Updated checks for walkover matches
 """
 
 load("encoding/json.star", "json")
@@ -193,7 +198,7 @@ def main(config):
                         MatchState = WTA_JSON["events"][x]["groupings"][GroupingsID]["competitions"][y]["status"]["type"]["description"]
 
                         # if the match is completed and the start time of the match was < 24 hrs ago, lets add it to the list of completed matches
-                        if MatchState == "Final" or MatchState == "Retired":
+                        if MatchState == "Final" or MatchState == "Retired" or MatchState == "Walkover":
                             MatchTime = WTA_JSON["events"][EventIndex]["groupings"][GroupingsID]["competitions"][y]["date"]
                             MatchTime = time.parse_time(MatchTime, format = "2006-01-02T15:04Z")
                             diff = MatchTime - now
@@ -282,8 +287,8 @@ def getLiveScores(SelectedTourneyID, EventIndex, InProgressMatchList, JSON):
     GroupingsID = 0
     InProgressNum = len(InProgressMatchList)
 
-    Player1Color = "#fff"
-    Player2Color = "#fff"
+    Player1NameColor = "#fff"
+    Player2NameColor = "#fff"
     displayfont = "CG-pixel-3x5-mono"
     LoopMax = 0
 
@@ -312,13 +317,23 @@ def getLiveScores(SelectedTourneyID, EventIndex, InProgressMatchList, JSON):
         # lint being a pain, so...
         y = y
 
+        Player1SetScoreList = []
+        Player2SetScoreList = []
+        Player1SetWinnerList = []
+        Player2SetWinnerList = []
+
+        SetScores1 = []
+        SetScores2 = []
+        MasterSetScores1 = []
+        MasterSetScores2 = []
+
         # LoopMax is maximum number of times to loop around, which is 2 (2 matches)
         if LoopMax > 1:
             break
         else:
             LoopMax = LoopMax + 1
-            Player1Color = "#fff"
-            Player2Color = "#fff"
+            Player1NameColor = "#fff"
+            Player2NameColor = "#fff"
 
             if JSON["events"][EventIndex]["groupings"][0]["grouping"]["slug"] == "mens-singles":
                 GroupingsID = 1
@@ -332,25 +347,72 @@ def getLiveScores(SelectedTourneyID, EventIndex, InProgressMatchList, JSON):
             # See if the server details are been captured and display them if they are there
             if "possession" in JSON["events"][EventIndex]["groupings"][GroupingsID]["competitions"][x]["competitors"][0]:
                 if JSON["events"][EventIndex]["groupings"][GroupingsID]["competitions"][x]["competitors"][0]["possession"] == True:
-                    Player1Color = "#01AF50"
+                    Player1NameColor = "#01AF50"
                 elif JSON["events"][EventIndex]["groupings"][GroupingsID]["competitions"][x]["competitors"][0]["possession"] == False:
-                    Player2Color = "#01AF50"
+                    Player2NameColor = "#01AF50"
 
             # if a match is suspended show players in blue
             if JSON["events"][EventIndex]["groupings"][GroupingsID]["competitions"][x]["status"]["type"]["description"] == "Suspended":
-                Player1Color = "#6aaeeb"
-                Player2Color = "#6aaeeb"
+                Player1NameColor = "#6aaeeb"
+                Player2NameColor = "#6aaeeb"
 
             Number_Sets = len(JSON["events"][EventIndex]["groupings"][GroupingsID]["competitions"][x]["competitors"][0]["linescores"])
-            Player1_Sets = ""
-            Player2_Sets = ""
 
             for z in range(0, Number_Sets, 1):
                 Player1SetScore = humanize.ftoa(JSON["events"][EventIndex]["groupings"][GroupingsID]["competitions"][x]["competitors"][0]["linescores"][z]["value"])
                 Player2SetScore = humanize.ftoa(JSON["events"][EventIndex]["groupings"][GroupingsID]["competitions"][x]["competitors"][1]["linescores"][z]["value"])
+                Player1SetScoreList.insert(0, Player1SetScore)
+                Player2SetScoreList.insert(0, Player2SetScore)
 
-                Player1_Sets = Player1_Sets + Player1SetScore
-                Player2_Sets = Player2_Sets + Player2SetScore
+                # if a set is complete, it will have a winner, else it must be an in progress set, therefore no winner (False)
+                if "winner" in JSON["events"][EventIndex]["groupings"][GroupingsID]["competitions"][x]["competitors"][0]["linescores"][z]:
+                    Player1SetWinner = JSON["events"][EventIndex]["groupings"][GroupingsID]["competitions"][x]["competitors"][0]["linescores"][z]["winner"]
+                    Player2SetWinner = JSON["events"][EventIndex]["groupings"][GroupingsID]["competitions"][x]["competitors"][1]["linescores"][z]["winner"]
+                    Player1SetWinnerList.insert(0, Player1SetWinner)
+                    Player2SetWinnerList.insert(0, Player2SetWinner)
+                else:
+                    Player1SetWinnerList.insert(0, False)
+                    Player2SetWinnerList.insert(0, False)
+
+                Player1SetColor = "#fff"
+                Player2SetColor = "#fff"
+                P1Score = Player1SetScoreList.pop()
+                P2Score = Player2SetScoreList.pop()
+
+                P1SetWinner = Player1SetWinnerList.pop()
+                P2SetWinner = Player2SetWinnerList.pop()
+
+                if P1SetWinner == True:
+                    Player1SetColor = "ff0"
+                elif P2SetWinner == True:
+                    Player2SetColor = "ff0"
+
+                SetScores1 = [
+                    render.Box(
+                        width = 4,
+                        height = 5,
+                        child = render.Text(
+                            content = P1Score,
+                            color = Player1SetColor,
+                            font = displayfont,
+                        ),
+                    ),
+                ]
+
+                SetScores2 = [
+                    render.Box(
+                        width = 4,
+                        height = 5,
+                        child = render.Text(
+                            content = P2Score,
+                            color = Player2SetColor,
+                            font = displayfont,
+                        ),
+                    ),
+                ]
+
+                MasterSetScores1.extend(SetScores1)
+                MasterSetScores2.extend(SetScores2)
 
             Scores = [
                 render.Row(
@@ -365,7 +427,7 @@ def getLiveScores(SelectedTourneyID, EventIndex, InProgressMatchList, JSON):
                                     pad = (1, 1, 0, 0),
                                     child = render.Text(
                                         content = Player1_Name[3:15],
-                                        color = Player1Color,
+                                        color = Player1NameColor,
                                         font = displayfont,
                                     ),
                                 ),
@@ -373,16 +435,7 @@ def getLiveScores(SelectedTourneyID, EventIndex, InProgressMatchList, JSON):
                         ),
                         render.Row(
                             main_align = "end",
-                            children = [
-                                render.Padding(
-                                    pad = (0, 1, 1, 0),
-                                    child = render.Text(
-                                        content = Player1_Sets,
-                                        color = Player1Color,
-                                        font = displayfont,
-                                    ),
-                                ),
-                            ],
+                            children = MasterSetScores1,
                         ),
                     ],
                 ),
@@ -398,7 +451,7 @@ def getLiveScores(SelectedTourneyID, EventIndex, InProgressMatchList, JSON):
                                     pad = (1, 1, 0, 0),
                                     child = render.Text(
                                         content = Player2_Name[3:15],
-                                        color = Player2Color,
+                                        color = Player2NameColor,
                                         font = displayfont,
                                     ),
                                 ),
@@ -406,16 +459,7 @@ def getLiveScores(SelectedTourneyID, EventIndex, InProgressMatchList, JSON):
                         ),
                         render.Row(
                             main_align = "end",
-                            children = [
-                                render.Padding(
-                                    pad = (0, 1, 1, 0),
-                                    child = render.Text(
-                                        content = Player2_Sets,
-                                        color = Player2Color,
-                                        font = displayfont,
-                                    ),
-                                ),
-                            ],
+                            children = MasterSetScores2,
                         ),
                     ],
                 ),
@@ -498,13 +542,23 @@ def getCompletedMatches(SelectedTourneyID, EventIndex, CompletedMatchList, JSON)
         # lint being a pain, so...
         y = y
 
+        Player1SetScoreList = []
+        Player2SetScoreList = []
+        Player1SetWinnerList = []
+        Player2SetWinnerList = []
+
+        SetScores1 = []
+        SetScores2 = []
+        MasterSetScores1 = []
+        MasterSetScores2 = []
+
         # LoopMax is maximum number of times to loop around, which is 2 (2 matches per cycle)
         if LoopMax > 1:
             break
         else:
             LoopMax = LoopMax + 1
-            Player1Color = "#fff"
-            Player2Color = "#fff"
+            Player1NameColor = "#fff"
+            Player2NameColor = "#fff"
 
             # pop the index from the list and go straight to that match
             x = CompletedMatchList.pop()
@@ -524,9 +578,6 @@ def getCompletedMatches(SelectedTourneyID, EventIndex, CompletedMatchList, JSON)
             elif (Player2_Winner):
                 Player2Color = "#ff0"
 
-            Player1_Sets = ""
-            Player2_Sets = ""
-
             # if its not a walkover
             if JSON["events"][EventIndex]["groupings"][GroupingsID]["competitions"][x]["status"]["type"]["description"] != "Walkover":
                 Number_Sets = len(JSON["events"][EventIndex]["groupings"][GroupingsID]["competitions"][x]["competitors"][0]["linescores"])
@@ -535,17 +586,101 @@ def getCompletedMatches(SelectedTourneyID, EventIndex, CompletedMatchList, JSON)
                     Player1SetScore = humanize.ftoa(JSON["events"][EventIndex]["groupings"][GroupingsID]["competitions"][x]["competitors"][0]["linescores"][z]["value"])
                     Player2SetScore = humanize.ftoa(JSON["events"][EventIndex]["groupings"][GroupingsID]["competitions"][x]["competitors"][1]["linescores"][z]["value"])
 
-                    Player1_Sets = Player1_Sets + Player1SetScore
-                    Player2_Sets = Player2_Sets + Player2SetScore
+                    Player1SetWinner = JSON["events"][EventIndex]["groupings"][GroupingsID]["competitions"][x]["competitors"][0]["linescores"][z]["winner"]
+                    Player2SetWinner = JSON["events"][EventIndex]["groupings"][GroupingsID]["competitions"][x]["competitors"][1]["linescores"][z]["winner"]
+
+                    Player1SetScoreList.insert(0, Player1SetScore)
+                    Player2SetScoreList.insert(0, Player2SetScore)
+                    Player1SetWinnerList.insert(0, Player1SetWinner)
+                    Player2SetWinnerList.insert(0, Player2SetWinner)
+
+                    Player1Color = "#fff"
+                    Player2Color = "#fff"
+                    P1Score = Player1SetScoreList.pop()
+                    P2Score = Player2SetScoreList.pop()
+                    P1SetWinner = Player1SetWinnerList.pop()
+
+                    if P1SetWinner == True:
+                        Player1Color = "ff0"
+                    else:
+                        Player2Color = "ff0"
+
+                    SetScores1 = [
+                        render.Box(
+                            width = 4,
+                            height = 5,
+                            child = render.Text(
+                                content = P1Score,
+                                color = Player1Color,
+                                font = displayfont,
+                            ),
+                        ),
+                    ]
+
+                    SetScores2 = [
+                        render.Box(
+                            width = 4,
+                            height = 5,
+                            child = render.Text(
+                                content = P2Score,
+                                color = Player2Color,
+                                font = displayfont,
+                            ),
+                        ),
+                    ]
+
+                    MasterSetScores1.extend(SetScores1)
+                    MasterSetScores2.extend(SetScores2)
 
             else:
                 # it is a walkover, indicate that in the set score field
                 if (Player1_Winner):
-                    Player1_Sets = "WO"
-                    Player2_Sets = ""
+                    MasterSetScores1 = [
+                        render.Box(
+                            width = 4,
+                            height = 5,
+                            child = render.Text(
+                                content = "WO",
+                                color = "#ff0",
+                                font = displayfont,
+                            ),
+                        ),
+                    ]
+
+                    MasterSetScores2 = [
+                        render.Box(
+                            width = 4,
+                            height = 5,
+                            child = render.Text(
+                                content = "",
+                                color = "#ff0",
+                                font = displayfont,
+                            ),
+                        ),
+                    ]
                 elif (Player2_Winner):
-                    Player1_Sets = ""
-                    Player2_Sets = "WO"
+                    MasterSetScores2 = [
+                        render.Box(
+                            width = 4,
+                            height = 5,
+                            child = render.Text(
+                                content = "WO",
+                                color = "#ff0",
+                                font = displayfont,
+                            ),
+                        ),
+                    ]
+                    MasterSetScores1 = [
+                        render.Box(
+                            width = 4,
+                            height = 5,
+                            child = render.Text(
+                                content = "",
+                                color = "#ff0",
+                                font = displayfont,
+                            ),
+                        ),
+                    ]
 
             # Render the names and set scores, with a spacer in between matches
             Scores = [
@@ -561,7 +696,7 @@ def getCompletedMatches(SelectedTourneyID, EventIndex, CompletedMatchList, JSON)
                                     pad = (1, 1, 0, 0),
                                     child = render.Text(
                                         content = Player1_Name[3:15],
-                                        color = Player1Color,
+                                        color = Player1NameColor,
                                         font = displayfont,
                                     ),
                                 ),
@@ -569,16 +704,7 @@ def getCompletedMatches(SelectedTourneyID, EventIndex, CompletedMatchList, JSON)
                         ),
                         render.Row(
                             main_align = "end",
-                            children = [
-                                render.Padding(
-                                    pad = (0, 1, 1, 0),
-                                    child = render.Text(
-                                        content = Player1_Sets,
-                                        color = Player1Color,
-                                        font = displayfont,
-                                    ),
-                                ),
-                            ],
+                            children = MasterSetScores1,
                         ),
                     ],
                 ),
@@ -594,7 +720,7 @@ def getCompletedMatches(SelectedTourneyID, EventIndex, CompletedMatchList, JSON)
                                     pad = (1, 1, 0, 0),
                                     child = render.Text(
                                         content = Player2_Name[3:15],
-                                        color = Player2Color,
+                                        color = Player2NameColor,
                                         font = displayfont,
                                     ),
                                 ),
@@ -602,16 +728,7 @@ def getCompletedMatches(SelectedTourneyID, EventIndex, CompletedMatchList, JSON)
                         ),
                         render.Row(
                             main_align = "end",
-                            children = [
-                                render.Padding(
-                                    pad = (0, 1, 1, 0),
-                                    child = render.Text(
-                                        content = Player2_Sets,
-                                        color = Player2Color,
-                                        font = displayfont,
-                                    ),
-                                ),
-                            ],
+                            children = MasterSetScores2,
                         ),
                     ],
                 ),
