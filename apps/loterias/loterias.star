@@ -86,7 +86,7 @@ def main(config):
     timezone = location["timezone"]
 
     # call loterias API
-    res = http.get("https://servicebus2.caixa.gov.br/portaldeloterias/api/%s/" % modality, ttl_seconds = CACHE_TTL)
+    res = http.get("https://loterias-caixa-79yugp3htn3l.runkit.sh/%s/" % modality, ttl_seconds = CACHE_TTL)
 
     # handle API error
     if res.status_code != 200:
@@ -102,6 +102,8 @@ def main(config):
 
     # humanize the draw date
     draw_date_human = "em " + humanize.time(draw_date_in_tz).replace("from now", "")
+    draw_date_human = draw_date_human.replace("week", "semana")
+    draw_date_human = draw_date_human.replace("weeks", "semanas")
     draw_date_human = draw_date_human.replace("days", "dias")
     draw_date_human = draw_date_human.replace("day", "dia")
     draw_date_human = draw_date_human.replace("hours", "horas")
