@@ -15,9 +15,6 @@ load("time.star", "time")
 MLB_STANDINGS_URL = "https://statsapi.mlb.com/api/v1/standings"
 GAMES_BACK_FONT = "tb-8"
 
-NL_LEAGUE_ID = "104"
-AL_LEAGUE_ID = "103"
-
 HIGHLIGHT_COLOR = "#65FE08"
 
 # get top 9 teams (almost everyone)
@@ -31,10 +28,10 @@ SMALL_FONT = "CG-pixel-3x5-mono"
 SMALL_FONT_COLOR = "#FFA700"
 
 def main(config):
-    league_id = config.get("league") or NL_LEAGUE_ID
+    division_id = int(config.get("division") or NL_CENTRAL)
     year = str(time.now().year)  #use current year
 
-    standings = get_Standings(league_id, year)
+    standings = get_Standings(division_id, year)
 
     # if we have some widgets, we can display them now
     if len(standings) > 0:
@@ -48,16 +45,14 @@ def main(config):
                         height = 81,
                         keyframes = [
                             build_keyframe(5, 0.0),
-                            build_keyframe(5, 0.25),
-                            build_keyframe(-22, 0.40),
-                            build_keyframe(-22, 0.60),
-                            build_keyframe(-49, 0.70),
-                            build_keyframe(-49, 1.0),
+                            build_keyframe(5, 0.40),
+                            build_keyframe(-22, 0.80),
+                            build_keyframe(-22, 1.0),
                         ],
-                        child = render_WildCardStandings(standings),
+                        child = render_DivisionStandings(standings),
                         wait_for_child = True,
                     ),
-                    render_header(league_id),
+                    render_header(division_id),
                 ],
             ),
         )
@@ -92,31 +87,46 @@ def build_keyframe(offset, pct):
 def get_schema():
     options = [
         schema.Option(
-            display = "National League",
-            value = NL_LEAGUE_ID,
+            display = "AL West",
+            value = str(AL_WEST),
         ),
         schema.Option(
-            display = "American League",
-            value = AL_LEAGUE_ID,
+            display = "AL Central",
+            value = str(AL_CENTRAL),
+        ),
+        schema.Option(
+            display = "AL East",
+            value = str(AL_EAST),
+        ),
+        schema.Option(
+            display = "NL West",
+            value = str(NL_WEST),
+        ),
+        schema.Option(
+            display = "NL Central",
+            value = str(NL_CENTRAL),
+        ),
+        schema.Option(
+            display = "NL East",
+            value = str(NL_EAST),
         ),
     ]
     return schema.Schema(
         version = "1",
         fields = [
             schema.Dropdown(
-                id = "league",
-                name = "League",
-                desc = "Which league to display the wild card race for.",
+                id = "division",
+                name = "Division",
+                desc = "Which division to display standings for.",
                 icon = "baseballBatBall",
-                default = NL_LEAGUE_ID,
+                default = str(NL_CENTRAL),
                 options = options,
             ),
         ],
     )
 
-def render_header(league_id):
-    text = "NL" if league_id == NL_LEAGUE_ID else "AL"
-    text += " WILD CARD"
+def render_header(division_id):
+    text = DIVISION_MAP.get(division_id)
     return render.Box(
         height = 5,
         width = 64,
@@ -124,13 +134,19 @@ def render_header(league_id):
         child = render_american_word(text, "CG-pixel-4x5-mono"),
     )
 
-def get_Standings(league_id, year):
+def get_Standings(division_id, year):
+    if NAT_LEAGUE.get(division_id) != None:
+        league_id = NAT_LEAGUE_ID
+    else:
+        league_id = AMER_LEAGUE_ID
+
     query_params = {
-        "fields": "records,teamRecords,team,id,wildCardGamesBack,clinched,clinchIndicator",
-        "standingsTypes": "divisionGamesBack",
-        "leagueId": league_id,
+        "fields": "records,teamRecords,team,id,division,divisionGamesBack,clinched,clinchIndicator",
+        "standingsTypes": "regularSeason",
+        "leagueId": str(league_id),
         "season": year,
     }
+
     standings_data = http.get(MLB_STANDINGS_URL, params = query_params, ttl_seconds = CACHE_TIMEOUT)
 
     standings = []
@@ -148,34 +164,29 @@ def get_Standings(league_id, year):
     if len(records) == 0:
         return standings
 
-    limiter = 0
+    for division in records:
+        if int(division.get("division").get("id")) == division_id:
+            for team in division.get("teamRecords"):
+                # get the team and how many games back they are
+                # and whether they have clinched
+                team_id = int(team.get("team").get("id"))
+                games_back = team.get("divisionGamesBack")
+                clinched = team.get("clinched") or False
 
-    for team in records[0].get("teamRecords"):
-        if limiter >= DISPLAY_LIMIT:
-            break
-
-        # get the team and how many games back they are
-        # and whether they have clinched
-        team_id = int(team.get("team").get("id"))
-        games_back = team.get("wildCardGamesBack")
-        clinched = team.get("clinched") or False
-
-        # add to list
-        standings.append(
-            {
-                "TeamId": team_id,
-                "GamesBack": games_back,
-                "Clinched": clinched,
-            },
-        )
-        limiter += 1
+                # add to list
+                standings.append(
+                    {
+                        "TeamId": team_id,
+                        "GamesBack": games_back,
+                        "Clinched": clinched,
+                    },
+                )
 
     return standings
 
-def render_WildCardStandings(standings):
+def render_DivisionStandings(standings):
     team_widgets = []
     games_back_widgets = []
-    pos = 1
     max_games_back_length = 0
 
     for info in standings:
@@ -188,9 +199,8 @@ def render_WildCardStandings(standings):
         # keep track of games_back length so we can align everything
         if len(games_back) > max_games_back_length:
             max_games_back_length = len(games_back)
-        team_widgets.append(render_Team(team_id, pos, clinched))
+        team_widgets.append(render_Team(team_id, clinched))
         games_back_widgets.append(render_GamesBack(team_id, games_back, clinched))
-        pos += 1
 
     return render.Stack(
         children = [
@@ -204,43 +214,44 @@ def render_WildCardStandings(standings):
         ],
     )
 
-def render_american_word(word, font):
-    colors = ["#e81416", "#ffa500", "#faeb36", "#79c314", "#487de7", "#4b369d", "#70369d"]
+def render_flashy_word(word, font, colors):
+    ranger = len(colors)
     widgets = []
-    for j in range(7):
-        rainbow_word = []
+    for j in range(ranger):
+        flashy_word = []
         for i in range(len(word)):
             letter = render.Text(
                 content = word[i],
                 font = font,
-                color = colors[(j + i) % 7],
+                color = colors[(j + i) % ranger],
             )
-            rainbow_word.append(letter)
+            flashy_word.append(letter)
         widgets.append(
             render.Row(
-                children = rainbow_word,
+                children = flashy_word,
             ),
         )
     return render.Animation(
         children = widgets,
     )
+def render_rainbow_word(word, font):
+    colors = ["#e81416", "#ffa500", "#faeb36", "#79c314", "#487de7", "#4b369d", "#70369d"]
+    return render_flashy_word(word, font, colors)
 
-def render_Team(team_id, pos, clinched):
+def render_american_word(word, font):
+    colors = ["#B31942", "#FFFFFF", "#0A3161"]
+    return render_flashy_word(word, font, colors)
+
+def render_Team(team_id, clinched):
     team = TEAM_INFO[team_id]
     logo_width = 20
     if clinched:
-        abbrev = render_american_word(TEAM_INFO[team_id].Abbreviation, GAMES_BACK_FONT)
-        pos_widget = render_american_word(str(pos), SMALL_FONT)
+        abbrev = render_rainbow_word(TEAM_INFO[team_id].Abbreviation, GAMES_BACK_FONT)
     else:
         abbrev = render.Text(
             content = team.Abbreviation,
-            font = GAMES_BACK_FONT,
-            color = team.ForegroundColor,
-        )
-        pos_widget = render.Text(
-            content = str(pos),
             font = SMALL_FONT,
-            color = HIGHLIGHT_COLOR,
+            color = team.ForegroundColor,
         )
     return render.Box(
         height = 9,
@@ -250,7 +261,6 @@ def render_Team(team_id, pos, clinched):
             main_align = "start",
             expanded = True,
             children = [
-                pos_widget,
                 render.Padding(
                     pad = (0, -3, 0, 0),
                     child = render.Image(
@@ -263,7 +273,7 @@ def render_Team(team_id, pos, clinched):
                     width = 1,
                 ),
                 render.Padding(
-                    pad = (0, 1, 0, 0),
+                    pad = (0, 2, 0, 0),
                     child = abbrev,
                 ),
             ],
@@ -278,7 +288,7 @@ def render_GamesBack(team_id, games_back, clinched):
     else:
         gb_widget = render.Text(
             content = games_back,
-            font = GAMES_BACK_FONT,
+            font = SMALL_FONT,
             color = TEAM_INFO[team_id].ForegroundColor,
         )
     return render.Row(
@@ -288,7 +298,7 @@ def render_GamesBack(team_id, games_back, clinched):
                 width = offset,
             ),
             render.Padding(
-                pad = (0, 1, 0, 0),
+                pad = (0, 3, 0, 0),
                 child = gb_widget,
             ),
         ],
@@ -297,16 +307,37 @@ def render_GamesBack(team_id, games_back, clinched):
 def get_BoxWidth(max_games_back_length):
     width = 0
     if max_games_back_length == 5:
-        width = 64 - 4 * max_games_back_length - 1
+        width = 64 - 3 * max_games_back_length - 1
     else:
-        width = 64 - 4 * max_games_back_length
+        width = 64 - 3 * max_games_back_length
     return width
 
 #################
 ## TEAM CONFIG ##
 #################
+# division IDs
+NL_WEST = 203
+NL_CENTRAL = 205
+NL_EAST = 204
+AL_WEST = 200
+AL_CENTRAL = 202
+AL_EAST = 201
 
+# league IDs
+NAT_LEAGUE_ID = 104
+AMER_LEAGUE_ID = 103
 
+NAT_LEAGUE = { NL_WEST: "1", NL_CENTRAL: "1", NL_EAST: "1" }
+AMER_LEAGUE = { AL_WEST: "1", AL_CENTRAL: "1", AL_EAST: "1" }
+
+DIVISION_MAP = {
+    NL_WEST: "NL West",
+    NL_CENTRAL: "NL Central",
+    NL_EAST: "NL East",
+    AL_WEST: "AL West",
+    AL_CENTRAL: "AL Central",
+    AL_EAST: "AL East"
+}
 
 LAA_TEAM_ID = 108  #Los Angeles Angels
 ARI_TEAM_ID = 109  #Arizona Diamondbacks
