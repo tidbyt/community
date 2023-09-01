@@ -1,7 +1,7 @@
 """
 Applet: Nightscout
 Summary: Shows Nightscout CGM Data
-Description: Displays Continuous Glucose Monitoring (CGM) blood sugar data from the Nightscout Open Source project (https://nightscout.github.io/). Will display blood sugar as mg/dL or mmol/L. Optionally display historical readings on a graph. Also a clock. (v2.3.2).
+Description: Displays Continuous Glucose Monitoring (CGM) blood sugar data from the Nightscout Open Source project (https://nightscout.github.io/). Will display blood sugar as mg/dL or mmol/L. Optionally display historical readings on a graph. Also a clock. (v2.3.3).
 Authors: Jeremy Tavener, Paul Murphy
 """
 
@@ -853,7 +853,7 @@ def get_nightscout_data(nightscout_url, nightscout_token, show_mgdl):
         print("sgv_delta:" + str(sgv_delta))
 
     # Get the direction
-    direction = latest_reading["direction"]
+    direction = latest_reading["direction"] if "direction" in latest_reading else "None"
     history = []
 
     for x in resp.json():

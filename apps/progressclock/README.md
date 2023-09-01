@@ -4,9 +4,10 @@
 
 See the time displayed & how much of the day has passed, as represented by a graph.
 
-<img src='./git-image.webp' alt='Example image of application running' width='300px' />
-
 ## Development
+
+### In-browser development
+`pixlet serve progressclock.star`
 
 ### Push graphic to device
 
@@ -14,8 +15,18 @@ See the time displayed & how much of the day has passed, as represented by a gra
 
 ## Publishing
 
-* `pixlet format progressclock.star`
-* `pixlet lint --fix progressclock.star`
-* `pixlet check -r .`
+### Preflight linting
+
+```
+pixlet format progressclock.star && 
+pixlet lint --fix progressclock.star &&
+pixlet check -r .
+```
+
+### CLA
 
 In the Pull Request, comment `I have read the CLA Document and I hereby sign the CLA`.
+
+## Changelog
+
+* 1.1 - Fixes support for custom timezones.
