@@ -276,7 +276,8 @@ def main(config):
                                     pad = 1,
                                     child = render.Marquee(
                                         width = 57,
-                                        offset_start = 57,
+                                        offset_start = 57, # start off screen
+                                        offset_end = 56, # end before it comes back on screen
                                         child = render.Text(
                                             shown_challenge["name"],
                                             font = "CG-pixel-3x5-mono",
