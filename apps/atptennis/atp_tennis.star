@@ -35,6 +35,20 @@ v1.6
 ESPN changed the structure of the API so had to reflect those changes in the app
 Added feature to show scheduled matches, enable with toggle switch. Will show date & time of scheduled match in Tidbyt's timezone
 
+v1.6.1
+Bug fix - the API lookup for a "scheduled" match which is actually in progress was incorrect
+
+v1.7
+Updated determination for completed match, using "description" and not "state"
+Now adding suspended matches in the In Progress list
+Suspended matches shown in blue
+Scheduled matches now in order of play - earliest to latest
+
+v1.7.1
+Bug fix - Retired matches were not being captured after changing completed match determination to description
+
+v1.8
+Masters 1000 events will have gold color font for the tournament title/city
 """
 
 load("encoding/json.star", "json")
@@ -45,6 +59,9 @@ load("schema.star", "schema")
 load("time.star", "time")
 
 SLAM_LIST = ["154-2023", "188-2023", "172-2023", "189-2023"]
+MASTERS_LIST = ["718-2023", "421-2023", "13-2023", "315-2023"]
+
+#FIVE_LIST = []
 DEFAULT_TIMEZONE = "Australia/Adelaide"
 ATP_SCORES_URL = "https://site.api.espn.com/apis/site/v2/sports/tennis/atp/scoreboard"
 
@@ -65,7 +82,7 @@ def main(config):
     diffTournEnd = 0
     diffTournStart = 0
 
-    TestID = "414-2023"
+    TestID = "421-2023"
     SelectedTourneyID = config.get("TournamentList", TestID)
     ShowCompleted = config.get("CompletedOn", "true")
     ShowScheduled = config.get("ScheduledOn", "false")
@@ -95,6 +112,17 @@ def main(config):
                     # And the "In Progress" match started < 24 hrs ago , sometimes the data feed will still show matches as "In Progress" after they have completed
                     # Adding a 24hr limit will remove them out of the list
                     if ATP_JSON["events"][x]["groupings"][0]["competitions"][y]["status"]["type"]["description"] == "In Progress":
+                        #print(y)
+                        MatchTime = ATP_JSON["events"][EventIndex]["groupings"][0]["competitions"][y]["date"]
+                        MatchTime = time.parse_time(MatchTime, format = "2006-01-02T15:04Z")
+                        diffMatch = MatchTime - now
+
+                        if diffMatch.hours > -24:
+                            InProgressMatchList.append(y)
+                            InProgress = InProgress + 1
+
+                    # Add 'suspended' matches to the In Progress list
+                    if ATP_JSON["events"][x]["groupings"][0]["competitions"][y]["status"]["type"]["description"] == "Suspended":
                         MatchTime = ATP_JSON["events"][EventIndex]["groupings"][0]["competitions"][y]["date"]
                         MatchTime = time.parse_time(MatchTime, format = "2006-01-02T15:04Z")
                         diffMatch = MatchTime - now
@@ -107,7 +135,7 @@ def main(config):
                     # So check if there is a score listed and if so, add it to the in progress list
                     if ATP_JSON["events"][x]["groupings"][0]["competitions"][y]["status"]["type"]["description"] == "Scheduled":
                         if "linescores" in ATP_JSON["events"][x]["groupings"][0]["competitions"][y]["competitors"][0]:
-                            MatchTime = ATP_JSON["events"][EventIndex]["groupings"][0][EventIndex]["competitions"][y]["date"]
+                            MatchTime = ATP_JSON["events"][EventIndex]["groupings"][0]["competitions"][y]["date"]
                             MatchTime = time.parse_time(MatchTime, format = "2006-01-02T15:04Z")
                             diffMatch = MatchTime - now
 
@@ -159,8 +187,10 @@ def main(config):
                 # check if we are between the start & end date of the tournament
                 if diffTournStart.hours < 0 and diffTournEnd.hours > 0:
                     for y in range(0, len(ATP_JSON["events"][x]["groupings"][0]["competitions"]), 1):
-                        # if the match is completed ("post") and the start time of the match was < 24 hrs ago, lets add it to the list of completed matches
-                        if ATP_JSON["events"][x]["groupings"][0]["competitions"][y]["status"]["type"]["state"] == "post":
+                        MatchState = ATP_JSON["events"][x]["groupings"][0]["competitions"][y]["status"]["type"]["description"]
+
+                        # if the match is completed and the start time of the match was < 24 hrs ago, lets add it to the list of completed matches
+                        if MatchState == "Final" or MatchState == "Retired":
                             MatchTime = ATP_JSON["events"][EventIndex]["groupings"][0]["competitions"][y]["date"]
                             MatchTime = time.parse_time(MatchTime, format = "2006-01-02T15:04Z")
                             diff = MatchTime - now
@@ -207,7 +237,7 @@ def main(config):
                             MatchTime = time.parse_time(MatchTime, format = "2006-01-02T15:04Z")
                             diff = MatchTime - now
                             if diff.hours < 12:
-                                ScheduledMatchList.append(y)
+                                ScheduledMatchList.insert(0, y)
 
         # if there are more than 2 matches completed in past 24hrs, then we'll need to show them across multiple screens
         if len(ScheduledMatchList) > 0:
@@ -270,7 +300,8 @@ def getLiveScores(SelectedTourneyID, EventIndex, InProgressMatchList, JSON):
         SurnameLen = 13
 
     TitleBarColor = titleBar(SelectedTourneyID)
-    Title = [render.Box(width = 64, height = 5, color = TitleBarColor, child = render.Text(content = TourneyCity, color = "#FFF", font = "CG-pixel-3x5-mono"))]
+    TitleFontColor = titleFont(SelectedTourneyID)
+    Title = [render.Box(width = 64, height = 5, color = TitleBarColor, child = render.Text(content = TourneyCity, color = TitleFontColor, font = "CG-pixel-3x5-mono"))]
     Display.extend(Title)
 
     for y in range(0, len(InProgressMatchList), 1):
@@ -298,6 +329,12 @@ def getLiveScores(SelectedTourneyID, EventIndex, InProgressMatchList, JSON):
                 elif JSON["events"][EventIndex]["groupings"][0]["competitions"][x]["competitors"][0]["possession"] == False:
                     Player2Color = "#01AF50"
 
+            # if a match is suspended show players in blue
+            if JSON["events"][EventIndex]["groupings"][0]["competitions"][x]["status"]["type"]["description"] == "Suspended":
+                Player1Color = "#6aaeeb"
+                Player2Color = "#6aaeeb"
+
+            ##### NEED TO CHECK THAT SCORES ARE BEING SHOWN #####
             Number_Sets = len(JSON["events"][EventIndex]["groupings"][0]["competitions"][x]["competitors"][0]["linescores"])
             Player1_Sets = ""
             Player2_Sets = ""
@@ -446,7 +483,8 @@ def getCompletedMatches(SelectedTourneyID, EventIndex, CompletedMatchList, JSON)
         SurnameLen = 13
 
     TitleBarColor = titleBar(SelectedTourneyID)
-    Title = [render.Box(width = 64, height = 5, color = TitleBarColor, child = render.Text(content = TourneyCity, color = "#FFF", font = "CG-pixel-3x5-mono"))]
+    TitleFontColor = titleFont(SelectedTourneyID)
+    Title = [render.Box(width = 64, height = 5, color = TitleBarColor, child = render.Text(content = TourneyCity, color = TitleFontColor, font = "CG-pixel-3x5-mono"))]
     Display.extend(Title)
 
     # loop through the list of completed matches
@@ -465,8 +503,11 @@ def getCompletedMatches(SelectedTourneyID, EventIndex, CompletedMatchList, JSON)
             # pop the index from the list and go straight to that match
             x = CompletedMatchList.pop()
 
+            # print(x)
             Player1_Name = JSON["events"][EventIndex]["groupings"][0]["competitions"][x]["competitors"][0]["athlete"]["shortName"]
             Player2_Name = JSON["events"][EventIndex]["groupings"][0]["competitions"][x]["competitors"][1]["athlete"]["shortName"]
+
+            #print(Player1_Name)
 
             # display the match winner in yellow, however sometimes both are false even when the match is completed
             Player1_Winner = JSON["events"][EventIndex]["groupings"][0]["competitions"][x]["competitors"][0]["winner"]
@@ -640,7 +681,8 @@ def getScheduledMatches(SelectedTourneyID, EventIndex, ScheduledMatchList, JSON,
         TourneyCity = JSON["events"][EventIndex]["name"]
 
     TitleBarColor = titleBar(SelectedTourneyID)
-    Title = [render.Box(width = 64, height = 5, color = TitleBarColor, child = render.Text(content = TourneyCity, color = "#FFF", font = "CG-pixel-3x5-mono"))]
+    TitleFontColor = titleFont(SelectedTourneyID)
+    Title = [render.Box(width = 64, height = 5, color = TitleBarColor, child = render.Text(content = TourneyCity, color = TitleFontColor, font = "CG-pixel-3x5-mono"))]
     Display.extend(Title)
 
     # loop through the list of completed matches
@@ -777,7 +819,7 @@ def getScheduledMatches(SelectedTourneyID, EventIndex, ScheduledMatchList, JSON,
                 main_align = "space_between",
                 cross_align = "end",
                 children = [
-                    render.Box(width = 64, height = 6, child = render.Text(content = "No recent", color = "#fff", font = displayfont)),
+                    render.Box(width = 64, height = 6, child = render.Text(content = "No upcoming", color = "#fff", font = displayfont)),
                 ],
             ),
             render.Row(
@@ -860,7 +902,6 @@ def get_schema():
         StartDate = time.parse_time(StartDate, format = "2006-01-02T15:04Z")
         diffTournEnd = EndDate - now
         diffTournStart = StartDate - now
-
         if diffTournStart.hours < 0 and diffTournEnd.hours > 0:
             Event_Name = ATP_JSON["events"][x]["name"]
             Event_ID = ATP_JSON["events"][x]["id"]
@@ -896,7 +937,7 @@ def get_schema():
         fields = [
             schema.Dropdown(
                 id = "TournamentList",
-                name = "Tourney",
+                name = "Tournament",
                 desc = "Choose the tournament",
                 icon = "gear",
                 default = TournamentOptions[0].value,
@@ -939,6 +980,16 @@ def titleBar(SelectedTourneyID):
     else:
         titleColor = "#203764"
     return titleColor
+
+def titleFont(SelectedTourneyID):
+    if SelectedTourneyID in MASTERS_LIST:
+        titleFontColor = "#d1b358"
+        # elif SelectedTourneyID in FIVE_LIST:
+        #     titleFontColor = "#d1d8db"
+
+    else:
+        titleFontColor = "#FFF"
+    return titleFontColor
 
 RotationOptions = [
     schema.Option(

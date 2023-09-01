@@ -35,6 +35,19 @@ v1.6
 ESPN changed the structure of the API so had to reflect those changes in the app
 Added feature to show scheduled matches, enable with toggle switch. Will show date & time of scheduled match in Tidbyt's timezone
 Added GroupingsID variable, as sometimes mens & womens results are listed in the API
+
+v1.7
+Updated determination for completed match, using "description" and not "state"
+Now adding suspended matches in the In Progress list
+Suspended matches shown in blue
+Scheduled matches now in order of play - earliest to latest
+
+v1.7.1
+Bug fix - Retired matches were not being captured after changing completed match determination to description
+
+v1.8
+Changed purple background color on the title bar, made it darker purple
+WTA 1000 events will have gold color font for the tournament title/city
 """
 
 load("encoding/json.star", "json")
@@ -45,6 +58,7 @@ load("schema.star", "schema")
 load("time.star", "time")
 
 SLAM_LIST = ["154-2023", "188-2023", "172-2023", "189-2023"]
+WTA1000_LIST = ["718-2023", "887-2023", "382-2023", "418-2023"]
 DEFAULT_TIMEZONE = "Australia/Adelaide"
 WTA_SCORES_URL = "https://site.api.espn.com/apis/site/v2/sports/tennis/wta/scoreboard"
 
@@ -66,12 +80,13 @@ def main(config):
     diffTournStart = 0
     GroupingsID = 0
 
-    TestID = "254-2023"
+    TestID = "718-2023"
     SelectedTourneyID = config.get("TournamentList", TestID)
     ShowCompleted = config.get("CompletedOn", "true")
     ShowScheduled = config.get("ScheduledOn", "false")
     Number_Events = len(WTA_JSON["events"])
     EventIndex = 0
+    #print(SelectedTourneyID)
 
     # Find the number of "In Progress" matches for the selected tournament
     for x in range(0, Number_Events, 1):
@@ -100,6 +115,15 @@ def main(config):
                     # And the "In Progress" match started < 24 hrs ago , sometimes the data feed will still show matches as "In Progress" after they have completed
                     # Adding a 24hr limit will remove them out of the list
                     if WTA_JSON["events"][x]["groupings"][GroupingsID]["competitions"][y]["status"]["type"]["description"] == "In Progress":
+                        MatchTime = WTA_JSON["events"][EventIndex]["groupings"][GroupingsID]["competitions"][y]["date"]
+                        MatchTime = time.parse_time(MatchTime, format = "2006-01-02T15:04Z")
+                        diffMatch = MatchTime - now
+
+                        if diffMatch.hours > -24:
+                            InProgressMatchList.append(y)
+                            InProgress = InProgress + 1
+
+                    if WTA_JSON["events"][x]["groupings"][GroupingsID]["competitions"][y]["status"]["type"]["description"] == "Suspended":
                         MatchTime = WTA_JSON["events"][EventIndex]["groupings"][GroupingsID]["competitions"][y]["date"]
                         MatchTime = time.parse_time(MatchTime, format = "2006-01-02T15:04Z")
                         diffMatch = MatchTime - now
@@ -166,8 +190,10 @@ def main(config):
                     if WTA_JSON["events"][x]["groupings"][0]["grouping"]["slug"] == "mens-singles":
                         GroupingsID = 1
                     for y in range(0, len(WTA_JSON["events"][x]["groupings"][GroupingsID]["competitions"]), 1):
-                        # if the match is completed ("post") and its a singles match ("athlete") and the start time of the match was < 24 hrs ago, lets add it to the list of completed matches
-                        if WTA_JSON["events"][x]["groupings"][GroupingsID]["competitions"][y]["status"]["type"]["state"] == "post":
+                        MatchState = WTA_JSON["events"][x]["groupings"][GroupingsID]["competitions"][y]["status"]["type"]["description"]
+
+                        # if the match is completed and the start time of the match was < 24 hrs ago, lets add it to the list of completed matches
+                        if MatchState == "Final" or MatchState == "Retired":
                             MatchTime = WTA_JSON["events"][EventIndex]["groupings"][GroupingsID]["competitions"][y]["date"]
                             MatchTime = time.parse_time(MatchTime, format = "2006-01-02T15:04Z")
                             diff = MatchTime - now
@@ -216,7 +242,7 @@ def main(config):
                             MatchTime = time.parse_time(MatchTime, format = "2006-01-02T15:04Z")
                             diff = MatchTime - now
                             if diff.hours < 12:
-                                ScheduledMatchList.append(y)
+                                ScheduledMatchList.insert(0, y)
 
         # if there are more than 2 matches completed in past 24hrs, then we'll need to show them across multiple screens
         if len(ScheduledMatchList) > 0:
@@ -278,7 +304,8 @@ def getLiveScores(SelectedTourneyID, EventIndex, InProgressMatchList, JSON):
         TourneyCity = JSON["events"][EventIndex]["name"]
 
     TitleBarColor = titleBar(SelectedTourneyID)
-    Title = [render.Box(width = 64, height = 5, color = TitleBarColor, child = render.Text(content = TourneyCity, color = "#FFF", font = "CG-pixel-3x5-mono"))]
+    TitleFontColor = titleFont(SelectedTourneyID)
+    Title = [render.Box(width = 64, height = 5, color = TitleBarColor, child = render.Text(content = TourneyCity, color = TitleFontColor, font = "CG-pixel-3x5-mono"))]
     Display.extend(Title)
 
     for y in range(0, len(InProgressMatchList), 1):
@@ -308,6 +335,11 @@ def getLiveScores(SelectedTourneyID, EventIndex, InProgressMatchList, JSON):
                     Player1Color = "#01AF50"
                 elif JSON["events"][EventIndex]["groupings"][GroupingsID]["competitions"][x]["competitors"][0]["possession"] == False:
                     Player2Color = "#01AF50"
+
+            # if a match is suspended show players in blue
+            if JSON["events"][EventIndex]["groupings"][GroupingsID]["competitions"][x]["status"]["type"]["description"] == "Suspended":
+                Player1Color = "#6aaeeb"
+                Player2Color = "#6aaeeb"
 
             Number_Sets = len(JSON["events"][EventIndex]["groupings"][GroupingsID]["competitions"][x]["competitors"][0]["linescores"])
             Player1_Sets = ""
@@ -457,7 +489,8 @@ def getCompletedMatches(SelectedTourneyID, EventIndex, CompletedMatchList, JSON)
         TourneyCity = JSON["events"][EventIndex]["name"]
 
     TitleBarColor = titleBar(SelectedTourneyID)
-    Title = [render.Box(width = 64, height = 5, color = TitleBarColor, child = render.Text(content = TourneyCity, color = "#FFF", font = "CG-pixel-3x5-mono"))]
+    TitleFontColor = titleFont(SelectedTourneyID)
+    Title = [render.Box(width = 64, height = 5, color = TitleBarColor, child = render.Text(content = TourneyCity, color = TitleFontColor, font = "CG-pixel-3x5-mono"))]
     Display.extend(Title)
 
     # loop through the list of completed matches
@@ -693,7 +726,8 @@ def getScheduledMatches(SelectedTourneyID, EventIndex, ScheduledMatchList, JSON,
         TourneyCity = JSON["events"][EventIndex]["name"]
 
     TitleBarColor = titleBar(SelectedTourneyID)
-    Title = [render.Box(width = 64, height = 5, color = TitleBarColor, child = render.Text(content = TourneyCity, color = "#FFF", font = "CG-pixel-3x5-mono"))]
+    TitleFontColor = titleFont(SelectedTourneyID)
+    Title = [render.Box(width = 64, height = 5, color = TitleBarColor, child = render.Text(content = TourneyCity, color = TitleFontColor, font = "CG-pixel-3x5-mono"))]
     Display.extend(Title)
 
     # loop through the list of completed matches
@@ -916,7 +950,7 @@ def get_schema():
         fields = [
             schema.Dropdown(
                 id = "TournamentList",
-                name = "Tourney",
+                name = "Tournament",
                 desc = "Choose the tournament",
                 icon = "gear",
                 default = TournamentOptions[0].value,
@@ -957,8 +991,15 @@ def titleBar(SelectedTourneyID):
     elif SelectedTourneyID == "189-2023":  # US Open
         titleColor = "#022686"
     else:
-        titleColor = "#7915ff"
+        titleColor = "#430166"
     return titleColor
+
+def titleFont(SelectedTourneyID):
+    if SelectedTourneyID in WTA1000_LIST:
+        titleFontColor = "#d1b358"
+    else:
+        titleFontColor = "#FFF"
+    return titleFontColor
 
 RotationOptions = [
     schema.Option(
