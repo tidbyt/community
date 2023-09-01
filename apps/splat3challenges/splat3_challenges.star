@@ -179,7 +179,7 @@ def main(config):
     #print(closest_challenge)
     shown_challenge = {
         "name": closest_challenge["leagueMatchSetting"]["leagueMatchEvent"]["name"],
-        "desc": closest_challenge["leagueMatchSetting"]["leagueMatchEvent"]["regulation"].replace("<br />", "\n"),
+        "desc": closest_challenge["leagueMatchSetting"]["leagueMatchEvent"]["regulation"].replace("<br />", "\n").replace("—", "--"),
     }
 
     # generate a pretty description
