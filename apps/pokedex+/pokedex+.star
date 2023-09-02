@@ -6,8 +6,9 @@ Author: Forrest Syrett
 """
 
 load("http.star", "http")
-load("random.star", "random")
 load("render.star", "render")
+load("random.star", "random")
+load("encoding/base64.star", "base64")
 load("schema.star", "schema")
 
 DEFAULT_COLOR = "#000019"
@@ -27,7 +28,9 @@ def main(config):
     if response.status_code != 200:
         fail("Pokemon API returned an error", response.status_code)
 
-    spriteURL = response.json()["sprites"]["front_default"]
+    spriteURL = response.json()["sprites"]["versions"]["generation-v"]["black-white"]["animated"]["front_default"]
+    if spriteURL == None:
+        spriteURL = response.json()["sprites"]["front_default"]
 
     # Make a request to fetch the Pokémon sprite image
     sprite_response = http.get(spriteURL)
@@ -68,7 +71,7 @@ def main(config):
                             render.Marquee(
                                 child = render.Text(pokemonFlavorText, font = "5x8", color = fontColor),
                                 width = 64,
-                                offset_start = 16,
+                                offset_start = 32,
                                 offset_end = 64,
                             ),
                         ],
