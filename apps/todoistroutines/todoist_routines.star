@@ -6,9 +6,22 @@ Author: shannonmoeller
 """
 
 load("encoding/base64.star", "base64")
+load("encoding/json.star", "json")
 load("http.star", "http")
 load("render.star", "render")
 load("schema.star", "schema")
+load("time.star", "time")
+
+DEFAULT_LOCATION = """
+{
+    "lat": "40.6781784",
+    "lng": "-73.9441579",
+    "description": "Brooklyn, NY, USA",
+    "locality": "Brooklyn",
+    "place_id": "ChIJCSF8lBZEwokRhngABHRcdoI",
+    "timezone": "America/New_York"
+}
+"""
 
 def get_schema():
     return schema.Schema(
@@ -64,17 +77,31 @@ def get_schema():
                 desc = "A background photo to display.",
                 icon = "image",
             ),
+            schema.Location(
+                id = "location",
+                name = "Location",
+                desc = "Your location to determine when a new day begins.",
+                icon = "locationDot",
+            ),
+            schema.Text(
+                id = "start_hour",
+                name = "Start hour",
+                desc = "The hour of the day to start showing today's tasks (0-23).",
+                icon = "clock",
+                default = "0",
+            ),
         ],
     )
 
 def main(config):
+    background_color = config.str("background_color")
+    background_photo = config.str("background_photo")
+
     stack = []
 
-    background_color = config.str("background_color")
     if background_color:
         stack.append(render.Box(color = background_color))
 
-    background_photo = config.str("background_photo")
     if background_photo:
         stack.append(render.Image(base64.decode(background_photo)))
 
@@ -86,46 +113,46 @@ def get_task_dots(config):
     token = config.str("token")
 
     if not token:
-        return render_message("Todoist\nAPI token required")
+        return render_message("Todoist\nAPI token\nrequired")
 
-    tasks = get_tasks(token, "filter=today")
+    task_layout = config.str("task_layout")
     task_color = config.str("task_color")
-    subtasks = get_tasks(token, "filter=subtask")
     subtask_color = config.str("subtask_color")
-    transparent = "#0000"
+    padding_color = "#0000"
+
+    location = json.decode(config.get("location", DEFAULT_LOCATION))
+    current_hour = time.now().in_location(location["timezone"]).hour
+    start_hour = int(config.str("start_hour", "0"))
+
+    tasks = get_tasks(token, "filter=yesterday" if current_hour < start_hour else "filter=today")
+    subtasks = to_grouped_index(get_tasks(token, "filter=subtask"), lambda task: task["parent_id"])
 
     nested_tasks = []
-    grouped_subtasks = to_grouped_index(subtasks, lambda task: task["parent_id"])
 
     for task in tasks:
         nested_tasks.append({
             "task": task,
-            "subtasks": grouped_subtasks.get(task["id"], []),
+            "subtasks": subtasks.get(task["id"], []),
         })
 
-    render_tasks = render.Column
-    render_subtasks = render.Row
-
-    task_layout = config.str("task_layout")
-    if task_layout == "columns":
-        render_tasks = render.Row
-        render_subtasks = render.Column
+    render_tasks = render.Row if task_layout == "columns" else render.Column
+    render_subtasks = render.Column if task_layout == "columns" else render.Row
 
     task_dots = [
-        render.Box(width = 1, height = 1, color = transparent),
+        render.Box(width = 1, height = 1, color = padding_color),
     ]
 
     for task in nested_tasks:
         subtask_dots = [
             render.Box(width = 1, height = 1, color = task_color),
-            render.Box(width = 1, height = 1, color = transparent),
+            render.Box(width = 1, height = 1, color = padding_color),
         ]
 
         for _subtask in task["subtasks"]:
             subtask_dots.append(render.Box(width = 1, height = 1, color = subtask_color))
 
         task_dots.append(render_subtasks(children = subtask_dots))
-        task_dots.append(render.Box(width = 1, height = 1, color = transparent))
+        task_dots.append(render.Box(width = 1, height = 1, color = padding_color))
 
     return render.Box(child = render_tasks(children = task_dots))
 
