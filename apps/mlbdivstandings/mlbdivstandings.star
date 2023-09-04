@@ -13,12 +13,6 @@ load("schema.star", "schema")
 load("time.star", "time")
 
 MLB_STANDINGS_URL = "https://statsapi.mlb.com/api/v1/standings"
-GAMES_BACK_FONT = "tb-8"
-
-HIGHLIGHT_COLOR = "#65FE08"
-
-# get top 9 teams (almost everyone)
-DISPLAY_LIMIT = 9
 
 CACHE_TIMEOUT = 300  # five minutes
 
@@ -29,7 +23,7 @@ SMALL_FONT_COLOR = "#FFA700"
 
 def main(config):
     division_id = int(config.get("division") or NL_CENTRAL)
-    year = str(time.now().year)  #use current year
+    year = str(time.now().year)  # use current year
 
     standings = get_Standings(division_id, year)
 
@@ -46,19 +40,21 @@ def main(config):
                         width = 295,
                         keyframes = [
                             build_keyframe(0, 0.0),
+                            build_keyframe(0, 0.08),
                             build_keyframe(-59, 0.25),
                             build_keyframe(-118, 0.50),
                             build_keyframe(-177, 0.75),
+                            build_keyframe(-236, 0.9),
                             build_keyframe(-236, 1.0),
                         ],
                         child = render_DivisionStandings(standings),
                         wait_for_child = True,
-                    )
+                    ),
                 ],
             ),
         )
     else:
-        # otherwise it means something went wrong or we are not yet in wild card standings time
+        # otherwise it means something went wrong or we are not yet in standings time
         # display zero-state image
         return render.Root(
             child = render.Stack(
@@ -127,32 +123,33 @@ def get_schema():
     )
 
 def render_lefter(division_id):
-    div_name = []
-    div_text = DIVISION_MAP.get(division_id)
+    div = DIVISION_MAP.get(division_id)
+    lefter = [
+        render.Image(
+            src = div.Logo,
+        ),
+        render.Box(
+            width = 1,
+            height = 1,
+        ),
+    ]
+    div_text = div.Name
     for i in range(len(div_text)):
-        div_name.append(
-            render_american_word(div_text[i], "CG-pixel-4x5-mono")
+        lefter.append(
+            render_american_word(div_text[i], "CG-pixel-4x5-mono"),
         )
-        div_name.append(
+        lefter.append(
             render.Box(
                 height = 1,
-                width = 1
-            )
+                width = 1,
+            ),
         )
     return render.Box(
         height = 32,
         width = 5,
         child = render.Column(
-            children = div_name
-        )
-    )
-def render_header(division_id):
-    text = DIVISION_MAP.get(division_id)
-    return render.Box(
-        height = 5,
-        width = 64,
-        color = "#000000",
-        child = render_american_word(text, "CG-pixel-4x5-mono"),
+            children = lefter,
+        ),
     )
 
 def get_Standings(division_id, year):
@@ -191,48 +188,43 @@ def get_Standings(division_id, year):
                 # get the team and how many games back they are
                 # get win-loss
                 # and whether they have clinched
-                team_id = int(team.get("team").get("id"))
-                games_back = team.get("divisionGamesBack")
-                clinch_indicator = team.get("clinchIndicator")
-                clinched = True if team.get("clinched") and (clinch_indicator == "y" or clinch_indicator == "z") else False
-                wins = str(int(team.get("wins")))
-                losses = str(int(team.get("losses")))
-                div_rank = str(int(team.get("divisionRank")))
-
                 # add to list
+                clinch_indicator = team.get("clinchIndicator")
                 standings.append(
-                    {
-                        "TeamId": team_id,
-                        "GamesBack": games_back,
-                        "Clinched": clinched,
-                        "Wins": wins,
-                        "Losses": losses,
-                        "DivisionRank": div_rank
-                    },
+                    struct(
+                        TeamId = int(team.get("team").get("id")),
+                        GamesBack = team.get("divisionGamesBack"),
+                        Clinched =
+                            # "y" is division and "z" is best overall record
+                            True if team.get("clinched") and (clinch_indicator == "y" or clinch_indicator == "z") else False,
+                        Wins = str(int(team.get("wins"))),
+                        Losses = str(int(team.get("losses"))),
+                        DivisionRank = str(int(team.get("divisionRank"))),
+                    ),
                 )
+            break  # found our division
 
     return standings
 
 def render_DivisionStandings(standings):
     team_widgets = []
-    games_back_widgets = []
-    max_games_back_length = 0
 
     for info in standings:
         team_widgets.append(render_team_card(info))
 
     return render.Row(
-        children = team_widgets
+        children = team_widgets,
     )
 
 def render_flashy_word(word, font, colors, repeater):
     widgets = []
     flash_list = []
+
     # set up the color list
     for color in colors:
         for _ in range(repeater):
             flash_list.append(color)
-    
+
     ranger = len(flash_list)
 
     for j in range(ranger):
@@ -252,6 +244,7 @@ def render_flashy_word(word, font, colors, repeater):
     return render.Animation(
         children = widgets,
     )
+
 def render_rainbow_word(word, font):
     colors = ["#e81416", "#ffa500", "#faeb36", "#79c314", "#487de7", "#4b369d", "#70369d"]
     return render_flashy_word(word, font, colors, 1)
@@ -261,8 +254,8 @@ def render_american_word(word, font):
     return render_flashy_word(word, font, colors, 4)
 
 def render_team_card(info):
-    team_id = info.get("TeamId")
-    clinched = info.get("Clinched")
+    team_id = info.TeamId
+    clinched = info.Clinched
     team = TEAM_INFO[team_id]
     logo_width = 32
     return render.Box(
@@ -274,20 +267,20 @@ def render_team_card(info):
             expanded = True,
             children = [
                 render.Padding(
-                    pad = (0,0,0,0),
+                    pad = (0, 0, 0, 0),
                     child = render.Image(
                         src = team.Logo,
                         width = logo_width,
-                    )
+                    ),
                 ),
                 render.Column(
                     main_align = "space_evenly",
                     cross_align = "center" if clinched else "end",
                     expanded = True,
-                    children = render_record_info(team, clinched, info.get("Wins"), info.get("Losses"), info.get("GamesBack"), info.get("DivisionRank"))
-                )
+                    children = render_record_info(team, clinched, info.Wins, info.Losses, info.GamesBack, info.DivisionRank),
+                ),
             ],
-        )   
+        ),
     )
 
 def render_record_info(team, clinched, wins, losses, games_back, div_rank):
@@ -297,101 +290,25 @@ def render_record_info(team, clinched, wins, losses, games_back, div_rank):
             render.Text(
                 content = "{}-{}".format(wins, losses),
                 font = SMALL_FONT,
-                color = team.ForegroundColor
+                color = team.ForegroundColor,
             ),
             render.Text(
                 content = games_back_prefix + games_back.removesuffix(".0"),
                 font = SMALL_FONT,
-                color = team.ForegroundColor
+                color = team.ForegroundColor,
             ),
             render.Text(
                 content = "RANK:" + div_rank,
                 font = SMALL_FONT,
-                color = team.ForegroundColor
-            )
+                color = team.ForegroundColor,
+            ),
         ]
     else:
         return [
-            render_rainbow_word("{}-{}".format(wins,losses), SMALL_FONT),
+            render_rainbow_word("{}-{}".format(wins, losses), SMALL_FONT),
             render_rainbow_word("DIV", SMALL_FONT),
-            render_rainbow_word("CHAMP", SMALL_FONT)
+            render_rainbow_word("CHAMP", SMALL_FONT),
         ]
-
-def render_GamesBack(team_id, games_back, clinched):
-    # "+1" is weird and has an extra space we should contend with
-    offset = 64 - 5 * len(games_back) - (2 if games_back.startswith("+1") else 1)
-    if clinched:
-        gb_widget = render_rainbow_word(games_back, GAMES_BACK_FONT)
-    else:
-        gb_widget = render_GamesBackText(team_id, games_back)
-    return render.Row(
-        main_align = "end",
-        expanded = True,
-        children = [
-            render.Box(
-                width = offset,
-                height = 9
-            ),
-            render.Box(
-                height = 9,
-                child = gb_widget
-            )
-        ],
-    )
-
-def render_GamesBackText(team_id, games_back):
-    # if it is the dash because they are in first, do nothing
-    if games_back == "-" or games_back.isalnum():
-        return render.Text(
-            content = games_back,
-            font = SMALL_FONT,
-            color = TEAM_INFO[team_id].ForegroundColor,
-        )
-    # if it is not alphanumeric it means it has a period in it because of half-game situation
-    else:
-        parts = games_back.split(".")
-        pad_offset = 0
-        if parts[0].endswith("1"):
-            pad_offset = 1
-        elif parts[0].endswith("4"):
-            pad_offset = -1
-        return render.Row(
-            children = [
-                render.Stack(
-                    children = [
-                        render.Text(
-                            content = parts[0],
-                            font = SMALL_FONT,
-                            color = TEAM_INFO[team_id].ForegroundColor
-                        ),
-                        render.Padding(
-                            pad = (3 * len(parts[0]) - pad_offset,0,0,0),
-                            child = render.Text(
-                                content = ".",
-                                font = SMALL_FONT,
-                                color = TEAM_INFO[team_id].ForegroundColor
-                            )
-                        ),
-                        render.Padding(
-                            pad = (3 * len(parts[0]) + 3 - pad_offset,0,0,0),
-                            child = render.Text(
-                                content = parts[1],
-                                font = SMALL_FONT,
-                                color = TEAM_INFO[team_id].ForegroundColor
-                            )
-                        )
-                    ]
-                )
-            ]
-        )
-
-def get_BoxWidth(max_games_back_length):
-    width = 0
-    if max_games_back_length == 5:
-        width = 64 - 3 * max_games_back_length - 1
-    else:
-        width = 64 - 3 * max_games_back_length
-    return width
 
 #################
 ## TEAM CONFIG ##
@@ -408,16 +325,19 @@ AL_EAST = 201
 NAT_LEAGUE_ID = 104
 AMER_LEAGUE_ID = 103
 
-NAT_LEAGUE = { NL_WEST: "1", NL_CENTRAL: "1", NL_EAST: "1" }
-AMER_LEAGUE = { AL_WEST: "1", AL_CENTRAL: "1", AL_EAST: "1" }
+NAT_LEAGUE = {NL_WEST: True, NL_CENTRAL: True, NL_EAST: True}
+AMER_LEAGUE = {AL_WEST: True, AL_CENTRAL: True, AL_EAST: True}
+
+NL = base64.decode("""iVBORw0KGgoAAAANSUhEUgAAAAUAAAAICAYAAAAx8TU7AAAAAXNSR0IArs4c6QAAAERlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAA6ABAAMAAAABAAEAAKACAAQAAAABAAAABaADAAQAAAABAAAACAAAAACHOthAAAAAOElEQVQIHWPYzL75PwMUwNhMID6MA5MEC/r+9GVElgALglSAJGAqwTSyKpAAXCWyKqyCYHPQtQMAougRvDJ8SXMAAAAASUVORK5CYII=""")
+AL = base64.decode("""iVBORw0KGgoAAAANSUhEUgAAAAUAAAAICAYAAAAx8TU7AAAAAXNSR0IArs4c6QAAAERlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAA6ABAAMAAAABAAEAAKACAAQAAAABAAAABaADAAQAAAABAAAACAAAAACHOthAAAAAM0lEQVQIHWPczL75PwMS8P3py8iALAhjs4AUwThwDcgCyGwMlUxwLUgMrIKMIAUoZgH5AO5xFP8pnNZdAAAAAElFTkSuQmCC""")
 
 DIVISION_MAP = {
-    NL_WEST: "West",
-    NL_CENTRAL: "Cent",
-    NL_EAST: "East",
-    AL_WEST: "West",
-    AL_CENTRAL: "Cent",
-    AL_EAST: "East"
+    NL_WEST: struct(Name = "WEST", Logo = NL),
+    NL_CENTRAL: struct(Name = "CENT", Logo = NL),
+    NL_EAST: struct(Name = "EAST", Logo = NL),
+    AL_WEST: struct(Name = "WEST", Logo = AL),
+    AL_CENTRAL: struct(Name = "CENT", Logo = AL),
+    AL_EAST: struct(Name = "EAST", Logo = AL),
 }
 
 LAA_TEAM_ID = 108  #Los Angeles Angels
