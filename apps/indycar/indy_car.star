@@ -11,6 +11,8 @@ Author: jvivona
 # 20230826 jvivona  v23238
 #  add qualifing date/time to json on server for NRI
 #  add display of qualifing date/time on app
+# 20230904 jvivona
+#  fix date display remove leading 0
 
 load("encoding/base64.star", "base64")
 load("encoding/json.star", "json")
@@ -19,7 +21,7 @@ load("render.star", "render")
 load("schema.star", "schema")
 load("time.star", "time")
 
-VERSION = 23238
+VERSION = 23247
 
 IMAGES = {
     #Indycar track type logos
@@ -105,7 +107,7 @@ def nextrace(config, data):
     timezone = config.get("$tz", DEFAULTS["timezone"])  # Utilize special timezone variable to get TZ - otherwise assume US Eastern w/DST
     date_and_time = data["start"]
     date_and_time3 = time.parse_time(date_and_time, "2006-01-02T15:04:05-0700").in_location(timezone)
-    date_str = date_and_time3.format("Jan 02" if config.bool("is_us_date_format", DEFAULTS["date_us"]) else "02 Jan").title()  #current format of your current date str
+    date_str = date_and_time3.format("Jan 2" if config.bool("is_us_date_format", DEFAULTS["date_us"]) else "2 Jan").title()  #current format of your current date str
     time_str = "TBD" if date_and_time.endswith("T00:00:00-0500") else date_and_time3.format("15:04 " if config.bool("is_24_hour_format", DEFAULTS["time_24"]) else "3:04pm")[:-1]
     if data.get("qual", "TBD") == "TBD":
         qual_date_str = "TBD"
@@ -113,7 +115,7 @@ def nextrace(config, data):
     else:
         qual_date_and_time = data.get("qual", "TBD")
         qual_date_and_time3 = time.parse_time(qual_date_and_time, "2006-01-02T15:04:05-0700").in_location(timezone)
-        qual_date_str = qual_date_and_time3.format("Jan 02" if config.bool("is_us_date_format", DEFAULTS["date_us"]) else "02 Jan").title()  #current format of your current date str
+        qual_date_str = qual_date_and_time3.format("Jan 2" if config.bool("is_us_date_format", DEFAULTS["date_us"]) else "2 Jan").title()  #current format of your current date str
         qual_time_str = "TBD" if qual_date_and_time.endswith("T00:00:00-0500") else qual_date_and_time3.format("15:04 " if config.bool("is_24_hour_format", DEFAULTS["time_24"]) else "3:04pm")[:-1]
     text_color = config.get("text_color", DEFAULTS["text_color"])
 
