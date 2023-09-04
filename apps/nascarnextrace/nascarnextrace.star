@@ -5,6 +5,7 @@ Description: Shows NASCAR next race, standings, playoffs for Cup, Xfinity and Tr
 Author: jvivona
 """
 
+# 20230904 - jvivona - fix date display
 # 20230828 - jvivona - with Kurt Busch officially retiring, changed driver names to only have 1 char for 1st name - will eval in future if necessary
 #                    - change text color to be schema.Color instead of drop down
 
@@ -16,7 +17,7 @@ load("render.star", "render")
 load("schema.star", "schema")
 load("time.star", "time")
 
-VERSION = 23240
+VERSION = 23247
 
 # cache data for 15 minutes - cycle through with cache on the API side
 CACHE_TTL_SECONDS = 900
@@ -92,7 +93,7 @@ def nextrace(api_data, config):
     timezone = config.get("$tz", DEFAULT_TIMEZONE)  # Utilize special timezone variable to get TZ - otherwise assume US Eastern w/DST
     date_and_time = api_data["Race_Date"]
     date_and_time3 = time.parse_time(date_and_time, "2006-01-02T15:04:05-0700").in_location(timezone)
-    date_str = date_and_time3.format("Jan 02" if config.bool("is_us_date_format", DEFAULT_DATE_US) else "02 Jan").title()  #current format of your current date str
+    date_str = date_and_time3.format("Jan 2" if config.bool("is_us_date_format", DEFAULT_DATE_US) else "2 Jan").title()  #current format of your current date str
     time_str = "TBD" if date_and_time.endswith("T00:00:00-0500") else date_and_time3.format("15:04 " if config.bool("is_24_hour_format", DEFAULT_TIME_24) else "3:04pm")[:-1]
     tv_str = api_data["Race_TV_Display"] if api_data["Race_TV_Display"] != "" else "TBD"
 
