@@ -38,21 +38,22 @@ def main(config):
         return render.Root(
             delay = 80,
             show_full_animation = True,
-            child = render.Stack(
+            child = render.Row(
                 children = [
+                    render_lefter(division_id),
                     animation.Transformation(
-                        duration = 200,
-                        height = 81,
+                        duration = 180,
+                        width = 295,
                         keyframes = [
-                            build_keyframe(5, 0.0),
-                            build_keyframe(5, 0.40),
-                            build_keyframe(-22, 0.80),
-                            build_keyframe(-22, 1.0),
+                            build_keyframe(0, 0.0),
+                            build_keyframe(-59, 0.25),
+                            build_keyframe(-118, 0.50),
+                            build_keyframe(-177, 0.75),
+                            build_keyframe(-236, 1.0),
                         ],
                         child = render_DivisionStandings(standings),
                         wait_for_child = True,
-                    ),
-                    render_header(division_id),
+                    )
                 ],
             ),
         )
@@ -68,7 +69,7 @@ def main(config):
                     render.Marquee(
                         width = 64,
                         child = render.Text(
-                            content = "No wild card race to display for league year " + year,
+                            content = "No standings to display for league year " + year,
                             color = SMALL_FONT_COLOR,
                             font = SMALL_FONT,
                         ),
@@ -80,7 +81,7 @@ def main(config):
 def build_keyframe(offset, pct):
     return animation.Keyframe(
         percentage = pct,
-        transforms = [animation.Translate(0, offset)],
+        transforms = [animation.Translate(offset, 0)],
         curve = "ease_in_out",
     )
 
@@ -125,6 +126,26 @@ def get_schema():
         ],
     )
 
+def render_lefter(division_id):
+    div_name = []
+    div_text = DIVISION_MAP.get(division_id)
+    for i in range(len(div_text)):
+        div_name.append(
+            render_american_word(div_text[i], "CG-pixel-4x5-mono")
+        )
+        div_name.append(
+            render.Box(
+                height = 1,
+                width = 1
+            )
+        )
+    return render.Box(
+        height = 32,
+        width = 5,
+        child = render.Column(
+            children = div_name
+        )
+    )
 def render_header(division_id):
     text = DIVISION_MAP.get(division_id)
     return render.Box(
@@ -141,7 +162,7 @@ def get_Standings(division_id, year):
         league_id = AMER_LEAGUE_ID
 
     query_params = {
-        "fields": "records,teamRecords,team,id,division,divisionGamesBack,clinched,clinchIndicator",
+        "fields": "records,teamRecords,team,id,divisionRank,division,divisionGamesBack,clinched,clinchIndicator,wins,losses",
         "standingsTypes": "regularSeason",
         "leagueId": str(league_id),
         "season": year,
@@ -168,10 +189,15 @@ def get_Standings(division_id, year):
         if int(division.get("division").get("id")) == division_id:
             for team in division.get("teamRecords"):
                 # get the team and how many games back they are
+                # get win-loss
                 # and whether they have clinched
                 team_id = int(team.get("team").get("id"))
                 games_back = team.get("divisionGamesBack")
-                clinched = team.get("clinched") or False
+                clinch_indicator = team.get("clinchIndicator")
+                clinched = True if team.get("clinched") and (clinch_indicator == "y" or clinch_indicator == "z") else False
+                wins = str(int(team.get("wins")))
+                losses = str(int(team.get("losses")))
+                div_rank = str(int(team.get("divisionRank")))
 
                 # add to list
                 standings.append(
@@ -179,6 +205,9 @@ def get_Standings(division_id, year):
                         "TeamId": team_id,
                         "GamesBack": games_back,
                         "Clinched": clinched,
+                        "Wins": wins,
+                        "Losses": losses,
+                        "DivisionRank": div_rank
                     },
                 )
 
@@ -190,40 +219,29 @@ def render_DivisionStandings(standings):
     max_games_back_length = 0
 
     for info in standings:
-        team_id = info.get("TeamId")
-        clinched = info.get("Clinched")
+        team_widgets.append(render_team_card(info))
 
-        # strip ".0", we don't need it
-        games_back = info.get("GamesBack").removesuffix(".0")
-
-        # keep track of games_back length so we can align everything
-        if len(games_back) > max_games_back_length:
-            max_games_back_length = len(games_back)
-        team_widgets.append(render_Team(team_id, clinched))
-        games_back_widgets.append(render_GamesBack(team_id, games_back, clinched))
-
-    return render.Stack(
-        children = [
-            render.Column(
-                children = team_widgets,
-            ),
-            render.Column(
-                cross_align = "end",
-                children = games_back_widgets,
-            ),
-        ],
+    return render.Row(
+        children = team_widgets
     )
 
-def render_flashy_word(word, font, colors):
-    ranger = len(colors)
+def render_flashy_word(word, font, colors, repeater):
     widgets = []
+    flash_list = []
+    # set up the color list
+    for color in colors:
+        for _ in range(repeater):
+            flash_list.append(color)
+    
+    ranger = len(flash_list)
+
     for j in range(ranger):
         flashy_word = []
         for i in range(len(word)):
             letter = render.Text(
                 content = word[i],
                 font = font,
-                color = colors[(j + i) % ranger],
+                color = flash_list[(j + i) % ranger],
             )
             flashy_word.append(letter)
         widgets.append(
@@ -236,73 +254,136 @@ def render_flashy_word(word, font, colors):
     )
 def render_rainbow_word(word, font):
     colors = ["#e81416", "#ffa500", "#faeb36", "#79c314", "#487de7", "#4b369d", "#70369d"]
-    return render_flashy_word(word, font, colors)
+    return render_flashy_word(word, font, colors, 1)
 
 def render_american_word(word, font):
     colors = ["#B31942", "#FFFFFF", "#0A3161"]
-    return render_flashy_word(word, font, colors)
+    return render_flashy_word(word, font, colors, 4)
 
-def render_Team(team_id, clinched):
+def render_team_card(info):
+    team_id = info.get("TeamId")
+    clinched = info.get("Clinched")
     team = TEAM_INFO[team_id]
-    logo_width = 20
-    if clinched:
-        abbrev = render_rainbow_word(TEAM_INFO[team_id].Abbreviation, GAMES_BACK_FONT)
-    else:
-        abbrev = render.Text(
-            content = team.Abbreviation,
-            font = SMALL_FONT,
-            color = team.ForegroundColor,
-        )
+    logo_width = 32
     return render.Box(
-        height = 9,
-        width = 64,
+        height = 32,
+        width = 59,
         color = team.BackgroundColor,
         child = render.Row(
-            main_align = "start",
+            main_align = "space_evenly",
             expanded = True,
             children = [
                 render.Padding(
-                    pad = (0, -3, 0, 0),
+                    pad = (0,0,0,0),
                     child = render.Image(
                         src = team.Logo,
                         width = logo_width,
-                    ),
+                    )
                 ),
-                render.Box(
-                    height = 1,
-                    width = 1,
-                ),
-                render.Padding(
-                    pad = (0, 2, 0, 0),
-                    child = abbrev,
-                ),
+                render.Column(
+                    main_align = "space_evenly",
+                    cross_align = "center" if clinched else "end",
+                    expanded = True,
+                    children = render_record_info(team, clinched, info.get("Wins"), info.get("Losses"), info.get("GamesBack"), info.get("DivisionRank"))
+                )
             ],
-        ),
+        )   
     )
+
+def render_record_info(team, clinched, wins, losses, games_back, div_rank):
+    games_back_prefix = "GB" if len(games_back) >= 4 and games_back.endswith(".5") else "GB:"
+    if not clinched:
+        return [
+            render.Text(
+                content = "{}-{}".format(wins, losses),
+                font = SMALL_FONT,
+                color = team.ForegroundColor
+            ),
+            render.Text(
+                content = games_back_prefix + games_back.removesuffix(".0"),
+                font = SMALL_FONT,
+                color = team.ForegroundColor
+            ),
+            render.Text(
+                content = "RANK:" + div_rank,
+                font = SMALL_FONT,
+                color = team.ForegroundColor
+            )
+        ]
+    else:
+        return [
+            render_rainbow_word("{}-{}".format(wins,losses), SMALL_FONT),
+            render_rainbow_word("DIV", SMALL_FONT),
+            render_rainbow_word("CHAMP", SMALL_FONT)
+        ]
 
 def render_GamesBack(team_id, games_back, clinched):
     # "+1" is weird and has an extra space we should contend with
-    offset = 64 - 4 * len(games_back) - (2 if games_back.startswith("+1") else 1)
+    offset = 64 - 5 * len(games_back) - (2 if games_back.startswith("+1") else 1)
     if clinched:
-        gb_widget = render_american_word(games_back, GAMES_BACK_FONT)
+        gb_widget = render_rainbow_word(games_back, GAMES_BACK_FONT)
     else:
-        gb_widget = render.Text(
+        gb_widget = render_GamesBackText(team_id, games_back)
+    return render.Row(
+        main_align = "end",
+        expanded = True,
+        children = [
+            render.Box(
+                width = offset,
+                height = 9
+            ),
+            render.Box(
+                height = 9,
+                child = gb_widget
+            )
+        ],
+    )
+
+def render_GamesBackText(team_id, games_back):
+    # if it is the dash because they are in first, do nothing
+    if games_back == "-" or games_back.isalnum():
+        return render.Text(
             content = games_back,
             font = SMALL_FONT,
             color = TEAM_INFO[team_id].ForegroundColor,
         )
-    return render.Row(
-        children = [
-            render.Box(
-                height = 1,
-                width = offset,
-            ),
-            render.Padding(
-                pad = (0, 3, 0, 0),
-                child = gb_widget,
-            ),
-        ],
-    )
+    # if it is not alphanumeric it means it has a period in it because of half-game situation
+    else:
+        parts = games_back.split(".")
+        pad_offset = 0
+        if parts[0].endswith("1"):
+            pad_offset = 1
+        elif parts[0].endswith("4"):
+            pad_offset = -1
+        return render.Row(
+            children = [
+                render.Stack(
+                    children = [
+                        render.Text(
+                            content = parts[0],
+                            font = SMALL_FONT,
+                            color = TEAM_INFO[team_id].ForegroundColor
+                        ),
+                        render.Padding(
+                            pad = (3 * len(parts[0]) - pad_offset,0,0,0),
+                            child = render.Text(
+                                content = ".",
+                                font = SMALL_FONT,
+                                color = TEAM_INFO[team_id].ForegroundColor
+                            )
+                        ),
+                        render.Padding(
+                            pad = (3 * len(parts[0]) + 3 - pad_offset,0,0,0),
+                            child = render.Text(
+                                content = parts[1],
+                                font = SMALL_FONT,
+                                color = TEAM_INFO[team_id].ForegroundColor
+                            )
+                        )
+                    ]
+                )
+            ]
+        )
 
 def get_BoxWidth(max_games_back_length):
     width = 0
@@ -331,12 +412,12 @@ NAT_LEAGUE = { NL_WEST: "1", NL_CENTRAL: "1", NL_EAST: "1" }
 AMER_LEAGUE = { AL_WEST: "1", AL_CENTRAL: "1", AL_EAST: "1" }
 
 DIVISION_MAP = {
-    NL_WEST: "NL West",
-    NL_CENTRAL: "NL Central",
-    NL_EAST: "NL East",
-    AL_WEST: "AL West",
-    AL_CENTRAL: "AL Central",
-    AL_EAST: "AL East"
+    NL_WEST: "West",
+    NL_CENTRAL: "Cent",
+    NL_EAST: "East",
+    AL_WEST: "West",
+    AL_CENTRAL: "Cent",
+    AL_EAST: "East"
 }
 
 LAA_TEAM_ID = 108  #Los Angeles Angels
