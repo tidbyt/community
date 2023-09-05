@@ -12,6 +12,7 @@ load("http.star", "http")
 load("random.star", "random")
 load("render.star", "render")
 load("schema.star", "schema")
+load("time.star", "time")
 
 NUM_POKEMON = 1010
 POKEAPI_URL = "https://pokeapi.co/api/v2/pokemon/{}"
