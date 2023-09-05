@@ -25,12 +25,10 @@ DEFAULT_LOCATION = """
 
 DEFAULT_ROUTE = "36"
 
-ENCRYPTED_API_KEY = "AV6+xWcESFT3ji7DAtHTatFa3a2OCQ4Mzu3gPR5GZ9tPKF7x9dTs37gCRpUhdLOJX1lEC9X46AcIvohubgWpTUS8t74WkepSJTYYDQk1N7yEqaRIlrmEU9wfyclifEfndcle3CeUaBy5Z4nbaVcwWzFg8B4PgsnzYRo/LNm55w=="
+ENCRYPTED_API_KEY = "AV6+xWcE22SFmwCmuPVZtuOMHlHFx10fXKpSZccp0AdYp9/VHVmDzGf1IL7lZpbyiACPh3CglH0hRk5LF7BJs3rT8bWpH7nEAbd7LILre+mJyZyqXZZNOU9Kp/jWegNQrtFR1WY3hgsHYgwbYzeEe+a8RokmrOdnIZQSGjvdXA=="
 
 def get_schema():
-    # for local dev, fill in api key
-    api_key = secret.decrypt(ENCRYPTED_API_KEY) or ""
-    options = get_bus_route_options(api_key)
+    options = get_bus_route_options()
 
     return schema.Schema(
         version = "1",
@@ -56,12 +54,12 @@ def get_schema():
                 icon = "eye",
                 default = True,
             ),
-            # schema.Text(
-            #     id = "dev_api_key",
-            #     name = "CTA API Key",
-            #     desc = "For local debugging",
-            #     icon = "key",
-            # ),
+            schema.Text(
+                id = "dev_api_key",
+                name = "CTA API Key",
+                desc = "For local debugging",
+                icon = "key",
+            ),
         ],
     )
 
@@ -134,7 +132,17 @@ def main(config):
 ######################
 # Build Config options
 ######################
-def get_bus_route_options(api_key):
+def get_bus_route_options():
+    api_key = secret.decrypt(ENCRYPTED_API_KEY)
+
+    if not api_key:
+        return [
+            schema.Option(
+                display = "No Routes Available",
+                value = "No Routes Available",
+            ),
+        ]
+
     routes = get_bus_routes(api_key)
 
     options = [
