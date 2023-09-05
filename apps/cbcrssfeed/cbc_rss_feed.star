@@ -89,167 +89,167 @@ def get_schema():
                 icon = "newspaper",
                 default = "canada",
                 options = [
- schema.Option(
-   value =  "arts",
-   display =  "Arts & Entertainment"
- ),
- schema.Option(
-   value =  "business",
-   display =  "Business"
- ),
- schema.Option(
-   value =  "canada",
-   display =  "Canada"
- ),
- schema.Option(
-   value =  "health",
-   display =  "Health"
- ),
- schema.Option(
-   value =  "Indigenous",
-   display =  "Indigenous"
- ),
- schema.Option(
-   value =  "offbeat",
-   display =  "Offbeat"
- ),
- schema.Option(
-   value =  "politics",
-   display =  "Politics"
- ),
- schema.Option(
-   value =  "technology",
-   display =  "Technology & Science"
- ),
- schema.Option(
-   value =  "topstories",
-   display =  "Top Stories"
- ),
- schema.Option(
-   value =  "world",
-   display =  "World"
- ),
- schema.Option(
-   value =  "sports",
-   display =  "Sports - Top Stories"
- ),
- schema.Option(
-   value =  "sports-cfl",
-   display =  "Sports - CFL"
- ),
- schema.Option(
-   value =  "sports-curling",
-   display =  "Sports - Curling"
- ),
- schema.Option(
-   value =  "sports-figureskating",
-   display =  "Sports - Figure Skating"
- ),
- schema.Option(
-   value =  "sports-mlb",
-   display =  "Sports - MLB"
- ),
- schema.Option(
-   value =  "sports-nba",
-   display =  "Sports - NBA"
- ),
- schema.Option(
-   value =  "sports-nfl",
-   display =  "Sports - NFL"
- ),
- schema.Option(
-   value =  "sports-nhl",
-   display =  "Sports - NHL"
- ),
- schema.Option(
-   value =  "sports-soccer",
-   display =  "Sports - Soccer"
- ),
- schema.Option(
-   value =  "canada-britishcolumbia",
-   display =  "Region - British Columbia"
- ),
- schema.Option(
-   value =  "canada-calgary",
-   display =  "Region - Calgary"
- ),
- schema.Option(
-   value =  "canada-edmonton",
-   display =  "Region - Edmonton"
- ),
- schema.Option(
-   value =  "canada-hamiltonnews",
-   display =  "Region - Hamilton"
- ),
- schema.Option(
-   value =  "canada-kamloops",
-   display =  "Region - Kamloops"
- ),
- schema.Option(
-   value =  "canada-kitchenerwaterloo",
-   display =  "Region - Kitchener-Waterloo"
- ),
- schema.Option(
-   value =  "canada-london",
-   display =  "Region - London"
- ),
- schema.Option(
-   value =  "canada-manitoba",
-   display =  "Region - Manitoba"
- ),
- schema.Option(
-   value =  "canada-montreal",
-   display =  "Region - Montreal"
- ),
- schema.Option(
-   value =  "canada-newbrunswick",
-   display =  "Region - New Brunswick"
- ),
- schema.Option(
-   value =  "canada-newfoundland",
-   display =  "Region - Newfoundland & Labrador"
- ),
- schema.Option(
-   value =  "canada-north",
-   display =  "Region - North"
- ),
- schema.Option(
-   value =  "canada-novascotia",
-   display =  "Region - Nova Scotia"
- ),
- schema.Option(
-   value =  "canada-ottawa",
-   display =  "Region - Ottawa"
- ),
- schema.Option(
-   value =  "canada-pei",
-   display =  "Region - Prince Edward Island"
- ),
- schema.Option(
-   value =  "canada-saskatchewan",
-   display =  "Region - Saskatchewan"
- ),
- schema.Option(
-   value =  "canada-saskatoon",
-   display =  "Region - Saskatoon"
- ),
- schema.Option(
-   value =  "canada-sudbury",
-   display =  "Region - Sudbury"
- ),
- schema.Option(
-   value =  "canada-thunderbay",
-   display =  "Region - Thunder Bay"
- ),
- schema.Option(
-   value =  "canada-toronto",
-   display =  "Region - Toronto"
- ),
- schema.Option(
-   value =  "canada-windsor",
-   display =  "Region - Windsor"
- )
-],
+                    schema.Option(
+                        value = "arts",
+                        display = "Arts & Entertainment",
+                    ),
+                    schema.Option(
+                        value = "business",
+                        display = "Business",
+                    ),
+                    schema.Option(
+                        value = "canada",
+                        display = "Canada",
+                    ),
+                    schema.Option(
+                        value = "health",
+                        display = "Health",
+                    ),
+                    schema.Option(
+                        value = "Indigenous",
+                        display = "Indigenous",
+                    ),
+                    schema.Option(
+                        value = "offbeat",
+                        display = "Offbeat",
+                    ),
+                    schema.Option(
+                        value = "politics",
+                        display = "Politics",
+                    ),
+                    schema.Option(
+                        value = "technology",
+                        display = "Technology & Science",
+                    ),
+                    schema.Option(
+                        value = "topstories",
+                        display = "Top Stories",
+                    ),
+                    schema.Option(
+                        value = "world",
+                        display = "World",
+                    ),
+                    schema.Option(
+                        value = "sports",
+                        display = "Sports - Top Stories",
+                    ),
+                    schema.Option(
+                        value = "sports-cfl",
+                        display = "Sports - CFL",
+                    ),
+                    schema.Option(
+                        value = "sports-curling",
+                        display = "Sports - Curling",
+                    ),
+                    schema.Option(
+                        value = "sports-figureskating",
+                        display = "Sports - Figure Skating",
+                    ),
+                    schema.Option(
+                        value = "sports-mlb",
+                        display = "Sports - MLB",
+                    ),
+                    schema.Option(
+                        value = "sports-nba",
+                        display = "Sports - NBA",
+                    ),
+                    schema.Option(
+                        value = "sports-nfl",
+                        display = "Sports - NFL",
+                    ),
+                    schema.Option(
+                        value = "sports-nhl",
+                        display = "Sports - NHL",
+                    ),
+                    schema.Option(
+                        value = "sports-soccer",
+                        display = "Sports - Soccer",
+                    ),
+                    schema.Option(
+                        value = "canada-britishcolumbia",
+                        display = "Region - British Columbia",
+                    ),
+                    schema.Option(
+                        value = "canada-calgary",
+                        display = "Region - Calgary",
+                    ),
+                    schema.Option(
+                        value = "canada-edmonton",
+                        display = "Region - Edmonton",
+                    ),
+                    schema.Option(
+                        value = "canada-hamiltonnews",
+                        display = "Region - Hamilton",
+                    ),
+                    schema.Option(
+                        value = "canada-kamloops",
+                        display = "Region - Kamloops",
+                    ),
+                    schema.Option(
+                        value = "canada-kitchenerwaterloo",
+                        display = "Region - Kitchener-Waterloo",
+                    ),
+                    schema.Option(
+                        value = "canada-london",
+                        display = "Region - London",
+                    ),
+                    schema.Option(
+                        value = "canada-manitoba",
+                        display = "Region - Manitoba",
+                    ),
+                    schema.Option(
+                        value = "canada-montreal",
+                        display = "Region - Montreal",
+                    ),
+                    schema.Option(
+                        value = "canada-newbrunswick",
+                        display = "Region - New Brunswick",
+                    ),
+                    schema.Option(
+                        value = "canada-newfoundland",
+                        display = "Region - Newfoundland & Labrador",
+                    ),
+                    schema.Option(
+                        value = "canada-north",
+                        display = "Region - North",
+                    ),
+                    schema.Option(
+                        value = "canada-novascotia",
+                        display = "Region - Nova Scotia",
+                    ),
+                    schema.Option(
+                        value = "canada-ottawa",
+                        display = "Region - Ottawa",
+                    ),
+                    schema.Option(
+                        value = "canada-pei",
+                        display = "Region - Prince Edward Island",
+                    ),
+                    schema.Option(
+                        value = "canada-saskatchewan",
+                        display = "Region - Saskatchewan",
+                    ),
+                    schema.Option(
+                        value = "canada-saskatoon",
+                        display = "Region - Saskatoon",
+                    ),
+                    schema.Option(
+                        value = "canada-sudbury",
+                        display = "Region - Sudbury",
+                    ),
+                    schema.Option(
+                        value = "canada-thunderbay",
+                        display = "Region - Thunder Bay",
+                    ),
+                    schema.Option(
+                        value = "canada-toronto",
+                        display = "Region - Toronto",
+                    ),
+                    schema.Option(
+                        value = "canada-windsor",
+                        display = "Region - Windsor",
+                    ),
+                ],
             ),
             schema.Dropdown(
                 id = "articlecount",
