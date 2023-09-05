@@ -1,0 +1,8 @@
+---
+id: sports-scoreboard
+name: Sports Scoreboard
+summary: MLB/NFL/NHL/NBA scores
+desc: Only the MLB, NFL, NHL, and NBA scores that you care about.
+author: ghensley
+fileName: sports_scoreboard.star
+packageName: sportsscoreboard

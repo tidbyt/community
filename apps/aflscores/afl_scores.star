@@ -15,13 +15,20 @@ Slight appearance changes for live and post match displays
 v1.2.1 - Published 23/5/23
 Bug fix - live games for GWS not working due to mismatch in team name for 2 different data APIs
 
-v2.0
+v2.0 - Published
 Updated dropdown -> user can now select to show all matches, live matches or select a specific team 
 Live matches option will show next scheduled if there are no live matches in progress
 Fixed post game scenario where the official AFL API has game as being live, where Squiggle API had the game as complete leading to a blank display on the Tidbyt
 Added handling for bye weeks for when specific team is selected
 Added functions for showing scheduled, completed and live games to reduce code and add efficieny (maybe? hopefully)
 Changed background color for Adelaide Crows
+
+v2.1 
+Removed W-D-L data during pre-game display for finals matches
+
+Ideas for next season
+- show ladder position as an option in pre-game
+
 """
 
 load("encoding/json.star", "json")
@@ -79,6 +86,7 @@ def main(config):
     # Get the Current Round, according to the API
     CurrentRound = str(MatchesJSON["matches"][0]["compSeason"]["currentRoundNumber"])
 
+    # CurrentRound = "25"
     if ViewSelection == "All" or ViewSelection == "Live":
         CURRENT_ROUND_URL = ROUND_URL + CurrentRound
     elif ViewSelection == "Team":
@@ -128,25 +136,31 @@ def main(config):
                 HomeFound = 0
                 AwayFound = 0
 
-                # show the win-draw-loss record for teams
-                for y in range(0, 18, 1):
-                    if HomeTeam == LadderJSON["ladders"][0]["entries"][y]["team"]["id"]:
-                        HomeWins = str(LadderJSON["ladders"][0]["entries"][y]["thisSeasonRecord"]["winLossRecord"]["wins"])
-                        HomeLosses = str(LadderJSON["ladders"][0]["entries"][y]["thisSeasonRecord"]["winLossRecord"]["losses"])
-                        HomeDraws = str(LadderJSON["ladders"][0]["entries"][y]["thisSeasonRecord"]["winLossRecord"]["draws"])
-                        HomeFound = 1
-                    if AwayTeam == LadderJSON["ladders"][0]["entries"][y]["team"]["id"]:
-                        AwayWins = str(LadderJSON["ladders"][0]["entries"][y]["thisSeasonRecord"]["winLossRecord"]["wins"])
-                        AwayLosses = str(LadderJSON["ladders"][0]["entries"][y]["thisSeasonRecord"]["winLossRecord"]["losses"])
-                        AwayDraws = str(LadderJSON["ladders"][0]["entries"][y]["thisSeasonRecord"]["winLossRecord"]["draws"])
-                        AwayFound = 1
+                # if not finals, show W-D-L
+                if MatchesJSON["matches"][0]["compSeason"]["currentRoundNumber"] < 25:
+                    # show the win-draw-loss record for teams
+                    for y in range(0, 18, 1):
+                        if HomeTeam == LadderJSON["ladders"][0]["entries"][y]["team"]["id"]:
+                            HomeWins = str(LadderJSON["ladders"][0]["entries"][y]["thisSeasonRecord"]["winLossRecord"]["wins"])
+                            HomeLosses = str(LadderJSON["ladders"][0]["entries"][y]["thisSeasonRecord"]["winLossRecord"]["losses"])
+                            HomeDraws = str(LadderJSON["ladders"][0]["entries"][y]["thisSeasonRecord"]["winLossRecord"]["draws"])
+                            HomeFound = 1
+                        if AwayTeam == LadderJSON["ladders"][0]["entries"][y]["team"]["id"]:
+                            AwayWins = str(LadderJSON["ladders"][0]["entries"][y]["thisSeasonRecord"]["winLossRecord"]["wins"])
+                            AwayLosses = str(LadderJSON["ladders"][0]["entries"][y]["thisSeasonRecord"]["winLossRecord"]["losses"])
+                            AwayDraws = str(LadderJSON["ladders"][0]["entries"][y]["thisSeasonRecord"]["winLossRecord"]["draws"])
+                            AwayFound = 1
 
-                    # both teams found, lets break out
-                    if HomeFound + AwayFound == 2:
-                        break
+                        # both teams found, lets break out
+                        if HomeFound + AwayFound == 2:
+                            break
 
-                HomeRecord = HomeWins + "-" + HomeDraws + "-" + HomeLosses
-                AwayRecord = AwayWins + "-" + AwayDraws + "-" + AwayLosses
+                    HomeRecord = HomeWins + "-" + HomeDraws + "-" + HomeLosses
+                    AwayRecord = AwayWins + "-" + AwayDraws + "-" + AwayLosses
+
+                else:
+                    HomeRecord = ""
+                    AwayRecord = ""
 
                 # Render on the screen
                 SchedOutput = showScheduledGame(HomeRecord, AwayRecord, home_team_abb, away_team_abb, home_team_font, away_team_font, home_team_bkg, away_team_bkg, starttime)
@@ -181,6 +195,7 @@ def main(config):
         for x in range(0, GamesThisRound, 1):
             status = CurrentRoundJSON["matches"][x]["status"]
 
+            #print(status)
             if status == "LIVE":
                 LiveOutput = showLiveGame(CurrentRoundJSON, LiveJSON, IncompleteMatches, x)
                 renderDisplay.extend(LiveOutput)
