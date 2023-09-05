@@ -70,7 +70,7 @@ def main(config):
     location = config.get("location", DEFAULT_LOCATION)
     loc = json.decode(location)
 
-    directions = get_bus_route_directions(route, api_key)
+    directions = get_bus_route_directions(route, api_key) or []
 
     stops = [get_nearest_stop(route, direction["dir"], loc, api_key) for direction in directions]
 
@@ -178,6 +178,9 @@ def get_distance(lat1, lon1, lat2, lon2):
 # API Calls
 ######################
 def get_nearest_stop(route, direction, current_location, api_key):
+    if not api_key:
+        return None
+
     response = http.get(
         "https://ctabustracker.com/bustime/api/v2/getstops",
         params = {
@@ -221,6 +224,9 @@ def build_route_arrival_time(arrival):
 
 def get_arrivals(route, nearest_stop, api_key):
     full_route = get_bus_route(route, api_key)
+
+    if not api_key:
+        return None
 
     response = http.get(
         "https://ctabustracker.com/bustime/api/v2/getpredictions",
@@ -266,6 +272,9 @@ def build_route(route):
     }
 
 def get_bus_routes(api_key):
+    if not api_key:
+        return None
+
     response = http.get(
         "https://ctabustracker.com/bustime/api/v2/getroutes",
         params = {
@@ -279,6 +288,9 @@ def get_bus_routes(api_key):
     return routes
 
 def get_bus_route_directions(route, api_key):
+    if not api_key:
+        return None
+
     response = http.get(
         "https://ctabustracker.com/bustime/api/v2/getdirections",
         params = {
