@@ -1,0 +1,8 @@
+---
+id: awair
+name: Awair
+summary: Local Awair air data
+desc: Get air quality data from Awair's local API.
+author: tabrindle
+fileName: awair.star
+packageName: awair

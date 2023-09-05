@@ -1,11 +1,10 @@
 """
-Applet: MLB WildCard Race
-Summary: Display wild card race
-Description: Displays the standings (in terms of games behind) for the MLB wild card in each league.
+Applet: MLB Magic Number
+Summary: Display magic number
+Description: Displays the magic number or the elimination number of your favorite MLB team.
 Author: Jake Manske
 """
 
-load("animation.star", "animation")
 load("encoding/base64.star", "base64")
 load("http.star", "http")
 load("render.star", "render")
@@ -13,207 +12,175 @@ load("schema.star", "schema")
 load("time.star", "time")
 
 MLB_STANDINGS_URL = "https://statsapi.mlb.com/api/v1/standings"
-GAMES_BACK_FONT = "tb-8"
 
-NL_LEAGUE_ID = "104"
-AL_LEAGUE_ID = "103"
-
-HIGHLIGHT_COLOR = "#65FE08"
-
-# get top 9 teams (almost everyone)
-DISPLAY_LIMIT = 9
-
-CACHE_TIMEOUT = 300  # five minutes
-
-HTTP_SUCCESS_CODE = 200
-
-SMALL_FONT = "CG-pixel-3x5-mono"
-SMALL_FONT_COLOR = "#FFA700"
+DEFAULT_TEAM = "158"  # Milwaukee Brewers
+COMMON_FONT = "CG-pixel-3x5-mono"
+BIG_NUMBER_FONT = "10x20"
+BRIGHT_RED = "#FF0000"
+DARK_RED = "#8B0000"
+HTTP_OK = 200
 
 def main(config):
-    league_id = config.get("league") or NL_LEAGUE_ID
-    year = str(time.now().year)  #use current year
+    team_id = get_team_to_follow(config)
 
-    standings = get_Standings(league_id, year)
+    info = http_get_number(team_id)
 
-    # if we have some widgets, we can display them now
-    if len(standings) > 0:
-        return render.Root(
-            delay = 80,
-            show_full_animation = True,
-            child = render.Stack(
-                children = [
-                    animation.Transformation(
-                        duration = 200,
-                        height = 81,
-                        keyframes = [
-                            build_keyframe(5, 0.0),
-                            build_keyframe(5, 0.25),
-                            build_keyframe(-22, 0.40),
-                            build_keyframe(-22, 0.60),
-                            build_keyframe(-49, 0.70),
-                            build_keyframe(-49, 1.0),
-                        ],
-                        child = render_WildCardStandings(standings),
-                        wait_for_child = True,
-                    ),
-                    render_header(league_id),
-                ],
-            ),
-        )
-    else:
-        # otherwise it means something went wrong or we are not yet in wild card standings time
-        # display zero-state image
-        return render.Root(
-            child = render.Stack(
-                children = [
-                    render.Image(
-                        src = MLB_LEAGUE_IMAGE,
-                    ),
-                    render.Marquee(
-                        width = 64,
-                        child = render.Text(
-                            content = "No wild card race to display for league year " + year,
-                            color = SMALL_FONT_COLOR,
-                            font = SMALL_FONT,
-                        ),
-                    ),
-                ],
-            ),
-        )
+    if info.Clinched or info.Magic or info.Eliminated or not info.HasData:
+        background_color = TEAM_INFO[team_id].BackgroundColor
+        if info.Clinched or info.Magic:
+            delay = 100
+        else:
+            delay = 0
+    else:  # if you are in danger of being eliminated, get black background
+        background_color = "#000000"
+        delay = 100
 
-def build_keyframe(offset, pct):
-    return animation.Keyframe(
-        percentage = pct,
-        transforms = [animation.Translate(0, offset)],
-        curve = "ease_in_out",
+    return render.Root(
+        delay = delay,
+        child = render.Row(
+            children = [
+                render_logo(team_id, 32),
+                render.Box(
+                    height = 32,
+                    width = 32,
+                    color = background_color,
+                    child = render_number_info(team_id, info),
+                ),
+            ],
+        ),
     )
 
-def get_schema():
-    options = [
-        schema.Option(
-            display = "National League",
-            value = NL_LEAGUE_ID,
+def render_number_info(team_id, info):
+    children = []
+    center = False
+    if not info.Success:
+        children = render_failure(team_id, info.ResponseCode)
+        center = True
+    elif info.Clinched:
+        children = render_clinched()
+        center = True
+    elif info.Magic:
+        children = render_magic(info.Number)
+        center = True
+    elif info.Eliminated:
+        children = render_record(team_id, info.Wins, info.Losses, info.DivisionRank)
+        center = False
+    elif not info.HasData:
+        children = render_no_data(team_id)
+        center = True
+    else:
+        children = render_elim(info.Number)
+        center = True
+    return render.Column(
+        cross_align = "center" if center else "start",
+        main_align = "space_between",
+        children = children,
+    )
+
+def render_no_data(team_id):
+    color = TEAM_INFO[team_id].ForegroundColor
+
+    # send back good luck message for upcoming season
+    phrase = ["good", "luck", "in", str(time.now().year)]
+    widgets = []
+    for i in range(len(phrase)):
+        widgets.append(
+            render.Text(
+                content = phrase[i],
+                font = COMMON_FONT,
+                color = color,
+            ),
+        )
+        widgets.append(
+            render.Box(
+                height = 1,
+            ),
+        )
+    return widgets
+
+def render_failure(team_id, error_code):
+    color = TEAM_INFO[team_id].ForegroundColor
+    return [
+        render.Image(
+            src = MLB_LEAGUE_IMAGE,
+            width = 32,
         ),
-        schema.Option(
-            display = "American League",
-            value = AL_LEAGUE_ID,
+        render.Text(
+            content = "HTTP",
+            font = COMMON_FONT,
+            color = color,
+        ),
+        render.Text(
+            content = "error",
+            font = COMMON_FONT,
+            color = color,
+        ),
+        render.Box(
+            height = 1,
+        ),
+        render.Text(
+            content = str(error_code),
+            font = COMMON_FONT,
+            color = color,
         ),
     ]
-    return schema.Schema(
-        version = "1",
-        fields = [
-            schema.Dropdown(
-                id = "league",
-                name = "League",
-                desc = "Which league to display the wild card race for.",
-                icon = "baseballBatBall",
-                default = NL_LEAGUE_ID,
-                options = options,
-            ),
-        ],
-    )
 
-def render_header(league_id):
-    text = "NL" if league_id == NL_LEAGUE_ID else "AL"
-    text += " WILD CARD"
-    return render.Box(
-        height = 5,
-        width = 64,
-        color = "#000000",
-        child = render_rainbow_word(text, "CG-pixel-4x5-mono"),
-    )
+def render_magic(number):
+    widgets = [
+        render.Animation(
+            children = render_rainbow_word("magic", COMMON_FONT),
+        ),
+        render.Box(
+            height = 1,
+            width = 1,
+        ),
+        render.Animation(
+            children = render_rainbow_word("#", "tb-8"),
+        ),
+        render.Animation(
+            children = render_rainbow_word(str(number), BIG_NUMBER_FONT),
+        ),
+    ]
+    return widgets
 
-def get_Standings(league_id, year):
-    query_params = {
-        "fields": "records,teamRecords,team,id,wildCardGamesBack,clinched,clinchIndicator",
-        "standingsTypes": "wildCard",
-        "leagueId": league_id,
-        "season": year,
-    }
-    standings_data = http.get(MLB_STANDINGS_URL, params = query_params, ttl_seconds = CACHE_TIMEOUT)
+def render_clinched():
+    widgets = [
+        render.Animation(
+            children = render_rainbow_word("clinched", COMMON_FONT),
+        ),
+        render.Box(
+            height = 1,
+            width = 1,
+        ),
+        render.Image(
+            src = CHECKMARK,
+        ),
+    ]
+    return widgets
 
-    standings = []
+def get_team_to_follow(config):
+    return int(config.str("team", DEFAULT_TEAM))
 
-    # if the http request failed above, return empty standings object
-    if standings_data.status_code != HTTP_SUCCESS_CODE:
-        return standings
+def is_response_OK(request):
+    return request.status_code == HTTP_OK
 
-    records = standings_data.json().get("records")
-
-    # if we did not get anything back because there is no data
-    # could be too early in the year for data to be displayed
-    # either way we need to not fail, return empty standings list
-    # we will consume this later and render a different screen
-    if len(records) == 0:
-        return standings
-
-    limiter = 0
-
-    for team in records[0].get("teamRecords"):
-        if limiter >= DISPLAY_LIMIT:
-            break
-
-        # get the team and how many games back they are
-        # and whether they have clinched
-        team_id = int(team.get("team").get("id"))
-        games_back = team.get("wildCardGamesBack")
-        clinched = team.get("clinched") or False
-
-        # add to list
-        standings.append(
-            {
-                "TeamId": team_id,
-                "GamesBack": games_back,
-                "Clinched": clinched,
-            },
-        )
-        limiter += 1
-
-    return standings
-
-def render_WildCardStandings(standings):
-    team_widgets = []
-    games_back_widgets = []
-    pos = 1
-    max_games_back_length = 0
-
-    for info in standings:
-        team_id = info.get("TeamId")
-        clinched = info.get("Clinched")
-
-        # strip ".0", we don't need it
-        games_back = info.get("GamesBack").removesuffix(".0")
-
-        # keep track of games_back length so we can align everything
-        if len(games_back) > max_games_back_length:
-            max_games_back_length = len(games_back)
-        team_widgets.append(render_Team(team_id, pos, clinched))
-        games_back_widgets.append(render_GamesBack(team_id, games_back, clinched))
-        pos += 1
-
-    return render.Stack(
-        children = [
-            render.Column(
-                children = team_widgets,
-            ),
-            render.Column(
-                cross_align = "end",
-                children = games_back_widgets,
-            ),
-        ],
+def render_logo(team_id, size):
+    return render.Image(
+        src = TEAM_INFO[team_id].Logo,
+        width = size,
     )
 
 def render_rainbow_word(word, font):
     colors = ["#e81416", "#ffa500", "#faeb36", "#79c314", "#487de7", "#4b369d", "#70369d"]
+    colors_length = len(colors)
     widgets = []
-    for j in range(7):
+    for j in range(colors_length):
         rainbow_word = []
         for i in range(len(word)):
             letter = render.Text(
                 content = word[i],
                 font = font,
-                color = colors[(j + i) % 7],
+                color = colors[(j + i) % colors_length],
             )
             rainbow_word.append(letter)
         widgets.append(
@@ -221,91 +188,229 @@ def render_rainbow_word(word, font):
                 children = rainbow_word,
             ),
         )
-    return render.Animation(
-        children = widgets,
-    )
+    return widgets
 
-def render_Team(team_id, pos, clinched):
-    team = TEAM_INFO[team_id]
-    logo_width = 20
-    if clinched:
-        abbrev = render_rainbow_word(TEAM_INFO[team_id].Abbreviation, GAMES_BACK_FONT)
-        pos_widget = render_rainbow_word(str(pos), SMALL_FONT)
-    else:
-        abbrev = render.Text(
-            content = team.Abbreviation,
-            font = GAMES_BACK_FONT,
-            color = team.ForegroundColor,
+def render_record(team_id, wins, losses, division_rank):
+    win_counter = []
+    loss_counter = []
+    div_rank_array = []
+    text_color = TEAM_INFO[team_id].ForegroundColor
+    bg_color = TEAM_INFO[team_id].BackgroundColor
+
+    build_record_arrays(team_id, wins, 0, win_counter, loss_counter, div_rank_array)
+    build_record_arrays(team_id, losses, wins, loss_counter, win_counter, div_rank_array)
+
+    # add frames for the division rank
+    for j in range(100):
+        win_counter.append(
+            render.Text(
+                content = str(wins),
+                font = COMMON_FONT,
+                color = text_color,
+            ),
         )
-        pos_widget = render.Text(
-            content = str(pos),
-            font = SMALL_FONT,
-            color = HIGHLIGHT_COLOR,
+        loss_counter.append(
+            render.Text(
+                content = str(losses),
+                font = COMMON_FONT,
+                color = text_color,
+            ),
         )
-    return render.Box(
-        height = 9,
-        width = 64,
-        color = team.BackgroundColor,
-        child = render.Row(
-            main_align = "start",
-            expanded = True,
+        div_rank_array.append(
+            render.Text(
+                content = str(division_rank),
+                color = text_color if j % 30 < 15 else bg_color,
+                font = BIG_NUMBER_FONT,
+            ),
+        )
+    widgets = [
+        render.Row(
             children = [
-                pos_widget,
-                render.Padding(
-                    pad = (0, -3, 0, 0),
-                    child = render.Image(
-                        src = team.Logo,
-                        width = logo_width,
-                    ),
+                render.Text(
+                    content = "W: ",
+                    font = COMMON_FONT,
+                    color = text_color,
                 ),
-                render.Box(
-                    height = 1,
-                    width = 1,
-                ),
-                render.Padding(
-                    pad = (0, 1, 0, 0),
-                    child = abbrev,
+                render.Animation(
+                    children = win_counter,
                 ),
             ],
         ),
-    )
+        render.Box(
+            height = 1,
+        ),
+        render.Row(
+            children = [
+                render.Text(
+                    content = "L: ",
+                    font = COMMON_FONT,
+                    color = text_color,
+                ),
+                render.Animation(
+                    children = loss_counter,
+                ),
+            ],
+        ),
+        render.Box(
+            height = 1,
+        ),
+        render.Stack(
+            children = [
+                render.Text(
+                    content = "div rank",
+                    font = COMMON_FONT,
+                    color = text_color,
+                ),
+                render.Column(
+                    cross_align = "center",
+                    children = [
+                        render.Box(
+                            height = 3,
+                        ),
+                        render.Animation(
+                            children = div_rank_array,
+                        ),
+                    ],
+                ),
+            ],
+        ),
+    ]
+    return widgets
 
-def render_GamesBack(team_id, games_back, clinched):
-    # "+1" is weird and has an extra space we should contend with
-    offset = 64 - 4 * len(games_back) - (2 if games_back.startswith("+1") else 1)
-    if clinched:
-        gb_widget = render_rainbow_word(games_back, GAMES_BACK_FONT)
-    else:
-        gb_widget = render.Text(
-            content = games_back,
-            font = GAMES_BACK_FONT,
-            color = TEAM_INFO[team_id].ForegroundColor,
+def build_record_arrays(team_id, total, static_number, incr_array, static_array, rank_array):
+    text_color = TEAM_INFO[team_id].ForegroundColor
+    bg_color = TEAM_INFO[team_id].BackgroundColor
+
+    for j in range(total + 1):
+        incr_array.append(
+            render.Text(
+                content = str(j),
+                font = COMMON_FONT,
+                color = text_color,
+            ),
         )
-    return render.Row(
+        static_array.append(
+            render.Text(
+                content = str(static_number),
+                font = COMMON_FONT,
+                color = text_color,
+            ),
+        )
+        rank_array.append(
+            render.Text(
+                content = "0",
+                color = bg_color,
+                font = BIG_NUMBER_FONT,
+            ),
+        )
+
+def render_elim(number):
+    bright = render_elim_with_hue(number, BRIGHT_RED, DARK_RED)
+    dark = render_elim_with_hue(number, DARK_RED, BRIGHT_RED)
+
+    widgets = []
+    for _ in range(10):
+        widgets.append(bright)
+    for _ in range(10):
+        widgets.append(dark)
+    return [
+        render.Animation(
+            children = widgets,
+        ),
+    ]
+
+def render_elim_with_hue(number, on_hue, off_hue):
+    return render.Column(
+        cross_align = "center",
+        main_align = "space_between",
         children = [
+            render.Text(
+                content = "elim",
+                font = COMMON_FONT,
+                color = on_hue,
+            ),
             render.Box(
                 height = 1,
-                width = offset,
+                width = 1,
             ),
-            render.Padding(
-                pad = (0, 1, 0, 0),
-                child = gb_widget,
+            render.Text(
+                content = "#",
+                color = off_hue,
+            ),
+            render.Text(
+                content = number,
+                font = BIG_NUMBER_FONT,
+                color = on_hue,
             ),
         ],
     )
 
-def get_BoxWidth(max_games_back_length):
-    width = 0
-    if max_games_back_length == 5:
-        width = 64 - 4 * max_games_back_length - 1
+######################
+## HTTP REQUEST API ##
+######################
+def http_get_number(team_id):
+    query_params = {
+        "fields": "records,division,id,teamRecords,team,magicNumber,eliminationNumberDivision,clinched,divisionRank,wins,losses",
+        "leagueId": str(TEAM_INFO[team_id].LeagueId),
+        "season": str(time.now().year),
+    }
+
+    # cache response for 5 minutes
+    response = http.get(MLB_STANDINGS_URL, params = query_params, ttl_seconds = 300)
+
+    number = "0"
+    magic = False
+    clinched = False
+    division_rank = "0"
+    eliminated = False
+    wins = 0
+    losses = 0
+    has_data = True
+
+    if is_response_OK(response):
+        for record in response.json().get("records"):
+            # if it matches our division, loop through teams to find our team
+            if int(record.get("division").get("id")) == TEAM_INFO[team_id].DivisionId:
+                for team_record in record.get("teamRecords"):
+                    if int(team_record.get("team").get("id")) == team_id:
+                        wins = int(team_record.get("wins"))
+                        losses = int(team_record.get("losses"))
+                        division_rank = int(team_record.get("divisionRank"))
+
+                        # see if we have clinched and are division leader
+                        clinched = team_record.get("clinched")
+                        if clinched:
+                            clinched = True if division_rank == 1 else False
+
+                        # if team did not yet clinch division, see if it has a magic number
+                        if not clinched:
+                            number = team_record.get("magicNumber")
+
+                            # if we do not have a magic number, we will have elimination number
+                            # or be actually eliminated from division contention
+                            if number == None:
+                                number = team_record.get("eliminationNumberDivision")
+                                eliminated = True if number == "E" else False
+                            else:
+                                magic = True
+                        break  # we found our team
+                break  # we found our division
     else:
-        width = 64 - 4 * max_games_back_length
-    return width
+        return struct(Number = number, Magic = magic, Clinched = clinched, DivisionRank = division_rank, Eliminated = eliminated, Wins = wins, Losses = losses, Success = False, ResponseCode = response.status_code, HasData = False)
+
+    # if we got nothing, it is probably because the season has not yet started
+    # use this to render the "good luck" image
+    if wins == 0 and losses == 0:
+        has_data = False
+    return struct(Number = number, Magic = magic, Clinched = clinched, DivisionRank = division_rank, Eliminated = eliminated, Wins = wins, Losses = losses, Success = True, ResponseCode = response.status_code, HasData = has_data)
+
+CHECKMARK = base64.decode(
+    """iVBORw0KGgoAAAANSUhEUgAAACAAAAAZCAYAAABQDyyRAAAAAXNSR0IArs4c6QAAAO5JREFUSEvNl90NwjAMhNsR6BYwA0xfZoAtYARQKgUZ1z/n2kX0pS9J7sv14rjjEHwOt/NLm/I8XcfgcgM0wRLNwrgAW8Q7FOKICpAR5q5YICJApbjnxgpgD3EL4r8A9tj94zgvBkz3y/LmefhyoBqgi0MAvxCXsvBxoBJA2jk9mvQzlAN44jwHpQCIOAzA0+tdMqh4GIAmWIOIiMMAbSCyMDLGuhvcOmAJZMUbmAugObFF3K2EbYBWD6ggtbSXWC+kkvjKAQuAO4GEE+kLwv1A9HiG+4E+obI0hzsial0GJNUTZiEQcTGEXpqr/wveV96dGgbVDdkAAAAASUVORK5CYII=""",
+)
 
 #################
 ## TEAM CONFIG ##
 #################
-
 LAA_TEAM_ID = 108  #Los Angeles Angels
 ARI_TEAM_ID = 109  #Arizona Diamondbacks
 BAL_TEAM_ID = 110  #Baltimore Orioles
@@ -491,38 +596,75 @@ MIL_LOGO = base64.decode("""
 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
 """)
 
-def struct_TeamDefinition(name, abbrev, logo, foreground_color, background_color):
-    return struct(Name = name, Abbreviation = abbrev, Logo = logo, ForegroundColor = foreground_color, BackgroundColor = background_color)
+# league IDs
+NAT_LEAGUE_ID = 104
+AMER_LEAGUE_ID = 103
+
+# division IDs
+NL_WEST = 203
+NL_CENTRAL = 205
+NL_EAST = 204
+AL_WEST = 200
+AL_CENTRAL = 202
+AL_EAST = 201
+
+def struct_TeamDefinition(name, abbrev, logo, foreground_color, background_color, id, leagueId, divisionId):
+    return struct(Name = name, Abbreviation = abbrev, Logo = logo, ForegroundColor = foreground_color, BackgroundColor = background_color, Id = id, LeagueId = leagueId, DivisionId = divisionId)
 
 TEAM_INFO = {
-    ARI_TEAM_ID: struct_TeamDefinition("Arizona DiamondBacks", "ARI", ARI_LOGO, "#E3D4AD", "#A71930"),
-    ATL_TEAM_ID: struct_TeamDefinition("Atlanta Braves", "ATL", ATL_LOGO, "#FFFFFF", "#13274F"),
-    BOS_TEAM_ID: struct_TeamDefinition("Boston Red Sox", "BOS", BOS_LOGO, "#FFFFFF", "#0C2340"),
-    BAL_TEAM_ID: struct_TeamDefinition("Baltimore Orioles", "BAL", BAL_LOGO, "#DF4701", "#000000"),
-    CHC_TEAM_ID: struct_TeamDefinition("Chicago Cubs", "CHC", CHC_LOGO, "#CC3433", "#0E3386"),
-    CWS_TEAM_ID: struct_TeamDefinition("Chicago White Sox", "CWS", CWS_LOGO, "#C4CED4", "#27251F"),
-    CIN_TEAM_ID: struct_TeamDefinition("Cincinnati Reds", "CIN", CIN_LOGO, "#FFFFFF", "#C6011F"),
-    CLE_TEAM_ID: struct_TeamDefinition("Cleveland Guardians", "CLE", CLE_LOGO, "#FFFFFF", "#00385D"),
-    COL_TEAM_ID: struct_TeamDefinition("Colorado Rockies", "COL", COL_LOGO, "#C4CED4", "#333366"),
-    DET_TEAM_ID: struct_TeamDefinition("Detroit Tigers", "DET", DET_LOGO, "#FFFFFF", "#0C2340"),
-    HOU_TEAM_ID: struct_TeamDefinition("Houston Astros", "HOU", HOU_LOGO, "#EB6E1F", "#002D62"),
-    KC_TEAM_ID: struct_TeamDefinition("Kansas City Royals", "KC", KC_LOGO, "#BD9B60", "#004687"),
-    LAA_TEAM_ID: struct_TeamDefinition("Los Angeles Angels", "LAA", LAA_LOGO, "#FFFFFF", "#BA0021"),
-    LAD_TEAM_ID: struct_TeamDefinition("Los Angeles Dodgers", "LAD", LAD_LOGO, "#FFFFFF", "#005A9C"),
-    MIA_TEAM_ID: struct_TeamDefinition("Miami Marlins", "MIA", MIA_LOGO, "#EF3340", "#000000"),
-    MIL_TEAM_ID: struct_TeamDefinition("Milwaukee Brewers", "MIL", MIL_LOGO, "#FFC52F", "#12284B"),
-    MIN_TEAM_ID: struct_TeamDefinition("Minnesota Twins", "MIN", MIN_LOGO, "#FFFFFF", "#002B5C"),
-    NYM_TEAM_ID: struct_TeamDefinition("New York Mets", "NYM", NYM_LOGO, "#FF5910", "#002D72"),
-    NYY_TEAM_ID: struct_TeamDefinition("New York Yankees", "NYY", NYY_LOGO, "#C4CED3", "#0C2340"),
-    OAK_TEAM_ID: struct_TeamDefinition("Oakland Athletics", "OAK", OAK_LOGO, "#EFB21E", "#003831"),
-    PHI_TEAM_ID: struct_TeamDefinition("Philadelphia Phillies", "PHI", PHI_LOGO, "#FFFFFF", "#E81828"),
-    PIT_TEAM_ID: struct_TeamDefinition("Pittsburgh Pirates", "PIT", PIT_LOGO, "#FDB827", "#27251F"),
-    SEA_TEAM_ID: struct_TeamDefinition("Seattle Mariners", "SEA", SEA_LOGO, "#C4CED4", "#0C2C56"),
-    SD_TEAM_ID: struct_TeamDefinition("San Diego Padres", "SD", SD_LOGO, "#FFC425", "#2F241D"),
-    STL_TEAM_ID: struct_TeamDefinition("St. Louis Cardinals", "STL", STL_LOGO, "#FFFFFF", "#C41E3A"),
-    SF_TEAM_ID: struct_TeamDefinition("San Francisco Giants", "SF", SF_LOGO, "#FD5A1E", "#27251F"),
-    TB_TEAM_ID: struct_TeamDefinition("Tampa Bay Rays", "TB", TB_LOGO, "#8FBCE6", "#092C5C"),
-    TEX_TEAM_ID: struct_TeamDefinition("Texas Rangers", "TEX", TEX_LOGO, "#FFFFFF", "#003278"),
-    TOR_TEAM_ID: struct_TeamDefinition("Toronto Blue Jays", "TOR", TOR_LOGO, "#FFFFFF", "#134A8E"),
-    WAS_TEAM_ID: struct_TeamDefinition("Washington Nationals", "WAS", WAS_LOGO, "#FFFFFF", "#AB0003"),
+    ARI_TEAM_ID: struct_TeamDefinition("Arizona DiamondBacks", "ARI", ARI_LOGO, "#E3D4AD", "#A71930", ARI_TEAM_ID, NAT_LEAGUE_ID, NL_WEST),
+    ATL_TEAM_ID: struct_TeamDefinition("Atlanta Braves", "ATL", ATL_LOGO, "#FFFFFF", "#13274F", ATL_TEAM_ID, NAT_LEAGUE_ID, NL_EAST),
+    BOS_TEAM_ID: struct_TeamDefinition("Boston Red Sox", "BOS", BOS_LOGO, "#FFFFFF", "#0C2340", BOS_TEAM_ID, AMER_LEAGUE_ID, AL_EAST),
+    BAL_TEAM_ID: struct_TeamDefinition("Baltimore Orioles", "BAL", BAL_LOGO, "#DF4701", "#000000", BAL_TEAM_ID, AMER_LEAGUE_ID, AL_EAST),
+    CHC_TEAM_ID: struct_TeamDefinition("Chicago Cubs", "CHC", CHC_LOGO, "#CC3433", "#0E3386", CHC_TEAM_ID, NAT_LEAGUE_ID, NL_CENTRAL),
+    CWS_TEAM_ID: struct_TeamDefinition("Chicago White Sox", "CWS", CWS_LOGO, "#C4CED4", "#27251F", CWS_TEAM_ID, AMER_LEAGUE_ID, AL_CENTRAL),
+    CIN_TEAM_ID: struct_TeamDefinition("Cincinnati Reds", "CIN", CIN_LOGO, "#FFFFFF", "#C6011F", CIN_TEAM_ID, NAT_LEAGUE_ID, NL_CENTRAL),
+    CLE_TEAM_ID: struct_TeamDefinition("Cleveland Guardians", "CLE", CLE_LOGO, "#FFFFFF", "#00385D", CLE_TEAM_ID, AMER_LEAGUE_ID, AL_CENTRAL),
+    COL_TEAM_ID: struct_TeamDefinition("Colorado Rockies", "COL", COL_LOGO, "#C4CED4", "#333366", COL_TEAM_ID, NAT_LEAGUE_ID, NL_WEST),
+    DET_TEAM_ID: struct_TeamDefinition("Detroit Tigers", "DET", DET_LOGO, "#FFFFFF", "#0C2340", DET_TEAM_ID, AMER_LEAGUE_ID, AL_CENTRAL),
+    HOU_TEAM_ID: struct_TeamDefinition("Houston Astros", "HOU", HOU_LOGO, "#EB6E1F", "#002D62", HOU_TEAM_ID, AMER_LEAGUE_ID, AL_WEST),
+    KC_TEAM_ID: struct_TeamDefinition("Kansas City Royals", "KC", KC_LOGO, "#BD9B60", "#004687", KC_TEAM_ID, AMER_LEAGUE_ID, AL_CENTRAL),
+    LAA_TEAM_ID: struct_TeamDefinition("Los Angeles Angels", "LAA", LAA_LOGO, "#FFFFFF", "#BA0021", LAA_TEAM_ID, AMER_LEAGUE_ID, AL_WEST),
+    LAD_TEAM_ID: struct_TeamDefinition("Los Angeles Dodgers", "LAD", LAD_LOGO, "#FFFFFF", "#005A9C", LAD_TEAM_ID, NAT_LEAGUE_ID, NL_WEST),
+    MIA_TEAM_ID: struct_TeamDefinition("Miami Marlins", "MIA", MIA_LOGO, "#00A3E0", "#000000", MIA_TEAM_ID, NAT_LEAGUE_ID, NL_EAST),
+    MIL_TEAM_ID: struct_TeamDefinition("Milwaukee Brewers", "MIL", MIL_LOGO, "#FFC52F", "#12284B", MIL_TEAM_ID, NAT_LEAGUE_ID, NL_CENTRAL),
+    MIN_TEAM_ID: struct_TeamDefinition("Minnesota Twins", "MIN", MIN_LOGO, "#FFFFFF", "#002B5C", MIN_TEAM_ID, AMER_LEAGUE_ID, AL_CENTRAL),
+    NYM_TEAM_ID: struct_TeamDefinition("New York Mets", "NYM", NYM_LOGO, "#FF5910", "#002D72", NYM_TEAM_ID, NAT_LEAGUE_ID, NL_EAST),
+    NYY_TEAM_ID: struct_TeamDefinition("New York Yankees", "NYY", NYY_LOGO, "#C4CED3", "#0C2340", NYY_TEAM_ID, AMER_LEAGUE_ID, AL_EAST),
+    OAK_TEAM_ID: struct_TeamDefinition("Oakland Athletics", "OAK", OAK_LOGO, "#EFB21E", "#003831", OAK_TEAM_ID, AMER_LEAGUE_ID, AL_WEST),
+    PHI_TEAM_ID: struct_TeamDefinition("Philadelphia Phillies", "PHI", PHI_LOGO, "#FFFFFF", "#E81828", PHI_TEAM_ID, NAT_LEAGUE_ID, NL_EAST),
+    PIT_TEAM_ID: struct_TeamDefinition("Pittsburgh Pirates", "PIT", PIT_LOGO, "#FDB827", "#27251F", PIT_TEAM_ID, NAT_LEAGUE_ID, NL_CENTRAL),
+    SEA_TEAM_ID: struct_TeamDefinition("Seattle Mariners", "SEA", SEA_LOGO, "#C4CED4", "#0C2C56", SEA_TEAM_ID, AMER_LEAGUE_ID, AL_WEST),
+    SD_TEAM_ID: struct_TeamDefinition("San Diego Padres", "SD", SD_LOGO, "#FFC425", "#2F241D", SD_TEAM_ID, NAT_LEAGUE_ID, NL_WEST),
+    STL_TEAM_ID: struct_TeamDefinition("St. Louis Cardinals", "STL", STL_LOGO, "#FFFFFF", "#C41E3A", STL_TEAM_ID, NAT_LEAGUE_ID, NL_CENTRAL),
+    SF_TEAM_ID: struct_TeamDefinition("San Francisco Giants", "SF", SF_LOGO, "#FD5A1E", "#27251F", SF_TEAM_ID, NAT_LEAGUE_ID, NL_WEST),
+    TB_TEAM_ID: struct_TeamDefinition("Tampa Bay Rays", "TB", TB_LOGO, "#8FBCE6", "#092C5C", TB_TEAM_ID, AMER_LEAGUE_ID, AL_EAST),
+    TEX_TEAM_ID: struct_TeamDefinition("Texas Rangers", "TEX", TEX_LOGO, "#FFFFFF", "#003278", TEX_TEAM_ID, AMER_LEAGUE_ID, AL_WEST),
+    TOR_TEAM_ID: struct_TeamDefinition("Toronto Blue Jays", "TOR", TOR_LOGO, "#FFFFFF", "#134A8E", TOR_TEAM_ID, AMER_LEAGUE_ID, AL_EAST),
+    WAS_TEAM_ID: struct_TeamDefinition("Washington Nationals", "WAS", WAS_LOGO, "#FFFFFF", "#AB0003", WAS_TEAM_ID, NAT_LEAGUE_ID, NL_EAST),
 }
+
+# SCHEMA
+
+def get_schema():
+    team_options = []
+    for team in TEAM_INFO.values():
+        team_options.append(
+            schema.Option(
+                display = team.Name,
+                value = str(team.Id),
+            ),
+        )
+    return schema.Schema(
+        version = "1",
+        fields = [
+            schema.Dropdown(
+                id = "team",
+                name = "Team",
+                desc = "MLB Team to follow.",
+                icon = "baseballBatBall",
+                options = team_options,
+                default = "158",  # MILWAUKEE BREWERS
+            ),
+        ],
+    )
