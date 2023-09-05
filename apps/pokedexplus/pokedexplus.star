@@ -37,8 +37,13 @@ def main(config):
     species = get_species(random_pokemon_id)
 
     pokemonName = pokemon["name"].title()
-    flavor_text_raw = species["flavor_text_entries"][0]["flavor_text"]
-    flavor_text = flavor_text_raw.replace("\n", " ")
+
+    pokemonRawFlavorText = ""
+    for flavor_entry in species["flavor_text_entries"]:
+        if flavor_entry["language"]["name"] == "en":
+            pokemonRawFlavorText = flavor_entry["flavor_text"]
+        break
+    flavor_text = pokemonRawFlavorText.replace("\n", " ")
 
     # Get the Pokémon sprite. Check if there is an animated version available, if not revert to the default.
     spriteURL = pokemon["sprites"]["versions"]["generation-v"]["black-white"]["animated"]["front_default"]
