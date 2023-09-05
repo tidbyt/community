@@ -131,7 +131,7 @@ def create_game_display(game_date, opponent_nickname, logo):
 
 def main(config):
     team = config.get("team", "Angels")
-    timezone = config.get("timezone") or "America/New_York"
+    timezone = config.get("$tz") or "America/New_York"
 
     url_params = generate_url_parameters(team, timezone)
     schedule = get_schedule(BASE + url_params)
