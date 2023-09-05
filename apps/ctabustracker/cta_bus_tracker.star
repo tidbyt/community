@@ -25,7 +25,7 @@ DEFAULT_LOCATION = """
 
 DEFAULT_ROUTE = "36"
 
-ENCRYPTED_API_KEY = "AV6+xWcEuGGyAvh7W5W2SVOvZuJARj97rqKY60gDOC+GO4Obl0l52PEORVlILAxzIAit0vpPDHJCj8G/dWjCrtBOc1M2by5qj5vunVrjnBnDn0TT/xN46gc3vyj9k9zoVtWogYr8YlbogH4IYSLrSag1xFXdr+QnW7VwiriKVg=="
+ENCRYPTED_API_KEY = "AV6+xWcESFT3ji7DAtHTatFa3a2OCQ4Mzu3gPR5GZ9tPKF7x9dTs37gCRpUhdLOJX1lEC9X46AcIvohubgWpTUS8t74WkepSJTYYDQk1N7yEqaRIlrmEU9wfyclifEfndcle3CeUaBy5Z4nbaVcwWzFg8B4PgsnzYRo/LNm55w=="
 
 def get_schema():
     # for local dev, fill in api key
