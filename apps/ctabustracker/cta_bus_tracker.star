@@ -54,12 +54,12 @@ def get_schema():
                 icon = "eye",
                 default = True,
             ),
-            schema.Text(
-                id = "dev_api_key",
-                name = "CTA API Key",
-                desc = "For local debugging",
-                icon = "key",
-            ),
+            # schema.Text(
+            #     id = "dev_api_key",
+            #     name = "CTA API Key",
+            #     desc = "For local debugging",
+            #     icon = "key",
+            # ),
         ],
     )
 
