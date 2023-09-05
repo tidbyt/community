@@ -5,9 +5,7 @@ Description: Display a scrolling message sent via an Airtable form.
 Author: Kyle Bolstad
 """
 
-load("encoding/base64.star", "base64")
 load("http.star", "http")
-load("humanize.star", "humanize")
 load("random.star", "random")
 load("re.star", "re")
 load("render.star", "render")
@@ -19,7 +17,8 @@ AIRTABLE_DATE_FIELD = "Date"
 AIRTABLE_MESSAGE_FIELD = "Message"
 AIRTABLE_NAME_FIELD = "Name"
 
-EMOJI_ICON_URL = base64.decode("aHR0cHM6Ly9hcGktbmluamFzLWRhdGEuczMudXMtd2VzdC0yLmFtYXpvbmF3cy5jb20vZW1vamlzLyVzLnBuZw==")
+EMOJI_ICON_SIZE = 32
+EMOJI_ICON_URL = "https://raw.githubusercontent.com/googlefonts/noto-emoji/main/png/%s/emoji_u%s.png"
 UNICODE_API_URL = "https://ucdapi.org/unicode/latest/chars/%s/name"
 
 DEFAULT_AIRTABLE_API_TOKEN = ""
@@ -150,23 +149,23 @@ def main(config):
         print_log("text: %s" % text)
 
         for character in list(text.codepoints()):
-            print_log("character: %s with ord: %s" % (character, ord(character)))
-
             codepoint = ord(character)
 
+            print_log("character: %s with ord: %s and hex: %s" % (character, ord(character), decimal_to_hex(codepoint)))
+
             if is_emoji(character):
-                print_log("emoji: %s with ord: %s" % (character, ord(character)))
+                print_log("emoji: %s" % character)
 
                 if remove:
                     replaced_text.append("")
                 elif show_unicode:
                     unicode_character_name = get_unicode_name(character).title()
-                    unicode_character_hex = humanize.url_encode("U+%s" % decimal_to_hex(codepoint))
+                    unicode_character_hex = decimal_to_hex(codepoint)
 
                     print_log(unicode_character_name)
 
                     if show_unicode == "Icon":
-                        unicode_character_icon = http.get(EMOJI_ICON_URL % unicode_character_hex, ttl_seconds = DEFAULT_MAX_AGE)
+                        unicode_character_icon = http.get(EMOJI_ICON_URL % (EMOJI_ICON_SIZE, unicode_character_hex.lower()), ttl_seconds = DEFAULT_MAX_AGE)
                         print_log(unicode_character_icon.url)
 
                         if unicode_character_icon.status_code == 200:
