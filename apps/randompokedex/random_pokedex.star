@@ -43,6 +43,7 @@ TYPE_COLORS = {
 }
 
 def main(config):
+    random.seed(time.now().unix // 15)
     id_ = random.number(1, NUM_POKEMON)
     pokemon = get_pokemon(id_)
     name = pokemon["name"].title()
