@@ -70,42 +70,19 @@ def countdown_string(timeIn):
         return str(minutes) + "m"
 
 def get_current_or_next_game_data():
-    cached_data = cache.get("hrbfc-data")
 
-    if cached_data == None:
-        response = http.get(GAME_DATA_PATH).json()
+    response = http.get(GAME_DATA_PATH, ttl_seconds = 55).json()
 
-        data = response["message"]
+    print("Fetched new data")
 
-        print("Fetched new data")
-
-        cache.set("hrbfc-data", json.encode(data), ttl_seconds = 55)
-
-        return data
-    else:
-        print("Using cached data")
-        return json.decode(cached_data)
+    return response["message"]
 
 def get_team_names_data():
-    cached_data = cache.get("hrbfc-teams")
-    team_data = {}
+    response = http.get(TEAM_NAMES_PATH, ttl_seconds = 600000).json()
 
-    if cached_data == None:
-        response = http.get(TEAM_NAMES_PATH).json()
+    print("Fetched team names")
 
-        print("Fetched team names")
-
-        team_data = response["message"]
-
-        cache.set(
-            "hrbfc-teams",
-            json.encode(team_data),
-            ttl_seconds = 600000,
-        )  # TTL 1 week
-
-    else:
-        print("Using cached team names")
-        team_data = json.decode(cached_data)
+    team_data = response["message"]
 
     team_data[HRBFC_TEAM_ID] = {
         "long": "Beavers",
@@ -115,7 +92,7 @@ def get_team_names_data():
     return team_data
 
 def get_background_image_data():
-    return http.get(BACKGROUND_IMAGE_URL).body()
+    return http.get(BACKGROUND_IMAGE_URL, ttl_seconds = 600000).body()
 
 def get_short_team_name(team_names, team_id, is_home):
     name = team_names[str(int(team_id))]["short"]
