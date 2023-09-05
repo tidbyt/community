@@ -169,17 +169,17 @@ def get_pokemon(id):
     data = get_cachable_data(url)
     return json.decode(data)
 
-def get_cachable_data(url, ttl_seconds = CACHE_TTL_SECONDS):
+def get_cachable_data(url):
     key = base64.encode(url)
 
     data = cache.get(key)
     if data != None:
         return base64.decode(data)
 
-    res = http.get(url = url)
+    res = http.get(url, ttl_seconds = CACHE_TTL_SECONDS)
     if res.status_code != 200:
         fail("request to %s failed with status code: %d - %s" % (url, res.status_code, res.body()))
 
-    cache.set(key, base64.encode(res.body()), ttl_seconds = ttl_seconds)
+    cache.set(key, base64.encode(res.body()))
 
     return res.body()
