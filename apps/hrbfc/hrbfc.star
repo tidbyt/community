@@ -70,7 +70,6 @@ def countdown_string(timeIn):
         return str(minutes) + "m"
 
 def get_current_or_next_game_data():
-
     response = http.get(GAME_DATA_PATH, ttl_seconds = 55).json()
 
     print("Fetched new data")
