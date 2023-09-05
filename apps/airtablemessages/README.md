@@ -1,6 +1,6 @@
 # Airtable Messages for Tidbyt
 
-Display a scrolling message sent via an Airtable form.
+Display a scrolling message sent via an Airtable form. Emojis in Unicode v15.0 are accepted but not guaranteed. Emoji Sequences are not (yet) supported. No user data is stored outside of Airtable. There are several configuration options to meet many different types of needs.
 
 ## Caveats
 
