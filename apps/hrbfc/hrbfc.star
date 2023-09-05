@@ -5,8 +5,6 @@ Description: Live scores and upcoming match details for the Hampton and Richmond
 Author: Jonathan Damico
 """
 
-load("cache.star", "cache")
-load("encoding/json.star", "json")
 load("http.star", "http")
 load("math.star", "math")
 load("render.star", "render")
