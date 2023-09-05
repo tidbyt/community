@@ -1,0 +1,8 @@
+---
+id: airtable-messages
+name: Airtable Messages
+summary: Display Airtable messages
+desc: Display a scrolling message sent via an Airtable form.
+author: Kyle Bolstad
+fileName: airtable_messages.star
+packageName: airtablemessages
