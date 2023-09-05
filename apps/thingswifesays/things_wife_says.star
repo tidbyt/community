@@ -12,24 +12,22 @@ load("re.star", "re")
 load("render.star", "render")
 load("schema.star", "schema")
 
-PHRASES = [
-    "It's fineee",
-    "Is it really tho?",
-    "That's hella tight",
-    "I'm gonna sleep in",
-    "I'm taking a short nap mmmkay?",
-]
+default_phrase1 = "It's fineee"
+default_phrase2 = "Is it really tho?"
+default_phrase3 = "That's hella tight"
+default_phrase4 = "I'm gonna sleep in"
+default_phrase5 = "I'm taking a short nap mmmkay?"
 
 #Load images
 WOMAN_ICON = base64.decode("iVBORw0KGgoAAAANSUhEUgAAABwAAAAcCAYAAAByDd+UAAAAAXNSR0IArs4c6QAAAXZJREFUSEvNlq0OAjEMgHcPgQAH4iyKN8ASFBJHUAgUr0CCQqAIjicgJCjeAIVFgAPBQxzpwpberu16ByHM3HEt/fq3bon58UqUvEypF7UXVTDGZGkztbzL7UJyA7loUxJaEEDcU4qScIq0LQKVacypIed+AwT6G6oG5hrkftyYRndkwicYhm94gR6zPDz0wteNMqhNcQDOMQphp800g0bB3tcfNct61J8kk5IjaDkgGEuGfQvKtrsClJNXBrr6ARC/u1A5uRboaxg2hLZ+2JH3u5xSyNwnDUMA4RPbpbZUXwaKEfo9SKV0312Z3nHisxv+ZvakLqVclABxC8MjA0BOqZuHXJQlgfEI8elQtlvxlKEGOTVg/fkHkYRTR9oe4SylhjgJdBPfATGEipgb2qWB1AmvBaIDOV7D6frMZm7WOhVki2un8O0wH7griQycrs/RCxOGUjBMX47bnwPBIEBjMND7GlA7zP8PqPW8qp7mIlzVNvm/F7LJ0x29lys8AAAAAElFTkSuQmCC")
 
 def main(config):
     PHRASES = [
-        config.str("phrase1"),
-        config.str("phrase2"),
-        config.str("phrase3"),
-        config.str("phrase4"),
-        config.str("phrase5"),
+        config.str("phrase1", default_phrase1),
+        config.str("phrase2", default_phrase2),
+        config.str("phrase3", default_phrase3),
+        config.str("phrase4", default_phrase4),
+        config.str("phrase5", default_phrase5),
     ]
 
     index_cached = cache.get("array_index")
