@@ -37,7 +37,7 @@ def get_schema():
                 id = "route",
                 name = "Bus Route",
                 desc = "The CTA Bus Route to get departure schedule for.",
-                icon = "Bus",
+                icon = "bus",
                 default = options[0].value,
                 options = options,
             ),
