@@ -5,12 +5,12 @@ Description: View CTA Bus arrival times for the closest stop to your location.
 Author: John Sylvain
 """
 
+load("encoding/json.star", "json")
 load("http.star", "http")
+load("math.star", "math")
 load("render.star", "render")
 load("schema.star", "schema")
-load("math.star", "math")
 load("secret.star", "secret")
-load("encoding/json.star", "json")
 
 DEFAULT_LOCATION = """
 {
@@ -29,7 +29,7 @@ ENCRYPTED_API_KEY = "AV6+xWcEuGGyAvh7W5W2SVOvZuJARj97rqKY60gDOC+GO4Obl0l52PEORVl
 
 def get_schema():
     # for local dev, fill in api key
-    api_key = secret.decrypt(ENCRYPTED_API_KEY) or "QBSaAHEneVUtaute4QzKxcMZM"
+    api_key = secret.decrypt(ENCRYPTED_API_KEY) or ""
     options = get_bus_route_options(api_key)
 
     return schema.Schema(
@@ -86,7 +86,7 @@ def main(config):
 
     if len(arrivals) == 2:
         return render.Root(
-            delay= 75,
+            delay = 75,
             max_age = 60,
             child = render.Column(
                 expanded = True,
@@ -100,11 +100,11 @@ def main(config):
                     ),
                     render_arrival(arrivals[1]),
                 ],
-            )
+            ),
         )
     elif len(arrivals) == 1:
         return render.Root(
-            delay= 75,
+            delay = 75,
             max_age = 60,
             child = render.Column(
                 expanded = True,
@@ -112,25 +112,24 @@ def main(config):
                 children = [
                     render_arrival(arrivals[0]),
                 ],
-            )
+            ),
         )
+    elif hide:
+        print("no arrival [hide]")
+        return []
     else:
-        if hide:
-            print("no arrival [hide]")
-            return []
-        else:
-            print("no arrival [show]")
-            return render.Root(
-                delay= 75,
-                max_age = 60,
-                child = render.Column(
-                    expanded = True,
-                    main_align = "center",
-                    children = [
-                        render_no_arrival(route, api_key),
-                    ],
-                )
-            )
+        print("no arrival [show]")
+        return render.Root(
+            delay = 75,
+            max_age = 60,
+            child = render.Column(
+                expanded = True,
+                main_align = "center",
+                children = [
+                    render_no_arrival(route, api_key),
+                ],
+            ),
+        )
 
 ######################
 # Build Config options
@@ -147,25 +146,24 @@ def get_bus_route_options(api_key):
     ]
     return options
 
-
 ######################
 # Utility methods
 ######################
 def get_distance(lat1, lon1, lat2, lon2, unit):
-    radlat1 = math.pi * lat1/180
-    radlat2 = math.pi * lat2/180
-    radlon1 = math.pi * lon1/180
-    radlon2 = math.pi * lon2/180
-    theta = lon1-lon2
-    radtheta = math.pi * theta/180
-    dist = math.sin(radlat1) * math.sin(radlat2) + math.cos(radlat1) * math.cos(radlat2) * math.cos(radtheta);
+    radlat1 = math.pi * lat1 / 180
+    radlat2 = math.pi * lat2 / 180
+    radlon1 = math.pi * lon1 / 180
+    radlon2 = math.pi * lon2 / 180
+    theta = lon1 - lon2
+    radtheta = math.pi * theta / 180
+    dist = math.sin(radlat1) * math.sin(radlat2) + math.cos(radlat1) * math.cos(radlat2) * math.cos(radtheta)
     dist = math.acos(dist)
-    dist = dist * 180/math.pi
+    dist = dist * 180 / math.pi
     dist = dist * 60 * 1.1515
 
-    if unit=="K":
+    if unit == "K":
         dist = dist * 1.609344
-    if unit=="N":
+    if unit == "N":
         dist = dist * 0.8684
 
     return dist
@@ -180,9 +178,9 @@ def get_nearest_stop(route, direction, current_location, api_key):
             "key": api_key,
             "format": "json",
             "rt": route,
-            "dir": direction
+            "dir": direction,
         },
-        ttl_seconds = 3600
+        ttl_seconds = 3600,
     )
 
     stops = response.json()["bustime-response"]["stops"]
@@ -196,7 +194,7 @@ def get_nearest_stop(route, direction, current_location, api_key):
             float(stop["lon"]),
             float(current_location["lat"]),
             float(current_location["lng"]),
-            "K"
+            "K",
         )
         if distance_from_user_to_stop < shortest_distance or shortest_distance == 0.0:
             shortest_distance = distance_from_user_to_stop
@@ -226,8 +224,8 @@ def get_arrivals(route, nearest_stop, api_key):
             "key": api_key,
             "format": "json",
             "rt": route,
-            "stpid": nearest_stop['stpid'],
-            "top": "2"
+            "stpid": nearest_stop["stpid"],
+            "top": "2",
         },
     )
 
@@ -269,7 +267,7 @@ def get_bus_routes(api_key):
             "key": api_key,
             "format": "json",
         },
-        ttl_seconds = 3600
+        ttl_seconds = 3600,
     )
     data = response.json()["bustime-response"]["routes"]
     routes = [build_route(route) for route in data]
@@ -283,7 +281,7 @@ def get_bus_route_directions(route, api_key):
             "key": api_key,
             "format": "json",
         },
-        ttl_seconds = 3600
+        ttl_seconds = 3600,
     )
     data = response.json()["bustime-response"]["directions"]
     return data
@@ -297,9 +295,8 @@ def render_no_arrival(route, api_key):
     background_color = render.Box(
         width = 22,
         height = 11,
-        color = full_route["color"]
+        color = full_route["color"],
     )
-
 
     stack = render.Stack(
         children = [
@@ -310,12 +307,12 @@ def render_no_arrival(route, api_key):
                 height = 11,
                 child = render.Text(full_route["route"], color = "#000", font = "CG-pixel-4x5-mono"),
             ),
-        ]
+        ],
     )
 
     column = render.Marquee(
         width = 40,
-        child = render.Text("No service scheduled.", color = "#666", height = 7), 
+        child = render.Text("No service scheduled.", color = "#666", height = 7),
     )
 
     return render.Row(
@@ -332,7 +329,7 @@ def render_arrival(arrival):
     background_color = render.Box(
         width = 22,
         height = 11,
-        color = arrival["route_color"]
+        color = arrival["route_color"],
     )
     destination_text = render.Marquee(
         width = 40,
@@ -341,7 +338,7 @@ def render_arrival(arrival):
 
     arrival_in_text = render.Marquee(
         width = 40,
-        child = render.Text(", ".join(arrival["times"]), color = "#f3ab3f", font = "tb-8")
+        child = render.Text(", ".join(arrival["times"]), color = "#f3ab3f", font = "tb-8"),
     )
 
     stack = render.Stack(
@@ -353,7 +350,7 @@ def render_arrival(arrival):
                 height = 11,
                 child = render.Text(arrival["route"], color = "#000", font = "CG-pixel-4x5-mono"),
             ),
-        ]
+        ],
     )
 
     column = render.Column(
