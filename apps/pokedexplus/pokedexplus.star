@@ -42,7 +42,7 @@ def main(config):
     for flavor_entry in species["flavor_text_entries"]:
         if flavor_entry["language"]["name"] == "en":
             pokemonRawFlavorText = flavor_entry["flavor_text"]
-        break
+            break
     flavor_text = pokemonRawFlavorText.replace("\n", " ")
 
     # Get the Pokémon sprite. Check if there is an animated version available, if not revert to the default.
