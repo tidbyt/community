@@ -8,6 +8,11 @@ Author: jvivona
 # 20230407  v23097
 #  changed to new color schema option
 #  samhi113 provided all the track images
+# 20230826 jvivona  v23238
+#  add qualifing date/time to json on server for NRI
+#  add display of qualifing date/time on app
+# 20230904 jvivona
+#  fix date display remove leading 0
 
 load("encoding/base64.star", "base64")
 load("encoding/json.star", "json")
@@ -16,7 +21,7 @@ load("render.star", "render")
 load("schema.star", "schema")
 load("time.star", "time")
 
-VERSION = 23132
+VERSION = 23247
 
 IMAGES = {
     #Indycar track type logos
@@ -54,7 +59,7 @@ DEFAULTS = {
 
 SIZES = {
     "regular_font": "tom-thumb",
-    "datetime_font": "tb-8",
+    "datetime_font": "tom-thumb",
     "animation_frames": 30,
     "animation_hold_frames": 75,
     "data_box_bkg": "#000",
@@ -102,22 +107,31 @@ def nextrace(config, data):
     timezone = config.get("$tz", DEFAULTS["timezone"])  # Utilize special timezone variable to get TZ - otherwise assume US Eastern w/DST
     date_and_time = data["start"]
     date_and_time3 = time.parse_time(date_and_time, "2006-01-02T15:04:05-0700").in_location(timezone)
-    date_str = date_and_time3.format("Jan 02" if config.bool("is_us_date_format", DEFAULTS["date_us"]) else "02 Jan").title()  #current format of your current date str
+    date_str = date_and_time3.format("Jan 2" if config.bool("is_us_date_format", DEFAULTS["date_us"]) else "2 Jan").title()  #current format of your current date str
     time_str = "TBD" if date_and_time.endswith("T00:00:00-0500") else date_and_time3.format("15:04 " if config.bool("is_24_hour_format", DEFAULTS["time_24"]) else "3:04pm")[:-1]
+    if data.get("qual", "TBD") == "TBD":
+        qual_date_str = "TBD"
+        qual_time_str = "TBD"
+    else:
+        qual_date_and_time = data.get("qual", "TBD")
+        qual_date_and_time3 = time.parse_time(qual_date_and_time, "2006-01-02T15:04:05-0700").in_location(timezone)
+        qual_date_str = qual_date_and_time3.format("Jan 2" if config.bool("is_us_date_format", DEFAULTS["date_us"]) else "2 Jan").title()  #current format of your current date str
+        qual_time_str = "TBD" if qual_date_and_time.endswith("T00:00:00-0500") else qual_date_and_time3.format("15:04 " if config.bool("is_24_hour_format", DEFAULTS["time_24"]) else "3:04pm")[:-1]
     text_color = config.get("text_color", DEFAULTS["text_color"])
 
     return render.Row(expanded = True, children = [
         render.Box(width = 16, height = 26, child = render.Image(src = base64.decode(IMAGES[data["trackid"]]), height = 24, width = 14)),
         #render.Box(width = 16, height = 26, child = render.Image(src = base64.decode(IMAGES[data["type"]]), height = 24, width = 14)),
-        fade_child(data["name"], data["track"], "{}\n{}\nTV: {}".format(date_str, time_str, data["tv"].upper()), text_color),
+        fade_child(data["name"], data["track"], "Race\n{}\n{}\nTV: {}".format(date_str, time_str, data["tv"].upper()), "Qual\n{}\n{}".format(qual_date_str, qual_time_str), text_color),
     ])
 
-def fade_child(race, track, date_time_tv, text_color):
+def fade_child(race, track, date_time_tv, qual_string, text_color):
     # IndyNXT doesn't name their races, so we're just going to flip back & forth between track & date/time/tv
     if race == track:
         return render.Animation(
             children =
                 createfadelist(track, SIZES["animation_hold_frames"], SIZES["regular_font"], text_color, SIZES["nri_data_box_width"], "center") +
+                createfadelist(qual_string, SIZES["animation_hold_frames"], SIZES["datetime_font"], text_color, SIZES["nri_data_box_width"], "center") +
                 createfadelist(date_time_tv, SIZES["animation_hold_frames"], SIZES["datetime_font"], text_color, SIZES["nri_data_box_width"], "center"),
         )
     else:
@@ -125,6 +139,7 @@ def fade_child(race, track, date_time_tv, text_color):
             children =
                 createfadelist(race, SIZES["animation_hold_frames"], SIZES["regular_font"], text_color, SIZES["nri_data_box_width"], "center") +
                 createfadelist(track, SIZES["animation_hold_frames"], SIZES["regular_font"], text_color, SIZES["nri_data_box_width"], "center") +
+                createfadelist(qual_string, SIZES["animation_hold_frames"], SIZES["datetime_font"], text_color, SIZES["nri_data_box_width"], "center") +
                 createfadelist(date_time_tv, SIZES["animation_hold_frames"], SIZES["datetime_font"], text_color, SIZES["nri_data_box_width"], "center"),
         )
 
