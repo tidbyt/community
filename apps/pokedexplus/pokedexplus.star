@@ -5,13 +5,12 @@ Description: Displays a random Pokedex entry from any generation. This includes 
 Author: Forrest Syrett
 """
 
-load("cache.star", "cache")
-load("encoding/base64.star", "base64")
 load("encoding/json.star", "json")
 load("http.star", "http")
 load("random.star", "random")
 load("render.star", "render")
 load("schema.star", "schema")
+load("time.star", "time")
 
 DEFAULT_COLOR = "#000024"
 DEFAULT_FONT_COLOR = "#FFFFFF"
@@ -32,6 +31,7 @@ def main(config):
     # random_pokemon_id = str(62)
 
     # Pokemon Data
+    random.seed(time.now().unix // 15)
     random_pokemon_id = random.number(1, 898)
     pokemon = get_pokemon(random_pokemon_id)
     species = get_species(random_pokemon_id)
@@ -140,17 +140,8 @@ def get_species(id):
     return json.decode(data)
 
 def get_cacheable_data(url, ttl_seconds = CACHE_TTL_SECONDS):
-    key = base64.encode(url)
-
-    data = cache.get(key)
-    if data != None:
-        return base64.decode(data)
-
-    res = http.get(url = url)
+    res = http.get(url, ttl_seconds = ttl_seconds)
     if res.status_code != 200:
         fail("request to %s failed with status code: %d - %s" % (url, res.status_code, res.body()))
-
-    # TODO: Determine if this cache call can be converted to the new HTTP cache.
-    cache.set(key, base64.encode(res.body()), ttl_seconds = ttl_seconds)
 
     return res.body()
