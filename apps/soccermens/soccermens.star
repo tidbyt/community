@@ -83,8 +83,8 @@ def main(config):
             gameStatus = s["status"]["type"]["state"]
             competition = s["competitions"][0]
             homeCompetitor = competition["competitors"][0]
-            home = competition["competitors"][0]["team"]["abbreviation"]
-            away = competition["competitors"][1]["team"]["abbreviation"]
+            home = competition["competitors"][0]["team"].get("abbreviation", competition["competitors"][0]["team"]["name"][0:2].upper() + "*")
+            away = competition["competitors"][1]["team"].get("abbreviation", competition["competitors"][1]["team"]["name"][0:2].upper() + "*")
             homeTeamName = competition["competitors"][0]["team"]["shortDisplayName"]
             awayTeamName = competition["competitors"][1]["team"]["shortDisplayName"]
             homeColorCheck = competition["competitors"][0]["team"].get("color", "NO")
