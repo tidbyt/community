@@ -13,6 +13,7 @@ const API_KEY = 'ADD_YOUR_OWN_API_KEY_HERE';
 
 const HOST = '0.0.0.0';
 const PORT = '6565';
+let cachedIP;
 
 const server = http.createServer((req, res) => {
     if (req.method === "GET") {
@@ -41,9 +42,14 @@ const server = http.createServer((req, res) => {
                     }
                 } else {
                     dorita980.getRobotIP((ierr, ip) => {
-                        if (ierr) return console.log('error looking for robot IP');  
+                        if (ierr) return console.log('error looking for robot IP');
+                        if (ip) {
+                            cachedIP = ip;
+                        }
+                    });
+                    if (cachedIP) {
                         try {
-                            var myRobotViaLocal = new dorita980.Local(BLID, PASSWORD, ip);
+                            var myRobotViaLocal = new dorita980.Local(BLID, PASSWORD, cachedIP);
                             myRobotViaLocal.getRobotState(['batPct']).then((state) => {
                                 res.writeHead(200, {'Content-Type': 'application/json'});
                                 res.write(JSON.stringify(state));
@@ -55,8 +61,8 @@ const server = http.createServer((req, res) => {
                         } catch(e) {
                             res.writeHead(500);
                             res.end();
-                        }              
-                    });
+                        }  
+                    }            
                 }
                 break;
             default:

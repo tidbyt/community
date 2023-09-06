@@ -262,14 +262,11 @@ imgBgSummerGameFest = base64.decode("""
 iVBORw0KGgoAAAANSUhEUgAAAEAAAAAgCAMAAACVQ462AAAA8FBMVEUAAABSUlIqKipCQkIWFhY0NDQ7OztLS0sMDAwGBgYeHh4RERElJSUvLy8FBQVMTExISEhAQEAJCQkfHx89PT08PDwcHBxHR0chISE5OTkHBwcPDw9KSkpNTU0ODg4NDQ0LCwsKCgo3Nzc2NjY6OjpJSUkgICAxMTE1NTU4ODgiIiIyMjIdHR0zMzNFRUUSEhIbGxsYGBgUFBQTExMaGhoZGRkXFxc/Pz9ERERDQ0MVFRU+Pj5BQUEwMDAkJCQmJiYnJycoKCguLi4tLS0sLCwrKyspKSlQUFBRUVFPT09OTk4ICAgQEBABAQEDAwMEBATbDXZqAAAB6ElEQVR42u3T2XLaQBAF0NsCzGKQgYhNRnHCThQWY8ACYxM2SUAg//83gdZoMEVS5Uc/cF5U09VcmtaAq6urc/XyH3yY3uPHfifOs6b9TDSyy8uzrt+3vnsVZ3oKDrZFGyxapLadzc4CtInIHjWxoZM7G5eiWt5rXRg/x4ubTGI4CIei8Ow1yoUM8oRXbQrhf2Zro7MiZn6tunOwOFELlgh4xRtRH9JUhQ50xdIalF2RYA5JA3sptr7A5hnCteVqHks24HtwYwjqGBwC9hFAscYu+fovLe7Z5Ur8OM5wgwFNUU/JgCUl0/Bsa8BEWZIUiudU75NOcoVCziEip2l2FmUnI3dXJToeIgM+mhSrkDTpU5MDRocwuQMT8eMgQp6/aYfeDyA9uAwo+AFG2xFV59k4BewmXCvxCp8a2AcufwIHsKpljcJ0JAMeRWvqQRQUK0hSl5coA+4iOIzqngUUSHASaf81yhFaQdLeB0z5kHgfcO/I22l+44rtGLdL/yIl3QRYgDcCpiePhwpEmqf9FpWvZW5kx/OM9jp8DId0UazTQVAcaqdptrwRVxP3Uv6ZLDvbnU5oHZG15jqclx22samLW0xE60YH5+yKkiKylOYc0k5XcaL6k/2iovId/2KWVHzA/knHJ/MXzG44Kh+XIGcAAAAASUVORK5CYII=
 """)
 
-# GRADIENTS AND BUMPERS
+# BRANDING
 
-imgBumper = base64.decode("""
-iVBORw0KGgoAAAANSUhEUgAAAEAAAAA4CAMAAAB6xg5AAAAAWlBMVEUAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAACOAQHSAgLFAgK4AgKqAgKdAQH///+DAQFpAQF2AQFgAQFcAQFPAQGQAQEAAAAAAAAAAAAAAAAAAAAAAAAAAACah6UeAAAAHnRSTlMAPWaKq8jg8v////////////////////Pfx6yLZT7y4ag0AAABx0lEQVR42u1U7XaCMAzFfVnapgG2odv0/V9z+aBZPDo4w387hKS5vYVr7UWbu2N33nHutJ8FWpyJuQ3tgebBxenksI56MZI00qJ5pPj6slGbDtwpKQxq11FXmieLT22/E5+36ObjmS8ObtrrfFrTUtqN2poXF0fKo4JjZZS9vOPoiGZ/2FMeDgcGVDwIsWdSORsmVuBeowl3xiawCWwCm8Am8P8E2rgmWhNoU845JUoAqRhlUgjNRVsFImCPpXBK5ZhoAshoNkyg0L0DBqkOQ45AoAQM8zvwAgF7uTB0iJkVZUtxPpxAjwOX7iKz4p8EADvZcaHOOxACACHOhwmkkENKnJmukCZi6Qh+BGK1MGcooJYyZ40jVQRAmS53YBaOiFQEShYOeEm/WTHEd5XkBYDtkxoDhlEOc5QDLbr0zics6I073wuXLnRsX6gf0+tcXq8KK8nV8crlDgbZwTAJDDrnZ0qFSqrPLDDm5F1QC9U78JZChZ4csaPKzgW1sJrpLTXoyayEE3B+LXl/+0Uy2/rFt++mAJhtuPj+W1zZKE6FdQJs46i/yHUCbGNWl9adAds4Wbn4C7wSWP2n7P5Uw2u7Jl750fANFjqDYvmVkjwAAAAASUVORK5CYII=
-""")
-
-imgGradient = base64.decode("""
-iVBORw0KGgoAAAANSUhEUgAAAEAAAAAHCAYAAAC4NEsKAAAACXBIWXMAAAsTAAALEwEAmpwYAAAAvUlEQVQ4ja2USw7CMAxEX6Tc/3pskNggsWPBBcqiog3uTJxQZtX68/KzXYAXUICFVZ/vwq4lxCD+Y27LaNmtRnnRFvOVrbVHxqYKPJ3TaPRg6iIdR3FdXraPkbU3RgUeE4kZ1F2I8rv1supzVTRq//JV4G42G6XKcVZnGb38n9gVuAkQAtbrJ+XL+m/kVXux2fxQ9sM6FbiaDTplZa7iXRmqVjgzG2b6H1gr4MLxhrMXUANoRvFAPca/YuUZ3qr8U1iUvPpiAAAAAElFTkSuQmCC
+# CriticalChicken.com
+imgBranding = base64.decode("""
+iVBORw0KGgoAAAANSUhEUgAAAEAAAAANAQMAAAAjYfovAAAABlBMVEUAAAD///+l2Z/dAAAAWElEQVR42mNI8GRgSVFQYGCYwMHAMoUByGiNlXjSqqxyiqHNU1WlbclKXYYWT0WVliWGLxmmAEWmLFnJyZCiMuNSymSVlwxowHAWlOEVCmU4haKJMBpOBQBg9xbvishOngAAAABJRU5ErkJggg==
 """)
 
 # MAIN
@@ -308,10 +305,6 @@ def main():
     finalheadline = str(get_headline)
     finalcategory = str(get_category)
     finalexcerpt = str(excerpt_strip_em_ed)
-
-    # Marquee offsets
-    offsetStart = -25
-    offsetEnd = 45
 
     # Colour palette
     red = "#d20202"
@@ -472,19 +465,103 @@ def main():
         backdrop = imgBgExclusive
 
     return render.Root(
-        delay = 50,
         show_full_animation = True,
+        delay = 50,
         child = render.Stack(
             children = [
-                render.Image(width = 64, height = 32, src = backdrop),
+                animation.Transformation(
+                    child = render.Box(width = 64, height = 9, color = txColour),
+                    duration = 9,
+                    delay = 5,
+                    origin = animation.Origin(1, 1),
+                    keyframes = [
+                        animation.Keyframe(
+                            percentage = 0.0,
+                            transforms = [animation.Translate(0, 32)],
+                        ),
+                        animation.Keyframe(
+                            percentage = 1.0,
+                            transforms = [animation.Translate(0, 24)],
+                        ),
+                    ],
+                ),
+                animation.Transformation(
+                    child = render.Image(width = 64, height = 9, src = ttleTag1),
+                    duration = 9,
+                    delay = 5,
+                    origin = animation.Origin(1, 1),
+                    keyframes = [
+                        animation.Keyframe(
+                            percentage = 0.0,
+                            transforms = [animation.Translate(0, 32)],
+                        ),
+                        animation.Keyframe(
+                            percentage = 1.0,
+                            transforms = [animation.Translate(0, 24)],
+                        ),
+                    ],
+                ),
+                animation.Transformation(
+                    child = render.Image(width = 64, height = 13, src = imgBranding),
+                    duration = 14,
+                    delay = 0,
+                    origin = animation.Origin(1, 1),
+                    keyframes = [
+                        animation.Keyframe(
+                            percentage = 0.0,
+                            transforms = [animation.Translate(0, -13)],
+                        ),
+                        animation.Keyframe(
+                            percentage = 1.0,
+                            transforms = [animation.Translate(0, 0)],
+                        ),
+                    ],
+                ),
+                animation.Transformation(
+                    child = render.Box(width = 64, height = 32, color = "#000000"),
+                    duration = 25,
+                    delay = 50,
+                    origin = animation.Origin(1, 1),
+                    keyframes = [
+                        animation.Keyframe(
+                            percentage = 0.0,
+                            transforms = [animation.Translate(0, 32)],
+                        ),
+                        animation.Keyframe(
+                            percentage = 0.00000001,
+                            transforms = [animation.Translate(0, 24)],
+                            curve = "ease_in_out",
+                        ),
+                        animation.Keyframe(
+                            percentage = 1.0,
+                            transforms = [animation.Translate(0, 0)],
+                        ),
+                    ],
+                ),
+                animation.Transformation(
+                    child = render.Image(width = 64, height = 32, src = backdrop),
+                    duration = 25,
+                    delay = 50,
+                    origin = animation.Origin(1, 1),
+                    keyframes = [
+                        animation.Keyframe(
+                            percentage = 0.0,
+                            transforms = [animation.Translate(64, 0)],
+                            curve = "ease_in_out",
+                        ),
+                        animation.Keyframe(
+                            percentage = 1.0,
+                            transforms = [animation.Translate(0, 0)],
+                        ),
+                    ],
+                ),
                 render.Box(
                     child = render.Marquee(
-                        # !!! THIS MARQUEE IS JUST A SHADOW !!!
                         child = render.Column(
                             children = [
                                 render.Box(
                                     width = 64,
-                                    height = 97,
+                                    height = 1,
                                 ),
                                 render.WrappedText(
                                     content = finalheadline,
@@ -506,27 +583,18 @@ def main():
                                     color = "#000000",
                                     linespacing = 1,
                                 ),
-                                render.Box(
-                                    width = 64,
-                                    height = 88,
-                                ),
                             ],
                         ),
                         height = 32,
-                        offset_start = offsetStart,
-                        offset_end = offsetEnd,
+                        offset_start = 105,
+                        offset_end = 32,
                         scroll_direction = "vertical",
                     ),
                 ),
                 render.Box(
                     child = render.Marquee(
-                        # !!! THIS MARQUEE DISPLAYS THE TEXT !!!
                         child = render.Column(
                             children = [
-                                render.Box(
-                                    width = 64,
-                                    height = 96,
-                                ),
                                 render.WrappedText(
                                     content = finalheadline,
                                     font = "tb-8",
@@ -547,24 +615,60 @@ def main():
                                     color = "#ffffff",
                                     linespacing = 1,
                                 ),
-                                render.Box(
-                                    width = 64,
-                                    height = 88,
-                                ),
                             ],
                         ),
                         height = 32,
-                        offset_start = offsetStart,
-                        offset_end = offsetEnd,
+                        offset_start = 105,
+                        offset_end = 32,
                         scroll_direction = "vertical",
                     ),
                 ),
-                render.Box(width = 64, height = 9, color = txColour),
-                render.Image(width = 64, height = 9, src = ttleTag1),
+                animation.Transformation(
+                    child = render.Box(width = 64, height = 9, color = txColour),
+                    duration = 25,
+                    delay = 50,
+                    origin = animation.Origin(1, 1),
+                    keyframes = [
+                        animation.Keyframe(
+                            percentage = 0.0,
+                            transforms = [animation.Translate(0, 32)],
+                        ),
+                        animation.Keyframe(
+                            percentage = 0.00000001,
+                            transforms = [animation.Translate(0, 24)],
+                            curve = "ease_in_out",
+                        ),
+                        animation.Keyframe(
+                            percentage = 1.0,
+                            transforms = [animation.Translate(0, 0)],
+                        ),
+                    ],
+                ),
+                animation.Transformation(
+                    child = render.Image(width = 64, height = 9, src = ttleTag1),
+                    duration = 25,
+                    delay = 50,
+                    origin = animation.Origin(1, 1),
+                    keyframes = [
+                        animation.Keyframe(
+                            percentage = 0.0,
+                            transforms = [animation.Translate(0, 32)],
+                        ),
+                        animation.Keyframe(
+                            percentage = 0.00000001,
+                            transforms = [animation.Translate(0, 24)],
+                            curve = "ease_in_out",
+                        ),
+                        animation.Keyframe(
+                            percentage = 1.0,
+                            transforms = [animation.Translate(0, 0)],
+                        ),
+                    ],
+                ),
                 animation.Transformation(
                     child = render.Image(width = 64, height = 9, src = ttleTag2),
-                    duration = 9,
-                    delay = 50,
+                    duration = 10,
+                    delay = 96,
                     origin = animation.Origin(1, 1),
                     keyframes = [
                         animation.Keyframe(
@@ -576,55 +680,6 @@ def main():
                             transforms = [animation.Translate(0, 0)],
                         ),
                     ],
-                ),
-                render.Box(
-                    child = render.Marquee(
-                        # !!! THIS MARQUEE HANDLES BUMPERS AND GRADIENTS !!!
-                        child = render.Column(
-                            children = [
-                                render.Box(
-                                    width = 64,
-                                    height = 57,
-                                    color = "#000000",
-                                ),
-                                render.Image(width = 64, height = 7, src = imgGradient),
-                                render.Box(
-                                    width = 64,
-                                    height = 32,
-                                ),
-                                render.WrappedText(
-                                    content = finalheadline,
-                                    font = "tb-8",
-                                    align = "left",
-                                    width = 64,
-                                    color = "#00000000",
-                                    linespacing = 1,
-                                ),
-                                render.Box(
-                                    width = 64,
-                                    height = 2,
-                                ),
-                                render.WrappedText(
-                                    content = finalexcerpt,
-                                    font = "tb-8",
-                                    align = "left",
-                                    width = 64,
-                                    color = "#00000000",
-                                    linespacing = 1,
-                                ),
-                                render.Image(width = 64, height = 56, src = imgBumper),
-                                render.Box(
-                                    width = 64,
-                                    height = 32,
-                                    color = "#000000",
-                                ),
-                            ],
-                        ),
-                        height = 32,
-                        offset_start = offsetStart,
-                        offset_end = offsetEnd,
-                        scroll_direction = "vertical",
-                    ),
                 ),
             ],
         ),
@@ -633,29 +688,107 @@ def main():
 # ERROR MESSAGE
 
 def connectionError():
-    offsetStart = -25
-    offsetEnd = 65
-    txColour = "#717070"
-    ttleTag1 = imgTagError
-    ttleTag2 = imgTagNone
-    backdrop = imgBgError
     return render.Root(
-        delay = 50,
         show_full_animation = True,
+        delay = 50,
         child = render.Stack(
             children = [
-                render.Image(width = 64, height = 32, src = backdrop),
+                animation.Transformation(
+                    child = render.Box(width = 64, height = 9, color = "#717070"),
+                    duration = 9,
+                    delay = 5,
+                    origin = animation.Origin(1, 1),
+                    keyframes = [
+                        animation.Keyframe(
+                            percentage = 0.0,
+                            transforms = [animation.Translate(0, 32)],
+                        ),
+                        animation.Keyframe(
+                            percentage = 1.0,
+                            transforms = [animation.Translate(0, 24)],
+                        ),
+                    ],
+                ),
+                animation.Transformation(
+                    child = render.Image(width = 64, height = 9, src = imgTagError),
+                    duration = 9,
+                    delay = 5,
+                    origin = animation.Origin(1, 1),
+                    keyframes = [
+                        animation.Keyframe(
+                            percentage = 0.0,
+                            transforms = [animation.Translate(0, 32)],
+                        ),
+                        animation.Keyframe(
+                            percentage = 1.0,
+                            transforms = [animation.Translate(0, 24)],
+                        ),
+                    ],
+                ),
+                animation.Transformation(
+                    child = render.Image(width = 64, height = 13, src = imgBranding),
+                    duration = 14,
+                    delay = 0,
+                    origin = animation.Origin(1, 1),
+                    keyframes = [
+                        animation.Keyframe(
+                            percentage = 0.0,
+                            transforms = [animation.Translate(0, -13)],
+                        ),
+                        animation.Keyframe(
+                            percentage = 1.0,
+                            transforms = [animation.Translate(0, 0)],
+                        ),
+                    ],
+                ),
+                animation.Transformation(
+                    child = render.Box(width = 64, height = 32, color = "#000000"),
+                    duration = 25,
+                    delay = 50,
+                    origin = animation.Origin(1, 1),
+                    keyframes = [
+                        animation.Keyframe(
+                            percentage = 0.0,
+                            transforms = [animation.Translate(0, 32)],
+                        ),
+                        animation.Keyframe(
+                            percentage = 0.00000001,
+                            transforms = [animation.Translate(0, 24)],
+                            curve = "ease_in_out",
+                        ),
+                        animation.Keyframe(
+                            percentage = 1.0,
+                            transforms = [animation.Translate(0, 0)],
+                        ),
+                    ],
+                ),
+                animation.Transformation(
+                    child = render.Image(width = 64, height = 32, src = imgBgError),
+                    duration = 25,
+                    delay = 50,
+                    origin = animation.Origin(1, 1),
+                    keyframes = [
+                        animation.Keyframe(
+                            percentage = 0.0,
+                            transforms = [animation.Translate(64, 0)],
+                            curve = "ease_in_out",
+                        ),
+                        animation.Keyframe(
+                            percentage = 1.0,
+                            transforms = [animation.Translate(0, 0)],
+                        ),
+                    ],
+                ),
                 render.Box(
                     child = render.Marquee(
-                        # !!! THIS MARQUEE IS JUST A SHADOW !!!
                         child = render.Column(
                             children = [
                                 render.Box(
                                     width = 64,
-                                    height = 97,
+                                    height = 1,
                                 ),
                                 render.WrappedText(
-                                    content = "We couldn't get the latest post. We'll try again in a few minutes.",
+                                    content = "We couldn't get the latest post.",
                                     font = "tb-8",
                                     align = "left",
                                     width = 64,
@@ -664,27 +797,30 @@ def connectionError():
                                 ),
                                 render.Box(
                                     width = 64,
-                                    height = 88,
+                                    height = 2,
+                                ),
+                                render.WrappedText(
+                                    content = "We'll try again in a few minutes.",
+                                    font = "tb-8",
+                                    align = "left",
+                                    width = 64,
+                                    color = "#000000",
+                                    linespacing = 1,
                                 ),
                             ],
                         ),
                         height = 32,
-                        offset_start = offsetStart,
-                        offset_end = offsetEnd,
+                        offset_start = 105,
+                        offset_end = 32,
                         scroll_direction = "vertical",
                     ),
                 ),
                 render.Box(
                     child = render.Marquee(
-                        # !!! THIS MARQUEE DISPLAYS THE TEXT !!!
                         child = render.Column(
                             children = [
-                                render.Box(
-                                    width = 64,
-                                    height = 96,
-                                ),
                                 render.WrappedText(
-                                    content = "We couldn't get the latest post. We'll try again in a few minutes.",
+                                    content = "We couldn't get the latest post.",
                                     font = "tb-8",
                                     align = "left",
                                     width = 64,
@@ -693,22 +829,70 @@ def connectionError():
                                 ),
                                 render.Box(
                                     width = 64,
-                                    height = 88,
+                                    height = 2,
+                                ),
+                                render.WrappedText(
+                                    content = "We'll try again in a few minutes.",
+                                    font = "tb-8",
+                                    align = "left",
+                                    width = 64,
+                                    color = "#ffffff",
+                                    linespacing = 1,
                                 ),
                             ],
                         ),
                         height = 32,
-                        offset_start = offsetStart,
-                        offset_end = offsetEnd,
+                        offset_start = 105,
+                        offset_end = 32,
                         scroll_direction = "vertical",
                     ),
                 ),
-                render.Box(width = 64, height = 9, color = txColour),
-                render.Image(width = 64, height = 9, src = ttleTag1),
                 animation.Transformation(
-                    child = render.Image(width = 64, height = 9, src = ttleTag2),
-                    duration = 9,
-                    delay = 64,
+                    child = render.Box(width = 64, height = 9, color = "#717070"),
+                    duration = 25,
+                    delay = 50,
+                    origin = animation.Origin(1, 1),
+                    keyframes = [
+                        animation.Keyframe(
+                            percentage = 0.0,
+                            transforms = [animation.Translate(0, 32)],
+                        ),
+                        animation.Keyframe(
+                            percentage = 0.00000001,
+                            transforms = [animation.Translate(0, 24)],
+                            curve = "ease_in_out",
+                        ),
+                        animation.Keyframe(
+                            percentage = 1.0,
+                            transforms = [animation.Translate(0, 0)],
+                        ),
+                    ],
+                ),
+                animation.Transformation(
+                    child = render.Image(width = 64, height = 9, src = imgTagError),
+                    duration = 25,
+                    delay = 50,
+                    origin = animation.Origin(1, 1),
+                    keyframes = [
+                        animation.Keyframe(
+                            percentage = 0.0,
+                            transforms = [animation.Translate(0, 32)],
+                        ),
+                        animation.Keyframe(
+                            percentage = 0.00000001,
+                            transforms = [animation.Translate(0, 24)],
+                            curve = "ease_in_out",
+                        ),
+                        animation.Keyframe(
+                            percentage = 1.0,
+                            transforms = [animation.Translate(0, 0)],
+                        ),
+                    ],
+                ),
+                animation.Transformation(
+                    child = render.Image(width = 64, height = 9, src = imgTagNone),
+                    duration = 10,
+                    delay = 96,
                     origin = animation.Origin(1, 1),
                     keyframes = [
                         animation.Keyframe(
@@ -720,43 +904,6 @@ def connectionError():
                             transforms = [animation.Translate(0, 0)],
                         ),
                     ],
-                ),
-                render.Box(
-                    child = render.Marquee(
-                        # !!! THIS MARQUEE HANDLES BUMPERS AND GRADIENTS !!!
-                        child = render.Column(
-                            children = [
-                                render.Box(
-                                    width = 64,
-                                    height = 57,
-                                    color = "#000000",
-                                ),
-                                render.Image(width = 64, height = 7, src = imgGradient),
-                                render.Box(
-                                    width = 64,
-                                    height = 32,
-                                ),
-                                render.WrappedText(
-                                    content = "We couldn't get the latest post. We'll try again in a few minutes.",
-                                    font = "tb-8",
-                                    align = "left",
-                                    width = 64,
-                                    color = "#00000000",
-                                    linespacing = 1,
-                                ),
-                                render.Image(width = 64, height = 56, src = imgBumper),
-                                render.Box(
-                                    width = 64,
-                                    height = 32,
-                                    color = "#000000",
-                                ),
-                            ],
-                        ),
-                        height = 32,
-                        offset_start = offsetStart,
-                        offset_end = offsetEnd,
-                        scroll_direction = "vertical",
-                    ),
                 ),
             ],
         ),
