@@ -1,0 +1,8 @@
+---
+id: reading-now
+name: Reading Now
+summary: Goodreads currently reading
+desc: Displays Goodreads currently reading books and progress.
+author: diegomura
+fileName: reading_now.star
+packageName: readingnow
