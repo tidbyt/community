@@ -416,7 +416,7 @@ def get_schema():
                 desc = "A specific breed to show (turn random off)",
                 icon = "dog",
                 options = options,
-                default = "dachshund", # fits the dimensions of the Tidbyt well ;-)
+                default = "dachshund",  # fits the dimensions of the Tidbyt well ;-)
             ),
         ],
     )
