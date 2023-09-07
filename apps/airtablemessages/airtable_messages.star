@@ -382,6 +382,26 @@ def get_schema():
     for i in range(int(DEFAULT_EMOJI_SIZE / 2) - 1, int(DEFAULT_EMOJI_SIZE * 2)):
         emoji_sizes.append(schema.Option(display = "%d" % (i + 1), value = "%d" % (i + 1)))
 
+    timezones = [
+        schema.Option(display = "Hawaii (-10)", value = "Pacific/Honolulu"),
+        schema.Option(display = "Alaska (-9)", value = "America/Anchorage"),
+        schema.Option(display = "Pacific (-8)", value = "America/Los_Angeles"),
+        schema.Option(display = "Mountain (-7)", value = "America/Denver"),
+        schema.Option(display = "Central (-6)", value = "America/Chicago"),
+        schema.Option(display = "Eastern (-5)", value = "America/New_York"),
+        schema.Option(display = "Atlantic (-4)", value = "America/Halifax"),
+        schema.Option(display = "Newfoundland (-3.5)", value = "America/St_Johns"),
+        schema.Option(display = "Brazil (-3)", value = "America/Sao_Paulo"),
+        schema.Option(display = "UTC (0)", value = "UTC"),
+        schema.Option(display = "Central Europe (+1)", value = "Europe/Berlin"),
+        schema.Option(display = "Eastern Europe (+2)", value = "Europe/Moscow"),
+        schema.Option(display = "India (+5.5)", value = "Asia/Kolkata"),
+        schema.Option(display = "China (+8)", value = "Asia/Shanghai"),
+        schema.Option(display = "Japan (+9)", value = "Asia/Tokyo"),
+        schema.Option(display = "Australia Eastern (+10)", value = "Australia/Sydney"),
+        schema.Option(display = "New Zealand (+12)", value = "Pacific/Auckland"),
+    ]
+
     return schema.Schema(
         version = "1",
         fields = [
@@ -449,6 +469,14 @@ def get_schema():
                 desc = "The number of seconds to consider a message to be recent",
                 icon = "clock",
                 default = str(DEFAULT_MAX_AGE),
+            ),
+            schema.Dropdown(
+                id = "timezone",
+                name = "Timezone",
+                desc = "Timezone",
+                icon = "clock",
+                default = DEFAULT_TIMEZONE,
+                options = timezones,
             ),
             schema.Toggle(
                 id = "random_message",
