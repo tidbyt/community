@@ -11,6 +11,7 @@ load("http.star", "http")
 load("re.star", "re")
 load("render.star", "render")
 load("schema.star", "schema")
+load("time.star", "time")
 
 default_phrase1 = "It's fineee"
 default_phrase2 = "Is it really tho?"
