@@ -574,9 +574,9 @@ def getCompletedMatches(SelectedTourneyID, EventIndex, CompletedMatchList, JSON)
             Player2_Winner = JSON["events"][EventIndex]["groupings"][GroupingsID]["competitions"][x]["competitors"][1]["winner"]
 
             if (Player1_Winner):
-                Player1Color = "#ff0"
+                Player1NameColor = "#ff0"
             elif (Player2_Winner):
-                Player2Color = "#ff0"
+                Player2NameColor = "#ff0"
 
             # if its not a walkover
             if JSON["events"][EventIndex]["groupings"][GroupingsID]["competitions"][x]["status"]["type"]["description"] != "Walkover":
