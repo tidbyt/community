@@ -30,7 +30,10 @@ def main(config):
         config.str("phrase5", default_phrase5),
     ]
 
-    index_cached = cache.get("array_index")
+    random.seed(time.now().unix // 60)
+    index = random.number(0, 4)
+
+    # the code below can be removed
     if index_cached != None:
         print("Hit! Displaying cached data.")
         index = int(index_cached)
