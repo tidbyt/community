@@ -5,7 +5,6 @@ Description: Enter phrases your wife says and app will cycle through them.
 Author: vipulchhajer
 """
 
-load("cache.star", "cache")
 load("encoding/base64.star", "base64")
 load("http.star", "http")
 load("re.star", "re")
