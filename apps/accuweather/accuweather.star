@@ -978,31 +978,6 @@ def main(config):
         result_forecast["wind_dir"] = raw_forecast["Day"]["Wind"]["Direction"]["English"]
         result_forecasts.append(result_forecast)
 
-    #result_forecasts = []
-    #result_forecast = {}
-    #result_forecast['dow'] = "MON"
-    #result_forecast['temp_min'] = 76
-    #result_forecast['temp_max'] = 82
-    #result_forecast['icon_num'] = 1
-    #result_forecast['wind_dir'] = 'W'
-    #result_forecasts.append(result_forecast)
-
-    #result_forecast = {}
-    #result_forecast['dow'] = "TUE"
-    #result_forecast['temp_min'] = 76
-    #result_forecast['temp_max'] = 85
-    #result_forecast['icon_num'] = 12
-    #result_forecast['wind_dir'] = 'NW'
-    #result_forecasts.append(result_forecast)
-
-    #result_forecast = {}
-    #result_forecast['dow'] = "WED"
-    #result_forecast['temp_min'] = 76
-    #result_forecast['temp_max'] = 82
-    #result_forecast['icon_num'] = 5
-    #result_forecast['wind_dir'] = 'N'
-    #result_forecasts.append(result_forecast)
-
     disp_forecasts = []
 
     for result_forecast in result_forecasts:
