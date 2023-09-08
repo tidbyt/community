@@ -32,22 +32,6 @@ def main(config):
 
     random.seed(time.now().unix // 60)
     index = random.number(0, 4)
-
-    # the code below can be removed
-    if index_cached != None:
-        print("Hit! Displaying cached data.")
-        index = int(index_cached)
-    else:
-        print("Miss! Calling random.org API.")
-
-        # Alt way to generate random number, learned from https://github.com/savetz/tidbyt-conways-game-of-life/blob/main/life-pretty.star
-        resp = http.get("https://www.random.org/integers/?num=1&min=0&max=4&col=1&base=10&format=plain&rnd=new")
-        if resp.status_code != 200:
-            fail("Request failed with status %d", resp.status_code)
-        random_index = resp.body()
-        random_index = re.sub("\n", "", random_index)  #squish the numbers into a string of digits
-        index = int(random_index)
-        cache.set("array_index", str(int(index)), ttl_seconds = 60)
     phrase = PHRASES[index]
 
     return render.Root(
