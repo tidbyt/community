@@ -9,6 +9,9 @@ First release
 
 v1.1
 Updated abbreviations
+
+v1.2
+Updated method of determining the round number, as the old method wasn't working for finals
 """
 
 load("encoding/json.star", "json")
@@ -40,8 +43,7 @@ def main(config):
     LadderData = get_cachable_data(LADDER_URL, LADDER_CACHE)
     LadderJSON = json.decode(LadderData)
 
-    RoundNumber = MatchesJSON["fixtures"][0]["roundTitle"]
-    RoundNumber = RoundNumber[6:]
+    RoundNumber = str(MatchesJSON["selectedRoundId"])
 
     LIVE_URL = MATCHES_URL + "&round=" + RoundNumber
     LiveData = get_cachable_data(LIVE_URL, LIVE_CACHE)
