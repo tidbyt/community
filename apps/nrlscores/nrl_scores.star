@@ -40,9 +40,8 @@ def main(config):
     LadderData = get_cachable_data(LADDER_URL, LADDER_CACHE)
     LadderJSON = json.decode(LadderData)
 
-    RoundNumber = MatchesJSON["fixtures"][0]["roundTitle"]
-    RoundNumber = RoundNumber[6:]
-
+    RoundNumber = str(MatchesJSON["selectedRoundId"])
+        
     LIVE_URL = MATCHES_URL + "&round=" + RoundNumber
     LiveData = get_cachable_data(LIVE_URL, LIVE_CACHE)
     LiveJSON = json.decode(LiveData)
