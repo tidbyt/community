@@ -6,7 +6,6 @@ Author: vipulchhajer
 """
 
 load("encoding/base64.star", "base64")
-load("http.star", "http")
 load("re.star", "re")
 load("random.star", "random")
 load("render.star", "render")
