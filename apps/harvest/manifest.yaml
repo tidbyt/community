@@ -2,7 +2,7 @@
 id: harvest
 name: Harvest Time
 summary: Harvest Reports
-desc: See your Harvest monthly reports on your Tidbyt
+desc: See your Harvest monthly reports on your Tidbyt.
 author: Austin McDaniel
 fileName: harvest.star
 packageName: harvest
