@@ -5,6 +5,10 @@ Description: Shows NASCAR next race, standings, playoffs for Cup, Xfinity and Tr
 Author: jvivona
 """
 
+# 20230904 - jvivona - fix date display
+# 20230828 - jvivona - with Kurt Busch officially retiring, changed driver names to only have 1 char for 1st name - will eval in future if necessary
+#                    - change text color to be schema.Color instead of drop down
+
 load("animation.star", "animation")
 load("encoding/json.star", "json")
 load("http.star", "http")
@@ -13,7 +17,7 @@ load("render.star", "render")
 load("schema.star", "schema")
 load("time.star", "time")
 
-VERSION = 23132
+VERSION = 23247
 
 # cache data for 15 minutes - cycle through with cache on the API side
 CACHE_TTL_SECONDS = 900
@@ -28,6 +32,7 @@ DEFAULT_DATE_US = True
 
 REGULAR_FONT = "tom-thumb"
 DATETIME_FONT = "tb-8"
+DEFAULT_TEXT_COLOR = "#ffffff"
 
 ANIMATION_FRAMES = 30
 ANIMATION_HOLD_FRAMES = 75
@@ -88,11 +93,11 @@ def nextrace(api_data, config):
     timezone = config.get("$tz", DEFAULT_TIMEZONE)  # Utilize special timezone variable to get TZ - otherwise assume US Eastern w/DST
     date_and_time = api_data["Race_Date"]
     date_and_time3 = time.parse_time(date_and_time, "2006-01-02T15:04:05-0700").in_location(timezone)
-    date_str = date_and_time3.format("Jan 02" if config.bool("is_us_date_format", DEFAULT_DATE_US) else "02 Jan").title()  #current format of your current date str
+    date_str = date_and_time3.format("Jan 2" if config.bool("is_us_date_format", DEFAULT_DATE_US) else "2 Jan").title()  #current format of your current date str
     time_str = "TBD" if date_and_time.endswith("T00:00:00-0500") else date_and_time3.format("15:04 " if config.bool("is_24_hour_format", DEFAULT_TIME_24) else "3:04pm")[:-1]
     tv_str = api_data["Race_TV_Display"] if api_data["Race_TV_Display"] != "" else "TBD"
 
-    text_color = config.get("text_color", coloropt[0].value)
+    text_color = config.get("text_color", DEFAULT_TEXT_COLOR)
 
     if config.get("fade_slide", DEFAULT_ANIMATION) == "slide":
         data_child = slideinout_child(api_data["Race_Name"], api_data["Track_Name"], "%s %s\nTV: %s" % (date_str, time_str, tv_str), text_color)
@@ -201,7 +206,7 @@ def standings(api_data, config, data_display):
     else:
         text = playoff(api_data)
 
-    text_color = config.get("text_color", coloropt[0].value)
+    text_color = config.get("text_color", DEFAULT_TEXT_COLOR)
 
     return [
         render.Marquee(offset_start = 48, child = render.Text(height = 6, content = text[0], font = REGULAR_FONT, color = text_color), scroll_direction = "horizontal", width = 64),
@@ -231,7 +236,7 @@ def drvrtext(data):
     positions = len(data) if len(data) <= 9 else 9
 
     for i in range(0, positions):
-        text[int(math.mod(i, 3))] = text[int(math.mod(i, 3))] + "{} {} {} {} / {}    ".format(data[i]["position"], data[i]["driver_first_name"][0:2], text_justify_trunc(10, data[i]["driver_last_name"], "left"), text_justify_trunc(4, str(data[i]["points"]), "right"), text_justify_trunc(2, str(data[i]["wins"]), "right"))
+        text[int(math.mod(i, 3))] = text[int(math.mod(i, 3))] + "{} {} {} {} / {}    ".format(data[i]["position"], data[i]["driver_first_name"][0:1], text_justify_trunc(10, data[i]["driver_last_name"], "left"), text_justify_trunc(4, str(data[i]["points"]), "right"), text_justify_trunc(2, str(data[i]["wins"]), "right"))
 
     return text
 
@@ -243,7 +248,7 @@ def playoff(data):
     positions = len(data) if len(data) <= 9 else 9
 
     for i in range(0, positions):
-        text[int(math.mod(i, 3))] = text[int(math.mod(i, 3))] + "{} {} {} {} / {}    ".format(data[i]["playoff_rank"], data[i]["driver_first_name"][0:2], text_justify_trunc(10, data[i]["driver_last_name"], "left"), text_justify_trunc(4, str(data[i]["playoff_points"]), "right"), text_justify_trunc(2, str(data[i]["playoff_race_wins"]), "right"))
+        text[int(math.mod(i, 3))] = text[int(math.mod(i, 3))] + "{} {} {} {} / {}    ".format(data[i]["playoff_rank"], data[i]["driver_first_name"][0:1], text_justify_trunc(10, data[i]["driver_last_name"], "left"), text_justify_trunc(4, str(data[i]["playoff_points"]), "right"), text_justify_trunc(2, str(data[i]["playoff_race_wins"]), "right"))
 
     return text
 
@@ -262,45 +267,6 @@ def owners(data):
 # ###################################################
 #          Schema Stuff
 # ###################################################
-
-coloropt = [
-    schema.Option(
-        display = "White",
-        value = "#FFFFFF",
-    ),
-    schema.Option(
-        display = "Red",
-        value = "#FF0000",
-    ),
-    schema.Option(
-        display = "Orange",
-        value = "#FFA500",
-    ),
-    schema.Option(
-        display = "Yellow",
-        value = "#FFFF00",
-    ),
-    schema.Option(
-        display = "Green",
-        value = "#008000",
-    ),
-    schema.Option(
-        display = "Blue",
-        value = "#0000FF",
-    ),
-    schema.Option(
-        display = "Indigo",
-        value = "#4B0082",
-    ),
-    schema.Option(
-        display = "Violet",
-        value = "#EE82EE",
-    ),
-    schema.Option(
-        display = "Pink",
-        value = "#FC46AA",
-    ),
-]
 
 dispopt = [
     schema.Option(
@@ -358,13 +324,12 @@ def get_schema():
                 default = "nri",
                 options = dispopt,
             ),
-            schema.Dropdown(
+            schema.Color(
                 id = "text_color",
                 name = "Text Color",
                 desc = "The color for Standings / Race / Track / Time text.",
                 icon = "palette",
-                default = coloropt[0].value,
-                options = coloropt,
+                default = DEFAULT_TEXT_COLOR,
             ),
             schema.Generated(
                 id = "nascar_generated",
