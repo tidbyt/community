@@ -29,26 +29,16 @@ LINE_IMG = base64.decode("""
 R0lGODlhAQAVAIABAP///wAAACH5BAEAAAEALAAAAAABABUAAAIHhIMGGMpaAAA7
 """)
 
-def main():
-    response_block_tip_height = http.get(url = URL_BLOCK_TIP_HEIGHT, ttl_seconds = 30)
-    print("[LOG] http.get(URL_BLOCK_TIP_HEIGHT)")
-    if response_block_tip_height.status_code != 200:
-        fail("Mempool.space (block-height) request failed with status %d", response_block_tip_height.status_code)
-    block_tip_height = int(response_block_tip_height.body())
+def get_mempool_data(url, ttl_seconds = 30):
+    response = http.get(url = url, ttl_seconds = ttl_seconds)
+    if response.status_code != 200:
+        fail("Mempool.space request failed with status %d @ %s", response.status_code, url)
+    return response
 
-    response_block_details = http.get(url = "{}/{}".format(URL_BLOCK_DETAILS, block_tip_height), ttl_seconds = 30)
-    print("[LOG] http.get(URL_BLOCK_DETAILS)")
-    if response_block_details.status_code != 200:
-        fail("Mempool.space (block-details) request failed with status %d", response_block_details.status_code)
-    block_details = response_block_details.json()[0]
+def create_orange_block():
+    fees = get_mempool_data(URL_FEES).json()
 
-    response_fees = http.get(url = URL_FEES, ttl_seconds = 30)
-    print("[LOG] http.get(URL_FEES)")
-    if response_fees.status_code != 200:
-        fail("Mempool.space (block-details) request failed with status %d", response_fees.status_code)
-    fees = response_fees.json()
-
-    box_orange = render.Stack(
+    return render.Stack(
         children = [
             render.Image(src = BOX_ORANGE_IMG, width = BOX_SIZE_WIDTH, height = BOX_SIZE_HEIGHT),
             render.Padding(
@@ -87,7 +77,10 @@ def main():
         ],
     )
 
-    box_purple = render.Stack(
+def create_purple_block(block_tip_height = 1):
+    block_details = get_mempool_data("{}/{}".format(URL_BLOCK_DETAILS, block_tip_height)).json()[0]
+
+    return render.Stack(
         children = [
             render.Image(src = BOX_PURPLE_IMG, width = BOX_SIZE_WIDTH, height = BOX_SIZE_HEIGHT),
             render.Padding(
@@ -128,6 +121,12 @@ def main():
             ),
         ],
     )
+
+def main():
+    block_tip_height = int(get_mempool_data(URL_BLOCK_TIP_HEIGHT).body())
+
+    box_orange = create_orange_block()
+    box_purple = create_purple_block(block_tip_height)
 
     return render.Root(
         max_age = 30,
