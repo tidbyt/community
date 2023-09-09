@@ -88,6 +88,13 @@ def main(config):
 
         httpresponse = http.get(TFOURHR + PRECIOUS_METAL + "?API_KEY=" + API_KEY)
 
+        if (httpresponse.status_code == 401):
+            return render.Root(
+                child = render.Marquee(
+                    child = render.Text("API Key Invalid"),
+                    width = 64,
+                ),
+            )
         if httpresponse.status_code != 200:
             fail("Could not fetch 24 hour spot price history for URL " + TFOURHR + PRECIOUS_METAL + " Error code %d" % (httpresponse.status_code))
 
