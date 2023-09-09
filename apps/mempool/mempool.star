@@ -31,16 +31,19 @@ R0lGODlhAQAVAIABAP///wAAACH5BAEAAAEALAAAAAABABUAAAIHhIMGGMpaAAA7
 
 def main():
     response_block_tip_height = http.get(url = URL_BLOCK_TIP_HEIGHT, ttl_seconds = 30)
+    print("[LOG] http.get(URL_BLOCK_TIP_HEIGHT)")
     if response_block_tip_height.status_code != 200:
         fail("Mempool.space (block-height) request failed with status %d", response_block_tip_height.status_code)
     block_tip_height = int(response_block_tip_height.body())
 
     response_block_details = http.get(url = "{}/{}".format(URL_BLOCK_DETAILS, block_tip_height), ttl_seconds = 30)
+    print("[LOG] http.get(URL_BLOCK_DETAILS)")
     if response_block_details.status_code != 200:
         fail("Mempool.space (block-details) request failed with status %d", response_block_details.status_code)
     block_details = response_block_details.json()[0]
 
     response_fees = http.get(url = URL_FEES, ttl_seconds = 30)
+    print("[LOG] http.get(URL_FEES)")
     if response_fees.status_code != 200:
         fail("Mempool.space (block-details) request failed with status %d", response_fees.status_code)
     fees = response_fees.json()
