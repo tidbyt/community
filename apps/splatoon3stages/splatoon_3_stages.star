@@ -146,7 +146,7 @@ def generateFrame(title, colour, battle):
 def rgb2hex(array):
     return "#%x%x%x%x%x%x" % (int(array[0]) // 16, int(array[0]) % 16, int(array[1]) // 16, int(array[1]) % 16, int(array[2]) // 16, int(array[2]) % 16)
 
-def generateSplatfestFrame(tricolor, colours, battle, text):
+def generateSplatfestFrame(btype, colours, battle, text):
     header = render.Row(
         children = [
             render.Box(
@@ -166,7 +166,7 @@ def generateSplatfestFrame(tricolor, colours, battle, text):
             ),
         ],
     )
-    if (tricolor):
+    if (btype == 2): # tricolor
         return render.Column(
             children = [
                 render.Stack(
@@ -182,7 +182,7 @@ def generateSplatfestFrame(tricolor, colours, battle, text):
                 render.Box(height = 1, color = "#000"),
                 render.Row(
                     children = [
-                        render.Image(STAGE_IMG[battle] or STAGE_IMG["no_stage"]),
+                        render.Image(STAGE_IMG[battle if battle in STAGE_IMG else "no_stage"]),
                         render.Box(width = 2, height = 1, color = "#000"),
                         render.WrappedText(
                             text,
@@ -221,9 +221,9 @@ def generateSplatfestFrame(tricolor, colours, battle, text):
                 render.Box(height = 1, color = "#000"),
                 render.Row(
                     children = [
-                        render.Image(STAGE_IMG[battle["stage_a"]] or STAGE_IMG["no_stage"]),
+                        render.Image(STAGE_IMG[battle["pro_stage_a"] if btype == 1 else battle["open_stage_a"]] or STAGE_IMG["no_stage"]),
                         render.Box(width = 2, height = 1, color = "#000"),
-                        render.Image(STAGE_IMG[battle["stage_b"]] or STAGE_IMG["no_stage"]),
+                        render.Image(STAGE_IMG[battle["pro_stage_b"] if btype == 1 else battle["open_stage_b"]] or STAGE_IMG["no_stage"]),
                     ],
                 ),
                 render.Box(height = 1, color = "#000"),
@@ -231,7 +231,7 @@ def generateSplatfestFrame(tricolor, colours, battle, text):
                     color = "#000",
                     height = 6,
                     child = render.Text(
-                        "Turf War",
+                        "Turf War " + ("(Pro)" if btype == 1 else "(Open)"),
                         font = "tom-thumb",
                     ),
                 ),
@@ -317,13 +317,15 @@ def main(config):
     if (stages["data"]["festSchedules"] and stages["data"]["currentFest"]):
         # splatfest!!
         for battle in stages["data"]["festSchedules"]["nodes"]:
-            if (battle["festMatchSetting"]):
+            if (battle["festMatchSettings"]):
                 splatfest_battle.append({
                     "start_time": battle["startTime"],
                     "end_time": battle["endTime"],
                     "mode": "Turf War",
-                    "stage_a": battle["festMatchSetting"]["vsStages"][0]["name"],
-                    "stage_b": battle["festMatchSetting"]["vsStages"][1]["name"],
+                    "pro_stage_a": battle["festMatchSettings"][0]["vsStages"][0]["name"],
+                    "pro_stage_b": battle["festMatchSettings"][0]["vsStages"][1]["name"],
+                    "open_stage_a": battle["festMatchSettings"][1]["vsStages"][0]["name"],
+                    "open_stage_b": battle["festMatchSettings"][1]["vsStages"][1]["name"],
                 })
         if (now >= time.parse_time(stages["data"]["currentFest"]["startTime"]) and now <= time.parse_time(stages["data"]["currentFest"]["endTime"])):
             splatfest_active = True
@@ -345,9 +347,6 @@ def main(config):
         "x": None,
         "splatfest": None,
     }
-    for battle in splatfest_battle:
-        if (now >= time.parse_time(battle["start_time"]) and now < time.parse_time(battle["end_time"])):
-            current_battles["x"] = battle
     for battle in regular_battle:
         if (now >= time.parse_time(battle["start_time"]) and now < time.parse_time(battle["end_time"])):
             current_battles["regular"] = battle
@@ -362,6 +361,7 @@ def main(config):
         if (now >= time.parse_time(battle["start_time"]) and now < time.parse_time(battle["end_time"])):
             current_battles["splatfest"] = battle
 
+    print(current_battles["x"])
     frames = {
         "regular": generateFrame(
             "Regular Battle",
@@ -408,15 +408,22 @@ def main(config):
             bottom_str = "Fest end in " + humanize.relative_time(now, splatfest_end, "", "")
         else:
             bottom_str = "Fest ends soon!"
+        bottom_str = bottom_str.replace("hours", "hrs").replace("minutes", "mins")
 
         final_render.append(generateSplatfestFrame(
-            False,
+            0,
             splatfest_colours,
             current_battles["splatfest"],
             "",
         ))
         final_render.append(generateSplatfestFrame(
-            True,
+            1,
+            splatfest_colours,
+            current_battles["splatfest"],
+            "",
+        ))
+        final_render.append(generateSplatfestFrame(
+            2,
             splatfest_colours,
             tricolor_stage,
             bottom_str,
