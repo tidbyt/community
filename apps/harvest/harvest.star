@@ -226,7 +226,7 @@ def api_fetch(token, account_id, date_range):
     else:
         start = humanize.time_format("yyyyMMdd", time.now())
         end = humanize.time_format("yyyyMMdd", time.now())
-        
+
     print("Start Date: {}".format(start))
     print("End Date: {}".format(end))
 
@@ -234,7 +234,7 @@ def api_fetch(token, account_id, date_range):
     url = "{}/v2/reports/time/clients?from={}&to={}".format(API_HOST, start, end)
     print("Calling Harvest URL: {}".format(url))
 
-    rep = http.get(url, headers = {"Content-Type": "application/json", "Authorization": "Bearer {}".format(token), "Harvest-Account-ID": account_id }, ttl_seconds = CACHE_TTL)
+    rep = http.get(url, headers = {"Content-Type": "application/json", "Authorization": "Bearer {}".format(token), "Harvest-Account-ID": account_id}, ttl_seconds = CACHE_TTL)
 
     if rep.status_code != 200:
         print("API request failed with status {}".format(rep.status_code))
@@ -314,13 +314,13 @@ def main(config):
 
     api_data = api_response["results"]
 
-    hours=0
+    hours = 0
     for i in api_data:
-        hours=hours+i["total_hours"]
+        hours = hours + i["total_hours"]
 
     print("Hours: {}".format(hours))
 
-    value = hours * float(hour_rate);
+    value = hours * float(hour_rate)
     value = humanize.float("#,###.", value)
 
     print("Revenue: {}".format(value))
