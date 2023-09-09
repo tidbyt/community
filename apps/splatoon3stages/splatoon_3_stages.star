@@ -166,7 +166,7 @@ def generateSplatfestFrame(btype, colours, battle, text):
             ),
         ],
     )
-    if (btype == 2): # tricolor
+    if (btype == 2):  # tricolor
         return render.Column(
             children = [
                 render.Stack(
