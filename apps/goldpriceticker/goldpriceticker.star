@@ -10,6 +10,7 @@ load("http.star", "http")
 load("humanize.star", "humanize")
 load("render.star", "render")
 load("schema.star", "schema")
+load("secret.star", "secret")
 load("time.star", "time")
 
 is_debug = True
@@ -19,7 +20,9 @@ PRECIOUS_METAL_NAMES = {
     "silver": "Silver",
     "platinum": "Platnm",
     "palladium": "Palladm",
+    "rhodium": "Rhodium",
 }
+
 timezone = "America/New_York"
 closing_hour = 17
 fnt = "tom-thumb"
@@ -31,14 +34,15 @@ red_color = "#aa0000"
 green_color = "#006000"
 white_color = "#cccccc"
 
-TFOURHR = "https://api.metals.live/v1/spot/"
-REALTIME_QUOTE = "https://api.metals.live/v1/spot"
+TFOURHR = "https://dpms.mcio.org/metals/v1/twentyfourhour/"
+REALTIME_QUOTE = "https://dpms.mcio.org/metals/v1/latest"
 
 def main(config):
+    API_KEY = secret.decrypt("AV6+xWcEXpR9hD3BS4eRwb8BRQcDiK9luQOfbbmE0O2NsiSKUif/WZ9Ooptn5uZh6HKbo0vDZVrluhuNE7/dzRWrxoPBQyIfdk2Y2o7DvxGnEbM1yLPziFGJ+D0Yo0sfztGgMlVCqn/eCCTywDQ2a7wBhs2BhF+i91MIdKTueUgZsDtJtmU=") or config.get("dev_api_key") or ""
     PRECIOUS_METAL = "gold"
 
     #Lets check the config to see if they passed a precious metal
-    if (config.str("metal") == "gold" or config.str("metal") == "silver" or config.str("metal") == "platinum" or config.str("metal") == "palladium"):
+    if (config.str("metal") == "gold" or config.str("metal") == "silver" or config.str("metal") == "platinum" or config.str("metal") == "palladium" or config.str("metal") == "rhodium"):
         PRECIOUS_METAL = config.str("metal")
 
     # Precious metal markets are open almost 24x5, so its hard to determine what a closing price is. However according to Kitco, its 5PM
@@ -82,7 +86,7 @@ def main(config):
         if (is_debug == True):
             print("Fetching 24 hour price history for " + PRECIOUS_METAL)
 
-        httpresponse = http.get(TFOURHR + PRECIOUS_METAL)
+        httpresponse = http.get(TFOURHR + PRECIOUS_METAL + "?API_KEY=" + API_KEY)
 
         if httpresponse.status_code != 200:
             fail("Could not fetch 24 hour spot price history for URL " + TFOURHR + PRECIOUS_METAL + " Error code %d" % (httpresponse.status_code))
@@ -124,7 +128,7 @@ def main(config):
         if (is_debug == True):
             print("Fetching realtime price")
 
-        httpresponse = http.get(REALTIME_QUOTE)
+        httpresponse = http.get(REALTIME_QUOTE + "?API_KEY=" + API_KEY)
         if httpresponse.status_code != 200:
             fail("Could not fetch realtime spot price for URL " + REALTIME_QUOTE + " Error code %d" % (httpresponse.status_code))
 
@@ -314,8 +318,18 @@ def get_schema():
                         display = "Palladium",
                         value = "palladium",
                     ),
+                    schema.Option(
+                        display = "Rhodium",
+                        value = "rhodium",
+                    ),
                 ],
                 default = "gold",
+            ),
+            schema.Text(
+                id = "dev_api_key",
+                name = "API Key",
+                desc = "Test use only",
+                icon = "bomb",
             ),
         ],
     )
