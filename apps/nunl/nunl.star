@@ -15,7 +15,7 @@ load("xpath.star", "xpath")
 DEFAULT_CATEGORY = "Algemeen"
 
 LOGO = base64.decode("""
-R0lGODlhCwALAJEDALUMFv///wIAUQAAACH5BAEAAAMALAAAAAALAAsAAAIfnCd5l63mIgxUBCsQvhyAxG0euGFZSV1Q1DDssmZHAQA7
+R0lGODlhCgAKAJEDALUMFv///wIAUQAAACH5BAEAAAMALAAAAAAKAAoAAAIanIWmyDkNX5giVCGvDQBo3X2T9UDMYSoophQAOw==
 """)
 
 def get_news_feed(category = DEFAULT_CATEGORY, ttl_seconds = 60 * 5):
@@ -65,8 +65,8 @@ def main(config):
                             pad = (1, 1, 1, 1),
                             child = render.Image(
                                 src = LOGO,
-                                width = 11,
-                                height = 11,
+                                width = 10,
+                                height = 10,
                             ),
                         ),
                         render.Box(
