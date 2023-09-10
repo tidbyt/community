@@ -100,6 +100,7 @@ def get_schema():
         schema.Option(display = "Wetenschap", value = "Wetenschap"),
         schema.Option(display = "Tech", value = "Tech"),
         schema.Option(display = "Gezondheid", value = "Gezondheid"),
+        schema.Option(display = "Podcast", value = "Podcast"),
     ]
 
     return schema.Schema(
