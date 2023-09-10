@@ -15,7 +15,7 @@ R0lGODlhQAAgANUAAGGDcYluSuy8j/fCk66QcLSphE91acyeai1NTww5Sk1TTBFHU2asiFpJNOCzh5Oa
 """)
 
 def get_current_song(ttl_seconds = 30):
-    url = "https://radio.noderunners.org/assets/api.php"
+    url = "https://jukebox.lighting/jukebox/status.json?chat_id=-1001672416970"
     response = http.get(url = url, ttl_seconds = ttl_seconds)
     if response.status_code == 200:
         return response.json()["title"]
