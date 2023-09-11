@@ -350,7 +350,7 @@ def render_elim_with_hue(number, on_hue, off_hue):
 ######################
 def http_get_number(team_id):
     query_params = {
-        "fields": "records,division,id,teamRecords,team,magicNumber,eliminationNumberDivision,clinched,divisionRank,wins,losses",
+        "fields": "records,division,id,teamRecords,team,magicNumber,eliminationNumberDivision,clinched,clinchIndicator,divisionRank,wins,losses",
         "leagueId": str(TEAM_INFO[team_id].LeagueId),
         "season": str(time.now().year),
     }
@@ -367,20 +367,28 @@ def http_get_number(team_id):
     losses = 0
     has_data = True
 
+    # keep track of where we are, we might need to get the NEXT record to fully calculate our magic number
+    index = 0
     if is_response_OK(response):
         for record in response.json().get("records"):
             # if it matches our division, loop through teams to find our team
             if int(record.get("division").get("id")) == TEAM_INFO[team_id].DivisionId:
                 for team_record in record.get("teamRecords"):
+                    index += 1
                     if int(team_record.get("team").get("id")) == team_id:
                         wins = int(team_record.get("wins"))
                         losses = int(team_record.get("losses"))
                         division_rank = int(team_record.get("divisionRank"))
 
-                        # see if we have clinched and are division leader
+                        # see if we have clinched and our clinch indicator tells us we have the division
                         clinched = team_record.get("clinched")
                         if clinched:
-                            clinched = True if division_rank == 1 else False
+                            indicator = team_record.get("clinchIndicator")
+                            # indicator of y means division
+                            # indicator of z means best record in league
+                            # an indicator of x means we have clinched a wild card
+                            # but we care about division winners here
+                            clinched = True if indicator == "y" or indicator == "z" else False
 
                         # if team did not yet clinch division, see if it has a magic number
                         if not clinched:
@@ -393,6 +401,12 @@ def http_get_number(team_id):
                                 eliminated = True if number == "E" else False
                             else:
                                 magic = True
+                                # if we have not clinched yet our magic number is a dash
+                                # it means we need the elimination number of the team right after us
+                                # MLB API stops displaying magic number for division leader after they clinch wild card
+                                if number == "-":
+                                    number = record.get("teamRecords")[index].get("eliminationNumberDivision")
+                    
                         break  # we found our team
                 break  # we found our division
     else:
