@@ -384,6 +384,7 @@ def http_get_number(team_id):
                         clinched = team_record.get("clinched")
                         if clinched:
                             indicator = team_record.get("clinchIndicator")
+
                             # indicator of y means division
                             # indicator of z means best record in league
                             # an indicator of x means we have clinched a wild card
@@ -401,12 +402,13 @@ def http_get_number(team_id):
                                 eliminated = True if number == "E" else False
                             else:
                                 magic = True
+
                                 # if we have not clinched yet our magic number is a dash
                                 # it means we need the elimination number of the team right after us
                                 # MLB API stops displaying magic number for division leader after they clinch wild card
                                 if number == "-":
                                     number = record.get("teamRecords")[index].get("eliminationNumberDivision")
-                    
+
                         break  # we found our team
                 break  # we found our division
     else:
