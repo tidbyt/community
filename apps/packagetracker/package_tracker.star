@@ -64,14 +64,14 @@ def main(config):
         headers = {"X-Api-Key": "%s" % pkge_api_key}
         method = method.upper()
 
-        if method == "GET":
-            response = http.get(url, headers = headers, ttl_seconds = ttl_seconds)
-        elif method == "POST":
-            response = http.post(url, headers = headers, ttl_seconds = ttl_seconds)
-        elif method == "PUT":
-            response = http.put(url, headers = headers, ttl_seconds = ttl_seconds)
-        elif method == "DELETE":
-            response = http.delete(url, headers = headers, ttl_seconds = ttl_seconds)
+        http_methods = {
+            "GET": http.get,
+            "POST": http.post,
+            "PUT": http.put,
+            "DELETE": http.delete,
+        }
+
+        response = http_methods.get(method)(url, headers = headers, ttl_seconds = ttl_seconds)
 
         check_response_headers(method, response, ttl_seconds)
 
