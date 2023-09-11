@@ -33,7 +33,7 @@ def get_nth_item_from_raw_xml(raw_xml, nth = 1):
     }
 
 def get_image(image_url):
-    response = http.get(url = image_url.replace("sqr256.jpg", "wd854"), ttl_seconds = 60 * 60 * 24 * 7)
+    response = http.get(url = image_url.replace("sqr256.jpg", "std160"), ttl_seconds = 60 * 60 * 24 * 7)
     if response.status_code != 200:
         fail("Image from nu.nl request failed with status %d @ %s", response.status_code, image_url)
     return response.body()
