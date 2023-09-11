@@ -29,7 +29,6 @@ def parse_news_feed(raw_xml):
     result = []
     for feed_item in xpath.loads(raw_xml).query_all_nodes("//rss/channel/item"):
         result.append({
-            # "date": feed_item.query("/pubDate"), # no support for parsing time as RFC228
             "title": feed_item.query("/title"),
             "image": feed_item.query("/enclosure/@url"),
         })
@@ -75,6 +74,7 @@ def main(config):
                             color = "#0008",
                             child = render.Marquee(
                                 width = 64,
+                                offset_start = 64,
                                 child = render.Text(
                                     content = news_item_list[random_index]["title"],
                                     font = "tb-8",
