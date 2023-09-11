@@ -12,7 +12,7 @@ load("render.star", "render")
 load("schema.star", "schema")
 load("time.star", "time")
 
-VERSION = 23247
+VERSION = 23254
 
 # ############################
 # Mods - jvivona - 2023-02-04
@@ -37,6 +37,7 @@ VERSION = 23247
 # - fix trunc of am/pm - to not trunc when we're in 24 hour format
 # jvivona - 20230904
 # - fix date display - remove leading 0
+# jvivona - 20230911 - handle end of season calendar - no upcoming races
 # ############################
 
 DEFAULTS = {
@@ -132,8 +133,11 @@ def main(config):
     # return data is already at MRData
 
     if display == "NRI":
-        #Next Race
-        next_race = f1_cached["RaceTable"]["Races"][0]
+        if len(f1_cached["RaceTable"]["Races"]) == 0:
+            return []
+        else:
+            #Next Race
+            next_race = f1_cached["RaceTable"]["Races"][0]
 
         #code from @whyamihere to automatically adjust the date time sting from the API
         date_and_time = next_race["date"] + "T" + next_race["time"]
