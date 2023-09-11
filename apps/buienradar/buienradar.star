@@ -1,7 +1,7 @@
 """
 Applet: Buienradar
 Summary: Buienradar (BE/NL)
-Description: Shows the buienradar of Belgium or The Netherlands.
+Description: Shows the rain radar of Belgium or The Netherlands.
 Author: PMK (@pmk)
 """
 
