@@ -1,0 +1,8 @@
+---
+id: sveriges-radio
+name: Sveriges Radio
+summary: What's currently playing
+desc: See what's currently playing on any of the Sveriges Radio channels.
+author: Sebastian Ekström
+fileName: sveriges_radio.star
+packageName: sverigesradio
