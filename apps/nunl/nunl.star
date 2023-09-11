@@ -25,14 +25,12 @@ def get_news_feed(category = DEFAULT_CATEGORY, ttl_seconds = 60 * 5):
         fail("Nu.nl request failed with status %d @ %s", response.status_code, url)
     return response.body()
 
-def parse_news_feed(raw_xml):
-    result = []
-    for feed_item in xpath.loads(raw_xml).query_all_nodes("//rss/channel/item"):
-        result.append({
-            "title": feed_item.query("/title"),
-            "image": feed_item.query("/enclosure/@url"),
-        })
-    return result
+def get_nth_item_from_raw_xml(raw_xml, nth = 1):
+    feed_item = xpath.loads(raw_xml).query_node("//rss/channel/item[{}]".format(nth))
+    return {
+        "title": feed_item.query("/title"),
+        "image": feed_item.query("/enclosure/@url"),
+    }
 
 def get_image(image_url):
     response = http.get(url = image_url.replace("sqr256.jpg", "wd854"), ttl_seconds = 60 * 60 * 24 * 7)
@@ -43,8 +41,9 @@ def get_image(image_url):
 def main(config):
     category = config.str("category", DEFAULT_CATEGORY)
 
-    news_item_list = parse_news_feed(get_news_feed(category))
-    random_index = random.number(0, len(news_item_list) - 1)
+    news_feed = get_news_feed(category)
+    nth_item = random.number(1, 10)
+    news_item = get_nth_item_from_raw_xml(news_feed, nth_item)
 
     return render.Root(
         show_full_animation = True,
@@ -52,7 +51,7 @@ def main(config):
         child = render.Stack(
             children = [
                 render.Image(
-                    src = get_image(news_item_list[random_index]["image"]),
+                    src = get_image(news_item["image"]),
                     width = 64,
                     height = 32,
                 ),
@@ -76,7 +75,7 @@ def main(config):
                                 width = 64,
                                 offset_start = 64,
                                 child = render.Text(
-                                    content = news_item_list[random_index]["title"],
+                                    content = news_item["title"],
                                     font = "tb-8",
                                     color = "#fff",
                                 ),
