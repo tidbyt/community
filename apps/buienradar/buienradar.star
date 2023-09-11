@@ -22,16 +22,18 @@ def main(config):
     country = config.str("country", DEFAULT_COUNTRY)
 
     radar = get_radar(country)
+    radar_image = render.Image(
+        src = radar,
+        width = 64,
+        height = 64,
+    )
 
     return render.Root(
+        delay = radar_image.delay,
         child = render.Stack(
             children = [
                 render.Box(
-                    child = render.Image(
-                        src = radar,
-                        width = 64,
-                        height = 64,
-                    ),
+                    child = radar_image,
                 ),
                 render.Padding(
                     pad = (1, 1, 1, 1),
