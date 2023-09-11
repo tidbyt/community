@@ -92,7 +92,7 @@ def main(config):
 
     def render_text(content, color = DEFAULT_COLOR, scroll = scroll, wrap = False):
         if not content:
-            return []
+            return render.Text("")
 
         print(content)
 
@@ -159,12 +159,12 @@ def main(config):
 
                         pkge_response = _pkge_response(method = "POST", path = "/packages/update", parameters = "trackNumber=%s" % tracking_number, ttl_seconds = 0)
                 else:
-                    cache.set(cache_name, courier_id, PKGE_TTL_SECONDS)
+                    cache.set(cache_name, str(courier_id), PKGE_TTL_SECONDS)
 
                 if payload and hasattr(payload, "update"):
                     payload.update(last_checkpoint = payload.get("checkpoints")[0])
 
-                    status = str(int(payload.get("status")))
+                    status = str(int(payload.get("status"))) if payload.get("status") else None
                     last_checkpoint_date = payload.get("last_checkpoint").get("date")
                     last_checkpoint_location = payload.get("last_checkpoint").get("location")
                     last_checkpoint_title = payload.get("last_checkpoint").get("title")
@@ -187,16 +187,19 @@ def main(config):
             children.append(render_text(content = "Get your (free) API key at:", wrap = True))
             children.append(render_text(content = "https://business.pkge.net", scroll = True))
 
-        return render.Root(
-            render.Box(
-                child = render.Column(
-                    expanded = True,
-                    main_align = "space_evenly",
-                    children = children,
+        if children:
+            return render.Root(
+                render.Box(
+                    child = render.Column(
+                        expanded = True,
+                        main_align = "space_evenly",
+                        children = children,
+                    ),
+                    padding = DEFAULT_PADDING,
                 ),
-                padding = DEFAULT_PADDING,
-            ),
-        )
+            )
+        else:
+            return []
 
     return get_package_status()
 
