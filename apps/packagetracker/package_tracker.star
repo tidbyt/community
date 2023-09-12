@@ -14,13 +14,22 @@ load("time.star", "time")
 
 DEFAULT_COLOR = "#ffffff"
 DEFAULT_FONT = "tom-thumb"
-DEFAULT_PADDING = 1
+DEFAULT_OFFSET = 0
 DEFAULT_SCROLL = False
 DEFAULT_WRAP = False
 
+FONTS = {
+    "tb-8": {"offset": 1},
+    "5x8": {"offset": 1},
+    "tom-thumb": {},
+    "CG-pixel-3x5-mono": {},
+}
+
+PADDING = 1
+
 PKGE_API_URL = "https://api.pkge.net/v1"
-PKGE_TTL_SECONDS = 30
 PKGE_DELIVERY_SERVICES_TTL_SECONDS = 60 * 60 * 24
+PKGE_TTL_SECONDS = 30
 PKGE_UPDATE_TTL_SECONDS = 60
 
 STATUS_DELIVERED_COLOR = "#00ff00"
@@ -90,7 +99,7 @@ def main(config):
 
         return "Unknown Delivery Service"
 
-    def render_text(content, color = DEFAULT_COLOR, scroll = scroll, wrap = False):
+    def render_text(content, offset = FONTS[font].get("offset", DEFAULT_OFFSET), color = DEFAULT_COLOR, scroll = scroll, wrap = False):
         if not content:
             return render.Text("")
 
@@ -101,6 +110,7 @@ def main(config):
                 child = render.Text(
                     content = content,
                     font = font,
+                    offset = offset,
                     color = color,
                 ),
                 width = TIDBYT_WIDTH,
@@ -115,6 +125,7 @@ def main(config):
             return render.Text(
                 content = content,
                 font = font,
+                offset = offset,
                 color = color,
             )
 
@@ -198,7 +209,7 @@ def main(config):
                         main_align = "space_evenly",
                         children = children,
                     ),
-                    padding = DEFAULT_PADDING,
+                    padding = PADDING,
                 ),
             )
         else:
@@ -207,6 +218,13 @@ def main(config):
     return get_package_status()
 
 def get_schema():
+    fonts = []
+
+    for font in FONTS:
+        fonts.append(
+            schema.Option(display = font, value = font),
+        )
+
     return schema.Schema(
         version = "1",
         fields = [
@@ -259,12 +277,7 @@ def get_schema():
                 desc = "Font",
                 icon = "font",
                 default = DEFAULT_FONT,
-                options = [
-                    schema.Option(display = "tb-8", value = "tb-8"),
-                    schema.Option(display = "5x8", value = "5x8"),
-                    schema.Option(display = "tom-thumb", value = "tom-thumb"),
-                    schema.Option(display = "CG-pixel-3x5-mono", value = "CG-pixel-3x5-mono"),
-                ],
+                options = fonts,
             ),
             schema.Toggle(
                 id = "scroll",
