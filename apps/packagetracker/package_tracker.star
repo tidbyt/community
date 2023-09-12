@@ -166,12 +166,12 @@ def main(config):
                 if cache.get(cache_name):
                     if cache.get(cache_name) != pkge_courier_id:
                         pkge_response = _pkge_response(method = "DELETE", parameters = "trackNumber=%s" % tracking_number)
-                        payload = pkge_response.json().get("payload")
 
                         pkge_response = _pkge_response(method = "POST", path = "/packages/update", parameters = "trackNumber=%s" % tracking_number, ttl_seconds = 0)
 
                         if (pkge_response.status_code == 200):
                             payload = pkge_response.json().get("payload")
+
                 else:
                     cache.set(cache_name, str(courier_id), PKGE_TTL_SECONDS)
 
@@ -199,6 +199,8 @@ def main(config):
                     children.append(
                         render_text(content = payload),
                     )
+                else:
+                    print(payload)
         else:
             children.append(render_text(content = "Get your (free) API key at:", scroll = False, wrap = True))
             children.append(render_text(content = "https://business.pkge.net", scroll = True))
