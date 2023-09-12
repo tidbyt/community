@@ -166,15 +166,17 @@ def main(config):
                     payload.update(last_checkpoint = payload.get("checkpoints")[0])
 
                     status = str(int(payload.get("status"))) if payload.get("status") else None
+
                     last_checkpoint_date = payload.get("last_checkpoint").get("date")
                     last_checkpoint_location = payload.get("last_checkpoint").get("location")
+                    last_checkpoint_status = payload.get("last_checkpoint").get("status")
                     last_checkpoint_title = payload.get("last_checkpoint").get("title")
 
                     label = config.str("label", None) if config.str("label") else get_delivery_service(courier_id) if courier_id else None
 
                     last_checkpoint_date = humanize.time(time.parse_time(last_checkpoint_date))
 
-                    last_checkpoint_title_color = STATUS_COLORS.get(status, DEFAULT_COLOR)
+                    last_checkpoint_title_color = STATUS_DELIVERED_COLOR if STATUS_DELIVERED_COLOR in [STATUS_COLORS.get(status), STATUS_COLORS.get(last_checkpoint_status)] or last_checkpoint_title.upper().count("DELIVERED") else DEFAULT_COLOR
 
                     children.append(render_text(content = label))
                     children.append(render_text(content = last_checkpoint_date))
