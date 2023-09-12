@@ -52,7 +52,7 @@ STATUS_COLORS = {
 TIDBYT_WIDTH = 64
 
 def main(config):
-    pkge_api_key = config.str("pkge_api_key", None)
+    pkge_api_key = config.str("pkge_api_key").replace(" ", "") if config.str("pkge_api_key") else None
     font = config.str("font", DEFAULT_FONT)
     scroll = config.bool("scroll", DEFAULT_SCROLL)
 
@@ -146,7 +146,7 @@ def main(config):
 
         if pkge_api_key:
             if tracking_number:
-                tracking_number = humanize.url_encode(tracking_number)
+                tracking_number = tracking_number.replace(" ", "")
                 cache_name = "package_tracker_%s" % tracking_number
                 pkge_update_ttl_seconds = PKGE_UPDATE_TTL_SECONDS if cache.get(cache_name) else 0
 
