@@ -154,14 +154,14 @@ def main(config):
 
                 pkge_response = _pkge_response(parameters = "trackNumber=%s" % tracking_number)
 
-                if (pkge_response.status_code != 200):
+                if pkge_response.status_code != 200:
                     if courier_id:
                         pkge_response = _pkge_response(method = "POST", parameters = "trackNumber=%s&courierId=%s" % (tracking_number, courier_id))
                     else:
                         pkge_response = _pkge_response(path = "/couriers/detect", parameters = "trackNumber=%s" % tracking_number)
 
             if pkge_response:
-                if (pkge_response.status_code == 200):
+                if pkge_response.status_code in [200, 400, 404]:
                     payload = pkge_response.json().get("payload")
 
                 pkge_courier_id = str(int(payload.get("courier_id"))) if payload and hasattr(payload, "get") else ""
@@ -202,8 +202,6 @@ def main(config):
                     children.append(
                         render_text(content = payload),
                     )
-                else:
-                    print(payload)
         else:
             children.append(render_text(content = "Get your (free) API key at:", scroll = False, wrap = True))
             children.append(render_text(content = "https://business.pkge.net", scroll = True))
