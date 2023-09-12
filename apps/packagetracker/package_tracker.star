@@ -160,7 +160,9 @@ def main(config):
                         pkge_response = _pkge_response(path = "/couriers/detect", parameters = "trackNumber=%s" % tracking_number)
 
             if pkge_response:
-                payload = pkge_response.json().get("payload")
+                if (pkge_response.status_code == 200):
+                    payload = pkge_response.json().get("payload")
+
                 pkge_courier_id = str(int(payload.get("courier_id"))) if payload and hasattr(payload, "get") else ""
 
                 if cache.get(cache_name):
@@ -256,6 +258,7 @@ def get_schema():
                     schema.Option(display = "Japan Post", value = "42"),
                     schema.Option(display = "Korea Post", value = "53"),
                     schema.Option(display = "Poste Italiane", value = "48"),
+                    schema.Option(display = "Singapore Post", value = "18"),
                     schema.Option(display = "United Kingdom Royal Mail", value = "41"),
                     schema.Option(display = "UPS", value = "17"),
                     schema.Option(display = "USPS", value = "1"),
