@@ -8,6 +8,7 @@ Author: Kyle Bolstad
 load("cache.star", "cache")
 load("http.star", "http")
 load("humanize.star", "humanize")
+load("re.star", "re")
 load("render.star", "render")
 load("schema.star", "schema")
 load("time.star", "time")
@@ -52,7 +53,7 @@ STATUS_COLORS = {
 TIDBYT_WIDTH = 64
 
 def main(config):
-    pkge_api_key = config.str("pkge_api_key").replace(" ", "") if config.str("pkge_api_key") else None
+    pkge_api_key = re.sub("\\s", "", config.str("pkge_api_key")) if config.str("pkge_api_key") else None
     font = config.str("font", DEFAULT_FONT)
 
     def check_response_headers(method, response, ttl_seconds):
@@ -145,7 +146,7 @@ def main(config):
 
         if pkge_api_key:
             if tracking_number:
-                tracking_number = tracking_number.replace(" ", "")
+                tracking_number = re.sub("\\s", "", tracking_number)
                 cache_name = "package_tracker_%s" % tracking_number
                 pkge_update_ttl_seconds = PKGE_UPDATE_TTL_SECONDS if cache.get(cache_name) else 0
 
