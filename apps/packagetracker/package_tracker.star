@@ -54,7 +54,6 @@ TIDBYT_WIDTH = 64
 def main(config):
     pkge_api_key = config.str("pkge_api_key").replace(" ", "") if config.str("pkge_api_key") else None
     font = config.str("font", DEFAULT_FONT)
-    scroll = config.bool("scroll", DEFAULT_SCROLL)
 
     def check_response_headers(method, response, ttl_seconds):
         if response.headers.get("Tidbyt-Cache-Status") == "HIT":
@@ -99,7 +98,7 @@ def main(config):
 
         return "Unknown Delivery Service"
 
-    def render_text(content, offset = FONTS[font].get("offset", DEFAULT_OFFSET), color = DEFAULT_COLOR, scroll = scroll, wrap = False):
+    def render_text(content, offset = FONTS[font].get("offset", DEFAULT_OFFSET), color = DEFAULT_COLOR, scroll = config.bool("scroll", DEFAULT_SCROLL), wrap = config.bool("scroll", DEFAULT_WRAP)):
         if not content:
             return render.Text("")
 
@@ -191,14 +190,14 @@ def main(config):
 
                     children.append(render_text(content = label))
                     children.append(render_text(content = last_checkpoint_date))
-                    children.append(render_text(content = last_checkpoint_location, scroll = scroll))
+                    children.append(render_text(content = last_checkpoint_location))
                     children.append(render_text(content = last_checkpoint_title, color = last_checkpoint_title_color))
                 elif type(payload) == "string":
                     children.append(
-                        render_text(content = payload, scroll = scroll),
+                        render_text(content = payload),
                     )
         else:
-            children.append(render_text(content = "Get your (free) API key at:", wrap = True))
+            children.append(render_text(content = "Get your (free) API key at:", scroll = False, wrap = True))
             children.append(render_text(content = "https://business.pkge.net", scroll = True))
 
         if children:
