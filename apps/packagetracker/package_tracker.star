@@ -15,7 +15,7 @@ load("time.star", "time")
 DEFAULT_COLOR = "#ffffff"
 DEFAULT_FONT = "tom-thumb"
 DEFAULT_OFFSET = 0
-DEFAULT_SCROLL = False
+DEFAULT_SCROLL = True
 DEFAULT_WRAP = False
 
 FONTS = {
