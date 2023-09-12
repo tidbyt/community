@@ -5,7 +5,8 @@ load("math.star", "math")
 load("render.star", "render")
 load("schema.star", "schema")
 
-AMBIENT_WEATHER_URL = "https://rt.ambientweather.net/v1/devices"
+REFRESH_RATE = 43200  #twice a day
+OPEN_WEATHER_URL = "https://api.openweathermap.org/data/2.5/onecall"
 ADVERBS = [
     "damn cold",
     "darn cold",
@@ -33,6 +34,9 @@ RANGE_MIN = -10
 RANGE_MAX = 110
 DEFAULT_JACKET_LIMIT = 60
 DEFAULT_COAT_LIMIT = 35
+
+def ktof(k):
+    return c2f(k - 273.15)
 
 def f2c(f):
     return (((f - 32) * 5) / 9)
@@ -90,8 +94,8 @@ def getSubString(temp, unit = "f"):
 
 def main(config):
     current_data = get_weather_data(config)
+    feels_like = ktof(current_data["feels_like"])
 
-    feels_like = current_data["feelsLike"]
     mainString = getMainString(feels_like, DEFAULT_JACKET_LIMIT, DEFAULT_COAT_LIMIT)
     show_description = config.get("show_description")
     subString = ""
@@ -140,16 +144,16 @@ def get_schema():
     return schema.Schema(
         version = "1",
         fields = [
-            schema.Text(
-                id = "application_key",
-                name = "Application Key",
-                desc = "Ambient Weather Application Key.",
-                icon = "key",
+            schema.Location(
+                id = "location",
+                name = "Location",
+                icon = "locationDot",
+                desc = "Location for which to display time and weather",
             ),
             schema.Text(
                 id = "api_key",
                 name = "API Key",
-                desc = "Ambient Weather API Key.",
+                desc = "OpenWeather API Key.",
                 icon = "key",
             ),
             schema.Toggle(
@@ -171,7 +175,7 @@ def get_schema():
 
 def get_weather_data(config):
     api_key = config.get("api_key", None)
-    application_key = config.get("application_key", None)
+    location = config.get("location", None)
     cached_data = cache.get("weather_data-{0}".format(api_key))
     if cached_data != None:
         print("Using existing weather data")
@@ -181,61 +185,55 @@ def get_weather_data(config):
     else:
         if api_key == None:
             print("Missing api_key")
-            return SAMPLE_STATION_RESPONSE
-        if application_key == None:
-            print("Missing application_key")
-            return SAMPLE_STATION_RESPONSE
+            return SAMPLE_STATION_RESPONSE["current"]
+        if location == None:
+            print("Missing location")
+            return SAMPLE_STATION_RESPONSE["current"]
 
         print("Getting new weather data")
+        location = json.decode(location)
+        query = "%s?exclude=minutely,hourly,daily,alerts&lat=%s&lon=%s&appid=%s" % (OPEN_WEATHER_URL, location["lat"], location["lng"], api_key)
         res = http.get(
-            url = AMBIENT_WEATHER_URL,
-            params = {
-                "applicationKey": config.get("application_key"),
-                "apiKey": config.get("api_key"),
-            },
+            url = query,
+            ttl_seconds = REFRESH_RATE,
         )
         if res.status_code != 200:
-            print("Ambient Weather request failed with status %d", res.status_code)
-            return SAMPLE_STATION_RESPONSE
+            print("Open Weather request failed with status %d", res.status_code)
+            return SAMPLE_STATION_RESPONSE["current"]
 
-        current_data = res.json()[0]["lastData"]
-        print("{0}".format(current_data))
+        current_data = res.json()["current"]
 
-        # TODO: Determine if this cache call can be converted to the new HTTP cache.
-        cache.set("weather_data-{0}".format(api_key), json.encode(current_data), ttl_seconds = 60)
+        cache.set("weather_data-{0}".format(api_key), json.encode(current_data), ttl_seconds = REFRESH_RATE)
         return current_data
 
 SAMPLE_STATION_RESPONSE = {
-    "dateutc": 1679845380000,
-    "tempinf": 67.5,
-    "battin": 1,
-    "humidityin": 33,
-    "baromrelin": 28.787,
-    "baromabsin": 28.787,
-    "tempf": 44.6,
-    "battout": 1,
-    "humidity": 66,
-    "winddir": 352,
-    "winddir_avg10m": 268,
-    "windspeedmph": 8.5,
-    "windspdmph_avg10m": 6.9,
-    "windgustmph": 11.4,
-    "maxdailygust": 18.3,
-    "hourlyrainin": 0,
-    "eventrainin": 0.232,
-    "dailyrainin": 0.012,
-    "weeklyrainin": 0.012,
-    "monthlyrainin": 1.39,
-    "yearlyrainin": 4.441,
-    "solarradiation": 152.68,
-    "uv": 1,
-    "feelsLike": 39.96,
-    "dewPoint": 33.95,
-    "feelsLikein": 67.5,
-    "dewPointin": 37.4,
-    "lastRain": "2023-03-26T04:20:00.000Z",
-    "tz": "America/New_York",
-    "date": "2023-03-26T15:43:00.000Z",
+    "lat": 40.678,
+    "lon": -73.944,
+    "timezone": "America/New_York",
+    "timezone_offset": -14400,
+    "current": {
+        "dt": 1685459950,
+        "sunrise": 1685438891,
+        "sunset": 1685492324,
+        "temp": 291.72,
+        "feels_like": 291.02,
+        "pressure": 1024,
+        "humidity": 53,
+        "dew_point": 281.97,
+        "uvi": 6.51,
+        "clouds": 0,
+        "visibility": 10000,
+        "wind_speed": 7.2,
+        "wind_deg": 40,
+        "weather": [
+            {
+                "id": 711,
+                "main": "Smoke",
+                "description": "smoke",
+                "icon": "50d",
+            },
+        ],
+    },
 }
 
 def add_row(title, font):

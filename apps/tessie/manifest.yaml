@@ -1,0 +1,8 @@
+---
+id: tessie
+name: Tessie
+summary: Tessie API
+desc: Shows Tesla information from the Tessie API.
+author: inderpal
+fileName: tessie.star
+packageName: tessie

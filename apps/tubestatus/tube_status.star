@@ -20,6 +20,7 @@ BLACK = "#000"
 
 DISPLAY_SCROLL = "DISPLAY_SCROLL"
 DISPLAY_SEQUENTIAL = "DISPLAY_SEQUENTIAL"
+PROBLEMS_FIRST = "PROBLEMS_FIRST"
 
 LINES = {
     "bakerloo": {
@@ -242,11 +243,69 @@ def render_sequential(lines):
         panes = [render_status(lines[i])]
         if i + 1 < len(lines):
             panes.append(render_status(lines[i + 1]))
-
-        frame = render.Column(
-            children = panes,
+        frames.append(
+            render.Column(
+                children = panes,
+            ),
         )
-        frames.append(frame)
+
+    return render.Animation(
+        children = frames,
+    )
+
+def render_remainder(all_good, whole_screen):
+    height = 32 if whole_screen else 16
+    return render.Box(
+        width = 64,
+        height = height,
+        color = WHITE,
+        child = render.Column(
+            main_align = "start",
+            children = [
+                render.WrappedText(
+                    width = 62,
+                    height = height,
+                    content = "Good service %s lines" % ("on all" if all_good else "other"),
+                    color = BLACK,
+                ),
+            ],
+        ),
+    )
+
+def render_problems(lines):
+    frames = []
+    problems = [line for line in lines if line["status"] != SEVERITIES[10]]
+    all_affected = len(problems) == len(lines)
+
+    if not problems:
+        return render_remainder(True, True)
+
+    for i in range(0, len(problems), 2):
+        panes = [render_status(problems[i])]
+        if i + 1 < len(problems):
+            panes.append(render_status(lines[i + 1]))
+        frames.append(
+            render.Column(
+                children = panes,
+            ),
+        )
+
+    if not all_affected:
+        # Add to bottom half of last frame if there's space
+        if len(frames[-1].children) == 1:
+            frames[-1] = render.Column(
+                children = [
+                    frames[-1].children[0],
+                    render_remainder(False, False),
+                ],
+            )
+        else:
+            # Otherwise make a new frame
+            frames.append(
+                render.Column(
+                    children = [render_remainder(False, True)],
+                ),
+            )
 
     return render.Animation(
         children = frames,
@@ -274,6 +333,9 @@ def main(config):
     elif display_mode == DISPLAY_SEQUENTIAL:
         rendered = render_sequential(lines)
         delay = 2000
+    elif display_mode == PROBLEMS_FIRST:
+        rendered = render_problems(lines)
+        delay = 2000
     else:
         rendered = []
         delay = 50
@@ -294,6 +356,10 @@ def get_schema():
             display = "Sequential",
             value = DISPLAY_SEQUENTIAL,
         ),
+        schema.Option(
+            display = "Problems first",
+            value = PROBLEMS_FIRST,
+        ),
     ]
 
     return schema.Schema(
@@ -304,7 +370,7 @@ def get_schema():
                 name = "Display mode",
                 desc = "How to animate the status for different lines",
                 icon = "display",
-                default = DISPLAY_SEQUENTIAL,
+                default = PROBLEMS_FIRST,
                 options = display_modes,
             ),
         ],

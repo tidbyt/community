@@ -4,11 +4,17 @@ Summary: Displays standings from various top leagues around Europe and the world
 Description: Displays league tables from soccer leagues, showing team abbreviation, record in W-D-L format and points total. Choose your league and choose if you want to display the team color or just white text on black
 Author: MontyP, with huge thanks and shoutout to LunchBox8484 as this is largely inspired/borrowed from their NHL Standings app
 
-v1.1 - Added rotation speed option
+v1.1
+Added rotation speed option
+
+v1.2
+Added MLS to selection of leagues to choose from
+Updated cache function
+
+v1.3
+Added NWSL to selection of leagues to choose from
 """
 
-load("cache.star", "cache")
-load("encoding/base64.star", "base64")
 load("encoding/json.star", "json")
 load("http.star", "http")
 load("render.star", "render")
@@ -45,6 +51,8 @@ def main(config):
             if entries:
                 entriesToDisplay = teamsToShow
                 LeagueName = getLeagueName(selectedLeague)
+                if selectedLeague == "usa.1":
+                    LeagueName = LeagueName + " - " + s["abbreviation"]
                 stats = entries[0]["stats"]
 
                 for j, k in enumerate(stats):
@@ -127,12 +135,20 @@ LeagueOptions = [
         value = "bel.1",
     ),
     schema.Option(
+        display = "Major League Soccer",
+        value = "usa.1",
+    ),
+    schema.Option(
         display = "Mexican Liga BBVA MX",
         value = "mex.1",
     ),
     schema.Option(
         display = "Australian A-League",
         value = "aus.1",
+    ),
+    schema.Option(
+        display = "National Womens Soccer League",
+        value = "usa.nwsl",
     ),
 ]
 
@@ -175,7 +191,7 @@ def get_schema():
                 name = "League",
                 desc = "Which league do you want to display?",
                 icon = "gear",
-                default = LeagueOptions[1].value,
+                default = LeagueOptions[0].value,
                 options = LeagueOptions,
             ),
             schema.Dropdown(
@@ -200,13 +216,13 @@ def get_schema():
 def get_standings(urls):
     allstandings = []
     for _, s in urls.items():
-        data = get_cachable_data(s)
+        data = get_cachable_data(s, CACHE_TTL_SECONDS)
         decodedata = json.decode(data)
         allstandings.append(decodedata)
     return allstandings
 
 def get_team_color(teamid):
-    data = get_cachable_data("https://site.api.espn.com/apis/site/v2/sports/" + SPORT + "/" + LEAGUE + "/teams/" + teamid)
+    data = get_cachable_data("https://site.api.espn.com/apis/site/v2/sports/" + SPORT + "/" + LEAGUE + "/teams/" + teamid, CACHE_TTL_SECONDS)
     decodedata = json.decode(data)
     team = decodedata["team"]
     teamcolor = get_background_color(team["abbreviation"], team["color"])
@@ -291,10 +307,14 @@ def getLeagueName(selectedLeague):
         return ("Liga Portugal")
     elif selectedLeague == "bel.1":
         return ("Belgian Div 1")
+    elif selectedLeague == "usa.1":
+        return ("MLS")
     elif selectedLeague == "mex.1":
         return ("Liga MX")
     elif selectedLeague == "aus.1":
         return ("A-League")
+    elif selectedLeague == "usa.nwsl":
+        return ("NWSL")
     return None
 
 def get_background_color(team, color):
@@ -308,18 +328,10 @@ def get_background_color(team, color):
         color = "#222"
     return color
 
-def get_cachable_data(url, ttl_seconds = CACHE_TTL_SECONDS):
-    key = base64.encode(url)
+def get_cachable_data(url, timeout):
+    res = http.get(url = url, ttl_seconds = timeout)
 
-    data = cache.get(key)
-    if data != None:
-        return base64.decode(data)
-
-    res = http.get(url = url)
     if res.status_code != 200:
         fail("request to %s failed with status code: %d - %s" % (url, res.status_code, res.body()))
-
-    # TODO: Determine if this cache call can be converted to the new HTTP cache.
-    cache.set(key, base64.encode(res.body()), ttl_seconds = ttl_seconds)
 
     return res.body()

@@ -1,0 +1,8 @@
+---
+id: nts-radio
+name: NTS Radio
+summary: Shows live show on NTS
+desc: Shows live show info for NTS Radio.
+author: M0ntyP
+fileName: nts_radio.star
+packageName: ntsradio
