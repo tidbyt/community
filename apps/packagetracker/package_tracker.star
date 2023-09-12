@@ -233,7 +233,7 @@ def get_schema():
             schema.Text(
                 id = "pkge_api_key",
                 name = "pkge.net API Key",
-                desc = "pkge.net API Key",
+                desc = "business.pkge.net/settings/api-key",
                 icon = "box",
                 default = "",
             ),
