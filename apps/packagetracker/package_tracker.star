@@ -1,7 +1,7 @@
 """
 Applet: Package Tracker
 Summary: Track packages
-Description: Track packages from Amazon/DHL/FedEx/UPS/USPS. (Free) pkge.net API key required.
+Description: Track packages from Amazon/DHL/FedEx/UPS/USPS and more. (Free) pkge.net API key required.
 Author: Kyle Bolstad
 """
 
@@ -270,7 +270,7 @@ def get_schema():
             schema.Dropdown(
                 id = "courier_id",
                 name = "Delivery Service",
-                desc = "Delivery Service",
+                desc = "",
                 icon = "truck",
                 default = "None",
                 options = couriers,
@@ -278,21 +278,21 @@ def get_schema():
             schema.Text(
                 id = "tracking_number",
                 name = "Tracking Number",
-                desc = "Tracking Number",
+                desc = "",
                 icon = "barcode",
                 default = "",
             ),
             schema.Text(
                 id = "label",
                 name = "Label",
-                desc = "Label",
+                desc = "",
                 icon = "tag",
                 default = "",
             ),
             schema.Dropdown(
                 id = "font",
                 name = "Font",
-                desc = "Font",
+                desc = "",
                 icon = "font",
                 default = DEFAULT_FONT,
                 options = fonts,
@@ -300,7 +300,7 @@ def get_schema():
             schema.Toggle(
                 id = "scroll",
                 name = "Scroll Long Text",
-                desc = "Scroll Long Text",
+                desc = "",
                 icon = "scroll",
                 default = DEFAULT_SCROLL,
             ),

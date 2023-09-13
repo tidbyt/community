@@ -2,7 +2,7 @@
 id: package-tracker
 name: Package Tracker
 summary: Track packages
-desc: Track packages from Amazon/DHL/FedEx/UPS/USPS. (Free) pkge.net API key required.
+desc: Track packages from Amazon/DHL/FedEx/UPS/USPS and more. (Free) pkge.net API key required.
 author: Kyle Bolstad
 fileName: package_tracker.star
 packageName: packagetracker
