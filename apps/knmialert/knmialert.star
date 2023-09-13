@@ -29,9 +29,12 @@ def get_alert(page_contents):
             "is_active": False,
         }
 
+    alert_type = alert_element.attr("class").replace("alert", "").replace("--", "").strip()
+    is_active = True if alert_type == "yellow" or alert_type == "orange" or alert_type == "red" else False
+
     return {
-        "is_active": True,
-        "type": alert_element.attr("class").replace("alert", "").replace("--", "").strip(),
+        "is_active": is_active,
+        "type": alert_type,
         "title": alert_element.find(".alert__heading").text().strip(),
         "text": alert_element.find(".alert__description").text().strip(),
     }
