@@ -188,6 +188,8 @@ def main(config):
                     last_checkpoint_status = payload.get("last_checkpoint").get("status")
                     last_checkpoint_title = payload.get("last_checkpoint").get("title")
 
+                    last_location = payload.get("last_location")
+
                     label = config.str("label", None) if config.str("label") else get_delivery_service(courier_id) if courier_id else None
 
                     last_checkpoint_date = humanize.time(time.parse_time(last_checkpoint_date))
@@ -196,8 +198,9 @@ def main(config):
 
                     children.append(render_text(content = label))
                     children.append(render_text(content = last_checkpoint_date))
-                    children.append(render_text(content = last_checkpoint_location))
+                    children.append(render_text(content = last_checkpoint_location or last_location))
                     children.append(render_text(content = last_checkpoint_title, color = last_checkpoint_title_color))
+
                 elif type(payload) == "string":
                     children.append(
                         render_text(content = payload),
