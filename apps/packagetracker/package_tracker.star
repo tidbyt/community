@@ -207,7 +207,7 @@ def main(config):
 
                     last_location = payload.get("last_location")
 
-                    label = config.str("label", None) if config.str("label") else get_delivery_service(courier_id) if courier_id else None
+                    label = config.str("label", None) if config.str("label") else get_delivery_service(pkge_courier_id) if pkge_courier_id else None
 
                     last_checkpoint_date = humanize.time(time.parse_time(last_checkpoint_date))
 
