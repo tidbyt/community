@@ -13,6 +13,23 @@ load("render.star", "render")
 load("schema.star", "schema")
 load("time.star", "time")
 
+COURIERS = {
+    "Unknown": {"courier_id": -1},
+    "Amazon": {"courier_id": 19},
+    "Australia Post": {"courier_id": 75},
+    "Canada Post": {"courier_id": 67},
+    "China Post": {"courier_id": 7},
+    "DHL": {"courier_id": 10},
+    "FedEx": {"courier_id": 9},
+    "Japan Post": {"courier_id": 42},
+    "Korea Post": {"courier_id": 53},
+    "Poste Italiane": {"courier_id": 48},
+    "Singapore Post": {"courier_id": 18},
+    "United Kingdom Royal Mail": {"courier_id": 41},
+    "UPS": {"courier_id": 17},
+    "USPS": {"courier_id": 1},
+}
+
 DEFAULT_COLOR = "#ffffff"
 DEFAULT_FONT = "tom-thumb"
 DEFAULT_OFFSET = 0
@@ -33,21 +50,21 @@ PKGE_DELIVERY_SERVICES_TTL_SECONDS = 60 * 60 * 24
 PKGE_TTL_SECONDS = 30
 PKGE_UPDATE_TTL_SECONDS = 60
 
-STATUS_DELIVERED_COLOR = "#00ff00"
-STATUS_ERROR_COLOR = "#ff0000"
-STATUS_NORMAL_COLOR = DEFAULT_COLOR
+STATUS_COLOR_DELIVERED = "#00ff00"
+STATUS_COLOR_ERROR = "#ff0000"
+STATUS_COLOR_NORMAL = DEFAULT_COLOR
 
 STATUS_COLORS = {
-    "0": STATUS_NORMAL_COLOR,
-    "1": STATUS_NORMAL_COLOR,
-    "2": STATUS_NORMAL_COLOR,
-    "3": STATUS_NORMAL_COLOR,
-    "4": STATUS_DELIVERED_COLOR,
-    "5": STATUS_DELIVERED_COLOR,
-    "6": STATUS_ERROR_COLOR,
-    "7": STATUS_ERROR_COLOR,
-    "8": STATUS_NORMAL_COLOR,
-    "9": STATUS_NORMAL_COLOR,
+    "0": STATUS_COLOR_NORMAL,
+    "1": STATUS_COLOR_NORMAL,
+    "2": STATUS_COLOR_NORMAL,
+    "3": STATUS_COLOR_NORMAL,
+    "4": STATUS_COLOR_DELIVERED,
+    "5": STATUS_COLOR_DELIVERED,
+    "6": STATUS_COLOR_ERROR,
+    "7": STATUS_COLOR_ERROR,
+    "8": STATUS_COLOR_NORMAL,
+    "9": STATUS_COLOR_NORMAL,
 }
 
 TIDBYT_WIDTH = 64
@@ -194,7 +211,7 @@ def main(config):
 
                     last_checkpoint_date = humanize.time(time.parse_time(last_checkpoint_date))
 
-                    last_checkpoint_title_color = STATUS_DELIVERED_COLOR if STATUS_DELIVERED_COLOR in [STATUS_COLORS.get(status), STATUS_COLORS.get(last_checkpoint_status)] or last_checkpoint_title.upper().count("DELIVERED") else DEFAULT_COLOR
+                    last_checkpoint_title_color = STATUS_COLOR_DELIVERED if STATUS_COLOR_DELIVERED in [STATUS_COLORS.get(status), STATUS_COLORS.get(last_checkpoint_status)] or last_checkpoint_title.upper().count("DELIVERED") else DEFAULT_COLOR
 
                     children.append(render_text(content = label))
                     children.append(render_text(content = last_checkpoint_date))
@@ -233,6 +250,13 @@ def get_schema():
             schema.Option(display = font, value = font),
         )
 
+    couriers = []
+
+    for courier, value in COURIERS.items():
+        couriers.append(
+            schema.Option(display = courier, value = str(value["courier_id"])),
+        )
+
     return schema.Schema(
         version = "1",
         fields = [
@@ -249,22 +273,7 @@ def get_schema():
                 desc = "Delivery Service",
                 icon = "truck",
                 default = "None",
-                options = [
-                    schema.Option(display = "Unknown", value = "-1"),
-                    schema.Option(display = "Amazon", value = "19"),
-                    schema.Option(display = "Australia Post", value = "75"),
-                    schema.Option(display = "Canada Post", value = "67"),
-                    schema.Option(display = "China Post", value = "7"),
-                    schema.Option(display = "DHL", value = "10"),
-                    schema.Option(display = "FedEx", value = "9"),
-                    schema.Option(display = "Japan Post", value = "42"),
-                    schema.Option(display = "Korea Post", value = "53"),
-                    schema.Option(display = "Poste Italiane", value = "48"),
-                    schema.Option(display = "Singapore Post", value = "18"),
-                    schema.Option(display = "United Kingdom Royal Mail", value = "41"),
-                    schema.Option(display = "UPS", value = "17"),
-                    schema.Option(display = "USPS", value = "1"),
-                ],
+                options = couriers,
             ),
             schema.Text(
                 id = "tracking_number",
