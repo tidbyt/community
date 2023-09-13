@@ -47,8 +47,7 @@ PADDING = 1
 
 PKGE_API_URL = "https://api.pkge.net/v1"
 PKGE_DELIVERY_SERVICES_TTL_SECONDS = 60 * 60 * 24
-PKGE_TTL_SECONDS = 30
-PKGE_UPDATE_TTL_SECONDS = 60
+PKGE_TTL_SECONDS = 60
 
 STATUS_COLOR_DELIVERED = "#00ff00"
 STATUS_COLOR_ERROR = "#ff0000"
@@ -147,7 +146,6 @@ def main(config):
             )
 
     def get_package_status():
-        cache_name = ""
         courier_id = config.str("courier_id") if config.str("courier_id") != "None" else None
         tracking_number = config.str("tracking_number", None)
 
@@ -164,10 +162,32 @@ def main(config):
         if pkge_api_key:
             if tracking_number:
                 tracking_number = re.sub("\\s", "", tracking_number)
-                cache_name = "package_tracker_%s" % tracking_number
-                pkge_update_ttl_seconds = PKGE_UPDATE_TTL_SECONDS if cache.get(cache_name) else 0
+                cache_name_prefix = "package_tracker_%s_" % tracking_number
+                courier_cache = cache_name_prefix + "courier"
+                next_check_cache = cache_name_prefix + "next_check"
 
-                pkge_response = _pkge_response(method = "POST", path = "/packages/update", parameters = "trackNumber=%s" % tracking_number, ttl_seconds = pkge_update_ttl_seconds)
+                next_check = cache.get(next_check_cache)
+
+                if not next_check:
+                    pkge_response = _pkge_response(method = "POST", path = "/packages/update", parameters = "trackNumber=%s" % tracking_number, ttl_seconds = PKGE_TTL_SECONDS)
+
+                    if pkge_response.json().get("code") == 903:
+                        payload = pkge_response.json().get("payload")
+                        payload_split = payload.split("Next check is possible on ")
+                        payload_next_check = payload_split[1] if len(payload_split) > 1 else None
+
+                        if payload_next_check:
+                            next_check_date, next_check_time = payload_next_check.split(" ")
+                            next_check_day, next_check_month, next_check_year = next_check_date.split(".")
+                            next_check_hour, next_check_minute = next_check_time.split(":")
+
+                            next_check_ttl_seconds = int(time.parse_duration(time.time(year = int(next_check_year), month = int(next_check_month), day = int(next_check_day), hour = int(next_check_hour), minute = int(next_check_minute)) - time.now().in_location("UTC")).seconds)
+
+                            cache.set(next_check_cache, payload_next_check, max(next_check_ttl_seconds, PKGE_TTL_SECONDS))
+
+                else:
+                    print("current time:", time.now().in_location("UTC"))
+                    print("waiting until", next_check, "UTC", "for next update")
 
                 pkge_response = _pkge_response(parameters = "trackNumber=%s" % tracking_number)
 
@@ -177,14 +197,14 @@ def main(config):
                     else:
                         pkge_response = _pkge_response(path = "/couriers/detect", parameters = "trackNumber=%s" % tracking_number)
 
-            if pkge_response:
                 if pkge_response.status_code in [200, 400, 404]:
                     payload = pkge_response.json().get("payload")
 
                 pkge_courier_id = str(int(payload.get("courier_id"))) if payload and hasattr(payload, "get") else ""
 
-                if cache.get(cache_name):
-                    if cache.get(cache_name) != pkge_courier_id:
+                if cache.get(courier_cache):
+                    courier_id = cache.get(courier_cache)
+                    if courier_id != pkge_courier_id:
                         pkge_response = _pkge_response(method = "DELETE", parameters = "trackNumber=%s" % tracking_number)
 
                         pkge_response = _pkge_response(method = "POST", path = "/packages/update", parameters = "trackNumber=%s" % tracking_number, ttl_seconds = 0)
@@ -193,7 +213,7 @@ def main(config):
                             payload = pkge_response.json().get("payload")
 
                 else:
-                    cache.set(cache_name, str(courier_id), PKGE_TTL_SECONDS)
+                    cache.set(courier_cache, str(courier_id), PKGE_TTL_SECONDS)
 
                 if payload and hasattr(payload, "update"):
                     payload.update(last_checkpoint = payload.get("checkpoints")[0])
