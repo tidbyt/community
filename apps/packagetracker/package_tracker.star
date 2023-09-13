@@ -14,7 +14,7 @@ load("schema.star", "schema")
 load("time.star", "time")
 
 COURIERS = {
-    "Unknown": {"courier_id": -1},
+    "Unknown / Not Listed": {"courier_id": -1},
     "Amazon": {"courier_id": 19},
     "Australia Post": {"courier_id": 75},
     "Canada Post": {"courier_id": 67},
