@@ -30,8 +30,6 @@ def render_heading_name(tick):
         expanded = True,
         main_align = "space_between",
         children = [
-            # There's no room to say where each bus is heading, so just give the
-            # direction for the stop. That makes it long, so scroll it.
             render.Padding(
                 pad = (1, 1, 1, 0),
                 child = render.Marquee(
@@ -70,9 +68,6 @@ def render_due(name, price, prevClose):
     return render.Row(
         expanded = True,
         children = [
-            # Include an index to a) mimic the countdown timers at bus stops
-            # and b) if I can work out how to scroll to show more than 3 for
-            # particularly busy stops.
             render.WrappedText(
                 content = str(name),
                 width = 12,
