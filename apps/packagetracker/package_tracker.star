@@ -177,13 +177,12 @@ def main(config):
                         payload_next_check = payload_split[1] if len(payload_split) > 1 else None
 
                         if payload_next_check:
-                            next_check_date, next_check_time = payload_next_check.split(" ")
-                            next_check_day, next_check_month, next_check_year = next_check_date.split(".")
-                            next_check_hour, next_check_minute = next_check_time.split(":")
+                            utc_date = time.now().in_location("UTC")
+                            next_check_date = time.parse_time(payload_next_check, format = "02.01.2006 03:04").in_location("UTC")
+                            next_check_ttl_seconds = abs(int(time.parse_duration(next_check_date - utc_date).seconds))
 
-                            next_check_ttl_seconds = int(time.parse_duration(time.time(year = int(next_check_year), month = int(next_check_month), day = int(next_check_day), hour = int(next_check_hour), minute = int(next_check_minute)) - time.now().in_location("UTC")).seconds)
-
-                            cache.set(next_check_cache, payload_next_check, max(next_check_ttl_seconds, PKGE_TTL_SECONDS))
+                            cache.set(next_check_cache, payload_next_check, next_check_ttl_seconds)
+                            print("set next check cache to %s" % humanize.plural(next_check_ttl_seconds, "second"))
 
                 else:
                     print("current time:", time.now().in_location("UTC"))
