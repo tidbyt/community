@@ -178,7 +178,7 @@ def main(config):
 
                         if payload_next_check:
                             utc_date = time.now().in_location("UTC")
-                            next_check_date = time.parse_time(payload_next_check, format = "02.01.2006 03:04").in_location("UTC")
+                            next_check_date = time.parse_time(payload_next_check, format = "02.01.2006 15:04").in_location("UTC")
                             next_check_ttl_seconds = abs(int(time.parse_duration(next_check_date - utc_date).seconds))
 
                             cache.set(next_check_cache, payload_next_check, next_check_ttl_seconds)
