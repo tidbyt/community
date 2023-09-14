@@ -122,17 +122,8 @@ def render_products(tick):
     for s in sections:
         frames.extend([s] * 100)
 
-    render.Padding(
-        pad = (1, 1, 1, 0),
-        child = render.Marquee(
-            height = 32,
-            offset_start = 16,
-            offset_end = 16,
-            scroll_direction = "vertical",
-            child = render.Column(
-                children = frames,
-            ),
-        ),
+    return render.Animation(
+        children = frames
     )
 
 # renders a box for an index/tick thats passed in
