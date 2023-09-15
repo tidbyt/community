@@ -18,7 +18,7 @@ BRAEMAR_QUERY = json.encode(
     },
 )
 
-COUNTDOWN_HEIGHT = 25
+PRODUCT_HEIGHT = 60
 FONT = "tom-thumb"
 GREEN = "#008000"
 RED = "#FF0000"
@@ -94,40 +94,24 @@ def render_due(name, price, prevClose):
     )
 
 def render_values_section(products):
-    return [
-        # Show the values as columns
-        render.Padding(
-            pad = (1, 0, 1, 0),
-            child = render.Box(
-                height = COUNTDOWN_HEIGHT,
-                child = render.Column(
-                    main_align = "start",
-                    expanded = True,
-                    children = [
-                        render_due(a["name"], a["price"], a["prevClose"])
-                        for a in products
-                    ],
-                ),
+    return render.Padding(
+        pad = (1, 0, 1, 0),
+        child = render.Box(
+            height = PRODUCT_HEIGHT,
+            child = render.Column(
+                main_align = "start",
+                expanded = True,
+                children = [
+                    render_due(a["name"], a["price"], a["prevClose"])
+                    for a in products
+                ],
             ),
         ),
-    ]
-
-# renders the product details in the section below the index/tick name
-def render_products(tick):
-    products = tick["products"]
-    sections = []
-    for i in range(0, len(products), 10):
-        sections.extend(render_values_section(products[i:i + 10]))
-    frames = []
-    for s in sections:
-        frames.extend([s] * 100)
-
-    return render.Animation(
-        children = frames,
     )
 
 # renders a box for an index/tick thats passed in
 def render_each_index(tick):
+    products = tick["products"]
     return render.Box(
         render.Column(
             expanded = True,
@@ -138,9 +122,12 @@ def render_each_index(tick):
                 render_heading_name(tick),
                 render_separator(),
                 # Bottom part shows prices for each product
-                render_products(tick),
+                render_values_section(products),
             ],
         ),
+        padding = 0,
+        height = 45,
+        width = 64,
     )
 
 def main():
@@ -155,22 +142,24 @@ def main():
     if rep.status_code != 200:
         fail("Braemar request failed with status %d", rep.status_code)
     tickers = rep.json()["data"]["brokerSite"]["ticker"]
-    print(tickers)
-
-    # for development purposes: check if result was served from cache or not
-    if rep.headers.get("Tidbyt-Cache-Status") == "HIT":
-        print("Hit! Displaying cached data.")
-    else:
-        print("Miss! Calling Braemar API.")
 
     indexes = []
     for tick in tickers[0:3]:
         indexes.append(render_each_index(tick))
 
+    print(indexes)
+
     return render.Root(
         max_age = 120,
-        delay = 6000,
-        child = render.Animation(
-            children = indexes,
+        delay = 100,
+        show_full_animation = True,
+        child = render.Marquee(
+            height = 34,
+            offset_start = 5,
+            offset_end = 0,
+            scroll_direction = "vertical",
+            child = render.Column(
+                children = indexes,
+            ),
         ),
     )
