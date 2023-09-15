@@ -8,6 +8,7 @@ Author: jvivona
 # 20230904 - jvivona - fix date display
 # 20230828 - jvivona - with Kurt Busch officially retiring, changed driver names to only have 1 char for 1st name - will eval in future if necessary
 #                    - change text color to be schema.Color instead of drop down
+# 20230911 - jvivona - update code and API to better handle end of season with not upcoming race
 
 load("animation.star", "animation")
 load("encoding/json.star", "json")
@@ -17,7 +18,7 @@ load("render.star", "render")
 load("schema.star", "schema")
 load("time.star", "time")
 
-VERSION = 23247
+VERSION = 23254
 
 # cache data for 15 minutes - cycle through with cache on the API side
 CACHE_TTL_SECONDS = 900
@@ -71,7 +72,10 @@ def main(config):
 
     if data_display == "nri":
         NASCAR_DATA = json.decode(get_cachable_data(NASCAR_API + series))
-        text = nextrace(NASCAR_DATA, config)
+        if NASCAR_DATA.get("Race_Date", "") == "":
+            return []
+        else:
+            text = nextrace(NASCAR_DATA, config)
     else:
         NASCAR_DATA = json.decode(get_cachable_data(NASCAR_API + series + data_display))
         text = standings(NASCAR_DATA, config, data_display)
