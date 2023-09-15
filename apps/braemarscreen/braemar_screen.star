@@ -123,7 +123,7 @@ def render_products(tick):
         frames.extend([s] * 100)
 
     return render.Animation(
-        children = frames
+        children = frames,
     )
 
 # renders a box for an index/tick thats passed in
