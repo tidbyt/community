@@ -95,26 +95,24 @@ def render_due(name, price, prevClose):
 
 def render_values_section(products):
     return render.Padding(
-          pad = (1, 0, 1, 0),
-          child = render.Box(
-              height = PRODUCT_HEIGHT,
-              child = render.Column(
-                  main_align = "start",
-                  expanded = True,
-                  children = [
-                      render_due(a["name"], a["price"], a["prevClose"])
-                      for a in products
-                  ],
-              ),
-          ),
-      )
-
+        pad = (1, 0, 1, 0),
+        child = render.Box(
+            height = PRODUCT_HEIGHT,
+            child = render.Column(
+                main_align = "start",
+                expanded = True,
+                children = [
+                    render_due(a["name"], a["price"], a["prevClose"])
+                    for a in products
+                ],
+            ),
+        ),
+    )
 
 # renders a box for an index/tick thats passed in
 def render_each_index(tick):
     products = tick["products"]
     return render.Box(
-
         render.Column(
             expanded = True,
             main_align = "start",
@@ -124,7 +122,7 @@ def render_each_index(tick):
                 render_heading_name(tick),
                 render_separator(),
                 # Bottom part shows prices for each product
-                render_values_section(products)
+                render_values_section(products),
             ],
         ),
         padding = 0,
