@@ -140,6 +140,9 @@ def renderProgress(label, progress_value, padding):
     )
 
 def main(config):
+    name = None
+    printTimeLeft = None
+    completion = None
     serverIP = config.str("serverIP")
     serverPort = config.str("serverPort", "5000")
     apiKey = config.str("apiKey")
