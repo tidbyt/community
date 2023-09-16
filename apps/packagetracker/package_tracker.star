@@ -217,7 +217,7 @@ def main(config):
                     cache.set(courier_cache, str(courier_id), PKGE_TTL_SECONDS)
 
                 if payload and hasattr(payload, "update"):
-                    payload.update(last_checkpoint = payload.get("checkpoints")[0])
+                    payload.update(last_checkpoint = payload.get("checkpoints")[0] if payload.get("checkpoints") else None)
 
                     status = str(int(payload.get("status"))) if payload.get("status") else None
 
