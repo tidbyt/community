@@ -13,8 +13,10 @@ load("render.star", "render")
 load("schema.star", "schema")
 load("time.star", "time")
 
+COURIER_ID_UNKNOWN = -1
+
 COURIERS = {
-    "Unknown / Not Listed": {"courier_id": -1},
+    "Unknown / Not Listed": {"courier_id": COURIER_ID_UNKNOWN},
     "Amazon": {"courier_id": 19},
     "Australia Post": {"courier_id": 75},
     "Canada Post": {"courier_id": 67},
@@ -199,7 +201,7 @@ def main(config):
                 if pkge_response.status_code in [200, 400, 404]:
                     payload = pkge_response.json().get("payload")
 
-                pkge_courier_id = str(int(payload.get("courier_id"))) if payload and hasattr(payload, "get") else ""
+                pkge_courier_id = str(int(payload.get("courier_id", COURIER_ID_UNKNOWN))) if payload and hasattr(payload, "get") else ""
 
                 if cache.get(courier_cache):
                     courier_id = cache.get(courier_cache)
