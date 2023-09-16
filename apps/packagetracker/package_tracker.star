@@ -217,27 +217,34 @@ def main(config):
                     cache.set(courier_cache, str(courier_id), PKGE_TTL_SECONDS)
 
                 if payload and hasattr(payload, "update"):
-                    payload.update(last_checkpoint = payload.get("checkpoints")[0] if payload.get("checkpoints") else None)
-
                     status = str(int(payload.get("status"))) if payload.get("status") else None
 
-                    last_checkpoint_date = payload.get("last_checkpoint").get("date")
-                    last_checkpoint_location = payload.get("last_checkpoint").get("location")
-                    last_checkpoint_status = payload.get("last_checkpoint").get("status")
-                    last_checkpoint_title = payload.get("last_checkpoint").get("title")
+                    last_status = payload.get("last_status") if payload.get("last_status") else None
 
-                    last_location = payload.get("last_location")
+                    last_status_color = STATUS_COLOR_DELIVERED if last_status.upper().count("DELIVERED") else DEFAULT_COLOR
 
                     label = config.str("label", None) if config.str("label") else get_delivery_service(pkge_courier_id) if pkge_courier_id else None
 
-                    last_checkpoint_date = humanize.time(time.parse_time(last_checkpoint_date))
+                    if not payload.get("last_checkpoint"):
+                        payload.update(last_checkpoint = payload.get("checkpoints")[0] if payload.get("checkpoints") else None)
 
-                    last_checkpoint_title_color = STATUS_COLOR_DELIVERED if STATUS_COLOR_DELIVERED in [STATUS_COLORS.get(status), STATUS_COLORS.get(last_checkpoint_status)] or last_checkpoint_title.upper().count("DELIVERED") else DEFAULT_COLOR
+                    if payload.get("last_checkpoint"):
+                        last_checkpoint_date = payload.get("last_checkpoint").get("date")
+                        last_checkpoint_location = payload.get("last_checkpoint").get("location")
+                        last_checkpoint_status = payload.get("last_checkpoint").get("status")
+                        last_checkpoint_title = payload.get("last_checkpoint").get("title")
+
+                        last_checkpoint_date = humanize.time(time.parse_time(last_checkpoint_date))
+
+                        last_checkpoint_title_color = STATUS_COLOR_DELIVERED if STATUS_COLOR_DELIVERED in [STATUS_COLORS.get(status), STATUS_COLORS.get(last_checkpoint_status)] or last_checkpoint_title.upper().count("DELIVERED") else DEFAULT_COLOR
+
+                    last_tracking_date = payload.get("last_tracking_date")
+                    last_location = payload.get("last_location")
 
                     children.append(render_text(content = label))
-                    children.append(render_text(content = last_checkpoint_date))
+                    children.append(render_text(content = last_checkpoint_date or last_tracking_date))
                     children.append(render_text(content = last_checkpoint_location or last_location))
-                    children.append(render_text(content = last_checkpoint_title, color = last_checkpoint_title_color))
+                    children.append(render_text(content = last_checkpoint_title or last_status, color = last_checkpoint_title_color or last_status_color))
 
                 elif type(payload) == "string":
                     children.append(
