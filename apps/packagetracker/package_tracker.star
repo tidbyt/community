@@ -163,7 +163,7 @@ def main(config):
 
         if pkge_api_key:
             if tracking_number:
-                tracking_number = re.sub("\\s", "", tracking_number)
+                tracking_number = re.sub("[^a-zA-Z0-9]+", "", tracking_number)
                 cache_name_prefix = "package_tracker_%s_" % tracking_number
                 courier_cache = cache_name_prefix + "courier"
                 next_check_cache = cache_name_prefix + "next_check"
