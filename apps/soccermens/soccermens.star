@@ -8,6 +8,7 @@ Author: jvivona
 # 20230812 added display of penalty kick score if applicable
 #          toned down colors when display team colors - you couldn't see winner score if team color was also yellow
 # 20230816 changed list of tournaments to get dynamically instead of having to do a PR each time I add one
+# 20230906 found bug in ESPN API where some teams don't have abbreviation - added code to check for it and display value + indiicator
 
 load("encoding/json.star", "json")
 load("http.star", "http")
@@ -15,7 +16,7 @@ load("render.star", "render")
 load("schema.star", "schema")
 load("time.star", "time")
 
-VERSION = 23228
+VERSION = 23249
 
 # thanks to @jesushairdo for the new option to be able to show home or away team first.  Let's be more international :-)
 
@@ -83,8 +84,8 @@ def main(config):
             gameStatus = s["status"]["type"]["state"]
             competition = s["competitions"][0]
             homeCompetitor = competition["competitors"][0]
-            home = competition["competitors"][0]["team"]["abbreviation"]
-            away = competition["competitors"][1]["team"]["abbreviation"]
+            home = competition["competitors"][0]["team"].get("abbreviation", competition["competitors"][0]["team"]["name"][0:2].upper() + "*")
+            away = competition["competitors"][1]["team"].get("abbreviation", competition["competitors"][1]["team"]["name"][0:2].upper() + "*")
             homeTeamName = competition["competitors"][0]["team"]["shortDisplayName"]
             awayTeamName = competition["competitors"][1]["team"]["shortDisplayName"]
             homeColorCheck = competition["competitors"][0]["team"].get("color", "NO")

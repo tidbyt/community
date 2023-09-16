@@ -1,0 +1,8 @@
+---
+id: daily-horoscope
+name: Daily Horoscope
+summary: Shows daily horoscope
+desc: Displays today's horoscope for a specific sign from USA Today.
+author: frame-shift
+fileName: daily_horoscope.star
+packageName: dailyhoroscope
