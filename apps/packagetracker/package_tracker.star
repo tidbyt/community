@@ -221,7 +221,7 @@ def main(config):
 
                     last_status = payload.get("last_status") if payload.get("last_status") else None
 
-                    last_status_color = STATUS_COLOR_DELIVERED if last_status.upper().count("DELIVERED") else DEFAULT_COLOR
+                    last_status_color = STATUS_COLOR_DELIVERED if last_status and last_status.upper().count("DELIVERED") else DEFAULT_COLOR
 
                     label = config.str("label", None) if config.str("label") else get_delivery_service(pkge_courier_id) if pkge_courier_id else None
 
