@@ -6,12 +6,21 @@ Author: Kyle Bolstad
 """
 
 load("cache.star", "cache")
+load("encoding/base64.star", "base64")
 load("http.star", "http")
 load("humanize.star", "humanize")
 load("re.star", "re")
 load("render.star", "render")
 load("schema.star", "schema")
 load("time.star", "time")
+
+CHECKMARK = base64.decode("""
+iVBORw0KGgoAAAANSUhEUgAAAAcAAAAFCAYAAACJmvbYAAAAAXNSR0IArs4c6QAAAERlW
+ElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAA6ABAAMAAAABAAEAAKACAAQAAAABAA
+AAB6ADAAQAAAABAAAABQAAAACrlow2AAAAIklEQVQIHWNgwAHknoX9xyoFl4AzoMrQ+Qw
+wARiNYRw2CQBc5RBwfuwjGAAAAABJRU5ErkJggg==
+""")
+CHECKMARK_RIGHT_PADDING = 9
 
 COURIER_ID_UNKNOWN = -1
 
@@ -36,6 +45,7 @@ DEFAULT_COLOR = "#ffffff"
 DEFAULT_FONT = "tom-thumb"
 DEFAULT_OFFSET = 0
 DEFAULT_SCROLL = True
+DEFAULT_SHOW_DELIVERED_ICON = False
 DEFAULT_WRAP = False
 
 FONTS = {
@@ -241,10 +251,25 @@ def main(config):
                     last_tracking_date = payload.get("last_tracking_date")
                     last_location = payload.get("last_location")
 
+                    show_delivered_icon = config.bool("show_delivered_icon", DEFAULT_SHOW_DELIVERED_ICON)
+
+                    status_text = render_text(content = last_checkpoint_title or last_status, color = last_checkpoint_title_color or last_status_color)
+
+                    if STATUS_COLOR_DELIVERED in [last_checkpoint_title_color, last_status_color] and show_delivered_icon:
+                        status_text = render.Stack(
+                            children = [
+                                render.Image(src = CHECKMARK),
+                                render.Padding(
+                                    pad = (CHECKMARK_RIGHT_PADDING, 0, 0, 0),
+                                    child = status_text,
+                                ),
+                            ],
+                        )
+
                     children.append(render_text(content = label))
                     children.append(render_text(content = last_checkpoint_date or last_tracking_date))
                     children.append(render_text(content = last_checkpoint_location or last_location))
-                    children.append(render_text(content = last_checkpoint_title or last_status, color = last_checkpoint_title_color or last_status_color))
+                    children.append(status_text)
 
                 elif type(payload) == "string":
                     children.append(
@@ -331,6 +356,13 @@ def get_schema():
                 desc = "",
                 icon = "scroll",
                 default = DEFAULT_SCROLL,
+            ),
+            schema.Toggle(
+                id = "show_delivered_icon",
+                name = "Show Delivered Icon",
+                desc = "",
+                icon = "check",
+                default = DEFAULT_SHOW_DELIVERED_ICON,
             ),
         ],
     )
