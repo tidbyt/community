@@ -14,6 +14,10 @@ load("time.star", "time")
 
 DEFAULT_COLOR = "#000024"
 DEFAULT_FONT_COLOR = "#FFFFFF"
+DEFAULT_REGION = "National"
+MIN = 0
+MAX = 898
+
 CACHE_TTL_SECONDS = 3600 * 24 * 7  # 7 days in seconds.
 
 POKEMON_API = "https://pokeapi.co/api/v2/pokemon/{}"
@@ -22,17 +26,52 @@ POKEMON_SPECIES_API = "https://pokeapi.co/api/v2/pokemon-species/{}"
 def main(config):
     bgColor = config.str("bgColor", DEFAULT_COLOR)
     fontColor = config.str("fontColor", DEFAULT_FONT_COLOR)
+    region = config.get("region", DEFAULT_REGION)
+
+    min = config.str("min", MIN)
+    max = config.str("max", MAX)
+
+    if region == "National":
+        min = 1
+        max = 898
+    elif region == "Kanto":
+        min = 1
+        max = 151
+    elif region == "Johto":
+        min = 152
+        max = 251
+    elif region == "Hoenn":
+        min = 252
+        max = 386
+    elif region == "Sinnoh":
+        min = 387
+        max = 493
+    elif region == "Unova":
+        min = 494
+        max = 649
+    elif region == "Kalos":
+        min = 650
+        max = 721
+    elif region == "Alola":
+        min = 722
+        max = 809
+    elif region == "Galar":
+        min = 810
+        max = 898
+    else:
+        pass
 
     imageHeight = 36
     imageWidth = 36
 
-    # Generate a random Pokémon ID between 1 and 898
+    # Generate a random Pokémon ID based on the user's desired region.
+    random.seed(time.now().unix // 15)
+    random_pokemon_id = random.number(min, max)
+
     # staticID for testing layout.
     # random_pokemon_id = str(62)
 
     # Pokemon Data
-    random.seed(time.now().unix // 15)
-    random_pokemon_id = random.number(1, 898)
     pokemon = get_pokemon(random_pokemon_id)
     species = get_species(random_pokemon_id)
 
@@ -56,7 +95,6 @@ def main(config):
         imageWidth = 30
 
     pokemonSprite = get_cacheable_data(spriteURL)
-
     pokemonImage = render.Image(src = pokemonSprite, width = imageWidth, height = imageHeight)
 
     return render.Root(
@@ -100,6 +138,11 @@ def main(config):
     )
 
 def get_schema():
+    regions = ["National", "Kanto", "Johto", "Hoenn", "Sinnoh", "Unova", "Kalos", "Alola", "Galar"]
+    regionOptions = []
+    for region in regions:
+        regionOptions.append(schema.Option(display = region, value = region))
+
     return schema.Schema(
         version = "1",
         fields = [
@@ -125,6 +168,14 @@ def get_schema():
                     "#FFFFFF",
                     "#FECA1C",
                 ],
+            ),
+            schema.Dropdown(
+                id = "region",
+                name = "Pokédex Region",
+                desc = "Select a Pokédex Region",
+                icon = "map",
+                default = DEFAULT_REGION,
+                options = regionOptions,
             ),
         ],
     )
