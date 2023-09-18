@@ -136,7 +136,7 @@ def main(config):
     rep = http.post(
         BRAEMAR_PRICES_URL,
         body = BRAEMAR_QUERY,
-        ttl_seconds = int(config.get("ttl", "60"))  ,
+        ttl_seconds = int(config.get("ttl", "60")),
         headers = {
             "content-type": "application/json",
         },
@@ -165,53 +165,52 @@ def main(config):
     )
 
 def get_schema():
-  options = [
-    schema.Option(
-        display = "10 seconds",
-        value = "10",
-    ),
-    schema.Option(
-        display = "20 seconds",
-        value = "20",
-    ),
-    schema.Option(
-        display = "30 seconds",
-        value = "30",
-    ),
-    schema.Option(
-        display = "60 seconds",
-        value = "60",
-    ),
-  ]
+    options = [
+        schema.Option(
+            display = "10 seconds",
+            value = "10",
+        ),
+        schema.Option(
+            display = "20 seconds",
+            value = "20",
+        ),
+        schema.Option(
+            display = "30 seconds",
+            value = "30",
+        ),
+        schema.Option(
+            display = "60 seconds",
+            value = "60",
+        ),
+    ]
 
-
-  return schema.Schema(
-      version = "1",
-      fields = [
-          schema.Color(
-              id = "price_color",
-              name = "Price Colour",
-              desc = "Colour for the prices",
-              icon = "palette",
-              default = "#0000FF",
-              palette = [
-                  "#0000FF",
-                  "#FF0000",
-                  "#FFFF00",
-                  "#00FF00",
-                  "#FFAA00",
-                  "#00FFFF",
-                  "#FF00FF",
-                  "#FFFFFF",
-              ],
-          ),
-          schema.Dropdown(
+    return schema.Schema(
+        version = "1",
+        fields = [
+            schema.Color(
+                id = "price_color",
+                name = "Price Colour",
+                desc = "Colour for the prices",
+                icon = "palette",
+                default = "#0000FF",
+                palette = [
+                    "#0000FF",
+                    "#FF0000",
+                    "#FFFF00",
+                    "#00FF00",
+                    "#FFAA00",
+                    "#00FFFF",
+                    "#FF00FF",
+                    "#FFFFFF",
+                ],
+            ),
+            schema.Dropdown(
                 id = "ttl",
                 name = "Refresh",
                 desc = "How often to refresh the values",
                 icon = "arrowsRotate",
                 default = options[0].value,
                 options = options,
-            )
-      ],
-  )
+            ),
+        ],
+    )
