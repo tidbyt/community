@@ -13,6 +13,7 @@ Author: jvivona
 #  add display of qualifing date/time on app
 # 20230904 jvivona
 #  fix date display remove leading 0
+# 20230911 - jvivona - update code and API to better handle end of season with not upcoming race
 
 load("encoding/base64.star", "base64")
 load("encoding/json.star", "json")
@@ -21,7 +22,7 @@ load("render.star", "render")
 load("schema.star", "schema")
 load("time.star", "time")
 
-VERSION = 23247
+VERSION = 23254
 
 IMAGES = {
     #Indycar track type logos
@@ -80,8 +81,12 @@ def main(config):
     series = config.get("series", DEFAULTS["series"])
     displaytype = config.get("datadisplay", DEFAULTS["display"])
     data = json.decode(get_cachable_data(DEFAULTS["api"].format(series, displaytype)))
+
     if displaytype == "nri":
-        displayrow = nextrace(config, data)
+        if data.get("start", "") == "":
+            return []
+        else:
+            displayrow = nextrace(config, data)
     else:
         displayrow = standings(config, data)
 

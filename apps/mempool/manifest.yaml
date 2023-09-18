@@ -1,0 +1,8 @@
+---
+id: mempool
+name: Mempool
+summary: Mempool stats of Bitcoin
+desc: Showing details of the mempool of Bitcoin, such as the latest block and current fee rates.
+author: PMK (@pmk)
+fileName: mempool.star
+packageName: mempool
