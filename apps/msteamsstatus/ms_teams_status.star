@@ -5,12 +5,12 @@ Description: Show your presence and status message from Microsoft Teams on a Tid
 Author: schumatt
 """
 
-load("render.star", "render")
-load("http.star", "http")
 load("cache.star", "cache")
+load("encoding/json.star", "json")
+load("http.star", "http")
+load("render.star", "render")
 load("schema.star", "schema")
 load("secret.star", "secret")
-load("encoding/json.star", "json")
 
 DEBUG_ON = False
 
@@ -22,8 +22,8 @@ defaultAvailability = "PresenceUnknown"
 defaultActivity = "PresenceUnknown"
 defaultStatusMessage = ""
 
-devClientID = ""
-devClientSecret = ""
+devClientID = "1"
+devClientSecret = "1"
 defaultTenantID = "common"
 
 prodClientIDHash = ""
@@ -144,20 +144,20 @@ def main(config):
     if DEBUG_ON:
         print("ENTERING main: " + str(config))
 
-    if prodClientID:
-        RunningClientID = prodClientID
-    else:
-        RunningClientID = config.get("client_id")
+    #if prodClientID:
+    #    RunningClientID = prodClientID
+    #else:
+    #    RunningClientID = config.get("client_id")
 
-    if prodClientSecret:
-        RunningClientSecret = prodClientSecret
-    else:
-        RunningClientSecret = config.get("client_secret")
+    #if prodClientSecret:
+    #    RunningClientSecret = prodClientSecret
+    #else:
+    #    RunningClientSecret = config.get("client_secret")
 
-    if TenantID:
-        RunningTenantID = TenantID
-    else:
-        RunningTenantID = config.get("tenant_id") or defaultTenantID
+    #if TenantID:
+    #    RunningTenantID = TenantID
+    #else:
+    #    RunningTenantID = config.get("tenant_id") or defaultTenantID
 
     userDisplayName = defaultUserDisplayName
     availability = defaultAvailability
