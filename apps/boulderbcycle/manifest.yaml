@@ -1,0 +1,8 @@
+---
+id: boulder-bcycle
+name: Boulder BCycle
+summary: Boulder Bcycle availability
+desc: Display how many BCycles are available for a given BCycle station in Boulder, Colorado. The user can choose which station they want to see bike availability for.
+author: MauricioZambrano
+fileName: boulder_bcycle.star
+packageName: boulderbcycle
