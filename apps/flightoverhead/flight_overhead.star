@@ -69,7 +69,7 @@ MAX_LIMIT = 5
 MAX_RADIUS = 10
 
 def main(config):
-    provider = config.get("provider")
+    provider = config.get("provider", DEFAULT_PROVIDER)
 
     airlabs_api_key = config.get("airlabs_api_key", DEFAULT_AIRLABS_API_KEY)
     opensky_username = config.get("opensky_username", DEFAULT_OPENSKY_USERNAME)
