@@ -286,7 +286,7 @@ def main(config):
 	render.Column(children=
 		[render.Box(height = 18, child=render.Row(
                      children=[render_pixels_str(digits[digit], {"#": "#000000"}) for digit in (now.format("15:04") if i % 1000 < 500 else now.format("15 04")).elems()])),
-		render.Box(child=render.Box(child=render.Text(offset=2, content=now_date, color="#000000"o, font="6x13")))])]))
+		render.Box(child=render.Box(child=render.Text(offset=2, content=now_date, color="#000000", font="6x13")))])]))
     # for fading  + pad_0("%X" % int(min(1, i/APP_DURATION_MILLISECONDS*fade_rate) * 0xFF)    
     return render.Root(render.Animation(children = frames), delay=REFRESH_MILLISECONDS)
 
