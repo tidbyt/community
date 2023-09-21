@@ -15,7 +15,7 @@ load("schema.star", "schema")
 DEFAULT_TEXT_COLOR = "#aaaaaa"
 DEFAULT_ORIENTATION_BOOL = False  #Default to horizontal
 DEFAULT_ARRIVALS = True
-DEFAULT_STATION = "Five Points"
+DEFAULT_STATION = "Lindbergh Center"
 DEFAULT_SCROLL = True
 # DEAFULT_DIRECTION = None
 
