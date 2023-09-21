@@ -5,9 +5,7 @@ Description: Displays a world capital each day for a specific country.
 Author: Jake Manske
 """
 
-load("cache.star", "cache")
 load("encoding/base64.star", "base64")
-load("encoding/json.star", "json")
 load("http.star", "http")
 load("render.star", "render")
 load("schema.star", "schema")
@@ -99,47 +97,33 @@ def get_country(region, country_index):
         a dict "country" object
     """
 
-    # construct cache key based on region and index
-    cache_key = region + "_" + str(country_index)
+    # get the URL based on region selected
+    url = get_url(region)
 
-    # check if the country is in the cache
-    country = cache.get(cache_key) or None
+    # ping it
+    response = http.get(url, ttl_seconds = CACHE_TIMEOUT)
 
-    # if we have no country for that key, go get it from the REST endpoint
-    if country == None:
-        # get the URL based on region selected
-        url = get_url(region)
-
-        # ping it
-        response = http.get(url)
-
-        # check status code
-        if response.status_code != HTTP_OK:
-            # if we are not OK, return the default country with information about the failure
-            country = {
-                "name": {
-                    "common": "HTTP ERROR",
-                },
-                "cca3": "N/A",
-                "capital": ["ERROR CODE: " + str(response.status_code)],
-            }
-        else:
-            # parse response object and sort it so we can get the right country in the loop
-            countries = response.json()
-            sorted_countries = sorted(countries, get_cca3)
-
-            # count how many results we have
-            num_countries = len(sorted_countries)
-
-            # get the country based on index modulo how many countries there are for this region
-            country = sorted_countries[country_index % num_countries]
-
-            # cache today's country
-            # TODO: Determine if this cache call can be converted to the new HTTP cache.
-            cache.set(cache_key, json.encode(country), ttl_seconds = CACHE_TIMEOUT)
+    # check status code
+    if response.status_code != HTTP_OK:
+        # if we are not OK, return the default country with information about the failure
+        country = {
+            "name": {
+                "common": "HTTP ERROR",
+            },
+            "cca3": "N/A",
+            "capital": ["ERROR CODE: " + str(response.status_code)],
+        }
     else:
-        # otherwise send back what we got from cache
-        country = json.decode(country)
+        # parse response object and sort it so we can get the right country in the loop
+        countries = response.json()
+        sorted_countries = sorted(countries, get_cca3)
+
+        # count how many results we have
+        num_countries = len(sorted_countries)
+
+        # get the country based on index modulo how many countries there are for this region
+        country = sorted_countries[country_index % num_countries]
+
     return country
 
 def get_schema():

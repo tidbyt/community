@@ -1,4 +1,3 @@
-load("cache.star", "cache")
 load("encoding/base64.star", "base64")
 load("http.star", "http")
 load("render.star", "render")
@@ -42,3 +41,4 @@ def main():
             ],
         ),
     )
+
