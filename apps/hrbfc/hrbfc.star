@@ -5,6 +5,7 @@ Description: Live scores and upcoming match details for the Hampton and Richmond
 Author: Jonathan Damico
 """
 
+load("encoding/json.star", "json")
 load("http.star", "http")
 load("math.star", "math")
 load("render.star", "render")
@@ -136,7 +137,8 @@ def get_long_game_status(status):
         return status_tuple[1]
 
 def main(config):
-    location = config.str("location", DEFAULT_LOCATION)
+    location_string = config.get("location", DEFAULT_LOCATION)
+    location = json.decode(location_string)
 
     game_data = get_current_or_next_game_data()
 
