@@ -101,7 +101,7 @@ def get_schema():
             ),
             schema.Dropdown(
                 id = "station",
-                name = "Stations",
+                name = "Station",
                 desc = "The color of text to be displayed.",
                 icon = "trainSubway",
                 default = station_options[17].value,
