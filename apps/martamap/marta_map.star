@@ -78,6 +78,14 @@ def get_schema():
     return schema.Schema(
         version = "1",
         fields = [
+            schema.Dropdown(
+                id = "station",
+                name = "Station",
+                desc = "The color of text to be displayed.",
+                icon = "trainSubway",
+                default = station_options[17].value,
+                options = station_options,
+            ),
             schema.Toggle(
                 id = "orientation",
                 name = "Vertical Orientation?",
@@ -98,14 +106,6 @@ def get_schema():
                 desc = "Scroll the arrival head signs or static text?",
                 icon = "toggleOn",
                 default = True,
-            ),
-            schema.Dropdown(
-                id = "station",
-                name = "Station",
-                desc = "The color of text to be displayed.",
-                icon = "trainSubway",
-                default = station_options[17].value,
-                options = station_options,
             ),
             # schema.Dropdown(
             #     id = "direction",
