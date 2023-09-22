@@ -340,7 +340,7 @@ def refresh_msft_access_token(config):
         cache.set(
             response_json["refresh_token"],
             response_json["access_token"],
-            ttl_seconds = int(response_json["expires_in"] - 30),
+            ttl_seconds = int(response_json["expires_in"]) - 30,
         )
 
         #print (" -- Cached token for " + str(int(response_json["expires_in"] - 30)) + " seconds")
