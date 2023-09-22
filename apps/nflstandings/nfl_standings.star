@@ -42,6 +42,7 @@ ALT_COLOR = """
 """
 ALT_LOGO = """
 {
+    "IND": "https://i.ibb.co/jzMc7SB/colts.png"
 }
 """
 
