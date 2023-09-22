@@ -7,9 +7,9 @@ Author: noahpodgurski
 
 load("encoding/base64.star", "base64")
 load("http.star", "http")
+load("random.star", "random")
 load("render.star", "render")
 load("schema.star", "schema")
-load("random.star", "random")
 
 REFRESH_TIME = 180  # every few minutes
 
@@ -141,7 +141,7 @@ ERROR_CODES = [
     "Pad type changed",
     "Max area reached",
     "Navigation problem",
-    "Hardware problem"
+    "Hardware problem",
 ]
 
 BATTERY_OUTLINE = [
@@ -247,9 +247,10 @@ def main(config):
         data = SAMPLE_DATA
         batPct = random.number(0, 100)
         name = data["name"]
+
         # phase = data["cleanMissionStatus"]["phase"]
         phase = ["charge", "run", "new", "resume", "stuck", "dock", "stop", "evac"][random.number(0, 7)]
-    
+
     else:
         serverPort = int(serverPort)
         data = requestStatus(serverIP, serverPort, apiKey)
@@ -277,7 +278,7 @@ def main(config):
         statusOffset = 0
         phaseLabelColor = RED
         batLabel = ""
-    
+
     error = data["cleanMissionStatus"]["error"]
 
     #render battery icon
@@ -439,6 +440,6 @@ def get_schema():
                 name = "API Key (optional)",
                 desc = "API Key setup in index.js",
                 icon = "gear",
-            )
+            ),
         ],
     )
