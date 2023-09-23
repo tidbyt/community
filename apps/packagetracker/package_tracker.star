@@ -7,6 +7,7 @@ Author: Kyle Bolstad
 
 load("cache.star", "cache")
 load("encoding/base64.star", "base64")
+load("encoding/json.star", "json")
 load("http.star", "http")
 load("humanize.star", "humanize")
 load("re.star", "re")
@@ -93,6 +94,9 @@ def main(config):
 
         print(method, response.url)
 
+    def validate_json(response):
+        return json.decode(json.encode(response.json() if hasattr(response, "json") else {}), {})
+
     def _pkge_response(method = "GET", path = "/packages", parameters = None, ttl_seconds = PKGE_TTL_SECONDS):
         response = {}
         url = "%s%s" % (PKGE_API_URL, path)
@@ -119,7 +123,7 @@ def main(config):
 
     def get_delivery_service(courier_id):
         pkge_response = _pkge_response(path = "/couriers", ttl_seconds = PKGE_DELIVERY_SERVICES_TTL_SECONDS)
-        payload = pkge_response.json().get("payload")
+        payload = validate_json(pkge_response).get("payload")
 
         for courier in payload:
             if str(int(courier.get("id"))) == str(int(courier_id)):
@@ -183,8 +187,8 @@ def main(config):
                 if not next_check:
                     pkge_response = _pkge_response(method = "POST", path = "/packages/update", parameters = "trackNumber=%s" % tracking_number, ttl_seconds = PKGE_TTL_SECONDS)
 
-                    if pkge_response.json().get("code") == 903:
-                        payload = pkge_response.json().get("payload")
+                    if validate_json(pkge_response).get("code") == 903:
+                        payload = validate_json(pkge_response).get("payload")
                         payload_split = payload.split("Next check is possible on ")
                         payload_next_check = payload_split[1] if len(payload_split) > 1 else None
 
@@ -209,7 +213,7 @@ def main(config):
                         pkge_response = _pkge_response(path = "/couriers/detect", parameters = "trackNumber=%s" % tracking_number)
 
                 if pkge_response.status_code in [200, 400, 404]:
-                    payload = pkge_response.json().get("payload")
+                    payload = validate_json(pkge_response).get("payload")
 
                 pkge_courier_id = str(int(payload.get("courier_id", COURIER_ID_UNKNOWN))) if payload and hasattr(payload, "get") else ""
 
@@ -221,7 +225,7 @@ def main(config):
                         pkge_response = _pkge_response(method = "POST", path = "/packages/update", parameters = "trackNumber=%s" % tracking_number, ttl_seconds = 0)
 
                         if (pkge_response.status_code == 200):
-                            payload = pkge_response.json().get("payload")
+                            payload = validate_json(pkge_response).get("payload")
 
                 else:
                     cache.set(courier_cache, str(courier_id), PKGE_TTL_SECONDS)
