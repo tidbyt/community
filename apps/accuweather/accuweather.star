@@ -993,7 +993,8 @@ def main(config):
                 int(raw_forecast["Temperature"]["Minimum"]["Value"]),
                 int(raw_forecast["Temperature"]["Maximum"]["Value"]),
                 int(raw_forecast["Day"]["Icon"]),
-                raw_forecast["Day"]["Wind"]["Direction"]["English"]))
+                raw_forecast["Day"]["Wind"]["Direction"]["English"],
+            ))
 
     disp_forecasts = []
 
@@ -1099,8 +1100,8 @@ def main(config):
                     children = [render.Text("SAMPLE" if display_sample else "", font = "6x13", color = "#FF0000", height = 22)],
                     main_align = "center",
                     expanded = True,
-                )
-            ]
+                ),
+            ],
         ),
     )
 
