@@ -279,7 +279,7 @@ def main(config):
         phaseLabelColor = RED
         batLabel = ""
 
-    error = data["cleanMissionStatus"]["error"]
+    error = int(data["cleanMissionStatus"]["error"])
 
     #render battery icon
     # why not just use separate images for batteries? - it's NOT AS FUN
@@ -334,6 +334,8 @@ def main(config):
                 else:
                     row.append(black_pixel)
             batteryIconRows.append(row)
+    if error > 55: # if some other untested error, default to 'navigation problem'
+        error = 21
 
     return render.Root(
         child = render.Row(
