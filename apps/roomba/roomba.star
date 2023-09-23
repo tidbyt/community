@@ -334,7 +334,7 @@ def main(config):
                 else:
                     row.append(black_pixel)
             batteryIconRows.append(row)
-    if error > 55: # if some other untested error, default to 'navigation problem'
+    if error > 55:  # if some other untested error, default to 'navigation problem'
         error = 21
 
     return render.Root(
