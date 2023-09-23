@@ -956,27 +956,44 @@ UCSxORoAZkAcCBGYzvAAAAAASUVORK5CYII=
 """,
 }
 
+def get_result_forecast(dow, temp_min, temp_max, icon_num, wind_dir):
+    result_forecast = {}
+    result_forecast["dow"] = dow
+    result_forecast["temp_min"] = temp_min
+    result_forecast["temp_max"] = temp_max
+    result_forecast["icon_num"] = icon_num
+    result_forecast["wind_dir"] = wind_dir
+    return result_forecast
+
 def main(config):
-    api_key = config.get("apiKey")
-    location_key = config.get("locationKey")
+    api_key = config.get("apiKey", None)
+    location_key = config.get("locationKey", None)
 
-    resp = http.get(ACCUWEATHER_FORECAST_URL.format(location_key = location_key, api_key = api_key), ttl_seconds = 3600)
-    if resp.status_code != 200:
-        fail("AccuWeather forecast request failed with status", resp.status_code)
-
-    resp_json = resp.json()
+    display_sample = not (api_key and location_key)
 
     result_forecasts = []
-    raw_forecasts = resp_json["DailyForecasts"]
 
-    for raw_forecast in raw_forecasts[:3]:
-        result_forecast = {}
-        result_forecast["dow"] = time.parse_time(raw_forecast["Date"]).format("Mon").upper()
-        result_forecast["temp_min"] = int(raw_forecast["Temperature"]["Minimum"]["Value"])
-        result_forecast["temp_max"] = int(raw_forecast["Temperature"]["Maximum"]["Value"])
-        result_forecast["icon_num"] = int(raw_forecast["Day"]["Icon"])
-        result_forecast["wind_dir"] = raw_forecast["Day"]["Wind"]["Direction"]["English"]
-        result_forecasts.append(result_forecast)
+    if display_sample:
+        # sample data to display if user-specified API / location key are not available, also useful for testing
+        result_forecasts.append(get_result_forecast("Mon", 65, 75, 1, "N"))
+        result_forecasts.append(get_result_forecast("Tue", 66, 74, 12, "NE"))
+        result_forecasts.append(get_result_forecast("Wed", 68, 78, 15, "E"))
+    else:
+        resp = http.get(ACCUWEATHER_FORECAST_URL.format(location_key = location_key, api_key = api_key), ttl_seconds = 3600)
+        if resp.status_code != 200:
+            fail("AccuWeather forecast request failed with status", resp.status_code)
+
+        resp_json = resp.json()
+
+        raw_forecasts = resp_json["DailyForecasts"]
+
+        for raw_forecast in raw_forecasts[:3]:
+            result_forecasts.append(get_result_forecast(
+                time.parse_time(raw_forecast["Date"]).format("Mon").upper(),
+                int(raw_forecast["Temperature"]["Minimum"]["Value"]),
+                int(raw_forecast["Temperature"]["Maximum"]["Value"]),
+                int(raw_forecast["Day"]["Icon"]),
+                raw_forecast["Day"]["Wind"]["Direction"]["English"]))
 
     disp_forecasts = []
 
@@ -986,32 +1003,26 @@ def main(config):
         # weather icon, reduce AccuWeather icons to smaller set, see https://developer.accuweather.com/weather-icons
         icon_num = result_forecast["icon_num"]
 
-        # sunny
         if icon_num == 1:
+            # sunny
             icon = base64.decode(WEATHER_ICONS["sunny.png"])
-            # mostly sunny
-
         elif icon_num >= 2 and icon_num <= 5:
+            # mostly sunny
             icon = base64.decode(WEATHER_ICONS["sunnyish.png"])
-            # cloudy
-
         elif (icon_num >= 6 and icon_num <= 8) or icon_num == 11:
+            # cloudy
             icon = base64.decode(WEATHER_ICONS["cloudy.png"])
-            # rain
-
         elif (icon_num >= 12 and icon_num <= 14) or icon_num == 18:
+            # rain
             icon = base64.decode(WEATHER_ICONS["rainy.png"])
-            # thunderstorm
-
         elif icon_num >= 15 and icon_num <= 17:
+            # thunderstorm
             icon = base64.decode(WEATHER_ICONS["thundery.png"])
-            # snow
-
         elif (icon_num >= 19 and icon_num <= 26) or icon_num == 29:
+            # snow
             icon = base64.decode(WEATHER_ICONS["snowy2.png"])
-            # wind
-
         elif icon_num == 32:
+            # wind
             icon = base64.decode(WEATHER_ICONS["windy.png"])
         else:
             icon = None
@@ -1055,33 +1066,41 @@ def main(config):
         disp_forecasts.append(rows)
 
     return render.Root(
-        child = render.Row(
-            children =
-                [
-                    render.Column(
-                        children = disp_forecasts[0],
-                        main_align = "center",
-                        cross_align = "center",
-                    ),
-                    render.Column(
-                        children = [render.Box(width = 1, height = 32, color = "#5A5A5A")],
-                    ),
-                    render.Column(
-                        children = disp_forecasts[1],
-                        main_align = "center",
-                        cross_align = "center",
-                    ),
-                    render.Column(
-                        children = [render.Box(width = 1, height = 32, color = "#5A5A5A")],
-                    ),
-                    render.Column(
-                        children = disp_forecasts[2],
-                        main_align = "center",
-                        cross_align = "center",
-                    ),
-                ],
-            main_align = "space_evenly",
-            expanded = True,
+        child = render.Stack(
+            children = [
+                render.Row(
+                    children = [
+                        render.Column(
+                            children = disp_forecasts[0],
+                            main_align = "center",
+                            cross_align = "center",
+                        ),
+                        render.Column(
+                            children = [render.Box(width = 1, height = 32, color = "#5A5A5A")],
+                        ),
+                        render.Column(
+                            children = disp_forecasts[1],
+                            main_align = "center",
+                            cross_align = "center",
+                        ),
+                        render.Column(
+                            children = [render.Box(width = 1, height = 32, color = "#5A5A5A")],
+                        ),
+                        render.Column(
+                            children = disp_forecasts[2],
+                            main_align = "center",
+                            cross_align = "center",
+                        ),
+                    ],
+                    main_align = "space_evenly",
+                    expanded = True,
+                ),
+                render.Row(
+                    children = [render.Text("SAMPLE" if display_sample else "", font = "6x13", color = "#FF0000", height = 22)],
+                    main_align = "center",
+                    expanded = True,
+                )
+            ]
         ),
     )
 
