@@ -42,6 +42,7 @@ COURIERS = {
     "USPS": {"courier_id": 1},
 }
 
+DEFAULT_ADDITIONAL_INFO = "last_status"
 DEFAULT_COLOR = "#ffffff"
 DEFAULT_FONT = "tom-thumb"
 DEFAULT_OFFSET = 0
@@ -54,6 +55,11 @@ FONTS = {
     "5x8": {"offset": 1},
     "tom-thumb": {},
     "CG-pixel-3x5-mono": {},
+}
+
+ADDITIONAL_INFOS = {
+    "last_status": {"display": "Last Status"},
+    "est_delivery_date": {"display": "Estimated Delivery Date (If Available)"},
 }
 
 PADDING = 1
@@ -131,7 +137,7 @@ def main(config):
 
         return "Unknown Delivery Service"
 
-    def render_text(content, offset = FONTS[font].get("offset", DEFAULT_OFFSET), color = DEFAULT_COLOR, scroll = config.bool("scroll", DEFAULT_SCROLL), wrap = config.bool("scroll", DEFAULT_WRAP)):
+    def render_text(content = "", offset = FONTS[font].get("offset", DEFAULT_OFFSET), color = DEFAULT_COLOR, scroll = config.bool("scroll", DEFAULT_SCROLL), wrap = config.bool("scroll", DEFAULT_WRAP)):
         if not content:
             return render.Text("")
 
@@ -172,6 +178,9 @@ def main(config):
         last_checkpoint_location = ""
         last_checkpoint_title = ""
         last_checkpoint_title_color = DEFAULT_COLOR
+
+        additional_info = config.str("additional_info")
+        rendered_additional_info = ""
 
         children = []
 
@@ -255,25 +264,38 @@ def main(config):
                     last_tracking_date = payload.get("last_tracking_date")
                     last_location = payload.get("last_location")
 
-                    show_delivered_icon = config.bool("show_delivered_icon", DEFAULT_SHOW_DELIVERED_ICON)
+                    est_delivery_date_from = payload.get("est_delivery_date_from")
+                    est_delivery_date_to = payload.get("est_delivery_date_to")
 
-                    status_text = render_text(content = last_checkpoint_title or last_status, color = last_checkpoint_title_color or last_status_color)
+                    if est_delivery_date_from and est_delivery_date_to:
+                        est_delivery_date_from = humanize.time(time.parse_time(est_delivery_date_from))
+                        est_delivery_date_to = humanize.time(time.parse_time(est_delivery_date_to))
 
-                    if STATUS_COLOR_DELIVERED in [last_checkpoint_title_color, last_status_color] and show_delivered_icon:
-                        status_text = render.Stack(
-                            children = [
-                                render.Image(src = CHECKMARK),
-                                render.Padding(
-                                    pad = (CHECKMARK_RIGHT_PADDING, 0, 0, 0),
-                                    child = status_text,
-                                ),
-                            ],
+                    if additional_info == "est_delivery_date" and STATUS_COLOR_DELIVERED not in [last_checkpoint_title_color, last_status_color] and est_delivery_date_from and est_delivery_date_to:
+                        rendered_additional_info = render_text(
+                            content = "Estimated delivery is %s to %s" % (est_delivery_date_from, est_delivery_date_to),
                         )
+
+                    else:
+                        show_delivered_icon = config.bool("show_delivered_icon", DEFAULT_SHOW_DELIVERED_ICON)
+
+                        rendered_additional_info = render_text(content = last_checkpoint_title or last_status, color = last_checkpoint_title_color or last_status_color)
+
+                        if STATUS_COLOR_DELIVERED in [last_checkpoint_title_color, last_status_color] and show_delivered_icon:
+                            rendered_additional_info = render.Stack(
+                                children = [
+                                    render.Image(src = CHECKMARK),
+                                    render.Padding(
+                                        pad = (CHECKMARK_RIGHT_PADDING, 0, 0, 0),
+                                        child = rendered_additional_info,
+                                    ),
+                                ],
+                            )
 
                     children.append(render_text(content = label))
                     children.append(render_text(content = last_checkpoint_date or last_tracking_date))
                     children.append(render_text(content = last_checkpoint_location or last_location))
-                    children.append(status_text)
+                    children.append(rendered_additional_info or render_text())
 
                 elif type(payload) == "string":
                     children.append(
@@ -312,6 +334,13 @@ def get_schema():
     for courier, value in COURIERS.items():
         couriers.append(
             schema.Option(display = courier, value = str(value["courier_id"])),
+        )
+
+    additional_infos = []
+
+    for additional_info, value in ADDITIONAL_INFOS.items():
+        additional_infos.append(
+            schema.Option(display = value["display"], value = additional_info),
         )
 
     return schema.Schema(
@@ -367,6 +396,14 @@ def get_schema():
                 desc = "",
                 icon = "check",
                 default = DEFAULT_SHOW_DELIVERED_ICON,
+            ),
+            schema.Dropdown(
+                id = "additional_info",
+                name = "Additional Information",
+                desc = "",
+                icon = "info",
+                default = DEFAULT_ADDITIONAL_INFO,
+                options = additional_infos,
             ),
         ],
     )
