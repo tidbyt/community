@@ -72,17 +72,20 @@ STATUS_COLOR_DELIVERED = "#00ff00"
 STATUS_COLOR_ERROR = "#ff0000"
 STATUS_COLOR_NORMAL = DEFAULT_COLOR
 
-STATUS_COLORS = {
-    "0": STATUS_COLOR_NORMAL,
-    "1": STATUS_COLOR_NORMAL,
-    "2": STATUS_COLOR_NORMAL,
-    "3": STATUS_COLOR_NORMAL,
-    "4": STATUS_COLOR_DELIVERED,
-    "5": STATUS_COLOR_DELIVERED,
-    "6": STATUS_COLOR_ERROR,
-    "7": STATUS_COLOR_ERROR,
-    "8": STATUS_COLOR_NORMAL,
-    "9": STATUS_COLOR_NORMAL,
+STATUS_TYPE_DELIVERED = "DELIVERED"
+STATUS_TYPE_ERROR = "ERROR"
+
+STATUSES = {
+    0: {"color": STATUS_COLOR_NORMAL},
+    1: {"color": STATUS_COLOR_NORMAL},
+    2: {"color": STATUS_COLOR_NORMAL},
+    3: {"color": STATUS_COLOR_NORMAL},
+    4: {"color": STATUS_COLOR_DELIVERED, "type": STATUS_TYPE_DELIVERED},
+    5: {"color": STATUS_COLOR_DELIVERED, "type": STATUS_TYPE_DELIVERED},
+    6: {"color": STATUS_COLOR_ERROR, "type": STATUS_TYPE_ERROR},
+    7: {"color": STATUS_COLOR_ERROR, "type": STATUS_TYPE_ERROR},
+    8: {"color": STATUS_COLOR_NORMAL},
+    9: {"color": STATUS_COLOR_NORMAL},
 }
 
 TIDBYT_WIDTH = 64
@@ -184,6 +187,8 @@ def main(config):
 
         children = []
 
+        get_status_type = lambda status: STATUSES.get(status, STATUSES[0]).get("type")
+
         if pkge_api_key:
             if tracking_number:
                 tracking_number = re.sub("[^a-zA-Z0-9]+", "", tracking_number)
@@ -240,11 +245,16 @@ def main(config):
                     cache.set(courier_cache, str(courier_id), PKGE_TTL_SECONDS)
 
                 if payload and hasattr(payload, "update"):
-                    status = str(int(payload.get("status"))) if payload.get("status") else None
+                    status = payload.get("status")
+
+                    delivered = get_status_type(status) == STATUS_TYPE_DELIVERED
 
                     last_status = payload.get("last_status") if payload.get("last_status") else None
 
-                    last_status_color = STATUS_COLOR_DELIVERED if last_status and last_status.upper().count("DELIVERED") else DEFAULT_COLOR
+                    last_status_color = STATUS_COLOR_DELIVERED if delivered or last_status and last_status.upper().count(STATUS_TYPE_DELIVERED) else DEFAULT_COLOR
+
+                    if get_status_type(status) == STATUS_TYPE_ERROR:
+                        last_status_color = STATUS_COLOR_ERROR
 
                     label = config.str("label", None) if config.str("label") else get_delivery_service(pkge_courier_id) if pkge_courier_id else None
 
@@ -259,7 +269,12 @@ def main(config):
 
                         last_checkpoint_date = humanize.time(time.parse_time(last_checkpoint_date))
 
-                        last_checkpoint_title_color = STATUS_COLOR_DELIVERED if STATUS_COLOR_DELIVERED in [STATUS_COLORS.get(status), STATUS_COLORS.get(last_checkpoint_status)] or last_checkpoint_title.upper().count("DELIVERED") else DEFAULT_COLOR
+                        delivered = delivered or get_status_type(last_checkpoint_status) == STATUS_TYPE_DELIVERED or last_checkpoint_title and last_checkpoint_title.upper().count(STATUS_TYPE_DELIVERED)
+
+                        last_checkpoint_title_color = STATUS_COLOR_DELIVERED if delivered else DEFAULT_COLOR
+
+                        if get_status_type(last_checkpoint_status) == STATUS_TYPE_ERROR:
+                            last_checkpoint_title_color = STATUS_COLOR_ERROR
 
                     last_tracking_date = payload.get("last_tracking_date")
                     last_location = payload.get("last_location")
@@ -271,7 +286,7 @@ def main(config):
                         est_delivery_date_from = humanize.time(time.parse_time(est_delivery_date_from))
                         est_delivery_date_to = humanize.time(time.parse_time(est_delivery_date_to))
 
-                    if additional_info == "est_delivery_date" and STATUS_COLOR_DELIVERED not in [last_checkpoint_title_color, last_status_color] and est_delivery_date_from and est_delivery_date_to:
+                    if additional_info == "est_delivery_date" and not delivered and est_delivery_date_from and est_delivery_date_to:
                         rendered_additional_info = render_text(
                             content = "Estimated delivery is %s to %s" % (est_delivery_date_from, est_delivery_date_to),
                         )
@@ -281,7 +296,7 @@ def main(config):
 
                         rendered_additional_info = render_text(content = last_checkpoint_title or last_status, color = last_checkpoint_title_color or last_status_color)
 
-                        if STATUS_COLOR_DELIVERED in [last_checkpoint_title_color, last_status_color] and show_delivered_icon:
+                        if delivered and show_delivered_icon:
                             rendered_additional_info = render.Stack(
                                 children = [
                                     render.Image(src = CHECKMARK),
