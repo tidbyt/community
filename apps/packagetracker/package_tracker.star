@@ -48,6 +48,7 @@ DEFAULT_FONT = "tom-thumb"
 DEFAULT_OFFSET = 0
 DEFAULT_SCROLL = True
 DEFAULT_SHOW_DELIVERED_ICON = False
+DEFAULT_SHOW_ORIGIN_DESTINATION = False
 DEFAULT_WRAP = False
 
 FONTS = {
@@ -258,6 +259,15 @@ def main(config):
 
                     label = config.str("label", None) if config.str("label") else get_delivery_service(pkge_courier_id) if pkge_courier_id else None
 
+                    show_origin_destination = config.bool("show_origin_destination", DEFAULT_SHOW_ORIGIN_DESTINATION)
+
+                    if show_origin_destination:
+                        origin = payload.get("origin")
+                        destination = payload.get("destination")
+
+                        if origin and destination:
+                            label += (" (from %s to %s)" % (origin, destination))
+
                     if not payload.get("last_checkpoint"):
                         payload.update(last_checkpoint = payload.get("checkpoints")[0] if payload.get("checkpoints") else None)
 
@@ -403,6 +413,13 @@ def get_schema():
                 desc = "",
                 icon = "scroll",
                 default = DEFAULT_SCROLL,
+            ),
+            schema.Toggle(
+                id = "show_origin_destination",
+                name = "Show Origin and Destination Countries",
+                desc = "",
+                icon = "check",
+                default = DEFAULT_SHOW_ORIGIN_DESTINATION,
             ),
             schema.Toggle(
                 id = "show_delivered_icon",
