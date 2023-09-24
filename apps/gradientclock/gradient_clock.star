@@ -1,8 +1,8 @@
+load("encoding/json.star", "json")
+load("math.star", "math")
+load("random.star", "random")
 load("render.star", "render")
 load("time.star", "time")
-load("math.star", "math")
-load("encoding/json.star", "json")
-load("random.star", "random")
 
 width = 64
 height = 32
@@ -212,7 +212,7 @@ def render_cell_str(cell, cmap):
 
 P_LOCATION = "location"
 P_USE_12H = "use_12h"
-P_BLINK_TIME = "blink_time"
+
 P_DAY_START = "day_start"
 P_NIGHT_START = "night_start"
 P_SEASON_THEME = "season_theme"
@@ -236,7 +236,8 @@ def main(config):
         rates.append(random.number(0, 1000))
     location = config.get(P_LOCATION)
     location = json.decode(location) if location else {}
-    blink_time = config.bool(P_BLINK_TIME)
+
+    # blink_time = config.bool(P_BLINK_TIME)
     timezone = location.get(
         "timezone",
         config.get("$tz", DEFAULT_TIMEZONE),
@@ -248,15 +249,13 @@ def main(config):
     for _ in range(height):
         board.append(["#ff0000"] * width)
     frames = []
-    generation_cache = {}
-    frame_cache = {}
-    fade_rate = 12
+    # fade_rate = 12
 
     # Generate enough frames to last for the maximum time the app can be on screen.
     time_rate = 90
     for i in range(0, APP_DURATION_MILLISECONDS, REFRESH_MILLISECONDS):
-        cx = width / 2
-        cy = height / 2
+        # cx = width / 2
+        # cy = height / 2
         for y in range(height):
             for x in range(width):
                 board[y][x] = get_hex(rates[9] + rates[0] * x + rates[1] * y + rates[2] * i / time_rate, rates[10] + rates[3] * x + rates[4] * y + rates[5] * i / time_rate, rates[11] + rates[6] * x + rates[7] * y + rates[8] * i / time_rate)
