@@ -277,7 +277,8 @@ def main(config):
                         last_checkpoint_status = payload.get("last_checkpoint").get("status")
                         last_checkpoint_title = payload.get("last_checkpoint").get("title")
 
-                        last_checkpoint_date = humanize.time(time.parse_time(last_checkpoint_date))
+                        if last_checkpoint_date:
+                            last_checkpoint_date = humanize.time(time.parse_time(last_checkpoint_date))
 
                         delivered = delivered or get_status_type(last_checkpoint_status) == STATUS_TYPE_DELIVERED or last_checkpoint_title and last_checkpoint_title.upper().count(STATUS_TYPE_DELIVERED)
 
@@ -287,6 +288,10 @@ def main(config):
                             last_checkpoint_title_color = STATUS_COLOR_ERROR
 
                     last_tracking_date = payload.get("last_tracking_date")
+
+                    if last_tracking_date:
+                        last_tracking_date = humanize.time(time.parse_time(last_tracking_date))
+
                     last_location = payload.get("last_location")
 
                     est_delivery_date_from = payload.get("est_delivery_date_from")
