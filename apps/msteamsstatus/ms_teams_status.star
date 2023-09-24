@@ -376,7 +376,7 @@ def oauth_handler(params):
     cache.set(
         response_json["refresh_token"],
         response_json["access_token"],
-        ttl_seconds = int(response_json["expires_in"] - 30),
+        ttl_seconds = int(response_json["expires_in"]) - 30,
     )
     if DEBUG_ON:
         print("RETURNING oauth_handler: " + str(response_json["refresh_token"]))
