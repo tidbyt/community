@@ -76,7 +76,7 @@ def main(config):
     serverPort = config.str("serverPort")
     plexToken = config.str("plexToken")
     apiKey = config.str("apiKey", "")
-    showTitleCard = config.bool("showTitleCard")
+    showTitleCard = config.bool("showTitleCard", True)
 
     if not serverIP or type(int(serverPort)) != "int":
         usingSampleData = True
