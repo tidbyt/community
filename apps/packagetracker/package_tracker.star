@@ -282,11 +282,10 @@ def main(config):
                     est_delivery_date_from = payload.get("est_delivery_date_from")
                     est_delivery_date_to = payload.get("est_delivery_date_to")
 
-                    if est_delivery_date_from and est_delivery_date_to:
+                    if not delivered and additional_info == "est_delivery_date" and est_delivery_date_from and est_delivery_date_to:
                         est_delivery_date_from = humanize.time(time.parse_time(est_delivery_date_from))
                         est_delivery_date_to = humanize.time(time.parse_time(est_delivery_date_to))
 
-                    if additional_info == "est_delivery_date" and not delivered and est_delivery_date_from and est_delivery_date_to:
                         rendered_additional_info = render_text(
                             content = "Estimated delivery is %s to %s" % (est_delivery_date_from, est_delivery_date_to),
                         )
