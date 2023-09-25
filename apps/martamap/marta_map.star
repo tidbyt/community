@@ -15,9 +15,9 @@ load("schema.star", "schema")
 DEFAULT_TEXT_COLOR = "#aaaaaa"
 DEFAULT_ORIENTATION_BOOL = False  #Default to horizontal
 DEFAULT_ARRIVALS = True
-DEFAULT_STATION = "Five Points"
+DEFAULT_STATION = "Lindbergh Center"
 DEFAULT_SCROLL = True
-DEAFULT_DIRECTION = None
+# DEAFULT_DIRECTION = None
 
 # FONT = "CG-pixel-3x5-mono"
 FONT = "CG-pixel-4x5-mono"
@@ -73,11 +73,19 @@ def main(config):
 
 def get_schema():
     station_options = get_station_list_options()
-    direction_options = get_direction_list_options()
+    # direction_options = get_direction_list_options()
 
     return schema.Schema(
         version = "1",
         fields = [
+            schema.Dropdown(
+                id = "station",
+                name = "Station",
+                desc = "The color of text to be displayed.",
+                icon = "trainSubway",
+                default = station_options[17].value,
+                options = station_options,
+            ),
             schema.Toggle(
                 id = "orientation",
                 name = "Vertical Orientation?",
@@ -99,22 +107,14 @@ def get_schema():
                 icon = "toggleOn",
                 default = True,
             ),
-            schema.Dropdown(
-                id = "station",
-                name = "Stations",
-                desc = "The color of text to be displayed.",
-                icon = "trainSubway",
-                default = station_options[17].value,
-                options = station_options,
-            ),
-            schema.Dropdown(
-                id = "direction",
-                name = "Filter Direction",
-                desc = "Filter the arrivals to one cardinal direction.",
-                icon = "compass",
-                default = direction_options[0].value,
-                options = direction_options,
-            ),
+            # schema.Dropdown(
+            #     id = "direction",
+            #     name = "Filter Direction",
+            #     desc = "Filter the arrivals to one cardinal direction.",
+            #     icon = "compass",
+            #     default = direction_options[0].value,
+            #     options = direction_options,
+            # ),
             schema.Color(
                 id = "text_color",
                 name = "Text Color",
@@ -241,16 +241,16 @@ def get_station_list_options():
         )
     return options
 
-def get_direction_list_options():
-    options = []
-    for direction in DIRECTION_MAP.keys():
-        options.append(
-            schema.Option(
-                display = direction,
-                value = direction,
-            ),
-        )
-    return options
+# def get_direction_list_options():
+#     options = []
+#     for direction in DIRECTION_MAP.keys():
+#         options.append(
+#             schema.Option(
+#                 display = direction,
+#                 value = direction,
+#             ),
+#         )
+#     return options
 
 def arrival_template(config, color, time, head_sign):
     text_color = config.str("text_color", DEFAULT_TEXT_COLOR)
@@ -356,9 +356,9 @@ def get_arrivals(config):
         return json.decode(cached_arrivals)
 
     station = STATIONS_MAP[config.get("station") or DEFAULT_STATION]
-    direction = config.bool("direction") or DEAFULT_DIRECTION
-    if direction != None:
-        direction = DIRECTION_MAP[direction]
+    # direction = config.bool("direction") or DEAFULT_DIRECTION
+    # if direction != None:
+    #     direction = DIRECTION_MAP[direction]
 
     response = http.get("https://api.marta.io/trains")
     if response.status_code != 200:
@@ -367,14 +367,15 @@ def get_arrivals(config):
     arrivals = []
 
     for arrival in all_arrivals:
-        if direction == None:
-            #Append the correct station arrivals
-            if arrival["STATION"] == station:
-                arrivals.append(arrival)
-
-            #Append only 1 direction if selected in Schema
-        elif arrival["STATION"] == station and arrival["DIRECTION"] == direction:
+        # if direction == None:
+        #Append the correct station arrivals
+        if arrival["STATION"] == station:
             arrivals.append(arrival)
+
+        #Append only 1 direction if selected in Schema
+
+    # elif arrival["STATION"] == station and arrival["DIRECTION"] == direction:
+    #     arrivals.append(arrival)
 
     #Sort arrivals by shortest time to arrival
     arrivals = (sorted(arrivals, key = lambda d: int(d["WAITING_SECONDS"])))

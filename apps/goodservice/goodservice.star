@@ -66,7 +66,7 @@ def main(config):
         fail("goodservice routes request failed with status %d", routes_req.status_code)
 
     stop_id = config.str("stop_id", DEFAULT_STOP_ID)
-    stop_req = http.get(GOOD_SERVICE_STOPS_URL_BASE + stop_id)
+    stop_req = http.get(GOOD_SERVICE_STOPS_URL_BASE + stop_id + "?agent=tidbyt")
     if stop_req.status_code != 200:
         fail("goodservice stop request failed with status %d", stop_req.status_code)
 
@@ -248,6 +248,7 @@ def main(config):
                 children = blocks,
             ),
         ),
+        max_age = 60,
     )
 
 def is_parsable_integer(maybe_number):
