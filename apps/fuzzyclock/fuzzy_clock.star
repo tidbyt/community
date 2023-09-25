@@ -60,6 +60,20 @@ numbersPerLang = {
         11: "ELEVEN",
         12: "TWELVE",
     },
+    "es": {
+        1: "UNA",
+        2: "DOS",
+        3: "TRES",
+        4: "CUATRO",
+        5: "CINCO",
+        6: "SEIS",
+        7: "SIETE",
+        8: "OCHO",
+        9: "NUEVE",
+        10: "DIEZ",
+        11: "ONCE",
+        12: "DOCE",
+    },
 }
 numbersPerLang["en-GB"] = numbersPerLang["en-US"]
 numbersPerLang["nl-BE"] = numbersPerLang["nl-NL"]
@@ -210,6 +224,20 @@ patternsPerLang = {
         50: "TIEN,VOOR,{next_hour}",
         55: "VIJF,VOOR,{next_hour}",
     },
+    "es": {
+        0: "LAS {hour}",
+        5: "LAS {hour},Y,CINCO",
+        10: "LAS {hour},Y,DIEZ",
+        15: "LAS {hour},Y,CUARTO",
+        20: "LAS {hour},Y,VEINTE",
+        25: "LAS {hour},Y,VEINTICINCO",
+        30: "LAS {hour},Y,MEDIA",
+        35: "LAS {next_hour},MENOS,VEINTICINCO",
+        40: "LAS {next_hour},MENOS,VEINTE",
+        45: "LAS {next_hour},MENOS,CUARTO",
+        50: "LAS {next_hour},MENOS,DIEZ",
+        55: "LAS {next_hour},MENOS,CINCO",
+    },
 }
 
 def display_hour(hour):
@@ -243,6 +271,9 @@ def fuzzy_time(hours, minutes, language):
     # Special case
     if language.startswith("de") and cur_hour == "EINS" and rounded == 0:
         cur_hour = "EIN"  # "EIN UHR" instead of "EINS UHR"
+
+    if language.startswith("es") and cur_hour == "UNA" or next_hour == "UNA":
+        pattern = pattern.replace("LAS", "LA")  # "LA UNA" instead of "LAS UNA"
 
     return pattern.format(hour = cur_hour, next_hour = next_hour).split(",")
 
@@ -317,6 +348,10 @@ def get_schema():
         schema.Option(
             display = "Dutch (Belgium)",
             value = "nl-BE",
+        ),
+        schema.Option(
+            display = "Spanish",
+            value = "es",
         ),
     ]
 
