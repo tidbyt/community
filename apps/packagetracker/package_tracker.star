@@ -230,7 +230,9 @@ def main(config):
                 if pkge_response.status_code in [200, 400, 404]:
                     payload = validate_json(pkge_response).get("payload")
 
-                pkge_courier_id = str(int(payload.get("courier_id", COURIER_ID_UNKNOWN))) if payload and hasattr(payload, "get") else ""
+                pkge_courier_id = str(int(payload.get("courier_id") or COURIER_ID_UNKNOWN)) if payload and hasattr(payload, "get") else COURIER_ID_UNKNOWN
+
+                print(pkge_courier_id)
 
                 if cache.get(courier_cache):
                     courier_id = cache.get(courier_cache)
