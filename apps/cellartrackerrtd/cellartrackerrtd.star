@@ -127,50 +127,7 @@ def select_bottle_to_display(top_n_value, displayable_bottles):
     idx = random.number(0, len(top_n_bottles) - 1)
     return top_n_bottles[idx]
 
-def main(config):
-    username = config.get("cellartracker_username")
-    password = config.get("cellartracker_password")
-    exclusion_keywords_string = config.get("exclusion_keywords")
-    top_n_value = int(config.get("top_n_value") or DEFAULT_TOP_N_VALUE)
-
-    # These options are not exposed in the schema and are only
-    # intended to be used in development
-    bottle_id_override = config.get("bottle_id")
-
-    exclusion_keyword_list = []
-    if exclusion_keywords_string:
-        exclusion_keyword_list = exclusion_keywords_string.split(",")
-
-    if username and password:
-        print("CellarTracker credentials found, fetching data from server")
-
-        raw_inventory_xml = get_inventory_xml(username, password)
-        raw_availability_xml = get_availability_xml(username, password)
-    else:
-        print("No CellarTracker credentials found")
-
-        return render.Root(
-            render.WrappedText(
-                width = 64,
-                content = "CellarTracker credentials missing",
-                color = "#afafaf",
-            ),
-        )
-
-    inventory_list = inventory_xml_to_dict_list(raw_inventory_xml)
-    availability_list = availability_xml_to_dict_list(raw_availability_xml)
-
-    excluded_wine_ids = select_excluded_wine_ids(inventory_list, exclusion_keyword_list)
-    displayable_bottles = select_displayable_bottles(availability_list, excluded_wine_ids)
-
-    bottle = select_bottle_to_display(top_n_value, displayable_bottles)
-
-    if bottle_id_override:
-        bottle = [b for b in availability_list if b["iWine"] == bottle_id_override][0]
-
-    wine_glass_icon = get_wine_glass_icon(bottle)
-    wine_display_name = wine_display_text(bottle)
-
+def render_widgets(wine_glass_icon, wine_display_name):
     return render.Root(
         child = render.Row(
             expanded = True,
@@ -198,6 +155,46 @@ def main(config):
             ],
         ),
     )
+
+def main(config):
+    username = config.get("cellartracker_username")
+    password = config.get("cellartracker_password")
+    exclusion_keywords_string = config.get("exclusion_keywords")
+    top_n_value = int(config.get("top_n_value") or DEFAULT_TOP_N_VALUE)
+
+    # These options are not exposed in the schema and are only
+    # intended to be used in development
+    bottle_id_override = config.get("bottle_id")
+
+    exclusion_keyword_list = []
+    if exclusion_keywords_string:
+        exclusion_keyword_list = exclusion_keywords_string.split(",")
+
+    if username and password:
+        print("CellarTracker credentials found, fetching data from server")
+
+        raw_inventory_xml = get_inventory_xml(username, password)
+        raw_availability_xml = get_availability_xml(username, password)
+    else:
+        print("No CellarTracker credentials found")
+
+        return render_widgets(RED_WINE_GLASS_ICON, "2023 Your Favorite Red Wine")
+
+    inventory_list = inventory_xml_to_dict_list(raw_inventory_xml)
+    availability_list = availability_xml_to_dict_list(raw_availability_xml)
+
+    excluded_wine_ids = select_excluded_wine_ids(inventory_list, exclusion_keyword_list)
+    displayable_bottles = select_displayable_bottles(availability_list, excluded_wine_ids)
+
+    bottle = select_bottle_to_display(top_n_value, displayable_bottles)
+
+    if bottle_id_override:
+        bottle = [b for b in availability_list if b["iWine"] == bottle_id_override][0]
+
+    wine_glass_icon = get_wine_glass_icon(bottle)
+    wine_display_name = wine_display_text(bottle)
+
+    return render_widgets(wine_glass_icon, wine_display_name)
 
 def get_schema():
     return schema.Schema(
