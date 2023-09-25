@@ -232,8 +232,6 @@ def main(config):
 
                 pkge_courier_id = str(int(payload.get("courier_id") or COURIER_ID_UNKNOWN)) if payload and hasattr(payload, "get") else COURIER_ID_UNKNOWN
 
-                print(pkge_courier_id)
-
                 if cache.get(courier_cache):
                     courier_id = cache.get(courier_cache)
                     if courier_id != pkge_courier_id:
@@ -379,7 +377,7 @@ def get_schema():
         fields = [
             schema.Text(
                 id = "pkge_api_key",
-                name = "pkge.net API Key",
+                name = "pkge.net API Key (Required)",
                 desc = "business.pkge.net/settings/api-key",
                 icon = "box",
                 default = "",
@@ -394,7 +392,7 @@ def get_schema():
             ),
             schema.Text(
                 id = "tracking_number",
-                name = "Tracking Number",
+                name = "Tracking Number (Required)",
                 desc = "",
                 icon = "barcode",
                 default = "",
@@ -423,7 +421,7 @@ def get_schema():
             ),
             schema.Toggle(
                 id = "show_origin_destination",
-                name = "Show Origin and Destination Countries",
+                name = "Show Origin and Destination Countries (If Available)",
                 desc = "",
                 icon = "check",
                 default = DEFAULT_SHOW_ORIGIN_DESTINATION,
