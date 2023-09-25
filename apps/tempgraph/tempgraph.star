@@ -35,7 +35,7 @@ load("schema.star", "schema")
 load("time.star", "time")
 
 # config
-API_KEY = ""
+API_KEY = "0f21fd8fc8e54c84b9a13812232004"
 
 DEFAULT_DAY_COLOR = "#33F8FF"
 DEFAULT_DATE_COLOR = "#33F8FF"
