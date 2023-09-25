@@ -302,7 +302,7 @@ def main(config):
                         est_delivery_date_to = humanize.time(time.parse_time(est_delivery_date_to))
 
                         rendered_additional_info = render_text(
-                            content = "Estimated delivery is %s to %s" % (est_delivery_date_from, est_delivery_date_to),
+                            content = "Estimated delivery: %s to %s" % (est_delivery_date_from, est_delivery_date_to),
                         )
 
                     else:
@@ -352,20 +352,18 @@ def main(config):
 
 def get_schema():
     fonts = []
+    couriers = []
+    additional_infos = []
 
     for font in FONTS:
         fonts.append(
             schema.Option(display = font, value = font),
         )
 
-    couriers = []
-
     for courier, value in COURIERS.items():
         couriers.append(
             schema.Option(display = courier, value = str(value["courier_id"])),
         )
-
-    additional_infos = []
 
     for additional_info, value in ADDITIONAL_INFOS.items():
         additional_infos.append(
@@ -423,7 +421,7 @@ def get_schema():
                 id = "show_origin_destination",
                 name = "Show Origin and Destination Countries (If Available)",
                 desc = "",
-                icon = "check",
+                icon = "globe",
                 default = DEFAULT_SHOW_ORIGIN_DESTINATION,
             ),
             schema.Toggle(
