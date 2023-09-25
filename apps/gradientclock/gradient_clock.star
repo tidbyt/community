@@ -7,8 +7,8 @@ load("time.star", "time")
 width = 64
 height = 32
 
-APP_DURATION_MILLISECONDS = 16000
-REFRESH_MILLISECONDS = 200
+APP_DURATION_MILLISECONDS = 1000
+REFRESH_MILLISECONDS = 500
 
 digits = {
     "0": [
@@ -228,6 +228,7 @@ DEFAULT_TIME_COLOR = {
 }
 
 def main(config):
+    # rgb_vals = {}
     random.seed(time.now().unix)
     rates = []
     for x in range(0, 9):
@@ -243,22 +244,27 @@ def main(config):
         config.get("$tz", DEFAULT_TIMEZONE),
     )
     now = config.get("time")
+
     now = (time.parse_time(now) if now else time.now()).in_location(timezone)
     now_date = now.format("2 Jan")
+    t = (now - time.time(year = 2000)) / time.second
+    mults = [15436, 37531, 108444, 48954, 97676, 324345, 27841, 29841, 33564, 47474, 83562, 91919]
+    rates = []
+    for x in range(0, 9):
+        rates.append(math.sin(t / mults[x]) * 8)
+    for x in range(9, 12):
+        rates.append(math.sin(t / mults[x]) * 1000)
+
     board = []
     for _ in range(height):
         board.append(["#ff0000"] * width)
     frames = []
-    # fade_rate = 12
 
-    # Generate enough frames to last for the maximum time the app can be on screen.
-    time_rate = 90
+    # fade_rate = 12
+    for y in range(height):
+        for x in range(width):
+            board[y][x] = get_hex(rates[9] + rates[0] * x + rates[1] * y, rates[10] + rates[3] * x + rates[4] * y, rates[11] + rates[6] * x + rates[7] * y)
     for i in range(0, APP_DURATION_MILLISECONDS, REFRESH_MILLISECONDS):
-        # cx = width / 2
-        # cy = height / 2
-        for y in range(height):
-            for x in range(width):
-                board[y][x] = get_hex(rates[9] + rates[0] * x + rates[1] * y + rates[2] * i / time_rate, rates[10] + rates[3] * x + rates[4] * y + rates[5] * i / time_rate, rates[11] + rates[6] * x + rates[7] * y + rates[8] * i / time_rate)
         frames.append(render.Stack(children =
                                        [
                                            render_frame(board),
@@ -316,9 +322,16 @@ def pad_0(num):
     return ("0" + str(num))[-2:]
 
 m = 101
+pim = m * 2 * math.pi
+save_rate = 2
 
 def get_rgb_val(x):
-    return pad_0("%X" % int(boomerang(x) * 0xFF))
+    #    if int(x%pim * save_rate) in rgb_vals:
+    #      return rgb_vals[int(x%pim * save_rate)]
+    out = pad_0("%X" % int(boomerang(x) * 0xFF))
+
+    #  rgb_vals[int(x%pim * save_rate)] = out
+    return out
 
 def boomerang(x):
     return math.sin(x / m) / 4 + 0.75
