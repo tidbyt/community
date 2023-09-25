@@ -300,7 +300,7 @@ def main(config):
 
     return render.Root(
         child = render.Padding(
-            pad = 4,
+            pad = 3,
             child = render.Column(
                 children = texts,
             ),
