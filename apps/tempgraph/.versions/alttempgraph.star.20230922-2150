@@ -1,0 +1,412 @@
+"""
+Applet: Hourly Temperature Graph
+Summary: Date, temperature, and hourly temperature graph
+Description: Display date and current temperature along with a graph of temperature each hour
+Author: D. Segel
+"""
+
+load("encoding/json.star", "json")
+load("http.star", "http")
+load("humanize.star", "humanize")
+load("render.star", "render")
+load("schema.star", "schema")
+load("time.star", "time")
+
+# config
+API_KEY = "0f21fd8fc8e54c84b9a13812232004"
+
+DEFAULT_DAY_COLOR = "#33F8FF"
+DEFAULT_DATE_COLOR = "#33F8FF"
+DEFAULT_MONTH_COLOR = "#33F8FF"
+
+DEFAULT_NOW_LABEL_COLOR = "#fff"
+DEFAULT_NOW_TEMP_COLOR = "#fff"
+
+DEFAULT_MIN_TEMP_COLOR = "#10f"
+DEFAULT_MIN_LABEL_COLOR = "#10f"
+
+DEFAULT_MAX_TEMP_COLOR = "#f00"
+DEFAULT_MAX_LABEL_COLOR = "#f00"
+
+DEFAULT_GRAPH_TOP_COLOR = "#ED3209"
+DEFAULT_GRAPH_FILL_COLOR = "#EAFF00"
+
+DEFAULT_LABEL_FONT = "CG-pixel-3x5-mono"
+DEFAULT_LOCATION = """
+{
+    "lat": "38.545",
+    "lng": "-121.741",
+    "description": "Davis, CA",
+    "locality": "Davis",
+    "timezone": "America/Los_Angeles"
+}
+"""
+
+DEFAULT_POLLING_INTERVAL = 15
+DEFAULT_MAX_BAR_HEIGHT = 15
+
+def main(config):
+    """Main function that renders the Tidbyt display
+
+    Args:
+        config: configuration values
+    Returns:
+        Pixlet Root element
+    """
+    api_key = config.get("api_key", API_KEY)
+
+    # print(api_key)
+    if api_key == None:
+        # print("No API Key found in config")
+        return render.Root(
+            render.Padding(
+                pad = (0, 20, 0, 0),
+                child = render.Marquee(
+                    child = render.Text("Enter API Key in Options", color = "#fff"),
+                    width = 64,
+                    align = "center",
+                ),
+            ),
+        )
+    history_data = []
+    last_check_date = 0
+
+    day_color = config.str("day_color", DEFAULT_DAY_COLOR)
+    date_color = config.get("date_color", DEFAULT_DATE_COLOR)
+    month_color = config.get("month_color", DEFAULT_MONTH_COLOR)
+    now_label_color = config.get("now_label_color", DEFAULT_NOW_LABEL_COLOR)
+    now_temp_color = config.get("now_temp_color", DEFAULT_NOW_TEMP_COLOR)
+    min_label_color = config.get("min_label_color", DEFAULT_MIN_LABEL_COLOR)
+    min_temp_color = config.get("min_temp_color", DEFAULT_MIN_TEMP_COLOR)
+    max_label_color = config.get("max_label_color", DEFAULT_MAX_LABEL_COLOR)
+    max_temp_color = config.get("max_temp_color", DEFAULT_MAX_TEMP_COLOR)
+    graph_color = config.get("graph_color", DEFAULT_GRAPH_TOP_COLOR)
+    graph_fill_color = config.get("graph_fill_color", DEFAULT_GRAPH_FILL_COLOR)
+
+    polling_interval = int(config.get("polling_interval", DEFAULT_POLLING_INTERVAL)) * 60
+
+    loc = config.get("location", DEFAULT_LOCATION)
+    location = json.decode(loc)
+
+    # print(location)
+    # print(DEFAULT_LOCATION)
+    # print(config.get("location", DEFAULT_LOCATION))
+    timezone = location["timezone"]
+    lat = location["lat"]
+    lng = location["lng"]
+
+    local_time = time.now().in_location(timezone)
+    if config.bool("24_hour_time"):
+        print_time = humanize.time_format("HH:mm", local_time)
+    else:
+        print_time = humanize.time_format("K:mmaa", local_time)
+
+    # print(print_time)
+
+    date_day = humanize.time_format("EEE", local_time)
+    date_month = humanize.time_format("MMM", local_time)
+    date_date = humanize.time_format("dd", local_time)
+    local_date = humanize.time_format("yyyy-MM-dd", local_time)
+
+    print(polling_interval, lat, lng, local_date, api_key)
+    weather_data = get_data(polling_interval, lat, lng, local_date, api_key)
+    print(weather_data["forecast"]["forecastday"][0]["hour"][0]["temp_f"])
+    for hour in range(current_hour_plus_1):
+        history_data.extend(or hour in range(current_hour_plus_1):)
+    weather_data_current = get_data(polling_interval, lat, lng, local_date, api_key)
+
+    min_temp_str = humanize.ftoa(weather_data["temperature"]["min"], 0)
+    max_temp_str = humanize.ftoa(weather_data["temperature"]["max"], 0)
+    current_temp_str = humanize.ftoa(weather_data_current["current"]["temp"], 0)
+
+    min_temp_float = weather_data["temperature"]["min"]
+    max_temp_float = weather_data["temperature"]["max"]
+    current_temp_float = weather_data_current["current"]["temp"]
+
+    epoch_time = time.now().unix
+    current_hour_plus_1 = local_time.hour + 1
+    midnight_delta = local_time.hour * 3600 + local_time.minute * 60 + local_time.second
+    midnight_epoch = epoch_time - midnight_delta
+
+    # # print(midnight_delta)
+    # # print("midnight: {}, current_hour_plus_1: {}".format(midnight_epoch, current_hour_plus_1))
+
+    # print(last_check_date, local_time)
+    # if local_time != last_check_date:
+    #     for hour in range(current_hour_plus_1):
+    #         epoch = midnight_epoch + hour * 3600
+    #         weather_data_history = get_data("history", polling_interval, lat, lng, local_date, epoch, config)
+    #         history_temp = weather_data_history["data"][0]["temp"]
+    #         if current_temp_float < min_temp_float:
+    #             min_temp_float = current_temp_float
+    #         if current_temp_float > max_temp_float:
+    #             max_temp_float = current_temp_float
+    #         mapped_temp = map(history_temp, min_temp_float - 10, max_temp_float + 3, 0, DEFAULT_MAX_BAR_HEIGHT)
+
+    #         # # print(local_time, hour, history_temp, mapped_temp)
+    #         history_data.extend([(hour, mapped_temp)])
+    #         last_check_date = date_date
+
+    # print("Lo: {}, Hi: {}, current: {}".format(min_temp_str, max_temp_str, current_temp_str))
+    return render.Root(
+        delay = 5000,
+        max_age = 90,
+        child = render.Row(
+            children = [
+                # LEFT COLUMN
+                render.Column(
+                    main_align = "center",
+                    # cross_align = "start",
+                    children = [
+                        render.Box(width = 18, height = 1, color = "#000"),
+                        render.Padding(
+                            pad = (2, 3, 0, 0),
+                            child = render.Text(date_day, color = day_color),
+                        ),
+                        render.Padding(
+                            pad = (3, 6, 0, 0),
+                            child = render.Text(content = min_temp_str + "°", color = min_temp_color),
+                        ),
+                        render.Padding(
+                            pad = (3, 0, 0, 0),
+                            child = render.Text(content = "Low", color = min_label_color, font = DEFAULT_LABEL_FONT),
+                        ),
+                    ],
+                ),
+                # MIDDLE COLUMN
+                render.Column(
+                    main_align = "center",
+                    cross_align = "center",
+                    children = [
+                        render.Box(width = 28, height = 1, color = "#000"),  # column 2, middle teal box
+                        render.Padding(
+                            child = render.Animation(
+                                children = [
+                                    render.Text(content = "Now", color = now_label_color),
+                                    render.Text(content = print_time, color = now_label_color),
+                                ],
+                            ),
+                            pad = (0, 0, 0, 0),
+                        ),
+                        render.Padding(
+                            child = render.Text(content = "" + current_temp_str + "°", color = now_temp_color),
+                            pad = (1, 0, 0, 0),
+                        ),
+                        render.Padding(
+                            render.Plot(
+                                data = history_data,
+                                width = 24,
+                                height = 15,
+                                color = graph_color,
+                                fill_color = graph_fill_color,
+                                x_lim = (0, 23),
+                                y_lim = (0, 15),
+                                fill = True,
+                            ),
+                            pad = (0, 0, 0, 0),
+                        ),
+                    ],
+                ),
+                # RIGHT COLUMN
+                render.Column(
+                    main_align = "center",
+                    cross_align = "center",
+                    children = [
+                        render.Box(width = 18, height = 1, color = "#000"),
+                        render.Text(date_date, color = date_color),
+                        render.Text(date_month, color = month_color),
+                        render.Padding(
+                            pad = (1, 1, 0, 0),
+                            child = render.Text(content = max_temp_str + "°", color = max_temp_color),
+                        ),
+                        render.Text(content = "High", color = max_label_color, font = DEFAULT_LABEL_FONT),
+                    ],
+                ),
+            ],
+        ),
+    )
+    # delay = 1000
+
+polling_interval_options = [
+    schema.Option(
+        display = "5 minutes",
+        value = "5",
+    ),
+    schema.Option(
+        display = "10 minutes",
+        value = "10",
+    ),
+    schema.Option(
+        display = "15 minutes",
+        value = "15",
+    ),
+    schema.Option(
+        display = "30 minutes",
+        value = "30",
+    ),
+    schema.Option(
+        display = "60 minutes",
+        value = "60",
+    ),
+]
+
+def color_options(custom_colors):
+    # # print(custom_colors)
+    # loc = config.get("location", DEFAULT_LOCATION)
+    # location = json.decode(loc)
+    # timezone = location["timezone"]
+    # local_time = time.now().in_location(timezone)
+    # date_day = humanize.time_format("EEE", local_time)
+    if custom_colors == "true":
+        return [
+            schema.Color(
+                id = "day_color",
+                name = "Day Color",
+                desc = "Color of the Date text",
+                icon = "brush",
+                default = DEFAULT_DAY_COLOR,
+            ),
+            schema.Color(
+                id = "min_temp_color",
+                name = "Low Temp Color",
+                desc = "Color of the Low temp",
+                icon = "brush",
+                default = DEFAULT_MIN_TEMP_COLOR,
+            ),
+            schema.Color(
+                id = "min_label_color",
+                name = "Low Label Color",
+                desc = "Color of the \"Low\" text",
+                icon = "brush",
+                default = DEFAULT_MIN_LABEL_COLOR,
+            ),
+            schema.Color(
+                id = "now_label_color",
+                name = "Now Label Color",
+                desc = "Color of the \"Now/time\" text",
+                icon = "brush",
+                default = DEFAULT_NOW_LABEL_COLOR,
+            ),
+            schema.Color(
+                id = "now_temp_color",
+                name = "Now Temp Color",
+                desc = "Color of the Now temp",
+                icon = "brush",
+                default = DEFAULT_NOW_TEMP_COLOR,
+            ),
+            schema.Color(
+                id = "graph_color",
+                name = "Graph Top Line Color",
+                desc = "Color of the temp graph top line",
+                icon = "brush",
+                default = DEFAULT_GRAPH_TOP_COLOR,
+            ),
+            schema.Color(
+                id = "graph_fill_color",
+                name = "Graph Fill Color",
+                desc = "Color of the temp graph fill",
+                icon = "brush",
+                default = DEFAULT_GRAPH_FILL_COLOR,
+            ),
+            schema.Color(
+                id = "date_color",
+                name = "Date Color",
+                desc = "Color of the Date text",
+                icon = "brush",
+                default = DEFAULT_DATE_COLOR,
+            ),
+            schema.Color(
+                id = "month_color",
+                name = "Month Color",
+                desc = "Color of the Month text",
+                icon = "brush",
+                default = DEFAULT_MONTH_COLOR,
+            ),
+            schema.Color(
+                id = "max_temp_color",
+                name = "High Temp Color",
+                desc = "Color of the High temp",
+                icon = "brush",
+                default = DEFAULT_MAX_TEMP_COLOR,
+            ),
+            schema.Color(
+                id = "max_label_color",
+                name = "High Label Color",
+                desc = "Color of the \"High\" text",
+                icon = "brush",
+                default = DEFAULT_MAX_LABEL_COLOR,
+            ),
+        ]
+    else:
+        return []
+
+def get_schema():
+    return schema.Schema(
+        version = "1",
+        fields = [
+            schema.Text(
+                id = "api_key",
+                name = "OpenWeather API Key",
+                desc = "API Key for OpenWeathermap",
+                icon = "user",
+            ),
+            schema.Location(
+                id = "location",
+                name = "Location",
+                desc = "Location for weather source",
+                icon = "locationDot",
+            ),
+            schema.Dropdown(
+                id = "polling_interval",
+                name = "Polling Interval",
+                desc = "How often to retrieve the current temperature",
+                icon = "clock",
+                default = polling_interval_options[2].value,
+                options = polling_interval_options,
+            ),
+            schema.Toggle(
+                id = "24_hour_time",
+                name = "24-hour clock",
+                desc = "Toggle 12/24 hour clock",
+                icon = "gear",
+                default = False,
+            ),
+            schema.Toggle(
+                id = "custom_colors",
+                name = "Use Custom Colors",
+                desc = "A toggle to enable custom colors",
+                icon = "gear",
+                default = False,
+            ),
+            schema.Generated(
+                id = "generated",
+                source = "custom_colors",
+                handler = color_options,
+            ),
+        ],
+    )
+
+def get_data(polling_interval, lat, lng, local_date, api_key):
+    """Function that calls openweathermap.com API
+
+    Args:
+        polling_interval: how long to cache each API request
+        lat: latitude of the location to use
+        lng: longitude of the location to use
+        local_date: the date in YYYY-MM-DD format for one of the calls
+        api_key: the api_key to use with weatherapi.com
+    Returns:
+        Pixlet Root element
+    """
+    url = "http://api.weatherapi.com/v1/history.json?key={}&q={},{}&dt={}".format(api_key, lat, lng, local_date)
+
+    # print(type, url)
+    res = http.get(url, ttl_seconds = polling_interval)  # cache for polling_interval seconds
+
+    if res.status_code != 200:
+        fail("GET %s failed with status %d: %s", url, res.status_code, res.body())
+
+    return res.json()
+
+def map(x, in_min, in_max, out_min, out_max):
+    return (x - in_min) * (out_max - out_min) / (in_max - in_min) + out_min
