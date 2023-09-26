@@ -8,6 +8,8 @@ Author: jvivona
 # 20230904 - jvivona - fix date display
 # 20230828 - jvivona - with Kurt Busch officially retiring, changed driver names to only have 1 char for 1st name - will eval in future if necessary
 #                    - change text color to be schema.Color instead of drop down
+# 20230911 - jvivona - update code and API to better handle end of season with not upcoming race
+# 20230918 - jvivona - fixed marquee spacing for playoff drivers / points as we go through rounds and # of drivers drops below 9
 
 load("animation.star", "animation")
 load("encoding/json.star", "json")
@@ -17,7 +19,7 @@ load("render.star", "render")
 load("schema.star", "schema")
 load("time.star", "time")
 
-VERSION = 23247
+VERSION = 23261
 
 # cache data for 15 minutes - cycle through with cache on the API side
 CACHE_TTL_SECONDS = 900
@@ -71,7 +73,10 @@ def main(config):
 
     if data_display == "nri":
         NASCAR_DATA = json.decode(get_cachable_data(NASCAR_API + series))
-        text = nextrace(NASCAR_DATA, config)
+        if NASCAR_DATA.get("Race_Date", "") == "":
+            return []
+        else:
+            text = nextrace(NASCAR_DATA, config)
     else:
         NASCAR_DATA = json.decode(get_cachable_data(NASCAR_API + series + data_display))
         text = standings(NASCAR_DATA, config, data_display)
@@ -249,6 +254,14 @@ def playoff(data):
 
     for i in range(0, positions):
         text[int(math.mod(i, 3))] = text[int(math.mod(i, 3))] + "{} {} {} {} / {}    ".format(data[i]["playoff_rank"], data[i]["driver_first_name"][0:1], text_justify_trunc(10, data[i]["driver_last_name"], "left"), text_justify_trunc(4, str(data[i]["playoff_points"]), "right"), text_justify_trunc(2, str(data[i]["playoff_race_wins"]), "right"))
+
+    # during playoffs - each round cuts people out - 16 in 1st, 12 in 2nd, 8 in 3rd, 4 in final - the api call will handle the number of drivers - so we need to handle spacing to make the scrolls work
+    # we only need to worry about 3rd round and final round - since we only display 9 drivers (for time) anyway
+    spacer = "                            "
+    if positions < 9:
+        if positions < 5:
+            text[1] = text[1] + spacer
+        text[2] = text[2] + spacer
 
     return text
 
