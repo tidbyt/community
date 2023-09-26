@@ -1,8 +1,0 @@
----
-id: clockwithseconds
-name: ClockWithSeconds
-summary: A clock with seconds
-desc: A clock that shows time including seconds.
-author: Daniel Segel
-fileName: clockwithseconds.star
-packageName: clockwithseconds
