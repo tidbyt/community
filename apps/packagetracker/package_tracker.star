@@ -315,15 +315,19 @@ def main(config):
 
                     last_location = payload.get("last_location")
 
-                    est_delivery_date_from = payload.get("est_delivery_date_from")
-                    est_delivery_date_to = payload.get("est_delivery_date_to")
+                    est_delivery_date_from = payload.get("est_delivery_date_from") or ""
+                    est_delivery_date_to = payload.get("est_delivery_date_to") or ""
+                    separator = ""
 
-                    if not delivered and additional_info == "est_delivery_date" and est_delivery_date_from and est_delivery_date_to:
+                    if not delivered and additional_info == "est_delivery_date" and est_delivery_date_from:
                         est_delivery_date_from = humanize.time(time.parse_time(est_delivery_date_from))
-                        est_delivery_date_to = humanize.time(time.parse_time(est_delivery_date_to))
+
+                        if est_delivery_date_to:
+                            separator = " to "
+                            est_delivery_date_to = humanize.time(time.parse_time(est_delivery_date_to))
 
                         rendered_additional_info = render_text(
-                            content = "Estimated delivery: %s to %s" % (est_delivery_date_from, est_delivery_date_to),
+                            content = "Estimated delivery: %s%s%s" % (est_delivery_date_from, separator, est_delivery_date_to),
                         )
 
                     else:
