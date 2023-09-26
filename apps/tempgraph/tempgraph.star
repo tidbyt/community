@@ -87,7 +87,7 @@ def main(config):
     if api_key == None:
         return render.Root(
             render.Padding(
-                pad = (0, 20, 0, 0),
+                pad = (0, 11, 0, 0),
                 child = render.Marquee(
                     child = render.Text("Enter API Key in Options", color = "#fff"),
                     width = 64,
