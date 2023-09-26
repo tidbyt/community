@@ -330,6 +330,10 @@ def main(config):
                             est_delivery_date_to = humanize.time(time.parse_time(est_delivery_date_to))
                             est_delivery_date_to = re.sub(pattern, repl, est_delivery_date_to)
 
+                        if est_delivery_date_to == est_delivery_date_from:
+                            separator = ""
+                            est_delivery_date_to = ""
+
                         rendered_additional_info = render_text(
                             content = "Estimated delivery: %s%s%s" % (est_delivery_date_from, separator, est_delivery_date_to),
                         )
