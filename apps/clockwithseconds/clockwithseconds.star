@@ -63,7 +63,7 @@ def main(config):
     for x in range(120):
         x = x
         sec += 1
-        sec += time_offset
+        # sec += time_offset
         if sec > 59:
             sec -= 60
             min += 1
@@ -80,8 +80,16 @@ def main(config):
         sec_str = "0" + str(sec) if sec < 10 else str(sec)
         the_current_time = hr_str + ":" + min_str + ":" + sec_str
 
-        # print("Adding frame for {}".format(the_current_time))
-        time_frame = render.Padding(pad = (8, 10, 0, 0), child = render.Text(content = the_current_time, font = "6x13", color = clock_color))
+        left_margin = 8
+        if time_format_24 == "false":
+            left_margin = 3
+            if hour > 12:
+                the_current_time = the_current_time + "pm"
+            else:
+                the_current_time = the_current_time + "AM"
+        print("Adding frame for {}".format(the_current_time))
+
+        time_frame = render.Padding(pad = (left_margin, 10, 0, 0), child = render.Text(content = the_current_time, font = "6x13", color = clock_color))
         time_frames.append(time_frame)
 
     return render.Root(
