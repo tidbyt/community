@@ -61,7 +61,9 @@ def main(config):
     min = minute
     hr = hour
     for x in range(120):
+        x = x
         sec += 1
+        sec += time_offset
         if sec > 59:
             sec -= 60
             min += 1
@@ -70,14 +72,16 @@ def main(config):
             hr += 1
         if hr > 12 and time_format_24 == "false":
             hr -= 12
+
         # elif hr > 12:
         #     hr -= 12
         hr_str = "0" + str(hr) if hr < 10 else str(hr)
         min_str = "0" + str(min) if min < 10 else str(min)
         sec_str = "0" + str(sec) if sec < 10 else str(sec)
         the_current_time = hr_str + ":" + min_str + ":" + sec_str
-        print("Adding frame for {}".format(the_current_time))
-        time_frame = render.Padding(pad = (8, 10, 0, 0), child = render.Text(content = the_current_time, font = "6x13", color=clock_color))
+
+        # print("Adding frame for {}".format(the_current_time))
+        time_frame = render.Padding(pad = (8, 10, 0, 0), child = render.Text(content = the_current_time, font = "6x13", color = clock_color))
         time_frames.append(time_frame)
 
     return render.Root(
@@ -85,7 +89,7 @@ def main(config):
         max_age = 120,
         child = render.Animation(children = time_frames),
         # child = animation.Transformation(
-        #     child = 
+        #     child =
         # )
     )
 
@@ -173,8 +177,8 @@ def get_schema():
                 desc = "Adjust + or - Seconds",
                 icon = "clock",
                 default = time_offset_options[6].value,
-                options = time_offset_options
-            ), 
+                options = time_offset_options,
+            ),
             schema.Toggle(
                 id = "custom_colors",
                 name = "Use Custom Colors",
