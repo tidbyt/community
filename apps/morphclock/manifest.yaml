@@ -1,8 +1,0 @@
----
-id: morph-clock
-name: Morph Clock
-summary: A clock w/morphing digits
-desc: A clock with digits that morph from one to the next.
-author: Daniel Segel
-fileName: morph_clock.star
-packageName: morphclock
