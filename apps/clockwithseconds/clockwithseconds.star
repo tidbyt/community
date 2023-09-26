@@ -56,31 +56,37 @@ def main(config):
     minute = local_time.minute
     second = local_time.second
 
+    time_frames = []
+    sec = second - 1
     min = minute
     hr = hour
-    time_frames = []
-    for sec in range(second + int(time_offset), second + 17):  # the +1 is to allow processing and loading time
-        # print("Current sec = {}, second = {}, min = {}".format(sec, second, min))
+    for x in range(120):
+        sec += 1
         if sec > 59:
             sec -= 60
-            min = minute + 1
+            min += 1
         if min > 59:
             min -= 60
-            hr = hour + 1
-        if hr > 23 and time_format_24 == "true":
-            hr -= 23
-        elif hr > 12:
+            hr += 1
+        if hr > 12 and time_format_24 == "false":
             hr -= 12
+        # elif hr > 12:
+        #     hr -= 12
         hr_str = "0" + str(hr) if hr < 10 else str(hr)
         min_str = "0" + str(min) if min < 10 else str(min)
         sec_str = "0" + str(sec) if sec < 10 else str(sec)
         the_current_time = hr_str + ":" + min_str + ":" + sec_str
-        time_frame = render.Padding(pad = (9, 9, 0, 0), child = render.Text(content = the_current_time, font = "6x13", color=clock_color))
+        print("Adding frame for {}".format(the_current_time))
+        time_frame = render.Padding(pad = (8, 10, 0, 0), child = render.Text(content = the_current_time, font = "6x13", color=clock_color))
         time_frames.append(time_frame)
+
     return render.Root(
         delay = 1000,
-        max_age = 15,
+        max_age = 120,
         child = render.Animation(children = time_frames),
+        # child = animation.Transformation(
+        #     child = 
+        # )
     )
 
 time_offset_options = [
@@ -151,7 +157,7 @@ def get_schema():
             schema.Location(
                 id = "location",
                 name = "Location",
-                desc = "Location for weather source",
+                desc = "Location for time source",
                 icon = "locationDot",
             ),
             schema.Toggle(
