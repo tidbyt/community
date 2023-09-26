@@ -91,6 +91,9 @@ STATUSES = {
 
 TIDBYT_WIDTH = 64
 
+ZIPPOPOTAMUS_API_TTL_SECONDS = 60 * 60 * 24
+ZIPPOPOTAMUS_API_URL = "http://api.zippopotam.us"
+
 def main(config):
     pkge_api_key = re.sub("\\s", "", config.str("pkge_api_key")) if config.str("pkge_api_key") else None
     font = config.str("font", DEFAULT_FONT)
@@ -130,6 +133,24 @@ def main(config):
             print("response to %s %s failed with status %d: %s" % (method, url, response.status_code, response.body()))
 
         return response
+
+    def find_location(location = ""):
+        if location and location.lower().count("united states"):
+            postal_code = re.match(r"\d{5}", location) or None
+
+            if postal_code and len(postal_code) > 0:
+                postal_code = postal_code[0][0]
+
+                zippopotamus_response = http.get("%s/us/%s" % (ZIPPOPOTAMUS_API_URL, postal_code), ttl_seconds = ZIPPOPOTAMUS_API_TTL_SECONDS)
+                check_response_headers("GET", zippopotamus_response, ZIPPOPOTAMUS_API_TTL_SECONDS)
+                places = zippopotamus_response.json().get("places")
+
+                if places:
+                    place = places[0]
+
+                    return "%s, %s" % (place.get("place name"), place.get("state"))
+
+        return location
 
     def get_delivery_service(courier_id):
         pkge_response = _pkge_response(path = "/couriers", ttl_seconds = PKGE_DELIVERY_SERVICES_TTL_SECONDS)
@@ -323,7 +344,7 @@ def main(config):
 
                     children.append(render_text(content = label))
                     children.append(render_text(content = last_checkpoint_date or last_tracking_date))
-                    children.append(render_text(content = last_checkpoint_location or last_location))
+                    children.append(render_text(content = find_location(last_checkpoint_location or last_location)))
                     children.append(rendered_additional_info or render_text())
 
                 elif type(payload) == "string":
