@@ -320,11 +320,15 @@ def main(config):
                     separator = ""
 
                     if not delivered and additional_info == "est_delivery_date" and est_delivery_date_from:
+                        pattern = r"\d+ (hour|minute)s?"
+                        repl = "within 1 day"
                         est_delivery_date_from = humanize.time(time.parse_time(est_delivery_date_from))
+                        est_delivery_date_from = re.sub(pattern, repl, est_delivery_date_from)
 
                         if est_delivery_date_to:
                             separator = " to "
                             est_delivery_date_to = humanize.time(time.parse_time(est_delivery_date_to))
+                            est_delivery_date_to = re.sub(pattern, repl, est_delivery_date_to)
 
                         rendered_additional_info = render_text(
                             content = "Estimated delivery: %s%s%s" % (est_delivery_date_from, separator, est_delivery_date_to),
