@@ -286,7 +286,7 @@ def main(config):
                         origin = payload.get("origin")
                         destination = payload.get("destination")
 
-                        if origin and destination:
+                        if origin and destination and origin != destination:
                             label += (" (from %s to %s)" % (origin, destination))
 
                     if not payload.get("last_checkpoint"):
