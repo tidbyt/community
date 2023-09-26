@@ -47,14 +47,16 @@ DEFAULT_LOCATION = """
 def main(config):
     time_format_24 = config.get("24_hour_time", DEFAULT_TIME_FORMAT)
     clock_color = config.get("clock_color", DEFAULT_CLOCK_COLOR)
-    time_offset = config.get("time_offset", 1)
+    time_offset = config.get("time_offset", 0)
     loc = config.get("location", DEFAULT_LOCATION)
+    blink_colon = config.get("blink_colon", "false")
     location = json.decode(loc)
     timezone = location["timezone"]
     local_time = time.now().in_location(timezone)
     hour = local_time.hour
     minute = local_time.minute
     second = local_time.second
+    second += int(time_offset)
 
     time_frames = []
     sec = second - 1
@@ -63,7 +65,6 @@ def main(config):
     for x in range(120):
         x = x
         sec += 1
-        # sec += time_offset
         if sec > 59:
             sec -= 60
             min += 1
@@ -73,14 +74,18 @@ def main(config):
         if hr > 12 and time_format_24 == "false":
             hr -= 12
 
-        # elif hr > 12:
-        #     hr -= 12
         hr_str = "0" + str(hr) if hr < 10 else str(hr)
         min_str = "0" + str(min) if min < 10 else str(min)
         sec_str = "0" + str(sec) if sec < 10 else str(sec)
-        the_current_time = hr_str + ":" + min_str + ":" + sec_str
+        if blink_colon == "true":
+            if sec % 2 == 0:
+                the_current_time = hr_str + ":" + min_str + ":" + sec_str
+            else:
+                the_current_time = hr_str + " " + min_str + " " + sec_str
+        else:
+            the_current_time = hr_str + ":" + min_str + ":" + sec_str
 
-        left_margin = 8
+        left_margin = 9
         if time_format_24 == "false":
             left_margin = 3
             if hour > 12:
@@ -179,12 +184,19 @@ def get_schema():
                 icon = "gear",
                 default = False,
             ),
+            schema.Toggle(
+                id = "blink_colon",
+                name = "Blink the Colon",
+                desc = "Blink the colon",
+                icon = "gear",
+                default = False,
+            ),
             schema.Dropdown(
                 id = "time_offset",
                 name = "Time Offset",
                 desc = "Adjust + or - Seconds",
                 icon = "clock",
-                default = time_offset_options[6].value,
+                default = time_offset_options[5].value,
                 options = time_offset_options,
             ),
             schema.Toggle(
