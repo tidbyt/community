@@ -32,7 +32,7 @@ load("render.star", "render")
 load("schema.star", "schema")
 load("time.star", "time")
 
-DEFAULT_COLOR = "#ED3209"
+DEFAULT_CLOCK_COLOR = "#09ED20"
 DEFAULT_TIME_FORMAT = "false"
 DEFAULT_LOCATION = """
 {
@@ -46,6 +46,8 @@ DEFAULT_LOCATION = """
 
 def main(config):
     time_format_24 = config.get("24_hour_time", DEFAULT_TIME_FORMAT)
+    clock_color = config.get("clock_color", DEFAULT_CLOCK_COLOR)
+    time_offset = config.get("time_offset", 1)
     loc = config.get("location", DEFAULT_LOCATION)
     location = json.decode(loc)
     timezone = location["timezone"]
@@ -57,7 +59,7 @@ def main(config):
     min = minute
     hr = hour
     time_frames = []
-    for sec in range(second + 1, second + 17):    # the +1 is to allow processing and loading time
+    for sec in range(second + int(time_offset), second + 17):  # the +1 is to allow processing and loading time
         # print("Current sec = {}, second = {}, min = {}".format(sec, second, min))
         if sec > 59:
             sec -= 60
@@ -73,7 +75,7 @@ def main(config):
         min_str = "0" + str(min) if min < 10 else str(min)
         sec_str = "0" + str(sec) if sec < 10 else str(sec)
         the_current_time = hr_str + ":" + min_str + ":" + sec_str
-        time_frame = render.Padding(pad = (9, 9, 0, 0), child = render.Text(content = the_current_time, font = "6x13"))
+        time_frame = render.Padding(pad = (9, 9, 0, 0), child = render.Text(content = the_current_time, font = "6x13", color=clock_color))
         time_frames.append(time_frame)
     return render.Root(
         delay = 1000,
@@ -81,16 +83,103 @@ def main(config):
         child = render.Animation(children = time_frames),
     )
 
+time_offset_options = [
+    schema.Option(
+        display = "-5",
+        value = "-5",
+    ),
+    schema.Option(
+        display = "-4",
+        value = "-4",
+    ),
+    schema.Option(
+        display = "-3",
+        value = "-3",
+    ),
+    schema.Option(
+        display = "-2",
+        value = "-2",
+    ),
+    schema.Option(
+        display = "-1",
+        value = "-1",
+    ),
+    schema.Option(
+        display = "0",
+        value = "0",
+    ),
+    schema.Option(
+        display = "+1",
+        value = "1",
+    ),
+    schema.Option(
+        display = "+2",
+        value = "2",
+    ),
+    schema.Option(
+        display = "+3",
+        value = "3",
+    ),
+    schema.Option(
+        display = "+4",
+        value = "4",
+    ),
+    schema.Option(
+        display = "+5",
+        value = "5",
+    ),
+]
+
+def color_options(custom_colors):
+    if custom_colors == "true":
+        return [
+            schema.Color(
+                id = "clock_color",
+                name = "Clock Color",
+                desc = "Color of the Time",
+                icon = "brush",
+                default = DEFAULT_CLOCK_COLOR,
+            ),
+        ]
+    else:
+        return []
+
 def get_schema():
     return schema.Schema(
         version = "1",
         fields = [
+            schema.Location(
+                id = "location",
+                name = "Location",
+                desc = "Location for weather source",
+                icon = "locationDot",
+            ),
             schema.Toggle(
                 id = "24_hour_time",
                 name = "Use a 24-hour clock",
                 desc = "Toggle 12/24 hour clock",
                 icon = "gear",
                 default = False,
+            ),
+            schema.Dropdown(
+                id = "time_offset",
+                name = "Time Offset",
+                desc = "Adjust + or - Seconds",
+                icon = "clock",
+                default = time_offset_options[6].value,
+                options = time_offset_options
+            ), 
+            schema.Toggle(
+                id = "custom_colors",
+                name = "Use Custom Colors",
+                desc = "A toggle to enable custom colors",
+                icon = "gear",
+                default = False,
+            ),
+            schema.Generated(
+                id = "generated",
+                source = "custom_colors",
+                handler = color_options,
             ),
         ],
     )
