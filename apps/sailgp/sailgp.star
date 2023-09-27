@@ -5,19 +5,28 @@ Description: Sail GP Next Race Info and Current Leaderboard.
 Author: jvivona
 """
 
+# ############################
+# Mods - jvivona - 2023-07-13
+# - added in standings display with country flags (** I learned a bunch about flag sizes in this exercise)
+# - convert next race info color to generated schema field
+# 20230911 - jvivona - update code and API to better handle end of season with not upcoming race
+#                    - moved data to github repo
+
+load("animation.star", "animation")
+load("encoding/base64.star", "base64")
 load("encoding/json.star", "json")
 load("http.star", "http")
 load("render.star", "render")
 load("schema.star", "schema")
 load("time.star", "time")
 
-VERSION = 23171
+VERSION = 23254
 
 DEFAULTS = {
     "display": "nri",
     "timezone": "America/New_York",
     "date_us": True,
-    "api": "https://tidbyt.apis.ajcomputers.com/sailgp/api/{}.json",
+    "api": "https://raw.githubusercontent.com/jvivona/tidbyt-data/main/sailgp/{}.json",
     "ttl": 1800,
     "text_color": "#FFFFFF",
     "standings_text_color": "#FFFFFF",
@@ -29,6 +38,7 @@ DEFAULTS = {
     "animation_frames": 30,
     "animation_hold_frames": 75,
     "title_bkg_color": "#0a2627",
+    "slide_duration": 75,
 }
 
 def main(config):
@@ -42,10 +52,12 @@ def main(config):
     # if we're showing NRI go and get that data
     if displaytype == "nri":
         data = json.decode(get_cachable_data(DEFAULTS["api"].format(displaytype)))
-        displayrow = nri(data, standings, config)
-
-    #else:
-    #    displayrow = standings(config, data)
+        if data.get("startDateTime", "") == "":
+            return []
+        else:
+            displayrow = nri(data, standings, config)
+    else:
+        displayrow = current_standings(standings, config)
 
     return render.Root(
         show_full_animation = True,
@@ -70,7 +82,7 @@ def nri(nri, standings, config):
     date_and_time_second = nri["endDateTime"]
     date_and_time_first_dt = time.parse_time(date_and_time_first, "2006-01-02T15:04-07:00").in_location(timezone)
     date_and_time_second_dt = time.parse_time(date_and_time_second, "2006-01-02T15:04-07:00").in_location(timezone)
-    date_time_format = date_and_time_first_dt.format("Jan 02-") + date_and_time_second_dt.format("02 2006") if config.bool("is_us_date_format", DEFAULTS["date_us"]) else date_and_time_first_dt.format("02-") + date_and_time_second_dt.format("02 Jan 2006")
+    date_time_format = date_and_time_first_dt.format("Jan 2-") + date_and_time_second_dt.format("2 2006") if config.bool("is_us_date_format", DEFAULTS["date_us"]) else date_and_time_first_dt.format("2-") + date_and_time_second_dt.format("2 Jan 2006")
 
     standing_text = ""
     for i in standings:
@@ -83,6 +95,69 @@ def nri(nri, standings, config):
         render.Box(width = 64, height = 1),
         render.Marquee(offset_start = 48, child = render.Text(height = 6, content = standing_text, font = DEFAULTS["regular_font"], color = standings_text_color), scroll_direction = "horizontal", width = 64),
     ]
+
+def current_standings(standings, config):
+    standings_text_color = config.get("standings_text_color", DEFAULTS["standings_text_color"])
+    return [render.Sequence(
+        children = [
+            current_standings_slide(standings[0], standings[1], standings_text_color),
+            current_standings_slide(standings[2], standings[3], standings_text_color),
+            current_standings_slide(standings[4], standings[5], standings_text_color),
+            current_standings_slide(standings[6], standings[7], standings_text_color),
+            current_standings_slide(standings[8], standings[9], standings_text_color),
+        ],
+    )]
+
+def current_standings_slide(standingsLeft, standingsRight, standings_text_color):
+    FLAGS = {}
+    FLAGS = json.decode(get_cachable_data(DEFAULTS["api"].format("flags")))
+
+    return animation.Transformation(
+        child =
+            render.Row(expanded = True, children = [
+                render.Column(
+                    cross_align = "center",
+                    children = [
+                        render.Box(width = 32, height = 14, child = render.Image(base64.decode(FLAGS[standingsLeft["teamAbbreviation"]]), height = 14)),
+                        render.Text("{} {}".format(str(standingsLeft["position"]), standingsLeft["teamAbbreviation"]), font = DEFAULTS["regular_font"], color = standings_text_color),
+                        render.Text("{} pts".format(str(standingsLeft["points"])), font = DEFAULTS["regular_font"], color = standings_text_color),
+                    ],
+                ),
+                render.Column(
+                    cross_align = "center",
+                    children = [
+                        render.Box(width = 32, height = 14, child = render.Image(base64.decode(FLAGS[standingsRight["teamAbbreviation"]]), height = 14)),
+                        render.Text("{} {}".format(str(standingsRight["position"]), standingsRight["teamAbbreviation"]), font = DEFAULTS["regular_font"], color = standings_text_color),
+                        render.Text("{} pts".format(str(standingsRight["points"])), font = DEFAULTS["regular_font"], color = standings_text_color),
+                    ],
+                ),
+            ]),
+        duration = DEFAULTS["slide_duration"],
+        delay = 0,
+        origin = animation.Origin(0, 0),
+        keyframes = [
+            animation.Keyframe(
+                percentage = 0.0,
+                transforms = [animation.Translate(DEFAULTS["data_box_width"], 0)],
+                curve = DEFAULTS["ease_in_out"],
+            ),
+            animation.Keyframe(
+                percentage = 0.1,
+                transforms = [animation.Translate(-0, 0)],
+                curve = DEFAULTS["ease_in_out"],
+            ),
+            animation.Keyframe(
+                percentage = 0.9,
+                transforms = [animation.Translate(-0, 0)],
+                curve = DEFAULTS["ease_in_out"],
+            ),
+            animation.Keyframe(
+                percentage = 1.0,
+                transforms = [animation.Translate(-DEFAULTS["data_box_width"], 0)],
+                curve = DEFAULTS["ease_in_out"],
+            ),
+        ],
+    )
 
 def fade_child(race, location, text_color):
     return render.Animation(
@@ -119,7 +194,7 @@ dispopt = [
         value = "nri",
     ),
     schema.Option(
-        display = "** Coming Soon ** Standings with Flags",
+        display = "Standings Display with Flags",
         value = "standings",
     ),
 ]
@@ -135,13 +210,6 @@ def get_schema():
                 icon = "eye",
                 default = "nri",
                 options = dispopt,
-            ),
-            schema.Color(
-                id = "text_color",
-                name = "Race Info Color",
-                desc = "The color for Race Info and Date.",
-                icon = "palette",
-                default = DEFAULTS["text_color"],
             ),
             schema.Color(
                 id = "standings_text_color",
@@ -161,6 +229,13 @@ def get_schema():
 def show_nri_options(datadisplay):
     if datadisplay == "nri":
         return [
+            schema.Color(
+                id = "text_color",
+                name = "Race Info Color",
+                desc = "The color for Race Info and Date.",
+                icon = "palette",
+                default = DEFAULTS["text_color"],
+            ),
             schema.Toggle(
                 id = "is_us_date_format",
                 name = "US Date format",
