@@ -5,13 +5,13 @@ Description: This app fetches and displays the streamers you follow who are live
 Author: daltonclaybrook
 """
 
-load("render.star", "render")
-load("schema.star", "schema")
+load("cache.star", "cache")
 load("encoding/json.star", "json")
 load("http.star", "http")
-load("cache.star", "cache")
-load("time.star", "time")
+load("render.star", "render")
+load("schema.star", "schema")
 load("secret.star", "secret")
+load("time.star", "time")
 
 TWITCH_CLIENT_ID = "h980fr8jmfwp9gkcdo0sc1m251qlw9"
 TWITCH_CLIENT_SECRET = secret.decrypt("AV6+xWcEQV17TbSvb4u35Ir6ac/CuqEVYoo+XRIDH/FftFQhjn+VSh3oqchdz1hAbco3PsD5BAqyoL7hQHpT7iS0l5KIpYfcP84rBJOhp6or2SS38OfqjglBPcKQHSV9kAZEcgU7wIVBpJzO7I9R1d57YxDLhEpOB1O60OYLuc/8gsEI")
