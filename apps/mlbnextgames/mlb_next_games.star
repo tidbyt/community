@@ -154,7 +154,7 @@ def main(config):
                 opponent_id = get_opponent(tg, team)
 
                 opponent_nicknames = [x["nick"] for x in TEAMS if x["id"] == opponent_id]
-                
+
                 if len(opponent_nicknames) > 0:
                     opponent_nickname = opponent_nicknames[0]
                     logo = get_team_logo(opponent_id)
