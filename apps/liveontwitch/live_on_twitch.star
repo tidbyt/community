@@ -16,6 +16,7 @@ load("secret.star", "secret")
 TWITCH_CLIENT_ID = "h980fr8jmfwp9gkcdo0sc1m251qlw9"
 TWITCH_CLIENT_SECRET = secret.decrypt("AV6+xWcEQV17TbSvb4u35Ir6ac/CuqEVYoo+XRIDH/FftFQhjn+VSh3oqchdz1hAbco3PsD5BAqyoL7hQHpT7iS0l5KIpYfcP84rBJOhp6or2SS38OfqjglBPcKQHSV9kAZEcgU7wIVBpJzO7I9R1d57YxDLhEpOB1O60OYLuc/8gsEI")
 NO_DATA_IN_CACHE = ""
+
 # If a streamer went live less than 2 minutes ago, show them in an isolated widget. Otherwise, show the full list.
 RECENTLY_LIVE_THRESHOLD = 120
 
@@ -103,7 +104,7 @@ def render_recently_live(stream):
                                         child = render.Circle(
                                             color = RED,
                                             diameter = 6,
-                                        )
+                                        ),
                                     ),
                                     render.Marquee(
                                         width = 49,
@@ -123,7 +124,7 @@ def render_recently_live(stream):
                         color = TWITCH_PURPLE,
                     ),
                 ],
-            )
+            ),
         ),
     )
 
@@ -156,10 +157,10 @@ def render_stream_list(followed_streams):
                 scroll_direction = "vertical",
                 offset_start = 6,
                 child = render.Column(
-                    children = streamer_widgets
+                    children = streamer_widgets,
                 ),
             ),
-        )
+        ),
     ]
     return render.Root(
         delay = 200,
