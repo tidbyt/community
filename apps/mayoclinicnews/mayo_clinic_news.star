@@ -12,8 +12,8 @@ load("xpath.star", "xpath")
 
 VERSION = 23271
 
-# cache data for 15 minutes
-CACHE_TTL_SECONDS = 900
+# cache data for 3 hours - they don't publish that often
+CACHE_TTL_SECONDS = 10800
 
 DEFAULT_NEWS = "mayo-clinic-minute-2"
 DEFAULT_ARTICLE_COUNT = "3"
@@ -32,7 +32,7 @@ SPACER_COLOR = "#000"
 ARTICLE_LINESPACING = 0
 ARTICLE_AREA_HEIGHT = 24
 
-RSS_STUB = "https://newsnetwork.mayoclinic.org/category/{}/feed"
+RSS_STUB = "https://raw.githubusercontent.com/jvivona/tidbyt-data/main/mayonews/{}.xml"
 
 def main(config):
     edition = config.get("news_edition", DEFAULT_NEWS)
@@ -106,8 +106,8 @@ def get_schema():
                         value = "gastrointestinal-90",
                     ),
                     schema.Option(
-                        display = "Healthy Living",
-                        value = "mayo-clinic-healthy-living/",
+                        display = "Health and Wellness",
+                        value = "health-and-wellness",
                     ),
                     schema.Option(
                         display = "Orthopedics / Sports",
