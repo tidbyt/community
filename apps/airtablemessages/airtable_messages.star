@@ -45,7 +45,7 @@ EMOJI_RANGE = "\u00A9\u00AE\u203C\u2049\u2122\u2139\u2194-\u2199\u21A9\u21AA\u23
 TIDBYT_CYCLE_MIN = 5
 TIDBYT_HEIGHT = 32
 TIDBYT_WIDTH = 64
-OFFSET = int(TIDBYT_HEIGHT / 2)
+OFFSET = TIDBYT_HEIGHT // 2
 OFFSET_RATIO = 2.75
 WHITESPACE = ("\n", " ")
 
@@ -315,7 +315,11 @@ def main(config):
                 if is_image(character):
                     row_has_image = True
 
-                if not (next_character not in WHITESPACE and not (row) and character in WHITESPACE):
+                if (
+                    next_character in WHITESPACE or
+                    row or
+                    character not in WHITESPACE
+                ):
                     row.append(character)
                     row_width += get_character_width(character)
 
@@ -367,20 +371,21 @@ def main(config):
     )
 
 def get_schema():
-    fonts = []
-
-    for font in FONTS:
-        fonts.append(
-            schema.Option(
-                display = font,
-                value = font,
-            ),
+    fonts = [
+        schema.Option(
+            display = font,
+            value = font,
         )
+        for font in FONTS
+    ]
 
-    emoji_sizes = []
-
-    for i in range(int(DEFAULT_EMOJI_SIZE / 2) - 1, int(DEFAULT_EMOJI_SIZE * 2)):
-        emoji_sizes.append(schema.Option(display = "%d" % (i + 1), value = "%d" % (i + 1)))
+    emoji_sizes = [
+        schema.Option(display = "%d" % (i + 1), value = "%d" % (i + 1))
+        for i in range(
+            int(DEFAULT_EMOJI_SIZE / 2) - 1,
+            int(DEFAULT_EMOJI_SIZE * 2),
+        )
+    ]
 
     timezones = [
         schema.Option(display = "Hawaii (-10)", value = "Pacific/Honolulu"),
