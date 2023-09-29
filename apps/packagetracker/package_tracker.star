@@ -69,8 +69,8 @@ PKGE_API_URL = "https://api.pkge.net/v1"
 PKGE_DELIVERY_SERVICES_TTL_SECONDS = 60 * 60 * 24
 PKGE_TTL_SECONDS = 60
 
-STATUS_COLOR_DELIVERED = "#00ff00"
-STATUS_COLOR_ERROR = "#ff0000"
+STATUS_COLOR_DELIVERED = "#0f0"
+STATUS_COLOR_ERROR = "#f00"
 STATUS_COLOR_NORMAL = DEFAULT_COLOR
 
 STATUS_TYPE_DELIVERED = "DELIVERED"
@@ -293,10 +293,11 @@ def main(config):
                         payload.update(last_checkpoint = payload.get("checkpoints")[0] if payload.get("checkpoints") else None)
 
                     if payload.get("last_checkpoint"):
-                        last_checkpoint_date = payload.get("last_checkpoint").get("date")
-                        last_checkpoint_location = payload.get("last_checkpoint").get("location")
-                        last_checkpoint_status = payload.get("last_checkpoint").get("status")
-                        last_checkpoint_title = payload.get("last_checkpoint").get("title")
+                        last_checkpoint = payload.get("last_checkpoint")
+                        last_checkpoint_date = last_checkpoint.get("date")
+                        last_checkpoint_location = last_checkpoint.get("location")
+                        last_checkpoint_status = last_checkpoint.get("status")
+                        last_checkpoint_title = last_checkpoint.get("title")
 
                         if last_checkpoint_date:
                             last_checkpoint_date = humanize.time(time.parse_time(last_checkpoint_date))
@@ -384,25 +385,6 @@ def main(config):
     return get_package_status()
 
 def get_schema():
-    fonts = []
-    couriers = []
-    additional_infos = []
-
-    for font in FONTS:
-        fonts.append(
-            schema.Option(display = font, value = font),
-        )
-
-    for courier, value in COURIERS.items():
-        couriers.append(
-            schema.Option(display = courier, value = str(value["courier_id"])),
-        )
-
-    for additional_info, value in ADDITIONAL_INFOS.items():
-        additional_infos.append(
-            schema.Option(display = value["display"], value = additional_info),
-        )
-
     return schema.Schema(
         version = "1",
         fields = [
@@ -419,7 +401,10 @@ def get_schema():
                 desc = "",
                 icon = "truck",
                 default = "None",
-                options = couriers,
+                options = [
+                    schema.Option(display = courier, value = str(value["courier_id"]))
+                    for courier, value in COURIERS.items()
+                ],
             ),
             schema.Text(
                 id = "tracking_number",
@@ -441,7 +426,10 @@ def get_schema():
                 desc = "",
                 icon = "font",
                 default = DEFAULT_FONT,
-                options = fonts,
+                options = [
+                    schema.Option(display = font, value = font)
+                    for font in FONTS
+                ],
             ),
             schema.Toggle(
                 id = "scroll",
@@ -470,7 +458,10 @@ def get_schema():
                 desc = "",
                 icon = "info",
                 default = DEFAULT_ADDITIONAL_INFO,
-                options = additional_infos,
+                options = [
+                    schema.Option(display = value["display"], value = additional_info)
+                    for additional_info, value in ADDITIONAL_INFOS.items()
+                ],
             ),
         ],
     )
