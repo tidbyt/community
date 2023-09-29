@@ -1,0 +1,8 @@
+---
+id: tarot-cards
+name: Tarot Cards
+summary: Draw random tarot cards
+desc: Displays random tarot card spreads with images, card names, and card meanings.
+author: frame-shift
+fileName: tarot_cards.star
+packageName: tarotcards
