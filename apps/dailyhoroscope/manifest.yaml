@@ -2,7 +2,7 @@
 id: daily-horoscope
 name: Daily Horoscope
 summary: Daily horoscope
-desc: Displays today's horoscope for a specific sign from USA Today.
+desc: Displays the daily horoscope for a specific sign from USA Today.
 author: frame-shift
 fileName: daily_horoscope.star
 packageName: dailyhoroscope
