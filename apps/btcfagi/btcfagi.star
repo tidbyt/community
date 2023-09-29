@@ -73,7 +73,7 @@ def main():
                             height = 7,
                             color = "#fff",
                         ),
-                        duration = 150,
+                        duration = 1500,
                         delay = 0,
                         origin = animation.Origin(0, 0),
                         keyframes = [
