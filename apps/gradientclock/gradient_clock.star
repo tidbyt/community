@@ -2,12 +2,13 @@ load("encoding/json.star", "json")
 load("math.star", "math")
 load("random.star", "random")
 load("render.star", "render")
+load("schema.star", "schema")
 load("time.star", "time")
 
 width = 64
 height = 32
 
-APP_DURATION_MILLISECONDS = 1000
+APP_DURATION_MILLISECONDS = 15000
 REFRESH_MILLISECONDS = 500
 
 digits = {
@@ -271,11 +272,12 @@ def main(config):
                                            render.Column(children =
                                                              [
                                                                  render.Box(height = 18, child = render.Row(
-                                                                     children = [render_pixels_str(digits[digit], {"#": "#000000"}) for digit in (now.format("15:04") if i % 1000 < 500 else now.format("15 04")).elems()],
+                                                                     children = [render_pixels_str(digits[digit], {"#": "#000000"}) for digit in (now.format("15:04") if i % 1000 < 500 else (now.format("15 04") if config.bool("blink") else now.format("15:04"))).elems()],
                                                                  )),
                                                                  render.Box(child = render.Box(child = render.Text(offset = 2, content = now_date, color = "#000000", font = "6x13"))),
                                                              ]),
                                        ]))
+        now += time.second * REFRESH_MILLISECONDS / 1000
 
     # for fading  + pad_0("%X" % int(min(1, i/APP_DURATION_MILLISECONDS*fade_rate) * 0xFF)
     return render.Root(render.Animation(children = frames), delay = REFRESH_MILLISECONDS)
@@ -334,7 +336,7 @@ def get_rgb_val(x):
     return out
 
 def boomerang(x):
-    return math.sin(x / m) / 4 + 0.75
+    return math.sin(x / m) * config.float("brightness") + 1 - config.float("brightness")
 
 #    y = x % (2*m) / m
 
@@ -345,3 +347,31 @@ def get_hex(r, g, b):
 
 def cmap(x):
     return "#" + get_rgb_val(x * 2.) + get_rgb_val(x * 3.) + get_rgb_val(x * 5.)
+
+brightness_options = [schema.Option(display = "lighter", value = 0.1666), schema.Option(display = "medium", value = 0.25), schema.Option(display = "darker", value = 0.3333)]
+
+def get_schema():
+    return schema.Schema(
+        version = "1",
+        fields = [
+            # schema.Toggle(
+            # id = "show_date",
+            # name = "Show date",
+            # desc = "Show the date underneath the time"
+            # default = True,
+            # ),
+            schema.Toggle(
+                id = "blink",
+                name = "Blink separator",
+                desc = "Blink the separator every second",
+                default = True,
+            ),
+            schema.Dropdown(
+                id = "brightness",
+                name = "Background lightness",
+                desc = "How close to white the background gradient is",
+                default = options[1].value,
+                options = options,
+            ),
+        ],
+    )
