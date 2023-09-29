@@ -99,12 +99,12 @@ def populate_with_network_stats(network_data_primary, network_data_secondary, in
         return render_animation(values)
 
     children = [
-        render_row(values, network_data_primary)
+        render_row(values, network_data_primary),
     ]
 
     if not has_single_row:
         children.append(
-            render_row(values, network_data_primary)
+            render_row(values, network_data_primary),
         )
 
     return render.Column(
@@ -129,12 +129,12 @@ def populate_with_node_stats(node_pubkey, node_data_primary, node_data_secondary
         return render_animation(values)
 
     children = [
-        render_row(values, node_data_primary)
+        render_row(values, node_data_primary),
     ]
 
     if not has_single_row:
         children.append(
-            render_row(values, node_data_secondary)
+            render_row(values, node_data_secondary),
         )
 
     return render.Column(
@@ -175,7 +175,7 @@ def main(config):
 
     # Show error message to provide a valid node pubkey (or it should be empty)
     return render.Root(
-        child = render.WrappedText("Error: invalid node pubkey provided")
+        child = render.WrappedText("Error: invalid node pubkey provided"),
     )
 
 def schema_handler(node_pubkey):
@@ -279,6 +279,6 @@ def get_schema():
                 desc = "Should it animate the statistics (will override top- and bottom row settings).",
                 icon = "clapperboard",
                 default = True,
-            )
+            ),
         ],
     )
