@@ -19,14 +19,24 @@ def main(config):
     public_address = config.get("public_address")
 
     nfts = fetch_opensea_nfts(public_address, api_key)
+    if nfts == -1:
+        return render_error("Unable to connect to OpenSea")
+    if len(nfts) == 0:
+        return render_error("No NFTs to display")
+
     nft = nfts[random.number(0, len(nfts) - 1)]
     (nft_name, nft_thumbnail) = fetch_nft_thumbnail(nft)
+    if nft_thumbnail == -1:
+        return render_error("Unable to connect to OpenSea")
+    if not nft_thumbnail:
+        return render_error("No image to display")
 
     floor_price = None
     display_floor = config.bool("display_floor", False)
     if display_floor:
         collection_stats = fetch_collection_stats(nft, api_key)
-        floor_price = str(collection_stats["floor_price"])[:4] if collection_stats["floor_price"] else None
+        if collection_stats:
+            floor_price = str(collection_stats["floor_price"])[:4] if collection_stats["floor_price"] else None
 
     return render.Root(
         child = render.Box(
@@ -60,7 +70,8 @@ def fetch_opensea_nfts(public_address, api_key):
 
     nfts_resp = http.get(fetch_url, headers = {"X-API-KEY": api_key}, ttl_seconds = 3600)
     if (nfts_resp.status_code != 200):
-        fail("OpenSea request failed with status", nfts_resp.status_code)
+        print("OpenSea request failed with status", nfts_resp.status_code)
+        return -1
 
     nfts = nfts_resp.json()["nfts"]
     return nfts
@@ -69,7 +80,8 @@ def fetch_nft_thumbnail(nft):
     nft_name = nft["name"] if nft["name"] else ""
     thumbnail_url = nft["image_url"]
     if not thumbnail_url:
-        fail("NFT has no image to display")
+        print("NFT has no image to display")
+        return (nft_name, None)
 
     # request a much smaller thumbnail than the default
     thumbnail_url = thumbnail_url.replace("?w=500", "?w=64")
@@ -77,7 +89,8 @@ def fetch_nft_thumbnail(nft):
 
     thumbnail_resp = http.get(thumbnail_url, ttl_seconds = 3600)
     if (thumbnail_resp.status_code != 200):
-        fail("Failed to fetch thumbnail with status", thumbnail_resp.status_code)
+        print("Failed to fetch thumbnail with status", thumbnail_resp.status_code)
+        return (nft_name, -1)
 
     return (nft_name, thumbnail_resp.body())
 
@@ -88,10 +101,27 @@ def fetch_collection_stats(nft, api_key):
 
     collection_resp = http.get(collection_url, headers = {"X-API-KEY": api_key}, ttl_seconds = 3600)
     if (collection_resp.status_code != 200):
-        fail("OpenSea request failed with status", collection_resp.status_code)
+        print("OpenSea request failed with status", collection_resp.status_code)
+        return -1
 
     collection_stats = collection_resp.json()["stats"]
     return collection_stats
+
+def render_error(error_message):
+    return render.Root(
+        child = render.Box(
+            child = render.Column(
+                cross_align = "center",
+                children = [
+                    render.Marquee(
+                        offset_start = 64,
+                        width = 64,
+                        child = render.Text("NFT: {}".format(error_message)),
+                    ),
+                ],
+            ),
+        ),
+    )
 
 def get_schema():
     return schema.Schema(
