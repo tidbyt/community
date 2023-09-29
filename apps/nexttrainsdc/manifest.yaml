@@ -1,0 +1,8 @@
+---
+id: next-trains-dc
+name: Next Trains DC
+summary: Shows next trains time
+desc: Shows next trains times.
+author: Nehan Sikder
+fileName: next_trains_dc.star
+packageName: nexttrainsdc
