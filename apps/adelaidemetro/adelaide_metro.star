@@ -8,33 +8,57 @@ Inspired by all the other great transit apps out there, I made one for my home t
 
 v1.0 - First release to Tidbyt
 v1.1 - Fixed bug that showed same time for different services if over 120 mins away
+v1.2 - Fixed bug that showed no time when its the last service for the day/for a while
+
+v2.0
+Major Changes!
+**************
+Updated to display next arrivals at the selected stop or station, this is the new default
+Display by route is still available via the dropdown
+Users can select to show arrivals due in the next 30, 60, 90, 120 mins via dropdown. 60 mins is default
+Trains into the city will display as CITY rather than the route name (only in next arrival mode)
+Trams will also show the destination rather than route name (only in next arrival mode)
+Updated Tram Stop List
+Updated caching function
+
+v2.1 - Published 11/6
+Bug fix for some train stations not showing "CITY" headsign on city bound services
+Updated wording for Bus Stop and Tram Stop in schema dropdown
+Fixed issue for last service/services after midnight showing incorrect times. This is an issue with the data from API but added a workaround to make it accurate
+
+v2.2 - Unpublished
+Added handling for service disruption, or situations where there are no services in next 24hrs
+Extended display time to 3 seconds
 """
 
-load("cache.star", "cache")
-load("encoding/base64.star", "base64")
 load("encoding/json.star", "json")
 load("http.star", "http")
 load("render.star", "render")
 load("schema.star", "schema")
+load("time.star", "time")
 
 NEXTSCHED1_URL = "https://api-cloudfront.adelaidemetro.com.au/stops/next-scheduled-services?stop="
 STOPINFO_URL = "https://api-cloudfront.adelaidemetro.com.au/stops/info?stop="
 
 CACHE_TTL_SECS = 60
+CITYBOUND_STATION_LIST = ["18683", "18680", "18678", "18719", "17533", "18934", "18104"]
 
 def main(config):
-    SelectedStation = config.get("StationList", "16490")
+    SelectedStation = config.get("StationList", "16572")
     TrainToCity = config.bool("TrainToCity", True)
     TrainOrTramOrBus = config.get("TrainOrTramOrBus", "Train")
+    TimeOrRoute = config.get("TimeOrRoute", "Time")
+    ServiceTime = config.get("TimeLength", "60")
+    Display1 = []
 
     if TrainOrTramOrBus == "Tram":
-        SelectedStation = config.get("TramStationList", "17753")
+        SelectedStation = config.get("TramStationList", "17755")
 
     if TrainOrTramOrBus == "Bus":
-        SelectedStation = config.get("BusStop", 12471)
+        SelectedStation = config.get("BusStop", 16455)
 
     if TrainOrTramOrBus == "Train":
-        SelectedStation = config.get("StationList", "16490")
+        SelectedStation = config.get("StationList", "16572")
 
     if TrainToCity == False:
         SelectedStation = AwayStops(SelectedStation)
@@ -42,6 +66,7 @@ def main(config):
     STOP_ID = str(SelectedStation)
 
     NEXTSCHED_URL = NEXTSCHED1_URL + STOP_ID
+    #print(NEXTSCHED_URL)
 
     # Cache the next service times for 1 min
     NextSchedCacheData = get_cachable_data(NEXTSCHED_URL, 60)
@@ -66,9 +91,9 @@ def main(config):
     StopInfoCacheData = get_cachable_data(INFO_URL, 86400)
     INFO_JSON = json.decode(StopInfoCacheData)
 
+    # trim the stop names
     StopName = INFO_JSON["stop_data"]["stop_name"]
 
-    # trim the stop names
     IsRailwayStation = StopName.endswith(" Railway Station")
     if IsRailwayStation == True:
         StopName = StopName.removesuffix(" Railway Station")
@@ -81,52 +106,89 @@ def main(config):
     if StopPrefix == True:
         StopName = StopName.removeprefix("Stop ")
 
-    # get how many routes there are for this stop
-    StopRoutes = len(INFO_JSON["routes"])
+    # show services by next arrivals
+    if TimeOrRoute == "Time":
+        # Get the time period from user
+        ReqTime = int(ServiceTime)
 
-    Routes = []
-    RouteColors = []
-    Display1 = []
-    #zdump = []
+        # Initialize vars
+        Display1 = []
+        Services = 0
 
-    # loop through each route and get the ID and color
-    for x in range(0, StopRoutes, 1):
-        Routes.append(INFO_JSON["routes"][x]["route_id"])
-        RouteColors.append(INFO_JSON["routes"][x]["route_color"])
+        # How many services coming up at this stop
+        ServicesLookup = len(NEXTSCHED_JSON[2])
 
-    RouteLen = len(Routes)
+        # How many in time period specified
+        for x in range(0, ServicesLookup, 1):
+            if NEXTSCHED_JSON[2][x]["min"] <= ReqTime:
+                Services = Services + 1
+            elif NEXTSCHED_JSON[2][x]["min"] > ReqTime:
+                break
 
-    # keep it to 3 routes per page
-    if RouteLen > 3:
-        # for the number of routes for the stop, skip 3
-        for z in range(0, RouteLen, 3):
-            z = z
+        # if no services in the chosen time period, at least show the next service no matter how far away it is
+        if Services == 0:
+            Services = 1
+
+        for z in range(0, Services, 3):
             Display1.extend([
                 render.Column(
                     children = [
                         render.Column(
-                            children = GetTimes(StopName, Routes, RouteColors, RouteLen, NEXTSCHED_JSON),
+                            children = GetTimes_Time(StopName, Services, z, NEXTSCHED_JSON, INFO_JSON),
                         ),
                     ],
                 ),
             ])
-    else:
-        Display1.extend([
-            render.Column(
-                children = [
+
+    # Display all the routes for this stop/station and their times
+    if TimeOrRoute == "Route":
+        # get how many routes there are for this stop
+        StopRoutes = len(INFO_JSON["routes"])
+
+        # initialize lists
+        Routes = []
+        RouteColors = []
+        Display1 = []
+
+        # loop through each route and get the ID and color
+        for x in range(0, StopRoutes, 1):
+            Routes.append(INFO_JSON["routes"][x]["route_id"])
+            RouteColors.append(INFO_JSON["routes"][x]["route_color"])
+
+        RouteLen = len(Routes)
+
+        # keep it to 3 routes per page
+        if RouteLen > 3:
+            # for the number of routes for the stop, skip 3
+            for z in range(0, RouteLen, 3):
+                z = z
+                Display1.extend([
                     render.Column(
-                        children = GetTimes(StopName, Routes, RouteColors, RouteLen, NEXTSCHED_JSON),
+                        children = [
+                            render.Column(
+                                children = GetTimes_Route(StopName, Routes, RouteColors, RouteLen, NEXTSCHED_JSON),
+                            ),
+                        ],
                     ),
-                ],
-            ),
-        ])
+                ])
+        else:
+            Display1.extend([
+                render.Column(
+                    children = [
+                        render.Column(
+                            children = GetTimes_Route(StopName, Routes, RouteColors, RouteLen, NEXTSCHED_JSON),
+                        ),
+                    ],
+                ),
+            ])
 
     return render.Root(
-        delay = int(2500),
+        show_full_animation = True,
+        delay = int(3000),
         child = render.Animation(children = Display1),
     )
 
-def GetTimes(StopName, Routes, RouteColors, RouteLen, NEXTSCHED_JSON):
+def GetTimes_Route(StopName, Routes, RouteColors, RouteLen, NEXTSCHED_JSON):
     MatchCount = 0
     TimeList = []
     Display = []
@@ -139,7 +201,28 @@ def GetTimes(StopName, Routes, RouteColors, RouteLen, NEXTSCHED_JSON):
     Time2 = ""
     Time3 = ""
 
-    Title = [render.Marquee(width = 64, height = 8, child = render.Text(content = StopName, color = "#FFF", font = "tom-thumb"))]
+    Title = [
+        render.Row(
+            expanded = True,
+            main_align = "space_between",
+            children = [
+                render.Row(
+                    main_align = "start",
+                    children = [
+                        render.Padding(
+                            pad = (1, 1, 0, 0),
+                            child = render.Text(
+                                content = StopName,
+                                color = "#fff",
+                                font = "tom-thumb",
+                            ),
+                        ),
+                    ],
+                ),
+            ],
+        ),
+    ]
+
     Display.extend(Title)
 
     # Get total number of scheduled services
@@ -150,7 +233,6 @@ def GetTimes(StopName, Routes, RouteColors, RouteLen, NEXTSCHED_JSON):
         RouteLen = 3
 
     # for each route
-
     for s in range(0, RouteLen, 1):
         sdump.append(s)
 
@@ -201,7 +283,6 @@ def GetTimes(StopName, Routes, RouteColors, RouteLen, NEXTSCHED_JSON):
                 Time1 = str(TimeList.pop(0))
                 Comma1 = ""
                 Comma2 = ""
-                Time1 = ""
                 Time2 = ""
                 Time3 = ""
 
@@ -216,6 +297,7 @@ def GetTimes(StopName, Routes, RouteColors, RouteLen, NEXTSCHED_JSON):
 
             # if we have no services < 120 mins away
         elif TimeList == []:
+            #Trains = None
             Trains = render.Row(
                 children = [
                     render.Box(width = 64, height = 8, child = render.Row(children = [
@@ -226,6 +308,132 @@ def GetTimes(StopName, Routes, RouteColors, RouteLen, NEXTSCHED_JSON):
             )
 
         Display.extend([Trains])
+
+    return Display
+
+def GetTimes_Time(StopName, Services, z, NEXTSCHED_JSON, INFO_JSON):
+    Display = []
+    Trains = []
+
+    Title = [
+        render.Row(
+            expanded = True,
+            main_align = "space_between",
+            children = [
+                render.Row(
+                    main_align = "start",
+                    children = [
+                        render.Padding(
+                            pad = (1, 1, 0, 1),
+                            child = render.Text(
+                                content = StopName,
+                                color = "#FFF",
+                                font = "tom-thumb",
+                            ),
+                        ),
+                    ],
+                ),
+            ],
+        ),
+    ]
+    Display.extend(Title)
+
+    # if there is a disruption to services
+    if len(NEXTSCHED_JSON[2]) == 0:
+        Trains = render.Column(
+            main_align = "start",
+            cross_align = "start",
+            children = [
+                render.Row(
+                    expanded = True,
+                    main_align = "space_between",
+                    cross_align = "end",
+                    children = [
+                        render.Box(width = 64, height = 3, child = render.Text(content = "", color = "#FFF", font = "CG-pixel-3x5-mono")),
+                    ],
+                ),
+                render.Row(
+                    expanded = True,
+                    main_align = "space_between",
+                    cross_align = "end",
+                    children = [
+                        render.Box(width = 64, height = 8, child = render.Text(content = "No scheduled", color = "#FFF", font = "CG-pixel-3x5-mono")),
+                    ],
+                ),
+                render.Row(
+                    expanded = True,
+                    main_align = "space_between",
+                    cross_align = "end",
+                    children = [
+                        render.Box(width = 64, height = 6, child = render.Text(content = "services", color = "#FFF", font = "CG-pixel-3x5-mono")),
+                    ],
+                ),
+            ],
+        )
+        Display.extend([Trains])
+
+    else:
+        StopRoutes = len(INFO_JSON["routes"])
+        Trips = len(INFO_JSON["trips"])
+        RouteColor = "#000"
+        RouteType = 0
+
+        for s in range(0, 3):
+            if s + z < Services:
+                TheRoute = NEXTSCHED_JSON[2][s + z]["route_id"]
+                MinsAway = NEXTSCHED_JSON[2][s + z]["min"]
+
+                # Things can get weird around midnight/last service
+                # The API says that the next service is 2500+ mins away, but its not
+                # So lets do some manual calculating to work out when its due
+                if MinsAway > 1440:
+                    Now = NEXTSCHED_JSON[0][0]["now_time"]
+                    Now = Now[:16]
+                    convertedNow = time.parse_time(Now, format = "2006-01-02 15:04")
+                    Arrival_Time = NEXTSCHED_JSON[2][s + z]["arrival_time"]
+                    convertedArrival = time.parse_time(Arrival_Time, format = "2006-01-02 15:04:00")
+                    diff = convertedArrival - convertedNow
+                    MinsAway = int(diff.minutes)
+
+                # get details about the route
+                for i in range(0, StopRoutes, 1):
+                    if TheRoute == INFO_JSON["routes"][i]["route_id"]:
+                        RouteColor = INFO_JSON["routes"][i]["route_color"]
+                        RouteType = INFO_JSON["routes"][i]["route_type"]
+                        break
+
+                # if its a train route (2), then check the stop code
+                # Codes for train stations to the city start with '16' with some exceptions (CITYBOUND_STATION_LIST)
+                # lastly, check we're not at City already
+                if RouteType == 2:
+                    StopCode = INFO_JSON["stop_data"]["stop_code"]
+                    ToCity = StopCode.startswith("16") or StopCode in CITYBOUND_STATION_LIST
+                    if ToCity:
+                        if StopCode != "16490":
+                            TheRoute = "CITY"
+
+                # if its a tram route, look up the headsign and display
+                if RouteType == 0:
+                    TripID = NEXTSCHED_JSON[2][s + z]["trip_id"]
+                    for i in range(0, Trips, 1):
+                        if TripID == INFO_JSON["trips"][i]["trip_id"]:
+                            Headsign = INFO_JSON["trips"][i]["trip_headsign"]
+                            TheRoute = getHeadsign(Headsign)
+
+                            # if we can't find a headsign, use the default
+                            if TheRoute == None:
+                                TheRoute = NEXTSCHED_JSON[2][s + z]["route_id"]
+
+                Trains = render.Row(
+                    children = [
+                        render.Box(width = 64, height = 8, child = render.Row(children = [
+                            render.Box(width = 26, height = 7, color = RouteColor, child = render.Text(content = TheRoute, font = "CG-pixel-3x5-mono")),
+                            render.Box(width = 40, height = 7, child = render.Text(content = str(MinsAway) + " mins", color = "#fff", font = "CG-pixel-3x5-mono")),
+                        ])),
+                    ],
+                )
+
+                Display.extend([Trains])
 
     return Display
 
@@ -590,23 +798,23 @@ TramStationOptions = [
 
     # Tram Stations
     schema.Option(
-        display = "Adelaide Railway Station (to Entertainment Centre)",
+        display = "Adelaide Railway Station (Westbound)",
         value = "17753",
     ),
     schema.Option(
-        display = "Adelaide Railway Station (to Botanic, Glenelg)",
+        display = "Adelaide Railway Station (Eastbound)",
         value = "18513",
     ),
     schema.Option(
-        display = "Art Gallery (to Botanic)",
+        display = "Art Gallery (Eastbound)",
         value = "18849",
     ),
     schema.Option(
-        display = "Art Gallery (to Ent Centre)",
+        display = "Art Gallery (Westbound)",
         value = "18848",
     ),
     schema.Option(
-        display = "Beckman St (to Festival, RAH/Ent Centre)",
+        display = "Beckman St (to City)",
         value = "16584",
     ),
     schema.Option(
@@ -614,7 +822,7 @@ TramStationOptions = [
         value = "18526",
     ),
     schema.Option(
-        display = "Black Forest (to Festival, RAH/Ent Centre)",
+        display = "Black Forest (to City)",
         value = "16629",
     ),
     schema.Option(
@@ -622,11 +830,11 @@ TramStationOptions = [
         value = "18523",
     ),
     schema.Option(
-        display = "Bonython Park (to Entertainment Centre)",
+        display = "Bonython Park (Westbound)",
         value = "17990",
     ),
     schema.Option(
-        display = "Bonython Park (to Botanic, Glenelg)",
+        display = "Bonython Park (Eastbound)",
         value = "18509",
     ),
     schema.Option(
@@ -634,7 +842,7 @@ TramStationOptions = [
         value = "18852",
     ),
     schema.Option(
-        display = "Brighton Rd (to Festival, RAH/Ent Centre)",
+        display = "Brighton Rd (to City)",
         value = "16582",
     ),
     schema.Option(
@@ -642,7 +850,7 @@ TramStationOptions = [
         value = "18534",
     ),
     schema.Option(
-        display = "City South (to Festival, RAH/Ent Centre)",
+        display = "City South (Northbound)",
         value = "16626",
     ),
     schema.Option(
@@ -650,11 +858,11 @@ TramStationOptions = [
         value = "18517",
     ),
     schema.Option(
-        display = "City West (to Entertainment Centre)",
+        display = "City West (Westbound)",
         value = "17752",
     ),
     schema.Option(
-        display = "City West (to Botanic, Glenelg)",
+        display = "City West (Eastbound)",
         value = "18512",
     ),
     schema.Option(
@@ -666,7 +874,7 @@ TramStationOptions = [
         value = "18847",
     ),
     schema.Option(
-        display = "Forestville (to Festival, RAH/Ent Centre)",
+        display = "Forestville (to City)",
         value = "16583",
     ),
     schema.Option(
@@ -674,7 +882,7 @@ TramStationOptions = [
         value = "18522",
     ),
     schema.Option(
-        display = "Glandore (to Festival, RAH/Ent Centre)",
+        display = "Glandore (to City)",
         value = "16630",
     ),
     schema.Option(
@@ -682,15 +890,15 @@ TramStationOptions = [
         value = "18525",
     ),
     schema.Option(
-        display = "Glenelg East (to Festival, RAH/Ent Centre)",
+        display = "Glenelg East (to City)",
         value = "16634",
     ),
     schema.Option(
         display = "Glenelg East (to Glenelg)",
-        value = "18532",
+        value = "18533",
     ),
     schema.Option(
-        display = "Glengowrie (to Festival, RAH/Ent Centre)",
+        display = "Glengowrie (to City)",
         value = "16633",
     ),
     schema.Option(
@@ -698,7 +906,7 @@ TramStationOptions = [
         value = "18532",
     ),
     schema.Option(
-        display = "Goodwood Rd (to Festival, RAH/Ent Centre)",
+        display = "Goodwood Rd (to City)",
         value = "16623",
     ),
     schema.Option(
@@ -706,7 +914,7 @@ TramStationOptions = [
         value = "18521",
     ),
     schema.Option(
-        display = "Greenhill Rd (to Festival, RAH/Ent Centre)",
+        display = "Greenhill Rd (to City)",
         value = "16585",
     ),
     schema.Option(
@@ -714,7 +922,7 @@ TramStationOptions = [
         value = "18519",
     ),
     schema.Option(
-        display = "Jetty Rd (to Festival, RAH/Ent Centre)",
+        display = "Jetty Rd (to City)",
         value = "17111",
     ),
     schema.Option(
@@ -722,7 +930,7 @@ TramStationOptions = [
         value = "14395",
     ),
     schema.Option(
-        display = "Marion Rd (to Festival, RAH/Ent Centre)",
+        display = "Marion Rd (to City)",
         value = "16575",
     ),
     schema.Option(
@@ -730,7 +938,7 @@ TramStationOptions = [
         value = "18528",
     ),
     schema.Option(
-        display = "Morphett Rd (to Festival, RAH/Ent Centre)",
+        display = "Morphett Rd (to City)",
         value = "17756",
     ),
     schema.Option(
@@ -742,7 +950,7 @@ TramStationOptions = [
         value = "16577",
     ),
     schema.Option(
-        display = "Pirie St (to Festival, RAH/Ent Centre)",
+        display = "Pirie St (Northbound)",
         value = "17755",
     ),
     schema.Option(
@@ -750,7 +958,7 @@ TramStationOptions = [
         value = "18515",
     ),
     schema.Option(
-        display = "Plympton Park (to Festival, RAH/Ent Centre)",
+        display = "Plympton Park (to City)",
         value = "16632",
     ),
     schema.Option(
@@ -758,15 +966,15 @@ TramStationOptions = [
         value = "18529",
     ),
     schema.Option(
-        display = "Royal Adel Hospital (to Entertainment Centre)",
+        display = "Royal Adel Hospital (Westbound)",
         value = "17989",
     ),
     schema.Option(
-        display = "Royal Adel Hospital (to Botanic, Glenelg)",
+        display = "Royal Adel Hospital (Eastbound)",
         value = "18511",
     ),
     schema.Option(
-        display = "Rundle Mall (to Festival, RAH/Ent Centre)",
+        display = "Rundle Mall (Northbound)",
         value = "17754",
     ),
     schema.Option(
@@ -774,7 +982,7 @@ TramStationOptions = [
         value = "18514",
     ),
     schema.Option(
-        display = "South Plympton (to Festival, RAH/Ent Centre)",
+        display = "South Plympton (to City)",
         value = "16631",
     ),
     schema.Option(
@@ -782,7 +990,7 @@ TramStationOptions = [
         value = "18527",
     ),
     schema.Option(
-        display = "South Rd (to Festival, RAH/Ent Centre)",
+        display = "South Rd (to City)",
         value = "16574",
     ),
     schema.Option(
@@ -790,7 +998,7 @@ TramStationOptions = [
         value = "18524",
     ),
     schema.Option(
-        display = "South Tce (to Festival, RAH/Ent Centre)",
+        display = "South Tce (Northbound)",
         value = "16627",
     ),
     schema.Option(
@@ -798,23 +1006,23 @@ TramStationOptions = [
         value = "18518",
     ),
     schema.Option(
-        display = "Thebarton (to Entertainment Centre)",
+        display = "Thebarton (Westbound)",
         value = "17991",
     ),
     schema.Option(
-        display = "Thebarton (to Botanic, Glenelg)",
+        display = "Thebarton (Eastbound)",
         value = "18510",
     ),
     schema.Option(
-        display = "University (to Botanic)",
+        display = "University (Eastbound)",
         value = "18851",
     ),
     schema.Option(
-        display = "University (to Ent Centre)",
+        display = "University (Westbound)",
         value = "18850",
     ),
     schema.Option(
-        display = "Victoria Sq (to Festival, RAH/Ent Centre)",
+        display = "Victoria Sq (Northbound)",
         value = "16573",
     ),
     schema.Option(
@@ -822,7 +1030,7 @@ TramStationOptions = [
         value = "18516",
     ),
     schema.Option(
-        display = "Wayville (to Festival, RAH/Ent Centre)",
+        display = "Wayville (to City)",
         value = "16628",
     ),
     schema.Option(
@@ -845,6 +1053,52 @@ TrainOrTramOrBusOptions = [
         value = "Bus",
     ),
 ]
+
+TimeOrRouteOptions = [
+    schema.Option(
+        display = "Next Arrivals",
+        value = "Time",
+    ),
+    schema.Option(
+        display = "Route",
+        value = "Route",
+    ),
+]
+
+TimeLengthOptions = [
+    schema.Option(
+        display = "30 mins",
+        value = "30",
+    ),
+    schema.Option(
+        display = "60 mins",
+        value = "60",
+    ),
+    schema.Option(
+        display = "90 mins",
+        value = "90",
+    ),
+    schema.Option(
+        display = "120 mins",
+        value = "120",
+    ),
+]
+
+def getHeadsign(Trip):
+    # convert trip destination into a readable string
+    if Trip == "Entertainment Centre":
+        Headsign = "ENTCNT"
+    elif Trip == "Royal Adelaide Hospital":
+        Headsign = "RAH"
+    elif Trip == "Botanic Gardens":
+        Headsign = "BTANIC"
+    elif Trip == "Glenelg":
+        Headsign = "GLNELG"
+    elif Trip == "Festival Plaza":
+        Headsign = "FESTVL"
+    else:
+        Headsign = None
+    return Headsign
 
 def InvalidStop():
     # {"error":"stop not found"}
@@ -1011,7 +1265,7 @@ def AwayStops(SelectedStation):
     if SelectedStation == "16557":
         return ("18571")
     if SelectedStation == "16558":
-        return ("18465")
+        return ("18548")
     if SelectedStation == "16558":
         return ("18548")
     if SelectedStation == "16559":
@@ -1074,7 +1328,7 @@ def MoreOptions(TrainOrTramOrBus):
         return [
             schema.Dropdown(
                 id = "TramStationList",
-                name = "Tram Station",
+                name = "Tram Stop",
                 desc = "Choose your station",
                 icon = "trainTram",
                 default = TramStationOptions[0].value,
@@ -1085,7 +1339,7 @@ def MoreOptions(TrainOrTramOrBus):
         return [
             schema.Text(
                 id = "BusStop",
-                name = "Bus Stop",
+                name = "Bus Stop ID",
                 desc = "Enter the Stop ID",
                 icon = "bus",
             ),
@@ -1096,6 +1350,22 @@ def get_schema():
     return schema.Schema(
         version = "1",
         fields = [
+            schema.Dropdown(
+                id = "TimeOrRoute",
+                name = "Next arrivals or route",
+                desc = "Show services by the next arrivals or route",
+                icon = "gear",
+                default = TimeOrRouteOptions[0].value,
+                options = TimeOrRouteOptions,
+            ),
+            schema.Dropdown(
+                id = "TimeLength",
+                name = "Time Frame",
+                desc = "Show services for the next...",
+                icon = "clock",
+                default = TimeLengthOptions[0].value,
+                options = TimeLengthOptions,
+            ),
             schema.Dropdown(
                 id = "TrainOrTramOrBus",
                 name = "Train, Tram or Bus",
@@ -1113,18 +1383,9 @@ def get_schema():
     )
 
 def get_cachable_data(url, timeout):
-    key = base64.encode(url)
+    res = http.get(url = url, ttl_seconds = timeout)
 
-    data = cache.get(key)
-    if data != None:
-        # print("Using cached data")
-        return base64.decode(data)
-
-    res = http.get(url = url)
-
-    #print("Getting new data")
     if res.status_code != 200:
         fail("request to %s failed with status code: %d - %s" % (url, res.status_code, res.body()))
-    cache.set(key, base64.encode(res.body()), ttl_seconds = timeout)
 
     return res.body()

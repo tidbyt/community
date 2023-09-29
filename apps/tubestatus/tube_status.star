@@ -5,8 +5,6 @@ Description: Shows the current status of each line on London Underground and oth
 Author: dinosaursrarr
 """
 
-load("cache.star", "cache")
-load("encoding/json.star", "json")
 load("http.star", "http")
 load("render.star", "render")
 load("schema.star", "schema")
@@ -15,13 +13,14 @@ load("secret.star", "secret")
 # Allows 500 queries per minute
 ENCRYPTED_APP_KEY = "AV6+xWcE2sENYC+/SYTqo/7oaIT8Q+BjV27Q/Bm9b1C19OEsiEuWKQQ3KKx6ymZQk2DOkiaPMjvoYmBlYZl/yr6AqusGweRYyA/gZ26zZBYX6krBCckHACEZQIS0mtAkwZmiLoGxhH2XpUkBBQdmBBwjODAqrcthPYPCm7u597BdzWyhljQ="
 STATUS_URL = "https://api.tfl.gov.uk/Line/Mode/%s/Status"
+USER_AGENT = "Tidbyt tube_status"
 
 WHITE = "#FFF"
 BLACK = "#000"
 
 DISPLAY_SCROLL = "DISPLAY_SCROLL"
 DISPLAY_SEQUENTIAL = "DISPLAY_SEQUENTIAL"
-NO_DATA_IN_CACHE = ""
+PROBLEMS_FIRST = "PROBLEMS_FIRST"
 
 LINES = {
     "bakerloo": {
@@ -145,24 +144,20 @@ SEVERITIES = {
 # Cache response for all users. It's always the same info with the same inputs so
 # no need to fetch repeatedly.
 def fetch_response():
-    cache_key = "api_response"  # it's always the same input
-    cached = cache.get(cache_key)
-    if cached == NO_DATA_IN_CACHE:
-        return None
-    if cached:
-        return json.decode(cached)
     app_key = secret.decrypt(ENCRYPTED_APP_KEY) or ""  # fall back to anonymous quota
     resp = http.get(
         url = STATUS_URL % ",".join(["tube", "elizabeth-line", "overground", "dlr", "tram"]),
         params = {
             "app_key": app_key,
         },
+        headers = {
+            "User-Agent": USER_AGENT,
+        },
+        ttl_seconds = 60,
     )
     if resp.status_code != 200:
         print("TFL status request failed with status code ", resp.status_code)
-        cache.set(cache_key, NO_DATA_IN_CACHE, ttl_seconds = 30)
         return None
-    cache.set(cache_key, resp.body(), ttl_seconds = 60)
     return resp.json()
 
 def fetch_lines():
@@ -248,11 +243,69 @@ def render_sequential(lines):
         panes = [render_status(lines[i])]
         if i + 1 < len(lines):
             panes.append(render_status(lines[i + 1]))
-
-        frame = render.Column(
-            children = panes,
+        frames.append(
+            render.Column(
+                children = panes,
+            ),
         )
-        frames.append(frame)
+
+    return render.Animation(
+        children = frames,
+    )
+
+def render_remainder(all_good, whole_screen):
+    height = 32 if whole_screen else 16
+    return render.Box(
+        width = 64,
+        height = height,
+        color = WHITE,
+        child = render.Column(
+            main_align = "start",
+            children = [
+                render.WrappedText(
+                    width = 62,
+                    height = height,
+                    content = "Good service %s lines" % ("on all" if all_good else "other"),
+                    color = BLACK,
+                ),
+            ],
+        ),
+    )
+
+def render_problems(lines):
+    frames = []
+    problems = [line for line in lines if line["status"] != SEVERITIES[10]]
+    all_affected = len(problems) == len(lines)
+
+    if not problems:
+        return render_remainder(True, True)
+
+    for i in range(0, len(problems), 2):
+        panes = [render_status(problems[i])]
+        if i + 1 < len(problems):
+            panes.append(render_status(lines[i + 1]))
+        frames.append(
+            render.Column(
+                children = panes,
+            ),
+        )
+
+    if not all_affected:
+        # Add to bottom half of last frame if there's space
+        if len(frames[-1].children) == 1:
+            frames[-1] = render.Column(
+                children = [
+                    frames[-1].children[0],
+                    render_remainder(False, False),
+                ],
+            )
+        else:
+            # Otherwise make a new frame
+            frames.append(
+                render.Column(
+                    children = [render_remainder(False, True)],
+                ),
+            )
 
     return render.Animation(
         children = frames,
@@ -280,6 +333,9 @@ def main(config):
     elif display_mode == DISPLAY_SEQUENTIAL:
         rendered = render_sequential(lines)
         delay = 2000
+    elif display_mode == PROBLEMS_FIRST:
+        rendered = render_problems(lines)
+        delay = 2000
     else:
         rendered = []
         delay = 50
@@ -300,6 +356,10 @@ def get_schema():
             display = "Sequential",
             value = DISPLAY_SEQUENTIAL,
         ),
+        schema.Option(
+            display = "Problems first",
+            value = PROBLEMS_FIRST,
+        ),
     ]
 
     return schema.Schema(
@@ -310,7 +370,7 @@ def get_schema():
                 name = "Display mode",
                 desc = "How to animate the status for different lines",
                 icon = "display",
-                default = DISPLAY_SEQUENTIAL,
+                default = PROBLEMS_FIRST,
                 options = display_modes,
             ),
         ],

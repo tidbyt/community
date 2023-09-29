@@ -6,10 +6,8 @@ Author: rs7q5
 """
 #mlb_leaders.star
 #Created 20220412 RIS
-#Last Modified 20220510 RIS
+#Last Modified 20230516 RIS
 
-load("cache.star", "cache")
-load("encoding/json.star", "json")
 load("http.star", "http")
 load("random.star", "random")
 load("render.star", "render")
@@ -154,6 +152,7 @@ def main(config):
 
     return render.Root(
         delay = int(config.str("speed", "50")),  #speed up scroll text
+        show_full_animation = True,
         child = final_frame,
     )
 
@@ -304,23 +303,14 @@ def get_leaders(statName):
     #base_URL = "https://statsapi.mlb.com/api/v1/stats/leaders"
     today = time.now().in_location("America/New_York")  #get year (season)
 
-    #check for cached data
-    stats = {}
-    stat_cached = cache.get("mlb_leagueleaders_%s" % statName)
-    if stat_cached != None:
-        print("Hit! Displaying MLB league leaders in %s data." % statName)
-        stats = json.decode(stat_cached)
+    full_URL = "https://statsapi.mlb.com/api/v1/stats/leaders?sportId=1&leaderCategories=%s&season=%s&hydrate=team&limit=5" % (statName, today.year)
+
+    #print(full_URL)
+    rep = http.get(url = full_URL, ttl_seconds = 43200)  #grab data twice a day
+    if rep.status_code != 200:
+        return ["Error getting data"]
     else:
-        print("Miss! Calling MLB league leaders in %s data." % statName)  #error code checked within each function!!!!
-        full_URL = "https://statsapi.mlb.com/api/v1/stats/leaders?sportId=1&leaderCategories=%s&season=%s&hydrate=team&limit=5" % (statName, today.year)
-
-        #print(full_URL)
-        rep = http.get(full_URL)
-        if rep.status_code != 200:
-            return ["Error getting data"]
-        else:
-            data = rep.json()["leagueLeaders"]
-
+        data = rep.json()["leagueLeaders"]
         if data == []:
             return no_stat_text
         else:
@@ -341,9 +331,6 @@ def get_leaders(statName):
                             break
                 stats[statGroup] = stats_tmp
                 #print(stats_tmp)
-
-            #cache the data
-            cache.set("mlb_leagueleaders_%s" % statName, json.encode(stats), ttl_seconds = 43200)  #grab twice a day
 
     return stats
 

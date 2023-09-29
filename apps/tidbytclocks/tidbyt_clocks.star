@@ -6,10 +6,8 @@ Author: rs7q5
 """
 #tidbyt_clocks.star
 #Created 20230128 RIS
-#Last Modified 20230131 RIS
+#Last Modified 20230516 RIS
 
-load("cache.star", "cache")
-load("encoding/json.star", "json")
 load("http.star", "http")
 load("render.star", "render")
 load("time.star", "time")
@@ -20,21 +18,12 @@ DEFAULT_TIMEZONE = "America/New_York"
 
 def main(config):
     #get list of apps
-    cached_data = cache.get("app_list")
-    if cached_data != None:
-        print("Hit! Using cached app list data.")
-        data = json.decode(cached_data)
+    rep = http.get(url = BASE_URL, ttl_seconds = 3600)  #refresh list every hour
+    if rep.status_code != 200:
+        data = None
     else:
-        print("Miss! Refreshing app list data.")
-
-        #get the data
-        rep = http.get(BASE_URL)
-        if rep.status_code != 200:
-            data = None
-        else:
-            data = [(x["id"], (x["name"], x["description"])) for x in rep.json()["apps"]]
-            data = dict(data)
-            cache.set("app_list", json.encode(data), ttl_seconds = 3600)  #refresh app list every hour
+        data = [(x["id"], (x["name"], x["description"])) for x in rep.json()["apps"]]
+        data = dict(data)
 
     #find the apps that have clock in the name or description
     if data == None:
@@ -91,6 +80,8 @@ def main(config):
     )
     return render.Root(
         delay = 100,  #speed up scroll text
+        max_age = 120,
+        show_full_animation = True,
         child = final_frame,
     )
 

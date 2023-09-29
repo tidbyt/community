@@ -118,6 +118,7 @@ def get_fish_pic(url):
         fail("No fish here! Request to %s failed with status code: %d - %s" % (url, res.status_code, res.body()))
 
     # print("Let's catch this fish!")
+    # TODO: Determine if this cache call can be converted to the new HTTP cache.
     cache.set(key, base64.encode(res.body()), ttl_seconds = CACHE_TTL_SECONDS)
     return res.body()
 
@@ -134,6 +135,8 @@ def get_fish_barrel():
         if rep.status_code != 200:
             fail("FishWatch request failed with status %d", rep.status_code)
         fish_barrel = rep.json()
+
+        # TODO: Determine if this cache call can be converted to the new HTTP cache.
         cache.set("fish_barrel", json.encode(fish_barrel), ttl_seconds = CACHE_TTL_SECONDS)
 
     return fish_barrel

@@ -97,6 +97,8 @@ def main(config):
                     }
                     for c in CATEGORIES
                 }
+
+            # TODO: Determine if this cache call can be converted to the new HTTP cache.
             cache.set(KEY, json.encode(data), TTL if content.status_code < 300 else ERROR_TTL)
         else:
             #print("using cache")

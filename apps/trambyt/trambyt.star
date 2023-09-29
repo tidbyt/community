@@ -47,6 +47,7 @@ def get_access_token(config):
         j = rep.json()
         access_token = j["access_token"]
 
+        # TODO: Determine if this cache call can be converted to the new HTTP cache.
         cache.set("access_token", access_token, ttl_seconds = int(int(j["expires_in"]) / 2))
 
     return access_token
@@ -95,6 +96,7 @@ def main(config):
 
         departures = "\n".join(departures)
 
+        # TODO: Determine if this cache call can be converted to the new HTTP cache.
         cache.set("departures", departures, ttl_seconds = 60)
 
     # render

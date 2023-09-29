@@ -5,11 +5,12 @@ Description: Display AA Daily Refelection from the AA.org website
 Author: jvivona
 """
 
-load("cache.star", "cache")
 load("encoding/json.star", "json")
 load("http.star", "http")
 load("render.star", "render")
 load("time.star", "time")
+
+VERSION = 23132
 
 APPTITLE_TEXT_COLOR = "#fff"
 APPTITLE_BKG_COLOR = "#0000ff"
@@ -77,17 +78,9 @@ def main(config):
     )
 
 def get_cachable_data(url):
-    key = url
-
-    data = cache.get(key)
-    if data != None:
-        return data
-
-    res = http.get(url = url)
+    res = http.get(url = url, ttl_seconds = CACHE_TTL_SECONDS)
     if res.status_code != 200:
         fail("request to %s failed with status code: %d - %s" % (url, res.status_code, res.body()))
-
-    cache.set(key, res.body(), ttl_seconds = CACHE_TTL_SECONDS)
 
     return res.body()
 
@@ -103,7 +96,7 @@ def render_text(config):
     # same technique as above, but the reference is a <p> tag inside the div so use that to our advantage
     reference = extract_text(daily_reflection.split("<div")[2].split("<p>")[-1], REFERENCE_FINDER, REFERENCE_FINDER_END, REFERENCE_OFFSET).title().replace("Pp.", "pp.").replace("P.", "p.")
 
-    if len(title) == 0 or len(teaser) == 0 or len(reference) == 0:
+    if len(title) == 0 or len(teaser) == 0:
         return error()
 
     return [

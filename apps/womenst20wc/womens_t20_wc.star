@@ -3,6 +3,10 @@ Applet: Womens T20 WC
 Summary: Cricket scores for WT20 WC
 Description: Shows live scores for the selected Women's T20 team. Also can show post game details or upcoming match information.
 Author: M0ntyP
+
+Version History
+v1.0 - First published 
+v1.1 - Fixed issue where recent results were not shown and app was showing next match coming up. Made changes to keep the most recent result for 24hrs before moving to next match
 """
 
 load("cache.star", "cache")
@@ -27,6 +31,7 @@ STANDINGS_CACHE = 6 * 3600  # 6 hours
 
 def main(config):
     timezone = config.get("$tz", DEFAULT_TIMEZONE)
+    now = time.now().in_location(timezone)
 
     SelectedTeam = config.get("TeamList", DEFAULT_TEAM)
     SelectedTeam = int(SelectedTeam)
@@ -41,19 +46,25 @@ def main(config):
 
     MatchID = None
 
-    # loop through the "recentFixtures" to find your team
-    # the list of matches presented will be listed in reverse chronological order with the most recent at the top
-    # as soon as you match the team, break out of the loop otherwise you might find another match which is older
-    for x in range(0, len(Matches), 1):
-        if Matches[x]["teams"][0]["team"]["id"] == SelectedTeam or Matches[x]["teams"][1]["team"]["id"] == SelectedTeam:
-            MatchID = Matches[x]["objectId"]
-            break
+    # look through recently completed matches and if its less than 24 hrs since the last completed match, show the details
+    # else show the next match coming up
 
-    # if we cant find anything coming up then look for an old match
-    if MatchID == None:
-        for x in range(0, len(RecentMatches), 1):
-            if RecentMatches[x]["teams"][0]["team"]["id"] == SelectedTeam or RecentMatches[x]["teams"][1]["team"]["id"] == SelectedTeam:
+    for x in range(0, len(RecentMatches), 1):
+        if RecentMatches[x]["teams"][0]["team"]["id"] == SelectedTeam or RecentMatches[x]["teams"][1]["team"]["id"] == SelectedTeam:
+            StartTime = RecentMatches[x]["startTime"]
+            MatchTime = time.parse_time(StartTime, format = "2006-01-02T15:04:00.000Z").in_location(timezone)
+            TimeDiff = MatchTime - now
+
+            if TimeDiff.hours < -24:
+                break
+            else:
                 MatchID = RecentMatches[x]["objectId"]
+                break
+
+    if MatchID == None:
+        for x in range(0, len(Matches), 1):
+            if Matches[x]["teams"][0]["team"]["id"] == SelectedTeam or Matches[x]["teams"][1]["team"]["id"] == SelectedTeam:
+                MatchID = Matches[x]["objectId"]
                 break
 
     LastOut_Runs = 0
@@ -407,11 +418,11 @@ def main(config):
         Team2_ID = Match_JSON["match"]["teams"][1]["team"]["id"]
         Title = Match_JSON["match"]["title"]
 
-        # if Title of match ends with "...Group A"
-        if Title.endswith("A"):
-            Group = "A"
+        # if Title of match ends with "...Group 1"
+        if Title.endswith("1"):
+            Group = "1"
         else:
-            Group = "B"
+            Group = "2"
 
         Team1_Color = getTeamColor(Team1_ID)
         Team2_Color = getTeamColor(Team2_ID)
@@ -423,9 +434,9 @@ def main(config):
         Time = MyTime.format("15:04")
         Date = MyTime.format("Jan 2")
 
-        if Group == "A":
+        if Group == "1":
             Ladder = Standings_JSON["content"]["standings"]["groups"][0]["teamStats"]
-        elif Group == "B":
+        elif Group == "2":
             Ladder = Standings_JSON["content"]["standings"]["groups"][1]["teamStats"]
 
         # Team1 Record
@@ -637,6 +648,7 @@ def get_cachable_data(url, timeout):
     if res.status_code != 200:
         fail("request to %s failed with status code: %d - %s" % (url, res.status_code, res.body()))
 
+    # TODO: Determine if this cache call can be converted to the new HTTP cache.
     cache.set(key, base64.encode(res.body()), ttl_seconds = timeout)
 
     return res.body()

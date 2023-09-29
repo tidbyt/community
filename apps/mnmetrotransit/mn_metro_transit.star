@@ -1,8 +1,8 @@
 """
 Applet: MN Metro Transit
-Summary: Train, BRT, ABRT, and Bus Departure Times
-Description: Shows Transit Departure Times from Selected Stop.
-Author: Alex Miller & Jonathan Wescott
+Summary: Transit Departure Times
+Description: Shows train, BRT, ABRT, and bus departure times from the selected stop.
+Author: Jonathan Wescott and Alex Miller
 """
 
 load("cache.star", "cache")
@@ -12,11 +12,13 @@ load("render.star", "render")
 load("schema.star", "schema")
 
 #Assign Default Stop Code
-DEFAULT_STOP_CODE = "15264"
+DEFAULT_STOP_CODE = "51423"
+DEFAULT_STOP_NAME = ""
 
 def main(config):
     #Establish API URL
     stop_code = config.get("stop_code", DEFAULT_STOP_CODE)
+    stop_name = config.get("stop_name", DEFAULT_STOP_NAME)
     url = "https://svc.metrotransit.org/NexTripv2/" + stop_code + "?format=json"
     cache_key = "MTT_rate_{0}".format(stop_code)
 
@@ -30,6 +32,8 @@ def main(config):
     else:
         print("Miss! Calling Transit data.")
         MTT = http.get(url).json()
+
+        # TODO: Determine if this cache call can be converted to the new HTTP cache.
         cache.set(cache_key, json.encode(MTT), ttl_seconds = 30)
         MTT_data = MTT
 
@@ -64,7 +68,10 @@ def main(config):
         if len(MTT_DEPARTURE_LEN) == 0:
             MTT_DESCRIPTION0 = MTT["stops"][0]["description"]
             MTT_data = dict(MTT_DESCRIPTION0 = MTT_DESCRIPTION0)
-            stopDesc = MTT_DESCRIPTION0
+            if stop_name == "":
+                stopDesc = MTT_DESCRIPTION0
+            else:
+                stopDesc = stop_name
             route1 = "  No"
             route2 = "  No"
             r1Desc = "   departures"
@@ -83,7 +90,10 @@ def main(config):
             MTT_DIRECTION0 = MTT["departures"][0]["direction_text"]
             MTT_DEPARTURE0 = MTT["departures"][0]["departure_text"]
             MTT_data = dict(MTT_DESCRIPTION0 = MTT_DESCRIPTION0, MTT_ROUTE_SHORT_NAME0 = MTT_ROUTE_SHORT_NAME0, MTT_DIRECTION0 = MTT_ROUTE_SHORT_NAME0, MTT_DEPARTURE0 = MTT_DEPARTURE0)
-            stopDesc = MTT_DESCRIPTION0
+            if stop_name == "":
+                stopDesc = MTT_DESCRIPTION0
+            else:
+                stopDesc = stop_name
             route1 = MTT_ROUTE_SHORT_NAME0
             route2 = " No"
             r1Desc = MTT_DIRECTION0
@@ -107,7 +117,10 @@ def main(config):
             MTT_DEPARTURE0 = MTT["departures"][0]["departure_text"]
             MTT_DEPARTURE1 = MTT["departures"][1]["departure_text"]
             MTT_data = dict(MTT_DESCRIPTION0 = MTT_DESCRIPTION0, MTT_ROUTE_SHORT_NAME0 = MTT_ROUTE_SHORT_NAME0, MTT_ROUTE_SHORT_NAME1 = MTT_ROUTE_SHORT_NAME1, MTT_DIRECTION0 = MTT_DIRECTION0, MTT_DIRECTION1 = MTT_DIRECTION1, MTT_DEPARTURE0 = MTT_DEPARTURE0, MTT_DEPARTURE1 = MTT_DEPARTURE1, MTT_DEPARTURE_LEN = MTT_DEPARTURE_LEN, MTT_TITLE = MTT_TITLE)
-            stopDesc = MTT_DESCRIPTION0
+            if stop_name == "":
+                stopDesc = MTT_DESCRIPTION0
+            else:
+                stopDesc = stop_name
             route1 = MTT_ROUTE_SHORT_NAME0
             route2 = MTT_ROUTE_SHORT_NAME1
             r1Desc = MTT_DIRECTION0
@@ -148,9 +161,17 @@ def main(config):
         CB = "#F00"
         CT = "#222"
 
+    elif route1 == "Gold":
+        CB = "#FB0"
+        CT = "#222"
+
+    elif route1 == "Purple":
+        CB = "#A0C"
+        CT = "#222"
+
     if route1[2:7] == "Line":
-        CB = "#555"
-        CT = "#FFF"
+        CB = "#FFF"
+        CT = "#222"
 
     #departure slot 2
     if route2 == "Blue":
@@ -169,9 +190,17 @@ def main(config):
         CB2 = "#F00"
         CT2 = "#222"
 
+    elif route2 == "Gold":
+        CB2 = "#FB0"
+        CT2 = "#222"
+
+    elif route2 == "Purple":
+        CB2 = "#A0C"
+        CT2 = "#222"
+
     if route2[2:7] == "Line":
-        CB2 = "#555"
-        CT2 = "#FFF"
+        CB2 = "#FFF"
+        CT2 = "#222"
 
     return render.Root(
         child = render.Column(
@@ -246,6 +275,12 @@ def get_schema():
                 name = "Stop ID",
                 desc = "Station's Stop ID from (https://www.metrotransit.org/stops-stations)",
                 icon = "trainTram",
+            ),
+            schema.Text(
+                id = "stop_name",
+                name = "Stop Name (Optional)",
+                desc = "Give this stop a custom name to help identify it on your tidbyt",
+                icon = "list",
             ),
         ],
     )

@@ -6,7 +6,7 @@ Author: rs7q5
 """
 #new_apps.star
 #Created 20230119 RIS
-#Last Modified 20230120 RIS
+#Last Modified 20230607 RIS
 
 load("cache.star", "cache")
 load("encoding/json.star", "json")
@@ -83,6 +83,7 @@ def main(config):
     )
     return render.Root(
         delay = 100,  #speed up scroll text
+        show_full_animation = True,
         child = final_frame,
     )
 

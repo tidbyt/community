@@ -70,6 +70,21 @@ measurement_options = [
     schema.Option(value = "imperial", display = "Imperial"),
 ]
 
+scroll_speed_options = [
+    schema.Option(
+        display = "Slow Scroll",
+        value = "60",
+    ),
+    schema.Option(
+        display = "Medium Scroll",
+        value = "45",
+    ),
+    schema.Option(
+        display = "Fast Scroll",
+        value = "30",
+    ),
+]
+
 #Used to convert bearing and altitude to a point on 2D display
 compass_position = [6, 7, 8, 9, 10, 11, 12, 1, 2, 3, 4, 5, 6, 6]
 altitude_position = [4, 3, 2, 1, 0]
@@ -202,7 +217,7 @@ def main(config):
                 row2 = "Mag %s %s %s in %s %s" % (humanize.float("#.#", magnitude), get_magnitude_description(magnitude), visibility_disclaimer, constellation, distance_display)
 
         if show_display == True:
-            return get_display(image, planet, row1, row2)
+            return get_display(image, planet, row1, row2, config)
         else:
             # hiding if the planet is below horizon and user checked
             # to hide when nothing to show
@@ -230,6 +245,8 @@ def get_planet_information(planet, location, check_offset, cache_ttl):
 
     if cache_contents == None:
         position_json = get_body_position(planet, location, check_time)
+
+        # TODO: Determine if this cache call can be converted to the new HTTP cache.
         cache.set(cache_name, json.encode(position_json), ttl_seconds = cache_ttl)
     else:
         position_json = json.decode(cache_contents)
@@ -472,7 +489,7 @@ def get_render_row_children(items):
 
     return children
 
-def get_display(image, planet, row1, row2):
+def get_display(image, planet, row1, row2, config):
     """ Gets the display based on the selected image, planet and calculated describtion
 
     Args:
@@ -480,6 +497,7 @@ def get_display(image, planet, row1, row2):
         planet: the name of the planet we are displaying
         row1: Row1 Text is generally the direction and degrees above horizon to view the planet
         row2: Row2 Gives additional information on when to look, which constellation, and distance from earth
+        config: The config object to figure out what display speed to present
     Returns:
         The display information for your Tidbyt
     """
@@ -518,6 +536,8 @@ def get_display(image, planet, row1, row2):
                 ),
             ],
         ),
+        show_full_animation = True,
+        delay = int(config.get("scroll", 45)),
     )
 
 def get_magnitude_color(magnitude):
@@ -704,6 +724,14 @@ def get_schema():
                 icon = "ruler",
                 options = measurement_options,
                 default = "metric",
+            ),
+            schema.Dropdown(
+                id = "scroll",
+                name = "Scroll",
+                desc = "Scroll Speed",
+                icon = "stopwatch",
+                options = scroll_speed_options,
+                default = scroll_speed_options[0].value,
             ),
             schema.Toggle(
                 id = "hide_quiet",

@@ -59,6 +59,8 @@ def get_total():
         if resp.status_code != 200:
             fail("API request failed with status %d", resp.status_code)
         total_lost = resp.json()["total"]
+
+        # TODO: Determine if this cache call can be converted to the new HTTP cache.
         cache.set("total_lost", str(total_lost), ttl_seconds = 900)  # 15 minutes
 
     return humanize.comma(float(total_lost))

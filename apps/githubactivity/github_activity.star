@@ -7,9 +7,8 @@ Author: rs7q5
 
 #github_activity.star
 #Created 20221117 RIS
-#Last Modified 20221224 RIS
+#Last Modified 20230607 RIS
 
-load("cache.star", "cache")
 load("encoding/base64.star", "base64")
 load("encoding/json.star", "json")
 load("http.star", "http")
@@ -68,8 +67,8 @@ iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAAXNSR0IArs4c6QAAAd5JREFUOE+tk79r
 CLIENT_ID_DEFAULT = "123456"
 CLIENT_SECRET_DEFAULT = "78910"
 
-CLIENT_ID = "AV6+xWcENwf/yFjUUmeqkS0BmffhMyvfFwJsRhbP/wlPsmARatz0FbGQDmYQlwyNvsux72tus+/cvFjlMvgRhi5pKBcT/h3NrOn4RgeFSSrCC/oEJQ5J1xgQMfYZfaTJnAuByzYMKXIa4aDKqfio7don1OzlpIoGzwk="
-CLIENT_SECRET = "AV6+xWcEkGQcmCdoF4yLvssx1t8fdhuWfD24pFrPzWGJ8X9AVvgOkHUnD0JkNkp8BilBVRq5yIdvzPar5MYNz5qv321OIgoa6sobRuq8M2qIphLERlBuIXlH+fS8CtLgYQzjIqUpbdU/LD63hRlqF2iIoDLCM7CA9+FUcqkg7ecQ2f4X3lK87TImFw8c6g=="
+CLIENT_ID = "AV6+xWcE/KQvC81B6WzgwzvD4ZoupLfN8TC/SJsH+HM9BJvI6pGrRJweJGMO34ZFLehdFzch8C8F/EJNbu6yMCVShWY85jU+m3OFI6mTNQ9WMFUvJtyazmNiGRkFhydP1nCm2SRMp5ih+NMu0j1CVy+R3GJ8LfMVmLc="
+CLIENT_SECRET = "AV6+xWcEctKRED4FFQz/BS/u5MlGScY7F3x1xZ5Tg+8spZX/+Y/dfMnd+6RPagWOYzh63Xea4bP8qnHf5kGuplixKHx3dfeQoxmsORFbMW2Da98T716B/8EcWuQhw2hb4gbQr0oKPwZr6RANKywUWBUt3/0LAhoG9EziqBUGJFAeLuDnFeGdAvjYz/w1lg=="
 
 ############
 #debug stuff
@@ -116,6 +115,7 @@ def main(config):
 
     return render.Root(
         delay = 100,  #speed up scroll text
+        show_full_animation = True,
         child = frame_final,
     )
 
@@ -243,30 +243,25 @@ def get_contributions(auth_token):
     }
 
     #get data
-    data_cached = cache.get(auth_token)
-    if data_cached != None:
-        data = json.decode(data_cached)
+    rep = http.post(
+        BASE_URL,
+        headers = {
+            "Authorization": "Bearer " + auth_token,
+        },
+        json_body = dataQuery,
+        ttl_seconds = 600,  #store data for 10 minutes
+    )
+    if DEBUG_OAUTH:
+        for key in ["X-Oauth-Scopes", "X-Accepted-Oauth-Scopes"]:
+            print("%s: %s" % (key, rep.headers[key]))
+
+    if rep.status_code != 200:
+        print("%s Error, could not get authorization token!!!!" % rep.status_code)
+        return None
     else:
-        rep = http.post(
-            BASE_URL,
-            headers = {
-                "Authorization": "Bearer " + auth_token,
-            },
-            json_body = dataQuery,
-        )
-        if DEBUG_OAUTH:
-            for key in ["X-Oauth-Scopes", "X-Accepted-Oauth-Scopes"]:
-                print("%s: %s" % (key, rep.headers[key]))
-
-        if rep.status_code != 200:
-            print("%s Error, could not get authorization token!!!!" % rep.status_code)
-            return None
-        else:
-            data = rep.json()["data"]["viewer"]
-
-            # user = data["login"]
-            cache.set(auth_token, json.encode(data), ttl_seconds = 600)  #store data every 10 minutes
-            #print(data["contributionsCollection"]["restrictedContributionsCount"])
+        data = rep.json()["data"]["viewer"]
+        # user = data["login"]
+        # print(data["contributionsCollection"]["restrictedContributionsCount"])
 
     return data
 

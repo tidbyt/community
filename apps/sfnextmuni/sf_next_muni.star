@@ -129,6 +129,11 @@ def get_schema():
             value = "two_line_four_times",
         ),
     ]
+    scroll_speeds = [
+        schema.Option(display = "Slow", value = "70"),
+        schema.Option(display = "Normal (default)", value = "50"),
+        schema.Option(display = "Fast", value = "30"),
+    ]
 
     return schema.Schema(
         version = "1",
@@ -162,6 +167,14 @@ def get_schema():
                 icon = "borderAll",
                 default = "long",
                 options = formats,
+            ),
+            schema.Dropdown(
+                id = "speed",
+                name = "Scroll Speed",
+                desc = "Change the speed that text scrolls.",
+                icon = "gear",
+                default = "50",
+                options = scroll_speeds,
             ),
             schema.Toggle(
                 id = "agency_alerts",
@@ -276,7 +289,11 @@ def fetch_cached(url, ttl):
         body = res.body().lstrip("\ufeff")
         data = json.decode(body)
         timestamp = time.now().unix
+
+        # TODO: Determine if this cache call can be converted to the new HTTP cache.
         cache.set(url, body, ttl_seconds = ttl)
+
+        # TODO: Determine if this cache call can be converted to the new HTTP cache.
         cache.set(("timestamp::%s" % url), str(timestamp), ttl_seconds = ttl)
         return (timestamp, data)
 
@@ -373,7 +390,7 @@ def getPredictions(api_key, config, stop):
         seconds = predictedTimes[0] - time.now().unix
         minutes = int(seconds / 60)
 
-        titleKey = routeTag if "short" == config.get("prediction_format") else (routeTag, destTitle)
+        titleKey = (routeTag, routeTag) if config.get("prediction_format") in ("short", "medium", "two_line_four_times") else (routeTag, destTitle)
         if titleKey not in prediction_map:
             prediction_map[titleKey] = []
 
@@ -494,6 +511,8 @@ def renderOutput(stopTitle, output, messages, config):
         )
 
     return render.Root(
+        delay = int(config.str("speed", "50")),  # Allow customization of scroll speed.
+        show_full_animation = True,
         child = render.Column(
             children = rows,
             expanded = True,
@@ -541,9 +560,9 @@ def shortPredictions(output, lines):
                             render.Row(
                                 children = [
                                     render.Circle(
-                                        child = render.Text(routeTag, font = "tom-thumb", color = "#000000" if routeTag in MUNI_BLACK_TEXT else "#ffffff"),
+                                        child = render.Text(routeTag[0], font = "tom-thumb", color = "#000000" if routeTag[0] in MUNI_BLACK_TEXT else "#ffffff"),
                                         diameter = 7,
-                                        color = MUNI_COLORS[routeTag] if routeTag in MUNI_COLORS else "#000000",
+                                        color = MUNI_COLORS[routeTag[0]] if routeTag[0] in MUNI_COLORS else "#000000",
                                     ),
                                     render.Text(" "),
                                     render.Text(",".join(predictions[:2]), font = "tom-thumb"),

@@ -348,36 +348,46 @@ def generatePieceSequence(subshape, dropOffset, length, moveOdds):
     for idx in range(0, len(final_pieces)):
         i = len(final_pieces) - idx - 1
         piece = final_pieces[i]
-        movements = []  # 0 = nothing, -1/1 = move left/right, -2/2 = rotate ccw/cw
+        bias = random.number(1, 2)  # to mitigate movements that immediately get cancelled, the odds are weighted to 66/33 towards a random direction
+        movements = []  # 0 = nothing, 1 = move left, 2 = move right, 3 = counterclockwise, 4 = clockwise
         unplace(temp_grid, piece)
         for movementNum in range((i + 1) * (length // len(final_pieces)) + dropOffset + INITIAL_DELAY):
             movementNum = movementNum
             if (random.number(0, 99) < moveOdds):
                 # do a movement
                 # movements happen just after gravity, but since we're doing it backwards the gravity happens afterwards
-                movement = random.number(0, 4)
+                movement = 0
+                movement_type = random.number(0, 1)  # 0 = movement, 1 = rotation
+                if (movement_type == 0):
+                    # only mildly cursed
+                    if (random.number(0, 3) != 0):
+                        movement = bias
+                    else:
+                        movement = 3 - bias
+                else:
+                    movement = random.number(3, 4)
 
                 # we're "undoing" the movement, so this looks backwards
-                if (movement == -1):
-                    piece[1] += 1
                 if (movement == 1):
-                    piece[1] -= 1
-                if (movement == -2):
-                    piece[0] = ROTATE_CW[piece[0]]
+                    piece[1] += 1
                 if (movement == 2):
+                    piece[1] -= 1
+                if (movement == 3):
+                    piece[0] = ROTATE_CW[piece[0]]
+                if (movement == 4):
                     piece[0] = ROTATE_CW[ROTATE_CW[ROTATE_CW[piece[0]]]]
 
                 if (not collides(temp_grid, piece)):
                     movements.insert(0, movement)
                 else:
                     if (movement == 1):
-                        piece[1] += 1
-                    if (movement == -1):
                         piece[1] -= 1
                     if (movement == 2):
-                        piece[0] = ROTATE_CW[piece[0]]
-                    if (movement == -2):
+                        piece[1] += 1
+                    if (movement == 3):
                         piece[0] = ROTATE_CW[ROTATE_CW[ROTATE_CW[piece[0]]]]
+                    if (movement == 4):
+                        piece[0] = ROTATE_CW[piece[0]]
                     movements.insert(0, 0)
             else:
                 # don't
@@ -519,13 +529,13 @@ def main(config):
                     piece[4] += 1
                     piece[0][2] += 1
                     if (movement == 1):
-                        piece[0][1] += 1
-                    if (movement == -1):
                         piece[0][1] -= 1
                     if (movement == 2):
-                        piece[0][0] = ROTATE_CW[PIECE_NAME]
-                    if (movement == -2):
+                        piece[0][1] += 1
+                    if (movement == 3):
                         piece[0][0] = ROTATE_CW[ROTATE_CW[ROTATE_CW[PIECE_NAME]]]
+                    if (movement == 4):
+                        piece[0][0] = ROTATE_CW[PIECE_NAME]
 
                 PIECE_NAME = piece[0][0]
                 for cell in PIECES[PIECE_NAME]:
@@ -621,6 +631,7 @@ def main(config):
     if (TOP_BAR):
         return render.Root(
             delay = DELAY,
+            max_age = 120,
             child = render.Stack(
                 children = [
                     render.Box(
@@ -808,12 +819,24 @@ def get_schema():
             value = "0",
         ),
         schema.Option(
+            display = "Very Slow",
+            value = "5",
+        ),
+        schema.Option(
             display = "Slow",
-            value = "7",
+            value = "8",
+        ),
+        schema.Option(
+            display = "Moderately Slow",
+            value = "13",
         ),
         schema.Option(
             display = "Medium",
-            value = "16",
+            value = "19",
+        ),
+        schema.Option(
+            display = "Moderately Fast",
+            value = "25",
         ),
         schema.Option(
             display = "Fast",
@@ -821,10 +844,14 @@ def get_schema():
         ),
         schema.Option(
             display = "Very Fast",
-            value = "60",
+            value = "50",
         ),
         schema.Option(
             display = "Extreme",
+            value = "70",
+        ),
+        schema.Option(
+            display = "Maximum",
             value = "100",
         ),
     ]

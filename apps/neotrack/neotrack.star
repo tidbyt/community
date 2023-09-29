@@ -461,6 +461,8 @@ def fetch_and_cache_neos(today_string):
     if response.status_code != 200:
         fail("Call to NASA API failed", base_url)
     data = response.json()
+
+    # TODO: Determine if this cache call can be converted to the new HTTP cache.
     cache.set(CACHE_KEY, json.encode(data), ttl_seconds = 86400)
     return data
 

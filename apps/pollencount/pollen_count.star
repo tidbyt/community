@@ -1,7 +1,7 @@
 """
 Applet: Pollen Count
 Summary: Pollen count for your area
-Description: Displays a pollen count for your area. Enter your location for updates every 12 hours on the current conditions in your town, as well as which types of pollen are in the air today.
+Description: Displays a pollen count for your area. Enter your location for updates every 12 hours on the current conditions in your town, as well as which types of pollen are in the air today. Get your Secret key by creating a developer account on tomorrow.io.
 Author: Nicole Brooks
 """
 
@@ -12,36 +12,45 @@ load("http.star", "http")
 load("render.star", "render")
 load("schema.star", "schema")
 
-DEFAULT_LOC = {
-    "lat": 40.63,
-    "lng": -74.02,
-    "locality": "",
+# DEFAULT_LOC = {
+#     "lat": "40.63",
+#     "lng": "-74.02",
+#     "locality": "",
+# }
+DEFAULT_LOCATION = """
+{
+	"lat": "40.6781784",
+	"lng": "-73.9441579",
+	"description": "Brooklyn, NY, USA",
+	"locality": "Brooklyn",
+	"place_id": "ChIJCSF8lBZEwokRhngABHRcdoI",
+	"timezone": "America/New_York"
 }
-
+"""
 COLORS = {
     "yellow": "#D19C21",
     "red": "#B31F0E",
     "green": "#338722",
 }
-
+DEFAULT_TIMEZONE = "America/New_York"
 API_URL_BASE = "https://api.tomorrow.io/v4/timelines?&fields=treeIndex,weedIndex,grassIndex&timesteps=1d&location="
-SECRET_PROPERTY = "&apikey="
 
 def main(config):
     print("Initializing Pollen Count...")
-    # secret = secret.decrypt("AV6+xWcEKqQk8lv8vqNkwdwM++h3fRDmbM3vyizZBmHOwUXUUC5WmiN+FbU8lSwyYnQacojyuFmWiovZ8VmRyq+qQ9oa8CQzBcwmQ9YVyaFAc9ij/sV2Yh4wmr3b/4KPyG28wjhGGDj2E4YlvbFxlGoWCegZlY0GlylbTNozom5PrURH6lM=") or ""
 
     #Get lat and long from schema.
-    location = config.get("location")
-    loc = json.decode(location) if location else DEFAULT_LOC
+    loc = json.decode(config.get("location", DEFAULT_LOCATION))
+    timezone = loc.get("timezone")  #use to make sure to get the correct day
 
     #Round to 1 decimal place (1.1km)
-    lat = roundToHalf(loc.get("lat"))
-    lng = roundToHalf(loc.get("lng"))
+    lat = roundToHalf(float(loc.get("lat")))
+    lng = roundToHalf(float(loc.get("lng")))
+
     latLngStr = str(lat) + "," + str(lng)
+    dev_key = config.str("dev_key", "1234")
 
     #Check cache for pollen for this lat/long
-    cache = checkLatLngCache(latLngStr)
+    cache = checkLatLngCache(latLngStr, dev_key)
     if cache != None:
         print("Cache hit")
         todaysCount = cache
@@ -49,7 +58,7 @@ def main(config):
         print("Cache miss, calling API")
 
         #If not, make API call and cache result
-        todaysCount = getTodaysCount(latLngStr)
+        todaysCount = getTodaysCount(latLngStr, dev_key, timezone)
 
     firstMixin = None
     secondMixin = None
@@ -65,7 +74,7 @@ def main(config):
             textTwo = "LIMIT"
         else:
             textOne = "ERROR"
-            textTwo = str(int(todaysCount["type"]))
+            textTwo = todaysCount["type"]  #str(int(todaysCount["type"]))
         textColumn = [
             render.Text(
                 content = textOne,
@@ -79,14 +88,19 @@ def main(config):
                     color = "#fff",
                 ),
             ),
-            render.Text(
-                content = textTwo,
-                color = "#FFFFFF",
-                font = "tb-8",
+            render.Marquee(
+                width = 32,
+                child = render.Text(
+                    content = textTwo,
+                    color = "#FFFFFF",
+                    font = "tb-8",
+                ),
             ),
         ]
     else:
         indexes = getTopTwo(todaysCount)
+
+        #if indexes[0].get("index")!=None: #if all values aren't zero
         average = getAverage(indexes)
 
         # Graphics are three layers:
@@ -163,9 +177,9 @@ def main(config):
     )
 
 # Checking cache for data already stored.
-def checkLatLngCache(latLng):
+def checkLatLngCache(latLng, dev_key):
     print("checking cache for: " + latLng)
-    cachedPollen = cache.get(latLng)
+    cachedPollen = cache.get(dev_key)
     if cachedPollen == None:
         return None
     return json.decode(cachedPollen)
@@ -187,9 +201,10 @@ def roundToHalf(floatNum):
     return num
 
 # Make API call and process data.
-def getTodaysCount(latLng):
+def getTodaysCount(latLng, dev_key, timezone):
     print("Getting API for: " + latLng + " for " + str(3600 * 12) + " seconds")
-    rep = http.get(API_URL_BASE + latLng)
+    FULL_URL = API_URL_BASE + latLng + "&apikey=" + dev_key + "&timezone=" + timezone
+    rep = http.get(FULL_URL)
     data = rep.json()
 
     if "code" in data:
@@ -198,7 +213,9 @@ def getTodaysCount(latLng):
     pollenData = data["data"]["timelines"][0]["intervals"][0]["values"]
 
     # save in cache for 12 hours
-    cache.set(latLng, json.encode(pollenData), 3600 * 12)
+    # TODO: Determine if this cache call can be converted to the new HTTP cache.
+    cache.set(dev_key, json.encode(pollenData), 3600 * 12)
+
     return pollenData
 
 # Get total average of pollen indexes to two decimal points.
@@ -222,6 +239,7 @@ def getTopTwo(indexes):
     if len(aboveOnes) == 0:
         aboveOnes.append({
             "name": ":)",
+            "index": 0,
             "color": COLORS["green"],
         })
     return aboveOnes
@@ -314,6 +332,12 @@ def get_schema():
                 name = "Location",
                 desc = "Location required to find pollen count in your area.",
                 icon = "mapLocation",
+            ),
+            schema.Text(
+                id = "dev_key",
+                name = "Secret key",
+                desc = "Secret key from tomorrow.io.",
+                icon = "key",
             ),
         ],
     )

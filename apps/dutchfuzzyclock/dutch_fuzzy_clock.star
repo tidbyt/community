@@ -34,6 +34,21 @@ numbersPerLang = {
         12: "TWAALF",
         15: "KWART",
     },
+    "de-DE": {
+        1: "EINS",
+        2: "ZWEI",
+        3: "DREI",
+        4: "VIER",
+        5: "FÜNF",
+        6: "SECHS",
+        7: "SIEBEN",
+        8: "ACHT",
+        9: "NEUN",
+        10: "ZEHN",
+        11: "ELF",
+        12: "ZWÖLF",
+        15: "VIERTEL",
+    },
     "en-US": {
         1: "ONE",
         2: "TWO",
@@ -51,6 +66,8 @@ numbersPerLang = {
     },
 }
 numbersPerLang["en-GB"] = numbersPerLang["en-US"]
+numbersPerLang["nl-BE"] = numbersPerLang["nl-NL"]
+numbersPerLang["de-CH"] = numbersPerLang["de-DE"]
 
 wordsPerLang = {
     "nl-NL": {
@@ -58,6 +75,24 @@ wordsPerLang = {
         "half": "HALF",
         "to": "VOOR",
         "past": "OVER",
+    },
+    "nl-BE": {
+        "hour": "UUR",
+        "half": "HALF",
+        "to": "VOOR",
+        "past": "NA",
+    },
+    "de-DE": {
+        "hour": "UHR",
+        "half": "HALB",
+        "to": "VOR",
+        "past": "NACH",
+    },
+    "de-CH": {
+        "hour": "UHR",
+        "half": "HALB",
+        "to": "VOR",
+        "past": "AB",
     },
     "en-US": {
         "hour": "O'CLOCK",
@@ -100,6 +135,8 @@ def fuzzy_time(hours, minutes, language):
 
     # next 45 mins we already talk about the next hour
     hours += 1
+    if hours > 12:
+        hours -= 12
 
     if rounded < 30:
         return [numbers[30 - rounded], words["to"] + " " + words["half"], numbers[hours]]
@@ -143,6 +180,18 @@ def get_schema():
             value = "nl-NL",
         ),
         schema.Option(
+            display = "Dutch (Belgium)",
+            value = "nl-BE",
+        ),
+        schema.Option(
+            display = "Deutsch",
+            value = "de-DE",
+        ),
+        schema.Option(
+            display = "Deutsch (Schweiz)",
+            value = "de-CH",
+        ),
+        schema.Option(
             display = "American English",
             value = "en-US",
         ),
@@ -165,7 +214,7 @@ def get_schema():
                 id = "language",
                 name = "Language",
                 icon = "language",
-                desc = "Dutch, or British or American English",
+                desc = "Dutch, German, or British or American English",
                 default = dialectOptions[0].value,
                 options = dialectOptions,
             ),

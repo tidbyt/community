@@ -42,10 +42,11 @@ ALT_LOGO = """
 
 def main(config):
     renderCategory = []
-    divisionType = config.get("divisionType", "0")
-    teamsToShow = int(config.get("teamsOptions", "3"))
-    displayTop = config.get("displayTop", "time")
-    timeColor = config.get("displayTimeColor", "#FFF")
+    rotationSpeed = config.get("rotationSpeed", "5")
+    divisionType = config.get("divisionType", "7")
+    teamsToShow = int(config.get("teamsOptions", "4"))
+    displayTop = config.get("displayTop", "league")
+    timeColor = config.get("displayTimeColor", "#FFA500")
     location = config.get("location", DEFAULT_LOCATION)
     loc = json.decode(location)
     timezone = loc["timezone"]
@@ -54,11 +55,9 @@ def main(config):
     league = {LEAGUE: apiURL}
 
     standings = get_standings(league)
-    cycleOptions = int(config.get("cycleOptions", 1))
 
     if (standings):
-        cycleCount = 0
-        for _, s in enumerate(standings[0]["children"]):
+        for i, s in enumerate(standings[0]["children"]):
             entries = s["standings"]["entries"]
 
             if entries:
@@ -74,7 +73,6 @@ def main(config):
                 entries = sorted(entries, key = lambda e: e["stats"][statNumber]["value"], reverse = True)
 
                 for x in range(0, len(entries), entriesToDisplay):
-                    cycleCount = cycleCount + 1
                     renderCategory.extend(
                         [
                             render.Column(
@@ -83,7 +81,7 @@ def main(config):
                                 cross_align = "start",
                                 children = [
                                     render.Column(
-                                        children = get_team(x, entries, entriesToDisplay, now, timeColor, divisionName, displayTop),
+                                        children = get_team(x, entries, entriesToDisplay, i, now, rotationSpeed, timeColor, divisionName, displayTop),
                                     ),
                                 ],
                             ),
@@ -91,7 +89,8 @@ def main(config):
                     )
 
         return render.Root(
-            delay = int(15000 / cycleOptions / cycleCount),
+            delay = int(rotationSpeed) * 1000,
+            show_full_animation = True,
             child = render.Animation(children = renderCategory),
         )
     else:
@@ -108,18 +107,58 @@ divisionOptions = [
     ),
 ]
 
-cycleOptions = [
+rotationOptions = [
     schema.Option(
-        display = "Once",
-        value = "1",
-    ),
-    schema.Option(
-        display = "Twice",
-        value = "2",
-    ),
-    schema.Option(
-        display = "Three",
+        display = "3 seconds",
         value = "3",
+    ),
+    schema.Option(
+        display = "4 seconds",
+        value = "4",
+    ),
+    schema.Option(
+        display = "5 seconds",
+        value = "5",
+    ),
+    schema.Option(
+        display = "6 seconds",
+        value = "6",
+    ),
+    schema.Option(
+        display = "7 seconds",
+        value = "7",
+    ),
+    schema.Option(
+        display = "8 seconds",
+        value = "8",
+    ),
+    schema.Option(
+        display = "9 seconds",
+        value = "9",
+    ),
+    schema.Option(
+        display = "10 seconds",
+        value = "10",
+    ),
+    schema.Option(
+        display = "11 seconds",
+        value = "11",
+    ),
+    schema.Option(
+        display = "12 seconds",
+        value = "12",
+    ),
+    schema.Option(
+        display = "13 seconds",
+        value = "13",
+    ),
+    schema.Option(
+        display = "14 seconds",
+        value = "14",
+    ),
+    schema.Option(
+        display = "15 seconds",
+        value = "15",
     ),
 ]
 
@@ -142,6 +181,10 @@ displayTopOptions = [
     schema.Option(
         display = "Current Time",
         value = "time",
+    ),
+    schema.Option(
+        display = "League Name Only",
+        value = "gameinfo",
     ),
 ]
 
@@ -191,20 +234,20 @@ def get_schema():
                 options = divisionOptions,
             ),
             schema.Dropdown(
+                id = "rotationSpeed",
+                name = "Rotation Speed",
+                desc = "Amount of seconds each score is displayed.",
+                icon = "gear",
+                default = rotationOptions[2].value,
+                options = rotationOptions,
+            ),
+            schema.Dropdown(
                 id = "teamsOptions",
                 name = "Teams Per View",
                 desc = "How many teams it should show at once.",
                 icon = "gear",
                 default = teamsOptions[1].value,
                 options = teamsOptions,
-            ),
-            schema.Dropdown(
-                id = "cycleOptions",
-                name = "Cycle Times",
-                desc = "How many times should it cycle through?",
-                icon = "gear",
-                default = cycleOptions[0].value,
-                options = cycleOptions,
             ),
             schema.Dropdown(
                 id = "displayTop",
@@ -240,42 +283,53 @@ def get_team_color(teamid):
     teamcolor = get_background_color(team["abbreviation"], team["color"])
     return teamcolor
 
-def get_team(x, s, entriesToDisplay, now, timeColor, divisionName, displayTop):
+def get_team(x, s, entriesToDisplay, i, now, rotationSpeed, timeColor, divisionName, displayTop):
     output = []
     teamWins = ""
     teamLosses = ""
     teamOTL = ""
     teamPoints = ""
 
-    timeBox = 20
-    statusBox = 44
-    if displayTop == "league":
-        theTime = LEAGUE_DISPLAY
-        timeBox += LEAGUE_DISPLAY_OFFSET
-        statusBox -= LEAGUE_DISPLAY_OFFSET
+    if displayTop == "gameinfo":
+        topColumn = [
+            render.Box(width = 64, height = 8, child = render.Stack(children = [
+                render.Box(width = 64, height = 8, color = "#000"),
+                render.Box(width = 64, height = 8, child = render.Row(expanded = True, main_align = "center", cross_align = "center", children = [
+                    render.Text(color = timeColor, content = divisionName.replace("Metropolitan", "Metro"), font = "CG-pixel-3x5-mono"),
+                ])),
+            ])),
+        ]
     else:
-        theTime = now.format("3:04")
-        if len(str(theTime)) > 4:
-            timeBox += 4
-            statusBox -= 4
-    topColumn = [
-        render.Row(
-            expanded = True,
-            main_align = "space_between",
-            cross_align = "start",
-            children = [
-                render.Box(width = timeBox, height = 8, color = "#000", child = render.Row(expanded = True, main_align = "center", cross_align = "center", children = [
-                    render.Box(width = 1, height = 8),
-                    render.Text(color = timeColor, content = theTime, font = "tb-8"),
-                ])),
-                render.Box(width = statusBox, height = 8, color = "#111", child = render.Stack(children = [
-                    render.Box(width = statusBox, height = 8, child = render.Row(expanded = True, main_align = "end", cross_align = "center", children = [
-                        render.Text(color = "#FFF", content = divisionName.replace("Metropolitan", "Metro"), font = "CG-pixel-3x5-mono"),
+        timeBox = 20
+        statusBox = 44
+        if displayTop == "league":
+            theTime = LEAGUE_DISPLAY
+            timeBox += LEAGUE_DISPLAY_OFFSET
+            statusBox -= LEAGUE_DISPLAY_OFFSET
+        else:
+            now = now + time.parse_duration("%ds" % int(i) * int(rotationSpeed))
+            theTime = now.format("3:04")
+            if len(str(theTime)) > 4:
+                timeBox += 4
+                statusBox -= 4
+        topColumn = [
+            render.Row(
+                expanded = True,
+                main_align = "space_between",
+                cross_align = "start",
+                children = [
+                    render.Box(width = timeBox, height = 8, color = "#000", child = render.Row(expanded = True, main_align = "center", cross_align = "center", children = [
+                        render.Box(width = 1, height = 8),
+                        render.Text(color = timeColor, content = theTime, font = "tb-8"),
                     ])),
-                ])),
-            ],
-        ),
-    ]
+                    render.Box(width = statusBox, height = 8, color = "#000", child = render.Stack(children = [
+                        render.Box(width = statusBox, height = 8, child = render.Row(expanded = True, main_align = "end", cross_align = "center", children = [
+                            render.Text(color = "#FFF", content = divisionName.replace("Metropolitan", "Metro"), font = "CG-pixel-3x5-mono"),
+                        ])),
+                    ])),
+                ],
+            ),
+        ]
 
     output.extend(topColumn)
     containerHeight = int(24 / entriesToDisplay)
@@ -347,6 +401,7 @@ def get_cachable_data(url, ttl_seconds = CACHE_TTL_SECONDS):
     if res.status_code != 200:
         fail("request to %s failed with status code: %d - %s" % (url, res.status_code, res.body()))
 
+    # TODO: Determine if this cache call can be converted to the new HTTP cache.
     cache.set(key, base64.encode(res.body()), ttl_seconds = ttl_seconds)
 
     return res.body()

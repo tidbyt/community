@@ -28,6 +28,8 @@ def main(config):
         result = http.get(apiURL)
         if result.status_code != 200:
             fail("Minecraft API request failed with status %d", result.status_code)
+
+        # TODO: Determine if this cache call can be converted to the new HTTP cache.
         cache.set(
             "".join(["api_result_", minecraftURL]),
             base64.encode(result.body()),
@@ -39,7 +41,7 @@ def main(config):
         motd2 = result.json()["motd"]["clean"][1]
         iconURL = result.json()["icon"].split(",")[1]
 
-    serverIcon = base64.decode("""%s""" % iconURL)
+    serverIcon = base64.decode(iconURL)
 
     return render.Root(
         child = render.Column(

@@ -248,10 +248,13 @@ def get_wave_ft_to_pixel(state):
 def get_top_bar_height(wave, wave_ft_to_pixel):
     min_height = wave["surf"]["raw"]["min"]
     max_height = wave["surf"]["raw"]["max"]
-    return max(1, wave_ft_to_pixel * int(math.round(max_height - min_height)))
+    scaled_bar_height = int(math.round((wave_ft_to_pixel * (max_height - min_height))))
+    return max(1, scaled_bar_height)
 
 def get_bottom_bar_height(wave, wave_ft_to_pixel):
-    return max(1, wave_ft_to_pixel * int(math.round(wave["surf"]["raw"]["min"])))
+    min_height = wave["surf"]["raw"]["min"]
+    scaled_bar_height = int(math.round(min_height * wave_ft_to_pixel))
+    return max(1, scaled_bar_height)
 
 def get_rating_color(rating):
     return COLOR_BY_SURFLINE_RATING[rating["rating"]["key"]]
@@ -274,6 +277,11 @@ def get_bar_data(state):
 
 def main(config):
     state = get_state(config)
+
+    # skip render if waves are smaller than specified in config min_height
+    if get_current_max_height(state) < int(config.get("min_height", "0")):
+        return []
+
     return render.Root(
         child = render.Stack(
             children = [
@@ -463,6 +471,8 @@ def get_response(url, cache_key, ttl_seconds):
         return json.decode(response_cached)
 
     response = get(url)
+
+    # TODO: Determine if this cache call can be converted to the new HTTP cache.
     cache.set(cache_key, json.encode(response), ttl_seconds = ttl_seconds)
     return response
 
@@ -495,6 +505,20 @@ def search_handler(text):
     return [schema.Option(display = s["name"], value = s["_id"]) for s in response["spots"]]
 
 def get_schema():
+    min_height_options = [
+        schema.Option(display = "0 ft", value = "0"),
+        schema.Option(display = "1 ft", value = "1"),
+        schema.Option(display = "2 ft", value = "2"),
+        schema.Option(display = "3 ft", value = "3"),
+        schema.Option(display = "4 ft", value = "4"),
+        schema.Option(display = "6 ft", value = "6"),
+        schema.Option(display = "8 ft", value = "8"),
+        schema.Option(display = "10 ft", value = "10"),
+        schema.Option(display = "15 ft", value = "15"),
+        schema.Option(display = "20 ft", value = "20"),
+        schema.Option(display = "25 ft", value = "25"),
+        schema.Option(display = "30 ft", value = "30"),
+    ]
     return schema.Schema(
         version = "1",
         fields = [
@@ -511,6 +535,14 @@ def get_schema():
                 icon = "pencil",
                 desc = "Optional spot name to display",
                 default = "",
+            ),
+            schema.Dropdown(
+                id = "min_height",
+                name = "Mininum Size",
+                icon = "pencil",
+                desc = "The minimum wave size to display",
+                options = min_height_options,
+                default = "0",
             ),
         ],
     )

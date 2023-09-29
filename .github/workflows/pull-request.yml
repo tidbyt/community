@@ -12,12 +12,6 @@ jobs:
       - uses: actions/checkout@v3
         with:
           fetch-depth: 0
-          ref: ${{ github.event.pull_request.head.sha }}
-
-      - name: Set up Go
-        uses: actions/setup-go@v3
-        with:
-          go-version: 1.19
 
       - name: Setup build agent
         run: ./.github/scripts/setup.sh
@@ -26,13 +20,10 @@ jobs:
         id: targets
         run: ./.github/scripts/determine-targets.sh
         env:
-          OLD_COMMIT: ${{ github.event.pull_request.base.sha }}
-          NEW_COMMIT: ${{ github.event.pull_request.head.sha }}
+          BASE_SHA: ${{ github.event.pull_request.base.sha }}
+          HEAD_SHA: ${{ github.event.pull_request.head.sha }}
 
       - name: Check modified apps
         run: ./.github/scripts/check-apps.sh
         env:
           TARGETS: "${{ steps.targets.outputs.targets }}"
-
-      - name: Sanity check go embed
-        run: go test tidbyt.dev/community/apps

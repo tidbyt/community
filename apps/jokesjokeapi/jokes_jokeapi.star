@@ -7,17 +7,9 @@ Author: rs7q5
 
 # jokeAPI.star
 # Created 20220130 RIS
-# Last Modified 20220201 RIS
+# Last Modified 20230516 RIS
 
-load("cache.star", "cache")
-
-# load("encoding/base64.star", "base64")
-load("encoding/json.star", "json")
 load("http.star", "http")
-
-# load("schema.star","schema")
-# load("math.star","math")
-# load("time.star","time")
 load("re.star", "re")
 load("render.star", "render")
 load("schema.star", "schema")
@@ -31,36 +23,18 @@ def main(config):
     font = "tb-8"  # set font
 
     # check for cached data
-    joke_cached = cache.get("joke_rate")
-    if joke_cached != None:  # if any are None then all(title_cached)==False
-        print("Hit! Displaying cached data.")
-        joke = json.decode(joke_cached)
-        joke_txt = format_text(joke, font)
+    rep = http.get(url = full_URL, ttl_seconds = 43200)  #grabs data twice a day
+    if rep.status_code != 200:
+        joke = ["Error, could not get jokes!!!!"]
     else:
-        # error code checked within each function!!!!
-        print("Miss! Calling JokeAPI data.")
-
-        # get the data
-        rep = http.get(full_URL)
-
-        if rep.status_code != 200:
-            joke = ["Error, could not get jokes!!!!"]
+        # get the joke strings
+        if rep.json()["type"] == "twopart":
+            joke = [re.sub('"\"|"\n"', "", rep.json()["setup"])]
+            joke.append(re.sub('"\"|"\n"', "", rep.json()["delivery"]))
         else:
-            # get the joke strings
-            if rep.json()["type"] == "twopart":
-                joke = [re.sub('"\"|"\n"', "", rep.json()["setup"])]
-                joke.append(re.sub('"\"|"\n"', "", rep.json()["delivery"]))
-            else:
-                joke = [re.sub('"\"|"\n"', "", rep.json()["joke"])]
+            joke = [re.sub('"\"|"\n"', "", rep.json()["joke"])]
 
-            # cache the data
-            cache.set(
-                "joke_rate",
-                json.encode(joke),
-                ttl_seconds = 43200,
-            )  # grabs it twice a day
-
-        joke_txt = format_text(joke, font)  # render the text
+    joke_txt = format_text(joke, font)  # render the text
 
     return render.Root(
         delay = int(config.get("speed", 200)),
@@ -137,7 +111,7 @@ def get_schema():
 def http_check(URL):
     rep = http.get(URL)
     if rep.status_code != 200:
-        fail("ESPN request failed with status %d", rep.status_code)
+        fail("JokeAPI request failed with status %d", rep.status_code)
     return rep
 
 def pad_text(text):

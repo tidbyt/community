@@ -84,6 +84,8 @@ def get_content(api_key):
 
     if content == None:
         response = get_sales(api_key)
+
+        # TODO: Determine if this cache call can be converted to the new HTTP cache.
         cache.set(api_key, json.encode(response), ttl_seconds = 300)
         content = response
     else:

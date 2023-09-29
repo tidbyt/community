@@ -31,6 +31,8 @@ def main(config):
         if res.status_code != 200:
             fail("IFPA request failed: statusCode =", res.status_code)
         ifpaCache = json.encode(res.json())  #res.json() converts to dict, but store in cache as a string
+
+        # TODO: Determine if this cache call can be converted to the new HTTP cache.
         cache.set(playerId + "ifpaKey", str(ifpaCache), ttl_seconds = 43200)  # every 12 hours
 
     #    else :

@@ -1,0 +1,8 @@
+---
+id: things-wife-says
+name: Things Wife Says
+summary: Show phrases
+desc: Enter phrases your wife says and app will cycle through them.
+author: vipulchhajer
+fileName: things_wife_says.star
+packageName: thingswifesays

@@ -1,0 +1,8 @@
+---
+id: mlbdivstandings
+name: MlbDivStandings
+summary: MLB Division Standings
+desc: Display the standings for the MLB division of your choice.
+author: Jake Manske
+fileName: mlbdivstandings.star
+packageName: mlbdivstandings

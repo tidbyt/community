@@ -106,6 +106,8 @@ def get_apod(url, api_key, ttl_seconds):
         fail("status %d from %s: %s" % (response.status_code, url, response.body()))
     apod = response.json()
     apod["image_src"] = base64.encode(get_image_src(apod["url"]))
+
+    # TODO: Determine if this cache call can be converted to the new HTTP cache.
     cache.set("astro_pic_of_day", json.encode(apod), ttl_seconds = ttl_seconds)
     return apod
 

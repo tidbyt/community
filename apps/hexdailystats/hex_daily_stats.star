@@ -141,6 +141,7 @@ def get_json_from_cache_or_http(url, ttl_seconds):
             fail("HTTP Request failed with status: {}".format(http_response.status_code))
 
         # Store http response in cache keyed off URL
+        # TODO: Determine if this cache call can be converted to the new HTTP cache.
         cache.set(url, json.encode(http_response.json()), ttl_seconds = ttl_seconds)
         data = http_response.json()
 
@@ -161,6 +162,7 @@ def post_json_from_cache_or_http(url, body, headers, cache_name, ttl_seconds):
             fail("HTTP Request failed with status: {}".format(http_response.status_code))
 
         # Store http response in cache keyed off URL
+        # TODO: Determine if this cache call can be converted to the new HTTP cache.
         cache.set(cache_name, json.encode(http_response.json()), ttl_seconds = ttl_seconds)
         data = http_response.json()
 
@@ -170,8 +172,6 @@ def hasData(json):
     return "data" in json
 
 def format_float_string(float_value):
-    currency_price = 0
-
     # Round price to nearest whole number (used to decide how many decimal places to leave)
     float_value_integer = str(int(math.round(float(float_value))))
 
@@ -188,13 +188,13 @@ def format_float_string(float_value):
             float_value = "0" + float_value
         float_value = (float_value[0:-3] + "." + float_value[-3:])
     elif len(float_value_integer) == 2:
-        float_value = str(int(math.round(currency_price * 1000)))
+        float_value = str(int(math.round(float_value * 1000)))
         float_value = (float_value[0:-3] + "." + float_value[-3:])
     elif len(float_value_integer) == 3:
-        currency_price = str(int(math.round(currency_price * 100)))
-        currency_price = (float_value[0:-2] + "." + float_value[-2:])
+        float_value = str(int(math.round(float_value * 100)))
+        float_value = (float_value[0:-2] + "." + float_value[-2:])
     elif len(float_value_integer) == 4:
-        float_value = str(int(math.round(currency_price * 10)))
+        float_value = str(int(math.round(float_value * 10)))
         float_value = (float_value[0:-1] + "." + float_value[-1:])
     elif len(float_value_integer) == 5:
         float_value = str(int(math.round(float_value)))

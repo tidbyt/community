@@ -5,7 +5,6 @@ Description: Realtime departure board information from National Rail Enquiries.
 Author: dinosaursrarr
 """
 
-load("cache.star", "cache")
 load("encoding/json.star", "json")
 load("http.star", "http")
 load("math.star", "math")
@@ -49,7 +48,6 @@ DEPARTURES_REQUEST = """
 </soap:Envelope>
 """
 
-EMPTY_DATA_IN_CACHE = ""
 NO_DESTINATION = "-"
 ORIGIN_STATION = "origin_station"
 DESTINATION_STATION = "destination_station"
@@ -2674,24 +2672,16 @@ def fetch_departures(station, via):
     if not app_key:
         return None
     request = DEPARTURES_REQUEST % (app_key, station, filter)
-
-    cached = cache.get(request)
-    if cached == EMPTY_DATA_IN_CACHE:
-        return None
-    if cached:
-        return cached
-
     resp = http.post(
         url = DARWIN_SOAP_URL,
         body = request,
         headers = {
             "Content-Type": "application/soap+xml; charset=utf-8",
         },
+        ttl_seconds = 60,
     )
     if resp.status_code != 200:
-        cache.set(request, EMPTY_DATA_IN_CACHE, ttl_seconds = 30)
         return None
-    cache.set(request, resp.body(), ttl_seconds = 60)
     return resp.body()
 
 def render_error(error):
@@ -2858,7 +2848,7 @@ def main(config):
     if destination_station:
         destination_station_value = json.decode(destination_station)["value"]
         if destination_station_value != NO_DESTINATION:
-            filter_crs = json.decode(destination_station_value)
+            filter_crs = json.decode(destination_station_value)["crs"]
 
     display_mode = config.get(DISPLAY_MODE) or DISPLAY_DETAILED
     if display_mode == DISPLAY_DETAILED:

@@ -77,6 +77,8 @@ def main(config):
                 fail("Bored request failed with status %d", rep.status_code)
         else:
             activity = rep.json()["activity"]
+
+            # TODO: Determine if this cache call can be converted to the new HTTP cache.
             cache.set(cache_key, activity, ttl_seconds = 600)
             print("API Activity suggestion: " + activity)
 

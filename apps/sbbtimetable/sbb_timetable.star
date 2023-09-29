@@ -110,6 +110,8 @@ def main(config):
         if resp.status_code != 200:
             # Show an error message
             return (display_error("API Error occured"))
+
+        # TODO: Determine if this cache call can be converted to the new HTTP cache.
         cache.set("sbb_%s" % station, resp.body(), ttl_seconds = 120)
         resp = json.decode(resp.body())
 
@@ -262,6 +264,8 @@ def search_station(pattern):
                     value = "API Error",
                 ),
             ]
+
+        # TODO: Determine if this cache call can be converted to the new HTTP cache.
         cache.set("sbb_pattern_%s" % pattern, resp.body(), ttl_seconds = 604800)
         resp = json.decode(resp.body())
 
