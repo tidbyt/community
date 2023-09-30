@@ -409,6 +409,12 @@ def http_get_number(team_id):
                                 if number == "-":
                                     number = record.get("teamRecords")[index].get("eliminationNumberDivision")
 
+                                    # if the second place team is eliminated, it means we have indeed clinched the division
+                                    # there is a short window of time where the clinch indicator has yet to be updated
+                                    # we can override the clinched flag here
+                                    if number == "E":
+                                        clinched = True
+
                         break  # we found our team
                 break  # we found our division
     else:

@@ -126,7 +126,7 @@ def render_header(league_id):
 
 def get_Standings(league_id, year):
     query_params = {
-        "fields": "records,teamRecords,team,id,wildCardGamesBack,clinched,clinchIndicator",
+        "fields": "records,teamRecords,team,id,wildCardGamesBack,clinched,clinchIndicator,wildCardEliminationNumber",
         "standingsTypes": "wildCard",
         "leagueId": league_id,
         "season": year,
@@ -159,6 +159,11 @@ def get_Standings(league_id, year):
         team_id = int(team.get("team").get("id"))
         games_back = team.get("wildCardGamesBack")
         clinched = team.get("clinched") or False
+        elim_number = team.get("wildCardEliminationNumber")
+        if elim_number != None and elim_number == "E":
+            eliminated = True
+        else:
+            eliminated = False
 
         # add to list
         standings.append(
@@ -166,6 +171,7 @@ def get_Standings(league_id, year):
                 "TeamId": team_id,
                 "GamesBack": games_back,
                 "Clinched": clinched,
+                "Eliminated": eliminated,
             },
         )
         limiter += 1
@@ -181,6 +187,7 @@ def render_WildCardStandings(standings):
     for info in standings:
         team_id = info.get("TeamId")
         clinched = info.get("Clinched")
+        eliminated = info.get("Eliminated")
 
         # strip ".0", we don't need it
         games_back = info.get("GamesBack").removesuffix(".0")
@@ -188,7 +195,7 @@ def render_WildCardStandings(standings):
         # keep track of games_back length so we can align everything
         if len(games_back) > max_games_back_length:
             max_games_back_length = len(games_back)
-        team_widgets.append(render_Team(team_id, pos, clinched))
+        team_widgets.append(render_Team(team_id, pos, clinched, eliminated))
         games_back_widgets.append(render_GamesBack(team_id, games_back, clinched))
         pos += 1
 
@@ -225,7 +232,7 @@ def render_rainbow_word(word, font):
         children = widgets,
     )
 
-def render_Team(team_id, pos, clinched):
+def render_Team(team_id, pos, clinched, eliminated):
     team = TEAM_INFO[team_id]
     logo_width = 20
     if clinched:
@@ -237,11 +244,14 @@ def render_Team(team_id, pos, clinched):
             font = GAMES_BACK_FONT,
             color = team.ForegroundColor,
         )
-        pos_widget = render.Text(
-            content = str(pos),
-            font = SMALL_FONT,
-            color = HIGHLIGHT_COLOR,
-        )
+        if eliminated:
+            pos_widget = render_drop_shadow("E", SMALL_FONT, "#FF3131")
+        else:
+            pos_widget = render.Text(
+                content = str(pos),
+                font = SMALL_FONT,
+                color = HIGHLIGHT_COLOR,
+            )
     return render.Box(
         height = 9,
         width = 64,
@@ -252,7 +262,7 @@ def render_Team(team_id, pos, clinched):
             children = [
                 pos_widget,
                 render.Padding(
-                    pad = (0, -3, 0, 0),
+                    pad = (0, team.Offset, 0, 0),
                     child = render.Image(
                         src = team.Logo,
                         width = logo_width,
@@ -268,6 +278,25 @@ def render_Team(team_id, pos, clinched):
                 ),
             ],
         ),
+    )
+
+def render_drop_shadow(text, font, foreground_color, background_color = "#000000"):
+    return render.Stack(
+        children = [
+            render.Padding(
+                pad = (0, 1, 0, 0),
+                child = render.Text(
+                    content = text,
+                    font = font,
+                    color = background_color,
+                ),
+            ),
+            render.Text(
+                content = text,
+                font = font,
+                color = foreground_color,
+            ),
+        ],
     )
 
 def render_GamesBack(team_id, games_back, clinched):
@@ -491,35 +520,35 @@ MIL_LOGO = base64.decode("""
 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
 """)
 
-def struct_TeamDefinition(name, abbrev, logo, foreground_color, background_color):
-    return struct(Name = name, Abbreviation = abbrev, Logo = logo, ForegroundColor = foreground_color, BackgroundColor = background_color)
+def struct_TeamDefinition(name, abbrev, logo, foreground_color, background_color, vertical_offset = -3):
+    return struct(Name = name, Abbreviation = abbrev, Logo = logo, ForegroundColor = foreground_color, BackgroundColor = background_color, Offset = vertical_offset)
 
 TEAM_INFO = {
     ARI_TEAM_ID: struct_TeamDefinition("Arizona DiamondBacks", "ARI", ARI_LOGO, "#E3D4AD", "#A71930"),
-    ATL_TEAM_ID: struct_TeamDefinition("Atlanta Braves", "ATL", ATL_LOGO, "#FFFFFF", "#13274F"),
-    BOS_TEAM_ID: struct_TeamDefinition("Boston Red Sox", "BOS", BOS_LOGO, "#FFFFFF", "#0C2340"),
+    ATL_TEAM_ID: struct_TeamDefinition("Atlanta Braves", "ATL", ATL_LOGO, "#FFFFFF", "#13274F", -6),
+    BOS_TEAM_ID: struct_TeamDefinition("Boston Red Sox", "BOS", BOS_LOGO, "#FFFFFF", "#0C2340", -5),
     BAL_TEAM_ID: struct_TeamDefinition("Baltimore Orioles", "BAL", BAL_LOGO, "#DF4701", "#000000"),
-    CHC_TEAM_ID: struct_TeamDefinition("Chicago Cubs", "CHC", CHC_LOGO, "#CC3433", "#0E3386"),
+    CHC_TEAM_ID: struct_TeamDefinition("Chicago Cubs", "CHC", CHC_LOGO, "#CC3433", "#0E3386", -5),
     CWS_TEAM_ID: struct_TeamDefinition("Chicago White Sox", "CWS", CWS_LOGO, "#C4CED4", "#27251F"),
-    CIN_TEAM_ID: struct_TeamDefinition("Cincinnati Reds", "CIN", CIN_LOGO, "#FFFFFF", "#C6011F"),
-    CLE_TEAM_ID: struct_TeamDefinition("Cleveland Guardians", "CLE", CLE_LOGO, "#FFFFFF", "#00385D"),
-    COL_TEAM_ID: struct_TeamDefinition("Colorado Rockies", "COL", COL_LOGO, "#C4CED4", "#333366"),
+    CIN_TEAM_ID: struct_TeamDefinition("Cincinnati Reds", "CIN", CIN_LOGO, "#FFFFFF", "#C6011F", -5),
+    CLE_TEAM_ID: struct_TeamDefinition("Cleveland Guardians", "CLE", CLE_LOGO, "#FFFFFF", "#00385D", -6),
+    COL_TEAM_ID: struct_TeamDefinition("Colorado Rockies", "COL", COL_LOGO, "#C4CED4", "#333366", -6),
     DET_TEAM_ID: struct_TeamDefinition("Detroit Tigers", "DET", DET_LOGO, "#FFFFFF", "#0C2340"),
-    HOU_TEAM_ID: struct_TeamDefinition("Houston Astros", "HOU", HOU_LOGO, "#EB6E1F", "#002D62"),
-    KC_TEAM_ID: struct_TeamDefinition("Kansas City Royals", "KC", KC_LOGO, "#BD9B60", "#004687"),
-    LAA_TEAM_ID: struct_TeamDefinition("Los Angeles Angels", "LAA", LAA_LOGO, "#FFFFFF", "#BA0021"),
-    LAD_TEAM_ID: struct_TeamDefinition("Los Angeles Dodgers", "LAD", LAD_LOGO, "#FFFFFF", "#005A9C"),
+    HOU_TEAM_ID: struct_TeamDefinition("Houston Astros", "HOU", HOU_LOGO, "#EB6E1F", "#002D62", -6),
+    KC_TEAM_ID: struct_TeamDefinition("Kansas City Royals", "KC", KC_LOGO, "#BD9B60", "#004687", -6),
+    LAA_TEAM_ID: struct_TeamDefinition("Los Angeles Angels", "LAA", LAA_LOGO, "#FFFFFF", "#BA0021", -10),
+    LAD_TEAM_ID: struct_TeamDefinition("Los Angeles Dodgers", "LAD", LAD_LOGO, "#FFFFFF", "#005A9C", -8),
     MIA_TEAM_ID: struct_TeamDefinition("Miami Marlins", "MIA", MIA_LOGO, "#EF3340", "#000000"),
-    MIL_TEAM_ID: struct_TeamDefinition("Milwaukee Brewers", "MIL", MIL_LOGO, "#FFC52F", "#12284B"),
+    MIL_TEAM_ID: struct_TeamDefinition("Milwaukee Brewers", "MIL", MIL_LOGO, "#FFC52F", "#12284B", -6),
     MIN_TEAM_ID: struct_TeamDefinition("Minnesota Twins", "MIN", MIN_LOGO, "#FFFFFF", "#002B5C"),
     NYM_TEAM_ID: struct_TeamDefinition("New York Mets", "NYM", NYM_LOGO, "#FF5910", "#002D72"),
     NYY_TEAM_ID: struct_TeamDefinition("New York Yankees", "NYY", NYY_LOGO, "#C4CED3", "#0C2340"),
-    OAK_TEAM_ID: struct_TeamDefinition("Oakland Athletics", "OAK", OAK_LOGO, "#EFB21E", "#003831"),
+    OAK_TEAM_ID: struct_TeamDefinition("Oakland Athletics", "OAK", OAK_LOGO, "#EFB21E", "#003831", -6),
     PHI_TEAM_ID: struct_TeamDefinition("Philadelphia Phillies", "PHI", PHI_LOGO, "#FFFFFF", "#E81828"),
-    PIT_TEAM_ID: struct_TeamDefinition("Pittsburgh Pirates", "PIT", PIT_LOGO, "#FDB827", "#27251F"),
-    SEA_TEAM_ID: struct_TeamDefinition("Seattle Mariners", "SEA", SEA_LOGO, "#C4CED4", "#0C2C56"),
+    PIT_TEAM_ID: struct_TeamDefinition("Pittsburgh Pirates", "PIT", PIT_LOGO, "#FDB827", "#27251F", -6),
+    SEA_TEAM_ID: struct_TeamDefinition("Seattle Mariners", "SEA", SEA_LOGO, "#C4CED4", "#0C2C56", -5),
     SD_TEAM_ID: struct_TeamDefinition("San Diego Padres", "SD", SD_LOGO, "#FFC425", "#2F241D"),
-    STL_TEAM_ID: struct_TeamDefinition("St. Louis Cardinals", "STL", STL_LOGO, "#FFFFFF", "#C41E3A"),
+    STL_TEAM_ID: struct_TeamDefinition("St. Louis Cardinals", "STL", STL_LOGO, "#FFFFFF", "#C41E3A", -6),
     SF_TEAM_ID: struct_TeamDefinition("San Francisco Giants", "SF", SF_LOGO, "#FD5A1E", "#27251F"),
     TB_TEAM_ID: struct_TeamDefinition("Tampa Bay Rays", "TB", TB_LOGO, "#8FBCE6", "#092C5C"),
     TEX_TEAM_ID: struct_TeamDefinition("Texas Rangers", "TEX", TEX_LOGO, "#FFFFFF", "#003278"),

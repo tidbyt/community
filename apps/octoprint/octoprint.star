@@ -11,7 +11,7 @@ load("math.star", "math")
 load("render.star", "render")
 load("schema.star", "schema")
 
-REFRESH_TIME = 60
+REFRESH_TIME = 300
 C_DISPLAY_WIDTH = 64
 C_BACKGROUND = [0, 0, 0]
 C_TEXT_COLOR = [255, 255, 255]
