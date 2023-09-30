@@ -1,14 +1,18 @@
 """
 Applet: Tarot Cards
-Summary: Draw random tarot cards
-Description: Displays random tarot card spreads with images, card names, and card meanings.
+Summary: Draw tarot cards
+Description: Displays random tarot card spreads with their images, names, and meanings.
 Author: frame-shift
 
-
+==================================================
 ATTRIBUTION FOR CARD IMAGES:
 
-'The Arcade Arcanum' by Rose Frye, used under CC BY 4.0 / Resized from original
+'The Arcade Arcanum' by Rose Frye 
 https://modernmodron.itch.io/the-arcade-arcanum
+
+Used under CC BY 4.0 / Resized from original
+https://creativecommons.org/licenses/by/4.0/
+==================================================
 """
 
 load("animation.star", "animation")
@@ -288,7 +292,8 @@ def main(config):
     card_max = int(config.str("choice_max", DEFAULT_MAX))  # Returns Major Arcana cards or all cards
     card_draw = config.str("choice_draw", DEFAULT_DRAW)  # Returns single card or three-card spread
     card_freq = config.str("choice_freq", DEFAULT_FREQ)  # Returns how often to draw new cards
-    # card_freq = "once" # Used for testing once daily draws
+    # card_freq = "once" # For testing
+    # card_max = 21 # For testing
 
     # Calculates which function to run depending on single card or three-card spread
     if card_draw == "single":
@@ -314,55 +319,36 @@ def draw_single(back, color, maxdraw, freq):
     # For throughout the day:
     if card_freq == DEFAULT_FREQ:
         card_num = random.number(0, card_max)  # Generate a random number for the card draw
-        card_name, card_keywords, card_face = calc_single(card_num)  # Define the card's properties
-        # print("SINGLE - THROUGHOUT\n" + "MAX: " + str(card_max) + "\nNUM: " + str(card_num) + "\nNAM: " + card_name + "\nWDS: " + str(card_keywords))
+        # print("SINGLE - THROUGHOUT\n")  # For testing
 
         # For only once per day:
     else:
-        # All cards
-        if card_max == 77:
-            res = http.get(URL_ALL, ttl_seconds = CACHE_TTL)
+        if card_max == 77:  # All cards
+            url_draw = URL_ALL
+        else:  # Major Arcana only
+            url_draw = URL_MAJOR
 
-            if res.status_code != 200:
-                print("Request to %s failed with status code: %d - %s" % (URL_ALL, res.status_code, res.body()))
-                return render_error("Could not reach range_all.json\n:(")
+        res = http.get(url_draw, ttl_seconds = CACHE_TTL)
 
-            draw_all = res.json()
+        if res.status_code != 200:
+            print("Request to %s failed with status code: %d - %s" % (url_draw, res.status_code, res.body()))
+            return render_error("Could not reach range_x.json\n:(")
 
-            card_num = int(draw_all["single"])  # Set the day's card number draw
-            card_name, card_keywords, card_face = calc_single(card_num)  # Define the card's properties
-            # print("SINGLE - ONCE A DAY\n" + "MAX: " + str(card_max) + "\nNUM: " + str(card_num) + "\nNAM: " + card_name + "\nWDS: " + str(card_keywords))
+        draw_from = res.json()
+        card_num = int(draw_from["single"])  # Set the day's card number
+        # print("SINGLE - ONCE A DAY\n")  # For testing
 
-            # Major Arcana only
-        else:
-            res = http.get(URL_MAJOR, ttl_seconds = CACHE_TTL)
-
-            if res.status_code != 200:
-                print("Request to %s failed with status code: %d - %s" % (URL_ALL, res.status_code, res.body()))
-                return render_error("Could not reach range_major.json\n:(")
-
-            draw_major = res.json()
-            card_num = int(draw_major["single"])
-            card_name, card_keywords, card_face = calc_single(card_num)  # Define the card's properties
-            ani_delay = delay_list(card_face)  # Create animation delay for single card render
-            # print("SINGLE - ONCE A DAY\n" + "MAX: " + str(card_max) + "\nNUM: " + str(card_num) + "\nNAM: " + card_name + "\nWDS: " + str(card_keywords))
+    # Define card properties
+    card_name = list(CARD_NAMES.values())[card_num]  # Gets card name (string)
+    card_keywords = list(CARD_WORDS.values())[card_num]  # Gets card keywords (list)
+    card_face = base64.decode(list(CARD_FACES.values())[card_num])  # Gets card face (for src)
+    # print("MAX: " + str(card_max) + "\nNUM: " + str(card_num) + "\nNAM: " + card_name + "\nWDS: " + str(card_keywords))  # For testing
 
     # Create animation delay for single card render
     ani_delay = delay_list(card_face)
 
     # Send everything to renderer
     return render_single(card_name, card_keywords, card_face, card_back, card_color, ani_delay)
-
-def calc_single(c):
-    # Define single cards
-    # Get card index from draw_single function
-    card_num = c
-
-    card_name = list(CARD_NAMES.values())[card_num]  # Gets card name (string)
-    card_keywords = list(CARD_WORDS.values())[card_num]  # Gets card keywords (list)
-    card_face = base64.decode(list(CARD_FACES.values())[card_num])  # Gets card face (for src)
-
-    return card_name, card_keywords, card_face
 
 def delay_list(face):
     # Set up a list for animation frames during single card render
@@ -574,8 +560,8 @@ def render_single(name, words, face, back, color, delay):
                                                         render.Column(
                                                             main_align = "start",
                                                             children = [
+                                                                # Card name
                                                                 render.Box(
-                                                                    # Card name
                                                                     width = 45,
                                                                     height = 13,
                                                                     color = card_color + "25",
@@ -588,8 +574,9 @@ def render_single(name, words, face, back, color, delay):
                                                                             linespacing = 0,
                                                                         ),
                                                                 ),
+
+                                                                # Card keywords
                                                                 render.Padding(
-                                                                    # Card keywords (max length = 11 chars)
                                                                     child =
                                                                         render.WrappedText(
                                                                             content = "\n".join(card_keywords),
@@ -621,8 +608,10 @@ def render_single(name, words, face, back, color, delay):
                                                 ),
                                             ],
                                         ),
+
+                                        # Box that covers text
                                         animation.Transformation(
-                                            child = render.Box(width = 45, height = 32, color = "#000"),  # Box that covers all text right before text loads in
+                                            child = render.Box(width = 45, height = 32, color = "#000"),
                                             duration = 240,
                                             delay = 0,
                                             keyframes = [
@@ -653,11 +642,11 @@ def render_single(name, words, face, back, color, delay):
                                                     curve = "ease_out",
                                                 ),
                                                 animation.Keyframe(
-                                                    percentage = 0.691667,  # Box slides to reveal keyword
+                                                    percentage = 0.691667,  # Box slides to reveal keywords
                                                     transforms = [animation.Translate(0, 32)],
                                                 ),
                                                 animation.Keyframe(
-                                                    percentage = 1.0,  # Box remains off scren until end
+                                                    percentage = 1.0,  # Box remains off screen until end
                                                     transforms = [animation.Translate(0, 32)],
                                                 ),
                                             ],
@@ -684,75 +673,48 @@ def draw_spread(back, color, maxdraw, freq):
     # For throughout the day:
     if card_freq == DEFAULT_FREQ:
         # Pull three cards
-        draw_pile = list(range(0, card_max + 1))  # Creates a list of all possible cards
+        draw_pile = list(range(0, card_max + 1))  # Creates a list of all possible card indicies
         card_1 = draw_pile[random.number(0, len(draw_pile)) - 1]  # Draws first card
         draw_pile.remove(card_1)  # Removes first card from draw pile
         card_2 = draw_pile[random.number(0, len(draw_pile)) - 1]  # Draws second card
         draw_pile.remove(card_2)  # Removes second card from draw pile
         card_3 = draw_pile[random.number(0, len(draw_pile)) - 1]  # Draws third card
-
-        # Define each card
-        card_name1, card_name2, card_name3, card_face1, card_face2, card_face3 = calc_spread(card_1, card_2, card_3)
-        # print("SPREAD - THROUGHOUT\n" + "MAX: " + str(card_max) + "\nC1: " + str(card_1) + ", " + card_name1 + "\nC2: " + str(card_2) + ", " + card_name2 + "\nC3: " + str(card_3) + ", " + card_name3)
+        # print("SPREAD - THROUGHOUT\n")  # For testing
 
         # For only once per day:
     else:
-        # All cards
-        if card_max == 77:
-            res = http.get(URL_ALL, ttl_seconds = CACHE_TTL)
+        if card_max == 77:  # All cards
+            url_draw = URL_ALL
+        else:  # Major Arcana only
+            url_draw = URL_MAJOR
 
-            if res.status_code != 200:
-                print("Request to %s failed with status code: %d - %s" % (URL_ALL, res.status_code, res.body()))
-                return render_error("Could not reach range_all.json\n:(")
+        res = http.get(url_draw, ttl_seconds = CACHE_TTL)
 
-            draw_all = res.json()
-            card_1 = int(draw_all["spread"]["card1"])
-            card_2 = int(draw_all["spread"]["card2"])
-            card_3 = int(draw_all["spread"]["card3"])
+        if res.status_code != 200:
+            print("Request to %s failed with status code: %d - %s" % (url_draw, res.status_code, res.body()))
+            return render_error("Could not reach range_x.json\n:(")
 
-            #Define each card
-            card_name1, card_name2, card_name3, card_face1, card_face2, card_face3 = calc_spread(card_1, card_2, card_3)
-            # print("SPREAD - ONCE A DAY\n" + "MAX: " + str(card_max) + "\nC1: " + str(card_1) + ", " + card_name1 + "\nC2: " + str(card_2) + ", " + card_name2 + "\nC3: " + str(card_3) + ", " + card_name3)
+        draw_from = res.json()
+        card_1 = int(draw_from["spread"]["card1"])
+        card_2 = int(draw_from["spread"]["card2"])
+        card_3 = int(draw_from["spread"]["card3"])
+        # print("SPREAD - ONCE A DAY\n")  # For testing
 
-            # Major Arcana only
-        else:
-            res = http.get(URL_MAJOR, ttl_seconds = CACHE_TTL)
-
-            if res.status_code != 200:
-                print("Request to %s failed with status code: %d - %s" % (URL_ALL, res.status_code, res.body()))
-                return render_error("Could not reach range_major.json\n:(")
-
-            draw_all = res.json()
-            card_1 = int(draw_all["spread"]["card1"])
-            card_2 = int(draw_all["spread"]["card2"])
-            card_3 = int(draw_all["spread"]["card3"])
-
-            #Define each card
-            card_name1, card_name2, card_name3, card_face1, card_face2, card_face3 = calc_spread(card_1, card_2, card_3)
-            # print("SPREAD - ONCE A DAY\n" + "MAX: " + str(card_max) + "\nC1: " + str(card_1) + ", " + card_name1 + "\nC2: " + str(card_2) + ", " + card_name2 + "\nC3: " + str(card_3) + ", " + card_name3)
-
-    # Send everything to renderer
-    return render_spread(card_name1, card_name2, card_name3, card_face1, card_face2, card_face3, card_back, card_color)
-
-def calc_spread(c1, c2, c3):
-    # Define cards in a spread
-    # Get card indicies from draw_spread function
-    card_1 = c1
-    card_2 = c2
-    card_3 = c3
-
+    #Define each card
     card_name1 = list(CARD_NAMES.values())[card_1]  # Gets card name (str)
     card_name2 = list(CARD_NAMES.values())[card_2]
     card_name3 = list(CARD_NAMES.values())[card_3]
     card_face1 = base64.decode(list(CARD_FACES.values())[card_1])  # Gets card face (for src)
     card_face2 = base64.decode(list(CARD_FACES.values())[card_2])
     card_face3 = base64.decode(list(CARD_FACES.values())[card_3])
+    # print("MAX: " + str(card_max) + "\nC1: " + str(card_1) + ", " + card_name1 + "\nC2: " + str(card_2) + ", " + card_name2 + "\nC3: " + str(card_3) + ", " + card_name3)  # For testing
 
-    return card_name1, card_name2, card_name3, card_face1, card_face2, card_face3
+    # Send everything to renderer
+    return render_spread(card_name1, card_name2, card_name3, card_face1, card_face2, card_face3, card_back, card_color)
 
 def render_spread(name1, name2, name3, face1, face2, face3, back, color):
     # Render and display animation for three-card spread option
-    # Define variables passed from functions
+    # Define passed card properties
     card_name1 = name1
     card_name2 = name2
     card_name3 = name3
@@ -763,7 +725,6 @@ def render_spread(name1, name2, name3, face1, face2, face3, back, color):
     card_color = color
     card_font = "CG-pixel-3x5-mono"
     num_font = "tb-8"
-    # num_font = "CG-pixel-3x5-mono"
 
     # Display the animation
     return render.Root(
@@ -950,7 +911,7 @@ def render_spread(name1, name2, name3, face1, face2, face3, back, color):
                     ],
                 ),
 
-                # 9/10: Card name 2
+                # 6/7: Card name 2
                 animation.Transformation(
                     child = render.Row(
                         children = [
@@ -1005,7 +966,7 @@ def render_spread(name1, name2, name3, face1, face2, face3, back, color):
                     ],
                 ),
 
-                # 10/10: Card name 3
+                # 7/7: Card name 3
                 animation.Transformation(
                     child = render.Row(
                         children = [
@@ -1131,14 +1092,14 @@ def get_schema():
                 default = DEFAULT_COLOR,
             ),
 
-            # Select single card draw or 3 card spread
+            # Select single card draw or three-card spread
             schema.Dropdown(
                 id = "choice_draw",
                 name = "Card draw",
-                desc = "Choose to draw only one card or three cards in a spread",
+                desc = "Choose to draw only one card or a spread of three cards",
                 icon = "layerGroup",
                 options = [
-                    schema.Option(display = "Draw one card", value = DEFAULT_DRAW),
+                    schema.Option(display = "Draw only one card", value = DEFAULT_DRAW),
                     schema.Option(display = "Draw three-card spread", value = "spread"),
                 ],
                 default = DEFAULT_DRAW,
@@ -1161,7 +1122,7 @@ def get_schema():
             schema.Dropdown(
                 id = "choice_freq",
                 name = "Draw frequency",
-                desc = "Choose to draw new cards throughout the day or only once per day",
+                desc = "Choose to draw random cards throughout the day or only once per day",
                 icon = "shuffle",
                 options = [
                     schema.Option(display = "Draw throughout the day", value = DEFAULT_FREQ),

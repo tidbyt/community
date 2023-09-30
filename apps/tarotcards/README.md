@@ -1,6 +1,6 @@
 # Tarot Cards for Tidbyt
 
-Displays random tarot card spreads with images, card names, and card meanings.
+Displays random tarot card spreads with their images, names, and meanings.
 
 ![Tarot Cards for Tidbyt](tarot_cards.gif)
 
