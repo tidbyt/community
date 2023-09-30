@@ -233,7 +233,7 @@ def main(config):
                             next_check_date = time.parse_time(payload_next_check, format = "02.01.2006 15:04").in_location("UTC")
                             next_check_ttl_seconds = abs(int(time.parse_duration(next_check_date - utc_date).seconds))
 
-                            cache.set(next_check_cache, payload_next_check, next_check_ttl_seconds)
+                            cache.set(next_check_cache, payload_next_check, ttl_seconds = next_check_ttl_seconds)
                             print("set next check cache to %s" % humanize.plural(next_check_ttl_seconds, "second"))
 
                 else:
@@ -264,7 +264,7 @@ def main(config):
                             payload = validate_json(pkge_response).get("payload")
 
                 else:
-                    cache.set(courier_cache, str(courier_id), PKGE_TTL_SECONDS)
+                    cache.set(courier_cache, str(courier_id), ttl_seconds = PKGE_TTL_SECONDS)
 
                 if payload and hasattr(payload, "update"):
                     status = payload.get("status")
