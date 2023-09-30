@@ -9,6 +9,7 @@ load("random.star", "random")
 load("render.star", "render")
 
 STATIC_DIM = 2
+STATIC_FRAME_COUNT = 100
 
 def main():
     return render.Root(
@@ -30,7 +31,7 @@ def main():
 
 def staticFrames():
     frames = []
-    for _ in range(100):
+    for _ in range(STATIC_FRAME_COUNT):
         frames.append(staticScreen())
     return frames
 
