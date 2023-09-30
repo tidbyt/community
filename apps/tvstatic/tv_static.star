@@ -30,7 +30,7 @@ def main():
 
 def staticFrames():
     frames = []
-    for _ in range(200):
+    for _ in range(100):
         frames.append(staticScreen())
     return frames
 
