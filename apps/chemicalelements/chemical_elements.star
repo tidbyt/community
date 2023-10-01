@@ -1614,18 +1614,16 @@ def main(config):
         The display inforamtion for the Tidbyt
     """
 
-    #default is random element
-    current_element = elements[random.number(0, len(elements) - 1)]
-
     #instead can choose one element per day based on day of year..
     #it'll cycle through a new element each day and restart on the 119th day
     if (config.get("display", "OncePerDay") == "OncePerDay"):
         now = config.get("time")
         now = (time.parse_time(now) if now else time.now())
         current_element = elements[day_of_year(now, DEFAULT_TIMEZONE) % len(elements)]
-
-    current_element = elements[78]
-
+    else:
+        #default is random element
+        current_element = elements[random.number(0, len(elements) - 1)]
+        
     row1 = current_element["Name"]
     row2 = getMainCommentary(current_element)
     row3 = getSecondaryCommentary(current_element)
