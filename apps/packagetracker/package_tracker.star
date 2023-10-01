@@ -215,30 +215,31 @@ def main(config):
             if tracking_number:
                 tracking_number = re.sub("[^a-zA-Z0-9]+", "", tracking_number)
                 cache_name_prefix = "package_tracker_%s_" % tracking_number
-                courier_cache = cache_name_prefix + "courier"
-                next_check_cache = cache_name_prefix + "next_check"
+                courier_cache_name = cache_name_prefix + "courier"
+                next_check_cache_name = cache_name_prefix + "next_check"
+                next_check_cache_datetime = cache.get(next_check_cache_name)
+                utc_datetime_now = time.now().in_location("UTC")
 
-                next_check = cache.get(next_check_cache)
+                get_utc_datetime = lambda datetime_string, format = "2006-01-02 15:04:05 +0000 UTC": time.parse_time(datetime_string, format = format).in_location("UTC")
 
-                if not next_check:
+                if not next_check_cache_datetime or (next_check_cache_datetime and get_utc_datetime(next_check_cache_datetime) <= utc_datetime_now):
                     pkge_response = _pkge_response(method = "POST", path = "/packages/update", parameters = "trackNumber=%s" % tracking_number, ttl_seconds = PKGE_TTL_SECONDS)
 
                     if validate_json(pkge_response).get("code") == 903:
                         payload = validate_json(pkge_response).get("payload")
                         payload_split = payload.split("Next check is possible on ")
-                        payload_next_check = payload_split[1] if len(payload_split) > 1 else None
+                        next_check_payload_datetime = payload_split[1] if len(payload_split) > 1 else None
 
-                        if payload_next_check:
-                            utc_date = time.now().in_location("UTC")
-                            next_check_date = time.parse_time(payload_next_check, format = "02.01.2006 15:04").in_location("UTC")
-                            next_check_ttl_seconds = abs(int(time.parse_duration(next_check_date - utc_date).seconds))
+                        if next_check_payload_datetime:
+                            next_check_datetime = get_utc_datetime(next_check_payload_datetime, format = "02.01.2006 15:04")
+                            next_check_ttl_seconds = abs(int(time.parse_duration(next_check_datetime - utc_datetime_now).seconds))
 
-                            cache.set(next_check_cache, payload_next_check, ttl_seconds = next_check_ttl_seconds)
+                            cache.set(next_check_cache_name, str(next_check_datetime), ttl_seconds = next_check_ttl_seconds)
                             print("set next check cache to %s" % humanize.plural(next_check_ttl_seconds, "second"))
 
                 else:
-                    print("current time:", time.now().in_location("UTC"))
-                    print("waiting until", next_check, "UTC", "for next update")
+                    print("current time:", utc_datetime_now)
+                    print("waiting until", next_check_cache_datetime, "for next update")
 
                 pkge_response = _pkge_response(parameters = "trackNumber=%s" % tracking_number)
 
@@ -253,8 +254,8 @@ def main(config):
 
                 pkge_courier_id = str(int(payload.get("courier_id") or COURIER_ID_UNKNOWN)) if payload and hasattr(payload, "get") else COURIER_ID_UNKNOWN
 
-                if cache.get(courier_cache):
-                    courier_id = cache.get(courier_cache)
+                if cache.get(courier_cache_name):
+                    courier_id = cache.get(courier_cache_name)
                     if courier_id != pkge_courier_id:
                         pkge_response = _pkge_response(method = "DELETE", parameters = "trackNumber=%s" % tracking_number)
 
@@ -264,7 +265,7 @@ def main(config):
                             payload = validate_json(pkge_response).get("payload")
 
                 else:
-                    cache.set(courier_cache, str(courier_id), ttl_seconds = PKGE_TTL_SECONDS)
+                    cache.set(courier_cache_name, str(courier_id), ttl_seconds = PKGE_TTL_SECONDS)
 
                 if payload and hasattr(payload, "update"):
                     status = payload.get("status")
