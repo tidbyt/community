@@ -39,7 +39,6 @@ Author: jason-j-hunt
 #odd numbered trans are outbound
 
 load("cache.star", "cache")
-load("encoding/json.star", "json")
 load("html.star", "html")
 load("http.star", "http")
 load("re.star", "re")
