@@ -51,6 +51,9 @@ DEFAULT_SHOW_DELIVERED_ICON = False
 DEFAULT_SHOW_ORIGIN_DESTINATION = False
 DEFAULT_WRAP = False
 
+DELIVERED_NEXT_CHECK_TTL_SECONDS = 60 * 60 * 24 * 30
+DELIVERED_NEXT_CHECK_DATETIME = time.now().in_location("UTC") + time.parse_duration("%ds" % DELIVERED_NEXT_CHECK_TTL_SECONDS)
+
 FONTS = {
     "tb-8": {"offset": 1},
     "5x8": {"offset": 1},
@@ -345,16 +348,21 @@ def main(config):
 
                         rendered_additional_info = render_text(content = last_checkpoint_title or last_status, color = last_checkpoint_title_color or last_status_color)
 
-                        if delivered and show_delivered_icon:
-                            rendered_additional_info = render.Stack(
-                                children = [
-                                    render.Image(src = CHECKMARK),
-                                    render.Padding(
-                                        pad = (CHECKMARK_RIGHT_PADDING, 0, 0, 0),
-                                        child = rendered_additional_info,
-                                    ),
-                                ],
-                            )
+                        if delivered:
+                            delivered_next_check_ttl_seconds = DELIVERED_NEXT_CHECK_TTL_SECONDS
+                            cache.set(next_check_cache_name, str(DELIVERED_NEXT_CHECK_DATETIME), ttl_seconds = delivered_next_check_ttl_seconds)
+                            print("set next check cache to %s" % humanize.plural(delivered_next_check_ttl_seconds, "second"))
+
+                            if show_delivered_icon:
+                                rendered_additional_info = render.Stack(
+                                    children = [
+                                        render.Image(src = CHECKMARK),
+                                        render.Padding(
+                                            pad = (CHECKMARK_RIGHT_PADDING, 0, 0, 0),
+                                            child = rendered_additional_info,
+                                        ),
+                                    ],
+                                )
 
                     children.append(render_text(content = label))
                     children.append(render_text(content = last_checkpoint_date or last_tracking_date))
