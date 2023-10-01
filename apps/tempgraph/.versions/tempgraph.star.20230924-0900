@@ -7,7 +7,7 @@ Author: D. Segel
 
 # Hourly Temperature Graph App
 # Copyright (c) 2023 Daniel Segel
-# MIT License
+#
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
 # in the Software without restriction, including without limitation the rights
@@ -35,7 +35,7 @@ load("schema.star", "schema")
 load("time.star", "time")
 
 # config
-API_KEY = ""
+API_KEY = "0f21fd8fc8e54c84b9a13812232004"
 
 DEFAULT_DAY_COLOR = "#33F8FF"
 DEFAULT_DATE_COLOR = "#33F8FF"
@@ -54,15 +54,13 @@ DEFAULT_GRAPH_TOP_COLOR = "#ED3209"
 DEFAULT_GRAPH_FILL_COLOR = "#EAFF00"
 
 DEFAULT_LABEL_FONT = "CG-pixel-3x5-mono"
-DEFAULT_TIME_FONT = "tb-8"
 DEFAULT_UNITS = False  # False = Fahrenheit
-DEFAULT_LOW_OFFSET = 2
+DEFAULT_LOW_OFFSET = 3
 DEFAULT_HIGH_OFFSET = 3
-DEFAULT_TIME_FORMAT = "false"
 DEFAULT_LOCATION = """
 {
-    "lat": "38.5465",
-    "lng": "-121.7465",
+    "lat": "38.545",
+    "lng": "-121.741",
     "description": "Davis, CA",
     "locality": "Davis",
     "timezone": "America/Los_Angeles"
@@ -70,7 +68,7 @@ DEFAULT_LOCATION = """
 """
 
 DEFAULT_POLLING_INTERVAL = 15
-DEFAULT_MAX_BAR_HEIGHT = 14
+DEFAULT_MAX_BAR_HEIGHT = 15
 
 def main(config):
     """Main function that renders the Tidbyt display
@@ -109,8 +107,8 @@ def main(config):
     fahrenheit_or_celsius = config.get("fahrenheit_or_celsius", DEFAULT_UNITS)
     low_offset = config.get("low_offset", DEFAULT_LOW_OFFSET)
     high_offset = config.get("high_offset", DEFAULT_HIGH_OFFSET)
+    print(fahrenheit_or_celsius)
     polling_interval = int(config.get("polling_interval", DEFAULT_POLLING_INTERVAL)) * 60
-    time_format_24 = config.get("24_hour_time", DEFAULT_TIME_FORMAT)
 
     loc = config.get("location", DEFAULT_LOCATION)
     location = json.decode(loc)
@@ -120,7 +118,11 @@ def main(config):
     lng = location["lng"]
 
     local_time = time.now().in_location(timezone)
-    display_time = humanize.time_format("K:mmaa", local_time)
+
+    if config.bool("24_hour_time"):
+        print_time = humanize.time_format("HH:mm", local_time)
+    else:
+        print_time = humanize.time_format("K:mmaa", local_time)
 
     date_day = humanize.time_format("EEE", local_time)
     date_month = humanize.time_format("MMM", local_time)
@@ -131,14 +133,13 @@ def main(config):
     weather_data_current = get_data("current", polling_interval, lat, lng, local_date, api_key)
 
     if fahrenheit_or_celsius == "true":
-        unit_str = "c"
+        min_unit = "mintemp_c"
+        max_unit = "maxtemp_c"
+        current_unit = "temp_c"
     else:
-        unit_str = "f"
-
-    min_unit = "mintemp_" + unit_str
-    max_unit = "maxtemp_" + unit_str
-    current_unit = "temp_" + unit_str
-
+        min_unit = "mintemp_f"
+        max_unit = "maxtemp_f"
+        current_unit = "temp_f"
     min_temp_float = weather_data_history["forecast"]["forecastday"][0]["day"][min_unit]
     max_temp_float = weather_data_history["forecast"]["forecastday"][0]["day"][max_unit]
     current_temp_float = weather_data_current["current"][current_unit]
@@ -146,87 +147,95 @@ def main(config):
     if current_temp_float > max_temp_float:
         max_temp_float = current_temp_float
 
-    min_temp_str = humanize.ftoa(min_temp_float, 0)
     max_temp_str = humanize.ftoa(max_temp_float, 0)
+    min_temp_str = humanize.ftoa(min_temp_float, 0)
     current_temp_str = humanize.ftoa(current_temp_float, 0)
 
-    # POSITIONING - the whole thing is just one big stack with each item padded out to position it properly
-    # COLUMN 1
-    day_offset_h = 1
-    day_offset_v = 3
-    min_temp_offset_h = 1
-    min_temp_offset_v = 17
-    min_label_offset_h = 1
-    min_label_offset_v = 26
+    hour_range = local_time.hour + 1
 
-    # COLUMN 2
-    time_offset_v = 0
-    time_offset_h = 17
-    current_temp_offset_v = 8
-    current_temp_offset_h = 27
-    plot_offset_h = 18
-    plot_offset_v = 17
-
-    # COLUMN 3
-    date_offset_h = 52
-    date_offset_v = 1
-    month_offset_v = 8
-    month_offset_h = 49
-    max_temp_offset_h = 50
-    max_temp_offset_v = 17
-    max_label_offset_h = 48
-    max_label_offset_v = 26
-
-    # ADJUSTMENTS
-    if time_format_24 == "true":
-        display_time = humanize.time_format("HH:mm", local_time)
-        time_offset_h += 5
-    elif len(display_time) < 7:
-        time_offset_h += 2
-
-    if len(min_temp_str) > 2:
-        min_temp_offset_h = 1
-        min_label_offset_h = 3
-
-    if len(max_temp_str) > 2:
-        max_temp_offset_h -= 4
-        max_label_offset_h -= 0
-
-    if len(current_temp_str) > 2:
-        current_temp_offset_h -= 3
-
-    # get temps for prior hours so we can fill the bargraph
-    hour_range = local_time.hour + 1  # range goes to 1 less than value
     for hour in range(hour_range):
         if fahrenheit_or_celsius == "true":
             history_temp = weather_data_history["forecast"]["forecastday"][0]["hour"][hour]["temp_c"]
+            mapped_temp = map(history_temp, min_temp_float - int(low_offset), max_temp_float + int(high_offset), 0, DEFAULT_MAX_BAR_HEIGHT)
         else:
             history_temp = weather_data_history["forecast"]["forecastday"][0]["hour"][hour]["temp_f"]
-        mapped_temp = map(history_temp, min_temp_float - int(low_offset), max_temp_float + int(high_offset), 0, DEFAULT_MAX_BAR_HEIGHT)
+            mapped_temp = map(history_temp, min_temp_float - int(low_offset), max_temp_float + int(high_offset), 0, DEFAULT_MAX_BAR_HEIGHT)
         history_data.extend([(hour, mapped_temp)])
 
-    # print("{}: Lo: {}, Hi: {}, current: {}".format(local_time, min_temp_str, max_temp_str, current_temp_str))
+    print("{}: Lo: {}, Hi: {}, current: {}".format(local_time, min_temp_str, max_temp_str, current_temp_str))
     return render.Root(
-        # delay = 5000,
-        max_age = 90,  # can't remember what this does
-        child = render.Stack(
+        delay = 5000,
+        max_age = 90,
+        child = render.Row(
             children = [
-                # COLUMN 1
-                render.Padding(pad = (day_offset_h, day_offset_v, 0, 0), child = render.Text(date_day, color = day_color)),
-                render.Padding(pad = (min_temp_offset_h, min_temp_offset_v, 0, 0), child = render.Text(content = min_temp_str + "°", color = min_temp_color)),
-                render.Padding(pad = (min_label_offset_h, min_label_offset_v, 0, 0), child = render.Text(content = "Low", color = min_label_color, font = DEFAULT_LABEL_FONT)),
-                # COLUMN 2
-                render.Padding(pad = (time_offset_h, time_offset_v, 0, 0), child = render.Text(content = display_time, color = now_label_color, font = DEFAULT_TIME_FONT)),
-                render.Padding(pad = (current_temp_offset_h, current_temp_offset_v, 0, 0), child = render.Text(content = "" + current_temp_str + "°", color = now_temp_color)),
-                render.Padding(pad = (plot_offset_h, plot_offset_v, 0, 0), child = render.Plot(data = history_data, width = 24, height = 15, color = graph_color, fill_color = graph_fill_color, x_lim = (0, 23), y_lim = (0, 15), fill = True)),
-                # COLUMN 3
-                render.Padding(pad = (date_offset_h, date_offset_v, 0, 0), child = render.Text(date_date, color = date_color)),
-                render.Padding(pad = (month_offset_h, month_offset_v, 0, 0), child = render.Text(date_month, color = month_color)),
-                render.Padding(pad = (max_temp_offset_h, max_temp_offset_v, 0, 0), child = render.Text(content = max_temp_str + "°", color = max_temp_color)),
-                render.Padding(pad = (max_label_offset_h, max_label_offset_v, 0, 0), child = render.Text(content = "High", color = max_label_color, font = DEFAULT_LABEL_FONT)),
+                # LEFT COLUMN
+                render.Column(
+                    main_align = "center",
+                    # cross_align = "start",
+                    children = [
+                        render.Box(width = 18, height = 1, color = "#000"),
+                        render.Padding(
+                            pad = (2, 3, 0, 0),
+                            child = render.Text(date_day, color = day_color),
+                        ),
+                        render.Padding(
+                            pad = (3, 6, 0, 0),
+                            child = render.Text(content = min_temp_str + "°", color = min_temp_color),
+                        ),
+                        render.Padding(
+                            pad = (3, 0, 0, 0),
+                            child = render.Text(content = "Low", color = min_label_color, font = DEFAULT_LABEL_FONT),
+                        ),
+                    ],
+                ),
+                # MIDDLE COLUMN
+                render.Column(
+                    main_align = "center",
+                    cross_align = "center",
+                    children = [
+                        render.Box(width = 28, height = 1, color = "#000"),  # column 2, middle teal box
+                        render.Padding(
+                            render.Text(content = print_time, color = now_label_color),
+                            pad = (0, 0, 0, 0),
+                        ),
+                        render.Padding(
+                            child = render.Text(content = "" + current_temp_str + "°", color = now_temp_color),
+                            pad = (1, 0, 0, 0),
+                        ),
+                        render.Padding(
+                            render.Plot(
+                                data = history_data,
+                                width = 24,
+                                height = 15,
+                                color = graph_color,
+                                fill_color = graph_fill_color,
+                                x_lim = (0, 23),
+                                y_lim = (0, 15),
+                                fill = True,
+                            ),
+                            pad = (0, 0, 0, 0),
+                        ),
+                    ],
+                ),
+                # RIGHT COLUMN
+                render.Column(
+                    main_align = "center",
+                    cross_align = "center",
+                    children = [
+                        render.Box(width = 18, height = 1, color = "#000"),
+                        render.Text(date_date, color = date_color),
+                        render.Text(date_month, color = month_color),
+                        render.Padding(
+                            pad = (1, 1, 0, 0),
+                            child = render.Text(content = max_temp_str + "°", color = max_temp_color),
+                        ),
+                        render.Text(content = "High", color = max_label_color, font = DEFAULT_LABEL_FONT),
+                    ],
+                ),
             ],
         ),
     )
+    # delay = 1000
 
 polling_interval_options = [
     schema.Option(
@@ -421,19 +430,19 @@ def get_schema():
                 default = False,
             ),
             schema.Dropdown(
-                id = "high_offset",
-                name = "Graph Top Offset",
-                desc = "High Offset Value",
-                icon = "gear",
-                default = offset_options[3].value,
-                options = offset_options,
-            ),
-            schema.Dropdown(
                 id = "low_offset",
                 name = "Graph Bottom Offset",
                 desc = "Low Offset Value",
                 icon = "gear",
                 default = offset_options[7].value,
+                options = offset_options,
+            ),
+            schema.Dropdown(
+                id = "high_offset",
+                name = "Graph Top Offset",
+                desc = "High Offset Value",
+                icon = "gear",
+                default = offset_options[5].value,
                 options = offset_options,
             ),
             schema.Toggle(
@@ -462,7 +471,7 @@ def get_data(type, polling_interval, lat, lng, local_date, api_key):
         local_date: the date in YYYY-MM-DD format for one of the calls
         api_key: the api_key to use with weatherapi.com
     Returns:
-        Pixlet weather data in JSON format
+        Pixlet Root element
     """
     url = ""
     if type == "current":

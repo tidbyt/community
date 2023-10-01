@@ -13,7 +13,7 @@ We currently use two different endpoints of the v1 API:
 ### Authentication
 WeatherAPI requires an API key to work. You can sign-up for a free account and get an API Key to enter into the configuration options. 
 
-Note: to run the code locally you must enter an API Key in options
+Note: to run the code locally you must enter an API Key in the 'API_KEY' variable.
 
 ### Rate Limiting
 The API does have a limit, but it's currently 1 million calls per month, so you are unlikely to reach that limit.
