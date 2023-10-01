@@ -1623,7 +1623,7 @@ def main(config):
     else:
         #default is random element
         current_element = elements[random.number(0, len(elements) - 1)]
-        
+
     row1 = current_element["Name"]
     row2 = getMainCommentary(current_element)
     row3 = getSecondaryCommentary(current_element)
