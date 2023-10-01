@@ -28,4 +28,4 @@ BUILD.bazel
 *.tar.gz
 
 # versions
-.versions
+.versions/*
