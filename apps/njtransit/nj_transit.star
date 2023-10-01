@@ -53,6 +53,193 @@ DEFAULT_STATION = "New York Penn Station"
 STATION_CACHE_KEY = "stations"
 STATION_CACHE_TTL = 604800  #1 Week
 
+# Hardcoded stations list as NJT updated their site and we can no longer scrape the list as it gets hydrated by JavaScript.
+# Extracted with the following JavaScript code:
+#
+# const stations = []
+# document.querySelector(".scrollable-items").children.forEach((e) => stations.push(e.firstElementChild.text))
+# console.log(JSON.stringify(stations, undefined, 4))
+#
+STATIONS = [
+    "30th Street Station Philadelphia",
+    "Aberdeen Matawan Station",
+    "Absecon Station",
+    "Allendale Station",
+    "Allenhurst Station",
+    "Anderson Street Station",
+    "Annandale Station",
+    "Asbury Park Station",
+    "Atco Station",
+    "Atlantic City Rail Terminal",
+    "Avenel Station",
+    "Basking Ridge Station",
+    "Bay Head Station",
+    "Bay Street Station",
+    "Belmar Station",
+    "Berkeley Heights Station",
+    "Bernardsville Station",
+    "Bloomfield Rail Station",
+    "Boonton Station",
+    "Bound Brook Station",
+    "Bradley Beach Station",
+    "Brick Church Station",
+    "Bridgewater Station",
+    "Broadway Station Fair Lawn",
+    "Campbell Hall Station",
+    "Chatham Station",
+    "Cherry Hill Station",
+    "Clifton Station",
+    "Convent Station",
+    "Cranford Station",
+    "Delawanna Station",
+    "Denville Station",
+    "Dover Station",
+    "Dunellen Station",
+    "East Orange Station",
+    "Edison Station",
+    "Egg Harbor City Station",
+    "Elberon Station",
+    "Elizabeth Station",
+    "Emerson Station",
+    "Essex Street Station (PVL)",
+    "EWR Newark Airport Station",
+    "Fanwood Station",
+    "Far Hills Station",
+    "Garfield Station",
+    "Garwood Station",
+    "Gillette Station",
+    "Gladstone Station",
+    "Glen Ridge Station",
+    "Glen Rock Boro Hall Station",
+    "Glen Rock Main Line Station",
+    "Hackettstown Station",
+    "Hamilton Station",
+    "Hammonton Station",
+    "Harriman Station",
+    "Hawthorne Station",
+    "Hazlet Station",
+    "High Bridge Station",
+    "Highland Avenue Station",
+    "Hillsdale Station",
+    "Ho-Ho-Kus Station",
+    "Hoboken Terminal",
+    "Jersey Avenue Station (Northeast Corridor)",
+    "Kingsland Station",
+    "Lake Hopatcong Station",
+    "Lebanon Station",
+    "Liberty International Airport",
+    "Lincoln Park Station",
+    "Linden Station",
+    "Lindenwold Station",
+    "Little Falls Station",
+    "Little Silver Station",
+    "Long Branch Station",
+    "Lyndhurst Station",
+    "Lyons Station",
+    "Madison Station",
+    "Mahwah Station",
+    "Manasquan Station",
+    "Maplewood Station",
+    "Matawan Station",
+    "Meadowlands Rail Station",
+    "Metropark Station",
+    "Metuchen Station",
+    "Middletown New Jersey Station",
+    "Middletown New York Station",
+    "Millburn Station",
+    "Millington Station",
+    "Monmouth Park Station",
+    "Montclair Heights Station",
+    "Montclair State University Station",
+    "Montvale Station",
+    "Morris Plains Station",
+    "Morristown Station",
+    "Mount Arlington Station",
+    "Mount Olive Station",
+    "Mount Tabor Station",
+    "Mountain Avenue Station",
+    "Mountain Lakes Station",
+    "Mountain Station",
+    "Mountain View Station",
+    "MSU Station",
+    "Mt. Olive Station",
+    "Murray Hill Station",
+    "Nanuet Station",
+    "Netcong Station",
+    "Netherwood Station",
+    "New Bridge Landing Station",
+    "New Brunswick Station",
+    "New Providence Station",
+    "New York Penn Station",
+    "Newark Airport Rail Station",
+    "Newark Broad Street Station",
+    "Newark Liberty International Airport",
+    "Newark Penn Station",
+    "North Branch Station",
+    "North Elizabeth Station",
+    "NY Penn Station",
+    "Oradell Station",
+    "Orange Station",
+    "Otisville Station",
+    "Park Ridge Station",
+    "Passaic Station",
+    "Paterson Station",
+    "Peapack Station",
+    "Pearl River Station",
+    "Penn Station New York",
+    "Penn Station Newark",
+    "Pennsauken Transit Center Station",
+    "Perth Amboy Station",
+    "Philadelphia 30th Street Station",
+    "Plainfield Station",
+    "Plauderville Station",
+    "Point Pleasant Beach Station",
+    "Port Jervis Station",
+    "Princeton Junction Station",
+    "Princeton Station",
+    "Radburn Station",
+    "Rahway Station",
+    "Ramsey Main Street Station",
+    "Ramsey Route 17 Station",
+    "Raritan Station",
+    "Red Bank Station",
+    "Ridgewood Station",
+    "River Edge Station",
+    "Roselle Park Station",
+    "Rutherford Station",
+    "Salisbury Mills Cornwall Station",
+    "Secaucus Junction Lower Level",
+    "Secaucus Junction Upper Level",
+    "Short Hills Station",
+    "Sloatsburg Station",
+    "Somerville Station",
+    "South Amboy Station",
+    "South Orange Station",
+    "Spring Lake Station",
+    "Spring Valley Station",
+    "Stirling Station",
+    "Suffern Station",
+    "Summit Station",
+    "Teterboro Station",
+    "Towaco Station",
+    "Trenton Transit Center",
+    "Tuxedo Station",
+    "Union Station",
+    "Upper Montclair Station",
+    "Waldwick Station",
+    "Walnut Street Station",
+    "Watchung Avenue Station",
+    "Watsessing Avenue Station",
+    "Wayne/Route 23 Transit Center Rail Station",
+    "Wesmont Station",
+    "Westfield Station",
+    "Westwood Station",
+    "White House Station",
+    "Wood Ridge Station",
+    "Woodbridge Station",
+    "Woodcliff Lake Station"
+]
+
 DEPARTURES_CACHE_KEY = "departures"
 DEPARTURES_CACHE_TTL = 60  # 1 minute
 
@@ -528,6 +715,7 @@ def get_track_number(data):
 
     return track
 
+# Unused but left in case we are able to use it again.
 def fetch_stations_from_website():
     """
     Function fetches trains station list from NJ Transit website
@@ -550,7 +738,7 @@ def fetch_stations_from_website():
         cache.set(DEPARTURES_CACHE_KEY, nj_dv_page_response.body(), DEPARTURES_CACHE_TTL)
 
     selector = html(nj_dv_page_response_body)
-    stations = selector.find(".vbt-autocomplete-list.list-unstyled.position-absolute.pt-1.shadow.w-100").first().children()
+    stations = selector.find(".scrollable-items").children()
 
     #print("Got response of '%s' stations" % stations.len())
 
@@ -568,20 +756,21 @@ def getStationListOptions():
     Creates a list of schema options from station list
     """
     options = []
-    cache_string = cache.get(STATION_CACHE_KEY)
+    #cache_string = cache.get(STATION_CACHE_KEY)
 
-    stations = None
+    #stations = None
 
-    if cache_string != None:
-        stations = json.decode(cache_string)
+    #if cache_string != None:
+    #     stations = json.decode(cache_string)
 
-    if stations == None:
-        stations = fetch_stations_from_website()
+    #if stations == None:
+    #    stations = fetch_stations_from_website()
 
         # TODO: Determine if this cache call can be converted to the new HTTP cache.
-        cache.set(STATION_CACHE_KEY, json.encode(stations), STATION_CACHE_TTL)
+    #    cache.set(STATION_CACHE_KEY, json.encode(stations), STATION_CACHE_TTL)
 
-    for station in stations:
+    #for station in stations:
+    for station in STATIONS:
         options.append(create_option(station, station))
 
     return options
