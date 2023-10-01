@@ -237,7 +237,7 @@ STATIONS = [
     "White House Station",
     "Wood Ridge Station",
     "Woodbridge Station",
-    "Woodcliff Lake Station"
+    "Woodcliff Lake Station",
 ]
 
 DEPARTURES_CACHE_KEY = "departures"
@@ -766,7 +766,7 @@ def getStationListOptions():
     #if stations == None:
     #    stations = fetch_stations_from_website()
 
-        # TODO: Determine if this cache call can be converted to the new HTTP cache.
+    # TODO: Determine if this cache call can be converted to the new HTTP cache.
     #    cache.set(STATION_CACHE_KEY, json.encode(stations), STATION_CACHE_TTL)
 
     #for station in stations:
