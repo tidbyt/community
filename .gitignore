@@ -26,6 +26,3 @@ BUILD.bazel
 *.webp
 *.gif
 *.tar.gz
-
-# versions
-.versions/*
