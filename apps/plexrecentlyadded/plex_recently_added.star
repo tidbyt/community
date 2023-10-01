@@ -11,7 +11,7 @@ load("http.star", "http")
 load("render.star", "render")
 load("schema.star", "schema")
 
-REFRESH_TIME = 600  #every 10 minutes
+REFRESH_TIME = 86400 # twice a day
 
 SAMPLE_DATA = {
     "MediaContainer": {
