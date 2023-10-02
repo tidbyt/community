@@ -5,7 +5,7 @@ load("math.star", "math")
 load("render.star", "render")
 load("schema.star", "schema")
 
-REFRESH_RATE = 43200  #twice a day
+REFRESH_RATE = 3600
 OPEN_WEATHER_URL = "https://api.openweathermap.org/data/2.5/onecall"
 ADVERBS = [
     "damn cold",
