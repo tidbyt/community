@@ -81,6 +81,7 @@ def main(config):
         Pixlet Root element
     """
     api_key = config.get("api_key", API_KEY)
+    api_key = "0f21fd8fc8e54c84b9a13812232004"
 
     if api_key == None:
         return render.Root(
