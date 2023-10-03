@@ -230,7 +230,7 @@ def main(config):
 
                     if validate_json(pkge_response).get("code") == 903:
                         payload = validate_json(pkge_response).get("payload")
-                        payload_split = payload.split("Next check is possible on ")
+                        payload_split = payload.lower().split("next check is possible on ") if payload else None
                         next_check_payload_datetime = payload_split[1] if len(payload_split) > 1 else None
 
                         if next_check_payload_datetime:
