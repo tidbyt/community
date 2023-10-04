@@ -380,15 +380,17 @@ def heapSort(arr):
         # while heapN > 0
         if heapN == 0:
             break
+
         # make max heap from bottom up non recursively
-        for i in range(heapN//2-1, -1, -1):
+        i = 0
+        for i in range(heapN // 2 - 1, -1, -1):
             left = None
             right = None
-            if i*2+1 < heapN:
-                left = i*2+1
-            if i*2+2 < heapN:
-                right = i*2+2
-            
+            if i * 2 + 1 < heapN:
+                left = i * 2 + 1
+            if i * 2 + 2 < heapN:
+                right = i * 2 + 2
+
             if left and right:
                 if arr[i] < arr[left] and arr[i] < arr[right]:
                     if arr[left] > arr[right]:
