@@ -372,8 +372,55 @@ def merge(arr, start, size):
 
     return frames
 
-sorts = [bubbleSort, insertionSort, selectionSort, radixSort, shellSort, mergeSort]
-sortNames = ["Bubble", "Insertion", "Selection", "Radix", "Shell", "Merge"]
+def heapSort(arr):
+    frames = []
+    heapN = N
+
+    for _ in range(9999):
+        # while heapN > 0
+        if heapN == 0:
+            break
+        # make max heap from bottom up non recursively
+        for i in range(heapN//2-1, -1, -1):
+            left = None
+            right = None
+            if i*2+1 < heapN:
+                left = i*2+1
+            if i*2+2 < heapN:
+                right = i*2+2
+            
+            if left and right:
+                if arr[i] < arr[left] and arr[i] < arr[right]:
+                    if arr[left] > arr[right]:
+                        frames.append(render_frame_color(arr, left, i, "insertion"))
+                        swap(arr, i, left)
+                    else:
+                        frames.append(render_frame_color(arr, right, i, "insertion"))
+                        swap(arr, i, right)
+                elif arr[i] < arr[left]:
+                    frames.append(render_frame_color(arr, left, i, "insertion"))
+                    swap(arr, i, left)
+                elif arr[i] < arr[right]:
+                    frames.append(render_frame_color(arr, right, i, "insertion"))
+                    swap(arr, i, right)
+            elif left:
+                if arr[i] < arr[left]:
+                    frames.append(render_frame_color(arr, left, i, "insertion"))
+                    swap(arr, i, left)
+            elif right:
+                if arr[i] < arr[right]:
+                    frames.append(render_frame_color(arr, right, i, "insertion"))
+                    swap(arr, i, right)
+
+        # pop off remove arr[0] from 'heap' and move to end
+        frames.append(render_frame_color(arr, heapN, i, "insertion"))
+        heapN -= 1
+        swap(arr, i, heapN)
+
+    return frames
+
+sorts = [bubbleSort, insertionSort, selectionSort, radixSort, shellSort, mergeSort, heapSort]
+sortNames = ["Bubble", "Insertion", "Selection", "Radix", "Shell", "Merge", "Heap"]
 
 def animate(arr, randomSortIndex):
     frames = []
