@@ -443,8 +443,8 @@ def get_team(x, s, entriesToDisplay, displayType):
                 teamName = s[i + x]["team"]["abbreviation"]
                 teamColor = get_team_color(teamID)
                 teamLogo = get_logoType(teamName, s[i + x]["team"]["logos"][0]["href"])
-                teamRecord = s[i + x]["stats"][11]["displayValue"]
-                teamGB = s[i + x]["stats"][2]["displayValue"]
+                teamRecord = s[i + x]["stats"][12]["displayValue"]
+                teamGB = s[i + x]["stats"][1]["displayValue"]
 
                 team = render.Column(
                     children = [
