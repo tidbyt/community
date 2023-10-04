@@ -118,13 +118,11 @@ def insertionSort(arr):
         key = arr[i]
         j = i - 1
         for j in range(i - 1, -1, -1):
+            frames.append(render_frame_color(arr, i, j + 1, "insertion"))
             if key >= arr[j]:
                 break
             swap(arr, j, j + 1)
-            frames.append(render_frame_color(arr, i, j, "insertion"))
 
-        # if j % 10 == 0:
-        arr[j + 1] = key
     return frames
 
 def bubbleSort(arr):
@@ -132,10 +130,10 @@ def bubbleSort(arr):
     for i in range(N):
         swapped = False
         for j in range(N - i - 1):
+            frames.append(render_frame_color(arr, i, j, "bubble"))
             if arr[j] > arr[j + 1]:
                 swap(arr, j, j + 1)
                 swapped = True
-                frames.append(render_frame_color(arr, i, j + 1, "bubble"))
         if not swapped:
             break
     return frames
@@ -146,9 +144,9 @@ def selectionSort(arr):
         minIndex = i
 
         for j in range(i + 1, N):
+            frames.append(render_frame_color(arr, minIndex, j + 1, "insertion"))
             if arr[j] < arr[minIndex]:
                 minIndex = j
-                frames.append(render_frame_color(arr, i, j + 1, "insertion"))
 
         swap(arr, i, minIndex)
     return frames
@@ -209,6 +207,7 @@ def shellSort(arr):
         if interval <= 0:
             break
         for i in range(interval, N):
+            frames.append(render_frame_color(arr, i, i, "insertion"))
             temp = arr[i]
             j = i
 
@@ -448,6 +447,7 @@ def main():
     randomSortIndex = random.number(0, len(sorts)) - 1
 
     return render.Root(
+        show_full_animation = True,
         # delay = REFRESH_MILLISECONDS,
         child = render.Stack(
             children = [
