@@ -15,8 +15,8 @@ def main(config):
     defaultS = 1002493
     oneStop = False
 
-    northbound = config.str("bustStopN", defaultN)
-    southbound = config.str("bustStopS", defaultS)
+    northbound = config.str("busStopN", defaultN)
+    southbound = config.str("busStopS", defaultS)
 
     if northbound == southbound:
         oneStop = True
