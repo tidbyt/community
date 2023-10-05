@@ -420,7 +420,6 @@ def heapSort(arr):
 
     return frames
 
-
 def render_frame_quick(arr, _i, _j, _low, _pivot, _high):
     rows = [[black_pixel for c in range(WIDTH)] for r in range(HEIGHT)]
 
@@ -458,16 +457,16 @@ def partition(arr, low, high, _pivot):
         if arr[j] <= arr[pivot]:
             swap(arr, i, j)
             i += 1
-    
-    frames.append(render_frame_quick(arr, i-1, j, low, _pivot, high))
-    swap(arr, i-1, low)
-    return [i-1, frames]
+
+    frames.append(render_frame_quick(arr, i - 1, j, low, _pivot, high))
+    swap(arr, i - 1, low)
+    return [i - 1, frames]
 
 def partitionRand(arr, low, high, rPivots):
     if rPivots:
-        pivot = random.number(low, high) #random
+        pivot = random.number(low, high)  #random
     else:
-        pivot = (low+high)//2 #middle
+        pivot = (low + high) // 2  #middle
 
     swap(arr, low, pivot)
     return partition(arr, low, high, pivot)
@@ -478,15 +477,15 @@ def doQuickSort(arr, low, high, rPivots):
         values = partitionRand(arr, low, high, rPivots)
         pi = values[0]
         frames += values[1]
-        frames += doQuickSort(arr, low, pi-1, rPivots)
-        frames += doQuickSort(arr, pi+1, high, rPivots)
+        frames += doQuickSort(arr, low, pi - 1, rPivots)
+        frames += doQuickSort(arr, pi + 1, high, rPivots)
 
     return frames
 
 def quickSort(arr):
     #use random pivots half the time
     rPivots = bool(random.number(0, 1))
-    return doQuickSort(arr, 0, N-1, rPivots)
+    return doQuickSort(arr, 0, N - 1, rPivots)
 
 sorts = [bubbleSort, insertionSort, selectionSort, radixSort, shellSort, mergeSort, heapSort, quickSort]
 sortNames = ["Bubble", "Insertion", "Selection", "Radix", "Shell", "Merge", "Heap", "Quick"]
@@ -510,7 +509,7 @@ def animate(arr, randomSortIndex):
 def main():
     random.seed(time.now().unix // 15)
     arr = [x for x in range(WIDTH // 2)][::-1]
-    
+
     # small chance to leave reversely sorted :)
     if random.number(1, 100) != 1:
         random_shuffle(arr)
