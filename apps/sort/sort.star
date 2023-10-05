@@ -452,6 +452,7 @@ def partition(arr, low, high, _pivot):
     pivot = low
 
     i = low + 1
+    j = 0
     for j in range(low + 1, high + 1):
         frames.append(render_frame_quick(arr, i, j, low, _pivot, high))
         if arr[j] <= arr[pivot]:
