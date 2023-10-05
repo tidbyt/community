@@ -118,9 +118,9 @@ def insertionSort(arr):
         key = arr[i]
         j = i - 1
         for j in range(i - 1, -1, -1):
-            frames.append(render_frame_color(arr, i, j + 1, "insertion"))
             if key >= arr[j]:
                 break
+            frames.append(render_frame_color(arr, i, j, "insertion"))
             swap(arr, j, j + 1)
 
     return frames
@@ -130,10 +130,10 @@ def bubbleSort(arr):
     for i in range(N):
         swapped = False
         for j in range(N - i - 1):
-            frames.append(render_frame_color(arr, i, j, "bubble"))
             if arr[j] > arr[j + 1]:
                 swap(arr, j, j + 1)
                 swapped = True
+                frames.append(render_frame_color(arr, i, j + 1, "bubble"))
         if not swapped:
             break
     return frames
@@ -509,11 +509,9 @@ def animate(arr, randomSortIndex):
 
 def main():
     random.seed(time.now().unix // 15)
-    arr = [x for x in range(WIDTH // 2)][::-1]
+    arr = [x for x in range(WIDTH // 2)]
 
-    # small chance to leave reversely sorted :)
-    if random.number(1, 100) != 1:
-        random_shuffle(arr)
+    random_shuffle(arr)
 
     randomSortIndex = random.number(0, len(sorts)) - 1
 
