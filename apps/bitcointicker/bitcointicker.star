@@ -5,6 +5,7 @@ Description: Shows the price of Bitcoin. Choose to convert into USD, EUR, GBP, C
 Author: PMK (@pmk)
 """
 
+load("animation.star", "animation")
 load("http.star", "http")
 load("humanize.star", "humanize")
 load("render.star", "render")
@@ -21,8 +22,7 @@ COLOR_DIMMED = "#fff9"
 
 FONT = "tom-thumb"
 
-def print_market_data(currency, period, show_currency_abriviation = DEFAULT_SHOW_CURRENCY_ABBRIVIATION):
-    data = get_market_data()
+def print_market_data(currency, period, data, show_currency_abriviation = DEFAULT_SHOW_CURRENCY_ABBRIVIATION):
     percentage = get_percentage(data["price_change_percentage_{}_in_currency".format(period)][currency])
     price = humanize.comma(int(data["current_price"][currency]))
     currency_abbriviation = currency.upper() if show_currency_abriviation else ""
@@ -70,15 +70,46 @@ def print_market_data(currency, period, show_currency_abriviation = DEFAULT_SHOW
         ],
     )
 
-def print_market_chart(currency, period):
-    data = get_market_chart(currency, period)
-    return render.Plot(
-        data = [(p[0], p[1]) for p in data],
-        width = 64,
-        height = 19,
-        color = COLOR_GREEN,
-        color_inverted = COLOR_RED,
-        fill = True,
+def print_market_chart(data, start_price):
+    return render.Stack(
+        children = [
+            render.Plot(
+                data = [(p[0], (p[1] - start_price)) for p in data],
+                width = 64,
+                height = 19,
+                color = COLOR_GREEN,
+                color_inverted = COLOR_RED,
+                fill = True,
+            ),
+            animation.Transformation(
+                child = render.Box(
+                    width = 64,
+                    height = 20,
+                    color = "#000",
+                ),
+                duration = 1500,
+                delay = 0,
+                origin = animation.Origin(0, 0),
+                keyframes = [
+                    animation.Keyframe(
+                        percentage = 0.0,
+                        transforms = [animation.Translate(64, 0)],
+                    ),
+                    animation.Keyframe(
+                        percentage = 0.001,
+                        transforms = [animation.Translate(0, 0)],
+                    ),
+                    animation.Keyframe(
+                        percentage = 0.042,
+                        transforms = [animation.Translate(64, 0)],
+                    ),
+                    animation.Keyframe(
+                        percentage = 1.0,
+                        transforms = [animation.Translate(64, 0)],
+                    ),
+                ],
+            ),
+        ],
     )
 
 def get_percentage(value):
@@ -122,23 +153,34 @@ def name_large_number(number):
         return "{}M".format(int(number / 10e5))
     return int(number)
 
+def get_start_price(currency, period, market_data):
+    price = market_data["current_price"][currency]
+    change = market_data["price_change_percentage_{}_in_currency".format(period)][currency] / 100
+    price_change = int(price * change * 100) / 100
+    return price - price_change
+
 def main(config):
     currency = config.str("currency", DEFAULT_CURRENCY)
     period = config.str("period", DEFAULT_PERIOD)
     show_currency_abbriviation = config.bool("show_currency_abbriviation", DEFAULT_SHOW_CURRENCY_ABBRIVIATION)
 
+    market_data = get_market_data()
+    market_chart = get_market_chart(currency, period)
+
+    start_price = get_start_price(currency, period, market_data)
+
     return render.Root(
         child = render.Column(
             expanded = True,
             children = [
-                print_market_data(currency, period, show_currency_abbriviation),
-                print_market_chart(currency, period),
+                print_market_data(currency, period, market_data, show_currency_abbriviation),
+                print_market_chart(market_chart, start_price),
             ],
         ),
     )
 
 def get_schema():
-    currencies = ["usd", "aed", "ars", "aud", "bch", "bdt", "bhd", "bmd", "bnb", "brl", "btc", "cad", "chf", "clp", "cny", "czk", "dkk", "dot", "eos", "eth", "eur", "gbp", "hkd", "huf", "idr", "ils", "inr", "jpy", "krw", "kwd", "lkr", "ltc", "mmk", "mxn", "myr", "ngn", "nok", "nzd", "php", "pkr", "pln", "rub", "sar", "sek", "sgd", "thb", "try", "twd", "uah", "vef", "vnd", "xag", "xau", "xdr", "xlm", "xrp", "yfi", "zar", "bits", "link"]
+    currencies = ["usd", "aed", "ars", "aud", "bch", "bdt", "bhd", "bmd", "bnb", "brl", "cad", "chf", "clp", "cny", "czk", "dkk", "dot", "eos", "eth", "eur", "gbp", "hkd", "huf", "idr", "ils", "inr", "jpy", "krw", "kwd", "lkr", "ltc", "mmk", "mxn", "myr", "ngn", "nok", "nzd", "php", "pkr", "pln", "rub", "sar", "sek", "sgd", "thb", "try", "twd", "uah", "vef", "vnd", "xag", "xau", "xdr", "xlm", "xrp", "yfi", "zar", "bits", "link"]
 
     currency_options = []
     for c in currencies:
