@@ -83,7 +83,7 @@ def get_schema():
                 id = "adult",
                 name = "NSFW Mode",
                 desc = "A toggle to enable NSFW mode.",
-                icon = "triangle-exclamation",
+                icon = "exclamation",
                 default = False,
             ),
             schema.Location(
