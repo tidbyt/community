@@ -389,8 +389,8 @@ def get_schema():
         fields = [
             schema.Text(
                 id = "api_key",
-                name = "OpenWeather API Key",
-                desc = "API Key for OpenWeathermap",
+                name = "WeatherAPI.com API Key",
+                desc = "API Key for WeatherAPI.com",
                 icon = "user",
             ),
             schema.Location(
