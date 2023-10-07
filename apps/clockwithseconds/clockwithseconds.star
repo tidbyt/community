@@ -118,6 +118,26 @@ def main(config):
 
 time_offset_options = [
     schema.Option(
+        display = "-10",
+        value = "-10",
+    ),
+    schema.Option(
+        display = "-9",
+        value = "-9",
+    ),
+    schema.Option(
+        display = "-8",
+        value = "-8",
+    ),
+    schema.Option(
+        display = "-7",
+        value = "-7",
+    ),
+    schema.Option(
+        display = "-6",
+        value = "-6",
+    ),
+    schema.Option(
         display = "-5",
         value = "-5",
     ),
@@ -160,6 +180,26 @@ time_offset_options = [
     schema.Option(
         display = "+5",
         value = "5",
+    ),
+    schema.Option(
+        display = "+6",
+        value = "6",
+    ),
+    schema.Option(
+        display = "+7",
+        value = "7",
+    ),
+    schema.Option(
+        display = "+8",
+        value = "8",
+    ),
+    schema.Option(
+        display = "+9",
+        value = "9",
+    ),
+    schema.Option(
+        display = "+10",
+        value = "10",
     ),
 ]
 
