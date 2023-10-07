@@ -82,7 +82,7 @@ def main(config):
     """
     api_key = config.get("api_key", API_KEY)
 
-    if api_key == '':
+    if api_key == "":
         return render.Root(
             render.Padding(
                 pad = (0, 20, 0, 0),
