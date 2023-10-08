@@ -109,6 +109,7 @@ def main(config):
     fahrenheit_or_celsius = config.get("fahrenheit_or_celsius", DEFAULT_UNITS)
     low_offset = config.get("low_offset", DEFAULT_LOW_OFFSET)
     high_offset = config.get("high_offset", DEFAULT_HIGH_OFFSET)
+
     # polling_interval = int(config.get("polling_interval", DEFAULT_POLLING_INTERVAL)) * 60
     polling_interval = 300
     time_format_24 = config.get("24_hour_time", DEFAULT_TIME_FORMAT)
