@@ -37,8 +37,6 @@ SPORT_IDS = {
     "High School Women's Basketball": 31,
 }
 
-CLASSES = ["6A-1", "6A-2", "6A", "5A", "4A", "3A", "2A", "A", "B", "C", "Other"]
-
 CLASS_IDS = {
     "Football": {"6A-1": 8, "6A-2": 19, "5A": 7, "4A": 6, "3A": 5, "2A": 4, "A": 1, "B": 2, "C": 3, "Other": 68},
     "Boy's Basketball": {"6A": 70, "5A": 71, "4A": 72, "3A": 73, "2A": 74, "A": 75, "B": 76, "Other": 119},
@@ -53,6 +51,9 @@ CLASS_IDS = {
     "High School Men's Basketball": {},
     "High School Women's Basketball": {},
 }
+
+#This list is used to generate the mobile options.
+CLASSES = ["6A-1", "6A-2", "6A", "5A", "4A", "3A", "2A", "A", "B", "C", "Other"]
 
 #This is the main function that runs after the settings. Returns display
 def main(config):
@@ -88,18 +89,30 @@ def main(config):
 
         classID = CLASS_IDS[sport][sportClass]
 
+    #The following conditional determines if the website data must be pulled again.
     if total_games == None or current_game == None or stored_sportid == None or stored_classid == None or int(stored_sportid) != SPORT_IDS[sport] or int(stored_classid) != classID and classAmount > 0:
         total_games, current_game, data = get_data(sportID, classID)
 
+    #Type conversion from string to int
     total_games = int(total_games)
     current_game = int(current_game)
+
+    #Resets the current game and associated data
     if current_game > total_games:
         current_game = 1
         data = cache.get("1")
+
+    #The filtered data list is a temporary storage while the data variable is sorted.
     filtered_data = []
 
     if data != None:
+        #Data is a list that was converted into a string.
+        #The slice notation cuts off the [] and the split makes a new list
         data = data[1:-1].split(", ")
+
+        #For some reason, the split caused escape characters to be added to each item.
+        #This is where the filtered data list comes in.
+        #The slice notation cuts off the escape characters and extra quotes.
         for item in data:
             filtered_data.append("{}".format(item[1:-1]))
         data = filtered_data
@@ -330,6 +343,8 @@ def get_data(sportID, classID):
         if web.status_code != 200:
             fail("Failure code: %s", web.status_code)
 
+    #The sort function breaks up the HTML data and returns a dictionary.
+    #This dictionary contains lists of data for each game.
     sorted = sort(web.body())
     cache.set("max", "{}".format(len(sorted)), ttl_seconds = 1800)
     cache.set("current", "1", ttl_seconds = 240)
@@ -344,7 +359,7 @@ def get_data(sportID, classID):
         return "0", "0", None
 
 #Sorts through HTML data and returns numbered games with their data
-#It gets wierd, but the slice notation helps.
+#It gets weird, but the slice notation helps.
 def sort(body):
     sorted = {}
     tables = []
@@ -376,8 +391,12 @@ def sort(body):
             sorted[counter] = []
             elements = table.split("<td")
 
+            #This is the loop that finds and stores relevant data.
+            #Each cell of a table contains a class identifier for teams, scores, etc.
+            #Their format is remarkably consistent, so slice notation is often enough.
             for element in elements:
                 if "teamcell" in element:
+                    #The teamcells are a little incosistent, hence the many conditions.
                     sorting = element[:-5].split("<span")
 
                     if len(sorting) == 2:
@@ -421,6 +440,9 @@ def sort(body):
 
 #Mobile settings function that returns the desired sport and class
 def get_schema():
+    #I have to give credit to the author of the SkiReport app, Colin Morrisseau.
+    #I took inspiration for the list comprehension as I forgot it existed.
+    #It saved nearly 30 lines here.
     sportOptions = [schema.Option(display = sport, value = sport) for sport in SPORT_IDS]
     classOptions = [schema.Option(display = classes, value = classes) for classes in CLASSES]
     return schema.Schema(
