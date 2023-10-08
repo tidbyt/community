@@ -106,7 +106,10 @@ def get_events(config):
     adult = config.get("adult", "false")
     api_key = secret.decrypt(ENCRYPTED_API_KEY) or config.get("dev_api_key", "")
     url = CHECKIDAY_API_URL + "?apikey=" + api_key + "&adult=" + adult + "&timezone=" + timezone
-    rep = http.get(url, ttl_seconds = 3600)  # 1 hour cache - TODO cache until midnight in TZ if less than hour
+    now = time.now().in_location(timezone)
+    end_of_day = time.time(year = now.year, month = now.month, day = now.day, hour = 23, minute = 59, second = 59, location = timezone)
+    time_left_in_day = end_of_day - now
+    rep = http.get(url, ttl_seconds = min(3600, time_left_in_day.seconds))  # cache until midnight or an hour, whichever is first
     if rep.status_code != 200:
         return [{"name": "Error loading holidays...", "id": ""}]
 
