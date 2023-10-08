@@ -69,7 +69,7 @@ DEFAULT_LOCATION = """
 }
 """
 
-DEFAULT_POLLING_INTERVAL = 15
+# DEFAULT_POLLING_INTERVAL = 15
 DEFAULT_MAX_BAR_HEIGHT = 14
 
 def main(config):
@@ -109,7 +109,8 @@ def main(config):
     fahrenheit_or_celsius = config.get("fahrenheit_or_celsius", DEFAULT_UNITS)
     low_offset = config.get("low_offset", DEFAULT_LOW_OFFSET)
     high_offset = config.get("high_offset", DEFAULT_HIGH_OFFSET)
-    polling_interval = int(config.get("polling_interval", DEFAULT_POLLING_INTERVAL)) * 60
+    # polling_interval = int(config.get("polling_interval", DEFAULT_POLLING_INTERVAL)) * 60
+    polling_interval = 300
     time_format_24 = config.get("24_hour_time", DEFAULT_TIME_FORMAT)
 
     loc = config.get("location", DEFAULT_LOCATION)
@@ -228,28 +229,28 @@ def main(config):
         ),
     )
 
-polling_interval_options = [
-    schema.Option(
-        display = "5 minutes",
-        value = "5",
-    ),
-    schema.Option(
-        display = "10 minutes",
-        value = "10",
-    ),
-    schema.Option(
-        display = "15 minutes",
-        value = "15",
-    ),
-    schema.Option(
-        display = "30 minutes",
-        value = "30",
-    ),
-    schema.Option(
-        display = "60 minutes",
-        value = "60",
-    ),
-]
+# polling_interval_options = [
+#     schema.Option(
+#         display = "5 minutes",
+#         value = "5",
+#     ),
+#     schema.Option(
+#         display = "10 minutes",
+#         value = "10",
+#     ),
+#     schema.Option(
+#         display = "15 minutes",
+#         value = "15",
+#     ),
+#     schema.Option(
+#         display = "30 minutes",
+#         value = "30",
+#     ),
+#     schema.Option(
+#         display = "60 minutes",
+#         value = "60",
+#     ),
+# ]
 
 offset_options = [
     schema.Option(
@@ -398,14 +399,14 @@ def get_schema():
                 desc = "Location for weather source",
                 icon = "locationDot",
             ),
-            schema.Dropdown(
-                id = "polling_interval",
-                name = "Polling Interval",
-                desc = "How often to retrieve the current temperature",
-                icon = "clock",
-                default = polling_interval_options[2].value,
-                options = polling_interval_options,
-            ),
+            # schema.Dropdown(
+            #     id = "polling_interval",
+            #     name = "Polling Interval",
+            #     desc = "How often to retrieve the current temperature",
+            #     icon = "clock",
+            #     default = polling_interval_options[2].value,
+            #     options = polling_interval_options,
+            # ),
             schema.Toggle(
                 id = "24_hour_time",
                 name = "Use a 24-hour clock",
