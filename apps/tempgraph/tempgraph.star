@@ -81,20 +81,6 @@ def main(config):
         Pixlet Root element
     """
     api_key = config.get("api_key", API_KEY)
-
-    if api_key == "":
-        return render.Root(
-            render.Padding(
-                pad = (0, 20, 0, 0),
-                child = render.Marquee(
-                    child = render.Text("Enter API Key in Options", color = "#fff"),
-                    width = 64,
-                    align = "center",
-                ),
-            ),
-        )
-    history_data = []
-
     day_color = config.str("day_color", DEFAULT_DAY_COLOR)
     date_color = config.get("date_color", DEFAULT_DATE_COLOR)
     month_color = config.get("month_color", DEFAULT_MONTH_COLOR)
@@ -109,25 +95,140 @@ def main(config):
     fahrenheit_or_celsius = config.get("fahrenheit_or_celsius", DEFAULT_UNITS)
     low_offset = config.get("low_offset", DEFAULT_LOW_OFFSET)
     high_offset = config.get("high_offset", DEFAULT_HIGH_OFFSET)
-
-    # polling_interval = int(config.get("polling_interval", DEFAULT_POLLING_INTERVAL)) * 60
-    polling_interval = 300
     time_format_24 = config.get("24_hour_time", DEFAULT_TIME_FORMAT)
-
     loc = config.get("location", DEFAULT_LOCATION)
-    location = json.decode(loc)
 
+    location = json.decode(loc)
     timezone = location["timezone"]
     lat = location["lat"]
     lng = location["lng"]
 
-    local_time = time.now().in_location(timezone)
-    display_time = humanize.time_format("K:mmaa", local_time)
+    polling_interval = 300
 
+    local_time = time.now().in_location(timezone)
+    local_date = humanize.time_format("yyyy-MM-dd", local_time)
     date_day = humanize.time_format("EEE", local_time)
     date_month = humanize.time_format("MMM", local_time)
     date_date = humanize.time_format("dd", local_time)
-    local_date = humanize.time_format("yyyy-MM-dd", local_time)
+    display_time = humanize.time_format("K:mmaa", local_time)
+
+    history_data = []
+    if api_key == "":
+        # y = 1
+        # for x in range(12):
+        #     history_data.append((x, y))
+        #     y = y + 1
+        # for x in range(12, 24):
+        #     history_data.append((x, y))
+        #     y = y - 1
+        history_data = [
+            (0, 4.24),
+            (1, 3.70),
+            (2, 2.69),
+            (3, 2.81),
+            (4, 2.46),
+            (5, 1.38),
+            (6, 1.73),
+            (7, 1.31),
+            (8, 1.23),
+            (9, 3.89),
+            (10, 5.59),
+            (11, 10.95),
+            (12, 12),
+            (13, 12.5),
+            (14, 12),
+            (15, 11.56),
+            (16, 11),
+            (17, 10.7),
+            (18, 10),
+        ]
+        return render.Root(
+            child = render.Stack(
+                children = [
+                    # COLUMN 1
+                    render.Padding(pad = (1, 3, 0, 0), child = render.Text(date_day, color = day_color)),
+                    render.Padding(pad = (1, 17, 0, 0), child = render.Text(content = "0" + "°", color = min_temp_color)),
+                    render.Padding(
+                        pad = (1, 26, 0, 0),
+                        child = render.Text(
+                            content = "Low",
+                            color = min_label_color,
+                            font = DEFAULT_LABEL_FONT,
+                        ),
+                    ),
+
+                    # COLUMN 2
+                    render.Padding(
+                        pad = (17, 0, 0, 0),
+                        child = render.Text(
+                            content = display_time,
+                            color = now_label_color,
+                            font = DEFAULT_TIME_FONT,
+                        ),
+                    ),
+                    render.Padding(
+                        pad = (22, 8, 0, 0),
+                        child = render.Text(
+                            content = "" + "ENTER",
+                            color = now_temp_color,
+                            font = "tom-thumb",
+                        ),
+                    ),
+                    render.Padding(
+                        pad = (18, 14, 0, 0),
+                        child = render.Text(
+                            content = "" + "API KEY",
+                            color = now_temp_color,
+                            font = "tom-thumb",
+                        ),
+                    ),
+                    render.Padding(
+                        pad = (18, 17, 0, 0),
+                        child = render.Plot(
+                            data = history_data,
+                            width = 24,
+                            height = 15,
+                            color = graph_color,
+                            fill_color = graph_fill_color,
+                            x_lim = (0, 23),
+                            y_lim = (0, 15),
+                            fill = True,
+                        ),
+                    ),
+
+                    # COLUMN 3
+                    render.Padding(
+                        pad = (52, 1, 0, 0),
+                        child = render.Text(
+                            date_date,
+                            color = date_color,
+                        ),
+                    ),
+                    render.Padding(
+                        pad = (49, 8, 0, 0),
+                        child = render.Text(
+                            date_month,
+                            color = month_color,
+                        ),
+                    ),
+                    render.Padding(
+                        pad = (46, 17, 0, 0),
+                        child = render.Text(
+                            content = "199" + "°",
+                            color = max_temp_color,
+                        ),
+                    ),
+                    render.Padding(
+                        pad = (48, 26, 0, 0),
+                        child = render.Text(
+                            content = "High",
+                            color = max_label_color,
+                            font = DEFAULT_LABEL_FONT,
+                        ),
+                    ),
+                ],
+            ),
+        )
 
     weather_data_history = get_data("history", polling_interval, lat, lng, local_date, api_key)
     weather_data_current = get_data("current", polling_interval, lat, lng, local_date, api_key)
@@ -204,54 +305,78 @@ def main(config):
             history_temp = weather_data_history["forecast"]["forecastday"][0]["hour"][hour]["temp_c"]
         else:
             history_temp = weather_data_history["forecast"]["forecastday"][0]["hour"][hour]["temp_f"]
-        mapped_temp = map(history_temp, min_temp_float - int(low_offset), max_temp_float + int(high_offset), 0, DEFAULT_MAX_BAR_HEIGHT)
+        mapped_temp = map(
+            history_temp,
+            min_temp_float - int(low_offset),
+            max_temp_float + int(high_offset),
+            0,
+            DEFAULT_MAX_BAR_HEIGHT,
+        )
         history_data.extend([(hour, mapped_temp)])
 
-    # print("{}: Lo: {}, Hi: {}, current: {}".format(local_time, min_temp_str, max_temp_str, current_temp_str))
     return render.Root(
         # delay = 5000,
         max_age = 90,  # can't remember what this does
         child = render.Stack(
             children = [
+
                 # COLUMN 1
-                render.Padding(pad = (day_offset_h, day_offset_v, 0, 0), child = render.Text(date_day, color = day_color)),
-                render.Padding(pad = (min_temp_offset_h, min_temp_offset_v, 0, 0), child = render.Text(content = min_temp_str + "°", color = min_temp_color)),
-                render.Padding(pad = (min_label_offset_h, min_label_offset_v, 0, 0), child = render.Text(content = "Low", color = min_label_color, font = DEFAULT_LABEL_FONT)),
+                render.Padding(
+                    pad = (day_offset_h, day_offset_v, 0, 0),
+                    child = render.Text(date_day, color = day_color),
+                ),
+                render.Padding(
+                    pad = (min_temp_offset_h, min_temp_offset_v, 0, 0),
+                    child = render.Text(content = min_temp_str + "°", color = min_temp_color),
+                ),
+                render.Padding(
+                    pad = (min_label_offset_h, min_label_offset_v, 0, 0),
+                    child = render.Text(content = "Low", color = min_label_color, font = DEFAULT_LABEL_FONT),
+                ),
+
                 # COLUMN 2
-                render.Padding(pad = (time_offset_h, time_offset_v, 0, 0), child = render.Text(content = display_time, color = now_label_color, font = DEFAULT_TIME_FONT)),
-                render.Padding(pad = (current_temp_offset_h, current_temp_offset_v, 0, 0), child = render.Text(content = "" + current_temp_str + "°", color = now_temp_color)),
-                render.Padding(pad = (plot_offset_h, plot_offset_v, 0, 0), child = render.Plot(data = history_data, width = 24, height = 15, color = graph_color, fill_color = graph_fill_color, x_lim = (0, 23), y_lim = (0, 15), fill = True)),
+                render.Padding(
+                    pad = (time_offset_h, time_offset_v, 0, 0),
+                    child = render.Text(content = display_time, color = now_label_color, font = DEFAULT_TIME_FONT),
+                ),
+                render.Padding(
+                    pad = (current_temp_offset_h, current_temp_offset_v, 0, 0),
+                    child = render.Text(content = "" + current_temp_str + "°", color = now_temp_color),
+                ),
+                render.Padding(
+                    pad = (plot_offset_h, plot_offset_v, 0, 0),
+                    child = render.Plot(
+                        data = history_data,
+                        width = 24,
+                        height = 15,
+                        color = graph_color,
+                        fill_color = graph_fill_color,
+                        x_lim = (0, 23),
+                        y_lim = (0, 15),
+                        fill = True,
+                    ),
+                ),
+
                 # COLUMN 3
-                render.Padding(pad = (date_offset_h, date_offset_v, 0, 0), child = render.Text(date_date, color = date_color)),
-                render.Padding(pad = (month_offset_h, month_offset_v, 0, 0), child = render.Text(date_month, color = month_color)),
-                render.Padding(pad = (max_temp_offset_h, max_temp_offset_v, 0, 0), child = render.Text(content = max_temp_str + "°", color = max_temp_color)),
-                render.Padding(pad = (max_label_offset_h, max_label_offset_v, 0, 0), child = render.Text(content = "High", color = max_label_color, font = DEFAULT_LABEL_FONT)),
+                render.Padding(
+                    pad = (date_offset_h, date_offset_v, 0, 0),
+                    child = render.Text(date_date, color = date_color),
+                ),
+                render.Padding(
+                    pad = (month_offset_h, month_offset_v, 0, 0),
+                    child = render.Text(date_month, color = month_color),
+                ),
+                render.Padding(
+                    pad = (max_temp_offset_h, max_temp_offset_v, 0, 0),
+                    child = render.Text(content = max_temp_str + "°", color = max_temp_color),
+                ),
+                render.Padding(
+                    pad = (max_label_offset_h, max_label_offset_v, 0, 0),
+                    child = render.Text(content = "High", color = max_label_color, font = DEFAULT_LABEL_FONT),
+                ),
             ],
         ),
     )
-
-# polling_interval_options = [
-#     schema.Option(
-#         display = "5 minutes",
-#         value = "5",
-#     ),
-#     schema.Option(
-#         display = "10 minutes",
-#         value = "10",
-#     ),
-#     schema.Option(
-#         display = "15 minutes",
-#         value = "15",
-#     ),
-#     schema.Option(
-#         display = "30 minutes",
-#         value = "30",
-#     ),
-#     schema.Option(
-#         display = "60 minutes",
-#         value = "60",
-#     ),
-# ]
 
 offset_options = [
     schema.Option(
@@ -400,14 +525,6 @@ def get_schema():
                 desc = "Location for weather source",
                 icon = "locationDot",
             ),
-            # schema.Dropdown(
-            #     id = "polling_interval",
-            #     name = "Polling Interval",
-            #     desc = "How often to retrieve the current temperature",
-            #     icon = "clock",
-            #     default = polling_interval_options[2].value,
-            #     options = polling_interval_options,
-            # ),
             schema.Toggle(
                 id = "24_hour_time",
                 name = "Use a 24-hour clock",
