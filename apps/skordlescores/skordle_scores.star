@@ -396,7 +396,7 @@ def sort(body):
             #Their format is remarkably consistent, so slice notation is often enough.
             for element in elements:
                 if "teamcell" in element:
-                    #The teamcells are a little incosistent, hence the many conditions.
+                    #The teamcells are a little inconsistent, hence the many conditions.
                     sorting = element[:-5].split("<span")
 
                     if len(sorting) == 2:
@@ -460,7 +460,7 @@ def get_schema():
             schema.Dropdown(
                 id = "class",
                 name = "Classes",
-                desc = "The class of the selected sport\nPlease note that not all classes apply to each sport",
+                desc = "The class of the selected sport (If a sport does not have the selected class it will default to the first available)",
                 icon = "arrowUpShortWide",
                 default = DEFAULT_CLASS,
                 options = classOptions,
