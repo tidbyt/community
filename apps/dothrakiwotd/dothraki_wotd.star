@@ -55,7 +55,7 @@ def main():
 
     print(date_fields)
     # hacky hash using e^(m+d) . will repeat each year, 
-    word_index = int(math.mod( math.exp(int(date_fields[1]) + int(date_fields[2])), len(word_array)))
+    word_index = int(math.mod( math.pow(int(date_fields[1])+1 , int(date_fields[2])+1), len(word_array)))
     print(int(word_index))
     #print(math.mod(int(hash.md5(date_str),100)))
 
