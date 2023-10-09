@@ -51,13 +51,13 @@ def render_error():
 def main():
     print("Starting")
 
-    date_fields = str(time.now())[0:10].split('-')
+    date = str(time.now())[0:10]
 
-    print(date_fields)
-    # hacky hash using e^(m+d) . will repeat each year, 
-    word_index = int(math.mod( math.pow(int(date_fields[1])+1 , int(date_fields[2])+1), len(word_array)))
+    print(date)
+#   word_index = int(math.mod( math.pow(int(date_fields[1])+1 , int(date_fields[2])+1), len(word_array)))
+    word_index = int(math.remainder(int(hash.md5(date),16),len(word_array)))
     print(int(word_index))
-    #print(math.mod(int(hash.md5(date_str),100)))
+    
 
     word = word_array[word_index][0]
     definition = word_array[word_index][1] + ' ' + word_array[word_index][2]
