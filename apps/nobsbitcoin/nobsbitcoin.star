@@ -11,7 +11,7 @@ load("render.star", "render")
 load("schema.star", "schema")
 load("xpath.star", "xpath")
 
-DEFAULT_CATEGORY = "news"
+DEFAULT_CATEGORY = "all"
 
 LOGO = base64.decode("""
 R0lGODlhKAAdAIABAAEzhAAAACH5BAEAAAEALAAAAAAoAB0AAAKNjI+JAOoPE5sz2kdzvlcrz30VR4VBaS4jxqTRaqCuJc/2iedngze8vuvtfBtfTGg8KodLopHXQh5+udHPKZQmgVLds3nFVqJP8u28QsnSYTIRrJpSW2H5Rh6PzbfRoVmfF4RXp3fnh2eHeBhEdZZS46jSVxiZCAFpgnkJ88KZaWjnOaNB2lhZWkljylEAADs=
