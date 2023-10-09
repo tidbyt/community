@@ -12,10 +12,8 @@ load("http.star", "http")
 load("render.star", "render")
 load("time.star","time")
 load("random.star","random")
-
-date_int = int(str(time.now())[0:10].replace('-',''))
-
-random.seed(int(str(time.now())[0:10].replace('-','')))
+load("hash.star","hash")
+load("math.star","math")
 
 # regex to conert tsv to array
 # ^(\w+)\t(\w+.)\t(.*$)
@@ -42,7 +40,8 @@ word_array = [  ["k'athsavari",	'adv.',	'often'],
                 ['atte','adv.','first'],
                 ['check','adv.','well'],
                 ['disse','adv.',''],
-            ]
+]
+
 
 def render_error():
     return render.Root(
@@ -52,8 +51,14 @@ def render_error():
 def main():
     print("Starting")
 
-#    word_index = random.number(0,len(word_array))
-    word_index = len(word_array)
+    date_fields = str(time.now())[0:10].split('-')
+
+    print(date_fields)
+    # hacky hash using e^(m+d) . will repeat each year, 
+    word_index = int(math.mod( math.exp(int(date_fields[1]) + int(date_fields[2])), len(word_array)))
+    print(int(word_index))
+    #print(math.mod(int(hash.md5(date_str),100)))
+
     word = word_array[word_index][0]
     definition = word_array[word_index][1] + ' ' + word_array[word_index][2]
 
