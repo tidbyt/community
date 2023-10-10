@@ -5,9 +5,7 @@ Description: Displays random quotes from LOTR trilogy.
 Author: Jake Manske
 """
 
-load("cache.star", "cache")
 load("encoding/base64.star", "base64")
-load("encoding/json.star", "json")
 load("http.star", "http")
 load("render.star", "render")
 load("schema.star", "schema")
@@ -16,7 +14,6 @@ load("time.star", "time")
 
 # using "lordoftherings"
 API_KEY = secret.decrypt("AV6+xWcE4VltFa9T2uqMvHJJvQmY+pl+upIgaFFPddIeaqFrJOg8lTPlzBnd4jN+EFw9k+ixYNjfzmJSCjYl4NLIw3NTUq96cWO0erM1BTMMh5SsurAc+4R2LZQ2iI+YHAlP5Go0Y5oe1WtMAfv3Zc47AaCh5Xl61QM=")
-
 
 MOVIE_FONT = "CG-pixel-3x5-mono"
 MOVIE_COLOR = "#701010"
@@ -35,52 +32,34 @@ def main(config):
         rand_char = int(time.now().nanosecond / 1000) % len(CHARACTER_LOOKUP)
         char_id = CHARACTER_LOOKUP.keys()[rand_char]
 
-    # see if there is quote info in the cache for that character
-    quote_info = cache.get(char_id) or None
+    # set up web request
+    headers = {
+        "Content-Type": "application/json",
+        "Authorization": "Bearer {0}".format(API_KEY),
+    }
+    resp = http.get("https://the-one-api.dev/v2/character/{0}/quote".format(char_id), headers = headers, ttl_seconds = CACHE_TIMEOUT)
 
-    # if there is no quote info in the cache, get it via API
-    if quote_info == None:
-        headers = {
-            "Content-Type": "application/json",
-            "Authorization": "Bearer {0}".format(API_KEY),
-        }
-        resp = http.get("https://the-one-api.dev/v2/character/{0}/quote".format(char_id), headers = headers, ttl_seconds = CACHE_TIMEOUT)
-
-        # check the HTTP response code
-        # if we fail, send back "shall not pass"
-        status_code = resp.status_code
-        if (status_code != HTTP_OK):
-            char_id = GANDALF_ID
-            quote = SHALL_NOT_PASS_QUOTE.format(status_code, resp.json()["message"])
-            movie = SHALL_NOT_PASS_MOVIE
-        else:
-            quotes = resp.json()["docs"]
-
-            # get a "random" quote_id based on the current timestamp
-            quote_id = int(time.now().nanosecond / 1000) % len(quotes)
-
-            quote = quotes[quote_id].get("dialog")
-
-            # clean up the quote if necessary, the db is not perfect
-            if not quote_has_punctuation(quote):
-                quote = quote + "."
-
-            # map it to the right movie
-            movie = MOVIE_LOOKUP[quotes[quote_id].get("movie")]
-
-        # save info to dict to serialize to cache if we were successful
-        quote_info = {"quote": quote, "movie": movie}
-
-        # cache the quote if we successfully got it from endpoint
-        # if we didn't, we will want to just try again
-        if (status_code == HTTP_OK):
-            # TODO: Determine if this cache call can be converted to the new HTTP cache.
-            cache.set(char_id, json.encode(quote_info), ttl_seconds = CACHE_TIMEOUT)
-
-        print("cache miss, remaining: " + str(resp.headers.get("X-Ratelimit-Remaining")))
+    # check the HTTP response code
+    # if we fail, send back "shall not pass"
+    status_code = resp.status_code
+    if (status_code != HTTP_OK):
+        char_id = GANDALF_ID
+        quote = SHALL_NOT_PASS_QUOTE.format(status_code, resp.json()["message"])
+        movie = SHALL_NOT_PASS_MOVIE
     else:
-        print("cache hit")
-        quote_info = json.decode(quote_info)
+        quotes = resp.json()["docs"]
+
+        # get a "random" quote_id based on the current timestamp
+        quote_id = int(time.now().nanosecond / 1000) % len(quotes)
+
+        quote = quotes[quote_id].get("dialog")
+
+        # clean up the quote if necessary, the db is not perfect
+        if not quote_has_punctuation(quote):
+            quote = quote + "."
+
+        # map it to the right movie
+        movie = MOVIE_LOOKUP[quotes[quote_id].get("movie")]
 
     # get the character we are using out of the character metadata dictionary
     character_to_use = CHARACTER_LOOKUP[char_id]
@@ -96,8 +75,8 @@ def main(config):
                     width = 64,
                     child = render.Marquee(
                         child = render.WrappedText(
-                            content = quote_info.get("quote"),
-                            font = "CG-pixel-3x5-mono",
+                            content = quote,
+                            font = MOVIE_FONT,
                             linespacing = 1,
                             width = 64,
                         ),
@@ -122,7 +101,7 @@ def main(config):
                                     color = character_to_use.Color,
                                 ),
                                 render.WrappedText(
-                                    content = quote_info.get("movie"),
+                                    content = movie,
                                     font = MOVIE_FONT,
                                     color = MOVIE_COLOR,
                                     linespacing = 1,
