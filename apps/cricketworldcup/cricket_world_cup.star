@@ -5,8 +5,6 @@ Description: Shows live scores for the selected Cricket World Cup team. Also can
 Author: jatinrampal, M0ntyP
 """
 
-load("cache.star", "cache")
-load("encoding/base64.star", "base64")
 load("encoding/json.star", "json")
 load("http.star", "http")
 load("humanize.star", "humanize")
@@ -18,7 +16,7 @@ load("time.star", "time")
 LiveGames_URL = "https://hs-consumer-api.espncricinfo.com/v1/pages/series/home?lang=en&seriesId=1367856"
 Standings_URL = "https://hs-consumer-api.espncricinfo.com/v1/pages/series/standings?lang=en&seriesId=1367856"
 
-DEFAULT_TEAM = "6"
+DEFAULT_TEAM = "1"
 DEFAULT_TIMEZONE = "America/New_York"
 MATCH_CACHE = 60
 ALL_MATCH_CACHE = 8 * 3600  # 8 hours
@@ -683,18 +681,10 @@ def get_schema():
     )
 
 def get_cachable_data(url, timeout):
-    key = base64.encode(url)
+    # Use http.get() with ttl_seconds to leverage built-in cache
+    res = http.get(url = url, ttl_seconds = timeout)
 
-    data = cache.get(key)
-    if data != None:
-        #print("CACHED")
-        return base64.decode(data)
-
-    res = http.get(url = url)
     if res.status_code != 200:
         fail("request to %s failed with status code: %d - %s" % (url, res.status_code, res.body()))
-
-    # TODO: Determine if this cache call can be converted to the new HTTP cache.
-    cache.set(key, base64.encode(res.body()), ttl_seconds = timeout)
 
     return res.body()
