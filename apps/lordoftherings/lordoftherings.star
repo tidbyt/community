@@ -15,7 +15,8 @@ load("secret.star", "secret")
 load("time.star", "time")
 
 # using "lordoftherings"
-ENCRYPTED_API_KEY = "AV6+xWcE4VltFa9T2uqMvHJJvQmY+pl+upIgaFFPddIeaqFrJOg8lTPlzBnd4jN+EFw9k+ixYNjfzmJSCjYl4NLIw3NTUq96cWO0erM1BTMMh5SsurAc+4R2LZQ2iI+YHAlP5Go0Y5oe1WtMAfv3Zc47AaCh5Xl61QM="
+API_KEY = secret.decrypt("AV6+xWcE4VltFa9T2uqMvHJJvQmY+pl+upIgaFFPddIeaqFrJOg8lTPlzBnd4jN+EFw9k+ixYNjfzmJSCjYl4NLIw3NTUq96cWO0erM1BTMMh5SsurAc+4R2LZQ2iI+YHAlP5Go0Y5oe1WtMAfv3Zc47AaCh5Xl61QM=")
+
 
 MOVIE_FONT = "CG-pixel-3x5-mono"
 MOVIE_COLOR = "#701010"
@@ -39,10 +40,9 @@ def main(config):
 
     # if there is no quote info in the cache, get it via API
     if quote_info == None:
-        api_key = secret.decrypt(ENCRYPTED_API_KEY)
         headers = {
             "Content-Type": "application/json",
-            "Authorization": "Bearer {0}".format(api_key),
+            "Authorization": "Bearer {0}".format(API_KEY),
         }
         resp = http.get("https://the-one-api.dev/v2/character/{0}/quote".format(char_id), headers = headers, ttl_seconds = CACHE_TIMEOUT)
 
