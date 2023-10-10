@@ -44,7 +44,7 @@ def main(config):
             "Content-Type": "application/json",
             "Authorization": "Bearer {0}".format(api_key),
         }
-        resp = http.get("https://the-one-api.dev/v2/character/{0}/quote".format(char_id), headers = headers)
+        resp = http.get("https://the-one-api.dev/v2/character/{0}/quote".format(char_id), headers = headers, ttl_seconds = CACHE_TIMEOUT)
 
         # check the HTTP response code
         # if we fail, send back "shall not pass"
