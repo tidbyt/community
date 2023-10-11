@@ -18,10 +18,10 @@ WIDTH = 64  # Tidbyt width
 HEIGHT = 32  # Tidbyt height
 HEIGHT_CLOCK = 26  # Height when clock is on
 
-YELLOW = "#ffff00"  # Firefly pallate color
-GREEN = "#ADFF2F"  # Firefly pallate color
-ORANGE_RED = "#FF4500"  # Firefly pallate color
-BLUE = "#0000FF"  # Firefly pallate color
+YELLOW = "#ffff00"  # Firefly palette color
+GREEN = "#ADFF2F"  # Firefly palette color
+ORANGE_RED = "#FF4500"  # Firefly palette color
+BLUE = "#0000FF"  # Firefly palette color
 VELOCITY = 0.33333  # Radial velocity of fireflies [pixels / frame]
 N_FIREFLIES = 10  # Default number of fireflies
 FIREFLY_X = 0  # Firefly x-position
@@ -31,7 +31,7 @@ FIREFLY_LIGHTNESS = 3  # Firefly lightness
 FIREFLY_UPDOWN = 4  # Firefly lightness direction UP or DOWN
 FIREFLY_DX = 5  # Firefly change (delta) in x per frame
 FIREFLY_DY = 6  # Firefly change (delta) in y per frame
-FIREFLY_OFF = 7  # When the lightness is decremented and goes below 0, firefly doesn't light up until it gets incremented back to above 0, but x-y positions still change during these frames
+FIREFLY_OFF = 7  # When the lightness is decremented and goes below 0, firefly doesn't light up until the lightness reaches this value and subsequently gets incremented to above 0, but x-y positions still change during these frames
 
 TEXT_FONT = "CG-pixel-3x5-mono"  # Text font name
 FONT_HEIGHT = 5  # Font height
@@ -57,7 +57,6 @@ DELAY = 175  # Delay between frames (milliseconds)
 N_FRAMES = int(15 * 1000 / DELAY)  # Number of frames to equate to 15 seconds based on delay
 
 def main(config):
-
     fireflies = []
     frames = []
 
@@ -75,10 +74,12 @@ def main(config):
     # Create initial fireflies
     for _ in range(n_fireflies):
         fireflies.append(create_firefly(hue, rnd_color, show_clock))
+
     # Draw frames
     for _ in range(N_FRAMES):
         # Draw fireflies into frame
         frames.append(render_frame(generate_screen(fireflies), show_clock, timezone))
+
         # Update fireflies
         fireflies = update_fireflies(fireflies, hue, rnd_color, show_clock, delta_lightness)
 
@@ -92,7 +93,7 @@ def create_firefly(hue, rnd_color, show_clock):
     x = random.number(1, WIDTH - 1)
     y = random.number(1, HEIGHT - 1)
     for _ in range(0, 10):
-        if (test_position(x, y, show_clock) == False):
+        if (check_position(x, y, show_clock) == False):
             x = random.number(1, WIDTH - 1)
             y = random.number(1, HEIGHT - 1)
         else:
@@ -100,19 +101,20 @@ def create_firefly(hue, rnd_color, show_clock):
     if rnd_color:
         hue, _, _ = hex_rgb_to_hsl(random_color())
     theta = (-1 + 2 * rnd(SCALE)) * PI  # Angular direction of motion
-    r = VELOCITY * rnd(SCALE)   # Radial velocity of motion
-    dx = r * math.cos(theta) # Change in x-direction
-    dy = r * math.sin(theta) # Change in y-directions
-    ud = DOWN if random.number(0, 1) == 0 else UP # Multiplier for whether incrementing or decrementing lightness
-    off = random.number(3, 10) * -10 # Negative value of lightness before changing to incrementing the lightness
+    r = VELOCITY * rnd(SCALE)  # Radial velocity of motion
+    dx = r * math.cos(theta)  # Change in x-direction
+    dy = r * math.sin(theta)  # Change in y-directions
+    ud = DOWN if random.number(0, 1) == 0 else UP  # Multiplier for whether incrementing or decrementing lightness
+    off = random.number(3, 10) * -10  # Negative value of lightness before changing to incrementing the lightness
+    lightness = random.number(0, 140) - 70 # Randomly choose lightness between -70 and +70
 
-    return [x, y, hue, random.number(0, 70), ud, dx, dy, off]  # x-coordinate, y-coordinate, hue, lightness, up/down (1, -1), dx, dy, off
+    return [x, y, hue, lightness, ud, dx, dy, off]  # x-coordinate, y-coordinate, hue, lightness, up/down (1, -1), dx, dy, off
 
 def update_fireflies(fireflies, hue, rnd_color, show_clock, delta_lightness):
     for s in range(len(fireflies)):
         fireflies[s][FIREFLY_X] = fireflies[s][FIREFLY_X] + fireflies[s][FIREFLY_DX]
         fireflies[s][FIREFLY_Y] = fireflies[s][FIREFLY_Y] + fireflies[s][FIREFLY_DY]
-        test_result = test_position(fireflies[s][FIREFLY_X], fireflies[s][FIREFLY_Y], show_clock)
+        test_result = check_position(fireflies[s][FIREFLY_X], fireflies[s][FIREFLY_Y], show_clock)
         if test_result and fireflies[s][FIREFLY_X] >= 0 and fireflies[s][FIREFLY_X] < WIDTH and fireflies[s][FIREFLY_Y] >= 0 and fireflies[s][FIREFLY_Y] < HEIGHT:
             if fireflies[s][FIREFLY_LIGHTNESS] >= MAX_LIGHTNESS:
                 fireflies[s][FIREFLY_UPDOWN] = DOWN
@@ -121,14 +123,14 @@ def update_fireflies(fireflies, hue, rnd_color, show_clock, delta_lightness):
             fireflies[s][FIREFLY_LIGHTNESS] = int(fireflies[s][FIREFLY_LIGHTNESS] + fireflies[s][FIREFLY_UPDOWN] * delta_lightness)
         else:
             fireflies[s][FIREFLY_X], fireflies[s][FIREFLY_Y], fireflies[s][FIREFLY_HUE], fireflies[s][FIREFLY_LIGHTNESS], fireflies[s][FIREFLY_UPDOWN], fireflies[s][FIREFLY_DX], fireflies[s][FIREFLY_DY], fireflies[s][FIREFLY_OFF] = create_firefly(hue, rnd_color, show_clock)
-    
+
     return fireflies
 
 # ****************************************
 # Helper functions
 # ****************************************
 
-def test_position(x, y, show_clock):
+def check_position(x, y, show_clock):
     # Check if firefly is behind visible clock - indicates that a new firefly needs to be created
     if show_clock == False:
         return True
@@ -141,7 +143,7 @@ def test_position(x, y, show_clock):
     return False
 
 def rnd(scale):
-    # Generate random number between 0 and 1 with decimal places based on scale value, e.g. 10 -> 1 decimal place, 100 -> 2 decimal places, 1000 -> 3 decimal places, etc.
+    # Generate random number between 0 and 1 with number of decimal places based on the scale value, e.g. 10 -> 1 decimal place, 100 -> 2 decimal places, 1000 -> 3 decimal places, etc.
     return random.number(0, scale) / scale
 
 # ****************************************
@@ -164,6 +166,7 @@ def hex_rgb_to_hsl(hex_color):
     return hsl
 
 def hsl_to_hex_rgb(h, s, l):
+    # Convert hue, saturation, lightness values to hex red, green blue values
     red, green, blue = hsl_to_rgb(h, s, l)
     return ("#" + int_to_hex(red) + int_to_hex(green) + int_to_hex(blue))
 
@@ -377,7 +380,7 @@ def get_schema():
             schema.Toggle(
                 id = "show_clock",
                 name = "Show Clock",
-                desc = "Enable displayingShowClockclock.",
+                desc = "Enable displaying time.",
                 icon = "sliders",
                 default = False,
             ),
