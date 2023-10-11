@@ -1,0 +1,8 @@
+---
+id: word-clock
+name: Word Clock
+summary: Precise human-readable time
+desc: Display the accurate time in a human-readable way.
+author: Jeffrey Lancaster
+fileName: word_clock.star
+packageName: wordclock

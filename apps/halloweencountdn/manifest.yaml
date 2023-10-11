@@ -1,0 +1,8 @@
+---
+id: halloween-countdn
+name: Halloween CountDn
+summary: Days until Halloween
+desc: Displays the number of days until Halloween.
+author: Anthony Rocchio
+fileName: halloween_countdn.star
+packageName: halloweencountdn

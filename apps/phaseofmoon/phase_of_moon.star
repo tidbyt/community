@@ -73,6 +73,18 @@ NUM_PHASES = 8
 MOON_PHASES = ["New Moon", "Waxing Crescent", "First Quarter", "Waxing Gibbous", "Full Moon", "Waning Gibbous", "Last Quarter", "Waning Crescent", "New Moon"]
 PHASE_CHANGES = [0, 1, 6.38264692644, 8.38264692644, 13.76529385288, 15.76529385288, 21.14794077932, 23.14794077932, 28.53058770576, 29.53058770576]
 
+# Moon phases in Chinese (simplified).
+MOON_PHASES_ZH = [
+    """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""",
+]
+
 def main(config):
     # Get latitude from location
     location = json.decode(config.get("location", DEFAULT_LOCATION))
@@ -91,17 +103,28 @@ def main(config):
     currentday = currentfrac * LUNARDAYS
 
     moonPhase = MOON_PHASES[0]
+    moonPhaseZh = MOON_PHASES_ZH[0]
     phaseImage = PHASE_IMAGES[0]
 
     for x in range(0, NUM_PHASES):
         if currentday > PHASE_CHANGES[x] and currentday <= PHASE_CHANGES[x + 1]:
             moonPhase = MOON_PHASES[x]
+            moonPhaseZh = MOON_PHASES_ZH[x]
             phaseImage = PHASE_IMAGES[x]
             if hemisphere == 0:
                 phaseImage = PHASE_IMAGES[NUM_PHASES - x]
 
     # Got what we need to render.
-    if config.bool("display_text"):
+    displayText = config.get("display_text", "en")
+    if displayText != "none":
+        if displayText == "zh":
+            phaseText = render.Image(src = base64.decode(moonPhaseZh))
+        else:
+            phaseText = render.WrappedText(
+                font = "tom-thumb",
+                content = moonPhase,
+            )
+
         displaycomplete = render.Box(
             render.Row(
                 expanded = True,
@@ -111,10 +134,7 @@ def main(config):
                     render.Image(src = base64.decode(phaseImage)),
                     render.Padding(
                         pad = (1, 0, 0, 0),
-                        child = render.WrappedText(
-                            font = "tom-thumb",
-                            content = moonPhase,
-                        ),
+                        child = phaseText,
                     ),
                 ],
             ),
@@ -136,6 +156,21 @@ def main(config):
     )
 
 def get_schema():
+    langs = [
+        schema.Option(
+            display = "English",
+            value = "en",
+        ),
+        schema.Option(
+            display = "Chinese (simplified)",
+            value = "zh",
+        ),
+        schema.Option(
+            display = "None",
+            value = "none",
+        ),
+    ]
+
     return schema.Schema(
         version = "1",
         fields = [
@@ -145,12 +180,13 @@ def get_schema():
                 desc = "Location for which to display the moon phase.",
                 icon = "locationDot",
             ),
-            schema.Toggle(
+            schema.Dropdown(
                 id = "display_text",
                 name = "Display Text",
-                desc = "Display the text description of the mooon phase.",
-                default = True,
+                desc = "Display the text description of the moon phase.",
                 icon = "font",
+                default = langs[0].value,
+                options = langs,
             ),
         ],
     )

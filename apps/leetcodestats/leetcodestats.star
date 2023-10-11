@@ -5,9 +5,7 @@ Description: Displays your LeetCode stats in a nice way.
 Author: Jake Manske
 """
 
-load("cache.star", "cache")
 load("encoding/base64.star", "base64")
-load("encoding/json.star", "json")
 load("http.star", "http")
 load("math.star", "math")
 load("render.star", "render")
@@ -148,22 +146,6 @@ def render_Header(msg):
     )
 
 def get_Stats(user_name):
-    my_stats_cached = cache.get(user_name)
-
-    # if we didn't find stats in the cache, get them from http endpoint
-    if my_stats_cached == None:
-        my_stats = get_StatsHttp(user_name)
-
-        # cache them if the response code was successful
-        if my_stats.ResponseCode == HTTP_SUCCESS_CODE:
-            cache_StatsObj(user_name, my_stats)
-    else:
-        decoded = json.decode(my_stats_cached)
-        my_stats = get_statsStruct(decoded)
-
-    return my_stats
-
-def get_StatsHttp(user_name):
     headers = {
         "Content-Type": "application/json",
         "referer": LEETCODE_BASE_URL.format(user_name),
@@ -172,8 +154,8 @@ def get_StatsHttp(user_name):
     # get the graphql query to use
     json_body = get_query(user_name)
 
-    # use POST to get data
-    response = http.post(url = LEETCODE_BASE_URL.format("graphql"), headers = headers, json_body = json_body)
+    # use GET to get data
+    response = http.get(url = LEETCODE_BASE_URL.format("graphql"), headers = headers, json_body = json_body, ttl_seconds = CACHE_LIFE_LENGTH_SECONDS)
 
     # check status_code to see if we were successful
     code = response.status_code
@@ -192,7 +174,7 @@ def get_StatsHttp(user_name):
         for error in errors:
             return struct(Header = error.get("message"), TotalSolved = 0, EasySolved = 0, MediumSolved = 0, HardSolved = 0, EasyPercent = 0, MediumPercent = 0, HardPercent = 0, HistogramMaxLength = 0, ResponseCode = code)
 
-    accepted_submissions = resp_as_json["data"]["matchedUser"]["submitStats"]["acSubmissionNum"]
+    accepted_submissions = resp_as_json.get("data").get("matchedUser").get("submitStatsGlobal").get("acSubmissionNum")
 
     # parse through the list and get the easy/medium/hard counts
     # initialize variables to please the linter
@@ -229,15 +211,23 @@ def get_StatsHttp(user_name):
 
     return struct(Header = user_name, TotalSolved = total_solved, EasySolved = easy_solved, MediumSolved = medium_solved, HardSolved = hard_solved, EasyPercent = easy_pct, MediumPercent = medium_pct, HardPercent = hard_pct, HistogramMaxLength = hist_max_length, ResponseCode = code)
 
-def cache_StatsObj(user_name, statsObj):
-    stats_as_json = json.encode(statsObj)
-
-    # TODO: Determine if this cache call can be converted to the new HTTP cache.
-    cache.set(user_name, str(stats_as_json), ttl_seconds = CACHE_LIFE_LENGTH_SECONDS)
-
 def get_query(user_name):
+    query = """query userProblemsSolved($username: String!) 
+    {
+        matchedUser(username: $username)
+        {
+            submitStatsGlobal 
+            {
+                acSubmissionNum 
+                {
+                    difficulty
+                    count
+                }
+            }
+        }
+    }"""
     return {
-        "query": "query getUserProfile($username: String!) { allQuestionsCount { difficulty count } matchedUser(username: $username) { contributions { points } profile { reputation ranking } submissionCalendar submitStats { acSubmissionNum { difficulty count submissions } totalSubmissionNum { difficulty count submissions } } } }",
+        "query": query,
         "variables": {
             "username": user_name,
         },
