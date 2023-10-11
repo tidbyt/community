@@ -272,7 +272,7 @@ def fuzzy_time(hours, minutes, language):
     if language.startswith("de") and cur_hour == "EINS" and rounded == 0:
         cur_hour = "EIN"  # "EIN UHR" instead of "EINS UHR"
 
-    if language.startswith("es") and cur_hour == "UNA" or next_hour == "UNA":
+    if language.startswith("es") and (cur_hour == "UNA" or next_hour == "UNA"):
         pattern = pattern.replace("LAS", "LA")  # "LA UNA" instead of "LAS UNA"
 
     return pattern.format(hour = cur_hour, next_hour = next_hour).split(",")
