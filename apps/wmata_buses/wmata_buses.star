@@ -28,9 +28,9 @@ def main(config):
     WMATA_data1 = http.get(wmata_urlN, headers = headers, ttl_seconds = 60)  # cache for 1 minute
     WMATA_data2 = http.get(wmata_urlS, headers = headers, ttl_seconds = 60)  # cache for 1 minute
     if WMATA_data1.status_code != 200:
-        fail("WMATA request failed with status %d", WMATA_data1.status_code)
+        fail("WMATA request failed with status {}".format(WMATA_data1.status_code))
     if WMATA_data2.status_code != 200:
-        fail("WMATA request failed with status %d", WMATA_data2.status_code)
+        fail("WMATA request failed with status {}".format(WMATA_data2.status_code))
     predictions1 = WMATA_data1.json()["Predictions"]
     predictions2 = WMATA_data2.json()["Predictions"]
 
