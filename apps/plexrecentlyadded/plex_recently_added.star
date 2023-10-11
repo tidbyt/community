@@ -1,7 +1,7 @@
 """
 Applet: Plex Recently Added
 Summary: Display Plex recently added
-Description: Displays recently added on Plex server. Recommended to set up a local proxy server `index.js` to host the data. See <link here> for more information. See README.md for more information.
+Description: Displays recently added on Plex server. Recommended to set up a local proxy server `index.js` to host the data. See https://github.com/tidbyt/community/blob/main/apps/plexrecentlyadded/README.md for more information.
 Author: noahpodgurski
 """
 

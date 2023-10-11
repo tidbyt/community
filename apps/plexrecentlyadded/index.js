@@ -13,6 +13,7 @@ const server = http.createServer(async (req, res) => {
         return;
     }
     if (req.method === "GET") {
+        // `/status/sessions` is included for future plex tidbyt app idea (currently watching, you can remove if you'd like)
         if (req.url.includes("/library/recentlyAdded") || req.url.includes("/status/sessions") || req.url.includes("/library/metadata")) {
             const _type = req.url.includes("/library/metadata") ? 'image/jpeg' : 'application/json';
             var options = {
