@@ -53,7 +53,7 @@ DOWN = -1  # Lightness direction - minus (get dimmer)
 SCALE = 10000  # Scale value for generating random numbers to a specific decimal place [10 -> 0.1, 100 -> 0.01, 1000 -> .001]
 DELTA_LIGHTNESS = 10  # Change in lightness per frame
 MAX_LIGHTNESS = 70  # Maximum lightness before dimming
-DELAY = 175  # Delay between frames (milliseconds)
+DELAY = 150  # Delay between frames (milliseconds)
 N_FRAMES = int(15 * 1000 / DELAY)  # Number of frames to equate to 15 seconds based on delay
 
 def main(config):
