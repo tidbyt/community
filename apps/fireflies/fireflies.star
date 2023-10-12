@@ -106,7 +106,7 @@ def create_firefly(hue, rnd_color, show_clock):
     dy = r * math.sin(theta)  # Change in y-directions
     ud = DOWN if random.number(0, 1) == 0 else UP  # Multiplier for whether incrementing or decrementing lightness
     off = random.number(3, 10) * -10  # Negative value of lightness before changing to incrementing the lightness
-    lightness = random.number(0, 140) - 70 # Randomly choose lightness between -70 and +70
+    lightness = random.number(0, 140) - 70  # Randomly choose lightness between -70 and +70
 
     return [x, y, hue, lightness, ud, dx, dy, off]  # x-coordinate, y-coordinate, hue, lightness, up/down (1, -1), dx, dy, off
 
