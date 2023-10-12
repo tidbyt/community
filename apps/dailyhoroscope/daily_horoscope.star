@@ -1,7 +1,7 @@
 """
 Applet: Daily Horoscope
-Summary: Shows daily horoscope
-Description: Displays today's horoscope for a specific sign from USA TodayDisplays today's horoscope for a specific sign from USA Today.
+Summary: Daily horoscope
+Description: Displays the daily horoscope for a specific sign from USA Today.
 Author: frame-shift
 """
 

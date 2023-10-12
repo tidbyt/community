@@ -62,7 +62,8 @@ ALT_COLOR = """
 ALT_LOGO = """
 {
     "AFC": "https://a.espncdn.com/i/teamlogos/nfl/500/scoreboard/afc.png",
-    "NFC": "https://a.espncdn.com/i/teamlogos/nfl/500/scoreboard/nfc.png"
+    "NFC": "https://a.espncdn.com/i/teamlogos/nfl/500/scoreboard/nfc.png",
+    "IND": "https://i.ibb.co/jzMc7SB/colts.png"
 }
 """
 MAGNIFY_LOGO = """
