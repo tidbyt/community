@@ -68,6 +68,7 @@ def render_article_larger(news):
     for article in news:
         news_text.append(render.Image(width = 64, height = 32, src = NEWS_ICON))
         news_text.append(render.WrappedText("%s" % article[0], color = "#FAE24C", font = "tb-8", linespacing = 1, width = 64, align = "left"))
+
         # news_text.append(render.Box(width = 64, height = 2))
         # news_text.append(render.WrappedText("%s" % article[1], font = "tb-8", color = "#ffffff", linespacing = 1, width = 64, align = "left"))
         news_text.append(render.Box(width = 64, height = 2))
@@ -82,6 +83,7 @@ def render_article_smaller(news):
     for article in news:
         news_text.append(render.Image(width = 64, height = 32, src = NEWS_ICON))
         news_text.append(render.WrappedText("%s" % article[0], color = "#FAE24C", font = "tom-thumb", linespacing = 1, width = 64, align = "left"))
+
         # news_text.append(render.Box(width = 64, height = 2))
         # news_text.append(render.WrappedText("%s" % article[1], font = "tom-thumb", color = "#ffffff", linespacing = 1, width = 64, align = "left"))
         news_text.append(render.Box(width = 64, height = 2))
