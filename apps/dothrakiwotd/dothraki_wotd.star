@@ -1523,12 +1523,12 @@ def render_error():
 def main():
     print("Starting")
 
-    date = str(time.now())[0:10]
+    date = str(time.now())[0:18]
 
     print(date)
 
     # do a weird hash thing to the date to get the randomish word
-    word_index = int(math.remainder(int(hash.md5(date), 16), len(word_array)))
+    word_index = abs(int(math.remainder(int(hash.md5(date), 16), len(word_array))))
     print(int(word_index))
 
     word = word_array[word_index][0]
