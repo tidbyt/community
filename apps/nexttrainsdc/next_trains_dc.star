@@ -13,10 +13,16 @@ WMATA_URL = "https://api.wmata.com/StationPrediction.svc/json/GetPrediction/K04"
 CACHE_TTL = 240
 
 def main(config):
-    API_KEY = secret.decrypt("AV6+xWcEJiwkiyWSDsfBMSgN+w/wd0mZuV3XYZ/G2YgCjNzeBIECj0XD/KTnKBcNSEiGPh9VkVgx6no6JVMNfe4P4CH+48PQzX/jNsvYrxGUizjAUNZ0agBIyCFEuavxLxgqim9XXUB8OkAYKu1Lrv0Fx1v4FHhAXty8eDIW38U8Lk6R8LM=") or config.get("dev_api_key")
+    API_KEY = secret.decrypt("AV6+xWcE6VEbP34oSj/WBvM8SBNOHFUvC/mefUfcYumYVvQrdhcOzTAwWtUehMbfo2yR8P3VYC6ve97iqi8qJylrX7blOaZCcVkot2RZdlgne102Bk0tqo/JikfQjbUIAo75Ipmxx1E7GA0JGCJqAEVKt9bCPGK6GkptNnFPceynO/uw1xA=") or config.get("dev_api_key")
+    if not API_KEY:
+        return render.Root(
+            child = render.Text("Error!")
+        )
     rep = http.get(WMATA_URL, headers = {"api_key": API_KEY}, ttl_seconds = CACHE_TTL)
     if rep.status_code != 200:
-        fail("WMATA request failed with status %d", rep.status_code)
+        return render.Root(
+            child = render.Text("Error!")
+        )
     ashburn_arrival_minutes = []
     dc_arrival_minutes = []
     trains = rep.json()["Trains"]
