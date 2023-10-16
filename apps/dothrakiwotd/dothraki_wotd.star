@@ -1523,7 +1523,7 @@ def render_error():
 def main():
     print("Starting")
 
-    date = str(time.now())[0:18]
+    date = str(time.now())[0:10]
 
     print(date)
 
