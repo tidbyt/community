@@ -16,12 +16,12 @@ def main(config):
     API_KEY = secret.decrypt("AV6+xWcE6VEbP34oSj/WBvM8SBNOHFUvC/mefUfcYumYVvQrdhcOzTAwWtUehMbfo2yR8P3VYC6ve97iqi8qJylrX7blOaZCcVkot2RZdlgne102Bk0tqo/JikfQjbUIAo75Ipmxx1E7GA0JGCJqAEVKt9bCPGK6GkptNnFPceynO/uw1xA=") or config.get("dev_api_key")
     if not API_KEY:
         return render.Root(
-            child = render.Text("Error!")
+            child = render.Text("Error!"),
         )
     rep = http.get(WMATA_URL, headers = {"api_key": API_KEY}, ttl_seconds = CACHE_TTL)
     if rep.status_code != 200:
         return render.Root(
-            child = render.Text("Error!")
+            child = render.Text("Error!"),
         )
     ashburn_arrival_minutes = []
     dc_arrival_minutes = []
