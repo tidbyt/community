@@ -1,0 +1,8 @@
+---
+id: chemical-elements
+name: Chemical Elements
+summary: Chemical Element Details
+desc: Displays chemical element details.
+author: Robert Ison
+fileName: chemical_elements.star
+packageName: chemicalelements
