@@ -13,7 +13,7 @@ WMATA_URL = "https://api.wmata.com/StationPrediction.svc/json/GetPrediction/K04"
 CACHE_TTL = 240
 
 def main(config):
-    API_KEY = secret.decrypt("AV6+xWcEILMM+uHVPvdOv5xUbEvXNmNuMBk274sRjlrM/72nYAuT/2hNS8bwDQ3gm/P/Yo1N1cM2wmtOuX62jDdBTouMKmIlliI/zTP5uUzpWtRifxqD9cQlDkdXg2/pwyrZdwLhFu5vOWfjf5aZe0fsPIj32Zio4Udlme8zYgLydsReI70=") or config.get("dev_api_key")
+    API_KEY = secret.decrypt("AV6+xWcEJiwkiyWSDsfBMSgN+w/wd0mZuV3XYZ/G2YgCjNzeBIECj0XD/KTnKBcNSEiGPh9VkVgx6no6JVMNfe4P4CH+48PQzX/jNsvYrxGUizjAUNZ0agBIyCFEuavxLxgqim9XXUB8OkAYKu1Lrv0Fx1v4FHhAXty8eDIW38U8Lk6R8LM=") or config.get("dev_api_key")
     rep = http.get(WMATA_URL, headers = {"api_key": API_KEY}, ttl_seconds = CACHE_TTL)
     if rep.status_code != 200:
         fail("WMATA request failed with status %d", rep.status_code)
