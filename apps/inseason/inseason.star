@@ -189,7 +189,7 @@ def get_display_list(items):
     """
 
     # since the text often cuts off, let's scramble the list each time
-    items = randomize_list(items)
+    #items = randomize_list(items)
 
     return_value = ""
     for i in items:
@@ -254,38 +254,20 @@ def get_season(date):
     Returns:
         The season number
     """
+
+    m = date.month
+    x = m % 12 // 3 + 1
+
     season = 0
 
-    if (date.month < 3):
+    if x == 1:
         season = 3
-    elif (date.month == 3):
-        if (date.day < 21):
-            season = 3
-        else:
-            season = 0
-    elif (date.month < 6):
+    if x == 2:
         season = 0
-    elif (date.month == 6):
-        if (date.day < 21):
-            season = 0
-        else:
-            season = 1
-    elif (date.month < 9):
+    if x == 3:
         season = 1
-    elif (date.month == 9):
-        if (date.day < 21):
-            season = 1
-        else:
-            season = 2
-    elif (date.month < 12):
-        season = 3
-    elif (date.month == 12):
-        if (date.day < 21):
-            season = 2
-        else:
-            season = 3
-    else:
-        season = 0
+    if x == 4:
+        season = 2
 
     return season
 
