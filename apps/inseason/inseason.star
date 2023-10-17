@@ -6,7 +6,6 @@ Author: Robert Ison
 """
 
 load("encoding/base64.star", "base64")  #Used to read encoded image
-load("random.star", "random")
 load("render.star", "render")
 load("schema.star", "schema")
 load("time.star", "time")
@@ -171,13 +170,6 @@ def main(config):
         delay = int(config.get("scroll", 45)),
     )
 
-def get_random_number(x):
-    return random.number(0, x)
-
-def randomize_list(items):
-    items = sorted(items, reverse = False, key = get_random_number)
-    return items
-
 def get_display_list(items):
     """ 
     Gets the list of in season foods in a human readable format
@@ -187,9 +179,6 @@ def get_display_list(items):
     Returns:
         Easy to read display list
     """
-
-    # since the text often cuts off, let's scramble the list each time
-    #items = randomize_list(items)
 
     return_value = ""
     for i in items:
