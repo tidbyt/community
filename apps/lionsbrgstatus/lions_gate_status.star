@@ -60,7 +60,7 @@ def render_dms():
         # Remove the last gap after the last icon
         lane_icons.pop()
     else:
-        lane_icons.append(render.Marquee(width = 64, child = render.Text("Lane status unavailable", font = "tb-8", color = "#B84"))
+        lane_icons.append(render.Marquee(width = 64, child = render.Text("Lane status unavailable", font = "tb-8", color = "#B84")))
 
     return render.Root(
         child = render.Column(
