@@ -51,19 +51,20 @@ def render_dms():
     decoded_text = decoded_text.replace("[nl]  ", " - ")
     sign_text = decoded_text.replace("[pt30o2]  ", "")
 
-    # Build lane icons list iteratively
     lane_icons = []
-    for direction in arrow_directions:
-        lane_icons.append(render.Image(src = get_image_src_for_direction(direction), width = 10))
-        lane_icons.append(render.Box(width = 11))
+    if arrow_directions:
+        for direction in arrow_directions:
+            lane_icons.append(render.Image(src = get_image_src_for_direction(direction), width = 10))
+            lane_icons.append(render.Box(width = 11))
 
-    # Remove the last gap after the last icon
-    lane_icons.pop()
+        # Remove the last gap after the last icon
+        lane_icons.pop()
+    else:
+        lane_icons.append(render.Marquee(width = 64, child = render.Text("Lane status unavailable", font = "tb-8", color = "#B84"))
 
     return render.Root(
         child = render.Column(
             children = [
-                # render.Text("Lions Gate Brdge", font="tom-thumb"),
                 render.Box(height = 1),
                 render.Marquee(width = 64, child = render.Text(sign_text, font = "tb-8", color = "#B84")),
                 render.Box(height = 1),
@@ -73,14 +74,15 @@ def render_dms():
                 render.Box(height = 2),
                 render.Row(
                     children = [
-                        render.Box(width = 6),  # Initial gap of 1
+                        render.Box(width = 6),  # Initial gap
                     ] + lane_icons + [
-                        render.Box(width = 8),  # End gap of 1
+                        render.Box(width = 8),  # End gap
                     ],
                 ),
             ],
         ),
     )
+
 
 def main():
     return render_dms()
