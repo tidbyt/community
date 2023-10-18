@@ -21,36 +21,41 @@ DEFAULT_SPORT = "Football"
 DEFAULT_CLASS = "6A-1"
 DEFAULT_TIME = "current"
 
-#The following dictionaries are used by the settings and some values in the main function.
+#The following dictionary is used by the settings and some values in the main function.
 #The ID numbers are used in the URL in the main function.
-SPORT_IDS = {
-    "Football": 1,
-    "Boy's Basketball": 2,
-    "Girl's Basketball": 3,
-    "High School Baseball": 4,
-    "High School Slow Pitch": 5,
-    "Volleyball": 7,
-    "Fast Pitch": 11,
-    "Fall Baseball": 12,
-    "High School Cross Country": 21,
-    "High School Softball": 29,
-    "High School Men's Basketball": 30,
-    "High School Women's Basketball": 31,
-}
 
-CLASS_IDS = {
-    "Football": {"6A-1": 8, "6A-2": 19, "5A": 7, "4A": 6, "3A": 5, "2A": 4, "A": 1, "B": 2, "C": 3, "Other": 68},
-    "Boy's Basketball": {"6A": 70, "5A": 71, "4A": 72, "3A": 73, "2A": 74, "A": 75, "B": 76, "Other": 119},
-    "Girl's Basketball": {"6A": 77, "5A": 78, "4A": 79, "3A": 80, "2A": 81, "A": 82, "B": 83, "Other": 121},
-    "High School Baseball": {"6A": 217, "5A": 218, "4A": 219, "3A": 220, "2A": 221, "A": 222, "B": 223, "Other": 224},
-    "High School Slow Pitch": {"6A": 225, "5A": 226, "4A": 227, "3A": 228, "2A": 229, "A": 230, "Other": 231},
-    "Volleyball": {"6A": 429, "5A": 430, "4A": 431, "3A": 432, "Other": 433},
-    "Fast Pitch": {"6A": 240, "5A": 241, "4A": 242, "3A": 243, "2A": 244, "A": 245, "B": 246, "Other": 453},
-    "Fall Baseball": {"A": 247, "B": 248},
-    "High School Cross Country": {},
-    "High School Softball": {},
-    "High School Men's Basketball": {},
-    "High School Women's Basketball": {},
+IDS = {
+    "Football": {"ID": 1, "Classes": {"6A-1": 8, "6A-2": 19, "5A": 7, "4A": 6, "3A": 5, "2A": 4, "A": 1, "B": 2, "C": 3, "Other": 68}},
+    "Boy's Basketball": {"ID": 2, "Classes": {"6A": 70, "5A": 71, "4A": 72, "3A": 73, "2A": 74, "A": 75, "B": 76, "Other": 119}},
+    "Girl's Basketball": {"ID": 3, "Classes": {"6A": 77, "5A": 78, "4A": 79, "3A": 80, "2A": 81, "A": 82, "B": 83, "Other": 121}},
+    "High School Baseball": {"ID": 4, "Classes": {"6A": 217, "5A": 218, "4A": 219, "3A": 220, "2A": 221, "A": 222, "B": 223, "Other": 224}},
+    "High School Slow Pitch": {"ID": 5, "Classes": {"6A": 225, "5A": 226, "4A": 227, "3A": 228, "2A": 229, "A": 230, "Other": 231}},
+    "High School Boy's Volleyball": {"ID": 6, "Classes": {}},
+    "Volleyball": {"ID": 7, "Classes": {"6A": 429, "5A": 430, "4A": 431, "3A": 432, "Other": 433}},
+    "Wrestling": {"ID": 8, "Classes": {"6A": 203, "5A": 204, "4A": 205, "3A": 206, "Other": 207}},
+    "High School Boy's Soccer": {"ID": 9, "Classes": {"6A": 232, "5A": 233, "4A": 234, "Other": 235}},
+    "High School Girl's Soccer": {"ID": 10, "Classes": {"6A": 236, "5A": 237, "4A": 238, "Other": 239}},
+    "Fast Pitch": {"ID": 11, "Classes": {"6A": 240, "5A": 241, "4A": 242, "3A": 243, "2A": 244, "A": 245, "B": 246, "Other": 453}},
+    "Fall Baseball": {"ID": 12, "Classes": {"A": 247, "B": 248}},
+    "INFC Football 1st-7th Grade": {"ID": 13, "Classes": {"1st": 396, "2nd": 397, "3rd": 398, "4th": 399, "5th": 400, "6th": 401, "7th": 402}},
+    "High School NOC Basketball": {"ID": 14, "Classes": {}},
+    "Boy's Lacrosse": {"ID": 15, "Classes": {"Other": 414}},
+    "Girl's Lacrosse": {"ID": 16, "Classes": {"Other": 415}},
+    "High School INLC Lacrosse": {"ID": 17, "Classes": {}},
+    "High School Swimming": {"ID": 18, "Classes": {}},
+    "Skordle Showdown 7v7": {"ID": 19, "Classes": {"Small": 434, "Large": 435}},
+    "Sons of Ireland": {"ID": 20, "Classes": {"5th Grade Boys": 438, "6th Grade Boys": 439, "7th Grade Boys": 444, "8th Grade Boys": 441, "9th/10th Grade Boys": 443, "11th/12th Grade Boys": 442, "3rd/4th Grade Girls": 445, "6th Grade Girls": 446, "7th/8th Grade Girls": 440}},
+    "High School Girl's Tennis": {"ID": 21, "Classes": {}},
+    "High School Boy's Tennis": {"ID": 22, "Classes": {}},
+    "High School Girl's Golf": {"ID": 23, "Classes": {}},
+    "High School Boy's Golf": {"ID": 24, "Classes": {}},
+    "High School Girl's Track": {"ID": 25, "Classes": {}},
+    "High School Boy's Track": {"ID": 26, "Classes": {}},
+    "Skordle Shootout": {"ID": 27, "Classes": {"Boy's Pool A": 447, "Boy's Pool B": 448, "Boy's Pool C": 449, "Girl's Pool A": 450, "Girl's Pool B": 451, "Girl's Pool C": 452}},
+    "High School Cross Country": {"ID": 28, "Classes": {}},
+    "High School Softball": {"ID": 29, "Classes": {}},
+    "High School Men's Basketball": {"ID": 30, "Classes": {}},
+    "High School Women's Basketball": {"ID": 31, "Classes": {}},
 }
 
 #This is the main function that runs after the settings. Returns display
@@ -66,10 +71,10 @@ def main(config):
     stored_time = cache.get("time")
 
     sport = config.str("sport", DEFAULT_SPORT)
-    sportID = SPORT_IDS[sport]
+    sportID = IDS[sport]["ID"]
     sportClass = config.str("class", DEFAULT_CLASS)
     classID = "N/A"
-    classAmount = len(CLASS_IDS[sport])
+    classAmount = len(IDS[sport]["Classes"])
 
     #The football scores go by week and the others go by day.
     #The condition determines if the time needs to be sorted.
@@ -90,21 +95,21 @@ def main(config):
         classInSport = False
 
         #Testing for the selected class in the sport's list.
-        for c in CLASS_IDS[sport]:
+        for c in IDS[sport]["Classes"]:
             if c == sportClass:
                 classInSport = True
                 break
 
         if classInSport == False:
             #This loop gets the first class of the sport.
-            for c in CLASS_IDS[sport]:
+            for c in IDS[sport]["Classes"]:
                 sportClass = c
                 break
 
-        classID = CLASS_IDS[sport][sportClass]
+        classID = IDS[sport]["Classes"][sportClass]
 
     #The following conditional determines if the website data must be pulled again.
-    if total_games == None or current_game == None or stored_sportid == None or stored_classid == None or stored_time == None or int(stored_sportid) != SPORT_IDS[sport] or time != stored_time or int(stored_classid) != classID and classAmount > 0:
+    if total_games == None or current_game == None or stored_sportid == None or stored_classid == None or stored_time == None or int(stored_sportid) != IDS[sport]["ID"] or time != stored_time or int(stored_classid) != classID and classAmount > 0:
         total_games, current_game, data = get_data(sportID, classID, time)
 
     #Type conversion from string to int
@@ -479,7 +484,7 @@ def get_schema():
     #I have to give credit to the author of the SkiReport app, Colin Morrisseau.
     #I took inspiration for the list comprehension as I forgot it existed.
     #It saved nearly 30 lines here.
-    sportOptions = [schema.Option(display = sport, value = sport) for sport in SPORT_IDS]
+    sportOptions = [schema.Option(display = sport, value = sport) for sport in IDS]
 
     return schema.Schema(
         version = "1",
@@ -503,47 +508,48 @@ def get_schema():
 
 #A function that determines what options should be displayed based on the sport.
 def class_options(sport):
-    classes = [schema.Option(display = c, value = c) for c in CLASS_IDS[sport]]
+    classes = [schema.Option(display = c, value = c) for c in IDS[sport]["Classes"]]
 
     #Football weeks are 0-16 + current option
     football_time = [schema.Option(display = "{}".format(week), value = "{}".format(week)) for week in range(17)]
     football_time.append(schema.Option(display = "Current", value = "current"))
+    INFC_time = [schema.Option(display = "{}".format(week), value = "{}".format(week)) for week in range(12) if week > 0]
 
     #Football games are listed by week
     #All others are listed by day
     if sport == "Football":
-        return [
-            schema.Dropdown(
-                id = "class",
-                name = "Classes",
-                desc = "The class of the selected sport",
-                icon = "arrowUpShortWide",
-                default = DEFAULT_CLASS,
-                options = classes,
-            ),
-            schema.Dropdown(
-                id = "week",
-                name = "Week",
-                desc = "The week of games to display",
-                icon = "calendar",
-                default = DEFAULT_TIME,
-                options = football_time,
-            ),
-        ]
+        additional = schema.Dropdown(
+            id = "week",
+            name = "Week",
+            desc = "The week of games to display",
+            icon = "calendar",
+            default = DEFAULT_TIME,
+            options = football_time,
+        )
+    elif sport == "INFC Football 1st-7th Grade":
+        additional = schema.Dropdown(
+            id = "week",
+            name = "Week",
+            desc = "The week of games to display",
+            icon = "calendar",
+            default = DEFAULT_TIME,
+            options = INFC_time,
+        )
     else:
-        return [
-            schema.Dropdown(
-                id = "class",
-                name = "Classes",
-                desc = "The class of the selected sport",
-                icon = "arrowUpShortWide",
-                default = DEFAULT_CLASS,
-                options = classes,
-            ),
-            schema.DateTime(
-                id = "time",
-                name = "Date",
-                desc = "The date of the event",
-                icon = "calendar",
-            ),
-        ]
+        additional = schema.DateTime(
+            id = "time",
+            name = "Date",
+            desc = "The date of the event",
+            icon = "calendar",
+        )
+    return [
+        schema.Dropdown(
+            id = "class",
+            name = "Classes",
+            desc = "The class of the selected sport",
+            icon = "arrowUpShortWide",
+            default = DEFAULT_CLASS,
+            options = classes,
+        ),
+        additional,
+    ]
