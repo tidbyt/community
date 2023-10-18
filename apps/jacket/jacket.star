@@ -95,8 +95,12 @@ def getSubString(temp, unit = "f"):
 def main(config):
     current_data = get_weather_data(config)
     feels_like = ktof(current_data["feels_like"])
+    jacketLimit = config.get("jacketLimit", DEFAULT_JACKET_LIMIT)
+    coatLimit = config.get("coatLimit", DEFAULT_COAT_LIMIT)
+    jacketLimit = int(jacketLimit)
+    coatLimit = int(coatLimit)
 
-    mainString = getMainString(feels_like, DEFAULT_JACKET_LIMIT, DEFAULT_COAT_LIMIT)
+    mainString = getMainString(feels_like, jacketLimit, coatLimit)
     show_description = config.get("show_description")
     subString = ""
 
@@ -156,6 +160,18 @@ def get_schema():
                 desc = "OpenWeather API Key.",
                 icon = "key",
             ),
+            schema.Text(
+                id = "jacketLimit",
+                name = "Jacket Limit (default 60F)",
+                desc = "Below this value will suggest a jacket",
+                icon = "gear",
+            ),
+            schema.Text(
+                id = "coatLimit",
+                name = "Coat Limit (default 35F, should be lower than jacket limit)",
+                desc = "Below this value will suggest a coat",
+                icon = "gear",
+            ),
             schema.Toggle(
                 id = "show_description",
                 name = "Show Description",
@@ -166,7 +182,7 @@ def get_schema():
             schema.Color(
                 id = "divider_color",
                 name = "Divider Color",
-                desc = "The color of the dividers",
+                desc = "The color of the divider",
                 icon = "brush",
                 default = "#1167B1",
             ),
@@ -177,20 +193,21 @@ def get_weather_data(config):
     api_key = config.get("api_key", None)
     location = config.get("location", None)
     cached_data = cache.get("weather_data-{0}".format(api_key))
+
     if cached_data != None:
-        print("Using existing weather data")
+        # print("Using existing weather data")
         cache_res = json.decode(cached_data)
         return cache_res
 
     else:
         if api_key == None:
-            print("Missing api_key")
+            # print("Missing api_key")
             return SAMPLE_STATION_RESPONSE["current"]
         if location == None:
-            print("Missing location")
+            # print("Missing location")
             return SAMPLE_STATION_RESPONSE["current"]
 
-        print("Getting new weather data")
+        # print("Getting new weather data")
         location = json.decode(location)
         query = "%s?exclude=minutely,hourly,daily,alerts&lat=%s&lon=%s&appid=%s" % (OPEN_WEATHER_URL, location["lat"], location["lng"], api_key)
         res = http.get(
@@ -198,7 +215,7 @@ def get_weather_data(config):
             ttl_seconds = REFRESH_RATE,
         )
         if res.status_code != 200:
-            print("Open Weather request failed with status %d", res.status_code)
+            # print("Open Weather request failed with status %d", res.status_code)
             return SAMPLE_STATION_RESPONSE["current"]
 
         current_data = res.json()["current"]
