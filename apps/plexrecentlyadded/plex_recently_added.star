@@ -1,7 +1,7 @@
 """
 Applet: Plex Recently Added
 Summary: Display Plex recently added
-Description: Displays recently added on Plex server. Recommended to set up a local proxy server `index.js` to host the data. See <link here> for more information. See README.md for more information.
+Description: Displays recently added on Plex server. Recommended to set up a local proxy server `index.js` to host the data. See https://github.com/tidbyt/community/blob/main/apps/plexrecentlyadded/README.md for more information.
 Author: noahpodgurski
 """
 
@@ -11,7 +11,7 @@ load("http.star", "http")
 load("render.star", "render")
 load("schema.star", "schema")
 
-REFRESH_TIME = 600  #every 10 minutes
+REFRESH_TIME = 86400  # twice a day
 
 SAMPLE_DATA = {
     "MediaContainer": {
@@ -77,6 +77,7 @@ def main(config):
     plexToken = config.str("plexToken")
     apiKey = config.str("apiKey", "")
     showTitleCard = config.bool("showTitleCard", True)
+    title = ""
 
     if not serverIP or type(int(serverPort)) != "int":
         usingSampleData = True
@@ -91,6 +92,7 @@ def main(config):
             newData["MediaContainer"]["Metadata"].append({})
             newData["MediaContainer"]["Metadata"][i]["title"] = SAMPLE_DATA["MediaContainer"]["Metadata"][i]["title"]
             newData["MediaContainer"]["Metadata"][i]["thumb"] = SAMPLE_IMAGES[i]
+            title = newData["MediaContainer"]["Metadata"][i]["title"]
         data = newData
     else:
         serverPort = int(serverPort)
@@ -106,6 +108,11 @@ def main(config):
         else:
             thumbnailURL = entry["thumb"]
 
+        if entry.get("parentTitle"):
+            title = entry["parentTitle"]
+        else:
+            title = entry["title"]
+
         if not usingSampleData:
             thumbnail = requestThumb(serverIP, serverPort, plexToken, apiKey, thumbnailURL)
         else:
@@ -118,7 +125,7 @@ def main(config):
                     render.Marquee(
                         width = 21,
                         offset_start = 60 if showTitleCard else 0,  #offset to wait to slide in
-                        child = render.Text(entry["title"], font = "CG-pixel-3x5-mono"),
+                        child = render.Text(title, font = "CG-pixel-3x5-mono"),
                     ),
                 ],
             ),

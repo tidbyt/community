@@ -1,0 +1,8 @@
+---
+id: btcmoscowtime
+name: BtcMoscowTime
+summary: Shows satoshis per USD
+desc: Shows how many satoshis for 1 USD.
+author: PMK (@pmk)
+fileName: btcmoscowtime.star
+packageName: btcmoscowtime
