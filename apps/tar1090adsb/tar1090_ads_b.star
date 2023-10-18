@@ -255,7 +255,8 @@ def find_flag(icao):
         if hex_icao >= icao_range["start"] and hex_icao <= icao_range["end"]:
             flag_icon_file = icao_range["flag_image"]
 
-    flag_response = http.get("%s/flags-tiny/%s" % ("https://globe.adsbexchange.com", flag_icon_file))
+    # Cache flags for a week, they don't change that often
+    flag_response = http.get("%s/flags-tiny/%s" % ("https://globe.adsbexchange.com", flag_icon_file), ttl_seconds = 604800)
     if flag_response.status_code != 200:
         print("ADSB-EX request for flag icon failed with status %d" % (flag_response.status_code))
 
@@ -265,7 +266,7 @@ def find_flag(icao):
 
 # Get our database version
 def get_db_version(tar_url):
-    response = http.get(tar_url + "/version.json")
+    response = http.get(tar_url + "/version.json", ttl_seconds = 1800)
     if response.status_code != 200:
         print("Failed to get database version, throwing error.")
         return None
@@ -273,7 +274,7 @@ def get_db_version(tar_url):
 
 # Aircraft descriptions
 def lookup_aircraft_desc(tar_url, aircraft_data, db_version):
-    response = http.get("%s/db-%s/%s.js" % (tar_url, db_version, "icao_aircraft_types"))
+    response = http.get("%s/db-%s/%s.js" % (tar_url, db_version, "icao_aircraft_types"), ttl_seconds = 86400)
     if response.status_code != 200:
         print("Couldn't get aircraft types file, throwing error")
         return None
@@ -292,7 +293,7 @@ def lookup_db(tar_url, icao, level, db_version):
     bkey = icao[0:level]
     dkey = icao[level:]
 
-    response = http.get("%s/db-%s/%s.js" % (tar_url, db_version, bkey))
+    response = http.get("%s/db-%s/%s.js" % (tar_url, db_version, bkey), ttl_seconds = 86400)
     if response.status_code != 200:
         print("Cannot get aircraft DB file " + bkey + " throwing error")
         return None
@@ -327,7 +328,7 @@ def get_callsign(aircraft):
 # Get the aircraft icon, this hits a public API that maps the aircraft info
 # to a PNG icon that the color is alt based
 def get_aircraft_icon(category, designator, description, addrtype, color):
-    aircraft_icon_response = http.get("https://tar1090tidbyt.azurewebsites.net/api/aircraft_icon?category=%s&typeDesignator=%s&typeDescription=%s&addrtype=%s&color=%s" % (category, designator, description, addrtype, color))
+    aircraft_icon_response = http.get("https://tar1090tidbyt.azurewebsites.net/api/aircraft_icon?category=%s&typeDesignator=%s&typeDescription=%s&addrtype=%s&color=%s" % (category, designator, description, addrtype, color), ttl_seconds = 86400)
     if aircraft_icon_response.status_code != 200:
         fail("tar1090 request failed with status %d" % (aircraft_icon_response.status_code))
     aircraft_icon = aircraft_icon_response.body()
