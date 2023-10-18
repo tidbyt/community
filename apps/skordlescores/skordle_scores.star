@@ -19,6 +19,7 @@ load("schema.star", "schema")
 #Constants
 DEFAULT_SPORT = "Football"
 DEFAULT_CLASS = "6A-1"
+DEFAULT_TIME = "current"
 
 #The following dictionaries are used by the settings and some values in the main function.
 #The ID numbers are used in the URL in the main function.
@@ -52,9 +53,6 @@ CLASS_IDS = {
     "High School Women's Basketball": {},
 }
 
-#This list is used to generate the mobile options.
-CLASSES = ["6A-1", "6A-2", "6A", "5A", "4A", "3A", "2A", "A", "B", "C", "Other"]
-
 #This is the main function that runs after the settings. Returns display
 def main(config):
     total_games = cache.get("max")
@@ -65,12 +63,28 @@ def main(config):
         data = []
     stored_sportid = cache.get("sport")
     stored_classid = cache.get("class")
+    stored_time = cache.get("time")
 
     sport = config.str("sport", DEFAULT_SPORT)
     sportID = SPORT_IDS[sport]
     sportClass = config.str("class", DEFAULT_CLASS)
     classID = "N/A"
     classAmount = len(CLASS_IDS[sport])
+
+    #The football scores go by week and the others go by day.
+    #The condition determines if the time needs to be sorted.
+    if sport == "Football":
+        time = config.str("week", DEFAULT_TIME)
+    else:
+        time = config.str("time", DEFAULT_TIME)
+
+        #This condition determines if the time is current or not.
+        if len(time.split("-")) == 3:
+            year, month, day = time.split("-")
+            if len(day) > 2:
+                #The day will also have the time attatched, hence the separation.
+                day = day[:2]
+            time = "{}-{}-{}".format(year, month, day)
 
     if classAmount > 0:
         classInSport = False
@@ -90,8 +104,8 @@ def main(config):
         classID = CLASS_IDS[sport][sportClass]
 
     #The following conditional determines if the website data must be pulled again.
-    if total_games == None or current_game == None or stored_sportid == None or stored_classid == None or int(stored_sportid) != SPORT_IDS[sport] or int(stored_classid) != classID and classAmount > 0:
-        total_games, current_game, data = get_data(sportID, classID)
+    if total_games == None or current_game == None or stored_sportid == None or stored_classid == None or stored_time == None or int(stored_sportid) != SPORT_IDS[sport] or time != stored_time or int(stored_classid) != classID and classAmount > 0:
+        total_games, current_game, data = get_data(sportID, classID, time)
 
     #Type conversion from string to int
     total_games = int(total_games)
@@ -303,25 +317,35 @@ def main(config):
             ),
         )
 
-    elif classAmount > 0:
-        return render.Root(
-            child = render.Box(
-                child = render.WrappedText(
-                    content = "No Events Currently for {} {}".format(sport, sportClass),
-                    width = 60,
-                    linespacing = 1,
-                    font = "CG-pixel-3x5-mono",
-                ),
-                width = 64,
-                height = 32,
-                padding = 1,
-            ),
-        )
     else:
+        text = "No Events"
+        if classAmount > 0:
+            if sport == "Football":
+                if time != "current":
+                    text = "No Events for {} {} on week {}".format(sport, sportClass, time)
+                else:
+                    text = "No Events for {} {} in the current week".format(sport, sportClass)
+            elif sport != "Football":
+                if time != "current":
+                    text = "No Events for {} {} on {}".format(sport, sportClass, time)
+                else:
+                    text = "No Events for {} {} today".format(sport, sportClass, time)
+        elif classAmount == 0:
+            if sport == "Football":
+                if time != "current":
+                    text = "No Events for {} on week {}".format(sport, time)
+                else:
+                    text = "No Events for {} in the current week".format(sport)
+            elif sport != "Football":
+                if time != "current":
+                    text = "No Events for {} on {}".format(sport, time)
+                else:
+                    text = "No Events for {} today".format(sport, time)
+
         return render.Root(
             child = render.Box(
                 child = render.WrappedText(
-                    content = "No Events Currently for {}".format(sport),
+                    content = text,
                     width = 60,
                     linespacing = 1,
                     font = "CG-pixel-3x5-mono",
@@ -333,13 +357,24 @@ def main(config):
         )
 
 #This function gets and stores the data for the desired sport and class.
-def get_data(sportID, classID):
-    if classID != "N/A":
-        web = http.get("https://skordle.com/scores/?sportid={}&classid={}&clubid=1".format(sportID, classID), ttl_seconds = 60)
+def get_data(sportID, classID, time):
+    #Determines how to format the URL based on options
+    if time == "current":
+        if classID != "N/A":
+            web = http.get("https://skordle.com/scores/?sportid={}&classid={}&clubid=1".format(sportID, classID), ttl_seconds = 60)
+            if web.status_code != 200:
+                fail("Failure code: %s", web.status_code)
+        else:
+            web = http.get("https://skordle.com/scores/?sportid={}&clubid=1".format(sportID), ttl_seconds = 60)
+            if web.status_code != 200:
+                fail("Failure code: %s", web.status_code)
+    elif sportID == 1:
+        web = http.get("https://skordle.com/scores/?sportid={}&classid={}&clubid=1&dateweek={}".format(sportID, classID, time), ttl_seconds = 60)
         if web.status_code != 200:
             fail("Failure code: %s", web.status_code)
     else:
-        web = http.get("https://skordle.com/scores/?sportid={}&clubid=1".format(sportID), ttl_seconds = 60)
+        year, month, day = time.split("-")
+        web = http.get("https://skordle.com/scores/?sportid={}&classid={}&clubid=1&dateweek={}%2F{}%2F{}".format(sportID, classID, month, day, year), ttl_seconds = 60)
         if web.status_code != 200:
             fail("Failure code: %s", web.status_code)
 
@@ -350,6 +385,7 @@ def get_data(sportID, classID):
     cache.set("current", "1", ttl_seconds = 240)
     cache.set("sport", "{}".format(sportID), ttl_seconds = 1800)
     cache.set("class", "{}".format(classID), ttl_seconds = 1800)
+    cache.set("time", time, ttl_seconds = 1800)
     for game in sorted:
         cache.set("{}".format(game), "{}".format(sorted[game]), ttl_seconds = 1800)
 
@@ -444,7 +480,7 @@ def get_schema():
     #I took inspiration for the list comprehension as I forgot it existed.
     #It saved nearly 30 lines here.
     sportOptions = [schema.Option(display = sport, value = sport) for sport in SPORT_IDS]
-    classOptions = [schema.Option(display = classes, value = classes) for classes in CLASSES]
+
     return schema.Schema(
         version = "1",
         fields = [
@@ -456,14 +492,58 @@ def get_schema():
                 default = DEFAULT_SPORT,
                 options = sportOptions,
             ),
-            #If a class is selected that doesn't apply to the sport, it defaults to the first option for the sport.
-            schema.Dropdown(
-                id = "class",
-                name = "Classes",
-                desc = "The class of the selected sport (If a sport does not have the selected class it will default to the first available)",
-                icon = "arrowUpShortWide",
-                default = DEFAULT_CLASS,
-                options = classOptions,
+            #A changing set of options determined by the sport selection.
+            schema.Generated(
+                id = "generated",
+                source = "sport",
+                handler = class_options,
             ),
         ],
     )
+
+#A function that determines what options should be displayed based on the sport.
+def class_options(sport):
+    classes = [schema.Option(display = c, value = c) for c in CLASS_IDS[sport]]
+
+    #Football weeks are 0-16 + current option
+    football_time = [schema.Option(display = "{}".format(week), value = "{}".format(week)) for week in range(17)]
+    football_time.append(schema.Option(display = "Current", value = "current"))
+
+    #Football games are listed by week
+    #All others are listed by day
+    if sport == "Football":
+        return [
+            schema.Dropdown(
+                id = "class",
+                name = "Classes",
+                desc = "The class of the selected sport",
+                icon = "arrowUpShortWide",
+                default = DEFAULT_CLASS,
+                options = classes,
+            ),
+            schema.Dropdown(
+                id = "week",
+                name = "Week",
+                desc = "The week of games to display",
+                icon = "calendar",
+                default = DEFAULT_TIME,
+                options = football_time,
+            ),
+        ]
+    else:
+        return [
+            schema.Dropdown(
+                id = "class",
+                name = "Classes",
+                desc = "The class of the selected sport",
+                icon = "arrowUpShortWide",
+                default = DEFAULT_CLASS,
+                options = classes,
+            ),
+            schema.DateTime(
+                id = "time",
+                name = "Date",
+                desc = "The date of the event",
+                icon = "calendar",
+            ),
+        ]
