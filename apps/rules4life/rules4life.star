@@ -53,8 +53,8 @@ RULES = {
         "quote": "Friends have very limited authority to correct.",
     },
     6: {
-        "rule": "Set your house in perfect order before you criticize the world.",
-        "quote": "Start to stop doing what you know to be wrong.",
+        "rule": "Set your house in perfect order before you criticize the world",
+        "quote": "Stop doing what you know to be wrong.",
     },
     7: {
         "rule": "Pursue what is meaningful (not what is expedient)",
@@ -77,7 +77,7 @@ RULES = {
         "quote": "If you think tough men are dangerous, wait until you see what weak men are capable of.",
     },
     12: {
-        "rule": "Pet a cat when you encounter one on the street.",
+        "rule": "Pet a cat when you encounter one on the street",
         "quote": "If you pay careful attention, even on a bad day, you may be fortunate enough to be confronted with small opportunities of just that sort. Maybe you will see a little girl dancing on the street because she is all dressed up in a ballet costume. Maybe you will have a particularly good cup of coffee in a cafe that cares about their customers. Maybe you can steal ten or twenty minutes to do some ridiculous thing that distracts you or reminds you that you can laugh at the absurdity of existence.",
     },
 }
