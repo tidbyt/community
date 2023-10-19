@@ -109,7 +109,7 @@ def main(config):
         classID = IDS[sport]["Classes"][sportClass]
 
     #The following conditional determines if the website data must be pulled again.
-    if total_games == None or current_game == None or stored_sportid == None or stored_classid == None or stored_time == None or int(stored_sportid) != IDS[sport]["ID"] or time != stored_time or int(current_game) > int(total_games) or int(stored_classid) != classID:
+    if total_games == None or current_game == None or stored_sportid == None or stored_classid == None or stored_time == None or int(stored_sportid) != IDS[sport]["ID"] or time != stored_time or int(current_game) > int(total_games) or stored_classid != "{}".format(classID):
         total_games, current_game, data = get_data(sportID, classID, time)
 
     #Type conversion from string to int
