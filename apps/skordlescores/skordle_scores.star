@@ -109,17 +109,12 @@ def main(config):
         classID = IDS[sport]["Classes"][sportClass]
 
     #The following conditional determines if the website data must be pulled again.
-    if total_games == None or current_game == None or stored_sportid == None or stored_classid == None or stored_time == None or int(stored_sportid) != IDS[sport]["ID"] or time != stored_time or int(stored_classid) != classID and classAmount > 0:
+    if total_games == None or current_game == None or stored_sportid == None or stored_classid == None or stored_time == None or int(stored_sportid) != IDS[sport]["ID"] or time != stored_time or int(current_game) > int(total_games) or int(stored_classid) != classID:
         total_games, current_game, data = get_data(sportID, classID, time)
 
     #Type conversion from string to int
     total_games = int(total_games)
     current_game = int(current_game)
-
-    #Resets the current game and associated data
-    if current_game > total_games:
-        current_game = 1
-        data = cache.get("1")
 
     #The filtered data list is a temporary storage while the data variable is sorted.
     filtered_data = []
@@ -170,7 +165,7 @@ def main(config):
         else:
             scores = "Scores: " + first_score + "/" + second_score
 
-        cache.set("current", "{}".format(current_game + 1), ttl_seconds = 360)
+        cache.set("current", "{}".format(current_game + 1), ttl_seconds = 3600)
 
         return render.Root(
             child = render.Column(
@@ -372,25 +367,35 @@ def get_data(sportID, classID, time):
             if web.status_code != 200:
                 fail("Failure code: %s", web.status_code)
     elif sportID == 1 or sportID == 13:
-        web = http.get("https://skordle.com/scores/?sportid={}&classid={}&clubid=1&dateweek={}".format(sportID, classID, time), ttl_seconds = 60)
-        if web.status_code != 200:
-            fail("Failure code: %s", web.status_code)
+        if classID != "N/A":
+            web = http.get("https://skordle.com/scores/?sportid={}&classid={}&clubid=1&dateweek={}".format(sportID, classID, time), ttl_seconds = 60)
+            if web.status_code != 200:
+                fail("Failure code: %s", web.status_code)
+        else:
+            web = http.get("https://skordle.com/scores/?sportid={}&clubid=1&dateweek={}".format(sportID, time), ttl_seconds = 60)
+            if web.status_code != 200:
+                fail("Failure code: %s", web.status_code)
     else:
         year, month, day = time.split("-")
-        web = http.get("https://skordle.com/scores/?sportid={}&classid={}&clubid=1&dateweek={}%2F{}%2F{}".format(sportID, classID, month, day, year), ttl_seconds = 60)
-        if web.status_code != 200:
-            fail("Failure code: %s", web.status_code)
+        if classID != "N/A":
+            web = http.get("https://skordle.com/scores/?sportid={}&classid={}&clubid=1&dateweek={}%2F{}%2F{}".format(sportID, classID, month, day, year), ttl_seconds = 60)
+            if web.status_code != 200:
+                fail("Failure code: %s", web.status_code)
+        else:
+            web = http.get("https://skordle.com/scores/?sportid={}&clubid=1&dateweek={}%2F{}%2F{}".format(sportID, month, day, year), ttl_seconds = 60)
+            if web.status_code != 200:
+                fail("Failure code: %s", web.status_code)
 
     #The sort function breaks up the HTML data and returns a dictionary.
     #This dictionary contains lists of data for each game.
     sorted = sort(web.body())
-    cache.set("max", "{}".format(len(sorted)), ttl_seconds = 1800)
-    cache.set("current", "1", ttl_seconds = 240)
-    cache.set("sport", "{}".format(sportID), ttl_seconds = 1800)
-    cache.set("class", "{}".format(classID), ttl_seconds = 1800)
-    cache.set("time", time, ttl_seconds = 1800)
+    cache.set("max", "{}".format(len(sorted)), ttl_seconds = 3600)
+    cache.set("current", "1", ttl_seconds = 3600)
+    cache.set("sport", "{}".format(sportID), ttl_seconds = 3600)
+    cache.set("class", "{}".format(classID), ttl_seconds = 3600)
+    cache.set("time", time, ttl_seconds = 3600)
     for game in sorted:
-        cache.set("{}".format(game), "{}".format(sorted[game]), ttl_seconds = 1800)
+        cache.set("{}".format(game), "{}".format(sorted[game]), ttl_seconds = 3600)
 
     if len(sorted) != 0:
         return "{}".format(len(sorted)), "1", "{}".format(sorted[1])
@@ -511,7 +516,10 @@ def class_options(sport):
     #Football weeks are 0-16 + current option
     football_time = [schema.Option(display = "{}".format(week), value = "{}".format(week)) for week in range(17)]
     football_time.append(schema.Option(display = "Current", value = "current"))
+
+    #INFC weeks are 1-12 + current option
     INFC_time = [schema.Option(display = "{}".format(week), value = "{}".format(week)) for week in range(12) if week > 0]
+    INFC_time.append(schema.Option(display = "Current", value = "current"))
 
     #Football games are listed by week
     #All others are listed by day
