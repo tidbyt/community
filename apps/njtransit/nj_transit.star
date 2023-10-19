@@ -48,7 +48,7 @@ load("schema.star", "schema")
 
 #URL TO NJ TRANSIT DEPARTURE VISION WEBSITE
 NJ_TRANSIT_DV_URL = "https://www.njtransit.com/dv-to"
-NJ_TRANSIT_STATIONS_URL ="https://www.njtransit.com/station-park-ride-to"
+NJ_TRANSIT_STATIONS_URL = "https://www.njtransit.com/station-park-ride-to"
 DEFAULT_STATION = "New York Penn Station"
 
 STATION_CACHE_KEY = "stations"
