@@ -49,7 +49,7 @@ load("schema.star", "schema")
 #URL TO NJ TRANSIT DEPARTURE VISION WEBSITE
 NJ_TRANSIT_DV_URL = "https://www.njtransit.com/dv-to"
 NJ_TRANSIT_STATIONS_URL = "https://www.njtransit.com/station-park-ride-to"
-DEFAULT_STATION = "New York Penn Station"
+DEFAULT_STATION = "DEFAULT_STATION"
 
 STATION_CACHE_KEY = "stations"
 STATION_CACHE_TTL = 604800  #1 Week
@@ -393,6 +393,9 @@ def get_departures_for_station(station):
         departing_in: string
     """
     #print("Getting departures for '%s'" % station)
+
+    if station == DEFAULT_STATION:
+        return []
 
     station_suffix = station.replace(" ", "%20")
     station_url = "{}/{}".format(NJ_TRANSIT_DV_URL, station_suffix)
