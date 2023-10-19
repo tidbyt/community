@@ -78,7 +78,7 @@ def main(config):
 
     #The football scores go by week and the others go by day.
     #The condition determines if the time needs to be sorted.
-    if sport == "Football":
+    if sport == "Football" or sport == "INFC Football 1st-7th Grade":
         time = config.str("week", DEFAULT_TIME)
     else:
         time = config.str("time", DEFAULT_TIME)
@@ -325,27 +325,25 @@ def main(config):
     else:
         text = "No Events"
         if classAmount > 0:
-            if sport == "Football":
+            if sport == "Football" or "INFC Football 1st-7th Grade":
                 if time != "current":
                     text = "No Events for {} {} on week {}".format(sport, sportClass, time)
                 else:
                     text = "No Events for {} {} in the current week".format(sport, sportClass)
-            elif sport != "Football":
-                if time != "current":
-                    text = "No Events for {} {} on {}".format(sport, sportClass, time)
-                else:
-                    text = "No Events for {} {} today".format(sport, sportClass, time)
+            elif time != "current":
+                text = "No Events for {} {} on {}".format(sport, sportClass, time)
+            else:
+                text = "No Events for {} {} today".format(sport, sportClass, time)
         elif classAmount == 0:
-            if sport == "Football":
+            if sport == "Football" or "INFC Football 1st-7th Grade":
                 if time != "current":
                     text = "No Events for {} on week {}".format(sport, time)
                 else:
                     text = "No Events for {} in the current week".format(sport)
-            elif sport != "Football":
-                if time != "current":
-                    text = "No Events for {} on {}".format(sport, time)
-                else:
-                    text = "No Events for {} today".format(sport, time)
+            elif time != "current":
+                text = "No Events for {} on {}".format(sport, time)
+            else:
+                text = "No Events for {} today".format(sport, time)
 
         return render.Root(
             child = render.Box(
@@ -373,7 +371,7 @@ def get_data(sportID, classID, time):
             web = http.get("https://skordle.com/scores/?sportid={}&clubid=1".format(sportID), ttl_seconds = 60)
             if web.status_code != 200:
                 fail("Failure code: %s", web.status_code)
-    elif sportID == 1:
+    elif sportID == 1 or sportID == 13:
         web = http.get("https://skordle.com/scores/?sportid={}&classid={}&clubid=1&dateweek={}".format(sportID, classID, time), ttl_seconds = 60)
         if web.status_code != 200:
             fail("Failure code: %s", web.status_code)
