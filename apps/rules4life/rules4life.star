@@ -18,15 +18,15 @@ DISPLAY_OPTIONS = [
 
 scroll_speed_options = [
     schema.Option(
-        display = "Slow Scroll",
+        display = "Slow",
         value = "60",
     ),
     schema.Option(
-        display = "Medium Scroll",
+        display = "Medium",
         value = "45",
     ),
     schema.Option(
-        display = "Fast Scroll",
+        display = "Fast",
         value = "30",
     ),
 ]
@@ -38,7 +38,7 @@ RULES = {
     },
     2: {
         "rule": "Treat yourself like you are someone you are responsible for helping",
-        "quote": "You must help a child become a virtuous, responsible, awake being, capable of full reciprocity – able to take care of himself and others, and to thrive while doing so. Why would you think it acceptable to do anything less for yourself?",
+        "quote": "You must help a child become a virtuous, responsible, awake being, capable of full reciprocity - able to take care of himself and others, and to thrive while doing so. Why would you think it acceptable to do anything less for yourself?",
     },
     3: {
         "rule": "Make friends with people who want the best for you",
@@ -58,19 +58,19 @@ RULES = {
     },
     7: {
         "rule": "Pursue what is meaningful (not what is expedient)",
-        "quote": "Life is suffering. That's clear. There is no more basic, irrefutable truth.",
+        "quote": "Life is suffering. That is clear. There is no more basic, irrefutable truth.",
     },
     8: {
-        "rule": "Tell the truth - or, at least, don't lie",
+        "rule": "Tell the truth - or, at least, do not lie",
         "quote": "I have seen people define their utopia and then bend their lives into knots trying to make it reality.",
     },
     9: {
         "rule": "Assume that the person you are listening to might know something you don't",
-        "quote": "[Good] conversation [is] the best preparation for proper living.",
+        "quote": "Good conversation is the best preparation for proper living.",
     },
     10: {
         "rule": "Be precise in your speech",
-        "quote": "[Speech] can give structure and re-establish order",
+        "quote": "Speech can give structure and re-establish order",
     },
     11: {
         "rule": "Do not bother children when they are skate-boarding",
