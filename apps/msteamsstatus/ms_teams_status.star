@@ -26,8 +26,8 @@ devClientID = "1"
 devClientSecret = "1"
 defaultTenantID = "common"
 
-prodClientIDHash = ""
-prodClientSecretHash = ""
+prodClientIDHash = "AV6+xWcE16fH0o1Om+eSnLeFELBiEuFy51tl1mnq43AJq2u5Y0HNcv4/omDaUTSFhm7o+P3OKaKhyYITqkOC+yd0wOIV8n6hbGxNwJpx/3a5nPlVTKGAWawf4AnsbK6GKjlYdC9YFWsIIBlA6pUgs5ck4w1DCbqEBXZlXdbS6qsVrxWmrA193Q4x"
+prodClientSecretHash = "AV6+xWcEHLnCoQThNTWlS0tGWq92/FBTALw47B3BPSygpsIT5PThPtSjpdy6SR9x5M/NC7qtyNWyUgdKsbtxpYS1lSSbaF+RB3VCQEuiMS8MHoyHCg2Jh6BgLXTmnZJoNZyJQgIu9FYqH6MNFCE+uoJWPYp2ceENHhzRKbP5tNEUhrfrPSUv3J9qPOc+ig=="
 
 TenantID = ""
 prodClientID = secret.decrypt(prodClientIDHash)
