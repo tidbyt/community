@@ -42,7 +42,7 @@ RULES = {
     },
     3: {
         "rule": "Make friends with people who want the best for you",
-        "quote": "It’s a good thing, not a selfish thing to choose people who are good for you.",
+        "quote": "It's a good thing, not a selfish thing to choose people who are good for you.",
     },
     4: {
         "rule": "Compare yourself to who you were yesterday, not to who someone else is today",
@@ -58,14 +58,14 @@ RULES = {
     },
     7: {
         "rule": "Pursue what is meaningful (not what is expedient)",
-        "quote": "Life is suffering. That’s clear. There is no more basic, irrefutable truth.",
+        "quote": "Life is suffering. That's clear. There is no more basic, irrefutable truth.",
     },
     8: {
-        "rule": "Tell the truth – or, at least, don’t lie",
+        "rule": "Tell the truth - or, at least, don't lie",
         "quote": "I have seen people define their utopia and then bend their lives into knots trying to make it reality.",
     },
     9: {
-        "rule": "Assume that the person you are listening to might know something you don’t",
+        "rule": "Assume that the person you are listening to might know something you don't",
         "quote": "[Good] conversation [is] the best preparation for proper living.",
     },
     10: {
@@ -116,7 +116,8 @@ def main(config):
                 ),
                 render.Marquee(
                     width = 64,
-                    child = render.Text("%s" % (RULES[display_item]["quote"]), color = "#e77c05", font = "Dina_r400-6"),
+                    offset_start = len(RULES[display_item]["rule"]) * 5,
+                    child = render.Text("   %s" % (RULES[display_item]["quote"]), color = "#e77c05", font = "Dina_r400-6"),
                 ),
             ],
         ),
