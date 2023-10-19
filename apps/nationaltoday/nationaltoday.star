@@ -7,10 +7,8 @@ Author: rs7q5
 
 #nationalToday.star
 #Created 20220130 RIS
-#Last Modified 20220807 RIS
+#Last Modified 20230516 RIS
 
-load("cache.star", "cache")
-load("encoding/json.star", "json")
 load("http.star", "http")
 load("qrcode.star", "qrcode")
 load("re.star", "re")
@@ -30,45 +28,33 @@ QR_IMAGE = render.Box(width = 32, height = 32, child = render.Image(src = QR_COD
 def main(config):
     font = "tb-8"  #set font
 
-    #check for cached data
-    holidays_cached = cache.get("holiday_rate")
-    if holidays_cached != None:  #if any are None then all(title_cached)==False
-        print("Hit! Displaying cached data.")
-
-        holiday_txt = json.decode(holidays_cached)
+    #get the data
+    rep = http.get(url = BASE_URL, ttl_seconds = 1800)  #cache for 30 minutes
+    if rep.status_code != 200:
+        holiday_txt = ["Error", "Could not get holidays!!!!"]
     else:
-        print("Miss! Calling NationalToday data.")  #error code checked within each function!!!!
+        holidays_list = re.findall('holiday-title">(.*?)<', rep.body())  #finds the holiday titles for the current day
 
-        #get the data
-        rep = http.get(BASE_URL)
-        if rep.status_code != 200:
-            holiday_txt = ["Error", "Could not get holidays!!!!"]
+        #get the date text too
+        date = re.findall('meta name="description" content=(.*?)-', rep.body())[0]  #(.*?)/>',rep.body())
+        date = re.sub('meta name="description" content="| -', "", date)
+
+        #parse through and set up text for each holiday
+        holiday_txt = []
+        for _, holiday in enumerate(holidays_list):
+            holiday_txt.append(re.sub('holiday-title">|<', "", holiday))
+
+        if holiday_txt == []:
+            holiday_txt = ["No holidays today :("]
+
+        #shorten month name and add text to holidays
+        date_split = date.split(" ")
+        if date_split[0] in ("June", "July", "September"):
+            date_split[0] = date_split[0][:4]
         else:
-            holidays_list = re.findall('holiday-title">(.*?)<', rep.body())  #finds the holiday titles for the current day
+            date_split[0] = date_split[0][:3]
 
-            #get the date text too
-            date = re.findall('meta name="description" content=(.*?)-', rep.body())[0]  #(.*?)/>',rep.body())
-            date = re.sub('meta name="description" content="| -', "", date)
-
-            #parse through and set up text for each holiday
-            holiday_txt = []
-            for _, holiday in enumerate(holidays_list):
-                holiday_txt.append(re.sub('holiday-title">|<', "", holiday))
-
-            if holiday_txt == []:
-                holiday_txt = ["No holidays today :("]
-
-            #shorten month name and add text to holidays
-            date_split = date.split(" ")
-            if date_split[0] in ("June", "July", "September"):
-                date_split[0] = date_split[0][:4]
-            else:
-                date_split[0] = date_split[0][:3]
-
-            holiday_txt.insert(0, " ".join(date_split))
-
-            #cache the data
-            cache.set("holiday_rate", json.encode(holiday_txt), ttl_seconds = 1800)  #cache for 30 minutes
+        holiday_txt.insert(0, " ".join(date_split))
 
     if config.bool("qrcode", False):
         date_fmt = render.WrappedText(holiday_txt[0], color = "#ff8c00", font = "tom-thumb", width = 32)
@@ -108,6 +94,7 @@ def main(config):
 
     return render.Root(
         delay = 100,  #speed up scroll text
+        show_full_animation = True,
         child = display_tmp,
     )
 

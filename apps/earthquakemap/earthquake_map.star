@@ -1,7 +1,7 @@
 """
 Applet: Earthquake Map
 Summary: Map of global earthquakes
-Description: Display a map of earthquakes based on USGS data. (v0.2.0)
+Description: Display a map of earthquakes based on USGS data.
 Author: Brian McLaughlin (SpinStabilized)
 """
 
@@ -20,6 +20,7 @@ load("time.star", "time")
 # The following DEFAULT_ configurations are strings for compatibility with the
 # `config` and `schema` libraries.
 DEFAULT_MAG_FILTER = "4"
+DEFAULT_MAGNITUDE_SORTING = True
 DEFAULT_TIME_FILTER_DURATION = "1"
 DEFAULT_TIME_FILTER_UNITS = "days"
 DEFAULT_HIDE_WHEN_EMPTY = False
@@ -40,6 +41,9 @@ DEFAULT_INCLUDE_QUARRY = True
 DEFAULT_INCLUDE_EXPLOSION = True
 DEFAULT_INCLUDE_OTHER = True
 DEFAULT_MAP_BRIGHTNESS = "0.25"
+
+DISPLAY_X_SIZE = 64
+DISPLAY_Y_SIZE = 32
 
 HTTP_STATUS_OK = 200
 
@@ -127,6 +131,7 @@ def get_usgs_data(magnitude_filter = None, time_filter = None, type_filter = Non
         else:
             geojson_raw = '{"features":[]}'
 
+        # TODO: Determine if this cache call can be converted to the new HTTP cache.
         cache.set("raw_earthquake_data", geojson_raw, ttl_seconds = 60)
 
     events = []
@@ -154,7 +159,6 @@ def get_usgs_data(magnitude_filter = None, time_filter = None, type_filter = Non
                ):
                 events.append(new_event)
 
-    events = sorted(events, key = lambda item: item[2])
     return events
 
 def duration_calc(time_filter, units = None):
@@ -210,7 +214,11 @@ def mag_to_color(magnitude):
     int_mag = len(color_map) - 1 if magnitude >= len(color_map) else int(magnitude)
     return color_map[int_mag]
 
-def map_projection(longitude, latitude, screen_width = 64, screen_height = 32):
+# The following disables a buggy lint check in the bazel starlark linter that
+# thinks some floating point division is integer division and is flagging it as
+# an error.
+# buildifier: disable=integer-division
+def map_projection(longitude, latitude, screen_width = 64, screen_height = 32, map_center = None):
     """Project's a map longitude/latitude to screen coordinates.
 
     Args:
@@ -218,6 +226,7 @@ def map_projection(longitude, latitude, screen_width = 64, screen_height = 32):
         latitude: A map coordinate latitude
         screen_width: size of the screen/image to project to
         screen_height: height of the screen/image to project to
+        map_center: Map center meridian
 
     Returns:
         An (x, y) tuple in the screen/image pixel coordinates
@@ -226,10 +235,12 @@ def map_projection(longitude, latitude, screen_width = 64, screen_height = 32):
     longitude_radians = math.radians(longitude + 180)
     latitude_radians = math.radians(latitude)
 
-    x = longitude_radians * radius
+    x = int(longitude_radians * radius)
     y_from_eq = radius * math.log(math.tan(math.pi / 4 + latitude_radians / 2))
-    y = screen_height / 2 - y_from_eq
-    return int(x), int(y)
+    y = int(screen_height / 2 - y_from_eq)
+    if map_center:
+        x = pixel_shift(x, map_center)
+    return x, y
 
 def render_map(map_array, map_center = 0, brightness = 0.25):
     """Shift pixels to account for map central merdian.
@@ -357,6 +368,7 @@ def main(config):
     # Define configuration, use defaults if a configuration parameter can't be
     # found.
     magnitude_filter = int(config.str("mag_filter", DEFAULT_MAG_FILTER))
+    magnitude_sorting = config.bool("magnitude_sorting", DEFAULT_MAGNITUDE_SORTING)
     time_filter_duration = int(config.get("time_filter_duration", DEFAULT_TIME_FILTER_DURATION))
     time_filter_units = config.get("time_filter_units", DEFAULT_TIME_FILTER_UNITS)
     hide_when_empty = config.bool("hide_when_empty", DEFAULT_HIDE_WHEN_EMPTY)
@@ -389,19 +401,22 @@ def main(config):
         type_filter = type_filter,
     )
 
-    if earthquake_events:
+    earthquake_events = sorted(earthquake_events, key = lambda item: item[2])
+    last_event = earthquake_events[-1] if earthquake_events else None
+    earthquake_events = earthquake_events[:-1]
+    if magnitude_sorting:
+        earthquake_events = sorted(earthquake_events, key = lambda item: item[1])
+
+    if earthquake_events or last_event:
         render_stack = [render_map(WORLD_MAP_ARRAY, map_center, map_brightness)]
-        if len(earthquake_events) > 1:
-            for event in earthquake_events[:-1]:
-                x, y = map_projection(event[0][0], event[0][1])
-                x = pixel_shift(x, map_center)
+        if earthquake_events:
+            for event in earthquake_events:
+                x, y = map_projection(event[0][0], event[0][1], map_center = map_center)
                 render_stack.append(
                     pixel(x, y, mag_to_color(event[1])),
                 )
 
-        last_event = earthquake_events[-1]
-        x, y = map_projection(last_event[0][0], last_event[0][1])
-        x = pixel_shift(x, map_center)
+        x, y = map_projection(last_event[0][0], last_event[0][1], map_center = map_center)
         blink_on = mag_to_color(last_event[1])
         render_stack.append(
             blink_pixel(x, y, blink_on),
@@ -472,16 +487,23 @@ def get_schema():
                 desc = "Minimum magnitude to display.",
                 icon = "houseCrack",
                 options = [
-                    schema.Option(display = "0", value = "0"),
-                    schema.Option(display = "1", value = "1"),
-                    schema.Option(display = "2", value = "2"),
-                    schema.Option(display = "3", value = "3"),
-                    schema.Option(display = "4", value = "4"),
-                    schema.Option(display = "5", value = "5"),
-                    schema.Option(display = "6", value = "6"),
-                    schema.Option(display = "7", value = "7"),
+                    schema.Option(display = "0 - Teal", value = "0"),
+                    schema.Option(display = "1 - Purple", value = "1"),
+                    schema.Option(display = "2 - Light Blue", value = "2"),
+                    schema.Option(display = "3 - Blue", value = "3"),
+                    schema.Option(display = "4 - Green", value = "4"),
+                    schema.Option(display = "5 - Yellow", value = "5"),
+                    schema.Option(display = "6 - Orange", value = "6"),
+                    schema.Option(display = "7+ - Red", value = "7"),
                 ],
                 default = DEFAULT_MAG_FILTER,
+            ),
+            schema.Toggle(
+                id = "magnitude_sorting",
+                name = "Sort By Magnitude",
+                desc = "Prioritize Magnitude Over Most Recent",
+                icon = "arrowUpWideShort",
+                default = DEFAULT_MAGNITUDE_SORTING,
             ),
             schema.Text(
                 id = "time_filter_duration",

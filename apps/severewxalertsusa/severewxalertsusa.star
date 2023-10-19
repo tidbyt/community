@@ -53,8 +53,9 @@ def main(config):
         columnFrames.append(render_summary_card_zero_alerts(jsonLocation))
 
     return render.Root(
-        render.Animation(columnFrames),
         delay = 5000,
+        show_full_animation = True,
+        child = render.Animation(columnFrames),
     )
 
 def get_schema():
@@ -109,6 +110,7 @@ def get_alerts(lat, long):
                 alerts.append(item)
 
         # set cache. cast object to jsonstring
+        # TODO: Determine if this cache call can be converted to the new HTTP cache.
         cache.set(
             key = cachekey,
             value = json.encode(alerts),

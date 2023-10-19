@@ -129,6 +129,11 @@ def get_schema():
             value = "two_line_four_times",
         ),
     ]
+    scroll_speeds = [
+        schema.Option(display = "Slow", value = "70"),
+        schema.Option(display = "Normal (default)", value = "50"),
+        schema.Option(display = "Fast", value = "30"),
+    ]
 
     return schema.Schema(
         version = "1",
@@ -162,6 +167,14 @@ def get_schema():
                 icon = "borderAll",
                 default = "long",
                 options = formats,
+            ),
+            schema.Dropdown(
+                id = "speed",
+                name = "Scroll Speed",
+                desc = "Change the speed that text scrolls.",
+                icon = "gear",
+                default = "50",
+                options = scroll_speeds,
             ),
             schema.Toggle(
                 id = "agency_alerts",
@@ -206,7 +219,7 @@ def fetch_stops(api_key):
 
     (_, raw_stops) = fetch_cached(STOPS_URL % api_key, 86400)
 
-    if "Contents" in raw_stops:
+    if type(raw_stops) != "string" and "Contents" in raw_stops:
         stops.update([(stop["id"], stop) for stop in raw_stops["Contents"]["dataObjects"]["ScheduledStopPoint"]])
 
     return stops
@@ -237,6 +250,8 @@ def get_route_list():
         ]
 
     (_, routes) = fetch_cached(ROUTES_URL % API_KEY, 86400)
+    if type(routes) == "string":
+        return []
 
     route_list = [
         schema.Option(
@@ -268,13 +283,17 @@ def fetch_cached(url, ttl):
         res = http.get(url)
         if res.status_code != 200:
             print("511.org request to %s failed with status %d", (url, res.status_code))
-            return (time.now().unix, {})
+            return (time.now().unix, res.body().lstrip("\ufeff"))
 
         # Trim off the UTF-8 byte-order mark
-        body = res.body().lstrip("\\ufeff")
+        body = res.body().lstrip("\ufeff")
         data = json.decode(body)
         timestamp = time.now().unix
+
+        # TODO: Determine if this cache call can be converted to the new HTTP cache.
         cache.set(url, body, ttl_seconds = ttl)
+
+        # TODO: Determine if this cache call can be converted to the new HTTP cache.
         cache.set(("timestamp::%s" % url), str(timestamp), ttl_seconds = ttl)
         return (timestamp, data)
 
@@ -305,6 +324,8 @@ def getPredictions(api_key, config, stop):
     stopId = stop["value"]
     stopTitle = stop["display"]
     (_, data) = fetch_cached(PREDICTIONS_URL % api_key, 240)
+    if type(data) == "string":
+        return (data, [], [])
 
     route_filter = config.get("route_filter", DEFAULT_CONFIG["route_filter"])
 
@@ -369,7 +390,7 @@ def getPredictions(api_key, config, stop):
         seconds = predictedTimes[0] - time.now().unix
         minutes = int(seconds / 60)
 
-        titleKey = routeTag if "short" == config.get("prediction_format") else (routeTag, destTitle)
+        titleKey = (routeTag, routeTag) if config.get("prediction_format") in ("short", "medium", "two_line_four_times") else (routeTag, destTitle)
         if titleKey not in prediction_map:
             prediction_map[titleKey] = []
 
@@ -386,6 +407,8 @@ def getPredictions(api_key, config, stop):
 
 def getMessages(api_key, config, routes, stopId):
     (_, data) = fetch_cached(ALERTS_URL % api_key, 240)
+    if type(data) == "string":
+        return [data]
 
     # https://developers.google.com/transit/gtfs-realtime/reference#message-feedentity
     entities = data.get("Entities")
@@ -488,6 +511,8 @@ def renderOutput(stopTitle, output, messages, config):
         )
 
     return render.Root(
+        delay = int(config.str("speed", "50")),  # Allow customization of scroll speed.
+        show_full_animation = True,
         child = render.Column(
             children = rows,
             expanded = True,
@@ -535,9 +560,9 @@ def shortPredictions(output, lines):
                             render.Row(
                                 children = [
                                     render.Circle(
-                                        child = render.Text(routeTag, font = "tom-thumb", color = "#000000" if routeTag in MUNI_BLACK_TEXT else "#ffffff"),
+                                        child = render.Text(routeTag[0], font = "tom-thumb", color = "#000000" if routeTag[0] in MUNI_BLACK_TEXT else "#ffffff"),
                                         diameter = 7,
-                                        color = MUNI_COLORS[routeTag] if routeTag in MUNI_COLORS else "#000000",
+                                        color = MUNI_COLORS[routeTag[0]] if routeTag[0] in MUNI_COLORS else "#000000",
                                     ),
                                     render.Text(" "),
                                     render.Text(",".join(predictions[:2]), font = "tom-thumb"),

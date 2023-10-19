@@ -11,6 +11,7 @@ load("encoding/json.star", "json")
 load("http.star", "http")
 load("render.star", "render")
 load("schema.star", "schema")
+load("secret.star", "secret")
 load("time.star", "time")
 
 DEFAULT_SUBREDDITS = ["blackcats", "aww", "eyebleach", "itookapicture", "cats", "pic", "otters", "plants"]
@@ -25,6 +26,10 @@ fO5PI9OqOcPICMhohiJzt1o+5JQ3VtjJtKTy+L7dvZIpognBcHV4MFxJbEoV1apx+8wZJiX9bkJCjmhC
 4bzhHcnLUdsloglFxgrr2GtuziC7RDRuZCZV2kg3RTShPoMYI5owDL2f5PPDa3yy4fGfeJoQDOeMfFlSA7PKG9GE
 YOhHSGUgGreaxu4jnp/bZzyDMdcnBfMH+p/AM/kQywMAAAAASUVORK5CYII=
 """)
+REDDIT_CLIENT_SECRET = """
+AV6+xWcE5oCvVzEiwnC1sRhCNmYm3yI3ly1JHsJ3envLlTFg24l79fJqIMEG1MCqy9irWINFUhmbeZoitmB+AllR
+PpL3aVbaTuT5bxw6Z940l0Jno0foSu769oiGALWQ9g5ouWnegIHMlsXKzpqJ05x30hIbA4vQNdn4pZkDv+dHwLxU
+"""
 
 def main(config):
     # Build full sub list based on user options.
@@ -141,9 +146,33 @@ def getPosts(subname):
 
     print("Cache miss, refreshing posts")
 
+    # Pull access token from cache. If expired, get a new one.
+    accessToken = cache.get("reddit-image-posts-access-token")
+    if accessToken == None:
+        print("Access token expired, getting new one")
+        newTokenRes = getNewAccessToken()
+        if "error" in newTokenRes.keys() or newTokenRes["access_token"] == None:
+            return handleApiError(newTokenRes)
+        accessToken = newTokenRes["access_token"]
+
+        # Store in cache again
+        print("Caching new access token for 24 hours: " + accessToken)
+
+        # TODO: Determine if this cache call can be converted to the new HTTP cache.
+        cache.set("reddit-image-posts-access-token", accessToken, 24 * 60 * 60)
+    else:
+        print("Access token still good!")
+
     # In lieu of the cache, pull a new set of posts from the API.
-    apiUrl = "https://www.reddit.com/r/" + subname + "/hot.json?limit=30"
-    rep = http.get(apiUrl, headers = {"User-Agent": "Tidbyt App: Reddit Image Shuffler " + str(getRandomNumber(9999))})
+    apiUrl = "https://oauth.reddit.com/r/" + subname + "/hot.json?limit=30"
+    auth = "Bearer " + accessToken
+    rep = http.get(
+        apiUrl,
+        headers = {
+            "User-Agent": "Tidbyt App: Reddit Image Shuffler",
+            "Authorization": auth,
+        },
+    )
     if "application/json" not in rep.headers.get("Content-Type"):
         return handleApiError()
     data = rep.json()
@@ -161,6 +190,8 @@ def getPosts(subname):
 
         # Cache the posts for 2 hours
         print("Caching " + subname + " posts")
+
+        # TODO: Determine if this cache call can be converted to the new HTTP cache.
         cache.set(cacheName, json.encode(allImagePosts), 2 * 60 * 60)
         return setRandomPost(allImagePosts, subname)
 
@@ -168,8 +199,10 @@ def getPosts(subname):
 def handleApiError(data = None):
     if data == None:
         message = "Unknown Error"
-    else:
+    elif "message" in data.keys():
         message = data["message"]
+    else:
+        message = data["error"]
     print("error :( " + message)
     return {
         "sub": "r/???",
@@ -189,14 +222,39 @@ def setRandomPost(allImagePosts, subname):
             "id": chosen["id"],
             "title": chosen["title"],
         }
-        # This else will only run if there are no image posts in the top 30 in /r/hot for a sub.
 
     else:
+        # This else will only run if there are no image posts in the top 30 in /r/hot for a sub.
         return {
             "sub": "r/" + subname,
             "title": "no results",
             "id": "00000",
         }
+
+# Get a new reddit access token.
+# https://github.com/reddit-archive/reddit/wiki/OAuth2#application-only-oauth
+def getNewAccessToken():
+    authSecret = secret.decrypt(REDDIT_CLIENT_SECRET) or "thiswillfail"
+    auth = tuple([
+        "DxzJmjTSGHMt4Oj_8X7FkQ",
+        authSecret,
+    ])
+    headers = {
+        "User-Agent": "Tidbyt App: Reddit Image Shuffler",
+        "Accept": "application/json",
+    }
+    body = dict(
+        grant_type = "client_credentials",
+    )
+    res = http.post(
+        url = "https://www.reddit.com/api/v1/access_token",
+        headers = headers,
+        auth = auth,
+        form_body = body,
+        form_encoding = "application/x-www-form-urlencoded",
+    )
+    data = res.json()
+    return data
 
 def get_schema():
     return schema.Schema(

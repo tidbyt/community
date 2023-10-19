@@ -6,10 +6,8 @@ Author: rs7q5
 """
 #sports_scores.star
 #Created 20220220 RIS
-#Last Modified 20221116 RIS
+#Last Modified 20230516 RIS
 
-load("cache.star", "cache")
-load("encoding/json.star", "json")
 load("http.star", "http")
 load("humanize.star", "humanize")
 load("render.star", "render")
@@ -67,30 +65,20 @@ def main(config):
 
     font = "CG-pixel-3x5-mono"  #set font
 
-    #check for cached data
     stats = {}
-    stats_cached = cache.get("stats_rate_games%s_%s" % (sport, league))
-    if stats_cached != None:
-        print("Hit! Displaying %s (%s) gameday data." % (sport, league))
-        stats = json.decode(stats_cached)
-    else:
-        print("Miss! Calling %s (%s) gameday data." % (sport, league))  #error code checked within each function!!!!
-        today_str = get_date_str(timezone_reset)
 
-        #get the data
-        if sport == "Baseball":
-            stats = get_mlbgames(today_str)
-        elif sport == "Hockey":
-            stats = get_nhlgames(today_str)
-        elif sport == "Basketball":
-            stats = get_basketballgames(today_str, league_ext)
-        elif sport == "Football":
-            stats = get_footballgames(today_str, league_ext)
-        elif sport == "Soccer":
-            stats = get_soccergames(today_str, league_ext)
-
-        #cache the data
-        cache.set("stats_rate_games%s_%s" % (sport, league), json.encode(stats), ttl_seconds = 60)
+    #get the data
+    today_str = get_date_str(timezone_reset)
+    if sport == "Baseball":
+        stats = get_mlbgames(today_str)
+    elif sport == "Hockey":
+        stats = get_nhlgames(today_str)
+    elif sport == "Basketball":
+        stats = get_basketballgames(today_str, league_ext)
+    elif sport == "Football":
+        stats = get_footballgames(today_str, league_ext)
+    elif sport == "Soccer":
+        stats = get_soccergames(today_str, league_ext)
 
     #get frames before display
     if stats == no_games_text and config.bool("gameday", False):
@@ -102,6 +90,7 @@ def main(config):
 
     return render.Root(
         delay = int(config.str("speed", "1000")) // speed_factor,  #speed up scroll text
+        show_full_animation = True,
         child = frame_vec,
     )
 
@@ -521,8 +510,7 @@ def get_mlbgames(today_str):
     full_URL = base_URL + "&startDate=" + start_date + "&endDate=" + end_date + "&hydrate=team,linescore"
 
     #print(full_URL)
-    rep = http.get(full_URL)
-
+    rep = http.get(url = full_URL, ttl_seconds = 60)
     if rep.status_code != 200:
         return ["Error getting data"]
     else:
@@ -583,7 +571,7 @@ def get_nhlgames(today_str):
     full_URL = base_URL + "?startDate=" + start_date + "&endDate=" + end_date + "&expand=schedule.linescore,schedule.teams"
 
     #print(full_URL)
-    rep = http.get(full_URL)
+    rep = http.get(url = full_URL, ttl_seconds = 60)
     if rep.status_code != 200:
         return ["Error getting data"]
     else:
@@ -652,7 +640,7 @@ def get_basketballgames(today_str, league):
     full_URL = base_URL + "?dates=" + start_date.replace("-", "") + "-" + end_date.replace("-", "")
 
     #print(full_URL)
-    rep = http.get(full_URL)
+    rep = http.get(url = full_URL, ttl_seconds = 60)
     if rep.status_code != 200:
         return ["Error getting data"]
     else:
@@ -718,7 +706,7 @@ def get_footballgames(today_str, league):
     full_URL = base_URL + "?dates=" + start_date.replace("-", "") + "-" + end_date.replace("-", "")
 
     #print(full_URL)
-    rep = http.get(full_URL)
+    rep = http.get(url = full_URL, ttl_seconds = 60)
     if rep.status_code != 200:
         return ["Error getting data"]
     else:
@@ -782,7 +770,7 @@ def get_soccergames(today_str, league):
     full_URL = base_URL + "?dates=" + start_date.replace("-", "") + "-" + end_date.replace("-", "")
 
     #print(full_URL)
-    rep = http.get(full_URL)
+    rep = http.get(url = full_URL, ttl_seconds = 60)
     if rep.status_code != 200:
         return ["Error getting data"]
     else:

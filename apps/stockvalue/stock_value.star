@@ -5,13 +5,12 @@ Description: This app will allow you track the value of your portfolio for a sin
 Author: gshipley
 """
 
-load("render.star", "render")
-load("http.star", "http")
-load("math.star", "math")
-load("humanize.star", "humanize")
-load("encoding/base64.star", "base64")
-load("schema.star", "schema")
 load("cache.star", "cache")
+load("encoding/base64.star", "base64")
+load("http.star", "http")
+load("humanize.star", "humanize")
+load("render.star", "render")
+load("schema.star", "schema")
 load("secret.star", "secret")
 
 STOCK_PRICE_URL = "https://www.alphavantage.co/query?function=GLOBAL_QUOTE&symbol="
@@ -47,6 +46,8 @@ def main(config):
         if rep.status_code != 200:
             fail("Request failed with status %d", rep.status_code)
         price = rep.json()["Global Quote"]["05. price"]
+
+        # TODO: Determine if this cache call can be converted to the new HTTP cache.
         cache.set("price", str(float(price)), ttl_seconds = 43200)
 
     value = (float(price) * int(config.str("shares", DEFAULT_SHARES)))

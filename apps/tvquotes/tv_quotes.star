@@ -7,10 +7,8 @@ Author: rs7q5
 
 #tv_quotes.star
 #Created 20220525 RIS
-#Last Modified 20220531 RIS
+#Last Modified 20230516 RIS
 
-load("cache.star", "cache")
-load("encoding/json.star", "json")
 load("http.star", "http")
 load("render.star", "render")
 load("schema.star", "schema")
@@ -38,6 +36,7 @@ def main(config):
     scroll_opt = config.str("speed", "50")
     return render.Root(
         delay = int(scroll_opt),  #speed up scroll text
+        show_full_animation = True,
         child = render.Column(children = [header_txt, quote_format]),
     )
 
@@ -138,51 +137,44 @@ def get_shows():
     #get list of shows for config
     SHOWS_URL = "https://quotes.alakhpc.com/quotes/shows"
 
-    shows_cached = cache.get("tvquotes_shows")
-    if shows_cached != None:
-        print("Hit! Getting cached TV quotes shows list data.")
-        shows_list = json.decode(shows_cached)
+    rep = http.get(url = SHOWS_URL, ttl_seconds = 1209600)  #cache list for two weeks
+    if rep.status_code != 200:  #fall back on default list
+        print("Error getting tv shows list, falling back to an old list!!!!")
+        shows_list = [
+            "How I Met Your Mother",
+            "The Middle",
+            "New Girl",
+            "Suits",
+            "3rd Rock from the Sun",
+            "Arrested Development",
+            "Malcolm in the Middle",
+            "Monk",
+            "The Fresh Prince of Bel-Air",
+            "Parks And Recreation",
+            "Home Improvement",
+            "Cheers",
+            "Modern Family",
+            "Seinfeld",
+            "The Office",
+            "The Goldbergs",
+            "Gilmore Girls",
+            "Frasier",
+            "Breaking Bad",
+            "Scrubs",
+            "Boy Meets World",
+            "Everybody Loves Raymond",
+            "The Good Place",
+            "Brooklyn Nine-Nine",
+            "Everybody Hates Chris",
+            "Lucifer",
+            "Schitt's Creek",
+            "Derry Girls",
+            "Friends",
+            "Stranger Things",
+            "The Golden Girls",
+        ]
     else:
-        print("Miss! Calling TV quotes shows list data.")
-        rep = http.get(SHOWS_URL)
-        if rep.status_code != 200:  #fall back on default list
-            print("Error getting tv shows list, falling back to an old list!!!!")
-            shows_list = [
-                "How I Met Your Mother",
-                "The Middle",
-                "New Girl",
-                "Suits",
-                "3rd Rock from the Sun",
-                "Arrested Development",
-                "Malcolm in the Middle",
-                "Monk",
-                "The Fresh Prince of Bel-Air",
-                "Parks And Recreation",
-                "Home Improvement",
-                "Cheers",
-                "Modern Family",
-                "Seinfeld",
-                "The Office",
-                "The Goldbergs",
-                "Gilmore Girls",
-                "Frasier",
-                "Breaking Bad",
-                "Scrubs",
-                "Boy Meets World",
-                "Everybody Loves Raymond",
-                "The Good Place",
-                "Brooklyn Nine-Nine",
-                "Everybody Hates Chris",
-                "Lucifer",
-                "Schitt's Creek",
-                "Derry Girls",
-                "Friends",
-                "Stranger Things",
-                "The Golden Girls",
-            ]
-        else:
-            shows_list = rep.json()["shows"]
-            cache.set("tvquotes_shows", json.encode(shows_list), ttl_seconds = 1209600)  #cache list for 2 weeks
+        shows_list = rep.json()["shows"]
 
     return shows_list
 
@@ -192,35 +184,21 @@ def get_quote(config):
     show = config.str("show", "Seinfeld")
 
     #get cache key
-    if config.bool("random_quote", True):
-        cache_key = "random_tvquote"
-        show_txt = "Random"
-    else:
-        show_txt = show
-        cache_key = "tvquote_%s" % show
+    if config.bool("random_quote", True) == False:
+        #show_txt = show
+        #cache_key = "tvquote_%s" % show
         QUOTE_URL += "&show=%s" % show.replace(" ", "%20")  #add "%20" so URL doesn't fail
 
-    #change cache key to get short quotes
-    if config.bool("short_quote", False):
-        cache_key += "_short"
-
-    quote_cached = cache.get(cache_key)
-    if quote_cached != None:
-        print("Hit! Getting cached %s TV quote data." % show_txt)
-        quote = json.decode(quote_cached)
+    rep = http.get(url = QUOTE_URL, ttl_seconds = 300)  #cache the quote for 5 minutes
+    if rep.status_code != 200:
+        print("TV Quote request failed with status %d" % rep.status_code)
+        return {
+            "show": "Error",
+            "character": "",
+            "text": "Could not get TV Quote!!!!",
+        }
     else:
-        print("Miss! Calling %s TV quote data." % show_txt)
-        rep = http.get(QUOTE_URL)
-        if rep.status_code != 200:
-            print("TV Quote request failed with status %d" % rep.status_code)
-            return {
-                "show": "Error",
-                "character": "",
-                "text": "Could not get TV Quote!!!!",
-            }
-        else:
-            quote = rep.json()
-            cache.set(cache_key, json.encode(quote), ttl_seconds = 300)  #cache the quote for 5 minutes
+        quote = rep.json()
 
     return quote
 

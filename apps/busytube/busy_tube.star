@@ -5,7 +5,6 @@ Description: Tells you how busy a given TfL-operated station in London currently
 Author: dinosaursrarr
 """
 
-load("cache.star", "cache")
 load("encoding/json.star", "json")
 load("http.star", "http")
 load("humanize.star", "humanize")
@@ -28,7 +27,7 @@ STATION_URL = "https://api.tfl.gov.uk/StopPoint"
 CROWDING_LIVE_URL = "https://api.tfl.gov.uk/Crowding/%s/Live"
 CROWDING_TYPICAL_URL = "https://api.tfl.gov.uk/Crowding/%s/%s"
 ENCRYPTED_APP_KEY = "AV6+xWcEidogMm49QBNMdHN1M2Ysyt35b6k5o9A1/jHKh4sM5Czv5BffoQw0QBvCR7jr/pFvd4eHZqjuLWYkEX4MTpBTAjTFeTGS3ynqTeumZB7CCghUoULPLDscavZpf9X9m/OzQXsPlNS86qKGcLaJ4B/AaVZ8CLvccNTtKgoJYWq8zYI="
-NO_DATA_IN_CACHE = ""
+USER_AGENT = "Tidbyt busy_tube"
 
 CONTAINER_WIDTH = 62
 CONTAINER_HEIGHT = 30
@@ -47,13 +46,6 @@ def app_key():
 def fetch_stations(loc):
     rounded_lat = math.round(1000.0 * float(loc["lat"])) / 1000.0  # truncate to 3dp, which means
     rounded_lng = math.round(1000.0 * float(loc["lng"])) / 1000.0  # to the nearest ~110 metres.
-    cache_key = "{},{}".format(rounded_lat, rounded_lng)
-
-    cached = cache.get(cache_key)
-    if cached == NO_DATA_IN_CACHE:
-        return None
-    if cached:
-        return json.decode(cached)
     resp = http.get(
         STATION_URL,
         params = {
@@ -66,16 +58,17 @@ def fetch_stations(loc):
             "modes": "tube",
             "categories": "none",
         },
+        headers = {
+            "User-Agent": USER_AGENT,
+        },
+        ttl_seconds = 86400,  # Tube stations don't move often
     )
     if resp.status_code != 200:
         print("TFL station search failed with status ", resp.status_code)
-        cache.set(cache_key, NO_DATA_IN_CACHE, ttl_seconds = 30)
         return None
     if not resp.json().get("stopPoints"):
         print("TFL station search does not contain stops")
-        cache.set(cache_key, NO_DATA_IN_CACHE, ttl_seconds = 30)
         return None
-    cache.set(cache_key, resp.body(), ttl_seconds = 86400)  # Tube stations don't move often
     return resp.json()
 
 # API gives errors when searching for locations outside the United Kingdom.
@@ -124,26 +117,22 @@ def list_stations(location):
 # Fetch data about how crowded the station currently is
 def fetch_live_crowdedness(naptan_id):
     live_url = CROWDING_LIVE_URL % naptan_id
-    cached = cache.get(live_url)
-    if cached == NO_DATA_IN_CACHE:
-        return None
-    if cached:
-        return json.decode(cached)
     resp = http.get(
         live_url,
         params = {
             "app_key": app_key(),
         },
+        headers = {
+            "User-Agent": USER_AGENT,
+        },
+        ttl_seconds = 300,  # Data is updated every 5 mins
     )
     if resp.status_code != 200:
         print("TFL live crowding query failed with status ", resp.status_code)
-        cache.set(live_url, NO_DATA_IN_CACHE, ttl_seconds = 30)
         return None
     if not resp.json().get("dataAvailable"):
         print("TFL live crowdedness data not available")
-        cache.set(live_url, NO_DATA_IN_CACHE, ttl_seconds = 30)
         return None
-    cache.set(live_url, resp.body(), ttl_seconds = 300)  # Data is updated every 5 mins
     return resp.json()
 
 # Extract data about currrent crowdedness from API response
@@ -175,14 +164,15 @@ def weekday_name(date):
 # Fetch data about how crowded the station typically is on a given day
 def fetch_typical_crowdedness(naptan_id, now):
     typical_url = CROWDING_TYPICAL_URL % (naptan_id, weekday_name(now))
-    cached = cache.get(typical_url)
-    if cached:
-        return json.decode(cached)
     resp = http.get(
         typical_url,
         params = {
             "app_key": app_key(),
         },
+        headers = {
+            "User-Agent": USER_AGENT,
+        },
+        ttl_seconds = 604800,  # Data only needed once a week
     )
     if resp.status_code != 200:
         print("TFL live crowding query failed with status ", resp.status_code)
@@ -190,7 +180,6 @@ def fetch_typical_crowdedness(naptan_id, now):
     if not resp.json().get("isFound"):
         print("TFL live crowdedness data not available")
         return None
-    cache.set(typical_url, resp.body(), ttl_seconds = 604800)  # Data only needed once a week
     return resp.json()
 
 # Convert a time period from the API into a float we can use to plot.

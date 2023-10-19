@@ -55,6 +55,7 @@ coloropt = [
 def main(config):
     return render.Root(
         delay = 100,
+        show_full_animation = True,
         max_age = 120,
         child = render.Column(
             expanded = True,

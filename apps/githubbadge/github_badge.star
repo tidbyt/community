@@ -141,6 +141,8 @@ def main(config):
         workflow_data = json.decode(cache_results)
     else:
         workflow_data, err = fetch_workflow_data(config)
+
+        # TODO: Determine if this cache call can be converted to the new HTTP cache.
         cache.set(CACHE_KEY, json.encode(workflow_data), ttl_seconds = 240)
 
     if err:

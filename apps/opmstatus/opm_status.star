@@ -8,12 +8,11 @@ Reference: https://www.opm.gov/policy-data-oversight/snow-dismissal-procedures/c
 
 # -------------------------
 
+load("cache.star", "cache")
+load("http.star", "http")
+
 # load some modules
 load("render.star", "render")
-load("http.star", "http")
-load("encoding/base64.star", "base64")
-load("schema.star", "schema")
-load("cache.star", "cache")
 
 # -------------------------
 
@@ -82,6 +81,7 @@ def main():
         statussummary_val, appliesto_val = format_opm_url_data(statussummary_val, appliesto_val)
 
         # set the data is cached value to note for future occurences
+        # TODO: Determine if this cache call can be converted to the new HTTP cache.
         cache.set(
             OPM_JSON_URL + ".dataischached",
             "YES",
@@ -89,21 +89,28 @@ def main():
         )
 
         # store the opm status and applies to date
+        # TODO: Determine if this cache call can be converted to the new HTTP cache.
         cache.set(
             OPM_JSON_URL + ".status",
             statussummary_val,
             ttl_seconds = EXPIRE_URL_DATA,
         )
+
+        # TODO: Determine if this cache call can be converted to the new HTTP cache.
         cache.set(
             OPM_JSON_URL + ".appliesto",
             appliesto_val,
             ttl_seconds = EXPIRE_URL_DATA,
         )
+
+        # TODO: Determine if this cache call can be converted to the new HTTP cache.
         cache.set(
             OPM_JSON_URL + ".type",
             statustype_val,
             ttl_seconds = EXPIRE_URL_DATA,
         )
+
+        # TODO: Determine if this cache call can be converted to the new HTTP cache.
         cache.set(
             OPM_JSON_URL + ".cachecount",
             "1",
@@ -116,6 +123,8 @@ def main():
         print("already cached, cache count = " + cache_count_str)
         cache_count_int = int(cache_count_str)
         cache_count_str = str(cache_count_int + 1)
+
+        # TODO: Determine if this cache call can be converted to the new HTTP cache.
         cache.set(
             OPM_JSON_URL + ".cachecount",
             cache_count_str,

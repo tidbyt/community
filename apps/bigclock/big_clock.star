@@ -24,8 +24,8 @@ DEFAULT_TIMEZONE = "US/Eastern"
 DEFAULT_IS_24_HOUR_FORMAT = True
 DEFAULT_HAS_LEADING_ZERO = False
 DEFAULT_HAS_FLASHING_SEPERATOR = True
-DEFAULT_COLOR_DAYTIME = "#fff"  # White
-DEFAULT_COLOR_NIGHTTIME = "#fff"  # White
+DEFAULT_COLOR_DAYTIME = "#FFFFFF"
+DEFAULT_COLOR_NIGHTTIME = "#FFFFFF"
 
 # Constants
 TTL = 21600  # 6 hours
@@ -77,8 +77,6 @@ iVBORw0KGgoAAAANSUhEUgAAAAQAAAAOAQAAAAAgEYC1AAAAAnRSTlMAAQGU/a4AAAAPSURBVHgBY0g
 AQzQAEQUAH5wCQbfIiwYAAAAASUVORK5CYII=
 """)
 
-DEGREE = 0.01745329251
-
 # It would be easier to use a custom font, but we can use images instead.
 # The images have a black background and transparent foreground. This
 # allows us to change the color dynamically.
@@ -91,10 +89,11 @@ def get_num_image(num, color):
     )
 
 def get_time_image(t, color, is_24_hour_format = True, has_leading_zero = False, has_seperator = True):
-    hh = t.format("03")  # Formet for 12 hour time
+    hh = t.format("03")  # Format for 12 hour time
     if is_24_hour_format == True:
         hh = t.format("15")  # Format for 24 hour time
-    mm = t.format("04")
+    mm = t.format("04")  # Format for minutes
+    # ss = t.format("05")  # Format for seconds
 
     seperator = render.Box(
         width = 4,
@@ -149,7 +148,11 @@ def main(config):
     is_24_hour_format = config.bool("is_24_hour_format", DEFAULT_IS_24_HOUR_FORMAT)
     has_leading_zero = config.bool("has_leading_zero", DEFAULT_HAS_LEADING_ZERO)
     has_flashing_seperator = config.bool("has_flashing_seperator", DEFAULT_HAS_FLASHING_SEPERATOR)
+
+    # Set daytime color
     color_daytime = config.get("color_daytime", DEFAULT_COLOR_DAYTIME)
+
+    # Set nighttime color
     color_nighttime = config.get("color_nighttime", DEFAULT_COLOR_NIGHTTIME)
 
     frames = []
@@ -202,17 +205,6 @@ def main(config):
     )
 
 def get_schema():
-    colors = [
-        schema.Option(display = "White", value = "#fff"),
-        schema.Option(display = "Red", value = "#f00"),
-        schema.Option(display = "Dark Red", value = "#200"),
-        schema.Option(display = "Green", value = "#0f0"),
-        schema.Option(display = "Blue", value = "#00f"),
-        schema.Option(display = "Yellow", value = "#ff0"),
-        schema.Option(display = "Cyan", value = "#0ff"),
-        schema.Option(display = "Magenta", value = "#f0f"),
-    ]
-
     return schema.Schema(
         version = "1",
         fields = [
@@ -243,21 +235,25 @@ def get_schema():
                 desc = "Ensure the clock always displays with a leading zero.",
                 default = DEFAULT_HAS_FLASHING_SEPERATOR,
             ),
-            schema.Dropdown(
+            schema.Color(
                 id = "color_daytime",
                 icon = "sun",
                 name = "Daytime color",
-                desc = "The color to display in the daytime.",
-                options = colors,
+                desc = "The color to use during daytime.",
                 default = DEFAULT_COLOR_DAYTIME,
+                palette = [
+                    "#FFFFFF",
+                ],
             ),
-            schema.Dropdown(
+            schema.Color(
                 id = "color_nighttime",
                 icon = "moon",
                 name = "Nighttime color",
-                desc = "The color to display at night.",
-                options = colors,
+                desc = "The color to use during nighttime.",
                 default = DEFAULT_COLOR_NIGHTTIME,
+                palette = [
+                    "#220000",
+                ],
             ),
         ],
     )

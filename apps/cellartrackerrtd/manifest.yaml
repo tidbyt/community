@@ -1,0 +1,8 @@
+---
+id: cellartrackerrtd
+name: CellarTrackerRtd
+summary: Shows a ready to drink wine
+desc: Displays a random wine from your CellarTracker Ready to Drink report.
+author: Matt Kent
+fileName: cellartrackerrtd.star
+packageName: cellartrackerrtd

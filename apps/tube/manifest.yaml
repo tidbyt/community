@@ -1,0 +1,8 @@
+---
+id: tube
+name: Tube
+summary: London Underground arrivals
+desc: Upcoming arrivals for a particular Tube, Elizabeth Line, DLR or Overground station.
+author: dinosaursrarr
+fileName: tube.star
+packageName: tube

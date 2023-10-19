@@ -45,9 +45,24 @@ BASIN_OPTIONS = [
     schema.Option(value = "central_pacific", display = "Central Pacific Basin"),
 ]
 
+scroll_speed_options = [
+    schema.Option(
+        display = "Slow Scroll",
+        value = "60",
+    ),
+    schema.Option(
+        display = "Medium Scroll",
+        value = "45",
+    ),
+    schema.Option(
+        display = "Fast Scroll",
+        value = "30",
+    ),
+]
+
 def main(config):
-    """ 
-    Main routine to display hurricane tracking info.
+    """ Main routine to display hurricane tracking info.
+
     Args:
         config: A decimal integer
     Returns:
@@ -74,6 +89,8 @@ def main(config):
         if res.status_code == 200:
             #print("Received Data from NHC")
             basin_xml = res.body()
+
+            # TODO: Determine if this cache call can be converted to the new HTTP cache.
             cache.set(basin, basin_xml, ttl_seconds = CACHE_TTL)
 
     #load up the xml
@@ -84,15 +101,17 @@ def main(config):
     queryresult = xml.query_all(querytext)
     active_cyclone_count = len(queryresult)
 
-    return getDisplay(active_cyclone_count, xml, hide_quiet, location)
+    return getDisplay(active_cyclone_count, xml, hide_quiet, location, config)
 
-def getDisplay(active_cyclone_count, xml, hide_quiet, location):
+def getDisplay(active_cyclone_count, xml, hide_quiet, location, config):
     """ Gets the display based on the nearest storm
+
     Args:
         active_cyclone_count: number of active cyclones
         xml: xml with cyclone data
         hide_quiet: boolean, if true and no storms, return nothing to skip the app
         location: location of the Tidbyt to calc direction and distance
+        config: Configuration to figure out scroll speed
     Returns:
         render.root: The display info for the Tidbyt device
     """
@@ -188,6 +207,8 @@ def getDisplay(active_cyclone_count, xml, hide_quiet, location):
     )
 
     return render.Root(
+        show_full_animation = True,
+        delay = int(config.get("scroll", 45)),
         child = render.Column(
             children = [
                 display_children,
@@ -282,6 +303,14 @@ def get_schema():
                 icon = "globe",
                 options = BASIN_OPTIONS,
                 default = BASIN_OPTIONS[0].value,
+            ),
+            schema.Dropdown(
+                id = "scroll",
+                name = "Scroll",
+                desc = "Scroll Speed",
+                icon = "stopwatch",
+                options = scroll_speed_options,
+                default = scroll_speed_options[0].value,
             ),
             schema.Toggle(
                 id = "hide_quiet",

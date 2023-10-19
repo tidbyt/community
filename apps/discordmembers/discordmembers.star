@@ -5,12 +5,12 @@ Description: Display the approximate member count for a given Discord server (vi
 Author: Dennis Zoma (https://zoma.dev)
 """
 
+load("cache.star", "cache")
+load("encoding/base64.star", "base64")
+load("http.star", "http")
+load("humanize.star", "humanize")
 load("render.star", "render")
 load("schema.star", "schema")
-load("http.star", "http")
-load("encoding/base64.star", "base64")
-load("cache.star", "cache")
-load("humanize.star", "humanize")
 
 DISCORD_API_URL = "https://discord.com/api/v9/invites/%s?with_counts=true"
 
@@ -42,7 +42,11 @@ def main(config):
         else:
             formatted_members_count = "%s members" % humanize.comma(int(body["approximate_member_count"]))
             server_name = body["guild"]["name"]
+
+            # TODO: Determine if this cache call can be converted to the new HTTP cache.
             cache.set(cache_key_members_count, formatted_members_count, ttl_seconds = 240)
+
+            # TODO: Determine if this cache call can be converted to the new HTTP cache.
             cache.set(cache_key_server_name, server_name, ttl_seconds = 240)
 
     return render.Root(

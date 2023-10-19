@@ -1,0 +1,8 @@
+---
+id: nascarnextrace
+name: NASCAR Next Race
+summary: Next NASCAR Race
+desc: Shows time, date and location of next NASCAR race for selected series.
+author: jvivona
+fileName: nascarnextrace.star
+packageName: nascarnextrace

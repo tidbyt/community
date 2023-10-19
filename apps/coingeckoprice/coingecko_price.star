@@ -248,6 +248,7 @@ def get_json_from_cache_or_http(url, ttl_seconds):
             fail("HTTP Request failed with status: {}".format(http_response.status_code))
 
         # Store http response in cache keyed off URL
+        # TODO: Determine if this cache call can be converted to the new HTTP cache.
         cache.set(url, json.encode(http_response.json()), ttl_seconds = ttl_seconds)
         data = http_response.json()
 
@@ -266,6 +267,7 @@ def get_body_from_cache_or_http(url, ttl_seconds):
             fail("HTTP Request failed with status: {}".format(http_response.status_code))
 
         # Store http response in cache keyed off URL
+        # TODO: Determine if this cache call can be converted to the new HTTP cache.
         cache.set(url, http_response.body(), ttl_seconds = ttl_seconds)
         data = http_response.body()
 
@@ -280,7 +282,12 @@ def format_price_string(currency_price, currency_symbol, currency_symbol_setting
     currency_price_integer = str(int(math.round(float(currency_price))))
 
     # Trim and format price
-    if len(currency_price_integer) <= 1:
+    if currency_price < 0.001:
+        # values is a small decimal, display in sci notation
+        #print("displaying in sci notation")
+        currency_price = str(currency_price)
+
+    elif len(currency_price_integer) <= 1:
         currency_price = str(int(math.round(currency_price * 1000)))
         if len(currency_price) < 4:
             currency_price = "0" + currency_price
@@ -5058,7 +5065,7 @@ SUPPORTED_COINS = [
     {"id": "fishing-town", "symbol": "fhtn", "name": "Fishing Town"},
     {"id": "fishingtowngiltoken", "symbol": "gil", "name": "FishingTownGilToken"},
     {"id": "fishy-tank-token", "symbol": "fte", "name": "Fishy Tank Token"},
-    {"id": "fit-beat", "symbol": "ftb", "name": "Fit\\u0026Beat"},
+    {"id": "fit-beat", "symbol": "ftb", "name": "Fit\u0026Beat"},
     {"id": "fitmin", "symbol": "ftm", "name": "Fitmin"},
     {"id": "fit-token", "symbol": "fit", "name": "FIT Token"},
     {"id": "five-balance", "symbol": "fbn", "name": "Fivebalance Coin"},
@@ -5341,7 +5348,7 @@ SUPPORTED_COINS = [
     {"id": "fxwallet", "symbol": "fxl", "name": "FXWallet"},
     {"id": "fydcoin", "symbol": "fyd", "name": "FYDcoin"},
     {"id": "fyooz", "symbol": "fyz", "name": "Fyooz"},
-    {"id": "g2-crypto-gaming-lottery", "symbol": "g2", "name": "G2 Crypto Gaming \\u0026 Lottery"},
+    {"id": "g2-crypto-gaming-lottery", "symbol": "g2", "name": "G2 Crypto Gaming \u0026 Lottery"},
     {"id": "g999", "symbol": "g999", "name": "G999"},
     {"id": "gabecoin", "symbol": "gabecoin", "name": "Gabecoin"},
     {"id": "gacube", "symbol": "gac", "name": "GACUBE"},
@@ -5637,7 +5644,7 @@ SUPPORTED_COINS = [
     {"id": "god-shiba-token", "symbol": "gshib", "name": "God Shiba Token"},
     {"id": "gods-unchained", "symbol": "gods", "name": "Gods Unchained"},
     {"id": "godzilla", "symbol": "godz", "name": "Godzilla"},
-    {"id": "goforit", "symbol": "goi", "name": "GoForIt Walk\\u0026Win"},
+    {"id": "goforit", "symbol": "goi", "name": "GoForIt Walk\u0026Win"},
     {"id": "gogeta-inu", "symbol": "gogeta", "name": "Gogeta Inu"},
     {"id": "gogocoin", "symbol": "gogo", "name": "GOGOcoin"},
     {"id": "gogo-finance", "symbol": "gogo", "name": "GOGO Finance"},
@@ -5993,7 +6000,7 @@ SUPPORTED_COINS = [
     {"id": "hero-cat-token", "symbol": "hct", "name": "Hero Cat Token"},
     {"id": "herocoin", "symbol": "play", "name": "HEROcoin"},
     {"id": "heroeschained", "symbol": "hec", "name": "HeroesChained"},
-    {"id": "heroes-empires", "symbol": "he", "name": "Heroes \\u0026 Empires"},
+    {"id": "heroes-empires", "symbol": "he", "name": "Heroes \u0026 Empires"},
     {"id": "heroes-of-nft", "symbol": "hon", "name": "Heroes of NFT"},
     {"id": "hero-essence", "symbol": "hes", "name": "Hero Essence"},
     {"id": "heroes-td", "symbol": "htd", "name": "Heroes TD"},
@@ -8073,14 +8080,14 @@ SUPPORTED_COINS = [
     {"id": "mirrored-invesco-qqq-trust", "symbol": "mqqq", "name": "Mirrored Invesco QQQ Trust"},
     {"id": "mirrored-ishares-gold-trust", "symbol": "miau", "name": "Mirrored iShares Gold Trust"},
     {"id": "mirrored-ishares-silver-trust", "symbol": "mslv", "name": "Mirrored iShares Silver Trust"},
-    {"id": "mirrored-johnson-johnson", "symbol": "mjnj", "name": "Mirrored Johnson \\u0026 Johnson"},
+    {"id": "mirrored-johnson-johnson", "symbol": "mjnj", "name": "Mirrored Johnson \u0026 Johnson"},
     {"id": "mirrored-microsoft", "symbol": "mmsft", "name": "Mirrored Microsoft"},
     {"id": "mirrored-netflix", "symbol": "mnflx", "name": "Mirrored Netflix"},
     {"id": "mirrored-nio", "symbol": "mnio", "name": "Mirrored Nio"},
     {"id": "mirrored-nvidia", "symbol": "mnvda", "name": "Mirrored Nvidia"},
     {"id": "mirrored-paypal", "symbol": "mpypl", "name": "Mirrored Paypal"},
     {"id": "mirrored-robinhood-markets", "symbol": "mhood", "name": "Mirrored Robinhood Markets"},
-    {"id": "mirrored-spdr-s-p-500", "symbol": "mspy", "name": "Mirrored SPDR S\\u0026P 500"},
+    {"id": "mirrored-spdr-s-p-500", "symbol": "mspy", "name": "Mirrored SPDR S\u0026P 500"},
     {"id": "mirrored-square", "symbol": "msq", "name": "Mirrored Square"},
     {"id": "mirrored-starbucks", "symbol": "msbux", "name": "Mirrored Starbucks"},
     {"id": "mirrored-tesla", "symbol": "mtsla", "name": "Mirrored Tesla"},
@@ -9843,7 +9850,7 @@ SUPPORTED_COINS = [
     {"id": "pyrrho-defi", "symbol": "PYO", "name": "Pyrrho"},
     {"id": "q8e20-token", "symbol": "q8e20", "name": "Q8E20 Token"},
     {"id": "qanplatform", "symbol": "qanx", "name": "QANplatform"},
-    {"id": "qao", "symbol": "\\u0026#127760;", "name": "QAO"},
+    {"id": "qao", "symbol": "\u0026#127760;", "name": "QAO"},
     {"id": "qash", "symbol": "qash", "name": "QASH"},
     {"id": "qatar-2022", "symbol": "fwc", "name": "Qatar 2022"},
     {"id": "qawalla-token", "symbol": "qwla", "name": "Qawalla Token"},
@@ -13434,7 +13441,7 @@ SUPPORTED_COINS = [
     {"id": "yield-guild-games-wormhole", "symbol": "ygg", "name": "Yield Guild Games (Wormhole)"},
     {"id": "yield-hunt", "symbol": "gem", "name": "Yield Hunt"},
     {"id": "yieldly", "symbol": "yldy", "name": "Yieldly"},
-    {"id": "yield-optimization-platform", "symbol": "yop", "name": "Yield Optimization Platform \\u0026 Protocol"},
+    {"id": "yield-optimization-platform", "symbol": "yop", "name": "Yield Optimization Platform \u0026 Protocol"},
     {"id": "yield-parrot", "symbol": "lory", "name": "Yield Parrot"},
     {"id": "yield-protocol", "symbol": "yield", "name": "Yield Protocol"},
     {"id": "yield-protocol-token", "symbol": "yield", "name": "Yield Protocol Token"},

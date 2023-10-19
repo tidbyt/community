@@ -1,19 +1,19 @@
-load("encoding/json.star", "json")
+"""
+Applet: BBL Cricket
+Summary: Displays scores for the selected BBL team
+Description: This app takes the selected team and displays the current match situation - showing overall team score, batsmen scores, lead/deficit, overs bowled, run rate and required run rate for the team batting second. If a match for the selected team has just completed, it will show the match result or if there is an upcoming match it will show the teams win-loss record and the scheduled start time of the match, in the users timezone. If there is nothing coming up in the next day or so (as determined by the Cricinfo API), it will no show that there are no matches scheduled.
+Author: M0ntyP
+"""
+
+load("cache.star", "cache")
 load("encoding/base64.star", "base64")
+load("encoding/json.star", "json")
 load("http.star", "http")
 load("humanize.star", "humanize")
 load("math.star", "math")
 load("render.star", "render")
 load("schema.star", "schema")
 load("time.star", "time")
-load("cache.star", "cache")
-
-"""
-Applet: BBL Cricket
-Summary: Displays scores for the selected BBL team
-Description: This app takes the selected team and displays the current match situation - showing overall team score, batsmen scores, lead/deficit, overs bowled, run rate and required run rate for the team batting second. If a match for the selected team has just completed, it will show the match result or if there is an upcoming match it will show the teams win-loss record and the scheduled start time of the match, in the users timezone. If there is nothing coming up in the next day or so (as determined by the Cricinfo API), it will no show that there are no matches scheduled.
-Author: M0ntyP 
-"""
 
 LiveGames_URL = "https://hs-consumer-api.espncricinfo.com/v1/pages/matches/current?lang=en&latest=true"
 Standings_URL = "https://hs-consumer-api.espncricinfo.com/v1/pages/series/standings?lang=en&seriesId=1324623"
@@ -35,6 +35,8 @@ def main(config):
     AllMatchData = get_cachable_data(LiveGames_URL, ALL_MATCH_CACHE)
     LiveGames_JSON = json.decode(AllMatchData)
     Matches = LiveGames_JSON["matches"]
+    MatchID = None
+    Playing = False
 
     # scroll through the live & recent games to find if your team is listed
     for x in range(0, len(Matches), 1):
@@ -45,6 +47,9 @@ def main(config):
         else:
             Playing = False
 
+    LastOut_Runs = 0
+    LastOut_Name = ""
+    T20_Status4 = ""
     if Playing == True:
         MatchID = str(MatchID)
         Match_URL = "https://hs-consumer-api.espncricinfo.com/v1/pages/match/details?lang=en&seriesId=" + MatchID + "&matchId=" + MatchID + "&latest=true"
@@ -85,7 +90,8 @@ def main(config):
             RemOvers = str(RemOvers)
 
             # Batting details
-            BattingTeamID = Match_JSON["supportInfo"]["inning"]["team"]["id"]
+            #BattingTeamID = Match_JSON["supportInfo"]["inning"]["team"]["id"]
+            BattingTeamID = Match_JSON["scorecard"]["innings"][Innings]["team"]["id"]
             BattingTeamID = int(BattingTeamID)
             BattingTeamColor = getTeamFontColor(BattingTeamID)
 
@@ -167,11 +173,15 @@ def main(config):
             if len(CRR) == 3:
                 CRR = CRR + "0"
 
-            ProjScore = str(Match_JSON["match"]["liveInningPredictions"]["score"])
+            # If Predictions aren't working
+            if Match_JSON["match"]["liveInningPredictions"] != None:
+                ProjScore = str(Match_JSON["match"]["liveInningPredictions"]["score"])
+            else:
+                ProjScore = "N/A"
 
             # ProjScore can be null at the very start of the match
             if ProjScore == None:
-                ProjScore = 0
+                ProjScore = "N/A"
 
             T20_Innings = Match_JSON["match"]["liveInning"]
             MatchStatus = str(Match_JSON["match"]["status"])
@@ -199,6 +209,9 @@ def main(config):
                 T20_Status2 = "Overs: " + Overs
                 T20_Status3 = "Run Rate: " + CRR
                 T20_Status4 = "Req Rate: " + RRR
+                if MatchStatus == "Match delayed by rain":
+                    MatchStatus = "Rain Delay"
+                    T20_Status3 = MatchStatus
 
             # Wicket has fallen but not the end of the inngs
             if IsOut == True and Wickets != "10":
@@ -257,8 +270,8 @@ def main(config):
                 child = render.Animation(children = renderScreens),
             )
 
-            # Game has completed
         elif Match_JSON["match"]["stage"] == "FINISHED":
+            # Game has completed
             # check if 2 innings were started
             if len(Match_JSON["scorecardSummary"]["innings"]) == 2:
                 Team1_Abbr = Match_JSON["scorecardSummary"]["innings"][0]["team"]["name"]
@@ -366,8 +379,8 @@ def main(config):
                 ),
             )
 
-            # Game just finished
         elif Match_JSON["match"]["state"] == "POST":
+            # Game just finished
             # What innings is it ?
             Innings = len(Match_JSON["scorecard"]["innings"]) - 1
 
@@ -388,7 +401,9 @@ def main(config):
 
             # Batting #
             BattingTeam = Match_JSON["scorecard"]["innings"][Innings]["team"]["abbreviation"]
-            BattingTeamID = Match_JSON["supportInfo"]["inning"]["team"]["id"]
+
+            #BattingTeamID = Match_JSON["supportInfo"]["inning"]["team"]["id"]
+            BattingTeamID = Match_JSON["scorecard"]["innings"][Innings]["team"]["id"]
             BattingTeamID = int(BattingTeamID)
             BattingTeamColor = getTeamFontColor(BattingTeamID)
 
@@ -529,8 +544,8 @@ def main(config):
                 child = render.Animation(children = renderScreens),
             )
 
-            # Game is coming up
         elif Match_JSON["match"]["stage"] == "SCHEDULED" or "PRE":
+            # Game is coming up
             # cache the standings data for 6hrs
             StandingsData = get_cachable_data(Standings_URL, STANDINGS_CACHE)
             Standings_JSON = json.decode(StandingsData)
@@ -546,8 +561,6 @@ def main(config):
 
             # Get the time of the game in the user's timezone
             StartTime = Match_JSON["match"]["startTime"]
-            ParseTime = time.parse_time(StartTime, format = "2006-01-02T15:04:00.000Z")
-            MatchTimezone = Match_JSON["match"]["ground"]["town"]["timezone"]
 
             MyTime = time.parse_time(StartTime, format = "2006-01-02T15:04:00.000Z").in_location(timezone)
             Time = MyTime.format("15:04")
@@ -557,18 +570,24 @@ def main(config):
             Ladder = Standings_JSON["content"]["standings"]["groups"][0]["teamStats"]
 
             # Team1 Record
+            Won1 = ""
+            Lost1 = ""
+            NR1 = ""
             for x in range(0, len(Ladder), 1):
                 if Ladder[x]["teamInfo"]["id"] == Team1_ID:
-                    Won1 = humanize.ftoa(Ladder[x]["matchesWon"])
-                    Lost1 = humanize.ftoa(Ladder[x]["matchesLost"])
-                    NR1 = humanize.ftoa(Ladder[x]["matchesNoResult"])
+                    Won1 = humanize.ftoa(float(Ladder[x]["matchesWon"]))
+                    Lost1 = humanize.ftoa(float(Ladder[x]["matchesLost"]))
+                    NR1 = humanize.ftoa(float(Ladder[x]["matchesNoResult"]))
 
             # Team2 Record
+            Won2 = ""
+            Lost2 = ""
+            NR2 = ""
             for x in range(0, len(Ladder), 1):
                 if Ladder[x]["teamInfo"]["id"] == Team2_ID:
-                    Won2 = humanize.ftoa(Ladder[x]["matchesWon"])
-                    Lost2 = humanize.ftoa(Ladder[x]["matchesLost"])
-                    NR2 = humanize.ftoa(Ladder[x]["matchesNoResult"])
+                    Won2 = humanize.ftoa(float(Ladder[x]["matchesWon"]))
+                    Lost2 = humanize.ftoa(float(Ladder[x]["matchesLost"]))
+                    NR2 = humanize.ftoa(float(Ladder[x]["matchesNoResult"]))
 
             return render.Root(
                 child = render.Column(
@@ -648,6 +667,8 @@ def main(config):
                 ],
             ),
         )
+
+    return []
 
 def TeamScore(BattingTeam, BattingTeamColor, Wickets, Runs):
     return render.Column(
@@ -794,6 +815,7 @@ def get_cachable_data(url, timeout):
     if res.status_code != 200:
         fail("request to %s failed with status code: %d - %s" % (url, res.status_code, res.body()))
 
+    # TODO: Determine if this cache call can be converted to the new HTTP cache.
     cache.set(key, base64.encode(res.body()), ttl_seconds = timeout)
 
     return res.body()

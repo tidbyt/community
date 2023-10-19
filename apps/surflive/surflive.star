@@ -74,6 +74,13 @@ def main(config):
             render.Row(expanded = True, main_align = "center", children = [render.Text(content = "ERROR", color = "#f00")]),
         ]
 
+    # skip render if waves are smaller than specified in config min_height
+    if config.bool("use_wave_height"):
+        if conditions["wave"]["max"] < int(config.get("min_height", "0")):
+            return []
+    elif conditions["wave"]["swell_height"] < int(config.get("min_height", "0")):
+        return []
+
     return render.Root(
         child = render.Column(
             expanded = True,
@@ -165,6 +172,7 @@ def get_conditions(spot_id):
         "wind": get_wind_forecast(spot_id),
     }
 
+    # TODO: Determine if this cache call can be converted to the new HTTP cache.
     cache.set(cache_key, json.encode(conditions), ttl_seconds = CACHE_TTL_SECONDS)
     return conditions
 
@@ -302,6 +310,20 @@ def search_handler(query):
     return [schema.Option(display = s["name"], value = s["_id"]) for s in spots]
 
 def get_schema():
+    min_height_options = [
+        schema.Option(display = "0 ft", value = "0"),
+        schema.Option(display = "1 ft", value = "1"),
+        schema.Option(display = "2 ft", value = "2"),
+        schema.Option(display = "3 ft", value = "3"),
+        schema.Option(display = "4 ft", value = "4"),
+        schema.Option(display = "6 ft", value = "6"),
+        schema.Option(display = "8 ft", value = "8"),
+        schema.Option(display = "10 ft", value = "10"),
+        schema.Option(display = "15 ft", value = "15"),
+        schema.Option(display = "20 ft", value = "20"),
+        schema.Option(display = "25 ft", value = "25"),
+        schema.Option(display = "30 ft", value = "30"),
+    ]
     return schema.Schema(
         version = "1",
         fields = [
@@ -325,6 +347,14 @@ def get_schema():
                 desc = "Display the surf or swell height (off=swell)",
                 icon = "gear",
                 default = False,
+            ),
+            schema.Dropdown(
+                id = "min_height",
+                name = "Mininum Size",
+                icon = "gear",
+                desc = "Minimum wave size to display",
+                options = min_height_options,
+                default = "0",
             ),
         ],
     )

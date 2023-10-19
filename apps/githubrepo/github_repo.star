@@ -7,11 +7,9 @@ Author: rs7q5
 
 #github_repo.star
 #Created 20221223 RIS
-#Last Modified 20230112 RIS
+#Last Modified 20230607 RIS
 
-load("cache.star", "cache")
 load("encoding/base64.star", "base64")
-load("encoding/json.star", "json")
 load("http.star", "http")
 load("humanize.star", "humanize")
 load("render.star", "render")
@@ -71,8 +69,7 @@ iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAAXNSR0IArs4c6QAAAK1JREFUOE9jZKAQ
 ############
 #other settings
 AUTH_TOKEN = "AV6+xWcEGJw/oqAqKSFYWNt3DfB/VggWkPfqIkWgXiECZ08wjiiSLO/WxFFkycjdHXryiuLQ5BQjZHMz96AkahedwGZ/mVCWQiCYYKRxJl7oCVL5y9Rwgj+tJpBpNzHfLEzO+0VV46uU5wLyPK2NgN9bWqlj6DRc9WyoNaoDk1LITXZYdnM1s783/w7V3Q=="
-DEFAULT_AUTH_TOKEN = "1234"  #can get tis by creating a personal token (classic) in GitHub and having the scope be public_repo
-
+DEFAULT_AUTH_TOKEN = "1234"  #can get this by creating a personal token (classic) in GitHub and having the scope be public_repo
 DEFAULT_OWNER = "tidbyt"
 DEFAULT_REPO = "community"
 DEFAULT_BRANCH = "main"
@@ -134,6 +131,7 @@ def main(config):
 
     return render.Root(
         delay = 100,  #speed up scroll text
+        show_full_animation = True,
         child = frame_final,
     )
 
@@ -218,31 +216,25 @@ def get_repository(config):
     }
 
     #get data
-    data_cached = cache.get(nameWithOwner + "_" + branch)
-    if data_cached != None:
-        print("Hit! Displaying data for %s!!!!" % nameWithOwner)
-        data = json.decode(data_cached)
-    else:
-        print("Miss! Getting data for %s!!!!" % nameWithOwner)
-        auth_key = secret.decrypt(AUTH_TOKEN) or DEFAULT_AUTH_TOKEN
-        rep = http.post(
-            BASE_URL,
-            headers = {
-                "Authorization": "Bearer " + auth_key,
-            },
-            json_body = dataQuery,
-        )
+    auth_key = secret.decrypt(AUTH_TOKEN) or DEFAULT_AUTH_TOKEN
+    rep = http.post(
+        BASE_URL,
+        headers = {
+            "Authorization": "Bearer " + auth_key,
+        },
+        json_body = dataQuery,
+        ttl_seconds = 1800,  #cache for 30 seconds
+    )
 
-        #print(rep.json()["errors"])
-        if rep.status_code != 200:
-            print("%s Error, could not get data for %s!!!!" % (rep.status_code, nameWithOwner))
-            return None
-        elif rep.json().get("errors", None) != None:
-            #error message
-            return rep.json()["errors"][0]["message"]  #gets only the first error
-        else:
-            data = rep.json()["data"]["repository"]
-            cache.set(nameWithOwner + "_" + branch, json.encode(data), ttl_seconds = 1800)  #cache for 30 minutes
+    #print(rep.json()["errors"])
+    if rep.status_code != 200:
+        print("%s Error, could not get data for %s!!!!" % (rep.status_code, nameWithOwner))
+        return None
+    elif rep.json().get("errors", None) != None:
+        #error message
+        return rep.json()["errors"][0]["message"]  #gets only the first error
+    else:
+        data = rep.json()["data"]["repository"]
 
     return data
 

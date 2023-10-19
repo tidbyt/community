@@ -5,6 +5,7 @@ Description: Display your daily Wordle score on your Tidbyt.
 Author: skola28
 """
 
+load("re.star", "re")
 load("render.star", "render")
 load("schema.star", "schema")
 
@@ -16,39 +17,50 @@ def draw_box(color):
         child = render.Box(width = 4, height = 4, color = color),
     )
 
-#Constants
-EXAMPLETWEET = "Paste Your Wordle\n\n⬛⬛🟩⬛⬛\n⬛⬛⬛🟩⬛\n🟩🟩🟩🟩🟩\n⬛⬛⬛🟩⬛\n⬛⬛🟩⬛⬛"
-#EXAMPLETWEET2 = "Wordle 383 4/6  ⬛⬛🟩⬛⬛ 🟨⬛🟩⬛🟩 🟩🟨🟩⬛🟩 🟩🟩🟩🟩🟩"
-
 def main(config):
     """Intent is to take your Wordle Score and have it display on your Tidbyt"""
 
-    board = str(config.get("wordle_score", "Paste Your Wordle\n\n⬛⬛🟩⬛⬛\n⬛⬛⬛🟩⬛\n🟩🟩🟩🟩🟩\n⬛⬛⬛🟩⬛\n⬛⬛🟩⬛⬛")).replace("\\n", "\n").split()
+    #Constants
+    #EXAMPLETWEET = "Paste Your Wordle\n\n⬛⬛🟩⬛⬛\n⬛⬛⬛🟩⬛\n🟩🟩🟩🟩🟩\n⬛⬛⬛🟩⬛\n⬛⬛🟩⬛⬛"
+    #EXAMPLETWEET2 = "Wordle 383 4/6  ⬛⬛🟩⬛⬛ 🟨⬛🟩⬛🟩 🟩🟨🟩⬛🟩 🟩🟩🟩🟩🟩"
+    #board = str(config.get("wordle_score", "Paste Your Wordle\n\n⬛⬛🟩⬛⬛\n⬛⬛⬛🟩⬛\n🟩🟩🟩🟩🟩\n⬛⬛⬛🟩⬛\n⬛⬛🟩⬛⬛")).replace("\\n", "\n").split()
+    #Original Board Print = ["Paste", "Your", "Wordle", "⬛⬛🟩⬛⬛", "⬛⬛⬛🟩⬛", "🟩🟩🟩🟩🟩", "⬛⬛⬛🟩⬛", "⬛⬛🟩⬛⬛"]
 
-    #To avoid errors, check that the board is at least 3 elements long (Worldle-Title, Wordle-Game-Number, Guesses)
-    if len(board) > 3:
-        #Break the Latest Tweet into usable pieces
-        #POP off the Wordle Title Text from the First Element
-        wordle_title = board.pop(0)
+    shared_text = config.get("wordle_score", "Paste Your Wordle⬛⬛🟩⬛⬛⬛⬛⬛🟩⬛🟩🟩🟩🟩🟩⬛⬛⬛🟩⬛⬛⬛🟩⬛⬛")
 
-        #POP off the Wordle Game Number from the New First Element
-        wordle_number = board.pop(0)
+    #Take shared text (that the user pasted into the Wordlebyt Schema field) and remove all the boxes)
+    score_text = re.sub(r"[⬛🟩🟨]", "", shared_text)
 
-        #Pop off the Wordle Score Numeric from the New First Element(again!)
-        wordle_score_number = board.pop(0)
+    #Check that "score_text" has 3 elements: The Wordle Title, The Game Number, and the Number of Guesses
+    if len(score_text.split()) >= 3:
+        score_text = score_text.split()
 
-        #If not 3 elements long, fill with static, valid text
+        #If it doesn't, prefil the score_text with canned text to make the app happy
     else:
-        wordle_title = "Paste"
+        score_text = ["Paste", "Your", "Wordle"]
 
-        #POP off the Wordle Game Number from the New First Element
-        wordle_number = "Your"
+    #Next, take shared_text (that the user pasted into the Wordlebyt Schema field) and remove everything except the boxes...
+    boxes_text = re.sub(r"[^⬛🟩🟨]", "", shared_text)
 
-        #Pop off the Wordle Score Numeric from the New First Element(again!)
-        wordle_score_number = "Wordle"
+    #count the number of boxex....
+    number_of_boxes = boxes_text.count("⬛") + boxes_text.count("🟩") + boxes_text.count("🟨")
 
-    #Set the number of total guesses from what remains of board
-    number_of_guesses = len(board)
+    #Make sure that the board has between 30 and 5 total boxes since max guesses is 6 with 5 boxes per guess which comes out to 30.  5 is the least as that is a single guess.
+    #Also makes sure that the total number of boxes is divisible by 5.  Otherwise, you clearly have a bad input as only full guesses are allowed.
+    if 5 <= number_of_boxes and number_of_boxes <= 30 and number_of_boxes % 5 == 0:
+        #Make a list of boxes by looking for groups of five and generating a list.
+        boxes_list = re.findall(".....", boxes_text)
+    else:
+        #Since the user input failed error handling above, prefill some data into the necessary variables to allow the program to continue gracefully
+        boxes_list = ("⬛⬛🟩⬛⬛", "⬛⬛⬛🟩⬛", "🟩🟩🟩🟩🟩", "⬛⬛⬛🟩⬛", "⬛⬛🟩⬛⬛")
+
+    #Fill the Text Variables out of elements of score_text
+    wordle_title = score_text[0]
+    wordle_number = score_text[1]
+    wordle_score_number = score_text[2]
+
+    #Set the number of total guesses from elements in boxes_list
+    number_of_guesses = len(boxes_list)
 
     #Creating board_as_list with Each Entry from board broken into individual squares
     #Ex: print(board_as_list)
@@ -57,7 +69,7 @@ def main(config):
     # ["⬛", "⬛", "🟨", "🟨", "🟨"],
     # ["🟩", "🟩", "🟩", "🟩", "🟩"]]
 
-    board_as_list = [list(row.codepoints()) for row in board]
+    board_as_list = [list(row.codepoints()) for row in boxes_list]
 
     #Dictionary for Colors
     colordictionary = {
@@ -110,7 +122,7 @@ def get_schema():
                 name = "Wordle Score",
                 desc = "Paste your Wordle Score from the Wordle App",
                 icon = "paste",
-                default = "Paste Your Wordle\n\n⬛⬛🟩⬛⬛\n⬛⬛⬛🟩⬛\n🟩🟩🟩🟩🟩\n⬛⬛⬛🟩⬛\n⬛⬛🟩⬛⬛",
+                default = "Paste Your Wordle⬛⬛🟩⬛⬛⬛⬛⬛🟩⬛🟩🟩🟩🟩🟩⬛⬛⬛🟩⬛⬛⬛🟩⬛⬛",
             ),
         ],
     )

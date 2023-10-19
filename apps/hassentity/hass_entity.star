@@ -5,11 +5,11 @@ Description: Display an externally accessible Home Assistant entity state or att
 Author: InTheDaylight14
 """
 
-load("render.star", "render")
-load("schema.star", "schema")
+load("cache.star", "cache")
 load("encoding/json.star", "json")
 load("http.star", "http")
-load("cache.star", "cache")
+load("render.star", "render")
+load("schema.star", "schema")
 
 STATIC_ENDPOINT = "/api/states/"
 DEFAULT_COLOR = "#aaaaaa"
@@ -31,14 +31,10 @@ def main(config):
     if is_string_blank(attribute):
         state = states["state"]
     else:
-        state = states["attributes"][attribute]
+        state = "{}".format(states["attributes"][attribute])
 
     if "unit_of_measurement" in states["attributes"].keys():
         state = state + states["attributes"]["unit_of_measurement"]
-
-    icon = None
-    if "icon" in states["attributes"].keys():
-        icon = states["attributes"]["icon"]
 
     header_color = config.get("header_color", DEFAULT_COLOR)
     separator_color = config.get("separator_color", DEFAULT_COLOR)
@@ -108,23 +104,35 @@ def get_schema():
                 desc = "Optionaly override the entity friendly name",
                 icon = "textHeight",
             ),
-            schema.Text(
+            schema.Color(
                 id = "header_color",
                 name = "Header Color",
                 desc = "Provide a hex code for the header color Ex. #ff00ff",
                 icon = "palette",
+                default = DEFAULT_COLOR,
+                palette = [
+                    DEFAULT_COLOR,
+                ],
             ),
-            schema.Text(
+            schema.Color(
                 id = "separator_color",
                 name = "Separator Color",
                 desc = "Provide a hex code for the separator color Ex. #ff00ff",
                 icon = "palette",
+                default = DEFAULT_COLOR,
+                palette = [
+                    DEFAULT_COLOR,
+                ],
             ),
-            schema.Text(
+            schema.Color(
                 id = "value_color",
                 name = "Value Color",
                 desc = "Provide a hex code for the value color Ex. #ff00ff",
                 icon = "palette",
+                default = DEFAULT_COLOR,
+                palette = [
+                    DEFAULT_COLOR,
+                ],
             ),
         ],
     )
@@ -165,6 +173,7 @@ def get_entity_states(config):
 
     states = res.json()
 
+    # TODO: Determine if this cache call can be converted to the new HTTP cache.
     cache.set(token, json.encode(states), ttl_seconds = 6)
 
     return states

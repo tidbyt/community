@@ -32,8 +32,8 @@ METAFIELD_OWNER = "shop"
 
 # Cache definitions
 CACHE_TTL = 600
-CACHE_ID_ORDERS = "{}-orders"
-CACHE_ID_METAFIELD = "{}-metafields"
+CACHE_ID_ORDERS = "{}-{}-orders"
+CACHE_ID_METAFIELD = "{}-{}-metafields"
 
 # Milestone definitions are a list of Tuples where the first element is a base number of sales
 # and the second element is an increment at which celebrations happen after that base.
@@ -179,7 +179,7 @@ def should_celebrate(last_celebration):
 # Returns: A dict with id, date, and orders keys, or a dict with an error key if failed
 def get_latest_celebration(store_name, api_token):
     # Check our cache
-    cache_key = CACHE_ID_METAFIELD.format(hash.sha1(store_name))
+    cache_key = CACHE_ID_METAFIELD.format(hash.sha1(store_name), hash.sha1(api_token))
     cached_metafields = cache.get(cache_key)
 
     if not cached_metafields:
@@ -194,6 +194,8 @@ def get_latest_celebration(store_name, api_token):
 
         # Store the new value in cache
         print("Cache 💾: Storing value for key %s" % cache_key)
+
+        # TODO: Determine if this cache call can be converted to the new HTTP cache.
         cache.set(cache_key, response.body(), ttl_seconds = CACHE_TTL)
         metafields = response.json()
 
@@ -269,7 +271,7 @@ def store_latest_celebration(celebration, store_name, api_token):
 # Returns: A number representing the order count for a store, or -1 if the count couldn't be fetched
 def get_order_count(store_name, api_token):
     # Check our cache
-    cache_key = CACHE_ID_ORDERS.format(hash.sha1(store_name))
+    cache_key = CACHE_ID_ORDERS.format(hash.sha1(store_name), hash.sha1(api_token))
     cached_orders = cache.get(cache_key)
 
     if not cached_orders:
@@ -285,6 +287,8 @@ def get_order_count(store_name, api_token):
 
         # Store the new value in cache
         print("Cache 💾: Storing value for key %s" % cache_key)
+
+        # TODO: Determine if this cache call can be converted to the new HTTP cache.
         cache.set(cache_key, response.body(), ttl_seconds = CACHE_TTL)
         order_count = response.json()
 

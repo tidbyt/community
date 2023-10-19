@@ -1,0 +1,8 @@
+---
+id: charlestownferry
+name: CharlestownFerry
+summary: Ferry Depature Times
+desc: Displays three upcoming ferry depature times for the Charlestown, MA Ferry.
+author: jblaker
+fileName: charlestownferry.star
+packageName: charlestownferry

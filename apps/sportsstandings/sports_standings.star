@@ -6,10 +6,8 @@ Author: rs7q5
 """
 #sports_standings.star
 #Created 20220119 RIS
-#Last Modified 20230112 RIS
+#Last Modified 20230516 RIS
 
-load("cache.star", "cache")
-load("encoding/json.star", "json")
 load("http.star", "http")
 load("re.star", "re")
 load("render.star", "render")
@@ -59,27 +57,16 @@ def main(config):
 
     #check for cached data
     stats = {}
-    stats_cached = cache.get("stats_rate/%s_%s" % (sport, league))
-    if stats_cached != None:  #if any are None then all(title_cached)==False
-        print("Hit! Displaying %s (%s) standings data." % (sport, league))
-        stats = json.decode(stats_cached)
-    else:
-        print("Miss! Calling %s (%s) standings data." % (sport, league))  #error code checked within each function!!!!
-        #print("Miss! Calling ESPN data.")  #error code checked within each function!!!!
 
-        #get the data
-        if sport == "Baseball":
-            stats = get_mlbstandings()
-        elif sport == "Hockey":
-            stats = get_nhlstandings()
-        elif sport == "Basketball":
-            stats = get_basketballstandings(league_ext)
-        elif sport == "Football":
-            stats = get_footballstandings()
-
-        #cache the data
-        if stats != None:
-            cache.set("stats_rate/%s_%s" % (sport, league), json.encode(stats), ttl_seconds = 28800)  #grabs it three times a day
+    #get the data
+    if sport == "Baseball":
+        stats = get_mlbstandings()
+    elif sport == "Hockey":
+        stats = get_nhlstandings()
+    elif sport == "Basketball":
+        stats = get_basketballstandings(league_ext)
+    elif sport == "Football":
+        stats = get_footballstandings()
 
     #get frames before display
     if stats == None:
@@ -102,6 +89,7 @@ def main(config):
 
     return render.Root(
         delay = int(config.str("speed", "1000")),  #speed up scroll text
+        show_full_animation = True,
         child = render.Animation(children = frame_vec),
     )
 
@@ -273,7 +261,7 @@ def get_frames(stats, league_txt, font, config):
 ######################################################
 #functions
 def http_check(URL):
-    rep = http.get(URL)
+    rep = http.get(url = URL, ttl_seconds = 28800)  #grabs standings three times a day
     if rep.status_code != 200:
         print("ESPN request failed with status %d", rep.status_code)
         return None
