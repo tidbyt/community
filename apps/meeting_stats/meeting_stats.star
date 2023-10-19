@@ -59,8 +59,8 @@ OUTLOOK_CALENDAR_VIEW_URL = "https://graph.microsoft.com/v1.0/me/calendarview?$s
 
 # Hash Strings to encrypt/store secrets required by MSFT Graph API access.   These ultimately get replaced with Tidbyt Hash when the
 # App is placed into the production envirnment.
-CLIENT_ID_HASH = "AV6+xWcE+SIkQgnPgHzViV78GTRoxpMjlccjdOSUxNRSaBunq5fHKq5xp3sMlKVtYs1V9ZFwBUWg79Pgw+Y3mXoPB5q9AuBVN9bjgND9YpZ9dn3crPs7saefSsj+Mx4K8QUjQgzwLm68+qfWCCtQO419dnPJANjmjXuCrEk02RGw1q3DTRlmaF+Fh+Nf8PRl7wD7Vpfv++8I+WjUlqlhRviULKbMJkyRlZMuBrai"
-CLIENT_SECRET_HASH = "AV6+xWcEb1T8b5kw+ugpxOQ55oRdM9Ox+/PxPSm7V3VTC7NtCrMJXsMA/oozP2Eu8yKUnuDO2jmRB87tsr9ffX1sIkUTdLbftv4swDYku77yz79AJb31q0IRS/gxVkeYuLdgwIt2wqFX6Xrqve2t3wvouaI2WIrpH7U9YzWwc1Iwuv8+6NcKjH0="
+CLIENT_ID_HASH = "AV6+xWcE0kbOKa6eEX0kZPaOqHb7+zhZZ801FUu+xOjAJnUwrxrO050cnmrnzlrbf/41ruchPBaMkFVNM+Pa1C5wJVaGllE/3ACo7lNHMP33M33h2ufe6j6344ZZkzLgHrMIv1hDE/wHDemzf2LbYPnqtntd37QbtJppEGyg9qL/bi8N3q9Y6eAp"
+CLIENT_SECRET_HASH = "AV6+xWcExpuVd6MGDafrLy7PXRUFeBdAgJX2vN+FrgCF8gnqjdfzciVmM+y3+PovkNciqu55rnPeSdG1MjmKyvnDOSxulIIWbVYggFv8BSi3vpj1qPlimvvaA2TK4uxwstkroSF7ib04bisS4g5DkE+VRQeDPWI+CWs7r2G81oHserdV5nhvLQlRJ3hkZA=="
 TENANT_ID_HASH = "ABCDEFG123456789"
 
 # MSFT Graph uses 3 secrets to operate.  There is the usual Client Secret and Client ID, but Graph uses the Tenant ID as part of
