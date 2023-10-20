@@ -18,24 +18,23 @@ load("schema.star", "schema")
 
 #Constants
 DEFAULT_SPORT = "Football"
-DEFAULT_CLASS = "6A-1"
-DEFAULT_TIME = "current"
+DEFAULT_GAME = "1"
 
 #The following dictionary is used by the settings and some values in the main function.
 #The ID numbers are used in the URL in the main function.
 
 IDS = {
-    "Football": {"ID": 1, "Classes": {"6A-1": 8, "6A-2": 19, "5A": 7, "4A": 6, "3A": 5, "2A": 4, "A": 1, "B": 2, "C": 3, "Other": 68}},
-    "Boy's Basketball": {"ID": 2, "Classes": {"6A": 70, "5A": 71, "4A": 72, "3A": 73, "2A": 74, "A": 75, "B": 76, "Other": 119}},
-    "Girl's Basketball": {"ID": 3, "Classes": {"6A": 77, "5A": 78, "4A": 79, "3A": 80, "2A": 81, "A": 82, "B": 83, "Other": 121}},
-    "High School Baseball": {"ID": 4, "Classes": {"6A": 217, "5A": 218, "4A": 219, "3A": 220, "2A": 221, "A": 222, "B": 223, "Other": 224}},
-    "High School Slow Pitch": {"ID": 5, "Classes": {"6A": 225, "5A": 226, "4A": 227, "3A": 228, "2A": 229, "A": 230, "Other": 231}},
+    "Football": {"ID": 1, "Classes": {"6A-1": 8, "6A-2": 19, "5A": 7, "4A": 6, "3A": 5, "2A": 4}},
+    "Boy's Basketball": {"ID": 2, "Classes": {"6A": 70, "5A": 71, "4A": 72, "3A": 73, "2A": 74, "A": 75}},
+    "Girl's Basketball": {"ID": 3, "Classes": {"6A": 77, "5A": 78, "4A": 79, "3A": 80, "2A": 81, "A": 82}},
+    "High School Baseball": {"ID": 4, "Classes": {"6A": 217, "5A": 218, "4A": 219, "3A": 220, "2A": 221, "A": 222}},
+    "High School Slow Pitch": {"ID": 5, "Classes": {"6A": 225, "5A": 226, "4A": 227, "3A": 228, "2A": 229, "A": 230}},
     "High School Boy's Volleyball": {"ID": 6, "Classes": {}},
-    "Volleyball": {"ID": 7, "Classes": {"6A": 429, "5A": 430, "4A": 431, "3A": 432, "Other": 433}},
-    "Wrestling": {"ID": 8, "Classes": {"6A": 203, "5A": 204, "4A": 205, "3A": 206, "Other": 207}},
-    "High School Boy's Soccer": {"ID": 9, "Classes": {"6A": 232, "5A": 233, "4A": 234, "Other": 235}},
-    "High School Girl's Soccer": {"ID": 10, "Classes": {"6A": 236, "5A": 237, "4A": 238, "Other": 239}},
-    "Fast Pitch": {"ID": 11, "Classes": {"6A": 240, "5A": 241, "4A": 242, "3A": 243, "2A": 244, "A": 245, "B": 246, "Other": 453}},
+    "Volleyball": {"ID": 7, "Classes": {"6A": 429, "5A": 430, "4A": 431, "3A": 432}},
+    "Wrestling": {"ID": 8, "Classes": {"6A": 203, "5A": 204, "4A": 205, "3A": 206}},
+    "High School Boy's Soccer": {"ID": 9, "Classes": {"6A": 232, "5A": 233, "4A": 234}},
+    "High School Girl's Soccer": {"ID": 10, "Classes": {"6A": 236, "5A": 237, "4A": 238}},
+    "Fast Pitch": {"ID": 11, "Classes": {"6A": 240, "5A": 241, "4A": 242, "3A": 243, "2A": 244, "A": 245}},
     "Fall Baseball": {"ID": 12, "Classes": {"A": 247, "B": 248}},
     "INFC Football 1st-7th Grade": {"ID": 13, "Classes": {"1st": 396, "2nd": 397, "3rd": 398, "4th": 399, "5th": 400, "6th": 401, "7th": 402}},
     "High School NOC Basketball": {"ID": 14, "Classes": {}},
@@ -60,61 +59,26 @@ IDS = {
 
 #This is the main function that runs after the settings. Returns display
 def main(config):
-    total_games = cache.get("max")
-    current_game = cache.get("current")
-    if current_game != None:
-        data = cache.get(current_game)
-    else:
-        data = []
-    stored_sportid = cache.get("sport")
-    stored_classid = cache.get("class")
-    stored_time = cache.get("time")
-
+    data = []
     sport = config.str("sport", DEFAULT_SPORT)
-    sportID = IDS[sport]["ID"]
-    sportClass = config.str("class", DEFAULT_CLASS)
-    classID = "N/A"
-    classAmount = len(IDS[sport]["Classes"])
+    current_game = config.get("games", DEFAULT_GAME)
 
-    #The football scores go by week and the others go by day.
-    #The condition determines if the time needs to be sorted.
-    if sport == "Football" or sport == "INFC Football 1st-7th Grade":
-        time = config.str("week", DEFAULT_TIME)
-    else:
-        time = config.str("time", DEFAULT_TIME)
-
-        #This condition determines if the time is current or not.
-        if len(time.split("-")) == 3:
-            year, month, day = time.split("-")
-            if len(day) > 2:
-                #The day will also have the time attatched, hence the separation.
-                day = day[:2]
-            time = "{}-{}-{}".format(year, month, day)
-
-    if classAmount > 0:
-        classInSport = False
-
-        #Testing for the selected class in the sport's list.
-        for c in IDS[sport]["Classes"]:
-            if c == sportClass:
-                classInSport = True
-                break
-
-        if classInSport == False:
-            #This loop gets the first class of the sport.
-            for c in IDS[sport]["Classes"]:
-                sportClass = c
-                break
-
-        classID = IDS[sport]["Classes"][sportClass]
-
-    #The following conditional determines if the website data must be pulled again.
-    if total_games == None or current_game == None or stored_sportid == None or stored_classid == None or stored_time == None or int(stored_sportid) != IDS[sport]["ID"] or time != stored_time or int(current_game) > int(total_games) or stored_classid != "{}".format(classID):
-        total_games, current_game, data = get_data(sportID, classID, time)
+    total_games = cache.get("{}max".format(sport))
+    if total_games == None:
+        get_data(sport)
+        total_games = cache.get("{}max".format(sport))
 
     #Type conversion from string to int
-    total_games = int(total_games)
     current_game = int(current_game)
+    total_games = int(total_games)
+
+    if current_game > total_games:
+        current_game = 1
+
+    data = cache.get("{}{}".format(sport, current_game))
+    if data == None and total_games > 0:
+        get_data(sport)
+        data = cache.get("{}{}".format(sport, current_game))
 
     #The filtered data list is a temporary storage while the data variable is sorted.
     filtered_data = []
@@ -140,7 +104,7 @@ def main(config):
     progress = ""
     datetime = ""
 
-    if total_games > 0:
+    if total_games > 0 and data != None:
         is_date = False
 
         #The following conditions are used to properly unpack the sorted game.
@@ -164,8 +128,6 @@ def main(config):
             scores = "Date: " + first_score + " Time: " + second_score
         else:
             scores = "Scores: " + first_score + "/" + second_score
-
-        cache.set("current", "{}".format(current_game + 1), ttl_seconds = 3600)
 
         return render.Root(
             child = render.Column(
@@ -318,28 +280,11 @@ def main(config):
         )
 
     else:
-        text = "No Events"
-        if classAmount > 0:
-            if sport == "Football" or "INFC Football 1st-7th Grade":
-                if time != "current":
-                    text = "No Events for {} {} on week {}".format(sport, sportClass, time)
-                else:
-                    text = "No Events for {} {} in the current week".format(sport, sportClass)
-            elif time != "current":
-                text = "No Events for {} {} on {}".format(sport, sportClass, time)
-            else:
-                text = "No Events for {} {} today".format(sport, sportClass, time)
-        elif classAmount == 0:
-            if sport == "Football" or "INFC Football 1st-7th Grade":
-                if time != "current":
-                    text = "No Events for {} on week {}".format(sport, time)
-                else:
-                    text = "No Events for {} in the current week".format(sport)
-            elif time != "current":
-                text = "No Events for {} on {}".format(sport, time)
-            else:
-                text = "No Events for {} today".format(sport, time)
-
+        text = "No Events for {}".format(sport)
+        if sport == "Football" or sport == "INFC Football 1st-7th Grade":
+            text = "No Events for {} this week".format(sport)
+        else:
+            text = "No Events for {} today".format(sport)
         return render.Root(
             child = render.Box(
                 child = render.WrappedText(
@@ -355,52 +300,30 @@ def main(config):
         )
 
 #This function gets and stores the data for the desired sport and class.
-def get_data(sportID, classID, time):
+def get_data(sport):
+    counter = 0
+    sportID = IDS[sport]["ID"]
+
     #Determines how to format the URL based on options
-    if time == "current":
-        if classID != "N/A":
+    if len(IDS[sport]["Classes"]) > 0:
+        for c in IDS[sport]["Classes"]:
+            classID = IDS[sport]["Classes"][c]
             web = http.get("https://skordle.com/scores/?sportid={}&classid={}&clubid=1".format(sportID, classID), ttl_seconds = 60)
             if web.status_code != 200:
                 fail("Failure code: %s", web.status_code)
-        else:
-            web = http.get("https://skordle.com/scores/?sportid={}&clubid=1".format(sportID), ttl_seconds = 60)
-            if web.status_code != 200:
-                fail("Failure code: %s", web.status_code)
-    elif sportID == 1 or sportID == 13:
-        if classID != "N/A":
-            web = http.get("https://skordle.com/scores/?sportid={}&classid={}&clubid=1&dateweek={}".format(sportID, classID, time), ttl_seconds = 60)
-            if web.status_code != 200:
-                fail("Failure code: %s", web.status_code)
-        else:
-            web = http.get("https://skordle.com/scores/?sportid={}&clubid=1&dateweek={}".format(sportID, time), ttl_seconds = 60)
-            if web.status_code != 200:
-                fail("Failure code: %s", web.status_code)
+            sorted = sort(web.body())
+            for game in sorted:
+                counter += 1
+                cache.set("{}{}".format(sport, counter), "{}".format(sorted[game]), ttl_seconds = 3600)
     else:
-        year, month, day = time.split("-")
-        if classID != "N/A":
-            web = http.get("https://skordle.com/scores/?sportid={}&classid={}&clubid=1&dateweek={}%2F{}%2F{}".format(sportID, classID, month, day, year), ttl_seconds = 60)
-            if web.status_code != 200:
-                fail("Failure code: %s", web.status_code)
-        else:
-            web = http.get("https://skordle.com/scores/?sportid={}&clubid=1&dateweek={}%2F{}%2F{}".format(sportID, month, day, year), ttl_seconds = 60)
-            if web.status_code != 200:
-                fail("Failure code: %s", web.status_code)
-
-    #The sort function breaks up the HTML data and returns a dictionary.
-    #This dictionary contains lists of data for each game.
-    sorted = sort(web.body())
-    cache.set("max", "{}".format(len(sorted)), ttl_seconds = 3600)
-    cache.set("current", "1", ttl_seconds = 3600)
-    cache.set("sport", "{}".format(sportID), ttl_seconds = 3600)
-    cache.set("class", "{}".format(classID), ttl_seconds = 3600)
-    cache.set("time", time, ttl_seconds = 3600)
-    for game in sorted:
-        cache.set("{}".format(game), "{}".format(sorted[game]), ttl_seconds = 3600)
-
-    if len(sorted) != 0:
-        return "{}".format(len(sorted)), "1", "{}".format(sorted[1])
-    else:
-        return "0", "0", None
+        web = http.get("https://skordle.com/scores/?sportid={}&clubid=1".format(sportID), ttl_seconds = 60)
+        if web.status_code != 200:
+            fail("Failure code: %s", web.status_code)
+        sorted = sort(web.body())
+        for game in sorted:
+            counter += 1
+            cache.set("{}{}".format(sport, counter), "{}".format(sorted[game]), ttl_seconds = 3600)
+    cache.set("{}max".format(sport), "{}".format(counter))
 
 #Sorts through HTML data and returns numbered games with their data
 #It gets weird, but the slice notation helps.
@@ -504,58 +427,30 @@ def get_schema():
             schema.Generated(
                 id = "generated",
                 source = "sport",
-                handler = class_options,
+                handler = game_options,
             ),
         ],
     )
 
-#A function that determines what options should be displayed based on the sport.
-def class_options(sport):
-    classes = [schema.Option(display = c, value = c) for c in IDS[sport]["Classes"]]
+def game_options(sport):
+    games = cache.get("{}max".format(sport))
+    if games == None:
+        get_data(sport)
+        games = cache.get("{}max".format(sport))
+    games = int(games)
 
-    #Football weeks are 0-16 + current option
-    football_time = [schema.Option(display = "{}".format(week), value = "{}".format(week)) for week in range(17)]
-    football_time.append(schema.Option(display = "Current", value = "current"))
-
-    #INFC weeks are 1-12 + current option
-    INFC_time = [schema.Option(display = "{}".format(week), value = "{}".format(week)) for week in range(12) if week > 0]
-    INFC_time.append(schema.Option(display = "Current", value = "current"))
-
-    #Football games are listed by week
-    #All others are listed by day
-    if sport == "Football":
-        additional = schema.Dropdown(
-            id = "week",
-            name = "Week",
-            desc = "The week of games to display",
-            icon = "calendar",
-            default = DEFAULT_TIME,
-            options = football_time,
-        )
-    elif sport == "INFC Football 1st-7th Grade":
-        additional = schema.Dropdown(
-            id = "week",
-            name = "Week",
-            desc = "The week of games to display",
-            icon = "calendar",
-            default = DEFAULT_TIME,
-            options = INFC_time,
-        )
+    #List of Games to select
+    if games > 0:
+        game_options = [schema.Option(display = "{}".format(game), value = "{}".format(game)) for game in range(games + 1) if game > 0]
     else:
-        additional = schema.DateTime(
-            id = "time",
-            name = "Date",
-            desc = "The date of the event",
-            icon = "calendar",
-        )
+        game_options = [schema.Option(display = "0", value = "1")]
     return [
         schema.Dropdown(
-            id = "class",
-            name = "Classes",
-            desc = "The class of the selected sport",
-            icon = "arrowUpShortWide",
-            default = DEFAULT_CLASS,
-            options = classes,
+            id = "games",
+            name = "Games",
+            desc = "The various games to choose from",
+            icon = "trophy",
+            default = DEFAULT_GAME,
+            options = game_options,
         ),
-        additional,
     ]
