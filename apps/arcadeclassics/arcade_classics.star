@@ -64,8 +64,8 @@ def main(config):
         child = render.Animation(allFrames),
     )
 
-def rand(maximum):
-    return random.number(0, maximum)
+def rand(ceiling):
+    return random.number(0, ceiling - 1)
 
 DEFAULT_SPEED = "30"
 
