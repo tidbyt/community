@@ -6,7 +6,6 @@ Author: FabioCZ
 """
 
 load("cache.star", "cache")
-load("encoding/json.star", "json")
 load("http.star", "http")
 load("render.star", "render")
 load("schema.star", "schema")
@@ -14,7 +13,7 @@ load("secret.star", "secret")
 load("time.star", "time")
 
 CTA_ARRIVAL_URL = "http://lapi.transitchicago.com/api/1.0/ttarrivals.aspx"
-CTA_API_KEY_ENCRYPTED = "AV6+xWcEy0aq3L+XsSlftGr+3M9WAeYYRCvdZVV4IhA7geAcFIuA5ff/mRN+8bn6A2buqsZQvojzchfCQ+gI9Ig/uPXKv/+P1+EbPWChzTDg25SuhW8wsDGoKNaT70/dFt+tw5fNmnI/+3bOQPPup47BCNJa6f2EFiq53lJHAsiGw+/GN40="
+CTA_API_KEY_ENCRYPTED = "AV6+xWcEod0tcqS3kB0TnKV1HItYtqB9nj6a5CRVHR7o1KDh8Kef1OvdTTVCfJrdFRta7xLqpAoHZMmZe6vvamjHZK0iQM3VzgYAXZHVyfS6J67QoX8Yk9WA0xLtFCd6ge1C674GUMm0YOh+H85s3qCy7FdZmGA8VMCC3h2ruNyAxD22z98="
 
 CTA_L_STATON_LIST_URL = "https://data.cityofchicago.org/resource/8pix-ypme.json"
 
@@ -68,7 +67,7 @@ def getPredictionSuffix(route, destinationName, destinationId, isScheduled):
         else:
             return "!"
     elif route == "Pink":
-        if destinationId == "30014":
+        if destinationId == "30114":
             return ""
         else:
             return "!"
@@ -87,23 +86,18 @@ def getPredictionSuffix(route, destinationName, destinationId, isScheduled):
 
 def getPredictions(predConfig, devApiKey):
     preds = []
-    cacheKey = predConfig.stopId + predConfig.route
-    respRaw = cache.get(cacheKey)
     respJson = {}
-    if respRaw == None:
-        apiKey = secret.decrypt(CTA_API_KEY_ENCRYPTED) or devApiKey
-        resp = http.get(getApiUrl(predConfig, apiKey))
-        if resp.status_code != 200:
-            fail("CTA request failed with: %d, %s", resp.status_code, resp.body())
-        if resp.body()[0] == "<":
-            fail("CTA request failed - we got a bad xml response")
-        respRaw = resp.body()
-        respJson = resp.json()
-        if "eta" not in respJson["ctatt"]:
-            return preds
-        cache.set(cacheKey, respRaw, ttl_seconds = 45)
-    else:
-        respJson = json.decode(respRaw)
+    apiKey = secret.decrypt(CTA_API_KEY_ENCRYPTED) or devApiKey
+    resp = http.get(getApiUrl(predConfig, apiKey), ttl_seconds = 45)
+
+    if resp.status_code != 200:
+        fail("CTA request failed with: %d, %s", resp.status_code, resp.body())
+    if resp.body()[0] == "<":
+        fail("CTA request failed - we got a bad xml response")
+
+    respJson = resp.json()
+    if "eta" not in respJson["ctatt"]:
+        return preds
 
     for pred in respJson["ctatt"]["eta"]:
         if pred["rt"] == predConfig.route:
@@ -358,15 +352,10 @@ def directionName(dirId):
         return "??"
 
 def getStationOptions():
-    cacheKey = "stationsCache"
-    stationsRaw = cache.get(cacheKey)
-    if stationsRaw == None:
-        resp = http.get(CTA_L_STATON_LIST_URL)
-        if resp.status_code != 200:
-            fail("Failed to get L station list %d %s", resp.status_code, resp.body())
-        stationsRaw = resp.body()
-        cache.set(cacheKey, stationsRaw, ttl_seconds = 86400)  # 1 day
-    stationsJson = json.decode(stationsRaw)
+    resp = http.get(CTA_L_STATON_LIST_URL, ttl_seconds = 86400)  # 1 day
+    if resp.status_code != 200:
+        fail("Failed to get L station list %d %s", resp.status_code, resp.body())
+    stationsJson = resp.json()
     options = [schema.Option(display = x["station_descriptive_name"] + " - " + directionName(x["direction_id"]), value = x["stop_id"]) for x in stationsJson]
     return options
 
