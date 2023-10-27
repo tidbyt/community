@@ -31,10 +31,10 @@ place_image = {
         "height": 1000,
     },
     "2023": {
-        "url": "https://files.catbox.moe/e6ieqz.png", #cleaned version from https://www.reddit.com/r/thefinalclean/comments/16sw01m/communitycleaned_and_repaired_version_of_the/
+        "url": "https://files.catbox.moe/e6ieqz.png",  #cleaned version from https://www.reddit.com/r/thefinalclean/comments/16sw01m/communitycleaned_and_repaired_version_of_the/
         "width": 3000,
         "height": 2000,
-    }
+    },
 }
 
 def main(config):
