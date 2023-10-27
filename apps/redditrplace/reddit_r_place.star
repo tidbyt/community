@@ -30,6 +30,11 @@ place_image = {
         "width": 1000,
         "height": 1000,
     },
+    "2023": {
+        "url": "https://files.catbox.moe/e6ieqz.png", #cleaned version from https://www.reddit.com/r/thefinalclean/comments/16sw01m/communitycleaned_and_repaired_version_of_the/
+        "width": 3000,
+        "height": 2000,
+    }
 }
 
 def main(config):
@@ -41,7 +46,7 @@ def main(config):
 
     max_scroll = int(config.get("max_move", "200"))
 
-    edition = config.get("edition", "2022")
+    edition = config.get("edition", "2023")
     image = place_image[edition]
 
     # set max x & y based on tidbyt viewport size...
@@ -98,6 +103,10 @@ def get_schema():
         schema.Option(
             display = "2017",
             value = "2017",
+        ),
+        schema.Option(
+            display = "2023",
+            value = "2023",
         ),
     ]
 
