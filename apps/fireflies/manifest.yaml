@@ -2,7 +2,7 @@
 id: fireflies
 name: Fireflies
 summary: Show moving fireflies
-desc: Display fireflies with or without a clock.
+desc: Night display of fireflies with or without a clock.
 author: J. Keybl
 fileName: fireflies.star
 packageName: fireflies
