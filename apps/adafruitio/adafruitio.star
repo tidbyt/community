@@ -158,12 +158,12 @@ def main(config):
                 main_align = "center",
                 children = [
                     render.Text(
-                        content = str(round(float(feed["data"][0][-1]), 1)) + config.get("feed_units", "") + " ",
+                        content = str(round(float(feed["data"][-1][1]), 1)) + config.get("feed_units", "") + " ",
                         font = "6x13",
                         color = config.str("feed_color", None) or ORANGE,
                     ),
                     render.Text(
-                        content = str(round(float(feed2["data"][0][-1]), 1)) + config.get("feed2_units", ""),
+                        content = str(round(float(feed2["data"][-1][1]), 1)) + config.get("feed2_units", ""),
                         font = "6x13",
                         color = config.str("feed2_color", None) or BLUE,
                     ),
@@ -175,7 +175,7 @@ def main(config):
                 main_align = "center",
                 children = [
                     render.Text(
-                        content = str(round(float(feed["data"][0][-1]), 2)) + config.get("feed_units", ""),
+                        content = str(round(float(feed["data"][-1][1]), 2)) + config.get("feed_units", ""),
                         font = "6x13",
                         color = config.str("feed_color", None) or ORANGE,
                     ),
@@ -223,7 +223,7 @@ def get_feed(username, key, feed_id, hours):
     res = http.get(url, headers = {"X-AIO-Key": key}, ttl_seconds = TTL_SECONDS)
     feed = res.json()
     print("feed is :" + str(feed))
-    if (len(feed["data"]) == 0):
+    if ('data' in feed and len(feed["data"]) == 0):
         print("pulling bare data feed")
 
         url = "https://io.adafruit.com/api/v2/%s/feeds/%s/data" % (username, feed_id)
