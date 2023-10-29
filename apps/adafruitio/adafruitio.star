@@ -223,7 +223,7 @@ def get_feed(username, key, feed_id, hours):
     res = http.get(url, headers = {"X-AIO-Key": key}, ttl_seconds = TTL_SECONDS)
     feed = res.json()
     print("feed is :" + str(feed))
-    if ('data' in feed and len(feed["data"]) == 0):
+    if ("data" in feed and len(feed["data"]) == 0):
         print("pulling bare data feed")
 
         url = "https://io.adafruit.com/api/v2/%s/feeds/%s/data" % (username, feed_id)
