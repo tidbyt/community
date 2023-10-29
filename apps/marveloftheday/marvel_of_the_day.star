@@ -16,7 +16,7 @@ BASE_URL = "https://gateway.marvel.com/v1/public/characters"
 PUBLIC_KEY = secret.decrypt("AV6+xWcEy092dgpbVtrQ6viXx2aP7gUnMvuSV2fPo8z7rcpCsZSB7iKhbuhn1Y9uf4X944Jxz5IaunEkS5HWH0nADmdQVa1EMOu8boaEFwxIXin9b9f4fu80Yh/hhgdZSmIZG446mxhINuZWXXEkjw9YXjyzrL5jTj23CTEMcYAGRMXovks=")
 PRIVATE_KEY = secret.decrypt("AV6+xWcExLAtVmhSs9vr0xHtg8hRIWQcXAKa1qG3l2W/Frgr+EcICQuMg9CbUwqEbVrY/OhIhFsGczEJkGjhEMsn+MFFqSTm68ZZvNXIbr3MFhOSPnKPCFybCmXU5T97NNLGDAARgtB+/7VgF0w7Ki8eiX5sbW7yisbLpFrEe/2mKxh9OcDmZ6tQAwhhYg==")
 
-def main(config):
+def main():
     """
     App entrypoint.
     Retrieves and parses a single Marvel character.
@@ -70,27 +70,13 @@ def get_auth_params():
 
     return params
 
-def get_current_total():
-    """
-    Gets the total number of characters provided by Marvel.
-    Used to set the maxOffset when getting a random character ID.
-    """
-    baseParams = {"limit": str(1)}
-    params = baseParams | get_auth_params()
-    req = http.get(BASE_URL, ttl_seconds = 86400, params = params)
-    if req.status_code != 200:
-        fail("API request failed with status:", req.status_code)
-
-    return int(req.json()["data"]["total"])
-
 def get_random_character_id():
     """
     Get a single, random character.
     Only return a character if the character has an image.
     """
-    ids = []
     limit = 1
-    maxOffset = get_current_total() - 1
+    maxOffset = 1562
     offset = random.number(0, maxOffset)
     baseParams = {"limit": str(limit), "offset": str(offset)}
     params = baseParams | get_auth_params()
