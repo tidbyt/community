@@ -22,6 +22,14 @@ def main():
     Retrieves and parses a single Marvel character.
     Returns rendered application root.
     """
+    if PUBLIC_KEY == None or PRIVATE_KEY == None:
+        return render.Root(render.Box(
+            child = render.Marquee(
+                align = "center",
+                width = 64,
+                child = render.Text("Something went wrong.", font = "tom-thumb")
+            )
+        ))
 
     characterId = get_random_character_id()
     params = get_auth_params()
