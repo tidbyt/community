@@ -94,4 +94,5 @@ def get_random_character_id():
         print("Seeking...")
         return get_random_character_id()
 
+    print("Character found...")
     return int(characterId)
