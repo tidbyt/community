@@ -51,7 +51,7 @@ def main():
                     child = render.Marquee(
                         align = "center",
                         width = 35,
-                        child = render.Text(name, font = "tom-thumb"),
+                        child = render.Text(name),
                     ),
                 ),
             ],
@@ -81,14 +81,14 @@ def get_random_character_id():
     baseParams = {"limit": str(limit), "offset": str(offset)}
     params = baseParams | get_auth_params()
 
-    req = http.get(BASE_URL, ttl_seconds = 86400, params = params)
+    req = http.get(BASE_URL, ttl_seconds = 82800, params = params)
     if req.status_code != 200:
         fail("API request failed with status:", req.status_code)
 
-    response = req.json()
-    imagePath = response["data"]["results"][0]["thumbnail"]["path"]
+    responseCharacter = req.json()["data"]["results"][0]
+    imagePath = responseCharacter["thumbnail"]["path"]
     hasImage = imagePath != "http://i.annihil.us/u/prod/marvel/i/mg/b/40/image_not_available"
-    characterId = response["data"]["results"][0]["id"]
+    characterId = responseCharacter["id"]
 
     if not hasImage:
         print("Seeking...")
