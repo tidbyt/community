@@ -23,26 +23,26 @@ def main():
     Returns rendered application root.
     """
     if PUBLIC_KEY == None or PRIVATE_KEY == None:
-        return render.Root(render.Box(
-            child = render.Marquee(
-                align = "center",
-                width = 64,
-                child = render.Text("Something went wrong.", font = "tom-thumb"),
-            ),
-        ))
+        image = http.get("http://i.annihil.us/u/prod/marvel/i/mg/2/60/537bcaef0f6cf.jpg").body()
+        name = "Something went wrong, enjoy this image of Wolverine while we fix it."
 
-    characterId = get_random_character_id()
-    params = get_auth_params()
-    req = http.get(BASE_URL + "/" + str(characterId), ttl_seconds = 86400, params = params)
-    if req.status_code != 200:
-        fail("API request failed with status:", req.status_code)
+        return render_data(image, name)
+    else:
+        characterId = get_random_character_id()
+        params = get_auth_params()
+        req = http.get(BASE_URL + "/" + str(characterId), ttl_seconds = 86400, params = params)
+        if req.status_code != 200:
+            fail("API request failed with status:", req.status_code)
 
-    item = req.json()["data"]["results"][0]
-    name = item["name"]
-    imageUrlSegments = item["thumbnail"]
-    imageUrl = imageUrlSegments["path"] + "." + imageUrlSegments["extension"]
-    image = http.get(imageUrl).body()
+        item = req.json()["data"]["results"][0]
+        name = item["name"]
+        imageUrlSegments = item["thumbnail"]
+        imageUrl = imageUrlSegments["path"] + "." + imageUrlSegments["extension"]
+        image = http.get(imageUrl).body()
 
+        return render_data(image, name)
+
+def render_data(image, name):
     return render.Root(
         render.Row(
             children = [
