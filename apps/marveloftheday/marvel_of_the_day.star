@@ -27,8 +27,8 @@ def main():
             child = render.Marquee(
                 align = "center",
                 width = 64,
-                child = render.Text("Something went wrong.", font = "tom-thumb")
-            )
+                child = render.Text("Something went wrong.", font = "tom-thumb"),
+            ),
         ))
 
     characterId = get_random_character_id()
