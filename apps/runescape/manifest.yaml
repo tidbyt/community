@@ -1,7 +1,7 @@
 ---
 id: runescape
 name: OSRS Exchange
-summary: Shows item information from OSRS's Grand Exchange
+summary: OS Runescape GE Item Info
 desc: Shows item information from Runescape using the Runescape API.
 author: blakekwehrle
 fileName: runescape.star
