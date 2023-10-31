@@ -11,7 +11,6 @@ load("encoding/json.star", "json")
 load("http.star", "http")
 load("random.star", "random")
 load("render.star", "render")
-load("schema.star", "schema")
 
 CACHE_TTL_SECONDS = 36604800  # 7 days in seconds.
 RUNESCAPEAPI_ITEMLIST_URL = "https://secure.runescape.com/m=itemdb_oldschool/api/catalogue/items.json?category=1&alpha={0}&page={1}"
@@ -105,6 +104,7 @@ def pick_letter():
             return index
         else:
             mySum += pageCount
+    return 0
 
 def get_item_list(letter):
     url = RUNESCAPEAPI_ITEMLIST_URL.format(letter, random.number(0, PAGE_LENGTH_BY_LETTER[letter]))
