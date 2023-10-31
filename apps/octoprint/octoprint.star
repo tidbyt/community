@@ -11,7 +11,7 @@ load("math.star", "math")
 load("render.star", "render")
 load("schema.star", "schema")
 
-REFRESH_TIME = 60
+REFRESH_TIME = 300
 C_DISPLAY_WIDTH = 64
 C_BACKGROUND = [0, 0, 0]
 C_TEXT_COLOR = [255, 255, 255]
@@ -140,6 +140,9 @@ def renderProgress(label, progress_value, padding):
     )
 
 def main(config):
+    name = None
+    printTimeLeft = None
+    completion = None
     serverIP = config.str("serverIP")
     serverPort = config.str("serverPort", "5000")
     apiKey = config.str("apiKey")
@@ -154,11 +157,12 @@ def main(config):
         job = request("/api/job", serverIP, serverPort, apiKey)
         printer = request("/api/printer", serverIP, serverPort, apiKey)
 
-    completion = math.round(job["progress"]["completion"])
-    name = job["job"]["file"]["display"].removesuffix(".gcode")
+    if job["progress"]["completion"] != None:
+        completion = math.round(job["progress"]["completion"])
+        name = job["job"]["file"]["display"].removesuffix(".gcode")
 
-    # printTime = str(math.round(job["progress"]["printTime"] / 360) / 10)
-    printTimeLeft = str(math.round(job["progress"]["printTimeLeft"] / 360) / 10)
+        # printTime = str(math.round(job["progress"]["printTime"] / 360) / 10)
+        printTimeLeft = str(math.round(job["progress"]["printTimeLeft"] / 360) / 10)
 
     state = printer["state"]["text"]
     bed = int(printer["temperature"]["bed"]["actual"])

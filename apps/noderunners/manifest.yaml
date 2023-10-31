@@ -1,0 +1,8 @@
+---
+id: noderunners
+name: Noderunners
+summary: Current song at Noderunners
+desc: Shows the current song what is playing on Noderunners Radio.
+author: PMK (@pmk)
+fileName: noderunners.star
+packageName: noderunners

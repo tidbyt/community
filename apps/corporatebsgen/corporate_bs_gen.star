@@ -1,4 +1,3 @@
-load("cache.star", "cache")
 load("encoding/base64.star", "base64")
 load("http.star", "http")
 load("render.star", "render")
@@ -9,16 +8,12 @@ iVBORw0KGgoAAAANSUhEUgAAAfcAAAHXCAYAAACh2RMRAAANg0lEQVR42u3Xwa2CUABEURqwERc0QcLW
 """)
 
 def main():
-    phrase = cache.get("corporate_bs")
-    if phrase != None:
-        print("Cache Hit!")
-    else:
-        print("Cache Miss!")
-        rep = http.get(CORPORATE_BS)
-        if rep.status_code != 200:
-            fail("Corporate BS request failed with status %d", rep.status_code)
-        phrase = rep.json()["phrase"]
-        cache.set("corporate_bs", phrase, ttl_seconds = 43200)
+    rep = http.get(CORPORATE_BS, ttl_seconds = 43200)
+
+    if rep.status_code != 200:
+        fail("Corporate BS request failed with status %d", rep.status_code)
+
+    phrase = rep.json()["phrase"]
 
     return render.Root(
         child = render.Stack(
