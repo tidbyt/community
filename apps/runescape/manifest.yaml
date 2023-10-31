@@ -1,6 +1,6 @@
 ---
 id: runescape
-name: OS Runescape Grand Exchange
+name: OSRS Exchange
 summary: Shows item information from OSRS's Grand Exchange
 desc: Shows item information from Runescape using the Runescape API.
 author: blakekwehrle
