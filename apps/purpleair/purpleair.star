@@ -194,11 +194,10 @@ def get_sensor_id(config):
 
 # Returns a tuple: (data, was_cached)
 # Sample call:
-# https://api.purpleair.com/v1/sensors/84707?fields=name,temperature,humidity,pm2.5_cf_1_a,pm2.5_cf_1_b,confidence,confidence_auto,location_type
+# https://api.purpleair.com/v1/sensors/12345?fields=name,temperature,humidity,pm2.5_cf_1_a,pm2.5_cf_1_b,confidence,confidence_auto,location_type
 def fetch_sensor_data(api_key, url, params):
     air_dict = {}
     headers = {"X-API-Key": api_key}
-    print()
     rep = http.get(url, params = params, headers = headers, ttl_seconds = 1800) # 30 min cache
     if rep.status_code != 200:
         print("Request failed with status %d" % rep.status_code)
