@@ -14,11 +14,11 @@ load("random.star", "random")
 load("render.star", "render")
 load("time.star", "time")
 
-BOARD_SIZE_X = 32
-BOARD_SIZE_Y = 16
-MAX_FRAMES = 200
-DELAY_PER_FRAME_MS = 130
-CELL_SIZE = 2
+BOARD_SIZE_X = 16
+BOARD_SIZE_Y = 8
+MAX_FRAMES = 800
+DELAY_PER_FRAME_MS = 20
+CELL_SIZE = 4
 STARTING_SNAKE_SIZE = 3
 
 BLANK_CELL = render.Box(width = CELL_SIZE, height = CELL_SIZE, color = "#808080")
@@ -172,17 +172,23 @@ def generate_board_animation():
     returns animation of gameboard throughout game
     """
     frames = []
-    starting_snake_position_x = int((BOARD_SIZE_X - 1) / 2)
-    snake_position = []
-    for i in range(STARTING_SNAKE_SIZE):
-        snake_position.append(
-            [starting_snake_position_x - i, starting_snake_position_x],
-        )
 
-    snake_direction = SNAKE_DIRECTION_E
+    def reset():
+        starting_snake_position_x = int((BOARD_SIZE_X - 1) / 2)
+        snake_position = []
+        for i in range(STARTING_SNAKE_SIZE):
+            snake_position.append(
+                [starting_snake_position_x - i, starting_snake_position_x],
+            )
 
-    apple_position = new_apple_position(None, snake_position)
-    game_over = False
+        snake_direction = SNAKE_DIRECTION_E
+
+        apple_position = new_apple_position(None, snake_position)
+        game_over = False
+        return snake_position, snake_direction, apple_position, game_over
+
+    snake_position, snake_direction, apple_position, game_over = reset()
+
     for _ in range(MAX_FRAMES):
         frames.append(
             render.Column(
@@ -201,6 +207,8 @@ def generate_board_animation():
                 snake_direction,
                 apple_position,
             )
+        else:
+            snake_position, snake_direction, apple_position, game_over = reset()
 
     return render.Animation(children = frames)
 
