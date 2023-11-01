@@ -12,6 +12,7 @@ load("http.star", "http")
 load("render.star", "render")
 load("schema.star", "schema")
 load("time.star", "time")
+load("math.star", "math")
 
 ACCUWEATHER_FORECAST_URL = "http://dataservice.accuweather.com/forecasts/v1/daily/5day/{location_key}?apikey={api_key}&details=true"
 
@@ -956,11 +957,16 @@ UCSxORoAZkAcCBGYzvAAAAAASUVORK5CYII=
 """,
 }
 
-def get_result_forecast(dow, temp_min, temp_max, icon_num, wind_dir):
+def get_temp(f_temp, display_celsius):
+    if display_celsius:
+        return int(math.round((f_temp - 32) / 1.8))
+    return f_temp
+
+def get_result_forecast(dow, temp_min, temp_max, icon_num, wind_dir, display_celsius):
     result_forecast = {}
     result_forecast["dow"] = dow
-    result_forecast["temp_min"] = temp_min
-    result_forecast["temp_max"] = temp_max
+    result_forecast["temp_min"] = get_temp(temp_min, display_celsius)
+    result_forecast["temp_max"] = get_temp(temp_max, display_celsius)
     result_forecast["icon_num"] = icon_num
     result_forecast["wind_dir"] = wind_dir
     return result_forecast
@@ -968,16 +974,18 @@ def get_result_forecast(dow, temp_min, temp_max, icon_num, wind_dir):
 def main(config):
     api_key = config.get("apiKey", None)
     location_key = config.get("locationKey", None)
+    temp_units = config.get("tempUnits", 'F')
 
     display_sample = not (api_key and location_key)
+    display_celsius = (temp_units == 'C')
 
     result_forecasts = []
 
     if display_sample:
         # sample data to display if user-specified API / location key are not available, also useful for testing
-        result_forecasts.append(get_result_forecast("Mon", 65, 75, 1, "N"))
-        result_forecasts.append(get_result_forecast("Tue", 66, 74, 12, "NE"))
-        result_forecasts.append(get_result_forecast("Wed", 68, 78, 15, "E"))
+        result_forecasts.append(get_result_forecast("Mon", 65, 75, 1, "N", display_celsius))
+        result_forecasts.append(get_result_forecast("Tue", 66, 74, 12, "NE", display_celsius))
+        result_forecasts.append(get_result_forecast("Wed", 68, 78, 15, "E", display_celsius))
     else:
         resp = http.get(ACCUWEATHER_FORECAST_URL.format(location_key = location_key, api_key = api_key), ttl_seconds = 3600)
         if resp.status_code != 200:
@@ -994,6 +1002,7 @@ def main(config):
                 int(raw_forecast["Temperature"]["Maximum"]["Value"]),
                 int(raw_forecast["Day"]["Icon"]),
                 raw_forecast["Day"]["Wind"]["Direction"]["English"],
+                display_celsius
             ))
 
     disp_forecasts = []
@@ -1106,6 +1115,16 @@ def main(config):
     )
 
 def get_schema():
+    tempUnitsOptions = [
+        schema.Option(
+            display = "Fahrenheit",
+            value = "F",
+        ),
+        schema.Option(
+            display = "Celsius",
+            value = "C",
+        ),
+    ]
     return schema.Schema(
         version = "1",
         fields = [
@@ -1123,5 +1142,13 @@ def get_schema():
                 desc = "Location key for AccuWeather data access",
                 icon = "locationDot",
             ),
+            schema.Dropdown(
+                id = "tempUnits",
+                name = "Temperature units",
+                desc = "The units for temperature display",
+                icon = "gear",
+                default = tempUnitsOptions[0].value,
+                options = tempUnitsOptions,
+            )
         ],
     )
