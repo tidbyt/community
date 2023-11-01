@@ -1,261 +1,225 @@
 """
 Applet: Snake
-Summary: Snake game animation
-Description: Shows random snake game animation.
-Author: noahpodgurski
+Summary: Snake game
+Description: Watch snake play out.
+Author: dgoldstein1
 """
+
+load("schema.star", "schema")
+
+# A simple clock applet
 
 load("math.star", "math")
 load("random.star", "random")
 load("render.star", "render")
-load("schema.star", "schema")
+load("time.star", "time")
 
-WHITE = "#ffffff"
-BLACK = "#000000"
-RED = "#ff0000"
-GREEN = "#00ff00"
-ORANGE = "#db8f00"
+BOARD_SIZE_X = 32
+BOARD_SIZE_Y = 16
+MAX_FRAMES = 300
+DELAY_PER_FRAME_MS = 70
+CELL_SIZE = 2
+STARTING_SNAKE_SIZE = 3
 
-WIDTH = 64
-HEIGHT = 32
+BLANK_CELL = render.Box(width = CELL_SIZE, height = CELL_SIZE, color = "#808080")
+APPLE_CELL = render.Box(width = CELL_SIZE, height = CELL_SIZE, color = "#9cf774")
+SNAKE_CELL = render.Box(width = CELL_SIZE, height = CELL_SIZE, color = "#5ff")
 
-def newEgg():
-    return [random.number(2, WIDTH - 2), random.number(2, HEIGHT - 2)]
+SNAKE_DIRECTION_N = "north"
+SNAKE_DIRECTION_S = "south"
+SNAKE_DIRECTION_E = "east"
+SNAKE_DIRECTION_W = "west"
 
-white_pixel = render.Box(
-    width = 1,
-    height = 1,
-    color = WHITE,
-)
-green_pixel = render.Box(
-    width = 1,
-    height = 1,
-    color = GREEN,
-)
-red_pixel = render.Box(
-    width = 1,
-    height = 1,
-    color = RED,
-)
-orange_pixel = render.Box(
-    width = 1,
-    height = 1,
-    color = ORANGE,
-)
-black_pixel = render.Box(
-    width = 1,
-    height = 1,
-    color = BLACK,
-)
+def new_apple_position(curr_position, snake_position):
+    pos = [
+        random.number(0, BOARD_SIZE_X - 1),
+        random.number(0, BOARD_SIZE_Y - 1),
+    ]
+    if pos in snake_position or pos == curr_position:
+        return new_apple_position(curr_position, snake_position)
+    return pos
 
-def render_frame(snake, egg):
-    rows = [[black_pixel for c in range(WIDTH)] for r in range(HEIGHT)]
+def get_next_snake_position(snake_position, snake_direction):
+    """
+    returns where the snake will be during next move
+    """
 
-    for s in snake:
-        rows[s[1]][s[0]] = white_pixel
-    rows[egg[1]][egg[0]] = green_pixel
+    # python: need to copy out mutable list somehow, otherwise
+    # call by object updates snake_position for caller
+    # starlark has no copy() method
+    new_snake_position = [[x, y] for [x, y] in snake_position]
+    new_head = [[x, y] for [x, y] in snake_position][0]
+    if snake_direction == SNAKE_DIRECTION_N:
+        new_head[1] = new_head[1] + 1
+    elif snake_direction == SNAKE_DIRECTION_E:
+        new_head[0] = new_head[0] + 1
+    elif snake_direction == SNAKE_DIRECTION_S:
+        new_head[1] = new_head[1] - 1
+    else:
+        # west
+        new_head[0] = new_head[0] - 1
 
-    frame = render.Column(children = [render.Row(children = row) for row in rows])
-    return frame
+    new_snake_position.pop()
+    new_snake_position.insert(0, new_head)
+    return new_snake_position
 
-def collideTail(snake, pos):
-    return pos in snake
+def move_snake_towards_apple(snake_position, snake_direction, apple_position):
+    """
+    change the snake direction towards an apple, if that is more direct or in bounds
+    """
+    directions = [
+        SNAKE_DIRECTION_N,
+        SNAKE_DIRECTION_E,
+        SNAKE_DIRECTION_S,
+        SNAKE_DIRECTION_W,
+    ]
 
-def playSnake(STARTING_SIZE, GROWTH_RATE):
+    i = directions.index(snake_direction)
+
+    def distanceFromApple(direction):
+        """
+        √((x2 – x1)² + (y2 – y1)²).
+        """
+        [x1, y1] = get_next_snake_position(snake_position, direction)[0]
+        [x2, y2] = apple_position
+        return math.sqrt((math.pow(x2 - x1, 2)) + (math.pow(y2 - y1, 2)))
+
+    # if you're going N, your next options are N,E or W
+    options = [
+        snake_direction,
+        directions[(i + 1) % len(directions)],
+        directions[(i + 3) % len(directions)],
+    ]
+
+    # sort options by what gets snake closest to apple
+    for opt in sorted(
+        options,
+        key = lambda direction: distanceFromApple(direction),
+    ):
+        new_pos = get_next_snake_position(snake_position, opt)
+        if in_bounds(new_pos):
+            return False, new_pos, opt
+
+    return True, [], ""
+
+def in_bounds(snake_position):
+    """
+    check if snake is in a valid position
+    """
+    if snake_position[0] in snake_position[1:]:
+        return False
+    if snake_position[0][0] < 0 or snake_position[0][0] == BOARD_SIZE_X:
+        return False
+    if snake_position[0][1] < 0 or snake_position[0][1] == BOARD_SIZE_Y:
+        return False
+    return True
+
+def next_move(snake_position, snake_direction, apple_position):
+    """
+    update model after a frame has been rendered
+    """
+
+    # turn snake if we're going to hit a wall
+    game_over, new_snake_position, new_snake_direction = move_snake_towards_apple(
+        snake_position,
+        snake_direction,
+        apple_position,
+    )
+    if game_over:
+        return True, None, None, None
+
+    if new_snake_position[0] == apple_position:
+        # add apple to front of old snake
+        snake_position.insert(0, apple_position)
+        return False, snake_position, new_snake_direction, new_apple_position(
+            apple_position,
+            snake_position,
+        )
+
+    return False, new_snake_position, new_snake_direction, apple_position
+
+def render_cell(x, y, snake_position, apple_position, game_over):
+    """
+    renders inividual cell
+    """
+    if game_over:
+        return BLANK_CELL
+    if [x, y] in snake_position:
+        return SNAKE_CELL
+    if [x, y] == apple_position:
+        return APPLE_CELL
+    return BLANK_CELL
+
+def render_board(game_over, snake_position, apple_position):
+    """
+    renders main game board onto screen
+    """
+    children = []
+    for y in range(BOARD_SIZE_Y):
+        row = []
+        for x in range(BOARD_SIZE_X):
+            row.append(
+                render_cell(x, y, snake_position, apple_position, game_over),
+            )
+        children.append(render.Row(
+            expanded = True,
+            children = row,
+        ))
+    return children
+
+def generate_board_animation():
+    """
+    returns animation of gameboard throughout game
+    """
     frames = []
+    starting_snake_position_x = int((BOARD_SIZE_X - 1) / 2)
+    snake_position = []
+    for i in range(STARTING_SNAKE_SIZE):
+        snake_position.append(
+            [starting_snake_position_x - i, starting_snake_position_x],
+        )
 
-    # init snake
-    snake = []
-    snakeDirs = ["u", "r", "d", "l"]
-    snakeDir = snakeDirs[0]  #u r d l
-    SNAKE_INIT = [(WIDTH // 2) - STARTING_SIZE, HEIGHT // 2]
-    for x in range(STARTING_SIZE):
-        snake.append([SNAKE_INIT[0] + x, SNAKE_INIT[1]])
+    snake_direction = SNAKE_DIRECTION_E
 
-    # init egg
-    egg = newEgg()
+    apple_position = new_apple_position(None, snake_position)
+    game_over = False
+    for _ in range(MAX_FRAMES):
+        frames.append(
+            render.Column(
+                expanded = True,
+                children = render_board(
+                    game_over,
+                    snake_position,
+                    apple_position,
+                ),
+            ),
+        )
 
-    for _ in range(300):
-        snakePos = snake[-1]
-        lastPos = snake[-2]
-
-        # move towards egg
-        if snakeDir == "u" or snakeDir == "d":
-            if egg[0] < snakePos[0]:
-                snakeDir = "l"
-            elif egg[0] > snakePos[0]:
-                snakeDir = "r"
-                # moving away at same col
-
-            elif math.fabs(egg[1] - snakePos[1]) > math.fabs(egg[1] - lastPos[1]):
-                snakeDir = "l"
-        if snakeDir == "l" or snakeDir == "r":
-            if egg[1] < snakePos[1]:
-                snakeDir = "u"
-            elif egg[1] > snakePos[1]:
-                snakeDir = "d"
-                # moving away at same row
-
-            elif math.fabs(egg[0] - snakePos[0]) > math.fabs(egg[0] - lastPos[0]):
-                snakeDir = "u"
-
-        # do your best to dodge tail
-        for _ in range(2):
-            if snakeDir == "u":
-                if collideTail(snake, [snakePos[0], snakePos[1] - 1]):
-                    snakeDir = ["r", "d", "l"][random.number(0, 2)]
-            if snakeDir == "r":
-                if collideTail(snake, [snakePos[0] + 1, snakePos[1]]):
-                    snakeDir = ["d", "l", "u"][random.number(0, 2)]
-            if snakeDir == "d":
-                if collideTail(snake, [snakePos[0], snakePos[1] + 1]):
-                    snakeDir = ["l", "u", "r"][random.number(0, 2)]
-            if snakeDir == "l":
-                if collideTail(snake, [snakePos[0] - 1, snakePos[1]]):
-                    snakeDir = ["u", "r", "d"][random.number(0, 2)]
-
-        # get egg
-        if snakePos == egg:
-            egg = newEgg()
-            for _ in range(GROWTH_RATE):
-                tail = [0, 0]
-                tail[0] = snake[-1][0]
-                tail[1] = snake[-1][1]
-                snake.insert(0, tail)
-
-        # render frame
-        frames.append(render_frame(snake, egg))
-
-        # move snake towards egg
-        tail = snake.pop(0)
-        tail[0] = snakePos[0]
-        tail[1] = snakePos[1]
-        if snakeDir == "u":
-            tail[1] = (tail[1] - 1) % HEIGHT
-        elif snakeDir == "r":
-            tail[0] = (tail[0] + 1) % WIDTH
-        elif snakeDir == "d":
-            tail[1] = (tail[1] + 1) % HEIGHT
-        elif snakeDir == "l":
-            tail[0] = (tail[0] - 1) % WIDTH
-        snake.append(tail)
-
-    return frames
-
-def animate(STARTING_SIZE, GROWTH_RATE):
-    frames = playSnake(STARTING_SIZE, GROWTH_RATE)
+        if not game_over:
+            game_over, snake_position, snake_direction, apple_position = next_move(
+                snake_position,
+                snake_direction,
+                apple_position,
+            )
 
     return render.Animation(children = frames)
 
-def main(config):
-    STARTING_SIZE = 4
-    GROWTH_RATE = 1
-
-    if config.get("STARTING_SIZE"):
-        STARTING_SIZE = int(config.get("STARTING_SIZE"))
-    if config.get("GROWTH_RATE"):
-        GROWTH_RATE = int(config.get("GROWTH_RATE"))
+def main():
+    random.seed(time.now().unix)
     return render.Root(
-        child = render.Stack(
-            children = [
-                animate(STARTING_SIZE, GROWTH_RATE),
-            ],
-        ),
+        delay = DELAY_PER_FRAME_MS,
+        child = generate_board_animation(),
     )
-
-startingSizeOptions = [
-    schema.Option(
-        display = "4",
-        value = "4",
-    ),
-    schema.Option(
-        display = "5",
-        value = "5",
-    ),
-    schema.Option(
-        display = "6",
-        value = "6",
-    ),
-    schema.Option(
-        display = "7",
-        value = "7",
-    ),
-    schema.Option(
-        display = "8",
-        value = "8",
-    ),
-    schema.Option(
-        display = "9",
-        value = "9",
-    ),
-    schema.Option(
-        display = "10",
-        value = "10",
-    ),
-]
-
-growthRateOptions = [
-    schema.Option(
-        display = "1",
-        value = "1",
-    ),
-    schema.Option(
-        display = "2",
-        value = "2",
-    ),
-    schema.Option(
-        display = "3",
-        value = "3",
-    ),
-    schema.Option(
-        display = "4",
-        value = "4",
-    ),
-    schema.Option(
-        display = "5",
-        value = "5",
-    ),
-    schema.Option(
-        display = "6",
-        value = "6",
-    ),
-    schema.Option(
-        display = "7",
-        value = "7",
-    ),
-    schema.Option(
-        display = "8",
-        value = "8",
-    ),
-    schema.Option(
-        display = "9",
-        value = "9",
-    ),
-    schema.Option(
-        display = "10",
-        value = "10",
-    ),
-]
 
 def get_schema():
     return schema.Schema(
         version = "1",
         fields = [
-            schema.Dropdown(
-                id = "STARTING_SIZE",
-                name = "Starting size",
-                desc = "The starting size of the snake.",
-                icon = "gear",
-                default = startingSizeOptions[0].value,
-                options = startingSizeOptions,
-            ),
-            schema.Dropdown(
-                id = "GROWTH_RATE",
-                name = "Growth rate",
-                desc = "The rate at which the snake grows.",
-                icon = "gear",
-                default = growthRateOptions[0].value,
-                options = growthRateOptions,
+            schema.Text(
+                id = "who",
+                name = "Who?",
+                desc = "Who to say hello to.",
+                icon = "user",
             ),
         ],
     )
