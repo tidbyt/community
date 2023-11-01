@@ -11,14 +11,16 @@ load("render.star", "render")
 load("schema.star", "schema")
 load("xpath.star", "xpath")
 
-DEFAULT_CATEGORY = "news"
+DEFAULT_CATEGORY = "all"
 
 LOGO = base64.decode("""
 R0lGODlhKAAdAIABAAEzhAAAACH5BAEAAAEALAAAAAAoAB0AAAKNjI+JAOoPE5sz2kdzvlcrz30VR4VBaS4jxqTRaqCuJc/2iedngze8vuvtfBtfTGg8KodLopHXQh5+udHPKZQmgVLds3nFVqJP8u28QsnSYTIRrJpSW2H5Rh6PzbfRoVmfF4RXp3fnh2eHeBhEdZZS46jSVxiZCAFpgnkJ88KZaWjnOaNB2lhZWkljylEAADs=
 """)
 
 def get_news_feed(category = DEFAULT_CATEGORY, ttl_seconds = 60 * 5):
-    url = "https://www.nobsbitcoin.com/tag/{}/rss/".format(category)
+    url = "https://www.nobsbitcoin.com/rss/"
+    if category != "all":
+        url = "https://www.nobsbitcoin.com/tag/{}/rss/".format(category)
     response = http.get(url = url, ttl_seconds = ttl_seconds)
     if response.status_code != 200:
         fail("Nobsbitcoin.com request failed with status %d @ %s", response.status_code, url)
@@ -79,6 +81,7 @@ def main(config):
 
 def get_schema():
     categories = [
+        schema.Option(display = "All", value = "all"),
         schema.Option(display = "News", value = "news"),
         schema.Option(display = "Releases", value = "releases"),
         schema.Option(display = "Research", value = "research"),

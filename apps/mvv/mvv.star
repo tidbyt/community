@@ -9,6 +9,7 @@ load("cache.star", "cache")
 load("encoding/base64.star", "base64")
 load("encoding/json.star", "json")
 load("http.star", "http")
+load("humanize.star", "humanize")
 load("re.star", "re")
 load("render.star", "render")
 load("schema.star", "schema")
@@ -110,30 +111,62 @@ def get_schema():
         fields = [stop, line, style, abbreviate],
     )
 
-def fetch(stop, now):
-    cache_url = BASE_URL.format(stop = base64.encode(stop), time = 0)
-    body = cache.get(cache_url)
+def request(url, params):
+    cache_id = url + "?" + "&".join([k + "=" + v for [k, v] in params.items()])
+    print("cache_id", cache_id)
+
+    body = cache.get(cache_id)
     if body != None:
         return body
 
-    res = http.get(
-        url = BASE_URL,
-        params = {
-            "action": "get_departures",
-            "stop_id": stop,
-            "requested_timestamp": str(now.unix),
-            "lines": "",
-        },
-    )
-
+    res = http.get(url = url, params = params)
     print("url", res.url)
 
     if res.status_code != 200:
         fail("request to %s failed with status code: %d - %s" % (res.url, res.status_code, res.body()))
 
     # TODO: Determine if this cache call can be converted to the new HTTP cache.
-    cache.set(cache_url, res.body(), ttl_seconds = 60)
+    cache.set(cache_id, res.body(), ttl_seconds = 60)
+
     return res.body()
+
+def fetchLines(stop):
+    lines = request(
+        url = BASE_URL,
+        params = {
+            "action": "available_lines",
+            "stop_id": stop,
+        },
+    )
+
+    return {l["stateless"]: l["number"] for l in json.decode(lines)["lines"]}
+
+def filterLines(lines, filters):
+    want_lines = {}
+
+    for (stateless, number) in lines.items():
+        for (want_number, _) in filters:
+            if not want_number or \
+               (want_number.lower() in number.lower()):
+                want_lines[stateless] = number
+
+    return want_lines
+
+def fetchDepartures(stop, lines, now):
+    lines = ["&line=%s" % humanize.url_encode(stateless) for stateless in lines.keys()]
+    lines = "".join(lines)
+
+    departures = request(
+        url = BASE_URL,
+        params = {
+            "action": "get_departures",
+            "stop_id": stop,
+            "requested_timestamp": str(now.unix),
+            "lines": base64.encode(lines),
+        },
+    )
+
+    return json.decode(departures)["departures"]
 
 def parseTime(t, now):
     if t.find(":") < 0:
@@ -202,8 +235,8 @@ def clipDirection(d, type, abbreviate):
 
     return d
 
-def processDepartures(departures, now, filters):
-    lines = {}
+def filterDepartures(departures, now, filters):
+    want_departures = {}
     for d in departures:
         if not "line" in d:
             continue
@@ -224,46 +257,44 @@ def processDepartures(departures, now, filters):
         if wait > MaxWait:
             continue
 
-        if not filters:
-            filters = [("", "")]  # Match-all filter
+        want = False
+        for (_, want_track) in filters:
+            if not want_track:
+                want = True
 
-        for (want_number, want_track) in filters:
-            if want_number and not (
-                (want_number.lower() in number.lower()) or
-                (want_number.lower() in stateless.lower() and want_number.lower() in Stops.keys())
-            ):
-                continue
+            if want_track.lower() in track.lower():
+                want = True
 
-            if want_track and not want_track.lower() in track.lower():
-                continue
+        if not want:
+            continue
 
-            # idx = "%s-%s-%s" % (number, track, type)
-            idx = stateless
-            if not idx in lines:
-                lines[idx] = {
-                    "number": number,
-                    "track": track,
-                    "direction": direction,
-                    "departures": [],
-                    "type": type,
-                }
+        # idx = "%s-%s-%s" % (number, track, type)
+        idx = stateless
+        if not idx in want_departures:
+            want_departures[idx] = {
+                "number": number,
+                "track": track,
+                "direction": direction,
+                "departures": [],
+                "type": type,
+            }
 
-            # It can happen that a line is listed multiple times (e.g., when an S-Bahn wll be split).
-            known = False
-            for x in lines[idx]["departures"]:
-                if x["planned"] == planned:
-                    known = True
+        # It can happen that a line is listed multiple times (e.g., when an S-Bahn will be split).
+        known = False
+        for x in want_departures[idx]["departures"]:
+            if x["planned"] == planned:
+                known = True
 
-            if not known and wait >= 0:
-                lines[idx]["departures"].append({"planned": planned, "actual": actual, "wait": wait})
+        if not known and wait >= 0:
+            want_departures[idx]["departures"].append({"planned": planned, "actual": actual, "wait": wait})
 
     # Remove entries with no departures
-    lines = [x for x in lines.values() if x["departures"] != []]
+    want_departures = [x for x in want_departures.values() if x["departures"] != []]
 
     def key(line):
         return line["departures"][0]["actual"]
 
-    return sorted(lines, key = key)
+    return sorted(want_departures, key = key)
 
 def renderNumber(number, type_):
     color = ColorLines.get(type_, ColorLineDefault)
@@ -331,10 +362,10 @@ def renderDepartureTimes(departures, alternate_style):
         departures = "  ".join(departures[0:2])
         return render.Text(departures, offset = 0, color = ColorTimeNormal, font = Font)
 
-def renderLine(line, alternate_style, abbreviate):
-    direction = renderDirection(line["direction"], line["type"], abbreviate)
-    number = renderNumber(line["number"], line["type"])
-    time = renderDepartureTimes(line["departures"], alternate_style)
+def renderDeparture(departure, alternate_style, abbreviate):
+    direction = renderDirection(departure["direction"], departure["type"], abbreviate)
+    number = renderNumber(departure["number"], departure["type"])
+    time = renderDepartureTimes(departure["departures"], alternate_style)
     #spacer = render.Box(width=ColumnSpacerWidth, height=1)
 
     return render.Row(main_align = "space_evenly", children = [
@@ -348,27 +379,44 @@ def main(config):
     alternate_style = config.bool("alternate_style")
     abbreviate = config.bool("abbreviate")
 
+    filters = []
+    for i in line.split():
+        if "#" in i:
+            (i, track) = i.split("#")
+            filters.append((i.strip(), track.strip()))
+        else:
+            filters.append((i.strip(), ""))
+
+    if not filters:
+        filters = [("", "")]  # Match-all filter
+
     print("stop", stop)
     print("line", line)
     print("alternate_style", alternate_style)
     print("abbreviate", abbreviate)
+    print("filters", filters)
 
     if stop:
         now = time.now()
         stop = json.decode(stop)["value"]
-        data = fetch(stop, now)
-        departures = json.decode(data)["departures"]
+        lines = fetchLines(stop)
+        print("lines", lines)
 
-        filters = []
-        for i in line.split():
-            if "#" in i:
-                (i, platform) = i.split("#")
-                filters.append((i.strip(), platform.strip()))
-            else:
-                filters.append((i.strip(), ""))
+        lines = filterLines(lines, filters)
+        print("filtered lines", lines)
 
-        lines = processDepartures(departures, now, filters)
-        children = [renderLine(l, alternate_style, abbreviate) for l in lines][0:2]
+        if lines or not filters:
+            departures = fetchDepartures(stop, lines, now)
+            print("#departures", len(departures))
+
+            departures = filterDepartures(departures, now, filters)
+            print("#processed", len(departures))
+            print(departures)
+        else:
+            print("#departures", "no filter match")
+            departures = []
+
+        children = [renderDeparture(l, alternate_style, abbreviate) for l in departures][0:2]
 
     else:
         text = ["", "  -== MVV -==", "", "Set a station to ", "show departures."]
