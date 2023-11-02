@@ -1,0 +1,8 @@
+---
+id: tempgraph
+name: Temp Grapher
+summary: Temp graph for the day
+desc: Shows the date/time/temperature with a graph.
+author: Daniel Segel
+fileName: tempgraph.star
+packageName: tempgraph
