@@ -974,10 +974,10 @@ def get_result_forecast(dow, temp_min, temp_max, icon_num, wind_dir, display_cel
 def main(config):
     api_key = config.get("apiKey", None)
     location_key = config.get("locationKey", None)
-    temp_units = config.get("tempUnits", 'F')
+    temp_units = config.get("tempUnits", "F")
 
     display_sample = not (api_key and location_key)
-    display_celsius = (temp_units == 'C')
+    display_celsius = (temp_units == "C")
 
     result_forecasts = []
 
@@ -1002,7 +1002,7 @@ def main(config):
                 int(raw_forecast["Temperature"]["Maximum"]["Value"]),
                 int(raw_forecast["Day"]["Icon"]),
                 raw_forecast["Day"]["Wind"]["Direction"]["English"],
-                display_celsius
+                display_celsius,
             ))
 
     disp_forecasts = []
@@ -1149,6 +1149,6 @@ def get_schema():
                 icon = "gear",
                 default = tempUnitsOptions[0].value,
                 options = tempUnitsOptions,
-            )
+            ),
         ],
     )
