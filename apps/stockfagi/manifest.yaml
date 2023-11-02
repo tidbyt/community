@@ -1,0 +1,8 @@
+---
+id: stockfagi
+name: StockFAGI
+summary: Stock Fear And Greed Index
+desc: Shows the Fear And Greed Index from CNN Markets RapidAPI endpoint.
+author: jondklley
+fileName: stockfagi.star
+packageName: stockfagi
