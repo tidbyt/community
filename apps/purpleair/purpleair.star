@@ -11,15 +11,13 @@ Author: posburn
 load("encoding/base64.star", "base64")
 load("encoding/json.star", "json")
 load("http.star", "http")
-load("humanize.star", "humanize")
 load("math.star", "math")
 load("render.star", "render")
 load("schema.star", "schema")
-load("secret.star", "secret")
 
 # DEFAULTS
 
-DEFAULT_SENSOR_ID = "33997"  # Alcatraz Dock sensor
+DEFAULT_SENSOR_ID = None
 DEFAULT_LOCATION_BASED_SENSOR = '{"display": "SF Maritime NHP", "value": 70251}'
 TEMP_UNIT_F = "F"
 TEMP_UNIT_C = "C"
@@ -54,7 +52,7 @@ def main(config):
 
     # Fetch the air info
     data = None
-    if api_key != None:
+    if api_key != None and sensor_id != None:
         # [0] = data, [1] = was_cached
         data = fetch_sensor_data(api_key, PUBLIC_SENSOR + sensor_id + FETCH_SENSOR_FIELDS, {})
 
@@ -198,7 +196,7 @@ def get_sensor_id(config):
 def fetch_sensor_data(api_key, url, params):
     air_dict = {}
     headers = {"X-API-Key": api_key}
-    rep = http.get(url, params = params, headers = headers, ttl_seconds = 1800) # 30 min cache
+    rep = http.get(url, params = params, headers = headers, ttl_seconds = 1800)  # 30 min cache
     if rep.status_code != 200:
         print("Request failed with status %d" % rep.status_code)
         return None
