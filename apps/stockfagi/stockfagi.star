@@ -59,7 +59,7 @@ def main():
         if response.status_code != 200:
             return render.Root(
                 child = render.WrappedText(
-                    content = "stockfagi: %d. rapidapi is dead jim" % (response.status_code),
+                    content = "stockfagi: %d. this app is dead jim!" % (response.status_code),
                     align = "left",
                 ),
             )
