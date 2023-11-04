@@ -1,0 +1,8 @@
+---
+id: tidclock
+name: TidClock
+summary: Display DateTime as bars
+desc: Displays Date and Time as a series of bars with text.
+author: Phildo
+fileName: tidclock.star
+packageName: tidclock
