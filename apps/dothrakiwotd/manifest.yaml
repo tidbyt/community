@@ -1,0 +1,8 @@
+---
+id: dothraki-wotd
+name: Dothraki WotD
+summary: Dothraki word of the day
+desc: Display a random Dothraki word of the day.
+author: tavdog
+fileName: dothraki_wotd.star
+packageName: dothrakiwotd

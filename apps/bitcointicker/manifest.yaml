@@ -1,0 +1,8 @@
+---
+id: bitcointicker
+name: BitcoinTicker
+summary: Price of Bitcoin
+desc: Shows the price of Bitcoin. Choose to convert into USD, EUR, GBP, CNY, JPY, XAU (Gold) and many more.
+author: PMK (@pmk)
+fileName: bitcointicker.star
+packageName: bitcointicker

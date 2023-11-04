@@ -79,15 +79,18 @@ def getNonVotingChildren(floor):
 
 def getNonVotingMarquee(floor):
     return render.Marquee(
-        child = render.Text(
+        child = render.WrappedText(
             content = getVotingMarqueeText(floor),
             font = "tom-thumb",
             color = "#FFFFFF",
+            align = "center",
+            width = 64,
         ),
-        scroll_direction = "horizontal",
-        height = 5,
         align = "center",
+        scroll_direction = "vertical",
+        height = 5,
         width = 64,
+        delay = 5,
     )
 
 def getVotingMarqueeText(floor):
