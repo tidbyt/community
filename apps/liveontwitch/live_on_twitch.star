@@ -13,7 +13,7 @@ load("schema.star", "schema")
 load("secret.star", "secret")
 load("time.star", "time")
 
-TWITCH_CLIENT_ID = secret.decrypt("t7n82ips6t16w5hmf27abea5ypqa2a")
+TWITCH_CLIENT_ID = "t7n82ips6t16w5hmf27abea5ypqa2a"
 TWITCH_CLIENT_SECRET = secret.decrypt("AV6+xWcEaGyyQ31L8I3zSauUNqXvLAsuS4H/WZuX8qSFM0pGA8/l6xqPnAhvzHOMvKpmwus3e3bLBFxP2evfLsCA1CJKZ+52BCAyvhPTyZBBRfDAlp+J16Ebk5JOLezMlX7pcZ3OyLgB8UB+WuMkZBLuFVHbPzQTYRjdYl/GYNoJCXBi")
 NO_DATA_IN_CACHE = ""
 
