@@ -13,8 +13,8 @@ load("schema.star", "schema")
 load("secret.star", "secret")
 load("time.star", "time")
 
-TWITCH_CLIENT_ID = "h980fr8jmfwp9gkcdo0sc1m251qlw9"
-TWITCH_CLIENT_SECRET = secret.decrypt("AV6+xWcEQV17TbSvb4u35Ir6ac/CuqEVYoo+XRIDH/FftFQhjn+VSh3oqchdz1hAbco3PsD5BAqyoL7hQHpT7iS0l5KIpYfcP84rBJOhp6or2SS38OfqjglBPcKQHSV9kAZEcgU7wIVBpJzO7I9R1d57YxDLhEpOB1O60OYLuc/8gsEI")
+TWITCH_CLIENT_ID = secret.decrypt("AV6+xWcE/aYwEfmThAFhVm8NJrh/c9tjxuvENfNesy1lUWIqQo9GGq90ENm/UDJwJ+1zpnJvESzP/GxVAt7+YoHiUJfJ2mCleNpdFsMJ0ix58jEEvdWH6H6MJ8dI0nSOKl5uCsXSkXpGGvh5UgI8pxlMfvKHg59D5FOeX62GB/2PqSaJ")
+TWITCH_CLIENT_SECRET = secret.decrypt("AV6+xWcEaGyyQ31L8I3zSauUNqXvLAsuS4H/WZuX8qSFM0pGA8/l6xqPnAhvzHOMvKpmwus3e3bLBFxP2evfLsCA1CJKZ+52BCAyvhPTyZBBRfDAlp+J16Ebk5JOLezMlX7pcZ3OyLgB8UB+WuMkZBLuFVHbPzQTYRjdYl/GYNoJCXBi")
 NO_DATA_IN_CACHE = ""
 
 # If a streamer went live less than 2 minutes ago, show them in an isolated widget. Otherwise, show the full list.
