@@ -20,6 +20,17 @@ ROCKET_LAUNCH_CACHE_NAME = "LaunchCountdownCache"
 MINIMUM_CACHE_TIME_IN_SECONDS = 600
 MAXIMUM_CACHE_TIME_IN_SECONDS = 400000
 
+default_location = """
+{
+	"lat": "28.53933",
+	"lng": "-81.38325",
+	"description": "Orlando, FL, USA",
+	"locality": "Orlando",
+	"place_id": "???",
+	"timezone": "America/New_York"
+}
+"""
+
 #Rocket Icons to loop through
 rocket_icon = base64.decode("""
 iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAABmJLR0QA/wD/AP+gvaeTAAACY0lEQVQ4jY3P30tTYRzH8c/zPMdtHd2Za95oGYUU4Q+IIpk/iiSCsKSIFBOCAqM/oG6DcyXRXRdedhHFDOtuhRd5kaz9EEQpZ0RQ/kCRULd5zna2s/k8Txe1FXNi39svrzffL8F/zsPRUJ9SpdyglJ4SQjQIIWukkITsB3VdUutQLKA6q3qPNTW4NU2Fw1UFSik+TM6llf1wrj4WqNXUqx3drdWM0dLONCwQkL0Dui6p3RAb83jUK/4/eOxNFADBrZt+5HJ5UEZX6V44Vx8LuP/BxSGQAADDsKTgfJYAQL8+7rAL7keM0iNC7kRONnov19ZWXyrHxeFcYGpyzsykswOkXx93cK69c7vdnT7fQVXYKV7nVUnX+VZafnYRRz7GLdOwgo/vdQwqdr7mOVPIhabjTQrPbMFRrbLO7hZUOptzgWg4bpmmFXSt+YcAgJ24ODhFOXPSgtHu0Ry0q7sFTGEl3NbciNbmxhI2DCvoWvUP6ToRv+MAHoyGzxIqp7vOtRFfnVbx52gonkmZ1lt17S8GAAoAi+vG/URa2NORL0gl07twJDQvU0bmfTkuBZw8f13zeJ01dYcRCcVLEc4FYuEFbCQt8W15e6IcAwCN9fT0Dn8dO5BaWySJhIFiZGtzG9HwArIFBuLwMsqYf9dvACh1uYZbTh9Vn9w1kVj5jo3NlNwwCnY4tCBX15NcUX3YSiSyAF+pGIAQZ2ALiBfzuD0fsH4u/UgkU5mXfEe2r29mn87NftoxTTPCqDlSKaAIIZzLM5+XiZQzaqHw7NXItYnisk8PLhGb1judmTuv9YF8pcAvJgMvFQ4bgRAAAAAASUVORK5CYII=
@@ -85,7 +96,7 @@ def get_rocket_launch_json():
                     if (len(window_open_text) == 17):
                         window_open_text = window_open_text.replace("Z", ":00Z")
 
-                    #If the JSON feed updates to include the seconds, or it the fix above did it,
+                    #If the JSON feed updates to include the seconds, or if the fix above did it,
                     #we'll parse the time now
                     window_open_time = None
                     if (len(window_open_text) == 20):
@@ -112,7 +123,7 @@ def get_rocket_launch_json():
     return (rocket_launch_data)
 
 #Since not all launches supply values for all these, this makes it easy to add items to a marquee
-def get_launch_details(rocket_launch_data):
+def get_launch_details(rocket_launch_data, locallaunch, mytimezone):
     """ Get Launch Details
 
     Args:
@@ -120,11 +131,14 @@ def get_launch_details(rocket_launch_data):
     Returns:
         Display info of launch details
     """
+
     potential_display_items = [
         rocket_launch_data["result"][0]["pad"]["name"],
         rocket_launch_data["result"][0]["pad"]["location"]["name"],
         rocket_launch_data["result"][0]["pad"]["location"]["state"],
         rocket_launch_data["result"][0]["pad"]["location"]["country"],
+        locallaunch.format("Monday Jan 02 2006"),
+        locallaunch.format("at 3:04 PM") + " " + mytimezone,
     ]
 
     display_text = ""
@@ -143,6 +157,8 @@ def main(config):
     Returns:
         The tidbyt display
     """
+
+    location = json.decode(config.get("location", default_location))
     rocket_launch_data = get_rocket_launch_json()
     rocket_launch_count = 0
     row1 = "Test"
@@ -159,8 +175,9 @@ def main(config):
         row1 = "No upcoming launches.."
     else:
         row1 = rocket_launch_data["result"][0]["vehicle"]["name"]
-        row2 = rocket_launch_data["result"][0]["date_str"]
-        row3 = get_launch_details(rocket_launch_data)
+        locallaunch = time.parse_time(rocket_launch_data["result"][0]["t0"].replace("Z", ":00Z")).in_location(location["timezone"])
+        row2 = locallaunch.format("Jan 02")
+        row3 = get_launch_details(rocket_launch_data, locallaunch, location["timezone"])
         row4 = rocket_launch_data["result"][0]["launch_description"]
 
     return render.Root(
@@ -195,10 +212,23 @@ def main(config):
                                         render.Image(src = rocket_icon_c),
                                         render.Image(src = rocket_icon_b),
                                         render.Image(src = rocket_icon),
+                                        render.Image(src = rocket_icon_b),
+                                        render.Image(src = rocket_icon),
+                                        render.Image(src = rocket_icon_c),
+                                        render.Image(src = rocket_icon),
+                                        render.Image(src = rocket_icon_b),
+                                        render.Image(src = rocket_icon_c),
+                                        render.Image(src = rocket_icon_b),
+                                        render.Image(src = rocket_icon_c),
+                                        render.Image(src = rocket_icon_b),
+                                        render.Image(src = rocket_icon_c),
+                                        render.Image(src = rocket_icon_b),
+                                        render.Image(src = rocket_icon_c),
                                         render.Image(src = rocket_icon_d),
                                         render.Image(src = rocket_icon_e),
                                         render.Image(src = rocket_icon_d),
-                                        render.Image(src = rocket_icon),
+                                        render.Image(src = rocket_icon_c),
+                                        render.Image(src = rocket_icon_b),
                                     ],
                                 ),
                             ],
@@ -221,6 +251,12 @@ def get_schema():
     return schema.Schema(
         version = "1",
         fields = [
+            schema.Location(
+                id = "location",
+                name = "Location",
+                desc = "Location to calculate local launch time.",
+                icon = "locationDot",
+            ),
             schema.Dropdown(
                 id = "scroll",
                 name = "Scroll",
