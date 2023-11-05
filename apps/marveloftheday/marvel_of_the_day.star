@@ -1,6 +1,6 @@
 """
-Applet: Marvel of the Day
-Summary: A Marvel character a day
+Applet: Marvel Characters
+Summary: Randomized Marvel characters
 Description: Shows the name and image of a Marvel Comics character using the Marvel API.
 Author: flynnt
 """
