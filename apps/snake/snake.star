@@ -213,7 +213,7 @@ def generate_board_animation():
     return render.Animation(children = frames)
 
 def main():
-    random.seed(time.now().unix)
+    random.seed(time.now().unix // 15)
     return render.Root(
         delay = DELAY_PER_FRAME_MS,
         child = generate_board_animation(),
