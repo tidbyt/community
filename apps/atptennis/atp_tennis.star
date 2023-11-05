@@ -54,6 +54,10 @@ v1.9
 Added new feature to show who won each set (for completed & in progress matches) rather than having all of the match winner's sets in yellow. Makes it easier to see the flow of the match, especially in a 5 set match
 Updated scheduled matches to only show if both players are listed, prevents blanks
 Updated checks for walkover matches 
+
+v1.10 - idea
+Changed logic for completed matches
+Updated display for 'walkover' matches 
 """
 
 load("encoding/json.star", "json")
@@ -116,7 +120,6 @@ def main(config):
                     # And the "In Progress" match started < 24 hrs ago , sometimes the data feed will still show matches as "In Progress" after they have completed
                     # Adding a 24hr limit will remove them out of the list
                     if ATP_JSON["events"][x]["groupings"][0]["competitions"][y]["status"]["type"]["description"] == "In Progress":
-                        #print(y)
                         MatchTime = ATP_JSON["events"][EventIndex]["groupings"][0]["competitions"][y]["date"]
                         MatchTime = time.parse_time(MatchTime, format = "2006-01-02T15:04Z")
                         diffMatch = MatchTime - now
@@ -191,10 +194,8 @@ def main(config):
                 # check if we are between the start & end date of the tournament
                 if diffTournStart.hours < 0 and diffTournEnd.hours > 0:
                     for y in range(0, len(ATP_JSON["events"][x]["groupings"][0]["competitions"]), 1):
-                        MatchState = ATP_JSON["events"][x]["groupings"][0]["competitions"][y]["status"]["type"]["description"]
-
                         # if the match is completed and the start time of the match was < 24 hrs ago, lets add it to the list of completed matches
-                        if MatchState == "Final" or MatchState == "Retired":
+                        if ATP_JSON["events"][x]["groupings"][0]["competitions"][y]["status"]["type"]["completed"]:
                             MatchTime = ATP_JSON["events"][EventIndex]["groupings"][0]["competitions"][y]["date"]
                             MatchTime = time.parse_time(MatchTime, format = "2006-01-02T15:04Z")
                             diff = MatchTime - now
@@ -569,7 +570,7 @@ def getCompletedMatches(SelectedTourneyID, EventIndex, CompletedMatchList, JSON)
                 Player2Color = "#ff0"
 
             # if its not a walkover
-            if JSON["events"][EventIndex]["groupings"][0]["competitions"][x]["status"]["type"]["description"] != "Walkover":
+            if JSON["events"][EventIndex]["groupings"][0]["competitions"][x]["status"]["type"]["name"] != "STATUS_WALKOVER":
                 Number_Sets = len(JSON["events"][EventIndex]["groupings"][0]["competitions"][x]["competitors"][0]["linescores"])
 
                 for z in range(0, Number_Sets, 1):
@@ -629,7 +630,7 @@ def getCompletedMatches(SelectedTourneyID, EventIndex, CompletedMatchList, JSON)
                             width = 4,
                             height = 5,
                             child = render.Text(
-                                content = "WO",
+                                content = "W",
                                 color = "#ff0",
                                 font = displayfont,
                             ),
@@ -653,7 +654,7 @@ def getCompletedMatches(SelectedTourneyID, EventIndex, CompletedMatchList, JSON)
                             width = 4,
                             height = 5,
                             child = render.Text(
-                                content = "WO",
+                                content = "W",
                                 color = "#ff0",
                                 font = displayfont,
                             ),
