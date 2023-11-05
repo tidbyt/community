@@ -138,7 +138,7 @@ def get_launch_details(rocket_launch_data, locallaunch, mytimezone):
         rocket_launch_data["result"][0]["pad"]["location"]["state"],
         rocket_launch_data["result"][0]["pad"]["location"]["country"],
         locallaunch.format("Monday Jan 02 2006"),
-        locallaunch.format("at 3:04 PM") + ' ' + mytimezone,
+        locallaunch.format("at 3:04 PM") + " " + mytimezone,
     ]
 
     display_text = ""
@@ -175,7 +175,7 @@ def main(config):
         row1 = "No upcoming launches.."
     else:
         row1 = rocket_launch_data["result"][0]["vehicle"]["name"]
-        locallaunch = time.parse_time(rocket_launch_data["result"][0]["t0"].replace("Z",":00Z")).in_location(location["timezone"])
+        locallaunch = time.parse_time(rocket_launch_data["result"][0]["t0"].replace("Z", ":00Z")).in_location(location["timezone"])
         row2 = locallaunch.format("Jan 02")
         row3 = get_launch_details(rocket_launch_data, locallaunch, location["timezone"])
         row4 = rocket_launch_data["result"][0]["launch_description"]
@@ -214,14 +214,14 @@ def main(config):
                                         render.Image(src = rocket_icon),
                                         render.Image(src = rocket_icon_b),
                                         render.Image(src = rocket_icon),
-                                        render.Image(src = rocket_icon_c),  
-                                        render.Image(src = rocket_icon),                                      
-                                        render.Image(src = rocket_icon_b),
-                                        render.Image(src = rocket_icon_c),                                        
+                                        render.Image(src = rocket_icon_c),
+                                        render.Image(src = rocket_icon),
                                         render.Image(src = rocket_icon_b),
                                         render.Image(src = rocket_icon_c),
                                         render.Image(src = rocket_icon_b),
-                                        render.Image(src = rocket_icon_c),                                        
+                                        render.Image(src = rocket_icon_c),
+                                        render.Image(src = rocket_icon_b),
+                                        render.Image(src = rocket_icon_c),
                                         render.Image(src = rocket_icon_b),
                                         render.Image(src = rocket_icon_c),
                                         render.Image(src = rocket_icon_d),
