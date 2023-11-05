@@ -1,5 +1,5 @@
 """
-Applet: Skordle Football
+Applet: Skordle Scores
 Summary: Displays Skorlde FB games
 Description: This app gets football data from the Skordle website to display on the Tidbyt. A user can select the class of game and manually select which game to display.
 Author: Woolycoin437420
