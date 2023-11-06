@@ -18,7 +18,7 @@ ARRIVALS_URL = "https://api.tfl.gov.uk/StopPoint/%s/Arrivals"
 USER_AGENT = "Tidbyt london_bus_stop"
 
 # Allows 500 queries per minute
-ENCRYPTED_API_KEY = "AV6+xWcELQeKmsYDiEPA6VUWk2IZKw+uc9dkaM5cXT/xirUKWgWKfsRAQz2pOxq0eKTNhb/aShsRjavxA84Ay12p6NaZDnDOgVeVxoMCCOnWxJsxmURHogJHpVQpuqBTNttfvafOj0PC1zUXkEpcN7EYhveycs6qxmouIwpDzY5I93wpTy4="
+ENCRYPTED_API_KEY = "AV6+xWcE57T6HnoAondgpmruu4+AXhzassCIQvkqjSPhB2Mkt62EdGUNp1W6B78nn7Kc8EQQTBznglejF3OhE/g1ET75qRw6aWTkZSXu/W8Ux6G6rEFpxHuZgTas7uAGgJ7jTGs5EmqJiccjpPV0jn85qQ0MlHqcw/5YvteVv3qF+366gfg="
 
 RED = "#DA291C"  # Pantone 485 C - same as the buses
 ORANGE = "#FFA500"  # Like the countdown timers at bus stops

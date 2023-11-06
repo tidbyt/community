@@ -19,7 +19,7 @@ RED_RGB = "#FF0000"
 GREEN_RGB = "#00FF00"
 WHITE_RGB = "#FFFFFF"
 
-PIN = """AV6+xWcEOd0lGviFmw+gUtFJ2kA3cYVXGBwOoi903QlfeNHQiMtnYEDpI4qB6SzMwHcuMxrBP08GK/5R3835Tmuzq+Hg8y6pIExIp/G5xLeAVBnpyYnjwdDhz1nw6+BAgnUEXIO9xW0q+99cZSeRPBw86W8s9w=="""
+PIN = """AV6+xWcEmY9Yp7YUMaSGtNJgJG3Tn/+qHEEe1TfYeLdT9CCR243+nNu5h5chnl4mnKkTq01PHjr3qJSBIsR2IMlFs2pQUo2R2N6dfQaLW6NnnAcwgtYWjnMgFthKX2ZfPJnv33Bg"""
 
 def display_symbol(crypto_symbol):
     "returns crypto symbol render"
