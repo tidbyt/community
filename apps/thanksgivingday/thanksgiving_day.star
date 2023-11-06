@@ -20,6 +20,13 @@ def main(config):
     now = time.now().in_location(timezone)
 
     thanksgiving_year = now.year
+
+    thanksgiving_day = math.ceil(28 - (5 + now.year + now.year / 4 - now.year / 100 + now.year / 400) % 7)
+
+    if 11 == now.month:
+        if 0 > thanksgiving_day - now.day:
+            thanksgiving_year = now.year + 1
+
     if now.month > 11:
         thanksgiving_year = now.year + 1
 
