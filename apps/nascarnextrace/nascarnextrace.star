@@ -67,7 +67,7 @@ DISPLAY_VALUES = {
 
 def main(config):
     series = config.get("NASCAR_Series", DEFAULT_SERIES)
-    data_display = config.get("data_display", "nri")
+    data_display = config.get("data_display", "drv")
     NASCAR_DATA = json.decode(get_cachable_data("%s/%s/%s.json" % (NASCAR_API, series, data_display)))
 
     if data_display == "nri":
