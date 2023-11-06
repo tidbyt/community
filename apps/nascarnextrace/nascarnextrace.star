@@ -10,6 +10,7 @@ Author: jvivona
 #                    - change text color to be schema.Color instead of drop down
 # 20230911 - jvivona - update code and API to better handle end of season with not upcoming race
 # 20230918 - jvivona - fixed marquee spacing for playoff drivers / points as we go through rounds and # of drivers drops below 9
+# 20231106 - jvivona - move data sources to gihub to take backpressure off datacenter
 
 load("animation.star", "animation")
 load("encoding/json.star", "json")
@@ -19,7 +20,7 @@ load("render.star", "render")
 load("schema.star", "schema")
 load("time.star", "time")
 
-VERSION = 23261
+VERSION = 23310
 
 # cache data for 15 minutes - cycle through with cache on the API side
 CACHE_TTL_SECONDS = 900
@@ -27,7 +28,7 @@ CACHE_TTL_SECONDS = 900
 DEFAULT_TIMEZONE = "America/New_York"
 
 #we grab the current schedule from nascar website and cache it at this api location to prevent getting blocked by nascar website, data is refreshed every 30 minutes
-NASCAR_API = "https://tidbyt.apis.ajcomputers.com/nascar/api/"
+NASCAR_API = "https://raw.githubusercontent.com/jvivona/tidbyt-data/main/nascar"
 DEFAULT_SERIES = "cup"
 DEFAULT_TIME_24 = False
 DEFAULT_DATE_US = True
@@ -66,19 +67,15 @@ DISPLAY_VALUES = {
 
 def main(config):
     series = config.get("NASCAR_Series", DEFAULT_SERIES)
-
-    NASCAR_DATA = json.decode(get_cachable_data(NASCAR_API + series))
-
     data_display = config.get("data_display", "nri")
+    NASCAR_DATA = json.decode(get_cachable_data("%s/%s/%s.json" % (NASCAR_API, series, data_display)))
 
     if data_display == "nri":
-        NASCAR_DATA = json.decode(get_cachable_data(NASCAR_API + series))
         if NASCAR_DATA.get("Race_Date", "") == "":
             return []
         else:
             text = nextrace(NASCAR_DATA, config)
     else:
-        NASCAR_DATA = json.decode(get_cachable_data(NASCAR_API + series + data_display))
         text = standings(NASCAR_DATA, config, data_display)
 
     return render.Root(
