@@ -51,7 +51,9 @@ ALT_COLOR = """
     "UNC" : "#13294B",
     "COLO" : "#000000",
     "IOWA" : "#000000",
-    "RICE" : "#00205B"
+    "RICE" : "#00205B",
+    "HP": "#330072",
+    "MIZ": "#000000"
 }
 """
 ALT_LOGO = """
@@ -114,7 +116,10 @@ ALT_LOGO = """
     "NORF" : "https://b.fssta.com/uploads/application/college/team-logos/NorfolkState.vresize.50.50.medium.0.png",
     "UNC" : "https://b.fssta.com/uploads/application/college/team-logos/NorthCarolina.vresize.50.50.medium.0.png",
     "BAY" : "https://b.fssta.com/uploads/application/college/team-logos/Baylor-alternate.vresize.50.50.medium.0.png",
-    "ALA" : "https://b.fssta.com/uploads/application/college/team-logos/Alabama-alternate.vresize.50.50.medium.0.png"
+    "ALA" : "https://b.fssta.com/uploads/application/college/team-logos/Alabama-alternate.vresize.50.50.medium.0.png",
+    "TLSA": "https://b.fssta.com/uploads/application/college/team-logos/Tulsa-alternate.vresize.50.50.medium.0.png",
+    "HP": "https://b.fssta.com/uploads/application/college/team-logos/HighPoint.vresize.50.50.medium.0.png",
+    "OSU": "https://b.fssta.com/uploads/application/college/team-logos/OhioState.vresize.50.50.medium.0.png"
 }
 """
 
@@ -438,8 +443,8 @@ def get_team(x, s, entriesToDisplay, displayType):
                 teamName = s[i + x]["team"]["abbreviation"]
                 teamColor = get_team_color(teamID)
                 teamLogo = get_logoType(teamName, s[i + x]["team"]["logos"][0]["href"])
-                teamRecord = s[i + x]["stats"][11]["displayValue"]
-                teamGB = s[i + x]["stats"][2]["displayValue"]
+                teamRecord = s[i + x]["stats"][12]["displayValue"]
+                teamGB = s[i + x]["stats"][1]["displayValue"]
 
                 team = render.Column(
                     children = [
@@ -491,9 +496,8 @@ def get_logoType(team, logo):
     if usealt != "NO":
         logo = get_cachable_data(usealt, 36000)
     else:
-        logo = logo.replace("500/scoreboard", "500-dark/scoreboard")
-        logo = logo.replace("https://a.espncdn.com/", "https://a.espncdn.com/combiner/i?img=", 36000)
-        logo = get_cachable_data(logo + "&h=50&w=50")
+        logo = logo.replace("500", "500-dark")
+        logo = get_cachable_data(logo + "?h=50&w=50")
     return logo
 
 def get_top_column(displayTop, now, timeColor, divisionName, renderCategory):
