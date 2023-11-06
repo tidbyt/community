@@ -38,8 +38,8 @@ SHORTENED_WORDS = """
     " Win": "",
     " win": "",
     " Leads": "",
-    " lead": "",
-    " Leads": "",
+    " leads": "",
+    " Lead": "",
     " lead": "",
     " Series": "",
     " series": "",
@@ -61,29 +61,26 @@ SHORTENED_WORDS = """
 ALT_COLOR = """
 {
     "OKC": "#007AC1",
-    "DEN": "#0E2240",
+    "GS": "#1D428A",
     "PHI": "#006BB6"
 }
 """
 ALT_LOGO = """
 {
-    "HOU": "https://b.fssta.com/uploads/application/nba/team-logos/Rockets-alternate.png",
     "PHI": "https://b.fssta.com/uploads/application/nba/team-logos/76ers.png"
 }
 """
 MAGNIFY_LOGO = """
 {
     "BOS": 18,
-    "BKN": 18,
     "CHA": 18,
-    "CLE": 22,
     "DEN": 14,
     "HOU": 20,
     "LAL": 18,
-    "MIL": 20,
-    "NO": 26,
-    "NY": 20,
-    "OKC": 26,
+    "MIL": 18,
+    "NO": 24,
+    "NY": 18,
+    "OKC": 24,
     "ORL": 18,
     "PHX": 18,
     "PHI": 14,
