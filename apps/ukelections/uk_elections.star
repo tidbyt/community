@@ -15,7 +15,7 @@ POSTCODE_API = "https://api.electoralcommission.org.uk/api/v1/postcode/%s/"
 ADDRESS_API = "https://api.electoralcommission.org.uk/api/v1/address/%s/"
 
 def api_key():
-    return secret.decrypt("AV6+xWcEvGd93T5yzz46xsS0wt0ut5MEmrrH/GY/8eOgI2QYlMmaOpKDyl90JKLXhIos5h0IVNYG1D8Xzti8tv0mkWTgysGnnnvraVS+BLZlTRvpqzx9F43RQAnCq2sq1GWE+5S5") or ""
+    return secret.decrypt("AV6+xWcEp1fWUXHSTLQxcsBgT05CObA/A0mymKkVv7XBM2J8LEjJyN91WINoUM3a+cVOne+b50W8lpRc/fd5lCxrXtojn4hzYrPoIf9DyY+GRn9SUhoy3vTZK8iAc5P+hrg89sHg2rfPASYGHg2KGuhNnN4hDLIzgwvnoDWT16LZQ59QuK3GEko6JSCe3g==") or ""
 
 FONT = "tom-thumb"
 BLUE = "#0000ff"
