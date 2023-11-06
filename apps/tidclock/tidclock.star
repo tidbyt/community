@@ -27,7 +27,7 @@ def rowfgbar(w, nw, h, c):
                 expanded = True,
                 children = [
                     render.Box(width = 1, height = h, color = c),
-                    render.Box(width = nw-1, height = h),
+                    render.Box(width = nw - 1, height = h),
                     render.Box(width = 1, height = h, color = c),
                 ],
             )
@@ -35,7 +35,7 @@ def rowfgbar(w, nw, h, c):
         return render.Row(
             expanded = True,
             children = [
-                render.Box(width = w-1, height = h),
+                render.Box(width = w - 1, height = h),
                 render.Box(width = 1, height = h, color = c),
             ],
         )
@@ -43,9 +43,9 @@ def rowfgbar(w, nw, h, c):
         return render.Row(
             expanded = True,
             children = [
-                render.Box(width = w-1, height = h),
+                render.Box(width = w - 1, height = h),
                 render.Box(width = 1, height = h, color = c),
-                render.Box(width = nw-w-1, height = h),
+                render.Box(width = nw - w - 1, height = h),
                 render.Box(width = 1, height = h, color = c),
             ],
         )
@@ -95,17 +95,16 @@ def main(config):
     lng = float(location["lng"])
     tnow = time.now()
     now = tnow.in_location(timezone)
-    rise = sunrise.sunrise(lat,lng,tnow).in_location(timezone)
-    set = sunrise.sunset(lat,lng,tnow).in_location(timezone)
+    rise = sunrise.sunrise(lat, lng, tnow).in_location(timezone)
+    set = sunrise.sunset(lat, lng, tnow).in_location(timezone)
 
     birthyear = 1990
     birthyearstr = config.get("birthyear")
     if birthyearstr:
         birthyear = int(birthyearstr)
 
-
-    monthstr    = ["DEC", "JAN", "FEB", "MAR", "APR", "MAY", "JUN", "JUL", "AUG", "SEP", "OCT", "NOV", "DEC"]
-    daysofmonth = [   31,    31,    28,    31,    30,    31,    30,    31,    31,    30,    31,    30,    31   ]
+    monthstr = ["DEC", "JAN", "FEB", "MAR", "APR", "MAY", "JUN", "JUL", "AUG", "SEP", "OCT", "NOV", "DEC"]
+    daysofmonth = [31, 31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31]
     daystr = ["SUN", "MON", "TUE", "WED", "THU", "FRI", "SAT"]
 
     year = now.year
@@ -113,35 +112,35 @@ def main(config):
     day = now.day
     weekday = humanize.day_of_week(now)
     hour = now.hour
-    minute = now.minute
-    second = now.second
+    #minute = now.minute
+    #second = now.second
 
     #year/life
     lifew = int(64 * (year - birthyear) / 90)
 
     #month/year
-    monthw  = int(64 * (month-1) / 12)
-    monthnw = int(64 *  month    / 12)
+    monthw = int(64 * (month - 1) / 12)
+    monthnw = int(64 * month / 12)
 
     #day/month
-    dayw  = int(64 * (day-1) / daysofmonth[month])
-    daynw = int(64 *  day    / daysofmonth[month])
+    dayw = int(64 * (day - 1) / daysofmonth[month])
+    daynw = int(64 * day / daysofmonth[month])
 
     #weekday/week
-    weekdayw  = int(64 *  weekday    / 7)
-    weekdaynw = int(64 * (weekday+1) / 7)
+    weekdayw = int(64 * weekday / 7)
+    weekdaynw = int(64 * (weekday + 1) / 7)
 
     #hour/day
-    hourw  = int(64 *  hour    / 24)
-    hournw = int(64 * (hour+1) / 24)
+    hourw = int(64 * hour / 24)
+    hournw = int(64 * (hour + 1) / 24)
 
     #minute/hour
-    minutew  = int(64 *  minute    / 60)
-    minutenw = int(64 * (minute+1) / 60)
+    #minutew = int(64 * minute / 60)
+    #minutenw = int(64 * (minute + 1) / 60)
 
     #second/minute
-    secondw  = int(64 *  second    / 60)
-    secondnw = int(64 * (second+1) / 60)
+    #secondw = int(64 * second / 60)
+    #secondnw = int(64 * (second + 1) / 60)
 
     springcolor = "#121"
     summercolor = "#220"
@@ -151,7 +150,6 @@ def main(config):
     summerbcolor = "#AA0"
     fallbcolor = "#F40"
     winterbcolor = "#AAF"
-
 
     season0color = wintercolor
     season1color = springcolor
@@ -176,36 +174,36 @@ def main(config):
         season3bcolor = springbcolor
         season4bcolor = summerbcolor
 
-    season0w = int(64*(3 -1)/12)
-    season1w = int(64*(6 -1)/12)
-    season2w = int(64*(9 -1)/12)
-    season3w = int(64*(12-1)/12)
-    season4w = int(64*(13-1)/12)
+    season0w = int(64 * (3 - 1) / 12)
+    season1w = int(64 * (6 - 1) / 12)
+    season2w = int(64 * (9 - 1) / 12)
+    season3w = int(64 * (12 - 1) / 12)
+    season4w = int(64 * (13 - 1) / 12)
 
     weekstartcolor = "#222"
 
-    firstsun = (day+(7+7-weekday))%7
+    firstsun = (day + (7 + 7 - weekday)) % 7
     if firstsun == 0:
         firstsun = 7
-    weekstart0w  = int(64 * (firstsun+ 0-1) / daysofmonth[month])
-    weekstart1w  = int(64 * (firstsun+ 7-1) / daysofmonth[month])
-    weekstart2w  = int(64 * (firstsun+14-1) / daysofmonth[month])
-    weekstart3w  = int(64 * (firstsun+21-1) / daysofmonth[month])
-    weekstart4w  = int(64 * (firstsun+28-1) / daysofmonth[month])
+    weekstart0w = int(64 * (firstsun + 0 - 1) / daysofmonth[month])
+    weekstart1w = int(64 * (firstsun + 7 - 1) / daysofmonth[month])
+    weekstart2w = int(64 * (firstsun + 14 - 1) / daysofmonth[month])
+    weekstart3w = int(64 * (firstsun + 21 - 1) / daysofmonth[month])
+    weekstart4w = int(64 * (firstsun + 28 - 1) / daysofmonth[month])
 
-    weekendcolor = "#222"
+    #weekendcolor = "#222"
 
-    weekend0w  = int(64 * 1 / 7)
-    weekend1w  = int(64 * 6 / 7)
-    weekend2w  = int(64 * 7 / 7)
+    #weekend0w = int(64 * 1 / 7)
+    #weekend1w = int(64 * 6 / 7)
+    #weekend2w = int(64 * 7 / 7)
 
     suncolor = "#222"
 
-    risem = rise.hour*60+rise.minute
-    setm = set.hour*60+set.minute
-    sun0w  = int(64 *  risem / (24*60))
-    sun1w  = int(64 *  setm / (24*60))
-    sun2w  = int(64 *  (24*60) / (24*60))
+    risem = rise.hour * 60 + rise.minute
+    setm = set.hour * 60 + set.minute
+    sun0w = int(64 * risem / (24 * 60))
+    sun1w = int(64 * setm / (24 * 60))
+    sun2w = int(64 * (24 * 60) / (24 * 60))
 
     monthbgbar = {}
     if monthnw <= season0w:
@@ -219,40 +217,41 @@ def main(config):
         monthbgbar = render.Row(
             expanded = True,
             children = [
-                render.Box(width = season0w         , height = 8, color = season0color),
-                render.Box(width = monthnw-season0w, height = 8, color = season1color),
+                render.Box(width = season0w, height = 8, color = season0color),
+                render.Box(width = monthnw - season0w, height = 8, color = season1color),
             ],
         )
     elif monthnw <= season2w:
         monthbgbar = render.Row(
             expanded = True,
             children = [
-                render.Box(width = season0w         , height = 8, color = season0color),
-                render.Box(width = season1w-season0w, height = 8, color = season1color),
-                render.Box(width = monthnw-season1w, height = 8, color = season2color),
+                render.Box(width = season0w, height = 8, color = season0color),
+                render.Box(width = season1w - season0w, height = 8, color = season1color),
+                render.Box(width = monthnw - season1w, height = 8, color = season2color),
             ],
         )
     elif monthnw <= season3w:
         monthbgbar = render.Row(
             expanded = True,
             children = [
-                render.Box(width = season0w         , height = 8, color = season0color),
-                render.Box(width = season1w-season0w, height = 8, color = season1color),
-                render.Box(width = season2w-season1w, height = 8, color = season2color),
-                render.Box(width = monthnw-season2w, height = 8, color = season3color),
+                render.Box(width = season0w, height = 8, color = season0color),
+                render.Box(width = season1w - season0w, height = 8, color = season1color),
+                render.Box(width = season2w - season1w, height = 8, color = season2color),
+                render.Box(width = monthnw - season2w, height = 8, color = season3color),
             ],
         )
     elif monthnw <= season4w:
         monthbgbar = render.Row(
             expanded = True,
             children = [
-                render.Box(width = season0w         , height = 8, color = season0color),
-                render.Box(width = season1w-season0w, height = 8, color = season1color),
-                render.Box(width = season2w-season1w, height = 8, color = season2color),
-                render.Box(width = season3w-season2w, height = 8, color = season3color),
-                render.Box(width = monthnw-season3w, height = 8, color = season4color),
+                render.Box(width = season0w, height = 8, color = season0color),
+                render.Box(width = season1w - season0w, height = 8, color = season1color),
+                render.Box(width = season2w - season1w, height = 8, color = season2color),
+                render.Box(width = season3w - season2w, height = 8, color = season3color),
+                render.Box(width = monthnw - season3w, height = 8, color = season4color),
             ],
         )
+
     #rowbgbar(monthnw, 8, "#040")
     daybgbar = rowbgbar(daynw, 8, "#440")
     weekdaybgbar = rowbgbar(weekdaynw, 8, "#004")
@@ -274,32 +273,32 @@ def main(config):
     hourfgbar = rowfgbar(hourw, hournw, 8, "#F0F")
 
     lifeminibar = rowbgbar(lifew, 1, "#400")
-    emptyminibar0 = render.Box(width = 64, height = 5);
+    emptyminibar0 = render.Box(width = 64, height = 5)
     seasonminibar = render.Row(
-            expanded = True,
-            children = [
-                render.Box(width = season0w         , height = 2, color = season0color),
-                render.Box(width = season1w-season0w, height = 2, color = season1color),
-                render.Box(width = season2w-season1w, height = 2, color = season2color),
-                render.Box(width = season3w-season2w, height = 2, color = season3color),
-                render.Box(width = season4w-season3w, height = 2, color = season4color),
-            ],
-        )
-    emptyminibar1 = render.Box(width = 64, height = 7);
+        expanded = True,
+        children = [
+            render.Box(width = season0w, height = 2, color = season0color),
+            render.Box(width = season1w - season0w, height = 2, color = season1color),
+            render.Box(width = season2w - season1w, height = 2, color = season2color),
+            render.Box(width = season3w - season2w, height = 2, color = season3color),
+            render.Box(width = season4w - season3w, height = 2, color = season4color),
+        ],
+    )
+    emptyminibar1 = render.Box(width = 64, height = 7)
     weekstartminibar = {}
     if weekstart4w <= 64:
         weekstartminibar = render.Row(
             expanded = True,
             children = [
-                render.Box(width = weekstart0w-1, height = 1),
+                render.Box(width = weekstart0w - 1, height = 1),
                 render.Box(width = 1, height = 1, color = weekstartcolor),
-                render.Box(width = weekstart1w-weekstart0w-1, height = 1),
+                render.Box(width = weekstart1w - weekstart0w - 1, height = 1),
                 render.Box(width = 1, height = 1, color = weekstartcolor),
-                render.Box(width = weekstart2w-weekstart1w-1, height = 1),
+                render.Box(width = weekstart2w - weekstart1w - 1, height = 1),
                 render.Box(width = 1, height = 1, color = weekstartcolor),
-                render.Box(width = weekstart3w-weekstart2w-1, height = 1),
+                render.Box(width = weekstart3w - weekstart2w - 1, height = 1),
                 render.Box(width = 1, height = 1, color = weekstartcolor),
-                render.Box(width = weekstart4w-weekstart3w-1, height = 1),
+                render.Box(width = weekstart4w - weekstart3w - 1, height = 1),
                 render.Box(width = 1, height = 1, color = weekstartcolor),
             ],
         )
@@ -307,40 +306,41 @@ def main(config):
         weekstartminibar = render.Row(
             expanded = True,
             children = [
-                render.Box(width = weekstart0w-1, height = 1),
+                render.Box(width = weekstart0w - 1, height = 1),
                 render.Box(width = 1, height = 1, color = weekstartcolor),
-                render.Box(width = weekstart1w-weekstart0w-1, height = 1),
+                render.Box(width = weekstart1w - weekstart0w - 1, height = 1),
                 render.Box(width = 1, height = 1, color = weekstartcolor),
-                render.Box(width = weekstart2w-weekstart1w-1, height = 1),
+                render.Box(width = weekstart2w - weekstart1w - 1, height = 1),
                 render.Box(width = 1, height = 1, color = weekstartcolor),
-                render.Box(width = weekstart3w-weekstart2w-1, height = 1),
+                render.Box(width = weekstart3w - weekstart2w - 1, height = 1),
                 render.Box(width = 1, height = 1, color = weekstartcolor),
             ],
         )
+
     #weekendminibar = render.Row(
-        #expanded = True,
-        #children = [
-            #render.Box(width = weekend0w,           height = 1, color = weekendcolor),
-            #render.Box(width = weekend1w-weekend0w, height = 1),
-            #render.Box(width = weekend2w-weekend1w, height = 1, color = weekendcolor),
-        #],
+    #expanded = True,
+    #children = [
+    #render.Box(width = weekend0w,           height = 1, color = weekendcolor),
+    #render.Box(width = weekend1w-weekend0w, height = 1),
+    #render.Box(width = weekend2w-weekend1w, height = 1, color = weekendcolor),
+    #],
     #)
-    emptyminibar2 = render.Box(width = 64, height = 15);
+    emptyminibar2 = render.Box(width = 64, height = 15)
     sunminibar = render.Row(
-            expanded = True,
-            children = [
-                render.Box(width = sun0w,       height = 1),
-                render.Box(width = sun1w-sun0w, height = 1, color = suncolor),
-                render.Box(width = sun2w-sun1w, height = 1),
-            ],
-        )
+        expanded = True,
+        children = [
+            render.Box(width = sun0w, height = 1),
+            render.Box(width = sun1w - sun0w, height = 1, color = suncolor),
+            render.Box(width = sun2w - sun1w, height = 1),
+        ],
+    )
     #minuteminibar = rowbar(minutew, minutenw, 1, "#044","#044")
     #secondminibar = rowbar(secondw, secondnw, 1, "#444","#444")
 
-    monthtext = rowtext(monthw-1, monthnw+1, 8, monthstr[month])
-    daytext = rowtext(dayw-1, daynw+1, 8, str(day))
-    weekdaytext = rowtext(weekdayw-1, weekdaynw+1, 8, daystr[weekday])
-    hourtext = rowtext(hourw-1, hournw+1, 8, now.format("3:04PM"))
+    monthtext = rowtext(monthw - 1, monthnw + 1, 8, monthstr[month])
+    daytext = rowtext(dayw - 1, daynw + 1, 8, str(day))
+    weekdaytext = rowtext(weekdayw - 1, weekdaynw + 1, 8, daystr[weekday])
+    hourtext = rowtext(hourw - 1, hournw + 1, 8, now.format("3:04PM"))
 
     return render.Root(
         child = render.Stack(
