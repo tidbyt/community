@@ -1,0 +1,8 @@
+---
+id: thanksgiving-day
+name: Thanksgiving Day
+summary: Thanksgiving countdown
+desc: Simple daily countdown until Thanksgiving Day holiday in the U.S.
+author: J. Alex Cooney
+fileName: thanksgiving_day.star
+packageName: thanksgivingday
