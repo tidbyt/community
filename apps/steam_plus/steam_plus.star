@@ -18,7 +18,7 @@ STEAM_LOGO = http.get(STEAM_LOGO_PATH).body()
 
 def main(config):
     #
-    api_key = secret.decrypt("AV6+xWcEAV/C6DlDSXC/ctB9uOeRv75Auw1qriizLmpOld+gcYzQCus3oieQdfGJZwd5tkDOzUm4VWf/dEm5ln82fhQxFkMVPJK4WrDqoiPcfsOGJrjE3k3KIjdYIrc4QenNcj4+nttHUE15SA6rp0U/LBzvLSSY2RvJpItmHuAY8rRyit4=") or config.get("dev_api_key") or ""
+    api_key = secret.decrypt("AV6+xWcEJR5qELPaYxK0mTVpgPRRvSvB55VTzrvxgmXi94p9HmJxDHFeJWyTr3yrfegS9hGmu4kS/3Eqx75URHFhvScaAJG9azvs9LAHcu/xNt7bXRzgUKYksXtpw/90gD+hOqtEX9hsOnJ+obsMN6UayvQ28PAkIwLU7dIC0AlmnxrMVI0=") or config.get("dev_api_key") or ""
 
     STEAM_API_ENDPOINT = "http://api.steampowered.com/ISteamUser/GetPlayerSummaries/v0002/?key=" + api_key + "&steamids="
     STEAM_GAMES_ENDPOINT = "http://api.steampowered.com/IPlayerService/GetOwnedGames/v0001/?key=" + api_key + "&steamid="

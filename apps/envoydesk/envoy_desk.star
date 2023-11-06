@@ -20,7 +20,7 @@ OAUTH_SCOPES = [
     "spaces.read",
     "employees.read",
 ]
-OAUTH2_CLIENT_SECRET = secret.decrypt("AV6+xWcEC3WnsQDbdb4VO6ANmvvzYNB4sznCu2l1fNINGhxKj2ciXMJlm57SIhgDwWD57AhqC4khBhJ0qTBDUoFFnVzwfDXw4rPIFdrIvKJK+4m6xgnZ4p59n97GXcN7m9eVdnNJnnZcFvcVSamc3xbjYlpHjkmUAf5X/qjfLgIfWEq9bbQHAZ6dfYrzOOsdYFh/LWN+xLYBUKfjXJ9DzfaZrHLiUg5th+9T4yifRGMyo4lOTFdYZW3zrHMYznUFi6COfAko9DH/o/ksmO/KbLGY+iQR5Uptbn/B+2ONvPxZiGP/KnU=")
+OAUTH2_CLIENT_SECRET = secret.decrypt("AV6+xWcEJh2+FimQ3RnzWZv10rlGletKaq0OLM8RcKK4yp7GX+Q5d5NyZqddwFTvHVprjYYC5VSF6kcGQX2a8pbbGtYUeUP9Ctbv2T+vaai/9TPkQ0/7gYYS3/fMp3+ovuRyrEUHWraFmOcYd+xWHS2U4hd3bZNhDOiD1fk3aOCE16g7mK8utGFCkemRTtuU5+1bTKy+T313EiIgEn/trBonRfR9CEGdojDqYjWGVNshYcAdF0cQYiZ1tshw+9Ov93cDl2XQekk8jk35VOWmoG/r38baHCfeSTQV2K4pDjjYH+B9Zi8=")
 
 def getDeskInfo(config):
     envoy_token = config.get("envoy_token") or ""
