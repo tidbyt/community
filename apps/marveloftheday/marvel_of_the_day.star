@@ -28,6 +28,7 @@ def main():
 
         return render_data(image, name)
     else:
+        random.seed(time.now().unix // 86400)
         characterId = get_random_character_id()
         params = get_auth_params()
         req = http.get(BASE_URL + "/" + str(characterId), ttl_seconds = 86400, params = params)
