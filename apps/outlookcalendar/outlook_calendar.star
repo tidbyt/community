@@ -64,8 +64,8 @@ OUTLOOK_CALENDAR_VIEW_URL = "https://graph.microsoft.com/v1.0/me/calendarview?$s
 # Hash Strings to encrypt/store secrets required by MSFT Graph API access.   These ultimately get replaced with Tidbyt Hash when the
 # App is placed into the production envirnment.   Application folder name is "outlookcalendar"   These (hashed) secrets are tied to
 # the common tenant version of the Web App (Tidbyt_Ocal)
-CLIENT_ID_HASH = "AV6+xWcEpyCHSZvzyLITAzILoYT1FBTTxLF+G5LEkIx61DecQ7+edZNHDiWXjbGIsZlangWOQy2sBTi21FUY9JRSAOsseiuK3+1cGGKRkSARjBaCxLFZ2OPIXf3AM6eto3DshTwWd/jppqZKEyOJUSBvILCIxEq0XVDoppxe7tRgC3nnzMT+0BKl"
-CLIENT_SECRET_HASH = "AV6+xWcEML15E0NgLBU1apxHQ/dRRXVYdvsTcLSzVi9X2Pu5wJg7Y0NU5jEytSixmrmvG+kWCX1/5UlceG4/ALzORyrnyY1kPbYjYJjKirIFXW92Ssy+oTT/VuUMOwsfvtOEpl0/B9qIpIOhbjLFtvVyoZBoeGSoEbTsSyNupyT3c5XsgPzz+/7i7jMXpg=="
+CLIENT_ID_HASH = "AV6+xWcEMrtw5Qae1Qxr8EwbLQ4vdNr0YbP2kkl6MGeV0dD9+1mHpO8jBQXg5rUIlpvxHx7MmfpUo5JP6yls9UzvLbsoKTM0ADQrHMMrPHXJ1Oc6on7koHgW1RDu0Z9cvxpd/TrkN3NnIW2hkHp1Lv9FfB+yPgvr0/q/UwNNlV9JO6P4ijQjmsfg"
+CLIENT_SECRET_HASH = "AV6+xWcEs4Z0aI5KwrFsWASW7jYukbcoqUvYjO79Xci1eXUh1V7e7w+BKmeH4jrHT4914bT2j0J/e4kKvxixykV6A4VyMvw3o2UpgQSgu+9uWfcHJTDLwuXeJ9pm5TQv6Y6HNjn6V+CybZKIKuaR4JkJTXMY5PvdgUMuxj4aA2UKraMIeoeNZ9vRm/Ml3Q=="
 
 # MSFT Graph uses 3 secrets to operate.  There is the usual Client Secret and Client ID, but Graph uses the Tenant ID as part of
 # The endpoint URL.  For public usage, the Tenant ID is set to "Common"
