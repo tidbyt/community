@@ -8,13 +8,12 @@ borrowed Fade In and Out technique and the math calculations from @CubsAaron cou
 
 # 20231107 - jvivona - change fade code to new code & cleanup for loops
 
-VERSION = 23311
-
-
 load("math.star", "math")
 load("render.star", "render")
 load("schema.star", "schema")
 load("time.star", "time")
+
+VERSION = 23311
 
 DEFAULT_TIMEZONE = "America/New_York"
 TITLE_FONT = "5x8"
