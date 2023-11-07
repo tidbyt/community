@@ -17,6 +17,7 @@ Author: jvivona
 # 20230927 - jvivona - thanks to @samhi113 for additional 2024 tracks
 #  - move data and track images to github instead of our datacenter
 #  - fixed some notes and inline documentation to actually match the code
+# 20231108 - jvivona - cleanup some code in for loops
 
 load("encoding/base64.star", "base64")
 load("encoding/json.star", "json")
@@ -25,7 +26,7 @@ load("render.star", "render")
 load("schema.star", "schema")
 load("time.star", "time")
 
-VERSION = 23270
+VERSION = 23311
 
 DEFAULTS = {
     "series": "car",
@@ -156,7 +157,7 @@ def drvrtext(data):
 
     positions = len(data) if len(data) <= DEFAULTS["positions"] else DEFAULTS["positions"]
 
-    for i in range(0, positions):
+    for i in range(positions):
         text.append("{} {} {}".format(text_justify_trunc(2, str(data[i]["RANK"]), "right"), text_justify_trunc(9, data[i]["DRIVER"].replace(" Jr.", "").split(" ")[-1], "left"), text_justify_trunc(3, str(data[i]["TOTAL"]), "right")))
 
     return text
@@ -284,12 +285,12 @@ def text_justify_trunc(length, text, direction):
 
     # if string is shorter than desired - we can just use the count of chars (not bytes) and add on spaces - we're good
     if textlen < length:
-        for _ in range(0, length - textlen):
+        for _ in range(length - textlen):
             text = " " + text if direction == "right" else text + " "
     else:
         # text is longer - need to trunc it get the list of characters & trunc at length
         text = ""  # clear out text
-        for i in range(0, length):
+        for i in range(length):
             text = text + chars[i]
 
     return text
