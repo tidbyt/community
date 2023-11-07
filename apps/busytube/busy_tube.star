@@ -26,7 +26,7 @@ DEFAULT_NAPTAN_ID = "940GZZLURSQ"
 STATION_URL = "https://api.tfl.gov.uk/StopPoint"
 CROWDING_LIVE_URL = "https://api.tfl.gov.uk/Crowding/%s/Live"
 CROWDING_TYPICAL_URL = "https://api.tfl.gov.uk/Crowding/%s/%s"
-ENCRYPTED_APP_KEY = "AV6+xWcEidogMm49QBNMdHN1M2Ysyt35b6k5o9A1/jHKh4sM5Czv5BffoQw0QBvCR7jr/pFvd4eHZqjuLWYkEX4MTpBTAjTFeTGS3ynqTeumZB7CCghUoULPLDscavZpf9X9m/OzQXsPlNS86qKGcLaJ4B/AaVZ8CLvccNTtKgoJYWq8zYI="
+ENCRYPTED_APP_KEY = "AV6+xWcEaq4qKqYXJCjFV3FXEXfR8qKNHUa6Ogo62QvCkXiwjthoHQ4wSIzJr1VWIQHcgK0Y9kJJ/BKVAOIoHSVUAyapaRMDpqX3gp1qGQb6qzijtRhW3ZyUnpQR+VuvLq47x66kzRba8qjOAsid98keVyeCp7mUJw3lQWSqvXxrKmHGSQA="
 USER_AGENT = "Tidbyt busy_tube"
 
 CONTAINER_WIDTH = 62

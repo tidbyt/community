@@ -1,0 +1,8 @@
+---
+id: skordle-bb-fem
+name: Skordle BB Fem
+summary: Displays Female BB games
+desc: This app gets female basketball data from the Skordle website to display on the Tidbyt. A user can select the class of game and manually select which game to display.
+author: Woolycoin437420
+fileName: skordle_bb_fem.star
+packageName: skordlebbfem
