@@ -84,4 +84,8 @@ def render_dms():
     )
 
 def main():
+    # special case for CI
+    if ARROWS_API_KEY == None:
+        return []
+
     return render_dms()
