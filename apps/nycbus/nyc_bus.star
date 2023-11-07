@@ -16,7 +16,7 @@ load("secret.star", "secret")
 load("time.star", "time")
 
 EXAMPLE_STOP_CODE = "550685"
-ENCRYPTED_API_KEY = "AV6+xWcEsr4R4d680czLc/RnfvU1ZpOx7ofrv0uAb8j7KoKa/Mw9Apbv6dfRFBPPu1oGMxIOSUhdEJV8IdBSwrRHvoOhfSPMmyYzcTJsSdDOoPT0p1KfvAcsyixqdCsYGJcif2+HL4W/qnX6X1hdDZV8pfaQzgswXFmvgnkoFPOWuL9dpc7drUDA"
+ENCRYPTED_API_KEY = "AV6+xWcEyevKcdrIpIo95aDtG0+14nQ1GG+kEuwmjiUiyFaJBRX6CL1/bi31WpHXwyV2AgApxwxDgWlGtvT5SDapGAwoma96vsVKfrXnH4Jlr5Oy38r5F3y+GbDm0Obw1fo6aaqIvr1y4fI7W0neS30mbmdkVBc6H2oK6KpB4HMtOxkm2UkXKSGA"
 BUSTIME_STOP_TIMES_URL = "http://bustime.mta.info/api/siri/stop-monitoring.json"
 BUSTIME_STOP_INFO_URL = "http://bustime.mta.info/api/where/stop/%s.json"
 BUSTIME_STOPS_FOR_LOCATION_URL = "http://bustime.mta.info/api/where/stops-for-location.json"

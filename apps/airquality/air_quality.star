@@ -40,7 +40,7 @@ DEFAULT_COLOR_AQI5 = "#ff41ff"  # purple (very poor)
 DEFAULT_COLOR_AQI6 = "#ffffff"  # white (unknown)
 
 # OpenWeather production API key
-OW_API_KEY = "AV6+xWcE9htzOL3v0edcyaieblD+xjd562oz0v5VNOvKubc6TkYvp6+VSvTJXyEFjmYQ0iKLeBKJRu2SNt8ldsUXSZYzTkpT4E7kS7s2iVSUDUnzQYHw8+sI3bTF0lWb6gdPsVpH2oAnr3LNrXCceYUd0S8/nKxQm7iU/Oh4NhSyzsWb38M="
+OW_API_KEY = "AV6+xWcE8tlc8kG2+46k6VdWihmVUMUgF0UlFZa0ZzucnuUIVRSReDVB/Q+cfZg5oFeiFEvdP9Pi2bi5CjL4tFFsHe2Re2pqQ5bNxlvLqf8TeBhuE/C9SaFp3x3DX55DM2gAPc1I2kSWOH1hpVLrPrM8gI0VtJiWSVJ++i1Ba4ZPJcUCuSc="
 
 # development API key, provide your key here or the app will fail!
 OW_DEV_API_KEY = ""
