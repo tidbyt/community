@@ -1,7 +1,7 @@
 """
-Applet: Skordle Scores
-Summary: Displays Skorlde FB games
-Description: This app gets football data from the Skordle website to display on the Tidbyt. A user can select the class of game and manually select which game to display.
+Applet: SkordleFastPitch
+Summary: Displays FP Games
+Description: The app gets fast pitch data from the Skordle website to display on the Tidbyt. A user can select the class of game and manually select which game to display.
 Author: Woolycoin437420
 """
 
@@ -11,13 +11,13 @@ load("render.star", "render")
 load("schema.star", "schema")
 
 #Constants
-DEFAULT_CLASS = "6A-1"
+DEFAULT_CLASS = "6A"
 DEFAULT_GAME = "1"
 
 #The following dictionary is used by the settings and some values in the main function.
 #The ID numbers are used in the URL in the main function.
 
-CLASSES = {"6A-1": 8, "6A-2": 19, "5A": 7, "4A": 6, "3A": 5, "2A": 4, "A": 1, "B": 2, "C": 3, "Other": 68}
+CLASSES = {"6A": 240, "5A": 241, "4A": 242, "3A": 243, "2A": 244, "A": 245, "B": 246, "Other": 453}
 
 #This is the main function that runs after the settings. Returns display
 def main(config):
@@ -232,7 +232,7 @@ def main(config):
                         width = 64,
                         height = 11,
                         padding = 1,
-                        color = "#800000",
+                        color = "#a64800",
                     ),
                 ],
                 expanded = True,
@@ -243,7 +243,7 @@ def main(config):
         return render.Root(
             child = render.Box(
                 child = render.WrappedText(
-                    content = "No Events for {} Football this week".format(sportClass),
+                    content = "No Events for {} Fast Pitch".format(sportClass),
                     width = 60,
                     linespacing = 1,
                     font = "CG-pixel-3x5-mono",
@@ -256,7 +256,7 @@ def main(config):
 
 #This function gets and stores the data for the desired sport class.
 def get_data(classID):
-    web = http.get("https://skordle.com/scores/?sportid=1&classid={}&clubid=1".format(classID), ttl_seconds = 60)
+    web = http.get("https://skordle.com/scores/?sportid=11&classid={}&clubid=1".format(classID), ttl_seconds = 60)
     if web.status_code != 200:
         fail("Failure code: %s", web.status_code)
 
@@ -388,7 +388,7 @@ def game_options(c):
             id = "games",
             name = "Games",
             desc = "The various games to choose from",
-            icon = "football",
+            icon = "baseballBatBall",
             default = DEFAULT_GAME,
             options = game_options,
         ),
