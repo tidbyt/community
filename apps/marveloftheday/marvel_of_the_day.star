@@ -5,6 +5,9 @@ Description: Shows the name and image of a Marvel Comics character using the Mar
 Author: flynnt
 """
 
+load("cache.star", "cache")
+load("encoding/base64.star", "base64")
+load("encoding/json.star", "json")
 load("hash.star", "hash")
 load("http.star", "http")
 load("random.star", "random")
@@ -28,14 +31,23 @@ def main():
 
         return render_data(image, name)
     else:
-        random.seed(time.now().unix // 86400)
         characterId = get_random_character_id()
+        key = base64.encode("character-" + str(characterId))
+        data = cache.get(key)
         params = get_auth_params()
-        req = http.get(BASE_URL + "/" + str(characterId), ttl_seconds = 86400, params = params)
-        if req.status_code != 200:
-            fail("API request failed with status:", req.status_code)
 
-        item = req.json()["data"]["results"][0]
+        if data != None:
+            res = base64.decode(data)
+        else:
+            req = http.get(BASE_URL + "/" + str(characterId), params = params)
+            res = req.body()
+            if req.status_code != 200:
+                fail("API request failed with status:", req.status_code)
+
+            cache.set(key, base64.encode(res), ttl_seconds = 86400)
+
+        data = json.decode(res)
+        item = data["data"]["results"][0]
         name = item["name"]
         imageUrlSegments = item["thumbnail"]
         imageUrl = imageUrlSegments["path"] + "." + imageUrlSegments["extension"]
@@ -89,12 +101,19 @@ def get_random_character_id():
     offset = random.number(0, maxOffset)
     baseParams = {"limit": str(limit), "offset": str(offset)}
     params = baseParams | get_auth_params()
+    key = base64.encode("character-rand")
+    data = cache.get(key)
 
-    req = http.get(BASE_URL, ttl_seconds = 82800, params = params)
-    if req.status_code != 200:
-        fail("API request failed with status:", req.status_code)
+    if data != None:
+        res = base64.decode(data)
+    else:
+        req = http.get(BASE_URL, params = params)
+        if req.status_code != 200:
+            fail("API request failed with status:", req.status_code)
+        res = req.body()
 
-    responseCharacter = req.json()["data"]["results"][0]
+    data = json.decode(res)
+    responseCharacter = data["data"]["results"][0]
     imagePath = responseCharacter["thumbnail"]["path"]
     hasImage = imagePath != "http://i.annihil.us/u/prod/marvel/i/mg/b/40/image_not_available"
     characterId = responseCharacter["id"]
@@ -104,4 +123,5 @@ def get_random_character_id():
         return get_random_character_id()
 
     print("Character found...")
+    cache.set(key, base64.encode(res), ttl_seconds = 82200)
     return int(characterId)
