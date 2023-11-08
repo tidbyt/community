@@ -22,8 +22,8 @@ MOBY_GAMES_API_ROOT_URL = "https://api.mobygames.com/v1/"
 # See docs here: https://www.mobygames.com/info/api/#gamesrandom
 RANDOM_GAMES_API = MOBY_GAMES_API_ROOT_URL + "games/random?api_key={api_key}&limit=100&format=normal"
 
-# Encrypted API key for the Moby Games API
-API_KEY_ENCRYPTED = "AV6+xWcE88td7FQ9qHMAmwQoNtHT3L99unbvLruAXcwCNPpoqgt5PX2GaKqPbumTj5DgzEsxVjJ2kvjA34w6j2snptLC90qaQfNmziQvkJLkeQr/pDtpnKVuaL+fmZg9k6JwaW428rhcxTGzdQboUUYNbXdrDydPrcSwdiAV39nRhEAu7iA="
+# Encrypted API key for the Moby Games API, with the app id moby-games
+API_KEY_ENCRYPTED = "AV6+xWcEc6rPe1wSqCqAHZkWBJ4GSzaFNCqdo40f93LRwkKpGiZbRiUWNjvw/TlvYM0VvaAYmj/Adz1DPRZpxzfkT+rp4hZ0kv14oN56eXOH0v2vhCOos3bSQcSwl9C7Xr7UtLcfElIGR7piA/dXbEq31YTylXd9jDPvdUk/kw4KGlmlmSA="
 
 # MobyGames API requests are limited to 360 per hour, or one every 10 seconds
 # We can retrieve up to 100 games per request, and we cache the results for 1 hour,
@@ -233,13 +233,24 @@ def main(config):
     debug = config.get("debug") != None and config.get("debug").lower() == "true"
     bypass_cache = config.get("bypass_cache") != None and config.get("bypass_cache").lower() == "true"
 
-    # Decrypt the hardcoded API key, or use the dev_api_key config parameter if running locally
-    api_key = secret.decrypt(API_KEY_ENCRYPTED) or config.get("api_key")
+    # Decrypt the hardcoded API key, or use the api_key config parameter if running locally
+    api_key = secret.decrypt(API_KEY_ENCRYPTED)
     if api_key == None:
-        debug_print(debug, "[Config] No API key specified, please specify an API key using the api_key config parameter when running locally")
+        debug_print(debug, "[Config] Unable to decrypt API key, falling back to api_key config parameter")
+        api_key = config.get("api_key")
+        if api_key == None:
+            debug_print(debug, "[Config] No API key specified, please specify an API key using the api_key config parameter when running locally")
+        else:
+            debug_print(debug, "[Config] API key loaded from config parameter")
+    else:
+        debug_print(debug, "[Config] API key decrypted successfully")
 
-    # Load the game data from the MobyGames API
-    games = load_and_cache_random_games(api_key, debug, bypass_cache)
+    # If we were able to get an API key, load the game data from the MobyGames API
+    if api_key != None:
+        games = load_and_cache_random_games(api_key, debug, bypass_cache)
+    else:
+        # Otherwise, assume an empty dict. We'll fall back to the default game info later.
+        games = {}
 
     # Pick a random game from the list of games
     game_ids_list = games.keys()
