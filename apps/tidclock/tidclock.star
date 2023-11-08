@@ -112,8 +112,9 @@ def main(config):
     day = now.day
     weekday = humanize.day_of_week(now)
     hour = now.hour
+
     #minute = now.minute
-    #second = now.second
+    second = now.second
 
     #year/life
     lifew = int(64 * (year - birthyear) / 90)
@@ -142,10 +143,11 @@ def main(config):
     #secondw = int(64 * second / 60)
     #secondnw = int(64 * (second + 1) / 60)
 
-    springcolor = "#121"
-    summercolor = "#220"
-    fallcolor = "#310"
-    wintercolor = "#223"
+    springcolor = "#183018"
+    summercolor = "#2C2C00"
+    fallcolor = "#420"
+    wintercolor = "#282838"
+
     springbcolor = "#8F8"
     summerbcolor = "#AA0"
     fallbcolor = "#F40"
@@ -180,7 +182,7 @@ def main(config):
     season3w = int(64 * (12 - 1) / 12)
     season4w = int(64 * (13 - 1) / 12)
 
-    weekstartcolor = "#222"
+    weekstartcolor = "#333"
 
     firstsun = (day + (7 + 7 - weekday)) % 7
     if firstsun == 0:
@@ -197,7 +199,7 @@ def main(config):
     #weekend1w = int(64 * 6 / 7)
     #weekend2w = int(64 * 7 / 7)
 
-    suncolor = "#222"
+    suncolor = "#444"
 
     risem = rise.hour * 60 + rise.minute
     setm = set.hour * 60 + set.minute
@@ -253,7 +255,7 @@ def main(config):
         )
 
     #rowbgbar(monthnw, 8, "#040")
-    daybgbar = rowbgbar(daynw, 8, "#440")
+    daybgbar = rowbgbar(daynw, 8, "#033")
     weekdaybgbar = rowbgbar(weekdaynw, 8, "#004")
     hourbgbar = rowbgbar(hournw, 8, "#404")
 
@@ -268,9 +270,9 @@ def main(config):
         monthfgbar = rowfgbar(monthw, monthnw, 8, season3bcolor)
     elif monthnw <= season4w:
         monthfgbar = rowfgbar(monthw, monthnw, 8, season4bcolor)
-    dayfgbar = rowfgbar(dayw, daynw, 8, "#FF0")
-    weekdayfgbar = rowfgbar(weekdayw, weekdaynw, 8, "#00F")
-    hourfgbar = rowfgbar(hourw, hournw, 8, "#F0F")
+    dayfgbar = rowfgbar(dayw, daynw, 8, "#0AA")
+    weekdayfgbar = rowfgbar(weekdayw, weekdaynw, 8, "#00E")
+    hourfgbar = rowfgbar(hourw, hournw, 8, "#B0B")
 
     lifeminibar = rowbgbar(lifew, 1, "#400")
     emptyminibar0 = render.Box(width = 64, height = 5)
@@ -342,7 +344,98 @@ def main(config):
     weekdaytext = rowtext(weekdayw - 1, weekdaynw + 1, 8, daystr[weekday])
     hourtext = rowtext(hourw - 1, hournw + 1, 8, now.format("3:04PM"))
 
+    animatedsecondbar = render.Column(
+        children = [
+            render.Box(width = 64, height = 31),
+            render.Row(
+                children = [
+                    render.Box(width = second, height = 1),
+                    render.Animation(
+                        children = [
+                            render.Box(width = 1, height = 1),
+                            render.Box(width = 2, height = 1),
+                            render.Box(width = 3, height = 1),
+                            render.Box(width = 4, height = 1),
+                            render.Box(width = 5, height = 1),
+                            render.Box(width = 6, height = 1),
+                            render.Box(width = 7, height = 1),
+                            render.Box(width = 8, height = 1),
+                            render.Box(width = 9, height = 1),
+                            render.Box(width = 10, height = 1),
+                            render.Box(width = 11, height = 1),
+                            render.Box(width = 12, height = 1),
+                            render.Box(width = 13, height = 1),
+                            render.Box(width = 14, height = 1),
+                            render.Box(width = 15, height = 1),
+                            render.Box(width = 16, height = 1),
+                            render.Box(width = 17, height = 1),
+                            render.Box(width = 18, height = 1),
+                            render.Box(width = 19, height = 1),
+                            render.Box(width = 20, height = 1),
+                            render.Box(width = 21, height = 1),
+                            render.Box(width = 22, height = 1),
+                            render.Box(width = 23, height = 1),
+                            render.Box(width = 24, height = 1),
+                            render.Box(width = 25, height = 1),
+                            render.Box(width = 26, height = 1),
+                            render.Box(width = 27, height = 1),
+                            render.Box(width = 28, height = 1),
+                            render.Box(width = 29, height = 1),
+                            render.Box(width = 30, height = 1),
+                            render.Box(width = 31, height = 1),
+                            render.Box(width = 32, height = 1),
+                            render.Box(width = 33, height = 1),
+                            render.Box(width = 34, height = 1),
+                            render.Box(width = 35, height = 1),
+                            render.Box(width = 36, height = 1),
+                            render.Box(width = 37, height = 1),
+                            render.Box(width = 38, height = 1),
+                            render.Box(width = 39, height = 1),
+                            render.Box(width = 40, height = 1),
+                            render.Box(width = 41, height = 1),
+                            render.Box(width = 42, height = 1),
+                            render.Box(width = 43, height = 1),
+                            render.Box(width = 44, height = 1),
+                            render.Box(width = 45, height = 1),
+                            render.Box(width = 46, height = 1),
+                            render.Box(width = 47, height = 1),
+                            render.Box(width = 48, height = 1),
+                            render.Box(width = 49, height = 1),
+                            render.Box(width = 50, height = 1),
+                            render.Box(width = 51, height = 1),
+                            render.Box(width = 52, height = 1),
+                            render.Box(width = 53, height = 1),
+                            render.Box(width = 54, height = 1),
+                            render.Box(width = 55, height = 1),
+                            render.Box(width = 56, height = 1),
+                            render.Box(width = 57, height = 1),
+                            render.Box(width = 58, height = 1),
+                            render.Box(width = 59, height = 1),
+                            render.Box(width = 60, height = 1),
+                            render.Box(width = 61, height = 1),
+                            render.Box(width = 62, height = 1),
+                            render.Box(width = 63, height = 1),
+                            render.Box(width = 64, height = 1),
+                            render.Box(width = 65, height = 1),
+                            render.Box(width = 65, height = 1),
+                            render.Box(width = 65, height = 1),
+                            render.Box(width = 65, height = 1),
+                            render.Box(width = 65, height = 1),
+                            render.Box(width = 65, height = 1),
+                            render.Box(width = 65, height = 1),
+                            render.Box(width = 65, height = 1),
+                            render.Box(width = 65, height = 1),
+                        ],
+                    ),
+                    render.Box(width = 1, height = 1, color = "#AAA"),  #render.Box(width = 10, height = 1),
+                ],
+            ),
+        ],
+    )
+
     return render.Root(
+        delay = 1000,
+        show_full_animation = False,
         child = render.Stack(
             children = [
                 render.Column(
@@ -383,16 +476,9 @@ def main(config):
                         hourtext,
                     ],
                 ),
-                render.Column(
-                    children = [
-                        monthfgbar,
-                    ],
-                ),
-                render.Column(
-                    children = [
-                        lifeminibar,
-                    ],
-                ),
+                monthfgbar,
+                lifeminibar,
+                animatedsecondbar,
             ],
         ),
     )
