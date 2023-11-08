@@ -12,7 +12,7 @@ load("render.star", "render")
 load("schema.star", "schema")
 load("time.star", "time")
 
-VERSION = 23254
+VERSION = 23311
 
 # ############################
 # Mods - jvivona - 2023-02-04
@@ -38,6 +38,7 @@ VERSION = 23254
 # jvivona - 20230904
 # - fix date display - remove leading 0
 # jvivona - 20230911 - handle end of season calendar - no upcoming races
+# jvivona - 20231107 - cleanup code in for loop
 # ############################
 
 DEFAULTS = {
@@ -373,12 +374,12 @@ def text_justify_trunc(length, text, direction):
 
     # if string is shorter than desired - we can just use the count of chars (not bytes) and add on spaces - we're good
     if textlen < length:
-        for _ in range(0, length - textlen):
+        for _ in range(length - textlen):
             text = " " + text if direction == "right" else text + " "
     else:
         # text is longer - need to trunc it get the list of characters & trunc at length
         text = ""  # clear out text
-        for i in range(0, length):
+        for i in range(length):
             text = text + chars[i]
 
     return text

@@ -11,6 +11,7 @@ Author: jvivona
 # - convert next race info color to generated schema field
 # 20230911 - jvivona - update code and API to better handle end of season with not upcoming race
 #                    - moved data to github repo
+# 20231107 - jvivona - cleanup code in for loop
 
 load("animation.star", "animation")
 load("encoding/base64.star", "base64")
@@ -20,7 +21,7 @@ load("render.star", "render")
 load("schema.star", "schema")
 load("time.star", "time")
 
-VERSION = 23254
+VERSION = 23311
 
 DEFAULTS = {
     "display": "nri",
@@ -264,12 +265,12 @@ def text_justify_trunc(length, text, direction):
 
     # if string is shorter than desired - we can just use the count of chars (not bytes) and add on spaces - we're good
     if textlen < length:
-        for _ in range(0, length - textlen):
+        for _ in range(length - textlen):
             text = " " + text if direction == "right" else text + " "
     else:
         # text is longer - need to trunc it get the list of characters & trunc at length
         text = ""  # clear out text
-        for i in range(0, length):
+        for i in range(length):
             text = text + chars[i]
 
     return text

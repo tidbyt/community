@@ -1,0 +1,8 @@
+---
+id: skordlefastpitch
+name: SkordleFastPitch
+summary: Displays FP Games
+desc: The app gets fast pitch data from the Skordle website to display on the Tidbyt. A user can select the class of game and manually select which game to display.
+author: Woolycoin437420
+fileName: skordlefastpitch.star
+packageName: skordlefastpitch
