@@ -261,6 +261,9 @@ WEEKDAYSTRS = ["SUN", "MON", "TUE", "WED", "THU", "FRI", "SAT"]
 
 #FUNCS
 
+def yforsun(sunrise, lat, lng, t):
+    return (int)(sunrise.elevation(lat, lng, t) * 8 / 90.0)
+
 def moonatday(monthtime, dayoff):
     cycleindex = ((monthtime + (time.hour * 24 * dayoff)).unix - REF_NEWMOON) % LUNATION
     moonp = (cycleindex / LUNATION)
@@ -289,26 +292,24 @@ def colorformoon(p):
 
 def main(config):
     ctx = {}
-    tnow = time.now()
+    unow = time.now()
 
-    showlife = config.get("showlife", False)
-    showmoon = config.get("showmoon", True)
-    showweek = config.get("showweek", True)
-    showsun = config.get("showsun", True)
-    showminute = config.get("showminute", True)
-    showsecond = config.get("showsecond", True)
+    showlife = config.bool("showlife")
+    showmoon = config.bool("showmoon")
+    showweek = config.bool("showweek")
+    showsun = config.bool("showsun")
+    showminute = config.bool("showminute")
+    showsecond = config.bool("showsecond")
 
-    def getctx(tnow):
+    def getctx(unow):
         #CONFIG
 
         location = json.decode(config.get("location", DEFAULT_LOCATION))
         timezone = location["timezone"]
         lat = float(location["lat"])
         lng = float(location["lng"])
-        now = tnow.in_location(timezone)
-        ctx["now"] = now
-        rise = sunrise.sunrise(lat, lng, tnow).in_location(timezone)
-        set = sunrise.sunset(lat, lng, tnow).in_location(timezone)
+        thisnow = unow.in_location(timezone)
+        ctx["thisnow"] = thisnow
 
         birthyear = 1990
         birthyearstr = config.get("birthyear")
@@ -325,8 +326,8 @@ def main(config):
         fallbcolor = "#F40"
         winterbcolor = "#AAF"
 
-        ctx["weekstartcolor"] = "#333"
-        ctx["suncolor"] = "#444"
+        ctx["weekstartcolor"] = "#FFFFFF18"
+        ctx["suncolor"] = "#664A"
         ctx["lifecolor"] = "#400"
         ctx["daybgcolor"] = "#033"
         ctx["weekdaybgcolor"] = "#004"
@@ -342,14 +343,14 @@ def main(config):
         #PRECACHING
 
         #everything 0 indexed
-        ctx["year"] = now.year
-        ctx["month"] = now.month - 1
+        ctx["year"] = thisnow.year
+        ctx["month"] = thisnow.month - 1
         ctx["season"] = MONTHSEASON[ctx["month"]]
-        ctx["day"] = now.day - 1
-        ctx["weekday"] = humanize.day_of_week(now)
-        ctx["hour"] = now.hour
-        ctx["minute"] = now.minute
-        ctx["second"] = now.second
+        ctx["day"] = thisnow.day - 1
+        ctx["weekday"] = humanize.day_of_week(thisnow)
+        ctx["hour"] = thisnow.hour
+        ctx["minute"] = thisnow.minute
+        ctx["second"] = thisnow.second
 
         ctx["lifex"] = int(64 * (ctx["year"] - birthyear) / 90)
 
@@ -392,22 +393,34 @@ def main(config):
         if ctx["weekxs"][4] == 64:
             ctx["weekxs"][4] = 63
 
+        #time.time(year=ctx["year"],month=ctx["month"]+1,day=ctx["day"]+1,hour=ctx["hour"],minute=ctx["minute"],second=ctx["second"]).in_location(timezone)
+
+        rise = sunrise.sunrise(lat, lng, thisnow).in_location(timezone)
+        set = sunrise.sunset(lat, lng, thisnow).in_location(timezone)
         risem = rise.hour * 60 + rise.minute
         setm = set.hour * 60 + set.minute
         ctx["sunxs"] = [
             int(64 * risem / (24 * 60)),
             int(64 * setm / (24 * 60)),
         ]
+        ctx["sunys"] = []
+        thisdaystart = thisnow
+        thisdaystart = thisdaystart - time.hour * ctx["hour"]
+        thisdaystart = thisdaystart - time.minute * ctx["minute"]
+        thisdaystart = thisdaystart - time.second * ctx["second"]
+        for i in range(ctx["sunxs"][1] - ctx["sunxs"][0]):
+            ctx["sunys"].append(yforsun(sunrise, lat, lng, thisdaystart + (time.minute * ((ctx["sunxs"][0] + i + 1) * (24 * 60)) / 64)))
 
-        sincemidnight = {}
-        if ctx["month"] + 1 < 10:
-            sincemidnight = now - time.parse_time(str(ctx["year"]) + "-0" + str(ctx["month"] + 1) + "-01T23:59:59.99Z")
-        else:
-            sincemidnight = now - time.parse_time(str(ctx["year"]) + "-" + str(ctx["month"] + 1) + "-01T23:59:59.99Z")
-        moonatmonth = tnow - sincemidnight
+        thismonthstart = thisnow
+        thismonthstart = thismonthstart - time.hour * (ctx["day"] * 24)
+        thismonthstart = thismonthstart - time.hour * ctx["hour"]
+        thismonthstart = thismonthstart - time.minute * ctx["minute"]
+        thismonthstart = thismonthstart - time.second * ctx["second"]
+        sincemonthstart = thisnow - thismonthstart
+        monthstart = unow - sincemonthstart
         ctx["mooncolors"] = []
         for i in range(32):
-            ctx["mooncolors"].append(colorformoon(moonatday(moonatmonth, i)))
+            ctx["mooncolors"].append(colorformoon(moonatday(monthstart, i)))
 
         if lat > 0.0:
             ctx["seasoncolors"] = [
@@ -448,7 +461,7 @@ def main(config):
         stack = []
 
         #get ctx for simplicity of typing
-        now = ctx["now"]
+        thisnow = ctx["thisnow"]
         weekstartcolor = ctx["weekstartcolor"]
         suncolor = ctx["suncolor"]
         lifecolor = ctx["lifecolor"]
@@ -475,6 +488,7 @@ def main(config):
         hourxs = ctx["hourxs"]
         weekxs = ctx["weekxs"]
         sunxs = ctx["sunxs"]
+        sunys = ctx["sunys"]
         mooncolors = ctx["mooncolors"]
         seasoncolors = ctx["seasoncolors"]
         seasonbcolors = ctx["seasonbcolors"]
@@ -483,18 +497,24 @@ def main(config):
         y0 = 0
         y1 = 6
         for i in range(5):
-            if seasonxs[i + 1] <= monthxs[month + 1]:
-                stack.append(drawrectcoords(seasonxs[i], y0, seasonxs[i + 1] - 1, y1, seasoncolors[i]))
-            elif seasonxs[i] > monthxs[month]:
+            if seasonxs[i + 1] < monthxs[month + 1]:
                 stack.append(drawrectcoords(seasonxs[i], y0, seasonxs[i + 1] - 1, 1, seasoncolors[i]))
+            elif seasonxs[i] > monthxs[month]:
+                stack.append(drawrectcoords(seasonxs[i], y0, seasonxs[i + 1] - 1, y1, seasoncolors[i]))
             else:
-                stack.append(drawrectcoords(seasonxs[i], y0, monthxs[month + 1] - 1, y1, seasoncolors[i]))
-                stack.append(drawrectcoords(monthxs[month + 1] + 1, y0, seasonxs[i + 1] - 1, 1, seasoncolors[i]))
-
+                stack.append(drawrectcoords(seasonxs[i], y0, monthxs[month] - 1, 1, seasoncolors[i]))
+                stack.append(drawrectcoords(monthxs[month] + 1, y0, seasonxs[i + 1] - 1, y1, seasoncolors[i]))
         stack.append(drawrect(monthxs[month], y0, 1, y1 - y0 + 1, seasonbcolors[season]))
         stack.append(drawrect(monthxs[month + 1], y0, 1, y1 - y0, seasonbcolors[season]))
-        for i in range(12):
-            stack.append(drawrect(monthxs[i + 1] - 1, 6, 1, 2, "#000"))
+        stack.append(drawrect(monthxs[month], y1, 1, 1, "#000"))
+        stack.append(drawrect(monthxs[month + 1], y1, 1, 1, "#000"))
+        for i in range(11):
+            if i != month:
+                if i < month:
+                    stack.append(drawrect(monthxs[i + 1] - 1, 1, 1, 2, "#000"))
+                else:
+                    stack.append(drawrect(monthxs[i + 1] - 1, 6, 1, 2, "#000"))
+        stack.append(drawrect(monthxs[12], 6, 1, 2, "#000"))  #shift final
         if monthxs[month + 1] >= 32:
             stack.append(drawrtext(monthxs[month] - 2, y0, MONTHSTRS[month]))
         else:
@@ -506,6 +526,13 @@ def main(config):
         stack.append(drawrectcoords(0, y0, dayxs[day + 1], y1, daybgcolor))
         stack.append(drawrect(dayxs[day], y0, 1, 8, dayfgcolor))
         stack.append(drawrect(dayxs[day + 1], y0, 1, 8, dayfgcolor))
+
+        #weekstart
+        if showweek:
+            for i in range(5):
+                stack.append(drawrect(weekxs[i], 13, 1, 3, weekstartcolor))
+                stack.append(drawrect(weekxs[i] - 1, 15, 1, 1, weekstartcolor))
+                stack.append(drawrect(weekxs[i] + 1, 15, 1, 1, weekstartcolor))
         if dayxs[day + 1] >= 32:
             stack.append(drawrtext(dayxs[day] - 2, y0, str(day + 1)))
         else:
@@ -526,21 +553,26 @@ def main(config):
         y0 = 24
         y1 = 31
         stack.append(drawrectcoords(0, y0, hourxs[hour + 1], y1, hourbgcolor))
+
+        #sunriseset
+        if showsun:
+            for i in range(sunxs[1] - sunxs[0]):
+                stack.append(drawrect(sunxs[0] + i, 31 - sunys[i], 1, 1, suncolor))
         stack.append(drawrect(hourxs[hour], y0, 1, 8, hourfgcolor))
         stack.append(drawrect(hourxs[hour + 1], y0, 1, 8, hourfgcolor))
         if noanimate:
             if hourxs[hour + 1] >= 32:
-                stack.append(drawrtext(hourxs[hour] - 2, y0, now.format("3:04PM")))
+                stack.append(drawrtext(hourxs[hour] - 2, y0, thisnow.format("3:04PM")))
             else:
-                stack.append(drawtext(hourxs[hour + 1] + 2, y0, now.format("3:04PM")))
+                stack.append(drawtext(hourxs[hour + 1] + 2, y0, thisnow.format("3:04PM")))
         else:
             animation = []
             if hourxs[hour + 1] >= 32:
                 for i in range(61):
-                    animation.append(drawrtext(hourxs[hour] - 2, y0, (now + time.second * i).format("3:04PM")))
+                    animation.append(drawrtext(hourxs[hour] - 2, y0, (thisnow + time.second * i).format("3:04PM")))
             else:
                 for i in range(61):
-                    animation.append(drawtext(hourxs[hour + 1] + 2, y0, (now + time.second * i).format("3:04PM")))
+                    animation.append(drawtext(hourxs[hour + 1] + 2, y0, (thisnow + time.second * i).format("3:04PM")))
             stack.append(render.Animation(children = animation))
 
         #life
@@ -552,52 +584,47 @@ def main(config):
             for i in range(DAYSOFMONTH[month] + 1):
                 stack.append(drawrect(dayxs[i], 8, 1, 1, mooncolors[i]))
 
-        #weekstart
-        if showweek:
-            for i in range(5):
-                stack.append(drawrect(weekxs[i], 15, 1, 1, weekstartcolor))
-
-        #sunriseset
-        if showsun:
-            stack.append(drawrectcoords(sunxs[0], 24, sunxs[1], 24, suncolor))
-
         #minute
         if showminute:
             if noanimate:
-                stack.append(drawrect(minute, 31, 1, 1, minutecolor))
+                stack.append(drawrect(2 + minute, 31, 1, 1, minutecolor))
             else:
                 animation = []
                 for i in range(61):
-                    animation.append(drawrect(minute + (int)((second + i) / 60), 31, 1, 1, minutecolor))
+                    animation.append(drawrect(2 + (minute + (int)((second + i) / 60)), 31, 1, 1, minutecolor))
                 stack.append(render.Animation(children = animation))
 
         #second
         if showsecond:
             if noanimate:
-                stack.append(drawrect(second, 31, 1, 1, secondcolor))
+                stack.append(drawrect(2 + second, 31, 1, 1, secondcolor))
             else:
                 animation = []
                 for i in range(61):
-                    animation.append(drawrect((second + i) % 60, 31, 1, 1, secondcolor))
+                    if i == 0:
+                        animation.append(drawrect((2 + (second + i) % 60), 31, 1, 1, "#ACA"))
+                    else:
+                        animation.append(drawrect((2 + (second + i) % 60), 31, 1, 1, secondcolor))
                 stack.append(render.Animation(children = animation))
 
         return render.Stack(stack)
 
     #DEBUGGING
-    #animationstacks = []
-    #getctx(tnow)
 
+    #animationstacks = []
+    #getctx(unow)
     #animationstacks.append(getstack(showlife,showmoon,showweek,showsun,showminute,showsecond,True))
     #for i in range(300):
-    #getctx(tnow+time.minute*1253*i)
-    #animationstacks.append(getstack(showlife,showmoon,showweek,showsun,showminute,showsecond,True))
+    #    getctx(unow+time.minute*3253*i)
+    #    animationstacks.append(getstack(showlife,showmoon,showweek,showsun,showminute,showsecond,True))
     #stack = render.Animation(children = animationstacks)
 
-    getctx(tnow)
+    getctx(unow)
     stack = getstack(showlife, showmoon, showweek, showsun, showminute, showsecond, False)
 
     return render.Root(
         delay = 1000,
+        #delay = 10,
         #show_full_animation = True,
         child = stack,
     )
