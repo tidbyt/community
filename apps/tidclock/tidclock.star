@@ -1,81 +1,208 @@
 load("encoding/json.star", "json")
 load("humanize.star", "humanize")
+load("math.star", "math")
 load("render.star", "render")
 load("schema.star", "schema")
 load("sunrise.star", "sunrise")
 load("time.star", "time")
 
-def rowbgbar(w, h, c):
-    return render.Row(
-        expanded = True,
-        children = [
-            render.Box(width = w, height = h, color = c),
+#SCHEMA
+
+def get_schema():
+    return schema.Schema(
+        version = "1",
+        fields = [
+            schema.Location(
+                id = "location",
+                name = "Location",
+                desc = "Location for which to display time",
+                icon = "locationDot",
+            ),
+            schema.Toggle(
+                id = "showlife",
+                name = "Show Life Bar",
+                desc = "Display bar optimistically approximating progress through life",
+                icon = "skullCrossbones",
+                default = False,
+            ),
+            schema.Text(
+                id = "birthyear",
+                name = "Birth Year",
+                desc = "Year used to estimate progress through life",
+                icon = "baby",
+                default = "1990",
+            ),
+            schema.Toggle(
+                id = "showmoon",
+                name = "Show Moon Phase",
+                desc = "Display phase of the moon for each day of the month",
+                icon = "moon",
+                default = True,
+            ),
+            schema.Toggle(
+                id = "showweek",
+                name = "Show Week Start",
+                desc = "Display notches representing the beginning of the next Sunday",
+                icon = "calendarWeek",
+                default = True,
+            ),
+            schema.Toggle(
+                id = "showsun",
+                name = "Show Sun Rise and Set",
+                desc = "Display bar showing sunrise and set relative to current hour",
+                icon = "sun",
+                default = True,
+            ),
+            schema.Toggle(
+                id = "showminute",
+                name = "Show Minute Dot",
+                desc = "Display dot walking across the bottom corresponding to minute of the hour",
+                icon = "clock",
+                default = True,
+            ),
+            schema.Toggle(
+                id = "showsecond",
+                name = "Show Second Dot",
+                desc = "Display dot walking across the bottom corresponding to second of the minute",
+                icon = "stopwatch",
+                default = True,
+            ),
         ],
     )
 
-def rowfgbar(w, nw, h, c):
-    if w == 0:
-        if w == nw:
-            return render.Row(
-                expanded = True,
+#/SCHEMA
+
+#UTILS
+
+def drawrect(x, y, w, h, c):
+    if w <= 0:
+        return render.Box(width = 1, height = 1)
+    if h <= 0:
+        return render.Box(width = 1, height = 1)
+    if x == 0:
+        if y == 0:
+            return render.Box(width = w, height = h, color = c)
+        else:
+            return render.Column(
                 children = [
-                    render.Box(width = 1, height = h, color = c),
+                    render.Box(width = 1, height = y),
+                    render.Box(width = w, height = h, color = c),
+                ],
+            )
+    if y == 0:
+        return render.Row(
+            children = [
+                render.Box(width = x, height = 1),
+                render.Box(width = w, height = h, color = c),
+            ],
+        )
+    return render.Column(
+        children = [
+            render.Box(width = 1, height = y),
+            render.Row(
+                children = [
+                    render.Box(width = x, height = 1),
+                    render.Box(width = w, height = h, color = c),
+                ],
+            ),
+        ],
+    )
+
+def drawrectcoords(x0, y0, x1, y1, c):
+    return drawrect(x0, y0, x1 - x0 + 1, y1 - y0 + 1, c)
+
+def drawtext(x, y, text):
+    if text == "":
+        return render.Box(width = 1, height = 1)
+    if x == 0:
+        if y == 0:
+            return render.Row(
+                children = [
+                    render.Text(text),
                 ],
             )
         else:
-            return render.Row(
-                expanded = True,
+            return render.Column(
                 children = [
-                    render.Box(width = 1, height = h, color = c),
-                    render.Box(width = nw - 1, height = h),
-                    render.Box(width = 1, height = h, color = c),
+                    render.Box(width = 1, height = y),
+                    render.Row(
+                        children = [
+                            render.Text(text),
+                        ],
+                    ),
                 ],
             )
-    if w == nw:
+    if y == 0:
         return render.Row(
-            expanded = True,
             children = [
-                render.Box(width = w - 1, height = h),
-                render.Box(width = 1, height = h, color = c),
+                render.Box(width = x, height = 1),
+                render.Text(text),
             ],
         )
-    else:
-        return render.Row(
-            expanded = True,
-            children = [
-                render.Box(width = w - 1, height = h),
-                render.Box(width = 1, height = h, color = c),
-                render.Box(width = nw - w - 1, height = h),
-                render.Box(width = 1, height = h, color = c),
-            ],
-        )
+    return render.Column(
+        children = [
+            render.Box(width = 1, height = y),
+            render.Row(
+                children = [
+                    render.Box(width = x, height = 1),
+                    render.Text(text),
+                ],
+            ),
+        ],
+    )
 
-def rowtext(w, nw, h, text):
-    if w < 32:
-        return render.Row(
-            expanded = True,
-            children = [
-                render.Box(width = nw, height = h),  #, color="#FFF"),
-                render.Text(text),
-            ],
-        )
-    elif w == 64:
+def drawrtext(x, y, text):
+    if text == "":
+        return render.Box(width = 1, height = 1)
+    x = x + 2
+    if x >= 64:
+        if y == 0:
+            return render.Row(
+                expanded = True,
+                main_align = "end",
+                children = [
+                    render.Text(text),
+                ],
+            )
+        else:
+            return render.Column(
+                children = [
+                    render.Box(width = 1, height = y),
+                    render.Row(
+                        expanded = True,
+                        main_align = "end",
+                        children = [
+                            render.Text(text),
+                        ],
+                    ),
+                ],
+            )
+    if y == 0:
         return render.Row(
             expanded = True,
             main_align = "end",
             children = [
                 render.Text(text),
+                render.Box(width = 64 - x, height = 1),
             ],
         )
-    else:
-        return render.Row(
-            expanded = True,
-            main_align = "end",
-            children = [
-                render.Text(text),
-                render.Box(width = 64 - w, height = h),  #, color="#FFF"),
-            ],
-        )
+    return render.Column(
+        children = [
+            render.Box(width = 1, height = y),
+            render.Row(
+                expanded = True,
+                main_align = "end",
+                children = [
+                    render.Text(text),
+                    render.Box(width = 64 - x, height = 10),
+                ],
+            ),
+        ],
+    )
+
+#/UTILS
+
+#STATIC
 
 DEFAULT_LOCATION = """
 {
@@ -88,330 +215,389 @@ DEFAULT_LOCATION = """
 }
 """
 
+LUNATION = 2551443  # lunar cycle in seconds (29 days 12 hours 44 minutes 3 seconds)
+REF_NEWMOON = time.parse_time("30-Apr-2022 20:28:00", format = "02-Jan-2006 15:04:05").unix
+MONTHSTRS = ["JAN", "FEB", "MAR", "APR", "MAY", "JUN", "JUL", "AUG", "SEP", "OCT", "NOV", "DEC"]
+MONTHSEASON = [0, 0, 1, 1, 1, 2, 2, 2, 3, 3, 3, 4]
+DAYSOFMONTH = [31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31]
+WEEKDAYSTRS = ["SUN", "MON", "TUE", "WED", "THU", "FRI", "SAT"]
+
+#/STATIC
+
+#CTX
+
+#global weekstartcolor
+#global suncolor
+#global lifecolor
+#global daybgcolor
+#global weekdaybgcolor
+#global hourbgcolor
+#global dayfgcolor
+#global weekdayfgcolor
+#global hourfgcolor
+#global minutecolor
+#global secondcolor
+#global year
+#global month
+#global season
+#global day
+#global weekday
+#global hour
+#global minute
+#global second
+#global lifex
+#global seasonxs
+#global monthxs
+#global dayxs
+#global weekdayxs
+#global hourxs
+#global weekxs
+#global sunxs
+#global mooncolors
+#global seasoncolors
+#global seasonbcolors
+
+#/CTX
+
+#FUNCS
+
+def moonatday(monthtime, dayoff):
+    cycleindex = ((monthtime + (time.hour * 24 * dayoff)).unix - REF_NEWMOON) % LUNATION
+    moonp = (cycleindex / LUNATION)
+    return ((-math.cos(moonp * 2 * math.pi)) + 1) / 2
+
+def colorformoon(p):
+    if p > 0.95:
+        return "#888"
+    if p > 0.85:
+        return "#778"
+    if p > 0.75:
+        return "#667"
+    if p > 0.65:
+        return "#556"
+    if p > 0.55:
+        return "#445"
+    if p > 0.45:
+        return "#334"
+    if p > 0.35:
+        return "#223"
+    if p > 0.15:
+        return "#112"
+    return "#001"
+
+#/FUNCS
+
 def main(config):
-    location = json.decode(config.get("location", DEFAULT_LOCATION))
-    timezone = location["timezone"]
-    lat = float(location["lat"])
-    lng = float(location["lng"])
+    ctx = {}
     tnow = time.now()
-    now = tnow.in_location(timezone)
-    rise = sunrise.sunrise(lat, lng, tnow).in_location(timezone)
-    set = sunrise.sunset(lat, lng, tnow).in_location(timezone)
 
-    birthyear = 1990
-    birthyearstr = config.get("birthyear")
-    if birthyearstr:
-        birthyear = int(birthyearstr)
+    showlife = config.get("showlife", False)
+    showmoon = config.get("showmoon", True)
+    showweek = config.get("showweek", True)
+    showsun = config.get("showsun", True)
+    showminute = config.get("showminute", True)
+    showsecond = config.get("showsecond", True)
 
-    monthstr = ["DEC", "JAN", "FEB", "MAR", "APR", "MAY", "JUN", "JUL", "AUG", "SEP", "OCT", "NOV", "DEC"]
-    daysofmonth = [31, 31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31]
-    daystr = ["SUN", "MON", "TUE", "WED", "THU", "FRI", "SAT"]
+    def getctx(tnow):
+        #CONFIG
 
-    year = now.year
-    month = now.month
-    day = now.day
-    weekday = humanize.day_of_week(now)
-    hour = now.hour
-    #minute = now.minute
-    #second = now.second
+        location = json.decode(config.get("location", DEFAULT_LOCATION))
+        timezone = location["timezone"]
+        lat = float(location["lat"])
+        lng = float(location["lng"])
+        now = tnow.in_location(timezone)
+        ctx["now"] = now
+        rise = sunrise.sunrise(lat, lng, tnow).in_location(timezone)
+        set = sunrise.sunset(lat, lng, tnow).in_location(timezone)
 
-    #year/life
-    lifew = int(64 * (year - birthyear) / 90)
+        birthyear = 1990
+        birthyearstr = config.get("birthyear")
+        if birthyearstr:
+            birthyear = int(birthyearstr)
 
-    #month/year
-    monthw = int(64 * (month - 1) / 12)
-    monthnw = int(64 * month / 12)
+        springcolor = "#183018"
+        summercolor = "#2C2C00"
+        fallcolor = "#420"
+        wintercolor = "#282838"
 
-    #day/month
-    dayw = int(64 * (day - 1) / daysofmonth[month])
-    daynw = int(64 * day / daysofmonth[month])
+        springbcolor = "#8F8"
+        summerbcolor = "#AA0"
+        fallbcolor = "#F40"
+        winterbcolor = "#AAF"
 
-    #weekday/week
-    weekdayw = int(64 * weekday / 7)
-    weekdaynw = int(64 * (weekday + 1) / 7)
+        ctx["weekstartcolor"] = "#333"
+        ctx["suncolor"] = "#444"
+        ctx["lifecolor"] = "#400"
+        ctx["daybgcolor"] = "#033"
+        ctx["weekdaybgcolor"] = "#004"
+        ctx["hourbgcolor"] = "#404"
+        ctx["dayfgcolor"] = "#0AA"
+        ctx["weekdayfgcolor"] = "#00E"
+        ctx["hourfgcolor"] = "#B0B"
+        ctx["minutecolor"] = "#B88"
+        ctx["secondcolor"] = "#AAA"
 
-    #hour/day
-    hourw = int(64 * hour / 24)
-    hournw = int(64 * (hour + 1) / 24)
+        #/CONFIG
 
-    #minute/hour
-    #minutew = int(64 * minute / 60)
-    #minutenw = int(64 * (minute + 1) / 60)
+        #PRECACHING
 
-    #second/minute
-    #secondw = int(64 * second / 60)
-    #secondnw = int(64 * (second + 1) / 60)
+        #everything 0 indexed
+        ctx["year"] = now.year
+        ctx["month"] = now.month - 1
+        ctx["season"] = MONTHSEASON[ctx["month"]]
+        ctx["day"] = now.day - 1
+        ctx["weekday"] = humanize.day_of_week(now)
+        ctx["hour"] = now.hour
+        ctx["minute"] = now.minute
+        ctx["second"] = now.second
 
-    springcolor = "#121"
-    summercolor = "#220"
-    fallcolor = "#310"
-    wintercolor = "#223"
-    springbcolor = "#8F8"
-    summerbcolor = "#AA0"
-    fallbcolor = "#F40"
-    winterbcolor = "#AAF"
+        ctx["lifex"] = int(64 * (ctx["year"] - birthyear) / 90)
 
-    season0color = wintercolor
-    season1color = springcolor
-    season2color = summercolor
-    season3color = fallcolor
-    season4color = wintercolor
-    season0bcolor = winterbcolor
-    season1bcolor = springbcolor
-    season2bcolor = summerbcolor
-    season3bcolor = fallbcolor
-    season4bcolor = winterbcolor
+        ctx["seasonxs"] = [
+            int(64 * 0 / 12),
+            int(64 * 2 / 12),
+            int(64 * 5 / 12),
+            int(64 * 8 / 12),
+            int(64 * 11 / 12),
+            int(64 * 12 / 12),
+        ]
 
-    if lat < 0:
-        season0color = summercolor
-        season1color = fallcolor
-        season2color = wintercolor
-        season3color = springcolor
-        season4color = summercolor
-        season0bcolor = summerbcolor
-        season1bcolor = fallbcolor
-        season2bcolor = winterbcolor
-        season3bcolor = springbcolor
-        season4bcolor = summerbcolor
+        ctx["monthxs"] = []
+        for i in range(13):
+            ctx["monthxs"].append(int(64 * i / 12))
+        ctx["monthxs"][12] = 63
 
-    season0w = int(64 * (3 - 1) / 12)
-    season1w = int(64 * (6 - 1) / 12)
-    season2w = int(64 * (9 - 1) / 12)
-    season3w = int(64 * (12 - 1) / 12)
-    season4w = int(64 * (13 - 1) / 12)
+        daysthismonth = DAYSOFMONTH[ctx["month"]]
+        ctx["dayxs"] = []
+        for i in range(32):
+            ctx["dayxs"].append(int(64 * i / daysthismonth))
+        ctx["dayxs"][daysthismonth] = 63
 
-    weekstartcolor = "#222"
+        ctx["weekdayxs"] = []
+        for i in range(8):
+            ctx["weekdayxs"].append(int(64 * i / 7))
+        ctx["weekdayxs"][7] = 63
 
-    firstsun = (day + (7 + 7 - weekday)) % 7
-    if firstsun == 0:
-        firstsun = 7
-    weekstart0w = int(64 * (firstsun + 0 - 1) / daysofmonth[month])
-    weekstart1w = int(64 * (firstsun + 7 - 1) / daysofmonth[month])
-    weekstart2w = int(64 * (firstsun + 14 - 1) / daysofmonth[month])
-    weekstart3w = int(64 * (firstsun + 21 - 1) / daysofmonth[month])
-    weekstart4w = int(64 * (firstsun + 28 - 1) / daysofmonth[month])
+        ctx["hourxs"] = []
+        for i in range(25):
+            ctx["hourxs"].append(int(64 * i / 24))
+        ctx["hourxs"][24] = 63
 
-    #weekendcolor = "#222"
+        firstsun = (ctx["day"] + (7 + 7 - ctx["weekday"])) % 7
+        ctx["weekxs"] = []
+        for i in range(5):
+            ctx["weekxs"].append(int(64 * (firstsun + i * 7) / daysthismonth))
+        if ctx["weekxs"][3] == 64:
+            ctx["weekxs"][3] = 63
+        if ctx["weekxs"][4] == 64:
+            ctx["weekxs"][4] = 63
 
-    #weekend0w = int(64 * 1 / 7)
-    #weekend1w = int(64 * 6 / 7)
-    #weekend2w = int(64 * 7 / 7)
+        risem = rise.hour * 60 + rise.minute
+        setm = set.hour * 60 + set.minute
+        ctx["sunxs"] = [
+            int(64 * risem / (24 * 60)),
+            int(64 * setm / (24 * 60)),
+        ]
 
-    suncolor = "#222"
+        sincemidnight = {}
+        if ctx["month"] + 1 < 10:
+            sincemidnight = now - time.parse_time(str(ctx["year"]) + "-0" + str(ctx["month"] + 1) + "-01T23:59:59.99Z")
+        else:
+            sincemidnight = now - time.parse_time(str(ctx["year"]) + "-" + str(ctx["month"] + 1) + "-01T23:59:59.99Z")
+        moonatmonth = tnow - sincemidnight
+        ctx["mooncolors"] = []
+        for i in range(32):
+            ctx["mooncolors"].append(colorformoon(moonatday(moonatmonth, i)))
 
-    risem = rise.hour * 60 + rise.minute
-    setm = set.hour * 60 + set.minute
-    sun0w = int(64 * risem / (24 * 60))
-    sun1w = int(64 * setm / (24 * 60))
-    sun2w = int(64 * (24 * 60) / (24 * 60))
+        if lat > 0.0:
+            ctx["seasoncolors"] = [
+                wintercolor,
+                springcolor,
+                summercolor,
+                fallcolor,
+                wintercolor,
+            ]
+            ctx["seasonbcolors"] = [
+                winterbcolor,
+                springbcolor,
+                summerbcolor,
+                fallbcolor,
+                winterbcolor,
+            ]
+        else:
+            ctx["seasoncolors"] = [
+                summercolor,
+                fallcolor,
+                wintercolor,
+                springcolor,
+                summercolor,
+            ]
+            ctx["seasonbcolors"] = [
+                summerbcolor,
+                fallbcolor,
+                winterbcolor,
+                springbcolor,
+                summerbcolor,
+            ]
 
-    monthbgbar = {}
-    if monthnw <= season0w:
-        monthbgbar = render.Row(
-            expanded = True,
-            children = [
-                render.Box(width = monthnw, height = 8, color = season0color),
-            ],
-        )
-    elif monthnw <= season1w:
-        monthbgbar = render.Row(
-            expanded = True,
-            children = [
-                render.Box(width = season0w, height = 8, color = season0color),
-                render.Box(width = monthnw - season0w, height = 8, color = season1color),
-            ],
-        )
-    elif monthnw <= season2w:
-        monthbgbar = render.Row(
-            expanded = True,
-            children = [
-                render.Box(width = season0w, height = 8, color = season0color),
-                render.Box(width = season1w - season0w, height = 8, color = season1color),
-                render.Box(width = monthnw - season1w, height = 8, color = season2color),
-            ],
-        )
-    elif monthnw <= season3w:
-        monthbgbar = render.Row(
-            expanded = True,
-            children = [
-                render.Box(width = season0w, height = 8, color = season0color),
-                render.Box(width = season1w - season0w, height = 8, color = season1color),
-                render.Box(width = season2w - season1w, height = 8, color = season2color),
-                render.Box(width = monthnw - season2w, height = 8, color = season3color),
-            ],
-        )
-    elif monthnw <= season4w:
-        monthbgbar = render.Row(
-            expanded = True,
-            children = [
-                render.Box(width = season0w, height = 8, color = season0color),
-                render.Box(width = season1w - season0w, height = 8, color = season1color),
-                render.Box(width = season2w - season1w, height = 8, color = season2color),
-                render.Box(width = season3w - season2w, height = 8, color = season3color),
-                render.Box(width = monthnw - season3w, height = 8, color = season4color),
-            ],
-        )
+        #/PRECACHING
 
-    #rowbgbar(monthnw, 8, "#040")
-    daybgbar = rowbgbar(daynw, 8, "#440")
-    weekdaybgbar = rowbgbar(weekdaynw, 8, "#004")
-    hourbgbar = rowbgbar(hournw, 8, "#404")
+    #RENDERING
 
-    monthfgbar = {}
-    if monthnw <= season0w:
-        monthfgbar = rowfgbar(monthw, monthnw, 8, season0bcolor)
-    elif monthnw <= season1w:
-        monthfgbar = rowfgbar(monthw, monthnw, 8, season1bcolor)
-    elif monthnw <= season2w:
-        monthfgbar = rowfgbar(monthw, monthnw, 8, season2bcolor)
-    elif monthnw <= season3w:
-        monthfgbar = rowfgbar(monthw, monthnw, 8, season3bcolor)
-    elif monthnw <= season4w:
-        monthfgbar = rowfgbar(monthw, monthnw, 8, season4bcolor)
-    dayfgbar = rowfgbar(dayw, daynw, 8, "#FF0")
-    weekdayfgbar = rowfgbar(weekdayw, weekdaynw, 8, "#00F")
-    hourfgbar = rowfgbar(hourw, hournw, 8, "#F0F")
+    def getstack(showlife, showmoon, showweek, showsun, showminute, showsecond, noanimate):
+        stack = []
 
-    lifeminibar = rowbgbar(lifew, 1, "#400")
-    emptyminibar0 = render.Box(width = 64, height = 5)
-    seasonminibar = render.Row(
-        expanded = True,
-        children = [
-            render.Box(width = season0w, height = 2, color = season0color),
-            render.Box(width = season1w - season0w, height = 2, color = season1color),
-            render.Box(width = season2w - season1w, height = 2, color = season2color),
-            render.Box(width = season3w - season2w, height = 2, color = season3color),
-            render.Box(width = season4w - season3w, height = 2, color = season4color),
-        ],
-    )
-    emptyminibar1 = render.Box(width = 64, height = 7)
-    weekstartminibar = {}
-    if weekstart4w <= 64:
-        weekstartminibar = render.Row(
-            expanded = True,
-            children = [
-                render.Box(width = weekstart0w - 1, height = 1),
-                render.Box(width = 1, height = 1, color = weekstartcolor),
-                render.Box(width = weekstart1w - weekstart0w - 1, height = 1),
-                render.Box(width = 1, height = 1, color = weekstartcolor),
-                render.Box(width = weekstart2w - weekstart1w - 1, height = 1),
-                render.Box(width = 1, height = 1, color = weekstartcolor),
-                render.Box(width = weekstart3w - weekstart2w - 1, height = 1),
-                render.Box(width = 1, height = 1, color = weekstartcolor),
-                render.Box(width = weekstart4w - weekstart3w - 1, height = 1),
-                render.Box(width = 1, height = 1, color = weekstartcolor),
-            ],
-        )
-    else:
-        weekstartminibar = render.Row(
-            expanded = True,
-            children = [
-                render.Box(width = weekstart0w - 1, height = 1),
-                render.Box(width = 1, height = 1, color = weekstartcolor),
-                render.Box(width = weekstart1w - weekstart0w - 1, height = 1),
-                render.Box(width = 1, height = 1, color = weekstartcolor),
-                render.Box(width = weekstart2w - weekstart1w - 1, height = 1),
-                render.Box(width = 1, height = 1, color = weekstartcolor),
-                render.Box(width = weekstart3w - weekstart2w - 1, height = 1),
-                render.Box(width = 1, height = 1, color = weekstartcolor),
-            ],
-        )
+        #get ctx for simplicity of typing
+        now = ctx["now"]
+        weekstartcolor = ctx["weekstartcolor"]
+        suncolor = ctx["suncolor"]
+        lifecolor = ctx["lifecolor"]
+        daybgcolor = ctx["daybgcolor"]
+        weekdaybgcolor = ctx["weekdaybgcolor"]
+        hourbgcolor = ctx["hourbgcolor"]
+        dayfgcolor = ctx["dayfgcolor"]
+        weekdayfgcolor = ctx["weekdayfgcolor"]
+        hourfgcolor = ctx["hourfgcolor"]
+        minutecolor = ctx["minutecolor"]
+        secondcolor = ctx["secondcolor"]
+        month = ctx["month"]
+        season = ctx["season"]
+        day = ctx["day"]
+        weekday = ctx["weekday"]
+        hour = ctx["hour"]
+        minute = ctx["minute"]
+        second = ctx["second"]
+        lifex = ctx["lifex"]
+        seasonxs = ctx["seasonxs"]
+        monthxs = ctx["monthxs"]
+        dayxs = ctx["dayxs"]
+        weekdayxs = ctx["weekdayxs"]
+        hourxs = ctx["hourxs"]
+        weekxs = ctx["weekxs"]
+        sunxs = ctx["sunxs"]
+        mooncolors = ctx["mooncolors"]
+        seasoncolors = ctx["seasoncolors"]
+        seasonbcolors = ctx["seasonbcolors"]
 
-    #weekendminibar = render.Row(
-    #expanded = True,
-    #children = [
-    #render.Box(width = weekend0w,           height = 1, color = weekendcolor),
-    #render.Box(width = weekend1w-weekend0w, height = 1),
-    #render.Box(width = weekend2w-weekend1w, height = 1, color = weekendcolor),
-    #],
-    #)
-    emptyminibar2 = render.Box(width = 64, height = 15)
-    sunminibar = render.Row(
-        expanded = True,
-        children = [
-            render.Box(width = sun0w, height = 1),
-            render.Box(width = sun1w - sun0w, height = 1, color = suncolor),
-            render.Box(width = sun2w - sun1w, height = 1),
-        ],
-    )
-    #minuteminibar = rowbar(minutew, minutenw, 1, "#044","#044")
-    #secondminibar = rowbar(secondw, secondnw, 1, "#444","#444")
+        #month
+        y0 = 0
+        y1 = 6
+        for i in range(5):
+            if seasonxs[i + 1] <= monthxs[month + 1]:
+                stack.append(drawrectcoords(seasonxs[i], y0, seasonxs[i + 1] - 1, y1, seasoncolors[i]))
+            elif seasonxs[i] > monthxs[month]:
+                stack.append(drawrectcoords(seasonxs[i], y0, seasonxs[i + 1] - 1, 1, seasoncolors[i]))
+            else:
+                stack.append(drawrectcoords(seasonxs[i], y0, monthxs[month + 1] - 1, y1, seasoncolors[i]))
+                stack.append(drawrectcoords(monthxs[month + 1] + 1, y0, seasonxs[i + 1] - 1, 1, seasoncolors[i]))
 
-    monthtext = rowtext(monthw - 1, monthnw + 1, 8, monthstr[month])
-    daytext = rowtext(dayw - 1, daynw + 1, 8, str(day))
-    weekdaytext = rowtext(weekdayw - 1, weekdaynw + 1, 8, daystr[weekday])
-    hourtext = rowtext(hourw - 1, hournw + 1, 8, now.format("3:04PM"))
+        stack.append(drawrect(monthxs[month], y0, 1, y1 - y0 + 1, seasonbcolors[season]))
+        stack.append(drawrect(monthxs[month + 1], y0, 1, y1 - y0, seasonbcolors[season]))
+        for i in range(12):
+            stack.append(drawrect(monthxs[i + 1] - 1, 6, 1, 2, "#000"))
+        if monthxs[month + 1] >= 32:
+            stack.append(drawrtext(monthxs[month] - 2, y0, MONTHSTRS[month]))
+        else:
+            stack.append(drawtext(monthxs[month + 1] + 2, y0, MONTHSTRS[month]))
+
+        #day
+        y0 = 8
+        y1 = 15
+        stack.append(drawrectcoords(0, y0, dayxs[day + 1], y1, daybgcolor))
+        stack.append(drawrect(dayxs[day], y0, 1, 8, dayfgcolor))
+        stack.append(drawrect(dayxs[day + 1], y0, 1, 8, dayfgcolor))
+        if dayxs[day + 1] >= 32:
+            stack.append(drawrtext(dayxs[day] - 2, y0, str(day + 1)))
+        else:
+            stack.append(drawtext(dayxs[day + 1] + 2, y0, str(day + 1)))
+
+        #weekday
+        y0 = 16
+        y1 = 23
+        stack.append(drawrectcoords(0, y0, weekdayxs[weekday + 1], y1, weekdaybgcolor))
+        stack.append(drawrect(weekdayxs[weekday], y0, 1, 8, weekdayfgcolor))
+        stack.append(drawrect(weekdayxs[weekday + 1], y0, 1, 8, weekdayfgcolor))
+        if weekdayxs[weekday + 1] >= 32:
+            stack.append(drawrtext(weekdayxs[weekday] - 2, y0, WEEKDAYSTRS[weekday]))
+        else:
+            stack.append(drawtext(weekdayxs[weekday + 1] + 2, y0, WEEKDAYSTRS[weekday]))
+
+        #hour
+        y0 = 24
+        y1 = 31
+        stack.append(drawrectcoords(0, y0, hourxs[hour + 1], y1, hourbgcolor))
+        stack.append(drawrect(hourxs[hour], y0, 1, 8, hourfgcolor))
+        stack.append(drawrect(hourxs[hour + 1], y0, 1, 8, hourfgcolor))
+        if noanimate:
+            if hourxs[hour + 1] >= 32:
+                stack.append(drawrtext(hourxs[hour] - 2, y0, now.format("3:04PM")))
+            else:
+                stack.append(drawtext(hourxs[hour + 1] + 2, y0, now.format("3:04PM")))
+        else:
+            animation = []
+            if hourxs[hour + 1] >= 32:
+                for i in range(61):
+                    animation.append(drawrtext(hourxs[hour] - 2, y0, (now + time.second * i).format("3:04PM")))
+            else:
+                for i in range(61):
+                    animation.append(drawtext(hourxs[hour + 1] + 2, y0, (now + time.second * i).format("3:04PM")))
+            stack.append(render.Animation(children = animation))
+
+        #life
+        if showlife:
+            stack.append(drawrect(0, 0, lifex, 1, lifecolor))
+
+        #moon
+        if showmoon:
+            for i in range(DAYSOFMONTH[month] + 1):
+                stack.append(drawrect(dayxs[i], 8, 1, 1, mooncolors[i]))
+
+        #weekstart
+        if showweek:
+            for i in range(5):
+                stack.append(drawrect(weekxs[i], 15, 1, 1, weekstartcolor))
+
+        #sunriseset
+        if showsun:
+            stack.append(drawrectcoords(sunxs[0], 24, sunxs[1], 24, suncolor))
+
+        #minute
+        if showminute:
+            if noanimate:
+                stack.append(drawrect(minute, 31, 1, 1, minutecolor))
+            else:
+                animation = []
+                for i in range(61):
+                    animation.append(drawrect(minute + (int)((second + i) / 60), 31, 1, 1, minutecolor))
+                stack.append(render.Animation(children = animation))
+
+        #second
+        if showsecond:
+            if noanimate:
+                stack.append(drawrect(second, 31, 1, 1, secondcolor))
+            else:
+                animation = []
+                for i in range(61):
+                    animation.append(drawrect((second + i) % 60, 31, 1, 1, secondcolor))
+                stack.append(render.Animation(children = animation))
+
+        return render.Stack(stack)
+
+    #DEBUGGING
+    #animationstacks = []
+    #getctx(tnow)
+
+    #animationstacks.append(getstack(showlife,showmoon,showweek,showsun,showminute,showsecond,True))
+    #for i in range(300):
+    #getctx(tnow+time.minute*1253*i)
+    #animationstacks.append(getstack(showlife,showmoon,showweek,showsun,showminute,showsecond,True))
+    #stack = render.Animation(children = animationstacks)
+
+    getctx(tnow)
+    stack = getstack(showlife, showmoon, showweek, showsun, showminute, showsecond, False)
 
     return render.Root(
-        child = render.Stack(
-            children = [
-                render.Column(
-                    children = [
-                        monthbgbar,
-                        daybgbar,
-                        weekdaybgbar,
-                        hourbgbar,
-                    ],
-                ),
-                render.Column(
-                    children = [
-                        monthfgbar,
-                        dayfgbar,
-                        weekdayfgbar,
-                        hourfgbar,
-                    ],
-                ),
-                render.Column(
-                    children = [
-                        lifeminibar,
-                        emptyminibar0,
-                        seasonminibar,
-                        emptyminibar1,
-                        weekstartminibar,
-                        #weekendminibar,
-                        emptyminibar2,
-                        sunminibar,
-                        #minuteminibar,
-                        #secondbar,
-                    ],
-                ),
-                render.Column(
-                    children = [
-                        monthtext,
-                        daytext,
-                        weekdaytext,
-                        hourtext,
-                    ],
-                ),
-                render.Column(
-                    children = [
-                        monthfgbar,
-                    ],
-                ),
-                render.Column(
-                    children = [
-                        lifeminibar,
-                    ],
-                ),
-            ],
-        ),
-    )
-
-def get_schema():
-    return schema.Schema(
-        version = "1",
-        fields = [
-            schema.Location(
-                id = "location",
-                name = "Location",
-                desc = "Location for which to display time.",
-                icon = "locationDot",
-            ),
-            schema.Text(
-                id = "birthyear",
-                name = "Birth Year",
-                desc = "Year used to estimate progress through life",
-                icon = "skullCrossbones",
-            ),
-        ],
+        delay = 1000,
+        #show_full_animation = True,
+        child = stack,
     )
