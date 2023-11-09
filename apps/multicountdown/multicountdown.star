@@ -110,6 +110,9 @@ def main(config):
 
 def more_options(eventCount):
     returnArray = []
+    if eventCount > 20:
+        eventCount = 20
+
     if eventCount > "0":
         for x in range(int(eventCount)):
             returnArray.append(schema.Text(id = "event" + str(x), name = "Event " + str(x) + " Name", desc = "Event " + str(x) + " name", icon = "gear"))
@@ -125,7 +128,7 @@ def get_schema():
             schema.Text(
                 id = "eventCount",
                 name = "Number of Events",
-                desc = "How many different events are we counting down until?",
+                desc = "How many different events are we counting down until? (Max 20)",
                 icon = "gear",
             ),
             schema.Toggle(
