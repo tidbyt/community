@@ -19,17 +19,18 @@ def get_schema():
                 desc = "Location for which to display time",
                 icon = "locationDot",
             ),
-            schema.Location(
-                id = "location",
-                name = "Location",
-                desc = "Location for which to display time",
-                icon = "locationDot",
-            ),
             schema.Text(
                 id = "weatherkey",
                 name = "Weatherstack API key",
                 desc = "Get key at weatherstack.com - this app requires paid forcasting plan",
                 icon = "cloud",
+            ),
+            schema.Toggle(
+                id = "showlife",
+                name = "Show Life Bar",
+                desc = "Display bar optimistically approximating progress through life",
+                icon = "skullCrossbones",
+                default = False,
             ),
             schema.Text(
                 id = "birthyear",
