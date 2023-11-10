@@ -363,7 +363,7 @@ def main(config):
     showsun = config.bool("showsun")
     showminute = config.bool("showminute")
     showsecond = config.bool("showsecond")
-    ctx["showweather"] = config.get("weatherkey") != None
+    ctx["showweather"] = config.get("weatherkey") != None and config.get("weatherkey") != ""
     ctx["weatherpayed"] = config.bool("weatherpaid")
 
     def getctx(unow):
@@ -394,16 +394,16 @@ def main(config):
         winterbcolor = "#AAF"
 
         ctx["weekstartcolor"] = "#FFFFFF22"
-        ctx["suncolor"] = "#664C"
+        ctx["suncolor"] = "#664"
         ctx["lifecolor"] = "#400"
-        ctx["daybgcolor"] = "#033"
-        ctx["weekdaybgcolor"] = "#004"
-        ctx["hourbgcolor"] = "#404"
+        ctx["daybgcolor"] = "#030"
+        ctx["dayfgcolor"] = "#090"
+        ctx["weekdaybgcolor"] = "#404"
+        ctx["weekdayfgcolor"] = "#B0B"
+        ctx["hourbgcolor"] = "#033"
+        ctx["hourfgcolor"] = "#0AA"
         ctx["cloudcolor"] = "#333"
         ctx["raincolor"] = "#336"
-        ctx["dayfgcolor"] = "#0AA"
-        ctx["weekdayfgcolor"] = "#00E"
-        ctx["hourfgcolor"] = "#B0B"
         ctx["minutecolor"] = "#B88"
         ctx["secondcolor"] = "#AAA"
 
