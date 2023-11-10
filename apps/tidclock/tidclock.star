@@ -1,4 +1,5 @@
 load("encoding/json.star", "json")
+load("http.star", "http")
 load("humanize.star", "humanize")
 load("math.star", "math")
 load("render.star", "render")
@@ -18,12 +19,17 @@ def get_schema():
                 desc = "Location for which to display time",
                 icon = "locationDot",
             ),
-            schema.Toggle(
-                id = "showlife",
-                name = "Show Life Bar",
-                desc = "Display bar optimistically approximating progress through life",
-                icon = "skullCrossbones",
-                default = False,
+            schema.Location(
+                id = "location",
+                name = "Location",
+                desc = "Location for which to display time",
+                icon = "locationDot",
+            ),
+            schema.Text(
+                id = "weatherkey",
+                name = "Weatherstack API key",
+                desc = "Get key at weatherstack.com - this app requires paid forcasting plan",
+                icon = "cloud",
             ),
             schema.Text(
                 id = "birthyear",
@@ -58,7 +64,7 @@ def get_schema():
                 name = "Show Minute Dot",
                 desc = "Display dot walking across the bottom corresponding to minute of the hour",
                 icon = "clock",
-                default = True,
+                default = False,
             ),
             schema.Toggle(
                 id = "showsecond",
@@ -109,7 +115,7 @@ def drawrect(x, y, w, h, c):
     )
 
 def drawrectcoords(x0, y0, x1, y1, c):
-    return drawrect(x0, y0, x1 - x0 + 1, y1 - y0 + 1, c)
+    return drawrect(x0, y0, x1 - x0, y1 - y0, c)
 
 def drawtext(x, y, text):
     if text == "":
@@ -214,7 +220,9 @@ DEFAULT_LOCATION = """
 	"timezone": "America/New_York"
 }
 """
-
+WEATHERURLPRE = "http://api.weatherstack.com/forecast?access_key="
+WEATHERURLPOSTWEEK = "&forecast_days=7"
+WEATHERURLPOSTDAY = "&forecast_days=1&hourly=1&interval=1"
 LUNATION = 2551443  # lunar cycle in seconds (29 days 12 hours 44 minutes 3 seconds)
 REF_NEWMOON = time.parse_time("30-Apr-2022 20:28:00", format = "02-Jan-2006 15:04:05").unix
 MONTHSTRS = ["JAN", "FEB", "MAR", "APR", "MAY", "JUN", "JUL", "AUG", "SEP", "OCT", "NOV", "DEC"]
@@ -226,36 +234,44 @@ WEEKDAYSTRS = ["SUN", "MON", "TUE", "WED", "THU", "FRI", "SAT"]
 
 #CTX
 
-#global weekstartcolor
-#global suncolor
-#global lifecolor
-#global daybgcolor
-#global weekdaybgcolor
-#global hourbgcolor
-#global dayfgcolor
-#global weekdayfgcolor
-#global hourfgcolor
-#global minutecolor
-#global secondcolor
-#global year
-#global month
-#global season
-#global day
-#global weekday
-#global hour
-#global minute
-#global second
-#global lifex
-#global seasonxs
-#global monthxs
-#global dayxs
-#global weekdayxs
-#global hourxs
-#global weekxs
-#global sunxs
-#global mooncolors
-#global seasoncolors
-#global seasonbcolors
+#thisnow
+#showweather
+#dayweather
+#hourlycloudweather
+#hourlyrainweather
+#weekweather
+#weekstartcolor
+#suncolor
+#lifecolor
+#daybgcolor
+#weekdaybgcolor
+#hourbgcolor
+#cloudcolor
+#raincolor
+#dayfgcolor
+#weekdayfgcolor
+#hourfgcolor
+#minutecolor
+#secondcolor
+#year
+#month
+#season
+#day
+#weekday
+#hour
+#minute
+#second
+#lifex
+#seasonxs
+#monthxs
+#dayxs
+#weekdayxs
+#hourxs
+#weekxs
+#sunxs
+#mooncolors
+#seasoncolors
+#seasonbcolors
 
 #/CTX
 
@@ -292,6 +308,8 @@ def colorformoon(p):
 
 def main(config):
     ctx = {}
+    gotweather = {}
+    gotweather["yes"] = False
     unow = time.now()
 
     showlife = config.bool("showlife")
@@ -300,14 +318,17 @@ def main(config):
     showsun = config.bool("showsun")
     showminute = config.bool("showminute")
     showsecond = config.bool("showsecond")
+    ctx["showweather"] = config.get("weatherkey") != None
 
     def getctx(unow):
         #CONFIG
 
         location = json.decode(config.get("location", DEFAULT_LOCATION))
+        locality = location["locality"]
         timezone = location["timezone"]
         lat = float(location["lat"])
         lng = float(location["lng"])
+
         thisnow = unow.in_location(timezone)
         ctx["thisnow"] = thisnow
 
@@ -326,12 +347,14 @@ def main(config):
         fallbcolor = "#F40"
         winterbcolor = "#AAF"
 
-        ctx["weekstartcolor"] = "#FFFFFF18"
-        ctx["suncolor"] = "#664A"
+        ctx["weekstartcolor"] = "#FFFFFF22"
+        ctx["suncolor"] = "#664C"
         ctx["lifecolor"] = "#400"
         ctx["daybgcolor"] = "#033"
         ctx["weekdaybgcolor"] = "#004"
         ctx["hourbgcolor"] = "#404"
+        ctx["cloudcolor"] = "#333"
+        ctx["raincolor"] = "#336"
         ctx["dayfgcolor"] = "#0AA"
         ctx["weekdayfgcolor"] = "#00E"
         ctx["hourfgcolor"] = "#B0B"
@@ -393,8 +416,6 @@ def main(config):
         if ctx["weekxs"][4] == 64:
             ctx["weekxs"][4] = 63
 
-        #time.time(year=ctx["year"],month=ctx["month"]+1,day=ctx["day"]+1,hour=ctx["hour"],minute=ctx["minute"],second=ctx["second"]).in_location(timezone)
-
         rise = sunrise.sunrise(lat, lng, thisnow).in_location(timezone)
         set = sunrise.sunset(lat, lng, thisnow).in_location(timezone)
         risem = rise.hour * 60 + rise.minute
@@ -421,6 +442,45 @@ def main(config):
         ctx["mooncolors"] = []
         for i in range(32):
             ctx["mooncolors"].append(colorformoon(moonatday(monthstart, i)))
+
+        if ctx["showweather"] and gotweather["yes"] == False:
+            gotweather["yes"] = True
+            weatherurlbase = WEATHERURLPRE + config.get("weatherkey") + "&query=" + humanize.url_encode(locality)
+            weatherurlweek = weatherurlbase + WEATHERURLPOSTWEEK
+            weatherurlday = weatherurlbase + WEATHERURLPOSTDAY
+
+            res = http.get(url = weatherurlday, ttl_seconds = 3600)
+            if res.status_code != 200:
+                ctx["showweather"] = False
+                print("Error getting weather " + str(res.status_code))
+            else:
+                result = res.json()
+                if "success" in result and result["success"] == False:
+                    ctx["showweather"] = False
+                    print("Error getting weather " + str(result["error"]["code"]) + result["error"]["type"])
+                else:
+                    ctx["dayweather"] = result["current"]["weather_descriptions"][0]
+                    hourly = result["forecast"][(thisnow).format("2006-01-02")]["hourly"]
+                    ctx["hourlycloudweather"] = []
+                    ctx["hourlyrainweather"] = []
+                    for i in range(24):
+                        ctx["hourlycloudweather"].append(hourly[i]["cloudcover"])
+                        ctx["hourlyrainweather"].append(hourly[i]["chanceofrain"])
+
+            res = http.get(url = weatherurlweek, ttl_seconds = 3600)
+            if res.status_code != 200:
+                ctx["showweather"] = False
+                print("Error getting weather " + str(res.status_code))
+            else:
+                result = res.json()
+                if "success" in result and result["success"] == False:
+                    ctx["showweather"] = False
+                    print("Error getting weather " + str(result["error"]["code"]) + result["error"]["type"])
+                else:
+                    forecast = result["forecast"]
+                    ctx["weekweather"] = []
+                    for i in range(7):
+                        ctx["weekweather"].append(forecast[(thisnow + time.hour * 24 * i).format("2006-01-02")]["totalsnow"])
 
         if lat > 0.0:
             ctx["seasoncolors"] = [
@@ -462,12 +522,15 @@ def main(config):
 
         #get ctx for simplicity of typing
         thisnow = ctx["thisnow"]
+        showweather = ctx["showweather"]
         weekstartcolor = ctx["weekstartcolor"]
         suncolor = ctx["suncolor"]
         lifecolor = ctx["lifecolor"]
         daybgcolor = ctx["daybgcolor"]
         weekdaybgcolor = ctx["weekdaybgcolor"]
         hourbgcolor = ctx["hourbgcolor"]
+        cloudcolor = ctx["cloudcolor"]
+        raincolor = ctx["raincolor"]
         dayfgcolor = ctx["dayfgcolor"]
         weekdayfgcolor = ctx["weekdayfgcolor"]
         hourfgcolor = ctx["hourfgcolor"]
@@ -498,12 +561,12 @@ def main(config):
         y1 = 6
         for i in range(5):
             if seasonxs[i + 1] < monthxs[month + 1]:
-                stack.append(drawrectcoords(seasonxs[i], y0, seasonxs[i + 1] - 1, 1, seasoncolors[i]))
+                stack.append(drawrectcoords(seasonxs[i], y0, seasonxs[i + 1], 2, seasoncolors[i]))
             elif seasonxs[i] > monthxs[month]:
-                stack.append(drawrectcoords(seasonxs[i], y0, seasonxs[i + 1] - 1, y1, seasoncolors[i]))
+                stack.append(drawrectcoords(seasonxs[i], y0, seasonxs[i + 1], y1 + 1, seasoncolors[i]))
             else:
-                stack.append(drawrectcoords(seasonxs[i], y0, monthxs[month] - 1, 1, seasoncolors[i]))
-                stack.append(drawrectcoords(monthxs[month] + 1, y0, seasonxs[i + 1] - 1, y1, seasoncolors[i]))
+                stack.append(drawrectcoords(seasonxs[i], y0, monthxs[month], 2, seasoncolors[i]))
+                stack.append(drawrectcoords(monthxs[month] + 1, y0, seasonxs[i + 1], y1 + 1, seasoncolors[i]))
         stack.append(drawrect(monthxs[month], y0, 1, y1 - y0 + 1, seasonbcolors[season]))
         stack.append(drawrect(monthxs[month + 1], y0, 1, y1 - y0, seasonbcolors[season]))
         stack.append(drawrect(monthxs[month], y1, 1, 1, "#000"))
@@ -523,7 +586,7 @@ def main(config):
         #day
         y0 = 8
         y1 = 15
-        stack.append(drawrectcoords(0, y0, dayxs[day + 1], y1, daybgcolor))
+        stack.append(drawrectcoords(0, y0, dayxs[day + 1], y1 + 1, daybgcolor))
         stack.append(drawrect(dayxs[day], y0, 1, 8, dayfgcolor))
         stack.append(drawrect(dayxs[day + 1], y0, 1, 8, dayfgcolor))
 
@@ -541,7 +604,13 @@ def main(config):
         #weekday
         y0 = 16
         y1 = 23
-        stack.append(drawrectcoords(0, y0, weekdayxs[weekday + 1], y1, weekdaybgcolor))
+        stack.append(drawrectcoords(0, y0, weekdayxs[weekday + 1], y1 + 1, weekdaybgcolor))
+        if showweather:
+            dayweather = ctx["dayweather"]
+            weekweather = ctx["weekweather"]
+            for i in range(7):
+                stack.append(drawrectcoords(weekdayxs[(weekday + i) % 7], y0, weekdayxs[(weekday + i) % 7 + 1], y0 + (int)(weekweather[i] * (y1 - y0 + 1) / 20), raincolor))
+            stack.append(drawtext(weekdayxs[weekday] + 3, y0, dayweather[0]))
         stack.append(drawrect(weekdayxs[weekday], y0, 1, 8, weekdayfgcolor))
         stack.append(drawrect(weekdayxs[weekday + 1], y0, 1, 8, weekdayfgcolor))
         if weekdayxs[weekday + 1] >= 32:
@@ -552,7 +621,15 @@ def main(config):
         #hour
         y0 = 24
         y1 = 31
-        stack.append(drawrectcoords(0, y0, hourxs[hour + 1], y1, hourbgcolor))
+        stack.append(drawrectcoords(0, y0, hourxs[hour + 1], y1 + 1, hourbgcolor))
+
+        #hourlyweather
+        if showweather:
+            hourlycloudweather = ctx["hourlycloudweather"]
+            hourlyrainweather = ctx["hourlyrainweather"]
+            for i in range(24):
+                stack.append(drawrectcoords(hourxs[i], y0, hourxs[i + 1], y0 + (int)(hourlycloudweather[i] * (y1 - y0) / 100), cloudcolor))
+                stack.append(drawrectcoords(hourxs[i], y0, hourxs[i + 1], y0 + (int)(hourlyrainweather[i] * (y1 - y0) / 100), raincolor))
 
         #sunriseset
         if showsun:
@@ -560,6 +637,10 @@ def main(config):
                 stack.append(drawrect(sunxs[0] + i, 31 - sunys[i], 1, 1, suncolor))
         stack.append(drawrect(hourxs[hour], y0, 1, 8, hourfgcolor))
         stack.append(drawrect(hourxs[hour + 1], y0, 1, 8, hourfgcolor))
+
+        #minute
+        stack.append(drawrect((int)(64 * (hour * 60 + minute) / (24 * 60)), 24, 1, 1, minutecolor))
+
         if noanimate:
             if hourxs[hour + 1] >= 32:
                 stack.append(drawrtext(hourxs[hour] - 2, y0, thisnow.format("3:04PM")))
@@ -615,7 +696,7 @@ def main(config):
     #getctx(unow)
     #animationstacks.append(getstack(showlife,showmoon,showweek,showsun,showminute,showsecond,True))
     #for i in range(300):
-    #    getctx(unow+time.minute*3253*i)
+    #    getctx(unow+time.minute*60*i)
     #    animationstacks.append(getstack(showlife,showmoon,showweek,showsun,showminute,showsecond,True))
     #stack = render.Animation(children = animationstacks)
 
@@ -624,7 +705,7 @@ def main(config):
 
     return render.Root(
         delay = 1000,
-        #delay = 10,
+        #delay = 500,
         #show_full_animation = True,
         child = stack,
     )
