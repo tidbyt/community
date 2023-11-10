@@ -404,7 +404,7 @@ def main(config):
         ctx["hourfgcolor"] = "#0AA"
         ctx["cloudcolor"] = "#333"
         ctx["raincolor"] = "#336"
-        ctx["minutecolor"] = "#B88"
+        ctx["minutecolor"] = "#ACC"
         ctx["secondcolor"] = "#AAA"
 
         #/CONFIG
