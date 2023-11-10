@@ -297,6 +297,7 @@ WEATHERICON_PRECIPITATION = base64.decode("iVBORw0KGgoAAAANSUhEUgAAAAUAAAAFCAYAA
 #hourfgcolor
 #cloudcolor
 #raincolor
+#hourcolor
 #minutecolor
 #secondcolor
 #year
@@ -406,6 +407,7 @@ def main(config):
         ctx["hourfgcolor"] = "#0AA"
         ctx["cloudcolor"] = "#333"
         ctx["raincolor"] = "#336"
+        ctx["hourcolor"] = "#B8B"
         ctx["minutecolor"] = "#ACC"
         ctx["secondcolor"] = "#AAA"
 
@@ -600,6 +602,7 @@ def main(config):
         hourfgcolor = ctx["hourfgcolor"]
         cloudcolor = ctx["cloudcolor"]
         raincolor = ctx["raincolor"]
+        hourcolor = ctx["hourcolor"]
         minutecolor = ctx["minutecolor"]
         secondcolor = ctx["secondcolor"]
         month = ctx["month"]
@@ -696,6 +699,9 @@ def main(config):
             stack.append(drawrtext(weekdayxs[weekday] - 2, y0, WEEKDAYSTRS[weekday]))
         else:
             stack.append(drawtext(weekdayxs[weekday + 1] + 2, y0, WEEKDAYSTRS[weekday]))
+
+        #weekdayhour
+        stack.append(drawrect((int)(64 * (weekday * 24 + hour) / (24 * 7)), 16, 1, 1, hourcolor))
 
         #hour
         y0 = 24
