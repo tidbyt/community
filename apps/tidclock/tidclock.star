@@ -1,3 +1,4 @@
+load("encoding/base64.star", "base64")
 load("encoding/json.star", "json")
 load("http.star", "http")
 load("humanize.star", "humanize")
@@ -21,9 +22,16 @@ def get_schema():
             ),
             schema.Text(
                 id = "weatherkey",
-                name = "Weatherstack API key",
-                desc = "Get key at weatherstack.com - this app requires paid forcasting plan",
+                name = "Weatherstack API Key",
+                desc = "Get key at weatherstack.com",
                 icon = "cloud",
+            ),
+            schema.Toggle(
+                id = "weatherpaid",
+                name = "Weatherstack API Paid",
+                desc = "Use paid weatherstack.com subscription to allow display of forecasts",
+                icon = "cloudRain",
+                default = False,
             ),
             schema.Toggle(
                 id = "showlife",
@@ -207,6 +215,36 @@ def drawrtext(x, y, text):
         ],
     )
 
+def drawimg(x, y, img):
+    if x == 0:
+        if y == 0:
+            return render.Image(src = img)
+        else:
+            return render.Column(
+                children = [
+                    render.Box(width = 1, height = y),
+                    render.Image(src = img),
+                ],
+            )
+    if y == 0:
+        return render.Row(
+            children = [
+                render.Box(width = x, height = 1),
+                render.Image(src = img),
+            ],
+        )
+    return render.Column(
+        children = [
+            render.Box(width = 1, height = y),
+            render.Row(
+                children = [
+                    render.Box(width = x, height = 1),
+                    render.Image(src = img),
+                ],
+            ),
+        ],
+    )
+
 #/UTILS
 
 #STATIC
@@ -224,12 +262,17 @@ DEFAULT_LOCATION = """
 WEATHERURLPRE = "http://api.weatherstack.com/forecast?access_key="
 WEATHERURLPOSTWEEK = "&forecast_days=7"
 WEATHERURLPOSTDAY = "&forecast_days=1&hourly=1&interval=1"
+WEATHERURLFREE = "http://api.weatherstack.com/current?access_key="
 LUNATION = 2551443  # lunar cycle in seconds (29 days 12 hours 44 minutes 3 seconds)
 REF_NEWMOON = time.parse_time("30-Apr-2022 20:28:00", format = "02-Jan-2006 15:04:05").unix
 MONTHSTRS = ["JAN", "FEB", "MAR", "APR", "MAY", "JUN", "JUL", "AUG", "SEP", "OCT", "NOV", "DEC"]
 MONTHSEASON = [0, 0, 1, 1, 1, 2, 2, 2, 3, 3, 3, 4]
 DAYSOFMONTH = [31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31]
 WEEKDAYSTRS = ["SUN", "MON", "TUE", "WED", "THU", "FRI", "SAT"]
+WEATHERICON_CLEAR = base64.decode("iVBORw0KGgoAAAANSUhEUgAAAAUAAAAFCAYAAACNbyblAAAAHklEQVR42mP4/5+hAYj/Q3EDAwggCYAxXkFM7dgAAK7ULdUdcihQAAAAAElFTkSuQmCC")
+WEATHERICON_PARTLYCLOUDY = base64.decode("iVBORw0KGgoAAAANSUhEUgAAAAUAAAAFCAYAAACNbyblAAAAKElEQVR42mP4/5+hAYj/Q3EDAwhAOEBxKIAKIgTgEv+xAKhqOACbCQBJmUw3DPvOEwAAAABJRU5ErkJggg==")
+WEATHERICON_CLOUDY = base64.decode("iVBORw0KGgoAAAANSUhEUgAAAAUAAAAFCAYAAACNbyblAAAAH0lEQVR42mNgwAX+///f8B8KMATgEv+xAJhqGGgA8QExCz5EHxiM1gAAAABJRU5ErkJggg==")
+WEATHERICON_PRECIPITATION = base64.decode("iVBORw0KGgoAAAANSUhEUgAAAAUAAAAFCAYAAACNbyblAAAALElEQVR42mNgAIL///83/IcCBnQBuMR/LACsur4ewgkN/X+AAQL+N6DSDAwAMd8/LpL83qAAAAAASUVORK5CYII=")
 
 #/STATIC
 
@@ -237,6 +280,7 @@ WEEKDAYSTRS = ["SUN", "MON", "TUE", "WED", "THU", "FRI", "SAT"]
 
 #thisnow
 #showweather
+#weatherpayed
 #dayweather
 #hourlycloudweather
 #hourlyrainweather
@@ -320,6 +364,7 @@ def main(config):
     showminute = config.bool("showminute")
     showsecond = config.bool("showsecond")
     ctx["showweather"] = config.get("weatherkey") != None
+    ctx["weatherpayed"] = config.bool("weatherpaid")
 
     def getctx(unow):
         #CONFIG
@@ -446,42 +491,58 @@ def main(config):
 
         if ctx["showweather"] and gotweather["yes"] == False:
             gotweather["yes"] = True
-            weatherurlbase = WEATHERURLPRE + config.get("weatherkey") + "&query=" + humanize.url_encode(locality)
-            weatherurlweek = weatherurlbase + WEATHERURLPOSTWEEK
-            weatherurlday = weatherurlbase + WEATHERURLPOSTDAY
 
-            res = http.get(url = weatherurlday, ttl_seconds = 3600)
-            if res.status_code != 200:
-                ctx["showweather"] = False
-                print("Error getting weather " + str(res.status_code))
-            else:
-                result = res.json()
-                if "success" in result and result["success"] == False:
-                    ctx["showweather"] = False
-                    print("Error getting weather " + str(result["error"]["code"]) + result["error"]["type"])
-                else:
-                    ctx["dayweather"] = result["current"]["weather_descriptions"][0]
-                    hourly = result["forecast"][(thisnow).format("2006-01-02")]["hourly"]
-                    ctx["hourlycloudweather"] = []
-                    ctx["hourlyrainweather"] = []
-                    for i in range(24):
-                        ctx["hourlycloudweather"].append(hourly[i]["cloudcover"])
-                        ctx["hourlyrainweather"].append(hourly[i]["chanceofrain"])
+            if ctx["weatherpayed"]:
+                weatherurlbase = WEATHERURLPRE + config.get("weatherkey") + "&query=" + humanize.url_encode(locality)
+                weatherurlweek = weatherurlbase + WEATHERURLPOSTWEEK
+                weatherurlday = weatherurlbase + WEATHERURLPOSTDAY
 
-            res = http.get(url = weatherurlweek, ttl_seconds = 3600)
-            if res.status_code != 200:
-                ctx["showweather"] = False
-                print("Error getting weather " + str(res.status_code))
-            else:
-                result = res.json()
-                if "success" in result and result["success"] == False:
+                res = http.get(url = weatherurlday, ttl_seconds = 60 * 60)
+                if res.status_code != 200:
                     ctx["showweather"] = False
-                    print("Error getting weather " + str(result["error"]["code"]) + result["error"]["type"])
+                    print("Error getting weather " + str(res.status_code))
                 else:
-                    forecast = result["forecast"]
-                    ctx["weekweather"] = []
-                    for i in range(7):
-                        ctx["weekweather"].append(forecast[(thisnow + time.hour * 24 * i).format("2006-01-02")]["totalsnow"])
+                    result = res.json()
+                    if "success" in result and result["success"] == False:
+                        ctx["showweather"] = False
+                        print("Error getting weather " + str(result["error"]["code"]) + result["error"]["type"])
+                    else:
+                        ctx["dayweather"] = result["current"]["weather_descriptions"][0]
+                        hourly = result["forecast"][(thisnow).format("2006-01-02")]["hourly"]
+                        ctx["hourlycloudweather"] = []
+                        ctx["hourlyrainweather"] = []
+                        for i in range(24):
+                            ctx["hourlycloudweather"].append(hourly[i]["cloudcover"])
+                            ctx["hourlyrainweather"].append(hourly[i]["chanceofrain"])
+
+                res = http.get(url = weatherurlweek, ttl_seconds = 60 * 60 * 24)
+                if res.status_code != 200:
+                    ctx["showweather"] = False
+                    print("Error getting weather " + str(res.status_code))
+                else:
+                    result = res.json()
+                    if "success" in result and result["success"] == False:
+                        ctx["showweather"] = False
+                        print("Error getting weather " + str(result["error"]["code"]) + result["error"]["type"])
+                    else:
+                        forecast = result["forecast"]
+                        ctx["weekweather"] = []
+                        for i in range(7):
+                            ctx["weekweather"].append(forecast[(thisnow + time.hour * 24 * i).format("2006-01-02")]["totalsnow"])
+            else:
+                weatherurlbase = WEATHERURLFREE + config.get("weatherkey") + "&query=" + humanize.url_encode(locality)
+
+                res = http.get(url = weatherurlbase, ttl_seconds = 60 * 60)
+                if res.status_code != 200:
+                    ctx["showweather"] = False
+                    print("Error getting weather " + str(res.status_code))
+                else:
+                    result = res.json()
+                    if "success" in result and result["success"] == False:
+                        ctx["showweather"] = False
+                        print("Error getting weather " + str(result["error"]["code"]) + result["error"]["type"])
+                    else:
+                        ctx["dayweather"] = result["current"]["weather_descriptions"][0]
 
         if lat > 0.0:
             ctx["seasoncolors"] = [
@@ -524,6 +585,7 @@ def main(config):
         #get ctx for simplicity of typing
         thisnow = ctx["thisnow"]
         showweather = ctx["showweather"]
+        weatherpayed = ctx["weatherpayed"]
         weekstartcolor = ctx["weekstartcolor"]
         suncolor = ctx["suncolor"]
         lifecolor = ctx["lifecolor"]
@@ -607,11 +669,21 @@ def main(config):
         y1 = 23
         stack.append(drawrectcoords(0, y0, weekdayxs[weekday + 1], y1 + 1, weekdaybgcolor))
         if showweather:
+            if weatherpayed:
+                weekweather = ctx["weekweather"]
+                for i in range(7):
+                    stack.append(drawrectcoords(weekdayxs[(weekday + i) % 7], y0, weekdayxs[(weekday + i) % 7 + 1], y0 + (int)(weekweather[i] * (y1 - y0 + 1) / 20), raincolor))
             dayweather = ctx["dayweather"]
-            weekweather = ctx["weekweather"]
-            for i in range(7):
-                stack.append(drawrectcoords(weekdayxs[(weekday + i) % 7], y0, weekdayxs[(weekday + i) % 7 + 1], y0 + (int)(weekweather[i] * (y1 - y0 + 1) / 20), raincolor))
-            stack.append(drawtext(weekdayxs[weekday] + 3, y0, dayweather[0]))
+            if dayweather == "Clear":
+                stack.append(drawimg(weekdayxs[weekday] + 2, y0 + 2, WEATHERICON_CLEAR))
+            elif dayweather == "Partly cloudy":
+                stack.append(drawimg(weekdayxs[weekday] + 2, y0 + 2, WEATHERICON_PARTLYCLOUDY))
+            elif dayweather == "Cloudy":
+                stack.append(drawimg(weekdayxs[weekday] + 2, y0 + 2, WEATHERICON_CLOUDY))
+            elif dayweather == "Rainy":
+                stack.append(drawimg(weekdayxs[weekday] + 2, y0 + 2, WEATHERICON_PRECIPITATION))
+            else:
+                stack.append(drawtext(weekdayxs[weekday] + 3, y0, dayweather[0]))
         stack.append(drawrect(weekdayxs[weekday], y0, 1, 8, weekdayfgcolor))
         stack.append(drawrect(weekdayxs[weekday + 1], y0, 1, 8, weekdayfgcolor))
         if weekdayxs[weekday + 1] >= 32:
@@ -625,7 +697,7 @@ def main(config):
         stack.append(drawrectcoords(0, y0, hourxs[hour + 1], y1 + 1, hourbgcolor))
 
         #hourlyweather
-        if showweather:
+        if showweather and weatherpayed:
             hourlycloudweather = ctx["hourlycloudweather"]
             hourlyrainweather = ctx["hourlyrainweather"]
             for i in range(24):
