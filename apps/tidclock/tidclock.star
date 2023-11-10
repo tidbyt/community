@@ -289,13 +289,14 @@ WEATHERICON_PRECIPITATION = base64.decode("iVBORw0KGgoAAAANSUhEUgAAAAUAAAAFCAYAA
 #suncolor
 #lifecolor
 #daybgcolor
+#dayfgcolor
 #weekdaybgcolor
+#weekdayfgcolor
+#weekdaydelimcolor
 #hourbgcolor
+#hourfgcolor
 #cloudcolor
 #raincolor
-#dayfgcolor
-#weekdayfgcolor
-#hourfgcolor
 #minutecolor
 #secondcolor
 #year
@@ -400,6 +401,7 @@ def main(config):
         ctx["dayfgcolor"] = "#090"
         ctx["weekdaybgcolor"] = "#404"
         ctx["weekdayfgcolor"] = "#B0B"
+        ctx["weekdaydelimcolor"] = "#303"
         ctx["hourbgcolor"] = "#033"
         ctx["hourfgcolor"] = "#0AA"
         ctx["cloudcolor"] = "#333"
@@ -590,13 +592,14 @@ def main(config):
         suncolor = ctx["suncolor"]
         lifecolor = ctx["lifecolor"]
         daybgcolor = ctx["daybgcolor"]
+        dayfgcolor = ctx["dayfgcolor"]
         weekdaybgcolor = ctx["weekdaybgcolor"]
+        weekdayfgcolor = ctx["weekdayfgcolor"]
+        weekdaydelimcolor = ctx["weekdaydelimcolor"]
         hourbgcolor = ctx["hourbgcolor"]
+        hourfgcolor = ctx["hourfgcolor"]
         cloudcolor = ctx["cloudcolor"]
         raincolor = ctx["raincolor"]
-        dayfgcolor = ctx["dayfgcolor"]
-        weekdayfgcolor = ctx["weekdayfgcolor"]
-        hourfgcolor = ctx["hourfgcolor"]
         minutecolor = ctx["minutecolor"]
         secondcolor = ctx["secondcolor"]
         month = ctx["month"]
@@ -684,8 +687,11 @@ def main(config):
                 stack.append(drawimg(weekdayxs[weekday] + 2, y0 + 2, WEATHERICON_PRECIPITATION))
             else:
                 stack.append(drawtext(weekdayxs[weekday] + 3, y0, dayweather[0]))
-        stack.append(drawrect(weekdayxs[weekday], y0, 1, 8, weekdayfgcolor))
-        stack.append(drawrect(weekdayxs[weekday + 1], y0, 1, 8, weekdayfgcolor))
+        for i in range(8):
+            if i == weekday or i == weekday + 1:
+                stack.append(drawrect(weekdayxs[i], y0, 1, 8, weekdayfgcolor))
+            else:
+                stack.append(drawrect(weekdayxs[i], y0 + 1, 1, 6, weekdaydelimcolor))
         if weekdayxs[weekday + 1] >= 32:
             stack.append(drawrtext(weekdayxs[weekday] - 2, y0, WEEKDAYSTRS[weekday]))
         else:
