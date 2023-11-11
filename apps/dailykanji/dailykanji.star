@@ -26,7 +26,7 @@ kanji_image_list = "国 日 事 人 一 見 本 子 出 年 大 言 学 分 中 
 def main():
     kanji_data = cache.get(CACHED_KANJI_NAME)
     kanji_image_src = cache.get(CACHED_KANJI_CHARACTER)
-    kanji_alive_key = secret.decrypt(KANJI_ALIVE_SECRET_KEY) or "bb59afe2c5msha730fc9c7205564p188fd2jsn452da743954f"
+    kanji_alive_key = secret.decrypt(KANJI_ALIVE_SECRET_KEY) 
 
     if kanji_data == None:
         #pick a random kanji from our data of kanji and image data
