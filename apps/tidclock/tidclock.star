@@ -285,14 +285,12 @@ WEATHERICON_PRECIPITATION = base64.decode("iVBORw0KGgoAAAANSUhEUgAAAAUAAAAFCAYAA
 #hourlycloudweather
 #hourlyrainweather
 #weekweather
-#weekstartcolor
 #suncolor
 #lifecolor
-#daybgcolor
-#dayfgcolor
 #weekdaybgcolor
 #weekdayfgcolor
-#weekdaydelimcolor
+#weekdaypredelimcolor
+#weekdaypostdelimcolor
 #hourbgcolor
 #hourfgcolor
 #cloudcolor
@@ -317,8 +315,9 @@ WEATHERICON_PRECIPITATION = base64.decode("iVBORw0KGgoAAAANSUhEUgAAAAUAAAAFCAYAA
 #weekxs
 #sunxs
 #mooncolors
-#seasoncolors
-#seasonbcolors
+#seasonsubgcolors
+#seasonbgcolors
+#seasonfgcolors
 
 #/CTX
 
@@ -385,24 +384,25 @@ def main(config):
         if birthyearstr:
             birthyear = int(birthyearstr)
 
-        springcolor = "#183018"
-        summercolor = "#2C2C00"
-        fallcolor = "#420"
-        wintercolor = "#282838"
+        springsubgcolor = "#071807"
+        springbgcolor = "#183018"
+        springfgcolor = "#6A6"
+        summersubgcolor = "#1C1C00"
+        summerbgcolor = "#2C2C00"
+        summerfgcolor = "#AA0"
+        fallsubgcolor = "#210"
+        fallbgcolor = "#420"
+        fallfgcolor = "#C40"
+        wintersubgcolor = "#161626"
+        winterbgcolor = "#262636"
+        winterfgcolor = "#AAF"
 
-        springbcolor = "#8F8"
-        summerbcolor = "#AA0"
-        fallbcolor = "#F40"
-        winterbcolor = "#AAF"
-
-        ctx["weekstartcolor"] = "#FFFFFF22"
         ctx["suncolor"] = "#664"
         ctx["lifecolor"] = "#400"
-        ctx["daybgcolor"] = "#030"
-        ctx["dayfgcolor"] = "#090"
         ctx["weekdaybgcolor"] = "#404"
         ctx["weekdayfgcolor"] = "#B0B"
-        ctx["weekdaydelimcolor"] = "#303"
+        ctx["weekdaypredelimcolor"] = "#0008"
+        ctx["weekdaypostdelimcolor"] = "#303"
         ctx["hourbgcolor"] = "#033"
         ctx["hourfgcolor"] = "#0AA"
         ctx["cloudcolor"] = "#333"
@@ -549,34 +549,48 @@ def main(config):
                         ctx["dayweather"] = result["current"]["weather_descriptions"][0]
 
         if lat > 0.0:
-            ctx["seasoncolors"] = [
-                wintercolor,
-                springcolor,
-                summercolor,
-                fallcolor,
-                wintercolor,
+            ctx["seasonsubgcolors"] = [
+                wintersubgcolor,
+                springsubgcolor,
+                summersubgcolor,
+                fallsubgcolor,
+                wintersubgcolor,
             ]
-            ctx["seasonbcolors"] = [
-                winterbcolor,
-                springbcolor,
-                summerbcolor,
-                fallbcolor,
-                winterbcolor,
+            ctx["seasonbgcolors"] = [
+                winterbgcolor,
+                springbgcolor,
+                summerbgcolor,
+                fallbgcolor,
+                winterbgcolor,
+            ]
+            ctx["seasonfgcolors"] = [
+                winterfgcolor,
+                springfgcolor,
+                summerfgcolor,
+                fallfgcolor,
+                winterfgcolor,
             ]
         else:
-            ctx["seasoncolors"] = [
-                summercolor,
-                fallcolor,
-                wintercolor,
-                springcolor,
-                summercolor,
+            ctx["seasonsubgcolors"] = [
+                summersubgcolor,
+                fallsubgcolor,
+                wintersubgcolor,
+                springsubgcolor,
+                summersubgcolor,
             ]
-            ctx["seasonbcolors"] = [
-                summerbcolor,
-                fallbcolor,
-                winterbcolor,
-                springbcolor,
-                summerbcolor,
+            ctx["seasonbgcolors"] = [
+                summerbgcolor,
+                fallbgcolor,
+                winterbgcolor,
+                springbgcolor,
+                summerbgcolor,
+            ]
+            ctx["seasonfgcolors"] = [
+                summerfgcolor,
+                fallfgcolor,
+                winterfgcolor,
+                springfgcolor,
+                summerfgcolor,
             ]
 
         #/PRECACHING
@@ -590,14 +604,12 @@ def main(config):
         thisnow = ctx["thisnow"]
         showweather = ctx["showweather"]
         weatherpayed = ctx["weatherpayed"]
-        weekstartcolor = ctx["weekstartcolor"]
         suncolor = ctx["suncolor"]
         lifecolor = ctx["lifecolor"]
-        daybgcolor = ctx["daybgcolor"]
-        dayfgcolor = ctx["dayfgcolor"]
         weekdaybgcolor = ctx["weekdaybgcolor"]
         weekdayfgcolor = ctx["weekdayfgcolor"]
-        weekdaydelimcolor = ctx["weekdaydelimcolor"]
+        weekdaypredelimcolor = ctx["weekdaypredelimcolor"]
+        weekdaypostdelimcolor = ctx["weekdaypostdelimcolor"]
         hourbgcolor = ctx["hourbgcolor"]
         hourfgcolor = ctx["hourfgcolor"]
         cloudcolor = ctx["cloudcolor"]
@@ -622,22 +634,23 @@ def main(config):
         sunxs = ctx["sunxs"]
         sunys = ctx["sunys"]
         mooncolors = ctx["mooncolors"]
-        seasoncolors = ctx["seasoncolors"]
-        seasonbcolors = ctx["seasonbcolors"]
+        seasonsubgcolors = ctx["seasonsubgcolors"]
+        seasonbgcolors = ctx["seasonbgcolors"]
+        seasonfgcolors = ctx["seasonfgcolors"]
 
         #month
         y0 = 0
         y1 = 6
         for i in range(5):
             if seasonxs[i + 1] < monthxs[month + 1]:
-                stack.append(drawrectcoords(seasonxs[i], y0, seasonxs[i + 1], 2, seasoncolors[i]))
+                stack.append(drawrectcoords(seasonxs[i], y0, seasonxs[i + 1], 2, seasonbgcolors[i]))
             elif seasonxs[i] > monthxs[month]:
-                stack.append(drawrectcoords(seasonxs[i], y0, seasonxs[i + 1], y1 + 1, seasoncolors[i]))
+                stack.append(drawrectcoords(seasonxs[i], y0, seasonxs[i + 1], y1 + 1, seasonbgcolors[i]))
             else:
-                stack.append(drawrectcoords(seasonxs[i], y0, monthxs[month], 2, seasoncolors[i]))
-                stack.append(drawrectcoords(monthxs[month] + 1, y0, seasonxs[i + 1], y1 + 1, seasoncolors[i]))
-        stack.append(drawrect(monthxs[month], y0, 1, y1 - y0 + 1, seasonbcolors[season]))
-        stack.append(drawrect(monthxs[month + 1], y0, 1, y1 - y0, seasonbcolors[season]))
+                stack.append(drawrectcoords(seasonxs[i], y0, monthxs[month], 2, seasonbgcolors[i]))
+                stack.append(drawrectcoords(monthxs[month] + 1, y0, seasonxs[i + 1], y1 + 1, seasonbgcolors[i]))
+        stack.append(drawrect(monthxs[month], y0, 1, y1 - y0 + 1, seasonfgcolors[season]))
+        stack.append(drawrect(monthxs[month + 1], y0, 1, y1 - y0, seasonfgcolors[season]))
         stack.append(drawrect(monthxs[month], y1, 1, 1, "#000"))
         stack.append(drawrect(monthxs[month + 1], y1, 1, 1, "#000"))
         for i in range(11):
@@ -655,16 +668,17 @@ def main(config):
         #day
         y0 = 8
         y1 = 15
-        stack.append(drawrectcoords(0, y0, dayxs[day + 1], y1 + 1, daybgcolor))
-        stack.append(drawrect(dayxs[day], y0, 1, 8, dayfgcolor))
-        stack.append(drawrect(dayxs[day + 1], y0, 1, 8, dayfgcolor))
+        stack.append(drawrectcoords(0, y0, dayxs[day + 1], y1 + 1, seasonbgcolors[season]))
+        stack.append(drawrect(dayxs[day], y0, 1, 8, seasonfgcolors[season]))
+        stack.append(drawrect(dayxs[day + 1], y0, 1, 8, seasonfgcolors[season]))
 
         #weekstart
         if showweek:
             for i in range(5):
-                stack.append(drawrect(weekxs[i], 13, 1, 3, weekstartcolor))
-                stack.append(drawrect(weekxs[i] - 1, 15, 1, 1, weekstartcolor))
-                stack.append(drawrect(weekxs[i] + 1, 15, 1, 1, weekstartcolor))
+                if True:
+                    stack.append(drawrect(weekxs[i], 13, 1, 3, seasonsubgcolors[season]))
+                    stack.append(drawrect(weekxs[i] - 1, 15, 1, 1, seasonsubgcolors[season]))
+                    stack.append(drawrect(weekxs[i] + 1, 15, 1, 1, seasonsubgcolors[season]))
         if dayxs[day + 1] >= 32:
             stack.append(drawrtext(dayxs[day] - 2, y0, str(day + 1)))
         else:
@@ -693,8 +707,10 @@ def main(config):
         for i in range(8):
             if i == weekday or i == weekday + 1:
                 stack.append(drawrect(weekdayxs[i], y0, 1, 8, weekdayfgcolor))
-            else:
-                stack.append(drawrect(weekdayxs[i], y0 + 1, 1, 6, weekdaydelimcolor))
+            elif i < weekday:
+                stack.append(drawrect(weekdayxs[i], y0 + 1, 1, 6, weekdaypredelimcolor))
+            elif i > weekday:
+                stack.append(drawrect(weekdayxs[i], y0 + 1, 1, 6, weekdaypostdelimcolor))
         if weekdayxs[weekday + 1] >= 32:
             stack.append(drawrtext(weekdayxs[weekday] - 2, y0, WEEKDAYSTRS[weekday]))
         else:
