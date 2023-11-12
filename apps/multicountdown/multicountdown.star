@@ -30,6 +30,10 @@ def main(config):
 
                         dateDiff = updatedEventTime - time.now()
 
+                        if dateDiff.seconds < 0:
+                            updatedEventTime = time.time(year = now.year, month = now.month, day = now.day+1, hour = eventTime.hour, minute = eventTime.minute, second = eventTime.second, location = "America/New_York")
+                            dateDiff = updatedEventTime - time.now()
+
                         eventArray.append(dateDiff)
 
                         output = dateDiff
@@ -58,7 +62,7 @@ def main(config):
                 formatted_duration = format_duration(days, hours, minutes)
                 output = formatted_duration + " until " + config.str("event" + str(closestEventIndex))
             else:
-                output = "NO FUTURE EVENTS"
+                output1 = "NO FUTURE EVENTS"
         else:
             output = "NO EVENTS"
     else:
