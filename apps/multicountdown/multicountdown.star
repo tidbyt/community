@@ -110,8 +110,8 @@ def main(config):
 
 def more_options(eventCount):
     returnArray = []
-    if eventCount > 20:
-        eventCount = 20
+    if eventCount > "20":
+        eventCount = "20"
 
     if eventCount > "0":
         for x in range(int(eventCount)):
