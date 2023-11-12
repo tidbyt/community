@@ -30,6 +30,10 @@ def main(config):
 
                         dateDiff = updatedEventTime - time.now()
 
+                        if dateDiff.seconds < 0:
+                            updatedEventTime = time.time(year = now.year, month = now.month, day = now.day + 1, hour = eventTime.hour, minute = eventTime.minute, second = eventTime.second, location = "America/New_York")
+                            dateDiff = updatedEventTime - time.now()
+
                         eventArray.append(dateDiff)
 
                         output = dateDiff
