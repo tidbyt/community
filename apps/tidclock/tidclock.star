@@ -55,13 +55,6 @@ def get_schema():
                 default = True,
             ),
             schema.Toggle(
-                id = "showweek",
-                name = "Show Week Start",
-                desc = "Display notches representing the beginning of the next Sunday",
-                icon = "calendarWeek",
-                default = True,
-            ),
-            schema.Toggle(
                 id = "showsun",
                 name = "Show Sun Rise and Set",
                 desc = "Display bar showing sunrise and set relative to current hour",
@@ -78,9 +71,16 @@ def get_schema():
             schema.Toggle(
                 id = "showsecond",
                 name = "Show Second Dot",
-                desc = "Display dot walking across the bottom corresponding to second of the minute",
+                desc = "Display dot corresponding to second of the minute",
                 icon = "stopwatch",
                 default = True,
+            ),
+            schema.Toggle(
+                id = "dialsecond",
+                name = "Second Dot Rotates",
+                desc = "Display second dot rotating around the clock rather than walking across the bottom",
+                icon = "rotate",
+                default = False,
             ),
         ],
     )
@@ -313,6 +313,8 @@ WEATHERICON_PRECIPITATION = base64.decode("iVBORw0KGgoAAAANSUhEUgAAAAUAAAAFCAYAA
 #weekdayxs
 #hourxs
 #weekxs
+#secondxs
+#secondys
 #sunxs
 #mooncolors
 #seasonsubgcolors
@@ -360,12 +362,17 @@ def main(config):
 
     showlife = config.bool("showlife")
     showmoon = config.bool("showmoon")
-    showweek = config.bool("showweek")
     showsun = config.bool("showsun")
     showminute = config.bool("showminute")
     showsecond = config.bool("showsecond")
+    dialsecond = config.bool("dialsecond")
     ctx["showweather"] = config.get("weatherkey") != None and config.get("weatherkey") != ""
     ctx["weatherpayed"] = config.bool("weatherpaid")
+
+    delay = 1000
+    if dialsecond:
+        delay = 250
+    frames = (int)((1000 / delay) * 60 + 1)
 
     def getctx(unow):
         #CONFIG
@@ -396,6 +403,51 @@ def main(config):
         wintersubgcolor = "#161626"
         winterbgcolor = "#262636"
         winterfgcolor = "#AAF"
+
+        if lat > 0.0:
+            ctx["seasonsubgcolors"] = [
+                wintersubgcolor,
+                springsubgcolor,
+                summersubgcolor,
+                fallsubgcolor,
+                wintersubgcolor,
+            ]
+            ctx["seasonbgcolors"] = [
+                winterbgcolor,
+                springbgcolor,
+                summerbgcolor,
+                fallbgcolor,
+                winterbgcolor,
+            ]
+            ctx["seasonfgcolors"] = [
+                winterfgcolor,
+                springfgcolor,
+                summerfgcolor,
+                fallfgcolor,
+                winterfgcolor,
+            ]
+        else:
+            ctx["seasonsubgcolors"] = [
+                summersubgcolor,
+                fallsubgcolor,
+                wintersubgcolor,
+                springsubgcolor,
+                summersubgcolor,
+            ]
+            ctx["seasonbgcolors"] = [
+                summerbgcolor,
+                fallbgcolor,
+                winterbgcolor,
+                springbgcolor,
+                summerbgcolor,
+            ]
+            ctx["seasonfgcolors"] = [
+                summerfgcolor,
+                fallfgcolor,
+                winterfgcolor,
+                springfgcolor,
+                summerfgcolor,
+            ]
 
         ctx["suncolor"] = "#664"
         ctx["lifecolor"] = "#400"
@@ -465,6 +517,41 @@ def main(config):
             ctx["weekxs"][3] = 63
         if ctx["weekxs"][4] == 64:
             ctx["weekxs"][4] = 63
+
+        ctx["secondxs"] = []
+        ctx["secondys"] = []
+        if dialsecond:
+            starttheta = math.pi / 2 - 2 * math.pi * ctx["second"] / 60
+            if starttheta < 0:
+                starttheta = starttheta + math.pi * 2
+            deltatheta = 2 * math.pi / (frames - 1)
+            cornertheta = 0.463647609
+            for i in range(frames):
+                t = starttheta - i * deltatheta
+                if t < 0:
+                    t = t + math.pi * 2
+                x = math.cos(t)
+                y = math.sin(t)
+                secondx = 0
+                secondy = 0
+                if t < cornertheta:  #right
+                    secondx = 63
+                    secondy = y * -32 / x + 16
+                elif t < math.pi - cornertheta:  #top
+                    secondx = x * 16 / y + 32
+                    secondy = 0
+                elif t < math.pi + cornertheta:  #left
+                    secondx = 0
+                    secondy = y * 32 / x + 16
+                elif t < 2 * math.pi - cornertheta:  #bottom
+                    secondx = x * -16 / y + 32
+                    secondy = 31
+                else:  #right
+                    secondx = 63
+                    secondy = y * -32 / x + 16
+
+                ctx["secondxs"].append((int)(secondx))
+                ctx["secondys"].append((int)(secondy))
 
         rise = sunrise.sunrise(lat, lng, thisnow).in_location(timezone)
         set = sunrise.sunset(lat, lng, thisnow).in_location(timezone)
@@ -548,56 +635,11 @@ def main(config):
                     else:
                         ctx["dayweather"] = result["current"]["weather_descriptions"][0]
 
-        if lat > 0.0:
-            ctx["seasonsubgcolors"] = [
-                wintersubgcolor,
-                springsubgcolor,
-                summersubgcolor,
-                fallsubgcolor,
-                wintersubgcolor,
-            ]
-            ctx["seasonbgcolors"] = [
-                winterbgcolor,
-                springbgcolor,
-                summerbgcolor,
-                fallbgcolor,
-                winterbgcolor,
-            ]
-            ctx["seasonfgcolors"] = [
-                winterfgcolor,
-                springfgcolor,
-                summerfgcolor,
-                fallfgcolor,
-                winterfgcolor,
-            ]
-        else:
-            ctx["seasonsubgcolors"] = [
-                summersubgcolor,
-                fallsubgcolor,
-                wintersubgcolor,
-                springsubgcolor,
-                summersubgcolor,
-            ]
-            ctx["seasonbgcolors"] = [
-                summerbgcolor,
-                fallbgcolor,
-                winterbgcolor,
-                springbgcolor,
-                summerbgcolor,
-            ]
-            ctx["seasonfgcolors"] = [
-                summerfgcolor,
-                fallfgcolor,
-                winterfgcolor,
-                springfgcolor,
-                summerfgcolor,
-            ]
-
         #/PRECACHING
 
     #RENDERING
 
-    def getstack(showlife, showmoon, showweek, showsun, showminute, showsecond, noanimate):
+    def getstack(showlife, showmoon, showsun, showminute, showsecond, dialsecond, delay, noanimate):
         stack = []
 
         #get ctx for simplicity of typing
@@ -631,12 +673,17 @@ def main(config):
         weekdayxs = ctx["weekdayxs"]
         hourxs = ctx["hourxs"]
         weekxs = ctx["weekxs"]
+        secondxs = ctx["secondxs"]
+        secondys = ctx["secondys"]
         sunxs = ctx["sunxs"]
         sunys = ctx["sunys"]
         mooncolors = ctx["mooncolors"]
         seasonsubgcolors = ctx["seasonsubgcolors"]
         seasonbgcolors = ctx["seasonbgcolors"]
         seasonfgcolors = ctx["seasonfgcolors"]
+
+        frames = (int)((1000 / delay) * 60 + 1)
+        frameinterval = time.millisecond * delay
 
         #month
         y0 = 0
@@ -673,12 +720,11 @@ def main(config):
         stack.append(drawrect(dayxs[day + 1], y0, 1, 8, seasonfgcolors[season]))
 
         #weekstart
-        if showweek:
-            for i in range(5):
-                if True:
-                    stack.append(drawrect(weekxs[i], 13, 1, 3, seasonsubgcolors[season]))
-                    stack.append(drawrect(weekxs[i] - 1, 15, 1, 1, seasonsubgcolors[season]))
-                    stack.append(drawrect(weekxs[i] + 1, 15, 1, 1, seasonsubgcolors[season]))
+        for i in range(5):
+            if True:
+                stack.append(drawrect(weekxs[i], 13, 1, 3, seasonsubgcolors[season]))
+                stack.append(drawrect(weekxs[i] - 1, 15, 1, 1, seasonsubgcolors[season]))
+                stack.append(drawrect(weekxs[i] + 1, 15, 1, 1, seasonsubgcolors[season]))
         if dayxs[day + 1] >= 32:
             stack.append(drawrtext(dayxs[day] - 2, y0, str(day + 1)))
         else:
@@ -750,11 +796,11 @@ def main(config):
         else:
             animation = []
             if hourxs[hour + 1] >= 32:
-                for i in range(61):
-                    animation.append(drawrtext(hourxs[hour] - 2, y0, (thisnow + time.second * i).format("3:04PM")))
+                for i in range(frames):
+                    animation.append(drawrtext(hourxs[hour] - 2, y0, (thisnow + frameinterval * i).format("3:04PM")))
             else:
-                for i in range(61):
-                    animation.append(drawtext(hourxs[hour + 1] + 2, y0, (thisnow + time.second * i).format("3:04PM")))
+                for i in range(frames):
+                    animation.append(drawtext(hourxs[hour + 1] + 2, y0, (thisnow + frameinterval * i).format("3:04PM")))
             stack.append(render.Animation(children = animation))
 
         #life
@@ -772,8 +818,9 @@ def main(config):
                 stack.append(drawrect(2 + minute, 31, 1, 1, minutecolor))
             else:
                 animation = []
-                for i in range(61):
-                    animation.append(drawrect(2 + (minute + (int)((second + i) / 60)), 31, 1, 1, minutecolor))
+                framedelta = delay / 1000
+                for i in range(frames):
+                    animation.append(drawrect(2 + (minute + (int)((second + i * framedelta) / 60)), 31, 1, 1, minutecolor))
                 stack.append(render.Animation(children = animation))
 
         #second
@@ -782,11 +829,17 @@ def main(config):
                 stack.append(drawrect(2 + second, 31, 1, 1, secondcolor))
             else:
                 animation = []
-                for i in range(61):
-                    if i == 0:
-                        animation.append(drawrect((2 + (second + i) % 60), 31, 1, 1, "#ACA"))
+                framedelta = delay / 1000
+                for i in range(frames):
+                    if dialsecond:
+                        if i == 0:
+                            animation.append(drawrect(secondxs[i], secondys[i], 1, 1, "#ACA"))
+                        else:
+                            animation.append(drawrect(secondxs[i], secondys[i], 1, 1, secondcolor))
+                    elif i == 0:
+                        animation.append(drawrect((2 + (second + (int)(i * framedelta)) % 60), 31, 1, 1, "#ACA"))
                     else:
-                        animation.append(drawrect((2 + (second + i) % 60), 31, 1, 1, secondcolor))
+                        animation.append(drawrect((2 + (second + (int)(i * framedelta)) % 60), 31, 1, 1, secondcolor))
                 stack.append(render.Animation(children = animation))
 
         return render.Stack(stack)
@@ -795,18 +848,17 @@ def main(config):
 
     #animationstacks = []
     #getctx(unow)
-    #animationstacks.append(getstack(showlife,showmoon,showweek,showsun,showminute,showsecond,True))
+    #animationstacks.append(getstack(showlife,showmoon,showsun,showminute,showsecond,dialsecond,delay,True))
     #for i in range(300):
     #    getctx(unow+time.minute*60*i)
-    #    animationstacks.append(getstack(showlife,showmoon,showweek,showsun,showminute,showsecond,True))
+    #    animationstacks.append(getstack(showlife,showmoon,showsun,showminute,showsecond,dialsecond,delay,True))
     #stack = render.Animation(children = animationstacks)
 
     getctx(unow)
-    stack = getstack(showlife, showmoon, showweek, showsun, showminute, showsecond, False)
+    stack = getstack(showlife, showmoon, showsun, showminute, showsecond, dialsecond, delay, False)
 
     return render.Root(
-        delay = 1000,
-        #delay = 500,
         #show_full_animation = True,
+        delay = delay,
         child = stack,
     )
