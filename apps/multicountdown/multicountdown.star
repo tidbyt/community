@@ -20,7 +20,7 @@ def main(config):
 
     #If we have events filled in
     if eventCount:
-        if eventCount > "0":
+        if int(eventCount) > 0:
             if config.bool("daily"):
                 for x in range(int(eventCount)):
                     if config.str("event_" + str(x) + "_time"):
@@ -110,10 +110,10 @@ def main(config):
 
 def more_options(eventCount):
     returnArray = []
-    if eventCount > "20":
+    if int(eventCount) > 20:
         eventCount = "20"
 
-    if eventCount > "0":
+    if int(eventCount) > 0:
         for x in range(int(eventCount)):
             returnArray.append(schema.Text(id = "event" + str(x), name = "Event " + str(x) + " Name", desc = "Event " + str(x) + " name", icon = "gear"))
             returnArray.append(schema.DateTime(id = "event_" + str(x) + "_time", name = "Event " + str(x) + " Time", desc = "The time event " + str(x) + ".", icon = "gear"))
