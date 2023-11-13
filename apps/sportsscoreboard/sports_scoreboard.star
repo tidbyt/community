@@ -341,7 +341,7 @@ def get_schema():
             name = team,
             desc = "NFL - " + team,
             icon = "football",
-            default = False,
+            default = team == "Minnesota Vikings",
         )
         for team in NFL_TEAMS.keys()
     ]
@@ -351,7 +351,7 @@ def get_schema():
             name = team,
             desc = "MLB - " + team,
             icon = "baseball",
-            default = False,
+            default = team == "Minnesota Twins",
         )
         for team in MLB_TEAMS.keys()
     ]
@@ -362,7 +362,7 @@ def get_schema():
             name = team,
             desc = "NBA - " + team,
             icon = "basketball",
-            default = False,
+            default = team == "Minnesota Timberwolves",
         )
         for team in NBA_TEAMS.keys()
     ]
@@ -373,7 +373,7 @@ def get_schema():
             name = team,
             desc = "NHL - " + team,
             icon = "hockeyPuck",
-            default = False,
+            default = team == "Minnesota Wild",
         )
         for team in NHL_TEAMS.keys()
     ]
