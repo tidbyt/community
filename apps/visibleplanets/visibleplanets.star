@@ -5,6 +5,11 @@ Description: Displays direction and degrees above the horizon for the selected p
 Author: Robert Ison
 """
 
+# Notes:
+# Pulls down data every 15 minutes near sunrise/sunset because the inner planets move a lot during this time
+# Pulls down data every hour starting 30 minutes after sunset until 30 minutes befor sunrise
+# Pulls down the expected evening sky during the day -- when it is sunny, there are no 'visible planets' so we'll display what you can expect in the evening.
+
 load("cache.star", "cache")
 load("encoding/base64.star", "base64")  #to encode/decode json data going to and from cache
 load("encoding/json.star", "json")  #Used to figure out timezone
@@ -82,21 +87,20 @@ def main(config):
     near_sunrise_now = True if ((now - sunrise_time).hours) < .5 else False
     near_sunset_now = True if ((now - sunset_time).hours) < .5 else False
 
-    is_after_sunrise = now > sunrise_time 
+    is_after_sunrise = now > sunrise_time
     is_before_sunset = now < sunset_time
 
-    print("Now: %s Sunrise:%s Sunset: %s Near Sunrise: %s Near Sunset: %s IsAfterSunrise: %s IsBeforeSunset: %s" % (now, sunrise_time, sunset_time, near_sunrise_now, near_sunset_now, is_after_sunrise, is_before_sunset))
+    #print("Now: %s Sunrise:%s Sunset: %s Near Sunrise: %s Near Sunset: %s IsAfterSunrise: %s IsBeforeSunset: %s" % (now, sunrise_time, sunset_time, near_sunrise_now, near_sunset_now, is_after_sunrise, is_before_sunset))
 
-    cache_ttl_seconds = 1 * 60 * 60 #default to one hour
-    check_offset = 0 #by default we will check for the planets right now
+    cache_ttl_seconds = 1 * 60 * 60  #default to one hour
+    check_offset = 0  #by default we will check for the planets right now
     if near_sunrise_now or near_sunset_now:
-        cache_ttl_seconds = 15 * 60 #Let's check each 15 minutes around sunset and sunrise as inner planets move quite a bit then
-    else:
-        if is_before_sunset and is_after_sunrise:
-            #during the day you can't see much so let's get the early evening's sky and present that. 
-            #so during the day your Tidbyt will tell you what you can see this evening.
-            check_offset = abs((now - sunset_time).hours) - .5
-            cache_ttl_seconds = check_offset * 60 * 60
+        cache_ttl_seconds = 15 * 60  #Let's check each 15 minutes around sunset and sunrise as inner planets move quite a bit then
+    elif is_before_sunset and is_after_sunrise:
+        #during the day you can't see much so let's get the early evening's sky and present that.
+        #so during the day your Tidbyt will tell you what you can see this evening.
+        check_offset = abs((now - sunset_time).hours) - .5
+        cache_ttl_seconds = check_offset * 60 * 60
 
     #we've calculated sunset and sunrise with the exact gps coordinates, but now we will round the coordinates to one decimal
     #place for two reasons:
@@ -143,7 +147,7 @@ def main(config):
         row2 = ""
 
         # JSon Data holding all planetary positioning data
-        position_json = get_all_planet_information(planet, location, check_offset, cache_ttl_seconds)
+        position_json = get_all_planet_information(location, check_offset, cache_ttl_seconds)
         planet_element = get_planet_element(planet, position_json)
 
         # pull data from json dataset
@@ -153,7 +157,6 @@ def main(config):
         bearing = position_json["data"]["table"]["rows"][planet_element]["cells"][0]["position"]["horizontal"]["azimuth"]["degrees"]
         magnitude = float(position_json["data"]["table"]["rows"][planet_element]["cells"][0]["extraInfo"]["magnitude"])
         distance = position_json["data"]["table"]["rows"][planet_element]["cells"][0]["distance"]["fromEarth"]["km"]
-
 
         if system == "metric":
             distance_display = "%s KMs away" % get_readable_large_number(distance)
@@ -185,13 +188,15 @@ def main(config):
             return []
 
 def get_planet_element(planet, position_json):
-        planet_list = position_json["data"]["table"]["rows"]
-        for i in range(0, len(planet_list)):
-            if planet_list[i]["entry"]["name"].lower() == planet:
-                return i
+    planet_list = position_json["data"]["table"]["rows"]
+    for i in range(0, len(planet_list)):
+        if planet_list[i]["entry"]["name"].lower() == planet:
+            return i
 
+    #this should never happen
+    return 0
 
-def get_all_planet_information(planet, location, check_offset, cache_ttl_seconds):
+def get_all_planet_information(location, check_offset, cache_ttl_seconds):
     """ Gets the information on a particular planet based on location and time
 
     Args:
@@ -398,7 +403,7 @@ def get_summary_of_night_sky(location, check_offset):
     for object in object_list:
         if (object == "venus" or object == "mercury"):
             cache_ttl_seconds = 15 * 60
-        position_json = get_all_planet_information(object, location, check_offset, cache_ttl_seconds)
+        position_json = get_all_planet_information(location, check_offset, cache_ttl_seconds)
         planet_element = get_planet_element(object, position_json)
         altitude = position_json["data"]["table"]["rows"][planet_element]["cells"][0]["position"]["horizontal"]["altitude"]["degrees"]
         altitude = math.floor(float(altitude))
