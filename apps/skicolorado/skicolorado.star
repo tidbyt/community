@@ -5,12 +5,10 @@ Description: Checks all the colorado ski resorts for their current conditions.
 Author: mharlach
 """
 
-load("render.star", "render")
-load("time.star", "time")
-load("http.star", "http")
-load("html.star", "html")
-load("hmac.star", "hmac")
 load("encoding/base64.star", "base64")
+load("html.star", "html")
+load("http.star", "http")
+load("render.star", "render")
 load("schema.star", "schema")
 
 TITLE = "title"
@@ -219,7 +217,7 @@ def build_screen(resort, display):
             main_align = "start",
             children = [
                 logoBox,
-                build_weather_screen(data, isOpen),
+                build_weather_screen(data),
             ],
         )
     elif display == CONDITIONS:
@@ -251,6 +249,8 @@ def build_screen(resort, display):
             ],
         )
 
+    fail("Error loading screen")
+
 def build_logo_box(resort):
     return render.Image(
         src = resort.logo,
@@ -265,7 +265,7 @@ def build_title_screen(resort):
         align = "center",
     )
 
-def build_weather_screen(data, isOpen):
+def build_weather_screen(data):
     temperature = data.find(".styles_h4__2Uc5w").eq(1).text()
 
     # print(temperature)
