@@ -239,7 +239,7 @@ def fetch_data(cache_token, url, token):
     if response.status_code != 200:
         print("Blizzard request failed with status %d" % response.status_code)
         return None
-    
+
     return response.json()
 
 def determine_icon(profile):
