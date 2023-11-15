@@ -78,7 +78,6 @@ def main(config):
     character_name = config.get("character", DEFAULT_CHARACTER).lower()
     realm_name = config.get("realm", DEFAULT_REALM).replace(" ", "-").lower()
     region = config.get("region", DEFAULT_REGION)
-    character_cache_key = "%s-%s-%s" % (character_name, realm_name, region)
 
     blizzard_auth_url = "https://oauth.battle.net/token?grant_type=client_credentials"
     blizzard_profile_url = "https://%s.api.blizzard.com/profile/wow/character/%s/%s?namespace=profile-%s&locale=en_US&access_token=" % (region, realm_name, character_name, region)
@@ -102,9 +101,9 @@ def main(config):
             ),
         )
 
-    player_profile = fetch_data(character_cache_key + "-profile", blizzard_profile_url, access_token)
-    player_mythic = fetch_data(character_cache_key + "-mythic", blizzard_mythic_url, access_token)
-    player_raids = fetch_data(character_cache_key + "-raids", blizzard_raid_url, access_token)
+    player_profile = fetch_data(blizzard_profile_url, access_token)
+    player_mythic = fetch_data(blizzard_mythic_url, access_token)
+    player_raids = fetch_data(blizzard_raid_url, access_token)
 
     if player_profile == None:
         return render.Root(
@@ -234,7 +233,7 @@ def get_auth_token(url, id, secret):
 
     return token
 
-def fetch_data(cache_token, url, token):
+def fetch_data(url, token):
     response = http.get("%s%s" % (url, token), ttl_seconds = 300)
     if response.status_code != 200:
         print("Blizzard request failed with status %d" % response.status_code)
