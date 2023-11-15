@@ -59,9 +59,10 @@ iVBORw0KGgoAAAANSUhEUgAAABYAAAAWCAYAAADEtGw7AAAAAXNSR0IArs4c6QAAAERlWElmTU0AKgAA
 DEFAULT_CHARACTER = "chinpokomon"
 DEFAULT_REALM = "firetree"
 DEFAULT_REGION = "us"
+DEFAULT_AUTH_TTL = 86399
 
 CURRENT_EXPANSION = "Dragonflight"
-CURRENT_INSTANCE = "Aberrus, the Shadowed Crucible"
+CURRENT_INSTANCE = "Amirdrassil, the Dream's Hope"
 
 def main(config):
     client_id = secret.decrypt(
@@ -223,7 +224,7 @@ def get_auth_token(url, id, secret):
             print("Blizzard request failed with status %d" % response.status_code)
             return None
 
-        # TODO: Determine if this cache call can be converted to the new HTTP cache.
+        # cache call is needed because ttl is dynamic based on the response body values
         cache.set(
             "access_token",
             json.decode(response.body())["access_token"],
@@ -234,22 +235,12 @@ def get_auth_token(url, id, secret):
     return token
 
 def fetch_data(cache_token, url, token):
-    data = cache.get(cache_token)
-    if data != None:
-        data = json.decode(data)
-        print("Hit! Displaying cached data.")
-    else:
-        print("Miss! Calling Blizzard API: %s%s" % (url, "*****"))
-        response = http.get("%s%s" % (url, token))
-        if response.status_code != 200:
-            print("Blizzard request failed with status %d" % response.status_code)
-            return None
-        data = response.json()
-
-        # TODO: Determine if this cache call can be converted to the new HTTP cache.
-        cache.set(cache_token, response.body(), ttl_seconds = 300)
-
-    return data
+    response = http.get("%s%s" % (url, token), ttl_seconds = 300)
+    if response.status_code != 200:
+        print("Blizzard request failed with status %d" % response.status_code)
+        return None
+    
+    return response.json()
 
 def determine_icon(profile):
     player_class = profile["character_class"]["name"]
