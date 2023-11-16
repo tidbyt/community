@@ -117,7 +117,7 @@ def main(config):
         is_inner_planet = planet == "mercury" or planet == "venus"
         if (is_after_sunrise == True and is_before_sunset == True):
             #Daytime
-            if ((abs(near_sunrise_now) < abs(near_sunset_now)) and is_inner_planet):
+            if ((abs((now - sunrise_time).hours) < abs((now - sunset_time).hours)) and is_inner_planet):
                 # closer to sunrise
                 visibility_disclaimer = "around sunrise at %s" % sunrise_time.format(time_display_format)
             else:
@@ -617,7 +617,7 @@ def get_all_body_positions(location, check_time):
     """
 
     date_code = "%s-%s-%s" % (two_character_time_date_part(check_time.year), two_character_time_date_part(check_time.month), two_character_time_date_part(check_time.day))
-    tomorrow_date_code = check_time + time.parse_duration("6h")
+    tomorrow_date_code = check_time + time.parse_duration("24h")
     tomorrow_date_code = "%s-%s-%s" % (two_character_time_date_part(tomorrow_date_code.year), two_character_time_date_part(tomorrow_date_code.month), two_character_time_date_part(tomorrow_date_code.day))
     time_code = "%s:%s:%s" % (two_character_time_date_part(check_time.hour), two_character_time_date_part(check_time.minute), two_character_time_date_part(check_time.second))
 
