@@ -11,7 +11,8 @@ load("render.star", "render")
 load("schema.star", "schema")
 load("xpath.star", "xpath")
 
-VERSION = 23308
+VERSION = 23318
+# jvivoan - 20231114 - added more articles as per request ** NOTE:  Marquee is limited to 320px high - so text will get cut off after about 40 total lines of text regardless of what you select here  **
 
 # cache data for 15 minutes
 CACHE_TTL_SECONDS = 900
@@ -121,6 +122,14 @@ def get_schema():
                     schema.Option(
                         display = "3",
                         value = "3",
+                    ),
+                    schema.Option(
+                        display = "4",
+                        value = "4",
+                    ),
+                    schema.Option(
+                        display = "5",
+                        value = "5",
                     ),
                 ],
             ),
