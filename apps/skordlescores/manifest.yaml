@@ -1,8 +1,8 @@
 ---
 id: skordle-scores
 name: Skordle Scores
-summary: Displays Skordle.com Scores
-desc: This app gets the HTML form of Skordle.com for a specific sport and class. It then sorts through and displays the data of each game. This information is mostly relevant to high school games in the Oklahoma area.
+summary: Displays Skordle FB games
+desc: This app gets football data from the Skordle website to display on the Tidbyt. A user can select the class of game and manually select which game to display.
 author: Woolycoin437420
 fileName: skordle_scores.star
 packageName: skordlescores

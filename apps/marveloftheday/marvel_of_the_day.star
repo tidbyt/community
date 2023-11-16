@@ -71,10 +71,11 @@ def get_auth_params():
     """
     Returns Marvel API authentication params.
     """
+    timestamp = str(1699392191)
     params = {
-        "ts": str(time.now().unix),
+        "ts": timestamp,
         "apikey": PUBLIC_KEY,
-        "hash": hash.md5(str(time.now().unix) + PRIVATE_KEY + PUBLIC_KEY),
+        "hash": hash.md5(timestamp + PRIVATE_KEY + PUBLIC_KEY),
     }
 
     return params
