@@ -194,7 +194,7 @@ def main(config):
 
     hide_when_nothing_to_display = config.bool("hide", True)
     location = json.decode(config.get("location", DEFAULT_LOCATION))
-    cache_tty = int(config.get("cache", 60)) * 60
+    cache_tty = int(config.get("cache", 60))
 
     orig_lat = location["lat"]
     orig_lng = location["lng"]
@@ -210,7 +210,7 @@ def main(config):
         radar_height = 32
 
     print(radar_height)
-    flights_cache_key = "_".join(["flights", lat, lng])
+    flights_cache_key = "_".join(["Flight", "Data", lat, lng])
     flights = get_flights_from_cache(flights_cache_key)
 
     data_from_date = None
@@ -242,7 +242,7 @@ def main(config):
             else:
                 flights = []
     else:
-        print("Got flight data from cache")
+        #print("Got flight data from cache")
         data_from_date = get_time_from_cache(flights_cache_key)
 
     if flights:
@@ -311,7 +311,8 @@ def get_flights_from_cache(key):
 
 def get_time_from_cache(key):
     cache_data = cache.get(key)
-    print("Cache_data: %s" % cache_data)
+    #print("Cache_data: %s" % cache_data)
+
     if cache_data == None:
         return None
     else:
@@ -633,7 +634,7 @@ def get_schema():
             ),
             schema.Text(
                 id = "key",
-                name = "API key",
+                name = "RapidAPI FlightRadar Key",
                 desc = "Flight Radar API key",
                 icon = "key",
             ),
