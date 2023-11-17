@@ -194,7 +194,7 @@ def main(config):
 
     hide_when_nothing_to_display = config.bool("hide", True)
     location = json.decode(config.get("location", DEFAULT_LOCATION))
-    cache_tty = int(config.get("cache", 60)) * 60
+    cache_tty = int(config.get("cache", 60))
 
     orig_lat = location["lat"]
     orig_lng = location["lng"]
