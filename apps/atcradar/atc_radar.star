@@ -204,7 +204,7 @@ def display_instructions():
     )
 
 def main(config):
-    show_instructions = config.bool("instructions", False)
+    show_instructions = config.bool("instructions", True)
     if show_instructions:
         return display_instructions()
 
@@ -637,7 +637,7 @@ def get_schema():
                 name = "Instructions",
                 desc = "Display App Instructions?",
                 icon = "gear",
-                default = True,
+                default = False,
             ),
             schema.Dropdown(
                 id = "distance",
