@@ -175,7 +175,7 @@ def get_bearing(lat_1, lng_1, lat_2, lng_2):
     return bearing
 
 def get_pixel_movement(deg):
-    # have bearning in degrees, now convert pixel movements equivalent 
+    # have bearning in degrees, now convert pixel movements equivalent
     compass_brackets = [[0, -1], [1, -1], [1, 0], [1, 1], [0, 1], [1, -1], [-1, 0], [-1, -1], [0, -1]]
     return compass_brackets[int(math.round(deg / 45))]
 
@@ -204,7 +204,6 @@ def display_instructions():
     )
 
 def main(config):
-
     show_instructions = config.bool("instructions", False)
     if show_instructions:
         return display_instructions()
@@ -244,7 +243,7 @@ def main(config):
     data_from_date = None
 
     if flights == None:
-        print("Contacting Flight Radar")
+        #print("Contacting Flight Radar")
         centrePoint = [float(lat), float(lng)]
         boundingBox = get_bounding_box(centrePoint, 100)
 
@@ -619,6 +618,10 @@ def get_schema():
         schema.Option(
             display = "50km",
             value = "50",
+        ),
+        schema.Option(
+            display = "75km",
+            value = "75",
         ),
         schema.Option(
             display = "100km",
