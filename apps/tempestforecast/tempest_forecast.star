@@ -240,7 +240,6 @@ def convert_temp_units(temp, desired_unit, native_unit):
     return int(math.round((temp * (9 / 5)) + 32))
 
 def get_render_for_fx(daily, desired_unit, native_unit):
-    print("d: " + desired_unit + " n: " + native_unit)
     if desired_unit == native_unit:
         temp_high = daily["air_temp_high"]
         temp_low = daily["air_temp_low"]
