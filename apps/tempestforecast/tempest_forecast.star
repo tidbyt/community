@@ -30,7 +30,7 @@ OAUTH2_CLIENT_ID = "287da6e5-a1d8-419f-9656-ef1151b6697f"
 OAUTH2_CLIENT_SECRET = secret.decrypt("AV6+xWcE667ErcVw6c9Ewyk9gfVGhtjc7287cebg2CWGTc2xCS7I8aHUc5K54uFMOPn8GR2YoKTW0gTAZxSl4H6NeEVXgzjiSsFIRpcyNflBM/UmD/b2C2yTuuqHVW/9gCDOoCHYCYM+/YsrymP/RJ7OUQrdttuIhZPf1vF9siVY2wnrnneOID7W")
 
 def main(config):
-    temp_units = config.get("tempUnits", "F")
+    temp_units = config.get("temperatureUnits", "F")
     if not "station" in config or not "auth" in config:
         station_res = json.decode(SAMPLE_STATION_RESPONSE)
         forecast_res = json.decode(SAMPLE_FORECAST_RESPONSE)
@@ -89,10 +89,11 @@ def main(config):
     dailies = forecast_res["forecast"]["daily"]
 
     disp = []
+    station_units = units["units_temp"].upper()
 
-    disp.append(get_render_for_fx(dailies[0], temp_units, units["units_temp"].upper()))
-    disp.append(get_render_for_fx(dailies[1], temp_units, units["units_temp"].upper()))
-    disp.append(get_render_for_fx(dailies[2], temp_units, units["units_temp"].upper()))
+    disp.append(get_render_for_fx(dailies[0], temp_units, station_units))
+    disp.append(get_render_for_fx(dailies[1], temp_units, station_units))
+    disp.append(get_render_for_fx(dailies[2], temp_units, station_units))
 
     return render.Root(
         child = render.Row(
@@ -170,36 +171,6 @@ def get_schema():
         ],
     )
 
-def old_get_schema():
-    return [
-        {
-            "id": "auth",
-            "name": "Tempest",
-            "description": "Connect your Tempest weather station",
-            "icon": "cloud",
-            "type": "oauth2",
-            "handler": "oauth_handler",
-            "client_id": OAUTH2_CLIENT_ID,
-            "authorization_endpoint": TEMPEST_AUTH_URL,
-            "scopes": ["user"],
-        },
-        {
-            "id": "station",
-            "type": "generated",
-            "source": "auth",
-            "handler": "get_stations",
-            "visibility": {
-                "type": "invisible",
-                "condition": "not_equal",
-                "variable": "auth",
-                "value": "",
-            },
-        },
-        {
-            "id": "aaaa",
-        },
-    ]
-
 def get_stations(auth):
     if not auth:
         return []
@@ -265,10 +236,11 @@ def translate_icon(tempest_icon):
 
 def convert_temp_units(temp, desired_unit, native_unit):
     if native_unit == "F" and desired_unit == "C":
-        return int(math.round((temp - 32) * 5 / 9))
-    return int(math.round((temp * 9 / 5) + 32))
+        return int(math.round((temp - 32) * (5 / 9)))
+    return int(math.round((temp * (9 / 5)) + 32))
 
 def get_render_for_fx(daily, desired_unit, native_unit):
+    print("d: " + desired_unit + " n: " + native_unit)
     if desired_unit == native_unit:
         temp_high = daily["air_temp_high"]
         temp_low = daily["air_temp_low"]
