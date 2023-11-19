@@ -1,0 +1,8 @@
+---
+id: tempest-forecast
+name: Tempest Forecast
+summary: Tempest Weather Forecast
+desc: Get your Tempest weather station forecast displayed on your Tidbyt.
+author: mloftis
+fileName: tempest_forecast.star
+packageName: tempestforecast
