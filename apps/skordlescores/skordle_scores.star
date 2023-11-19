@@ -1,15 +1,9 @@
 """
 Applet: Skordle Scores
-Summary: Displays Skordle.com Scores
-Description: This app gets the HTML form of Skordle.com for a specific sport and class. It then sorts through and displays the data of each game. This information is mostly relevant to high school games in the Oklahoma area.
+Summary: Displays Skorlde FB games
+Description: This app gets football data from the Skordle website to display on the Tidbyt. A user can select the class of game and manually select which game to display.
 Author: Woolycoin437420
 """
-
-#Credit: 2014-2023 © All Rights Reserved. Skordle Advertising, LLC
-#^They are the ones who post the information and keep their website so consistent.
-#Before beginning, I should mention that I'm a high school student and not a professional.
-#If anyone has suggestions, please inform me of any improvements.
-#This is a project requested by my physics teacher and I hope it's approved.
 
 load("cache.star", "cache")
 load("http.star", "http")
@@ -17,90 +11,34 @@ load("render.star", "render")
 load("schema.star", "schema")
 
 #Constants
-DEFAULT_SPORT = "Football"
 DEFAULT_CLASS = "6A-1"
+DEFAULT_GAME = "1"
 
-#The following dictionaries are used by the settings and some values in the main function.
+#The following dictionary is used by the settings and some values in the main function.
 #The ID numbers are used in the URL in the main function.
-SPORT_IDS = {
-    "Football": 1,
-    "Boy's Basketball": 2,
-    "Girl's Basketball": 3,
-    "High School Baseball": 4,
-    "High School Slow Pitch": 5,
-    "Volleyball": 7,
-    "Fast Pitch": 11,
-    "Fall Baseball": 12,
-    "High School Cross Country": 21,
-    "High School Softball": 29,
-    "High School Men's Basketball": 30,
-    "High School Women's Basketball": 31,
-}
 
-CLASS_IDS = {
-    "Football": {"6A-1": 8, "6A-2": 19, "5A": 7, "4A": 6, "3A": 5, "2A": 4, "A": 1, "B": 2, "C": 3, "Other": 68},
-    "Boy's Basketball": {"6A": 70, "5A": 71, "4A": 72, "3A": 73, "2A": 74, "A": 75, "B": 76, "Other": 119},
-    "Girl's Basketball": {"6A": 77, "5A": 78, "4A": 79, "3A": 80, "2A": 81, "A": 82, "B": 83, "Other": 121},
-    "High School Baseball": {"6A": 217, "5A": 218, "4A": 219, "3A": 220, "2A": 221, "A": 222, "B": 223, "Other": 224},
-    "High School Slow Pitch": {"6A": 225, "5A": 226, "4A": 227, "3A": 228, "2A": 229, "A": 230, "Other": 231},
-    "Volleyball": {"6A": 429, "5A": 430, "4A": 431, "3A": 432, "Other": 433},
-    "Fast Pitch": {"6A": 240, "5A": 241, "4A": 242, "3A": 243, "2A": 244, "A": 245, "B": 246, "Other": 453},
-    "Fall Baseball": {"A": 247, "B": 248},
-    "High School Cross Country": {},
-    "High School Softball": {},
-    "High School Men's Basketball": {},
-    "High School Women's Basketball": {},
-}
-
-#This list is used to generate the mobile options.
-CLASSES = ["6A-1", "6A-2", "6A", "5A", "4A", "3A", "2A", "A", "B", "C", "Other"]
+CLASSES = {"6A-1": 8, "6A-2": 19, "5A": 7, "4A": 6, "3A": 5, "2A": 4, "A": 1, "B": 2, "C": 3, "Other": 68}
 
 #This is the main function that runs after the settings. Returns display
 def main(config):
-    total_games = cache.get("max")
-    current_game = cache.get("current")
-    if current_game != None:
-        data = cache.get(current_game)
-    else:
-        data = []
-    stored_sportid = cache.get("sport")
-    stored_classid = cache.get("class")
-
-    sport = config.str("sport", DEFAULT_SPORT)
-    sportID = SPORT_IDS[sport]
+    data = []
     sportClass = config.str("class", DEFAULT_CLASS)
-    classID = "N/A"
-    classAmount = len(CLASS_IDS[sport])
+    classID = CLASSES[sportClass]
+    current_game = config.get("games", DEFAULT_GAME)
+    total_games = cache.get("{}max".format(classID))
 
-    if classAmount > 0:
-        classInSport = False
-
-        #Testing for the selected class in the sport's list.
-        for c in CLASS_IDS[sport]:
-            if c == sportClass:
-                classInSport = True
-                break
-
-        if classInSport == False:
-            #This loop gets the first class of the sport.
-            for c in CLASS_IDS[sport]:
-                sportClass = c
-                break
-
-        classID = CLASS_IDS[sport][sportClass]
-
-    #The following conditional determines if the website data must be pulled again.
-    if total_games == None or current_game == None or stored_sportid == None or stored_classid == None or int(stored_sportid) != SPORT_IDS[sport] or int(stored_classid) != classID and classAmount > 0:
-        total_games, current_game, data = get_data(sportID, classID)
+    if total_games == None:
+        get_data(classID)
+        total_games = cache.get("{}max".format(classID))
 
     #Type conversion from string to int
-    total_games = int(total_games)
     current_game = int(current_game)
+    total_games = int(total_games)
 
-    #Resets the current game and associated data
-    if current_game > total_games:
-        current_game = 1
-        data = cache.get("1")
+    data = cache.get("{}{}".format(classID, current_game))
+    if data == None and total_games > 0:
+        get_data(classID)
+        data = cache.get("{}{}".format(classID, current_game))
 
     #The filtered data list is a temporary storage while the data variable is sorted.
     filtered_data = []
@@ -150,8 +88,6 @@ def main(config):
             scores = "Date: " + first_score + " Time: " + second_score
         else:
             scores = "Scores: " + first_score + "/" + second_score
-
-        cache.set("current", "{}".format(current_game + 1), ttl_seconds = 360)
 
         return render.Root(
             child = render.Column(
@@ -296,32 +232,18 @@ def main(config):
                         width = 64,
                         height = 11,
                         padding = 1,
-                        color = "#ff0000",
+                        color = "#800000",
                     ),
                 ],
                 expanded = True,
             ),
         )
 
-    elif classAmount > 0:
-        return render.Root(
-            child = render.Box(
-                child = render.WrappedText(
-                    content = "No Events Currently for {} {}".format(sport, sportClass),
-                    width = 60,
-                    linespacing = 1,
-                    font = "CG-pixel-3x5-mono",
-                ),
-                width = 64,
-                height = 32,
-                padding = 1,
-            ),
-        )
     else:
         return render.Root(
             child = render.Box(
                 child = render.WrappedText(
-                    content = "No Events Currently for {}".format(sport),
+                    content = "No Events for {} Football this week".format(sportClass),
                     width = 60,
                     linespacing = 1,
                     font = "CG-pixel-3x5-mono",
@@ -332,31 +254,18 @@ def main(config):
             ),
         )
 
-#This function gets and stores the data for the desired sport and class.
-def get_data(sportID, classID):
-    if classID != "N/A":
-        web = http.get("https://skordle.com/scores/?sportid={}&classid={}&clubid=1".format(sportID, classID), ttl_seconds = 60)
-        if web.status_code != 200:
-            fail("Failure code: %s", web.status_code)
-    else:
-        web = http.get("https://skordle.com/scores/?sportid={}&clubid=1".format(sportID), ttl_seconds = 60)
-        if web.status_code != 200:
-            fail("Failure code: %s", web.status_code)
+#This function gets and stores the data for the desired sport class.
+def get_data(classID):
+    web = http.get("https://skordle.com/scores/?sportid=1&classid={}&clubid=1".format(classID), ttl_seconds = 60)
+    if web.status_code != 200:
+        fail("Failure code: %s", web.status_code)
 
     #The sort function breaks up the HTML data and returns a dictionary.
     #This dictionary contains lists of data for each game.
     sorted = sort(web.body())
-    cache.set("max", "{}".format(len(sorted)), ttl_seconds = 1800)
-    cache.set("current", "1", ttl_seconds = 240)
-    cache.set("sport", "{}".format(sportID), ttl_seconds = 1800)
-    cache.set("class", "{}".format(classID), ttl_seconds = 1800)
+    cache.set("{}max".format(classID), "{}".format(len(sorted)), ttl_seconds = 3600)
     for game in sorted:
-        cache.set("{}".format(game), "{}".format(sorted[game]), ttl_seconds = 1800)
-
-    if len(sorted) != 0:
-        return "{}".format(len(sorted)), "1", "{}".format(sorted[1])
-    else:
-        return "0", "0", None
+        cache.set("{}{}".format(classID, game), "{}".format(sorted[game]), ttl_seconds = 3600)
 
 #Sorts through HTML data and returns numbered games with their data
 #It gets weird, but the slice notation helps.
@@ -440,30 +349,47 @@ def sort(body):
 
 #Mobile settings function that returns the desired sport and class
 def get_schema():
-    #I have to give credit to the author of the SkiReport app, Colin Morrisseau.
-    #I took inspiration for the list comprehension as I forgot it existed.
-    #It saved nearly 30 lines here.
-    sportOptions = [schema.Option(display = sport, value = sport) for sport in SPORT_IDS]
-    classOptions = [schema.Option(display = classes, value = classes) for classes in CLASSES]
+    class_options = [schema.Option(display = c, value = c) for c in CLASSES]
     return schema.Schema(
         version = "1",
         fields = [
             schema.Dropdown(
-                id = "sport",
-                name = "Sports",
-                desc = "The sport whose games will be displayed",
-                icon = "football",
-                default = DEFAULT_SPORT,
-                options = sportOptions,
-            ),
-            #If a class is selected that doesn't apply to the sport, it defaults to the first option for the sport.
-            schema.Dropdown(
                 id = "class",
                 name = "Classes",
-                desc = "The class of the selected sport (If a sport does not have the selected class it will default to the first available)",
+                desc = "The class of sport whose games will be displayed",
                 icon = "arrowUpShortWide",
                 default = DEFAULT_CLASS,
-                options = classOptions,
+                options = class_options,
+            ),
+            #A changing set of game options determined by the class selection.
+            schema.Generated(
+                id = "generated",
+                source = "class",
+                handler = game_options,
             ),
         ],
     )
+
+#A function that determines what options should be displayed based on the sport class.
+def game_options(c):
+    classID = CLASSES[c]
+    games = cache.get("{}max".format(classID))
+    if games == None:
+        get_data(classID)
+        games = cache.get("{}max".format(classID))
+
+    #List of Games to select
+    if int(games) > 0:
+        game_options = [schema.Option(display = "{}".format(game + 1), value = "{}".format(game + 1)) for game in range(int(games))]
+    else:
+        game_options = [schema.Option(display = "None", value = "0")]
+    return [
+        schema.Dropdown(
+            id = "games",
+            name = "Games",
+            desc = "The various games to choose from",
+            icon = "football",
+            default = DEFAULT_GAME,
+            options = game_options,
+        ),
+    ]

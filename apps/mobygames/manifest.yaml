@@ -1,0 +1,8 @@
+---
+id: moby-games
+name: MobyGames
+summary: Game info from MobyGames
+desc: Display information about random games from the extensive MobyGames database. Includes basic information such as a thumbnail, year of release, etc.
+author: pandincus
+fileName: moby_games.star
+packageName: mobygames

@@ -11,7 +11,7 @@ def get_resp_stations():
     data = cache.get("data_stations")
     if not data:
         print("Stations data not cached")
-        url = "https://gbfs.citibikenyc.com/gbfs/en/station_information.json"
+        url = "https://gbfs.lyft.com/gbfs/2.3/bkn/en/station_information.json"
         resp = http.get(url)
         data = resp.json()["data"]
         print("Response Stations: ", resp.status_code)
@@ -28,7 +28,7 @@ def get_resp_bikes():
     data = cache.get("data_bikes")
     if not data:
         print("Bike Data not cached")
-        url_bikes = "https://gbfs.citibikenyc.com/gbfs/en/station_status.json"
+        url_bikes = "https://gbfs.lyft.com/gbfs/2.3/bkn/en/station_status.json"
         resp = http.get(url_bikes)
         data = resp.json()["data"]["stations"]
         print("Response Availability: ", resp.status_code)
@@ -54,7 +54,7 @@ img_park = render.Image(src = base64.decode(img_park_src), width = w, height = h
 def pop_stations(data):
     dic = {}
     for s in data:
-        dic.update({s["name"]: {"ext_id": s["external_id"], "leg_id": s["legacy_id"]}})
+        dic.update({s["name"]: {"ext_id": s["station_id"], "leg_id": s["station_id"]}})
     return dict(sorted(dic.items()))
 
 ###########
@@ -62,7 +62,7 @@ def pop_stations(data):
 def get_info(stat_name, type, bike_data, station_list):
     stat_ids = station_list[stat_name]
     leg_id = stat_ids["leg_id"]
-    info = [i for i in bike_data if i["legacy_id"] == leg_id][0]
+    info = [i for i in bike_data if i["station_id"] == leg_id][0]
     docs_avail = int(info["num_docks_available"])
     bikes_avail = int(info["num_bikes_available"])
     res = {

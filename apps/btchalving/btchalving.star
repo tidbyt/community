@@ -15,7 +15,7 @@ PROGRESS_WIDTH = 64
 URL_BLOCK_TIP_HEIGHT = "https://mempool.space/api/blocks/tip/height"
 URL_DIFFICULTY_ADJUSTMENT = "https://mempool.space/api/v1/difficulty-adjustment"
 
-ACTIVE_PROGRESS_COLOR = "#af6223"
+ACTIVE_PROGRESS_COLOR = "#6d4626"
 BACKGROUND_COLOR = "#000"
 BORDER_COLOR_DARK = "#494542"
 BORDER_COLOR_LIGHT = "#848280"
@@ -181,7 +181,7 @@ def main():
                                     height = 7,
                                 ),
                                 render.Padding(
-                                    pad = (2, 0, 0, 0),
+                                    pad = (4, 0, 0, 0),
                                     child = render.Text(
                                         content = "{}%".format(difficulty_change),
                                         font = "tb-8",
