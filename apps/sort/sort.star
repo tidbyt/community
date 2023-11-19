@@ -120,7 +120,7 @@ def insertionSort(arr):
         for j in range(i - 1, -1, -1):
             if key >= arr[j]:
                 break
-            frames.append(render_frame_color(arr, i, j+1, "insertion"))
+            frames.append(render_frame_color(arr, i, j + 1, "insertion"))
             swap(arr, j, j + 1)
 
     return frames
@@ -436,9 +436,10 @@ def render_frame_quick(arr, _i, _j, _low, _pivot, _high):
                 elif i == _high:
                     rows[y][i * 2] = red_pixel
                     rows[y][i * 2 + 1] = red_pixel
-                # elif i >= _low and i <= _j:
-                #     rows[y][i * 2] = red_pixel
-                #     rows[y][i * 2 + 1] = red_pixel
+                    # elif i >= _low and i <= _j:
+                    #     rows[y][i * 2] = red_pixel
+                    #     rows[y][i * 2 + 1] = red_pixel
+
                 else:
                     rows[y][i * 2] = white_pixel
                     rows[y][i * 2 + 1] = white_pixel
@@ -465,7 +466,7 @@ def partition(arr, low, high, _pivot):
 
 def partitionRand(arr, low, high):
     frames = []
-    frames.append(render_frame_quick(arr, low, 0, low, (low+high)//2, high))
+    frames.append(render_frame_quick(arr, low, 0, low, (low + high) // 2, high))
     pivot = (low + high) // 2  #middle
 
     swap(arr, low, pivot)
