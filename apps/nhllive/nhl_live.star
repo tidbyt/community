@@ -307,6 +307,7 @@ def get_team_games(teamId, currDate, game_info, config):
 
 def get_live_game_update(game_info, config):
     url = BASE_API_URL + "/v1/gamecenter/" + game_info["gameId"] +"/landing"
+    print("  - HTTP.GET: %s" % url)
     team_away = TEAMS_LIST[game_info["teamId_away"]]["abbreviation"]
     team_home = TEAMS_LIST[game_info["teamId_home"]]["abbreviation"]
     
@@ -315,10 +316,13 @@ def get_live_game_update(game_info, config):
     if response.status_code == 200:
         game_stats = {}
         game = response.json()
-        
+        opts = []
+
         for stat in game["summary"]["teamGameStats"]:
             if stat["category"] == "faceoffPctg":
                 stat["category"] = "fo"
+                stat["awayValue"] = stat["awayValue"] + "%"
+                stat["homeValue"] = stat["homeValue"] + "%"
             elif stat["category"] == "blockedShots":
                 stat["category"] = "blk"
             elif stat["category"] == "takeaways":
@@ -328,14 +332,38 @@ def get_live_game_update(game_info, config):
             elif stat["category"] == "hits":
                 stat["category"] = "hit"
             elif stat["category"] == "powerPlay":
-                stat["category"] = "pp"
+                stat["category"] = "ppg"
             stat_type = stat["category"]
             game_stats[stat_type] = [stat["awayValue"], stat["homeValue"]]
+        
+        if config.bool("sog", True):
+            opts.append("sog")
+        if config.bool("ppg", True):
+            opts.append("ppg")
+        if config.bool("fo", True):
+            opts.append("fo")
+        if config.bool("pim", True):
+            opts.append("pim")
+        if config.bool("hit", True):
+            opts.append("hit")
+        if config.bool("blk", True):
+            opts.append("blk")
+        if config.bool("take", True):
+            opts.append("take")
+        if config.bool("give", True):
+            opts.append("give")
 
-        print(game_stats)
-        stat="take"
+        print("  - OPTS: %s" % opts)
 
-        return stat.upper() + " - " + team_away + ":" + game_stats[stat][0] + ", " + team_home + ":" + game_stats[stat][1]
+        # randomly choose what update to show
+        if len(opts) > 0:
+            opt = opts[random.number(0, len(opts) - 1)]
+            # print("  - OPT: %s" % opt)
+            update = opt.upper() + " - " + team_away + ":" + game_stats[opt][0] + " " + team_home + ":" + game_stats[opt][1]
+        else:
+            update = ""
+
+        return update
 
 
 
@@ -370,18 +398,18 @@ def get_game_boxscore(game_info, config):
 
             if goalie_away == 0:
                 game_info["is_empty_away"] = True
+                skater_away = skater_away - 1
             if skater_away > skater_home:
                 game_info["is_pp_away"] = True
             if goalie_home == 0:
                 game_info["is_empty_home"] = True
+                skater_home = skater_home - 1
             if skater_home > skater_away:
                 game_info["is_pp_home"] = True
-        
         
     return game_info
 
 def get_game_period(period):
-
     if period == 1:
         return "1st" 
     elif period == 2:
@@ -569,33 +597,10 @@ def get_schema():
                 icon = "hockeyPuck",
                 default = True,
             ),
-            # Disabled until I can figure out how to get the data
-            # schema.Toggle(
-            #     id = "play",
-            #     name = "Last Play",
-            #     desc = "Toggle Last Play Info",
-            #     icon = "hockeyPuck",
-            #     default = True,
-            # ),
-            # Disabled until I can figure out how to get the data
-            # schema.Toggle(
-            #     id = "lg",
-            #     name = "Last Goal",
-            #     desc = "Toggle Last Goal Info",
-            #     icon = "hockeyPuck",
-            #     default = True,
-            # ),
             schema.Toggle(
                 id = "sog",
                 name = "SOG",
                 desc = "Toggle Shots on Goal Stats",
-                icon = "hockeyPuck",
-                default = True,
-            ),
-            schema.Toggle(
-                id = "pen",
-                name = "Penalties",
-                desc = "Toggle Penalty Stats",
                 icon = "hockeyPuck",
                 default = True,
             ),
