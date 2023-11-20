@@ -283,7 +283,7 @@ def render_problems(lines):
     for i in range(0, len(problems), 2):
         panes = [render_status(problems[i])]
         if i + 1 < len(problems):
-            panes.append(render_status(lines[i + 1]))
+            panes.append(render_status(problems[i + 1]))
         frames.append(
             render.Column(
                 children = panes,

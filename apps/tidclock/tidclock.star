@@ -458,7 +458,7 @@ def main(config):
         ctx["hourbgcolor"] = "#033"
         ctx["hourfgcolor"] = "#0AA"
         ctx["cloudcolor"] = "#333"
-        ctx["raincolor"] = "#336"
+        ctx["raincolor"] = "#33A"
         ctx["hourcolor"] = "#B8B"
         ctx["minutecolor"] = "#ACC"
         ctx["secondcolor"] = "#AAA"
@@ -744,12 +744,17 @@ def main(config):
                 stack.append(drawimg(weekdayxs[weekday] + 2, y0 + 2, WEATHERICON_CLEAR))
             elif dayweather == "Partly cloudy":
                 stack.append(drawimg(weekdayxs[weekday] + 2, y0 + 2, WEATHERICON_PARTLYCLOUDY))
+            elif dayweather == "Overcast":
+                stack.append(drawimg(weekdayxs[weekday] + 2, y0 + 2, WEATHERICON_CLOUDY))
             elif dayweather == "Cloudy":
                 stack.append(drawimg(weekdayxs[weekday] + 2, y0 + 2, WEATHERICON_CLOUDY))
+            elif dayweather == "Light Rain":
+                stack.append(drawimg(weekdayxs[weekday] + 2, y0 + 2, WEATHERICON_PRECIPITATION))
             elif dayweather == "Rainy":
                 stack.append(drawimg(weekdayxs[weekday] + 2, y0 + 2, WEATHERICON_PRECIPITATION))
             else:
                 stack.append(drawtext(weekdayxs[weekday] + 3, y0, dayweather[0]))
+                print("Unknown weather summary:" + dayweather)
         for i in range(8):
             if i == weekday or i == weekday + 1:
                 stack.append(drawrect(weekdayxs[i], y0, 1, 8, weekdayfgcolor))
