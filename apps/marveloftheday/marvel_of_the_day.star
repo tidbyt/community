@@ -13,8 +13,8 @@ load("secret.star", "secret")
 load("time.star", "time")
 
 BASE_URL = "https://gateway.marvel.com/v1/public/characters"
-PUBLIC_KEY = secret.decrypt("AV6+xWcEy092dgpbVtrQ6viXx2aP7gUnMvuSV2fPo8z7rcpCsZSB7iKhbuhn1Y9uf4X944Jxz5IaunEkS5HWH0nADmdQVa1EMOu8boaEFwxIXin9b9f4fu80Yh/hhgdZSmIZG446mxhINuZWXXEkjw9YXjyzrL5jTj23CTEMcYAGRMXovks=")
-PRIVATE_KEY = secret.decrypt("AV6+xWcExLAtVmhSs9vr0xHtg8hRIWQcXAKa1qG3l2W/Frgr+EcICQuMg9CbUwqEbVrY/OhIhFsGczEJkGjhEMsn+MFFqSTm68ZZvNXIbr3MFhOSPnKPCFybCmXU5T97NNLGDAARgtB+/7VgF0w7Ki8eiX5sbW7yisbLpFrEe/2mKxh9OcDmZ6tQAwhhYg==")
+PUBLIC_KEY = secret.decrypt("AV6+xWcE+glik4Q/UJ64HVitCtX/Iw4GMs4PXCybCA8EyTUt1POPVYqKOU3RGgOe2mjHa8PjfUuOBJRUjmViYUg+siN6ApfbF9qbr4N4JjcIblHXyLK5Pud1Ur5dgWkKpUZU1OdzTWz4pUnS7WKWnKXqASO81oGyzth03l+vQ3Wk1oVxZIA=")
+PRIVATE_KEY = secret.decrypt("AV6+xWcEPi0x8wyUv3WvkbErpatqjOP8YnClZuerV7D3Y/8tFLtFEw5FhlxuN2mNEPt54DqB+94xcybYJ5dNglGmc2XmXIrtISvO1+7TQ2U3djvTPARlZg7vOS/EXFWnSGMiLw8Bx8733nzQPbhklqMUBW27Bi6Nji7Y2ByDQuTexA74mtZRmuYPXV4XVA==")
 
 def main():
     """
@@ -28,6 +28,7 @@ def main():
 
         return render_data(image, name)
     else:
+        random.seed(time.now().unix // 86400)
         characterId = get_random_character_id()
         params = get_auth_params()
         req = http.get(BASE_URL + "/" + str(characterId), ttl_seconds = 86400, params = params)
@@ -70,10 +71,11 @@ def get_auth_params():
     """
     Returns Marvel API authentication params.
     """
+    timestamp = str(1699392191)
     params = {
-        "ts": str(time.now().unix),
+        "ts": timestamp,
         "apikey": PUBLIC_KEY,
-        "hash": hash.md5(str(time.now().unix) + PRIVATE_KEY + PUBLIC_KEY),
+        "hash": hash.md5(timestamp + PRIVATE_KEY + PUBLIC_KEY),
     }
 
     return params

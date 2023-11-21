@@ -1,0 +1,8 @@
+---
+id: skordlevolleyball
+name: SkordleVolleyball
+summary: Displays Skorld VB Games
+desc: This app gets Volleyball data from the Skordle website to dplay on the Tidbyt. A user can select the class of game and manually select which game to display.
+author: Woolycoin437420
+fileName: skordlevolleyball.star
+packageName: skordlevolleyball
