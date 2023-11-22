@@ -7,7 +7,7 @@ Author: rs7q5
 
 #nationalToday.star
 #Created 20220130 RIS
-#Last Modified 20230516 RIS
+#Last Modified 20231121 RIS
 
 load("http.star", "http")
 load("qrcode.star", "qrcode")
@@ -15,7 +15,7 @@ load("re.star", "re")
 load("render.star", "render")
 load("schema.star", "schema")
 
-BASE_URL = "https://nationaltoday.com/what-is-today/"
+BASE_URL = "https://nationaltoday.com/today/"  #what-is-today/"
 
 QR_CODE = qrcode.generate(
     url = BASE_URL,
