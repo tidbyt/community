@@ -175,17 +175,45 @@ def get_bearing(lat_1, lng_1, lat_2, lng_2):
     return bearing
 
 def get_pixel_movement(deg):
-    # have bearning in degrees, now convert to cardinal point
+    # have bearning in degrees, now convert pixel movements equivalent
     compass_brackets = [[0, -1], [1, -1], [1, 0], [1, 1], [0, 1], [1, -1], [-1, 0], [-1, -1], [0, -1]]
     return compass_brackets[int(math.round(deg / 45))]
 
+def display_instructions():
+    instructions_1 = " Get your RapidAPI Key from RapidApi.com, click 'Apps', 'Add New App' then get the API Key from the 'Authorization' section. Each initial green dot has a progress indicator next to it that flashes (unless it's heading off the screen). The flashing green dot indicates the direction the plane is going. The brighter the flashing green dot, the closer to the ground. The Yellow dot indicates YOUR location. The Yellow dot is not always in the center, it will move to make better use of the available screen. You control how far to look for planes with the 'Distance' selection. The screen will be optimized to best display the planes that are returned from the API"
+    instructions_2 = " The optional Information Bar: When displayed, you'll see some dots across the bottom of the screen. This represents the distance of the nearest plan as a percentage of the search area. So if your search area was 100km, and the nearest plane was 23km away, you'd see 23% of the dots lit up across the bottom of the screen. Also, green indicates newer data, yellow a little stale and red very stale data. More specifically, green will be displayed for the first third of the cache period, yellow for the second third, and red for the final third."
+    return render.Root(
+        render.Column(
+            children = [
+                render.Marquee(
+                    width = 64,
+                    child = render.Text(" ATC Radar", color = "#65d0e6", font = "6x13"),
+                ),
+                render.Marquee(
+                    width = 64,
+                    child = render.Text(instructions_1, color = "#f4a306"),
+                ),
+                render.Marquee(
+                    offset_start = len(instructions_1) * 6,
+                    width = 64,
+                    child = render.Text(instructions_2, color = "#f4a306"),
+                ),
+            ],
+        ),
+        show_full_animation = True,
+    )
+
 def main(config):
+    show_instructions = config.bool("instructions", True)
+    if show_instructions:
+        return display_instructions()
+
     api_key = config.get("key")
 
     if (api_key == "") or (api_key == None):
         text = [
-            render.Text("Add"),
-            render.Text("API"),
+            render.Text("Add RapidAPI"),
+            render.Text("Flight Radar"),
             render.Text("Key"),
         ]
         return render.Root(
@@ -209,16 +237,15 @@ def main(config):
     else:
         radar_height = 32
 
-    print(radar_height)
-    flights_cache_key = "_".join(["Flight", "Data", lat, lng])
+    flights_cache_key = "_".join(["All", "Flight", "Data", lat, lng])
     flights = get_flights_from_cache(flights_cache_key)
-
+    display_flights = []
     data_from_date = None
 
     if flights == None:
-        print("Contacting Flight Radar")
+        #print("Contacting Flight Radar")
         centrePoint = [float(lat), float(lng)]
-        boundingBox = get_bounding_box(centrePoint, search_distance)
+        boundingBox = get_bounding_box(centrePoint, 100)
 
         if TESTMODE:
             flights = [["32b96cff", "AAB100", 27.9, -88.5, 103.0, 5000.0, 552.0, "", "F-KMOB1", "B737", "N7883A", 1.69924097, "AUS", "MCO", "WN562", 0.0, 0.0, "SWA562", 0.0], ["32b96c79", "A8A4C7", 28.8316, -88.5084, 107.0, 33000.0, 535.0, "", "F-KMOB1", "B763", "N656UA", 1.699241512, "IAH", "GIG", "UA129", 0.0, 0.0, "UAL129", 0.0], ["32b9590f", "ADABFE", 28.723, -88.0323, 284.0, 30025.0, 413.0, "", "F-KMOB1", "A321", "N980JT", 1.699241512, "FLL", "SFO", "B6277", 0.0, 0.0, "JBU277", 0.0], ["32b9652c", "AD084E", 28.697, -87.9279, 284.0, 36025.0, 369.0, "", "F-KNEW1", "A20N", "N939NK", 1.699241512, "FLL", "SAT", "NK1738", 0.0, -64.0, "NKS1738", 0.0], ["32b96cff", "AAB100", 28.6329, -87.8272, 106.0, 39000.0, 550.0, "", "F-KNEW1", "B737", "N7883A", 1.699241512, "AUS", "MCO", "WN562", 0.0, 0.0, "SWA562", 0.0]]
@@ -245,31 +272,33 @@ def main(config):
         #print("Got flight data from cache")
         data_from_date = get_time_from_cache(flights_cache_key)
 
+    # calculate the area of the map we want to display
+    extremes = initialize_extremes(orig_lat, orig_lng)
+
+    #calculate the nearest flight
+    nearest_flight = 0
+
     if flights:
-        # calculate the area of the map we want to display
-        extremes = initialize_extremes(orig_lat, orig_lng)
-
-        #calculate the nearest flight
-        nearest_flight = 0
-
         for flight in flights:
             distance = get_distance(orig_lat, orig_lng, flight[2], flight[3])
-            nearest_flight = distance if nearest_flight == 0 else (distance if distance < nearest_flight else nearest_flight)
 
             #update extremes with each flight we want to plot
-            extremes = update_extremes(flight[2], flight[3], extremes)
+            if distance < search_distance:
+                nearest_flight = distance if nearest_flight == 0 else (distance if distance < nearest_flight else nearest_flight)
+                extremes = update_extremes(flight[2], flight[3], extremes)
+                display_flights.append(flight)
 
+    if display_flights:
         info_bar_length = int(WIDTH * min((nearest_flight / search_distance), 1))
         info_bar_color = get_stale_warning_color((time.now() - data_from_date).seconds, cache_tty)
-        return get_flight_radar(flights, extremes, orig_lat, orig_lng, info_bar_length, info_bar_color, radar_height)
-
+        return get_flight_radar(display_flights, extremes, orig_lat, orig_lng, info_bar_length, info_bar_color, radar_height)
     elif hide_when_nothing_to_display == True:
         return []
     else:
         text = [
-            render.Text("No"),
-            render.Text("Flights"),
-            render.Text("Nearby"),
+            render.Text("No Flights"),
+            render.Text("Within"),
+            render.Text("%s KM" % search_distance),
         ]
 
     return render.Root(
@@ -339,6 +368,9 @@ def update_extremes(lat1, lng1, extremes):
 def get_flight_radar(flights, extremes, home_lat, home_lng, info_bar_length, info_bar_color, radar_height):
     radar = []
     frames = []
+
+    if len(flights) == 0:
+        return []
 
     # Initialize variables from schema
     color = YELLOW_COLOR
@@ -588,6 +620,10 @@ def get_schema():
             value = "50",
         ),
         schema.Option(
+            display = "75km",
+            value = "75",
+        ),
+        schema.Option(
             display = "100km",
             value = "100",
         ),
@@ -596,6 +632,13 @@ def get_schema():
     return schema.Schema(
         version = "1",
         fields = [
+            schema.Toggle(
+                id = "instructions",
+                name = "Instructions",
+                desc = "Display App Instructions?",
+                icon = "gear",
+                default = False,
+            ),
             schema.Dropdown(
                 id = "distance",
                 name = "Distance",
