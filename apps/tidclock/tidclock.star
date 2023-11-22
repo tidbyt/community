@@ -626,15 +626,14 @@ def main(config):
                             print("Error getting paid week weather " + str(result["error"]["code"]) + result["error"]["type"])
                         else:
                             print("Error getting paid week weather; failed getting error code")
+                    elif "forecast" in result:
+                        forecast = result["forecast"]
+                        ctx["weekweather"] = []
+                        for i in range(7):
+                            ctx["weekweather"].append(forecast[(thisnow + time.hour * 24 * i).format("2006-01-02")]["totalsnow"])
                     else:
-                        if "forecast" in result:
-                            forecast = result["forecast"]
-                            ctx["weekweather"] = []
-                            for i in range(7):
-                                ctx["weekweather"].append(forecast[(thisnow + time.hour * 24 * i).format("2006-01-02")]["totalsnow"])
-                        else:
-                            ctx["showweather"] = False
-                            print("Error getting paid week weather; unexpected json")
+                        ctx["showweather"] = False
+                        print("Error getting paid week weather; unexpected json")
             else:
                 weatherurlbase = WEATHERURLFREE + config.get("weatherkey") + "&query=" + humanize.url_encode(locality)
 
@@ -650,12 +649,11 @@ def main(config):
                             print("Error getting free weather " + str(result["error"]["code"]) + result["error"]["type"])
                         else:
                             print("Error getting free weather; failed getting error code")
+                    elif "current" in result and "weather_descriptions" in result["current"]:
+                        ctx["dayweather"] = result["current"]["weather_descriptions"][0]
                     else:
-                        if "current" in result and "weather_descriptions" in result["current"]:
-                            ctx["dayweather"] = result["current"]["weather_descriptions"][0]
-                        else:
-                            ctx["showweather"] = False
-                            print("Error getting free weather; unexpected json")
+                        ctx["showweather"] = False
+                        print("Error getting free weather; unexpected json")
 
         #/PRECACHING
 
