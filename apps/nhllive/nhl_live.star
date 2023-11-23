@@ -101,7 +101,7 @@ def main(config):
     currDate = get_current_date(config)
 
     # Grab teamid, teamAbbr from our schema
-    teamId, team_name, team_abbr = get_team(config)
+    teamId, team_abbr = get_team(config)
 
     # check if this team knows of a cached game:
     game_info = cache.get("teamid_" + str(teamId) + "_game") or None
@@ -138,7 +138,7 @@ def main(config):
         print("  - CACHE: Game found for teamid %s" % str(teamId))
         game_info = json.decode(game_info)
         if game_info["game_state"] == "LIVE":
-            game_info = get_game_boxscore(game_info, config)
+            game_info = get_game_boxscore(game_info)
 
     # Optionally pull live game stat updates
     if game_info["game_state"] == "LIVE" and config.bool("liveupdates", True):
@@ -278,7 +278,13 @@ def get_games(teamId, currDate, game_info, config):
     print("  - Get Games for week")
 
     # Get team schedule for a team week
-    games = get_club_schedule_week(teamId, currDate)
+    games = get_club_schedule_week(teamId)
+
+    # init some vars
+    start_time = None
+    teamId_away = None
+    teamId_home = None
+    gameId = None
 
     if games:
         game_info["gameId"] = str(int(games["games"][0]["id"]))
@@ -312,14 +318,14 @@ def get_game_status(game_info, games, currDate, config):
         game_info["is_game_today"] = True
 
     # If games this week, check if game[0] is live or over
-    if is_game_live(currDate, games):
+    if is_game_live(games):
         print("  - Game is live")
-        game_info = get_game_boxscore(game_info, config)
+        game_info = get_game_boxscore(game_info)
         game_info["game_state"] = "LIVE"
 
-    elif is_game_over(currDate, games):
+    elif is_game_over(games):
         print("  - Game is over")
-        game_info = get_final_game_info(currDate, games, game_info, config)
+        game_info = get_final_game_info(games, game_info)
         game_info["game_state"] = "OVER"
 
     else:
@@ -407,7 +413,7 @@ def get_live_game_update(game_info, config):
     return update
 
 # Grab basic game info via boxscore
-def get_game_boxscore(game_info, config):
+def get_game_boxscore(game_info):
     update = cache.get("game_" + str(game_info["gameId"]) + "_boxscore") or None
 
     if update == None:
@@ -464,7 +470,7 @@ def get_game_boxscore(game_info, config):
     return game_info
 
 # If the game is over, grab the final game info (scores, period) and format for the display
-def get_final_game_info(currDate, games, game_info, config):
+def get_final_game_info(games, game_info):
     game_info["goals_away"] = str(int(games["games"][0]["awayTeam"]["score"]))
     game_info["goals_home"] = str(int(games["games"][0]["homeTeam"]["score"]))
     if games["games"][0]["gameOutcome"]["lastPeriodType"] == "SO":
@@ -495,7 +501,7 @@ def get_local_start_time(start_time, config):
     return str(local_start_time)
 
 # Get club schedule for a team week
-def get_club_schedule_week(teamId, currDate):
+def get_club_schedule_week(teamId):
     url = BASE_API_URL + "/v1/club-schedule/" + TEAMS_LIST[teamId]["abbreviation"] + "/week/now"
     print("  - HTTP.GET: %s" % url)
     response = http.get(url)
@@ -515,10 +521,10 @@ def get_club_schedule_season(teamId):
     else:
         return None
 
-def is_game_live(currDate, games):
+def is_game_live(games):
     return games["games"][0]["gameState"] in ["LIVE", "CRIT"]
 
-def is_game_over(currDate, games):
+def is_game_over(games):
     return games["games"][0]["gameState"] in ["OVER", "FINAL", "OFF"]
 
 def get_next_game(currDate, games):
@@ -540,12 +546,10 @@ def get_team(config):
 
     # Grab team name
     if teamId in TEAMS_LIST.keys():
-        team_name = TEAMS_LIST[teamId]["name"]
         team_abbr = TEAMS_LIST[teamId]["abbreviation"]
     else:
-        team_name = teamId
         team_abbr = "NHL"
-    return teamId, team_name, team_abbr
+    return teamId, team_abbr
 
 def get_team_logo(teamId):
     # check cache for logo
