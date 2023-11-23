@@ -35,7 +35,7 @@ FONT_COLOR_EMPTYNET = "#eb4c46"
 FONT_COLOR_POWERPLAY_EMPTYNET = "#a838d1"
 
 CACHE_LOGO_SECONDS = 86400
-CACHE_GAME_SECONDS = 3600
+CACHE_GAME_SECONDS = 30
 CACHE_UPDATE_SECONDS = 30
 CACHE_SHUFFLETEAMS_SECONDS = 3600
 
@@ -103,32 +103,49 @@ def main(config):
     # Grab teamid, teamAbbr from our schema
     teamId, team_name, team_abbr = get_team(config)
 
-    game_info = {
-        "gameId": None,
-        "is_game_today": False,
-        "teamId_away": None,
-        "teamId_home": None,
-        "goals_away": "",
-        "goals_home": "",
-        "game_time": "",
-        "game_period": "",
-        "is_pp_away": False,
-        "is_pp_home": False,
-        "is_empty_away": False,
-        "is_empty_home": False,
-        "game_update": "",
-        "game_state": "",
-        "is_intermission": ""
-    }
-   
-    # Check current game status (isGameScheduled, isGameLive, isGameFinal)
-    game_info = get_team_games(teamId, currDate, game_info, config)
+    # check if this team knows of a cached game:
+    game_info = cache.get("teamid_" + str(teamId) + "_game") or None
+    # No cached game, normal flow
+    if game_info == None:
+        print("  - CACHE: No Game found for teamid %s" % str(teamId))
+        # Create our game_info dict
+        game_info = {
+            "gameId": None,
+            "is_game_today": False,
+            "teamId_away": None,
+            "teamId_home": None,
+            "goals_away": "",
+            "goals_home": "",
+            "game_time": "",
+            "game_period": "",
+            "is_pp_away": False,
+            "is_pp_home": False,
+            "is_empty_away": False,
+            "is_empty_home": False,
+            "game_update": "",
+            "game_state": "",
+            "is_intermission": ""
+        }
 
+        # Get game info (current game, opponent, basic stats, or next game scheduled)
+        game_info = get_games(teamId, currDate, game_info, config)
+
+        cache.set("teamid_" + str(teamId) + "_game", json.encode(game_info), ttl_seconds = CACHE_GAME_SECONDS)
+
+    else:
+        print("  - CACHE: Game found for teamid %s" % str(teamId))
+        game_info = json.decode(game_info)
+        if game_info["game_state"] == "LIVE":
+            game_info = get_game_boxscore(game_info, config)
+    
+    # Optionally pull live game stat updates
     if game_info["game_state"] == "LIVE" and config.bool("liveupdates", True):
         game_info["game_update"] = get_live_game_update(game_info, config)
+    elif game_info["game_state"] == "LIVE" and config.bool("liveupdates", False):
+        game_info["game_update"] = ""
 
-    print(game_info)
-
+    
+    # If we have no gameId, return NHL logo
     if game_info["gameId"] == None:
         print("  - ERROR: No Games Found. Displaying NHL Logo.")
         return render.Root(
@@ -161,12 +178,15 @@ def main(config):
     score_color_away = get_score_color(game_info["is_pp_away"], game_info["is_empty_away"])
     score_color_home = get_score_color(game_info["is_pp_home"], game_info["is_empty_home"])
 
-
     # Game Day Only
     if config.bool("gameday", False) and (game_info["is_game_today"] == False):
         print("  - No %s games today, returning nothing." % str(team_abbr))
         return []
 
+
+    # print("-->", game_info)
+
+    # Main Display Render
     return render.Root(
         child = render.Column(
             children = [
@@ -179,6 +199,7 @@ def main(config):
                             cross_align = "center",
                             children = [
                                 render.Image(width = 18, height = 18, src = logo_away),
+                                render.Box(height = 1, width = 5, color = "#000000"),
                                 render.Text(
                                     content = TEAMS_LIST[game_info["teamId_away"]]["abbreviation"] + " " + game_info["goals_away"],
                                     font = FONT_STYLE,
@@ -190,6 +211,7 @@ def main(config):
                             cross_align = "center",
                             main_align = "space evenly",
                             children = [
+                                render.Box(height = 2, width = 5, color = "#000000" ),
                                 render.Text(
                                     content = game_info["game_time"],
                                     font = FONT_STYLE,
@@ -205,11 +227,7 @@ def main(config):
                                     font = FONT_STYLE,
                                     color = "#ffbe0a",
                                 ),
-                                render.Box(
-                                    height = 1,
-                                    width = 5,
-                                    color = "#000000",
-                                ),
+                                render.Box(height = 1, width = 5, color = "#000000"),
                                 render.Text(
                                     content = game_info["is_intermission"],
                                     font = FONT_STYLE,
@@ -221,6 +239,7 @@ def main(config):
                             cross_align = "center",
                             children = [
                                 render.Image(width = 18, height = 18, src = logo_home),
+                                render.Box(height = 1, width = 5, color = "#000000"),
                                 render.Text(
                                     content = game_info["goals_home"] + " " + TEAMS_LIST[game_info["teamId_home"]]["abbreviation"],
                                     font = FONT_STYLE,
@@ -253,7 +272,10 @@ def main(config):
         ),
     )
 
-def get_team_games(teamId, currDate, game_info, config):
+# Check if there is a game, if it's live or over or scheduled. 
+# If live or over, grab game info. If scheduled, grab next game info.
+def get_games(teamId, currDate, game_info, config):
+    print("  - Get Games for week")
     # Get team schedule for a team week
     games = get_club_schedule_week(teamId, currDate)
 
@@ -263,37 +285,16 @@ def get_team_games(teamId, currDate, game_info, config):
         game_info["teamId_away"] = int(games["games"][0]["awayTeam"]["id"])
         game_info["teamId_home"] = int(games["games"][0]["homeTeam"]["id"])
 
-        if game_info["game_date"] == str(currDate):
-            game_info["is_game_today"] = True
+        get_game_status(game_info, games, currDate, config)
 
-        # If games this week, check if game[0] is live or over
-        if is_game_live(teamId, currDate, games):
-            print("  - Game is live")
-            game_info = get_game_boxscore(game_info, config)
-            game_info["game_state"] = "LIVE"
-
-        elif is_game_over(teamId, currDate, games):
-            print("  - Game is over")
-            game_info = get_final_game_info(teamId, currDate, games, game_info, config)
-            game_info["game_state"] = "OVER"
-
-        else:
-            # Grab the start time         
-            start_time = games["games"][0]["startTimeUTC"]
-            start_time = get_local_start_time(start_time, config)
-
-            game_info["game_update"] = start_time
-            
-
+    # If no games this week, get schedule for the season
     else:
-        # If no games this week, get schedule for the season
-        print("get schedule for season")
+        print("  - No games this week, getting season schedule")
         games = get_club_schedule_season(teamId)
     
         # If games set game_live, game_over, teamId_away, teamId_home, start_time
         if games:
-            teamId_away, teamId_home, start_time, gameId = get_next_game(teamId, currDate, games)
-            print("  - Next game is", teamId_away, "vs", teamId_home, "at", start_time)
+            teamId_away, teamId_home, start_time, gameId = get_next_game(currDate, games)
 
         if start_time:
             start_time = get_local_start_time(start_time, config)
@@ -305,110 +306,177 @@ def get_team_games(teamId, currDate, game_info, config):
     
     return game_info
 
-def get_live_game_update(game_info, config):
-    url = BASE_API_URL + "/v1/gamecenter/" + game_info["gameId"] +"/landing"
-    print("  - HTTP.GET: %s" % url)
-    team_away = TEAMS_LIST[game_info["teamId_away"]]["abbreviation"]
-    team_home = TEAMS_LIST[game_info["teamId_home"]]["abbreviation"]
-    
-    response = http.get(url)
-    
-    if response.status_code == 200:
-        game_stats = {}
-        game = response.json()
-        opts = []
+def get_game_status(game_info, games, currDate, config):
+    if game_info["game_date"] == str(currDate):
+            game_info["is_game_today"] = True
 
-        for stat in game["summary"]["teamGameStats"]:
-            if stat["category"] == "faceoffPctg":
-                stat["category"] = "fo"
-                stat["awayValue"] = stat["awayValue"] + "%"
-                stat["homeValue"] = stat["homeValue"] + "%"
-            elif stat["category"] == "blockedShots":
-                stat["category"] = "blk"
-            elif stat["category"] == "takeaways":
-                stat["category"] = "take"
-            elif stat["category"] == "giveaways":
-                stat["category"] = "give"
-            elif stat["category"] == "hits":
-                stat["category"] = "hit"
-            elif stat["category"] == "powerPlay":
-                stat["category"] = "ppg"
-            stat_type = stat["category"]
-            game_stats[stat_type] = [stat["awayValue"], stat["homeValue"]]
-        
-        if config.bool("sog", True):
-            opts.append("sog")
-        if config.bool("ppg", True):
-            opts.append("ppg")
-        if config.bool("fo", True):
-            opts.append("fo")
-        if config.bool("pim", True):
-            opts.append("pim")
-        if config.bool("hit", True):
-            opts.append("hit")
-        if config.bool("blk", True):
-            opts.append("blk")
-        if config.bool("take", True):
-            opts.append("take")
-        if config.bool("give", True):
-            opts.append("give")
+    # If games this week, check if game[0] is live or over
+    if is_game_live(currDate, games):
+        print("  - Game is live")
+        game_info = get_game_boxscore(game_info, config)
+        game_info["game_state"] = "LIVE"
 
-        print("  - OPTS: %s" % opts)
+    elif is_game_over(currDate, games):
+        print("  - Game is over")
+        game_info = get_final_game_info(currDate, games, game_info, config)
+        game_info["game_state"] = "OVER"
 
-        # randomly choose what update to show
-        if len(opts) > 0:
-            opt = opts[random.number(0, len(opts) - 1)]
-            # print("  - OPT: %s" % opt)
-            update = opt.upper() + " - " + team_away + ":" + game_stats[opt][0] + " " + team_home + ":" + game_stats[opt][1]
-        else:
-            update = ""
+    else:
+        # Grab the start time         
+        start_time = games["games"][0]["startTimeUTC"]
+        start_time = get_local_start_time(start_time, config)
 
-        return update
+        game_info["game_update"] = start_time
 
-
-
-def get_game_boxscore(game_info, config):
-    url = BASE_API_URL + "/v1/gamecenter/" + game_info["gameId"] +"/boxscore"
-    print("  - HTTP.GET: %s" % url)
-    response = http.get(url)
-    
-    if response.status_code == 200:
-        game = response.json()
-        game_info["goals_away"] = str(int(game["awayTeam"]["score"]))
-        game_info["goals_home"] = str(int(game["homeTeam"]["score"]))
-
-        game_info["game_time"] = game["clock"]["timeRemaining"]
-        game_info["game_period"] = get_game_period(game["period"])
-        
-        # Check if intermission
-        if game["clock"]["inIntermission"]:
-            game_info["is_intermission"] = "INT"
-        else:
-            game_info["is_intermission"] = ""
-
-        # Grab Empty Net and Power Play
-        if "situation" in game:
-            situationCode = game["situation"]["situationCode"]
-            print("SITUATION:", situationCode)
-
-            goalie_away = int(situationCode[0])
-            skater_away = int(situationCode[1])
-            skater_home = int(situationCode[2])
-            goalie_home = int(situationCode[3])
-
-            if goalie_away == 0:
-                game_info["is_empty_away"] = True
-                skater_away = skater_away - 1
-            if skater_away > skater_home:
-                game_info["is_pp_away"] = True
-            if goalie_home == 0:
-                game_info["is_empty_home"] = True
-                skater_home = skater_home - 1
-            if skater_home > skater_away:
-                game_info["is_pp_home"] = True
-        
     return game_info
 
+def get_live_game_update(game_info, config):
+    game_stats = cache.get("game_" + str(game_info["gameId"]) + "_liveupdate") or None
+    opts = []
+
+    if game_stats == None:
+        print("  - CACHE: No LiveUpdate found for gameid %s" % str(game_info["gameId"]))
+        url = BASE_API_URL + "/v1/gamecenter/" + game_info["gameId"] +"/landing"
+        print("  - HTTP.GET: %s" % url)
+        
+        
+        response = http.get(url)
+        
+        if response.status_code == 200:
+            game_stats = {}
+            game = response.json()
+            
+
+            # Reformat our game stats a bit
+            for stat in game["summary"]["teamGameStats"]:
+                if stat["category"] == "faceoffPctg":
+                    stat["category"] = "fo"
+                    stat["awayValue"] = stat["awayValue"] + "%"
+                    stat["homeValue"] = stat["homeValue"] + "%"
+                elif stat["category"] == "blockedShots":
+                    stat["category"] = "blk"
+                elif stat["category"] == "takeaways":
+                    stat["category"] = "take"
+                elif stat["category"] == "giveaways":
+                    stat["category"] = "give"
+                elif stat["category"] == "hits":
+                    stat["category"] = "hit"
+                elif stat["category"] == "powerPlay":
+                    stat["category"] = "ppg"
+                stat_type = stat["category"]
+                game_stats[stat_type] = [stat["awayValue"], stat["homeValue"]]
+
+            cache.set("game_" + str(game_info["gameId"]) + "_liveupdate", json.encode(game_stats), ttl_seconds = CACHE_UPDATE_SECONDS)
+            print("  - CACHE: Setting LiveUpdate for gameid %s" % str(game_info["gameId"]))
+            
+    else:
+        print("  - CACHE: LiveUpdate found for gameid %s" % str(game_info["gameId"]))
+        game_stats = json.decode(game_stats)
+    
+    team_away = TEAMS_LIST[game_info["teamId_away"]]["abbreviation"]
+    team_home = TEAMS_LIST[game_info["teamId_home"]]["abbreviation"]
+
+    # Create our opts set for use in random update based on schema config selections
+    if config.bool("sog", True):
+        opts.append("sog")
+    if config.bool("ppg", True):
+        opts.append("ppg")
+    if config.bool("fo", True):
+        opts.append("fo")
+    if config.bool("pim", True):
+        opts.append("pim")
+    if config.bool("hit", True):
+        opts.append("hit")
+    if config.bool("blk", True):
+        opts.append("blk")
+    if config.bool("take", True):
+        opts.append("take")
+    if config.bool("give", True):
+        opts.append("give")
+
+    print("  - OPTS: %s" % opts)
+
+    # Randomly choose what update to show
+    if len(opts) > 0:
+        opt = opts[random.number(0, len(opts) - 1)]
+        # print("  - OPT: %s" % opt)
+        update = opt.upper() + " - " + team_away + ":" + game_stats[opt][0] + " " + team_home + ":" + game_stats[opt][1]
+    else:
+        update = ""
+
+    return update
+
+
+# Grab basic game info via boxscore
+def get_game_boxscore(game_info, config):
+    update = cache.get("game_" + str(game_info["gameId"]) + "_boxscore") or None
+
+    if update == None:
+        print("  - CACHE: No Boxscore found for gameid %s" % str(game_info["gameId"]))
+        url = BASE_API_URL + "/v1/gamecenter/" + game_info["gameId"] +"/boxscore"
+        print("  - HTTP.GET: %s" % url)
+        response = http.get(url)
+        
+        if response.status_code == 200:
+            game = response.json()
+            game_info["goals_away"] = str(int(game["awayTeam"]["score"]))
+            game_info["goals_home"] = str(int(game["homeTeam"]["score"]))
+
+            game_info["game_time"] = game["clock"]["timeRemaining"]
+            game_info["game_period"] = get_game_period(game["period"])
+
+            if game["gameState"] in ["LIVE", "CRIT"]:
+                game_info["game_state"] = "LIVE"
+            elif game["gameState"] in ["OVER", "FINAL", "OFF"]:
+                game_info["game_state"] = "OVER"
+            
+            # Check if intermission
+            if game["clock"]["inIntermission"]:
+                game_info["is_intermission"] = "INT"
+            else:
+                game_info["is_intermission"] = ""
+
+            # Grab Empty Net and Power Play
+            if "situation" in game:
+                situationCode = game["situation"]["situationCode"]
+
+                goalie_away = int(situationCode[0])
+                skater_away = int(situationCode[1])
+                skater_home = int(situationCode[2])
+                goalie_home = int(situationCode[3])
+
+                if goalie_away == 0:
+                    game_info["is_empty_away"] = True
+                    skater_away = skater_away - 1
+                if skater_away > skater_home:
+                    game_info["is_pp_away"] = True
+                if goalie_home == 0:
+                    game_info["is_empty_home"] = True
+                    skater_home = skater_home - 1
+                if skater_home > skater_away:
+                    game_info["is_pp_home"] = True
+            
+            print("  - CACHE: Setting Boxscore for gameid %s" % str(game_info["gameId"]))
+            cache.set("game_" + str(game_info["gameId"]) + "_boxscore", json.encode(game_info), ttl_seconds = CACHE_UPDATE_SECONDS)
+    else:
+        print("  - CACHE: Boxscore found for gameid %s" % str(game_info["gameId"]))
+        game_info = json.decode(update)
+
+    return game_info
+
+# If the game is over, grab the final game info (scores, period) and format for the display
+def get_final_game_info(currDate, games, game_info, config):
+    game_info["goals_away"] = str(int(games["games"][0]["awayTeam"]["score"]))
+    game_info["goals_home"] = str(int(games["games"][0]["homeTeam"]["score"]))
+    if games["games"][0]["gameOutcome"]["lastPeriodType"] == "SO":
+        game_info["game_update"] = "    FINAL/SO"
+    elif games["games"][0]["gameOutcome"]["lastPeriodType"] == "OT":
+        game_info["game_update"] =  "    FINAL/OT"
+    else:
+        game_info["game_update"] =  "      FINAL"
+    return game_info
+
+# Build the period display info
 def get_game_period(period):
     if period == 1:
         return "1st" 
@@ -420,17 +488,6 @@ def get_game_period(period):
         return str(period) + "th"
     else:
         return "OT"
-
-def get_final_game_info(teamId, currDate, games, game_info, config):
-    game_info["goals_away"] = str(int(games["games"][0]["awayTeam"]["score"]))
-    game_info["goals_home"] = str(int(games["games"][0]["homeTeam"]["score"]))
-    if games["games"][0]["gameOutcome"]["lastPeriodType"] == "SO":
-        game_info["game_update"] = "    FINAL/SO"
-    elif games["games"][0]["gameOutcome"]["lastPeriodType"] == "OT":
-        game_info["game_update"] =  "    FINAL/OT"
-    else:
-        game_info["game_update"] =  "      FINAL"
-    return game_info
 
 def get_local_start_time(start_time, config):
     local_start_time = time.parse_time(start_time)
@@ -459,13 +516,13 @@ def get_club_schedule_season(teamId):
     else:
         return None
 
-def is_game_live(teamId, currDate, games):
+def is_game_live(currDate, games):
     return games["games"][0]["gameState"] in ["LIVE", "CRIT"]
 
-def is_game_over(teamId, currDate, games):
+def is_game_over(currDate, games):
     return games["games"][0]["gameState"] in ["OVER", "FINAL", "OFF"]
 
-def get_next_game(teamId, currDate, games):
+def get_next_game(currDate, games):
     for game in games["games"]:
         if game["gameDate"] >= currDate and game["gameState"] in ["FUT", "PRE"]:
             return int(game["awayTeam"]["id"]), int(game["homeTeam"]["id"]), game["startTimeUTC"], game["id"]
