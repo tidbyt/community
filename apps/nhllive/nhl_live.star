@@ -35,7 +35,7 @@ FONT_COLOR_EMPTYNET = "#eb4c46"
 FONT_COLOR_POWERPLAY_EMPTYNET = "#a838d1"
 
 CACHE_LOGO_SECONDS = 86400
-CACHE_GAME_SECONDS = 30
+CACHE_GAME_SECONDS = 60
 CACHE_UPDATE_SECONDS = 30
 CACHE_SHUFFLETEAMS_SECONDS = 3600
 
@@ -103,6 +103,12 @@ def main(config):
     # Grab teamid, teamAbbr from our schema
     teamId, team_abbr = get_team(config)
 
+    print("###################################################")
+    print("## NHL Live Applet - teamId: %s" % teamId)
+    print("## NHL Live Applet - teamAbbr: %s" % team_abbr)
+    print("## NHL Live Applet - currDate: %s" % currDate)
+    print("###################################################")
+
     # check if this team knows of a cached game:
     game_info = cache.get("teamid_" + str(teamId) + "_game") or None
 
@@ -132,18 +138,19 @@ def main(config):
         # Get game info (current game, opponent, basic stats, or next game scheduled)
         game_info = get_games(teamId, currDate, game_info, config)
 
+        print("  - CACHE: Setting Game for teamid %s" % str(teamId))
         cache.set("teamid_" + str(teamId) + "_game", json.encode(game_info), ttl_seconds = CACHE_GAME_SECONDS)
 
     else:
         print("  - CACHE: Game found for teamid %s" % str(teamId))
         game_info = json.decode(game_info)
-        if game_info["game_state"] == "LIVE":
+        if game_info["game_state"] in ["LIVE", "CRIT"]:
             game_info = get_game_boxscore(game_info)
 
     # Optionally pull live game stat updates
-    if game_info["game_state"] == "LIVE" and config.bool("liveupdates", True):
+    if game_info["game_state"] in ["LIVE", "CRIT"] and config.bool("liveupdates", True):
         game_info["game_update"] = get_live_game_update(game_info, config)
-    elif game_info["game_state"] == "LIVE" and config.bool("liveupdates", False):
+    elif game_info["game_state"] in ["LIVE", "CRIT"] and not config.bool("liveupdates", True):
         game_info["game_update"] = ""
 
     # If we have no gameId, return NHL logo
@@ -287,12 +294,13 @@ def get_games(teamId, currDate, game_info, config):
     gameId = None
 
     if games:
+        print("  - Games found for week")
         game_info["gameId"] = str(int(games["games"][0]["id"]))
         game_info["game_date"] = str(games["games"][0]["gameDate"])
         game_info["teamId_away"] = int(games["games"][0]["awayTeam"]["id"])
         game_info["teamId_home"] = int(games["games"][0]["homeTeam"]["id"])
 
-        get_game_status(game_info, games, currDate, config)
+        game_info = get_game_status(game_info, games, currDate, config)
 
         # If no games this week, get schedule for the season
     else:
@@ -428,7 +436,7 @@ def get_game_boxscore(game_info):
             game_info["goals_home"] = str(int(game["homeTeam"]["score"]))
 
             game_info["game_time"] = game["clock"]["timeRemaining"]
-            game_info["game_period"] = get_game_period(game["period"])
+            game_info["game_period"] = get_game_period(game["period"], game["periodDescriptor"]["periodType"])
 
             if game["gameState"] in ["LIVE", "CRIT"]:
                 game_info["game_state"] = "LIVE"
@@ -482,7 +490,9 @@ def get_final_game_info(games, game_info):
     return game_info
 
 # Build the period display info
-def get_game_period(period):
+def get_game_period(period, periodType):
+    if periodType == "SO":
+        return "SO"
     if period == 1:
         return "1st"
     elif period == 2:
@@ -490,7 +500,7 @@ def get_game_period(period):
     elif period == 3:
         return "3rd"
     elif period > 4:
-        return str(period) + "th"
+        return str(int(period)) + "th"
     else:
         return "OT"
 
