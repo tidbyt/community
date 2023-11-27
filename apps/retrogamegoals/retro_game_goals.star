@@ -230,9 +230,11 @@ CONSOLES = [
     },
 ]
 
+encrypted_api_key = "AV6+xWcEbCjn7Cfz7MYqXyGzzOUfiAZwRw6SrglD7eLnZNiJL6XtjbuUPWyYPj5y3OoDK9qLs2u2Ea1koK5fVd8AKpT+EAEYzsEb+9C9Rk1yU03e1f7hy0Cn6EWSWOd+noco9u4nhfzz1jlvOotV6Gk64czlVBzqegsxDRd8Jvg6IoZ78/w="
+
 def auth_params():
     return {
-        "y": secret.decrypt("AV6+xWcEM33UL/a8jc/Bfinx4znRwuwjSzxToeVJ7YW4bkecL0JoDTjB2RnrPPxv0nAhv3gVUJPlioXjDCABPYtttxWd6HYxq9YTXm9YrUOy4JeNrSmuqQmikoLIDwvvJ71CfvJVGvCeDQ9C40sbfsyeG+j4SGWm0OPg2mVpZFFnnBbhmxo="),
+        "y": secret.decrypt(encrypted_api_key),
         "z": "",
     }
 
