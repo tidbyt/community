@@ -14,6 +14,7 @@ WIKIPEDIA_ICON = base64.decode("iVBORw0KGgoAAAANSUhEUgAAAAcAAAAGCAYAAAAPDoR2AAAA
 WIKIPEDIA_URL = "https://api.wikimedia.org/feed/v1/wikipedia/en/featured/%s/%s/%s"
 
 TTL_TIME = 86400
+MARQUEE_DELAY = 150
 
 def get_featured_article(date):
     url = (WIKIPEDIA_URL % date)
@@ -22,14 +23,16 @@ def get_featured_article(date):
     return article
 
 def get_reduced_extract(extract):
-    MAX_LENGTH = 50
+    MAX_LENGTH = 100
 
     sentences = extract.split(".")
     ret = sentences[0] + "."
     for s in sentences[1:]:
         new_sentence = ret + s + "."
-        if len(new_sentence) <= MAX_LENGTH:
+        if s != "" and len(new_sentence) <= MAX_LENGTH:
             ret = new_sentence
+        else:
+            break
 
     return ret
 
@@ -49,7 +52,7 @@ def main():
             render.Row(
                 children = [
                     render.Padding(child = render.Image(src = WIKIPEDIA_ICON, width = 7, height = 6), pad = (1, 0, 1, 0)),
-                    render.Marquee(width = 56, delay = 500, child = render.Text(title, font = "tom-thumb")),
+                    render.Marquee(width = 56, delay = MARQUEE_DELAY, child = render.Text(title, font = "tom-thumb")),
                 ],
             ),
         ],
@@ -60,7 +63,7 @@ def main():
             render.Padding(child = render.Image(src = image, width = 16, height = 25), pad = (0, 0, 1, 0)),
             render.Marquee(
                 height = 25,
-                delay = 500,
+                delay = MARQUEE_DELAY,
                 scroll_direction = "vertical",
                 child = (render.WrappedText(content = description, font = "tb-8")),
             ),
@@ -68,8 +71,8 @@ def main():
     )
 
     return render.Root(
-        delay = 5,
         show_full_animation = True,
+        delay = 20,
         child = render.Column(
             children = [top_bar, render.Box(color = "#fff", width = 64, height = 1), body],
         ),
