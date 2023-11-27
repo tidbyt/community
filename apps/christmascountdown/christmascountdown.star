@@ -6,10 +6,10 @@ Author: Michael Creamer
 """
 
 load("encoding/base64.star", "base64")
+load("math.star", "math")
 load("render.star", "render")
 load("schema.star", "schema")
 load("time.star", "time")
-load("math.star", "math")
 
 CHRISTMASTree = base64.decode("""iVBORw0KGgoAAAANSUhEUgAAABsAAAAgCAYAAADjaQM7AAAAAXNSR0IArs4c6QAAAERlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAA6ABAAMAAAABAAEAAKACAAQAAAABAAAAG6ADAAQAAAABAAAAIAAAAAAg/t1uAAABmklEQVRIDb1TS05EMQwrnIMV4jhclhWnQkhcYGgedeu4TT8jNCON0jhxnKZ5KaV0O/2/frwfc4rGmRiEYA8b3RdTAfU3hPfEuPDtp3EY/zcxK+QKf357f+/tW5ezzpwQFY7woNZazAp+vbzVDVQB9QMh48/FtBB8WPDVBy52LmbJKASLAvBhgU/sXGy30GZeLHYVyFunnfLqc2xDcCymRPUhAhwLBB9xsb2YEthHUS7CccPVp1wvponqE9GNV/PULzwvxp0xgc8Xsbwl4zjDDhrzYpPEbjwnud3NmMxvw3gabCfHeVMZd2IIcLIlAB+MJH4zakj4cUFO5DMLM87nIOfvzVwidXaRBstguHF0EiyCHMLagjjBXIzfjQhufDNc6+XcJmbnQYLH9NY7nKbRxJZCjdTdzrh1EsHY681WQhpHYcb5bFOy9xTMA3hwJMHXcUc+eByvWD1MRqRE4zAvbIjet+S3m3EBE4h84LBoJvIJ998ZApHVJqI8xUtDbRtXHd4bBy/bXmyFoetVnsafM/Cw31NWsg/0Ib9fh3HVYaDkgSMAAAAASUVORK5CYII=""")
 
@@ -20,114 +20,111 @@ CHRISTMASTree2 = base64.decode("""iVBORw0KGgoAAAANSUhEUgAAABsAAAAgCAYAAADjaQM7AA
 CHRISTMASTree3 = base64.decode("""iVBORw0KGgoAAAANSUhEUgAAABsAAAAgCAYAAADjaQM7AAAAAXNSR0IArs4c6QAAAERlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAA6ABAAMAAAABAAEAAKACAAQAAAABAAAAG6ADAAQAAAABAAAAIAAAAAAg/t1uAAABmUlEQVRIDb1TQW4EIQyb9h17qvqcfranvmpVqR+YEorBMYSBarUrrUKMHQfCHMdxnLv/t8+PbU3x2DODEeJmo+tmaqD5gvGaGRc+f5qG8YeZWSEtrPnDzKLCER4YtysJCPlE99t7fYFqoHlUJ+FzMy2EHBF6zYFLnJsZGYUQUQA5IvBJnJutFlrkxWa5wNd3nRU65qcPzOKC4dhMhZrDBDgeEHLsS+zNVMA5inIR3jdcc+J6MyVqTkJ3vcrTvOi8GXfGAl5nYZkl41gjDhrzZhNidz073O5kLObZMD7otmsCnIHu72TY0GcNHAWi6Hj0uTjcxALUwTPOazZknNcBx58sk6gzzrWY5XoTbGJr0bQHIhsnz02LrORaL2mama0HBI/pqVc0zaOZXRo1UZ0rmjVtvYnBN1h4g5mVomzOaxjoTSjH5imYBzBwIXUnYUNej3QVq4vJFWkx07AODTIvr2m+hd9OxgWMHOXAEWES5YT7mWEjitpExFO8NNRe41WH/92HLsXe7ApD11c83X9NwNN+L8nJnvVTfr8gys0GTE1eTgAAAABJRU5ErkJggg==""")
 
 def main(config):
-
     #-----------------------
     # Get Configured Values
     #-----------------------
     line1Text = "Merry"
     line2Text = "Christmas"
-    line1Color = config.get("line1Color","#ff0000")
-    line2Color = config.get("line2Color","#00ff00")
-    line3Color = config.get("line3Color","#0000ff")
-    showCountdown = config.bool("showCountdown",True)
+    line1Color = config.get("line1Color", "#ff0000")
+    line2Color = config.get("line2Color", "#00ff00")
+    line3Color = config.get("line3Color", "#0000ff")
+    showCountdown = config.bool("showCountdown", True)
     maxCountdownValue = config.get("maxCountdownValue", 365)
-    
+
     if maxCountdownValue == None or maxCountdownValue == "":
         maxCountdownValue = 365
 
-    #--------------------------------   
+    #--------------------------------
     # Calculate days until Christmas
     #--------------------------------
     timezone = config.get("$tz", "America/New_York")
     now = time.now().in_location(timezone)
     today = time.time(year = now.year, month = now.month, day = now.day, location = timezone)
     current_xmas = time.time(year = today.year, month = 12, day = 25, location = timezone)
-    
+
     if today > current_xmas:
         current_xmas = time.time(year = today.year + 1, month = 12, day = 25, location = timezone)
-    
+
     date_diff = current_xmas - now
     days = math.ceil(date_diff.hours / 24)
-    
+
     line3Text = str(days) + " days"
-    
+
     #---------------------------
     # Setup array of text lines
     #---------------------------
     displayChildren = [
-        render.Text(content=line1Text, font="tom-thumb", color=line1Color),
-        render.Text(content=line2Text, font="tom-thumb", color=line2Color)                        
+        render.Text(content = line1Text, font = "tom-thumb", color = line1Color),
+        render.Text(content = line2Text, font = "tom-thumb", color = line2Color),
     ]
     if showCountdown and days > 0:
         child = render.Padding(
-            child = render.Text(content=line3Text, font="tom-thumb", color=line3Color),
-            pad = (0,3,0,0)
+            child = render.Text(content = line3Text, font = "tom-thumb", color = line3Color),
+            pad = (0, 3, 0, 0),
         )
         displayChildren.append(child)
-    
 
-    #---------    
+    #---------
     # Prepare
     #---------
     displayChildren = [
         render.Row(
             children = [
-                render.Image(src=CHRISTMASTree),
+                render.Image(src = CHRISTMASTree),
                 render.Column(
                     cross_align = "center",
                     main_align = "center",
                     expanded = True,
-                    children = displayChildren
+                    children = displayChildren,
                 ),
-            ]
+            ],
         ),
         render.Row(
             children = [
-                render.Image(src=CHRISTMASTree1),
+                render.Image(src = CHRISTMASTree1),
                 render.Column(
                     cross_align = "center",
                     main_align = "center",
                     expanded = True,
-                    children = displayChildren 
+                    children = displayChildren,
                 ),
-            ]
+            ],
         ),
         render.Row(
             children = [
-                render.Image(src=CHRISTMASTree2),
+                render.Image(src = CHRISTMASTree2),
                 render.Column(
                     cross_align = "center",
                     main_align = "center",
                     expanded = True,
-                    children = displayChildren 
+                    children = displayChildren,
                 ),
-            ]
+            ],
         ),
         render.Row(
             children = [
-                render.Image(src=CHRISTMASTree3),
+                render.Image(src = CHRISTMASTree3),
                 render.Column(
                     cross_align = "center",
                     main_align = "center",
                     expanded = True,
-                    children = displayChildren 
+                    children = displayChildren,
                 ),
-            ]
-        )
-        
+            ],
+        ),
     ]
-    
+
     if days > int(maxCountdownValue):
         return []
-        
-    #--------        
+
+    #--------
     # Render
     #--------
     return render.Root(
         delay = 4000,
-        child = render.Animation(children = displayChildren)
+        child = render.Animation(children = displayChildren),
     )
-    
+
 def get_schema():
     return schema.Schema(
         version = "1",
@@ -166,8 +163,6 @@ def get_schema():
                 desc = "Max Remaining Value",
                 icon = "gear",
                 default = "365",
-            )
-        ]
+            ),
+        ],
     )
-    
-    
