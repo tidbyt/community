@@ -1,5 +1,5 @@
-# Countdown Clock
+# New Years Countdown
 
-Displays the days left until New Years with Fireworks.
+Displays the days left until New Year's with Fireworks.
 
-![screenshot](filename.gif)
+![screenshot](new_years_countdown.gif)
