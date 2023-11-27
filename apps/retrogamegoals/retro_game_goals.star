@@ -342,6 +342,7 @@ def main(config):
 
     return render.Root(
         delay = 100,
+        show_full_animation = True,
         child = render.Column(
             children = [
                 top_bar,
