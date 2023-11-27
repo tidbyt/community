@@ -1,7 +1,6 @@
 load("math.star", "math")
 load("random.star", "random")
 load("render.star", "render")
-load("schema.star", "schema")
 load("time.star", "time")
 
 FRAME_DELAYS = {"Normal": "100", "Fast": "60"}
@@ -160,12 +159,13 @@ def main(config):
         cross_align = "center",
         children = [
             render.Marquee(
-                width=64,
-                child=render.Text(msg),
-                offset_start=64,
-                offset_end=64,)
-            ],
-        )
+                width = 64,
+                child = render.Text(msg),
+                offset_start = 64,
+                offset_end = 64,
+            ),
+        ],
+    )
 
     frame_delay = int(config.get("frame_delay", DEFAULT_FRAME_DELAY))
     timestamp_ms = 0
