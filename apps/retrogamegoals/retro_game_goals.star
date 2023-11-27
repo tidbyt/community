@@ -234,7 +234,7 @@ encrypted_api_key = "AV6+xWcEbCjn7Cfz7MYqXyGzzOUfiAZwRw6SrglD7eLnZNiJL6XtjbuUPWy
 
 def auth_params():
     return {
-        "y": secret.decrypt(encrypted_api_key),
+        "y": secret.decrypt(encrypted_api_key) or "",
         "z": "",
     }
 
@@ -286,6 +286,9 @@ def get_img_data(img_path):
     return http.get(endpoint, headers = {"User-Agent": "pixlet"}, ttl_seconds = ONE_HOUR_IN_SECONDS).body()
 
 def main(config):
+    if auth_params()["y"] == "":
+        return []
+
     console = str(config.str("console", "6"))
     console_cache_key = "console-%s" % console
     game_id = cache.get(console_cache_key)
