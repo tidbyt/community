@@ -37,7 +37,7 @@ DEFAULT_LOCATION = json.encode({
 })
 
 #Constants
-TESTMODE = False  # Set to False for production -- saves calls to the API during testing
+TESTMODE = True  # Set to False for production -- saves calls to the API during testing
 DELAY = 225  # Delay between frames (milliseconds)
 N_FRAMES = int(10 * 1000 / DELAY)  # Number of frames to equate to 10 seconds based on delay
 DEFAULT_DISTANCE = "10"
@@ -180,23 +180,30 @@ def get_pixel_movement(deg):
     return compass_brackets[int(math.round(deg / 45))]
 
 def display_instructions():
-    instructions_1 = " Get your RapidAPI Key from RapidApi.com, click 'Apps', 'Add New App' then get the API Key from the 'Authorization' section. Each initial green dot has a progress indicator next to it that flashes (unless it's heading off the screen). The flashing green dot indicates the direction the plane is going. The brighter the flashing green dot, the closer to the ground. The Yellow dot indicates YOUR location. The Yellow dot is not always in the center, it will move to make better use of the available screen. You control how far to look for planes with the 'Distance' selection. The screen will be optimized to best display the planes that are returned from the API"
-    instructions_2 = " The optional Information Bar: When displayed, you'll see some dots across the bottom of the screen. This represents the distance of the nearest plan as a percentage of the search area. So if your search area was 100km, and the nearest plane was 23km away, you'd see 23% of the dots lit up across the bottom of the screen. Also, green indicates newer data, yellow a little stale and red very stale data. More specifically, green will be displayed for the first third of the cache period, yellow for the second third, and red for the final third."
+    ##############################################################################################################################################################################################################################
+    instructions_1 = "Get RapidAPI.com Key, click 'Apps', 'Add New App' find under 'Authorization'. Each green dot has flashing direction indicator. Brighter flashing means closer to ground. Yellow dot indicates your location."
+    instructions_2 = "Information Bar: When displayed, dots across bottom represents distance of nearest plane as percentage of search area. Green line means first 3rd of Update Frequency period, yellow the middle third, red the last third."
+    instructions_3 = "You can hide when the data is old, or update more or less frequently. Adjust to fit your budget and desire for current data."
     return render.Root(
         render.Column(
             children = [
                 render.Marquee(
                     width = 64,
-                    child = render.Text(" ATC Radar", color = "#65d0e6", font = "6x13"),
+                    child = render.Text("ATC Radar", color = "#65d0e6", font = "5x8"),
                 ),
                 render.Marquee(
                     width = 64,
                     child = render.Text(instructions_1, color = "#f4a306"),
                 ),
                 render.Marquee(
-                    offset_start = len(instructions_1) * 6,
+                    offset_start = len(instructions_1) * 5,
                     width = 64,
                     child = render.Text(instructions_2, color = "#f4a306"),
+                ),
+                render.Marquee(
+                    offset_start = (len(instructions_2) + len(instructions_1) ) * 5,
+                    width = 64,
+                    child = render.Text(instructions_3, color = "#f4a306"),
                 ),
             ],
         ),
@@ -221,6 +228,8 @@ def main(config):
         )
 
     hide_when_nothing_to_display = config.bool("hide", True)
+    hide_data_older_than_seconds = int(config.get("hideold", 600))
+    
     location = json.decode(config.get("location", DEFAULT_LOCATION))
     cache_tty = int(config.get("cache", 60))
 
@@ -289,6 +298,10 @@ def main(config):
                 display_flights.append(flight)
 
     if display_flights:
+        #is it too old to display
+        if (time.now() - data_from_date).seconds > hide_data_older_than_seconds:
+            return []
+
         info_bar_length = int(WIDTH * min((nearest_flight / search_distance), 1))
         info_bar_color = get_stale_warning_color((time.now() - data_from_date).seconds, cache_tty)
         return get_flight_radar(display_flights, extremes, orig_lat, orig_lng, info_bar_length, info_bar_color, radar_height)
@@ -541,7 +554,6 @@ def renderAnimation(frames, info_bar_length, info_bar_color):
                 render.Animation(
                     children = frames,
                 ),
-                #render.Text(content = "Hello", color = "#CCCCCC", font = "CG-pixel-4x5-mono"),
                 render.Box(width = info_bar_length, height = 1, color = info_bar_color),
             ],
         ),
@@ -632,54 +644,62 @@ def get_schema():
     return schema.Schema(
         version = "1",
         fields = [
-            schema.Toggle(
-                id = "instructions",
-                name = "Instructions",
-                desc = "Display App Instructions?",
-                icon = "gear",
-                default = False,
+            schema.Text(
+                id = "key",
+                name = "RapidAPI FlightRadar Key",
+                desc = "FlightRadar API key",
+                icon = "key",
+            ),
+            schema.Location(
+                id = "location",
+                name = "Location",
+                desc = "Your Current Location",
+                icon = "locationDot",
             ),
             schema.Dropdown(
                 id = "distance",
                 name = "Distance",
                 desc = "Airplane Search Radius",
-                icon = "rulerHorizontal",
+                icon = "jetFighter",
                 default = options_distance[1].value,
                 options = options_distance,
-            ),
-            schema.Toggle(
-                id = "hide",
-                name = "Hide",
-                desc = "Hide app when no flights nearby?",
-                icon = "gear",
-                default = True,
-            ),
-            schema.Toggle(
-                id = "info_bar",
-                name = "Information Bar",
-                desc = "Show Information Bar",
-                icon = "gear",
-                default = True,
             ),
             schema.Dropdown(
                 id = "cache",
                 name = "Update Frequency",
-                desc = "Update data every:",
+                desc = "",
                 icon = "clock",
                 default = time_options[4].value,
                 options = time_options,
             ),
-            schema.Location(
-                id = "location",
-                name = "Location",
-                desc = "Your current location",
-                icon = "locationDot",
+            schema.Dropdown(
+                id = "hideold",
+                name = "Hide when data older than:",
+                desc = "",
+                icon = "gear",
+                default = time_options[6].value,
+                options = time_options,
             ),
-            schema.Text(
-                id = "key",
-                name = "RapidAPI FlightRadar Key",
-                desc = "Flight Radar API key",
-                icon = "key",
+            schema.Toggle(
+                id = "info_bar",
+                name = "Information Bar",
+                desc = "",
+                icon = "barsStaggered",
+                default = True,
+            ),
+            schema.Toggle(
+                id = "hide",
+                name = "Hide app when no flights nearby?",
+                desc = "",
+                icon = "gear",
+                default = True,
+            ),
+            schema.Toggle(
+                id = "instructions",
+                name = "Display Instructions",
+                desc = "",
+                icon = "book", #"info",
+                default = False,
             ),
         ],
     )
