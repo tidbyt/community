@@ -140,12 +140,13 @@ def main(config):
     download_render = render.Column(
         children = [
             render.Row(
+                cross_align = "center",
                 children = [
                     animated_download,
                     render.Image(src = DOWNLOAD_ARROW, width = 5, height = 6),
                 ],
             ),
-            render.Text(usage_data["download"]["unit"], font = "tom-thumb"),
+            render.Padding(render.Text(usage_data["download"]["unit"], font = "tom-thumb"), pad = (0, 1, 0, 0)),
         ],
         cross_align = "center",
     )
@@ -168,7 +169,7 @@ def main(config):
             ],
             expanded = True,
             main_align = "space_around",
-            cross_align = "center",
+            cross_align = "end",
         ),
         pad = (0, 2, 0, 3),
     )
@@ -267,7 +268,7 @@ def get_schema():
                 id = "timespan",
                 name = "Timespan",
                 desc = "Timespan for data",
-                default = OPTIONS[0]["label"],
+                default = str(OPTIONS[1]["value"]),
                 options = [
                     schema.Option(
                         display = opt["label"],
