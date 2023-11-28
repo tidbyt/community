@@ -37,7 +37,7 @@ DEFAULT_LOCATION = json.encode({
 })
 
 #Constants
-TESTMODE = True  # Set to False for production -- saves calls to the API during testing
+TESTMODE = False  # Set to False for production -- saves calls to the API during testing
 DELAY = 225  # Delay between frames (milliseconds)
 N_FRAMES = int(10 * 1000 / DELAY)  # Number of frames to equate to 10 seconds based on delay
 DEFAULT_DISTANCE = "10"
@@ -201,7 +201,7 @@ def display_instructions():
                     child = render.Text(instructions_2, color = "#f4a306"),
                 ),
                 render.Marquee(
-                    offset_start = (len(instructions_2) + len(instructions_1) ) * 5,
+                    offset_start = (len(instructions_2) + len(instructions_1)) * 5,
                     width = 64,
                     child = render.Text(instructions_3, color = "#f4a306"),
                 ),
@@ -229,7 +229,7 @@ def main(config):
 
     hide_when_nothing_to_display = config.bool("hide", True)
     hide_data_older_than_seconds = int(config.get("hideold", 600))
-    
+
     location = json.decode(config.get("location", DEFAULT_LOCATION))
     cache_tty = int(config.get("cache", 60))
 
@@ -698,7 +698,7 @@ def get_schema():
                 id = "instructions",
                 name = "Display Instructions",
                 desc = "",
-                icon = "book", #"info",
+                icon = "book",  #"info",
                 default = False,
             ),
         ],
