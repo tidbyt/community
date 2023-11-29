@@ -104,14 +104,17 @@ def main(config):
 
     flights = []
 
-    def check_request_headers(provider, request, ttl_seconds):
-        if request.headers.get("Tidbyt-Cache-Status") == "HIT":
+    def check_response_headers(provider, response, ttl_seconds):
+        if response.headers.get("Tidbyt-Cache-Status") == "HIT":
             print_log("displaying cached data for %s" % humanize.plural(ttl_seconds, "second"))
 
         else:
             print_log("calling %s api" % provider)
 
-        print_log(request.url)
+        print_log(response.url)
+
+    def validate_json(response):
+        return json.decode(json.encode(response.json() if (hasattr(response, "json") and response.status_code == 200) else {}), {})
 
     def empty_message():
         if return_message_on_empty:
@@ -138,12 +141,11 @@ def main(config):
         owners = ""
 
         if aircraft:
-            aircraft_request_url = "%s/aircraft/%s" % (PROVIDERS["hexdb"]["url"], aircraft)
-            aircraft_request = http.get(aircraft_request_url, ttl_seconds = provider_ttl_seconds)
-            check_request_headers("hexdb", aircraft_request, provider_ttl_seconds)
-            print_log(aircraft_request.json())
-
-            aircraft_json = aircraft_request.json()
+            aircraft_response_url = "%s/aircraft/%s" % (PROVIDERS["hexdb"]["url"], aircraft)
+            aircraft_response = http.get(aircraft_response_url, ttl_seconds = provider_ttl_seconds)
+            check_response_headers("hexdb", aircraft_response, provider_ttl_seconds)
+            aircraft_json = validate_json(aircraft_response)
+            print_log(aircraft_json)
 
             if aircraft_json.get("ICAOTypeCode"):
                 type = aircraft_json.get("ICAOTypeCode")
@@ -218,13 +220,13 @@ def main(config):
                         flight_info["type"] = flight_info.get("aircraft_info").get("type")
 
                         if show_route and flight_info.get("plane"):
-                            route_request_url = "%s/route/%s" % (PROVIDERS["adsblol"]["url"], flight_info.get("callsign"))
-                            route_request = http.get(route_request_url, ttl_seconds = provider_ttl_seconds)
-                            check_request_headers("adsblol", route_request, provider_ttl_seconds)
+                            route_response_url = "%s/route/%s" % (PROVIDERS["adsblol"]["url"], flight_info.get("callsign"))
+                            route_response = http.get(route_response_url, ttl_seconds = provider_ttl_seconds)
+                            check_response_headers("adsblol", route_response, provider_ttl_seconds)
 
-                            if route_request.status_code == 200:
-                                print_log(route_request.json())
-                                route_json = route_request.json()
+                            if route_response.status_code == 200:
+                                route_json = validate_json(route_response)
+                                print_log(route_json)
 
                                 route = route_json.get("airport_codes")
                                 if route and route != route_json.get("_airport_codes_iata") and route != "unknown":
@@ -233,14 +235,14 @@ def main(config):
                                     airport_codes_iata = []
 
                                     for airport_code in airport_codes:
-                                        airport_codes_request_url = "%s/airport/%s" % (PROVIDERS["adsblol"]["url"], airport_code)
-                                        airport_codes_request = http.get(airport_codes_request_url, ttl_seconds = provider_ttl_seconds)
-                                        check_request_headers("adsblol", airport_codes_request, provider_ttl_seconds)
-                                        if airport_codes_request.status_code == 200:
-                                            print_log(airport_codes_request.json())
+                                        airport_codes_response_url = "%s/airport/%s" % (PROVIDERS["adsblol"]["url"], airport_code)
+                                        airport_codes_response = http.get(airport_codes_response_url, ttl_seconds = provider_ttl_seconds)
+                                        check_response_headers("adsblol", airport_codes_response, provider_ttl_seconds)
+                                        if airport_codes_response.status_code == 200:
+                                            print_log(airport_codes_response.json())
 
-                                        if airport_codes_request.status_code == 200 and airport_codes_request.json() and airport_codes_request.json().get("iata"):
-                                            airport_codes_iata.append(airport_codes_request.json().get("iata"))
+                                        if airport_codes_response.status_code == 200 and airport_codes_response.json() and airport_codes_response.json().get("iata"):
+                                            airport_codes_iata.append(airport_codes_response.json().get("iata"))
                                         else:
                                             airport_codes_iata.append(airport_code)
 
@@ -332,8 +334,8 @@ def main(config):
 
     if provider:
         auth = ()
-        provider_request = ""
-        provider_request_url = ""
+        provider_response = ""
+        provider_response_url = ""
         la_min = 0
         lo_min = 0
         la_max = 0
@@ -357,25 +359,25 @@ def main(config):
             bbox = "%s,%s,%s,%s" % (la_min, lo_min, la_max, lo_max)
 
         if provider == "airlabs":
-            provider_request_url = "%s/flights?bbox=%s" % (PROVIDERS["airlabs"]["url"], bbox)
+            provider_response_url = "%s/flights?bbox=%s" % (PROVIDERS["airlabs"]["url"], bbox)
             if airlabs_api_key:
-                provider_request_url += "&api_key=%s" % airlabs_api_key
+                provider_response_url += "&api_key=%s" % airlabs_api_key
 
         if provider == "opensky":
-            provider_request_url = "%s/states/all?lamin=%s&lomin=%s&lamax=%s&lomax=%s" % (PROVIDERS["opensky"]["url"], la_min, lo_min, la_max, lo_max)
+            provider_response_url = "%s/states/all?lamin=%s&lomin=%s&lamax=%s&lomax=%s" % (PROVIDERS["opensky"]["url"], la_min, lo_min, la_max, lo_max)
             if opensky_username and opensky_password:
                 auth = (opensky_username, opensky_password)
 
-        if provider_request_url:
-            provider_request = http.get(provider_request_url, auth = auth, ttl_seconds = provider_ttl_seconds)
+        if provider_response_url:
+            provider_response = http.get(provider_response_url, auth = auth, ttl_seconds = provider_ttl_seconds)
 
-        if provider_request:
-            check_request_headers(provider, provider_request, provider_ttl_seconds)
+        if provider_response:
+            check_response_headers(provider, provider_response, provider_ttl_seconds)
 
-            if provider_request.status_code != 200:
-                fail("%s" % provider_request)
+            if provider_response.status_code != 200:
+                fail("%s" % provider_response)
 
-            provider_json = provider_request.json()
+            provider_json = validate_json(provider_response)
 
             if provider == "airlabs" and provider_json.get("response"):
                 return _render(provider, provider_json.get("response"))
