@@ -588,6 +588,9 @@ def main(config):
                 weatherurlweek = weatherurlbase + WEATHERURLPOSTWEEK
                 weatherurlday = weatherurlbase + WEATHERURLPOSTDAY
 
+                #print(weatherurlday)
+                #print(weatherurlweek)
+
                 res = http.get(url = weatherurlday, ttl_seconds = 60 * 60)
                 if res.status_code != 200:
                     ctx["showweather"] = False
@@ -614,7 +617,7 @@ def main(config):
                             ctx["showweather"] = False
                             print("Error getting paid weather; unexpected json")
 
-                res = http.get(url = weatherurlweek, ttl_seconds = 60 * 60 * 24)
+                res = http.get(url = weatherurlweek, ttl_seconds = (60 * 60 * 24) - (ctx["hour"] * 60 * 60 + ctx["minute"] * 60 + ctx["second"]))
                 if res.status_code != 200:
                     ctx["showweather"] = False
                     print("Error getting weather " + str(res.status_code))
@@ -630,7 +633,11 @@ def main(config):
                         forecast = result["forecast"]
                         ctx["weekweather"] = []
                         for i in range(7):
-                            ctx["weekweather"].append(forecast[(thisnow + time.hour * 24 * i).format("2006-01-02")]["totalsnow"])
+                            dayformatted = (thisnow + time.hour * 24 * i).format("2006-01-02")
+                            if dayformatted in forecast:
+                                ctx["weekweather"].append(forecast[dayformatted]["totalsnow"])
+                            else:
+                                ctx["weekweather"].append(0)
                     else:
                         ctx["showweather"] = False
                         print("Error getting paid week weather; unexpected json")
