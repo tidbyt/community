@@ -83,10 +83,6 @@ def get_apps(api_key):
         return fake_data
     return response_json["apps"]
 
-def pick_random_app(apps):
-    num = random.number(0, len(apps) - 1)
-    return apps[num]
-
 def shorten_description(extract):
     MAX_LENGTH = 75
 
@@ -102,9 +98,18 @@ def shorten_description(extract):
             break
     return ret
 
-def render_random_app_info(apps):
-    app = pick_random_app(apps)
+def render_n_random_apps(apps, n):
+    renderable_apps = [app for app in apps]
+    ret = []
+    for _ in range(n):
+        new_number = random.number(0, len(renderable_apps) - 1)
+        app = renderable_apps[new_number]
+        new_render = render_app_info(app)
+        ret.append(new_render)
+        renderable_apps.remove(app)
+    return ret
 
+def render_app_info(app):
     name = app["name"]
     description = shorten_description(app["description"])
     return render.Padding(render.Column(
@@ -140,7 +145,8 @@ def get_new_apps(apps):
     if len(total_new_apps) >= len(apps):
         total_new_apps = []
 
-    cache.set(NEW_APPS_CACHE_KEY, json.encode(total_new_apps), ttl_seconds = NEW_APPS_CACHE_TTL)
+    if len(total_new_apps) > len(new_apps):
+        cache.set(NEW_APPS_CACHE_KEY, json.encode(total_new_apps), ttl_seconds = NEW_APPS_CACHE_TTL)
     return total_new_apps
 
 def update_known_apps(apps):
@@ -173,9 +179,9 @@ def main(config):
     )
     rendered_children = []
     if new_apps_first:
-        rendered_children += [render_random_app_info(new_apps) for _ in range(len(new_apps))]
+        rendered_children += render_n_random_apps(new_apps, len(new_apps))
 
-    rendered_children += [render_random_app_info(apps) for _ in range(30)]
+    rendered_children += render_n_random_apps(apps, len(apps))
 
     body = render.Marquee(
         width = 44,
