@@ -89,7 +89,7 @@ BOSS_LIST = {
     "BLAST": "BLAST",
     "BOUNCE": "BOUNCE",
     "TORCH": "TORCH",
-    "TUNDRA": "TUNDRA"
+    "TUNDRA": "TUNDRA",
 }
 
 def main(config):
