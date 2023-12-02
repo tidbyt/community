@@ -120,6 +120,10 @@ def format_time_range(start, end):
     # note: only uses the time from the end time instead of both day and time
     return "%s%s-%s%s" % (start.format("01/02 3"), am_or_pm(start), end.format("3"), am_or_pm(end))
 
+# remove HTML tags and replace with ASCII codes
+def strip_tags(s):
+    return s.replace("<br />", "\n").replace("—", "--")
+
 def main(config):
     challenge_cache = cache.get("stages")
     challenges = None
@@ -183,8 +187,8 @@ def main(config):
 
     #print(closest_challenge)
     shown_challenge = {
-        "name": closest_challenge["leagueMatchSetting"]["leagueMatchEvent"]["name"],
-        "desc": closest_challenge["leagueMatchSetting"]["leagueMatchEvent"]["regulation"].replace("<br />", "\n").replace("—", "--"),
+        "name": strip_tags(closest_challenge["leagueMatchSetting"]["leagueMatchEvent"]["name"]),
+        "desc": strip_tags(closest_challenge["leagueMatchSetting"]["leagueMatchEvent"]["regulation"]),
     }
 
     # generate a pretty description
