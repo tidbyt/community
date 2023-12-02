@@ -2,7 +2,7 @@
 id: mars-clock
 name: Mars Clock
 summary: Mars Time at a Glance
-desc: Experience Martian timekeeping with Mars Clock, showcasing the current Mars Coordinated Time (MTC) and Mars Sol Date.
+desc: Explore the current Martian time at a specific location on Mars, including the Martian Sol Date. With sols being approximately 40 Earth minutes longer than Earth days, the 24-hour Martian clock continuously shifts compared to Earth's timekeeping.
 author: Adam Henson
 fileName: mars_clock.star
 packageName: marsclock

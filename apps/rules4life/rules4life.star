@@ -31,14 +31,15 @@ scroll_speed_options = [
     ),
 ]
 
+#####################################################################################################################################################################################
 RULES = {
     1: {
         "rule": "Stand up straight with your shoulders back",
-        "quote": "To stand up straight with your shoulders back is to accept the terrible responsibility of life, with eyes wide open. It means deciding to voluntarily transform the chaos of potential into the realities of habitable order … It means willingly undertaking the sacrifices necessary to generate a productive and meaningful reality.",
+        "quote": "Accept the terrible responsibility of life, with eyes wide open. Voluntarily transform the chaos of potential into the realities of habitable order",
     },
     2: {
         "rule": "Treat yourself like you are someone you are responsible for helping",
-        "quote": "You must help a child become a virtuous, responsible, awake being, capable of full reciprocity - able to take care of himself and others, and to thrive while doing so. Why would you think it acceptable to do anything less for yourself?",
+        "quote": "You must help a child become a virtuous, responsible, awake being, capable of full reciprocity - able to care for himself and others, and to thrive while doing so.",
     },
     3: {
         "rule": "Make friends with people who want the best for you",
@@ -78,7 +79,7 @@ RULES = {
     },
     12: {
         "rule": "Pet a cat when you encounter one on the street",
-        "quote": "If you pay careful attention, even on a bad day, you may be fortunate enough to be confronted with small opportunities of just that sort. Maybe you will see a little girl dancing on the street because she is all dressed up in a ballet costume. Maybe you will have a particularly good cup of coffee in a cafe that cares about their customers. Maybe you can steal ten or twenty minutes to do some ridiculous thing that distracts you or reminds you that you can laugh at the absurdity of existence.",
+        "quote": "If you pay careful attention, even on a bad day, you may be fortunate enough to be confronted with small opportunities of just that sort. ",
     },
 }
 

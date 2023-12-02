@@ -2751,9 +2751,21 @@ def render_times(scheduled, expected):
     )
 
 def render_destination(destination):
-    return render.Text(
-        content = destination["sixteen_char_name"].title(),
-        font = FONT,
+    return render.Column(
+        children = [
+            render.Row(
+                children = [
+                    render.Text(
+                        content = destination["name"].title(),
+                        font = FONT,
+                    ),
+                ],
+                expanded = True,
+                main_align = "start",
+            ),
+        ],
+        expanded = True,
+        cross_align = "start",
     )
 
 def render_no_departures():
@@ -2874,7 +2886,7 @@ def main(config):
         child = render.Column(
             cross_align = "center",
             children = [
-                render_title(origin_station["sixteen_char_name"].title()),
+                render_title(origin_station["name"].title()),
                 render_separator(),
             ] + rendered_trains,
         ),

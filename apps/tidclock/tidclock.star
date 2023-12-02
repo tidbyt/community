@@ -588,6 +588,9 @@ def main(config):
                 weatherurlweek = weatherurlbase + WEATHERURLPOSTWEEK
                 weatherurlday = weatherurlbase + WEATHERURLPOSTDAY
 
+                #print(weatherurlday)
+                #print(weatherurlweek)
+
                 res = http.get(url = weatherurlday, ttl_seconds = 60 * 60)
                 if res.status_code != 200:
                     ctx["showweather"] = False
@@ -596,17 +599,25 @@ def main(config):
                     result = res.json()
                     if "success" in result and result["success"] == False:
                         ctx["showweather"] = False
-                        print("Error getting weather " + str(result["error"]["code"]) + result["error"]["type"])
+                        if "error" in result and "code" in result["error"] and "type" in result["error"]:
+                            print("Error getting paid weather " + str(result["error"]["code"]) + result["error"]["type"])
+                        else:
+                            print("Error getting paid weather; failed getting error code")
                     else:
-                        ctx["dayweather"] = result["current"]["weather_descriptions"][0]
-                        hourly = result["forecast"][(thisnow).format("2006-01-02")]["hourly"]
-                        ctx["hourlycloudweather"] = []
-                        ctx["hourlyrainweather"] = []
-                        for i in range(24):
-                            ctx["hourlycloudweather"].append(hourly[i]["cloudcover"])
-                            ctx["hourlyrainweather"].append(hourly[i]["chanceofrain"])
+                        formatteddate = (thisnow).format("2006-01-02")
+                        if "current" in result and "weather_descriptions" in result["current"] and "forecast" in result and formatteddate in result["forecast"] and "hourly" in result["forecast"][formatteddate]:
+                            ctx["dayweather"] = result["current"]["weather_descriptions"][0]
+                            hourly = result["forecast"][formatteddate]["hourly"]
+                            ctx["hourlycloudweather"] = []
+                            ctx["hourlyrainweather"] = []
+                            for i in range(24):
+                                ctx["hourlycloudweather"].append(hourly[i]["cloudcover"])
+                                ctx["hourlyrainweather"].append(hourly[i]["chanceofrain"])
+                        else:
+                            ctx["showweather"] = False
+                            print("Error getting paid weather; unexpected json")
 
-                res = http.get(url = weatherurlweek, ttl_seconds = 60 * 60 * 24)
+                res = http.get(url = weatherurlweek, ttl_seconds = (60 * 60 * 24) - (ctx["hour"] * 60 * 60 + ctx["minute"] * 60 + ctx["second"]))
                 if res.status_code != 200:
                     ctx["showweather"] = False
                     print("Error getting weather " + str(res.status_code))
@@ -614,12 +625,22 @@ def main(config):
                     result = res.json()
                     if "success" in result and result["success"] == False:
                         ctx["showweather"] = False
-                        print("Error getting weather " + str(result["error"]["code"]) + result["error"]["type"])
-                    else:
+                        if "error" in result and "code" in result["error"] and "type" in result["error"]:
+                            print("Error getting paid week weather " + str(result["error"]["code"]) + result["error"]["type"])
+                        else:
+                            print("Error getting paid week weather; failed getting error code")
+                    elif "forecast" in result:
                         forecast = result["forecast"]
                         ctx["weekweather"] = []
                         for i in range(7):
-                            ctx["weekweather"].append(forecast[(thisnow + time.hour * 24 * i).format("2006-01-02")]["totalsnow"])
+                            dayformatted = (thisnow + time.hour * 24 * i).format("2006-01-02")
+                            if dayformatted in forecast:
+                                ctx["weekweather"].append(forecast[dayformatted]["totalsnow"])
+                            else:
+                                ctx["weekweather"].append(0)
+                    else:
+                        ctx["showweather"] = False
+                        print("Error getting paid week weather; unexpected json")
             else:
                 weatherurlbase = WEATHERURLFREE + config.get("weatherkey") + "&query=" + humanize.url_encode(locality)
 
@@ -631,9 +652,15 @@ def main(config):
                     result = res.json()
                     if "success" in result and result["success"] == False:
                         ctx["showweather"] = False
-                        print("Error getting weather " + str(result["error"]["code"]) + result["error"]["type"])
-                    else:
+                        if "error" in result and "code" in result["error"] and "type" in result["error"]:
+                            print("Error getting free weather " + str(result["error"]["code"]) + result["error"]["type"])
+                        else:
+                            print("Error getting free weather; failed getting error code")
+                    elif "current" in result and "weather_descriptions" in result["current"]:
                         ctx["dayweather"] = result["current"]["weather_descriptions"][0]
+                    else:
+                        ctx["showweather"] = False
+                        print("Error getting free weather; unexpected json")
 
         #/PRECACHING
 
@@ -742,6 +769,8 @@ def main(config):
             dayweather = ctx["dayweather"]
             if dayweather == "Clear":
                 stack.append(drawimg(weekdayxs[weekday] + 2, y0 + 2, WEATHERICON_CLEAR))
+            if dayweather == "Sunny":
+                stack.append(drawimg(weekdayxs[weekday] + 2, y0 + 2, WEATHERICON_CLEAR))
             elif dayweather == "Partly cloudy":
                 stack.append(drawimg(weekdayxs[weekday] + 2, y0 + 2, WEATHERICON_PARTLYCLOUDY))
             elif dayweather == "Overcast":
@@ -754,7 +783,7 @@ def main(config):
                 stack.append(drawimg(weekdayxs[weekday] + 2, y0 + 2, WEATHERICON_PRECIPITATION))
             else:
                 stack.append(drawtext(weekdayxs[weekday] + 3, y0, dayweather[0]))
-                print("Unknown weather summary:" + dayweather)
+                print("Unknown weather summary: " + dayweather)
         for i in range(8):
             if i == weekday or i == weekday + 1:
                 stack.append(drawrect(weekdayxs[i], y0, 1, 8, weekdayfgcolor))
