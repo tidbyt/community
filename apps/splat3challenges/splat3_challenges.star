@@ -66,6 +66,9 @@ NUMBERS = [
     base64.decode("iVBORw0KGgoAAAANSUhEUgAAAAUAAAAHCAYAAADAp4fuAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsIAAA7CARUoSoAAAAAvSURBVBhXY0AC/6E0AxOU/g8EYBpEgARhAnAAEmQEAggPCmDaUQBWQWQANZiBAQBe8wsE1HbjoQAAAABJRU5ErkJggg=="),
     base64.decode("iVBORw0KGgoAAAANSUhEUgAAAAUAAAAHCAYAAADAp4fuAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsIAAA7CARUoSoAAAAAySURBVBhXY4CC/1AMBoxA/B8IIBxGEBcsBgZglVBZuA68AmBBFDNBAGQuzFCEKAMDIwA/lR7tQ+j4sQAAAABJRU5ErkJggg=="),
     base64.decode("iVBORw0KGgoAAAANSUhEUgAAAAUAAAAHCAYAAADAp4fuAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsIAAA7CARUoSoAAAAAtSURBVBhXY4CC/1AMBoxA/B8IIBxGEBcsBgZglVBZuA4MARBAUUnYTAiTgQEAIMAf65byb+MAAAAASUVORK5CYII="),
+    base64.decode("iVBORw0KGgoAAAANSUhEUgAAAAUAAAAHCAYAAADAp4fuAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsEAAA7BAbiRa+0AAAAzSURBVBhXY2SAgP9QGgQYmYDEfyAA86D0f5AgBoALwlQjA5AIyBgwDVMJsxArAKpkYAAAX4oT+GOBnu4AAAAASUVORK5CYII="),
+    base64.decode("iVBORw0KGgoAAAANSUhEUgAAAAUAAAAHCAYAAADAp4fuAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsEAAA7BAbiRa+0AAAA3SURBVBhXVY0BCgAwCAJt//9zZSbbDioSs4DInSQoZqO1iZEkUnXhsJHXbcbliy9z8/z85gFAAewdG/LogX6nAAAAAElFTkSuQmCC"),
+    base64.decode("iVBORw0KGgoAAAANSUhEUgAAAAUAAAAHCAYAAADAp4fuAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsEAAA7BAbiRa+0AAAAzSURBVBhXY0AC/6E0AxOU/g8EYBrMAwKQAIiDoRIkA6ZABFyQkZERRQIEMIyAAagAAwMAsgca78bOm6wAAAAASUVORK5CYII="),
 ]
 
 # thanks s3.ink!
@@ -228,19 +231,19 @@ def main(config):
 
     body_stack = []
     if (BG_INFO & 2):
+        stage_a = closest_challenge["leagueMatchSetting"]["vsStages"][0]["name"]
+        stage_b = closest_challenge["leagueMatchSetting"]["vsStages"][1]["name"]
         body_stack.append(
             render.Row(
-                stage_a = closest_challenge["leagueMatchSetting"]["vsStages"][0]["name"]
-                stage_b = closest_challenge["leagueMatchSetting"]["vsStages"][1]["name"]
 
                 children = [
                     render.Padding(
                         pad = (0, 1, 1, 0),
-                        child = render.Image(STAGE_IMG[stage_a if stage_a in STAGE_IMG else "no_stage"]),
+                        child = render.Image(STAGE_IMG[stage_a if stage_a in STAGE_IMG else "no_stage"])
                     ),
                     render.Padding(
                         pad = (1, 1, 0, 0),
-                        child = render.Image(STAGE_IMG[stage_b if stage_b in STAGE_IMG else "no_stage"]),
+                        child = render.Image(STAGE_IMG[stage_b if stage_b in STAGE_IMG else "no_stage"])
                     ),
                 ],
             ),
