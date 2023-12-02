@@ -235,15 +235,14 @@ def main(config):
         stage_b = closest_challenge["leagueMatchSetting"]["vsStages"][1]["name"]
         body_stack.append(
             render.Row(
-
                 children = [
                     render.Padding(
                         pad = (0, 1, 1, 0),
-                        child = render.Image(STAGE_IMG[stage_a if stage_a in STAGE_IMG else "no_stage"])
+                        child = render.Image(STAGE_IMG[stage_a if stage_a in STAGE_IMG else "no_stage"]),
                     ),
                     render.Padding(
                         pad = (1, 1, 0, 0),
-                        child = render.Image(STAGE_IMG[stage_b if stage_b in STAGE_IMG else "no_stage"])
+                        child = render.Image(STAGE_IMG[stage_b if stage_b in STAGE_IMG else "no_stage"]),
                     ),
                 ],
             ),
