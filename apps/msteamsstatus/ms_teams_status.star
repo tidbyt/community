@@ -171,7 +171,7 @@ def main(config):
         # print("We have an access token! Proceed!")
 
     else:
-        statusMessage = "Please authenticate to your Microsoft 365 account"
+        statusMessage = "Making cool things during training"
         return render_teams_status(userDisplayName, availability, defaultActivity, statusMessage, False)
 
     M365APIHeaders = {
@@ -250,31 +250,28 @@ def render_teams_status(userDisplayName, availability, activity, statusMessage, 
                 ),
                 render.Column(
                     children = [
-                        render.Marquee(
-                            child = render.Text(
-                                content = userDisplayName,
-                            ),
+                        render.WrappedText(
+                            content = userDisplayName,
                             width = 59,
-                            offset_start = 59,
-                            offset_end = 59,
+                            linespacing = 1,
+                            font = "CG-pixel-4x5-mono",
                         ),
                         render.Row(
                             children = [
                                 render.Padding(
                                     child = render.Circle(
-                                        diameter = 6,
+                                        diameter = 3,
                                         color = dotColor,
                                     ),
-                                    pad = (0, 1, 1, 2),
+                                    pad = (0, 1, 1, 1),
                                     color = "#000",
                                 ),
-                                render.Marquee(
+                                render.WrappedText(
                                     width = 51,
-                                    child = render.Text(
-                                        content = statusLabel,
-                                        color = statusColor,
-                                    ),
-                                    offset_start = 0,
+                                    content = statusLabel,
+                                    color = statusColor,
+                                    linespacing = 1,
+                                    font = "CG-pixel-4x5-mono",
                                 ),
                             ],
                         ),
@@ -285,7 +282,7 @@ def render_teams_status(userDisplayName, availability, activity, statusMessage, 
                                 linespacing = 2,
                             ),
                             scroll_direction = "vertical",
-                            height = 15,
+                            height = 20,
                             align = "center",
                             offset_start = 0,
                         ),
