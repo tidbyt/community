@@ -171,7 +171,7 @@ def main(config):
         # print("We have an access token! Proceed!")
 
     else:
-        statusMessage = "Making cool things during training"
+        statusMessage = "Please authenticate to your Microsoft 365 account"
         return render_teams_status(userDisplayName, availability, defaultActivity, statusMessage, False)
 
     M365APIHeaders = {
