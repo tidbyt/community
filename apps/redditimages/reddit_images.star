@@ -9,10 +9,10 @@ load("cache.star", "cache")
 load("encoding/base64.star", "base64")
 load("encoding/json.star", "json")
 load("http.star", "http")
+load("random.star", "random")
 load("render.star", "render")
 load("schema.star", "schema")
 load("secret.star", "secret")
-load("time.star", "time")
 
 DEFAULT_SUBREDDITS = ["blackcats", "aww", "eyebleach", "itookapicture", "cats", "pic", "otters", "plants"]
 APPROVED_FILETYPES = [".png", ".jpg", ".jpeg", ".bmp"]
@@ -93,8 +93,7 @@ def main(config):
 
 # Gets a random number from 0 to the number specified (non-inclusive).
 def getRandomNumber(max):
-    seed = time.now().unix
-    return seed % max
+    return random.number(0, max - 1)
 
 # Combines the default subs (if applicable) with any custom subs inputted.
 def combineSubs(config):
@@ -217,7 +216,7 @@ def setRandomPost(allImagePosts, subname):
         print("Post picked is:")
         print(chosen["title"] + " | " + chosen["id"])
         return {
-            "url": chosen["url"],
+            "url": chosen["preview"]["images"][0]["resolutions"][0]["url"].replace("&amp;", "&"),
             "sub": chosen["subreddit_name_prefixed"],
             "id": chosen["id"],
             "title": chosen["title"],
