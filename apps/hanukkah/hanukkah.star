@@ -48,21 +48,21 @@ def main(config):
         row = render.Row(
             children = [
                 render.Image(src = MAIN_MENORAH_IMAGE),
-                render.Box(width=15),
+                render.Box(width = 15),
                 msg,
-                render.Box(width=15),
-                render.Image(src = MAIN_MENORAH_IMAGE)
+                render.Box(width = 15),
+                render.Image(src = MAIN_MENORAH_IMAGE),
             ],
-            main_align="center",
-            cross_align="center",
+            main_align = "center",
+            cross_align = "center",
         )
 
         main_child = render.Marquee(
-            width=64,
-            child=row,
+            width = 64,
+            child = row,
         )
 
-    # Check if it is before Hanukkah
+        # Check if it is before Hanukkah
     elif (current_time < hanukkah_first_day):
         # How many days before Hanukkah begins?
         countdown_days = int((hanukkah_first_day - current_time).hours / 24) + 1
@@ -74,22 +74,21 @@ def main(config):
         row = render.Row(
             children = [
                 render.Image(src = MAIN_MENORAH_IMAGE),
-                render.Box(width=15),
+                render.Box(width = 15),
                 msg,
-                render.Box(width=15),
-                render.Image(src = MAIN_MENORAH_IMAGE)
+                render.Box(width = 15),
+                render.Image(src = MAIN_MENORAH_IMAGE),
             ],
-            main_align="center",
-            cross_align="center",
-
+            main_align = "center",
+            cross_align = "center",
         )
 
         main_child = render.Marquee(
-            width=256,
-            child=row,
+            width = 256,
+            child = row,
         )
 
-    # It's Hanukkah!
+        # It's Hanukkah!
     else:
         # TODO: Figure out whether to show the candles being lit depending on time of day
 
