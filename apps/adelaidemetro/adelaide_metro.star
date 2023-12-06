@@ -1342,6 +1342,7 @@ def MoreOptions(TrainOrTramOrBus):
                 name = "Bus Stop ID",
                 desc = "Enter the Stop ID",
                 icon = "bus",
+                default = "",
             ),
         ]
     return None
