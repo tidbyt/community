@@ -25,7 +25,7 @@ def main(config):
     current_time = time.now().in_location(timezone)
 
     # Used for testing
-    # current_time = time.parse_time("2023-12-25T00:00:00Z")
+    # current_time = time.parse_time("2023-12-07T00:00:00Z")
     # TODO: Current time to midnight or 11:59:59?
 
     # First Day of Hanukkah
@@ -94,7 +94,7 @@ def main(config):
         candles = []
 
         # Magical Offsets for the candle images
-        offset_widths = [0, 80, 96, 112, 136, 152, 168, 184]
+        offset_widths = [184, 168, 152, 136, 112, 96, 80, 0]
 
         # Lay out the candles
         for i in range(0, num_candles):
