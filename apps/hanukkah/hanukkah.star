@@ -10,8 +10,6 @@ load("render.star", "render")
 load("schema.star", "schema")
 load("time.star", "time")
 
-DEFAULT_WHO = "world"
-
 CANDLE_IMAGE = base64.decode("""
 iVBORw0KGgoAAAANSUhEUgAAAEAAAAAgCAYAAACinX6EAAAACXBIWXMAAC4jAAAuIwF4pT92AAAAwElEQVRoBe3TMQrCMBTG8ZemsYNO4pzJAwgOnT2LN3B09kJ6gC4uxdHBQR2kLoJghSrBoYlPCR7C9wXCl/X/gxDhQAACEJAu0JSd8rExS4kO6Wo67Gtzyn2rnEQACgdavLba+z35UI0Ka+1YEkSyKwazZ21Uc82U0/OJcy6TBPBtvdXnNd+7uHAOTmJ04O1KBuhxfCsdQGL/7wuIjP9Ep7H8yHuJbwwEIAABCEAAAhCAAAQgAAEIQAACEIDAPwu8AYNcK2rAdvQuAAAAAElFTkSuQmCC
 """)
@@ -38,7 +36,6 @@ def main(config):
     # Is it currently Hanukkah?
     # Check if it is after Hanukkah
     if (current_time > hanukkah_last_day):
-        # TODO: Make work with Marquee to show a menorah as well as a message
         msg = render.Text(
             content = "Hanukkah is over for 2023. See you on December 24, 2024!",
             color = "#0000ff",
