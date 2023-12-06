@@ -27,7 +27,7 @@ def main(config):
     current_time = time.now().in_location(timezone)
 
     # Used for testing
-    # current_time = time.parse_time("2023-12-12T00:00:00Z")
+    current_time = time.parse_time("2023-12-25T00:00:00Z")
     # TODO: Current time to midnight or 11:59:59?
 
     # First Day of Hanukkah
@@ -39,30 +39,57 @@ def main(config):
     # Check if it is after Hanukkah
     if (current_time > hanukkah_last_day):
         # TODO: Make work with Marquee to show a menorah as well as a message
-        msg = render.WrappedText(
-            content = "Hanukkah is over for 2023.\nSee you on December 25, 2024!",
+        msg = render.Text(
+            content = "Hanukkah is over for 2023. See you on December 24, 2024!",
             color = "#0000ff",
-            font = "CG-pixel-4x5-mono",
+            font = "tb-8",
         )
 
-        # TODO: Animation with menorah
-        main_child = msg
-        # Check if it is before Hanukkah
-        # Check if it is before Hanukkah
+        row = render.Row(
+            children = [
+                render.Image(src = MAIN_MENORAH_IMAGE),
+                render.Box(width=15),
+                msg,
+                render.Box(width=15),
+                render.Image(src = MAIN_MENORAH_IMAGE)
+            ],
+            main_align="center",
+            cross_align="center",
+        )
 
+        main_child = render.Marquee(
+            width=64,
+            child=row,
+        )
+
+    # Check if it is before Hanukkah
     elif (current_time < hanukkah_first_day):
-        # TODO: Make work with Marquee to show a menorah as well as a message
         # How many days before Hanukkah begins?
         countdown_days = int((hanukkah_first_day - current_time).hours / 24) + 1
         if (countdown_days == 1):
-            msg = render.WrappedText("Hanukkah 2023 starts tomorrow!", font = "tb-8", color = "#0000ff")
+            msg = render.Text("Hanukkah 2023 starts tomorrow!", font = "tb-8", color = "#0000ff")
         else:
             msg = render.WrappedText("Hanukkah 2023 starts in %d days!" % countdown_days, font = "tb-8", color = "#0000ff")
 
-        # TODO: Animation with menorah?
-        main_child = msg
-        # It's Hanukkah!
+        row = render.Row(
+            children = [
+                render.Image(src = MAIN_MENORAH_IMAGE),
+                render.Box(width=15),
+                msg,
+                render.Box(width=15),
+                render.Image(src = MAIN_MENORAH_IMAGE)
+            ],
+            main_align="center",
+            cross_align="center",
 
+        )
+
+        main_child = render.Marquee(
+            width=256,
+            child=row,
+        )
+
+    # It's Hanukkah!
     else:
         # TODO: Figure out whether to show the candles being lit depending on time of day
 
