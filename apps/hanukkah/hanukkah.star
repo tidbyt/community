@@ -27,7 +27,7 @@ def main(config):
     current_time = time.now().in_location(timezone)
 
     # Used for testing
-    current_time = time.parse_time("2023-12-25T00:00:00Z")
+    # current_time = time.parse_time("2023-12-25T00:00:00Z")
     # TODO: Current time to midnight or 11:59:59?
 
     # First Day of Hanukkah
