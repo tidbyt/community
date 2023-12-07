@@ -14,7 +14,7 @@ def main():
     unix = now.unix
 
     time_frames = []
-    for x in range(120):
+    for x in range(20):
         time_frame = render.Text(
             content = str(unix + x),
             font = "6x13",
