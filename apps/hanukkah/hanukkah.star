@@ -26,13 +26,9 @@ def main(config):
     # Used for testing
     # current_time = time.time(year = 2023, month = 12, day = 6, hour = 23, minute =0, second = 0, location = timezone)
 
-    # current_time = time.parse_time("2023-12-07T00:00:00Z")
-    # TODO: Current time to midnight or 11:59:59?
-
     # First Day of Hanukkah
     # TODO: Look up for future years - hardcoded for 2023
     hanukkah_first_day = time.time(year = 2023, month = 12, day = 7, hour = 0, minute =0, second = 0, location = timezone)
-
     hanukkah_last_day = hanukkah_first_day + time.parse_duration("192h")
 
     # Is it currently Hanukkah?

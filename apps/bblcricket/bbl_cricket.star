@@ -6,6 +6,10 @@ Author: M0ntyP
 
 v2 
 Updated for the 23/24 season with changes from other T20 apps
+
+v2.1
+Added handling for "Drinks" break 
+Using team name instead of abbrevation for Team Score line
 """
 
 load("encoding/json.star", "json")
@@ -35,7 +39,7 @@ def main(config):
     SelectedTeamID = config.get("TeamList", DEFAULT_TEAM)
     SelectedTeamID = int(SelectedTeamID)
 
-    # Cache the Cricinfo list of all CPL matches for 2 hours, could possibly be even longer
+    # Cache the Cricinfo list of all BBL matches for 2 hours, could possibly be even longer
     # We'll pull the specific match data from this call so its not important to keep it up to date
     AllMatchData = get_cachable_data(LiveGames_URL, ALL_MATCH_CACHE)
     LiveGames_JSON = json.decode(AllMatchData)
@@ -251,6 +255,11 @@ def main(config):
                 T20_Status4 = MatchStatus
             elif MatchStatus == "Strategic Timeout":
                 MatchStatus = "Timeout"
+                T20_Status1 = MatchStatus
+                T20_Status2 = "Overs: " + Overs
+                T20_Status3 = "Run Rate: " + CRR
+                T20_Status4 = "Proj Score: " + ProjScore
+            elif MatchStatus == "Drinks":
                 T20_Status1 = MatchStatus
                 T20_Status2 = "Overs: " + Overs
                 T20_Status3 = "Run Rate: " + CRR
@@ -609,6 +618,9 @@ def TeamScore(BattingTeam, BattingTeamColor, Wickets, Runs):
     else:
         Wickets = ""
 
+    # extending team name
+    BattingTeam = getTeamScoreName(BattingTeam)
+
     return render.Row(
         expanded = True,
         main_align = "space_between",
@@ -722,24 +734,24 @@ def getTeamColor(teamID):
         return ("#9FFC39")
     return None
 
-# def getTeamDisplayName(teamID):
-# if teamID == 4843:  #Strikers
-#     return ("Strikers")
-# elif teamID == 4844:  #Heat
-#     return ("Heat")
-# elif teamID == 4845:  #Hurricanes
-#     return ("Hurricanes")
-# elif teamID == 4846:  #Scorchers
-#     return ("Scorchers")
-# elif teamID == 4847:  #Renegades
-#     return ("Renegades")
-# elif teamID == 4848:  #Stars
-#     return ("Stars")
-# elif teamID == 4849:  #Sixers
-#     return ("Sixers")
-# elif teamID == 4850:  #Thunder
-#     return ("Thunder")
-# return None
+def getTeamScoreName(BattingTeamAbbr):
+    if BattingTeamAbbr == "BH":
+        return ("Heat")
+    elif BattingTeamAbbr == "AS":
+        return ("Strikers")
+    elif BattingTeamAbbr == "HH":
+        return ("H'Canes")
+    elif BattingTeamAbbr == "PS":
+        return ("Scorchers")
+    elif BattingTeamAbbr == "MR":
+        return ("R'Gades")
+    elif BattingTeamAbbr == "MS":
+        return ("Stars")
+    elif BattingTeamAbbr == "SS":
+        return ("Sixers")
+    elif BattingTeamAbbr == "ST":
+        return ("Thunder")
+    return None
 
 def get_schema():
     return schema.Schema(
