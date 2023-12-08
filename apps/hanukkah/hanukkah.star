@@ -28,7 +28,7 @@ def main(config):
 
     # First Day of Hanukkah
     # TODO: Look up for future years - hardcoded for 2023
-    hanukkah_first_day = time.time(year = 2023, month = 12, day = 7, hour = 0, minute =0, second = 0, location = timezone)
+    hanukkah_first_day = time.time(year = 2023, month = 12, day = 7, hour = 0, minute = 0, second = 0, location = timezone)
     hanukkah_last_day = hanukkah_first_day + time.parse_duration("192h")
 
     # Is it currently Hanukkah?
