@@ -32,6 +32,10 @@ Extended display time to 3 seconds
 
 v2.3
 Added default Bus Stop ID to prevent app freezing
+
+v2.3.1
+Removed lagging print comment
+Added default train station in Schema, removed in error from last update :(
 """
 
 load("encoding/json.star", "json")
@@ -55,7 +59,7 @@ def main(config):
     Display1 = []
 
     if TrainOrTramOrBus == "Tram":
-        SelectedStation = config.get("TramStationList", "17755")
+        SelectedStation = config.get("TramStationList", "18513")
 
     if TrainOrTramOrBus == "Bus":
         SelectedStation = config.get("BusStop", "13339")
@@ -67,7 +71,7 @@ def main(config):
         SelectedStation = AwayStops(SelectedStation)
 
     STOP_ID = str(SelectedStation)
-    print(STOP_ID)
+    #print(STOP_ID)
 
     NEXTSCHED_URL = NEXTSCHED1_URL + STOP_ID
     #print(NEXTSCHED_URL)
@@ -1316,6 +1320,7 @@ def MoreOptions(TrainOrTramOrBus):
                 name = "Train Station",
                 desc = "Choose your station",
                 icon = "train",
+                default = StationOptions[0].value,
                 options = StationOptions,
             ),
             schema.Toggle(
@@ -1334,7 +1339,7 @@ def MoreOptions(TrainOrTramOrBus):
                 name = "Tram Stop",
                 desc = "Choose your station",
                 icon = "trainTram",
-                default = TramStationOptions[0].value,
+                default = TramStationOptions[1].value,
                 options = TramStationOptions,
             ),
         ]
