@@ -444,7 +444,8 @@ def get_schema():
                 client_id = (MSFT_CLIENT_ID or CLIENT_ID_DEFAULT),
                 authorization_endpoint = MSFT_EVENTFETCH_AUTH_ENDPOINT,
                 scopes = [
-                    "offline_access%20Calendars.read",
+                    "offline_access",
+                    "Calendars.read",
                 ],
             ),
         ],
