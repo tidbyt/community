@@ -19,18 +19,16 @@ iVBORw0KGgoAAAANSUhEUgAAAEAAAAAgCAYAAACinX6EAAAACXBIWXMAAC4jAAAuIwF4pT92AAACTUlE
 """)
 
 def main(config):
-    timezone = config.get("timezone") or "America/New_York"
+    timezone = config.get("timezone") or "US/Eastern"
     if (not time.is_valid_timezone(timezone)):
-        timezone = "America/New_York"
+        timezone = "US/Eastern"
     current_time = time.now().in_location(timezone)
-
     # Used for testing
-    # current_time = time.parse_time("2023-12-07T00:00:00Z")
-    # TODO: Current time to midnight or 11:59:59?
+    # current_time = time.time(year = 2023, month = 12, day = 6, hour = 23, minute =0, second = 0, location = timezone)
 
     # First Day of Hanukkah
     # TODO: Look up for future years - hardcoded for 2023
-    hanukkah_first_day = time.parse_time("2023-12-07T00:00:00Z")
+    hanukkah_first_day = time.time(year = 2023, month = 12, day = 7, hour = 0, minute = 0, second = 0, location = timezone)
     hanukkah_last_day = hanukkah_first_day + time.parse_duration("192h")
 
     # Is it currently Hanukkah?
