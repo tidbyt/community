@@ -9,8 +9,8 @@ load("encoding/base64.star", "base64")
 load("encoding/json.star", "json")
 load("render.star", "render")
 load("schema.star", "schema")
-load("time.star", "time")
 load("sunrise.star", "sunrise")
+load("time.star", "time")
 
 # Defaults
 DEFAULT_LOCATION = {
@@ -116,7 +116,7 @@ def main(config):
 
         lat = float(loc.get("lat"))
         lng = float(loc.get("lng"))
-        sunsetTime = sunrise.sunset(lat, lng, current_time).in_location(loc.get("timezone"))
+        sunsetTime = sunrise.sunset(lat, lng, now).in_location(loc.get("timezone"))
 
         candles = []
         if sunsetTime == None:
