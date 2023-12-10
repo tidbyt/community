@@ -17,7 +17,7 @@ DEFAULT_LOCATION = {
     "lat": 40.758896,
     "lng": -73.985130,
     "locality": "New York, New York USA",
-    "timezone": "US/Eastern"
+    "timezone": "US/Eastern",
 }
 
 DEFAULT_FONT = "CG-pixel-4x5-mono"
@@ -48,7 +48,7 @@ def main(config):
         timezone = "US/Eastern"
     current_time = time.now().in_location(timezone)
     # Used for testing
-    # current_time = time.time(year = 2023, month = 12, day = 6, hour = 23, minute =0, second = 0, location = timezone)
+    current_time = time.time(year = 2023, month = 12, day = 15, hour = 23, minute =0, second = 0, location = timezone)
 
     # First Day of Hanukkah
     # TODO: Look up for future years - hardcoded for 2023
@@ -117,7 +117,7 @@ def main(config):
         lat = float(loc.get("lat"))
         lng = float(loc.get("lng"))
         sunsetTime = sunrise.sunset(lat, lng, current_time).in_location(loc.get("timezone"))
-        
+
         candles = []
         if sunsetTime == None:
             sunsetText = ""
@@ -127,6 +127,7 @@ def main(config):
 
         # Figure out how many candles to show
         num_candles = int((current_time - hanukkah_first_day).hours / 24) + 1
+
         # Magical Offsets for the candle images
         offset_widths = [184, 168, 152, 136, 112, 96, 80, 0]
 
@@ -142,13 +143,12 @@ def main(config):
         main_child = render.Stack(children = candles)
 
         if (sunsetTime != ""):
-            sunset_row = render.Marquee(width=64,child=render.Text(font = DEFAULT_FONT,color = "#0000ff",content="Sunset tonight: " + sunsetText))
-            main_child = render.Column(main_align="start",cross_align="start",children = [sunset_row,main_child])
-
+            sunset_row = render.Marquee(width = 64, child = render.Text(font = DEFAULT_FONT, color = "#0000ff", content = "Sunset tonight: " + sunsetText))
+            main_child = render.Column(main_align = "start", cross_align = "start", children = [sunset_row, main_child])
 
     return render.Root(
         show_full_animation = True,
-        delay = int(config.get("scroll", 64)), 
+        delay = int(config.get("scroll", 64)),
         child = main_child,
     )
 
