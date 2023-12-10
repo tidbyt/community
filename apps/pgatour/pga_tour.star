@@ -42,6 +42,9 @@ Fixed bug regarding opposite field events
 
 v2.4
 Changed tee times feature to only display them when the leader's time is less than 12hrs away, and then show everyone's tee time. Previously it was showing a mix of round scores and tee times, which didnt look right
+
+v2.5
+Updated Tournament IDs for 2024 Season
 """
 
 load("encoding/json.star", "json")
@@ -55,7 +58,7 @@ API2 = "https://site.api.espn.com/apis/site/v2/sports/golf/pga/scoreboard"
 
 CACHE_TTL_SECS = 60
 DEFAULT_TIMEZONE = "Australia/Adelaide"
-THE_EXCEPTIONS = ["401465539", "401546052"]
+THE_EXCEPTIONS = ["401580329", "401580360"]  # The Sentry and The Open
 
 def main(config):
     renderCategory = []
@@ -79,18 +82,15 @@ def main(config):
     FirstTournamentID = leaderboard["sports"][0]["leagues"][0]["events"][0]["id"]
     i = OppositeFieldCheck(FirstTournamentID)
 
-    # print(i)
     # if user wants to see opposite event
     if i == 1 and OppField == True:
         i = 0
 
-    # print(FirstTournamentID)
     # Get Tournament Name and ID
     TournamentName = leaderboard["sports"][0]["leagues"][0]["events"][i]["name"]
     PreTournamentName = TournamentName
     TournamentID = leaderboard["sports"][0]["leagues"][0]["events"][i]["id"]
 
-    # print(TournamentName)
     # Check if its a major and show a different color in the title bar
     TitleColor = getMajorColor(TournamentID)
 
@@ -459,39 +459,73 @@ def getPlayerFontColor(HolesCompleted, ColorGradient):
 
 def getTournamentName(ID):
     # Provide friendly shortened name
-    # For the rest of the year, will update for next year
+
     TournamentName = ""
 
-    if ID == "401465538":
+    if ID == "401580331":
+        TournamentName = "The Am Ex"
+    elif ID == "401580332":
+        TournamentName = "Farmers"
+    elif ID == "401580333":
+        TournamentName = "AT&T Pro-A"
+    elif ID == "401580335":
+        TournamentName = "Genesis In"
+    elif ID == "401580338":
+        TournamentName = "AP Inv"
+    elif ID == "401580340":
+        TournamentName = "Players Ch"
+    elif ID == "401580347":
+        TournamentName = "Zurich"
+    elif ID == "401580346":
+        TournamentName = "Puntacana"
+    elif ID == "401580348":
+        TournamentName = "CJ Cup"
+    elif ID == "401580341":
+        TournamentName = "Valspar"
+    elif ID == "401580342":
+        TournamentName = "Houston Op"
+    elif ID == "401580343":
+        TournamentName = "Texas Op"
+    elif ID == "401580344":
+        TournamentName = "Masters"
+    elif ID == "401580345":
+        TournamentName = "Heritage"
+    elif ID == "401580353":
+        TournamentName = "Canadian"
+    elif ID == "401580354":
+        TournamentName = "Memorial"
+    elif ID == "401580351":
+        TournamentName = "PGA Champ"
+    elif ID == "401465538":
         TournamentName = "Barbasol"
-    elif ID == "401465537":
+    elif ID == "401580359":
         TournamentName = "Scottish"
-    elif ID == "401465542":
+    elif ID == "401580363":
         TournamentName = "Wyndham"
-    elif ID == "401465543":
+    elif ID == "401580364":
         TournamentName = "FedEx St.J"
-    elif ID == "401465544":
+    elif ID == "401580365":
         TournamentName = "BMW Champ"
-    elif ID == "401552854":
-        TournamentName = "Fortinet"
-    elif ID == "401552856":
-        TournamentName = "Shriners"
+    elif ID == "401558309":
+        TournamentName = "Q-School"
     else:
         TournamentName = "None"
 
     return TournamentName
 
 def getMajorColor(ID):
-    # check if its a major and if so show different title bar color
+    # check if its a major or The Players and if so show different title bar color
     # and if not, show the default PGA color
     TitleColor = "#0039A6"
-    if ID == "401465508":  # Masters
+    if ID == "401580340":  # The Players
+        TitleColor = "#003360"
+    if ID == "401580344":  # Masters
         TitleColor = "#006747"
-    elif ID == "401465523":  # US PGA
+    elif ID == "401580351":  # US PGA
         TitleColor = "#00205b"
-    elif ID == "401465533":  # US Open
+    elif ID == "401580355":  # US Open
         TitleColor = "#003865"
-    elif ID == "401465539":  # The Open
+    elif ID == "401580360":  # The Open
         TitleColor = "#1a1c3c"
     else:
         TitleColor = "#0039A6"
@@ -501,13 +535,13 @@ def OppositeFieldCheck(ID):
     # check if the first tournament listed in the ESPN API is an opposite field event, one of the four below
     # and if it is, go to the second event in the API
     i = 0
-    if ID == "401465525":  # Puerto Rico Open
+    if ID == "401580350":  # Myrtle Beach
         i = 1
-    elif ID == "401465529":  # Puntacana
+    elif ID == "401580346":  # Puntacana
         i = 1
-    elif ID == "401465538":  # Barbasol
+    elif ID == "401580361":  # Barracuda
         i = 1
-    elif ID == "401465540":  # Barracuda
+    elif ID == "401580339":  # Puerto Rico
         i = 1
     else:
         i = 0
@@ -560,7 +594,7 @@ def get_schema():
                 name = "Show in progress round as ...",
                 desc = "How to show in progress rounds",
                 icon = "gear",
-                default = ColorGradientOptions[0].value,
+                default = ColorGradientOptions[1].value,
                 options = ColorGradientOptions,
             ),
             schema.Toggle(
