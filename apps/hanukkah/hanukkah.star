@@ -48,7 +48,7 @@ def main(config):
         timezone = "US/Eastern"
     current_time = time.now().in_location(timezone)
     # Used for testing
-    current_time = time.time(year = 2023, month = 12, day = 15, hour = 23, minute =0, second = 0, location = timezone)
+    # current_time = time.time(year = 2023, month = 12, day = 15, hour = 23, minute =0, second = 0, location = timezone)
 
     # First Day of Hanukkah
     # TODO: Look up for future years - hardcoded for 2023
