@@ -617,7 +617,8 @@ def main(config):
                             ctx["showweather"] = False
                             print("Error getting paid weather; unexpected json")
 
-                res = http.get(url = weatherurlweek, ttl_seconds = (60 * 60 * 24) - (ctx["hour"] * 60 * 60 + ctx["minute"] * 60 + ctx["second"]))
+                til_midnight_ttl = (int)((60 * 60 * 24) - (ctx["hour"] * 60 * 60 + ctx["minute"] * 60 + ctx["second"]))
+                res = http.get(url = weatherurlweek, ttl_seconds = til_midnight_ttl)
                 if res.status_code != 200:
                     ctx["showweather"] = False
                     print("Error getting weather " + str(res.status_code))
@@ -769,13 +770,17 @@ def main(config):
             dayweather = ctx["dayweather"]
             if dayweather == "Clear":
                 stack.append(drawimg(weekdayxs[weekday] + 2, y0 + 2, WEATHERICON_CLEAR))
-            if dayweather == "Sunny":
+            elif dayweather == "Sunny":
                 stack.append(drawimg(weekdayxs[weekday] + 2, y0 + 2, WEATHERICON_CLEAR))
             elif dayweather == "Partly cloudy":
                 stack.append(drawimg(weekdayxs[weekday] + 2, y0 + 2, WEATHERICON_PARTLYCLOUDY))
             elif dayweather == "Overcast":
                 stack.append(drawimg(weekdayxs[weekday] + 2, y0 + 2, WEATHERICON_CLOUDY))
             elif dayweather == "Cloudy":
+                stack.append(drawimg(weekdayxs[weekday] + 2, y0 + 2, WEATHERICON_CLOUDY))
+            elif dayweather == "Fog":
+                stack.append(drawimg(weekdayxs[weekday] + 2, y0 + 2, WEATHERICON_CLOUDY))
+            elif dayweather == "Mist":
                 stack.append(drawimg(weekdayxs[weekday] + 2, y0 + 2, WEATHERICON_CLOUDY))
             elif dayweather == "Light Rain":
                 stack.append(drawimg(weekdayxs[weekday] + 2, y0 + 2, WEATHERICON_PRECIPITATION))
@@ -893,6 +898,7 @@ def main(config):
 
     return render.Root(
         #show_full_animation = True,
+        max_age = 120,
         delay = delay,
         child = stack,
     )
