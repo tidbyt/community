@@ -92,7 +92,7 @@ def main(config):
 
     MatchID = str(MatchID)
     Match_URL = "https://hs-consumer-api.espncricinfo.com/v1/pages/match/details?lang=en&seriesId=" + SeriesID + "&matchId=" + MatchID + "&latest=true"
-    print(Match_URL)
+    # print(Match_URL)
 
     # cache specific match data for 1 minute
     MatchData = get_cachable_data(Match_URL, MATCH_CACHE)
@@ -102,7 +102,6 @@ def main(config):
     if Match_JSON["match"]["state"] == "LIVE":
         # What innings is it ?
         Innings = len(Match_JSON["scorecard"]["innings"]) - 1
-        print(str(Innings))
 
         # What's the score
         Wickets = Match_JSON["scorecard"]["innings"][Innings]["wickets"]
