@@ -13,6 +13,9 @@ Using team name instead of abbrevation for Team Score line
 
 v2.1.1
 Added handling for other delays in play
+
+v2.1.2
+Fixed 2nd innings display
 """
 
 load("encoding/json.star", "json")
@@ -286,7 +289,7 @@ def main(config):
                 T20_Status2 = "Overs: " + Overs
                 T20_Status3 = "Run Rate: " + CRR
                 T20_Status4 = "Req Rate: " + RRR
-            else:  # For any other situation - drinks or other delays
+            elif MatchStatus != "Live":  # For any other situation - drinks or other delays
                 T20_Status1 = MatchStatus
                 T20_Status2 = "Overs: " + Overs
                 T20_Status3 = "Run Rate: " + CRR
