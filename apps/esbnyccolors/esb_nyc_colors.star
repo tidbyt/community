@@ -37,6 +37,7 @@ def main():
         "orange": "#fa0",
         "brown": "#a22",
         "gold": "#fd0",
+        "teal": "#088",
     }
 
     return render.Root(
@@ -46,13 +47,11 @@ def main():
             cross_align = "center",
             children = [
                 render.Marquee(
-                    width = 64,
+                    width = 128,
                     child = render.Text(
-                        content = "%s" % description,
+                        content = description,
                         font = "Dina_r400-6",
                     ),
-                    offset_start = 5,
-                    offset_end = 32,
                 ),
                 render.Box(
                     color = colorMap[color1],

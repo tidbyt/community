@@ -6,7 +6,7 @@ Author: rs7q5
 """
 #sports_scores.star
 #Created 20220220 RIS
-#Last Modified 20231111 RIS
+#Last Modified 20231125 RIS
 
 load("http.star", "http")
 load("humanize.star", "humanize")
@@ -588,6 +588,9 @@ def get_nhlgames(today_str):
         #data2 = data[0]["games"]
         data2 = data["games"]
 
+    if data2 == []:
+        return no_games_text
+
     #iterate through games
     stats = []
     for _, game in enumerate(data2):
@@ -620,7 +623,7 @@ def get_nhlgames(today_str):
             status_txt = "PostP"
             #elif linescore != []:  #this should cover live and final states
 
-        elif status in ["OFF", "LIVE"]:
+        elif status in ["OFF", "LIVE", "FINAL", "CRIT"]:
             #period = linescore["currentPeriodOrdinal"]
             #period_T = linescore["currentPeriodTimeRemaining"]
             period = humanize.ordinal(int(game["period"]))

@@ -1,0 +1,8 @@
+---
+id: meraki-usage
+name: Meraki Usage
+summary: Monitor Client Usage
+desc: Monitor client usages for your Meraki network.
+author: UnBurn
+fileName: meraki_usage.star
+packageName: merakiusage
