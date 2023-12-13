@@ -2,7 +2,7 @@
 Applet: Gvbyt
 Summary: Live tram departures
 Description: Displays live tram departures for GVB stops in Amsterdam.
-Author: Matt Jones
+Author: Matt Jones (mattjones0111)
 """
 
 load("cache.star", "cache")
