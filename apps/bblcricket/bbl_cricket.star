@@ -10,6 +10,12 @@ Updated for the 23/24 season with changes from other T20 apps
 v2.1
 Added handling for "Drinks" break 
 Using team name instead of abbrevation for Team Score line
+
+v2.1.1
+Added handling for other delays in play
+
+v2.1.2
+Fixed 2nd innings display
 """
 
 load("encoding/json.star", "json")
@@ -89,7 +95,7 @@ def main(config):
 
     MatchID = str(MatchID)
     Match_URL = "https://hs-consumer-api.espncricinfo.com/v1/pages/match/details?lang=en&seriesId=" + SeriesID + "&matchId=" + MatchID + "&latest=true"
-    #print(Match_URL)
+    # print(Match_URL)
 
     # cache specific match data for 1 minute
     MatchData = get_cachable_data(Match_URL, MATCH_CACHE)
@@ -259,19 +265,15 @@ def main(config):
                 T20_Status2 = "Overs: " + Overs
                 T20_Status3 = "Run Rate: " + CRR
                 T20_Status4 = "Proj Score: " + ProjScore
-            elif MatchStatus == "Drinks":
+            else:  # For any other siutation - drinks or other delays
                 T20_Status1 = MatchStatus
                 T20_Status2 = "Overs: " + Overs
                 T20_Status3 = "Run Rate: " + CRR
                 T20_Status4 = "Proj Score: " + ProjScore
-            else:
-                T20_Status1 = MatchStatus
 
             # 2nd Innings underway
         else:
             T20_Status1 = "REQ " + Trail + " off " + BallsRem
-
-            #T20_Status1 = Trail + " off " + BallsRem
             T20_Status2 = Last12Balls
             T20_Status3 = "Run Rate: " + CRR
             T20_Status4 = "Req Rate: " + RRR
@@ -281,8 +283,13 @@ def main(config):
                 T20_Status2 = "Overs: " + Overs
                 T20_Status3 = "Run Rate: " + CRR
                 T20_Status4 = "Req Rate: " + RRR
-            if MatchStatus == "Strategic Timeout":
+            elif MatchStatus == "Strategic Timeout":
                 MatchStatus = "Timeout"
+                T20_Status1 = MatchStatus
+                T20_Status2 = "Overs: " + Overs
+                T20_Status3 = "Run Rate: " + CRR
+                T20_Status4 = "Req Rate: " + RRR
+            elif MatchStatus != "Live":  # For any other situation - drinks or other delays
                 T20_Status1 = MatchStatus
                 T20_Status2 = "Overs: " + Overs
                 T20_Status3 = "Run Rate: " + CRR
