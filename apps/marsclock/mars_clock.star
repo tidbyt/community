@@ -31,7 +31,7 @@ def hours_to_hms(decimal_hrs, fmt24):
             mins_str = "0" + mins_str
         return "{0}:{1}".format(hrs_str, mins_str)
     else:
-        suffix = "am" if hrs < 12 else "pm"
+        suffix = "a" if hrs < 12 else "p"
         hrs = hrs % 12
         if hrs == 0:
             hrs_str = 12
@@ -39,7 +39,7 @@ def hours_to_hms(decimal_hrs, fmt24):
             hrs_str = hrs
         if mins < 10:
             mins_str = "0" + mins_str
-        return "{0}:{1} {2}".format(hrs_str, mins_str, suffix)
+        return "{0}:{1}{2}".format(hrs_str, mins_str, suffix)
 
 def mars_dt_strs(lon, fmt24):
     # Takes a POI longitude
