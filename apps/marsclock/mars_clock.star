@@ -14,6 +14,9 @@ load("time.star", "time")
 DEFAULT_SHOWSOL = False
 DEFAULT_SHOWLOC = True
 
+FONT1 = "tb-8"
+FONT2 = "tom-thumb"
+
 # Image blob
 MARS_ICON = base64.decode("""iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAMAAAAoLQ9TAAAAIGNIUk0AAHomAACAhAAA+gAAAIDoAAB1MAAA6mAAADqYAAAXcJy6UTwAAAKXUExURQAAAAICAg8SEh8lIjA4OD5MVDdHUh8rNAYLDQAAAQ0SFio2OE5cYWx2eoyRlpKXnIeLjHR/e0xXTBkgGQECAhYaHkBTZVtzhHaJl4qVmpqOgKqIZ6qFXKqEWJ59VGxjSCouJQICAw4RD0NHRF1iXWprYH11ZJh9X6+AVMSHUsGGUs2NVdCRVrGDUoRuTScoHwQEBDE0Ll1dUG1nVHpsVKd6VMmBTdaJTuWWVOyeWe6jXOmiW9aUVreFVWtfRgwODBYZGFpZUnZsXX5vWpN5XcWFV9qLUuqYVfqpW/ysXfqsXvapX+ihXLKFV2toTy0yKDAwLnhpXZt8YrSHYsGJX8+MWOCTVe+eVvytXf2xX/2wYPuuX/WsYMKRWmFlTkdPQUNBQIZtW6R9X7mGXauAWseLW9qTWuaXVvSlW/yyYfqxYdKaX3ZzVlxlU0NDRHloWI92XZZ4Wp18WsCKXbCDWLGAU9+cWvmwYPmwYfy0YvOqYMCSXXpzV2ZuXTI4O2FeVHdrWHhpVYVwVqSAW35sUHlmSqB5ULWGVrWIV9acXeGiX62KXYh/YF5mWx0lKVdeXG1nWHRrVnxtVZN4WJt5U6F8VKqBVq+EVqiBVaeEWruQXqeKYJWJZTk8MggLDERRVGNpYHNvW4BzWot2WaB8VrSHWcCOW8WTXbiOXJ6BWZV+Wp2LZHVwVA4PDCAqMVtrbmxsXXhwW4JyWI51VpR3VJR3U5t7VpB3VIh2VpqHYpOKaS8yKQIDBTA/THJ/goJ+cYh2W4tzVIZuT4RtTolwUIVxVI+AX5WKZ0FCNQIDAys1QnSEnJWhsZWVlJCKfJGIdYyFcIeAaXFqUy8vJhEVGz9JV2lyfn+GjYOJkG91ekFEQg8QDv///+fl0v0AAAABYktHRNwHYIO3AAAAB3RJTUUH4QUDEjQelR77kwAAAEZ0RVh0UmF3IHByb2ZpbGUgdHlwZSBhcHAxMgAKYXBwMTIKICAgICAgMTUKNDQ3NTYzNmI3OTAwMDEwMDA0MDAwMDAwNjQwMDAwCo97YnMAAABSdEVYdFJhdyBwcm9maWxlIHR5cGUgZXhpZgAKZXhpZgogICAgICAyMgo0NTc4Njk2NjAwMDA0OTQ5MmEwMDA4MDAwMDAwMDAwMDAwMDAwMDAwMDAwMAr5oEG6AAABDklEQVQY02NgAAJGJmYWVjZ2DgYI4OTi5uHl4xcQFBIWAQuIiolLSEpJy8jKySsoAvlKyiqqauoamlraOrp6+gwMBoZGxiamZuYWllbWNrZ29gwOjk7OLq5u7h6eXt4+vn7+DAGBQcEhoWHhEZFR0TGxcfEMCYlJySmpaekZkVGZWdk5uQx5+QWFRcUlpWXlFZVV1TW1DHX1DY1NzS2tbe0dnV3dPb0Mff0TJk6aPGXqtOkzZs6aPWcuw7z5CxYuWrxk6bLlK1auWr1mLQPDuvUbNm7avGXrtu07du7aDXTpnr379h84eOjwkaPHjp84CfLLnlOnz5w9d/7CxUuXT0L9e+Xqtes3bt66DWIDAJewYFOQtEy3AAAAJXRFWHRkYXRlOmNyZWF0ZQAyMDE3LTA1LTAzVDE4OjUyOjMwKzAyOjAwnsrZywAAACV0RVh0ZGF0ZTptb2RpZnkAMjAxNy0wNS0wM1QxODo1MjozMCswMjowMO+XYXcAAABXelRYdFJhdyBwcm9maWxlIHR5cGUgaXB0YwAAeJzj8gwIcVYoKMpPy8xJ5VIAAyMLLmMLEyMTS5MUAxMgRIA0w2QDI7NUIMvY1MjEzMQcxAfLgEigSi4A6hcRdPJCNZUAAAAASUVORK5CYII=""")
 
@@ -24,12 +27,14 @@ def hours_to_hms(decimal_hrs, fmt24):
     mins_str = str(mins)
 
     if fmt24 == True:
+        suffix = ""
         hrs_str = str(hrs)
         if hrs < 10:
             hrs_str = "0" + hrs_str
         if mins < 10:
             mins_str = "0" + mins_str
-        return "{0}:{1}".format(hrs_str, mins_str)
+        clockstr = "{0}:{1}".format(hrs_str, mins_str)
+        return (clockstr, suffix)
     else:
         suffix = "a" if hrs < 12 else "p"
         hrs = hrs % 12
@@ -39,7 +44,8 @@ def hours_to_hms(decimal_hrs, fmt24):
             hrs_str = hrs
         if mins < 10:
             mins_str = "0" + mins_str
-        return "{0}:{1}{2}".format(hrs_str, mins_str, suffix)
+        clockstr = "{0}:{1}".format(hrs_str, mins_str)
+        return (clockstr, suffix)
 
 def mars_dt_strs(lon, fmt24):
     # Takes a POI longitude
@@ -50,10 +56,9 @@ def mars_dt_strs(lon, fmt24):
     # Convert decimal LMT to HH:MM string
     # Append MTC if it's the MTC POI in 24H mode
     (msd, lmt) = time_on_mars(lon)
+    (marstime, suffix) = hours_to_hms(lmt, fmt24)
     if (lon == "0.0" and fmt24 == True):
-        marstime = str(hours_to_hms(lmt, fmt24)) + " MTC"
-    else:
-        marstime = str(hours_to_hms(lmt, fmt24))
+        marstime = marstime + " MTC"
 
     ######
     # MSD
@@ -62,7 +67,7 @@ def mars_dt_strs(lon, fmt24):
     marssol = str(msd)
     marssol = marssol.rsplit(".")[0]
     marssol = "sol " + marssol
-    return marssol, marstime
+    return marssol, marstime, suffix
 
 def mtc_location_offset(mtc, lon):
     # Given MTC and a longitude, compute local mars time
@@ -129,14 +134,23 @@ def main(config):
     fmt24 = config.bool("fmt24", False)
 
     # Compute MSD and LMT
-    (marssol, marstime) = mars_dt_strs(lon, fmt24)
+    (marssol, marstime, suffix) = mars_dt_strs(lon, fmt24)
     locname = render_locname(lon)
 
     if (showsol):
         clockblock = [
-            render.Text(
-                content = marstime,
-                font = "tb-8",
+            render.Row(
+                cross_align = "end",
+                children = [
+                    render.Text(
+                        content = marstime,
+                        font = FONT1,
+                    ),
+                    render.Text(
+                        content = suffix,
+                        font = FONT2,
+                    ),
+                ],
             ),
             render.Box(
                 height = 2,
@@ -145,15 +159,24 @@ def main(config):
             ),
             render.WrappedText(
                 content = marssol,
-                font = "tom-thumb",
+                font = FONT2,
                 align = "right",
             ),
         ]
     elif (showloc):
         clockblock = [
-            render.Text(
-                content = marstime,
-                font = "tb-8",
+            render.Row(
+                cross_align = "end",
+                children = [
+                    render.Text(
+                        content = marstime,
+                        font = FONT1,
+                    ),
+                    render.Text(
+                        content = suffix,
+                        font = FONT2,
+                    ),
+                ],
             ),
             render.Box(
                 height = 2,
@@ -162,15 +185,24 @@ def main(config):
             ),
             render.WrappedText(
                 content = locname,
-                font = "tom-thumb",
+                font = FONT2,
                 align = "right",
             ),
         ]
     else:
         clockblock = [
-            render.Text(
-                content = marstime,
-                font = "tb-8",
+            render.Row(
+                cross_align = "end",
+                children = [
+                    render.Text(
+                        content = marstime,
+                        font = FONT1,
+                    ),
+                    render.Text(
+                        content = suffix,
+                        font = FONT2,
+                    ),
+                ],
             ),
         ]
 
