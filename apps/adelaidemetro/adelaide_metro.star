@@ -26,9 +26,16 @@ Bug fix for some train stations not showing "CITY" headsign on city bound servic
 Updated wording for Bus Stop and Tram Stop in schema dropdown
 Fixed issue for last service/services after midnight showing incorrect times. This is an issue with the data from API but added a workaround to make it accurate
 
-v2.2 - Unpublished
+v2.2 - Published 13/6
 Added handling for service disruption, or situations where there are no services in next 24hrs
 Extended display time to 3 seconds
+
+v2.3
+Added default Bus Stop ID to prevent app freezing
+
+v2.3.1
+Removed lagging print comment
+Added default train station in Schema, removed in error from last update :(
 """
 
 load("encoding/json.star", "json")
@@ -52,18 +59,19 @@ def main(config):
     Display1 = []
 
     if TrainOrTramOrBus == "Tram":
-        SelectedStation = config.get("TramStationList", "17755")
+        SelectedStation = config.get("TramStationList", "18513")
 
     if TrainOrTramOrBus == "Bus":
-        SelectedStation = config.get("BusStop", 16455)
+        SelectedStation = config.get("BusStop", "13339")
 
     if TrainOrTramOrBus == "Train":
-        SelectedStation = config.get("StationList", "16572")
+        SelectedStation = config.get("StationList", "16571")
 
     if TrainToCity == False:
         SelectedStation = AwayStops(SelectedStation)
 
     STOP_ID = str(SelectedStation)
+    #print(STOP_ID)
 
     NEXTSCHED_URL = NEXTSCHED1_URL + STOP_ID
     #print(NEXTSCHED_URL)
@@ -118,7 +126,7 @@ def main(config):
         # How many services coming up at this stop
         ServicesLookup = len(NEXTSCHED_JSON[2])
 
-        # How many in time period specified
+        # How many services in time period specified
         for x in range(0, ServicesLookup, 1):
             if NEXTSCHED_JSON[2][x]["min"] <= ReqTime:
                 Services = Services + 1
@@ -1331,7 +1339,7 @@ def MoreOptions(TrainOrTramOrBus):
                 name = "Tram Stop",
                 desc = "Choose your station",
                 icon = "trainTram",
-                default = TramStationOptions[0].value,
+                default = TramStationOptions[1].value,
                 options = TramStationOptions,
             ),
         ]
@@ -1342,6 +1350,7 @@ def MoreOptions(TrainOrTramOrBus):
                 name = "Bus Stop ID",
                 desc = "Enter the Stop ID",
                 icon = "bus",
+                default = "13339",
             ),
         ]
     return None
