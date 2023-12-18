@@ -1,0 +1,8 @@
+---
+id: braemar-screen
+name: Braemar Screen
+summary: View dry bulk futures
+desc: Allows you to see the top 3 dry bulk futures from Braemarscreen.
+author: Ali-Mahmood
+fileName: braemar_screen.star
+packageName: braemarscreen

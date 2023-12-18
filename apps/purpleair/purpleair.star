@@ -1,30 +1,37 @@
 """
 Applet: PurpleAir
 Summary: Displays local air quality
-Description: Display air quality near you from a PurpleAir sensor.
+Description: Displays the local air quality index from a nearby PurpleAir sensor. Choose a sensor close to you or provide a specific sensor id.
 Author: posburn
 """
 
-load("cache.star", "cache")
+# jvivona 20230821 - helped out @frame-shift to fix syntax error in code
+#                    while I was in there - removed the cache.star module dependency
+
 load("encoding/base64.star", "base64")
 load("encoding/json.star", "json")
 load("http.star", "http")
-load("humanize.star", "humanize")
 load("math.star", "math")
 load("render.star", "render")
 load("schema.star", "schema")
-load("secret.star", "secret")
 
 # DEFAULTS
 
-DEFAULT_SENSOR_ID = "33997"  # Alcatraz Dock sensor
-DEFAULT_LOCATION_BASED_SENSOR = '{"display": "Bay Area Discover Museum", "value": 38061}'
-DEFAULT_TEMP_UNIT = "F"
+DEFAULT_SENSOR_ID = None
+DEFAULT_LOCATION_BASED_SENSOR = '{"display": "SF Maritime NHP", "value": 70251}'
+TEMP_UNIT_F = "F"
+TEMP_UNIT_C = "C"
+DEFAULT_TEMP_UNIT = TEMP_UNIT_F
+DEFAULT_PARTICLE_SENSOR = "A and B sensors (avg)"
+PARTICLE_SENSOR_A = "Sensor A"
+PARTICLE_SENSOR_B = "Sensor B"
 
 # MAIN APP
 
+api_key = None
+
 def main(config):
-    api_key = secret.decrypt(API_READ_KEY) or config.get("api_key")
+    api_key = config.get("api_key")
     sensor_id = get_sensor_id(config)
     show_title = get_cfg_value(config, "show_title", True)
     show_temp = get_cfg_value(config, "show_temp", True)
@@ -34,6 +41,10 @@ def main(config):
     if temp_unit == None:
         temp_unit = DEFAULT_TEMP_UNIT
 
+    particle_sensor = config.get("particle_sensor")
+    if particle_sensor == None:
+        particle_sensor = DEFAULT_PARTICLE_SENSOR
+
     temp = 0
     aqi = 0
     humidity = 0
@@ -41,8 +52,9 @@ def main(config):
 
     # Fetch the air info
     data = None
-    if api_key != None:
-        data = fetch_sensor_data(api_key, PUBLIC_SENSOR + sensor_id, {}, CACHE_KEY_DATA + "-" + sensor_id)  # [0] = data, [1] = was_cached
+    if api_key != None and sensor_id != None:
+        # [0] = data, [1] = was_cached
+        data = fetch_sensor_data(api_key, PUBLIC_SENSOR + sensor_id + FETCH_SENSOR_FIELDS, {})
 
     if data == None:
         print("No data returned for sensor %s" % sensor_id)
@@ -61,7 +73,12 @@ def main(config):
 
         pm_a = data[0].get("pm_a", 0)
         pm_b = data[0].get("pm_b", 0)
-        aqi = epa_AQI(pm_a, pm_b, humidity)
+        confidence = data[0].get("confidence", 0)
+        confidenceAuto = data[0].get("confidenceAuto", -1)
+        aqi = epa_AQI(pm_a, pm_b, humidity, particle_sensor, confidence, confidenceAuto)
+
+        if data[0].get("locationType", 0) == 1:
+            name = "%s\n(inside)" % name
 
     return render.Root(
         child = render.Stack(
@@ -97,16 +114,16 @@ def get_schema():
     return schema.Schema(
         version = "1",
         fields = [
-            schema.LocationBased(
-                id = "sensor_id",
-                name = "Sensors",
-                desc = "Choose the sensor based on your location.",
-                icon = "locationDot",
-                handler = get_sensors,
+            schema.Text(
+                id = "api_key",
+                name = "PurpleAir API Key",
+                desc = "Specify the API key to use",
+                icon = "gear",
+                default = "",
             ),
             schema.Text(
                 id = "sensor_id_direct",
-                name = "Sensor ID (optional)",
+                name = "Sensor ID",
                 desc = "Specify the sensor if you know the ID",
                 icon = "satelliteDish",
                 default = "",
@@ -137,101 +154,26 @@ def get_schema():
                 name = "Temperature unit",
                 desc = "Temperature unit",
                 icon = "gear",
-                default = "F",
+                default = DEFAULT_TEMP_UNIT,
                 options = [
-                    schema.Option(display = "Fahrenheit", value = "F"),
-                    schema.Option(display = "Celsius", value = "C"),
+                    schema.Option(display = "Fahrenheit", value = TEMP_UNIT_F),
+                    schema.Option(display = "Celsius", value = TEMP_UNIT_C),
+                ],
+            ),
+            schema.Dropdown(
+                id = "particle_sensor",
+                name = "Particle sensor",
+                desc = "Particle sensor(s) to use in calculation",
+                icon = "gear",
+                default = DEFAULT_PARTICLE_SENSOR,
+                options = [
+                    schema.Option(display = DEFAULT_PARTICLE_SENSOR, value = DEFAULT_PARTICLE_SENSOR),
+                    schema.Option(display = PARTICLE_SENSOR_A, value = PARTICLE_SENSOR_A),
+                    schema.Option(display = PARTICLE_SENSOR_B, value = PARTICLE_SENSOR_B),
                 ],
             ),
         ],
     )
-
-def get_sensors(location):
-    default_options = [schema.Option(display = "Alcatraz Dock", value = DEFAULT_SENSOR_ID)]
-    sensors = default_options
-
-    if location == None or location == "":
-        return sensors
-
-    api_key = secret.decrypt(API_READ_KEY) or None
-    if api_key == None:
-        return sensors
-
-    location_data = json.decode(location)
-    if location_data == None:
-        return sensors
-
-    # Get latitude and longitude of location to use in the api call
-    desc = location_data.get("description", None)
-    latitude = float(location_data.get("lat", 0))
-    longitude = float(location_data.get("lng", 0))
-
-    # Truncate to protect the user's privacy
-    latitude = float(humanize.float("#.##", latitude))
-    longitude = float(humanize.float("#.##", longitude))
-
-    # Get the sensor list constrained to a small area around this location
-    delta = 0.035
-    params = {
-        "nwlng": str(longitude - delta),
-        "nwlat": str(latitude + delta),
-        "selng": str(longitude + delta),
-        "selat": str(latitude - delta),
-    }
-
-    cache_key = None
-    if desc != None:
-        cache_key = CACHE_KEY_DATA + "-" + desc
-        cache_key = cache_key.replace(" ", "")
-    sensor_list = fetch_sensor_list(api_key, LIST_SENSORS, params, cache_key)
-
-    if sensor_list == None:
-        print("No data returned for sensor list")
-        return sensors
-
-    elif len(sensor_list) != 2 or sensor_list[0] == None:
-        print("sensor_list in incorrect format or missing")
-
-    else:
-        sensor_data = sensor_list[0].get("data", [])
-        count = len(sensor_data)
-        if count > 0:
-            sensors = []
-
-        for i in range(len(sensor_data)):
-            item = sensor_data[i]
-            if len(item) != 5:
-                continue
-
-            # Calculate miles/km
-            distance = distance_between(latitude, longitude, item[3], item[4])
-            distance = int(distance * 100) / 100
-            name = "(%f) %s" % (distance, item[1])
-
-            name = name.replace("0000", "")
-            value = str(item[0]).replace(".0", "")
-            sensors.append(schema.Option(display = name, value = value))
-
-        def sort_by_name(option):
-            return option.display
-    return sorted(sensors, key = sort_by_name)
-
-# Use the haversine formula to calculate the distance between two points in miles
-# https://www.movable-type.co.uk/scripts/latlong.html
-def distance_between(lat1, lng1, lat2, lng2):
-    distance = 1.0
-    r = 6371e3
-    la1 = lat1 * math.pi / 180
-    la2 = lat2 * math.pi / 180
-    delta_lat = (lat2 - lat1) * math.pi / 180
-    delta_lng = (lng2 - lng1) * math.pi / 180
-
-    a = math.pow(math.sin(delta_lat / 2), 2) + math.cos(la1) * math.cos(la2) * math.pow(math.sin(delta_lng / 2), 2)
-    c = 2 * math.atan2(math.sqrt(a), math.sqrt(1 - a))
-    d = r * c  # d is in meters
-    km = d / 1000
-    miles = km / 0.621371
-    return miles
 
 # Return the sensor id to use based on configuration options
 def get_sensor_id(config):
@@ -239,16 +181,9 @@ def get_sensor_id(config):
 
     # User can specify the sensor id directly
     id_option = config.get("sensor_id_direct")
-    if id_option != None:
+    if id_option != None and id_option != "":
         sensor = str(json.decode(id_option))
         print("Sensor direct: %s" % id_option)
-
-    # If sensor not specified directly, use location to get sensor
-    if id_option == None or id_option == "":
-        local_selection = config.get("sensor_id", DEFAULT_LOCATION_BASED_SENSOR)
-        local_selection = json.decode(local_selection)
-        if "value" in local_selection:
-            sensor = str(local_selection["value"])
 
     print("Using sensor: %s" % sensor)
     return sensor
@@ -256,87 +191,94 @@ def get_sensor_id(config):
 # DATA
 
 # Returns a tuple: (data, was_cached)
-def fetch_sensor_data(api_key, url, params, cache_key):
-    # Check cache first
-    cached_data = None
-    if cache_key != None:
-        cached_data = cache.get(cache_key)
-
-    if cached_data != None:
-        # Use what's in the cache
-        print("Found cached data")
-        air_dict = json.decode(cached_data)
-        return (air_dict, True)
-
+# Sample call:
+# https://api.purpleair.com/v1/sensors/12345?fields=name,temperature,humidity,pm2.5_cf_1_a,pm2.5_cf_1_b,confidence,confidence_auto,location_type
+def fetch_sensor_data(api_key, url, params):
+    air_dict = {}
+    headers = {"X-API-Key": api_key}
+    rep = http.get(url, params = params, headers = headers, ttl_seconds = 1800)  # 30 min cache
+    if rep.status_code != 200:
+        print("Request failed with status %d" % rep.status_code)
+        return None
     else:
-        print("Cache miss")
-        headers = {"X-API-Key": api_key}
-        rep = http.get(url, params = params, headers = headers)
-        if rep.status_code != 200:
-            print("Request failed with status %d" % rep.status_code)
-            return None
-        else:
-            data = rep.json()
-            sensor = data.get("sensor", None)
+        data = rep.json()
+        sensor = data.get("sensor", None)
 
-            if sensor != None:
-                name = sensor.get("name", "")
+        if sensor != None:
+            name = sensor.get("name", "")
 
-                temp = sensor.get("temperature", 0)
-                temp = max(temp - 8, 0)  # Temp reported 8F higher so adjust
+            temp = sensor.get("temperature", 0)
+            temp = max(temp - 8, 0)  # Temp reported 8F higher so adjust
 
-                humidity = sensor.get("humidity", 0)
-                humidity = max(humidity + 4, 0)  # Humidity reported 4F lower so adjust
+            humidity = sensor.get("humidity", 0)
+            humidity = max(humidity + 4, 0)  # Humidity reported 4F lower so adjust
 
-                pm_a = sensor.get("pm2.5_a", 0)
-                pm_b = sensor.get("pm2.5_b", 0)
+            pm_a = sensor.get("pm2.5_cf_1_a", 0)
+            pm_b = sensor.get("pm2.5_cf_1_b", 0)
+            confidence = sensor.get("confidence", 0)
+            confidenceAuto = sensor.get("confidence_auto", -1)
+            locationType = sensor.get("location_type", 0)
 
-                air_dict = {
-                    "name": name,
-                    "temperature": temp,
-                    "humidity": humidity,
-                    "pm_a": pm_a,
-                    "pm_b": pm_b,
-                }
+            air_dict = {
+                "name": name,
+                "temperature": temp,
+                "humidity": humidity,
+                "pm_a": pm_a,
+                "pm_b": pm_b,
+                "confidence": confidence,
+                "confidenceAuto": confidenceAuto,
+                "locationType": locationType,
+            }
 
-                air_cached = json.encode(air_dict)
-                cache.set(cache_key, air_cached, ttl_seconds = 600)  # 10 minutes
-
-            return (air_dict, False)
-
-# Returns a tuple: (data, was_cached)
-def fetch_sensor_list(api_key, url, params, cache_key):
-    # Check cache first
-    cached_data = None
-    if cache_key != None:
-        cached_data = cache.get(cache_key)
-
-    if cached_data != None:
-        # Use what's in the cache
-        print("Found cached data")
-        sensor_list = json.decode(cached_data)
-        return (sensor_list, True)
-
-    else:
-        print("Cache miss")
-        headers = {"X-API-Key": api_key}
-        rep = http.get(url, params = params, headers = headers)
-        if rep.status_code != 200:
-            print("Request failed with status %d" % rep.status_code)
-            return None
-        else:
-            sensors = rep.json()
-            cache.set(cache_key, json.encode(sensors), ttl_seconds = 14400)  # 4 hours
-            return (rep.json(), False)
+        return (air_dict, False)
 
 # AQI & CALCULATIONS
 
-def epa_AQI(pm25A, pm25B, humidity):
-    # EPA adjustment for wood smoke and PurpleAir from https://cfpub.epa.gov/si/si_public_record_report.cfm?dirEntryId=349513
-    # PM 2.5 corrected = 0.534*[PA_cf1(avgAB)] - 0.0844*RH +5.604 (Slide 25)
-    # PM 2.5 corrected = 0.52*[PA_cf1(avgAB)] - 0.085*RH +5.71 (Slide 8) - I'm using this one
-    avgAB = (pm25A + pm25B) / 2
-    pm25_corrected = 0.52 * avgAB - 0.085 * humidity + 5.71
+def epa_AQI(pm25A, pm25B, humidity, particle_sensor, confidence, confidenceAuto):
+    # By default, average both particle sensors
+    pmValue = (pm25A + pm25B) / 2
+
+    # If the sensor's confidence is 0 then one or both sensors isn't working. Try to
+    # use the other 'good' sensor by detecting if the PM 2.5 value is out of range.
+    # Note: Upper range of 1000 ug/m^3 comes from https://www.plantower.com/en/products_33/74.html
+    if confidence == 0:
+        if pm25A <= 0 or pm25A > 1000:
+            pmValue = pm25B
+        elif pm25B <= 0 or pm25B > 1000:
+            pmValue = pm25A
+
+    # If this is a device with only one sensor, the confidence_auto property will be
+    # missing. In this case use the A sensor
+    if confidenceAuto == -1 and pm25B == 0:
+        pmValue = pm25A
+
+    # The user can choose which sensor to use though so check that
+    if particle_sensor == PARTICLE_SENSOR_A:
+        pmValue = pm25A
+    elif particle_sensor == PARTICLE_SENSOR_B:
+        pmValue = pm25B
+
+    pm25_corrected = 0
+
+    # [OLD] EPA adjustment for wood smoke and PurpleAir from https://cfpub.epa.gov/si/si_public_record_report.cfm?dirEntryId=349513
+    # [OLD] PM 2.5 corrected = 0.534*[PA_cf1(avgAB)] - 0.0844*RH +5.604 (Slide 25)
+    # [OLD] PM 2.5 corrected = 0.52*[PA_cf1(avgAB)] - 0.085*RH +5.71 (Slide 8)
+    # [August 2022] An updated 5 step algorithm for correcting sensor data was developed by the EPA based on new wildfire data. This updated algorithm is the one currently used by PurpleAir. The 5 equations are found on Slide 26 at https://cfpub.epa.gov/si/si_public_record_report.cfm?dirEntryId=353088&Lab=CEMM
+    if 0 <= pmValue and pmValue < 30:
+        pm25_corrected = 0.524 * pmValue - 0.0862 * humidity + 5.75
+    elif 30 <= pmValue and pmValue < 50:
+        pm25_corrected = (0.786 * (pmValue / 20 - 3 / 2) + 0.524 * (1 - (pmValue / 20 - 3 / 2))) * pmValue - 0.0862 * humidity + 5.75
+    elif 50 <= pmValue and pmValue < 210:
+        pm25_corrected = 0.786 * pmValue - 0.0862 * humidity + 5.75
+    elif 210 <= pmValue and pmValue < 260:
+        term1 = 0.69 * (pmValue / 50 - 21 / 5) + 0.786 * (1 - (pmValue / 50 - 21 / 5))
+        term2 = -0.0862 * humidity * (1 - (pmValue / 50 - 21 / 5))
+        term3 = 2.966 * (pmValue / 50 - 21 / 5)
+        term4 = 5.75 * (1 - (pmValue / 50 - 21 / 5))
+        term5 = 8.84 * 0.0001 * math.pow(pmValue, 2) * (pmValue / 50 - 21 / 5)
+        pm25_corrected = term1 * pmValue + term2 + term3 + term4 + term5
+    elif 260 <= pmValue:
+        pm25_corrected = 2.966 + 0.69 * pmValue + 8.84 * 0.0001 * math.pow(pmValue, 2)
 
     return aqi_from_PM(pm25_corrected)
 
@@ -389,7 +331,7 @@ def aqi_description(aqi, show_title = True):
 
     index = aqi_index(aqi)
     if index == AQI_ERROR:
-        return "Select a PurpleAir sensor"
+        return "Specify a sensor and API key"
     return AQI_TITLE[index]
 
 def aqi_color(aqi):
@@ -440,7 +382,7 @@ def display_aqi(aqi):
     return ("%s" % aqi).replace(".0", "")
 
 def display_temp(temp, temp_unit = DEFAULT_TEMP_UNIT):
-    if temp_unit == "C":
+    if temp_unit == TEMP_UNIT_C:
         temp = int((temp - 32) * 0.5555555559)
     return ("%s°%s" % (temp, temp_unit)).replace(".0", "")
 
@@ -497,13 +439,13 @@ def render_simple_view(aqi, alternate_text = "", text_color = "#FFFFFFFF", offse
                         render.Box(child = render_aqi_text(aqi)),
                 ),
                 render.Padding(
-                    pad = (24, -1, 0, 0),
+                    pad = (24, -2, 0, 0),
                     child =
                         render.Stack(
                             children = [
                                 render.Box(
                                     width = 38,
-                                    height = 25,
+                                    height = 28,
                                     child =
                                         render.WrappedText(
                                             content = aqi_description(aqi, show_title),
@@ -516,7 +458,7 @@ def render_simple_view(aqi, alternate_text = "", text_color = "#FFFFFFFF", offse
                                     child =
                                         render.Box(
                                             width = 38,
-                                            height = 25,
+                                            height = 28,
                                             child =
                                                 render.WrappedText(
                                                     content = alternate_text,
@@ -612,9 +554,8 @@ def render_animation(aqi, temp, humidity, name, show_title = True, show_temp = T
 
 # CONSTANTS
 
-API_READ_KEY = "AV6+xWcE7hO0GOSye3S6fLtTsKex797gyaIfLQKc3t1oXawbQBTEVHciWK3ITe3um3dBzxDNau5bI3iNhYicAm3FFRWAj0hVL/nKmGrvphhvjzxbjynWIy2+g6IkGZw43GMf2wjIEnHcmuGVMicd779uABXs56OhMof9LFfiq7iuJ9e2PhN+h8x2"
 PUBLIC_SENSOR = "https://api.purpleair.com/v1/sensors/"
-LIST_SENSORS = "https://api.purpleair.com/v1/sensors?fields=name,location_type,latitude,longitude"
+FETCH_SENSOR_FIELDS = "?fields=name,temperature,humidity,pm2.5_cf_1_a,pm2.5_cf_1_b,confidence,confidence_auto,location_type"
 CACHE_KEY_DATA = "purpleAirData"
 BACKGROUND_COLOR = "#21024D"
 

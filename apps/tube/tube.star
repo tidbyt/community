@@ -1,11 +1,10 @@
 """
 Applet: Tube
 Summary: London Underground arrivals
-Description: Upcoming arrivals for a particular Tube station.
+Description: Upcoming arrivals for a particular Tube, Elizabeth Line, DLR or Overground station.
 Author: dinosaursrarr
 """
 
-load("cache.star", "cache")
 load("encoding/json.star", "json")
 load("http.star", "http")
 load("math.star", "math")
@@ -17,13 +16,16 @@ load("secret.star", "secret")
 ENCRYPTED_APP_KEY = "AV6+xWcEgG4Ru4ZCA4ggWDRK+4zP4YCk4pCZrLiuXoCVSc677Sipk1Wnrag92v1k4qfa9n8e9FuCdsoLbov5osfGWOWUCYDkR3xh/uEsXOLVJvAr8iUXf6RSac2PXnDZ//z+hhgBzVldDDI/9CD8K8MJa0u75SG9EhZYidD9OXh0NggRHeE="
 STATION_URL = "https://api.tfl.gov.uk/StopPoint"
 ARRIVALS_URL = "https://api.tfl.gov.uk/StopPoint/%s/Arrivals"
+USER_AGENT = "Tidbyt tube"
 
 HOLBORN_ID = "940GZZLUHBN"
 
 WHITE = "#FFF"
 BLACK = "#000"
 ORANGE = "#FFA500"
+FONT = "tom-thumb"
 
+MODES = ["tube", "elizabeth-line", "dlr", "overground", "tram"]
 LINES = {
     "bakerloo": {
         "display": "Bakerloo",
@@ -45,13 +47,18 @@ LINES = {
         "colour": "#007229",
         "textColour": WHITE,
     },
+    "dlr": {
+        "display": "Docklands",
+        "colour": "#00AFAD",
+        "textColour": BLACK,
+    },
     "elizabeth": {
         "display": "Elizabeth",
         "colour": "#6950A1",
         "textColour": WHITE,
     },
     "hammersmith-city": {
-        "display": "Hammersmith & City",
+        "display": "H'smith & City",
         "colour": "#D799AF",
         "textColour": BLACK,
     },
@@ -59,6 +66,11 @@ LINES = {
         "display": "Jubilee",
         "colour": "#6A7278",
         "textColour": WHITE,
+    },
+    "london-overground": {
+        "display": "Overground",
+        "colour": "#D05F0E",
+        "textColour": BLACK,
     },
     "metropolitan": {
         "display": "Metropolitan",
@@ -75,13 +87,18 @@ LINES = {
         "colour": "#0019A8",
         "textColour": WHITE,
     },
+    "tram": {
+        "display": "Tram",
+        "colour": "#66CC00",
+        "textColour": WHITE,
+    },
     "victoria": {
         "display": "Victoria",
         "colour": "#00A0E2",
         "textColour": BLACK,
     },
     "waterloo-city": {
-        "display": "Waterloo & City",
+        "display": "W'loo & City",
         "colour": "#76D0BD",
         "textColour": BLACK,
     },
@@ -91,50 +108,145 @@ def app_key():
     return secret.decrypt(ENCRYPTED_APP_KEY) or ""  # Fall back to freebie quota
 
 # Get list of stations near a given location, or look up from cache if available.
-def fetch_stations(location):
-    cached = cache.get(location)
-    if cached:
-        return json.decode(cached)
-    loc = json.decode(location)
+def fetch_stations(loc):
+    truncated_lat = math.round(1000.0 * float(loc["lat"])) / 1000.0  # Truncate to 3dp for better caching
+    truncated_lng = math.round(1000.0 * float(loc["lng"])) / 1000.0  # Means to the nearest ~110 metres.
     resp = http.get(
         STATION_URL,
         params = {
             "app_key": app_key(),
-            "lat": loc["lat"],
-            "lon": loc["lng"],
+            "lat": str(truncated_lat),
+            "lon": str(truncated_lng),
             "radius": "500",
-            "stopTypes": "NaptanMetroStation",
+            "stopTypes": "NaptanMetroStation,NaptanRailStation",
             "returnLines": "true",
-            "modes": "tube",
+            "modes": ",".join(MODES),
             "categories": "none",
         },
+        headers = {
+            "User-Agent": USER_AGENT,
+        },
+        ttl_seconds = 86400,  # Tube stations don't move often
     )
     if resp.status_code != 200:
-        fail("TFL station search failed with status ", resp.status_code)
+        print("TFL station search failed with status ", resp.status_code)
+        return None
     if not resp.json().get("stopPoints"):
-        fail("TFL station search does not contain stops")
-    cache.set(location, resp.body(), ttl_seconds = 86400)  # Tube stations don't move often
+        print("TFL station search does not contain stops")
+        return None
     return resp.json()
+
+# API gives errors when searching for locations outside the United Kingdom.
+def outside_uk_bounds(loc):
+    lat = float(loc["lat"])
+    lng = float(loc["lng"])
+    if lat <= 49.9 or lat >= 58.7 or lng <= -11.05 or lng >= 1.78:
+        return True
+    return False
+
+# We know we're talking about stations.
+def format_option_station(name):
+    suffixes = [
+        " Underground Station",
+        " DLR Station",
+        " Rail Station",
+        " (London)",
+        " Tram Stop",
+    ]
+    for suffix in suffixes:
+        name = name.removesuffix(suffix)
+
+    if name != "London Bridge":
+        name = name.removeprefix("London ")
+
+    return name
+
+# We have a lot of space at the top, but scrolling marquees is slow
+def format_title_station(name):
+    name = format_option_station(name)
+
+    replacements = {
+        "Street": "St",
+        "Road": "Rd",
+        "Great": "Gt",
+        "Square": "Sq",
+    }
+    words = name.split(" ")
+    for i in range(len(words)):
+        if words[i] in replacements:
+            print(words[i])
+            words[i] = replacements[words[i]]
+
+    return " ".join(words)
+
+# Space is even more cramped, so abbreviate more
+def format_destination_station(name):
+    name = format_option_station(name)
+
+    replacements = {
+        "Central": "C",
+        "Court": "Ct",
+        "East": "E",
+        "Great": "Gt",
+        "Green": "Grn",
+        "Junction": "Jct",
+        "Lane": "Ln",
+        "North": "N",
+        "Palace": "P",
+        "Park": "Pk",
+        "Road": "Rd",
+        "South": "S",
+        "Square": "Sq",
+        "Station": "Stn",
+        "Street": "St",
+        "West": "W",
+    }
+    words = name.split(" ")
+    for i in range(len(words)):
+        if words[i] in replacements:
+            words[i] = replacements[words[i]]
+        if words[i] == "&":
+            words[i + 1] = words[i + 1][0]
+
+    return " ".join(words)
 
 # Find and extract details of all stations near a given location.
 def get_stations(location):
-    data = fetch_stations(location)
+    loc = json.decode(location)
+    if outside_uk_bounds(loc):
+        return [schema.Option(
+            display = "Default option - location is outside the UK",
+            value = json.encode({
+                "station_id": HOLBORN_ID,
+                "station_name": "Holborn",
+                "line_id": "central",
+            }),
+        )]
+
+    data = fetch_stations(loc)
+    if not data:
+        return []
     options = []
     for station in data["stopPoints"]:
         if not station.get("id"):
-            fail("TFL station result does not include id")
+            print("TFL station result does not include id")
+            continue
         if not station.get("commonName"):
-            fail("TFL station result does not include name")
+            print("TFL station result does not include name")
+            continue
         if not station.get("lineModeGroups"):
-            fail("TFL station result does not include lines")
+            print("TFL station result does not include lines")
+            continue
 
-        station_name = station["commonName"].removesuffix(" Underground Station")
+        station_name = format_option_station(station["commonName"])
         for line_group in station["lineModeGroups"]:
             if not line_group.get("modeName"):
-                fail("TFL station result does not include mode")
+                print("TFL station result does not include mode")
+                continue
             if not line_group.get("lineIdentifier"):
-                fail("TFL station result does not include line identifier")
-            if line_group["modeName"] != "tube":
+                print("TFL station result does not include line identifier")
+                continue
+            if line_group["modeName"] not in MODES:
                 continue
 
             for line in line_group["lineIdentifier"]:
@@ -153,18 +265,19 @@ def get_stations(location):
 
 # Lookup upcoming arrivals for our given station, or use cache if available.
 def fetch_arrivals(stop_id):
-    cached = cache.get(stop_id)
-    if cached:
-        return json.decode(cached)
     resp = http.get(
         ARRIVALS_URL % stop_id,
         params = {
             "app_key": app_key(),
         },
+        headers = {
+            "User-Agent": USER_AGENT,
+        },
+        ttl_seconds = 30,
     )
     if resp.status_code != 200:
-        fail("TFL StopPoint request failed with status ", resp.status_code)
-    cache.set(stop_id, resp.body(), ttl_seconds = 30)
+        print("TFL StopPoint request failed with status ", resp.status_code)
+        return None
     return resp.json()
 
 # TFL response gives the times until a train arrives in seconds. Everyone is used
@@ -173,15 +286,12 @@ def format_times(seconds):
     result = ""
     for time in sorted(seconds):
         mins = int(math.round(time / 60.0))
-        if mins == 0:
-            text = "due"
-        else:
-            text = str(mins)
+        text = str(mins)
         if len(result) == 0:
             result = text
             continue
-        proposed = result + ", " + text
-        if len(proposed) > 8:  # Otherwise line is too long
+        proposed = result + "," + text
+        if len(proposed) > 4:  # Otherwise line is too long
             break
         result = proposed
     return result
@@ -189,20 +299,25 @@ def format_times(seconds):
 # Group arrivals data by platform/direction and format for humans
 def get_arrivals(stop_id, line_id):
     all_arrivals = fetch_arrivals(stop_id)
+    if not all_arrivals:
+        return []
     by_direction = {}
     for arrival in all_arrivals:
         if not arrival.get("lineId"):
-            fail("TFL arrivals data does not include line")
+            print("TFL arrivals data does not include line")
+            continue
         if not arrival.get("platformName"):
-            fail("TFL arrivals data does not include platform")
+            print("TFL arrivals data does not include platform")
+            continue
         if not arrival.get("timeToStation"):
-            fail("TFL arrivals data does not include arrival time")
-
+            print("TFL arrivals data does not include arrival time")
+            continue
         if arrival["lineId"] != line_id:
             continue
+        if arrival.get("destinationNaptanId") == stop_id:
+            continue
 
-        # Eastbound - Platform 2 -> East
-        direction = arrival["platformName"].split(" ")[0][:-5]
+        direction = format_destination_station(arrival["destinationName"])
         time = arrival["timeToStation"]  # in seconds
         if by_direction.get(direction):
             by_direction[direction].append(time)
@@ -226,32 +341,59 @@ def textColour(line_id):
 
 # Add a a row of text for each direction
 # Should only ever have two directions at a station.
+def render_arrivals_frame(arrivals):
+    return render.Column(
+        main_align = "space_evenly",
+        expanded = True,
+        children = [
+            render.Padding(
+                pad = (1, 0, 1, 0),
+                child = render.Row(
+                    expanded = True,
+                    main_align = "space_between",
+                    children = [
+                        render.WrappedText(
+                            content = arrival[0],
+                            color = ORANGE,
+                            font = FONT,
+                            width = 44,
+                            height = 6,
+                        ),
+                        render.WrappedText(
+                            content = arrival[1],
+                            color = ORANGE,
+                            font = FONT,
+                            width = 17,
+                            height = 6,
+                            align = "right",
+                        ),
+                    ],
+                ),
+            )
+            for arrival in arrivals
+        ],
+    )
+
 def render_arrivals(arrivals):
     if len(arrivals) == 0:
-        return [
-            render.Box(
-                width = 64,
-                child = render.Text(
-                    content = "No arrivals",
-                    color = ORANGE,
-                ),
-            ),
-        ]
-
-    return [
-        render.Padding(
-            pad = (1, 0, 1, 0),
-            child = render.Row(
-                expanded = True,
-                main_align = "space_between",
-                children = [
-                    render.Text(direction, color = ORANGE),
-                    render.Text(times, color = ORANGE),
-                ],
+        return render.Box(
+            width = 64,
+            child = render.WrappedText(
+                content = "No arrivals data",
+                width = 62,
+                align = "center",
+                color = ORANGE,
+                font = FONT,
             ),
         )
-        for direction, times in arrivals.items()
-    ]
+
+    frames = []
+    for i in range(0, len(arrivals), 3):
+        frame = render_arrivals_frame(arrivals.items()[i:i + 3])
+        frames.extend([frame] * 100)
+    return render.Animation(
+        children = frames,
+    )
 
 def main(config):
     station_and_line = config.get("station_and_line")
@@ -262,7 +404,7 @@ def main(config):
     else:
         data = json.decode(json.decode(station_and_line)["value"])
         station_id = data["station_id"]
-        station_name = data["station_name"]
+        station_name = format_title_station(data["station_name"])
         line_id = data["line_id"]
 
     arrivals = get_arrivals(station_id, line_id)
@@ -271,30 +413,45 @@ def main(config):
     # some station names are very long like High Street Kensington or
     # King's Cross St. Pancras, so we need all the space for the name.
     return render.Root(
+        max_age = 120,
+        delay = 25,
         child = render.Column(
             children = [
                 render.Box(
                     width = 64,
-                    height = 16,
+                    height = 13,
                     # Include line colour because you might want to monitor
-                    # different lines at a given station. Realize it's not
-                    # the most accessible thing to rely on colour but the
-                    # space is extremely limited for text and London doesn't
-                    # abbreviate line names.
+                    # different lines at a given station.
                     color = colour(line_id),
-                    # TODO: centre text so second line isn't aligned with
-                    # the left edge of the first line.
                     child = render.Padding(
                         # Better wrapping for King's Cross St Pancras
-                        pad = (1, 0, 1, 0),
-                        # pad = 0,
-                        child = render.WrappedText(
-                            content = station_name,
-                            color = textColour(line_id),
+                        pad = (1, 1, 1, 0),
+                        child = render.Column(
+                            children = [
+                                render.Marquee(
+                                    width = 62,
+                                    align = "center",
+                                    child = render.Text(
+                                        content = station_name,
+                                        color = textColour(line_id),
+                                        font = FONT,
+                                    ),
+                                ),
+                                render.WrappedText(
+                                    content = LINES[line_id]["display"],
+                                    color = textColour(line_id),
+                                    font = FONT,
+                                    align = "center",
+                                    width = 62,
+                                    height = 8,
+                                ),
+                            ],
                         ),
                     ),
                 ),
-            ] + render_arrivals(arrivals),
+                render.Box(height = 1, width = 1),  # Spacing between box and text
+                render_arrivals(arrivals),
+            ],
         ),
     )
 

@@ -6,11 +6,10 @@ Author: rs7q5
 """
 #espn_news.star
 #Created 20211231 RIS
-#Last Modified 20220501 RIS
+#Last Modified 20230516 RIS
 
-load("render.star", "render")
 load("http.star", "http")
-load("cache.star", "cache")
+load("render.star", "render")
 load("schema.star", "schema")
 
 #this list are any of the sports that have a "Top headlines" section and can be done with the following base ESPN_URL
@@ -49,41 +48,27 @@ def main(config):
 
     font = "CG-pixel-4x5-mono"  #set font
 
-    #check for cached data
-    cached_sport_txt = "_" + sport
-    title_cached = cache.get("title_rate1" + cached_sport_txt), cache.get("title_rate2" + cached_sport_txt), cache.get("title_rate3" + cached_sport_txt)
-    if all(title_cached) != False:  #if any are None then all(title_cached)==False
-        print("Hit! Displaying cached data.")
-        title = title_cached
+    #get data
+    rep = http.get(url = ESPN_API_URL, ttl_seconds = 14400)  #update every 4 hours
+    if rep.status_code != 200:
+        title = ["Error getting data!!!!", "", ""]
     else:
-        print("Miss! Calling ESPN data.")
-        rep = http.get(ESPN_API_URL)
-        if rep.status_code != 200:
-            #fail("ESPN request failed with status %d", rep.status_code)
-            title = ["Error getting data!!!!", "", ""]
-        else:
-            #get top 3 newest headlines
-            title = []
-            for i in range(3):
-                title.append(rep.json()["headlines"][i]["headline"])
+        #get top 3 newest headlines
+        title = []
+        for i in range(3):
+            title.append(rep.json()["headlines"][i]["headline"])
 
-            #format strings so they are all the same length (leads to better scrolling)
-            max_len = max([len(x) for x in title])  #length of each string
+        #format strings so they are all the same length (leads to better scrolling)
+        max_len = max([len(x) for x in title])  #length of each string
 
-            #add padding to shorter titles
-            for i, x in enumerate(title):
-                title[i] = x + " " * (max_len - len(x))
-
-            #cache headlines
-            for (i, x) in enumerate(title):
-                cache_name = "title_rate" + str(i + 1) + cached_sport_txt  #i+1 just to be consistent when retrieving cached names
-                cache.set(cache_name, x, ttl_seconds = 14400)
+        #add padding to shorter titles
+        for i, x in enumerate(title):
+            title[i] = x + " " * (max_len - len(x))
 
     #format output
     title_format = []
     if config.bool("scroll_vertical", False):  #scroll text vertically if true
         #redo titles to make sure words don't get cut off
-        title_max_line = 12  #max of 12 lines in a headline
         for title_tmp in title:
             title_tmp2 = split_sentence(title_tmp.rstrip(), 9, join_word = True).rstrip()
 
@@ -117,6 +102,7 @@ def main(config):
         )
     return render.Root(
         delay = int(config.str("speed", "30")),  #speed up scroll text
+        show_full_animation = True,
         child = render.Row(
             expanded = True,
             children = [

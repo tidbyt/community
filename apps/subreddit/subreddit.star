@@ -5,13 +5,13 @@ Description: Display the #1 post of a subreddit.
 Author: Petros Fytilis
 """
 
-load("render.star", "render")
-load("time.star", "time")
-load("http.star", "http")
+load("cache.star", "cache")
 load("encoding/base64.star", "base64")
 load("encoding/json.star", "json")
-load("cache.star", "cache")
+load("http.star", "http")
+load("render.star", "render")
 load("schema.star", "schema")
+load("time.star", "time")
 
 SCREEN_WIDTH = 64
 STATUS_OK = 200
@@ -152,6 +152,8 @@ def _fetch_post_title(subreddit):
             print("Reddit request failed with status {}.".format(rep.status_code))
             return "Could not retrieve Reddit data"
         post_title = _parse_post_title(rep.json())
+
+        # TODO: Determine if this cache call can be converted to the new HTTP cache.
         cache.set(subreddit, post_title, ttl_seconds = CACHE_TTL_SECONDS)
         return post_title
 

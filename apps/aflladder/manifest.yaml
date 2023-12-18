@@ -1,0 +1,8 @@
+---
+id: afl-ladder
+name: AFL Ladder
+summary: Shows the AFL Ladder
+desc: Shows the AFL Ladder with option for rotation speed.
+author: M0ntyP
+fileName: afl_ladder.star
+packageName: aflladder

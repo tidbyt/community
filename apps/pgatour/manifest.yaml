@@ -1,0 +1,8 @@
+---
+id: pga-tour
+name: PGA Tour
+summary: Shows PGA Leaderboard
+desc: This app displays the leaderboard for the current PGA Tour golf tournament or details for the upcoming event. You can show the opposite field event if there is one. 
+author: M0ntyP
+fileName: pga_tour.star
+packageName: pgatour

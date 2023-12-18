@@ -6,9 +6,9 @@ Author: ColinCampbell
 """
 
 load("cache.star", "cache")
-load("http.star", "http")
 load("encoding/base64.star", "base64")
 load("encoding/json.star", "json")
+load("http.star", "http")
 load("math.star", "math")
 load("render.star", "render")
 load("schema.star", "schema")
@@ -75,7 +75,7 @@ def main(config):
         )
 
 def header_status(statuses):
-    status_counts = count_list_by(statuses, lambda status: status)
+    status_counts = count_list_by(statuses, lambda statuses: statuses)
     sorted_status_keys = sorted(status_counts.keys(), reverse = True, key = status_score)
     status = sorted_status_keys[0]
 
@@ -130,6 +130,8 @@ def validator_statuses(config):
     slot_status_drop_count = slot_status_count - status_limit
 
     slot_statuses = all_slot_statuses[slot_status_drop_count:] if slot_status_drop_count > 0 else all_slot_statuses
+
+    # TODO: Determine if this cache call can be converted to the new HTTP cache.
     cache.set(cache_key, json.encode(slot_statuses), ttl_seconds = 600)
 
     empty_status_length = status_limit - len(slot_statuses)
@@ -225,6 +227,8 @@ def api_response(url):
             "accept": "application/json",
         })
         json_response = response.json()
+
+        # TODO: Determine if this cache call can be converted to the new HTTP cache.
         cache.set(url, json.encode(json_response), ttl_seconds = 60)
     else:
         print("Found cached response, using that")
@@ -319,6 +323,6 @@ def reduce(list, acc, f):
 
 def fill_list(n, item):
     result = []
-    for i in range(n):
+    for _ in range(n):
         result.append(item)
     return result

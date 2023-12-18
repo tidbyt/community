@@ -1,0 +1,8 @@
+---
+id: sa20-cricket
+name: SA20 Cricket
+summary: Shows SA20 scores
+desc: Choose your favorite team and follow their progress through the SA20 season! The app shows live scores and scheduled matches.
+author: M0ntyP
+fileName: sa20_cricket.star
+packageName: sa20cricket

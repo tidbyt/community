@@ -7,13 +7,13 @@ Author: andymcrae
 
 #some code borrowed or inspired by nhlnextgame by AKKanman
 
-load("render.star", "render")
-load("http.star", "http")
+load("cache.star", "cache")
 load("encoding/base64.star", "base64")
 load("encoding/json.star", "json")
-load("cache.star", "cache")
-load("schema.star", "schema")
+load("http.star", "http")
 load("humanize.star", "humanize")
+load("render.star", "render")
+load("schema.star", "schema")
 load("time.star", "time")
 
 #URLs for AFL API data
@@ -121,6 +121,8 @@ def main(config):
         if rep.status_code != 200:
             fail("Squiggle request failed with status %d", rep.status_code)
         stand_data = rep.json()
+
+        # TODO: Determine if this cache call can be converted to the new HTTP cache.
         cache.set("afl_standings", json.encode(stand_data), ttl_seconds = 3600)
 
     standings = []
@@ -131,7 +133,7 @@ def main(config):
 
     #build the output message
     message = " "
-    for i, x in enumerate(standings):
+    for i, _ in enumerate(standings):
         message = message + str(i + 1) + ": " + getTeamAbbFromID(standings[i]) + "  "
 
     games_cached = cache.get("afl_games")
@@ -144,6 +146,8 @@ def main(config):
         if rep2.status_code != 200:
             fail("Squiggle request failed with status %d", rep2.status_code)
         game_data = rep2.json()
+
+        # TODO: Determine if this cache call can be converted to the new HTTP cache.
         cache.set("afl_games", json.encode(game_data), ttl_seconds = 3600)
 
     hgames = []
@@ -176,7 +180,6 @@ def main(config):
     awayteam_id = ""
     nextgamedate = ""
     round_number = ""
-    venue = ""
 
     #get the data for the next game
     for i in range(len(game_data["games"])):
@@ -185,7 +188,6 @@ def main(config):
             awayteam_id = game_data["games"][i]["ateamid"]
             nextgamedate = game_data["games"][i]["date"]
             round_number = int(game_data["games"][i]["round"])
-            venue = game_data["games"][i]["venue"]
 
     display_date = ""
     date_key = nextgamedate[0:10]

@@ -5,13 +5,13 @@ Description: Get your current weather from your Netatmo weather station.
 Author: danmcclain
 """
 
-load("render.star", "render")
-load("schema.star", "schema")
+load("cache.star", "cache")
+load("encoding/base64.star", "base64")
 load("encoding/json.star", "json")
 load("http.star", "http")
+load("render.star", "render")
+load("schema.star", "schema")
 load("secret.star", "secret")
-load("encoding/base64.star", "base64")
-load("cache.star", "cache")
 
 DOWN_DEG = base64.decode("iVBORw0KGgoAAAANSUhEUgAAAAgAAAAFCAYAAAB4ka1VAAAAAXNSR0IArs4c6QAAAC5JREFUGFdjZACBmcb/GdLPMoLZaAAhiKwIiY2qCyaBUwHMOhANtRLVCmT7oQoACOEVBpf67iYAAAAASUVORK5CYII=")
 UP_DEG = base64.decode("iVBORw0KGgoAAAANSUhEUgAAAAgAAAAFCAYAAAB4ka1VAAAAAXNSR0IArs4c6QAAAC5JREFUGFdjZICBmcb/4WwQI/0sI4gCEygAphCrApAkSAJGo5iAJIipAFkSzUYAQtIVBjuf38UAAAAASUVORK5CYII=")
@@ -122,7 +122,7 @@ def temp_and_humid_row(module, name, fahrenheit):
         child = render.Row(
             children = [
                 render.Text(name, font = "tom-thumb"),
-                render.Text("%dº" % (temp), font = "tom-thumb", color = "#093"),
+                render.Text("%d°" % (temp), font = "tom-thumb", color = "#093"),
                 temp_trend,
                 render.Text("%d%%" % humid, font = "tom-thumb", color = "#039"),
             ],
@@ -152,6 +152,8 @@ def oauth_handler(params):
 
     token_params = res.json()
     refresh_token = token_params["refresh_token"]
+
+    # TODO: Determine if this cache call can be converted to the new HTTP cache.
     cache.set(refresh_token, token_params["access_token"], ttl_seconds = int(token_params["expires_in"] - 30))
 
     return refresh_token
@@ -177,6 +179,8 @@ def get_access_token(refresh_token):
     token_params = res.json()
     refresh_token = token_params["refresh_token"]
     access_token = token_params["access_token"]
+
+    # TODO: Determine if this cache call can be converted to the new HTTP cache.
     cache.set(refresh_token, access_token, ttl_seconds = int(token_params["expires_in"] - 30))
 
     return access_token

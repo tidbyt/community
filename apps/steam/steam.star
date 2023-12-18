@@ -10,8 +10,8 @@ load("encoding/base64.star", "base64")
 load("encoding/json.star", "json")
 load("http.star", "http")
 load("render.star", "render")
-load("secret.star", "secret")
 load("schema.star", "schema")
+load("secret.star", "secret")
 
 CACHE_TTL_SECONDS = 300
 API_BASE_URL = "http://api.steampowered.com/"
@@ -68,6 +68,8 @@ def main(config):
                 game_icon_url = "http://media.steampowered.com/steamcommunity/public/images/apps/" + str(current_game_id) + "/" + game_icon_hash + ".jpg"
                 main_icon = http.get(game_icon_url).body()
                 icon_encoded = base64.encode(main_icon)
+
+                # TODO: Determine if this cache call can be converted to the new HTTP cache.
                 cache.set(key, icon_encoded, ttl_seconds = CACHE_TTL_SECONDS)
             else:
                 main_icon = STEAM_ICON

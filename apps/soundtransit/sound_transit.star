@@ -5,13 +5,13 @@ Description: Shows upcoming arrivals at up to 2 different stations in Sound Tran
 Author: Jon Janzen
 """
 
-load("render.star", "render")
-load("http.star", "http")
-load("time.star", "time")
-load("schema.star", "schema")
 load("cache.star", "cache")
 load("encoding/json.star", "json")
+load("http.star", "http")
+load("render.star", "render")
+load("schema.star", "schema")
 load("secret.star", "secret")
+load("time.star", "time")
 
 # Some TidByt APIs require strings, but we want to use `None` values.
 # ref `none_str_to_none_val`
@@ -23,7 +23,7 @@ STATION2_DEFAULT = "1_99610"  # Capitol Hill S
 
 SHOULD_SCROLL_DEFAULT = True
 
-OBA_API_KEY = "AV6+xWcEgoOwrT7F9D7wuFANkebxqNEplpDY8H1qAovw1nQ4D2b0y1LFhRFQmZWuwAln4X66KhxOpPoiAcBF20GbQGRb2c5VxFAJgvnfKwjfqemHQpz1vRnp5nGr3W6ay3e0i5KLYjRBLaV+w2dzylnZKfxHU5iynoKyAJ7k8lTblifTAC/BloDO"
+OBA_API_KEY = "AV6+xWcE0bSEh8OK1r/5g3MZeYdabJvAGqjt8KXCzjS77IpfFYs4f7KK5PBSWKHtuocrVeOrrkIkuzanDyYIUwbsdMlJWt0m42aiUiuTWwZZoe5odJYcaOGKKoCur62UbezXLCX1jexohcX56roJ/plCKFU9eksFkWu4MtnG5vk4lg15FURXfdub"
 
 def none_str_to_none_val(maybe_none_str):
     if maybe_none_str == NONE_STR:
@@ -44,6 +44,8 @@ def get_stop_data(stop_id):
         if rep.status_code != 200:
             fail("Could not access OBA")
         rep = rep.body()
+
+        # TODO: Determine if this cache call can be converted to the new HTTP cache.
         cache.set(cache_key, rep)
     data = json.decode(rep)["data"]
 
@@ -146,8 +148,6 @@ def show_stops(stop_id1, stop_id2, scroll_names):
         sequence_children[1],
     ])
 
-    return render.Sequence(children = sequence_children)
-
 def main(config):
     scroll_names = config.bool("scroll_names", SHOULD_SCROLL_DEFAULT)
     station1 = none_str_to_none_val(config.get("station1", STATION1_DEFAULT))
@@ -166,6 +166,8 @@ def stop_options_for_route(route_id):
         if rep.status_code != 200:
             fail("Could not access OBA")
         rep = rep.body()
+
+        # TODO: Determine if this cache call can be converted to the new HTTP cache.
         cache.set(cache_key, rep)
     data = json.decode(rep)["data"]
 
@@ -188,6 +190,8 @@ def light_rail_routes():
         if rep.status_code != 200:
             fail("Could not access OBA")
         rep = rep.body()
+
+        # TODO: Determine if this cache call can be converted to the new HTTP cache.
         cache.set(cache_key, rep)
     data = json.decode(rep)["data"]
 

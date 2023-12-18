@@ -7,18 +7,16 @@ Thanks: Code usage: Steve Otteson. Sprite source: https://www.youtube.com/watch?
 """
 
 load("encoding/base64.star", "base64")
+load("encoding/json.star", "json")
+load("random.star", "random")
 load("render.star", "render")
 load("schema.star", "schema")
 load("time.star", "time")
-load("random.star", "random")
-load("encoding/json.star", "json")
 
 DEFAULT_TIME_ZONE = "America/Phoenix"
 BG_COLOR = "#95a87e"
 
 def main(config):
-    FRAME_DELAY = 750
-
     def getFrames(animationName):
         FRAMES = []
         for i in range(0, len(animationName[0])):
@@ -760,7 +758,7 @@ WALK = [
     750,
 ]
 UNICYCLE = [
-    [UNICYCLE_5, UNICYCLE_5, UNICYCLE_4, UNICYCLE_2, UNICYCLE_1, UNICYCLE_3, UNICYCLE_1, UNICYCLE_3, UNICYCLE_1, UNICYCLE_3, UNICYCLE_4, UNICYCLE_2, UNICYCLE_4, UNICYCLE_2, UNICYCLE_4, UNICYCLE_3, UNICYCLE_4, UNICYCLE_5, UNICYCLE_5],
+    [UNICYCLE_5, UNICYCLE_5, UNICYCLE_4, UNICYCLE_2, UNICYCLE_1, UNICYCLE_3, UNICYCLE_1, UNICYCLE_3, UNICYCLE_1, UNICYCLE_3, UNICYCLE_4, UNICYCLE_2, UNICYCLE_4, UNICYCLE_2, UNICYCLE_4, UNICYCLE_3, UNICYCLE_4, UNICYCLE_1, UNICYCLE_3, UNICYCLE_1, UNICYCLE_3, UNICYCLE_4, UNICYCLE_2, UNICYCLE_4, UNICYCLE_2, UNICYCLE_4, UNICYCLE_3, UNICYCLE_4, UNICYCLE_1, UNICYCLE_3, UNICYCLE_1, UNICYCLE_3, UNICYCLE_4, UNICYCLE_2, UNICYCLE_4, UNICYCLE_2, UNICYCLE_4, UNICYCLE_3, UNICYCLE_4],
     51,
     23,
     10,

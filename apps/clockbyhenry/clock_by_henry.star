@@ -27,13 +27,13 @@ Author: Henry So, Jr.
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-load("render.star", "render")
-load("schema.star", "schema")
-load("time.star", "time")
-load("re.star", "re")
-load("sunrise.star", "sunrise")
 load("encoding/base64.star", "base64")
 load("encoding/json.star", "json")
+load("re.star", "re")
+load("render.star", "render")
+load("schema.star", "schema")
+load("sunrise.star", "sunrise")
+load("time.star", "time")
 
 # parameters:
 # location - the location for rendering
@@ -130,6 +130,7 @@ def main(config):
     # generate the widget for the app
     return render.Root(
         delay = 1000,
+        max_age = 120,
         child = render.Column(
             main_align = "center",
             expanded = True,

@@ -1,0 +1,8 @@
+---
+id: fireworks
+name: Fireworks
+summary: Fireworks and a message
+desc: Celebrate with fireworks and a custom message.
+author: Andrew Knotts
+fileName: fireworks.star
+packageName: fireworks

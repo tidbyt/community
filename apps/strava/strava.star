@@ -5,16 +5,16 @@ Description: Displays your YTD or all-time athlete stats recorded on Strava.
 Author: Rob Kimball
 """
 
-load("http.star", "http")
-load("math.star", "math")
-load("time.star", "time")
 load("cache.star", "cache")
+load("encoding/base64.star", "base64")
+load("encoding/json.star", "json")
+load("http.star", "http")
+load("humanize.star", "humanize")
+load("math.star", "math")
 load("render.star", "render")
 load("schema.star", "schema")
 load("secret.star", "secret")
-load("humanize.star", "humanize")
-load("encoding/json.star", "json")
-load("encoding/base64.star", "base64")
+load("time.star", "time")
 
 STRAVA_BASE = "https://www.strava.com/api/v3"
 CLIENT_ID = "79662"
@@ -23,7 +23,7 @@ DEFAULT_UNITS = "imperial"
 DEFAULT_SPORT = "ride"
 DEFAULT_SCREEN = "all"
 
-RATE_LIMIT_DEFAULT_BACKOFF = 10
+RATE_LIMIT_DEFAULT_BACKOFF_SECONDS = 15 * 60
 RATE_LIMIT_CACHE_KEY = "rate-limit-backoff"
 
 PREVIEW_DATA = {
@@ -34,23 +34,7 @@ PREVIEW_DATA = {
     "elevation_gain": 125800,
 }
 
-CACHE_TTL = 60 * 60 * 24  # updates once daily
-
-STRAVA_ICON = base64.decode("""
-iVBORw0KGgoAAAANSUhEUgAAACgAAAAICAYAAACLUr1bAAAAAXNSR0IArs4c6QAAAJ1JREFUOE+
-lVEEOgCAMg9/6JH+LwVhTm3Us4gUZk3VtZ2/PM8428D7XfrQ+V40jZ55HZ/hO79X8aI96fMcvEG
-ggAx8B5IYZoJJhAWr3zCjAcI7G3D5iPQPICloGM6kq7ET2iGzjrIT4DXDlQ5XG5TNTuwDB4ofBz
-AuZxDvD5YYtBMiF2AcrBldFlE3kZ5P8qlGRtwLQ/ZKc76YiFYAXQTytNejult0AAAAASUVORK5C
-YII=
-""")
-
-STRAVA_ICON_GREY = base64.decode("""
-iVBORw0KGgoAAAANSUhEUgAAACgAAAAICAYAAACLUr1bAAAAAXNSR0IArs4c6QAAAKZJREFUOE+l
-lNERgCAMQ2UqR/DTWf10BKfSwzNe7CVFxR8ECn2kgTJc3zjNO/5ru61LqW0cR0ydV3NYF/eN8aqP
-fLzHLwgcIINXgHxgBoxiWMB4elYUMBwTx1xfqZ4BcgWtglmp3qij7KFs46yE8ROw5cNYGhfPSvUC
-QsWHgpkXshL3XC532SQgJ2IftBRsJYlqIj67yWC5S+yeGec3BZ09Ozz3BfAA4+Djoeo+ZzsAAAAA
-SUVORK5CYII=
-""")
+CACHE_TTL = 60 * 60 * 18  # updates once every 36 hours
 
 RUN_ICON = base64.decode("""
 iVBORw0KGgoAAAANSUhEUgAAAAoAAAAGCAYAAAD68A/GAAAAAXNSR0IArs4c6QAAAGpJREFUGFdj
@@ -413,7 +397,6 @@ def progress_chart(config, refresh_token, sport, units):
     )
 
 def athlete_stats(config, refresh_token, period, sport, units):
-    show_logo = config.get("show_logo", True)
     no_anim = config.bool("no_anim", False)
     timezone = config.get("timezone") or "America/New_York"
     year = time.now().in_location(timezone).year
@@ -446,6 +429,8 @@ def athlete_stats(config, refresh_token, period, sport, units):
 
             data = response.json()
             athlete = int(float(data["id"]))
+
+            # TODO: Determine if this cache call can be converted to the new HTTP cache.
             cache.set("%s/athlete_id" % refresh_token, str(athlete), ttl_seconds = CACHE_TTL)
 
         stats = ["count", "distance", "moving_time", "elapsed_time", "elevation_gain"]
@@ -470,6 +455,8 @@ def athlete_stats(config, refresh_token, period, sport, units):
                     for item in stats.keys():
                         if sport_code == sport:
                             stats[item] = data["%s_%s_totals" % (per, sport_code)][item]
+
+                        # TODO: Determine if this cache call can be converted to the new HTTP cache.
                         cache.set(
                             this_cache_prefix + item,
                             str(data["%s_%s_totals" % (per, sport_code)][item]),
@@ -504,8 +491,6 @@ def athlete_stats(config, refresh_token, period, sport, units):
             actu += "s"
 
     display_header = []
-    if show_logo == "true":
-        display_header.append(render.Image(src = STRAVA_ICON))
 
     sport_verb = {
         "run": "running",
@@ -632,14 +617,12 @@ def last_activity(config, refresh_token, sport, units):
     map_info = display_activity.get("map", {})
     polyline = map_info.get("summary_polyline", map_info.get("polyline", None))
     title = []
-    title_width = 64
     if show_logo:
         sport_icon = {
             "run": RUN_ICON,
             "ride": RIDE_ICON,
             "swim": SWIM_ICON,
         }[sport]
-        title_width -= 10
         title.append(
             render.Image(src = sport_icon),
         )
@@ -950,7 +933,6 @@ def get_activities(config, refresh_token):
     timezone = config.get("timezone") or "America/New_York"
     now = time.now().in_location(timezone)
     beg_curr_month = time.time(year = now.year, month = now.month, day = 1)
-    _next_month = time.time(year = now.year, month = now.month, day = 32)
 
     end_prev_month = beg_curr_month - time.parse_duration("1ns")
     beg_prev_month = time.time(year = end_prev_month.year, month = end_prev_month.month, day = 1)
@@ -991,6 +973,8 @@ def get_activities(config, refresh_token):
                     text = "code %d, %s" % (response.status_code, json.decode(response.body()).get("message", ""))
                     return display_failure("Strava API failed, %s" % text)
                 data = response.json()
+
+                # TODO: Determine if this cache call can be converted to the new HTTP cache.
                 cache.set(cache_id, json.encode(data), ttl_seconds = CACHE_TTL)
             else:
                 print("Returning cached %s month activities." % query)
@@ -1087,6 +1071,10 @@ def format_duration(d, resolution = "minutes"):
             m = "0" + m
         return "%s:%s" % (h, m)
 
+    else:
+        # Should never get here.
+        return ""
+
 def oauth_handler(params):
     params = json.decode(params)
     auth_code = params.get("code")
@@ -1117,7 +1105,10 @@ def get_refresh_token(auth_code):
     access_token = token_params["access_token"]
     athlete = int(float(token_params["athlete"]["id"]))
 
+    # TODO: Determine if this cache call can be converted to the new HTTP cache.
     cache.set(refresh_token, access_token, ttl_seconds = int(token_params["expires_in"] - 30))
+
+    # TODO: Determine if this cache call can be converted to the new HTTP cache.
     cache.set("%s/athlete_id" % refresh_token, str(athlete), ttl_seconds = CACHE_TTL)
 
     return refresh_token
@@ -1145,6 +1136,7 @@ def get_access_token(refresh_token):
     token_params = res.json()
     access_token = token_params["access_token"]
 
+    # TODO: Determine if this cache call can be converted to the new HTTP cache.
     cache.set(refresh_token, access_token, ttl_seconds = int(token_params["expires_in"] - 30))
 
     return access_token
@@ -1153,7 +1145,6 @@ def display_failure(msg):
     return render.Root(
         child = render.Column(
             children = [
-                render.Image(src = STRAVA_ICON),
                 render.Marquee(
                     width = 64,
                     child = render.Text(msg),
@@ -1173,7 +1164,9 @@ def http_get(url, headers = None):
         # Retry-After header. but if they start doing so, we'll respect it.
         # in the absence of that header, we backoff for some reasonable
         # default number of seconds.
-        backoff = res.headers.get("Retry-After", RATE_LIMIT_DEFAULT_BACKOFF)
+        backoff = res.headers.get("Retry-After", RATE_LIMIT_DEFAULT_BACKOFF_SECONDS)
+
+        # TODO: Determine if this cache call can be converted to the new HTTP cache.
         cache.set(
             RATE_LIMIT_CACHE_KEY,
             "back off, buddy",
@@ -1242,8 +1235,8 @@ def get_schema():
             ),
             schema.Toggle(
                 id = "show_logo",
-                name = "Logo/Icon",
-                desc = "Whether to display the Strava logo, or the sport icon on progress charts.",
+                name = "Icon",
+                desc = "Whether to display the sport icon on progress charts.",
                 icon = "gear",
                 default = True,
             ),

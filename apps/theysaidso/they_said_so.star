@@ -29,13 +29,13 @@ Author: Henry So, Jr.
 
 # Note: this app uses theysaidso.com's public RSS feed (via feedburner)
 
+load("cache.star", "cache")
+load("encoding/base64.star", "base64")
+load("encoding/json.star", "json")
 load("http.star", "http")
 load("render.star", "render")
 load("schema.star", "schema")
-load("cache.star", "cache")
 load("xpath.star", "xpath")
-load("encoding/base64.star", "base64")
-load("encoding/json.star", "json")
 
 URL = "http://feeds.feedburner.com/theysaidso/qod"
 
@@ -97,6 +97,8 @@ def main(config):
                     }
                     for c in CATEGORIES
                 }
+
+            # TODO: Determine if this cache call can be converted to the new HTTP cache.
             cache.set(KEY, json.encode(data), TTL if content.status_code < 300 else ERROR_TTL)
         else:
             #print("using cache")

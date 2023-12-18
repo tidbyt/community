@@ -1,10 +1,18 @@
-load("render.star", "render")
-load("http.star", "http")
+"""
+Applet: Step Counter
+Author: Matt-Pesce
+Summary: Tracks Daily Step Progress
+Description: Fetches your Step Data from Google Fit, Reports progress versus
+    daily goal.
+"""
+
 load("cache.star", "cache")
-load("time.star", "time")
+load("encoding/json.star", "json")
+load("http.star", "http")
+load("render.star", "render")
 load("schema.star", "schema")
 load("secret.star", "secret")
-load("encoding/json.star", "json")
+load("time.star", "time")
 
 # The daily step goal - this determines the coaching message you receive
 STEP_GOAL = 10000
@@ -50,8 +58,8 @@ GOOGLE_OAUTH_USER_AUTH_URL = "https://accounts.google.com/o/oauth2/v2/auth"
 
 # Random Hash Strings to store Secrets required by Google Oauth (for input to Tidbyt "Secrets" functions)
 # Note - app name is "stepcounter"
-CLIENT_ID_HASH = "AV6+xWcE+SIkQgnPgHzViV78GTRoxpMjlccjdOSUxNRSaBunq5fHKq5xp3sMlKVtYs1V9ZFwBUWg79Pgw+Y3mXoPB5q9AuBVN9bjgND9YpZ9dn3crPs7saefSsj+Mx4K8QUjQgzwLm68+qfWCCtQO419dnPJANjmjXuCrEk02RGw1q3DTRlmaF+Fh+Nf8PRl7wD7Vpfv++8I+WjUlqlhRviULKbMJkyRlZMuBrai"
-CLIENT_SECRET_HASH = "AV6+xWcEb1T8b5kw+ugpxOQ55oRdM9Ox+/PxPSm7V3VTC7NtCrMJXsMA/oozP2Eu8yKUnuDO2jmRB87tsr9ffX1sIkUTdLbftv4swDYku77yz79AJb31q0IRS/gxVkeYuLdgwIt2wqFX6Xrqve2t3wvouaI2WIrpH7U9YzWwc1Iwuv8+6NcKjH0="
+CLIENT_ID_HASH = "AV6+xWcElXy28eMrcBYmFSFnWaraEVFK25mjVHDNrN3u53Z1yqZMFE3/niFTPSBz86qCj/kViLnag3NN7gxJKugcaGO+SZL2aY5dVXbCrOeAG65MN4tksp1PYG1oAQsPF6h1YYFIFnoe94VEAgXOyrTN9SQNF1ewzTrvY/LQAWmB5ED274fDoHOC0W2B0hSVyR63X5vEsydJR5ByQPNxjKS+vLn5kmrc3LDLfxHA"
+CLIENT_SECRET_HASH = "AV6+xWcEWtI7ZA5MICCJ4TsLfsEH3ryq7QstEIWQ6FJeP0lPA9Z0qn8Bv8O+Br2/Iey7Xo/SDSGAGBwebvlJD1GHrC69MGWSlbtlZHuaPMiAtgoZMGoynjM7fu9mrygj/3RHhGE1+AL73AcnbU0aEjUSo5r4NP4TDQryO6c8UWPM4g+oAiKVU+o="
 
 # Default (bogus) client ID and Secrets to keep the run time Env happy when running in Deubg Mode
 CLIENT_ID_DEFAULT = "123456"
@@ -123,6 +131,8 @@ def main(config):
 
         # Grab new Oauthtoken from the Google Token service, format for Data Aggregation API call.
         GOOGLEFIT_OAUTH_TOKEN = "Bearer {}".format(refresh.json()["access_token"])
+
+        # TODO: Determine if this cache call can be converted to the new HTTP cache.
         cache.set(GOOGLEFIT_REFRESH_TOKEN, GOOGLEFIT_OAUTH_TOKEN, ttl_seconds = int(refresh.json()["expires_in"] - 30))
 
     else:
@@ -159,7 +169,6 @@ def main(config):
     #Also, we want to compare this week's progress against last week's progress, since the beginning of the week.
     beginning_of_the_week_epoch = midnight_epoch - (SECONDS_IN_A_DAY * day_oftheweek)
     beginning_of_last_week_epoch = beginning_of_the_week_epoch - SECONDS_IN_A_WEEK
-    end_of_last_week_epoch = beginning_of_the_week_epoch - 1
     last_week_today_epoch = beginning_of_last_week_epoch + (SECONDS_IN_A_DAY * day_oftheweek) + midnight_delta
 
     # Translate to milliseconds
@@ -172,7 +181,6 @@ def main(config):
     beginning_of_the_week_epoch_millis = beginning_of_the_week_epoch * 1000
     beginning_of_last_week_epoch_millis = beginning_of_last_week_epoch * 1000
 
-    end_of_last_week_epoch_millis = end_of_last_week_epoch * 1000
     last_week_today_epoch_millis = last_week_today_epoch * 1000
 
     # Now, Retrieve stoday's step count.   Also Yesterday's step count (24 hours ago), Sum total for this week so far and then Sum total
@@ -376,6 +384,7 @@ def oauth_handler(params):
 
     print(token_params["expires_in"])
 
+    # TODO: Determine if this cache call can be converted to the new HTTP cache.
     cache.set(refresh_token, "Bearer " + token_params["access_token"], ttl_seconds = int(token_params["expires_in"] - 30))
 
     return refresh_token

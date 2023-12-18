@@ -1,0 +1,8 @@
+---
+id: goose-fm
+name: Goose FM
+summary: Info on Goose.fm
+desc: Info for the music service Goose.fm. Supports station overview and individual station data.
+author: jqr
+fileName: goose_fm.star
+packageName: goosefm

@@ -5,11 +5,10 @@ Description: Shows random pictures of cats/gifs of cats from Cats as a Service (
 Author: mrrobot245
 """
 
-load("encoding/json.star", "json")
+load("cache.star", "cache")
+load("http.star", "http")
 load("render.star", "render")
 load("schema.star", "schema")
-load("http.star", "http")
-load("cache.star", "cache")
 
 def main(config):
     if config.bool("gifs", True):
@@ -52,6 +51,8 @@ def get_cached(url, ttl_seconds = 20):
         fail("status %d from %s: %s" % (res.status_code, url, res.body()))
 
     data = res.body()
+
+    # TODO: Determine if this cache call can be converted to the new HTTP cache.
     cache.set(url, data, ttl_seconds = ttl_seconds)
 
     return data

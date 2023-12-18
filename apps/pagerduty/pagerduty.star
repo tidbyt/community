@@ -7,12 +7,12 @@ Author: drudge
 
 load("cache.star", "cache")
 load("encoding/json.star", "json")
-load("humanize.star", "humanize")
 load("http.star", "http")
-load("time.star", "time")
+load("humanize.star", "humanize")
+load("render.star", "render")
 load("schema.star", "schema")
 load("secret.star", "secret")
-load("render.star", "render")
+load("time.star", "time")
 
 DEFAULT_TIMEZONE = "US/Eastern"
 DEFAULT_ONLY_LEVEL_1 = False
@@ -74,32 +74,24 @@ def pagerduty_api_call(config, url, use_cache = True):
     if not access_token:
         return fail("No access token")
 
-    cache_key = "%s|%s" % (access_token, url)
-    cached_res = cache.get(cache_key) if use_cache else None
+    timeout = DEFAULT_CACHE_TTL if use_cache else 0
+    res = http.get(
+        url,
+        headers = {
+            "Authorization": "Bearer %s" % access_token,
+            "Accept": "application/vnd.pagerduty+json;version=2",
+        },
+        ttl_seconds = timeout,
+    )
+    body = res.body()
 
-    if not cached_res:
-        res = http.get(
-            url,
-            headers = {
-                "Authorization": "Bearer %s" % access_token,
-                "Accept": "application/vnd.pagerduty+json;version=2",
-            },
-        )
+    if (res.status_code < 200 or res.status_code >= 300) and len(body) <= 0:
+        body = '{"status":%i}' % res.status_code
 
-        if res.status_code != 200:
-            # buildifier: disable=print
-            print("pagerduty_api_call failed: %s - %s " % (res.status_code, res.body()))
-            return None
-
-        cached_res = res.body()
-
-        if use_cache:
-            cache.set(cache_key, cached_res, DEFAULT_CACHE_TTL)
-
-    return json.decode(cached_res)
+    return json.decode(body)
 
 # buildifier: disable=function-docstring
-def get_pagerduty_counts(config, profile = None):
+def get_pagerduty_counts(config, profile = None, teams_supported = True):
     received_data = False
     counts = dict(
         total = 0,
@@ -109,7 +101,7 @@ def get_pagerduty_counts(config, profile = None):
     team_param = ""
     team_id = config.get("team_id", DEFAULT_TEAM_ID)
 
-    if profile != None:
+    if teams_supported and profile != None:
         if team_id != "all":
             team_param = "&team_ids[]=%s" % team_id
         elif len(profile["teams"]) > 0:
@@ -206,6 +198,8 @@ def get_oncall_shifts(config, profile_id = None, offset = 0, limit = 100, shifts
         return get_oncall_shifts(config, profile_id, offset + limit, limit, shifts)
 
     shifts = sorted(shifts, key = sort_by_level)
+
+    # TODO: Determine if this cache call can be converted to the new HTTP cache.
     cache.set("%s|shifts" % access_token, json.encode(shifts), DEFAULT_CACHE_TTL)
     return shifts
 
@@ -228,6 +222,14 @@ def is_user_oncall(config, shifts, user_id):
                 break
 
     return is_user_oncall
+
+def are_teams_supported(config):
+    result = pagerduty_api_call(config, "%s/abilities/teams" % PAGERDUTY_BASE_URL)
+
+    if result != None and result["status"] != None:
+        return result["status"] == 204
+    else:
+        return False
 
 # buildifier: disable=function-docstring
 def get_oncall_scroll_text(shifts, timezone = DEFAULT_TIMEZONE):
@@ -276,6 +278,7 @@ def get_state(config):
 
     if is_preview:
         oncall = True
+        account_has_teams = False
         counts = dict(
             total = 42,
             triggered = 7,
@@ -287,7 +290,8 @@ def get_state(config):
         if profile == None:
             return Error("Failed to get user profile")
 
-        counts = get_pagerduty_counts(config, profile)
+        account_has_teams = are_teams_supported(config)
+        counts = get_pagerduty_counts(config, profile, account_has_teams)
 
         if show_oncall_bar:
             shifts = get_oncall_shifts(config, profile["id"] if only_when_oncall else None)
@@ -308,6 +312,7 @@ def get_state(config):
         level_one_only = level_one_only,
         only_when_oncall = only_when_oncall,
         team_id = team_id,
+        teams_supported = account_has_teams,
     )
 
 # buildifier: disable=function-docstring
@@ -425,6 +430,11 @@ def main(config):
 def build_teams(refresh_token):
     config = dict(auth = refresh_token)
     user = get_current_user(config)
+    teams_supported = are_teams_supported(config)
+
+    if not teams_supported:
+        return []
+
     options = [
         schema.Option(
             display = "All",

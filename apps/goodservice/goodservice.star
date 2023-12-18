@@ -5,21 +5,28 @@ Description: Projected New York City subway departure times, powered by goodserv
 Author: blahblahblah-
 """
 
+load("encoding/base64.star", "base64")
+load("encoding/json.star", "json")
+load("http.star", "http")
+load("re.star", "re")
 load("render.star", "render")
 load("schema.star", "schema")
 load("time.star", "time")
-load("http.star", "http")
-load("encoding/base64.star", "base64")
 
 DEFAULT_STOP_ID = "M16"
 DEFAULT_DIRECTION = "both"
+DEFAULT_TRAVEL_TIME = '{"display": "0", "value": "0", "text": "0"}'
 GOOD_SERVICE_STOPS_URL_BASE = "https://goodservice.io/api/stops/"
 GOOD_SERVICE_ROUTES_URL = "https://goodservice.io/api/routes/"
+
+DISPLAY_ORDER_ETA = "eta"
+DISPLAY_ORDER_ALPHABETICAL = "alphabetical"
 
 NAME_OVERRIDE = {
     "Grand Central-42 St": "Grand Cntrl",
     "Times Sq-42 St": "Times Sq",
     "Coney Island-Stillwell Av": "Coney Is",
+    "South Ferry": "S Ferry",
 }
 
 STREET_ABBREVIATIONS = [
@@ -42,6 +49,9 @@ ABBREVIATIONS = {
     "Channel": "Chnl",
     "Green": "Grn",
     "Broadway": "Bway",
+    "Queensboro": "Q Boro",
+    "Plaza": "Plz",
+    "Whitehall": "Whthall",
 }
 
 DIAMONDS = {
@@ -56,7 +66,7 @@ def main(config):
         fail("goodservice routes request failed with status %d", routes_req.status_code)
 
     stop_id = config.str("stop_id", DEFAULT_STOP_ID)
-    stop_req = http.get(GOOD_SERVICE_STOPS_URL_BASE + stop_id)
+    stop_req = http.get(GOOD_SERVICE_STOPS_URL_BASE + stop_id + "?agent=tidbyt")
     if stop_req.status_code != 200:
         fail("goodservice stop request failed with status %d", stop_req.status_code)
 
@@ -64,14 +74,22 @@ def main(config):
     if stops_req.status_code != 200:
         fail("goodservice stops request failed with status %d", stops_req.status_code)
 
+    travel_time_raw = json.decode(config.get("travel_time", DEFAULT_TRAVEL_TIME))["value"]
+    if not is_parsable_integer(travel_time_raw):
+        fail("non-integer value provided for travel_time: %s", travel_time_raw)
+    travel_time_min = int(travel_time_raw)
+
     direction_config = config.str("direction", DEFAULT_DIRECTION)
     if direction_config == "both":
         directions = ["north", "south"]
     else:
         directions = [direction_config]
 
+    ordering = config.str("order_by", DISPLAY_ORDER_ETA)
+
     ts = time.now().unix
     blocks = []
+    min_estimated_arrival_time = ts + (travel_time_min * 60)
 
     for dir in directions:
         upcoming_routes = {
@@ -84,13 +102,17 @@ def main(config):
 
         for trip in dir_data:
             matching_route = None
+
+            if trip["estimated_current_stop_arrival_time"] < min_estimated_arrival_time:
+                continue
+
             for r in upcoming_routes[dir]:
                 if r["route_id"] == trip["route_id"] and r["destination_stop"] == trip["destination_stop"]:
                     matching_route = r
                     break
 
             if matching_route:
-                if len(matching_route["times"]) == 1:
+                if len(matching_route["times"]) < 3:
                     matching_route["times"].append(trip["estimated_current_stop_arrival_time"])
                     matching_route["is_delayed"].append(trip["is_delayed"])
                 else:
@@ -99,9 +121,18 @@ def main(config):
                 upcoming_routes[dir].append({"route_id": trip["route_id"], "destination_stop": trip["destination_stop"], "times": [trip["estimated_current_stop_arrival_time"]], "is_delayed": [trip["is_delayed"]]})
 
         for dir in directions:
-            for r in upcoming_routes[dir]:
+            routes_by_dir = upcoming_routes[dir]
+
+            if ordering == DISPLAY_ORDER_ALPHABETICAL:
+                def order_by_alpha(e):
+                    selected_route = routes_req.json()["routes"][e["route_id"]]
+                    return selected_route["name"]
+
+                routes_by_dir = sorted(routes_by_dir, order_by_alpha)
+
+            for r in routes_by_dir:
                 if len(blocks) > 0:
-                    if dir == "south" and r == upcoming_routes[dir][0]:
+                    if dir == "south" and r == routes_by_dir[0]:
                         blocks.append(render.Box(width = 64, height = 1, color = "#aaa"))
                     else:
                         blocks.append(render.Box(width = 64, height = 1, color = "#333"))
@@ -125,21 +156,33 @@ def main(config):
                     text = "due"
                 else:
                     text = str(int(first_eta))
-
                 if len(r["times"]) == 1 and text != "due" and text != "delay":
                     text = text + " min"
                 elif text != "delay":
                     second_eta = (int((r["times"][1]) - ts) / 60)
                     second_train_is_delayed = r["is_delayed"][1]
                     if second_train_is_delayed:
-                        if second_eta < 1:
+                        if first_eta < 1:
                             text = text + ", delay"
                         else:
                             text = text + " min, delay"
                     elif second_eta < 1:
                         text = text + ", due"
                     else:
-                        text = text + ", " + str(int(second_eta)) + " min"
+                        third_time_delta = config.str("third_time")
+                        if len(r["times"]) > 2 and (third_time_delta != None) and second_eta - first_eta < int(third_time_delta):
+                            third_eta = (int((r["times"][2]) - ts) / 60)
+                            third_train_is_delayed = r["is_delayed"][2]
+                            if third_train_is_delayed != 1:
+                                text = text + ", " + str(int(second_eta)) + ", " + str(int(third_eta))
+                                if len(text) > 9:
+                                    text = text + " m"
+                                else:
+                                    text = text + " min"
+                            else:
+                                text = text + ", " + str(int(second_eta)) + ", delay"
+                        else:
+                            text = text + ", " + str(int(second_eta)) + " min"
 
                 if len(selected_route["name"]) > 1 and selected_route["name"][1] == "X":
                     bullet = render.Stack(
@@ -172,7 +215,6 @@ def main(config):
                             ),
                         ),
                     )
-
                 blocks.append(render.Padding(
                     pad = (0, 0, 0, 1),
                     child = render.Row(
@@ -193,6 +235,9 @@ def main(config):
                     ),
                 ))
 
+    if len(blocks) == 0:
+        return []
+
     return render.Root(
         child = render.Marquee(
             height = 32,
@@ -203,7 +248,23 @@ def main(config):
                 children = blocks,
             ),
         ),
+        max_age = 60,
     )
+
+def is_parsable_integer(maybe_number):
+    return not re.findall("[^0-9]", maybe_number)
+
+def travel_time_search(pattern):
+    create_option = lambda value: schema.Option(display = value, value = value)
+
+    if pattern == "0" or not is_parsable_integer(pattern):
+        return [create_option(str(i)) for i in range(10)]
+
+    int_pattern = int(pattern)
+    if int_pattern > 60:
+        return [create_option("60")]
+    else:
+        return [create_option(pattern)] + [create_option(pattern + str(i)) for i in range(10) if int_pattern * 10 + i < 60]
 
 def get_schema():
     stops_req = http.get(GOOD_SERVICE_STOPS_URL_BASE)
@@ -254,12 +315,69 @@ def get_schema():
                     ),
                 ],
             ),
+            schema.Typeahead(
+                id = "travel_time",
+                name = "Travel Time to Station",
+                desc = "Amount of time it takes to reach this station (trains with earlier arrival times will be hidden).",
+                icon = "hourglass",
+                handler = travel_time_search,
+            ),
+            schema.Dropdown(
+                id = "third_time",
+                name = "Third Time",
+                desc = "3rd arrival time delta",
+                icon = "hourglass",
+                default = "3",
+                options = [
+                    schema.Option(
+                        display = "OFF",
+                        value = "0",
+                    ),
+                    schema.Option(
+                        display = "3 mins",
+                        value = "3",
+                    ),
+                    schema.Option(
+                        display = "5 mins",
+                        value = "5",
+                    ),
+                    schema.Option(
+                        display = "7 mins",
+                        value = "7",
+                    ),
+                    schema.Option(
+                        display = "10 mins",
+                        value = "10",
+                    ),
+                    schema.Option(
+                        display = "Always Show",
+                        value = "1000",
+                    ),
+                ],
+            ),
+            schema.Dropdown(
+                id = "order_by",
+                name = "Order By",
+                desc = "The display order of train routes",
+                icon = "sort",
+                default = DISPLAY_ORDER_ETA,
+                options = [
+                    schema.Option(
+                        display = "Next Train ETA",
+                        value = DISPLAY_ORDER_ETA,
+                    ),
+                    schema.Option(
+                        display = "Alphabetical Order",
+                        value = DISPLAY_ORDER_ALPHABETICAL,
+                    ),
+                ],
+            ),
         ],
     )
 
 def condense_name(name):
     name = name.replace(" - ", "-")
-    if len(name) < 12:
+    if len(name) < 11:
         return name
 
     if NAME_OVERRIDE.get(name):

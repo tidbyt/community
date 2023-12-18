@@ -5,12 +5,14 @@ Description: Long Island Railroad Train Times.
 Author: bralax
 """
 
-load("render.star", "render")
-load("http.star", "http")
-load("encoding/json.star", "json")
 load("cache.star", "cache")
-load("schema.star", "schema")
+load("compress/zipfile.star", "zipfile")
+load("encoding/csv.star", "csv")
+load("encoding/json.star", "json")
+load("http.star", "http")
 load("math.star", "math")
+load("render.star", "render")
+load("schema.star", "schema")
 load("time.star", "time")
 
 DELTA = .1
@@ -28,6 +30,7 @@ def main(config):
         station_id = json.decode(station_id)["value"]
     gtfs = get_gtfs()
     stops = getIds(gtfs, station_id)
+    print(stops)
     if stops == None or len(stops) == 0:
         return render.Root(child = render.Marquee(
             width = 64,
@@ -121,6 +124,7 @@ def nextDay(cur_date):
 def getIds(gtfs, station_id):
     ids = []
     time_now = now()
+    print(time_now)
     id = getId(gtfs, station_id, time_now)
     if not id == None:
         ids.append(gtfs["stop_times"][station_id][id])
@@ -152,6 +156,8 @@ def getId(gtfs, station_id, time_now, startingIndex = 0):
         if stop_time["timestamp"] > tim and str(cur_date) in gtfs["calendar"] and gtfs["trips"][stop_time["trip_id"]]["service_id"] in gtfs["calendar"][str(cur_date)]:
             return i
 
+    return None
+
 def get_stations(loc):
     location = json.decode(loc)
     res = get_gtfs()
@@ -174,23 +180,58 @@ def get_delta(stop):
 def get_gtfs():
     cached = cache.get(STATIC_GTFS_FILE)
     if cached == None:
-        resText = http.get("http://web.mta.info/developers/data/lirr/lirr_gtfs.json").body()
-        res = parse_gtfs(json.decode(resText)["gtfs"])
+        resText = http.get("http://web.mta.info/developers/data/lirr/google_transit.zip").body()
+        res = parse_gtfs(resText)
+
+        # TODO: Determine if this cache call can be converted to the new HTTP cache.
         cache.set(STATIC_GTFS_FILE, json.encode(res), ttl_seconds = 3600)
         return res
     else:
         return json.decode(cached)
 
 def parse_gtfs(gtfs):
-    calendar = generate_calendar(gtfs)
-    trips = generate_triplist(gtfs)
-    routes = generate_routeslist(gtfs)
-    stops = generate_stoplist(gtfs)
-    stop_times = generate_stoptimelist(remove_destinations(gtfs["stop_times"], trips, stops))
+    zipfl = zipfile.ZipFile(gtfs)
+
+    calendar = generate_calendar(zipfl.open("calendar_dates.txt").read())
+    trips = convert_to_json_obj(zipfl.open("trips.txt").read(), "trip_id")
+    routes = convert_to_json_obj(zipfl.open("routes.txt").read(), "route_id")
+    stops = convert_to_json_obj(zipfl.open("stops.txt").read(), "stop_id")
+    base_stop_times = convert_to_json_arr(zipfl.open("stop_times.txt").read())
+    stop_times = generate_stoptimelist(remove_destinations(base_stop_times, trips, stops))
     return {"stop_times": stop_times, "calendar": calendar, "trips": trips, "routes": routes, "stops": stops}
 
-def generate_calendar(gtfs):
-    calendar_dates = gtfs["calendar_dates"]
+def convert_to_json_obj(data, id_field):
+    data_array = csv.read_all(data)
+    headers_data = data_array[0]
+    data = {}
+    headers = True
+    for item in data_array:
+        if headers:
+            headers = False
+            continue
+        value = {}
+        for i in range(0, len(item)):
+            value[headers_data[i]] = item[i]
+        data[value[id_field]] = value
+    return data
+
+def convert_to_json_arr(data):
+    data_array = csv.read_all(data)
+    headers_data = data_array[0]
+    data = []
+    headers = True
+    for item in data_array:
+        if headers:
+            headers = False
+            continue
+        value = {}
+        for i in range(0, len(item)):
+            value[headers_data[i]] = item[i]
+        data.append(value)
+    return data
+
+def generate_calendar(data):
+    calendar_dates = convert_to_json_arr(data)
     calendar = {}
     for item in calendar_dates:
         date = str(item["date"])
@@ -227,27 +268,6 @@ def set_timestamp(stop_time):
 
 def get_time(stop):
     return stop["timestamp"]
-
-def generate_triplist(gtfs):
-    trip_list = gtfs["trips"]
-    trips = {}
-    for item in trip_list:
-        trips[item["trip_id"]] = item
-    return trips
-
-def generate_routeslist(gtfs):
-    route_list = gtfs["routes"]
-    routes = {}
-    for item in route_list:
-        routes[item["route_id"]] = item
-    return routes
-
-def generate_stoplist(gtfs):
-    stop_list = gtfs["stops"]
-    stops = {}
-    for item in stop_list:
-        stops[item["stop_id"]] = item
-    return stops
 
 def remove_destinations(stop_time_list, trip_list, stop_list):
     cleaned_stops = []

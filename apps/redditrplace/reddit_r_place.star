@@ -5,13 +5,13 @@ Description: See tidbits of what Redditors created for r/place.
 Author: funkfinger
 """
 
-load("render.star", "render")
-load("http.star", "http")
-load("random.star", "random")
 load("animation.star", "animation")
-load("schema.star", "schema")
 load("cache.star", "cache")
 load("encoding/base64.star", "base64")
+load("http.star", "http")
+load("random.star", "random")
+load("render.star", "render")
+load("schema.star", "schema")
 
 VIEWPORT_WIDTH = 64
 VIEWPORT_HEIGHT = 32
@@ -178,6 +178,7 @@ def get_image(url):
 
     image = http.get(url).body()
 
+    # TODO: Determine if this cache call can be converted to the new HTTP cache.
     cache.set(url, base64.encode(image), ttl_seconds = CACHE_TTL_SECONDS)
 
     return render.Image(image)

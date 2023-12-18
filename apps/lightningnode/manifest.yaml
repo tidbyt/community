@@ -1,0 +1,8 @@
+---
+id: lightningnode
+name: LightningNode
+summary: Shows BTC Lightning stats
+desc: Shows Bitcoin Lightning Network statistics, or statistics of your own Lightning node.
+author: PMK (@pmk)
+fileName: lightningnode.star
+packageName: lightningnode

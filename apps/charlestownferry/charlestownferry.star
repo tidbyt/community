@@ -5,12 +5,12 @@ Description: Displays three upcoming ferry depature times for the Charlestown, M
 Author: jblaker
 """
 
-load("render.star", "render")
-load("http.star", "http")
 load("cache.star", "cache")
-load("time.star", "time")
 load("encoding/json.star", "json")
+load("http.star", "http")
 load("humanize.star", "humanize")
+load("render.star", "render")
+load("time.star", "time")
 
 FERRY_SCHEDULE_URL = "https://api-v3.mbta.com/schedules?filter[route]=Boat-F4"
 
@@ -25,6 +25,8 @@ def main():
         if rep.status_code != 200:
             fail("MBTA API request failed with status %d", rep.status_code)
         response_data = rep.json()
+
+        # TODO: Determine if this cache call can be converted to the new HTTP cache.
         cache.set("response_data", json.encode(response_data), ttl_seconds = 240)
 
     ferry_schedule = response_data["data"]

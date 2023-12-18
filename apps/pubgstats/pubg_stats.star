@@ -5,18 +5,18 @@ Description: Displays individual player's gaming stats from PlayerUnknown's Batt
 Author: joes-io
 """
 
-load("render.star", "render")
 load("animation.star", "animation")
+load("cache.star", "cache")
 load("encoding/base64.star", "base64")
+load("encoding/json.star", "json")
 load("http.star", "http")
 load("humanize.star", "humanize")
+load("render.star", "render")
 load("schema.star", "schema")
-load("cache.star", "cache")
-load("encoding/json.star", "json")
 load("secret.star", "secret")
 
 # Encrypted API Key for "pubgstats"
-ENCRYPTED_API_KEY = "AV6+xWcEcIMca+JxD06W2mGLG3rxsGdBDLVvr/kfE9BJ9c6k+CEjkiUzeX2RK080M9bVLeahQH5GD9gL19VSSIpGKWLOtYNNkau4vzh6od+fTU0ZROCc6yRpekenuABnN6E/gVoNoR5HW//VXQdGY72B9Tx3KQxaS8ODa1fMf34h17Z1H7zKUoNliiVDwnHlCe2Jvim7xwZmHWCDOQD4wjROTE8m6Hmf7vTazjxPaP9w+XLcSg+Vaa3IjR8KFXXJ8ad7i6tj35jf//g2GAvI8lTw5Te8Pu9iBBBPSmuPRZXPGf4VY3TNkgP7gGc7ovGm3uBTq6i2QcWFQOwV7OY1LNYbbg/BEleQfcDSC+4ZMjfKFJyxDeNbULOBhox4ht/LLb4SWlQGk6G5IwfY0YYtGKAMBt1lIMEDxllP0oObvfjWvD3FDnLySAQacQ6sCmRm7XiOwQ7XLchwO/XL2Kk2IR5KUA=="
+ENCRYPTED_API_KEY = "AV6+xWcEawALXuQUcd1HmnSJuJB57+ivDXPv546IFBbkFOuZVwO0g4T8A/26uo0AxNRN6CcNnGHru4vLRo3zDi6Hj0aps5oF1Dc8AnehLwQDQ2pjinO2b6b0oUZzzm7VfP8KLs62RLlQq6C4Xghd/3q5bq62ofmbuH12AL6/AzL1YpTUFNPSSB7hM7Bcroe5HU/GBTbseO6FoOu/SbNkN1MnDAv8VKvPU3ExhBbysJDj5bZI5Kz74mIgQ6Chxncyymk5Cgidr9FYT3JJYPo2PZIJLG5+c5EnPb+nJngOdtYO4xxPFJzv/H9x7pq4GA+Im+xTM0olAKk40o+ytsJaIe/epaNhmlg6cPj13zh4BalXc1D9hIXpcCP+J7yThDGlhaVVDZtC1P3q1e+Pknvt4pztLFAxMb3N00GAB+aNG8ZhfkDQ9Z8qAQm4OvRDb6D7OtVjphmOxOcwux0s3iaxbIVwJg=="
 
 # Default settings if no configuration set in Tidbyt app
 DEFAULT_PLAYER_NAME = "chocoTaco"
@@ -126,6 +126,7 @@ def main(config):
         player_id = resp.json()["data"][0]["id"]
 
         # Set player id in cache
+        # TODO: Determine if this cache call can be converted to the new HTTP cache.
         cache.set(player_cache_key, str(player_id), ttl_seconds = ttl_player_id)
 
     # Get lifetime stats for that player id
@@ -160,6 +161,7 @@ def main(config):
         lifetime_stats = json.encode(resp.json())
 
         # Set cache with JSON object from lifetime_stats serialized to string
+        # TODO: Determine if this cache call can be converted to the new HTTP cache.
         cache.set(lifetime_stats_cache_key, str(lifetime_stats), ttl_seconds = ttl_lifetime_stats)
 
     # Decode string back to JSON object to be read

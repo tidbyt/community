@@ -5,18 +5,18 @@ Description: Real time bus departures for your preferred stop.
 Author: samandmoore
 """
 
-load("re.star", "re")
 load("cache.star", "cache")
 load("encoding/base64.star", "base64")
 load("encoding/json.star", "json")
 load("http.star", "http")
+load("re.star", "re")
 load("render.star", "render")
 load("schema.star", "schema")
 load("secret.star", "secret")
 load("time.star", "time")
 
 EXAMPLE_STOP_CODE = "550685"
-ENCRYPTED_API_KEY = "AV6+xWcEsr4R4d680czLc/RnfvU1ZpOx7ofrv0uAb8j7KoKa/Mw9Apbv6dfRFBPPu1oGMxIOSUhdEJV8IdBSwrRHvoOhfSPMmyYzcTJsSdDOoPT0p1KfvAcsyixqdCsYGJcif2+HL4W/qnX6X1hdDZV8pfaQzgswXFmvgnkoFPOWuL9dpc7drUDA"
+ENCRYPTED_API_KEY = "AV6+xWcEyevKcdrIpIo95aDtG0+14nQ1GG+kEuwmjiUiyFaJBRX6CL1/bi31WpHXwyV2AgApxwxDgWlGtvT5SDapGAwoma96vsVKfrXnH4Jlr5Oy38r5F3y+GbDm0Obw1fo6aaqIvr1y4fI7W0neS30mbmdkVBc6H2oK6KpB4HMtOxkm2UkXKSGA"
 BUSTIME_STOP_TIMES_URL = "http://bustime.mta.info/api/siri/stop-monitoring.json"
 BUSTIME_STOP_INFO_URL = "http://bustime.mta.info/api/where/stop/%s.json"
 BUSTIME_STOPS_FOR_LOCATION_URL = "http://bustime.mta.info/api/where/stops-for-location.json"
@@ -251,6 +251,7 @@ def get_line_info(stop_id, line_ref, api_key):
         "color": route["color"],
     }
 
+    # TODO: Determine if this cache call can be converted to the new HTTP cache.
     cache.set(cache_key, base64.encode(json.encode(result)), ttl_seconds = 3600)
 
     return result

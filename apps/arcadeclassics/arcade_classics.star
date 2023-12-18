@@ -6,10 +6,11 @@ Author: Steve Otteson
 """
 
 load("encoding/base64.star", "base64")
+load("math.star", "math")
+load("random.star", "random")
 load("render.star", "render")
 load("schema.star", "schema")
 load("time.star", "time")
-load("math.star", "math")
 
 FRAME_WIDTH = 64
 FRAME_HEIGHT = 32
@@ -31,31 +32,28 @@ SPEED_ADJUST = {
 }
 
 def main(config):
-    seed = int(time.now().unix)
-    seed = [seed]
-
     animation = config.str("animation", PACMAN_ANIMATION)
     if animation == RANDOM_ANIMATION:
-        animation = ANIMATION_LIST.values()[rand(seed, len(ANIMATION_LIST) - 1)]
+        animation = ANIMATION_LIST.values()[rand(len(ANIMATION_LIST) - 1)]
 
     speed = int(config.str("speed", DEFAULT_SPEED))
     if speed < 0:
-        speed = rand(seed, MIN_SPEED + MAX_SPEED + 1) + MAX_SPEED
+        speed = rand(MIN_SPEED + MAX_SPEED + 1) + MAX_SPEED
 
     speed = speed * SPEED_ADJUST[animation]
     delay = speed * time.millisecond
 
     app_cycle_speed = SECONDS_TO_RENDER * time.second
-    num_frames = math.ceil(app_cycle_speed / delay)
+    num_frames = math.ceil(app_cycle_speed // delay)
 
     allFrames = []
-    for i in range(1, 1000):
+    for _ in range(1, 1000):
         if animation == PACMAN_ANIMATION:
-            frames = pacman_get_frames(seed)
+            frames = pacman_get_frames()
         elif animation == SPACE_INVADERS_ANIMATION:
             frames = spaceinvaders_get_frames()
         else:
-            frames = centipede_get_frames(seed)
+            frames = centipede_get_frames()
 
         allFrames.extend(frames)
         if len(allFrames) >= num_frames:
@@ -66,9 +64,8 @@ def main(config):
         child = render.Animation(allFrames),
     )
 
-def rand(seed, max):
-    seed[0] = (seed[0] * 1103515245 + 12345) & 0xffffffff
-    return (seed[0] >> 16) % max
+def rand(ceiling):
+    return random.number(0, ceiling - 1)
 
 DEFAULT_SPEED = "30"
 
@@ -122,9 +119,7 @@ def get_schema():
         ],
     )
 
-"""
-Pac-Man
-"""
+# Pac-Man
 
 Red_R1 = """iVBORw0KGgoAAAANSUhEUgAAAA4AAAAOCAIAAACQKrqGAAAAZ0lEQVR42mJkQAX/kdiMqFKMWBVhVcGIXx2yIhZkdffvgZiKSgirICL/lRiBQkxoongYLGh2OTuDyHsYIkDAhN+VyJ5mRFaKy60QEUYiTWVA9tbAKmVEjRtGbBHLBOcw4o5SCAkQYAClNyHYKAGFjAAAAABJRU5ErkJggg=="""
 Red_R2 = """iVBORw0KGgoAAAANSUhEUgAAAA4AAAAOCAIAAACQKrqGAAAAYUlEQVR42mJkQAX/kdiMqFKMWBVhVcGIXx2yIhZkdffvgZiKSgirICL/lRiBQkxoongYLGh2OTuDyHsYIkDAhN+VyJ5mRFaKy60QEUYiTWVA9tZgUIoz0pED4j8RXIAAAwAqjCfKmzaHIQAAAABJRU5ErkJggg=="""
@@ -172,15 +167,13 @@ GHOSTS = [
     [[Blue_1, Blue_2], [Blue_1, Blue_2]],
 ]
 
-"""
-Not yet using a blinking ghost
-GHOST_CHASED_BLINKING = [
-    Blue_1,
-    Blue_2,
-    White_1,
-    White_2,
-]
-"""
+# Not yet using a blinking ghost
+# GHOST_CHASED_BLINKING = [
+#     Blue_1,
+#     Blue_2,
+#     White_1,
+#     White_2,
+# ]
 
 SPRITE_WIDTH = 15
 
@@ -201,11 +194,11 @@ CHASED_GHOST = 4
 # Make the odds of chasing a ghost a little higher
 CHANCE_FOR_CHASED_GHOST = 2
 
-def pacman_get_frames(seed):
-    yPos = rand(seed, PM_NUM_Y_POSITIONS)
-    mspacman = rand(seed, 2) == 1
-    reverse = rand(seed, 2) == 1
-    whichGhost = rand(seed, CHASING_GHOST_COUNT + CHANCE_FOR_CHASED_GHOST)
+def pacman_get_frames():
+    yPos = rand(PM_NUM_Y_POSITIONS)
+    mspacman = rand(2) == 1
+    reverse = rand(2) == 1
+    whichGhost = rand(CHASING_GHOST_COUNT + CHANCE_FOR_CHASED_GHOST)
     if whichGhost >= CHASING_GHOST_COUNT:
         whichGhost = CHASED_GHOST
 
@@ -259,9 +252,7 @@ def pacman_get_frame(xPos, yPos, mspacman, reverse, whichGhost):
             ),
     )
 
-"""
-Space Invaders
-"""
+# Space Invaders
 
 BIG_ALIEN_WIDTH = 12
 ALIENS_PER_ROW = 3
@@ -349,9 +340,7 @@ def spaceinvaders_get_frame(state):
             ),
     )
 
-"""
-Centipede
-"""
+# Centipede
 
 CENT_SPRITE_WIDTH = 8
 CENT_SPRITE_HEIGHT = 8
@@ -388,13 +377,13 @@ CENT_ORIG_LEG_COLOR = CENT_OFF_WHITE
 CENT_HIST_MOVES_PER_SEGMENT = CENT_SPRITE_WIDTH // CENT_MOVE_PER_STATE
 CENT_MAX_HISTORY_ITEMS = CENT_HIST_MOVES_PER_SEGMENT * CENT_NUM_SEGMENTS
 
-def centipede_get_frames(seed):
-    colorScheme = get_color_scheme(seed)
+def centipede_get_frames():
+    colorScheme = get_color_scheme()
     centSprites = create_all_cent_sprites(colorScheme)
     mushroomSprite = create_mushroom_sprite(colorScheme)
-    mushroomMap = create_mushroom_map(seed, mushroomSprite)
+    mushroomMap = create_mushroom_map(mushroomSprite)
 
-    xDir = rand(seed, 2)
+    xDir = rand(2)
     if xDir == 0:
         xDir = -1
         centStartX = FRAME_WIDTH
@@ -513,6 +502,7 @@ def process_head_move(segment, state, mushroomMap, history):
     yDirIndex = 1 if yDir > 0 else 0
 
     diagIndex = -1
+    horzVertIndex = -1
     if turnFrame == -1 or turnFrame == 3:
         horzVertIndex = CENT_HORZ_INDEX
     elif turnFrame == 0:
@@ -598,9 +588,9 @@ def get_segment_render_child(centSprites, segmentIndex, history):
         ),
     )
 
-def add_mushroom(seed, mushroomMap, mushroomSprite):
-    col = rand(seed, CENT_NUM_COLS)
-    row = rand(seed, CENT_NUM_ROWS)
+def add_mushroom(mushroomMap, mushroomSprite):
+    col = rand(CENT_NUM_COLS)
+    row = rand(CENT_NUM_ROWS)
 
     x = col * CENT_SPRITE_WIDTH
     y = row * CENT_SPRITE_WIDTH
@@ -640,7 +630,7 @@ def create_mushroom_sprite(colorScheme):
 
     return makeSprite(mushroomPixels, colorReplacements = colorScheme)
 
-def get_color_scheme(seed):
+def get_color_scheme():
     colorSchemes = [
         # Green, red, off white
         {CENT_ORIG_BODY_COLOR: CENT_GREEN, CENT_ORIG_EYE_COLOR: CENT_RED, CENT_ORIG_LEG_COLOR: CENT_OFF_WHITE},
@@ -685,13 +675,13 @@ def get_color_scheme(seed):
         {CENT_ORIG_BODY_COLOR: CENT_GREEN, CENT_ORIG_EYE_COLOR: CENT_MAGENTA, CENT_ORIG_LEG_COLOR: CENT_RED},
     ]
 
-    return colorSchemes[rand(seed, len(colorSchemes))]
+    return colorSchemes[rand(len(colorSchemes))]
 
-def create_mushroom_map(seed, mushroomSprite):
-    mushroomCount = rand(seed, CENT_MAX_MUSHROOMS - CENT_MIN_MUSHROOMS + 1) + CENT_MIN_MUSHROOMS
+def create_mushroom_map(mushroomSprite):
+    mushroomCount = rand(CENT_MAX_MUSHROOMS - CENT_MIN_MUSHROOMS + 1) + CENT_MIN_MUSHROOMS
     mushroomMap = {}
-    for i in range(mushroomCount):
-        add_mushroom(seed, mushroomMap, mushroomSprite)
+    for _ in range(mushroomCount):
+        add_mushroom(mushroomMap, mushroomSprite)
 
     return mushroomMap
 
@@ -832,6 +822,7 @@ def create_all_cent_sprites(colorScheme):
 
 def createCentSprites(headHorzLeftPixels, headVertDownPixels, headDiagDownLeftPixels, colorScheme, eyes = True):
     # If we're not creating sprites for the eyes, we need to replace the eye color with the body color
+    origRedReplacement = ""
     if not eyes:
         origRedReplacement = colorScheme[CENT_ORIG_EYE_COLOR]
         colorScheme[CENT_ORIG_EYE_COLOR] = colorScheme[CENT_ORIG_BODY_COLOR]

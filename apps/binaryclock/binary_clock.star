@@ -5,11 +5,11 @@ Description: This app show the current date and time in a binary format.
 Author: LukiLeu
 """
 
+load("encoding/json.star", "json")
+load("math.star", "math")
 load("render.star", "render")
 load("schema.star", "schema")
-load("encoding/json.star", "json")
 load("time.star", "time")
-load("math.star", "math")
 
 # Define some constants
 DEFAULT_LOCATION = {
@@ -25,26 +25,8 @@ MAX_VALUE = 2048
 DEFAULT_COLORS = {
     "Black": "#000",
     "White 100%": "#fff",
-    "White 50%": "#777",
     "White 20%": "#222",
     "Red 100%": "#f00",
-    "Red 50%": "#700",
-    "Red 20%": "#200",
-    "Green 100%": "#0f0",
-    "Green 50%": "#070",
-    "Green 20%": "#020",
-    "Blue 100%": "#00f",
-    "Blue 50%": "#007",
-    "Blue 20%": "#002",
-    "Yellow 100%": "#ff0",
-    "Yellow 50%": "#770",
-    "Yellow 20%": "#220",
-    "Cyan 100%": "#0ff",
-    "Cyan 50%": "#077",
-    "Cyan 20%": "#022",
-    "Magenta 100%": "#f0f",
-    "Magenta 50%": "#707",
-    "Magenta 20%": "#202",
 }
 
 DEFAULT_BARWIDTH = {
@@ -69,7 +51,7 @@ DEFAULT_BARHEIGHT = {
 # Draw the color bar
 def render_bar(value, color_dots, color_dots_bg, width_bar, height_bar):
     children_bar = []
-    for i in range(0, int(math.log(MAX_VALUE, 2))):
+    for _ in range(0, int(math.log(MAX_VALUE, 2))):
         if int(math.mod(value, 2)) == 1:
             children_bar.append(
                 render.Box(width = width_bar, height = height_bar, color = color_dots),
@@ -162,7 +144,7 @@ def main(config):
     clock_frames = []
 
     # Render 30 seconds
-    for i in range(0, 30):
+    for _ in range(0, 30):
         clock_frames.append(
             render_image(current_time, color_text, color_dots, color_dots_bg, width_bar, heigth_bar, show_text),
         )
@@ -171,6 +153,7 @@ def main(config):
     # Return the clock
     return render.Root(
         delay = 1000,
+        max_age = 120,
         child = render.Box(
             child = render.Animation(
                 children = clock_frames,
@@ -188,37 +171,25 @@ def get_schema():
                 desc = "Location defining the timezone.",
                 icon = "locationDot",
             ),
-            schema.Dropdown(
+            schema.Color(
                 id = "color_text",
                 name = "Color Text",
                 icon = "brush",
                 desc = "Color of the text",
-                options = [
-                    schema.Option(display = color_name, value = color_value)
-                    for (color_name, color_value) in DEFAULT_COLORS.items()
-                ],
                 default = DEFAULT_COLORS.get("White 100%"),
             ),
-            schema.Dropdown(
+            schema.Color(
                 id = "color_dots",
                 name = "Color Active Dots",
                 icon = "brush",
                 desc = "Color of the active dots",
-                options = [
-                    schema.Option(display = color_name, value = color_value)
-                    for (color_name, color_value) in DEFAULT_COLORS.items()
-                ],
                 default = DEFAULT_COLORS.get("Red 100%"),
             ),
-            schema.Dropdown(
+            schema.Color(
                 id = "color_dots_bg",
                 name = "Color Inactive Dots",
                 icon = "brush",
                 desc = "Color of the inactive dots",
-                options = [
-                    schema.Option(display = color_name, value = color_value)
-                    for (color_name, color_value) in DEFAULT_COLORS.items()
-                ],
                 default = DEFAULT_COLORS.get("White 20%"),
             ),
             schema.Dropdown(
