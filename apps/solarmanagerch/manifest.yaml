@@ -2,7 +2,7 @@
 id: solar-manager-ch
 name: Solar Manager CH
 summary: Show solarmanager.ch stats
-desc: 'Multiple screen selections will disable animations. If you prefer animated screens, run separate instances of the app and select 1 screen per instance.  For API Key : authorize with your solarmanager username and password on: https://external-web.solar-manager.ch/swagger and copy the long string that follows after ''-H authorization: Basic''.  For Site ID : check the back of your solarmanager device for the SMID code.  If you have an aux sensor the ID can be found be executing the GET/v1/info/senors/(smid) command on the solarmanager API page at https://external-web.solar-manager.ch/swagger .'
+desc: 'Multiple screen selections will disable animations. For animated screens, run separate instances of the app and select 1 screen per instance.  For API Key : authorize with your Solarmanager username and password at: https://external-web.solar-manager.ch/swagger and copy the long string that follows after ''-H authorization: Basic''.  For Site ID : check the back of your solarmanager device for the SMID code.  If you have an aux sensor the ID can be found be executing the GET/v1/info/senors/(smid) command on the solarmanager API. Add your car''s sensor ID by copying the value found in the "Data" section in the Solarmanager API. For multiple cars use a separate app instance.'
 author: tavdog
 fileName: solar_manager_ch.star
 packageName: solarmanagerch
