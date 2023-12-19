@@ -5,12 +5,12 @@ Description: Displays the number of Divvy bikes available at a Divvy station.
 Author: Will Kelly
 """
 
-load("http.star", "http")
-load("encoding/json.star", "json")
-load("render.star", "render")
-load("encoding/base64.star", "base64")
-load("schema.star", "schema")
 load("cache.star", "cache")
+load("encoding/base64.star", "base64")
+load("encoding/json.star", "json")
+load("http.star", "http")
+load("render.star", "render")
+load("schema.star", "schema")
 
 #Divvy Urls
 DIVVY_BIKE_STATIONS_URL = "https://gbfs.divvybikes.com/gbfs/en/station_information.json"
@@ -38,9 +38,8 @@ def find_station_status_by_id(station_id):
         for station in station_list:
             if station["station_id"] == station_id:
                 station_status = station
+                cache.set(station_id + STATION_STATUS_NAME_SUFFIX, json.encode(station_status), ttl_seconds = 30)
                 break
-        cache.set(station_id + STATION_STATUS_NAME_SUFFIX, json.encode(station_status), ttl_seconds = 30)
-
     return station_status
 
 def find_station_name_by_id(station_id):
