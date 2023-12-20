@@ -1,11 +1,10 @@
 """
 Applet: Solar Manager Ch
 Summary: Show solarmanager.ch status
-Description: Multiple screen selections will disable animations. If you prefer animated screens, run separate instances of the app and select 1 screen per instance.  For API Key : authorize with your solarmanager username and password on: https://external-web.solar-manager.ch/swagger and copy the long string that follows after '-H authorization: Basic'.  For Site ID : check the back of your solarmanager device for the SMID code.  If you have an aux sensor the ID can be found be executing the 'GET/v1/info/senors/(smid)' command on the solarmanager API page at https://external-web.solar-manager.ch/swagger"
+Description: Multiple screen selections will disable animations. For animated screens, run separate instances of the app and select 1 screen per instance.  For API Key : authorize with your Solarmanager username and password at: https://external-web.solar-manager.ch/swagger and copy the long string that follows after '-H authorization: Basic'.  For Site ID : check the back of your solarmanager device for the SMID code.  If you have an aux sensor the ID can be found be executing the GET/v1/info/senors/(smid) command on the solarmanager API. Add your car's sensor ID by copying the value found in the "Data" section in the Solarmanager API. For multiple cars use a separate app instance.
 Author: tavdog, marcbaier
 """
 
-#load("cache.star", "cache")
 load("encoding/base64.star", "base64")
 load("encoding/json.star", "json")
 load("http.star", "http")
@@ -137,6 +136,30 @@ EMPTY = base64.decode("""
 iVBORw0KGgoAAAANSUhEUgAAAAcAAAAQCAYAAADagWXwAAAACXBIWXMAAAsTAAALEwEAmpwYAAAKn2lUWHRYTUw6Y29tLmFkb2JlLnhtcAAAAAAAPD94cGFja2V0IGJlZ2luPSLvu78iIGlkPSJXNU0wTXBDZWhpSHpyZVN6TlRjemtjOWQiPz4gPHg6eG1wbWV0YSB4bWxuczp4PSJhZG9iZTpuczptZXRhLyIgeDp4bXB0az0iQWRvYmUgWE1QIENvcmUgNi4wLWMwMDIgNzkuMTY0NDYwLCAyMDIwLzA1LzEyLTE2OjA0OjE3ICAgICAgICAiPiA8cmRmOlJERiB4bWxuczpyZGY9Imh0dHA6Ly93d3cudzMub3JnLzE5OTkvMDIvMjItcmRmLXN5bnRheC1ucyMiPiA8cmRmOkRlc2NyaXB0aW9uIHJkZjphYm91dD0iIiB4bWxuczp4bXA9Imh0dHA6Ly9ucy5hZG9iZS5jb20veGFwLzEuMC8iIHhtbG5zOmRjPSJodHRwOi8vcHVybC5vcmcvZGMvZWxlbWVudHMvMS4xLyIgeG1sbnM6cGhvdG9zaG9wPSJodHRwOi8vbnMuYWRvYmUuY29tL3Bob3Rvc2hvcC8xLjAvIiB4bWxuczp4bXBNTT0iaHR0cDovL25zLmFkb2JlLmNvbS94YXAvMS4wL21tLyIgeG1sbnM6c3RFdnQ9Imh0dHA6Ly9ucy5hZG9iZS5jb20veGFwLzEuMC9zVHlwZS9SZXNvdXJjZUV2ZW50IyIgeG1sbnM6c3RSZWY9Imh0dHA6Ly9ucy5hZG9iZS5jb20veGFwLzEuMC9zVHlwZS9SZXNvdXJjZVJlZiMiIHhtbG5zOnRpZmY9Imh0dHA6Ly9ucy5hZG9iZS5jb20vdGlmZi8xLjAvIiB4bWxuczpleGlmPSJodHRwOi8vbnMuYWRvYmUuY29tL2V4aWYvMS4wLyIgeG1wOkNyZWF0b3JUb29sPSJBZG9iZSBQaG90b3Nob3AgMjEuMiAoTWFjaW50b3NoKSIgeG1wOkNyZWF0ZURhdGU9IjIwMjMtMDItMTNUMTQ6MTc6NTcrMDE6MDAiIHhtcDpNb2RpZnlEYXRlPSIyMDIzLTAyLTE2VDE2OjM3OjM5KzAxOjAwIiB4bXA6TWV0YWRhdGFEYXRlPSIyMDIzLTAyLTE2VDE2OjM3OjM5KzAxOjAwIiBkYzpmb3JtYXQ9ImltYWdlL3BuZyIgcGhvdG9zaG9wOkNvbG9yTW9kZT0iMyIgcGhvdG9zaG9wOklDQ1Byb2ZpbGU9InNSR0IgSUVDNjE5NjYtMi4xIiB4bXBNTTpJbnN0YW5jZUlEPSJ4bXAuaWlkOjQ1OWVjNDYzLThiMzYtNDc2ZC05YjY2LTQ2ZjM2NmIzNTZmMCIgeG1wTU06RG9jdW1lbnRJRD0iYWRvYmU6ZG9jaWQ6cGhvdG9zaG9wOmQ2ZGY2MGY5LWViZTItY2Y0OS1hMDI5LTkwZjE4YzQ4OGUyNyIgeG1wTU06T3JpZ2luYWxEb2N1bWVudElEPSJ4bXAuZGlkOjZmNzI2ZGUyLTk1M2YtNDBiYS05MDdjLTI2ZWUwODdlMzE5YSIgdGlmZjpPcmllbnRhdGlvbj0iMSIgdGlmZjpYUmVzb2x1dGlvbj0iNzIwMDAwLzEwMDAwIiB0aWZmOllSZXNvbHV0aW9uPSI3MjAwMDAvMTAwMDAiIHRpZmY6UmVzb2x1dGlvblVuaXQ9IjIiIGV4aWY6Q29sb3JTcGFjZT0iMSIgZXhpZjpQaXhlbFhEaW1lbnNpb249IjciIGV4aWY6UGl4ZWxZRGltZW5zaW9uPSIxNiI+IDx4bXBNTTpIaXN0b3J5PiA8cmRmOlNlcT4gPHJkZjpsaSBzdEV2dDphY3Rpb249ImNyZWF0ZWQiIHN0RXZ0Omluc3RhbmNlSUQ9InhtcC5paWQ6NmY3MjZkZTItOTUzZi00MGJhLTkwN2MtMjZlZTA4N2UzMTlhIiBzdEV2dDp3aGVuPSIyMDIzLTAyLTEzVDE0OjE3OjU3KzAxOjAwIiBzdEV2dDpzb2Z0d2FyZUFnZW50PSJBZG9iZSBQaG90b3Nob3AgMjEuMiAoTWFjaW50b3NoKSIvPiA8cmRmOmxpIHN0RXZ0OmFjdGlvbj0ic2F2ZWQiIHN0RXZ0Omluc3RhbmNlSUQ9InhtcC5paWQ6Y2NhNWUzNTYtOGMwNC00NDdmLWI5M2EtYmI0NGQ4NjJmNTBlIiBzdEV2dDp3aGVuPSIyMDIzLTAyLTEzVDE0OjQ0OjIzKzAxOjAwIiBzdEV2dDpzb2Z0d2FyZUFnZW50PSJBZG9iZSBQaG90b3Nob3AgMjEuMiAoTWFjaW50b3NoKSIgc3RFdnQ6Y2hhbmdlZD0iLyIvPiA8cmRmOmxpIHN0RXZ0OmFjdGlvbj0ic2F2ZWQiIHN0RXZ0Omluc3RhbmNlSUQ9InhtcC5paWQ6M2E4ODlkOTMtYzIzYi00OWE5LWFiMzAtZjExNzc1ODMyYTUxIiBzdEV2dDp3aGVuPSIyMDIzLTAyLTE2VDE2OjM3OjM5KzAxOjAwIiBzdEV2dDpzb2Z0d2FyZUFnZW50PSJBZG9iZSBQaG90b3Nob3AgMjEuMiAoTWFjaW50b3NoKSIgc3RFdnQ6Y2hhbmdlZD0iLyIvPiA8cmRmOmxpIHN0RXZ0OmFjdGlvbj0iY29udmVydGVkIiBzdEV2dDpwYXJhbWV0ZXJzPSJmcm9tIGFwcGxpY2F0aW9uL3ZuZC5hZG9iZS5waG90b3Nob3AgdG8gaW1hZ2UvcG5nIi8+IDxyZGY6bGkgc3RFdnQ6YWN0aW9uPSJkZXJpdmVkIiBzdEV2dDpwYXJhbWV0ZXJzPSJjb252ZXJ0ZWQgZnJvbSBhcHBsaWNhdGlvbi92bmQuYWRvYmUucGhvdG9zaG9wIHRvIGltYWdlL3BuZyIvPiA8cmRmOmxpIHN0RXZ0OmFjdGlvbj0ic2F2ZWQiIHN0RXZ0Omluc3RhbmNlSUQ9InhtcC5paWQ6NDU5ZWM0NjMtOGIzNi00NzZkLTliNjYtNDZmMzY2YjM1NmYwIiBzdEV2dDp3aGVuPSIyMDIzLTAyLTE2VDE2OjM3OjM5KzAxOjAwIiBzdEV2dDpzb2Z0d2FyZUFnZW50PSJBZG9iZSBQaG90b3Nob3AgMjEuMiAoTWFjaW50b3NoKSIgc3RFdnQ6Y2hhbmdlZD0iLyIvPiA8L3JkZjpTZXE+IDwveG1wTU06SGlzdG9yeT4gPHhtcE1NOkRlcml2ZWRGcm9tIHN0UmVmOmluc3RhbmNlSUQ9InhtcC5paWQ6M2E4ODlkOTMtYzIzYi00OWE5LWFiMzAtZjExNzc1ODMyYTUxIiBzdFJlZjpkb2N1bWVudElEPSJhZG9iZTpkb2NpZDpwaG90b3Nob3A6ZTBhZGRmNmYtY2RjMy1iNzQ0LWE0ZDQtNjBmMjE4ODY4YzhlIiBzdFJlZjpvcmlnaW5hbERvY3VtZW50SUQ9InhtcC5kaWQ6NmY3MjZkZTItOTUzZi00MGJhLTkwN2MtMjZlZTA4N2UzMTlhIi8+IDwvcmRmOkRlc2NyaXB0aW9uPiA8L3JkZjpSREY+IDwveDp4bXBtZXRhPiA8P3hwYWNrZXQgZW5kPSJyIj8+55hYNAAAABdJREFUGJVj/P//PwMuwIRTZlRykEoCAIOxAx1aidCyAAAAAElFTkSuQmCC
 """)
 
+VW_LOGO_18x18 = base64.decode("""
+iVBORw0KGgoAAAANSUhEUgAAABIAAAASCAYAAABWzo5XAAAAAXNSR0IArs4c6QAAAOZlWElmTU0AKgAAAAgABgESAAMAAAABAAEAAAEaAAUAAAABAAAAVgEbAAUAAAABAAAAXgExAAIAAAAhAAAAZgEyAAIAAAAUAAAAiIdpAAQAAAABAAAAnAAAAAAAAABcAAAAAQAAAFwAAAABQWRvYmUgUGhvdG9zaG9wIDIxLjIgKE1hY2ludG9zaCkAADIwMjM6MTI6MTIgMTk6Mzg6MTQAAASQBAACAAAAFAAAANKgAQADAAAAAQABAACgAgAEAAAAAQAAABKgAwAEAAAAAQAAABIAAAAAMjAyMzoxMjoxMiAxOTozNzoxMQDDLpyLAAAACXBIWXMAAA4mAAAOJgGi7yX8AAAHvGlUWHRYTUw6Y29tLmFkb2JlLnhtcAAAAAAAPHg6eG1wbWV0YSB4bWxuczp4PSJhZG9iZTpuczptZXRhLyIgeDp4bXB0az0iWE1QIENvcmUgNi4wLjAiPgogICA8cmRmOlJERiB4bWxuczpyZGY9Imh0dHA6Ly93d3cudzMub3JnLzE5OTkvMDIvMjItcmRmLXN5bnRheC1ucyMiPgogICAgICA8cmRmOkRlc2NyaXB0aW9uIHJkZjphYm91dD0iIgogICAgICAgICAgICB4bWxuczpkYz0iaHR0cDovL3B1cmwub3JnL2RjL2VsZW1lbnRzLzEuMS8iCiAgICAgICAgICAgIHhtbG5zOnhtcD0iaHR0cDovL25zLmFkb2JlLmNvbS94YXAvMS4wLyIKICAgICAgICAgICAgeG1sbnM6eG1wTU09Imh0dHA6Ly9ucy5hZG9iZS5jb20veGFwLzEuMC9tbS8iCiAgICAgICAgICAgIHhtbG5zOnN0RXZ0PSJodHRwOi8vbnMuYWRvYmUuY29tL3hhcC8xLjAvc1R5cGUvUmVzb3VyY2VFdmVudCMiCiAgICAgICAgICAgIHhtbG5zOnBob3Rvc2hvcD0iaHR0cDovL25zLmFkb2JlLmNvbS9waG90b3Nob3AvMS4wLyIKICAgICAgICAgICAgeG1sbnM6dGlmZj0iaHR0cDovL25zLmFkb2JlLmNvbS90aWZmLzEuMC8iPgogICAgICAgICA8ZGM6Zm9ybWF0PmltYWdlL3BuZzwvZGM6Zm9ybWF0PgogICAgICAgICA8eG1wOk1vZGlmeURhdGU+MjAyMy0xMi0xMlQxOTozODoxNCswMTowMDwveG1wOk1vZGlmeURhdGU+CiAgICAgICAgIDx4bXA6Q3JlYXRvclRvb2w+QWRvYmUgUGhvdG9zaG9wIDIxLjIgKE1hY2ludG9zaCk8L3htcDpDcmVhdG9yVG9vbD4KICAgICAgICAgPHhtcDpDcmVhdGVEYXRlPjIwMjMtMTItMTJUMTk6Mzc6MTErMDE6MDA8L3htcDpDcmVhdGVEYXRlPgogICAgICAgICA8eG1wOk1ldGFkYXRhRGF0ZT4yMDIzLTEyLTEyVDE5OjM4OjE0KzAxOjAwPC94bXA6TWV0YWRhdGFEYXRlPgogICAgICAgICA8eG1wTU06SGlzdG9yeT4KICAgICAgICAgICAgPHJkZjpTZXE+CiAgICAgICAgICAgICAgIDxyZGY6bGkgcmRmOnBhcnNlVHlwZT0iUmVzb3VyY2UiPgogICAgICAgICAgICAgICAgICA8c3RFdnQ6c29mdHdhcmVBZ2VudD5BZG9iZSBQaG90b3Nob3AgMjEuMiAoTWFjaW50b3NoKTwvc3RFdnQ6c29mdHdhcmVBZ2VudD4KICAgICAgICAgICAgICAgICAgPHN0RXZ0OndoZW4+MjAyMy0xMi0xMlQxOTozNzoxMSswMTowMDwvc3RFdnQ6d2hlbj4KICAgICAgICAgICAgICAgICAgPHN0RXZ0Omluc3RhbmNlSUQ+eG1wLmlpZDpiYWYyMGY2My1lNDQ4LTQ2ZTgtODZiYi03Yzc5ODk5MmUyYzI8L3N0RXZ0Omluc3RhbmNlSUQ+CiAgICAgICAgICAgICAgICAgIDxzdEV2dDphY3Rpb24+Y3JlYXRlZDwvc3RFdnQ6YWN0aW9uPgogICAgICAgICAgICAgICA8L3JkZjpsaT4KICAgICAgICAgICAgPC9yZGY6U2VxPgogICAgICAgICA8L3htcE1NOkhpc3Rvcnk+CiAgICAgICAgIDx4bXBNTTpPcmlnaW5hbERvY3VtZW50SUQ+eG1wLmRpZDpiYWYyMGY2My1lNDQ4LTQ2ZTgtODZiYi03Yzc5ODk5MmUyYzI8L3htcE1NOk9yaWdpbmFsRG9jdW1lbnRJRD4KICAgICAgICA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
+""")
+
+TESLA_LOGO_18x18 = base64.decode("""
+iVBORw0KGgoAAAANSUhEUgAAABIAAAASCAYAAABWzo5XAAAAAXNSR0IArs4c6QAAAIRlWElmTU0AKgAAAAgABQESAAMAAAABAAEAAAEaAAUAAAABAAAASgEbAAUAAAABAAAAUgEoAAMAAAABAAIAAIdpAAQAAAABAAAAWgAAAAAAAABIAAAAAQAAAEgAAAABAAOgAQADAAAAAQABAACgAgAEAAAAAQAAABKgAwAEAAAAAQAAABIAAAAAaZPfVgAAAAlwSFlzAAALEwAACxMBAJqcGAAAAVlpVFh0WE1MOmNvbS5hZG9iZS54bXAAAAAAADx4OnhtcG1ldGEgeG1sbnM6eD0iYWRvYmU6bnM6bWV0YS8iIHg6eG1wdGs9IlhNUCBDb3JlIDYuMC4wIj4KICAgPHJkZjpSREYgeG1sbnM6cmRmPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5LzAyLzIyLXJkZi1zeW50YXgtbnMjIj4KICAgICAgPHJkZjpEZXNjcmlwdGlvbiByZGY6YWJvdXQ9IiIKICAgICAgICAgICAgeG1sbnM6dGlmZj0iaHR0cDovL25zLmFkb2JlLmNvbS90aWZmLzEuMC8iPgogICAgICAgICA8dGlmZjpPcmllbnRhdGlvbj4xPC90aWZmOk9yaWVudGF0aW9uPgogICAgICA8L3JkZjpEZXNjcmlwdGlvbj4KICAgPC9yZGY6UkRGPgo8L3g6eG1wbWV0YT4KGV7hBwAAAp9JREFUOBF9U89PE1EQnnm7rZAYesC0BRNDsbFKTTysXrV69OZBb544+A+gHtSEiwf/Bv0DDCcPmHjw5METewLEQqURBGmJChLI1u6+8ZttF2ioTrLvzY9vvpk37y1TV5rny0Ur4XUR8kiowEQZhHLENNiB8AGJNKHvCHMdum+i6ENuvfZF49wYu/hAWCYFiYZ4S0jWSHibjfwhkvfQm0gUa2nUMXJTLKeJJYtC55CfsyBmkpcuSCbgqBqheegXwH0ZebfQ1agQn83Xq/e14lah9BS+eyDZRIE1xBbQ/SwIrwibS9gBGiu9zaXc220r9MtGOyCro7ORnJvKN8L2c4DSWTf1sNlubwjTNlLGhx1nyGWmRhS+ya9W77hK5IqdaoRhFuo7dPBMfc1CabJl7StD9ETtwEZoSKby9eXXan8fL71g4RuGzSO13Wkic+bryhL0a/iOiSwHYgkzCOHkfRHHccxKAhhZrT5OdMzXmGkiK5VK3JkGpFxO6+44th5Y2cexXAdmKPIz5HBNY4tdjOqaC4yNZxQ7UFV3FSiYIxnc6Hza0ASORy1cd65evapxxHqw6lNMLJqsnxpKAt2SkWUXOTpUyGddZtCd7sfxah8SqaGiAN/zYjAYFx04lAbX/UnjdysVpY0Lqp3I4WwSh+6DQaC5gMsCXgRaE4pEFmPf3l4nFhtHS1+iiYGBuCJKLwWYFi7eniKpapp/lNuj9WUHi54o+lEsDoWRsw47sK3ThdFN/yCJ9bDAODGjLgDPh2i4VvuNxA0W+tYl0cJxrIs73PoSAS1znpfqolZwnbVY9zx9M+A+KX1npDAvGTjJAjpqqa+2u9u3sMb+SeQnA7c0J8bob0LFTKbvsf5LNOv7kQLItD/iT+ocJ/HFgd7lL0EZGcp+HLlVAAAAAElFTkSuQmCC
+""")
+
+AUDI_LOGO_24x9 = base64.decode("""
+iVBORw0KGgoAAAANSUhEUgAAABgAAAAJCAYAAAAo/ezGAAAAAXNSR0IArs4c6QAAAOZlWElmTU0AKgAAAAgABgESAAMAAAABAAEAAAEaAAUAAAABAAAAVgEbAAUAAAABAAAAXgExAAIAAAAhAAAAZgEyAAIAAAAUAAAAiIdpAAQAAAABAAAAnAAAAAAAAABIAAAAAQAAAEgAAAABQWRvYmUgUGhvdG9zaG9wIDIxLjIgKE1hY2ludG9zaCkAADIwMjM6MTI6MTIgMTk6NDQ6MTQAAASQBAACAAAAFAAAANKgAQADAAAAAQABAACgAgAEAAAAAQAAABigAwAEAAAAAQAAAAkAAAAAMjAyMzoxMjoxMiAxOTo0MjozOADcND1IAAAACXBIWXMAAAsTAAALEwEAmpwYAAAHvGlUWHRYTUw6Y29tLmFkb2JlLnhtcAAAAAAAPHg6eG1wbWV0YSB4bWxuczp4PSJhZG9iZTpuczptZXRhLyIgeDp4bXB0az0iWE1QIENvcmUgNi4wLjAiPgogICA8cmRmOlJERiB4bWxuczpyZGY9Imh0dHA6Ly93d3cudzMub3JnLzE5OTkvMDIvMjItcmRmLXN5bnRheC1ucyMiPgogICAgICA8cmRmOkRlc2NyaXB0aW9uIHJkZjphYm91dD0iIgogICAgICAgICAgICB4bWxuczpkYz0iaHR0cDovL3B1cmwub3JnL2RjL2VsZW1lbnRzLzEuMS8iCiAgICAgICAgICAgIHhtbG5zOnhtcD0iaHR0cDovL25zLmFkb2JlLmNvbS94YXAvMS4wLyIKICAgICAgICAgICAgeG1sbnM6eG1wTU09Imh0dHA6Ly9ucy5hZG9iZS5jb20veGFwLzEuMC9tbS8iCiAgICAgICAgICAgIHhtbG5zOnN0RXZ0PSJodHRwOi8vbnMuYWRvYmUuY29tL3hhcC8xLjAvc1R5cGUvUmVzb3VyY2VFdmVudCMiCiAgICAgICAgICAgIHhtbG5zOnBob3Rvc2hvcD0iaHR0cDovL25zLmFkb2JlLmNvbS9waG90b3Nob3AvMS4wLyIKICAgICAgICAgICAgeG1sbnM6dGlmZj0iaHR0cDovL25zLmFkb2JlLmNvbS90aWZmLzEuMC8iPgogICAgICAgICA8ZGM6Zm9ybWF0PmltYWdlL3BuZzwvZGM6Zm9ybWF0PgogICAgICAgICA8eG1wOk1vZGlmeURhdGU+MjAyMy0xMi0xMlQxOTo0NDoxNCswMTowMDwveG1wOk1vZGlmeURhdGU+CiAgICAgICAgIDx4bXA6Q3JlYXRvclRvb2w+QWRvYmUgUGhvdG9zaG9wIDIxLjIgKE1hY2ludG9zaCk8L3htcDpDcmVhdG9yVG9vbD4KICAgICAgICAgPHhtcDpDcmVhdGVEYXRlPjIwMjMtMTItMTJUMTk6NDI6MzgrMDE6MDA8L3htcDpDcmVhdGVEYXRlPgogICAgICAgICA8eG1wOk1ldGFkYXRhRGF0ZT4yMDIzLTEyLTEyVDE5OjQ0OjE0KzAxOjAwPC94bXA6TWV0YWRhdGFEYXRlPgogICAgICAgICA8eG1wTU06SGlzdG9yeT4KICAgICAgICAgICAgPHJkZjpTZXE+CiAgICAgICAgICAgICAgIDxyZGY6bGkgcmRmOnBhcnNlVHlwZT0iUmVzb3VyY2UiPgogICAgICAgICAgICAgICAgICA8c3RFdnQ6c29mdHdhcmVBZ2VudD5BZG9iZSBQaG90b3Nob3AgMjEuMiAoTWFjaW50b3NoKTwvc3RFdnQ6c29mdHdhcmVBZ2VudD4KICAgICAgICAgICAgICAgICAgPHN0RXZ0OndoZW4+MjAyMy0xMi0xMlQxOTo0MjozOCswMTowMDwvc3RFdnQ6d2hlbj4KICAgICAgICAgICAgICAgICAgPHN0RXZ0Omluc3RhbmNlSUQ+eG1wLmlpZDo1Zjg3NjBjMC1lZTMzLTRkMTItODEzNC0wYjgyOTRhNDVlZTA8L3N0RXZ0Omluc3RhbmNlSUQ+CiAgICAgICAgICAgICAgICAgIDxzdEV2dDphY3Rpb24+Y3JlYXRlZDwvc3RFdnQ6YWN0aW9uPgogICAgICAgICAgICAgICA8L3JkZjpsaT4KICAgICAgICAgICAgPC9yZGY6U2VxPgogICAgICAgICA8L3htcE1NOkhpc3Rvcnk+CiAgICAgICAgIDx4bXBNTTpPcmlnaW5hbERvY3VtZW50SUQ+eG1wLmRpZDo1Zjg3NjBjMC1lZTMzLTRkMTItODEzNC0wYjgyOTRhNDVlZTA8L3htcE1NOk9yaWdpbmFsRG9jdW1lbnRJRD4KICAgICAgICAgPHhtcE1NOkRvY3VtZW50SUQ+eG1wLmRpZDo1Zjg3NjBjMC1lZTMzLTRkMTItODEzNC0wYjgyOTRhNDVlZTA8L3htcE1NOkRvY3VtZW50SUQ+CiAgICAgICAgIDx4bXBNTTpJbnN0YW5jZUlEPnhtcC5paWQ6NWY4NzYwYzAtZWUzMy00ZDEyLTgxMzQtMGI4Mjk0YTQ1ZWUwPC94bXBNTTpJbnN0YW5jZUlEPgogICAgICAgICA8cGhvdG9zaG9wOklDQ1Byb2ZpbGU+c1JHQiBJRUM2MTk2Ni0yLjE8L3Bob3Rvc2hvcDpJQ0NQcm9maWxlPgogICAgICAgICA8cGhvdG9zaG9wOkNvbG9yTW9kZT4zPC9waG90b3Nob3A6Q29sb3JNb2RlPgogICAgICAgICA8dGlmZjpPcmllbnRhdGlvbj4xPC90aWZmOk9yaWVudGF0aW9uPgogICAgICAgICA8dGlmZjpYUmVzb2x1dGlvbj43MjwvdGlmZjpYUmVzb2x1dGlvbj4KICAgICAgICAgPHRpZmY6WVJlc29sdXRpb24+NzI8L3RpZmY6WVJlc29sdXRpb24+CiAgICAgIDwvcmRmOkRlc2NyaXB0aW9uPgogICA8L3JkZjpSREY+CjwveDp4bXBtZXRhPgq0VnHwAAAC8klEQVQoFTVSa0iaURjuk6kVrtKS1EVQUpNJLlnT8EfrMgJpwYr1L/LHkFqQ/RDnQljOMegythbFBoNdfhSNwWIoBINqZaPCIsM27UJ2N53XoA231D0n5guH9/uec97nPe9zHioFkUgkaBsbGy9WV1dvHxwc0I+Pjw+npqa0ExMTxfPz8107Ozupfr//dHR09JHdbvctLCz0b25ucgOBQGx2dvb1yMiIeXt7u9/hcIh9Pl8My7q0tHRvbm4uRIGc2tvbcywvL8dBoC8sLAwcHR0pm5qajHQ6PWw2mzvS09PX3W63RKlUDhUVFaWCVI8zX9GAJ5fL+ysrK4sXFxdfTU5Ovs/Ly0uj0Wj6eDx+HZcQpaDbgMVisZNJkoGmCqvV+quxsdEJUibBgbGdTqe7tbU1UlNTI0me9Xg8k0ajMVFRUaFKYiR3d3d/0Gq1X4g0DWNjYx0EHB4eZpFss9l6INeD6urqdalU2kUw/BuxrCKRqK+qqqqPYC6X6w4mzz47O2uoq6t7SLDBwcHzC9XW1nbk5ubKaPv7+/Stra19ssnlcn+TDMk4GHlRKBQ6MzIyBATb3d0VQKbvkGSJzWZzkxjqD1Uq1becnBwGMKZGo4kiUwqFIsDn8/006HhWWlp66X9BKsmhUCjM4XCuCQSC4lgsdkywSCTiwUOLcCspk8kMEOzk5MQDifkMBkOemZn5F1AUUpJGCSx2NoIGMgs2nwNI0el0pySr1WqDRCLpAcEVg8HQS7CWlpbHmPAGHHYfLjqXDUb4GEZguk/geULOURT1h2S48VkwGLRT+L7Q2dn5Axvh/Px8XVlZ2c+CgoJbsF3v+Ph4OCsr665MJnNdRUDKtzMzM0xMosGjTpWXl/O8Xu/QysqKCE0HoPsbsVicBtd1ra2t3ayvr79MGpBgtLe3vwSZEjajWCxWEEVa3KCYx+PpoSUFyWKwpml6etpXUlLSh2kuAqdhyncmk+lzc3PzU7yNEPWJaDRqa2trU4PX+w+XaYFJmUb6mwAAAABJRU5ErkJggg==
+""")
+
+BMW_LOGO_18x18 = base64.decode("""
+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
+""")
+
+SEAT_LOGO_18x16 = base64.decode("""
+iVBORw0KGgoAAAANSUhEUgAAABIAAAAQCAYAAAAbBi9cAAAAAXNSR0IArs4c6QAAAOZlWElmTU0AKgAAAAgABgESAAMAAAABAAEAAAEaAAUAAAABAAAAVgEbAAUAAAABAAAAXgExAAIAAAAhAAAAZgEyAAIAAAAUAAAAiIdpAAQAAAABAAAAnAAAAAAAAABIAAAAAQAAAEgAAAABQWRvYmUgUGhvdG9zaG9wIDIxLjIgKE1hY2ludG9zaCkAADIwMjM6MTI6MTIgMTk6NTQ6MDkAAASQBAACAAAAFAAAANKgAQADAAAAAQABAACgAgAEAAAAAQAAABKgAwAEAAAAAQAAABAAAAAAMjAyMzoxMjoxMiAxOTo1MzoxOQBJF6fYAAAACXBIWXMAAAsTAAALEwEAmpwYAAAHvGlUWHRYTUw6Y29tLmFkb2JlLnhtcAAAAAAAPHg6eG1wbWV0YSB4bWxuczp4PSJhZG9iZTpuczptZXRhLyIgeDp4bXB0az0iWE1QIENvcmUgNi4wLjAiPgogICA8cmRmOlJERiB4bWxuczpyZGY9Imh0dHA6Ly93d3cudzMub3JnLzE5OTkvMDIvMjItcmRmLXN5bnRheC1ucyMiPgogICAgICA8cmRmOkRlc2NyaXB0aW9uIHJkZjphYm91dD0iIgogICAgICAgICAgICB4bWxuczpkYz0iaHR0cDovL3B1cmwub3JnL2RjL2VsZW1lbnRzLzEuMS8iCiAgICAgICAgICAgIHhtbG5zOnhtcD0iaHR0cDovL25zLmFkb2JlLmNvbS94YXAvMS4wLyIKICAgICAgICAgICAgeG1sbnM6eG1wTU09Imh0dHA6Ly9ucy5hZG9iZS5jb20veGFwLzEuMC9tbS8iCiAgICAgICAgICAgIHhtbG5zOnN0RXZ0PSJodHRwOi8vbnMuYWRvYmUuY29tL3hhcC8xLjAvc1R5cGUvUmVzb3VyY2VFdmVudCMiCiAgICAgICAgICAgIHhtbG5zOnBob3Rvc2hvcD0iaHR0cDovL25zLmFkb2JlLmNvbS9waG90b3Nob3AvMS4wLyIKICAgICAgICAgICAgeG1sbnM6dGlmZj0iaHR0cDovL25zLmFkb2JlLmNvbS90aWZmLzEuMC8iPgogICAgICAgICA8ZGM6Zm9ybWF0PmltYWdlL3BuZzwvZGM6Zm9ybWF0PgogICAgICAgICA8eG1wOk1vZGlmeURhdGU+MjAyMy0xMi0xMlQxOTo1NDowOSswMTowMDwveG1wOk1vZGlmeURhdGU+CiAgICAgICAgIDx4bXA6Q3JlYXRvclRvb2w+QWRvYmUgUGhvdG9zaG9wIDIxLjIgKE1hY2ludG9zaCk8L3htcDpDcmVhdG9yVG9vbD4KICAgICAgICAgPHhtcDpDcmVhdGVEYXRlPjIwMjMtMTItMTJUMTk6NTM6MTkrMDE6MDA8L3htcDpDcmVhdGVEYXRlPgogICAgICAgICA8eG1wOk1ldGFkYXRhRGF0ZT4yMDIzLTEyLTEyVDE5OjU0OjA5KzAxOjAwPC94bXA6TWV0YWRhdGFEYXRlPgogICAgICAgICA8eG1wTU06SGlzdG9yeT4KICAgICAgICAgICAgPHJkZjpTZXE+CiAgICAgICAgICAgICAgIDxyZGY6bGkgcmRmOnBhcnNlVHlwZT0iUmVzb3VyY2UiPgogICAgICAgICAgICAgICAgICA8c3RFdnQ6c29mdHdhcmVBZ2VudD5BZG9iZSBQaG90b3Nob3AgMjEuMiAoTWFjaW50b3NoKTwvc3RFdnQ6c29mdHdhcmVBZ2VudD4KICAgICAgICAgICAgICAgICAgPHN0RXZ0OndoZW4+MjAyMy0xMi0xMlQxOTo1MzoxOSswMTowMDwvc3RFdnQ6d2hlbj4KICAgICAgICAgICAgICAgICAgPHN0RXZ0Omluc3RhbmNlSUQ+eG1wLmlpZDo1YWE4NzE5ZC03NzVlLTQwOGItYmRiNS1lZDJlYmNlYzdlYjU8L3N0RXZ0Omluc3RhbmNlSUQ+CiAgICAgICAgICAgICAgICAgIDxzdEV2dDphY3Rpb24+Y3JlYXRlZDwvc3RFdnQ6YWN0aW9uPgogICAgICAgICAgICAgICA8L3JkZjpsaT4KICAgICAgICAgICAgPC9yZGY6U2VxPgogICAgICAgICA8L3htcE1NOkhpc3Rvcnk+CiAgICAgICAgIDx4bXBNTTpPcmlnaW5hbERvY3VtZW50SUQ+eG1wLmRpZDo1YWE4NzE5ZC03NzVlLTQwOGItYmRiNS1lZDJlYmNlYzdlYjU8L3htcE1NOk9yaWdpbmFsRG9jdW1lbnRJRD4KICAgICAgICAgPHhtcE1NOkRvY3VtZW50SUQ+eG1wLmRpZDo1YWE4NzE5ZC03NzVlLTQwOGItYmRiNS1lZDJlYmNlYzdlYjU8L3htcE1NOkRvY3VtZW50SUQ+CiAgICAgICAgIDx4bXBNTTpJbnN0YW5jZUlEPnhtcC5paWQ6NWFhODcxOWQtNzc1ZS00MDhiLWJkYjUtZWQyZWJjZWM3ZWI1PC94bXBNTTpJbnN0YW5jZUlEPgogICAgICAgICA8cGhvdG9zaG9wOklDQ1Byb2ZpbGU+c1JHQiBJRUM2MTk2Ni0yLjE8L3Bob3Rvc2hvcDpJQ0NQcm9maWxlPgogICAgICAgICA8cGhvdG9zaG9wOkNvbG9yTW9kZT4zPC9waG90b3Nob3A6Q29sb3JNb2RlPgogICAgICAgICA8dGlmZjpPcmllbnRhdGlvbj4xPC90aWZmOk9yaWVudGF0aW9uPgogICAgICAgICA8dGlmZjpYUmVzb2x1dGlvbj43MjwvdGlmZjpYUmVzb2x1dGlvbj4KICAgICAgICAgPHRpZmY6WVJlc29sdXRpb24+NzI8L3RpZmY6WVJlc29sdXRpb24+CiAgICAgIDwvcmRmOkRlc2NyaXB0aW9uPgogICA8L3JkZjpSREY+CjwveDp4bXBtZXRhPgp9no1nAAADQElEQVQ4EY1US0/jVhQ+1484IXZskgwkgoBQNZl2ItRlu5iRpotqFv0HVdU/0g0sK1VCqoQQ8A+oukPq7NiNZjFqWYzEopkwNAkBbGzy8DN+9Lsu2fdIR8e+Pvc7r++YEZFycHDwU7vd/poxQcuybIkxKiRJKidJIqZpQnEcE56zMAzjKIrmnu9F7sz1ZrOZf3NzE/X7/d/o8PDw5zCMcP//SZqmHDCbTCaZbTuZaZrZ3t7eW2l7e/u7QkFGYhRBRWjGXx4lgV1oys8YT7dQYFz5tyAIjbW1tUTSNI0f8NQlAcIdEZUsyyIJIooiLRQ+hMpoPp/DRoQaOCjd3d21+GWDA8EGHGQ4HLLd3V35+Pg4wPFfgkCfqtXqbdUwZvX6CtN0vViBlEolQ1GUMu61XNftsQ+QDoSDLeTh4YFGoxHZjnPr2Pb1eDzuo7E9nHd7vd7fR0dHH+E7gIaLO2x/f/9HwzDKqFNtNBrrtVrtM13Xn8qyvAWnvHkL58lkyktOUZ4Zx9EI07yC9m3bfsfev//zQ6u1LmOMPUxhaJq3QzhbqN0HeKFerz9R1cqWLIvPUHobJVUrFZ0QKKcFH9Tp6aklzWbTzvLyMhWLxfbGxgahXugsxDTM6XR6Y1n3/3S73StE/d3zPAd9SVZWVlQEWldVdRP0etnvDxy2s7PzPabwlV7Rvyir5c/xsbW62iAOXi6X+RAoiRMCCQlAcJ3zAIMg8C+DIPiIZ8SwP+WjX/Tg0Wqwm9Bnr19/29nc3HoO0Ke6brQqmvZEN3Sq1eqcLqBASIpSpMGgfy6dnJz8IQhifTx+GCNCCH64vu970BAZxK47nV5dXnbNeyt89eqb0vNOR0Xp6f29LYC76HUseZ6vSJjYly9evGxalokoKcgWPRLuP+LF8Tw/x1qAgCmFYUAcJElijsL3Ck2f+2i2O3Icp4lkAnwQkRFDH7jm7OUs5wIghizRJxfAccafoQl6KgMslhSlIDQaq3R9PSoCKG8uCJ5Hj2MhXwO+frzpfORLS0v52DFlajabIp/y+fn5WwApv1xcXPwAVAmBddgytIg1K5RKgkSMGF9ADT8YmATKlzuQJNlFs8dnZ2dv8Af59V8oYzWYuMfgqgAAAABJRU5ErkJggg==
+""")
+
+SKODA_LOGO_18x18 = base64.decode("""
+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
+""")
+
 URL_CUR = "https://cloud.solar-manager.ch/v1/stream/gateway/{}"
 URL_SUM = "https://cloud.solar-manager.ch/v1/consumption/gateway/{}?period=day"
 URL_AUT = "https://cloud.solar-manager.ch/v1/statistics/gateways/{}?accuracy=low&from={}&to={}"
@@ -147,10 +170,10 @@ CACHE_TTL = 300
 
 # combined summary and current dummy data
 DUMMY_DATA = {
-    "currentBatteryChargeDischarge": 0.0,
+    "currentBatteryChargeDischarge": 50.0,
     "currentPowerConsumption": 1950.0,
     "currentPvGeneration": 0.0,
-    "soc": 0,
+    "soc": 10,
     "consumption": 1000.96,
     "production": 3000.11,
     "has_battery": True,
@@ -161,11 +184,12 @@ DUMMY_DATA = {
     "aux_sensor_day": 10000,
     "aux_sensor_week": 10000,
     "aux_sensor_month": 10000,
+    "123456": 25,  # dummy item for EV battery soc
 }
 
 def w2kwstr(w, dec = None):  # rounds off decimal, removes completey if over 100kw
     if w == None:
-        return 0
+        return "0"
     if w < 10000 and dec == None:
         if w < 0:  # CURRENTLY DISABLED
             return str(int(w / 1000 * 100) / 100.0)  # show two decimal places
@@ -192,8 +216,8 @@ def get_aux_sensor_data(sensor_id, api_key, period):
             "Accept": "application/json",
             "Authorization": "Basic " + api_key,
         },
-        ttl_seconds = 60 * 60,
-    )  # 1 hour http cache ttl
+        ttl_seconds = 60 * 60,  # 1 hour http cache ttl
+    )
     if res.status_code != 200:
         print(res.body())
         return 0
@@ -230,7 +254,7 @@ def get_autarky_percent(site_id, api_key, tz, interval):
     )
 
     if rep.status_code != 200:
-        print(rep.body())
+        print(rep.status_code)
         return 0
     print(rep.headers.get("Tidbyt-Cache-Status"))
     autarky = rep.json().get("autarchyDegree", 0)
@@ -252,6 +276,7 @@ def main(config):
 
     if not DEBUG and api_key and site_id:
         url = URL_CUR.format(site_id)
+        print(url)
         data = dict()
         rep = http.get(
             url,
@@ -284,7 +309,7 @@ def main(config):
                 "Accept": "application/json",
                 "Authorization": "Basic " + api_key,
             },
-            ttl_seconds = 300,  # 5 minutes
+            ttl_seconds = 60 * 60,
         )
         if rep.status_code != 200:
             return render_fail(rep)
@@ -293,10 +318,16 @@ def main(config):
         data["consumption"] = sum_data["data"][0]["consumption"]
         data["production"] = sum_data["data"][0]["production"]
 
-        data["autarky_day"] = get_autarky_percent(site_id, api_key, tz, "day")
-        data["autarky_24h"] = get_autarky_percent(site_id, api_key, tz, "24h")
-        data["autarky_month"] = get_autarky_percent(site_id, api_key, tz, "month")
-        data["autarky_year"] = get_autarky_percent(site_id, api_key, tz, "year")
+        if config.bool("show_autarky", False) == True:
+            data["autarky_day"] = get_autarky_percent(site_id, api_key, tz, "day")
+            data["autarky_24h"] = get_autarky_percent(site_id, api_key, tz, "24h")
+            data["autarky_month"] = get_autarky_percent(site_id, api_key, tz, "month")
+            data["autarky_year"] = data["autarky_month"]  #get_autarky_percent(site_id, api_key, tz, "year")
+        else:
+            data["autarky_day"] = None  #get_autarky_percent(site_id, api_key, tz, "day")
+            data["autarky_24h"] = None  #get_autarky_percent(site_id, api_key, tz, "24h")
+            data["autarky_month"] = None  #= get_autarky_percent(site_id, api_key, tz, "month")
+            data["autarky_year"] = None  #data["autarky_month"] #get_autarky_percent(site_id, api_key, tz, "year")
 
         data["aux_sensor_day"] = -1
         data["aux_sensor_week"] = -1
@@ -307,17 +338,12 @@ def main(config):
             data["aux_sensor_week"] = get_aux_sensor_data(config.get("aux_sensor_id"), api_key, "week")
             data["aux_sensor_month"] = get_aux_sensor_data(config.get("aux_sensor_id"), api_key, "month")
 
-        #        cache.set(site_id, json.encode(data), ttl_seconds = CACHE_TTL)
-        #        else:
-        # print("using cache")
-        # data = json.decode(data)  # data from cache is json so need to decode.
-        # if "has_battery" in data and data["has_battery"] == True:
-        #     has_battery = True
-        # if config.get("aux_sensor_id", "") != "" and data.get("aux_sensor_day", "") == "":
-        #     print("fetching aux_sensor data outside of cache")
-        #     data["aux_sensor_day"] = get_aux_sensor_data(config.get("aux_sensor_id"), api_key, "day")
-        #     data["aux_sensor_week"] = get_aux_sensor_data(config.get("aux_sensor_id"), api_key, "week")
-        #     data["aux_sensor_month"] = get_aux_sensor_data(config.get("aux_sensor_id"), api_key, "month")
+        # look for any items in cur_data with an id and an soc value and store it for later use. eg. if we decide later to turn on ev battery frame
+        for device in cur_data["devices"]:
+            if "soc" in device:
+                print(device)
+                data[str(device["_id"])] = device["soc"]
+                print(str(device["_id"]) + " " + str(device["soc"]))
 
     else:
         print("using dummy data")
@@ -666,7 +692,7 @@ def main(config):
                         main_align = "space_between",
                         children = [
                             render.Row([render.Text("Today:", font = "tom-thumb", color = GRAY)]),
-                            render.Row([render.Text("Year:", font = "tom-thumb", color = GRAY)]),
+                            #render.Row([render.Text("Year:", font = "tom-thumb", color = GRAY)]),
                         ],
                     ),
 
@@ -677,7 +703,7 @@ def main(config):
                         cross_align = "end",
                         children = [
                             render.Row([render.Text(" {}%".format(data["autarky_day"]), color = GREEN)]),
-                            render.Row([render.Text("{}%".format(data["autarky_year"]), color = GREEN)]),
+                            #render.Row([render.Text("{}%".format(data["autarky_year"]), color = GREEN)]),
                         ],
                     ),
                 ],
@@ -782,6 +808,64 @@ def main(config):
         ],
     )
 
+    # EV battery soc frame
+    ###############################################
+    ev_id = config.get("ev_id", "")
+    if ev_id != "" and ev_id in data:
+        ev_soc = " " + str(data[ev_id]) + " %"
+    else:
+        ev_soc = " Not Found"
+    ev_frame = render.Stack(
+        children = [
+            render.Column(
+                main_align = "space_evenly",  # this controls position of children, start = top
+                expanded = True,
+                cross_align = "center",
+                children = [
+                    render.Row(
+                        expanded = True,
+                        main_align = "space_evenly",
+                        cross_align = "center",
+                        children = [
+                            render.Text(config.get("ev_name", "EV")),
+                        ],
+                    ),
+                    render.Row(
+                        #expanded = True,
+                        children = [
+                            render.Column(
+                                expanded = True,
+                                main_align = "space_around",
+                                cross_align = "center",
+                                children = [
+                                    render.Image(src = get_ev_logo(config.get("ev_icon"))),
+                                    # render.Image(src = PLUG_SUM),
+                                ],
+                            ),
+                            render.Column(
+                                expanded = True,
+                                main_align = "space_around",
+                                cross_align = "end",
+                                children = [
+                                    render.Text(
+                                        content = ev_soc,
+                                        font = "5x8",
+                                        color = GREEN,
+                                    ),
+                                    # render.Text(
+                                    #     content = " " + w2kwstr(data["consumption"], dec = 0) + " kWh",
+                                    #     font = "5x8",
+                                    #     color = RED,
+                                    # ),
+                                ],
+                            ),
+                        ],
+                    ),
+                ],
+            ),
+        ],
+    )
+
     if config.bool("show_logo", False):
         frames.append(logo_frame)
     if config.bool("show_main", True):
@@ -798,6 +882,8 @@ def main(config):
         frames.append(autarky_frame)
     if config.get("aux_sensor_id", "") != "":
         frames.append(sensor_frame)
+    if config.get("ev_id", "") != "":
+        frames.append(ev_frame)
 
     if len(frames) == 1:
         return render.Root(frames[0])
@@ -809,6 +895,22 @@ def main(config):
             delay = int(config.get("frame_delay", "3")) * 1000,
             child = render.Animation(children = frames),
         )
+
+def get_ev_logo(name):
+    if name == "TESLA":
+        return TESLA_LOGO_18x18
+    elif name == "AUDI":
+        return AUDI_LOGO_24x9
+    elif name == "VW":
+        return VW_LOGO_18x18
+    elif name == "BMW":
+        return BMW_LOGO_18x18
+    elif name == "SEAT":
+        return SEAT_LOGO_18x16
+    elif name == "SKODA":
+        return SKODA_LOGO_18x18
+    else:
+        return BMW_LOGO_18x18
 
 def format_power(p):
     if p:
@@ -909,6 +1011,53 @@ def get_schema():
                     schema.Option(
                         display = "Generic",
                         value = "Generic",
+                    ),
+                ],
+            ),
+            schema.Text(
+                id = "ev_id",
+                name = "EV Battery ID",
+                desc = "EV Battery ID",
+                icon = "hashtag",
+                default = "",
+            ),
+            schema.Text(
+                id = "ev_name",
+                name = "EV Name",
+                desc = "EV Name",
+                icon = "hashtag",
+                default = "",
+            ),
+            schema.Dropdown(
+                id = "ev_icon",
+                name = "EV Brand",
+                desc = "Logo Selection",
+                icon = "hashtag",
+                default = TESLA_LOGO_18x18,
+                options = [
+                    schema.Option(
+                        display = "VW",
+                        value = "VW",
+                    ),
+                    schema.Option(
+                        display = "Tesla",
+                        value = "TESLA",
+                    ),
+                    schema.Option(
+                        display = "Audi",
+                        value = "AUDI",
+                    ),
+                    schema.Option(
+                        display = "BMW",
+                        value = "BMW",
+                    ),
+                    schema.Option(
+                        display = "Seat",
+                        value = "SEAT",
+                    ),
+                    schema.Option(
+                        display = "Skoda",
+                        value = "SKODA",
                     ),
                 ],
             ),
