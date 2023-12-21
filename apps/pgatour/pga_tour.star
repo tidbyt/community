@@ -32,7 +32,19 @@ v2.2
 Added better playoff handling
 
 v2.3 
-IDEA - better tournament naming especially for elevated events?
+Give user a choice of single color for the in progress rounds or use the color gradient option. Single color is the default
+Now showing scores for completed rounds rather than "F" 
+Removed tournament name formatting from both player/score related functions - should add efficiency?
+Added function to revise some tournament names to make them more readable and/or fit the width of the Tidbyt better
+
+v2.3.1
+Fixed bug regarding opposite field events
+
+v2.4
+Changed tee times feature to only display them when the leader's time is less than 12hrs away, and then show everyone's tee time. Previously it was showing a mix of round scores and tee times, which didnt look right
+
+v2.5
+Updated Tournament IDs for 2024 Season
 """
 
 load("encoding/json.star", "json")
@@ -42,9 +54,11 @@ load("schema.star", "schema")
 load("time.star", "time")
 
 API = "https://site.web.api.espn.com/apis/v2/scoreboard/header?sport=golf&league=pga"
+API2 = "https://site.api.espn.com/apis/site/v2/sports/golf/pga/scoreboard"
 
 CACHE_TTL_SECS = 60
 DEFAULT_TIMEZONE = "Australia/Adelaide"
+THE_EXCEPTIONS = ["401580329", "401580360"]  # The Sentry and The Open
 
 def main(config):
     renderCategory = []
@@ -54,26 +68,44 @@ def main(config):
     timezone = config.get("$tz", DEFAULT_TIMEZONE)
     RotationSpeed = config.get("speed", "3")
     OppField = config.bool("OppFieldToggle")
+    ColorGradient = config.get("ColorGradient", "False")
 
     CacheData = get_cachable_data(API, CACHE_TTL_SECS)
+    SecCacheData = get_cachable_data(API2, CACHE_TTL_SECS)
     leaderboard = json.decode(CacheData)
+    leaderboard2 = json.decode(SecCacheData)
 
     Title = leaderboard["sports"][0]["leagues"][0]["shortName"]
 
     # Check if there is an opposite field event, happens 4 times a season
     # Get the ID of the first event listed in the API
-    TournamentID = leaderboard["sports"][0]["leagues"][0]["events"][0]["id"]
-    i = OppositeFieldCheck(TournamentID)
+    FirstTournamentID = leaderboard["sports"][0]["leagues"][0]["events"][0]["id"]
+    i = OppositeFieldCheck(FirstTournamentID)
 
     # if user wants to see opposite event
     if i == 1 and OppField == True:
         i = 0
 
+    # Get Tournament Name and ID
+    TournamentName = leaderboard["sports"][0]["leagues"][0]["events"][i]["name"]
+    PreTournamentName = TournamentName
+    TournamentID = leaderboard["sports"][0]["leagues"][0]["events"][i]["id"]
+
     # Check if its a major and show a different color in the title bar
     TitleColor = getMajorColor(TournamentID)
-    #print(TitleColor)
 
-    TournamentName = leaderboard["sports"][0]["leagues"][0]["events"][i]["name"]
+    # Make it more readable
+    if TournamentID not in THE_EXCEPTIONS:
+        TournamentName = TournamentName.replace("The ", "")
+        TournamentName = TournamentName.replace("THE ", "")
+
+    RevisedName = getTournamentName(TournamentID)
+
+    if RevisedName == "None":
+        TournamentName = TournamentName[:10]
+        TournamentName = TournamentName.rstrip()
+    else:
+        TournamentName = RevisedName
 
     if (leaderboard):
         # where the tournament is at - pre, in progress, post
@@ -82,6 +114,7 @@ def main(config):
         # if in progress or completed tournament
         if status == "in" or status == "post":
             entries = leaderboard["sports"][0]["leagues"][0]["events"][i]["competitors"]
+            entries2 = leaderboard2["events"][i]["competitions"][0]["competitors"]
             stage = leaderboard["sports"][0]["leagues"][0]["events"][i]["fullStatus"]["type"]["detail"]
             state = leaderboard["sports"][0]["leagues"][0]["events"][i]["fullStatus"]["type"]["state"]
 
@@ -105,14 +138,14 @@ def main(config):
                             render.Column(
                                 children = [
                                     render.Column(
-                                        getPlayerScore(x, entries, TournamentName, TitleColor, stage, state),
+                                        getPlayerScore(x, entries, TournamentName, TitleColor, ColorGradient, stage, state),
                                     ),
                                 ],
                             ),
                             render.Column(
                                 children = [
                                     render.Column(
-                                        children = getPlayerProgress(x, entries, TournamentName, TitleColor, stage, state, timezone),
+                                        children = getPlayerProgress(x, entries, entries2, TournamentName, TitleColor, ColorGradient, stage, state, timezone),
                                     ),
                                 ],
                             ),
@@ -128,7 +161,7 @@ def main(config):
                                 cross_align = "start",
                                 children = [
                                     render.Column(
-                                        children = getPlayerScore(x, entries, TournamentName, TitleColor, stage, state),
+                                        children = getPlayerScore(x, entries, TournamentName, TitleColor, ColorGradient, stage, state),
                                     ),
                                 ],
                             ),
@@ -179,7 +212,7 @@ def main(config):
                             main_align = "space_between",
                             cross_align = "end",
                             children = [
-                                render.Marquee(width = 64, height = 12, child = render.Text(content = TournamentName + " - " + Location, color = "#FFF", font = mainFont)),
+                                render.Marquee(width = 64, height = 12, child = render.Text(content = PreTournamentName + " - " + Location, color = "#FFF", font = mainFont)),
                             ],
                         ),
                         render.Row(
@@ -196,18 +229,8 @@ def main(config):
 
     return []
 
-def getPlayerScore(x, s, Title, TitleColor, stage, state):
+def getPlayerScore(x, s, Title, TitleColor, ColorGradient, stage, state):
     # Build the 4 rows out with player names & scores
-
-    # Remove "The" or "THE" if its in the title, but not for "The Open", its a major so we treat it with respect...and it will fit anyway
-    if Title.startswith("The") or Title.startswith("THE"):
-        if Title != "The Open":
-            Title = Title.replace("The ", "")
-            Title = Title.replace("THE ", "")
-
-    # keep first 10 chars of the tournament name, then remove any extra " " at the end
-    Title = Title[:10]
-    Title = Title.rstrip()
 
     mainFont = "CG-pixel-3x5-mono"
     output = []
@@ -236,7 +259,7 @@ def getPlayerScore(x, s, Title, TitleColor, stage, state):
                 HolesCompleted = 18
 
             # Players who have completed their round are shown in white, in progress rounds are in yellow which slowly transitions to white as the round progresses.
-            playerFontColor = getPlayerFontColor(HolesCompleted)
+            playerFontColor = getPlayerFontColor(HolesCompleted, ColorGradient)
 
             # if tournament is over, show winner in blue
             if (i + x) == 0 and stage == "F":
@@ -279,21 +302,12 @@ def getPlayerScore(x, s, Title, TitleColor, stage, state):
 
     return output
 
-def getPlayerProgress(x, s, Title, TitleColor, stage, state, timezone):
+def getPlayerProgress(x, s, t, Title, TitleColor, ColorGradient, stage, state, timezone):
     # Build the 4 rows out with player names & how many holes completed or tee times
-
-    # Remove "The" or "THE" if its in the title, but not for "The Open", its a major so we treat it with respect...and it will fit anyway
-    if Title.startswith("The") or Title.startswith("THE"):
-        if Title != "The Open":
-            Title = Title.replace("The ", "")
-            Title = Title.replace("THE ", "")
-
-    # keep first 10 chars of the tournament name, then remove any extra " " at the end
-    Title = Title[:10]
-    Title = Title.rstrip()
 
     mainFont = "CG-pixel-3x5-mono"
     output = []
+    ShowTeeTimes = False
 
     topColumn = [render.Box(width = 64, height = 5, color = TitleColor, child = render.Row(expanded = True, main_align = "start", cross_align = "center", children = [
         render.Box(width = 64, height = 5, child = render.Text(content = Title + " - " + stage, color = "#fff", font = mainFont)),
@@ -301,11 +315,18 @@ def getPlayerProgress(x, s, Title, TitleColor, stage, state, timezone):
 
     output.extend(topColumn)
 
+    LeaderTeeTime = s[0]["status"]["teeTime"]
+    LeaderTeeTimeFormat = time.parse_time(LeaderTeeTime, format = "2006-01-02T15:04Z").in_location(timezone)
+    TimeDiff = LeaderTeeTimeFormat - time.now()
+    if TimeDiff.hours < 12:
+        ShowTeeTimes = True
+
     for i in range(0, 4):
         ProgressStr = ""
         if i + x < len(s):
             playerName = s[i + x]["lastName"]
             playerState = s[i + x]["status"]["state"]
+            playerID = s[i + x]["id"]
 
             # check if they've played at least 1 hole this round
             if (s[i + x]["status"]["thru"]) > 0:
@@ -320,29 +341,43 @@ def getPlayerProgress(x, s, Title, TitleColor, stage, state, timezone):
 
             # if the player hasn't started their round, show their tee time in your local time
             # also check its not a playoff
+            # Only show tee times if its less than 12hrs until the leader tees off
             if playerState == "pre":
                 if s[i + x]["status"]["playoff"] != True:
-                    TeeTime = s[i + x]["status"]["teeTime"]
-                    TeeTimeFormat = time.parse_time(TeeTime, format = "2006-01-02T15:04Z").in_location(timezone)
-                    TeeTime = TeeTimeFormat.format("15:04")
-                    ProgressStr = TeeTime
+                    if ShowTeeTimes == True:
+                        TeeTime = s[i + x]["status"]["teeTime"]
+                        TeeTimeFormat = time.parse_time(TeeTime, format = "2006-01-02T15:04Z").in_location(timezone)
+                        TeeTime = TeeTimeFormat.format("15:04")
+                        ProgressStr = TeeTime
+                    else:
+                        RoundNumber = len(t[0]["linescores"]) - 2
+                        for i in range(0, len(t), 1):
+                            if playerID == t[i]["id"]:
+                                RoundScore = t[i]["linescores"][RoundNumber]["value"]
+                                ProgressStr = str(int(RoundScore))
                 else:
                     ProgressStr = "PO"
 
             # if the player's round is underway, show how many completed holes
             # also check its not a playoff
-            if playerState == "in" or playerState == "post":
+            if playerState == "in":
                 if s[i + x]["status"]["playoff"] != True:
                     ProgressStr = str(HolesCompleted)
                 else:
                     ProgressStr = "PO"
 
-            # if the player's round is completed, show "F"
+            # if the player's round is completed, show their score
             if playerState == "post":
-                ProgressStr = "F"
+                RoundNumber = len(t[0]["linescores"]) - 2
+                for i in range(0, len(t), 1):
+                    if playerID == t[i]["id"]:
+                        RoundScore = t[i]["linescores"][RoundNumber]["value"]
+                        ProgressStr = str(int(RoundScore))
 
-            # Players who have completed their round are shown in white, in progress rounds are in yellow which slowly transitions to white as the round progresses.
-            playerFontColor = getPlayerFontColor(HolesCompleted)
+            # If ColorGradient is selected...
+            # Players who have completed their round are shown in white, in progress rounds are in dark yellow/orange which slowly transitions to white as the round progresses.
+            # Otherwise in progress is a single shade of yellow
+            playerFontColor = getPlayerFontColor(HolesCompleted, ColorGradient)
 
             # show condensed player names (down to 10 due to potential tee time being shown, so need more room) and how many holes they've played
             player = render.Row(
@@ -381,47 +416,116 @@ def getPlayerProgress(x, s, Title, TitleColor, stage, state, timezone):
             output.extend([player])
     return output
 
-def getPlayerFontColor(HolesCompleted):
-    if HolesCompleted == 18:
-        playerFontColor = "#fff"
-    elif HolesCompleted == 17:
-        playerFontColor = "#ffa"
-    elif HolesCompleted == 16:
-        playerFontColor = "#ff5"
-    elif HolesCompleted == 14 or HolesCompleted == 15:
-        playerFontColor = "#ff0"
-    elif HolesCompleted == 12 or HolesCompleted == 13:
-        playerFontColor = "#fe0"
-    elif HolesCompleted == 10 or HolesCompleted == 11:
-        playerFontColor = "#fd0"
-    elif HolesCompleted == 8 or HolesCompleted == 9:
-        playerFontColor = "#fc0"
-    elif HolesCompleted == 6 or HolesCompleted == 7:
-        playerFontColor = "#fb0"
-    elif HolesCompleted == 4 or HolesCompleted == 5:
-        playerFontColor = "#fa0"
-    elif HolesCompleted == 2 or HolesCompleted == 3:
-        playerFontColor = "#f90"
-    elif HolesCompleted == 1:
-        playerFontColor = "#f80"
-    elif HolesCompleted == 0:
-        playerFontColor = "#4ec9b0"
-    else:
-        playerFontColor = ""
+def getPlayerFontColor(HolesCompleted, ColorGradient):
+    playerFontColor = ""
+
+    if ColorGradient == "False":
+        if HolesCompleted == 18:
+            playerFontColor = "#fff"
+        elif HolesCompleted == 0:
+            playerFontColor = "#4ec9b0"
+        else:
+            playerFontColor = "#ff0"
+
+    elif ColorGradient == "True":
+        if HolesCompleted == 18:
+            playerFontColor = "#fff"
+        elif HolesCompleted == 17:
+            playerFontColor = "#ffa"
+        elif HolesCompleted == 16:
+            playerFontColor = "#ff5"
+        elif HolesCompleted == 14 or HolesCompleted == 15:
+            playerFontColor = "#ff0"
+        elif HolesCompleted == 12 or HolesCompleted == 13:
+            playerFontColor = "#fe0"
+        elif HolesCompleted == 10 or HolesCompleted == 11:
+            playerFontColor = "#fd0"
+        elif HolesCompleted == 8 or HolesCompleted == 9:
+            playerFontColor = "#fc0"
+        elif HolesCompleted == 6 or HolesCompleted == 7:
+            playerFontColor = "#fb0"
+        elif HolesCompleted == 4 or HolesCompleted == 5:
+            playerFontColor = "#fa0"
+        elif HolesCompleted == 2 or HolesCompleted == 3:
+            playerFontColor = "#f90"
+        elif HolesCompleted == 1:
+            playerFontColor = "#f80"
+        elif HolesCompleted == 0:
+            playerFontColor = "#4ec9b0"
+        else:
+            playerFontColor = ""
 
     return playerFontColor
 
+def getTournamentName(ID):
+    # Provide friendly shortened name
+
+    TournamentName = ""
+
+    if ID == "401580331":
+        TournamentName = "The Am Ex"
+    elif ID == "401580332":
+        TournamentName = "Farmers"
+    elif ID == "401580333":
+        TournamentName = "AT&T Pro-A"
+    elif ID == "401580335":
+        TournamentName = "Genesis In"
+    elif ID == "401580338":
+        TournamentName = "AP Inv"
+    elif ID == "401580340":
+        TournamentName = "Players Ch"
+    elif ID == "401580347":
+        TournamentName = "Zurich"
+    elif ID == "401580346":
+        TournamentName = "Puntacana"
+    elif ID == "401580348":
+        TournamentName = "CJ Cup"
+    elif ID == "401580341":
+        TournamentName = "Valspar"
+    elif ID == "401580342":
+        TournamentName = "Houston Op"
+    elif ID == "401580343":
+        TournamentName = "Texas Op"
+    elif ID == "401580344":
+        TournamentName = "Masters"
+    elif ID == "401580345":
+        TournamentName = "Heritage"
+    elif ID == "401580353":
+        TournamentName = "Canadian"
+    elif ID == "401580354":
+        TournamentName = "Memorial"
+    elif ID == "401580351":
+        TournamentName = "PGA Champ"
+    elif ID == "401465538":
+        TournamentName = "Barbasol"
+    elif ID == "401580359":
+        TournamentName = "Scottish"
+    elif ID == "401580363":
+        TournamentName = "Wyndham"
+    elif ID == "401580364":
+        TournamentName = "FedEx St.J"
+    elif ID == "401580365":
+        TournamentName = "BMW Champ"
+    elif ID == "401558309":
+        TournamentName = "Q-School"
+    else:
+        TournamentName = "None"
+
+    return TournamentName
+
 def getMajorColor(ID):
-    # check if its a major and if so show different title bar color
+    # check if its a major or The Players and if so show different title bar color
     # and if not, show the default PGA color
     TitleColor = "#0039A6"
-    if ID == "401465508":  # Masters
+    if ID == "401580340":  # The Players
+        TitleColor = "#003360"
+    if ID == "401580344":  # Masters
         TitleColor = "#006747"
-    elif ID == "401465523":  # US PGA
+    elif ID == "401580351":  # US PGA
         TitleColor = "#00205b"
-    elif ID == "401465533":  # US Open
+    elif ID == "401580355":  # US Open
         TitleColor = "#003865"
-    elif ID == "401465539":  # The Open
+    elif ID == "401580360":  # The Open
         TitleColor = "#1a1c3c"
     else:
         TitleColor = "#0039A6"
@@ -431,13 +535,13 @@ def OppositeFieldCheck(ID):
     # check if the first tournament listed in the ESPN API is an opposite field event, one of the four below
     # and if it is, go to the second event in the API
     i = 0
-    if ID == "401465525":  # Puerto Rico Open
+    if ID == "401580350":  # Myrtle Beach
         i = 1
-    elif ID == "401465529":  # Puntacana
+    elif ID == "401580346":  # Puntacana
         i = 1
-    elif ID == "401465538":  # Barbasol
+    elif ID == "401580361":  # Barracuda
         i = 1
-    elif ID == "401465540":  # Barracuda
+    elif ID == "401580339":  # Puerto Rico
         i = 1
     else:
         i = 0
@@ -462,6 +566,17 @@ RotationOptions = [
     ),
 ]
 
+ColorGradientOptions = [
+    schema.Option(
+        display = "Color Gradient",
+        value = "True",
+    ),
+    schema.Option(
+        display = "Single Color",
+        value = "False",
+    ),
+]
+
 def get_schema():
     return schema.Schema(
         version = "1",
@@ -473,6 +588,14 @@ def get_schema():
                 icon = "gear",
                 default = RotationOptions[1].value,
                 options = RotationOptions,
+            ),
+            schema.Dropdown(
+                id = "ColorGradient",
+                name = "Show in progress round as ...",
+                desc = "How to show in progress rounds",
+                icon = "gear",
+                default = ColorGradientOptions[1].value,
+                options = ColorGradientOptions,
             ),
             schema.Toggle(
                 id = "OppFieldToggle",

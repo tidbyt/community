@@ -18,31 +18,32 @@ DISPLAY_OPTIONS = [
 
 scroll_speed_options = [
     schema.Option(
-        display = "Slow Scroll",
+        display = "Slow",
         value = "60",
     ),
     schema.Option(
-        display = "Medium Scroll",
+        display = "Medium",
         value = "45",
     ),
     schema.Option(
-        display = "Fast Scroll",
+        display = "Fast",
         value = "30",
     ),
 ]
 
+#####################################################################################################################################################################################
 RULES = {
     1: {
         "rule": "Stand up straight with your shoulders back",
-        "quote": "To stand up straight with your shoulders back is to accept the terrible responsibility of life, with eyes wide open. It means deciding to voluntarily transform the chaos of potential into the realities of habitable order … It means willingly undertaking the sacrifices necessary to generate a productive and meaningful reality.",
+        "quote": "Accept the terrible responsibility of life, with eyes wide open. Voluntarily transform the chaos of potential into the realities of habitable order",
     },
     2: {
         "rule": "Treat yourself like you are someone you are responsible for helping",
-        "quote": "You must help a child become a virtuous, responsible, awake being, capable of full reciprocity – able to take care of himself and others, and to thrive while doing so. Why would you think it acceptable to do anything less for yourself?",
+        "quote": "You must help a child become a virtuous, responsible, awake being, capable of full reciprocity - able to care for himself and others, and to thrive while doing so.",
     },
     3: {
         "rule": "Make friends with people who want the best for you",
-        "quote": "It’s a good thing, not a selfish thing to choose people who are good for you.",
+        "quote": "It's a good thing, not a selfish thing to choose people who are good for you.",
     },
     4: {
         "rule": "Compare yourself to who you were yesterday, not to who someone else is today",
@@ -53,32 +54,32 @@ RULES = {
         "quote": "Friends have very limited authority to correct.",
     },
     6: {
-        "rule": "Set your house in perfect order before you criticize the world.",
-        "quote": "Start to stop doing what you know to be wrong.",
+        "rule": "Set your house in perfect order before you criticize the world",
+        "quote": "Stop doing what you know to be wrong.",
     },
     7: {
         "rule": "Pursue what is meaningful (not what is expedient)",
-        "quote": "Life is suffering. That’s clear. There is no more basic, irrefutable truth.",
+        "quote": "Life is suffering. That is clear. There is no more basic, irrefutable truth.",
     },
     8: {
-        "rule": "Tell the truth – or, at least, don’t lie",
+        "rule": "Tell the truth - or, at least, do not lie",
         "quote": "I have seen people define their utopia and then bend their lives into knots trying to make it reality.",
     },
     9: {
-        "rule": "Assume that the person you are listening to might know something you don’t",
-        "quote": "[Good] conversation [is] the best preparation for proper living.",
+        "rule": "Assume that the person you are listening to might know something you don't",
+        "quote": "Good conversation is the best preparation for proper living.",
     },
     10: {
         "rule": "Be precise in your speech",
-        "quote": "[Speech] can give structure and re-establish order",
+        "quote": "Speech can give structure and re-establish order",
     },
     11: {
         "rule": "Do not bother children when they are skate-boarding",
         "quote": "If you think tough men are dangerous, wait until you see what weak men are capable of.",
     },
     12: {
-        "rule": "Pet a cat when you encounter one on the street.",
-        "quote": "If you pay careful attention, even on a bad day, you may be fortunate enough to be confronted with small opportunities of just that sort. Maybe you will see a little girl dancing on the street because she is all dressed up in a ballet costume. Maybe you will have a particularly good cup of coffee in a cafe that cares about their customers. Maybe you can steal ten or twenty minutes to do some ridiculous thing that distracts you or reminds you that you can laugh at the absurdity of existence.",
+        "rule": "Pet a cat when you encounter one on the street",
+        "quote": "If you pay careful attention, even on a bad day, you may be fortunate enough to be confronted with small opportunities of just that sort. ",
     },
 }
 
@@ -116,7 +117,8 @@ def main(config):
                 ),
                 render.Marquee(
                     width = 64,
-                    child = render.Text("%s" % (RULES[display_item]["quote"]), color = "#e77c05", font = "Dina_r400-6"),
+                    offset_start = len(RULES[display_item]["rule"]) * 5,
+                    child = render.Text("   %s" % (RULES[display_item]["quote"]), color = "#e77c05", font = "Dina_r400-6"),
                 ),
             ],
         ),

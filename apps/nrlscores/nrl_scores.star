@@ -6,6 +6,12 @@ Author: M0ntyP
 
 v1.0
 First release
+
+v1.1
+Updated abbreviations
+
+v1.2
+Updated method of determining the round number, as the old method wasn't working for finals
 """
 
 load("encoding/json.star", "json")
@@ -37,8 +43,7 @@ def main(config):
     LadderData = get_cachable_data(LADDER_URL, LADDER_CACHE)
     LadderJSON = json.decode(LadderData)
 
-    RoundNumber = MatchesJSON["fixtures"][0]["roundTitle"]
-    RoundNumber = RoundNumber[6:]
+    RoundNumber = str(MatchesJSON["selectedRoundId"])
 
     LIVE_URL = MATCHES_URL + "&round=" + RoundNumber
     LiveData = get_cachable_data(LIVE_URL, LIVE_CACHE)
@@ -492,13 +497,13 @@ def getTeamAbb(team_id):
     if team_id == 500011:  #Broncos
         return ("BRI")
     elif team_id == 500010:  #Bulldogs
-        return ("CNB")
+        return ("CBY")
     elif team_id == 500012:  #Cowboys
-        return ("NOQ")
+        return ("NQL")
     elif team_id == 500723:  #Dolphins
-        return ("RED")
+        return ("DOL")
     elif team_id == 500022:  #Dragons
-        return ("STG")
+        return ("SGI")
     elif team_id == 500031:  #Eels
         return ("PAR")
     elif team_id == 500003:  #Knights
@@ -508,7 +513,7 @@ def getTeamAbb(team_id):
     elif team_id == 500005:  #Rabbitohs
         return ("SOU")
     elif team_id == 500013:  #Raiders
-        return ("CNB")
+        return ("CAN")
     elif team_id == 500001:  #Roosters
         return ("SYD")
     elif team_id == 500002:  #Sea Eagles
@@ -518,15 +523,11 @@ def getTeamAbb(team_id):
     elif team_id == 500021:  #Storm
         return ("MEL")
     elif team_id == 500004:  #Titans
-        return ("GC")
+        return ("GLD")
     elif team_id == 500032:  #Warriors
-        return ("NZ")
+        return ("WAR")
     elif team_id == 500023:  #Tigers
-        return ("WES")
-    elif team_id == 500146:  # NSW
-        return ("NSW")
-    elif team_id == 500147:  # QLD
-        return ("QLD")
+        return ("WST")
 
     return None
 
