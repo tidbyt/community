@@ -2,7 +2,7 @@
 
 Displays today’s date in the calendar systems used by the ancient Maya civilization of Mesoamerica.
 
-![Maya Calendar app](maya_calendar.gif)
+![Maya Calendar app](maya_calendar.png)
 
 ## Calendars
 
