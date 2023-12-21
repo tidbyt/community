@@ -338,7 +338,7 @@ def main(config):
             data["autarky_day"] = get_autarky_percent(site_id, api_key, tz, "day")
             data["autarky_24h"] = get_autarky_percent(site_id, api_key, tz, "24h")
             data["autarky_month"] = get_autarky_percent(site_id, api_key, tz, "month")
-            data["autarky_year"] = data["autarky_month"]  #get_autarky_percent(site_id, api_key, tz, "year")
+            data["autarky_year"] = get_autarky_percent(site_id, api_key, tz, "year")
         else:
             data["autarky_day"] = None  #get_autarky_percent(site_id, api_key, tz, "day")
             data["autarky_24h"] = None  #get_autarky_percent(site_id, api_key, tz, "24h")
