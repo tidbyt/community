@@ -929,7 +929,7 @@ def get_ev_logo(name):
         return OPEL_LOGO_23x18
     elif name == "RENAULT":
         return RENAULT_LOGO_18x18
-    elif name == "Hyundai":
+    elif name == "HYUNDAI":
         return HYUNDAI_LOGO_24x12
     elif name == "CUPRA":
         return CUPRA_LOGO_18x18
