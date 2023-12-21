@@ -19,18 +19,26 @@ WIDTH = 64
 
 MAX_AGE = 60
 
+def get_vs_rule_name(setting):
+    return setting["vsRule"]["name"]
+
+def get_vs_stages(setting):
+    return setting["vsStages"]
+
 def make_anarchy_battle_mode(bankara_mode):
-    def get_bankara_match_setting(node):
-        for setting in node["bankaraMatchSettings"]:
+    def get_bankara_match_setting(settings):
+        for setting in settings:
             if setting["bankaraMode"] == bankara_mode:
                 return setting
         return None
 
     return struct(
         nodes_accessor = lambda x: x["bankaraSchedules"],
+        setting_key = "bankaraMatchSettings",
+        is_splatfest = False,
         title_color = "#F54910",
-        subtitle_generator = lambda x: get_bankara_match_setting(x)["vsRule"]["name"],
-        images_accessor = lambda x: get_bankara_match_setting(x)["vsStages"],
+        subtitle_generator = lambda x: get_vs_rule_name(get_bankara_match_setting(x)),
+        images_accessor = lambda x: get_vs_stages(get_bankara_match_setting(x)),
     )
 
 def make_challenge_mode():
@@ -48,42 +56,99 @@ def make_challenge_mode():
 
     return struct(
         nodes_accessor = nodes_accessor,
+        setting_key = "leagueMatchSetting",
+        is_splatfest = False,
         title_color = "#EA4074",
-        subtitle_generator = lambda x: x["leagueMatchSetting"]["leagueMatchEvent"]["name"],
-        images_accessor = lambda x: x["leagueMatchSetting"]["vsStages"],
+        subtitle_generator = lambda x: x["leagueMatchEvent"]["name"],
+        images_accessor = get_vs_stages,
+    )
+
+def make_salmon_run_mode(schedule_key, title_color):
+    return struct(
+        nodes_accessor = lambda x: x["coopGroupingSchedule"][schedule_key],
+        setting_key = "setting",
+        is_splatfest = False,
+        title_color = title_color,
+        subtitle_color_map = {},
+        # TODO: how will the boss object be defined for Eggstra Work?
+        subtitle_generator = lambda x: "%s (%s)" % (x["coopStage"]["name"], x["boss"]["name"]),
+        images_accessor = lambda x: x["weapons"],
+    )
+
+def make_splatfest_mode(fest_mode):
+    def get_fest_match_setting(settings):
+        for setting in settings:
+            if setting["festMode"] == fest_mode:
+                return setting
+        return None
+
+    return struct(
+        nodes_accessor = lambda x: x["festSchedules"],
+        setting_key = "festMatchSettings",
+        is_splatfest = True,
+        title_color = None,
+        subtitle_generator = None,
+        images_accessor = lambda x: get_vs_stages(get_fest_match_setting(x)),
+    )
+
+def make_tricolor_turf_war():
+    def nodes_accessor(data):
+        current_fest = data["currentFest"]
+        return {
+            "nodes": [
+                {
+                    "startTime": current_fest["midtermTime"],
+                    "endTime": current_fest["endTime"],
+                    "setting": {
+                        "tricolorStage": [current_fest["tricolorStage"]],
+                    },
+                },
+            ] if current_fest else [],
+        }
+
+    return struct(
+        nodes_accessor = nodes_accessor,
+        setting_key = "setting",
+        is_splatfest = True,
+        title_color = None,
+        subtitle_generator = None,
+        images_accessor = lambda x: x["tricolorStage"],
     )
 
 MODES = {
     "Regular Battle": struct(
         nodes_accessor = lambda x: x["regularSchedules"],
+        setting_key = "regularMatchSetting",
+        is_splatfest = False,
         title_color = "#CFF622",
-        subtitle_generator = lambda x: x["regularMatchSetting"]["vsRule"]["name"],
-        images_accessor = lambda x: x["regularMatchSetting"]["vsStages"],
+        subtitle_generator = get_vs_rule_name,
+        images_accessor = get_vs_stages,
     ),
     "Anarchy Battle (Series)": make_anarchy_battle_mode("CHALLENGE"),
     "Anarchy Battle (Open)": make_anarchy_battle_mode("OPEN"),
     "X Battle": struct(
         nodes_accessor = lambda x: x["xSchedules"],
+        setting_key = "xMatchSetting",
+        is_splatfest = False,
         title_color = "#0FDB9B",
-        subtitle_generator = lambda x: x["xMatchSetting"]["vsRule"]["name"],
-        images_accessor = lambda x: x["xMatchSetting"]["vsStages"],
+        subtitle_generator = get_vs_rule_name,
+        images_accessor = get_vs_stages,
     ),
     "Challenge": make_challenge_mode(),
-    "Salmon Run": struct(
-        nodes_accessor = lambda x: x["coopGroupingSchedule"]["regularSchedules"],
-        title_color = "#FF5033",
-        subtitle_color_map = {},
-        subtitle_generator = lambda x: "%s (%s)" % (x["setting"]["coopStage"]["name"], x["setting"]["boss"]["name"]),
-        images_accessor = lambda x: x["setting"]["weapons"],
-    ),
+    "Salmon Run": make_salmon_run_mode("regularSchedules", "#FF5033"),
+    "Splatfest Battle (Open)": make_splatfest_mode("REGULAR"),
+    "Splatfest Battle (Pro)": make_splatfest_mode("CHALLENGE"),
+    "Tricolor Turf War": make_tricolor_turf_war(),
+    "Big Run": make_salmon_run_mode("bigRunSchedules", "#B322FF"),
+    "Eggstra Work": make_salmon_run_mode("teamContestSchedules", "#E4A500"),
 }
 
-def find_node(data, mode):
+def find_setting(data, mode):
     now = time.now()
-    nodes = mode.nodes_accessor(data["data"])["nodes"]
+    nodes = mode.nodes_accessor(data)["nodes"]
     for node in nodes:
-        if time.parse_time(node["startTime"]) <= now and now <= time.parse_time(node["endTime"]):
-            return node
+        if time.parse_time(node["startTime"]) <= now and now < time.parse_time(node["endTime"]):
+            return node[mode.setting_key]
     return None
 
 def fetch_image(url):
@@ -92,6 +157,21 @@ def fetch_image(url):
         return None
     return res.body()
 
+def render_splatfest(current_fest, mode_name):
+    def color_to_rgb(color):
+        def zero_pad(s, width):
+            return "0" * (width - len(s)) + s
+
+        return "#" + "".join([zero_pad("%X" % int(color[c] * 255), 2) for c in ("r", "g", "b")])
+
+    return (
+        render.Row([
+            render.Text(mode_name_word + " ", color = color_to_rgb(team["color"]))
+            for mode_name_word, team in zip(mode_name.split(" "), current_fest["teams"])
+        ]),
+        render.Text(current_fest["title"]),
+    )
+
 def main(config):
     mode_name = config.get("mode", MODES.keys()[0])
     mode = MODES[mode_name]
@@ -99,20 +179,26 @@ def main(config):
     res = http.get(API_URL, ttl_seconds = TTL_SECONDS)
     if res.status_code != 200:
         return []
-    data = res.json()
+    data = res.json()["data"]
 
-    node = find_node(data, mode)
-    if not node:
+    setting = find_setting(data, mode)
+    if not setting:
         return []
 
-    image_urls = [image["image"]["url"] for image in mode.images_accessor(node)]
+    image_urls = [image["image"]["url"] for image in mode.images_accessor(setting)]
     images = [fetch_image(image_url) for image_url in image_urls]
     image_renders = [render.Image(image, height = ICON_HEIGHT) for image in images if image]
 
+    if mode.is_splatfest:
+        first_row, second_row = render_splatfest(data["currentFest"], mode_name)
+    else:
+        first_row = render.Text(mode_name, color = mode.title_color)
+        second_row = render.Text(mode.subtitle_generator(setting))
+
     return render.Root(
         render.Column([
-            render.Marquee(render.Text(mode_name, color = mode.title_color), width = WIDTH),
-            render.Marquee(render.Text(mode.subtitle_generator(node), color = "#FFFFFF"), width = WIDTH),
+            render.Marquee(first_row, width = WIDTH),
+            render.Marquee(second_row, width = WIDTH),
             render.Row(image_renders, main_align = "space_between", cross_align = "center"),
         ], main_align = "space_between", cross_align = "center"),
         max_age = MAX_AGE,
