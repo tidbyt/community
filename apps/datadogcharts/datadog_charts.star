@@ -158,3 +158,28 @@ def redener(display_name, datapoints):
     )
 
     return render.Root(child = root)
+
+def get_schema():
+    return schema.Schema(
+        version = "1",
+        fields = [
+            schema.Text(
+                id = "api_key",
+                name = "API Key",
+                desc = "DataDog API Key",
+                icon = "key",
+            ),
+            schema.Text(
+                id = "app_key",
+                name = "App Key",
+                desc = "DataDog App Key",
+                icon = "key",
+            ),
+            schema.Text(
+                id = "dashboard_id",
+                name = "Dashboard ID",
+                desc = "DataDog Dashboard ID",
+                icon = "key",
+            ),
+        ],
+    )
