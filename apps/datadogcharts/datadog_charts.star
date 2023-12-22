@@ -8,6 +8,7 @@ Author: Gabe Ochoa
 load("encoding/base64.star", "base64")
 load("http.star", "http")
 load("render.star", "render")
+load("schema.star", "schema")
 load("time.star", "time")
 
 # Set your DataDog API and App keys here for development
