@@ -12,8 +12,8 @@ load("schema.star", "schema")
 load("time.star", "time")
 
 # Set your DataDog API and App keys here for development
-DEFAULT_APP_KEY = ""
-DEFAULT_API_KEY = ""
+DEFAULT_APP_KEY = None
+DEFAULT_API_KEY = None
 DEFAULT_DASHBOARD_ID = ""
 
 DATADOG_ICON = base64.decode("""
@@ -27,18 +27,12 @@ def main(config):
     DASHBOARD_ID = config.get("dashboard_id")
 
     if DD_API_KEY == None or DD_APP_KEY == None:
-        child = render.Row(
-            cross_align = "center",
-            main_align = "center",
-            children = [
-                render.WrappedText(align = "center", content = "DataDog API Key or App Key not set."),
-            ],
-        )
-        return render.Root(child = child)
+        return redener("Set Datadog API and APP Key", fake_chart_data())
 
     dashboard_json = http.get(
         "https://api.datadoghq.com/api/v1/dashboard/{}".format(DASHBOARD_ID or DEFAULT_DASHBOARD_ID),
         headers = {"DD-API-KEY": DD_API_KEY, "DD-APPLICATION-KEY": DD_APP_KEY, "Accept": "application/json"},
+        ttl_seconds = 6000,
     ).json()
 
     if dashboard_json.get("errors") != None:
@@ -76,6 +70,7 @@ def main(config):
         "https://api.datadoghq.com/api/v1/query",
         params = {"from": str(from_time), "to": str(to_time), "query": query},
         headers = {"DD-API-KEY": DD_API_KEY, "DD-APPLICATION-KEY": DD_APP_KEY, "Accept": "application/json"},
+        ttl_seconds = 600,
     ).json()
 
     # Check if we got data, if not, show an error
@@ -184,3 +179,6 @@ def get_schema():
             ),
         ],
     )
+
+def fake_chart_data():
+    return [(1, 1), (2, 2), (3, 3), (4, 4), (5, 5), (6, 6), (7, 7), (8, 8)]
