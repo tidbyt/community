@@ -1,0 +1,8 @@
+---
+id: blackjack
+name: Blackjack
+summary: Show how to play bj hand
+desc: Displays blackjack hands, and gives the recommended advice on how to play it.
+author: jmordars
+fileName: blackjack.star
+packageName: blackjack
