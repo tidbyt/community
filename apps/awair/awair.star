@@ -30,67 +30,6 @@ def get_schema():
         ],
     )
 
-green = "#41b942"
-yellow = "#fcd026"
-yellow_orange = "#fba905"
-orange = "f78703"
-red = "#e8333a"
-
-awair_color_map = [
-    {"range": 80, "color": green},
-    {"range": 60, "color": yellow_orange},
-    {"range": 0, "color": red},
-]
-
-rh_color_map = [
-    {"range": 81, "color": red},
-    {"range": 66, "color": orange},
-    {"range": 61, "color": yellow_orange},
-    {"range": 51, "color": yellow},
-    {"range": 41, "color": green},
-    {"range": 36, "color": yellow},
-    {"range": 21, "color": yellow_orange},
-    {"range": 16, "color": orange},
-    {"range": 0, "color": red},
-]
-
-co2_color_map = [
-    {"range": 2500, "color": red},
-    {"range": 1500, "color": orange},
-    {"range": 1000, "color": yellow_orange},
-    {"range": 600, "color": yellow},
-    {"range": 400, "color": green},
-]
-
-temp_color_map = [
-    {"range": 33.333, "color": red},  # 92F
-    {"range": 31.667, "color": orange},  # 89F
-    {"range": 26.111, "color": yellow_orange},  # 79F
-    {"range": 25, "color": yellow},  # 77F
-    {"range": 17.778, "color": green},  # 64F
-    {"range": 16.667, "color": yellow},  # 62F
-    {"range": 10.556, "color": yellow_orange},  # 51F
-    {"range": 8.889, "color": orange},  # 48F
-    {"range": 0, "color": red},
-]
-
-pm_color_map = [
-    {"range": 75, "color": red},
-    {"range": 55, "color": orange},
-    {"range": 35, "color": yellow_orange},
-    {"range": 15, "color": yellow},
-    {"range": 0, "color": green},
-]
-
-def get_color(score, color_map):
-    default = "#fff"
-
-    for item in color_map:
-        if score >= item["range"]:
-            return item["color"]
-
-    return default
-
 def main(config):
     return render_display(config, fetch_data(config))
 
@@ -131,30 +70,30 @@ def render_display(config, data):
                                     content = "Temp " +
                                               str(temperature)[0:2],
                                     font = "tb-8",
-                                    color = get_color(data["temp"], temp_color_map),
+                                    color = get_color(data["temp"], TEMP_COLOR_MAP),
                                 ),
                                 render.Text(
                                     content = "RH%   " + str(data["humid"])[0:2],
                                     font = "tb-8",
-                                    color = get_color(data["humid"], rh_color_map),
+                                    color = get_color(data["humid"], RH_COLOR_MAP),
                                 ),
                                 render.Row(
                                     children = [
                                         render.Text(
                                             content = "CO",
                                             font = "tb-8",
-                                            color = get_color(data["co2"], co2_color_map),
+                                            color = get_color(data["co2"], CO2_COLOR_MAP),
                                         ),
                                         render.Text(
                                             content = "2 ",
                                             height = 8,
                                             font = "CG-pixel-3x5-mono",
-                                            color = get_color(data["co2"], co2_color_map),
+                                            color = get_color(data["co2"], CO2_COLOR_MAP),
                                         ),
                                         render.Text(
                                             content = str(data["co2"]),
                                             font = "tb-8",
-                                            color = get_color(data["co2"], co2_color_map),
+                                            color = get_color(data["co2"], CO2_COLOR_MAP),
                                         ),
                                     ],
                                 ),
@@ -163,30 +102,30 @@ def render_display(config, data):
                                         render.Text(
                                             content = "PM",
                                             font = "tb-8",
-                                            color = get_color(data["pm25"], pm_color_map),
+                                            color = get_color(data["pm25"], PM_COLOR_MAP),
                                         ),
                                         render.Text(
                                             content = "2",
                                             height = 7,
                                             font = "CG-pixel-3x5-mono",
-                                            color = get_color(data["pm25"], pm_color_map),
+                                            color = get_color(data["pm25"], PM_COLOR_MAP),
                                         ),
                                         render.Text(
                                             content = ".",
                                             height = 7,
                                             font = "tb-8",
-                                            color = get_color(data["pm25"], pm_color_map),
+                                            color = get_color(data["pm25"], PM_COLOR_MAP),
                                         ),
                                         render.Text(
                                             content = "5 ",
                                             height = 7,
                                             font = "CG-pixel-3x5-mono",
-                                            color = get_color(data["pm25"], pm_color_map),
+                                            color = get_color(data["pm25"], PM_COLOR_MAP),
                                         ),
                                         render.Text(
                                             content = (" " + str(data["pm25"]))[-2:],
                                             font = "tb-8",
-                                            color = get_color(data["pm25"], pm_color_map),
+                                            color = get_color(data["pm25"], PM_COLOR_MAP),
                                         ),
                                     ],
                                 ),
@@ -205,7 +144,7 @@ def render_display(config, data):
                                             diameter = 18,
                                             color = get_color(
                                                 data["score"],
-                                                awair_color_map,
+                                                AWAIR_COLOR_MAP,
                                             ),
                                         ),
                                         render.Box(
@@ -214,7 +153,7 @@ def render_display(config, data):
                                             child = render.Text(
                                                 content = str(data["score"]),
                                                 font = "Dina_r400-6",
-                                                color = "#fff",
+                                                color = WHITE,
                                             ),
                                         ),
                                     ],
@@ -227,7 +166,7 @@ def render_display(config, data):
         ),
     )
 
-# Renders a (possibly quite long) error message.
+# Renders a (possibly quite long) error message, splitting into 16-char lines.
 def render_error(message):
     n_lines = len(message) // 16 + 1
     messages = []
@@ -236,7 +175,7 @@ def render_error(message):
             render.Text(
                 content = message[:16],
                 font = "tom-thumb",
-                color = red,
+                color = RED,
             ),
         )
         message = message[16:]
@@ -246,3 +185,65 @@ def render_error(message):
             children = messages,
         ),
     )
+
+GREEN = "#41b942"
+YELLOW = "#fcd026"
+YELLOW_ORANGE = "#fba905"
+ORANGE = "f78703"
+RED = "#e8333a"
+WHITE = "#ffffff"
+
+AWAIR_COLOR_MAP = [
+    {"range": 80, "color": GREEN},
+    {"range": 60, "color": YELLOW_ORANGE},
+    {"range": 0, "color": RED},
+]
+
+RH_COLOR_MAP = [
+    {"range": 80.5, "color": RED},
+    {"range": 64.5, "color": ORANGE},
+    {"range": 60.5, "color": YELLOW_ORANGE},
+    {"range": 50.5, "color": YELLOW},
+    {"range": 39.5, "color": GREEN},
+    {"range": 34.5, "color": YELLOW},
+    {"range": 19.5, "color": YELLOW_ORANGE},
+    {"range": 14.5, "color": ORANGE},
+    {"range": 0, "color": RED},
+]
+
+CO2_COLOR_MAP = [
+    {"range": 2500.5, "color": RED},
+    {"range": 1500.5, "color": ORANGE},
+    {"range": 1000.5, "color": YELLOW_ORANGE},
+    {"range": 600.5, "color": YELLOW},
+    {"range": 400, "color": GREEN},
+]
+
+TEMP_COLOR_MAP = [
+    {"range": 33.5, "color": RED},
+    {"range": 31.5, "color": ORANGE},
+    {"range": 26.5, "color": YELLOW_ORANGE},
+    {"range": 25.5, "color": YELLOW},
+    {"range": 17.5, "color": GREEN},
+    {"range": 16.5, "color": YELLOW},
+    {"range": 10.5, "color": YELLOW_ORANGE},
+    {"range": 8.5, "color": ORANGE},
+    {"range": 0, "color": RED},
+]
+
+PM_COLOR_MAP = [
+    {"range": 75.5, "color": RED},
+    {"range": 55.5, "color": ORANGE},
+    {"range": 35.5, "color": YELLOW_ORANGE},
+    {"range": 15.5, "color": YELLOW},
+    {"range": 0, "color": GREEN},
+]
+
+def get_color(score, color_map):
+    default = WHITE
+
+    for item in color_map:
+        if score >= item["range"]:
+            return item["color"]
+
+    return default
