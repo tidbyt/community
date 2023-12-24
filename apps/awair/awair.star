@@ -108,7 +108,10 @@ def fetch_data(config):
     else:  # local API
         ip_address = config.str("ip_address", "")
         if not ip_address:
-            return {"error": "Displaying mock " + "data.           " + "Please configure" + "the API."}
+            return {
+                "error": "Displaying mock " + "data.           " + "Please configure" + "the API.",
+                "mock": True,
+            }
 
         response = http.get("http://{}/air-data/latest".format(ip_address))
         if response.status_code != 200:
@@ -163,7 +166,7 @@ def sensor_value(sensors, key):
 def render_display(config, data):
     error = data.get("error")
     if error:
-        return render_error(config, error)
+        return render_error(config, data)
 
     return render.Root(child = render_data(config, data))
 
@@ -321,7 +324,10 @@ def render_data(config, data):
     )
 
 # Renders a (possibly quite long) error message, splitting into 16-char lines.
-def render_error(config, message):
+# To ensure we have a good screenshot in the app store, if data["mock"] is True, also render mock data.
+def render_error(config, data):
+    message = data.get("error")
+
     n_lines = len(message) // 16 + 1
     messages = []
     for _ in range(n_lines):
@@ -334,14 +340,15 @@ def render_error(config, message):
         )
         message = message[16:]
 
+    children = []
+    if data.get("mock"):
+        children.append(render_data(config, fetch_mock_data()))
+
+    children.append(render.Column(children = messages))
+
     return render.Root(
         delay = 3000,  # milliseconds to show each frame
-        child = render.Animation(
-            children = [
-                render_data(config, fetch_mock_data()),
-                render.Column(children = messages),
-            ],
-        ),
+        child = render.Animation(children = children),
     )
 
 GREEN = "#41b942"
