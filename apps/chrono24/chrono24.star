@@ -32,7 +32,7 @@ def main(config):
     # Ensure valid response
     if rep.status_code != 200:
       return render.Root(
-          child = twoLine("Ntwk Error", "Status: " + str(rep.status_code)),
+          child = two_line("Ntwk Error", "Status: " + str(rep.status_code)),
       )
 
     data = rep.json()
@@ -47,6 +47,7 @@ def main(config):
   highest_price = 0
   first_price = 0 
   last_price = 0
+
   for index, price_data in enumerate(price_index_data):
     value = price_data["y"]["mean"]["value"]
     
@@ -67,20 +68,39 @@ def main(config):
 
     price_points.append((index, value))
 
-  
-  print(first_price)
-  print(last_price)
+  primary_color = "#0f0" if last_price > first_price else "f00"
 
   return render.Root(
       child = render.Column(
         children = [
+          # First row, timeframe and dollar change
+          render.Row(
+            expanded = True,
+            main_align = "space_between",
+            cross_align = "end",
+            children = [
+              render.Text(content = get_pretty_timeframe_title(timeframe)),
+              render.Text(content = str(make_two_decimal(last_price - first_price)), color = primary_color),
+            ],
+          ),
+
+          # Second row, current value and percent change
+          render.Row(
+            expanded = True,
+            main_align = "space_between",
+            cross_align = "end",
+            children = [
+              render.Text(content = str(make_two_decimal(last_price))),
+              render.Text(content = str(make_two_decimal(((last_price - first_price) / first_price) * 100)) + "%", color = primary_color),
+            ],
+          ),
 
           # Graph
           render.Plot(
             data = price_points,
             width = 66,
-            height = 26,
-            color = "#0f0" if last_price > first_price else "f00",
+            height = 15,
+            color = primary_color,
             y_lim = (lowest_price, highest_price),
             fill = True,
           ),
@@ -88,7 +108,7 @@ def main(config):
       ),
   )
 
-def twoLine(line1, line2):
+def two_line(line1, line2):
   return render.Box(
       width = 64,
       child = render.Column(
@@ -99,6 +119,20 @@ def twoLine(line1, line2):
           ],
       ),
   )
+
+def make_two_decimal(value):
+  return int(value * 100) / 100.0
+
+def get_pretty_timeframe_title(value):
+    titles = {
+        "_1month": "1 mo",
+        "_3months": "3 mo",
+        "_6months": "6 mo",
+        "_1year": "1 yr",
+        "_3years": "3 yr",
+        "max": "Max"
+    }
+    return titles.get(value, "Unknown")
 
 def get_schema():
   timeframes = [
