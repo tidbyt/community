@@ -138,7 +138,7 @@ def watch_indexes_render(timeframe, data):
 def generate_watch_row(watch):
   # TODO: ADD Images
 
-  color = "f00" if watch["change"] < 0 else "fff"
+  color = "f00" if watch["change"] < 0 else "0f0"
 
   return animation.Transformation(
   child = render.Padding(
@@ -162,13 +162,13 @@ def generate_watch_row(watch):
           main_align = "space_between",
           children = [
             render.Marquee(
-              width = 38,
+              width = 40,
               child = render.Text(content = watch["productName"])
             ),
             render.Box(
-              width = 25,
+              width = 23,
               height = 8,
-              child = render.Text(content = str(make_two_decimal(watch["change"] * 100)) + "%", color = color),
+              child = render.Text(content = str(make_one_decimal(watch["change"] * 100)) + "%", color = color),
             )
           ]
         ),
@@ -197,6 +197,9 @@ def two_line(line1, line2):
 
 def make_two_decimal(value):
   return int(value * 100) / 100.0
+
+def make_one_decimal(value):
+  return int(value * 10) / 10.0
 
 def get_pretty_timeframe_title(value):
     titles = {
