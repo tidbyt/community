@@ -144,16 +144,13 @@ def generate_watch_row(watch):
   child = render.Padding(
     pad = (1, 0, 1, 0),
     child = render.Column(
-      
-      children = [
-        
+      children = [ 
         render.Row(
           expanded = True,
           main_align = "space_between",
           cross_align = "end",
           children = [
             render.Text(content = watch["brandName"], color = "#636363"),
-            render.Text(content = "$" + watch["price"], color = color)
           ]
         ),
 
@@ -162,24 +159,35 @@ def generate_watch_row(watch):
           main_align = "space_between",
           children = [
             render.Marquee(
-              width = 40,
+              width = 64,
               child = render.Text(content = watch["productName"])
             ),
-            render.Box(
-              width = 23,
-              height = 8,
-              child = render.Text(content = str(make_one_decimal(watch["change"] * 100)) + "%", color = color),
-            )
+          ]
+        ),
+
+        render.Row(
+          expanded = True,
+          main_align = "space_between",
+          cross_align = "end",
+          children = [
+            render.Text(content = "Ref: " + watch["referenceNumber"], color = "#636363")
+          ]
+        ),
+
+        render.Row(
+          expanded = True,
+          main_align = "space_between",
+          cross_align = "end",
+          children = [
+            render.Text(content = "$" + watch["price"], color = color),
+            render.Text(content = str(make_one_decimal(watch["change"] * 100)) + "%", color = color)
           ]
         ),
       ],
     )
   ),
-  duration = 100,
+  duration = 50,
   delay = 0,
-  origin = animation.Origin(0, 0),
-  direction = "alternate",
-  fill_mode = "forwards",
   keyframes = [],
 )
 
