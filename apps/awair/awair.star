@@ -213,12 +213,12 @@ def render_table(config, data, width):
                             render.Text(
                                 content = "Temp",
                                 font = "tb-8",
-                                color = get_color(data["temp"], TEMP_COLOR_MAP),
+                                color = get_color(data["temp"], TEMP_INDEX_MAP),
                             ),
                             render.Text(
                                 content = str(int(temperature)),
                                 font = "tb-8",
-                                color = get_color(data["temp"], TEMP_COLOR_MAP),
+                                color = get_color(data["temp"], TEMP_INDEX_MAP),
                             ),
                         ],
                     ),
@@ -229,12 +229,12 @@ def render_table(config, data, width):
                             render.Text(
                                 content = "RH%",
                                 font = "tb-8",
-                                color = get_color(data["humid"], RH_COLOR_MAP),
+                                color = get_color(data["humid"], RH_INDEX_MAP),
                             ),
                             render.Text(
                                 content = str(int(data["humid"])),
                                 font = "tb-8",
-                                color = get_color(data["humid"], RH_COLOR_MAP),
+                                color = get_color(data["humid"], RH_INDEX_MAP),
                             ),
                         ],
                     ),
@@ -247,20 +247,20 @@ def render_table(config, data, width):
                                     render.Text(
                                         content = "CO",
                                         font = "tb-8",
-                                        color = get_color(data["co2"], CO2_COLOR_MAP),
+                                        color = get_color(data["co2"], CO2_INDEX_MAP),
                                     ),
                                     render.Text(
                                         content = "2",
                                         height = 8,
                                         font = "CG-pixel-3x5-mono",
-                                        color = get_color(data["co2"], CO2_COLOR_MAP),
+                                        color = get_color(data["co2"], CO2_INDEX_MAP),
                                     ),
                                 ],
                             ),
                             render.Text(
                                 content = str(int(data["co2"])),
                                 font = "tb-8",
-                                color = get_color(data["co2"], CO2_COLOR_MAP),
+                                color = get_color(data["co2"], CO2_INDEX_MAP),
                             ),
                         ],
                     ),
@@ -273,32 +273,32 @@ def render_table(config, data, width):
                                     render.Text(
                                         content = "PM",
                                         font = "tb-8",
-                                        color = get_color(data["pm25"], PM_COLOR_MAP),
+                                        color = get_color(data["pm25"], PM_INDEX_MAP),
                                     ),
                                     render.Text(
                                         content = "2",
                                         height = 7,
                                         font = "CG-pixel-3x5-mono",
-                                        color = get_color(data["pm25"], PM_COLOR_MAP),
+                                        color = get_color(data["pm25"], PM_INDEX_MAP),
                                     ),
                                     render.Text(
                                         content = ".",
                                         height = 8,
                                         font = "tb-8",
-                                        color = get_color(data["pm25"], PM_COLOR_MAP),
+                                        color = get_color(data["pm25"], PM_INDEX_MAP),
                                     ),
                                     render.Text(
                                         content = "5",
                                         height = 7,
                                         font = "CG-pixel-3x5-mono",
-                                        color = get_color(data["pm25"], PM_COLOR_MAP),
+                                        color = get_color(data["pm25"], PM_INDEX_MAP),
                                     ),
                                 ],
                             ),
                             render.Text(
                                 content = str(int(data["pm25"])),
                                 font = "tb-8",
-                                color = get_color(data["pm25"], PM_COLOR_MAP),
+                                color = get_color(data["pm25"], PM_INDEX_MAP),
                             ),
                         ],
                     ),
@@ -321,7 +321,7 @@ def render_score(config, data, width):
                                 diameter = 20,
                                 color = get_color(
                                     data["score"],
-                                    AWAIR_COLOR_MAP,
+                                    SCORE_INDEX_MAP,
                                 ),
                             ),
                         ),
@@ -375,57 +375,69 @@ ORANGE = "f78703"
 RED = "#e8333a"
 WHITE = "#ffffff"
 
-AWAIR_COLOR_MAP = [
-    {"range": 80, "color": GREEN},
-    {"range": 60, "color": YELLOW_ORANGE},
-    {"range": 0, "color": RED},
+INDEX_COLOR_MAP = {
+    -4: RED,
+    -3: ORANGE,
+    -2: YELLOW_ORANGE,
+    -1: YELLOW,
+    0: GREEN,
+    1: YELLOW,
+    2: YELLOW_ORANGE,
+    3: ORANGE,
+    4: RED,
+}
+
+SCORE_INDEX_MAP = [
+    {"range": 80, "index": 0},
+    {"range": 60, "index": 2},
+    {"range": 0, "index": 4},
 ]
 
-RH_COLOR_MAP = [
-    {"range": 80.5, "color": RED},
-    {"range": 64.5, "color": ORANGE},
-    {"range": 60.5, "color": YELLOW_ORANGE},
-    {"range": 50.5, "color": YELLOW},
-    {"range": 39.5, "color": GREEN},
-    {"range": 34.5, "color": YELLOW},
-    {"range": 19.5, "color": YELLOW_ORANGE},
-    {"range": 14.5, "color": ORANGE},
-    {"range": 0, "color": RED},
+RH_INDEX_MAP = [
+    {"range": 80.5, "index": 4},
+    {"range": 64.5, "index": 3},
+    {"range": 60.5, "index": 2},
+    {"range": 50.5, "index": 1},
+    {"range": 39.5, "index": 0},
+    {"range": 34.5, "index": -1},
+    {"range": 19.5, "index": -2},
+    {"range": 14.5, "index": -3},
+    {"range": 0, "index": -4},
 ]
 
-CO2_COLOR_MAP = [
-    {"range": 2500.5, "color": RED},
-    {"range": 1500.5, "color": ORANGE},
-    {"range": 1000.5, "color": YELLOW_ORANGE},
-    {"range": 600.5, "color": YELLOW},
-    {"range": 400, "color": GREEN},
+CO2_INDEX_MAP = [
+    {"range": 2500.5, "index": 4},
+    {"range": 1500.5, "index": 3},
+    {"range": 1000.5, "index": 2},
+    {"range": 600.5, "index": 1},
+    {"range": 400, "index": 0},
 ]
 
-TEMP_COLOR_MAP = [
-    {"range": 33.5, "color": RED},
-    {"range": 31.5, "color": ORANGE},
-    {"range": 26.5, "color": YELLOW_ORANGE},
-    {"range": 25.5, "color": YELLOW},
-    {"range": 17.5, "color": GREEN},
-    {"range": 16.5, "color": YELLOW},
-    {"range": 10.5, "color": YELLOW_ORANGE},
-    {"range": 8.5, "color": ORANGE},
-    {"range": 0, "color": RED},
+TEMP_INDEX_MAP = [
+    {"range": 33.5, "index": 4},
+    {"range": 31.5, "index": 3},
+    {"range": 26.5, "index": 2},
+    {"range": 25.5, "index": 1},
+    {"range": 17.5, "index": 0},
+    {"range": 16.5, "index": -1},
+    {"range": 10.5, "index": -2},
+    {"range": 8.5, "index": -3},
+    {"range": 0, "index": -4},
 ]
 
-PM_COLOR_MAP = [
-    {"range": 75.5, "color": RED},
-    {"range": 55.5, "color": ORANGE},
-    {"range": 35.5, "color": YELLOW_ORANGE},
-    {"range": 15.5, "color": YELLOW},
-    {"range": 0, "color": GREEN},
+PM_INDEX_MAP = [
+    {"range": 75.5, "index": 4},
+    {"range": 55.5, "index": 3},
+    {"range": 35.5, "index": 2},
+    {"range": 15.5, "index": 1},
+    {"range": 0, "index": 0},
 ]
 
-def get_color(score, color_map):
+def get_color(score, index_map):
     default = WHITE
 
-    for item in color_map:
+    for item in index_map:
         if score >= item["range"]:
-            return item["color"]
+            return INDEX_COLOR_MAP[item["index"]]
 
     return default
