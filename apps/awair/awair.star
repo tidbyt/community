@@ -1,8 +1,8 @@
 """
 Applet: Awair
-Summary: Local Awair air data
-Description: Get air quality data from Awair's local API.
-Author: tabrindle
+Summary: Awair air quality data
+Description: Display air quality data for an Awair device.
+Author: tabrindle, flavorjones
 """
 
 load("encoding/json.star", "json")
