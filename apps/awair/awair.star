@@ -92,21 +92,25 @@ def get_color(score, color_map):
     return default
 
 def main(config):
-    celsius = config.bool("celsius", False)
-    ip_address = config.str("ip_address", "")
+    return render_display(config, fetch_data(config))
 
+def fetch_data(config):
+    ip_address = config.str("ip_address", "")
     if not ip_address:
-        return render.Root(
-            child = render.Text(
-                content = "Bad IP Address",
-                font = "tb-8",
-                color = "#f00",
-            ),
-        )
+        return {"error": "Bad IP Address"}
 
     response = http.get("http://{}/air-data/latest".format(ip_address))
-    body = response.body()
-    data = json.decode(body)
+    if response.status_code != 200:
+        return {"error": "status {}".format(response.status_code)}
+
+    return json.decode(response.body())
+
+def render_display(config, data):
+    error = data.get("error")
+    if error:
+        return render_error(error)
+
+    celsius = config.bool("celsius", False)
 
     if celsius:
         temperature = data["temp"]
@@ -220,5 +224,25 @@ def main(config):
                     ),
                 ],
             ),
+        ),
+    )
+
+# Renders a (possibly quite long) error message.
+def render_error(message):
+    n_lines = len(message) // 16 + 1
+    messages = []
+    for _ in range(n_lines):
+        messages.append(
+            render.Text(
+                content = message[:16],
+                font = "tom-thumb",
+                color = red,
+            ),
+        )
+        message = message[16:]
+
+    return render.Root(
+        child = render.Column(
+            children = messages,
         ),
     )
