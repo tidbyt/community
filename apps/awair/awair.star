@@ -18,9 +18,16 @@ def get_schema():
         fields = [
             schema.Toggle(
                 id = "celsius",
-                name = "Use Celsius?",
-                desc = "Use Celsius instead of default Fahrenheit.",
+                name = "Display in Celsius?",
+                desc = "Display in Celsius (default is Fahrenheit).",
                 icon = "temperatureLow",
+                default = False,
+            ),
+            schema.Toggle(
+                id = "bar_chart",
+                name = "Display bar chart?",
+                desc = "Display a bar chart (default is to display a data table).",
+                icon = "chartSimple",
                 default = False,
             ),
             schema.Dropdown(
@@ -178,10 +185,16 @@ def render_display(config, data):
 
     return render.Root(child = render_data(config, data))
 
-def render_data(config, data):
+def render_data(config, data, bar_chart = None):
     table_width = 38
     children = []
-    children.append(render_table(config, data, width = table_width))
+    if bar_chart == None:
+        bar_chart = config.bool("bar_chart", False)
+
+    if bar_chart:
+        children.append(render_bar_chart(config, data, width = table_width))
+    else:
+        children.append(render_table(config, data, width = table_width))
     children.append(render_score(config, data, width = 64 - table_width))
 
     return render.Box(
@@ -307,7 +320,57 @@ def render_table(config, data, width):
         ),
     )
 
-def render_score(config, data, width):
+def render_bar_chart_dot(color):
+    return render.Padding(
+        pad = (0, 1, 0, 1),
+        child = render.Box(width = 2, height = 2, color = color),
+    )
+
+def render_bar_chart_bar(index, label):
+    children = []
+    for j in [4, 3, 2, 1, 0]:
+        if j <= abs(index):
+            children.append(render_bar_chart_dot(INDEX_COLOR_MAP[j]))
+        else:
+            children.append(render_bar_chart_dot(BLACK))
+    children.append(
+        render.Padding(
+            pad = (0, 2, 0, 2),
+            child = render.Text(
+                content = label,
+                font = "CG-pixel-3x5-mono",
+                color = GREY,
+            ),
+        ),
+    )
+
+    return render.Column(
+        expanded = True,
+        main_align = "end",
+        children = children,
+    )
+
+def render_bar_chart(_config, data, width):
+    return render.Box(
+        height = 32,
+        width = width,
+        child = render.Padding(
+            pad = (2, 0, 0, 0),
+            child = render.Row(
+                expanded = True,
+                main_align = "space_between",
+                children = [
+                    render_bar_chart_bar(get_index(data["temp"], TEMP_INDEX_MAP), "T"),
+                    render_bar_chart_bar(get_index(data["humid"], RH_INDEX_MAP), "H"),
+                    render_bar_chart_bar(get_index(data["co2"], CO2_INDEX_MAP), "C"),
+                    render_bar_chart_bar(get_index(data["voc"], VOC_INDEX_MAP), "V"),
+                    render_bar_chart_bar(get_index(data["pm25"], PM_INDEX_MAP), "P"),
+                ],
+            ),
+        ),
+    )
+
+def render_score(_config, data, width):
     return render.Box(
         height = 32,
         width = width,
@@ -359,7 +422,8 @@ def render_error(config, data):
 
     children = []
     if data.get("mock"):
-        children.append(render_data(config, fetch_mock_data()))
+        children.append(render_data(config, fetch_mock_data(), bar_chart = False))
+        children.append(render_data(config, fetch_mock_data(), bar_chart = True))
 
     children.append(render.Column(children = messages))
 
@@ -374,6 +438,8 @@ YELLOW_ORANGE = "#fba905"
 ORANGE = "f78703"
 RED = "#e8333a"
 WHITE = "#ffffff"
+GREY = "#888888"
+BLACK = "#000000"
 
 INDEX_COLOR_MAP = {
     -4: RED,
@@ -432,6 +498,20 @@ PM_INDEX_MAP = [
     {"range": 15.5, "index": 1},
     {"range": 0, "index": 0},
 ]
+
+VOC_INDEX_MAP = [
+    {"range": 8332.5, "index": 4},
+    {"range": 3333.5, "index": 3},
+    {"range": 1000.5, "index": 2},
+    {"range": 333.5, "index": 1},
+    {"range": 0, "index": 0},
+]
+
+def get_index(score, index_map):
+    for item in index_map:
+        if score >= item["range"]:
+            return item["index"]
+    return None
 
 def get_color(score, index_map):
     default = WHITE
