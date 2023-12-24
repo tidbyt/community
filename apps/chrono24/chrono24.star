@@ -14,7 +14,7 @@ load("encoding/json.star", "json")
 DEFAULT_WHO = "world"
 BASE_URL = "https://www.chrono24.com/api/priceindex/performance-chart.json?type=Market&period="
 CONFIG_TIMEFRAME = "config-timeframe"
-CACHE_TTL = 21600 # 6 hour
+CACHE_TTL = 3600 # 6 hour
 
 def main(config):
   timeframe = config.str(CONFIG_TIMEFRAME, "_1month")
