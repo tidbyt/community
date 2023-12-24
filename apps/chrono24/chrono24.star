@@ -40,8 +40,52 @@ def main(config):
     # Update cache
     cache.set(timeframe, json.encode(data), ttl_seconds = CACHE_TTL)
 
+  # Construct graph points
+  price_points = []
+  price_index_data = data["priceIndexData"]
+  lowest_price = 0
+  highest_price = 0
+  first_price = 0 
+  last_price = 0
+  for index, price_data in enumerate(price_index_data):
+    value = price_data["y"]["mean"]["value"]
+    
+    # on first, set highest and lowest
+    if index == 0:
+      lowest_price = value
+      highest_price = value
+      first_price = value
+
+    # Update highest/lowest price
+    if value < lowest_price:
+      lowest_price = value
+    if value > highest_price:
+      highest_price = value
+
+    if index == len(price_index_data) - 1:
+      last_price = value
+
+    price_points.append((index, value))
+
+  
+  print(first_price)
+  print(last_price)
+
   return render.Root(
-      child = render.Text(timeframe),
+      child = render.Column(
+        children = [
+
+          # Graph
+          render.Plot(
+            data = price_points,
+            width = 66,
+            height = 26,
+            color = "#0f0" if last_price > first_price else "f00",
+            y_lim = (lowest_price, highest_price),
+            fill = True,
+          ),
+        ]
+      ),
   )
 
 def twoLine(line1, line2):
