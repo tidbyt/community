@@ -14,10 +14,14 @@ load("encoding/json.star", "json")
 DEFAULT_WHO = "world"
 BASE_URL = "https://www.chrono24.com/api/priceindex/performance-chart.json?type=Market&period="
 CONFIG_TIMEFRAME = "config-timeframe"
+CONFIG_VIEW_TYPE = "config-view-type"
+CONFIG_VIEW_TYPE_GRAPH = "graph"
+CONFIG_VIEW_TYPE_INDEXES = "indexes"
 CACHE_TTL = 3600 # 6 hour
 
 def main(config):
   timeframe = config.str(CONFIG_TIMEFRAME, "_1month")
+  viewtype = config.str(CONFIG_VIEW_TYPE, CONFIG_VIEW_TYPE_GRAPH)
 
   # Check for cached data
   cached_data = cache.get(timeframe)
@@ -40,6 +44,13 @@ def main(config):
     # Update cache
     cache.set(timeframe, json.encode(data), ttl_seconds = CACHE_TTL)
 
+  if viewtype == CONFIG_VIEW_TYPE_GRAPH:
+    return market_view_render(timeframe, data)
+  else:
+    return watch_indexes_render(timeframe, data)
+  
+
+def market_view_render(timeframe, data):
   # Construct graph points
   price_points = []
   price_index_data = data["priceIndexData"]
@@ -108,6 +119,55 @@ def main(config):
       ),
   )
 
+def watch_indexes_render(timeframe, data):
+  # Take first 10 watches, eventually make configurable
+  watches = data["indexComponents"][:10]
+  
+  # Generate the rows
+  watch_rows = []
+  for watch in watches:
+    watch_rows.append(generate_watch_row(watch))
+  
+  return render.Root(
+    child = render.Column(
+          children = watch_rows
+        ),
+  )
+
+def generate_watch_row(watch):
+  # TODO: ADD Images
+
+  color = "f00" if watch["change"] < 0 else "fff"
+
+  return render.Padding(
+    pad = (1, 0, 1, 0),
+    child = render.Column(
+      
+      children = [
+        
+        render.Row(
+          expanded = True,
+          main_align = "space_between",
+          cross_align = "end",
+          children = [
+            render.Text(content = watch["brandName"], color = "#636363"),
+            render.Text(content = "$" + watch["price"], color = color),
+          ]
+        ),
+
+        render.Row(
+          expanded = True,
+          main_align = "space_between",
+          cross_align = "end",
+          children = [
+            render.Text(content = watch["productName"]),
+            render.Text(content = str(make_two_decimal(watch["change"] * 100)) + "%", color = color),
+          ]
+        ),
+      ],
+    )
+  )
+
 def two_line(line1, line2):
   return render.Box(
       width = 64,
@@ -146,13 +206,24 @@ def get_schema():
   return schema.Schema(
       version = "1",
       fields = [
-          schema.Dropdown(
-              id = CONFIG_TIMEFRAME,
-              name = "Timeframe",
-              desc = "The timeframe of the market performance",
-              icon = "clock",
-              default = "_1month",
-              options = timeframes
-          ),
+        schema.Dropdown(
+            id = CONFIG_VIEW_TYPE,
+            name = "View type",
+            desc = "Overall market performance or watch index",
+            icon = "eye",
+            default = "graph",
+            options = [
+              schema.Option(display = "Market performance graph", value = CONFIG_VIEW_TYPE_GRAPH),
+              schema.Option(display = "Watch indexes", value = CONFIG_VIEW_TYPE_INDEXES),
+            ]
+        ),
+        schema.Dropdown(
+            id = CONFIG_TIMEFRAME,
+            name = "Timeframe",
+            desc = "The timeframe of the market performance",
+            icon = "clock",
+            default = "_1month",
+            options = timeframes
+        )
       ],
   )
