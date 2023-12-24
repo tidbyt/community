@@ -10,6 +10,8 @@ load("http.star", "http")
 load("render.star", "render")
 load("schema.star", "schema")
 
+CLOUD_API_TTL = 300  # 5 minutes, see README.md
+
 def get_schema():
     return schema.Schema(
         version = "1",
@@ -138,9 +140,15 @@ def fetch_cloud_data_by_token(config):
     )
     headers = {"authorization": "Bearer {}".format(bearer_token)}
 
-    response = http.get(url, headers = headers)
+    response = http.get(
+        url = url,
+        headers = headers,
+        ttl_seconds = CLOUD_API_TTL,
+    )
     if response.status_code != 200:
-        return {"error": "status {}".format(response.status_code)}
+        data = response.json()
+        data["error"] = "status {}".format(response.status_code)
+        return data
 
     return json.decode(response.body())
 
@@ -327,6 +335,8 @@ def render_data(config, data):
 # To ensure we have a good screenshot in the app store, if data["mock"] is True, also render mock data.
 def render_error(config, data):
     message = data.get("error")
+    if data.get("message"):
+        message += ": " + data["message"]
 
     n_lines = len(message) // 16 + 1
     messages = []

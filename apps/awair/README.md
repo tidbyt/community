@@ -17,6 +17,15 @@ Configured:
 
 https://docs.developer.getawair.com/
 
+### Awair Cloud API quotas
+
+Note that Awair's published quota is 300 calls per day, which works out to about one call every 4.8 minutes. This is obviously not as good as true real-time data, but exceeding this limit will result in an error message:
+
+<img src="./screenshot-quota-exceeded.webp" width="320" height="160">
+
+To ensure this quota is not exceeded during a 24-hour period, data is cached for 5 minutes (meaning it may be up to five minutes out of date).
+
+
 ## API choices and authentications
 
 There are a few ways that this Tidbyt app can retrieve data from your Awair device.
@@ -60,4 +69,9 @@ The `deviceId` is an integer, and the `deviceType` is a string, likely either "a
 
 ### Cloud API using OAuth2 user authentication
 
-Not yet supported.
+Not yet supported by this app.
+
+## Potential future work
+
+- OAuth2 support
+- use a mix of `LATEST` and `RAW` cloud API calls to get around the daily quota
