@@ -14,12 +14,6 @@ def get_schema():
     return schema.Schema(
         version = "1",
         fields = [
-            schema.Text(
-                id = "ip_address",
-                name = "Public IP Address and port of Awair device",
-                desc = "Your public IP address with port forwarding set up to your awair device",
-                icon = "computer",
-            ),
             schema.Toggle(
                 id = "celsius",
                 name = "Use Celsius?",
@@ -27,18 +21,121 @@ def get_schema():
                 icon = "temperatureLow",
                 default = False,
             ),
+            schema.Dropdown(
+                id = "api_connection_type",
+                name = "Awair API",
+                desc = "The method used to fetch Awair data.",
+                icon = "houseSignal",
+                default = API_CONNECTION_TYPE_OPTIONS[0].value,
+                options = API_CONNECTION_TYPE_OPTIONS,
+            ),
+            schema.Generated(
+                id = "generated",
+                source = "api_connection_type",
+                handler = api_connection_options,
+            ),
         ],
     )
+
+API_CONNECTION_TYPE_OPTIONS = [
+    schema.Option(display = "Awair Local API", value = "local"),
+    schema.Option(display = "Awair Cloud API (Token)", value = "cloud_token"),
+]
+
+def api_connection_options(api_connection_type):
+    if api_connection_type == "local":
+        return [
+            schema.Text(
+                id = "ip_address",  # original schema's name for this field
+                name = "Public IP address and port of Awair device",
+                desc = "Requires a public IP address with port forwarding to an Awair device configured for Local API access.",
+                icon = "computer",
+            ),
+        ]
+    elif api_connection_type == "cloud_token":
+        return [
+            schema.Text(
+                id = "bearer_token",
+                name = "Access token for Awair Developer API",
+                desc = "Your API access token from your Awair developer console at https://developer.getawair.com/.",
+                icon = "key",
+            ),
+            schema.Text(
+                id = "device_id",
+                name = "Awair device id",
+                desc = "The device's integer deviceID, see 'GET Devices' at https://developer.getawair.com/.",
+                icon = "server",
+            ),
+            schema.Dropdown(
+                id = "device_type",
+                name = "Awair device type",
+                desc = "The device's deviceType, see 'GET Devices' at https://developer.getawair.com/.",
+                icon = "shapes",
+                default = API_DEVICE_TYPE_OPTIONS[0].value,
+                options = API_DEVICE_TYPE_OPTIONS,
+            ),
+        ]
+    else:
+        return []
+
+API_DEVICE_TYPE_OPTIONS = [
+    schema.Option(display = "awair-element", value = "awair-element"),
+    schema.Option(display = "awair-r2", value = "awair-r2"),
+]
 
 def main(config):
     return render_display(config, fetch_data(config))
 
+#
+#  data fetching functions
+#
 def fetch_data(config):
-    ip_address = config.str("ip_address", "")
-    if not ip_address:
-        return {"error": "Displaying mock " + "data.           " + "Please configure" + "the API."}
+    if config.str("api_connection_type") == "cloud_token":
+        data = fetch_cloud_data_by_token(config)
+        if "error" in data:
+            return data
 
-    response = http.get("http://{}/air-data/latest".format(ip_address))
+        sensors = data["data"][0]["sensors"]
+        return {
+            "temp": sensor_value(sensors, "temp"),
+            "humid": sensor_value(sensors, "humid"),
+            "co2": sensor_value(sensors, "co2"),
+            "pm25": sensor_value(sensors, "pm25"),
+            "voc": sensor_value(sensors, "voc"),
+            "score": data["data"][0]["score"],
+        }
+
+    else:  # local API
+        ip_address = config.str("ip_address", "")
+        if not ip_address:
+            return {"error": "Displaying mock " + "data.           " + "Please configure" + "the API."}
+
+        response = http.get("http://{}/air-data/latest".format(ip_address))
+        if response.status_code != 200:
+            return {"error": "status {}".format(response.status_code)}
+
+        return json.decode(response.body())
+
+def fetch_cloud_data_by_token(config):
+    bearer_token = config.get("bearer_token")
+    if not bearer_token:
+        return {"error": "No token. Get one at developer.getawair.com"}
+
+    device_id = config.get("device_id")
+    if not device_id:
+        return {"error": "No device ID. See how to look yours up at developer.getawair.com"}
+
+    device_type = config.get("device_type")
+    if not device_type:
+        return {"error": "No device type. See how to look yours up at developer.getawair.com"}
+
+    url = "https://developer-apis.awair.is/v1/users/self/devices/{}/{}/air-data/latest".format(
+        device_type,
+        device_id,
+    )
+    headers = {"authorization": "Bearer {}".format(bearer_token)}
+
+    response = http.get(url, headers = headers)
     if response.status_code != 200:
         return {"error": "status {}".format(response.status_code)}
 
@@ -54,6 +151,15 @@ def fetch_mock_data():
         "voc": 777,
     }
 
+def sensor_value(sensors, key):
+    for sensor in sensors:
+        if sensor["comp"] == key:
+            return sensor["value"]
+    return None
+
+#
+#  rendering functions
+#
 def render_display(config, data):
     error = data.get("error")
     if error:
