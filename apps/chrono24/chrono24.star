@@ -5,12 +5,12 @@ Description: Gives ability to show watch market performance over multiple durati
 Author: Chase Roossin
 """
 
+load("animation.star", "animation")
+load("cache.star", "cache")
+load("encoding/json.star", "json")
+load("http.star", "http")
 load("render.star", "render")
 load("schema.star", "schema")
-load("cache.star", "cache")
-load("http.star", "http")
-load("encoding/json.star", "json")
-load("animation.star", "animation")
 
 DEFAULT_WHO = "world"
 BASE_URL = "https://www.chrono24.com/api/priceindex/performance-chart.json?type=Market&period="
@@ -48,7 +48,7 @@ def main(config):
     if viewtype == CONFIG_VIEW_TYPE_GRAPH:
         return market_view_render(timeframe, data)
     else:
-        return watch_indexes_render(timeframe, data)
+        return watch_indexes_render(data)
 
 def market_view_render(timeframe, data):
     # Construct graph points
@@ -119,7 +119,7 @@ def market_view_render(timeframe, data):
         ),
     )
 
-def watch_indexes_render(timeframe, data):
+def watch_indexes_render(data):
     # Take first 10 watches, eventually make configurable
     watches = data["indexComponents"][:10]
 
