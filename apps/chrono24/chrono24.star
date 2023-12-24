@@ -10,6 +10,7 @@ load("schema.star", "schema")
 load("cache.star", "cache")
 load("http.star", "http")
 load("encoding/json.star", "json")
+load("animation.star", "animation")
 
 DEFAULT_WHO = "world"
 BASE_URL = "https://www.chrono24.com/api/priceindex/performance-chart.json?type=Market&period="
@@ -127,9 +128,9 @@ def watch_indexes_render(timeframe, data):
   watch_rows = []
   for watch in watches:
     watch_rows.append(generate_watch_row(watch))
-  
+
   return render.Root(
-    child = render.Column(
+    child = render.Sequence(
           children = watch_rows
         ),
   )
@@ -139,7 +140,8 @@ def generate_watch_row(watch):
 
   color = "f00" if watch["change"] < 0 else "fff"
 
-  return render.Padding(
+  return animation.Transformation(
+  child = render.Padding(
     pad = (1, 0, 1, 0),
     child = render.Column(
       
@@ -151,22 +153,35 @@ def generate_watch_row(watch):
           cross_align = "end",
           children = [
             render.Text(content = watch["brandName"], color = "#636363"),
-            render.Text(content = "$" + watch["price"], color = color),
+            render.Text(content = "$" + watch["price"], color = color)
           ]
         ),
 
         render.Row(
           expanded = True,
           main_align = "space_between",
-          cross_align = "end",
           children = [
-            render.Text(content = watch["productName"]),
-            render.Text(content = str(make_two_decimal(watch["change"] * 100)) + "%", color = color),
+            render.Marquee(
+              width = 38,
+              child = render.Text(content = watch["productName"])
+            ),
+            render.Box(
+              width = 25,
+              height = 8,
+              child = render.Text(content = str(make_two_decimal(watch["change"] * 100)) + "%", color = color),
+            )
           ]
         ),
       ],
     )
-  )
+  ),
+  duration = 100,
+  delay = 0,
+  origin = animation.Origin(0, 0),
+  direction = "alternate",
+  fill_mode = "forwards",
+  keyframes = [],
+)
 
 def two_line(line1, line2):
   return render.Box(
