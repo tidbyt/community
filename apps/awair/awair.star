@@ -179,6 +179,19 @@ def render_display(config, data):
     return render.Root(child = render_data(config, data))
 
 def render_data(config, data):
+    table_width = 38
+    children = []
+    children.append(render_table(config, data, width = table_width))
+    children.append(render_score(config, data, width = 64 - table_width))
+
+    return render.Box(
+        padding = 0,
+        child = render.Row(
+            children = children,
+        ),
+    )
+
+def render_table(config, data, width):
     celsius = config.bool("celsius", False)
 
     if celsius:
@@ -186,146 +199,140 @@ def render_data(config, data):
     else:
         temperature = data["temp"] * 9 / 5 + 32
 
-    table_width = 38
     return render.Box(
-        padding = 0,
-        child = render.Row(
-            children = [
-                render.Box(
-                    height = 32,
-                    width = table_width,
-                    child = render.Padding(
-                        pad = (2, 0, 0, 0),
-                        child = render.Column(
-                            children = [
-                                render.Row(
-                                    expanded = True,
-                                    main_align = "space_between",
-                                    children = [
-                                        render.Text(
-                                            content = "Temp",
-                                            font = "tb-8",
-                                            color = get_color(data["temp"], TEMP_COLOR_MAP),
-                                        ),
-                                        render.Text(
-                                            content = str(int(temperature)),
-                                            font = "tb-8",
-                                            color = get_color(data["temp"], TEMP_COLOR_MAP),
-                                        ),
-                                    ],
-                                ),
-                                render.Row(
-                                    expanded = True,
-                                    main_align = "space_between",
-                                    children = [
-                                        render.Text(
-                                            content = "RH%",
-                                            font = "tb-8",
-                                            color = get_color(data["humid"], RH_COLOR_MAP),
-                                        ),
-                                        render.Text(
-                                            content = str(int(data["humid"])),
-                                            font = "tb-8",
-                                            color = get_color(data["humid"], RH_COLOR_MAP),
-                                        ),
-                                    ],
-                                ),
-                                render.Row(
-                                    expanded = True,
-                                    main_align = "space_between",
-                                    children = [
-                                        render.Row(
-                                            children = [
-                                                render.Text(
-                                                    content = "CO",
-                                                    font = "tb-8",
-                                                    color = get_color(data["co2"], CO2_COLOR_MAP),
-                                                ),
-                                                render.Text(
-                                                    content = "2",
-                                                    height = 8,
-                                                    font = "CG-pixel-3x5-mono",
-                                                    color = get_color(data["co2"], CO2_COLOR_MAP),
-                                                ),
-                                            ],
-                                        ),
-                                        render.Text(
-                                            content = str(int(data["co2"])),
-                                            font = "tb-8",
-                                            color = get_color(data["co2"], CO2_COLOR_MAP),
-                                        ),
-                                    ],
-                                ),
-                                render.Row(
-                                    expanded = True,
-                                    main_align = "space_between",
-                                    children = [
-                                        render.Row(
-                                            children = [
-                                                render.Text(
-                                                    content = "PM",
-                                                    font = "tb-8",
-                                                    color = get_color(data["pm25"], PM_COLOR_MAP),
-                                                ),
-                                                render.Text(
-                                                    content = "2",
-                                                    height = 7,
-                                                    font = "CG-pixel-3x5-mono",
-                                                    color = get_color(data["pm25"], PM_COLOR_MAP),
-                                                ),
-                                                render.Text(
-                                                    content = ".",
-                                                    height = 8,
-                                                    font = "tb-8",
-                                                    color = get_color(data["pm25"], PM_COLOR_MAP),
-                                                ),
-                                                render.Text(
-                                                    content = "5",
-                                                    height = 7,
-                                                    font = "CG-pixel-3x5-mono",
-                                                    color = get_color(data["pm25"], PM_COLOR_MAP),
-                                                ),
-                                            ],
-                                        ),
-                                        render.Text(
-                                            content = str(int(data["pm25"])),
-                                            font = "tb-8",
-                                            color = get_color(data["pm25"], PM_COLOR_MAP),
-                                        ),
-                                    ],
-                                ),
-                            ],
-                        ),
-                    ),
-                ),
-                render.Box(
-                    height = 32,
-                    width = 64 - table_width,
-                    child = render.Column(
-                        main_align = "center",
+        height = 32,
+        width = width,
+        child = render.Padding(
+            pad = (2, 0, 0, 0),
+            child = render.Column(
+                children = [
+                    render.Row(
+                        expanded = True,
+                        main_align = "space_between",
                         children = [
-                            render.Stack(
-                                children = [
-                                    render.Box(
-                                        child = render.Circle(
-                                            diameter = 20,
-                                            color = get_color(
-                                                data["score"],
-                                                AWAIR_COLOR_MAP,
-                                            ),
-                                        ),
-                                    ),
-                                    render.Box(
-                                        child = render.Text(
-                                            content = str(int(data["score"])),
-                                            font = "6x13",
-                                            color = WHITE,
-                                        ),
-                                    ),
-                                ],
+                            render.Text(
+                                content = "Temp",
+                                font = "tb-8",
+                                color = get_color(data["temp"], TEMP_COLOR_MAP),
+                            ),
+                            render.Text(
+                                content = str(int(temperature)),
+                                font = "tb-8",
+                                color = get_color(data["temp"], TEMP_COLOR_MAP),
                             ),
                         ],
                     ),
+                    render.Row(
+                        expanded = True,
+                        main_align = "space_between",
+                        children = [
+                            render.Text(
+                                content = "RH%",
+                                font = "tb-8",
+                                color = get_color(data["humid"], RH_COLOR_MAP),
+                            ),
+                            render.Text(
+                                content = str(int(data["humid"])),
+                                font = "tb-8",
+                                color = get_color(data["humid"], RH_COLOR_MAP),
+                            ),
+                        ],
+                    ),
+                    render.Row(
+                        expanded = True,
+                        main_align = "space_between",
+                        children = [
+                            render.Row(
+                                children = [
+                                    render.Text(
+                                        content = "CO",
+                                        font = "tb-8",
+                                        color = get_color(data["co2"], CO2_COLOR_MAP),
+                                    ),
+                                    render.Text(
+                                        content = "2",
+                                        height = 8,
+                                        font = "CG-pixel-3x5-mono",
+                                        color = get_color(data["co2"], CO2_COLOR_MAP),
+                                    ),
+                                ],
+                            ),
+                            render.Text(
+                                content = str(int(data["co2"])),
+                                font = "tb-8",
+                                color = get_color(data["co2"], CO2_COLOR_MAP),
+                            ),
+                        ],
+                    ),
+                    render.Row(
+                        expanded = True,
+                        main_align = "space_between",
+                        children = [
+                            render.Row(
+                                children = [
+                                    render.Text(
+                                        content = "PM",
+                                        font = "tb-8",
+                                        color = get_color(data["pm25"], PM_COLOR_MAP),
+                                    ),
+                                    render.Text(
+                                        content = "2",
+                                        height = 7,
+                                        font = "CG-pixel-3x5-mono",
+                                        color = get_color(data["pm25"], PM_COLOR_MAP),
+                                    ),
+                                    render.Text(
+                                        content = ".",
+                                        height = 8,
+                                        font = "tb-8",
+                                        color = get_color(data["pm25"], PM_COLOR_MAP),
+                                    ),
+                                    render.Text(
+                                        content = "5",
+                                        height = 7,
+                                        font = "CG-pixel-3x5-mono",
+                                        color = get_color(data["pm25"], PM_COLOR_MAP),
+                                    ),
+                                ],
+                            ),
+                            render.Text(
+                                content = str(int(data["pm25"])),
+                                font = "tb-8",
+                                color = get_color(data["pm25"], PM_COLOR_MAP),
+                            ),
+                        ],
+                    ),
+                ],
+            ),
+        ),
+    )
+
+def render_score(config, data, width):
+    return render.Box(
+        height = 32,
+        width = width,
+        child = render.Column(
+            main_align = "center",
+            children = [
+                render.Stack(
+                    children = [
+                        render.Box(
+                            child = render.Circle(
+                                diameter = 20,
+                                color = get_color(
+                                    data["score"],
+                                    AWAIR_COLOR_MAP,
+                                ),
+                            ),
+                        ),
+                        render.Box(
+                            child = render.Text(
+                                content = str(int(data["score"])),
+                                font = "6x13",
+                                color = WHITE,
+                            ),
+                        ),
+                    ],
                 ),
             ],
         ),
