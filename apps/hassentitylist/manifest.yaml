@@ -2,7 +2,7 @@
 id: hassentitylist
 name: HASS Entity List
 summary: Show HomeAssistant entitys
-desc: Displays multiple HomeAssistant entities (e.g. step counts)
+desc: Displays multiple HomeAssistant entities (e.g. step counts).
 author: James Woglom
 fileName: hassentitylist.star
 packageName: hassentitylist
