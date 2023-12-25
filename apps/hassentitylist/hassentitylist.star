@@ -1,5 +1,5 @@
 """
-Applet: HomeAssistant Entity List
+Applet: HASS Entity List
 Summary: Displays multiple HomeAssistant entities
 Description: Displays multiple HomeAssistant entities (e.g. step counts)
 Author: James Woglom
