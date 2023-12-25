@@ -34,7 +34,7 @@ def add_children(config, *childs):
             counts[child] = n
         else:
             items[child] = None
-    
+
     children = []
     if config.bool("sort_entities"):
         for i in sorted(counts.items())[::-1]:
@@ -43,37 +43,37 @@ def add_children(config, *childs):
         for child in childs:
             if items[child]:
                 children.append(items[child])
-    
+
     return children
 
 def render_entity(entity_id, config):
-    name = config.get(entity_id+"_name")
+    name = config.get(entity_id + "_name")
     fetch = fetch_entity(entity_id, config)
     if not fetch:
         return 0, None
-    
+
     count = int(fetch["state"])
     return count, render.Row(
         main_align = "space_between",
         expanded = True,
-        children=[
+        children = [
             render.Text(
-                content=" " + name,
+                content = " " + name,
                 font = "tb-8",
                 color = "#f1f1f1",
             ),
             render.Text(
                 content = num_format(fetch["state"]) + " ",
                 font = "tb-8",
-                color = get_color(count, config)
+                color = get_color(count, config),
             ),
-        ]
+        ],
     )
 
 def num_format(raw):
     num = raw + ""
     if len(num) > 3:
-        return num[:-3]+","+num[-3:]
+        return num[:-3] + "," + num[-3:]
     return num
 
 def get_color(count, config):
@@ -84,20 +84,19 @@ def get_color(count, config):
     max_target = int(config.get("target_value"))
     if count >= max_target:
         return range[-1]
-    
+
     i = int(((len(range) - 1) * count) / max_target)
     return range[i]
 
 def fetch_entity(entity_id, config):
     if config.get(entity_id):
         rep = http.get(config.get("ha_url") + "/api/states/" + config.get(entity_id), ttl_seconds = 10, headers = {
-            "Authorization": "Bearer " + config.get("ha_token")
+            "Authorization": "Bearer " + config.get("ha_token"),
         })
         if rep.status_code != 200:
             fail("%s request failed with status %d: %s" % (entity_id, rep.status_code, rep.body()))
         return rep.json()
     return None
-
 
 def get_schema():
     entity_schema = []
@@ -107,13 +106,13 @@ def get_schema():
                 id = "entity_" + i,
                 name = "Entity ID " + i,
                 desc = "Entity ID " + i + " (e.g. sensor.steps)",
-                icon = "1"
+                icon = "1",
             ),
             schema.Text(
                 id = "entity_" + i + "_name",
                 name = "Entity Name " + i,
                 desc = "Entity Name " + i + " (e.g. My Steps)",
-                icon = "1"
+                icon = "1",
             ),
         ]
     return schema.Schema(
@@ -123,13 +122,13 @@ def get_schema():
                 id = "ha_url",
                 name = "HomeAssistant URL",
                 desc = "HomeAssistant URL. The address of your HomeAssistant instance, as a full URL.",
-                icon = "book"
+                icon = "book",
             ),
             schema.Text(
                 id = "ha_token",
                 name = "HomeAssistant Token",
                 desc = "HomeAssistant Token. Find in User Settings > Long-lived access tokens.",
-                icon = "book"
+                icon = "book",
             ),
             schema.Toggle(
                 id = "sort_entities",
@@ -143,7 +142,7 @@ def get_schema():
                 name = "Target value",
                 desc = "Target value number. If set, then a red-to-green range will be used for values, with this number at the top of the range.",
                 icon = "compress",
-                default = ""
+                default = "",
             ),
         ] + entity_schema,
     )
