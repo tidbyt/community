@@ -1,7 +1,7 @@
 ---
 id: hassentitylist
 name: HASS Entity List
-summary: Displays multiple HomeAssistant entities
+summary: Show HomeAssistant entitys
 desc: Displays multiple HomeAssistant entities (e.g. step counts)
 author: James Woglom
 fileName: hassentitylist.star
