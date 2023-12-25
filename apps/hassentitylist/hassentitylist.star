@@ -5,10 +5,9 @@ Description: Displays multiple HomeAssistant entities (e.g. step counts)
 Author: James Woglom
 """
 
-load("render.star", "render")
 load("http.star", "http")
+load("render.star", "render")
 load("schema.star", "schema")
-load("math.star", "math")
 
 def main(config):
     children = add_children(config, "entity_1", "entity_2", "entity_3", "entity_4")
