@@ -55,9 +55,12 @@ Added new feature to show who won each set (for completed & in progress matches)
 Updated scheduled matches to only show if both players are listed, prevents blanks
 Updated checks for walkover matches 
 
-v1.10 - idea
+v1.10
 Changed logic for completed matches
 Updated display for 'walkover' matches 
+
+v1.10.1
+Updated for 2024 season
 """
 
 load("encoding/json.star", "json")
@@ -67,8 +70,8 @@ load("render.star", "render")
 load("schema.star", "schema")
 load("time.star", "time")
 
-SLAM_LIST = ["154-2023", "188-2023", "172-2023", "189-2023"]
-MASTERS_LIST = ["718-2023", "421-2023", "13-2023", "315-2023"]
+SLAM_LIST = ["154-2024", "188-2024", "172-2024", "189-2024"]
+MASTERS_LIST = ["411-2024", "713-2024", "42-2024", "413-2024", "421-2024", "414-2024", "718-2024", "421-2024", "13-2024", "315-2024"]
 
 DEFAULT_TIMEZONE = "Australia/Adelaide"
 ATP_SCORES_URL = "https://site.api.espn.com/apis/site/v2/sports/tennis/atp/scoreboard"
@@ -90,7 +93,7 @@ def main(config):
     diffTournEnd = 0
     diffTournStart = 0
 
-    TestID = "421-2023"
+    TestID = "421-2024"
     SelectedTourneyID = config.get("TournamentList", TestID)
     ShowCompleted = config.get("CompletedOn", "true")
     ShowScheduled = config.get("ScheduledOn", "false")
@@ -1083,13 +1086,13 @@ def get_schema():
     )
 
 def titleBar(SelectedTourneyID):
-    if SelectedTourneyID == "154-2023":  # AO
+    if SelectedTourneyID == "154-2024":  # AO
         titleColor = "#0091d2"
-    elif SelectedTourneyID == "188-2023":  # Wimbledon
+    elif SelectedTourneyID == "188-2024":  # Wimbledon
         titleColor = "#006633"
-    elif SelectedTourneyID == "172-2023":  # French Open
+    elif SelectedTourneyID == "172-2024":  # French Open
         titleColor = "#c84e1e"
-    elif SelectedTourneyID == "189-2023":  # US Open
+    elif SelectedTourneyID == "189-2024":  # US Open
         titleColor = "#022686"
     else:
         titleColor = "#203764"
