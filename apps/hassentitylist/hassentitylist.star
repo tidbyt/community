@@ -25,19 +25,19 @@ def main(config):
 
 def add_children(config, *childs):
     items = {}
-    counts = {}
+    counts = []
     for child in childs:
         n, entity = render_entity(child, config)
         if entity:
             items[child] = entity
-            counts[child] = n
+            counts.append([n, child])
         else:
             items[child] = None
 
     children = []
     if config.bool("sort_entities"):
-        for i in sorted(counts.items())[::-1]:
-            children.append(items[i[0]])
+        for i in sorted(counts)[::-1]:
+            children.append(items[i[1]])
     else:
         for child in childs:
             if items[child]:
