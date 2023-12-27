@@ -1,0 +1,8 @@
+---
+id: random-ca-cam
+name: Random CA Cam
+summary: A Random CA Traffic Camera
+desc: See a random traffic camera from the roads of California.
+author: quacksire
+fileName: random_ca_cam.star
+packageName: randomcacam
