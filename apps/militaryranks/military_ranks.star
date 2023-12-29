@@ -798,9 +798,6 @@ ranks = {
     },
 }
 
-def getName(name):
-    return name
-
 def main(config):
     myRank = config.get("myRank", "random")
 
@@ -819,9 +816,6 @@ def main(config):
 
     if imageWidth == 0:
         textWidth = 64
-
-    print(textWidth)
-    print(imageWidth)
 
     return render.Root(
         render.Row(
@@ -844,7 +838,7 @@ def main(config):
                         ),
                         render.Marquee(
                             width = textWidth,
-                            child = render.Text(getName(config.str("myName")), font = "6x13"),
+                            child = render.Text((config.str("myName","")), font = "6x13"),
                         ),
                         render.Text("", font = "CG-pixel-4x5-mono"),
                         render.Marquee(
