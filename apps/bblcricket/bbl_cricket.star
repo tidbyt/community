@@ -16,12 +16,15 @@ Added handling for other delays in play
 
 v2.1.2
 Fixed 2nd innings display
+
+v2.2
+Updated to use Target field for run chase, this covers DLS scenarios
+Re-arranged some code so that it only executes during 1st or 2nd inngs and not both
 """
 
 load("encoding/json.star", "json")
 load("http.star", "http")
 load("humanize.star", "humanize")
-load("math.star", "math")
 load("render.star", "render")
 load("schema.star", "schema")
 load("time.star", "time")
@@ -89,13 +92,16 @@ def main(config):
 
     LastOut_Runs = 0
     LastOut_Name = ""
+    Trail = ""
+    Overs = 0
+    BallsRem = 0
     T20_Status2 = ""
     T20_Status3 = ""
     T20_Status4 = ""
 
     MatchID = str(MatchID)
     Match_URL = "https://hs-consumer-api.espncricinfo.com/v1/pages/match/details?lang=en&seriesId=" + SeriesID + "&matchId=" + MatchID + "&latest=true"
-    # print(Match_URL)
+    #print(Match_URL)
 
     # cache specific match data for 1 minute
     MatchData = get_cachable_data(Match_URL, MATCH_CACHE)
@@ -109,20 +115,6 @@ def main(config):
         # What's the score
         Wickets = Match_JSON["scorecard"]["innings"][Innings]["wickets"]
         Runs = Match_JSON["scorecard"]["innings"][Innings]["runs"]
-
-        # In front or behind? And how much?
-        Trail = Match_JSON["scorecard"]["innings"][Innings]["lead"]
-
-        Trail = math.fabs(Trail) + 1
-        Trail = humanize.float("#.", Trail)
-        Trail = str(Trail)
-
-        # Calculate how many balls are remaining, only used in 2nd innings
-        BallsRem = str(Match_JSON["scorecard"]["innings"][Innings]["totalBalls"] - Match_JSON["scorecard"]["innings"][Innings]["balls"])
-
-        # How many overs bowled
-        Overs = Match_JSON["scorecard"]["innings"][Innings]["overs"]
-        Overs = str(Overs)
 
         # Batting details
         BattingTeamID = Match_JSON["scorecard"]["innings"][Innings]["team"]["id"]
@@ -243,6 +235,10 @@ def main(config):
 
         # what to show on the status bar, depending on state of game, team batting first or second & fall of wicket
         if T20_Innings == 1:
+            # How many overs bowled
+            Overs = Match_JSON["scorecard"]["innings"][Innings]["overs"]
+            Overs = str(Overs)
+
             if MatchStatus == "Live":
                 T20_Status1 = "Overs: " + Overs
                 T20_Status2 = Last12Balls
@@ -273,6 +269,14 @@ def main(config):
 
             # 2nd Innings underway
         else:
+            # Calculate how many balls are remaining
+            BallsRem = str(Match_JSON["scorecard"]["innings"][Innings]["totalBalls"] - Match_JSON["scorecard"]["innings"][Innings]["balls"])
+
+            # Calculate how many runs left to win
+            Target = Match_JSON["scorecard"]["innings"][Innings]["target"]
+            RunsReq = Target - Match_JSON["scorecard"]["innings"][Innings]["runs"]
+            Trail = str(RunsReq)
+
             T20_Status1 = "REQ " + Trail + " off " + BallsRem
             T20_Status2 = Last12Balls
             T20_Status3 = "Run Rate: " + CRR
