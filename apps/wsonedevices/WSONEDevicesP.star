@@ -3,11 +3,12 @@
 #by Craig J. Johnston
 #email: ibanyan@gmail.com
 
-# Import the required libraries
-load("render.star", "render")
+load("encoding/base64.star", "base64")
 load("http.star", "http")
 load("humanize.star", "humanize")
-load("encoding/base64.star", "base64")
+
+# Import the required libraries
+load("render.star", "render")
 load("schema.star", "schema")
 
 #Set the fonts
