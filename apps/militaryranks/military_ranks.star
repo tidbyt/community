@@ -815,7 +815,7 @@ def main(config):
     selectedImage = base64.decode(selectedRank["image"])
     imageHeight = int(selectedRank["height"])
     imageWidth = int(selectedRank["width"])
-    textWidth = 64 -1 - imageWidth
+    textWidth = 64 - 1 - imageWidth
 
     if imageWidth == 0:
         textWidth = 64
