@@ -838,7 +838,7 @@ def main(config):
                         ),
                         render.Marquee(
                             width = textWidth,
-                            child = render.Text((config.str("myName","")), font = "6x13"),
+                            child = render.Text((config.str("myName", "")), font = "6x13"),
                         ),
                         render.Text("", font = "CG-pixel-4x5-mono"),
                         render.Marquee(
