@@ -28,6 +28,7 @@ mEsZgQDEptgFA28AC8xPypt8YUyS6IH3AjwaQe5W2uhDVFTe89+Coo8kP1NdMQB+nA851hm2MwAAAABJ
 def main(config):
     # set default api key
     DEFAULT_API = secret.decrypt("AV6+xWcEX/4Xe45UOOKJO96fq/wjTvGwFn7rE8EUXwcONEWE7sG+eXYjEm5M+PmmS5GTV1NzbV3z3X5q7XWdN69xtfpB1KWMBedJf2kndTR6QWsBWZXizDHWDVMA5IUYO14Y7X2tlr+eKCuAZU7iri9BUTuBdO7+5sVRgPU3QoObSbsE9L8=")
+
     #set font
     font = "CG-pixel-4x5-mono"
 
