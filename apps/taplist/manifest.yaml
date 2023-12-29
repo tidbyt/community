@@ -1,0 +1,8 @@
+---
+id: tap-list
+name: Tap List
+summary: Displays 4 beers
+desc: Display up to 4 beers on a tap list.
+author: bernie-thibeault
+fileName: tap_list.star
+packageName: taplist
