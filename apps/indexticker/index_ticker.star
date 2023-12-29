@@ -3,6 +3,8 @@ Applet: Index Ticker
 Summary: Displays ticker for indices
 Description: Display ticker and stats for stock indices.
 Author: M0ntyP
+
+v1.1 - Added BSE and NIFTY indices
 """
 
 load("animation.star", "animation")
@@ -206,6 +208,10 @@ def getTitle(IndexSelection):
         return ("FTSE")
     elif IndexSelection == "gspc":
         return ("S&P 500")
+    elif IndexSelection == "BSESN":
+        return ("BSE")
+    elif IndexSelection == "NSEI":
+        return ("NIFTY")
     return ""
 
 def get_schema():
@@ -255,6 +261,14 @@ IndexOptions = [
     schema.Option(
         display = "FTSE",
         value = "ftse",
+    ),
+    schema.Option(
+        display = "BSE",
+        value = "BSESN",
+    ),
+    schema.Option(
+        display = "NIFTY",
+        value = "NSEI",
     ),
 ]
 
