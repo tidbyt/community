@@ -11,7 +11,7 @@ load("render.star", "render")
 load("schema.star", "schema")
 
 #Set the fonts
-FONT = "CG-pixel-3x5-mono"
+FONT = "tom-thumb"
 HFONT = "5x8"
 
 #Define the items that make up the query to the WS1 tenant.
@@ -156,7 +156,7 @@ def main(config):
                 ),
                 render.Text(
                     content = "Android:%s" % humanize.ftoa(TotalAndroid, 0),
-                    height = 5,
+                    height = 6,
                     font = FONT,
                 ),
                 render.Text(
