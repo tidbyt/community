@@ -27,6 +27,7 @@ RED = "#ff0000"
 
 def main(config):
     refresh_token = config.get("auth")
+    ignore_list = config.get("ignore_list", [])  # Fetch the ignore list from the config
     if refresh_token == None:
         return render_message("Login to Twitch")
 
@@ -34,7 +35,7 @@ def main(config):
     if user_id == None:
         return render_message("Failed to fetch user")
 
-    followed_streams = get_followed_streams(refresh_token, user_id)
+    followed_streams = get_followed_streams(refresh_token, user_id, ignore_list)
     if followed_streams == None:
         return render_message("Failed to fetch followed streams")
 
@@ -63,6 +64,12 @@ def get_schema():
                 scopes = [
                     "user:read:follows",
                 ],
+            ),
+            schema.Text(
+                id = "ignore_list",
+                name = "Ignore List",
+                desc = "Comma seperated list of streamers to ignore",
+                icon = "list",
             ),
         ],
     )
@@ -264,7 +271,7 @@ def get_current_user_id(refresh_token):
         return None
 
 # Fetch the provided user's list of followers
-def get_followed_streams(refresh_token, user_id):
+def get_followed_streams(refresh_token, user_id, ignore_list):
     access_token = get_access_token(refresh_token)
     res = http.get(
         url = "https://api.twitch.tv/helix/streams/followed",
@@ -277,7 +284,10 @@ def get_followed_streams(refresh_token, user_id):
         },
     )
     if res.status_code == 200:
-        return res.json()["data"]
+        streams = res.json()["data"]
+
+        # Filter out streams in the ignore list
+        return [stream for stream in streams if stream["user_name"] not in ignore_list]
     else:
         clear_access_token(refresh_token)
         return None
