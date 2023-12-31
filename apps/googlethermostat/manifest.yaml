@@ -1,0 +1,8 @@
+---
+id: googlethermostat
+name: Google Thermostat
+summary: Displays temperature
+desc: Displays the temperature of your Google Nest Thermostats.
+author: habond
+fileName: googlethermostat.star
+packageName: googlethermostat
