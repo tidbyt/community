@@ -8,11 +8,11 @@ Displays today’s date in the calendar systems used by the ancient Maya civiliz
 
 The Maya calendar system consists of three calendars:
 
-1. **Long Count** — a continuous count of days since August 11, 3114 BCE (the Goodman-Martinez-Thompson correlation). The count is displayed in a *mostly* base-20 format as follows:
+1. **Long Count** — a continuous count of days since August 11, 3114 BCE (using the generally accepted Goodman-Martínez-Thompson correlation). The count is displayed in a *mostly* base-20 format as follows:
 
 * 1 day = 1 k’in
 * 20 k’in = 1 winal
-* 18 winal = 1 tun
+* **18** winal = 1 tun
 * 20 tun = 1 k’atun
 * 20 k’atun = 1 b’ak’tun
 
@@ -26,7 +26,11 @@ The transition of the Long Count from 12.19.19.17.19 to 13.0.0.0.0 (start of the
 
 The combination of Tzolk’in and Haab’ dates is called the **Calendar Round**, and repeats approximately every 52 years. The Calendar Round is still used today by some Maya communities in Guatemala.
 
-Names given for Tzolk’in days and Haab’ months are in the Yucatec language, in the standardized and revised orthography of the Guatemalan Academía de Lenguas Mayas. Other orthographies for Yucatec exist. The corresponding names in the Quiché language range from slightly to completely different from the Yucatec names.
+Names given for Tzolk’in days and Haab’ months are in the Yucatec Maya language, in the standardized and revised orthography of the Guatemalan *Academía de Lenguas Mayas*. Other orthographies for Yucatec Maya exist. The corresponding names in the Quiché language range from slightly different to completely different from the Yucatec Maya names.
+
+## What’s new
+
+**Version 1.1.0:** Added correlation options; minor display change; improved app description.
 
 ## Future improvements
 
@@ -41,4 +45,4 @@ A rich set of glyphs exists for the Tzolk’in day names and Haab’ month names
 
 ## About this app
 
-Version 1.0.0 (2023-06-26, 13.0.10.11.19 8 Kawak 7 Sek) by [Doug Ewell](http://ewellic.org)
+Version 1.1.0 (2023-12-20, 13.0.11.2.16  3 K’ib’ 4 K’ank’in) by [Doug Ewell](http://ewellic.org)

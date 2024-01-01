@@ -57,6 +57,7 @@ def main(config):
     # print(int(Diff.minutes))
 
     mainFont = "CG-pixel-3x5-mono"
+    priceFont = "Dina_r400-6"
     Price = "$" + str(Price)
     ListFuel = Type_to_Fuel(FuelType)
 
@@ -95,7 +96,7 @@ def main(config):
                     main_align = "space_between",
                     cross_align = "end",
                     children = [
-                        render.Box(width = 64, height = 10, color = "#000", child = render.Text(content = Price, color = "#48a800", font = mainFont)),
+                        render.Box(width = 64, height = 12, color = "#000", child = render.Text(content = Price, color = "#48a800", font = priceFont)),
                     ],
                 ),
                 render.Row(
