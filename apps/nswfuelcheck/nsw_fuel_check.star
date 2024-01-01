@@ -165,7 +165,7 @@ def get_schema():
                 id = "FuelType",
                 name = "Select the fuel type",
                 desc = "Select the fuel type",
-                icon = "gear",
+                icon = "gas-pump",
                 default = FuelOptions[0].value,
                 options = FuelOptions,
             ),
