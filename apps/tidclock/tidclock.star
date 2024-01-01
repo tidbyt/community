@@ -643,11 +643,12 @@ def main(config):
                             resgood = False
                             print("Error getting paid week weather; unexpected json")
                         else:
-                            cache.set(res, til_midnight_ttl)
+                            res = res.body()
+                            cache.set(weatherurlweek, res, til_midnight_ttl)
                             resgood = True
 
                 if resgood:
-                    result = res.json()
+                    result = json.decode(res)
                     forecast = result["forecast"]
                     ctx["weekweather"] = []
                     for i in range(7):
