@@ -21,6 +21,7 @@ PRECIOUS_METAL_NAMES = {
     "platinum": "Platnm",
     "palladium": "Palladm",
     "rhodium": "Rhodium",
+    "copper": "Copper",
 }
 
 timezone = "America/New_York"
@@ -42,7 +43,7 @@ def main(config):
     PRECIOUS_METAL = "gold"
 
     #Lets check the config to see if they passed a precious metal
-    if (config.str("metal") == "gold" or config.str("metal") == "silver" or config.str("metal") == "platinum" or config.str("metal") == "palladium" or config.str("metal") == "rhodium"):
+    if (config.str("metal") == "gold" or config.str("metal") == "silver" or config.str("metal") == "platinum" or config.str("metal") == "palladium" or config.str("metal") == "rhodium" or config.str("metal") == "copper"):
         PRECIOUS_METAL = config.str("metal")
 
     # Precious metal markets are open almost 24x5, so its hard to determine what a closing price is. However according to Kitco, its 5PM
@@ -328,6 +329,10 @@ def get_schema():
                     schema.Option(
                         display = "Rhodium",
                         value = "rhodium",
+                    ),
+                    schema.Option(
+                        display = "Copper",
+                        value = "copper",
                     ),
                 ],
                 default = "gold",
