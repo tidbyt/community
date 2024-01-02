@@ -1619,7 +1619,7 @@ def main(config):
     if (config.get("display", "OncePerDay") == "OncePerDay"):
         now = config.get("time")
         now = (time.parse_time(now) if now else time.now())
-        current_element = elements[(day_of_year(now, DEFAULT_TIMEZONE) -1) % (len(elements) -1) ]
+        current_element = elements[(day_of_year(now, DEFAULT_TIMEZONE) - 1) % (len(elements) - 1)]
     else:
         #default is random element
         current_element = elements[random.number(0, len(elements) - 1)]
