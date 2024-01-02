@@ -1619,7 +1619,7 @@ def main(config):
     if (config.get("display", "OncePerDay") == "OncePerDay"):
         now = config.get("time")
         now = (time.parse_time(now) if now else time.now())
-        current_element = elements[day_of_year(now, DEFAULT_TIMEZONE) % len(elements)]
+        current_element = elements[(day_of_year(now, DEFAULT_TIMEZONE) -1) % (len(elements) -1) ]
     else:
         #default is random element
         current_element = elements[random.number(0, len(elements) - 1)]
@@ -1647,8 +1647,8 @@ def main(config):
                                 render.Box(width = 32, height = 1, color = "#000000"),
                                 render.Text(" %s" % current_element["Symbol"], color = "fff", font = "5x8"),
                                 render.Marquee(
-                                    width = 28,
-                                    child = render.Text(" %s" % (current_element["Name"][:5]), color = "fff", font = "5x8"),
+                                    width = 30,
+                                    child = render.Text(" %s" % (current_element["Name"]), color = "fff", font = "5x8"),
                                 ),
                                 render.Box(width = 32, height = 1, color = "#000000"),
                                 render.Text(" %s" % current_element["Mass"], color = "fff", font = "CG-pixel-3x5-mono"),
