@@ -64,6 +64,7 @@ Updated for 2024 season
 
 v1.11
 Added GroupingsID to handle when "Womens Singles" are listed before "Mens Singles" in the API data
+Added handling for no matches listed in a touranment and to stop that from being added to the dropdown list
 """
 
 load("encoding/json.star", "json")
@@ -1039,14 +1040,15 @@ def get_schema():
         StartDate = time.parse_time(StartDate, format = "2006-01-02T15:04Z")
         diffTournEnd = EndDate - now
         diffTournStart = StartDate - now
-        if diffTournStart.hours < 0 and diffTournEnd.hours > 0:
-            Event_Name = ATP_JSON["events"][x]["name"]
 
-            # print(Event_Name)
-            Event_ID = ATP_JSON["events"][x]["id"]
-            Events.append(Event_Name)
-            EventsID.append(Event_ID)
-            ActualEvents = ActualEvents + 1
+        # if we're inside the start and end dates, and if there are matches listed
+        if diffTournStart.hours < 0 and diffTournEnd.hours > 0:
+            if len(ATP_JSON["events"][x]["groupings"]) > 0:
+                Event_Name = ATP_JSON["events"][x]["name"]
+                Event_ID = ATP_JSON["events"][x]["id"]
+                Events.append(Event_Name)
+                EventsID.append(Event_ID)
+                ActualEvents = ActualEvents + 1
 
     if ActualEvents != 0:
         for y in range(0, ActualEvents, 1):
