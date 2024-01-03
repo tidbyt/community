@@ -105,7 +105,7 @@ def main(config):
 
     MatchID = str(MatchID)
     Match_URL = "https://hs-consumer-api.espncricinfo.com/v1/pages/match/details?lang=en&seriesId=" + SeriesID + "&matchId=" + MatchID + "&latest=true"
-    #print(Match_URL)
+    # print(Match_URL)
 
     # cache specific match data for 1 minute
     MatchData = get_cachable_data(Match_URL, MATCH_CACHE)
@@ -288,7 +288,7 @@ def main(config):
             if MatchStatus == "Match delayed by rain":
                 MatchStatus = "Rain Delay"
                 T20_Status1 = MatchStatus
-                T20_Status2 = "Overs: " + Overs
+                T20_Status2 = "REQ " + Trail + " off " + BallsRem
                 T20_Status3 = "Run Rate: " + CRR
                 T20_Status4 = "Req Rate: " + RRR
             elif MatchStatus == "Strategic Timeout":
