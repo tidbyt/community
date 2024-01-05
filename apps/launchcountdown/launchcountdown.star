@@ -123,7 +123,7 @@ def get_rocket_launch_json():
     return (rocket_launch_data)
 
 #Since not all launches supply values for all these, this makes it easy to add items to a marquee
-def get_launch_details(rocket_launch_data, locallaunch, mytimezone):
+def get_launch_details(rocket_launch_data, locallaunch, localtime, mytimezone):
     """ Get Launch Details
 
     Args:
@@ -132,13 +132,22 @@ def get_launch_details(rocket_launch_data, locallaunch, mytimezone):
         Display info of launch details
     """
 
+    countdown = (locallaunch - localtime.in_location(mytimezone))
+    countdownDisplay = ""
+
+    if countdown.hours > 1:
+        countdownDisplay = ("About %s hours from now," % int(math.round(countdown.hours)))
+    elif countdown.minutes > 0:
+        countdownDisplay = ("About %s minutes from now," % int(math.round(countdown.minutes)))
+
     potential_display_items = [
-        rocket_launch_data["result"][0]["pad"]["name"],
-        rocket_launch_data["result"][0]["pad"]["location"]["name"],
-        rocket_launch_data["result"][0]["pad"]["location"]["state"],
-        rocket_launch_data["result"][0]["pad"]["location"]["country"],
+        countdownDisplay,
+        rocket_launch_data["pad"]["name"],
+        rocket_launch_data["pad"]["location"]["name"],
+        rocket_launch_data["pad"]["location"]["state"],
+        rocket_launch_data["pad"]["location"]["country"],
         locallaunch.format("Monday Jan 02 2006"),
-        locallaunch.format("at 3:04 PM") + " " + mytimezone,
+        locallaunch.format("at 3:04 PM") + " " + mytimezone.replace("_", " "),
     ]
 
     display_text = ""
@@ -160,25 +169,35 @@ def main(config):
 
     location = json.decode(config.get("location", default_location))
     rocket_launch_data = get_rocket_launch_json()
+
     rocket_launch_count = 0
-    row1 = "Test"
-    row2 = "Test2"
-    row3 = "Test3"
-    row4 = "Test4"
+    row1 = ""
+    row2 = ""
+    row3 = ""
+    row4 = ""
 
     if rocket_launch_data == None:
         row1 = "Failed to get data from Rocketlaunch.live feed"
     else:
         rocket_launch_count = rocket_launch_data["count"]
 
+    print(rocket_launch_data)
+
     if (rocket_launch_count == 0):
         row1 = "No upcoming launches.."
     else:
-        row1 = rocket_launch_data["result"][0]["vehicle"]["name"]
-        locallaunch = time.parse_time(rocket_launch_data["result"][0]["t0"].replace("Z", ":00Z")).in_location(location["timezone"])
-        row2 = locallaunch.format("Jan 02")
-        row3 = get_launch_details(rocket_launch_data, locallaunch, location["timezone"])
-        row4 = rocket_launch_data["result"][0]["launch_description"]
+        row1 = "No upcoming launches.."
+        rocket_launch_count = int(rocket_launch_count)
+        for i in range(0, rocket_launch_count):
+            localtime = time.now() + time.parse_duration("%sh" % -8)
+            locallaunch = time.parse_time(rocket_launch_data["result"][i]["t0"].replace("Z", ":00Z")).in_location(location["timezone"])
+            if locallaunch > localtime.in_location(location["timezone"]):
+                row1 = rocket_launch_data["result"][i]["vehicle"]["name"]
+                locallaunch = time.parse_time(rocket_launch_data["result"][i]["t0"].replace("Z", ":00Z")).in_location(location["timezone"])
+                row2 = locallaunch.format("Jan 2 '06")
+                row3 = get_launch_details(rocket_launch_data["result"][i], locallaunch, localtime, location["timezone"])
+                row4 = rocket_launch_data["result"][i]["launch_description"]
+                break
 
     return render.Root(
         show_full_animation = True,
@@ -196,7 +215,7 @@ def main(config):
                                             child = render.Text(row1, color = "#0000FF"),
                                         ),
                                         render.Marquee(
-                                            width = 35,
+                                            width = 48,
                                             child = render.Text(row2, color = "#fff"),
                                         ),
                                     ],
@@ -229,6 +248,8 @@ def main(config):
                                         render.Image(src = rocket_icon_d),
                                         render.Image(src = rocket_icon_c),
                                         render.Image(src = rocket_icon_b),
+                                        render.Image(src = rocket_icon),
+                                        render.Image(src = rocket_icon),
                                     ],
                                 ),
                             ],
@@ -241,6 +262,7 @@ def main(config):
                 ),
                 render.Marquee(
                     width = 64,
+                    offset_start = len(row3) * 5,
                     child = render.Text(row4, color = "#ff0"),
                 ),
             ],

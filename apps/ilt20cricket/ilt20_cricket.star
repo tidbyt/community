@@ -9,6 +9,10 @@ v1.1 - Updated for 2024 season
 v1.2
 Updated to use Target field for run chase, this covers DLS scenarios
 Re-arranged some code so that it only executes during 1st or 2nd inngs and not both
+
+v1.2.1
+Re-arranged some code again, as it introduced some bugs
+Use white color text for "No Result" matches
 """
 
 load("encoding/json.star", "json")
@@ -104,6 +108,10 @@ def main(config):
         # What's the score
         Wickets = Match_JSON["scorecard"]["innings"][Innings]["wickets"]
         Runs = Match_JSON["scorecard"]["innings"][Innings]["runs"]
+
+        # How many overs bowled
+        Overs = Match_JSON["scorecard"]["innings"][Innings]["overs"]
+        Overs = str(Overs)
 
         # Batting details
         BattingTeamID = Match_JSON["scorecard"]["innings"][Innings]["team"]["id"]
@@ -224,10 +232,6 @@ def main(config):
 
         # what to show on the status bar, depending on state of game, team batting first or second & fall of wicket
         if T20_Innings == 1:
-            # How many overs bowled
-            Overs = Match_JSON["scorecard"]["innings"][Innings]["overs"]
-            Overs = str(Overs)
-
             if MatchStatus == "Live":
                 T20_Status1 = "Overs: " + Overs
                 T20_Status2 = Last12Balls
@@ -386,8 +390,10 @@ def main(config):
 
                 if WinnerID == Team1_ID:
                     WinnerColor = Team1_Color
-                else:
+                elif WinnerID == Team2_ID:
                     WinnerColor = Team2_Color
+                else:
+                    WinnerColor = "#fff"
 
                 Result = Match_JSON["match"]["statusText"]
 
