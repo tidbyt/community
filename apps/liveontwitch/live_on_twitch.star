@@ -27,7 +27,7 @@ RED = "#ff0000"
 
 def main(config):
     refresh_token = config.get("auth")
-    ignore_list = [streamer.strip().lower() for streamer in config.get("ignore_list", "").split(',')]
+    ignore_list = [streamer.strip().lower() for streamer in config.get("ignore_list", "").split(",")]
     if refresh_token == None:
         return render_message("Login to Twitch")
 
