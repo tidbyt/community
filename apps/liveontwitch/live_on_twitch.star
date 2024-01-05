@@ -27,7 +27,7 @@ RED = "#ff0000"
 
 def main(config):
     refresh_token = config.get("auth")
-    ignore_list = config.get("ignore_list", [])  # Fetch the ignore list from the config
+    ignore_list = [streamer.strip().lower() for streamer in config.get("ignore_list", "").split(',')]
     if refresh_token == None:
         return render_message("Login to Twitch")
 
@@ -287,7 +287,7 @@ def get_followed_streams(refresh_token, user_id, ignore_list):
         streams = res.json()["data"]
 
         # Filter out streams in the ignore list
-        return [stream for stream in streams if stream["user_name"] not in ignore_list]
+        return [stream for stream in streams if stream["user_name"].lower() not in ignore_list]
     else:
         clear_access_token(refresh_token)
         return None
