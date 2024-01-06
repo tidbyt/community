@@ -175,7 +175,7 @@ def get_schema():
                 id = "station_id",
                 name = "Station Id",
                 desc = "WeatherSTEM station to use for data",
-                icon = "gauge-high",
+                icon = "gaugeHigh",
             ),
             schema.Text(
                 id = "api_key",
@@ -187,7 +187,7 @@ def get_schema():
                 id = "temperature_type",
                 name = "Temperature Type",
                 desc = "The type of temperature to display",
-                icon = "temperature-half",
+                icon = "temperatureHalf",
                 default = temperature_options[0].value,
                 options = temperature_options,
             ),
@@ -195,7 +195,7 @@ def get_schema():
                 id = "station_name",
                 name = "Station Name",
                 desc = "Manually override weather station name for display",
-                icon = "i-cursor",
+                icon = "iCursor",
             ),
         ],
     )
