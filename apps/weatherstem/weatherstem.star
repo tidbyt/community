@@ -5,12 +5,11 @@ Description: Display real-time current weather conditons provided by WeatherSTEM
 Author: imaginuts
 """
 
-load("encoding/json.star", "json")
-load("render.star", "render")
-load("schema.star", "schema")
+load("encoding/base64.star", "base64")
 load("http.star", "http")
 load("math.star", "math")
-load("encoding/base64.star", "base64")
+load("render.star", "render")
+load("schema.star", "schema")
 
 # The WeatherSTEM API endpoint used to retrieve current conditions data.
 #
@@ -45,102 +44,103 @@ def main(config):
 
     # Check for valid config
     if api_key == "" or station_id == "":
-        fail("Invalid configuration")
+        return render_error("Invalid WeatherSTEM configuration")
 
-    # Request data
-    request_data = {"api_key": api_key, "stations": [station_id]}
-    header_data = {"Content-Type": "application/json"}
-    response_data = {}
+    else:
+        # Request data
+        request_data = {"api_key": api_key, "stations": [station_id]}
+        header_data = {"Content-Type": "application/json"}
+        response_data = {}
 
-    resp = http.post(api_url, headers = header_data, json_body = request_data, ttl_seconds = cache_seconds)
+        resp = http.post(api_url, headers = header_data, json_body = request_data, ttl_seconds = cache_seconds)
 
-    if resp.status_code != 200:
-        fail("WeatherSTEM request failed with status %d" % resp.status_code)
+        if resp.status_code != 200:
+            return render_error("WeatherSTEM request failed with status %d" % resp.status_code)
+        else:
+            # store the sensor data returned
+            for reading in resp.json()[0]["record"]["readings"]:
+                response_data[reading["sensor"]] = reading
 
-    # store the sensor data returned
-    for reading in resp.json()[0]["record"]["readings"]:
-        response_data[reading["sensor"]] = reading
+            station_name = resp.json()[0]["station"]["name"]
+            if station_name_override != "":
+                station_name = station_name_override
 
-    station_name = resp.json()[0]["station"]["name"]
-    if station_name_override != "":
-        station_name = station_name_override
+            temperature_value = float(response_data["Thermometer"]["value"])
 
-    temperature_value = float(response_data["Thermometer"]["value"])
+            if response_data["Thermometer"]["unit"] == "Degrees Fahrenheit":
+                if temperature_type != "F":
+                    temperature_value = (temperature_value - 32) * (5 / 9)
+            elif temperature_type != "C":
+                temperature_value = (temperature_value * (9 / 5) + 32)
 
-    if response_data["Thermometer"]["unit"] == "Degrees Fahrenheit":
-        if temperature_type != "F":
-            temperature_value = (temperature_value - 32) * (5 / 9)
-    elif temperature_type != "C":
-        temperature_value = (temperature_value * (9 / 5) + 32)
+            humidity_value = math.round(float(response_data["Hygrometer"]["value"]))
+            temperature_value = math.round(temperature_value)
+            wind_speed = math.round(float(response_data["Anemometer"]["value"]))
 
-    humidity_value = math.round(float(response_data["Hygrometer"]["value"]))
-    temperature_value = math.round(temperature_value)
-    wind_speed = math.round(float(response_data["Anemometer"]["value"]))
+            wind_info = "%d %s %s" % (wind_speed, response_data["Anemometer"]["unit_symbol"], degToCompass(response_data["Wind Vane"]["value"]))
+            humidity_info = "%d%s" % (humidity_value, response_data["Hygrometer"]["unit_symbol"])
 
-    wind_info = "%d %s %s" % (wind_speed, response_data["Anemometer"]["unit_symbol"], degToCompass(response_data["Wind Vane"]["value"]))
-    humidity_info = "%d%s" % (humidity_value, response_data["Hygrometer"]["unit_symbol"])
+            current_temperature_display = "%d°" % (temperature_value)
 
-    current_temperature_display = "%d°" % (temperature_value)
-
-    return render.Root(
-        child = render.Box(
-            # This Box exists to provide vertical centering
-            render.Column(
-                expanded = True,  # Use as much horizontal space as possible
-                main_align = "space_evenly",  # Controls vertical alignment
-                cross_align = "center",  # Controls horizontal alignment
-                children = [
-                    render.Marquee(
-                        width = 64,
-                        align = "center",
-                        child = render.Text(content = station_name, font = "tom-thumb"),
-                    ),
-                    render.Row(
-                        expanded = True,
+            return render.Root(
+                child = render.Box(
+                    # This Box exists to provide vertical centering
+                    render.Column(
+                        expanded = True,  # Use as much horizontal space as possible
                         main_align = "space_evenly",  # Controls vertical alignment
                         cross_align = "center",  # Controls horizontal alignment
                         children = [
-                            render.Image(src = wind_icon),
-                            render.Text(
-                                content = wind_info,
+                            render.Marquee(
+                                width = 64,
+                                align = "center",
+                                child = render.Text(content = station_name, font = "tom-thumb"),
                             ),
-                        ],
-                    ),
-                    render.Box(
-                        width = 62,
-                        height = 1,
-                        color = border_color,
-                    ),
-                    render.Row(
-                        expanded = True,  # Use as much horizontal space as possible
-                        main_align = "space_evenly",
-                        cross_align = "center",
-                        children = [
-                            render.Column(
-                                cross_align = "center",
+                            render.Row(
+                                expanded = True,
+                                main_align = "space_evenly",  # Controls vertical alignment
+                                cross_align = "center",  # Controls horizontal alignment
                                 children = [
-                                    render.Text(content = "Temp", font = "tom-thumb"),
-                                    render.Text(content = current_temperature_display),
+                                    render.Image(src = wind_icon),
+                                    render.Text(
+                                        content = wind_info,
+                                    ),
                                 ],
                             ),
                             render.Box(
-                                width = 1,
-                                height = 16,
+                                width = 62,
+                                height = 1,
                                 color = border_color,
                             ),
-                            render.Column(
+                            render.Row(
+                                expanded = True,  # Use as much horizontal space as possible
+                                main_align = "space_evenly",
                                 cross_align = "center",
                                 children = [
-                                    render.Text(content = "Humidity", font = "tom-thumb"),
-                                    render.Text(content = "%s" % (humidity_info)),
+                                    render.Column(
+                                        cross_align = "center",
+                                        children = [
+                                            render.Text(content = "Temp", font = "tom-thumb"),
+                                            render.Text(content = current_temperature_display),
+                                        ],
+                                    ),
+                                    render.Box(
+                                        width = 1,
+                                        height = 16,
+                                        color = border_color,
+                                    ),
+                                    render.Column(
+                                        cross_align = "center",
+                                        children = [
+                                            render.Text(content = "Humidity", font = "tom-thumb"),
+                                            render.Text(content = "%s" % (humidity_info)),
+                                        ],
+                                    ),
                                 ],
                             ),
                         ],
                     ),
-                ],
-            ),
-        ),
-    )
+                ),
+            )
 
 def degToCompass(degress):
     """Convert degrees to named compass direction
@@ -198,4 +198,34 @@ def get_schema():
                 icon = "i-cursor",
             ),
         ],
+    )
+
+def render_error(msg):
+    return render.Root(
+        child = render.Box(
+            # This Box exists to provide vertical centering
+            render.Column(
+                expanded = True,  # Use as much horizontal space as possible
+                main_align = "space_evenly",  # Controls vertical alignment
+                cross_align = "center",  # Controls horizontal alignment
+                children = [
+                    render.Row(
+                        expanded = True,
+                        main_align = "space_evenly",  # Controls vertical alignment
+                        cross_align = "center",  # Controls horizontal alignment
+                        children = [
+                            render.Text(
+                                content = "ERROR",
+                                color = "#F00",
+                            ),
+                        ],
+                    ),
+                    render.Marquee(
+                        width = 64,
+                        align = "center",
+                        child = render.Text(content = msg),
+                    ),
+                ],
+            ),
+        ),
     )
