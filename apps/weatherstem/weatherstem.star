@@ -13,8 +13,8 @@ load("math.star", "math")
 load("encoding/base64.star", "base64")
 
 # The WeatherSTEM API endpoint used to retrieve current conditions data.
-# 
-# This applet uses https://api.weatherstem.com/api which is free to use but does 
+#
+# This applet uses https://api.weatherstem.com/api which is free to use but does
 # require registration. Visit https://www.weatherstem.com/register to register and recieve your
 # free API Key which will need to be entered into the settings.
 api_url = "https://api.weatherstem.com/api"
@@ -49,10 +49,10 @@ def main(config):
 
     # Request data
     request_data = {"api_key": api_key, "stations": [station_id]}
-    header_data = {'Content-Type': 'application/json'}
+    header_data = {"Content-Type": "application/json"}
     response_data = {}
 
-    resp = http.post(api_url, headers=header_data, json_body=request_data, ttl_seconds=cache_seconds)
+    resp = http.post(api_url, headers = header_data, json_body = request_data, ttl_seconds = cache_seconds)
 
     if resp.status_code != 200:
         fail("WeatherSTEM request failed with status %d" % resp.status_code)
@@ -69,10 +69,9 @@ def main(config):
 
     if response_data["Thermometer"]["unit"] == "Degrees Fahrenheit":
         if temperature_type != "F":
-            temperature_value = (temperature_value - 32) * (5/9)
-    else:
-        if temperature_type != "C":
-            temperature_value = (temperature_value * (9/5) + 32)
+            temperature_value = (temperature_value - 32) * (5 / 9)
+    elif temperature_type != "C":
+        temperature_value = (temperature_value * (9 / 5) + 32)
 
     humidity_value = math.round(float(response_data["Hygrometer"]["value"]))
     temperature_value = math.round(temperature_value)
@@ -84,65 +83,64 @@ def main(config):
     current_temperature_display = "%d°" % (temperature_value)
 
     return render.Root(
-
-        child=render.Box(  # This Box exists to provide vertical centering
+        child = render.Box(
+            # This Box exists to provide vertical centering
             render.Column(
-                expanded=True, # Use as much horizontal space as possible
-                main_align="space_evenly",  # Controls vertical alignment
-                cross_align="center",  # Controls horizontal alignment
-                children=[
+                expanded = True,  # Use as much horizontal space as possible
+                main_align = "space_evenly",  # Controls vertical alignment
+                cross_align = "center",  # Controls horizontal alignment
+                children = [
                     render.Marquee(
-                        width=64,
+                        width = 64,
                         align = "center",
-                        child=render.Text(content=station_name, font="tom-thumb"),
+                        child = render.Text(content = station_name, font = "tom-thumb"),
                     ),
                     render.Row(
-                        expanded=True,
-                        main_align="space_evenly",  # Controls vertical alignment
-                        cross_align="center",  # Controls horizontal alignment
-                        children=[
-                            render.Image(src=wind_icon),
+                        expanded = True,
+                        main_align = "space_evenly",  # Controls vertical alignment
+                        cross_align = "center",  # Controls horizontal alignment
+                        children = [
+                            render.Image(src = wind_icon),
                             render.Text(
-                                content=wind_info,
+                                content = wind_info,
                             ),
                         ],
                     ),
                     render.Box(
-                                width=62,
-                                height=1,
-                                color=border_color,
-                            ),
+                        width = 62,
+                        height = 1,
+                        color = border_color,
+                    ),
                     render.Row(
-                        expanded=True, # Use as much horizontal space as possible
-                        main_align="space_evenly",
-                        cross_align="center", 
-                        children=[
+                        expanded = True,  # Use as much horizontal space as possible
+                        main_align = "space_evenly",
+                        cross_align = "center",
+                        children = [
                             render.Column(
-                                cross_align="center", 
-                                children=[
-                                    render.Text(content="Temp", font="tom-thumb"),
-                                    render.Text(content=current_temperature_display),
+                                cross_align = "center",
+                                children = [
+                                    render.Text(content = "Temp", font = "tom-thumb"),
+                                    render.Text(content = current_temperature_display),
                                 ],
                             ),
                             render.Box(
-                                width=1,
-                                height=16,
-                                color=border_color,
+                                width = 1,
+                                height = 16,
+                                color = border_color,
                             ),
                             render.Column(
-                                cross_align="center", 
-                                children=[
-                                    render.Text(content="Humidity", font="tom-thumb"),
-                                    render.Text(content="%s" % (humidity_info)),
+                                cross_align = "center",
+                                children = [
+                                    render.Text(content = "Humidity", font = "tom-thumb"),
+                                    render.Text(content = "%s" % (humidity_info)),
                                 ],
                             ),
                         ],
                     ),
-                ]
+                ],
             ),
         ),
     )
-
 
 def degToCompass(degress):
     """Convert degrees to named compass direction
@@ -154,13 +152,11 @@ def degToCompass(degress):
        String containing named compass direction.
     """
 
-    val=int((degress/22.5)+.5)
-    arr=["N","NNE","NE","ENE","E","ESE", "SE", "SSE","S","SSW","SW","WSW","W","WNW","NW","NNW"]
+    val = int((degress / 22.5) + .5)
+    arr = ["N", "NNE", "NE", "ENE", "E", "ESE", "SE", "SSE", "S", "SSW", "SW", "WSW", "W", "WNW", "NW", "NNW"]
     return arr[(val % 16)]
 
-
 def get_schema():
-
     temperature_options = [
         schema.Option(
             display = "Fahrenheit",
@@ -173,19 +169,19 @@ def get_schema():
     ]
 
     return schema.Schema(
-        version="1",
-        fields=[
+        version = "1",
+        fields = [
             schema.Text(
-                id="station_id",
-                name="Station Id",
-                desc="WeatherSTEM station to use for data",
-                icon="gauge-high",
+                id = "station_id",
+                name = "Station Id",
+                desc = "WeatherSTEM station to use for data",
+                icon = "gauge-high",
             ),
             schema.Text(
-                id="api_key",
-                name="API Key",
-                desc="Private WeatherSTEM API Key",
-                icon="key",
+                id = "api_key",
+                name = "API Key",
+                desc = "Private WeatherSTEM API Key",
+                icon = "key",
             ),
             schema.Dropdown(
                 id = "temperature_type",
@@ -196,10 +192,10 @@ def get_schema():
                 options = temperature_options,
             ),
             schema.Text(
-                id="station_name",
-                name="Station Name",
-                desc="Manually override weather station name for display",
-                icon="i-cursor",
+                id = "station_name",
+                name = "Station Name",
+                desc = "Manually override weather station name for display",
+                icon = "i-cursor",
             ),
         ],
     )
