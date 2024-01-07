@@ -1,0 +1,8 @@
+---
+id: tf-key-price
+name: TF Key Price
+summary: Key price via backpack.tf
+desc: Keeps track of key price in refined from backpack.tf api.
+author: Trevor Underwood
+fileName: tf_key_price.star
+packageName: tfkeyprice
