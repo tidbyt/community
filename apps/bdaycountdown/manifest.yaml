@@ -1,0 +1,8 @@
+---
+id: bday-countdown
+name: Bday Countdown
+summary: Create a bday countdown
+desc: Create a bday countdown!
+author: Jared Brockmyre
+fileName: bday_countdown.star
+packageName: bdaycountdown
