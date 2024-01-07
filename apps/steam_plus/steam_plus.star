@@ -1,6 +1,6 @@
 """
 Applet: Steam Plus
-Summary: Show Steam user status
+Summary: Steam profile status viewer
 Description: Shows Steam user avatar, name, status, and currently playing.
 Author: Mike Toscano
 """
@@ -17,13 +17,13 @@ STATUS_COLOR = ["#59707B", "#0a0", "#F67407", "#FFD100"]
 STEAM_LOGO = http.get(STEAM_LOGO_PATH).body()
 
 def main(config):
-    #
-    api_key = secret.decrypt("AV6+xWcEJR5qELPaYxK0mTVpgPRRvSvB55VTzrvxgmXi94p9HmJxDHFeJWyTr3yrfegS9hGmu4kS/3Eqx75URHFhvScaAJG9azvs9LAHcu/xNt7bXRzgUKYksXtpw/90gD+hOqtEX9hsOnJ+obsMN6UayvQ28PAkIwLU7dIC0AlmnxrMVI0=") or config.get("dev_api_key") or ""
+    # secret.decrypt("AV6+xWcEJR5qELPaYxK0mTVpgPRRvSvB55VTzrvxgmXi94p9HmJxDHFeJWyTr3yrfegS9hGmu4kS/3Eqx75URHFhvScaAJG9azvs9LAHcu/xNt7bXRzgUKYksXtpw/90gD+hOqtEX9hsOnJ+obsMN6UayvQ28PAkIwLU7dIC0AlmnxrMVI0=")
+    api_key = config.str("api_key") or ""
 
     STEAM_API_ENDPOINT = "http://api.steampowered.com/ISteamUser/GetPlayerSummaries/v0002/?key=" + api_key + "&steamids="
     STEAM_GAMES_ENDPOINT = "http://api.steampowered.com/IPlayerService/GetOwnedGames/v0001/?key=" + api_key + "&steamid="
 
-    resp = http.get(STEAM_API_ENDPOINT + config.str("id", "") or "76561197998958802", ttl_seconds = 180)
+    resp = http.get(STEAM_API_ENDPOINT + config.str("id", "") or "76561197998958802", ttl_seconds = 360)
 
     players = {}
     if resp.status_code == 200:
@@ -50,7 +50,7 @@ def main(config):
         persona_state = int(user["personastate"])
         user_games = {}
 
-        user_games_resp = http.get(STEAM_GAMES_ENDPOINT + config.str("id", "") + "&include_appinfo=true&format=json", ttl_seconds = 180)
+        user_games_resp = http.get(STEAM_GAMES_ENDPOINT + config.str("id", "") + "&include_appinfo=true&format=json", ttl_seconds = 360)
 
         if user_games_resp.status_code == 200:
             user_games = user_games_resp.json()["response"]["games"]
@@ -157,10 +157,17 @@ def get_schema():
                 default = "76561197998958802",  # Mike's account ID
             ),
             schema.Text(
+                id = "api_key",
+                name = "Steam API Key",
+                desc = "https://steamcommunity.com/dev/apikey",
+                icon = "key",
+            ),
+            schema.Text(
                 id = "offlineStatus",
                 name = "Offline Status",
                 desc = "Message displayed when you are offline",
                 icon = "comment",
+                default = "Gaming IRL"
             ),
             schema.Toggle(
                 id = "playerIconRight",
