@@ -27,8 +27,6 @@ def main():
     index = int(h, 16) % len(GLYPHS)
     key = sorted(GLYPHS.keys())[index]
 
-    key = "W25"
-
     glyph = GLYPHS[key]
 
     texts = [
