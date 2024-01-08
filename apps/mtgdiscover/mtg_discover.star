@@ -3,11 +3,14 @@ load("re.star", "re")
 load("render.star", "render")
 load("schema.star", "schema")
 
+ONE_DAY_TTL = 60 * 10 * 24
+
+# Main application function
 def main(config):
     # Fetched card
     card = get_scryfall_card()
 
-    # Config
+    # Schema config
     show_card_prices = config.bool("prices")
     show_card_rarity = config.bool("rarity")
 
@@ -197,8 +200,12 @@ def get_scryfall_card():
     price_usd_foil = None
     price_usd_etched = None
 
-    res = http.get("https://api.scryfall.com/cards/random", ttl_seconds = 0)
-    card = res.json()
+    response = http.get("https://api.scryfall.com/cards/random", ttl_seconds = 0)
+
+    if response.status_code != 200:
+        fail('Request failed with status %s' %(response.status_code))
+
+    card = response.json()
 
     if "oracle_text" in card:
         text = card["oracle_text"]
@@ -238,6 +245,7 @@ def get_scryfall_card():
         "mana_cost": transform_mana_cost(mana_cost),
     }
 
+# Future use for converting a card text in to usable text and images
 def transform_text(text):
     text_with_lines = text.splitlines()
     all_symbols = re.findall(r"{.*?}", text)
@@ -266,25 +274,31 @@ def transform_text(text):
 
     return clean_lines
 
+# Transforms a mana cost in the images
 def transform_mana_cost(mana_cost):
-    ttl_time = 60 * 10 * 24
     mana_symbols = re.findall(r"{.*?}", mana_cost)
     mana_symbols_svgs = []
 
-    url = "https://api.scryfall.com/symbology"
-    res = http.get(url, ttl_seconds = ttl_time)
+    response = http.get("https://api.scryfall.com/symbology", ttl_seconds = ONE_DAY_TTL)
 
-    ret = res.json()["data"]
+    if response.status_code != 200:
+        fail('Request failed with status %s' %(response.status_code))
 
-    for symbol_object in ret:
+    response_data = response.json()["data"]
+
+    for symbol_object in response_data:
         for symbol in mana_symbols:
             if symbol == symbol_object["symbol"]:
-                svg = http.get(symbol_object["svg_uri"], ttl_seconds = ttl_time).body()
+                svg_response = http.get(symbol_object["svg_uri"], ttl_seconds = ONE_DAY_TTL)
 
-                mana_symbols_svgs.append(svg)
+                if svg_response.status_code != 200:
+                    fail('Request failed with status %s' %(svg_response.status_code))
+
+                mana_symbols_svgs.append(svg_response.body())
 
     return mana_symbols_svgs
 
+# Config schema for the application
 def get_schema():
     return schema.Schema(
         version = "1",
