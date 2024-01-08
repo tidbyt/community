@@ -83,9 +83,27 @@ def main(config):
 
         if card["rarity"] == "special":
             card_rarity_color = "#a03ad5"
-        render_rarity = render.WrappedText(
-            color = card_rarity_color,
-            content = card["rarity"][0].upper() + card["rarity"][1:],
+
+        render_rarity = render.Column(
+            children = [
+                render.WrappedText(
+                    color = card_rarity_color,
+                    content = card["rarity"][0].upper() + card["rarity"][1:],
+                ),
+                render.Row(
+                    expanded = True,
+                    main_align = "center",
+                    children = [
+                        render.Padding(
+                            pad = (0, 2, 0, 2),
+                            child = render.Box(
+                                color = "#333",
+                                height = 1,
+                            ),
+                        ),
+                    ],
+                ),
+            ],
         )
 
     # Set the render for a normal price
@@ -160,7 +178,7 @@ def main(config):
                                 ),
                             ),
                             render.Padding(
-                                pad = (1, 1, 1, 2),
+                                pad = (1, 1, 1, 0),
                                 child = render.Box(
                                     width = 62,
                                     height = 1,
@@ -174,21 +192,50 @@ def main(config):
                         child = render.Marquee(
                             height = 18,
                             scroll_direction = "vertical",
-                            child = render.Column(
-                                children = [
-                                    render.WrappedText(
-                                        content = card["type"],
-                                    ),
-                                    render_creature_properties,
-                                    render_rarity,
-                                    render.WrappedText(
-                                        content = card["set"],
-                                    ),
-                                    render_price,
-                                    render_price_foil,
-                                    render_price_etched,
-                                    render_no_prices,
-                                ],
+                            child = render.Padding(
+                                pad = (0, 2, 0, 0),
+                                child = render.Column(
+                                    children = [
+                                        render.WrappedText(
+                                            content = card["type"],
+                                        ),
+                                        render_creature_properties,
+                                        render.Row(
+                                            expanded = True,
+                                            main_align = "center",
+                                            children = [
+                                                render.Padding(
+                                                    pad = (0, 2, 0, 2),
+                                                    child = render.Box(
+                                                        color = "#333",
+                                                        height = 1,
+                                                    ),
+                                                ),
+                                            ],
+                                        ),
+                                        render_rarity,
+                                        render.WrappedText(
+                                            content = card["set"],
+                                        ),
+                                        render.Row(
+                                            expanded = True,
+                                            main_align = "center",
+                                            children = [
+                                                render.Padding(
+                                                    pad = (0, 2, 0, 2),
+                                                    child = render.Box(
+                                                        color = "#333",
+                                                        height = 1,
+                                                    ),
+                                                ),
+                                            ],
+                                        ),
+                                        render_price,
+                                        render_price_foil,
+                                        render_price_etched,
+                                        render_no_prices,
+                                    ],
+                                ),
                             ),
                         ),
                     ),
