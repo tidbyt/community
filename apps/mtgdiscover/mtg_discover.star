@@ -1,3 +1,10 @@
+"""
+Applet: MTG Discover
+Summary: Discover random MTG cards
+Description: Cycles through and displays information about random Magic: The Gathering cards.
+Author: Staghouse
+"""
+
 load("http.star", "http")
 load("re.star", "re")
 load("render.star", "render")
