@@ -1,6 +1,6 @@
 """
 Applet: TF Key Price
-Summary: Key price via backpack.tf
+Summary: Key price Via backpack.tf
 Description: Keeps track of key price in refined from backpack.tf api.
 Author: Trevor Underwood
 """
