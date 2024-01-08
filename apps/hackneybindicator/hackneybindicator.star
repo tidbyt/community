@@ -1,5 +1,5 @@
 """
-Applet: Hackey Bindicator
+Applet: HackneyBindicator
 Summary: Upcoming refuse collections
 Description: Tells you what bins to put out for people who live in the London Borough of Hackney.
 Author: dinosaursrarr

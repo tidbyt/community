@@ -1,8 +1,8 @@
 ---
-id: hackey-bindicator
-name: Hackey Bindicator
+id: hackneybindicator
+name: HackneyBindicator
 summary: Upcoming refuse collections
 desc: Tells you what bins to put out for people who live in the London Borough of Hackney.
 author: dinosaursrarr
-fileName: hackey_bindicator.star
-packageName: hackeybindicator
+fileName: hackneybindicator.star
+packageName: hackneybindicator
