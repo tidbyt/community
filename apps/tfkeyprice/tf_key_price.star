@@ -8,6 +8,7 @@ Author: Trevor Underwood
 load("encoding/base64.star", "base64")
 load("http.star", "http")
 load("render.star", "render")
+load("secret.star", "secret")
 
 KEY_PRICE_URL = secret.decrypt("AV6+xWcE05t1fBwRx2M0Zf3N2JINCILmJd7WuZg6u44qlJo+MclcPQ6ow2czfSgPkNh2kUFXDyR2EyfgIBRgBvcg2IhkTA5eNzx7YNXXb6YqjJnbPV5lDr3AYtq55tm62RCPG6SAvQZKOQ8YOD2A+QzAh2Y34pP86XLzF7/6gzhAje9dpyP8oGn8T6yCXPkIjyIfjyc=")
 
