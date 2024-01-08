@@ -134,7 +134,7 @@ def main(config):
     # Main root render
     return render.Root(
         delay = 100,
-        max_age = 10,
+        max_age = 30,
         child = render.Box(
             child = render.Column(
                 children = [
