@@ -190,6 +190,7 @@ def main(config):
         ),
     )
 
+# Fetch a random card from Scryfall and return wanted data
 def get_scryfall_card():
     text = ""
     mana_cost = ""
@@ -203,7 +204,7 @@ def get_scryfall_card():
     response = http.get("https://api.scryfall.com/cards/random", ttl_seconds = 0)
 
     if response.status_code != 200:
-        fail('Request failed with status %s' %(response.status_code))
+        fail("Request failed with status %s" % (response.status_code))
 
     card = response.json()
 
@@ -282,7 +283,7 @@ def transform_mana_cost(mana_cost):
     response = http.get("https://api.scryfall.com/symbology", ttl_seconds = ONE_DAY_TTL)
 
     if response.status_code != 200:
-        fail('Request failed with status %s' %(response.status_code))
+        fail("Request failed with status %s" % (response.status_code))
 
     response_data = response.json()["data"]
 
@@ -292,7 +293,7 @@ def transform_mana_cost(mana_cost):
                 svg_response = http.get(symbol_object["svg_uri"], ttl_seconds = ONE_DAY_TTL)
 
                 if svg_response.status_code != 200:
-                    fail('Request failed with status %s' %(svg_response.status_code))
+                    fail("Request failed with status %s" % (svg_response.status_code))
 
                 mana_symbols_svgs.append(svg_response.body())
 
