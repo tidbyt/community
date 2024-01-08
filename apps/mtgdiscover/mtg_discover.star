@@ -143,7 +143,7 @@ def main(config):
                             render.Padding(
                                 pad = (1, 0, 1, 0),
                                 child = render.Marquee(
-                                    width = 64,
+                                    width = 62,
                                     child = render.Row(
                                         children = render_card_name_cost,
                                     ),
