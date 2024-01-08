@@ -8,7 +8,6 @@ Author: Trevor Underwood
 load("encoding/base64.star", "base64")
 load("http.star", "http")
 load("render.star", "render")
-load("secret.star", "secret")
 
 KEY_PRICE_URL = "https://backpack.tf/api/IGetCurrencies/v1?raw=1&key=6594beeaba29d5eb6204c3ab"
 
