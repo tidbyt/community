@@ -290,7 +290,7 @@ def get_scryfall_card():
     price_usd_foil = None
     price_usd_etched = None
 
-    response = http.get("https://api.scryfall.com/cards/random", ttl_seconds = 0)
+    response = http.get("https://api.scryfall.com/cards/random", ttl_seconds = 60)
 
     if response.status_code != 200:
         return False
