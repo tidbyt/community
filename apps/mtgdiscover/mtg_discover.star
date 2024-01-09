@@ -19,13 +19,14 @@ def main(config):
     card = get_scryfall_card()
 
     # Schema config
-    show_card_prices = config.bool("prices")
-    show_card_rarity = config.bool("rarity")
+    show_prices = config.bool("prices")
+    show_rarity = config.bool("rarity")
 
     if card == False:
         return render.Root(
             child = render.Box(
                 padding = 1,
+                height = 28,
                 child = render.Column(
                     children = [
                         render.WrappedText(
@@ -45,71 +46,58 @@ def main(config):
     return render.Root(
         delay = 100,
         max_age = 30,
-        child = render.Box(
-            child = render.Column(
-                children = [
-                    render.Column(
-                        children = [
-                            render.Padding(
-                                pad = (1, 0, 1, 0),
-                                child = render.Marquee(
-                                    width = 62,
-                                    child = render.Row(
-                                        children = render_card_name_cost(card),
-                                    ),
-                                ),
-                            ),
-                            render.Padding(
-                                pad = (1, 0, 1, 1),
-                                child = render.Box(
-                                    width = 62,
-                                    height = 1,
-                                    color = "#999",
-                                ),
-                            ),
-                        ],
-                    ),
-                    render.Padding(
-                        pad = (1, 0, 1, 1),
-                        child = render.Marquee(
-                            height = 18,
-                            scroll_direction = "vertical",
-                            child = render.Column(
-                                children = [
-                                    render.WrappedText(
-                                        font = APP_FONT,
-                                        content = card["type"],
-                                    ),
-                                    render_creature_properties(card),
-                                    render_line_break(),
-                                    render_rarity(card, show_card_rarity),
-                                    render.WrappedText(
-                                        font = APP_FONT,
-                                        content = card["set"],
-                                    ),
-                                    render_line_break(),
-                                    render.Column(
-                                        children = render_prices(card, show_card_prices),
-                                    ),
-                                ],
+        show_full_animation = True,
+        child = render.Column(
+            children = [
+                render.Column(
+                    children = [
+                        render.Padding(
+                            pad = (1, 0, 1, 0),
+                            child = render.Marquee(
+                                width = 62,
+                                child = render_card_name_cost(card),
                             ),
                         ),
+                        render_line_break("#999", (1, 0, 1, 1)),
+                    ],
+                ),
+                render.Padding(
+                    pad = (1, 0, 1, 1),
+                    child = render.Marquee(
+                        height = 18,
+                        scroll_direction = "vertical",
+                        child = render.Column(
+                            children = [
+                                render.WrappedText(
+                                    font = APP_FONT,
+                                    content = card["type"],
+                                ),
+                                render_creature_properties(card),
+                                render_line_break(),
+                                render_rarity(card["rarity"], show_rarity),
+                                render.WrappedText(
+                                    font = APP_FONT,
+                                    content = card["set"],
+                                ),
+                                render_prices(card, show_prices),
+                            ],
+                        ),
                     ),
-                ],
-            ),
+                ),
+            ],
         ),
     )
 
 # Render a line break
-def render_line_break():
+def render_line_break(color = "#333", padding = (0, 1, 0, 1)):
     return render.Row(
         expanded = True,
         main_align = "center",
         children = [
             render.Padding(
-                pad = (0, 1, 0, 1),
+                pad = padding,
                 child = render.Box(
-                    color = "#333",
+                    color = color,
                     height = 1,
                 ),
             ),
@@ -153,7 +141,9 @@ def render_card_name_cost(card):
         ),
     )
 
-    return card_name_cost
+    return render.Row(
+        children = card_name_cost,
+    )
 
 # Render card prices
 def render_prices(card, show):
@@ -161,7 +151,13 @@ def render_prices(card, show):
 
     # Config wants no prices
     if show == False:
-        return prices
+        return render.Column(
+            children = prices,
+        )
+
+    prices.append(
+        render_line_break("#333", (0, 2, 0, 2)),
+    )
 
     # Set normal price
     if card["price"] != None:
@@ -227,23 +223,25 @@ def render_prices(card, show):
             ],
         ))
 
-    return prices
+    return render.Column(
+        children = prices,
+    )
 
 # Rnder card rarity
-def render_rarity(card, show):
+def render_rarity(rarity, show):
     if show != False:
         rarity_color = "#fff"
 
-        if card["rarity"] == "uncommon":
+        if rarity == "uncommon":
             rarity_color = "#dedede"
 
-        if card["rarity"] == "rare":
+        if rarity == "rare":
             rarity_color = "#d5d03a"
 
-        if card["rarity"] == "mythic" or card["rarity"] == "bonus":
+        if rarity == "mythic" or rarity == "bonus":
             rarity_color = "#d5623a"
 
-        if card["rarity"] == "special":
+        if rarity == "special":
             rarity_color = "#a03ad5"
 
         return render.Column(
@@ -251,7 +249,7 @@ def render_rarity(card, show):
                 render.WrappedText(
                     font = APP_FONT,
                     color = rarity_color,
-                    content = card["rarity"][0].upper() + card["rarity"][1:],
+                    content = rarity[0].upper() + rarity[1:],
                 ),
                 render_line_break(),
             ],
@@ -374,7 +372,7 @@ def transform_mana_cost(mana_cost):
     response = http.get("https://api.scryfall.com/symbology", ttl_seconds = ONE_DAY_TTL)
 
     if response.status_code != 200:
-        fail("Request failed with status %s" % (response.status_code))
+        return mana_symbols_svgs
 
     response_data = response.json()["data"]
 
@@ -384,7 +382,7 @@ def transform_mana_cost(mana_cost):
                 svg_response = http.get(symbol_object["svg_uri"], ttl_seconds = ONE_DAY_TTL)
 
                 if svg_response.status_code != 200:
-                    fail("Request failed with status %s" % (svg_response.status_code))
+                    return mana_symbols_svgs
 
                 mana_symbols_svgs.append(svg_response.body())
 
