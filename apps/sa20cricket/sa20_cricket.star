@@ -5,12 +5,19 @@ Description: This app takes the selected SA20 team and displays the current matc
 Author: M0ntyP
 
 v1.1 - Updated for 2024 season
+
+v1.2
+Updated to use Target field for run chase, this covers DLS scenarios
+Re-arranged some code so that it only executes during 1st or 2nd inngs and not both
+
+v1.2.1
+Re-arranged some code again, as it introduced some bugs
+Use white color text for "No Result" matches
 """
 
 load("encoding/json.star", "json")
 load("http.star", "http")
 load("humanize.star", "humanize")
-load("math.star", "math")
 load("render.star", "render")
 load("schema.star", "schema")
 load("time.star", "time")
@@ -78,6 +85,9 @@ def main(config):
 
     LastOut_Runs = 0
     LastOut_Name = ""
+    Trail = ""
+    Overs = 0
+    BallsRem = 0
     T20_Status2 = ""
     T20_Status3 = ""
     T20_Status4 = ""
@@ -98,16 +108,6 @@ def main(config):
         # What's the score
         Wickets = Match_JSON["scorecard"]["innings"][Innings]["wickets"]
         Runs = Match_JSON["scorecard"]["innings"][Innings]["runs"]
-
-        # In front or behind? And how much?
-        Trail = Match_JSON["scorecard"]["innings"][Innings]["lead"]
-
-        Trail = math.fabs(Trail) + 1
-        Trail = humanize.float("#.", Trail)
-        Trail = str(Trail)
-
-        # Calculate how many balls are remaining, only used in 2nd innings
-        BallsRem = str(Match_JSON["scorecard"]["innings"][Innings]["totalBalls"] - Match_JSON["scorecard"]["innings"][Innings]["balls"])
 
         # How many overs bowled
         Overs = Match_JSON["scorecard"]["innings"][Innings]["overs"]
@@ -262,6 +262,14 @@ def main(config):
 
             # 2nd Innings underway
         else:
+            # Calculate how many balls are remaining
+            BallsRem = str(Match_JSON["scorecard"]["innings"][Innings]["totalBalls"] - Match_JSON["scorecard"]["innings"][Innings]["balls"])
+
+            # Calculate how many runs left to win
+            Target = Match_JSON["scorecard"]["innings"][Innings]["target"]
+            RunsReq = Target - Match_JSON["scorecard"]["innings"][Innings]["runs"]
+            Trail = str(RunsReq)
+
             T20_Status1 = "REQ " + Trail + " off " + BallsRem
             T20_Status2 = Last12Balls
             T20_Status3 = "Run Rate: " + CRR
@@ -382,8 +390,10 @@ def main(config):
 
                 if WinnerID == Team1_ID:
                     WinnerColor = Team1_Color
-                else:
+                elif WinnerID == Team2_ID:
                     WinnerColor = Team2_Color
+                else:
+                    WinnerColor = "#fff"
 
                 Result = Match_JSON["match"]["statusText"]
 

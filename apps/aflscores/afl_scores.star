@@ -28,6 +28,9 @@ Removed W-D-L data during pre-game display for finals matches
 
 v2.1a
 Removed W-D-L data during pre-game display for finals matches, when "Live Games" and "Specific Team" is selected
+
+v2.2
+Updated for 2024 season
 """
 
 load("encoding/json.star", "json")
@@ -39,15 +42,15 @@ load("time.star", "time")
 DEFAULT_TIMEZONE = "Australia/Adelaide"
 DEFAULT_TEAM = "10"  # Geelong
 
-MATCHES_URL = "https://aflapi.afl.com.au/afl/v2/matches?competitionId=1&compSeasonId=52"
-LADDER_URL = "https://aflapi.afl.com.au/afl/v2/compseasons/52/ladders"
-ROUND_URL = "https://aflapi.afl.com.au/afl/v2/matches?competitionId=1&compSeasonId=52&roundNumber="
+MATCHES_URL = "https://aflapi.afl.com.au/afl/v2/matches?competitionId=1&compSeasonId=62"
+LADDER_URL = "https://aflapi.afl.com.au/afl/v2/compseasons/62/ladders"
+ROUND_URL = "https://aflapi.afl.com.au/afl/v2/matches?competitionId=1&compSeasonId=62&roundNumber="
 TEAM_SUFFIX = "&teamId="
 
 SQUIGGLE_PREFIX = "https://api.squiggle.com.au/?q=games;round="
 INCOMPLETE_SUFFIX = ";complete=!100"
 COMPLETE_SUFFIX = ";complete=100"
-YEAR_SUFFIX = ";year=2023"
+YEAR_SUFFIX = ";year=2024"
 
 MATCH_CACHE = 86400
 LADDER_CACHE = 86400

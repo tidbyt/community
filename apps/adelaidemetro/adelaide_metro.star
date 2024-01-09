@@ -1043,7 +1043,7 @@ TramStationOptions = [
     ),
     schema.Option(
         display = "Wayville (to Glenelg)",
-        value = "185208",
+        value = "18520",
     ),
 ]
 

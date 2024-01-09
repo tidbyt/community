@@ -39,6 +39,9 @@ v1.7
 Updated "Wet Outfield" status
 Updated status messages displayed during breaks in play
 Updated BatsmanScore function, removed use of marquee for batsmen name
+
+v1.7.1
+Updated text color on Status 5 messages
 """
 
 load("encoding/json.star", "json")
@@ -297,9 +300,11 @@ def main(config):
                 elif Status == "Match delayed by rain":
                     Status = "Rain Delay"
                     Status5 = Status
+                    Status5Color = "#fff"
                 elif Status == "Match delayed by bad light":
                     Status = "Bad Light delay"
                     Status5 = Status
+                    Status5Color = "#fff"
                 elif Status == "Match delayed by a wet outfield":
                     Status = "Wet outfield"
                     Status5 = Status
