@@ -17,9 +17,6 @@ load("humanize.star", "humanize")
 load("render.star", "render")
 load("schema.star", "schema")
 load("time.star", "time")
-
-# a7869c71-f8f3-48af-b48b-544abe3c4486
-DEMO_KEY = "1a9ea8ac-e16e-4016-9885-43509d57934b"
 #
 
 STATIC_STATIONS = [
@@ -57,9 +54,9 @@ STATIC_STATIONS = [
 ]
 
 # Function to get Caltrain departures
-def get_caltrain_departures(stop_id):
+def get_caltrain_departures(stop_id, key):
     # Define the URL and make an HTTP request
-    url = "http://api.511.org/transit/StopMonitoring?api_key=%s&agency=CT&stopCode=%s&format=json" % (DEMO_KEY, stop_id)
+    url = "http://api.511.org/transit/StopMonitoring?api_key=%s&agency=CT&stopCode=%s&format=json" % (key, stop_id)
     print(url)
     response = http.get(url, ttl_seconds = 1)
     if response.status_code != 200:
@@ -289,6 +286,38 @@ def simplify_time_duration(duration_string):
 def main(config):
     stationID = config.get("stop", STATIC_STATIONS[11]["id"])
     direction = config.get("direction", "south")
+    api_key = config.get("apiKey", "")
+
+    # If the API key is empty, fail
+    if api_key == "":
+        return render.Root(
+            child = render.Column(
+                expanded = True,
+                children = [
+                    render.Row(
+                        expanded = True,
+                        main_align = "center",
+                        children = [
+                            render.Text(content = "No 511 API token", offset = 2, height = 10, color = "#F00", font = "tom-thumb"),
+                        ],
+                    ),
+                    render.Row(
+                        expanded = True,
+                        main_align = "center",
+                        children = [
+                            render.Text(content = "Get one from", offset = 2, height = 10, font = "tom-thumb"),
+                        ],
+                    ),
+                    render.Row(
+                        expanded = True,
+                        main_align = "center",
+                        children = [
+                            render.Text(content = "ducks.win/511", offset = 2, height = 10, font = "tom-thumb"),
+                        ],
+                    ),
+                ],
+            ),
+        )
 
     # Caltrain stop ids are 5 digits long, however there's two ids for each stop, XXXX1 for northbound and XXXX2 for southbound
     # We are provided the first 4 digits of the stop with `stationID`, and the direction "Northbound" or "Southbound" with `direction`
@@ -298,7 +327,7 @@ def main(config):
         etaID = stationID + "1"
     if direction == "south":
         etaID = stationID + "2"
-    ETA = get_caltrain_departures(etaID)
+    ETA = get_caltrain_departures(etaID, api_key)
 
     # Caltrain Logo
     CT_LOGO_RQ = http.get("https://agency-logos.sfbatransit.community/caltrain-circle.png")
