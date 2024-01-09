@@ -11,6 +11,7 @@ load("render.star", "render")
 load("schema.star", "schema")
 
 ONE_DAY_TTL = 60 * 10 * 24
+APP_FONT = "tb-8"
 
 # Main application function
 def main(config):
@@ -21,142 +22,23 @@ def main(config):
     show_card_prices = config.bool("prices")
     show_card_rarity = config.bool("rarity")
 
-    # Set the render for card text
-    # WIP since the mix of images and text cant be wrapped around properly
-    # render_card_text = []
-    # for item in card["text"]:
-    #     if '<svg' in item:
-    #         render_card_text.append(
-    #             render.Image(
-    #                 src = item,
-    #                 height = 8,
-    #             )
-    #         )
-    #     else:
-    #         render_card_text.append(
-    #             render.Text(
-    #                 content = item
-    #             )
-    #         )
-
-    # Set render for creature power/toughness
-    render_creature_properties = None
-    if card["power"] or card["toughness"]:
-        render_creature_properties = render.WrappedText(
-            content = "(" + card["power"] + "/" + card["toughness"] + ")",
-        )
-
-    # Array of renders for the card name and cost
-    render_card_name_cost = []
-    for src in card["mana_cost"]:
-        render_card_name_cost.append(
-            render.Padding(
-                pad = (0, 1, 2, 0),
-                child = render.Image(
-                    src = src,
-                    height = 10,
-                ),
-            ),
-        )
-    render_card_name_cost.append(
-        render.Padding(
-            pad = (0, 2, 3, 2),
-            child = render.Text(
-                content = card["name"],
-            ),
-        ),
-    )
-
-    # Set the render for card rarity
-    render_rarity = None
-    if show_card_rarity != False:
-        card_rarity_color = "#fff"
-
-        if card["rarity"] == "uncommon":
-            card_rarity_color = "#dedede"
-
-        if card["rarity"] == "rare":
-            card_rarity_color = "#d5d03a"
-
-        if card["rarity"] == "mythic" or card["rarity"] == "bonus":
-            card_rarity_color = "#d5623a"
-
-        if card["rarity"] == "special":
-            card_rarity_color = "#a03ad5"
-
-        render_rarity = render.Column(
-            children = [
-                render.WrappedText(
-                    color = card_rarity_color,
-                    content = card["rarity"][0].upper() + card["rarity"][1:],
-                ),
-                render.Row(
-                    expanded = True,
-                    main_align = "center",
+    if card == False:
+        return render.Root(
+            child = render.Box(
+                padding = 1,
+                child = render.Column(
                     children = [
-                        render.Padding(
-                            pad = (0, 2, 0, 2),
-                            child = render.Box(
-                                color = "#333",
-                                height = 1,
-                            ),
+                        render.WrappedText(
+                            content = "MTG Discover",
+                        ),
+                        render_line_break(),
+                        render.WrappedText(
+                            color = "#999",
+                            content = "No cards found...",
                         ),
                     ],
                 ),
-            ],
-        )
-
-    # Set the render for a normal price
-    render_price = None
-    if show_card_prices != False and card["price"] != None:
-        render_price = render.Row(
-            children = [
-                render.Text(
-                    color = "#4580ec",
-                    content = "Normal: ",
-                ),
-                render.WrappedText(
-                    content = card["price"],
-                ),
-            ],
-        )
-
-    # Set the render for a foil price
-    render_price_foil = None
-    if show_card_prices != False and card["price_foil"] != None:
-        render_price_foil = render.Row(
-            children = [
-                render.Text(
-                    color = "#4580ec",
-                    content = "Foil: ",
-                ),
-                render.WrappedText(
-                    content = card["price_foil"],
-                ),
-            ],
-        )
-
-    # Set the render for a etched price
-    render_price_etched = None
-    if show_card_prices != False and card["price_etched"] != None:
-        render_price_etched = render.Row(
-            children = [
-                render.Text(
-                    color = "#4580ec",
-                    content = "Etched: ",
-                ),
-                render.WrappedText(
-                    content = card["price_etched"],
-                ),
-            ],
-        )
-
-    # Set the render for no prices
-    render_no_prices = None
-    if show_card_prices != False and render_price == None and render_price_foil == None and render_price_etched == None:
-        render_no_prices = render.Text(
-            color = "#4580ec",
-            content = "Prices N/A",
+            ),
         )
 
     # Main root render
@@ -173,12 +55,12 @@ def main(config):
                                 child = render.Marquee(
                                     width = 62,
                                     child = render.Row(
-                                        children = render_card_name_cost,
+                                        children = render_card_name_cost(card),
                                     ),
                                 ),
                             ),
                             render.Padding(
-                                pad = (1, 1, 1, 0),
+                                pad = (1, 0, 1, 1),
                                 child = render.Box(
                                     width = 62,
                                     height = 1,
@@ -192,50 +74,24 @@ def main(config):
                         child = render.Marquee(
                             height = 18,
                             scroll_direction = "vertical",
-                            child = render.Padding(
-                                pad = (0, 2, 0, 0),
-                                child = render.Column(
-                                    children = [
-                                        render.WrappedText(
-                                            content = card["type"],
-                                        ),
-                                        render_creature_properties,
-                                        render.Row(
-                                            expanded = True,
-                                            main_align = "center",
-                                            children = [
-                                                render.Padding(
-                                                    pad = (0, 2, 0, 2),
-                                                    child = render.Box(
-                                                        color = "#333",
-                                                        height = 1,
-                                                    ),
-                                                ),
-                                            ],
-                                        ),
-                                        render_rarity,
-                                        render.WrappedText(
-                                            content = card["set"],
-                                        ),
-                                        render.Row(
-                                            expanded = True,
-                                            main_align = "center",
-                                            children = [
-                                                render.Padding(
-                                                    pad = (0, 2, 0, 2),
-                                                    child = render.Box(
-                                                        color = "#333",
-                                                        height = 1,
-                                                    ),
-                                                ),
-                                            ],
-                                        ),
-                                        render_price,
-                                        render_price_foil,
-                                        render_price_etched,
-                                        render_no_prices,
-                                    ],
-                                ),
+                            child = render.Column(
+                                children = [
+                                    render.WrappedText(
+                                        font = APP_FONT,
+                                        content = card["type"],
+                                    ),
+                                    render_creature_properties(card),
+                                    render_line_break(),
+                                    render_rarity(card, show_card_rarity),
+                                    render.WrappedText(
+                                        font = APP_FONT,
+                                        content = card["set"],
+                                    ),
+                                    render_line_break(),
+                                    render.Column(
+                                        children = render_prices(card, show_card_prices),
+                                    ),
+                                ],
                             ),
                         ),
                     ),
@@ -243,6 +99,187 @@ def main(config):
             ),
         ),
     )
+
+# Render a line break
+def render_line_break():
+    return render.Row(
+        expanded = True,
+        main_align = "center",
+        children = [
+            render.Padding(
+                pad = (0, 1, 0, 1),
+                child = render.Box(
+                    color = "#333",
+                    height = 1,
+                ),
+            ),
+        ],
+    )
+
+# Set render for creature power/toughness
+def render_creature_properties(card):
+    creature_properties = None
+
+    if card["power"] or card["toughness"]:
+        creature_properties = render.WrappedText(
+            font = APP_FONT,
+            content = "(" + card["power"] + "/" + card["toughness"] + ")",
+        )
+
+    return creature_properties
+
+# Render card name and cost
+def render_card_name_cost(card):
+    card_name_cost = []
+
+    for src in card["mana_cost"]:
+        card_name_cost.append(
+            render.Padding(
+                pad = (0, 1, 2, 0),
+                child = render.Image(
+                    src = src,
+                    height = 10,
+                ),
+            ),
+        )
+
+    card_name_cost.append(
+        render.Padding(
+            pad = (0, 2, 3, 2),
+            child = render.Text(
+                font = APP_FONT,
+                content = card["name"],
+            ),
+        ),
+    )
+
+    return card_name_cost
+
+# Render card prices
+def render_prices(card, show):
+    prices = []
+
+    # Config wants no prices
+    if show == False:
+        return prices
+
+    # Set normal price
+    if card["price"] != None:
+        prices.append(render.Row(
+            children = [
+                render.Text(
+                    font = APP_FONT,
+                    color = "#4580ec",
+                    content = "Normal: ",
+                ),
+                render.WrappedText(
+                    font = APP_FONT,
+                    content = card["price"],
+                ),
+            ],
+        ))
+
+    # Set foil price
+    if card["price_foil"] != None:
+        prices.append(render.Row(
+            children = [
+                render.Text(
+                    font = APP_FONT,
+                    color = "#4580ec",
+                    content = "Foil: ",
+                ),
+                render.WrappedText(
+                    font = APP_FONT,
+                    content = card["price_foil"],
+                ),
+            ],
+        ))
+
+    # Set etched foil price
+    if card["price_etched"] != None:
+        prices.append(render.Row(
+            children = [
+                render.Text(
+                    font = APP_FONT,
+                    color = "#4580ec",
+                    content = "Etched: ",
+                ),
+                render.WrappedText(
+                    font = APP_FONT,
+                    content = card["price_etched"],
+                ),
+            ],
+        ))
+
+    # Set no available prices
+    if len(prices) == 0:
+        prices.append(render.Row(
+            children = [
+                render.Text(
+                    font = APP_FONT,
+                    color = "#4580ec",
+                    content = "Prices ",
+                ),
+                render.WrappedText(
+                    font = APP_FONT,
+                    content = "N/A",
+                ),
+            ],
+        ))
+
+    return prices
+
+# Rnder card rarity
+def render_rarity(card, show):
+    if show != False:
+        rarity_color = "#fff"
+
+        if card["rarity"] == "uncommon":
+            rarity_color = "#dedede"
+
+        if card["rarity"] == "rare":
+            rarity_color = "#d5d03a"
+
+        if card["rarity"] == "mythic" or card["rarity"] == "bonus":
+            rarity_color = "#d5623a"
+
+        if card["rarity"] == "special":
+            rarity_color = "#a03ad5"
+
+        return render.Column(
+            children = [
+                render.WrappedText(
+                    font = APP_FONT,
+                    color = rarity_color,
+                    content = card["rarity"][0].upper() + card["rarity"][1:],
+                ),
+                render_line_break(),
+            ],
+        )
+
+    else:
+        return None
+
+# Render card text
+def render_text(card):
+    card_text = []
+
+    for item in card["text"]:
+        if "<svg" in item:
+            card_text.append(
+                render.Image(
+                    src = item,
+                    height = 8,
+                ),
+            )
+        else:
+            card_text.append(
+                render.Text(
+                    content = item,
+                ),
+            )
+
+    return card_text
 
 # Fetch a random card from Scryfall and return wanted data
 def get_scryfall_card():
@@ -258,7 +295,7 @@ def get_scryfall_card():
     response = http.get("https://api.scryfall.com/cards/random", ttl_seconds = 0)
 
     if response.status_code != 200:
-        fail("Request failed with status %s" % (response.status_code))
+        return False
 
     card = response.json()
 
@@ -300,7 +337,7 @@ def get_scryfall_card():
         "mana_cost": transform_mana_cost(mana_cost),
     }
 
-# Future use for converting a card text in to usable text and images
+# Transform card text in to text and images
 def transform_text(text):
     text_with_lines = text.splitlines()
     all_symbols = re.findall(r"{.*?}", text)
@@ -329,7 +366,7 @@ def transform_text(text):
 
     return clean_lines
 
-# Transforms a mana cost in the images
+# Transform mana cost in to images
 def transform_mana_cost(mana_cost):
     mana_symbols = re.findall(r"{.*?}", mana_cost)
     mana_symbols_svgs = []
@@ -353,7 +390,7 @@ def transform_mana_cost(mana_cost):
 
     return mana_symbols_svgs
 
-# Config schema for the application
+# Schema config for the application
 def get_schema():
     return schema.Schema(
         version = "1",
