@@ -73,6 +73,7 @@ with zipfile.ZipFile(b) as zip:
             w = int(zoom * img.width)
             h = int(zoom * img.height)
             img = img.resize((w, h))
+            img = img.convert('L')
 
             f = io.BytesIO(b'')
             img.save(f, format='png')
