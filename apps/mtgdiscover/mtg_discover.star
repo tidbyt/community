@@ -11,6 +11,7 @@ load("render.star", "render")
 load("schema.star", "schema")
 
 ONE_DAY_TTL = 60 * 10 * 24
+ONE_MIN_TTL = 60
 APP_FONT = "tb-8"
 
 # Main application function
@@ -44,7 +45,7 @@ def main(config):
 
     # Main root render
     return render.Root(
-        delay = 100,
+        delay = 200,
         max_age = 30,
         show_full_animation = True,
         child = render.Column(
@@ -55,6 +56,7 @@ def main(config):
                             pad = (1, 0, 1, 0),
                             child = render.Marquee(
                                 width = 62,
+                                offset_start = 62,
                                 child = render_card_name_cost(card),
                             ),
                         ),
@@ -65,22 +67,10 @@ def main(config):
                     pad = (1, 0, 1, 1),
                     child = render.Marquee(
                         height = 18,
+                        offset_start = 18,
                         scroll_direction = "vertical",
                         child = render.Column(
-                            children = [
-                                render.WrappedText(
-                                    font = APP_FONT,
-                                    content = card["type"],
-                                ),
-                                render_creature_properties(card),
-                                render_line_break(),
-                                render_rarity(card["rarity"], show_rarity),
-                                render.WrappedText(
-                                    font = APP_FONT,
-                                    content = card["set"],
-                                ),
-                                render_prices(card, show_prices),
-                            ],
+                            children = render_details(card, show_rarity, show_prices),
                         ),
                     ),
                 ),
@@ -144,6 +134,23 @@ def render_card_name_cost(card):
     return render.Row(
         children = card_name_cost,
     )
+
+# Render card details
+def render_details(card, show_rarity, show_prices):
+    return [
+        render.WrappedText(
+            font = APP_FONT,
+            content = card["type"],
+        ),
+        render_creature_properties(card),
+        render_line_break(),
+        render_rarity(card["rarity"], show_rarity),
+        render.WrappedText(
+            font = APP_FONT,
+            content = card["set"],
+        ),
+        render_prices(card, show_prices),
+    ]
 
 # Render card prices
 def render_prices(card, show):
@@ -290,7 +297,7 @@ def get_scryfall_card():
     price_usd_foil = None
     price_usd_etched = None
 
-    response = http.get("https://api.scryfall.com/cards/random", ttl_seconds = 60)
+    response = http.get("https://api.scryfall.com/cards/random", ttl_seconds = ONE_MIN_TTL)
 
     if response.status_code != 200:
         return False
