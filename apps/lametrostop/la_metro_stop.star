@@ -11,7 +11,7 @@ load("schema.star", "schema")
 load("secret.star", "secret")
 load("time.star", "time")
 
-API_KEY = "AV6+xWcE+yO9GVvVewmYnM4AFuY8anaOsrSB3N/P6EoMpmZH4UtrGdRw6lCZO6aFoRoWhu8bTNja0nPDV+1ZUKPME0+E6nDBxyE6xGWHm8hsAM83416wvYVcaofso+GwYs3uDxrRFE8N6D995fTTAjqtfbp7RLCInKPBQTptuOjNXd0piDP4u/fE5uNYVsV9pA=="
+API_KEY = "AV6+xWcErqad0ef53RLRO50TvZfNtiFFPyOfM0rQqEjNP6E5cIcPNuliIwHh60TMq0mz1uWHCWIAcgl1YNk/Rn1XgVnj+6XY+0k2xcd7PUfJCS/STzCali40J55xojx1zatNaVXjYMXzvNaigXJz0xBtE8gmh8HPvpec9zLhBPXS+NM9atf7SHtkxYZfd5cJEQ=="
 DEFAULT_STOP_ID = "METRRCA:2806"
 DEFAULT_LINE_NAME = "A"
 SHORTENED_NAMES = {

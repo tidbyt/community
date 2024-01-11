@@ -12,7 +12,7 @@ load("render.star", "render")
 load("schema.star", "schema")
 load("time.star", "time")
 
-VERSION = 23134
+VERSION = 23311
 
 # ############################
 # Mods - jvivona - 2023-02-04
@@ -35,6 +35,10 @@ VERSION = 23134
 # - fix WCC standings alignment issue
 # jvivona - 2023-05-14
 # - fix trunc of am/pm - to not trunc when we're in 24 hour format
+# jvivona - 20230904
+# - fix date display - remove leading 0
+# jvivona - 20230911 - handle end of season calendar - no upcoming races
+# jvivona - 20231107 - cleanup code in for loop
 # ############################
 
 DEFAULTS = {
@@ -130,15 +134,18 @@ def main(config):
     # return data is already at MRData
 
     if display == "NRI":
-        #Next Race
-        next_race = f1_cached["RaceTable"]["Races"][0]
+        if len(f1_cached["RaceTable"]["Races"]) == 0:
+            return []
+        else:
+            #Next Race
+            next_race = f1_cached["RaceTable"]["Races"][0]
 
         #code from @whyamihere to automatically adjust the date time sting from the API
         date_and_time = next_race["date"] + "T" + next_race["time"]
         date_and_time3 = time.parse_time(date_and_time, "2006-01-02T15:04:05Z", "UTC").in_location(timezone)
 
         # handle date & time display options here
-        date_str = date_and_time3.format("Jan 02" if config.bool("date_us", DEFAULTS["date_us"]) else "02 Jan")  #current format of your current date str
+        date_str = date_and_time3.format("Jan 2" if config.bool("date_us", DEFAULTS["date_us"]) else "2 Jan")  #current format of your current date str
         time_str = date_and_time3.format("15:04" if config.bool("time_24", DEFAULTS["time_24"]) else "3:04pm").replace("m", "")  #outputs military time but can change 15 to 3 to not do that. The Only thing missing from your current string though is the time zone, but if they're doing local time that's pretty irrelevant
 
         return render.Root(
@@ -367,12 +374,12 @@ def text_justify_trunc(length, text, direction):
 
     # if string is shorter than desired - we can just use the count of chars (not bytes) and add on spaces - we're good
     if textlen < length:
-        for _ in range(0, length - textlen):
+        for _ in range(length - textlen):
             text = " " + text if direction == "right" else text + " "
     else:
         # text is longer - need to trunc it get the list of characters & trunc at length
         text = ""  # clear out text
-        for i in range(0, length):
+        for i in range(length):
             text = text + chars[i]
 
     return text

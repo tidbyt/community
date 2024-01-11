@@ -1,0 +1,8 @@
+---
+id: nsw-fuel-check
+name: NSW Fuel Check
+summary: Shows NSW fuel prices
+desc: Enter your location and fuel type, then find the cheapest fuel in a 3km radius.
+author: M0ntyP
+fileName: nsw_fuel_check.star
+packageName: nswfuelcheck

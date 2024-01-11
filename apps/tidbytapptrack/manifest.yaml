@@ -1,0 +1,8 @@
+---
+id: tidbyt-app-track
+name: Tidbyt App Track
+summary: Track apps on Tidbyt
+desc: Track the Tidbyt app page and see new listings.
+author: UnBurn
+fileName: tidbyt_app_track.star
+packageName: tidbytapptrack

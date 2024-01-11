@@ -20,6 +20,17 @@ ROCKET_LAUNCH_CACHE_NAME = "LaunchCountdownCache"
 MINIMUM_CACHE_TIME_IN_SECONDS = 600
 MAXIMUM_CACHE_TIME_IN_SECONDS = 400000
 
+default_location = """
+{
+	"lat": "28.53933",
+	"lng": "-81.38325",
+	"description": "Orlando, FL, USA",
+	"locality": "Orlando",
+	"place_id": "???",
+	"timezone": "America/New_York"
+}
+"""
+
 #Rocket Icons to loop through
 rocket_icon = base64.decode("""
 iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAABmJLR0QA/wD/AP+gvaeTAAACY0lEQVQ4jY3P30tTYRzH8c/zPMdtHd2Za95oGYUU4Q+IIpk/iiSCsKSIFBOCAqM/oG6DcyXRXRdedhHFDOtuhRd5kaz9EEQpZ0RQ/kCRULd5zna2s/k8Txe1FXNi39svrzffL8F/zsPRUJ9SpdyglJ4SQjQIIWukkITsB3VdUutQLKA6q3qPNTW4NU2Fw1UFSik+TM6llf1wrj4WqNXUqx3drdWM0dLONCwQkL0Dui6p3RAb83jUK/4/eOxNFADBrZt+5HJ5UEZX6V44Vx8LuP/BxSGQAADDsKTgfJYAQL8+7rAL7keM0iNC7kRONnov19ZWXyrHxeFcYGpyzsykswOkXx93cK69c7vdnT7fQVXYKV7nVUnX+VZafnYRRz7GLdOwgo/vdQwqdr7mOVPIhabjTQrPbMFRrbLO7hZUOptzgWg4bpmmFXSt+YcAgJ24ODhFOXPSgtHu0Ry0q7sFTGEl3NbciNbmxhI2DCvoWvUP6ToRv+MAHoyGzxIqp7vOtRFfnVbx52gonkmZ1lt17S8GAAoAi+vG/URa2NORL0gl07twJDQvU0bmfTkuBZw8f13zeJ01dYcRCcVLEc4FYuEFbCQt8W15e6IcAwCN9fT0Dn8dO5BaWySJhIFiZGtzG9HwArIFBuLwMsqYf9dvACh1uYZbTh9Vn9w1kVj5jo3NlNwwCnY4tCBX15NcUX3YSiSyAF+pGIAQZ2ALiBfzuD0fsH4u/UgkU5mXfEe2r29mn87NftoxTTPCqDlSKaAIIZzLM5+XiZQzaqHw7NXItYnisk8PLhGb1judmTuv9YF8pcAvJgMvFQ4bgRAAAAAASUVORK5CYII=
@@ -40,6 +51,13 @@ iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAABmJLR0QA/wD/AP+gvaeTAAAACXBIWXMA
 rocket_icon_e = base64.decode("""
 iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAABmJLR0QA/wD/AP+gvaeTAAAACXBIWXMAAAsTAAALEwEAmpwYAAAAB3RJTUUH5gMRDhwXzPbthQAAAlpJREFUOMuNk81LVFEYh3/nnOvMdHXuOI0bLaOQIvyAWiTjR5FEEJYUoWJCUFC0aVfb4K4k2rXwDwhCw9pNIpELZZoPN2o4RgSliSLleOd678yduTOec1vUTDVN2W91Di/Pc94X3kPwn7k/Gu6TqqSrlNITQogGIZwaRziE7AWqqkOtA/Ex2V3Ve6SpwasoMlyeKlBKMTO9kJb2gnP18bFaRb7U0d1azRgt1UzDAgH5u0BVHWo3xMd9Pvli8Ac8/iIGgOBafxC5XB6U0XX6r5e9v8DFEDgAAMOwHMH5PAGAAXXCZRe8Dxilh4SzGz3e6L9QW1t9vhwuhnOB2ekFM5PODpIBdcLFuTLp9Xo7A4H9srB1XueXSdeZVlredhGOvklYpmGFHt7uGJLsfM0TJpGzTUebJJ7ZhqtaZp3dLajUNucCsUjCMk0r5NkIDgMAO3ZuaJZy5qYFo92nuGhXdwuYxEpwW3MjWpsbS7BhWCHPenBYVYn4LgdwbzRyilBnrut0GwnUKRVnjoUTGd20XsobP2EAoACwsmnc0dLCnou+g55K/wFHw0uObmRel8MlgZvnryg+v7um7iCi4URJwrlAPLKMrZQlPnzemSqHAYDGe3p6b70f36dvrBBNM1CUbCd3EIssI1tgIC4/o4wFK+0MPby4ONky80p+dNOEtvYRW0nd2TIKdiS87KxvprgkB7CtaVmAr1UUFA/i5F1cXxqzvqx+0lJ65infddo3k9nHC/Nvd03TjDJqjlQS/PYX5J2v/c9GLk8V731qaJXYtN7tztx4rg7mKwm+AeP6I6z2tLb7AAAAAElFTkSuQmCC
 """)
+
+rocket_icon_f = base64.decode("""
+iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAABWGlDQ1BJQ0MgcHJvZmlsZQAAKJFtkL9LQlEcxY9lCCbh4CQFL2iosIinQ9FkDhE0vOx32/VqKj3t8t6Tag6a2oLGqKVaagpsrK29qOgfcIkggreU3L5XK7W6ly/nw5dzL4cDtHmZEKYXQKHoWMnJCW1peUXzVRBAD/wII8S4LeKGMU0WfGvrce/hUXo7pP7auRt38+d6+PX0ubR2lj756285/nTG5qQfNINcWA7g6Sc2NhyheJM4ZFEo4l3F2TofKk7V+aLmmUsmiG+IgzzH0sSPxJFU0z7bxAWzxL8yqPSBTHF+lrSLphsG4tARwyhmsEDd/O+N1bwJrENgCxbyyCIHBxq9FnRNZIinUATHMCLEOkZooqrj3901dmIbGNsjeGnsmAlcUvfBg8aur0Jxe4HrI8Es9tOox/Xaq1G9zp1loGNfyrdFwDcAVB+kfC9LWT0G2p+AK/cTJspkFpxq0b4AAAAGYktHRAD/AP8A/6C9p5MAAAAJcEhZcwAALiMAAC4jAXilP3YAAAAHdElNRQfoAQQQDQLDRzG5AAAAGXRFWHRDb21tZW50AENyZWF0ZWQgd2l0aCBHSU1QV4EOFwAAAoJJREFUOMuN00tME1EUBuB/7gylTrE8phEEsSQQwBakPIXSOBglKooQwwZcmUBw40YTd4agG0OiC5eycgOJwRggoEHRtlCQCAUVasSABFTA0kJpO6XozLiRhqd4tn++/57FPRT+c5Izi8vTc09djtOmGVRqLp4OU0aU9d5nmf0gRRFSXtfYos/jy9L1KQfVahYKZRgIIejGDR+zH75U29iSbSq9yJ/OV9E0CWXeVQG/g4G9CyiKkIq6O63ZpjMXTv7FrW2DAChUVxVibW0dPs/SN/Kvlw2bcCiDDADwePzy/MwnOwMAhGYUqaaa26qo2KOuufGBnBP8uayiktLtuLqqCAAgihK+OKZ9n+3mZwyhGYWx+m6X9liBMTYunhUD7iuaGJYy8cfJ9rU3sKV3WHCMWLq/OoZeMNnlNx9rkrJK0nR6RvS7oFBF0EaTHrutLYoSrK+HhVFbT2dHc0MNANCu2Y8WQsLCOc3hgqjIcFJs0oNm6BDO1CUiQ5cYwvb+ns6ORw01sixJAEDWhdUl56S1lVXSRJ+RtAVvjChKsLx65x/p24oBgABAfObZeqcnGBwacGBl2bcD26wf5PdD5pedzVtxqCApJa8yOuZQeITmCAb6xkMloijhrW0CTrdfGh20PN+OAYAYOa6sdrr9wMqPGcrtXsVGiWvJg0HbBAK/aBAlR3OJusLd/gyp1Gprc/KT2aarXrhnp+B0LssLbiFos47Lc99dIsNy+Lk4HxA8i7O7FdDXU1ObEhISIuUJJ2LsZuGNFO2dHDM/6X/6oN617PUHqcj8+Sl7/1jXw2uyLIk7Grp5fqGd52fuGQxtRRx3fnOmYNWa3IpbLYRmFHvdzB9eQho77MS9ewAAAABJRU5ErkJggg==
+""")
+
+rocket_icon_g = base64.decode("""
+iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAABWGlDQ1BJQ0MgcHJvZmlsZQAAKJFtkL9LQlEcxY9lCCbh4CQFL2iosIinQ9FkDhE0vOx32/VqKj3t8t6Tag6a2oLGqKVaagpsrK29qOgfcIkggreU3L5XK7W6ly/nw5dzL4cDtHmZEKYXQKHoWMnJCW1peUXzVRBAD/wII8S4LeKGMU0WfGvrce/hUXo7pP7auRt38+d6+PX0ubR2lj756285/nTG5qQfNINcWA7g6Sc2NhyheJM4ZFEo4l3F2TofKk7V+aLmmUsmiG+IgzzH0sSPxJFU0z7bxAWzxL8yqPSBTHF+lrSLphsG4tARwyhmsEDd/O+N1bwJrENgCxbyyCIHBxq9FnRNZIinUATHMCLEOkZooqrj3901dmIbGNsjeGnsmAlcUvfBg8aur0Jxe4HrI8Es9tOox/Xaq1G9zp1loGNfyrdFwDcAVB+kfC9LWT0G2p+AK/cTJspkFpxq0b4AAAAGYktHRAD/AP8A/6C9p5MAAAAJcEhZcwAALiMAAC4jAXilP3YAAAAHdElNRQfoAQQQEh2DFTLSAAAAGXRFWHRDb21tZW50AENyZWF0ZWQgd2l0aCBHSU1QV4EOFwAAAoJJREFUOMuN00tME1EUBuB/7gylTrE8phEEoSQQwBakPIXSOBglKooQwwbYQnDjRhN3hqAbY6ILd8rKDSQGY4CABkXbQnlEKKhQIwYkoAKWFgrtlKIz40YanuLZ/vn+exb3UPjPScooKkvLOX0lRptqUKm5WDpEGVbac59lDoIURUhZXWOzPpcvTdMnH1arWSiUISCEoAvXvcxB+HJtY3OWqeQSfyZPRdMkmK2tCvgd8O9fQFGElNfdbskynb146i9uaR0AQKGqsgDr6xvwepa+kX+9bNiCgxlkAIDH45PnZz7ZGQAgNKNIMVXfUkVEJ7jmxvuzT/LnMwuLS3biqspCAIAoSvjimPZ+tpufM4RmFMaqO53a4/nG6JhYVvS7azRRLGXiT5Cda29iS8+w4BixdH11DL1ksspuPNEkZhan6vSM6HNBoQqjjSY99lpbFCVY3wwLo7bujvamhmoAoF2zHy2EhIRymqP5EeGhpMikB83QQZyhi0e6Lj6I7X3dHe2PG6plWZIAgGwIq0vOSWsLq6SJPj1xG94cUZRgef3ON9K7HQMAAYDYjHP1Tk8gMNTvwMqydxe2WT/I74fMrzqatuNgQWJybkVk1JHQMM0x9PeOB0tEUcKgbQJOt08aHbC82IkBgBg5rrR2uu3Qyo8Zyu1exWaJa8mDAdsE/L9oECVHc/G6gr3+DKnQamuz85LYmrFHcM9OwelclhfcQsBmHZfnvrtEhuXwc3HeL3gWZ/cqoK+lpNyLi4sLj06IQZTdLLyVItcmx8xP+549qHctr/kCVHje/JS9b6zz4VVZlsRdDV08v9DG8zN3DYbWQo67sDVTsGpNTvnNZkIziv1u5g8mDxevHDczqgAAAABJRU5ErkJggg==""")
 
 scroll_speed_options = [
     schema.Option(
@@ -85,7 +103,7 @@ def get_rocket_launch_json():
                     if (len(window_open_text) == 17):
                         window_open_text = window_open_text.replace("Z", ":00Z")
 
-                    #If the JSON feed updates to include the seconds, or it the fix above did it,
+                    #If the JSON feed updates to include the seconds, or if the fix above did it,
                     #we'll parse the time now
                     window_open_time = None
                     if (len(window_open_text) == 20):
@@ -112,7 +130,7 @@ def get_rocket_launch_json():
     return (rocket_launch_data)
 
 #Since not all launches supply values for all these, this makes it easy to add items to a marquee
-def get_launch_details(rocket_launch_data):
+def get_launch_details(rocket_launch_data, locallaunch, mytimezone):
     """ Get Launch Details
 
     Args:
@@ -120,11 +138,28 @@ def get_launch_details(rocket_launch_data):
     Returns:
         Display info of launch details
     """
+
+    #TEST CODE to test time display
+    #locallaunch = locallaunch + time.parse_duration("%sh" % -11.5)
+    #print(locallaunch)
+
+    countdown = (locallaunch - time.now())
+    countdownDisplay = ""
+
+    #Display aprox. number of hours until about 90 minutes before launch, then display # of minutes
+    if countdown.hours >= 1.5:
+        countdownDisplay = ("%s hours from now," % int(math.round(countdown.hours)))
+    elif countdown.minutes > 0:
+        countdownDisplay = ("%s minutes from now," % int(math.round(countdown.minutes)))
+
     potential_display_items = [
-        rocket_launch_data["result"][0]["pad"]["name"],
-        rocket_launch_data["result"][0]["pad"]["location"]["name"],
-        rocket_launch_data["result"][0]["pad"]["location"]["state"],
-        rocket_launch_data["result"][0]["pad"]["location"]["country"],
+        countdownDisplay,
+        rocket_launch_data["pad"]["name"],
+        rocket_launch_data["pad"]["location"]["name"],
+        rocket_launch_data["pad"]["location"]["state"],
+        rocket_launch_data["pad"]["location"]["country"],
+        locallaunch.format("Monday Jan 2 2006"),
+        locallaunch.format("at 3:04 PM") + " " + mytimezone.replace("_", " "),
     ]
 
     display_text = ""
@@ -143,12 +178,15 @@ def main(config):
     Returns:
         The tidbyt display
     """
+
+    location = json.decode(config.get("location", default_location))
     rocket_launch_data = get_rocket_launch_json()
+
     rocket_launch_count = 0
-    row1 = "Test"
-    row2 = "Test2"
-    row3 = "Test3"
-    row4 = "Test4"
+    row1 = ""
+    row2 = ""
+    row3 = ""
+    row4 = ""
 
     if rocket_launch_data == None:
         row1 = "Failed to get data from Rocketlaunch.live feed"
@@ -158,10 +196,18 @@ def main(config):
     if (rocket_launch_count == 0):
         row1 = "No upcoming launches.."
     else:
-        row1 = rocket_launch_data["result"][0]["vehicle"]["name"]
-        row2 = rocket_launch_data["result"][0]["date_str"]
-        row3 = get_launch_details(rocket_launch_data)
-        row4 = rocket_launch_data["result"][0]["launch_description"]
+        row1 = "No upcoming launches.."
+        rocket_launch_count = int(rocket_launch_count)
+        for i in range(0, rocket_launch_count):
+            localtime = time.now()
+            locallaunch = time.parse_time(rocket_launch_data["result"][i]["t0"].replace("Z", ":00Z")).in_location(location["timezone"])
+            if locallaunch > localtime.in_location(location["timezone"]):
+                row1 = rocket_launch_data["result"][i]["vehicle"]["name"]
+                locallaunch = time.parse_time(rocket_launch_data["result"][i]["t0"].replace("Z", ":00Z")).in_location(location["timezone"])
+                row2 = locallaunch.format("Jan 2 '06")
+                row3 = get_launch_details(rocket_launch_data["result"][i], locallaunch, location["timezone"])
+                row4 = rocket_launch_data["result"][i]["launch_description"]
+                break
 
     return render.Root(
         show_full_animation = True,
@@ -176,11 +222,11 @@ def main(config):
                                     children = [
                                         render.Marquee(
                                             width = 48,
-                                            child = render.Text(row1, color = "#0000FF"),
+                                            child = render.Text(row1, color = "#65d0e6"),
                                         ),
                                         render.Marquee(
-                                            width = 35,
-                                            child = render.Text(row2, color = "#fff"),
+                                            width = 48,
+                                            child = render.Text(row2, color = "#FFFFFF"),
                                         ),
                                     ],
                                 ),
@@ -191,13 +237,31 @@ def main(config):
                                         render.Image(src = rocket_icon_c),
                                         render.Image(src = rocket_icon_d),
                                         render.Image(src = rocket_icon_e),
+                                        render.Image(src = rocket_icon_f),
+                                        render.Image(src = rocket_icon_g),
+                                        render.Image(src = rocket_icon_f),
                                         render.Image(src = rocket_icon_d),
                                         render.Image(src = rocket_icon_c),
                                         render.Image(src = rocket_icon_b),
                                         render.Image(src = rocket_icon),
+                                        render.Image(src = rocket_icon_b),
+                                        render.Image(src = rocket_icon),
+                                        render.Image(src = rocket_icon_c),
+                                        render.Image(src = rocket_icon),
+                                        render.Image(src = rocket_icon_b),
+                                        render.Image(src = rocket_icon_c),
+                                        render.Image(src = rocket_icon_b),
+                                        render.Image(src = rocket_icon_c),
+                                        render.Image(src = rocket_icon_b),
+                                        render.Image(src = rocket_icon_c),
+                                        render.Image(src = rocket_icon_b),
+                                        render.Image(src = rocket_icon_c),
                                         render.Image(src = rocket_icon_d),
                                         render.Image(src = rocket_icon_e),
                                         render.Image(src = rocket_icon_d),
+                                        render.Image(src = rocket_icon_c),
+                                        render.Image(src = rocket_icon_b),
+                                        render.Image(src = rocket_icon),
                                         render.Image(src = rocket_icon),
                                     ],
                                 ),
@@ -207,10 +271,12 @@ def main(config):
                 ),
                 render.Marquee(
                     width = 64,
+                    offset_start = len(row1) * 5,
                     child = render.Text(row3, color = "#fff"),
                 ),
                 render.Marquee(
                     width = 64,
+                    offset_start = len(row3) * 5,
                     child = render.Text(row4, color = "#ff0"),
                 ),
             ],
@@ -221,6 +287,12 @@ def get_schema():
     return schema.Schema(
         version = "1",
         fields = [
+            schema.Location(
+                id = "location",
+                name = "Location",
+                desc = "Location to calculate local launch time.",
+                icon = "locationDot",
+            ),
             schema.Dropdown(
                 id = "scroll",
                 name = "Scroll",

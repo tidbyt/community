@@ -7,6 +7,7 @@ Authors: Jeremy Tavener, Paul Murphy
 
 load("cache.star", "cache")
 load("encoding/json.star", "json")
+load("hash.star", "hash")
 load("http.star", "http")
 load("math.star", "math")
 load("render.star", "render")
@@ -816,15 +817,16 @@ def get_nightscout_data(nightscout_url, nightscout_token, show_mgdl):
     nightscout_url = nightscout_url.split("/")[0]
     oldest_reading = str((time.now() - time.parse_duration("240m")).unix)
     json_url = "https://" + nightscout_url + "/api/v1/entries.json?count=1000&find[date][$gte]=" + oldest_reading
+    headers = {}
     if nightscout_token != "":
-        json_url = json_url + "&token=" + nightscout_token
+        headers["Api-Secret"] = hash.sha1(nightscout_token)
 
     print(json_url)
 
     key = nightscout_url + "_nightscout_data"
 
     # Request latest entries from the Nightscout URL
-    resp = http.get(json_url)
+    resp = http.get(json_url, headers = headers)
     if resp.status_code != 200:
         # If Error, Get the JSON object from the cache
         nightscout_data_cached = cache.get(key)
