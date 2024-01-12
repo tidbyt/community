@@ -171,7 +171,7 @@ def filter_rocket_launches(rocket_launch_data, filter_for_providers_string, filt
     return rocket_launch_data
 
 #Since not all launches supply values for all these, this makes it easy to add items to a marquee
-def get_launch_details(rocket_launch_data, locallaunch, mytimezone):
+def get_launch_details(rocket_launch_data, locallaunch):
     """ Get Launch Details
     Args:
         rocket_launch_data: the rocket launch data with all the info on future launches
@@ -304,7 +304,7 @@ def main(config):
                     row1 = rocket_launch_data["result"][i]["vehicle"]["name"]
                     locallaunch = time.parse_time(rocket_launch_data["result"][i]["t0"].replace("Z", ":00Z")).in_location(location["timezone"])
                     row2 = locallaunch.format("Jan 2 '06")
-                    row3 = get_launch_details(rocket_launch_data["result"][i], locallaunch, location["timezone"])
+                    row3 = get_launch_details(rocket_launch_data["result"][i], locallaunch)
                     row4 = rocket_launch_data["result"][i]["launch_description"]
                 else:
                     return []
