@@ -86,7 +86,7 @@ def main(config):
     timezone = location["timezone"]
 
     # call loterias API
-    res = http.get("https://tidbyt-loterias.vercel.app/api/%s/" % modality, ttl_seconds = CACHE_TTL)
+    res = http.get("https://tidbyt-loterias.vercel.app/api/%s" % modality, ttl_seconds = CACHE_TTL)
 
     # handle API error
     if res.status_code != 200:
