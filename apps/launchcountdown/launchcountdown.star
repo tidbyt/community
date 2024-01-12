@@ -264,7 +264,7 @@ def main(config):
         The tidbyt display
     """
 
-    show_instructions = config.bool("instructions", True)
+    show_instructions = config.bool("instructions", False)
     hide_when_nothing_to_display = config.bool("hide", True)
 
     if show_instructions:
