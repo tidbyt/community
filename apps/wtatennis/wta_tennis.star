@@ -637,7 +637,7 @@ def getCompletedMatches(SelectedTourneyID, EventIndex, CompletedMatchList, JSON)
                 if (Player1_Winner):
                     MasterSetScores1 = [
                         render.Box(
-                            width = 4,
+                            width = 10,
                             height = 5,
                             child = render.Text(
                                 content = "WO",
@@ -661,7 +661,7 @@ def getCompletedMatches(SelectedTourneyID, EventIndex, CompletedMatchList, JSON)
                 elif (Player2_Winner):
                     MasterSetScores2 = [
                         render.Box(
-                            width = 4,
+                            width = 10,
                             height = 5,
                             child = render.Text(
                                 content = "WO",
