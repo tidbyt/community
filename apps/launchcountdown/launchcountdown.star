@@ -255,7 +255,6 @@ def display_instructions(config):
         show_full_animation = True,
     )
 
-
 def main(config):
     """ Main
 
@@ -273,7 +272,7 @@ def main(config):
 
     location = json.decode(config.get("location", default_location))
     rocket_launch_data = get_rocket_launch_json()
-    
+
     initial_count = len(rocket_launch_data["result"]) if rocket_launch_data else 0
 
     rocket_launch_data = filter_rocket_launches(rocket_launch_data, config.get("filter_for_providers", ""), config.get("filter_for_countries", ""))
@@ -422,7 +421,7 @@ def get_schema():
                 name = "Only Show these countries",
                 desc = "Comma Seperated List of Countries to Show",
                 icon = "globe",
-            ),            
+            ),
             schema.Toggle(
                 id = "hide",
                 name = "Hide app when no upcoming launches?",
