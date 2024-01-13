@@ -1,0 +1,8 @@
+---
+id: multicalendar
+name: Multi-Calendar
+summary: Next event from calendars
+desc: Displays next event from multiple Google calendars.
+author: Logan Deal
+fileName: multicalendar.star
+packageName: calendar
