@@ -15,7 +15,7 @@ DEFAULT_ORIENTATION_BOOL = False  #Default to horizontal
 DEFAULT_ARRIVALS = True
 DEFAULT_STATION = "Lindbergh Center"
 DEFAULT_SCROLL = True
-# DEAFULT_DIRECTION = None
+DEAFULT_DIRECTION = "None"
 
 # FONT = "CG-pixel-3x5-mono"
 FONT = "CG-pixel-4x5-mono"
@@ -71,7 +71,7 @@ def main(config):
 
 def get_schema():
     station_options = get_station_list_options()
-    # direction_options = get_direction_list_options()
+    direction_options = get_direction_list_options()
 
     return schema.Schema(
         version = "1",
@@ -105,14 +105,14 @@ def get_schema():
                 icon = "toggleOn",
                 default = True,
             ),
-            # schema.Dropdown(
-            #     id = "direction",
-            #     name = "Filter Direction",
-            #     desc = "Filter the arrivals to one cardinal direction.",
-            #     icon = "compass",
-            #     default = direction_options[0].value,
-            #     options = direction_options,
-            # ),
+            schema.Dropdown(
+                id = "direction",
+                name = "Filter Direction",
+                desc = "Filter the arrivals to one cardinal direction.",
+                icon = "compass",
+                default = direction_options[0].value,
+                options = direction_options,
+            ),
             schema.Color(
                 id = "text_color",
                 name = "Text Color",
@@ -237,16 +237,16 @@ def get_station_list_options():
         )
     return options
 
-# def get_direction_list_options():
-#     options = []
-#     for direction in DIRECTION_MAP.keys():
-#         options.append(
-#             schema.Option(
-#                 display = direction,
-#                 value = direction,
-#             ),
-#         )
-#     return options
+def get_direction_list_options():
+    options = []
+    for direction in DIRECTION_MAP.keys():
+        options.append(
+            schema.Option(
+                display = direction,
+                value = direction,
+            ),
+        )
+    return options
 
 def arrival_template(config, color, time, head_sign):
     text_color = config.str("text_color", DEFAULT_TEXT_COLOR)
@@ -316,15 +316,17 @@ def render_arrivals(config):
     all_arrivals = get_chachable_json("https://api.marta.io/trains", 10)
 
     user_station = STATIONS_MAP[config.get("station") or DEFAULT_STATION]
+    direction_filter = DIRECTION_MAP[config.get("direction") or DEAFULT_DIRECTION]
 
     #Filter all_arrivals for the user's station
     for arrival in all_arrivals:
         # if direction == None:
         #Append the correct station arrivals
         if arrival["STATION"] == user_station:
-            user_station_arrivals.append(arrival)
-
-        #Append only 1 direction if selected in Schema
+            if direction_filter == "None":
+                user_station_arrivals.append(arrival)
+            elif arrival["DIRECTION"] == direction_filter:  #Append only 1 direction if selected in Schema
+                user_station_arrivals.append(arrival)
 
     # Sort arrivals by shortest time to arrival
     user_station_arrivals = (sorted(user_station_arrivals, key = lambda d: int(d["WAITING_SECONDS"])))
@@ -801,11 +803,11 @@ HEAD_SIGN_MAP = {
 }
 
 DIRECTION_MAP = {
-    "No Filter": None,
+    "No Direction Filter": "None",
     "Northbound": "N",
     "Eastbound": "E",
     "Southbound": "S",
-    "Westbounr": "W",
+    "Westbound": "W",
 }
 
 LINE_CODE_MAP = {
