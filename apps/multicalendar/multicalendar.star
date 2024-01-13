@@ -15,8 +15,7 @@ load("schema.star", "schema")
 load("secret.star", "secret")
 load("time.star", "time")
 
-# git
-
+# TODO POTENTIAL UPDATES:
 # get calendar list resource colorId
 # only approved events option
 # get user address from user parameter
@@ -219,7 +218,6 @@ def get_access_token(refresh_token):
             token = token_params.get("access_token", "")
             expires_in = token_params.get("expires_in", "")
             cache.set(refresh_token, token, ttl_seconds = int(expires_in - 30))
-
     return token
 
 def main(config):
@@ -359,8 +357,6 @@ def get_schema():
                 scopes = [
                     "https://www.googleapis.com/auth/calendar.events.readonly",
                     "https://www.googleapis.com/auth/calendar.readonly",
-                    #"https://www.googleapis.com/auth/calendar",
-                    #"https://www.googleapis.com/auth/calendar.settings.readonly",
                 ],
             ),
         ],
