@@ -65,6 +65,10 @@ Updated for 2024 season
 v1.11
 Added GroupingsID to handle when "Womens Singles" are listed before "Mens Singles" in the API data
 Added handling for no matches listed in a touranment and to stop that from being added to the dropdown list
+
+v1.12
+Updated box sizes to show "WO" for walkovers
+Final of tournament now indicated for scheduled, completed and in progress final
 """
 
 load("encoding/json.star", "json")
@@ -483,6 +487,30 @@ def getLiveScores(SelectedTourneyID, EventIndex, InProgressMatchList, JSON):
                 ),
             ]
             Display.extend(Scores)
+            if JSON["events"][EventIndex]["groupings"][GroupingsID]["competitions"][x]["round"]["displayName"] == "Final":
+                Final = [
+                    render.Row(
+                        expanded = True,
+                        main_align = "space_between",
+                        cross_align = "end",
+                        children = [
+                            render.Row(
+                                main_align = "start",
+                                children = [
+                                    render.Padding(
+                                        pad = (1, 1, 0, 0),
+                                        child = render.Text(
+                                            content = "FINAL",
+                                            color = "#fff",
+                                            font = displayfont,
+                                        ),
+                                    ),
+                                ],
+                            ),
+                        ],
+                    ),
+                ]
+                Display.extend(Final)
 
     if InProgressNum == 0:
         NoMatches = [
@@ -753,6 +781,31 @@ def getCompletedMatches(SelectedTourneyID, EventIndex, CompletedMatchList, JSON)
             ]
             Display.extend(Scores)
 
+            if JSON["events"][EventIndex]["groupings"][GroupingsID]["competitions"][x]["round"]["displayName"] == "Final":
+                Final = [
+                    render.Row(
+                        expanded = True,
+                        main_align = "space_between",
+                        cross_align = "end",
+                        children = [
+                            render.Row(
+                                main_align = "start",
+                                children = [
+                                    render.Padding(
+                                        pad = (1, 1, 0, 0),
+                                        child = render.Text(
+                                            content = "FINAL",
+                                            color = "#fff",
+                                            font = displayfont,
+                                        ),
+                                    ),
+                                ],
+                            ),
+                        ],
+                    ),
+                ]
+                Display.extend(Final)
+
     if Completed == 0:
         NoMatches = [
             render.Row(
@@ -941,6 +994,31 @@ def getScheduledMatches(SelectedTourneyID, EventIndex, ScheduledMatchList, JSON,
                 ),
             ]
             Display.extend(Scores)
+
+            if JSON["events"][EventIndex]["groupings"][GroupingsID]["competitions"][x]["round"]["displayName"] == "Final":
+                Final = [
+                    render.Row(
+                        expanded = True,
+                        main_align = "space_between",
+                        cross_align = "end",
+                        children = [
+                            render.Row(
+                                main_align = "start",
+                                children = [
+                                    render.Padding(
+                                        pad = (1, 1, 0, 0),
+                                        child = render.Text(
+                                            content = "FINAL",
+                                            color = "#fff",
+                                            font = displayfont,
+                                        ),
+                                    ),
+                                ],
+                            ),
+                        ],
+                    ),
+                ]
+                Display.extend(Final)
 
     if Scheduled == 0:
         NoMatches = [
