@@ -15,7 +15,7 @@ DEFAULT_ORIENTATION_BOOL = False  #Default to horizontal
 DEFAULT_ARRIVALS = True
 DEFAULT_STATION = "Lindbergh Center"
 DEFAULT_SCROLL = True
-DEAFULT_DIRECTION = "None"
+DEAFULT_DIRECTION = "No Direction Filter"
 
 # FONT = "CG-pixel-3x5-mono"
 FONT = "CG-pixel-4x5-mono"
@@ -320,7 +320,6 @@ def render_arrivals(config):
 
     #Filter all_arrivals for the user's station
     for arrival in all_arrivals:
-        # if direction == None:
         #Append the correct station arrivals
         if arrival["STATION"] == user_station:
             if direction_filter == "None":
@@ -800,6 +799,7 @@ HEAD_SIGN_MAP = {
     "Hamilton E Holmes": "HE HOLMES",
     "Airport": "AIRPORT  ",  #Padding so Marquee text is the same length and the scroll cleanly...
     "Lindbergh": "LINDBERGH",
+    "King Memorial": "KING MEM ",
 }
 
 DIRECTION_MAP = {
