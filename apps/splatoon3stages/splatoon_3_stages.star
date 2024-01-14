@@ -9,10 +9,9 @@ load("cache.star", "cache")
 load("encoding/base64.star", "base64")
 load("encoding/json.star", "json")
 load("http.star", "http")
-load("humanize.star", "humanize")
+load("math.star", "math")
 load("render.star", "render")
 load("schema.star", "schema")
-load("math.star", "math")
 load("time.star", "time")
 
 # thanks s3.ink!
@@ -53,17 +52,16 @@ SALMON_STAGE_IMG = {
 }
 
 ICONS = {
-
 }
 
 BATTLE_TYPES = {
-    "regular":  struct(title="Regular Battle",  colours=["#080"]),
-    "series":   struct(title="Anarchy Series",  colours=["#850"]),
-    "open":     struct(title="Anarchy Open",    colours=["#820"]),
-    "x":        struct(title="X Battle",        colours=["#086"]),
-    "salmon":   struct(title="Salmon Run",      colours=["#740"]),
-    "festopen": struct(title="Splatfest Battle",colours=[]),
-    "festpro":  struct(title="Splatfest Battle",colours=[])
+    "regular": struct(title = "Regular Battle", colours = ["#080"]),
+    "series": struct(title = "Anarchy Series", colours = ["#850"]),
+    "open": struct(title = "Anarchy Open", colours = ["#820"]),
+    "x": struct(title = "X Battle", colours = ["#086"]),
+    "salmon": struct(title = "Salmon Run", colours = ["#740"]),
+    "festopen": struct(title = "Splatfest Battle", colours = []),
+    "festpro": struct(title = "Splatfest Battle", colours = []),
 }
 
 # ------------ DATA PROCESSING ------------ #
@@ -72,13 +70,11 @@ def parseMatchSetting(setting):
     # Container for gamemode and stages
 
     return struct(
-        type   = setting["__typename"],
-
-        stages = [stage["name"] for stage in setting["vsStages"]], # becomes a list of strings
-        rule   = setting["vsRule"]["name"],
-
+        type = setting["__typename"],
+        stages = [stage["name"] for stage in setting["vsStages"]],  # becomes a list of strings
+        rule = setting["vsRule"]["name"],
         ranked_type = None if "bankaraMode" not in setting else setting["bankaraMode"],
-        fest_type = None if "festMode" not in setting else setting["festMode"]
+        fest_type = None if "festMode" not in setting else setting["festMode"],
     )
 
 def parseMatch(match, key):
@@ -93,14 +89,14 @@ def parseMatch(match, key):
 
     setting, open_setting, pro_setting = None, None, None
 
-    if(match[key]):
-        if(key == "bankaraMatchSettings" or key == "festMatchSettings"):
+    if (match[key]):
+        if (key == "bankaraMatchSettings" or key == "festMatchSettings"):
             # Special case for Ranked
             for schedule in [parseMatchSetting(setting) for setting in match[key]]:
                 # Overengineered? Yes. Works? Yes.
-                if(schedule.ranked_type == "CHALLENGE" or schedule.fest_type == "CHALLENGE"):
+                if (schedule.ranked_type == "CHALLENGE" or schedule.fest_type == "CHALLENGE"):
                     pro_setting = schedule
-                elif(schedule.ranked_type == "OPEN" or schedule.fest_type == "REGULAR"): # OPEN for ranked
+                elif (schedule.ranked_type == "OPEN" or schedule.fest_type == "REGULAR"):  # OPEN for ranked
                     open_setting = schedule
         else:
             setting = parseMatchSetting(match[key])
@@ -110,26 +106,26 @@ def parseMatch(match, key):
 
     # The times are not parsed since that prevents serialization
     return struct(
-        start_time    = match["startTime"],
-        end_time      = match["endTime"],
-        setting       = setting,
-        open_setting  = open_setting,
-        series_setting= pro_setting
+        start_time = match["startTime"],
+        end_time = match["endTime"],
+        setting = setting,
+        open_setting = open_setting,
+        series_setting = pro_setting,
     )
 
 def parseSalmonRunMatchSetting(setting):
     return struct(
-        boss    = setting["boss"]["name"],
-        stage   = setting["coopStage"]["name"],
-        weapons = [struct(name=weapon["name"], img=weapon["image"]["url"]) for weapon in setting["weapons"]]
+        boss = setting["boss"]["name"],
+        stage = setting["coopStage"]["name"],
+        weapons = [struct(name = weapon["name"], img = weapon["image"]["url"]) for weapon in setting["weapons"]],
     )
 
 def parseSalmonRunMatch(match):
     # Salmon Run is different enough that this is more practical
     return struct(
-        start_time    = match["startTime"],
-        end_time      = match["endTime"],
-        setting       = parseSalmonRunMatchSetting(match["setting"])
+        start_time = match["startTime"],
+        end_time = match["endTime"],
+        setting = parseSalmonRunMatchSetting(match["setting"]),
     )
 
 def parseJSONResponse(resp):
@@ -137,24 +133,24 @@ def parseJSONResponse(resp):
 
     # List comprehensions my beloved
     return struct(
-        regular = [parseMatch(match, "regularMatchSetting")  for match in resp["data"]["regularSchedules"]["nodes"]],
-        ranked  = [parseMatch(match, "bankaraMatchSettings") for match in resp["data"]["bankaraSchedules"]["nodes"]],
-        x       = [parseMatch(match, "xMatchSetting")        for match in resp["data"]["xSchedules"]["nodes"]],
-        fest    = [parseMatch(match, "festMatchSettings")    for match in resp["data"]["festSchedules"]["nodes"]],
-        salmon  = [parseSalmonRunMatch(match) for match in resp["data"]["coopGroupingSchedule"]["regularSchedules"]["nodes"]]
+        regular = [parseMatch(match, "regularMatchSetting") for match in resp["data"]["regularSchedules"]["nodes"]],
+        ranked = [parseMatch(match, "bankaraMatchSettings") for match in resp["data"]["bankaraSchedules"]["nodes"]],
+        x = [parseMatch(match, "xMatchSetting") for match in resp["data"]["xSchedules"]["nodes"]],
+        fest = [parseMatch(match, "festMatchSettings") for match in resp["data"]["festSchedules"]["nodes"]],
+        salmon = [parseSalmonRunMatch(match) for match in resp["data"]["coopGroupingSchedule"]["regularSchedules"]["nodes"]],
     )
 
 def getCurrentMatch(matches, now):
     # Returns the currently scheduled match out of a list.
     for match in matches:
-        if(not match):
+        if (not match):
             continue
-        if(time.parse_time(match.start_time) <= now and now <= time.parse_time(match.end_time)):
+        if (time.parse_time(match.start_time) <= now and now <= time.parse_time(match.end_time)):
             return match
     return struct(
         setting = None,
         series_setting = None,
-        open_setting = None
+        open_setting = None,
     )
 
 # ------------ RENDERING ------------ #
@@ -204,14 +200,14 @@ def generateGeneralFrame(header_text, header_colours, img_a, img_b, footer, weap
     width_biases = [0 for c in header_colours]
     center = len(header_colours) // 2
     required_biases = 64 % len(header_colours)
-    for i in range(center - math.floor(required_biases/2.0), center + math.floor(required_biases/2.0) + 1):
+    for i in range(center - math.floor(required_biases / 2.0), center + math.floor(required_biases / 2.0) + 1):
         width_biases[i] = 1
 
     header = render.Stack(
         [
             render.Row(
                 # I can't do list comprehensions by index, so I just keep popping the biases list instead
-                [render.Box(width = 64 // len(header_colours) + width_biases.pop(0), height=7, color=c) for c in header_colours]
+                [render.Box(width = 64 // len(header_colours) + width_biases.pop(0), height = 7, color = c) for c in header_colours],
             ),
             render.Box(
                 height = 7,
@@ -220,16 +216,16 @@ def generateGeneralFrame(header_text, header_colours, img_a, img_b, footer, weap
                     child = render.Text(
                         header_text,
                         font = "tom-thumb",
-                        color = "#fff"
-                    )
-                )
-            )
-        ]
+                        color = "#fff",
+                    ),
+                ),
+            ),
+        ],
     )
 
     # Images, or Salmon Run icons
     images = None
-    if(weapon_urls):
+    if (weapon_urls):
         weapon_images = [loadImage(img.img) for img in weapon_urls]
         images = render.Row(
             [
@@ -238,25 +234,25 @@ def generateGeneralFrame(header_text, header_colours, img_a, img_b, footer, weap
                     [
                         render.Padding(
                             render.Row(weapon_images[0:2]),
-                            pad = (0, 0, 4, 0)
+                            pad = (0, 0, 4, 0),
                         ),
                         render.Padding(
                             render.Row(weapon_images[2:4]),
-                            pad = (4, 0, 0, 0)
-                        )
-                    ]
+                            pad = (4, 0, 0, 0),
+                        ),
+                    ],
                 ),
                 # Stage
                 render.Padding(
                     render.Image(SALMON_STAGE_IMG[img_a if img_a in SALMON_STAGE_IMG else "no_stage"]),
-                    pad = (1, 1, 0, 1)
-                )
-            ]
+                    pad = (1, 1, 0, 1),
+                ),
+            ],
         )
     else:
         render_img_a = render.Image(STAGE_IMG[img_a if img_a in STAGE_IMG else "no_stage"])
         render_img_b = None
-        if(tricol_text):
+        if (tricol_text):
             render_img_b = render.Box(
                 width = 31,
                 height = 17,
@@ -264,8 +260,8 @@ def generateGeneralFrame(header_text, header_colours, img_a, img_b, footer, weap
                     tricol_text,
                     width = 31,
                     color = "#88f",
-                    font = "tom-thumb"
-                )
+                    font = "tom-thumb",
+                ),
             )
         else:
             render_img_b = render.Image(STAGE_IMG[img_b if img_b in STAGE_IMG else "no_stage"])
@@ -274,11 +270,11 @@ def generateGeneralFrame(header_text, header_colours, img_a, img_b, footer, weap
             render.Row(
                 [
                     render_img_a,
-                    render.Box(width=2, height=2),
-                    render_img_b
-                ]
+                    render.Box(width = 2, height = 2),
+                    render_img_b,
+                ],
             ),
-            pad = (0, 1, 0, 1)
+            pad = (0, 1, 0, 1),
         )
 
     # Footer
@@ -287,8 +283,8 @@ def generateGeneralFrame(header_text, header_colours, img_a, img_b, footer, weap
         child = render.Text(
             footer,
             font = "tom-thumb",
-            color = "#fff"
-        )
+            color = "#fff",
+        ),
     )
 
     return render.Column([header, images, footer])
@@ -298,34 +294,34 @@ def loadImage(url):
     BOX_SIZE = 9
     req = http.get(url)
 
-    if(req.status_code != 200):
+    if (req.status_code != 200):
         # Should never happen but just in case
         # TODO: replace with better icon
-        return render.Box(width = IMG_SIZE, height = BOX_SIZE, child=render.Image(STAGE_IMG["no_stage"], width = IMG_SIZE, height = IMG_SIZE))
-    
+        return render.Box(width = IMG_SIZE, height = BOX_SIZE, child = render.Image(STAGE_IMG["no_stage"], width = IMG_SIZE, height = IMG_SIZE))
+
     # Bad cropping is still cropping
-    return render.Box(width = IMG_SIZE, height = BOX_SIZE, child=render.Image(req.body(), width = IMG_SIZE, height = IMG_SIZE))
+    return render.Box(width = IMG_SIZE, height = BOX_SIZE, child = render.Image(req.body(), width = IMG_SIZE, height = IMG_SIZE))
 
 def generateFrame(battle, battle_type, fest_colours):
     # Takes a specified title, header colour, and battle and returns the prettified frame.
 
     colour_scheme = BATTLE_TYPES[battle_type]
-    if(not battle):
+    if (not battle):
         # Fallback
         return generateGeneralFrame(colour_scheme.title, colour_scheme.colours, "no_stage", "no_stage", "No current data!")
 
     # Regular/Anarchy/X
-    if(battle_type == "regular" or battle_type == "series" or battle_type == "open" or battle_type == "x"):
+    if (battle_type == "regular" or battle_type == "series" or battle_type == "open" or battle_type == "x"):
         return generateGeneralFrame(colour_scheme.title, colour_scheme.colours, battle.stages[0], battle.stages[1], battle.rule)
 
     # Splatfest
-    if(battle_type == "festopen"):
+    if (battle_type == "festopen"):
         return generateGeneralFrame(colour_scheme.title, fest_colours, battle.stages[0], battle.stages[1], battle.rule + " (Open)")
-    if(battle_type == "festpro"):
+    if (battle_type == "festpro"):
         return generateGeneralFrame(colour_scheme.title, fest_colours, battle.stages[0], battle.stages[1], battle.rule + " (Pro)")
 
     # Salmon
-    if(battle_type == "salmon"):
+    if (battle_type == "salmon"):
         return generateGeneralFrame(colour_scheme.title, colour_scheme.colours, battle.stage, None, battle.boss, battle.weapons)
 
     return generateGeneralFrame("Unknown", ["#888"], "no_stage", "no_stage", "type? " + battle_type)
@@ -336,10 +332,10 @@ def rgb2hex(array):
 def getDurationString(duration):
     hours = duration // (1 * time.hour)
     minutes = (duration - hours * time.hour) // time.minute
-    
-    if(hours > 0):
+
+    if (hours > 0):
         return "%dh %dm" % (hours, minutes)
-    
+
     return "%dm" % minutes
 
 def main(config):
@@ -364,8 +360,10 @@ def main(config):
         return generateErrorFrame("API error!\nError code %d" % (failed or -1))
 
     parsed_data = parseJSONResponse(stages)
+
     # Make the data better
     splatfest = None
+    splatfest_colours = []
 
     now = time.now()
 
@@ -383,19 +381,19 @@ def main(config):
                 start_time = time.parse_time(stages["data"]["currentFest"]["startTime"]),
                 halftime = time.parse_time(stages["data"]["currentFest"]["midtermTime"]),
                 end_time = time.parse_time(stages["data"]["currentFest"]["endTime"]),
-                colours = splatfest_colours
+                colours = splatfest_colours,
             )
 
     frames = {
-        "regular":  generateFrame(getCurrentMatch(parsed_data.regular, now).setting,        "regular",  None),
-        "series":   generateFrame(getCurrentMatch(parsed_data.ranked , now).series_setting, "series",   None),
-        "open":     generateFrame(getCurrentMatch(parsed_data.ranked , now).open_setting,   "open",     None),
-        "x":        generateFrame(getCurrentMatch(parsed_data.x      , now).setting,        "x",        None),
-        "salmon":   generateFrame(getCurrentMatch(parsed_data.salmon , now).setting,        "salmon",   None),
+        "regular": generateFrame(getCurrentMatch(parsed_data.regular, now).setting, "regular", None),
+        "series": generateFrame(getCurrentMatch(parsed_data.ranked, now).series_setting, "series", None),
+        "open": generateFrame(getCurrentMatch(parsed_data.ranked, now).open_setting, "open", None),
+        "x": generateFrame(getCurrentMatch(parsed_data.x, now).setting, "x", None),
+        "salmon": generateFrame(getCurrentMatch(parsed_data.salmon, now).setting, "salmon", None),
     }
-    if(splatfest):
-        frames["festopen"] = generateFrame(getCurrentMatch(parsed_data.fest, now).open_setting,   "festopen", splatfest_colours)
-        frames["festpro" ] = generateFrame(getCurrentMatch(parsed_data.fest, now).series_setting, "festpro",  splatfest_colours)
+    if (splatfest):
+        frames["festopen"] = generateFrame(getCurrentMatch(parsed_data.fest, now).open_setting, "festopen", splatfest_colours)
+        frames["festpro"] = generateFrame(getCurrentMatch(parsed_data.fest, now).series_setting, "festpro", splatfest_colours)
 
         bottom_str = "?"
         if (now < splatfest.halftime):
@@ -410,7 +408,6 @@ def main(config):
         frames["tricolor"] = generateGeneralFrame("Tricolor Battle", splatfest_colours, splatfest.tricolor_stage, None, "Tricol. Turf War", None, bottom_str)
 
     render_frames = []
-    animLength = 0
     if (not splatfest):
         if (config.bool("show_regular")):
             render_frames.append(frames["regular"])
