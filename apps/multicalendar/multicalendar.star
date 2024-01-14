@@ -64,6 +64,7 @@ def get_user_calendars(token):
     if response.status_code != 200:
         print(json)
         return "Error getting calendar list"
+
     # request successful
     calendars = json["items"]
     calendar_ids = [calendar["id"] for calendar in calendars]
