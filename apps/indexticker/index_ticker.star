@@ -3,6 +3,10 @@ Applet: Index Ticker
 Summary: Displays ticker for indices
 Description: Display ticker and stats for stock indices.
 Author: M0ntyP
+
+v1.1 - Added BSE and NIFTY indices
+
+v1.2 - Added toggle for showing % change or pts change
 """
 
 load("animation.star", "animation")
@@ -25,6 +29,7 @@ INDEX_SUFFIX = "?metrics=high?&interval="
 def main(config):
     IndexSelection = config.get("Index", "axjo")
     RangeSelection = config.get("Range", "5m&range=1d")
+    DisplaySelection = config.get("DiffDisplay", "true")
     Interval = "1D"
 
     #print(IndexSelection)
@@ -33,7 +38,7 @@ def main(config):
 
     CacheData = get_cachable_data(INDEX_URL, 60)
     INDEX_JSON = json.decode(CacheData)
-    PercentColor = "#00ff00"
+    DiffColor = "#00ff00"
 
     TotalTicks = len(INDEX_JSON["chart"]["result"][0]["indicators"]["quote"][0]["close"])
     LastClose = INDEX_JSON["chart"]["result"][0]["meta"]["chartPreviousClose"]
@@ -57,11 +62,11 @@ def main(config):
 
     if StrPercentDiff.startswith("."):
         StrPercentDiff = "0" + StrPercentDiff
-        PercentColor = "#00ff00"
+        DiffColor = "#00ff00"
     elif StrPercentDiff.startswith("-"):
         StrPercentDiff = StrPercentDiff[1:]
         StrPercentDiff = "-" + StrPercentDiff
-        PercentColor = "#f00"
+        DiffColor = "#f00"
 
     if RangeSelection == "5m&range=1d":
         Interval = "1D"
@@ -76,11 +81,17 @@ def main(config):
     elif RangeSelection == "1wk&range=ytd":
         Interval = "YTD"
 
+    if DisplaySelection == "true":
+        StrPercentDiff = StrPercentDiff + "%"
+        DisplayDiff = StrPercentDiff
+    else:
+        DisplayDiff = str(PointsDiff)[:6]
+
     return render.Root(
         child = render.Column(
             expanded = True,
             children = [
-                print_market(Current, StrPercentDiff, PercentColor, IndexSelection, Interval),
+                print_market(Current, DisplayDiff, DiffColor, IndexSelection, Interval),
                 print_chart(INDEX_JSON, TotalTicks, LastClose, Interval),
             ],
         ),
@@ -156,7 +167,7 @@ def print_chart(INDEX_JSON, TotalTicks, LastClose, Interval):
         ],
     )
 
-def print_market(Current, PercentDiff, PercentColor, IndexSelection, Interval):
+def print_market(Current, DisplayDiff, DiffColor, IndexSelection, Interval):
     Title = getTitle(IndexSelection)
     return render.Column(
         children = [
@@ -184,9 +195,9 @@ def print_market(Current, PercentDiff, PercentColor, IndexSelection, Interval):
                         font = FONT,
                     ),
                     render.Text(
-                        content = str(PercentDiff) + "%",
+                        content = DisplayDiff,
                         font = FONT,
-                        color = PercentColor,
+                        color = DiffColor,
                     ),
                 ],
             ),
@@ -206,6 +217,10 @@ def getTitle(IndexSelection):
         return ("FTSE")
     elif IndexSelection == "gspc":
         return ("S&P 500")
+    elif IndexSelection == "BSESN":
+        return ("BSE")
+    elif IndexSelection == "NSEI":
+        return ("NIFTY")
     return ""
 
 def get_schema():
@@ -227,6 +242,13 @@ def get_schema():
                 icon = "calendarDays",
                 default = RangeOptions[0].value,
                 options = RangeOptions,
+            ),
+            schema.Toggle(
+                id = "DiffDisplay",
+                name = "Percentage or Points",
+                desc = "Toggle % or pts",
+                icon = "toggleOn",
+                default = True,
             ),
         ],
     )
@@ -255,6 +277,14 @@ IndexOptions = [
     schema.Option(
         display = "FTSE",
         value = "ftse",
+    ),
+    schema.Option(
+        display = "BSE",
+        value = "BSESN",
+    ),
+    schema.Option(
+        display = "NIFTY",
+        value = "NSEI",
     ),
 ]
 

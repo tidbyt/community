@@ -1,0 +1,8 @@
+---
+id: gc-daily-pick
+name: GC Daily Pick
+summary: Guitar Center daily pick
+desc: Shows the daily pick deal from Guitar Center.
+author: Bennett Schoonerman
+fileName: gc_daily_pick.star
+packageName: gcdailypick

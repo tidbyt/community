@@ -62,8 +62,8 @@ load("render.star", "render")
 load("schema.star", "schema")
 load("time.star", "time")
 
-SLAM_LIST = ["154-2023", "188-2023", "172-2023", "189-2023"]
-WTA1000_LIST = ["718-2023", "887-2023", "382-2023", "418-2023"]
+SLAM_LIST = ["154-2024", "188-2024", "172-2024", "189-2024"]
+WTA1000_LIST = ["256-2024", "25-2024", "401-2024", "713-2024", "413-2024", "414-2024", "421-2024", "718-2024", "959-2024", "382-2024"]
 DEFAULT_TIMEZONE = "Australia/Adelaide"
 WTA_SCORES_URL = "https://site.api.espn.com/apis/site/v2/sports/tennis/wta/scoreboard"
 
@@ -85,7 +85,7 @@ def main(config):
     diffTournStart = 0
     GroupingsID = 0
 
-    TestID = "718-2023"
+    TestID = "718-2024"
     SelectedTourneyID = config.get("TournamentList", TestID)
     ShowCompleted = config.get("CompletedOn", "true")
     ShowScheduled = config.get("ScheduledOn", "false")
@@ -1099,13 +1099,13 @@ def get_schema():
     )
 
 def titleBar(SelectedTourneyID):
-    if SelectedTourneyID == "154-2023":  # AO
+    if SelectedTourneyID == "154-2024":  # AO
         titleColor = "#0091d2"
-    elif SelectedTourneyID == "188-2023":  # Wimbledon
+    elif SelectedTourneyID == "188-2024":  # Wimbledon
         titleColor = "#006633"
-    elif SelectedTourneyID == "172-2023":  # French Open
+    elif SelectedTourneyID == "172-2024":  # French Open
         titleColor = "#c84e1e"
-    elif SelectedTourneyID == "189-2023":  # US Open
+    elif SelectedTourneyID == "189-2024":  # US Open
         titleColor = "#022686"
     else:
         titleColor = "#430166"

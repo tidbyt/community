@@ -22,15 +22,23 @@ PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0idXRmLTgiPz4KPCEtLSBHZW5lcmF0b3I6IEFkb2Jl
 
 def main(config):
     # Setup and validate config
+    DD_SITE = config.get("site") or "datadoghq.com"
+    DD_API_URL = "https://api.{}/api/v1".format(DD_SITE)
     DD_API_KEY = config.get("api_key") or DEFAULT_API_KEY
     DD_APP_KEY = config.get("app_key") or DEFAULT_APP_KEY
-    DASHBOARD_ID = config.get("dashboard_id")
+    DASHBOARD_ID = config.get("dashboard_id") or DEFAULT_DASHBOARD_ID
+    SHOW_LAST_VALUE = config.bool("show_last_value", True)
+    CHART_TIME_RANGE = config.get("chart_time_range") or "1h"
+
+    ## APIs
+    DD_DASHBOARD_API = "{}/dashboard".format(DD_API_URL)
+    DD_METRICS_QUERY_API = "{}/query".format(DD_API_URL)
 
     if DD_API_KEY == None or DD_APP_KEY == None:
         return redener("Set Datadog API and APP Key", fake_chart_data())
 
     dashboard_json = http.get(
-        "https://api.datadoghq.com/api/v1/dashboard/{}".format(DASHBOARD_ID or DEFAULT_DASHBOARD_ID),
+        "{}/{}".format(DD_DASHBOARD_API, DASHBOARD_ID),
         headers = {"DD-API-KEY": DD_API_KEY, "DD-APPLICATION-KEY": DD_APP_KEY, "Accept": "application/json"},
         ttl_seconds = 6000,
     ).json()
@@ -63,11 +71,15 @@ def main(config):
     query = first_widget.get("definition").get("requests")[0].get("queries")[0].get("query")
 
     # Query metrics API to get the list of points to plot
-    from_time = time.now().unix - 3600
+
+    # Compute the time range for the chart
+    chart_time_range_seconds = time.parse_duration(CHART_TIME_RANGE).seconds
     to_time = time.now().unix
+    from_time = to_time - chart_time_range_seconds
+
     print("Making query to DataDog API: ", query, str(from_time), str(to_time))
     query_response = http.get(
-        "https://api.datadoghq.com/api/v1/query",
+        DD_METRICS_QUERY_API,
         params = {"from": str(from_time), "to": str(to_time), "query": query},
         headers = {"DD-API-KEY": DD_API_KEY, "DD-APPLICATION-KEY": DD_APP_KEY, "Accept": "application/json"},
         ttl_seconds = 600,
@@ -93,6 +105,10 @@ def main(config):
     datapoints = []
     for point in raw_points:
         datapoints.append((point[0], point[1]))
+
+    # Add the last value to the title
+    if SHOW_LAST_VALUE:
+        title = "{}: {}".format(title, datapoints[-1][1])
 
     return redener(title, datapoints)
 
@@ -156,9 +172,73 @@ def redener(display_name, datapoints):
     return render.Root(child = root)
 
 def get_schema():
+    dd_site_options = [
+        schema.Option(
+            display = "US",
+            value = "datadoghq.com",
+        ),
+        schema.Option(
+            display = "US3",
+            value = "us3.datadoghq.com",
+        ),
+        schema.Option(
+            display = "US5",
+            value = "us5.datadoghq.com",
+        ),
+        schema.Option(
+            display = "EU",
+            value = "datadoghq.eu",
+        ),
+        schema.Option(
+            display = "Gov",
+            value = "ddog-gov.com",
+        ),
+        schema.Option(
+            display = "Japan",
+            value = "ap1.datadoghq.com",
+        ),
+    ]
+
+    chat_time_range_options = [
+        schema.Option(
+            display = "1 Hour",
+            value = "1h",
+        ),
+        schema.Option(
+            display = "4 Hours",
+            value = "4h",
+        ),
+        schema.Option(
+            display = "1 Day",
+            value = "1d",
+        ),
+        schema.Option(
+            display = "1 Week",
+            value = "1w",
+        ),
+        schema.Option(
+            display = "1 Month",
+            value = "1m",
+        ),
+        schema.Option(
+            display = "3 Month",
+            value = "3m",
+        ),
+    ]
+
     return schema.Schema(
         version = "1",
         fields = [
+            # Datadog Site Options
+            # https://docs.datadoghq.com/getting_started/site/
+            schema.Dropdown(
+                id = "dd_site",
+                name = "Datadog Site",
+                desc = "Datadog Site",
+                icon = "globe",
+                default = dd_site_options[0].value,
+                options = dd_site_options,
+            ),
             schema.Text(
                 id = "api_key",
                 name = "API Key",
@@ -176,6 +256,21 @@ def get_schema():
                 name = "Dashboard ID",
                 desc = "DataDog Dashboard ID",
                 icon = "key",
+            ),
+            schema.Dropdown(
+                id = "chart_time_range",
+                name = "Chart Time Range",
+                desc = "The time range to query for the chart",
+                icon = "clock",
+                default = chat_time_range_options[0].value,
+                options = chat_time_range_options,
+            ),
+            schema.Toggle(
+                id = "show_last_value",
+                name = "Show Chart Last Value or Name",
+                desc = "Toggle showing the chart last value or name in the scrolling text",
+                icon = "dashcube",
+                default = True,
             ),
         ],
     )
