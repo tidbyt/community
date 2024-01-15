@@ -51,6 +51,7 @@ MM_DIST_BETWEEN_SPRITES = 60
 MM_MIN_X = -(MM_SPRITE_WIDTH + MM_DIST_BETWEEN_SPRITES + MM_SPRITE_WIDTH)
 MM_MOVE_SPEED = 2
 MM_FRAMES_PER_CALL = (MM_MAX_X - MM_MIN_X) // MM_MOVE_SPEED
+
 # How many app frames before we increase the sprite frame
 MM_FRAMES_PER_FRAME = 1
 MM_MEGAMANS = [MM_RUN_R_01, MM_RUN_R_02, MM_RUN_R_03]
@@ -147,7 +148,7 @@ def main(config):
     num_frames = math.ceil(app_cycle_speed // delay)
 
     allFrames = []
-    frames = render.Text(content="")
+    frames = render.Text(content = "")
 
     for _ in range(1, 1000):
         if selectedGame == 1:
