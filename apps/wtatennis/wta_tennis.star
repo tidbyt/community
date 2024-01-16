@@ -57,6 +57,7 @@ Updated checks for walkover matches
 v1.10
 Updated box sizes to show "WO" for walkovers
 Final of tournament now indicated for scheduled, completed and in progress final
+Found bug that was showing incorrect winner for matches where there was a retirement during a set
 """
 
 load("encoding/json.star", "json")
