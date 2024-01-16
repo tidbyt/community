@@ -65,6 +65,9 @@ Updated for 2024 season
 v1.11
 Added GroupingsID to handle when "Womens Singles" are listed before "Mens Singles" in the API data
 Added handling for no matches listed in a touranment and to stop that from being added to the dropdown list
+
+v1.12
+Found bug that was showing incorrect winner for matches where there was a retirement during a set
 """
 
 load("encoding/json.star", "json")
@@ -604,16 +607,18 @@ def getCompletedMatches(SelectedTourneyID, EventIndex, CompletedMatchList, JSON)
                     Player1SetWinnerList.insert(0, Player1SetWinner)
                     Player2SetWinnerList.insert(0, Player2SetWinner)
 
-                    Player1Color = "#fff"
-                    Player2Color = "#fff"
+                    Player1SetColor = "#fff"
+                    Player2SetColor = "#fff"
                     P1Score = Player1SetScoreList.pop()
                     P2Score = Player2SetScoreList.pop()
                     P1SetWinner = Player1SetWinnerList.pop()
+                    P2SetWinner = Player2SetWinnerList.pop()
 
+                    # indicate the set winner in yellow, if no set winner (in the case of retirement) then both scores are white
                     if P1SetWinner == True:
-                        Player1Color = "ff0"
-                    else:
-                        Player2Color = "ff0"
+                        Player1SetColor = "ff0"
+                    elif P2SetWinner == True:
+                        Player2SetColor = "ff0"
 
                     SetScores1 = [
                         render.Box(
@@ -621,7 +626,7 @@ def getCompletedMatches(SelectedTourneyID, EventIndex, CompletedMatchList, JSON)
                             height = 5,
                             child = render.Text(
                                 content = P1Score,
-                                color = Player1Color,
+                                color = Player1SetColor,
                                 font = displayfont,
                             ),
                         ),
@@ -633,7 +638,7 @@ def getCompletedMatches(SelectedTourneyID, EventIndex, CompletedMatchList, JSON)
                             height = 5,
                             child = render.Text(
                                 content = P2Score,
-                                color = Player2Color,
+                                color = Player2SetColor,
                                 font = displayfont,
                             ),
                         ),
