@@ -250,7 +250,7 @@ def get_schema():
                 id = "randomize_colors",
                 name = "Randomize Colors",
                 desc = "Ignore the color settings and randomize them instead.",
-                icon = "random",
+                icon = "shuffle",
                 default = True,
             ),
             schema.Color(
