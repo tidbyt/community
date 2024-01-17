@@ -238,12 +238,6 @@ def get_schema():
     return schema.Schema(
         version = "1",
         fields = [
-            schema.Text(
-                id = "quote_index",
-                name = "Quote Index",
-                desc = "Select a different quote by changing the index.",
-                icon = "list-ol",
-            ),
             schema.Dropdown(
                 id = "duration_in_minutes",
                 name = "Quote duration",
