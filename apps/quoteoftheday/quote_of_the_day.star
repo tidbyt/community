@@ -1,5 +1,5 @@
 """
-Applet: A Quote of the Day
+Applet: A Quote A Day
 Summary: Cool or inspiring quotes
 Description: This app gives a new cool, humorous, or inspiring quote of the day.
 Author: Taylor White
