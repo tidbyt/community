@@ -14,6 +14,41 @@ DEFAULT_REGULAR_FONT_MIN = 60
 DEFAULT_EXTRA_SMALL_FONT_MIN = 32
 DEFAULT_SMALL_FONT_MIN = 52
 
+font_options = [
+    schema.Option(
+        display = "tb-8",
+        value = "tb-8",
+    ),
+    schema.Option(
+        display = "Dina R400 6",
+        value = "Dina_r400-6",
+    ),
+    schema.Option(
+        display = "5x8",
+        value = "5x8",
+    ),
+    schema.Option(
+        display = "6x13",
+        value = "6x13",
+    ),
+    schema.Option(
+        display = "10x20",
+        value = "10x20",
+    ),
+    schema.Option(
+        display = "Tom Thumb",
+        value = "tom-thumb",
+    ),
+    schema.Option(
+        display = "3x5 Monospace",
+        value = "CG-pixel-3x5-mono",
+    ),
+    schema.Option(
+        display = "4x5 Monospace",
+        value = "CG-pixel-4x5-mono",
+    ),
+]
+
 DEFAULT_COLORS = [
     "#FFFFFF",  # White
     "#d94e6f",  # Rose
@@ -122,17 +157,15 @@ def main(config):
         quote_color = DEFAULT_COLORS[random.number(0, 12)]
         author_color = DEFAULT_COLORS[random.number(0, 12)]
 
-    #selected_quote_text = DEFAULT_QUOTES[quote_index % len(DEFAULT_QUOTES)]["quote"]
-    #selected_quote_author = DEFAULT_QUOTES[quote_index % len(DEFAULT_QUOTES)]["author"]
-    selected_quote_text = DEFAULT_QUOTES[21]["quote"]
-    selected_quote_author = DEFAULT_QUOTES[21]["author"]
+    selected_quote_text = DEFAULT_QUOTES[quote_index % len(DEFAULT_QUOTES)]["quote"]
+    selected_quote_author = DEFAULT_QUOTES[quote_index % len(DEFAULT_QUOTES)]["author"]
 
     if len(selected_quote_text) < DEFAULT_EXTRA_SMALL_FONT_MIN:
-        font="10x20"
+        font = font_options[4].value  # "10x20"
     elif len(selected_quote_text) < DEFAULT_SMALL_FONT_MIN:
-        font="6x13"
+        font = font_options[3].value  # "6x13"
     elif len(selected_quote_text) < DEFAULT_REGULAR_FONT_MIN:
-        font = "5x8"
+        font = font_options[2].value  # "5x8"
     else:
         font = DEFAULT_FONT
 
@@ -217,40 +250,6 @@ def get_schema():
         ),
     ]
 
-    font_options = [
-        schema.Option(
-            display = "tb-8",
-            value = "tb-8",
-        ),
-        schema.Option(
-            display = "Dina R400 6",
-            value = "Dina_r400-6",
-        ),
-        schema.Option(
-            display = "5x8",
-            value = "5x8",
-        ),
-        schema.Option(
-            display = "6x13",
-            value = "6x13",
-        ),
-        schema.Option(
-            display = "10x20",
-            value = "10x20",
-        ),
-        schema.Option(
-            display = "Tom Thumb",
-            value = "tom-thumb",
-        ),
-        schema.Option(
-            display = "3x5 Monospace",
-            value = "CG-pixel-3x5-mono",
-        ),
-        schema.Option(
-            display = "4x5 Monospace",
-            value = "CG-pixel-4x5-mono",
-        ),
-    ]
     return schema.Schema(
         version = "1",
         fields = [
