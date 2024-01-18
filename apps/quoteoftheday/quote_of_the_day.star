@@ -1,5 +1,5 @@
 """
-Applet: Quote of the Day
+Applet: A Quote of the Day
 Summary: Cool or inspiring quotes
 Description: This app gives a new cool, humorous, or inspiring quote of the day.
 Author: Taylor White
@@ -9,6 +9,10 @@ load("random.star", "random")
 load("render.star", "render")
 load("schema.star", "schema")
 load("time.star", "time")
+
+DEFAULT_REGULAR_FONT_MIN = 60
+DEFAULT_EXTRA_SMALL_FONT_MIN = 32
+DEFAULT_SMALL_FONT_MIN = 52
 
 DEFAULT_COLORS = [
     "#FFFFFF",  # White
@@ -49,7 +53,7 @@ DEFAULT_QUOTES = [
     {"quote": "When one door closes, another door opens.", "author": "Italian Proverb"},
     {"quote": "The best way to predict the future is to invent it.", "author": "Xerox PARC Researchers"},
     {"quote": "No one can make you feel inferior without your consent.", "author": "Eleanor Roosevelt"},
-    {"quote": "Understanding is a two-way street.", "author": "Eleanor Roosevelt"},
+    {"quote": "Understand -ing is a two-way street.", "author": "Eleanor Roosevelt"},
     {"quote": "The man who does not read has no advantage over the man who cannot read.", "author": "Mark Twain"},
     {"quote": "I know not with what weapons World War III will be fought, but World War IV will be fought with sticks and stones.", "author": "Albert Einstein"},
     {"quote": "The future cannot be predicted, but futures can be invented. It was man's ability to invent which has made human society what it is.", "author": "Dennis Gabor"},
@@ -102,13 +106,13 @@ DEFAULT_QUOTES = [
 
 DEFAULT_DURATION_IN_MINUTES = 5
 
+DEFAULT_FONT = "tb-8"
 DEFAULT_COLOR = "#FFFFFF"
 
 def main(config):
     quote_color = config.str("quote_color", DEFAULT_COLOR)
 
     author_color = config.str("author_color", DEFAULT_COLOR)
-    font_style = config.str("font_style", "tb-8")
     duration_in_minutes = int(config.str("duration_in_minutes", DEFAULT_DURATION_IN_MINUTES))
     current_timestamp = time.now().unix
     current_interval = (current_timestamp // (60 * duration_in_minutes))
@@ -118,11 +122,22 @@ def main(config):
         quote_color = DEFAULT_COLORS[random.number(0, 12)]
         author_color = DEFAULT_COLORS[random.number(0, 12)]
 
-    selected_quote_text = DEFAULT_QUOTES[quote_index % len(DEFAULT_QUOTES)]["quote"]
-    selected_quote_author = DEFAULT_QUOTES[quote_index % len(DEFAULT_QUOTES)]["author"]
+    #selected_quote_text = DEFAULT_QUOTES[quote_index % len(DEFAULT_QUOTES)]["quote"]
+    #selected_quote_author = DEFAULT_QUOTES[quote_index % len(DEFAULT_QUOTES)]["author"]
+    selected_quote_text = DEFAULT_QUOTES[21]["quote"]
+    selected_quote_author = DEFAULT_QUOTES[21]["author"]
 
-    msg = render.WrappedText(selected_quote_text, font = font_style, color = quote_color)
-    author = render.WrappedText(selected_quote_author, font = "tb-8", color = author_color)
+    if len(selected_quote_text) < DEFAULT_EXTRA_SMALL_FONT_MIN:
+        font="10x20"
+    elif len(selected_quote_text) < DEFAULT_SMALL_FONT_MIN:
+        font="6x13"
+    elif len(selected_quote_text) < DEFAULT_REGULAR_FONT_MIN:
+        font = "5x8"
+    else:
+        font = DEFAULT_FONT
+
+    msg = render.WrappedText(selected_quote_text, font = font, color = quote_color)
+    author = render.WrappedText(selected_quote_author, font = DEFAULT_FONT, color = author_color)
     author_box = render.Box(
         child = render.Box(
             child = render.Box(
@@ -158,6 +173,7 @@ def main(config):
     return render.Root(
         delay = 100,
         child = sequence,
+        show_full_animation = True,
     )
 
 def get_frames(child_widget, frame_count):
@@ -268,14 +284,6 @@ def get_schema():
                 icon = "brush",
                 default = "#19c295",
                 palette = DEFAULT_COLORS,
-            ),
-            schema.Dropdown(
-                id = "font_style",
-                name = "Font Style",
-                desc = "The font style to use.",
-                icon = "font",
-                default = font_options[0].value,
-                options = font_options,
             ),
         ],
     )
