@@ -18,7 +18,7 @@ HEADER_COLOR = "#3457D5"
 MAX_PAST_DUE_DAY = -14
 MAX_FUTURE_DAY = 7
 
-TEST = True
+TEST = False
 TEST_CONFIG = dict(
     include_oversized_task = False,
     include_completed = True,

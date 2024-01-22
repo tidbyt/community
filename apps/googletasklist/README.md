@@ -9,14 +9,26 @@ The task List Name option is case sensitive - and must match exactly what your l
 ![Google Tasks Integration for Tidbyt](google_task_list.gif)
 
 ## Customization
+### Task List Selection:
+Specify the task list to fetch tasks from using the schema.Text field.
+- Set the default task list name to streamline task retrieval.
+### Display Options:
+Customize the display options to control which tasks are shown:
+- Toggle to show completed tasks.
+- Toggle to show past-due tasks.
+- Toggle to show tasks due more than 3 days in the future.
+### Color Customization:
+Customize the colors associated with different task states:
+- Completed tasks.
+- Overdue tasks.
+- Future tasks.
+- Tasks due soon.
+![Customizations](google_task_list_config.png)
 
-This app is customizable.
-
-Task Color can be changed.
-Colors for each task category can be set.
-Can decide to show completed tasks, show tasks in the future, or show tasks past due.
-
+## Testing
+Mock Data for Testing:
+-Enable the TEST flag to test the app with mock data.
+-Configure test scenarios using the TEST_CONFIG dictionary.
 
 ## Notes
-
 This app is not created by, affiliated with, or supported by Google.
