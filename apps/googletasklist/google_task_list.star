@@ -14,7 +14,7 @@ TASK_API_LISTS_URL = "https://www.googleapis.com/tasks/v1/users/@me/lists"
 TASK_API_TASKS_URL = "https://tasks.googleapis.com/tasks/v1/lists"
 DISPLAY_FONT = "CG-pixel-4x5-mono"
 HEADERS = ["Due", " / ", "Tasks"]
-HEADER_COLOR = "#3457D5"
+HEADER_COLOR = "#30C4FF"
 MAX_PAST_DUE_DAY = -14
 MAX_FUTURE_DAY = 7
 
@@ -85,11 +85,19 @@ def get_applet_render(header_section, task_section):
     )
 
 def get_header():
-    return render.Row(
-        children = [render.Text(header, color = HEADER_COLOR, font = DISPLAY_FONT) for header in HEADERS],
-        main_align = "space_evenly",
-        cross_align = "start",
-        expanded = True,
+    return render.Column(
+        children = [
+            render.Row(
+                children = [render.Text(header, color = HEADER_COLOR, font = DISPLAY_FONT) for header in HEADERS],
+                main_align = "space_evenly",
+                cross_align = "start",
+                expanded = True,
+            ),
+            render.Box(
+                height = 1,
+                color = HEADER_COLOR,
+            )
+        ]
     )
 
 def get_marquee(tasks):
@@ -150,7 +158,7 @@ def get_tasks(auth_token, task_list_id, show_completed):
 
     if not tasks:
         base_url = "%s/%s/tasks" % (TASK_API_TASKS_URL, task_list_id)
-        params = "?showHidden=true&showCompleted=%s&maxResults=25" % (str(show_completed))
+        params = "?showHidden=true&showCompleted=%s&maxResults=50" % (str(show_completed))
         url = base_url + params
         tasks = make_request(url, auth_token)
         cache.set("tasks", json.encode(tasks), 300)
@@ -351,7 +359,9 @@ def refresh_access_token(token):
         refresh_token = token,
     )
     token_params = make_oauth_token_call(request_body)
-    cache.set("access_token", token_params["access_token"], ttl_seconds = 3540)
+    # Set cache to expire a minute early to refresh access
+    token_expires_in = int(token_params["expires_in"])-60
+    cache.set("access_token", token_params["access_token"], ttl_seconds = token_expires_in)
 
     return token_params["access_token"]
 
