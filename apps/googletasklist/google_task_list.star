@@ -96,8 +96,8 @@ def get_header():
             render.Box(
                 height = 1,
                 color = HEADER_COLOR,
-            )
-        ]
+            ),
+        ],
     )
 
 def get_marquee(tasks):
@@ -359,8 +359,9 @@ def refresh_access_token(token):
         refresh_token = token,
     )
     token_params = make_oauth_token_call(request_body)
+
     # Set cache to expire a minute early to refresh access
-    token_expires_in = int(token_params["expires_in"])-60
+    token_expires_in = int(token_params["expires_in"]) - 60
     cache.set("access_token", token_params["access_token"], ttl_seconds = token_expires_in)
 
     return token_params["access_token"]
