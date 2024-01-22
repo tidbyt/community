@@ -1,0 +1,8 @@
+---
+id: google-task-list
+name: Google Task List
+summary: Reads from Google Task API
+desc: Lists current to do tasks from your Google Tasks list.
+author: cashRoyale
+fileName: google_task_list.star
+packageName: googletasklist
