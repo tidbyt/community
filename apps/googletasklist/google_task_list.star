@@ -142,18 +142,18 @@ def get_max_text_height(tasks):
         return 12
 
 def get_task_list_id(auth_token, task_list_name):
-    task_list_id = cache.get("task_list_id")
+    task_list_id = cache.get(task_list_name)
     if not task_list_id:
         task_lists = make_request(TASK_API_LISTS_URL, auth_token)
         for tl in task_lists:
             if tl["title"] == task_list_name:
-                cache.set("task_list_id", tl["title"], 300)
+                cache.set(task_list_name, tl["id"], 300)
                 return tl["id"]
 
     return task_list_id
 
 def get_tasks(auth_token, task_list_id, show_completed):
-    cached_tasks = cache.get("tasks")
+    cached_tasks = cache.get(task_list_id)
     tasks = json.decode(cached_tasks) if cached_tasks else cached_tasks
 
     if not tasks:
@@ -161,7 +161,7 @@ def get_tasks(auth_token, task_list_id, show_completed):
         params = "?showHidden=true&showCompleted=%s&maxResults=50" % (str(show_completed))
         url = base_url + params
         tasks = make_request(url, auth_token)
-        cache.set("tasks", json.encode(tasks), 300)
+        cache.set(task_list_id, json.encode(tasks), 300)
 
     return tasks
 
@@ -324,7 +324,6 @@ def get_schema():
 def oauth_handler(params):
     # deserialize oauth2 parameters, see example above.
     params = json.decode(params)
-    print(params)
     request_body = dict(
         code = params["code"],
         client_id = OAUTH2_CLIENT_ID,
@@ -333,7 +332,6 @@ def oauth_handler(params):
         client_secret = OAUTH2_CLIENT_SECRET,
     )
     token_params = make_oauth_token_call(request_body)
-    print(token_params)
 
     return token_params["refresh_token"]
 
@@ -359,15 +357,16 @@ def refresh_access_token(token):
         refresh_token = token,
     )
     token_params = make_oauth_token_call(request_body)
+    access_token = token_params["access_token"]
 
     # Set cache to expire a minute early to refresh access
     token_expires_in = int(token_params["expires_in"]) - 60
-    cache.set("access_token", token_params["access_token"], ttl_seconds = token_expires_in)
+    cache.set(token, access_token, ttl_seconds = token_expires_in)
 
-    return token_params["access_token"]
+    return access_token
 
 def get_access_token(token):
-    access_token = cache.get("access_token")
+    access_token = cache.get(token)
     return access_token if access_token else refresh_access_token(token)
 
 #  ---------Data for Testing---------------#
