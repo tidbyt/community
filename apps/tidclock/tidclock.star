@@ -624,7 +624,7 @@ def main(config):
                 if res == None:
                     resgood = False
                 else:
-                    result = res.json()
+                    result = json.decode(res)
                     resgood = "forecast" in result and dayformatted in result["forecast"]
 
                 if resgood == False:
