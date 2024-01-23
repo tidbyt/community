@@ -9,8 +9,8 @@ load("encoding/base64.star", "base64")
 load("http.star", "http")
 load("humanize.star", "humanize")
 load("render.star", "render")
-load("time.star", "time")
 load("schema.star", "schema")
+load("time.star", "time")
 
 DEFAULT_IS_ANIMATING = True
 DEFAULT_HAS_BACKGROUND_IMAGE = True
@@ -47,7 +47,7 @@ def get_current_debt(raw_data, fr):
     diff_number_latest_previous_per_second = int(diff_number_latest_previous / convert_duration_to_seconds(latest_date - previous_date))
     diff_current_latest_in_seconds = convert_duration_to_seconds(time.now() - latest_date)
 
-    return latest_debt + diff_number_latest_previous_per_second + ((diff_current_latest_in_seconds / 30) * fr)
+    return latest_debt + diff_number_latest_previous_per_second + ((diff_current_latest_in_seconds / FRAMES_PER_SECOND) * fr)
 
 def render_content(raw_data, fr):
     total_debt = get_current_debt(raw_data, fr)
@@ -73,7 +73,6 @@ def render_content(raw_data, fr):
                             ],
                         ),
                     ),
-
                     render.Padding(
                         pad = (3, 0, 0, 0),
                         child = render.Row(
@@ -87,23 +86,20 @@ def render_content(raw_data, fr):
                             ],
                         ),
                     ),
-                ]
-            )
+                ],
+            ),
         )
     return render.Column(
         children = rows,
     )
 
 def render_animated_content(raw_data):
-    # HOW TO ANIMATE THIS!?
-    # [render_content(raw_data)] * 300,
     return render.Animation(
         children = [
-            render_content(raw_data, fr) for fr in range(1500)
+            render_content(raw_data, fr)
+            for fr in range(1500)
         ],
     )
-
-    return render_content(raw_data, 1)
 
 def main(config):
     is_animating = config.bool("is_animating", DEFAULT_IS_ANIMATING)
@@ -141,7 +137,6 @@ def main(config):
     )
 
     return render.Root(
-        # delay = 32, # 30 fps
         delay = FRAMES_PER_SECOND,
         child = render.Stack(
             children = conditional_background_image_elements,
