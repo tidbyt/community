@@ -1,0 +1,8 @@
+---
+id: purdue-basketball
+name: Purdue Basketball
+summary: Shows basketball record
+desc: Shows Purdues bball record.
+author: Griffinov22
+fileName: purdue_basketball.star
+packageName: purduebasketball
