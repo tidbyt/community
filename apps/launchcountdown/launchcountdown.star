@@ -126,13 +126,38 @@ def get_rocket_launch_json():
 
                 # TODO: Determine if this cache call can be converted to the new HTTP cache.
                 cache.set(ROCKET_LAUNCH_CACHE_NAME, json.encode(rocket_launch_data), ttl_seconds = cache_time_seconds)
+                # Filter out any providers in ignoredProviders
 
     return (rocket_launch_data)
+
+def filter_rocket_launches(rocket_launch_data, filter_for_providers_string, filter_for_countries_string):
+    """ Filter Included Providers and Countries
+    Args:
+        rocket_launch_data: the rocket launch data with all the info on future launches
+        filter_for_providers_string: comma separated list of providers to filter for
+        filter_for_countries_string: comma separated list of countries to filter for
+    Returns:
+        rocket_launch_data but only with the included providers & countries
+    """
+    included_providers = [provider.strip().lower() for provider in filter_for_providers_string.split(",")] if filter_for_providers_string.strip() else []
+    included_countries = [country.strip().lower() for country in filter_for_countries_string.split(",")] if filter_for_countries_string.strip() else []
+
+    if not included_providers and not included_countries:  # if both lists are empty, return all data
+        return rocket_launch_data
+
+    filtered_data = [
+        launch
+        for launch in rocket_launch_data["result"]
+        if (not included_providers or launch["provider"]["name"].lower() in included_providers) and
+           (not included_countries or launch["pad"]["location"]["country"].lower() in included_countries)
+    ]
+
+    rocket_launch_data["result"] = filtered_data
+    return rocket_launch_data
 
 #Since not all launches supply values for all these, this makes it easy to add items to a marquee
 def get_launch_details(rocket_launch_data, locallaunch, mytimezone):
     """ Get Launch Details
-
     Args:
         rocket_launch_data: the rocket launch data with all the info on future launches
     Returns:
@@ -182,7 +207,12 @@ def main(config):
     location = json.decode(config.get("location", default_location))
     rocket_launch_data = get_rocket_launch_json()
 
-    rocket_launch_count = 0
+    initial_count = len(rocket_launch_data["result"]) if rocket_launch_data else 0
+
+    rocket_launch_data = filter_rocket_launches(rocket_launch_data, config.get("filter_for_providers", ""), config.get("filter_for_countries", ""))
+
+    rocket_launch_count = len(rocket_launch_data["result"]) if rocket_launch_data else 0
+
     row1 = ""
     row2 = ""
     row3 = ""
@@ -190,13 +220,9 @@ def main(config):
 
     if rocket_launch_data == None:
         row1 = "Failed to get data from Rocketlaunch.live feed"
+    elif rocket_launch_count == 0:
+        row1 = "All launches filtered.." if initial_count > 0 else "No upcoming launches.."
     else:
-        rocket_launch_count = rocket_launch_data["count"]
-
-    if (rocket_launch_count == 0):
-        row1 = "No upcoming launches.."
-    else:
-        row1 = "No upcoming launches.."
         rocket_launch_count = int(rocket_launch_count)
         for i in range(0, rocket_launch_count):
             localtime = time.now()
@@ -300,6 +326,18 @@ def get_schema():
                 icon = "stopwatch",
                 options = scroll_speed_options,
                 default = scroll_speed_options[0].value,
+            ),
+            schema.Text(
+                id = "filter_for_providers",
+                name = "Only Show these providers",
+                desc = "Comma Seperated List of Providers to Show",
+                icon = "industry",
+            ),
+            schema.Text(
+                id = "filter_for_countries",
+                name = "Only Show these countries",
+                desc = "Comma Seperated List of Countries to Show",
+                icon = "globe",
             ),
         ],
     )
