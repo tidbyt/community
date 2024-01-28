@@ -307,13 +307,9 @@ def get_sensei_list():
 
 def get_schema():
     anime_csv = get_sensei_list()
-    if anime_csv == None:
-        return schema.Schema(
-            version = "1",
-            fields = [],
-        )
-
-    anime_options = [anime_to_schema_option(anime) for anime in anime_csv]
+    anime_options = [schema.Option(display = "Default (List N/A)", value = DEFAULT_ANIME)]
+    if anime_csv != None:
+        anime_options = [anime_to_schema_option(anime) for anime in anime_csv]
 
     config_fields = [
         schema.Dropdown(
