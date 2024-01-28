@@ -77,7 +77,9 @@ def display_image(file_id, anime_cfg, image_cfg, latest_episodes):
         anime_image = get_thumbnail(file_id, anime_cfg, image_cfg, latest_episodes)
 
     if anime_image == None:
-        return show_error("No image")
+        return render.WrappedText(
+            content = "No image",
+        )
 
     if image_cfg == "poster_top_half":
         return render.Image(
