@@ -1,0 +1,8 @@
+---
+id: cranimechecker
+name: CR Anime Checker
+summary: Check anime on Crunchyroll
+desc: Checks for the lastest episodes (subs and dubs) for an anime on Crunchyroll.
+author: Schoperation
+fileName: cranimechecker.star
+packageName: cranimechecker
