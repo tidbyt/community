@@ -1,3 +1,4 @@
+load("cache.star", "cache")
 load("encoding/base64.star", "base64")
 load("encoding/json.star", "json")
 load("http.star", "http")
@@ -617,31 +618,48 @@ def main(config):
                             ctx["showweather"] = False
                             print("Error getting paid weather; unexpected json")
 
-                til_midnight_ttl = (int)((60 * 60 * 24) - (ctx["hour"] * 60 * 60 + ctx["minute"] * 60 + ctx["second"]))
-                res = http.get(url = weatherurlweek, ttl_seconds = til_midnight_ttl)
-                if res.status_code != 200:
-                    ctx["showweather"] = False
-                    print("Error getting weather " + str(res.status_code))
+                dayformatted = (thisnow + time.hour * 24 * 6).format("2006-01-02")
+                resgood = True
+                res = cache.get(weatherurlweek)
+                if res == None:
+                    resgood = False
                 else:
-                    result = res.json()
-                    if "success" in result and result["success"] == False:
-                        ctx["showweather"] = False
-                        if "error" in result and "code" in result["error"] and "type" in result["error"]:
-                            print("Error getting paid week weather " + str(result["error"]["code"]) + result["error"]["type"])
-                        else:
-                            print("Error getting paid week weather; failed getting error code")
-                    elif "forecast" in result:
-                        forecast = result["forecast"]
-                        ctx["weekweather"] = []
-                        for i in range(7):
-                            dayformatted = (thisnow + time.hour * 24 * i).format("2006-01-02")
-                            if dayformatted in forecast:
-                                ctx["weekweather"].append(forecast[dayformatted]["totalsnow"])
-                            else:
-                                ctx["weekweather"].append(0)
+                    result = json.decode(res)
+                    resgood = "forecast" in result and dayformatted in result["forecast"]
+
+                if resgood == False:
+                    til_midnight_ttl = (int)((60 * 60 * 24) - (ctx["hour"] * 60 * 60 + ctx["minute"] * 60 + ctx["second"]))
+                    res = http.get(url = weatherurlweek, ttl_seconds = til_midnight_ttl)
+                    if res.status_code != 200:
+                        print("Error getting weather " + str(res.status_code))
                     else:
-                        ctx["showweather"] = False
-                        print("Error getting paid week weather; unexpected json")
+                        result = res.json()
+                        if "success" in result and result["success"] == False:
+                            if "error" in result and "code" in result["error"] and "type" in result["error"]:
+                                print("Error getting paid week weather " + str(result["error"]["code"]) + result["error"]["type"])
+                            else:
+                                print("Error getting paid week weather; failed getting error code")
+                        elif "forecast" not in result:
+                            resgood = False
+                            print("Error getting paid week weather; unexpected json")
+                        else:
+                            res = res.body()
+                            cache.set(weatherurlweek, res, til_midnight_ttl)
+                            resgood = True
+
+                if resgood:
+                    result = json.decode(res)
+                    forecast = result["forecast"]
+                    ctx["weekweather"] = []
+                    for i in range(7):
+                        dayformatted = (thisnow + time.hour * 24 * i).format("2006-01-02")
+                        if dayformatted in forecast:
+                            ctx["weekweather"].append(forecast[dayformatted]["totalsnow"])
+                        else:
+                            ctx["weekweather"].append(0)
+                else:
+                    ctx["showweather"] = False
+
             else:
                 weatherurlbase = WEATHERURLFREE + config.get("weatherkey") + "&query=" + humanize.url_encode(locality)
 
