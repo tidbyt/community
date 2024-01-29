@@ -1,6 +1,6 @@
 """
-Applet: A Quote A Day
-Summary: Cool or inspiring quotes
+Applet: Quotetopia
+Summary: Quotetopia, Great Quotes
 Description: This app gives a new cool, humorous, or inspiring quote of the day.
 Author: Taylor White
 """
@@ -11,8 +11,12 @@ load("schema.star", "schema")
 load("time.star", "time")
 
 DEFAULT_REGULAR_FONT_MIN = 60
-DEFAULT_EXTRA_SMALL_FONT_MIN = 32
-DEFAULT_SMALL_FONT_MIN = 52
+DEFAULT_LARGE_FONT_MIN = 52
+DEFAULT_EXTRA_LARGE_FONT_MIN = 32
+
+DEFAULT_AUTH_SMALL_FONT_MIN = 25
+DEFAULT_AUTH_REGULAR_FONT_MIN = 15
+DEFAULT_AUTH_LARGE_FONT_MIN = 8
 
 font_options = [
     schema.Option(
@@ -94,6 +98,7 @@ DEFAULT_QUOTES = [
     {"quote": "The future cannot be predicted, but futures can be invented. It was man's ability to invent which has made human society what it is.", "author": "Dennis Gabor"},
     {"quote": "The two most important days in your life are the day you are born and the day you find out why.", "author": "Mark Twain"},
     {"quote": "No man is a failure who has friends.", "author": "Clarence the Angel"},
+    {"quote": "If you tell the truth you don't have to remember anything.", "author": "Mark Twain"},
     {"quote": "The difference between the right word and the almost right word is the difference between lightning and a lightning bug.", "author": "Mark Twain"},
     {"quote": "Too many of us are not living our dreams because we are living our fears.", "author": "Les Brown"},
     {"quote": "You can cut all the flowers but you cannot keep Spring from coming.", "author": "Pablo Neruda"},
@@ -137,9 +142,18 @@ DEFAULT_QUOTES = [
     {"quote": "History will be kind to me, for I intend to write it.", "author": "Winston Churchill"},
     {"quote": "Where there is great power, there is great responsibility.", "author": "Winston Churchill"},
     {"quote": "Early to bed and early to rise makes a man healthy, wealthy, and wise.", "author": "Benjamin Franklin"},
+    {"quote": "Be yourself; everyone else is already taken", "author": "Oscar Wilde"},
+    {"quote": "Well done is better than well said.", "author": "Benjamin Franklin"},
+    {"quote": "Never let the fear of striking out keep you from playing the game.", "author": "Babe Ruth"},
+    {"quote": "Do not let making a living prevent you from making a life.", "author": "John Wooden"},
+    {"quote": "The secret of success is to do the common thing uncommonly well.", "author": "ohn D. Rockefeller Jr."},
+    {"quote": "I find that the harder I work, the more luck I seem to have.", "author": "Thomas Jefferson"},
+    {"quote": "Leave nothing for tomorrow which can be done today.", "author": "Abraham Lincoln"},
+    {"quote": "Twenty years from now you will be more disappointed by the things that you didn't do than by the ones you did do. So, throw off the bowlines, sail away from safe harbor, catch the trade winds in your sails. Explore, Dream, Discover.", "author": "Mark Twain"},
+    {"quote": "Great minds discuss ideas; average minds discuss events; small minds discuss people.", "author": "Eleanor Roosevelt"},
 ]
 
-DEFAULT_DURATION_IN_MINUTES = 5
+DEFAULT_DURATION_IN_MINUTES = 1
 
 DEFAULT_FONT = "tb-8"
 DEFAULT_COLOR = "#FFFFFF"
@@ -160,17 +174,26 @@ def main(config):
     selected_quote_text = DEFAULT_QUOTES[quote_index % len(DEFAULT_QUOTES)]["quote"]
     selected_quote_author = DEFAULT_QUOTES[quote_index % len(DEFAULT_QUOTES)]["author"]
 
-    if len(selected_quote_text) < DEFAULT_EXTRA_SMALL_FONT_MIN:
-        font = font_options[4].value  # "10x20"
-    elif len(selected_quote_text) < DEFAULT_SMALL_FONT_MIN:
-        font = font_options[3].value  # "6x13"
+    if len(selected_quote_text) < DEFAULT_EXTRA_LARGE_FONT_MIN:
+        quote_font = font_options[4].value  # "10x20"
+    elif len(selected_quote_text) < DEFAULT_LARGE_FONT_MIN:
+        quote_font = font_options[3].value  # "6x13"
     elif len(selected_quote_text) < DEFAULT_REGULAR_FONT_MIN:
-        font = font_options[2].value  # "5x8"
+        quote_font = font_options[0].value  # "tb-8"
     else:
-        font = DEFAULT_FONT
+        quote_font = DEFAULT_FONT
 
-    msg = render.WrappedText(selected_quote_text, font = font, color = quote_color)
-    author = render.WrappedText(selected_quote_author, font = DEFAULT_FONT, color = author_color)
+    if len(selected_quote_author) < DEFAULT_AUTH_LARGE_FONT_MIN:
+        author_font = font_options[3].value  # "6x13"
+    elif len(selected_quote_author) < DEFAULT_AUTH_REGULAR_FONT_MIN:
+        author_font = font_options[0].value  # "tb-8"
+    elif len(selected_quote_author) < DEFAULT_AUTH_SMALL_FONT_MIN:
+        author_font = font_options[5].value  # "tom-thumb"
+    else:
+        author_font = font_options[5].value  # "tom-thumb"
+
+    msg = render.WrappedText(selected_quote_text, font = quote_font, color = quote_color)
+    author = render.WrappedText(selected_quote_author, font = author_font, color = author_color)
     author_box = render.Box(
         child = render.Box(
             child = render.Box(
@@ -188,6 +211,7 @@ def main(config):
         padding = 1,
     )
 
+    author_box_animation_short = get_frames(author_box, 30)
     author_box_animation = get_frames(author_box, 50)
 
     marquee = render.Marquee(
@@ -199,8 +223,13 @@ def main(config):
         align = "center",
     )
 
+    marqueeWithPadding = render.Padding(
+        child = marquee,
+        pad = (2, 0, 0, 0),
+    )
+
     sequence = render.Sequence(
-        children = [marquee, author_box_animation],
+        children = [author_box_animation_short, marqueeWithPadding, author_box_animation],
     )
 
     return render.Root(
