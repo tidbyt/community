@@ -5,9 +5,9 @@ Description: Shows the date of the next Vegas Golden Knights game.
 Author: theimpossibleleap
 """
 
-load("render.star", "render")
-load("http.star", "http")
 load("encoding/base64.star", "base64")
+load("http.star", "http")
+load("render.star", "render")
 load("time.star", "time")
 
 timestamp = time.now().format("2006-01-02")
@@ -15,7 +15,6 @@ timestamp = time.now().format("2006-01-02")
 vgkNextGameWeek = "https://api-web.nhle.com/v1/club-schedule/VGK/week/" + timestamp
 
 def main():
-
     response = http.get(vgkNextGameWeek)
 
     if response.status_code != 200:
@@ -31,23 +30,23 @@ def main():
     return render.Root(
         render.Box(
             child = render.Row(
-                main_align="center",
-                cross_align="center",
-                children=[
+                main_align = "center",
+                cross_align = "center",
+                children = [
                     render.Image(img),
                     render.Column(
-                        children=[
+                        children = [
                             render.Box(
-                                child=render.Column(
-                                    children=[
-                                        render.Text(content=" Next Game:", font="tom-thumb", color="B4975A"),
-                                        render.Text(content=" " + nextStartDate, font="tom-thumb")
-                                    ]
-                                )
+                                child = render.Column(
+                                    children = [
+                                        render.Text(content = " Next Game:", font = "tom-thumb", color = "B4975A"),
+                                        render.Text(content = " " + nextStartDate, font = "tom-thumb"),
+                                    ],
+                                ),
                             ),
-                        ]
-                    )
-                ]
-            )
-        )
+                        ],
+                    ),
+                ],
+            ),
+        ),
     )
