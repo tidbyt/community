@@ -70,11 +70,11 @@ def main(config):
         #     \ndirection_id: %s\
         #     \ndirection_data: %s\
         #     \ncolor_code: %s\
-        #     \ndepartures: %s" 
-        #     % (schema_train_line, route_id, route_name, schema_train_station, 
-        #     stop_id, stop_name, schema_direction, direction_id, direction_data, 
+        #     \ndepartures: %s"
+        #     % (schema_train_line, route_id, route_name, schema_train_station,
+        #     stop_id, stop_name, schema_direction, direction_id, direction_data,
         #     color_code, departures))
-        
+
         # Render - Single Departure Row
         if len(departures) == 1:
             return render.Root(
@@ -92,7 +92,8 @@ def main(config):
                     ],
                 ),
             )
-        # Render - Double Departure Rows
+            # Render - Double Departure Rows
+
         elif len(departures) == 2:
             return render.Root(
                 delay = 75,
@@ -120,11 +121,11 @@ def main(config):
                 render.WrappedText(
                     content = "No train departures found",
                     width = 64,
-                )
+                ),
             ],
         ),
     )
-    
+
 # Render Function
 def build_row(departure):
     platform_number = render.Text(departure["platform_number"], color = COLOR_CODE_PLATFORM_NUMBER, font = "5x8")
@@ -149,8 +150,8 @@ def build_row(departure):
                     render.Marquee(
                         width = 48,
                         child = render.Text(
-                            departure["direction_name"].replace(" (Flinders Street)", "").upper() \
-                                + " (" + departure["stop_name"].replace(" Station", "") + ")",
+                            departure["direction_name"].replace(" (Flinders Street)", "").upper() +
+                            " (" + departure["stop_name"].replace(" Station", "") + ")",
                             font = "Dina_r400-6",
                             offset = -2,
                             height = 7,
@@ -178,7 +179,7 @@ def get_departures(route_id, stop_id, direction_id, route_name, stop_name, direc
     signature_url = request_path + "?" + request_additional_params + "&devid=" + api_id
     signature = get_request_signature(signature_url, api_key)
     url = BASE_URL + request_path + "?" + request_additional_params + "&devid=" + api_id + "&signature=" + signature
-    
+
     response = http.get(url, ttl_seconds = CACHE_TTL_SECS)
     if response.status_code != 200:
         fail("Request to %s failed with status code: %d - %s" % (url, response.status_code, response.body()))
@@ -198,7 +199,7 @@ def get_departures(route_id, stop_id, direction_id, route_name, stop_name, direc
 
             remaining_time_minutes = get_remaining_time_minutes(departure_time)
             eta_time_text = "now" if remaining_time_minutes == 0 else str(remaining_time_minutes) + " mins"
-            
+
             if direction_id == "All":
                 if int(item["direction_id"]) == direction_data[1]:
                     mapped_direction_id, mapped_direction_name = direction_data[1], direction_data[2]
@@ -216,7 +217,7 @@ def get_departures(route_id, stop_id, direction_id, route_name, stop_name, direc
                 "direction_name": mapped_direction_name,
                 "departure_time": departure_time,
                 "eta_time_text": eta_time_text,
-                "platform_number": mapped_platform_number, 
+                "platform_number": mapped_platform_number,
                 "color": color_code,
             }
             transformed_data.append(departure)
@@ -368,8 +369,8 @@ AlameinStopOptions = [
         value = "1068,Flagstaff Station",
     ),
     schema.Option(
-        display =  "Flinders Street Station",
-        value =  "1071,Flinders Street Station",
+        display = "Flinders Street Station",
+        value = "1071,Flinders Street Station",
     ),
     schema.Option(
         display = "Glenferrie Station",
@@ -409,444 +410,444 @@ AlameinStopOptions = [
     ),
 ]
 BelgraveStopOptions = [
-	schema.Option(
-		display = "Auburn Station",
-		value = "1012,Auburn Station",
-	),
-	schema.Option(
-		display = "Bayswater Station",
-		value = "1016,Bayswater Station",
-	),
-	schema.Option(
-		display = "Belgrave Station",
-		value = "1018,Belgrave Station",
-	),
-	schema.Option(
-		display = "Blackburn Station",
-		value = "1023,Blackburn Station",
-	),
-	schema.Option(
-		display = "Boronia Station",
-		value = "1025,Boronia Station",
-	),
-	schema.Option(
-		display = "Box Hill Station",
-		value = "1026,Box Hill Station",
-	),
-	schema.Option(
-		display = "Burnley Station",
-		value = "1030,Burnley Station",
-	),
-	schema.Option(
-		display = "Camberwell Station",
-		value = "1032,Camberwell Station",
-	),
-	schema.Option(
-		display = "Canterbury Station",
-		value = "1033,Canterbury Station",
-	),
-	schema.Option(
-		display = "Chatham Station",
-		value = "1037,Chatham Station",
-	),
-	schema.Option(
-		display = "East Camberwell Station",
-		value = "1057,East Camberwell Station",
-	),
-	schema.Option(
-		display = "East Richmond Station",
-		value = "1059,East Richmond Station",
-	),
-	schema.Option(
-		display = "Ferntree Gully Station",
-		value = "1067,Ferntree Gully Station",
-	),
-	schema.Option(
-		display = "Flagstaff Station",
-		value = "1068,Flagstaff Station",
-	),
-	schema.Option(
-		display = "Flinders Street Station",
-		value = "1071,Flinders Street Station",
-	),
-	schema.Option(
-		display = "Glenferrie Station",
-		value = "1080,Glenferrie Station",
-	),
-	schema.Option(
-		display = "Hawthorn Station",
-		value = "1090,Hawthorn Station",
-	),
-	schema.Option(
-		display = "Heatherdale Station",
-		value = "1091,Heatherdale Station",
-	),
-	schema.Option(
-		display = "Heathmont Station",
-		value = "1092,Heathmont Station",
-	),
-	schema.Option(
-		display = "Laburnum Station",
-		value = "1111,Laburnum Station",
-	),
-	schema.Option(
-		display = "Melbourne Central Station",
-		value = "1120,Melbourne Central Station",
-	),
-	schema.Option(
-		display = "Mitcham Station",
-		value = "1128,Mitcham Station",
-	),
-	schema.Option(
-		display = "Nunawading Station",
-		value = "1148,Nunawading Station",
-	),
-	schema.Option(
-		display = "Parliament Station",
-		value = "1155,Parliament Station",
-	),
-	schema.Option(
-		display = "Richmond Station",
-		value = "1162,Richmond Station",
-	),
-	schema.Option(
-		display = "Ringwood Station",
-		value = "1163,Ringwood Station",
-	),
-	schema.Option(
-		display = "Southern Cross Station",
-		value = "1181,Southern Cross Station",
-	),
-	schema.Option(
-		display = "Tecoma Station",
-		value = "1191,Tecoma Station",
-	),
-	schema.Option(
-		display = "Union Station",
-		value = "1229,Union Station",
-	),
-	schema.Option(
-		display = "Upper Ferntree Gully Station",
-		value = "1199,Upper Ferntree Gully Station",
-	),
-	schema.Option(
-		display = "Upwey Station",
-		value = "1200,Upwey Station",
-	),
+    schema.Option(
+        display = "Auburn Station",
+        value = "1012,Auburn Station",
+    ),
+    schema.Option(
+        display = "Bayswater Station",
+        value = "1016,Bayswater Station",
+    ),
+    schema.Option(
+        display = "Belgrave Station",
+        value = "1018,Belgrave Station",
+    ),
+    schema.Option(
+        display = "Blackburn Station",
+        value = "1023,Blackburn Station",
+    ),
+    schema.Option(
+        display = "Boronia Station",
+        value = "1025,Boronia Station",
+    ),
+    schema.Option(
+        display = "Box Hill Station",
+        value = "1026,Box Hill Station",
+    ),
+    schema.Option(
+        display = "Burnley Station",
+        value = "1030,Burnley Station",
+    ),
+    schema.Option(
+        display = "Camberwell Station",
+        value = "1032,Camberwell Station",
+    ),
+    schema.Option(
+        display = "Canterbury Station",
+        value = "1033,Canterbury Station",
+    ),
+    schema.Option(
+        display = "Chatham Station",
+        value = "1037,Chatham Station",
+    ),
+    schema.Option(
+        display = "East Camberwell Station",
+        value = "1057,East Camberwell Station",
+    ),
+    schema.Option(
+        display = "East Richmond Station",
+        value = "1059,East Richmond Station",
+    ),
+    schema.Option(
+        display = "Ferntree Gully Station",
+        value = "1067,Ferntree Gully Station",
+    ),
+    schema.Option(
+        display = "Flagstaff Station",
+        value = "1068,Flagstaff Station",
+    ),
+    schema.Option(
+        display = "Flinders Street Station",
+        value = "1071,Flinders Street Station",
+    ),
+    schema.Option(
+        display = "Glenferrie Station",
+        value = "1080,Glenferrie Station",
+    ),
+    schema.Option(
+        display = "Hawthorn Station",
+        value = "1090,Hawthorn Station",
+    ),
+    schema.Option(
+        display = "Heatherdale Station",
+        value = "1091,Heatherdale Station",
+    ),
+    schema.Option(
+        display = "Heathmont Station",
+        value = "1092,Heathmont Station",
+    ),
+    schema.Option(
+        display = "Laburnum Station",
+        value = "1111,Laburnum Station",
+    ),
+    schema.Option(
+        display = "Melbourne Central Station",
+        value = "1120,Melbourne Central Station",
+    ),
+    schema.Option(
+        display = "Mitcham Station",
+        value = "1128,Mitcham Station",
+    ),
+    schema.Option(
+        display = "Nunawading Station",
+        value = "1148,Nunawading Station",
+    ),
+    schema.Option(
+        display = "Parliament Station",
+        value = "1155,Parliament Station",
+    ),
+    schema.Option(
+        display = "Richmond Station",
+        value = "1162,Richmond Station",
+    ),
+    schema.Option(
+        display = "Ringwood Station",
+        value = "1163,Ringwood Station",
+    ),
+    schema.Option(
+        display = "Southern Cross Station",
+        value = "1181,Southern Cross Station",
+    ),
+    schema.Option(
+        display = "Tecoma Station",
+        value = "1191,Tecoma Station",
+    ),
+    schema.Option(
+        display = "Union Station",
+        value = "1229,Union Station",
+    ),
+    schema.Option(
+        display = "Upper Ferntree Gully Station",
+        value = "1199,Upper Ferntree Gully Station",
+    ),
+    schema.Option(
+        display = "Upwey Station",
+        value = "1200,Upwey Station",
+    ),
 ]
 CraigieburnStopOptions = [
-	schema.Option(
-		display = "Ascot Vale Station",
-		value = "1009,Ascot Vale Station",
-	),
-	schema.Option(
-		display = "Broadmeadows Station",
-		value = "1028,Broadmeadows Station",
-	),
-	schema.Option(
-		display = "Coolaroo Station",
-		value = "1221,Coolaroo Station",
-	),
-	schema.Option(
-		display = "Craigieburn Station",
-		value = "1044,Craigieburn Station",
-	),
-	schema.Option(
-		display = "Essendon Station",
-		value = "1064,Essendon Station",
-	),
-	schema.Option(
-		display = "Flagstaff Station",
-		value = "1068,Flagstaff Station",
-	),
-	schema.Option(
-		display = "Flinders Street Station",
-		value = "1071,Flinders Street Station",
-	),
-	schema.Option(
-		display = "Glenbervie Station",
-		value = "1079,Glenbervie Station",
-	),
-	schema.Option(
-		display = "Glenroy Station",
-		value = "1082,Glenroy Station",
-	),
-	schema.Option(
-		display = "Jacana Station",
-		value = "1102,Jacana Station",
-	),
-	schema.Option(
-		display = "Kensington Station",
-		value = "1108,Kensington Station",
-	),
-	schema.Option(
-		display = "Melbourne Central Station",
-		value = "1120,Melbourne Central Station",
-	),
-	schema.Option(
-		display = "Moonee Ponds Station",
-		value = "1131,Moonee Ponds Station",
-	),
-	schema.Option(
-		display = "Newmarket Station",
-		value = "1140,Newmarket Station",
-	),
-	schema.Option(
-		display = "North Melbourne Station",
-		value = "1144,North Melbourne Station",
-	),
-	schema.Option(
-		display = "Oak Park Station",
-		value = "1149,Oak Park Station",
-	),
-	schema.Option(
-		display = "Parliament Station",
-		value = "1155,Parliament Station",
-	),
-	schema.Option(
-		display = "Pascoe Vale Station",
-		value = "1156,Pascoe Vale Station",
-	),
-	schema.Option(
-		display = "Roxburgh Park Station",
-		value = "1219,Roxburgh Park Station",
-	),
-	schema.Option(
-		display = "Southern Cross Station",
-		value = "1181,Southern Cross Station",
-	),
-	schema.Option(
-		display = "Strathmore Station",
-		value = "1186,Strathmore Station",
-	),
+    schema.Option(
+        display = "Ascot Vale Station",
+        value = "1009,Ascot Vale Station",
+    ),
+    schema.Option(
+        display = "Broadmeadows Station",
+        value = "1028,Broadmeadows Station",
+    ),
+    schema.Option(
+        display = "Coolaroo Station",
+        value = "1221,Coolaroo Station",
+    ),
+    schema.Option(
+        display = "Craigieburn Station",
+        value = "1044,Craigieburn Station",
+    ),
+    schema.Option(
+        display = "Essendon Station",
+        value = "1064,Essendon Station",
+    ),
+    schema.Option(
+        display = "Flagstaff Station",
+        value = "1068,Flagstaff Station",
+    ),
+    schema.Option(
+        display = "Flinders Street Station",
+        value = "1071,Flinders Street Station",
+    ),
+    schema.Option(
+        display = "Glenbervie Station",
+        value = "1079,Glenbervie Station",
+    ),
+    schema.Option(
+        display = "Glenroy Station",
+        value = "1082,Glenroy Station",
+    ),
+    schema.Option(
+        display = "Jacana Station",
+        value = "1102,Jacana Station",
+    ),
+    schema.Option(
+        display = "Kensington Station",
+        value = "1108,Kensington Station",
+    ),
+    schema.Option(
+        display = "Melbourne Central Station",
+        value = "1120,Melbourne Central Station",
+    ),
+    schema.Option(
+        display = "Moonee Ponds Station",
+        value = "1131,Moonee Ponds Station",
+    ),
+    schema.Option(
+        display = "Newmarket Station",
+        value = "1140,Newmarket Station",
+    ),
+    schema.Option(
+        display = "North Melbourne Station",
+        value = "1144,North Melbourne Station",
+    ),
+    schema.Option(
+        display = "Oak Park Station",
+        value = "1149,Oak Park Station",
+    ),
+    schema.Option(
+        display = "Parliament Station",
+        value = "1155,Parliament Station",
+    ),
+    schema.Option(
+        display = "Pascoe Vale Station",
+        value = "1156,Pascoe Vale Station",
+    ),
+    schema.Option(
+        display = "Roxburgh Park Station",
+        value = "1219,Roxburgh Park Station",
+    ),
+    schema.Option(
+        display = "Southern Cross Station",
+        value = "1181,Southern Cross Station",
+    ),
+    schema.Option(
+        display = "Strathmore Station",
+        value = "1186,Strathmore Station",
+    ),
 ]
 CranbourneStopOptions = [
-	schema.Option(
-		display = "Armadale Station",
-		value = "1008,Armadale Station",
-	),
-	schema.Option(
-		display = "Carnegie Station",
-		value = "1034,Carnegie Station",
-	),
-	schema.Option(
-		display = "Caulfield Station",
-		value = "1036,Caulfield Station",
-	),
-	schema.Option(
-		display = "Clayton Station",
-		value = "1040,Clayton Station",
-	),
-	schema.Option(
-		display = "Cranbourne Station",
-		value = "1045,Cranbourne Station",
-	),
-	schema.Option(
-		display = "Dandenong Station",
-		value = "1049,Dandenong Station",
-	),
-	schema.Option(
-		display = "Flagstaff Station",
-		value = "1068,Flagstaff Station",
-	),
-	schema.Option(
-		display = "Flinders Street Station",
-		value = "1071,Flinders Street Station",
-	),
-	schema.Option(
-		display = "Hawksburn Station",
-		value = "1089,Hawksburn Station",
-	),
-	schema.Option(
-		display = "Hughesdale Station",
-		value = "1098,Hughesdale Station",
-	),
-	schema.Option(
-		display = "Huntingdale Station",
-		value = "1099,Huntingdale Station",
-	),
-	schema.Option(
-		display = "Lynbrook Station",
-		value = "1222,Lynbrook Station",
-	),
-	schema.Option(
-		display = "Malvern Station",
-		value = "1118,Malvern Station",
-	),
-	schema.Option(
-		display = "Melbourne Central Station",
-		value = "1120,Melbourne Central Station",
-	),
-	schema.Option(
-		display = "Merinda Park Station",
-		value = "1123,Merinda Park Station",
-	),
-	schema.Option(
-		display = "Murrumbeena Station",
-		value = "1138,Murrumbeena Station",
-	),
-	schema.Option(
-		display = "Noble Park Station",
-		value = "1142,Noble Park Station",
-	),
-	schema.Option(
-		display = "Oakleigh Station",
-		value = "1150,Oakleigh Station",
-	),
-	schema.Option(
-		display = "Parliament Station",
-		value = "1155,Parliament Station",
-	),
-	schema.Option(
-		display = "Richmond Station",
-		value = "1162,Richmond Station",
-	),
-	schema.Option(
-		display = "Sandown Park Station",
-		value = "1172,Sandown Park Station",
-	),
-	schema.Option(
-		display = "South Yarra Station",
-		value = "1180,South Yarra Station",
-	),
-	schema.Option(
-		display = "Southern Cross Station",
-		value = "1181,Southern Cross Station",
-	),
-	schema.Option(
-		display = "Springvale Station",
-		value = "1183,Springvale Station",
-	),
-	schema.Option(
-		display = "Toorak Station",
-		value = "1194,Toorak Station",
-	),
-	schema.Option(
-		display = "Westall Station",
-		value = "1208,Westall Station",
-	),
-	schema.Option(
-		display = "Yarraman Station",
-		value = "1215,Yarraman Station",
-	),
+    schema.Option(
+        display = "Armadale Station",
+        value = "1008,Armadale Station",
+    ),
+    schema.Option(
+        display = "Carnegie Station",
+        value = "1034,Carnegie Station",
+    ),
+    schema.Option(
+        display = "Caulfield Station",
+        value = "1036,Caulfield Station",
+    ),
+    schema.Option(
+        display = "Clayton Station",
+        value = "1040,Clayton Station",
+    ),
+    schema.Option(
+        display = "Cranbourne Station",
+        value = "1045,Cranbourne Station",
+    ),
+    schema.Option(
+        display = "Dandenong Station",
+        value = "1049,Dandenong Station",
+    ),
+    schema.Option(
+        display = "Flagstaff Station",
+        value = "1068,Flagstaff Station",
+    ),
+    schema.Option(
+        display = "Flinders Street Station",
+        value = "1071,Flinders Street Station",
+    ),
+    schema.Option(
+        display = "Hawksburn Station",
+        value = "1089,Hawksburn Station",
+    ),
+    schema.Option(
+        display = "Hughesdale Station",
+        value = "1098,Hughesdale Station",
+    ),
+    schema.Option(
+        display = "Huntingdale Station",
+        value = "1099,Huntingdale Station",
+    ),
+    schema.Option(
+        display = "Lynbrook Station",
+        value = "1222,Lynbrook Station",
+    ),
+    schema.Option(
+        display = "Malvern Station",
+        value = "1118,Malvern Station",
+    ),
+    schema.Option(
+        display = "Melbourne Central Station",
+        value = "1120,Melbourne Central Station",
+    ),
+    schema.Option(
+        display = "Merinda Park Station",
+        value = "1123,Merinda Park Station",
+    ),
+    schema.Option(
+        display = "Murrumbeena Station",
+        value = "1138,Murrumbeena Station",
+    ),
+    schema.Option(
+        display = "Noble Park Station",
+        value = "1142,Noble Park Station",
+    ),
+    schema.Option(
+        display = "Oakleigh Station",
+        value = "1150,Oakleigh Station",
+    ),
+    schema.Option(
+        display = "Parliament Station",
+        value = "1155,Parliament Station",
+    ),
+    schema.Option(
+        display = "Richmond Station",
+        value = "1162,Richmond Station",
+    ),
+    schema.Option(
+        display = "Sandown Park Station",
+        value = "1172,Sandown Park Station",
+    ),
+    schema.Option(
+        display = "South Yarra Station",
+        value = "1180,South Yarra Station",
+    ),
+    schema.Option(
+        display = "Southern Cross Station",
+        value = "1181,Southern Cross Station",
+    ),
+    schema.Option(
+        display = "Springvale Station",
+        value = "1183,Springvale Station",
+    ),
+    schema.Option(
+        display = "Toorak Station",
+        value = "1194,Toorak Station",
+    ),
+    schema.Option(
+        display = "Westall Station",
+        value = "1208,Westall Station",
+    ),
+    schema.Option(
+        display = "Yarraman Station",
+        value = "1215,Yarraman Station",
+    ),
 ]
 MerndaStopOptions = [
-	schema.Option(
-		display = "Bell Station",
-		value = "1019,Bell Station",
-	),
-	schema.Option(
-		display = "Clifton Hill Station",
-		value = "1041,Clifton Hill Station",
-	),
-	schema.Option(
-		display = "Collingwood Station",
-		value = "1043,Collingwood Station",
-	),
-	schema.Option(
-		display = "Croxton Station",
-		value = "1047,Croxton Station",
-	),
-	schema.Option(
-		display = "Epping Station",
-		value = "1063,Epping Station",
-	),
-	schema.Option(
-		display = "Flagstaff Station",
-		value = "1068,Flagstaff Station",
-	),
-	schema.Option(
-		display = "Flinders Street Station",
-		value = "1071,Flinders Street Station",
-	),
-	schema.Option(
-		display = "Hawkstowe Station",
-		value = "1227,Hawkstowe Station",
-	),
-	schema.Option(
-		display = "Jolimont-MCG Station",
-		value = "1104,Jolimont-MCG Station",
-	),
-	schema.Option(
-		display = "Keon Park Station",
-		value = "1109,Keon Park Station",
-	),
-	schema.Option(
-		display = "Lalor Station",
-		value = "1112,Lalor Station",
-	),
-	schema.Option(
-		display = "Melbourne Central Station",
-		value = "1120,Melbourne Central Station",
-	),
-	schema.Option(
-		display = "Mernda Station",
-		value = "1228,Mernda Station",
-	),
-	schema.Option(
-		display = "Merri Station",
-		value = "1125,Merri Station",
-	),
-	schema.Option(
-		display = "Middle Gorge Station",
-		value = "1226,Middle Gorge Station",
-	),
-	schema.Option(
-		display = "North Richmond Station",
-		value = "1145,North Richmond Station",
-	),
-	schema.Option(
-		display = "Northcote Station",
-		value = "1147,Northcote Station",
-	),
-	schema.Option(
-		display = "Parliament Station",
-		value = "1155,Parliament Station",
-	),
-	schema.Option(
-		display = "Preston Station",
-		value = "1159,Preston Station",
-	),
-	schema.Option(
-		display = "Regent Station",
-		value = "1160,Regent Station",
-	),
-	schema.Option(
-		display = "Reservoir Station",
-		value = "1161,Reservoir Station",
-	),
-	schema.Option(
-		display = "Rushall Station",
-		value = "1170,Rushall Station",
-	),
-	schema.Option(
-		display = "Ruthven Station",
-		value = "1171,Ruthven Station",
-	),
-	schema.Option(
-		display = "South Morang Station",
-		value = "1224,South Morang Station",
-	),
-	schema.Option(
-		display = "Southern Cross Station",
-		value = "1181,Southern Cross Station",
-	),
-	schema.Option(
-		display = "Thomastown Station",
-		value = "1192,Thomastown Station",
-	),
-	schema.Option(
-		display = "Thornbury Station",
-		value = "1193,Thornbury Station",
-	),
-	schema.Option(
-		display = "Victoria Park Station",
-		value = "1201,Victoria Park Station",
-	),
-	schema.Option(
-		display = "West Richmond Station",
-		value = "1207,West Richmond Station",
-	),
+    schema.Option(
+        display = "Bell Station",
+        value = "1019,Bell Station",
+    ),
+    schema.Option(
+        display = "Clifton Hill Station",
+        value = "1041,Clifton Hill Station",
+    ),
+    schema.Option(
+        display = "Collingwood Station",
+        value = "1043,Collingwood Station",
+    ),
+    schema.Option(
+        display = "Croxton Station",
+        value = "1047,Croxton Station",
+    ),
+    schema.Option(
+        display = "Epping Station",
+        value = "1063,Epping Station",
+    ),
+    schema.Option(
+        display = "Flagstaff Station",
+        value = "1068,Flagstaff Station",
+    ),
+    schema.Option(
+        display = "Flinders Street Station",
+        value = "1071,Flinders Street Station",
+    ),
+    schema.Option(
+        display = "Hawkstowe Station",
+        value = "1227,Hawkstowe Station",
+    ),
+    schema.Option(
+        display = "Jolimont-MCG Station",
+        value = "1104,Jolimont-MCG Station",
+    ),
+    schema.Option(
+        display = "Keon Park Station",
+        value = "1109,Keon Park Station",
+    ),
+    schema.Option(
+        display = "Lalor Station",
+        value = "1112,Lalor Station",
+    ),
+    schema.Option(
+        display = "Melbourne Central Station",
+        value = "1120,Melbourne Central Station",
+    ),
+    schema.Option(
+        display = "Mernda Station",
+        value = "1228,Mernda Station",
+    ),
+    schema.Option(
+        display = "Merri Station",
+        value = "1125,Merri Station",
+    ),
+    schema.Option(
+        display = "Middle Gorge Station",
+        value = "1226,Middle Gorge Station",
+    ),
+    schema.Option(
+        display = "North Richmond Station",
+        value = "1145,North Richmond Station",
+    ),
+    schema.Option(
+        display = "Northcote Station",
+        value = "1147,Northcote Station",
+    ),
+    schema.Option(
+        display = "Parliament Station",
+        value = "1155,Parliament Station",
+    ),
+    schema.Option(
+        display = "Preston Station",
+        value = "1159,Preston Station",
+    ),
+    schema.Option(
+        display = "Regent Station",
+        value = "1160,Regent Station",
+    ),
+    schema.Option(
+        display = "Reservoir Station",
+        value = "1161,Reservoir Station",
+    ),
+    schema.Option(
+        display = "Rushall Station",
+        value = "1170,Rushall Station",
+    ),
+    schema.Option(
+        display = "Ruthven Station",
+        value = "1171,Ruthven Station",
+    ),
+    schema.Option(
+        display = "South Morang Station",
+        value = "1224,South Morang Station",
+    ),
+    schema.Option(
+        display = "Southern Cross Station",
+        value = "1181,Southern Cross Station",
+    ),
+    schema.Option(
+        display = "Thomastown Station",
+        value = "1192,Thomastown Station",
+    ),
+    schema.Option(
+        display = "Thornbury Station",
+        value = "1193,Thornbury Station",
+    ),
+    schema.Option(
+        display = "Victoria Park Station",
+        value = "1201,Victoria Park Station",
+    ),
+    schema.Option(
+        display = "West Richmond Station",
+        value = "1207,West Richmond Station",
+    ),
 ]
 FrankstonStopOptions = [
     schema.Option(
@@ -979,200 +980,200 @@ FrankstonStopOptions = [
     ),
 ]
 GlenWaverleyStopOptions = [
-	schema.Option(
-		display = "Burnley Station",
-		value = "1030,Burnley Station",
-	),
-	schema.Option(
-		display = "Darling Station",
-		value = "1051,Darling Station",
-	),
-	schema.Option(
-		display = "East Malvern Station",
-		value = "1058,East Malvern Station",
-	),
-	schema.Option(
-		display = "East Richmond Station",
-		value = "1059,East Richmond Station",
-	),
-	schema.Option(
-		display = "Flagstaff Station",
-		value = "1068,Flagstaff Station",
-	),
-	schema.Option(
-		display = "Flinders Street Station",
-		value = "1071,Flinders Street Station",
-	),
-	schema.Option(
-		display = "Gardiner Station",
-		value = "1075,Gardiner Station",
-	),
-	schema.Option(
-		display = "Glen Iris Station",
-		value = "1077,Glen Iris Station",
-	),
-	schema.Option(
-		display = "Glen Waverley Station",
-		value = "1078,Glen Waverley Station",
-	),
-	schema.Option(
-		display = "Heyington Station",
-		value = "1094,Heyington Station",
-	),
-	schema.Option(
-		display = "Holmesglen Station",
-		value = "1096,Holmesglen Station",
-	),
-	schema.Option(
-		display = "Jordanville Station",
-		value = "1105,Jordanville Station",
-	),
-	schema.Option(
-		display = "Kooyong Station",
-		value = "1110,Kooyong Station",
-	),
-	schema.Option(
-		display = "Melbourne Central Station",
-		value = "1120,Melbourne Central Station",
-	),
-	schema.Option(
-		display = "Mount Waverley Station",
-		value = "1137,Mount Waverley Station",
-	),
-	schema.Option(
-		display = "Parliament Station",
-		value = "1155,Parliament Station",
-	),
-	schema.Option(
-		display = "Richmond Station",
-		value = "1162,Richmond Station",
-	),
-	schema.Option(
-		display = "Southern Cross Station",
-		value = "1181,Southern Cross Station",
-	),
-	schema.Option(
-		display = "Syndal Station",
-		value = "1190,Syndal Station",
-	),
-	schema.Option(
-		display = "Tooronga Station",
-		value = "1195,Tooronga Station",
-	),
+    schema.Option(
+        display = "Burnley Station",
+        value = "1030,Burnley Station",
+    ),
+    schema.Option(
+        display = "Darling Station",
+        value = "1051,Darling Station",
+    ),
+    schema.Option(
+        display = "East Malvern Station",
+        value = "1058,East Malvern Station",
+    ),
+    schema.Option(
+        display = "East Richmond Station",
+        value = "1059,East Richmond Station",
+    ),
+    schema.Option(
+        display = "Flagstaff Station",
+        value = "1068,Flagstaff Station",
+    ),
+    schema.Option(
+        display = "Flinders Street Station",
+        value = "1071,Flinders Street Station",
+    ),
+    schema.Option(
+        display = "Gardiner Station",
+        value = "1075,Gardiner Station",
+    ),
+    schema.Option(
+        display = "Glen Iris Station",
+        value = "1077,Glen Iris Station",
+    ),
+    schema.Option(
+        display = "Glen Waverley Station",
+        value = "1078,Glen Waverley Station",
+    ),
+    schema.Option(
+        display = "Heyington Station",
+        value = "1094,Heyington Station",
+    ),
+    schema.Option(
+        display = "Holmesglen Station",
+        value = "1096,Holmesglen Station",
+    ),
+    schema.Option(
+        display = "Jordanville Station",
+        value = "1105,Jordanville Station",
+    ),
+    schema.Option(
+        display = "Kooyong Station",
+        value = "1110,Kooyong Station",
+    ),
+    schema.Option(
+        display = "Melbourne Central Station",
+        value = "1120,Melbourne Central Station",
+    ),
+    schema.Option(
+        display = "Mount Waverley Station",
+        value = "1137,Mount Waverley Station",
+    ),
+    schema.Option(
+        display = "Parliament Station",
+        value = "1155,Parliament Station",
+    ),
+    schema.Option(
+        display = "Richmond Station",
+        value = "1162,Richmond Station",
+    ),
+    schema.Option(
+        display = "Southern Cross Station",
+        value = "1181,Southern Cross Station",
+    ),
+    schema.Option(
+        display = "Syndal Station",
+        value = "1190,Syndal Station",
+    ),
+    schema.Option(
+        display = "Tooronga Station",
+        value = "1195,Tooronga Station",
+    ),
 ]
 HurstbridgeStopOptions = [
-	schema.Option(
-		display = "Alphington Station",
-		value = "1004,Alphington Station",
-	),
-	schema.Option(
-		display = "Clifton Hill Station",
-		value = "1041,Clifton Hill Station",
-	),
-	schema.Option(
-		display = "Collingwood Station",
-		value = "1043,Collingwood Station",
-	),
-	schema.Option(
-		display = "Darebin Station",
-		value = "1050,Darebin Station",
-	),
-	schema.Option(
-		display = "Dennis Station",
-		value = "1053,Dennis Station",
-	),
-	schema.Option(
-		display = "Diamond Creek Station",
-		value = "1054,Diamond Creek Station",
-	),
-	schema.Option(
-		display = "Eaglemont Station",
-		value = "1056,Eaglemont Station",
-	),
-	schema.Option(
-		display = "Eltham Station",
-		value = "1062,Eltham Station",
-	),
-	schema.Option(
-		display = "Fairfield Station",
-		value = "1065,Fairfield Station",
-	),
-	schema.Option(
-		display = "Flagstaff Station",
-		value = "1068,Flagstaff Station",
-	),
-	schema.Option(
-		display = "Flinders Street Station",
-		value = "1071,Flinders Street Station",
-	),
-	schema.Option(
-		display = "Greensborough Station",
-		value = "1084,Greensborough Station",
-	),
-	schema.Option(
-		display = "Heidelberg Station",
-		value = "1093,Heidelberg Station",
-	),
-	schema.Option(
-		display = "Hurstbridge Station",
-		value = "1100,Hurstbridge Station",
-	),
-	schema.Option(
-		display = "Ivanhoe Station",
-		value = "1101,Ivanhoe Station",
-	),
-	schema.Option(
-		display = "Jolimont-MCG Station",
-		value = "1104,Jolimont-MCG Station",
-	),
-	schema.Option(
-		display = "Macleod Station",
-		value = "1117,Macleod Station",
-	),
-	schema.Option(
-		display = "Melbourne Central Station",
-		value = "1120,Melbourne Central Station",
-	),
-	schema.Option(
-		display = "Montmorency Station",
-		value = "1130,Montmorency Station",
-	),
-	schema.Option(
-		display = "North Richmond Station",
-		value = "1145,North Richmond Station",
-	),
-	schema.Option(
-		display = "Parliament Station",
-		value = "1155,Parliament Station",
-	),
-	schema.Option(
-		display = "Rosanna Station",
-		value = "1168,Rosanna Station",
-	),
-	schema.Option(
-		display = "Southern Cross Station",
-		value = "1181,Southern Cross Station",
-	),
-	schema.Option(
-		display = "Victoria Park Station",
-		value = "1201,Victoria Park Station",
-	),
-	schema.Option(
-		display = "Watsonia Station",
-		value = "1203,Watsonia Station",
-	),
-	schema.Option(
-		display = "Wattle Glen Station",
-		value = "1204,Wattle Glen Station",
-	),
-	schema.Option(
-		display = "West Richmond Station",
-		value = "1207,West Richmond Station",
-	),
-	schema.Option(
-		display = "Westgarth Station",
-		value = "1209,Westgarth Station",
-	),
+    schema.Option(
+        display = "Alphington Station",
+        value = "1004,Alphington Station",
+    ),
+    schema.Option(
+        display = "Clifton Hill Station",
+        value = "1041,Clifton Hill Station",
+    ),
+    schema.Option(
+        display = "Collingwood Station",
+        value = "1043,Collingwood Station",
+    ),
+    schema.Option(
+        display = "Darebin Station",
+        value = "1050,Darebin Station",
+    ),
+    schema.Option(
+        display = "Dennis Station",
+        value = "1053,Dennis Station",
+    ),
+    schema.Option(
+        display = "Diamond Creek Station",
+        value = "1054,Diamond Creek Station",
+    ),
+    schema.Option(
+        display = "Eaglemont Station",
+        value = "1056,Eaglemont Station",
+    ),
+    schema.Option(
+        display = "Eltham Station",
+        value = "1062,Eltham Station",
+    ),
+    schema.Option(
+        display = "Fairfield Station",
+        value = "1065,Fairfield Station",
+    ),
+    schema.Option(
+        display = "Flagstaff Station",
+        value = "1068,Flagstaff Station",
+    ),
+    schema.Option(
+        display = "Flinders Street Station",
+        value = "1071,Flinders Street Station",
+    ),
+    schema.Option(
+        display = "Greensborough Station",
+        value = "1084,Greensborough Station",
+    ),
+    schema.Option(
+        display = "Heidelberg Station",
+        value = "1093,Heidelberg Station",
+    ),
+    schema.Option(
+        display = "Hurstbridge Station",
+        value = "1100,Hurstbridge Station",
+    ),
+    schema.Option(
+        display = "Ivanhoe Station",
+        value = "1101,Ivanhoe Station",
+    ),
+    schema.Option(
+        display = "Jolimont-MCG Station",
+        value = "1104,Jolimont-MCG Station",
+    ),
+    schema.Option(
+        display = "Macleod Station",
+        value = "1117,Macleod Station",
+    ),
+    schema.Option(
+        display = "Melbourne Central Station",
+        value = "1120,Melbourne Central Station",
+    ),
+    schema.Option(
+        display = "Montmorency Station",
+        value = "1130,Montmorency Station",
+    ),
+    schema.Option(
+        display = "North Richmond Station",
+        value = "1145,North Richmond Station",
+    ),
+    schema.Option(
+        display = "Parliament Station",
+        value = "1155,Parliament Station",
+    ),
+    schema.Option(
+        display = "Rosanna Station",
+        value = "1168,Rosanna Station",
+    ),
+    schema.Option(
+        display = "Southern Cross Station",
+        value = "1181,Southern Cross Station",
+    ),
+    schema.Option(
+        display = "Victoria Park Station",
+        value = "1201,Victoria Park Station",
+    ),
+    schema.Option(
+        display = "Watsonia Station",
+        value = "1203,Watsonia Station",
+    ),
+    schema.Option(
+        display = "Wattle Glen Station",
+        value = "1204,Wattle Glen Station",
+    ),
+    schema.Option(
+        display = "West Richmond Station",
+        value = "1207,West Richmond Station",
+    ),
+    schema.Option(
+        display = "Westgarth Station",
+        value = "1209,Westgarth Station",
+    ),
 ]
 LilydaleStopOptions = [
     schema.Option(
@@ -1827,7 +1828,7 @@ AlameinDirectionOptions = [
     ),
     schema.Option(
         display = "All",
-        value = "All,1,City (Flinders Street),0,Alamein"
+        value = "All,1,City (Flinders Street),0,Alamein",
     ),
 ]
 BelgraveDirectionOptions = [
@@ -1841,7 +1842,7 @@ BelgraveDirectionOptions = [
     ),
     schema.Option(
         display = "All",
-        value = "All,1,City (Flinders Street),3,Belgrave"
+        value = "All,1,City (Flinders Street),3,Belgrave",
     ),
 ]
 CraigieburnDirectionOptions = [
@@ -1855,7 +1856,7 @@ CraigieburnDirectionOptions = [
     ),
     schema.Option(
         display = "All",
-        value = "All,1,City (Flinders Street),2,Craigieburn"
+        value = "All,1,City (Flinders Street),2,Craigieburn",
     ),
 ]
 CranbourneDirectionOptions = [
@@ -1869,7 +1870,7 @@ CranbourneDirectionOptions = [
     ),
     schema.Option(
         display = "All",
-        value = "All,1,City (Flinders Street),4,Cranbourne"
+        value = "All,1,City (Flinders Street),4,Cranbourne",
     ),
 ]
 MerndaDirectionOptions = [
@@ -1883,7 +1884,7 @@ MerndaDirectionOptions = [
     ),
     schema.Option(
         display = "All",
-        value = "All,1,City (Flinders Street),9,Mernda"
+        value = "All,1,City (Flinders Street),9,Mernda",
     ),
 ]
 FrankstonDirectionOptions = [
@@ -1897,7 +1898,7 @@ FrankstonDirectionOptions = [
     ),
     schema.Option(
         display = "All",
-        value = "All,1,City (Flinders Street),5,Frankston"
+        value = "All,1,City (Flinders Street),5,Frankston",
     ),
 ]
 GlenWaverleyDirectionOptions = [
@@ -1911,7 +1912,7 @@ GlenWaverleyDirectionOptions = [
     ),
     schema.Option(
         display = "All",
-        value = "All,1,City (Flinders Street),6,Glen Waverley"
+        value = "All,1,City (Flinders Street),6,Glen Waverley",
     ),
 ]
 HurstbridgeDirectionOptions = [
@@ -1925,7 +1926,7 @@ HurstbridgeDirectionOptions = [
     ),
     schema.Option(
         display = "All",
-        value = "All,1,City (Flinders Street),7,Hurstbridge"
+        value = "All,1,City (Flinders Street),7,Hurstbridge",
     ),
 ]
 LilydaleDirectionOptions = [
@@ -1939,7 +1940,7 @@ LilydaleDirectionOptions = [
     ),
     schema.Option(
         display = "All",
-        value = "All,1,City (Flinders Street),8,Lilydale"
+        value = "All,1,City (Flinders Street),8,Lilydale",
     ),
 ]
 PakenhamDirectionOptions = [
@@ -1953,7 +1954,7 @@ PakenhamDirectionOptions = [
     ),
     schema.Option(
         display = "All",
-        value = "All,1,City (Flinders Street),10,Pakenham"
+        value = "All,1,City (Flinders Street),10,Pakenham",
     ),
 ]
 SandringhamDirectionOptions = [
@@ -1967,7 +1968,7 @@ SandringhamDirectionOptions = [
     ),
     schema.Option(
         display = "All",
-        value = "All,1,City (Flinders Street),11,Sandringham"
+        value = "All,1,City (Flinders Street),11,Sandringham",
     ),
 ]
 StonyPointDirectionOptions = [
@@ -1981,7 +1982,7 @@ StonyPointDirectionOptions = [
     ),
     schema.Option(
         display = "All",
-        value = "All,5,Frankston,12,Stony Point"
+        value = "All,5,Frankston,12,Stony Point",
     ),
 ]
 SunburyDirectionOptions = [
@@ -1995,7 +1996,7 @@ SunburyDirectionOptions = [
     ),
     schema.Option(
         display = "All",
-        value = "All,1,City (Flinders Street),13,Sunbury"
+        value = "All,1,City (Flinders Street),13,Sunbury",
     ),
 ]
 UpfieldDirectionOptions = [
@@ -2009,7 +2010,7 @@ UpfieldDirectionOptions = [
     ),
     schema.Option(
         display = "All",
-        value = "All,1,City (Flinders Street),14,Upfield"
+        value = "All,1,City (Flinders Street),14,Upfield",
     ),
 ]
 WerribeeDirectionOptions = [
@@ -2023,7 +2024,7 @@ WerribeeDirectionOptions = [
     ),
     schema.Option(
         display = "All",
-        value = "All,1,City (Flinders Street),15,Werribee"
+        value = "All,1,City (Flinders Street),15,Werribee",
     ),
 ]
 WilliamstownDirectionOptions = [
@@ -2037,7 +2038,7 @@ WilliamstownDirectionOptions = [
     ),
     schema.Option(
         display = "All",
-        value = "All,1,City (Flinders Street),16,Williamstown"
+        value = "All,1,City (Flinders Street),16,Williamstown",
     ),
 ]
 
