@@ -2360,7 +2360,7 @@ def get_schema():
                 id = "train-line",
                 name = "Train Line",
                 desc = "Chose your train line",
-                icon = "grip-lines",
+                icon = "train",
                 default = TrainLineOptions[0].value,
                 options = TrainLineOptions,
             ),
