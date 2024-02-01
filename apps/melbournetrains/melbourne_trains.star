@@ -27,6 +27,13 @@ LOCAL_MODE = False
 LOCAL_API_ID = None
 LOCAL_API_KEY = None
 
+DEFAULT_ROUTE_ID = "11"
+DEFAULT_ROUTE_NAME = "Pakenham"
+DEFAULT_STOP_ID = "1150"
+DEFAULT_STOP_NAME = "Oakleigh Station"
+DEFAULT_DIRECTION_ID = "1"
+DEFAULT_DIRECTION_DATA = ["1","City (Flinders Street)"]
+
 BASE_URL = "https://timetableapi.ptv.vic.gov.au"
 CACHE_TTL_SECS = 60
 ENCRYPTED_API_ID = "AV6+xWcE9Nq1F6uJX9RuQ1dgyOZHzOYjBjDesG+Nc3Ph9hGwPBmsgwNt73LQo5CNQqrclsnTLyiNkM+dxPpJZGEbpFP018QIR/cNw1iErU0ZdsmXLMRr13uDjcf2C+V/qrNw4maRkwq4o8R5qQ=="
@@ -45,14 +52,14 @@ COLOR_CODE_PLATFORM_NUMBER = "#FFFFFF"
 
 def main(config):
     schema_train_line = config.get("train-line")
-    route_id, route_name = schema_train_line.split(",") if schema_train_line != None else (None, None)
+    route_id, route_name = schema_train_line.split(",") if schema_train_line != None else (DEFAULT_ROUTE_ID, DEFAULT_ROUTE_NAME)
 
     schema_train_station = config.get("station-list-" + route_id) if route_id != None else None
-    stop_id, stop_name = schema_train_station.split(",") if schema_train_station != None else (None, None)
+    stop_id, stop_name = schema_train_station.split(",") if schema_train_station != None else (DEFAULT_STOP_ID, DEFAULT_STOP_NAME)
 
     schema_direction = config.get("direction-list-" + route_id) if route_id != None else None
-    direction_data = schema_direction.split(",") if schema_direction != None else None
-    direction_id = direction_data[0] if schema_direction != None else None
+    direction_data = schema_direction.split(",") if schema_direction != None else DEFAULT_DIRECTION_DATA
+    direction_id = direction_data[0] if schema_direction != None else DEFAULT_DIRECTION_ID
 
     color_code = get_train_line_color_code(route_name)
 
@@ -75,6 +82,27 @@ def main(config):
         #     stop_id, stop_name, schema_direction, direction_id, direction_data,
         #     color_code, departures))
 
+        if departures == -1:
+            return render.Root(
+                render.Box(
+                    render.Row(
+                        expanded = True,
+                        main_align = "space_evenly",
+                        children = [
+                            render.Column(
+                                cross_align = "center",
+                                children = [
+                                    render.Text("API", color = "#7fd856"),
+                                    render.Text("CREDENTIAL", color = "#ffdd5a"),
+                                    render.Text("ERROR", color = "#ff3232"),
+                                    
+                                ],
+                            ),
+                        ],
+                    ),
+                ),
+            )
+        
         # Render - Single Departure Row
         if len(departures) == 1:
             return render.Root(
@@ -170,7 +198,8 @@ def get_departures(route_id, stop_id, direction_id, route_name, stop_name, direc
     api_id = LOCAL_API_ID if LOCAL_MODE else secret.decrypt(ENCRYPTED_API_ID)
     api_key = LOCAL_API_KEY if LOCAL_MODE else secret.decrypt(ENCRYPTED_API_KEY)
     if api_id == None or api_key == None:
-        fail("Failed to retrieve API credentials")
+        print("[ERROR]: Failed to retrieve API credentials")
+        return -1
 
     # Retrieve Data
     request_path = "/v3/departures/route_type/0/stop/" + stop_id + "/route/" + route_id
