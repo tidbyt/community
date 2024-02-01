@@ -92,8 +92,8 @@ def main(config):
                     ],
                 ),
             )
-            # Render - Double Departure Rows
 
+        # Render - Double Departure Rows
         elif len(departures) == 2:
             return render.Root(
                 delay = 75,
