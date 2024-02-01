@@ -32,7 +32,7 @@ DEFAULT_ROUTE_NAME = "Pakenham"
 DEFAULT_STOP_ID = "1150"
 DEFAULT_STOP_NAME = "Oakleigh Station"
 DEFAULT_DIRECTION_ID = "1"
-DEFAULT_DIRECTION_DATA = ["1","City (Flinders Street)"]
+DEFAULT_DIRECTION_DATA = ["1", "City (Flinders Street)"]
 
 BASE_URL = "https://timetableapi.ptv.vic.gov.au"
 CACHE_TTL_SECS = 60
@@ -95,14 +95,13 @@ def main(config):
                                     render.Text("API", color = "#7fd856"),
                                     render.Text("CREDENTIAL", color = "#ffdd5a"),
                                     render.Text("ERROR", color = "#ff3232"),
-                                    
                                 ],
                             ),
                         ],
                     ),
                 ),
             )
-        
+
         # Render - Single Departure Row
         if len(departures) == 1:
             return render.Root(
@@ -121,7 +120,7 @@ def main(config):
                 ),
             )
 
-        # Render - Double Departure Rows
+            # Render - Double Departure Rows
         elif len(departures) == 2:
             return render.Root(
                 delay = 75,
