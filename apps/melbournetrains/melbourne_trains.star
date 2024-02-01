@@ -82,6 +82,7 @@ def main(config):
         #     stop_id, stop_name, schema_direction, direction_id, direction_data,
         #     color_code, departures))
 
+        # Render - API Credential Error
         if departures == -1:
             return render.Root(
                 render.Box(
@@ -120,8 +121,8 @@ def main(config):
                 ),
             )
 
-            # Render - Double Departure Rows
-        elif len(departures) == 2:
+        # Render - Double Departure Rows
+        if len(departures) == 2:
             return render.Root(
                 delay = 75,
                 child = render.Column(
@@ -139,7 +140,7 @@ def main(config):
                 ),
             )
 
-    # Render - Default
+    # Render - Default (No Departures)
     return render.Root(
         child = render.Column(
             expanded = False,
