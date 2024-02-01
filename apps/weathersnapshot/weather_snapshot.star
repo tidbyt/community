@@ -5,7 +5,7 @@ load("render.star", "render")
 load("schema.star", "schema")
 load("secret.star", "secret")
 
-# development API key, provide your key here or the app will fail!
+# development API key, provide your key here or the app will default to static data
 DEV_API_KEY = ""
 
 # Functions to calculate USA AQI based on pollutant data
@@ -39,12 +39,12 @@ def _calculate_aqi(ranges, value):
 
 def calculate_aqi(co, no2, o3, so2, pm2_5, pm10):
     co_aqi = _calculate_aqi(co_ranges, co)
-    no_aqi = _calculate_aqi(no2_ranges, no2)
+    no2_aqi = _calculate_aqi(no2_ranges, no2)
     o3_aqi = _calculate_aqi(o3_ranges, o3)
     so2_aqi = _calculate_aqi(so2_ranges, so2)
     pm2_5_aqi = _calculate_aqi(pm2_5_ranges, pm2_5)
     pm10_aqi = _calculate_aqi(pm10_ranges, pm10)
-    return int(max(co_aqi, no_aqi, o3_aqi, so2_aqi, pm2_5_aqi, pm10_aqi))
+    return int(max(co_aqi, no2_aqi, o3_aqi, so2_aqi, pm2_5_aqi, pm10_aqi))
 
 # Functions to fetch data from OpenWeatherMap
 
@@ -163,10 +163,10 @@ def main(config):
     components = aqi_response["list"][0]["components"]
 
     # converts from ug / m^3 to ppm and ppb
-    co = components["co"] * 1.15 / 1000
-    no2 = components["no2"] * 1.88
-    o3 = components["o3"] * 1.96 / 1000
-    so2 = components["so2"] * 2.62
+    co = (components["co"] / 1.15) / 1000
+    no2 = components["no2"] / 1.88
+    o3 = (components["o3"] / 1.96) / 1000
+    so2 = components["so2"] / 2.62
     pm2_5 = components["pm2_5"]
     pm10 = components["pm10"]
     aqi = calculate_aqi(co, no2, o3, so2, pm2_5, pm10)
