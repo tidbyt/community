@@ -103,6 +103,27 @@ def main(config):
                 ),
             )
 
+        # Render - API Health Error
+        if departures == -2:
+            return render.Root(
+                render.Box(
+                    render.Row(
+                        expanded = True,
+                        main_align = "space_evenly",
+                        children = [
+                            render.Column(
+                                cross_align = "center",
+                                children = [
+                                    render.Text("API", color = "#7fd856"),
+                                    render.Text("HEALTH", color = "#ffdd5a"),
+                                    render.Text("ERROR", color = "#ff3232"),
+                                ],
+                            ),
+                        ],
+                    ),
+                ),
+            )
+
         # Render - Single Departure Row
         if len(departures) == 1:
             return render.Root(
@@ -211,7 +232,8 @@ def get_departures(route_id, stop_id, direction_id, route_name, stop_name, direc
 
     response = http.get(url, ttl_seconds = CACHE_TTL_SECS)
     if response.status_code != 200:
-        fail("Request to %s failed with status code: %d - %s" % (url, response.status_code, response.body()))
+        print("[ERROR]: Request failed with status code: %d - %s and request url: %s" % (response.status_code, response.body(), url))
+        return -2
 
     # Transform Data
     departures = response.json()["departures"]
