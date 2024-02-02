@@ -38,14 +38,9 @@ METRICS = [
         "supports_compare": True,
     },
     {
-        "id": "PlatformApp.netInstalls",
-        "title": "Total installs",
-        "supports_compare": False,
-    },
-    {
         "id": "PlatformApp.charges",
         "title": "Revenue",
-        "supports_compare": False,
+        "supports_compare": True,
         "format": "currency",
     },
     {
@@ -53,6 +48,11 @@ METRICS = [
         "title": "MRR",
         "supports_compare": True,
         "format": "currency",
+    },
+    {
+        "id": "PlatformApp.netInstalls",
+        "title": "Total installs",
+        "supports_compare": False,
     },
 ]
 
@@ -188,6 +188,7 @@ def api_request(access_token, path, params = {}):
 def render_metric(config, metric, access_token, app_id, current_start_date, compare_previous_period):
     title = metric["title"]
     date_range = [d for d in DATE_RANGES if d["id"] == config.str("date_ranges")][0]
+    hide_totals = config.bool("hide_totals", False)
 
     includes = ["includeTotal"]
     if config.bool("include_annual_plans", False):
@@ -239,13 +240,16 @@ def render_metric(config, metric, access_token, app_id, current_start_date, comp
     date_range_text = date_range["title"]
     if len(current_metric["data"]) > 0:
         if (current_metric.get("formattedTotal")):
-            value = current_metric.get("formattedTotal", current_metric["data"][-1]["formattedValue"])
+            value = current_metric.get("formattedTotal", current_metric["data"][-1].get("formattedValue", current_metric["data"][-1]["value"]))
         else:
             value = format_value(current_metric.get("total", current_metric["data"][-1]["value"]))
 
-        percent_change = (current_period_data[-1][1] - current_period_data[0][1]) / current_period_data[0][1]
-        percent_change_sign = "+" if percent_change > 0 else ""
-        percent_change_str = "{}{}%".format(percent_change_sign, int(percent_change * 100))
+        if metric["supports_compare"]:
+            percent_change = current_metric["changePercentage"]
+            percent_change_sign = "+" if percent_change > 0 else ""
+            percent_change_str = "{}{}".format(percent_change_sign, current_metric["formattedChangePercentage"])
+        else:
+            percent_change_str = None
 
         max_value = max([d[1] for d in current_period_data])
         min_value = max(min([d[1] for d in current_period_data]), 0)
@@ -260,24 +264,28 @@ def render_metric(config, metric, access_token, app_id, current_start_date, comp
 
     metric_label = render.Text(
         font = "tom-thumb",
+        offset = -1,
         content = title.upper(),
         color = COLOR_WHITE,
     )
 
     app_label = render.Text(
         font = "tom-thumb",
+        offset = -1,
         content = app_text.upper(),
         color = COLOR_WHITE,
     )
 
     date_range_label = render.Text(
         font = "tom-thumb",
+        offset = -1,
         content = date_range_text.upper(),
         color = COLOR_WHITE,
     )
 
     divider_label = render.Text(
         font = "tom-thumb",
+        offset = -1,
         content = " • ",
         color = COLOR_SUBDUED_TEXT,
     )
@@ -304,15 +312,24 @@ def render_metric(config, metric, access_token, app_id, current_start_date, comp
     for _ in range(10):
         marquee_content += marquee_label
 
-    metric_content = [
-        render.Text(
-            font = "tom-thumb",
-            content = value,
-            color = COLOR_PRIMARY,
-        ),
-    ]
+    if hide_totals:
+        metric_content = []
+    else:
+        metric_content = [
+            render.Text(
+                font = "tom-thumb",
+                content = value,
+                color = COLOR_PRIMARY,
+            ),
+        ]
 
+    main_align = "space_between"
     if compare_previous_period and percent_change_str != None:
+        if hide_totals:
+            main_align = "end"
+        else:
+            main_align = "space_between"
+
         metric_content.append(
             render.Text(
                 font = "tom-thumb",
@@ -326,11 +343,9 @@ def render_metric(config, metric, access_token, app_id, current_start_date, comp
             main_align = "space_between",
             children = [
                 render.Box(
-                    padding = 1,
-                    height = 7,
+                    height = 6,
                     child = render.Row(
                         expanded = True,
-                        main_align = "space_between",
                         children = [
                             render.Marquee(
                                 width = 64,
@@ -345,10 +360,10 @@ def render_metric(config, metric, access_token, app_id, current_start_date, comp
                 ),
                 render.Box(
                     padding = 1,
-                    height = 7,
+                    height = 8,
                     child = render.Row(
                         expanded = True,
-                        main_align = "space_between",
+                        main_align = main_align,
                         children = metric_content,
                     ),
                 ),
@@ -400,6 +415,19 @@ def render_digest(config, access_token, app_id, current_start_date, compare_prev
     date_range = [d for d in DATE_RANGES if d["id"] == config.str("date_ranges")][0]
     includes = "includeTotal,includeAnnual,includeUsage,includeTrials"
 
+    if app_id == "all_apps":
+        app = None
+        logo = MANTLE_LOGO
+    else:
+        app_response = api_request(access_token, "/apps/{}".format(app_id))
+        app = app_response["app"]
+        print("[digest] app")
+        print(app)
+        if app.get("faviconData"):
+            logo = app["faviconData"]
+        else:
+            logo = MANTLE_LOGO
+
     active_installs_response = api_request(access_token, "/metrics", params = {
         "appId": app_id,
         "metric": "PlatformApp.activeInstalls",
@@ -412,7 +440,6 @@ def render_digest(config, access_token, app_id, current_start_date, compare_prev
     active_installs_metric = active_installs_response[0]
     print("[digest] active_installs_metric")
     print(active_installs_metric)
-    active_installs_data = [(i, d["value"]) for i, d in enumerate(active_installs_metric["data"])]
 
     mrr_response = api_request(access_token, "/metrics", params = {
         "appId": app_id,
@@ -426,7 +453,6 @@ def render_digest(config, access_token, app_id, current_start_date, compare_prev
     mrr_metric = mrr_response[0]
     print("[digest] mrr_metric")
     print(mrr_metric)
-    mrr_data = [(i, d["value"]) for i, d in enumerate(mrr_metric["data"])]
 
     revenue_response = api_request(access_token, "/metrics", params = {
         "appId": app_id,
@@ -440,25 +466,18 @@ def render_digest(config, access_token, app_id, current_start_date, compare_prev
     revenue_metric = revenue_response[0]
     print("[digest] revenue_metric")
     print(revenue_metric)
-    revenue_data = [(i, d["value"]) for i, d in enumerate(revenue_metric["data"])]
 
-    active_installs_change = active_installs_data[-1][1] - active_installs_data[0][1]
-    active_installs_change_sign = "+" if active_installs_change > 0 else "-"
-    if active_installs_change == 0:
-        active_installs_change_sign = ""
-    active_installs_change_str = "{}{}".format(active_installs_change_sign, format_value(abs(active_installs_change)))
+    active_installs_change = active_installs_metric["change"]
+    active_installs_change_sign = "+" if active_installs_change > 0 else ""
+    active_installs_change_str = "{}{}".format(active_installs_change_sign, active_installs_metric["formattedChange"])
 
-    mrr_change = mrr_data[-1][1] - mrr_data[0][1]
-    mrr_change_sign = "+$" if mrr_change > 0 else "-$"
-    if mrr_change == 0:
-        mrr_change_sign = "$"
-    mrr_change_str = "{}{}".format(mrr_change_sign, format_value(abs(mrr_change)))
+    mrr_change = mrr_metric["change"]
+    mrr_change_sign = "+" if mrr_change > 0 else ""
+    mrr_change_str = "{}{}".format(mrr_change_sign, mrr_metric["formattedChange"])
 
-    revenue_change = revenue_data[-1][1] - revenue_data[0][1]
-    revenue_change_sign = "+$" if revenue_change > 0 else "-$"
-    if revenue_change == 0:
-        revenue_change_sign = "$"
-    revenue_change_str = "{}{}".format(revenue_change_sign, format_value(abs(revenue_change)))
+    revenue_change = revenue_metric["change"]
+    revenue_change_sign = "+" if revenue_change > 0 else ""
+    revenue_change_str = "{}{}".format(revenue_change_sign, revenue_metric["formattedChange"])
 
     metric_options = active_installs_metric.get("options")
     app = metric_options.get("app") if metric_options else None
@@ -473,9 +492,9 @@ def render_digest(config, access_token, app_id, current_start_date, compare_prev
     else:
         active_installs_value = "0"
     if compare_previous_period:
-        active_installs_text = "{} users".format(active_installs_change_str)
+        active_installs_text = "{}".format(active_installs_change_str)
     else:
-        active_installs_text = "{} users".format(active_installs_value)
+        active_installs_text = "{}".format(active_installs_value)
 
     if len(mrr_metric["data"]) > 0:
         if (mrr_metric.get("formattedTotal")):
@@ -485,9 +504,9 @@ def render_digest(config, access_token, app_id, current_start_date, compare_prev
     else:
         mrr_value = "0"
     if compare_previous_period:
-        mrr_text = "{} MRR".format(mrr_change_str)
+        mrr_text = "{}".format(mrr_change_str)
     else:
-        mrr_text = "{} MRR".format(mrr_value)
+        mrr_text = "{}".format(mrr_value)
 
     if len(revenue_metric["data"]) > 0:
         if (revenue_metric.get("formattedTotal")):
@@ -497,24 +516,27 @@ def render_digest(config, access_token, app_id, current_start_date, compare_prev
     else:
         revenue_value = "0"
     if compare_previous_period:
-        revenue_text = "{} rev".format(revenue_change_str)
+        revenue_text = "{}".format(revenue_change_str)
     else:
-        revenue_text = "{} rev".format(revenue_value)
+        revenue_text = "{}".format(revenue_value)
 
     app_label = render.Text(
         font = "tom-thumb",
+        offset = -1,
         content = app_text.upper(),
         color = COLOR_WHITE,
     )
 
     date_range_label = render.Text(
         font = "tom-thumb",
+        offset = -1,
         content = date_range_text.upper(),
         color = COLOR_WHITE,
     )
 
     divider_label = render.Text(
         font = "tom-thumb",
+        offset = -1,
         content = " • ",
         color = COLOR_SUBDUED_TEXT,
     )
@@ -539,82 +561,72 @@ def render_digest(config, access_token, app_id, current_start_date, compare_prev
 
     return render.Root(
         render.Column(
-            main_align = "space_between",
+            expanded = True,
+            main_align = "space_evenly",
             children = [
                 render.Box(
-                    padding = 1,
-                    height = 7,
-                    child = render.Row(
-                        expanded = True,
-                        main_align = "space_between",
-                        children = [
-                            render.Marquee(
-                                width = 64,
-                                offset_start = 0,
-                                offset_end = 64,
-                                child = render.Row(
-                                    children = marquee_content,
-                                ),
-                            ),
-                        ],
-                    ),
-                ),
-                render.Row(
-                    main_align = "space_around",
-                    cross_align = "center",
-                    children = [
-                        render.Box(
-                            width = 18,
-                            padding = 1,
-                            child = render.Image(
-                                src = base64.decode(MANTLE_LOGO),
-                                width = 16,
-                                height = 16,
+                    height = 6,
+                    child =
+                        render.Marquee(
+                            width = 64,
+                            offset_start = 0,
+                            offset_end = 64,
+                            child = render.Row(
+                                children = marquee_content,
                             ),
                         ),
+                ),
+                render.Row(
+                    expanded = True,
+                    main_align = "space_evenly",
+                    cross_align = "center",
+                    children = [
+                        render.Image(
+                            src = base64.decode(logo),
+                            width = 16,
+                            height = 16,
+                        ),
                         render.Column(
+                            expanded = True,
+                            main_align = "space_evenly",
+                            cross_align = "start",
                             children = [
-                                render.Box(
-                                    padding = 1,
-                                    height = 7,
-                                    child = render.Row(
-                                        main_align = "space_between",
-                                        children = [
-                                            render.Text(
-                                                font = "CG-pixel-3x5-mono",
-                                                content = active_installs_text,
-                                                color = COLOR_PRIMARY,
-                                            ),
-                                        ],
-                                    ),
+                                render.Text(
+                                    font = "CG-pixel-3x5-mono",
+                                    content = "USR",
+                                    color = COLOR_PRIMARY,
                                 ),
-                                render.Box(
-                                    padding = 1,
-                                    height = 7,
-                                    child = render.Row(
-                                        main_align = "space_between",
-                                        children = [
-                                            render.Text(
-                                                font = "CG-pixel-3x5-mono",
-                                                content = mrr_text,
-                                                color = COLOR_PRIMARY,
-                                            ),
-                                        ],
-                                    ),
+                                render.Text(
+                                    font = "CG-pixel-3x5-mono",
+                                    content = "MRR",
+                                    color = COLOR_PRIMARY,
                                 ),
-                                render.Box(
-                                    padding = 1,
-                                    height = 7,
-                                    child = render.Row(
-                                        main_align = "space_between",
-                                        children = [
-                                            render.Text(
-                                                font = "CG-pixel-3x5-mono",
-                                                content = revenue_text,
-                                                color = COLOR_PRIMARY,
-                                            ),
-                                        ],
-                                    ),
+                                render.Text(
+                                    font = "CG-pixel-3x5-mono",
+                                    content = "REV",
+                                    color = COLOR_PRIMARY,
+                                ),
+                            ],
+                        ),
+                        render.Column(
+                            expanded = True,
+                            main_align = "space_evenly",
+                            cross_align = "start",
+                            children = [
+                                render.Text(
+                                    font = "CG-pixel-3x5-mono",
+                                    content = active_installs_text,
+                                    color = COLOR_PRIMARY,
+                                ),
+                                render.Text(
+                                    font = "CG-pixel-3x5-mono",
+                                    content = mrr_text,
+                                    color = COLOR_PRIMARY,
+                                ),
+                                render.Text(
+                                    font = "CG-pixel-3x5-mono",
+                                    content = revenue_text,
+                                    color = COLOR_PRIMARY,
                                 ),
                             ],
                         ),
@@ -806,6 +818,17 @@ def get_metric_options(metric_id):
                 desc = "Include revenue from active trials in the MRR metric",
                 icon = "compress",
                 default = True,
+            ),
+        )
+
+    if metric["id"] != "PlatformApp.digest":
+        options.append(
+            schema.Toggle(
+                id = "hide_totals",
+                name = "Hide totals",
+                desc = "Hide the total value for the metric",
+                icon = "eyeSlash",
+                default = False,
             ),
         )
 
