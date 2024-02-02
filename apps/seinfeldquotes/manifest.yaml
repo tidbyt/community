@@ -4,5 +4,5 @@ name: Seinfeld Quotes
 summary: Displays Seinfeld Quotes
 desc: Displays a random quote from the hit sitcom Seinfeld.
 author: ndlybarger
-fileName: seinfeld_quotes.star
+fileName: seinfeldquotes.star
 packageName: seinfeldquotes
