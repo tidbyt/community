@@ -42,6 +42,9 @@ Updated BatsmanScore function, removed use of marquee for batsmen name
 
 v1.7.1
 Updated text color on Status 5 messages
+
+v1.7.2
+Fixed bug for "Dinner" break
 """
 
 load("encoding/json.star", "json")
@@ -159,7 +162,7 @@ def main(config):
             RemOvers = Match_JSON["match"]["liveOversPending"]
             RemOvers = str(RemOvers)
 
-            # Get match status - are we playing (live), drinks, lunch, tea or stumps
+            # Get match status - are we playing (live), drinks, lunch, tea, dinner or stumps
             Status = Match_JSON["match"]["status"]
             StatusColor = "#fff"
 
@@ -281,7 +284,7 @@ def main(config):
                 Status5 = CurrentBowler + " " + CurrentBowler_Wkts + "/" + CurrentBowler_Runs
                 Status5Color = BowlingTeamColor
 
-                # if there is play, show the session and day, otherwise show the break - eg lunch, tea, stumps or drinks
+                # if there is play, show the session and day, otherwise show the break - eg lunch, tea, dinner, stumps or drinks
                 # added other options her as well
                 # Stumps, Lunch & tea - should be Stumps, Stumps, Trail, Partnership, Stumps
                 if Status == "Live":
@@ -289,7 +292,7 @@ def main(config):
                     TheDay = "Day " + TheDay
                     Status = TheSess + " - " + TheDay
                     Status5 = CurrentBowler + " " + CurrentBowler_Wkts + "/" + CurrentBowler_Runs
-                elif Status == "Stumps" or Status == "Lunch" or Status == "Tea" or Status == "Drinks":
+                elif Status == "Stumps" or Status == "Lunch" or Status == "Tea" or Status == "Drinks" or Status == "Dinner":
                     Break = True
                     Status = Status + " - Day " + TheDay
                     Status2 = Status
@@ -319,7 +322,7 @@ def main(config):
                     Status2 = "Rem Overs: " + RemOvers
                     Status5 = CurrentBowler + " " + CurrentBowler_Wkts + "/" + CurrentBowler_Runs
                     Status5Color = "#f00"
-                elif Status == "Stumps" or Status == "Lunch" or Status == "Tea" or Status == "Drinks":
+                elif Status == "Stumps" or Status == "Lunch" or Status == "Tea" or Status == "Drinks" or Status == "Dinner":
                     Break = True
                     Status = Status + " - Day " + TheDay
                     Status2 = Status

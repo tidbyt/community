@@ -708,7 +708,7 @@ def main(config):
                         main_align = "space_between",
                         children = [
                             render.Row([render.Text("Today:", font = "tom-thumb", color = GRAY)]),
-                            #render.Row([render.Text("Year:", font = "tom-thumb", color = GRAY)]),
+                            render.Row([render.Text("Year:", font = "tom-thumb", color = GRAY)]),
                         ],
                     ),
 
@@ -719,7 +719,7 @@ def main(config):
                         cross_align = "end",
                         children = [
                             render.Row([render.Text(" {}%".format(data["autarky_day"]), color = GREEN)]),
-                            #render.Row([render.Text("{}%".format(data["autarky_year"]), color = GREEN)]),
+                            render.Row([render.Text("{}%".format(data["autarky_year"]), color = GREEN)]),
                         ],
                     ),
                 ],
