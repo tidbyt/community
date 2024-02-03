@@ -240,7 +240,7 @@ def get_schedule(direction, station):
                     ),
                     render.Marquee(
                         child = render.Text(
-                            i["train_id"] + " " + i["service_type"] + " to " + i["destination"],
+                            i["train_id"] + " " + i["service_type"] + " to " + i["destination"] + " - " + i["status"],
                             font = "tom-thumb",
                             color = text,
                         ),

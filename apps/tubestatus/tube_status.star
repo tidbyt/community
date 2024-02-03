@@ -11,7 +11,7 @@ load("schema.star", "schema")
 load("secret.star", "secret")
 
 # Allows 500 queries per minute
-ENCRYPTED_APP_KEY = "AV6+xWcE2sENYC+/SYTqo/7oaIT8Q+BjV27Q/Bm9b1C19OEsiEuWKQQ3KKx6ymZQk2DOkiaPMjvoYmBlYZl/yr6AqusGweRYyA/gZ26zZBYX6krBCckHACEZQIS0mtAkwZmiLoGxhH2XpUkBBQdmBBwjODAqrcthPYPCm7u597BdzWyhljQ="
+ENCRYPTED_APP_KEY = "AV6+xWcEeixSBkR1KHTzJPTxGSqVwSCoXVa90hniq68hepDEK6uLPeeaVIhCHcXK6sdiBY/7M7a8Z794VOQDkmUWQS8Xi+ieOBxZQFl31GWq5Obm58GH+jmYHn5TXC1UJJobXfFuxoENuB7VG/mfB8UJpSh0zyPqje6F4iPih+MOsTW2U5c="
 STATUS_URL = "https://api.tfl.gov.uk/Line/Mode/%s/Status"
 USER_AGENT = "Tidbyt tube_status"
 
@@ -283,7 +283,7 @@ def render_problems(lines):
     for i in range(0, len(problems), 2):
         panes = [render_status(problems[i])]
         if i + 1 < len(problems):
-            panes.append(render_status(lines[i + 1]))
+            panes.append(render_status(problems[i + 1]))
         frames.append(
             render.Column(
                 children = panes,

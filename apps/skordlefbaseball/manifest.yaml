@@ -1,0 +1,8 @@
+---
+id: skordlefbaseball
+name: SkordleFBaseball
+summary: Displays Baseball Games
+desc: The app gets Fall baseball data from the Skordle website to diplay on the Tidbyt. Users can choose the class and game to display.
+author: Woolycoin437420
+fileName: skordlefbaseball.star
+packageName: skordlefbaseball

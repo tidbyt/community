@@ -2,7 +2,7 @@
 id: world-clock
 name: World Clock
 summary: Multi timezone clock
-desc: Displays the time in up to three different locations.
+desc: Displays the time in up to four different locations.
 author: Elliot Bentley
 fileName: world_clock.star
 packageName: worldclock
