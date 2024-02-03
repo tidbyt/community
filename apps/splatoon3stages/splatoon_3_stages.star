@@ -60,7 +60,6 @@ BATTLE_TYPES = {
     "open": struct(title = "Anarchy Open", colours = ["#820"]),
     "x": struct(title = "X Battle", colours = ["#086"]),
     "salmon": struct(title = "Salmon Run", colours = ["#740"]),
-    "eggstra": struct(title = "Eggstra Work", colours = ["#880"]),
     "festopen": struct(title = "Splatfest Battle", colours = []),
     "festpro": struct(title = "Splatfest Battle", colours = []),
 }
@@ -116,7 +115,7 @@ def parseMatch(match, key):
 
 def parseSalmonRunMatchSetting(setting):
     return struct(
-        boss = (setting["boss"]["name"] if setting["boss"] else "(no boss)"),
+        boss = setting["boss"]["name"],
         stage = setting["coopStage"]["name"],
         weapons = [struct(name = weapon["name"], img = weapon["image"]["url"]) for weapon in setting["weapons"]],
     )
@@ -139,7 +138,6 @@ def parseJSONResponse(resp):
         x = [parseMatch(match, "xMatchSetting") for match in resp["data"]["xSchedules"]["nodes"]],
         fest = [parseMatch(match, "festMatchSettings") for match in resp["data"]["festSchedules"]["nodes"]],
         salmon = [parseSalmonRunMatch(match) for match in resp["data"]["coopGroupingSchedule"]["regularSchedules"]["nodes"]],
-        eggstra = [parseSalmonRunMatch(match) for match in resp["data"]["coopGroupingSchedule"]["teamContestSchedules"]["nodes"]],
     )
 
 def getCurrentMatch(matches, now):
@@ -304,7 +302,7 @@ def loadImage(url):
     # Bad cropping is still cropping
     return render.Box(width = IMG_SIZE, height = BOX_SIZE, child = render.Image(req.body(), width = IMG_SIZE, height = IMG_SIZE))
 
-def generateFrame(battle, battle_type, extra):
+def generateFrame(battle, battle_type, fest_colours):
     # Takes a specified title, header colour, and battle and returns the prettified frame.
 
     colour_scheme = BATTLE_TYPES[battle_type]
@@ -318,17 +316,13 @@ def generateFrame(battle, battle_type, extra):
 
     # Splatfest
     if (battle_type == "festopen"):
-        return generateGeneralFrame(colour_scheme.title, extra, battle.stages[0], battle.stages[1], battle.rule + " (Open)")
+        return generateGeneralFrame(colour_scheme.title, fest_colours, battle.stages[0], battle.stages[1], battle.rule + " (Open)")
     if (battle_type == "festpro"):
-        return generateGeneralFrame(colour_scheme.title, extra, battle.stages[0], battle.stages[1], battle.rule + " (Pro)")
+        return generateGeneralFrame(colour_scheme.title, fest_colours, battle.stages[0], battle.stages[1], battle.rule + " (Pro)")
 
     # Salmon
     if (battle_type == "salmon"):
         return generateGeneralFrame(colour_scheme.title, colour_scheme.colours, battle.stage, None, battle.boss, battle.weapons)
-
-    if (battle_type == "eggstra"):
-        end_time = getDurationString(extra)
-        return generateGeneralFrame(colour_scheme.title, colour_scheme.colours, battle.stage, None, "Ends in " + end_time, battle.weapons)
 
     return generateGeneralFrame("Unknown", ["#888"], "no_stage", "no_stage", "type? " + battle_type)
 
@@ -336,12 +330,8 @@ def rgb2hex(array):
     return "#%x%x%x%x%x%x" % (int(array[0]) // 16, int(array[0]) % 16, int(array[1]) // 16, int(array[1]) % 16, int(array[2]) // 16, int(array[2]) % 16)
 
 def getDurationString(duration):
-    days = duration // (24 * time.hour)
-    hours = (duration - days * 24 * time.hour) // (1 * time.hour)
-    minutes = (duration - hours * time.hour - days * 24 * time.hour) // time.minute
-
-    if (days > 0):
-        return "%dd %dh" % (days, hours)
+    hours = duration // (1 * time.hour)
+    minutes = (duration - hours * time.hour) // time.minute
 
     if (hours > 0):
         return "%dh %dm" % (hours, minutes)
@@ -394,10 +384,6 @@ def main(config):
                 colours = splatfest_colours,
             )
 
-    eggstra_on = False
-    if (len(stages["data"]["coopGroupingSchedule"]["teamContestSchedules"]["nodes"]) > 0):  # TODO: See if there's a better way to detect this
-        eggstra_on = True
-
     frames = {
         "regular": generateFrame(getCurrentMatch(parsed_data.regular, now).setting, "regular", None),
         "series": generateFrame(getCurrentMatch(parsed_data.ranked, now).series_setting, "series", None),
@@ -405,11 +391,6 @@ def main(config):
         "x": generateFrame(getCurrentMatch(parsed_data.x, now).setting, "x", None),
         "salmon": generateFrame(getCurrentMatch(parsed_data.salmon, now).setting, "salmon", None),
     }
-    if (eggstra_on):
-        current_match = getCurrentMatch(parsed_data.eggstra, now)
-        if (current_match):
-            frames["eggstra"] = generateFrame(current_match.setting, "eggstra", time.parse_time(current_match.end_time) - now)
-
     if (splatfest):
         frames["festopen"] = generateFrame(getCurrentMatch(parsed_data.fest, now).open_setting, "festopen", splatfest_colours)
         frames["festpro"] = generateFrame(getCurrentMatch(parsed_data.fest, now).series_setting, "festpro", splatfest_colours)
@@ -438,8 +419,6 @@ def main(config):
             render_frames.append(frames["x"])
         if (config.bool("show_salmon")):
             render_frames.append(frames["salmon"])
-        if (config.bool("show_eggstra")):
-            render_frames.append(frames["eggstra"])
 
         if (len(render_frames) == 0):
             render_frames.append(frames["regular"])
@@ -452,8 +431,6 @@ def main(config):
             render_frames.append(frames["tricolor"])
         if (config.bool("show_salmon")):
             render_frames.append(frames["salmon"])
-        if (config.bool("show_eggstra")):
-            render_frames.append(frames["eggstra"])
 
         if (len(render_frames) == 0):
             render_frames.append(frames["festopen"])
@@ -527,13 +504,6 @@ def get_schema():
                 name = "Salmon Run",
                 desc = "Whether or not to include Salmon Run rotations in the rotation.",
                 icon = "fish",
-                default = False,
-            ),
-            schema.Toggle(
-                id = "show_eggstra",
-                name = "Eggstra Work",
-                desc = "Whether or not to include Eggstra Work rotations in the rotation.",
-                icon = "fishFins",
                 default = False,
             ),
             schema.Toggle(
