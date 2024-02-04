@@ -48,7 +48,8 @@ load("schema.star", "schema")
 
 #URL TO NJ TRANSIT DEPARTURE VISION WEBSITE
 NJ_TRANSIT_DV_URL = "https://www.njtransit.com/dv-to"
-DEFAULT_STATION = "New York Penn Station"
+NJ_TRANSIT_STATIONS_URL = "https://www.njtransit.com/station-park-ride-to"
+DEFAULT_STATION = "DEFAULT_STATION"
 
 STATION_CACHE_KEY = "stations"
 STATION_CACHE_TTL = 604800  #1 Week
@@ -393,6 +394,9 @@ def get_departures_for_station(station):
     """
     #print("Getting departures for '%s'" % station)
 
+    if station == DEFAULT_STATION:
+        return []
+
     station_suffix = station.replace(" ", "%20")
     station_url = "{}/{}".format(NJ_TRANSIT_DV_URL, station_suffix)
 
@@ -538,7 +542,7 @@ def fetch_stations_from_website():
     nj_dv_page_response_body = cache.get(DEPARTURES_CACHE_KEY)
 
     if nj_dv_page_response_body == None:
-        nj_dv_page_response = http.get(NJ_TRANSIT_DV_URL)
+        nj_dv_page_response = http.get(NJ_TRANSIT_STATIONS_URL)
 
         if nj_dv_page_response.status_code != 200:
             #print("Got code '%s' from page response" % nj_dv_page_response.status_code)
@@ -550,7 +554,7 @@ def fetch_stations_from_website():
         cache.set(DEPARTURES_CACHE_KEY, nj_dv_page_response.body(), DEPARTURES_CACHE_TTL)
 
     selector = html(nj_dv_page_response_body)
-    stations = selector.find(".vbt-autocomplete-list.list-unstyled.position-absolute.pt-1.shadow.w-100").first().children()
+    stations = selector.find(".vbt-autocomplete-list.list-unstyled.shadow.w-100.list-main").children_filtered(".scrollable-items").children()
 
     #print("Got response of '%s' stations" % stations.len())
 

@@ -120,7 +120,7 @@ def insertionSort(arr):
         for j in range(i - 1, -1, -1):
             if key >= arr[j]:
                 break
-            frames.append(render_frame_color(arr, i, j, "insertion"))
+            frames.append(render_frame_color(arr, i, j + 1, "insertion"))
             swap(arr, j, j + 1)
 
     return frames
@@ -436,9 +436,10 @@ def render_frame_quick(arr, _i, _j, _low, _pivot, _high):
                 elif i == _high:
                     rows[y][i * 2] = red_pixel
                     rows[y][i * 2 + 1] = red_pixel
-                elif i >= _low and i <= _j:
-                    rows[y][i * 2] = red_pixel
-                    rows[y][i * 2 + 1] = red_pixel
+                    # elif i >= _low and i <= _j:
+                    #     rows[y][i * 2] = red_pixel
+                    #     rows[y][i * 2 + 1] = red_pixel
+
                 else:
                     rows[y][i * 2] = white_pixel
                     rows[y][i * 2 + 1] = white_pixel
@@ -459,34 +460,35 @@ def partition(arr, low, high, _pivot):
             swap(arr, i, j)
             i += 1
 
-    frames.append(render_frame_quick(arr, i - 1, j, low, _pivot, high))
+    # frames.append(render_frame_quick(arr, i - 1, j, low, _pivot, high))
     swap(arr, i - 1, low)
     return [i - 1, frames]
 
-def partitionRand(arr, low, high, rPivots):
-    if rPivots:
-        pivot = random.number(low, high)  #random
-    else:
-        pivot = (low + high) // 2  #middle
+def partitionRand(arr, low, high):
+    frames = []
+    frames.append(render_frame_quick(arr, low, 0, low, (low + high) // 2, high))
+    pivot = (low + high) // 2  #middle
 
     swap(arr, low, pivot)
-    return partition(arr, low, high, pivot)
+    vals = partition(arr, low, high, pivot)
+    for frame in vals[1]:
+        frames.append(frame)
+    vals[1] = frames
+    return vals
 
-def doQuickSort(arr, low, high, rPivots):
+def doQuickSort(arr, low, high):
     frames = []
     if low < high:
-        values = partitionRand(arr, low, high, rPivots)
+        values = partitionRand(arr, low, high)
         pi = values[0]
         frames += values[1]
-        frames += doQuickSort(arr, low, pi - 1, rPivots)
-        frames += doQuickSort(arr, pi + 1, high, rPivots)
+        frames += doQuickSort(arr, low, pi - 1)
+        frames += doQuickSort(arr, pi + 1, high)
 
     return frames
 
 def quickSort(arr):
-    #use random pivots half the time
-    rPivots = bool(random.number(0, 1))
-    return doQuickSort(arr, 0, N - 1, rPivots)
+    return doQuickSort(arr, 0, N - 1)
 
 sorts = [bubbleSort, insertionSort, selectionSort, radixSort, shellSort, mergeSort, heapSort, quickSort]
 sortNames = ["Bubble", "Insertion", "Selection", "Radix", "Shell", "Merge", "Heap", "Quick"]
@@ -514,6 +516,7 @@ def main():
     random_shuffle(arr)
 
     randomSortIndex = random.number(0, len(sorts)) - 1
+    # randomSortIndex = 7
 
     return render.Root(
         show_full_animation = True,

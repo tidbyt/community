@@ -1,0 +1,8 @@
+---
+id: diablo-4-events
+name: Diablo 4 Events
+summary: Tracks Diablo 4 events
+desc: Shows an countdown when the next Diablo 4 event starts.
+author: devfle
+fileName: diablo_4_events.star
+packageName: diablo4events

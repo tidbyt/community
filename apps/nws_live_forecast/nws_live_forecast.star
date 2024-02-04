@@ -66,12 +66,13 @@ def main(config):
             prevDay = day
         days[len(days) - 1].append(period)
 
+    nowTemp = int(math.round(rightNow["temperature"]))
     cols = [render.Column(
         cross_align = "center",
         children = [
             render.Text("Now"),
             render.Image(src = get_icon(rightNow["shortForecast"])),
-            render.Text(" %d\u00B0" % int(math.round(rightNow["temperature"]))),
+            render.Text(" %d\u00B0" % nowTemp),
         ],
     )]
 
@@ -84,6 +85,9 @@ def main(config):
         forecast = mode([p["shortForecast"] for p in day])
 
         if dayStart < now:
+            # Only show today's temp if it's higher, e.g. in the morning
+            if high <= nowTemp:
+                continue
             label = "Today"
         else:
             label = DAY_LABELS[humanize.day_of_week(dayStart)]

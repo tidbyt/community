@@ -47,15 +47,15 @@ BASIN_OPTIONS = [
 
 scroll_speed_options = [
     schema.Option(
-        display = "Slow Scroll",
+        display = "Slow",
         value = "60",
     ),
     schema.Option(
-        display = "Medium Scroll",
+        display = "Medium",
         value = "45",
     ),
     schema.Option(
-        display = "Fast Scroll",
+        display = "Fast",
         value = "30",
     ),
 ]
@@ -163,11 +163,9 @@ def getDisplay(active_cyclone_count, xml, hide_quiet, location, config):
 
                         # figure out the get_bearing -- in this case what direction the hurricane is from you:
                         bearing = get_bearing(location["lat"], location["lng"], storm_coordinates[0], storm_coordinates[1])
-
                         row2 = "%s %s: %s" % (storm_type, storm_name, storm_headline)
                         info = "%s %s is %s%s of you heading %s with winds of %s and barometric pressure of %s" % (storm_type, storm_name, distance_in_miles_display, bearing, storm_movement, storm_wind, storm_pressure)
                         row3 = info
-
                         if storm_type.lower() == "hurricane":
                             images = [base64.decode(HURRICANE_ANIMATION)]
                         elif storm_type == "tropical storm":
@@ -199,6 +197,7 @@ def getDisplay(active_cyclone_count, xml, hide_quiet, location, config):
                 children = [
                     render.Marquee(
                         width = 64,
+                        offset_start = len(row2) * 5,
                         child = render.Text(row3, color = "#ff0"),
                     ),
                 ],

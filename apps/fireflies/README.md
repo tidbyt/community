@@ -16,17 +16,22 @@ It is hard to match these colors perfectly to HTML colors due to variations amon
      Faint Blue: #0000FF  (This is a much rarer color for a firefly to emit.)
 
 The radiance of fireflies has a surreal and mesmerizing beauty that dots the night landscape, rendering a celestial-like spectacle on earth. Think of them as the stars within our grasp, flickering erratically yet rhythmically, painting the black canvas of night with unpredictable strokes of light. Their shimmer amid the quiet of the night offers both a sense of tranquility and a tingly excitement.
+
+
+This can be used as a night display that replaces a nightlight in your room.
 <br>
 
 ##### <i>Tidbyt Screen</i>
 The screen has the option to dislay the fireflies with or without the current time (<b>5:37 PM</b>). The toggle for displaying the time is via the schema.
 
 <i>Fireflies with no time showing</i>
-<img src = "./fireflies - no clock.gif" width=900>
+<img src = "./fireflies-no clock.gif" width=900>
 
 <i>Fireflies with the current time</i>
-<img src = "./fireflies - clock.gif" width=900>
+<img src = "./fireflies-clock.gif" width=900>
+
 Fireflies are not displayed if they occur in the area of the clock.
+
 <br>
 
 ##### <i>Schema</i>
