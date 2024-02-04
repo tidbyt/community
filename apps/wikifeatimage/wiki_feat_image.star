@@ -9,6 +9,8 @@ load("http.star", "http")
 load("render.star", "render")
 load("time.star", "time")
 
+CACHE_DURATION = 14400
+
 def main():
     TODAY = time.now().format("2006/01/02")
     YESTERDAY = (time.now() - time.parse_duration("24h")).format("2006/01/02")
@@ -58,7 +60,9 @@ def call_api(date):
     :returns: a JSON dictionary containing information from the API response
     """
     api_url = "https://api.wikimedia.org/feed/v1/wikipedia/en/featured/%s" % date
-    resp = http.get(api_url)
+
+    # Call the API and cache the results for 4 hours
+    resp = http.get(api_url, ttl_seconds = CACHE_DURATION)
 
     # Ensure we get a 200 status response
     if resp.status_code != 200:
@@ -86,7 +90,7 @@ def retrieve_image(json_dict):
     # Get the image URL from the response
     image_url = json_dict["image"]["thumbnail"]["source"]
 
-    # Retrieve the actual image data from the source URL
-    image = http.get(image_url).body()
+    # Retrieve the actual image data from the source URL and cache the results for 4 hours
+    image = http.get(image_url, ttl_seconds = CACHE_DURATION).body()
 
     return image
