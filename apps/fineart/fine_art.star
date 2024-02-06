@@ -33,7 +33,9 @@ def main(config):
 
     if rotate_daily:
         # rotate at 2am
-        two_hours_back = time.from_timestamp(time.now().unix - (2 * 60 * 60))
+        timezone = config.get("$tz", "America/Denver")
+        now = time.now().in_location(timezone)
+        two_hours_back = time.from_timestamp(now.unix - (2 * 60 * 60)).in_location(timezone)
         start_of_day_utc = time.time(year = two_hours_back.year, month = two_hours_back.month, day = two_hours_back.day, hour = 0, minute = 0, second = 0)
         unix_day = int(math.round(start_of_day_utc.unix / 60 / 60 / 24))
 
