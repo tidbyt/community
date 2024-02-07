@@ -2,7 +2,7 @@
 Applet: Die Scoreboard GT
 Summary: Beer Die Scoreboard for GT
 Description: Beer Die scoreboard with dropdown menus to keep track of score. Customized with logos for Bizz (5) and Buzz (7) with a red solo cup and Georgia Tech's mascot Buzz.
-Author: Zach Tempel, Jed Fox
+Author: zachtempel3
 """
 
 load("encoding/base64.star", "base64")
