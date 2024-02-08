@@ -246,7 +246,7 @@ def generateGeneralFrame(header_text, header_colours, img_a, img_b, footer, weap
                 ),
                 # Stage
                 render.Padding(
-                    render.Image(SALMON_STAGE_IMG[img_a if img_a in SALMON_STAGE_IMG else "no_stage"]),
+                    render.Image(SALMON_STAGE_IMG[img_a] if img_a in SALMON_STAGE_IMG else STAGE_IMG["no_stage"]),
                     pad = (1, 1, 0, 1),
                 ),
             ],
