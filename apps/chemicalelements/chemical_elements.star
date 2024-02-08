@@ -1559,7 +1559,7 @@ def getMainCommentary(element):
     Returns:
         The display text for the first commentary line.
     """
-    return "Atomic #%s with symbol %s is in group %s and period %s" % (element["AtomicNumber"], element["Symbol"], element["Group"].lower(), element["Period"])
+    return "Atomic #%s is in group %s and period %s" % (element["AtomicNumber"], element["Group"].lower(), element["Period"])
 
 def getSecondaryCommentary(element):
     """ getSecondaryCommentary

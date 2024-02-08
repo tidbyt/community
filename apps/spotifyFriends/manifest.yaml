@@ -1,0 +1,8 @@
+---
+id: spotify-friends
+name: Spotify Friends
+summary: Spotify friend activity
+desc: Displays last listening activity for random Spotify friend. Requires providing a Spotify web browser authentication cookie.
+author: klaffitte
+fileName: spotify_friends.star
+packageName: spotifyfriends
