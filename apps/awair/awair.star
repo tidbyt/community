@@ -52,6 +52,7 @@ def api_connection_options(api_connection_type):
                 name = "Public IP address and port of Awair device",
                 desc = "Requires a public IP address with port forwarding to an Awair device configured for Local API access.",
                 icon = "computer",
+                default = "",
             ),
         ]
     elif api_connection_type == "cloud_token":
@@ -61,12 +62,14 @@ def api_connection_options(api_connection_type):
                 name = "Access token for Awair Developer API",
                 desc = "Your API access token from your Awair developer console at https://developer.getawair.com/.",
                 icon = "key",
+                default = "",
             ),
             schema.Text(
                 id = "device_id",
                 name = "Awair device id",
                 desc = "The device's integer deviceID, see 'GET Devices' at https://developer.getawair.com/.",
                 icon = "server",
+                default = "",
             ),
             schema.Dropdown(
                 id = "device_type",
