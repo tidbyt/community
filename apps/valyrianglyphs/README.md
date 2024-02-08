@@ -6,4 +6,5 @@ Display a random glyph and translations from the High Valyrian language, as feat
 
 ## Contributions
 High Valyrian was created by [David J. Peterson](https://wiki.languageinvention.com/), who adapted the language for the Tidbyt display.
+
 Coding was completed by [frame-shift](https://github.com/frame-shift).
