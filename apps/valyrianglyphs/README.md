@@ -1,6 +1,6 @@
 # Valyrian Glyphs for Tidbyt
 
-Display a random glyph and translations from the High Valyrian language, as featured in HBO's Game of Thrones and House of the Dragon.
+Display a random glyph and translations from the High Valyrian language, as featured in HBO's _Game of Thrones_ and _House of the Dragon_.
 
 ![Valyrian Glyphs for Tidbyt](valyrian_glyphs.gif)
 
