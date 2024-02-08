@@ -56,7 +56,9 @@ def main(config):
         hemi = "south"
 
     # Determine current season and time of day (period)
-    season, period = read_time(time.now(), hemi)
+    timezone = loc.get("timezone")
+    now = time.now().in_location(timezone)
+    season, period = read_time(now, hemi)
 
     # Set animation delays and actions
     ani_action, ani_delay = render_action(pet)
