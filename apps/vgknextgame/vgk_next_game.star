@@ -17,18 +17,20 @@ vgkNextGameWeek = "https://api-web.nhle.com/v1/club-schedule/VGK/week/" + timest
 def main():
     response = http.get(vgkNextGameWeek.format(ttl_seconds = 3600))
 
+    d = response.json()
+
     if response.status_code != 200:
         fail("Server request failed with status %d", response.status_code)
 
-    if len(response.json()["games"]) == 0:
+    if len(d["games"]) == 0:
         nextStartDate = "> 1 week"
         nextHomeTeam = ""
         nextAwayTeam = ""
         at = "Go Knights"
     else:
-        nextStartDate = response.json()["games"][0]["gameDate"]
-        nextHomeTeam = response.json()["games"][0]["homeTeam"]["abbrev"]
-        nextAwayTeam = response.json()["games"][0]["awayTeam"]["abbrev"]
+        nextStartDate = d["games"][0]["gameDate"]
+        nextHomeTeam = d["games"][0]["homeTeam"]["abbrev"]
+        nextAwayTeam = d["games"][0]["awayTeam"]["abbrev"]
         at = " @ "
 
     img = base64.decode("iVBORw0KGgoAAAANSUhEUgAAABQAAAAcCAYAAABh2p9gAAAAAXNSR0IArs4c6QAAAERlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAA6ABAAMAAAABAAEAAKACAAQAAAABAAAAFKADAAQAAAABAAAAHAAAAACCrbs8AAABqklEQVRIDZWVu07GMAyFU8TIA/AQDEg8AJeBBXZuEjPsMLfMMANiB7FzkeApGBkQMwMbE4KfkFNxIsdO2hCpqmMff46TqHWucnjvXyql47Lbs22/sLgSmN6PqRuIS6K1vUt3d77Th9vrN3e0OVuSRv80rPX9q+igcX+xG2H0AYoBcC4nLM5NUSzfCPxMvqUrsQGGJjcMsGKbek4JaoDcs1x17eMWSH8C7LpOxqps3XoCbNu2CjIkSoBSmGtHxnHSuWtkgLwOFGuwBFErC/X3UDqwJxTCJhga2ozjRuhDNEAJZyLAS3Mz7uD40T2/vkeJhiFgWoZTnhzv5XIAnhyuIjw4DFDvWdM0EcAVw8FCMfhnGGC3Mf4BQC7a1cXhN0AuSLaNr07tMEAk6spou6Zd5GaBvB4Q5EapXWizQEJk2/SNvROgPNFSIk734emjD6MTuRUxJ6wEv4H4YM5H+mHDj/9LLicCQ9V5LWCy9mN+c7oVi1MXGF0E0tDJFOOtbeUL08KYfH2adoI0WRHmKP63gAJJuMPyKTYgwqARKXWmBv9rVUMlBHhI1sd+AVosEEWqHg24AAAAAElFTkSuQmCC")
