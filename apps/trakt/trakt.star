@@ -13,7 +13,7 @@ load("schema.star", "schema")
 load("secret.star", "secret")
 load("time.star", "time")
 
-OAUTH2_CLIENT_ID = "ad910eb639274f2ceba923147987603df76855dc5b44c33604934582c11be44f"
+OAUTH2_CLIENT_ID = secret.decrypt("AV6+xWcEJDFhI/7+Al+nlujFD+sWG8e45sk6rBox8kDNs1Zcj9ZxHlNFMHq0C4531/9SSAT2RfeZme0ywPENdPVRcm1qppgyHxM65/YLorJsaLhV5lpg7IOcvajBPHKcaEbRcWSIbfFUzoxlKrqtLkEY6Ff64WsgoggqNValaG3aMXt6Doveq6860Q0q7hLLkSQBXhA+wjAQYZPaFJbT+ZFptNTt7A==")
 OAUTH2_CLIENT_SECRET = secret.decrypt("AV6+xWcEPPga5YWsxjwU7OgkZ5fBn5KA9oa97da3gPsHYhGo7Up/sVwk+Dvcle6VgBQEQw/MyB7IqMcE8wh2ulL0apzEaWM4T2gOhbz+XLtU2zgdjG2q9AfE6pOkejK9SFcBhnJQZxgO0aNs2zcefLJOXnwi0DgnT5BYIQeKQRa/oYHcOyyee4JBoBHTszVv5mELDn22gjwSdohtvPadddhDfcLZrw==")
 TMDB_API_SECRET = "eyJhbGciOiJIUzI1NiJ9.eyJhdWQiOiJlMDBiNTc2M2UyYTc3ZmVjZThmOTNkMzZjYmIxNTQ0NyIsInN1YiI6IjUwZTQ2ZjczMTljMjk1N2YxNzAxNjE2NyIsInNjb3BlcyI6WyJhcGlfcmVhZCJdLCJ2ZXJzaW9uIjoxfQ.MtKo5SBb-MSWcwkLFZWcwdA7haTzjIgYEC9Dz6dFzl8"
 
