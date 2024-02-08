@@ -11,6 +11,13 @@ Configured:
 
 <img src="./screenshot-configured.webp" width="320" height="160">
 
+Selecting bar chart display option:
+
+<img src="./screenshot-bar-chart.webp" width="320" height="160">
+
+showing temperature, humidity, CO2, VOCs, PM2.5 in the same order as the Awair device and app.
+
+
 ## Reference
 
 ### Awair developer docs
