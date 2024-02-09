@@ -7,6 +7,8 @@ load("time.star", "time")
 DEFAULT_DIRECTION = "all"
 DEFAULT_MAPID = "41320"
 
+ENCRYPTED_API_KEY = "AV6+xWcET06sVKAXgeOgTHYDXPjOUJcUOkKg5NBwW+wdTuqieIHvNmFAnr0DJqI6OPSszMgPmsbZwJA55FL/ZVrPa6anbi2eabBTwHHNq/CzaRzMcyYljU3IuD3Umc9xRyq1saX5p2qVeOsO0oFZT1z3JxGE5R2Hv3CprWqzdFp6GSqgcMU="
+
 def get_color(line):
     if (line == "Pink"):  # pink line , FF99AA
         return "#ff8599"
@@ -86,7 +88,7 @@ def main(config):
     train_dir = config.str("directions", DEFAULT_DIRECTION)
     map_id = int(config.get("mapId", DEFAULT_MAPID))
 
-    api_key = secret.decrypt("AV6+xWcET06sVKAXgeOgTHYDXPjOUJcUOkKg5NBwW+wdTuqieIHvNmFAnr0DJqI6OPSszMgPmsbZwJA55FL/ZVrPa6anbi2eabBTwHHNq/CzaRzMcyYljU3IuD3Umc9xRyq1saX5p2qVeOsO0oFZT1z3JxGE5R2Hv3CprWqzdFp6GSqgcMU=")
+    api_key = secret.decrypt(ENCRYPTED_API_KEY)
 
     if api_key == None:
         fail("api key not found")
