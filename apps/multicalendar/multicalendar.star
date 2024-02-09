@@ -75,7 +75,7 @@ def get_earliest_events_from_calendars(calendars, window_24h, token):
     earliest_list = []
     i = 0
     for calendar_id in calendars:
-        url = EVENTS_LIST_URL_BEFORE_ID + humanize.url_encode(calendar_id) + EVENTS_LIST_URL_AFTER_ID + "&timeMin=" + humanize.url_encode(to_iso(window_24h[0])) + "&timeMax=" + humanize.url_encode(to_iso(window_24h[1]))
+        url = EVENTS_LIST_URL_BEFORE_ID + humanize.url_encode(calendar_id) + EVENTS_LIST_URL_AFTER_ID + "&timeMin=" + humanize.url_encode(to_iso(window_24h[0])) + "&timeMax=" + humanize.url_encode(to_iso(window_24h[1])) + "&eventTypes=default"
         response = http.get(
             url = url,
             ttl_seconds = 300,
@@ -91,16 +91,22 @@ def get_earliest_events_from_calendars(calendars, window_24h, token):
             # fail("Google Calendar events list request failed with status", response.status_code, "for calendar id", calendar_id)
 
         # request successful
-        if len(json["items"]) == 0:
+        # ignore all-day events
+        non_all_day_events = []
+        for event in json["items"]:
+            if "dateTime" in event["start"] and "dateTime" in event["end"]:
+                non_all_day_events.append(event)
+        if len(non_all_day_events) == 0:
             continue
-        if len(json["items"]) > 0:
-            json["items"][0]["start"]["dateTime"] = json["items"][0]["start"]["dateTime"] + "_" + chr(UNICODE_OFFSET + i)
-            json["items"][0]["calendarName"] = json["summary"]
-            earliest_list.append(json["items"][0])
-        if len(json["items"]) > 1:
-            json["items"][1]["start"]["dateTime"] = json["items"][1]["start"]["dateTime"] + "_" + chr(UNICODE_OFFSET + i)
-            json["items"][1]["calendarName"] = json["summary"]
-            earliest_list.append(json["items"][1])
+        # add earliest event(s) to earliest_list
+        if len(non_all_day_events) > 0:
+            non_all_day_events[0]["start"]["dateTime"] = non_all_day_events[0]["start"]["dateTime"] + "_" + chr(UNICODE_OFFSET + i)
+            non_all_day_events[0]["calendarName"] = json["summary"]
+            earliest_list.append(non_all_day_events[0])
+        if len(non_all_day_events) > 1:
+            non_all_day_events[1]["start"]["dateTime"] = non_all_day_events[1]["start"]["dateTime"] + "_" + chr(UNICODE_OFFSET + i)
+            non_all_day_events[1]["calendarName"] = json["summary"]
+            earliest_list.append(non_all_day_events[1])
         i += 1
     return earliest_list
 
@@ -235,7 +241,7 @@ def main(config):
         if len(calendars) < 1:
             calendars = get_user_calendars(token)
         next_event = get_next_event(calendars, token, window_24h, config.get("timezone"))
-        if (next_event.get("error", None)):
+        if next_event and "error" in next_event:
             error_message = next_event.get("error")
             return render.Root(
                 child = render.WrappedText(error_message),
