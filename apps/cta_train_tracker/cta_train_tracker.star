@@ -97,7 +97,7 @@ def main(config):
     api_key = secret.decrypt(ENCRYPTED_API_KEY)
 
     if api_key == None:
-        fail("api key not found")
+        return []
 
     arrival_estimate_url = "http://api.transitchicago.com/api/1.0/ttarrivals.aspx"
 
