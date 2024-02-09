@@ -14,7 +14,7 @@ load("time.star", "time")
 DEFAULT_DIRECTION = "all"
 DEFAULT_MAPID = "41320"
 
-ENCRYPTED_API_KEY = "AV6+xWcEV2vDc1QZsL9es9BTRjrdsxiLi8a7bpHh6+n3IgnEwsQnxxda8kcIh4/5TUXN/OGUKl1jp6kapKvhhgP21QbzgaSM1GXGu/k33GjTtINN34TtOKckDj4ZBWnkv/NDDhtqEI9dlKCwdLQPnFBDY/5HV+MOPWeEcdht8lUa9LkvYF8="
+ENCRYPTED_API_KEY = "AV6+xWcED7M6SdZ17ziHbtdTeziG2wjAVIwf3k1s6EIIY9/ZnfWF+zZ+MVe/5jpEGBrizxzvgFUR8ldRWI5Ao7H4iS5HSEBvi3vTxhSRkkWOaVe37HyPY8QUr50cozNKSBBlTdpgngNSx6mgx/zOLEmjS+33IzMk2TYSNOsYOnNMRXCa5tQ="
 
 def get_color(line):
     if (line == "Pink"):  # pink line , FF99AA
@@ -46,6 +46,7 @@ def calculate_minutes_away(item):
     prediction_time = time.parse_time(prediction_time_str, "2006-01-02T15:04:05", timezone)
     time_difference_seconds = arrival_time - prediction_time
     minutes_away = time_difference_seconds.minutes
+    
     return str(int(minutes_away))
 
 def map_to_train_estimates(response, train_dir):
