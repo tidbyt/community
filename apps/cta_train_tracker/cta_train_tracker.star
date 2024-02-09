@@ -113,6 +113,7 @@ def main(config):
             "mapid": str(map_id),
             "outputType": "JSON",
         },
+        ttl_seconds = 30,
     )
 
     if (estimates_response.status_code != 200):
