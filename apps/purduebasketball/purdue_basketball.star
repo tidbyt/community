@@ -15,7 +15,16 @@ purdue_logo = base64.decode("""iVBORw0KGgoAAAANSUhEUgAAACgAAAAXCAYAAAB50g0VAAAAA
 
 def main(config):
     year = time.now().year
-    cbb_stat_endpoint = "https://api.sportsdata.io/v3/cbb/scores/json/TeamSeasonStats/" + str(year) + "?key=" + config.str("api_key", "")
+    api_key = config.str("api_key", "")
+
+    cbb_stat_endpoint = "https://api.sportsdata.io/v3/cbb/scores/json/TeamSeasonStats/" + str(year) + "?key=" + api_key
+
+    if (api_key == ""):
+        return render.Root(
+            child = render.Text("API KEY Needed")
+        )
+        
+
 
     purdue_stat = get_purdue_stat(cbb_stat_endpoint)
     wins = int(purdue_stat["wins"])
