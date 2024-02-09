@@ -705,7 +705,7 @@ def get_schema():
                 id = "directions",
                 name = "Direction of trains",
                 desc = "Show trains going both directions or a single direction.",
-                icon = "arrow-down-arrow-up",
+                icon = "arrowsLeftRight",
                 default = direction_options[0].value,
                 options = direction_options,
             ),
