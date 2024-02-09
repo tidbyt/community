@@ -14,7 +14,7 @@ load("time.star", "time")
 DEFAULT_DIRECTION = "all"
 DEFAULT_MAPID = "41320"
 
-ENCRYPTED_API_KEY = "AV6+xWcEolY/zyxSnwunz91velNAoVnwzQUkKXSoygru26aB62O1WWeXDBPluFFaYDH++NeItLPPrDfzKk1HFsTsaMbPZByLxtJXY3gmNgNZFwYKgC3SipzyKnCaImacMx2XQSVt9CQ1okp4Jx8KKeVr/FFF3MvHnk98peWauXcuobsojwU="
+ENCRYPTED_API_KEY = "AV6+xWcEV2vDc1QZsL9es9BTRjrdsxiLi8a7bpHh6+n3IgnEwsQnxxda8kcIh4/5TUXN/OGUKl1jp6kapKvhhgP21QbzgaSM1GXGu/k33GjTtINN34TtOKckDj4ZBWnkv/NDDhtqEI9dlKCwdLQPnFBDY/5HV+MOPWeEcdht8lUa9LkvYF8="
 
 def get_color(line):
     if (line == "Pink"):  # pink line , FF99AA
