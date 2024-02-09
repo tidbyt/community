@@ -21,10 +21,8 @@ def main(config):
 
     if (api_key == ""):
         return render.Root(
-            child = render.Text("API KEY Needed")
+            child = render.Text("API KEY Needed"),
         )
-        
-
 
     purdue_stat = get_purdue_stat(cbb_stat_endpoint)
     wins = int(purdue_stat["wins"])
