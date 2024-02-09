@@ -1,8 +1,8 @@
-load("render.star", "render")
 load("http.star", "http")
-load("time.star", "time")
+load("render.star", "render")
 load("schema.star", "schema")
 load("secret.star", "secret")
+load("time.star", "time")
 
 DEFAULT_DIRECTION = "all"
 DEFAULT_MAPID = "41320"
