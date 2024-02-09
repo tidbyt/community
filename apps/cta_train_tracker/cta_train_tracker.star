@@ -91,13 +91,18 @@ def map_to_render(combined_properties):
 
     return output
 
+def render_error_message():
+    return render.Root(
+        child = render.WrappedText(content = "I seem to be having some issues finding CTA trains :( "),
+    )
+
 def main(config):
     train_dir = config.str("directions", DEFAULT_DIRECTION)
     map_id = int(config.get("mapId", DEFAULT_MAPID))
     api_key = secret.decrypt(ENCRYPTED_API_KEY)
 
     if api_key == None:
-        return []
+        return render_error_message()
 
     arrival_estimate_url = "http://api.transitchicago.com/api/1.0/ttarrivals.aspx"
 
