@@ -88,7 +88,7 @@ def main(config):
 
     api_key = secret.decrypt("AV6+xWcEvr1gogG2cGFFYHgmlkTXkPkX1PO/YU3t+9LUW2jasO9SA0nTxYxLEK3IbmavRGiYxFo9YM01qICsvl+Wh2yM3gr/m6gPiAwVyJ4XB2yOzOGLP4NJtX/lKYu9z6i62eo/Sj+Qjq3S//YeV0HXcj2yD/Cp+eNZ0gJH9c1DYqzpPfA=")
 
-    if api_key == None
+    if api_key == None:
         fail("api key not found")
 
     arrival_estimate_url = "http://api.transitchicago.com/api/1.0/ttarrivals.aspx"
@@ -101,7 +101,7 @@ def main(config):
             "outputType": "JSON",
         },
     )
-    
+
     if (estimates_response.status_code != 200):
         fail("request failed with code %d", estimates_response.status_code)
 
