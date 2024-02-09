@@ -101,6 +101,7 @@ def main(config):
             "outputType": "JSON",
         },
     )
+    
     if (estimates_response.status_code != 200):
         fail("request failed with code %d", estimates_response.status_code)
 
