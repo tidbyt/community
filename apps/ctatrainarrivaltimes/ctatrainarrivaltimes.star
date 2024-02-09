@@ -87,7 +87,6 @@ def map_to_render(combined_properties):
 def main(config):
     train_dir = config.str("directions", DEFAULT_DIRECTION)
     map_id = int(config.get("mapId", DEFAULT_MAPID))
-
     api_key = secret.decrypt(ENCRYPTED_API_KEY)
 
     if api_key == None:
