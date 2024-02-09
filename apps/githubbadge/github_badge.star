@@ -165,8 +165,8 @@ def get_schema():
         fields = [
             schema.Text(
                 id = "access_token",
-                name = "GitHub Personal Access Token (optional, only required for private repos)",
-                desc = "Personal Access token",
+                name = "GitHub Personal Access Token",
+                desc = "Personal Access token (optional, only required for private repos)",
                 icon = "lock",
             ),
             schema.Text(
