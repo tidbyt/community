@@ -86,7 +86,7 @@ def main(config):
     train_dir = config.str("directions", DEFAULT_DIRECTION)
     map_id = int(config.get("mapId", DEFAULT_MAPID))
 
-    api_key = secret.decrypt("AV6+xWcE9oZeCoOfIlL26TqhpKlbg8OTuMpZClwGK/6VR0SlAx3d5b9WlFYfbwojW2wbVk3yzapGyPhJUjDLQa/I2YDO726NkdeJROJju9YdroRxOkqavXDmCHwslVMTCoI+sQji3E7GiuDAsU4mTxkhHOv+LfRl1BB9LbONT9iiZfKVCO4=") or config.get("cta_api_key", "api_key")
+    api_key = secret.decrypt("AV6+xWcEvr1gogG2cGFFYHgmlkTXkPkX1PO/YU3t+9LUW2jasO9SA0nTxYxLEK3IbmavRGiYxFo9YM01qICsvl+Wh2yM3gr/m6gPiAwVyJ4XB2yOzOGLP4NJtX/lKYu9z6i62eo/Sj+Qjq3S//YeV0HXcj2yD/Cp+eNZ0gJH9c1DYqzpPfA=") or config.get("cta_api_key", "api_key")
 
     arrival_estimate_url = "http://api.transitchicago.com/api/1.0/ttarrivals.aspx?key=" + api_key + "&mapid=" + str(map_id) + "&outputType=JSON"
 
