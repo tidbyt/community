@@ -1,40 +1,38 @@
-load("render.star", "render")
 load("http.star", "http")
-load("time.star", "time")
+load("render.star", "render")
 load("schema.star", "schema")
 load("secret.star", "secret")
+load("time.star", "time")
 
 DEFAULT_DIRECTION = "all"
 DEFAULT_MAPID = "41320"
 
-
 def get_color(line):
-    if(line == 'Pink'):     # pink line , FF99AA
-        return '#ff8599'
-    if(line == 'Red'):      # red line
-        return '#FF0000'
-    if(line == 'Brn'):      # brown line
-        return '#a86929'
-    if(line == 'P'):        # purple line
-        return '#51087E'
-    if(line == 'Blue'):     # blue line
-        return '#0000FF'
-    if(line == 'G'):        # green line
-        return '#00FF00'
-    if(line == 'Org'):      # orange line
-        return '#FFA500'
-    if(line == 'Y'):        # yellow line
-        return '#FFFF00'
-    return '#000000'
-
+    if (line == "Pink"):  # pink line , FF99AA
+        return "#ff8599"
+    if (line == "Red"):  # red line
+        return "#FF0000"
+    if (line == "Brn"):  # brown line
+        return "#a86929"
+    if (line == "P"):  # purple line
+        return "#51087E"
+    if (line == "Blue"):  # blue line
+        return "#0000FF"
+    if (line == "G"):  # green line
+        return "#00FF00"
+    if (line == "Org"):  # orange line
+        return "#FFA500"
+    if (line == "Y"):  # yellow line
+        return "#FFFF00"
+    return "#000000"
 
 def calculate_minutes_away(item):
-    arrival_time_str=item["arrT"]
-    prediction_time_str=item["prdt"]
-    is_due=item["isApp"]
-    if(is_due == 1):
+    arrival_time_str = item["arrT"]
+    prediction_time_str = item["prdt"]
+    is_due = item["isApp"]
+    if (is_due == 1):
         return "Due"
-    timezone="US/Central"
+    timezone = "US/Central"
     arrival_time = time.parse_time(arrival_time_str, "2006-01-02T15:04:05", timezone)
     prediction_time = time.parse_time(prediction_time_str, "2006-01-02T15:04:05", timezone)
     time_difference_seconds = arrival_time - prediction_time
@@ -49,39 +47,39 @@ def map_to_train_estimates(response, train_dir):
         "arrival_time": item["arrT"],
         "destination": item["destNm"],
         "is_due": int(item["isApp"]),
-        "direction": int(item["trDr"])
+        "direction": int(item["trDr"]),
     } for item in response.json()["ctatt"]["eta"]]
 
-    if(train_dir == "inbound"):
+    if (train_dir == "inbound"):
         next_train_estimates = [obj for obj in next_train_estimates if obj["direction"] == 5]
-    if(train_dir == "outbound"):
+    if (train_dir == "outbound"):
         next_train_estimates = [obj for obj in next_train_estimates if obj["direction"] == 1]
 
-    sorted_combined_properties = sorted(next_train_estimates, key=lambda x: x["arrival_time"])
+    sorted_combined_properties = sorted(next_train_estimates, key = lambda x: x["arrival_time"])
     return sorted_combined_properties
-
 
 def map_to_render(combined_properties):
     output = []
     for item in combined_properties:
         output.append(
             render.Row(
-                expanded=True,
-                main_align="space_between",
+                expanded = True,
+                main_align = "space_between",
                 children = [
                     render.Marquee(
-                        width=48,
-                        child=render.Text(
-                            content=item['destination'],
-                            color=get_color(item['color']),
+                        width = 48,
+                        child = render.Text(
+                            content = item["destination"],
+                            color = get_color(item["color"]),
                         ),
                     ),
                     render.Text(
-                        content=item['minutes_away'],
+                        content = item["minutes_away"],
                     ),
-                ])
-            )
-            
+                ],
+            ),
+        )
+
     return output
 
 def main(config):
@@ -93,7 +91,7 @@ def main(config):
     arrival_estimate_url = "http://api.transitchicago.com/api/1.0/ttarrivals.aspx?key=" + api_key + "&mapid=" + str(map_id) + "&outputType=JSON"
 
     estimates_response = http.get(arrival_estimate_url)
-    if(estimates_response.status_code != 200):
+    if (estimates_response.status_code != 200):
         fail("request failed with code %d", estimates_response.status_code)
 
     next_arrivals = map_to_train_estimates(estimates_response, train_dir)
@@ -101,10 +99,9 @@ def main(config):
 
     return render.Root(
         child = render.Column(
-                children = children_to_render[:4]
-            )
+            children = children_to_render[:4],
+        ),
     )
-
 
 def get_schema():
     station_options = [
@@ -689,8 +686,8 @@ def get_schema():
         ),
         schema.Option(
             display = "Outbound only",
-            value = "outbound"
-        )
+            value = "outbound",
+        ),
     ]
 
     return schema.Schema(
@@ -708,9 +705,9 @@ def get_schema():
                 id = "directions",
                 name = "Direction of trains",
                 desc = "Show trains going both directions or a single direction.",
-                icon = "arrow-down-arrow-up",
+                icon = "arrowsLeftRight",
                 default = direction_options[0].value,
                 options = direction_options,
-            )
+            ),
         ],
     )
