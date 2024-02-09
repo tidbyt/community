@@ -86,7 +86,7 @@ def main(config):
     train_dir = config.str("directions", DEFAULT_DIRECTION)
     map_id = int(config.get("mapId", DEFAULT_MAPID))
 
-    api_key = secret.decrypt("AV6+xWcEvr1gogG2cGFFYHgmlkTXkPkX1PO/YU3t+9LUW2jasO9SA0nTxYxLEK3IbmavRGiYxFo9YM01qICsvl+Wh2yM3gr/m6gPiAwVyJ4XB2yOzOGLP4NJtX/lKYu9z6i62eo/Sj+Qjq3S//YeV0HXcj2yD/Cp+eNZ0gJH9c1DYqzpPfA=")
+    api_key = secret.decrypt("AV6+xWcEa4ZRhklPIrSTggP7uKqz0up6qN/10H/ztUlBfHdiPC9jfNZ2+0au2D6zGt7lhJmPrfHk6XlPUuj7bscwEhaXdGC/KjLk0dTvvASEc6bmjRBTe3dPYnq9AJ03RK6JnufYj9/y5Nm7f5O4BRwSsKU0RnZ8PUg8GQ/4Jah490BKyDk=")
 
     if api_key == None:
         fail("api key not found")
