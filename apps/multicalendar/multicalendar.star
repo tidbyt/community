@@ -98,6 +98,7 @@ def get_earliest_events_from_calendars(calendars, window_24h, token):
                 non_all_day_events.append(event)
         if len(non_all_day_events) == 0:
             continue
+
         # add earliest event(s) to earliest_list
         if len(non_all_day_events) > 0:
             non_all_day_events[0]["start"]["dateTime"] = non_all_day_events[0]["start"]["dateTime"] + "_" + chr(UNICODE_OFFSET + i)
