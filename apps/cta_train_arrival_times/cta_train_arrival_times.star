@@ -86,11 +86,18 @@ def main(config):
     train_dir = config.str("directions", DEFAULT_DIRECTION)
     map_id = int(config.get("mapId", DEFAULT_MAPID))
 
-    api_key = secret.decrypt("AV6+xWcEvr1gogG2cGFFYHgmlkTXkPkX1PO/YU3t+9LUW2jasO9SA0nTxYxLEK3IbmavRGiYxFo9YM01qICsvl+Wh2yM3gr/m6gPiAwVyJ4XB2yOzOGLP4NJtX/lKYu9z6i62eo/Sj+Qjq3S//YeV0HXcj2yD/Cp+eNZ0gJH9c1DYqzpPfA=") or config.get("cta_api_key", "api_key")
+    api_key = secret.decrypt("AV6+xWcEvr1gogG2cGFFYHgmlkTXkPkX1PO/YU3t+9LUW2jasO9SA0nTxYxLEK3IbmavRGiYxFo9YM01qICsvl+Wh2yM3gr/m6gPiAwVyJ4XB2yOzOGLP4NJtX/lKYu9z6i62eo/Sj+Qjq3S//YeV0HXcj2yD/Cp+eNZ0gJH9c1DYqzpPfA=")
 
-    arrival_estimate_url = "http://api.transitchicago.com/api/1.0/ttarrivals.aspx?key=" + api_key + "&mapid=" + str(map_id) + "&outputType=JSON"
+    arrival_estimate_url = "http://api.transitchicago.com/api/1.0/ttarrivals.aspx"
 
-    estimates_response = http.get(arrival_estimate_url)
+    estimates_response = http.get(
+        arrival_estimate_url,
+        params = {
+            "key": api_key,
+            "mapid": str(map_id),
+            "outputType": "JSON",
+        },
+    )
     if (estimates_response.status_code != 200):
         fail("request failed with code %d", estimates_response.status_code)
 
