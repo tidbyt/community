@@ -1,0 +1,8 @@
+---
+id: cta_train_arrival_times
+name: CTA 'L' tracker
+summary: Displays CTA arrival times
+desc: Displays the arrival times of the next 4 trains of any CTA 'L' stop, can be configured to only show trains going 1 direction, or both.
+author: IMcNaugh
+fileName: cta_train_arrival_times.star
+packageName: ctatrainarrivaltimes
