@@ -46,7 +46,7 @@ def calculate_minutes_away(item):
     prediction_time = time.parse_time(prediction_time_str, "2006-01-02T15:04:05", timezone)
     time_difference_seconds = arrival_time - prediction_time
     minutes_away = time_difference_seconds.minutes
-    
+
     return str(int(minutes_away))
 
 def map_to_train_estimates(response, train_dir):
