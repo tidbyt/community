@@ -58,6 +58,12 @@ def calculate_minutes_away(item):
 
     return str(int(minutes_away))
 
+def sort_train_arrivals(arrival_estimate):
+    if(arrival_estimate["minutes_away"] == "Due"):
+        return (0, arrival_estimate["minutes_away"])
+    else:
+        return (1, int(arrival_estimate["minutes_away"]))
+
 def map_to_train_estimates(response, train_dir):
     next_train_estimates = [{
         "color": item["rt"],
@@ -73,7 +79,7 @@ def map_to_train_estimates(response, train_dir):
     if (train_dir == "outbound"):
         next_train_estimates = [obj for obj in next_train_estimates if obj["direction"] == 1]
 
-    sorted_combined_properties = sorted(next_train_estimates, key = lambda x: x["arrival_time"])
+    sorted_combined_properties = sorted(next_train_estimates, key = sort_train_arrivals)
     return sorted_combined_properties
 
 def map_to_render(combined_properties):
