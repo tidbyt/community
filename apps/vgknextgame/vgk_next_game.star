@@ -52,7 +52,7 @@ def main():
                             render.Box(
                                 child = render.Column(
                                     children = [
-                                        render.Text(content = "Next Game:", font = "tom-thumb", color = "B4975A"),
+                                        render.Text(content = "NEXT GAME:", font = "tom-thumb", color = "B4975A"),
                                         render.Text(content = "" + nextStartDate, font = "tom-thumb"),
                                         render.Text(content = "" + nextAwayTeam + at + nextHomeTeam, font = "tom-thumb"),
                                     ],
