@@ -59,7 +59,7 @@ def calculate_minutes_away(item):
     return str(int(minutes_away))
 
 def sort_train_arrivals(arrival_estimate):
-    if(arrival_estimate["minutes_away"] == "Due"):
+    if (arrival_estimate["minutes_away"] == "Due"):
         return (0, arrival_estimate["minutes_away"])
     else:
         return (1, int(arrival_estimate["minutes_away"]))
