@@ -39,7 +39,7 @@ def calculate_minutes_away(item):
     arrival_time_str = item["arrT"]
     prediction_time_str = item["prdt"]
     is_due = item["isApp"]
-    if (is_due == 1):
+    if (is_due == "1"):
         return "Due"
     timezone = "US/Central"
     arrival_time = time.parse_time(arrival_time_str, "2006-01-02T15:04:05", timezone)
