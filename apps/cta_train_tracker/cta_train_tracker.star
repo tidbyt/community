@@ -99,7 +99,7 @@ def render_error_message():
 def main(config):
     train_dir = config.str("directions", DEFAULT_DIRECTION)
     map_id = int(config.get("mapId", DEFAULT_MAPID))
-    api_key = secret.decrypt(ENCRYPTED_API_KEY)
+    api_key = secret.decrypt(ENCRYPTED_API_KEY) or config.get("apiKey")
 
     if api_key == None:
         return render_error_message()
