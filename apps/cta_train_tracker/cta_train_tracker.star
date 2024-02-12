@@ -35,6 +35,15 @@ def get_color(line):
         return "#FFFF00"
     return "#000000"
 
+# CTA reccomends comparing arrival time to the prediction time to get the minutes to a station.
+# It feels backwards to me not to use date.now() for comparison. but I will stick with this.
+# as I think there trying to acccount for a train that is not moving, therefor not updating its
+# prediction.
+# assume a prediction is made a time 0, that a train will arrive at the station at time 10
+# if a train does not move at all, its prediction will not be updated, so at real time 7
+# since we only look at prediction time and arrival time, the estimate will still be 10
+# but if we took current itme into account it would look like the train was 3 away,
+# I should probably use a combo of real time and the delayed flag. but for the time being im leaving this
 def calculate_minutes_away(item):
     arrival_time_str = item["arrT"]
     prediction_time_str = item["prdt"]
@@ -44,8 +53,8 @@ def calculate_minutes_away(item):
     timezone = "US/Central"
     arrival_time = time.parse_time(arrival_time_str, "2006-01-02T15:04:05", timezone)
     prediction_time = time.parse_time(prediction_time_str, "2006-01-02T15:04:05", timezone)
-    time_difference_seconds = arrival_time - prediction_time
-    minutes_away = time_difference_seconds.minutes
+    time_difference = arrival_time - prediction_time
+    minutes_away = time_difference.minutes
 
     return str(int(minutes_away))
 
