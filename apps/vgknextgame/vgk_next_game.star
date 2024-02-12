@@ -29,6 +29,11 @@ def main():
         at = "Go Knights"
     else:
         nextStartDate = d["games"][0]["gameDate"]
+        nextStartDate = nextStartDate.split("-")
+        year = nextStartDate.pop(0)
+        nextStartDate.append(year)
+        nextStartDate = "-".join(nextStartDate)
+
         nextHomeTeam = d["games"][0]["homeTeam"]["abbrev"]
         nextAwayTeam = d["games"][0]["awayTeam"]["abbrev"]
         at = " @ "
