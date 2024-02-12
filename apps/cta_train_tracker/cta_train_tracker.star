@@ -96,6 +96,7 @@ def map_to_render(combined_properties):
                             content = item["destination"],
                             color = get_color(item["color"]),
                         ),
+                        delay = 50,
                     ),
                     render.Text(
                         content = item["minutes_away"],
