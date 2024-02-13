@@ -10,12 +10,19 @@ WIDTH = 64
 SAMPLE_CSV_QR_FRAMES = 150  # number of frames to show the QR code for if CSV is default
 SAMPLE_PUBLISHED_SHEET = "https://bit.ly/tidbyt-csv-viewer"  # needed to create a bit.ly because QR's limit is 440 bytes
 SAMPLE_PUBLISHED_CSV = "https://docs.google.com/spreadsheets/d/e/2PACX-1vSkZW0qyS1HpnPh5V51mBPZNjiNFJEZUjrLlwlfrscjDmMHqNyKQ1sjfj791t0f-_XE8g6d5MnSosLE/pub?gid=0&single=true&output=csv"
+SAMPLE_PUBLISHED_CSV_DATA = """Display arbitrary text from a CSV,Scan QR for example published Google Sheet
+Colored text#00d#000,Colored background and text#0ff#d40
+#d00,Fixed"""
 
 #################################################
 # Fetch and parse the CSV data
 #################################################
 
 def get_csv_data(csv_url):
+    # Google Sheets published CSVs are relatively slow to load (>1 sec), so use this raw data instead.
+    if csv_url == SAMPLE_PUBLISHED_CSV:
+        return csv.read_all(SAMPLE_PUBLISHED_CSV_DATA)
+
     rep = http.get(csv_url, ttl_seconds = 300)  # cache for 5 minutes
     if rep.status_code != 200:
         fail("HTTP GET request to specified CSV URL failed with status %d", rep.status_code)
