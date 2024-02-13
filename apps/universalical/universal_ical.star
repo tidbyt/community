@@ -20,7 +20,7 @@ def main(config):
     now = time.now().in_location(timezone)
     ics = http.post(
         url = LAMBDA_URL,
-        json_body = {"icsUrl": ics_url, "tz": usersTz},
+        json_body = {"icsUrl": ics_url, "tz": timezone},
     )
     if (ics.status_code != 200):
         fail("Failed to fetch ICS file")
@@ -30,9 +30,9 @@ def main(config):
     if event["detail"]["inProgress"]:
         return build_event_frame(event)
     elif event["detail"]:
-        return build_calendar_frame(now, usersTz, event)
+        return build_calendar_frame(now, timezone, event)
     else:
-        return build_calendar_frame(now, usersTz, event)
+        return build_calendar_frame(now, timezone, event)
 
 def get_calendar_text_color(event):
     DEFAULT = "#ff83f3"
