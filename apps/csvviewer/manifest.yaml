@@ -1,0 +1,8 @@
+---
+id: csvviewer
+name: CSV Viewer
+summary: Display CSV data
+desc: View CSV data from published Google Sheets or any other online source.
+author: Teo Fleming
+fileName: csvviewer.star
+packageName: csvviewer
