@@ -3,6 +3,6 @@ id: universal-ical
 name: Universal ICal
 summary: Displays Calendar from iCal
 desc: Displays Calendar from iCal (.ics) files.
-author: quesurifn
+author: quesurifn <Kyle C. R. Fahey>
 fileName: universal_ical.star
 packageName: universalical

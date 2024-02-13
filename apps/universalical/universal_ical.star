@@ -46,22 +46,38 @@ def get_calendar_text_color(event):
 def should_animate_text(event):
     return event["detail"]["minutesUntilStart"] <= 5
 
-def get_expanded_time_text_copy(event, now, eventStart):
-    DEFAULT = eventStart.format("at 3:04 PM")
-    if event["detail"]["isTomorrow"]:
-        return eventStart.format("TMRW at 3:04 PM")
-    elif event["detail"]["isThisWeek"]:
-        return eventStart.format("Mon at 3:04 PM")
+def get_tomorrow_text_copy(eventStart):
+    DEFAULT = eventStart.format("TMRW at 3:04 PM")
+    if DEFAULT_SHOW_FULL_NAMES:
+        return eventStart.format("Tomorrow at 3:04 PM")
     else:
-        return "in %s" % humanize.relative_time(now, eventStart)
+        return DEFAULT
+
+def get_this_week_text_copy(eventStart):
+    DEFAULT = eventStart.format("Mon at 3:04 PM")
+    if DEFAULT_SHOW_FULL_NAMES:
+        print("FULL")
+        return eventStart.format("Monday at 3:04 PM")
+    else:
+        print("DEF")
+        return DEFAULT
+
+def get_expanded_time_text_copy(event, now, eventStart):
+    DEFAULT = "in %s" % humanize.relative_time(now, eventStart)
+    if event["detail"]["isTomorrow"]:
+        return get_tomorrow_text_copy(eventStart)
+    elif event["detail"]["isThisWeek"]:
+        return get_this_week_text_copy(eventStart)
+    else:
+        return DEFAULT
 
 def get_calendar_text_copy(event, now, eventStart):
     DEFAULT = eventStart.format("at 3:04 PM")
-    if not event["detail"] and not DEFAULT_SHOW_EXPANDED_TIME_WINDOW:
-        return "DONE FOR THE DAY :-)"
+    if not event["detail"]["isToday"] and not DEFAULT_SHOW_EXPANDED_TIME_WINDOW:
+        return DONE_TEXT
     elif event["detail"] and DEFAULT_SHOW_EXPANDED_TIME_WINDOW:
         return get_expanded_time_text_copy(event, now, eventStart)
-    elif event["detail"] and event["minutesUntilStart"] <= 5:
+    elif event["detail"] and event["detail"]["minutesUntilStart"] <= 5:
         return "in %d min" % event["detail"]["minutesUntilStart"]
     else:
         return DEFAULT
@@ -77,14 +93,20 @@ def get_calendar_render_data(now, usersTz, event):
         baseObject["hasEvent"] = False
         return baseObject
 
+    shouldRenderSummary = event["detail"]["isToday"] or DEFAULT_SHOW_EXPANDED_TIME_WINDOW
+    if not shouldRenderSummary:
+        baseObject["hasEvent"] = False
+        return baseObject
+
     startTime = time.from_timestamp(int(event["start"])).in_location(usersTz)
     eventObject = {
-        "summary": event["name"].upper(),
+        "summary": get_event_summary(event["name"]),
         "eventStartTimestamp": startTime,
         "copy": get_calendar_text_copy(event, now, startTime),
         "textColor": get_calendar_text_color(event),
         "shouldAnimateText": should_animate_text(event),
         "hasEvent": True,
+        "isToday": event["detail"]["isToday"],
     }
 
     return dict(baseObject.items() + eventObject.items())
@@ -143,14 +165,14 @@ def get_calendar_bottom(data):
                 child = render.Text(
                     data["copy"],
                     color = data["textColor"],
-                )
+                ),
             ),
         )
 
     if not data["hasEvent"]:
         children.append(
             render.WrappedText(
-                "DONE FOR THE DAY :-)",
+                DONE_TEXT,
                 color = "#ff83f3",
             ),
         )
@@ -205,7 +227,7 @@ def get_event_frame_copy_config(event):
         tagline = ("", "almost done")
 
     return {
-        "summary": event["name"],
+        "summary": get_event_summary(event["name"]),
         "tagline": tagline,
         "bgColor": "#ff78e9",
         "textColor": "#fff500",
@@ -251,6 +273,13 @@ def build_event_frame(event):
         ),
     )
 
+def get_event_summary(summary):
+    if DEFAULT_TRUNCATE_EVENT_SUMMARY:
+        splitSum = summary.split()
+        return " ".join(summary) if len(splitSum) <= 3 else " ".join(splitSum[:3]) + "..."
+    else:
+        return summary
+
 def get_schema():
     return schema.Schema(
         version = "1",
@@ -275,14 +304,33 @@ def get_schema():
                 default = DEFAULT_SHOW_EXPANDED_TIME_WINDOW,
                 icon = "clock",
             ),
+            schema.Toggle(
+                id = P_SHOW_FULL_NAMES,
+                name = "Show Full Names",
+                desc = "Show the full names of the days of the week.",
+                default = DEFAULT_SHOW_FULL_NAMES,
+                icon = "calendar",
+            ),
+            schema.Toggle(
+                id = P_SHOW_FULL_NAMES,
+                name = "Show Full Names",
+                desc = "Show the full names of the days of the week.",
+                default = DEFAULT_SHOW_FULL_NAMES,
+                icon = "calendar",
+            ),
         ],
     )
 
 P_LOCATION = "location"
 P_ICS_URL = "ics_url"
 P_SHOW_EXPANDED_TIME_WINDOW = "show_expanded_time_window"
+P_SHOW_FULL_NAMES = "show_full_names"
+P_TRUNCATE_EVENT_SUMMARY = "truncate_event_summary"
 
-DEFAULT_SHOW_EXPANDED_TIME_WINDOW = True
+DONE_TEXT = "DONE FOR THE DAY :-)"
+DEFAULT_SHOW_EXPANDED_TIME_WINDOW = False
+DEFAULT_TRUNCATE_EVENT_SUMMARY = True
+DEFAULT_SHOW_FULL_NAMES = True
 DEFAULT_TIMEZONE = "America/New_York"
 FRAME_DELAY = 500
 LAMBDA_URL = "https://xmd10xd284.execute-api.us-east-1.amazonaws.com/ics-next-event"
