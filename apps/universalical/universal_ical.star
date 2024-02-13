@@ -26,8 +26,9 @@ def main(config):
         fail("Failed to fetch ICS file")
 
     event = ics.json()["data"]
-
-    if event["detail"]["inProgress"]:
+    if not event:
+        return build_calendar_frame(now, timezone, event)
+    elif event["detail"]["inProgress"]:
         return build_event_frame(event)
     elif event["detail"]:
         return build_calendar_frame(now, timezone, event)
@@ -56,10 +57,8 @@ def get_tomorrow_text_copy(eventStart):
 def get_this_week_text_copy(eventStart):
     DEFAULT = eventStart.format("Mon at 3:04 PM")
     if DEFAULT_SHOW_FULL_NAMES:
-        print("FULL")
         return eventStart.format("Monday at 3:04 PM")
     else:
-        print("DEF")
         return DEFAULT
 
 def get_expanded_time_text_copy(event, now, eventStart):
@@ -194,8 +193,6 @@ def get_calendar_bottom(data):
 
 def build_calendar_frame(now, usersTz, event):
     data = get_calendar_render_data(now, usersTz, event)
-
-    print(data)
 
     # top half displays the calendar icon and date
     top = get_calendar_top(data)
