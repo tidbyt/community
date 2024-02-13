@@ -46,14 +46,21 @@ def get_calendar_text_color(event):
 def should_animate_text(event):
     return event["detail"]["minutesUntilStart"] <= 5
 
+def get_expanded_time_text_copy(event, now, eventStart):
+    DEFAULT = eventStart.format("at 3:04 PM")
+    if event["detail"]["isTomorrow"]:
+        return eventStart.format("TMRW at 3:04 PM")
+    elif event["detail"]["isThisWeek"]:
+        return eventStart.format("Mon at 3:04 PM")
+    else:
+        return "in %s" % humanize.relative_time(now, eventStart)
+
 def get_calendar_text_copy(event, now, eventStart):
     DEFAULT = eventStart.format("at 3:04 PM")
     if not event["detail"] and not DEFAULT_SHOW_EXPANDED_TIME_WINDOW:
         return "DONE FOR THE DAY :-)"
-    elif not event["detail"] and DEFAULT_SHOW_EXPANDED_TIME_WINDOW and event["detail"]["isTomorrow"]:
-        return "Tomorrow at " + eventStart.format("3:04 PM")
     elif event["detail"] and DEFAULT_SHOW_EXPANDED_TIME_WINDOW:
-        return "in %s" % humanize.relative_time(now, eventStart)
+        return get_expanded_time_text_copy(event, now, eventStart)
     elif event["detail"] and event["minutesUntilStart"] <= 5:
         return "in %d min" % event["detail"]["minutesUntilStart"]
     else:
@@ -131,9 +138,12 @@ def get_calendar_bottom(data):
             ),
         )
         children.append(
-            render.Text(
-                data["copy"],
-                color = data["textColor"],
+            render.Marquee(
+                width = 64,
+                child = render.Text(
+                    data["copy"],
+                    color = data["textColor"],
+                )
             ),
         )
 
