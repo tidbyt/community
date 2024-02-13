@@ -1,38 +1,34 @@
 HEIGHT = 32
 WIDTH = 64
-SAMPLE_CSV_QR_FRAMES = 150 # number of frames to show the QR code for if CSV is default
-SAMPLE_PUBLISHED_SHEET = "https://bit.ly/tidbyt-csv-viewer" # needed to create a bit.ly because QR's limit is 440 bytes
+SAMPLE_CSV_QR_FRAMES = 150  # number of frames to show the QR code for if CSV is default
+SAMPLE_PUBLISHED_SHEET = "https://bit.ly/tidbyt-csv-viewer"  # needed to create a bit.ly because QR's limit is 440 bytes
 SAMPLE_PUBLISHED_CSV = "https://docs.google.com/spreadsheets/d/e/2PACX-1vSkZW0qyS1HpnPh5V51mBPZNjiNFJEZUjrLlwlfrscjDmMHqNyKQ1sjfj791t0f-_XE8g6d5MnSosLE/pub?gid=0&single=true&output=csv"
-
 
 load("render.star", "render")
 load("schema.star", "schema")
 load("http.star", "http")
-load('encoding/csv.star', 'csv')
-load('re.star', 're')
+load("encoding/csv.star", "csv")
+load("re.star", "re")
 load("qrcode.star", "qrcode")
 
 #################################################
 # Fetch and parse the CSV data
 #################################################
 
-
 def get_csv_data(csv_url):
-    rep = http.get(csv_url, ttl_seconds=300) # cache for 5 minutes
+    rep = http.get(csv_url, ttl_seconds = 300)  # cache for 5 minutes
     if rep.status_code != 200:
         fail("HTTP GET request to specified CSV URL failed with status %d", rep.status_code)
-    
-    return csv.read_all(rep.body())
 
+    return csv.read_all(rep.body())
 
 def parse_int_from_config(config, config_id, default_value):
     unparsed_value = config.str(config_id, "")
 
-    if re.match(r'^[0-9]+$', unparsed_value):
+    if re.match(r"^[0-9]+$", unparsed_value):
         return int(unparsed_value)
 
     return default_value
-
 
 def offset_data(data, row_offset, col_offset):
     """
@@ -46,7 +42,6 @@ def offset_data(data, row_offset, col_offset):
     data = [row[col_offset:] for row in data]
 
     return data
-
 
 def resize_data(data, target_height, target_width):
     """
@@ -67,7 +62,6 @@ def resize_data(data, target_height, target_width):
             resized_data[i][j] = data[i][j]
 
     return resized_data
-
 
 def get_data_rows_cols(config):
     csv_url = config.str("csv_url", SAMPLE_PUBLISHED_CSV)
@@ -103,11 +97,9 @@ def get_data_rows_cols(config):
 
     return csv_data, row_count, col_count
 
-
 #################################################
 # Parse color (text, background) from data
 #################################################
-
 
 def extract_text_color_and_background(input_string):
     # TODO: move defaults to top
@@ -128,31 +120,28 @@ def extract_text_color_and_background(input_string):
 
     return text, text_color, background_color
 
-
 def extract_trailing_color(input_string):
     # Define a regular expression pattern to match valid color strings
     # From docs: "Pixlet supports #rgb, #rrggbb, #rgba, and #rrggbbaa color specifications."
-    color_pattern = r'#([A-Fa-f0-9]{3,4}|[A-Fa-f0-9]{6,8})$'
+    color_pattern = r"#([A-Fa-f0-9]{3,4}|[A-Fa-f0-9]{6,8})$"
 
     color_match = re.match(color_pattern, input_string)
 
     # If there's no color part, return that
     if not color_match:
         return input_string, None
-    
+
     match_text = color_match[0][0]
-    
+
     # If it's just the color part, then return that
     if len(input_string) == len(match_text):
         return None, input_string
-    
-    return (input_string[:-len(match_text)], match_text)
 
+    return (input_string[:-len(match_text)], match_text)
 
 #################################################
 # Render to the screen
 #################################################
-
 
 def calculate_grid_sizes(row_count, col_count):
     # Calculate row height and column width based on available screen space
@@ -176,12 +165,11 @@ def calculate_grid_sizes(row_count, col_count):
 
     return row_heights, col_widths
 
-
 def render_text(text, color, max_text_height, max_text_width, avoid_scrolling_text):
     """
     Try our best to fit the text without scrolling by calculating the first available
     font that fits vertically.
-    
+
     If avoid_scrolling_text is selected, continue trying smaller fonts to fit the text so it
     doesn't scroll even if it fits vertically. If we can't avoid scrolling, use the
     largest possible text that fits vertically.
@@ -211,7 +199,7 @@ def render_text(text, color, max_text_height, max_text_width, avoid_scrolling_te
     saved_fits_vertically = None
 
     for font, height in fonts_and_heights_to_try:
-        rendered_text = render.Text(content=text, font=font, height=height, color=color)
+        rendered_text = render.Text(content = text, font = font, height = height, color = color)
         text_width, text_height = rendered_text.size()
 
         # Skip if this font doesn't fit vertically
@@ -233,12 +221,11 @@ def render_text(text, color, max_text_height, max_text_width, avoid_scrolling_te
         saved_fits_vertically = fonts_and_heights_to_try[-1]
 
     # Default to the smallest text that will fit vertically if it must scroll
-    return render.Text(content=text, font=saved_fits_vertically[0], height=saved_fits_vertically[1], color=color)
-
+    return render.Text(content = text, font = saved_fits_vertically[0], height = saved_fits_vertically[1], color = color)
 
 def render_cell(value, height, width, avoid_scrolling_text):
     text, text_color, background_color = extract_text_color_and_background(value)
-    background_box = render.Box(width=width, height=height, color=background_color)
+    background_box = render.Box(width = width, height = height, color = background_color)
 
     if text == None:
         return background_box
@@ -246,17 +233,16 @@ def render_cell(value, height, width, avoid_scrolling_text):
         rendered_text = render_text(text, text_color, height, width, avoid_scrolling_text)
 
         return render.Stack(
-            children=[
+            children = [
                 background_box,
                 render.Marquee(
-                    width=width,
-                    height=height,
-                    child=rendered_text,
-                    align="center",
+                    width = width,
+                    height = height,
+                    child = rendered_text,
+                    align = "center",
                 ),
             ],
         )
-
 
 def render_grid(data, row_count, col_count, config):
     row_heights, col_widths = calculate_grid_sizes(row_count, col_count)
@@ -275,25 +261,23 @@ def render_grid(data, row_count, col_count, config):
 
             # Place the rendered cel in a box with the given size to get everything to fit nicely
             holding_box = render.Box(
-                color="#000",
-                child=rendered_cell,
-                width=col_width,
-                height=row_height,
+                color = "#000",
+                child = rendered_cell,
+                width = col_width,
+                height = row_height,
             )
 
             cols.append(holding_box)
 
-        row = render.Row(children=cols)
+        row = render.Row(children = cols)
 
         rows.append(row)
 
     return rows
 
-
 #################################################
 # Main, schema, and show QR code of sample CSV
 #################################################
-
 
 def switch_between_sample_and_qr(main_display):
     qr_code = qrcode.generate(
@@ -305,7 +289,7 @@ def switch_between_sample_and_qr(main_display):
     qr_box = render.Box(width = 32, height = 32, child = render.Image(src = qr_code))
 
     qr_animation = render.Animation(
-        children=[qr_box] * SAMPLE_CSV_QR_FRAMES,
+        children = [qr_box] * SAMPLE_CSV_QR_FRAMES,
     )
 
     return render.Root(
@@ -314,15 +298,14 @@ def switch_between_sample_and_qr(main_display):
                 main_display,
                 qr_animation,
             ],
-        )
+        ),
     )
-
 
 def main(config):
     data, row_count, col_count = get_data_rows_cols(config)
 
     main_display = render.Column(
-        children=render_grid(data, row_count, col_count, config)
+        children = render_grid(data, row_count, col_count, config),
     )
 
     # If no URL has been set, show a QR code
@@ -330,29 +313,32 @@ def main(config):
         return switch_between_sample_and_qr(main_display)
 
     return render.Root(
-        child = main_display
+        child = main_display,
     )
-
 
 def get_schema():
     scale_to_data_option = [
         schema.Option(
             display = "Scale to data",
             value = str(0),
-        )
+        ),
     ]
 
     row_count_options = scale_to_data_option + [
         schema.Option(
             display = str(n),
             value = str(n),
-        ) for n in range(1, HEIGHT + 1) ]
+        )
+        for n in range(1, HEIGHT + 1)
+    ]
 
     col_count_options = scale_to_data_option + [
         schema.Option(
             display = str(n),
             value = str(n),
-        ) for n in range(1, WIDTH + 1) ]
+        )
+        for n in range(1, WIDTH + 1)
+    ]
 
     return schema.Schema(
         version = "1",
@@ -397,6 +383,6 @@ def get_schema():
                 desc = "Reduce font size to avoid scrolling text when possible",
                 icon = "text_size",
                 default = False,
-            )
+            ),
         ],
     )
