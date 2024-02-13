@@ -2,6 +2,7 @@
 
 This applet allows you to display CSV data from any online CSV file such as a published Google Sheet.
 
+[This is the link to the default CSV file that is displayed by the app, and is a good example of how this can be useful (linked).](https://bit.ly/tidbyt-csv-viewer) (This CSV file is a published Google Sheet and can be accessed [here (linked - note that this link will likely start a CSV file download).](https://docs.google.com/spreadsheets/d/e/2PACX-1vSkZW0qyS1HpnPh5V51mBPZNjiNFJEZUjrLlwlfrscjDmMHqNyKQ1sjfj791t0f-_XE8g6d5MnSosLE/pub?gid=0&single=true&output=csv))
 
 ## Text and background coloring
 
@@ -17,10 +18,6 @@ A hex color is defined by Tidbyt to be anything that looks like either a 3, 4, 6
 
 ### Examples of text and background coloring
 
-[This is the link to the default CSV file that is displayed by the app.](https://bit.ly/tidbyt-csv-viewer)
-
-[This CSV file is published and can be accessed here (linked - note that this link will likely start a CSV file download).](https://docs.google.com/spreadsheets/d/e/2PACX-1vSkZW0qyS1HpnPh5V51mBPZNjiNFJEZUjrLlwlfrscjDmMHqNyKQ1sjfj791t0f-_XE8g6d5MnSosLE/pub?gid=0&single=true&output=csv)
-
 | CSV Data | Text | Text color | Background color
 | - | - | - | -
 | `Just text` | `Just text` | Default (white) | Default (black)
@@ -30,7 +27,7 @@ A hex color is defined by Tidbyt to be anything that looks like either a 3, 4, 6
 
 ### Default screen
 
-![default_screen](default_screen.webp){:height="200px" width="400px"}
+<img src="default_screen.webp" width="400">
 
 This is the CSV that was used to generate that:
 ```csv
@@ -45,6 +42,8 @@ This is that CSV formatted nicely:
 | - | - |
 | `Colored text#00d#000` | `Colored background and text#0ff#d40`
 | `#d00` | `Fixed`
+
+(Note that the links to the CSV described here that is used as the default screen of this app are listed at the very top of this README.)
 
 ## Options
 
