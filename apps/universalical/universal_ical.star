@@ -335,6 +335,4 @@ DEFAULT_TIMEZONE = "America/New_York"
 FRAME_DELAY = 500
 LAMBDA_URL = "https://xmd10xd284.execute-api.us-east-1.amazonaws.com/ics-next-event"
 CALENDAR_ICON = base64.decode("iVBORw0KGgoAAAANSUhEUgAAAAkAAAALCAYAAACtWacbAAAAAXNSR0IArs4c6QAAAE9JREFUKFNjZGBgYJgzZ87/lJQURlw0I0xRYEMHw/qGCgZ0GqSZ8a2Myv8aX1eGls27GXDRYEUg0/ABxv///xOn6OjRowzW1tYMuOghaxIAD/ltSOskB+YAAAAASUVORK5CYII=")
-
-# DEFAULT_ICS_URL = "https://www.phpclasses.org/browse/download/1/file/63438/name/example.ics"
-DEFAULT_ICS_URL = "https://outlook.office365.com/owa/calendar/0b5c32636665474191e0fdf787e3bf1e@ocvibe.com/ee48be8cb2124c6b88715a2503881e7f10382479269454683591/calendar.ics"
+DEFAULT_ICS_URL = "https://www.phpclasses.org/browse/download/1/file/63438/name/example.ics"
