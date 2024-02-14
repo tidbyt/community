@@ -448,12 +448,12 @@ def getPlayerProgress(x, s, t, Title, TitleColor, ColorGradient, stage, state, t
             # if the player's round is completed, show their score
             if playerState == "post":
                 RoundNumber = len(t[0]["linescores"]) - 2
-                print(RoundNumber)
+                #print(RoundNumber)
                 for i in range(0, len(t), 1):
                     if playerID == t[i]["id"]:
-                        print(playerID)
+                        #print(playerID)
                         RoundScore = t[i]["linescores"][RoundNumber]["value"]
-                        print(RoundScore)
+                        #print(RoundScore)
                         ProgressStr = str(int(RoundScore))
 
             # If ColorGradient is selected...
