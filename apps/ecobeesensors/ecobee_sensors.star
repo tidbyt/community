@@ -181,16 +181,19 @@ def parse_thermostats_data(api_response):
 
     return data
 
+# Store the refresh token as the "auth" field in the config and the access token
+# in the cache. The access token is stored with the refresh token as the key.
 def oauth_handler(params):
-    # deserialize oauth2 parameters, see example above.
     params = json.decode(params)
+    authorization_code = params.get("code")
 
-    if DEBUG:
-        print("oauth handler params:", params)
+    return get_refresh_token(authorization_code)
 
-    return get_refresh_token(params["code"])
-
+# https://www.ecobee.com/home/developer/api/documentation/v1/auth/authz-code-authorization.shtml
 def get_refresh_token(authorization_code):
+    if DEBUG:
+        print("getting refresh token with auth code:", authorization_code)
+
     # exchange parameters and client secret for an access token
     res = http.post(
         url = "https://api.ecobee.com/token",
@@ -230,12 +233,16 @@ def get_refresh_token(authorization_code):
     # When the access token will expire, in seconds.
     expires_in_seconds = int(token_params["expires_in"])
 
+    # Store the access token in the cache so that it can be retrieved with the refresh token.
     cache.set(refresh_token, access_token, ttl_seconds = expires_in_seconds - 30)
 
     return refresh_token
 
 # https://www.ecobee.com/home/developer/api/documentation/v1/auth/token-refresh.shtml
 def get_access_token(refresh_token):
+    if DEBUG:
+        print("getting access token with refresh token:", refresh_token)
+
     res = http.post(
         url = "https://api.ecobee.com/token",
         headers = {
@@ -257,7 +264,19 @@ def get_access_token(refresh_token):
     # Same API response shape as the original access token request.
     token_params = res.json()
 
-    cache.set(refresh_token, token_params["access_token"], ttl_seconds = int(token_params["expires_in"]) - 30)
+    # Access token lasts 60 minutes.
+    access_token = token_params["access_token"]
+
+    # Refresh token lasts 1 year.
+    refresh_token = token_params["refresh_token"]
+
+    # When the access token will expire, in seconds.
+    expires_in_seconds = int(token_params["expires_in"])
+
+    # Store the access token in the cache so that it can be retrieved with the refresh token.
+    cache.set(refresh_token, access_token, ttl_seconds = expires_in_seconds - 30)
+
+    return access_token
 
 def get_schema():
     return schema.Schema(
