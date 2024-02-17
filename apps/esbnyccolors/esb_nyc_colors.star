@@ -21,6 +21,7 @@ COLOR_MAP = {
     "brown": "#a22",
     "gold": "#fd0",
     "teal": "#088",
+    "burgundy": "#802",
 }
 
 def main(config):

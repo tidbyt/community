@@ -1,0 +1,8 @@
+---
+id: nes-clock
+name: NES Clock
+summary: NES Game Themed Clock
+desc: Short animations of various Nintendo characters with a background clock.
+author: hx009
+fileName: nes_clock.star
+packageName: nesclock
