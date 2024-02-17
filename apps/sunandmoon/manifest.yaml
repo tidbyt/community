@@ -2,7 +2,7 @@
 id: sun-and-moon
 name: Sun And Moon
 summary: Sun and Moon data
-desc: Displays Sun and Moon rise/set times for user's location.
-author: Ben Boatwright
+desc: Displays Sun and Moon rise/set times for the user's location.
+author: bboatwright
 fileName: sun_and_moon.star
 packageName: sunandmoon

@@ -1,8 +1,8 @@
 """
 Applet: Sun And Moon
 Summary: Sun and Moon data
-Description: Displays Sun and Moon rise/set times for user's location.
-Author: Ben Boatwright
+Description: Displays Sun and Moon rise/set times for the user's location.
+Author: bboatwright
 """
 
 load("encoding/base64.star", "base64")
