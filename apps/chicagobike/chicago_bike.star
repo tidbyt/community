@@ -15,6 +15,7 @@ load("schema.star", "schema")
 #Divvy Urls
 DIVVY_BIKE_STATIONS_URL = "https://gbfs.divvybikes.com/gbfs/en/station_information.json"
 DIVVY_BIKE_STATION_STATUS_URL = "https://gbfs.divvybikes.com/gbfs/en/station_status.json"
+DIVVY_MISSING_DATA = "DATA_NOT_FOUND"
 PLACEHOLDER_STATION_ID = "a3a840a6-a135-11e9-9cda-0a87ae2ba916"  # WILSON STATION
 
 #Images
@@ -39,10 +40,13 @@ def find_station_status_by_id(station_id):
             if station["station_id"] == station_id:
                 station_status = station
                 cache.set(station_id + STATION_STATUS_NAME_SUFFIX, json.encode(station_status), ttl_seconds = 30)
-                break
-    return station_status
+                return station_status
+
+    #unable to retrieve station status
+    return DIVVY_MISSING_DATA
 
 def find_station_name_by_id(station_id):
+    station_name = ""
     station_name_cached = cache.get(station_id + STATION_NAME_CACHE_SUFFIX)
     if station_name_cached != None:
         station_name = station_name_cached
