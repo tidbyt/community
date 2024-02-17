@@ -103,13 +103,10 @@ def render_display(sensors):
         ),
     )
 
-"""
-Modify the size of the sensor name text based on the length of the name.
-tb-8 height = 8
-tom-thumb height = 6
-CG-pixel-3x5-mono height = 5
-"""
-
+# Modify the size of the sensor name text based on the length of the name.
+# tb-8 height = 8
+# tom-thumb height = 6
+# CG-pixel-3x5-mono height = 5
 def render_sensor_name(name_text):
     nodes = []
 
@@ -213,16 +210,14 @@ def get_refresh_token(authorization_code):
         fail("token request failed with status code: %d - %s" %
              (res.status_code, res.body()))
 
-    '''
-    A successful response will look like this:
-    {
-        "access_token": "Rc7JE8P7XUgSCPogLOx2aLMfITqQQrjg",
-        "token_type": "Bearer",
-        "expires_in": 3599,
-        "refresh_token": "og2Obost3ucRo1ofo1EDoslGltmFMe2g",
-        "scope": "smartRead"
-    }
-    '''
+    # A successful response will look like this:
+    # {
+    #     "access_token": "Rc7JE8P7XUgSCPogLOx2aLMfITqQQrjg",
+    #     "token_type": "Bearer",
+    #     "expires_in": 3599,
+    #     "refresh_token": "og2Obost3ucRo1ofo1EDoslGltmFMe2g",
+    #     "scope": "smartRead"
+    # }
 
     token_params = res.json()
 
