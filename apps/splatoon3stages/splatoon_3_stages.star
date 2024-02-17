@@ -418,13 +418,13 @@ def main(config):
         bottom_str = "?"
         if (now < splatfest.halftime):
             time_diff = splatfest.halftime - now
-            bottom_str = "Halftime in " + getDurationString(time_diff)
+            bottom_str = "Halftime starts: " + getDurationString(time_diff)
         elif (now < splatfest.end_time):
             time_diff = splatfest.end_time - now
-            bottom_str = "Fest end in " + getDurationString(time_diff)
+            bottom_str = "Fest ends in: " + getDurationString(time_diff)
         else:
             bottom_str = "Fest ends soon!"
-        bottom_str = bottom_str.replace("hour", "hr").replace("minute", "min")
+
         frames["tricolor"] = generateGeneralFrame("Tricolor Battle", splatfest_colours, splatfest.tricolor_stage, None, "Tricol. Turf War", None, bottom_str)
 
     render_frames = []
@@ -439,7 +439,7 @@ def main(config):
             render_frames.append(frames["x"])
         if (config.bool("show_salmon")):
             render_frames.append(frames["salmon"])
-        if (config.bool("show_eggstra")):
+        if (config.bool("show_eggstra") and eggstra_on):
             render_frames.append(frames["eggstra"])
 
         if (len(render_frames) == 0):
@@ -453,7 +453,7 @@ def main(config):
             render_frames.append(frames["tricolor"])
         if (config.bool("show_salmon")):
             render_frames.append(frames["salmon"])
-        if (config.bool("show_eggstra")):
+        if (config.bool("show_eggstra") and eggstra_on):
             render_frames.append(frames["eggstra"])
 
         if (len(render_frames) == 0):
@@ -461,7 +461,7 @@ def main(config):
 
     anim_length = int(config.str("speed") or 15000)
     return render.Root(
-        delay = int(anim_length / len(render_frames)),  # <- replace with 1/4 of tidbyt delay
+        delay = int(anim_length / len(render_frames)),
         child = render.Animation(render_frames),
     )
 
