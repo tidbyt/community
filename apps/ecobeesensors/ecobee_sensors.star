@@ -91,7 +91,7 @@ def render_display(sensors):
                     children = [
                         render.Box(width = 2, height = 1),  # 2px left-padding
                         render.Image(src = ECOBEE_CIRCLE, width = 12, height = 12),
-                        render.Box(width = 1, height = 1),  # 1px between circle and sensors
+                        render.Box(width = 2, height = 1),  # 1px between circle and sensors
                         render.Animation(children = components),
                     ],
                     cross_align = "center",
