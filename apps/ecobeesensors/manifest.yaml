@@ -1,0 +1,8 @@
+---
+id: ecobee-sensors
+name: Ecobee Sensors
+summary: Display temps from Ecobee
+desc: Display the temperatures of Ecobee sensors.
+author: Vestride
+fileName: ecobee_sensors.star
+packageName: ecobeesensors
