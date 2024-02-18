@@ -1,8 +1,8 @@
 ---
 id: sun-and-moon
 name: Sun And Moon
-summary: Sun and Moon rise set times
-desc: Displays Sun and Moon rise set times for the user's location.
+summary: Sun and Moon Rise/Set
+desc: Displays Sun and Moon rise/set times for the user's location.
 author: bboatwright
 fileName: sun_and_moon.star
 packageName: sunandmoon
