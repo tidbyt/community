@@ -1,0 +1,8 @@
+---
+id: wiki-page-today
+name: Wiki Page Today
+summary: Wikipedia Featured Article
+desc: Display Wikipedia's Featured Article of the Day in a Tidbyt format.
+author: UnBurn
+fileName: wiki_page_today.star
+packageName: wikipagetoday

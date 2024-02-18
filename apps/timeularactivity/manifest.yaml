@@ -1,0 +1,8 @@
+---
+id: timeular-activity
+name: Timeular Activity
+summary: Current timeular activity
+desc: Tracks the amount of time spent on the current Timeular activity.
+author: tommylin1212
+fileName: timeular_activity.star
+packageName: timeularactivity

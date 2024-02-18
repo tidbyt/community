@@ -1,0 +1,8 @@
+---
+id: awair
+name: Awair
+summary: Awair air quality data
+desc: Display air quality data for an Awair device.
+author: tabrindle, flavorjones
+fileName: awair.star
+packageName: awair

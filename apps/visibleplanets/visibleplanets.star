@@ -5,6 +5,11 @@ Description: Displays direction and degrees above the horizon for the selected p
 Author: Robert Ison
 """
 
+# Notes:
+# Pulls down data every 15 minutes near sunrise/sunset because the inner planets move a lot during this time
+# Pulls down data every hour starting 30 minutes after sunset until 30 minutes befor sunrise
+# Pulls down the expected evening sky during the day -- when it is sunny, there are no 'visible planets' so we'll display what you can expect in the evening.
+
 load("cache.star", "cache")
 load("encoding/base64.star", "base64")  #to encode/decode json data going to and from cache
 load("encoding/json.star", "json")  #Used to figure out timezone
@@ -54,37 +59,6 @@ default_location = """
 }
 """
 
-planet_options = [
-    schema.Option(value = "mercury", display = "Mercury"),
-    schema.Option(value = "venus", display = "Venus"),
-    schema.Option(value = "mars", display = "Mars"),
-    schema.Option(value = "jupiter", display = "Jupiter"),
-    schema.Option(value = "saturn", display = "Saturn"),
-    schema.Option(value = "uranus", display = "Uranus"),
-    schema.Option(value = "neptune", display = "Neptune"),
-    schema.Option(value = "all", display = "All Visible Planets"),
-]
-
-measurement_options = [
-    schema.Option(value = "metric", display = "Metric"),
-    schema.Option(value = "imperial", display = "Imperial"),
-]
-
-scroll_speed_options = [
-    schema.Option(
-        display = "Slow Scroll",
-        value = "60",
-    ),
-    schema.Option(
-        display = "Medium Scroll",
-        value = "45",
-    ),
-    schema.Option(
-        display = "Fast Scroll",
-        value = "30",
-    ),
-]
-
 #Used to convert bearing and altitude to a point on 2D display
 compass_position = [6, 7, 8, 9, 10, 11, 12, 1, 2, 3, 4, 5, 6, 6]
 altitude_position = [4, 3, 2, 1, 0]
@@ -110,14 +84,23 @@ def main(config):
     sunrise_time = sunrise.sunrise(float(location["lat"]), float(location["lng"]), now).in_location(location["timezone"])
     sunset_time = sunrise.sunset(float(location["lat"]), float(location["lng"]), now).in_location(location["timezone"])
 
-    sunrise_in = (now - sunrise_time).hours
-    sunset_in = (now - sunset_time).hours
+    near_sunrise_now = True if ((now - sunrise_time).hours) < .5 else False
+    near_sunset_now = True if ((now - sunset_time).hours) < .5 else False
 
-    is_after_sunrise = (sunset_in) < 0
-    is_before_sunset = (sunrise_in > 0)
+    is_after_sunrise = now > sunrise_time
+    is_before_sunset = now < sunset_time
 
-    cache_ttl = 60 * 60 * 1  #1 Hour default
-    check_offset = 0
+    #print("Now: %s Sunrise:%s Sunset: %s Near Sunrise: %s Near Sunset: %s IsAfterSunrise: %s IsBeforeSunset: %s" % (now, sunrise_time, sunset_time, near_sunrise_now, near_sunset_now, is_after_sunrise, is_before_sunset))
+
+    cache_ttl_seconds = 1 * 60 * 60  #default to one hour
+    check_offset = 0  #by default we will check for the planets right now
+    if near_sunrise_now or near_sunset_now:
+        cache_ttl_seconds = 15 * 60  #Let's check each 15 minutes around sunset and sunrise as inner planets move quite a bit then
+    elif is_before_sunset and is_after_sunrise:
+        #during the day you can't see much so let's get the early evening's sky and present that.
+        #so during the day your Tidbyt will tell you what you can see this evening.
+        check_offset = abs((now - sunset_time).hours) - .5
+        cache_ttl_seconds = check_offset * 60 * 60
 
     #we've calculated sunset and sunrise with the exact gps coordinates, but now we will round the coordinates to one decimal
     #place for two reasons:
@@ -128,56 +111,33 @@ def main(config):
     location["lat"] = str((math.round(float(location["lat"]) * 10)) * math.pow(10, -1))
 
     if planet == "all":
-        if (is_after_sunrise == True and is_before_sunset == True):
-            #Let's Get this evenings display.. since it's daylight now, we can't see the planets
-            check_offset = (abs(sunset_in))
-
         return get_summary_of_night_sky(location, check_offset)
     else:
-        # check offset is how many hours off of the current time do we query astronomyapi for the data of the planet position
-        # because if it is during the day, we should move it to sunset time to know if it'll be an evening star to view
-        is_inner_planet = planet == "mercury" or planet == "venus"
-
         visibility_disclaimer = ""
-
+        is_inner_planet = planet == "mercury" or planet == "venus"
         if (is_after_sunrise == True and is_before_sunset == True):
             #Daytime
-            if ((abs(sunrise_in) < abs(sunset_in)) and is_inner_planet):
+            if ((abs((now - sunrise_time).hours) < abs((now - sunset_time).hours)) and is_inner_planet):
                 # closer to sunrise
                 visibility_disclaimer = "around sunrise at %s" % sunrise_time.format(time_display_format)
             else:
                 # closer to sunset
                 # since we can't see this till sunset, let's cache this until
                 # 30 minutes before sunset, save a few API calls
-                sunset_cache_time = math.floor((abs(sunset_in) * 60 - 30) * 60 * 60)
 
-                check_offset = abs(sunset_in)
-                if sunset_cache_time > cache_ttl:
-                    cache_ttl = sunset_cache_time
                 if is_inner_planet:
                     # let's check visibility of inner planets at sunset instead of now
                     # to avoid telling folks the planet will be visible in the evening, when it might
                     # dip below the horizon before then.
-                    check_offset = abs(sunset_in)
                     visibility_disclaimer = "around sunset at %s" % sunset_time.format(time_display_format)
                 else:
                     visibility_disclaimer = "after sunset at %s" % sunset_time.format(time_display_format)
-        elif (abs(sunrise_in) < abs(sunset_in)):
+        elif (abs((now - sunrise_time).hours) < abs((now - sunset_time).hours)):
             # Nighttime closer to sunrise
             visibility_disclaimer = "before sunrise at %s" % sunrise_time.format(time_display_format)
         else:
             # Nighttime closer to sunset
             visibility_disclaimer = "after sunset at %s" % sunset_time.format(time_display_format)
-
-        # Last cache time override, inner plannet within an hour of sunrise or sunset
-        # update every 15 minutes as their visibility is short, and changes quickly
-        # during this time of day
-        if is_inner_planet:
-            if (((abs(sunrise_in)) < 1) or (abs(sunrise_in)) < 1):
-                cache_ttl = 15 * 60
-
-        # JSon Data holding planetary positioning data
-        position_json = get_planet_information(planet, location, check_offset, cache_ttl)
 
         # planet image of the selected planet
         image = base64.decode(planet_images[planet])
@@ -186,13 +146,17 @@ def main(config):
         row1 = ""
         row2 = ""
 
+        # JSon Data holding all planetary positioning data
+        position_json = get_all_planet_information(location, check_offset, cache_ttl_seconds)
+        planet_element = get_planet_element(planet, position_json)
+
         # pull data from json dataset
-        constellation = position_json["data"]["table"]["rows"][0]["cells"][0]["position"]["constellation"]["name"]
-        altitude = position_json["data"]["table"]["rows"][0]["cells"][0]["position"]["horizontal"]["altitude"]["degrees"]
+        constellation = position_json["data"]["table"]["rows"][planet_element]["cells"][0]["position"]["constellation"]["name"]
+        altitude = position_json["data"]["table"]["rows"][planet_element]["cells"][0]["position"]["horizontal"]["altitude"]["degrees"]
         altitude = math.floor(float(altitude))
-        bearing = position_json["data"]["table"]["rows"][0]["cells"][0]["position"]["horizontal"]["azimuth"]["degrees"]
-        magnitude = float(position_json["data"]["table"]["rows"][0]["cells"][0]["extraInfo"]["magnitude"])
-        distance = position_json["data"]["table"]["rows"][0]["cells"][0]["distance"]["fromEarth"]["km"]
+        bearing = position_json["data"]["table"]["rows"][planet_element]["cells"][0]["position"]["horizontal"]["azimuth"]["degrees"]
+        magnitude = float(position_json["data"]["table"]["rows"][planet_element]["cells"][0]["extraInfo"]["magnitude"])
+        distance = position_json["data"]["table"]["rows"][planet_element]["cells"][0]["distance"]["fromEarth"]["km"]
 
         if system == "metric":
             distance_display = "%s KMs away" % get_readable_large_number(distance)
@@ -223,31 +187,41 @@ def main(config):
             # to hide when nothing to show
             return []
 
-def get_planet_information(planet, location, check_offset, cache_ttl):
+def get_planet_element(planet, position_json):
+    planet_list = position_json["data"]["table"]["rows"]
+    for i in range(0, len(planet_list)):
+        if planet_list[i]["entry"]["name"].lower() == planet:
+            return i
+
+    #this should never happen
+    return 0
+
+def get_all_planet_information(location, check_offset, cache_ttl_seconds):
     """ Gets the information on a particular planet based on location and time
 
     Args:
         planet: the name of the planet we are displaying
         location: the location of the user
         check_offset: How much further in time do we want to check?
-        cache_ttl: How long to we keep this data before refreshing
+        cache_ttl_seconds: How long to we keep this data before refreshing
     Returns:
         JSON data of planet from perspective of given location and time
     """
     position_json = None
 
     # Cache Name based on planet and location
-    cache_name = "%s_%s_%s" % (planet, location["lng"], location["lat"])
+    cache_name = "AllPlanets_%s_%s" % (location["lng"], location["lat"])
     cache_contents = cache.get(cache_name)
 
     # Check now or include an offset
     check_time = get_local_time(location, check_offset)
 
     if cache_contents == None:
-        position_json = get_body_position(planet, location, check_time)
+        position_json = get_all_body_positions(location, check_time)
+        #print(position_json)
 
         # TODO: Determine if this cache call can be converted to the new HTTP cache.
-        cache.set(cache_name, json.encode(position_json), ttl_seconds = cache_ttl)
+        cache.set(cache_name, json.encode(position_json), ttl_seconds = cache_ttl_seconds)
     else:
         position_json = json.decode(cache_contents)
 
@@ -424,16 +398,17 @@ def get_summary_of_night_sky(location, check_offset):
     # place to store visible items info
     display_items = {}
     i = 0
-    cache_ttl = 60 * 60 * 1  #1 hour x 60 minutes per hour * 60 seconds per minute
+    cache_ttl_seconds = 60 * 60 * 1  #1 hour x 60 minutes per hour * 60 seconds per minute
     object_list = ["mercury", "venus", "mars", "jupiter", "saturn", "uranus", "neptune", "moon"]
     for object in object_list:
         if (object == "venus" or object == "mercury"):
-            cache_ttl = 15 * 60
-        position_json = get_planet_information(object, location, check_offset, cache_ttl)
-        altitude = position_json["data"]["table"]["rows"][0]["cells"][0]["position"]["horizontal"]["altitude"]["degrees"]
+            cache_ttl_seconds = 15 * 60
+        position_json = get_all_planet_information(location, check_offset, cache_ttl_seconds)
+        planet_element = get_planet_element(object, position_json)
+        altitude = position_json["data"]["table"]["rows"][planet_element]["cells"][0]["position"]["horizontal"]["altitude"]["degrees"]
         altitude = math.floor(float(altitude))
-        bearing = float(position_json["data"]["table"]["rows"][0]["cells"][0]["position"]["horizontal"]["azimuth"]["degrees"])
-        magnitude = float(position_json["data"]["table"]["rows"][0]["cells"][0]["extraInfo"]["magnitude"])
+        bearing = float(position_json["data"]["table"]["rows"][planet_element]["cells"][0]["position"]["horizontal"]["azimuth"]["degrees"])
+        magnitude = float(position_json["data"]["table"]["rows"][planet_element]["cells"][0]["extraInfo"]["magnitude"])
 
         if altitude > 0:
             x = altitude_position[int(math.round(float(altitude) // 18))]
@@ -630,11 +605,11 @@ def get_readable_large_number(number):
 
     return returnval
 
-def get_body_position(body, location, check_time):
+def get_all_body_positions(location, check_time):
     """ Gets the JSon Data from astronomyapi
 
     Args:
-        body: Which celestial body we want info on
+
         location: Location of the observer
         check_time: Time to get the data for the given planet
     Returns:
@@ -647,7 +622,6 @@ def get_body_position(body, location, check_time):
     time_code = "%s:%s:%s" % (two_character_time_date_part(check_time.hour), two_character_time_date_part(check_time.minute), two_character_time_date_part(check_time.second))
 
     params = {
-        "body": body,
         "longitude": location["lng"],
         "latitude": location["lat"],
         "elevation": "0",
@@ -657,7 +631,7 @@ def get_body_position(body, location, check_time):
     }
 
     res = http.get(
-        url = "https://api.astronomyapi.com/api/v2/bodies/positions/%s" % body,
+        url = "https://api.astronomyapi.com/api/v2/bodies/positions",
         params = params,
         headers = {
             "Authorization": "Basic %s" % app_hash,
@@ -700,6 +674,36 @@ def get_local_time(config, offset_hours):
     return local_time
 
 def get_schema():
+    planet_options = [
+        schema.Option(value = "mercury", display = "Mercury"),
+        schema.Option(value = "venus", display = "Venus"),
+        schema.Option(value = "mars", display = "Mars"),
+        schema.Option(value = "jupiter", display = "Jupiter"),
+        schema.Option(value = "saturn", display = "Saturn"),
+        schema.Option(value = "uranus", display = "Uranus"),
+        schema.Option(value = "neptune", display = "Neptune"),
+        schema.Option(value = "all", display = "All Visible Planets"),
+    ]
+
+    measurement_options = [
+        schema.Option(value = "metric", display = "Metric"),
+        schema.Option(value = "imperial", display = "Imperial"),
+    ]
+
+    scroll_speed_options = [
+        schema.Option(
+            display = "Slow Scroll",
+            value = "60",
+        ),
+        schema.Option(
+            display = "Medium Scroll",
+            value = "45",
+        ),
+        schema.Option(
+            display = "Fast Scroll",
+            value = "30",
+        ),
+    ]
     return schema.Schema(
         version = "1",
         fields = [

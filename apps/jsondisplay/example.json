@@ -1,0 +1,22 @@
+{
+	"feed_url": "https://tidbyt-json-display.s3.eu-west-1.amazonaws.com/example.json",
+	"title_image": "https://tidbyt-json-display.s3.eu-west-1.amazonaws.com/heart.png",
+	"title_text": "Sales",
+	"data": [
+		{
+			"title": "Sales",
+			"value": "$56,854",
+			"color": "FF0000"
+		},
+		{
+			"title": "Orders",
+			"value": "40",
+			"color": "00FF00"
+		},
+		{
+			"title": "Status",
+			"value": "I am some long text that will scroll",
+			"color": "0000FF"
+		}
+	]
+}

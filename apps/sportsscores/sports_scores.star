@@ -6,7 +6,7 @@ Author: rs7q5
 """
 #sports_scores.star
 #Created 20220220 RIS
-#Last Modified 20230516 RIS
+#Last Modified 20231213 RIS
 
 load("http.star", "http")
 load("humanize.star", "humanize")
@@ -566,55 +566,88 @@ def get_mlbgames(today_str):
 
 def get_nhlgames(today_str):
     start_date = today_str
-    end_date = today_str
-    base_URL = "https://statsapi.web.nhl.com/api/v1/schedule"
-    full_URL = base_URL + "?startDate=" + start_date + "&endDate=" + end_date + "&expand=schedule.linescore,schedule.teams"
+    #end_date = today_str
+
+    #base_URL = "https://statsapi.web.nhl.com/api/v1/schedule"
+    #full_URL = base_URL + "?startDate=" + start_date + "&endDate=" + end_date + "&expand=schedule.linescore,schedule.teams"
+
+    base_URL = "https://api-web.nhle.com/v1/score"
+    full_URL = base_URL + "/" + start_date
 
     #print(full_URL)
     rep = http.get(url = full_URL, ttl_seconds = 60)
     if rep.status_code != 200:
         return ["Error getting data"]
     else:
-        data = rep.json()["dates"]
+        #data = rep.json()["dates"]
+        data = rep.json()  #["gameWeek"]
 
     if data == []:
         return no_games_text
     else:
-        data2 = data[0]["games"]
+        #data2 = data[0]["games"]
+        data2 = data["games"]
+
+    if data2 == []:
+        return no_games_text
 
     #iterate through games
     stats = []
     for _, game in enumerate(data2):
         stats_tmp = dict()
-        status = game["status"]["codedGameState"]  #Need to figure out what the possible values are here (may impact info)
+
+        #status = game["status"]["codedGameState"]  #Need to figure out what the possible values are here (may impact info)
+        status = game["gameState"]
 
         #get team info
         #team_info = dict()
         stats_tmp["highlight"] = None
-        for key, value in game["teams"].items():
+
+        #for key, value in game["teams"].items():
+        for key in ["away", "home"]:
+            value = game[key + "Team"]
+
             #team_info[key] = (value["team"]["abbreviation"],int(value.get("score",-1)))
-            stats_tmp[key] = (value["team"]["abbreviation"], int(value.get("score", -1)))
+            #stats_tmp[key] = (value["team"]["abbreviation"], int(value.get("score", -1)))
+            stats_tmp[key] = (value["abbrev"], int(value.get("score", -1)))
             if value.get("isWinner", False):  #the API does not actually have this
                 stats_tmp["highlight"] = key
 
-        linescore = game.get("linescore", [])
-
         #https://statsapi.web.nhl.com/api/v1/gameStatus
-        if status == "1":
+        if status in ["PRE", "FUT"]:  #"1":
             #status_txt = "Preview"
-            status_txt = "time/" + game["gameDate"]  #adjust game time in get_frames so it works witch cached data
+            #status_txt = "time/" + game["gameDate"]  #adjust game time in get_frames so it works witch cached data
+            status_txt = "time/" + game["startTimeUTC"]  #adjust game time in get_frames so it works witch cached data
             stats_tmp["highlight"] = "scores"
         elif status == "9":
             status_txt = "PostP"
-        elif linescore != []:  #this should cover live and final states
-            period = linescore["currentPeriodOrdinal"]
-            period_T = linescore["currentPeriodTimeRemaining"]
+            #elif linescore != []:  #this should cover live and final states
 
-            if period_T == "Final":
+        elif status in ["OFF", "LIVE", "FINAL", "CRIT"]:
+            #period = linescore["currentPeriodOrdinal"]
+            #period_T = linescore["currentPeriodTimeRemaining"]
+            period = humanize.ordinal(int(game["period"]))
+
+            periodType = game["periodDescriptor"]["periodType"]
+
+            if game["periodDescriptor"].get("otPeriods"):
+                periodType = str(int(game["periodDescriptor"]["otPeriods"])) + periodType
+
+            #there is probably a better way to do this, but works for now as a quick patch
+            period_num = int(game["period"])
+            if period_num > 3:
+                period = periodType
+
+            period_T = game["clock"]["timeRemaining"]
+            if game["clock"]["inIntermission"]:
+                period_T = "END"
+
+            #if period_T == "Final":
+            if status in ["OFF", "FINAL"]:
                 if period == "3rd":
                     status_txt = "F"
                 else:
-                    status_txt = "F/" + period
+                    status_txt = "F/" + periodType
 
                 #figure out which team should be highlighted
                 if stats_tmp["away"][1] > stats_tmp["home"][1]:
@@ -623,6 +656,8 @@ def get_nhlgames(today_str):
                     stats_tmp["highlight"] = "home"
                 else:  #no ties in hockey, but here for completion
                     pass  #this case should never happen as ties in hockey aren't a thing, but here for completion
+
+                #elif period>4:
             else:
                 status_txt = period_T + "/" + period  #switch status and period here so time doesn't get cutoff
         else:  #this is a safety net

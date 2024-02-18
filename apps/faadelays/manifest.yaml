@@ -1,0 +1,8 @@
+---
+id: faa-delays
+name: FAA Delays
+summary: Air traffic delay info
+desc: Displays FAA ground stop and delay programs for specified airports.
+author: Matt Broussard
+fileName: faa_delays.star
+packageName: faadelays
