@@ -19,7 +19,9 @@ iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAAXNSR0IArs4c6QAAAIxJREFUOE
 OB2mB6cBII3oANkguAEvSpn/ozsd2VZcbFiYMJJiALawoI0BIJsIhQFeLyA7lawwIMkAbOmAmF
 igXjqA5QVcqRFbSkRWS73MhBxwpGRnAGAwmUGS9KHUAAAAAElFTkSuQmCC
 """)
+
 # https://github.com/tidbyt/pixlet/blob/main/docs/widgets.md
+# https://tidbyt.dev/docs/publish/publishing-apps
 
 P_LOCATION = "location"
 DEFAULT_TIMEZONE = "America/New_York"
@@ -37,6 +39,9 @@ def main(config):
 
     now_date = now.format("Mon 2 Jan 2006")
     #now_date = now.format("2 Jan 2006")
+
+    msg_up = ""
+    msg_down = ""
 
     if True:
         print("%s %s" % ("Program", "Started.."))
@@ -83,11 +88,15 @@ def main(config):
                 else:
                     msg_down = msg_down + stock["symbol"] + ":$" + str(stock["latestPrice"]) + " "
             msg = msg.rstrip(" ")
-            msg_up = msg_up.rstrip(" ")
-            msg_down = msg_down.rstrip(" ")
+
+            #msg_up = msg_up.rstrip(" ")
+            #msg_down = msg_down.rstrip(" ")
+            msg_up = str_repeat_to_length(msg_up, 64)
+            msg_down = str_repeat_to_length(msg_down, 64)
+
             print("ALL:", msg)
-            print("UP:",msg_up)
-            print("DOWN",msg_down)
+            print("UP:", len(msg_up))
+            print("DOWN", len(msg_down))
     else:
         msg = "Please configure symbols in the applet settings."
 
@@ -95,8 +104,7 @@ def main(config):
         child = render.Box(
             render.Column(
                 children = [
-
-                      render.Row(
+                    render.Row(
                         expanded = True,
                         main_align = "space_evenly",
                         cross_align = "center",
@@ -107,18 +115,15 @@ def main(config):
                                 diameter = 10,
                                 child = render.Circle(color = "#666", diameter = 6, child = render.Text("F")),
                             ), pad = (1, 0, 0, 0)),
-
-                            render.Padding( render.Marquee(
+                            render.Padding(render.Marquee(
                                 width = 64,
                                 height = 64,
                                 child = render.Text(msg_up, font = "6x13", color = "#00FF00"),
                                 offset_start = 10,
                                 offset_end = 32,
-                                
-                            ), pad = (1, 0, 0, 0))
+                            ), pad = (1, 0, 0, 0)),
                         ],
                     ),
-
                     render.Row(
                         expanded = True,
                         main_align = "space_evenly",
@@ -158,6 +163,16 @@ def main(config):
             ),
         ),
     )
+
+def str_extend_to_length(s, length):
+    return s + " " * (length - len(s))
+
+def str_repeat_to_length(s, length):
+    print("Length:", len(s))
+    if (len(s) == 0):
+        s = s + " "
+
+    return (s * (length // len(s) + 1))[:length]
 
 def get_schema():
     return schema.Schema(
