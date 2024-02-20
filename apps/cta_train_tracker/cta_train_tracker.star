@@ -24,7 +24,7 @@ def get_color(line):
     if (line == "Brn"):  # brown line
         return "#a86929"
     if (line == "P"):  # purple line
-        return "#51087E"
+        return "#9118db"
     if (line == "Blue"):  # blue line
         return "#0000FF"
     if (line == "G"):  # green line
