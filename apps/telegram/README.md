@@ -51,8 +51,6 @@ The app requires a `Chat ID` to work. There are also options to configure the ch
 
 The app has safeguards in place to identify potential errors and always display something on the screen. For instance, Telegram API errors will be displayed on the screen along with the error code and description, making it easy for app users to reach us and ask for support.
 
-The only situation where the `fail` function is called is if you try to run the app locally without providing an API key in the `DEV_BOT_TOKEN` variable.
-
 ---
 
 ## Future Improvements

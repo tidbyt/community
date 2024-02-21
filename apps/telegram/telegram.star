@@ -37,10 +37,10 @@ def main(config):
 
     # validate if token was provided
     if bot_token in (None, ""):
-        fail("Please provide a bot token in the DEV_BOT_TOKEN variable!")
+        return render_demo("Please provide a BOT TOKEN!", dot_separator)
 
     if chat_id == None:
-        return render_demo(dot_separator)
+        return render_demo("Tidbyt", dot_separator)
 
     # fetch member count
     res = http.get(TG_URL % bot_token, ttl_seconds = 3600, params = {
@@ -121,7 +121,7 @@ def get_schema():
         ],
     )
 
-def render_demo(dot_separator):
+def render_demo(group_name, dot_separator):
     member_count = "5,678"
 
     if dot_separator:
@@ -146,7 +146,11 @@ def render_demo(dot_separator):
                             ),
                         ],
                     ),
-                    render.Text(content = "Tidbyt", color = "#777"),
+                    render.Marquee(
+                        width = 64,
+                        align = "center",
+                        child = render.Text(content = group_name, color = "#777"),
+                    ),
                 ],
             ),
         ),
