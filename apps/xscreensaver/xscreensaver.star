@@ -140,7 +140,7 @@ HACKS = [
     ["helix", "Helix", "Helix", "Spirally string-art-ish patterns. Written by Jamie Zawinski; 1992.", True, ["All"]],
     ["hexadrop", "Hexadrop", "Hexadrop", "A grid of hexagons or other shapes, with tiles dropping out. Written by Jamie Zawinski; 2013.", True, ["Default", "All"]],
     ["hexstrut", "Hex Strut", "Hex Strut", "A grid of hexagons composed of rotating Y-shaped struts. Written by Jamie Zawinski; 2016.", True, ["Default", "All"]],
-    ["hextrail", "Hex Trail", "Hex Trail", "A network of colorful lines grows upon a hexagonal substrate. Written by Jamie Zawinski; 2022.", True, ["DefaultColorful", "All"]],
+    ["hextrail", "Hex Trail", "Hex Trail", "A network of colorful lines grows upon a hexagonal substrate. Written by Jamie Zawinski; 2022.", True, ["Default", "Colorful", "All"]],
     ["hilbert", "Hilbert", "Hilbert", "The recursive Hilbert space-filling curve, both 2D and 3D variants. Written by Jamie Zawinski; 2011.", True, ["Default", "Colorful", "Mathematical", "All"]],
     ["hopalong", "Hopalong", "Hopalong", "Lacy fractal patterns based on iteration in the imaginary plane, from a 1986 Scientific American article. Written by Patrick Naughton; 1992.", True, ["Default", "All"]],
     ["hydrostat", "Hydrostat", "Hydrostat", "Wiggly squid or jellyfish with many tentacles. Written by Justin Windle and Jamie Zawinski; 2016.", True, ["Weird", "All"]],
