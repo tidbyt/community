@@ -7,6 +7,9 @@ Author: derekllaw
 Uses Smart Cambridge parking API
 """
 
+# V1.0 - single page, horizontal scrolling
+# V2.0 - vertical scrolling with logo
+
 load("encoding/base64.star", "base64")
 load("http.star", "http")
 load("render.star", "render")
