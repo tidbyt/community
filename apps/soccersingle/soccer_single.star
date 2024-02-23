@@ -61,6 +61,7 @@ def main(config):
         teamid = DEFAULT_TEAM
 
     league = API % ("all", str(teamid))
+    print("api call: " + league)
     teamdata = get_scores(league)
     scores = teamdata["nextEvent"]
 
@@ -182,10 +183,22 @@ def main(config):
                 if gameName == "STATUS_POSTPONED":
                     scoreFont = "CG-pixel-3x5-mono"
 
+                    homeData = json.decode(get_cachable_data(API % (leagueSlug, str(competition["competitors"][0]["id"]))))
+                    awayData = json.decode(get_cachable_data(API % (leagueSlug, str(competition["competitors"][1]["id"]))))
+
                     #if game is PPD - show records instead of blanks
-                    homeScore = competition["competitors"][0]["records"][0]["summary"]
-                    awayScore = competition["competitors"][1]["records"][0]["summary"]
-                    gameTime = "Postponed"
+                    checkHomeTeamRecord = homeData["team"]["record"].get("items", "NO")
+                    if checkHomeTeamRecord == "NO":
+                        homeScore = ""
+                    else:
+                        homeScore = checkHomeTeamRecord[0]["summary"]
+
+                    checkAwayTeamRecord = awayData["team"]["record"].get("items", "NO")
+                    if checkAwayTeamRecord == "NO":
+                        awayScore = ""
+                    else:
+                        awayScore = checkAwayTeamRecord[0]["summary"]
+                        gameTime = "Postponed"
                 else:
                     homeScore = competition["competitors"][0]["score"]["displayValue"]
                     awayScore = competition["competitors"][1]["score"]["displayValue"]
