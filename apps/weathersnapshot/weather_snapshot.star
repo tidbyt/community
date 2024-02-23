@@ -8,6 +8,11 @@ load("secret.star", "secret")
 # development API key, provide your key here or the app will default to static data
 DEV_API_KEY = ""
 
+PROD_API_KEYS = [
+    "AV6+xWcEZIMGFviu8oqBudMgmkxE1fU8GovLMKoBnQ4qAAbxGy6+HJWkSa4Or1g37TlcSepcNSsL7tORiavmprZfs9Ou7/Yen8FtI6hcIgreqKY/jQKA3QV6VtvCXXfwanjxwV2KZbcHi4W0mf5U0s4Xesy32wGLLclT/up2keKAXdgVaZE=",
+    "AV6+xWcEX8BBnVXJmCZLWWTaw/YBgpmXjqdTjGtdZWfqOJHJZU0X+x2t/xsSI/OkZ256iP3cyWF5ft528Lfz7W2Ss+InURzEmEp/t1aGr3b+c9DqcwXzTcdqBybg/H4CeSf+idUuBhyIRRMCA+eo9Y4ttckthcM26AlbAbbY5YZAhVUvsu0="
+]
+
 # Functions to calculate USA AQI based on pollutant data
 
 aqi_ranges = [50, 100, 150, 200, 300, 400, 500]
@@ -134,6 +139,14 @@ def get_aqi_icon(aqi):
     else:
         return RED_CLOUD_ICON
 
+def get_api_key(long):
+    if DEV_API_KEY:
+        return DEV_API_KEY
+    
+    index = int(long[-1]) % len(PROD_API_KEYS)
+    api_key = PROD_API_KEYS[index]
+    return secret.decrypt(api_key)
+
 def main(config):
     location = config.get("location", DEFAULT_LOCATION)
 
@@ -141,7 +154,7 @@ def main(config):
     lat = str(location["lat"])
     long = str(location["lng"])
 
-    api_key = secret.decrypt("AV6+xWcEZIMGFviu8oqBudMgmkxE1fU8GovLMKoBnQ4qAAbxGy6+HJWkSa4Or1g37TlcSepcNSsL7tORiavmprZfs9Ou7/Yen8FtI6hcIgreqKY/jQKA3QV6VtvCXXfwanjxwV2KZbcHi4W0mf5U0s4Xesy32wGLLclT/up2keKAXdgVaZE=") or DEV_API_KEY
+    api_key = get_api_key(long)
 
     if api_key in (None, ""):
         print("DEV_API_KEY not provided, using static data instead")
