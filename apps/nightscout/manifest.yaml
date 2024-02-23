@@ -2,7 +2,7 @@
 id: nightscout
 name: Nightscout
 summary: Shows Nightscout CGM Data
-desc: Displays Continuous Glucose Monitoring (CGM) blood sugar data from the Nightscout Open Source project (https://nightscout.github.io/). Will display blood sugar as mg/dL or mmol/L. Optionally display historical readings on a graph. Also a clock. (v2.3.3).
+desc: Displays Continuous Glucose Monitoring (CGM) blood sugar data from the Nightscout Open Source project (https://nightscout.github.io/). Will display blood sugar as mg/dL or mmol/L. Optionally display historical readings on a graph. Also a clock. (v2.3.5).
 author: Jeremy Tavener, Paul Murphy
 fileName: nightscout.star
 packageName: nightscout

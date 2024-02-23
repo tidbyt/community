@@ -1,18 +1,19 @@
 """
 Applet: Maya Calendar
-Summary: Displays Maya calendar
-Description: Displays Maya Long Count, Tzolk’in, and Haab’ calendars.
+Summary: Current Maya calendar date
+Description: Displays today’s date in the Maya Long Count, Tzolk’in, and Haab’ calendars.
 Author: Doug Ewell
-Version: 1.0.1
-Date: 2023-06-30 (13.0.10.12.3 12 Ak’b’al 11 Sek)
+Version: 1.1.0
+Date: 2023-12-20 (13.0.11.2.16  3 K’ib’ 4 K’ank’in)
 """
 
 load("encoding/base64.star", "base64")
 load("render.star", "render")
+load("schema.star", "schema")
 load("time.star", "time")
 
-DEFAULT_TIMEZONE = "America/Merida"
-# could have chosen America/Guatemala instead
+DEFAULT_CORRELATION = "584283"
+DEFAULT_TIMEZONE = "America/Merida"  # could have chosen America/Guatemala instead
 
 IMAGE = base64.decode("""iVBORw0KGgoAAAANSUhEUgAAABQAAAAQCAIAAACZeshMAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAADCSURBVDhPY2TABjYXSkNZMODb/xTKQgLYNT+fpAxlwYBk3l0oCwkMHpvhdgoErdjbGwBkOBdv+LAuAiKIZj8TlIYBE0UOCILywQCrIBCgaAZae+b+DwiCCoEBXBAtLFA0w21AswSXOAuUhlkL5QD9bAhlAAGyOFAZ3OcIm5GNR7MBlxTUZjRrgQCXzUAAtxyqGdk8CLgDpUEAUxYCQJoxrQUCPDYDAcRykGasBhNlM1ZrgQC/zUAA1MiCy1TCNjMwAACNWFpLrbT+OAAAAABJRU5ErkJggg==""")
 
@@ -20,18 +21,18 @@ def main(config):
     timezone = config.get("$tz", DEFAULT_TIMEZONE)
     now = time.now().in_location(timezone)
 
-    days_since_creation = get_days_since_creation(now)
+    days_since_creation = get_days_since_creation(now, config)
     long_count = get_long_count(days_since_creation)
     tzolkin = get_tzolkin(days_since_creation)
     haab = get_haab(days_since_creation)
     return show_calendars(long_count, tzolkin, haab)
 
-def get_days_since_creation(date):
-    jd = get_julian_date(date)
+# Date conversions cross-checked with http://research.famsi.org/date_mayaLC.php
 
-    # gmt = Goodman–Martinez–Thompson correlation, not Greenwich Mean Time :)
-    gmt_correlation = 584283
-    return jd - gmt_correlation
+def get_days_since_creation(date, config):
+    jd = get_julian_date(date)
+    correlation = int(config.get("correlation", DEFAULT_CORRELATION))
+    return jd - correlation
 
 def get_julian_date(date):
     Y = date.year
@@ -51,6 +52,9 @@ def get_long_count(days):
     katun = days % 20
     baktun = int(days / 20)
     return "%s.%s.%s.%s.%s" % (baktun, katun, tun, winal, kin)
+
+# Curly apostrophes (’) are not supported in the tom-thumb font,
+# so we must use straight apostrophes (') for day and month names.
 
 def get_tzolkin(days):
     day_names = [
@@ -114,7 +118,7 @@ def show_calendars(long_count, tzolkin, haab):
             child = render.Column(
                 children = [
                     render.Padding(
-                        pad = (1, 3, 0, 2),
+                        pad = (2, 3, 0, 2),
                         child = render.Text(
                             content = long_count,
                             color = "#fff",
@@ -156,4 +160,55 @@ def show_calendars(long_count, tzolkin, haab):
                 ],
             ),
         ),
+    )
+
+def get_schema():
+    show_options = [
+        schema.Option(
+            display = "Bowditch — 394483",
+            value = "394483",
+        ),
+        schema.Option(
+            display = "Makemson — 489138",
+            value = "489138",
+        ),
+        schema.Option(
+            display = "Spinden — 489384",
+            value = "489384",
+        ),
+        schema.Option(
+            display = "Martínez-Hernández — 584281",
+            value = "584281",
+        ),
+        schema.Option(
+            display = "GMT (Goodman-Martínez-Thompson) — 584283",
+            value = "584283",
+        ),
+        schema.Option(
+            display = "Thompson (Lounsbury) — 584285",
+            value = "584285",
+        ),
+        schema.Option(
+            display = "Martin-Skidmore — 584286",
+            value = "584286",
+        ),
+        schema.Option(
+            display = "Fuls et al. — 660208",
+            value = "660208",
+        ),
+        # Other correlations exist, but are even less credible than these. Use GMT.
+    ]
+
+    return schema.Schema(
+        version = "1",
+        fields = [
+            schema.Dropdown(
+                id = "correlation",
+                name = "Correlation",
+                desc = "Julian day number of the current creation",
+                icon = "calculator",
+                default = show_options[4].value,  # GMT
+                options = show_options,
+            ),
+        ],
     )
