@@ -10,7 +10,7 @@ DEV_API_KEY = ""
 
 PROD_API_KEYS = [
     "AV6+xWcEZIMGFviu8oqBudMgmkxE1fU8GovLMKoBnQ4qAAbxGy6+HJWkSa4Or1g37TlcSepcNSsL7tORiavmprZfs9Ou7/Yen8FtI6hcIgreqKY/jQKA3QV6VtvCXXfwanjxwV2KZbcHi4W0mf5U0s4Xesy32wGLLclT/up2keKAXdgVaZE=",
-    "AV6+xWcEX8BBnVXJmCZLWWTaw/YBgpmXjqdTjGtdZWfqOJHJZU0X+x2t/xsSI/OkZ256iP3cyWF5ft528Lfz7W2Ss+InURzEmEp/t1aGr3b+c9DqcwXzTcdqBybg/H4CeSf+idUuBhyIRRMCA+eo9Y4ttckthcM26AlbAbbY5YZAhVUvsu0="
+    "AV6+xWcEX8BBnVXJmCZLWWTaw/YBgpmXjqdTjGtdZWfqOJHJZU0X+x2t/xsSI/OkZ256iP3cyWF5ft528Lfz7W2Ss+InURzEmEp/t1aGr3b+c9DqcwXzTcdqBybg/H4CeSf+idUuBhyIRRMCA+eo9Y4ttckthcM26AlbAbbY5YZAhVUvsu0=",
 ]
 
 # Functions to calculate USA AQI based on pollutant data
@@ -142,7 +142,7 @@ def get_aqi_icon(aqi):
 def get_api_key(long):
     if DEV_API_KEY:
         return DEV_API_KEY
-    
+
     index = int(long[-1]) % len(PROD_API_KEYS)
     api_key = PROD_API_KEYS[index]
     return secret.decrypt(api_key)
