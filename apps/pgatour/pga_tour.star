@@ -45,6 +45,11 @@ Changed tee times feature to only display them when the leader's time is less th
 
 v2.5
 Updated Tournament IDs for 2024 Season
+
+v2.6
+Added handling for players with non-standard characters in their surname and also distinguish between players with same surname
+Using dictionary list for shortened Tournament Names
+Using dictionary list for colors in Majors (and The Players tournament)
 """
 
 load("encoding/json.star", "json")
@@ -59,6 +64,57 @@ API2 = "https://site.api.espn.com/apis/site/v2/sports/golf/pga/scoreboard"
 CACHE_TTL_SECS = 60
 DEFAULT_TIMEZONE = "Australia/Adelaide"
 THE_EXCEPTIONS = ["401580329", "401580360"]  # The Sentry and The Open
+
+# List will be a work in progress
+PLAYER_MAPPING = """
+{
+    "11250": "N.Hojgaard",
+    "11253": "R.Hojgaard",
+    "4375972": "Aberg",
+    "9469": "Bjork",
+    "4602673": "T.Kim",
+    "7081": "S.W.Kim",
+    "4410932": "M.W.Lee",
+    "7083": "K.H.Lee"
+}
+"""
+
+TOURNAMENT_MAPPING = """
+{
+    "401580332": "Farmers Ins",
+    "401580333": "AT&T Pro-Am",
+    "401580335": "Genesis Inv",
+    "401580338": "Arnold Palm",
+    "401580340": "Players Chp",
+    "401580347": "Zurich Clas",
+    "401580346": "Puntacana",
+    "401580348": "CJ Cup",
+    "401580341": "Valspar",
+    "401580342": "Houston Opn",
+    "401580343": "Texas Open",
+    "401580344": "The Masters",
+    "401580345": "Heritage",
+    "401580353": "Canadian Op",
+    "401580354": "Memorial",
+    "401580351": "PGA Champ",
+    "401465538": "Barbasol",
+    "401580359": "Scottish",
+    "401580363": "Wyndham",
+    "401580364": "FedEx St.J",
+    "401580365": "BMW Champ",
+    "401558309": "Q-School"
+}
+"""
+
+MAJOR_MAPPING = """
+{
+    "401580340": "#003360",
+    "401580344": "#006747",
+    "401580351": "#00205B",
+    "401580355": "#003865",
+    "401580360": "#1A1C3C"
+}
+"""
 
 def main(config):
     renderCategory = []
@@ -75,6 +131,10 @@ def main(config):
     leaderboard = json.decode(CacheData)
     leaderboard2 = json.decode(SecCacheData)
 
+    PlayerMapping = json.decode(PLAYER_MAPPING)
+    TournMapping = json.decode(TOURNAMENT_MAPPING)
+    MajorMapping = json.decode(MAJOR_MAPPING)
+
     Title = leaderboard["sports"][0]["leagues"][0]["shortName"]
 
     # Check if there is an opposite field event, happens 4 times a season
@@ -90,22 +150,24 @@ def main(config):
     TournamentName = leaderboard["sports"][0]["leagues"][0]["events"][i]["name"]
     PreTournamentName = TournamentName
     TournamentID = leaderboard["sports"][0]["leagues"][0]["events"][i]["id"]
+    #TournamentID = "401580340"
 
-    # Check if its a major and show a different color in the title bar
-    TitleColor = getMajorColor(TournamentID)
+    # Check if its a major (or The Players) and show a different color in the title bar
+    if TournamentID in MAJOR_MAPPING:
+        TitleColor = MajorMapping[TournamentID]
+    else:
+        TitleColor = "#0039A6"
 
-    # Make it more readable
+    # Make the tournament name more readable
     if TournamentID not in THE_EXCEPTIONS:
         TournamentName = TournamentName.replace("The ", "")
         TournamentName = TournamentName.replace("THE ", "")
 
-    RevisedName = getTournamentName(TournamentID)
-
-    if RevisedName == "None":
+    if TournamentID in TOURNAMENT_MAPPING:
+        TournamentName = TournMapping[TournamentID]
+    else:
         TournamentName = TournamentName[:10]
         TournamentName = TournamentName.rstrip()
-    else:
-        TournamentName = RevisedName
 
     if (leaderboard):
         # where the tournament is at - pre, in progress, post
@@ -138,14 +200,14 @@ def main(config):
                             render.Column(
                                 children = [
                                     render.Column(
-                                        getPlayerScore(x, entries, TournamentName, TitleColor, ColorGradient, stage, state),
+                                        getPlayerScore(x, entries, TournamentName, TitleColor, ColorGradient, stage, state, PlayerMapping),
                                     ),
                                 ],
                             ),
                             render.Column(
                                 children = [
                                     render.Column(
-                                        children = getPlayerProgress(x, entries, entries2, TournamentName, TitleColor, ColorGradient, stage, state, timezone),
+                                        children = getPlayerProgress(x, entries, entries2, TournamentName, TitleColor, ColorGradient, stage, state, timezone, PlayerMapping),
                                     ),
                                 ],
                             ),
@@ -161,7 +223,7 @@ def main(config):
                                 cross_align = "start",
                                 children = [
                                     render.Column(
-                                        children = getPlayerScore(x, entries, TournamentName, TitleColor, ColorGradient, stage, state),
+                                        children = getPlayerScore(x, entries, TournamentName, TitleColor, ColorGradient, stage, state, PlayerMapping),
                                     ),
                                 ],
                             ),
@@ -229,7 +291,7 @@ def main(config):
 
     return []
 
-def getPlayerScore(x, s, Title, TitleColor, ColorGradient, stage, state):
+def getPlayerScore(x, s, Title, TitleColor, ColorGradient, stage, state, Mapping):
     # Build the 4 rows out with player names & scores
 
     mainFont = "CG-pixel-3x5-mono"
@@ -243,7 +305,14 @@ def getPlayerScore(x, s, Title, TitleColor, ColorGradient, stage, state):
 
     for i in range(0, 4):
         if i + x < len(s):
-            playerName = s[i + x]["lastName"]
+            playerID = s[i + x]["id"]
+
+            # Check for certain player IDs and outputs an altername name if needed
+            if playerID in PLAYER_MAPPING:
+                playerName = Mapping[playerID]
+            else:
+                playerName = s[i + x]["lastName"][:12]
+
             score = s[i + x]["score"]
             displayScore = str(score)
 
@@ -275,7 +344,7 @@ def getPlayerScore(x, s, Title, TitleColor, ColorGradient, stage, state):
                             render.Padding(
                                 pad = (1, 1, 0, 1),
                                 child = render.Text(
-                                    content = playerName[:12],
+                                    content = playerName,
                                     color = playerFontColor,
                                     font = mainFont,
                                 ),
@@ -302,12 +371,13 @@ def getPlayerScore(x, s, Title, TitleColor, ColorGradient, stage, state):
 
     return output
 
-def getPlayerProgress(x, s, t, Title, TitleColor, ColorGradient, stage, state, timezone):
+def getPlayerProgress(x, s, t, Title, TitleColor, ColorGradient, stage, state, timezone, Mapping):
     # Build the 4 rows out with player names & how many holes completed or tee times
 
     mainFont = "CG-pixel-3x5-mono"
     output = []
     ShowTeeTimes = False
+    #Mapping = json.decode(PLAYER_MAPPING)
 
     topColumn = [render.Box(width = 64, height = 5, color = TitleColor, child = render.Row(expanded = True, main_align = "start", cross_align = "center", children = [
         render.Box(width = 64, height = 5, child = render.Text(content = Title + " - " + stage, color = "#fff", font = mainFont)),
@@ -324,9 +394,14 @@ def getPlayerProgress(x, s, t, Title, TitleColor, ColorGradient, stage, state, t
     for i in range(0, 4):
         ProgressStr = ""
         if i + x < len(s):
-            playerName = s[i + x]["lastName"]
             playerState = s[i + x]["status"]["state"]
             playerID = s[i + x]["id"]
+
+            # Check for certain player IDs and outputs an altername name if needed
+            if playerID in PLAYER_MAPPING:
+                playerName = Mapping[playerID]
+            else:
+                playerName = s[i + x]["lastName"][:12]
 
             # check if they've played at least 1 hole this round
             if (s[i + x]["status"]["thru"]) > 0:
@@ -457,79 +532,23 @@ def getPlayerFontColor(HolesCompleted, ColorGradient):
 
     return playerFontColor
 
-def getTournamentName(ID):
-    # Provide friendly shortened name
-
-    TournamentName = ""
-
-    if ID == "401580331":
-        TournamentName = "The Am Ex"
-    elif ID == "401580332":
-        TournamentName = "Farmers"
-    elif ID == "401580333":
-        TournamentName = "AT&T Pro-A"
-    elif ID == "401580335":
-        TournamentName = "Genesis In"
-    elif ID == "401580338":
-        TournamentName = "AP Inv"
-    elif ID == "401580340":
-        TournamentName = "Players Ch"
-    elif ID == "401580347":
-        TournamentName = "Zurich"
-    elif ID == "401580346":
-        TournamentName = "Puntacana"
-    elif ID == "401580348":
-        TournamentName = "CJ Cup"
-    elif ID == "401580341":
-        TournamentName = "Valspar"
-    elif ID == "401580342":
-        TournamentName = "Houston Op"
-    elif ID == "401580343":
-        TournamentName = "Texas Op"
-    elif ID == "401580344":
-        TournamentName = "Masters"
-    elif ID == "401580345":
-        TournamentName = "Heritage"
-    elif ID == "401580353":
-        TournamentName = "Canadian"
-    elif ID == "401580354":
-        TournamentName = "Memorial"
-    elif ID == "401580351":
-        TournamentName = "PGA Champ"
-    elif ID == "401465538":
-        TournamentName = "Barbasol"
-    elif ID == "401580359":
-        TournamentName = "Scottish"
-    elif ID == "401580363":
-        TournamentName = "Wyndham"
-    elif ID == "401580364":
-        TournamentName = "FedEx St.J"
-    elif ID == "401580365":
-        TournamentName = "BMW Champ"
-    elif ID == "401558309":
-        TournamentName = "Q-School"
-    else:
-        TournamentName = "None"
-
-    return TournamentName
-
-def getMajorColor(ID):
-    # check if its a major or The Players and if so show different title bar color
-    # and if not, show the default PGA color
-    TitleColor = "#0039A6"
-    if ID == "401580340":  # The Players
-        TitleColor = "#003360"
-    if ID == "401580344":  # Masters
-        TitleColor = "#006747"
-    elif ID == "401580351":  # US PGA
-        TitleColor = "#00205b"
-    elif ID == "401580355":  # US Open
-        TitleColor = "#003865"
-    elif ID == "401580360":  # The Open
-        TitleColor = "#1a1c3c"
-    else:
-        TitleColor = "#0039A6"
-    return TitleColor
+# def getMajorColor(ID):
+#     # check if its a major or The Players and if so show different title bar color
+#     # and if not, show the default PGA color
+#     TitleColor = "#0039A6"
+#     if ID == "401580340":  # The Players
+#         TitleColor = "#003360"
+#     if ID == "401580344":  # Masters
+#         TitleColor = "#006747"
+#     elif ID == "401580351":  # US PGA
+#         TitleColor = "#00205b"
+#     elif ID == "401580355":  # US Open
+#         TitleColor = "#003865"
+#     elif ID == "401580360":  # The Open
+#         TitleColor = "#1a1c3c"
+#     else:
+#         TitleColor = "#0039A6"
+#     return TitleColor
 
 def OppositeFieldCheck(ID):
     # check if the first tournament listed in the ESPN API is an opposite field event, one of the four below
