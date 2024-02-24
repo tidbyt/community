@@ -53,6 +53,10 @@ Using dictionary list for colors in Majors (and The Players tournament)
 
 v2.6.1
 Updated PLAYER_MAPPING 
+
+v2.6.2
+Updated PLAYER_MAPPING
+Allowed extra char in Tournament Name
 """
 
 load("encoding/json.star", "json")
@@ -79,7 +83,8 @@ PLAYER_MAPPING = """
     "7081": "S.W.Kim",
     "4698579": "S.H.Kim",
     "4410932": "M.W.Lee",
-    "7083": "K.H.Lee"
+    "7083": "K.H.Lee",
+    "4585548": "Valimaki"
 }
 """
 
@@ -154,7 +159,7 @@ def main(config):
     TournamentName = leaderboard["sports"][0]["leagues"][0]["events"][i]["name"]
     PreTournamentName = TournamentName
     TournamentID = leaderboard["sports"][0]["leagues"][0]["events"][i]["id"]
-    #TournamentID = "401580340"
+    #print(TournamentID)
 
     # Check if its a major (or The Players) and show a different color in the title bar
     if TournamentID in MAJOR_MAPPING:
@@ -170,7 +175,7 @@ def main(config):
     if TournamentID in TOURNAMENT_MAPPING:
         TournamentName = TournMapping[TournamentID]
     else:
-        TournamentName = TournamentName[:10]
+        TournamentName = TournamentName[:11]
         TournamentName = TournamentName.rstrip()
 
     if (leaderboard):
