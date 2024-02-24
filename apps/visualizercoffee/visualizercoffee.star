@@ -13,7 +13,6 @@ load("schema.star", "schema")
 load("secret.star", "secret")
 load("time.star", "time")
 
-DEFAULT_EMAIL = "undefined"
 VISUALIZER_CLIENT_ID = secret.decrypt("AV6+xWcEs7GK6+4UJs55eLPgTYImEf3CNXkn+VrlNeQMEvp5cp93NZ+5TzUN1uEChPSdopm1TzpgE3vfcZC3SDIRs7aJbipw3ZRGaC84QvtAJOOOMATn3lI6cWtyD4GjKQ9AIQOednje/pPgwOV2LL+B065eC8PfzUfDs6+CDlzEsCtfdI/mYVAp8AA0Ztzh6Q==")
 VISUALZER_CLIENT_SECRET = secret.decrypt("AV6+xWcEU2Y6ROm1F7rraW1/mQ/1uAI0RNaxKWyCFqkJJi+yzToyn1VmbU95ItbY2XKs7wYBhAi0QH48P1oFR3k3BRkxGKbJQl7zP1dQYLrHo/9PXrYq2drXKsvdbNi+LTQ1ZLYrffbZsAzu0AiZzM2zBsn3kpBSJ0i1Wnd1DB7WqKIp2JOU/3E/jlHfGwbFwQ==")
 
@@ -107,7 +106,15 @@ def render_problem(msg):
     )
 
 def get_my_shots(auth_token):
-    # https://visualizer.coffee/api/shots/?page=1&items=10
+    """ Fetchs the list of shots for the OAuth user.
+
+    Args:
+        auth_token: the auth token from oauth exchange. 
+    Returns:
+        list of shots for the authenticated user.
+        
+    note: https://visualizer.coffee/api/shots/?page=1&items=10
+    """
     resp = http.get(
         "https://visualizer.coffee/api/shots/",
         headers = {
@@ -115,6 +122,10 @@ def get_my_shots(auth_token):
         },
         ttl_seconds = 600,  # 10 mins.
     )
+    if resp.status_code != 200:
+        if DEBUG:
+            print("DEBUG: %s failed to get shots token." % resp.status_code)
+        return None
 
     return json.decode(resp.data)
 
@@ -223,6 +234,8 @@ def main(config):
         my_shots = json.decode(MY_SHOTS_EXAMPLE_DATA)
     else:
         my_shots = get_my_shots(auth_token)
+        if my_shots == None and not DEBUG:
+            return render_problem("could not get shots from vizulizer...")
 
     return render_root(get_todays_shots(my_shots), get_latest_shot(my_shots))
 
