@@ -109,11 +109,9 @@ def get_my_shots(auth_token):
     """ Fetchs the list of shots for the OAuth user.
 
     Args:
-        auth_token: the auth token from oauth exchange. 
+        auth_token: the auth token from oauth exchange.
     Returns:
         list of shots for the authenticated user.
-        
-    note: https://visualizer.coffee/api/shots/?page=1&items=10
     """
     resp = http.get(
         "https://visualizer.coffee/api/shots/",
