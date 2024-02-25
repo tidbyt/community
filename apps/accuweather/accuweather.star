@@ -17,7 +17,7 @@ load("schema.star", "schema")
 load("time.star", "time")
 
 ACCUWEATHER_FORECAST_URL = "http://dataservice.accuweather.com/forecasts/v1/daily/5day/{location_key}?apikey={api_key}&details=true"
-CACHE_TIMEOUT = 60 * 60 # 1 hour
+CACHE_TIMEOUT = 60 * 60  # 1 hour
 
 # weather icons borrowed from stock Tidbyt Weather app
 WEATHER_ICONS = {
