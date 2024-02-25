@@ -7,7 +7,9 @@ a location and extract trailing number, e.g. 2191987 for https://www.accuweather
 Author: sudeepban
 """
 
+load("cache.star", "cache")
 load("encoding/base64.star", "base64")
+load("encoding/json.star", "json")
 load("http.star", "http")
 load("math.star", "math")
 load("render.star", "render")
@@ -15,6 +17,7 @@ load("schema.star", "schema")
 load("time.star", "time")
 
 ACCUWEATHER_FORECAST_URL = "http://dataservice.accuweather.com/forecasts/v1/daily/5day/{location_key}?apikey={api_key}&details=true"
+CACHE_TIMEOUT = 60 * 60 # 1 hour
 
 # weather icons borrowed from stock Tidbyt Weather app
 WEATHER_ICONS = {
@@ -987,11 +990,19 @@ def main(config):
         result_forecasts.append(get_result_forecast("Tue", 66, 74, 12, "NE", display_celsius))
         result_forecasts.append(get_result_forecast("Wed", 68, 78, 15, "E", display_celsius))
     else:
-        resp = http.get(ACCUWEATHER_FORECAST_URL.format(location_key = location_key, api_key = api_key), ttl_seconds = 3600)
-        if resp.status_code != 200:
-            fail("AccuWeather forecast request failed with status", resp.status_code)
+        url = ACCUWEATHER_FORECAST_URL.format(location_key = location_key, api_key = api_key)
+        cached_response = cache.get(url)
+        if cached_response:
+            print("using cached response for accuweather location", location_key)
+            resp_json = json.decode(cached_response)
+        else:
+            resp = http.get(url, ttl_seconds = 3600)
+            if resp.status_code != 200:
+                fail("AccuWeather forecast request failed with status", resp.status_code)
 
-        resp_json = resp.json()
+            resp_json = resp.json()
+            print("setting cache for accuweather location", location_key, "for", CACHE_TIMEOUT, "seconds")
+            cache.set(url, resp.body(), ttl_seconds = CACHE_TIMEOUT)
 
         raw_forecasts = resp_json["DailyForecasts"]
 
