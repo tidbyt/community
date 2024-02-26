@@ -28,17 +28,17 @@ def main(config):
     #Display error if no API found
     if DEFAULT_API == None:
         return render.Root(
-            child=render.Column(
-                children=[
+            child = render.Column(
+                children = [
                     render.Box(
-                        width=64,
-                        height=7,
-                        padding=0,
-                        color="#cccccc33",
-                        child=render.Text("India News", color="#FF9933", font="tom-thumb", offset=-1),
+                        width = 64,
+                        height = 7,
+                        padding = 0,
+                        color = "#cccccc33",
+                        child = render.Text("India News", color = "#FF9933", font = "tom-thumb", offset = -1),
                     ),
                     render.WrappedText(
-                        content="Missing API",
+                        content = "Missing API",
                         width = 36,
                     ),
                 ],
@@ -80,22 +80,22 @@ def main(config):
             child = render.Column(
                 children = [
                     render.Box(
-                        width=64,
-                        height=7,
-                        padding=0,
-                        color="#cccccc33",
-                        child=render.Text("India News", color="#FF9933", font="tom-thumb", offset=-1),
+                        width = 64,
+                        height = 7,
+                        padding = 0,
+                        color = "#cccccc33",
+                        child = render.Text("India News", color = "#FF9933", font = "tom-thumb", offset = -1),
                     ),
                     render.Marquee(
-                        height=32,
-                        scroll_direction="vertical",
+                        height = 32,
+                        scroll_direction = "vertical",
                         child = render.Column(
                             #main_align="space_between",
                             cross_align = "start",
                             children = title_format,
                         ),
-                        offset_start=32,
-                        offset_end=32,
+                        offset_start = 32,
+                        offset_end = 32,
                     ),
                 ],
             ),
