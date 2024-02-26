@@ -20,8 +20,6 @@ NEWS_URL = "http://newsapi.org/v2/top-headlines?sources=google-news-in&apiKey="
 def main(config):
     # set default api key
     DEFAULT_API = secret.decrypt("AV6+xWcEX/4Xe45UOOKJO96fq/wjTvGwFn7rE8EUXwcONEWE7sG+eXYjEm5M+PmmS5GTV1NzbV3z3X5q7XWdN69xtfpB1KWMBedJf2kndTR6QWsBWZXizDHWDVMA5IUYO14Y7X2tlr+eKCuAZU7iri9BUTuBdO7+5sVRgPU3QoObSbsE9L8=")
-    # for local testing
-    DEFAULT_API = "5fed4bdc00d1431bb642579eeb3e01be"
 
     #intialize headline randomizer
     random.seed(time.now().unix // 60)
