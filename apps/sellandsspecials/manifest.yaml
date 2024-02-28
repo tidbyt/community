@@ -1,0 +1,8 @@
+---
+id: sellands-specials
+name: Sellands Specials
+summary: Sellands weekly specials
+desc: Show weekly dinner for two specials at Selland's restaurants.
+author: Matt Kent
+fileName: sellands_specials.star
+packageName: sellandsspecials
