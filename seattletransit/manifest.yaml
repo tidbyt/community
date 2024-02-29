@@ -1,8 +1,0 @@
----
-id: seattle-transit
-name: Seattle Transit
-summary: Seattle transit arrivals
-desc: Displays transit arrivals in the Seattle area for a user selected stop.
-author: maxa010
-fileName: seattle_transit.star
-packageName: seattletransit
