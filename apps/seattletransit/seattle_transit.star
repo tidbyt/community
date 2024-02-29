@@ -405,7 +405,7 @@ def get_schema():
 
 def get_stops(location):
     loc = json.decode(location)
-    api_key = secret.decrypt(ENCRYPTED_API_KEY) or "35c77506-cf9d-4e6a-bad4-b5edcc8227cd"
+    api_key = secret.decrypt(ENCRYPTED_API_KEY)
 
     stop_search = "http://api.pugetsound.onebusaway.org/api/where/stops-for-location.json?key=" + api_key + "&lat=" + str(loc["lat"]) + "&lon=" + str(loc["lng"])
     res = http.get(stop_search)
