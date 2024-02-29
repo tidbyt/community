@@ -83,7 +83,7 @@ def main():
                     children = [
                         render.Column(
                             children = [
-                                render.Image(height = 32, width=32, src = kanji_image_src),
+                                render.Image(height = 32, width = 32, src = kanji_image_src),
                             ],
                         ),
                         render.Column(
