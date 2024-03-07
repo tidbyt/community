@@ -37,6 +37,7 @@ def main():
 
     value = int(data["value"])
     classification = data["value_classification"]
+    has_extreme_in_classification = "Extreme" in classification
     text_color = get_text_color(value)
 
     return render.Root(
@@ -105,11 +106,11 @@ def main():
                     main_align = "center",
                     children = [
                         render.Padding(
-                            pad = (0, 18, 0, 0),
+                            pad = (0, (22 if has_extreme_in_classification else 18), 0, 0),
                             child = render.Text(
                                 content = classification,
                                 color = text_color,
-                                font = "6x13",
+                                font = "tom-thumb" if has_extreme_in_classification else "6x13",
                             ),
                         ),
                     ],
