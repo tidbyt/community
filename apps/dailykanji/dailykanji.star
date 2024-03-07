@@ -17,7 +17,7 @@ load("time.star", "time")
 KANJI_ALIVE_SECRET_KEY = """
 AV6+xWcElcF93KogxG+s11bh1XzIRZSLtYHkUd8p3r47B588Bp0UMkbFlo6rUIJXU2p7JwcfctCkxzeWiLf70LDu+ceB6cc+652gRWRWRmj4xhI7/bYgYcigQQR4Q3jUrxjQZy6MIOFS2o01Q36Z+Vt7Uyjg/U6oI8IxIRSx5NGFXW5NQiuVQwVa2XOZC+8RPuFYG1l0QsI=
 """
-KANJI_IMAGE_LOOKUP_URL = "https://assets.imgix.net/~text?txt-font=Helvetica%20Neue%20Light&txt-pad=0&txt-color=ff0&txt-size=23&h=32&w=32&txt-align=center%2Cmiddle&txt64="
+KANJI_IMAGE_LOOKUP_URL = "https://assets.imgix.net/~text?txt-font=Helvetica%20Neue%20Light&txt-pad=0&txt-color=ff0&txt-size=22&h=32&w=32&txt-align=center%2Cmiddle&txt64="
 CACHED_KANJI_NAME = "DailyKanjiCachedItem"
 CACHED_KANJI_CHARACTER = "DailyKanjiCachedImage"
 KANJI_TTL = 60 * 60 * 2  # updates every 2 hours
