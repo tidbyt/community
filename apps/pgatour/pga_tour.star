@@ -50,6 +50,13 @@ v2.6
 Added handling for players with non-standard characters in their surname and also distinguish between players with same surname
 Using dictionary list for shortened Tournament Names
 Using dictionary list for colors in Majors (and The Players tournament)
+
+v2.6.1
+Updated PLAYER_MAPPING 
+
+v2.6.2
+Updated PLAYER_MAPPING
+Allowed extra char in Tournament Name
 """
 
 load("encoding/json.star", "json")
@@ -74,8 +81,10 @@ PLAYER_MAPPING = """
     "9469": "Bjork",
     "4602673": "T.Kim",
     "7081": "S.W.Kim",
+    "4698579": "S.H.Kim",
     "4410932": "M.W.Lee",
-    "7083": "K.H.Lee"
+    "7083": "K.H.Lee",
+    "4585548": "Valimaki"
 }
 """
 
@@ -85,7 +94,7 @@ TOURNAMENT_MAPPING = """
     "401580333": "AT&T Pro-Am",
     "401580335": "Genesis Inv",
     "401580338": "Arnold Palm",
-    "401580340": "Players Chp",
+    "401580340": "The Players",
     "401580347": "Zurich Clas",
     "401580346": "Puntacana",
     "401580348": "CJ Cup",
@@ -150,7 +159,7 @@ def main(config):
     TournamentName = leaderboard["sports"][0]["leagues"][0]["events"][i]["name"]
     PreTournamentName = TournamentName
     TournamentID = leaderboard["sports"][0]["leagues"][0]["events"][i]["id"]
-    #TournamentID = "401580340"
+    #print(TournamentID)
 
     # Check if its a major (or The Players) and show a different color in the title bar
     if TournamentID in MAJOR_MAPPING:
@@ -166,7 +175,7 @@ def main(config):
     if TournamentID in TOURNAMENT_MAPPING:
         TournamentName = TournMapping[TournamentID]
     else:
-        TournamentName = TournamentName[:10]
+        TournamentName = TournamentName[:11]
         TournamentName = TournamentName.rstrip()
 
     if (leaderboard):
@@ -444,9 +453,14 @@ def getPlayerProgress(x, s, t, Title, TitleColor, ColorGradient, stage, state, t
             # if the player's round is completed, show their score
             if playerState == "post":
                 RoundNumber = len(t[0]["linescores"]) - 2
+
+                #print(RoundNumber)
                 for i in range(0, len(t), 1):
                     if playerID == t[i]["id"]:
+                        #print(playerID)
                         RoundScore = t[i]["linescores"][RoundNumber]["value"]
+
+                        #print(RoundScore)
                         ProgressStr = str(int(RoundScore))
 
             # If ColorGradient is selected...
@@ -531,24 +545,6 @@ def getPlayerFontColor(HolesCompleted, ColorGradient):
             playerFontColor = ""
 
     return playerFontColor
-
-# def getMajorColor(ID):
-#     # check if its a major or The Players and if so show different title bar color
-#     # and if not, show the default PGA color
-#     TitleColor = "#0039A6"
-#     if ID == "401580340":  # The Players
-#         TitleColor = "#003360"
-#     if ID == "401580344":  # Masters
-#         TitleColor = "#006747"
-#     elif ID == "401580351":  # US PGA
-#         TitleColor = "#00205b"
-#     elif ID == "401580355":  # US Open
-#         TitleColor = "#003865"
-#     elif ID == "401580360":  # The Open
-#         TitleColor = "#1a1c3c"
-#     else:
-#         TitleColor = "#0039A6"
-#     return TitleColor
 
 def OppositeFieldCheck(ID):
     # check if the first tournament listed in the ESPN API is an opposite field event, one of the four below
