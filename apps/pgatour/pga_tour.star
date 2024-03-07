@@ -318,7 +318,7 @@ def getPlayerScore(x, s, Title, TitleColor, ColorGradient, stage, state, Mapping
 
             # Check for certain player IDs and outputs an altername name if needed
             if playerID in PLAYER_MAPPING:
-                playerName = Mapping[playerID]
+                playerName = Mapping.get(playerID, "unknown")
             else:
                 playerName = s[i + x]["lastName"][:12]
 
@@ -408,7 +408,7 @@ def getPlayerProgress(x, s, t, Title, TitleColor, ColorGradient, stage, state, t
 
             # Check for certain player IDs and outputs an altername name if needed
             if playerID in PLAYER_MAPPING:
-                playerName = Mapping[playerID]
+                playerName = Mapping.get(playerID, "unknown")
             else:
                 playerName = s[i + x]["lastName"][:12]
 
