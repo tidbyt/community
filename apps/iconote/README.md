@@ -18,47 +18,15 @@ The icons consist of the more popular ones for celebrations/holidays, vacation/t
 
 The display starts with the icon or photo you choose.  After a delay that is conttrolled by you, the message will begin to scroll vertically.  If there is no message, then only the image is display.
 
-The schema consists of the following data:
-<table>
-  <tr>
-    <td> Select whether you want to display an icon or your photo.</td>
-    <td>  <img width="300" alt="image" src="./IconOrPhoto.png"> </td>
-  </tr>
-  <tr>
-    <td> Select the icon you want to displayed.</td>
-    <td> <img width="300" alt="image" src="./SelectIcon.png"><br><img width="300" alt="image" src="./IconList.png"></td>
-  </tr>
-  <tr>
-    <td> Choose one of your photos to display.</td>
-    <td> <img width="300" alt="image" src="./SelectPhoto.png"></td>
-  </tr>
-   <tr>
-    <td> Select the scrolling speed.</td>
-    <td> <img width="300" alt="image" src="./ScrollingSpeed.png"></td>
-  </tr>
-  <tr>
-    <td> Select the image delay - how long to display the image before scrolling starts.</td>
-    <td> <img width="300" alt="image" src="./ImageDelay.png"></td>
-  </tr>
-  <tr>
-    <td> Enter your message.</td>
-    <td> <img width="300" alt="image" src="./Message.png"></td>
-  </tr>
-   <tr>
-    <td> Select the color for the text.</td>
-    <td> <img width="300" alt="image" src="./TextColor.png"></td>
-  </tr> 
-  <tr>
-    <td> Select font size.</td>
-    <td> <img width="300" alt="image" src="./Font.png"></td>
-  </tr>
-  <tr>
-    <td> Select text alignment.</td>
-    <td> <img width="300" alt="image" src="./TextAlignment.png"></td>
-  </tr> 
-  <tr>
-    <td> Adjust the line spacing.</td>
-    <td> <img width="300" alt="image" src="./LineSpacing.png"></td>
-  </tr>
-</table>
+The configuration schema consists of the following data:
+- Select whether you want to display an icon or your photo.
+- Select the icon you want to displayed.
+- Choose one of your photos to display.
+- Select the scrolling speed.
+- Select the image delay - how long to display the image before scrolling starts.
+- Enter your message.
+- Select the color for the text.
+- Select font size.
+- Select text alignment.
+- Adjust the line spacing.
  
