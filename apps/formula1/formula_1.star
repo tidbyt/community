@@ -12,7 +12,7 @@ load("render.star", "render")
 load("schema.star", "schema")
 load("time.star", "time")
 
-VERSION = 23254
+VERSION = 24063
 
 # ############################
 # Mods - jvivona - 2023-02-04
@@ -38,6 +38,9 @@ VERSION = 23254
 # jvivona - 20230904
 # - fix date display - remove leading 0
 # jvivona - 20230911 - handle end of season calendar - no upcoming races
+# jvivona - 20231107 - cleanup code in for loop
+# jvivona - 20240303 - added Kick Sauber & RB Honda logos - thanks to @AMillionAir
+# - added code to handle missing time in API feed - updates are happening slower in 2024 & will stop for 2025 season - this is temp until we determine new plan
 # ############################
 
 DEFAULTS = {
@@ -88,6 +91,8 @@ F1_CONSTRUCTOR = dict(
     haas = base64.decode("iVBORw0KGgoAAAANSUhEUgAAAA4AAAAHCAMAAAAPmYwrAAAABGdBTUEAALGPC/xhBQAAACBjSFJNAAB6JgAAgIQAAPoAAACA6AAAdTAAAOpgAAA6mAAAF3CculE8AAAA7VBMVEUAAADxCTLzCzP4DTH0DDPzCzL/chz0DDDtCTHzCzTsCTHxDTT1CzH0CzP1CzP2CzLyCjTzCjTzCjPzCjP0CjTzCzP0CzP0CzPzCzTzCzPzCzP0CzP0CzPzCzLzCzL0CzP1CzP0CzPzCzP0CzP0CjP0CzP0CzP0CzLyDC/zCzTzCzL0CzLzCzTzCzP0CzP0CzP0CzP1CzPzCzL0CzL0CzDqCTHyCzTzCzP0CzPzCzP0CzP0CzPzCzP0CzP0CzP0CzP0CzP1CzH0CzP0DDPzCzPzCzPzCzTzCzP1CzPzCzPyDDPzDDTzCzT1CjT///81BFTPAAAATnRSTlMAAAAAAAAAAAAAAAAAAAAACxgaEAErcX50fYN8TAhCs00RPZtHnNWEBy+5t1RwwZ+ajU/RHQEoYcq+wlOdiziWiAcqdoV0fHwIChgaEQIaa17CAAAAAWJLR0ROGWFx3wAAAAd0SU1FB+YCFwMAFKNbBF0AAABrSURBVAjXY2BgYGRiFhAUEhZhYWUAATZRMXEJSSlpGVl2BgYOTjl5BUUlZRVVNXUNIFdTS1tHV0/fwNDI2ISBwdTM3MLSytrG1s7ewZGBgYuT28nZxdXNXVrBgwdkFC8fv6eXt48vHx8DAwAB9gwkpTV3fgAAACV0RVh0ZGF0ZTpjcmVhdGUAMjAyMi0wMi0yM1QwMzowMDoyMCswMDowMFRj5gUAAAAldEVYdGRhdGU6bW9kaWZ5ADIwMjItMDItMjNUMDM6MDA6MjArMDA6MDAlPl65AAAAAElFTkSuQmCC"),
     mclaren = base64.decode("iVBORw0KGgoAAAANSUhEUgAAAA4AAAAHCAMAAAAPmYwrAAAABGdBTUEAALGPC/xhBQAAACBjSFJNAAB6JgAAgIQAAPoAAACA6AAAdTAAAOpgAAA6mAAAF3CculE8AAAAyVBMVEUAAAD/1QD/swD//wD/ugD/qQD/sQD/vAD/uwD+lwD/ygD6lQDKeAD/7gD/twDykAD6lQD8lgD9lgD9lwD8lgDujgDkhwD7lQD9lwD+lwD+lwD+lwD+lwD+lwD+lwD+lwD9lwDbggD7lQD9lwD+lwD+lwD+lwD+lwD8lgD8lgD9lwD9lwD8lgD9lwD+lwD+lwD+lwD+lwD9lgDwjwD6lQD+lwD+lwD+lwD7lgDxkAD9lwD+lwD9lwDoigD0kQD8lgD4lAD+lwD///825eDDAAAAQXRSTlMAAAAAAAAAAAAAAAAAAAAMIzxPUTYJBSRXj73c7vX26FwEH12k2PPXNTlbYUNEXK36xzoHJunvkB4CWK5FBA5BEc5qJCUAAAABYktHREIQ1z30AAAACXBIWXMAAA7DAAAOwwHHb6hkAAAAB3RJTUUH5gIXAxQ5yCqPfQAAAGFJREFUCNdjYAACRiZmfgFBIWERUQYGZhYxcQlJKWkZWTl5BQZFJWUVVTVHMFDXYNDU0hbW0dXTN3B0NDRiYDBmYGVj5+A0MTUzt+BiYODmARlmaWVtY8vLAAN29g58IBoAFEcKP1yC9RAAAAAldEVYdGRhdGU6Y3JlYXRlADIwMjItMDItMjNUMDM6MjA6NTcrMDA6MDDDbWhTAAAAJXRFWHRkYXRlOm1vZGlmeQAyMDIyLTAyLTIzVDAzOjIwOjU3KzAwOjAwsjDQ7wAAAABJRU5ErkJggg=="),
     alfa = base64.decode("iVBORw0KGgoAAAANSUhEUgAAAA4AAAAHCAMAAAAPmYwrAAAABGdBTUEAAK/INwWK6QAAACBjSFJNAAB6JgAAgIQAAPoAAACA6AAAdTAAAOpgAAA6mAAAF3CculE8AAAAt1BMVEUAAADIx8epqKgNDA0ODQ4IBwjMy8zMy8uFg4S2tbW8u7usqquopqeKiIiVk5SzsrKrqqqhn5+lpKSIhoerqaq/vr6koqPCwcG4t7fGxcXm5eXEw8ORj5DY19jNzMzY2NjY19eQjo+Ni4vKycnX19fZ2NjIx8eMiorGxcaysLGLiYmpp6hyb3BXVVWura21s7RmY2SEgoNOS0yJh4jS0dGOjI3BwMFlYmOamZnp6Oja2trHxsf////yxuvBAAAAKHRSTlMAAAAAAAAAAByCw8OCHBq3/Py3G3T+dZ2edP51Grf8/LcbHILDw4IcXmehwgAAAAFiS0dEPKdqYc8AAAAHdElNRQfmAhcDGROmPzjmAAAAVElEQVQI12NgYGBg5ODk4ubhZWKAAD5+AQ1NQSFhZghXRFRLW0dXT4wFwhXXNzA0MjaRYIVwJaVMzcwtLKWhemVk5ays5RUUoVw2JWUVVTV1diATADtkBuuaie/6AAAAJXRFWHRkYXRlOmNyZWF0ZQAyMDIyLTAyLTIzVDAzOjI1OjE5KzAwOjAw8THWsAAAACV0RVh0ZGF0ZTptb2RpZnkAMjAyMi0wMi0yM1QwMzoyNToxOSswMDowMIBsbgwAAAAZdEVYdFNvZnR3YXJlAEFkb2JlIEltYWdlUmVhZHlxyWU8AAAAAElFTkSuQmCC"),
+    rb = base64.decode("iVBORw0KGgoAAAANSUhEUgAAAA4AAAAHCAYAAAA4R3wZAAAAAXNSR0IArs4c6QAAAFRJREFUKFNjZGBg+M9ABmBE1vj/EB/YCEa7TyhG6ZvNBPMvnkqHi6NoBImia8amCWw4ulNBCi/0lMJtJVojyDSYYpi7kJ0IE8OwkSKNyJqx2QaSBwC15CMB+GUPDQAAAABJRU5ErkJggg=="),
+    sauber = base64.decode("iVBORw0KGgoAAAANSUhEUgAAAA4AAAAHCAYAAAA4R3wZAAAAAXNSR0IArs4c6QAAAD5JREFUKFNjZGBg+M+ABFY8k0XmgtkRUo8xxBiRNYI0YVOEoYuBgYE6GkEmk+VUbE6CGYbuBRSnUqSRWKcCAJe5HAFPZGyMAAAAAElFTkSuQmCC"),
 )
 
 CONSTRUCTOR_NAMES = {
@@ -101,6 +106,8 @@ CONSTRUCTOR_NAMES = {
     "haas": "Haas",
     "mclaren": "McLaren",
     "alfa": "Alfa Romeo",
+    "rb": "Visa RB Honda",
+    "sauber": "Stake Kick Sauber",
 }
 
 # we will go back to these at some point
@@ -139,13 +146,21 @@ def main(config):
             #Next Race
             next_race = f1_cached["RaceTable"]["Races"][0]
 
-        #code from @whyamihere to automatically adjust the date time sting from the API
-        date_and_time = next_race["date"] + "T" + next_race["time"]
-        date_and_time3 = time.parse_time(date_and_time, "2006-01-02T15:04:05Z", "UTC").in_location(timezone)
+        # check to see if there's a time in the json, if not - set it to be TBD
+        if (next_race.get("time", "TBD")) == "TBD":
+            # no time - date is probably correct in UTC
+            date_and_time = next_race["date"] + "T" + "12:00:00Z"
+            date_and_time3 = time.parse_time(date_and_time, "2006-01-02T15:04:05Z", "UTC").in_location(timezone)
+            time_str = "TBD"
+        else:
+            date_and_time = next_race["date"] + "T" + next_race["time"]
+
+            #code from @whyamihere to automatically adjust the date time sting from the API
+            date_and_time3 = time.parse_time(date_and_time, "2006-01-02T15:04:05Z", "UTC").in_location(timezone)
+            time_str = date_and_time3.format("15:04" if config.bool("time_24", DEFAULTS["time_24"]) else "3:04pm").replace("m", "")  #outputs military time but can change 15 to 3 to not do that. The Only thing missing from your current string though is the time zone, but if they're doing local time that's pretty irrelevant
 
         # handle date & time display options here
         date_str = date_and_time3.format("Jan 2" if config.bool("date_us", DEFAULTS["date_us"]) else "2 Jan")  #current format of your current date str
-        time_str = date_and_time3.format("15:04" if config.bool("time_24", DEFAULTS["time_24"]) else "3:04pm").replace("m", "")  #outputs military time but can change 15 to 3 to not do that. The Only thing missing from your current string though is the time zone, but if they're doing local time that's pretty irrelevant
 
         return render.Root(
             child = render.Column(
@@ -373,12 +388,12 @@ def text_justify_trunc(length, text, direction):
 
     # if string is shorter than desired - we can just use the count of chars (not bytes) and add on spaces - we're good
     if textlen < length:
-        for _ in range(0, length - textlen):
+        for _ in range(length - textlen):
             text = " " + text if direction == "right" else text + " "
     else:
         # text is longer - need to trunc it get the list of characters & trunc at length
         text = ""  # clear out text
-        for i in range(0, length):
+        for i in range(length):
             text = text + chars[i]
 
     return text

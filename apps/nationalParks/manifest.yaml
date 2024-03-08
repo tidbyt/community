@@ -1,0 +1,8 @@
+---
+id: national-parks
+name: National Parks
+summary: National park info and pics
+desc: Displays interesting facts and pictures of various national parks in the United States.
+author: hklim1
+fileName: national_parks.star
+packageName: nationalparks

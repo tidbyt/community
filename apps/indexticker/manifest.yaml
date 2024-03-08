@@ -1,0 +1,8 @@
+---
+id: index-ticker
+name: Index Ticker
+summary: Displays ticker for indices
+desc: Display ticker and stats for stock indices.
+author: M0ntyP
+fileName: index_ticker.star
+packageName: indexticker

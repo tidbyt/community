@@ -1,0 +1,8 @@
+---
+id: wsonedevices
+name: WSONEDevices
+summary: Workspace ONE Device Stats
+desc: Displays the status of devices managed by your Workspace ONE UEM Tenant, including how many are enrolled, unenrolled, and pending.
+author: Craig Johnston
+fileName: wsonedevicesp.star
+packageName: wsonedevices
