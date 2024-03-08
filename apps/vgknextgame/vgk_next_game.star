@@ -1,7 +1,7 @@
 """
 Applet: VGK Next Game
 Summary: Shows next VGK Game
-Description: Shows the date of the next Vegas Golden Knights game.
+Description: Shows the date of the next Vegas Golden Knights game!
 Author: theimpossibleleap
 """
 
