@@ -2,7 +2,7 @@
 Applet: WeatherSTEM
 Summary: Display WeatherSTEM data
 Description: Display real-time current weather conditons provided by WeatherSTEM API.
-Author: imaginuts
+Author: jflood937
 """
 
 load("encoding/base64.star", "base64")

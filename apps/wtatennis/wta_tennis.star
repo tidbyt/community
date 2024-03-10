@@ -58,6 +58,9 @@ v1.10
 Updated box sizes to show "WO" for walkovers
 Final of tournament now indicated for scheduled, completed and in progress final
 Found bug that was showing incorrect winner for matches where there was a retirement during a set
+
+v1.10.1
+Added Indian Wells to list of WTA 1000 list, removed incorrect event ID
 """
 
 load("encoding/json.star", "json")
@@ -68,7 +71,7 @@ load("schema.star", "schema")
 load("time.star", "time")
 
 SLAM_LIST = ["154-2024", "188-2024", "172-2024", "189-2024"]
-WTA1000_LIST = ["256-2024", "25-2024", "401-2024", "713-2024", "413-2024", "414-2024", "421-2024", "718-2024", "959-2024", "382-2024"]
+WTA1000_LIST = ["256-2024", "25-2024", "713-2024", "411-2024", "413-2024", "414-2024", "421-2024", "718-2024", "959-2024", "382-2024"]
 DEFAULT_TIMEZONE = "Australia/Adelaide"
 WTA_SCORES_URL = "https://site.api.espn.com/apis/site/v2/sports/tennis/wta/scoreboard"
 

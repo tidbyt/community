@@ -3,6 +3,6 @@ id: weatherstem
 name: WeatherSTEM
 summary: Display WeatherSTEM data
 desc: Display real-time current weather conditons provided by WeatherSTEM API.
-author: imaginuts
+author: jflood937
 fileName: weatherstem.star
 packageName: weatherstem
