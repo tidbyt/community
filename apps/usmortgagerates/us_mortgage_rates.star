@@ -11,7 +11,7 @@ load("schema.star", "schema")
 
 # Uses https://fred.stlouisfed.org/docs/api/fred/series_observations.html API schema
 FRED_API_BASE_URL = "https://api.stlouisfed.org/fred/series/observations"
-CACHE_DURATION = 43200  # get new data every 12 hours
+CACHE_DURATION = 7200  # get new data every 2 hours
 
 # Mapping of series IDs to their display names
 SERIES_NAMES = {
