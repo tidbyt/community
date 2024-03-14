@@ -188,7 +188,7 @@ def get_launch_details(rocket_launch_data, locallaunch):
 
     if countdown.hours >= 1.5:
         whole_hours = math.floor(countdown.hours)
-        countdownDisplay = ("In %s %s %s minutes, " % (int(whole_hours), "hours" if whole_hours > 1 else "hour" , int(math.round(countdown.minutes - (whole_hours * 60)))))
+        countdownDisplay = ("In %s %s %s minutes, " % (int(whole_hours), "hours" if whole_hours > 1 else "hour", int(math.round(countdown.minutes - (whole_hours * 60)))))
     elif countdown.minutes > 0:
         countdownDisplay = ("%s minutes from now, " % int(math.round(countdown.minutes)))
 
