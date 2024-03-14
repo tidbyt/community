@@ -29,8 +29,8 @@ def render_progress_bar(data):
     progress_block_amount = BLOCKS_DIFFICULTY_ADJUSTMENT - remaining_blocks - expected_blocks_rounded
     progress_status = "behind" if (progress_block_amount) <= 0 else "ahead"
 
-    expected_blocks_pixels_amount = math.round(expected_blocks_rounded / BLOCKS_PER_PIXEL)
-    progress_blocks_pixels_amount = math.round(progress_block_amount / BLOCKS_PER_PIXEL)
+    expected_blocks_pixels_amount = math.fabs(math.round(expected_blocks_rounded / BLOCKS_PER_PIXEL))
+    progress_blocks_pixels_amount = math.fabs(math.round(progress_block_amount / BLOCKS_PER_PIXEL))
     current_block_pixel_amount = 1
     remaining_blocks_pixels_amount = math.round(remaining_blocks / BLOCKS_PER_PIXEL) - current_block_pixel_amount
 
