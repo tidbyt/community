@@ -119,7 +119,11 @@ def main(config):
         progress_nums = re.findall(r"\d+", progress_div[0])
         progress = progress_nums[0]
         goal = progress_nums[1]
+
+        # TODO: Determine if this cache call can be converted to the new HTTP cache.
         cache.set("".join(["progress", CHALLENGE_ID]), str(progress), ttl_seconds = 86400)
+
+        # TODO: Determine if this cache call can be converted to the new HTTP cache.
         cache.set("".join(["goal", CHALLENGE_ID]), str(goal), ttl_seconds = 86400)
 
     progress_text = " ".join(["Read:", str(progress), "books."])

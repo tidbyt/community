@@ -68,6 +68,8 @@ def listing(url, height):
             return render.Text(content = "HTTP error %d" % res.status_code, font = "tom-thumb")
 
         ical = res.body()
+
+        # TODO: Determine if this cache call can be converted to the new HTTP cache.
         cache.set(url, ical, ttl_seconds = 300)
 
     dtstart_list = re.match(r"DTSTART;VALUE=DATE:(.{4})(.{2})(.{2})", ical)
@@ -216,7 +218,7 @@ def get_listing_schema(count):
     return [schema.Text(
         id = "ical_%s" % i,
         name = "%s listing" % humanize.ordinal(i + 1),
-        desc = "The calendar url for your %s Airbnb listing" % humanize.ordinal(i + 1),
+        desc = "The calendar url for your %s Airbnb listing, from the Export Calendar link in the Pricing and Availability tab" % humanize.ordinal(i + 1),
         icon = "calendar-days",
     ) for i in range(0, int(count))]
 

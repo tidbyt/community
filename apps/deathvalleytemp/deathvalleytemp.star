@@ -222,6 +222,8 @@ def get_cachable_data(url, timeout):
 
     temp_data = res.json()
     temp_f = str(temp_data["properties"]["periods"][0]["temperature"])
+
+    # TODO: Determine if this cache call can be converted to the new HTTP cache.
     cache.set(key, temp_f, ttl_seconds = timeout)
 
     return temp_f

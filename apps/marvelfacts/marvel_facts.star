@@ -3,6 +3,9 @@ Applet: Marvel Facts
 Summary: Character Info
 Description: Gives you the description or number of comics a random character has been in.
 Author: Kaitlyn Musial
+
+Last updated: 7/10/2023
+Last update: Fixed API call error due to incorrect BASE_URL
 """
 
 load("cache.star", "cache")
@@ -15,19 +18,33 @@ load("schema.star", "schema")
 load("secret.star", "secret")
 load("time.star", "time")
 
-PUB_KEY = secret.decrypt("AV6+xWcE0v4YH9lODOCdmDnspLyu06WQZeQcmaZtFxVySRVeC1izFlH9+gFHQSrvNGzTg9Y012GqV7wI0v2Exo6vys6Qqxvtt6cGLUhz6WX82Oymia7zlrrr5VoSICD27SFLBOZ0YhxlmUj7nskxekYezPXMS7gHpA8pkE1MiuxWNKZOb+w=")
-PRIV_KEY = secret.decrypt("AV6+xWcEU31fHtInxsumnOP76pedrmT/hciDjVkoMogu8XxcoUmI3ATBHYmsPafR6Bhi1UzARytoR5eIEz2LKdgSLwR0LaMbYC/St+F4EF/0QXgsraPfNzzDfvMAobYEE/YEagahrdKuGuQji6zN7lo2kxd75Rc0U5Gt+cEFi9lhpcZAZ6758tA2JaQgQA==")
-BASE_URL = "https://gateway.marvel.com:443/v1/public/characters?apikey=422c32a7c4c3f9adfe3f4aef0db1a1e8"
+PUB_KEY = secret.decrypt("AV6+xWcE8WpLyDHcfeJ+PyFpvP+S4E2BPwV7/LV8IBTXIjGVaQve1CSKDLilApzDNPPurHlcqidgXIvrPZfyOeuHV1DUYpsOhwO3s0do+znLW3SucfVmPV98aTH1lRtTzDuJRYh9k1behyzgtwagj2QQd+f7jjaSiVf01UXzer9BSCVS7e0=")
+PRIV_KEY = secret.decrypt("AV6+xWcEW40A//3n/MUZz4dsj8AfAkQHP1ca3hkhPHEnIgDM4asTmfl1t+THgG/iwg8CaUJbnXtv0wGUN08sZQLPUMmJTmkCKmJrkyqw7SoqRR5sMiRwFEbCcqwXZSeYtypmdS8BrwHL1UA2bbTwGj+l/fSdcNyBBRajUFa3p36cLdso8+K5lFhXEnWVXw==")
+BASE_URL = "https://gateway.marvel.com/v1/public/characters?"
 LIMIT = "50"
 
 def main():
+    """Main Function
+
+    Returns:
+        Root: Character info and display
+    """
     rate_cached = cache.get("new-char")
     if rate_cached != None:
-        print("Hit! Displaying cached data.")
-        char_name = cache.get("char_name")
-        char_desc = cache.get("char_desc")
-        char_comics = cache.get("char_comics")
-        char_series = cache.get("char_series")
+        if cache.get("charName") != None:
+            print("Hit! Displaying cached data.")
+            char_name = cache.get("char_name")
+            char_desc = cache.get("char_desc")
+            char_comics = cache.get("char_comics")
+            char_series = cache.get("char_series")
+        else:
+            print("Miss! Calling Marvel API.")
+            char = getNew()
+            char_name = char[0]
+            char_desc = char[1]
+            char_comics = char[2]
+            char_series = char[3]
+            cache.set("new-char", "got", ttl_seconds = 1800)
     else:
         print("Miss! Calling Marvel API.")
         char = getNew()
@@ -86,38 +103,46 @@ def main():
         ),
     )
 
-# Gets new character from the database
 def getNew():
+    """Gets a new character from the API
+
+    Returns:
+        list: Character details
+    """
     now = str(time.now()).split(" ")[1]
-    digest = str(now) + PRIV_KEY + PUB_KEY
-    FULL_KEY = hash.md5(digest)
 
-    MAX_OFFSET = 1562 - int(LIMIT) - 1
-    OFFSET = random.number(0, MAX_OFFSET)
+    if PRIV_KEY != None and PUB_KEY != None:
+        digest = str(now) + PRIV_KEY + PUB_KEY
+        FULL_KEY = hash.md5(digest)
 
-    FINAL_URL = BASE_URL + "&limit=" + LIMIT + "&offset=" + str(OFFSET) + "&ts=" + str(now) + "&hash=" + FULL_KEY
+        MAX_OFFSET = 1562 - int(LIMIT) - 1
+        OFFSET = random.number(0, MAX_OFFSET)
 
-    full_list = http.get(FINAL_URL).body()
-    full_json = json.decode(full_list)
+        FINAL_URL = BASE_URL + "&limit=" + LIMIT + "&offset=" + str(OFFSET) + "&ts=" + str(now) + "&hash=" + FULL_KEY + "&apikey=" + PUB_KEY
 
-    CHOICE = random.number(0, int(LIMIT) - 1)
+        full_list = http.get(FINAL_URL).body()
+        full_json = json.decode(full_list)
 
-    CHARACTER = full_json["data"]["results"][CHOICE]
+        CHOICE = random.number(0, int(LIMIT) - 1)
 
-    char_name = CHARACTER["name"]
-    char_desc = CHARACTER["description"]
-    char_comics = CHARACTER["comics"]["available"]
-    char_series = CHARACTER["series"]["available"]
+        CHARACTER = full_json["data"]["results"][CHOICE]
 
-    cache.set("char_name", char_name)
-    cache.set("char_desc", char_desc)
-    cache.set("char_comics", str(char_comics))
-    cache.set("char_series", str(char_series))
+        char_name = CHARACTER["name"]
+        char_desc = CHARACTER["description"]
+        char_comics = CHARACTER["comics"]["available"]
+        char_series = CHARACTER["series"]["available"]
 
-    if char_name == "None":
-        return getNew()
+        cache.set("char_name", char_name)
+        cache.set("char_desc", char_desc)
+        cache.set("char_comics", str(char_comics))
+        cache.set("char_series", str(char_series))
+
+        if char_name == "None":
+            return getNew()
+        else:
+            return [char_name, char_desc, char_comics, char_series]
     else:
-        return [char_name, char_desc, char_comics, char_series]
+        return ["Character Name", "Character Info", None, None]
 
 def get_schema():
     return schema.Schema(

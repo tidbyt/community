@@ -1,0 +1,8 @@
+---
+id: opnv-austria
+name: OPNV Austria
+summary: Pub transp in AUT
+desc: App uses VAO API (users can get free API keys) to display the next three departures from any public transport stop in whole of Austria.
+author: Thomas Hutterer, ThHutterer
+fileName: opnv_austria.star
+packageName: opnvaustria

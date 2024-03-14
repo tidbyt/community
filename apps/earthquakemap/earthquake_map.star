@@ -131,6 +131,7 @@ def get_usgs_data(magnitude_filter = None, time_filter = None, type_filter = Non
         else:
             geojson_raw = '{"features":[]}'
 
+        # TODO: Determine if this cache call can be converted to the new HTTP cache.
         cache.set("raw_earthquake_data", geojson_raw, ttl_seconds = 60)
 
     events = []

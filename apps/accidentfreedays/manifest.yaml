@@ -1,0 +1,8 @@
+---
+id: accidentfreedays
+name: AccidentFreeDays
+summary: Days Since Last Accident
+desc: Displays the days since the last accident.
+author: Robert Ison
+fileName: accidentfreedays.star
+packageName: accidentfreedays

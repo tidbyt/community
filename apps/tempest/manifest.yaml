@@ -1,8 +1,8 @@
 ---
 id: tempest
 name: Tempest Weather
-summary: Tempest weather station
-desc: Show readings from your Tempest weather station.
-author: Rohan Singh
+summary: Tempest Weather Station
+desc: Overview of your Tempest Weather Station, including current temperature, wind chill, pressure, inches of rain, and wind.
+author: epifinygirl
 fileName: tempest.star
 packageName: tempest

@@ -1,0 +1,8 @@
+---
+id: tennis-rankings
+name: Tennis Rankings
+summary: Shows ATP or WTA Top 20
+desc: Displays either ATP or WTA Top 20 tennis players with options to display total points and rank from previous week.
+author: M0ntyP
+fileName: tennis_rankings.star
+packageName: tennisrankings

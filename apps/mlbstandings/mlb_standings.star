@@ -5,8 +5,6 @@ Description: Displays live and upcoming MLB standings from a data feed.
 Author: LunchBox8484
 """
 
-load("cache.star", "cache")
-load("encoding/base64.star", "base64")
 load("encoding/json.star", "json")
 load("http.star", "http")
 load("render.star", "render")
@@ -14,6 +12,7 @@ load("schema.star", "schema")
 load("time.star", "time")
 
 CACHE_TTL_SECONDS = 300
+LOGO_CACHE_TTL_SECONDS = 36000
 DEFAULT_LOCATION = """
 {
     "lat": "40.6781784",
@@ -29,23 +28,48 @@ LEAGUE_DISPLAY_OFFSET = -3
 SPORT = "baseball"
 LEAGUE = "mlb"
 API = "https://site.api.espn.com/apis/v2/sports/" + SPORT + "/" + LEAGUE + "/standings"
-ALT_COLOR = """
-{
-    "HOU": "#002D62",
-    "WSH": "#AB0003",
-    "PIT": "#111111"
+COLOR_DICT = {
+    "ARI": "aa182c",
+    "ATL": "0c2340",
+    "BAL": "df4601",
+    "BOS": "0d2b56",
+    "CHC": "0e3386",
+    "CHW": "000000",
+    "CIN": "c6011f",
+    "CLE": "002b5c",
+    "COL": "33006f",
+    "DET": "002d5c",
+    "HOU": "002d62",
+    "KC": "004687",
+    "LAA": "ba0021",
+    "LAD": "005a9c",
+    "MIA": "00a3e0",
+    "MIL": "13294b",
+    "MIN": "031f40",
+    "NYM": "002d72",
+    "NYY": "132448",
+    "OAK": "006241",
+    "PHI": "e81828",
+    "PIT": "111111",
+    "SD": "3e2312",
+    "SF": "222222",
+    "SEA": "005c5c",
+    "STL": "be0a14",
+    "TB": "092c5c",
+    "TEX": "003278",
+    "TOR": "134a8e",
+    "WSH": "ab0003",
 }
-"""
-ALT_LOGO = """
-{
+ALT_LOGO = {
     "PHI": "https://b.fssta.com/uploads/application/mlb/team-logos/Phillies-alternate.png",
     "DET": "https://b.fssta.com/uploads/application/mlb/team-logos/Tigers-alternate.png",
     "CIN": "https://b.fssta.com/uploads/application/mlb/team-logos/Reds-alternate.png",
     "CLE": "https://a.espncdn.com/i/teamlogos/mlb/500/scoreboard/cle.png",
     "STL": "https://b.fssta.com/uploads/application/mlb/team-logos/Cardinals-alternate.png",
-    "MIL": "https://b.fssta.com/uploads/application/mlb/team-logos/Brewers.png"
+    "MIL": "https://b.fssta.com/uploads/application/mlb/team-logos/Brewers.png",
 }
-"""
+
+MAIN_FONT = "CG-pixel-3x5-mono"
 
 def main(config):
     renderCategory = []
@@ -79,13 +103,10 @@ def main(config):
                 entriesToDisplay = teamsToShow
                 divisionName = s["shortName"]
                 divisionName = divisionName.replace(" Cent", " Central")
-                stats = entries[0]["stats"]
 
-                statNumber = 0
-                for j, k in enumerate(stats):
-                    if k["name"] == "gamesBehind":
-                        statNumber = j
-                entries = sorted(entries, key = lambda e: e["stats"][statNumber]["value"])
+                # ESPN API does not guarantee order
+                # we sort by games behind to get the standings correct
+                entries = sorted(entries, get_games_behind)
 
                 for x in range(0, len(entries), entriesToDisplay):
                     renderCategory.extend(
@@ -110,6 +131,12 @@ def main(config):
         )
     else:
         return []
+
+def get_games_behind(entry):
+    for stat in entry.get("stats"):
+        if stat.get("name") == "gamesBehind":
+            return stat.get("value")
+    return 0  # will never get here, but need a return value
 
 divisionOptions = [
     schema.Option(
@@ -315,26 +342,15 @@ def get_standings(urls):
         allstandings.append(decodedata)
     return allstandings
 
-def get_team_color(teamid):
-    data = get_cachable_data("https://site.api.espn.com/apis/site/v2/sports/" + SPORT + "/" + LEAGUE + "/teams/" + teamid)
-    decodedata = json.decode(data)
-    team = decodedata["team"]
-    teamcolor = get_background_color(team["abbreviation"], team["color"])
-    return teamcolor
-
 def get_team(x, s, entriesToDisplay, i, now, rotationSpeed, timeColor, divisionName, displayTop):
     output = []
-
-    teamGB = ""
-    teamLosses = ""
-    teamWins = ""
 
     if displayTop == "gameinfo":
         topColumn = [
             render.Box(width = 64, height = 8, child = render.Stack(children = [
                 render.Box(width = 64, height = 8, color = "#000"),
                 render.Box(width = 64, height = 8, child = render.Row(expanded = True, main_align = "center", cross_align = "center", children = [
-                    render.Text(color = timeColor, content = divisionName, font = "CG-pixel-3x5-mono"),
+                    render.Text(color = timeColor, content = divisionName, font = MAIN_FONT),
                 ])),
             ])),
         ]
@@ -363,7 +379,7 @@ def get_team(x, s, entriesToDisplay, i, now, rotationSpeed, timeColor, divisionN
                     ])),
                     render.Box(width = statusBox, height = 8, color = "#000", child = render.Stack(children = [
                         render.Box(width = statusBox, height = 8, child = render.Row(expanded = True, main_align = "end", cross_align = "center", children = [
-                            render.Text(color = "#FFF", content = divisionName, font = "CG-pixel-3x5-mono"),
+                            render.Text(color = "#FFF", content = divisionName, font = MAIN_FONT),
                         ])),
                     ])),
                 ],
@@ -374,28 +390,32 @@ def get_team(x, s, entriesToDisplay, i, now, rotationSpeed, timeColor, divisionN
     containerHeight = int(24 / entriesToDisplay)
     for i in range(0, entriesToDisplay):
         if i + x < len(s):
-            mainFont = "CG-pixel-3x5-mono"
-            teamID = s[i + x]["team"]["id"]
+            # initialize stat variables
+            team_games_back = ""
+            team_record = ""
+
+            # get team info
             teamName = s[i + x]["team"]["abbreviation"]
-            teamColor = get_team_color(teamID)
+            teamColor = COLOR_DICT.get(teamName)
             teamLogo = get_logoType(teamName, s[i + x]["team"]["logos"][1]["href"])
             stats = s[i + x]["stats"]
-            for _, k in enumerate(stats):
-                if k["name"] == "wins":
-                    teamWins = k["displayValue"]
-                if k["name"] == "losses":
-                    teamLosses = k["displayValue"]
-                if k["name"] == "gamesBehind":
-                    teamGB = k["displayValue"]
-            teamRecord = teamWins + "-" + teamLosses
+            for stat in stats:
+                if stat.get("name") == "overall":
+                    team_record = stat.get("displayValue")
+                if stat.get("name") == "gamesBehind":
+                    team_games_back = stat.get("displayValue")
+
+                # if we have populated everything then break to stop going through stats
+                if team_record != "" and team_games_back != "":
+                    break
 
             team = render.Column(
                 children = [
                     render.Box(width = 64, height = containerHeight, color = teamColor, child = render.Row(expanded = True, main_align = "start", cross_align = "center", children = [
                         render.Box(width = 8, height = containerHeight, child = render.Image(teamLogo, width = 10, height = 10)),
-                        render.Box(width = 14, height = containerHeight, child = render.Text(content = teamName[:3], color = "#fff", font = mainFont)),
-                        render.Box(width = 26, height = containerHeight, child = render.Text(content = teamRecord, color = "#fff", font = mainFont)),
-                        render.Box(width = 16, height = containerHeight, child = render.Text(content = teamGB, color = "#fff", font = mainFont)),
+                        render.Box(width = 14, height = containerHeight, child = render.Text(content = teamName[:3], color = "#fff", font = MAIN_FONT)),
+                        render.Box(width = 26, height = containerHeight, child = render.Text(content = team_record, color = "#fff", font = MAIN_FONT)),
+                        render.Box(width = 16, height = containerHeight, child = render.Text(content = team_games_back, color = "#fff", font = MAIN_FONT)),
                     ])),
                 ],
             )
@@ -405,39 +425,18 @@ def get_team(x, s, entriesToDisplay, i, now, rotationSpeed, timeColor, divisionN
 
     return output
 
-def get_background_color(team, color):
-    altcolors = json.decode(ALT_COLOR)
-    usealt = altcolors.get(team, "NO")
-    if usealt != "NO":
-        color = altcolors[team]
-    else:
-        color = "#" + color
-    if color == "#ffffff" or color == "#000000":
-        color = "#222"
-    return color
-
 def get_logoType(team, logo):
-    usealtlogo = json.decode(ALT_LOGO)
-    usealt = usealtlogo.get(team, "NO")
-    if usealt != "NO":
-        logo = get_cachable_data(usealt, 36000)
+    usealt = ALT_LOGO.get(team)
+    if usealt != None:
+        logo = get_cachable_data(usealt, LOGO_CACHE_TTL_SECONDS)
     else:
         logo = logo.replace("500/scoreboard", "500-dark/scoreboard")
         logo = logo.replace("https://a.espncdn.com/", "https://a.espncdn.com/combiner/i?img=", 36000)
-        logo = get_cachable_data(logo + "&h=50&w=50")
+        logo = get_cachable_data(logo + "&h=50&w=50", LOGO_CACHE_TTL_SECONDS)
     return logo
 
 def get_cachable_data(url, ttl_seconds = CACHE_TTL_SECONDS):
-    key = base64.encode(url)
-
-    data = cache.get(key)
-    if data != None:
-        return base64.decode(data)
-
-    res = http.get(url = url)
+    res = http.get(url = url, ttl_seconds = ttl_seconds)
     if res.status_code != 200:
         fail("request to %s failed with status code: %d - %s" % (url, res.status_code, res.body()))
-
-    cache.set(key, base64.encode(res.body()), ttl_seconds = ttl_seconds)
-
     return res.body()

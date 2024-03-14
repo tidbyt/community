@@ -29,13 +29,13 @@ Inbound (towards NYC) trains on the MOBO line listed, since they only go in that
 Author: jason-j-hunt
 """
 
-# Fixed a bug where trains (amtrack) with > 4 letter names would not display their train number.
+# Fixed a bug where trains (amtrak) with > 4 letter names would not display their train number.
 # Fixed a bug (which I made worse) where if there were less than 2 trains to display the app would crash.
 
 # Refrences on train numbering
 #https://docs.google.com/spreadsheets/d/1p_uvF6KlDS0QpfI-3pmvhCOOfE5y6rtm0TyBfauuDAs/edit#gid=0
 #https://www.quora.com/How-can-you-use-Amtrak-train-numbers-to-decipher-the-direction-or-route-that-a-train-is-taking
-#Even numbered trains are inbound direction(towards NYC, or Atlantic City, or northbound/eastbound AMTRACK)
+#Even numbered trains are inbound direction(towards NYC, or Atlantic City, or northbound/eastbound AMTRAK)
 #odd numbered trans are outbound
 
 load("cache.star", "cache")
@@ -48,7 +48,8 @@ load("schema.star", "schema")
 
 #URL TO NJ TRANSIT DEPARTURE VISION WEBSITE
 NJ_TRANSIT_DV_URL = "https://www.njtransit.com/dv-to"
-DEFAULT_STATION = "New York Penn Station"
+NJ_TRANSIT_STATIONS_URL = "https://www.njtransit.com/station-park-ride-to"
+DEFAULT_STATION = "DEFAULT_STATION"
 
 STATION_CACHE_KEY = "stations"
 STATION_CACHE_TTL = 604800  #1 Week
@@ -61,7 +62,7 @@ TIMEZONE = "America/New_York"
 #DISPLAYS FIRST 3 Departures by default
 DISPLAY_COUNT = 2
 
-#If a line doesnt have a mapping - we use "AMTK" (amtrack)
+#If a line doesnt have a mapping - we use "AMTK" (amtrak)
 
 # Extended the COLOR dictionary to include information needed by the Schema.
 # The icon's were chosen from the limited icon set to be what I saw in most cases
@@ -82,7 +83,7 @@ LINE_DICT = {
     ),
     "AMTK": struct(
         color = "#ffca18",
-        name = "Amtrack",
+        name = "Amtrak",
         icon = "rocket",
         default = "all",
         desc = "AMTK",
@@ -199,7 +200,7 @@ def render_departure_list(departures, lineoptions, station):
     #print(" departures length = {}".format(len(departures)))
 
     for d in departures:
-        # clean up train number to only be digits - needed for amtrack
+        # clean up train number to only be digits - needed for amtrak
         train_number_s = d.train_number
         train_number_t = re.sub("\\D", "", train_number_s)
         train_number = int(train_number_t)
@@ -281,7 +282,7 @@ def render_departure_row(departure):
     for a single departure.
     """
 
-    #If we cant find the line - we will use Amtrack's settings and options instead
+    #If we cant find the line - we will use Amtrak's settings and options instead
     default_entry = LINE_DICT.get("AMTK")
     line_entry = LINE_DICT.get(departure.service_line, default_entry)
     use_color = line_entry.color
@@ -392,6 +393,9 @@ def get_departures_for_station(station):
         departing_in: string
     """
     #print("Getting departures for '%s'" % station)
+
+    if station == DEFAULT_STATION:
+        return []
 
     station_suffix = station.replace(" ", "%20")
     station_url = "{}/{}".format(NJ_TRANSIT_DV_URL, station_suffix)
@@ -538,7 +542,7 @@ def fetch_stations_from_website():
     nj_dv_page_response_body = cache.get(DEPARTURES_CACHE_KEY)
 
     if nj_dv_page_response_body == None:
-        nj_dv_page_response = http.get(NJ_TRANSIT_DV_URL)
+        nj_dv_page_response = http.get(NJ_TRANSIT_STATIONS_URL)
 
         if nj_dv_page_response.status_code != 200:
             #print("Got code '%s' from page response" % nj_dv_page_response.status_code)
@@ -546,10 +550,11 @@ def fetch_stations_from_website():
 
         nj_dv_page_response_body = nj_dv_page_response.body()
 
+        # TODO: Determine if this cache call can be converted to the new HTTP cache.
         cache.set(DEPARTURES_CACHE_KEY, nj_dv_page_response.body(), DEPARTURES_CACHE_TTL)
 
     selector = html(nj_dv_page_response_body)
-    stations = selector.find(".vbt-autocomplete-list.list-unstyled.position-absolute.pt-1.shadow.w-100").first().children()
+    stations = selector.find(".vbt-autocomplete-list.list-unstyled.shadow.w-100.list-main").children_filtered(".scrollable-items").children()
 
     #print("Got response of '%s' stations" % stations.len())
 
@@ -576,6 +581,8 @@ def getStationListOptions():
 
     if stations == None:
         stations = fetch_stations_from_website()
+
+        # TODO: Determine if this cache call can be converted to the new HTTP cache.
         cache.set(STATION_CACHE_KEY, json.encode(stations), STATION_CACHE_TTL)
 
     for station in stations:

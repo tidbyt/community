@@ -33,6 +33,7 @@ def main(config):
             nft_image_src = http.get(nft_image_url).body()
 
             # set the cache since this is the image we are rendering
+            # TODO: Determine if this cache call can be converted to the new HTTP cache.
             cache.set(address + "_random", nft_image_src, ttl_seconds = nft_ttl_seconds)
 
     else:
@@ -93,7 +94,7 @@ def fetch_random_nft(address):
     random.seed(time.now().unix)  # // 15)
     key_list = image_dict.keys()
     cur_url = ""
-    for i in range(len(key_list) - 1):
+    for i in range(len(key_list)):
         print(str(i))
         num = random.number(0, len(key_list) - 1)
         print("picking #" + str(num + 1) + " of " + str(len(key_list)))
@@ -101,7 +102,7 @@ def fetch_random_nft(address):
         if cur_url == "":  # we haven't check this token page for an image url yet so lets check and buildup the cache
             collection, token_id = key_list[num].split(":")
             print(TOKEN_URL.format(collection, token_id))
-            token_page_body = http.get(TOKEN_URL.format(collection, token_id)).body()
+            token_page_body = http.get(TOKEN_URL.format(collection, token_id), ttl_seconds = 60 * 60).body()  # 1 hour http cache
             token_json_obj = json.decode(token_page_body)
             if "cloudinary" in token_json_obj and token_json_obj["cloudinary"][-4:] in [".jpg", ".png", "peg", ".gif"]:
                 #print("setting " + key_list[num] + " to " + token_json_obj["cloudinary"] )
@@ -120,6 +121,8 @@ def fetch_random_nft(address):
             break
 
     # re-store the cache with the updated info.
+    # we are storing a custom dictionary that is updated each time the script is run so http cache
+    # will not work here.
     cache.set(address + "_image_dict", json.encode(image_dict_orig), ttl_seconds = 86400)  # 1 day
     if cur_url:
         #print("picked: " + cur_url)
@@ -134,7 +137,7 @@ def fetch_image_dict(address):
     image_dict_json_str = cache.get(address + "_image_dict")
 
     # fetch current image list
-    resp = http.get(USER_URL.format(address))
+    resp = http.get(USER_URL.format(address), ttl_seconds = 60 * 60)  # 1 hour http cache
     if resp.status_code != 200 and image_dict_json_str == None:  # if we hav not cache and http.get fails return None
         return None
 

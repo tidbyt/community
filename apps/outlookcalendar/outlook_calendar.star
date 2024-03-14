@@ -64,8 +64,8 @@ OUTLOOK_CALENDAR_VIEW_URL = "https://graph.microsoft.com/v1.0/me/calendarview?$s
 # Hash Strings to encrypt/store secrets required by MSFT Graph API access.   These ultimately get replaced with Tidbyt Hash when the
 # App is placed into the production envirnment.   Application folder name is "outlookcalendar"   These (hashed) secrets are tied to
 # the common tenant version of the Web App (Tidbyt_Ocal)
-CLIENT_ID_HASH = "AV6+xWcE/js7NgNeEupVWQvDKGQLeO4ZpKw7M/ue5tO6YKHhwMRe2C7Gcsd885VHB+bZuLFpai/pGLsCrEm2uw+AuFbkBa+H5qXcXy1lRcwYLkQw/nBMqX6A7t7Ucijlo79QVLbgpqtk3srR55Z126aerT4pKBIARqdu3a65Yr9y23Znf5TYImSV"
-CLIENT_SECRET_HASH = "AV6+xWcEGY1Cp4+jtOxjvucCkqZsXt6i4A3fLH1ksuc0+BTabBY9g5t1SpKYYszRxFqr1GN0XQYJSkNoZp+6YAFoMTXMz6ypZ6vb53KCJiywBEW1sy6lEC7N8AAE5zlzqvzXN2Um5sSdnMWAM+bDgn/8AFyB0pae6iNXkSRTP8+Dbce3F9av7lCFu6EBOg=="
+CLIENT_ID_HASH = "AV6+xWcEMrtw5Qae1Qxr8EwbLQ4vdNr0YbP2kkl6MGeV0dD9+1mHpO8jBQXg5rUIlpvxHx7MmfpUo5JP6yls9UzvLbsoKTM0ADQrHMMrPHXJ1Oc6on7koHgW1RDu0Z9cvxpd/TrkN3NnIW2hkHp1Lv9FfB+yPgvr0/q/UwNNlV9JO6P4ijQjmsfg"
+CLIENT_SECRET_HASH = "AV6+xWcEs4Z0aI5KwrFsWASW7jYukbcoqUvYjO79Xci1eXUh1V7e7w+BKmeH4jrHT4914bT2j0J/e4kKvxixykV6A4VyMvw3o2UpgQSgu+9uWfcHJTDLwuXeJ9pm5TQv6Y6HNjn6V+CybZKIKuaR4JkJTXMY5PvdgUMuxj4aA2UKraMIeoeNZ9vRm/Ml3Q=="
 
 # MSFT Graph uses 3 secrets to operate.  There is the usual Client Secret and Client ID, but Graph uses the Tenant ID as part of
 # The endpoint URL.  For public usage, the Tenant ID is set to "Common"
@@ -139,7 +139,7 @@ def main(config):
         OUTLOOK_ACCESS_TOKEN = cache.get(outlook_refresh_token)
 
     if not OUTLOOK_ACCESS_TOKEN:
-        refresh_body = "refresh_token=" + outlook_refresh_token + "&redirect_uri=http://127.0.0.1:8080/oauth-callback" + "&client_id=" + client_id + "&client_secret=" + client_secret + "&grant_type=refresh_token" + "&scope=Calendars.read"
+        refresh_body = "refresh_token=" + outlook_refresh_token + "&client_id=" + client_id + "&client_secret=" + client_secret + "&grant_type=refresh_token" + "&scope=Calendars.read"
 
         # CURL can be handy for debug ops from the Linux command line
 
@@ -164,6 +164,8 @@ def main(config):
 
         # Grab new Oauthtoken from the Google Token service, format for Data Aggregation API call.
         OUTLOOK_ACCESS_TOKEN = "Bearer {}".format(refresh.json()["access_token"])
+
+        # TODO: Determine if this cache call can be converted to the new HTTP cache.
         cache.set(outlook_refresh_token, OUTLOOK_ACCESS_TOKEN, ttl_seconds = int(refresh.json()["expires_in"] - 30))
 
         # HM, is this ELSE path ever taken or leftover prior to inserting the else condition of the refresh token check?
@@ -257,6 +259,7 @@ def oauth_handler(params):
     token_params = res.json()
     refresh_token = token_params["refresh_token"]
 
+    # TODO: Determine if this cache call can be converted to the new HTTP cache.
     cache.set(refresh_token, "Bearer " + token_params["access_token"], ttl_seconds = int(token_params["expires_in"] - 30))
 
     return refresh_token

@@ -35,13 +35,15 @@ iVBORw0KGgoAAAANSUhEUgAABAAAAAQACAYAAAB/HSuDAAUeNElEQVR42uy9e5hbd3nv+5HWLHnJy6NI
 }
 
 def main(config):
-    api_key = secret.decrypt("AV6+xWcEUcp9Krxye9vTK02nLB8QvKRtdJA//aPj5d/hUZhOMusWD0vGO19AwKSSi0bszlbEuYxDX9wJn8egIvPyw0+SKqHa/KSkneBfcITWtMUgK39Qpj0Su9ZbDV0WpH+To+sNcENOo4uKIMldhLunjTgm20rPeKX0GduUr+EmvhW8FGimQiG4") or config.get("dev_api_key")
+    api_key = secret.decrypt("AV6+xWcEuaKV5wZdc1Ga54t9PMb53Whf4JhhnUBnhFBqczkewlzfLHNQlBpYnkOOv26zJJXx2Wdk5b0UpVqR2PLXOLmKmd+ORAhKfY6wP+yS8DS/HgrlQ+lqaX1TCr/N0F8OlkTVtf1ROsvjoOinPJb5T2zg3jdv+458QFeu7hmDYhsunyqcTK8Y") or config.get("dev_api_key")
     items = cache.get("items")
     if api_key:
         if items == None:
             store_api = "https://api.fortnitetracker.com/v1/store"
             items_resp = http.get(store_api, headers = {"TRN-Api-Key": api_key})
             items = items_resp.json()
+
+            # TODO: Determine if this cache call can be converted to the new HTTP cache.
             cache.set("items", str(items), ttl_seconds = 120)
         else:
             items = json.decode(items)
@@ -112,6 +114,7 @@ def get_cachable_data(url, ttl_seconds = 3600):
     if res.status_code != 200:
         fail("request to %s failed with status code: %d - %s" % (url, res.status_code, res.body()))
 
+    # TODO: Determine if this cache call can be converted to the new HTTP cache.
     cache.set(key, base64.encode(res.body()), ttl_seconds = ttl_seconds)
 
     return res.body()

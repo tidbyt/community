@@ -1,0 +1,8 @@
+---
+id: json-display
+name: Json Display
+summary: Displays simple json data
+desc: Takes values from a simple json file and outputs them.
+author: thickey256
+fileName: json_display.star
+packageName: jsondisplay

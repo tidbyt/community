@@ -178,6 +178,7 @@ def get_image(url):
 
     image = http.get(url).body()
 
+    # TODO: Determine if this cache call can be converted to the new HTTP cache.
     cache.set(url, base64.encode(image), ttl_seconds = CACHE_TTL_SECONDS)
 
     return render.Image(image)

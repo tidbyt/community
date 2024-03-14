@@ -124,6 +124,7 @@ def setCachedFerryData(
         ferryStopID,
         ferryDirectionID,
         ferryData):
+    # TODO: Determine if this cache call can be converted to the new HTTP cache.
     cache.set(
         FERRY_CACHE_DATA_KEY % (
             ferryStopID,
@@ -154,6 +155,7 @@ def setCachedFerryStatusCode(
         ferryStopID,
         ferryDirectionID,
         value):
+    # TODO: Determine if this cache call can be converted to the new HTTP cache.
     cache.set(
         FERRY_CACHE_STATUS_CODE % (
             ferryStopID,

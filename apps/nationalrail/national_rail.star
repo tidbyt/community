@@ -5,7 +5,6 @@ Description: Realtime departure board information from National Rail Enquiries.
 Author: dinosaursrarr
 """
 
-load("cache.star", "cache")
 load("encoding/json.star", "json")
 load("http.star", "http")
 load("math.star", "math")
@@ -16,7 +15,7 @@ load("xpath.star", "xpath")
 
 # Used to query Darwin to get live train information.
 # Allows 5000 requests per hour (~1.38 qps) for free. Can buy more if needed.
-ENCRYPTED_DARWIN_APP_KEY = "AV6+xWcEcp22TJpUDqD43p0y2aTxlhn9yaUdbwfZcN1lEjVeDIZVIYmIS5E0Gn/pB0AmjqZmXkSrsfWBRAaYMH9mS1AP7wk1/ipUhjDFmhA1Wftr/nPyfksdWZzTn8oGWlA96RRWuunIPPTfFja5fZomy9fzDtDr4LWV9dAcQGj5c2Zs0uA8FlAa"
+ENCRYPTED_DARWIN_APP_KEY = "AV6+xWcEW64SUyBE2O/65VFbdcMepQ2EeNFZd4mDkOYY7MufQWq4q9VFzsoA/BoTExvFY4FxTM+lT3zXYO63sZGqBCsyud7GqaJKcpTA9dCA5ixTnzKPddMwid0SA9E8XnA7eiKm4bRhg/tRYQQHDqgR6LPI4/ZWGhlJwPVNtFxITVSaKePPtOji"
 DARWIN_SOAP_URL = "https://lite.realtime.nationalrail.co.uk/OpenLDBWS/ldb9.asmx"
 
 # Filters for trains that call at a given station, if selected. This is an excerpt
@@ -49,7 +48,6 @@ DEPARTURES_REQUEST = """
 </soap:Envelope>
 """
 
-EMPTY_DATA_IN_CACHE = ""
 NO_DESTINATION = "-"
 ORIGIN_STATION = "origin_station"
 DESTINATION_STATION = "destination_station"
@@ -2674,24 +2672,16 @@ def fetch_departures(station, via):
     if not app_key:
         return None
     request = DEPARTURES_REQUEST % (app_key, station, filter)
-
-    cached = cache.get(request)
-    if cached == EMPTY_DATA_IN_CACHE:
-        return None
-    if cached:
-        return cached
-
     resp = http.post(
         url = DARWIN_SOAP_URL,
         body = request,
         headers = {
             "Content-Type": "application/soap+xml; charset=utf-8",
         },
+        ttl_seconds = 60,
     )
     if resp.status_code != 200:
-        cache.set(request, EMPTY_DATA_IN_CACHE, ttl_seconds = 30)
         return None
-    cache.set(request, resp.body(), ttl_seconds = 60)
     return resp.body()
 
 def render_error(error):
@@ -2761,9 +2751,21 @@ def render_times(scheduled, expected):
     )
 
 def render_destination(destination):
-    return render.Text(
-        content = destination["sixteen_char_name"].title(),
-        font = FONT,
+    return render.Column(
+        children = [
+            render.Row(
+                children = [
+                    render.Text(
+                        content = destination["name"].title(),
+                        font = FONT,
+                    ),
+                ],
+                expanded = True,
+                main_align = "start",
+            ),
+        ],
+        expanded = True,
+        cross_align = "start",
     )
 
 def render_no_departures():
@@ -2858,7 +2860,7 @@ def main(config):
     if destination_station:
         destination_station_value = json.decode(destination_station)["value"]
         if destination_station_value != NO_DESTINATION:
-            filter_crs = json.decode(destination_station_value)
+            filter_crs = json.decode(destination_station_value)["crs"]
 
     display_mode = config.get(DISPLAY_MODE) or DISPLAY_DETAILED
     if display_mode == DISPLAY_DETAILED:
@@ -2868,7 +2870,7 @@ def main(config):
     else:
         fail("Invalid display mode %s" % display_mode)
 
-    resp = fetch_departures(origin_station["crs"], filter_crs["crs"])
+    resp = fetch_departures(origin_station["crs"], filter_crs)
     if not resp:
         return render_error("Train times not available")
     departures = xpath.loads(resp)
@@ -2884,7 +2886,7 @@ def main(config):
         child = render.Column(
             cross_align = "center",
             children = [
-                render_title(origin_station["sixteen_char_name"].title()),
+                render_title(origin_station["name"].title()),
                 render_separator(),
             ] + rendered_trains,
         ),

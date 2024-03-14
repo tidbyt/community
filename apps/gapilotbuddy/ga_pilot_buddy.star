@@ -16,9 +16,9 @@ load("secret.star", "secret")
 load("time.star", "time")
 
 AVWX_TOKEN = """
-AV6+xWcExhV/86cLj2rRID9NtWmsaHrdquWQRdLMUDxsODRYS6rvPX++GlGbSkUtrxtHJGPdd+LaW62E
-3kNxH7j9KB1ey9CPUI/ez81m7FaV7uyLdie5CLoV9ri5gSJ91dGnQ6cUsI2bBci073rKHTpwi+JLZdXV
-0NkDAbU/WyV2nbl4cyJAwd20XI4XkBV5KA==
+AV6+xWcEmXF9tH7xSP1ccFE9JaD7hAP2LM+mdFZCdIPfEgDwI7LLbosTAfKRDfHio6wzDzg9jMtfjd00
+Zvp/wa9mA9OcJ0yUxVpa35wNeZBcaQuaDoURxJRAFmlsdiYit6vkWuePirbZOmlVK0CkAg2OlX4SPAjr
+1T/sTc5KNBQKuivhA6bNi201+w/VC0CbcA==
 """
 DEFAULT_LOCATION = """
 {
@@ -73,6 +73,7 @@ def get_nearby_aerodromes(location, config):
     # Caches the response for a week -- aerodromes *really* do not change often
     # This may even be too generous
     # Sets the cache before filtering in case the config changes
+    # TODO: Determine if this cache call can be converted to the new HTTP cache.
     cache.set(str_geo, json.encode(aerodromes), ttl_seconds = 86400)
 
     show_all_aerodromes = config.bool("show_all_aerodromes")
@@ -99,6 +100,8 @@ def get_aerodrome_metar(aerodrome, config):
         ttl = int(3600 - time_ago.seconds)
         if ttl < 0:
             ttl = 180
+
+        # TODO: Determine if this cache call can be converted to the new HTTP cache.
         cache.set(aerodrome_id, resp.body(), ttl_seconds = ttl)
     else:
         metar = json.decode(metar)

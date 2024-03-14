@@ -5,25 +5,24 @@ Description: Display real-time MARTA train locations.
 Author: InTheDaylight14
 """
 
-load("cache.star", "cache")
-load("encoding/json.star", "json")
 load("http.star", "http")
 load("render.star", "render")
 load("schema.star", "schema")
-load("secret.star", "secret")
+# load("secret.star", "secret")
 
-TEXT_COLOR = "#aaaaaa"
+DEFAULT_TEXT_COLOR = "#aaaaaa"
 DEFAULT_ORIENTATION_BOOL = False  #Default to horizontal
 DEFAULT_ARRIVALS = True
-DEFAULT_STATION = "Five Points"
+DEFAULT_STATION = "Lindbergh Center"
 DEFAULT_SCROLL = True
-DEAFULT_DIRECTION = None
+DEAFULT_DIRECTION = "No Direction Filter"
 
 # FONT = "CG-pixel-3x5-mono"
 FONT = "CG-pixel-4x5-mono"
 
 def main(config):
-    MARTA_API_URL = secret.decrypt("AV6+xWcEqpLr4r5xWHL+ENipBzxVuOwqPhBwALkpo2ySIP8LvhyYYjsLoSq484C+X+Q91GmnTkRZBVPcITGvJJRJxmomJAwy4ejsRATXKIMmJHQy29u3IXDATDXbDuMXDx2wLeQXtfpuwWf5qHNh5VLrnE3d3ZJTfP6mS9xBxo+CwffQNt3YGa3pkQTpI5ikAKotOr95vcBPQzw22E3yY7iMqjR72wsE8s730m9pLnFolxbNmyMKZ6DNh+XFqNiNNer02eodGjhvLRR74xk8A1Q72Q==")
+    # MARTA_API_URL = secret.decrypt("AV6+xWcEqpLr4r5xWHL+ENipBzxVuOwqPhBwALkpo2ySIP8LvhyYYjsLoSq484C+X+Q91GmnTkRZBVPcITGvJJRJxmomJAwy4ejsRATXKIMmJHQy29u3IXDATDXbDuMXDx2wLeQXtfpuwWf5qHNh5VLrnE3d3ZJTfP6mS9xBxo+CwffQNt3YGa3pkQTpI5ikAKotOr95vcBPQzw22E3yY7iMqjR72wsE8s730m9pLnFolxbNmyMKZ6DNh+XFqNiNNer02eodGjhvLRR74xk8A1Q72Q==") #Original API no longer working
+    MARTA_API_URL = "http://labs.itsmarta.com/signpost/trains"  #New data source due to old one failing
     trains = get_trains(MARTA_API_URL)
     arrivals = config.bool("arrivals") or DEFAULT_ARRIVALS
     orientation_bool = config.bool("orientation") or DEFAULT_ORIENTATION_BOOL
@@ -77,6 +76,14 @@ def get_schema():
     return schema.Schema(
         version = "1",
         fields = [
+            schema.Dropdown(
+                id = "station",
+                name = "Station",
+                desc = "The color of text to be displayed.",
+                icon = "trainSubway",
+                default = station_options[17].value,
+                options = station_options,
+            ),
             schema.Toggle(
                 id = "orientation",
                 name = "Vertical Orientation?",
@@ -99,14 +106,6 @@ def get_schema():
                 default = True,
             ),
             schema.Dropdown(
-                id = "station",
-                name = "Stations",
-                desc = "The color of text to be displayed.",
-                icon = "trainSubway",
-                default = station_options[17].value,
-                options = station_options,
-            ),
-            schema.Dropdown(
                 id = "direction",
                 name = "Filter Direction",
                 desc = "Filter the arrivals to one cardinal direction.",
@@ -114,23 +113,41 @@ def get_schema():
                 default = direction_options[0].value,
                 options = direction_options,
             ),
+            schema.Color(
+                id = "text_color",
+                name = "Text Color",
+                desc = "Color of the text.",
+                icon = "brush",
+                default = "#aaaaaa",
+                palette = [
+                    "#aaaaaa",
+                    "#ffffff",
+                ],
+            ),
         ],
     )
 
 #return the coordinates based on the line
 def get_location(train, orientation):
-    line = train["LINE"]
+    if "LINE" in train.keys():  #Original API
+        line = train["LINE"]
+        long = train["VEHICLELONGITUDE"]
+        lat = train["VEHICLELATITUDE"]
+    else:  #New API
+        line = LINE_CODE_MAP[train["lineCode"]]
+        lat = train["lastPosition"][1]
+        long = train["lastPosition"][0]
 
     plot_point = None
 
     if line == "RED":
-        plot_point = decode_coordinates(train["VEHICLELONGITUDE"], RED_LINE_MAP[orientation])
+        plot_point = decode_coordinates(long, RED_LINE_MAP[orientation])
     elif line == "GOLD":
-        plot_point = decode_coordinates(train["VEHICLELONGITUDE"], GOLD_LINE_MAP[orientation])
+        plot_point = decode_coordinates(long, GOLD_LINE_MAP[orientation])
     elif line == "GREEN":
-        plot_point = decode_coordinates(train["VEHICLELATITUDE"], GREEN_LINE_MAP[orientation])
+        plot_point = decode_coordinates(lat, GREEN_LINE_MAP[orientation])
     elif line == "BLUE":
-        plot_point = decode_coordinates(train["VEHICLELATITUDE"], BLUE_LINE_MAP[orientation])
+        plot_point = decode_coordinates(lat, BLUE_LINE_MAP[orientation])
 
     return [plot_point, plot_point]
 
@@ -141,24 +158,29 @@ def decode_coordinates(coordinate, mapping):
     return (65, 65)
 
 def get_trains(MARTA_API_URL):
-    cached_trains = cache.get("cached_trains")
-    if cached_trains != None:
-        return json.decode(cached_trains)
-
-    response = http.get(MARTA_API_URL)
-    if response.status_code != 200:
-        print("MARTA Train API request failed with status %d", response.status_code)
-    all_trains = response.json()
-    all_train_arrivals = all_trains["RailArrivals"]
-
+    all_trains = get_chachable_json(MARTA_API_URL, 20)
     trains = {}
-    for arrival in all_train_arrivals:
-        if arrival["TRAIN_ID"] not in trains.keys():
-            trains[arrival["TRAIN_ID"]] = arrival
 
-    cache.set("cached_trains", json.encode(trains), ttl_seconds = 20)
+    # if "RailArrivals" in all_trains:  #Original API
+    #     all_train_arrivals = all_trains["RailArrivals"]
+
+    #     for arrival in all_train_arrivals:
+    #         if arrival["TRAIN_ID"] not in trains.keys():
+    #             trains[arrival["TRAIN_ID"]] = arrival
+    # else:  #New API
+    for train in all_trains:  #Adds unique train IDs and skips duplicates. Only need the lat and long for a train once.
+        if train["trainId"] not in trains.keys():
+            trains[train["trainId"]] = train
 
     return trains
+
+def get_chachable_json(url, timeout):
+    response = http.get(url, ttl_seconds = timeout)
+
+    if response.status_code != 200:
+        fail("request to %s failed with status code: %d - %s" % (url, response.status_code, response.body()))
+
+    return response.json()
 
 def render_line(points, color, orientation):
     if orientation == "vertical":
@@ -227,6 +249,7 @@ def get_direction_list_options():
     return options
 
 def arrival_template(config, color, time, head_sign):
+    text_color = config.str("text_color", DEFAULT_TEXT_COLOR)
     if len(time) < 2:
         time = "0" + time
 
@@ -250,7 +273,7 @@ def arrival_template(config, color, time, head_sign):
             render.Column(
                 children = [
                     render.Box(width = 2, height = 1, color = "#000"),
-                    render.Text(time + "", font = FONT, color = TEXT_COLOR),
+                    render.Text(time + "", font = FONT, color = text_color),
                 ],
             ),
             render.Column(
@@ -276,24 +299,42 @@ def arrival_template(config, color, time, head_sign):
 
 def render_headsign_text(config, head_sign):
     scroll = config.bool("scroll") or DEFAULT_SCROLL
+    text_color = config.str("text_color", DEFAULT_TEXT_COLOR)
     width = 29
     if scroll:
         return render.Marquee(
             width = width,
-            child = render.Text(head_sign, font = FONT, color = TEXT_COLOR),
+            child = render.Text(head_sign, font = FONT, color = text_color),
         )
     else:
-        return render.Text(head_sign, font = FONT, color = TEXT_COLOR)
+        return render.Text(head_sign, font = FONT, color = text_color)
 
 def render_arrivals(config):
     rendered_arrivals = []
-    station_arrivals = get_arrivals(config)
+    user_station_arrivals = []
 
-    #Truncate list of arrivals to 4
-    if len(station_arrivals) > 4:
-        station_arrivals = station_arrivals[0:4]
+    all_arrivals = get_chachable_json("https://api.marta.io/trains", 10)
 
-    for arrival in station_arrivals:
+    user_station = STATIONS_MAP[config.get("station") or DEFAULT_STATION]
+    direction_filter = DIRECTION_MAP[config.get("direction") or DEAFULT_DIRECTION]
+
+    #Filter all_arrivals for the user's station
+    for arrival in all_arrivals:
+        #Append the correct station arrivals
+        if arrival["STATION"] == user_station:
+            if direction_filter == "None":
+                user_station_arrivals.append(arrival)
+            elif arrival["DIRECTION"] == direction_filter:  #Append only 1 direction if selected in Schema
+                user_station_arrivals.append(arrival)
+
+    # Sort arrivals by shortest time to arrival
+    user_station_arrivals = (sorted(user_station_arrivals, key = lambda d: int(d["WAITING_SECONDS"])))
+
+    #Truncate list of arrivals to 4 if needed
+    if len(user_station_arrivals) > 4:
+        user_station_arrivals = user_station_arrivals[0:4]
+
+    for arrival in user_station_arrivals:
         waiting_time = arrival["WAITING_TIME"]
         if waiting_time == "Arriving":
             waiting_time = "Ar "
@@ -321,39 +362,6 @@ def render_arrivals(config):
             ),
         ],
     )
-
-def get_arrivals(config):
-    cached_arrivals = cache.get("cached_arrivals")
-    if cached_arrivals != None:
-        return json.decode(cached_arrivals)
-
-    station = STATIONS_MAP[config.get("station") or DEFAULT_STATION]
-    direction = config.bool("direction") or DEAFULT_DIRECTION
-    if direction != None:
-        direction = DIRECTION_MAP[direction]
-
-    response = http.get("https://api.marta.io/trains")
-    if response.status_code != 200:
-        fail("MARTA Train API request failed with status %d", response.status_code)
-    all_arrivals = response.json()
-    arrivals = []
-
-    for arrival in all_arrivals:
-        if direction == None:
-            #Append the correct station arrivals
-            if arrival["STATION"] == station:
-                arrivals.append(arrival)
-
-            #Append only 1 direction if selected in Schema
-        elif arrival["STATION"] == station and arrival["DIRECTION"] == direction:
-            arrivals.append(arrival)
-
-    #Sort arrivals by shortest time to arrival
-    arrivals = (sorted(arrivals, key = lambda d: int(d["WAITING_SECONDS"])))
-
-    cache.set("cached_arrivals", json.encode(arrivals), ttl_seconds = 10)
-
-    return arrivals
 
 RED_LINE_POINTS = {
     "vertical": [
@@ -791,12 +799,20 @@ HEAD_SIGN_MAP = {
     "Hamilton E Holmes": "HE HOLMES",
     "Airport": "AIRPORT  ",  #Padding so Marquee text is the same length and the scroll cleanly...
     "Lindbergh": "LINDBERGH",
+    "King Memorial": "KING MEM ",
 }
 
 DIRECTION_MAP = {
-    "No Filter": None,
+    "No Direction Filter": "None",
     "Northbound": "N",
     "Eastbound": "E",
     "Southbound": "S",
-    "Westbounr": "W",
+    "Westbound": "W",
+}
+
+LINE_CODE_MAP = {
+    "1": "BLUE",
+    "2": "GREEN",
+    "3": "GOLD",
+    "4": "RED",
 }

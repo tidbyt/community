@@ -31,7 +31,7 @@ nnx2RzTsf762Mqx5+es/QBsMaX7pbQA0YAAAAASUVORK5CYII=
 """)
 
 def main(config):
-    DEFAULT_API_KEY = secret.decrypt("AV6+xWcEoxaMY+yAVrWhOa/VWxu11stEvJIV+akY8ilogee67GPOhvO9HP360IQlHd5Aj9MTVP/NXllxHIV1AyD/KvgQU4vMpZ7YWpDhwhVjtISncPqnTsrzBBkrI1axvvI4yq77ZKTIbcdrsktXIoF1/w8Ckw==")
+    DEFAULT_API_KEY = secret.decrypt("AV6+xWcEQtG/ol/N8Nlbz+ePdc+iiIGcJ1PQ2/PD4IXJ3U7AKzxfeBvOQJF2iJujgFTU6/biYa7dqUbki/oQoqgstb/w2bq8qtUWIWkXdG+aswSQ5pgoDvPpqNW7MA4I3sEqX9EP")
 
     price_cached = cache.get("price")
 
@@ -46,6 +46,8 @@ def main(config):
         if rep.status_code != 200:
             fail("Request failed with status %d", rep.status_code)
         price = rep.json()["Global Quote"]["05. price"]
+
+        # TODO: Determine if this cache call can be converted to the new HTTP cache.
         cache.set("price", str(float(price)), ttl_seconds = 43200)
 
     value = (float(price) * int(config.str("shares", DEFAULT_SHARES)))

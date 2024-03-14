@@ -21,14 +21,8 @@ DEFAULT_STOP = "10264"
 DEFAULT_BANNER = ""
 
 def call_routes_api():
-    cache_string = cache.get("routes_api_response")
-    routes = None
-    if cache_string != None:
-        routes = json.decode(cache_string)
-    if routes == None:
-        r = http.get(API_ROUTES)
-        routes = r.json()
-        cache.set("routes_api_response", json.encode(routes), ttl_seconds = 3600)
+    r = http.get(API_ROUTES, ttl_seconds = 604800)
+    routes = r.json()
     sorted_routes = sort_routes(routes)
     return sorted_routes
 
@@ -94,17 +88,9 @@ def get_route_text_color(route):
     return "#fff"
 
 def get_stops(route):
-    cache_string = cache.get(route + "_" + "stops_api_response")
-    stops = None
-    if cache_string != None:
-        stops = json.decode(cache_string)
-    if stops == None:
-        r = http.get(API_STOPS, params = {"req1": route})
-        stops = r.json()
-        cache.set(route + "_" + "stops_api_response", json.encode(stops), ttl_seconds = 3600)
-
+    r = http.get(API_STOPS, params = {"req1": route}, ttl_seconds = 604800)
+    stops = r.json()
     list_of_stops = []
-
     for i in stops:
         list_of_stops.append(
             schema.Option(
@@ -112,22 +98,7 @@ def get_stops(route):
                 value = i["stopid"],
             ),
         )
-
     return list_of_stops
-
-def pad_direction_desc(data):
-    max_len = 0
-    for item in data:
-        desc_len = len(item["DirectionDesc"])
-        if desc_len > max_len:
-            max_len = desc_len
-
-    for item in data:
-        desc_len = len(item["DirectionDesc"])
-        if desc_len < max_len:
-            item["DirectionDesc"] += " " * (max_len - desc_len)
-
-    return data
 
 def call_schedule_api(route, stopid):
     cache_string = cache.get(route + "_" + stopid + "_" + "schedule_api_response")
@@ -142,26 +113,31 @@ def call_schedule_api(route, stopid):
         if expiry < 0:  #this is because septa's API returns tomorrow's times with today's date if the last departure for the day has already happened
             expiry = 30
         cache.set(route + "_" + stopid + "_" + "schedule_api_response", json.encode(schedule), ttl_seconds = expiry)
-
     return schedule
 
-def get_schedule(route, stopid):
+def get_schedule(route, stopid, show_relative_times):
     schedule = call_schedule_api(route, stopid)
     list_of_departures = []
-
     if schedule.get(route):
-        routes_with_padding = pad_direction_desc(schedule.get(route))
-        for i in routes_with_padding:
+        for i in schedule.get(route):
+            departure_time = None
             if len(list_of_departures) % 2 == 1:
                 background = "#222"
                 text = "#fff"
             else:
                 background = "#000"
                 text = "#ffc72c"
-            if len(i["date"]) == 5:
-                time = " " + i["date"]
-            else:
-                time = i["date"]
+
+            if show_relative_times:
+                departure = time.parse_time(i["DateCalender"], "01/02/06 03:04 pm", "America/New_York")
+                departure_time = str(int((departure - time.now()).seconds / 60)) + "m"
+                if len(departure_time) == 2:
+                    departure_time = "0" + departure_time
+            if not show_relative_times:
+                if len(i["date"]) == 5:
+                    departure_time = " " + i["date"]
+                else:
+                    departure_time = i["date"]
             item = render.Box(
                 height = 6,
                 width = 64,
@@ -172,7 +148,7 @@ def get_schedule(route, stopid):
                         render.Box(
                             width = 25,
                             child = render.Text(
-                                time,
+                                departure_time,
                                 font = "tom-thumb",
                                 color = text,
                             ),
@@ -184,7 +160,8 @@ def get_schedule(route, stopid):
                                 color = text,
                             ),
                             width = 39,
-                            offset_start = 20,
+                            offset_start = 40,
+                            offset_end = 40,
                         ),
                     ],
                 ),
@@ -216,11 +193,12 @@ def select_stop(route):
 def main(config):
     route = config.str("route", DEFAULT_ROUTE)
     stop = config.str("stop", DEFAULT_STOP)
+    show_relative_times = config.bool("show_relative_times", False)
     user_text = config.str("banner", "")
-    schedule = get_schedule(route, stop)
+    schedule = get_schedule(route, stop, show_relative_times)
     timezone = config.get("timezone") or "America/New_York"
     now = time.now().in_location(timezone)
-    left_pad = 1
+    left_pad = 4
 
     if config.bool("use_custom_banner_color"):
         route_bg_color = config.str("custom_banner_color")
@@ -238,9 +216,13 @@ def main(config):
         banner_text = user_text
 
     if config.bool("show_time"):
-        banner_text = now.format("3:04p") + " " + banner_text
-        if now.format("3") not in ["10", "11", "12"]:
-            left_pad = 4
+        if int(now.format("15")) < 12:
+            meridian = "a"
+        else:
+            meridian = "p"
+        banner_text = now.format("3:04") + meridian + " " + banner_text
+        if now.format("3") in ["10", "11", "12"]:
+            left_pad = 0
 
     return render.Root(
         delay = 100,
@@ -303,6 +285,13 @@ def get_schema():
                 id = "show_time",
                 name = "Show time",
                 desc = "Show the current time in the top banner.",
+                icon = "clock",
+                default = False,
+            ),
+            schema.Toggle(
+                id = "show_relative_times",
+                name = "Show relative departure times",
+                desc = "Show relative departure times.",
                 icon = "clock",
                 default = False,
             ),

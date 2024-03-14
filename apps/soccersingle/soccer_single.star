@@ -4,19 +4,22 @@ Summary: Soccer Single Team
 Description: Show upcoming / current / future game for a single soccer team regardless of the league / tournament they are playing in - one app tracks the team everywhere.
 Author: jvivona
 """
+# 20230812 added display of penalty kick score if applicable
+#          toned down colors when display team colors - you couldn't see winner score if team color was also yellow
+# 20230829 fixed PK score - in a different place for single match results..   Not enough testing :-)
+# 20240223 fixed issue with PPD games showing before their scheduled start time
 
 # Tons of thanks to @whyamihere/@rs7q5 for the API assistance - couldn't have gotten here without you
 # and thanks to @dinotash/@dinosaursrarr for making me think deep thoughts about connected schema fields
 # and of course - the original author of a bunch of this display code is @Lunchbox8484
 
-load("cache.star", "cache")
 load("encoding/json.star", "json")
 load("http.star", "http")
 load("render.star", "render")
 load("schema.star", "schema")
 load("time.star", "time")
 
-VERSION = 23088
+VERSION = 24054
 
 CACHE_TTL_SECONDS = 60
 
@@ -59,6 +62,7 @@ def main(config):
         teamid = DEFAULT_TEAM
 
     league = API % ("all", str(teamid))
+    print("api call: " + league)
     teamdata = get_scores(league)
     scores = teamdata["nextEvent"]
 
@@ -178,9 +182,24 @@ def main(config):
                 gameName = competition["status"]["type"]["name"]
 
                 if gameName == "STATUS_POSTPONED":
-                    homeScore = ""
-                    awayScore = ""
-                    gameTime = "Postponed"
+                    scoreFont = "CG-pixel-3x5-mono"
+
+                    homeData = json.decode(get_cachable_data(API % (leagueSlug, str(competition["competitors"][0]["id"]))))
+                    awayData = json.decode(get_cachable_data(API % (leagueSlug, str(competition["competitors"][1]["id"]))))
+
+                    #if game is PPD - show records instead of blanks
+                    checkHomeTeamRecord = homeData["team"]["record"].get("items", "NO")
+                    if checkHomeTeamRecord == "NO":
+                        homeScore = ""
+                    else:
+                        homeScore = checkHomeTeamRecord[0]["summary"]
+
+                    checkAwayTeamRecord = awayData["team"]["record"].get("items", "NO")
+                    if checkAwayTeamRecord == "NO":
+                        awayScore = ""
+                    else:
+                        awayScore = checkAwayTeamRecord[0]["summary"]
+                        gameTime = "Postponed"
                 else:
                     homeScore = competition["competitors"][0]["score"]["displayValue"]
                     awayScore = competition["competitors"][1]["score"]["displayValue"]
@@ -188,6 +207,23 @@ def main(config):
                         homeScoreColor = "#ff0"
                         awayScoreColor = "#fffc"
                     elif (int(awayScore) > int(homeScore)):
+                        homeScoreColor = "#fffc"
+                        awayScoreColor = "#ff0"
+                    else:
+                        homeScoreColor = "#fff"
+                        awayScoreColor = "#fff"
+
+                # if FT-Pens - get penalty shootout score & append to score
+                if gameName == "STATUS_FINAL_PEN":
+                    scoreFont = "CG-pixel-3x5-mono"
+                    homeShootoutScore = competition["competitors"][0]["score"]["shootoutScore"]
+                    awayShootoutScore = competition["competitors"][1]["score"]["shootoutScore"]
+                    homeScore = "%s (%s)" % (homeScore, str(int(homeShootoutScore)))
+                    awayScore = "%s (%s)" % (awayScore, str(int(awayShootoutScore)))
+                    if (int(homeShootoutScore) > int(awayShootoutScore)):
+                        homeScoreColor = "#ff0"
+                        awayScoreColor = "#fffc"
+                    elif (int(awayShootoutScore) > int(homeShootoutScore)):
                         homeScoreColor = "#fffc"
                         awayScoreColor = "#ff0"
                     else:
@@ -393,12 +429,12 @@ def main(config):
                                     children = [
                                         render.Column(
                                             children = [
-                                                render.Box(width = 64, height = 13, color = matchInfo[0]["color"], child = render.Row(expanded = True, main_align = "start", cross_align = "center", children = [
+                                                render.Box(width = 64, height = 13, color = matchInfo[0]["color"] + "77", child = render.Row(expanded = True, main_align = "start", cross_align = "center", children = [
                                                     render.Box(width = 16, height = 17, child = render.Image(matchInfo[0]["logo"], width = awayLogoSize, height = awayLogoSize)),
                                                     render.Box(width = 24, height = 13, child = render.Text(content = matchInfo[0]["abbreviation"], color = matchInfo[0]["scorecolor"], font = textFont)),
                                                     render.Box(width = 24, height = 13, child = render.Text(content = get_record(matchInfo[0]["score"]), color = matchInfo[0]["scorecolor"], font = scoreFont)),
                                                 ])),
-                                                render.Box(width = 64, height = 13, color = matchInfo[1]["color"], child = render.Row(expanded = True, main_align = "start", cross_align = "center", children = [
+                                                render.Box(width = 64, height = 13, color = matchInfo[1]["color"] + "77", child = render.Row(expanded = True, main_align = "start", cross_align = "center", children = [
                                                     render.Box(width = 16, height = 17, child = render.Image(matchInfo[1]["logo"], width = homeLogoSize, height = homeLogoSize)),
                                                     render.Box(width = 24, height = 13, child = render.Text(content = matchInfo[1]["abbreviation"], color = matchInfo[1]["scorecolor"], font = textFont)),
                                                     render.Box(width = 24, height = 13, child = render.Text(content = get_record(matchInfo[1]["score"]), color = matchInfo[1]["scorecolor"], font = scoreFont)),
@@ -606,7 +642,7 @@ def get_background_color(displayType, color):
     else:
         color = "#" + color
     if color == "#ffffff" or color == "#000000":
-        color = "#222"
+        color = "#222222"
     return color
 
 def get_logoType(logo):
@@ -662,16 +698,8 @@ def get_gametime_column(gameTime, textColor, leagueAbbr):
     return gameTimeColumn
 
 def get_cachable_data(url):
-    key = url
-
-    data = cache.get(key)
-    if data != None:
-        return data
-
-    res = http.get(url = url)
+    res = http.get(url = url, ttl_seconds = CACHE_TTL_SECONDS)
     if res.status_code != 200:
         fail("request to %s failed with status code: %d - %s" % (url, res.status_code, res.body()))
-
-    cache.set(key, res.body(), CACHE_TTL_SECONDS)
 
     return res.body()
