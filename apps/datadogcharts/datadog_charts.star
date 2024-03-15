@@ -29,6 +29,7 @@ def main(config):
     DASHBOARD_ID = config.get("dashboard_id") or DEFAULT_DASHBOARD_ID
     SHOW_LAST_VALUE = config.bool("show_last_value", True)
     CHART_TIME_RANGE = config.get("chart_time_range") or "1h"
+    CHART_NAME = config.get("chart_name")
 
     ## APIs
     DD_DASHBOARD_API = "{}/dashboard".format(DD_API_URL)
@@ -54,10 +55,9 @@ def main(config):
         return render.Root(child = child)
 
     # Select the wideget to display from the chart name
-    chart_name = config.get("chart_name")
     widget = None
     for w in dashboard_json.get("widgets"):
-        if w.get("definition").get("title") == chart_name:
+        if w.get("definition").get("title") == CHART_NAME:
             widget = w
             break
 
@@ -128,8 +128,8 @@ def main(config):
     # Add the last value to the title
     if SHOW_LAST_VALUE:
         # convert scientific notation to decimal
-        # value =
-        title = "Last value: {}".format(datapoints[-1][1])
+        datapoint = "{}".format(datapoints[-1][1]).split(".")[0]
+        title = "Last value: {}".format(datapoint)
 
     return renderer(title, datapoints)
 
@@ -195,7 +195,7 @@ def renderer(display_name, datapoints):
 def get_schema():
     dd_site_options = [
         schema.Option(
-            display = "US",
+            display = "US1",
             value = "datadoghq.com",
         ),
         schema.Option(
@@ -281,7 +281,7 @@ def get_schema():
             schema.Text(
                 id = "chart_name",
                 name = "Chart Name",
-                desc = "The chart name to display. If not provided or not found, the first chart on the dashboard will be used.",
+                desc = "Name of the chart. If not provided or not found, the first chart on the dashboard will be used.",
                 icon = "chartLine",
             ),
             schema.Dropdown(
