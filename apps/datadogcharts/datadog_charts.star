@@ -107,6 +107,15 @@ def main(config):
             ],
         )
         return render.Root(child = child)
+    elif query_response == None:
+        # The Datadog API sometimes returns > 50MB of data which causes a context deadline exceeded error
+        print("Error fetching data. Possibly too large of a response.")
+        print(query_response)
+        child = render.Marquee(
+            width = 48,
+            child = render.Text(content = "Error fetching data. Possibly too large of a response.", font = "6x13", color = "#fff"),
+        )
+        return render.Root(child = child)
 
     # Get the data from the response
     raw_points = query_response.get("series")[0].get("pointlist")
@@ -118,6 +127,8 @@ def main(config):
 
     # Add the last value to the title
     if SHOW_LAST_VALUE:
+        # convert scientific notation to decimal
+        # value =
         title = "Last value: {}".format(datapoints[-1][1])
 
     return renderer(title, datapoints)
