@@ -1,0 +1,8 @@
+---
+id: calendars
+name: Calendars
+summary: Today's date but different
+desc: Shows the current date converted into various other regular calendars.
+author: dinosaursrarr
+fileName: calendars.star
+packageName: calendars
