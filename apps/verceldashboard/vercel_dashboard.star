@@ -44,7 +44,7 @@ def main(config):
         print("Miss cache! Calling Vercel")
 
         # TeamId is required for Team API Calls
-        # https://vercel.com/guides/how-do-i-use-a-vercel-api-access-token 
+        # https://vercel.com/guides/how-do-i-use-a-vercel-api-access-token
         if teamId:
             url = BASE_DEPLOYMENT_URL + "?teamId=" + teamId
         else:
