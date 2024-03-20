@@ -154,7 +154,7 @@ def getListDisplayFromListValue(listValue):
 
 def getDisplayInfo(item):
     current = int(item["rank"])
-    lastweek = int(item["last week"])
+    lastweek = int(item["last week"] if item["last week"].isdigit() else 0)
     display = "#%s%s \"%s\" by %s %s weeks on charts" % (item["rank"], getMovementIndicator(current, lastweek), item["title"], item["artist"], item["weeks on chart"])
     return display
 
