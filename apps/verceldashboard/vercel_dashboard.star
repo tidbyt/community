@@ -176,8 +176,8 @@ def get_schema():
             ),
             schema.Text(
                 id = CONFIG_TEAM_ID,
-                name = "TEAM ID",
-                desc = "Your Vercel Team ID - required for team deployments. Leave blank for personal deployments.",
+                name = "Team ID",
+                desc = "Your Vercel Team ID - required for team deployments. Leave blank for personal deployments. Ensure scope is correct for the referenced team.",
                 icon = "peopleCarryBox",
             ),
             schema.Dropdown(
