@@ -178,7 +178,7 @@ def get_schema():
                 id = CONFIG_TEAM_ID,
                 name = "TEAM ID",
                 desc = "Your Vercel Team ID - required for team deployments. Leave blank for personal deployments.",
-                icon = "people-group",
+                icon = "peopleCarryBox",
             ),
             schema.Dropdown(
                 id = CONFIG_TIMEZONE,
