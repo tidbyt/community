@@ -45,7 +45,10 @@ def main(config):
 
         # TeamId is required for Team API Calls
         # https://vercel.com/guides/how-do-i-use-a-vercel-api-access-token 
-        url = BASE_DEPLOYMENT_URL + "?teamId=" + teamId
+        if teamId:
+            url = BASE_DEPLOYMENT_URL + "?teamId=" + teamId
+        else:
+            url = BASE_DEPLOYMENT_URL
         rep = http.get(
             url,
             headers = {"Authorization": "Bearer " + apikey, "Accept": "application/json"},
