@@ -19,11 +19,13 @@ SPACE = "   "
 
 # Config
 CONFIG_API_KEY = "api-key"
+CONFIG_TEAM_ID = "team-id"
 CONFIG_CLOCK_FORMAT = "time-format"
 CONFIG_TIMEZONE = "time-zone"
 
 def main(config):
     apikey = config.str(CONFIG_API_KEY)
+    teamId = config.str(CONFIG_TEAM_ID)
     showIn24hr = config.bool(CONFIG_CLOCK_FORMAT, True)
 
     if apikey == None:
@@ -40,8 +42,12 @@ def main(config):
         data = json.decode(cached_data)
     else:
         print("Miss cache! Calling Vercel")
+
+        # TeamId is required for Team API Calls
+        # https://vercel.com/guides/how-do-i-use-a-vercel-api-access-token 
+        url = BASE_DEPLOYMENT_URL + "?teamId=" + teamId
         rep = http.get(
-            BASE_DEPLOYMENT_URL,
+            url,
             headers = {"Authorization": "Bearer " + apikey, "Accept": "application/json"},
         )
 
@@ -164,6 +170,12 @@ def get_schema():
                 name = "API Key",
                 desc = "Your Vercel API key generated via the Vercel dashboard",
                 icon = "key",
+            ),
+            schema.Text(
+                id = CONFIG_TEAM_ID,
+                name = "TEAM ID",
+                desc = "Your Vercel Team ID - required for team deployments. Leave blank for personal deployments.",
+                icon = "people-group",
             ),
             schema.Dropdown(
                 id = CONFIG_TIMEZONE,
