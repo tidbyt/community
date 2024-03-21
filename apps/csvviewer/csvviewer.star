@@ -227,20 +227,24 @@ def render_text(text, color, max_text_height, max_text_width, avoid_scrolling_te
     # Default to the smallest text that will fit vertically if it must scroll
     return render.Text(content = text, font = saved_fits_vertically[0], height = saved_fits_vertically[1], color = color)
 
-def render_cell(value, height, width, avoid_scrolling_text):
+def render_cell(value, height, width, avoid_scrolling_text, allow_letters_to_touch):
     text, text_color, background_color = extract_text_color_and_background(value)
     background_box = render.Box(width = width, height = height, color = background_color)
 
     if text == None:
         return background_box
     else:
-        rendered_text = render_text(text, text_color, height, width, avoid_scrolling_text)
+        # By default, text adds an extra pixel to make sure letters don't touch.
+        # This allows the letters to touch if the user specifically requests that.
+        allowed_width = width + 1 if allow_letters_to_touch else width
+
+        rendered_text = render_text(text, text_color, height, allowed_width, avoid_scrolling_text)
 
         return render.Stack(
             children = [
                 background_box,
                 render.Marquee(
-                    width = width,
+                    width = allowed_width,
                     height = height,
                     child = rendered_text,
                     align = "center",
@@ -251,6 +255,7 @@ def render_cell(value, height, width, avoid_scrolling_text):
 def render_grid(data, row_count, col_count, config):
     row_heights, col_widths = calculate_grid_sizes(row_count, col_count)
     avoid_scrolling_text = config.bool("avoid_scrolling_text")
+    allow_letters_to_touch = config.bool("allow_letters_to_touch")
 
     rows = []
 
@@ -261,7 +266,7 @@ def render_grid(data, row_count, col_count, config):
         for c in range(col_count):
             col_width = col_widths[c]
 
-            rendered_cell = render_cell(data[r][c], row_height, col_width, avoid_scrolling_text)
+            rendered_cell = render_cell(data[r][c], row_height, col_width, avoid_scrolling_text, allow_letters_to_touch)
 
             # Place the rendered cel in a box with the given size to get everything to fit nicely
             holding_box = render.Box(
@@ -385,6 +390,14 @@ def get_schema():
                 id = "avoid_scrolling_text",
                 name = "Avoid scrolling text",
                 desc = "Reduce font size to avoid scrolling text when possible",
+                icon = "textWidth",
+                default = False,
+            ),
+            schema.Toggle(
+                id = "allow_letters_to_touch",
+                name = "Allow letters to touch in adjacent cells",
+                desc = "This changes the default scrolling to allow fonts to be shown slightly larger but also sometimes causes " +
+                       "letters next to one another to touch.",
                 icon = "textWidth",
                 default = False,
             ),
