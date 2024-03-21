@@ -16,7 +16,6 @@ load("time.star", "time")
 VISUALIZER_CLIENT_ID = secret.decrypt("AV6+xWcEmpNnOn5bdEhhlhz53Yz0qwomDILXMktc9nEVoXROf0S56lbUlR6BTlAe5Z7jiEGRB2QwPiCZb20nsdzXUZTFRtfKC+boIYCbDEqunKR85NyoOi0m51JVb7Q5+Qp2+/Tmf+8EZZzugPYkY+aRCWWsHQiN6CWwy1DHw5Vkb7MiYiORhpaT18sXj7C8Og==")
 VISUALZER_CLIENT_SECRET = secret.decrypt("AV6+xWcE1qF0RYSlJXn4oBgRhSlfN/hWZz63gj2qfj/Y2bf8M+mdSQH7ZhRHsBKYC8FEAqJDAC3V3RAjs4TSpGo+Exu+3+S6WwcKcHQCVO4uXviLVmYWzVcPhs4tHOm7btcY/98E9j93Dkz4Ng+6XejhLtAo7rSE5dx4qKqH60jp6fH016rk9s3Ciu5Qjxxr5g==")
 
-
 DEBUG = False
 
 def render_root(todays_shots, latest_shot):
