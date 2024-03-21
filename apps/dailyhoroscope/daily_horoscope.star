@@ -4,9 +4,7 @@ Summary: Daily horoscope
 Description: Displays the daily horoscope for a specific sign from USA Today.
 Author: frame-shift
 
->> Version 1.1
-- Added current moon phase and sign with display toggle
-- Added ability to customize sign color
+Version 1.1.1
 """
 
 load("encoding/base64.star", "base64")
@@ -135,10 +133,12 @@ def main(config):
     date_d = humanize.time_format("d", date_parsed)
 
     # Parse horoscope
-    horoscope = scope_html.find("p").eq(1).text()
+    horoscope_parsed = scope_html.find("p").eq(1).text()
 
-    if horoscope == "":
+    if horoscope_parsed == "":
         return render_error("Could not get horoscope")
+
+    horoscope = edit_horoscope(horoscope_parsed)
 
     # Render moon data
     if show_moon:
@@ -156,7 +156,7 @@ def main(config):
                         render.Box(color = "#000", width = 1, height = 1),
                     ],
                 ),
-                render.Box(color = sign_color + "33", height = 2, width = m_width),
+                render.Box(color = sign_color + "33", height = 1, width = m_width),
                 render.Stack(
                     children = [
                         render.Row(
@@ -188,7 +188,7 @@ def main(config):
                         ),
                     ],
                 ),
-                render.Box(color = sign_color + "33", height = 2, width = m_width),
+                render.Box(color = sign_color + "33", height = 1, width = m_width),
                 render.Row(
                     children = [
                         render.Box(color = "#000", width = 1, height = 1),
@@ -286,6 +286,43 @@ def main(config):
             ],
         ),
     )
+
+def edit_horoscope(horoscope):
+    # Fixes horoscope to prevent display from cutting off long words
+    horoscope_list = horoscope.split()
+    horoscope_edit = []
+    char_limit = 12
+
+    for w in horoscope_list:
+        # Replace apostrophe if it exists
+        word = re.sub(r"’", "'", w)
+        w_length = len(word)
+
+        # Check last character of word, keep word passes safety list
+        pattern_end = r".$"
+        last_char = re.findall(pattern_end, word)[0]
+        safe_for_last = [".", ",", "!", "'", "-", "i", ")", "1", ":", ";", "`", "|"]
+
+        if w_length == (char_limit + 1) and last_char in safe_for_last:
+            horoscope_edit.append(word)
+
+            # Hyphenate and line break at final 'syllable'
+        elif w_length > char_limit:
+            pattern_end = r"([^aeiouy])([aeiouy]*?[^aeiouy\s]*)$"  # Finds final 'syllable'
+            w_end = re.findall(pattern_end, word)[0]
+            w_end_length = len(w_end)
+            w_start_length = w_length - w_end_length
+            pattern_start = r"(^\S{%s})" % w_start_length
+            w_start = re.findall(pattern_start, word)[0]
+            w_edit = w_start + "-\n" + w_end
+
+            # Replace original word with edited word
+            horoscope_edit.append(w_edit)
+
+        else:
+            horoscope_edit.append(word)
+
+    return " ".join(horoscope_edit)
 
 def get_moon_info(date):
     # Gets current moon phase and sign for horoscope date
