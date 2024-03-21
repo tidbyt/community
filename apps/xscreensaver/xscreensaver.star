@@ -347,7 +347,7 @@ def main(config):
         # If not, pull the GIF from the remote source
         response = http.get(
             "https://xscreensaver.eod.com/" + config.get("hackfile", hacks[hack][0]) + ".gif",
-            headers = {"X-XScreenSaver-Token": secret.decrypt(SECRET_ENCRYPTED) or config.get("SECRET_LOCAL")},
+            headers = {"X-XScreenSaver-Token": secret.decrypt(SECRET_ENCRYPTED) or config.get("SECRET_LOCAL") or ""},
         )
 
         # If something went wrong, show an error
