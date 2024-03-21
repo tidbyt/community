@@ -397,7 +397,7 @@ def get_schema():
                 id = "allow_letters_to_touch",
                 name = "Allow letters to touch in adjacent cells",
                 desc = "This changes the default scrolling to allow fonts to be shown slightly larger but also sometimes causes " +
-                        "letters next to one another to touch.",
+                       "letters next to one another to touch.",
                 icon = "textWidth",
                 default = False,
             ),
