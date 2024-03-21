@@ -1,0 +1,8 @@
+---
+id: la-metro
+name: LA Metro
+summary: LA Metro rail services
+desc: Shows arrival times for LA Metro rail services.
+author: M0ntyP
+fileName: la_metro.star
+packageName: lametro
