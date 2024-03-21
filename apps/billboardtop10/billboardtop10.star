@@ -14,7 +14,7 @@ load("schema.star", "schema")
 load("secret.star", "secret")
 load("time.star", "time")
 
-BILLBOARD_API_SECRET_KEY = "AV6+xWcEE5IuD+5cFvv5rCrVUi1xz8BdNKqeIMFXjoc86p8wGGQYP7+TdhlXTaHGAF8MDUel+AnqHVFzL+yMyXboV/qVCyKtV8WjoubvrzpKD4Gh14hQ233Jn0Sef6lUOQuiRfRS+2mh5ja4O0BHns65UWtfk4GHFgaTsza4w/d/EKocbPdRTOLi0FKlcXQEI0w0uZthE2k="
+BILLBOARD_API_SECRET_KEY = "AV6+xWcE5d0KBM7gRvU3VTDSOfQjIiKLmX6O68MvGK+H9KmfZ4S1mxLAq5adM4bb4sxSzYrIg16I9txdNb0P9iNbUAde7kaKh4gMA0FDtAFIQ5kGtsErCivxBg7StVO7Vu5UAlryuXTdMTATWveZaSx9klP1lEmVLKWV74EbU6t8NEX46LvDN0+SpYHjIW/Am7Fab0zQoOs="
 BILLBOARD_CACHED_TOP10_NAME = "BillboardCache"
 BILLBOARD_ICON = """
 iVBORw0KGgoAAAANSUhEUgAAAAYAAAAICAIAAABVpBlvAAABVmlDQ1BJQ0MgcHJvZmlsZQAAKJFtkL8vxGAYx7+lcgnCDcTAUIkBOSJ1A7ZzgwhDnZ8VS69XPdKrN20Fs9UmMUot/gJRI4vYJYh/gMkiaSRc6nnv0Ds8b548nzz5vk+++QINosaYJQIo2Z6Tm5qUVtRVKfEMAd1oxwS6NN1lGUWZJQm+Z32Fd6Smuh3it9bUt3P7etO3VNnvnAkO/+rrqrlguDrND+pBnTkeIPQTKzse47xL3OGQKeIDzmaVfc75Kp9VNAu5LPENcVIvagXiB+JUvmZv1nDJ2ta/PHD3rYa9OE+zjboHCjKQkcYY5rBE2fyvTVe0WWyBYQ8ONmCiCA8S/Wb0LBjE07ChYxgpYhkj/C7P+Hd28Y7tA+M8t5d4p1nABWWfPI53fU9ktxe4OmGao/0kKoSiuz4qV7klAJqOouh1GUgMAOX7KHoPoqh8CjQ+ApfhJ3LYYwruNH3OAAAACXBIWXMAAC4jAAAuIwF4pT92AAAAB3RJTUUH6AICFRMwu9G4AQAAABl0RVh0Q29tbWVudABDcmVhdGVkIHdpdGggR0lNUFeBDhcAAACESURBVAjXY0xLTZWQlFy0YCEDDDCeOXPGyMhISUERLsQCoZpbWljZWGfNnHXv7l2GM2fO/IOB169fKykoMkFUFRUVbdu2TVhYODYuFiqkpaUlICDAwMDw89cvhjNnzvz9+/fv37///v27d/eugpw8Y1pqqriExKtXr2SkZebOmcPAwAAAlwg4Pp81GiUAAAAASUVORK5CYII=
@@ -154,7 +154,7 @@ def getListDisplayFromListValue(listValue):
 
 def getDisplayInfo(item):
     current = int(item["rank"])
-    lastweek = int(item["last week"])
+    lastweek = int(item["last week"] if item["last week"].isdigit() else 0)
     display = "#%s%s \"%s\" by %s %s weeks on charts" % (item["rank"], getMovementIndicator(current, lastweek), item["title"], item["artist"], item["weeks on chart"])
     return display
 

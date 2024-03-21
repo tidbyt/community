@@ -186,37 +186,40 @@ def get_launch_details(rocket_launch_data, locallaunch):
     countdown = (locallaunch - time.now())
     countdownDisplay = ""
 
-    #Display aprox. number of hours until about 90 minutes before launch, then display # of minutes
     if countdown.hours >= 1.5:
-        countdownDisplay = ("%s hours from now, " % int(math.round(countdown.hours)))
+        whole_hours = math.floor(countdown.hours)
+        countdownDisplay = ("In %s %s %s minutes, " % (int(whole_hours), "hours" if whole_hours > 1 else "hour", int(math.round(countdown.minutes - (whole_hours * 60)))))
     elif countdown.minutes > 0:
         countdownDisplay = ("%s minutes from now, " % int(math.round(countdown.minutes)))
 
+    #SpaceX has a launch pad called launch pad ... looks stupid to display that.
+    pad_name = None if rocket_launch_data["pad"]["name"] == "Launch Pad" else rocket_launch_data["pad"]["name"]
+
     potential_display_items = [
         rocket_launch_data["provider"]["name"],
-        rocket_launch_data["pad"]["name"],
+        pad_name,
         rocket_launch_data["pad"]["location"]["name"],
         rocket_launch_data["pad"]["location"]["state"],
         rocket_launch_data["pad"]["location"]["country"],
         locallaunch.format("Monday Jan 2 2006"),
-        locallaunch.format("3:04 PM"),
+        locallaunch.format("3:04 PM MST"),
     ]
 
     display_items_format = [
         "%s will launch",
         "from %s",
-        ", %s",
+        "%s",
         "in %s",
         "%s",
         "on %s",
-        "at %s your time.",
+        "at %s",
     ]
 
     display_text = countdownDisplay
 
     for i in range(len(potential_display_items)):
         if (potential_display_items[i] != None):
-            display_text += (display_items_format[i] % potential_display_items[i]) + " "
+            display_text += " " + (display_items_format[i] % potential_display_items[i]).strip()
 
     return display_text
 
@@ -224,7 +227,7 @@ def display_instructions(config):
     ##############################################################################################################################################################################################################################
     instructions_1 = "Launch information is provided by RocketLaunch.live. You can filter these results by country or provider. "
     instructions_2 = "Examples of country include 'United States', 'Canada' and 'China'. Examples of provider include 'NASA', 'SpaceX', 'ABL Space' and 'Virgin Galactic'."
-    instructions_3 = "The country and provider information will appear in the third row of information of each upcoming flight."
+    instructions_3 = "The country and provider information should appear in the third row of information of each upcoming flight."
     app_title = "Launch Countdown"
 
     return render.Root(
@@ -255,6 +258,16 @@ def display_instructions(config):
         show_full_animation = True,
     )
 
+def replace_local_time_into_description(description, locallaunch, utclaunch):
+    utc_time_display = ("%s at %s (%s)") % (utclaunch.format("Thursday, January 2, 2006"), utclaunch.format("3:04 PM"), utclaunch.format("MST"))
+    local_time_display = ("%s at %s %s") % (locallaunch.format("Thursday, January 2, 2006"), locallaunch.format("3:04 PM"), locallaunch.format("MST"))
+
+    #What the heck is this character being returned in the json for??
+    description = description.replace(" ", " ")
+    description = description.replace(utc_time_display, local_time_display)
+
+    return description
+
 def main(config):
     """ Main
 
@@ -271,6 +284,7 @@ def main(config):
         return display_instructions(config)
 
     location = json.decode(config.get("location", default_location))
+
     rocket_launch_data = get_rocket_launch_json()
 
     initial_count = len(rocket_launch_data["result"]) if rocket_launch_data else 0
@@ -296,6 +310,7 @@ def main(config):
         for i in range(0, rocket_launch_count):
             localtime = time.now()
             locallaunch = time.parse_time(rocket_launch_data["result"][i]["t0"].replace("Z", ":00Z")).in_location(location["timezone"])
+
             if locallaunch > localtime.in_location(location["timezone"]):
                 hours_notice = int(config.get("notice_period", 0))
                 hours_until_sighting = (locallaunch - localtime.in_location(location["timezone"])).hours
@@ -305,7 +320,7 @@ def main(config):
                     locallaunch = time.parse_time(rocket_launch_data["result"][i]["t0"].replace("Z", ":00Z")).in_location(location["timezone"])
                     row2 = locallaunch.format("Jan 2 '06")
                     row3 = get_launch_details(rocket_launch_data["result"][i], locallaunch)
-                    row4 = rocket_launch_data["result"][i]["launch_description"]
+                    row4 = replace_local_time_into_description(rocket_launch_data["result"][i]["launch_description"], locallaunch, time.parse_time(rocket_launch_data["result"][i]["t0"].replace("Z", ":00Z")))
                 else:
                     return []
                 break
@@ -424,7 +439,7 @@ def get_schema():
             ),
             schema.Toggle(
                 id = "hide",
-                name = "Hide app when no upcoming launches?",
+                name = "Hide if no data?",
                 desc = "",
                 icon = "gear",
                 default = True,

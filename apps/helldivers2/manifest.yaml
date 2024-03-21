@@ -1,0 +1,8 @@
+---
+id: helldivers-2
+name: Helldivers 2
+summary: View current player count
+desc: Shows the current player count.
+author: Daniel Sitnik
+fileName: helldivers_2.star
+packageName: helldivers2
