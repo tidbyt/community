@@ -181,7 +181,7 @@ def main(config):
         )
     else:
         return []
-        
+
 def get_games_behind(entry):
     for stat in entry.get("stats"):
         if stat.get("name") == "gamesBehind":
