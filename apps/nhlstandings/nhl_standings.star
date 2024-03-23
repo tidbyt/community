@@ -63,14 +63,8 @@ def main(config):
             if entries:
                 entriesToDisplay = teamsToShow
                 divisionName = s["name"].replace(" Division", "")
-                stats = entries[0]["stats"]
 
-                statNumber = 0
-                for j, k in enumerate(stats):
-                    if k["name"] == "points":
-                        statNumber = j
-
-                entries = sorted(entries, key = lambda e: e["stats"][statNumber]["value"], reverse = True)
+                entries = sorted(entries, get_games_behind, reverse = True)
 
                 for x in range(0, len(entries), entriesToDisplay):
                     renderCategory.extend(
@@ -95,6 +89,12 @@ def main(config):
         )
     else:
         return []
+
+def get_games_behind(entry):
+    for stat in entry.get("stats"):
+        if stat.get("name") == "points":
+            return stat.get("value")
+    return 0  # will never get here, but need a return value
 
 divisionOptions = [
     schema.Option(
