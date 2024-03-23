@@ -154,16 +154,7 @@ def main(config):
         entriesToDisplay = teamsToShow
 
         if conferenceType != "top25":
-            sortOrder = {}
-
-            for j, _ in enumerate(entries):
-                stats = entries[j]["stats"]
-                for l, m in enumerate(stats):
-                    if m["name"] == "gamesBehind":
-                        sortOrder[entries[j]["team"]["id"]] = stats[l]["value"]
-            sortOrder = {k: v for k, v in sorted(sortOrder.items(), key = lambda item: item[1])}
-            keysList = list(sortOrder.keys())
-            entries = sorted(entries, key = lambda e: keysList.index(e["team"]["id"]))
+            entries = sorted(entries, get_games_behind)
 
         for x in range(0, len(entries), entriesToDisplay):
             renderCategory.extend(
@@ -190,6 +181,12 @@ def main(config):
         )
     else:
         return []
+        
+def get_games_behind(entry):
+    for stat in entry.get("stats"):
+        if stat.get("name") == "gamesBehind":
+            return stat.get("value")
+    return 0  # will never get here, but need a return value
 
 conferenceOptions = [
     schema.Option(
