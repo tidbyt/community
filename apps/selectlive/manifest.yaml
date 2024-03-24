@@ -1,0 +1,8 @@
+---
+id: select-live
+name: Select Live
+summary: Selectronic Remote
+desc: A remote display for Selectronic's SP PRO inverters via select.live.
+author: Simon Holmes à Court
+fileName: select_live.star
+packageName: selectlive
