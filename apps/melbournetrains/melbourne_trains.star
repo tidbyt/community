@@ -252,7 +252,7 @@ def get_departures(route_id, stop_id, direction_id, route_name, stop_name, direc
             eta_time_text = "now" if remaining_time_minutes == 0 else str(remaining_time_minutes) + " mins"
 
             if direction_id == "All":
-                if int(item["direction_id"]) == direction_data[1]:
+                if i == 0:
                     mapped_direction_id, mapped_direction_name = direction_data[1], direction_data[2]
                 else:
                     mapped_direction_id, mapped_direction_name = direction_data[3], direction_data[4]
