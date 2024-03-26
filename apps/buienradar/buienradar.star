@@ -91,6 +91,12 @@ def get_wind_icon(direction, ttl_seconds = 60 * 60):
     response = get_data(url, ttl_seconds)
     return response.body()
 
+def get_rain_data(lat, lon, ttl_seconds = 60 * 5):
+    # url = "https://graphdata.buienradar.nl/2.0/forecast/geo/RainEU3Hour?lat={}&lon={}".format(lat, lon)
+    url = "https://graphdata.buienradar.nl/2.0/forecast/geo/RainHistoryForecast?lat={}&lon={}".format(lat, lon)
+    response = get_data(url, ttl_seconds)
+    return response.json()
+
 def render_radar(country):
     radar = get_radar(country)
     radar_image = render.Image(
@@ -241,6 +247,140 @@ def render_forecast(location):
         ),
     )
 
+def render_rain_graph(location):
+    forecast = get_forecast(location)
+    rain_data = get_rain_data(lat = forecast["location"]["lat"], lon = forecast["location"]["lon"])
+
+    rain = []
+    for idx, d in enumerate(rain_data["forecasts"]):
+        rain.append((idx, d["value"]))
+
+    return render.Root(
+        child = render.Stack(
+            children = [
+                # Graph
+                render.Padding(
+                    pad = (1, 0, 0, 0),
+                    child = render.Plot(
+                        width = 62,
+                        height = 24,
+                        color = rain_data["color"],
+                        fill = True,
+                        fill_color = rain_data["color"],
+                        y_lim = (0, 100),
+                        data = rain,
+                    ),
+                ),
+                # Grid line vertical left
+                render.Padding(
+                    pad = (0, 0, 0, 0),
+                    child = render.Box(
+                        width = 1,
+                        height = 24,
+                        color = "#666",
+                    ),
+                ),
+                # Grid line vertical middle-left
+                render.Padding(
+                    pad = (21, 0, 0, 0),
+                    child = render.Box(
+                        width = 1,
+                        height = 24,
+                        color = "#fff6",
+                    ),
+                ),
+                # Grid line vertical middle-right
+                render.Padding(
+                    pad = (42, 0, 0, 0),
+                    child = render.Box(
+                        width = 1,
+                        height = 24,
+                        color = "#fff6",
+                    ),
+                ),
+                # Grid line vertical right
+                render.Padding(
+                    pad = (63, 0, 0, 0),
+                    child = render.Box(
+                        width = 1,
+                        height = 24,
+                        color = "#666",
+                    ),
+                ),
+                # Grid line horizontal middle
+                render.Padding(
+                    pad = (1, 12, 0, 0),
+                    child = render.Box(
+                        width = 62,
+                        height = 1,
+                        color = "#fff6",
+                    ),
+                ),
+                # Grid line horizontal top
+                render.Padding(
+                    pad = (0, 0, 0, 0),
+                    child = render.Box(
+                        width = 64,
+                        height = 1,
+                        color = "#666",
+                    ),
+                ),
+                # Grid line horizontal bottom
+                render.Padding(
+                    pad = (0, 23, 0, 0),
+                    child = render.Box(
+                        width = 64,
+                        height = 1,
+                        color = "#666",
+                    ),
+                ),
+                # Now line
+                render.Padding(
+                    pad = (8, 6, 0, 0),
+                    child = render.Box(
+                        width = 1,
+                        height = 18,
+                        color = "#e88504",
+                    ),
+                ),
+                # Now text
+                render.Padding(
+                    pad = (8, 0, 0, 0),
+                    child = render.Text(
+                        content = "nu",
+                        font = "tom-thumb",
+                        color = "#e88504",
+                    ),
+                ),
+                # Time text bottom
+                render.Padding(
+                    pad = (0, 27, 0, 0),
+                    child = render.Row(
+                        expanded = True,
+                        main_align = "space_between",
+                        children = [
+                            render.Text(
+                                content = "{}".format(humanize.time_format("HH:mm", time.parse_time(rain_data["forecasts"][0]["datetime"] + "Z"))),
+                                font = "tom-thumb",
+                                color = "#666",
+                            ),
+                            render.Text(
+                                content = "t/m",
+                                font = "tom-thumb",
+                                color = "#666",
+                            ),
+                            render.Text(
+                                content = "{}".format(humanize.time_format("HH:mm", time.parse_time(rain_data["forecasts"][len(rain_data["forecasts"]) - 1]["datetime"] + "Z"))),
+                                font = "tom-thumb",
+                                color = "#666",
+                            ),
+                        ],
+                    ),
+                ),
+            ],
+        ),
+    )
+
 def render_weather_column(data):
     border = render.Box(
         width = 1,
@@ -321,6 +461,8 @@ def main(config):
         return render_today(location)
     elif displaying == "forecast":
         return render_forecast(location)
+    elif displaying == "rain_graph":
+        return render_rain_graph(location)
     else:
         return []
 
@@ -348,6 +490,10 @@ def get_schema():
         schema.Option(
             display = "Verwachting komende dagen",
             value = "forecast",
+        ),
+        schema.Option(
+            display = "Verwachte neerslag",
+            value = "rain_graph",
         ),
     ]
 
