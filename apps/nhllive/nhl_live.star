@@ -13,6 +13,7 @@ load("random.star", "random")
 load("render.star", "render")
 load("schema.star", "schema")
 load("time.star", "time")
+load("math.star", "math")
 
 APP_VERSION = "2.0.0"
 
@@ -362,20 +363,35 @@ def get_live_game_update(game_info, config):
 
             # Reformat our game stats a bit
             for stat in game["summary"]["teamGameStats"]:
-                if stat["category"] == "faceoffPctg":
+                if stat["category"] == "faceoffWinningPctg":
                     stat["category"] = "fo"
-                    stat["awayValue"] = stat["awayValue"] + "%"
-                    stat["homeValue"] = stat["homeValue"] + "%"
+                    stat["awayValue"] = str(int(math.round(stat["awayValue"]*100))) + "%"
+                    stat["homeValue"] = str(int(math.round(stat["homeValue"]*100))) + "%"
                 elif stat["category"] == "blockedShots":
                     stat["category"] = "blk"
+                    stat["awayValue"] = str(int(stat["awayValue"]))
+                    stat["homeValue"] = str(int(stat["homeValue"]))
                 elif stat["category"] == "takeaways":
                     stat["category"] = "take"
+                    stat["awayValue"] = str(int(stat["awayValue"]))
+                    stat["homeValue"] = str(int(stat["homeValue"]))
                 elif stat["category"] == "giveaways":
                     stat["category"] = "give"
+                    stat["awayValue"] = str(int(stat["awayValue"]))
+                    stat["homeValue"] = str(int(stat["homeValue"]))
                 elif stat["category"] == "hits":
                     stat["category"] = "hit"
+                    stat["awayValue"] = str(int(stat["awayValue"]))
+                    stat["homeValue"] = str(int(stat["homeValue"]))
                 elif stat["category"] == "powerPlay":
                     stat["category"] = "ppg"
+                elif stat["category"] == "sog":
+                    stat["awayValue"] = str(int(stat["awayValue"]))
+                    stat["homeValue"] = str(int(stat["homeValue"]))
+                elif stat["category"] == "pim":
+                    stat["awayValue"] = str(int(stat["awayValue"]))
+                    stat["homeValue"] = str(int(stat["homeValue"]))
+
                 stat_type = stat["category"]
                 game_stats[stat_type] = [stat["awayValue"], stat["homeValue"]]
 
@@ -414,7 +430,7 @@ def get_live_game_update(game_info, config):
         opt = opts[random.number(0, len(opts) - 1)]
 
         # print("  - OPT: %s" % opt)
-        update = opt.upper() + " - " + team_away + ":" + game_stats[opt][0] + " " + team_home + ":" + game_stats[opt][1]
+        update = opt.upper() + " - " + team_away + ":" + str(game_stats[opt][0]) + " " + team_home + ":" + str(game_stats[opt][1])
     else:
         update = ""
 
@@ -436,7 +452,7 @@ def get_game_boxscore(game_info):
             game_info["goals_home"] = str(int(game["homeTeam"]["score"]))
 
             game_info["game_time"] = game["clock"]["timeRemaining"]
-            game_info["game_period"] = get_game_period(game["period"], game["periodDescriptor"]["periodType"])
+            game_info["game_period"] = get_game_period(game["periodDescriptor"]["number"], game["periodDescriptor"]["periodType"])
 
             if game["gameState"] in ["LIVE", "CRIT"]:
                 game_info["game_state"] = "LIVE"
