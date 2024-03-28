@@ -207,7 +207,7 @@ def get_Stats(user_name):
 
     # the histogram max length must have space for the total number solved
     # we are using a 5-point width font so we reduce the max length by 5 * that number
-    hist_max_length = TOTAL_HIST_LENGTH - 5 * most_digits
+    hist_max_length = TOTAL_HIST_LENGTH - 7 * most_digits
 
     return struct(Header = user_name, TotalSolved = total_solved, EasySolved = easy_solved, MediumSolved = medium_solved, HardSolved = hard_solved, EasyPercent = easy_pct, MediumPercent = medium_pct, HardPercent = hard_pct, HistogramMaxLength = hist_max_length, ResponseCode = code)
 
