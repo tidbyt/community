@@ -240,40 +240,38 @@ def get_departures(route_id, stop_id, direction_id, route_name, stop_name, direc
     transformed_data = []
     for i, item in enumerate(departures):
         # Only collect enough data to render the first two departures
-        if i < 2:
-            estimated_time = item["estimated_departure_utc"]
-            scheduled_time = item["scheduled_departure_utc"]
-            departure_time = estimated_time if estimated_time != None else scheduled_time
+        # For direction_id = "All", response contains 4 departures (2 for each direction sequentially), therefore we need to filter and only store the first and third departures
+        if direction_id == "All" and (i == 1 or i == 3):
+            continue
 
-            platform_number = item["platform_number"]
-            mapped_platform_number = platform_number if platform_number != None else "-"
+        estimated_time = item["estimated_departure_utc"]
+        scheduled_time = item["scheduled_departure_utc"]
+        departure_time = estimated_time if estimated_time != None else scheduled_time
 
-            remaining_time_minutes = get_remaining_time_minutes(departure_time)
-            eta_time_text = "now" if remaining_time_minutes == 0 else str(remaining_time_minutes) + " mins"
+        platform_number = item["platform_number"]
+        mapped_platform_number = platform_number if platform_number != None else "-"
 
-            if direction_id == "All":
-                if i == 0:
-                    mapped_direction_id, mapped_direction_name = direction_data[1], direction_data[2]
-                else:
-                    mapped_direction_id, mapped_direction_name = direction_data[3], direction_data[4]
-            else:
-                mapped_direction_id, mapped_direction_name = direction_data[0], direction_data[1]
+        remaining_time_minutes = get_remaining_time_minutes(departure_time)
+        eta_time_text = "now" if remaining_time_minutes == 0 else str(remaining_time_minutes) + " mins"
 
-            departure = {
-                "route_id": route_id,
-                "route_name": route_name,
-                "stop_id": stop_id,
-                "stop_name": stop_name,
-                "direction_id": mapped_direction_id,
-                "direction_name": mapped_direction_name,
-                "departure_time": departure_time,
-                "eta_time_text": eta_time_text,
-                "platform_number": mapped_platform_number,
-                "color": color_code,
-            }
-            transformed_data.append(departure)
+        if direction_id == "All":
+            mapped_direction_id, mapped_direction_name = direction_data[1 if i == 0 else 3], direction_data[2 if i == 0 else 4]
         else:
-            break
+            mapped_direction_id, mapped_direction_name = direction_data[0], direction_data[1]
+
+        departure = {
+            "route_id": route_id,
+            "route_name": route_name,
+            "stop_id": stop_id,
+            "stop_name": stop_name,
+            "direction_id": mapped_direction_id,
+            "direction_name": mapped_direction_name,
+            "departure_time": departure_time,
+            "eta_time_text": eta_time_text,
+            "platform_number": mapped_platform_number,
+            "color": color_code,
+        }
+        transformed_data.append(departure)
 
     return transformed_data
 
