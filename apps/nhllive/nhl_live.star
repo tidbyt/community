@@ -9,11 +9,11 @@ load("cache.star", "cache")
 load("encoding/base64.star", "base64")
 load("encoding/json.star", "json")
 load("http.star", "http")
+load("math.star", "math")
 load("random.star", "random")
 load("render.star", "render")
 load("schema.star", "schema")
 load("time.star", "time")
-load("math.star", "math")
 
 APP_VERSION = "2.0.0"
 
