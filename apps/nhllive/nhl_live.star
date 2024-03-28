@@ -365,8 +365,8 @@ def get_live_game_update(game_info, config):
             for stat in game["summary"]["teamGameStats"]:
                 if stat["category"] == "faceoffWinningPctg":
                     stat["category"] = "fo"
-                    stat["awayValue"] = str(int(math.round(stat["awayValue"]*100))) + "%"
-                    stat["homeValue"] = str(int(math.round(stat["homeValue"]*100))) + "%"
+                    stat["awayValue"] = str(int(math.round(stat["awayValue"] * 100))) + "%"
+                    stat["homeValue"] = str(int(math.round(stat["homeValue"] * 100))) + "%"
                 elif stat["category"] == "blockedShots":
                     stat["category"] = "blk"
                     stat["awayValue"] = str(int(stat["awayValue"]))
