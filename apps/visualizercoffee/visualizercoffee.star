@@ -177,7 +177,7 @@ def oauth_handler(params):
     params["client_secret"] = VISUALZER_CLIENT_SECRET
 
     auth_resp = http.post(
-        url = "https://visualizer.coffee/oauth/access_token",
+        url = "https://visualizer.coffee/oauth/token",
         params = params,
         headers = {
             "Accept": "application/json",
