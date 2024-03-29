@@ -231,7 +231,7 @@ def render_stop_name_line(stop_name, has_api_key = False):
         ),
     )
 
-def render_bus_info_line(bus_id, bus_info, has_api_key = False):
+def render_bus_info_line(bus_id, bus_info):
     if bus_id in BUS_COLORS:
         # Get bus colors if they exist
         bg_color, fg_color = BUS_COLORS[bus_id]
@@ -241,7 +241,6 @@ def render_bus_info_line(bus_id, bus_info, has_api_key = False):
 
     badge_width = 13
     info_width = WIDTH - MCTS_ICON_WIDTH - badge_width - 3
-    info_color = INFO_COLOR if has_api_key else INFO_COLOR_NOKEY
 
     return render.Padding(
         pad = (1, 1, 0, -1),
@@ -272,7 +271,7 @@ def render_bus_info_line(bus_id, bus_info, has_api_key = False):
                     child = render.Text(
                         content = bus_info,
                         font = "tom-thumb",
-                        color = info_color,
+                        color = INFO_COLOR,
                     ),
                 ),
             ],
