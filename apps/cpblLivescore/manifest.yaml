@@ -1,0 +1,8 @@
+---
+id: cpbl-live-scores
+name: CPBL Live Scores
+summary: Display CPBL live scores
+desc: Display CPBL live scores & upcoming games.
+author: yuping917
+fileName: cpbl_live_scores.star
+packageName: cpbllivescores
