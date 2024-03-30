@@ -258,6 +258,7 @@ def get_departures(route_id, stop_id, direction_id, route_name, stop_name, direc
             mapped_direction_id, mapped_direction_name = direction_data[0], direction_data[1]
 
         departure = {
+            "processed_id": i,
             "route_id": route_id,
             "route_name": route_name,
             "stop_id": stop_id,
