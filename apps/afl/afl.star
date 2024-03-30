@@ -105,6 +105,7 @@ def getTeamAbbFromID(team_id):
 
 def main(config):
     team_id = config.get("main_team") or DEFAULT_TEAM
+    show_standings = config.bool("show_standings")
 
     todays_date = time.now()
     todays_date_formatted = humanize.time_format("yyyy-MM-dd", todays_date)
@@ -253,7 +254,8 @@ def main(config):
                     child = render.Text(message, font = "tom-thumb"),
                     offset_start = 5,
                     offset_end = 32,
-                ),
+                )
+                if show_standings else None,
             ],
         ),
     )
@@ -290,6 +292,13 @@ def get_schema():
                 icon = "peopleGroup",
                 default = TEAM_LIST[0].value,
                 options = TEAM_LIST,
+            ),
+            schema.Toggle(
+                id = "show_standings",
+                name = "Show Standings",
+                desc = "Whether the standings should be shown.",
+                icon = "gear",
+                default = True,
             ),
         ],
     )
