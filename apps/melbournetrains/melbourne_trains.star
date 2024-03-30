@@ -238,12 +238,8 @@ def get_departures(route_id, stop_id, direction_id, route_name, stop_name, direc
     # Transform Data
     departures = response.json()["departures"]
     transformed_data = []
-    for i, item in enumerate(departures):
-        # Only collect enough data to render the first two departures
-        # For direction_id = "All", response contains 4 departures (2 for each direction sequentially), therefore we need to filter and only store the first and third departures
-        if direction_id == "All" and (i == 1 or i == 3):
-            continue
 
+    for i, item in enumerate(departures):
         estimated_time = item["estimated_departure_utc"]
         scheduled_time = item["scheduled_departure_utc"]
         departure_time = estimated_time if estimated_time != None else scheduled_time
@@ -255,7 +251,9 @@ def get_departures(route_id, stop_id, direction_id, route_name, stop_name, direc
         eta_time_text = "now" if remaining_time_minutes == 0 else str(remaining_time_minutes) + " mins"
 
         if direction_id == "All":
-            mapped_direction_id, mapped_direction_name = direction_data[1 if i == 0 else 3], direction_data[2 if i == 0 else 4]
+            ext_direction_id = item["direction_id"]
+            mapped_direction_id = direction_data[1 if int(ext_direction_id) == int(direction_data[1]) else 3]
+            mapped_direction_name = direction_data[2 if int(ext_direction_id) == int(direction_data[1]) else 4]
         else:
             mapped_direction_id, mapped_direction_name = direction_data[0], direction_data[1]
 
@@ -267,11 +265,20 @@ def get_departures(route_id, stop_id, direction_id, route_name, stop_name, direc
             "direction_id": mapped_direction_id,
             "direction_name": mapped_direction_name,
             "departure_time": departure_time,
+            "remaining_time_minutes": remaining_time_minutes,
             "eta_time_text": eta_time_text,
             "platform_number": mapped_platform_number,
             "color": color_code,
         }
         transformed_data.append(departure)
+
+    # Sort by remaining time
+    transformed_data = sorted(transformed_data, key=lambda x: x['remaining_time_minutes'])
+
+    # Only collect enough data to render the first two departures
+    # For direction_id = "All", response contains 4 departures, therefore we need to trim the results down to just 2 departures
+    if len(transformed_data) > 2:
+        transformed_data = transformed_data[:2]
 
     return transformed_data
 
