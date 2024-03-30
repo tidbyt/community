@@ -273,7 +273,7 @@ def get_departures(route_id, stop_id, direction_id, route_name, stop_name, direc
         transformed_data.append(departure)
 
     # Sort by remaining time
-    transformed_data = sorted(transformed_data, key=lambda x: x['remaining_time_minutes'])
+    transformed_data = sorted(transformed_data, key = lambda x: x["remaining_time_minutes"])
 
     # Only collect enough data to render the first two departures
     # For direction_id = "All", response contains 4 departures, therefore we need to trim the results down to just 2 departures
