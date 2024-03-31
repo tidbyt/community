@@ -122,13 +122,13 @@ def main(config):
     if len(scores) > 0:
         for i, s in enumerate(scores):
             gameStatus = get_gamestatus(s["time_status"])
-            homeId = s["home"]["id"]
+            homeId = s["away"]["id"]
             homeLocation = get_teamlocation(homeId)
-            homeScore = s["scores"]["run"]["home"]
+            homeScore = s["scores"]["run"]["away"]
             homeColor = get_teamcolor(homeId)
-            awayId = s["away"]["id"]
+            awayId = s["home"]["id"]
             awayLocation = get_teamlocation(awayId)
-            awayScore = s["scores"]["run"]["away"]
+            awayScore = s["scores"]["run"]["home"]
             awayColor = get_teamcolor(awayId)
             gameTime = s["time"]
             if gameStatus == "Live":
