@@ -130,7 +130,7 @@ def render_today(location):
 
     return render.Root(
         show_full_animation = True,
-        delay = 33,
+        delay = 25,
         child = render.Stack(
             children = [
                 render.Padding(
