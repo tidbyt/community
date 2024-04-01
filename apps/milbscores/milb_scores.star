@@ -10,6 +10,9 @@ v1.1
 Changed date logic from Eastern Time to Pacific Time as games were still being played when its the following day on the east coast
 Added Double A leagues & team colors
 Added team logos for both Triple-A and Double-A teams
+
+v1.2
+Changed the names on the league selection dropdown
 """
 
 load("encoding/json.star", "json")
@@ -325,31 +328,31 @@ def main(config):
 
 LeagueOptions = [
     schema.Option(
-        display = "Triple A",
+        display = "All Triple A",
         value = "1",
     ),
     schema.Option(
-        display = "International League",
+        display = "AAA - International League",
         value = "117",
     ),
     schema.Option(
-        display = "Pacific Coast League",
+        display = "AAA - Pacific Coast League",
         value = "112",
     ),
     schema.Option(
-        display = "Double A",
+        display = "All Double A",
         value = "2",
     ),
     schema.Option(
-        display = "Eastern League",
+        display = "AA - Eastern League",
         value = "113",
     ),
     schema.Option(
-        display = "Southern League",
+        display = "AA - Southern League",
         value = "111",
     ),
     schema.Option(
-        display = "Texas League",
+        display = "AA - Texas League",
         value = "109",
     ),
 ]
