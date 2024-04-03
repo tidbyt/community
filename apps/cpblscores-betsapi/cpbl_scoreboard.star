@@ -95,7 +95,7 @@ def main(config):
             if convertedTime.format("1/2") != now.format("1/2"):
                 gameTime = convertedTime.format("Jan 2")
             else:
-                gameTime = convertedTime.format("3:04 PM")
+                gameTime = "Today"
             if gameStatus != "Final":
                 awayScore = ""
                 homeScore = ""
