@@ -6,10 +6,12 @@ Author: skinner452
 """
 
 load("animation.star", "animation")
+load("encoding/base64.star", "base64")
 load("http.star", "http")
 load("humanize.star", "humanize")
 load("render.star", "render")
 load("schema.star", "schema")
+load("secret.star", "secret")
 
 # Converts period values to display strings
 PERIOD_STRINGS = {
@@ -24,14 +26,20 @@ PERIOD_STRINGS = {
 # Demo mode data
 DEMO_ARTIST = {
     "name": "The Killers",
-    "artwork": "https://upload.wikimedia.org/wikipedia/commons/thumb/5/51/The_Killers_%40_Bonnaroo_2018.jpg/1200px-The_Killers_%40_Bonnaroo_2018.jpg",
+    "artwork": "https://lastfm.freetls.fastly.net/i/u/770x0/07c068d8d56c81fd727a386e483df970.jpg",
     "plays": "123",
 }
 DEMO_TRACK = {
     "name": "Mr. Brightside",
-    "artwork": "https://upload.wikimedia.org/wikipedia/en/1/17/The_Killers_-_Hot_Fuss.png",
+    "artwork": "https://lastfm.freetls.fastly.net/i/u/770x0/d83c5d906703a8c8042285d0902d9cf4.jpg",
     "plays": "10",
 }
+
+# Decrypt the default API Key
+DEFAULT_API_KEY = secret.decrypt("AV6+xWcEbkyjqMT+CqEdZ9QaSH7mWovW32VBKUdzvybcFcB2wT2F+j9dlWaagb9wwIVCKuiEPmiPXFDnGFYXOLMDPmLPJy3dhBtWLbOYUKMUeDdE+Qp5B5J7MJNQSYy7+7noQRo3rnRONS/gyxNkKC2E28/WqwIjvKAViK3Uf0EVUIGL2AI=")
+
+# Load default artwork
+DEFAULT_ARTWORK = base64.decode("iVBORw0KGgoAAAANSUhEUgAAABUAAAAVCAYAAACpF6WWAAAAZ0lEQVQ4T2O0sLD4z0BlwEg3Q9eJMpLt9qDX/xmwunToGQryCrEA5juC3h81lNggZRgNU3BQ0SdJoWdPYtIpNj3wvI8tvxMyFJcesKG4ChB8huLTQztDQbFGrfAEmUW/kp/ovIlDIQDgTH/J851RMQAAAABJRU5ErkJggg==")
 
 def main(config):
     """Entry point to the TidByt app
@@ -45,11 +53,13 @@ def main(config):
 
     username = config.str("username")
     period = config.str("period")
-    apikey = config.str("apikey")
-    if not username or not period or not apikey:
+    apikey = config.str("apikey", DEFAULT_API_KEY)
+    if not username or not period:
         top_artist = DEMO_ARTIST
         top_track = DEMO_TRACK
         period = "12month"
+    elif apikey == None:
+        return render_error("Missing API Key")
     else:
         top_artist = get_top_artist(username, period, apikey)
         if top_artist == None:
@@ -126,8 +136,8 @@ def get_schema():
             ),
             schema.Text(
                 id = "apikey",
-                name = "Last.fm API Key",
-                desc = "API Key created from last.fm/api",
+                name = "API Key (optional)",
+                desc = "Overrides the built-in API key for last.fm",
                 icon = "key",
             ),
         ],
@@ -161,7 +171,11 @@ def render_slide(title, data, period):
       A render of the slide with the provided data
     """
 
-    artwork = http.get(data["artwork"]).body()
+    # Use default artwork if none is provided
+    if data["artwork"] == None:
+        artwork = DEFAULT_ARTWORK
+    else:
+        artwork = http.get(data["artwork"]).body()
 
     return render.Box(
         padding = 1,
@@ -231,7 +245,12 @@ def get_top_artist(username, period, apikey):
         return None
 
     if nested_keys_exist(data, ["topartists", "artist", 0]) == False:
-        return None
+        # Get here if no top artists
+        return {
+            "plays": "0",
+            "name": "",
+            "artwork": None,
+        }
 
     top_artist = data["topartists"]["artist"][0]
     if "name" not in top_artist or "playcount" not in top_artist:
@@ -239,14 +258,8 @@ def get_top_artist(username, period, apikey):
 
     # last.fm artist artwork only displays a white star
     # We can attempt to pull artist artwork from spotify
-    # If it fails, we can just fall back to the last.fm artwork
+    # If it fails, it will return None and use default artwork
     artwork = get_artwork_from_spotify(top_artist["name"])
-
-    if artwork == None:
-        # Fallback to the last.fm artwork
-        if nested_keys_exist(top_artist, ["image", 0, "#text"]) == False:
-            return None
-        artwork = top_artist["image"][0]["#text"]
 
     return {
         "plays": top_artist["playcount"],
@@ -271,7 +284,12 @@ def get_top_track(username, period, apikey):
         return None
 
     if nested_keys_exist(data, ["toptracks", "track", 0]) == False:
-        return None
+        # Get here if no top track
+        return {
+            "plays": "0",
+            "name": "",
+            "artwork": None,
+        }
     top_track = data["toptracks"]["track"][0]
 
     if "name" not in top_track or "playcount" not in top_track:
@@ -284,12 +302,10 @@ def get_top_track(username, period, apikey):
 
     # Query the track info to get the album artwork
     data = query(apikey, "track.getinfo", "track=" + track_name + "&artist=" + artist_name)
-    if data == None:
-        return None
-
-    if nested_keys_exist(data, ["track", "album", "image", 0, "#text"]) == False:
-        return None
-    artwork = data["track"]["album"]["image"][0]["#text"]
+    if data != None and nested_keys_exist(data, ["track", "album", "image", 0, "#text"]):
+        artwork = data["track"]["album"]["image"][0]["#text"]
+    else:
+        artwork = None
 
     return {
         "plays": top_track["playcount"],
@@ -354,10 +370,12 @@ def get_artwork_from_spotify(artist_name):
     # Success!
     return data["best_match"]["items"][0]["images"][0]["url"]
 
-# Checks if nested keys exist in an object
-# Ex: obj = { "a": { "b" : { "c" : 1 } } }, calling nested_keys_exist(obj,["a","b","c"]) would return true
 def nested_keys_exist(object, keys):
     """Helper function to check if nested keys exist inside of a dict or list
+
+    Example:
+      obj = { "a": { "b" : { "c" : 1 } } }
+      Calling nested_keys_exist(obj,["a","b","c"]) would return true
 
     Args:
       object: Object to search through. It can be a dict or a list.
