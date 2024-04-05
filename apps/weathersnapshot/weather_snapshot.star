@@ -1,11 +1,11 @@
 load("encoding/base64.star", "base64")
 load("encoding/json.star", "json")
-load("time.star", "time")
-load("math.star", "math")
 load("http.star", "http")
+load("math.star", "math")
 load("render.star", "render")
 load("schema.star", "schema")
 load("secret.star", "secret")
+load("time.star", "time")
 
 # development API key, provide your key here or the app will default to static data
 DEV_API_KEY = ""
@@ -49,8 +49,9 @@ def _calculate_aqi(ranges, value):
     return ((i_high - i_low) / (c_high - c_low)) * (value - c_low) + i_low
 
 def parse_aqi_slice(aqi_slice):
-    dt = int(aqi_slice["dt"]) 
+    dt = int(aqi_slice["dt"])
     components = aqi_slice["components"]
+
     # converts from ug / m^3 to ppm and ppb
     co = (components["co"] / 1.15) / 1000
     no2 = components["no2"] / 1.88
@@ -58,7 +59,7 @@ def parse_aqi_slice(aqi_slice):
     so2 = components["so2"] / 2.62
     pm2_5 = components["pm2_5"]
     pm10 = components["pm10"]
-    return struct(dt=dt, co=co, no2=no2, o3=o3, so2=so2, pm2_5=pm2_5, pm10=pm10) 
+    return struct(dt = dt, co = co, no2 = no2, o3 = o3, so2 = so2, pm2_5 = pm2_5, pm10 = pm10)
 
 def average_over(components, getter, num_hours):
     components = components[0:num_hours]
@@ -68,7 +69,7 @@ def average_over(components, getter, num_hours):
     return acc / len(components)
 
 def calculate_aqi(aqi_list):
-    components = [ parse_aqi_slice(x) for x in aqi_list]
+    components = [parse_aqi_slice(x) for x in aqi_list]
     components = sorted(components, key = lambda x: x.dt, reverse = True)
     co_aqi = _calculate_aqi(co_ranges, average_over(components, lambda x: x.co, 8))
     no2_aqi = _calculate_aqi(no2_ranges, average_over(components, lambda x: x.no2, 1))
@@ -93,9 +94,9 @@ DEFAULT_LOCATION = """
 """
 
 def fetch(url, request_name):
-    rep = http.get(url, ttl_seconds = CACHE_TTL_SEC)  
+    rep = http.get(url, ttl_seconds = CACHE_TTL_SEC)
     if rep.status_code != 200:
-        fail(request_name + " request failed with status " +  rep.status_code + ": " + rep.body())
+        fail(request_name + " request failed with status " + rep.status_code + ": " + rep.body())
     return rep.json()
 
 def fetch_weather_data(lat, long, api_key):
@@ -104,10 +105,11 @@ def fetch_weather_data(lat, long, api_key):
 
 def fetch_aqi_data(lat, long, api_key):
     now = time.now()
+
     # End = current time rounded down to nearest CACHE_TTL_SEC. Start = 24h before end
     end = math.round(now.unix / CACHE_TTL_SEC) * CACHE_TTL_SEC
     start = end - (60 * 60 * 24)
-    historical_aqi_url = "http://api.openweathermap.org/data/2.5/air_pollution/history?lat=" + lat + "&lon=" + long + "&start=" + '%d' % start + "&end=" + '%d' % end + "&appid=" + api_key
+    historical_aqi_url = "http://api.openweathermap.org/data/2.5/air_pollution/history?lat=" + lat + "&lon=" + long + "&start=" + "%d" % start + "&end=" + "%d" % end + "&appid=" + api_key
 
     return fetch(historical_aqi_url, "AQI")
 

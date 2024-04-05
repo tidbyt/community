@@ -1,0 +1,8 @@
+---
+id: flythel
+name: FlyTheL
+summary: Show MLB Win/Loss Status
+desc: Displays whether your chosen MLB team has recently won or lost, previews the upcoming game, and provides live in-game updates.
+author: Jake Manske
+fileName: flythel.star
+packageName: flythel
