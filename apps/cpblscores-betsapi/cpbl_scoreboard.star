@@ -93,7 +93,7 @@ def main(config):
             awayId = s["home"]["id"]
             convertedTime = time.from_timestamp(int(gameTime)).in_location(timezone)
             if convertedTime.format("1/2") != now.format("1/2"):
-                gameTime = convertedTime.format("Jan 2")
+                gameTime = convertedTime.format("Jan 2 Mon")
             else:
                 gameTime = "Today"
             if gameStatus != "Final":
@@ -103,10 +103,10 @@ def main(config):
             else:
                 awayScore = s["scores"]["run"]["home"]
                 homeScore = s["scores"]["run"]["away"]
-                gameTime = gameTime + "(F)"
+                gameTime = gameTime
             awayScoreColor = "#fff"
             homeScoreColor = "#fff"
-            if homeScore > awayScore:
+            if int(homeScore) > int(awayScore):
                 homeScoreColor = "#D1D117"
             elif homeScore < awayScore:
                 awayScoreColor = "#D1D117"
