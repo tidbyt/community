@@ -108,7 +108,7 @@ def main(config):
             homeScoreColor = "#fff"
             if int(homeScore) > int(awayScore):
                 homeScoreColor = "#D1D117"
-            elif homeScore < awayScore:
+            elif int(homeScore) < int(awayScore):
                 awayScoreColor = "#D1D117"
             renderCategory.extend(
                 [
