@@ -14,7 +14,6 @@ load("secret.star", "secret")
 CLASH_URL = "https://cocproxy.royaleapi.dev/v1/players/%23"
 ENCRYPTED_API_KEY = "AV6+xWcE5FDUpZ3lixi95BpuwknZJBVOeNXaWtI+7lW2qFaefOyA5P8pvAl9ySltp/p6oa3/5mWIHo45SKbb9QekOLY9dcb4HzwQgYilKk3LDfESq3CjOxss8qoCzV978CxAV1WajNtub6DWrCezVG2U606SOkQn/JuUjRWTPG5/hAMU0aCsgKj0g2ni+lGMl9MKPdpSWh+AZhoKa6mIFpPd0dFPsags0KQKlKOVM+CugV8XUEsSx+/27KCnqP2DqL5zXzDpZski4Ej6NltcxiOAHyoarsSwAs7YLWcWt1BvERFLE9S6OUC4lu0YEjyzkzzDmTh7J04HhNymIIOR3TMQKZRlYnAAGskDnojNQ3EP+8p/iRDAiHdihLbylEgouRShdWTlTZBgEPEM81BqDeLUO5mKTi3KsMsu0dd01SxSMd6qVJz2px88U22V1d8mf+Yx/v0sLa44rRa/nHC5Z/ULtFjmr70IDFJP46tyycLpjU48N2GcxJ4V7dIDcRDlFaU85zI00hxGbtZHnjma+9KdmUZUsHsk3UCNdzfrwbZWJs/gHArGquUvMRxt2MTObNq6Liro4Ac+zVvIfGbfq7ahQh1rOZ5WjaUEa64B+ghAjW2BvVXQg/F2Q1lo8sH7/b5jtoVuSxDVOEWTEozh0thxZiVfhdNGHFS+q7ZITk0fCxdrr/mdCYXJ6rZYZ6l1uPHFgxguKvoteSxG8+jfprjDC2KQwPTD0Ts8WDQe6Kuv4X2Yci6WwYwUTSCSyySn+2vpZU0+kCsIKFiBMarGE5dXa5cjwV7JmYINjbztxJFPfBdPum3dXL15yFVzx4FuN6bcIWkw98FTUXuilrf5hfO+DaIJAks7AoNSI7NOrT350BJWs1cTthPYbxfOWkQ="
 
-
 def main(config):
     playerID = config.get("PlayerID", "")
     pictureChoice = config.get("pictureChoice", "Barbarian")
