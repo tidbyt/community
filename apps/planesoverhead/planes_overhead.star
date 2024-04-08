@@ -14,7 +14,7 @@ load("schema.star", "schema")
 load("secret.star", "secret")
 
 # planesoverhead
-ENCRYPTED_API_KEY = "AV6+xWcENM1AApRZHVYpUkLn3b4m6yA8VC7f3JJuelIlIWeNJRc0EjdbjCHjliBqapteECtEVKLJ+9xOa7+Wi2S8TZ+nas20vNDc/X4FPkJUUMHAQCrHwtiYuNAh6Q1Ulg/nsYCBYWe7Xta9YD+EocCSnIGbCstjszJ4tJ5RG3ACU2q6DafoYJERDzf3Eu/FmPLo5hFtuKgCL8UE"
+ENCRYPTED_API_KEY = "AV6+xWcEh+bIZuAShzxaiN6+d0VmDHBwKTzBRWhGzlklt96UKtoIkoMwtqC7w8oOCbbPAyBn94hirsp0TM2pQ9vzfhDM5I1BEL2wKdUs0HSwtuVLIPzcNgq/2QNc8ANvMK/DFYXM+mzi/vXTmoUmEe19B+Vxt28Jzs3qUL/+L5yYEHHp8n0/VwscJ6Z31WPNe/Z8WirghrFMQxAW"
 
 def get_schema():
     return schema.Schema(
@@ -43,19 +43,19 @@ def get_schema():
             ),
             schema.Text(
                 id = "user",
-                name = "Username",
+                name = "OpenSky Username",
                 desc = "username of OpenSky account (optional, higher API access limits)",
                 icon = "person",
             ),
             schema.Text(
                 id = "pass",
-                name = "Password",
+                name = "OpenSky Password",
                 desc = "password of OpenSky account (optional, higher API access limits)",
                 icon = "lock",
             ),
             schema.Text(
                 id = "dev_api_key",
-                name = "API Key",
+                name = "(Not Required - DEV) API Key",
                 desc = "for airplane db lookups",
                 icon = "lock",
             ),
