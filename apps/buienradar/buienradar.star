@@ -86,11 +86,6 @@ def get_weather_news_page(ttl_seconds = 60 * 15):
     response = get_data(url, ttl_seconds)
     return response.body()
 
-def get_wind_icon(direction, ttl_seconds = 60 * 60):
-    url = "https://cdn.buienradar.nl/resources/images/icons/wind/{}.png".format(direction)
-    response = get_data(url, ttl_seconds)
-    return response.body()
-
 def get_rain_data(lat, lon, ttl_seconds = 60 * 5):
     # url = "https://graphdata.buienradar.nl/2.0/forecast/geo/RainEU3Hour?lat={}&lon={}".format(lat, lon)
     url = "https://graphdata.buienradar.nl/2.0/forecast/geo/RainHistoryForecast?lat={}&lon={}".format(lat, lon)
@@ -135,7 +130,7 @@ def render_today(location):
 
     return render.Root(
         show_full_animation = True,
-        delay = 33,
+        delay = 25,
         child = render.Stack(
             children = [
                 render.Padding(
@@ -178,7 +173,7 @@ def render_today(location):
                                             render.Text(
                                                 content = "{}".format(int(today["beaufort"])),
                                                 font = "tom-thumb",
-                                                color = "#1b3e94",
+                                                color = "#00ffc0",
                                             ),
                                             render.Image(
                                                 src = get_wind_icon(today["winddirection"]),
@@ -190,7 +185,7 @@ def render_today(location):
                                     render.Text(
                                         content = "{}%".format(int(today["humidity"])),
                                         font = "tom-thumb",
-                                        color = "#1b3e94",
+                                        color = "#ff00cc",
                                     ),
                                 ],
                             ),
@@ -203,7 +198,7 @@ def render_today(location):
                         child = render.Text(
                             content = message,
                             font = "tom-thumb",
-                            color = COLOR_DIMMED,
+                            color = "#bbb",
                         ),
                         width = 64,
                         offset_start = 64,
@@ -707,4 +702,59 @@ iVBORw0KGgoAAAANSUhEUgAAABMAAAATCAYAAAByUDbMAAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFn
 
     return base64.decode("""
 iVBORw0KGgoAAAANSUhEUgAAABMAAAATCAYAAAByUDbMAAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAAAXZJREFUeNq0lL8vQ1EUx/tLJGIQm1FSpPEzEnQ1GC0MJBpBJAZ/gpaFwWghTSVE2sHAYjRYmzSRUNKgidEmBrGgz+fGt81Le7VVcZLP+96cd+65595z3/M6zpinhoVgDbYgV/k6XRr5PLWtC+akVa2eZO1lWlcyr7ZxAn6XPwPn0qL5FUd82PtTsjxMQdLlv4N5adGSistrXkWyAkzCoSpsgzi8wZM0Ln9OccSnC6VqqnTzXod+BZcwDIPwAN2/6WZCiWIwBEvSmPwJ2yRTmblHQWiFG23hHbIwYJlzDf3QpDvYB6/m/AI8NmBGgRcw6+qizTJKZq7KDozLf9xoZb3QbKssZ/lM9mEZorDp8kdV1R58fC+Yzv5LNwOWJAfwCKOwDYtKYra+q49+HTr1zno1zPgMFnQWL7ACLdAhXZU/pDjiwz5bMkeNOIWIy98DR9KiRRQX1LyKbTpasdxGYEJ6K98nTDfyP3su0z/9z0z3UtKq9iXAADwrZuhwE/QdAAAAAElFTkSuQmCC
+""")
+
+def get_wind_icon(direction):
+    d = direction.upper()
+    if d == "N":
+        return base64.decode("""
+iVBORw0KGgoAAAANSUhEUgAAAA8AAAAPCAYAAAA71pVKAAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAAANdJREFUeNpi/P//PwO5gAnGYGQ4KAnEEvgUA+W5sWoGAm0gDgIqYMWhESQejVXzfwb7PUBKAYg347B4GRCbo4iA/AzDDP8PCAIxkHNgDpp4N1RcDFUciQNVOAmqsBfKb4HyT6CrZUQPbaDfzIDUSSj3IBDbADEzEMcAvbYURS22qAIacAFI6aMJCwI1f8AV2sigGY2/DV0jPs1bgfgnEn8C3kSCEgMM9j+A1HQo9yWQv5tozVAwD0rvIpg8sdh+GUg9B+KVuNSwEEj7YUD8EGdapyRXAQQYAHiRgZa9yBPCAAAAAElFTkSuQmCC
+""")
+    if d == "NO":
+        return base64.decode("""
+iVBORw0KGgoAAAANSUhEUgAAAA8AAAAPCAYAAAA71pVKAAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAAAMdJREFUeNpi/P//PwO5gAmXBCPDQXYg5iBLMxCYA7ECuZobgfg/yZqBzjUEUg5A/JQcm6Og9D98mhnRQxsUUEDqB5TL/Z/B/hspNhcjsf9j8RIPEHOC2CxYNIcgsY8CFf4E0jxArAXEIFcUAPECDGcDFboDqR04XLkBiNuA3jgNE0C3uQmHN6YDNX3HGWBAWyWA1HOo+Acgrgbi+dg0odgM1KgNpPqhYulAPAeo6R+htA1ztgoQHwfiQKCmr8RmDEZKchVAgAEAgkw480BZVgMAAAAASUVORK5CYII=
+""")
+    if d == "NNO":
+        return base64.decode("""
+iVBORw0KGgoAAAANSUhEUgAAAA8AAAAPCAYAAAA71pVKAAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAAAMRJREFUeNpi+P//PwM6Zvh/gBmbODpmYsAO7BmIALg0JzEyHOQlV3MIEEuTrBloozCQYgdiF3JsloDS4VgMVgTiCKgFDCxYNItAaRugIg4grQzEZkCcB8QGQOz3n8H+LS7N4lAaGGcMr4AYFnD/gFgOqPExTCE2zYZwVyI0HgNqsibGz3po/BnYNGJoBvqRE0ipIwlVADVm4gptdGerQQMIBLyBGrfhiyp0zX5QWh2o8Rap8XwOFC3EaAR7E5yLyAQAAQYATiZOzpDk8GwAAAAASUVORK5CYII=
+""")
+    if d == "O":
+        return base64.decode("""
+iVBORw0KGgoAAAANSUhEUgAAAA8AAAAPCAYAAAA71pVKAAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAAAMdJREFUeNpi/P//PwO5gImBAkCyZkaGg45AbABis5CoMRdI8QDxMaI0AzWoAqlgIG4H4odAbPifwf49Xs1ATbZAqgKIvaBCp4GazJDVsKBpUARSoUBcDMRiSFJbgRp9MCwARRVQkwqQvQSIzbE44hlQozS+0P4ExB1AvAiIX6CpkQAaPhmr17AlEqBiByBVBMS+SMKLgC6IJ6gZyRA+IOUBxAVAbAnER4DYEWjIH4Ka0QwSAFK9QHwLiDcDDbjGOHTSNjIACDAAsnY5duCOcP4AAAAASUVORK5CYII=
+""")
+    if d == "Z":
+        return base64.decode("""
+iVBORw0KGgoAAAANSUhEUgAAAA8AAAAPCAYAAAA71pVKAAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAAAMFJREFUeNpi/P//PwO5gAmXBCPDQW4gNiVLMxAIAPE6oAGs5Gh2B2IZILYhR3M6lC7E6TVsAQZ0qiCQeockJPGfwf4lsTanofGjSXF2Fhq/kijNQCerAyk5KPcZEP8BYhGguAsxNsMC6ijQn9JAuh3Kz8VQCQowZMzw/wCQceAWmtgkqLgCqjiqolggfo5uIFRuBxAvA2JOmBi6syWB2Apb4AC94AGk7gBxJEyMBU3NQaCi+3gSzmawOfgSCbEAIMAArc91/lmhBeUAAAAASUVORK5CYII=
+""")
+    if d == "ZO":
+        return base64.decode("""
+iVBORw0KGgoAAAANSUhEUgAAAA8AAAAPCAYAAAA71pVKAAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAAAMlJREFUeNpi/P//PwO5gAlEMDIctAXiJLI0AwEbEGcCDYgmRTMjzNlAjflAagIQvwbiBUDc8J/B/huxmlmA1CsgFoTK/YcashBoyEG8mqEG5AKpSVjUHQfiHiDeAjToFy7NnEDqMxAz43DpTyBuBXkPaMhnJmQZoMB3INWJJOQJxFxAzA3FskC8A6vNUNtBfn4H5VoBDTxOKKqQbX8PpLqQopCBaM1Q0Eu2ZqDtoCg7AsR6+DSz4JEDhaoouZr3AzE/USmMHAAQYAAUJECEsRAjTQAAAABJRU5ErkJggg==
+""")
+    if d == "ZZO":
+        return base64.decode("""
+iVBORw0KGgoAAAANSUhEUgAAAA8AAAAPCAYAAAA71pVKAAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAAANBJREFUeNpi+P//PwMMM/w/II/MJ4SZGFCBAyPDQW0GIgG6ZlYgvgI0wJ4czQug9AGgAZUkaf7PYP8HSN2CctuABiwnxWYQeIHEjgAacB2I1YnVfAWNrwHEN4AGBBKj+SASezMQ7wPiv0C8DmjASiBmhEkyguMXCQAlpYHUE2gYMCKJuwCpRiB+CsSZQLm3GJqhCkGCv4AK2LHIgcTYgXKfWPAE5g5sgkBNP4HUT1x+BoFLUP8ykBpVIDAPFMKENONy9iIg/k1IM9YAIxYABBgAEBBjonNUSNYAAAAASUVORK5CYII=
+""")
+    if d == "W":
+        return base64.decode("""
+iVBORw0KGgoAAAANSUhEUgAAAA8AAAAPCAYAAAA71pVKAAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAAAL9JREFUeNpi/P//PwO5gImBAkC5ZkaGg4pAHEiuze+AmBdowEsgngLEesRoZkQOMKAmdyC1A8o9BsQ7gXjufwb7pwQ1Qw2wAlJH0dStA+LtQLwMaNA3nJqhBkgCqfNALI7FwhNAnAM05CwLDu+ATPyHRXwd1FWPQBwWLLZaA6kjSEIXgXgxEC8C2vYaWS0LmkbkAFsG9eNWvKEN1MQHZAcDcScQzwHifnRbsAGYzSJQfyoCNX0lNpEwDljGAAgwANakQaoOradRAAAAAElFTkSuQmCC
+""")
+    if d == "ZW":
+        return base64.decode("""
+iVBORw0KGgoAAAANSUhEUgAAAA8AAAAPCAYAAAA71pVKAAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAAAMVJREFUeNpi/P//PwO5gIlUDYwMB/WA2IhkzUBNQkCqHojdiNYM1CQLxOuAzLdAzAHEW8Hi+PwM1GACpPqB2AZJWOE/g/1DEIMFhyaQn+YDsR6a1EWYRhTNQA0yQCoJ6idc3mlDsQTkbKBGNiDbB4iDgfg5ED8B4n9A/BuIu4GYG4hvAm3VQDEKpBkfZvh/4BUQAzkHmtDliAltDijdT04i4QXiuUAnvyc3hS3BKkrAv7xAvBOXPCGbQbFQjjMRUZKrAAIMAB0uga0BB878AAAAAElFTkSuQmCC
+""")
+    if d == "ZZW":
+        return base64.decode("""
+iVBORw0KGgoAAAANSUhEUgAAAA8AAAAPCAYAAAA71pVKAAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAAAMBJREFUeNpi+P//PwMhzPD/ACc2cSYGAoCR4aANkIrCJkdQMxBsB+JQkjUDbS0BUjxA/IgkzUCN8kCqG8rlJ9XmHUhsSaI1A23tBFIaSEIaQDEmgpqBinSBVBmasCgQKxFj8wkovROIc5HEFdEVsqDZehZIcQBx6n8G+zlQMTMgFQvEQjg1AxWBFLwHYnagxj9IarKgmjUx3IiUBKXxJM+1QLwbZ/IE2vYUT7RlA/E5nDYTkTkk0MUYwRJkAoAAAwCpPJ+2KJduzgAAAABJRU5ErkJggg==
+""")
+    if d == "NW":
+        return base64.decode("""
+iVBORw0KGgoAAAANSUhEUgAAAA8AAAAPCAYAAAA71pVKAAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAAAM5JREFUeNpi/P//PwO5gAmfJCPDQU4gZiFLMxDwA7EtuZrfAHEN0HY2kjX/Z7D/A6ScgLiQHJtB4BMQF5Cr+T4QSwCd7oJVM1CCHYilCIRLM0ZsgOIZqJEXyI4H4koghhnyFuxtBgZBIGaGinkAw2EnimakeBUAUsFAXAzEmlhccRSo2QarZrQE4gqkEoA4Ck3KCGjAebyakQwRAlINQBwLxCCX7QdqdoLEJVAzsZjh/4EIIP4IxHEgPgspGQFo4wqgS4SBzM9EORsfAAgwAJ5QXvjlPoPoAAAAAElFTkSuQmCC
+""")
+    if d == "NNW":
+        return base64.decode("""
+iVBORw0KGgoAAAANSUhEUgAAAA8AAAAPCAYAAAA71pVKAAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAAANtJREFUeNpi/P//PwMxgJHhIDOQ4v7PYP8JJsbEQDzgBmI5ZAFSNNcDcT5WzUBn6QNxIh7NRUD8HatmoF8uAilJoAE/gFgWzb9tUOZVnM4GGgBStA+IHwE1TIVq5AdSlVAlH1EMxRbaQA2XgZQOEIPoR0DsDZWyAlpwHKaOBYf/XID4GRDrQjEI/AHiNwRDG2j6SyAVjSb8HIhfEhVVQANWAKl+JKGXyAmEYDwDFYOi5xKU+wpdnphE4gKlX5CsGWj7ayBVAsR/0eVYiEyaoDiXwIhSYnMVNgAQYAC4mTqquYVTngAAAABJRU5ErkJggg==
+""")
+
+    return base64.decode("""
+iVBORw0KGgoAAAANSUhEUgAAAA8AAAAPCAYAAAA71pVKAAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAAAE1JREFUeNpi/P//PwO5gImBAjASNbPgkmBkOAiPhv8M9oxE2wzU+BCN/5oozUCF6kBKDsp9BsR/gFgEKO6CoRZXIiHG2YyjKYw0ABBgAL6sFmgosBmfAAAAAElFTkSuQmCC
 """)
