@@ -143,4 +143,3 @@ def split_word(word, span, join_word = False):
         return " ".join(word_split)
     else:
         return word_split
-
