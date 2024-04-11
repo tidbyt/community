@@ -99,11 +99,16 @@ TEAM_SHORTNAME = """
 
 def main(config):
     renderCategory = []
+    selectedTeam = config.get("selectedTeam", "11235")
     displayTop = config.get("displayTop", "time")
     displayType = "Other"
     apikey = config.get("apikey", "")
+    upcoming_games = 15
     url_bestAPI_live = url_live.replace("key", apikey)
     url_bestAPI_upcoming = url_upcoming.replace("key", apikey)
+    if selectedTeam != "11235":
+        url_bestAPI_upcoming = url_bestAPI_upcoming + "&team_id=" + selectedTeam
+        upcoming_games = 5
     timeColor = config.get("displayTimeColor", "#FFA500")
     rotationSpeed = config.get("rotationSpeed", "5")
     location = config.get("location", DEFAULT_LOCATION)
@@ -221,21 +226,23 @@ def main(config):
             games = get_scores(url_bestAPI_upcoming)
             if len(games) > 0:
                 for i, s in enumerate(games):
-                    if i > 20:
+                    if i >= int(upcoming_games):
                         break
                     gameStatus = get_gamestatus(s["time_status"])
-                    homeId = s["home"]["id"]
-                    homeLocation = get_teamlocation(homeId)
-                    homeColor = get_teamcolor(homeId)
-                    awayId = s["away"]["id"]
-                    awayLocation = get_teamlocation(awayId)
-                    awayColor = get_teamcolor(awayId)
                     gameTime = s["time"]
                     convertedTime = time.from_timestamp(int(gameTime)).in_location(timezone)
+                    homeId = s["home"]["id"]
+                    awayId = s["away"]["id"]
                     if convertedTime.format("1/2") != now.format("1/2"):
                         gameTime = convertedTime.format("Jan 2 Mon")
                     else:
                         gameTime = convertedTime.format("3:04 PM")
+                        homeId = s["away"]["id"]
+                        awayId = s["home"]["id"]
+                    homeLocation = get_teamlocation(homeId)
+                    homeColor = get_teamcolor(homeId)
+                    awayLocation = get_teamlocation(awayId)
+                    awayColor = get_teamcolor(awayId)
                     renderCategory.extend(
                         [
                             render.Column(
@@ -365,6 +372,37 @@ def get_scores(urls):
     allscores.extend(decodedata["results"])
     return allscores
 
+teamOptions = [
+    schema.Option(
+        display = "All Teams",
+        value = "11235",
+    ),
+    schema.Option(
+        display = "Wei Chuan Dragons",
+        value = "315045",
+    ),
+    schema.Option(
+        display = "Rakuten Monkeys",
+        value = "329121",
+    ),
+    schema.Option(
+        display = "Uni-President Lions",
+        value = "224095",
+    ),
+    schema.Option(
+        display = "CTBC Brothers",
+        value = "230422",
+    ),
+    schema.Option(
+        display = "Fubon Guardians",
+        value = "224094",
+    ),
+    schema.Option(
+        display = "TSG Hawks",
+        value = "836779",
+    ),
+]
+
 rotationOptions = [
     schema.Option(
         display = "3 seconds",
@@ -444,6 +482,14 @@ def get_schema():
                 name = "Location",
                 desc = "Location for which to display time.",
                 icon = "locationDot",
+            ),
+            schema.Dropdown(
+                id = "selectedTeam",
+                name = "Team Focus",
+                desc = "Show selected team's upcoming games.",
+                icon = "baseballBatBall",
+                default = teamOptions[0].value,
+                options = teamOptions,
             ),
             schema.Dropdown(
                 id = "rotationSpeed",
