@@ -76,7 +76,11 @@ def main(config):
                 if hours < 1 and minutes < 16 and minutes > 5:
                     color = midColor
                 if hours < 1 and minutes < 5:
+<<<<<<< HEAD
+                    color = farColor
+=======
                     color = closeColor
+>>>>>>> 316523e0c9feffbca053f907e5e5ef554048e061
                 formatted_duration = format_duration(days, hours, minutes)
                 output = formatted_duration + " until " + config.str("event" + str(closestEventIndex))
             else:
@@ -86,12 +90,20 @@ def main(config):
     else:
         output = "WAITING FOR DATA"
 
+<<<<<<< HEAD
+    if len(output) < 11:
+=======
     if len(output) < 14:
+>>>>>>> 316523e0c9feffbca053f907e5e5ef554048e061
         eventWidget = render.Text(content = output, font = "6x13", color = color)
     else:
         eventWidget = render.Marquee(
             child = render.Text(content = output, font = "6x13", color = color),
             width = 64,
+<<<<<<< HEAD
+            align = "center",
+=======
+>>>>>>> 316523e0c9feffbca053f907e5e5ef554048e061
         )
 
     #Let's draw:
