@@ -68,9 +68,17 @@ def main(config):
     else:
         output = "WAITING FOR DATA"
 
+    if len(output) < 14:
+        eventWidget = render.Text(content = output, font = "6x13", color = color)
+    else:
+        eventWidget = render.Marquee(
+            child = render.Text(content = output, font = "6x13", color = color),
+            width = 64,
+        )
+
     #Let's draw:
     return render.Root(
-        delay = 500,
+        delay = 150,
         child = render.Column(
             expanded = True,
             main_align = "center",
@@ -86,10 +94,7 @@ def main(config):
                                 render.Text(
                                     content = now.format("3:04 PM"),
                                     font = "6x13",
-                                ),
-                                render.Text(
-                                    content = now.format("3 04 PM"),
-                                    font = "6x13",
+                                    color = color,
                                 ),
                             ],
                         ),
@@ -100,12 +105,7 @@ def main(config):
                     main_align = "center",
                     cross_align = "center",
                     children = [
-                        render.WrappedText(
-                            content = str(output),
-                            color = color,
-                            font = "CG-pixel-3x5-mono",
-                            align = "center",
-                        ),
+                        eventWidget,
                     ],
                 ),
             ],
@@ -119,7 +119,7 @@ def more_options(eventCount):
 
     if int(eventCount) > 0:
         for x in range(int(eventCount)):
-            returnArray.append(schema.Text(id = "event" + str(x), name = "Event " + str(x) + " Name", desc = "Event " + str(x) + " name", icon = "gear"))
+            returnArray.append(schema.Text(id = "event" + str(x), name = "Event " + str(x) + " Name", desc = "16 characters max", icon = "gear"))
             returnArray.append(schema.DateTime(id = "event_" + str(x) + "_time", name = "Event " + str(x) + " Time", desc = "The time event " + str(x) + ".", icon = "gear"))
         return returnArray
     else:
@@ -132,7 +132,7 @@ def get_schema():
             schema.Text(
                 id = "eventCount",
                 name = "Number of Events",
-                desc = "How many different events are we counting down until? (Max 20)",
+                desc = "How many different events are we counting down until? (20 max)",
                 icon = "gear",
             ),
             schema.Toggle(
