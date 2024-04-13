@@ -105,7 +105,7 @@ def main(config):
                     main_align = "center",
                     cross_align = "center",
                     children = [
-                        eventWidget
+                        eventWidget,
                     ],
                 ),
             ],
