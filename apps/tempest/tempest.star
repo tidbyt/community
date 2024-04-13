@@ -84,7 +84,7 @@ def main(config):
         units["units_wind"],
     )
     pressure = "%g" % conditions["sea_level_pressure"]
-    rain = "%g" % conditions["precip_accum_local_day"]
+    rain = "%g" % conditions.get("precip_accum_local_day", 0.0)
     feels = "%d°" % conditions["feels_like"]
     dew_pt = "%d°" % conditions["dew_point"]
     pressure_trend = conditions["pressure_trend"]

@@ -28,6 +28,12 @@ Removed W-D-L data during pre-game display for finals matches
 
 v2.1a
 Removed W-D-L data during pre-game display for finals matches, when "Live Games" and "Specific Team" is selected
+
+v2.2
+Updated for 2024 season
+
+v2.3
+Making the draw field dynamic in team records - it will only appear if the team has had a draw
 """
 
 load("encoding/json.star", "json")
@@ -39,15 +45,15 @@ load("time.star", "time")
 DEFAULT_TIMEZONE = "Australia/Adelaide"
 DEFAULT_TEAM = "10"  # Geelong
 
-MATCHES_URL = "https://aflapi.afl.com.au/afl/v2/matches?competitionId=1&compSeasonId=52"
-LADDER_URL = "https://aflapi.afl.com.au/afl/v2/compseasons/52/ladders"
-ROUND_URL = "https://aflapi.afl.com.au/afl/v2/matches?competitionId=1&compSeasonId=52&roundNumber="
+MATCHES_URL = "https://aflapi.afl.com.au/afl/v2/matches?competitionId=1&compSeasonId=62"
+LADDER_URL = "https://aflapi.afl.com.au/afl/v2/compseasons/62/ladders"
+ROUND_URL = "https://aflapi.afl.com.au/afl/v2/matches?competitionId=1&compSeasonId=62&roundNumber="
 TEAM_SUFFIX = "&teamId="
 
 SQUIGGLE_PREFIX = "https://api.squiggle.com.au/?q=games;round="
 INCOMPLETE_SUFFIX = ";complete=!100"
 COMPLETE_SUFFIX = ";complete=100"
-YEAR_SUFFIX = ";year=2023"
+YEAR_SUFFIX = ";year=2024"
 
 MATCH_CACHE = 86400
 LADDER_CACHE = 86400
@@ -96,6 +102,7 @@ def main(config):
 
     # Use the Squiggle API for live games, cache data for 30 secs
     SQUIGGLE_URL = SQUIGGLE_PREFIX + CurrentRound + INCOMPLETE_SUFFIX
+    #print(SQUIGGLE_URL)
 
     LiveData = get_cachable_data(SQUIGGLE_URL, LIVE_CACHE)
     LiveJSON = json.decode(LiveData)
@@ -132,27 +139,33 @@ def main(config):
                 HomeFound = 0
                 AwayFound = 0
 
-                # if not finals, show W-D-L
+                # if not finals, show team records
                 if MatchesJSON["matches"][0]["compSeason"]["currentRoundNumber"] < 25:
-                    # show the win-draw-loss record for teams
                     for y in range(0, 18, 1):
                         if HomeTeam == LadderJSON["ladders"][0]["entries"][y]["team"]["id"]:
                             HomeWins = str(LadderJSON["ladders"][0]["entries"][y]["thisSeasonRecord"]["winLossRecord"]["wins"])
                             HomeLosses = str(LadderJSON["ladders"][0]["entries"][y]["thisSeasonRecord"]["winLossRecord"]["losses"])
-                            HomeDraws = str(LadderJSON["ladders"][0]["entries"][y]["thisSeasonRecord"]["winLossRecord"]["draws"])
+                            HomeDraws = LadderJSON["ladders"][0]["entries"][y]["thisSeasonRecord"]["winLossRecord"]["draws"]
                             HomeFound = 1
                         if AwayTeam == LadderJSON["ladders"][0]["entries"][y]["team"]["id"]:
                             AwayWins = str(LadderJSON["ladders"][0]["entries"][y]["thisSeasonRecord"]["winLossRecord"]["wins"])
                             AwayLosses = str(LadderJSON["ladders"][0]["entries"][y]["thisSeasonRecord"]["winLossRecord"]["losses"])
-                            AwayDraws = str(LadderJSON["ladders"][0]["entries"][y]["thisSeasonRecord"]["winLossRecord"]["draws"])
+                            AwayDraws = LadderJSON["ladders"][0]["entries"][y]["thisSeasonRecord"]["winLossRecord"]["draws"]
                             AwayFound = 1
 
                         # both teams found, lets break out
                         if HomeFound + AwayFound == 2:
                             break
 
-                    HomeRecord = HomeWins + "-" + HomeDraws + "-" + HomeLosses
-                    AwayRecord = AwayWins + "-" + AwayDraws + "-" + AwayLosses
+                    if HomeDraws == 0:
+                        HomeRecord = HomeWins + "-" + HomeLosses
+                    else:
+                        HomeRecord = HomeWins + "-" + str(HomeDraws) + "-" + HomeLosses
+
+                    if AwayDraws == 0:
+                        AwayRecord = AwayWins + "-" + AwayLosses
+                    else:
+                        AwayRecord = AwayWins + "-" + AwayDraws + "-" + AwayLosses
 
                 else:
                     HomeRecord = ""
@@ -253,20 +266,27 @@ def main(config):
                             if HomeTeam == LadderJSON["ladders"][0]["entries"][y]["team"]["id"]:
                                 HomeWins = str(LadderJSON["ladders"][0]["entries"][y]["thisSeasonRecord"]["winLossRecord"]["wins"])
                                 HomeLosses = str(LadderJSON["ladders"][0]["entries"][y]["thisSeasonRecord"]["winLossRecord"]["losses"])
-                                HomeDraws = str(LadderJSON["ladders"][0]["entries"][y]["thisSeasonRecord"]["winLossRecord"]["draws"])
+                                HomeDraws = LadderJSON["ladders"][0]["entries"][y]["thisSeasonRecord"]["winLossRecord"]["draws"]
                                 HomeFound = 1
                             if AwayTeam == LadderJSON["ladders"][0]["entries"][y]["team"]["id"]:
                                 AwayWins = str(LadderJSON["ladders"][0]["entries"][y]["thisSeasonRecord"]["winLossRecord"]["wins"])
                                 AwayLosses = str(LadderJSON["ladders"][0]["entries"][y]["thisSeasonRecord"]["winLossRecord"]["losses"])
-                                AwayDraws = str(LadderJSON["ladders"][0]["entries"][y]["thisSeasonRecord"]["winLossRecord"]["draws"])
+                                AwayDraws = LadderJSON["ladders"][0]["entries"][y]["thisSeasonRecord"]["winLossRecord"]["draws"]
                                 AwayFound = 1
 
                             # We found both teams, so break out
                             if HomeFound + AwayFound == 2:
                                 break
 
-                        HomeRecord = HomeWins + "-" + HomeDraws + "-" + HomeLosses
-                        AwayRecord = AwayWins + "-" + AwayDraws + "-" + AwayLosses
+                        if HomeDraws == 0:
+                            HomeRecord = HomeWins + "-" + HomeLosses
+                        else:
+                            HomeRecord = HomeWins + "-" + str(HomeDraws) + "-" + HomeLosses
+
+                        if AwayDraws == 0:
+                            AwayRecord = AwayWins + "-" + AwayLosses
+                        else:
+                            AwayRecord = AwayWins + "-" + AwayDraws + "-" + AwayLosses
 
                     else:
                         HomeRecord = ""
@@ -314,10 +334,14 @@ def main(config):
                 if int(TeamListSelection) == LadderJSON["ladders"][0]["entries"][y]["team"]["id"]:
                     HomeWins = str(LadderJSON["ladders"][0]["entries"][y]["thisSeasonRecord"]["winLossRecord"]["wins"])
                     HomeLosses = str(LadderJSON["ladders"][0]["entries"][y]["thisSeasonRecord"]["winLossRecord"]["losses"])
-                    HomeDraws = str(LadderJSON["ladders"][0]["entries"][y]["thisSeasonRecord"]["winLossRecord"]["draws"])
+                    HomeDraws = LadderJSON["ladders"][0]["entries"][y]["thisSeasonRecord"]["winLossRecord"]["draws"]
                     break
 
-            HomeRecord = HomeWins + "-" + HomeDraws + "-" + HomeLosses
+            if HomeDraws == 0:
+                HomeRecord = HomeWins + "-" + HomeLosses
+            else:
+                HomeRecord = HomeWins + "-" + str(HomeDraws) + "-" + HomeLosses
+
             AwayRecord = ""
             starttime = ""
 
@@ -359,20 +383,27 @@ def main(config):
                         if HomeTeam == LadderJSON["ladders"][0]["entries"][y]["team"]["id"]:
                             HomeWins = str(LadderJSON["ladders"][0]["entries"][y]["thisSeasonRecord"]["winLossRecord"]["wins"])
                             HomeLosses = str(LadderJSON["ladders"][0]["entries"][y]["thisSeasonRecord"]["winLossRecord"]["losses"])
-                            HomeDraws = str(LadderJSON["ladders"][0]["entries"][y]["thisSeasonRecord"]["winLossRecord"]["draws"])
+                            HomeDraws = LadderJSON["ladders"][0]["entries"][y]["thisSeasonRecord"]["winLossRecord"]["draws"]
                             HomeFound = 1
                         if AwayTeam == LadderJSON["ladders"][0]["entries"][y]["team"]["id"]:
                             AwayWins = str(LadderJSON["ladders"][0]["entries"][y]["thisSeasonRecord"]["winLossRecord"]["wins"])
                             AwayLosses = str(LadderJSON["ladders"][0]["entries"][y]["thisSeasonRecord"]["winLossRecord"]["losses"])
-                            AwayDraws = str(LadderJSON["ladders"][0]["entries"][y]["thisSeasonRecord"]["winLossRecord"]["draws"])
+                            AwayDraws = LadderJSON["ladders"][0]["entries"][y]["thisSeasonRecord"]["winLossRecord"]["draws"]
                             AwayFound = 1
 
                         # We found both teams, so break out
                         if HomeFound + AwayFound == 2:
                             break
 
-                    HomeRecord = HomeWins + "-" + HomeDraws + "-" + HomeLosses
-                    AwayRecord = AwayWins + "-" + AwayDraws + "-" + AwayLosses
+                    if HomeDraws == 0:
+                        HomeRecord = HomeWins + "-" + HomeLosses
+                    else:
+                        HomeRecord = HomeWins + "-" + str(HomeDraws) + "-" + HomeLosses
+
+                    if AwayDraws == 0:
+                        AwayRecord = AwayWins + "-" + AwayLosses
+                    else:
+                        AwayRecord = AwayWins + "-" + AwayDraws + "-" + AwayLosses
 
                 else:
                     HomeRecord = ""
@@ -452,6 +483,7 @@ def showLiveGame(CurrentRoundJSON, LiveJSON, IncompleteMatches, x):
             AwayBehinds = str(LiveJSON["games"][y]["abehinds"])
 
             gametime = str(LiveJSON["games"][y]["timestr"])
+            #print(gametime)
 
             # if the Squiggle API isn't showing data yet, usually just before game start
             if HomeGoals == "None":
