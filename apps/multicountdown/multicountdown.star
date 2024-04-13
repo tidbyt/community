@@ -86,7 +86,7 @@ def main(config):
     else:
         output = "WAITING FOR DATA"
 
-    if len(output) < 14:
+    if len(output) < 11:
         eventWidget = render.Text(content = output, font = "6x13", color = color)
     else:
         eventWidget = render.Marquee(
