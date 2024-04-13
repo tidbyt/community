@@ -27,7 +27,7 @@ def main(config):
     midColor = "#FFFF00"
 
     #defaults to red
-    closeColor = "#FF0000"
+    #closeColor = "#FF0000"
 
     #If we have events filled in
     if eventCount:
@@ -69,7 +69,7 @@ def main(config):
 
                 #Let's set colors - this isn't very intuitive. If normal, set it to the defaults up top. If event reverse boolean is true, flip red and green for close and far.
                 if config.bool("event_" + str(closestEventIndex) + "_reverse"):
-                    closeColor = "#2BFF00"
+                    #closeColor = "#2BFF00"
                     midColor = "#FFFF00"
                     farColor = "#FF0000"
                 color = farColor
