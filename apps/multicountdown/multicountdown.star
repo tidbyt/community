@@ -16,7 +16,18 @@ def main(config):
 
     eventCount = config.str("eventCount")
     eventArray = []
-    color = "#2BFF00"
+
+    #default color is blue
+    color = "#0000FF"
+
+    #defaults to green
+    farColor = "#2BFF00"
+
+    #defaults to yellow
+    midColor = "#FFFF00"
+
+    #defaults to red
+    closeColor = "#FF0000"
 
     #If we have events filled in
     if eventCount:
@@ -55,10 +66,17 @@ def main(config):
                 days = int(parsedTime.hours / 24)
                 hours = int(parsedTime.hours)
                 minutes = int(parsedTime.minutes)
+
+                #Let's set colors - this isn't very intuitive. If normal, set it to the defaults up top. If event reverse boolean is true, flip red and green for close and far.
+                if config.bool("event_" + str(closestEventIndex) + "_reverse"):
+                    closeColor = "#2BFF00"
+                    midColor = "#FFFF00"
+                    farColor = "#FF0000"
+                color = farColor
                 if hours < 1 and minutes < 16 and minutes > 5:
-                    color = "#FFFF00"
-                if hours < 1 and minutes < 6:
-                    color = "#FF0000"
+                    color = midColor
+                if hours < 1 and minutes < 5:
+                    color = closeColor
                 formatted_duration = format_duration(days, hours, minutes)
                 output = formatted_duration + " until " + config.str("event" + str(closestEventIndex))
             else:
@@ -121,6 +139,7 @@ def more_options(eventCount):
         for x in range(int(eventCount)):
             returnArray.append(schema.Text(id = "event" + str(x), name = "Event " + str(x) + " Name", desc = "16 characters max", icon = "gear"))
             returnArray.append(schema.DateTime(id = "event_" + str(x) + "_time", name = "Event " + str(x) + " Time", desc = "The time event " + str(x) + ".", icon = "gear"))
+            returnArray.append(schema.Toggle(id = "event_" + str(x) + "_reverse", name = "Event " + str(x) + " Reverse Color", desc = "Should we reverse the colors for this event?", icon = "gear", default = False))
         return returnArray
     else:
         return returnArray
