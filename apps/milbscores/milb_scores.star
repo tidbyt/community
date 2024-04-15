@@ -12,7 +12,7 @@ Added Double A leagues & team colors
 Added team logos for both Triple-A and Double-A teams
 
 v1.2
-Changed the names on the league selection dropdown
+Changed the names on the league selection dropdown 
 """
 
 load("encoding/json.star", "json")
