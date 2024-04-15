@@ -16,7 +16,18 @@ def main(config):
 
     eventCount = config.str("eventCount")
     eventArray = []
-    color = "#2BFF00"
+
+    #default color is blue
+    color = "#0000FF"
+
+    #defaults to green
+    farColor = "#2BFF00"
+
+    #defaults to yellow
+    midColor = "#FFFF00"
+
+    #defaults to red
+    #closeColor = "#FF0000"
 
     #If we have events filled in
     if eventCount:
@@ -55,10 +66,19 @@ def main(config):
                 days = int(parsedTime.hours / 24)
                 hours = int(parsedTime.hours)
                 minutes = int(parsedTime.minutes)
-                if hours < 1 and minutes < 16 and minutes > 5:
-                    color = "#FFFF00"
-                if hours < 1 and minutes < 6:
-                    color = "#FF0000"
+
+                #Let's set colors - this isn't very intuitive. If normal, set it to the defaults up top. If event reverse boolean is true, flip red and green for close and far.
+                if config.bool("event_" + str(closestEventIndex) + "_reverse"):
+                    #closeColor = "#2BFF00"
+                    midColor = "#FFFF00"
+                    farColor = "#FF0000"
+                color = farColor
+
+                #Disabling the intermediary step for colors.
+                #if hours < 1 and minutes < 30 and minutes > 15:
+                #    color = midColor
+                if hours < 1 and minutes < 15:
+                    color = midColor
                 formatted_duration = format_duration(days, hours, minutes)
                 output = formatted_duration + " until " + config.str("event" + str(closestEventIndex))
             else:
@@ -68,9 +88,17 @@ def main(config):
     else:
         output = "WAITING FOR DATA"
 
+    if len(output) < 11:
+        eventWidget = render.Text(content = output, font = "6x13", color = color)
+    else:
+        eventWidget = render.Marquee(
+            child = render.Text(content = output, font = "6x13", color = color),
+            width = 64,
+        )
+
     #Let's draw:
     return render.Root(
-        delay = 500,
+        delay = 150,
         child = render.Column(
             expanded = True,
             main_align = "center",
@@ -86,10 +114,7 @@ def main(config):
                                 render.Text(
                                     content = now.format("3:04 PM"),
                                     font = "6x13",
-                                ),
-                                render.Text(
-                                    content = now.format("3 04 PM"),
-                                    font = "6x13",
+                                    color = color,
                                 ),
                             ],
                         ),
@@ -100,12 +125,7 @@ def main(config):
                     main_align = "center",
                     cross_align = "center",
                     children = [
-                        render.WrappedText(
-                            content = str(output),
-                            color = color,
-                            font = "CG-pixel-3x5-mono",
-                            align = "center",
-                        ),
+                        eventWidget,
                     ],
                 ),
             ],
@@ -119,8 +139,9 @@ def more_options(eventCount):
 
     if int(eventCount) > 0:
         for x in range(int(eventCount)):
-            returnArray.append(schema.Text(id = "event" + str(x), name = "Event " + str(x) + " Name", desc = "Event " + str(x) + " name", icon = "gear"))
+            returnArray.append(schema.Text(id = "event" + str(x), name = "Event " + str(x) + " Name", desc = "16 characters max", icon = "gear"))
             returnArray.append(schema.DateTime(id = "event_" + str(x) + "_time", name = "Event " + str(x) + " Time", desc = "The time event " + str(x) + ".", icon = "gear"))
+            returnArray.append(schema.Toggle(id = "event_" + str(x) + "_reverse", name = "Event " + str(x) + " Reverse Color", desc = "Should we reverse the colors for this event?", icon = "gear", default = False))
         return returnArray
     else:
         return returnArray
@@ -132,7 +153,7 @@ def get_schema():
             schema.Text(
                 id = "eventCount",
                 name = "Number of Events",
-                desc = "How many different events are we counting down until? (Max 20)",
+                desc = "How many different events are we counting down until? (20 max)",
                 icon = "gear",
             ),
             schema.Toggle(
