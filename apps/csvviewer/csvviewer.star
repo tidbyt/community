@@ -237,8 +237,9 @@ def render_cell(value, height, width, avoid_scrolling_text, allow_letters_to_tou
         # By default, text adds an extra pixel to make sure letters don't touch.
         # This allows the letters to touch if the user specifically requests that.
         allowed_width = width + 1 if allow_letters_to_touch else width
+        allowed_height = height + 1 if allow_letters_to_touch else height
 
-        rendered_text = render_text(text, text_color, height, allowed_width, avoid_scrolling_text)
+        rendered_text = render_text(text, text_color, allowed_height, allowed_width, avoid_scrolling_text)
 
         return render.Stack(
             children = [
