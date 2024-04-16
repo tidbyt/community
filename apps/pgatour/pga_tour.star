@@ -57,6 +57,9 @@ Updated PLAYER_MAPPING
 v2.6.2
 Updated PLAYER_MAPPING
 Allowed extra char in Tournament Name
+
+v2.6.3
+Updated Player Name Mapping logic to stop partial ID matches
 """
 
 load("encoding/json.star", "json")
@@ -317,8 +320,9 @@ def getPlayerScore(x, s, Title, TitleColor, ColorGradient, stage, state, Mapping
             playerID = s[i + x]["id"]
 
             # Check for certain player IDs and outputs an altername name if needed
-            if playerID in PLAYER_MAPPING:
-                playerName = Mapping.get(playerID, "unknown")
+            if playerID in Mapping:
+                playerName = Mapping[playerID]
+
             else:
                 playerName = s[i + x]["lastName"][:12]
 
@@ -407,8 +411,8 @@ def getPlayerProgress(x, s, t, Title, TitleColor, ColorGradient, stage, state, t
             playerID = s[i + x]["id"]
 
             # Check for certain player IDs and outputs an altername name if needed
-            if playerID in PLAYER_MAPPING:
-                playerName = Mapping.get(playerID, "unknown")
+            if playerID in Mapping:
+                playerName = Mapping[playerID]
             else:
                 playerName = s[i + x]["lastName"][:12]
 

@@ -287,7 +287,6 @@ def render_grid(data, row_count, col_count, config):
                     else:
                         break
 
-
             rendered_cell = render_cell(cell_value, row_height, col_width, avoid_scrolling_text, allow_letters_to_touch)
 
             # Place the rendered cel in a box with the given size to get everything to fit nicely
