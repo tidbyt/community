@@ -1,0 +1,8 @@
+---
+id: time-and-temp
+name: Time & Temp
+summary: Display current time / temp
+desc: Display current time and AccuWeather current conditions based on AccuWeather location key. To request an AccuWeather API key, see https://developer.accuweather.com/getting-started. To determine AccuWeather location key, search https://www.accuweather.com for a location and extract trailing number, e.g. 2191987 for https://www.accuweather.com/en/us/lavallette/08735/current-weather/2191987.
+author: sudeepban
+fileName: time_and_temp.star
+packageName: timeandtemp
