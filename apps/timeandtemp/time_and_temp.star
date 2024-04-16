@@ -1012,7 +1012,7 @@ def main(config):
         # rain (day and night)
         icon = base64.decode(WEATHER_ICONS["rainy.png"])
     elif (icon_num >= 15 and icon_num <= 17) or (icon_num >= 41 and icon_num <= 42):
-        # thunderstorm (day and night))
+        # thunderstorm (day and night)
         icon = base64.decode(WEATHER_ICONS["thundery.png"])
     elif (icon_num >= 19 and icon_num <= 26) or icon_num == 29 or (icon_num >= 43 and icon_num <= 44):
         # snow (day and night)
