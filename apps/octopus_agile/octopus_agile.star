@@ -28,8 +28,12 @@ def main():
     nextRate = data["results"][count]["value_inc_vat"]
 
     color = "#FFF"
-    if nextRate < 4:
+
+    if nextRate < 1:
         color = "#A3BE8C"
+
+    if nextRate < 4:
+        color = "#81A1C1"
 
     if nextRate > 17:
         color = "#BF616A"
