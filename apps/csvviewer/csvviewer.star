@@ -275,7 +275,7 @@ def render_grid(data, row_count, col_count, config):
             cell_value = data[r][c]
 
             # Change the width if we're going to expand to the right
-            text, text_color, background_color = extract_text_color_and_background(cell_value)
+            text = extract_text_color_and_background(cell_value)[0]
             if text != None and text != "" and expand_to_neighboring_cells:
                 print("Text: %s" % text)
 
