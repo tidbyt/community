@@ -273,7 +273,7 @@ def build_event_frame(event):
 def get_event_summary(summary):
     if DEFAULT_TRUNCATE_EVENT_SUMMARY:
         splitSum = summary.split()
-        return " ".join(summary) if len(splitSum) <= 3 else " ".join(splitSum[:3]) + "..."
+        return " ".join(splitSum) if len(splitSum) <= 3 else " ".join(splitSum[:3]) + "..."
     else:
         return summary
 
@@ -300,13 +300,6 @@ def get_schema():
                 desc = "Show events outside of a 24 hour window.",
                 default = DEFAULT_SHOW_EXPANDED_TIME_WINDOW,
                 icon = "clock",
-            ),
-            schema.Toggle(
-                id = P_SHOW_FULL_NAMES,
-                name = "Show Full Names",
-                desc = "Show the full names of the days of the week.",
-                default = DEFAULT_SHOW_FULL_NAMES,
-                icon = "calendar",
             ),
             schema.Toggle(
                 id = P_SHOW_FULL_NAMES,
