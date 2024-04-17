@@ -7,6 +7,7 @@ Author: sandeepb1
 
 load("encoding/base64.star", "base64")
 load("http.star", "http")
+load("math.star", "math")
 load("render.star", "render")
 load("time.star", "time")
 
@@ -52,7 +53,7 @@ def main():
                         height = 16,
                     ),
                     render.Text(
-                        content = str(nextRate) + "p",
+                        content = str((math.round(nextRate * 100) / 100)) + "p",
                         font = "tb-8",
                         color = color,
                     ),
