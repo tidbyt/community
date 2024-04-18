@@ -48,6 +48,7 @@ GAME_STATUS = """
 {
     "0": "Upcoming",
     "1": "Live",
+    "2": "Err",
     "3": "Final",
     "4": "Postponed",
     "7": "Cancel",
@@ -97,8 +98,10 @@ def main(config):
             else:
                 gameTime = "Today"
             if gameStatus != "Final":
-                awayScore = ""
-                homeScore = ""
+                if gameStatus == "Err":
+                    continue
+                awayScore = "0"
+                homeScore = "0"
                 gameTime = gameStatus
             else:
                 awayScore = s["scores"]["run"]["home"]
