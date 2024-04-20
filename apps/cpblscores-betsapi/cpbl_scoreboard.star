@@ -40,6 +40,7 @@ TEAM_LOGO = """
     "224095": "https://www.thesportsdb.com/images/media/team/badge/kehxfy1655923111.png",
     "230422": "https://www.thesportsdb.com/images/media/team/badge/nbtugc1655923087.png",
     "224094": "https://www.thesportsdb.com/images/media/team/badge/aj83wn1655923095.png",
+    "229259": "https://www.thesportsdb.com/images/media/team/badge/aj83wn1655923095.png",
     "836779": "https://www.thesportsdb.com/images/media/team/badge/gx1dgl1680852780.png"
 }
 """
@@ -250,7 +251,7 @@ teamOptions = [
     ),
     schema.Option(
         display = "Fubon Guardians",
-        value = "224094",
+        value = "229259",
     ),
     schema.Option(
         display = "TSG Hawks",
