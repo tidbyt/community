@@ -206,10 +206,10 @@ def get_colors_1d():
 def main(config):
     # Get config information
     location = config.get("location")
-    twenty_four_hour = config.get("24hour", DEFAULT_TWENTY_FOUR_HOUR)
-    blink = config.get("blink", DEFAULT_BLINK)
+    twenty_four_hour = config.bool("24hour", DEFAULT_TWENTY_FOUR_HOUR)
+    blink = config.bool("blink", DEFAULT_BLINK)
     background_color = config.get("background", DEFAULT_BACKGROUND_COLOR)
-    display_clock = config.get("display", DEFAULT_DISPLAY_CLOCK)
+    display_clock = config.bool("display", DEFAULT_DISPLAY_CLOCK)
 
     # set time zone
     location = json.decode(location) if location else {}
