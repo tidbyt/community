@@ -397,12 +397,12 @@ def get_cachable_data(url):
 
 def get_logo(team):
     usealtlogo = json.decode(TEAM_LOGO)
-    logo = usealtlogo.get(team, "NO")
+    logo = usealtlogo.get(team, "NOLOGO")
     return logo
 
 def get_gamestatus(status):
     gamestatus = json.decode(GAME_STATUS)
-    sta = gamestatus.get(status, "NO")
+    sta = gamestatus.get(status, "EXC")
     return sta
 
 def render_error(error):
