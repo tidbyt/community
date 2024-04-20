@@ -1,0 +1,8 @@
+---
+id: hieroglyphs
+name: Hieroglyphs
+summary: Random Egyptian Hieroglyphs
+desc: Displays Egyptian Hieroglyphs from Gardiner's Sign List plus details of pronunciation and use.
+author: dinosaursrarr
+fileName: hieroglyphs.star
+packageName: hieroglyphs

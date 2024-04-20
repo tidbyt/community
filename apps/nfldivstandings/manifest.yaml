@@ -1,0 +1,8 @@
+---
+id: nfldivstandings
+name: NflDivStandings
+summary: Show NFL division standings
+desc: Displays NFL division standings for your favorite division.
+author: Jake Manske
+fileName: nfldivstandings.star
+packageName: nfldivstandings

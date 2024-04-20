@@ -1,0 +1,8 @@
+---
+id: bofh-quotes
+name: BOFH Quotes
+summary: BOFH Quotes Generator
+desc: Shows a random list of your favorite disgruntled Bastard Operator From Hell (B.O.F.H.) quotes.
+author: jondkelley
+fileName: bofh_quotes.star
+packageName: bofhquotes

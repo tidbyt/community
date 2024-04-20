@@ -58,8 +58,8 @@ GOOGLE_OAUTH_USER_AUTH_URL = "https://accounts.google.com/o/oauth2/v2/auth"
 
 # Random Hash Strings to store Secrets required by Google Oauth (for input to Tidbyt "Secrets" functions)
 # Note - app name is "stepcounter"
-CLIENT_ID_HASH = "AV6+xWcE+SIkQgnPgHzViV78GTRoxpMjlccjdOSUxNRSaBunq5fHKq5xp3sMlKVtYs1V9ZFwBUWg79Pgw+Y3mXoPB5q9AuBVN9bjgND9YpZ9dn3crPs7saefSsj+Mx4K8QUjQgzwLm68+qfWCCtQO419dnPJANjmjXuCrEk02RGw1q3DTRlmaF+Fh+Nf8PRl7wD7Vpfv++8I+WjUlqlhRviULKbMJkyRlZMuBrai"
-CLIENT_SECRET_HASH = "AV6+xWcEb1T8b5kw+ugpxOQ55oRdM9Ox+/PxPSm7V3VTC7NtCrMJXsMA/oozP2Eu8yKUnuDO2jmRB87tsr9ffX1sIkUTdLbftv4swDYku77yz79AJb31q0IRS/gxVkeYuLdgwIt2wqFX6Xrqve2t3wvouaI2WIrpH7U9YzWwc1Iwuv8+6NcKjH0="
+CLIENT_ID_HASH = "AV6+xWcElXy28eMrcBYmFSFnWaraEVFK25mjVHDNrN3u53Z1yqZMFE3/niFTPSBz86qCj/kViLnag3NN7gxJKugcaGO+SZL2aY5dVXbCrOeAG65MN4tksp1PYG1oAQsPF6h1YYFIFnoe94VEAgXOyrTN9SQNF1ewzTrvY/LQAWmB5ED274fDoHOC0W2B0hSVyR63X5vEsydJR5ByQPNxjKS+vLn5kmrc3LDLfxHA"
+CLIENT_SECRET_HASH = "AV6+xWcEWtI7ZA5MICCJ4TsLfsEH3ryq7QstEIWQ6FJeP0lPA9Z0qn8Bv8O+Br2/Iey7Xo/SDSGAGBwebvlJD1GHrC69MGWSlbtlZHuaPMiAtgoZMGoynjM7fu9mrygj/3RHhGE1+AL73AcnbU0aEjUSo5r4NP4TDQryO6c8UWPM4g+oAiKVU+o="
 
 # Default (bogus) client ID and Secrets to keep the run time Env happy when running in Deubg Mode
 CLIENT_ID_DEFAULT = "123456"

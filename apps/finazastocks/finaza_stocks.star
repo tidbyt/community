@@ -20,6 +20,9 @@ OB2mB6cBII3oANkguAEvSpn/ozsd2VZcbFiYMJJiALawoI0BIJsIhQFeLyA7lawwIMkAbOmAmF
 igXjqA5QVcqRFbSkRWS73MhBxwpGRnAGAwmUGS9KHUAAAAAElFTkSuQmCC
 """)
 
+# https://github.com/tidbyt/pixlet/blob/main/docs/widgets.md
+# https://tidbyt.dev/docs/publish/publishing-apps
+
 P_LOCATION = "location"
 DEFAULT_TIMEZONE = "America/New_York"
 
@@ -34,8 +37,11 @@ def main(config):
     now = config.get("time")
     now = (time.parse_time(now) if now else time.now()).in_location(timezone)
 
-    #now_date = now.format("Mon 2 Jan 2006")
-    now_date = now.format("2 Jan 2006")
+    now_date = now.format("Mon 2 Jan 2006")
+    #now_date = now.format("2 Jan 2006")
+
+    msg_up = ""
+    msg_down = ""
 
     if True:
         print("%s %s" % ("Program", "Started.."))
@@ -67,6 +73,8 @@ def main(config):
 
         msg = ""
         rep = http.get(STOCK_QUOTE_URL_FINAL, ttl_seconds = 500)
+        msg_up = ""
+        msg_down = ""
 
         #print(rep.json())
         if rep.status_code != 200:
@@ -75,8 +83,20 @@ def main(config):
         else:
             for stock in rep.json()["quotes"]:
                 msg = msg + stock["symbol"] + ":$" + str(stock["latestPrice"]) + " "
+                if stock["change"] > 0:
+                    msg_up = msg_up + stock["symbol"] + ":$" + str(stock["latestPrice"]) + " "
+                else:
+                    msg_down = msg_down + stock["symbol"] + ":$" + str(stock["latestPrice"]) + " "
             msg = msg.rstrip(" ")
-            print(msg)
+
+            #msg_up = msg_up.rstrip(" ")
+            #msg_down = msg_down.rstrip(" ")
+            msg_up = str_repeat_to_length(msg_up, 64)
+            msg_down = str_repeat_to_length(msg_down, 64)
+
+            print("ALL:", msg)
+            print("UP:", len(msg_up))
+            print("DOWN", len(msg_down))
     else:
         msg = "Please configure symbols in the applet settings."
 
@@ -92,9 +112,29 @@ def main(config):
                             #render.Padding( child=render.Image(src = SYMBOL_B64),  pad = (1, 0, 2, 0)),
                             render.Padding(child = render.Circle(
                                 color = "#0ff",
-                                diameter = 14,
-                                child = render.Circle(color = "#666", diameter = 10, child = render.Text("F")),
-                            ), pad = (0, 0, 0, 0)),
+                                diameter = 10,
+                                child = render.Circle(color = "#666", diameter = 6, child = render.Text("F")),
+                            ), pad = (1, 0, 0, 0)),
+                            render.Padding(render.Marquee(
+                                width = 64,
+                                height = 64,
+                                child = render.Text(msg_up, font = "6x13", color = "#00FF00"),
+                                offset_start = 10,
+                                offset_end = 32,
+                            ), pad = (1, 0, 0, 0)),
+                        ],
+                    ),
+                    render.Row(
+                        expanded = True,
+                        main_align = "space_evenly",
+                        cross_align = "center",
+                        children = [
+                            #render.Padding( child=render.Image(src = SYMBOL_B64),  pad = (1, 0, 2, 0)),
+                            # render.Padding(child = render.Circle(
+                            #     color = "#0ff",
+                            #     diameter = 10,
+                            #     child = render.Circle(color = "#666", diameter = 6, child = render.Text("F")),
+                            # ), pad = (0, 0, 0, 0)),
                             render.Padding(
                                 pad = (0, 0, 0, 0),
                                 child = render.Text(
@@ -113,7 +153,7 @@ def main(config):
                             render.Marquee(
                                 width = 64,
                                 height = 64,
-                                child = render.Text(msg, font = "6x13", color = "#fa0"),
+                                child = render.Text(msg_down, font = "6x13", color = "#FF0000"),
                                 offset_start = 10,
                                 offset_end = 32,
                             ),
@@ -123,6 +163,16 @@ def main(config):
             ),
         ),
     )
+
+def str_extend_to_length(s, length):
+    return s + " " * (length - len(s))
+
+def str_repeat_to_length(s, length):
+    print("Length:", len(s))
+    if (len(s) == 0):
+        s = s + " "
+
+    return (s * (length // len(s) + 1))[:length]
 
 def get_schema():
     return schema.Schema(

@@ -34,6 +34,17 @@ Fixed bug for "need to win" amount in 4th innings
 v1.6
 For a test that's about to start, cycle between the start time and the title of the match, eg 1st Test, 2nd Test etc
 Added handling for when details of the venue/ground are not yet available
+
+v1.7
+Updated "Wet Outfield" status
+Updated status messages displayed during breaks in play
+Updated BatsmanScore function, removed use of marquee for batsmen name
+
+v1.7.1
+Updated text color on Status 5 messages
+
+v1.7.2
+Fixed bug for "Dinner" break
 """
 
 load("encoding/json.star", "json")
@@ -103,6 +114,7 @@ def main(config):
         SeriesID = str(SeriesID)
         Match_URL = "https://hs-consumer-api.espncricinfo.com/v1/pages/match/details?lang=en&seriesId=" + SeriesID + "&matchId=" + MatchID + "&latest=true"
 
+        #print(Match_URL)
         # cache specific match data for 1 minute
         MatchData = get_cachable_data(Match_URL, MATCH_CACHE)
         Match_JSON = json.decode(MatchData)
@@ -150,7 +162,7 @@ def main(config):
             RemOvers = Match_JSON["match"]["liveOversPending"]
             RemOvers = str(RemOvers)
 
-            # Get match status - are we playing (live), drinks, lunch, tea or stumps
+            # Get match status - are we playing (live), drinks, lunch, tea, dinner or stumps
             Status = Match_JSON["match"]["status"]
             StatusColor = "#fff"
 
@@ -231,7 +243,9 @@ def main(config):
             # Bowler details
             CurrentBowler = Match_JSON["livePerformance"]["bowlers"][0]["player"]["fieldingName"]
             if len(CurrentBowler) > 10:
-                CurrentBowler = Match_JSON["livePerformance"]["bowlers"][0]["player"]["mobileName"]
+                if Match_JSON["livePerformance"]["bowlers"][0]["player"]["mobileName"] != "":
+                    CurrentBowler = Match_JSON["livePerformance"]["bowlers"][0]["player"]["mobileName"]
+
             CurrentBowler_Wkts = Match_JSON["livePerformance"]["bowlers"][0]["wickets"]
             CurrentBowler_Runs = Match_JSON["livePerformance"]["bowlers"][0]["conceded"]
 
@@ -261,6 +275,8 @@ def main(config):
             TheSess = Match_JSON["match"]["liveSession"]
             TheSess = str(TheSess)
 
+            Break = False
+
             # display the day number, or if a wicket has fallen, show that instead as the "status"
             if Batsmen == 2:
                 Status2 = "Rem Overs: " + RemOvers
@@ -268,7 +284,7 @@ def main(config):
                 Status5 = CurrentBowler + " " + CurrentBowler_Wkts + "/" + CurrentBowler_Runs
                 Status5Color = BowlingTeamColor
 
-                # if there is play, show the session and day, otherwise show the break - eg lunch, tea, stumps or drinks
+                # if there is play, show the session and day, otherwise show the break - eg lunch, tea, dinner, stumps or drinks
                 # added other options her as well
                 # Stumps, Lunch & tea - should be Stumps, Stumps, Trail, Partnership, Stumps
                 if Status == "Live":
@@ -276,7 +292,8 @@ def main(config):
                     TheDay = "Day " + TheDay
                     Status = TheSess + " - " + TheDay
                     Status5 = CurrentBowler + " " + CurrentBowler_Wkts + "/" + CurrentBowler_Runs
-                elif Status == "Stumps" or Status == "Lunch" or Status == "Tea" or Status == "Drinks":
+                elif Status == "Stumps" or Status == "Lunch" or Status == "Tea" or Status == "Drinks" or Status == "Dinner":
+                    Break = True
                     Status = Status + " - Day " + TheDay
                     Status2 = Status
                     Status5 = Status
@@ -285,10 +302,16 @@ def main(config):
                     Status = Status
                 elif Status == "Match delayed by rain":
                     Status = "Rain Delay"
+                    Status5 = Status
+                    Status5Color = "#fff"
                 elif Status == "Match delayed by bad light":
                     Status = "Bad Light delay"
-                elif Status == "Match delayed - wet outfield":
+                    Status5 = Status
+                    Status5Color = "#fff"
+                elif Status == "Match delayed by a wet outfield":
                     Status = "Wet outfield"
+                    Status5 = Status
+                    Status5Color = "#fff"
 
             elif Batsmen == 1:
                 # if someone is just out, show a wicket has fallen
@@ -299,7 +322,8 @@ def main(config):
                     Status2 = "Rem Overs: " + RemOvers
                     Status5 = CurrentBowler + " " + CurrentBowler_Wkts + "/" + CurrentBowler_Runs
                     Status5Color = "#f00"
-                elif Status == "Stumps" or Status == "Lunch" or Status == "Tea" or Status == "Drinks":
+                elif Status == "Stumps" or Status == "Lunch" or Status == "Tea" or Status == "Drinks" or Status == "Dinner":
+                    Break = True
                     Status = Status + " - Day " + TheDay
                     Status2 = Status
                     Status5 = Status
@@ -321,7 +345,7 @@ def main(config):
                     Status2 = "Rem Overs: " + RemOvers
                     Status5 = Status
                     Status5Color = "#fff"
-                elif Status == "Match delayed - wet outfield":
+                elif Status == "Match delayed by a wet outfield":
                     Status = "Wet outfield"
                     Status2 = "Rem Overs: " + RemOvers
                     Status5 = Status
@@ -331,9 +355,8 @@ def main(config):
             Status3Color = "#fff"
             Status4 = "Part'ship: " + CurrentPartnership
             Status4Color = BattingTeamColor
-            #Status5 = CurrentBowler + " " + CurrentBowler_Wkts + "/" + CurrentBowler_Runs
 
-            if IsOut == True and Wickets != "10":
+            if IsOut == True and Wickets != "10" and Break == False:
                 StatusColor = "#f00"
                 Status2Color = "#f00"
                 Status3Color = "#f00"
@@ -619,7 +642,6 @@ def main(config):
         if SeriesID != 0:
             Match_URL = "https://hs-consumer-api.espncricinfo.com/v1/pages/match/details?lang=en&seriesId=" + str(SeriesID) + "&matchId=" + str(MatchID) + "&latest=true"
 
-            # print(Match_URL)
             # get data, hold cache for 6 hrs
             MatchData = get_cachable_data(Match_URL, FUTURE_FIXTURE_CACHE)
             Match_JSON = json.decode(MatchData)
@@ -897,24 +919,49 @@ def FinalTeamScore(BattingTeam, BattingTeamColor, Wickets1, Runs1, Wickets2, Run
     )
 
 def BatsmanScore(Batsman, Runs, BatsmanColor):
+    # Display the batsman & their score, with name cropped to 11 characters
     return render.Row(
+        expanded = True,
+        main_align = "space_between",
         children = [
-            render.Box(width = 50, height = 8, child = render.Padding(
-                pad = (2, 1, 0, 0),
-                child = render.Marquee(
-                    width = 50,
-                    child = render.Text(content = Batsman, color = BatsmanColor, font = "CG-pixel-3x5-mono", offset = 0),
-                ),
-            )),
-            render.Box(width = 14, height = 8, child = render.Padding(
-                pad = (0, 0, 0, 0),
-                child = render.Marquee(
-                    width = 14,
-                    child = render.Text(content = Runs, color = BatsmanColor, font = "CG-pixel-3x5-mono", offset = 0),
-                ),
-            )),
+            render.Row(
+                main_align = "start",
+                children = [
+                    render.Padding(
+                        pad = (2, 2, 2, 1),
+                        child = render.Text(content = Batsman[:11], color = BatsmanColor, font = "CG-pixel-3x5-mono", offset = 0),
+                    ),
+                ],
+            ),
+            render.Row(
+                main_align = "end",
+                children = [
+                    render.Padding(
+                        pad = (2, 2, 2, 1),
+                        child = render.Text(content = Runs, color = BatsmanColor, font = "CG-pixel-3x5-mono", offset = 0),
+                    ),
+                ],
+            ),
         ],
     )
+    # return render.Row(
+    #     children = [
+    #         render.Box(width = 50, height = 8, child = render.Padding(
+    #             pad = (2, 1, 0, 0),
+    #             child = render.Marquee(
+    #                 width = 50,
+    #                 child = render.Text(content = Batsman, color = BatsmanColor, font = "CG-pixel-3x5-mono", offset = 0),
+    #             ),
+    #         )),
+    #         render.Box(width = 14, height = 8, child = render.Padding(
+    #             pad = (0, 0, 0, 0),
+    #             child = render.Marquee(
+    #                 width = 14,
+    #                 child = render.Text(content = Runs, color = BatsmanColor, font = "CG-pixel-3x5-mono", offset = 0),
+    #             ),
+    #         )),
+    #     ],
+    # )
 
 def StatusRow(StatusMsg, StatusColor):
     return render.Row(

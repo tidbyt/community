@@ -1,0 +1,8 @@
+---
+id: random-numbers
+name: Random Numbers
+summary: Display random numbers
+desc: Display random numbers.
+author: Kyle Bolstad
+fileName: random_numbers.star
+packageName: randomnumbers

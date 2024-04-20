@@ -37,8 +37,8 @@ Red = "#f00"
 Yellow = "#ff0"
 Blue = "#00f"
 
-DEFAULT_TIMEZONE = "America/Detroit"
-#DEFAULT_TIMEZONE="US/Pacific"
+#DEFAULT_TIMEZONE = "America/Detroit"
+DEFAULT_TIMEZONE = "US/Pacific"
 
 # Default (bogus) client ID and Secrets to keep the run time Env happy when running in Debug Mode
 CLIENT_ID_DEFAULT = "123456"
@@ -64,8 +64,8 @@ OUTLOOK_CALENDAR_VIEW_URL = "https://graph.microsoft.com/v1.0/me/calendarview?$s
 # Hash Strings to encrypt/store secrets required by MSFT Graph API access.   These ultimately get replaced with Tidbyt Hash when the
 # App is placed into the production envirnment.   Application folder name is "outlookcalendar"   These (hashed) secrets are tied to
 # the common tenant version of the Web App (Tidbyt_Ocal)
-CLIENT_ID_HASH = "AV6+xWcEpyCHSZvzyLITAzILoYT1FBTTxLF+G5LEkIx61DecQ7+edZNHDiWXjbGIsZlangWOQy2sBTi21FUY9JRSAOsseiuK3+1cGGKRkSARjBaCxLFZ2OPIXf3AM6eto3DshTwWd/jppqZKEyOJUSBvILCIxEq0XVDoppxe7tRgC3nnzMT+0BKl"
-CLIENT_SECRET_HASH = "AV6+xWcEML15E0NgLBU1apxHQ/dRRXVYdvsTcLSzVi9X2Pu5wJg7Y0NU5jEytSixmrmvG+kWCX1/5UlceG4/ALzORyrnyY1kPbYjYJjKirIFXW92Ssy+oTT/VuUMOwsfvtOEpl0/B9qIpIOhbjLFtvVyoZBoeGSoEbTsSyNupyT3c5XsgPzz+/7i7jMXpg=="
+CLIENT_ID_HASH = "AV6+xWcEYK16yyfn7xgDqSZ5+dGYSCDwoO2JSlNkZfoT9f+/tqJosWDmMKz1RAs94sWWSHvt619d7sBl1tiaFXB36OeAl8k4hd9KwYdcy+OM3bnTCXJDfnRg9QE5RwYtqykVq0GrPrOdAVq85YbmzuzhW//Lj5vx2/Iw7NqM43O66JKJmCxM6Pb+"
+CLIENT_SECRET_HASH = "AV6+xWcE9hnOr8g+vlWdCupilhRawFpKp5sHbP59I1gpDzodgFsSsZae1vV4S8aTrx3B9y4MSRSwIF8+tBr3/JgJ4jt+L4HcZh7Xi6dataejSx/q0cRBiMr7fiNnH5hv4CRhSoxhMjAlIfFdiruH7H+K1GNpK1Yu6QEDf7dgOZOsQd8yxERaC+qk0afD/A=="
 
 # MSFT Graph uses 3 secrets to operate.  There is the usual Client Secret and Client ID, but Graph uses the Tenant ID as part of
 # The endpoint URL.  For public usage, the Tenant ID is set to "Common"
@@ -89,6 +89,9 @@ MSFT_EVENTFETCH_TOKEN_ENDPOINT = "https://login.microsoftonline.com/" + (MSFT_TE
 RFC3339_FORMAT = "2006-01-02T15:04:05Z07:00"
 
 def main(config):
+    # Determine whether to run in Next meeting or full day mode
+    full_day_mode = config.bool("full_day")
+
     # Grab Secrets from Parameters if running in Render mode.   Hash functions will return null value if running locally
     # They only return value when running on Tidbyt Servers.
 
@@ -122,8 +125,13 @@ def main(config):
     current_date = current_time.format("2006-01-02T")
     current_tz = current_time.format("Z07:00")
     midnight_time = current_date + "23:59:59" + current_tz
+    daybegin_time = current_date + "00:00:00" + current_tz
 
-    calendar_start_time = current_time.format(RFC3339_FORMAT)
+    if full_day_mode:
+        calendar_start_time = daybegin_time  # Use midnight for for full day mode (catch all meetings for the day)
+    else:
+        calendar_start_time = current_time.format(RFC3339_FORMAT)  # Use the current time for Next Meeting Mode
+
     calendar_end_time = midnight_time
     today_display_date = time.parse_time(calendar_start_time).in_location(timezone).format("Jan 2")
 
@@ -139,7 +147,7 @@ def main(config):
         OUTLOOK_ACCESS_TOKEN = cache.get(outlook_refresh_token)
 
     if not OUTLOOK_ACCESS_TOKEN:
-        refresh_body = "refresh_token=" + outlook_refresh_token + "&client_id=" + client_id + "&client_secret=" + client_secret + "&grant_type=refresh_token" + "&scope=Calendars.read"
+        refresh_body = "refresh_token=" + outlook_refresh_token + "&redirect_uri=http://127.0.0.1:8080/oauth-callback" + "&client_id=" + client_id + "&client_secret=" + client_secret + "&grant_type=refresh_token" + "&scope=Calendars.read"
 
         # CURL can be handy for debug ops from the Linux command line
 
@@ -176,8 +184,84 @@ def main(config):
     # Not that specifying a time in the past will likely return a meeting time in the past so for this app it's important to
     # call function get_outlook_event_list using the current or future time.
 
-    meeting_list, next_meeting_time = get_outlook_event_list(calendar_start_time, calendar_end_time, OUTLOOK_ACCESS_TOKEN, today_display_date)
+    meeting_list, next_meeting_time, time_index_list = get_outlook_event_list(calendar_start_time, calendar_end_time, OUTLOOK_ACCESS_TOKEN, today_display_date)
 
+    # This is a new feature added in March 2024 - User requested to scroll through the day's meetings (not just next meeting)
+    # For this mode (full_day_mode) build a list of human readible (time) meeting events.
+    # if the meeting list is empty, we just fall through to the default display mode - stating that there are no meetings for the day
+
+    if (full_day_mode == True) and meeting_list:
+        display_calendar_date = time.parse_time(next_meeting_time).in_location(timezone).format("Jan 2")
+
+        # Create some blank lines after the calendar icon stack
+        meeting_list_display_time = ""
+        full_day_display_list = []
+        full_day_display_list.append(render.Text(""))
+        full_day_display_list.append(render.Text(""))
+        full_day_display_list.append(render.Text(""))
+
+        # Now sort the list of meeting times
+        time_index_list_sorted = sorted(time_index_list, key = lambda x: (x[0]))
+
+        # Now, re build the meeting list, and convert times to human readible.
+        for index in time_index_list_sorted:
+            meeting_list_display_time = "at " + time.parse_time(index[1]).in_location(timezone).format("3:04PM")  #header for each timeslot in the calendar
+            full_day_display_list.append(render.Text(meeting_list_display_time, "CG-pixel-3x5-mono", color = Green))
+            full_day_display_list.append(render.Box(width = 64, height = 1))
+
+            # Each meeting name is extracted from the meeting Dict (referenced by a time object).   Each meeting is a list (to account for conflicting meetings in the same time slot)
+            # In full day mode, display multiple meetings in a given timeslot as separate line items
+            for m in meeting_list[index[1]]:
+                full_day_display_list.append(render.WrappedText(content = m, font = "CG-pixel-3x5-mono", color = Yellow))
+                full_day_display_list.append(render.Box(width = 64, height = 1))
+
+            # Then add a separator box
+            full_day_display_list.append(render.Box(width = 64, height = 3))
+
+        # Add a blank space so that animation doesn't get cut short (the full animation option for Marquee runs too long)
+        full_day_display_list.append(render.Box(width = 64, height = 32))
+
+        # Render the display in full day mode
+        calendar_banner = render.Stack(
+            children = [
+                render.Image(src = CAL_ICON),
+                render.Column(
+                    expanded = True,
+                    cross_align = "center",
+                    children = [
+                        render.Text("", font = "tom-thumb"),
+                        render.Padding(
+                            pad = (2, 0, 0, 0),
+                            child = render.Row(
+                                main_align = "center",
+                                expanded = True,
+                                children = [
+                                    render.Text(display_calendar_date),
+                                ],
+                            ),
+                        ),
+                    ],
+                ),
+                render.Column(
+                    children = full_day_display_list,
+                ),
+            ],
+        )
+
+        return render.Root(
+            #    show_full_animation = True,
+            delay = 100,
+            child = render.Marquee(
+                height = 32,
+                offset_start = 5,
+                offset_end = 1,
+                scroll_direction = "vertical",
+                child = calendar_banner,
+            ),
+        )
+
+    # Here is the legacy/default mode.   This mode shows the next upcoming meeting and scheduled time.
+    # Legacy mode is also used to display in full day mode,a no- meetings message when the day's calendar is empty
     # Filter out case where there is one meeting in the list and it's already in progress (next_meeting_time will be null)
 
     if meeting_list and next_meeting_time:
@@ -205,7 +289,10 @@ def main(config):
             print(meeting_list[next_meeting_time])
             print(conflict_meeting_banner)
     else:
-        conflict_meeting_banner = "No More Meetings for Today!"
+        if full_day_mode:
+            conflict_meeting_banner = "No Meetings Scheduled for Today!"
+        else:
+            conflict_meeting_banner = "No More Meetings for Today!"
         display_calendar_date = time.parse_time(calendar_start_time).in_location("America/Detroit").format("Jan 2")  # BUG HERE: Fix the Timezone (it's hardcoded)
         display_next_meeting_time = ""
 
@@ -284,6 +371,13 @@ def get_schema():
                     "Calendars.read",
                 ],
             ),
+            schema.Toggle(
+                id = "full_day",
+                name = "Show Full Day?",
+                desc = "Scroll the Full Day's Events",
+                icon = "calendar",
+                default = False,
+            ),
         ],
     )
 
@@ -310,6 +404,9 @@ def get_outlook_event_list(start_window, end_window, auth_token, todays_date):
     # Need an (empty) list to create a Dict of lists for the meeting times.
     meeting_list_bytime = {
     }
+
+    # Create a list of meeting times (used for full day mode)
+    meeting_time_index = []
 
     # Initialize meeting stats counts.  MSFT Graph returns Outlook events in buckets of 10 or less, need counters to track outside of each bucket scan loop
     total_event_num = 0
@@ -345,7 +442,8 @@ def get_outlook_event_list(start_window, end_window, auth_token, todays_date):
             #meeting_duration = time.parse_time(end_time) - time.parse_time(start_time)
             # This expression returns timestamps, easier to do math with these.   Again struggling a bit with the time "types"
 
-            meeting_duration = time.parse_time(end_time).unix - time.parse_time(start_time).unix
+            start_time_unix = time.parse_time(start_time).unix
+            meeting_duration = time.parse_time(end_time).unix - start_time_unix
 
             if DEBUG_ON:
                 print("Event #: %d" % total_event_num)
@@ -367,6 +465,7 @@ def get_outlook_event_list(start_window, end_window, auth_token, todays_date):
                     else:
                         new_meeting_list = [meeting]
                         meeting_list_bytime.update({start_time: new_meeting_list})
+                        meeting_time_index.append((start_time_unix, start_time))  # build a list of times for full day display mode (skip if there's already a meeting in that timeslot)
 
                     meeting_start_timestamp = time.parse_time(start_time).unix
                     if (meeting_start_timestamp < earliest_meeting_time) and (meeting_start_timestamp > start_window_timestamp):  # track the earliest meeting index in
@@ -391,7 +490,7 @@ def get_outlook_event_list(start_window, end_window, auth_token, todays_date):
 
     # Note - the index only makes sense when there are meetings in the list.
 
-    return meeting_list_bytime, earliest_meeting_time_index
+    return meeting_list_bytime, earliest_meeting_time_index, meeting_time_index
 
 def render_calendar(cal_date, cal_meeting_txt, cal_meeting_time):
     return render.Root(
