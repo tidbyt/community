@@ -35,7 +35,7 @@ list_options = [
 ]
 
 def main(config):
-    # US, Global, 
+    # US, Global,
     selected_list = config.get("list", list_options[0].value)
     cache_name = "%s_%s" % (BILLBOARD_CACHED_TOP10_NAME, selected_list)
     top10_data = cache.get(cache_name)
@@ -164,7 +164,7 @@ def getDisplayInfoMulti(items, start, end):
             print(item)
             current = int(item["rank"])
             print(current)
-            print(item["last week"] == None )
+            print(item["last week"] == None)
             lastweek = "" if item["last week"] == "None" else int(item["last week"])
             display = display + "#%s%s \"%s\" by %s " % (item["rank"], getMovementIndicator(current, lastweek), item["title"], item["artist"])
 
