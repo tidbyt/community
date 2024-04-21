@@ -13,7 +13,8 @@ load("humanize.star", "humanize")
 load("render.star", "render")
 load("schema.star", "schema")
 
-URL = "https://monitoringapi.solaredge.com/site/{}/currentPowerFlow"
+#This URL is outdated per 'https://developers.solaredge.com/docs/monitoring/lpc9ijhyrc72l-migrating-from-v1-to-v2'. Therefore changing the old /currentPowerFlow
+URL = "https://api.solaredge.com/monitoring/sites/{}/power-flow"
 
 # SolarEdge API limit is 300 requests per day, which is about
 # one per 5 minutes
