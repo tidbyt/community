@@ -1,0 +1,8 @@
+---
+id: next-event
+name: Next Event Date
+summary: Displays next event only
+desc: Displays the next calendar event, no matter how far away, from iCal (.ics) files.
+author: mattcaruso <Matt Caruso>
+fileName: next_event.star
+packageName: nextevent
