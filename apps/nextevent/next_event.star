@@ -59,7 +59,7 @@ def render_top(config):
     return [
         render.Marquee(
             child = render.Text(
-                content = config.str("slug", DEFAULT_TITLE),
+                content = config.str("title", DEFAULT_TITLE),
                 color = "#ffea00",
             ),
             width = 64,
