@@ -2,6 +2,7 @@ load("encoding/json.star", "json")
 load("http.star", "http")
 load("render.star", "render")
 load("schema.star", "schema")
+load("secret.star", "secret")
 load("time.star", "time")
 
 DEFAULT_TIMEZONE = "America/New_York"
@@ -21,15 +22,30 @@ def main(config):
     )
     ics_url = config.str("url", DEFAULT_ICS_URL)
     if (ics_url == None):
-        fail("ICS_URL not set in config")
+        fail("Calendar URL is missing")
 
-    response = http.post(
-        url = LAMBDA_URL,
-        headers = {"x-api-key": secret.decrypt(ENCRYPTED_LAMBDA_API_KEY)},
-        json_body = {"ics_url": ics_url, "tz": timezone},
-    )
+    lambda_api_key = secret.decrypt(ENCRYPTED_LAMBDA_API_KEY)
 
-    next_event = response.json()
+    # API Key will be returned if running on Tidbyt's prodution environment. If running local or in CI/CD,
+    # the value will return as None. In that case, don't attempt to contact the Lambda function and
+    # return demo content instead.
+    if lambda_api_key:
+        response = http.post(
+            url = LAMBDA_URL,
+            headers = {"x-api-key": lambda_api_key},
+            json_body = {"ics_url": ics_url, "tz": timezone},
+        )
+        next_event = response.json()
+    else:
+        next_event = {
+            "has_next_event": True,
+            "title": "Memorial Day",
+            "begin": "2024-05-26T20:00:00-04:00",
+            "end": "2024-05-26T20:00:00-04:00",
+            "location": "United States",
+            "is_today": False,
+            "is_tomorrow": False,
+        }
 
     return render.Root(
         child = render.Column(
