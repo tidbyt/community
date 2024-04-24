@@ -35,7 +35,6 @@ DEFAULT_SHOW_GRAPH = True
 DEFAULT_SHOW_GRAPH_HOUR_BARS = True
 DEFAULT_GRAPH_HEIGHT = 300
 DEFAULT_SHOW_STRING = "Clock"
-DEFAULT_SHOW_CLOCK = True
 DEFAULT_SHOW_24_HOUR_TIME = False
 DEFAULT_NIGHT_MODE = False
 GRAPH_BOTTOM = 40
@@ -76,7 +75,6 @@ def main(config):
     show_graph_hour_bars = config.bool("show_graph_hour_bars", DEFAULT_SHOW_GRAPH_HOUR_BARS)
 
     show_string = config.get("show_string", DEFAULT_SHOW_STRING)
-    show_clock = config.bool("show_clock", DEFAULT_SHOW_CLOCK)
     show_24_hour_time = config.bool("show_24_hour_time", DEFAULT_SHOW_24_HOUR_TIME)
     night_mode = config.bool("night_mode", DEFAULT_NIGHT_MODE)
     nightscout_iob = "0.00u"
@@ -265,7 +263,7 @@ def main(config):
         color_graph_urgent_low = COLOR_NIGHT
         color_graph_lines = COLOR_NIGHT
         color_clock = COLOR_NIGHT
-    
+
     if show_string == "Clock":
         lg_string = [
             render.Stack(
@@ -392,7 +390,7 @@ def main(config):
                                                 content = nightscout_iob,
                                                 font = "6x13",
                                                 color = color_clock,
-                                            )
+                                            ),
                                         ],
                                     ),
                                 ],
@@ -461,7 +459,7 @@ def main(config):
                 color = color_clock,
                 width = left_col_width,
                 align = "center",
-            )
+            ),
         ]
     else:
         lg_string = [
@@ -838,16 +836,16 @@ def get_schema():
     options = [
         schema.Option(
             display = "None",
-            value = "None"
+            value = "None",
         ),
         schema.Option(
             display = "Clock",
-            value = "Clock"
+            value = "Clock",
         ),
         schema.Option(
             display = "Insulin on Board",
-            value = "IOB"
-        )
+            value = "IOB",
+        ),
     ]
 
     return schema.Schema(
@@ -897,20 +895,20 @@ def get_schema():
                 icon = "chartColumn",
                 default = DEFAULT_SHOW_GRAPH_HOUR_BARS,
             ),
-            schema.Toggle(
-                id = "show_24_hour_time",
-                name = "Show 24 Hour Time",
-                desc = "Show 24 hour time format",
-                icon = "clock",
-                default = False,
-            ),
             schema.Dropdown(
                 id = "show_string",
                 name = "Show Clock/IOB",
                 desc = "Show Clock or Insulin on Board along with reading",
                 icon = "gear",
                 default = options[1].value,
-                options = options
+                options = options,
+            ),
+            schema.Toggle(
+                id = "show_24_hour_time",
+                name = "Show 24 Hour Time",
+                desc = "Show 24 hour time format",
+                icon = "clock",
+                default = False,
             ),
             schema.Toggle(
                 id = "night_mode",
@@ -1003,8 +1001,6 @@ def get_nightscout_iob(nightscout_url, nightscout_token):
         headers["Api-Secret"] = hash.sha1(nightscout_token)
 
     print(json_url)
-
-    key = nightscout_url + "_nightscout_data"
 
     # Request latest entries from the Nightscout URL
     resp = http.get(json_url, headers = headers)
