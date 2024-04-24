@@ -1,7 +1,7 @@
 """
 Applet: Nightscout
 Summary: Shows Nightscout CGM Data
-Description: Displays Continuous Glucose Monitoring (CGM) blood sugar data from the Nightscout Open Source project (https://nightscout.github.io/). Will display blood sugar as mg/dL or mmol/L. Optionally display historical readings on a graph. Also a clock. (v2.3.3).
+Description: Displays Continuous Glucose Monitoring (CGM) blood sugar data from the Nightscout Open Source project (https://nightscout.github.io/). Will display blood sugar as mg/dL or mmol/L. Optionally display historical readings on a graph. Also a clock. Added ability to swap clock data for IOB.
 Authors: Jeremy Tavener, Paul Murphy
 """
 
@@ -34,6 +34,7 @@ DEFAULT_URGENT_LOW = 70
 DEFAULT_SHOW_GRAPH = True
 DEFAULT_SHOW_GRAPH_HOUR_BARS = True
 DEFAULT_GRAPH_HEIGHT = 300
+DEFAULT_SHOW_STRING = "Clock"
 DEFAULT_SHOW_CLOCK = True
 DEFAULT_SHOW_24_HOUR_TIME = False
 DEFAULT_NIGHT_MODE = False
@@ -74,9 +75,11 @@ def main(config):
     show_graph = config.bool("show_graph", DEFAULT_SHOW_GRAPH)
     show_graph_hour_bars = config.bool("show_graph_hour_bars", DEFAULT_SHOW_GRAPH_HOUR_BARS)
 
+    show_string = config.get("show_string", DEFAULT_SHOW_STRING)
     show_clock = config.bool("show_clock", DEFAULT_SHOW_CLOCK)
     show_24_hour_time = config.bool("show_24_hour_time", DEFAULT_SHOW_24_HOUR_TIME)
     night_mode = config.bool("night_mode", DEFAULT_NIGHT_MODE)
+    nightscout_iob = "0.00u"
 
     if nightscout_url == "" and nightscout_id != "" and nightscout_host != "":
         nightscout_url = nightscout_id + "." + nightscout_host
@@ -85,6 +88,7 @@ def main(config):
 
     if nightscout_url != "":
         nightscout_data_json, status_code = get_nightscout_data(nightscout_url, nightscout_token, show_mgdl)
+        nightscout_iob = get_nightscout_iob(nightscout_url, nightscout_token)
         sample_data = False
     else:
         nightscout_data_json, status_code = {
@@ -261,9 +265,9 @@ def main(config):
         color_graph_urgent_low = COLOR_NIGHT
         color_graph_lines = COLOR_NIGHT
         color_clock = COLOR_NIGHT
-
-    if show_clock:
-        lg_clock = [
+    
+    if show_string == "Clock":
+        lg_string = [
             render.Stack(
                 children = [
                     render.Box(height = 32, width = 64),
@@ -350,7 +354,7 @@ def main(config):
             ),
         ]
 
-        sm_clock = [
+        sm_string = [
             render.WrappedText(
                 content = now.format("15:04" if show_24_hour_time else "3:04"),
                 font = "tom-thumb",
@@ -366,8 +370,101 @@ def main(config):
                 align = "center",
             ),
         ]
+
+    elif show_string == "IOB":
+        lg_string = [
+            render.Stack(
+                children = [
+                    render.Box(height = 32, width = 64),
+                    render.Column(
+                        main_align = "start",
+                        cross_align = "center",
+                        children = [
+                            render.Box(height = 1),
+                            render.Row(
+                                cross_align = "center",
+                                main_align = "space_evenly",
+                                expanded = True,
+                                children = [
+                                    render.Animation(
+                                        children = [
+                                            render.Text(
+                                                content = nightscout_iob,
+                                                font = "6x13",
+                                                color = color_clock,
+                                            )
+                                        ],
+                                    ),
+                                ],
+                            ),
+                        ],
+                    ),
+                    render.Column(
+                        main_align = "start",
+                        cross_align = "center",
+                        children = [
+                            render.Box(height = 13),
+                            render.Row(
+                                cross_align = "center",
+                                main_align = "center",
+                                expanded = True,
+                                children = [
+                                    render.Text(
+                                        content = str_current,
+                                        font = "6x13",
+                                        color = color_reading,
+                                    ),
+                                    render.Text(
+                                        content = " " + str_delta.replace("0", "O"),
+                                        font = "tb-8",
+                                        color = color_delta,
+                                        offset = -1,
+                                    ),
+                                    render.Text(
+                                        content = " " + ARROWS[direction],
+                                        font = "tb-8",
+                                        color = color_arrow,
+                                        offset = -1,
+                                    ),
+                                ],
+                            ),
+                        ],
+                    ),
+                    render.Column(
+                        main_align = "start",
+                        cross_align = "center",
+                        children = [
+                            render.Box(height = 26),
+                            render.Row(
+                                cross_align = "center",
+                                main_align = "space_evenly",
+                                expanded = True,
+                                children = [
+                                    render.Text(
+                                        content = full_ago_dashes,
+                                        font = "tom-thumb",
+                                        color = color_ago,
+                                        offset = 0,
+                                    ),
+                                ],
+                            ),
+                        ],
+                    ),
+                ],
+            ),
+        ]
+
+        sm_string = [
+            render.WrappedText(
+                content = nightscout_iob,
+                font = "tom-thumb",
+                color = color_clock,
+                width = left_col_width,
+                align = "center",
+            )
+        ]
     else:
-        lg_clock = [
+        lg_string = [
             render.Stack(
                 children = [
                     render.Box(height = 32, width = 64),
@@ -440,7 +537,7 @@ def main(config):
             ),
         ]
 
-        sm_clock = [
+        sm_string = [
             render.Box(
                 width = left_col_width,
                 height = 6,
@@ -459,7 +556,7 @@ def main(config):
                             cross_align = "center",
                             main_align = "space_between",
                             expanded = True,
-                            children = lg_clock,
+                            children = lg_string,
                         ),
                     ],
                 ),
@@ -577,7 +674,7 @@ def main(config):
                                 render.Row(
                                     children = [
                                         render.Animation(
-                                            sm_clock,
+                                            sm_string,
                                         ),
                                     ],
                                 ),
@@ -738,6 +835,21 @@ def mg_mgdl_options(show_mgdl):
     ]
 
 def get_schema():
+    options = [
+        schema.Option(
+            display = "None",
+            value = "None"
+        ),
+        schema.Option(
+            display = "Clock",
+            value = "Clock"
+        ),
+        schema.Option(
+            display = "Insulin on Board",
+            value = "IOB"
+        )
+    ]
+
     return schema.Schema(
         version = "1",
         fields = [
@@ -750,7 +862,7 @@ def get_schema():
             schema.Text(
                 id = "nightscout_url",
                 name = "Nightscout URL",
-                desc = "Your Nightscout URL (i.e. https://yournightscoutID.heroku.com)",
+                desc = "Your Nightscout URL (i.e. yournightscoutID.heroku.com)",
                 icon = "link",
             ),
             schema.Text(
@@ -786,18 +898,19 @@ def get_schema():
                 default = DEFAULT_SHOW_GRAPH_HOUR_BARS,
             ),
             schema.Toggle(
-                id = "show_clock",
-                name = "Show Clock",
-                desc = "Show clock along with reading",
-                icon = "clock",
-                default = True,
-            ),
-            schema.Toggle(
                 id = "show_24_hour_time",
                 name = "Show 24 Hour Time",
                 desc = "Show 24 hour time format",
                 icon = "clock",
                 default = False,
+            ),
+            schema.Dropdown(
+                id = "show_string",
+                name = "Show Clock/IOB",
+                desc = "Show Clock or Insulin on Board along with reading",
+                icon = "gear",
+                default = options[1].value,
+                options = options
             ),
             schema.Toggle(
                 id = "night_mode",
@@ -842,7 +955,11 @@ def get_nightscout_data(nightscout_url, nightscout_token, show_mgdl):
     latest_reading = resp.json()[0]
     previous_reading = resp.json()[1]
 
-    latest_reading_date_string = latest_reading["dateString"]
+    # Newer versions of NS do not have the dateString field. Check if it's there, and if not, use created_at instead.
+    if "dateString" in latest_reading:
+        latest_reading_date_string = latest_reading["dateString"]
+    else:
+        latest_reading_date_string = latest_reading["created_at"]
 
     # Current sgv value
     sgv_current = latest_reading["sgv"]
@@ -874,6 +991,30 @@ def get_nightscout_data(nightscout_url, nightscout_token, show_mgdl):
     cache.set(key, json.encode(nightscout_data), ttl_seconds = CACHE_TTL_SECONDS)
 
     return nightscout_data, resp.status_code
+
+def get_nightscout_iob(nightscout_url, nightscout_token):
+    nightscout_url = nightscout_url.replace("https://", "")
+    nightscout_url = nightscout_url.replace("http://", "")
+    nightscout_url = nightscout_url.split("/")[0]
+
+    json_url = "https://" + nightscout_url + "/api/v2/properties/iob"
+    headers = {}
+    if nightscout_token != "":
+        headers["Api-Secret"] = hash.sha1(nightscout_token)
+
+    print(json_url)
+
+    key = nightscout_url + "_nightscout_data"
+
+    # Request latest entries from the Nightscout URL
+    resp = http.get(json_url, headers = headers)
+    if resp.status_code != 200:
+        # If it's not in the cache, return the NS error.
+        print("NS Error - Display Error")
+
+        return ""
+    iob = resp.json()["iob"]["display"]
+    return str(iob) + "u"
 
 def mgdl_to_mmol(mgdl):
     mmol = float(math.round((mgdl / 18) * 10) / 10)
