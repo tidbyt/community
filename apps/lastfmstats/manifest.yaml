@@ -1,5 +1,5 @@
 ---
-id: lastfmstats
+id: lastfm-stats
 name: LastFM Stats
 summary: Displays stats from Last.fm
 desc: Displays the top artist and track for a last.fm user over a given period of time.
