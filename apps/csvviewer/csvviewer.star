@@ -237,8 +237,9 @@ def render_cell(value, height, width, avoid_scrolling_text, allow_letters_to_tou
         # By default, text adds an extra pixel to make sure letters don't touch.
         # This allows the letters to touch if the user specifically requests that.
         allowed_width = width + 1 if allow_letters_to_touch else width
+        allowed_height = height + 1 if allow_letters_to_touch else height
 
-        rendered_text = render_text(text, text_color, height, allowed_width, avoid_scrolling_text)
+        rendered_text = render_text(text, text_color, allowed_height, allowed_width, avoid_scrolling_text)
 
         return render.Stack(
             children = [
@@ -256,17 +257,38 @@ def render_grid(data, row_count, col_count, config):
     row_heights, col_widths = calculate_grid_sizes(row_count, col_count)
     avoid_scrolling_text = config.bool("avoid_scrolling_text")
     allow_letters_to_touch = config.bool("allow_letters_to_touch")
+    expand_to_neighboring_cells = config.bool("expand_to_neighboring_cells")
 
     rows = []
 
     for r in range(row_count):
         row_height = row_heights[r]
         cols = []
+        skip_next_columns = 0
 
         for c in range(col_count):
-            col_width = col_widths[c]
+            if skip_next_columns > 0:
+                skip_next_columns -= 1
+                continue
 
-            rendered_cell = render_cell(data[r][c], row_height, col_width, avoid_scrolling_text, allow_letters_to_touch)
+            col_width = col_widths[c]
+            cell_value = data[r][c]
+
+            # Change the width if we're going to expand to the right
+            text = extract_text_color_and_background(cell_value)[0]
+            if text != None and text != "" and expand_to_neighboring_cells:
+                print("Text: %s" % text)
+
+                # Count how many cells (and associated pixels) are to the right that are blank
+                for i in range(c + 1, col_count):
+                    if data[r][i] == "":
+                        print("expanding into col: %d" % i)
+                        col_width += col_widths[i]
+                        skip_next_columns += 1
+                    else:
+                        break
+
+            rendered_cell = render_cell(cell_value, row_height, col_width, avoid_scrolling_text, allow_letters_to_touch)
 
             # Place the rendered cel in a box with the given size to get everything to fit nicely
             holding_box = render.Box(
@@ -276,6 +298,8 @@ def render_grid(data, row_count, col_count, config):
                 height = row_height,
             )
 
+            if r == 4:
+                print("holding box width: %i", col_width)
             cols.append(holding_box)
 
         row = render.Row(children = cols)
@@ -398,6 +422,13 @@ def get_schema():
                 name = "Allow letters to touch in adjacent cells",
                 desc = "This changes the default scrolling to allow fonts to be shown slightly larger but also sometimes causes " +
                        "letters next to one another to touch.",
+                icon = "textWidth",
+                default = False,
+            ),
+            schema.Toggle(
+                id = "expand_to_neighboring_cells",
+                name = "Expand text right when possible",
+                desc = "This will cause cells that have text in them to bleed into neighboring cells to the right if they're totally empty.",
                 icon = "textWidth",
                 default = False,
             ),
