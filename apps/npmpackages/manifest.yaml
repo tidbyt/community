@@ -1,0 +1,8 @@
+---
+id: npm-packages
+name: NPM Packages
+summary: View NPM package downloads
+desc: Track the number of downloads of a NPM package on the last day, week or month.
+author: Daniel Sitnik
+fileName: npm_packages.star
+packageName: npmpackages
