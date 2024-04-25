@@ -2,7 +2,7 @@
 id: next-event
 name: Next Event Date
 summary: Displays next event only
-desc: Displays the next calendar event, no matter how far away, from iCal (.ics) files.
+desc: Displays the next calendar event, no matter how far away, from iCal (.ics) files. Note: This app will process your iCal data via an external service outside of the Tidbyt ecosystem.
 author: mattcaruso <Matt Caruso>
 fileName: next_event.star
 packageName: nextevent
