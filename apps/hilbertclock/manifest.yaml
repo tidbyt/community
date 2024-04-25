@@ -1,0 +1,8 @@
+---
+id: hilbert-clock
+name: Hilbert Clock
+summary: Colorful Hilbert Curve
+desc: Traces a Hilbert Curve on the background of a clock. The colors of the pixels are based on various 3d, 2d, and 1d Hilbert curves through color space.
+author: kevwoods
+fileName: hilbert_clock.star
+packageName: hilbertclock
