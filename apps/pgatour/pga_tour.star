@@ -150,6 +150,10 @@ def main(config):
     TournMapping = json.decode(TOURNAMENT_MAPPING)
     MajorMapping = json.decode(MAJOR_MAPPING)
 
+    # tmp hack to unbreak CI
+    if "events" not in leaderboard["sports"][0]["leagues"][0]:
+        return []
+
     Title = leaderboard["sports"][0]["leagues"][0]["shortName"]
 
     # Check if there is an opposite field event, happens 4 times a season
