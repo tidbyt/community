@@ -1,0 +1,8 @@
+---
+id: solar-time-clock
+name: Solar Time Clock
+summary: A solar time clock
+desc: A clock that shows the current solar time and (optionally) the local time.
+author: Daniel Sitnik
+fileName: solar_time_clock.star
+packageName: solartimeclock
