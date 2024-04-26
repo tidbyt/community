@@ -1,0 +1,8 @@
+---
+id: visualizercoffee
+name: Visualizer Coffee
+summary: Fun info about your shots
+desc: Display fun information about the last shot recorded in visualizer.coffee.
+author: jeffbean
+fileName: visualizercoffee.star
+packageName: visualizercoffee

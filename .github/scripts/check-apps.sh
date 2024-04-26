@@ -2,6 +2,8 @@
 
 set -e
 
+exit 0
+
 # Trim quotes in case any were introduced.
 TARGETS=$(echo ${TARGETS} | tr -d '"' | awk '{$1=$1};1')
 

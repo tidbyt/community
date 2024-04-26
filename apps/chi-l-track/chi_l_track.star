@@ -30,13 +30,13 @@ def getPredictionSuffix(route, destinationName, destinationId, isScheduled):
     if isScheduled:
         return ""
     elif route == "Blue":
-        if destinationId == "30171" or destinationId == "30077":
+        if destinationId == "30171" or destinationId == "30077" or destinationName == "Forest Park" or destinationName == "O'Hare":
             return ""
-        elif destinationId == "30069":
+        elif destinationId == "30069" or destinationName == "UIC-Halsted":
             return "U"
-        elif destinationId == "Rosemont":
+        elif destinationId == "30159" or destinationName == "Rosemont":
             return "R"
-        elif destinationId == "30247":
+        elif destinationId == "30247" or destinationName == "Jefferson Park":
             return "J"
         else:
             return "!"
@@ -48,7 +48,7 @@ def getPredictionSuffix(route, destinationName, destinationId, isScheduled):
     elif route == "G":
         if destinationId == "30057" or destinationId == "30004":
             return ""
-        elif destinationId == "30139":
+        elif destinationId == "30139" or destinationName == "Cottage Grove":
             return "C"
         else:
             return "!"
