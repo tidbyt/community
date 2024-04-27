@@ -32,19 +32,20 @@ DEFAULT_LOCATION = """
 }
 """
 
-BASE_API = "https://api.goswift.ly/real-time/lametro-rail/predictions-near-location"
+BASE_API = "https://api.goswift.ly/real-time"
 CACHE_TTL_SECS = 60
 
 def main(config):
     location = json.decode(config.get("location", DEFAULT_LOCATION))
     lat = location["lat"]
     lon = location["lng"]
-    api_key = config.get("api_key", None)
+    api_key = config.get("api_key", "")
+    include_busses = config.get("include_bus")
 
-    api_url = "{}?lat={}&lon={}".format(BASE_API, lat, lon)
-
+    agency_key = "lametro-rail"
     NextSchedCacheData = None
     if api_key:
+        api_url = "{}/{}/predictions-near-location?lat={}&lon={}".format(BASE_API, agency_key, lat, lon)
         NextSchedCacheData = get_cachable_data(api_url, api_key, CACHE_TTL_SECS)
 
     # Display error, suggest requesting a new key
@@ -57,6 +58,14 @@ def main(config):
     NextSchedCacheData = NextSchedCacheData.body()
     predictions = json.decode(NextSchedCacheData)
     StationData = predictions["data"]["predictionsData"]
+    if include_busses:
+        api_url = "{}/{}/predictions-near-location?lat={}&lon={}&meters=800".format(BASE_API, "lametro", lat, lon)
+        bus_data = get_cachable_data(api_url, api_key, CACHE_TTL_SECS)
+        if bus_data.status_code != 200:
+            print("Error! Your API key didn't have permission to read busses. Request access to agencykey 'lametro")
+        else:
+            bus_arrivals = json.decode(bus_data.body())['data']['predictionsData']
+            StationData += dedupe_routes(bus_arrivals)
 
     children = []
     for line in StationData:
@@ -183,10 +192,28 @@ def get_schema():
                 id = "api_key",
                 name = "Swiftly API Key",
                 desc = "API Key from Swiftly. Must have access to predictions-near-location for lametro-rail",
-                icon = "user",
+                icon = "key",
+            ),
+            schema.Toggle(
+                id = "include_bus",
+                name = "Include busses",
+                desc = "Check to include bus arrivals. If unset, will only show nearby rail arrivals",
+                icon = "bus",
+                default = False,
             ),
         ],
     )
+
+def dedupe_routes(arrivals):
+    # Because of different stops,, bus arrivals don't merge multiple destinations 
+    route_id_map = {}
+    for arrival in arrivals:
+        route_id = arrival['routeId']
+        if route_id not in route_id_map:
+            route_id_map[route_id] = arrival
+        else:
+            route_id_map[route_id]['destinations'] += arrival['destinations']
+    return list(route_id_map.values())
 
 def get_failure_message():
     print("Your API key was invalid or didn't have sufficient permissions!")
