@@ -64,7 +64,7 @@ def main(config):
         if bus_data.status_code != 200:
             print("Error! Your API key didn't have permission to read busses. Request access to agencykey 'lametro")
         else:
-            bus_arrivals = json.decode(bus_data.body())['data']['predictionsData']
+            bus_arrivals = json.decode(bus_data.body())["data"]["predictionsData"]
             StationData += dedupe_routes(bus_arrivals)
 
     children = []
@@ -205,14 +205,14 @@ def get_schema():
     )
 
 def dedupe_routes(arrivals):
-    # Because of different stops,, bus arrivals don't merge multiple destinations 
+    # Because of different stops,, bus arrivals don't merge multiple destinations
     route_id_map = {}
     for arrival in arrivals:
-        route_id = arrival['routeId']
+        route_id = arrival["routeId"]
         if route_id not in route_id_map:
             route_id_map[route_id] = arrival
         else:
-            route_id_map[route_id]['destinations'] += arrival['destinations']
+            route_id_map[route_id]["destinations"] += arrival["destinations"]
     return list(route_id_map.values())
 
 def get_failure_message():
