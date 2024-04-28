@@ -6,10 +6,10 @@ Author: Robert Ison
 """
 
 load("math.star", "math")
-load("time.star", "time")
-load("render.star", "render")
 load("random.star", "random")
+load("render.star", "render")
 load("schema.star", "schema")
+load("time.star", "time")
 
 LEAGUE_OPTIONS = [
     schema.Option(value = "mlb", display = "Major League Baseball"),
@@ -287,6 +287,10 @@ def map_locations(config, teams):
     return renderAnimation(frames)
 
 def get_teams(type):
+    # default
+    teams = sorted(MLB_TEAMS, key = lambda x: x[0])
+    icon = "baseball"
+
     if type == "mlb":
         teams = sorted(MLB_TEAMS, key = lambda x: x[0])
         icon = "baseball"
