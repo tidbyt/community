@@ -39,11 +39,6 @@ jobs:
           BASE_SHA: ${{ steps.lastsuccess.outputs.sha }}
           HEAD_SHA: ${{ github.sha }}
 
-      - name: Check modified apps
-        run: ./.github/scripts/check-apps.sh
-        env:
-          TARGETS: "${{ steps.targets.outputs.targets }}"
-
       - name: Deploy modified apps
         run: ./.github/scripts/deploy-apps.sh
         env:

@@ -5,6 +5,8 @@ Description: Shows scores for the T20 Blast cricket tournament.
 Author: M0ntyP
 
 v1.0 - Initial Release
+
+v1.1 - Updated for 2024 season
 """
 
 load("encoding/json.star", "json")
@@ -15,7 +17,7 @@ load("render.star", "render")
 load("schema.star", "schema")
 load("time.star", "time")
 
-SeriesID = "1347399"
+SeriesID = "1410370"
 
 LiveGames_URL = "https://hs-consumer-api.espncricinfo.com/v1/pages/series/home?lang=en&seriesId=" + SeriesID
 Standings_URL = "https://hs-consumer-api.espncricinfo.com/v1/pages/series/standings?lang=en&seriesId=" + SeriesID
@@ -68,6 +70,7 @@ def main(config):
 
     # if nothing is found, look further down the fixtures
     if MatchID == None:
+        y = 0
         FixturesData = get_cachable_data(Fixtures_URL, STANDINGS_CACHE)
         Fixtures_JSON = json.decode(FixturesData)
         FixtureList = Fixtures_JSON["content"]["matches"]
@@ -76,6 +79,10 @@ def main(config):
                 if FixtureList[y]["stage"] == "SCHEDULED":
                     MatchID = FixtureList[y]["objectId"]
                     break
+
+        # if no "SCHEDULED" matches found, we must be at the end of the tournament - so keep showing the final match
+        if MatchID == None:
+            MatchID = FixtureList[y]["objectId"]
 
     LastOut_Runs = 0
     LastOut_Name = ""

@@ -21,6 +21,7 @@ BORDER = "border"
 FILL = "fill"
 TYPE = "Type"
 DISPLAY = "display"
+NAME = "Name"
 
 TOWN_HALL_POSTCODE = "E8 1EA"
 SPURSTOWE_ARMS = "5f898d4790478c0067f8bb7c"
@@ -61,6 +62,11 @@ BIN_TYPES = {
         FILL: BLACK,
         DISPLAY: ["Trash", "Trash", "Trsh", "Tsh"],
     },
+    "unknown": {
+        BORDER: BORDER_GREY,
+        FILL: BORDER_GREY,
+        DISPLAY: ["?", "?", "?", "?"],
+    },
 }
 
 def get_next_collection(property_id):
@@ -74,7 +80,14 @@ def get_next_collection(property_id):
         date = time.parse_time(bin["NextCollection"])
         if date not in collections:
             collections[date] = []
-        collections[date].append(bin[TYPE])
+        bin_type = bin.get(TYPE, "unknown")
+
+        # The council have changed their garden waste collection service to an opt-in
+        # paid service. It looks like they have also changed the API response. My garden
+        # waste bin now shows up as "unknown" type, so insert a manual override.
+        if bin_type == "unknown" and bin[NAME] == "GW_Wheeled Bin 140l":
+            bin_type = "garden"
+        collections[date].append(bin_type)
     if not collections:
         print("No collections found")
         return None
