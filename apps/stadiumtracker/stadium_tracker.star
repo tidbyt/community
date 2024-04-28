@@ -249,7 +249,7 @@ def map_locations(config, teams):
         my_locations.append(mark_location_on_map(dot[1], dot[0], MAP_OUTLINE_COLOR, 70))
 
         # display 5 dots at a time
-        if dotCount % 5 == 0:
+        if dotCount % 10 == 0:
             frames.append(render_frame(generate_screen(my_locations)))
 
     #make sure the last few are rendered 
@@ -262,7 +262,7 @@ def map_locations(config, teams):
         frames.append(render_frame(generate_screen(all_locations)))
 
     # Now let's keep the last frame for awhile
-    for _ in range(25):
+    for _ in range(15):
         frames.append(render_frame(generate_screen(all_locations)))
 
     # Now add all visited parks
@@ -277,7 +277,7 @@ def map_locations(config, teams):
         frames.append(render_frame(generate_screen(my_locations)))
 
     # Now let's keep the last frame for awhile
-    for _ in range(100):
+    for _ in range(25):
         frames.append(render_frame(generate_screen(my_locations)))
 
     # blink a couple times
