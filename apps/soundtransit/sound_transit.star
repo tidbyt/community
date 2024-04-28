@@ -5,7 +5,6 @@ Description: Shows upcoming arrivals at up to 2 different stations in Sound Tran
 Author: Jon Janzen
 """
 
-load("cache.star", "cache")
 load("encoding/json.star", "json")
 load("http.star", "http")
 load("render.star", "render")
@@ -20,8 +19,13 @@ NONE_STR = "__NONE__"
 # The original author lived in Capitol Hill at the time of writing:
 STATION1_DEFAULT = "40_99603"  # Capitol Hill N
 STATION2_DEFAULT = "40_99610"  # Capitol Hill S
-
 SHOULD_SCROLL_DEFAULT = True
+
+# Cache next arrival information for a minute:
+CACHE_TIMETABLE_SECONDS = 60
+
+# Cache route information (which stops exist, etc) for one day:
+CACHE_ROUTE_SECONDS = 60 * 60 * 24
 
 OBA_API_KEY = "AV6+xWcES/FrNX/21ZMFEbvkCLGB9NbJjGCQUyzrlRyA12R5UZMn98eDu28j1wYeJbGNDTXO89JZ9hwToz79QYJ3UnjykphrTyGewbeYx3ZC5efJoyM0PLq1h8rRcdZdg+5XaNDBwuCypuuu"
 
@@ -37,16 +41,10 @@ def get_api_token():
     return secret.decrypt(OBA_API_KEY) or "OBAKEY"
 
 def get_stop_data(stop_id):
-    cache_key = "stop:" + stop_id
-    rep = cache.get(cache_key)
-    if not rep:
-        rep = http.get("https://api.pugetsound.onebusaway.org/api/where/schedule-for-stop/" + stop_id + ".json?key=" + get_api_token())
-        if rep.status_code != 200:
-            fail("Could not access OBA")
-        rep = rep.body()
-
-        # TODO: Determine if this cache call can be converted to the new HTTP cache.
-        cache.set(cache_key, rep)
+    rep = http.get("https://api.pugetsound.onebusaway.org/api/where/schedule-for-stop/" + stop_id + ".json?key=" + get_api_token(), ttl_seconds = CACHE_TIMETABLE_SECONDS)
+    if rep.status_code != 200:
+        fail("Could not access OBA")
+    rep = rep.body()
     data = json.decode(rep)["data"]
 
     routes = {route["id"]: route for route in data["references"]["routes"]}
@@ -159,16 +157,10 @@ def main(config):
     )
 
 def stop_options_for_route(route_id):
-    cache_key = "stations:" + route_id
-    rep = cache.get(cache_key)
-    if not rep:
-        rep = http.get("https://api.pugetsound.onebusaway.org/api/where/stops-for-route/" + route_id + ".json?key=" + get_api_token())
-        if rep.status_code != 200:
-            fail("Could not access OBA")
-        rep = rep.body()
-
-        # TODO: Determine if this cache call can be converted to the new HTTP cache.
-        cache.set(cache_key, rep)
+    rep = http.get("https://api.pugetsound.onebusaway.org/api/where/stops-for-route/" + route_id + ".json?key=" + get_api_token(), ttl_seconds = CACHE_ROUTE_SECONDS)
+    if rep.status_code != 200:
+        fail("Could not access OBA")
+    rep = rep.body()
     data = json.decode(rep)["data"]
 
     def full_name(stop):
@@ -183,17 +175,11 @@ def stop_options_for_route(route_id):
     ]
 
 def light_rail_routes():
-    cache_key = "routes"
-    rep = cache.get(cache_key)
-    if not rep:
-        # "40" is Sound Transit, the light rail operator in the Puget Sound
-        rep = http.get("https://api.pugetsound.onebusaway.org/api/where/routes-for-agency/40.json?key=" + get_api_token())
-        if rep.status_code != 200:
-            fail("Could not access OBA")
-        rep = rep.body()
-
-        # TODO: Determine if this cache call can be converted to the new HTTP cache.
-        cache.set(cache_key, rep)
+    # "40" is Sound Transit, the light rail operator in the Puget Sound
+    rep = http.get("https://api.pugetsound.onebusaway.org/api/where/routes-for-agency/40.json?key=" + get_api_token(), ttl_seconds = CACHE_ROUTE_SECONDS)
+    if rep.status_code != 200:
+        fail("Could not access OBA")
+    rep = rep.body()
     data = json.decode(rep)["data"]
 
     routes = []
