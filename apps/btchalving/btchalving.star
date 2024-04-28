@@ -2,7 +2,7 @@
 Applet: BtcHalving
 Summary: Bitcoin halving progress
 Description: Shows the Bitcoin halving- and the difficulty adjustment progress.
-Author: PMK
+Author: PMK (@pmk)
 """
 
 load("http.star", "http")
