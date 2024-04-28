@@ -1,6 +1,6 @@
 ---
-id: mlb-park-tracker
-name: MLB Park Tracker
-summary: Track MLB Parks Visited
-desc: Track the MLB Parks you have visited.
+id: stadium-tracker
+name: Stadium Tracker
+summary: Track MLB, NFL and NBA vendues visted.
+desc: Track the MLB Parks, NFL Stadiums and NBA arenas you have visited.
 author: Robert Ison
