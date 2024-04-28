@@ -18,12 +18,12 @@ load("time.star", "time")
 NONE_STR = "__NONE__"
 
 # The original author lived in Capitol Hill at the time of writing:
-STATION1_DEFAULT = "1_99603"  # Capitol Hill N
-STATION2_DEFAULT = "1_99610"  # Capitol Hill S
+STATION1_DEFAULT = "40_99603"  # Capitol Hill N
+STATION2_DEFAULT = "40_99610"  # Capitol Hill S
 
 SHOULD_SCROLL_DEFAULT = True
 
-OBA_API_KEY = "AV6+xWcE0bSEh8OK1r/5g3MZeYdabJvAGqjt8KXCzjS77IpfFYs4f7KK5PBSWKHtuocrVeOrrkIkuzanDyYIUwbsdMlJWt0m42aiUiuTWwZZoe5odJYcaOGKKoCur62UbezXLCX1jexohcX56roJ/plCKFU9eksFkWu4MtnG5vk4lg15FURXfdub"
+OBA_API_KEY = "AV6+xWcES/FrNX/21ZMFEbvkCLGB9NbJjGCQUyzrlRyA12R5UZMn98eDu28j1wYeJbGNDTXO89JZ9hwToz79QYJ3UnjykphrTyGewbeYx3ZC5efJoyM0PLq1h8rRcdZdg+5XaNDBwuCypuuu"
 
 def none_str_to_none_val(maybe_none_str):
     if maybe_none_str == NONE_STR:
@@ -33,8 +33,8 @@ def none_str_to_none_val(maybe_none_str):
 now = time.now().unix
 
 def get_api_token():
-    # "TEST" API key seems to work, but only use this as fallback
-    return secret.decrypt(OBA_API_KEY) or "TEST"
+    # "OBAKEY" API key seems to work, but only use this as fallback
+    return secret.decrypt(OBA_API_KEY) or "OBAKEY"
 
 def get_stop_data(stop_id):
     cache_key = "stop:" + stop_id
@@ -83,7 +83,7 @@ def get_stop_data(stop_id):
     return result_data
 
 def show_stops(stop_id1, stop_id2, scroll_names):
-    stop1_data = get_stop_data(stop_id1)
+    stop1_data = get_stop_data(stop_id1) if stop_id1 != None else []
     stop2_data = get_stop_data(stop_id2) if stop_id2 != None else []
 
     max_length = 0
@@ -179,6 +179,7 @@ def stop_options_for_route(route_id):
     return [
         schema.Option(display = full_name(stop), value = stop["id"])
         for stop in stops
+        if stop["routeIds"]
     ]
 
 def light_rail_routes():
@@ -217,7 +218,7 @@ def get_schema():
                 id = "station1",
                 name = "Top station",
                 desc = "The first station to show",
-                icon = "arrowDown",
+                icon = "arrowUp",
                 options = all_station_options(),
                 default = STATION1_DEFAULT,
             ),
