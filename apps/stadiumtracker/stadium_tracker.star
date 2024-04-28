@@ -19,9 +19,9 @@ LEAGUE_OPTIONS = [
 
 # Tidbyt display is 64x32 -- these are coordinates for the map and each team
 USAMAP = [[0, 2], [0, 3], [0, 4], [0, 5], [0, 6], [0, 7], [0, 8], [0, 9], [0, 10], [0, 11], [0, 12], [0, 13], [0, 14], [0, 15], [0, 16], [0, 17], [0, 18], [0, 19], [0, 20], [0, 21], [0, 22], [0, 23], [0, 24], [0, 25], [0, 26], [0, 27], [0, 28], [0, 29], [0, 30], [0, 31], [0, 32], [0, 33], [1, 0], [1, 2], [1, 33], [1, 34], [1, 35], [1, 36], [1, 37], [1, 38], [2, 0], [2, 1], [2, 2], [2, 38], [2, 39], [3, 0], [3, 39], [3, 40], [3, 41], [3, 61], [3, 62], [4, 0], [4, 1], [4, 41], [4, 42], [4, 43], [4, 60], [4, 61], [4, 62], [5, 1], [5, 43], [5, 44], [5, 45], [5, 59], [5, 60], [5, 62], [5, 63], [6, 1], [6, 45], [6, 56], [6, 57], [6, 58], [6, 59], [6, 63], [7, 0], [7, 45], [7, 53], [7, 54], [7, 55], [7, 56], [7, 62], [7, 63], [8, 0], [8, 45], [8, 46], [8, 53], [8, 60], [8, 61], [9, 0], [9, 46], [9, 50], [9, 51], [9, 52], [9, 53], [9, 60], [10, 0], [10, 46], [10, 47], [10, 48], [10, 49], [10, 50], [10, 60], [11, 0], [11, 58], [11, 59], [12, 0], [12, 56], [12, 57], [12, 58], [13, 0], [13, 56], [14, 0], [14, 1], [14, 55], [15, 1], [15, 54], [16, 2], [16, 54], [17, 2], [17, 3], [17, 53], [17, 54], [18, 3], [18, 53], [19, 3], [19, 4], [19, 53], [20, 4], [20, 5], [20, 51], [20, 52], [21, 5], [21, 6], [21, 7], [21, 50], [21, 51], [22, 7], [22, 8], [22, 49], [22, 50], [23, 8], [23, 9], [23, 10], [23, 11], [23, 12], [23, 13], [23, 49], [24, 13], [24, 14], [24, 15], [24, 16], [24, 17], [24, 18], [24, 19], [24, 48], [24, 49], [25, 19], [25, 20], [25, 21], [25, 22], [25, 48], [26, 22], [26, 23], [26, 24], [26, 25], [26, 33], [26, 34], [26, 35], [26, 36], [26, 37], [26, 39], [26, 40], [26, 41], [26, 42], [26, 43], [26, 48], [27, 25], [27, 33], [27, 37], [27, 38], [27, 39], [27, 43], [27, 44], [27, 45], [27, 48], [28, 26], [28, 32], [28, 46], [28, 49], [29, 27], [29, 30], [29, 31], [29, 46], [29, 49], [30, 28], [30, 30], [30, 47], [30, 49], [31, 29], [31, 30], [31, 48]]
-MLB_TEAMS = [["Astros", [31, 27], "Minute Maid Park","Houston"], ["Angels", [5, 18], "Angel Stadium","Los Angeles"], ["Athletics", [3, 15], "Oakland Coliseum","Oakland"], ["Blue Jays", [50, 7], "Rogers Center","Toronto"], ["Braves", [44, 21], "Truist Park","Atlanta"], ["Brewers", [39, 8], "American Family Field","Milwaukee"], ["Cardinals", [36, 16], "Busch Stadium","St. Louis"], ["Cubs", [38, 11], "Wrigley Field","Chicago"], ["Diamondbacks", [12, 19], "Chase Field","Arizona"], ["Dodgers", [4, 18], "Dodger Stadium","Los Angeles"], ["Giants", [2, 15], "Oracle Park","San Francisco"], ["Guardians", [47, 11], "Progressive Field","Cleveland"], ["Mariners", [2, 3], "T-Mobile Park","Seattle"], ["Marlins", [48, 30], "LoanDepot Park","Miami"], ["Mets", [57, 11], "Citi Field","New York"], ["Nationals", [52, 15], "Nationals Park","Washington"], ["Orioles", [54, 14], "Camden Yards","Baltimore"], ["Padres", [6, 20], "Petco Park","San Diego"], ["Phillies", [55, 13], "Citizens Bank Park","Philadelphia"], ["Pirates", [50, 13], "PNC Park","Pittsburg"], ["Rangers", [30, 22], "Globe Life Field","Texas"], ["Rays", [47, 28], "Tropicana Field","Tampa Bay"], ["Red Sox", [59, 10], "Fenway Park","Boston"], ["Reds", [44, 15], "Great American Ball Park","Cinncinnati"], ["Rockies", [19, 11], "Coors Field","Colorado"], ["Royals", [32, 15], "Kauffman Stadium","Kansas City"], ["Tigers", [45, 10], "Comerica Park","Detroit"], ["Twins", [34, 6], "Target Field","Minnesota"], ["White Sox", [40, 12], "Guaranteed Rate Field","Chicago"], ["Yankees", [56, 11], "Yankee Stadium", "New York"]]
-NFL_TEAMS = [["Cardinals",[12, 19],"State Farm Stadium","Arizona"],["Falcons",[44,21],"Mercedes-Benz Stadium","Atlanta"],["Ravens",[54,14],"M&T Park","Baltimore"],["Bills",[52,10],"Highmark Stadium","Buffalo"],["Panthers",[48,18],"Bank of America Stadium","Carolina"],["Bears",[38,11],"Soldier Field","Chicago"],["Bengals",[44,15],"Paycor Stadium","Cincinnati"],["Browns",[47,11],"Cleveland Browns Stadium","Cleveland"],["Cowboys",[30,22],"AT&T Stadium","Dallas"],["Broncos",[19,11],"Mile High Stadium","Denver"],["Lions",[45,10],"Ford Field","Detroit"],["Packers",[39,7],"Lambeau Field","Green Bay"],["Texans",[31,27],"NRG Stadium","Houston"],["Colts",[41,13],"Lucas Oil Field","Indianapolis"],["Jaguars",[47,26],"EverBank Stadium","Jacksonville"],["Chiefs",[32,15],"Arrowhead Stadium","Kansas City"],["Raiders",[10,17],"Allegiant Stadium","Las Vegas"],["Chargers",[6,20],"SoFi Stadium","Los Angeles"],["Rams",[5,18],"SoFi Stadium","Los Angeles"],["Dolphins",[48,30],"Hard Rock Stadium","Miami"],["Vikings",[34,6],"US Bank Stadium","Minnesota"],["Patriots",[59,10],"Gillette Stadium","New England"], ["Saints",[38,26],"Superdome","New Orleans"],["Giants",[56,11],"MetLife Stadium","New York"],["Jets",[55,11],"MetLife Stadium","New York"],["Eagles",[55,13],"Lincoln Financial Field","Philadelphia"],["Steelers",[50,13],"Acrisure Stadium","Pittsburgh"],["49ers",[2,15],"Levi's Stadium","San Francisco"],["Seahawks",[2,3],"Lumen Field","Seattle"],["Buccaneers",[47,28],"Raymond James Stadium","Tampa Bay"],["Titans",[38,18],"Nissan Stadium","Tennessee"],["Commanders",[52,15],"Commanders Field","Washington"]]
-NBA_TEAMS = [["Hawks",[44,21],"State Farm Arena","Atlanta"],["Celtics",[59,10],"TD Garden","Boston"],["Nets",[56,11],"Barclay's Center","Brooklyn"],["Hornets",[48,20],"Spectrum Center","Charlotte"],["Bulls",[38,11],"United Center","Chicago"],["Cavaliers",[47,11],"Rocket Mortgage Fieldhouse","Cleveland"],["Mavericks",[30,22],"American Airllines Center","Dallas"],["Nuggets",[19,11],"Bail Arena","Denver"],["Pistons",[45,10],"Little Ceasars Arena","Detroit"],["Warriors",[2,15],"Chase Center","Golden State "],["Rockets",[31,27],"Toyota Center","Houston"],["Pacers",[41,13],"Gainbridge Fieldhouse","Indiana"],["Clippers",[4,18],"Crypto.com Arena","Los Angeles"],["Lakers",[5,18],"Crypto.com Arena","Los Angeles"],["Grizzlies",[36,18],"FedEx Forum","Memphis"],["Heat",[48,30],"Kaseya Center","Miami"],["Bucks",[39,8],"Fiserv Forum","Milwaukee"],["Timberwolves",[34,6],"Target Center","Minnesota"],["Pelicans",[38,26],"Smoothie King Center","New Orleans "],["Knicks",[56,11],"Madison Square Garden","New York"],["Thunder",[31,20],"Paycom Center","Oklahoma City"],["Magic",[47,28],"Kia Center","Orlando"],["76ers",[55,13],"Wells Fargo Center","Philadelphia"],["Suns",[12,19],"Footprint Center","Phoenix"],["Trail Blazers",[3,7],"Moda Center","Portland"],["Kings",[5,14],"Golden 1 Center","Sacramento"],["Spurs",[28,27],"Frost Bank Center","San Antonio"],["Raptors",[50,7],"Scotiabank Arena","Toronto"],["Jazz",[19,11],"Delta Center","Utah"],["Wizards",[52,15],"Capital One Arena","Washington"]]
+MLB_TEAMS = [["Astros", [31, 27], "Minute Maid Park", "Houston"], ["Angels", [5, 18], "Angel Stadium", "Los Angeles"], ["Athletics", [3, 15], "Oakland Coliseum", "Oakland"], ["Blue Jays", [50, 7], "Rogers Center", "Toronto"], ["Braves", [44, 21], "Truist Park", "Atlanta"], ["Brewers", [39, 8], "American Family Field", "Milwaukee"], ["Cardinals", [36, 16], "Busch Stadium", "St. Louis"], ["Cubs", [38, 11], "Wrigley Field", "Chicago"], ["Diamondbacks", [12, 19], "Chase Field", "Arizona"], ["Dodgers", [4, 18], "Dodger Stadium", "Los Angeles"], ["Giants", [2, 15], "Oracle Park", "San Francisco"], ["Guardians", [47, 11], "Progressive Field", "Cleveland"], ["Mariners", [2, 3], "T-Mobile Park", "Seattle"], ["Marlins", [48, 30], "LoanDepot Park", "Miami"], ["Mets", [57, 11], "Citi Field", "New York"], ["Nationals", [52, 15], "Nationals Park", "Washington"], ["Orioles", [54, 14], "Camden Yards", "Baltimore"], ["Padres", [6, 20], "Petco Park", "San Diego"], ["Phillies", [55, 13], "Citizens Bank Park", "Philadelphia"], ["Pirates", [50, 13], "PNC Park", "Pittsburg"], ["Rangers", [30, 22], "Globe Life Field", "Texas"], ["Rays", [47, 28], "Tropicana Field", "Tampa Bay"], ["Red Sox", [59, 10], "Fenway Park", "Boston"], ["Reds", [44, 15], "Great American Ball Park", "Cinncinnati"], ["Rockies", [19, 11], "Coors Field", "Colorado"], ["Royals", [32, 15], "Kauffman Stadium", "Kansas City"], ["Tigers", [45, 10], "Comerica Park", "Detroit"], ["Twins", [34, 6], "Target Field", "Minnesota"], ["White Sox", [40, 12], "Guaranteed Rate Field", "Chicago"], ["Yankees", [56, 11], "Yankee Stadium", "New York"]]
+NFL_TEAMS = [["Cardinals", [12, 19], "State Farm Stadium", "Arizona"], ["Falcons", [44, 21], "Mercedes-Benz Stadium", "Atlanta"], ["Ravens", [54, 14], "M&T Park", "Baltimore"], ["Bills", [52, 10], "Highmark Stadium", "Buffalo"], ["Panthers", [48, 18], "Bank of America Stadium", "Carolina"], ["Bears", [38, 11], "Soldier Field", "Chicago"], ["Bengals", [44, 15], "Paycor Stadium", "Cincinnati"], ["Browns", [47, 11], "Cleveland Browns Stadium", "Cleveland"], ["Cowboys", [30, 22], "AT&T Stadium", "Dallas"], ["Broncos", [19, 11], "Mile High Stadium", "Denver"], ["Lions", [45, 10], "Ford Field", "Detroit"], ["Packers", [39, 7], "Lambeau Field", "Green Bay"], ["Texans", [31, 27], "NRG Stadium", "Houston"], ["Colts", [41, 13], "Lucas Oil Field", "Indianapolis"], ["Jaguars", [47, 26], "EverBank Stadium", "Jacksonville"], ["Chiefs", [32, 15], "Arrowhead Stadium", "Kansas City"], ["Raiders", [10, 17], "Allegiant Stadium", "Las Vegas"], ["Chargers", [6, 20], "SoFi Stadium", "Los Angeles"], ["Rams", [5, 18], "SoFi Stadium", "Los Angeles"], ["Dolphins", [48, 30], "Hard Rock Stadium", "Miami"], ["Vikings", [34, 6], "US Bank Stadium", "Minnesota"], ["Patriots", [59, 10], "Gillette Stadium", "New England"], ["Saints", [38, 26], "Superdome", "New Orleans"], ["Giants", [56, 11], "MetLife Stadium", "New York"], ["Jets", [55, 11], "MetLife Stadium", "New York"], ["Eagles", [55, 13], "Lincoln Financial Field", "Philadelphia"], ["Steelers", [50, 13], "Acrisure Stadium", "Pittsburgh"], ["49ers", [2, 15], "Levi's Stadium", "San Francisco"], ["Seahawks", [2, 3], "Lumen Field", "Seattle"], ["Buccaneers", [47, 28], "Raymond James Stadium", "Tampa Bay"], ["Titans", [38, 18], "Nissan Stadium", "Tennessee"], ["Commanders", [52, 15], "Commanders Field", "Washington"]]
+NBA_TEAMS = [["Hawks", [44, 21], "State Farm Arena", "Atlanta"], ["Celtics", [59, 10], "TD Garden", "Boston"], ["Nets", [56, 11], "Barclay's Center", "Brooklyn"], ["Hornets", [48, 20], "Spectrum Center", "Charlotte"], ["Bulls", [38, 11], "United Center", "Chicago"], ["Cavaliers", [47, 11], "Rocket Mortgage Fieldhouse", "Cleveland"], ["Mavericks", [30, 22], "American Airllines Center", "Dallas"], ["Nuggets", [19, 11], "Bail Arena", "Denver"], ["Pistons", [45, 10], "Little Ceasars Arena", "Detroit"], ["Warriors", [2, 15], "Chase Center", "Golden State "], ["Rockets", [31, 27], "Toyota Center", "Houston"], ["Pacers", [41, 13], "Gainbridge Fieldhouse", "Indiana"], ["Clippers", [4, 18], "Crypto.com Arena", "Los Angeles"], ["Lakers", [5, 18], "Crypto.com Arena", "Los Angeles"], ["Grizzlies", [36, 18], "FedEx Forum", "Memphis"], ["Heat", [48, 30], "Kaseya Center", "Miami"], ["Bucks", [39, 8], "Fiserv Forum", "Milwaukee"], ["Timberwolves", [34, 6], "Target Center", "Minnesota"], ["Pelicans", [38, 26], "Smoothie King Center", "New Orleans "], ["Knicks", [56, 11], "Madison Square Garden", "New York"], ["Thunder", [31, 20], "Paycom Center", "Oklahoma City"], ["Magic", [47, 28], "Kia Center", "Orlando"], ["76ers", [55, 13], "Wells Fargo Center", "Philadelphia"], ["Suns", [12, 19], "Footprint Center", "Phoenix"], ["Trail Blazers", [3, 7], "Moda Center", "Portland"], ["Kings", [5, 14], "Golden 1 Center", "Sacramento"], ["Spurs", [28, 27], "Frost Bank Center", "San Antonio"], ["Raptors", [50, 7], "Scotiabank Arena", "Toronto"], ["Jazz", [19, 11], "Delta Center", "Utah"], ["Wizards", [52, 15], "Capital One Arena", "Washington"]]
 
 #Constants
 MAP_OUTLINE_COLOR = "#1C8E61"
@@ -35,15 +35,15 @@ HUE = 2  # hue
 LIGHTNESS = 3  # lightness
 
 def main(config):
-    teams = MLB_TEAMS 
+    teams = MLB_TEAMS
     if config.get("type") == "mlb":
-        teams = MLB_TEAMS 
+        teams = MLB_TEAMS
     elif config.get("type") == "nfl":
-        teams = NFL_TEAMS 
+        teams = NFL_TEAMS
     elif config.get("type") == "nba":
         teams = NBA_TEAMS
 
-    return map_locations(config, teams )
+    return map_locations(config, teams)
 
 def deg_to_rad(num):
     return num * (math.pi / 180)
@@ -171,7 +171,6 @@ def renderAnimation(frames):
                 render.Animation(
                     children = frames,
                 ),
-               
             ],
         ),
         show_full_animation = True,
@@ -179,51 +178,51 @@ def renderAnimation(frames):
     )
 
 def sort_ballParks(ballParks):
-    random.seed(time.now().unix) 
-    randomSortMethod = random.number(0,5)
+    random.seed(time.now().unix)
+    randomSortMethod = random.number(0, 5)
     if randomSortMethod == 0:
         #print("sort by y")
-        return sorted(ballParks,key = lambda x: x[1][1])
+        return sorted(ballParks, key = lambda x: x[1][1])
     elif randomSortMethod == 1:
         #print(sort by "team name")
-        return sorted(ballParks,key = lambda x: x[0])
+        return sorted(ballParks, key = lambda x: x[0])
     elif randomSortMethod == 2:
         #print("sort by x")
-        return sorted(ballParks,key = lambda x: x[1][0])
+        return sorted(ballParks, key = lambda x: x[1][0])
     elif randomSortMethod == 3:
         #print("sort by stadium name")
-        return sorted(ballParks,key = lambda x: x[2])
+        return sorted(ballParks, key = lambda x: x[2])
     elif randomSortMethod == 4:
         #print("sort by Location")
-        return sorted(ballParks,key = lambda x: x[3])
+        return sorted(ballParks, key = lambda x: x[3])
     else:
         #print("sort by x + y")
-        return sorted(ballParks,key = lambda x: x[1][0] + x[1][0]) 
+        return sorted(ballParks, key = lambda x: x[1][0] + x[1][0])
 
 def sort_maps(coordinates):
-    random.seed(time.now().unix) 
-    randomSortMethod = random.number(0,6)
+    random.seed(time.now().unix)
+    randomSortMethod = random.number(0, 6)
     if randomSortMethod == 0:
         #print("sort by x")
-        return sorted(coordinates,key = lambda x: x[0])
+        return sorted(coordinates, key = lambda x: x[0])
     elif randomSortMethod == 1:
         #print("sort by y")
-        return sorted(coordinates,key = lambda x: x[1])
+        return sorted(coordinates, key = lambda x: x[1])
     elif randomSortMethod == 2:
         #print("sort by x+y")
-        return sorted(coordinates,key = lambda x: x[1]+ x[0])
+        return sorted(coordinates, key = lambda x: x[1] + x[0])
     elif randomSortMethod == 3:
         #print("sort by -x")
-        return sorted(coordinates,key = lambda x: -x[0])
+        return sorted(coordinates, key = lambda x: -x[0])
     elif randomSortMethod == 4:
         #print("sort by -y")
-        return sorted(coordinates,key = lambda x: -x[1])
+        return sorted(coordinates, key = lambda x: -x[1])
     elif randomSortMethod == 5:
         #print("sort by X * Random * y * Random ")
-        return sorted(coordinates,key = lambda x: x[1]*random.number(0,6)-x[0]*random.number(0,6) )
+        return sorted(coordinates, key = lambda x: x[1] * random.number(0, 6) - x[0] * random.number(0, 6))
     else:
         #print("sort by -x -y")
-        return sorted(coordinates,key = lambda x: -x[0] - x[1]) 
+        return sorted(coordinates, key = lambda x: -x[0] - x[1])
 
 def map_locations(config, teams):
     my_locations = []
@@ -239,7 +238,7 @@ def map_locations(config, teams):
     # who wants to see the dots appear the same each time?
     shuffleTeams = sort_ballParks(shuffleTeams)
 
-    fullmap = USAMAP 
+    fullmap = USAMAP
     fullmap = sort_maps(fullmap)
 
     dotCount = 0
@@ -252,7 +251,7 @@ def map_locations(config, teams):
         if dotCount % 10 == 0:
             frames.append(render_frame(generate_screen(my_locations)))
 
-    #make sure the last few are rendered 
+    #make sure the last few are rendered
     frames.append(render_frame(generate_screen(my_locations)))
 
     # add all parks as unvisited one at a time
@@ -288,21 +287,20 @@ def map_locations(config, teams):
     return renderAnimation(frames)
 
 def get_teams(type):
-    
     if type == "mlb":
         teams = sorted(MLB_TEAMS, key = lambda x: x[0])
         icon = "baseball"
     elif type == "nba":
         teams = sorted(NBA_TEAMS, key = lambda x: x[0])
         icon = "basketball"
-    elif type=="nfl":
+    elif type == "nfl":
         teams = sorted(NFL_TEAMS, key = lambda x: x[0])
         icon = "football"
 
     return [
         schema.Toggle(id = team[0], name = team[0], desc = "%s" % team[2], icon = icon)
         for team in teams
-    ]  
+    ]
 
 def get_schema():
     return schema.Schema(
@@ -320,6 +318,6 @@ def get_schema():
                 id = "teamlist",
                 source = "type",
                 handler = get_teams,
-            )
+            ),
         ],
     )
