@@ -173,7 +173,7 @@ def render_cell(cell):
     return render.Box(width = 1, height = 1, color = cell)
 
 def renderAnimation(frames, league):
-    #Weird Quick, league comes through as none, even though there is a default, and only for a second 
+    #Weird Quick, league comes through as none, even though there is a default, and only for a second
     if league == None:
         league = ""
 
