@@ -5,6 +5,7 @@ Description: Displays chemical element details.
 Author: Robert Ison
 """
 
+load("humanize.star", "humanize")
 load("math.star", "math")
 load("random.star", "random")
 load("render.star", "render")
@@ -745,7 +746,7 @@ elements = [
     {
         "AtomicNumber": 57,
         "Symbol": "La",
-        "Group": "Lanthanoid",
+        "Group": "Lanthanoids",
         "Period": 6,
         "Name": "Lanthanum",
         "Mass": 138.91,
@@ -758,7 +759,7 @@ elements = [
     {
         "AtomicNumber": 58,
         "Symbol": "Ce",
-        "Group": "Lanthanoid",
+        "Group": "Lanthanoids",
         "Period": 6,
         "Name": "Cerium",
         "Mass": 140.12,
@@ -771,7 +772,7 @@ elements = [
     {
         "AtomicNumber": 59,
         "Symbol": "Pr",
-        "Group": "Lanthanoid",
+        "Group": "Lanthanoids",
         "Period": 6,
         "Name": "Praseodymium",
         "Mass": 140.91,
@@ -784,7 +785,7 @@ elements = [
     {
         "AtomicNumber": 60,
         "Symbol": "Nd",
-        "Group": "Lanthanoid",
+        "Group": "Lanthanoids",
         "Period": 6,
         "Name": "Neodymium",
         "Mass": 144.24,
@@ -797,7 +798,7 @@ elements = [
     {
         "AtomicNumber": 61,
         "Symbol": "Pm",
-        "Group": "Lanthanoid",
+        "Group": "Lanthanoids",
         "Period": 6,
         "Name": "Promethium",
         "Mass": 145,
@@ -810,7 +811,7 @@ elements = [
     {
         "AtomicNumber": 62,
         "Symbol": "Sm",
-        "Group": "Lanthanoid",
+        "Group": "Lanthanoids",
         "Period": 6,
         "Name": "Samarium",
         "Mass": 150.36,
@@ -823,7 +824,7 @@ elements = [
     {
         "AtomicNumber": 63,
         "Symbol": "Eu",
-        "Group": "Lanthanoid",
+        "Group": "Lanthanoids",
         "Period": 6,
         "Name": "Europium",
         "Mass": 151.96,
@@ -836,7 +837,7 @@ elements = [
     {
         "AtomicNumber": 64,
         "Symbol": "Gd",
-        "Group": "Lanthanoid",
+        "Group": "Lanthanoids",
         "Period": 6,
         "Name": "Gadolinium",
         "Mass": 157.25,
@@ -849,7 +850,7 @@ elements = [
     {
         "AtomicNumber": 65,
         "Symbol": "Tb",
-        "Group": "Lanthanoid",
+        "Group": "Lanthanoids",
         "Period": 6,
         "Name": "Terbium",
         "Mass": 158.92,
@@ -862,7 +863,7 @@ elements = [
     {
         "AtomicNumber": 66,
         "Symbol": "Dy",
-        "Group": "Lanthanoid",
+        "Group": "Lanthanoids",
         "Period": 6,
         "Name": "Dysprosium",
         "Mass": 162.5,
@@ -875,7 +876,7 @@ elements = [
     {
         "AtomicNumber": 67,
         "Symbol": "Ho",
-        "Group": "Lanthanoid",
+        "Group": "Lanthanoids",
         "Period": 6,
         "Name": "Holmium",
         "Mass": 164.93,
@@ -888,7 +889,7 @@ elements = [
     {
         "AtomicNumber": 68,
         "Symbol": "Er",
-        "Group": "Lanthanoid",
+        "Group": "Lanthanoids",
         "Period": 6,
         "Name": "Erbium",
         "Mass": 167.26,
@@ -901,7 +902,7 @@ elements = [
     {
         "AtomicNumber": 69,
         "Symbol": "Tm",
-        "Group": "Lanthanoid",
+        "Group": "Lanthanoids",
         "Period": 6,
         "Name": "Thulium",
         "Mass": 168.93,
@@ -914,7 +915,7 @@ elements = [
     {
         "AtomicNumber": 70,
         "Symbol": "Yb",
-        "Group": "Lanthanoid",
+        "Group": "Lanthanoids",
         "Period": 6,
         "Name": "Ytterbium",
         "Mass": 173.05,
@@ -927,7 +928,7 @@ elements = [
     {
         "AtomicNumber": 71,
         "Symbol": "Lu",
-        "Group": "Lanthanoid",
+        "Group": "Lanthanoids",
         "Period": 6,
         "Name": "Lutetium",
         "Mass": 174.97,
@@ -1559,7 +1560,8 @@ def getMainCommentary(element):
     Returns:
         The display text for the first commentary line.
     """
-    return "Atomic #%s is in group %s and period %s" % (element["AtomicNumber"], element["Group"].lower(), element["Period"])
+    display_text = "Atomic number %s, %s is in group %s and period %s." % (element["AtomicNumber"], element["Name"], element["Group"].lower(), element["Period"])
+    return display_text
 
 def getSecondaryCommentary(element):
     """ getSecondaryCommentary
@@ -1570,7 +1572,13 @@ def getSecondaryCommentary(element):
     Returns:
         The display text for the second commentary line.
     """
-    return "This %s has an atomic weight of %su with %s protons, %s neutrons and %s electrons." % (element["Type"].lower(), element["Mass"], element["AtomicNumber"], int(math.floor(element["Mass"] - element["AtomicNumber"])), element["AtomicNumber"])
+    vowels = ["a", "e", "i", "o", "u"]
+    article = "a"
+    if element["Type"][0].lower() in vowels:
+        article = "an"
+
+    display_text = "With an atomic weight of %su, %s is %s %s and has %s protons, %s neutrons and %s electrons." % (element["Mass"], element["Name"], article, element["Type"].lower(), element["AtomicNumber"], int(math.floor(element["Mass"] - element["AtomicNumber"])), element["AtomicNumber"])
+    return display_text
 
 def getTertiaryCommentary(element):
     """ getTertiaryCommentary
@@ -1581,14 +1589,18 @@ def getTertiaryCommentary(element):
     Returns:
         The display text for the third commentary line.
     """
-    returnValue = ""
+    display_text = element["Name"]
     if (len(str(element["StateRoomTemp"])) > 0):
-        returnValue += "%s at room temp " % ((element["StateRoomTemp"]))
+        display_text += " is %s at room temperature " % ((element["StateRoomTemp"]).lower())
     if (len(str(element["MeltingPoint"])) > 0):
-        returnValue += "with melting point of %s%sC " % (element["MeltingPoint"], chr(176))
+        #display_text += "with melting point of %s%sC " % (element["MeltingPoint"], chr(176))
+        display_text += "with melting point of %s%sC " % (humanize.float("#,###.", float(element["MeltingPoint"])), chr(176))
+        #humanize.float("#,###.", accident_free_days)
+
     if (len(str(element["BoilingPoint"])) > 0):
-        returnValue += "and boiling point of %s%sC " % (element["BoilingPoint"], chr(176))
-    return returnValue
+        display_text += "and boiling point of %s%sC " % (humanize.float("#,###.", float(element["BoilingPoint"])), chr(176))
+
+    return display_text
 
 def day_of_year(date, timezone):
     """ day_of_year
@@ -1598,9 +1610,8 @@ def day_of_year(date, timezone):
         timezone: the current timezone
 
     Returns:
-        The day of the year, and integer between 1 and 366
+        The day of the year, an integer between 1 and 366
     """
-
     firstdayofyear = time.time(year = date.year, month = 1, day = 1, hour = 0, minute = 0, second = 0, location = timezone)
     day_of_year = math.ceil(time.parse_duration(date - firstdayofyear).seconds / 86400)
     return (day_of_year)
