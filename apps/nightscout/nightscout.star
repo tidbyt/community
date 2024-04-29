@@ -194,7 +194,6 @@ def main(config):
         sgv_current = mgdl_to_mmol(sgv_current_mgdl)
         sgv_delta = mgdl_to_mmol(int(sgv_delta))
 
-        #str_current = force_decimal_places(sgv_current, 1)
         str_current = str(sgv_current)
         left_col_width = 27
         graph_width = 36
@@ -963,14 +962,9 @@ def get_nightscout_data(nightscout_url, nightscout_token):
 
     history = []
 
-    count = 0
-
     for x in resp.json():
         if "sgv" in x:
-            count = count + 1
             history.append(tuple((int(int(x["date"]) / 1000), int(x["sgv"]))))
-
-    print(count)
 
     nightscout_data = {
         "history": history,
