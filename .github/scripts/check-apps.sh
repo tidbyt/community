@@ -20,10 +20,10 @@ fi
 for target in ${TARGETS}; do
     if [ ${runtime_exceptions[$target]} ]; then
 	t=${runtime_exceptions[$target]}
-	echo "pixlet check -r --max-render-time ${t} ${target}"
+	echo "pixlet check --max-render-time ${t} ${target}"
 	pixlet check --max-render-time ${t} ${target}
     else
-	echo "pixlet check -r ${target}"
+	echo "pixlet check ${target}"
 	pixlet check ${target}
     fi
 done
