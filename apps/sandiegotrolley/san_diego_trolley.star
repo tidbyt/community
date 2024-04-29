@@ -33,12 +33,11 @@ def none_str_to_none_val(maybe_none_str):
         return None
     return maybe_none_str
 
-now = time.now().unix
-
 def get_api_key():
     return secret.decrypt(API_KEY) or "NONE"
 
 def get_arrivals_for_stop(stop_id):
+    now = time.now().unix
     response = http.get("https://realtime.sdmts.com/api/api/where/arrivals-and-departures-for-stop/" + stop_id + ".json?key=" + get_api_key(), ttl_seconds = 30)
     if response.status_code != 200 or not response.body():
         print("Could not access transit data. HTTP Status: " + str(response.status_code))
