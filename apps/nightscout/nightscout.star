@@ -1,7 +1,7 @@
 """
 Applet: Nightscout
 Summary: Shows Nightscout CGM Data
-Description: Displays Continuous Glucose Monitoring (CGM) blood sugar data from the Nightscout Open Source project (https://nightscout.github.io/). Will display blood sugar as mg/dL or mmol/L. Optionally display historical readings on a graph. Also a clock. Added ability to swap clock data for IOB.
+Description: Displays Continuous Glucose Monitoring (CGM) blood sugar data from the Nightscout Open Source project (https://nightscout.github.io/). Will display blood sugar as mg/dL or mmol/L. Optionally display historical readings on a graph. Also a clock. Added ability to swap clock data for IOB or COB. (v2.4).
 Authors: Jeremy Tavener, Paul Murphy
 """
 
@@ -78,6 +78,7 @@ def main(config):
     show_24_hour_time = config.bool("show_24_hour_time", DEFAULT_SHOW_24_HOUR_TIME)
     night_mode = config.bool("night_mode", DEFAULT_NIGHT_MODE)
     nightscout_iob = "0.00u"
+    nightscout_cob = "0.0g"
 
     if nightscout_url == "" and nightscout_id != "" and nightscout_host != "":
         nightscout_url = nightscout_id + "." + nightscout_host
@@ -85,15 +86,33 @@ def main(config):
     print(nightscout_url)
 
     if nightscout_url != "":
-        nightscout_data_json, status_code = get_nightscout_data(nightscout_url, nightscout_token, show_mgdl)
-        nightscout_iob = get_nightscout_iob(nightscout_url, nightscout_token)
         sample_data = False
+        if show_graph:  # history only needed when displaying graph
+            nightscout_entries, status_code = get_nightscout_data(nightscout_url, nightscout_token)
+            if status_code == 503:
+                print("Page not found for nightscout ID '" + nightscout_id + "' - is this ID correct?")
+                return display_failure("Page not found for nightscout ID '" + nightscout_id + "' - is this ID correct?")
+            elif status_code > 200:
+                return display_failure("Nightscout Error: " + str(status_code))
+        else:  # Otherwise just set it to empty
+            nightscout_entries, status_code = {"history": []}, 0
+
+        # properties contains all the rest of our data.
+        nightscout_properties, status_code = get_nightscout_properties(nightscout_url, nightscout_token)
+        if status_code == 503:
+            print("Page not found for nightscout ID '" + nightscout_id + "' - is this ID correct?")
+            return display_failure("Page not found for nightscout ID '" + nightscout_id + "' - is this ID correct?")
+        elif status_code > 200:
+            return display_failure("Nightscout Error: " + str(status_code))
     else:
-        nightscout_data_json, status_code = {
+        nightscout_properties, nightscout_entries, status_code = {
             "sgv_current": "85",
             "sgv_delta": "-2" if show_mgdl else float("-0.1"),
-            "latest_reading_date_string": (time.now() - time.parse_duration("3m")).format("2006-01-02T15:04:05.999999999Z07:00"),
+            "latest_reading_date_string": (time.now() - time.parse_duration("3m")),
             "direction": "Flat",
+            "iob": "0.00u",
+            "cob": "0.0g",
+        }, {
             "history": [
                 ((time.now() - time.parse_duration("213m")).unix, 125),
                 ((time.now() - time.parse_duration("208m")).unix, 130),
@@ -142,18 +161,15 @@ def main(config):
         }, 0
         sample_data = True
 
-    if status_code == 503:
-        print("Page not found for nightscout ID '" + nightscout_id + "' - is this ID correct?")
-        return display_failure("Page not found for nightscout ID '" + nightscout_id + "' - is this ID correct?")
-    elif status_code > 200:
-        return display_failure("Nightscout Error: " + str(status_code))
-
     # Pull the data from the cache
-    sgv_current_mgdl = int(nightscout_data_json["sgv_current"])
-    sgv_delta = nightscout_data_json["sgv_delta"]
-    latest_reading_dt = time.parse_time(nightscout_data_json["latest_reading_date_string"])
-    direction = nightscout_data_json["direction"]
-    history = nightscout_data_json["history"]
+    sgv_current_mgdl = int(nightscout_properties["sgv_current"])
+    sgv_delta = nightscout_properties["sgv_delta"]
+    latest_reading_dt = nightscout_properties["latest_reading_date_string"]
+    direction = nightscout_properties["direction"]
+    nightscout_iob = nightscout_properties["iob"]
+    nightscout_cob = nightscout_properties["cob"]
+
+    history = nightscout_entries["history"]
 
     #sgv_delta_mgdl = 25
     #sgv_current_mgdl = 420
@@ -166,11 +182,6 @@ def main(config):
         urgent_low = int(str(config.get("mgdl_urgent_low", DEFAULT_URGENT_LOW)))
         str_current = str(int(sgv_current_mgdl))
 
-        # Delta
-        str_delta = str(sgv_delta)
-        if (int(sgv_delta) >= 0):
-            str_delta = "+" + str_delta
-
         left_col_width = 27
         graph_width = 36
     else:
@@ -181,18 +192,14 @@ def main(config):
         urgent_low = int(float(config.get("mmol_urgent_low", mgdl_to_mmol(DEFAULT_URGENT_LOW))) * 18)
 
         sgv_current = mgdl_to_mmol(sgv_current_mgdl)
-        #sgv_delta = mgdl_to_mmol(sgv_delta_mgdl)
+        sgv_delta = mgdl_to_mmol(int(sgv_delta))
 
         #str_current = force_decimal_places(sgv_current, 1)
         str_current = str(sgv_current)
-        str_delta = str(sgv_delta)
-        if (str_delta == "0.0"):
-            str_delta = "+0"
-        elif (int(sgv_delta) > 0):
-            str_delta = "+" + str_delta
-        print(str_delta)
         left_col_width = 27
         graph_width = 36
+
+    str_delta = str(sgv_delta)
 
     OLDEST_READING_TARGET = UTC_TIME_NOW - time.parse_duration(str(5 * graph_width) + "m")
 
@@ -369,7 +376,7 @@ def main(config):
             ),
         ]
 
-    elif show_string == "IOB":
+    elif show_string == "IOB" or show_string == "COB":
         lg_string = [
             render.Stack(
                 children = [
@@ -387,7 +394,7 @@ def main(config):
                                     render.Animation(
                                         children = [
                                             render.Text(
-                                                content = nightscout_iob,
+                                                content = nightscout_iob if show_string == "IOB" else nightscout_cob,
                                                 font = "6x13",
                                                 color = color_clock,
                                             ),
@@ -454,7 +461,7 @@ def main(config):
 
         sm_string = [
             render.WrappedText(
-                content = nightscout_iob,
+                content = nightscout_iob if show_string == "IOB" else nightscout_cob,
                 font = "tom-thumb",
                 color = color_clock,
                 width = left_col_width,
@@ -846,6 +853,10 @@ def get_schema():
             display = "Insulin on Board",
             value = "IOB",
         ),
+        schema.Option(
+            display = "Carbs on Board",
+            value = "COB",
+        ),
     ]
 
     return schema.Schema(
@@ -897,8 +908,8 @@ def get_schema():
             ),
             schema.Dropdown(
                 id = "show_string",
-                name = "Show Clock/IOB",
-                desc = "Show Clock or Insulin on Board along with reading",
+                name = "Show Clock/IOB/COB",
+                desc = "Show Clock, Insulin on Board, or Carbs on Board along with reading",
                 icon = "gear",
                 default = options[1].value,
                 options = options,
@@ -922,12 +933,12 @@ def get_schema():
 
 # This method returns a tuple of a nightscout_data and a status_code. If it's
 # served from cache, we return a status_code of 0.
-def get_nightscout_data(nightscout_url, nightscout_token, show_mgdl):
+def get_nightscout_data(nightscout_url, nightscout_token):
     nightscout_url = nightscout_url.replace("https://", "")
     nightscout_url = nightscout_url.replace("http://", "")
     nightscout_url = nightscout_url.split("/")[0]
     oldest_reading = str((time.now() - time.parse_duration("240m")).unix)
-    json_url = "https://" + nightscout_url + "/api/v1/entries.json?count=1000&find[date][$gte]=" + oldest_reading
+    json_url = "https://" + nightscout_url + "/api/v2/entries.json?count=40&find[date][$gte]=" + oldest_reading
     headers = {}
     if nightscout_token != "":
         headers["Api-Secret"] = hash.sha1(nightscout_token)
@@ -950,38 +961,18 @@ def get_nightscout_data(nightscout_url, nightscout_token, show_mgdl):
 
         return {}, resp.status_code
 
-    latest_reading = resp.json()[0]
-    previous_reading = resp.json()[1]
-
-    # Newer versions of NS do not have the dateString field. Check if it's there, and if not, use created_at instead.
-    if "dateString" in latest_reading:
-        latest_reading_date_string = latest_reading["dateString"]
-    else:
-        latest_reading_date_string = latest_reading["created_at"]
-
-    # Current sgv value
-    sgv_current = latest_reading["sgv"]
-
-    # Delta between the current and previous
-    if show_mgdl:
-        sgv_delta = int(sgv_current - previous_reading["sgv"])
-    else:
-        sgv_delta = math.round((mgdl_to_mmol(int(sgv_current)) - mgdl_to_mmol(int(previous_reading["sgv"]))) * 10) / 10
-        print("sgv_delta:" + str(sgv_delta))
-
-    # Get the direction
-    direction = latest_reading["direction"] if "direction" in latest_reading else "None"
     history = []
+
+    count = 0
 
     for x in resp.json():
         if "sgv" in x:
+            count = count + 1
             history.append(tuple((int(int(x["date"]) / 1000), int(x["sgv"]))))
 
+    print(count)
+
     nightscout_data = {
-        "sgv_current": str(int(sgv_current)),
-        "sgv_delta": sgv_delta,
-        "latest_reading_date_string": latest_reading_date_string,
-        "direction": direction,
         "history": history,
     }
 
@@ -990,12 +981,13 @@ def get_nightscout_data(nightscout_url, nightscout_token, show_mgdl):
 
     return nightscout_data, resp.status_code
 
-def get_nightscout_iob(nightscout_url, nightscout_token):
+# This method returns a tuple of a nightscout_data and a status_code.
+def get_nightscout_properties(nightscout_url, nightscout_token):
     nightscout_url = nightscout_url.replace("https://", "")
     nightscout_url = nightscout_url.replace("http://", "")
     nightscout_url = nightscout_url.split("/")[0]
 
-    json_url = "https://" + nightscout_url + "/api/v2/properties/iob"
+    json_url = "https://" + nightscout_url + "/api/v2/properties/bgnow,iob,delta,direction,cob"
     headers = {}
     if nightscout_token != "":
         headers["Api-Secret"] = hash.sha1(nightscout_token)
@@ -1005,12 +997,30 @@ def get_nightscout_iob(nightscout_url, nightscout_token):
     # Request latest entries from the Nightscout URL
     resp = http.get(json_url, headers = headers)
     if resp.status_code != 200:
-        # If it's not in the cache, return the NS error.
         print("NS Error - Display Error")
 
         return ""
-    iob = resp.json()["iob"]["display"]
-    return str(iob) + "u"
+
+    prop = resp.json()
+
+    sgv_current = prop["bgnow"]["last"]
+    sgv_delta = prop["delta"]["display"]
+    latest_reading_date_string = prop["bgnow"]["mills"]
+    direction = prop["direction"]["value"]
+    iob = prop["iob"]["display"] + "u"
+    cob = str(prop["cob"]["display"]) + "g"
+
+    nightscout_properties = {
+        "sgv_current": str(int(sgv_current)),
+        "sgv_delta": sgv_delta,
+        # Need to convert from millisecond EPOCH time
+        "latest_reading_date_string": time.from_timestamp(int(int(latest_reading_date_string) / 1000)),
+        "direction": direction,
+        "iob": iob,
+        "cob": cob,
+    }
+
+    return nightscout_properties, resp.status_code
 
 def mgdl_to_mmol(mgdl):
     mmol = float(math.round((mgdl / 18) * 10) / 10)
