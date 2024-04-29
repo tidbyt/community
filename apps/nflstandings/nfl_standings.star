@@ -13,6 +13,7 @@ load("render.star", "render")
 load("schema.star", "schema")
 load("time.star", "time")
 
+
 CACHE_TTL_SECONDS = 300
 DEFAULT_LOCATION = """
 {
