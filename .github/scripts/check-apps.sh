@@ -10,6 +10,7 @@ TARGETS=$(echo ${TARGETS} | tr -d '"' | awk '{$1=$1};1')
 # warm. Should add exceptions sparingly.
 declare -A runtime_exceptions
 runtime_exceptions["apps/milbscores"]="15s"
+runtime_exceptions["apps/nflscores"]="5s"
 
 if [ -z "${TARGETS}" ]; then
     echo "✔️ No apps modified"
