@@ -151,12 +151,12 @@ def main(config):
                         if HomeTeam == LadderJSON["ladders"][0]["entries"][y]["team"]["id"]:
                             HomeWins = str(LadderJSON["ladders"][0]["entries"][y]["thisSeasonRecord"]["winLossRecord"]["wins"])
                             HomeLosses = str(LadderJSON["ladders"][0]["entries"][y]["thisSeasonRecord"]["winLossRecord"]["losses"])
-                            HomeDraws = str(LadderJSON["ladders"][0]["entries"][y]["thisSeasonRecord"]["winLossRecord"]["draws"])
+                            HomeDraws = LadderJSON["ladders"][0]["entries"][y]["thisSeasonRecord"]["winLossRecord"]["draws"]
                             HomeFound = 1
                         if AwayTeam == LadderJSON["ladders"][0]["entries"][y]["team"]["id"]:
                             AwayWins = str(LadderJSON["ladders"][0]["entries"][y]["thisSeasonRecord"]["winLossRecord"]["wins"])
                             AwayLosses = str(LadderJSON["ladders"][0]["entries"][y]["thisSeasonRecord"]["winLossRecord"]["losses"])
-                            AwayDraws = str(LadderJSON["ladders"][0]["entries"][y]["thisSeasonRecord"]["winLossRecord"]["draws"])
+                            AwayDraws = LadderJSON["ladders"][0]["entries"][y]["thisSeasonRecord"]["winLossRecord"]["draws"]
                             AwayFound = 1
 
                         # both teams found, lets break out
@@ -171,7 +171,7 @@ def main(config):
                     if AwayDraws == 0:
                         AwayRecord = AwayWins + "-" + AwayLosses
                     else:
-                        AwayRecord = AwayWins + "-" + AwayDraws + "-" + AwayLosses
+                        AwayRecord = AwayWins + "-" + str(AwayDraws) + "-" + AwayLosses
 
                 else:
                     HomeRecord = ""
@@ -272,12 +272,12 @@ def main(config):
                             if HomeTeam == LadderJSON["ladders"][0]["entries"][y]["team"]["id"]:
                                 HomeWins = str(LadderJSON["ladders"][0]["entries"][y]["thisSeasonRecord"]["winLossRecord"]["wins"])
                                 HomeLosses = str(LadderJSON["ladders"][0]["entries"][y]["thisSeasonRecord"]["winLossRecord"]["losses"])
-                                HomeDraws = str(LadderJSON["ladders"][0]["entries"][y]["thisSeasonRecord"]["winLossRecord"]["draws"])
+                                HomeDraws = LadderJSON["ladders"][0]["entries"][y]["thisSeasonRecord"]["winLossRecord"]["draws"]
                                 HomeFound = 1
                             if AwayTeam == LadderJSON["ladders"][0]["entries"][y]["team"]["id"]:
                                 AwayWins = str(LadderJSON["ladders"][0]["entries"][y]["thisSeasonRecord"]["winLossRecord"]["wins"])
                                 AwayLosses = str(LadderJSON["ladders"][0]["entries"][y]["thisSeasonRecord"]["winLossRecord"]["losses"])
-                                AwayDraws = str(LadderJSON["ladders"][0]["entries"][y]["thisSeasonRecord"]["winLossRecord"]["draws"])
+                                AwayDraws = LadderJSON["ladders"][0]["entries"][y]["thisSeasonRecord"]["winLossRecord"]["draws"]
                                 AwayFound = 1
 
                             # We found both teams, so break out
@@ -292,7 +292,7 @@ def main(config):
                         if AwayDraws == 0:
                             AwayRecord = AwayWins + "-" + AwayLosses
                         else:
-                            AwayRecord = AwayWins + "-" + AwayDraws + "-" + AwayLosses
+                            AwayRecord = AwayWins + "-" + str(AwayDraws) + "-" + AwayLosses
 
                     else:
                         HomeRecord = ""
@@ -340,7 +340,7 @@ def main(config):
                 if int(TeamListSelection) == LadderJSON["ladders"][0]["entries"][y]["team"]["id"]:
                     HomeWins = str(LadderJSON["ladders"][0]["entries"][y]["thisSeasonRecord"]["winLossRecord"]["wins"])
                     HomeLosses = str(LadderJSON["ladders"][0]["entries"][y]["thisSeasonRecord"]["winLossRecord"]["losses"])
-                    HomeDraws = str(LadderJSON["ladders"][0]["entries"][y]["thisSeasonRecord"]["winLossRecord"]["draws"])
+                    HomeDraws = LadderJSON["ladders"][0]["entries"][y]["thisSeasonRecord"]["winLossRecord"]["draws"]
                     break
 
             if HomeDraws == 0:
@@ -389,12 +389,12 @@ def main(config):
                         if HomeTeam == LadderJSON["ladders"][0]["entries"][y]["team"]["id"]:
                             HomeWins = str(LadderJSON["ladders"][0]["entries"][y]["thisSeasonRecord"]["winLossRecord"]["wins"])
                             HomeLosses = str(LadderJSON["ladders"][0]["entries"][y]["thisSeasonRecord"]["winLossRecord"]["losses"])
-                            HomeDraws = str(LadderJSON["ladders"][0]["entries"][y]["thisSeasonRecord"]["winLossRecord"]["draws"])
+                            HomeDraws = LadderJSON["ladders"][0]["entries"][y]["thisSeasonRecord"]["winLossRecord"]["draws"]
                             HomeFound = 1
                         if AwayTeam == LadderJSON["ladders"][0]["entries"][y]["team"]["id"]:
                             AwayWins = str(LadderJSON["ladders"][0]["entries"][y]["thisSeasonRecord"]["winLossRecord"]["wins"])
                             AwayLosses = str(LadderJSON["ladders"][0]["entries"][y]["thisSeasonRecord"]["winLossRecord"]["losses"])
-                            AwayDraws = str(LadderJSON["ladders"][0]["entries"][y]["thisSeasonRecord"]["winLossRecord"]["draws"])
+                            AwayDraws = LadderJSON["ladders"][0]["entries"][y]["thisSeasonRecord"]["winLossRecord"]["draws"]
                             AwayFound = 1
 
                         # We found both teams, so break out
@@ -409,7 +409,7 @@ def main(config):
                     if AwayDraws == 0:
                         AwayRecord = AwayWins + "-" + AwayLosses
                     else:
-                        AwayRecord = AwayWins + "-" + AwayDraws + "-" + AwayLosses
+                        AwayRecord = AwayWins + "-" + str(AwayDraws) + "-" + AwayLosses
 
                 else:
                     HomeRecord = ""
