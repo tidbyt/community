@@ -790,44 +790,7 @@ def mg_mgdl_options(show_mgdl):
         urgent_high = DEFAULT_URGENT_HIGH
         urgent_low = DEFAULT_URGENT_LOW
         unit = "mg/dL"
-
-        return [
-            schema.Text(
-                id = "mgdl_graph_height",
-                name = "Graph Height",
-                desc = "Height of Graph (in " + unit + ") (Default " + str(graph_height) + ")",
-                icon = "rulerVertical",
-                default = str(graph_height),
-            ),
-            schema.Text(
-                id = "mgdl_normal_high",
-                name = "Normal High Threshold (in " + unit + ")",
-                desc = "Anything above this is displayed yellow unless it is above the Urgent High Threshold (default " + str(normal_high) + ")",
-                icon = "droplet",
-                default = str(normal_high),
-            ),
-            schema.Text(
-                id = "mgdl_normal_low",
-                name = "Normal Low Threshold (in " + unit + ")",
-                desc = "Anything below this is displayed yellow unless it is below the Urgent Low Threshold (default " + str(normal_low) + ")",
-                icon = "droplet",
-                default = str(normal_low),
-            ),
-            schema.Text(
-                id = "mgdl_urgent_high",
-                name = "Urgent High Threshold (in " + unit + ")",
-                desc = "Anything above this is displayed red (Default " + str(urgent_high) + ")",
-                icon = "droplet",
-                default = str(urgent_high),
-            ),
-            schema.Text(
-                id = "mgdl_urgent_low",
-                name = "Urgent Low Threshold (in " + unit + ")",
-                desc = "Anything below this is displayed red (Default " + str(urgent_low) + ")",
-                icon = "droplet",
-                default = str(urgent_low),
-            ),
-        ]
+        prefix = "mgdl"
     else:
         graph_height = mgdl_to_mmol(DEFAULT_GRAPH_HEIGHT)
         normal_high = mgdl_to_mmol(DEFAULT_NORMAL_HIGH)
@@ -835,44 +798,45 @@ def mg_mgdl_options(show_mgdl):
         urgent_high = mgdl_to_mmol(DEFAULT_URGENT_HIGH)
         urgent_low = mgdl_to_mmol(DEFAULT_URGENT_LOW)
         unit = "mmol/L"
+        prefix = "mmol"
 
-        return [
-            schema.Text(
-                id = "mmol_graph_height",
-                name = "Graph Height",
-                desc = "Height of Graph (in " + unit + ") (Default " + str(graph_height) + ")",
-                icon = "rulerVertical",
-                default = str(graph_height),
-            ),
-            schema.Text(
-                id = "mmol_normal_high",
-                name = "Normal High Threshold (in " + unit + ")",
-                desc = "Anything above this is displayed yellow unless it is above the Urgent High Threshold (default " + str(normal_high) + ")",
-                icon = "droplet",
-                default = str(normal_high),
-            ),
-            schema.Text(
-                id = "mmol_normal_low",
-                name = "Normal Low Threshold (in " + unit + ")",
-                desc = "Anything below this is displayed yellow unless it is below the Urgent Low Threshold (default " + str(normal_low) + ")",
-                icon = "droplet",
-                default = str(normal_low),
-            ),
-            schema.Text(
-                id = "mmol_urgent_high",
-                name = "Urgent High Threshold (in " + unit + ")",
-                desc = "Anything above this is displayed red (Default " + str(urgent_high) + ")",
-                icon = "droplet",
-                default = str(urgent_high),
-            ),
-            schema.Text(
-                id = "mmol_urgent_low",
-                name = "Urgent Low Threshold (in " + unit + ")",
-                desc = "Anything below this is displayed red (Default " + str(urgent_low) + ")",
-                icon = "droplet",
-                default = str(urgent_low),
-            ),
-        ]
+    return [
+        schema.Text(
+            id = prefix + "_graph_height",
+            name = "Graph Height",
+            desc = "Height of Graph (in " + unit + ") (Default " + str(graph_height) + ")",
+            icon = "rulerVertical",
+            default = str(graph_height),
+        ),
+        schema.Text(
+            id = prefix + "_normal_high",
+            name = "Normal High Threshold (in " + unit + ")",
+            desc = "Anything above this is displayed yellow unless it is above the Urgent High Threshold (default " + str(normal_high) + ")",
+            icon = "droplet",
+            default = str(normal_high),
+        ),
+        schema.Text(
+            id = prefix + "_normal_low",
+            name = "Normal Low Threshold (in " + unit + ")",
+            desc = "Anything below this is displayed yellow unless it is below the Urgent Low Threshold (default " + str(normal_low) + ")",
+            icon = "droplet",
+            default = str(normal_low),
+        ),
+        schema.Text(
+            id = prefix + "_urgent_high",
+            name = "Urgent High Threshold (in " + unit + ")",
+            desc = "Anything above this is displayed red (Default " + str(urgent_high) + ")",
+            icon = "droplet",
+            default = str(urgent_high),
+        ),
+        schema.Text(
+            id = prefix + "_urgent_low",
+            name = "Urgent Low Threshold (in " + unit + ")",
+            desc = "Anything below this is displayed red (Default " + str(urgent_low) + ")",
+            icon = "droplet",
+            default = str(urgent_low),
+        ),
+    ]
 
 def get_schema():
     options = [
