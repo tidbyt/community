@@ -2,7 +2,7 @@
 Applet: Nightscout
 Summary: Shows Nightscout CGM Data
 Description: Displays Continuous Glucose Monitoring (CGM) blood sugar data from the Nightscout Open Source project (https://nightscout.github.io/). Will display blood sugar as mg/dL or mmol/L. Optionally display historical readings on a graph. Also a clock. Added ability to swap clock data for IOB or COB. (v2.4).
-Authors: Jeremy Tavener, Paul Murphy
+Authors: Jeremy Tavener, Paul Murphy, Jason Hanson
 """
 
 load("cache.star", "cache")
@@ -790,7 +790,44 @@ def mg_mgdl_options(show_mgdl):
         urgent_high = DEFAULT_URGENT_HIGH
         urgent_low = DEFAULT_URGENT_LOW
         unit = "mg/dL"
-        prefix = "mgdl"
+
+        return [
+            schema.Text(
+                id = "mgdl_graph_height",
+                name = "Graph Height",
+                desc = "Height of Graph (in " + unit + ") (Default " + str(graph_height) + ")",
+                icon = "rulerVertical",
+                default = str(graph_height),
+            ),
+            schema.Text(
+                id = "mgdl_normal_high",
+                name = "Normal High Threshold (in " + unit + ")",
+                desc = "Anything above this is displayed yellow unless it is above the Urgent High Threshold (default " + str(normal_high) + ")",
+                icon = "droplet",
+                default = str(normal_high),
+            ),
+            schema.Text(
+                id = "mgdl_normal_low",
+                name = "Normal Low Threshold (in " + unit + ")",
+                desc = "Anything below this is displayed yellow unless it is below the Urgent Low Threshold (default " + str(normal_low) + ")",
+                icon = "droplet",
+                default = str(normal_low),
+            ),
+            schema.Text(
+                id = "mgdl_urgent_high",
+                name = "Urgent High Threshold (in " + unit + ")",
+                desc = "Anything above this is displayed red (Default " + str(urgent_high) + ")",
+                icon = "droplet",
+                default = str(urgent_high),
+            ),
+            schema.Text(
+                id = "mgdl_urgent_low",
+                name = "Urgent Low Threshold (in " + unit + ")",
+                desc = "Anything below this is displayed red (Default " + str(urgent_low) + ")",
+                icon = "droplet",
+                default = str(urgent_low),
+            ),
+        ]
     else:
         graph_height = mgdl_to_mmol(DEFAULT_GRAPH_HEIGHT)
         normal_high = mgdl_to_mmol(DEFAULT_NORMAL_HIGH)
@@ -798,45 +835,44 @@ def mg_mgdl_options(show_mgdl):
         urgent_high = mgdl_to_mmol(DEFAULT_URGENT_HIGH)
         urgent_low = mgdl_to_mmol(DEFAULT_URGENT_LOW)
         unit = "mmol/L"
-        prefix = "mmol"
 
-    return [
-        schema.Text(
-            id = prefix + "_graph_height",
-            name = "Graph Height",
-            desc = "Height of Graph (in " + unit + ") (Default " + str(graph_height) + ")",
-            icon = "rulerVertical",
-            default = str(graph_height),
-        ),
-        schema.Text(
-            id = prefix + "_normal_high",
-            name = "Normal High Threshold (in " + unit + ")",
-            desc = "Anything above this is displayed yellow unless it is above the Urgent High Threshold (default " + str(normal_high) + ")",
-            icon = "droplet",
-            default = str(normal_high),
-        ),
-        schema.Text(
-            id = prefix + "_normal_low",
-            name = "Normal Low Threshold (in " + unit + ")",
-            desc = "Anything below this is displayed yellow unless it is below the Urgent Low Threshold (default " + str(normal_low) + ")",
-            icon = "droplet",
-            default = str(normal_low),
-        ),
-        schema.Text(
-            id = prefix + "_urgent_high",
-            name = "Urgent High Threshold (in " + unit + ")",
-            desc = "Anything above this is displayed red (Default " + str(urgent_high) + ")",
-            icon = "droplet",
-            default = str(urgent_high),
-        ),
-        schema.Text(
-            id = prefix + "_urgent_low",
-            name = "Urgent Low Threshold (in " + unit + ")",
-            desc = "Anything below this is displayed red (Default " + str(urgent_low) + ")",
-            icon = "droplet",
-            default = str(urgent_low),
-        ),
-    ]
+        return [
+            schema.Text(
+                id = "mmol_graph_height",
+                name = "Graph Height",
+                desc = "Height of Graph (in " + unit + ") (Default " + str(graph_height) + ")",
+                icon = "rulerVertical",
+                default = str(graph_height),
+            ),
+            schema.Text(
+                id = "mmol_normal_high",
+                name = "Normal High Threshold (in " + unit + ")",
+                desc = "Anything above this is displayed yellow unless it is above the Urgent High Threshold (default " + str(normal_high) + ")",
+                icon = "droplet",
+                default = str(normal_high),
+            ),
+            schema.Text(
+                id = "mmol_normal_low",
+                name = "Normal Low Threshold (in " + unit + ")",
+                desc = "Anything below this is displayed yellow unless it is below the Urgent Low Threshold (default " + str(normal_low) + ")",
+                icon = "droplet",
+                default = str(normal_low),
+            ),
+            schema.Text(
+                id = "mmol_urgent_high",
+                name = "Urgent High Threshold (in " + unit + ")",
+                desc = "Anything above this is displayed red (Default " + str(urgent_high) + ")",
+                icon = "droplet",
+                default = str(urgent_high),
+            ),
+            schema.Text(
+                id = "mmol_urgent_low",
+                name = "Urgent Low Threshold (in " + unit + ")",
+                desc = "Anything below this is displayed red (Default " + str(urgent_low) + ")",
+                icon = "droplet",
+                default = str(urgent_low),
+            ),
+        ]
 
 def get_schema():
     options = [
@@ -937,7 +973,7 @@ def get_nightscout_data(nightscout_url, nightscout_token):
     nightscout_url = nightscout_url.replace("http://", "")
     nightscout_url = nightscout_url.split("/")[0]
     oldest_reading = str((time.now() - time.parse_duration("240m")).unix)
-    json_url = "https://" + nightscout_url + "/api/v2/entries.json?count=40&find[date][$gte]=" + oldest_reading
+    json_url = "https://" + nightscout_url + "/api/v2/entries.json?count=200&find[date][$gte]=" + oldest_reading
     headers = {}
     if nightscout_token != "":
         headers["Api-Secret"] = hash.sha1(nightscout_token)
@@ -1001,8 +1037,8 @@ def get_nightscout_properties(nightscout_url, nightscout_token):
     sgv_delta = prop["delta"]["display"]
     latest_reading_date_string = prop["bgnow"]["mills"]
     direction = prop["direction"]["value"]
-    iob = prop["iob"]["display"] + "u"
-    cob = str(prop["cob"]["display"]) + "g"
+    iob = prop["iob"]["display"] + "u" if "iob" in prop else ""
+    cob = str(prop["cob"]["display"]) + "g" if "cob" in prop else ""
 
     nightscout_properties = {
         "sgv_current": str(int(sgv_current)),
@@ -1033,6 +1069,7 @@ def display_failure(msg):
 
 ARROWS = {
     "None": "",
+    "NONE": "",
     "DoubleDown": "↓↓",
     "DoubleUp": "↑↑",
     "Flat": "→",
