@@ -74,6 +74,10 @@ def main(config):
     show_graph = config.bool("show_graph", DEFAULT_SHOW_GRAPH)
     show_graph_hour_bars = config.bool("show_graph_hour_bars", DEFAULT_SHOW_GRAPH_HOUR_BARS)
 
+    if (config.bool("show_clock", False) == True):
+        DEFAULT_SHOW_STRING = "Clock"
+    else:
+        DEFAULT_SHOW_STRING = "None"
     show_string = config.get("show_string", DEFAULT_SHOW_STRING)
     show_24_hour_time = config.bool("show_24_hour_time", DEFAULT_SHOW_24_HOUR_TIME)
     night_mode = config.bool("night_mode", DEFAULT_NIGHT_MODE)
