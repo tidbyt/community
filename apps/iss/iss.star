@@ -49,7 +49,7 @@ def get_data(url, TTL_TIME):
     
 def main(config):
 
-    API_KEY = secret.decrypt("AV6+xWcEgfYTPIWp2zZHfjHnhup00fz5kWWdw2P2el59SMnNDX37SRhyTliWX/DfGbjPkh3Pefz6VDo00SaeRB16AlUqRAKIGGOJ0HDyDoaRk0tNo9AebzdAH0JgY6EKNIakuJVflhZUqNpwQUVlv+rCajkRKknRo6W0xjkBkw==")
+    API_KEY = secret.decrypt("AV6+xWcEITIgm09L67Wi0iDhX140tSIsslvDFRqbfbTD6iYLPughtPh1+0Lb6kaoT7L1gsyqaypzUs4IxTquGJTXj/vg43C3c/7cObu3W47BquXLb25a8bzoWahis0zHPjzlt9l/AahmP0L0Y2DV88GQ29HANtOQSaIsq1WruA==")
     display24hour = config.bool("24_hour", DEFAULT_24_HOUR)
     location = json.decode(config.get("location", DEFAULT_LOCATION))
     lat = float(location["lat"])
@@ -112,7 +112,7 @@ def main(config):
         )
     else:
         # No filtered passes found
-        TTL_TIME = 3600
+        TTL_TIME = 86400
         return render.Text("No passes found", color="#FF0000")
 
 def get_schema():
