@@ -13,10 +13,6 @@ load("render.star", "render")
 load("schema.star", "schema")
 load("time.star", "time")
 
-# URL for reference checks
-# URL = "https://docs.google.com/spreadsheets/d/1zDiMWjzZQqB6QRMhde0dOoptTjwdv6GalNHHYkUytAI/edit?usp=sharing"
-# https://sheets.googleapis.com/v4/spreadsheets/1zDiMWjzZQqB6QRMhde0dOoptTjwdv6GalNHHYkUytAI/values/Sheet1!A1?key=AIzaSyAjBE8fXPO_jpdcIKHlHjUvJo3KeabgixA
-
 # Set default spreadsheet, API keys and supported range (500)
 default_spreadsheet_id = "default"
 default_api_key = "default"
