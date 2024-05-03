@@ -7,11 +7,11 @@ Author: Diogo Ribeiro Machado @ diogodh
 
 load("encoding/base64.star", "base64")
 load("encoding/json.star", "json")
+load("http.star", "http")
 load("render.star", "render")
 load("schema.star", "schema")
-load("time.star", "time")
 load("secret.star", "secret")
-load("http.star", "http")
+load("time.star", "time")
 
 ISS_IMG = base64.decode("""
 iVBORw0KGgoAAAANSUhEUgAAABAAAAALCAYAAAB24g05AAAACXBIWXMAAAsTAAALEwEAmpwYAAAGlmlUWHRYTUw6Y29tLmFkb2JlLnhtcAAAAAAAPD94cGFja2V0IGJlZ2luPSLvu78iIGlkPSJXNU0wTXBDZWhpSHpyZVN6TlRjemtjOWQiPz4gPHg6eG1wbWV0YSB4bWxuczp4PSJhZG9iZTpuczptZXRhLyIgeDp4bXB0az0iQWRvYmUgWE1QIENvcmUgOS4wLWMwMDEgNzkuMTRlY2I0MiwgMjAyMi8xMi8wMi0xOToxMjo0NCAgICAgICAgIj4gPHJkZjpSREYgeG1sbnM6cmRmPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5LzAyLzIyLXJkZi1zeW50YXgtbnMjIj4gPHJkZjpEZXNjcmlwdGlvbiByZGY6YWJvdXQ9IiIgeG1sbnM6eG1wPSJodHRwOi8vbnMuYWRvYmUuY29tL3hhcC8xLjAvIiB4bWxuczpkYz0iaHR0cDovL3B1cmwub3JnL2RjL2VsZW1lbnRzLzEuMS8iIHhtbG5zOnhtcE1NPSJodHRwOi8vbnMuYWRvYmUuY29tL3hhcC8xLjAvbW0vIiB4bWxuczpzdEV2dD0iaHR0cDovL25zLmFkb2JlLmNvbS94YXAvMS4wL3NUeXBlL1Jlc291cmNlRXZlbnQjIiB4bWxuczpwaG90b3Nob3A9Imh0dHA6Ly9ucy5hZG9iZS5jb20vcGhvdG9zaG9wLzEuMC8iIHhtcDpDcmVhdG9yVG9vbD0iQWRvYmUgUGhvdG9zaG9wIDI0LjIgKFdpbmRvd3MpIiB4bXA6Q3JlYXRlRGF0ZT0iMjAyNC0wNC0zMFQxNjozMjo1MSswMTowMCIgeG1wOk1ldGFkYXRhRGF0ZT0iMjAyNC0wNS0wMlQyMjo0Mzo1NCswMTowMCIgeG1wOk1vZGlmeURhdGU9IjIwMjQtMDUtMDJUMjI6NDM6NTQrMDE6MDAiIGRjOmZvcm1hdD0iaW1hZ2UvcG5nIiB4bXBNTTpJbnN0YW5jZUlEPSJ4bXAuaWlkOjI2YjI0NTk3LTc3ZWQtYjY0NS04Mjk2LWY0YjZiNDc5NmU5ZiIgeG1wTU06RG9jdW1lbnRJRD0iYWRvYmU6ZG9jaWQ6cGhvdG9zaG9wOjQyNzQyYjUwLTExZWQtNWQ0Mi1iNzlkLWZjZjU1YmY1ZTYzNCIgeG1wTU06T3JpZ2luYWxEb2N1bWVudElEPSJ4bXAuZGlkOjAxZmE5NzY1LTZmYmQtMTU0NS1iZmU4LTdlMTY5YTRkMzgwZSIgcGhvdG9zaG9wOkNvbG9yTW9kZT0iMyI+IDx4bXBNTTpIaXN0b3J5PiA8cmRmOlNlcT4gPHJkZjpsaSBzdEV2dDphY3Rpb249ImNyZWF0ZWQiIHN0RXZ0Omluc3RhbmNlSUQ9InhtcC5paWQ6MDFmYTk3NjUtNmZiZC0xNTQ1LWJmZTgtN2UxNjlhNGQzODBlIiBzdEV2dDp3aGVuPSIyMDI0LTA0LTMwVDE2OjMyOjUxKzAxOjAwIiBzdEV2dDpzb2Z0d2FyZUFnZW50PSJBZG9iZSBQaG90b3Nob3AgMjQuMiAoV2luZG93cykiLz4gPHJkZjpsaSBzdEV2dDphY3Rpb249InNhdmVkIiBzdEV2dDppbnN0YW5jZUlEPSJ4bXAuaWlkOmFmN2ZhN2Y0LTFkYWMtODA0NS1hYmQwLWU3MDQyZDRiMWE2YiIgc3RFdnQ6d2hlbj0iMjAyNC0wNC0zMFQxNjozMzoxOSswMTowMCIgc3RFdnQ6c29mdHdhcmVBZ2VudD0iQWRvYmUgUGhvdG9zaG9wIDI0LjIgKFdpbmRvd3MpIiBzdEV2dDpjaGFuZ2VkPSIvIi8+IDxyZGY6bGkgc3RFdnQ6YWN0aW9uPSJzYXZlZCIgc3RFdnQ6aW5zdGFuY2VJRD0ieG1wLmlpZDoyNmIyNDU5Ny03N2VkLWI2NDUtODI5Ni1mNGI2YjQ3OTZlOWYiIHN0RXZ0OndoZW49IjIwMjQtMDUtMDJUMjI6NDM6NTQrMDE6MDAiIHN0RXZ0OnNvZnR3YXJlQWdlbnQ9IkFkb2JlIFBob3Rvc2hvcCAyNC4yIChXaW5kb3dzKSIgc3RFdnQ6Y2hhbmdlZD0iLyIvPiA8L3JkZjpTZXE+IDwveG1wTU06SGlzdG9yeT4gPC9yZGY6RGVzY3JpcHRpb24+IDwvcmRmOlJERj4gPC94OnhtcG1ldGE+IDw/eHBhY2tldCBlbmQ9InIiPz4nxZmYAAAChklEQVQozwXBTUiTYQAH8P/zvM/7Nec2m9v8ojkMZJnpyJJElJSECirq2rmgDh2jQx07RMeKrnoIuymR0UWwQ0kLQ1K0VVL5ve11c3Pv1/M+7/r9SCGfBwuE8Hth9tVB7vMdzwNaMhMPUkNjT82SAUVRIFEKPXIMuYUPD7ey75+omoSG5MDLtsGL95gQAr5lgyqKHmxLwLUECKWq4By+EPA8D0zTUPfroIypgVgUWoMCWVd1Wgeo47qgigrfteBVinArRQjXgayoAKU4Mk04jgOZEQjXBq8W4ZT2AMHreiQCJswqhC8Qinc+q/zd7JdVZacj3fuCyhTuYRlWsQApFkMwHkfLifRz4+eP86FQQISaWmc2sosjZHLqzVzZOOhLd3asCiJ3QXhWQ7jhXb1s7Prx1pteIJiRjMLXetmYYdF4O685V3YK5bzeEuuUCptJVtrPD+uZgUZlcKDNXFmGrKpYXsz21NZWceraVei93UAyNfrl8aPRxv4Mzo4M4dO/pXSnFsZwklTJ/PT0R7k7namHY2vlbLaNycwKNOrzkmPuVg3jOlcDfcF4/Jt8eDDrN0bauemMb+6Xi1oimtKM7WaSW12F5HngleKZ7ZWlSULZdu/lG7eaOo4XNtbX6FHR0BRFtrvODfqVfxuJ73Mzr5tCuhNKnZwq2qhRLRxGONWNWmX/vizv93Drz8Ter/XbFEA42uwHEgkz2NLq26aLrfWVu/C2xiqHuUuWVRo/fWH0LVMYg+fYIIpK5FAUvsThU4ojxwOTJARUFZxzmEdV1KkEJRyFJBP4RCLC5GCUEDBVhbC5Xd3Jw+NAsMN1HNeFY9sAIQAAUArBPaeWPwClPrSIa0Gi+A8uuyvbv22EoAAAAABJRU5ErkJggg==
@@ -41,32 +41,6 @@ SAT_ID = "25544"  # ISS code
 NUM_DAYS = "1"  # passes for the next 2 days
 MIN_DURATION = "10"  # minimum time of visible pass
 ENCRYPTED_API_KEY = "AV6+xWcEV7YOV59RSGvlMMI+F6zdBmQ/ehadm3/rX2GqEUfzR4Rq5Fql+KFR4iYWN/HA4FrBY6A6KTAPfZ2YGxlBNulLu2p9eTV759b4UOVapYUzO8wsnvE2FmV5STR47M8uUw2poIhFnnE/kmyX1H8sZKE41tDyPbI+bjaEsw=="
-
-def get_schema():
-    return schema.Schema(
-        version = "1",
-        fields = [
-            schema.Location(
-                id = "location",
-                name = "Location",
-                desc = "Location for which to display the ISS passes.",
-                icon = "locationDot",
-            ),
-
-            #schema.Text(
-            #    id = "apiKey",
-            #    name = "N2YO API Key",
-            #    desc = "N2YO API Key",
-            #    icon = "code",
-            #),
-            schema.Toggle(
-                id = "24_hour",
-                name = "24 hour clock",
-                desc = "Display the time in 24 hour format.",
-                icon = "clock",
-            ),
-        ],
-    )
 
 def main(config):
     ttl_time = 5200
@@ -150,3 +124,30 @@ def get_data(url, ttl_time):
     if res.status_code != 200:
         fail("GET %s failed with status %d: %s", url, res.status_code, res.body())
     return res.json()
+
+def get_schema():
+    return schema.Schema(
+        version = "1",
+        fields = [
+            schema.Location(
+                id = "location",
+                name = "Location",
+                desc = "Location for which to display the ISS passes.",
+                icon = "locationDot",
+            ),
+
+            #schema.Text(
+            #    id = "apiKey",
+            #    name = "N2YO API Key",
+            #    desc = "N2YO API Key",
+            #    icon = "code",
+            #),
+            schema.Toggle(
+                id = "24_hour",
+                name = "24 hour clock",
+                desc = "Display the time in 24 hour format.",
+                icon = "clock",
+            ),
+        ],
+    )
+
