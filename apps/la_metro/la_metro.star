@@ -39,7 +39,6 @@ def main(config):
     location = json.decode(config.get("location", DEFAULT_LOCATION))
     lat = location["lat"]
     lon = location["lng"]
-    print(location)
     api_key = config.get("api_key", "")
     include_busses = config.get("include_bus")
     show_stops = config.get("show_stops")

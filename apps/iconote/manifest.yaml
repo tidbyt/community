@@ -1,0 +1,8 @@
+---
+id: iconote
+name: IcoNote
+summary: Scrolling message and image
+desc: Display a message with one of 75 predefined icons or your photo.
+author: J. Keybl
+fileName: iconote.star
+packageName: iconote
