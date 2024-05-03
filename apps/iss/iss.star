@@ -40,32 +40,64 @@ ALTITUDE = 0 # location altitude
 SAT_ID = '25544' # ISS code
 NUM_DAYS = '1' # passes for the next 2 days
 MIN_DURATION = '10' # minimum time of visible pass
+ENCRYPTED_API_KEY = "AV6+xWcEV7YOV59RSGvlMMI+F6zdBmQ/ehadm3/rX2GqEUfzR4Rq5Fql+KFR4iYWN/HA4FrBY6A6KTAPfZ2YGxlBNulLu2p9eTV759b4UOVapYUzO8wsnvE2FmV5STR47M8uUw2poIhFnnE/kmyX1H8sZKE41tDyPbI+bjaEsw=="
 
-def get_data(url, TTL_TIME):
-    res = http.get(url, ttl_seconds = TTL_TIME) # cache for 1 hour
-    if res.status_code != 200:
-        fail("GET %s failed with status %d: %s", url, res.status_code, res.body())
-    return res.json()
-    
+def get_schema():
+
+    return schema.Schema(
+        version = "1",
+        fields = [
+            schema.Location(
+                id = "location",
+                name = "Location",
+                desc = "Location for which to display the ISS passes.",
+                icon = "locationDot",
+            ),
+
+            #schema.Text(
+            #    id = "apiKey",
+            #    name = "N2YO API Key",
+            #    desc = "N2YO API Key",
+            #    icon = "code",
+            #),
+
+            schema.Toggle(
+                id = "24_hour",
+                name = "24 hour clock",
+                desc = "Display the time in 24 hour format.",
+                icon = "clock",
+            ),
+        ],
+    )
+
+
 def main(config):
-
-    API_KEY = secret.decrypt("AV6+xWcEXCThlw/GPVZza3Aok7TYBF3h4/I157H8MtQwb2GmM2tNr8X1gLOpG047U2CoUzG6gNBfMnMcQ382jlmNGiku/5AyX+w3NU/kDQ9A49b2BjTxIkh0nsm2G6HfpKq4MBgxO04B6/ioEEUUPicJ6sRkrBsm+wE+jRWuqA==")
+    ttl_time = 5200
+    api_key = secret.decrypt(ENCRYPTED_API_KEY) # or config.get("dev_api_key")
     display24hour = config.bool("24_hour", DEFAULT_24_HOUR)
     location = json.decode(config.get("location", DEFAULT_LOCATION))
     lat = float(location["lat"])
     lng = float(location["lng"])
     timezone = location["timezone"]
-    TTL_TIME = 5200
 
-    url = 'https://api.n2yo.com/rest/v1/satellite/visualpasses/%s/%s/%s/%s/%s/%s/&apiKey=%s' % (SAT_ID, lat, lng, ALTITUDE, NUM_DAYS, MIN_DURATION, API_KEY)
-    data = get_data(url, TTL_TIME)  
-    filtered_passes = [pass_data for pass_data in data['passes'] if pass_data['maxEl'] > MIN_ELEVATION and pass_data['mag'] < MIN_MAGNITUDE]
+    url = 'https://api.n2yo.com/rest/v1/satellite/visualpasses/%s/%s/%s/%s/%s/%s/&apiKey=%s' % (SAT_ID, lat, lng, ALTITUDE, NUM_DAYS, MIN_DURATION, api_key)
+    
+    data = get_data(url, ttl_time)  
+    
+    if "error" in data:
+        return render.Root(
+            child = render.WrappedText("API error", align = "center", font = "tb-8", color="#FF0000")
+        )
+
+    else:
+         filtered_passes = [pass_data for pass_data in data['passes'] if pass_data['maxEl'] > MIN_ELEVATION and pass_data['mag'] < MIN_MAGNITUDE]
 
     if filtered_passes:  # Check if there are any filtered passes
+
         # Take information only from the first pass
         first_pass_data = filtered_passes[0]
         utc_time_seconds = int(first_pass_data['startUTC'])  # Convert to integer
-        TTL_TIME =  utc_time_seconds - time.now().unix + 2
+        ttl_time =  utc_time_seconds - time.now().unix + 2
         start_compass = first_pass_data['startAzCompass']
         magnitude = first_pass_data['mag']
         
@@ -112,33 +144,12 @@ def main(config):
         )
     else:
         # No filtered passes found
-        TTL_TIME = 86400
-        return render.Text("No passes found", color="#FF0000")
+        ttl_time = 86400
+        return render.Root(
+            child = render.WrappedText("No passes found", align = "center", font = "tb-8", color="#FF0000"))
 
-def get_schema():
-
-    return schema.Schema(
-        version = "1",
-        fields = [
-            schema.Location(
-                id = "location",
-                name = "Location",
-                desc = "Location for which to display the ISS passes.",
-                icon = "locationDot",
-            ),
-
-            #schema.Text(
-            #    id = "apiKey",
-            #    name = "N2YO API Key",
-            #    desc = "N2YO API Key",
-            #    icon = "code",
-            #),
-
-            schema.Toggle(
-                id = "24_hour",
-                name = "24 hour clock",
-                desc = "Display the time in 24 hour format.",
-                icon = "clock",
-            ),
-        ],
-    )
+def get_data(url, ttl_time):
+    res = http.get(url, ttl_seconds = ttl_time) # cache for 1 hour
+    if res.status_code != 200:
+        fail("GET %s failed with status %d: %s", url, res.status_code, res.body())
+    return res.json()
