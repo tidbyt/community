@@ -87,7 +87,7 @@ def get_line_child(line_data, show_stops):
     for i in range(0, DestinationCount, 1):
         headsign = line_data["destinations"][i]["headsign"]
         if show_stops == "true":
-            headsign = headsign + " (" + line_data['stopName'] + ")"
+            headsign = headsign + " (" + line_data["stopName"] + ")"
         HEADSIGN_LIST.append(headsign)
 
     # if we have trains going both directions
