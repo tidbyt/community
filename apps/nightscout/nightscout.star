@@ -1001,10 +1001,10 @@ def get_nightscout_properties(nightscout_url, nightscout_token):
 
     prop = resp.json()
 
-    sgv_current = prop["bgnow"]["last"]
-    sgv_delta = prop["delta"]["display"]
-    latest_reading_date_string = prop["bgnow"]["mills"]
-    direction = prop["direction"]["value"]
+    sgv_current = prop["bgnow"]["last"] if "bgnow" in prop else ""
+    sgv_delta = prop["delta"]["display"] if "delta" in prop else ""
+    latest_reading_date_string = prop["bgnow"]["mills"] if "bgnow" in prop else ""
+    direction = prop["direction"]["value"] if "direction" in prop else ""
     iob = prop["iob"]["display"] + "u" if "iob" in prop else ""
     cob = str(prop["cob"]["display"]) + "g" if "cob" in prop else ""
 
