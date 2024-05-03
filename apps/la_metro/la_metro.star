@@ -61,7 +61,7 @@ def main(config):
     predictions = json.decode(NextSchedCacheData)
     StationData = predictions["data"]["predictionsData"]
     if include_busses == "true":
-        api_url = "{}/{}/predictions-near-location?lat={}&lon={}&meters=800".format(BASE_API, "lametro", lat, lon)
+        api_url = "{}/{}/predictions-near-location?lat={}&lon={}&meters=400".format(BASE_API, "lametro", lat, lon)
         bus_data = get_cachable_data(api_url, api_key, CACHE_TTL_SECS)
         if bus_data.status_code != 200:
             print("Error! Your API key didn't have permission to read busses. Request access to agencykey 'lametro")
