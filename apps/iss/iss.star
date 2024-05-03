@@ -49,7 +49,7 @@ def get_data(url, TTL_TIME):
     
 def main(config):
 
-    API_KEY = secret.decrypt("AV6+xWcEI9kUxz7pH8hzcZ6lekCk18gWTFtZA3vzx1p8SXa82ZJBMUEQaY2pA1GDLxP4X3yYFzrN67eflXmwgzxWcByF3lfVqNC1Ox76cV5C/3MdBWPZUu1VsYphn8SPzAuw1NWpTG9v6AlOFCzig29BZSlVrmZNbRXxr670LQ==")
+    API_KEY = secret.decrypt("AV6+xWcE80PCKypGANrXBivozYsyt8XbLSVscQsimcQ3LRg/67EPlsSYUXiM9CU8PXtAIfA81HAwWYAk3CMtHRRcMQzA5QKICBP4zC+df7UKSvcHuelf3eyg+MNRX7+6+8oWowO0UjgkEmeAoH27oTFsI0VPPJjpwVOBi1zRNw==")
     display24hour = config.bool("24_hour", DEFAULT_24_HOUR)
     location = json.decode(config.get("location", DEFAULT_LOCATION))
     lat = float(location["lat"])
