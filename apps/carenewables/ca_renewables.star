@@ -251,7 +251,7 @@ def get_schema():
                 id = "biogas",
                 name = "Biogas",
                 desc = "Display biogas power",
-                icon = "fireFlameSimple",
+                icon = "fireDlameSimple",
                 default = False,
             ),  
              schema.Toggle(
