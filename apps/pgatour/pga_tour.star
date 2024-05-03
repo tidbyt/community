@@ -57,6 +57,12 @@ Updated PLAYER_MAPPING
 v2.6.2
 Updated PLAYER_MAPPING
 Allowed extra char in Tournament Name
+
+v2.6.3
+Updated Player Name Mapping logic to stop partial ID matches
+
+v2.7
+Bug fix - During play, the completed round scores were showing the previous round's score
 """
 
 load("encoding/json.star", "json")
@@ -144,6 +150,10 @@ def main(config):
     TournMapping = json.decode(TOURNAMENT_MAPPING)
     MajorMapping = json.decode(MAJOR_MAPPING)
 
+    # tmp hack to unbreak CI
+    if "events" not in leaderboard["sports"][0]["leagues"][0]:
+        return []
+
     Title = leaderboard["sports"][0]["leagues"][0]["shortName"]
 
     # Check if there is an opposite field event, happens 4 times a season
@@ -159,7 +169,6 @@ def main(config):
     TournamentName = leaderboard["sports"][0]["leagues"][0]["events"][i]["name"]
     PreTournamentName = TournamentName
     TournamentID = leaderboard["sports"][0]["leagues"][0]["events"][i]["id"]
-    #print(TournamentID)
 
     # Check if its a major (or The Players) and show a different color in the title bar
     if TournamentID in MAJOR_MAPPING:
@@ -317,8 +326,9 @@ def getPlayerScore(x, s, Title, TitleColor, ColorGradient, stage, state, Mapping
             playerID = s[i + x]["id"]
 
             # Check for certain player IDs and outputs an altername name if needed
-            if playerID in PLAYER_MAPPING:
-                playerName = Mapping.get(playerID, "unknown")
+            if playerID in Mapping:
+                playerName = Mapping[playerID]
+
             else:
                 playerName = s[i + x]["lastName"][:12]
 
@@ -407,8 +417,8 @@ def getPlayerProgress(x, s, t, Title, TitleColor, ColorGradient, stage, state, t
             playerID = s[i + x]["id"]
 
             # Check for certain player IDs and outputs an altername name if needed
-            if playerID in PLAYER_MAPPING:
-                playerName = Mapping.get(playerID, "unknown")
+            if playerID in Mapping:
+                playerName = Mapping[playerID]
             else:
                 playerName = s[i + x]["lastName"][:12]
 
@@ -452,15 +462,10 @@ def getPlayerProgress(x, s, t, Title, TitleColor, ColorGradient, stage, state, t
 
             # if the player's round is completed, show their score
             if playerState == "post":
-                RoundNumber = len(t[0]["linescores"]) - 2
-
-                #print(RoundNumber)
                 for i in range(0, len(t), 1):
                     if playerID == t[i]["id"]:
-                        #print(playerID)
-                        RoundScore = t[i]["linescores"][RoundNumber]["value"]
-
-                        #print(RoundScore)
+                        CompletedRound = len(t[i]["linescores"]) - 1
+                        RoundScore = t[i]["linescores"][CompletedRound]["value"]
                         ProgressStr = str(int(RoundScore))
 
             # If ColorGradient is selected...

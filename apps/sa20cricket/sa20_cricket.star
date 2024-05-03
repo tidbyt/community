@@ -74,6 +74,7 @@ def main(config):
 
     # if nothing is found, look further down the fixtures
     if MatchID == None:
+        y = 0
         FixturesData = get_cachable_data(Fixtures_URL, STANDINGS_CACHE)
         Fixtures_JSON = json.decode(FixturesData)
         FixtureList = Fixtures_JSON["content"]["matches"]
@@ -82,6 +83,10 @@ def main(config):
                 if FixtureList[y]["stage"] == "SCHEDULED":
                     MatchID = FixtureList[y]["objectId"]
                     break
+
+        # if no "SCHEDULED" matches found, we must be at the end of the tournament - so keep showing the final match
+        if MatchID == None:
+            MatchID = FixtureList[y]["objectId"]
 
     LastOut_Runs = 0
     LastOut_Name = ""
