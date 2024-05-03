@@ -34,16 +34,15 @@ DEFAULT_LOCATION = """
 } """
 
 DEFAULT_24_HOUR = True
-MIN_ELEVATION = 10 # minimum elevation is 10º
-MIN_MAGNITUDE = 1 # minimum magnitude is 1
-ALTITUDE = 0 # location altitude
-SAT_ID = '25544' # ISS code
-NUM_DAYS = '1' # passes for the next 2 days
-MIN_DURATION = '10' # minimum time of visible pass
+MIN_ELEVATION = 10  # minimum elevation is 10º
+MIN_MAGNITUDE = 1  # minimum magnitude is 1
+ALTITUDE = 0  # location altitude
+SAT_ID = "25544"  # ISS code
+NUM_DAYS = "1"  # passes for the next 2 days
+MIN_DURATION = "10"  # minimum time of visible pass
 ENCRYPTED_API_KEY = "AV6+xWcEV7YOV59RSGvlMMI+F6zdBmQ/ehadm3/rX2GqEUfzR4Rq5Fql+KFR4iYWN/HA4FrBY6A6KTAPfZ2YGxlBNulLu2p9eTV759b4UOVapYUzO8wsnvE2FmV5STR47M8uUw2poIhFnnE/kmyX1H8sZKE41tDyPbI+bjaEsw=="
 
 def get_schema():
-
     return schema.Schema(
         version = "1",
         fields = [
@@ -60,7 +59,6 @@ def get_schema():
             #    desc = "N2YO API Key",
             #    icon = "code",
             #),
-
             schema.Toggle(
                 id = "24_hour",
                 name = "24 hour clock",
@@ -70,37 +68,35 @@ def get_schema():
         ],
     )
 
-
 def main(config):
     ttl_time = 5200
-    api_key = secret.decrypt(ENCRYPTED_API_KEY) # or config.get("dev_api_key")
+    api_key = secret.decrypt(ENCRYPTED_API_KEY)  # or config.get("dev_api_key")
     display24hour = config.bool("24_hour", DEFAULT_24_HOUR)
     location = json.decode(config.get("location", DEFAULT_LOCATION))
     lat = float(location["lat"])
     lng = float(location["lng"])
     timezone = location["timezone"]
 
-    url = 'https://api.n2yo.com/rest/v1/satellite/visualpasses/%s/%s/%s/%s/%s/%s/&apiKey=%s' % (SAT_ID, lat, lng, ALTITUDE, NUM_DAYS, MIN_DURATION, api_key)
-    
-    data = get_data(url, ttl_time)  
-    
+    url = "https://api.n2yo.com/rest/v1/satellite/visualpasses/%s/%s/%s/%s/%s/%s/&apiKey=%s" % (SAT_ID, lat, lng, ALTITUDE, NUM_DAYS, MIN_DURATION, api_key)
+
+    data = get_data(url, ttl_time)
+
     if "error" in data:
         return render.Root(
-            child = render.WrappedText("API error", align = "center", font = "tb-8", color="#FF0000")
+            child = render.WrappedText("API error", align = "center", font = "tb-8", color = "#FF0000"),
         )
 
     else:
-         filtered_passes = [pass_data for pass_data in data['passes'] if pass_data['maxEl'] > MIN_ELEVATION and pass_data['mag'] < MIN_MAGNITUDE]
+        filtered_passes = [pass_data for pass_data in data["passes"] if pass_data["maxEl"] > MIN_ELEVATION and pass_data["mag"] < MIN_MAGNITUDE]
 
     if filtered_passes:  # Check if there are any filtered passes
-
         # Take information only from the first pass
         first_pass_data = filtered_passes[0]
-        utc_time_seconds = int(first_pass_data['startUTC'])  # Convert to integer
-        ttl_time =  utc_time_seconds - time.now().unix + 2
-        start_compass = first_pass_data['startAzCompass']
-        magnitude = first_pass_data['mag']
-        
+        utc_time_seconds = int(first_pass_data["startUTC"])  # Convert to integer
+        ttl_time = utc_time_seconds - time.now().unix + 2
+        start_compass = first_pass_data["startAzCompass"]
+        magnitude = first_pass_data["mag"]
+
         # Convert UTC time to human-readable format
         utc_time = time.from_timestamp(utc_time_seconds)
         final_time = utc_time.in_location(timezone)
@@ -111,29 +107,29 @@ def main(config):
             time_human_readable = final_time.format("3:04 PM")  # Adjust format string
 
         col1 = render.Column(
-            expanded= True,
-            main_align="space_between",
-            cross_align="center",  
-            children=[
-                render.Image(src=ISS_IMG),
-                render.Image(src=MAG_IMG),
-                render.Image(src=EYE_IMG),
-           ],
+            expanded = True,
+            main_align = "space_between",
+            cross_align = "center",
+            children = [
+                render.Image(src = ISS_IMG),
+                render.Image(src = MAG_IMG),
+                render.Image(src = EYE_IMG),
+            ],
         )
 
         col2 = render.Column(
-            expanded= True,
-            main_align="space_around",
-            cross_align="center",  # Center align text vertically
-            children=[
-                render.Text("%s" % time_human_readable, color="#FF0000", font="tb-8"),
-                render.Text("%s" % start_compass, color="#FFFFFF", font= "tb-8"),
-                render.Text("%s" % magnitude, color="#FFFF00", font = "tb-8"),
+            expanded = True,
+            main_align = "space_around",
+            cross_align = "center",  # Center align text vertically
+            children = [
+                render.Text("%s" % time_human_readable, color = "#FF0000", font = "tb-8"),
+                render.Text("%s" % start_compass, color = "#FFFFFF", font = "tb-8"),
+                render.Text("%s" % magnitude, color = "#FFFF00", font = "tb-8"),
             ],
         )
 
         return render.Root(
-            child=render.Row(
+            child = render.Row(
                 main_align = "center",
                 cross_align = "center",
                 children = [
@@ -146,10 +142,11 @@ def main(config):
         # No filtered passes found
         ttl_time = 86400
         return render.Root(
-            child = render.WrappedText("No passes found", align = "center", font = "tb-8", color="#FF0000"))
+            child = render.WrappedText("No passes found", align = "center", font = "tb-8", color = "#FF0000"),
+        )
 
 def get_data(url, ttl_time):
-    res = http.get(url, ttl_seconds = ttl_time) # cache for 1 hour
+    res = http.get(url, ttl_seconds = ttl_time)  # cache for 1 hour
     if res.status_code != 200:
         fail("GET %s failed with status %d: %s", url, res.status_code, res.body())
     return res.json()
