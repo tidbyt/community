@@ -223,7 +223,7 @@ def get_schema():
                 id = "solar",
                 name = "Solar",
                 desc = "Display solar power",
-                icon = "solar-panel",
+                icon = "solarPanel",
                 default = True,
             ),  
             schema.Toggle(
@@ -237,21 +237,21 @@ def get_schema():
                 id = "batteries",
                 name = "Batteries",
                 desc = "Display battery power (charged by wind/solar, negative while charging, not official renewable)",
-                icon = "battery-three-quarters",
+                icon = "batteryThreeQuarters",
                 default = True,
             ), 
              schema.Toggle(
                 id = "geothermal",
                 name = "Geothermal",
                 desc = "Display geothermal power",
-                icon = "mug-hot",
+                icon = "mugHot",
                 default = False,
             ),  
             schema.Toggle(
                 id = "biogas",
                 name = "Biogas",
                 desc = "Display biogas power",
-                icon = "fire-flame-simple",
+                icon = "fireDlameSimple",
                 default = False,
             ),  
              schema.Toggle(
@@ -265,7 +265,7 @@ def get_schema():
                 id = "small_hydro",
                 name = "Small hydro",
                 desc = "Display small hydro energy",
-                icon = "glass-water-droplet",
+                icon = "glassWaterDroplet",
                 default = False,
             ),  
              schema.Toggle(
