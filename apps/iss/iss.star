@@ -150,4 +150,3 @@ def get_schema():
             ),
         ],
     )
-
