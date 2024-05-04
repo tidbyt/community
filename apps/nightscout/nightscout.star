@@ -101,6 +101,7 @@ def main(config):
             return display_failure("Nightscout Error: " + str(status_code))
     else:
         nightscout_data, status_code = {
+            "version": "n/a",
             "sgv_current": "85",
             "sgv_delta": "-2" if show_mgdl else float("-0.1"),
             "latest_reading_date_string": (time.now() - time.parse_duration("3m")),
