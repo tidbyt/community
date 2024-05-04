@@ -1001,13 +1001,31 @@ def get_nightscout_properties(nightscout_url, nightscout_token):
 
     prop = resp.json()
 
-    sgv_current = prop["bgnow"]["last"] if "bgnow" in prop else ""
-    sgv_delta = prop["delta"]["display"] if "delta" in prop else ""
-    latest_reading_date_string = prop["bgnow"]["mills"] if "bgnow" in prop else ""
-    direction = prop["direction"]["value"] if "direction" in prop else ""
-    iob = prop["iob"]["display"] + "u" if "iob" in prop else ""
-    cob = str(prop["cob"]["display"]) + "g" if "cob" in prop else ""
+    sgv_current = ""
+    sgv_delta = ""
+    latest_reading_date_string = ""
+    direction = ""
+    iob = ""
+    cob = ""
 
+    if "bgnow" in prop:
+        if "last" in prop["bgnow"]:
+            sgv_current = prop["bgnow"]["last"]
+        if "mills" in prop["bgnow"]:
+            latest_reading_date_string = prop["bgnow"]["mills"]
+    if "delta" in prop:
+        if "display" in prop["delta"]:
+            sgv_delta = prop["delta"]["display"]
+    if "direction" in prop:
+        if "value" in prop["direction"]:
+            direction = prop["direction"]["value"]
+    if "iob" in prop:
+        if "display" in prop["iob"]:
+            iob = str(prop["iob"]["display"]) + "u"
+    if "cob" in prop:
+        if "display" in prop["cob"]:
+            cob = str(prop["cob"]["display"]) + "g"
+    
     nightscout_properties = {
         "sgv_current": str(int(sgv_current)),
         "sgv_delta": sgv_delta,
