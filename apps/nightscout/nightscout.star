@@ -1025,7 +1025,7 @@ def get_nightscout_properties(nightscout_url, nightscout_token):
     if "cob" in prop:
         if "display" in prop["cob"]:
             cob = str(prop["cob"]["display"]) + "g"
-    
+
     nightscout_properties = {
         "sgv_current": str(int(sgv_current)),
         "sgv_delta": sgv_delta,
