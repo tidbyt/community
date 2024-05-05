@@ -5,29 +5,29 @@ Description: Displays the current time in an underwater scene that changes with 
 Author: asea-aranion
 """
 
-load("render.star", "render")
-load("time.star", "time")
-load("math.star", "math")
 load("encoding/base64.star", "base64")
 load("encoding/json.star", "json")
+load("math.star", "math")
+load("render.star", "render")
 load("schema.star", "schema")
+load("time.star", "time")
 
 shark = [
     """iVBORw0KGgoAAAANSUhEUgAAAEAAAAAgCAYAAACinX6EAAAAAXNSR0IArs4c6QAAAERlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAA6ABAAMAAAABAAEAAKACAAQAAAABAAAAQKADAAQAAAABAAAAIAAAAADfYzX9AAAAeklEQVRoBe3TsQ2AIBBG4TNxLStqt7JnBmewJFZUJhYwEQQTknOG/11ztO/LYcYggAACCCCAAAIIIIAAAggggICawKIWHI+z+WYZAB9+5+szCNtuq9dQeY/wOTIXMILfp/7OP6cyHTS3/xaaAlQjgAACCCCAAAIICAt0DQMRoYn6BZ0AAAAASUVORK5CYII=""",
-    """iVBORw0KGgoAAAANSUhEUgAAAEAAAAAgCAYAAACinX6EAAAAAXNSR0IArs4c6QAAAERlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAA6ABAAMAAAABAAEAAKACAAQAAAABAAAAQKADAAQAAAABAAAAIAAAAADfYzX9AAAAgElEQVRoBe3TsQ2AIBCFYUhcy4rareydwRksiRWViYVOpDmSI4QV3n/NQajed0cIFAIIIIAAAggggAACCCCAAAIIKAls6/5FtcBjXgkAm7QHP8tRj2leap/8QaV7cM8rsQEW9r7etgV2L/mxplv9t9BVIDkCCCCAAAIIIICAsMAPtyUUVCYnc/gAAAAASUVORK5CYII="""
+    """iVBORw0KGgoAAAANSUhEUgAAAEAAAAAgCAYAAACinX6EAAAAAXNSR0IArs4c6QAAAERlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAA6ABAAMAAAABAAEAAKACAAQAAAABAAAAQKADAAQAAAABAAAAIAAAAADfYzX9AAAAgElEQVRoBe3TsQ2AIBCFYUhcy4rareydwRksiRWViYVOpDmSI4QV3n/NQajed0cIFAIIIIAAAggggAACCCCAAAIIKAls6/5FtcBjXgkAm7QHP8tRj2leap/8QaV7cM8rsQEW9r7etgV2L/mxplv9t9BVIDkCCCCAAAIIIICAsMAPtyUUVCYnc/gAAAAASUVORK5CYII=""",
 ]
 
 fish = [
     """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""",
-    """iVBORw0KGgoAAAANSUhEUgAAAEAAAAAgCAYAAACinX6EAAAAAXNSR0IArs4c6QAAAERlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAA6ABAAMAAAABAAEAAKACAAQAAAABAAAAQKADAAQAAAABAAAAIAAAAADfYzX9AAAAlElEQVRoBe3UsQ2AIBCFYdzAhjmcxt4RHIUR7J3GOWzcQHOaa86GAoI5fxrORLi8TyQEBgIIIIDAI3Ck7ZRKZq2923Q2oA3ez8PrHbvGzbOG/9MJcPPxqgVZ9vW+F2TWulqzBhtn/d82+BTHrHUN8pRvqeG9noDyYuyIAAIIIIAAAggggAACCCCAAAIIIIAAAl8WuABWRS8hKydnAgAAAABJRU5ErkJggg=="""
+    """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""",
 ]
 
 seagrass = [
     """iVBORw0KGgoAAAANSUhEUgAAAEAAAAAgCAYAAACinX6EAAAAAXNSR0IArs4c6QAAAERlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAA6ABAAMAAAABAAEAAKACAAQAAAABAAAAQKADAAQAAAABAAAAIAAAAADfYzX9AAAAgElEQVRoBe3RQQqAIBAFUOlwHaATdfNaCS50MeDAgK+NITb+/2rNQ4AAAQIECBAgQIAAAQIECBAgQIAAAQIE0gTu9/nShlcaPCs626uUeWuWVdnV/tbLA8OuwNnw0bHs+B4elPhBKkDPXbV8z5e29uJ9Tbuo+uDjAar/IPlOFvgBsWIXAh0kLU0AAAAASUVORK5CYII=""",
     """iVBORw0KGgoAAAANSUhEUgAAAEAAAAAgCAYAAACinX6EAAAAAXNSR0IArs4c6QAAAERlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAA6ABAAMAAAABAAEAAKACAAQAAAABAAAAQKADAAQAAAABAAAAIAAAAADfYzX9AAAAfklEQVRoBe3RwQnAIBAEQJPiUkAqsqIUkOYSfAgB8eHjIOL4UQ5Z3DEliwABAgQIECBAgAABAgQIECBAgAABAgQIhAgc+XxCgmcIXap8r2xvPsMHDr2xFP2W7Z2HQoMu7xG5d762kvvn4hG9m8wKUPfmwiqD5QFW+Wg9ZxR4ARHeHRe5Ov/LAAAAAElFTkSuQmCC""",
-    """iVBORw0KGgoAAAANSUhEUgAAAEAAAAAgCAYAAACinX6EAAAAAXNSR0IArs4c6QAAAERlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAA6ABAAMAAAABAAEAAKACAAQAAAABAAAAQKADAAQAAAABAAAAIAAAAADfYzX9AAAAfElEQVRoBe3Syw2AIAwAUHU4B3AiJnIAl9Nw6MWEI9CEx6WEQz+vbJtDgAABAgQIECBAgAABAgQIECBAgAABAgS6CZzlerslz5a4NWzrfUb/x4yiy9Ssm45t/2MWhG4/IAZ+yr1nGXZ4H4FQY9yHN5Gh4NLDZ1iAHgi0BT7VnxsC3TQwqwAAAABJRU5ErkJggg=="""
+    """iVBORw0KGgoAAAANSUhEUgAAAEAAAAAgCAYAAACinX6EAAAAAXNSR0IArs4c6QAAAERlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAA6ABAAMAAAABAAEAAKACAAQAAAABAAAAQKADAAQAAAABAAAAIAAAAADfYzX9AAAAfElEQVRoBe3Syw2AIAwAUHU4B3AiJnIAl9Nw6MWEI9CEx6WEQz+vbJtDgAABAgQIECBAgAABAgQIECBAgAABAgS6CZzlerslz5a4NWzrfUb/x4yiy9Ssm45t/2MWhG4/IAZ+yr1nGXZ4H4FQY9yHN5Gh4NLDZ1iAHgi0BT7VnxsC3TQwqwAAAABJRU5ErkJggg==""",
 ]
 
 scenes = [
@@ -57,12 +57,11 @@ scenes = [
     """iVBORw0KGgoAAAANSUhEUgAAAEAAAAAgCAYAAACinX6EAAAAAXNSR0IArs4c6QAAAERlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAA6ABAAMAAAABAAEAAKACAAQAAAABAAAAQKADAAQAAAABAAAAIAAAAADfYzX9AAACyUlEQVRoBe1YMWhUQRDdO9LpoWgKkWuiCUYbuUZB0EIwBtFSFFJcJ4hwIDYWWmkhhCAKItilSCEpFUlSRhttghZGyeFZBLUIokTBKurb5K1z6/yf27ufz//HbTOzM7Mz773du3Ap7D9577cRa3t5l9htjbsweVxtXKk+V+NJBn8sf21qV/AFQDYNEZpQpLTxyWNsUZutFWp1eYpFcVIFALGoA3kiTaxxXPpYpFkezOtHgvg1bozFCsAi2SjrYkisxB9nWxJANpADsiKGxCSxtuIHCyCb+oPTEsSfKzGF+h0J4A+LAxYqTlwvf24n+0QFiAOSFqE4DFou8s+gVtyNsZ4A3XirIZx6LyBErW6s7b2AbrzVEE69FxCi1uzV8yHluaht6QWQeH2xbuiTHfZ+jLk82MLugVPuf4Irc9dM/8iEw/3y/qQBaazBg4PWvzKzYAmfvjtt4w9GKwaxLK5vjaebwrK/BUh89fVjQ3/dVg1FgBBjD2/ZhvXFikFz5vACjtaqNrdz4OymQzsp0EgRczt9+3AYxOVqjJftS4AtDb/5S27CTF2+aQmDKF4D9lIUntcAMietL1Sr52QPEid+7LHkK5b1mu9+DbJZY7xZDHmItwzL25f5EL8dwuxPoiSO+D/8ZeezXrNDQyUbLtRqx+x3wO0TB2ygdPiCtWh+Y/69O3umfMc8W76u7qeebHPxrXY+T180vz6+MMAJjLSYS3/k0XcLY2lpVYVD8kg6AVhJISR55qT1BZG5KD8poXDbkjyJYy7Jw+8/VDQrb9fgGoghiSOG/H8CIJH2ChFGkpi7tMNBlcRdMMahOJkQwMdJQSRZvyapvfsSTKphEn3Gzv3caENrzIfiXhvjkw6dgxvH8s9nUgCN3L61T+sEzB4tbT/PamIj6BNnbW4EIOAjw1+s++pdsxBRBHkuyuZOABKBEPxYMNaOCH8ASL8hGcWHvgEAAAAASUVORK5CYII=""",
 ]
 
-
 default_location = {
     "lat": 40.678,
     "lng": -73.944,
     "locality": "Brooklyn, New York",
-    "timezone": "America/New_York"
+    "timezone": "America/New_York",
 }
 
 def main(config):
@@ -79,7 +78,7 @@ def main(config):
     use_24hour = config.bool("24hour", False)
     time_format_colon = "3:04 PM"
     time_format_blank = "3 04 PM"
-    if(use_24hour):
+    if (use_24hour):
         time_format_colon = "15:04"
         time_format_blank = "15 04"
 
@@ -88,16 +87,16 @@ def main(config):
     animations = [
         render.Box(
             child = render.Animation(
-                children = get_frames(hour_2, hour_1, hour, speed)
-            )
+                children = get_frames(hour_2, hour_1, hour, speed),
+            ),
         ),
         render.Box(
             child = render.Animation(
                 children = [
                     render.Text(content = time_now.format(time_format_colon), font = "Dina_r400-6"),
-                    render.Text(content = time_now.format(time_format_blank), font = "Dina_r400-6")
-                ]
-            )
+                    render.Text(content = time_now.format(time_format_blank), font = "Dina_r400-6"),
+                ],
+            ),
         ),
         render.Box(
             child = render.Animation(
@@ -105,13 +104,13 @@ def main(config):
                     render.Image(base64.decode(seagrass[0])),
                     render.Image(base64.decode(seagrass[1])),
                     render.Image(base64.decode(seagrass[0])),
-                    render.Image(base64.decode(seagrass[2]))
-                ]
-            )
-        )
+                    render.Image(base64.decode(seagrass[2])),
+                ],
+            ),
+        ),
     ]
 
-    if(show_fish):
+    if (show_fish):
         animations.append(
             render.Box(
                 child = render.Animation(
@@ -119,10 +118,10 @@ def main(config):
                         render.Image(base64.decode(fish[3])),
                         render.Image(base64.decode(fish[0])),
                         render.Image(base64.decode(fish[1])),
-                        render.Image(base64.decode(fish[2]))
-                    ]
-                )   
-            )
+                        render.Image(base64.decode(fish[2])),
+                    ],
+                ),
+            ),
         )
         animations.append(
             render.Box(
@@ -131,25 +130,25 @@ def main(config):
                         render.Image(base64.decode(shark[0])),
                         render.Image(base64.decode(shark[1])),
                         render.Image(base64.decode(shark[1])),
-                        render.Image(base64.decode(shark[0]))
-                    ]
-                )
-            )
+                        render.Image(base64.decode(shark[0])),
+                    ],
+                ),
+            ),
         )
 
     return render.Root(
         delay = 1000,
         child = render.Stack(
-            children = animations
-        )
+            children = animations,
+        ),
     )
 
 def get_frames(hour_2, hour_1, hour, cycle_speed):
     frames = [
         render.Image(base64.decode(scenes[hour_2])),
-        render.Image(base64.decode(scenes[hour_1]))
+        render.Image(base64.decode(scenes[hour_1])),
     ]
-    for i in range(2, int(cycle_speed)):
+    for _i in range(2, int(cycle_speed)):
         frames.append(render.Image(base64.decode(scenes[hour])))
     return frames
 
@@ -161,21 +160,21 @@ def get_schema():
                 id = "location",
                 name = "Location",
                 icon = "locationDot",
-                desc = "Determines timezone for clock and scene day/night cycle."
+                desc = "Determines timezone for clock and scene day/night cycle.",
             ),
             schema.Toggle(
                 id = "24hour",
                 name = "24 Hour Time",
                 icon = "clock",
                 desc = "Choose whether to display 12-hour time (off) or 24-hour time (on).",
-                default = False
+                default = False,
             ),
             schema.Toggle(
                 id = "showFish",
                 name = "Show Fish",
                 icon = "fish",
                 desc = "Choose whether to display animated fish or not.",
-                default = True
+                default = True,
             ),
             schema.Dropdown(
                 id = "speed",
@@ -186,21 +185,21 @@ def get_schema():
                 options = [
                     schema.Option(
                         display = "15 sec",
-                        value = "15"
+                        value = "15",
                     ),
                     schema.Option(
                         display = "10 sec",
-                        value = "10"
+                        value = "10",
                     ),
                     schema.Option(
                         display = "7.5 sec",
-                        value = "7.5"
+                        value = "7.5",
                     ),
                     schema.Option(
                         display = "5 sec",
-                        value = "5"
-                    )
-                ]
-            )
-        ]
+                        value = "5",
+                    ),
+                ],
+            ),
+        ],
     )
