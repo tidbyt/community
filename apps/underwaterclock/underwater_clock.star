@@ -1,21 +1,33 @@
 """
 Applet: Underwater Clock
-Summary: Shows time underwater
+Summary: Time underwater
 Description: Displays the current time in an underwater scene that changes with the time of day.
 Author: asea-aranion
 """
 
+load("render.star", "render")
+load("time.star", "time")
+load("math.star", "math")
 load("encoding/base64.star", "base64")
 load("encoding/json.star", "json")
-load("math.star", "math")
-load("render.star", "render")
 load("schema.star", "schema")
-load("time.star", "time")
+
+shark = [
+    """iVBORw0KGgoAAAANSUhEUgAAAEAAAAAgCAYAAACinX6EAAAAAXNSR0IArs4c6QAAAERlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAA6ABAAMAAAABAAEAAKACAAQAAAABAAAAQKADAAQAAAABAAAAIAAAAADfYzX9AAAAeklEQVRoBe3TsQ2AIBBG4TNxLStqt7JnBmewJFZUJhYwEQQTknOG/11ztO/LYcYggAACCCCAAAIIIIAAAggggICawKIWHI+z+WYZAB9+5+szCNtuq9dQeY/wOTIXMILfp/7OP6cyHTS3/xaaAlQjgAACCCCAAAIICAt0DQMRoYn6BZ0AAAAASUVORK5CYII=""",
+    """iVBORw0KGgoAAAANSUhEUgAAAEAAAAAgCAYAAACinX6EAAAAAXNSR0IArs4c6QAAAERlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAA6ABAAMAAAABAAEAAKACAAQAAAABAAAAQKADAAQAAAABAAAAIAAAAADfYzX9AAAAgElEQVRoBe3TsQ2AIBCFYUhcy4rareydwRksiRWViYVOpDmSI4QV3n/NQajed0cIFAIIIIAAAggggAACCCCAAAIIKAls6/5FtcBjXgkAm7QHP8tRj2leap/8QaV7cM8rsQEW9r7etgV2L/mxplv9t9BVIDkCCCCAAAIIIICAsMAPtyUUVCYnc/gAAAAASUVORK5CYII="""
+]
+
+fish = [
+    """iVBORw0KGgoAAAANSUhEUgAAAEAAAAAgCAYAAACinX6EAAAAAXNSR0IArs4c6QAAAERlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAA6ABAAMAAAABAAEAAKACAAQAAAABAAAAQKADAAQAAAABAAAAIAAAAADfYzX9AAAAlklEQVRoBe3UsQ2AIBCFYdzAxjmcxt4RHMUR7J3GOWzcQHMmFxJyoYIg+NtwCkLeJ+gcFwIIIICAF7jW45Y7abX2ve1VnRUpDN4voznOerf6Zxr+Lzug+g+WLcB27u+/QFqtsy1WcOLo2Q6Dz8MUHV8wR/qlNXzrOyC9HDMigAACCCCAAAIIIIAAAggggAACCCCAwJcFHrC1LyEb3owzAAAAAElFTkSuQmCC""",
+    """iVBORw0KGgoAAAANSUhEUgAAAEAAAAAgCAYAAACinX6EAAAAAXNSR0IArs4c6QAAAERlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAA6ABAAMAAAABAAEAAKACAAQAAAABAAAAQKADAAQAAAABAAAAIAAAAADfYzX9AAAAlklEQVRoBe3UsQ2AIBCFYdzAxjmcxt4RHMUR7J3GOWzcQHMmFxJyCdUFwd+GUwTyPsEQuBBAAAEEosC1HrfcSat17G2v6qxIafB+Gc33rLHVP9Pwf9kB1X8w1wDbub//A2m1dl2wwOTZs50Gn4cpO6ZADp8lNXzLO8BHjlkRQAABBBBAAAEEEEAAAQQQQAABBBBA4KsCD1O9LyE3q884AAAAAElFTkSuQmCC""",
+    """iVBORw0KGgoAAAANSUhEUgAAAEAAAAAgCAYAAACinX6EAAAAAXNSR0IArs4c6QAAAERlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAA6ABAAMAAAABAAEAAKACAAQAAAABAAAAQKADAAQAAAABAAAAIAAAAADfYzX9AAAAj0lEQVRoBe3TsRGAIAyFYdzAxjmcxt4RHIUR7J3GOWzcQC5yaeJx0BJ/G+JB7nwfMQQeBBBAAIEscMfzkUpWrb3bDDagDT5u8+eM7XHzruH/NAHVy9uv4/0tZNW62tTRgabxtsHXaWnq68ih/Kka3usElJOzgwACCCCAAAIIIIAAAggggAACCCCAAAIIOBRIrd0vIat8W2gAAAAASUVORK5CYII=""",
+    """iVBORw0KGgoAAAANSUhEUgAAAEAAAAAgCAYAAACinX6EAAAAAXNSR0IArs4c6QAAAERlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAA6ABAAMAAAABAAEAAKACAAQAAAABAAAAQKADAAQAAAABAAAAIAAAAADfYzX9AAAAlElEQVRoBe3UsQ2AIBCFYdzAhjmcxt4RHIUR7J3GOWzcQHOaa86GAoI5fxrORLi8TyQEBgIIIIDAI3Ck7ZRKZq2923Q2oA3ez8PrHbvGzbOG/9MJcPPxqgVZ9vW+F2TWulqzBhtn/d82+BTHrHUN8pRvqeG9noDyYuyIAAIIIIAAAggggAACCCCAAAIIIIAAAl8WuABWRS8hKydnAgAAAABJRU5ErkJggg=="""
+]
 
 seagrass = [
     """iVBORw0KGgoAAAANSUhEUgAAAEAAAAAgCAYAAACinX6EAAAAAXNSR0IArs4c6QAAAERlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAA6ABAAMAAAABAAEAAKACAAQAAAABAAAAQKADAAQAAAABAAAAIAAAAADfYzX9AAAAgElEQVRoBe3RQQqAIBAFUOlwHaATdfNaCS50MeDAgK+NITb+/2rNQ4AAAQIECBAgQIAAAQIECBAgQIAAAQIE0gTu9/nShlcaPCs626uUeWuWVdnV/tbLA8OuwNnw0bHs+B4elPhBKkDPXbV8z5e29uJ9Tbuo+uDjAar/IPlOFvgBsWIXAh0kLU0AAAAASUVORK5CYII=""",
     """iVBORw0KGgoAAAANSUhEUgAAAEAAAAAgCAYAAACinX6EAAAAAXNSR0IArs4c6QAAAERlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAA6ABAAMAAAABAAEAAKACAAQAAAABAAAAQKADAAQAAAABAAAAIAAAAADfYzX9AAAAfklEQVRoBe3RwQnAIBAEQJPiUkAqsqIUkOYSfAgB8eHjIOL4UQ5Z3DEliwABAgQIECBAgAABAgQIECBAgAABAgQIhAgc+XxCgmcIXap8r2xvPsMHDr2xFP2W7Z2HQoMu7xG5d762kvvn4hG9m8wKUPfmwiqD5QFW+Wg9ZxR4ARHeHRe5Ov/LAAAAAElFTkSuQmCC""",
-    """iVBORw0KGgoAAAANSUhEUgAAAEAAAAAgCAYAAACinX6EAAAAAXNSR0IArs4c6QAAAERlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAA6ABAAMAAAABAAEAAKACAAQAAAABAAAAQKADAAQAAAABAAAAIAAAAADfYzX9AAAAfElEQVRoBe3Syw2AIAwAUHU4B3AiJnIAl9Nw6MWEI9CEx6WEQz+vbJtDgAABAgQIECBAgAABAgQIECBAgAABAgS6CZzlerslz5a4NWzrfUb/x4yiy9Ssm45t/2MWhG4/IAZ+yr1nGXZ4H4FQY9yHN5Gh4NLDZ1iAHgi0BT7VnxsC3TQwqwAAAABJRU5ErkJggg==""",
+    """iVBORw0KGgoAAAANSUhEUgAAAEAAAAAgCAYAAACinX6EAAAAAXNSR0IArs4c6QAAAERlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAA6ABAAMAAAABAAEAAKACAAQAAAABAAAAQKADAAQAAAABAAAAIAAAAADfYzX9AAAAfElEQVRoBe3Syw2AIAwAUHU4B3AiJnIAl9Nw6MWEI9CEx6WEQz+vbJtDgAABAgQIECBAgAABAgQIECBAgAABAgS6CZzlerslz5a4NWzrfUb/x4yiy9Ssm45t/2MWhG4/IAZ+yr1nGXZ4H4FQY9yHN5Gh4NLDZ1iAHgi0BT7VnxsC3TQwqwAAAABJRU5ErkJggg=="""
 ]
 
 scenes = [
@@ -40,16 +52,17 @@ scenes = [
     """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""",
-    """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""",
+    """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""",
 ]
+
 
 default_location = {
     "lat": 40.678,
     "lng": -73.944,
     "locality": "Brooklyn, New York",
-    "timezone": "America/New_York",
+    "timezone": "America/New_York"
 }
 
 def main(config):
@@ -57,13 +70,6 @@ def main(config):
     dec_location = json.decode(location) if location else default_location
     time_now = time.now().in_location(dec_location.get("timezone"))
     hour = int(time_now.format("15"))
-    hour_2 = hour - 2
-    hour_1 = hour - 1
-    if (hour == 0):
-        hour_2 = 22
-        hour_1 = 23
-    elif (hour == 1):
-        hour_2 = 23
 
     hour_2 = int(math.mod(hour - 2, 23))
     hour_1 = int(math.mod(hour - 1, 23))
@@ -73,49 +79,78 @@ def main(config):
     use_24hour = config.bool("24hour", False)
     time_format_colon = "3:04 PM"
     time_format_blank = "3 04 PM"
-    if (use_24hour):
+    if(use_24hour):
         time_format_colon = "15:04"
         time_format_blank = "15 04"
+
+    show_fish = config.bool("showFish", True)
+
+    animations = [
+        render.Box(
+            child = render.Animation(
+                children = get_frames(hour_2, hour_1, hour, speed)
+            )
+        ),
+        render.Box(
+            child = render.Animation(
+                children = [
+                    render.Text(content = time_now.format(time_format_colon), font = "Dina_r400-6"),
+                    render.Text(content = time_now.format(time_format_blank), font = "Dina_r400-6")
+                ]
+            )
+        ),
+        render.Box(
+            child = render.Animation(
+                children = [
+                    render.Image(base64.decode(seagrass[0])),
+                    render.Image(base64.decode(seagrass[1])),
+                    render.Image(base64.decode(seagrass[0])),
+                    render.Image(base64.decode(seagrass[2]))
+                ]
+            )
+        )
+    ]
+
+    if(show_fish):
+        animations.append(
+            render.Box(
+                child = render.Animation(
+                    children = [
+                        render.Image(base64.decode(fish[3])),
+                        render.Image(base64.decode(fish[0])),
+                        render.Image(base64.decode(fish[1])),
+                        render.Image(base64.decode(fish[2]))
+                    ]
+                )   
+            )
+        )
+        animations.append(
+            render.Box(
+                child = render.Animation(
+                    children = [
+                        render.Image(base64.decode(shark[0])),
+                        render.Image(base64.decode(shark[1])),
+                        render.Image(base64.decode(shark[1])),
+                        render.Image(base64.decode(shark[0]))
+                    ]
+                )
+            )
+        )
 
     return render.Root(
         delay = 1000,
         child = render.Stack(
-            children = [
-                render.Box(
-                    child = render.Animation(
-                        children = get_frames(hour_2, hour_1, hour, speed),
-                    ),
-                ),
-                render.Box(
-                    child = render.Animation(
-                        children = [
-                            render.Text(content = time_now.format(time_format_colon), font = "Dina_r400-6"),
-                            render.Text(content = time_now.format(time_format_blank), font = "Dina_r400-6"),
-                        ],
-                    ),
-                ),
-                render.Box(
-                    child = render.Animation(
-                        children = [
-                            render.Image(base64.decode(seagrass[0])),
-                            render.Image(base64.decode(seagrass[1])),
-                            render.Image(base64.decode(seagrass[0])),
-                            render.Image(base64.decode(seagrass[2])),
-                        ],
-                    ),
-                ),
-            ],
-        ),
+            children = animations
+        )
     )
 
 def get_frames(hour_2, hour_1, hour, cycle_speed):
     frames = [
         render.Image(base64.decode(scenes[hour_2])),
-        render.Image(base64.decode(scenes[hour_1])),
+        render.Image(base64.decode(scenes[hour_1]))
     ]
     for i in range(2, int(cycle_speed)):
         frames.append(render.Image(base64.decode(scenes[hour])))
-        i = i + 1
     return frames
 
 def get_schema():
@@ -126,14 +161,21 @@ def get_schema():
                 id = "location",
                 name = "Location",
                 icon = "locationDot",
-                desc = "Determines timezone for clock and scene day/night cycle.",
+                desc = "Determines timezone for clock and scene day/night cycle."
             ),
             schema.Toggle(
                 id = "24hour",
                 name = "24 Hour Time",
                 icon = "clock",
                 desc = "Choose whether to display 12-hour time (off) or 24-hour time (on).",
-                default = False,
+                default = False
+            ),
+            schema.Toggle(
+                id = "showFish",
+                name = "Show Fish",
+                icon = "fish",
+                desc = "Choose whether to display animated fish or not.",
+                default = True
             ),
             schema.Dropdown(
                 id = "speed",
@@ -144,21 +186,21 @@ def get_schema():
                 options = [
                     schema.Option(
                         display = "15 sec",
-                        value = "15",
+                        value = "15"
                     ),
                     schema.Option(
                         display = "10 sec",
-                        value = "10",
+                        value = "10"
                     ),
                     schema.Option(
                         display = "7.5 sec",
-                        value = "7.5",
+                        value = "7.5"
                     ),
                     schema.Option(
                         display = "5 sec",
-                        value = "5",
-                    ),
-                ],
-            ),
-        ],
+                        value = "5"
+                    )
+                ]
+            )
+        ]
     )
