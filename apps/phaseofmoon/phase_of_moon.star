@@ -82,7 +82,7 @@ PHASE_IMAGES = [
 # Idea, data and calculation from https://minkukel.com/en/various/calculating-moon-phase/
 NUM_PHASES = 8
 MOON_PHASES = {
-    "en": ["New Moon", "Waxing Crescent", "First Quarter", "Waxing Gibbous", "Full Moon", "Waning Gibbous", "Last Quarter", "Waning Crescent", "New Moon"]
+    "en": ["New Moon", "Waxing Crescent", "First Quarter", "Waxing Gibbous", "Full Moon", "Waning Gibbous", "Last Quarter", "Waning Crescent", "New Moon"],
 }
 PHASE_CHANGES = [0, 1, 6.38264692644, 8.38264692644, 13.76529385288, 15.76529385288, 21.14794077932, 23.14794077932, 28.53058770576, 29.53058770576]
 
@@ -244,48 +244,48 @@ def main(config):
                                 render.Padding(
                                     pad = (0, 2, 0, 0),
                                     child = render.Stack(
-                                    children = [
-                                        render.Padding(
-                                            pad = (3, 0, 0, 0),
-                                            child = render.Text(
+                                        children = [
+                                            render.Padding(
+                                                pad = (3, 0, 0, 0),
+                                                child = render.Text(
+                                                    content = disp_time_blink,
+                                                    font = "tom-thumb",
+                                                    color = "#000",
+                                                ),
+                                            ),
+                                            render.Padding(
+                                                pad = (1, 0, 0, 0),
+                                                child = render.Text(
+                                                    content = disp_time_blink,
+                                                    font = "tom-thumb",
+                                                    color = "#222",
+                                                ),
+                                            ),
+                                            render.Padding(
+                                                pad = (0, 1, 0, 0),
+                                                child = render.Text(
+                                                    content = disp_time_blink,
+                                                    font = "tom-thumb",
+                                                    color = "#222",
+                                                ),
+                                            ),
+                                            render.Padding(
+                                                pad = (1, 1, 0, 0),
+                                                child = render.Text(
+                                                    content = disp_time_blink,
+                                                    font = "tom-thumb",
+                                                    color = "#444",
+                                                ),
+                                            ),
+                                            render.Text(
                                                 content = disp_time_blink,
                                                 font = "tom-thumb",
-                                                color = "#000",
+                                                color = "#AAA",
                                             ),
-                                        ),
-                                        render.Padding(
-                                            pad = (1, 0, 0, 0),
-                                            child = render.Text(
-                                                content = disp_time_blink,
-                                                font = "tom-thumb",
-                                                color = "#222",
-                                            ),
-                                        ),
-                                        render.Padding(
-                                            pad = (0, 1, 0, 0),
-                                            child = render.Text(
-                                                content = disp_time_blink,
-                                                font = "tom-thumb",
-                                                color = "#222",
-                                            ),
-                                        ),
-                                        render.Padding(
-                                            pad = (1, 1, 0, 0),
-                                            child = render.Text(
-                                                content = disp_time_blink,
-                                                font = "tom-thumb",
-                                                color = "#444",
-                                            ),
-                                        ),
-                                        render.Text(
-                                            content = disp_time_blink,
-                                            font = "tom-thumb",
-                                            color = "#AAA",
-                                        ),
-                                    ],
+                                        ],
                                     ),
                                 ) if blink_time and clock_has_shadow == True else None,
-                                
+
                                 # optional clock blink
                                 render.Padding(
                                     pad = (0, 0, 0, 0),
