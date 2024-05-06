@@ -976,8 +976,9 @@ def get_nightscout_data(nightscout_url, nightscout_token, show_graph, show_mgdl)
             latest_reading_date_string = ns_properties["bgnow"]["mills"]
             latest_reading_date_string = time.from_timestamp(int(int(latest_reading_date_string) / 1000))
     if "delta" in ns_properties:
-        if "display" in ns_properties["delta"]:
-            sgv_delta = ns_properties["delta"]["display"]
+        if "absolute" in ns_properties["delta"]:
+            sgv_delta = ns_properties["delta"]["absolute"]
+            print("sgv_delta @ line 981:", sgv_delta)
             sgv_delta = int(sgv_delta)
             if show_mgdl == False:
             	sgv_delta = mgdl_to_mmol(int(sgv_delta))
