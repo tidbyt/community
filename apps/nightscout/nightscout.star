@@ -227,7 +227,7 @@ def main(config):
     else:
         human_reading_ago = str(reading_mins_ago) + " mins ago"
 
-    print(human_reading_ago)
+    print("human_reading_ago:", human_reading_ago)
 
     ago_dashes = "-" * reading_mins_ago
     full_ago_dashes = ago_dashes
@@ -952,14 +952,14 @@ def get_nightscout_data(nightscout_url, nightscout_token, show_graph, show_mgdl)
 
     print(json_url)
 
-    # Request latest entries from the Nightscout URL
+    # Request latest properties from the Nightscout URL
     resp = http.get(json_url, headers = headers)
+    print("resp.status_code:", resp.status_code)
     if resp.status_code != 200:
         # Fall back to v1
-        print("v2 not found, falling back to v1")
+        print("v2:properties failed, falling back to v1")
         return get_nightscout_data_v1(nightscout_url, nightscout_token, show_mgdl)
-
-    prop = resp.json()
+    ns_properties = resp.json()
 
     sgv_current = ""
     sgv_delta = ""
@@ -969,32 +969,32 @@ def get_nightscout_data(nightscout_url, nightscout_token, show_graph, show_mgdl)
     cob = "n/a"
     nightsout_history = []
 
-    if "bgnow" in prop:
-        if "last" in prop["bgnow"]:
-            sgv_current = str(int(prop["bgnow"]["last"]))
-        if "mills" in prop["bgnow"]:
-            latest_reading_date_string = prop["bgnow"]["mills"]
+    if "bgnow" in ns_properties:
+        if "last" in ns_properties["bgnow"]:
+            sgv_current = str(int(ns_properties["bgnow"]["last"]))
+        if "mills" in ns_properties["bgnow"]:
+            latest_reading_date_string = ns_properties["bgnow"]["mills"]
             latest_reading_date_string = time.from_timestamp(int(int(latest_reading_date_string) / 1000))
-    if "delta" in prop:
-        if "display" in prop["delta"]:
-            sgv_delta = prop["delta"]["display"]
+    if "delta" in ns_properties:
+        if "display" in ns_properties["delta"]:
+            sgv_delta = ns_properties["delta"]["display"]
             sgv_delta = int(sgv_delta)
             if show_mgdl == False:
             	sgv_delta = mgdl_to_mmol(int(sgv_delta))
-    if "direction" in prop:
-        if "value" in prop["direction"]:
-            direction = prop["direction"]["value"]
-    if "iob" in prop:
-        if "display" in prop["iob"]:
-            iob = str(prop["iob"]["display"]) + "u"
-    if "cob" in prop:
-        if "display" in prop["cob"]:
-            cob = str(prop["cob"]["display"]) + "g"
+    if "direction" in ns_properties:
+        if "value" in ns_properties["direction"]:
+            direction = ns_properties["direction"]["value"]
+    if "iob" in ns_properties:
+        if "display" in ns_properties["iob"]:
+            iob = str(ns_properties["iob"]["display"]) + "u"
+    if "cob" in ns_properties:
+        if "display" in ns_properties["cob"]:
+            cob = str(ns_properties["cob"]["display"]) + "g"
 
     if show_graph:
         nightsout_history, status = get_nightscout_history(nightscout_url, nightscout_token)
         if status != 200:
-            print("NS Error - History call failed")
+            print("v2:entries - History call failed")
             nightsout_history = []
 
     nightscout_data = {
@@ -1011,11 +1011,11 @@ def get_nightscout_data(nightscout_url, nightscout_token, show_graph, show_mgdl)
     # Check required fields, if they are blank fall back to v1
     if nightscout_data["sgv_current"] == "" or nightscout_data["sgv_delta"] == "" or nightscout_data["latest_reading_date_string"] == "" or nightscout_data["direction"] == "":
         # Fall back to v1
-        print("v2 not found, falling back to v1")
+        print("v2 fields missing, falling back to v1")
         return get_nightscout_data_v1(nightscout_url, nightscout_token, show_mgdl)
     elif show_graph and nightscout_data["history"] == []:
         # Fall back to v1
-        print("v2 not found, falling back to v1")
+        print("v2 history missing, falling back to v1")
         return get_nightscout_data_v1(nightscout_url, nightscout_token, show_mgdl)
 
     return nightscout_data, resp.status_code
