@@ -172,6 +172,7 @@ def main(config):
     history = nightscout_data["history"]
     api_version = nightscout_data["api_version"]
     print("api_version: ", api_version)
+
     #sgv_delta_mgdl = 25
     #sgv_current_mgdl = 420
     #print("show_mgdl:" + show_mgdl)
@@ -185,10 +186,10 @@ def main(config):
 
         # Delta
         str_delta = str(int(sgv_delta))
-        print ("int(sgv_delta): ", int(sgv_delta))
+        print("int(sgv_delta): ", int(sgv_delta))
         if (int(sgv_delta) >= 0):
-			str_delta = "+" + str_delta
-			print ("str_delta: ", str_delta)
+            str_delta = "+" + str_delta
+            print("str_delta: ", str_delta)
         left_col_width = 27
         graph_width = 36
     else:
@@ -200,10 +201,10 @@ def main(config):
 
         sgv_current = mgdl_to_mmol(sgv_current_mgdl)
         str_current = str(sgv_current)
-        
+
         str_delta = str(sgv_delta)
         if (str_delta == "0.0"):
-			str_delta = "+0"
+            str_delta = "+0"
         elif (sgv_delta > 0):
             str_delta = "+" + str_delta
 
@@ -981,7 +982,7 @@ def get_nightscout_data(nightscout_url, nightscout_token, show_graph, show_mgdl)
             print("sgv_delta @ line 981:", sgv_delta)
             sgv_delta = int(sgv_delta)
             if show_mgdl == False:
-            	sgv_delta = mgdl_to_mmol(int(sgv_delta))
+                sgv_delta = mgdl_to_mmol(int(sgv_delta))
     if "direction" in ns_properties:
         if "value" in ns_properties["direction"]:
             direction = ns_properties["direction"]["value"]
