@@ -60,6 +60,7 @@ DEFAULT_NSURL = ""
 DEFAULT_NSTOKEN = ""
 
 def main(config):
+    print("---START---")
     UTC_TIME_NOW = time.now().in_location("UTC")
     location = config.get("location", DEFAULT_LOCATION)
     loc = json.decode(location)
@@ -103,7 +104,7 @@ def main(config):
             return display_failure("Nightscout Error: " + str(status_code))
     else:
         nightscout_data, status_code = {
-            "version": "n/a",
+            "api_version": "n/a",
             "sgv_current": "85",
             "sgv_delta": "-2" if show_mgdl else float("-0.1"),
             "latest_reading_date_string": (time.now() - time.parse_duration("3m")),
@@ -161,7 +162,7 @@ def main(config):
     # Pull the data from the cache
     sgv_current_mgdl = int(nightscout_data["sgv_current"])
     sgv_delta = nightscout_data["sgv_delta"]
-    if nightscout_data["version"] == "v1":
+    if nightscout_data["api_version"] == "v1":
         latest_reading_dt = time.parse_time(nightscout_data["latest_reading_date_string"])
     else:
         latest_reading_dt = nightscout_data["latest_reading_date_string"]
@@ -169,7 +170,8 @@ def main(config):
     nightscout_iob = nightscout_data["iob"]
     nightscout_cob = nightscout_data["cob"]
     history = nightscout_data["history"]
-
+    api_version = nightscout_data["api_version"]
+    print("api_version: ", api_version)
     #sgv_delta_mgdl = 25
     #sgv_current_mgdl = 420
     #print("show_mgdl:" + show_mgdl)
@@ -182,10 +184,11 @@ def main(config):
         str_current = str(int(sgv_current_mgdl))
 
         # Delta
-        str_delta = str(sgv_delta)
+        str_delta = str(int(sgv_delta))
+        print ("int(sgv_delta): ", int(sgv_delta))
         if (int(sgv_delta) >= 0):
 			str_delta = "+" + str_delta
-			
+			print ("str_delta: ", str_delta)
         left_col_width = 27
         graph_width = 36
     else:
@@ -207,8 +210,6 @@ def main(config):
         left_col_width = 27
         graph_width = 36
 
-    str_delta = str(sgv_delta)
-
     OLDEST_READING_TARGET = UTC_TIME_NOW - time.parse_duration(str(5 * graph_width) + "m")
 
     #for reading in history:
@@ -217,7 +218,7 @@ def main(config):
     print("time:", UTC_TIME_NOW)
     print("latest_reading_dt:", latest_reading_dt)
     print("oldest_reading_target:", OLDEST_READING_TARGET)
-    print(reading_mins_ago)
+    print("reading_mins_ago:", reading_mins_ago)
 
     if (reading_mins_ago < 1):
         human_reading_ago = "< 1 min ago"
@@ -264,9 +265,8 @@ def main(config):
         color_reading = COLOR_RED
         color_delta = COLOR_RED
         color_arrow = COLOR_RED
-    print(night_mode)
+    print("night_mode:", night_mode)
     if (night_mode and (now > sun_set or now < sun_rise)):
-        print("Night Mode")
         color_reading = COLOR_NIGHT
         color_delta = COLOR_NIGHT
         color_arrow = COLOR_NIGHT
@@ -589,7 +589,7 @@ def main(config):
                 if (min_time <= history_point[0] and history_point[0] <= max_time):
                     this_point = history_point[1]
 
-            print(this_point)
+            #print(this_point)
             if this_point < GRAPH_BOTTOM and this_point > 0:
                 this_point = GRAPH_BOTTOM
 
@@ -782,7 +782,7 @@ def main(config):
         ]
 
     #    print (output)
-
+    print("---END---")
     return render.Root(
         max_age = 120,
         child = render.Row(
@@ -998,7 +998,7 @@ def get_nightscout_data(nightscout_url, nightscout_token, show_graph, show_mgdl)
             nightsout_history = []
 
     nightscout_data = {
-        "version": "v2",
+        "api_version": "v2",
         "sgv_current": sgv_current,
         "sgv_delta": sgv_delta,
         "latest_reading_date_string": latest_reading_date_string,
@@ -1063,7 +1063,7 @@ def get_nightscout_data_v1(nightscout_url, nightscout_token, show_mgdl):
     nightscout_url = nightscout_url.replace("http://", "")
     nightscout_url = nightscout_url.split("/")[0]
     oldest_reading = str((time.now() - time.parse_duration("240m")).unix)
-    json_url = "https://" + nightscout_url + "/api/v1/entries.json?count=1000&find[date][$gte]=" + oldest_reading
+    json_url = "https://" + nightscout_url + "/api/v1/entries.json?count=200&find[date][$gte]=" + oldest_reading
     headers = {}
     if nightscout_token != "":
         headers["Api-Secret"] = hash.sha1(nightscout_token)
@@ -1110,7 +1110,7 @@ def get_nightscout_data_v1(nightscout_url, nightscout_token, show_mgdl):
             history.append(tuple((int(int(x["date"]) / 1000), int(x["sgv"]))))
 
     nightscout_data = {
-        "version": "v1",
+        "api_version": "v1",
         "sgv_current": str(int(sgv_current)),
         "sgv_delta": sgv_delta,
         "latest_reading_date_string": latest_reading_date_string,
