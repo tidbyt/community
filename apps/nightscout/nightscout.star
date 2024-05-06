@@ -1,7 +1,9 @@
 """
 Applet: Nightscout
 Summary: Shows Nightscout CGM Data
-Description: Displays Continuous Glucose Monitoring (CGM) blood sugar data from the Nightscout Open Source project (https://nightscout.github.io/). Will display blood sugar as mg/dL or mmol/L. Optionally display historical readings on a graph. Also a clock. Added ability to swap clock data for IOB or COB. (v2.4.1).
+Description: Displays Continuous Glucose Monitoring (CGM) blood sugar data (BG, Trend, Delta, IOB, COB) from Nightscout. Will display blood sugar as mg/dL or mmol/L. Optionally display historical readings on a graph. Also a clock.
+For support, join the Nightscout for Tidbyt Facebook group.
+(v2.4.2).
 Authors: Jeremy Tavener, Paul Murphy, Jason Hanson
 """
 
@@ -179,11 +181,11 @@ def main(config):
         urgent_low = int(str(config.get("mgdl_urgent_low", DEFAULT_URGENT_LOW)))
         str_current = str(int(sgv_current_mgdl))
 
-        if nightscout_data["version"] == "v1":
-            # Delta
-            str_delta = str(sgv_delta)
-            if (int(sgv_delta) >= 0):
-                str_delta = "+" + str_delta
+        # Delta
+        str_delta = str(sgv_delta)
+        if (int(sgv_delta) >= 0):
+			str_delta = "+" + str_delta
+			
         left_col_width = 27
         graph_width = 36
     else:
@@ -194,17 +196,13 @@ def main(config):
         urgent_low = int(float(config.get("mmol_urgent_low", mgdl_to_mmol(DEFAULT_URGENT_LOW))) * 18)
 
         sgv_current = mgdl_to_mmol(sgv_current_mgdl)
-
         str_current = str(sgv_current)
-        if nightscout_data["version"] == "v1":
-            str_delta = str(sgv_delta)
-            if (str_delta == "0.0"):
-                str_delta = "+0"
-            elif (int(sgv_delta) > 0):
-                str_delta = "+" + str_delta
-        else:
-            print("hanson - " + sgv_delta)
-            sgv_delta = mgdl_to_mmol(int(sgv_delta))
+        
+        str_delta = str(sgv_delta)
+        if (str_delta == "0.0"):
+			str_delta = "+0"
+        elif (sgv_delta > 0):
+            str_delta = "+" + str_delta
 
         left_col_width = 27
         graph_width = 36
@@ -980,6 +978,9 @@ def get_nightscout_data(nightscout_url, nightscout_token, show_graph, show_mgdl)
     if "delta" in prop:
         if "display" in prop["delta"]:
             sgv_delta = prop["delta"]["display"]
+            sgv_delta = int(sgv_delta)
+            if show_mgdl == False:
+            	sgv_delta = mgdl_to_mmol(int(sgv_delta))
     if "direction" in prop:
         if "value" in prop["direction"]:
             direction = prop["direction"]["value"]
