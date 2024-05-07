@@ -9,6 +9,7 @@ Author: sudeepban
 
 load("encoding/base64.star", "base64")
 load("http.star", "http")
+load("math.star", "math")
 load("render.star", "render")
 load("schema.star", "schema")
 load("time.star", "time")
@@ -958,6 +959,22 @@ UCSxORoAZkAcCBGYzvAAAAAASUVORK5CYII=
 """,
 }
 
+RAINDROP_ICON = """
+PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0idXRmLTgiPz4KPCEtLSBHZW5lcmF0b3I6IEFkb2JlIElsbHVzdHJhdG9yIDI4LjMuMCwgU1ZHIEV4cG9ydCBQbHVnLUluIC4gU1ZHIFZlcnNpb246IDYuMDAgQnVpbGQgMCkgIC0tPgo8c3ZnIHZlcnNpb249IjEuMSIgaWQ9IkxheWVyXzEiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyIgeG1sbnM6eGxpbms9Imh0dHA6Ly93d3cudzMub3JnLzE5OTkveGxpbmsiIHg9IjBweCIgeT0iMHB4IgoJIHZpZXdCb3g9IjAgMCAzODQgNTEyIiBzdHlsZT0iZW5hYmxlLWJhY2tncm91bmQ6bmV3IDAgMCAzODQgNTEyOyIgeG1sOnNwYWNlPSJwcmVzZXJ2ZSI+CjxzdHlsZSB0eXBlPSJ0ZXh0L2NzcyI+Cgkuc3Qwe2ZpbGw6I0FFRDZGMTt9Cjwvc3R5bGU+CjxwYXRoIGNsYXNzPSJzdDAiIGQ9Ik0xOTIsNTEyQzg2LDUxMiwwLDQyNiwwLDMyMEMwLDIyOC44LDEzMC4yLDU3LjcsMTY2LjYsMTEuN2M2LTcuNSwxNC45LTExLjcsMjQuNS0xMS43aDEuOAoJYzkuNiwwLDE4LjUsNC4yLDI0LjUsMTEuN0MyNTMuOCw1Ny43LDM4NCwyMjguOCwzODQsMzIwQzM4NCw0MjYsMjk4LDUxMiwxOTIsNTEyeiIvPgo8L3N2Zz4K
+"""
+
+DROPLETS_ICON = """
+PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0idXRmLTgiPz4KPCEtLSBHZW5lcmF0b3I6IEFkb2JlIElsbHVzdHJhdG9yIDI4LjMuMCwgU1ZHIEV4cG9ydCBQbHVnLUluIC4gU1ZHIFZlcnNpb246IDYuMDAgQnVpbGQgMCkgIC0tPgo8c3ZnIHZlcnNpb249IjEuMSIgaWQ9IkxheWVyXzEiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyIgeG1sbnM6eGxpbms9Imh0dHA6Ly93d3cudzMub3JnLzE5OTkveGxpbmsiIHg9IjBweCIgeT0iMHB4IgoJIHZpZXdCb3g9IjAgMCA0NDggNTEyIiBzdHlsZT0iZW5hYmxlLWJhY2tncm91bmQ6bmV3IDAgMCA0NDggNTEyOyIgeG1sOnNwYWNlPSJwcmVzZXJ2ZSI+CjxzdHlsZSB0eXBlPSJ0ZXh0L2NzcyI+Cgkuc3Qwe2ZpbGw6Izg4QzlGRjt9Cjwvc3R5bGU+CjxwYXRoIGNsYXNzPSJzdDAiIGQ9Ik01MC42LDIzMS45QzMxLjgsMjYzLjQsMCwzMjAuNiwwLDM0Ny40QzAsMzg1LjMsMjguNyw0MTYsNjQsNDE2czY0LTMwLjcsNjQtNjguNmMwLTI2LjctMzEuOC04NC01MC42LTExNS40CglDNzEuMSwyMjEuNCw1Ni45LDIyMS40LDUwLjYsMjMxLjl6IE0yMjQsMTU1LjRjMC0yNi43LTMxLjgtODQtNTAuNi0xMTUuNGMtNi4zLTEwLjYtMjAuNi0xMC42LTI2LjksMEMxMjcuOCw3MS40LDk2LDEyOC42LDk2LDE1NS40CgljMCwzNy45LDI4LjcsNjguNiw2NCw2OC42UzIyNCwxOTMuMywyMjQsMTU1LjR6IE0zMzQuNiwxMzUuNWMtNi45LTEwLTIyLjMtMTAtMjkuMiwwQzI3MS44LDE4NC4xLDE5MiwzMDUuMiwxOTIsMzU4LjMKCWMwLDY3LjIsNTcuMywxMjEuNywxMjgsMTIxLjdzMTI4LTU0LjUsMTI4LTEyMS43QzQ0OCwzMDUuMiwzNjguMiwxODQuMSwzMzQuNiwxMzUuNXoiLz4KPC9zdmc+Cg==
+"""
+
+CLOUD_ICON = """
+PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0idXRmLTgiPz4KPCEtLSBHZW5lcmF0b3I6IEFkb2JlIElsbHVzdHJhdG9yIDI4LjMuMCwgU1ZHIEV4cG9ydCBQbHVnLUluIC4gU1ZHIFZlcnNpb246IDYuMDAgQnVpbGQgMCkgIC0tPgo8c3ZnIHZlcnNpb249IjEuMSIgaWQ9IkxheWVyXzEiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyIgeG1sbnM6eGxpbms9Imh0dHA6Ly93d3cudzMub3JnLzE5OTkveGxpbmsiIHg9IjBweCIgeT0iMHB4IgoJIHZpZXdCb3g9IjAgMCA2NDAgNTEyIiBzdHlsZT0iZW5hYmxlLWJhY2tncm91bmQ6bmV3IDAgMCA2NDAgNTEyOyIgeG1sOnNwYWNlPSJwcmVzZXJ2ZSI+CjxzdHlsZSB0eXBlPSJ0ZXh0L2NzcyI+Cgkuc3Qwe2ZpbGw6I0FBQUFBQTt9Cjwvc3R5bGU+CjxwYXRoIGNsYXNzPSJzdDAiIGQ9Ik0wLDMzNmMwLDc5LjUsNjQuNSwxNDQsMTQ0LDE0NGgzNjhjNzAuNywwLDEyOC01Ny4zLDEyOC0xMjhjMC02MS45LTQ0LTExMy42LTEwMi40LTEyNS40CgljNC4xLTEwLjcsNi40LTIyLjQsNi40LTM0LjZjMC01My00My05Ni05Ni05NmMtMTkuNywwLTM4LjEsNi01My4zLDE2LjJDMzY3LDY0LjIsMzE1LjMsMzIsMjU2LDMyYy04OC40LDAtMTYwLDcxLjYtMTYwLDE2MAoJYzAsMi43LDAuMSw1LjQsMC4yLDguMUM0MC4yLDIxOS44LDAsMjczLjIsMCwzMzZ6Ii8+Cjwvc3ZnPgo=
+"""
+
+DOWN_ARROW_ICON = """
+PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0idXRmLTgiPz4KPCEtLSBHZW5lcmF0b3I6IEFkb2JlIElsbHVzdHJhdG9yIDI4LjMuMCwgU1ZHIEV4cG9ydCBQbHVnLUluIC4gU1ZHIFZlcnNpb246IDYuMDAgQnVpbGQgMCkgIC0tPgo8c3ZnIHZlcnNpb249IjEuMSIgaWQ9IkxheWVyXzEiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyIgeG1sbnM6eGxpbms9Imh0dHA6Ly93d3cudzMub3JnLzE5OTkveGxpbmsiIHg9IjBweCIgeT0iMHB4IgoJIHZpZXdCb3g9IjAgMCAzODQgNTEyIiBzdHlsZT0iZW5hYmxlLWJhY2tncm91bmQ6bmV3IDAgMCAzODQgNTEyOyIgeG1sOnNwYWNlPSJwcmVzZXJ2ZSI+CjxzdHlsZSB0eXBlPSJ0ZXh0L2NzcyI+Cgkuc3Qwe2ZpbGw6I0ZGRkZGRjt9Cjwvc3R5bGU+CjxwYXRoIGNsYXNzPSJzdDAiIGQ9Ik0zMiw2NEMxNC4zLDY0LDAsNDkuNywwLDMyUzE0LjMsMCwzMiwwaDk2YzUzLDAsOTYsNDMsOTYsOTZ2MzA2LjdsNzMuNC03My40YzEyLjUtMTIuNSwzMi44LTEyLjUsNDUuMywwCglzMTIuNSwzMi44LDAsNDUuM2wtMTI4LDEyOGMtMTIuNSwxMi41LTMyLjgsMTIuNS00NS4zLDBsLTEyOC0xMjhjLTEyLjUtMTIuNS0xMi41LTMyLjgsMC00NS4zczMyLjgtMTIuNSw0NS4zLDBsNzMuMyw3My40Vjk2CgljMC0xNy43LTE0LjMtMzItMzItMzJIMzJ6Ii8+Cjwvc3ZnPgo=
+"""
+
 # simple colon image to save space when displaying time
 COLON = """
 iVBORw0KGgoAAAANSUhEUgAAAAIAAAAFCAYAAABvsz2cAAAAAXNSR0IArs4c6QAA
@@ -967,13 +984,11 @@ def main(config):
     timezone = config.get("timezone") or "America/New_York"
     api_key = config.get("apiKey", None)
     location_key = config.get("locationKey", None)
-    temp_units = config.get("tempUnits", "F")
-    wind_speed_units = config.get("windSpeedUnits", "MPH")
+    system_of_measurement = config.get("systemOfMeasurement", "Imperial")
     temp_color = config.get("tempColor", TEMP_COLOR_DEFAULT)
 
+    display_metric = (system_of_measurement == "Metric")
     display_sample = not (api_key and location_key)
-    display_celsius = (temp_units == "C")
-    display_kph = (wind_speed_units == "KPH")
 
     result_current_conditions = {}
 
@@ -984,6 +999,13 @@ def main(config):
         result_current_conditions["feels_like"] = 63
         result_current_conditions["wind_speed"] = 12
         result_current_conditions["wind_dir"] = "W"
+        result_current_conditions["humidity"] = 50
+        result_current_conditions["dew_point"] = math.ceil(61.0)
+        result_current_conditions["uv_index"] = 3
+        result_current_conditions["uv_index_text"] = "Moderate"
+        result_current_conditions["visibility"] = math.ceil(10.1)
+        result_current_conditions["cloud_coverage"] = 80
+        result_current_conditions["pressure"] = math.ceil(29.97)
     else:
         resp = http.get(ACCUWEATHER_CURRCONDITIONS_URL.format(location_key = location_key, api_key = api_key), ttl_seconds = 3600)
         if resp.status_code != 200:
@@ -992,10 +1014,17 @@ def main(config):
         raw_current_conditions = resp.json()[0]
 
         result_current_conditions["icon_num"] = raw_current_conditions["WeatherIcon"]
-        result_current_conditions["temp"] = (int(raw_current_conditions["Temperature"]["Metric"]["Value"]) if display_celsius else int(raw_current_conditions["Temperature"]["Imperial"]["Value"]))
-        result_current_conditions["feels_like"] = (int(raw_current_conditions["RealFeelTemperature"]["Metric"]["Value"]) if display_celsius else int(raw_current_conditions["RealFeelTemperature"]["Imperial"]["Value"]))
-        result_current_conditions["wind_speed"] = (int(raw_current_conditions["Wind"]["Speed"]["Metric"]["Value"]) if display_kph else int(raw_current_conditions["Wind"]["Speed"]["Imperial"]["Value"]))
+        result_current_conditions["temp"] = (int(raw_current_conditions["Temperature"]["Metric"]["Value"]) if display_metric else int(raw_current_conditions["Temperature"]["Imperial"]["Value"]))
+        result_current_conditions["feels_like"] = (int(raw_current_conditions["RealFeelTemperature"]["Metric"]["Value"]) if display_metric else int(raw_current_conditions["RealFeelTemperature"]["Imperial"]["Value"]))
+        result_current_conditions["wind_speed"] = (int(raw_current_conditions["Wind"]["Speed"]["Metric"]["Value"]) if display_metric else int(raw_current_conditions["Wind"]["Speed"]["Imperial"]["Value"]))
         result_current_conditions["wind_dir"] = raw_current_conditions["Wind"]["Direction"]["English"]
+        result_current_conditions["humidity"] = raw_current_conditions["RelativeHumidity"]
+        result_current_conditions["dew_point"] = (math.ceil(raw_current_conditions["DewPoint"]["Metric"]["Value"]) if display_metric else math.ceil(raw_current_conditions["DewPoint"]["Imperial"]["Value"]))
+        result_current_conditions["uv_index"] = int(raw_current_conditions["UVIndex"])
+        result_current_conditions["uv_index_text"] = raw_current_conditions["UVIndexText"]
+        result_current_conditions["visibility"] = (math.ceil(raw_current_conditions["Visibility"]["Metric"]["Value"]) if display_metric else math.ceil(raw_current_conditions["Visibility"]["Imperial"]["Value"]))
+        result_current_conditions["cloud_coverage"] = int(raw_current_conditions["CloudCover"])
+        result_current_conditions["pressure"] = (math.ceil(raw_current_conditions["Pressure"]["Metric"]["Value"]) if display_metric else math.ceil(raw_current_conditions["Pressure"]["Imperial"]["Value"]))
 
     # weather icon, reduce AccuWeather icons to smaller set, see https://developer.accuweather.com/weather-icons
     icon_num = result_current_conditions["icon_num"]
@@ -1041,11 +1070,20 @@ def main(config):
     time_mm_text = render.Text(content = ("0000" + str(minutes))[-2:], font = "tom-thumb")
     time_ampm_text = render.Text(content = "AM" if hours < 12 else "PM", font = "tom-thumb")
 
-    temp_text = render.Text(content = str(result_current_conditions["temp"]) + "°" + ("C" if display_celsius else "F"), font = "6x13", color = temp_color)
+    temp_text = render.Text(content = str(result_current_conditions["temp"]) + "°" + ("C" if display_metric else "F"), font = "6x13", color = temp_color)
     feels_like_text = render.Text(content = "FEELS " + str(result_current_conditions["feels_like"]), font = "tom-thumb", color = temp_color)
 
+    enabledMetrics = {}
+    enabledMetrics["windSpeed"] = config.get("windSpeedEnabled", True)
+    enabledMetrics["humidity"] = config.get("humidityEnabled", False)
+    enabledMetrics["dewPoint"] = config.get("dewPointEnabled", False)
+    enabledMetrics["uvIndex"] = config.get("uvIndexEnabled", False)
+    enabledMetrics["visibility"] = config.get("visibilityEnabled", False)
+    enabledMetrics["cloudCoverage"] = config.get("cloudCoverageEnabled", False)
+    enabledMetrics["pressure"] = config.get("pressureEnabled", False)
+
     wind_speed_text = render.Text(content = str(result_current_conditions["wind_speed"]), font = "tom-thumb", color = "#AED6F1")
-    wind_mph_text = render.Text(content = "KPH" if display_kph else "MPH", font = "tom-thumb", color = "#AED6F1")
+    wind_mph_text = render.Text(content = "KPH" if display_metric else "MPH", font = "tom-thumb", color = "#AED6F1")
 
     # wind direction, reduce to cardinal and ordinal directions only
     wind_dir = str(result_current_conditions["wind_dir"])
@@ -1066,7 +1104,64 @@ def main(config):
     else:
         arrow_image = render.Box(width = 7, height = 7)
 
+    humidity_text = render.Padding(
+        child = render.Text(content = str(result_current_conditions["humidity"]), font = "tom-thumb", color = "#AED6F1"),
+        pad = (0, 1, 0, 0),
+    )
+    humidity_unit_text = render.Text(content = "%", font = "tom-thumb", color = "#AED6F1")
+    humidity_image = render.Image(width = 5, height = 6, src = base64.decode(RAINDROP_ICON))
+
+    dew_point_text = render.Text(content = str(result_current_conditions["dew_point"]), font = "tom-thumb", color = "#88D1FF")
+    dew_point_unit_text = render.Text(content = "°C" if display_metric else "°F", font = "tom-thumb", color = "#88D1FF")
+    dew_image = render.Image(width = 7, height = 8, src = base64.decode(DROPLETS_ICON))
+
+    uv_index = result_current_conditions["uv_index"]
+    uv_index_label = result_current_conditions["uv_index_text"]
+    uv_index_label_color = "#F2E34B"
+    if uv_index < 3:  # 1-2
+        uv_index_label_color = "#4C9329"
+    elif uv_index < 5:  # 3-4 Moderate
+        uv_index_label_color = "#F2E34B"
+        uv_index_label = "Mod."
+    elif uv_index < 8:  # 5-7
+        uv_index_label_color = "#E7642B"
+    elif uv_index > 7 and uv_index < 10:  # 8-9 Very High
+        uv_index_label_color = "#C72A23"
+        uv_index_label = "V.High"
+    elif uv_index > 9:  # 10-11
+        uv_index_label_color = "#674BC2"
+        uv_index_label = "Extr."
+    uv_index_text = render.Padding(
+        child = render.Text(content = str(uv_index), font = "tom-thumb", color = uv_index_label_color),
+        pad = (0, 1, 0, 0),
+    )
+    uv_index_label_text = render.Padding(
+        child = render.Text(content = uv_index_label, font = "tom-thumb", color = uv_index_label_color),
+        pad = (0, 1, 0, 0),
+    )
+
+    visibility_text = render.Padding(
+        child = render.Text(content = str(result_current_conditions["visibility"]), font = "tom-thumb", color = "#FFF"),
+        pad = (0, 1, 0, 0),
+    )
+    visibility_unit_text = render.Text(content = "km" if display_metric else "mi", font = "tom-thumb", color = "#FFF")
+    cloud_image = render.Image(width = 8, height = 6, src = base64.decode(CLOUD_ICON))
+
+    cloud_coverage_text = render.Padding(
+        child = render.Text(content = str(result_current_conditions["cloud_coverage"]), font = "tom-thumb", color = "#FFF"),
+        pad = (0, 1, 0, 0),
+    )
+    cloud_coverage_unit_text = render.Text(content = "%", font = "tom-thumb", color = "#FFF")
+
+    pressure_text = render.Padding(
+        child = render.Text(content = str(result_current_conditions["pressure"]), font = "tom-thumb", color = "#FFF"),
+        pad = (0, 1, 0, 0),
+    )
+    pressure_unit_text = render.Text(content = "mb" if display_metric else "inHg", font = "tom-thumb", color = "#FFF")
+    pressure_image = render.Image(width = 6, height = 6, src = base64.decode(DOWN_ARROW_ICON))
+
     return render.Root(
+        delay = 2500,
         child = render.Stack(
             children = [
                 render.Row(
@@ -1098,16 +1193,90 @@ def main(config):
                                 temp_text,
                                 feels_like_text,
                                 render.Box(height = 2),
-                                render.Row(
+                                render.Animation(
                                     children = [
-                                        wind_speed_text,
-                                        render.Box(width = 1, height = 1),
-                                        wind_mph_text,
-                                        render.Box(width = 2, height = 1),
-                                        arrow_image,
+                                        render.Row(
+                                            children = [
+                                                wind_speed_text,
+                                                render.Box(width = 1, height = 1),
+                                                wind_mph_text,
+                                                render.Box(width = 2, height = 1),
+                                                arrow_image,
+                                            ],
+                                            cross_align = "end",
+                                            main_align = "center",
+                                        ) if enabledMetrics["windSpeed"] == "true" else None,
+                                        render.Row(
+                                            children = [
+                                                humidity_text,
+                                                render.Box(width = 1, height = 1),
+                                                humidity_unit_text,
+                                                render.Box(width = 2, height = 1),
+                                                humidity_image,
+                                            ],
+                                            cross_align = "end",
+                                            main_align = "center",
+                                        ) if enabledMetrics["humidity"] == "true" else None,
+                                        render.Row(
+                                            children = [
+                                                dew_point_text,
+                                                dew_point_unit_text,
+                                                render.Box(width = 2, height = 1),
+                                                dew_image,
+                                            ],
+                                            cross_align = "center",
+                                            main_align = "center",
+                                        ) if enabledMetrics["dewPoint"] == "true" else None,
+                                        # render.Row(
+                                        #     children = [
+                                        #         uv_index_label_text,
+                                        #     ],
+                                        #     cross_align = "center",
+                                        #     main_align = "center",
+                                        # ) if enabledMetrics["uvIndex"] == "true" else None,
+                                        render.Row(
+                                            children = [
+                                                uv_index_text,
+                                                render.Box(width = 3, height = 1),
+                                                uv_index_label_text,
+                                            ],
+                                            cross_align = "center",
+                                            main_align = "center",
+                                        ) if enabledMetrics["uvIndex"] == "true" else None,
+                                        render.Row(
+                                            children = [
+                                                visibility_text,
+                                                render.Box(width = 1, height = 1),
+                                                visibility_unit_text,
+                                                render.Box(width = 2, height = 1),
+                                                cloud_image,
+                                            ],
+                                            cross_align = "end",
+                                            main_align = "center",
+                                        ) if enabledMetrics["visibility"] == "true" else None,
+                                        render.Row(
+                                            children = [
+                                                cloud_coverage_text,
+                                                render.Box(width = 1, height = 1),
+                                                cloud_coverage_unit_text,
+                                                render.Box(width = 2, height = 1),
+                                                cloud_image,
+                                            ],
+                                            cross_align = "end",
+                                            main_align = "center",
+                                        ) if enabledMetrics["cloudCoverage"] == "true" else None,
+                                        render.Row(
+                                            children = [
+                                                pressure_text,
+                                                render.Box(width = 1, height = 1),
+                                                pressure_unit_text,
+                                                render.Box(width = 2, height = 1),
+                                                pressure_image,
+                                            ],
+                                            cross_align = "end",
+                                            main_align = "center",
+                                        ) if enabledMetrics["pressure"] == "true" else None,
                                     ],
-                                    cross_align = "end",
-                                    main_align = "center",
                                 ),
                             ],
                             expanded = True,
@@ -1125,26 +1294,6 @@ def main(config):
     )
 
 def get_schema():
-    tempUnitsOptions = [
-        schema.Option(
-            display = "Fahrenheit",
-            value = "F",
-        ),
-        schema.Option(
-            display = "Celsius",
-            value = "C",
-        ),
-    ]
-    windSpeedUnitsOptions = [
-        schema.Option(
-            display = "MPH",
-            value = "MPH",
-        ),
-        schema.Option(
-            display = "KPH",
-            value = "KPH",
-        ),
-    ]
     return schema.Schema(
         version = "1",
         fields = [
@@ -1163,20 +1312,21 @@ def get_schema():
                 icon = "locationDot",
             ),
             schema.Dropdown(
-                id = "tempUnits",
-                name = "Temperature units",
-                desc = "The units for temperature display",
-                icon = "gear",
-                default = tempUnitsOptions[0].value,
-                options = tempUnitsOptions,
-            ),
-            schema.Dropdown(
-                id = "windSpeedUnits",
-                name = "Wind speed units",
-                desc = "The units for wind speed display",
-                icon = "gear",
-                default = windSpeedUnitsOptions[0].value,
-                options = windSpeedUnitsOptions,
+                id = "systemOfMeasurement",
+                name = "System of measurement",
+                desc = "Choose which system to display measurements",
+                icon = "ruler",
+                default = "Imperial",
+                options = [
+                    schema.Option(
+                        display = "Imperial",
+                        value = "Imperial",
+                    ),
+                    schema.Option(
+                        display = "Metric",
+                        value = "Metric",
+                    ),
+                ],
             ),
             schema.Color(
                 id = "tempColor",
@@ -1184,6 +1334,55 @@ def get_schema():
                 desc = "Color for temperature",
                 icon = "brush",
                 default = TEMP_COLOR_DEFAULT,
+            ),
+            schema.Toggle(
+                id = "windSpeedEnabled",
+                name = "Wind speed",
+                desc = "Display wind speed",
+                icon = "wind",
+                default = True,
+            ),
+            schema.Toggle(
+                id = "humidityEnabled",
+                name = "Humidity",
+                desc = "Display humidity",
+                icon = "water",
+                default = False,
+            ),
+            schema.Toggle(
+                id = "dewPointEnabled",
+                name = "Dew point",
+                desc = "Display dew point",
+                icon = "droplet",
+                default = False,
+            ),
+            schema.Toggle(
+                id = "uvIndexEnabled",
+                name = "UV Index",
+                desc = "Display UV Index",
+                icon = "umbrella-beach",
+                default = False,
+            ),
+            schema.Toggle(
+                id = "visibilityEnabled",
+                name = "Visibility",
+                desc = "Display visibility",
+                icon = "eye",
+                default = False,
+            ),
+            schema.Toggle(
+                id = "cloudCoverageEnabled",
+                name = "Cloud coverage",
+                desc = "Display cloud coverage",
+                icon = "cloud-sun",
+                default = False,
+            ),
+            schema.Toggle(
+                id = "pressureEnabled",
+                name = "Pressure",
+                desc = "Display pressure",
+                icon = "arrow-trend-down",
+                default = False,
             ),
         ],
     )
