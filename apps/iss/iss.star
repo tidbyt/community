@@ -42,7 +42,7 @@ NUM_DAYS = "1"  # passes for the next 2 days
 MIN_DURATION = "10"  # minimum time of visible pass
 ENCRYPTED_API_KEY = "AV6+xWcEsXZATiO53Ve1JpH0NM3XZ4OGusmQXpCHReQk042dGY7VW2FiiNpxaSlIqAN8lxmEVlwbJVPWbObIdrjXdgUZypNzgnsUQzZy53qQdypQU2Dz9XdpBgVnqooGBjaG3vSX1PpGiXKiEjtspDpY2X9HYe3XQsyUpVDPdg=="
 
-def main(config)
+def main(config):
     api_key = secret.decrypt(ENCRYPTED_API_KEY)  # or config.get("dev_api_key")
     ttl_time = 5200
     display24hour = config.bool("24_hour", DEFAULT_24_HOUR)
