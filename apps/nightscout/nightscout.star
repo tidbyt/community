@@ -299,12 +299,12 @@ def main(config):
                     render.Box(
                         height = 32,
                         width = 64,
-                        color=color_id_border,
+                        color = color_id_border,
                         child = render.Box(
-                            height=30,
-                            width=62,
-                            color=COLOR_BLACK,
-                        )
+                            height = 30,
+                            width = 62,
+                            color = COLOR_BLACK,
+                        ),
                     ),
                     render.Column(
                         main_align = "start",
@@ -413,12 +413,12 @@ def main(config):
                     render.Box(
                         height = 32,
                         width = 64,
-                        color=color_id_border,
+                        color = color_id_border,
                         child = render.Box(
-                            height=30,
-                            width=62,
-                            color=COLOR_BLACK,
-                        )
+                            height = 30,
+                            width = 62,
+                            color = COLOR_BLACK,
+                        ),
                     ),
                     render.Column(
                         main_align = "start",
@@ -514,12 +514,12 @@ def main(config):
                     render.Box(
                         height = 32,
                         width = 64,
-                        color=color_id_border,
+                        color = color_id_border,
                         child = render.Box(
-                            height=30,
-                            width=62,
-                            color=COLOR_BLACK,
-                        )
+                            height = 30,
+                            width = 62,
+                            color = COLOR_BLACK,
+                        ),
                     ),
                     render.Column(
                         main_align = "start",
@@ -686,13 +686,13 @@ def main(config):
             render.Box(
                 height = 32,
                 width = 64,
-                color=color_id_border,
-                child = 
+                color = color_id_border,
+                child =
                     render.Box(
-                        height=30,
-                        width=62,
-                        color=COLOR_BLACK,
-                        child = 
+                        height = 30,
+                        width = 62,
+                        color = COLOR_BLACK,
+                        child =
                             render.Box(
                                 render.Row(
                                     main_align = "center",
@@ -771,7 +771,7 @@ def main(config):
                                                                 (0, normal_low),
                                                                 (1, normal_low),
                                                             ],
-                                                            width = graph_width-1,
+                                                            width = graph_width - 1,
                                                             height = 32,
                                                             color = color_graph_lines,
                                                             color_inverted = color_graph_lines,
@@ -784,7 +784,7 @@ def main(config):
                                                                 (0, normal_high),
                                                                 (1, normal_high),
                                                             ],
-                                                            width = graph_width-1,
+                                                            width = graph_width - 1,
                                                             height = 32,
                                                             color = color_graph_lines,
                                                             color_inverted = color_graph_lines,
