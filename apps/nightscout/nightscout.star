@@ -84,18 +84,18 @@ def main(config):
     nightscout_token = config.get("nightscout_token", DEFAULT_NSTOKEN)
     show_graph = config.bool("show_graph", DEFAULT_SHOW_GRAPH)
     show_graph_hour_bars = config.bool("show_graph_hour_bars", DEFAULT_SHOW_GRAPH_HOUR_BARS)
-   
+
     # for backward compatibilty
     if (config.bool("show_clock") == True):
         DEFAULT_CLOCK_OPTION = "Clock"
     else:
         DEFAULT_CLOCK_OPTION = "None"
-        
+
     if (config.bool("show_mgdl") == True):
         DEFAULT_DISPLAY_UNIT = "mgdl"
     else:
         DEFAULT_DISPLAY_UNIT = "mmol"
-    
+
     display_unit = config.get("display_unit", DEFAULT_DISPLAY_UNIT)
     clock_option = config.get("clock_option", DEFAULT_CLOCK_OPTION)
     id_border_color = config.get("id_border_color", DEFAULT_ID_BORDER_COLOR)
@@ -123,7 +123,7 @@ def main(config):
         nightscout_data, status_code = {
             "api_version": "n/a",
             "sgv_current": "85",
-            "sgv_delta": "-2" if display_unit =="mgdl" else float("-0.1"),
+            "sgv_delta": "-2" if display_unit == "mgdl" else float("-0.1"),
             "latest_reading_date_string": (time.now() - time.parse_duration("3m")),
             "direction": "Flat",
             "iob": "0.00u",
@@ -922,7 +922,7 @@ def get_schema():
             value = "COB",
         ),
     ]
-    
+
     unit_options = [
         schema.Option(
             display = "mg/dL",
