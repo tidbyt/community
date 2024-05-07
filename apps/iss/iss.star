@@ -57,7 +57,7 @@ def main(config):
 
     if "error" in data:
         return render.Root(
-            child = render.WrappedText("API error", align = "center", font = "tb-8", color = "#FF0000")
+            child = render.WrappedText("API error", align = "center", font = "tb-8", color = "#FF0000"),
         )
 
     else:
