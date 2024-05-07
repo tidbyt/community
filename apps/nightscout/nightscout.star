@@ -40,7 +40,7 @@ DEFAULT_URGENT_LOW = 70
 DEFAULT_SHOW_GRAPH = True
 DEFAULT_SHOW_GRAPH_HOUR_BARS = True
 DEFAULT_GRAPH_HEIGHT = 300
-DEFAULT_SHOW_STRING = "Clock"
+DEFAULT_CLOCK_OPTION = "Clock"
 DEFAULT_CLOCK_COLOR = COLOR_ORANGE
 DEFAULT_SHOW_24_HOUR_TIME = False
 DEFAULT_NIGHT_MODE = False
@@ -83,10 +83,10 @@ def main(config):
     show_graph_hour_bars = config.bool("show_graph_hour_bars", DEFAULT_SHOW_GRAPH_HOUR_BARS)
 
     if (config.bool("show_clock", False) == True):
-        DEFAULT_SHOW_STRING = "Clock"
+        DEFAULT_CLOCK_OPTION = "Clock"
     else:
-        DEFAULT_SHOW_STRING = "None"
-    show_string = config.get("show_string", DEFAULT_SHOW_STRING)
+        DEFAULT_CLOCK_OPTION = "None"
+    clock_option = config.get("clock_option", DEFAULT_CLOCK_OPTION)
     clock_color = config.get("clock_color", DEFAULT_CLOCK_COLOR)
     show_24_hour_time = config.bool("show_24_hour_time", DEFAULT_SHOW_24_HOUR_TIME)
     night_mode = config.bool("night_mode", DEFAULT_NIGHT_MODE)
@@ -286,7 +286,7 @@ def main(config):
         color_graph_lines = COLOR_NIGHT
         color_clock = COLOR_NIGHT
 
-    if show_string == "Clock":
+    if clock_option == "Clock":
         lg_string = [
             render.Stack(
                 children = [
@@ -391,7 +391,7 @@ def main(config):
             ),
         ]
 
-    elif show_string == "IOB" or show_string == "COB":
+    elif clock_option == "IOB" or clock_option == "COB":
         lg_string = [
             render.Stack(
                 children = [
@@ -409,7 +409,7 @@ def main(config):
                                     render.Animation(
                                         children = [
                                             render.Text(
-                                                content = nightscout_iob if show_string == "IOB" else nightscout_cob,
+                                                content = nightscout_iob if clock_option == "IOB" else nightscout_cob,
                                                 font = "6x13",
                                                 color = color_clock,
                                             ),
@@ -476,7 +476,7 @@ def main(config):
 
         sm_string = [
             render.WrappedText(
-                content = nightscout_iob if show_string == "IOB" else nightscout_cob,
+                content = nightscout_iob if clock_option == "IOB" else nightscout_cob,
                 font = "tom-thumb",
                 color = color_clock,
                 width = left_col_width,
@@ -922,7 +922,7 @@ def get_schema():
                 default = DEFAULT_SHOW_GRAPH_HOUR_BARS,
             ),
             schema.Dropdown(
-                id = "show_string",
+                id = "clock_option",
                 name = "Show Clock/IOB/COB",
                 desc = "Show Clock, Insulin on Board, or Carbs on Board along with reading",
                 icon = "gear",
