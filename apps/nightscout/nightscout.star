@@ -36,7 +36,7 @@ COLOR_WHITE = "#fff"
 COLOR_NIGHT = "#444"
 COLOR_HOURS = "#222"
 
-DEFAULT_SHOW_MGDL = True
+DEFAULT_DISPLAY_UNIT = "mgdl"
 DEFAULT_NORMAL_HIGH = 180
 DEFAULT_NORMAL_LOW = 100
 DEFAULT_URGENT_HIGH = 200
@@ -82,15 +82,21 @@ def main(config):
     nightscout_host = config.get("nightscout_host", DEFAULT_NSHOST)
     nightscout_url = config.get("nightscout_url", DEFAULT_NSURL)
     nightscout_token = config.get("nightscout_token", DEFAULT_NSTOKEN)
-    show_mgdl = config.bool("show_mgdl", DEFAULT_SHOW_MGDL)
-
     show_graph = config.bool("show_graph", DEFAULT_SHOW_GRAPH)
     show_graph_hour_bars = config.bool("show_graph_hour_bars", DEFAULT_SHOW_GRAPH_HOUR_BARS)
-
-    if (config.bool("show_clock", False) == True):
+   
+    # for backward compatibilty
+    if (config.bool("show_clock") == True):
         DEFAULT_CLOCK_OPTION = "Clock"
     else:
         DEFAULT_CLOCK_OPTION = "None"
+        
+    if (config.bool("show_mgdl") == True):
+        DEFAULT_DISPLAY_UNIT = "mgdl"
+    else:
+        DEFAULT_DISPLAY_UNIT = "mmol"
+    
+    display_unit = config.get("display_unit", DEFAULT_DISPLAY_UNIT)
     clock_option = config.get("clock_option", DEFAULT_CLOCK_OPTION)
     id_border_color = config.get("id_border_color", DEFAULT_ID_BORDER_COLOR)
     show_24_hour_time = config.bool("show_24_hour_time", DEFAULT_SHOW_24_HOUR_TIME)
@@ -106,7 +112,7 @@ def main(config):
     if nightscout_url != "":
         sample_data = False
 
-        nightscout_data, status_code = get_nightscout_data(nightscout_url, nightscout_token, show_graph, show_mgdl)
+        nightscout_data, status_code = get_nightscout_data(nightscout_url, nightscout_token, show_graph, display_unit)
 
         if status_code == 503:
             print("Page not found for nightscout ID '" + nightscout_id + "' - is this ID correct?")
@@ -117,7 +123,7 @@ def main(config):
         nightscout_data, status_code = {
             "api_version": "n/a",
             "sgv_current": "85",
-            "sgv_delta": "-2" if show_mgdl else float("-0.1"),
+            "sgv_delta": "-2" if display_unit =="mgdl" else float("-0.1"),
             "latest_reading_date_string": (time.now() - time.parse_duration("3m")),
             "direction": "Flat",
             "iob": "0.00u",
@@ -186,8 +192,8 @@ def main(config):
 
     #sgv_delta_mgdl = 25
     #sgv_current_mgdl = 420
-    #print("show_mgdl:" + show_mgdl)
-    if show_mgdl:
+    print("display_unit:", display_unit)
+    if display_unit == "mgdl":
         graph_height = int(str(config.get("mgdl_graph_height", DEFAULT_GRAPH_HEIGHT)))
         normal_high = int(str(config.get("mgdl_normal_high", DEFAULT_NORMAL_HIGH)))
         normal_low = int(str(config.get("mgdl_normal_low", DEFAULT_NORMAL_LOW)))
@@ -843,15 +849,14 @@ def main(config):
         delay = 500,
     )
 
-def mg_mgdl_options(show_mgdl):
-    if show_mgdl == "true":
+def display_unit_options(display_unit):
+    if display_unit == "mgdl":
         graph_height = DEFAULT_GRAPH_HEIGHT
         normal_high = DEFAULT_NORMAL_HIGH
         normal_low = DEFAULT_NORMAL_LOW
         urgent_high = DEFAULT_URGENT_HIGH
         urgent_low = DEFAULT_URGENT_LOW
         unit = "mg/dL"
-        prefix = "mgdl"
     else:
         graph_height = mgdl_to_mmol(DEFAULT_GRAPH_HEIGHT)
         normal_high = mgdl_to_mmol(DEFAULT_NORMAL_HIGH)
@@ -859,39 +864,38 @@ def mg_mgdl_options(show_mgdl):
         urgent_high = mgdl_to_mmol(DEFAULT_URGENT_HIGH)
         urgent_low = mgdl_to_mmol(DEFAULT_URGENT_LOW)
         unit = "mmol/L"
-        prefix = "mmol"
 
     return [
         schema.Text(
-            id = prefix + "_graph_height",
+            id = display_unit + "_graph_height",
             name = "Graph Height",
             desc = "Height of Graph (in " + unit + ") (Default " + str(graph_height) + ")",
             icon = "rulerVertical",
             default = str(graph_height),
         ),
         schema.Text(
-            id = prefix + "_normal_high",
+            id = display_unit + "_normal_high",
             name = "Normal High Threshold (in " + unit + ")",
             desc = "Anything above this is displayed yellow unless it is above the Urgent High Threshold (default " + str(normal_high) + ")",
             icon = "droplet",
             default = str(normal_high),
         ),
         schema.Text(
-            id = prefix + "_normal_low",
+            id = display_unit + "_normal_low",
             name = "Normal Low Threshold (in " + unit + ")",
             desc = "Anything below this is displayed yellow unless it is below the Urgent Low Threshold (default " + str(normal_low) + ")",
             icon = "droplet",
             default = str(normal_low),
         ),
         schema.Text(
-            id = prefix + "_urgent_high",
+            id = display_unit + "_urgent_high",
             name = "Urgent High Threshold (in " + unit + ")",
             desc = "Anything above this is displayed red (Default " + str(urgent_high) + ")",
             icon = "droplet",
             default = str(urgent_high),
         ),
         schema.Text(
-            id = prefix + "_urgent_low",
+            id = display_unit + "_urgent_low",
             name = "Urgent Low Threshold (in " + unit + ")",
             desc = "Anything below this is displayed red (Default " + str(urgent_low) + ")",
             icon = "droplet",
@@ -918,6 +922,17 @@ def get_schema():
             value = "COB",
         ),
     ]
+    
+    unit_options = [
+        schema.Option(
+            display = "mg/dL",
+            value = "mgdl",
+        ),
+        schema.Option(
+            display = "mmol/L",
+            value = "mmol",
+        ),
+    ]
 
     return schema.Schema(
         version = "1",
@@ -940,45 +955,11 @@ def get_schema():
                 desc = "Token for Nightscout Subject with 'readable' Role (optional)",
                 icon = "key",
             ),
-            schema.Toggle(
-                id = "show_mgdl",
-                name = "Display mg/dL",
-                desc = "Check to display readings and delta as mg/dL. Uncheck for mmol/L",
-                icon = "droplet",
-                default = True,
-            ),
-            schema.Generated(
-                id = "unit_options",
-                source = "show_mgdl",
-                handler = mg_mgdl_options,
-            ),
-            schema.Toggle(
-                id = "show_graph",
-                name = "Show Graph",
-                desc = "Show graph along with reading",
-                icon = "chartLine",
-                default = True,
-            ),
-            schema.Toggle(
-                id = "show_graph_hour_bars",
-                name = "Show Graph Hours",
-                desc = "Show hour makings on the graph",
-                icon = "chartColumn",
-                default = DEFAULT_SHOW_GRAPH_HOUR_BARS,
-            ),
-            schema.Dropdown(
-                id = "clock_option",
-                name = "Show Clock/IOB/COB",
-                desc = "Show Clock, Insulin on Board, or Carbs on Board along with reading",
-                icon = "gear",
-                default = clock_options[1].value,
-                options = clock_options,
-            ),
             schema.Color(
                 id = "id_border_color",
                 name = "ID Border Color",
                 desc = "Color of the border. Used for differentiating between multiple T1D's in a household",
-                icon = "brush",
+                icon = "id-badge",
                 default = COLOR_BLACK,
                 palette = [
                     COLOR_BLACK,
@@ -999,6 +980,41 @@ def get_schema():
                     COLOR_BRIGHT_RED,
                 ],
             ),
+            schema.Dropdown(
+                id = "display_unit",
+                name = "Unit of Measure (mg/dL or mmol/L)",
+                desc = "Select unit of measure to display readings and delta (mg/dL or mmol/L)",
+                icon = "droplet",
+                default = unit_options[0].value,
+                options = unit_options,
+            ),
+            schema.Toggle(
+                id = "show_graph",
+                name = "Show Graph",
+                desc = "Show graph along with reading",
+                icon = "chartLine",
+                default = True,
+            ),
+            schema.Toggle(
+                id = "show_graph_hour_bars",
+                name = "Show Graph Hours",
+                desc = "Show hour makings on the graph",
+                icon = "chartColumn",
+                default = DEFAULT_SHOW_GRAPH_HOUR_BARS,
+            ),
+            schema.Generated(
+                id = "graph_options",
+                source = "display_unit",
+                handler = display_unit_options,
+            ),
+            schema.Dropdown(
+                id = "clock_option",
+                name = "Show Clock/IOB/COB",
+                desc = "Show Clock, Insulin on Board, or Carbs on Board along with reading",
+                icon = "gear",
+                default = clock_options[1].value,
+                options = clock_options,
+            ),
             schema.Toggle(
                 id = "show_24_hour_time",
                 name = "Show 24 Hour Time",
@@ -1017,7 +1033,7 @@ def get_schema():
     )
 
 # This method returns a tuple of a nightscout_data and a status_code.
-def get_nightscout_data(nightscout_url, nightscout_token, show_graph, show_mgdl):
+def get_nightscout_data(nightscout_url, nightscout_token, show_graph, display_unit):
     nightscout_url = nightscout_url.replace("https://", "")
     nightscout_url = nightscout_url.replace("http://", "")
     nightscout_url = nightscout_url.split("/")[0]
@@ -1035,7 +1051,7 @@ def get_nightscout_data(nightscout_url, nightscout_token, show_graph, show_mgdl)
     if resp.status_code != 200:
         # Fall back to v1
         print("v2:properties failed, falling back to v1")
-        return get_nightscout_data_v1(nightscout_url, nightscout_token, show_mgdl)
+        return get_nightscout_data_v1(nightscout_url, nightscout_token, display_unit)
     ns_properties = resp.json()
 
     sgv_current = ""
@@ -1055,9 +1071,8 @@ def get_nightscout_data(nightscout_url, nightscout_token, show_graph, show_mgdl)
     if "delta" in ns_properties:
         if "absolute" in ns_properties["delta"]:
             sgv_delta = ns_properties["delta"]["absolute"]
-            print("sgv_delta @ line 981:", sgv_delta)
             sgv_delta = int(sgv_delta)
-            if show_mgdl == False:
+            if display_unit == "mmol":
                 sgv_delta = mgdl_to_mmol(int(sgv_delta))
     if "direction" in ns_properties:
         if "value" in ns_properties["direction"]:
@@ -1090,11 +1105,11 @@ def get_nightscout_data(nightscout_url, nightscout_token, show_graph, show_mgdl)
     if nightscout_data["sgv_current"] == "" or nightscout_data["sgv_delta"] == "" or nightscout_data["latest_reading_date_string"] == "" or nightscout_data["direction"] == "":
         # Fall back to v1
         print("v2 fields missing, falling back to v1")
-        return get_nightscout_data_v1(nightscout_url, nightscout_token, show_mgdl)
+        return get_nightscout_data_v1(nightscout_url, nightscout_token, display_unit)
     elif show_graph and nightscout_data["history"] == []:
         # Fall back to v1
         print("v2 history missing, falling back to v1")
-        return get_nightscout_data_v1(nightscout_url, nightscout_token, show_mgdl)
+        return get_nightscout_data_v1(nightscout_url, nightscout_token, display_unit)
 
     return nightscout_data, resp.status_code
 
@@ -1136,7 +1151,7 @@ def get_nightscout_history(nightscout_url, nightscout_token):
     return history, resp.status_code
 
 # Fall back function for v1 API
-def get_nightscout_data_v1(nightscout_url, nightscout_token, show_mgdl):
+def get_nightscout_data_v1(nightscout_url, nightscout_token, display_unit):
     nightscout_url = nightscout_url.replace("https://", "")
     nightscout_url = nightscout_url.replace("http://", "")
     nightscout_url = nightscout_url.split("/")[0]
@@ -1173,7 +1188,7 @@ def get_nightscout_data_v1(nightscout_url, nightscout_token, show_mgdl):
     sgv_current = latest_reading["sgv"]
 
     # Delta between the current and previous
-    if show_mgdl:
+    if display_unit == "mgdl":
         sgv_delta = int(sgv_current - previous_reading["sgv"])
     else:
         sgv_delta = math.round((mgdl_to_mmol(int(sgv_current)) - mgdl_to_mmol(int(previous_reading["sgv"]))) * 10) / 10
