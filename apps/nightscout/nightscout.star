@@ -3,7 +3,7 @@ Applet: Nightscout
 Summary: Displays Nightscout CGM Data
 Description: Displays Continuous Glucose Monitoring (CGM) blood sugar data (BG, Trend, Delta, IOB, COB) from Nightscout. Will display blood sugar as mg/dL or mmol/L. Optionally display historical readings on a graph. Also a clock.
 For support, join the Nightscout for Tidbyt Facebook group.
-(v2.5.0)
+(v2.5.1)
 Authors: Paul Murphy, Jason Hanson, Jeremy Tavener
 """
 
@@ -207,8 +207,8 @@ def main(config):
         if (int(sgv_delta) >= 0):
             str_delta = "+" + str_delta
             print("str_delta: ", str_delta)
-        left_col_width = 27
-        graph_width = 36
+        left_col_width = 28
+        graph_width = 34
     else:
         graph_height = int(float(config.get("mmol_graph_height", mgdl_to_mmol(DEFAULT_GRAPH_HEIGHT))) * 18)
         normal_high = int(float(config.get("mmol_normal_high", mgdl_to_mmol(DEFAULT_NORMAL_HIGH))) * 18)
@@ -225,8 +225,8 @@ def main(config):
         elif (sgv_delta > 0):
             str_delta = "+" + str_delta
 
-        left_col_width = 27
-        graph_width = 36
+        left_col_width = 28
+        graph_width = 34
 
     OLDEST_READING_TARGET = UTC_TIME_NOW - time.parse_duration(str(5 * graph_width) + "m")
 
@@ -665,7 +665,7 @@ def main(config):
                         pad = (point, 0, 0, 0),
                         child = render.Box(
                             width = 1,
-                            height = 32,
+                            height = 30,
                             color = COLOR_HOURS,
                         ),
                     ))
@@ -677,7 +677,7 @@ def main(config):
                         (1, this_point),
                     ],
                     width = 1,
-                    height = 32,
+                    height = 30,
                     color = graph_point_color,
                     color_inverted = graph_point_color,
                     fill = False,
@@ -689,15 +689,22 @@ def main(config):
             min_time = max_time + 1
 
         output = [
-            render.Box(
-                height = 32,
-                width = 64,
-                color = color_id_border,
-                child =
+            render.Stack(
+                children = [
                     render.Box(
-                        height = 30,
-                        width = 62,
-                        color = COLOR_BLACK,
+                        height = 32,
+                        width = 64,
+                        color = color_id_border,
+                        child =
+                            render.Box(
+                                height = 30,
+                                width = 62,
+                                color = COLOR_BLACK,
+                            ),
+                    ),
+                    render.Box(
+                        height = 32,
+                        width = 64,
                         child =
                             render.Box(
                                 render.Row(
@@ -705,6 +712,14 @@ def main(config):
                                     cross_align = "start",
                                     expanded = True,
                                     children = [
+                                        render.Column(
+                                            children = [
+                                                render.Box(
+                                                    width = 1,
+                                                    height = 32,
+                                                ),
+                                            ],
+                                        ),
                                         render.Column(
                                             cross_align = "center",
                                             expanded = True,
@@ -716,6 +731,7 @@ def main(config):
                                                             font = "6x13",
                                                             color = color_reading,
                                                             width = left_col_width,
+                                                            height = 12,
                                                             align = "center",
                                                         ),
                                                     ],
@@ -767,6 +783,10 @@ def main(config):
                                             main_align = "start",
                                             expanded = False,
                                             children = [
+                                                render.Box(
+                                                    height = 1,
+                                                    width = graph_width,
+                                                ),
                                                 render.Stack(
                                                     children = [
                                                         render.Stack(
@@ -777,8 +797,8 @@ def main(config):
                                                                 (0, normal_low),
                                                                 (1, normal_low),
                                                             ],
-                                                            width = graph_width - 1,
-                                                            height = 32,
+                                                            width = graph_width,
+                                                            height = 30,
                                                             color = color_graph_lines,
                                                             color_inverted = color_graph_lines,
                                                             fill = False,
@@ -790,8 +810,8 @@ def main(config):
                                                                 (0, normal_high),
                                                                 (1, normal_high),
                                                             ],
-                                                            width = graph_width - 1,
-                                                            height = 32,
+                                                            width = graph_width,
+                                                            height = 30,
                                                             color = color_graph_lines,
                                                             color_inverted = color_graph_lines,
                                                             fill = False,
@@ -812,6 +832,7 @@ def main(config):
                                 ),
                             ),
                     ),
+                ],
             ),
         ]
 
