@@ -296,6 +296,12 @@ def render_player(team, player):
     team = int(team)
     bg = TEAM_INFO[team].BackgroundColor
     fg = TEAM_INFO[team].ForegroundColor
+    sanitized = ""
+
+    # sanitize the pitcher name
+    # the font we use cannot handle diacritical marks
+    if player != None:
+        sanitized = player.get("useLastName").replace("ó", "o").replace("í", "i").replace("é", "e").replace("á", "a").replace("ñ", "n")
     return render.Box(
         height = 6,
         width = 64,
@@ -303,7 +309,7 @@ def render_player(team, player):
         child = render.Text(
             font = FIVE_WIDE_FONT,
             color = fg,
-            content = player.get("useLastName") if player != None else "TBD",
+            content = sanitized if player != None else "TBD",
         ),
     )
 
