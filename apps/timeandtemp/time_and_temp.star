@@ -9,7 +9,6 @@ Author: sudeepban
 
 load("encoding/base64.star", "base64")
 load("http.star", "http")
-load("math.star", "math")
 load("render.star", "render")
 load("schema.star", "schema")
 load("time.star", "time")
@@ -1000,12 +999,12 @@ def main(config):
         result_current_conditions["wind_speed"] = 12
         result_current_conditions["wind_dir"] = "W"
         result_current_conditions["humidity"] = 50
-        result_current_conditions["dew_point"] = math.ceil(61.0)
+        result_current_conditions["dew_point"] = int(61.0)
         result_current_conditions["uv_index"] = 3
         result_current_conditions["uv_index_text"] = "Moderate"
-        result_current_conditions["visibility"] = math.ceil(10.1)
+        result_current_conditions["visibility"] = int(10.1)
         result_current_conditions["cloud_coverage"] = 80
-        result_current_conditions["pressure"] = math.ceil(29.97)
+        result_current_conditions["pressure"] = int(29.97)
     else:
         resp = http.get(ACCUWEATHER_CURRCONDITIONS_URL.format(location_key = location_key, api_key = api_key), ttl_seconds = 3600)
         if resp.status_code != 200:
@@ -1018,13 +1017,13 @@ def main(config):
         result_current_conditions["feels_like"] = (int(raw_current_conditions["RealFeelTemperature"]["Metric"]["Value"]) if display_metric else int(raw_current_conditions["RealFeelTemperature"]["Imperial"]["Value"]))
         result_current_conditions["wind_speed"] = (int(raw_current_conditions["Wind"]["Speed"]["Metric"]["Value"]) if display_metric else int(raw_current_conditions["Wind"]["Speed"]["Imperial"]["Value"]))
         result_current_conditions["wind_dir"] = raw_current_conditions["Wind"]["Direction"]["English"]
-        result_current_conditions["humidity"] = raw_current_conditions["RelativeHumidity"]
-        result_current_conditions["dew_point"] = (math.ceil(raw_current_conditions["DewPoint"]["Metric"]["Value"]) if display_metric else math.ceil(raw_current_conditions["DewPoint"]["Imperial"]["Value"]))
+        result_current_conditions["humidity"] = int(raw_current_conditions["RelativeHumidity"])
+        result_current_conditions["dew_point"] = (int(raw_current_conditions["DewPoint"]["Metric"]["Value"]) if display_metric else int(raw_current_conditions["DewPoint"]["Imperial"]["Value"]))
         result_current_conditions["uv_index"] = int(raw_current_conditions["UVIndex"])
         result_current_conditions["uv_index_text"] = raw_current_conditions["UVIndexText"]
-        result_current_conditions["visibility"] = (math.ceil(raw_current_conditions["Visibility"]["Metric"]["Value"]) if display_metric else math.ceil(raw_current_conditions["Visibility"]["Imperial"]["Value"]))
+        result_current_conditions["visibility"] = (int(raw_current_conditions["Visibility"]["Metric"]["Value"]) if display_metric else int(raw_current_conditions["Visibility"]["Imperial"]["Value"]))
         result_current_conditions["cloud_coverage"] = int(raw_current_conditions["CloudCover"])
-        result_current_conditions["pressure"] = (math.ceil(raw_current_conditions["Pressure"]["Metric"]["Value"]) if display_metric else math.ceil(raw_current_conditions["Pressure"]["Imperial"]["Value"]))
+        result_current_conditions["pressure"] = (int(raw_current_conditions["Pressure"]["Metric"]["Value"]) if display_metric else int(raw_current_conditions["Pressure"]["Imperial"]["Value"]))
 
     # weather icon, reduce AccuWeather icons to smaller set, see https://developer.accuweather.com/weather-icons
     icon_num = result_current_conditions["icon_num"]
