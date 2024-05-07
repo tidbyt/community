@@ -3,7 +3,7 @@ Applet: Nightscout
 Summary: Displays Nightscout CGM Data
 Description: Displays Continuous Glucose Monitoring (CGM) blood sugar data (BG, Trend, Delta, IOB, COB) from Nightscout. Will display blood sugar as mg/dL or mmol/L. Optionally display historical readings on a graph. Also a clock.
 For support, join the Nightscout for Tidbyt Facebook group.
-(v2.4.2)
+(v2.5.0)
 Authors: Paul Murphy, Jason Hanson, Jeremy Tavener
 """
 
@@ -17,11 +17,15 @@ load("schema.star", "schema")
 load("sunrise.star", "sunrise")
 load("time.star", "time")
 
+COLOR_PINK = "F8A7A7"
 COLOR_RED = "#C00"
 COLOR_DARK_RED = "#911"
 COLOR_YELLOW = "#ff8"
 COLOR_ORANGE = "#d61"
 COLOR_GREEN = "#2b3"
+COLOR_DARK_GREEN = "#087C15"
+COLOR_BLUE = "#00F"
+COLOR_PURPLE = "#009"
 COLOR_GREY = "#777"
 COLOR_WHITE = "#fff"
 COLOR_NIGHT = "#444"
@@ -37,6 +41,7 @@ DEFAULT_SHOW_GRAPH = True
 DEFAULT_SHOW_GRAPH_HOUR_BARS = True
 DEFAULT_GRAPH_HEIGHT = 300
 DEFAULT_SHOW_STRING = "Clock"
+DEFAULT_CLOCK_COLOR = COLOR_ORANGE
 DEFAULT_SHOW_24_HOUR_TIME = False
 DEFAULT_NIGHT_MODE = False
 GRAPH_BOTTOM = 40
@@ -82,6 +87,7 @@ def main(config):
     else:
         DEFAULT_SHOW_STRING = "None"
     show_string = config.get("show_string", DEFAULT_SHOW_STRING)
+    clock_color = config.get("clock_color", DEFAULT_CLOCK_COLOR)
     show_24_hour_time = config.bool("show_24_hour_time", DEFAULT_SHOW_24_HOUR_TIME)
     night_mode = config.bool("night_mode", DEFAULT_NIGHT_MODE)
     nightscout_iob = "n/a"
@@ -244,7 +250,7 @@ def main(config):
     color_graph_low = COLOR_YELLOW
     color_graph_urgent_low = COLOR_RED
     color_graph_lines = COLOR_GREY
-    color_clock = COLOR_ORANGE
+    color_clock = clock_color
 
     if (reading_mins_ago > 5):
         # The information is stale (i.e. over 5 minutes old) - overrides everything.
@@ -849,7 +855,7 @@ def mg_mgdl_options(show_mgdl):
     ]
 
 def get_schema():
-    options = [
+    clock_options = [
         schema.Option(
             display = "None",
             value = "None",
@@ -920,8 +926,28 @@ def get_schema():
                 name = "Show Clock/IOB/COB",
                 desc = "Show Clock, Insulin on Board, or Carbs on Board along with reading",
                 icon = "gear",
-                default = options[1].value,
-                options = options,
+                default = clock_options[1].value,
+                options = clock_options,
+            ),
+            schema.Color(
+                id = "clock_color",
+                name = "Clock Color",
+                desc = "Color of the Clock/IOB/COB Display. Useful for differentiating between instances for multiple T1D's in a household",
+                icon = "brush",
+                default = COLOR_ORANGE,
+                palette = [
+                    COLOR_WHITE,
+                    COLOR_GREY,
+                    COLOR_PINK,
+                    COLOR_RED,
+                    COLOR_DARK_RED,
+                    COLOR_GREEN,
+                    COLOR_DARK_GREEN,
+                    COLOR_YELLOW,
+                    COLOR_ORANGE,
+                    COLOR_BLUE,
+                    COLOR_PURPLE,
+                ],
             ),
             schema.Toggle(
                 id = "show_24_hour_time",
