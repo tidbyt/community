@@ -959,7 +959,7 @@ def get_schema():
                 id = "id_border_color",
                 name = "ID Border Color",
                 desc = "Color of the border. Used for differentiating between multiple T1D's in a household",
-                icon = "id-badge",
+                icon = "idBadge",
                 default = COLOR_BLACK,
                 palette = [
                     COLOR_BLACK,
