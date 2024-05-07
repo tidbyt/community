@@ -17,15 +17,20 @@ load("schema.star", "schema")
 load("sunrise.star", "sunrise")
 load("time.star", "time")
 
-COLOR_PINK = "F8A7A7"
+COLOR_BLACK = "#000"
+COLOR_PINK = "#F8A7A7"
 COLOR_RED = "#C00"
 COLOR_DARK_RED = "#911"
+COLOR_BRIGHT_RED = "#F10404"
 COLOR_YELLOW = "#ff8"
 COLOR_ORANGE = "#d61"
 COLOR_GREEN = "#2b3"
+COLOR_BRIGHT_GREEN = "#03FF20"
 COLOR_DARK_GREEN = "#087C15"
-COLOR_BLUE = "#00F"
+COLOR_BLUE = "#00D0FF"
+COLOR_DARK_BLUE = "#0676FF"
 COLOR_PURPLE = "#009"
+COLOR_MAGENTA = "#FF00D0"
 COLOR_GREY = "#777"
 COLOR_WHITE = "#fff"
 COLOR_NIGHT = "#444"
@@ -41,7 +46,7 @@ DEFAULT_SHOW_GRAPH = True
 DEFAULT_SHOW_GRAPH_HOUR_BARS = True
 DEFAULT_GRAPH_HEIGHT = 300
 DEFAULT_CLOCK_OPTION = "Clock"
-DEFAULT_CLOCK_COLOR = COLOR_ORANGE
+DEFAULT_ID_BORDER_COLOR = COLOR_BLACK
 DEFAULT_SHOW_24_HOUR_TIME = False
 DEFAULT_NIGHT_MODE = False
 GRAPH_BOTTOM = 40
@@ -87,7 +92,7 @@ def main(config):
     else:
         DEFAULT_CLOCK_OPTION = "None"
     clock_option = config.get("clock_option", DEFAULT_CLOCK_OPTION)
-    clock_color = config.get("clock_color", DEFAULT_CLOCK_COLOR)
+    id_border_color = config.get("id_border_color", DEFAULT_ID_BORDER_COLOR)
     show_24_hour_time = config.bool("show_24_hour_time", DEFAULT_SHOW_24_HOUR_TIME)
     night_mode = config.bool("night_mode", DEFAULT_NIGHT_MODE)
     nightscout_iob = "n/a"
@@ -250,7 +255,8 @@ def main(config):
     color_graph_low = COLOR_YELLOW
     color_graph_urgent_low = COLOR_RED
     color_graph_lines = COLOR_GREY
-    color_clock = clock_color
+    color_clock = COLOR_ORANGE
+    color_id_border = id_border_color
 
     if (reading_mins_ago > 5):
         # The information is stale (i.e. over 5 minutes old) - overrides everything.
@@ -290,7 +296,16 @@ def main(config):
         lg_string = [
             render.Stack(
                 children = [
-                    render.Box(height = 32, width = 64),
+                    render.Box(
+                        height = 32,
+                        width = 64,
+                        color=color_id_border,
+                        child = render.Box(
+                            height=30,
+                            width=62,
+                            color=COLOR_BLACK,
+                        )
+                    ),
                     render.Column(
                         main_align = "start",
                         cross_align = "center",
@@ -395,7 +410,16 @@ def main(config):
         lg_string = [
             render.Stack(
                 children = [
-                    render.Box(height = 32, width = 64),
+                    render.Box(
+                        height = 32,
+                        width = 64,
+                        color=color_id_border,
+                        child = render.Box(
+                            height=30,
+                            width=62,
+                            color=COLOR_BLACK,
+                        )
+                    ),
                     render.Column(
                         main_align = "start",
                         cross_align = "center",
@@ -487,7 +511,16 @@ def main(config):
         lg_string = [
             render.Stack(
                 children = [
-                    render.Box(height = 32, width = 64),
+                    render.Box(
+                        height = 32,
+                        width = 64,
+                        color=color_id_border,
+                        child = render.Box(
+                            height=30,
+                            width=62,
+                            color=COLOR_BLACK,
+                        )
+                    ),
                     render.Column(
                         main_align = "start",
                         cross_align = "center",
@@ -651,116 +684,128 @@ def main(config):
 
         output = [
             render.Box(
-                render.Row(
-                    main_align = "center",
-                    cross_align = "start",
-                    expanded = True,
-                    children = [
-                        render.Column(
-                            cross_align = "center",
-                            expanded = True,
-                            children = [
+                height = 32,
+                width = 64,
+                color=color_id_border,
+                child = 
+                    render.Box(
+                        height=30,
+                        width=62,
+                        color=COLOR_BLACK,
+                        child = 
+                            render.Box(
                                 render.Row(
-                                    children = [
-                                        render.WrappedText(
-                                            content = str_current,
-                                            font = "6x13",
-                                            color = color_reading,
-                                            width = left_col_width,
-                                            align = "center",
-                                        ),
-                                    ],
-                                ),
-                                render.Row(
-                                    children = [
-                                        render.Text(
-                                            content = str_delta.replace("0", "O"),
-                                            font = "tb-8",
-                                            color = color_delta,
-                                            offset = 1,
-                                        ),
-                                        render.Box(
-                                            height = 1,
-                                            width = 1,
-                                        ),
-                                        render.Text(
-                                            content = ARROWS[direction],
-                                            font = "5x8",
-                                            color = color_arrow,
-                                            offset = 1,
-                                        ),
-                                    ],
-                                ),
-                                render.Row(
-                                    children = [
-                                        render.Animation(
-                                            sm_string,
-                                        ),
-                                    ],
-                                ),
-                                render.Row(
-                                    main_align = "start",
+                                    main_align = "center",
                                     cross_align = "start",
+                                    expanded = True,
                                     children = [
-                                        render.WrappedText(
-                                            content = full_ago_dashes,
-                                            font = "tom-thumb",
-                                            color = color_ago,
-                                            width = left_col_width,
-                                            align = "center",
-                                        ),
-                                    ],
-                                ),
-                            ],
-                        ),
-                        render.Column(
-                            cross_align = "start",
-                            main_align = "start",
-                            expanded = False,
-                            children = [
-                                render.Stack(
-                                    children = [
-                                        render.Stack(
-                                            children = graph_hour_bars,
-                                        ),
-                                        render.Plot(
-                                            data = [
-                                                (0, normal_low),
-                                                (1, normal_low),
-                                            ],
-                                            width = graph_width,
-                                            height = 32,
-                                            color = color_graph_lines,
-                                            color_inverted = color_graph_lines,
-                                            fill = False,
-                                            x_lim = (0, 1),
-                                            y_lim = (GRAPH_BOTTOM, graph_height),
-                                        ),
-                                        render.Plot(
-                                            data = [
-                                                (0, normal_high),
-                                                (1, normal_high),
-                                            ],
-                                            width = graph_width,
-                                            height = 32,
-                                            color = color_graph_lines,
-                                            color_inverted = color_graph_lines,
-                                            fill = False,
-                                            x_lim = (0, 1),
-                                            y_lim = (GRAPH_BOTTOM, graph_height),
-                                        ),
-                                        render.Row(
-                                            main_align = "start",
-                                            cross_align = "start",
+                                        render.Column(
+                                            cross_align = "center",
                                             expanded = True,
-                                            children = graph_plot,
+                                            children = [
+                                                render.Row(
+                                                    children = [
+                                                        render.WrappedText(
+                                                            content = str_current,
+                                                            font = "6x13",
+                                                            color = color_reading,
+                                                            width = left_col_width,
+                                                            align = "center",
+                                                        ),
+                                                    ],
+                                                ),
+                                                render.Row(
+                                                    children = [
+                                                        render.Text(
+                                                            content = str_delta.replace("0", "O"),
+                                                            font = "tb-8",
+                                                            color = color_delta,
+                                                            offset = 1,
+                                                        ),
+                                                        render.Box(
+                                                            height = 1,
+                                                            width = 1,
+                                                        ),
+                                                        render.Text(
+                                                            content = ARROWS[direction],
+                                                            font = "5x8",
+                                                            color = color_arrow,
+                                                            offset = 1,
+                                                        ),
+                                                    ],
+                                                ),
+                                                render.Row(
+                                                    children = [
+                                                        render.Animation(
+                                                            sm_string,
+                                                        ),
+                                                    ],
+                                                ),
+                                                render.Row(
+                                                    main_align = "start",
+                                                    cross_align = "start",
+                                                    children = [
+                                                        render.WrappedText(
+                                                            content = full_ago_dashes,
+                                                            font = "tom-thumb",
+                                                            color = color_ago,
+                                                            width = left_col_width,
+                                                            align = "center",
+                                                        ),
+                                                    ],
+                                                ),
+                                            ],
+                                        ),
+                                        render.Column(
+                                            cross_align = "start",
+                                            main_align = "start",
+                                            expanded = False,
+                                            children = [
+                                                render.Stack(
+                                                    children = [
+                                                        render.Stack(
+                                                            children = graph_hour_bars,
+                                                        ),
+                                                        render.Plot(
+                                                            data = [
+                                                                (0, normal_low),
+                                                                (1, normal_low),
+                                                            ],
+                                                            width = graph_width-1,
+                                                            height = 32,
+                                                            color = color_graph_lines,
+                                                            color_inverted = color_graph_lines,
+                                                            fill = False,
+                                                            x_lim = (0, 1),
+                                                            y_lim = (GRAPH_BOTTOM, graph_height),
+                                                        ),
+                                                        render.Plot(
+                                                            data = [
+                                                                (0, normal_high),
+                                                                (1, normal_high),
+                                                            ],
+                                                            width = graph_width-1,
+                                                            height = 32,
+                                                            color = color_graph_lines,
+                                                            color_inverted = color_graph_lines,
+                                                            fill = False,
+                                                            x_lim = (0, 1),
+                                                            y_lim = (GRAPH_BOTTOM, graph_height),
+                                                        ),
+                                                        render.Row(
+                                                            main_align = "start",
+                                                            cross_align = "start",
+                                                            expanded = True,
+                                                            children = graph_plot,
+                                                        ),
+                                                    ],
+                                                ),
+                                            ],
                                         ),
                                     ],
                                 ),
-                            ],
-                        ),
-                    ],
-                ),
+                            ),
+                    ),
             ),
         ]
 
@@ -930,23 +975,28 @@ def get_schema():
                 options = clock_options,
             ),
             schema.Color(
-                id = "clock_color",
-                name = "Clock Color",
-                desc = "Color of the Clock/IOB/COB Display. Useful for differentiating between instances for multiple T1D's in a household",
+                id = "id_border_color",
+                name = "ID Border Color",
+                desc = "Color of the border. Used for differentiating between multiple T1D's in a household",
                 icon = "brush",
-                default = COLOR_ORANGE,
+                default = COLOR_BLACK,
                 palette = [
+                    COLOR_BLACK,
                     COLOR_WHITE,
                     COLOR_GREY,
-                    COLOR_PINK,
                     COLOR_RED,
                     COLOR_DARK_RED,
+                    COLOR_PINK,
+                    COLOR_ORANGE,
+                    COLOR_YELLOW,
+                    COLOR_BRIGHT_GREEN,
                     COLOR_GREEN,
                     COLOR_DARK_GREEN,
-                    COLOR_YELLOW,
-                    COLOR_ORANGE,
                     COLOR_BLUE,
+                    COLOR_DARK_BLUE,
                     COLOR_PURPLE,
+                    COLOR_MAGENTA,
+                    COLOR_BRIGHT_RED,
                 ],
             ),
             schema.Toggle(
