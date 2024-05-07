@@ -1359,7 +1359,7 @@ def get_schema():
                 id = "uvIndexEnabled",
                 name = "UV Index",
                 desc = "Display UV Index",
-                icon = "umbrella-beach",
+                icon = "umbrellaBeach",
                 default = False,
             ),
             schema.Toggle(
