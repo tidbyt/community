@@ -38,6 +38,7 @@ TEAM_LOGO = """
     "836779": "https://www.thesportsdb.com/images/media/team/badge/gx1dgl1680852780.png",
     "329121": "https://assets.b365api.com/images/wp/o/8d4b8b442ce550b84187f6a388dd08e5.png",
     "224094": "https://assets.b365api.com/images/wp/o/dec78d508fac27062963e766d6fd4323.png",
+    "229259": "https://assets.b365api.com/images/wp/o/dec78d508fac27062963e766d6fd4323.png",
     "224095": "https://assets.b365api.com/images/wp/o/5631bccbd611a4c52edac4e5ea940f1f.png"
 }
 """
@@ -49,6 +50,7 @@ TEAM_COLOR = """
     "836779": "#074539",
     "329121": "#4b1d18",
     "224094": "#002255",
+    "229259": "#002255",
     "224095": "#df6b00"
 }
 """
@@ -60,6 +62,7 @@ TEAM_FONTCOLOR = """
     "836779": "#fff",
     "329121": "#fff",
     "224094": "#fff",
+    "229259": "#fff",
     "224095": "#fff"
 }
 """
@@ -68,6 +71,7 @@ GAME_STATUS = """
 {
     "0": "Upcoming",
     "1": "Live",
+    "2": "Err",
     "3": "End",
     "4": "Postponed",
     "7": "Cancel",
@@ -82,6 +86,7 @@ TEAM_LOCATION = """
     "836779": "KHH",
     "329121": "TYN",
     "224094": "TPH",
+    "229259": "TPH",
     "224095": "TNN"
 }
 """
@@ -93,17 +98,23 @@ TEAM_SHORTNAME = """
     "836779": "HAWKS",
     "329121": "RAKUTEN",
     "224094": "FUBON",
+    "229259": "FUBON",
     "224095": "UNI-LION"
 }
 """
 
 def main(config):
     renderCategory = []
+    selectedTeam = config.get("selectedTeam", "11235")
     displayTop = config.get("displayTop", "time")
     displayType = "Other"
     apikey = config.get("apikey", "")
+    upcoming_games = 15
     url_bestAPI_live = url_live.replace("key", apikey)
     url_bestAPI_upcoming = url_upcoming.replace("key", apikey)
+    if selectedTeam != "11235":
+        url_bestAPI_upcoming = url_bestAPI_upcoming + "&team_id=" + selectedTeam
+        upcoming_games = 5
     timeColor = config.get("displayTimeColor", "#FFA500")
     rotationSpeed = config.get("rotationSpeed", "5")
     location = config.get("location", DEFAULT_LOCATION)
@@ -221,21 +232,23 @@ def main(config):
             games = get_scores(url_bestAPI_upcoming)
             if len(games) > 0:
                 for i, s in enumerate(games):
-                    if i > 20:
+                    if i >= int(upcoming_games):
                         break
                     gameStatus = get_gamestatus(s["time_status"])
-                    homeId = s["home"]["id"]
-                    homeLocation = get_teamlocation(homeId)
-                    homeColor = get_teamcolor(homeId)
-                    awayId = s["away"]["id"]
-                    awayLocation = get_teamlocation(awayId)
-                    awayColor = get_teamcolor(awayId)
                     gameTime = s["time"]
                     convertedTime = time.from_timestamp(int(gameTime)).in_location(timezone)
+                    homeId = s["home"]["id"]
+                    awayId = s["away"]["id"]
                     if convertedTime.format("1/2") != now.format("1/2"):
                         gameTime = convertedTime.format("Jan 2 Mon")
                     else:
                         gameTime = convertedTime.format("3:04 PM")
+                        homeId = s["away"]["id"]
+                        awayId = s["home"]["id"]
+                    homeLocation = get_teamlocation(homeId)
+                    homeColor = get_teamcolor(homeId)
+                    awayLocation = get_teamlocation(awayId)
+                    awayColor = get_teamcolor(awayId)
                     renderCategory.extend(
                         [
                             render.Column(
@@ -365,6 +378,37 @@ def get_scores(urls):
     allscores.extend(decodedata["results"])
     return allscores
 
+teamOptions = [
+    schema.Option(
+        display = "All Teams",
+        value = "11235",
+    ),
+    schema.Option(
+        display = "Wei Chuan Dragons",
+        value = "315045",
+    ),
+    schema.Option(
+        display = "Rakuten Monkeys",
+        value = "329121",
+    ),
+    schema.Option(
+        display = "Uni-President Lions",
+        value = "224095",
+    ),
+    schema.Option(
+        display = "CTBC Brothers",
+        value = "230422",
+    ),
+    schema.Option(
+        display = "Fubon Guardians",
+        value = "229259",
+    ),
+    schema.Option(
+        display = "TSG Hawks",
+        value = "836779",
+    ),
+]
+
 rotationOptions = [
     schema.Option(
         display = "3 seconds",
@@ -446,6 +490,14 @@ def get_schema():
                 icon = "locationDot",
             ),
             schema.Dropdown(
+                id = "selectedTeam",
+                name = "Team Focus",
+                desc = "Show selected team's upcoming games.",
+                icon = "baseballBatBall",
+                default = teamOptions[0].value,
+                options = teamOptions,
+            ),
+            schema.Dropdown(
                 id = "rotationSpeed",
                 name = "Rotation Speed",
                 desc = "Amount of seconds each score is displayed.",
@@ -495,17 +547,17 @@ def get_cachable_data(url):
 
 def get_logo(team):
     usealtlogo = json.decode(TEAM_LOGO)
-    logo = usealtlogo.get(team, "NO")
+    logo = usealtlogo.get(team, "NOLOGO")
     return logo
 
 def get_teamcolor(team):
     usealtcolor = json.decode(TEAM_COLOR)
-    color = usealtcolor.get(team, "NO")
+    color = usealtcolor.get(team, "#fff")
     return color
 
 def get_teamfontcolor(team):
     usealtcolor = json.decode(TEAM_FONTCOLOR)
-    color = usealtcolor.get(team, "NO")
+    color = usealtcolor.get(team, "#fff")
     return color
 
 def get_teamlocation(team):

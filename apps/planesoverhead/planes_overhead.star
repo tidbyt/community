@@ -25,7 +25,7 @@ def get_schema():
                 name = "Latitude",
                 desc = "Latitude to fetch planes overhead",
                 icon = "locationDot",
-                default = "32.023",
+                default = "34.023",
             ),
             schema.Text(
                 id = "lng",
