@@ -156,8 +156,9 @@ def main(config):
     align = "center"
     if displayText != "none" and phaseIndex <= 4:
         align = "start"
-    elif displayText == "none" and time_format != None:
-        align = "space_evenly"
+    elif displayText == "none" and time_format != None and phaseIndex <= 4:
+        # align = "space_evenly"
+        align = "space_around"
 
     displaycomplete = render.Box(
         render.Row(
