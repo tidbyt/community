@@ -14,8 +14,8 @@ load("schema.star", "schema")
 load("secret.star", "secret")
 load("time.star", "time")
 
-BILLBOARD_API_SECRET_KEY = "AV6+xWcEE5IuD+5cFvv5rCrVUi1xz8BdNKqeIMFXjoc86p8wGGQYP7+TdhlXTaHGAF8MDUel+AnqHVFzL+yMyXboV/qVCyKtV8WjoubvrzpKD4Gh14hQ233Jn0Sef6lUOQuiRfRS+2mh5ja4O0BHns65UWtfk4GHFgaTsza4w/d/EKocbPdRTOLi0FKlcXQEI0w0uZthE2k="
-BILLBOARD_CACHED_TOP10_NAME = "BillboardCache"
+BILLBOARD_API_SECRET_KEY = "AV6+xWcEHVQL634yPoz6rik+t9Rini+2C/c5G4ORfNu+mB3WL+fAM8wdPe33KQP16Ldt5mlv4/xCrTwqtAmU7xpZA3fPXFSvk8TB/0toTV+5OYBzLyOA3rJxT9lxJpHTrmPM6PUfN/nVNOdlFilQ6T+hi1C1Pqy1wLGllNhNfqFxUEm2hsl9Mz0DPbrEP9sRg6EfaLHEAiI="
+BILLBOARD_CACHED_TOP10_NAME = "BillboardTop10Cache"
 BILLBOARD_ICON = """
 iVBORw0KGgoAAAANSUhEUgAAAAYAAAAICAIAAABVpBlvAAABVmlDQ1BJQ0MgcHJvZmlsZQAAKJFtkL8vxGAYx7+lcgnCDcTAUIkBOSJ1A7ZzgwhDnZ8VS69XPdKrN20Fs9UmMUot/gJRI4vYJYh/gMkiaSRc6nnv0Ds8b548nzz5vk+++QINosaYJQIo2Z6Tm5qUVtRVKfEMAd1oxwS6NN1lGUWZJQm+Z32Fd6Smuh3it9bUt3P7etO3VNnvnAkO/+rrqrlguDrND+pBnTkeIPQTKzse47xL3OGQKeIDzmaVfc75Kp9VNAu5LPENcVIvagXiB+JUvmZv1nDJ2ta/PHD3rYa9OE+zjboHCjKQkcYY5rBE2fyvTVe0WWyBYQ8ONmCiCA8S/Wb0LBjE07ChYxgpYhkj/C7P+Hd28Y7tA+M8t5d4p1nABWWfPI53fU9ktxe4OmGao/0kKoSiuz4qV7klAJqOouh1GUgMAOX7KHoPoqh8CjQ+ApfhJ3LYYwruNH3OAAAACXBIWXMAAC4jAAAuIwF4pT92AAAAB3RJTUUH6AICFRMwu9G4AQAAABl0RVh0Q29tbWVudABDcmVhdGVkIHdpdGggR0lNUFeBDhcAAACESURBVAjXY0xLTZWQlFy0YCEDDDCeOXPGyMhISUERLsQCoZpbWljZWGfNnHXv7l2GM2fO/IOB169fKykoMkFUFRUVbdu2TVhYODYuFiqkpaUlICDAwMDw89cvhjNnzvz9+/fv37///v27d/eugpw8Y1pqqriExKtXr2SkZebOmcPAwAAAlwg4Pp81GiUAAAAASUVORK5CYII=
 """
@@ -35,6 +35,10 @@ list_options = [
 ]
 
 def main(config):
+    show_instructions = config.bool("instructions", True)
+    if show_instructions:
+        return display_instructions()
+
     # US, Global,
     selected_list = config.get("list", list_options[0].value)
     cache_name = "%s_%s" % (BILLBOARD_CACHED_TOP10_NAME, selected_list)
@@ -42,7 +46,8 @@ def main(config):
 
     if top10_data == None:
         #print("Fetching new data from API")
-        top10_alive_key = secret.decrypt(BILLBOARD_API_SECRET_KEY) or "5927f78f43msh6f021523896b0ffp1db822jsn1d1a0b0e2fd4"
+        top10_alive_key = secret.decrypt(BILLBOARD_API_SECRET_KEY) or config.get("apiKey")
+        print(top10_alive_key)
         top10_data = get_top10_information(top10_alive_key, selected_list)
 
         #this should only be called for demos that Tidbyt displays on their websites
@@ -53,12 +58,12 @@ def main(config):
         top10_data["DateFetched"] = time.now().format("2006-01-02T15:04:05Z07:00")
 
         # We want to make <20 calls per month to the API
-        # We have three different possible list types we can pull
-        # Therefore, 6 calls a month max each to keep us under the limit
-        # If we cache each call for 5 days we should be good
+        # We have two different possible list types we can pull
+        # Therefore, 10 calls a month max each to keep us under the limit
+        # If we cache each call for 3 days we should be good
 
-        #cache Time 5 Days x 24 hours x 60 minutes x 60 seconds = 432000 seconds
-        cache.set(cache_name, json.encode(top10_data), ttl_seconds = 432000)
+        #cache Time 3 Days x 24 hours x 60 minutes x 60 seconds = 259200 seconds
+        cache.set(cache_name, json.encode(top10_data), ttl_seconds = 259200)
     else:
         #print("Getting from cache")
         top10_data = json.decode(top10_data)
@@ -116,10 +121,14 @@ def main(config):
     )
 
 def get_top10_information(top10_alive_key, list):
+    thetime = time.now().format("2006-01-02")
+    print(thetime)
+
+    #thetime = "1985-05-04"
     url = "https://billboard-api2.p.rapidapi.com/%s" % list
     res = http.get(
         url = url,
-        params = {"date": time.now().format("2006-01-02"), "range": "1-10"},
+        params = {"date": thetime, "range": "1-10"},
         headers = {
             "X-RapidAPI-Host": "billboard-api2.p.rapidapi.com",
             "X-RapidAPI-Key": top10_alive_key,
@@ -134,7 +143,7 @@ def get_top10_information(top10_alive_key, list):
 
 def getMovementIndicator(this, last):
     movementIndicator = ""
-    if (last != ""):
+    if (last != "" and last > 0):
         if this < last:
             movementIndicator = " (↑%s)" % (last - this)
         elif last < this:
@@ -151,7 +160,12 @@ def getListDisplayFromListValue(listValue):
 
 def getDisplayInfo(item):
     current = int(item["rank"])
-    lastweek = int(item["last week"])
+    lastweek = item["last week"]
+    if lastweek == "None":
+        lastweek = 0
+    else:
+        lastweek = int(lastweek)
+
     display = "#%s%s \"%s\" by %s %s weeks on charts" % (item["rank"], getMovementIndicator(current, lastweek), item["title"], item["artist"], item["weeks on chart"])
     return display
 
@@ -169,6 +183,37 @@ def getDisplayInfoMulti(items, start, end):
             display = display + "#%s%s \"%s\" by %s " % (item["rank"], getMovementIndicator(current, lastweek), item["title"], item["artist"])
 
     return display
+
+def display_instructions():
+    ##############################################################################################################################################################################################################################
+    instructions_1 = "Get a RapidAPI.com Key. Create an account at RapidAPI.com "
+    instructions_2 = "Click 'Apps', 'Add New App'. Fill in App Name and Descriptino, leave everything else as is, then click 'Add App'. "
+    instructions_3 = "Find your API Key by clicking your app name, then click 'Authorization'. Click the icons next to the API Key to see and/or view your key. Paste it into the Rapid API Key setting. "
+    return render.Root(
+        render.Column(
+            children = [
+                render.Marquee(
+                    width = 64,
+                    child = render.Text("Billboard Top 10", color = "#65d0e6", font = "5x8"),
+                ),
+                render.Marquee(
+                    width = 64,
+                    child = render.Text(instructions_1, color = "#f4a306"),
+                ),
+                render.Marquee(
+                    offset_start = len(instructions_1) * 5,
+                    width = 64,
+                    child = render.Text(instructions_2, color = "#f4a306"),
+                ),
+                render.Marquee(
+                    offset_start = (len(instructions_2) + len(instructions_1)) * 5,
+                    width = 64,
+                    child = render.Text(instructions_3, color = "#f4a306"),
+                ),
+            ],
+        ),
+        show_full_animation = True,
+    )
 
 def get_schema():
     scroll_speed_options = [
@@ -189,6 +234,13 @@ def get_schema():
     return schema.Schema(
         version = "1",
         fields = [
+            schema.Toggle(
+                id = "instructions",
+                name = "Display Instructions",
+                desc = "",
+                icon = "book",  #"info",
+                default = False,
+            ),
             schema.Dropdown(
                 id = "list",
                 name = "Billboard List",
@@ -196,6 +248,12 @@ def get_schema():
                 icon = "list",
                 default = list_options[0].value,
                 options = list_options,
+            ),
+            schema.Text(
+                id = "apiKey",
+                name = "Rapid API Key",
+                desc = "Your Rapid API Key",
+                icon = "key",
             ),
             schema.Dropdown(
                 id = "scroll",
