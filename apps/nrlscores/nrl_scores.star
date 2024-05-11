@@ -450,10 +450,10 @@ def getRecord(Team, JSON):
             Loss = JSON["positions"][x]["stats"]["lost"]
             break
 
-    if Draw > 0:
-        Record = str(Win) + "-" + str(Draw) + "-" + str(Loss)
-    else:
+    if Draw == 0:
         Record = str(Win) + "-" + str(Loss)
+    else:
+        Record = str(Win) + "-" + str(Draw) + "-" + str(Loss)
 
     return Record
 
