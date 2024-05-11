@@ -5,10 +5,10 @@ Description: Shows next upcoming UFC event with date and time.
 Author: Stephen So
 """
 
+load("encoding/base64.star", "base64")
 load("html.star", "html")
 load("http.star", "http")
 load("render.star", "render")
-load("encoding/base64.star", "base64")
 
 url = "https://www.espn.com/mma/schedule"
 
@@ -41,15 +41,14 @@ def main():
 
     return render.Root(
         child = render.Column(
-            children = [            
-
+            children = [
                 render.Row(
                     children = [
                         render.Padding(
                             render.Image(
-                                src = ICON
+                                src = ICON,
                             ),
-                            pad = (2,7,1,0)
+                            pad = (2, 7, 1, 0),
                         ),
                         render.Padding(
                             render.Column(
@@ -63,12 +62,12 @@ def main():
                                         content = time,
                                         #width = 64,
                                         align = "center",
-                                    )
-                                ]
+                                    ),
+                                ],
                             ),
-                            pad = (1,3,1,1)
-                        )
-                    ]
+                            pad = (1, 3, 1, 1),
+                        ),
+                    ],
                 ),
                 render.Padding(
                     render.Box(
@@ -85,7 +84,7 @@ def main():
                         ),
                     ),
                     pad = (0, 0, 0, 0),
-                )
-            ]
-        )
+                ),
+            ],
+        ),
     )
