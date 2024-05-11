@@ -12,6 +12,9 @@ Updated abbreviations
 
 v1.2
 Updated method of determining the round number, as the old method wasn't working for finals
+
+v1.3
+Made draw in W-D-L records dynamic
 """
 
 load("encoding/json.star", "json")
@@ -447,7 +450,10 @@ def getRecord(Team, JSON):
             Loss = JSON["positions"][x]["stats"]["lost"]
             break
 
-    Record = str(Win) + "-" + str(Draw) + "-" + str(Loss)
+    if Draw > 0:
+        Record = str(Win) + "-" + str(Draw) + "-" + str(Loss)
+    else:
+        Record = str(Win) + "-" + str(Loss)
 
     return Record
 
