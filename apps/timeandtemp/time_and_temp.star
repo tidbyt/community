@@ -1,7 +1,7 @@
 """
 Applet: Time & Temp
 Summary: Display current time and weather conditions
-Description: Display the current time in addition to current weather conditions from either AccuWeather, OpenWeather, OpenWeather 3.0 One Call, Tomorrow.io, or Open-Meteo weather APIs. To request an AccuWeather API key, see https://developer.accuweather.com/getting-started. (AccuWeather API requires a location key, which is dynamically pulled from API based on the schema.Location latitude & longitude.) To request an OpenWeather API key, see https://home.openweathermap.org/users/sign_up. To request a Tomorrow.io API key, see https://docs.tomorrow.io/login?redirect_uri=/reference/intro/getting-started.
+Description: Display the current time in addition to current weather conditions from either OpenWeather, OpenWeather 3.0 One Call, Tomorrow.io, or Open-Meteo weather APIs. To request an OpenWeather API key, see https://home.openweathermap.org/users/sign_up. To request a Tomorrow.io API key, see https://docs.tomorrow.io/login?redirect_uri=/reference/intro/getting-started.
 Author: sudeepban
 """
 
@@ -23,8 +23,6 @@ DEFAULT_LOCATION = """
 }
 """
 
-ACCUWEATHER_GEOPOSITION_SEARCH_URL = "http://dataservice.accuweather.com/locations/v1/cities/geoposition/search?apikey={api_key}&q={latitude},{longitude}&language=en-us"
-ACCUWEATHER_CURRCONDITIONS_URL = "http://dataservice.accuweather.com/currentconditions/v1/{location_key}?apikey={api_key}&details=true"
 OPENWEATHER_CURRWEATHER_URL = "https://api.openweathermap.org/data/2.5/weather?lat={latitude}&lon={longitude}&appid={api_key}&units={units}&lang=en"
 OPENWEATHER_AIR_POLLUTION_URL = "http://api.openweathermap.org/data/2.5/air_pollution?lat={latitude}&lon={longitude}&appid={api_key}"
 OPENWEATHER_ONECALL_URL = "https://api.openweathermap.org/data/3.0/onecall?lat={latitude}&lon={longitude}&exclude=minutely,hourly,daily,alerts&appid={api_key}&units={units}&lang=en"
@@ -995,21 +993,6 @@ COLON = """
 iVBORw0KGgoAAAANSUhEUgAAAAIAAAAFCAYAAABvsz2cAAAAAXNSR0IArs4c6QAA
 ABVJREFUGFdjZIACxv////9nBAHcIgDElAgGWNe87gAAAABJRU5ErkJggg=="""
 
-def accuweather_get_location_key(api_key, latitude, longitude, ttl = 3600):
-    r = http.get(
-        url = ACCUWEATHER_GEOPOSITION_SEARCH_URL,
-        params = {
-            "apikey": api_key,
-            "q": str(latitude) + "," + str(longitude),
-        },
-        ttl_seconds = ttl,
-    )
-    if r.status_code != 200:
-        location_key = json.decode(DEFAULT_LOCATION).get("locationKey")
-    else:
-        location_key = r.json()["Key"]
-    return location_key
-
 def get_current_weather_conditions(url, ttl):
     r = http.get(url, ttl_seconds = ttl)
     if r.status_code != 200:
@@ -1043,13 +1026,12 @@ def openweather_get_air_pollution(api_key, latitude, longitude):
     return air_quality
 
 def main(config):
-    api_service = config.get("weatherApiService") or "AccuWeather"
+    api_service = config.get("weatherApiService") or "OpenWeather"
     location = json.decode(config.get("location", DEFAULT_LOCATION))
     latitude = float(location["lat"])
     longitude = float(location["lng"])
     timezone = location["timezone"]
     api_key = config.get("apiKey", "")
-    accu_weather_location_key = accuweather_get_location_key(api_key, latitude, longitude) if api_service == "AccuWeather" else False
     system_of_measurement = config.get("systemOfMeasurement", "Imperial").lower()
     temp_color = config.get("tempColor", TEMP_COLOR_DEFAULT)
 
@@ -1082,7 +1064,7 @@ def main(config):
         result_current_conditions["temp"] = 14 if display_metric else 57
         result_current_conditions["feels_like"] = 18 if display_metric else 63
         result_current_conditions["wind_speed"] = 5 if display_metric else 12
-        result_current_conditions["wind_dir"] = "N" if api_service == "AccuWeather" else 0
+        result_current_conditions["wind_dir"] = 0
         result_current_conditions["humidity"] = 50
         result_current_conditions["dew_point"] = int(16.1) if display_metric else int(61.0)
         result_current_conditions["uv_index"] = 3
@@ -1090,49 +1072,7 @@ def main(config):
         result_current_conditions["cloud_coverage"] = 80
         result_current_conditions["pressure"] = int(1014.90) if display_metric else int(29.97)
     else:
-        if api_service == "AccuWeather":
-            enabledMetrics["aqi"] = False
-
-            request_url = ACCUWEATHER_CURRCONDITIONS_URL.format(
-                location_key = accu_weather_location_key,
-                api_key = api_key,
-            )
-            raw_current_conditions = get_current_weather_conditions(request_url, 3600)[0]
-
-            result_current_conditions["icon_num"] = int(raw_current_conditions["WeatherIcon"])
-            result_current_conditions["temp"] = int(raw_current_conditions["Temperature"]["Metric"]["Value"] if display_metric else raw_current_conditions["Temperature"]["Imperial"]["Value"])
-            result_current_conditions["feels_like"] = int(raw_current_conditions["RealFeelTemperature"]["Metric"]["Value"] if display_metric else raw_current_conditions["RealFeelTemperature"]["Imperial"]["Value"])
-            result_current_conditions["wind_speed"] = int(raw_current_conditions["Wind"]["Speed"]["Metric"]["Value"] if display_metric else raw_current_conditions["Wind"]["Speed"]["Imperial"]["Value"])
-            result_current_conditions["wind_dir"] = raw_current_conditions["Wind"]["Direction"]["English"]
-            result_current_conditions["humidity"] = int(raw_current_conditions["RelativeHumidity"])
-            result_current_conditions["dew_point"] = int(raw_current_conditions["DewPoint"]["Metric"]["Value"] if display_metric else raw_current_conditions["DewPoint"]["Imperial"]["Value"])
-            result_current_conditions["uv_index"] = int(raw_current_conditions["UVIndex"])
-            result_current_conditions["visibility"] = int(raw_current_conditions["Visibility"]["Metric"]["Value"] if display_metric else raw_current_conditions["Visibility"]["Imperial"]["Value"])
-            result_current_conditions["cloud_coverage"] = int(raw_current_conditions["CloudCover"])
-            result_current_conditions["pressure"] = int(raw_current_conditions["Pressure"]["Metric"]["Value"] if display_metric else raw_current_conditions["Pressure"]["Imperial"]["Value"])
-
-            # weather icon, reduce AccuWeather icons to smaller set, see https://developer.accuweather.com/weather-icons
-            icon_num = result_current_conditions["icon_num"]
-            if icon_num == 1:
-                icon_ref = "sunny.png"  # sunny
-            elif icon_num >= 2 and icon_num <= 5 and hours < 21:
-                icon_ref = "sunnyish.png"  # mostly sunny
-            elif icon_num >= 6 and icon_num <= 8 and hours < 21:
-                icon_ref = "cloudy.png"  # cloudy (day)
-            elif (icon_num >= 12 and icon_num <= 14) or icon_num == 18 or (icon_num >= 39 and icon_num <= 40):
-                icon_ref = "rainy.png"  # rain (day and night)
-            elif (icon_num >= 15 and icon_num <= 17) or (icon_num >= 41 and icon_num <= 42):
-                icon_ref = "thundery.png"  # thunderstorm (day and night)
-            elif (icon_num >= 19 and icon_num <= 26) or icon_num == 29 or (icon_num >= 43 and icon_num <= 44):
-                icon_ref = "snowy2.png"  # snow (day and night)
-            elif icon_num == 32:
-                icon_ref = "windy.png"  # wind
-            elif icon_num >= 33 and icon_num <= 34 and hours >= 21:
-                icon_ref = "moony.png"  # clear (night)
-            elif icon_num >= 35 and icon_num <= 38 and hours >= 21:
-                icon_ref = "moonyish.png"  # partly cloudy (night)
-
-        elif api_service == "OpenWeather":
+        if api_service == "OpenWeather":
             enabledMetrics["dewPoint"] = False
             enabledMetrics["uvIndex"] = False
 
@@ -1357,17 +1297,7 @@ def main(config):
     wind_dir = "N"
     if result_current_conditions["wind_dir"]:
         wind_dir = result_current_conditions["wind_dir"]
-        if api_service == "AccuWeather":
-            # wind_dir = "N"
-            if wind_dir == "NNE" or wind_dir == "ENE":
-                wind_dir = "NE"
-            elif wind_dir == "ESE" or wind_dir == "SSE":
-                wind_dir = "SE"
-            elif wind_dir == "SSW" or wind_dir == "WSW":
-                wind_dir = "SW"
-            elif wind_dir == "WNW" or wind_dir == "NNW":
-                wind_dir = "NW"
-        elif wind_dir >= 45 and wind_dir < 90:
+        if wind_dir >= 45 and wind_dir < 90:
             wind_dir = "NE"
         elif wind_dir >= 90 and wind_dir < 135:
             wind_dir = "E"
@@ -1684,17 +1614,7 @@ def more_toggles(weatherApiService):
         ),
     }
 
-    if weatherApiService == "AccuWeather":
-        return [
-            additional_toggles["wind_speed"],
-            additional_toggles["humidity"],
-            additional_toggles["dew_point"],
-            additional_toggles["uv_index"],
-            additional_toggles["visibility"],
-            additional_toggles["cloud_coverage"],
-            additional_toggles["pressure"],
-        ]
-    elif weatherApiService == "OpenWeather":
+    if weatherApiService == "OpenWeather":
         return [
             additional_toggles["wind_speed"],
             additional_toggles["humidity"],
@@ -1746,12 +1666,8 @@ def get_schema():
                 name = "Weather API Service",
                 desc = "Select your preferred Weather API",
                 icon = "database",
-                default = "AccuWeather",
+                default = "OpenWeather",
                 options = [
-                    schema.Option(
-                        display = "AccuWeather",
-                        value = "AccuWeather",
-                    ),
                     schema.Option(
                         display = "OpenWeather",
                         value = "OpenWeather",
