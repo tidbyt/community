@@ -1,7 +1,7 @@
 """
-Applet: Time & Temp
-Summary: Display current time and weather conditions
-Description: Display the current time in addition to current weather conditions from either OpenWeather, OpenWeather 3.0 One Call, Tomorrow.io, or Open-Meteo weather APIs. To request an OpenWeather API key, see https://home.openweathermap.org/users/sign_up. To request a Tomorrow.io API key, see https://docs.tomorrow.io/login?redirect_uri=/reference/intro/getting-started.
+Applet: Time & Weather
+Summary: Display time & weather
+Description: Display the time in addition to current weather conditions from either OpenWeather, OpenWeather 3.0 One Call, Tomorrow.io, or Open-Meteo weather APIs. To request an OpenWeather API key, see https://home.openweathermap.org/users/sign_up. To request a Tomorrow.io API key, see https://docs.tomorrow.io/login?redirect_uri=/reference/intro/getting-started.
 Author: sudeepban
 """
 
