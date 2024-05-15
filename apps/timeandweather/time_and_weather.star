@@ -1101,7 +1101,7 @@ def main(config):
             elif icon_num >= 803 and icon_num <= 804 and "d" in icon_code:
                 # cloudy (day)
                 icon_ref = "cloudy.png"
-            elif (icon_num >= 300 and icon_num < 400) or (icon_num >= 500 and icon_num < 600):
+            elif (icon_num >= 300 and icon_num < 400) or (icon_num >= 500 and icon_num < 600) or icon_num == 701:
                 # rain (day and night)
                 icon_ref = "rainy.png"
             elif icon_num >= 200 and icon_num < 300:
@@ -1155,7 +1155,7 @@ def main(config):
             elif icon_num >= 803 and icon_num <= 804 and "d" in icon_code:
                 # cloudy (day)
                 icon_ref = "cloudy.png"
-            elif (icon_num >= 300 and icon_num < 400) or (icon_num >= 500 and icon_num < 600):
+            elif (icon_num >= 300 and icon_num < 400) or (icon_num >= 500 and icon_num < 600) or icon_num == 701:
                 # rain (day and night)
                 icon_ref = "rainy.png"
             elif icon_num >= 200 and icon_num < 300:
