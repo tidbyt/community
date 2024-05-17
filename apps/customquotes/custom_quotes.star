@@ -1,7 +1,7 @@
 """
 Applet: Custom Quotes
 Summary: Display custom quotes
-Description: Display quotes from a GSheet like this https://t.ly/rI5ZT.
+Description: Display quotes from a Gsheet like this https://docs.google.com/spreadsheets/d/1zDiMWjzZQqB6QRMhde0dOoptTjwdv6GalNHHYkUytAI/edit?usp=sharing
 Author: vipulchhajer
 """
 
@@ -45,7 +45,7 @@ def main(config):
     r = http.get(url, ttl_seconds = TTL_SECONDS)
 
     # check the HTTP response code
-    # if we fail, send back "shall not pass"
+    # if we fail, send back error message
     status_code = r.status_code
     if (status_code != 200):
         quote = "Check spreadsheet ID or API key"
@@ -123,14 +123,13 @@ def main(config):
 
 # Define function to get random image
 def get_image():
-    image = cache.get("image")
-    if not image:
-        response = http.get("https://random.imagecdn.app/500/250")
-        if response.status_code != 200:
-            fail("Failed to retrieve image: %d - %s" % (response.status_code, response.body()))
-        image = base64.encode(response.body())
+    response = http.get("https://random.imagecdn.app/500/250", ttl_seconds=TTL_SECONDS)
+    # Check if the response status is not 200 (OK)
+    if response.status_code != 200:
+        fail("Failed to retrieve image: %d - %s" % (response.status_code, response.body()))
 
-        cache.set("image", image, ttl_seconds = TTL_SECONDS)
+    # If the response is successful, encode the response body (image) to base64
+    image = base64.encode(response.body())
     return image
 
 def get_schema():
@@ -140,7 +139,7 @@ def get_schema():
             schema.Text(
                 id = "spreadsheet_id",
                 name = "Spreadsheet ID",
-                desc = "URL of your Google Sheet contains a spreadsheet ID",
+                desc = "spreadsheet ID is in the URL of your Google Sheet",
                 icon = "file",
             ),
             schema.Text(
