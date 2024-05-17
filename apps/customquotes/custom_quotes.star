@@ -5,8 +5,6 @@ Description: Display quotes from a Gsheet like this https://docs.google.com/spre
 Author: vipulchhajer
 """
 
-# credit to Brian Bell's positive_quote app, borrowed ideas and code from it
-load("cache.star", "cache")
 load("encoding/base64.star", "base64")
 load("http.star", "http")
 load("render.star", "render")
@@ -123,7 +121,8 @@ def main(config):
 
 # Define function to get random image
 def get_image():
-    response = http.get("https://random.imagecdn.app/500/250", ttl_seconds=TTL_SECONDS)
+    response = http.get("https://random.imagecdn.app/500/250", ttl_seconds = TTL_SECONDS)
+
     # Check if the response status is not 200 (OK)
     if response.status_code != 200:
         fail("Failed to retrieve image: %d - %s" % (response.status_code, response.body()))
