@@ -118,8 +118,8 @@ def main(config):
                 quote_str = quote if "\"" in quote else ("\"" + quote + "\"\n-" + person)
                 quotes_list.append(quote_str)
 
-    idx = random.number(0, len(quotes_list) - 1)
-    current_quote = quotes_list[idx]
+    idx = random.number(0, len(quotes_list) - 1) if len(quotes_list) > 0 else 0
+    current_quote = quotes_list[idx] if len(quotes_list) > 0 else ""
 
     style1 = render.Padding(
         pad = 1,
