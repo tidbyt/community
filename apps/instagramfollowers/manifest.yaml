@@ -1,8 +1,0 @@
----
-id: instagram-follows
-name: Instagram Follows
-summary: View Instagram followers
-desc: View your Instagram followers count.
-author: Daniel Sitnik
-fileName: instagram_follows.star
-packageName: instagramfollows
