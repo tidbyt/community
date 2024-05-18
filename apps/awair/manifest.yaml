@@ -1,8 +1,8 @@
 ---
 id: awair
 name: Awair
-summary: Local Awair air data
-desc: Get air quality data from Awair's local API.
-author: tabrindle
+summary: Awair air quality data
+desc: Display air quality data for an Awair device.
+author: tabrindle, flavorjones
 fileName: awair.star
 packageName: awair

@@ -1,0 +1,8 @@
+---
+id: viepubltransp
+name: VIE Publ. Transp.
+summary: RT data VIE Publ. Transp
+desc: Show real time departures for desired Public Transport stops in Vienna.
+author: Lukas Peer
+fileName: viepubltransp.star
+packageName: viepubltransp

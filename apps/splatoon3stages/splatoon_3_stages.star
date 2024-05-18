@@ -9,7 +9,7 @@ load("cache.star", "cache")
 load("encoding/base64.star", "base64")
 load("encoding/json.star", "json")
 load("http.star", "http")
-load("humanize.star", "humanize")
+load("math.star", "math")
 load("render.star", "render")
 load("schema.star", "schema")
 load("time.star", "time")
@@ -42,6 +42,121 @@ STAGE_IMG = {
     "Undertow Spillway": base64.decode("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"),
     "Wahoo World": base64.decode("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"),
 }
+
+SALMON_STAGE_IMG = {
+    "Gone Fission Hydroplant": base64.decode("iVBORw0KGgoAAAANSUhEUgAAAB8AAAARCAYAAAAlpHdJAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsEAAA7BAbiRa+0AAAaLSURBVEhLJZV7bJ1lHcc/7/ue+6U9l/acnrYb7e527Zhli7CChc0Yh5DhdKJgcAkazDARTQhhwdjEhIjRRSNR0WT7RwR0ZA7jBgiDzV06NjJYurWj9ErvPe1pT8/lPe/V3yknefK8z/s+5/ldvpdHQX7Tf37C9eIwqztMy8gbNhXToWJYmPbnz6Zl4zgOlgzHcbFlmIaJoqkszU4QrmvEK98e2f8VRvpuMj02w+jAELlwgHiykV80L3Bx0MNMIkJR/vfYy+cV5fpfnnQNBxxbDpRAhuVSkUB6RYbMqwnIXA1qV/e4n8+WLYnI+PauNn7z6mkymUaihsHKUp4pR6GzKcF7A8NsbqgjFgkzPpOVICZtmTQGLl5JWjvy/a4eE5WgV4ZPA1WRVXVyZVbQZO2RjV6vJrOGplTXskd6Vj3An3c4dCTNl7/TwMJVmLAVbs/EKEvCgxOz+GW/7bpMWBYe3eTC2BzbWzKEPdU4EjRdo5Gu9dAcgpPvXKO+XKB2apaagEoi7CUV8qBNzrI+DClZp4NeOmq8hCUDI2Tz6N5z/KDrFK+cvQ7S0t+evERD0FM9nA13tDI8M8fvX9pM3mUVrg1hRcIqKG7/YXkltZoyzZcgp0MkSiFbIIjJp0sCxWKB2ZkVYgGNseUKfunCA531HDx6Hkv44AY1jKKFLZ2qb0ih5AvoAslixSSQVFm8tUxDJorHVcjqFWo8GpYE12pHsj0XXrvMwPVxQnUGP3nhHCfPDtB/4zN2d7cyeW2SfF4X4jlMLukUKxaNGzJMZ3Xe7RuV9qscOv41rr02iONRubt9A7fmlzAlqbCsd3xvHZf/OUSsPiyVssqnKmxVpivuM5tc1pWhV+Px6wYTBZs1rRnKy0WSET/F3DSFpE6zuo2J6Uke+1IL8Vo/mi/E0387S1M8ykreIlxb1YtvlZCNTXUsZ1ew5Hn9t9Jc+dMn1Nb4VgsICNauhHaEC4pb/IaLVoBbfo4+X+LU6Bhu9YOw/Ph3N/HzG5/ydHQr47ZO+xoBXThC2M9Hw8v87tIIhZUCAXk3XXZIhzTmRKq3VwwGpLpkbQ3ZUpm43yuyrFBAIyrgBL0eKkJClRdzMNsNbhsBnw9dt1Z17JENlGr45W3tPHeln/awBz1roU/puAM5nBWbTLqR++7dyWRRpCgynSqYuFLtdQlm+X3iGzoVqXZON1gSvIUdlDQPOUWjKKFVvn4Y9D2w1EFR9VI2q8HFYEQaZyyTpl+9zXBB57lbU7xJmVOKzVFD56/DC3S21qFWHIISzJFKql7gNVUqSQPbcjCEH64UUpZObFuXxCck80mXHFnbgr321AN7eubHRxhdXJQWzbGzs4OO9s1oZo7PpJLxbAnVpxJvDPGHk318PLHMWzNFdpsF/mVbaCE/b300xMNtabolsf/u3cGWuRJunVQmKNk+L9FYgKDuYUvKx02liBkRiUaFcCeefNBNbt/Fr4/9g+Pvn+LQgd3cta2LN3pPM9RX4Iff7ObunVvZ8f47ZF7vIxWTduYK0s6gNNGuwk9MIClJxSN7mng2q9A7UeB0ew3H1m7khZffQ6km6fVRKRukvxjB56iUFAvl9cMH3RPn32Xf3v28euE0qshBF/t88ac/4o+9H/PMB72UxZ9r83laBopEShVppeAnB6qC3761Sf4+OIUm2vWJ4xnS5rA45Ye7W+mbMzjYN7V6PwQEmopuk2qJoFgKfjEp9Z6v7iPRsn5Vo5atEvLUk05s5Mix//DoxROc8MfFUlU+6L6P2LY2LMGyqlGPqsmlonBmap5o2EfE4xGyifWqKjkT3hxcZHhdSt4JF4RHtphYMOAnO76CXTQIyH2i2e5iT75/gOM3b7Ams5YD5RLR9fWkpmdYigSZaVzHxjo/5tvneSMcRb0twfLQnKhBWU1kpCRV+YLUhIKEgz6BIEg8GOCqePyVsRxNDUlSB7rob4hx0VukUPWQshDRlHui6wvNPdaKj5890sHsRIWV+rjU5efS2DzLkSTbd7XKspmFB9t5KBLn5Cv/49mdLVz0xPhx2se9DTXclQzx0JpaepfkvhLYhErCbFssQWX/PVsZPttH+pMxyo8fwui8gzuLC4wFiqsd5M5Uwn3qifv595kP5c4dIBaMsCimkYiGKRVN8qZYojhTTCryCqNFVwyL93t3dcCyuNbeZi6PzhGQYHGriJ0K8vDVMqbsW0xoTOVnKYtct8QT5OTSun/DJp4/dk75P9SMKPcwMfnaAAAAAElFTkSuQmCC"),
+    "Marooner's Bay": base64.decode("iVBORw0KGgoAAAANSUhEUgAAAB8AAAARCAYAAAAlpHdJAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsEAAA7BAbiRa+0AAAZLSURBVEhLLZVdbBxXFcd/M7Mzsx+zH97Yu/5OEydN4uajEKdNlNI0KpWSqlWkIqWREH2hPIEQqvoAAkEFL33jtQgkKlqQIjWglJBCpZZS1FKbpkntJnGipATXdpy11971zn7N7Mxw7pS72tm9Z+6955z/+Z//1ZDx7DMnogNHH0GTWRSBLrZIPvXVKt++M8efpo7F7wzU8ih+JuSpx7tlqE0y3rrwN049fSK262JL6DqGTAzZrM6M7fE+jVPf/aGmffP0qSgIxCgLL93+gn3jJTyZD20bpzPzCW6xyIt5jd/1j3No/544KHWQ8qupQ6NQ/iubxuxHH/PQ0Ye+fKes8k7X/h+A2BLyq6mgZIFGiDE6Ov5SvdkhCLqYusGWfJae38aQCJrpNA9OjHLR9bl5e4G567dYXlzk/LvTzMzOc/LYYSzb5M9/eY+pg/uZ/mSWrdvHWT//GtF9O+H6qzhjh3EyGVJJG9u2SNq27LFpdFto33r2majuNvBuzLJ9sEzRreJJdOteRH9WJ/eVJzh35SbZ8T6a1SZmziZpWSovCtksnU4Xw9CxTYuZi29z+tgIyysJNksjpCozVO1JduzaHkNtCLoKFfW/mAow7PvKL3W1kB2ZFleWmmzs3M0X+QEWPI2trQYXNiFfyOJrAWbKjOFUh6gD/F6PRMIQ1KROMpZv3cF54DCdXIFUKkkUZrh7+w7ZoUE836cX9Oj1AlrtLtOXb8dnEMljzh6jlJMDA1829Zhq3uNSrc07pU1S/gZTuLxhbcjiHmHgcXf2KokwYKBV4/uHDjD39t957JEpfK/L7HvTcU3nP5hmbXGZf/7hnATqSQAeXa8jTiMarsB+8MmjkSKBKcTYkYV9YZOznwukqwsEA/18vnuE31dWOHN5mYnHJnlQon+z0qK03maz7ZFPR3xnPMtPr9Yk2xQ/KicIJKhXO2nW1mqYgszPhnSylk3d8+hLJvne3AqPnjqBtv/xr0Z2tcuvdyT55ewC3TDiLaeP/pUNml2pp5BQgRqK3ZaD6vvG0PocQUdjXIj5XKnI2Y9u0JYyhUFIte5KZiGh3xN6p+LuMCXTRCIhCBsMlwcwuh2cXaPoL0Rdfr4l4KSr0fRDabOQwPNZG8hhh6G0S8CZrx+Je8sLYfT6EiO5NBcbFb7hWLx89kPm/1tlqVKlsl7D6/no4tQ0BQFpNcUPw07GCESCiOfW2RQuyQSt+PTDUdTxCKW1DHF28u4K7z+wk0ACedmt8cKVRYa3TXDQW+WvFVfySGA7WdqNumQakFRo1DtEKUsyVBIEKVMRU5JQ5JR5tm9AnG4QRhppIaImvMrvGUPvu7XB+dDlXbtD/0SZC1tHCPMpnlta4sWWRntsgCPJFpYcbEU6KTktXK/GohaLi9jzst4QqJUMpiQYI3YuC8SZlUzRqK/T7kUURZ2CzRqJTps3M0K8Xw2JXArZtGKWN5YWoODgLqzyVH+Kf5R0Du8b5fVGj9eHh2nLuoSC0DQoC+uDrk6/dEZPkLNakrGUyJas0m0XR9rQkTVRy6UkArbTDNgUDuUSOhIHi7kM2mvHdkU/WTOoDVpYSlfTlrSDjyYZCG0JHZvn/7MYZ5SX7yvLErFA6beb9LQEybyQb22drmw1FMbC5r5CH36zIe3kCvgCtWzQhbhtKVNBFpV+cBJzpor+G2c7Tn+CH+9t0pKieZbB6b1DlI9PElgJnN1jVIYHaIo4VLs9nurTOS56kBYhUfqQtkxa3VCcQUcCKA2WqAjpfMlYXUQZCUZdRa7wqSBBZEXYR+6ZuN0G2v2PTkbZyKR+b527QwURjoieKqTx5e2jx8xeoyhQr4jztNgDqeUf77kUhNGvrIrKybtGZT2+OAbHhvEEucAPJKAWbqvNk49/jUsffCjISPYSiL1rUEpnoh8fzDOvh7FjxaKbRYFOjSDizFiTsfk1fvvEEE2BbCJjQ3mQmpViY88U74xMUJjoFzIqXCVQ0fgVcZhxHBypaXnrMMWBIv/69yW0XJZALhRf1UbaT3WFpAiZY3uj9JH7OXf5Br+Y3MbcbIVD2S0sN1eptevxsuelXW7aBarVGtaeCW5c/VQEyYt1QLE8baUZKo8jysSns9cYyuXwum0iJ8f+hw9w/drlWNuVQyU8n71/TfsfpZvB0IWfYbgAAAAASUVORK5CYII="),
+    "Jammin' Salmon Junction": base64.decode("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"),
+    "Sockeye Station": base64.decode("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"),
+    "Spawning Grounds": base64.decode("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"),
+    "Salmonid Smokeyard": base64.decode("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"),
+}
+
+ICONS = {
+}
+
+BATTLE_TYPES = {
+    "regular": struct(title = "Regular Battle", colours = ["#080"]),
+    "series": struct(title = "Anarchy Series", colours = ["#850"]),
+    "open": struct(title = "Anarchy Open", colours = ["#820"]),
+    "x": struct(title = "X Battle", colours = ["#086"]),
+    "salmon": struct(title = "Salmon Run", colours = ["#740"]),
+    "eggstra": struct(title = "Eggstra Work", colours = ["#880"]),
+    "festopen": struct(title = "Splatfest Battle", colours = []),
+    "festpro": struct(title = "Splatfest Battle", colours = []),
+}
+
+# ------------ DATA PROCESSING ------------ #
+
+def parseMatchSetting(setting):
+    # Container for gamemode and stages
+
+    return struct(
+        type = setting["__typename"],
+        stages = [stage["name"] for stage in setting["vsStages"]],  # becomes a list of strings
+        rule = setting["vsRule"]["name"],
+        ranked_type = None if "bankaraMode" not in setting else setting["bankaraMode"],
+        fest_type = None if "festMode" not in setting else setting["festMode"],
+    )
+
+def parseMatch(match, key):
+    # Container for start/end times of a regular match setting
+
+    # Keys:
+    # Regular -> regularMatchSetting
+    # Ranked  -> bankaraMatchSettings
+    # X       -> xMatchSetting
+    # Fest    -> festMatchSettings
+    # Salmon  -> setting
+
+    setting, open_setting, pro_setting = None, None, None
+
+    if (match[key]):
+        if (key == "bankaraMatchSettings" or key == "festMatchSettings"):
+            # Special case for Ranked
+            for schedule in [parseMatchSetting(setting) for setting in match[key]]:
+                # Overengineered? Yes. Works? Yes.
+                if (schedule.ranked_type == "CHALLENGE" or schedule.fest_type == "CHALLENGE"):
+                    pro_setting = schedule
+                elif (schedule.ranked_type == "OPEN" or schedule.fest_type == "REGULAR"):  # OPEN for ranked
+                    open_setting = schedule
+        else:
+            setting = parseMatchSetting(match[key])
+    else:
+        # Key does not exist; return None
+        return None
+
+    # The times are not parsed since that prevents serialization
+    return struct(
+        start_time = match["startTime"],
+        end_time = match["endTime"],
+        setting = setting,
+        open_setting = open_setting,
+        series_setting = pro_setting,
+    )
+
+def parseSalmonRunMatchSetting(setting):
+    return struct(
+        boss = (setting["boss"]["name"] if setting["boss"] else "(no boss)"),
+        stage = setting["coopStage"]["name"],
+        weapons = [struct(name = weapon["name"], img = weapon["image"]["url"]) for weapon in setting["weapons"]],
+    )
+
+def parseSalmonRunMatch(match):
+    # Salmon Run is different enough that this is more practical
+    return struct(
+        start_time = match["startTime"],
+        end_time = match["endTime"],
+        setting = parseSalmonRunMatchSetting(match["setting"]),
+    )
+
+def parseJSONResponse(resp):
+    # Takes in the raw JSON response from the server and organizes it into lists of matches.
+
+    # List comprehensions my beloved
+    return struct(
+        regular = [parseMatch(match, "regularMatchSetting") for match in resp["data"]["regularSchedules"]["nodes"]],
+        ranked = [parseMatch(match, "bankaraMatchSettings") for match in resp["data"]["bankaraSchedules"]["nodes"]],
+        x = [parseMatch(match, "xMatchSetting") for match in resp["data"]["xSchedules"]["nodes"]],
+        fest = [parseMatch(match, "festMatchSettings") for match in resp["data"]["festSchedules"]["nodes"]],
+        salmon = [parseSalmonRunMatch(match) for match in resp["data"]["coopGroupingSchedule"]["regularSchedules"]["nodes"]],
+        eggstra = [parseSalmonRunMatch(match) for match in resp["data"]["coopGroupingSchedule"]["teamContestSchedules"]["nodes"]],
+    )
+
+def getCurrentMatch(matches, now):
+    # Returns the currently scheduled match out of a list.
+    for match in matches:
+        if (not match):
+            continue
+        if (time.parse_time(match.start_time) <= now and now <= time.parse_time(match.end_time)):
+            return match
+    return struct(
+        setting = None,
+        series_setting = None,
+        open_setting = None,
+    )
+
+# ------------ RENDERING ------------ #
 
 def generateErrorFrame(message):
     return render.Root(
@@ -81,164 +196,158 @@ def generateErrorFrame(message):
         ),
     )
 
-def generateFrame(title, colour, battle):
-    # Takes a specified title, header colour, and battle and returns the prettified frame.
+def generateGeneralFrame(header_text, header_colours, img_a, img_b, footer, weapon_urls = None, tricol_text = None):
+    # Generates the standardized frame format.
 
-    # Fallback if no active battle is taking place. This most likely means there's a Splatfest active.
-    if (battle == None):
-        return render.Column(
-            children = [
-                render.Box(height = 1, color = colour),
-                render.Box(
-                    height = 6,
-                    color = colour,
-                    child = render.Text(title, font = "tom-thumb", color = "#fff"),
-                ),
-                render.Box(height = 1, color = "#000"),
-                render.Row(
-                    children = [
-                        render.Image(STAGE_IMG["no_stage"]),
-                        render.Box(width = 2, height = 1, color = "#000"),
-                        render.Image(STAGE_IMG["no_stage"]),
-                    ],
-                ),
-                render.Box(height = 1, color = "#000"),
-                render.Box(
-                    color = "#000",
-                    height = 6,
-                    child =
-                        render.Text(
-                            "No battle data!",
-                            font = "tom-thumb",
-                        ),
-                ),
-            ],
-        )
+    # If the given colours can't be divided evenly across the header, bias some of them to fit the full 64px
+    width_biases = [0 for c in header_colours]
+    center = len(header_colours) // 2
+    required_biases = 64 % len(header_colours)
+    for i in range(center - math.floor(required_biases / 2.0), center + math.floor(required_biases / 2.0) + 1):
+        width_biases[i] = 1
 
-    # Base case.
-    return render.Column(
-        children = [
-            render.Box(height = 1, color = colour),
-            render.Box(
-                height = 6,
-                color = colour,
-                child = render.Text(title, font = "tom-thumb", color = "#fff"),
-            ),
-            render.Box(height = 1, color = "#000"),
+    header = render.Stack(
+        [
             render.Row(
-                children = [
-                    render.Image(STAGE_IMG[battle["stage_a"] if battle["stage_a"] in STAGE_IMG else "no_stage"]),
-                    render.Box(width = 2, height = 1, color = "#000"),
-                    render.Image(STAGE_IMG[battle["stage_b"] if battle["stage_b"] in STAGE_IMG else "no_stage"]),
-                ],
+                # I can't do list comprehensions by index, so I just keep popping the biases list instead
+                [render.Box(width = 64 // len(header_colours) + width_biases.pop(0), height = 7, color = c) for c in header_colours],
             ),
-            render.Box(height = 1, color = "#000"),
             render.Box(
-                color = "#000",
-                height = 6,
-                child =
-                    render.Text(
-                        battle["mode"],
-                        font = "tom-thumb",
-                    ),
-            ),
-        ],
-    )
-
-def rgb2hex(array):
-    return "#%x%x%x%x%x%x" % (int(array[0]) // 16, int(array[0]) % 16, int(array[1]) // 16, int(array[1]) % 16, int(array[2]) // 16, int(array[2]) % 16)
-
-def generateSplatfestFrame(btype, colours, battle, text):
-    header = render.Row(
-        children = [
-            render.Box(
-                width = 21,
                 height = 7,
-                color = colours[0],
-            ),
-            render.Box(
-                width = 22,
-                height = 7,
-                color = colours[1],
-            ),
-            render.Box(
-                width = 21,
-                height = 7,
-                color = colours[2],
-            ),
-        ],
-    )
-    if (btype == 2):  # tricolor
-        return render.Column(
-            children = [
-                render.Stack(
-                    children = [
-                        header,
-                        render.Box(
-                            height = 6,
-                            color = "#00000000",
-                            child = render.Text("Tricolor Battle", font = "tom-thumb", color = "#fff", offset = -1),
-                        ),
-                    ],
-                ),
-                render.Box(height = 1, color = "#000"),
-                render.Row(
-                    children = [
-                        render.Image(STAGE_IMG[battle if battle in STAGE_IMG else "no_stage"]),
-                        render.Box(width = 2, height = 1, color = "#000"),
-                        render.WrappedText(
-                            text,
-                            color = "#8080ff",
-                            font = "tom-thumb",
-                        ),
-                    ],
-                ),
-                render.Box(
-                    color = "#000",
-                    height = 6,
+                child = render.Padding(
+                    pad = (0, 1, 0, 0),
                     child = render.Text(
-                        "Tricol. Turf War",
+                        header_text,
                         font = "tom-thumb",
+                        color = "#fff",
                     ),
+                ),
+            ),
+        ],
+    )
+
+    # Images, or Salmon Run icons
+    images = None
+    if (weapon_urls):
+        weapon_images = [loadImage(img.img) for img in weapon_urls]
+        images = render.Row(
+            [
+                # Weapons
+                render.Column(
+                    [
+                        render.Padding(
+                            render.Row(weapon_images[0:2]),
+                            pad = (0, 0, 4, 0),
+                        ),
+                        render.Padding(
+                            render.Row(weapon_images[2:4]),
+                            pad = (4, 0, 0, 0),
+                        ),
+                    ],
+                ),
+                # Stage
+                render.Padding(
+                    render.Image(SALMON_STAGE_IMG[img_a] if img_a in SALMON_STAGE_IMG else STAGE_IMG["no_stage"]),
+                    pad = (1, 1, 0, 1),
                 ),
             ],
         )
     else:
-        return render.Column(
-            children = [
-                render.Stack(
-                    children = [
-                        header,
-                        render.Column(
-                            children = [
-                                render.Box(
-                                    height = 1,
-                                    color = "#00000000",
-                                ),
-                                render.Text("Splatfest Battle", font = "tom-thumb", color = "#fff", offset = 0),
-                            ],
-                        ),
-                    ],
+        render_img_a = render.Image(STAGE_IMG[img_a if img_a in STAGE_IMG else "no_stage"])
+        render_img_b = None
+        if (tricol_text):
+            render_img_b = render.Box(
+                width = 31,
+                height = 17,
+                child = render.WrappedText(
+                    tricol_text,
+                    width = 31,
+                    color = "#88f",
+                    font = "tom-thumb",
                 ),
-                render.Box(height = 1, color = "#000"),
-                render.Row(
-                    children = [
-                        render.Image(STAGE_IMG[battle["pro_stage_a"] if btype == 1 else battle["open_stage_a"]] or STAGE_IMG["no_stage"]),
-                        render.Box(width = 2, height = 1, color = "#000"),
-                        render.Image(STAGE_IMG[battle["pro_stage_b"] if btype == 1 else battle["open_stage_b"]] or STAGE_IMG["no_stage"]),
-                    ],
-                ),
-                render.Box(height = 1, color = "#000"),
-                render.Box(
-                    color = "#000",
-                    height = 6,
-                    child = render.Text(
-                        "Turf War " + ("(Pro)" if btype == 1 else "(Open)"),
-                        font = "tom-thumb",
-                    ),
-                ),
-            ],
+            )
+        else:
+            render_img_b = render.Image(STAGE_IMG[img_b if img_b in STAGE_IMG else "no_stage"])
+
+        images = render.Padding(
+            render.Row(
+                [
+                    render_img_a,
+                    render.Box(width = 2, height = 2),
+                    render_img_b,
+                ],
+            ),
+            pad = (0, 1, 0, 1),
         )
+
+    # Footer
+    footer = render.Box(
+        height = 7,
+        child = render.Text(
+            footer,
+            font = "tom-thumb",
+            color = "#fff",
+        ),
+    )
+
+    return render.Column([header, images, footer])
+
+def loadImage(url):
+    IMG_SIZE = 14
+    BOX_SIZE = 9
+    req = http.get(url)
+
+    if (req.status_code != 200):
+        # Should never happen but just in case
+        # TODO: replace with better icon
+        return render.Box(width = IMG_SIZE, height = BOX_SIZE, child = render.Image(STAGE_IMG["no_stage"], width = IMG_SIZE, height = IMG_SIZE))
+
+    # Bad cropping is still cropping
+    return render.Box(width = IMG_SIZE, height = BOX_SIZE, child = render.Image(req.body(), width = IMG_SIZE, height = IMG_SIZE))
+
+def generateFrame(battle, battle_type, extra):
+    # Takes a specified title, header colour, and battle and returns the prettified frame.
+
+    colour_scheme = BATTLE_TYPES[battle_type]
+    if (not battle):
+        # Fallback
+        return generateGeneralFrame(colour_scheme.title, colour_scheme.colours, "no_stage", "no_stage", "No current data!")
+
+    # Regular/Anarchy/X
+    if (battle_type == "regular" or battle_type == "series" or battle_type == "open" or battle_type == "x"):
+        return generateGeneralFrame(colour_scheme.title, colour_scheme.colours, battle.stages[0], battle.stages[1], battle.rule)
+
+    # Splatfest
+    if (battle_type == "festopen"):
+        return generateGeneralFrame(colour_scheme.title, extra, battle.stages[0], battle.stages[1], battle.rule + " (Open)")
+    if (battle_type == "festpro"):
+        return generateGeneralFrame(colour_scheme.title, extra, battle.stages[0], battle.stages[1], battle.rule + " (Pro)")
+
+    # Salmon
+    if (battle_type == "salmon"):
+        return generateGeneralFrame(colour_scheme.title, colour_scheme.colours, battle.stage, None, battle.boss, battle.weapons)
+
+    if (battle_type == "eggstra"):
+        end_time = getDurationString(extra)
+        return generateGeneralFrame(colour_scheme.title, colour_scheme.colours, battle.stage, None, "Ends in " + end_time, battle.weapons)
+
+    return generateGeneralFrame("Unknown", ["#888"], "no_stage", "no_stage", "type? " + battle_type)
+
+def rgb2hex(array):
+    return "#%x%x%x%x%x%x" % (int(array[0]) // 16, int(array[0]) % 16, int(array[1]) // 16, int(array[1]) % 16, int(array[2]) // 16, int(array[2]) % 16)
+
+def getDurationString(duration):
+    days = duration // (24 * time.hour)
+    hours = (duration - days * 24 * time.hour) // (1 * time.hour)
+    minutes = (duration - hours * time.hour - days * 24 * time.hour) // time.minute
+
+    if (days > 0):
+        return "%dd %dh" % (days, hours)
+
+    if (hours > 0):
+        return "%dh %dm" % (hours, minutes)
+
+    return "%dm" % minutes
 
 def main(config):
     stage_cache = cache.get("stages")
@@ -261,79 +370,16 @@ def main(config):
     if (failed):
         return generateErrorFrame("API error!\nError code %d" % (failed or -1))
 
+    parsed_data = parseJSONResponse(stages)
+
     # Make the data better
-    regular_battle = []
-    ranked_battle = []
-    x_battle = []
-    splatfest_battle = []
-    splatfest_active = False
-    tricolor_stage = ""
-    splatfest_colours = ["#000000", "#000000", "#000000"]
-    splatfest_end = 0
-    tricolor_start = 0
-
-    for battle in stages["data"]["regularSchedules"]["nodes"]:
-        if (battle["regularMatchSetting"]):
-            # double-checking because it returns null during a splatfest
-            regular_battle.append(
-                {
-                    "start_time": battle["startTime"],
-                    "end_time": battle["endTime"],
-                    "mode": "Turf War",
-                    "stage_a": battle["regularMatchSetting"]["vsStages"][0]["name"],
-                    "stage_b": battle["regularMatchSetting"]["vsStages"][1]["name"],
-                },
-            )
-
-    for battle in stages["data"]["bankaraSchedules"]["nodes"]:
-        if (battle["bankaraMatchSettings"]):
-            # double-checking because it returns null during a splatfest
-            ranked_battle.append({
-                "start_time": battle["startTime"],
-                "end_time": battle["endTime"],
-                "series": {
-                    "mode": battle["bankaraMatchSettings"][0]["vsRule"]["name"],
-                    "stage_a": battle["bankaraMatchSettings"][0]["vsStages"][0]["name"],
-                    "stage_b": battle["bankaraMatchSettings"][0]["vsStages"][1]["name"],
-                },
-                "open": {
-                    "mode": battle["bankaraMatchSettings"][1]["vsRule"]["name"],
-                    "stage_a": battle["bankaraMatchSettings"][1]["vsStages"][0]["name"],
-                    "stage_b": battle["bankaraMatchSettings"][1]["vsStages"][1]["name"],
-                },
-            })
-
-    for battle in stages["data"]["xSchedules"]["nodes"]:
-        if (battle["xMatchSetting"]):
-            # double-checking because it returns null during a splatfest
-            x_battle.append({
-                "start_time": battle["startTime"],
-                "end_time": battle["endTime"],
-                "mode": battle["xMatchSetting"]["vsRule"]["name"],
-                "stage_a": battle["xMatchSetting"]["vsStages"][0]["name"],
-                "stage_b": battle["xMatchSetting"]["vsStages"][1]["name"],
-            })
+    splatfest = None
+    splatfest_colours = []
 
     now = time.now()
 
     if (stages["data"]["festSchedules"] and stages["data"]["currentFest"]):
-        # splatfest!!
-        for battle in stages["data"]["festSchedules"]["nodes"]:
-            if (battle["festMatchSettings"]):
-                splatfest_battle.append({
-                    "start_time": battle["startTime"],
-                    "end_time": battle["endTime"],
-                    "mode": "Turf War",
-                    "pro_stage_a": battle["festMatchSettings"][0]["vsStages"][0]["name"],
-                    "pro_stage_b": battle["festMatchSettings"][0]["vsStages"][1]["name"],
-                    "open_stage_a": battle["festMatchSettings"][1]["vsStages"][0]["name"],
-                    "open_stage_b": battle["festMatchSettings"][1]["vsStages"][1]["name"],
-                })
         if (now >= time.parse_time(stages["data"]["currentFest"]["startTime"]) and now <= time.parse_time(stages["data"]["currentFest"]["endTime"])):
-            splatfest_active = True
-            tricolor_stage = stages["data"]["currentFest"]["tricolorStage"]["name"]
-            splatfest_end = time.parse_time(stages["data"]["currentFest"]["endTime"])
-            tricolor_start = time.parse_time(stages["data"]["currentFest"]["midtermTime"])
             teams = stages["data"]["currentFest"]["teams"]
             splatfest_colours = [
                 rgb2hex([teams[0]["color"]["r"] * 150, teams[0]["color"]["g"] * 150, teams[0]["color"]["b"] * 150]),
@@ -341,104 +387,82 @@ def main(config):
                 rgb2hex([teams[2]["color"]["r"] * 150, teams[2]["color"]["g"] * 150, teams[2]["color"]["b"] * 150]),
             ]
 
-    # get current battle
-    current_battles = {
-        "regular": None,
-        "series": None,
-        "open": None,
-        "x": None,
-        "splatfest": None,
-    }
-    for battle in regular_battle:
-        if (now >= time.parse_time(battle["start_time"]) and now < time.parse_time(battle["end_time"])):
-            current_battles["regular"] = battle
-    for battle in ranked_battle:
-        if (now >= time.parse_time(battle["start_time"]) and now < time.parse_time(battle["end_time"])):
-            current_battles["series"] = battle["series"]
-            current_battles["open"] = battle["open"]
-    for battle in x_battle:
-        if (now >= time.parse_time(battle["start_time"]) and now < time.parse_time(battle["end_time"])):
-            current_battles["x"] = battle
-    for battle in splatfest_battle:
-        if (now >= time.parse_time(battle["start_time"]) and now < time.parse_time(battle["end_time"])):
-            current_battles["splatfest"] = battle
+            splatfest = struct(
+                tricolor_stage = stages["data"]["currentFest"]["tricolorStage"]["name"],
+                start_time = time.parse_time(stages["data"]["currentFest"]["startTime"]),
+                halftime = time.parse_time(stages["data"]["currentFest"]["midtermTime"]),
+                end_time = time.parse_time(stages["data"]["currentFest"]["endTime"]),
+                colours = splatfest_colours,
+            )
 
-    print(current_battles["x"])
+    eggstra_on = False
+    if (len(stages["data"]["coopGroupingSchedule"]["teamContestSchedules"]["nodes"]) > 0):  # TODO: See if there's a better way to detect this
+        eggstra_on = True
+
     frames = {
-        "regular": generateFrame(
-            "Regular Battle",
-            "#080",
-            current_battles["regular"],
-        ),
-        "series": generateFrame(
-            "Anarchy Series",
-            "#850",
-            current_battles["series"],
-        ),
-        "open": generateFrame(
-            "Anarchy Open",
-            "#820",
-            current_battles["open"],
-        ),
-        "x": generateFrame(
-            "X Battle",
-            "#086",
-            current_battles["x"],
-        ),
+        "regular": generateFrame(getCurrentMatch(parsed_data.regular, now).setting, "regular", None),
+        "series": generateFrame(getCurrentMatch(parsed_data.ranked, now).series_setting, "series", None),
+        "open": generateFrame(getCurrentMatch(parsed_data.ranked, now).open_setting, "open", None),
+        "x": generateFrame(getCurrentMatch(parsed_data.x, now).setting, "x", None),
+        "salmon": generateFrame(getCurrentMatch(parsed_data.salmon, now).setting, "salmon", None),
     }
+    if (eggstra_on):
+        current_match = getCurrentMatch(parsed_data.eggstra, now)
+        if (current_match):
+            frames["eggstra"] = generateFrame(current_match.setting, "eggstra", time.parse_time(current_match.end_time) - now)
 
-    final_render = []
-    animLength = 0
-    if (not splatfest_active):
-        if (config.bool("show_regular")):
-            final_render.append(frames["regular"])
-        if (config.bool("show_series")):
-            final_render.append(frames["series"])
-        if (config.bool("show_open")):
-            final_render.append(frames["open"])
-        if (config.bool("show_x")):
-            final_render.append(frames["x"])
-        if (len(final_render) == 0):
-            final_render.append(frames["regular"])
-        animLength = len(final_render)
-        final_render = render.Animation(children = final_render)
-    else:
+    if (splatfest):
+        frames["festopen"] = generateFrame(getCurrentMatch(parsed_data.fest, now).open_setting, "festopen", splatfest_colours)
+        frames["festpro"] = generateFrame(getCurrentMatch(parsed_data.fest, now).series_setting, "festpro", splatfest_colours)
+
         bottom_str = "?"
-        if (now < tricolor_start):
-            bottom_str = "Halftime in " + humanize.relative_time(now, tricolor_start, "", "")
-        elif (now < splatfest_end):
-            bottom_str = "Fest end in " + humanize.relative_time(now, splatfest_end, "", "")
+        if (now < splatfest.halftime):
+            time_diff = splatfest.halftime - now
+            bottom_str = "Halftime starts: " + getDurationString(time_diff)
+        elif (now < splatfest.end_time):
+            time_diff = splatfest.end_time - now
+            bottom_str = "Fest ends in: " + getDurationString(time_diff)
         else:
             bottom_str = "Fest ends soon!"
-        bottom_str = bottom_str.replace("hours", "hrs").replace("minutes", "mins")
 
-        final_render.append(generateSplatfestFrame(
-            0,
-            splatfest_colours,
-            current_battles["splatfest"],
-            "",
-        ))
-        final_render.append(generateSplatfestFrame(
-            1,
-            splatfest_colours,
-            current_battles["splatfest"],
-            "",
-        ))
-        final_render.append(generateSplatfestFrame(
-            2,
-            splatfest_colours,
-            tricolor_stage,
-            bottom_str,
-        ))
+        frames["tricolor"] = generateGeneralFrame("Tricolor Battle", splatfest_colours, splatfest.tricolor_stage, None, "Tricol. Turf War", None, bottom_str)
 
-        final_render = render.Animation(children = final_render)
-        animLength = 3
+    render_frames = []
+    if (not splatfest):
+        if (config.bool("show_regular")):
+            render_frames.append(frames["regular"])
+        if (config.bool("show_series")):
+            render_frames.append(frames["series"])
+        if (config.bool("show_open")):
+            render_frames.append(frames["open"])
+        if (config.bool("show_x")):
+            render_frames.append(frames["x"])
+        if (config.bool("show_salmon")):
+            render_frames.append(frames["salmon"])
+        if (config.bool("show_eggstra") and eggstra_on):
+            render_frames.append(frames["eggstra"])
 
-    delay = int(config.str("speed") or 15000)
+        if (len(render_frames) == 0):
+            render_frames.append(frames["regular"])
+    else:
+        if (config.bool("show_fest_open")):
+            render_frames.append(frames["festopen"])
+        if (config.bool("show_fest_pro")):
+            render_frames.append(frames["festpro"])
+        if (config.bool("show_tricolor")):
+            render_frames.append(frames["tricolor"])
+        if (config.bool("show_salmon")):
+            render_frames.append(frames["salmon"])
+        if (config.bool("show_eggstra") and eggstra_on):
+            render_frames.append(frames["eggstra"])
 
+        if (len(render_frames) == 0):
+            render_frames.append(frames["festopen"])
+
+    anim_length = int(config.str("speed") or 15000)
     return render.Root(
-        delay = int(delay / animLength),  # <- replace with 1/4 of tidbyt delay
-        child = final_render,
+        delay = int(anim_length / len(render_frames)),
+        child = render.Animation(render_frames),
     )
 
 def get_schema():
@@ -497,6 +521,41 @@ def get_schema():
                 name = "X Battle",
                 desc = "Whether or not to include X Battles in the rotation.",
                 icon = "x",
+                default = False,
+            ),
+            schema.Toggle(
+                id = "show_salmon",
+                name = "Salmon Run",
+                desc = "Whether or not to include Salmon Run rotations in the rotation.",
+                icon = "fish",
+                default = False,
+            ),
+            schema.Toggle(
+                id = "show_eggstra",
+                name = "Eggstra Work",
+                desc = "Whether or not to include Eggstra Work rotations in the rotation.",
+                icon = "fishFins",
+                default = False,
+            ),
+            schema.Toggle(
+                id = "show_fest_open",
+                name = "Splatfest (Open)",
+                desc = "Whether or not to include Open Splatfest Battles in the rotation during a Splatfest.",
+                icon = "gift",
+                default = False,
+            ),
+            schema.Toggle(
+                id = "show_fest_pro",
+                name = "Splatfest (Pro)",
+                desc = "Whether or not to include Pro Splatfest Battles in the rotation during a Splatfest.",
+                icon = "barsProgress",
+                default = False,
+            ),
+            schema.Toggle(
+                id = "show_tricolor",
+                name = "Splatfest (Tricolor)",
+                desc = "Whether or not to include Tricolor Battles in the rotation during a Splatfest.",
+                icon = "shapes",
                 default = False,
             ),
         ],

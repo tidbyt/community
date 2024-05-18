@@ -3,6 +3,10 @@ Applet: NSW Fuel Check
 Summary: Shows NSW fuel prices
 Description: Enter your location and fuel type, then find the cheapest fuel in a 3km radius.
 Author: M0ntyP
+
+v1.1
+Added more fuel types
+Changed fuel icon
 """
 
 load("encoding/json.star", "json")
@@ -118,7 +122,12 @@ def Type_to_Fuel(type_id):
     elif type_id == "LPG":
         Type = "LPG"
     elif type_id == "E10":
-        Type = "e10"
+        Type = "Ethanol 94"
+    elif type_id == "E85":
+        Type = "Ethanol 105"
+    elif type_id == "PDL":
+        Type = "Premium Diesel"
+
     else:
         Type = ""
 
@@ -142,12 +151,20 @@ FuelOptions = [
         value = "DL",
     ),
     schema.Option(
+        display = "Premium Diesel",
+        value = "PDL",
+    ),
+    schema.Option(
         display = "LPG",
         value = "LPG",
     ),
     schema.Option(
-        display = "e10",
+        display = "Ethanol 94",
         value = "E10",
+    ),
+    schema.Option(
+        display = "Ethanol 105",
+        value = "E85",
     ),
 ]
 

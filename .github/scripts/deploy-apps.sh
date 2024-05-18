@@ -18,7 +18,5 @@ for TARGET in ${TARGETS}; do
     APP_ID=$(cat ${TARGET}/manifest.yaml | grep 'id:' | cut -d " " -f 2)
 
     echo "Deploying ${APP_ID} at ${VERSION}"
-    pixlet private bundle ${TARGET} -o ${TARGET}
-    pixlet private upload ${TARGET}/bundle.tar.gz --app ${APP_ID} --version ${VERSION}
-    pixlet private deploy --app ${APP_ID} --version ${VERSION}
+    pixlet private upload --app-dir ${TARGET}/ --version ${VERSION}
 done

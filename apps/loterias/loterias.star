@@ -86,7 +86,7 @@ def main(config):
     timezone = location["timezone"]
 
     # call loterias API
-    res = http.get("https://loterias-caixa-79yugp3htn3l.runkit.sh/%s/" % modality, ttl_seconds = CACHE_TTL)
+    res = http.get("https://tidbyt-loterias.vercel.app/api/%s" % modality, ttl_seconds = CACHE_TTL)
 
     # handle API error
     if res.status_code != 200:
@@ -97,21 +97,28 @@ def main(config):
     data = res.json()
 
     # calculate remaining time to the draw date considering the user's timezone
-    draw_date = time.parse_time(("%s 19:00") % data["dataProximoConcurso"], "2/1/2006 15:04", "America/Sao_Paulo")
+    draw_date = time.parse_time(("%s 20:00") % data["dataProximoConcurso"], "2/1/2006 15:04", "America/Sao_Paulo")
     draw_date_in_tz = draw_date.in_location(timezone)
 
     # humanize the draw date
-    draw_date_human = "em " + humanize.time(draw_date_in_tz).replace("from now", "")
-    draw_date_human = draw_date_human.replace("week", "semana")
-    draw_date_human = draw_date_human.replace("weeks", "semanas")
-    draw_date_human = draw_date_human.replace("days", "dias")
-    draw_date_human = draw_date_human.replace("day", "dia")
-    draw_date_human = draw_date_human.replace("hours", "horas")
-    draw_date_human = draw_date_human.replace("hour", "hora")
-    draw_date_human = draw_date_human.replace("minutes", "minutos")
-    draw_date_human = draw_date_human.replace("minute", "minuto")
-    draw_date_human = draw_date_human.replace("seconds", "segundos")
-    draw_date_human = draw_date_human.replace("second", "segundo")
+    draw_date_human = ""
+
+    # check if date is in the past
+    current_time = time.now().in_location(timezone)
+    if (current_time.unix < draw_date.unix):
+        draw_date_human = "em " + humanize.time(draw_date_in_tz).replace("from now", "")
+        draw_date_human = draw_date_human.replace("week", "semana")
+        draw_date_human = draw_date_human.replace("weeks", "semanas")
+        draw_date_human = draw_date_human.replace("days", "dias")
+        draw_date_human = draw_date_human.replace("day", "dia")
+        draw_date_human = draw_date_human.replace("hours", "horas")
+        draw_date_human = draw_date_human.replace("hour", "hora")
+        draw_date_human = draw_date_human.replace("minutes", "minutos")
+        draw_date_human = draw_date_human.replace("minute", "minuto")
+        draw_date_human = draw_date_human.replace("seconds", "segundos")
+        draw_date_human = draw_date_human.replace("second", "segundo")
+    else:
+        draw_date_human = "encerrado!"
 
     # obtain the estimated/accumulated prize value
     prize_value = "R$ "

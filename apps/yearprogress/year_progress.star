@@ -19,7 +19,7 @@ def main(config):
     milestones_only = config.bool("milestones_only", False)
     display_decimal = not milestones_only
 
-    timezone = config.get("timezone", "America/New_York")
+    timezone = config.get("$tz", "America/New_York")
     now = time.now().in_location(timezone)
 
     yearstart = time.time(location = timezone, year = now.year, month = 1, day = 1, hour = 0, minute = 0, second = 0).unix
@@ -28,8 +28,10 @@ def main(config):
 
     progress_box_width = 62
     progress_bar_width = min(int(math.round(year_progress * progress_box_width)), progress_box_width - 1)
-    str_format = "#,###.#" if display_decimal == True else "#,###."
-    year_progress_str = humanize.float(str_format, min(year_progress * 100, 99.9 if display_decimal == True else 99.0))
+
+    year_progress_dec = humanize.float("#,###.#", min(year_progress * 100, 99.9))
+    year_progress_round = humanize.float("#,###.", min(year_progress * 100, 99.0))
+    year_progress_str = year_progress_dec if display_decimal == True else year_progress_round
 
     year = now.year
 
@@ -38,7 +40,7 @@ def main(config):
         year_progress_str = "100"
         progress_bar_width = progress_box_width
     elif milestones_only:
-        first_decimal = str((year_progress * 100) % 1)[2]
+        first_decimal = year_progress_dec[year_progress_dec.index(".") + 1]
         if first_decimal != "0" and first_decimal != "1":
             # don't display the app
             return []

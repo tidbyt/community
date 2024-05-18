@@ -70,8 +70,7 @@ def make_salmon_run_mode(schedule_key, title_color):
         is_splatfest = False,
         title_color = title_color,
         subtitle_color_map = {},
-        # TODO: how will the boss object be defined for Eggstra Work?
-        subtitle_generator = lambda x: "%s (%s)" % (x["coopStage"]["name"], x["boss"]["name"]),
+        subtitle_generator = lambda x: x["coopStage"]["name"] + (" (%s)" % x["boss"]["name"] if x["boss"] else ""),
         images_accessor = lambda x: x["weapons"],
     )
 

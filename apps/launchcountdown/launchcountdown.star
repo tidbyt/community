@@ -59,6 +59,21 @@ iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAABWGlDQ1BJQ0MgcHJvZmlsZQAAKJFtkL9L
 rocket_icon_g = base64.decode("""
 iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAABWGlDQ1BJQ0MgcHJvZmlsZQAAKJFtkL9LQlEcxY9lCCbh4CQFL2iosIinQ9FkDhE0vOx32/VqKj3t8t6Tag6a2oLGqKVaagpsrK29qOgfcIkggreU3L5XK7W6ly/nw5dzL4cDtHmZEKYXQKHoWMnJCW1peUXzVRBAD/wII8S4LeKGMU0WfGvrce/hUXo7pP7auRt38+d6+PX0ubR2lj756285/nTG5qQfNINcWA7g6Sc2NhyheJM4ZFEo4l3F2TofKk7V+aLmmUsmiG+IgzzH0sSPxJFU0z7bxAWzxL8yqPSBTHF+lrSLphsG4tARwyhmsEDd/O+N1bwJrENgCxbyyCIHBxq9FnRNZIinUATHMCLEOkZooqrj3901dmIbGNsjeGnsmAlcUvfBg8aur0Jxe4HrI8Es9tOox/Xaq1G9zp1loGNfyrdFwDcAVB+kfC9LWT0G2p+AK/cTJspkFpxq0b4AAAAGYktHRAD/AP8A/6C9p5MAAAAJcEhZcwAALiMAAC4jAXilP3YAAAAHdElNRQfoAQQQEh2DFTLSAAAAGXRFWHRDb21tZW50AENyZWF0ZWQgd2l0aCBHSU1QV4EOFwAAAoJJREFUOMuN00tME1EUBuB/7gylTrE8phEEoSQQwBakPIXSOBglKooQwwbYQnDjRhN3hqAbY6ILd8rKDSQGY4CABkXbQnlEKKhQIwYkoAKWFgrtlKIz40YanuLZ/vn+exb3UPjPScooKkvLOX0lRptqUKm5WDpEGVbac59lDoIURUhZXWOzPpcvTdMnH1arWSiUISCEoAvXvcxB+HJtY3OWqeQSfyZPRdMkmK2tCvgd8O9fQFGElNfdbskynb146i9uaR0AQKGqsgDr6xvwepa+kX+9bNiCgxlkAIDH45PnZz7ZGQAgNKNIMVXfUkVEJ7jmxvuzT/LnMwuLS3biqspCAIAoSvjimPZ+tpufM4RmFMaqO53a4/nG6JhYVvS7azRRLGXiT5Cda29iS8+w4BixdH11DL1ksspuPNEkZhan6vSM6HNBoQqjjSY99lpbFCVY3wwLo7bujvamhmoAoF2zHy2EhIRymqP5EeGhpMikB83QQZyhi0e6Lj6I7X3dHe2PG6plWZIAgGwIq0vOSWsLq6SJPj1xG94cUZRgef3ON9K7HQMAAYDYjHP1Tk8gMNTvwMqydxe2WT/I74fMrzqatuNgQWJybkVk1JHQMM0x9PeOB0tEUcKgbQJOt08aHbC82IkBgBg5rrR2uu3Qyo8Zyu1exWaJa8mDAdsE/L9oECVHc/G6gr3+DKnQamuz85LYmrFHcM9OwelclhfcQsBmHZfnvrtEhuXwc3HeL3gWZ/cqoK+lpNyLi4sLj06IQZTdLLyVItcmx8xP+549qHctr/kCVHje/JS9b6zz4VVZlsRdDV08v9DG8zN3DYbWQo67sDVTsGpNTvnNZkIziv1u5g8mDxevHDczqgAAAABJRU5ErkJggg==""")
 
+period_options = [
+    schema.Option(value = "1", display = "1 hour"),
+    schema.Option(value = "2", display = "2 hours"),
+    schema.Option(value = "3", display = "3 hours"),
+    schema.Option(value = "4", display = "4 hours"),
+    schema.Option(value = "5", display = "5 hours"),
+    schema.Option(value = "6", display = "6 hours"),
+    schema.Option(value = "12", display = "12 hours"),
+    schema.Option(value = "24", display = "1 day"),
+    schema.Option(value = "48", display = "2 days"),
+    schema.Option(value = "72", display = "3 days"),
+    schema.Option(value = "168", display = "1 week"),
+    schema.Option(value = "0", display = "Always Display Next Sighting if known"),
+]
+
 scroll_speed_options = [
     schema.Option(
         display = "Slow Scroll",
@@ -126,13 +141,38 @@ def get_rocket_launch_json():
 
                 # TODO: Determine if this cache call can be converted to the new HTTP cache.
                 cache.set(ROCKET_LAUNCH_CACHE_NAME, json.encode(rocket_launch_data), ttl_seconds = cache_time_seconds)
+                # Filter out any providers in ignoredProviders
 
     return (rocket_launch_data)
 
-#Since not all launches supply values for all these, this makes it easy to add items to a marquee
-def get_launch_details(rocket_launch_data, locallaunch, mytimezone):
-    """ Get Launch Details
+def filter_rocket_launches(rocket_launch_data, filter_for_providers_string, filter_for_countries_string):
+    """ Filter Included Providers and Countries
+    Args:
+        rocket_launch_data: the rocket launch data with all the info on future launches
+        filter_for_providers_string: comma separated list of providers to filter for
+        filter_for_countries_string: comma separated list of countries to filter for
+    Returns:
+        rocket_launch_data but only with the included providers & countries
+    """
+    included_providers = [provider.strip().lower() for provider in filter_for_providers_string.split(",")] if filter_for_providers_string.strip() else []
+    included_countries = [country.strip().lower() for country in filter_for_countries_string.split(",")] if filter_for_countries_string.strip() else []
 
+    if not included_providers and not included_countries:  # if both lists are empty, return all data
+        return rocket_launch_data
+
+    filtered_data = [
+        launch
+        for launch in rocket_launch_data["result"]
+        if (not included_providers or launch["provider"]["name"].lower() in included_providers) and
+           (not included_countries or launch["pad"]["location"]["country"].lower() in included_countries)
+    ]
+
+    rocket_launch_data["result"] = filtered_data
+    return rocket_launch_data
+
+#Since not all launches supply values for all these, this makes it easy to add items to a marquee
+def get_launch_details(rocket_launch_data, locallaunch):
+    """ Get Launch Details
     Args:
         rocket_launch_data: the rocket launch data with all the info on future launches
     Returns:
@@ -146,29 +186,87 @@ def get_launch_details(rocket_launch_data, locallaunch, mytimezone):
     countdown = (locallaunch - time.now())
     countdownDisplay = ""
 
-    #Display aprox. number of hours until about 90 minutes before launch, then display # of minutes
     if countdown.hours >= 1.5:
-        countdownDisplay = ("%s hours from now," % int(math.round(countdown.hours)))
+        whole_hours = math.floor(countdown.hours)
+        countdownDisplay = ("In %s %s %s minutes, " % (int(whole_hours), "hours" if whole_hours > 1 else "hour", int(math.round(countdown.minutes - (whole_hours * 60)))))
     elif countdown.minutes > 0:
-        countdownDisplay = ("%s minutes from now," % int(math.round(countdown.minutes)))
+        countdownDisplay = ("%s minutes from now, " % int(math.round(countdown.minutes)))
+
+    #SpaceX has a launch pad called launch pad ... looks stupid to display that.
+    pad_name = None if rocket_launch_data["pad"]["name"] == "Launch Pad" else rocket_launch_data["pad"]["name"]
 
     potential_display_items = [
-        countdownDisplay,
-        rocket_launch_data["pad"]["name"],
+        rocket_launch_data["provider"]["name"],
+        pad_name,
         rocket_launch_data["pad"]["location"]["name"],
         rocket_launch_data["pad"]["location"]["state"],
         rocket_launch_data["pad"]["location"]["country"],
         locallaunch.format("Monday Jan 2 2006"),
-        locallaunch.format("at 3:04 PM") + " " + mytimezone.replace("_", " "),
+        locallaunch.format("3:04 PM MST"),
     ]
 
-    display_text = ""
+    display_items_format = [
+        "%s will launch",
+        "from %s",
+        "%s",
+        "in %s",
+        "%s",
+        "on %s",
+        "at %s",
+    ]
+
+    display_text = countdownDisplay
 
     for i in range(len(potential_display_items)):
         if (potential_display_items[i] != None):
-            display_text += potential_display_items[i] + " "
+            display_text += " " + (display_items_format[i] % potential_display_items[i]).strip()
 
     return display_text
+
+def display_instructions(config):
+    ##############################################################################################################################################################################################################################
+    instructions_1 = "Launch information is provided by RocketLaunch.live. You can filter these results by country or provider. "
+    instructions_2 = "Examples of country include 'United States', 'Canada' and 'China'. Examples of provider include 'NASA', 'SpaceX', 'ABL Space' and 'Virgin Galactic'."
+    instructions_3 = "The country and provider information should appear in the third row of information of each upcoming flight."
+    app_title = "Launch Countdown"
+
+    return render.Root(
+        render.Column(
+            children = [
+                render.Marquee(
+                    width = 64,
+                    child = render.Text(app_title, color = "#65d0e6", font = "5x8"),
+                ),
+                render.Marquee(
+                    width = 64,
+                    offset_start = len(app_title) * 5,
+                    child = render.Text(instructions_1, color = "#f4a306"),
+                ),
+                render.Marquee(
+                    offset_start = len(instructions_1) * 5,
+                    width = 64,
+                    child = render.Text(instructions_2, color = "#f4a306"),
+                ),
+                render.Marquee(
+                    offset_start = (len(instructions_2) + len(instructions_1)) * 5,
+                    width = 64,
+                    child = render.Text(instructions_3, color = "#f4a306"),
+                ),
+            ],
+        ),
+        delay = int(config.get("scroll", 45)),
+        show_full_animation = True,
+    )
+
+def replace_local_time_into_description(description, locallaunch, utclaunch):
+    utc_time_display = ("%s at %s (%s)") % (utclaunch.format("Thursday, January 2, 2006"), utclaunch.format("3:04 PM"), utclaunch.format("MST"))
+    local_time_display = ("%s at %s %s") % (locallaunch.format("Thursday, January 2, 2006"), locallaunch.format("3:04 PM"), locallaunch.format("MST"))
+
+    #What the heck is this character being returned in the json for??
+    description = description.replace(" ", " ")
+    description = description.replace(utc_time_display, local_time_display)
+
+    return description
 
 def main(config):
     """ Main
@@ -179,10 +277,25 @@ def main(config):
         The tidbyt display
     """
 
+    show_instructions = config.bool("instructions", False)
+    hide_when_nothing_to_display = config.bool("hide", True)
+
+    if show_instructions:
+        return display_instructions(config)
+
     location = json.decode(config.get("location", default_location))
+
     rocket_launch_data = get_rocket_launch_json()
 
-    rocket_launch_count = 0
+    initial_count = len(rocket_launch_data["result"]) if rocket_launch_data else 0
+
+    rocket_launch_data = filter_rocket_launches(rocket_launch_data, config.get("filter_for_providers", ""), config.get("filter_for_countries", ""))
+
+    rocket_launch_count = len(rocket_launch_data["result"]) if rocket_launch_data else 0
+
+    if hide_when_nothing_to_display and rocket_launch_count == 0:
+        return []
+
     row1 = ""
     row2 = ""
     row3 = ""
@@ -190,23 +303,26 @@ def main(config):
 
     if rocket_launch_data == None:
         row1 = "Failed to get data from Rocketlaunch.live feed"
+    elif rocket_launch_count == 0:
+        row1 = "All launches filtered.." if initial_count > 0 else "No upcoming launches.."
     else:
-        rocket_launch_count = rocket_launch_data["count"]
-
-    if (rocket_launch_count == 0):
-        row1 = "No upcoming launches.."
-    else:
-        row1 = "No upcoming launches.."
         rocket_launch_count = int(rocket_launch_count)
         for i in range(0, rocket_launch_count):
             localtime = time.now()
             locallaunch = time.parse_time(rocket_launch_data["result"][i]["t0"].replace("Z", ":00Z")).in_location(location["timezone"])
+
             if locallaunch > localtime.in_location(location["timezone"]):
-                row1 = rocket_launch_data["result"][i]["vehicle"]["name"]
-                locallaunch = time.parse_time(rocket_launch_data["result"][i]["t0"].replace("Z", ":00Z")).in_location(location["timezone"])
-                row2 = locallaunch.format("Jan 2 '06")
-                row3 = get_launch_details(rocket_launch_data["result"][i], locallaunch, location["timezone"])
-                row4 = rocket_launch_data["result"][i]["launch_description"]
+                hours_notice = int(config.get("notice_period", 0))
+                hours_until_sighting = (locallaunch - localtime.in_location(location["timezone"])).hours
+
+                if (hours_notice == 0 or hours_notice > hours_until_sighting):
+                    row1 = rocket_launch_data["result"][i]["vehicle"]["name"]
+                    locallaunch = time.parse_time(rocket_launch_data["result"][i]["t0"].replace("Z", ":00Z")).in_location(location["timezone"])
+                    row2 = locallaunch.format("Jan 2 '06")
+                    row3 = get_launch_details(rocket_launch_data["result"][i], locallaunch)
+                    row4 = replace_local_time_into_description(rocket_launch_data["result"][i]["launch_description"], locallaunch, time.parse_time(rocket_launch_data["result"][i]["t0"].replace("Z", ":00Z")))
+                else:
+                    return []
                 break
 
     return render.Root(
@@ -294,12 +410,46 @@ def get_schema():
                 icon = "locationDot",
             ),
             schema.Dropdown(
+                id = "notice_period",
+                name = "Notice Period",
+                desc = "Display when launch is within...",
+                icon = "userClock",
+                options = period_options,
+                default = period_options[0].value,
+            ),
+            schema.Dropdown(
                 id = "scroll",
                 name = "Scroll",
                 desc = "Scroll Speed",
                 icon = "stopwatch",
                 options = scroll_speed_options,
                 default = scroll_speed_options[0].value,
+            ),
+            schema.Text(
+                id = "filter_for_providers",
+                name = "Only Show these providers",
+                desc = "Comma Seperated List of Providers to Show",
+                icon = "industry",
+            ),
+            schema.Text(
+                id = "filter_for_countries",
+                name = "Only Show these countries",
+                desc = "Comma Seperated List of Countries to Show",
+                icon = "globe",
+            ),
+            schema.Toggle(
+                id = "hide",
+                name = "Hide if no data?",
+                desc = "",
+                icon = "gear",
+                default = True,
+            ),
+            schema.Toggle(
+                id = "instructions",
+                name = "Display Instructions",
+                desc = "",
+                icon = "book",  #"info",
+                default = False,
             ),
         ],
     )
