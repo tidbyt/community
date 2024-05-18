@@ -1,7 +1,7 @@
 """
-Applet: Instagram Follows
-Summary: View Instagram followers
-Description: View your Instagram followers count.
+Applet: Instagram
+Summary: Instagram Follows
+Description: Your Instagram followers count.
 Author: Daniel Sitnik
 """
 
