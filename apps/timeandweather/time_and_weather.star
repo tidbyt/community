@@ -1108,7 +1108,7 @@ def main(config):
             if (icon_phrase == "sunny" or "fair" in icon_phrase or "clear" in icon_phrase) and is_daytime:
                 # sunny
                 icon_ref = "sunny.png"
-            elif ("partly sunny" in icon_phrase or "few clouds" in icon_phrase or "partly cloudy" in icon_phrase) and is_daytime:
+            elif ("mostly sunny" in icon_phrase or "partly sunny" in icon_phrase or "few clouds" in icon_phrase or "partly cloudy" in icon_phrase) and is_daytime:
                 # mostly sunny
                 icon_ref = "sunnyish.png"
             elif icon_phrase == "cloudy" or "mostly cloudy" in icon_phrase or "overcast" in icon_phrase:
