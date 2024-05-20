@@ -40,6 +40,7 @@ TEAM_LOGO = """
     "224095": "https://www.thesportsdb.com/images/media/team/badge/kehxfy1655923111.png",
     "230422": "https://www.thesportsdb.com/images/media/team/badge/nbtugc1655923087.png",
     "224094": "https://www.thesportsdb.com/images/media/team/badge/aj83wn1655923095.png",
+    "229259": "https://www.thesportsdb.com/images/media/team/badge/aj83wn1655923095.png",
     "836779": "https://www.thesportsdb.com/images/media/team/badge/gx1dgl1680852780.png"
 }
 """
@@ -48,6 +49,7 @@ GAME_STATUS = """
 {
     "0": "Upcoming",
     "1": "Live",
+    "2": "Err",
     "3": "Final",
     "4": "Postponed",
     "7": "Cancel",
@@ -97,8 +99,10 @@ def main(config):
             else:
                 gameTime = "Today"
             if gameStatus != "Final":
-                awayScore = ""
-                homeScore = ""
+                if gameStatus == "Err":
+                    continue
+                awayScore = "0"
+                homeScore = "0"
                 gameTime = gameStatus
             else:
                 awayScore = s["scores"]["run"]["home"]
@@ -247,7 +251,7 @@ teamOptions = [
     ),
     schema.Option(
         display = "Fubon Guardians",
-        value = "224094",
+        value = "229259",
     ),
     schema.Option(
         display = "TSG Hawks",
@@ -393,12 +397,12 @@ def get_cachable_data(url):
 
 def get_logo(team):
     usealtlogo = json.decode(TEAM_LOGO)
-    logo = usealtlogo.get(team, "NO")
+    logo = usealtlogo.get(team, "NOLOGO")
     return logo
 
 def get_gamestatus(status):
     gamestatus = json.decode(GAME_STATUS)
-    sta = gamestatus.get(status, "NO")
+    sta = gamestatus.get(status, "EXC")
     return sta
 
 def render_error(error):

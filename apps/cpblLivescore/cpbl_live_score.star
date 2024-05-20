@@ -38,6 +38,7 @@ TEAM_LOGO = """
     "836779": "https://www.thesportsdb.com/images/media/team/badge/gx1dgl1680852780.png",
     "329121": "https://assets.b365api.com/images/wp/o/8d4b8b442ce550b84187f6a388dd08e5.png",
     "224094": "https://assets.b365api.com/images/wp/o/dec78d508fac27062963e766d6fd4323.png",
+    "229259": "https://assets.b365api.com/images/wp/o/dec78d508fac27062963e766d6fd4323.png",
     "224095": "https://assets.b365api.com/images/wp/o/5631bccbd611a4c52edac4e5ea940f1f.png"
 }
 """
@@ -49,6 +50,7 @@ TEAM_COLOR = """
     "836779": "#074539",
     "329121": "#4b1d18",
     "224094": "#002255",
+    "229259": "#002255",
     "224095": "#df6b00"
 }
 """
@@ -60,6 +62,7 @@ TEAM_FONTCOLOR = """
     "836779": "#fff",
     "329121": "#fff",
     "224094": "#fff",
+    "229259": "#fff",
     "224095": "#fff"
 }
 """
@@ -68,6 +71,7 @@ GAME_STATUS = """
 {
     "0": "Upcoming",
     "1": "Live",
+    "2": "Err",
     "3": "End",
     "4": "Postponed",
     "7": "Cancel",
@@ -82,6 +86,7 @@ TEAM_LOCATION = """
     "836779": "KHH",
     "329121": "TYN",
     "224094": "TPH",
+    "229259": "TPH",
     "224095": "TNN"
 }
 """
@@ -93,6 +98,7 @@ TEAM_SHORTNAME = """
     "836779": "HAWKS",
     "329121": "RAKUTEN",
     "224094": "FUBON",
+    "229259": "FUBON",
     "224095": "UNI-LION"
 }
 """
@@ -395,7 +401,7 @@ teamOptions = [
     ),
     schema.Option(
         display = "Fubon Guardians",
-        value = "224094",
+        value = "229259",
     ),
     schema.Option(
         display = "TSG Hawks",
@@ -541,17 +547,17 @@ def get_cachable_data(url):
 
 def get_logo(team):
     usealtlogo = json.decode(TEAM_LOGO)
-    logo = usealtlogo.get(team, "NO")
+    logo = usealtlogo.get(team, "NOLOGO")
     return logo
 
 def get_teamcolor(team):
     usealtcolor = json.decode(TEAM_COLOR)
-    color = usealtcolor.get(team, "NO")
+    color = usealtcolor.get(team, "#fff")
     return color
 
 def get_teamfontcolor(team):
     usealtcolor = json.decode(TEAM_FONTCOLOR)
-    color = usealtcolor.get(team, "NO")
+    color = usealtcolor.get(team, "#fff")
     return color
 
 def get_teamlocation(team):

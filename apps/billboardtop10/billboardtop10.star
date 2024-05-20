@@ -32,14 +32,10 @@ list_options = [
         display = "Global Songs",
         value = "billboard-global-200",
     ),
-    schema.Option(
-        display = "Japan Songs",
-        value = "billboard-japan-hot-100",
-    ),
 ]
 
 def main(config):
-    # US, Global, Japan etc.
+    # US, Global,
     selected_list = config.get("list", list_options[0].value)
     cache_name = "%s_%s" % (BILLBOARD_CACHED_TOP10_NAME, selected_list)
     top10_data = cache.get(cache_name)
@@ -138,10 +134,11 @@ def get_top10_information(top10_alive_key, list):
 
 def getMovementIndicator(this, last):
     movementIndicator = ""
-    if this < last:
-        movementIndicator = " (↑%s)" % (last - this)
-    elif last < this:
-        movementIndicator = " (↓%s)" % (this - last)
+    if (last != ""):
+        if this < last:
+            movementIndicator = " (↑%s)" % (last - this)
+        elif last < this:
+            movementIndicator = " (↓%s)" % (this - last)
 
     return movementIndicator
 
@@ -164,8 +161,11 @@ def getDisplayInfoMulti(items, start, end):
         if i + 1 >= start and i + 1 <= end:
             key = "%s" % (i + 1)
             item = items[key]
+            print(item)
             current = int(item["rank"])
-            lastweek = int(item["last week"])
+            print(current)
+            print(item["last week"] == None)
+            lastweek = "" if item["last week"] == "None" else int(item["last week"])
             display = display + "#%s%s \"%s\" by %s " % (item["rank"], getMovementIndicator(current, lastweek), item["title"], item["artist"])
 
     return display

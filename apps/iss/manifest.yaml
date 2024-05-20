@@ -1,0 +1,8 @@
+---
+id: iss
+name: ISS
+summary: Show next ISS pass
+desc: Displays the time, starting direction and magnitude of the next International Space Station visible pass.
+author: Diogo Ribeiro Machado @ diogodh
+fileName: iss.star
+packageName: iss
