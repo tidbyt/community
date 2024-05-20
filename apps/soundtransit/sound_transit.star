@@ -27,7 +27,7 @@ CACHE_TIMETABLE_SECONDS = 60
 # Cache route information (which stops exist, etc) for one day:
 CACHE_ROUTE_SECONDS = 60 * 60 * 24
 
-OBA_API_KEY = "AV6+xWcES/FrNX/21ZMFEbvkCLGB9NbJjGCQUyzrlRyA12R5UZMn98eDu28j1wYeJbGNDTXO89JZ9hwToz79QYJ3UnjykphrTyGewbeYx3ZC5efJoyM0PLq1h8rRcdZdg+5XaNDBwuCypuuu"
+OBA_API_KEY = "AV6+xWcE9X2WhzcfyjFYnfyqYSO3+o3N+72Bm2ngiMGp3uuQ314jrCe7BmIOwckaWzKWblMgtXk3crXs7uf3cu5q4pai6+36CorE8pe/4iDKD6ibZaBq8IqoI9GbBqmwuPqgHxbBQnCk2q2J"
 
 def none_str_to_none_val(maybe_none_str):
     if maybe_none_str == NONE_STR:
