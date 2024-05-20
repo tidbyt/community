@@ -1,13 +1,14 @@
 """
 Applet: Time & Weather
 Summary: Display time & weather
-Description: Display the time in addition to current weather conditions from either OpenWeather, OpenWeather 3.0 One Call, Tomorrow.io, or Open-Meteo weather APIs. To request an OpenWeather API key, see https://home.openweathermap.org/users/sign_up. To request a Tomorrow.io API key, see https://docs.tomorrow.io/login?redirect_uri=/reference/intro/getting-started.
+Description: Display the time in addition to current weather conditions from either National Weather Service (NWS), OpenWeather, OpenWeather 3.0 One Call, Tomorrow.io, Open-Meteo, or Weatherbit weather APIs. To request an OpenWeather API key, see https://home.openweathermap.org/users/sign_up. To request a Tomorrow.io API key, see https://docs.tomorrow.io/login?redirect_uri=/reference/intro/getting-started. To request a Weatherbit API key, see https://www.weatherbit.io/account/create.
 Author: sudeepban
 """
 
 load("encoding/base64.star", "base64")
 load("encoding/json.star", "json")
 load("http.star", "http")
+load("re.star", "re")
 load("render.star", "render")
 load("schema.star", "schema")
 load("time.star", "time")
@@ -23,11 +24,14 @@ DEFAULT_LOCATION = """
 }
 """
 
+NWS_GRID_FORECAST_POINT_URL = "https://api.weather.gov/points/{latitude},{longitude}"
+NWS_HOURLY_GRID_FORECAST_URL = "https://api.weather.gov/gridpoints/BOX/{gridX},{gridY}/forecast/hourly"
 OPENWEATHER_CURRWEATHER_URL = "https://api.openweathermap.org/data/2.5/weather?lat={latitude}&lon={longitude}&appid={api_key}&units={units}&lang=en"
 OPENWEATHER_AIR_POLLUTION_URL = "http://api.openweathermap.org/data/2.5/air_pollution?lat={latitude}&lon={longitude}&appid={api_key}"
 OPENWEATHER_ONECALL_URL = "https://api.openweathermap.org/data/3.0/onecall?lat={latitude}&lon={longitude}&exclude=minutely,hourly,daily,alerts&appid={api_key}&units={units}&lang=en"
 TOMORROW_IO_REALTIME_URL = "https://api.tomorrow.io/v4/weather/realtime?location={latitude},{longitude}&apikey={api_key}&units={units}"
 OPEN_METEO_FORECAST_URL = "https://api.open-meteo.com/v1/forecast?latitude={latitude}&longitude={longitude}&current=temperature_2m,relative_humidity_2m,apparent_temperature,is_day,weather_code,cloud_cover,pressure_msl,surface_pressure,wind_speed_10m,wind_direction_10m&hourly=dew_point_2m,visibility,uv_index&models=best_match&temperature_unit={temperature_unit}&wind_speed_unit={wind_speed_unit}&forecast_hours=1"
+WEATHERBIT_CURRENT_WEATHER_URL = "https://api.weatherbit.io/v2.0/current?lat={latitude}&lon={longitude}&key={api_key}&lang=en&units={units}"
 
 TEMP_COLOR_DEFAULT = "#FFFFFF"
 
@@ -993,25 +997,34 @@ COLON = """
 iVBORw0KGgoAAAANSUhEUgAAAAIAAAAFCAYAAABvsz2cAAAAAXNSR0IArs4c6QAA
 ABVJREFUGFdjZIACxv////9nBAHcIgDElAgGWNe87gAAAABJRU5ErkJggg=="""
 
+def get_nws_hourly_grid_forecast_url(lat, lon, ttl = 3600):
+    res = http.get(NWS_GRID_FORECAST_POINT_URL.format(
+        latitude = lat,
+        longitude = lon,
+    ), ttl_seconds = ttl)
+    if res.status_code != 200:
+        fail("Could not obtain the grid forecast for a point location.", res.status_code)
+    return res.json()["properties"]["forecastHourly"]
+
 def get_current_weather_conditions(url, ttl):
-    r = http.get(url, ttl_seconds = ttl)
-    if r.status_code != 200:
-        fail("Current conditions request failed with status", r.status_code)
-    return r.json()
+    res = http.get(url, ttl_seconds = ttl)
+    if res.status_code != 200:
+        fail("Current conditions request failed with status", res.status_code)
+    return res.json()
 
-def openweather_get_air_pollution(api_key, latitude, longitude):
-    def aqi_label(num):
-        switch = {
-            0: "Good",
-            1: "Good",
-            2: "Fair",
-            3: "Moderate",
-            4: "Poor",
-            5: "Very Poor",
-        }
-        return switch.get(num, "Invalid input")
+def aqi_label(num):
+    switch = {
+        0: "Good",
+        1: "Good",
+        2: "Fair",
+        3: "Moderate",
+        4: "Poor",
+        5: "Very Poor",
+    }
+    return switch.get(num, "Invalid input")
 
-    r = http.get(
+def get_openweather_air_pollution(api_key, latitude, longitude):
+    res = http.get(
         url = OPENWEATHER_AIR_POLLUTION_URL,
         params = {
             "lat": str(latitude),
@@ -1021,7 +1034,7 @@ def openweather_get_air_pollution(api_key, latitude, longitude):
     )
 
     air_quality = {}
-    air_quality["index"] = int(r.json()["list"][0]["main"]["aqi"])
+    air_quality["index"] = int(res.json()["list"][0]["main"]["aqi"])
     air_quality["label"] = aqi_label(air_quality["index"])
     return air_quality
 
@@ -1036,14 +1049,15 @@ def main(config):
     temp_color = config.get("tempColor", TEMP_COLOR_DEFAULT)
 
     display_metric = (system_of_measurement == "metric")
-    display_sample = not (api_key) and api_service != "Open-Meteo"
+    display_sample = not (api_key) and api_service != "Open-Meteo" and api_service != "National Weather Service (NWS)"
 
+    time_format = config.get("timeFormat", "12 hour")
     now = time.now().in_location(timezone)
     hours = now.hour
     minutes = now.minute
 
     # Initialize additional various variables
-    wind_speed_text, wind_mph_text, arrow_image, humidity_text, humidity_unit_text, humidity_image, dew_point_text, dew_point_unit_text, dew_image, uv_index_text, uv_index_label_text, visibility_text, visibility_unit_text, eye_image, cloud_coverage_text, cloud_coverage_unit_text, cloud_image, pressure_text, pressure_unit_text, aqi_label_text, aqi_text = "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", ""
+    wind_dir, wind_speed_text, wind_mph_text, arrow_image, humidity_text, humidity_unit_text, humidity_image, dew_point_text, dew_point_unit_text, dew_image, uv_index_text, uv_index_label_text, visibility_text, visibility_unit_text, eye_image, cloud_coverage_text, cloud_coverage_unit_text, cloud_image, pressure_text, pressure_unit_text, aqi_prefix_text, aqi_text = "N", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", ""
     result_current_conditions = {}
     icon_ref = 0
 
@@ -1064,7 +1078,7 @@ def main(config):
         result_current_conditions["temp"] = 14 if display_metric else 57
         result_current_conditions["feels_like"] = 18 if display_metric else 63
         result_current_conditions["wind_speed"] = 5 if display_metric else 12
-        result_current_conditions["wind_dir"] = 0
+        result_current_conditions["wind_dir"] = "N" if api_service == "National Weather Service (NWS)" or api_service == "Open-Meteo" else 0
         result_current_conditions["humidity"] = 50
         result_current_conditions["dew_point"] = int(16.1) if display_metric else int(61.0)
         result_current_conditions["uv_index"] = 3
@@ -1072,7 +1086,55 @@ def main(config):
         result_current_conditions["cloud_coverage"] = 80
         result_current_conditions["pressure"] = int(1014.90) if display_metric else int(29.97)
     else:
-        if api_service == "OpenWeather":
+        if api_service == "National Weather Service (NWS)":
+            enabledMetrics["uvIndex"] = False
+            enabledMetrics["visibility"] = False
+            enabledMetrics["cloudCoverage"] = False
+            enabledMetrics["pressure"] = False
+            enabledMetrics["aqi"] = False
+
+            hourly_forecast_url = get_nws_hourly_grid_forecast_url(latitude, longitude, 3600)  # cache for minimum of 1 hr. (this does not really change once 'Location' has been set via schema field)
+            raw_current_conditions = get_current_weather_conditions(hourly_forecast_url, 300)["properties"]["periods"][0]  # ttl of 5 min. (to prevent abuse)
+
+            result_current_conditions["icon"] = {"condition": str(raw_current_conditions["shortForecast"]).lower(), "daytime": raw_current_conditions["isDaytime"]}
+            temperature = int(raw_current_conditions["temperature"])
+            result_current_conditions["temp"] = int(temperature if raw_current_conditions["temperatureUnit"] == "F" and not (display_metric) else ((temperature - 32) * (5 / 9)))
+            wind_speed = int(re.match("\\d+", raw_current_conditions["windSpeed"])[0][0])
+            result_current_conditions["wind_speed"] = int(wind_speed * (1 if "mph" in raw_current_conditions["windSpeed"] and not (display_metric) else 0.44704))
+            result_current_conditions["wind_dir"] = str(raw_current_conditions["windDirection"])
+
+            icon_phrase = result_current_conditions["icon"]["condition"]
+            is_daytime = result_current_conditions["icon"]["daytime"]
+            if (icon_phrase == "sunny" or "fair" in icon_phrase or "clear" in icon_phrase) and is_daytime:
+                # sunny
+                icon_ref = "sunny.png"
+            elif ("partly sunny" in icon_phrase or "few clouds" in icon_phrase or "partly cloudy" in icon_phrase) and is_daytime:
+                # mostly sunny
+                icon_ref = "sunnyish.png"
+            elif icon_phrase == "cloudy" or "mostly cloudy" in icon_phrase or "overcast" in icon_phrase:
+                # cloudy (day)
+                icon_ref = "cloudy.png"
+            elif "rain" in icon_phrase:
+                # rain (day and night)
+                icon_ref = "rainy.png"
+            elif "thunderstorm" in icon_phrase:
+                # thunderstorm (day and night)
+                icon_ref = "thundery.png"
+            elif "snow" in icon_phrase:
+                # snow (day and night)
+                icon_ref = "snowy2.png"
+            elif ("fair" in icon_phrase or "clear" in icon_phrase) and not (is_daytime):
+                # clear (night)
+                icon_ref = "moony.png"
+            elif ("few clouds" in icon_phrase or "partly cloudy" in icon_phrase) and not (is_daytime):
+                # partly cloudy (night)
+                icon_ref = "moonyish.png"
+
+            result_current_conditions["humidity"] = int(raw_current_conditions["relativeHumidity"]["value"])
+            dewpoint = int(raw_current_conditions["dewpoint"]["value"])
+            result_current_conditions["dew_point"] = int(dewpoint if "degC" in raw_current_conditions["dewpoint"]["unitCode"] and display_metric else (dewpoint * 1.8) + 32)
+
+        elif api_service == "OpenWeather":
             enabledMetrics["dewPoint"] = False
             enabledMetrics["uvIndex"] = False
 
@@ -1125,9 +1187,9 @@ def main(config):
             result_current_conditions["cloud_coverage"] = int(raw_current_conditions["clouds"]["all"])
             result_current_conditions["pressure"] = int(raw_current_conditions["main"]["pressure"] * (0.02952998307 if display_metric else 1))  # 1 inHg (imperial) = 33.863886666667 hPa (metric)
 
-            air_quality = openweather_get_air_pollution(api_key, latitude, longitude)
+            air_quality = get_openweather_air_pollution(api_key, latitude, longitude)
             result_current_conditions["aqi"] = air_quality["index"]
-            result_current_conditions["aqi_label"] = air_quality["label"]
+            # result_current_conditions["aqi_label"] = air_quality["label"]
 
         elif api_service == "OpenWeatherOneCall":
             request_url = OPENWEATHER_ONECALL_URL.format(
@@ -1181,9 +1243,9 @@ def main(config):
             result_current_conditions["cloud_coverage"] = int(raw_current_conditions["current"]["clouds"])
             result_current_conditions["pressure"] = int(raw_current_conditions["current"]["pressure"] * (0.02952998307 if display_metric else 1))  # 1 inHg (imperial) = 33.863886666667 hPa (metric)
 
-            air_quality = openweather_get_air_pollution(api_key, latitude, longitude)
+            air_quality = get_openweather_air_pollution(api_key, latitude, longitude)
             result_current_conditions["aqi"] = air_quality["index"]
-            result_current_conditions["aqi_label"] = air_quality["label"]
+            # result_current_conditions["aqi_label"] = air_quality["label"]
 
         elif api_service == "Tomorrow.io":
             enabledMetrics["aqi"] = False
@@ -1286,6 +1348,56 @@ def main(config):
             result_current_conditions["cloud_coverage"] = int(raw_current_conditions["current"]["cloud_cover"])
             result_current_conditions["pressure"] = int(raw_current_conditions["current"]["pressure_msl"] * (1 if display_metric else 0.02952998307))  # 1 inHg (imperial) = 33.863886666667 hPa (metric)
 
+        elif api_service == "Weatherbit":
+            request_url = WEATHERBIT_CURRENT_WEATHER_URL.format(
+                latitude = latitude,
+                longitude = longitude,
+                api_key = api_key,
+                units = ("M" if system_of_measurement == "metric" else "I"),
+            )
+            raw_current_conditions = get_current_weather_conditions(request_url, 300)["data"][0]  # TTL of 5 min.
+
+            result_current_conditions["icon"] = {"id": int(raw_current_conditions["weather"]["code"]), "code": str(raw_current_conditions["weather"]["icon"])}
+            result_current_conditions["temp"] = int(raw_current_conditions["temp"])
+            result_current_conditions["feels_like"] = int(raw_current_conditions["app_temp"])
+            result_current_conditions["wind_speed"] = int(raw_current_conditions["wind_spd"])
+            result_current_conditions["wind_dir"] = int(raw_current_conditions["wind_dir"])
+
+            icon_num = result_current_conditions["icon"]["id"]
+            icon_code = result_current_conditions["icon"]["code"]
+            if icon_num == 800 and "d" in icon_code:
+                # sunny
+                icon_ref = "sunny.png"
+            elif icon_num >= 801 and icon_num <= 802 and "d" in icon_code:
+                # mostly sunny
+                icon_ref = "sunnyish.png"
+            elif icon_num >= 803 and icon_num <= 804 and "d" in icon_code:
+                # cloudy (day)
+                icon_ref = "cloudy.png"
+            elif (icon_num >= 300 and icon_num < 400) or (icon_num >= 500 and icon_num < 600) or icon_num == 900:
+                # rain (day and night)
+                icon_ref = "rainy.png"
+            elif icon_num >= 200 and icon_num < 300:
+                # thunderstorm (day and night)
+                icon_ref = "thundery.png"
+            elif icon_num >= 600 and icon_num < 700:
+                # snow (day and night)
+                icon_ref = "snowy2.png"
+            elif icon_num == 800 and "n" in icon_code:
+                # clear (night)
+                icon_ref = "moony.png"
+            elif icon_num >= 801 and icon_num <= 804 and "n" in icon_code:
+                # partly cloudy (night)
+                icon_ref = "moonyish.png"
+
+            result_current_conditions["humidity"] = int(raw_current_conditions["rh"])
+            result_current_conditions["dew_point"] = int(raw_current_conditions["dewpt"])
+            result_current_conditions["uv_index"] = int(raw_current_conditions["uv"])
+            result_current_conditions["visibility"] = int(raw_current_conditions["vis"])
+            result_current_conditions["cloud_coverage"] = int(raw_current_conditions["clouds"])
+            result_current_conditions["pressure"] = int(raw_current_conditions["pres"] * (1 if display_metric else 0.02952998307))  # 1 inHg (imperial) = 33.863886666667 hPa (metric)
+            result_current_conditions["aqi"] = int(raw_current_conditions["aqi"])
+
         # print(result_current_conditions)  # uncomment to debug
 
     if icon_ref:
@@ -1294,32 +1406,34 @@ def main(config):
         weather_image = render.Box(width = 24, height = 24)
 
     # wind direction, reduce to cardinal and ordinal directions only
-    wind_dir = "N"
-    if result_current_conditions["wind_dir"]:
+    if result_current_conditions.get("wind_dir", "N"):
         wind_dir = result_current_conditions["wind_dir"]
-        if wind_dir >= 45 and wind_dir < 90:
-            wind_dir = "NE"
-        elif wind_dir >= 90 and wind_dir < 135:
-            wind_dir = "E"
-        elif wind_dir >= 135 and wind_dir < 180:
-            wind_dir = "SE"
-        elif wind_dir >= 180 and wind_dir < 225:
-            wind_dir = "S"
-        elif wind_dir >= 225 and wind_dir < 270:
-            wind_dir = "SW"
-        elif wind_dir >= 270 and wind_dir < 315:
-            wind_dir = "W"
-        elif wind_dir >= 315 and wind_dir < 360:
-            wind_dir = "NW"
-        else:
+        if type(wind_dir) == "int" and wind_dir >= 0 and wind_dir < 45:
             wind_dir = "N"
+        elif (type(wind_dir) == "int" and wind_dir >= 45 and wind_dir < 90) or wind_dir == "NNE" or wind_dir == "ENE":
+            wind_dir = "NE"
+        elif type(wind_dir) == "int" and wind_dir >= 90 and wind_dir < 135:
+            wind_dir = "E"
+        elif (type(wind_dir) == "int" and wind_dir >= 135 and wind_dir < 180) or wind_dir == "ESE" or wind_dir == "SSE":
+            wind_dir = "SE"
+        elif type(wind_dir) == "int" and wind_dir >= 180 and wind_dir < 225:
+            wind_dir = "S"
+        elif (type(wind_dir) == "int" and wind_dir >= 225 and wind_dir < 270) or wind_dir == "SSW" or wind_dir == "WSW":
+            wind_dir = "SW"
+        elif type(wind_dir) == "int" and wind_dir >= 270 and wind_dir < 315:
+            wind_dir = "W"
+        elif (type(wind_dir) == "int" and wind_dir >= 315 and wind_dir < 360) or wind_dir == "WNW" or wind_dir == "NNW":
+            wind_dir = "NW"
 
-    time_hh_text = render.Text(content = str(hours) if hours <= 12 else str(hours - 12), font = "tom-thumb")
+    time_hh_text = render.Text(
+        content = str(hours) if hours <= 12 else str(hours - 12) if time_format == "12 hour" else str(hours),
+        font = "tom-thumb",
+    )
     time_mm_text = render.Text(content = ("0000" + str(minutes))[-2:], font = "tom-thumb")
     time_ampm_text = render.Text(content = "AM" if hours < 12 else "PM", font = "tom-thumb")
 
     temp_text = render.Text(content = str(result_current_conditions["temp"]) + "°" + ("C" if display_metric else "F"), font = "6x13", color = temp_color)
-    feels_like_text = render.Text(content = "FEELS " + str(result_current_conditions["feels_like"]), font = "tom-thumb", color = temp_color)
+    feels_like_text = render.Text(content = "FEELS " + str(result_current_conditions["feels_like"]), font = "tom-thumb", color = temp_color) if result_current_conditions.get("feels_like") else None
 
     if enabledMetrics["windSpeed"]:
         wind_speed_text = render.Text(content = str(result_current_conditions["wind_speed"]), font = "tom-thumb", color = "#AED6F1")
@@ -1342,7 +1456,7 @@ def main(config):
     if enabledMetrics["dewPoint"]:
         dew_point_text = render.Text(content = str(result_current_conditions["dew_point"]), font = "tom-thumb", color = "#88D1FF")
         dew_point_unit_text = render.Text(content = "°C" if display_metric else "°F", font = "tom-thumb", color = "#88D1FF")
-        dew_image = render.Image(width = 7, height = 8, src = base64.decode(DROPLETS_ICON))
+        dew_image = render.Image(width = 6, height = 7, src = base64.decode(DROPLETS_ICON))
 
     if enabledMetrics["uvIndex"]:
         uv_index = result_current_conditions["uv_index"]
@@ -1419,7 +1533,7 @@ def main(config):
             child = render.Text(content = str(aqi), font = "tom-thumb", color = aqi_color(aqi)),
             pad = (0, 1, 0, 0),
         )
-        aqi_label_text = render.Text(content = "AQI:", font = "tom-thumb", color = "#CCC")
+        aqi_prefix_text = render.Text(content = "AQI:", font = "tom-thumb", color = "#CCC")
 
     return render.Root(
         delay = 2500,
@@ -1429,19 +1543,14 @@ def main(config):
                     children = [
                         render.Column(
                             children = [
-                                render.Box(width = 1),
-                            ],
-                        ),
-                        render.Column(
-                            children = [
                                 weather_image,
                                 render.Row(
                                     children = [
                                         time_hh_text,
                                         render.Image(width = 2, height = 5, src = base64.decode(COLON)),
                                         time_mm_text,
-                                        render.Box(width = 1),
-                                        time_ampm_text,
+                                        render.Box(width = 1) if time_format == "12 hour" else None,
+                                        time_ampm_text if time_format == "12 hour" else None,
                                     ],
                                 ),
                             ],
@@ -1450,100 +1559,111 @@ def main(config):
                         ),
                         render.Column(
                             children = [
-                                render.Box(height = 2),
                                 temp_text,
                                 feels_like_text,
-                                render.Box(height = 2),
-                                render.Animation(
-                                    children = [
-                                        render.Row(
-                                            children = [
-                                                wind_speed_text,
-                                                render.Box(width = 1, height = 1),
-                                                wind_mph_text,
-                                                render.Box(width = 2, height = 1),
-                                                arrow_image,
-                                            ],
-                                            cross_align = "end",
-                                            main_align = "center",
-                                        ) if enabledMetrics["windSpeed"] == "true" else None,
-                                        render.Row(
-                                            children = [
-                                                humidity_text,
-                                                render.Box(width = 1, height = 1),
-                                                humidity_unit_text,
-                                                render.Box(width = 2, height = 1),
-                                                humidity_image,
-                                            ],
-                                            cross_align = "end",
-                                            main_align = "center",
-                                        ) if enabledMetrics["humidity"] == "true" else None,
-                                        render.Row(
-                                            children = [
-                                                dew_point_text,
-                                                dew_point_unit_text,
-                                                render.Box(width = 2, height = 1),
-                                                dew_image,
-                                            ],
-                                            cross_align = "center",
-                                            main_align = "center",
-                                        ) if enabledMetrics["dewPoint"] == "true" else None,
-                                        render.Row(
-                                            children = [
-                                                uv_index_text,
-                                                render.Box(width = 3, height = 1),
-                                                uv_index_label_text,
-                                            ],
-                                            cross_align = "center",
-                                            main_align = "center",
-                                        ) if enabledMetrics["uvIndex"] == "true" else None,
-                                        render.Row(
-                                            children = [
-                                                visibility_text,
-                                                render.Box(width = 1, height = 1),
-                                                visibility_unit_text,
-                                                render.Box(width = 2, height = 1),
-                                                eye_image,
-                                            ],
-                                            cross_align = "end",
-                                            main_align = "center",
-                                        ) if enabledMetrics["visibility"] == "true" else None,
-                                        render.Row(
-                                            children = [
-                                                cloud_coverage_text,
-                                                render.Box(width = 1, height = 1),
-                                                cloud_coverage_unit_text,
-                                                render.Box(width = 2, height = 1),
-                                                cloud_image,
-                                            ],
-                                            cross_align = "end",
-                                            main_align = "center",
-                                        ) if enabledMetrics["cloudCoverage"] == "true" else None,
-                                        render.Row(
-                                            children = [
-                                                pressure_text,
-                                                render.Box(width = 1, height = 1),
-                                                pressure_unit_text,
-                                            ],
-                                            cross_align = "end",
-                                            main_align = "center",
-                                        ) if enabledMetrics["pressure"] == "true" else None,
-                                        render.Row(
-                                            children = [
-                                                aqi_label_text,
-                                                render.Box(width = 1, height = 1),
-                                                aqi_text,
-                                            ],
-                                            cross_align = "end",
-                                            main_align = "center",
-                                        ) if enabledMetrics["aqi"] == "true" else None,
-                                    ],
+                                render.Padding(
+                                    pad = (0, 2, 0, 0),
+                                    child = render.Animation(
+                                        children = [
+                                            render.Row(
+                                                children = [
+                                                    wind_speed_text,
+                                                    render.Box(width = 1, height = 1),
+                                                    wind_mph_text,
+                                                    # render.Box(width = 2, height = 1),
+                                                    arrow_image,
+                                                ],
+                                                cross_align = "end",
+                                                main_align = "center",
+                                            ) if enabledMetrics["windSpeed"] == "true" else None,
+                                            render.Row(
+                                                children = [
+                                                    humidity_text,
+                                                    render.Box(width = 1, height = 1),
+                                                    humidity_unit_text,
+                                                    render.Box(width = 2, height = 1),
+                                                    humidity_image,
+                                                ],
+                                                cross_align = "end",
+                                                main_align = "center",
+                                            ) if enabledMetrics["humidity"] == "true" else None,
+                                            render.Row(
+                                                children = [
+                                                    render.Padding(
+                                                        pad = (0, 1, 0, 0),
+                                                        child = dew_point_text,
+                                                    ),
+                                                    render.Padding(
+                                                        pad = (0, 1, 0, 0),
+                                                        child = dew_point_unit_text,
+                                                    ),
+                                                    render.Box(width = 2, height = 1),
+                                                    dew_image,
+                                                ],
+                                                cross_align = "center",
+                                                main_align = "center",
+                                            ) if enabledMetrics["dewPoint"] == "true" else None,
+                                            render.Row(
+                                                children = [
+                                                    uv_index_text,
+                                                    render.Box(width = 3, height = 1),
+                                                    uv_index_label_text,
+                                                ],
+                                                cross_align = "center",
+                                                main_align = "center",
+                                            ) if enabledMetrics["uvIndex"] == "true" else None,
+                                            render.Row(
+                                                children = [
+                                                    visibility_text,
+                                                    render.Box(width = 1, height = 1),
+                                                    visibility_unit_text,
+                                                    render.Box(width = 2, height = 1),
+                                                    eye_image,
+                                                ],
+                                                cross_align = "end",
+                                                main_align = "center",
+                                            ) if enabledMetrics["visibility"] == "true" else None,
+                                            render.Row(
+                                                children = [
+                                                    cloud_coverage_text,
+                                                    render.Box(width = 1, height = 1),
+                                                    cloud_coverage_unit_text,
+                                                    render.Box(width = 2, height = 1),
+                                                    cloud_image,
+                                                ],
+                                                cross_align = "end",
+                                                main_align = "center",
+                                            ) if enabledMetrics["cloudCoverage"] == "true" else None,
+                                            render.Row(
+                                                children = [
+                                                    pressure_text,
+                                                    render.Box(width = 1, height = 1),
+                                                    pressure_unit_text,
+                                                ],
+                                                cross_align = "end",
+                                                main_align = "center",
+                                            ) if enabledMetrics["pressure"] == "true" else None,
+                                            render.Row(
+                                                children = [
+                                                    aqi_prefix_text,
+                                                    render.Box(width = 1, height = 1),
+                                                    aqi_text,
+                                                ],
+                                                cross_align = "end",
+                                                main_align = "center",
+                                            ) if enabledMetrics["aqi"] == "true" else None,
+                                        ],
+                                    ),
                                 ),
                             ],
                             expanded = True,
+                            main_align = "center",
                             cross_align = "center",
                         ),
                     ],
+                    expanded = True,
+                    main_align = "space_around",
+                    cross_align = "center",
                 ),
                 render.Row(
                     children = [render.Text("SAMPLE" if display_sample else "", font = "6x13", color = "#FF0000", height = 22)],
@@ -1614,7 +1734,13 @@ def more_toggles(weatherApiService):
         ),
     }
 
-    if weatherApiService == "OpenWeather":
+    if weatherApiService == "National Weather Service (NWS)":
+        return [
+            additional_toggles["wind_speed"],
+            additional_toggles["humidity"],
+            additional_toggles["dew_point"],
+        ]
+    elif weatherApiService == "OpenWeather":
         return [
             additional_toggles["wind_speed"],
             additional_toggles["humidity"],
@@ -1654,6 +1780,17 @@ def more_toggles(weatherApiService):
             additional_toggles["cloud_coverage"],
             additional_toggles["pressure"],
         ]
+    elif weatherApiService == "Weatherbit":
+        return [
+            additional_toggles["wind_speed"],
+            additional_toggles["humidity"],
+            additional_toggles["dew_point"],
+            additional_toggles["uv_index"],
+            additional_toggles["visibility"],
+            additional_toggles["cloud_coverage"],
+            additional_toggles["pressure"],
+            additional_toggles["aqi"],
+        ]
     else:
         return []
 
@@ -1669,6 +1806,10 @@ def get_schema():
                 default = "OpenWeather",
                 options = [
                     schema.Option(
+                        display = "National Weather Service (NWS)",
+                        value = "National Weather Service (NWS)",
+                    ),
+                    schema.Option(
                         display = "OpenWeather",
                         value = "OpenWeather",
                     ),
@@ -1683,6 +1824,10 @@ def get_schema():
                     schema.Option(
                         display = "Open-Meteo",
                         value = "Open-Meteo",
+                    ),
+                    schema.Option(
+                        display = "Weatherbit",
+                        value = "Weatherbit",
                     ),
                 ],
             ),
@@ -1713,6 +1858,23 @@ def get_schema():
                     schema.Option(
                         display = "Metric",
                         value = "Metric",
+                    ),
+                ],
+            ),
+            schema.Dropdown(
+                id = "timeFormat",
+                name = "Time Format",
+                desc = "The format used for the time",
+                icon = "clock",
+                default = "12 hour",
+                options = [
+                    schema.Option(
+                        display = "12 hour",
+                        value = "12 hour",
+                    ),
+                    schema.Option(
+                        display = "24 hour",
+                        value = "24 hour",
                     ),
                 ],
             ),
