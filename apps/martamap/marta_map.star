@@ -313,7 +313,8 @@ def render_arrivals(config):
     rendered_arrivals = []
     user_station_arrivals = []
 
-    all_arrivals = get_chachable_json("https://api.marta.io/trains", 10)
+    # all_arrivals = get_chachable_json("https://api.marta.io/trains", 10)
+    all_arrivals = get_chachable_json("https://developer.itsmarta.com/RealtimeTrain/RestServiceNextTrain/GetRealtimeArrivals", 10)
 
     user_station = STATIONS_MAP[config.get("station") or DEFAULT_STATION]
     direction_filter = DIRECTION_MAP[config.get("direction") or DEAFULT_DIRECTION]
