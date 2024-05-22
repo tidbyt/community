@@ -22,6 +22,7 @@ def main(config):
     base_url = config.get("base_url", None)
     username = config.get("username", None)
     password = config.get("password", None)
+    torrent_count = config.get("torrent_count", 1)
 
     if not base_url or not username or not password:
         return render_header(servername, [render.WrappedText(content = "Enter server details")])
@@ -35,7 +36,7 @@ def main(config):
         else:
             speeds = get_transfer_speeds(base_url, sid)
             active_counts = get_active_torrents(base_url, sid)
-            torrents = get_latest_torrents(base_url, sid)
+            torrents = get_latest_torrents(base_url, sid, torrent_count)
 
             if not speeds or not active_counts or not torrents:
                 return render_header(servername, [render.WrappedText(content = "Failed to get data")])
@@ -104,8 +105,8 @@ def get_active_torrents(base_url, sid):
             "active_uploads": active_uploads,
         }
 
-def get_latest_torrents(base_url, sid):
-    url = "{}/api/v2/torrents/info?limit=3&sort=added_on&reverse=true&SID={}".format(base_url, sid)  # Get the 3 most recent torrents
+def get_latest_torrents(base_url, sid, torrent_count):
+    url = "{}/api/v2/torrents/info?limit={}&sort=added_on&reverse=true&SID={}".format(base_url, torrent_count, sid)  # Get the latest torrents
     headers = {"Cookie": "SID={}".format(sid)}
     response = http.get(url, headers = headers, ttl_seconds = 60)
 
@@ -300,6 +301,21 @@ def render_header(servername, frames):
     )
 
 def get_schema():
+    options = [
+        schema.Option(
+            display = "1",
+            value = "1",
+        ),
+        schema.Option(
+            display = "2",
+            value = "2",
+        ),
+        schema.Option(
+            display = "3",
+            value = "3",
+        ),
+    ]
+
     return schema.Schema(
         version = "1",
         fields = [
@@ -326,6 +342,14 @@ def get_schema():
                 name = "password",
                 desc = "Enter your password",
                 icon = "lock",
+            ),
+            schema.Dropdown(
+                id = "torrent_count",
+                name = "torrent_count",
+                desc = "Number of latest torrents",
+                icon = "listOl",
+                default = options[0].value,
+                options = options,
             ),
         ],
     )
