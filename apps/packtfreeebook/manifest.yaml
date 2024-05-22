@@ -1,0 +1,8 @@
+---
+id: packt-free-ebook
+name: Packt Free Ebook
+summary: Packt's daily free eBook
+desc: View Packt's daily free developer eBook.
+author: Daniel Sitnik
+fileName: packt_free_ebook.star
+packageName: packtfreeebook
