@@ -113,8 +113,9 @@ def get_my_shots(auth_token):
     Returns:
         list of shots for the authenticated user.
     """
+    url = "https://visualizer.coffee/api/shots/"
     resp = http.get(
-        "https://visualizer.coffee/api/shots/",
+        url,
         headers = {
             "Authorization": "Bearer " + auth_token,
         },
@@ -122,10 +123,10 @@ def get_my_shots(auth_token):
     )
     if resp.status_code != 200:
         if DEBUG:
-            print("DEBUG: %s failed to get shots token." % resp.status_code)
+            print("request to %s failed with status code: %d - %s" % (url, resp.status_code, resp.body()))
         return None
 
-    return json.decode(resp.data)
+    return json.decode(resp.body())
 
 def get_latest_shot(my_shots):
     """ Returns the latest shot by time.
@@ -176,8 +177,9 @@ def oauth_handler(params):
     params = json.decode(params)
     params["client_secret"] = VISUALZER_CLIENT_SECRET
 
+    url = "https://visualizer.coffee/oauth/access_token"
     auth_resp = http.post(
-        url = "https://visualizer.coffee/oauth/token",
+        url = url,
         params = params,
         headers = {
             "Accept": "application/json",
@@ -185,9 +187,7 @@ def oauth_handler(params):
     )
 
     if auth_resp.status_code != 200:
-        if DEBUG:
-            print("DEBUG: %s failed to get auth token." % auth_resp.status_code)
-        return None
+        fail("request to %s failed with status code: %d - %s" % (url, auth_resp.status_code, auth_resp.body()))
     else:
         access_token = auth_resp.json()["access_token"]
 
@@ -225,65 +225,11 @@ def main(config):
       a rendered root object
     """
     auth_token = config.get("auth", None)
-    if auth_token == None and not DEBUG:
+    if auth_token == None:
         return render_problem("auth malfunction")  # display if auth is missing
 
-    if DEBUG:
-        my_shots = json.decode(MY_SHOTS_EXAMPLE_DATA)
-    else:
-        my_shots = get_my_shots(auth_token)
-        if my_shots == None and not DEBUG:
-            return render_problem("could not get shots from vizulizer...")
+    my_shots = get_my_shots(auth_token)
+    if my_shots == None:
+        return render_problem("could not get shots from vizulizer...")
 
     return render_root(get_todays_shots(my_shots), get_latest_shot(my_shots))
-
-MY_SHOTS_EXAMPLE_DATA = """{
-  "data": [
-    {
-      "clock": 1707601287,
-      "id": "904eee96-bbef-43cf-8bcc-e3a721dd555e"
-    },
-    {
-      "clock": 1707601287,
-      "id": "8357da14-6459-467f-adf3-6faa059b156f"
-    },
-    {
-      "clock": 1636023818,
-      "id": "b079731e-5de6-4aed-a5fe-4d41b9e40463"
-    },
-    {
-      "clock": 1636011257,
-      "id": "7ecd9c2e-7725-495d-a97f-a8d70d59f9b3"
-    },
-    {
-      "clock": 1636010515,
-      "id": "11b77777-48d4-421a-9405-818ea78547fb"
-    },
-    {
-      "clock": 1635944542,
-      "id": "afbefcfb-e694-4697-9fdc-1c6c16979c28"
-    },
-    {
-      "clock": 1635923878,
-      "id": "e1585fc3-0ddb-43aa-84e0-5a2768690472"
-    },
-    {
-      "clock": 1635922810,
-      "id": "68f38711-f26e-4073-9807-e20cf601d01e"
-    },
-    {
-      "clock": 1635844997,
-      "id": "39df6e88-6b01-434b-891b-4a4d8f574e43"
-    },
-    {
-      "clock": 1635781298,
-      "id": "e0296025-6639-4b60-b938-003d1b15e6e6"
-    }
-  ],
-  "paging": {
-    "count": 74,
-    "page": 1,
-    "items": 10,
-    "pages": 8
-  }
-}"""
