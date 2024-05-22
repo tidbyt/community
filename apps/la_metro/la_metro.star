@@ -41,11 +41,12 @@ def main(config):
     lon = location["lng"]
     api_key = config.get("api_key", "")
     include_busses = config.get("include_bus")
+    show_stops = config.get("show_stops")
 
     agency_key = "lametro-rail"
     NextSchedCacheData = None
     if api_key:
-        api_url = "{}/{}/predictions-near-location?lat={}&lon={}".format(BASE_API, agency_key, lat, lon)
+        api_url = "{}/{}/predictions-near-location?lat={}&lon={}&meters=800".format(BASE_API, agency_key, lat, lon)
         NextSchedCacheData = get_cachable_data(api_url, api_key, CACHE_TTL_SECS)
 
     # Display error, suggest requesting a new key
@@ -58,8 +59,8 @@ def main(config):
     NextSchedCacheData = NextSchedCacheData.body()
     predictions = json.decode(NextSchedCacheData)
     StationData = predictions["data"]["predictionsData"]
-    if include_busses:
-        api_url = "{}/{}/predictions-near-location?lat={}&lon={}&meters=800".format(BASE_API, "lametro", lat, lon)
+    if include_busses == "true":
+        api_url = "{}/{}/predictions-near-location?lat={}&lon={}&meters=400".format(BASE_API, "lametro", lat, lon)
         bus_data = get_cachable_data(api_url, api_key, CACHE_TTL_SECS)
         if bus_data.status_code != 200:
             print("Error! Your API key didn't have permission to read busses. Request access to agencykey 'lametro")
@@ -69,10 +70,10 @@ def main(config):
 
     children = []
     for line in StationData:
-        children.append(get_line_child(line))
+        children.append(get_line_child(line, show_stops))
     return render.Root(render.Sequence(children = children), show_full_animation = True)
 
-def get_line_child(line_data):
+def get_line_child(line_data, show_stops):
     DestinationCount = len(line_data["destinations"])
     SelectedLine = line_data["routeName"].replace("Metro ", "").replace(" Line", "")
     ColorMapping = json.decode(LINE_COLORS)
@@ -84,7 +85,10 @@ def get_line_child(line_data):
     LineColor = "#000"
 
     for i in range(0, DestinationCount, 1):
-        HEADSIGN_LIST.append(line_data["destinations"][i]["headsign"])
+        headsign = line_data["destinations"][i]["headsign"]
+        if show_stops == "true":
+            headsign = headsign + " (" + line_data["stopName"] + ")"
+        HEADSIGN_LIST.append(headsign)
 
     # if we have trains going both directions
     if DestinationCount == 2:
@@ -199,6 +203,13 @@ def get_schema():
                 name = "Include busses",
                 desc = "Check to include bus arrivals. If unset, will only show nearby rail arrivals",
                 icon = "bus",
+                default = False,
+            ),
+            schema.Toggle(
+                id = "show_stops",
+                name = "Show Stops",
+                desc = "Check to show stop names in addition to arrivals",
+                icon = "bug",
                 default = False,
             ),
         ],
