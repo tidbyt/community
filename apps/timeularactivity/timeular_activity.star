@@ -109,11 +109,26 @@ def render_text_no_activity(config):
     else:
         return render.Root(
             child = render.Box(
-                render.Row(
-                    cross_align = "center",
+                child = render.Column(
                     main_align = "center",
-                    children = [render.Marquee(width = 64, child = render.Text("Not tracking activity"))],
-                    expanded = True,
+                    cross_align = "center",
+                    children = [
+                        render.Padding(
+                            pad = (0, 0, 0, 3),
+                            child = render.Image(
+                                src = base64.decode(TIMEULAR_LOGO),
+                                width = 45,
+                            ),
+                        ) if config.bool("display_logo", False) else None,
+                        render.Padding(
+                            pad = (0, 0, 0, 6) if config.bool("display_logo", True) else 0,
+                            child = render.Marquee(
+                                width = 64,
+                                align = "center",
+                                child = render.Text("Not tracking activity"),
+                            ),
+                        ),
+                    ],
                 ),
             ),
         )
