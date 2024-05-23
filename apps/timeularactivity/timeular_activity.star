@@ -126,7 +126,7 @@ def build_timeular_current_activity(timeular_activities_json, timeular_activitie
     """
     if (timeular_activities_json["currentTracking"] == None):
         return False, "No activity"
-    activity_id = ["currentTracking"]["activityId"]
+    activity_id = timeular_activities_json["currentTracking"]["activityId"]
     activity_name = [item for item in timeular_activities_list_json["activities"] if item["id"] == activity_id][0]["name"]
     if activity_name == None:
         return False, "Error getting activity name"
