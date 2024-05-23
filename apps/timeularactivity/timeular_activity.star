@@ -10,9 +10,9 @@ load("render.star", "render")
 load("schema.star", "schema")
 load("time.star", "time")
 
-timeular_login_url = "https://api.timeular.com/api/v3/developer/sign-in"
-timeular_activities_url = "https://api.timeular.com/api/v3/tracking"
-timeular_list_all_activities_url = "https://api.timeular.com/api/v3/activities"
+TIMEULAR_LOGIN_URL = "https://api.timeular.com/api/v3/developer/sign-in"
+TIMEULAR_ACTIVITIES_URL = "https://api.timeular.com/api/v3/tracking"
+TIMEULAR_LIST_ALL_ACTIVITIES_URL = "https://api.timeular.com/api/v3/activities"
 
 def print_error(error):
     """
@@ -47,7 +47,7 @@ def authorize_timeular(timeular_api_key, timeular_api_secret):
         bool: True if authorized, False if not
         str: Error message if not authorized
     """
-    timeular_auth = http.post(timeular_login_url, json_body = {"apiKey": timeular_api_key, "apiSecret": timeular_api_secret}, headers = {"Content-Type": "application/json"})
+    timeular_auth = http.post(TIMEULAR_LOGIN_URL, json_body = {"apiKey": timeular_api_key, "apiSecret": timeular_api_secret}, headers = {"Content-Type": "application/json"})
     if not timeular_auth.status_code == 200:
         return False, timeular_auth.json()["message"]
     else:
@@ -67,7 +67,7 @@ def get_timeular_activities(timeular_token):
         str: Error message if not successful
         dict: Timeular activities if successful
     """
-    timeular_activities = http.get(timeular_activities_url, headers = {"Authorization": "Bearer " + timeular_token}, ttl_seconds = 60)
+    timeular_activities = http.get(TIMEULAR_ACTIVITIES_URL, headers = {"Authorization": "Bearer " + timeular_token}, ttl_seconds = 60)
     if not timeular_activities.status_code == 200:
         return False, timeular_activities.json()["message"]
     else:
@@ -86,7 +86,7 @@ def get_timeular_activities_list(timeular_token):
         str: Error message if not successful
         dict: Timeular activities if successful
     """
-    timeular_activities_list = http.get(timeular_list_all_activities_url, headers = {"Authorization": "Bearer " + timeular_token})
+    timeular_activities_list = http.get(TIMEULAR_LIST_ALL_ACTIVITIES_URL, headers = {"Authorization": "Bearer " + timeular_token})
     if not timeular_activities_list.status_code == 200:
         return False, timeular_activities_list.json()["message"]
     else:
@@ -264,7 +264,7 @@ def get_schema():
                 id = "timeular_api_key",
                 name = "Timeular API Key",
                 desc = "Your Timeular API Key",
-                icon = "lock",
+                icon = "key",
             ),
             schema.Text(
                 id = "timeular_api_secret",
