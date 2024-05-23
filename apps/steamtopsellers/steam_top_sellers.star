@@ -79,15 +79,14 @@ def build_frames(top_sellers):
 def pad_string(input, total_length):
     if len(input) >= total_length:
         return input
-    
+
     # Pad the string for more consistent displays in the marquee
     truncated_string = input[:total_length]
     total_padding = total_length - len(truncated_string)
     left_padding = total_padding // 2
     right_padding = total_padding - left_padding
-    padded_string = ' ' * left_padding + truncated_string + ' ' * right_padding
+    padded_string = " " * left_padding + truncated_string + " " * right_padding
     return padded_string
-
 
 def get_details_widget(name, final_price_formatted, discount_percent):
     return render.Stack(
