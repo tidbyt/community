@@ -5,11 +5,15 @@ Description: Tracks the ammount of time spent on the current Timeular activity.
 Author: tommylin1212
 """
 
+load("encoding/base64.star", "base64")
 load("http.star", "http")
 load("render.star", "render")
 load("schema.star", "schema")
 load("time.star", "time")
 
+TIMEULAR_LOGO = """
+PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxNzAuMyA0MCI+PHBhdGggZmlsbD0iIzg1ZiIgZD0iTTAgMTkuMkMwIDEyLjUgMCA5LjEgMS4zIDYuNmMxLjItMi4zIDMtNC4xIDUuMi01LjJDOS4xLjEgMTIuNC4xIDE5LjEuMWgxLjZjNi43IDAgMTAuMSAwIDEyLjYgMS4zIDIuMyAxLjIgNC4xIDMgNS4yIDUuMiAxLjMgMi42IDEuMyA1LjkgMS4zIDEyLjZ2MS42YzAgNi43IDAgMTAuMS0xLjMgMTIuNi0xLjIgMi4zLTMgNC4xLTUuMiA1LjItMi42IDEuMy01LjkgMS4zLTEyLjYgMS4zaC0xLjZjLTYuNyAwLTEwLjEgMC0xMi42LTEuMy0yLjMtMS4yLTQuMS0zLTUuMi01LjJDMCAzMC44IDAgMjcuNSAwIDIwLjh2LTEuNloiLz48cGF0aCBmaWxsPSIjZmZmIiBkPSJNMTMuNCAzMi41Yy0uMiAwLS40IDAtLjYtLjItLjQtLjItLjYtLjYtLjYtMVY4LjZjMC0uNC4yLS44LjYtMSAuNC0uMi44LS4yIDEuMiAwTDMzLjkgMTljLjQuMi42LjYuNiAxcy0uMi44LS42IDFMMTQgMzIuNGMtLjIuMS0uNC4yLS42LjJabS40LTIzLjF2MjEuMkwzMi40IDIwIDEzLjggOS40WiIvPjxwYXRoIGZpbGw9IiNmZmYiIGQ9Ik0yNS42IDMzLjNIMTQuNGMtMS4zIDAtMi41LS43LTMuMi0xLjhsLTUuNi05LjZjLS43LTEuMS0uNy0yLjYgMC0zLjdzNS42LTkuNiA1LjYtOS42Yy43LTEuMSAxLjktMS44IDMuMi0xLjhoMTEuMmMxLjMgMCAyLjUuNyAzLjIgMS44bDUuNiA5LjZjLjcgMS4xLjcgMi42IDAgMy43bC01LjYgOS42Yy0uNyAxLjEtMS45IDEuOC0zLjIgMS44Wk03LjggMTkuNGMtLjIuMy0uMi44IDAgMS4xbDUuNiA5LjZjLjIuMy42LjUuOS41aDExLjJjLjQgMCAuOC0uMiAxLS41bDUuNi05LjZjLjItLjMuMi0uOCAwLTEuMWwtNS42LTkuNmMtLjItLjMtLjYtLjUtMS0uNUgxNC4zYy0uNCAwLS44LjItLjkuNWwtNS42IDkuNloiLz48cGF0aCBmaWxsPSIjZmZmIiBkPSJNMTQuNCAzMi4zYy0uNSAwLS45LS4xLTEuNC0uNC0uOC0uNS0xLjMtMS40LTEuMy0yLjNWMTAuNGMwLTEgLjUtMS44IDEuMy0yLjMuOC0uNSAxLjktLjUgMi43IDBsMTYuOCA5LjZjLjkuNSAxLjQgMS40IDEuNCAyLjNzLS41IDEuOS0xLjQgMi4zbC0xNi44IDkuNmMtLjQuMi0uOS40LTEuMy40Wm0wLTIydjE5LjNoLjFMMzEuMyAyMGwtMTYuOC05LjdaIi8+PHBhdGggZmlsbD0iIzg1ZiIgZD0iTTU2IDI5LjNjLS43IDAtMS4zLS42LTEuMy0xLjNWMTMuM0g1MGMtLjcgMC0xLjMtLjYtMS4zLTEuM3MuNi0xLjMgMS4zLTEuM2gxMmMuNyAwIDEuMy42IDEuMyAxLjNzLS42IDEuMy0xLjMgMS4zaC00LjdWMjhjMCAuNy0uNiAxLjMtMS4zIDEuM1ptMTEgMGMtLjcgMC0xLjMtLjYtMS4zLTEuM1YxMmMwLS43LjYtMS4zIDEuMy0xLjNzMS4zLjYgMS4zIDEuM3YxNmMwIC43LS42IDEuMy0xLjMgMS4zWm0yMSAwYy0uNyAwLTEuMy0uNi0xLjMtMS4zVjE3LjVsLTQuNSA5Yy0uMS4zLS4zLjUtLjYuNy0uMiAwLS40LjEtLjYuMS0uMiAwLS40IDAtLjYtLjEtLjMtLjItLjUtLjQtLjYtLjdsLTQuNS05VjI4YzAgLjctLjYgMS4zLTEuMyAxLjNzLTEuMy0uNi0xLjMtMS4zVjEyYzAtLjYuNC0xLjEgMS0xLjMuNi0uMSAxLjIuMSAxLjUuN0w4MSAyMy4xbDUuOC0xMS43Yy4yLS41LjctLjcgMS4yLS43LjcgMCAxLjIuNiAxLjIgMS4zdjE2YzAgLjctLjYgMS4zLTEuMyAxLjNabTE2LS4ySDkzYy0uNyAwLTEuMy0uNi0xLjMtMS4zcy42LTEuMyAxLjMtMS4zaDExYy43IDAgMS4zLjYgMS4zIDEuM3MtLjYgMS4zLTEuMyAxLjNabS0yLTcuOGgtOWMtLjcgMC0xLjMtLjYtMS4zLTEuM3MuNi0xLjMgMS4zLTEuM2g5Yy43IDAgMS4zLjYgMS4zIDEuM3MtLjYgMS4zLTEuMyAxLjNabTItNy44SDkzYy0uNyAwLTEuMy0uNi0xLjMtMS4zcy42LTEuMyAxLjMtMS4zaDExYy43IDAgMS4zLjYgMS4zIDEuM3MtLjYgMS4zLTEuMyAxLjNabTExIDE2LjhjLTQgMC03LjMtMy4zLTcuMy03LjNWMTJjMC0uNy42LTEuMyAxLjMtMS4zczEuMy42IDEuMyAxLjN2MTFjMCAyLjYgMi4xIDQuNyA0LjcgNC43czQuNy0yLjEgNC43LTQuN1YxMmMwLS43LjYtMS4zIDEuMy0xLjNzMS4zLjYgMS4zIDEuM3YxMWMwIDQtMy4zIDcuMy03LjMgNy4zWm0yMC0xaC04Yy0uNyAwLTEuMy0uNi0xLjMtMS4zVjEyYzAtLjcuNi0xLjMgMS4zLTEuM3MxLjMuNiAxLjMgMS4zdjE0LjdoNi43Yy43IDAgMS4zLjYgMS4zIDEuM3MtLjYgMS4zLTEuMyAxLjNabTE4IDBjLS41IDAtMS0uMy0xLjItLjhMMTQ2IDE1LjJsLTUuOCAxMy4zYy0uMy43LTEuMSAxLTEuNy43LS43LS4zLTEtMS4xLS43LTEuN2w2LjktMTUuOWMuMS0uMy40LS42LjctLjguMiAwIC40IDAgLjUtLjEuMiAwIC40IDAgLjUuMS40LjIuNi40LjcuOGw2LjkgMTUuOWMuMy43IDAgMS40LS43IDEuNy0uMiAwLS4zLjEtLjUuMVptMTYgMGMtLjUgMC0xLjEtLjMtMS4yLS45bC0xLjctNWMtLjEtLjQtLjQtLjktLjctMS4yLS42LS42LTEuMy0uOS0yLjItLjloLTQuOVYyOGMwIC43LS42IDEuMy0xLjMgMS4zcy0xLjMtLjYtMS4zLTEuM1YxMmMwLS43LjYtMS4zIDEuMy0xLjNoOGMyLjkgMCA1LjMgMi40IDUuMyA1LjNzLTEuMSAzLjgtMi44IDQuN2MuNS42LjggMS4yIDEuMSAxLjlsMS43IDVjLjIuNy0uMSAxLjQtLjggMS42aC0uNFptLTUuOC0xMC42aDEuOGMxLjUgMCAyLjctMS4yIDIuNy0yLjdzLTEuMi0yLjctMi43LTIuN2gtNi43djUuNGg0LjlaIi8+PC9zdmc+
+"""
 TIMEULAR_LOGIN_URL = "https://api.timeular.com/api/v3/developer/sign-in"
 TIMEULAR_ACTIVITIES_URL = "https://api.timeular.com/api/v3/tracking"
 TIMEULAR_LIST_ALL_ACTIVITIES_URL = "https://api.timeular.com/api/v3/activities"
@@ -165,6 +169,13 @@ def render_text_activity(config, activity_name, activity_color, parsed_time):
                 main_align = "center",
                 cross_align = "center",
                 children = [
+                    render.Padding(
+                        pad = (0, 0, 0, 2),
+                        child = render.Image(
+                            src = base64.decode(TIMEULAR_LOGO),
+                            width = 41,
+                        ),
+                    ) if config.bool("display_logo", False) else None,
                     render.Marquee(
                         width = 64,
                         align = "center",
@@ -280,6 +291,13 @@ def get_schema():
                 name = "Hide when not tracking activity",
                 desc = "Enable to only show app when an activity is being tracked.",
                 icon = "eyeSlash",
+                default = False,
+            ),
+            schema.Toggle(
+                id = "display_logo",
+                name = "Display Timeular logo",
+                desc = "Enable to display Timeular logo at top of app.",
+                icon = "image",
                 default = False,
             ),
         ],
