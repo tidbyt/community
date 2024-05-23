@@ -631,10 +631,7 @@ def main(config):
             pad = (0, 1, 0, 0),
         )
         visibility_unit_text = render.Text(content = "km" if display_metric else "mi", font = "tom-thumb", color = "#FFF")
-        eye_image = render.Padding(
-            child = render.Image(src = base64.decode(EYEGLASSES_ICON), width = 7, height = 5),
-            pad = (0, 0, 0, 1),
-        )
+        eye_image = render.Image(src = base64.decode(EYEGLASSES_ICON), width = 7, height = 6)
 
     if enabledMetrics["cloudCoverage"]:
         cloud_coverage_text = render.Padding(
