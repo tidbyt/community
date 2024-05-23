@@ -1057,7 +1057,7 @@ def main(config):
     minutes = now.minute
 
     # Initialize additional various variables
-    wind_dir, wind_speed_text, wind_mph_text, arrow_image, humidity_text, humidity_unit_text, humidity_image, dew_point_text, dew_point_unit_text, dew_image, uv_index_text, uv_index_label_text, visibility_text, visibility_unit_text, eye_image, cloud_coverage_text, cloud_coverage_unit_text, cloud_image, pressure_text, pressure_unit_text, aqi_prefix_text, aqi_text = "N", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", ""
+    wind_dir, hours_str, wind_speed_text, wind_mph_text, arrow_image, humidity_text, humidity_unit_text, humidity_image, dew_point_text, dew_point_unit_text, dew_image, uv_index_text, uv_index_label_text, visibility_text, visibility_unit_text, eye_image, cloud_coverage_text, cloud_coverage_unit_text, cloud_image, pressure_text, pressure_unit_text, aqi_prefix_text, aqi_text = "N", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", ""
     result_current_conditions = {}
     icon_ref = 0
 
@@ -1425,8 +1425,15 @@ def main(config):
         elif (type(wind_dir) == "int" and wind_dir >= 315 and wind_dir < 360) or wind_dir == "WNW" or wind_dir == "NNW":
             wind_dir = "NW"
 
+    if hours == 0:
+        hours_str = ("12" if time_format == "12 hour" else "00")
+    elif hours > 12 and time_format == "12 hour":
+        hours_str = str(hours - 12)
+    else:
+        hours_str = ("0" if hours < 10 and time_format != "12 hour" else "") + str(hours)
+
     time_hh_text = render.Text(
-        content = str(hours) if hours <= 12 else str(hours - 12) if time_format == "12 hour" else str(hours),
+        content = hours_str,
         font = "tom-thumb",
     )
     time_mm_text = render.Text(content = ("0000" + str(minutes))[-2:], font = "tom-thumb")
